@@ -1,0 +1,1210 @@
+
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      MODULE DEPV_DEFN
+
+C-----------------------------------------------------------------------
+C Function: deposition velocity interface to the chemistry-transport model
+
+C Revision History:
+C   24 Nov 2006 J.Young: initial implementation using Bill Hutzell's and
+C                        Tanya Otte's work
+C   29 Jan 2010 D. Wong: Eliminate potential race condition at the MYPE = 0
+C                        to open the diagnostic file. Eliminate the BARRIER
+C                        and the CLOSE3 and OPEN3.
+C   21 Jun 2010 J.Young: convert for Namelist redesign
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+C model depositon velocites array
+      REAL,    ALLOCATABLE, SAVE :: DEPV( :,:,: )
+
+C no. of deposition velocity model species
+      INTEGER, SAVE :: N_SPC_DEPV
+
+C ddep spc conversion factors
+      REAL,    ALLOCATABLE, SAVE :: DD_CONV( : )
+
+C model-oriented bi-directional production [ppm-m/s]
+      REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
+
+C gas species (gas-phase and gas non-reactive) deposition velocities
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DEPVEL_GAS( :,:,: )
+
+C m3dry-oriented bi-directional production [ppm-m/s]
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: PVD( :,:,: )
+
+C CGRID for m3dry bi-directional flux calculation
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: CGRIDL1( :,:,: )
+
+C flag in-lining depv
+!     LOGICAL, PRIVATE, SAVE :: ILDEPV
+      LOGICAL,          SAVE :: ILDEPV
+
+C flag for ammonia bi-directional flux with in-lining depv
+!     LOGICAL, PRIVATE, SAVE :: ABFLUX
+      LOGICAL,          SAVE :: ABFLUX
+
+C flag for HONO interaction with surfaces within in-lining depv
+!     LOGICAL, PRIVATE, SAVE :: SFC_HONO
+      LOGICAL,          SAVE :: SFC_HONO = .FALSE.
+
+C flag for diagnostic DEPV file
+      LOGICAL, PRIVATE, SAVE :: DEPV_DIAG
+
+C Index of SGTOT spc in DV surr list
+      INTEGER, PRIVATE,         ALLOCATABLE, SAVE :: DEPV_SUR_SG( : )
+
+      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_GDEPV   ! gas depv
+      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_GDEPV( : )
+      INTEGER, PRIVATE,         ALLOCATABLE, SAVE :: GAS_DEPV_SUR( : )
+      LOGICAL, PRIVATE,         ALLOCATABLE, SAVE :: GAS_DEPV_FOUND( : )
+
+      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_ADEPV   ! aero depv
+      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_ADEPV( : )
+      INTEGER, PRIVATE,         ALLOCATABLE, SAVE :: AER_DEPV_SUR( : )
+
+      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_SDEPV   ! SOA depv
+      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_SDEPV( : )
+
+!     REAL, PRIVATE, PARAMETER :: RGAS1 = 1.0 / 8.314510 ! univ. gas constant reciprocal
+
+      LOGICAL, PRIVATE, SAVE :: LAERO3_4 = .FALSE.   ! Flag for aero3 or aero4
+      INTEGER, PRIVATE, SAVE :: PRJ, PRI             ! Primary organic AE indices
+      INTEGER, PRIVATE, SAVE :: ASJ, ASI             ! Anthropogenic SOA indices
+      INTEGER, PRIVATE, SAVE :: BSJ, BSI             ! Biogenic SOA indices
+
+      INTEGER, PRIVATE, PARAMETER :: N_SGTOT = 10    ! No. of SOA+gas species in aero3_4
+
+      CHARACTER( 16 ), PRIVATE, SAVE :: GASDV4SG( N_SGTOT ) ! list of DV surrogates
+                                                      ! for SGTOT
+
+      INTEGER, PRIVATE, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
+      INTEGER, PRIVATE, SAVE :: N_GAS_DEPV
+
+      INTEGER, PRIVATE, SAVE :: N_GASDV4SG          ! No. of DV surrogates for SGTOT spec
+      INTEGER, PRIVATE, SAVE :: SG2NRSPC( N_SGTOT ) ! Index of SGTOT spec in NR_SPC list
+      INTEGER, PRIVATE, SAVE :: SG2NRDV ( N_SGTOT ) ! Index of SGTOT spec in NR_DEPV list
+      INTEGER, PRIVATE, SAVE :: SG2GASDV( N_SGTOT ) ! Index of SGTOT spec in DV surr list
+
+      REAL,    PRIVATE, SAVE :: PPM2UG  ( N_SGTOT ) ! species ppm to ug/m3 conv facs
+      REAL,    PRIVATE, SAVE :: CSTAR   ( N_SGTOT ) ! species saturation concs at 298K
+
+      LOGICAL, PRIVATE, ALLOCATABLE, SAVE :: SGSPEC( : ) ! Flag for SGTOT spec in NR_DEPV list
+
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: TEMP( :,: )       ! air temp (degK)
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: PRES( :,: )       ! air pressure (Pa)
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
+                                                               ! subroutine AERO_DEPV
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: MBUFF( :,:,: )    ! read buffer
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DBUFF( :,: )      ! diagnostic output buffer
+
+      INTEGER, PRIVATE :: GXOFF, GYOFF              ! global origin offset from file
+C for INTERPX
+      INTEGER, PRIVATE, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
+      INTEGER, PRIVATE, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+
+      CONTAINS
+
+C-----------------------------------------------------------------------
+         FUNCTION DEPV_INIT( JDATE, JTIME, TSTEP, CGRID ) RESULT ( SUCCESS )
+
+         USE HGRD_DEFN
+         USE CGRID_SPCS          ! CGRID mechanism species
+         USE DEPVVARS
+
+         IMPLICIT NONE
+
+C Includes:
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+#include         SUBST_IODECL    # I/O definitions and declarations
+         INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block (for MECHNAME)
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+         INCLUDE SUBST_CONST     ! constants
+
+C Arguments:
+         INTEGER JDATE, JTIME, TSTEP( 2 )
+         REAL, POINTER :: CGRID( :,:,:,: )
+         LOGICAL SUCCESS
+
+C External Functions:
+         INTEGER, EXTERNAL :: INDEX1               ! finds index of a string in a list
+         INTEGER, EXTERNAL :: FINDEX               ! finds index of a number in a list
+
+C Parameters:
+         REAL, PARAMETER :: RGAS1 = 1.0 / RGASUNIV ! univ. gas constant reciprocal
+         REAL, PARAMETER :: M2PHA = 1.0E+04        ! 1 hectare = 1.0e4 m**2
+         REAL, PARAMETER :: CMLMR = 1.0E+06        ! ppmV/Molar Mixing Ratio
+         REAL, PARAMETER :: CNVTD = M2PHA / CMLMR / MWAIR ! combined ddep conv factor
+ 
+C Local variables:
+ 
+C Names of aero3 and aero4 SOA + gas species
+         CHARACTER( 16 ) :: SGNAME( N_SGTOT ) = ( / 'SGTOT_ALK       ',
+     &                                              'SGTOT_OLI_1     ',
+     &                                              'SGTOT_OLI_2     ',
+     &                                              'SGTOT_XYL_1     ',
+     &                                              'SGTOT_XYL_2     ',
+     &                                              'SGTOT_CSL       ',
+     &                                              'SGTOT_TOL_1     ',
+     &                                              'SGTOT_TOL_2     ',
+     &                                              'SGTOT_TRP_1     ',
+     &                                              'SGTOT_TRP_2     '  / )
+
+!        CHARACTER( 16 )   :: ALL_GAS_DEPV( N_GAS_DEPV )
+!        LOGICAL           :: AE_DEPV_FOUND( N_AE_DEPV )
+         CHARACTER( 16 ), ALLOCATABLE   :: ALL_GAS_DEPV( : )
+         LOGICAL, ALLOCATABLE           :: AE_DEPV_FOUND( : )
+
+C environment variable for in-line DEPV
+         CHARACTER( 16 )   :: CTM_ILDEPV = 'CTM_ILDEPV'
+
+C environment variable for ammonia bi-directional flux
+         CHARACTER( 16 )   :: CTM_ABFLUX = 'CTM_ABFLUX'
+
+C environment variable for HONO interaction with surfaces
+         CHARACTER( 16 )   :: CTM_SFC_HONO = 'CTM_SFC_HONO'
+
+C variables for deposition velocities diagnostic file
+         INTEGER           :: STATUS      ! ENV... status
+         CHARACTER( 80 )   :: VARDESC     ! environment variable description
+         LOGICAL, EXTERNAL :: ENVYN       ! get environment variable as boolean
+
+C environment variable for diagnostic DEPV file
+         CHARACTER( 16 )   :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
+         LOGICAL           :: WRITE_TIME               ! write to file flag
+         INTEGER           :: NDATE, NTIME             ! write date and time
+
+         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
+         CHARACTER( 120 ) :: XMSG = ' '
+
+         INTEGER          AE_OFFSET            ! Offset to AE start in CGRID
+         INTEGER          NDX, NDX2, NDX3      ! Temp index
+         INTEGER          LOGDEV, ALLOCSTAT
+         INTEGER          L, N, S, V, STRT
+
+         INTERFACE
+            SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
+     &                               N_GDEPV_NAMES, GDEPV_NAMES,
+     &                               N_ADEPV_NAMES, ADEPV_NAMES,
+     &                               N_SDEPV_NAMES, SDEPV_NAMES )
+               USE HGRD_DEFN
+               USE DEPVVARS
+               IMPLICIT NONE
+               INTEGER,         INTENT( IN ) :: JDATE, JTIME, TSTEP
+               INTEGER,         INTENT( IN ) :: N_GDEPV_NAMES
+               CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
+               INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
+               CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
+               INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
+               CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
+            END SUBROUTINE OPDEPV_DIAG
+            SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
+               USE DEPVVARS
+               IMPLICIT NONE
+               INTEGER,         INTENT( IN )    :: N_DEPV_NAMES
+               CHARACTER( 16 ), INTENT( INOUT ) :: DEPV_NAMES( : )
+               INTEGER,         INTENT( OUT )   :: DEPV_SUR( : )
+            END SUBROUTINE GAS_DEPV_MAP
+         END INTERFACE
+
+C-----------------------------------------------------------------------
+
+         LOGDEV = INIT3()
+
+         SUCCESS = .TRUE.
+
+         N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
+         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
+
+         ALLOCATE ( DEPV( N_SPC_DEPV+1,NCOLS,NROWS ),
+     &              PLDV( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DEPV or PLDV arrays'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
+         ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DEPVEL_GAS array'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+C Initialize deposition velocities for nondeposited species to zero:
+C setting DEPV( N_SPC_DEPV+1,C,R ) = 0.0 accounts for dry dep. species names
+C as a subset of the vert. diffused species list
+         DEPV = 0.0   ! array assignment
+         PLDV = 0.0   ! array assignment
+
+         ALLOCATE ( DD_CONV( N_SPC_DEPV+1 ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DD_CONV'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+C set dry dep conversion factor (done here so that vdiff doesn't need the include files)
+         S = 0
+         DO V = 1, N_GC_DEPV
+            S = S + 1
+            DD_CONV( S ) = CNVTD * GC_MOLWT( GC_DEPV_MAP( V ) )
+         END DO
+
+         DO V = 1, N_AE_DEPV
+            S = S + 1
+            IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'NUM' ) THEN
+               DD_CONV( S ) = CNVTD * AVO * 1.0E+03    ! --> #/Ha
+            ELSE IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'SRF' ) THEN
+               DD_CONV( S ) = M2PHA * 1.0E+03 / MWAIR  ! --> M**2/Ha
+            ELSE
+               DD_CONV( S ) = CNVTD * AE_MOLWT( AE_DEPV_MAP( V ) )
+            END IF
+         END DO
+
+         DO V = 1, N_NR_DEPV
+            S = S + 1
+            DD_CONV( S ) = CNVTD * NR_MOLWT( NR_DEPV_MAP( V ) )
+         END DO
+
+         DO V = 1, N_TR_DEPV
+            S = S + 1
+            DD_CONV( S ) = CNVTD * TR_MOLWT( TR_DEPV_MAP( V ) )
+         END DO
+
+C Initialize
+         IF ( INDEX( MECHNAME, 'AE3' ) .NE. 0 .OR.
+     &        INDEX( MECHNAME, 'AE4' ) .NE. 0 ) LAERO3_4 = .TRUE.
+
+         IF ( N_AE_DEPV .GT. 0 ) THEN
+            ALLOCATE ( ADEPV( N_AE_DEPV,MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating ADEPV'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+         END IF
+
+         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
+     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+         ALLOCATE ( SGSPEC( N_NR_DEPV ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SGSPEC'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+         SGSPEC( : ) = .FALSE.
+
+         IF ( LAERO3_4 ) THEN
+
+            CSTAR = ( / 0.3103, 111.11, 1000.0, 2.165, 64.946,
+     &                  0.2611,  1.716, 47.855, 0.865, 11.804 / )
+
+C Check that all SOA+gas totals are in list of N2AE species and get NR_SPC indices
+            SG2NRSPC( : ) = 0      ! Index of SGTOT species in NR_SPC list
+            DO N = 1, N_SGTOT
+
+               NDX = INDEX1( SGNAME( N ), N_NR_N2AE, NR_N2AE )
+
+               IF ( NDX .NE. 0 ) THEN
+                  SG2NRSPC( N ) = NR_N2AE_MAP( NDX )
+               ELSE
+                  XMSG = 'Could not find ' // SGNAME( N ) //
+     &               'in non-reactives table'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+            END DO
+
+C Map the SGTOT species to the NR_DEPV species & get the list of gas DVs
+C that are used by them
+            N_GASDV4SG    = 0     ! No. of DV surrogates needed for SGTOT spec
+            GASDV4SG( : ) = ' '   ! List of DV surrogates needed for SGTOT spec
+            SG2NRDV ( : ) = 0     ! Index of SGTOT species in NR_DEPV list
+            SG2GASDV( : ) = 0     ! Index of DV surrogate to use for SGTOT spec
+
+            DO N = 1, N_SGTOT
+
+               NDX = FINDEX( SG2NRSPC( N ), N_NR_DEPV, NR_DEPV_MAP )
+
+               IF ( NDX .NE. 0 ) THEN
+
+                  SG2NRDV( N ) = NDX
+                  NDX2 = INDEX1( NR_DEPV( NDX ), N_GASDV4SG, GASDV4SG )
+
+                  IF ( NDX2 .EQ. 0 ) THEN
+                     N_GASDV4SG = N_GASDV4SG + 1
+                     GASDV4SG( N_GASDV4SG ) = NR_DEPV( NDX )
+                     SG2GASDV( N ) = N_GASDV4SG
+                  ELSE
+                     SG2GASDV( N ) = NDX2
+                  END IF
+
+               END IF
+
+            END DO
+
+C Flag NR_DEPV species that are also SGTOT species
+            DO N = 1, N_SGTOT
+               IF ( SG2NRDV( N ) .NE. 0 ) SGSPEC( SG2NRDV( N ) ) = .TRUE.
+            END DO
+
+            DO N = 1, N_SGTOT
+               PPM2UG( N ) = NR_MOLWT( SG2NRSPC( N ) ) * RGAS1
+            END DO
+
+C Allocate array for temp, press, & DV surrogates used for SGTOT species
+            ALLOCATE ( TEMP( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating TEMP'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+
+            ALLOCATE ( PRES( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating TEMP'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+
+         END IF   ! if aero3 or aero4
+
+C Get indices of aero3 AE species in cgrid & set ppm to ug/m3 conversion facs
+         AE_OFFSET = N_GC_SPC + 1            ! Offset to 1st AE spec in cgrid
+         NR_OFFSET = N_GC_SPC + 1 + N_AE_SPC ! Offset to 1st NR spec in cgrid
+         PRJ = AE_OFFSET + INDEX1( 'AORGPAJ', N_AE_SPC, AE_SPC )
+         PRI = AE_OFFSET + INDEX1( 'AORGPAI', N_AE_SPC, AE_SPC )
+         ASJ = AE_OFFSET + INDEX1( 'AORGAJ',  N_AE_SPC, AE_SPC )
+         ASI = AE_OFFSET + INDEX1( 'AORGAI',  N_AE_SPC, AE_SPC )
+         BSJ = AE_OFFSET + INDEX1( 'AORGBJ',  N_AE_SPC, AE_SPC )
+         BSI = AE_OFFSET + INDEX1( 'AORGBI',  N_AE_SPC, AE_SPC )
+
+C In-line deposition velocities calculation?
+         ILDEPV = .TRUE.
+         VARDESC = 'Flag for in-line deposition velocities'
+         ILDEPV = ENVYN( CTM_ILDEPV, VARDESC, ILDEPV, STATUS )
+         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         ELSE IF ( STATUS .EQ. -1 ) THEN
+            XMSG = 'Environment variable set, but empty ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         ELSE IF ( STATUS .EQ. -2 ) THEN
+            XMSG = 'Environment variable not set ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         END IF
+
+         IF ( ILDEPV ) THEN
+
+C Pleim's ammonia bi-directional flux with in-line deposition velocities calculation?
+            ABFLUX = .FALSE.
+            VARDESC = 'Flag for ammonia bi-directional flux calculation'
+            ABFLUX = ENVYN( CTM_ABFLUX, VARDESC, ABFLUX, STATUS )
+            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+            IF ( STATUS .EQ. 1 ) THEN
+               XMSG = 'Environment variable improperly formatted'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            ELSE IF ( STATUS .EQ. -1 ) THEN
+               XMSG = 'Environment variable set, but empty ... Using default:'
+               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            ELSE IF ( STATUS .EQ. -2 ) THEN
+               XMSG = 'Environment variable not set ... Using default:'
+               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            END IF
+
+C Sarwar's HONO interaction with leaf and building surfaces?
+            SFC_HONO = .TRUE.
+            VARDESC = 'Flag for HONO interaction with surfaces'
+            SFC_HONO = ENVYN( CTM_SFC_HONO, VARDESC, SFC_HONO, STATUS )
+            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+            IF ( STATUS .EQ. 1 ) THEN
+               XMSG = 'Environment variable improperly formatted'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            ELSE IF ( STATUS .EQ. -1 ) THEN
+               XMSG = 'Environment variable set, but empty ... Using default:'
+               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            ELSE IF ( STATUS .EQ. -2 ) THEN
+               XMSG = 'Environment variable not set ... Using default:'
+               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            END IF
+
+         END IF   ! in-line depv
+
+         ALLOCATE ( ALL_GAS_DEPV( N_GAS_DEPV ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating ALL_GAS_DEPV'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         INIT_GAS_DV:
+     &   IF ( N_GAS_DEPV .GT. 0 ) THEN
+
+            DO V = 1, N_GC_DEPV
+               ALL_GAS_DEPV( V ) = GC_DEPV( V )
+            END DO
+            STRT = N_GC_DEPV
+            DO V = 1, N_NR_DEPV
+               ALL_GAS_DEPV( V + STRT ) = NR_DEPV( V )
+            END DO
+            STRT = N_GC_DEPV + N_NR_DEPV
+            DO V = 1, N_TR_DEPV
+               ALL_GAS_DEPV( V + STRT ) = TR_DEPV( V )
+            END DO
+
+C Identify and remove multiple occurrences of gas deposition velocities
+
+            ALLOCATE( GAS_DEPV_FOUND( N_GAS_DEPV ),
+     &                GAS_DEPV_SUR  ( N_GAS_DEPV ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating GAS_DEPV_FOUND or GAS_DEPV_SUR'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+
+            GAS_DEPV_FOUND = .FALSE.
+            N_UNIQUE_GDEPV = 0
+
+            LOOP_UNIQUE:
+     &      DO N = 1, N_GAS_DEPV
+               IF ( GAS_DEPV_FOUND( N ) ) CYCLE LOOP_UNIQUE
+               DO V = 1, N_GAS_DEPV
+                  IF ( ALL_GAS_DEPV( N ) .EQ. ALL_GAS_DEPV( V ) ) THEN
+                     IF ( GAS_DEPV_FOUND( V ) ) CYCLE LOOP_UNIQUE
+                     N_UNIQUE_GDEPV = N_UNIQUE_GDEPV + 1
+                     GAS_DEPV_FOUND( V ) = .TRUE.
+                     CYCLE LOOP_UNIQUE
+                  END IF
+               END DO
+            END DO LOOP_UNIQUE
+
+            ALLOCATE( UNIQUE_GDEPV( N_UNIQUE_GDEPV ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating UNIQUE_GDEPV'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+
+D           write( logdev,* ) ' '
+D           write( logdev,* ) ' All Gas DEPVs           Requested Gas DEPV'
+
+            V = 1
+            DO N = 1, N_GAS_DEPV
+               IF ( GAS_DEPV_FOUND( N ) ) THEN
+                  UNIQUE_GDEPV( V ) = ALL_GAS_DEPV( N )
+D                 write( logdev,1019 ) n, all_gas_depv( n ), v, unique_gdepv( v )
+1019              format( 2x, i5, 1x, a16, 2x, i5, 1x, a16 )
+                  V = V + 1
+               else
+D              write( logdev,1019 ) n, all_gas_depv( n ), -1, ' '
+               END IF
+            END DO
+
+C Get pointers to model species (GAS_DEPV_SUR)
+            CALL GAS_DEPV_MAP ( N_UNIQUE_GDEPV, UNIQUE_GDEPV, GAS_DEPV_SUR )
+
+C Identify and remove multiple occurrences of aerosol deposition velocities
+
+            ALLOCATE( AE_DEPV_FOUND( N_AE_DEPV ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating AE_DEPV_FOUND'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+            AE_DEPV_FOUND = .FALSE.
+            N_UNIQUE_ADEPV = 0
+
+            AERO_UNIQUE:
+     &      DO N = 1, N_AE_DEPV
+               IF ( AE_DEPV_FOUND( N ) ) CYCLE AERO_UNIQUE
+               DO V = 1, N_AE_DEPV
+                  IF ( AE_DEPV( N ) .EQ. AE_DEPV( V ) ) THEN
+                     IF ( AE_DEPV_FOUND( V ) ) CYCLE AERO_UNIQUE
+                     N_UNIQUE_ADEPV = N_UNIQUE_ADEPV + 1
+                     AE_DEPV_FOUND( V ) = .TRUE.
+                     CYCLE AERO_UNIQUE
+                  END IF
+               END DO
+            END DO AERO_UNIQUE
+
+            ALLOCATE( UNIQUE_ADEPV( N_UNIQUE_ADEPV ) )
+            ALLOCATE( AER_DEPV_SUR( N_UNIQUE_ADEPV ) )
+
+D           write( logdev,* ) ' '
+D           write( logdev,* ) ' Requested Aerosol DEPV and pointer'
+
+            V = 1
+            DO N = 1, N_AE_DEPV
+               IF ( AE_DEPV_FOUND( N ) ) THEN
+                  UNIQUE_ADEPV( V ) = AE_DEPV( N )
+                  AER_DEPV_SUR( V ) = N
+D                 write( logdev,1021 ) n, v, unique_adepv( v ), aer_depv_sur( v )
+1021              format( 2i5, 1x, a16, i5 )
+                  V = V + 1
+               END IF
+            END DO
+
+D           write( logdev,* ) ' '
+
+            IF ( ILDEPV ) THEN
+               ALLOCATE ( CGRIDL1( N_GAS_DEPV,NCOLS,NROWS ),
+     &                    PVD    ( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating CGRIDL1 or PVD arrays'
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+               CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
+            END IF
+
+C Get diagnostic file flag.
+            DEPV_DIAG = .FALSE.         ! default
+            VARDESC = 'Flag for writing the DEPV diagnostic file'
+            DEPV_DIAG = ENVYN( CTM_DEPV_FILE, VARDESC, DEPV_DIAG, STATUS )
+            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+            IF ( STATUS .EQ. 0 ) THEN
+               WRITE( LOGDEV,'( 5X, A )' ) VARDESC
+               XMSG = TRIM( PNAME ) // ': writes GAS DEPV values to '
+     &                              // TRIM( CTM_DEPV_FILE )
+               WRITE( LOGDEV,'( 5X, A )' ) XMSG
+            ELSE IF ( STATUS .EQ. 1 ) THEN
+               XMSG = 'Environment variable improperly formatted'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            ELSE IF ( STATUS .EQ. -1 ) THEN
+               XMSG =
+     &         'Environment variable set, but empty ... Using default:'
+               WRITE( LOGDEV,'( 5X, A, I9)' ) XMSG, JTIME
+            ELSE IF ( STATUS .EQ. -2 ) THEN
+               XMSG = 'Environment variable not set ... Using default:'
+               WRITE( LOGDEV,'( 5X, A, I9 )' ) XMSG, JTIME
+            END IF
+
+         END IF INIT_GAS_DV
+
+         WRITE( LOGDEV,'( 5X, A / )' ) 'DEPV_INIT: completed INIT_GAS_DV block '
+
+         ALLOCATE( UNIQUE_SDEPV( N_SGTOT ) ) ! even if .not. LAERO3_4, because of 
+                                             ! depv_diag file possiblity
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DEPV_SUR_SG'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+         N_UNIQUE_SDEPV = 0
+         UNIQUE_SDEPV( : ) = ' '  ! default name of DEPV for SGTOT species
+
+         IF ( LAERO3_4 ) THEN
+            ALLOCATE( DEPV_SUR_SG( N_SGTOT ), STAT = ALLOCSTAT )
+                    ! index of GAS_DEPV to use for SGTOT spec
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating DEPV_SUR_SG'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+            DEPV_SUR_SG( : )  = 0
+
+D           write( logdev,'(/a)' ) ' DEPV Map for SemiVolatile Gases'
+
+            DO N = 1, N_SGTOT
+
+               NDX = FINDEX( SG2NRSPC( N ), N_NR_DEPV, NR_DEPV_MAP )
+               NDX3 = INDEX1( NR_DEPV( NDX ), N_UNIQUE_GDEPV, UNIQUE_GDEPV )
+
+               IF ( NDX3 .NE. 0 ) THEN
+                  N_UNIQUE_SDEPV = N_UNIQUE_SDEPV + 1
+                  L = LEN_TRIM( SGNAME( N ) )
+                  UNIQUE_SDEPV( N_UNIQUE_SDEPV ) = 'VD_' // SGNAME( N )(1:L)
+                  DEPV_SUR_SG( N ) = NDX3
+D                 write( logdev,1033 ) ndx, nr_depv( ndx ),
+D    &                     depv_sur_sg( n ), unique_gdepv( depv_sur_sg( n ) ),
+D    &                     n_unique_sdepv, unique_sdepv( n_unique_sdepv )
+1033              format( I5, 1X, A16, 2( 1X, I3, 1X, A16 ) )
+               ELSE
+                  XMSG = 'Could not find ' // TRIM( NR_DEPV( NDX ) )
+     &                 // ' in UNIQUE_GDEPV array. '
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+            END DO
+
+D           write( logdev,* ) ' N_GASDV4SG: ', n_gasdv4sg
+D           write( logdev,*) '        GASDV4SG      SG2NRSPC SG2NRDV SG2GASDV DEPV_SUR_SG'
+D           do n = 1, n_sgtot
+D              write( logdev,1051 ) trim( gasdv4sg( n ) ),
+D    &                              sg2nrspc( n ), sg2nrdv( n ),
+D    &                              sg2gasdv( n ), depv_sur_sg( n )
+D           end do
+1051        format( 3x, a16, 4i9 )
+D           write( logdev,'(/a)' ) ' SGSPEC'
+D           do n = 1, n_nr_depv
+D              write( logdev,* ) '   ', SGSPEC( n )
+D           end do
+
+         END IF   ! aero3 or aero4
+
+         IF ( .NOT. ILDEPV ) THEN
+
+               ALLOCATE ( MBUFF( MY_NCOLS,MY_NROWS,N_GASDV4SG ), STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating MBUFF'
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+               DEPV_DIAG = .FALSE.   ! make sure to avoid bogus write attempt later
+
+         ELSE   ! ILDEPV
+
+            IF ( DEPV_DIAG ) THEN
+
+               ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating DBUFF'
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+               IF ( MYPE .EQ. 0 ) THEN
+                  CALL OPDEPV_DIAG ( JDATE, JTIME, TSTEP( 1 ),
+     &                               N_UNIQUE_GDEPV, UNIQUE_GDEPV,
+     &                               N_UNIQUE_ADEPV, UNIQUE_ADEPV,
+     &                               N_UNIQUE_SDEPV, UNIQUE_SDEPV )
+               END IF
+
+            END IF
+
+         END IF
+
+         END FUNCTION DEPV_INIT
+C-----------------------------------------------------------------------
+
+
+         SUBROUTINE GET_DEPV( JDATE, JTIME, TSTEP, CGRID )
+C-----------------------------------------------------------------------
+
+         USE CGRID_SPCS          ! CGRID mechanism species
+         USE HGRD_DEFN
+         USE DEPVVARS
+
+         IMPLICIT NONE
+
+C Arguments:
+         INTEGER, INTENT( IN ) :: JDATE, JTIME     ! simulation date&time, tstep
+         INTEGER, INTENT( IN ) :: TSTEP( 2 )       ! time step vector (HHMMSS)
+                                                   ! TSTEP(1) = local output step
+                                                   ! TSTEP(2) = sciproc sync. step (chem)
+         REAL, POINTER         :: CGRID( :,:,:,: ) ! concentrations
+
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+#include         SUBST_IODECL    ! I/O definitions and declarations
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+         INCLUDE SUBST_CONST     ! constants
+
+C Parameters:
+         REAL, PARAMETER :: RGAS1 = 1.0 / RGASUNIV ! univ. gas constant reciprocal
+         REAL, PARAMETER :: H_VAP = 156.0E+03      ! enthalpy of vaporization (J/mol)
+         REAL, PARAMETER :: TREF = 298.0           ! Reference temperature for Cstar
+         REAL, PARAMETER :: TREF1 = 1.0 / TREF     ! Reciprocal ref temperature
+
+C External functions:
+         INTEGER, EXTERNAL  :: TIME2SEC
+
+C Local variables:
+         REAL, SAVE    :: MW_POA  = 220.0      ! MW of primary organic AE
+         REAL, SAVE    :: MW_ASOA = 150.0      ! MW of anthropogenic SOA
+         REAL, SAVE    :: MW_BSOA = 177.0      ! MW of biogenic SOA
+
+         REAL             POA            ! Total primary organic AE
+         REAL             ASOA           ! Total anthropogenic SOA in AE phase
+         REAL             BSOA           ! Total biogenic SOA in AE phase
+         REAL             JFRAC          ! Fraction of total SOA in j-mode
+         REAL             AFRAC          ! Fraction of NR species in AE phase
+         REAL             TORG           ! Total moles of organic absorbant in AE phase
+         REAL             CTOT           ! Species sum of SOA and condesable gas (ug/m3)
+         REAL             C0             ! Species saturation concentration (ug/m3) at T,P
+         REAL             CAER           ! Species aerosol concentration (ug/m3)
+         REAL             TEMP1          ! Reciprocal of temperature
+         REAL             VP_TADJ        ! Temp adjustment factor for Cstar
+         REAL             ADEPVIJ        ! I,J mode partitioned adepv
+
+         INTEGER          SP             ! Cgrid species index
+
+         INTEGER          STRT, FINI
+
+         LOGICAL, SAVE :: FIRST_WRITE = .TRUE.    ! to capture 1st data
+         LOGICAL       :: WRITE_TIME     ! write to file flag
+         INTEGER, SAVE :: WTIME = 0      ! local write counter [HHMMSS]
+         INTEGER       :: NDATE, NTIME   ! write date and time
+
+         integer c, r, n, v, ndx, cw, rw
+         integer, save :: logdev
+
+         CHARACTER( 16 )  :: PNAME = 'GET_DEPV'
+         CHARACTER( 120 ) :: XMSG = ' '
+
+         INTERFACE
+            SUBROUTINE RDDEPV ( JDATE, JTIME, SGSPEC, DEPV )
+               USE HGRD_DEFN
+               IMPLICIT NONE
+               INTEGER, INTENT( IN )            :: JDATE, JTIME
+               LOGICAL, INTENT( IN )            :: SGSPEC( : )
+               REAL, INTENT( OUT )              :: DEPV( :,:,: )
+            END SUBROUTINE RDDEPV
+            SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
+               USE GRID_CONF
+               IMPLICIT NONE
+               REAL, POINTER          :: CGRID( :,:,:,: )
+               INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP
+               REAL,    INTENT( OUT ) :: ADEPV( :,:,: )
+            END SUBROUTINE AERO_DEPV
+            SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
+               USE HGRD_DEFN
+               IMPLICIT NONE
+               LOGICAL, INTENT( IN )  :: GAS_DEPV_FOUND( : )
+               INTEGER, INTENT( IN )  :: GAS_DEPV_SUR( : )
+               REAL,    POINTER       :: CGRID( :,:,:,: )
+               REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
+            END SUBROUTINE CGRID_DEPV
+            SUBROUTINE M3DRY ( JDATE, JTIME, ABFLUX, SFC_HONO, CGRIDL1, DEPVEL_GAS, PVD )
+               USE HGRD_DEFN
+               USE DEPVVARS
+               IMPLICIT NONE
+               INTEGER, INTENT( IN )  :: JDATE, JTIME
+               LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO
+               REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
+               REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: )
+            END SUBROUTINE M3DRY
+         END INTERFACE
+
+C-----------------------------------------------------------------------
+         logdev = init3()
+
+         DEPV = 0.0
+
+         IF ( N_AE_DEPV .GT. 0 ) THEN
+            CALL AERO_DEPV( CGRID, JDATE, JTIME, TSTEP( 1 ), ADEPV )
+
+            STRT = N_GC_DEPV + 1
+            FINI = N_GC_DEPV + N_AE_DEPV
+
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  N = 0
+                  DO V = STRT, FINI
+                     N = N + 1
+                     DEPV( V,C,R ) = AE_DEPV_FAC( N ) * ADEPV( N,C,R )
+                  END DO
+               END DO
+            END DO
+
+            END IF
+
+         IF ( ILDEPV ) THEN
+
+            IF ( ABFLUX .OR. SFC_HONO ) THEN
+               CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
+            END IF
+
+            CALL M3DRY ( JDATE, JTIME, ABFLUX, SFC_HONO, CGRIDL1, DEPVEL_GAS, PVD )
+
+D           cw = my_ncols/2; rw = my_nrows/2
+!           cw = 17; rw = 43
+
+D           write( logdev,1033 ) cw, rw
+1033        format( /5x, 'Depv diagnostics for my_col, my_row:', i4, ', ', i4
+     &              /6x, 'v', 3x, 'n', 1x, 'variable', 10x, 'ndx',
+     &               2x, 'depvel_gas', 4x, 'depv', 9x, 'pvd', 10x, 'pldv' )
+
+            N = 0
+            STRT = 1
+            FINI = N_GC_DEPV
+            DO V = STRT, FINI
+               N = N + 1
+               NDX = GAS_DEPV_SUR( N )
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
+                     PLDV( V,C,R ) = PVD( NDX,C,R )
+D                    if ( c == cw .and. r == rw ) then
+D                       write( logdev,1039 ) v, n, gc_depv( n ), ndx,
+D    &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
+D    &                                       pvd( ndx,c,r ), pldv( v,c,r )
+1039        format( 3x, 2i4, 1x, a16, 1x, i3, 4( 1x, 1pe12.4 ) )
+D                    end if
+                  END DO
+               END DO
+
+            END DO
+
+            N = 0
+            STRT = N_GC_DEPV + N_AE_DEPV + 1
+            FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
+            DO V = STRT, FINI
+               N = N + 1
+               NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
+
+               IF ( LAERO3_4 .AND. SGSPEC( N ) ) CYCLE
+
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
+                     PLDV( V,C,R ) = PVD( NDX,C,R )
+D                    if ( c == cw .and. r == rw ) then
+D                       write( logdev,1039 ) v, n, nr_depv( n ), ndx,
+D    &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
+D    &                                       pvd( ndx,c,r ), pldv( v,c,r )
+D                    end if
+                  END DO
+               END DO
+
+            END DO
+
+            N = 0
+            STRT = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + 1
+            FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + N_TR_DEPV
+            DO V = STRT, FINI
+               N = N + 1
+               NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
+
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
+                     PLDV( V,C,R ) = PVD( NDX,C,R )
+D                    if ( c == cw .and. r == rw ) then
+D                       write( logdev,1039 ) v, n, tr_depv( n ), ndx,
+D    &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
+D    &                                       pvd( ndx,c,r ), pldv( v,c,r )
+D                    end if
+                  END DO
+               END DO
+
+            END DO
+
+         ELSE
+
+            CALL RDDEPV ( JDATE, JTIME, SGSPEC, DEPV )
+
+         END IF   ! in-line depv
+
+!        IF ( .NOT. LAERO3_4 ) RETURN
+         IF ( LAERO3_4 ) THEN
+
+C Update for SGTOT species
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  This section computes deposition velocities for the NR secondary organic
+c  aerosol species included in aero3. These model species are the sum of the 
+c  SOA precursor condensable gas (CG) and SOA species itself.
+c  A weighted average deposition velocity is calculated since these model
+c  species are the sum of species in two phases.
+c  For the gas phase, the deposition velocity for organic acids is used,
+c  and for SOA, the DVs for the i- and j-mode VMASS are used.
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+C Get the temp and pressure
+            IF ( .NOT. INTERPX( MET_CRO_3D, 'TA', PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1, 1,
+     &                          JDATE, JTIME, TEMP ) ) THEN
+               XMSG = 'Could not interpolate TA from ' // MET_CRO_3D
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
+            IF ( .NOT. INTERPX( MET_CRO_3D, 'PRES', PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1, 1,
+     &                          JDATE, JTIME, PRES ) ) THEN
+               XMSG = 'Could not interpolate PRES from ' // MET_CRO_3D
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
+            IF ( .NOT. ILDEPV ) THEN
+
+C Read the gas-phase depvs to use for SGTOT
+               DO N = 1, N_GASDV4SG
+                  IF ( .NOT. INTERPX( MET_CRO_2D, GASDV4SG( N ), PNAME,
+     &                                STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                                JDATE, JTIME, MBUFF( 1,1,N ) ) ) THEN
+                     XMSG = 'Could not read  ' // GASDV4SG( N ) // ' from ' // MET_CRO_2D
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               END DO
+
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     DO N = 1, N_SGTOT
+                        DEPVEL_GAS( N,C,R ) = MBUFF( C,R,SG2GASDV( N ) )
+                     END DO
+                  END DO
+               END DO
+
+               DO N = 1, N_SGTOT
+                  DEPV_SUR_SG( N ) = N
+               END DO
+
+            END IF
+
+C Set the loop indices to do all NR species except first (NH3)
+!           cw = my_ncols/2; rw = my_nrows/2
+
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+
+                  POA  = CGRID( C,R,1,PRJ ) + CGRID( C,R,1,PRI )
+                  ASOA = CGRID( C,R,1,ASJ ) + CGRID( C,R,1,ASI )
+                  BSOA = CGRID( C,R,1,BSJ ) + CGRID( C,R,1,BSI )
+
+C Fraction of SOA in j-mode
+                  JFRAC = ( CGRID( C,R,1,ASJ ) + CGRID( C,R,1,BSJ ) ) / ( ASOA + BSOA )
+
+                  ADEPVIJ = JFRAC * ADEPV( 1,C,R ) + ( 1.0 - JFRAC ) * ADEPV( 2,C,R )
+
+C Total amount of organic absorbant
+                  TORG = POA / MW_POA + ASOA / MW_ASOA + BSOA / MW_BSOA  
+
+                  TEMP1 = 1.0 / TEMP( C,R )
+                  VP_TADJ = TREF * TEMP1 * EXP( H_VAP * RGAS1 * ( TREF1 - TEMP1 ) )
+
+!                 if ( c == cw .and. r == rw ) then
+!                    write( logdev,1055 ) pri, prj, asi, asj, bsi, bsj,
+!    &                                    jfrac, adepvij, torg, temp1, vp_tadj
+1055                 format( 5x, '@@@', 6i4.3, 5( 1x, 1pe12.4 ) )
+!                 end if
+
+                  DO N = 1, N_SGTOT
+
+                     IF ( SG2NRDV( N ) .EQ. 0 ) CYCLE   ! Skip if not in NR_DEPV list
+
+C Indices of sgtot pos in cgrid & sgtot pos in DEPV list
+                     SP = NR_OFFSET + SG2NRSPC( N )  
+                     V  = N_GC_DEPV + N_AE_DEPV + SG2NRDV( N )
+
+C Get SGTOT concentration in ug/m3
+                     CTOT = CGRID( C,R,1,SP ) * PPM2UG( N ) * PRES( C,R ) * TEMP1
+
+C Adjust saturation concentration for temp
+                     C0 = CSTAR( N ) * VP_TADJ
+
+C Estimate SOA fraction of SOA+CG (afrac)
+C   caer = ctot * torg / ( torg + c0 / mw_cg( n ) )
+C   afrac = caer / ctot
+C   therefore afrac = torg / ( torg + c0 / mw_cg( n ) )
+                     AFRAC = TORG / ( TORG + C0 / NR_MOLWT( SG2NRSPC( N ) ) )
+
+C Compute weighted avg DV (for SOA protion, DV weighted by modal fraction)
+                     NDX = DEPV_SUR_SG( N )
+                     DEPV( V,C,R ) = ( 1.0 - AFRAC ) * DEPVEL_GAS( NDX,C,R )
+     &                             + AFRAC * ADEPVIJ
+
+!                    if ( c == cw .and. r == rw ) then
+!                       write( logdev,1059 ) n, sp, v, ctot, c0, afrac, ndx, depv( v,c,r )
+1059                    format( 5x, '@@1', 3i4.3, 3( 1x, 1pe12.4 ), i3, 1pe12.4 )
+!                    end if
+
+                  END DO
+
+               END DO
+            END DO
+
+!           c = my_ncols/2; r = my_nrows/2
+!           c = 15; r = 43
+
+!           n = 0
+!           do v = 1, n_gc_depv
+!              n = n + 1
+!              ndx = gas_depv_sur( n )
+!              write( logdev,1039 ) v, n, gc_depv( n ), ndx,
+!    &                              depvel_gas( ndx,c,r ), depv( v,c,r ),
+!    &                              pvd( ndx,c,r ), pldv( v,c,r )
+!           end do
+
+!           n = 0
+!           do v = n_gc_depv + 1, n_gc_depv + n_ae_depv
+!              n = n + 1
+!              ndx = n
+!              write( logdev,1039 ) v, n, ae_depv( n ), ndx,
+!    &                              depv( v,c,r ), depv( v,c,r )
+!           end do
+
+!           n = 0
+!           do v = n_gc_depv + n_ae_depv + 1, n_gc_depv + n_ae_depv + n_nr_depv
+!              n = n + 1
+!              ndx = gas_depv_sur( n+n_gc_depv )
+!              if ( sgspec( n ) ) cycle
+!              write( logdev,1039 ) v, n, nr_depv( n ), ndx,
+!    &                              depvel_gas( ndx,c,r ), depv( v,c,r ),
+!    &                              pvd( ndx,c,r ), pldv( v,c,r )
+!           end do
+
+!           write( *,'(/,a)' ) ' sgtot_depv'
+!           ndx = 0
+!           do n = 1, n_sgtot
+!              if ( sg2nrdv( n ) .eq. 0 ) cycle   ! Skip if not in NR_DEPV list
+!              ndx = ndx + 1
+!              v = n_gc_depv + n_ae_depv + sg2nrdv( n )
+!              write( logdev,1039 ) v, n, unique_sdepv( ndx ), ndx,
+!    &                              depvel_gas( sg2nrdv( n ),c,r ), depv( v,c,r ),
+!    &                              pvd( ndx,c,r ), pldv( v,c,r )
+!           end do
+
+         END IF   ! aero3 or aero4
+
+         IF ( DEPV_DIAG ) THEN
+
+            WTIME = WTIME + TIME2SEC( TSTEP( 2 ) )
+
+            IF ( MOD( WTIME, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+               WRITE_TIME = .TRUE.
+!              WRITE( LOGDEV,* ) '    Writing at WTIME = ', WTIME
+            ELSE IF ( FIRST_WRITE ) THEN
+!              FIRST_WRITE = .FALSE.
+               WRITE_TIME = .TRUE.
+!              WRITE( LOGDEV,'(/5x,a)' ) 'Writing for initial call'
+            ELSE
+               WRITE_TIME = .FALSE.
+            END IF
+
+            IF ( WRITE_TIME ) THEN
+
+               NDATE = JDATE
+               NTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
+
+               IF ( .NOT. FIRST_WRITE ) THEN
+                  CALL NEXTIME( NDATE, NTIME, TSTEP( 1 ) )
+               END IF
+
+!              write( logdev,1061 ) TRIM( CTM_DEPV_DIAG ), NDATE, NTIME, JDATE, JTIME
+1061           format( / 5x, 'Writing to ', a, ' for', i8, i7.6, ' at', i8, i7.6 )
+
+               N = 0
+               DO V = 1, N_GC_DEPV
+                  N = N + 1
+
+                  IF ( GAS_DEPV_FOUND( N ) ) THEN
+                     NDX = GAS_DEPV_SUR( N )
+
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           DBUFF( C,R ) = 100.0 * DEPV( N,C,R )   ! cm/sec
+                        END DO
+                     END DO
+                     IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
+     &                                  NDATE, NTIME, DBUFF ) ) THEN
+                         XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
+                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                     END IF
+
+                  END IF
+
+               END DO
+
+               DO V = 1, N_NR_DEPV
+                  N = N + 1
+
+                  IF ( GAS_DEPV_FOUND( N ) ) THEN
+                     NDX = GAS_DEPV_SUR( N )
+
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           DBUFF( C,R ) = 100.0 * DEPV( N+N_AE_DEPV,C,R )   ! cm/sec
+                        END DO
+                     END DO
+                     IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
+     &                                  NDATE, NTIME, DBUFF ) ) THEN
+                         XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
+                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                     END IF
+
+                  END IF
+
+               END DO
+
+               DO N = 1, N_UNIQUE_ADEPV
+
+                  NDX = AER_DEPV_SUR( N )
+
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        DBUFF( C,R ) = 100.0 * ADEPV( NDX,C,R )   ! cm/sec
+                     END DO
+                  END DO
+                  IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_ADEPV( N ),
+     &                               NDATE, NTIME, DBUFF ) ) THEN
+                      XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
+                      CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                  END IF
+
+               END DO
+
+               IF ( LAERO3_4 ) THEN
+                  NDX = 0
+                  DO N = 1, N_SGTOT
+
+                     IF ( SG2NRDV( N ) .EQ. 0 ) CYCLE   ! Skip if not in NR_DEPV list
+
+                     NDX = NDX + 1
+                     V = N_GC_DEPV + N_AE_DEPV + SG2NRDV( N )
+
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           DBUFF( C,R ) = 100.0 * DEPV( V,C,R )   ! cm/sec
+                        END DO
+                     END DO
+                     IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_SDEPV( NDX ),
+     &                                  NDATE, NTIME, DBUFF ) ) THEN
+                         XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
+                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                     END IF
+
+                  END DO
+               END IF
+
+               FIRST_WRITE = .FALSE.
+
+!           ELSE
+
+!              write( logdev,1065 ) TRIM( CTM_DEPV_DIAG ), JDATE, JTIME
+1065           format( / 5x, 'Skip writing to ', a, ' for', i8, i7.6 )
+
+            END IF   ! write_time
+
+         END IF   ! DEPV_DIAG
+
+         END SUBROUTINE GET_DEPV
+
+      END MODULE DEPV_DEFN
