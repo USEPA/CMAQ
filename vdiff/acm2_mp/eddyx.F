@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/eddyx.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/eddyx.F,v 1.2 2010/07/20 11:53:04 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -37,6 +37,11 @@ C
 C  REVISION HISTORY:
 C  JEP        4/00 - CCTM implimentation from MM5
 C  JEP        4/06 - Updated for ACM2
+C  TLO       10/09 - Allow read of C-staggered UWINDC and VWINDC from
+C                    MET_DOT_3D, and corrected algorithm that computes
+C                    component-wise shear so that B-staggered winds
+C                    will be properly used.  Removed map-scale factor
+C                    from wind shear calculation.
 C--------------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal domain specifications
@@ -79,6 +84,7 @@ C Parameters:
       REAL, PARAMETER :: BETAH  = 5.0  ! Holtslag and Boville (1993)
       REAL, PARAMETER :: CGAM   = 0.0  ! Holtslag and Boville (1993)
       REAL, PARAMETER :: KARMAN = 0.4
+      REAL, PARAMETER :: SIXTEENTH = 0.25 * 0.25  ! 1/16
 
 C small number for temperature difference
 
@@ -175,6 +181,7 @@ C for INTERPX
       REAL EDYZ, FINT
       REAL ZFL                            ! local ZF
       INTEGER LP
+      LOGICAL CSTAGUV                     ! Winds are available with C stagger?
 
 C-----------------------------------------------------------------------
 
@@ -331,13 +338,26 @@ C Interpolate time dependent one-layer and layered input variables
       CALL NEXTIME( MDATE, MTIME, SEC2TIME( STEP / 2 ) )
 
 
-      VNAME = 'UWIND'
+C Try to read u-component wind on C-staggered grid from variable UWINDC.
+C (First available in MCIPv3.5, Fall 2009.)  If UWINDC is not in MET_DOT_3D,
+C try to read u-component wind on B-staggered grid as UWIND.
+
+      VNAME = 'UWINDC'  ! trying to read C-staggered wind
       IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-!    &                    1,NCOLS+1, 1,NROWS+1, 1,NLAYS,
      &                    STRTCOLMD3,ENDCOLMD3, STRTROWMD3,ENDROWMD3, 1,NLAYS,
      &                    MDATE, MTIME, UVBUF ) ) THEN
-         XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         XMSG = 'Could not find ' // VNAME // ' in ' // MET_DOT_3D
+         CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+         CSTAGUV = .FALSE.  ! cannot find C-staggered wind
+         VNAME = 'UWIND'    ! trying to read B-staggered wind
+         IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
+     &                       STRTCOLMD3,ENDCOLMD3, STRTROWMD3,ENDROWMD3, 1,NLAYS,
+     &                       MDATE, MTIME, UVBUF ) ) THEN
+            XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      ELSE
+         CSTAGUV = .TRUE.
       END IF
 
       UWIND = 0.0
@@ -349,9 +369,16 @@ C Interpolate time dependent one-layer and layered input variables
          END DO
       END DO
 
-      VNAME = 'VWIND'
+C If u-component wind was C-staggered, read v-component wind on C-staggered
+C grid.  Otherwise, read v-component wind from B-staggered grid.
+
+      IF ( CSTAGUV ) THEN
+         VNAME = 'VWINDC'  ! trying to read C-staggered wind
+         ELSE
+         VNAME = 'VWIND'   ! trying to read B-staggered wind
+         END IF
+
       IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-!    &                    1,NCOLS+1, 1,NROWS+1, 1,NLAYS,
      &                    STRTCOLMD3,ENDCOLMD3, STRTROWMD3,ENDROWMD3, 1,NLAYS,
      &                    MDATE, MTIME, UVBUF ) ) THEN
          XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
@@ -588,11 +615,24 @@ C get ghost values for wind fields in case of free trop.
 
          DZL = ZH( C,R,L+1 ) - ZH( C,R,L )
 !        RIC = 0.257 * DZL ** 0.175
-         WW2 = 0.25 * MSFX2( C,R )      ! component-wise wind shear
-     &           * ( ( UWIND( C+1,R,  L+1 ) - UWIND( C+1,R  ,L  )
-     &               + UWIND( C,  R,  L+1 ) - UWIND( C,  R  ,L  ) ) ** 2
-     &           +   ( VWIND( C,  R+1,L+1 ) - VWIND( C,  R+1,L )
-     &               + VWIND( C,  R,  L+1 ) - VWIND( C,  R,  L  ) ) ** 2 )
+         IF ( CSTAGUV ) THEN  ! u- and v-component winds on C-stagger
+           WW2 = 0.25                     ! component-wise wind shear
+     &         * ( ( UWIND( C+1,R,  L+1 ) - UWIND( C+1,R  ,L  )
+     &             + UWIND( C,  R,  L+1 ) - UWIND( C,  R  ,L  ) ) ** 2
+     &         +   ( VWIND( C,  R+1,L+1 ) - VWIND( C,  R+1,L )
+     &             + VWIND( C,  R,  L+1 ) - VWIND( C,  R,  L  ) ) ** 2 )
+         ELSE  ! u- and v-component winds on B-stagger
+           WW2 = SIXTEENTH                ! component-wise wind shear
+     &         * ( ( UWIND( C,  R,  L+1 ) - UWIND( C,  R  ,L  )
+     &             + UWIND( C+1,R,  L+1 ) - UWIND( C+1,R  ,L  )
+     &             + UWIND( C,  R+1,L+1 ) - UWIND( C,  R+1,L  )
+     &             + UWIND( C+1,R+1,L+1 ) - UWIND( C+1,R+1,L  ) ) ** 2
+     &          +  ( VWIND( C,  R,  L+1 ) - VWIND( C,  R  ,L  )
+     &             + VWIND( C+1,R,  L+1 ) - VWIND( C+1,R  ,L  )
+     &             + VWIND( C,  R+1,L+1 ) - VWIND( C,  R+1,L  )
+     &             + VWIND( C+1,R+1,L+1 ) - VWIND( C+1,R+1,L  ) ) ** 2 )
+         END IF
+
          WS2 = WW2 / ( DZL * DZL ) + 1.0E-9
 
          RIB = 2.0 * GRAV * ( THETAV( C,R,L+1 ) - THETAV( C,R,L ) )
