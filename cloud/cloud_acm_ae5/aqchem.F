@@ -1,0 +1,1725 @@
+
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aqchem.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+      SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
+     &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP )
+
+C-----------------------------------------------------------------------
+C
+C  DESCRIPTION:
+C    Compute concentration changes in cloud due to aqueous chemistry,
+C    scavenging and wet deposition amounts.
+C
+C  Revision History:
+C      No   Date   Who	What
+C      -- -------- ---  -----------------------------------------
+C      0  / /86    CW   BEGIN PROGRAM - Walceks's Original Code
+C      1  / /86    RB   INCORPORATE INTO RADM
+C      2  03/23/87 DH   REFORMAT
+C      3  04/11/88 SJR  STREAMLINED CODE - ADDED COMMENTS
+C      4  08/27/88 SJR  COMMENTS, MODIFIED FOR RPM
+C      4a 03/15/96 FSB  Scanned hard copy to develop Models3
+C                       Version.
+C      5  04/24/96 FSB  Made into Models3 Format
+C      6  02/18/97 SJR  Revisions to link with Models3
+C      7  08/12/97 SJR  Revised for new concentration units (moles/mole)
+C                       and new treatment of nitrate and nitric acid
+C      8  01/15/98 sjr  revised to add new aitken mode scavenging
+C                       and aerosol number scavenging
+C      9  12/15/98 David Wong at LM:
+C             -- change division of XL, TEMP to multiplication of XL, TEMP
+C                reciprocal, respectively
+C             -- change / TOTOX / TSIV to / ( TOTOX * TSIV )
+C     10  03/18/99 David Wong at LM:
+C             -- removed "* 1.0" redundant calculation at TEMP1 calculation
+C     11  04/27/00 sjr  Added aerosol surface area as modeled species
+C     12  12/02    sjr  changed calls to HLCONST and updated the dissociation
+C                       constants
+C     13  06/26/03 sjr  revised calculations of DTW based on CMAS website
+C                       discussions
+C     14  08/05/03 sjr  revision made to the coarse aerosol number washout
+C     15  04/20/05  us  revisions to add sea salt species in the fine and
+C                       coarse aerosol modes, and HCl dissolution/dissociation
+C     16  10/13/05 sjr  fixed bug in the integration time step calculation
+C                       (reported by Bonyoung Koo)
+C     17  03/01/06 sjr  added elemental carbon aerosol; organic aerosols
+C                       replaced with primary, secondary biogenic, and
+C                       secondary anthropogenic; fixed 3rd moment calc to
+C                       include EC and primary organics (not secondary);
+C                       re-arranged logic for setting Cl & Na ending conc;
+C                       added pointers/indirect addressing for arrays WETDEP
+C                       and LIQUID
+C     16  03/30/07 sjr  Limit integration timestep by cloud washout time
+C     17  04/10/07 sjr  increased loop limits as follows: I20C <10000,
+C                       I7777C <10000, I30C <10000, ICNTAQ <60000
+C     18  01/10/07 agc  added organic chemistry for GLY and MGLY oxidation
+C     19  09/10/07 sln  updated SOA species list for AE5
+C     20  01/29/08 agc  updated DOHDT calculation
+C     21  04/14/08 jtk  added coding for coarse NH4 and scavenging of
+c                       coarse surface area
+C     22  05/20/08 agc  for CB05, use the Henry's Law constant for glyoxal
+C                       as a surrogate for methyl glyoxal
+C     23  04/15/09 sjr& Several changes made to improve mass conservation in the
+C                  agc  solver.  (1) OH concentration is now considered to be
+C                       steady state; (2) only allow sulfur oxidation to affect
+C                       time step; (3) implemented mass conservation checks -
+C                       limit oxidation rates by the available mass for the
+C                       specified timestep.
+C                       
+C
+C  References:
+C     Walcek & Taylor, 1986, A theoretical Method for computing
+C        vertical distributions of acidity and sulfate within cumulus
+C        clouds, J. Atmos Sci.,  Vol. 43, no. 4 pp 339 - 355
+C     Carlton, A.G., B.J. Turpin, K.E. Altieri, S.P. Seitzinger, R. Mathur,
+C        S.J. Roselle, and R.J. Weber, CMAQ Model Performance Enhanced When
+C        In-Cloud Secondary Organic Aerosol is Included:  Comparison of Organic
+C        Carbon Predictions with Measurements, Environ. Sci. Technol., 42(23),
+C        8798-8802, 2008.
+C
+C  Called by:  AQMAP
+C
+C  Calls the following subroutines:  none
+C
+C  Calls the following functions:  HLCONST
+C
+C  ARGUMENTS     TYPE      I/O       DESCRIPTION
+C  ---------     ----  ------------  --------------------------------
+C  GAS(ngas)     real  input&output  Concentration for species i=1,15
+C  GASWDEP(ngas) real     output     wet deposition for species
+C                                    (01)= SO2   conc (mol/mol)
+C                                    (02)= HNO3  conc (mol/mol)
+C                                    (03)= N2O5  conc (mol/mol)
+C                                    (04)= CO2   conc (mol/mol)
+C                                    (05)= NH3   conc (mol/mol)
+C                                    (06)= H2O2  conc (mol/mol)
+C                                    (07)= O3    conc (mol/mol)
+C                                    (08)= FOA   conc (mol/mol)
+C                                    (09)= MHP   conc (mol/mol)
+C                                    (10)= PAA   conc (mol/mol)
+C                                    (11)= H2SO4 conc (mol/mol)
+C                                    (12)= HCL   conc (mol/mol)
+C                                    (13)= GLY   conc (mol/mol)
+C                                    (14)= MGLY  conc (mol/mol)   
+C              OH radical            (15)= HO    conc (mol/mol)
+C
+C  AEROSOL(naer) real input&output   Concentration for species i=1,52
+C  AERWDEP(naer) real     output     wet deposition for species
+C                                    (01)= SO4AKN   conc (mol/mol)
+C                                    (02)= SO4ACC   conc (mol/mol)
+C                                    (03)= SO4COR   conc (mol/mol)
+C                                    (04)= NH4AKN   conc (mol/mol)
+C                                    (05)= NH4ACC   conc (mol/mol)
+C                                    (06)= NH4COR   conc (mol/mol)
+C                                    (07)= NO3AKN   conc (mol/mol)
+C                                    (08)= NO3ACC   conc (mol/mol)
+C                                    (09)= NO3COR   conc (mol/mol)
+C                                    (10)= AALKACC  conc (mol/mol)
+C                                    (11)= AXYL1ACC conc (mol/mol)
+C                                    (12)= AXYL2ACC conc (mol/mol)
+C                                    (13)= AXYL3ACC conc (mol/mol)
+C                                    (14)= ATOL1ACC conc (mol/mol)
+C                                    (15)= ATOL2ACC conc (mol/mol)
+C                                    (16)= ATOL3ACC conc (mol/mol)
+C                                    (17)= ABNZ1ACC conc (mol/mol)
+C                                    (18)= ABNZ2ACC conc (mol/mol)
+C                                    (19)= ABNZ3ACC conc (mol/mol)
+C                                    (20)= ATRP1ACC conc (mol/mol)
+C                                    (21)= ATRP2ACC conc (mol/mol)
+C                                    (22)= AISO1ACC conc (mol/mol)
+C                                    (23)= AISO2ACC conc (mol/mol)
+C                                    (24)= AISO3ACC conc (mol/mol)
+C                                    (25)= ASQTACC  conc (mol/mol)
+C                                    (26)= AORGCACC conc (mol/mol)
+C                                    (27)= AOLGAACC conc (mol/mol)
+C                                    (28)= AOLGBACC conc (mol/mol)
+C                                    (29)= ORGPAKN  conc (mol/mol)
+C                                    (30)= ORGPACC  conc (mol/mol)
+C                                    (31)= ECAKN    conc (mol/mol)
+C                                    (32)= ECACC    conc (mol/mol)
+C                                    (33)= PRIAKN   conc (mol/mol)
+C                                    (34)= PRIACC   conc (mol/mol)
+C                                    (35)= PRICOR   conc (mol/mol)
+C                                    (36)= NAAKN    conc (mol/mol)
+C                                    (37)= NAACC    conc (mol/mol)
+C                                    (38)= NACOR    conc (mol/mol)
+C                                    (39)= CLAKN    conc (mol/mol)
+C                                    (40)= CLACC    conc (mol/mol)
+C                                    (41)= CLCOR    conc (mol/mol)
+C                                    (42)= NUMAKN   conc ( #/mol )
+C                                    (43)= NUMACC   conc ( #/mol )
+C                                    (44)= NUMCOR   conc ( #/mol )
+C                                    (45)= SRFAKN   conc (m2/mol )
+C                                    (46)= SRFACC   conc (m2/mol )
+C                                    (47)= SRFCOR   conc (m2/mol ) 
+C                                    (48)= CACO3    conc (mol/mol)
+C                                    (49)= MGCO3    conc (mol/mol)
+C                                    (50)= A3FE     conc (mol/mol)
+C                                    (51)= B2MN     conc (mol/mol)
+C                                    (52)= K        conc (mol/mol)
+C
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_CONST          ! constants
+      INCLUDE SUBST_IOPARMS        ! I/O parameters definitions
+      INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
+      INCLUDE 'AQ_PARAMS.EXT'      ! aqueous chemistry shared parameters
+
+      CHARACTER*120 XMSG           ! Exit status message
+      DATA          XMSG / ' ' /
+
+C...........PARAMETERS and their descriptions:
+
+      INTEGER      NUMOX           ! number of oxidizing reactions
+      PARAMETER  ( NUMOX =  5 )
+
+      REAL         H2ODENS         ! density of water at 20 C and 1 ATM
+      PARAMETER  ( H2ODENS = 1000.0 )  ! (kg/m3)
+
+      REAL         ONETHIRD       ! 1/3
+      PARAMETER  ( ONETHIRD = 1.0 / 3.0 )
+
+      REAL         TWOTHIRDS       ! 2/3
+      PARAMETER  ( TWOTHIRDS = 2.0 / 3.0 )
+
+      REAL         CONCMIN         ! minimum concentration
+      PARAMETER  ( CONCMIN = 1.0E-30 )
+
+      REAL         SEC2HR          ! convert seconds to hours
+      PARAMETER  ( SEC2HR = 1.0 / 3600.0 )
+
+C...........ARGUMENTS and their descriptions
+
+      INTEGER      JDATE           ! current model date, coded YYYYDDD
+      INTEGER      JTIME           ! current model time, coded HHMMSS
+
+      REAL         AIRM            ! total air mass in cloudy layers (mol/m2)
+      REAL         ALFA0           ! scav coef for aitken aerosol number
+      REAL         ALFA2           ! scav coef for aitken aerosol sfc area
+      REAL         ALFA3           ! scav coef for aitken aerosol mass
+      REAL         HPWDEP          ! hydrogen wet deposition (mm mol/liter)
+      REAL         PRCRATE         ! precip rate (mm/hr)
+      REAL         PRES_PA         ! pressure (Pa)
+      REAL         TAUCLD          ! timestep for cloud (s)
+      REAL         TEMP            ! temperature (K)
+      REAL         WCAVG           ! liquid water content (kg/m3)
+      REAL         WTAVG           ! total water content (kg/m3)
+      REAL         GAS    ( NGAS ) ! gas phase concentrations (mol/molV)
+      REAL         AEROSOL( NAER ) ! aerosol concentrations (mol/molV)
+      REAL         GASWDEP( NGAS ) ! gas phase wet deposition array (mm mol/liter)
+      REAL         AERWDEP( NAER ) ! aerosol wet deposition array (mm mol/liter)
+
+C...........LOCAL VARIABLES (scalars) and their descriptions:
+
+      LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
+
+      CHARACTER*16 PNAME           ! driver program name
+      DATA         PNAME / 'AQCHEM' /
+      SAVE         PNAME
+
+      CHARACTER*16 MGLYSUR         ! Henry's law surrogate for MGLY
+      DATA         MGLYSUR / 'METHYL_GLYOXAL  ' /
+      SAVE         MGLYSUR
+
+      INTEGER      I20C            ! loop counter for do loop 20
+      INTEGER      I30C            ! loop counter for do loop 30
+      INTEGER      ITERAT          ! # iterations of aqueous chemistry solver
+      INTEGER      I7777C          ! aqueous chem iteration counter
+      INTEGER      ICNTAQ          ! aqueous chem iteration counter
+      INTEGER      LIQ             ! loop counter for liquid species
+      INTEGER      IOX             ! index over oxidation reactions
+
+      REAL         DEPSUM
+      REAL         BETASO4
+      REAL         A               ! iron's anion concentration
+      REAL         AC              ! H+ concentration in cloudwater (mol/liter)
+      REAL         ACT1            ! activity correction factor!single ions
+      REAL         ACT2            ! activity factor correction!double ions
+      REAL         ACTB            !
+      REAL         AE              ! guess for H+ conc in cloudwater (mol/liter)
+      REAL         B               ! manganese's anion concentration
+      REAL         PRES_ATM        ! pressure (Atm)
+      REAL         BB              ! lower limit guess of cloudwater pH
+      REAL         CA              ! Calcium conc in cloudwater (mol/liter)
+      REAL         CAA             ! inital Calcium in cloudwater (mol/liter)
+      REAL         CL              ! total Cl-  conc in cloudwater (mol/liter)
+      REAL         CLACC           ! fine Cl- in cloudwater (mol/liter)
+      REAL         CLACCA          ! initial fine Cl in cloudwater (mol/liter)
+      REAL         CLAKNA          ! initial interstitial aero Cl (mol/liter)
+      REAL         CLCOR           ! coarse Cl-  conc in cloudwater (mol/liter)
+      REAL         CLCORA          ! init coarse Cl-  in cloudwater (mol/liter)
+      REAL         CO2H            ! Henry's Law constant for CO2
+      REAL         CO21            ! First dissociation constant for CO2
+      REAL         CO22            ! Second dissociation constant for CO2
+      REAL         CO212           ! CO21*CO22
+      REAL         CO212H          ! CO2H*CO21*CO22
+      REAL         CO21H           ! CO2H*CO21
+      REAL         CO2L            ! CO2 conc in cloudwater (mol/liter)
+      REAL         CO3             ! CO3= conc in cloudwater (mol/liter)
+      REAL         CO3A            ! initial CO3 in cloudwater (mol/liter)
+      REAL         CTHK1           ! cloud thickness (m)
+      REAL         DSIV_SCALE      ! mass conservation scale factor for S(IV)
+      REAL         DTRMV           !
+      REAL         DTS6            !
+      REAL(8)      DGLYDT          ! change in GLY (mol/liter/sec)
+      REAL(8)      DMGLYDT         ! change in MGLY (mol/liter/sec)
+ccc      REAL(8)      DOHDT           ! change in OH
+      REAL(8)      DGLY1           ! change due to Rxn. in GLY for DTW(0) time step
+      REAL(8)      DMGLY1          ! change due to Rxn. in MGLY for DTW(0) time step
+ccc      REAL(8)      DOH1            ! change in OH for DTW(0) time step
+      REAL(8)      DORGC           ! change in ORGC for DTW(0) time step (mol/liter)
+      REAL         EBETASO4T       ! EXP( -BETASO4 * TAUCLD )
+      REAL         EALFA0T         ! EXP( -ALFA0 * TAUCLD )
+      REAL         EALFA2T         ! EXP( -ALFA2 * TAUCLD )
+      REAL         EALFA3T         ! EXP( -ALFA3 * TAUCLD )
+      REAL         EC              ! elemental carbon acc+akn aerosol in cloudwater (mol/liter)
+      REAL         ECACCA          ! init EC ACC aerosol in cloudwater (mol/liter)
+      REAL         ECAKNA          ! init EC AKN aerosol in cloudwater (mol/liter)
+      REAL         FA              ! functional value ??
+      REAL         FB              ! functional value ??
+      REAL         FE              ! Fe+++ conc in cloudwater (mol/liter)
+      REAL         FEA             ! initial Fe in cloudwater (mol/liter)
+      REAL         FNH3            ! frac weight of NH3 to total ammonia
+      REAL         FNH4ACC         ! frac weight of NH4 acc to total ammonia
+      REAL         FHNO3           ! frac weight of HNO3 to total NO3
+      REAL         FNO3ACC         ! frac weight of NO3 acc to total NO3
+      REAL         FRACLIQ         ! fraction of water in liquid form
+      REAL         FOA1            ! First dissociation constant for FOA
+      REAL         FOAH            ! Henry's Law constant for FOA
+      REAL         FOA1H           ! FOAH*FOA1
+      REAL         FOAL            ! FOA conc in cloudwater (mol/liter)
+      REAL         FTST            !
+      REAL         GLYH            ! Henry's Law constant for glyoxal
+      REAL(8)      GLYL            ! glyoxal conc in cloud water (mol/liter)
+      REAL         GM              !
+      REAL         GM1             !
+      REAL         GM1LOG          !
+      REAL         GM2             ! activity correction factor
+      REAL         GM2LOG          !
+      REAL         HA              !
+      REAL         HB              !
+      REAL         H2OW            !
+      REAL         H2O2H           ! Henry's Law Constant for H2O2
+      REAL         H2O2L           ! H2O2 conc in cloudwater (mol/liter)
+      REAL         HCLH            ! Henry's Law Constant for HCL
+      REAL         HCL1            ! First dissociation constant for HCL
+      REAL         HCL1H           ! HCL1*HCLH
+      REAL         HCLL            ! HCl  conc in  cloudwater (mol/liter)
+      REAL         HCO2            ! HCO2 conc in cloudwater (mol/liter)
+      REAL         HCO3            ! HCO3 conc in cloudwater (mol/liter)
+      REAL         HNO3H           ! Henry's Law Constant for HNO3
+      REAL         HNO31           ! First dissociation constant for HNO3
+      REAL         HNO31H          !
+      REAL         HNO3L           ! HNO3 conc in cloudwater (mol/liter)
+      REAL         HOH             ! Henry's Law Constant for HO
+      REAL         HSO3            ! HSO3 conc in cloudwater (mol/liter)
+      REAL         HSO4            ! HSO4 concn in cloudwater (mol/liter)
+      REAL         HSO4ACC         ! accumulation mode HSO4 concn in cloudwater (mol/liter)
+      REAL         HSO4COR         ! coarse HSO4 concn in cloudwater (mol/liter)
+      REAL         HTST            !
+      REAL         K               ! K conc in cloudwater (mol/liter)
+      REAL         KA              ! initial K in cloudwater (mol/liter)
+      REAL         LGTEMP          ! log of TEMP
+      REAL         M3NEW           ! accumulation mode mass at time t
+      REAL         M3NEWCOR        ! coarse mode mass at time t
+      REAL         M3OLD           ! accumulation mode mass at time 0
+      REAL         M3OLDCOR        ! coarse mode mass at time 0
+      REAL         MG              !
+      REAL         MGLYH           ! Henry's Law Constant for methylglyoxal
+      REAL(8)      MGLYL           ! MGLY conc in cloud water (mol/liter)
+      REAL         MGA             ! inital Mg in cloudwater (mol/liter)
+      REAL         MHPH            ! Henry's Law Constant for MHP
+      REAL         MHPL            ! MHP conc in cloudwater (mol/liter)
+      REAL         MN              ! Mn++ conc in cloudwater (mol/liter)
+      REAL         MNA             ! initial Mn in cloudwater (mol/liter)
+      REAL         NA              ! Na conc in cloudwater (mol/liter)
+      REAL         NAACC           ! Na in cloudwater (mol/liter)
+      REAL         NAACCA          ! initial Na in cloudwater (mol/liter)
+      REAL         NAAKNA          ! init Aitken mode aer conc (mol/liter)
+      REAL         NACOR           ! coarse Na in cloudwater (mol/liter)
+      REAL         NACORA          ! init Coarse Na in cloudwater (mol/liter)
+      REAL         NH31            ! First dissociation constant for NH3
+      REAL         NH3H            ! Henry's Law Constant for NH3
+      REAL         NH3DH20         !
+      REAL         NH31HDH         !
+      REAL         NH3L            ! NH3 conc in cloudwater (mol/liter)
+      REAL         NH4             ! NH4+ conc in cloudwater (mol/liter)
+      REAL         NH4AKNA         ! init NH4 akn conc in cloudwater (mol/liter)
+      REAL         NH4ACCA         ! init NH4 acc conc in cloudwater (mol/liter)
+      REAL         NH4ACC          ! NH4 acc conc in cloudwater (mol/liter)
+      REAL         NH4COR          ! NH4 coarse conc in cloudwater (mol/liter)
+      REAL         NH4CORA         ! init NH4 coarse conc in cloudwater (mol/liter)
+      REAL         NITAER          ! total aerosol nitrate
+      REAL         NO3             ! NO3 conc in cloudwater (mol/liter)
+      REAL         NO3ACC          ! NO3 acc conc in cloudwater (mol/liter)
+      REAL         NO3ACCA         ! init NO3 acc conc in cloudwater (mol/liter)
+      REAL         NO3AKNA         ! init NO3 akn conc in cloudwater (mol/liter)
+      REAL         NO3CORA         ! init NO3 coa conc in cloudwater (mol/liter)
+      REAL         NO3COR          ! NO3 coarse conc in cloudwater (mol/liter)
+      REAL         NUMCOR          ! coarse aerosol number in cloudwater (mol/liter)
+      REAL         NUMCORA         ! initial coarse aerosol number in cloudwater (mol/liter)
+      REAL         O3H             ! Henry's Law Constant for O3
+      REAL         O3L             ! O3 conc in cloudwater (mol/liter)
+      REAL         OH              ! OH conc in cloudwater (mol/liter)
+      REAL         OHL             ! OH radical conc in cloudwater (mol/liter)
+      REAL         ORGALK          ! (mol/liter)
+      REAL         ORGALKA         ! (mol/liter)
+      REAL         ORGXYL1         ! (mol/liter)
+      REAL         ORGXYL1A        ! (mol/liter)
+      REAL         ORGXYL2         ! (mol/liter)
+      REAL         ORGXYL2A        ! (mol/liter)
+      REAL         ORGXYL3         ! (mol/liter)
+      REAL         ORGXYL3A        ! (mol/liter)
+      REAL         ORGTOL1         ! (mol/liter)
+      REAL         ORGTOL1A        ! (mol/liter)
+      REAL         ORGTOL2         ! (mol/liter)
+      REAL         ORGTOL2A        ! (mol/liter)
+      REAL         ORGTOL3         ! (mol/liter)
+      REAL         ORGTOL3A        ! (mol/liter)
+      REAL         ORGBNZ1         ! (mol/liter)
+      REAL         ORGBNZ1A        ! (mol/liter)
+      REAL         ORGBNZ2         ! (mol/liter)
+      REAL         ORGBNZ2A        ! (mol/liter)
+      REAL         ORGBNZ3         ! (mol/liter)
+      REAL         ORGBNZ3A        ! (mol/liter)
+      REAL         ORGTRP1         ! (mol/liter)
+      REAL         ORGTRP1A        ! (mol/liter)
+      REAL         ORGTRP2         ! (mol/liter)
+      REAL         ORGTRP2A        ! (mol/liter)
+      REAL         ORGISO1         ! (mol/liter)
+      REAL         ORGISO1A        ! (mol/liter)
+      REAL         ORGISO2         ! (mol/liter)
+      REAL         ORGISO2A        ! (mol/liter)
+      REAL         ORGISO3         ! (mol/liter)
+      REAL         ORGISO3A        ! (mol/liter)
+      REAL         ORGSQT          ! (mol/liter)
+      REAL         ORGSQTA         ! (mol/liter)
+      REAL         ORGC            ! cloud-produced SOA in cloudwater (treated as primary) (mol/liter)
+      REAL         ORGCACCA        ! init in-cloud SOA (mol/liter)
+      REAL         ORGOLGA         ! (mol/liter)
+      REAL         ORGOLGAA        ! (mol/liter)
+      REAL         ORGOLGB         ! (mol/liter)
+      REAL         ORGOLGBA        ! (mol/liter)
+      REAL         ORGP            ! primary ORGANIC aerosol in cloudwater (mol/liter)
+      REAL         ORGPACCA        ! init primary ORG ACC aerosol in cloudwater (mol/liter)
+      REAL         ORGPAKNA        ! init primary ORG AKN aerosol in cloudwater (mol/liter)
+      REAL         PAAH            ! Henry's Law Constant for PAA
+      REAL         PAAL            ! PAA conc in cloudwater (mol/liter)
+      REAL         PCO20           ! total CO2 partial pressure (atm)
+      REAL         PCO2F           ! gas only CO2 partial pressure (atm)
+      REAL         PFOA0           ! total ORGANIC acid partial pressure (atm)
+      REAL         PFOAF           ! gas only ORGANIC ACID partial press (atm)
+      REAL(8)      PGLY0           ! total glyoxal partial pressure (atm)
+      REAL(8)      PGLYF           ! gas only GLY partial pressure (atm)
+      REAL         PH2O20          ! total H2O2 partial pressure (atm)
+      REAL         PH2O2F          ! gas only H2O2 partial pressure (atm)
+      REAL         PHCL0           ! total HCL partial pressure (atm)
+      REAL         PHCLF           ! gas only HCL partial pressure (atm)
+      REAL         PHNO30          ! total HNO3 partial pressure (atm)
+      REAL         PHNO3F          ! gas only HNO3 partial pressure (atm)
+      REAL(8)      PHO0            ! total HO partial Pressure (atm)
+      REAL(8)      PHOF            ! gas only HO partial pressure (atm)
+      REAL(8)      PMGLY0          ! total MGLY partial pressure (atm)
+      REAL(8)      PMGLYF          ! gas only MGLY parital pressure (atm)
+      REAL         PMHP0           ! total MHP partial pressure (atm)
+      REAL         PMHPF           ! gas only MHP partial pressure (atm)
+      REAL         PNH30           ! total NH3 partial pressure (atm)
+      REAL         PNH3F           ! gas only NH3 partial pressure (atm)
+      REAL         PO30            ! total O3 partial pressure (atm)
+      REAL         PO3F            ! gas only O3 partial pressure (atm)
+      REAL         PPAA0           ! total PAA partial pressure (atm)
+      REAL         PPAAF           ! gas only PAA partial pressure (atm)
+      REAL         PRIM            ! PRIMARY acc+akn aerosol in cloudwater (mol/liter)
+      REAL         PRIMCOR         ! PRIMARY coarse aerosol in cloudwater (mol/liter)
+      REAL         PRIACCA         ! init PRI ACC aerosol in cloudwater (mol/liter)
+      REAL         PRIAKNA         ! init PRI AKN aerosol in cloudwater (mol/liter)
+      REAL         PRICORA         ! init PRI COR aerosol in cloudwater (mol/liter)
+      REAL         PSO20           ! total SO2 partial pressure (atm)
+      REAL         PSO2F           ! gas only SO2 partial pressure (atm)
+      REAL         RATE            !
+      REAL         RECIPA1         !
+      REAL         RECIPA2         !
+      REAL         RECIPAP1        ! one over pressure (/atm)
+      REAL(8)      RGLY3           ! liter/(mol sec)
+      REAL         RH2O2           !
+      REAL(8)      RMGLY3          ! liter/(mol sec)
+      REAL         RMHP            !
+      REAL         RPAA            !
+      REAL         RT              ! gas const * temperature (liter atm/mol)
+      REAL         SCVEFF          ! Scavenging efficiency (%)
+      DATA         SCVEFF / 100.0 / ! currently set to 100%
+      SAVE         SCVEFF
+      REAL         SIV             ! dissolved so2 in cloudwater (mol/liter)
+      REAL         SK6             !
+      REAL         SK6TS6          !
+      REAL         SO21            ! First dissociation constant for SO2
+      REAL         SO22            ! Second dissociation constant for SO2
+      REAL         SO2H            ! Henry's Law Constant for SO2
+      REAL         SO212           ! SO21*SO22
+      REAL         SO212H          ! SO21*SO22*SO2H
+      REAL         SO21H           ! SO21*SO2H
+      REAL         SO2L            ! SO2 conc in cloudwater (mol/liter)
+      REAL         SO3             ! SO3= conc in cloudwater (mol/liter)
+      REAL         SO4             ! SO4= conc in cloudwater (mol/liter)
+      REAL         SO4ACC          ! accumulation mode SO4= conc in cloudwater (mol/liter)
+      REAL         SO4COR          ! coarse SO4= conc in cloudwater (mol/liter)
+      REAL         STION           ! ionic strength
+      REAL         TAC             !
+      REAL         TEMP1           ! (1/T) - (1/298) (1/K)
+      REAL         TIMEW           ! cloud chemistry clock (sec)
+ccc      REAL(8)      THO             ! total hydroxyl radical available for oxidation
+      REAL(8)      TGLY            ! total glyoxal available for oxidation
+      REAL(8)      TMGLY           ! total methylglyoxal available for oxidation
+      REAL         TOTOX           !
+      REAL         TH2O2
+      REAL         TO3
+      REAL         TMHP
+      REAL         TPAA
+      REAL         TOTAMM          ! total ammonium
+      REAL         TOTNIT          ! total nitrate (excluding coarse mode)
+      REAL         TS6             ! SO4 conc in cloudwater (mol/liter)
+      REAL         TS6AKNA         ! init SO4 akn conc in cloudwater (mol/liter)
+      REAL         TS6ACC          ! SO4 acc conc in cloudwater (mol/liter)
+      REAL         TS6ACCA         ! init SO4 acc conc in cloudwater (mol/liter)
+      REAL         TS6COR          ! coarse SO4 conc in cloudwater   (mol/liter)
+      REAL         TS6CORA         ! init SO4 coa conc in cloudwater (mol/liter)
+      REAL         TSIV            ! total S(iv) available for oxidation
+      REAL         TST             !
+      REAL         TWASH           ! washout time for clouds (sec)
+      REAL         WETFAC          ! converts mol/l to mm-mol/l based on precip
+      REAL         XC1             ! (/mm)
+      REAL         XC2             ! (liter-atm/mol/mm)
+      REAL(8)      XL              ! conversion factor (liter-atm/mol)
+      REAL(8)      ONE_OVER_XL     ! 1.0 / XL
+      REAL         PRES_ATM_OVER_XL ! PRES_ATM / XL
+      REAL         XLCO2           !
+      REAL         XLH2O2          !
+      REAL         XLHCL           ! const in calc of HCL final partial pres
+      REAL         XLHNO3          !
+      REAL         XLMHP           !
+      REAL         XLNH3           !
+      REAL         XLO3            !
+      REAL         XLPAA           !
+      REAL         XLSO2           !
+
+C...........LOCAL VARIABLES (arrays) and their descriptions:
+
+      REAL         LIQUID( NLIQS ) ! wet deposition array (mm mol/liter)
+      REAL         WETDEP( NLIQS ) ! wet deposition array (mm mol/liter)
+      REAL         DSIVDT( 0:NUMOX ) ! rate of so2 oxid incloud (mol/liter/sec)
+      REAL         DS4   ( 0:NUMOX ) ! S(IV) oxidized over timestep DTW(0)
+      REAL         DTW   ( 0:NUMOX ) ! cloud chemistry timestep (sec)
+
+      REAL         ONE_OVER_TEMP     ! 1.0 / TEMP
+
+C...........EXTERNAL FUNCTIONS and their descriptions:
+
+      REAL          HLCONST
+      EXTERNAL      HLCONST
+
+C*********************************************************************
+C     begin body of subroutine AQCHEM
+
+C...Initialization
+
+      IF ( FIRSTIME ) THEN
+
+        FIRSTIME = .FALSE.
+
+C...Make sure an AE5 version of the mechanism is being used
+
+         IF ( INDEX ( MECHNAME, 'AE5' ) .LE. 0 ) THEN
+           XMSG = 'This version of AQCHEM requires an AE5 chemical mechanism'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+C...special treatment of MGLY for CB05 mechanism:
+C...  use Henry's law constant for glyoxal as a surrogate for methyl glyoxal
+
+         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
+           MGLYSUR = 'GLYOXAL         '
+         END IF
+
+      END IF    ! FIRSTIME
+
+      ONE_OVER_TEMP = 1.0 / TEMP
+
+C...check for bad temperature, cloud air mass, or pressure
+
+      IF ( TEMP .LE. 0.0 .OR. AIRM .LE. 0.0 .OR. PRES_PA .LE. 0.0 ) THEN
+        XMSG = 'MET DATA ERROR'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+      END IF
+
+C...initialize counters and compute several conversion factors
+
+      ICNTAQ = 0
+      ITERAT = 0
+      DSIV_SCALE = 1.0
+      RT = ( MOLVOL / STDTEMP ) * TEMP             ! R * T (liter atm / mol)
+      PRES_ATM = PRES_PA /  STDATMPA               ! pressure (atm)
+      CTHK1 = AIRM * RT / ( PRES_ATM * 1000.0 )    ! cloud thickness (m)
+      XL   = WCAVG * RT / H2ODENS     ! conversion factor (l-atm/mol)
+      ONE_OVER_XL = 1.0d0 / XL
+      PRES_ATM_OVER_XL = PRES_ATM / XL
+      TST  = 0.999
+      GM   = SCVEFF / 100.0
+      ACT1 = 1.0
+      ACT2 = 1.0
+      GM2  = 1.0
+      TIMEW = 0.0
+      RECIPAP1 = 1.0 / PRES_ATM
+      XC1  = 1.0 / ( WCAVG * CTHK1 )
+      XC2  = RT / ( 1000.0 * CTHK1 )
+      FRACLIQ = WCAVG / WTAVG
+      TWASH = WTAVG * 1000.0 * CTHK1 * 3600.0
+     &      / ( H2ODENS * MAX( 1.0E-20, PRCRATE ) )
+
+C...set equilibrium constants as a function of temperature
+C...   Henry's law constants
+
+      SO2H  = HLCONST( 'SO2             ', TEMP, .FALSE., 0.0 )
+      CO2H  = HLCONST( 'CO2             ', TEMP, .FALSE., 0.0 )
+      NH3H  = HLCONST( 'NH3             ', TEMP, .FALSE., 0.0 )
+      H2O2H = HLCONST( 'H2O2            ', TEMP, .FALSE., 0.0 )
+      O3H   = HLCONST( 'O3              ', TEMP, .FALSE., 0.0 )
+      HCLH  = HLCONST( 'HCL             ', TEMP, .FALSE., 0.0 )
+      HNO3H = HLCONST( 'HNO3            ', TEMP, .FALSE., 0.0 )
+      MHPH  = HLCONST( 'METHYLHYDROPEROX', TEMP, .FALSE., 0.0 )
+      PAAH  = HLCONST( 'PEROXYACETIC_ACI', TEMP, .FALSE., 0.0 )
+      FOAH  = HLCONST( 'FORMIC_ACID     ', TEMP, .FALSE., 0.0 )
+      GLYH  = HLCONST( 'GLYOXAL         ', TEMP, .FALSE., 0.0 )
+      MGLYH = HLCONST( MGLYSUR,            TEMP, .FALSE., 0.0 )
+      HOH   = HLCONST( 'OH              ', TEMP, .FALSE., 0.0 )
+
+      TEMP1 = ONE_OVER_TEMP - 1.0 / 298.0
+
+C...dissociation constants
+
+      FOA1  = 1.80E-04 * EXP( -2.00E+01 * TEMP1 )      ! Martell and Smith (1977)
+      SK6   = 1.02E-02 * EXP(  2.72E+03 * TEMP1 )      ! Smith and Martell (1976)
+      SO21  = 1.30E-02 * EXP(  1.96E+03 * TEMP1 )      ! Smith and Martell (1976)
+      SO22  = 6.60E-08 * EXP(  1.50E+03 * TEMP1 )      ! Smith and Martell (1976)
+      CO21  = 4.30E-07 * EXP( -1.00E+03 * TEMP1 )      ! Smith and Martell (1976)
+      CO22  = 4.68E-11 * EXP( -1.76E+03 * TEMP1 )      ! Smith and Martell (1976)
+      H2OW  = 1.00E-14 * EXP( -6.71E+03 * TEMP1 )      ! Smith and Martell (1976)
+      NH31  = 1.70E-05 * EXP( -4.50E+02 * TEMP1 )      ! Smith and Martell (1976)
+      HCL1  = 1.74E+06 * EXP(  6.90E+03 * TEMP1 )      ! Marsh and McElroy (1985)
+      HNO31 = 1.54E+01 * EXP(  8.70E+03 * TEMP1 )      ! Schwartz (1984)
+
+C...Kinetic oxidation rates
+C...   From Chamedies (1982)
+
+      RH2O2 = 8.0E+04 * EXP( -3650.0 * TEMP1 )
+
+C...From Kok
+
+      RMHP = 1.75E+07 * EXP( -3801.0 * TEMP1 )
+      RPAA = 3.64E+07 * EXP( -3994.0 * TEMP1 )
+
+C...From Carlton et al. (2007)
+
+      RGLY3  = 3.0d+10   ! rate constant measured at 298K
+      RMGLY3 = 3.0d+10   ! assumed to be the same as GLY
+
+C...make initializations
+
+      DO LIQ = 1, NLIQS
+        WETDEP( LIQ ) = 0.0
+      END DO
+
+      DO IOX = 0, NUMOX
+        DSIVDT( IOX ) = 0.0
+        DTW   ( IOX ) = 0.0
+        DS4   ( IOX ) = 0.0
+      END DO
+      DGLY1  = 0.0d0
+      DMGLY1 = 0.0d0
+      DORGC  = 0.0d0
+ccc      DOH1   = 0.0
+
+C...compute the initial accumulation aerosol 3rd moment
+C...  secondary organic aerosol and water are not included
+
+      M3OLD = ( AEROSOL( LSO4ACC  ) * SGRAERMW( LSO4ACC  ) / 1.8e6
+     &      +   AEROSOL( LNH4ACC  ) * SGRAERMW( LNH4ACC  ) / 1.8e6
+     &      +   AEROSOL( LNO3ACC  ) * SGRAERMW( LNO3ACC  ) / 1.8e6
+     &      +   AEROSOL( LXYL3ACC ) * SGRAERMW( LXYL3ACC ) / 2.0e6
+     &      +   AEROSOL( LTOL3ACC ) * SGRAERMW( LTOL3ACC ) / 2.0e6
+     &      +   AEROSOL( LBNZ3ACC ) * SGRAERMW( LBNZ3ACC ) / 2.0e6
+     &      +   AEROSOL( LORGCACC ) * SGRAERMW( LORGCACC ) / 2.0e6
+     &      +   AEROSOL( LISO3ACC ) * SGRAERMW( LISO3ACC ) / 2.0e6
+     &      +   AEROSOL( LOLGAACC ) * SGRAERMW( LOLGAACC ) / 2.0e6
+     &      +   AEROSOL( LOLGBACC ) * SGRAERMW( LOLGBACC ) / 2.0e6
+     &      +   AEROSOL( LORGPACC ) * SGRAERMW( LORGPACC ) / 2.0e6
+     &      +   AEROSOL( LECACC   ) * SGRAERMW( LECACC   ) / 2.2e6
+     &      +   AEROSOL( LPRIACC  ) * SGRAERMW( LPRIACC  ) / 2.2e6
+     &      +   AEROSOL( LNAACC   ) * SGRAERMW( LNAACC   ) / 2.2e6
+     &      +   AEROSOL( LCLACC   ) * SGRAERMW( LCLACC   ) / 2.2e6 )
+ccc     &      * 6.0 / PI    ! cancels out in division at end of subroutine
+
+C...compute the initial coarse aerosol 3rd moment
+C...  secondary organic aerosol and water are not included
+
+      M3OLDCOR = ( AEROSOL( LSO4COR  ) * SGRAERMW( LSO4COR  ) / 1.8e6
+     &         +   AEROSOL( LNH4COR  ) * SGRAERMW( LNH4COR  ) / 1.8e6
+     &         +   AEROSOL( LNO3COR  ) * SGRAERMW( LNO3COR  ) / 1.8e6
+     &         +   AEROSOL( LPRICOR  ) * SGRAERMW( LPRICOR  ) / 2.2e6
+     &         +   AEROSOL( LNACOR   ) * SGRAERMW( LNACOR   ) / 2.2e6
+     &         +   AEROSOL( LCLCOR   ) * SGRAERMW( LCLCOR   ) / 2.2e6 )
+
+C...compute fractional weights for several species
+
+      TOTNIT = GAS( LHNO3 ) + AEROSOL( LNO3ACC )
+      IF ( TOTNIT .GT. 0.0 ) THEN
+        FHNO3   = GAS( LHNO3 ) / TOTNIT
+        FNO3ACC = AEROSOL( LNO3ACC ) / TOTNIT
+      ELSE
+        FHNO3   = 1.0
+        FNO3ACC = 0.0
+      END IF
+
+      TOTAMM = GAS( LNH3 ) + AEROSOL( LNH4ACC )
+      IF ( TOTAMM .GT. 0.0 ) THEN
+        FNH3    = GAS( LNH3 ) / TOTAMM
+        FNH4ACC = AEROSOL( LNH4ACC ) / TOTAMM
+      ELSE
+        FNH3    = 1.0
+        FNH4ACC = 0.0
+      END IF
+
+C...initial concentration from accumulation-mode aerosol loading (mol/liter)
+C...  an assumption is made that all of the accumulation-mode
+C...  aerosol mass in incorporated into the cloud droplets
+
+      TS6ACCA = ( AEROSOL( LSO4ACC )
+     &        +   GAS    ( LH2SO4  ) ) * PRES_ATM_OVER_XL
+      NO3ACCA =   AEROSOL( LNO3ACC )   * PRES_ATM_OVER_XL
+      NH4ACCA =   AEROSOL( LNH4ACC )   * PRES_ATM_OVER_XL
+      ORGALKA  =  AEROSOL( LALKACC )   * PRES_ATM_OVER_XL
+      ORGXYL1A =  AEROSOL( LXYL1ACC )  * PRES_ATM_OVER_XL
+      ORGXYL2A =  AEROSOL( LXYL2ACC )  * PRES_ATM_OVER_XL
+      ORGXYL3A =  AEROSOL( LXYL3ACC )  * PRES_ATM_OVER_XL
+      ORGTOL1A =  AEROSOL( LTOL1ACC )  * PRES_ATM_OVER_XL
+      ORGTOL2A =  AEROSOL( LTOL2ACC )  * PRES_ATM_OVER_XL
+      ORGTOL3A =  AEROSOL( LTOL3ACC )  * PRES_ATM_OVER_XL
+      ORGBNZ1A =  AEROSOL( LBNZ1ACC )  * PRES_ATM_OVER_XL
+      ORGBNZ2A =  AEROSOL( LBNZ2ACC )  * PRES_ATM_OVER_XL
+      ORGBNZ3A =  AEROSOL( LBNZ3ACC )  * PRES_ATM_OVER_XL
+      ORGTRP1A =  AEROSOL( LTRP1ACC )  * PRES_ATM_OVER_XL
+      ORGTRP2A =  AEROSOL( LTRP2ACC )  * PRES_ATM_OVER_XL
+      ORGISO1A =  AEROSOL( LISO1ACC )  * PRES_ATM_OVER_XL
+      ORGISO2A =  AEROSOL( LISO2ACC )  * PRES_ATM_OVER_XL
+      ORGISO3A =  AEROSOL( LISO3ACC )  * PRES_ATM_OVER_XL
+      ORGSQTA  =  AEROSOL( LSQTACC )   * PRES_ATM_OVER_XL
+      ORGCACCA =  AEROSOL( LORGCACC )  * PRES_ATM_OVER_XL
+      ORGOLGAA =  AEROSOL( LOLGAACC )  * PRES_ATM_OVER_XL
+      ORGOLGBA =  AEROSOL( LOLGBACC )  * PRES_ATM_OVER_XL
+      ORGPACCA =  AEROSOL( LORGPACC )  * PRES_ATM_OVER_XL
+      ECACCA  =   AEROSOL( LECACC  )   * PRES_ATM_OVER_XL
+      PRIACCA =   AEROSOL( LPRIACC )   * PRES_ATM_OVER_XL
+      NAACCA  =   AEROSOL( LNAACC  )   * PRES_ATM_OVER_XL
+      CLACCA  =   AEROSOL( LCLACC  )   * PRES_ATM_OVER_XL
+
+C...initial concentration from coarse-mode aerosol loading (mol/liter)
+C...  an assumption is made that all of the coarse-mode
+C...  aerosol mass in incorporated into the cloud droplets
+
+      TS6CORA =   AEROSOL( LSO4COR )   * PRES_ATM_OVER_XL
+      NO3CORA =   AEROSOL( LNO3COR )   * PRES_ATM_OVER_XL
+      NH4CORA =   AEROSOL( LNH4COR )   * PRES_ATM_OVER_XL
+      CLCORA  =   AEROSOL( LCLCOR  )   * PRES_ATM_OVER_XL
+      NACORA  =   AEROSOL( LNACOR  )   * PRES_ATM_OVER_XL
+      KA      =   AEROSOL( LK      )   * PRES_ATM_OVER_XL
+      CAA     =   AEROSOL( LCACO3  )   * PRES_ATM_OVER_XL
+      MGA     =   AEROSOL( LMGCO3  )   * PRES_ATM_OVER_XL
+      FEA     =   AEROSOL( LA3FE   )   * PRES_ATM_OVER_XL
+      MNA     =   AEROSOL( LB2MN   )   * PRES_ATM_OVER_XL
+      CO3A    = ( AEROSOL( LCACO3  )
+     &        +   AEROSOL( LMGCO3  ) ) * PRES_ATM_OVER_XL
+      PRICORA =   AEROSOL( LPRICOR )   * PRES_ATM_OVER_XL
+      NUMCORA =   AEROSOL( LNUMCOR )   * PRES_ATM_OVER_XL
+
+C...set constant factors that will be used in later multiplications (moles/atm)
+
+      XLH2O2  = H2O2H * XL
+      XLO3    = O3H   * XL
+      XLMHP   = MHPH  * XL
+      XLPAA   = PAAH  * XL
+      XLSO2   = SO2H  * XL
+      XLNH3   = NH3H  * XL
+      XLHCL   = HCLH  * XL
+      XLHNO3  = HNO3H * XL
+      XLCO2   = CO2H  * XL
+
+      SO212   = SO21  * SO22
+      SO21H   = SO21  * SO2H
+      SO212H  = SO212 * SO2H
+      CO212   = CO21  * CO22
+      CO21H   = CO21  * CO2H
+      CO212H  = CO22  * CO21H
+      NH3DH20 = NH31  / H2OW
+      NH31HDH = NH3H  * NH3DH20
+      FOA1H   = FOA1  * FOAH
+      HCL1H   = HCL1  * HCLH
+      HNO31H  = HNO31 * HNO3H
+
+C...If kinetic calculations are made, return to this point
+
+      I20C = 0
+20    CONTINUE
+
+      I20C = I20C + 1
+      IF ( I20C .GE. 10000 ) THEN
+        XMSG = 'EXCESSIVE LOOPING AT I20C'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+      END IF
+
+C...set aitken-mode aerosol loading (mol/liter)
+
+      NO3AKNA = AEROSOL( LNO3AKN ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      NH4AKNA = AEROSOL( LNH4AKN ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      TS6AKNA = AEROSOL( LSO4AKN ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      ORGPAKNA = AEROSOL( LORGPAKN ) * PRES_ATM_OVER_XL
+     &         * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      ECAKNA  = AEROSOL( LECAKN  ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      PRIAKNA = AEROSOL( LPRIAKN ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      NAAKNA  = AEROSOL( LNAAKN  ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+      CLAKNA  = AEROSOL( LCLAKN  ) * PRES_ATM_OVER_XL
+     &        * ( 1.0 - EXP( -ALFA3 * TIMEW ) )
+
+C...Initial gas phase partial pressures (atm)
+C...   = initial partial pressure - amount deposited partial pressure
+
+      PSO20  = GAS( LSO2  ) * PRES_ATM
+     &       + DS4( 0 ) * XL
+     &       - ( WETDEP( LSO3L ) + WETDEP( LHSO3L ) + WETDEP( LSO2L ) ) * XC2
+      PNH30  = GAS( LNH3  ) * PRES_ATM
+     &       + ( NH4ACCA + NH4CORA + NH4AKNA ) * XL  
+     &       - ( WETDEP( LNH4ACCL ) + WETDEP( LNH3L ) + WETDEP( LNH4CORL ) ) * XC2 
+      PHNO30 = ( GAS( LHNO3 ) + 2.0 * GAS( LN2O5 ) ) * PRES_ATM
+     &       + ( NO3ACCA + NO3CORA + NO3AKNA ) * XL
+     &       - ( WETDEP( LNO3ACCL ) + WETDEP( LHNO3L ) + WETDEP( LNO3CORL ) ) * XC2
+      PHCL0  = GAS(  LHCL ) * PRES_ATM
+     &       + ( CLACCA + CLCORA + CLAKNA ) * XL ! new for sea salt
+     &       - ( WETDEP( LCLACCL ) + WETDEP( LHCLL ) + WETDEP( LCLCORL ) ) * XC2
+      PH2O20 = GAS( LH2O2 ) * PRES_ATM - WETDEP( LH2O2L ) * XC2
+      PO30   = GAS( LO3   ) * PRES_ATM - WETDEP( LO3L   ) * XC2
+      PFOA0  = GAS( LFOA  ) * PRES_ATM
+     &       - ( WETDEP( LFOAL ) + WETDEP( LHCO2L ) ) * XC2
+      PMHP0  = GAS( LMHP  ) * PRES_ATM - WETDEP( LMHPL  ) * XC2
+      PPAA0  = GAS( LPAA  ) * PRES_ATM - WETDEP( LPAAL  ) * XC2
+      PCO20  = GAS( LCO2  ) * PRES_ATM
+     &       + CO3A * XL
+     &       - ( WETDEP( LCO3L ) + WETDEP( LHCO3L ) + WETDEP( LCO2L ) ) * XC2
+      PGLY0  = GAS( LGLY  ) * PRES_ATM
+     &         + DGLY1 * XL
+     &         - WETDEP( LGLYL ) * XC2
+      PMGLY0 = GAS( LMGLY  ) * PRES_ATM
+     &         + DMGLY1 * XL
+     &         - WETDEP( LMGLYL ) * XC2
+      PHO0 = GAS( LHO ) * PRES_ATM
+csteadystate     &         + DOH1 * XL
+csteadystate     &         - WETDEP( LOHL ) * XC2
+
+C...don't allow gas concentrations to go below zero
+
+      PSO20  = MAX( PSO20,  0.0 )
+      PNH30  = MAX( PNH30,  0.0 )
+      PH2O20 = MAX( PH2O20, 0.0 )
+      PO30   = MAX( PO30,   0.0 )
+      PFOA0  = MAX( PFOA0,  0.0 )
+      PMHP0  = MAX( PMHP0,  0.0 )
+      PPAA0  = MAX( PPAA0,  0.0 )
+      PCO20  = MAX( PCO20,  0.0 )
+      PHCL0  = MAX( PHCL0,  0.0 )
+      PHNO30 = MAX( PHNO30, 0.0 )
+      PGLY0  = MAX( PGLY0,  0.0d0 )
+      PMGLY0 = MAX( PMGLY0, 0.0d0 )
+      PHO0   = MAX( PHO0,   0.0d0 )
+
+C...Molar concentrations of soluble aerosols
+C...   = Initial amount - amount deposited  (mol/liter)
+
+      TS6COR  = MAX( TS6CORA - WETDEP( LTS6CORL ) * XC1, 0.0 )
+      NO3COR  = MAX( NO3CORA - WETDEP( LNO3CORL ) * XC1, 0.0 )
+      NACOR   = MAX( NACORA  - WETDEP( LNACORL  ) * XC1, 0.0 )
+      CLCOR   = MAX( CLCORA  - WETDEP( LCLCORL  ) * XC1, 0.0 )
+      NH4COR  = MAX( NH4CORA - WETDEP( LNH4CORL ) * XC1, 0.0 )
+
+      TS6     = TS6ACCA  + TS6AKNA + TS6COR
+     &        - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
+     &        - DS4( 0 )
+      NA      = NAACCA   + NAAKNA  + NACOR
+     &        - WETDEP( LNAACCL ) * XC1
+      CA      = CAA      -   WETDEP( LCAL ) * XC1
+      MG      = MGA      -   WETDEP( LMGL ) * XC1
+      K       = KA       -   WETDEP( LKL  ) * XC1
+      FE      = FEA      -   WETDEP( LFEL ) * XC1
+      MN      = MNA      -   WETDEP( LMNL ) * XC1
+      ORGALK  = ORGALKA  - WETDEP( LALKL  ) * XC1
+      ORGXYL1 = ORGXYL1A - WETDEP( LXYL1L ) * XC1
+      ORGXYL2 = ORGXYL2A - WETDEP( LXYL2L ) * XC1
+      ORGXYL3 = ORGXYL3A - WETDEP( LXYL3L ) * XC1
+      ORGTOL1 = ORGTOL1A - WETDEP( LTOL1L ) * XC1
+      ORGTOL2 = ORGTOL2A - WETDEP( LTOL2L ) * XC1
+      ORGTOL3 = ORGTOL3A - WETDEP( LTOL3L ) * XC1
+      ORGBNZ1 = ORGBNZ1A - WETDEP( LBNZ1L ) * XC1
+      ORGBNZ2 = ORGBNZ2A - WETDEP( LBNZ2L ) * XC1
+      ORGBNZ3 = ORGBNZ3A - WETDEP( LBNZ3L ) * XC1
+      ORGTRP1 = ORGTRP1A - WETDEP( LTRP1L ) * XC1
+      ORGTRP2 = ORGTRP2A - WETDEP( LTRP2L ) * XC1
+      ORGISO1 = ORGISO1A - WETDEP( LISO1L ) * XC1
+      ORGISO2 = ORGISO2A - WETDEP( LISO2L ) * XC1
+      ORGISO3 = ORGISO3A - WETDEP( LISO3L ) * XC1
+      ORGSQT  = ORGSQTA  - WETDEP( LSQTL  ) * XC1
+      ORGC    = ORGCACCA  + DORGC - WETDEP( LORGCL ) * XC1             ! new in-cloud organic
+      ORGOLGA = ORGOLGAA - WETDEP( LOLGAL ) * XC1
+      ORGOLGB = ORGOLGBA - WETDEP( LOLGBL ) * XC1
+      ORGP    = ORGPACCA + ORGPAKNA - WETDEP( LORGPL ) * XC1
+      EC      = ECACCA   + ECAKNA   - WETDEP( LECL   ) * XC1
+      PRIM    = PRIACCA  + PRIAKNA  - WETDEP( LPRIML ) * XC1
+      PRIMCOR = PRICORA - WETDEP( LPRIMCORL ) * XC1
+      NUMCOR  = NUMCORA - WETDEP( LNUMCORL  ) * XC1
+      A       = 3.0 * FE
+      B       = 2.0 * MN
+
+C...don't allow aerosol concentrations to go below zero
+
+      TS6     = MAX( TS6,     0.0 )
+      NA      = MAX( NA,      0.0 )
+      CA      = MAX( CA,      0.0 )
+      MG      = MAX( MG,      0.0 )
+      K       = MAX( K,       0.0 )
+      FE      = MAX( FE,      0.0 )
+      MN      = MAX( MN,      0.0 )
+      ORGALK  = MAX( ORGALK,  0.0 )
+      ORGXYL1 = MAX( ORGXYL1, 0.0 )
+      ORGXYL2 = MAX( ORGXYL2, 0.0 )
+      ORGXYL3 = MAX( ORGXYL3, 0.0 )
+      ORGTOL1 = MAX( ORGTOL1, 0.0 )
+      ORGTOL2 = MAX( ORGTOL2, 0.0 )
+      ORGTOL3 = MAX( ORGTOL3, 0.0 )
+      ORGBNZ1 = MAX( ORGBNZ1, 0.0 )
+      ORGBNZ2 = MAX( ORGBNZ2, 0.0 )
+      ORGBNZ3 = MAX( ORGBNZ3, 0.0 )
+      ORGTRP1 = MAX( ORGTRP1, 0.0 )
+      ORGTRP2 = MAX( ORGTRP2, 0.0 )
+      ORGISO1 = MAX( ORGISO1, 0.0 )
+      ORGISO2 = MAX( ORGISO2, 0.0 )
+      ORGISO3 = MAX( ORGISO3, 0.0 )
+      ORGSQT  = MAX( ORGSQT,  0.0 )
+      ORGC    = MAX( ORGC,    0.0 )
+      ORGOLGA = MAX( ORGOLGA, 0.0 )
+      ORGOLGB = MAX( ORGOLGB, 0.0 )
+      ORGP    = MAX( ORGP,    0.0 )
+      EC      = MAX( EC,      0.0 )
+      PRIM    = MAX( PRIM,    0.0 )
+      PRIMCOR = MAX( PRIMCOR, 0.0 )
+      NUMCOR  = MAX( NUMCOR,  0.0 )
+      A       = MAX( A,       0.0 )
+      B       = MAX( B,       0.0 )
+
+      SK6TS6 = SK6 * TS6
+
+C...find solution of the equation using a method of reiterative
+C...  bisections Make initial guesses for pH:   between .01  to  10.
+
+      HA =  0.01
+      HB = 10.0
+
+      I7777C = 0
+7777  CONTINUE
+
+      I7777C = I7777C + 1
+      IF ( I7777C .GE. 10000 ) THEN
+        XMSG = 'EXCESSIVE LOOPING AT I7777C'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+      END IF
+
+      HA = MAX( HA - 0.8, 0.1 )
+      HB = MIN( HB + 0.8, 9.9 )
+      AE = 10.0**( -HA )
+
+      RECIPA1 = 1.0 / ( AE * ACT1 )
+      RECIPA2 = 1.0 / ( AE * AE * ACT2 )
+
+C...calculate final gas phase partial pressure of SO2, NH3, HNO3
+C...  HCOOH, and CO2 (atm)
+
+      PSO2F = PSO20 / ( 1.0 + XLSO2 * ( 1.0 + SO21 * RECIPA1
+     &      + SO212 * RECIPA2 ) )
+
+      PNH3F = PNH30 / ( 1.0 + XLNH3 * ( 1.0 + NH3DH20 * AE ) )
+
+      PHCLF = PHCL0 / ( 1.0 + XLHCL *  ( 1.0 + HCL1 * RECIPA1 ) )
+
+      PFOAF = PFOA0 / ( 1.0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
+
+      PHNO3F = PHNO30 / ( 1.0 + XLHNO3 * ( 1.0 + HNO31 * RECIPA1 ) )
+
+      PCO2F = PCO20 / ( 1.0 + XLCO2 * ( 1.0 + CO21 * RECIPA1
+     &      + CO212 * RECIPA2 ) )
+
+C...calculate liquid phase concentrations (moles/liter)
+
+      SO4  = SK6TS6 / ( AE * GM2 + SK6 )
+      HSO4 = TS6 - SO4
+      SO3  = SO212H  * PSO2F  * RECIPA2
+      HSO3 = SO21H   * PSO2F  * RECIPA1
+      CO3  = CO212H  * PCO2F  * RECIPA2
+      HCO3 = CO21H   * PCO2F  * RECIPA1
+      OH   = H2OW    * RECIPA1
+      NH4  = NH31HDH * PNH3F  * AE
+      HCO2 = FOA1H   * PFOAF  * RECIPA1
+      NO3  = HNO31H  * PHNO3F * RECIPA1
+      CL   = HCL1H   * PHCLF  * RECIPA1 ! new for sea salt
+
+C...compute functional value
+
+      FA = AE + NH4 + NA + 2.0 * ( CA + MG - CO3 - SO3 - SO4 )
+     &   - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
+
+C...Start iteration and bisection ****************<<<<<<<
+
+      I30C = 0
+30    CONTINUE
+
+      I30C = I30C + 1
+      IF ( I30C .GE. 10000 ) THEN
+        XMSG = 'EXCESSIVE LOOPING AT I30C'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+      END IF
+
+      BB = ( HA + HB ) / 2.0
+      AE = 10.0**( -BB )
+
+      ICNTAQ = ICNTAQ + 1
+      IF ( ICNTAQ .GE. 60000 ) THEN
+        XMSG = 'Maximum AQCHEM total iterations exceeded'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+      END IF
+
+      RECIPA1 = 1.0 / ( AE * ACT1 )
+      RECIPA2 = 1.0 / ( AE * AE * ACT2 )
+
+C...calculate final gas phase partial pressure of SO2, NH3, HCL, HNO3
+C...  HCOOH, and CO2 (atm)
+
+      PSO2F = PSO20 / ( 1.0 + XLSO2
+     &	    * ( 1.0 + SO21 * RECIPA1 + SO212 * RECIPA2 ) )
+
+      PNH3F = PNH30 / ( 1.0 + XLNH3 * ( 1.0 + NH3DH20 * AE ) )
+
+      PHCLF = PHCL0  / ( 1.0 + XLHCL *  ( 1.0 + HCL1 * RECIPA1 ) )
+
+      PHNO3F = PHNO30 / ( 1.0 + XLHNO3 * ( 1.0 + HNO31 * RECIPA1 ) )
+
+      PFOAF = PFOA0 / ( 1.0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
+
+      PCO2F = PCO20 / ( 1.0 + XLCO2 * ( 1.0 + CO21 * RECIPA1
+     &      + CO212 * RECIPA2 ) )
+
+C...calculate liquid phase concentrations (moles/liter)
+
+      SO4  = SK6TS6 / ( AE * GM2 + SK6 )
+      HSO4 = TS6 - SO4
+      SO3  = SO212H  * PSO2F  * RECIPA2
+      HSO3 = SO21H   * PSO2F  * RECIPA1
+      CO3  = CO212H  * PCO2F  * RECIPA2
+      HCO3 = CO21H   * PCO2F  * RECIPA1
+      OH   = H2OW    * RECIPA1
+      NH4  = NH31HDH * PNH3F  * AE
+      HCO2 = FOA1H   * PFOAF  * RECIPA1
+      NO3  = HNO31H  * PHNO3F * RECIPA1
+      CL   = HCL1H   * PHCLF  * RECIPA1 ! new for sea salt
+
+C...compute functional value
+
+      FB = AE + NH4 + NA + 2.0 * ( CA + MG - CO3 - SO3 - SO4 )
+     &     - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
+
+C...Calculate and check the sign of the product of the two functional values
+
+      FTST = FA * FB
+      IF ( FTST .LE. 0.0 ) THEN
+        HB = BB
+      ELSE
+        HA = BB
+        FA = FB
+      END IF
+
+C...Check convergence of solutions
+
+      HTST = HA / HB
+      IF ( HTST .LE. TST ) GO TO 30
+
+C...end of zero-finding routine ****************<<<<<<<<<<<<
+
+C...compute Ionic strength and activity coefficient by the Davies equation
+
+      STION = 0.5 * (AE + NH4 + OH + HCO3 + HSO3
+     &      + 4.0 * (SO4 + CO3 + SO3 + CA + MG + MN)
+     &      + NO3 + HSO4 + 9.0 * FE + NA + K + CL + A + B + HCO2)
+      GM1LOG = -0.509 * ( SQRT( STION )
+     &       / ( 1.0 + SQRT( STION ) ) - 0.2 * STION )
+      GM2LOG = GM1LOG * 4.0
+      GM1  = 10.0**GM1LOG
+      GM2  = MAX( 10.0**GM2LOG, 1.0E-30 )
+      ACTB = ACT1
+      ACT1 = MAX( GM1 * GM1, 1.0E-30 )
+      ACT2 = MAX( GM1 * GM1 * GM2, 1.0E-30 )
+
+C...check for convergence and possibly go to 7777, to recompute
+C...  Gas and liquid phase concentrations
+
+      TAC = ABS( ACTB - ACT1 ) / ACTB
+      IF ( TAC .GE. 1.0E-2 ) GO TO 7777
+
+C...return an error if the pH is not in range
+
+ccc      IF ( ( HA .LT. 0.02 ) .OR. ( HA .GT. 9.49 ) ) THEN
+      IF ( ( HA .LT. 0.1 ) .OR. ( HA .GT. 9.9 ) ) THEN
+ccc        print *, ha
+        XMSG = 'PH VALUE OUT OF RANGE'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+      END IF
+
+C...Make those concentration calculations which can be made outside
+C...  of the function.
+
+      SO2L = SO2H * PSO2F
+      AC = 10.0**( -BB )
+      SIV = SO3 + HSO3 + SO2L
+
+C...Calculate final gas phase concentrations of oxidants (atm)
+
+      PH2O2F = ( PH2O20 + XL * DS4( 1 ) ) / ( 1.0 + XLH2O2 )
+      PO3F   = ( PO30   + XL * DS4( 2 ) ) / ( 1.0 + XLO3   )
+      PMHPF  = ( PMHP0  + XL * DS4( 4 ) ) / ( 1.0 + XLMHP  )
+      PPAAF  = ( PPAA0  + XL * DS4( 5 ) ) / ( 1.0 + XLPAA  )
+      PGLYF  = ( PGLY0                  ) / ( 1.0d0 + GLYH * XL )
+      PMGLYF = ( PMGLY0                 ) / ( 1.0d0 + MGLYH * XL )
+      PHOF   = ( PHO0                   ) / ( 1.0d0 + HOH * XL)
+
+      PH2O2F = MAX( PH2O2F, 0.0 )
+      PO3F   = MAX( PO3F,   0.0 )
+      PMHPF  = MAX( PMHPF,  0.0 )
+      PPAAF  = MAX( PPAAF,  0.0 )
+
+C...Calculate liquid phase concentrations of oxidants (moles/liter)
+
+      H2O2L = PH2O2F * H2O2H
+      O3L   = PO3F   * O3H
+      MHPL  = PMHPF  * MHPH
+      PAAL  = PPAAF  * PAAH
+      FOAL  = PFOAF  * FOAH
+      NH3L  = PNH3F  * NH3H
+      CO2L  = PCO2F  * CO2H
+      HCLL  = PHCLF  * HCLH
+      HNO3L = PHNO3F * HNO3H
+      GLYL  = PGLYF  * GLYH
+      MGLYL = PMGLYF * MGLYH
+      OHL   = PHOF   * HOH
+
+C...compute modal concentrations
+
+      SO4COR  = SK6 * TS6COR / ( AE * GM2 + SK6 )
+      HSO4COR = MAX( TS6COR - SO4COR, 0.0 )
+
+      TS6ACC  = MAX( TS6  - TS6COR,   0.0 )
+      SO4ACC  = MAX( SO4  - SO4COR,   0.0 )
+      HSO4ACC = MAX( HSO4 - HSO4COR,  0.0 )
+      NO3ACC  = MAX( NO3  - NO3COR,   0.0 )
+      NAACC   = MAX( NA   - NACOR,    0.0 )
+      CLACC   = MAX( CL   - CLCOR,    0.0 )
+      NH4ACC  = MAX( NH4  - NH4COR,   0.0 )
+
+C...load the liquid concentration array with current values
+
+      LIQUID( LACL      ) = AC
+      LIQUID( LNH4ACCL  ) = NH4ACC
+      LIQUID( LCAL      ) = CA
+      LIQUID( LNAACCL   ) = NAACC
+      LIQUID( LOHL      ) = OHL
+      LIQUID( LSO4ACCL  ) = SO4ACC
+      LIQUID( LHSO4ACCL ) = HSO4ACC
+      LIQUID( LSO3L     ) = SO3
+      LIQUID( LHSO3L    ) = HSO3
+      LIQUID( LSO2L     ) = SO2L
+      LIQUID( LCO3L     ) = CO3
+      LIQUID( LHCO3L    ) = HCO3
+      LIQUID( LCO2L     ) = CO2L
+      LIQUID( LNO3ACCL  ) = NO3ACC
+      LIQUID( LNH3L     ) = NH3L
+      LIQUID( LCLACCL   ) = CLACC
+      LIQUID( LH2O2L    ) = H2O2L
+      LIQUID( LO3L      ) = O3L
+      LIQUID( LFEL      ) = FE
+      LIQUID( LMNL      ) = MN
+      LIQUID( LAL       ) = A
+      LIQUID( LFOAL     ) = FOAL
+      LIQUID( LHCO2L    ) = HCO2
+      LIQUID( LMHPL     ) = MHPL
+      LIQUID( LPAAL     ) = PAAL
+      LIQUID( LHCLL     ) = HCLL
+      LIQUID( LPRIML    ) = PRIM
+      LIQUID( LMGL      ) = MG
+      LIQUID( LKL       ) = K
+      LIQUID( LBL       ) = B
+      LIQUID( LHNO3L    ) = HNO3L
+      LIQUID( LPRIMCORL ) = PRIMCOR
+      LIQUID( LNUMCORL  ) = NUMCOR
+      LIQUID( LTS6CORL  ) = TS6COR
+      LIQUID( LNACORL   ) = NACOR
+      LIQUID( LCLCORL   ) = CLCOR
+      LIQUID( LNO3CORL  ) = NO3COR
+      LIQUID( LNH4CORL  ) = NH4COR
+      LIQUID( LORGPL    ) = ORGP
+      LIQUID( LECL      ) = EC
+      LIQUID( LALKL     ) = ORGALK
+      LIQUID( LXYL1L    ) = ORGXYL1
+      LIQUID( LXYL2L    ) = ORGXYL2
+      LIQUID( LXYL3L    ) = ORGXYL3
+      LIQUID( LTOL1L    ) = ORGTOL1
+      LIQUID( LTOL2L    ) = ORGTOL2
+      LIQUID( LTOL3L    ) = ORGTOL3
+      LIQUID( LBNZ1L    ) = ORGBNZ1
+      LIQUID( LBNZ2L    ) = ORGBNZ2
+      LIQUID( LBNZ3L    ) = ORGBNZ3
+      LIQUID( LTRP1L    ) = ORGTRP1
+      LIQUID( LTRP2L    ) = ORGTRP2
+      LIQUID( LISO1L    ) = ORGISO1
+      LIQUID( LISO2L    ) = ORGISO2
+      LIQUID( LISO3L    ) = ORGISO3
+      LIQUID( LSQTL     ) = ORGSQT
+      LIQUID( LOLGAL    ) = ORGOLGA
+      LIQUID( LOLGBL    ) = ORGOLGB
+      LIQUID( LORGCL    ) = ORGC   ! new
+      LIQUID( LGLYL     ) = GLYL   ! new 
+      LIQUID( LMGLYL    ) = MGLYL  ! new 
+
+C...if the maximum cloud lifetime has not been reached, then compute
+C...  the next timestep.
+
+      IF ( TIMEW .LT. TAUCLD ) THEN
+
+C...make kinetics calculations
+C...  note: DS4(i) and DSIV(I) are negative numbers!
+
+        DTRMV = 300.0
+        IF ( ( CTHK1 .GT. 1.0E-10 ) .AND. ( PRCRATE .GT. 1.0E-10 ) )
+     &     DTRMV = 3.6 * WTAVG * 1000.0 * CTHK1 / PRCRATE  ! <<<uma found bug, was .36
+        DTRMV = MIN( DTRMV, 300.0 )
+        ITERAT = ITERAT + 1
+
+C...Define the total S(iv) available for oxidation
+
+        TSIV = PSO20 * ONE_OVER_XL
+
+C...Calculate sulfur iv oxidation rate due to H2O2
+
+        DSIVDT( 1 ) = -RH2O2 * H2O2L * SO2L / ( 0.1 + AC )
+        TH2O2 = PH2O20 * ONE_OVER_XL
+        IF ( ( DSIVDT( 1 ) .EQ. 0.0 ) .OR.
+     &       ( TSIV  .LE. CONCMIN ) .OR.
+     &       ( TH2O2 .LE. CONCMIN ) ) THEN
+          DTW( 1 ) = DTRMV
+        ELSE
+          DTW( 1 ) = -0.05 * MIN( TH2O2, TSIV ) / DSIVDT( 1 )
+        END IF
+
+C...Calculate sulfur iv oxidation rate due to O3
+
+        IF ( BB .GE. 2.7 ) THEN
+          DSIVDT( 2 ) = -4.19E5 * ( 1.0 + 2.39E-4 / AC ) * O3L * SIV
+        ELSE
+          DSIVDT( 2 ) = -1.9E4 * SIV * O3L / SQRT( AC )
+        END IF
+        TO3 = PO30 * ONE_OVER_XL
+        IF ( ( DSIVDT( 2 ) .EQ. 0.0 ) .OR.
+     &       ( TSIV  .LE. CONCMIN ) .OR.
+     &       ( TO3 .LE. CONCMIN ) ) THEN
+          DTW( 2 ) = DTRMV
+        ELSE
+          DTW( 2 ) = -0.01 * MIN( TO3, TSIV ) / DSIVDT( 2 )
+        END IF
+
+C...Calculate sulfur iv oxidation rate due to 02 catalyzed by Mn++
+C...  and Fe+++  See Table IV Walcek & Taylor ( 1986)
+
+        IF ( BB .GE. 4.0 )  THEN  ! 4.0  < pH
+
+          IF ( SIV .LE. 1.0E-5 ) THEN
+            DSIVDT( 3 ) = -5000.0 * MN * HSO3
+          ELSE IF ( SIV .GT. 1.0E-5 ) THEN
+            DSIVDT( 3 ) = -( 4.7 * MN * MN / AC
+     &                  + 1.0E7 * FE * SIV * SIV )
+          END IF  ! end of first pass through SIV conc.
+
+        ELSE          ! pH , + 4.0
+
+          IF ( SIV .LE. 1.0E-5 ) THEN
+            DSIVDT( 3 ) = -3.0 * ( 5000.0 * MN * HSO3
+     &                  + 0.82 * FE * SIV / AC )
+          ELSE
+            DSIVDT( 3 ) = -( 4.7 * MN * MN / AC
+     &                  + ( 0.82 * FE * SIV / AC )
+     &                  * ( 1.0 + 1.7E3 * MN**1.5 / ( 6.3E-6 + FE ) ) )
+          END IF ! end of second pass through SIV conc.
+
+        END IF  ! end of pass through pH
+
+        IF ( ( DSIVDT( 3 ) .EQ. 0.0 ) .OR. ( TSIV .LE. CONCMIN ) ) THEN
+          DTW( 3 ) = DTRMV
+        ELSE
+          DTW( 3 ) = -0.1 * TSIV / DSIVDT( 3 )
+        END IF
+
+C...Calculate sulfur oxidation rate due to MHP
+
+        DSIVDT( 4 ) = -RMHP * AC * MHPL * HSO3
+        TMHP = PMHP0 * ONE_OVER_XL
+        IF ( ( DSIVDT( 4 ) .EQ. 0.0 ) .OR.
+     &       ( TSIV  .LE. CONCMIN ) .OR.
+     &       ( TMHP .LE. CONCMIN ) ) THEN
+          DTW( 4 ) = DTRMV
+        ELSE
+          DTW( 4 ) = -0.1 * MIN( TMHP, TSIV ) / DSIVDT( 4 )
+        END IF
+
+C...Calculate sulfur oxidation due to PAA
+
+        DSIVDT( 5 ) = -RPAA * HSO3 * PAAL * ( AC + 1.65E-5 )
+        TPAA = PPAA0 * ONE_OVER_XL
+        IF ( ( DSIVDT( 5 ) .EQ. 0.0 ) .OR.
+     &       ( TSIV  .LE. CONCMIN ) .OR.
+     &       ( TPAA .LE. CONCMIN ) ) THEN
+          DTW( 5 ) = DTRMV
+        ELSE
+          DTW( 5 ) = -0.1 * MIN( TPAA, TSIV ) / DSIVDT( 5 )
+        END IF
+
+C...Calculate total sulfur iv oxidation rate
+
+        DSIVDT( 0 ) = 0.0
+        DO IOX = 1, NUMOX
+          DSIVDT( 0 ) = DSIVDT( 0 ) + DSIVDT( IOX )
+        END DO
+
+C...Calculate a minimum time step required
+
+        DTW( 0 ) = MIN( DTW( 1 ), DTW( 2 ), DTW( 3 ),
+     &                  DTW( 4 ), DTW( 5 ) )
+
+C...check for large time step
+
+        IF ( DTW( 0 ) .GT. 8.0E+37 ) THEN
+          WRITE(6,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
+        ELSE
+
+C...CALCULATE IN-CLOUD SOA PRODUCTION
+C...  Reference:  Carlton, A.G., B.J. Turpin, K.E. Altieri, A. Reff,
+C...  S. Seitzinger, H.J. Lim, and B. Ervens (2007), Atmospheric Oxalic
+C...  Acid and SOA Production from Glyoxal: Results of Aqueous
+C...  Photooxidation Experiments, Atmos. Environ., 41(35), 7588-7602.
+
+C...Define the total glyoxal available for oxidation
+
+          TGLY = PGLY0 * ONE_OVER_XL
+
+C...Calculate GLY oxidation due to OH
+
+          DGLYDT = -RGLY3 * GLYL * OHL
+
+C...Define the total methylglyoxal available for oxidation
+
+          TMGLY = PMGLY0 * ONE_OVER_XL
+
+C...Calculate MGLY oxidation due to OH
+
+          DMGLYDT = -RMGLY3 * MGLYL * OHL
+        
+cccC...Define the total OH available for oxidation
+ccc
+ccc          THO = PHO0 * ONE_OVER_XL
+
+C...Calculate OH consumption
+        
+csteadystate          DOHDT = -( RGLY3 * GLYL + RMGLY3 * MGLYL ) * OHL
+
+C...calculate the change in sulfur iv for this time step
+
+60        DTS6 = ABS( DTW( 0 ) * ( -DSIVDT( 0 ) - TS6 * PRCRATE
+     &         / ( 3600.0 * CTHK1 * WTAVG ) ) )
+
+C...If DSIV(0), sulfur iv oxidized during this time step would be
+C... less than 5% of sulfur oxidized since time 0, then double DT
+
+          IF ( DTW( 0 ) .LE. TAUCLD ) THEN
+            IF ( DTS6 .LT. 0.05 * TS6 ) THEN
+              DTW( 0 ) = DTW( 0 ) * 2.0
+              GO TO 60
+            END IF
+          END IF
+        END IF
+        DTW( 0 ) = MIN( DTW( 0 ), DTRMV )
+
+C...Limit the timestep to prevent negative SO2 concentrations and mass creation
+C...  for sulfate (suggested by Bonyoung Koo)
+
+        IF ( DSIVDT( 0 ) .LT. 0.0 ) THEN
+c          DTW( 0 ) = MIN( DTW( 0 ), -TSIV * 1.00001 / DSIVDT( 0 ) )
+          DTW( 0 ) = MIN( DTW( 0 ), -TSIV / DSIVDT( 0 ) )
+        END IF
+ccc        IF ( DGLYDT .LT. 0.0 ) THEN
+ccc          DTW( 0 ) = MIN( DTW( 0 ), -TGLY * 1.00001 / DGLYDT )
+ccc        END IF
+ccc        IF ( DMGLYDT .LT. 0.0 ) THEN
+ccc          DTW( 0 ) = MIN( DTW( 0 ), -TMGLY * 1.00001 / DMGLYDT )
+ccc        END IF
+ccc        IF ( DOHDT .LT. 0.0 ) THEN
+ccc          DTW( 0 ) = MIN( DTW( 0 ), -THO * 1.00001 / DOHDT )
+ccc        END IF
+
+C...If the total time after this time increment will be greater than
+C...  TAUCLD sec., then set DTW(0) so that total time will be TAUCLD
+
+        IF ( TIMEW + DTW( 0 ) .GT. TAUCLD ) DTW( 0 ) = TAUCLD - TIMEW
+CCC        IF ( TS6 .LT. 1.0E-11 ) DTW( 0 ) = TAUCLD - TIMEW
+cccccc        IF ( ITERAT .GT. 100 ) DTW( 0 ) = TAUCLD - TIMEW
+        IF ( ITERAT .GT. 100 ) DTW( 0 ) = MAX( 1.0, DTW( 0 ) )
+
+C...limit timestep to no more than the washout time
+
+        DTW( 0 ) = MIN( DTW( 0 ), TWASH )
+
+C...force mass balance for the specified timestep
+C...  for GLY and MGLY, assume that OH is in steady state
+
+        DGLYDT  = MAX( DGLYDT,  -TGLY  / DTW( 0 ) )
+        DMGLYDT = MAX( DMGLYDT, -TMGLY / DTW( 0 ) )
+
+C...  for S(IV), also limit by oxidants (except assume O2 in steady state)
+
+        DSIVDT( 1 ) = MAX( DSIVDT( 1 ), -MIN( TSIV, TH2O2 ) / DTW( 0 ) )
+        DSIVDT( 2 ) = MAX( DSIVDT( 2 ), -MIN( TSIV, TO3   ) / DTW( 0 ) )
+        DSIVDT( 3 ) = MAX( DSIVDT( 3 ), -TSIV / DTW( 0 ) )
+        DSIVDT( 4 ) = MAX( DSIVDT( 4 ), -MIN( TSIV, TMHP  ) / DTW( 0 ) )
+        DSIVDT( 5 ) = MAX( DSIVDT( 5 ), -MIN( TSIV, TPAA  ) / DTW( 0 ) )
+
+C...  recalculate the total S(iv) oxidation rate
+
+        DSIVDT( 0 ) = 0.0
+        DO IOX = 1, NUMOX
+          DSIVDT( 0 ) = DSIVDT( 0 ) + DSIVDT( IOX )
+        END DO
+
+C...  if the total S(iv) oxidation rate over the timestep exceeds the amount of
+C...    S(iv) available then scale the rates to conserve mass
+
+        IF (-DSIVDT( 0 ) * DTW( 0 ) .GT. TSIV ) THEN
+          DSIV_SCALE = TSIV / ( -DSIVDT( 0 ) * DTW( 0 ) )
+          DSIVDT( 0 ) = DSIVDT( 0 ) * DSIV_SCALE
+          DSIVDT( 1 ) = DSIVDT( 1 ) * DSIV_SCALE
+          DSIVDT( 2 ) = DSIVDT( 2 ) * DSIV_SCALE
+          DSIVDT( 3 ) = DSIVDT( 3 ) * DSIV_SCALE
+          DSIVDT( 4 ) = DSIVDT( 4 ) * DSIV_SCALE
+          DSIVDT( 5 ) = DSIVDT( 5 ) * DSIV_SCALE       	
+        END IF
+
+C...Set DSIV(I), I = 0,NUMOX, the amount of S(IV) oxidized by each
+C... individual oxidizing agent, as well as the total.
+
+        DO IOX = 0, NUMOX
+          DS4( IOX ) = DS4( IOX ) + DTW( 0 ) * DSIVDT( IOX )
+        END DO
+
+        DGLY1  = DGLY1  + DTW( 0 ) * DGLYDT
+
+        DMGLY1 = DMGLY1 + DTW( 0 ) * DMGLYDT
+
+csteadystate        DOH1   = DOH1   + DTW( 0 ) * DOHDT
+
+C...Calculate AORGC Production:  4% SOAcld (ORGC) yield from glyoxal
+C...  and methylglyoxal is assumed
+
+        DORGC = DORGC - ( 0.04 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
+
+C...Compute depositions and concentrations for each species
+
+        WETFAC = PRCRATE * FRACLIQ * DTW( 0 ) * SEC2HR
+        DO LIQ = 1, NLIQS
+          WETDEP( LIQ ) = WETDEP( LIQ ) + LIQUID( LIQ ) * WETFAC
+        END DO
+
+        TIMEW = TIMEW + DTW( 0 )
+
+C...Return to make additional calculations
+
+        GO TO 20
+      END IF
+
+C...At this point, TIMEW=TAUCLD
+C...  compute the scavenging coefficient for SO4 which will be used for
+C...  scavenging aerosol number in the accumulation mode
+
+      DEPSUM = ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
+
+      IF ( ( TS6ACCA + TS6AKNA - DS4( 0 ) ) .NE. 0.0 ) THEN
+        BETASO4 = DEPSUM / ( ( TS6ACCA + TS6AKNA - DS4( 0 ) ) * TAUCLD )
+      ELSE
+        BETASO4 = 0.0
+      END IF
+
+      EBETASO4T = EXP( -BETASO4 * TAUCLD )
+      EALFA0T   = EXP( -ALFA0 * TAUCLD )
+      EALFA2T   = EXP( -ALFA2 * TAUCLD )
+      EALFA3T   = EXP( -ALFA3 * TAUCLD )
+
+C...Compute the output concentrations and wet deposition amounts
+
+      TOTAMM = ( PNH3F  + ( NH4ACC + NH3L  ) * XL ) * RECIPAP1
+      TOTNIT = ( PHNO3F + ( NO3ACC + HNO3L ) * XL ) * RECIPAP1
+
+C...gas-phase species wet deposition (mm mol/lit)
+
+      GASWDEP( LSO2   ) = WETDEP( LSO3L  ) + WETDEP( LHSO3L )
+     &                  + WETDEP( LSO2L  )
+      GASWDEP( LNH3   ) = WETDEP( LNH3L  )
+      GASWDEP( LH2O2  ) = WETDEP( LH2O2L )
+      GASWDEP( LO3    ) = WETDEP( LO3L   )
+      GASWDEP( LCO2   ) = WETDEP( LCO3L  ) + WETDEP( LHCO3L )
+     &                  + WETDEP( LCO2L  )
+      GASWDEP( LFOA   ) = WETDEP( LFOAL  ) + WETDEP( LHCO2L )
+      GASWDEP( LMHP   ) = WETDEP( LMHPL  )
+      GASWDEP( LPAA   ) = WETDEP( LPAAL  )
+      GASWDEP( LHCL   ) = WETDEP( LHCLL  )
+      GASWDEP( LHNO3  ) = WETDEP( LHNO3L )
+      GASWDEP( LN2O5  ) = 0.0
+      GASWDEP( LH2SO4 ) = 0.0
+      GASWDEP( LGLY   ) = WETDEP( LGLYL  )
+      GASWDEP( LMGLY  ) = WETDEP( LMGLYL )
+ccc      GASWDEP( LHO    ) = WETDEP( LOHL   )
+
+C...gas concentrations (mol/molV)
+
+      GAS( LSO2   ) = ( PSO2F   + XL *  SIV )   * RECIPAP1
+      GAS( LH2O2  ) = ( PH2O2F  + XL *  H2O2L ) * RECIPAP1
+      GAS( LO3    ) = ( PO3F    + XL *  O3L )   * RECIPAP1
+      GAS( LCO2   ) = ( PCO2F   + XL *  CO2L )  * RECIPAP1
+      GAS( LFOA   ) = ( PFOAF   + XL * ( FOAL + HCO2 ) ) * RECIPAP1
+      GAS( LMHP   ) = ( PMHPF   + XL *  MHPL )  * RECIPAP1
+      GAS( LPAA   ) = ( PPAAF   + XL *  PAAL )  * RECIPAP1
+      GAS( LHCL   ) = ( PHCLF   + XL *  HCLL )  * RECIPAP1
+      GAS( LGLY   ) = ( PGLYF   + XL *  GLYL )   * RECIPAP1
+      GAS( LMGLY  ) = ( PMGLYF  + XL *  MGLYL)   * RECIPAP1
+ccc      GAS( LHO    ) = ( PHOF    + XL *  OHL  )   * RECIPAP1
+
+      GAS( LNH3   ) = FNH3  * TOTAMM
+      GAS( LHNO3  ) = FHNO3 * TOTNIT
+      GAS( LN2O5  ) = 0.0 ! assume all into aerosol
+      GAS( LH2SO4 ) = 0.0 ! assume all into aerosol
+
+C...aerosol species wet deposition (mm mol/lit)
+C...  there is no wet deposition of aitken particles, they attached
+C...  to the accumulation mode particles
+
+      AERWDEP( LSO4AKN ) = 0.0
+      AERWDEP( LNH4AKN ) = 0.0
+      AERWDEP( LNO3AKN ) = 0.0
+      AERWDEP( LECAKN  ) = 0.0
+      AERWDEP( LPRIAKN ) = 0.0
+
+      AERWDEP( LORGPAKN ) = 0.0
+
+      AERWDEP( LSO4ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+      AERWDEP( LNH4ACC ) = WETDEP( LNH4ACCL )
+      AERWDEP( LNO3ACC ) = WETDEP( LNO3ACCL )
+      AERWDEP( LECACC  ) = WETDEP( LECL     )
+      AERWDEP( LPRIACC ) = WETDEP( LPRIML   )
+
+      AERWDEP( LALKACC  ) = WETDEP( LALKL  )
+      AERWDEP( LXYL1ACC ) = WETDEP( LXYL1L )
+      AERWDEP( LXYL2ACC ) = WETDEP( LXYL2L )
+      AERWDEP( LXYL3ACC ) = WETDEP( LXYL3L )
+      AERWDEP( LTOL1ACC ) = WETDEP( LTOL1L )
+      AERWDEP( LTOL2ACC ) = WETDEP( LTOL2L )
+      AERWDEP( LTOL3ACC ) = WETDEP( LTOL3L )
+      AERWDEP( LBNZ1ACC ) = WETDEP( LBNZ1L )
+      AERWDEP( LBNZ2ACC ) = WETDEP( LBNZ2L )
+      AERWDEP( LBNZ3ACC ) = WETDEP( LBNZ3L )
+      AERWDEP( LTRP1ACC ) = WETDEP( LTRP1L )
+      AERWDEP( LTRP2ACC ) = WETDEP( LTRP2L )
+      AERWDEP( LISO1ACC ) = WETDEP( LISO1L )
+      AERWDEP( LISO2ACC ) = WETDEP( LISO2L )
+      AERWDEP( LISO3ACC ) = WETDEP( LISO3L )
+      AERWDEP( LSQTACC  ) = WETDEP( LSQTL  )
+      AERWDEP( LORGCACC ) = WETDEP( LORGCL )
+      AERWDEP( LOLGAACC ) = WETDEP( LOLGAL )
+      AERWDEP( LOLGBACC ) = WETDEP( LOLGBL )
+      AERWDEP( LORGPACC ) = WETDEP( LORGPL )
+
+      AERWDEP( LSO4COR ) = WETDEP( LTS6CORL  )
+      AERWDEP( LNO3COR ) = WETDEP( LNO3CORL  )
+      AERWDEP( LNH4COR ) = WETDEP( LNH4CORL  )
+      AERWDEP( LPRICOR ) = WETDEP( LPRIMCORL )
+
+      AERWDEP( LNAAKN  ) = 0.0
+      AERWDEP( LCLAKN  ) = 0.0
+      AERWDEP( LNAACC  ) = WETDEP( LNAACCL )
+      AERWDEP( LCLACC  ) = WETDEP( LCLACCL )
+      AERWDEP( LNACOR  ) = WETDEP( LNACORL )
+      AERWDEP( LCLCOR  ) = WETDEP( LCLCORL )
+
+      AERWDEP( LK      ) = WETDEP( LKL  )
+      AERWDEP( LA3FE   ) = WETDEP( LFEL )
+      AERWDEP( LB2MN   ) = WETDEP( LMNL )
+      AERWDEP( LCACO3  ) = WETDEP( LCAL )
+      AERWDEP( LMGCO3  ) = WETDEP( LMGL )
+
+      AERWDEP( LNUMAKN ) = 0.0
+      AERWDEP( LNUMACC ) = 0.0
+      AERWDEP( LNUMCOR ) = 0.0
+      AERWDEP( LSRFAKN ) = 0.0
+      AERWDEP( LSRFACC ) = 0.0
+      AERWDEP( LSRFCOR ) = 0.0
+
+C...aerosol concentrations (mol/molV)
+
+      AEROSOL( LSO4AKN ) = AEROSOL( LSO4AKN ) * EALFA3T
+      AEROSOL( LNH4AKN ) = AEROSOL( LNH4AKN ) * EALFA3T
+      AEROSOL( LNO3AKN ) = AEROSOL( LNO3AKN ) * EALFA3T
+      AEROSOL( LECAKN  ) = AEROSOL( LECAKN  ) * EALFA3T
+      AEROSOL( LPRIAKN ) = AEROSOL( LPRIAKN ) * EALFA3T
+
+      AEROSOL( LORGPAKN ) = AEROSOL( LORGPAKN ) * EALFA3T
+
+      AEROSOL( LSO4ACC ) = TS6ACC * XL * RECIPAP1
+      AEROSOL( LECACC  ) = EC     * XL * RECIPAP1
+      AEROSOL( LPRIACC ) = PRIM   * XL * RECIPAP1
+
+      AEROSOL( LALKACC  ) = ORGALK  * XL * RECIPAP1
+      AEROSOL( LXYL1ACC ) = ORGXYL1 * XL * RECIPAP1
+      AEROSOL( LXYL2ACC ) = ORGXYL2 * XL * RECIPAP1
+      AEROSOL( LXYL3ACC ) = ORGXYL3 * XL * RECIPAP1
+      AEROSOL( LTOL1ACC ) = ORGTOL1 * XL * RECIPAP1
+      AEROSOL( LTOL2ACC ) = ORGTOL2 * XL * RECIPAP1
+      AEROSOL( LTOL3ACC ) = ORGTOL3 * XL * RECIPAP1
+      AEROSOL( LBNZ1ACC ) = ORGBNZ1 * XL * RECIPAP1
+      AEROSOL( LBNZ2ACC ) = ORGBNZ2 * XL * RECIPAP1
+      AEROSOL( LBNZ3ACC ) = ORGBNZ3 * XL * RECIPAP1
+      AEROSOL( LTRP1ACC ) = ORGTRP1 * XL * RECIPAP1
+      AEROSOL( LTRP2ACC ) = ORGTRP2 * XL * RECIPAP1
+      AEROSOL( LISO1ACC ) = ORGISO1 * XL * RECIPAP1
+      AEROSOL( LISO2ACC ) = ORGISO2 * XL * RECIPAP1
+      AEROSOL( LISO3ACC ) = ORGISO3 * XL * RECIPAP1
+      AEROSOL( LSQTACC  ) = ORGSQT  * XL * RECIPAP1
+      AEROSOL( LORGCACC ) = ORGC    * XL * RECIPAP1
+      AEROSOL( LOLGAACC ) = ORGOLGA * XL * RECIPAP1
+      AEROSOL( LOLGBACC ) = ORGOLGB * XL * RECIPAP1
+      AEROSOL( LORGPACC ) = ORGP    * XL * RECIPAP1
+
+      AEROSOL( LNH4ACC ) = FNH4ACC * TOTAMM
+      AEROSOL( LNO3ACC ) = FNO3ACC * TOTNIT
+
+      AEROSOL( LSO4COR ) = TS6COR * XL * RECIPAP1
+      AEROSOL( LNO3COR ) = NO3COR * XL * RECIPAP1
+      AEROSOL( LNH4COR ) = NH4COR * XL * RECIPAP1
+      AEROSOL( LPRICOR ) = PRIMCOR* XL * RECIPAP1
+      AEROSOL( LK      ) = K      * XL * RECIPAP1
+      AEROSOL( LA3FE   ) = FE     * XL * RECIPAP1
+      AEROSOL( LB2MN   ) = MN     * XL * RECIPAP1
+      AEROSOL( LCACO3  ) = CA     * XL * RECIPAP1
+      AEROSOL( LMGCO3  ) = MG     * XL * RECIPAP1
+
+      AEROSOL( LNAAKN  ) = AEROSOL( LNAAKN ) * EALFA3T
+      AEROSOL( LCLAKN  ) = AEROSOL( LCLAKN ) * EALFA3T
+      AEROSOL( LNAACC  ) = NAACC * XL * RECIPAP1
+      AEROSOL( LCLACC  ) = CLACC * XL * RECIPAP1
+      AEROSOL( LNACOR  ) = NACOR * XL * RECIPAP1
+      AEROSOL( LCLCOR  ) = CLCOR * XL * RECIPAP1
+
+      AEROSOL( LNUMAKN ) = AEROSOL( LNUMAKN ) * EALFA0T
+      AEROSOL( LNUMACC ) = AEROSOL( LNUMACC ) * EBETASO4T
+      AEROSOL( LNUMCOR ) = NUMCOR * XL * RECIPAP1
+
+C...compute the final accumulation aerosol 3rd moment
+
+      M3NEW = ( AEROSOL( LSO4ACC  ) * SGRAERMW( LSO4ACC  ) / 1.8e6
+     &      +   AEROSOL( LNH4ACC  ) * SGRAERMW( LNH4ACC  ) / 1.8e6
+     &      +   AEROSOL( LNO3ACC  ) * SGRAERMW( LNO3ACC  ) / 1.8e6
+     &      +   AEROSOL( LXYL3ACC ) * SGRAERMW( LXYL3ACC ) / 2.0e6
+     &      +   AEROSOL( LTOL3ACC ) * SGRAERMW( LTOL3ACC ) / 2.0e6
+     &      +   AEROSOL( LBNZ3ACC ) * SGRAERMW( LBNZ3ACC ) / 2.0e6
+     &      +   AEROSOL( LORGCACC ) * SGRAERMW( LORGCACC ) / 2.0e6
+     &      +   AEROSOL( LISO3ACC ) * SGRAERMW( LISO3ACC ) / 2.0e6
+     &      +   AEROSOL( LOLGAACC ) * SGRAERMW( LOLGAACC ) / 2.0e6
+     &      +   AEROSOL( LOLGBACC ) * SGRAERMW( LOLGBACC ) / 2.0e6
+     &      +   AEROSOL( LORGPACC ) * SGRAERMW( LORGPACC ) / 2.0e6
+     &      +   AEROSOL( LECACC   ) * SGRAERMW( LECACC   ) / 2.2e6
+     &      +   AEROSOL( LPRIACC  ) * SGRAERMW( LPRIACC  ) / 2.2e6
+     &      +   AEROSOL( LNAACC   ) * SGRAERMW( LNAACC   ) / 2.2e6
+     &      +   AEROSOL( LCLACC   ) * SGRAERMW( LCLACC   ) / 2.2e6 )
+CCC     &      * 6.0 / PI      ! cancels out in division below
+
+      M3NEWCOR = ( AEROSOL( LSO4COR  ) * SGRAERMW( LSO4COR  ) / 1.8e6
+     &         +   AEROSOL( LNH4COR  ) * SGRAERMW( LNH4COR  ) / 1.8e6
+     &         +   AEROSOL( LNO3COR  ) * SGRAERMW( LNO3COR  ) / 1.8e6
+     &         +   AEROSOL( LPRICOR  ) * SGRAERMW( LPRICOR  ) / 2.2e6
+     &         +   AEROSOL( LNACOR   ) * SGRAERMW( LNACOR   ) / 2.2e6
+     &         +   AEROSOL( LCLCOR   ) * SGRAERMW( LCLCOR   ) / 2.2e6 )
+
+      AEROSOL( LSRFAKN ) = AEROSOL( LSRFAKN ) * EALFA2T
+      AEROSOL( LSRFACC ) = AEROSOL( LSRFACC )
+     &                   * ( EXP( -BETASO4 * TAUCLD * ONETHIRD ) )
+     &                   * ( M3NEW / MAX( M3OLD, CONCMIN) ) ** TWOTHIRDS
+
+      AEROSOL( LSRFCOR ) = AEROSOL( LSRFCOR )
+     &        * ( ( NUMCOR / MAX( NUMCORA, CONCMIN ) ) ** ONETHIRD )
+     &        * ( ( M3NEWCOR / MAX( M3OLDCOR, CONCMIN ) ) ** TWOTHIRDS )
+
+C...store the amount of hydrogen deposition
+
+      HPWDEP = WETDEP( LACL )
+
+      RETURN
+
+C...formats
+
+1001  FORMAT (1X,'STORM RATE=', F6.3, 'DSIVDT(0) =', F10.5,
+     &       'TS6=', F10.5, 'DTW(0)=', F10.5, 'CTHK1=', F10.5,
+     &       'WTAVG=', F10.5)
+
+      END

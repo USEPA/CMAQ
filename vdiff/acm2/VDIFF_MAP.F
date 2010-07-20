@@ -1,0 +1,474 @@
+
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/VDIFF_MAP.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+ 
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+ 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      MODULE VDIFF_MAP
+
+C-----------------------------------------------------------------------
+C Function: index mapping between CGRID, diffusion, dry dep, and emissions
+C           species
+
+C Module depends on prior call to DEPV_INIT to get N_SPC_DEPV
+
+C Revision History:
+C   10 Apr 2008 J.Young: initial implementation using subroutine vdiff_map.F
+C   21 Jun 10 J.Young: convert for Namelist redesign
+
+C-----------------------------------------------------------------------
+
+!     USE CGRID_SPCS   ! CGRID mechanism species
+
+C global diffusion species
+      INTEGER, SAVE :: N_SPC_DIFF
+
+C global dry dep species
+      INTEGER, SAVE :: N_SPC_DDEP
+
+      INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : ) ! global diff map to CGRID
+!     INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
+      INTEGER, ALLOCATABLE, SAVE :: DF2EM   ( : ) ! map from diff spc to emis spc
+      INTEGER, ALLOCATABLE, SAVE :: DD2DV   ( : ) ! map from ddep spc to depv spc
+      INTEGER, ALLOCATABLE, SAVE :: DEPV_MAP( : ) ! global depv map to CGRID
+      INTEGER, ALLOCATABLE, SAVE :: DV2DF   ( : ) ! map from depv spc to diff spc
+
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DDEP_SPC( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
+
+      character( 16 ), allocatable, save :: diff_spc( : )
+      character( 16 ), allocatable, save :: dv2df_spc( : )
+
+      CONTAINS
+
+C-----------------------------------------------------------------------
+         FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV ) RESULT ( SUCCESS )
+
+         USE CGRID_SPCS   ! CGRID mechanism species
+         USE AERO_EMIS    ! aerosol emissions defns and fncts   inherits MECH_DEFN
+
+         IMPLICIT NONE
+
+C Includes:
+         INCLUDE SUBST_IOPARMS
+         INCLUDE SUBST_IODECL    ! I/O definitions and declarations ! debug
+         INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
+
+C Arguments:
+         INTEGER, INTENT( IN ) :: N_SPC_DEPV ! no. of depv species
+         LOGICAL SUCCESS
+
+C global emis species
+         INTEGER N_SPC_EMIS
+
+C External Functions not previously declared in IODECL3.EXT:
+         INTEGER, EXTERNAL :: FINDEX
+
+C Local variables:
+         
+         CHARACTER( 80 )  :: XMSG       ! Message text
+         CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP'
+
+         INTEGER NEMIS_AE
+         INTEGER STRT, FINI
+         INTEGER S, V, N, I, INDX
+         INTEGER ALLOCSTAT
+
+         LOGICAL LERROR                    ! Error flag
+D        INTEGER LOGDEV   ! debug
+
+C-----------------------------------------------------------------------
+
+D        LOGDEV = INIT3()   ! debug
+         SUCCESS = .TRUE.
+
+#ifdef emis_chem
+         EMISVD = .FALSE.; NEMIS = 0 
+#else
+         EMISVD = .TRUE.; NEMIS = N_GC_EMIS
+#endif
+
+         N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
+
+         ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
+!    &              DF2DV( N_SPC_DIFF+1 ),
+     &              DF2EM( N_SPC_DIFF+1 ),
+     &              diff_spc( n_spc_diff ), stat = allocstat )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DIFF_MAP, DF2DV, DF2EM or DIFF_SPC'
+            CALL M3WARN( PNAME, 0, 0, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         N_SPC_DDEP = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP
+
+         ALLOCATE ( DD2DV( N_SPC_DDEP+1 ),
+     &              DDEP_SPC( N_SPC_DDEP+1 ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DD2DV or DDEP_SPC'
+            CALL M3WARN( PNAME, 0, 0, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         ALLOCATE ( DEPV_MAP( N_SPC_DEPV+1 ),
+     &              DEPV_SPC( N_SPC_DEPV ),
+     &              DV2DF( N_SPC_DEPV ),
+     &              dv2df_spc( n_spc_depv ), stat = allocstat )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating DEPV_MAP, DEPV_SPC, DV2DF or dv2df_spc'
+            CALL M3WARN( PNAME, 0, 0, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         IF ( N_AE_SPC .GT. 0 ) THEN
+            NEMIS_AE = N_AE_EMIS  ! from AERO_EMIS module
+         ELSE
+            NEMIS_AE = 0
+         END IF
+
+         N_SPC_EMIS = NEMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
+
+C create global maps to CGRID
+
+         N = 0; S = 0; I = 0
+         IF ( EMISVD ) THEN
+            DO V = 1, N_GC_TRNS ! assumes emis species a subset of vdif species
+               N = N + 1
+               INDX = FINDEX( GC_TRNS_MAP( V ), N_GC_EMIS, GC_EMIS_MAP )
+               IF ( INDX .GT. 0 ) THEN
+                  I = I + 1
+                  DF2EM( N ) = S + INDX
+               ELSE
+                  DF2EM( N ) = N_SPC_EMIS + 1
+               END IF
+            END DO
+         ELSE            ! emissions processing done in chem
+            DO V = 1, N_GC_TRNS 
+               N = N + 1
+               DF2EM( N ) = N_SPC_EMIS + 1
+            END DO
+         END IF
+
+         S = S + I     ! S should now be = N_GC_EMIS
+         I = 0
+         DO V = 1, N_AE_TRNS
+            N = N + 1
+            INDX = FINDEX( AE_TRNS_MAP( V ), N_AE_EMIS, AE_EMIS_MAP )
+            IF ( N_AE_SPC .GT. 0 .AND. INDX .GT. 0 ) THEN
+               I = I + 1
+               DF2EM( N ) = S + INDX
+            ELSE
+               DF2EM( N ) = N_SPC_EMIS + 1
+            END IF
+         END DO
+
+         S = S + I     ! S should now be = N_GC_EMIS + N_AE_EMIS
+         I = 0
+         DO V = 1, N_NR_TRNS
+            N = N + 1
+            INDX = FINDEX( NR_TRNS_MAP( V ), N_NR_EMIS, NR_EMIS_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               I = I + 1
+               DF2EM( N ) = S + INDX
+            ELSE
+               DF2EM( N ) = N_SPC_EMIS + 1
+            END IF
+         END DO
+
+         S = S + I     ! S should now be = N_GC_EMIS + N_AE_EMIS + N_NR_EMIS
+         DO V = 1, N_TR_DIFF
+            N = N + 1
+            INDX = FINDEX( TR_DIFF_MAP( V ), N_TR_EMIS, TR_EMIS_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DF2EM( N ) = S + INDX
+            ELSE
+               DF2EM( N ) = N_SPC_EMIS + 1
+            END IF
+         END DO
+
+!        I = 0; S = 0; N = 0
+!        DO V = 1, N_GC_TRNS ! assumes dep.vel species subset of vdif species
+!           N = N + 1
+!           INDX = FINDEX( GC_TRNS_MAP( V ), N_GC_DEPV, GC_DEPV_MAP )
+!           IF ( INDX .GT. 0 ) THEN
+!              I = I + 1
+!              DF2DV( N ) = S + INDX
+!           ELSE
+!              DF2DV( N ) = N_SPC_DEPV + 1
+!           END IF
+!        END DO
+!        S = S + I     ! S should now be = N_GC_DEPV
+
+!        I = 0
+!        DO V = 1, N_AE_TRNS
+!           N = N + 1
+!           INDX = FINDEX( AE_TRNS_MAP( V ), N_AE_DEPV, AE_DEPV_MAP )
+!           IF ( INDX .GT. 0 ) THEN
+!              I = I + 1
+!              DF2DV( N ) = S + INDX
+!           ELSE
+!              DF2DV( N ) = N_SPC_DEPV + 1
+!           END IF
+!        END DO
+!        S = S + I     ! S should now be = N_GC_DEPV + N_AE_DEPV
+
+!        I = 0
+!        DO V = 1, N_NR_TRNS
+!           N = N + 1
+!           INDX = FINDEX( NR_TRNS_MAP( V ), N_NR_DEPV, NR_DEPV_MAP )
+!           IF ( INDX .GT. 0 ) THEN
+!              I = I + 1
+!              DF2DV( N ) = S + INDX
+!           ELSE
+!              DF2DV( N ) = N_SPC_DEPV + 1
+!           END IF
+!        END DO
+!        S = S + I     ! S should now be = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
+
+!        DO V = 1, N_TR_DIFF
+!           N = N + 1
+!           INDX = FINDEX( TR_DIFF_MAP( V ), N_TR_DEPV, TR_DEPV_MAP )
+!           IF ( INDX .GT. 0 ) THEN
+!              DF2DV( N ) = S + INDX
+!           ELSE
+!              DF2DV( N ) = N_SPC_DEPV + 1
+!           END IF
+!        END DO
+
+D        DO N = 1, N_SPC_DIFF   ! debug
+!D           WRITE( LOGDEV,'(A,3I4)' ) '  N, DF2EM(N), DF2DV(N): ',
+!D    &                                   N, DF2EM( N ), DF2DV( N )
+D           WRITE( LOGDEV,'(A,2I4)' ) '  N, DF2EM(N): ', N, DF2EM( N )
+D        END DO
+
+         LERROR = .FALSE.
+         S = 0
+         V = 0
+         STRT = 1
+         FINI = N_GC_DDEP
+         DO N = STRT, FINI
+            V = V + 1
+            INDX = FINDEX ( GC_DDEP_MAP( N ), N_GC_DEPV, GC_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DD2DV ( V ) = S + INDX
+               DDEP_SPC( V ) = GC_DDEP( N )
+            ELSE
+               XMSG = 'ERROR: No deposition velocity for DDEP species ' //
+     &               GC_DDEP( N )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+         S = N_GC_DEPV
+         STRT = 1
+         FINI = N_AE_DDEP
+         DO N = STRT, FINI
+            V = V + 1
+            INDX = FINDEX ( AE_DDEP_MAP( N ), N_AE_DEPV, AE_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DD2DV ( V ) = S + INDX
+               DDEP_SPC( V ) = AE_DDEP( N )
+            ELSE
+               XMSG = 'ERROR: No deposition velocity for DDEP species ' //
+     &               AE_DDEP( N )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+         S = N_GC_DEPV + N_AE_DEPV
+         STRT = 1
+         FINI = N_NR_DDEP
+         DO N = STRT, FINI
+            V = V + 1
+            INDX = FINDEX ( NR_DDEP_MAP( N ), N_NR_DEPV, NR_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DD2DV ( V ) = S + INDX
+               DDEP_SPC( V ) = NR_DDEP( N )
+            ELSE
+               XMSG = 'ERROR: No deposition velocity for DDEP species ' //
+     &               NR_DDEP( N )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+         S = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
+         STRT = 1
+         FINI = N_TR_DEPV
+         DO N = STRT, FINI
+            V = V + 1
+            INDX = FINDEX ( TR_DDEP_MAP( N ), N_TR_DEPV, TR_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DD2DV ( V ) = S + INDX
+               DDEP_SPC( V ) = TR_DDEP( N )
+            ELSE
+               XMSG = 'ERROR: No deposition velocity for DDEP species ' //
+     &               TR_DDEP( N )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+D        DO N = 1, N_SPC_DDEP   ! debug
+D           WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DD2DV(N), DDEP_SPC(N): ',
+D    &                                       N, DD2DV( N ), DDEP_SPC( N )
+D        END DO
+
+         S = 0
+         DO V = 1, N_GC_DEPV
+            S = S + 1
+            DEPV_MAP( S ) = GC_STRT - 1 + GC_DEPV_MAP( V )
+!           DEPV_SPC( S ) = GC_DEPV( V )
+            DEPV_SPC( S ) = GC_SPC( GC_DEPV_MAP( V ) )
+         END DO
+         DO V = 1, N_AE_DEPV
+            S = S + 1
+            DEPV_MAP( S ) = AE_STRT - 1 + AE_DEPV_MAP( V )
+!           DEPV_SPC( S ) = AE_DEPV( V )
+            DEPV_SPC( S ) = AE_SPC( AE_DEPV_MAP( V ) )
+         END DO
+         DO V = 1, N_NR_DEPV
+            S = S + 1
+            DEPV_MAP( S ) = NR_STRT - 1 + NR_DEPV_MAP( V )
+!           DEPV_SPC( S ) = NR_DEPV( V )
+            DEPV_SPC( S ) = NR_SPC( NR_DEPV_MAP( V ) )
+         END DO
+         DO V = 1, N_TR_DEPV
+            S = S + 1
+            DEPV_MAP( S ) = TR_STRT - 1 + TR_DEPV_MAP( V )
+!           DEPV_SPC( S ) = TR_DEPV( V )
+            DEPV_SPC( S ) = TR_SPC( TR_DEPV_MAP( V ) )
+         END DO
+
+D        DO N = 1, N_SPC_DEPV   ! debug
+D           WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DEPV_MAP(N), DEPV_SPC(N): ',
+D    &                                       N, DEPV_MAP( N ), DEPV_SPC( N )
+D        END DO
+
+         S = 0
+         DO V = 1, N_GC_TRNS
+            S = S + 1
+            DIFF_MAP( S ) = GC_STRT - 1 + GC_TRNS_MAP( V )
+            DIFF_SPC( S ) = GC_SPC( GC_TRNS_MAP( V ) )
+         END DO
+         DO V = 1, N_AE_TRNS
+            S = S + 1
+            DIFF_MAP( S ) = AE_STRT - 1 + AE_TRNS_MAP( V )
+            DIFF_SPC( S ) = AE_SPC( AE_TRNS_MAP( V ) )
+         END DO
+         DO V = 1, N_NR_TRNS
+            S = S + 1
+            DIFF_MAP( S ) = NR_STRT - 1 + NR_TRNS_MAP( V )
+            DIFF_SPC( S ) = NR_SPC( NR_TRNS_MAP( V ) )
+         END DO
+         DO V = 1, N_TR_DIFF
+            S = S + 1
+            DIFF_MAP( S ) = TR_STRT - 1 + TR_DIFF_MAP( V )
+            DIFF_SPC( S ) = TR_SPC( TR_DIFF_MAP( V ) )
+         END DO
+
+D        DO N = 1, N_SPC_DIFF   ! debug
+D           WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N,      DIFF_MAP(N), DIFF_SPC(N): ',
+D    &                                  N,      DIFF_MAP( N ), DIFF_SPC( N )
+D        END DO
+
+
+         S = 0
+         V = 0
+         DO N = 1, N_GC_DEPV
+            V = V + 1
+            INDX = FINDEX ( GC_DEPV_MAP( N ), N_GC_TRNS, GC_TRNS_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DV2DF ( V ) = S + INDX
+               dv2df_spc( v ) = gc_trns( indx )
+            ELSE
+               XMSG = 'ERROR: deposition velocity specified for non-diff species '
+     &               // GC_SPC( GC_DEPV_MAP( N ) )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+         S = N_GC_TRNS
+         DO N = 1, N_AE_DEPV
+            V = V + 1
+            INDX = FINDEX ( AE_DEPV_MAP( N ), N_AE_TRNS, AE_TRNS_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DV2DF ( V ) = S + INDX
+               dv2df_spc( v ) = ae_trns( indx )
+            ELSE
+               XMSG = 'ERROR: deposition velocity specified for non-diff species '
+     &               // AE_SPC( AE_DEPV_MAP( N ) )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+         S = N_GC_TRNS + N_AE_TRNS
+         DO N = 1, N_NR_DEPV
+            V = V + 1
+            INDX = FINDEX ( NR_DEPV_MAP( N ), N_NR_TRNS, NR_TRNS_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DV2DF ( V ) = S + INDX
+               dv2df_spc( v ) = nr_trns( indx )
+            ELSE
+               XMSG = 'ERROR: deposition velocity specified for non-diff species '
+     &               // NR_SPC( NR_DEPV_MAP( N ) )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+         S = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
+         DO N = 1, N_TR_DEPV
+            V = V + 1
+            INDX = FINDEX ( TR_DEPV_MAP( N ), N_TR_DIFF, TR_DIFF_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DV2DF ( V ) = S + INDX
+               dv2df_spc( v ) = tr_diff( indx )
+            ELSE
+               XMSG = 'ERROR: deposition velocity specified for non-diff species '
+     &               // TR_SPC( TR_DEPV_MAP( N ) )
+               CALL M3MESG( XMSG )
+               LERROR = .TRUE.
+            END IF
+         END DO
+
+D        DO N = 1, N_SPC_DEPV   ! debug
+D           WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N, DV2DF(N), dv2df_spc(n): ',
+D    &                                  N, DV2DF( N ), dv2df_spc( n )
+D        END DO
+
+         IF ( LERROR ) THEN
+            XMSG = '*** Species mapping error(s) in VDIFF_MAP'
+            CALL M3WARN( PNAME, 0, 0, XMSG )
+            SUCCESS = .FALSE.
+         END IF
+
+         RETURN
+
+         END FUNCTION VDIFF_MAP_INIT
+
+      END MODULE VDIFF_MAP

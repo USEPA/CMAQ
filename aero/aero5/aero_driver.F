@@ -1,0 +1,2039 @@
+
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.1 2010/07/20 11:55:06 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C >>> 08/04/2000 Changes necessary to be able to read and process
+C two different types of emissions files.
+C the first type is the existing opperational PM2.5 & PM10 unspeciated
+C file. The new file format has speciated emissions. 
+C >>> This version uses the FORTRAN 90 feature for runtime memory
+C allocation.
+
+C 1/12/99 David Wong at LM: 
+C   -- introduce new variable MY_NUMBLKS (eliminate NUMBLKS)
+C   -- re-calculate NOXYZ accordingly
+C FSB Updated for inclusion of surface area / second moment
+C 25 Sep 00 (yoj) various bug fixes, cleanup to coding standards
+C   Jeff - Dec 00 - move CGRID_MAP into f90 module
+C FSB/Jeff - May 01 - optional emissions processing
+C   Jerry Gipson - Jun 01 - added SOA linkages for saprc99
+C   Bill Hutzell - Jun 01 - simplified CBLK mapping
+C   Jerry Gipson - Jun 03 - modified for new soa treatment
+C   Jerry Gipson - Aug 03 - removed SOA prod form alkenes & added 
+C       emission adjustment factors for ALK & TOL ( RADM2 & SAPRC99 only)
+C   Shawn Roselle - Jan 04
+C   - removed SOA from transported aerosol surface area
+C   - fixed bug in calculation of wet parameters.  Previously, DRY aerosol
+C      parameters were being written to the AERDIAG files and mislabeled
+C      as WET.
+C   Prakash Bhave - May 04
+C   - changed AERODIAG species (added RH; removed M0 & M2dry)
+C   Jeff Young - Jan 05 - dyn alloc 
+C   - establish both horizontal & vertical domain specifications in one module
+c   Uma Shankar and Prakash Bhave - Jun 05
+c   - added code to handle the following species: ANAI, ANAJ, ANAK, ACLI, 
+c     ACLJ, ACLK, ASO4K, AH2OK, ANO3K, and HCL; removed code for ASEAS
+c   - removed obsolete MW variables
+C   Prakash Bhave - Jul 05 - added PM25 mass-fraction calculations
+C   Jeff Young - Feb 06 - trap fractional humidity above 0.005
+C   Prakash Bhave - Apr 06 - added GAMMA_N2O5 to the AEROPROC call vector
+C       and the aerosol diagnostic file
+C   Prakash Bhave - May 06 - changed units of DG variables from m to um in
+C       the aerosol diagnostic file as suggested by Dr. Bill Hutzell
+C   Sergey Napelenok - Sep 07 - SOA updates
+C   - added code to handle the following species: AALKJ, ATOL1J, ATOL2J, 
+C     ATOL3J, AXYL1J, AXYL2J, AXYL3J, ABNZ1J, ABNZ2J, ABNZ3J, AISO1J, AISO2J, 
+C     AISO3J, ATRP1J, ATRP2J, ASQTJ, AORGCJ, TOLNRXN, TOLHRXN, XYLNRXN, 
+C     XYLHRXN, BNZNRXN, BNZHRXN, ISOPRXN, and SESQRXN
+C   - removed following species: AORGAI, AORGAJ, AORGBI, AORGBJ, OLIRXN, 
+C     CSLRXN, TOLRXN, XYLRXN
+C   Prakash Bhave - Oct 07 - SOA updates
+C   - added semi-volatile vapors to the CBLK array; moved ppm -> ug/m3 unit
+C     conversion from the ORGAER subroutine to this program
+C   - updated definition of DRY aerosol to include nonvolatile SOA species
+C   - removed adjustment factors for TOLAER (SPTOL, RDTOL) because benzene is
+C     now an explicit species so all of the reacted TOL can produce SOA
+C   - removed code to handle TERPSP (obsolete); renamed TERPRXN as TRPRXN
+C   David Wong - Jan 08 - rearranged calculation of dry 3rd moments to avoid
+C      NaN on some compilers (using the M3SUBT variable)
+C   Prakash Bhave - Jan 08 - updated MECHNAME check from AE4 to AE5
+C   Golam Sarwar -  Mar 08 - added a heterogeneous reaction producing HONO 
+C   J.Kelly - Apr 08 - added code to account for new species (ANH4K &
+C                      SRFCOR) and variable coarse std. deviation
+C                    - removed MW coding now located in AERO_INFO.f
+C                    - added LIMIT_Sg flag for call to GETPAR
+C   21 Jun 10 J.Young: convert for Namelist redesign
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
+
+      USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE CGRID_SPCS          ! CGRID mechanism species
+      USE AERO_INFO           ! replaces aero include files
+
+      IMPLICIT NONE
+ 
+C *** includes:
+ 
+      INCLUDE SUBST_RXCMMN    ! to get mech name
+      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+      INCLUDE SUBST_IOFDESC   ! file header data structure
+#include      SUBST_IODECL    # I/O definitions and declarations
+      INCLUDE SUBST_FILES_ID  ! file name parameters
+      INCLUDE SUBST_PACTL_ID  ! process analysis
+
+C *** arguments:
+
+C *** CGRID is conc field (including gas and aerosol variables)
+
+!     REAL         CGRID( NCOLS,NROWS,NLAYS,* )
+      REAL, POINTER :: CGRID( :,:,:,: )              !  concentrations
+      INTEGER      JDATE        ! Current model date , coded YYYYDDD
+      INTEGER      JTIME        ! Current model time , coded HHMMSS
+      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
+                                ! TSTEP(1) = local output step
+                                ! TSTEP(2) = sciproc sync. step (chem)
+
+      REAL, PARAMETER :: CONMIN = 1.0E-30 ! concentration lower limit
+
+      INTEGER, SAVE :: LOGDEV             ! unit number for the log file
+
+C *** local variables:
+
+      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DRIVER'
+      CHARACTER( 16 ) :: VNAME            ! variable name
+      CHARACTER( 96 ) :: XMSG = ' '
+
+      INTEGER   MDATE, MTIME, MSTEP  ! julian date, time and 
+                                     ! timestep in sec
+      INTEGER   C, R, L, V, N        ! loop counters
+      INTEGER   SPC                  ! species loop counter
+      INTEGER   STRT, FINI           ! loop induction variables
+      INTEGER   ALLOCSTAT            ! memory allocation status
+      INTEGER   COL                  ! grid column index
+      INTEGER   ROW                  ! grid row index
+      INTEGER   LAYER                ! model layer
+
+      LOGICAL   LERROR               ! Error flag
+
+C *** External Functions not previously declared in IODECL3.EXT:
+
+      INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC, INDEX1
+      LOGICAL, EXTERNAL :: ENVYN     ! get environment variable as boolean
+
+C *** Grid description
+
+      REAL DX1                 ! Cell x-dimension
+      REAL DX2                 ! Cell y-dimension
+      INTEGER GXOFF, GYOFF     ! global origin offset from file
+C for INTERPX
+      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+
+C *** Variable to set time step for writing visibility file
+
+      INTEGER, SAVE :: WSTEP  = 0   ! local write counter
+      LOGICAL, SAVE :: WRITETIME = .FALSE. ! local write flag
+
+C *** meteorological variables
+
+      REAL PRES   ( NCOLS,NROWS,NLAYS )  ! Atmospheric pressure [ Pa ]
+      REAL TA     ( NCOLS,NROWS,NLAYS )  ! Air temperature [ K ] 
+      REAL DENS   ( NCOLS,NROWS,NLAYS )  ! Air density [ kg/m**-3 ]
+      REAL QV     ( NCOLS,NROWS,NLAYS )  ! Water vapor mixing ratio [ kg/kg ]
+
+C *** variables computed and output but not carried in CGRID
+
+C *** visibility variables
+
+      INTEGER, PARAMETER :: N_AE_VIS_SPC = 4
+      INTEGER, PARAMETER :: IDCVW1 = 1 ! visual range in deciview (Mie)
+      INTEGER, PARAMETER :: IBEXT1 = 2 ! extinction [ 1/km ] (Mie)
+      INTEGER, PARAMETER :: IDCVW2 = 3 ! visual range in deciview (Reconst)
+      INTEGER, PARAMETER :: IBEXT2 = 4 ! extinction [ 1/km ] (Reconst)
+      REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
+
+C *** aerosol size distribution variables
+
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,23 )
+
+C *** information about blocks
+
+C *** pointers to gas (vapor) phase species and production rates in CGRID
+
+      INTEGER, SAVE :: LSULF, LSULFP, LHNO3, LNH3, LHCL, LN2O5
+      INTEGER, SAVE :: LNO2, LHONO    
+      INTEGER, SAVE :: LVALK, LVXYL1, LVXYL2, LVTOL1, LVTOL2, LVBNZ1
+      INTEGER, SAVE :: LVBNZ2, LVTRP1, LVTRP2, LVISO1, LVISO2, LVSQT
+      INTEGER, SAVE :: LALKRXN, LXYLNRXN, LXYLHRXN, LTOLNRXN, LTOLHRXN
+      INTEGER, SAVE :: LBNZNRXN, LBNZHRXN, LTRPRXN, LISOPRXN, LSESQRXN
+
+C *** meteorological information:
+
+      REAL BLKPRS           ! Air pressure in [ Pa ]
+      REAL BLKTA            ! Air temperature [ K ]
+      REAL BLKDENS          ! Air density  [ kg m^-3 ]
+      REAL BLKDENS1         ! Reciprocal of air density      
+      REAL BLKQA            ! Water vapor mixing ratio
+      REAL BLKESAT          ! Saturation water vapor pressure [Pa]
+      REAL BLKEVAP          ! Ambient water vapor pressure [Pa]
+      REAL BLKRH            ! Fractional relative humidity
+
+C *** chemical production rates: [ ug / m**3 s ]
+
+      REAL SO4RATE      ! sulfate gas-phase production rate 
+
+C *** new information for secondary organic aerosols
+      
+      INTEGER, PARAMETER :: NPSPCS = 10 
+      REAL ORGPROD( NPSPCS ) ! SOA precursor counter species
+!     ORGPROD( 1) -> "long" alkanes  (ALKRXN)
+!     ORGPROD( 2) -> low-yield aromatics, hi-NOx pathway (XYLNRXN)
+!     ORGPROD( 3) -> low-yield aromatics, lo-NOx pathway (XYLHRXN)
+!     ORGPROD( 4) -> high-yield aromatics, hi-NOx pathway (TOLNRXN)
+!     ORGPROD( 5) -> high-yield aromatics, lo-NOx pathway (TOLHRXN)
+!     ORGPROD( 6) -> benzene, hi-NOx pathway (BNZNRXN)
+!     ORGPROD( 7) -> benzene, lo-NOx pathway (BNZHRXN)
+!     ORGPROD( 8) -> monoterpenes (TRPRXN)
+!     ORGPROD( 9) -> isoprene (ISOPRXN)
+!     ORGPROD(10) -> sesquiterpenes (SESQRXN)
+
+C *** Fraction of lumped VOCs that are SOA precursors (derived from
+C      annual emission inventory estimates)
+
+      REAL, PARAMETER :: SPALK = 0.57  ! Frac of SAPRC99 ALK5 producing SOA
+      REAL, PARAMETER :: RDALK = 0.56  ! Frac of RADM2 HC8 producing SOA
+
+C *** atmospheric properties
+
+      REAL XLM             ! atmospheric mean free path [ m ]
+      REAL AMU             ! atmospheric dynamic viscosity [ kg/m s ]
+
+C *** modal diameters [ m ]
+
+      REAL DGATK           ! Aitken mode geometric mean diameter  [ m ]
+      REAL DGACC           ! accumulation geometric mean diameter [ m ]
+      REAL DGCOR           ! coarse mode geometric mean diameter  [ m ] 
+
+C *** log of modal geometric standard deviation
+
+      REAL XXLSGAT         ! Aitken mode
+      REAL XXLSGAC         ! accumulation mode
+      REAL XXLSGCO         ! coarse mode
+      
+C *** aerosol properties: 
+
+C *** modal mass concentrations [ ug m**3 ]
+
+      REAL PMASSAT         ! mass concentration in Aitken mode 
+      REAL PMASSAC         ! mass concentration in accumulation mode
+      REAL PMASSCO         ! mass concentration in coarse mode 
+
+C *** average modal particle densities  [ kg/m**3 ]
+
+      REAL PDENSAT         ! average particle density in Aitken mode 
+      REAL PDENSAC         ! average particle density in 
+                           ! accumulation mode 
+      REAL PDENSCO         ! average particle density in coarse mode  
+
+C *** N2O5 heterogeneous reaction probability [ ]
+
+      REAL GAMMA_N2O5      ! computed in SUBROUTINE EQL3
+
+C *** mass fraction of each mode less than 2.5um aerodynamic diameter
+
+      REAL PM25AT          ! fine fraction of Aitken mode
+      REAL PM25AC          ! fine fraction of accumulation mode
+      REAL PM25CO          ! fine fraction of coarse mode
+
+C *** visual range information
+
+      REAL BLKDCV1         ! block deciview (Mie)
+      REAL BLKEXT1         ! block extinction [ km**-1 ] (Mie)
+
+      REAL BLKDCV2         ! block deciview (Reconstructed)
+      REAL BLKEXT2         ! block extinction [ km**-1 ] (Reconstructed)
+
+C *** molecular weights of vapor-phase species
+
+      REAL, SAVE :: MWVXYL1, MWVXYL2, MWVTOL1, MWVTOL2
+      REAL, SAVE :: MWVBNZ1, MWVBNZ2, MWVTRP1, MWVTRP2
+      REAL, SAVE :: MWVALK, MWVISO1, MWVISO2, MWVSQT
+
+C *** conversion factors for unit conversions between ppm and ugm**-3
+
+      REAL, SAVE :: H2SO4CONV, HNO3CONV, NH3CONV, HCLCONV, N2O5CONV
+      REAL, SAVE :: NO2CONV, HONOCONV 
+      REAL, SAVE :: VXYL1CONV, VXYL2CONV, VTOL1CONV, VTOL2CONV
+      REAL, SAVE :: VBNZ1CONV, VBNZ2CONV, VTRP1CONV, VTRP2CONV
+      REAL, SAVE :: VALKCONV, VISO1CONV, VISO2CONV, VSQTCONV
+      REAL, SAVE :: H2SO4CONV1, HNO3CONV1, NH3CONV1, HCLCONV1, N2O5CONV1
+      REAL, SAVE :: NO2CONV1, HONOCONV1 
+      REAL, SAVE :: VXYL1CONV1, VXYL2CONV1, VTOL1CONV1, VTOL2CONV1
+      REAL, SAVE :: VBNZ1CONV1, VBNZ2CONV1, VTRP1CONV1, VTRP2CONV1
+      REAL, SAVE :: VALKCONV1, VISO1CONV1, VISO2CONV1, VSQTCONV1
+
+C *** other internal aerosol variables
+
+      INTEGER IND                         ! index to be used with INDEX1
+
+C *** synchronization time step [ s ]
+
+      REAL DT
+
+C *** variables to set up for "dry transport "
+
+      REAL M3_WET, M3_DRY   ! third moment with and without water
+      REAL M2_WET, M2_DRY   ! second moment with and without water
+      REAL M3SUBT           ! temp variable for dry 3rd moment calcs
+
+C *** flag to include water in the 3rd moment calculation
+
+      LOGICAL, PARAMETER :: M3_WET_FLAG = .FALSE.
+
+C *** if LIMIT_Sg = T, atkn & accum std. dev. are not changed by GETPAR
+
+      LOGICAL, PARAMETER :: LIMIT_Sg = .FALSE.
+
+C *** variables aerosol diagnostic file flag
+
+      INTEGER      STATUS            ! ENV... status
+      CHARACTER( 80 ) :: VARDESC     ! environment variable description
+
+C *** environment variable for AERDIAG file
+
+      CHARACTER( 16 ), SAVE :: CTM_AERDIAG = 'CTM_AERDIAG'
+
+C *** flag for AERDIAG file [F], default
+
+      LOGICAL, SAVE :: AERDIAG
+
+C *** number of species (gas + aerosol) includes 2nd,3rd Moments & 5 gases
+
+!     INTEGER, PARAMETER :: NSPCSDA = N_AE_SPC + 34 ! N2O5 added - FSB
+                                                    ! HCl added - US
+                                                    ! 12 SVOCs added - PVB
+                                                    ! NO2 and HONO added - GS
+                                                    ! 6 species added - JTK
+      INTEGER, SAVE :: NSPCSDA
+
+C *** col, row, layer subset of CGRID variables by species
+
+!     REAL CBLK( NSPCSDA )
+      REAL, ALLOCATABLE, SAVE :: CBLK( : )
+
+C *** map of aerosol species
+
+      INTEGER, SAVE :: N_AE_MAP
+!     INTEGER, SAVE :: CBLK_MAP( N_AE_SPCD ) = 0
+      INTEGER, ALLOCATABLE, SAVE :: CBLK_MAP( : )
+ 
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+
+C *** ratio of molecular weights of water vapor to dry air = 0.622015
+
+      REAL, PARAMETER :: EPSWATER = MWWAT / MWAIR
+
+C *** mechanism name
+
+      CHARACTER( 16 ), SAVE :: MECH
+
+C *** Statement Function **************
+
+      REAL ESATL ! arithmetic statement function for vapor pressure [Pa]
+      REAL TT
+C *** Coefficients for the equation, ESATL defining saturation vapor pressure
+      REAL, PARAMETER :: AL = 610.94
+      REAL, PARAMETER :: BL = 17.625
+      REAL, PARAMETER :: CL = 243.04
+
+C *** values of AL, BL, and CL are from:
+C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
+C                            Saturation Vapor Pressure,"
+C                            Jour. of Applied Meteorology, vol. 35,
+C                            pp 601-609, April, 1996.         
+
+      ESATL( TT ) = AL * EXP( BL * ( TT - 273.15 ) / ( TT - 273.15 + CL ) )
+
+C *** End Statement Function  ********
+
+C ------------------ begin body of AERO_DRIVER -------------------------
+
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+         LOGDEV = INIT3()
+
+C*** Make sure an ae5 version of the mechanism is being used
+         IF ( INDEX ( MECHNAME, 'AE5' ) .LE. 0 ) THEN
+            XMSG = 'AERO5 requires an AE5 version of chemical mechanism'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         NSPCSDA = N_AE_SPC + 34
+
+         ALLOCATE ( CBLK( NSPCSDA ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating CBLK'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         CBLK = 0.0   ! array assignment
+
+         ALLOCATE ( CBLK_MAP( N_AE_SPC ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating CBLK_MAP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         CBLK_MAP = 0   ! array assignment
+
+C *** Get aerosol diagnostic file flag.
+
+         AERDIAG = .FALSE.         ! default
+         VARDESC = 'Flag for writing the aerosol diagnostic file'
+         AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
+         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         ELSE IF ( STATUS .EQ. -1 ) THEN
+            XMSG = 
+     &          'Environment variable set, but empty ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         ELSE IF ( STATUS .EQ. -2 ) THEN
+            XMSG = 'Environment variable not set ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         END IF
+
+C *** Set up names and indices.
+
+C *** Initialize species indices for CBLK.
+
+C *** Determine CGRID species map from MECH_DEFN.
+
+         V = 0
+         VNAME = 'ASO4J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSO4AJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ASO4I'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSO4AI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANH4J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNH4AJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANH4I'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNH4AI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANO3J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNO3AJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANO3I'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNO3AI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AALKJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VALKJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AXYL1J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VXYL1J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AXYL2J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VXYL2J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AXYL3J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VXYL3J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ATOL1J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VTOL1J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ATOL2J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VTOL2J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ATOL3J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VTOL3J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ABNZ1J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VBNZ1J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ABNZ2J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VBNZ2J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ABNZ3J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VBNZ3J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ATRP1J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VTRP1J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ATRP2J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VTRP2J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AISO1J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VISO1J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AISO2J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VISO2J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AISO3J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VISO3J = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ASQTJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSQTJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AOLGAJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VOLGAJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AOLGBJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VOLGBJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AORGCJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VORGCJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AORGPAJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VORGPAJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AORGPAI'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VORGPAI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF            
+
+         VNAME = 'AECJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VECJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AECI'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VECI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'A25J'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VP25AJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'A25I'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VP25AI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ACORS'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VANTHA = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ASOIL'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSOILA = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'NUMATKN'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VAT0 = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'NUMACC'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VAC0 = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'NUMCOR'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VCO0 = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+               
+         VNAME = 'SRFATKN'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSURFAT = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'SRFACC'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSURFAC = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF                       
+
+         VNAME = 'SRFCOR'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSURFCO = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AH2OJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VH2OAJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AH2OI'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VH2OAI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANAJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNAJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANAI'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNAI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ACLJ'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VCLJ = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ACLI'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VCLI = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANAK'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNAK = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ACLK'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VCLK = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ASO4K'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VSO4K = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANH4K'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNH4K = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ANO3K'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VNO3K = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'AH2OK'
+         N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
+         IF ( N .NE. 0 ) THEN
+            V = V + 1
+            VH2OK = V
+            CBLK_MAP( V ) = AE_STRT - 1 + N
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+C define additional AE species for Concentration of HPLUS in Aitken and
+C Accumulation modes
+cjk 'HPLUS' is not in species table; index for HPLUS defined below
+
+         N_AE_MAP = V
+
+C *** Set additional species contained only in CBLK not needed in CBLK_MAP.
+
+         V = N_AE_SPC + 1
+         VSGAT = V
+
+         V = V + 1
+         VSGAC = V                
+
+         V = V + 1
+         VSGCO = V
+                                  
+         V = V + 1                
+         VDGAT = V                
+                                  
+         V = V + 1                
+         VDGAC = V                
+
+         V = V + 1
+         VDGCO = V
+                                  
+         V = V + 1                
+         VAT2 = V                 
+                                  
+         V = V + 1                
+         VAC2 = V                 
+
+         V = V + 1
+         VCO2 = V
+                                  
+         V = V + 1                
+         VAT3 = V                 
+                                  
+         V = V + 1                
+         VAC3 = V                 
+                                  
+         V = V + 1                
+         VCO3 = V                
+            
+         V = V + 1
+         VSULF = V
+          
+         V = V + 1
+         VHNO3 = V
+
+         V = V + 1
+         VNH3 = V
+         
+         V = V + 1
+         VN2O5 = V
+         
+         V = V + 1
+         VHCL = V
+
+         V = V + 1
+         VHPLUSI = V
+
+         V = V + 1
+         VHPLUSJ = V
+
+         V = V + 1
+         VHPLUSK = V
+
+         V = V + 1      
+         VNO2 = V       
+
+         V = V + 1      
+         VHONO = V  
+
+         V = V + 1
+         VVALK = V
+
+         V = V + 1
+         VVXYL1 = V
+
+         V = V + 1
+         VVXYL2 = V
+
+         V = V + 1
+         VVTOL1 = V
+
+         V = V + 1
+         VVTOL2 = V
+
+         V = V + 1
+         VVBNZ1 = V
+
+         V = V + 1
+         VVBNZ2 = V
+
+         V = V + 1
+         VVTRP1 = V
+
+         V = V + 1
+         VVTRP2 = V
+
+         V = V + 1
+         VVISO1 = V
+
+         V = V + 1
+         VVISO2 = V
+
+         V = V + 1
+         VVSQT = V  
+
+C *** Get generic mechanism name
+
+         IF ( INDEX ( MECHNAME, 'CB4' ) .GT. 0 ) THEN
+             MECH = 'CB4'
+         ELSE IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
+             MECH = 'CB05'             
+         ELSE IF ( INDEX ( MECHNAME, 'RADM2' )  .GT. 0 ) THEN
+             MECH = 'RADM2'
+         ELSE IF ( INDEX ( MECHNAME, 'SAPRC99' ) .GT. 0 ) THEN
+             MECH = 'SAPRC99'
+         ELSE
+            XMSG = 'Base chemical mechanism must be CB4, CB05, 
+     &              RADM2, or SAPRC99'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+C *** Set pointers for gas (vapor) phase species and production rates in CGRID.
+
+         VNAME = 'SULF'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LSULF     = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &        'Could not find ' // VNAME // 'in gas chem aerosol table'
+        
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+               
+         VNAME = 'HNO3'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LHNO3  = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'N2O5'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LN2O5  = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'NO2'                                      
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LNO2  = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'HONO'                                      
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LHONO  = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+         VNAME = 'ALKRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LALKRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG 
+     &             ( 'No production of organic aerosols from alkanes' )
+            LALKRXN = 0
+         END IF
+
+         VNAME = 'XYLNRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LXYLNRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from NO + xylene' )
+            LXYLNRXN = 0
+         END IF
+
+         VNAME = 'XYLHRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LXYLHRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from HO2 + xylene' )
+            LXYLHRXN = 0
+         END IF
+
+         VNAME = 'TOLNRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LTOLNRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from NO + toluene' )
+            LTOLNRXN = 0
+         END IF
+
+         VNAME = 'TOLHRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LTOLHRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from HO2 + toluene' )
+            LTOLHRXN = 0
+         END IF
+
+         VNAME = 'BNZNRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LBNZNRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from NO + benzene' )
+            LBNZNRXN = 0
+         END IF
+
+         VNAME = 'BNZHRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LBNZHRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from HO2 + benzene' )
+            LBNZHRXN = 0
+         END IF
+               
+         VNAME = 'TRPRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LTRPRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &           ( 'No production of organic aerosols from monoterpenes' )
+            LTRPRXN = 0
+         END IF
+
+         VNAME = 'ISOPRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LISOPRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG =
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from isoprene' )
+            LISOPRXN = 0
+         END IF
+
+         VNAME = 'SESQRXN'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LSESQRXN = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE 
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3MESG ( XMSG )
+            CALL M3MESG
+     &         ( 'No production of organic aerosols from sesquiterpenes' )
+            LSESQRXN = 0
+         END IF
+               
+         VNAME = 'SULPRD'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LSULFP = GC_STRT - 1 + GC_G2AE_MAP( N )
+         ELSE
+            XMSG = 
+     &         'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+C *** For NH3 and HCl, search gas-phase species list first.  Then try non-
+C     reactive list.  If not found in either list, quit with error message.
+
+         VNAME = 'NH3'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LNH3  = GC_STRT - 1 + GC_G2AE_MAP( N ) 
+         ELSE
+            N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+            IF ( N .NE. 0 ) THEN
+               LNH3  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            ELSE
+               XMSG = 'Could not find ' // VNAME // 
+     &                'in gas chem aerosol or non-reactives table'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+            END IF
+         END IF
+
+         VNAME = 'HCL'
+         N = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
+         IF ( N .NE. 0 ) THEN
+            LHCL  = GC_STRT - 1 + GC_G2AE_MAP( N ) 
+         ELSE
+            N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+            IF ( N .NE. 0 ) THEN
+               LHCL  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            ELSE
+               XMSG = 'Could not find ' // VNAME // 
+     &                'in gas chem aerosol or non-reactives table'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+            END IF
+         END IF
+
+C *** Set pointers for vapor-phase semi-volatile organic compds in CGRID
+
+         VNAME = 'SV_ALK'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVALK   = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVALK  = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_XYL1'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVXYL1  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVXYL1 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_XYL2'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVXYL2  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVXYL2 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_TOL1'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVTOL1  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVTOL1 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_TOL2'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVTOL2  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVTOL2 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_BNZ1'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVBNZ1  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVBNZ1 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_BNZ2'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVBNZ2  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVBNZ2 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_TRP1'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVTRP1  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVTRP1 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_TRP2'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVTRP2  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVTRP2 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_ISO1'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVISO1  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVISO1 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_ISO2'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVISO2  = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVISO2 = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+         VNAME = 'SV_SQT'
+         N = INDEX1( VNAME, N_NR_N2AE, NR_N2AE )
+         IF ( N .NE. 0 ) THEN
+            LVSQT   = NR_STRT - 1 + NR_N2AE_MAP( N )  
+            MWVSQT  = NR_MOLWT( NR_N2AE_MAP( N ) )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 
+     &             'in non-reactives to aerosol mapping table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 ) 
+         END IF
+
+C *** In the following conversion factors, the 1.0e3 factor
+C     is to convert density from kg m**-3 to g m**-3.
+        
+C *** factors for converting from ppm to ug m-**3
+         
+         H2SO4CONV = 1.0E3 * MWH2SO4 / MWAIR
+         HNO3CONV  = 1.0E3 * MWHNO3  / MWAIR
+         NH3CONV   = 1.0E3 * MWNH3   / MWAIR
+         HCLCONV   = 1.0E3 * MWHCL   / MWAIR
+         N2O5CONV  = 1.0E3 * MWN2O5  / MWAIR
+         NO2CONV   = 1.0E3 * MWNO2   / MWAIR          
+         HONOCONV  = 1.0E3 * MWHONO  / MWAIR   
+         VALKCONV  = 1.0E3 * MWVALK  / MWAIR
+         VXYL1CONV = 1.0E3 * MWVXYL1 / MWAIR
+         VXYL2CONV = 1.0E3 * MWVXYL2 / MWAIR
+         VTOL1CONV = 1.0E3 * MWVTOL1 / MWAIR
+         VTOL2CONV = 1.0E3 * MWVTOL2 / MWAIR
+         VBNZ1CONV = 1.0E3 * MWVBNZ1 / MWAIR
+         VBNZ2CONV = 1.0E3 * MWVBNZ2 / MWAIR
+         VTRP1CONV = 1.0E3 * MWVTRP1 / MWAIR
+         VTRP2CONV = 1.0E3 * MWVTRP2 / MWAIR
+         VISO1CONV = 1.0E3 * MWVISO1 / MWAIR
+         VISO2CONV = 1.0E3 * MWVISO2 / MWAIR
+         VSQTCONV  = 1.0E3 * MWVSQT  / MWAIR
+    
+C *** reciprocals for converting from ug m**-3 to ppm
+         
+         H2SO4CONV1 = 1.0 / H2SO4CONV
+         HNO3CONV1  = 1.0 / HNO3CONV
+         NH3CONV1   = 1.0 / NH3CONV
+         HCLCONV1   = 1.0 / HCLCONV
+         N2O5CONV1  = 1.0 / N2O5CONV
+         NO2CONV1   = 1.0 / NO2CONV           
+         HONOCONV1  = 1.0 / HONOCONV           
+         VALKCONV1  = 1.0 / VALKCONV
+         VXYL1CONV1 = 1.0 / VXYL1CONV
+         VXYL2CONV1 = 1.0 / VXYL2CONV
+         VTOL1CONV1 = 1.0 / VTOL1CONV
+         VTOL2CONV1 = 1.0 / VTOL2CONV
+         VBNZ1CONV1 = 1.0 / VBNZ1CONV
+         VBNZ2CONV1 = 1.0 / VBNZ2CONV
+         VTRP1CONV1 = 1.0 / VTRP1CONV
+         VTRP2CONV1 = 1.0 / VTRP2CONV
+         VISO1CONV1 = 1.0 / VISO1CONV
+         VISO2CONV1 = 1.0 / VISO2CONV
+         VSQTCONV1  = 1.0 / VSQTCONV
+
+C *** Open the met files.
+
+         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
+            XMSG = 'Could not open  MET_CRO_3D  file '
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
+            XMSG = 'Could not open  MET_CRO_2D file '
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C *** Set up file structure for visibility file. It has two variables,
+C     visual range in deciview units (dimensionless) and extinction in
+C     units of (1/km) and is for layer 1 only.
+
+         IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+
+C *** Open the aerosol parameters file (diameters and standard deviations).
+
+         IF ( AERDIAG .AND.
+     &        MYPE .EQ. 0 ) CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+
+C Get domain decomp info from the MET_CRO_3D file
+
+         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+      END IF    ! FIRSTIME
+
+C ------------ Begin Interpolation of Meteorological Variables ---------
+
+      MDATE  = JDATE
+      MTIME  = JTIME
+      MSTEP = TIME2SEC( TSTEP( 2 ) )
+      CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
+
+      WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) WRITETIME = .TRUE.
+
+C *** Set floating point synchronization time step:
+
+      DT = FLOAT( MSTEP ) ! set time step in seconds
+
+C *** layered variables PRES, TA, QV, DENS:
+
+C *** pressure (Pa)
+
+      VNAME = 'PRES'
+
+      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    MDATE, MTIME, PRES ) ) THEN
+        XMSG = 'Could not interpolate PRES from ' // MET_CRO_3D
+        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+      END IF
+
+C *** temperature (K)
+
+      VNAME = 'TA'
+      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    MDATE, MTIME, TA ) ) THEN
+        XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
+        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+      END IF
+
+C *** specific humidity (g H2O / g air)
+
+      VNAME = 'QV'
+      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    MDATE, MTIME, QV ) ) THEN
+        XMSG = 'Could not interpolate specific humidity from MET_CRO_3D'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF 
+
+C *** air density (kg/m3)
+
+      VNAME = 'DENS'
+      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    MDATE, MTIME, DENS ) ) THEN
+        XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
+        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+      END IF
+
+C *** end interpolation of meteorological variables 
+
+
+C --------------------- Begin loops over grid cells --------------------------
+
+C *** initialize CBLK
+
+      CBLK = 0.0
+
+      DO L = 1, NLAYS
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+
+C *** Fetch the grid cell meteorological data.
+
+               COL = C
+               ROW = R
+               LAYER = L
+
+               BLKTA    = TA   ( C,R,L )
+               BLKPRS   = PRES ( C,R,L )   ! Note pascals
+               BLKQA    = QV   ( C,R,L )
+               BLKDENS  = DENS ( C,R,L )
+               BLKDENS1 = 1.0 / BLKDENS 
+               BLKESAT  = ESATL( BLKTA ) 
+               BLKEVAP  = BLKPRS * BLKQA / ( EPSWATER  + BLKQA )
+               BLKRH    = MAX( 0.005, MIN( 0.99, BLKEVAP / BLKESAT ) )
+
+C *** Transfer CGRID values to CBLK (limit to mapped species)
+
+               DO SPC = 1, N_AE_MAP
+                  V = CBLK_MAP( SPC )
+                  CBLK( SPC ) = MAX ( CGRID( C,R,L,V ), CONMIN )
+               END DO
+
+C *** Add gas and vapor phase species to CBLK
+
+               CBLK( VSULF )  = MAX( CONMIN, 
+     &             H2SO4CONV  * BLKDENS * CGRID( C,R,L,LSULF ) )
+                              
+               CBLK( VHNO3 )  = MAX( CONMIN,
+     &             HNO3CONV   * BLKDENS * CGRID( C,R,L,LHNO3 ) )
+                              
+               CBLK( VNH3 )   = MAX( CONMIN,
+     &             NH3CONV    * BLKDENS * CGRID( C,R,L,LNH3 ) )
+                              
+               CBLK( VHCL )   = MAX( CONMIN,
+     &             HCLCONV    * BLKDENS * CGRID( C,R,L,LHCL ) )
+                              
+               CBLK( VN2O5 )  = MAX( CONMIN,
+     &             N2O5CONV   * BLKDENS * CGRID( C,R,L,LN2O5 ) )
+
+               CBLK( VNO2 )  = MAX( CONMIN,
+     &             NO2CONV   * BLKDENS * CGRID( C,R,L,LNO2 ) )               
+     
+               CBLK( VHONO ) = MAX( CONMIN,
+     &             HONOCONV  * BLKDENS * CGRID( C,R,L,LHONO) ) 
+
+               CBLK( VVALK )  = MAX( CONMIN,
+     &             VALKCONV   * BLKDENS * CGRID( C,R,L,LVALK ) )
+ 
+               CBLK( VVXYL1 ) = MAX( CONMIN,
+     &             VXYL1CONV  * BLKDENS * CGRID( C,R,L,LVXYL1 ) )
+ 
+               CBLK( VVXYL2 ) = MAX( CONMIN,
+     &             VXYL2CONV  * BLKDENS * CGRID( C,R,L,LVXYL2 ) )
+ 
+               CBLK( VVTOL1 ) = MAX( CONMIN,
+     &             VTOL1CONV  * BLKDENS * CGRID( C,R,L,LVTOL1 ) )
+ 
+               CBLK( VVTOL2 ) = MAX( CONMIN,
+     &             VTOL2CONV  * BLKDENS * CGRID( C,R,L,LVTOL2 ) )
+ 
+               CBLK( VVBNZ1 ) = MAX( CONMIN,
+     &             VBNZ1CONV  * BLKDENS * CGRID( C,R,L,LVBNZ1 ) )
+ 
+               CBLK( VVBNZ2 ) = MAX( CONMIN,
+     &             VBNZ2CONV  * BLKDENS * CGRID( C,R,L,LVBNZ2 ) )
+ 
+               CBLK( VVTRP1 ) = MAX( CONMIN,
+     &             VTRP1CONV  * BLKDENS * CGRID( C,R,L,LVTRP1 ) )
+ 
+               CBLK( VVTRP2 ) = MAX( CONMIN,
+     &             VTRP2CONV  * BLKDENS * CGRID( C,R,L,LVTRP2 ) )
+ 
+               CBLK( VVISO1 ) = MAX( CONMIN,
+     &             VISO1CONV  * BLKDENS * CGRID( C,R,L,LVISO1 ) )
+ 
+               CBLK( VVISO2 ) = MAX( CONMIN,
+     &             VISO2CONV  * BLKDENS * CGRID( C,R,L,LVISO2 ) )
+ 
+               CBLK( VVSQT )  = MAX( CONMIN,
+     &             VSQTCONV   * BLKDENS * CGRID( C,R,L,LVSQT ) )
+     
+
+C *** Fetch gas-phase production rates.
+
+C *** sulfate 
+               SO4RATE = H2SO4CONV * BLKDENS
+     &                 * CGRID( C,R,L,LSULFP ) / DT
+
+C *** secondary organics
+
+               DO SPC = 1, NPSPCS
+                  ORGPROD( SPC ) = 0.0
+               END DO
+
+               IF ( LALKRXN .GT. 0 )
+     &            ORGPROD( 1 ) = CGRID( C,R,L,LALKRXN ) 
+
+               IF ( LXYLNRXN .GT. 0 )
+     &            ORGPROD( 2 ) = CGRID( C,R,L,LXYLNRXN )
+
+               IF ( LXYLHRXN .GT. 0 )
+     &            ORGPROD( 3 ) = CGRID( C,R,L,LXYLHRXN )
+
+               IF ( LTOLNRXN .GT. 0 )
+     &            ORGPROD( 4 ) = CGRID( C,R,L,LTOLNRXN )
+
+               IF ( LTOLHRXN .GT. 0 )
+     &            ORGPROD( 5 ) = CGRID( C,R,L,LTOLHRXN )
+
+               IF ( LBNZNRXN .GT. 0 )
+     &            ORGPROD( 6 ) = CGRID( C,R,L,LBNZNRXN )
+
+               IF ( LBNZHRXN .GT. 0 )
+     &            ORGPROD( 7 ) = CGRID( C,R,L,LBNZHRXN )
+
+               IF ( LTRPRXN .GT. 0 )
+     &            ORGPROD( 8 ) = CGRID( C,R,L,LTRPRXN )
+
+               IF ( LISOPRXN .GT. 0 )
+     &            ORGPROD( 9 ) = CGRID( C,R,L,LISOPRXN )
+
+               IF ( LSESQRXN .GT. 0 )
+     &            ORGPROD( 10 ) = CGRID( C,R,L,LSESQRXN )
+
+c *** Adjust ALK orgprod for fraction that produces SOA
+
+               IF( MECH .EQ. 'SAPRC99' ) THEN
+                  ORGPROD( 1 ) = SPALK * ORGPROD( 1 )
+               ELSEIF( MECH .EQ. 'RADM2' ) THEN
+                  ORGPROD( 1 ) = RDALK * ORGPROD( 1 )
+               ENDIF
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c     call aerosol process routines
+
+               CALL AEROPROC( NSPCSDA, CBLK, DT, COL, ROW, LAYER,
+     &                        BLKTA, BLKPRS, BLKDENS, BLKRH,
+     &                        SO4RATE, ORGPROD, NPSPCS, 
+     &                        XLM, AMU,
+     &                        DGATK, DGACC, DGCOR,
+     &                        XXLSGAT, XXLSGAC, XXLSGCO,
+     &                        PMASSAT, PMASSAC, PMASSCO,
+     &                        PDENSAT, PDENSAC, PDENSCO,
+     &                        GAMMA_N2O5,
+     &                        LOGDEV )
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+C *** Transfer new aerosol information from CBLK to CGRID 
+c      (limit to mapped species)
+
+               DO SPC = 1, N_AE_MAP
+                  V = CBLK_MAP( SPC )
+                  CGRID( C,R,L,V ) = MAX( CONMIN, CBLK( SPC ) )
+               END DO
+
+C *** Transfer new gas/vapor concentrations from CBLK to CGRID
+
+               CGRID( C,R,L,LSULF )  = MAX( CONMIN,
+     &                    H2SO4CONV1 * BLKDENS1 * CBLK( VSULF ) )
+
+               CGRID( C,R,L,LHNO3 )  = MAX( CONMIN,
+     &                    HNO3CONV1  * BLKDENS1 * CBLK( VHNO3 ) )
+
+               CGRID( C,R,L,LNH3 )   = MAX( CONMIN,
+     &                    NH3CONV1   * BLKDENS1 * CBLK( VNH3 ) )
+
+               CGRID( C,R,L,LHCL )   = MAX( CONMIN,
+     &                    HCLCONV1   * BLKDENS1 * CBLK( VHCL ) )
+               
+               CGRID( C,R,L,LN2O5 )  = MAX( CONMIN,
+     &                    N2O5CONV1  * BLKDENS1 * CBLK( VN2O5 ) )
+
+               CGRID( C,R,L,LNO2 )  = MAX( CONMIN,
+     &                      NO2CONV1    * BLKDENS1 * CBLK( VNO2 ) )     
+
+               CGRID( C,R,L,LHONO ) = MAX( CONMIN,
+     &                      HONOCONV1   * BLKDENS1 * CBLK( VHONO) )  
+
+               CGRID( C,R,L,LVALK )  = MAX( CONMIN,
+     &                    VALKCONV1  * BLKDENS1 * CBLK( VVALK ) )
+ 
+               CGRID( C,R,L,LVXYL1 ) = MAX( CONMIN,
+     &                    VXYL1CONV1 * BLKDENS1 * CBLK( VVXYL1 ) )
+ 
+               CGRID( C,R,L,LVXYL2 ) = MAX( CONMIN,
+     &                    VXYL2CONV1 * BLKDENS1 * CBLK( VVXYL2 ) )
+ 
+               CGRID( C,R,L,LVTOL1 ) = MAX( CONMIN,
+     &                    VTOL1CONV1 * BLKDENS1 * CBLK( VVTOL1 ) )
+ 
+               CGRID( C,R,L,LVTOL2 ) = MAX( CONMIN,
+     &                    VTOL2CONV1 * BLKDENS1 * CBLK( VVTOL2 ) )
+ 
+               CGRID( C,R,L,LVBNZ1 ) = MAX( CONMIN,
+     &                    VBNZ1CONV1 * BLKDENS1 * CBLK( VVBNZ1 ) )
+ 
+               CGRID( C,R,L,LVBNZ2 ) = MAX( CONMIN,
+     &                    VBNZ2CONV1 * BLKDENS1 * CBLK( VVBNZ2 ) )
+ 
+               CGRID( C,R,L,LVTRP1 ) = MAX( CONMIN,
+     &                    VTRP1CONV1 * BLKDENS1 * CBLK( VVTRP1 ) )
+ 
+               CGRID( C,R,L,LVTRP2 ) = MAX( CONMIN,
+     &                    VTRP2CONV1 * BLKDENS1 * CBLK( VVTRP2 ) )
+ 
+               CGRID( C,R,L,LVISO1 ) = MAX( CONMIN,
+     &                    VISO1CONV1 * BLKDENS1 * CBLK( VVISO1 ) )
+ 
+               CGRID( C,R,L,LVISO2 ) = MAX( CONMIN,
+     &                    VISO2CONV1 * BLKDENS1 * CBLK( VVISO2 ) )
+ 
+               CGRID( C,R,L,LVSQT )  = MAX( CONMIN,
+     &                    VSQTCONV1  * BLKDENS1 * CBLK( VVSQT ) )
+     
+
+C *** Zero out species representing the contributions to production 
+C      of aerosols.
+
+               CGRID( C,R,L,LSULFP )  = 0.0
+               IF ( LALKRXN  .GT. 0 ) CGRID( C,R,L,LALKRXN  ) = 0.0
+               IF ( LXYLNRXN .GT. 0 ) CGRID( C,R,L,LXYLNRXN ) = 0.0
+               IF ( LXYLHRXN .GT. 0 ) CGRID( C,R,L,LXYLHRXN ) = 0.0
+               IF ( LTOLNRXN .GT. 0 ) CGRID( C,R,L,LTOLNRXN ) = 0.0
+               IF ( LTOLHRXN .GT. 0 ) CGRID( C,R,L,LTOLHRXN ) = 0.0
+               IF ( LBNZNRXN .GT. 0 ) CGRID( C,R,L,LBNZNRXN ) = 0.0
+               IF ( LBNZHRXN .GT. 0 ) CGRID( C,R,L,LBNZHRXN ) = 0.0
+               IF ( LTRPRXN  .GT. 0 ) CGRID( C,R,L,LTRPRXN  ) = 0.0
+               IF ( LISOPRXN .GT. 0 ) CGRID( C,R,L,LISOPRXN ) = 0.0
+               IF ( LSESQRXN .GT. 0 ) CGRID( C,R,L,LSESQRXN ) = 0.0
+
+
+C *** Calculate volume fraction of each mode < 2.5um aerodynamic diameter
+
+               CALL INLET25 ( DGATK, XXLSGAT, PDENSAT, PM25AT )
+               CALL INLET25 ( DGACC, XXLSGAC, PDENSAC, PM25AC )
+               CALL INLET25 ( DGCOR, XXLSGCO, PDENSCO, PM25CO )
+
+C *** Write aerosol extinction coefficients and deciviews to visibility
+C      diagnostic array (lowest vertical layer only)
+
+               IF ( WRITETIME .AND. L .EQ. 1 ) THEN
+
+                  CALL GETVISBY ( NSPCSDA,
+     &                            CBLK, BLKRH,
+     &                            BLKDCV1, BLKEXT1, BLKDCV2, BLKEXT2,
+     &                            DGATK, DGACC, DGCOR,
+     &                            XXLSGAT, XXLSGAC, XXLSGCO,
+     &                            PMASSAT, PMASSAC, PMASSCO )
+
+                  VIS_SPC( C,R,IDCVW1 ) = BLKDCV1 ! visual range [ deciview ]
+                                                  ! (Mie)
+                  VIS_SPC( C,R,IBEXT1 ) = BLKEXT1 ! aerosol extinction [ 1/km ]
+                                                  ! (Mie)
+                  VIS_SPC( C,R,IDCVW2 ) = BLKDCV2 ! visual range [ deciview ]
+                                                  ! (Reconstructed)
+                  VIS_SPC( C,R,IBEXT2 ) = BLKEXT2 ! aerosol extinction [ 1/km ]
+                                                  ! (Reconstructed)
+
+               END IF
+
+C *** Write wet diameters, 2nd, and 3rd moments to aerosol diagnostic array
+C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
+
+               IF ( WRITETIME .AND. AERDIAG ) THEN
+
+                  DIAM_SPC( C,R,L, 7 ) = DGATK*1.0E6   ! wet i-mode diameter
+                  DIAM_SPC( C,R,L, 8 ) = DGACC*1.0E6   ! wet j-mode diameter
+                  DIAM_SPC( C,R,L, 9 ) = DGCOR*1.0E6   ! wet k-mode diameter
+                  DIAM_SPC( C,R,L,10 ) = CBLK( VAT2 )  ! wet i-mode 2nd moment
+                  DIAM_SPC( C,R,L,11 ) = CBLK( VAC2 )  ! wet j-mode 2nd moment
+                  DIAM_SPC( C,R,L,12 ) = CBLK( VCO2 )  ! wet k-mode 2nd moment
+                  DIAM_SPC( C,R,L,16 ) = CBLK( VAT3 )  ! wet i-mode 3rd moment
+                  DIAM_SPC( C,R,L,17 ) = CBLK( VAC3 )  ! wet j-mode 3rd moment
+                  DIAM_SPC( C,R,L,18 ) = CBLK( VCO3 )  ! wet k-mode 3rd moment
+                  DIAM_SPC( C,R,L,20 ) = PM25AT        ! i-mode fine fraction
+                  DIAM_SPC( C,R,L,21 ) = PM25AC        ! j-mode fine fraction
+                  DIAM_SPC( C,R,L,22 ) = PM25CO        ! coarse-mode fine fraction
+                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5    ! N2O5 heterorxn probability
+
+               END IF   ! WRITETIME .AND. AERDIAG
+
+C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
+C     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
+C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
+
+C     Aitken mode.
+               M3_WET = CBLK( VAT3 )
+               M3SUBT = H2OFAC * CBLK( VH2OAI )
+               M3_DRY = M3_WET - M3SUBT
+               M2_WET = CBLK( VAT2 )
+               M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWO3
+
+               CBLK( VAT3 ) = MAX( CONMIN, M3_DRY )
+               CBLK( VAT2 ) = MAX( CONMIN, M2_DRY )
+
+C     accumulation mode.
+               M3_WET = CBLK( VAC3 )
+               M3SUBT = H2OFAC * CBLK( VH2OAJ )
+     &                + ORGFAC * CBLK( VALKJ )
+     &                + ORGFAC * CBLK( VXYL1J ) 
+     &                + ORGFAC * CBLK( VXYL2J )
+     &                + ORGFAC * CBLK( VTOL1J )
+     &                + ORGFAC * CBLK( VTOL2J )
+     &                + ORGFAC * CBLK( VBNZ1J )
+     &                + ORGFAC * CBLK( VBNZ2J )
+     &                + ORGFAC * CBLK( VTRP1J )
+     &                + ORGFAC * CBLK( VTRP2J )
+     &                + ORGFAC * CBLK( VISO1J )
+     &                + ORGFAC * CBLK( VISO2J )
+     &                + ORGFAC * CBLK( VSQTJ )
+               M3_DRY = M3_WET - M3SUBT
+               M2_WET = CBLK( VAC2 )
+               M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWO3
+
+               CBLK( VAC3 ) = MAX( CONMIN, M3_DRY )
+               CBLK( VAC2 ) = MAX( CONMIN, M2_DRY )
+
+C     coarse mode
+               M3_WET = CBLK( VCO3 )
+               M3SUBT = H2OFAC * CBLK( VH2OK )
+               M3_DRY = M3_WET - M3SUBT
+               M2_WET = CBLK( VCO2 )
+               M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWO3
+
+               CBLK( VCO3 ) = MAX( CONMIN, M3_DRY )
+               CBLK( VCO2 ) = MAX( CONMIN, M2_DRY )
+
+C *** Calculate geometric mean diameters and standard deviations of the
+C      "dry" size distribution
+
+               CALL GETPAR( NSPCSDA,
+     &                      CBLK,
+     &                      PMASSAT, PMASSAC, PMASSCO,
+     &                      PDENSAT, PDENSAC, PDENSCO,
+     &                      DGATK, DGACC, DGCOR,
+     &                      XXLSGAT, XXLSGAC, XXLSGCO,
+     &                      M3_WET_FLAG, LIMIT_Sg )
+
+C *** Write dry aerosol distribution parameters to aerosol diagnostic array
+
+               IF ( WRITETIME .AND. AERDIAG ) THEN
+
+                  DIAM_SPC( C,R,L, 1 ) = EXP( XXLSGAT )
+                  DIAM_SPC( C,R,L, 2 ) = EXP( XXLSGAC )
+                  DIAM_SPC( C,R,L, 3 ) = EXP( XXLSGCO ) 
+                  DIAM_SPC( C,R,L, 4 ) = DGATK*1.0E6   ! dry i-mode diameter
+                  DIAM_SPC( C,R,L, 5 ) = DGACC*1.0E6   ! dry j-mode diameter
+                  DIAM_SPC( C,R,L, 6 ) = DGCOR*1.0E6   ! dry coarse-mode diam.
+
+                  DIAM_SPC( C,R,L,13 ) = CBLK( VAT3 )  ! dry i-mode 3rd moment
+                  DIAM_SPC( C,R,L,14 ) = CBLK( VAC3 )  ! dry j-mode 3rd moment
+                  DIAM_SPC( C,R,L,15 ) = CBLK( VCO3 )  ! dry coarse-mode 3rd
+                                                       ! moment
+                  DIAM_SPC( C,R,L,19 ) = BLKRH         ! relative humidity
+               END IF   ! WRITETIME .AND. AERDIAG
+
+
+C *** Calculate aerosol surface area from the dry 2nd moment.  Dry value is
+C      used in transport routines.
+
+               CGRID( C,R,L,CBLK_MAP( VSURFAT ) ) = PI * CBLK( VAT2 )
+               CGRID( C,R,L,CBLK_MAP( VSURFAC ) ) = PI * CBLK( VAC2 )
+               CGRID( C,R,L,CBLK_MAP( VSURFCO ) ) = PI * CBLK( VCO2 )
+
+            END DO ! loop on MY_COLS
+         END DO ! loop on MY_ROWS
+      END DO ! loop on NLAYS
+
+C *** end of loops over grid cells
+
+
+C ------------ Write diagnostic information to output files --------------
+
+C *** If last call this hour, write visibility information.
+
+      IF ( WRITETIME ) THEN
+         MDATE = JDATE
+         MTIME = JTIME
+         CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) )
+         WSTEP = 0
+         WRITETIME = .FALSE.
+
+         IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
+     &                      MDATE, MTIME, VIS_SPC ) ) THEN
+            XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
+            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+
+         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &                  'Timestep written to', CTM_VIS_1,
+     &                  'for date and time', MDATE, MTIME
+  
+C *** Write data to the aerosol parameters file.
+
+         IF ( AERDIAG ) THEN
+
+            IF ( .NOT. WRITE3( CTM_DIAM_1, ALLVAR3,
+     &                         MDATE, MTIME, DIAM_SPC ) ) THEN
+               XMSG = 'Could not write ' // CTM_DIAM_1 // ' file'
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+
+            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &                     'Timestep written to', CTM_DIAM_1,
+     &                     'for date and time', MDATE, MTIME
+
+         END IF
+
+      END IF
+
+      RETURN
+      END
