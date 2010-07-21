@@ -1,0 +1,28 @@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/yoj/arc/MECHS/src/saprc99_ae5st_aq/Attic/NR_saprc99_ae5st_aq_recon.nml,v 1.1 2010/07/21 13:30:14 yoj Exp $
+
+&NR_nml
+ 
+n_surr1 = 4,
+n_surr2 = 2,
+n_ctrl = 4,
+ 
+TYPE_HEADER =
+'SPC:MOLWT:EMIS_SUR:EMIS_FAC:DEPV_SUR:DEPV_FAC:ICBC_SUR:ICBC_FAC:SCAV_SUR:SCAV_FAC:N2AE_SUR:N2AQ_SUR:TRNS:DDEP:WDEP:CONC',
+TYPE_MATRIX =
+'NH3: 17.0:NH3:1.0:VD_NH3:1.0:::NH3:1.0:NH3:NH3:Yes:Yes:Yes:Yes',
+'HCL: 36.0:::VD_HCL:1.0:::HCL:1.0:HCL:HCL:Yes:Yes:Yes:Yes',
+'SV_ALK:150.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ALK::Yes:Yes:Yes:Yes',
+'SV_XYL1:192.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_XYL1::Yes:Yes:Yes:Yes',
+'SV_XYL2:192.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_XYL2::Yes:Yes:Yes:Yes',
+'SV_TOL1:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_TOL1::Yes:Yes:Yes:Yes',
+'SV_TOL2:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_TOL2::Yes:Yes:Yes:Yes',
+'SV_BNZ1:144.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_BNZ1::Yes:Yes:Yes:Yes',
+'SV_BNZ2:144.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_BNZ2::Yes:Yes:Yes:Yes',
+'SV_TRP1:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_TRP1::Yes:Yes:Yes:Yes',
+'SV_TRP2:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_TRP2::Yes:Yes:Yes:Yes',
+'SV_ISO1: 96.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ISO1::Yes:Yes:Yes:Yes',
+'SV_ISO2: 96.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ISO2::Yes:Yes:Yes:Yes',
+'SV_SQT:378.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_SQT::Yes:Yes:Yes:Yes',
+'SULF_ICBC: 98.0:::VD_SULF:1.0:SULF:1.0:H2SO4:1.0:SULF_ICBC:H2SO4_ICBC:Yes:Yes:Yes:Yes'
+/
