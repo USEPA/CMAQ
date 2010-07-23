@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/AERO_EMIS.F,v 1.1 2010/07/20 12:49:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/AERO_EMIS.F,v 1.2 2010/07/23 11:10:44 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -55,6 +55,7 @@ C                       unspeciated, file data) and AE (model speciated). Re-
 C                       named RDEMIS_AE to GET_AERO_EMIS.
 C   11 Apr 08 J.Kelly:  added code to emit coarse surface area
 C   21 Jun 10 J.Young:  convert for Namelist redesign
+C   23 Jul 10 D.Wong:   remove CLOSE3 and BARRIER
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       MODULE AERO_EMIS
@@ -75,7 +76,7 @@ C Molar masses (molecular wt.) and reciprocals of each aerosol species
       REAL, ALLOCATABLE, SAVE :: AE_EM_MW( : )
       REAL, ALLOCATABLE, SAVE :: R_AE_EM_MW( : )
 
-C     Bulk component densities [ kg/m3 ]
+C Bulk component densities [ kg/m3 ]
       REAL, PARAMETER :: RHOSO4  = 1.8E3  ! density of sulfate aerosol
       REAL, PARAMETER :: RHONO3  = 1.8E3  ! density of nitrate aerosol
       REAL, PARAMETER :: RHOORG  = 2.0E3  ! density of organic aerosol
@@ -335,9 +336,9 @@ C     Variables for handling sea-salt emissions
          REAL  SSOUTN( NSSMOD )               ! number emission rates [1/m3/s]
          REAL  SSOUTS( NSSMOD )               ! surface-area emisrates [m2/m3/s]
 
-         real, allocatable, save :: sum_ssoutm( :,:,:,: )
-         real, allocatable, save :: sum_ssoutn( :,:,: )
-         real, allocatable, save :: sum_ssouts( :,:,: )
+!        real, allocatable, save :: sum_ssoutm( :,:,:,: )
+!        real, allocatable, save :: sum_ssoutn( :,:,: )
+!        real, allocatable, save :: sum_ssouts( :,:,: )
 
 C     Grid-specific values for sea-salt calculations
          REAL  OFRAC                          ! fractional seawater cover
@@ -756,22 +757,9 @@ C *** Get sea-salt-emission diagnostic output file flag.
                   SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
                   STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
 
-                  IF ( MYPE .EQ. 0 ) THEN
-                     CALL OPSSEMIS ( SDATE, STIME, TSTEP )
-                     IF ( .NOT. CLOSE3( CTM_SSEMIS_1 ) ) THEN
-                        XMSG = 'Could not close '// CTM_SSEMIS_1 // ' file'
-                        CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-                     END IF
-                  END IF
-
-                  CALL SUBST_BARRIER
+                  IF ( MYPE .EQ. 0 ) CALL OPSSEMIS ( SDATE, STIME, TSTEP )
 
 C Make sure all processors open file
-
-                  IF ( .NOT. OPEN3( CTM_SSEMIS_1, FSRDWR3, PNAME ) ) THEN
-                     XMSG = 'Could not open '// OCEAN_1 // ' file'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
 
                   ALLOCATE ( SSBF( NSSDIAG,MY_NCOLS,MY_NROWS ), STAT = STATUS )
                   IF ( STATUS .NE. 0 ) THEN
@@ -849,13 +837,13 @@ C *** Allocate memory for PM_EM, EMBUFF, GRDHGT, GRDVOL, CONVEM_PM, and SSBF
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             
-            allocate ( sum_ssoutm( nssspc,nssmod,ncols,nrows ),
-     &                 sum_ssoutn( nssmod,ncols,nrows ),
-     &                 sum_ssouts( nssmod,ncols,nrows ), stat = status )
-            if ( status .ne. 0 ) then
-               xmsg = '*** sum_ssout* memory allocation failed'
-               call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
-            end if
+!           allocate ( sum_ssoutm( nssspc,nssmod,ncols,nrows ),
+!    &                 sum_ssoutn( nssmod,ncols,nrows ),
+!    &                 sum_ssouts( nssmod,ncols,nrows ), stat = status )
+!           if ( status .ne. 0 ) then
+!              xmsg = '*** sum_ssout* memory allocation failed'
+!              call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
+!           end if
             
 C *** Calculate length and width of each grid cell
 C     note: crude estimate is made for LAT/LONG coordinate systems
@@ -1037,9 +1025,9 @@ C *** Initialize sea-salt output buffer
 
          END IF   ! AE_VRSN .NE. 'AE3'
 
-         sum_ssoutm = 0.0   ! array assignment
-         sum_ssoutn = 0.0   ! array assignment
-         sum_ssouts = 0.0   ! array assignment
+!        sum_ssoutm = 0.0   ! array assignment
+!        sum_ssoutn = 0.0   ! array assignment
+!        sum_ssouts = 0.0   ! array assignment
 
 C *** Loop over each grid cell
 
@@ -1201,15 +1189,15 @@ C *** Add sea salt to the total emissions of particle number and surface area
                      EM_SRFACC  = EM_SRFACC  + SSOUTS( 2 )
                      EM_SRFCOR  = EM_SRFCOR  + SSOUTS( 3 )
 
-                     if ( l .eq. 1 ) then
-                        do v = 1, nssmod
-                           do n = 1, nssspc
-                              sum_ssoutm( n,v,c,r ) = sum_ssoutm( n,v,c,r ) + ssoutm( n,v )
-                           end do
-                           sum_ssoutn( v,c,r ) = sum_ssoutn( v,c,r ) + ssoutn( v )
-                           sum_ssouts( v,c,r ) = sum_ssouts( v,c,r ) + ssouts( v )
-                        end do
-                     end if
+!                    if ( l .eq. 1 ) then
+!                       do v = 1, nssmod
+!                          do n = 1, nssspc
+!                             sum_ssoutm( n,v,c,r ) = sum_ssoutm( n,v,c,r ) + ssoutm( n,v )
+!                          end do
+!                          sum_ssoutn( v,c,r ) = sum_ssoutn( v,c,r ) + ssoutn( v )
+!                          sum_ssouts( v,c,r ) = sum_ssouts( v,c,r ) + ssouts( v )
+!                       end do
+!                    end if
 
                   END IF   ! AE_VRSN .NE. 'AE3'
 
