@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.1 2010/07/19 17:49:17 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.2 2010/07/23 11:18:56 yoj Exp $ 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_init.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_init.F 07 Jul 1997 10:20:52
 
@@ -78,6 +78,7 @@ C                      domain specifications in one module (GRID_CONF)
 C   16 Jan 06 J.Young: move PAGRD_INIT to par_init
 C    1 Apr 09 J.Young: remove cruft
 C    8 Jul 10 J.Young: restructure
+C   23 Jul 10 D.Wong:  move first OPEN3 try inside IF ( MYPE .EQ. 0 ) clause
 C**********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -179,21 +180,19 @@ C..open each one
             XMSG = 'IPR output file ' // TRIM( OUTFNAME ) // ' not assigned'
             CALL ENVSTR( OUTFNAME, ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
             IF( STATUS .NE. 0 ) CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-!           CALL SUBST_BARRIER
+
+            IF ( MYPE .EQ. 0 ) THEN
 
 C..try to open existing file for update
-            IF ( .NOT. OPEN3( OUTFNAME, FSRDWR3, PNAME ) ) THEN
-               XMSG = 'Could not open ' // TRIM( OUTFNAME )
-     &              // ' file for update - try to open new'
-               CALL M3MESG( XMSG )
+               IF ( .NOT. OPEN3( OUTFNAME, FSRDWR3, PNAME ) ) THEN
 
-!              CALL PA_MKHDR ( 'IPR', NFL, OUTFNAME, SDATE, STIME, TSTEP )
-
-               IF ( MYPE .EQ. 0 ) THEN   ! open new
+                  XMSG = 'Could not open ' // TRIM( OUTFNAME )
+     &                 // ' file for update - try to open new'
+                  CALL M3MESG( XMSG )
 
                   CALL PA_MKHDR ( 'IPR', NFL, OUTFNAME, SDATE, STIME, TSTEP )
 
-                  IF ( OPEN3( OUTFNAME, FSNEW3, PNAME ) ) THEN
+                  IF ( OPEN3( OUTFNAME, FSNEW3, PNAME ) ) THEN   ! open new
                      XMSG = 'Opened Integrated Reaction Rate Output File: '
      &                    // OUTFNAME
                      CALL M3MESG( XMSG )
@@ -202,25 +201,14 @@ C..try to open existing file for update
      &                   // OUTFNAME
                      CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
                   END IF
+
                END IF
-
-!           CALL SUBST_BARRIER
-
-!              IF ( MYPE .NE. 0 ) THEN
-!                 IF ( .NOT. OPEN3( OUTFNAME, FSRDWR3, PNAME ) ) THEN
-!    &                   'Could not open Integrated Process Rate Output File: ' 
-!    &                   // OUTFNAME
-!                    CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-!                 END IF
-!              END IF
 
             END IF
 
             CALL SUBST_BARRIER
 
          END DO   ! NUMFLS
-
-!        CALL SUBST_BARRIER
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays
@@ -266,8 +254,6 @@ C..compute the number of files needed
 
          NUMFLS = (NIRRVAR - 1) / MXVARS3 + 1
 
-!        write( *,* ) 'mype,MXVARS3,NIRRVAR,NUMFLS: ', mype, mxvars3, nirrvar, numfls
-
 !        IF( MOD( NIRRVAR, MXVARS3 ) .EQ. 0 ) THEN
 !           NUMFLS = NIRRVAR / MXVARS3
 !        ELSE
@@ -294,21 +280,18 @@ C..open each one
             XMSG = 'IRR output file ' // TRIM( OUTFNAME ) // ' not assigned'
             IF ( STATUS .NE. 0 ) CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
 
-!           CALL SUBST_BARRIER
+            IF ( MYPE .EQ. 0 ) THEN
 
 C..try to open existing file for update
-            IF ( .NOT. OPEN3( OUTFNAME, FSRDWR3, PNAME ) ) THEN
-               XMSG = 'Could not open ' // TRIM( OUTFNAME )
-     &              // ' file for update - try to open new'
-               CALL M3MESG( XMSG )
+               IF ( .NOT. OPEN3( OUTFNAME, FSRDWR3, PNAME ) ) THEN
 
-!              CALL PA_MKHDR ( 'IRR', NFL, OUTFNAME, SDATE, STIME, TSTEP )
-
-               IF ( MYPE .EQ. 0 ) THEN   ! open new
+                  XMSG = 'Could not open ' // TRIM( OUTFNAME )
+     &                 // ' file for update - try to open new'
+                  CALL M3MESG( XMSG )
 
                   CALL PA_MKHDR ( 'IRR', NFL, OUTFNAME, SDATE, STIME, TSTEP )
 
-                  IF ( OPEN3( OUTFNAME, FSNEW3, PNAME ) ) THEN
+                  IF ( OPEN3( OUTFNAME, FSNEW3, PNAME ) ) THEN   ! open new
                      XMSG = 'Opened Integrated Reaction Rate Output File: '
      &                    // OUTFNAME
                      CALL M3MESG( XMSG )
@@ -317,29 +300,14 @@ C..try to open existing file for update
      &                    // ' File ' // OUTFNAME
                      CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
                   END IF
+
                END IF
 
-!              write( *,* ) 'mype: ', mype, ' - after open:'
-
-!              CALL SUBST_BARRIER
-
-!              IF ( MYPE .NE. 0 ) THEN
-!                 IF ( .NOT. OPEN3( OUTFNAME, FSRDWR3, PNAME ) ) THEN
-!    &               XMSG = 'Could not open Integrated Reaction Rate Output'
-!    &                    // ' File ' // OUTFNAME
-!                    CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
-!                 END IF
-!              END IF
-
             END IF
-
-!           write( *,* ) 'mype: ', mype, ' - before barrier:'
 
             CALL SUBST_BARRIER
 
          END DO   ! NMFLS
-
-!        CALL SUBST_BARRIER
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Initialize arrays
