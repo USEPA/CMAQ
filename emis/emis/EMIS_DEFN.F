@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.1 2010/07/20 12:49:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.2 2010/12/06 13:05:16 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -29,10 +29,9 @@ C-----------------------------------------------------------------------
 C Function: emissions interface to the chemistry-transport model
 
 C Revision History:
-C   28 Jul 2006 J.Young: initial implementation
-C   18 Aug 2007 J.Young: move beis part to separate module; add plume rise
-C   26 Jan 2010 J.Young: fix bug overwriting point source layer 1 NH3; inline rdemis
-C   21 Jun 2010 J.Young: convert for Namelist redesign
+C     28 Jul 2006 J.Young: initial implementation
+C     18 Aug 2007 J.Young: move beis part to separate module; add plume rise
+C     26 Jan 2010 J.Young: fix bug overwriting point source layer 1 NH3; inline rdemis
 
 C-----------------------------------------------------------------------
 
@@ -62,8 +61,10 @@ C-----------------------------------------------------------------------
       INTEGER, PRIVATE       :: LDATE, LTIME  ! step start date/time (beis)
       INTEGER, PRIVATE, SAVE :: NDATE, NTIME  ! step next date/time (beis)
 
-D     character( 16 ), allocatable, save :: emis_spc( : ) ! global emis surrogates
-D     integer,         allocatable, save :: emis_map( : )  ! name map to CGRID
+#ifdef Verbose
+      character( 16 ), allocatable, save :: emis_spc( : ) ! global emis surrogates
+      integer,         allocatable, save :: emis_map( : )  ! name map to CGRID
+#endif
 
       CONTAINS
 
@@ -79,7 +80,6 @@ C-----------------------------------------------------------------------
       
 C Includes:
 
-!        INCLUDE SUBST_RXCMMN    ! for chem mechanism name
          INCLUDE SUBST_CONST     ! constants
          INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
 #include         SUBST_IODECL    # I/O definitions and declarations
@@ -108,7 +108,9 @@ C Local Variables:
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
          INTEGER V, LOGDEV, STATUS
-D        integer s
+#ifdef Verbose
+         integer s
+#endif
 
 C-----------------------------------------------------------------------
 
@@ -164,7 +166,7 @@ C Get number of emissions layers
          IF ( N_AE_SPC .GT. 0 ) THEN
             WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
      &                                // 'Vertical diffusion ...'
-            NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS
+            NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS (originally, AE_EMIS.EXT)
 C set up PM species mapping from emissions file(s) for use in GET_AERO_EMIS
             CALL GET_PMEM_MAP ( JDATE, JTIME )   ! set in PMEM_DEFN
          ELSE
@@ -176,41 +178,43 @@ C set up PM species mapping from emissions file(s) for use in GET_AERO_EMIS
      &              + N_NR_EMIS
      &              + N_TR_EMIS
 
-D        allocate ( emis_spc ( n_spc_emis+1 ),
-D    &              emis_map ( n_spc_emis+1 ), stat = status )
-D        if ( status .ne. 0 ) then
-D           xmsg = 'emis_spc or emis_map memory allocation failed'
-D           call m3warn ( pname, jdate, jtime, xmsg )
-D           success = .false.; return
-D        end if
-D        emis_spc = ' '   ! array assignment
-D        emis_map = 0     ! array assignment
+#ifdef Verbose
+         allocate ( emis_spc ( n_spc_emis+1 ),
+     &              emis_map ( n_spc_emis+1 ), stat = status )
+         if ( status .ne. 0 ) then
+            xmsg = 'emis_spc or emis_map memory allocation failed'
+            call m3warn ( pname, jdate, jtime, xmsg )
+            success = .false.; return
+         end if
+         emis_spc = ' '   ! array assignment
+         emis_map = 0     ! array assignment
 
-D        s = 0
-D        do v = 1, n_gc_emis
-D           s = s + 1
-D           emis_spc( s ) = gc_emis( v )
-D           emis_map( s ) = gc_strt - 1 + gc_emis_map( v )
-D        end do
-D        do v = 1, n_ae_emis
-D           s = s + 1
-D           emis_spc( s ) = ae_emis( v )
-D           emis_map( s ) = ae_strt - 1 + ae_emis_map( v )
-D        end do
-D        do v = 1, n_nr_emis
-D           s = s + 1
-D           emis_spc( s ) = nr_emis( v )
-D           emis_map( s ) = nr_strt - 1 + nr_emis_map( v )
-D        end do
-D        do v = 1, n_tr_emis
-D           s = s + 1
-D           emis_spc( s ) = tr_emis( v )
-D           emis_map( s ) = tr_strt - 1 + tr_emis_map( v )
-D        end do
-D        do v = 1, n_spc_emis   ! debug
-D           write( logdev,'(a,2i4,3x,a)' ) ' v, emis_map(v), emis_spc(v): ',
-D    &                                       v, emis_map( v ), emis_spc( v )
-D        end do
+         s = 0
+         do v = 1, n_gc_emis
+            s = s + 1
+            emis_spc( s ) = gc_emis( v )
+            emis_map( s ) = gc_strt - 1 + gc_emis_map( v )
+         end do
+         do v = 1, n_ae_emis
+            s = s + 1
+            emis_spc( s ) = ae_emis( v )
+            emis_map( s ) = ae_strt - 1 + ae_emis_map( v )
+         end do
+         do v = 1, n_nr_emis
+            s = s + 1
+            emis_spc( s ) = nr_emis( v )
+            emis_map( s ) = nr_strt - 1 + nr_emis_map( v )
+         end do
+         do v = 1, n_tr_emis
+            s = s + 1
+            emis_spc( s ) = tr_emis( v )
+            emis_map( s ) = tr_strt - 1 + tr_emis_map( v )
+         end do
+         do v = 1, n_spc_emis   ! debug
+            write( logdev,'(a,2i4,3x,a)' ) ' v, emis_map(v), emis_spc(v): ',
+     &                                       v, emis_map( v ), emis_spc( v )
+         end do
+#endif
 
 C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          IF ( .NOT. PT3D_INIT( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP ) ) THEN
@@ -291,7 +295,6 @@ C Includes:
 
          INCLUDE SUBST_FILES_ID  ! file name parameters
          INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!        INCLUDE SUBST_IOFDESC   ! file header data structure
          INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C Arguments:
@@ -309,15 +312,17 @@ C External Functions:
 
 C Local Variables:
 
-         REAL             CNVTC         ! combined beis conversion factor
-         REAL             CNVTI         ! intermediate combined beis conv. factor
-         REAL,    SAVE :: CNVTP         ! intermediate combined beis conv. factor
+         REAL             CNVTC         ! combined conversion factor
+         REAL             CNVTI         ! intermediate combined conv. factor
+         REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
          REAL             DELT          ! interpolation factor
          INTEGER          C, R, L, N, S, V ! loop induction variables
 
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ) :: XMSG = ' '
-         INTEGER, SAVE :: LOGDEV
+#ifdef Verbose
+         integer, save :: logdev
+#endif
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER          GXOFF, GYOFF         ! global origin offset from file
          INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
@@ -326,7 +331,9 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-D           logdev = init3()
+#ifdef Verbose
+            logdev = init3()
+#endif
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
@@ -365,7 +372,9 @@ C  loads."
                END DO
             END DO
 
-D           write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
+#ifdef Verbose
+            write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
+#endif
 
          END DO   ! V
 
@@ -389,7 +398,7 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
                      IF ( V .GT. 0 ) THEN
                         N = N + 1
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + VDEMIS_BI( N,C,R ) * CNVTC
+     &                                    + CNVTC * VDEMIS_BI( N,C,R )
                       END IF
                   END DO
                END DO
@@ -414,7 +423,7 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the 27 AE emission
                      DO S = 1, N_SPC_PTEM
                         V = PTEM_MAP( S )  ! <- pointer to non-PM (non-aerosol) species
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + VDEMIS_PT( C,R,L,S ) * CNVTC
+     &                                    + CNVTC * VDEMIS_PT( C,R,L,S )
                      END DO
                   END DO
                END DO
@@ -469,7 +478,9 @@ C                                       vvvvvvv - emis surrogate names
                END DO
             END DO
 
-D           write( logdev,* ) '  NR EMIS: ', s, '  ', nr_emis( s )
+#ifdef Verbose
+            write( logdev,* ) '  NR EMIS: ', s, '  ', nr_emis( s )
+#endif
 
          END DO
 
@@ -500,7 +511,9 @@ C                                               vvvvvvv - emis surrogate names
                   END DO
                END DO
 
-D              write( logdev,* ) '  TR EMIS: ', s, '  ', tr_emis( s )
+#ifdef Verbose
+               write( logdev,* ) '  TR EMIS: ', s, '  ', tr_emis( s )
+#endif
 
             END DO
 

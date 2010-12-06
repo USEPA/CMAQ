@@ -6,8 +6,7 @@ C-----------------------------------------------------------------------
 C Function: biogenics emissions interface to the chemistry-transport model
 
 C Revision History:
-C   18 Aug 2007 J.Young: initial implementation
-C   21 Jun 10 J.Young: convert for Namelist redesign
+C     18 Aug 2007 J.Young: initial implementation
 
 C-----------------------------------------------------------------------
 
@@ -121,16 +120,18 @@ C biogenics to gas-phase species map
                END IF
             END DO
 
-D           WRITE( LOGDEV,* ) ' '
-D           WRITE( LOGDEV,* ) '    Spc INDEX1 BEIS_MAP EMSPC'
-D           DO V = 1, MSPCS
-D              K = INDEX1( EMSPC( V ), N_GC_EMIS, GC_EMIS )
-D              IF ( K .LE. 0 ) THEN
-D                 K = INDEX1( EMSPC( V ), N_NR_EMIS, NR_EMIS )
-D              END IF
-D              WRITE( LOGDEV,'( 3X, 2I5, I8, 4X, A16 )' )
-D    &                        V, K, BEIS_MAP( V ), EMSPC( V )
-D           END DO
+#ifdef Verbose
+            WRITE( LOGDEV,* ) ' '
+            WRITE( LOGDEV,* ) '    Spc INDEX1 BEIS_MAP EMSPC'
+            DO V = 1, MSPCS
+               K = INDEX1( EMSPC( V ), N_GC_EMIS, GC_EMIS )
+               IF ( K .LE. 0 ) THEN
+                  K = INDEX1( EMSPC( V ), N_NR_EMIS, NR_EMIS )
+               END IF
+               WRITE( LOGDEV,'( 3X, 2I5, I8, 4X, A16 )' )
+     &                        V, K, BEIS_MAP( V ), EMSPC( V )
+            END DO
+#endif
 
             ALLOCATE( VDEMIS_BI( N_SPC_BIOG,MY_NCOLS,MY_NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN

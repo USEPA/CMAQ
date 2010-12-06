@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.1 2010/07/20 12:49:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.2 2010/12/06 13:05:16 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -14,8 +14,7 @@ C           the intermediate VDEMIS_PT and the model VDEMIS arrays
 
 C Revision History:
 C   29 Nov 2007 J.Young: initial implementation
-C   21 Jun 10 J.Young: convert for Namelist redesign
-
+C   31 Mar 09 J.Young: replace include files with mechanism namelists
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: IARRY1, CARRY1 ! implementation for multiple
@@ -181,10 +180,14 @@ C point source emissions to gas-phase species map
          END DO   ! NPTGRPS
 
 !        WRITE( LOGDEV,'(5X, A, I3)' ) 'NM =', NM
-D        WRITE( LOGDEV,* ) ' '
+#ifdef Verbose
+         WRITE( LOGDEV,* ) ' '
+#endif
          L = 0
          DO N = 1, NPTGRPS
-D           WRITE( LOGDEV,1011 ) N, STKEM_MAP( N )%LEN
+#ifdef Verbose
+            WRITE( LOGDEV,1011 ) N, STKEM_MAP( N )%LEN
+#endif
             DO I = 1, STKEM_MAP( N )%LEN
                L = L + 1
                STKEM_MAP( N )%ARRY( I ) = GLST( I,N )
@@ -192,8 +195,10 @@ D           WRITE( LOGDEV,1011 ) N, STKEM_MAP( N )%LEN
             END DO
             DO I = 1, STKEM_MAP( N )%LEN, 8
                I2 = MIN( I + 7, STKEM_MAP( N )%LEN )
-D              WRITE( LOGDEV,1015 ) N, ( STKEM_MAP( N )%ARRY( J ), J = I, I2 )
-D              WRITE( LOGDEV,1019 ) N, ( STKEM_VAR( N )%ARRY( J ), J = I, I2 )
+#ifdef Verbose
+               WRITE( LOGDEV,1015 ) N, ( STKEM_MAP( N )%ARRY( J ), J = I, I2 )
+               WRITE( LOGDEV,1019 ) N, ( STKEM_VAR( N )%ARRY( J ), J = I, I2 )
+#endif
             END DO
          END DO
 
@@ -206,10 +211,14 @@ D              WRITE( LOGDEV,1019 ) N, ( STKEM_VAR( N )%ARRY( J ), J = I, I2 )
          END DO
 
 C Sort ...
-D        WRITE( LOGDEV,'(5X, A)' ) 'Concatenated Species List:'
-D        WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) 1, V( 1 )
+#ifdef Verbose
+         WRITE( LOGDEV,'(5X, A)' ) 'Concatenated Species List:'
+         WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) 1, V( 1 )
+#endif
          DO I = 2, NM
-D           WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
+#ifdef Verbose
+            WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
+#endif
             TV = V( I )
             DO J = I - 1, 1, -1
                IF ( V( J )%NDX .LE. TV%NDX ) GO TO 101
@@ -220,10 +229,12 @@ D           WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
             V( J+1 ) = TV
          END DO
 
-D        WRITE( LOGDEV,'(5X, A)' ) 'Sorted Species List:'
-D        DO I = 1, NM
-D           WRITE( LOGDEV,'(5X, A, I3)' ) V( I )
-D        END DO
+#ifdef Verbose
+         WRITE( LOGDEV,'(5X, A)' ) 'Sorted Species List:'
+         DO I = 1, NM
+            WRITE( LOGDEV,'(5X, A, I3)' ) V( I )
+         END DO
+#endif
 
 C Cull ...
          VC( 1 ) = V( 1 )
@@ -234,7 +245,9 @@ C Cull ...
                VC( NCULL ) = V( I )
             END IF
          END DO
-D        WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique Gas =', NCULL
+#ifdef Verbose
+         WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique Gas =', NCULL
+#endif
 
          N_SPC_PTEM = NCULL
 
@@ -247,7 +260,9 @@ D        WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique Gas =', NCULL
          DO I = 1, N_SPC_PTEM
             PTEM_MAP( I ) = VC( I )%NDX
             STKEM_NAME( I ) = VC( I )%STR
-D           WRITE( LOGDEV,1041 ) STKEM_NAME( I ), PTEM_MAP( I )
+#ifdef Verbose
+            WRITE( LOGDEV,1041 ) STKEM_NAME( I ), PTEM_MAP( I )
+#endif
          END DO
 
          DO N = 1, NPTGRPS
@@ -257,7 +272,9 @@ D           WRITE( LOGDEV,1041 ) STKEM_NAME( I ), PTEM_MAP( I )
                IF ( K .NE. 0 ) THEN
                   J = J + 1
                   GAS_MAP( N )%ARRY( J ) = I
-D                 WRITE( LOGDEV,1031 ) N, J, GAS_MAP( N )%ARRY( J )
+#ifdef Verbose
+                  WRITE( LOGDEV,1031 ) N, J, GAS_MAP( N )%ARRY( J )
+#endif
                END IF
             END DO
 !           WRITE( LOGDEV,'(5X, A, I4)' ) 'J =', J
@@ -293,7 +310,7 @@ C point source emissions to PM species map
 
             I = 0
             DO J = 1, N_EMIS_PM
-               VNAME = PM_EMIS( J )
+               VNAME = PM_EMIS( J )%NAME
                K = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( K .GT. 0 ) THEN
                   I = I + 1
@@ -325,24 +342,30 @@ C point source emissions to PM species map
          END DO   ! NPTGRPS
 
 !        WRITE( LOGDEV,'(5X, A, I3)' ) 'NM =', NM
-D        WRITE( LOGDEV,* ) ' '
+#ifdef Verbose
+         WRITE( LOGDEV,* ) ' '
+#endif
          L = 0
          DO N = 1, NPTGRPS
-D           WRITE( LOGDEV,1021 ) N, STKPM_MAP( N )%LEN
+#ifdef Verbose
+            WRITE( LOGDEV,1021 ) N, STKPM_MAP( N )%LEN
+#endif
             DO I = 1, STKPM_MAP( N )%LEN
                L = L + 1
                STKPM_MAP( N )%ARRY( I ) = PLST( I,N )
                STKPM_VAR( N )%ARRY( I ) = PVNM( L )
             END DO
-D           WRITE( LOGDEV,1025 ) N, STKPM_MAP( N )%ARRY
-D           WRITE( LOGDEV,1029 ) N, STKPM_VAR( N )%ARRY
+#ifdef Verbose
+            WRITE( LOGDEV,1025 ) N, STKPM_MAP( N )%ARRY
+            WRITE( LOGDEV,1029 ) N, STKPM_VAR( N )%ARRY
+#endif
 
             IF ( N_AE_EMIS .GT. 0 ) THEN   ! assume PM species required
 C Check that the PM species names match EMIS_1
                DO I = 1, N_EMIS_PM
-                  J = INDEX1( PM_EMIS( I ), STKPM_VAR( N )%LEN, STKPM_VAR( N )%ARRY )
+                  J = INDEX1( PM_EMIS( I )%NAME, STKPM_VAR( N )%LEN, STKPM_VAR( N )%ARRY )
                   IF ( J .LE. 0 ) THEN
-                     WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( PM_EMIS( I ) )
+                     WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( PM_EMIS( I )%NAME )
      &                                        // ' Not in Stack Emissions file', N
 !                    QUIT = .TRUE.
                   END IF
@@ -364,10 +387,14 @@ C Check that the PM species names match EMIS_1
          END DO
 
 C Sort ...
-D        WRITE( LOGDEV,'(5X, A)' ) 'Concatenated Species List:'
-D        WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) 1, V( 1 )
+#ifdef Verbose
+         WRITE( LOGDEV,'(5X, A)' ) 'Concatenated Species List:'
+         WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) 1, V( 1 )
+#endif
          DO I = 2, NM
-D           WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
+#ifdef Verbose
+            WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
+#endif
             TV = V( I )
             DO J = I - 1, 1, -1
                IF ( V( J )%NDX .LE. TV%NDX ) GO TO 201
@@ -378,10 +405,12 @@ D           WRITE( LOGDEV,'(5X, I3, 1X, A, I3)' ) I, V( I )
             V( J+1 ) = TV
          END DO
 
-D        WRITE( LOGDEV,'(5X, A)' ) 'Sorted Species List:'
-D        DO I = 1, NM
-D           WRITE( LOGDEV,'(5X, A, I3)' ) V( I )
-D        END DO
+#ifdef Verbose
+         WRITE( LOGDEV,'(5X, A)' ) 'Sorted Species List:'
+         DO I = 1, NM
+            WRITE( LOGDEV,'(5X, A, I3)' ) V( I )
+         END DO
+#endif
 
 C Cull ...
          VC( 1 ) = V( 1 )
@@ -392,7 +421,9 @@ C Cull ...
                VC( NCULL ) = V( I )
             END IF
          END DO
-D        WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique PM =', NCULL
+#ifdef Verbose
+         WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique PM =', NCULL
+#endif
 
          N_SPC_PTPM = NCULL
 
@@ -405,7 +436,9 @@ D        WRITE( LOGDEV,'(5X, A, I3)' ) 'Unique PM =', NCULL
          DO I = 1, N_SPC_PTPM
             PTPM_MAP( I ) = VC( I )%NDX
             STKPM_NAME( I ) = VC( I )%STR
-D           WRITE( LOGDEV,1043 ) STKPM_NAME( I ), PTPM_MAP( I )
+#ifdef Verbose
+            WRITE( LOGDEV,1043 ) STKPM_NAME( I ), PTPM_MAP( I )
+#endif
          END DO
 
          DO N = 1, NPTGRPS
@@ -415,7 +448,9 @@ D           WRITE( LOGDEV,1043 ) STKPM_NAME( I ), PTPM_MAP( I )
                IF ( K .NE. 0 ) THEN
                   J = J + 1
                   PM_MAP( N )%ARRY( J ) = I
-D                 WRITE( LOGDEV,1033 ) N, J, PM_MAP( N )%ARRY( J )
+#ifdef Verbose
+                  WRITE( LOGDEV,1033 ) N, J, PM_MAP( N )%ARRY( J )
+#endif
                END IF
             END DO
 !           WRITE( LOGDEV,'(5X, A, I4)' ) 'J =', J

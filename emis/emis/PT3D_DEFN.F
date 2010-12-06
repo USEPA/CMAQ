@@ -6,8 +6,7 @@ C-----------------------------------------------------------------------
 C Function: 3d point source emissions interface to the chemistry-transport model
 
 C Revision History:
-C   21 Nov 2007 J.Young: initial implementation
-C   21 Jun 10 J.Young: convert for Namelist redesign
+C     21 Nov 2007 J.Young: initial implementation
 
 C-----------------------------------------------------------------------
 
@@ -104,14 +103,14 @@ C=======================================================================
 
 C use N_SPC_EMIS+1 for non-accessed emissions
 
-         USE GRID_CONF   ! horizontal & vertical domain specifications
+         USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
-         USE STK_PRMS    ! stack groups file
-         USE STK_EMIS    ! hourly point source emissions
-         USE PMEM_DEFN   ! defines emissions file(s) PM mapping
-         USE PTMET       ! defines met variables used in plume rise
-         USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
-         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
+         USE STK_PRMS  ! stack groups file
+         USE STK_EMIS  ! hourly point source emissions
+         USE PMEM_DEFN ! defines emissions file(s) PM mapping
+         USE PTMET     ! defines met variables used in plume rise
+         USE PTBILIN   ! defines bi-linear interpolation from grid to pt src locations
+         USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
 
          IMPLICIT NONE
 
@@ -680,7 +679,9 @@ C Local variables:
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER, SAVE :: LOGDEV
 
-D        real mxzplm
+#ifdef Verbose
+         real mxzplm
+#endif
 
 C-----------------------------------------------------------------------
 
@@ -788,7 +789,9 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
 
 C Loop through sources and compute plume rise
 
-D           mxzplm = 0.0
+#ifdef Verbose
+            mxzplm = 0.0
+#endif
 
             DO S = 1, MY_NSRC( N )
 
@@ -848,7 +851,9 @@ C Convert heat flux (watts/m2 to m K /s )
      &                         WSTK, ZPLM )
                END IF
 
-D              if ( zplm .gt. mxzplm ) mxzplm = zplm
+#ifdef Verbose
+               if ( zplm .gt. mxzplm ) mxzplm = zplm
+#endif
 
 C Determine the bottom and top heights of the plume.
                IF ( IPVERT .EQ. 0 ) THEN
@@ -902,8 +907,10 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
                END DO
                LBOT = EMLYRS                      !  fallback
 
-D              c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
-D           write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
+#ifdef Verbose
+               c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
+            write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
+#endif
 
 122            CONTINUE                           !  loop exit:  bottom found at LBOT
 
@@ -934,7 +941,9 @@ D           write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c
                   END DO
                   LTOP = EMLYRS                   !  fallback
 
-D           write( logdev,'(a, 4i4)' ) '> Hit top at c,r, for file, source: ', c, r, n, s
+#ifdef Verbose
+            write( logdev,'(a, 4i4)' ) '> Hit top at c,r, for file, source: ', c, r, n, s
+#endif
 126               CONTINUE
 
                   ZDIFF = ZTOP - ZBOT
@@ -1076,7 +1085,9 @@ C Possible report to REPRTLAY
      &            'for date and time', WDATE, WTIME
             END IF
 
-D           write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
+#ifdef Verbose
+            write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
+#endif
 
             DEALLOCATE( STKEM )
             IF ( PT3DFRAC ) THEN
@@ -1094,7 +1105,9 @@ D           write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
 !              PMEMIS_BUF = PMEMIS_PT   ! array assignment
 !           ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
             IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-D              write( logdev,* ) '   ntics: ', ntics
+#ifdef Verbose
+               write( logdev,* ) '   ntics: ', ntics
+#endif
 !              VDEMIS_BUF = VDEMIS_BUF + 2.0 * VDEMIS_PT   ! array assignment
 !              PMEMIS_BUF = PMEMIS_BUF + 2.0 * PMEMIS_PT   ! array assignment
                VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT
@@ -1102,7 +1115,9 @@ D              write( logdev,* ) '   ntics: ', ntics
             ELSE
 !              DIVFAC = 0.5 / FLOAT( NTICS )
                DIVFAC = 1.0 / FLOAT( NTICS )
-D              write( logdev,* ) '   ntics, divfac: ', ntics, divfac
+#ifdef Verbose
+               write( logdev,* ) '   ntics, divfac: ', ntics, divfac
+#endif
                DO V = 1, N_SPC_PTEM
                   VDEMIS_BUF( :,:,:,V ) = DIVFAC
      &                                  * ( VDEMIS_BUF( :,:,:,V ) + VDEMIS_PT( :,:,:,V ) )
