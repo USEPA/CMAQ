@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.1 2010/07/20 11:33:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.2 2010/12/06 13:45:26 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -83,10 +83,10 @@ C Parameters:
 
 C File variables:
 
-      REAL        SQRDMT_BND( NBNDY,NLAYS )        ! boundary Jacobian
-      REAL        RHOJ_BND  ( NBNDY,NLAYS )        ! mid-layer boundary RhoJ
-!     REAL, ALLOCATABLE, SAVE :: SQRDMT_BND( : )   ! boundary Jacobian
-!     REAL, ALLOCATABLE, SAVE :: RHOJ_BND  ( : )   ! mid-layer boundary RhoJ
+!     REAL        SQRDMT_BND( NBNDY,NLAYS )        ! boundary Jacobian
+!     REAL        RHOJ_BND  ( NBNDY,NLAYS )        ! mid-layer boundary RhoJ
+      REAL, ALLOCATABLE, SAVE :: SQRDMT_BND( :,: ) ! boundary Jacobian
+      REAL, ALLOCATABLE, SAVE :: RHOJ_BND  ( :,: ) ! mid-layer boundary RhoJ
 
       REAL, ALLOCATABLE, SAVE :: SQRDMT_BUF( :,: ) ! grid Jacobian
       REAL, ALLOCATABLE, SAVE :: RHOJ_BUF  ( :,: ) ! mid-layer grid RhoJ
@@ -167,6 +167,7 @@ C currently not implemented: case where only one origin component matches file's
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
+
          ALLOCATE ( BCNAME( N_SPC_ADV ),
      &              BCFAC( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -178,17 +179,17 @@ C create advected species map to bc's
  
          CALL ADVBC_MAP ( CONCMIN, BCNAME, BCFAC )
 
-!        ALLOCATE ( SQRDMT_BND( NBNDY ), STAT = ALLOCSTAT )
-!        IF ( ALLOCSTAT .NE. 0 ) THEN
-!           XMSG = 'Failure allocating SQRDMT_BND'
-!           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!        END IF
+         ALLOCATE ( SQRDMT_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SQRDMT_BND'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
-!        ALLOCATE ( RHOJ_BND( NBNDY ), STAT = ALLOCSTAT )
-!        IF ( ALLOCSTAT .NE. 0 ) THEN
-!           XMSG = 'Failure allocating RHOJ_BND'
-!           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!        END IF
+         ALLOCATE ( RHOJ_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating RHOJ_BND'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
          IF ( WINDOW ) THEN
 
@@ -339,7 +340,8 @@ C Read & interpolate boundary concentrations
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
             ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
-                   ! on file; convert
+
+                      ! on file; convert
                IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
                   DO BND = 1, NBNDY
                      BCON( BND,VAR ) = BCFAC( VAR )
@@ -406,11 +408,11 @@ C Read & interpolate boundary concentrations
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
       DO 171 VAR = STRT, FINI
          SPC = SPC + 1 
-         IF ( BCNAME ( VAR ) .NE. BLNK ) THEN
+         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
 !           write ( logdev,* ) '====spc,var,bcname: ', spc, var, bcname( var )
 
-            IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME ( VAR ), PNAME,
+            IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
                XMSG = 'Could not read ' //
@@ -436,7 +438,7 @@ C Read & interpolate boundary concentrations
 C for advecting Air Density X Jacobian
 
       DO BND = 1, NBNDY
-         BCON ( BND,N_SPC_ADV ) = RHOJ_BND( BND,LVL )
+         BCON( BND,N_SPC_ADV ) = RHOJ_BND( BND,LVL )
       END DO
 
       RETURN
