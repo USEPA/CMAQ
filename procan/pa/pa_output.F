@@ -18,11 +18,12 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.1 2010/07/19 17:49:18 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.2 2010/12/06 14:52:19 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_output.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_output.F 07 Jul 1997 10:20:55
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE PA_OUTPUT( CGRID, JDATE, JTIME )
 
 C-----------------------------------------------------------------------
@@ -131,12 +132,10 @@ C Scratch Local Variables:
       INTEGER NVARINDX  ! number of output variable
      
 #ifdef parallel
-      REAL TIRROUT( NCOLS,NROWS,NLAYS )
       CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
       LOGICAL, EXTERNAL :: PIO_RE_INIT
       LOGICAL, SAVE :: WFLG = .TRUE.   ! pio_init - print decomposition
 #endif
-!     REAL, ALLOCATABLE :: DBUFF( :,:,: )        ! write buffer
       INTEGER ALLOCSTAT
 
 C-----------------------------------------------------------------------
@@ -164,30 +163,32 @@ C On first call, get and save the output file names
                NIPRFLS = NIPRVAR / MXVARS3
             ELSE
                NIPRFLS = ( NIPRVAR / MXVARS3 ) + 1
-            ENDIF
+            END IF
 
             DO NFL = 1, NIPRFLS
 
                IF ( NFL .EQ. 1 ) THEN
                   IPRFNAM( NFL ) = CTM_IPR_1
-               ELSEIF ( NFL .EQ. 2 ) THEN
+               ELSE IF ( NFL .EQ. 2 ) THEN
                   IPRFNAM( NFL ) = CTM_IPR_2
-               ELSEIF ( NFL .EQ. 3 ) THEN
+               ELSE IF ( NFL .EQ. 3 ) THEN
                   IPRFNAM( NFL ) = CTM_IPR_3
-               ELSEIF ( NFL .GT. 3 ) THEN
+               ELSE IF ( NFL .GT. 3 ) THEN
                   XMSG = 'Maximum number of IPR output files exceeded'
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               ENDIF
-
-               IF ( .NOT. OPEN3( IPRFNAM( NFL ), FSRDWR3, PNAME ) ) THEN
-                  XMSG = 'Could not open Integrated Process Rate Output File: '
-     &                 // IPRFNAM( NFL )
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
-            ENDDO
+               IF ( MYPE .EQ. 0 ) THEN
+                  IF ( .NOT. OPEN3( IPRFNAM( NFL ), FSRDWR3, PNAME ) ) THEN
+                     XMSG = 'Could not open Integrated Process Rate Output File: '
+     &                    // IPRFNAM( NFL )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               END IF
 
-         ENDIF
+            END DO
+
+         END IF
 
          IF ( LIRR .AND. NIRRVAR. GT. 0 ) THEN
 
@@ -195,32 +196,34 @@ C On first call, get and save the output file names
                NIRRFLS = NIRRVAR / MXVARS3
             ELSE
                NIRRFLS = ( NIRRVAR / MXVARS3 ) + 1
-            ENDIF
+            END IF
 
             DO NFL = 1, NIRRFLS
   
                IF ( NFL .EQ. 1 ) THEN
                   IRRFNAM( NFL ) = CTM_IRR_1
-               ELSEIF ( NFL .EQ. 2 ) THEN
+               ELSE IF ( NFL .EQ. 2 ) THEN
                   IRRFNAM( NFL ) = CTM_IRR_2
-               ELSEIF ( NFL .EQ. 3 ) THEN
+               ELSE IF ( NFL .EQ. 3 ) THEN
                   IRRFNAM( NFL ) = CTM_IRR_3
-               ELSEIF ( NFL .GT. 3 ) THEN
+               ELSE IF ( NFL .GT. 3 ) THEN
                   XMSG = 'Maximum number of IRR output files exceeded'
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               ENDIF
-
-               IF ( .NOT. OPEN3( IRRFNAM( NFL ), FSRDWR3, PNAME ) ) THEN
-                  XMSG = 'Could not open Integrated Reaction Rate Output File: '
-     &                 // IRRFNAM( NFL )
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
-            ENDDO
+               IF ( MYPE .EQ. 0 ) THEN
+                  IF ( .NOT. OPEN3( IRRFNAM( NFL ), FSRDWR3, PNAME ) ) THEN
+                     XMSG = 'Could not open Integrated Reaction Rate Output File: '
+     &                    // IRRFNAM( NFL )
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               END IF
 
-         ENDIF
+            END DO
 
-      ENDIF    ! LFIRST
+         END IF
+
+      END IF    ! LFIRST
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Output Process analysis data and re-initialize arrays
@@ -240,22 +243,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
-            ENDDO
+            END DO
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &            'Timestep written to', IPRFNAM( NFL ),
      &            'for date and time', JDATE, JTIME
-         ENDDO
+         END DO
 
          DO  NOUT = 1, NIPRVAR
             DO L = 1, PALEVS
                DO R = 1, MY_PAROWS
                   DO C = 1, MY_PACOLS
                      DELC( C,R,L,NOUT ) = 0.0
-                  ENDDO
-               ENDDO
-            ENDDO
-         ENDDO
+                  END DO
+               END DO
+            END DO
+         END DO
 
          DO NS = 1, NCSAVE
             ICG = SV2GRD( NS )
@@ -269,13 +272,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   DO C = MY_BEGCOL, MY_ENDCOL
                      PC = C - MY_BEGCOL + 1
                      CSAV( PC,PR,PL,NS ) = CGRID( C,R,L,ICG ) 
-                  ENDDO
-               ENDDO
-            ENDDO
+                  END DO
+               END DO
+            END DO
 #endif
-         ENDDO
+         END DO
 
-      ENDIF   ! IPR
+      END IF   ! IPR
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Output the IRR data and re-initialize arrays
@@ -299,8 +302,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !    &         size( irrout,4 ), size( tirrout,1 ), size( tirrout,2 ),
 !    &         size( tirrout,3 ), size( dbuff,1 ), size( dbuff,2 ),
 !    &         size( dbuff,3 ) 
-               CALL SUBST_DATA_COPY ( IRROUT, TIRROUT, VARINDX )
-               DBUFF = TIRROUT( 1:MY_PACOLS,1:MY_PAROWS,1:PALEVS )
+               CALL SUBST_DATA_COPY ( IRROUT, DBUFF, VARINDX )
 #else
                DBUFF = IRROUT( 1:MY_PACOLS,1:MY_PAROWS,1:PALEVS,VARINDX )
 #endif
@@ -308,15 +310,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &              JDATE, JTIME, DBUFF ) ) THEN 
                   XMSG = 'Could not write ' // IRRFNAM( NFL )
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               ENDIF
+               END IF
 
-            ENDDO
+            END DO
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &            'Timestep written to', IRRFNAM( NFL ),
      &            'for date and time', JDATE, JTIME
 
-         ENDDO
+         END DO
 
          DO NIRR = 1, NIRRVAR
 #ifdef parallel
@@ -329,12 +331,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO C = 1, MY_PACOLS
 #endif
                       IRROUT( C,R,L,NIRR ) = 0.0
-                  ENDDO
-               ENDDO
-            ENDDO
-         ENDDO
+                  END DO
+               END DO
+            END DO
+         END DO
 
-      ENDIF   ! IRR
+      END IF   ! IRR
 
 #ifdef parallel
 C Reset decomposition map for the rest of the model
