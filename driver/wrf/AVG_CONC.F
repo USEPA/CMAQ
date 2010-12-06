@@ -18,15 +18,13 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/AVG_CONC.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/AVG_CONC.F,v 1.2 2010/12/06 12:49:30 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE AVG_CONC
-
-C 21 Jun 10 J.Young: convert for Namelist redesign
 
       IMPLICIT NONE
 
@@ -64,9 +62,12 @@ C species classes configuration for average CONC
          USE CGRID_SPCS            ! CGRID mechanism species
 
          INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
+#ifdef Verbose
+         include SUBST_IODECL      ! I/O definitions and declarations
+#endif
 
          CHARACTER( 16 ) :: PNAME = 'A_CONC_DEFN'
-         CHARACTER( 256 ) :: XMSG = ' '
+         CHARACTER( 96 ) :: XMSG = ' '
 
          INTEGER OFF, VAR, V, NV, LVL
          INTEGER ALLOCSTAT, STATUS
@@ -84,8 +85,9 @@ C species classes configuration for average CONC
          CHARACTER( 32 ) :: ACONC_BLEV_ELEV = 'ACONC_BLEV_ELEV'
          CHARACTER( 16 ) :: V_LIST( 2 )
 
-!        integer logdev
-!        integer, external :: init3
+#ifdef Verbose
+         integer logdev
+#endif
 
          INTERFACE
             SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
@@ -98,7 +100,9 @@ C species classes configuration for average CONC
 
 C-----------------------------------------------------------------------
 
-!        LOGDEV = INIT3()
+#ifdef Verbose
+         logdev = init3()
+#endif
 
 C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
 
@@ -150,18 +154,18 @@ C Check species names against include files and create AVG_CONC_MAP, and
 C get starting index in AGRID and total count for each species class
 
          ALLOCATE ( AVG_CONC_MAP( N_ASPCS ),
-     &              A_GC_SPC( N_ASPCS ),
-     &              A_AE_SPC( N_ASPCS ),
-     &              A_NR_SPC( N_ASPCS ),
-     &              A_TR_SPC( N_ASPCS ),
-     &              GC_MAP( N_ASPCS ),
-     &              AE_MAP( N_ASPCS ),
-     &              NR_MAP( N_ASPCS ),
-     &              TR_MAP( N_ASPCS ), STAT = ALLOCSTAT )
+     &              A_GC_SPC    ( N_ASPCS ),
+     &              A_AE_SPC    ( N_ASPCS ),
+     &              A_NR_SPC    ( N_ASPCS ),
+     &              A_TR_SPC    ( N_ASPCS ),
+     &              GC_MAP      ( N_ASPCS ),
+     &              AE_MAP      ( N_ASPCS ),
+     &              NR_MAP      ( N_ASPCS ),
+     &              TR_MAP      ( N_ASPCS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Memory allocation falied for AVG_CONC_MAP or '
-     &           // 'A_GC_SPC or A_AE_SPC or A_NR_SPC or A_TR_SPC or '
-     &           // 'GC_MAP or AE_MAP or NR_MAP or TR_MAP'
+            XMSG = 'AVG_CONC_MAP or A_GC_SPC or A_AE_SPC or A_NR_SPC'
+     &           // ' or A_TR_SPC or GC_MAP or AE_MAP or NR_MAP or TR_MAP'
+     &           // ' memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
@@ -226,31 +230,51 @@ C and the classes must be in the sequence: GC, AE, NR, TR
          DO V = 1, N_A_GC_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = GC_MAP( V )
-!        write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#endif
          END DO
 
          DO V = 1, N_A_AE_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = AE_MAP( V )
-!        write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#endif
          END DO
 
          DO V = 1, N_A_NR_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = NR_MAP( V )
-!        write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#endif
          END DO
 
          DO V = 1, N_A_TR_SPC
             VAR = VAR + 1
             AVG_CONC_MAP( VAR ) = TR_MAP( V )
-!        write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, AVG_CONC_MAP: ', VAR, AVG_CONC_MAP( VAR )
+#endif
          END DO
 
-!        DEALLOCATE ( A_GC_SPC, GC_MAP,
-!    &                A_AE_SPC, AE_MAP,
-!    &                A_NR_SPC, NR_MAP,
-!    &                A_TR_SPC, TR_MAP )
+         IF ( N_A_GC_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( A_GC_SPC )
+            DEALLOCATE ( GC_MAP )
+         END IF
+         IF ( N_A_AE_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( A_AE_SPC )
+            DEALLOCATE ( AE_MAP )
+         END IF
+         IF ( N_A_NR_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( A_NR_SPC )
+            DEALLOCATE ( NR_MAP )
+         END IF
+         IF ( N_A_TR_SPC .EQ. 0 ) THEN
+            DEALLOCATE ( A_TR_SPC )
+            DEALLOCATE ( TR_MAP )
+         END IF
 
          END SUBROUTINE A_CONC_DEFN
 

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.1 2010/07/20 13:21:56 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.2 2010/12/06 12:49:30 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
@@ -215,19 +215,23 @@ C and define vertical layer structure (in module GRID_CONF)
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
+#ifdef Verbose
 D     write( logdev,* ) ' MYPE -> NPROCS:   ', MYPE, NPROCS
 D     write( logdev,* ) ' MYPE -> NPCOL:    ', MYPE, NPCOL
 D     write( logdev,* ) ' MYPE -> NPROW:    ', MYPE, NPROW
 D     write( logdev,* ) ' MYPE -> GL_NCOLS: ', MYPE, GL_NCOLS
 D     write( logdev,* ) ' MYPE -> GL_NROWS: ', MYPE, GL_NROWS
 D     write( logdev,* ) ' MYPE -> NLAYS:    ', MYPE, NLAYS
+#endif
 
 C Set CGRID mechanism
       IF ( .NOT. CGRID_SPCS_INIT() ) THEN
          XMSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
+#ifdef Verbose
 D     write( logdev,* ) ' MYPE -> NSPCS:    ', MYPE, NSPCSD
+#endif
 
 #ifdef parallel
 C Initialize parallel I/O
@@ -243,12 +247,14 @@ C Initialize stencil exchange
      &              NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS,
      &              COLROW, GEO_ORI )
       CALL SWAP_INIT_SNL( NPCOL, NPROW )
+#ifdef Verbose
 D     write( logdev,* ) ' MYPE -> MNDIS:    ', MYPE, MNDIS
 D     write( logdev,* ) ' MYPE -> MEDIS:    ', MYPE, MEDIS
 D     write( logdev,* ) ' MYPE -> MSDIS:    ', MYPE, MSDIS
 D     write( logdev,* ) ' MYPE -> MWDIS:    ', MYPE, MWDIS
 D     write( logdev,* ) ' MYPE -> DATA_ORI: ', MYPE, COLROW
 D     write( logdev,* ) ' MYPE -> GEO_ORI:  ', MYPE, GEO_ORI
+#endif
 #endif
 
 C Set up horizontal domain and calculate processor-to-subdomain maps for
