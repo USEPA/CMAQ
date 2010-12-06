@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vadv/wrf/vppm.F,v 1.1 2010/07/20 12:42:26 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/vadv/wrf/vppm.F,v 1.2 2010/12/06 13:47:39 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -93,9 +93,9 @@ C   18 Nov 09 J.Young: combine PPM velocity adjustment and vertically advected
 C                      concentrations on one code
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C----------------------------------------------------------------------
-
-      USE CGRID_SPCS            ! CGRID mechanism species
       
+      USE CGRID_SPCS            ! CGRID mechanism species
+
       IMPLICIT NONE
       
 C Includes:
@@ -110,15 +110,13 @@ C Arguments:
       REAL,    INTENT(  IN )   :: DT          ! time step
       REAL,    INTENT(  IN )   :: DS ( NI )   ! distance between zone (cell) boundaries
       REAL,    INTENT(  IN )   :: FLX( NI+1 ) ! fluxes at zone (cell) boundaries
-!     REAL,    INTENT( IN    ) :: VEL( NI+1 ) ! velocities at zone (cell) boundaries
       REAL,    INTENT( INOUT ) :: VEL( NI+1 ) ! velocities at zone (cell) boundaries
-!!! NOTE: Even tho' VEL is not used on output, declaring it as INTENT(IN) causes a
-!!!       compiler error because it's an argument that gets modified here.
-      
-!     REAL,    INTENT( INOUT ) :: CON( NI,N_SPC_ADV ) ! concs in a vertical column
       REAL,    INTENT( INOUT ) :: CON( :,: ) ! concs in a vertical column
 !     logical, intent( out )   :: error
 
+!!! NOTE: Even tho' VEL is not used on output, declaring it as INTENT(IN) causes the
+!!!       code to fail. ifort compiler error?
+      
 C Parameters:
       
       REAL, PARAMETER :: TWO3RDS = 2.0 / 3.0

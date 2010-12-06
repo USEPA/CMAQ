@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hadvyppm.F,v 1.1 2010/07/20 11:33:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hadvyppm.F,v 1.2 2010/12/06 13:44:53 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -59,6 +59,7 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
       
 C Includes:
+
       INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
       INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
@@ -86,8 +87,7 @@ C Advected species dimension
 
 C File Variables:
 
-!     REAL         BCON( NBNDY,N_SPC_ADV )      ! boundary concentrations
-      REAL, ALLOCATABLE, SAVE :: BCON( :,: ) ! boundary concentrations
+      REAL, ALLOCATABLE, SAVE :: BCON( :,: )    ! boundary concentrations
       REAL         RHOJ( NCOLS,NROWS )          ! RhoJ
 
 C Local Variables:
@@ -177,14 +177,13 @@ C Get CGRID offsets
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
-
-         ASPC = GC_STRT - 1 + N_GC_SPCD   ! transported RHOJ in CGRID
-
          ALLOCATE ( BCON( NBNDY,N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BCON'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+         ASPC = GC_STRT - 1 + N_GC_SPCD
 
          ALLOCATE ( XTRHOJ( 0:NCOLS,  NROWS ), STAT = ALLOCSTAT )
          ALLOCATE ( YTRHOJ(   NCOLS,0:NROWS ), STAT = ALLOCSTAT )

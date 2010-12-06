@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/conv_cgrid.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/conv_cgrid.F,v 1.2 2010/12/06 13:40:48 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,7 +35,6 @@ C Revision History:
 C   Written by: J.Young 21 Aug 03
 C   J.Young 31 Jan 05: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
-C   21 Jun 10 J.Young: convert for Namelist redesign
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -72,15 +71,16 @@ C Local Variables:
 
       REAL      DENS( NCOLS,NROWS,NLAYS )  ! air density
 
-      INTEGER   NSPCS, OFF, IOS
-      INTEGER   C, R, L, S, V                ! loop induction variables
-      INTEGER,              SAVE :: NQAE     ! number of micro-grams / m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to "" "" ""
-      INTEGER,              SAVE :: NNAE     ! number of  # / m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to "" "" ""
-      INTEGER,              SAVE :: NSAE     ! number of  m**2 / m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to "" "" ""
+      INTEGER   NSPCS, OFF
+      INTEGER   C, R, L, S, V            ! loop induction variables
+      INTEGER, SAVE :: NQAE              ! number of micro-grams/m**3 species
+      INTEGER, SAVE :: NNAE              ! number of #/m**3 species
+      INTEGER, SAVE :: NSAE              ! number of m**2/m**3 species
+      INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to micro-grams/m**3 species
+      INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m**3 species
+      INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m**2/m**3 species
       REAL,    ALLOCATABLE, SAVE :: MOLWT( : ) ! only for "QAE" species
+      INTEGER IOS
 
       REAL    CONV, FAC            ! temp var
 
@@ -95,21 +95,20 @@ C-----------------------------------------------------------------------
          LOGDEV = INIT3()
 
          IF ( N_AE_SPC .GT. 0 ) THEN
-C create aerosol species pointers to distinguish micro-grams / m**3,
-C # / m**3 (number density), and m**2 / m**3 (surface area) species
+C create aerosol species pointers to distinguish micro-grams/m**3,
+C #/m**3 (number density), and m**2/m**3 (surface area) species
 
             ALLOCATE ( QAE( N_AE_SPC ),
-     &                 NAE( N_AE_SPC ), 
+     &                 NAE( N_AE_SPC ),
      &                 SAE( N_AE_SPC ),
      &                 MOLWT( N_AE_SPC ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                XMSG = 'Failure allocating QAE, NAE, SAE, or MOLWT'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
-
-            NQAE = 0       ! no. of micro-grams / m**3 species
-            NNAE = 0       ! no. of  # / m**3 species
-            NSAE = 0       ! no. of  m**2 / m**3 species
+            NQAE = 0       ! no. of micro-grams/m**3 species
+            NNAE = 0       ! no. of  #/m**3 species
+            NSAE = 0       ! no. of  m**2/m**3 species
             OFF = AE_STRT - 1
             DO S = 1, N_AE_SPC
                IF ( AE_SPC( S )( 1:3 ) .EQ. 'NUM' ) THEN
@@ -136,7 +135,7 @@ C # / m**3 (number density), and m**2 / m**3 (surface area) species
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    JDATE, JTIME, DENS ) ) THEN
          XMSG = 'Could not interpolate DENS from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)
       END IF
 
 C Convert non-molar mixing ratio species and re-order CGRID
@@ -151,11 +150,11 @@ C Gas - no conversion
                DO L = 1, NLAYS
                   DO V = 1, NSPCS
                      CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C micro-grams/m**3 aerosol -> mol/mol air <- no
 C micro-grams/m**3 aerosol -> ppmv
@@ -171,11 +170,11 @@ C ppm = 10**6)
                   DO V = 1, NSPCS
                      CONV = FAC / MOLWT( V )
                      CNGRD( QAE( V ),L,C,R ) = CONV * CGRID( C,R,L,QAE( V ) )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 !     NSPCS = NQAE
 !     IF ( NSPCS .GT. 0 ) THEN
@@ -186,11 +185,11 @@ C ppm = 10**6)
 !                 DO C = 1, MY_NCOLS
 !                    CGRID( C,R,L,QAE( V ) ) = CGRID( C,R,L,QAE( V ) ) * CONV
 !    &                                       / DENS( C,R,L )
-!                    END DO
 !                 END DO
 !              END DO
 !           END DO
-!        END IF
+!        END DO
+!     END IF
 
 
 C number/m**3 aerosol -> ppmv
@@ -204,11 +203,11 @@ C (Don't divide by MGPG, etc. See note above)
                   CONV = MAOAVO1000 / DENS( C,R,L )
                   DO V = 1, NSPCS
                      CNGRD( NAE( V ),L,C,R ) = CONV * CGRID( C,R,L,NAE( V ) )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C m**2/m**3 aerosol -> m**2/mol air
 
@@ -220,11 +219,11 @@ C m**2/m**3 aerosol -> m**2/mol air
                   CONV = MAOGPKG / DENS( C,R,L )
                   DO V = 1, NSPCS
                      CNGRD( SAE( V ),L,C,R ) = CONV * CGRID( C,R,L,SAE( V ) )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C Non-reactives - no conversion
 
@@ -236,11 +235,11 @@ C Non-reactives - no conversion
                DO L = 1, NLAYS
                   DO V = 1, NSPCS
                      CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C Tracers - no conversion
 
@@ -252,11 +251,11 @@ C Tracers - no conversion
                DO L = 1, NLAYS
                   DO V = 1, NSPCS
                      CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
       RETURN
 
@@ -269,8 +268,8 @@ C Revert non-molar mixing ratio species and re-order CGRID
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    JDATE, JTIME, DENS ) ) THEN
          XMSG = 'Could not interpolate DENS from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)
+      END IF
 
 C Gas - no conversion
 
@@ -282,11 +281,11 @@ C Gas - no conversion
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C aerosol ppmv -> micro-grams/m**3
 C (Don't multiply by MGPG, then divide by 1.0E+6: 1/MGPG = 10**-6 cancels out
@@ -301,11 +300,11 @@ C ppm = 10**6)
                   DO C = 1, MY_NCOLS
                      CONV = FAC * DENS( C,R,L )
                      CGRID( C,R,L,QAE( V ) ) = CONV * CNGRD( QAE( V ),L,C,R )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C aerosol ppmv -> number/m**3
 C (Don't multiply by MGPG, etc. See note above)
@@ -318,11 +317,11 @@ C (Don't multiply by MGPG, etc. See note above)
                   DO C = 1, MY_NCOLS
                      CONV = AVOOMA_001 * DENS( C,R,L )
                      CGRID( C,R,L,NAE( V ) ) = CONV * CNGRD( NAE( V ),L,C,R )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C m**2/m**3 aerosol -> m**2/mol air
 
@@ -334,11 +333,11 @@ C m**2/m**3 aerosol -> m**2/mol air
                   DO C = 1, MY_NCOLS
                      CONV = GPKGOMA * DENS( C,R,L )
                      CGRID( C,R,L,SAE( V ) ) = CONV * CNGRD( SAE( V ),L,C,R )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C Non-reactives - no conversion
 
@@ -350,11 +349,11 @@ C Non-reactives - no conversion
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
 C Tracers - no conversion
 
@@ -366,11 +365,11 @@ C Tracers - no conversion
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
-                     END DO
                   END DO
                END DO
             END DO
-         END IF
+         END DO
+      END IF
 
       RETURN
       END

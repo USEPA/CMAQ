@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/matrix.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/matrix.F,v 1.2 2010/12/06 13:40:48 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE MATRIX ( A, B, C, D, E, X )
@@ -50,13 +50,16 @@ C L41 L42 L43  1
 C L51 L52 L53 L54  1
 C L61 L62 L63 L64 L65 1
 C---------------------------------------------------------
-C   21 Jun 10 J.Young: convert for Namelist redesign
-C---------------------------------------------------------
 
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
 
       IMPLICIT NONE
+
+C Includes:
+      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+
+      INTEGER, SAVE :: N_SPC_DIFF    ! global diffusion species
 
 C Arguments:
 
@@ -67,25 +70,21 @@ C Arguments:
       REAL, INTENT( IN )  :: D( :,: )   ! R.H.S
       REAL, INTENT( OUT ) :: X( :,: )   ! returned solution
 
-C Includes:
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-
 C Locals:
 
-      INTEGER, SAVE :: N_SPC_DIFF    ! global diffusion species
-
       REAL, ALLOCATABLE, SAVE :: Y( :,: )
-      REAL    L( NLAYS,NLAYS )
-      REAL    U( NLAYS )
-      REAL    UP1( NLAYS )
-      REAL    RU( NLAYS )
-      REAL    DD, DD1, YSUM
+      REAL L  ( NLAYS,NLAYS )
+      REAL U  ( NLAYS )
+      REAL UP1( NLAYS )
+      REAL RU ( NLAYS )
+      REAL DD, DD1, YSUM
+
       INTEGER I, J, V, IOS
 
       CHARACTER( 120 ) :: XMSG = ' '
       LOGICAL :: FIRSTIME = .TRUE.
 
-C---------------------------------------------------------
+C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
@@ -95,7 +94,6 @@ C---------------------------------------------------------
             XMSG = 'Failure allocating Y'
             CALL M3EXIT( 'MATRIX', 0, 0, XMSG, XSTAT1 )
          END IF
-
       END IF   ! FIRSTIME
 
 C-- Define Upper and Lower matrices
