@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/VDIFF_MAP.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/VDIFF_MAP.F,v 1.2 2010/12/06 13:39:29 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,8 +38,6 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 
 C-----------------------------------------------------------------------
 
-!     USE CGRID_SPCS   ! CGRID mechanism species
-
 C global diffusion species
       INTEGER, SAVE :: N_SPC_DIFF
 
@@ -54,9 +52,8 @@ C global dry dep species
       INTEGER, ALLOCATABLE, SAVE :: DV2DF   ( : ) ! map from depv spc to diff spc
 
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DDEP_SPC( : )
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
-
       character( 16 ), allocatable, save :: diff_spc( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
       character( 16 ), allocatable, save :: dv2df_spc( : )
 
       CONTAINS
@@ -65,7 +62,7 @@ C-----------------------------------------------------------------------
          FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS   ! CGRID mechanism species
-         USE AERO_EMIS    ! aerosol emissions defns and fncts   inherits MECH_DEFN
+         USE AERO_EMIS    ! aerosol emissions defns and fncts   maybe inherits CGRID_SPCS
 
          IMPLICIT NONE
 
@@ -95,11 +92,14 @@ C Local variables:
          INTEGER ALLOCSTAT
 
          LOGICAL LERROR                    ! Error flag
-D        INTEGER LOGDEV   ! debug
+#ifdef Verbose
+         INTEGER LOGDEV   ! debug
+#endif
 
 C-----------------------------------------------------------------------
-
-D        LOGDEV = INIT3()   ! debug
+#ifdef Verbose
+         LOGDEV = INIT3()   ! debug
+#endif
          SUCCESS = .TRUE.
 
 #ifdef emis_chem
@@ -255,11 +255,13 @@ C create global maps to CGRID
 !           END IF
 !        END DO
 
-D        DO N = 1, N_SPC_DIFF   ! debug
-!D           WRITE( LOGDEV,'(A,3I4)' ) '  N, DF2EM(N), DF2DV(N): ',
-!D    &                                   N, DF2EM( N ), DF2DV( N )
-D           WRITE( LOGDEV,'(A,2I4)' ) '  N, DF2EM(N): ', N, DF2EM( N )
-D        END DO
+#ifdef Verbose
+         DO N = 1, N_SPC_DIFF   ! debug
+!           WRITE( LOGDEV,'(A,3I4)' ) '  N, DF2EM(N), DF2DV(N): ',
+!    &                                   N, DF2EM( N ), DF2DV( N )
+            WRITE( LOGDEV,'(A,2I4)' ) '  N, DF2EM(N): ', N, DF2EM( N )
+         END DO
+#endif
 
          LERROR = .FALSE.
          S = 0
@@ -331,10 +333,12 @@ D        END DO
             END IF
          END DO
 
-D        DO N = 1, N_SPC_DDEP   ! debug
-D           WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DD2DV(N), DDEP_SPC(N): ',
-D    &                                       N, DD2DV( N ), DDEP_SPC( N )
-D        END DO
+#ifdef Verbose
+         DO N = 1, N_SPC_DDEP   ! debug
+            WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DD2DV(N), DDEP_SPC(N): ',
+     &                                       N, DD2DV( N ), DDEP_SPC( N )
+         END DO
+#endif
 
          S = 0
          DO V = 1, N_GC_DEPV
@@ -362,10 +366,12 @@ D        END DO
             DEPV_SPC( S ) = TR_SPC( TR_DEPV_MAP( V ) )
          END DO
 
-D        DO N = 1, N_SPC_DEPV   ! debug
-D           WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DEPV_MAP(N), DEPV_SPC(N): ',
-D    &                                       N, DEPV_MAP( N ), DEPV_SPC( N )
-D        END DO
+#ifdef Verbose
+         DO N = 1, N_SPC_DEPV   ! debug
+            WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DEPV_MAP(N), DEPV_SPC(N): ',
+     &                                       N, DEPV_MAP( N ), DEPV_SPC( N )
+         END DO
+#endif
 
          S = 0
          DO V = 1, N_GC_TRNS
@@ -389,10 +395,12 @@ D        END DO
             DIFF_SPC( S ) = TR_SPC( TR_DIFF_MAP( V ) )
          END DO
 
-D        DO N = 1, N_SPC_DIFF   ! debug
-D           WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N,      DIFF_MAP(N), DIFF_SPC(N): ',
-D    &                                  N,      DIFF_MAP( N ), DIFF_SPC( N )
-D        END DO
+#ifdef Verbose
+         DO N = 1, N_SPC_DIFF   ! debug
+            WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N,      DIFF_MAP(N), DIFF_SPC(N): ',
+     &                                  N,      DIFF_MAP( N ), DIFF_SPC( N )
+         END DO
+#endif
 
 
          S = 0
@@ -456,10 +464,12 @@ D        END DO
             END IF
          END DO
 
-D        DO N = 1, N_SPC_DEPV   ! debug
-D           WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N, DV2DF(N), dv2df_spc(n): ',
-D    &                                  N, DV2DF( N ), dv2df_spc( n )
-D        END DO
+#ifdef Verbose
+         DO N = 1, N_SPC_DEPV   ! debug
+            WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N, DV2DF(N), dv2df_spc(n): ',
+     &                                  N, DV2DF( N ), dv2df_spc( n )
+         END DO
+#endif
 
          IF ( LERROR ) THEN
             XMSG = '*** Species mapping error(s) in VDIFF_MAP'

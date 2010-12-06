@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.2 2010/12/06 13:39:29 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -39,18 +39,17 @@ C   M3EXIT, EDDYX, TRI, MATRIX, PA_UPDATE_EMIS, PA_UPDATE_DDEP
 C Revision History:
 C   Analogous to VDIFFIM (Eddy diffusion PBL scheme)
 
-C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
+C 31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module (GRID_CONF)
-C    7 Jun 05 P.Bhave: added call to OPSSEMIS if MECHNAME='AE4';
+C  7 Jun 05 P.Bhave: added call to OPSSEMIS if MECHNAME='AE4';
 C                      added TSTEP to RDEMIS_AE call vector
-C      Aug 05 J. Pleim Update to v4.5
-C
-C      Jan 06 J. Pleim ACM2 implementation
-C      Jul 06 J.Young: emis module
-C      Nov 06 B.Hutzell, J.Young: depv module
-C      Mar 08 G.Sarwar: added heterogeneous reaction for HONO. It affects HONO, NO2 and HNO3
-C      Apr 08 J.Young: optional inline beis and plume rise emissions
-C   21 Jun 10 J.Young: convert for Namelist redesign
+C    Aug 05 J. Pleim Update to v4.5
+C    Jan 06 J. Pleim ACM2 implementation
+C    Jul 06 J.Young: emis module
+C    Nov 06 B.Hutzell, J.Young: depv module
+C    Mar 08 G.Sarwar: added heterogeneous reaction for HONO. It affects HONO, NO2 and HNO3
+C    Apr 08 J.Young: optional inline beis and plume rise emissions
+C 21 Jun 10 J.Young: convert for Namelist redesign
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -138,10 +137,8 @@ C Local Variables:
 
       INTEGER, SAVE :: N_SPC_CGRID              ! no. of CGRID species
 
-      REAL, ALLOCATABLE, SAVE :: DD_FAC( : )          ! combined subexpression
-      REAL, ALLOCATABLE, SAVE :: DDBF( : )          ! secondary DDEP
-!     REAL           CONC( N_SPC_DIFF,NLAYS )   ! secondary CGRID expression
-!     REAL           EMIS( N_SPC_DIFF,NLAYS )   ! emissions subexpression
+      REAL, ALLOCATABLE, SAVE :: DD_FAC( : )    ! combined subexpression
+      REAL, ALLOCATABLE, SAVE :: DDBF( : )      ! secondary DDEP
       REAL, ALLOCATABLE, SAVE :: CONC( :,: )    ! secondary CGRID expression
       REAL, ALLOCATABLE, SAVE :: EMIS( :,: )    ! emissions subexpression
       REAL         EDDYV ( NCOLS,NROWS,NLAYS )  ! from EDYINTB
@@ -166,8 +163,6 @@ C ACM Local Variables
       REAL        BB    ( NLAYS )               ! diagonal
       REAL        CC    ( NLAYS )               ! subdiagonal
       REAL        EE    ( NLAYS )               ! superdiagonal
-!     REAL        DD    ( N_SPC_DIFF,NLAYS )    ! R.H.S
-!     REAL        UU    ( N_SPC_DIFF,NLAYS )    ! returned solution
       REAL, ALLOCATABLE, SAVE :: DD( :,: )      ! R.H.S
       REAL, ALLOCATABLE, SAVE :: UU( :,: )      ! returned solution
       REAL        XPLUS
@@ -218,7 +213,7 @@ C ACM Local Variables
          END SUBROUTINE PA_UPDATE_DDEP
          SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
             IMPLICIT NONE
-            REAL,           POINTER       :: CGRID( :,:,:,: )
+            REAL, POINTER :: CGRID( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             REAL,           INTENT( OUT ) :: CNGRD( :,:,:,: )
          END SUBROUTINE CONV_CGRID
@@ -226,8 +221,18 @@ C ACM Local Variables
             IMPLICIT NONE
             REAL,           INTENT( IN )  :: CNGRD( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            REAL,           POINTER       :: CGRID( :,:,:,: )
+            REAL, POINTER :: CGRID( :,:,:,: )
          END SUBROUTINE REV_CGRID
+         SUBROUTINE EDDYX ( JDATE, JTIME, TSTEP,
+     &                      EDDYV, HOL, XPBL, LPBL, CONVCT )
+            IMPLICIT NONE
+            INTEGER,        INTENT( IN )  :: JDATE, JTIME, TSTEP
+            REAL,           INTENT( OUT ) :: EDDYV ( :,:,: )
+            REAL,           INTENT( OUT ) :: HOL   ( :,: )
+            REAL,           INTENT( OUT ) :: XPBL  ( :,: )
+            INTEGER,        INTENT( OUT ) :: LPBL  ( :,: )
+            LOGICAL,        INTENT( OUT ) :: CONVCT( :,: )
+         END SUBROUTINE EDDYX
          SUBROUTINE MATRIX ( A, B, C, D, E, X )
             IMPLICIT NONE
             REAL,           INTENT( IN )  :: A( : ), B( : ), C( : ), E( : )
@@ -240,25 +245,6 @@ C ACM Local Variables
             REAL,           INTENT( IN )  :: B( :,: )
             REAL,           INTENT( OUT ) :: X( :,: )
          END SUBROUTINE TRI
-         SUBROUTINE EDDYX ( JDATE, JTIME, TSTEP,
-     &                      EDDYV, HOL, XPBL, LPBL, CONVCT )
-            IMPLICIT NONE
-            INTEGER,        INTENT( IN )  :: JDATE, JTIME, TSTEP
-            REAL,           INTENT( OUT ) :: EDDYV ( :,:,: )
-            REAL,           INTENT( OUT ) :: HOL   ( :,: )
-            REAL,           INTENT( OUT ) :: XPBL  ( :,: )
-            INTEGER,        INTENT( OUT ) :: LPBL  ( :,: )
-            LOGICAL,        INTENT( OUT ) :: CONVCT( :,: )
-         END SUBROUTINE EDDYX
-!        SUBROUTINE GET_DEPV( JDATE, JTIME, TSTEP, CGRID )
-!           USE DEPV_DEFN
-!           USE HGRD_DEFN
-!           USE MECH_DEFN
-!           USE DEPVVARS
-!           IMPLICIT NONE
-!           INTEGER,        INTENT( IN )  :: JDATE, JTIME, TSTEP( 2 )
-!           REAL,           POINTER       :: CGRID( :,:,:,: )
-!        END SUBROUTINE GET_DEPV
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -525,10 +511,12 @@ C-----------------------------------------------------------------------
          DTS = DTSEC / NLP
          DTDENS1 = DTS * DENS1( C,R )
 
-D       IF ( R .EQ. MY_NROWS / 2 .AND. C .EQ. MY_NCOLS / 2 )
-D    &      WRITE( LOGDEV,1021 ) CONVCT( C,R ), DTS, EDDYV( C,R,1 ),
-D    &                           MBAR, FNL
+#ifdef Verbose
+        IF ( R .EQ. MY_NROWS / 2 .AND. C .EQ. MY_NCOLS / 2 )
+     &      WRITE( LOGDEV,1021 ) CONVCT( C,R ), DTS, EDDYV( C,R,1 ),
+     &                           MBAR, FNL
 1021        FORMAT( ' CONVCT, DTS, EDDYV, MBAR, FNL: ', L3, 1X, 4(1PE13.5) )
+#endif
 
 C End ACM insert
 
