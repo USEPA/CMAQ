@@ -18,15 +18,13 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/STD_CONC.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/STD_CONC.F,v 1.2 2010/12/06 12:46:05 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE STD_CONC
-
-C 21 Jun 10 J.Young: convert for Namelist redesign
 
       IMPLICIT NONE
 
@@ -68,7 +66,9 @@ C species classes configuration for CONC
          USE CGRID_SPCS            ! CGRID mechanism species
 
          INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
+#ifdef Verbose
          include SUBST_IODECL      ! I/O definitions and declarations
+#endif
 
          CHARACTER( 16 ) :: PNAME = 'CONC_DEFN'
          CHARACTER( 96 ) :: XMSG = ' '
@@ -89,8 +89,9 @@ C species classes configuration for CONC
          CHARACTER( 32 ) :: CONC_BLEV_ELEV = 'CONC_BLEV_ELEV'
          CHARACTER( 16 ) :: V_LIST( 2 )
 
+#ifdef Verbose
          integer logdev
-!        integer, external :: init3
+#endif
 
          INTERFACE
             SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
@@ -103,7 +104,9 @@ C species classes configuration for CONC
 
 C-----------------------------------------------------------------------
 
+#ifdef Verbose
          logdev = init3()
+#endif
 
 C Retrieve the species saved to the concentration file
 
@@ -281,29 +284,37 @@ C get starting index in CGRID and total count for each species class
          DO V = 1, N_C_GC_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = GC_MAP( V )
-!           write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-!    &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#endif
          END DO
 
          DO V = 1, N_C_AE_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = AE_MAP( V )
-!           write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-!    &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#endif
          END DO
 
          DO V = 1, N_C_NR_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = NR_MAP( V )
-!           write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-!    &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#endif
          END DO
 
          DO V = 1, N_C_TR_SPC
             VAR = VAR + 1
             CONC_MAP( VAR ) = TR_MAP( V )
-!           write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
-!    &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#ifdef Verbose
+            write( logdev,* ) '<<>>var, CONC_MAP, _SPCS: ',
+     &                         VAR, CONC_MAP( VAR ), CONC_SPCS( VAR )
+#endif
          END DO
 
          IF ( N_C_GC_SPC .EQ. 0 ) THEN
