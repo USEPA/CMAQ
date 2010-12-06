@@ -18,13 +18,12 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_conc.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_conc.F,v 1.2 2010/12/06 12:52:13 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-!     SUBROUTINE WR_CONC ( SGRID, JDATE, JTIME, TSTEP )
       SUBROUTINE WR_CONC ( JDATE, JTIME, TSTEP )
 
 C Revision History:
@@ -41,6 +40,9 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   30 May 05 J.Young: optional save derived vert. vel. to conc file
 C   29 Aug 06 J.Young: in conjunction with state CGRID file
+C   30 Jan 10 David Wong: modified the code to write one species at a time
+C                         in case ALLVAR3 cannot deal with large CONC size
+C   14 Sep 10 J.Young: fix ALLVAR3 bug in writing W_VEL
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -82,8 +84,10 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
 
-      INTEGER      SPC, VAR     ! species loop counters
-      INTEGER      C, R, K, L   ! loop induction variables
+      INTEGER      C, R, K, L, V   ! loop induction variables
+
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: VNAME( : )
+      INTEGER, SAVE :: NVARS
 
 C-----------------------------------------------------------------------
 
@@ -125,14 +129,38 @@ C open conc file for update
 
          IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+         IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
+            XMSG = 'Could not get file description from ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         IF ( W_VEL ) THEN
+            NVARS = NVARS3D - 1
+         ELSE
+            NVARS = NVARS3D
+         END IF
+
+         ALLOCATE ( VNAME( NVARS ), STAT=ALLOCSTAT )
+
+         VNAME = VNAME3D( 1:NVARS )
 
       END IF   ! firstime
 
-      IF ( .NOT. WRITE3( CTM_CONC_1, ALLVAR3, JDATE, JTIME, SGRID ) ) THEN
-         XMSG = 'Could not write ' // CTM_CONC_1
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+!     IF ( .NOT. WRITE3( CTM_CONC_1, ALLVAR3, JDATE, JTIME, SGRID ) ) THEN
+!        XMSG = 'Could not write ' // CTM_CONC_1
+!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!     END IF
+
+      DO V = 1, NVARS
+         IF ( .NOT. WRITE3( CTM_CONC_1, VNAME( V ), JDATE, JTIME,
+     &                      SGRID( :,:,:,V ) ) ) THEN
+            XMSG = 'Could not write ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END DO
 
       IF ( W_VEL ) THEN
 
