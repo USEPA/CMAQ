@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.1 2010/07/20 11:48:34 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.2 2010/12/06 13:53:00 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -62,16 +62,16 @@ C   Daewon Byun 10/10/2000
 C      -- generalized 3d horizontal diffusivity module
 C      -- accomdates 3d hdiff values
 
-C   15 Dec 00 J.Young: PE_COMM3 -> Dave Wong's f90 stenex COMM 
-C    6 Aug 01 J.Young: Use HGRD_DEFN
-C   25 Mar 04 G.Hammond: RK11/RK22 ghost cell updates moved outside main loop;
-C                        use explicit boundary arrays for CGRID ghost cells;
-C                        use SNL's "swap3d".
-C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
-C                      domain specifications in one module
-C   17 Dec 09 J.Young: fix CONC initializing error for sub-cycling timesteps (DO 344)
-C                      reported by Talat Odman and Yongtao Hu of GA tech.
-C   21 Jun 10 J.Young: convert for Namelist redesign
+C    15 Dec 00 J.Young: PE_COMM3 -> Dave Wong's f90 stenex COMM 
+C     6 Aug 01 J.Young: Use HGRD_DEFN
+C    25 Mar 04 G.Hammond: RK11/RK22 ghost cell updates moved outside main loop;
+C                         use explicit boundary arrays for CGRID ghost cells;
+C                         use SNL's "swap3d".
+C    31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
+C                       domain specifications in one module
+C    17 Dec 09 J.Young: fix CONC initializing error for sub-cycling timesteps (DO 344)
+C                       reported by Talat Odman and Yongtao Hu of GA tech.
+C    21 Jun 10 J.Young: convert for Namelist redesign
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -148,22 +148,15 @@ C Local Variables:
 
 #ifdef parallel
       INTEGER      M
-!     REAL         HALO_SOUTH( NCOLS,NLAYS,N_SPC_DIFF )
-!     REAL         HALO_NORTH( NCOLS,NLAYS,N_SPC_DIFF )
-!     REAL         HALO_WEST ( NROWS,NLAYS,N_SPC_DIFF )
-!     REAL         HALO_EAST ( NROWS,NLAYS,N_SPC_DIFF )
-!     REAL         BUF_NS    ( NCOLS*NLAYS*N_SPC_DIFF )
-!     REAL         BUF_EW    ( NROWS*NLAYS*N_SPC_DIFF )
       REAL,    ALLOCATABLE, SAVE :: HALO_SOUTH( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: HALO_NORTH( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: HALO_WEST ( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: HALO_EAST ( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: BUF_NS    ( : )
       REAL,    ALLOCATABLE, SAVE :: BUF_EW    ( : )
+      INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : )   ! global diff map to CGRID
 #endif
 
-!     INTEGER, SAVE :: DIFF_MAP( N_SPC_DIFF )   ! global diff map to CGRID
-      INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : )   ! global diff map to CGRID
       INTEGER, SAVE :: LOGDEV
 
       INTEGER      C, R, L, S, V, N            ! loop counters
@@ -192,9 +185,7 @@ C Local Variables:
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
-
          FIRSTIME = .FALSE.
-
          LOGDEV = INIT3()
 
 C Get dx1 from COORD include file
@@ -231,7 +222,7 @@ C Get dx1 from COORD include file
             XMSG = 'Failure allocating DIFF_MAP'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
- 
+
 C Create global map to CGRID
  
          S = 0
