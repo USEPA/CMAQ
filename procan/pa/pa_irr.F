@@ -18,24 +18,21 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr.F,v 1.1 2010/07/19 17:49:17 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr.F,v 1.2 2010/12/06 14:48:58 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_irr.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_irr.F 07 Jul 1997 10:20:53
 
-      SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS,
-     &           ICLND )
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
 
-C**********************************************************************
-C
-C  FUNCTION: To integrate chemical rates of reaction for an IRR/MB
-C            analysis
-C            
-C
+C-----------------------------------------------------------------------
+C  FUNCTION: Integrate chemical rates of reaction for an IRR/MB analysis
+ 
 C  PRECONDITIONS: None
-C
+ 
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
-C
+ 
 C  REVISION HISTORY: Prototype created by Jerry Gipson, September, 1996
 C                    global BLKPRM Jeff Dec 96
 C                    Modified Sept, 1997 by Jerry Gipson to be consistent
@@ -51,19 +48,18 @@ C   31 Mar 01 J.Young: Use HGRD_DEFN; eliminate BLKPRM.EXT
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
-C
-C**********************************************************************
+C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
 
       IMPLICIT NONE 
 
-C..INCLUDES:
+C..Includes:
       INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
       INCLUDE SUBST_PACMN_ID    ! PA control parameters
       
-C..ARGUMENTS: 
+C..Arguments: 
       INTEGER NUMCELLS          ! Number of cells to process
       INTEGER ICLND( BLKSIZE )  ! Original cell number 
       LOGICAL LSTART            ! Flag to indicate start of chemical 
@@ -72,13 +68,14 @@ C..ARGUMENTS:
 
       REAL DELT( BLKSIZE )              ! Chemistry integration time size
       REAL RK(   BLKSIZE,    NRXNS )    ! Reaction rate coefficients
-      REAL CONC( BLKSIZE, N_GC_SPC )    ! Species concentrations
+!     REAL CONC( BLKSIZE, N_GC_SPC )    ! Species concentrations
+      REAL CONC( :,: )                  ! Species concentrations
 
-C..PARAMETERS: None
+C..Parameters: None
 
-C..EXTERNAL FUNCTIONS: None
+C..External Functions: None
  
-C..SAVED LOCAL VARIABLES:
+C..Saved Local Variables:
       CHARACTER( 16 ) , SAVE :: PNAME = 'PA_IRR'   ! Program name
 
       LOGICAL, SAVE :: LFIRST = .TRUE.   ! Flag for first call to subroutine
@@ -87,7 +84,7 @@ C..SAVED LOCAL VARIABLES:
       REAL, SAVE :: RXOLD( BLKSIZED, NRXNS )
       REAL, SAVE :: RXSAV( BLKSIZED, NRXNS )
 
-C..SCRATCH LOCAL VARIABLES:
+C..Scratch Local Variables:
       INTEGER ISP1, ISP2, ISP3  ! Species indices
       INTEGER NCELL             ! Loop index for cells
       INTEGER NIRR              ! Loop index for IRR outputs
@@ -101,86 +98,86 @@ C..SCRATCH LOCAL VARIABLES:
       REAL INTRXN(  BLKSIZED,     NRXNS ) ! Integrated reaction rates
       REAL TEMPIRR( BLKSIZED, NUMTEMPSD ) ! Array of computed temp IRRs
 
-C**********************************************************************
+C-----------------------------------------------------------------------
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, flag the reactions for which to calculate IRRS
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( LFIRST ) THEN
+      IF ( LFIRST ) THEN
 
-         IF( LFULLIRR .AND. NIRRVAR .NE. NRXNS ) THEN
+         IF ( LFULLIRR .AND. NIRRVAR .NE. NRXNS ) THEN
             CALL M3EXIT( PNAME, 0, 0,
      &        'Number of reactions for PA does not match number of ' //
      &        'reactions in mechanism', 2 )
-         ENDIF
+         END IF
  
          DO NRX = 1, NRXNS
-            IF( LFULLIRR ) THEN
+            IF ( LFULLIRR ) THEN
                LINTRXN( NRX ) = .TRUE.
             ELSE
                LINTRXN( NRX ) = .FALSE.
-            ENDIF
-         ENDDO
+            END IF
+         END DO
 
-         IF( .NOT. LFULLIRR ) THEN
+         IF ( .NOT. LFULLIRR ) THEN
 
-            IF( NUMTEMPS .GT. 0 ) THEN            
+            IF ( NUMTEMPS .GT. 0 ) THEN            
                DO NTEMP = 1, NUMTEMPS 
                   DO NTERM = 1, TEMPTERMS( NTEMP )
                      NRX = TEMPRXN( NTEMP, NTERM )
-                     IF( NRX .GT. NRXNS ) THEN
+                     IF ( NRX .GT. NRXNS ) THEN
                         CALL M3EXIT( PNAME, 0, 0,
      &                    'Number of reactions for PA does not match ' //
      &                    'number of reactions in mechanism', 2 )
-                     ENDIF
+                     END IF
                      LINTRXN( NRX ) = .TRUE.
-                  ENDDO
-               ENDDO
-            ENDIF
+                  END DO
+               END DO
+            END IF
 
-            IF( NIRRVAR .GT. 0 ) THEN
+            IF ( NIRRVAR .GT. 0 ) THEN
                DO NOUT = 1, NIRRVAR
-                  IF( NIRRRXNS( NOUT ) .GT. 0 ) THEN
+                  IF ( NIRRRXNS( NOUT ) .GT. 0 ) THEN
                      DO NTERM = 1, NIRRRXNS( NOUT )
                         NRX = IRRRXN( NOUT, NTERM )
-                        IF( NRX .GT. NRXNS ) THEN
+                        IF ( NRX .GT. NRXNS ) THEN
                            CALL M3EXIT( PNAME, 0, 0,
      &                       'Number of reactions for PA does not match ' //
      &                       'number of reactions in mechanism', 2 )
-                        ENDIF
+                        END IF
                         LINTRXN( NRX ) = .TRUE.
-                     ENDDO
-                  ENDIF
-               ENDDO
-            ENDIF
+                     END DO
+                  END IF
+               END DO
+            END IF
 
-         ENDIF
+         END IF
 
          LFIRST = .FALSE.
 
-      ENDIF
+      END IF
     
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Loop over reactions and calculate rate of reaction with current
 c  concentrations (This needs to be optimized for small NUMCELLS)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 100 NRX = 1, NRXNS
-         IF( LINTRXN( NRX ) ) THEN
-            IF( NREACT( NRX ) .EQ. 1 ) THEN
+         IF ( LINTRXN( NRX ) ) THEN
+            IF ( NREACT( NRX ) .EQ. 1 ) THEN
                ISP1 = IRR( NRX, 1 )
                DO NCELL = 1, NUMCELLS
                   RXRAT( NCELL, NRX ) = RK( NCELL, NRX ) * 
      &                                  CONC( NCELL, ISP1 )
-               ENDDO
-            ELSEIF( NREACT( NRX ) .EQ. 2 ) THEN
+               END DO
+            ELSEIF ( NREACT( NRX ) .EQ. 2 ) THEN
                ISP1 = IRR( NRX, 1 )
                ISP2 = IRR( NRX, 2 )
                DO NCELL = 1, NUMCELLS
                   RXRAT( NCELL, NRX ) = RK( NCELL, NRX ) * 
      &                                  CONC( NCELL, ISP1 ) *
      &                                  CONC( NCELL, ISP2 ) 
-               ENDDO
-            ELSEIF( NREACT( NRX ) .EQ. 3 ) THEN
+               END DO
+            ELSEIF ( NREACT( NRX ) .EQ. 3 ) THEN
                ISP1 = IRR( NRX, 1 )
                ISP2 = IRR( NRX, 2 )
                ISP3 = IRR( NRX, 3 )
@@ -189,13 +186,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                  CONC( NCELL, ISP1 ) *
      &                                  CONC( NCELL, ISP2 ) *
      &                                  CONC( NCELL, ISP3 ) 
-               ENDDO 
-            ELSEIF(NREACT( NRX ) .EQ. 0 ) THEN
+               END DO 
+            ELSEIF (NREACT( NRX ) .EQ. 0 ) THEN
                DO NCELL = 1, NUMCELLS
                   RXRAT( NCELL, NRX ) = RK( NCELL, NRX )
-               ENDDO
-            ENDIF
-         ENDIF         
+               END DO
+            END IF
+         END IF         
   100 CONTINUE
 
 
@@ -203,17 +200,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c If this is the start of the chemistry integration period, save the 
 c reaction rates, and return
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( LSTART ) THEN
+      IF ( LSTART ) THEN
          DO NRX = 1, NRXNS
-            IF( LINTRXN( NRX ) ) THEN
+            IF ( LINTRXN( NRX ) ) THEN
                DO NCELL = 1, NUMCELLS
                   RXOLD( NCELL, NRX ) = RXRAT( NCELL, NRX )
                   RXSAV( NCELL, NRX ) = RXRAT( NCELL, NRX )
-               ENDDO 
-            ENDIF
-         ENDDO
+               END DO 
+            END IF
+         END DO
          RETURN
-      ENDIF
+      END IF
 
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -223,52 +220,52 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO NIRR = 1, NIRRVAR
          DO NCELL = 1, NUMCELLS
             IRRSTEP( NCELL, NIRR ) = 0.0
-         ENDDO
-      ENDDO
+         END DO
+      END DO
 
-      IF( LCHGVL ) THEN
+      IF ( LCHGVL ) THEN
          DO NIRR = 1, NRXNS
-            IF( LINTRXN( NIRR ) ) THEN
+            IF ( LINTRXN( NIRR ) ) THEN
                 DO NCELL = 1, NUMCELLS
                    RXOLD( NCELL, NIRR ) = RXSAV( ICLND( NCELL ), NIRR )
-                ENDDO
-             ENDIF
-         ENDDO
-      ENDIF
+                END DO
+             END IF
+         END DO
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute integrated reaction rates for each reaction and return
 c  if a Full IRR analysis is being done 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO NRX = 1, NRXNS
-         IF( LINTRXN( NRX ) ) THEN
+         IF ( LINTRXN( NRX ) ) THEN
             DO NCELL = 1, NUMCELLS
                INTRXN( NCELL, NRX ) = 0.5 * DELT( NCELL ) * 
      &                               ( RXOLD( NCELL, NRX ) + 
      &                                 RXRAT( NCELL, NRX ) )
-            ENDDO
-         ENDIF
-      ENDDO
+            END DO
+         END IF
+      END DO
 
-      IF( LFULLIRR ) THEN
+      IF ( LFULLIRR ) THEN
          DO NRX = 1, NRXNS
             DO NCELL = 1, NUMCELLS
                IRRSTEP( NCELL, NRX ) = INTRXN( NCELL, NRX ) 
-            ENDDO
-         ENDDO
+            END DO
+         END DO
          GO TO 500
-      ENDIF
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute the temporary IRRs that are used below
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( NUMTEMPS .GT. 0 ) THEN
+      IF ( NUMTEMPS .GT. 0 ) THEN
 
          DO NTEMP = 1, NUMTEMPS
             DO NCELL = 1, NUMCELLS
                TEMPIRR( NCELL, NTEMP ) = 0.0
-            ENDDO
-         ENDDO
+            END DO
+         END DO
 
          DO NTEMP =1, NUMTEMPS                    
             DO NTERM = 1, TEMPTERMS( NTEMP )
@@ -277,11 +274,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO NCELL = 1, NUMCELLS
                   TEMPIRR( NCELL, NTEMP ) = TEMPIRR( NCELL, NTEMP ) + 
      &                                      COEFF * INTRXN( NCELL, NRX )
-               ENDDO
-            ENDDO
-         ENDDO
+               END DO
+            END DO
+         END DO
 
-      ENDIF
+      END IF
          
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Sum up all IRRs for the output IRR for this step
@@ -289,42 +286,42 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c..Add required temporary IRRs if they are positive
 c
-      IF( NUMOUTPOS .GT. 0 ) THEN
+      IF ( NUMOUTPOS .GT. 0 ) THEN
          DO NTERM = 1, NUMOUTPOS
             NTEMP = TEMPOUTPOS( NTERM )
             NOUT  = INDXOUTPOS( NTERM )
             COEFF = COEFOUTPOS( NTERM )
             DO NCELL = 1, NUMCELLS
-               IF( TEMPIRR( NCELL, NTEMP ) .GT. 0.0 ) THEN
+               IF ( TEMPIRR( NCELL, NTEMP ) .GT. 0.0 ) THEN
                   IRRSTEP( NCELL, NOUT ) = IRRSTEP( NCELL, NOUT ) +
      &                                     COEFF * TEMPIRR( NCELL, NTEMP )
-               ENDIF
-            ENDDO
-         ENDDO
-      ENDIF
+               END IF
+            END DO
+         END DO
+      END IF
 
 c
 c..Add required temporary IRRs if they are negative
 c
-      IF( NUMOUTNEG .GT. 0 ) THEN
+      IF ( NUMOUTNEG .GT. 0 ) THEN
          DO NTERM = 1, NUMOUTNEG
             NTEMP = TEMPOUTNEG( NTERM )
             NOUT  = INDXOUTNEG( NTERM )
             COEFF = COEFOUTNEG( NTERM )
             DO NCELL = 1, NUMCELLS
-               IF( TEMPIRR( NCELL, NTEMP ) .LT. 0.0 ) THEN
+               IF ( TEMPIRR( NCELL, NTEMP ) .LT. 0.0 ) THEN
                   IRRSTEP( NCELL, NOUT ) = IRRSTEP( NCELL, NOUT ) + 
      &                                     COEFF *
      &                                     ABS( TEMPIRR( NCELL, NTEMP ) )
-               ENDIF
-            ENDDO
-         ENDDO
-      ENDIF
+               END IF
+            END DO
+         END DO
+      END IF
 
 c
 c..Add temporary IRRs that do not depend on sign
 c
-      IF( NUMOUTIND .GT. 0 ) THEN
+      IF ( NUMOUTIND .GT. 0 ) THEN
          DO NTERM = 1, NUMOUTIND
             NTEMP = TEMPOUTIND( NTERM )
             NOUT  = INDXOUTIND( NTERM )
@@ -332,25 +329,25 @@ c
             DO NCELL = 1, NUMCELLS
                IRRSTEP( NCELL, NOUT ) = IRRSTEP( NCELL, NOUT ) + 
      &                                  COEFF * TEMPIRR( NCELL, NTEMP )
-            ENDDO
-         ENDDO
-      ENDIF
+            END DO
+         END DO
+      END IF
 
 c
 c..Add all remaining IRRs terms
 c        
       DO NOUT = 1, NIRRVAR
-         IF( NIRRRXNS( NOUT ) .GT. 0 ) THEN
+         IF ( NIRRRXNS( NOUT ) .GT. 0 ) THEN
             DO NTERM = 1, NIRRRXNS( NOUT )
                COEFF = IRRCOEF( NOUT, NTERM )
                NRX = IRRRXN( NOUT, NTERM )
                DO NCELL = 1, NUMCELLS
                   IRRSTEP( NCELL, NOUT ) = IRRSTEP( NCELL, NOUT ) + 
      &                                     COEFF * INTRXN( NCELL, NRX )
-               ENDDO
-            ENDDO
-         ENDIF
-      ENDDO
+               END DO
+            END DO
+         END IF
+      END DO
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Update the array holding the cumulative results over all steps and
@@ -358,23 +355,23 @@ c  save the rxrates for the next step
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   500 CONTINUE
 
-      IF( LCHGVL ) THEN
+      IF ( LCHGVL ) THEN
 
 c..For changing block lengths
          DO NIRR = 1, NIRRVAR
             DO NCELL = 1, NUMCELLS
                IRRBLK( ICLND( NCELL ), NIRR ) = 
      &         IRRBLK( ICLND( NCELL ), NIRR ) + IRRSTEP( NCELL, NIRR )
-            ENDDO
-         ENDDO
+            END DO
+         END DO
 
          DO NIRR = 1, NRXNS
-            IF( LINTRXN( NIRR ) ) THEN
+            IF ( LINTRXN( NIRR ) ) THEN
                DO NCELL = 1, NUMCELLS
                   RXSAV( ICLND( NCELL ), NIRR ) = RXRAT( NCELL, NIRR )
-               ENDDO
-            ENDIF
-         ENDDO
+               END DO
+            END IF
+         END DO
 
       ELSE
 
@@ -383,17 +380,17 @@ c..For static block lengths
             DO NCELL = 1, NUMCELLS
                IRRBLK( NCELL, NIRR ) = IRRBLK( NCELL, NIRR ) +
      &                                 IRRSTEP( NCELL, NIRR )
-            ENDDO
-         ENDDO
+            END DO
+         END DO
 
          DO NIRR = 1, NRXNS
-            IF( LINTRXN( NIRR ) ) THEN
+            IF ( LINTRXN( NIRR ) ) THEN
                DO NCELL = 1, NUMCELLS
                   RXOLD( NCELL, NIRR ) = RXRAT( NCELL, NIRR )
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDIF
+               END DO
+            END IF
+         END DO
+      END IF
 
       RETURN
       END

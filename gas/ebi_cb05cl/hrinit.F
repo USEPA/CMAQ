@@ -18,26 +18,25 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrinit.F,v 1.1 2010/07/20 12:33:22 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrinit.F,v 1.2 2010/12/06 14:44:39 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HRINIT
-C***********************************************************************
-C
-C  FUNCTION: To initialize species tolerances, arrays, and indices
-C
-C  PRECONDITIONS: For the CB05CL family of mechanisms
-C
-C  RETURN VALUES: None
-C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
-C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 31, 2008
-C   21 Jun 10 J.Young: convert for Namelist redesign
-C
-C***********************************************************************
+
+C-----------------------------------------------------------------------
+C  Function: To initialize species tolerances, arrays, and indices
+ 
+C  Preconditions: For the CB05CL family of mechanisms
+ 
+C  Return Values: None
+ 
+C  Key Subroutines/Functions Called: None
+ 
+C  Revision History: Created by EBI solver program, Jan. 31, 2008
+C-----------------------------------------------------------------------
 
       USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
       USE HRDATA
@@ -45,6 +44,7 @@ C***********************************************************************
       IMPLICIT NONE
 
 C.....Includes:
+      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
       INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
 
 C.....Arguments: NONE
@@ -55,28 +55,33 @@ C.....External Functions:
       INTEGER  FINDEX         ! Finds location of a number in a list
 
 C.....Saved Variables:
-      CHARACTER( 16 ), SAVE :: PNAME = 'HRINIT'   ! Procedure name
+      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
 C.....Local Variables:
-      CHARACTER( 132 ) :: MSG ! Log message
+      CHARACTER( 132 ) :: MSG = ' '       ! Log message
 
       INTEGER IND             ! Species index
       INTEGER N               ! Loop index
+      INTEGER IOS             ! Allocate error status
 
-C***********************************************************************
+C-----------------------------------------------------------------------
 
       N_SPEC = N_GC_SPC
       N_RXNS = NRXNS
 
-      ALLOCATE( RKI( NRXNS ) )
-      ALLOCATE( RXRAT( NRXNS ) )
-      ALLOCATE( RTOL( N_SPEC) )
-      ALLOCATE( YC(   N_SPEC) )
-      ALLOCATE( YC0(  N_SPEC) )
-      ALLOCATE( YCP(  N_SPEC) )
-      ALLOCATE( PROD( N_SPEC) )
-      ALLOCATE( LOSS( N_SPEC) )
-      ALLOCATE( PNEG( N_SPEC) )
+      ALLOCATE( RKI( NRXNS ),
+     &          RXRAT( NRXNS ),
+     &          RTOL( N_SPEC),
+     &          YC(   N_SPEC),
+     &          YC0(  N_SPEC),
+     &          YCP(  N_SPEC),
+     &          PROD( N_SPEC),
+     &          LOSS( N_SPEC),
+     &          PNEG( N_SPEC), STAT = IOS )
+      IF ( IOS .NE. 0 ) THEN
+         MSG = 'Error allocating RKI, RXRAT, RTOL, YC, YC0, YCP, PROD, LOSS, or PNEG'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
       NING1 = 4
       NING2 = 4
@@ -158,7 +163,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SESQRXN  =  72
 
       N_EBISP  =  59
-      ALLOCATE( EBISP( N_EBISP ) ) 
+      ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
+      IF ( IOS .NE. 0 ) THEN
+         MSG = 'Error allocating EBISP'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
       EBISP(   1 ) = HNO3
       EBISP(   2 ) = H2O2
@@ -219,7 +228,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       EBISP(  57 ) = BNZHRXN
       EBISP(  58 ) = SESQ
       EBISP(  59 ) = SESQRXN
-
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set species tolerances
@@ -297,7 +305,5 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( SESQ    ) = 1.0E-03
       RTOL( SESQRXN ) = 1.0E+00
 
-
       RETURN
-
       END

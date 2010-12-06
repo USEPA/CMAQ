@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.1 2010/07/19 17:49:17 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.2 2010/12/06 14:51:20 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -43,7 +43,7 @@ C for both IPR and IRR if needed.
       INCLUDE SUBST_PACMN_ID    ! PA common block definitions
 
 C Arguments:
-      CHARACTER(  3 ) :: TYPE   ! IPR or IRR
+      CHARACTER( 3 ) ::  TYPE   ! IPR or IRR
       INTEGER NFL               ! file sequence no.
       CHARACTER( 16 ) :: OUTFNAME  ! Assigned IPR or IRR output file name
       INTEGER SDATE             ! starting date,    format YYYYDDD
@@ -51,10 +51,6 @@ C Arguments:
       INTEGER TSTEP( 2 )        ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
-
-C Parameters:
-!     INTEGER, PARAMETER :: AE_START = N_GC_SPC + 2
-!     INTEGER, PARAMETER :: NR_START = AE_START + N_AE_SPC
 
 C Local Variables:
       INTEGER AE_INDX   ! Index for aerosol species
@@ -71,51 +67,46 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-!     IF ( FIRSTIME ) THEN   ! what if you have *both* IPR and IRR?
-!        FIRSTIME = .FALSE.
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Get file header description from GRID_CONF and reconfigure output domain
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-         P_ALP3D = P_ALP_GD
-         P_BET3D = P_BET_GD
-         P_GAM3D = P_GAM_GD
+      P_ALP3D = P_ALP_GD
+      P_BET3D = P_BET_GD
+      P_GAM3D = P_GAM_GD
 
-         XCENT3D = XCENT_GD
-         YCENT3D = YCENT_GD
-         XORIG3D = XORIG_GD
-         YORIG3D = YORIG_GD
-         XCELL3D = XCELL_GD
-         YCELL3D = YCELL_GD
+      XCENT3D = XCENT_GD
+      YCENT3D = YCENT_GD
+      XORIG3D = XORIG_GD
+      YORIG3D = YORIG_GD
+      XCELL3D = XCELL_GD
+      YCELL3D = YCELL_GD
 
-         VGTYP3D = VGTYP_GD
-         VGTOP3D = VGTOP_GD
+      VGTYP3D = VGTYP_GD
+      VGTOP3D = VGTOP_GD
 
-         FTYPE3D = GRDDED3
-         GDNAM3D = GDNAME_GD
-         UPNAM3D = PNAME
-!        EXECN3D = '????????'
-!        UPDSC3D =
+      FTYPE3D = GRDDED3
+      GDNAM3D = GDNAME_GD
+      UPNAM3D = PNAME
+!     EXECN3D = '????????'
+!     UPDSC3D =
 
-         SDATE3D = SDATE
-         STIME3D = STIME
-         CALL NEXTIME( SDATE3D, STIME3D, TSTEP( 1 ) )
-         TSTEP3D = TSTEP( 1 )
+      SDATE3D = SDATE
+      STIME3D = STIME
+      CALL NEXTIME( SDATE3D, STIME3D, TSTEP( 1 ) )
+      TSTEP3D = TSTEP( 1 )
 
-         NCOLS3D = PACOLS
-         NROWS3D = PAROWS
-         NLAYS3D = PALEVS
+      NCOLS3D = PACOLS
+      NROWS3D = PAROWS
+      NLAYS3D = PALEVS
 
-         XORIG3D = XORIG3D + DBLE( PA_BEGCOL - 1 ) * XCELL3D
-         YORIG3D = YORIG3D + DBLE( PA_BEGROW - 1 ) * YCELL3D
+      XORIG3D = XORIG3D + DBLE( PA_BEGCOL - 1 ) * XCELL3D
+      YORIG3D = YORIG3D + DBLE( PA_BEGROW - 1 ) * YCELL3D
 
-         DO L = PA_BEGLEV, PA_ENDLEV + 1
-            PL = L - PA_BEGLEV + 1
-            VGLVS3D ( PL ) = VGLVS_GD( L )
-         END DO
-
-!     END IF   ! FIRSTIME
+      DO L = PA_BEGLEV, PA_ENDLEV + 1
+         PL = L - PA_BEGLEV + 1
+         VGLVS3D ( PL ) = VGLVS_GD( L )
+      END DO
 
       IF ( TYPE .EQ. 'IPR' ) THEN
 

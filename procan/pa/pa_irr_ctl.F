@@ -18,24 +18,24 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr_ctl.F,v 1.1 2010/07/19 17:49:17 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr_ctl.F,v 1.2 2010/12/06 14:48:58 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_irr_ctl.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_irr_ctl.F 07 Jul 1997 10:20:54
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE PA_IRR_SETUP( NBLKS, LIRRBLK, LCELL, BLKLEN,
      &                         CCOL, CROW, CLEV )
 
-C**********************************************************************
-C
-C  FUNCTION: To set-up for and update the integrated reaction rates 
+C-----------------------------------------------------------------------
+C  Function: To set-up for and update the integrated reaction rates 
 C            computed by the subroutine pa_irr
-C            
-C  PRECONDITIONS: None
-C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
-C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, November, 1996
+             
+C  Preconditions: None
+ 
+C  Key Subroutines/Functions Called: None
+ 
+C  Revision History: Prototype created by Jerry Gipson, November, 1996
 C                    Modified Sept, 1997 by Jerry Gipson to be consistent
 C                      with targeted CTM
 C                    Modified 1/19/99 by David Wong at LM:
@@ -53,8 +53,7 @@ C                      BLKPRM.EXT; Use GRVARS
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module (GRID_CONF)
 C   21 Jun 10 J.Young: convert for Namelist redesign
- 
-C**********************************************************************
+C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -68,11 +67,11 @@ C..Includes:
 C..Arguments: 
       INTEGER NBLKS               ! Number of blocks in modeling domain
 !     LOGICAL LIRRBLK( MXBLKS )   ! Flag for doing IRR calculation for block
-!     INTEGER LCELL(     MXBLKS ) ! Offset to 1st cell in each block
-!     INTEGER BLKLEN(    MXBLKS ) ! Number of cells in each block
-!     INTEGER CCOL(     MXCELLS ) ! Column pointer for cell
-!     INTEGER CLEV(     MXCELLS ) ! Level pointer for cell
-!     INTEGER CROW(     MXCELLS ) ! Row pointer for cell
+!     INTEGER LCELL  ( MXBLKS )   ! Offset to 1st cell in each block
+!     INTEGER BLKLEN ( MXBLKS )   ! Number of cells in each block
+!     INTEGER CCOL   ( MXCELLS )  ! Column pointer for cell
+!     INTEGER CLEV   ( MXCELLS )  ! Level pointer for cell
+!     INTEGER CROW   ( MXCELLS )  ! Row pointer for cell
                                                   ! block
       LOGICAL :: LIRRBLK( : )     ! Flag for doing IRR
       INTEGER :: BLKLEN ( : )     ! Number of cells in each
@@ -108,6 +107,7 @@ C..Scratch Local Variables:
       INTEGER PC, PR, PL     ! Column, row, and level indices for PA outputs
       INTEGER NIRR           ! Loop index for IRR variables
       INTEGER SCL            ! Starting cell no. of block
+C-----------------------------------------------------------------------
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Flag all blocks that will need IRR/MB calculations
@@ -119,12 +119,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             COL = CCOL( ICL )
             ROW = CROW( ICL )
             LEV = CLEV( ICL )
-            IF( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
+            IF ( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
      &          ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
      &          LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) 
      &          LIRRBLK( BLK ) = .TRUE.
-         ENDDO
-      ENDDO 
+         END DO
+      END DO 
       RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -141,15 +141,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ROW = CROW( ICL )
          LEV = CLEV( ICL )
 !?       LIRRCELL( NCELL ) = .FALSE.
-         IF( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
+         IF ( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
      &       ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
      &       LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) THEN
             LIRRFLAG = .TRUE.
 !?          LIRRCELL( NCELL ) = .TRUE.
             NIRRCLS = NIRRCLS + 1
             IRRCELL( NIRRCLS ) = NCELL
-         ENDIF
-      ENDDO
+         END IF
+      END DO
       RETURN            
  
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -159,8 +159,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO NIRR = 1, NIRRVAR
          DO CELL = 1, NUMCELLS
             IRRBLK( CELL, NIRR ) = 0.0
-         ENDDO
-      ENDDO
+         END DO
+      END DO
       RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -177,7 +177,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ROW = CROW( ICL )
          LEV = CLEV( ICL )
          CELL = CELL + 1
-         IF( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
+         IF ( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
      &       ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
      &       LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) THEN
 
@@ -197,8 +197,8 @@ C    parallel implementation
                 IRROUT( PC, PR, PL, NIRR ) = IRROUT( PC, PR, PL, NIRR ) +
      &                                       IRRBLK( CELL, NIRR )      
              END DO
-          ENDIF
-      ENDDO
+          END IF
+      END DO
 
       RETURN
 
@@ -232,8 +232,8 @@ C    parallel implementation
          DO NIRR = 1, NIRRVAR
             IRROUT( PC, PR, PL, NIRR ) = IRROUT( PC, PR, PL, NIRR ) +
      &                                   IRRBLK( NCELL, NIRR )      
-         ENDDO
-      ENDDO
+         END DO
+      END DO
       RETURN
 
       END

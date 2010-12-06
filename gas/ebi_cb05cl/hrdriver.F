@@ -18,22 +18,22 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdriver.F,v 1.1 2010/07/20 12:33:22 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdriver.F,v 1.2 2010/12/06 14:44:39 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 
-C**********************************************************************
-C
-C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
-C
-C  PRECONDITIONS: For the CB05CL family of mechanisms
-C
-C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
-C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 31, 2008
+C-----------------------------------------------------------------------
+C  Function: Driver subroutine for Euler Backward Iterative solver
+ 
+C  Preconditions: For the CB05CL family of mechanisms
+ 
+C  Key Subroutines/Functions Called:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+ 
+C  Revision History: Created by EBI solver program, Jan. 31, 2008
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -46,9 +46,8 @@ C                       H. Huang and J.S. Chang, JGR, Vol 106, No. D17, 2001.
 C                       This version replaces Huang and Chang use of numerical
 C                       solutions with analytical solutions derived in
 C                       Hertel et al.
-C   21 Jun 10 J.Young: convert for Namelist redesign
-C
-C**********************************************************************
+C  21 Jun 10 J.Young: convert for Namelist redesign
+C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE VGRD_DEFN             ! vertical layer specifications
@@ -120,34 +119,34 @@ C..Scratch Local Variables:
       REAL SUMEBI             ! Sum of EBI iterations
       REAL TEMP               ! Cell Temperature
 
-      REAL PRES( NCOLS, NROWS, NLAYS )          ! Cell pressure (Pa)
-      REAL QV  ( NCOLS, NROWS, NLAYS )          ! Cell water vapor (Kg/Kg air)
-      REAL TA  ( NCOLS, NROWS, NLAYS )          ! Cell temperature (K)
-      REAL RJIN( NPHOTAB )                      ! J-values for a cell
-      REAL RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ) ! J-values for each cell
+      REAL PRES(    NCOLS, NROWS, NLAYS )        ! Cell pressure (Pa)
+      REAL QV(      NCOLS, NROWS, NLAYS )        ! Cell water vapor (Kg/Kg air)
+      REAL TA(      NCOLS, NROWS, NLAYS )        ! Cell temperature (K)
+      REAL RJIN( NPHOTAB )                       ! J-values for a cell
+      REAL RJ( NCOLS, NROWS, NLAYS, NPHOTAB )    ! J-values for each cell
 
       INTEGER     GXOFF, GYOFF            ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-C**********************************************************************
+C-----------------------------------------------------------------------
 
-      IF( N_GC_SPC .EQ. 0 ) RETURN
+      IF ( N_GC_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( LFIRST ) THEN
+      IF ( LFIRST ) THEN
 
          LOGDEV = INIT3( )
 
-         IF( MECHNAME .NE. 'CB05CL_AE5_AQ' .AND.
-     &       MECHNAME .NE. 'CB05CL_AE5CA_AQ' .AND.
-     &       MECHNAME .NE. 'CB05CL_AE5ST_AQ' ) THEN
+         IF ( MECHNAME .NE. 'CB05CL_AE5_AQ' .AND.
+     &        MECHNAME .NE. 'CB05CL_AE5CA_AQ' .AND.
+     &        MECHNAME .NE. 'CB05CL_AE5ST_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
      &            // ' the CB05CL_AE5 chemical mechanisms'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
 #ifdef emis_chem
          EMISVD = .FALSE.
@@ -155,19 +154,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          EMISVD = .TRUE.
 #endif
 
-         IF( INDEX( MECHNAME, 'AE' ) .NE. 0 ) THEN
+         IF ( INDEX( MECHNAME, 'AE' ) .NE. 0 ) THEN
            L_AE_VRSN = .TRUE.
          ELSE
            L_AE_VRSN = .FALSE.
-         ENDIF
+         END IF
 
-         IF( INDEX( MECHNAME, 'AQ' ) .NE. 0 ) THEN
+         IF ( INDEX( MECHNAME, 'AQ' ) .NE. 0 ) THEN
            L_AQ_VRSN = .TRUE.
          ELSE
            L_AQ_VRSN = .FALSE.
-         ENDIF
+         END IF
 
-         IF( LIRR ) THEN
+         IF ( LIRR ) THEN
             MSG = 'IRR Analysis not allowed with EBI solver'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          ENDIF
@@ -181,16 +180,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( LOGDEV, 92020 )
          DO SPC = 1, N_GC_SPC
             WRITE( LOGDEV, 92040 ) GC_SPC( SPC ), RTOL( SPC )
-         ENDDO
+         END DO
 
          MAOMV =  MWAIR / MWWAT
 
 c..If emissions processing requested stop
-         IF( .NOT. EMISVD ) THEN   ! assumes emis processing in gas chem
+         IF ( .NOT. EMISVD ) THEN   ! assumes emis processing in gas chem
             MSG = 'ERROR: EBI solver not configured to '//
      &            'process emissions in chemistry'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF   ! End if doing emissions
+         END IF   ! End if doing emissions
 
 #ifdef hrstats
          ISTFL = JUNIT()
@@ -203,7 +202,7 @@ c..If emissions processing requested stop
 
          LFIRST = .FALSE.
 
-      ENDIF      ! First time
+      END IF      ! First time
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Set date and time to center of time step, get necessary physical
@@ -217,17 +216,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C.. Compute number of time step loops and step size for EBI solver
       DELT_SEC = DELTAT * 60.0 + 0.1
-      IF( DELT_SEC .GE. ITMSTEP ) THEN
+      IF ( DELT_SEC .GE. ITMSTEP ) THEN
          N_EBI_STEPS = 1
          EBI_TMSTEP = FLOAT( ITMSTEP ) / 60.0
       ELSE
-         IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
+         IF ( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
             N_EBI_STEPS = ITMSTEP / DELT_SEC
          ELSE
             N_EBI_STEPS = ITMSTEP / DELT_SEC + 1
-         ENDIF
+         END IF
          EBI_TMSTEP =  FLOAT( ITMSTEP ) / FLOAT( N_EBI_STEPS ) / 60.0
-      ENDIF
+      END IF
 
       N_INR_STEPS = 1
 
@@ -239,7 +238,7 @@ C.. Get ambient temperature in K
      &                    MIDDATE, MIDTIME, TA ) ) THEN
          MSG = 'Could not read TA from MET_CRO_3D'
          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      ENDIF
+      END IF
 
 C.. Get specific humidity in Kg H2O / Kg air
       VNAME = 'QV'
@@ -248,7 +247,7 @@ C.. Get specific humidity in Kg H2O / Kg air
      &                    MIDDATE, MIDTIME, QV ) ) THEN
          MSG = 'Could not read QV from MET_CRO_3D'
          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      ENDIF
+      END IF
 
 C.. Get pressure in Pascals
       VNAME = 'PRES'
@@ -257,7 +256,7 @@ C.. Get pressure in Pascals
      &                    MIDDATE, MIDTIME, PRES ) ) THEN
          MSG = 'Could not read PRES from MET_CRO_3D'
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      ENDIF
+      END IF
 
 C.. Get photolysis rates in /min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )
@@ -279,7 +278,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c..Load ICs
                DO S = 1, N_GC_SPC
                   YC( S ) = MAX( CGRID( C, R, L, S ), 1.0E-30 )
-               ENDDO
+               END DO
 
 c..Set physical quantities
                TEMP = TA( C, R, L )
@@ -290,7 +289,7 @@ c..Get rate constants
                LSUNLIGHT = .FALSE.
                DO NPH = 1, NPHOTAB
                   RJIN( NPH ) = RJ( C, R, L, NPH )
-                  IF( RJ( C, R, L, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
+                  IF ( RJ( C, R, L, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
                ENDDO
 
                CALL HRCALCKS( NPHOTAB, LSUNLIGHT, RJIN, TEMP,
@@ -310,11 +309,11 @@ c..Call EBI solver
 c..Update concentration array
                DO S = 1, N_GC_SPC
                   CGRID( C, R, L, S ) = YC( S )
-               ENDDO
+               END DO
 
-            ENDDO
-         ENDDO
-      ENDDO
+            END DO
+         END DO
+      END DO
 
 #ifdef hrstats
       AVGEBI = SUMEBI / FLOAT( NCOLS * NROWS * NLAYS )
@@ -323,7 +322,7 @@ c..Update concentration array
 
       RETURN
 
-C*********************** FORMAT STATEMENTS ****************************
+C----------------------- FORMAT STATEMENTS ----------------------------
 
 92000 FORMAT( / 10X, 'Euler Backward Iterative Parameters -'
      &        / 10X, 'Chemistry Integration Time Interval (min):', F12.4,

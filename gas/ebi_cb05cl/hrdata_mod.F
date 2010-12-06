@@ -18,24 +18,23 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdata_mod.F,v 1.1 2010/07/20 12:33:22 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdata_mod.F,v 1.2 2010/12/06 14:44:39 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE  HRDATA
+ 
+C-----------------------------------------------------------------------
+C  Function:  Mechanism & solver data for EBI solver
+ 
+C  Preconditions: For the CB05CL family of mechanisms
 
-C*************************************************************************
-C
-C  FUNCTION:  Mechanism & solver data for EBI solver
-C
-C  PRECONDITIONS: For the CB05CL family of mechanisms
-C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
-C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 31, 2008
-C
-C*************************************************************************
+C  Key Subroutines/Functions Called: None
+ 
+C  Revision History: Created by EBI solver program, Jan. 31, 2008
+C-----------------------------------------------------------------------
 
 c..EBI solver fixed parameters
       INTEGER, PARAMETER ::  NEBITER = 1000  ! No. of iterations for EBI
@@ -64,16 +63,15 @@ c..Miscellaneous variables
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
 
-      REAL*8, ALLOCATABLE ::  RKI(   : )     ! Rate constants
-      REAL, ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
-      REAL, ALLOCATABLE ::  RTOL(  : )     ! Species tolerances
-      REAL, ALLOCATABLE ::  YC(    : )     ! Species concentrations
-      REAL, ALLOCATABLE ::  YC0(   : )     ! Species concentrations
-      REAL, ALLOCATABLE ::  YCP(   : )     ! Species concentrations
-      REAL, ALLOCATABLE ::  PROD(  : )     ! Prod of species
-      REAL, ALLOCATABLE ::  LOSS(  : )     ! Loss of species
-      REAL, ALLOCATABLE ::  PNEG(  : )     ! Negative production rates
-
+      REAL( 8 ), ALLOCATABLE :: RKI  ( : )     ! Rate constants
+      REAL,      ALLOCATABLE :: RXRAT( : )     ! Reaction rates
+      REAL,      ALLOCATABLE :: RTOL ( : )     ! Species tolerances
+      REAL,      ALLOCATABLE :: YC   ( : )     ! Species concentrations
+      REAL,      ALLOCATABLE :: YC0  ( : )     ! Species concentrations
+      REAL,      ALLOCATABLE :: YCP  ( : )     ! Species concentrations
+      REAL,      ALLOCATABLE :: PROD ( : )     ! Prod of species
+      REAL,      ALLOCATABLE :: LOSS ( : )     ! Loss of species
+      REAL,      ALLOCATABLE :: PNEG ( : )     ! Negative production rates
 
 c..Species indices
       INTEGER   NO2
