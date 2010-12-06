@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.1 2010/07/19 18:09:42 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.2 2010/12/06 12:55:13 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -78,16 +78,19 @@ C and are 0.07e-6 and 2.0 respectively for the accumulation mode.
 
 C factor to calculate aerosol number concentration from aerosol sulfate mass
 C concentration in the Aitken mode [ ug ].
-      REAL, PARAMETER :: NUMFACT_I = 2.988524E11
+      REAL, PARAMETER :: NUMFACT_I = 2.988524 E11
 
 C factor to calculate aerosol number concentration from aerosol sulfate mass
 C concentration in the Accumulation mode [ ug ].
-      REAL, PARAMETER :: NUMFACT_J = 3.560191E08
+      REAL, PARAMETER :: NUMFACT_J = 3.560191 E08
 
 C fraction of sulfuric acid vapor taken as aerosol for first time step
       REAL, PARAMETER :: SO4VAPTOAER = 0.999
 C initial fraction of total aerosol sulfate in the Aitken mode
       REAL, PARAMETER :: IFRACATKN = 0.04
+
+      INTEGER MXSPC
+      INTEGER ASTAT
 
 C File variables:
 
@@ -109,9 +112,6 @@ C Local Variables
 
       INTEGER      GXOFF, GYOFF               ! global origin offset from file
 
-C for INTERPX
-!     INTEGER :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
 C for XTRACT3
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER          STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI
@@ -119,12 +119,10 @@ C for XTRACT3
 
       INTEGER      SPC_STRT
       INTEGER      N_SPCS
-      INTEGER      MXSPC
-      INTEGER      ISUR                       ! surrogate indices
-      INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices
       INTEGER      NDX                        ! loop copy of INDX
+      INTEGER      ISUR                       ! surrogate index
+      INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
-      INTEGER      ASTAT                      ! allocate status
       INTEGER      C, R, L, SPC, V            ! loop counters
       INTEGER      ASPC                       ! CGRID RHOJ pointer
       INTEGER      NCOLSDENS, NROWSDENS       ! local for DENS
@@ -154,37 +152,36 @@ C IOFDESC common now loaded with MET_CRO_3D header
             XMSG = 'ERROR allocating INDX or ICBC_FAC'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
-
-         END IF
+      END IF
 
       WRITE( CONCMIN,'(1PE8.2)' ) CMIN
 
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+      END IF
  
       IF ( .NOT. DESC3( FNAME ) ) THEN
          XMSG = 'Could not get ' // FNAME // ' file description'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+      END IF
  
       IF ( GL_NCOLS .NE. NCOLS3D ) THEN
          WRITE( LOGDEV,* ) ' '
          WRITE( LOGDEV,* ) '    WARNING: ' // CHWARN // FNAME
          WRITE( LOGDEV,* ) '>>  GL_NCOLS: ', GL_NCOLS, '  NCOLS3D: ', NCOLS3D
-         END IF
+      END IF
  
       IF ( GL_NROWS .NE. NROWS3D ) THEN
          WRITE( LOGDEV,* ) ' '
          WRITE( LOGDEV,* ) '    WARNING: ' // CHWARN // FNAME
          WRITE( LOGDEV,* ) '>>  GL_NROWS: ', GL_NROWS, '  NROWS3D: ', NROWS3D
-         END IF
+      END IF
  
       IF ( NLAYS .NE. NLAYS3D ) THEN
          XMSG = 'Wrong number of layers in ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+      END IF
 
 C Get INDX
       IF ( SPC_CAT .EQ. 'GC' ) THEN
@@ -198,8 +195,8 @@ C Get INDX
                IF ( ISUR .NE. 0 ) THEN
                   NDX = INDEX1( GC_ICBC ( ISUR ), NVARS3D, VNAME3D )
                   ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
-                  END IF
                END IF
+            END IF
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
@@ -207,9 +204,9 @@ C Get INDX
      &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
      &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
                CALL M3MESG( XMSG )
-               END IF
-            END DO
-         ELSE IF ( SPC_CAT .EQ. 'AE' ) THEN
+            END IF
+         END DO
+      ELSE IF ( SPC_CAT .EQ. 'AE' ) THEN
          SPC_STRT = AE_STRT
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
@@ -220,8 +217,8 @@ C Get INDX
                IF ( ISUR .NE. 0 ) THEN
                   NDX = INDEX1( AE_ICBC ( ISUR ), NVARS3D, VNAME3D )
                   ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
-                  END IF
                END IF
+            END IF
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
@@ -229,9 +226,9 @@ C Get INDX
      &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
      &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
                CALL M3MESG( XMSG )
-               END IF
-            END DO
-         ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
+            END IF
+         END DO
+      ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
          SPC_STRT = NR_STRT
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
@@ -242,8 +239,8 @@ C Get INDX
                IF ( ISUR .NE. 0 ) THEN
                   NDX = INDEX1( NR_ICBC ( ISUR ), NVARS3D, VNAME3D )
                   ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
-                  END IF
                END IF
+            END IF
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
@@ -251,9 +248,9 @@ C Get INDX
      &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
      &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
                CALL M3MESG( XMSG )
-               END IF
-            END DO
-         ELSE IF ( SPC_CAT .EQ. 'TR' ) THEN
+            END IF
+         END DO
+      ELSE IF ( SPC_CAT .EQ. 'TR' ) THEN
          SPC_STRT = TR_STRT
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
@@ -264,8 +261,8 @@ C Get INDX
                IF ( ISUR .NE. 0 ) THEN
                   NDX = INDEX1( TR_ICBC ( ISUR ), NVARS3D, VNAME3D )
                   ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
-                  END IF
                END IF
+            END IF
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
@@ -273,15 +270,15 @@ C Get INDX
      &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
      &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
                CALL M3MESG( XMSG )
-               END IF
-            END DO
-         ELSE IF ( SPC_CAT .EQ. 'RJ' ) THEN
+            END IF
+         END DO
+      ELSE IF ( SPC_CAT .EQ. 'RJ' ) THEN
          N_SPCS = 0
 !        WRITE( LOGDEV,'(/ 5X, A)' ) 'loading Density*Jacobian into CGRID'
-         ELSE
+      ELSE
          XMSG = 'Species categories incorrect for CGRID '
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
+      END IF
         
 C Read into CGRID
 
@@ -301,19 +298,19 @@ C IOFDESC common now loaded with FNAME header
      &                VNAME3D( NDX )( 1:TRIMLEN( VNAME3D( NDX ) ) ) //
      &                ' from ' // FNAME
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
+            END IF
 
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      CGRID( C,R,L,V ) = ICBC_FAC( SPC ) * DBUFF( C,R,L )
-                     END DO
                   END DO
                END DO
+            END DO
 
-            END IF   ! INDX .GT. 0
+         END IF   ! INDX .GT. 0
 
-         END DO
+      END DO
 
       IF ( N_SPCS .NE. 0 ) WRITE( LOGDEV,'(/ 5X, A)' )
      &                            SPC_CAT // ' loaded into CGRID'
@@ -328,24 +325,20 @@ C Load RHOJ for transport and mixing ratio advection adjustment
      &              JDATE, JTIME, RHOJ ) ) THEN
              XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+         END IF
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
-!        DO R = 1, MY_NROWS
-!           DO C = 1, MY_NCOLS
-!              DO L = 1, NLAYS
-!                 CGRID( ASPC,L,C,R ) = RHOJ( C,R,L )
          DO L = 1, NLAYS
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   CGRID( C,R,L,ASPC ) = RHOJ( C,R,L )
-                  END DO
                END DO
             END DO
+         END DO
 
          WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
 
-         END IF
+      END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
 
@@ -361,45 +354,45 @@ C Set pointers for gas (vapor) phase sulfur species
             NDX = INDEX1( VNAME, N_AE_SPC, AE_SPC )
             IF ( NDX .NE. 0 ) THEN
                ISO4AJ = AE_STRT - 1 + NDX
-               ELSE
+            ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               END IF
+            END IF
 
             VNAME = 'SULF'
             NDX = INDEX1( VNAME, N_GC_G2AE, GC_G2AE )
             IF ( NDX .NE. 0 ) THEN
                LSULF   = GC_STRT - 1 + GC_G2AE_MAP( NDX )
                MWH2SO4 = GC_MOLWT( GC_G2AE_MAP( NDX ) )
-               ELSE
+            ELSE
                XMSG = 'Could not find ' // VNAME // 'in gas chem aerosol table'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               END IF
+            END IF
 
             VNAME = 'ASO4I'
             NDX = INDEX1( VNAME, N_AE_SPC, AE_SPC )
             IF ( NDX .NE. 0 ) THEN
                ISO4AI = AE_STRT - 1 + NDX
-               ELSE
+            ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               END IF
+            END IF
             VNAME = 'NUMATKN'
             NDX = INDEX1( VNAME, N_AE_SPC, AE_SPC )
             IF ( NDX .NE. 0 ) THEN
                INUMATKN = AE_STRT - 1 + NDX
-               ELSE
+            ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               END IF
+            END IF
             VNAME = 'NUMACC'
             NDX = INDEX1( VNAME, N_AE_SPC, AE_SPC )
             IF ( NDX .NE. 0 ) THEN
                INUMACC = AE_STRT - 1 + NDX
-               ELSE
+            ELSE
                XMSG = 'Could not find ' // VNAME // 'in aerosol table'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-               END IF
+            END IF
 
             NCOLSDENS = ENDCOLMC3 - STRTCOLMC3 + 1
             NROWSDENS = ENDROWMC3 - STRTROWMC3 + 1
@@ -409,7 +402,7 @@ C Set pointers for gas (vapor) phase sulfur species
                WRITE( XMSG,'( A, 4I8 )' ) 'Local Columns or Rows incorrect',
      &         NCOLSDENS, MY_NCOLS, NROWSDENS, MY_NROWS
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
+            END IF
 
 C IOFDESC now loaded with MET_CRO_3D header
 
@@ -423,7 +416,7 @@ C IOFDESC now loaded with MET_CRO_3D header
      &                          JDATE, JTIME, DENS ) ) THEN
                XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
+            END IF
 
 C Partition the aerosol sulfate arrays with a fraction of the initial SO4 
 
@@ -464,24 +457,24 @@ C correct sulfate vapor concentration for part removed:
                      CGRID( C,R,L,LSULF )    = ( 1.0 - SO4VAPTOAER )
      &                                       * CGRID( C,R,L,LSULF)
     
-                     END DO
                   END DO
                END DO
+            END DO
 
             XMSG = 'No IC''s found for aerosol sulfate. ' //
      &             'Gas Chem sulfate used for partitioning.'
             CALL M3MESG( XMSG )
 
-            END IF  ! NDX .EQ. 0
+         END IF  ! NDX .EQ. 0
 
-         END IF  !  SPC_CAT .EQ. 'AE'
+      END IF  !  SPC_CAT .EQ. 'AE'
 
 C Close the file
 
       IF ( .NOT. CLOSE3( FNAME ) ) THEN
          XMSG = 'Could not close ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+      END IF
 
       RETURN
       END

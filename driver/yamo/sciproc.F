@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.1 2010/07/20 13:21:56 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.2 2010/12/06 12:50:51 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -80,7 +80,7 @@ C Parameters:
 
 C External Functions (not already declared by IODECL3.EXT):
 
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC
+      INTEGER, EXTERNAL :: SEC2TIME
       LOGICAL, EXTERNAL :: ENVYN
 
 C Local Variables:
@@ -173,7 +173,6 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 2 )
          END SUBROUTINE AERO
-
       END INTERFACE
   
 C-----------------------------------------------------------------------
@@ -199,13 +198,13 @@ C-----------------------------------------------------------------------
 
       END IF       ! if firstime
 
-C Physical Processes for any Grid
+C Synchronization Step Physical Processes Sequence
 
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
 
-C couple CGRID for advection
+C couple CGRID for advection and horizontal diffusion
 
       CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )

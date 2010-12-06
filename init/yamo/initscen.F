@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.1 2010/07/19 18:09:42 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.2 2010/12/06 12:55:13 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)initscen.F        1.4 /project/mod3/CMAQ/src/init/init/SCCS/s.initscen.F 25 Jul 1997 14:32:52
@@ -128,7 +128,6 @@ C  environment variable description
       INTEGER      STEPSECS          ! seconds per time step
       INTEGER      TOTSECS           ! run duration seconds
       INTEGER      LOGDEV            ! FORTRAN unit number for log file
-!     INTEGER      C, R, L, SPC      ! loop counters
 
       INTERFACE
          SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
@@ -156,17 +155,16 @@ C-----------------------------------------------------------------------
          IF ( STATUS .EQ. 1 ) THEN
             MSG = 'Environment variable improperly formatted'
             CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-            ELSE IF ( STATUS .EQ. -1 ) THEN
+         ELSE IF ( STATUS .EQ. -1 ) THEN
             MSG = 'Environment variable set, but empty ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
+         ELSE IF ( STATUS .EQ. -2 ) THEN
             MSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            END IF
+         END IF
 
-!     WRITE( LOGDEV, '( 5X, A)') 'Program ' // PROGNAME( 1:TRIMLEN( PROGNAME ))
-
-!     WRITE( LOGDEV, '( 5X, A)') 'INPUT VALUES:'
+!     WRITE( LOGDEV, '( 5X, A )') 'Program ' // PROGNAME( 1:TRIMLEN( PROGNAME ))
+!     WRITE( LOGDEV, '( 5X, A )') 'Input Values:'
 
       STDATE = 1995192        ! default
       VARDESC = 'Scenario Starting Date (YYYYDDD)'
@@ -175,13 +173,13 @@ C-----------------------------------------------------------------------
          IF ( STATUS .EQ. 1 ) THEN
             MSG = 'Environment variable improperly formatted'
             CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-            ELSE IF ( STATUS .EQ. -1 ) THEN
+         ELSE IF ( STATUS .EQ. -1 ) THEN
             MSG = 'Environment variable set, but empty ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
+         ELSE IF ( STATUS .EQ. -2 ) THEN
             MSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            END IF
+         END IF
 
       STTIME = 000000         ! default
       VARDESC = 'Scenario Starting Time (HHMMSS)'
@@ -190,13 +188,13 @@ C-----------------------------------------------------------------------
          IF ( STATUS .EQ. 1 ) THEN
             MSG = 'Environment variable improperly formatted'
             CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-            ELSE IF ( STATUS .EQ. -1 ) THEN
+         ELSE IF ( STATUS .EQ. -1 ) THEN
             MSG = 'Environment variable set, but empty ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
+         ELSE IF ( STATUS .EQ. -2 ) THEN
             MSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            END IF
+         END IF
 
       RUNLEN = 480000         ! default
       VARDESC = 'Scenario Run Duration (HHMMSS)'
@@ -205,13 +203,13 @@ C-----------------------------------------------------------------------
          IF ( STATUS .EQ. 1 ) THEN
             MSG = 'Environment variable improperly formatted'
             CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-            ELSE IF ( STATUS .EQ. -1 ) THEN
+         ELSE IF ( STATUS .EQ. -1 ) THEN
             MSG = 'Environment variable set, but empty ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
+         ELSE IF ( STATUS .EQ. -2 ) THEN
             MSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            END IF
+         END IF
 
       TSTEP( 1 )  = 010000         ! default
       VARDESC = 'Scenario Output Time Step (HHMMSS)'
@@ -220,31 +218,31 @@ C-----------------------------------------------------------------------
          IF ( STATUS .EQ. 1 ) THEN
             MSG = 'Environment variable improperly formatted'
             CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-            ELSE IF ( STATUS .EQ. -1 ) THEN
+         ELSE IF ( STATUS .EQ. -1 ) THEN
             MSG = 'Environment variable set, but empty ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
+         ELSE IF ( STATUS .EQ. -2 ) THEN
             MSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-            END IF
+         END IF
 
 C Calculate number of output time steps for this model run:
       IF ( RUNLEN .LT. 1000000 ) THEN
          TOTSECS  = TIME2SEC( RUNLEN )
-         ELSE
+      ELSE
          RUNLEN = RUNLEN - 1000000
          TOTSECS  = TIME2SEC( RUNLEN )
          TOTSECS  = TOTSECS + 360000
-         END IF
+      END IF
       STEPSECS = TIME2SEC( TSTEP( 1 )  )
 
       IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
          NSTEPS = TOTSECS / STEPSECS
-         ELSE
+      ELSE
          MSG = 'Output time step ' // HHMMSS( TSTEP( 1 ) ) //
      &         ' does not divide duration ' // HHMMSS( RUNLEN )
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT1 )
-         END IF
+      END IF
 
 C Initialize the CGRID array
 !     DO SPC = 1, NSPCSD   ! load CGRID with this many variables
@@ -252,10 +250,10 @@ C Initialize the CGRID array
 !           DO R = 1, MY_NROWS
 !              DO C = 1, MY_NCOLS
 !                 CGRID( C,R,L,SPC ) = CMIN
-!                 END DO
 !              END DO
 !           END DO
 !        END DO
+!     END DO
 
       CGRID = CMIN
 
@@ -263,7 +261,7 @@ C Load CGRID
       IF ( N_GC_SPC .GT. 0 ) THEN
          FNAME = INIT_GASC_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'GC', CMIN, CGRID )
-         END IF  ! N_GC_SPC > 0
+      END IF  ! N_GC_SPC > 0
 
 C load rhoj
       FNAME = MET_CRO_3D
@@ -273,30 +271,29 @@ C Get aerosols IC's. Note: INIT_AERO_1 may be setenv'ed to INIT_GASC_1
       IF ( N_AE_SPC .GT. 0 ) THEN
          FNAME = INIT_AERO_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'AE', CMIN, CGRID )
-         END IF  ! N_AE_SPC > 0
+      END IF  ! N_AE_SPC > 0
 
 C Get non-reactives IC's. Note: INIT_NONR_1 may be setenv'ed to INIT_GASC_1
       IF ( N_NR_SPC .GT. 0 ) THEN
          FNAME = INIT_NONR_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'NR', CMIN, CGRID )
-         END IF  ! N_NR_SPC > 0
+      END IF  ! N_NR_SPC > 0
 
 C Get tracer IC's. Note: INIT_TRAC_1 may be setenv'ed to INIT_GASC_1
       IF ( N_TR_SPC .GT. 0 ) THEN
          FNAME = INIT_TRAC_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'TR', CMIN, CGRID )
-         END IF  ! N_TR_SPC > 0
+      END IF  ! N_TR_SPC > 0
 
 C Test opening existing conc file for update
       IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
-         MSG = 'Could not open ' // CTM_CONC_1 // ' file for update - '
+         MSG = 'Could not open ' // TRIM( CTM_CONC_1 ) // ' for update - '
      &        // 'try to open new'
          CALL M3MESG( MSG )
-
-C Open the file new
+         ! Open the file new
          CALL SUBST_BARRIER
          CALL OPCONC ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
-         END IF
+      END IF
 
 !     IF ( MYPE .EQ. 0 ) THEN
          IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN

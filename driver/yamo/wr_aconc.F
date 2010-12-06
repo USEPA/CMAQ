@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.2 2010/12/06 12:50:51 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -48,11 +48,7 @@ C Include Files:
       INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
       INCLUDE SUBST_IOFDESC     ! file header data structure
 #include      SUBST_IODECL      # I/O definitions and declarations
-!     INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
       INCLUDE SUBST_FILES_ID    ! file name parameters
-!     INCLUDE SUBST_COORD_ID    ! coord. and domain definitions (req IOPARMS)
-
-!     CHARACTER( 16 ) :: A_CONC_1 = 'A_CONC_1'
 
       REAL      :: AGRID( :,:,:,: )
       INTEGER      JDATE        ! current model date, coded YYYYDDD
@@ -121,7 +117,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
      &                 // CTM_CONC_1( 1:TRIMLEN( CTM_CONC_1 ) )
      &                 // ' file description'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
+               END IF
 
 C Set file header attributes that differ from CONC and open the file
 
@@ -135,7 +131,7 @@ C Set file header attributes that differ from CONC and open the file
                DO K = ACONC_BLEV, ACONC_ELEV
                   L = L + 1
                   VGLVS3D( L ) = VGLVS_GD( K )
-                  END DO
+               END DO
                VGLVS3D( A_NLYS + 1 ) = VGLVS_GD( NLAYS + 1 )
 !              GDNAM3D = GDNAME_GD
                GDNAM3D = GRID_NAME  ! from HGRD_DEFN
@@ -151,19 +147,19 @@ C Set file header attributes that differ from CONC and open the file
                   L = L + 1
                   WRITE( FDESC3D( K ),'( "Layer", I3, " to", I3, " " )' )
      &            VAR + L - 1, L
-                  END DO
+               END DO
                IF ( ( KD + 1 + L ) .LT. MXDESC3 ) THEN
                   DO K = KD + 1 + L, MXDESC3
                      FDESC3D( K ) = ' '
-                     END DO
-                  END IF
+                  END DO
+               END IF
 
                WRITE( LOGDEV,* ) ' '
                WRITE( LOGDEV,* ) '      Avg Conc File Header Description:'
                DO K = 1, KD + L
                   WRITE( LOGDEV,* ) '    => ',
      &            FDESC3D( K )( 1:TRIMLEN( FDESC3D( K ) ) )
-                  END DO
+               END DO
 
                VAR = 0
 
@@ -173,7 +169,7 @@ C Set file header attributes that differ from CONC and open the file
                   VNAME3D( VAR ) = A_GC_SPC( SPC )
                   UNITS3D( VAR ) = 'ppmV'
                   VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
-                  END DO
+               END DO
 
                DO SPC = 1, N_A_AE_SPC
                   VAR = VAR + 1
@@ -181,13 +177,13 @@ C Set file header attributes that differ from CONC and open the file
                   VNAME3D( VAR ) = A_AE_SPC( SPC )
                   IF ( VNAME3D( VAR )(1:3) .EQ. 'NUM' ) THEN
                      UNITS3D( VAR ) = 'number/m**3'
-                     ELSE IF ( VNAME3D( VAR )(1:3) .EQ. 'SRF' ) THEN
+                  ELSE IF ( VNAME3D( VAR )(1:3) .EQ. 'SRF' ) THEN
                      UNITS3D( VAR ) = 'm**2/m**3'
-                     ELSE
+                  ELSE
                      UNITS3D( VAR ) = 'micrograms/m**3'
-                     END IF
+                  END IF
                   VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
-                  END DO
+               END DO
 
                DO SPC = 1, N_A_NR_SPC
                   VAR = VAR + 1
@@ -195,7 +191,7 @@ C Set file header attributes that differ from CONC and open the file
                   VNAME3D( VAR ) = A_NR_SPC( SPC )
                   UNITS3D( VAR ) = 'ppmV'
                   VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
-                  END DO
+               END DO
 
                DO SPC = 1, N_A_TR_SPC
                   VAR = VAR + 1
@@ -203,22 +199,22 @@ C Set file header attributes that differ from CONC and open the file
                   VNAME3D( VAR ) = A_TR_SPC( SPC )
                   UNITS3D( VAR ) = 'ppmV'
                   VDESC3D( VAR ) = 'Variable ' // VNAME3D( VAR )
-                  END DO
+               END DO
 
-            DO SPC = 1, VAR
-               WRITE( LOGDEV,'( 5X, "=> VNAME3D(", I3, " ): ", A )' )
-     &                SPC, VNAME3D( SPC )
+               DO SPC = 1, VAR
+                  WRITE( LOGDEV,'( 5X, "=> VNAME3D(", I3, " ): ", A )' )
+     &                   SPC, VNAME3D( SPC )
                END DO
 
                IF ( .NOT. OPEN3( A_CONC_1, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not open '
      &                 // A_CONC_1( 1:TRIMLEN( A_CONC_1 ) ) // ' file'
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-                  END IF
+               END IF
 
-               END IF   ! MYPE = 0
+            END IF   ! MYPE = 0
 
-            ELSE
+         ELSE
 
 C File exists. Make sure it matches requested output.
 
@@ -227,7 +223,7 @@ C File exists. Make sure it matches requested output.
      &              // CTM_CONC_1( 1:TRIMLEN( CTM_CONC_1 ) )
      &              // ' file description'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
+            END IF
 
             TSTEP_RF = TSTEP3D
             NTHIK_RF = NTHIK3D
@@ -251,28 +247,28 @@ C File exists. Make sure it matches requested output.
      &              // A_CONC_1( 1:TRIMLEN( A_CONC_1 ) )
      &              // ' file description'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
+            END IF
 
             IF ( N_ASPCS .NE. NVARS3D ) THEN
                WRITE( XMSG, '( A, 2I6 )' )
      &         'Number of variables don''t match file: ', N_ASPCS, NVARS3D
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
+            END IF
 
             DO SPC = 1, N_ASPCS
                DO VAR = 1, NVARS3D
                   IF ( AVG_SPCS( SPC ) .EQ. VNAME3D( VAR ) ) GO TO 101
-                  END DO
+               END DO
                XMSG = 'Could not find ' // AVG_SPCS( SPC )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 101            CONTINUE
-               END DO
+            END DO
 
             IF ( A_NLYS .NE. NLAYS3D ) THEN
                WRITE( XMSG, '( A, 2I6 )' )
      &         'Number of layers don''t match file: ', A_NLYS, NLAYS3D
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF
+            END IF
 
 C Check other header data with CONC file as reference
 
@@ -283,42 +279,42 @@ C Check other header data with CONC file as reference
      &           GDTYP_RF .NE. GDTYP3D ) THEN
                  XMSG = 'Header inconsistent on existing A_CONC_1'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+            END IF
             IF ( P_ALP_RF .NE. P_ALP3D .OR.
      &           P_BET_RF .NE. P_BET3D .OR.
      &           P_GAM_RF .NE. P_GAM3D ) THEN
                  XMSG = 'Header inconsistent on existing A_CONC_1'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+            END IF
             IF ( XCENT_RF .NE. XCENT3D .OR.
      &           YCENT_RF .NE. YCENT3D ) THEN
                  XMSG = 'Header inconsistent on existing A_CONC_1'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+            END IF
             IF ( XORIG_RF .NE. XORIG3D .OR.
      &           YORIG_RF .NE. YORIG3D ) THEN
-                 XMSG = 'Header inconsistent on existing A_CONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+               XMSG = 'Header inconsistent on existing A_CONC_1'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
             IF ( XCELL_RF .NE. XCELL3D .OR.
      &           YCELL_RF .NE. YCELL3D ) THEN
-                 XMSG = 'Header inconsistent on existing A_CONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+               XMSG = 'Header inconsistent on existing A_CONC_1'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
             IF ( VGTYP_RF .NE. VGTYP3D ) THEN
-                 XMSG = 'Header inconsistent on existing A_CONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+               XMSG = 'Header inconsistent on existing A_CONC_1'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
             IF ( VGTOP_RF .NE. VGTOP3D ) THEN
-                 XMSG = 'Header inconsistent on existing A_CONC_1'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                 END IF
+               XMSG = 'Header inconsistent on existing A_CONC_1'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
 
-            END IF   ! .NOT. OPEN A_CONC_1
+         END IF   ! .NOT. OPEN A_CONC_1
 
          CALL SUBST_BARRIER
 
-         END IF   ! FIRSTIME
+      END IF   ! FIRSTIME
     
       VAR = 0
     
@@ -330,9 +326,9 @@ C Check other header data with CONC file as reference
      &           // A_GC_SPC( SPC )( 1:TRIMLEN( A_GC_SPC( SPC ) ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+         END IF
 !     write( logdev,* ) ' <>var, A_GC_SPC: ', VAR, A_GC_SPC( SPC )
-         END DO
+      END DO
  
       DO SPC = 1, N_A_AE_SPC
          VAR = VAR + 1
@@ -342,9 +338,9 @@ C Check other header data with CONC file as reference
      &           // A_AE_SPC( SPC )( 1:TRIMLEN( A_AE_SPC( SPC ) ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+         END IF
 !     write( logdev,* ) ' <>var, A_AE_SPC: ', VAR, A_AE_SPC( SPC )
-         END DO
+      END DO
  
       DO SPC = 1, N_A_NR_SPC
          VAR = VAR + 1
@@ -354,9 +350,9 @@ C Check other header data with CONC file as reference
      &           // A_NR_SPC( SPC )( 1:TRIMLEN( A_NR_SPC( SPC ) ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+         END IF
 !     write( logdev,* ) ' <>var, A_NR_SPC: ', VAR, A_NR_SPC( SPC )
-         END DO
+      END DO
  
       DO SPC = 1, N_A_TR_SPC
          VAR = VAR + 1
@@ -366,8 +362,8 @@ C Check other header data with CONC file as reference
      &           // A_TR_SPC( SPC )( 1:TRIMLEN( A_TR_SPC( SPC ) ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-         END DO
+         END IF
+      END DO
 
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', A_CONC_1,
