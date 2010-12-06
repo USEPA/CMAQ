@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/gas_depv_map.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/gas_depv_map.F,v 1.2 2010/12/06 13:33:30 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
@@ -39,9 +39,9 @@ C Includes:
 
 C Arguments:
 
-      INTEGER, INTENT( IN )            :: N_DEPV_NAMES  ! number of unique dep vel species
+      INTEGER,         INTENT( IN )    :: N_DEPV_NAMES  ! number of unique dep vel species
       CHARACTER( 16 ), INTENT( INOUT ) :: DEPV_NAMES( : ) ! names of dep vel species
-      INTEGER, INTENT( OUT )           :: DEPV_SUR( : ) ! pointers to model species for
+      INTEGER,         INTENT( OUT )   :: DEPV_SUR( : ) ! pointers to model species for
                                                         ! calculated deposition velocities
                                                         ! (surrogate dep vels [m/s**2])
 
@@ -82,8 +82,10 @@ C Set up names and indices
 
 C Set up the DEPV pointers to calculated deposition velocities
 
-D     WRITE( LOGDEV,* ) ' '
-D     WRITE( LOGDEV,* ) ' > Unique DEPV versus DEPSPC'
+#ifdef Verbose
+      WRITE( LOGDEV,* ) ' '
+      WRITE( LOGDEV,* ) ' > Unique DEPV versus DEPSPC'
+#endif
 
       DO V = 1, N_DEPV_NAMES
          VNAME = DEPV_NAMES( V )( 4:LEN_TRIM( DEPV_NAMES( V ) ) )
@@ -92,7 +94,9 @@ D     WRITE( LOGDEV,* ) ' > Unique DEPV versus DEPSPC'
             IF ( .NOT. USE_DEPSPC( N ) ) THEN
                USE_DEPSPC( N ) = .TRUE.
                N_USE_DEPSPC = N_USE_DEPSPC + 1
-D              WRITE( LOGDEV,1005 ) V, DEPV_NAMES( V ), N, DEPSPC( N )
+#ifdef Verbose
+               WRITE( LOGDEV,1005 ) V, DEPV_NAMES( V ), N, DEPSPC( N )
+#endif
             END IF    
          ELSE
             XMSG = 'Could not find ' // TRIM( DEPV_NAMES( V ) ) // 
@@ -105,19 +109,25 @@ D              WRITE( LOGDEV,1005 ) V, DEPV_NAMES( V ), N, DEPSPC( N )
 
 C Sort DEPV_NAMES based on the order in DEPSPC (DEPVVARS module)
 
-D     WRITE( LOGDEV,* ) ' '
-D     WRITE( LOGDEV,* ) ' > Sorted DEPV names (1st index from total m3dry list)'
+#ifdef Verbose
+      WRITE( LOGDEV,* ) ' '
+      WRITE( LOGDEV,* ) ' > Sorted DEPV names (1st index from total m3dry list)'
+#endif
 
       N = 0
       DO V = 1, LTOTG            
 !        IF ( .NOT. USE_DEPSPC( V ) ) CYCLE
          IF ( .NOT. USE_DEPSPC( V ) ) THEN
-D           WRITE( LOGDEV,1009 ) V, USE_DEPSPC( v ), 0, ' '
+#ifdef Verbose
+            WRITE( LOGDEV,1009 ) V, USE_DEPSPC( v ), 0, ' '
+#endif
          ELSE
             N = N + 1
             VNAME = 'VD_' // DEPSPC( V )( 1:LEN_TRIM( DEPSPC( V ) ) )
             DEPV_NAMES( N ) = VNAME
-D           WRITE( LOGDEV,1009 ) V, USE_DEPSPC( V ), N, DEPV_NAMES( N )
+#ifdef Verbose
+            WRITE( LOGDEV,1009 ) V, USE_DEPSPC( V ), N, DEPV_NAMES( N )
+#endif
          END IF
       END DO
 
@@ -163,26 +173,28 @@ C Locate model species' DEPVs in the unique DEPV_NAMES list
          END IF
       END DO
 
-D     WRITE( LOGDEV,* ) ' '
-D     WRITE( LOGDEV,* ) ' > ', PNAME, 'Final Gas DEPV Map'
+#ifdef Verbose
+      WRITE( LOGDEV,* ) ' '
+      WRITE( LOGDEV,* ) ' > ', PNAME, 'Final Gas DEPV Map'
 
-D     STRT = 0
-D     DO V = 1, N_GC_DEPV
-D        WRITE( LOGDEV,1019 ) V, GC_DEPV( V ), DEPV_SUR( V+STRT ),
-D    &                        DEPV_NAMES( DEPV_SUR( V+STRT) )
-D     END DO
+      STRT = 0
+      DO V = 1, N_GC_DEPV
+         WRITE( LOGDEV,1019 ) V, GC_DEPV( V ), DEPV_SUR( V+STRT ),
+     &                        DEPV_NAMES( DEPV_SUR( V+STRT) )
+      END DO
 
-D     STRT = N_GC_DEPV
-D     DO V = 1, N_NR_DEPV
-D        WRITE( LOGDEV,1019 ) V, NR_DEPV( V ), DEPV_SUR( V+STRT ),
-D    &                        DEPV_NAMES( DEPV_SUR( V+STRT) )
-D     END DO
+      STRT = N_GC_DEPV
+      DO V = 1, N_NR_DEPV
+         WRITE( LOGDEV,1019 ) V, NR_DEPV( V ), DEPV_SUR( V+STRT ),
+     &                        DEPV_NAMES( DEPV_SUR( V+STRT) )
+      END DO
 
-D     STRT = N_GC_DEPV + N_NR_DEPV 
-D     DO V = 1, N_TR_DEPV
-D        WRITE( LOGDEV,1019 ) V, TR_DEPV( V ), DEPV_SUR( V+STRT ),
-D    &                        DEPV_NAMES( DEPV_SUR( V+STRT) )
-D     END DO
+      STRT = N_GC_DEPV + N_NR_DEPV 
+      DO V = 1, N_TR_DEPV
+         WRITE( LOGDEV,1019 ) V, TR_DEPV( V ), DEPV_SUR( V+STRT ),
+     &                        DEPV_NAMES( DEPV_SUR( V+STRT) )
+      END DO
+#endif
 
       RETURN
  

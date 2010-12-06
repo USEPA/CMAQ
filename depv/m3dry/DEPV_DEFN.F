@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.2 2010/12/06 13:33:30 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -91,8 +91,6 @@ C Index of SGTOT spc in DV surr list
       INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_SDEPV   ! SOA depv
       CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_SDEPV( : )
 
-!     REAL, PRIVATE, PARAMETER :: RGAS1 = 1.0 / 8.314510 ! univ. gas constant reciprocal
-
       LOGICAL, PRIVATE, SAVE :: LAERO3_4 = .FALSE.   ! Flag for aero3 or aero4
       INTEGER, PRIVATE, SAVE :: PRJ, PRI             ! Primary organic AE indices
       INTEGER, PRIVATE, SAVE :: ASJ, ASI             ! Anthropogenic SOA indices
@@ -140,11 +138,12 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
 C Includes:
+         INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block (for MECHNAME)
+
+         INCLUDE SUBST_CONST     ! constants
+         INCLUDE SUBST_FILES_ID  ! file name parameters
          INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
 #include         SUBST_IODECL    # I/O definitions and declarations
-         INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block (for MECHNAME)
-         INCLUDE SUBST_FILES_ID  ! file name parameters
-         INCLUDE SUBST_CONST     ! constants
 
 C Arguments:
          INTEGER JDATE, JTIME, TSTEP( 2 )
@@ -175,10 +174,8 @@ C Names of aero3 and aero4 SOA + gas species
      &                                              'SGTOT_TRP_1     ',
      &                                              'SGTOT_TRP_2     '  / )
 
-!        CHARACTER( 16 )   :: ALL_GAS_DEPV( N_GAS_DEPV )
-!        LOGICAL           :: AE_DEPV_FOUND( N_AE_DEPV )
-         CHARACTER( 16 ), ALLOCATABLE   :: ALL_GAS_DEPV( : )
-         LOGICAL, ALLOCATABLE           :: AE_DEPV_FOUND( : )
+         CHARACTER( 16 ), ALLOCATABLE :: ALL_GAS_DEPV( : )
+         LOGICAL, ALLOCATABLE         :: AE_DEPV_FOUND( : )
 
 C environment variable for in-line DEPV
          CHARACTER( 16 )   :: CTM_ILDEPV = 'CTM_ILDEPV'
@@ -465,15 +462,15 @@ C Sarwar's HONO interaction with leaf and building surfaces?
 
          END IF   ! in-line depv
 
-         ALLOCATE ( ALL_GAS_DEPV( N_GAS_DEPV ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating ALL_GAS_DEPV'
-            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
-
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN
+
+            ALLOCATE ( ALL_GAS_DEPV( N_GAS_DEPV ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating ALL_GAS_DEPV'
+               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
 
             DO V = 1, N_GC_DEPV
                ALL_GAS_DEPV( V ) = GC_DEPV( V )
@@ -520,18 +517,24 @@ C Identify and remove multiple occurrences of gas deposition velocities
                SUCCESS = .FALSE.; RETURN
             END IF
 
-D           write( logdev,* ) ' '
-D           write( logdev,* ) ' All Gas DEPVs           Requested Gas DEPV'
+#ifdef Verbose
+            write( logdev,* ) ' '
+            write( logdev,* ) ' All Gas DEPVs           Requested Gas DEPV'
+#endif
 
             V = 1
             DO N = 1, N_GAS_DEPV
                IF ( GAS_DEPV_FOUND( N ) ) THEN
                   UNIQUE_GDEPV( V ) = ALL_GAS_DEPV( N )
-D                 write( logdev,1019 ) n, all_gas_depv( n ), v, unique_gdepv( v )
+#ifdef Verbose
+                  write( logdev,1019 ) n, all_gas_depv( n ), v, unique_gdepv( v )
 1019              format( 2x, i5, 1x, a16, 2x, i5, 1x, a16 )
+#endif
                   V = V + 1
                else
-D              write( logdev,1019 ) n, all_gas_depv( n ), -1, ' '
+#ifdef Verbose
+               write( logdev,1019 ) n, all_gas_depv( n ), -1, ' '
+#endif
                END IF
             END DO
 
@@ -565,21 +568,27 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             ALLOCATE( UNIQUE_ADEPV( N_UNIQUE_ADEPV ) )
             ALLOCATE( AER_DEPV_SUR( N_UNIQUE_ADEPV ) )
 
-D           write( logdev,* ) ' '
-D           write( logdev,* ) ' Requested Aerosol DEPV and pointer'
+#ifdef Verbose
+            write( logdev,* ) ' '
+            write( logdev,* ) ' Requested Aerosol DEPV and pointer'
+#endif
 
             V = 1
             DO N = 1, N_AE_DEPV
                IF ( AE_DEPV_FOUND( N ) ) THEN
                   UNIQUE_ADEPV( V ) = AE_DEPV( N )
                   AER_DEPV_SUR( V ) = N
-D                 write( logdev,1021 ) n, v, unique_adepv( v ), aer_depv_sur( v )
+#ifdef Verbose
+                  write( logdev,1021 ) n, v, unique_adepv( v ), aer_depv_sur( v )
 1021              format( 2i5, 1x, a16, i5 )
+#endif
                   V = V + 1
                END IF
             END DO
 
-D           write( logdev,* ) ' '
+#ifdef Verbose
+            write( logdev,* ) ' '
+#endif
 
             IF ( ILDEPV ) THEN
                ALLOCATE ( CGRIDL1( N_GAS_DEPV,NCOLS,NROWS ),
@@ -639,7 +648,9 @@ C Get diagnostic file flag.
             END IF
             DEPV_SUR_SG( : )  = 0
 
-D           write( logdev,'(/a)' ) ' DEPV Map for SemiVolatile Gases'
+#ifdef Verbose
+            write( logdev,'(/a)' ) ' DEPV Map for SemiVolatile Gases'
+#endif
 
             DO N = 1, N_SGTOT
 
@@ -651,10 +662,12 @@ D           write( logdev,'(/a)' ) ' DEPV Map for SemiVolatile Gases'
                   L = LEN_TRIM( SGNAME( N ) )
                   UNIQUE_SDEPV( N_UNIQUE_SDEPV ) = 'VD_' // SGNAME( N )(1:L)
                   DEPV_SUR_SG( N ) = NDX3
-D                 write( logdev,1033 ) ndx, nr_depv( ndx ),
-D    &                     depv_sur_sg( n ), unique_gdepv( depv_sur_sg( n ) ),
-D    &                     n_unique_sdepv, unique_sdepv( n_unique_sdepv )
+#ifdef Verbose
+                  write( logdev,1033 ) ndx, nr_depv( ndx ),
+     &                     depv_sur_sg( n ), unique_gdepv( depv_sur_sg( n ) ),
+     &                     n_unique_sdepv, unique_sdepv( n_unique_sdepv )
 1033              format( I5, 1X, A16, 2( 1X, I3, 1X, A16 ) )
+#endif
                ELSE
                   XMSG = 'Could not find ' // TRIM( NR_DEPV( NDX ) )
      &                 // ' in UNIQUE_GDEPV array. '
@@ -664,18 +677,20 @@ D    &                     n_unique_sdepv, unique_sdepv( n_unique_sdepv )
 
             END DO
 
-D           write( logdev,* ) ' N_GASDV4SG: ', n_gasdv4sg
-D           write( logdev,*) '        GASDV4SG      SG2NRSPC SG2NRDV SG2GASDV DEPV_SUR_SG'
-D           do n = 1, n_sgtot
-D              write( logdev,1051 ) trim( gasdv4sg( n ) ),
-D    &                              sg2nrspc( n ), sg2nrdv( n ),
-D    &                              sg2gasdv( n ), depv_sur_sg( n )
-D           end do
+#ifdef Verbose
+            write( logdev,* ) ' N_GASDV4SG: ', n_gasdv4sg
+            write( logdev,*) '        GASDV4SG      SG2NRSPC SG2NRDV SG2GASDV DEPV_SUR_SG'
+            do n = 1, n_sgtot
+               write( logdev,1051 ) trim( gasdv4sg( n ) ),
+     &                              sg2nrspc( n ), sg2nrdv( n ),
+     &                              sg2gasdv( n ), depv_sur_sg( n )
+            end do
 1051        format( 3x, a16, 4i9 )
-D           write( logdev,'(/a)' ) ' SGSPEC'
-D           do n = 1, n_nr_depv
-D              write( logdev,* ) '   ', SGSPEC( n )
-D           end do
+            write( logdev,'(/a)' ) ' SGSPEC'
+            do n = 1, n_nr_depv
+               write( logdev,* ) '   ', SGSPEC( n )
+            end do
+#endif
 
          END IF   ! aero3 or aero4
 
@@ -719,8 +734,8 @@ C-----------------------------------------------------------------------
          SUBROUTINE GET_DEPV( JDATE, JTIME, TSTEP, CGRID )
 C-----------------------------------------------------------------------
 
-         USE CGRID_SPCS          ! CGRID mechanism species
          USE HGRD_DEFN
+         USE CGRID_SPCS          ! CGRID mechanism species
          USE DEPVVARS
 
          IMPLICIT NONE
@@ -732,10 +747,10 @@ C Arguments:
                                                    ! TSTEP(2) = sciproc sync. step (chem)
          REAL, POINTER         :: CGRID( :,:,:,: ) ! concentrations
 
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include         SUBST_IODECL    ! I/O definitions and declarations
-         INCLUDE SUBST_FILES_ID  ! file name parameters
          INCLUDE SUBST_CONST     ! constants
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+#include         SUBST_IODECL    # I/O definitions and declarations
 
 C Parameters:
          REAL, PARAMETER :: RGAS1 = 1.0 / RGASUNIV ! univ. gas constant reciprocal
@@ -782,6 +797,7 @@ C Local variables:
          INTERFACE
             SUBROUTINE RDDEPV ( JDATE, JTIME, SGSPEC, DEPV )
                USE HGRD_DEFN
+               USE CGRID_SPCS
                IMPLICIT NONE
                INTEGER, INTENT( IN )            :: JDATE, JTIME
                LOGICAL, INTENT( IN )            :: SGSPEC( : )
@@ -789,6 +805,7 @@ C Local variables:
             END SUBROUTINE RDDEPV
             SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
                USE GRID_CONF
+               USE CGRID_SPCS
                IMPLICIT NONE
                REAL, POINTER          :: CGRID( :,:,:,: )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP
@@ -796,6 +813,7 @@ C Local variables:
             END SUBROUTINE AERO_DEPV
             SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
                USE HGRD_DEFN
+               USE CGRID_SPCS
                IMPLICIT NONE
                LOGICAL, INTENT( IN )  :: GAS_DEPV_FOUND( : )
                INTEGER, INTENT( IN )  :: GAS_DEPV_SUR( : )
@@ -844,13 +862,17 @@ C-----------------------------------------------------------------------
 
             CALL M3DRY ( JDATE, JTIME, ABFLUX, SFC_HONO, CGRIDL1, DEPVEL_GAS, PVD )
 
-D           cw = my_ncols/2; rw = my_nrows/2
+#ifdef Verbose
+            cw = my_ncols/2; rw = my_nrows/2
 !           cw = 17; rw = 43
+#endif
 
-D           write( logdev,1033 ) cw, rw
+#ifdef Verbose
+            write( logdev,1033 ) cw, rw
 1033        format( /5x, 'Depv diagnostics for my_col, my_row:', i4, ', ', i4
      &              /6x, 'v', 3x, 'n', 1x, 'variable', 10x, 'ndx',
      &               2x, 'depvel_gas', 4x, 'depv', 9x, 'pvd', 10x, 'pldv' )
+#endif
 
             N = 0
             STRT = 1
@@ -862,12 +884,14 @@ D           write( logdev,1033 ) cw, rw
                   DO C = 1, MY_NCOLS
                      DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
-D                    if ( c == cw .and. r == rw ) then
-D                       write( logdev,1039 ) v, n, gc_depv( n ), ndx,
-D    &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
-D    &                                       pvd( ndx,c,r ), pldv( v,c,r )
+#ifdef Verbose
+                     if ( c == cw .and. r == rw ) then
+                        write( logdev,1039 ) v, n, gc_depv( n ), ndx,
+     &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
+     &                                       pvd( ndx,c,r ), pldv( v,c,r )
 1039        format( 3x, 2i4, 1x, a16, 1x, i3, 4( 1x, 1pe12.4 ) )
-D                    end if
+                     end if
+#endif
                   END DO
                END DO
 
@@ -886,11 +910,13 @@ D                    end if
                   DO C = 1, MY_NCOLS
                      DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
-D                    if ( c == cw .and. r == rw ) then
-D                       write( logdev,1039 ) v, n, nr_depv( n ), ndx,
-D    &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
-D    &                                       pvd( ndx,c,r ), pldv( v,c,r )
-D                    end if
+#ifdef Verbose
+                     if ( c == cw .and. r == rw ) then
+                        write( logdev,1039 ) v, n, nr_depv( n ), ndx,
+     &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
+     &                                       pvd( ndx,c,r ), pldv( v,c,r )
+                     end if
+#endif
                   END DO
                END DO
 
@@ -907,11 +933,13 @@ D                    end if
                   DO C = 1, MY_NCOLS
                      DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
-D                    if ( c == cw .and. r == rw ) then
-D                       write( logdev,1039 ) v, n, tr_depv( n ), ndx,
-D    &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
-D    &                                       pvd( ndx,c,r ), pldv( v,c,r )
-D                    end if
+#ifdef Verbose
+                     if ( c == cw .and. r == rw ) then
+                        write( logdev,1039 ) v, n, tr_depv( n ), ndx,
+     &                                       depvel_gas( ndx,c,r ), depv( v,c,r ),
+     &                                       pvd( ndx,c,r ), pldv( v,c,r )
+                     end if
+#endif
                   END DO
                END DO
 
