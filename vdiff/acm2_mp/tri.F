@@ -18,15 +18,15 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/tri.F,v 1.1 2010/07/20 11:50:38 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/tri.F,v 1.2 2010/12/06 13:42:49 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)tridiag.F	1.1 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.tridiag.F 03 Jun 1997 11:45:09
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE TRI ( L, D, U, B, X )
-C-----------------------------------------------------------------------
 
+C-----------------------------------------------------------------------
 C  FUNCTION:
 C    Solves tridiagonal system by Thomas algorithm.  Algorithm fails
 C    ( M3ERR ) if first pivot is zero.  In that case, rewrite the
@@ -54,15 +54,15 @@ C    Dimensionality set up in terms of NLAYS from SUBST_VGRD_ID
 C  SUBROUTINES AND FUNCTIONS CALLED:
 
 C  REVISION HISTORY:
-C    NO.   DATE     WHO      WHAT
-C    __    ____     ___      ____
-C    5     Apr 06   JEP   adapted tridiag for use with ACM2
+C    NO.   DATE      WHO     WHAT
+C    __    ____      ___     ____
+C    6     Jun 10    yoj  convert for Namelist redesign
+C    5     Apr 06    JEP  adapted tridiag for use with ACM2
 C    4     Aug 96    yoj  cleaner
 C    3     8/16/94   XKX  configuration management include statements
 C    2     3/15/92   CJC  For use in Models-3 LCM.
 C    1     10/19/89  JKV  converted for use on IBM
 C    0      3/89     BDX  Initial version
-C   21 Jun 10 J.Young: convert for Namelist redesign
 C-----------------------------------------------------------------------
 
       USE VGRD_DEFN           ! vertical layer specifications
@@ -70,15 +70,9 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-C Includes: none
+C Includes: None
 
 C Arguments:
-
-!     REAL        L( NLAYS )               ! subdiagonal
-!     REAL        D( NLAYS )               ! diagonal
-!     REAL        U( NLAYS )               ! superdiagonal
-!     REAL        B( N_SPC_DIFF,NLAYS )    ! R.H. side
-!     REAL        X( N_SPC_DIFF,NLAYS )    ! solution
 
       REAL, INTENT( IN )  :: L( : )        ! subdiagonal
       REAL, INTENT( IN )  :: D( : )        ! diagonal
@@ -88,13 +82,11 @@ C Arguments:
 
 C Local Variables:
 
-      INTEGER, SAVE :: N_SPC_DIFF    ! global diffusion species
-
+      INTEGER, SAVE :: N_SPC_DIFF          ! global diffusion species
       REAL        GAM( NLAYS )
       REAL        BET
       INTEGER     V, K
-
-      LOGICAL :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C-----------------------------------------------------------------------
 
