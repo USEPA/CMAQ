@@ -18,18 +18,18 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
 
 C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                    N_SPC_WDEP, WDEP_MAP, DEP )
 
 C-----------------------------------------------------------------------
-C
 C  FUNCTION: Resolved-scale CLOUD processor Models-3 science process:
-C
+ 
 C  Revision History:
 C      No   Date   Who   What
 C      -- -------- ---  -----------------------------------------
@@ -54,12 +54,13 @@ C      11 25 Mar 08 sjr fixed bug in the precipitation flux calculation:
 C                       layer thickness now included in column integrated
 C                       water content and in precipitation flux 
 C                       calculations (bug reported by Raymond D Wright)
-C      12 21 Jun 10 J.Young: convert for Namelist redesign
+C      12 12 Aug 10 J.Young: replace CGRID mechanism include files with
+C                    namelists and merge Shawn Roselle's, Sergey Napelenok's
+C                    and Steve Howard's aerosol reengineering
  
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
- 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -67,18 +68,17 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-C...........INCLUDES and their descriptions
+C...........Includes:
 
-      INCLUDE SUBST_CONST               ! constants
-      INCLUDE SUBST_FILES_ID            ! file name parameters
-      INCLUDE SUBST_IOPARMS             ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC             ! file header data structuer
-      INCLUDE SUBST_IODECL              ! I/O definitions and declarations
+      INCLUDE SUBST_CONST                ! constants
+      INCLUDE SUBST_FILES_ID             ! file name parameters
+      INCLUDE SUBST_IOPARMS              ! I/O parameters definitions
+      INCLUDE SUBST_IOFDESC              ! file header data structuer
+      INCLUDE SUBST_IODECL               ! I/O definitions and declarations
 
-      CHARACTER( 120 ) :: XMSG  = ' '         ! Exit status message
+      CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
-C...........PARAMETERS and their descriptions:
-
+C...........Parameters:
       REAL, PARAMETER :: GPKG = 1.0E+03  ! g/kg
       REAL, PARAMETER :: M2PHA = 1.0E+04 ! 1 hectare = 1.0e4 m**2
       REAL, PARAMETER :: M2PHA_OVER_GPKG = M2PHA / GPKG
@@ -86,8 +86,7 @@ C...........PARAMETERS and their descriptions:
 C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
 
-C...........ARGUMENTS and their descriptions
-
+C...........Arguments:
 !     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  !  concentrations
 !     REAL       :: CGRID( :,:,:,: )    ! concentrations
       REAL, POINTER :: CGRID( :,:,:,: )    ! concentrations
@@ -100,7 +99,7 @@ C...........ARGUMENTS and their descriptions
 !     REAL          DEP  ( NCOLS,NROWS,* )  ! depositions (etc.)
       REAL       :: DEP  ( :,:,: )      ! depositions (etc.)
 
-C...........SCRATCH LOCAL VARIABLES and their descriptions:
+C...........Local Variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.   ! flag for first pass thru
       LOGICAL, SAVE :: QG_AVAIL = .TRUE.   ! flag for QG available on file
@@ -124,7 +123,7 @@ C...........SCRATCH LOCAL VARIABLES and their descriptions:
       INTEGER, SAVE :: STIME            ! met file start time
       INTEGER       TCLD                ! cloud lifetime (sec)
       INTEGER       VAR                 ! variable loop counter
-      INTEGER       ALLOCSTAT           ! allocate status
+      INTEGER       ALLOCSTAT           ! memory allocation status
 
       REAL          AIRM                ! total airmass (mol/m2) in cloudy air
       REAL          ALFA0               ! aitken mode number scavenging coef
@@ -146,12 +145,10 @@ C...........SCRATCH LOCAL VARIABLES and their descriptions:
       REAL          WPBAR               ! precipitation water content (kg/m3)
       REAL          WTBAR               ! total water content of cloud (kg/m3)
 
-!     REAL          POLC   ( MXSPCS )   ! incloud conc (mol/mol)
-!     REAL          CEND   ( MXSPCS )   ! ending conc (mol/mol)
-!     REAL          REMOV  ( MXSPCS )   ! moles/m2 or mm*mol/lit scavenged
       REAL, ALLOCATABLE, SAVE :: POLC ( : )   ! incloud conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: CEND ( : )   ! ending conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: REMOV( : )   ! moles/m2 or mm*mol/lit scavenged
+
       REAL          RN   ( NCOLS, NROWS ) ! non-convective rainfall (cm)
       REAL          DENS ( NCOLS, NROWS, NLAYS )  ! air density (kg/m3)
       REAL          DZZ  ( NCOLS, NROWS, NLAYS )  ! layer thickness (m)
@@ -161,9 +158,9 @@ C...........SCRATCH LOCAL VARIABLES and their descriptions:
       REAL          QI   ( NCOLS, NROWS, NLAYS )  ! ice content (kg/kg)
       REAL          QR   ( NCOLS, NROWS, NLAYS )  ! rain water content (kg/kg)
       REAL          QS   ( NCOLS, NROWS, NLAYS )  ! snow content (kg/kg)
-c      REAL          QV   ( NCOLS, NROWS, NLAYS )  ! specific humidity (kg/kg)
+!     REAL          QV   ( NCOLS, NROWS, NLAYS )  ! specific humidity (kg/kg)
       REAL          TA   ( NCOLS, NROWS, NLAYS )  ! air temperature (K)
-c      REAL          ZH   ( NCOLS, NROWS, NLAYS )  ! mid-layer height (m)
+!     REAL          ZH   ( NCOLS, NROWS, NLAYS )  ! mid-layer height (m)
       REAL          ZF   ( NCOLS, NROWS, NLAYS )  ! level/layer-face height (m)
 
       INTEGER      GXOFF, GYOFF              ! global origin offset from file
@@ -171,12 +168,23 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-C...........EXTERNAL FUNCTIONS and their descriptions:
-
+C...........External Functions:
       LOGICAL, EXTERNAL :: CURRSTEP
       INTEGER, EXTERNAL :: SEC2TIME, SECSDIFF, TIME2SEC, INDEX1, TRIMLEN
 
       INTERFACE
+        SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
+     &                        CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
+     &                        REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
+           IMPLICIT NONE
+           INTEGER, INTENT(  IN ) :: JDATE, JTIME
+           REAL,    INTENT(  IN ) :: WTBAR, WCBAR, TBARC, PBARC,
+     &                               CTHK1, AIRM, PRATE1, TAUCLD
+           REAL,    INTENT(  IN ) :: POLC ( : )
+           REAL,    INTENT( OUT ) :: REMOVAC
+           REAL,    INTENT( OUT ) :: CEND( : ), REMOV( : )
+           REAL,    INTENT( OUT ) :: ALFA0, ALFA2, ALFA3
+        END SUBROUTINE SCAVWDEP
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
@@ -189,24 +197,10 @@ C...........EXTERNAL FUNCTIONS and their descriptions:
            REAL,    INTENT( OUT ) :: CEND( : ), REMOV( : )
            REAL,    INTENT(  IN ) :: ALFA0, ALFA2, ALFA3
         END SUBROUTINE AQ_MAP
-        SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
-     &                        CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                        REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
-           IMPLICIT NONE
-           INTEGER, INTENT(  IN ) :: JDATE, JTIME
-           REAL,    INTENT(  IN ) :: WTBAR, WCBAR, TBARC, PBARC,
-     &                               CTHK1, AIRM, PRATE1, TAUCLD
-           REAL,    INTENT(  IN ) :: POLC ( : )
-           REAL,    INTENT( OUT ) :: REMOVAC
-           REAL,    INTENT( OUT ) :: CEND( : ), REMOV( : )
-           REAL,    INTENT(  IN ) :: ALFA0, ALFA2, ALFA3
-        END SUBROUTINE SCAVWDEP
       END INTERFACE
-
 C-----------------------------------------------------------------------
-C  begin body of subroutine RESCLD
 
-C...INITIALIZATION
+C...Initialization
 
       IF ( FIRSTIME ) THEN
 
@@ -314,7 +308,7 @@ C...set time to the midpoint of this timestep for data interpolation
 
       CALL NEXTIME ( MDATE, MTIME, SEC2TIME( TCLD / 2 ) )
 
-C...ACTUAL SCIENCE PROCESS (loop on internal process time steps):
+C...Actual Science Process (loop on internal process time steps):
 C...  Interpolate time dependent layered input variables
 C...  (reading those variables for which it is necessary)
 
@@ -417,17 +411,17 @@ C...  file if it is available
 
       END IF
 
-cC...Get specific humidity (kg H2O / kg air)
+!C...Get specific humidity (kg H2O / kg air)
  
-c      VARNM = 'QV'
-c!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-c!    &                    NCOLS * NROWS * NLAYS, QV ) ) THEN
-c      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-c     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-c     &                    MDATE, MTIME, QV ) ) THEN
-c        XMSG = 'Could not read QV from ' // MET_CRO_3D
-c        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-c      END IF
+!     VARNM = 'QV'
+!!    IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
+!!   &                    NCOLS * NROWS * NLAYS, QV ) ) THEN
+!     IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+!    &                    MDATE, MTIME, QV ) ) THEN
+!       XMSG = 'Could not read QV from ' // MET_CRO_3D
+!       CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!     END IF
  
 C...Get level heights / layer faces (m)
 
@@ -441,18 +435,18 @@ C...Get level heights / layer faces (m)
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
-cC...Get mid-layer heights (m)
-c
-c      VARNM = 'ZH'
-c!     IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-c!    &                     NCOLS * NROWS * NLAYS, ZH ) ) THEN
-c      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-c     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-c     &                    MDATE, MTIME, ZH ) ) THEN
-c        XMSG = 'Could not read ZH from ' // MET_CRO_3D
-c        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-c      END IF
-c
+!C...Get mid-layer heights (m)
+!
+!     VARNM = 'ZH'
+!!    IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
+!!   &                     NCOLS * NROWS * NLAYS, ZH ) ) THEN
+!     IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+!    &                    MDATE, MTIME, ZH ) ) THEN
+!       XMSG = 'Could not read ZH from ' // MET_CRO_3D
+!       CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!     END IF
+ 
 C...Get pressure (Pa)
 
       VARNM = 'PRES'

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.2 2010/12/06 14:07:18 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -47,14 +47,12 @@ C                             domain specifications in one module
 C     May 05  J. Pleim        Replaced RADMcld with RADMacmcld
 C     6/08/05 S.Roselle       added new cloud diagnostic variables
 C     7/21/09 D. Wong         fixed parallel bug in opening WET_DEP_2
-C     21 Jun 10 J.Young       convert for Namelist redesign
+C     Oct 10  J.Young         convert for Namelist redesign
+
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
-
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_UTIL_MODULE     ! stenex
 
       IMPLICIT NONE
 
@@ -63,24 +61,16 @@ C...........INCLUDES
       INCLUDE SUBST_IOPARMS          ! I/O parameters definitions
       INCLUDE SUBST_IOFDESC          ! file header data structure
 #include      SUBST_IODECL           # I/O definitions and declarations
+
       INCLUDE SUBST_CONST            ! constants
       INCLUDE SUBST_FILES_ID         ! file name parameters
-
-!     INCLUDE SUBST_COORD_ID         ! coordinate and domain definitions (req IOPARMS)
 
       CHARACTER( 120 ) :: XMSG = ' ' ! exit status message string
 
 C...........PARAMETERS
 
 C # of wet deposition species
-!     INTEGER, PARAMETER :: N_SPC_WDEP = N_GC_WDEP
-!    &                                 + N_AE_WDEP
-!    &                                 + N_NR_WDEP
-!    &                                 + N_TR_WDEP
       INTEGER, SAVE :: N_SPC_WDEP
-!     INTEGER, PARAMETER :: N_SPC_WDEPD = N_SPC_WDEP + 1
-
-!     REAL, PARAMETER :: AVO = 6.0221367E+23 ! Avogadro's Constant [ #/mol ]
 
       REAL, PARAMETER :: CNV1 = MWAIR * 1.0E-9
       REAL, PARAMETER :: CNV1I = 1.0 / CNV1
@@ -127,17 +117,13 @@ C...........Local Variables
       INTEGER       STATUS           !  ENVINT status
       INTEGER       VAR              ! variable subscript indices
       INTEGER       ALLOCSTAT
-!     INTEGER, SAVE :: WDEP_MAP( N_SPC_WDEPD ) ! wet deposition map to CGRID
       INTEGER, ALLOCATABLE, SAVE :: WDEP_MAP( : ) ! wet deposition map to CGRID
-
-      INTEGER, SAVE :: LOGDEV           ! output log unit number
-
-!     INTEGER, SAVE :: QAE( N_AE_SPCD ) ! CGRID pointer to ug/m3 species
-!     INTEGER, SAVE :: NAE( N_AE_SPCD ) ! CGRID pointer to #/m3 species
-!     INTEGER, SAVE :: SAE( N_AE_SPCD ) ! CGRID pointer to m2/m3 species
       INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to ug/m3 species
       INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m3 species
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m2/m3 species
+
+      INTEGER, SAVE :: LOGDEV           ! output log unit number
+
 
 !     REAL          DENS    ( NCOLS,NROWS,NLAYS ) ! air density (kg/m3)
 !     REAL          CONV_DEP( NCOLS,NROWS,N_SPC_WDEP+8 ) ! convective wdep only
@@ -191,7 +177,11 @@ C...for output in the wet deposition array, otherwise notify the user
 C...and return
 
         N_SPC_WDEP = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
-
+        ALLOCATE ( WDEP_MAP( N_SPC_WDEP ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating WDEP_MAP'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
         IF ( N_SPC_WDEP .LE. 0 ) THEN
 
           XMSG = 'No species were specified for wet deposition ' //
@@ -202,12 +192,6 @@ C...and return
      &           'WETDEP OUTPUT FILE!'
           CALL M3MESG ( XMSG )
 
-        END IF
-
-        ALLOCATE ( WDEP_MAP( N_SPC_WDEP ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating WDEP_MAP'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
 C...check to see if user wants to output extra diagnostic files
@@ -510,8 +494,8 @@ C...  # / m**3 (number density), and m**2 / m**3 (surface area) units
      &               NAE( N_AE_SPC ),
      &               SAE( N_AE_SPC ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating QAE, NAE, or SAE'
-             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            XMSG = 'Failure allocating QAE, NAE, or SAE'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
 
           NQAE = 0       ! number of ug/m3 species
@@ -587,8 +571,8 @@ C...  determine no. of moles of gas per moles of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-              CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+              CGRID( COL, ROW, LAY, SPC ) = MAX(CGRID( COL, ROW, LAY, SPC )
+     &                                    * 1.0E-6,  1.0E-30)
             END DO
           END DO
         END DO
@@ -605,7 +589,7 @@ C...  convert to moles of aerosol per mole of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( SPC - AE_STRT + 1 )
-              CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
+              CCMIN = MAX(CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC)
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
             END DO
           END DO
@@ -626,7 +610,7 @@ C...    convert to # per mole of air by volume
 !    &                                    * MWAIR / ( 1000.0
 !    &                                    * DENS( COL, ROW, LAY ) )
               FAC = CNV3 / DENS( COL, ROW, LAY )
-              CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
+              CCMIN = MAX(CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC)
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
             END DO
           END DO
@@ -644,7 +628,7 @@ C...    convert to m2 per mole of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               FAC = CNV2 / DENS( COL, ROW, LAY )
-              CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
+              CCMIN = MAX(CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC)
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
             END DO
           END DO
@@ -659,8 +643,8 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-              CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+              CGRID( COL, ROW, LAY, SPC ) = MAX(CGRID( COL, ROW, LAY, SPC )
+     &                                    * 1.0E-6, 1.0E-30)
             END DO
           END DO
         END DO
@@ -674,8 +658,8 @@ C...determine no. of moles of tracer gas per moles of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-              CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+              CGRID( COL, ROW, LAY, SPC ) = MAX(CGRID( COL, ROW, LAY, SPC )
+     &                                    * 1.0E-6, 1.0E-30)
             END DO
           END DO
         END DO

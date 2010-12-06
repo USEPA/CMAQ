@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -89,7 +89,9 @@ C                     domain specifications in one module
 C       5/05 J.Pleim Replaced cloud mixing algorithm with ACM
 C       6/05 S.Roselle added new cloud diagnostic variables
 C       7/05 J.Young: clean up and mod for CMAQ-F
-C       21 Jun 10 J.Young: convert for Namelist redesign
+C       8/10 J.Young: replace chem mechanism include files with namelists
+C                    and accomodate Shawn Roselle's, Sergey Napelenok's
+C                    and Steve Howard's aerosol reengineering
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -105,13 +107,9 @@ C...........INCLUDES
       INCLUDE SUBST_IOFDESC             ! file header data structuer
       INCLUDE SUBST_IODECL              ! I/O definitions and declarations
 
-!     INCLUDE SUBST_COORD_ID            ! coordinate and domain definitions (req IOPARMS)
-
-      INCLUDE 'AQ_PARAMS.EXT'           ! aqueous chemistry shared parameters
-
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
-C...........PARAMETERS
+C...........Parameters
 
 C critical rel humidity, lower bound (fraction)
       REAL, PARAMETER :: RCRIT1 = 0.7
@@ -172,17 +170,13 @@ C dry adiabatic lapse rate (deg K/m)
 
 C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
-!     INTEGER, PARAMETER :: MXSPCS = N_GC_SPCD
-!    &                             + N_AE_SPC
-!    &                             + N_NR_SPC
-!    &                             + N_TR_SPC
 
 C parameter to control frequency of convective cloud processing
 C   SYNCCLD=.TRUE.  : every synchronization timestep
 C   SYNCCLD=.FALSE. : every hour on the half hour
       LOGICAL, PARAMETER :: SYNCCLD = .TRUE. ! default to sync timestep
 
-C...........ARGUMENTS
+C...........Arguments
 
 !     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  ! concentrations
 !     REAL       :: CGRID( :,:,:,: )              ! concentrations
@@ -197,12 +191,11 @@ C...........ARGUMENTS
 !     REAL          CONV_DEP( NCOLS, NROWS, * )  ! depositions (etc.)
       REAL       :: CONV_DEP( :,:,: )   ! depositions (etc.)
 
-C...........LOCAL VARIABLES
+C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
-        REAL, ALLOCATABLE, SAVE ::  SIGF( : )
-!       REAL CCR( MXSPCS,NLAYS ), CONC( MXSPCS,NLAYS ), CBELOW( MXSPCS )
-        REAL, ALLOCATABLE, SAVE :: CCR( :,: ), CONC( :,: ), CBELOW( : )
+      REAL, ALLOCATABLE, SAVE ::  SIGF( : )
+      REAL, ALLOCATABLE, SAVE :: CCR( :,: ), CONC( :,: ), CBELOW( : )
 C-------------------------------------------
       INTEGER, SAVE :: LOGDEV
 
@@ -317,14 +310,7 @@ C-------------------------------------------
       REAL          WTBAR               ! total wat cont (kg/m2) int. thru cloud depth
       REAL          X1                  ! intermediate vbles in lapse rate calculation X1 also reused as scratch vble in mixing
       REAL          XXXX                ! scratch vbl used in entrainment solver
-!     REAL, SAVE :: AECONCMIN( N_AE_SPCD ) ! array of minimum concentrations
       REAL, ALLOCATABLE, SAVE :: AECONCMIN( : ) ! array of minimum concentrations
-!     REAL          BMOL   ( MXSPCS )   ! moles/m2 species below cloud
-!     REAL          CBASE0 ( MXSPCS )   ! initial ave trace gas mix rat below cld
-!     REAL          CBASEF ( MXSPCS )   ! final ave trac gas mix rat blw cld (moles/mole)
-!     REAL          CEND   ( MXSPCS )   ! ending equiv gas phase conc (moles/mole)
-!     REAL          POLC   ( MXSPCS )   ! ave vert conc incloud moles sp/m2 and moles sp/ mole air
-!     REAL          REMOV  ( MXSPCS )   ! moles/m2 or mm*mol/lit scavenged
       REAL, ALLOCATABLE, SAVE :: BMOL   ( : )   ! moles/m2 species below cloud
       REAL, ALLOCATABLE, SAVE :: CBASE0 ( : )   ! initial ave trace gas mix rat below cld
       REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (moles/mole)
@@ -363,12 +349,6 @@ C-------------------------------------------
       REAL          QMAX                        ! pertbd w.. mix rat of parcel
 !     REAL, ALLOCATABLE, SAVE :: TOTFRAC( :,: ) !  total frac cloud cover
       REAL          RAIN   ( NCOLS, NROWS ) !  this timestep rainfall (mm/hr)
-
-!     REAL          BCLDWT  ( MXSPCS, NLAYS ) ! below cloud weighting function
-!     REAL          CONCMINL( MXSPCS, NLAYS ) ! minimum concentrations for each species and layer
-!     REAL          INCLOUD ( MXSPCS, NLAYS ) ! fin. in cloud conc. after mix and chem moles/mole
-!     REAL          OUTCLOUD( MXSPCS, NLAYS ) ! fin. outside cld conc. "   "   "   " moles/mole
-!     REAL          PCLD    ( MXSPCS, NLAYS ) ! moles sp/mole air in cloud
       REAL, ALLOCATABLE, SAVE :: BCLDWT  ( :,: ) ! below cloud weighting function
       REAL, ALLOCATABLE, SAVE :: CONCMINL( :,: ) ! minimum concentrations for each species and layer
       REAL, ALLOCATABLE, SAVE :: INCLOUD ( :,: ) ! fin. in cloud conc. after mix and chem moles/mole
@@ -403,12 +383,12 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-C...........EXTERNAL FUNCTIONS
+C...........External Functions
 
       LOGICAL, EXTERNAL :: CURRSTEP
       INTEGER, EXTERNAL :: SEC2TIME, SECSDIFF, TIME2SEC, SETUP_LOGDEV
 
-C...........STATEMENT FUNCTIONS
+C...........Statement Functions
 
       REAL          ESAT                ! sat vap pres (Pa) as fn of T (deg K)
       REAL          QSAT                ! sat water vapor mixing ratio
@@ -1663,6 +1643,7 @@ C...  re-adjust the ending and removed amounts for those species
 C...  that participated in cloud chemistry
 
           IF ( WCBAR .GT. 0.00001 ) THEN
+
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
      &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )

@@ -18,20 +18,20 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/scavwdep.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/scavwdep.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                      CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                      REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
 C-----------------------------------------------------------------------
- 
-C  DESCRIPTION: Compute simplistic incloud scavenging and wet removal
+C  Description: Compute simplistic incloud scavenging and wet removal
  
 C  Revision History:
-C      No   Date   Who  What
+C      No   Date   Who	What
 C      -- -------- ---  -----------------------------------------
 C       0 01/15/98 sjr  created program
 C       1 07/27/99 sjr  added scavenging coefficient scaling factors
@@ -45,7 +45,7 @@ C  Calls the following subroutines:  GETALPHA
  
 C  Calls the following functions:  HLCONST
  
-C  ARGUMENTS    TYPE      I/O       DESCRIPTION
+C  Arguments    Type      I/O       Description
 C  ---------   -------  ------  --------------------------------
 C    JDATE     integer   input  current model julian date (yyyyddd)
 C    JTIME     integer   input  current model time (hhmmss)
@@ -62,6 +62,7 @@ C    CEND       real    output  ending incloud conc (moles/mole)
 C    REMOV      real    output  moles/m2 or mm*mol/lit scavenged
 C    REMOVAC    real    output  variable storing H+ deposition
 C    ALFA0      real    output  scav coef for aitken aerosol number
+C    ALFA2      real    output  scav coef for aitken mode sfc area
 C    ALFA3      real    output  scav coef for aitken aerosol mass
  
 C-----------------------------------------------------------------------
@@ -70,14 +71,17 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-C Includes
+C...........Includes:
 
       INCLUDE SUBST_IOPARMS             ! I/O parameters definitions
       INCLUDE SUBST_CONST               ! constants
 
-C Parameters
+      CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
-      REAL, PARAMETER :: H2ODENS = 1000.0  ! density of water at 20 C and 1 ATM [kg/m3]
+C...........Parameters:
+
+      REAL, PARAMETER :: H2ODENS = 1000.0  ! density of water at 20 C
+                                           ! and 1 ATM (kg/m3)
 
 C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
@@ -87,72 +91,62 @@ C Number of species scavenged
 
       REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
 
-      REAL, PARAMETER :: KGPG = 1.0E-03     ! kilograms per gram
+      REAL, PARAMETER :: KGPG = 1.0E-03   ! kilograms per gram
 
-C Arguments
+C...........Arguments:
 
-      INTEGER       JDATE               ! current model date, coded YYYYDDD
-      INTEGER       JTIME               ! current model time, coded HHMMSS
-      REAL          WTBAR               ! total wat cont [kg/m2] int. thru cloud depth
-      REAL          WCBAR               ! liq water content of cloud (kg/m3]
-      REAL          TBARC               ! mean cloud temp [K]
-      REAL          PBARC               ! mean cloud pressure [Pa]
-      REAL          CTHK1               ! aq chem calc cloud thickness
-      REAL          AIRM                ! total air mass [moles/m2] in cloudy air
-      REAL          PRATE1              ! storm rainfall rate [mm/hr]
-      REAL          TAUCLD              ! cloud lifetime
-      REAL          ALFA0               ! scav coef for aitken aerosol number
-      REAL          ALFA2               ! scav coef for aitken aerosol sfc area
-      REAL          ALFA3               ! scav coef for aitken aerosol mass
-      REAL          REMOVAC             ! variable storing H+ deposition
-!     REAL          POLC   ( MXSPCS )   ! avg conc incloud [moles/mole]
-!     REAL          CEND   ( MXSPCS )   ! ending conc [moles/mole]
-!     REAL          REMOV  ( MXSPCS )   ! moles/m2 or mm*mol/lit scavenged
+      INTEGER, INTENT(  IN ) :: JDATE   ! current model date, coded YYYYDDD
+      INTEGER, INTENT(  IN ) :: JTIME   ! current model time, coded HHMMSS
+      REAL,    INTENT(  IN ) :: WTBAR   ! total wat cont (kg/m2) int. thru cloud depth
+      REAL,    INTENT(  IN ) :: WCBAR   ! liq water content of cloud (kg/m3)
+      REAL,    INTENT(  IN ) :: TBARC   ! mean cloud temp (K)
+      REAL,    INTENT(  IN ) :: PBARC   ! mean cloud pressure (Pa)
+      REAL,    INTENT(  IN ) :: CTHK1   ! aq chem calc cloud thickness
+      REAL,    INTENT(  IN ) :: AIRM    ! total air mass (moles/m2) in cloudy air
+      REAL,    INTENT(  IN ) :: PRATE1  ! storm rainfall rate (mm/hr)
+      REAL,    INTENT(  IN ) :: TAUCLD  ! cloud lifetime
+      REAL,    INTENT( OUT ) :: ALFA0   ! scav coef for aitken aerosol number
+      REAL,    INTENT( OUT ) :: ALFA2   ! scav coef for aitken aerosol sfc area
+      REAL,    INTENT( OUT ) :: ALFA3   ! scav coef for aitken aerosol mass
+      REAL,    INTENT( OUT ) :: REMOVAC ! variable storing H+ deposition
       REAL,    INTENT(  IN ) :: POLC ( : )  ! avg vert conc incloud (moles/mole)
       REAL,    INTENT( OUT ) :: CEND ( : )  ! ending incloud conc (moles/mole)
       REAL,    INTENT( OUT ) :: REMOV( : )  ! moles/m2 or mm*mol/lit scavenged
 
-C Local Variables
+C...........Local Variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.   ! flag for first pass thru
-
-      CHARACTER( 120 ) :: XMSG = ' '          ! Exit status message
       CHARACTER( 16 ), SAVE :: PNAME = 'SCAVWDEP'  ! program name
-!     CHARACTER( 16 ), SAVE :: CGRID_SCAV( N_CGRID_SCAVD )  ! CGRID species scavenged
+
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_SCAV( : )  ! CGRID species scavenged
+      INTEGER, ALLOCATABLE, SAVE :: CGRID_SCAV_MAP( : ) ! CGRID map to scavenged spc
+      REAL, ALLOCATABLE,    SAVE :: CGRID_SCAV_FAC( : )  ! CGRID scav coef factors
+      INTEGER, ALLOCATABLE, SAVE :: L_NUMAKN( : ) ! pointers to aitken aerosol #
+      INTEGER, ALLOCATABLE, SAVE :: L_MASAKN( : ) ! pointers to aitken aerosols
+      INTEGER, ALLOCATABLE, SAVE :: L_SRFAKN( : ) ! pntrs to aitken aerosol surface area
+      INTEGER ASTAT
 
       INTEGER       I
       INTEGER, SAVE :: N_NUMAKN            ! # aitken aerosol number species
       INTEGER, SAVE :: N_MASAKN            ! # aitken aerosol mass species
       INTEGER, SAVE :: N_SRFAKN            ! # aitken aerosol sfc area species
-      INTEGER          PNTR                ! relative pointer variable
-      INTEGER          SPC                 ! liquid species loop counter
-      INTEGER          VAR                 ! variable loop counter
-!     INTEGER, SAVE :: CGRID_SCAV_MAP( N_CGRID_SCAVD ) ! CGRID map to scavenged spc
-      INTEGER, ALLOCATABLE, SAVE :: CGRID_SCAV_MAP( : ) ! CGRID map to scavenged spc
-!     INTEGER, SAVE :: L_NUMAKN( MXSPCS )  ! pointers to aitken aerosol #
-!     INTEGER, SAVE :: L_MASAKN( MXSPCS )  ! pointers to aitken aerosols
-!     INTEGER, SAVE :: L_SRFAKN( MXSPCS )  ! pntrs to aitken aerosol surface area
-      INTEGER, ALLOCATABLE, SAVE :: L_NUMAKN( : ) ! pointers to aitken aerosol #
-      INTEGER, ALLOCATABLE, SAVE :: L_MASAKN( : ) ! pointers to aitken aerosols
-      INTEGER, ALLOCATABLE, SAVE :: L_SRFAKN( : ) ! pntrs to aitken aerosol surface area
-      INTEGER          ALLOCSTAT           ! allocate status
+      INTEGER       PNTR                ! relative pointer variable
+      INTEGER       SPC                 ! liquid species loop counter
+      INTEGER       VAR                 ! variable loop counter
 
-      REAL             ALFA                ! scavenging coefficient [1/s]
-      REAL             KH                  ! Henry's law constant [mol/l/atm]
-      REAL             NUMAKN              ! Aitken mode aerosol # [#/m3]
-      REAL             MASAKN              ! Total Aitken mode mass [ug/m3]
-      REAL             SRFAKN
-      REAL             ONE_OVER_TWASH      ! 1 / TWASH
-      REAL,    SAVE :: HPLUS = 1.0E-4      ! typical value hydrogen ion concentration [mol/l]
-      REAL             RHOAIR              ! air density in kg/m3
-      REAL             RTCH                ! chemical gas const times temp
-      REAL             TWASH               ! washout time for clouds [sec] with low liq wat content
-      REAL             TWF                 ! washout scaling factor [mol/l/atm]
-!     REAL,    SAVE :: CGRID_SCAV_FAC( N_CGRID_SCAVD )  ! CGRID scav coef factors
-      REAL, ALLOCATABLE,    SAVE :: CGRID_SCAV_FAC( : )  ! CGRID scav coef factors
+      REAL          ALFA                ! scavenging coefficient (1/s)
+      REAL          KH                  ! Henry's law constant (mol/l/atm)
+      REAL          NUMAKN              ! Aitken mode aerosol # (#/m3)
+      REAL          MASAKN              ! Total Aitken mode mass (ug/m3)
+      REAL          SRFAKN
+      REAL          ONE_OVER_TWASH      ! 1 / TWASH
+      REAL,    SAVE :: HPLUS = 1.0E-4   ! typical value hydrogen ion concentration [mol/l]
+      REAL          RHOAIR              ! air density in kg/m3
+      REAL          RTCH                ! chemical gas const times temp
+      REAL          TWASH               ! washout time for clouds (sec) with low liq wat content
+      REAL          TWF                 ! washout scaling factor (mol/l/atm)
 
-C External Functions
+C...........External Functions:
 
       INTEGER       INDEXN
       REAL          HLCONST
@@ -167,10 +161,10 @@ C...  event-statistics variables.  Open output files.
 
         FIRSTIME = .FALSE.
 
+        N_CGRID_SCAV = N_GC_SCAV + N_AE_SCAV + N_NR_SCAV + N_TR_SCAV
+
 C...first check to make sure that some species in CGRID were specified
 C...  for scavenging, otherwise notify the user and return
-
-        N_CGRID_SCAV = N_GC_SCAV + N_AE_SCAV + N_NR_SCAV + N_TR_SCAV
 
         IF ( N_CGRID_SCAV .LE. 0 ) THEN
           XMSG = 'No species were specified for scavenging by cloud ' //
@@ -181,8 +175,8 @@ C...  for scavenging, otherwise notify the user and return
 
         ALLOCATE ( CGRID_SCAV    ( N_CGRID_SCAV ),
      &             CGRID_SCAV_MAP( N_CGRID_SCAV ),
-     &             CGRID_SCAV_FAC( N_CGRID_SCAV ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
+     &             CGRID_SCAV_FAC( N_CGRID_SCAV ), STAT = ASTAT )
+        IF ( ASTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CGRID_SCAV, CGRID_SCAV_MAP or CGRID_SCAV_FAC'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
@@ -191,8 +185,8 @@ C...  for scavenging, otherwise notify the user and return
 
         ALLOCATE ( L_NUMAKN( MXSPCS ),
      &             L_MASAKN( MXSPCS ),
-     &             L_SRFAKN( MXSPCS ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
+     &             L_SRFAKN( MXSPCS ), STAT = ASTAT )
+        IF ( ASTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating L_NUMAKN, L_MASAKN or L_SRFAKN'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF

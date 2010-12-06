@@ -18,11 +18,12 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/Attic/set_aeconcmin.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/Attic/set_aeconcmin.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SET_AECONCMIN ( AECONCMIN )
 C-----------------------------------------------------------------------
 C
@@ -35,18 +36,18 @@ C
 C  REVISION  HISTORY:
 C       5/05 copied code from aero_depv to begin subroutine
 C       4/08 J.Kelly: added code to set min for coarse surface area
-C   21 Jun 10 J.Young: convert for Namelist redesign
+C       21 Jun 10 J.Young: convert for Namelist redesign
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
 
       IMPLICIT NONE
 
-C...........INCLUDES and their descriptions
+C...........Includes:
 
       INCLUDE SUBST_CONST               ! constants
 
-C...........PARAMETERS and their descriptions:
+C...........Parameters:
 
 C...mathematical constants used in this code
 
@@ -88,12 +89,11 @@ C...  minimum values for aerosol mass concentrations (ug/m3)
       REAL, PARAMETER :: ACORSMIN_CO = 1.889544E-05 ! minimum coarse mode concentration
                                                     ! Set to give NUMMIN_C = 1.0
 
-C...........ARGUMENTS and their descriptions
+C...........Arguments:
 
-!     REAL AECONCMIN( N_AE_SPCD ) ! array of minimum concentrations
       REAL, INTENT( OUT ) :: AECONCMIN( : ) ! array of minimum concentrations
 
-C...........SCRATCH LOCAL VARIABLES and their descriptions:
+C...........Local Variables:
 
       CHARACTER( 16 ) :: PNAME = 'SET_AECONCMIN'   ! program name
 
@@ -106,12 +106,11 @@ C...........SCRATCH LOCAL VARIABLES and their descriptions:
       REAL SRFMIN_AC   ! minimum accumulation mode surface area concentrations (m2/m3)
       REAL SRFMIN_CO   ! minimum coarse mode surface area concentrations (m2/m3) 
 
-C...........EXTERNAL FUNCTIONS and their descriptions:
+C...........External Functions:
 
       INTEGER, EXTERNAL :: TRIMLEN
 
 C-----------------------------------------------------------------------
-C   begin body of subroutine  SET_AECONCMIN
 
 C...set minimum values for aerosol number concentrations (#/m3)
 
@@ -162,7 +161,6 @@ C ... particle surface area (m2-kg/mol-m3)
         END SELECT
 
       END DO
-
+      	
       RETURN
-
       END
