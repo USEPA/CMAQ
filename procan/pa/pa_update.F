@@ -18,18 +18,17 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.1 2010/07/19 17:49:18 yoj Exp $
+C $Header
 
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
 C**********************************************************************
-C
 C  FUNCTION: To update the Process Analysis output arrays (for IPR only)
-C
+ 
 C  PRECONDITIONS: None
-C
+ 
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
-C
+ 
 C  REVISION HISTORY: Prototype created by Jerry Gipson, July, 1996
 C                    Modified May, 1997 by Jerry Gipson to be consistent
 C                      with beta CTM
@@ -78,7 +77,6 @@ C                              horizontal & vertical domain specifications in
 C                              one module (GRID_CONF)
 C    3 Apr 09 J.Young: replace EMISPRM... include files with simpler implementation
 C   21 Jun 10 J.Young: convert for Namelist redesign
- 
 C**********************************************************************
 
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -111,26 +109,10 @@ C Arguments:
                            ! TSTEP(1) = local output step
                            ! TSTEP(2) = sciproc sync. step (chem)
 
-!     REAL VEMIS( NCOLS, NROWS, NLAYS, N_SPCE )  ! Emission rates (g/s)
-      REAL :: VEMIS ( :,:,:,: )  ! Emission rates (g/s)
-
-!     REAL DDEP( NCOLS, NROWS, N_SPCD )          ! Dry dep (Kg/ha)
-      REAL :: DDEP ( :,:,: )     ! Dry dep (Kg/ha)
-
 C Gas species counts:
       INTEGER, SAVE :: N_SPCS
-
-C Reactive gasses starting position in cgrid
-!     INTEGER, PARAMETER :: GC_STRT = 1
-
-C Aerosol starting position in cgrid
-!     INTEGER, PARAMETER :: AE_STRT = N_GC_SPC + 2
-
-C Non-reactive starting position in cgrid
-!     INTEGER, PARAMETER :: NR_STRT = AE_STRT + N_AE_SPC
-
-C Tracer starting position in cgrid
-!     INTEGER, PARAMETER :: TR_STRT = NR_STRT + N_NR_SPC
+      REAL :: VEMIS ( :,:,:,: )  ! Emission rates (g/s)
+      REAL :: DDEP ( :,:,: )     ! Dry dep (Kg/ha)
 
 C Dimension index assigned for VDIF
       INTEGER, PARAMETER :: IND_VM = 1
@@ -189,19 +171,13 @@ C Indices for dep species in IPR outputs
 
       REAL, SAVE :: CONVDD( 1 )       ! Conversion factor for dry dep
 !     REAL, SAVE :: CONVEM( NLAYS )   ! Conversion factor for emissions
-!     REAL, SAVE :: EM_FAC( N_SPCS )  ! emiss species scale factor 
-!     REAL, SAVE :: NUMFAC( N+SPCS )  ! ddep conversion factor (AE only)
+
       REAL, ALLOCATABLE, SAVE :: NUMFAC( : )  ! ddep conversion factor (AE only)
-
 C ddep species mass to molar conversion factor
-!     REAL, SAVE :: RELWTDD( N_SPCS )
       REAL, ALLOCATABLE, SAVE :: RELWTDD( : )
-
 C emiss species mass to molar conversion factor 
-!     REAL, ALLOCATABLE, SAVE :: RELWTEM( : )
-
+      REAL, ALLOCATABLE, SAVE :: RELWTEM( : )
 C ae_conversion factors
-!     REAL, SAVE :: AE_EM_CONV( N_AE_EMIS )
       REAL, ALLOCATABLE, SAVE :: AE_EM_CONV( : )
 
 C Reciprocal of map scale factor
@@ -440,19 +416,25 @@ C..Set an index offset if aerosol emissions are done in VDIF
             OFFSETA = OFFSETG
          ENDIF
 
-!        write( *,* ) ' No. of families: ', N_IPR_SPC
+#ifdef Verbose
+         write( *,* ) ' No. of families: ', N_IPR_SPC
+#endif
 
 C..Set the pointers to the emission array
          DO NPA = 1, N_IPR_SPC            ! foreach family
 
 
-!           write( *,* ) ' '
-!           write( *,* ) ' family index (NPA), NCGRID: ', NPA, NCGRID( NPA )
+#ifdef Verbose
+            write( *,* ) ' '
+            write( *,* ) ' family index (NPA), NCGRID: ', NPA, NCGRID( NPA )
+#endif
 
             DO NGR = 1, NCGRID( NPA )     ! foreach species in the family
 
-!              write( *,* ) ' CTM species index (NGR), IPR2GRD: ',
-!    &                    NGR, IPR2GRD( NPA, NGR )
+#ifdef Verbose
+               write( *,* ) ' CTM species index (NGR), IPR2GRD: ',
+     &                    NGR, IPR2GRD( NPA, NGR )
+#endif
 
                ICG = IPR2GRD( NPA, NGR )  ! CTM species index in the family
                IPR_NGR2EM( NPA, NGR, IND_VM ) = 0 
@@ -492,8 +474,10 @@ C..aerosol species
                      ELSE   ! PA in aero process not implemented
                         IPR_NGR2EM( NPA, NGR, IND_AE ) = 0
                      ENDIF
-!                 write( *,* ) ' aero: NPA, NGR, IND_VM, IPR_NGR2EM =',
-!    &                      NPA, NGR, IND_VM, IPR_NGR2EM( NPA, NGR, IND_VM )
+#ifdef Verbose
+                  write( *,* ) ' aero: NPA, NGR, IND_VM, IPR_NGR2EM =',
+     &                      NPA, NGR, IND_VM, IPR_NGR2EM( NPA, NGR, IND_VM )
+#endif
                   ENDIF
 
 C..non-reactive species
@@ -505,8 +489,10 @@ C..non-reactive species
                   IF( IND .GT. 0 ) THEN
                      IPR_NGR2EM( NPA, NGR, IND_VM ) = IND + OFFSETA
 
-!                    write( *,* ) ' nonr: NPA, NGR, IND_VM, IPR_NGR2EM =',
-!    &                         NPA, NGR, IND_VM, IPR_NGR2EM( NPA, NGR, IND_VM )
+#ifdef Verbose
+                     write( *,* ) ' nonr: NPA, NGR, IND_VM, IPR_NGR2EM =',
+     &                         NPA, NGR, IND_VM, IPR_NGR2EM( NPA, NGR, IND_VM )
+#endif
 
 !                    RELWTEM( ICG ) = CONVMW / NR_MOLWT( SP_INDX )   
 !                    EM_FAC(  ICG ) = NR_EMIS_FAC( IND )
@@ -520,18 +506,22 @@ C..tracer species
 
 
                   IF( IND .GT. 0 ) THEN
-!                    write( *,* ) 'trac ind: ', ind
+#ifdef Verbose
+                     write( *,* ) 'trac ind: ', ind
+#endif
                      IPR_NGR2EM( NPA, NGR, IND_VM ) = IND + OFFSETA + N_NR_EMIS
                   ENDIF
 
                ENDIF
 
-!              write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_VM ): ',
-!    &                    IPR_NGR2EM( NPA, NGR, IND_VM )
-!              write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_CH ): ',
-!    &                    IPR_NGR2EM( NPA, NGR, IND_CH )
-!              write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_AE ): ',
-!    &                    IPR_NGR2EM( NPA, NGR, IND_AE )
+#ifdef Verbose
+               write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_VM ): ',
+     &                    IPR_NGR2EM( NPA, NGR, IND_VM )
+               write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_CH ): ',
+     &                    IPR_NGR2EM( NPA, NGR, IND_CH )
+               write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_AE ): ',
+     &                    IPR_NGR2EM( NPA, NGR, IND_AE )
+#endif
 
             ENDDO      ! end species in the family loop
          ENDDO         ! end family loop
