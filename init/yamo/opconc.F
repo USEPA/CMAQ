@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.1 2010/07/19 18:09:42 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.2 2010/12/06 12:57:19 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -52,6 +52,7 @@ C                      and subset layers saved to conc file; no longer save
 C                      RHOJ to conc file
 C   22 Aug 06 J.Young: enable capturing IC's as 0 timestep
 C   11 Jun 08 J.Young: clean up
+C   30 Mar 10 David Wong: removed unnecessary barrier
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -224,12 +225,12 @@ C create header
 
       IF ( MYPE .EQ. 0 ) THEN   ! open new
          IF ( .NOT. OPEN3( CTM_CONC_1, FSNEW3, PNAME ) ) THEN
-            XMSG = 'Could not open ' // CTM_CONC_1 // ' file'
+            XMSG = 'Could not open ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF
 
-      CALL SUBST_BARRIER
+!     CALL SUBST_BARRIER
 
 C write the initial concentrations as step 0 on the conc file
 C (inital data assumed to be in correct output units)
