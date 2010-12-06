@@ -18,16 +18,15 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_depv.F,v 1.1 2010/07/20 11:55:06 yoj Exp $
-
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_depv.F,v 1.2 2010/12/06 15:50:53 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
 
-C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, VDEP_AE )
 
-C----------------------------------------------------------------------
+C-----------------------------------------------------------------------
 C aerosol dry deposition routine
 C   written 4/9/97 by Dr. Francis S. Binkowski
 C   uses code from modpar and vdvg from the aerosol module.
@@ -67,75 +66,55 @@ C     Also added code to handle variable coarse mode standard deviation
 C     in AE5 (no longer fixed at 2.2).
 C 08 Sep 08 P.Bhave: Backward compatibility with AE4 mechanisms
 C     standardized names of all coarse-mode variables
-C 21 Jun 10 J.Young: convert for Namelist redesign
-C----------------------------------------------------------------------
+C 19 Apr 10 S.Howard: aero re-engineering for modularity
+C 23 Apr 10 J.Young: replace chem mechanism include files with namelists
+C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+
+      USE AERO_DATA           ! aero variable data
+      USE SOA_DEFN            ! gas soa data
+      USE MET_DATA            ! constants and met data
 
       IMPLICIT NONE
 
 C Includes:
 
       INCLUDE SUBST_RXCMMN    ! to get mech name
-      INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
       INCLUDE SUBST_IOFDESC   ! file header data structure
       INCLUDE SUBST_IODECL    ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments
-
-C CGRID is conc field (includes gas and aerosol variables)
-
-!     REAL         CGRID( NCOLS,NROWS,NLAYS,* )
-!     REAL      :: CGRID( :,:,:,: )
       REAL, POINTER :: CGRID( :,:,:,: )
       INTEGER      JDATE        ! current model date , coded YYYYDDD
       INTEGER      JTIME        ! current model time , coded HHMMSS
       INTEGER      TSTEP        ! model time step, coded HHMMSS
+      REAL :: VDEP_AE( :,:,: )  ! surrogate deposition velocities [ m s**-1 ]
 
-C output:
+C External Functions not previously declared in IODECL3.EXT:
+      INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC, INDEX1, TRIMLEN
 
-C surrogate deposition velocities [ m s**-1 ]
-!     REAL    VDEP_AE( NCOLS,NROWS,N_AE_DEPVD )
-      REAL :: VDEP_AE( :,:,: )
+C Parameters
+      REAL,    PARAMETER :: T0 = 288.15      ! [ K ] ! starting standard surface temp.
+      REAL,    PARAMETER :: P0 = 101325.0    ! standard surface pressure [ Pa ]
+      REAL,    PARAMETER :: TWO3 = 2.0 / 3.0
+      INTEGER, PARAMETER :: N_AE_DEP_SPC = 9 ! no. of surrogates for aerosol dry dep velocities
+
+C set up species dimension and indices for deposition velocity internal array VDEP
+      INTEGER, PARAMETER :: VDNATK = 1,  ! Aitken mode number
+     &                      VDNACC = 2,  ! accumulation mode number
+     &                      VDNCOR = 3,  ! coarse mode number
+     &                      VDMATK = 4,  ! Aitken mode mass
+     &                      VDMACC = 5,  ! accumulation mode mass
+     &                      VDMCOR = 6,  ! coarse mode mass
+     &                      VDSATK = 7,  ! Aitken mode surface area
+     &                      VDSACC = 8,  ! accumulation mode surface area
+     &                      VDSCOR = 9   ! coarse mode surface area
 
 C Local variables:
-
-      REAL, PARAMETER :: CONMIN = 1.0E-30  ! concentration lower limit
-
-      REAL, PARAMETER :: AEROCONCMIN_AC = 1.0E-6 ! minimum aerosol sulfate concentration
-                                                 ! for acccumulation mode
-                                                 ! 1 pg/m**3 (changed 12/13/99 by FSB)
-
-C...This value is smaller than any reported tropospheric concentrations.
-
-      REAL, PARAMETER :: AEROCONCMIN_AT = 1.0E-6 * AEROCONCMIN_AC ! minimum aerosol sulfate
-                                                                  ! concentration for Aitken
-                                                                  ! Aitken mode
-
-      REAL, PARAMETER :: AEROCONCMIN_CO = 1.889544E-05 ! minimum coarse mode concentration.
-                                                       ! Set to give NUMMIN_CO = 1.0
-
-C...factors to set minimum value for number concentrations
-
-      REAL NUMMIN_AT   ! Aitken mode
-      REAL NUMMIN_AC   ! accumulation mode
-      REAL NUMMIN_CO   ! coarse mode
-
-C...factor to set minimum value for second moment
-
-      REAL M2MIN_AT    ! Aitken  mode
-      REAL M2MIN_AC    ! accumulation mode
-      REAL M2MIN_CO    ! coarse mode
-
-!     REAL, SAVE :: AECONMIN( N_AE_SPCD ) ! array of minimum concentrations
-!                                         ! for all aerosol species
-      REAL, ALLOCATABLE, SAVE :: AECONMIN( : ) ! array of minimum concentrations
-
-C number of surrogates for aerosol dry deposition velocities
-      INTEGER, PARAMETER :: N_AE_DEP_SPC = 9
 
       CHARACTER( 16 ) :: VDAE_NAME( N_AE_DEP_SPC )! dep vel surrogate name table
       DATA         VDAE_NAME( 1 ) / 'VNUMATKN        ' /
@@ -148,394 +127,99 @@ C number of surrogates for aerosol dry deposition velocities
       DATA         VDAE_NAME( 8 ) / 'VSRFACC         ' /
       DATA         VDAE_NAME( 9 ) / 'VSRFCOR         ' /
 
-!     INTEGER, SAVE :: DEPV_SUR( N_AE_DEPVD )   ! pointer to surrogate
       INTEGER, ALLOCATABLE, SAVE :: DEPV_SUR( : )   ! pointer to surrogate
-      INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
-
-C local variables:
-
-      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DEPV'
-      CHARACTER( 16 ) :: VNAME            ! varable name
-
-      CHARACTER( 96 ) :: XMSG = ' '
-
-      INTEGER   MDATE, MTIME, MSTEP   ! julian date, time and timestep in sec
-      INTEGER   C, R, L, V, N         ! loop counters
-      INTEGER   SPC                   ! species loop counter
-
-C External Functions not previously declared in IODECL3.EXT:
-
-      INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC, INDEX1, TRIMLEN
-
-C Variables interpolated using I/O-API
 
 C Meteorological variables
-
-      REAL PRES    ( NCOLS,NROWS,NLAYS )  ! Atmospheric pressure [ Pa ]
-      REAL TA      ( NCOLS,NROWS,NLAYS )  ! Air temperature [ K ]
-      REAL DENS    ( NCOLS,NROWS,NLAYS )  ! Air density [ kg/m**3 ]
+      REAL PRES    ( NCOLS,NROWS )        ! Atmospheric pressure [ Pa ]
+      REAL TA      ( NCOLS,NROWS )        ! Air temperature [ K ]
+      REAL DENS    ( NCOLS,NROWS )        ! Air density [ kg/m**3 ]
       REAL RA      ( NCOLS,NROWS )        ! aerodynamic resistance [ s/m ]
       REAL USTAR   ( NCOLS,NROWS )        ! friction velocity [m/s ]
       REAL WSTAR   ( NCOLS,NROWS )        ! convective velocity scale [m/s ]
       REAL HEATFLUX( NCOLS,NROWS )        ! surface heat flux [W/m**2]
 
-C Information about blocks
-
-!     INTEGER     BLKSIZE                  ! number of cells per block
-!     PARAMETER ( BLKSIZE = NCOLS * NROWS ) ! set up for one layer
+      CHARACTER( 16 ), SAVE :: AE_VRSN ! Aerosol version name
 
       INTEGER, SAVE :: NCELLS              ! number of cells per layer
-      INTEGER, SAVE :: CELLNUM
 
-      INTEGER     NCELL                    ! loop counter
-      INTEGER     ALLOCSTAT
+      REAL, ALLOCATABLE, SAVE  :: XXLSGAT( :,: )    ! log of standard deviation
+      REAL, ALLOCATABLE, SAVE  :: XXLSGAC( :,: )
+      REAL, ALLOCATABLE, SAVE  :: XXLSGCO( :,: )
+ 
+      REAL, ALLOCATABLE, SAVE  :: DGATK( :,: )      ! geometric mean diameter
+      REAL, ALLOCATABLE, SAVE  :: DGACC( :,: )
+      REAL, ALLOCATABLE, SAVE  :: DGCOR( :,: )
 
-!     INTEGER     CCOL( BLKSIZE )   ! Column index of ordered cells
-!     INTEGER     CROW( BLKSIZE )   ! Row index for ordered cells
-      INTEGER, ALLOCATABLE, SAVE :: CCOL( : )   ! Column index of ordered cells
-      INTEGER, ALLOCATABLE, SAVE :: CROW( : )   ! Row index for ordered cells
+      REAL, ALLOCATABLE, SAVE  :: PDENSAT( :,: )    ! particle density         
+      REAL, ALLOCATABLE, SAVE  :: PDENSAC( :,: )
+      REAL, ALLOCATABLE, SAVE  :: PDENSCO( :,: )
 
-C Meteorological information in blocked arays:
+      REAL, ALLOCATABLE, SAVE  :: XLM( :,: )        ! mean free path [ m ]
+      REAL, ALLOCATABLE, SAVE  :: AMU( :,: )        ! dynamic viscosity [ kg m**-1 s**-1 ]
 
-!     REAL        BLKPRS ( BLKSIZE )       ! Air pressure in [ Pa ]
-!     REAL        BLKTA  ( BLKSIZE )       ! Air temperature [ K ]
-!     REAL        BLKDENS( BLKSIZE )       ! Air density  [ kg/m**3 ]
-      REAL, ALLOCATABLE, SAVE :: BLKPRS ( : )  ! Air pressure in [ Pa ]
-      REAL, ALLOCATABLE, SAVE :: BLKTA  ( : )  ! Air temperature [ K ]
-      REAL, ALLOCATABLE, SAVE :: BLKDENS( : )  ! Air density  [ kg/m**3 ]
-
-c Planetary boundary layer (PBL) variables:
-
-!     REAL        BLKWSTAR( BLKSIZE ) ! convective velocity scale [ m/s ]
-!     REAL        BLKUSTAR( BLKSIZE ) ! friction velocity [ m/s ]
-!     REAL        BLKRA   ( BLKSIZE ) ! aerodynamic resistance [ s/m ]
-      REAL, ALLOCATABLE, SAVE :: BLKWSTAR( : ) ! convective velocity scale [m/s]
-      REAL, ALLOCATABLE, SAVE :: BLKUSTAR( : ) ! friction velocity [ m/s ]
-      REAL, ALLOCATABLE, SAVE :: BLKRA   ( : ) ! aerodynamic resistance [ s/m ]
-
-C Aerosol version name
-
-      CHARACTER( 16 ), SAVE :: AE_VRSN
-
-C internal aerosol  arrays
-C FSB This is information from APARMS3.EXT which has been directly
-C      incorporated into this routine to make it more independent.
-
-C Information for structure of CBLK
-
-C number of species (gas + aerosol)
-!     INTEGER, PARAMETER :: NSPCSDA = N_AE_SPC + 3
-      INTEGER, SAVE :: NSPCSDA
-
-!     REAL CBLK( BLKSIZE,NSPCSDA  ) ! main array of variables IN BLOCK
-      REAL, ALLOCATABLE, SAVE :: CBLK( :,: ) ! main array of variables IN BLOCK
-
-C *** set up indices for array  CBLK
-
-      INTEGER, SAVE :: VSO4AJ  ! accumulation mode sulfate
-      INTEGER, SAVE :: VSO4AI  ! Aitken mode sulfate
-      INTEGER, SAVE :: VNH4AJ  ! accumulation mode ammonium
-      INTEGER, SAVE :: VNH4AI  ! Aitken mode ammonium
-      INTEGER, SAVE :: VNO3AJ  ! accumulation mode nitrate
-      INTEGER, SAVE :: VNO3AI  ! Aitken mode nitrate
-      INTEGER, SAVE :: VORGAJ  ! accumulation mode anthropogenic SOA (AERO3)
-      INTEGER, SAVE :: VORGAI  ! Aitken mode anthropogenic SOA (AERO3)
-      INTEGER, SAVE :: VORGBAJ ! accumulation mode biogenic SOA (AERO3)
-      INTEGER, SAVE :: VORGBAI ! Aitken mode biogenic SOA (AERO3)
-      INTEGER, SAVE :: VALKJ   ! accumulation mode SOA from SV_ALK
-      INTEGER, SAVE :: VXYL1J  ! accumulation mode SOA from SV_XYL1
-      INTEGER, SAVE :: VXYL2J  ! accumulation mode SOA from SV_XYL2
-      INTEGER, SAVE :: VXYL3J  ! accumulation mode SOA from non-volatile
-                               !  XYL oxidation product
-      INTEGER, SAVE :: VTOL1J  ! accumulation mode SOA from SV_TOL1
-      INTEGER, SAVE :: VTOL2J  ! accumulation mode SOA from SV_TOL2
-      INTEGER, SAVE :: VTOL3J  ! accumulation mode SOA from non-volatile
-                               !  TOL oxidation product
-      INTEGER, SAVE :: VBNZ1J  ! accumulation mode SOA from SV_BNZ1
-      INTEGER, SAVE :: VBNZ2J  ! accumulation mode SOA from SV_BNZ2
-      INTEGER, SAVE :: VBNZ3J  ! accumulation mode SOA from non-volatile
-                               !  BNZ oxidation product
-      INTEGER, SAVE :: VTRP1J  ! accumulation mode SOA from SV_TRP1
-      INTEGER, SAVE :: VTRP2J  ! accumulation mode SOA from SV_TRP2
-      INTEGER, SAVE :: VISO1J  ! accumulation mode SOA from SV_ISO1
-      INTEGER, SAVE :: VISO2J  ! accumulation mode SOA from SV_ISO2
-      INTEGER, SAVE :: VISO3J  ! accumulation mode SOA from acid-catalyzed
-                               !  isoprene oxidation (non-volatile)
-      INTEGER, SAVE :: VSQTJ   ! accumulation mode SOA from SV_SQT
-      INTEGER, SAVE :: VOLGAJ  ! accumulation mode anthropogenic organic 
-                               !  oligomers (non-volatile)
-      INTEGER, SAVE :: VOLGBJ  ! accumulation mode biogenic organic 
-                               !  oligomers (non-volatile)
-      INTEGER, SAVE :: VORGCJ  ! accumulation mode SOA produced in clouds
-      INTEGER, SAVE :: VORGPAJ ! accumulation mode primary
-                               ! anthropogenic organic aerosol concentration
-      INTEGER, SAVE :: VORGPAI ! index for Aitken mode primary anthropogenic
-                               ! organic aerosol concentration
-      INTEGER, SAVE :: VECJ    ! index for accumulation mode aerosol elemental
-                               ! carbon
-      INTEGER, SAVE :: VECI    ! index for Aitken mode elemental carbon
-      INTEGER, SAVE :: VP25AJ  ! index for accumulation mode primary PM2.5
-                               ! concentration
-      INTEGER, SAVE :: VP25AI  ! index for Aitken mode primary PM2.5
-                               ! concentration
-      INTEGER, SAVE :: VANTHA  ! index for coarse mode anthropogenic aerosol
-                               ! concentration
-      INTEGER, SAVE :: VSEAS   ! index for coarse mode marine aerosol
-                               ! concentration
-      INTEGER, SAVE :: VSOILA  ! index for coarse mode soil-derived aerosol
-                               ! concentration
-      INTEGER, SAVE :: VAT0    ! index for Aitken mode number
-      INTEGER, SAVE :: VAC0    ! index for accumulation  mode number
-      INTEGER, SAVE :: VCO0    ! index for coarse mode number
-      INTEGER, SAVE :: VAT2    ! index for Aitken mode mode 2nd moment
-      INTEGER, SAVE :: VAC2    ! index for accumulation mode 2nd moment
-      INTEGER, SAVE :: VCO2    ! index for coarse mode 2nd moment
-      INTEGER, SAVE :: VH2OAJ  ! index for accumulation mode aerosol water
-                               ! concentration
-      INTEGER, SAVE :: VH2OAI  ! index for Aitken mode aerosol water
-                               ! concentration
-      INTEGER, SAVE :: VNAJ    ! index for accumulation mode sodium
-      INTEGER, SAVE :: VNAI    ! index for Aitken mode sodium
-      INTEGER, SAVE :: VCLJ    ! index for accumulation mode chloride
-      INTEGER, SAVE :: VCLI    ! index for Aitken mode chloride
-      INTEGER, SAVE :: VNAK    ! index for coarse mode sodium
-      INTEGER, SAVE :: VCLK    ! index for coarse mode chloride
-      INTEGER, SAVE :: VSO4K   ! index for coarse mode sulfate
-      INTEGER, SAVE :: VNO3K   ! index for coarse mode nitrate
-      INTEGER, SAVE :: VNH4K   ! index for coarse mode ammonium
-      INTEGER, SAVE :: VH2OK   ! index for coarse mode water
-      INTEGER, SAVE :: VAT3    ! index for Aitken mode 3rd moment
-      INTEGER, SAVE :: VAC3    ! index for accumulation mode 3rd moment
-      INTEGER, SAVE :: VCO3    ! index for coarse mode 3rd moment
-
-C *** special indices for surface area
-
-      INTEGER, SAVE :: VSURFAT ! Index for Aitken mode surface area
-      INTEGER, SAVE :: VSURFAC ! Index for accumulatin mode surface area
-      INTEGER, SAVE :: VSURFCO ! Index for coarse mode surface area
-
-C set up species dimension and indices for deposition velocity internal
-C array VDEP
-
-!     REAL        VDEP( BLKSIZE,N_AE_DEP_SPC ) ! deposition  velocity [ m/s ]
       REAL, ALLOCATABLE, SAVE :: VDEP( :,: ) ! deposition  velocity [ m/s ]
 
-      INTEGER, PARAMETER :: VDNATK = 1  ! Aitken mode number
-      INTEGER, PARAMETER :: VDNACC = 2  ! accumulation mode number
-      INTEGER, PARAMETER :: VDNCOR = 3  ! coarse mode number
-      INTEGER, PARAMETER :: VDMATK = 4  ! Aitken mode mass
-      INTEGER, PARAMETER :: VDMACC = 5  ! accumulation mode mass
-      INTEGER, PARAMETER :: VDMCOR = 6  ! coarse mode mass
-      INTEGER, PARAMETER :: VDSATK = 7  ! Aitken mode surface area
-      INTEGER, PARAMETER :: VDSACC = 8  ! accumulation mode surface area
-      INTEGER, PARAMETER :: VDSCOR = 9  ! coarse mode surface area
-
-C arrays for getting size distribution information
-
-C    mass concentration in Aitken mode [ ug / m**3 ]
-!     REAL        PMASSAT( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: PMASSAT( : )
-C    mass concentration in accumulation mode [ ug / m**3 ]
-!     REAL        PMASSAC( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: PMASSAC( : )
-C    mass concentration in coarse mode [ ug / m**3 ]
-!     REAL        PMASSCO( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: PMASSCO( : )
-
-C    average particle density in Aitken mode [ kg / m**3 ]
-!     REAL        PDENSAT( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: PDENSAT( : )
-C    average particle density in accumulation mode [ kg / m**3 ]
-!     REAL        PDENSAC( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: PDENSAC( : )
-C    average particle density in coarse mode [ kg / m**3 ]
-!     REAL        PDENSCO( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: PDENSCO( : )
-
-C    atmospheric mean free path [ m]
-!     REAL        XLM( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: XLM( : )
-C    atmospheric dynamic viscosity ! [ kg/(m s) ]
-!     REAL        AMU( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: AMU( : )
-
-C *** modal diameters: [ m ]
-
-C    Aitken mode geometric mean diameter [ m ]
-!     REAL        DGATK( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: DGATK( : )
-C    accumulation geometric mean diameter [ m ]
-!     REAL        DGACC( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: DGACC( : )
-C    coarse mode geometric mean diameter [ m ]
-!     REAL        DGCOR( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: DGCOR( : )
-
-c *** log of modal geometric standard deviation
-
-C    Aitken mode
-!     REAL        XXLSGAT( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: XXLSGAT( : )
-C    accumulation mode
-!     REAL        XXLSGAC( BLKSIZE )
-      REAL, ALLOCATABLE, SAVE :: XXLSGAC( : )
-C    coarse mode
-      REAL, ALLOCATABLE, SAVE :: XXLSGCO( : )
-
-      INTEGER     LCELL                    ! loop counter
-
-      REAL        L2SGAT, L2SGAC           ! square of the log of geometric
-      REAL        L2SGCO                   ! standard deviation
-
-      REAL        ESAT36, ESAC36           ! see usage
-      REAL        ESCO36
-
-      REAL, PARAMETER :: DGMIN = 1.0E-09   ! lowest particle diameter ( m )
-
-      REAL, PARAMETER :: DENSMIN = 1.0E03  ! lowest particle density ( kg/m**3 )
-
-      REAL, PARAMETER :: RADYNI_MIN = 1.0E-30 ! min inverse aerodynamic resistance
-
-C *** ranges for acceptable values of LOG( sigma_g).
-
-!     REAL, PARAMETER :: MINL2SG = 9.08403E-03   ! minimum value of L2SG
-!                                                ! minimum sigma_g = 1.1
-
-      REAL, PARAMETER :: MINL2SG = 2.38048048E-3 ! minimum value of L2SG
-                                                 ! minimum sigma_g = 1.05
-
-      REAL, PARAMETER :: MAXL2SG = 8.39588705E-1 ! maximum value of L2SG
-                                                 ! maximum sigma_g = 2.5
-
-
-C *** mathematical constants used in this code:
-
-      REAL, PARAMETER :: PI6     = PI / 6.0
-      REAL, PARAMETER :: THREEPI = 3.0 * PI
-      REAL, PARAMETER :: F6DPI   = 6.0 / PI
-      REAL, PARAMETER :: F6DPI9  = 1.0E+9 * F6DPI
-      REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI
-      REAL, PARAMETER :: ONE3    = 1.0 / 3.0
-      REAL, PARAMETER :: TWO3    = 2.0 / 3.0
-
-C *** physical constants used in this code:
-
-C Boltzmann's Constant [ J/K ]
-      REAL, PARAMETER :: BOLTZ = RGASUNIV / AVO
-
-C dry air density at 1 atm, 273.16
-      REAL, PARAMETER :: STDDENS = STDATMPA / ( RDGAS * STDTEMP )
-      REAL, PARAMETER :: RHOCP = STDDENS * CPD
-
-C component densities [ kg/m**3 ]:
-
-C bulk density of aerosol sulfate
-      REAL, PARAMETER :: RHOSO4 = 1.8E3
-
-C bulk density of aerosol ammonium
-      REAL, PARAMETER :: RHONH4 = 1.8E3
-
-C bulk density of aerosol nitrate
-      REAL, PARAMETER :: RHONO3 = 1.8E3
-
-C bulk density of aerosol water
-      REAL, PARAMETER :: RHOH2O = 1.0E3
-
-C bulk density for aerosol organics
-      REAL, PARAMETER :: RHOORG = 2.0E3
-
-C bulk density for aerosol soil dust
-      REAL, PARAMETER :: RHOSOIL = 2.6E3
-
-C bulk density for marine aerosol
-      REAL, PARAMETER :: RHOSEAS = 2.2E3
-
-C bulk density for anthropogenic aerosol
-      REAL, PARAMETER :: RHOANTH = 2.2E3
-
-C Factors for converting aerosol mass concentration [ ug/m**3] to 3rd moment
-C concentration [ m**3/m**3]
-      REAL, PARAMETER :: SO4FAC = F6DPIM9 / RHOSO4
-      REAL, PARAMETER :: NH4FAC = F6DPIM9 / RHONH4
-      REAL, PARAMETER :: H2OFAC = F6DPIM9 / RHOH2O
-      REAL, PARAMETER :: NO3FAC = F6DPIM9 / RHONO3
-      REAL, PARAMETER :: ORGFAC = F6DPIM9 / RHOORG
-      REAL, PARAMETER :: SOILFAC = F6DPIM9 / RHOSOIL
-      REAL, PARAMETER :: SEASFAC = F6DPIM9 / RHOSEAS
-      REAL, PARAMETER :: ANTHFAC = F6DPIM9 / RHOANTH
-
-C standard surface pressure [ Pa ]
-      REAL, PARAMETER :: P0 = 101325.0
-
-C standard surface temperature [ K ]
-      REAL, PARAMETER :: T0 = 288.15
-
-C initial sigma-G for Aitken mode
-      REAL, PARAMETER :: SGINIAT = 1.70
-
-C initial sigma-G for accumulation mode
-      REAL, PARAMETER :: SGINIAC = 2.00
-
-C initial sigma-G for coarse mode
-      REAL, PARAMETER :: SGINICO = 2.2
-
-C initial mean diameter for nuclei mode [ m ]
-      REAL, PARAMETER :: DGINIAT = 0.01E-6
-
-C initial mean diameter for accumulation mode [ m ]
-      REAL, PARAMETER :: DGINIAC = 0.07E-6
-
-C initial mean diameter for coarse mode [ m ]
-      REAL, PARAMETER :: DGINICO = 1.0E-6
-
-C *** Variables for adjustment of THIRD AND SECOND moments
-
-      REAL        OLD_M3I, NEW_M3I ! Aitken mode
-      REAL        OLD_M2I, NEW_M2I
-
-      REAL        OLD_M3J, NEW_M3J ! accumulation mode
-      REAL        OLD_M2J, NEW_M2J
-
-      REAL        OLD_M3K, NEW_M3K ! coarse mode
-      REAL        OLD_M2K, NEW_M2K !
+      REAL M3_WET, M3SUBT, M3_DRY
+      REAL M2_WET, M2_DRY
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      INTEGER, SAVE :: LOGDEV                   ! unit number for the log file
+      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DEPV'
+      CHARACTER( 16 ) :: VNAME            ! varable name
+      CHARACTER( 96 ) :: XMSG = ' '
+
+      INTEGER  MDATE, MTIME, MSTEP   ! julian date, time and timestep in sec
+      INTEGER  C, R, V, N            ! loop counters
+      INTEGER  SPC, S                ! species loop counter
+      INTEGER  ALLOCSTAT
 
       INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-C.........begin body of subroutine  AERO_DEPV..........................
-
-C Set-up to be performed the first time AERO_DEPV is called:
+C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-         IF ( N_AE_SPC .LE. 0 ) THEN
-            CALL M3MESG ( 'WARNING: Model not compiled for aerosols!' )
-            RETURN
+         NCELLS = NCOLS * NROWS
+
+C  Allocate arrays
+         ALLOCATE( XXLSGAT( NCOLS,NROWS ),
+     &             XXLSGAC( NCOLS,NROWS ),
+     &             XXLSGCO( NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating XXLSGAT, XXLSGAC or XXLSGCO'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         IF ( INDEX ( MECHNAME, 'AE3' ) .GT. 0 ) THEN
-            AE_VRSN  = 'AE3'
-         ELSE IF ( INDEX ( MECHNAME, 'AE4' ) .GT. 0 ) THEN
-            AE_VRSN  = 'AE4'
-         ELSE IF ( INDEX ( MECHNAME, 'AE5' ) .GT. 0 ) THEN
-            AE_VRSN  = 'AE5'
-         ELSE
-            XMSG = 'This program can only be used with the AE3, AE4, '
-     &          // 'or AE5 aerosol mechanisms.'
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF ! check on MECHNAME
-
-         NSPCSDA = N_AE_SPC + 3
-
-         ALLOCATE ( AECONMIN( N_AE_SPC ), STAT = ALLOCSTAT )
+         ALLOCATE( DGATK( NCOLS,NROWS ),
+     &             DGACC( NCOLS,NROWS ),
+     &             DGCOR( NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating AECONMIN'
+            XMSG = 'Failure allocating DGATK, DGACC or DGCOR'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         ALLOCATE( PDENSAT( NCOLS,NROWS ),
+     &             PDENSAC( NCOLS,NROWS ),
+     &             PDENSCO( NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating PDENSAT, PDENSAC or PDENSCO'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         ALLOCATE( XLM( NCOLS,NROWS ),
+     &             AMU( NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating XLM or AMU'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         ALLOCATE ( VDEP( NCELLS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating VDEP'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -545,630 +229,7 @@ C Set-up to be performed the first time AERO_DEPV is called:
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         NCELLS = MY_NCOLS * MY_NROWS  ! set up for layer one only
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C  Get number of cells in grid and store c,r indices of cells in
-C  sequential order
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-         ALLOCATE ( CCOL( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( CROW( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating CCOL or CROW'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         CELLNUM = 0             ! only the first layer
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-               CELLNUM = CELLNUM + 1
-               CCOL( CELLNUM ) = C
-               CROW( CELLNUM ) = R
-            END DO
-         END DO
-
-         ALLOCATE ( BLKPRS ( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( BLKTA  ( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( BLKDENS( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating BLKPRS or BLKTA or BLKDENS'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( BLKWSTAR( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( BLKUSTAR( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( BLKRA   ( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating BLKWSTAR or BLKUSTAR or BLKRA'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( CBLK( NCELLS,NSPCSDA ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating CBLK'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( PMASSAT( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( PMASSAC( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( PMASSCO( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating PMASSAT or PMASSAC or PMASSCO'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( PDENSAT( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( PDENSAC( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( PDENSCO( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating PDENSAT or PDENSAC or PDENSCO'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( XLM( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( AMU( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating XLM or AMU'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( DGATK( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( DGACC( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( DGCOR( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating DGATK or DGACC or DGCOR'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( XXLSGAT( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( XXLSGAC( NCELLS ), STAT = ALLOCSTAT )
-         ALLOCATE ( XXLSGCO( NCELLS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating XXLSGAT or XXLSGAC or XXLSGCO'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ALLOCATE ( VDEP( NCELLS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating VDEP'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-C Set up names and indices.
-
-C Initialize indices for CBLK
-
-C Determine CGRID species map from MECH_DEFN
-
-         VNAME = 'ASO4J'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VSO4AJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ASO4I'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VSO4AI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ANH4J'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VNH4AJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ANH4I'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VNH4AI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ANO3J'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VNO3AJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ANO3I'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VNO3AI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'AORGPAJ'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VORGPAJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'AORGPAI'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VORGPAI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'AECJ'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VECJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'AECI'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VECI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'A25J'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VP25AJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'A25I'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VP25AI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ACORS'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VANTHA = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'ASOIL'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VSOILA = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'NUMATKN'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VAT0 = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'NUMACC'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VAC0 = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'NUMCOR'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VCO0 = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'SRFATKN'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VSURFAT = N
-            VAT2   = N ! The two indices are equal, space is shared
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'SRFACC'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VSURFAC = N
-            VAC2   = N ! The two indices are equal, space is shared
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'AH2OJ'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VH2OAJ = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         VNAME = 'AH2OI'
-         N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-         IF ( N .NE. 0 ) THEN
-            VH2OAI = N
-         ELSE
-            XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-         IF ( AE_VRSN .NE. 'AE3' ) THEN
-
-            VNAME = 'ANAJ'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VNAJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ANAI'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VNAI = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ACLJ'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VCLJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ACLI'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VCLI = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ANAK'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VNAK = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ACLK'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VCLK = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ASO4K'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VSO4K = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'ANO3K'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VNO3K = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'AH2OK'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VH2OK = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-         ELSE
-
-            VNAME = 'ASEAS'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VSEAS = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-         
-         END IF
-
-         IF ( AE_VRSN .NE. 'AE5' ) THEN
-
-            VNAME = 'AORGAJ'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VORGAJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AORGAI'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VORGAI = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AORGBJ'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VORGBAJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-               
-            VNAME = 'AORGBI'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VORGBAI = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-         ELSE
-
-            VNAME = 'ANH4K'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VNH4K = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'SRFCOR'
-            N =  INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VSURFCO = N
-               VCO2    = N ! The two indices are equal, space is shared
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-            VNAME = 'AALKJ'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VALKJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AXYL1J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VXYL1J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AXYL2J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VXYL2J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AXYL3J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VXYL3J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ATOL1J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VTOL1J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ATOL2J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VTOL2J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ATOL3J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VTOL3J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ABNZ1J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VBNZ1J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ABNZ2J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VBNZ2J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ABNZ3J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VBNZ3J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ATRP1J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VTRP1J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ATRP2J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VTRP2J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AISO1J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VISO1J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AISO2J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VISO2J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AISO3J'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VISO3J = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'ASQTJ'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VSQTJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AOLGAJ'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VOLGAJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AOLGBJ'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VOLGBJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-   
-            VNAME = 'AORGCJ'
-            N = INDEX1( VNAME, N_AE_SPC, AE_SPC )
-            IF ( N .NE. 0 ) THEN
-               VORGCJ = N
-            ELSE
-               XMSG = 'Could not find ' // VNAME // 'in aerosol table'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-            END IF
-
-         END IF
-
-
-C set additional species
-
-         VAT3 = N_AE_SPC + 1
-         VAC3 = N_AE_SPC + 2
-         VCO3 = N_AE_SPC + 3
-
 C Open the met files
-
          IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open  MET_CRO_3D  file '
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -1185,7 +246,6 @@ C Open the met files
          END IF
 
 C Set the dep vel surrogate pointers
-
          DO V = 1, N_AE_DEPV
             N = INDEX1( AE_DEPV( V ), N_AE_DEP_SPC, VDAE_NAME )
             IF ( N .NE. 0 ) THEN
@@ -1198,55 +258,7 @@ C Set the dep vel surrogate pointers
             END IF
          END DO
 
-C *** calculate minimum values for number and 2nd moment.
-
-         NUMMIN_AT = SO4FAC * AEROCONCMIN_AT
-     &             / ( DGINIAT ** 3 * EXP( 4.5 * LOG( SGINIAT ) ** 2 ) )
-
-         NUMMIN_AC = SO4FAC * AEROCONCMIN_AC
-     &             / ( DGINIAC ** 3 * EXP( 4.5 * LOG( SGINIAC ) ** 2 ) )
-
-         NUMMIN_CO = ANTHFAC * AEROCONCMIN_CO
-     &             / ( DGINICO ** 3 * EXP( 4.5 * LOG( SGINICO ) ** 2 ) )
-
-         M2MIN_AT = NUMMIN_AT * DGINIAT ** 2
-     &            * EXP( 2.0 * LOG( SGINIAT ) ** 2 )
-
-         M2MIN_AC = NUMMIN_AC * DGINIAC ** 2
-     &            * EXP( 2.0 * LOG( SGINIAC ) ** 2 )
-
-         M2MIN_CO = NUMMIN_CO * DGINICO ** 2
-     &            * EXP( 2.0 * LOG( SGINICO ) ** 2 )
-
-C *** set minimum concentrations for all aerosol species.
-
-         DO V = 1, N_AE_SPC
-            SELECT CASE ( AE_SPC( V )( 1:TRIMLEN( AE_SPC( V ) ) ) )
-            CASE ( 'NUMATKN' )
-               AECONMIN( V ) = NUMMIN_AT
-            CASE ( 'NUMACC' )
-               AECONMIN( V ) = NUMMIN_AC
-            CASE ( 'NUMCOR' )
-               AECONMIN( V ) = NUMMIN_CO
-            CASE ( 'SRFATKN' )
-               AECONMIN( V ) = M2MIN_AT
-            CASE ( 'SRFACC' )
-               AECONMIN( V ) = M2MIN_AC
-            CASE ( 'SRFCOR' )
-               AECONMIN( V ) = M2MIN_CO
-            CASE ( 'ASO4I' )
-               AECONMIN( V ) = AEROCONCMIN_AT
-            CASE ( 'ASO4J' )
-               AECONMIN( V ) = AEROCONCMIN_AC
-            CASE ( 'ACORS' )
-               AECONMIN( V ) = AEROCONCMIN_CO
-            CASE DEFAULT
-               AECONMIN( V ) = CONMIN
-            END SELECT
-         END DO
-
 C *** get file horizontal grid offsets
-
          CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -1256,13 +268,10 @@ C *** get file horizontal grid offsets
 
       IF ( N_AE_SPC .LE. 0 ) RETURN
 
-C------------------ Begin Interpolation -------------------------------
-C Center of this model (advection) time-step  !!!! NO !!! CALLER DOES THIS !!!
+C begin interpolation of  meteorological variables
 
       MDATE  = JDATE
       MTIME  = JTIME
-
-C begin interpolation of  meteorological variables
 
 C Interpolate time dependent one-layer and layered input variables
 
@@ -1273,7 +282,7 @@ ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
      &                    MDATE, MTIME, RA ) ) THEN
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
-               RA( C,R ) = 1.0 / MAX( RA( C,R ), RADYNI_MIN )
+               RA( C,R ) = 1.0 / MAX( RA( C,R ), CONMIN )
             END DO
          END DO
       ELSE
@@ -1315,7 +324,7 @@ C Layered variables TA, PRES, DENS:
 
       VNAME = 'PRES'
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
      &                    MDATE, MTIME, PRES ) ) THEN
          XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
          CALL M3EXIT (PNAME, MDATE, MTIME, XMSG, XSTAT1)
@@ -1323,7 +332,7 @@ C Layered variables TA, PRES, DENS:
 
       VNAME = 'TA'
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
      &                    MDATE, MTIME, TA ) ) THEN
          XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
          CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -1331,7 +340,7 @@ C Layered variables TA, PRES, DENS:
 
       VNAME = 'DENS'
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
      &                    MDATE, MTIME, DENS ) ) THEN
          XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
          CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -1339,565 +348,134 @@ C Layered variables TA, PRES, DENS:
 
 C ----------End interpolation of meteorological variables -------------
 
-C SET UP BLOCKS -  Jerry Gipson's code
-
-C only one BLOCK is used and it contains the entire first layer
-
-C load blocks and do computations
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      L = 1
-      DO NCELL = 1, CELLNUM
-         C = CCOL( NCELL )
-         R = CROW( NCELL )
-!        L = CLEV( NCELL )
-         BLKTA   ( NCELL ) = TA   ( C,R,L )
-         BLKPRS  ( NCELL ) = PRES ( C,R,L )   ! Note pascals.
-         BLKDENS ( NCELL ) = DENS ( C,R,L )
-         BLKUSTAR( NCELL ) = USTAR( C,R )
-         BLKWSTAR( NCELL ) = WSTAR( C,R )
-         BLKRA   ( NCELL ) = RA   ( C,R )
-      END DO
+      DO R = 1, MY_NROWS
+         DO C = 1, MY_NCOLS
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Put the grid cell concentrations in the block arrays (decoupled)
-c L = 1 (set above)j
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C ***    Set meteorological data for the grid cell.
+         AIRDENS = DENS( C,R )
+         AIRTEMP = TA( C,R )
+         AIRPRES = PRES( C,R )
 
-      DO N = 1, N_AE_SPC
-         V = N + AE_STRT - 1
-         DO NCELL = 1, CELLNUM
-            C = CCOL( NCELL )
-            R = CROW( NCELL )
-            CBLK( NCELL,N ) = MAX ( CGRID( C,R,L,V ), AECONMIN( N ) )
-!           CBLK( NCELL,N ) = MAX ( CGRID( V,L,C,R ), AECONMIN( N ) )
+C ***    extract grid cell concentrations of aero species from CGRID
+C        into aerospc_conc in aero_data module
+         CALL EXTRACT_AERO( CGRID( C,R,1,: ), .TRUE. )
+
+C ***    extract soa concentrations from CGRID
+         CALL EXTRACT_SOA( CGRID( C,R,1,: ) )
+
+C ***    Calculate aerosol surface area to 2nd moment. 
+         DO S = 1, N_MODE
+            N = AEROSRF_MAP( S )
+            MOMENT2_CONC( S ) = CGRID( C,R,1,N ) / SNGL( PI )
          END DO
-      END DO
-
-      DO NCELL = 1, CELLNUM
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C *** transform surface area to 2nd moment by dividing by PI
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-         CBLK( NCELL,VAT2 ) = CBLK( NCELL,VSURFAT ) / PI
-         CBLK( NCELL,VAC2 ) = CBLK( NCELL,VSURFAC ) / PI
-         IF ( AE_VRSN .EQ. 'AE5' ) 
-     &     CBLK( NCELL,VCO2 ) = CBLK( NCELL,VSURFCO ) / PI
-
-      END DO
-
-C *** code from getpar
-
-C *** compute 3rd moments, 2nd moments, and masses of each mode
-
-C *** Adjust the 3rd and 2nd moments for H2O and SOA. ***
-C       The transport codes post-AE2 consider the aerosol to be "dry",
-C     that is not to have H2O in the 2nd moment. The approach here
-C     is to calculate the 3rd moments without H2O (OLD_M3I and OLD_M3J),
-C     then add the contribution of water (NEW_M3I AND NEW_M3J), and then
-C     adjust the 2nd moments holding the geometric standard deviations
-C     constant. To preserve the standard deviations, the ratio of
-C     the NEW to OLD 2nd moments is equal to the ratio of NEW to OLD
-C     3rd moments raised to the two thirds power.  The reason for this
-C     adjustment is that aerosols are deposited at ambient conditions,
-C     which includes particle-bound H2O.
-C *** 12/17/03 revision --S.Roselle
-C       SOA was removed from 2nd moment for transport (i.e., "dry"
-C     is now defined as containing neither H2O nor SOA).  Therefore,
-C     SOA must be added back for deposition in a manner analogous to
-C     the treatment of H2O.
-C *** 01/30/08 revision --S.Napelenok & P.Bhave
-C       Modified definition of "dry" aerosol to include the newly added
-C     nonvolatile SOA species (AE5 only)
 
-
-      IF ( AE_VRSN .EQ. 'AE3' ) THEN
-
-         DO LCELL = 1, CELLNUM
-
-C *** calculate third moments without contribution of H2O and SOA
-
-            OLD_M3I = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4AI  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4AI  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3AI  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGPAI ) +
-     &            ANTHFAC * CBLK( LCELL,VP25AI  ) +
-     &            ANTHFAC * CBLK( LCELL,VECI    ) ) )
-
-            OLD_M3J = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4AJ  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4AJ  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3AJ  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGPAJ ) +
-     &            ANTHFAC * CBLK( LCELL,VP25AJ  ) +
-     &            ANTHFAC * CBLK( LCELL,VECJ    ) ) )
-
-C *** add contribution of water and SOA to third moment
-
-            NEW_M3I = OLD_M3I + H2OFAC  * CBLK( LCELL,VH2OAI   )
-     &                        + ORGFAC  * CBLK( LCELL,VORGAI )
-     &                        + ORGFAC  * CBLK( LCELL,VORGBAI )
-            CBLK( LCELL,VAT3 ) = NEW_M3I
-
-            NEW_M3J = OLD_M3J + H2OFAC  * CBLK( LCELL,VH2OAJ   )
-     &                        + ORGFAC  * CBLK( LCELL,VORGAJ )
-     &                        + ORGFAC  * CBLK( LCELL,VORGBAJ )
-            CBLK( LCELL,VAC3 ) = NEW_M3J
-
-C *** fetch second moment for "dry" particles
-
-            OLD_M2I = CBLK( LCELL,VAT2 )
-            OLD_M2J = CBLK( LCELL,VAC2 )
-
-C *** adjust second moment for "wet" particles
-
-            NEW_M2I = OLD_M2I * ( NEW_M3I / OLD_M3I ) ** TWO3
-            CBLK( LCELL,VAT2 ) = NEW_M2I
-
-            NEW_M2J = OLD_M2J * ( NEW_M3J / OLD_M3J ) ** TWO3
-            CBLK( LCELL,VAC2 ) = NEW_M2J
-
-C *** coarse mode third moment
-
-            CBLK( LCELL, VCO3 ) = MAX( CONMIN,
-     &        ( SOILFAC * CBLK( LCELL,VSOILA ) +
-     &          SEASFAC * CBLK( LCELL,VSEAS  ) +
-     &          ANTHFAC * CBLK( LCELL,VANTHA ) ) )
-
-C *** now get particle mass [ ug/m**3 ] ( including water & SOA )
-
-C *** Aitken-mode:
-
-            PMASSAT( LCELL ) = MAX( CONMIN,
-     &         ( CBLK( LCELL,VSO4AI  ) +
-     &           CBLK( LCELL,VNH4AI  ) +
-     &           CBLK( LCELL,VNO3AI  ) +
-     &           CBLK( LCELL,VORGAI  ) +
-     &           CBLK( LCELL,VORGPAI ) +
-     &           CBLK( LCELL,VORGBAI ) +
-     &           CBLK( LCELL,VP25AI  ) +
-     &           CBLK( LCELL,VECI    ) +
-     &           CBLK( LCELL,VH2OAI  ) ) )
-
-C *** Accumulation-mode:
-
-            PMASSAC( LCELL ) = MAX( CONMIN,
-     &          ( CBLK( LCELL,VSO4AJ  ) +
-     &            CBLK( LCELL,VNH4AJ  ) +
-     &            CBLK( LCELL,VNO3AJ  ) +
-     &            CBLK( LCELL,VORGAJ  ) +
-     &            CBLK( LCELL,VORGPAJ ) +
-     &            CBLK( LCELL,VORGBAJ ) +
-     &            CBLK( LCELL,VP25AJ  ) +
-     &            CBLK( LCELL,VECJ    ) +
-     &            CBLK( LCELL,VH2OAJ   ) ) )
-
-C *** coarse mode:
-
-            PMASSCO( LCELL ) = MAX( CONMIN,
-     &         CBLK( LCELL,VSOILA ) +
-     &         CBLK( LCELL,VSEAS  ) +
-     &         CBLK( LCELL,VANTHA ) )
-
-         END DO ! cell loop for moments and masses of each mode
-
-
-      ELSE IF ( AE_VRSN .EQ. 'AE4' ) THEN
-
-         DO LCELL = 1, CELLNUM
-
-C *** calculate third moments without contribution of H2O and SOA
-
-            OLD_M3I = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4AI  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4AI  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3AI  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGPAI ) +
-     &            ANTHFAC * CBLK( LCELL,VP25AI  ) +
-     &            ANTHFAC * CBLK( LCELL,VECI    ) +
-     &            SEASFAC * CBLK( LCELL,VNAI    ) +
-     &            SEASFAC * CBLK( LCELL,VCLI    ) ) )
-
-            OLD_M3J = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4AJ  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4AJ  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3AJ  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGPAJ ) +
-     &            ANTHFAC * CBLK( LCELL,VP25AJ  ) +
-     &            ANTHFAC * CBLK( LCELL,VECJ    ) +
-     &            SEASFAC * CBLK( LCELL,VNAJ    ) +
-     &            SEASFAC * CBLK( LCELL,VCLJ    ) ) )
-
-C *** add contribution of water and SOA to third moment
-
-            NEW_M3I = OLD_M3I + H2OFAC  * CBLK( LCELL,VH2OAI   )
-     &                        + ORGFAC  * CBLK( LCELL,VORGAI )
-     &                        + ORGFAC  * CBLK( LCELL,VORGBAI )
-            CBLK( LCELL,VAT3 ) = NEW_M3I
-
-            NEW_M3J = OLD_M3J + H2OFAC  * CBLK( LCELL,VH2OAJ   )
-     &                        + ORGFAC  * CBLK( LCELL,VORGAJ )
-     &                        + ORGFAC  * CBLK( LCELL,VORGBAJ )
-            CBLK( LCELL,VAC3 ) = NEW_M3J
-
-C *** fetch second moment for "dry" particles
-
-            OLD_M2I = CBLK( LCELL,VAT2 )
-            OLD_M2J = CBLK( LCELL,VAC2 )
-
-C *** adjust second moment for "wet" particles
-
-            NEW_M2I = OLD_M2I * ( NEW_M3I / OLD_M3I ) ** TWO3
-            CBLK( LCELL,VAT2 ) = NEW_M2I
-
-            NEW_M2J = OLD_M2J * ( NEW_M3J / OLD_M3J ) ** TWO3
-            CBLK( LCELL,VAC2 ) = NEW_M2J
-
-C *** coarse mode third moment
-
-            CBLK( LCELL, VCO3 ) = MAX( CONMIN,
-     &        ( SOILFAC * CBLK( LCELL,VSOILA ) +
-     &          ANTHFAC * CBLK( LCELL,VANTHA ) +
-     &          SEASFAC * CBLK( LCELL,VNAK   ) +
-     &          SEASFAC * CBLK( LCELL,VCLK   ) +
-     &          SO4FAC  * CBLK( LCELL,VSO4K  ) +
-     &          NO3FAC  * CBLK( LCELL,VNO3K  ) +
-     &          H2OFAC  * CBLK( LCELL,VH2OK  ) ) )
-
-C *** now get particle mass [ ug/m**3 ] ( including water & SOA )
-
-C *** Aitken-mode:
-
-            PMASSAT( LCELL ) = MAX( CONMIN,
-     &         ( CBLK( LCELL,VSO4AI  ) +
-     &           CBLK( LCELL,VNH4AI  ) +
-     &           CBLK( LCELL,VNO3AI  ) +
-     &           CBLK( LCELL,VORGAI  ) +
-     &           CBLK( LCELL,VORGPAI ) +
-     &           CBLK( LCELL,VORGBAI ) +
-     &           CBLK( LCELL,VP25AI  ) +
-     &           CBLK( LCELL,VECI    ) +
-     &           CBLK( LCELL,VNAI    ) +
-     &           CBLK( LCELL,VCLI    ) +
-     &           CBLK( LCELL,VH2OAI  ) ) )
-
-C *** Accumulation-mode:
-         
-            PMASSAC( LCELL ) = MAX( CONMIN,
-     &          ( CBLK( LCELL,VSO4AJ  ) +
-     &            CBLK( LCELL,VNH4AJ  ) +
-     &            CBLK( LCELL,VNO3AJ  ) +
-     &            CBLK( LCELL,VORGAJ  ) +
-     &            CBLK( LCELL,VORGPAJ ) +
-     &            CBLK( LCELL,VORGBAJ ) +
-     &            CBLK( LCELL,VP25AJ  ) +
-     &            CBLK( LCELL,VECJ    ) +
-     &            CBLK( LCELL,VNAJ    ) +
-     &            CBLK( LCELL,VCLJ    ) +
-     &            CBLK( LCELL,VH2OAJ  ) ) )
-         
-C *** coarse mode:
-
-            PMASSCO( LCELL ) = MAX( CONMIN,
-     &         CBLK( LCELL,VSOILA ) +
-     &         CBLK( LCELL,VANTHA ) +
-     &         CBLK( LCELL,VNAK   ) +
-     &         CBLK( LCELL,VCLK   ) +
-     &         CBLK( LCELL,VSO4K  ) +
-     &         CBLK( LCELL,VNO3K  ) +
-     &         CBLK( LCELL,VH2OK  ) )
-
-         END DO !  cell loop for moments and masses of each mode
-
-
-      ELSE IF ( AE_VRSN .EQ. 'AE5' ) THEN
-
-         DO LCELL = 1, CELLNUM
-
-C *** calculate third moments without contribution of H2O and semi-vol SOA
-
-            OLD_M3I = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4AI  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4AI  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3AI  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGPAI ) +
-     &            ANTHFAC * CBLK( LCELL,VP25AI  ) +
-     &            ANTHFAC * CBLK( LCELL,VECI    ) +
-     &            SEASFAC * CBLK( LCELL,VNAI    ) +
-     &            SEASFAC * CBLK( LCELL,VCLI    ) ) )
-
-            OLD_M3J = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4AJ  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4AJ  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3AJ  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGPAJ ) +
-     &            ORGFAC  * CBLK( LCELL,VXYL3J  ) +
-     &            ORGFAC  * CBLK( LCELL,VTOL3J  ) +
-     &            ORGFAC  * CBLK( LCELL,VBNZ3J  ) +
-     &            ORGFAC  * CBLK( LCELL,VISO3J  ) +
-     &            ORGFAC  * CBLK( LCELL,VOLGAJ  ) +
-     &            ORGFAC  * CBLK( LCELL,VOLGBJ  ) +
-     &            ORGFAC  * CBLK( LCELL,VORGCJ  ) +
-     &            ANTHFAC * CBLK( LCELL,VP25AJ  ) +
-     &            ANTHFAC * CBLK( LCELL,VECJ    ) +
-     &            SEASFAC * CBLK( LCELL,VNAJ    ) +
-     &            SEASFAC * CBLK( LCELL,VCLJ    ) ) )
-
-            OLD_M3K = MAX( CONMIN,
-     &          ( SO4FAC  * CBLK( LCELL,VSO4K  ) +
-     &            NH4FAC  * CBLK( LCELL,VNH4K  ) +
-     &            NO3FAC  * CBLK( LCELL,VNO3K  ) +
-     &            SOILFAC * CBLK( LCELL,VSOILA ) +
-     &            ANTHFAC * CBLK( LCELL,VANTHA ) +
-     &            SEASFAC * CBLK( LCELL,VNAK   ) +
-     &            SEASFAC * CBLK( LCELL,VCLK   ) ) )
-
-C *** add contribution of water and semi-volatile SOA to third moment
-
-            NEW_M3I = OLD_M3I + H2OFAC * CBLK( LCELL,VH2OAI   )
-            CBLK( LCELL,VAT3 ) = NEW_M3I
-
-            NEW_M3J = OLD_M3J + H2OFAC * CBLK( LCELL,VH2OAJ )
-     &                        + ORGFAC * CBLK( LCELL,VALKJ  )
-     &                        + ORGFAC * CBLK( LCELL,VXYL1J )
-     &                        + ORGFAC * CBLK( LCELL,VXYL2J )
-     &                        + ORGFAC * CBLK( LCELL,VTOL1J )
-     &                        + ORGFAC * CBLK( LCELL,VTOL2J )
-     &                        + ORGFAC * CBLK( LCELL,VBNZ1J )
-     &                        + ORGFAC * CBLK( LCELL,VBNZ2J )
-     &                        + ORGFAC * CBLK( LCELL,VTRP1J )
-     &                        + ORGFAC * CBLK( LCELL,VTRP2J )
-     &                        + ORGFAC * CBLK( LCELL,VISO1J )
-     &                        + ORGFAC * CBLK( LCELL,VISO2J )
-     &                        + ORGFAC * CBLK( LCELL,VSQTJ  )
-            CBLK( LCELL,VAC3 ) = NEW_M3J
-
-            NEW_M3K = OLD_M3K + H2OFAC * CBLK( LCELL,VH2OK)
-            CBLK( LCELL, VCO3 ) = NEW_M3K
-
-C *** fetch second moment for "dry" particles
-
-            OLD_M2I = CBLK( LCELL,VAT2 )
-            OLD_M2J = CBLK( LCELL,VAC2 )
-            OLD_M2K = CBLK( LCELL,VCO2 )
-
-C *** adjust second moment for "wet" particles
-
-            NEW_M2I = OLD_M2I * ( NEW_M3I / OLD_M3I ) ** TWO3
-            CBLK( LCELL,VAT2 ) = NEW_M2I
-
-            NEW_M2J = OLD_M2J * ( NEW_M3J / OLD_M3J ) ** TWO3
-            CBLK( LCELL,VAC2 ) = NEW_M2J
-
-            NEW_M2K = OLD_M2K * ( NEW_M3K / OLD_M3K ) ** TWO3 
-            CBLK( LCELL,VCO2 ) = NEW_M2K
-
-C *** now get particle mass [ ug/m**3 ] ( including water & semi-vol SOA )
-
-C *** Aitken-mode:
-
-            PMASSAT( LCELL ) = MAX( CONMIN,
-     &         ( CBLK( LCELL,VSO4AI  ) +
-     &           CBLK( LCELL,VNH4AI  ) +
-     &           CBLK( LCELL,VNO3AI  ) +
-     &           CBLK( LCELL,VORGPAI ) +
-     &           CBLK( LCELL,VP25AI  ) +
-     &           CBLK( LCELL,VECI    ) +
-     &           CBLK( LCELL,VNAI    ) +
-     &           CBLK( LCELL,VCLI    ) +
-     &           CBLK( LCELL,VH2OAI  ) ) )
-
-C *** Accumulation-mode:
-
-            PMASSAC( LCELL ) = MAX( CONMIN,
-     &          ( CBLK( LCELL,VSO4AJ  ) +
-     &            CBLK( LCELL,VNH4AJ  ) +
-     &            CBLK( LCELL,VNO3AJ  ) +
-     &            CBLK( LCELL,VALKJ   ) +
-     &            CBLK( LCELL,VXYL1J  ) +
-     &            CBLK( LCELL,VXYL2J  ) +
-     &            CBLK( LCELL,VXYL3J  ) +
-     &            CBLK( LCELL,VTOL1J  ) +
-     &            CBLK( LCELL,VTOL2J  ) +
-     &            CBLK( LCELL,VTOL3J  ) +
-     &            CBLK( LCELL,VBNZ1J  ) +
-     &            CBLK( LCELL,VBNZ2J  ) +
-     &            CBLK( LCELL,VBNZ3J  ) +
-     &            CBLK( LCELL,VTRP1J  ) +
-     &            CBLK( LCELL,VTRP2J  ) +
-     &            CBLK( LCELL,VISO1J  ) +
-     &            CBLK( LCELL,VISO2J  ) +
-     &            CBLK( LCELL,VISO3J  ) +
-     &            CBLK( LCELL,VSQTJ   ) +
-     &            CBLK( LCELL,VOLGAJ  ) +
-     &            CBLK( LCELL,VOLGBJ  ) +
-     &            CBLK( LCELL,VORGCJ  ) +
-     &            CBLK( LCELL,VORGPAJ ) +
-     &            CBLK( LCELL,VP25AJ  ) +
-     &            CBLK( LCELL,VECJ    ) +
-     &            CBLK( LCELL,VNAJ    ) +
-     &            CBLK( LCELL,VCLJ    ) +
-     &            CBLK( LCELL,VH2OAJ  ) ) )
-
-C *** coarse mode:
-
-            PMASSCO( LCELL ) = MAX( CONMIN,
-     &         CBLK( LCELL,VSOILA ) +
-     &         CBLK( LCELL,VANTHA ) +
-     &         CBLK( LCELL,VNAK   ) +
-     &         CBLK( LCELL,VCLK   ) +
-     &         CBLK( LCELL,VSO4K  ) +
-     &         CBLK( LCELL,VNO3K  ) +
-     &         CBLK( LCELL,VNH4K  ) +
-     &         CBLK( LCELL,VH2OK  ) )
-
-         END DO !  cell loop for moments and masses of each mode
-         
-      END IF ! check on AE_VRSN
-
-C *** now get particle density, mean free path, and dynamic viscosity
-
-      DO LCELL = 1, CELLNUM
-
-C *** density in [ kg m**-3 ]
-
-         PDENSAT( LCELL ) = MAX( DENSMIN,
-     &                           ( F6DPIM9 * PMASSAT( LCELL ) /
-     &                                CBLK( LCELL,VAT3 ) ) )
-         PDENSAC( LCELL ) = MAX( DENSMIN,
-     &                           ( F6DPIM9 * PMASSAC( LCELL ) /
-     &                                CBLK( LCELL,VAC3 ) ) )
-         PDENSCO( LCELL ) = MAX( DENSMIN,
-     &                           ( F6DPIM9 * PMASSCO( LCELL ) /
-     &                                CBLK( LCELL,VCO3 ) ) )
-
-C *** Calculate mean free path [ m ]:
-
-         XLM( LCELL ) = 6.6328E-8 * P0 * BLKTA( LCELL )
-     &                / ( T0 * BLKPRS( LCELL) )
-
-C *** 6.6328E-8 is the sea level values given in Table I.2.8
-C *** on page 10 of U.S. Standard Atmosphere 1962
-
-C *** Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
-
-C *** U.S. Standard Atmosphere 1962 page 14 expression
-C     for dynamic viscosity is:
-c     dynamic viscosity =  beta * T * sqrt(T) / ( T + S)
-c     where beta = 1.458e-6 [ kg sec^-1 K**-0.5 ], s = 110.4 [ K ].
-
-         AMU( LCELL ) = 1.458E-6 * BLKTA( LCELL ) * SQRT( BLKTA( LCELL ) )
-     &                / ( BLKTA( LCELL ) + 110.4 )
-
-      END DO  ! cell loop for density and mean free path
-
-C *** Calculate geometric standard deviations and geometric mean diameters
-
-      DO LCELL = 1, CELLNUM
-
-C *** geometric standard deviations
-C *** Aitken Mode:
-
-         L2SGAT =
-     &      ONE3 * LOG( CBLK( LCELL,VAT0 ) ) +
-     &      TWO3 * LOG( CBLK( LCELL,VAT3 ) ) -
-     &             LOG( CBLK( LCELL,VAT2 ) )
-
-         L2SGAT = MAX( MINL2SG, L2SGAT )
-         L2SGAT = MIN( MAXL2SG, L2SGAT )
-
-         XXLSGAT( LCELL ) = SQRT( L2SGAT )
-         ESAT36 = EXP( 4.5 * L2SGAT )
-
-C *** accumulation mode:
-
-         L2SGAC =
-     &      ONE3 * LOG( CBLK( LCELL,VAC0 ) ) +
-     &      TWO3 * LOG( CBLK( LCELL,VAC3 ) ) -
-     &             LOG( CBLK( LCELL,VAC2 ) )
-
-         L2SGAC = MAX( MINL2SG, L2SGAC )
-         L2SGAC = MIN( MAXL2SG, L2SGAC )
-         XXLSGAC( LCELL ) = SQRT( L2SGAC )
-         ESAC36 = EXP( 4.5 * L2SGAC )
-
-C *** coarse mode:
-
-         IF ( AE_VRSN .EQ. 'AE5' ) THEN
-
-            L2SGCO =
-     &         ONE3 * LOG( CBLK( LCELL,VCO0 ) ) +
-     &         TWO3 * LOG( CBLK( LCELL,VCO3 ) ) -
-     &                LOG( CBLK( LCELL,VCO2 ) )
-            
-            L2SGCO = MAX( MINL2SG, L2SGCO )
-            L2SGCO = MIN( MAXL2SG, L2SGCO )
-            XXLSGCO( LCELL ) = SQRT( L2SGCO )
-            ESCO36 = EXP( 4.5 * L2SGCO )
-            
-         ELSE  ! coarse mode has fixed standard deviation
-         
-            XXLSGCO( LCELL ) = LOG ( SGINICO )
-            L2SGCO = XXLSGCO( LCELL ) * XXLSGCO( LCELL )
-            ESCO36 = EXP ( 4.5 * L2SGCO )
-            
-         END IF
-
-C *** Calculate geometric mean diameters [ m ]
-
-         DGATK( LCELL ) = MAX( DGMIN, (  CBLK( LCELL,VAT3 ) /
-     &                         ( CBLK( LCELL,VAT0 ) * ESAT36 ) ) ** ONE3 )
-
-         DGACC( LCELL ) = MAX( DGMIN, (  CBLK( LCELL,VAC3 ) /
-     &                         ( CBLK( LCELL,VAC0 ) * ESAC36 ) ) ** ONE3 )
-
-         DGCOR( LCELL ) = MAX( DGMIN, (  CBLK( LCELL,VCO3 ) /
-     &                         ( CBLK( LCELL,VCO0 ) * ESCO36 ) ) ** ONE3  )
-
-      END DO  ! end loop for diameters and standard deviations
-
-C *** end of code from getpar
-
-ccccccccccccccccccccccccccccccccccccccccc
-C *** now get dry deposition velocities:
-ccccccccccccccccccccccccccccccccccccccccc
-
-      CALL GETDEP_V ( CELLNUM, N_AE_DEP_SPC,
-     &                BLKTA, BLKDENS,
+C ***    Calculate geometric mean diameters and standard deviations of the
+C        "dry" size distribution
+         CALL GETPAR( .FALSE., .FALSE. ) 
+
+C add contribution of water and SOA
+
+C        Aitken mode.
+         M3_DRY = MOMENT3_CONC( 1 )
+         M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+     &          * AEROSPC_CONC( AH2O_IDX,1 )
+         M3_WET = M3_DRY + M3SUBT
+         M2_DRY = MOMENT2_CONC( 1 )
+         M2_WET= M2_DRY * ( M3_WET / M3_DRY ) ** TWO3
+
+         MOMENT3_CONC( 1 ) = MAX( CONMIN, M3_WET )
+         MOMENT2_CONC( 1 ) = MAX( CONMIN, M2_WET )
+
+C        accumulation mode.
+         M3_DRY = MOMENT3_CONC( 2 )
+
+         M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+     &          * AEROSPC_CONC( AH2O_IDX,2 )
+         DO SPC = 1, N_VAPOR
+            M3SUBT = M3SUBT + ( 1.0E-9 * F6DPI / AEROSPC( AORGPA_IDX )%DENSITY )
+     &             * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
+         END DO
+
+         M3_WET = M3_DRY + M3SUBT
+         M2_DRY = MOMENT2_CONC(2)
+         M2_WET = M2_DRY * ( M3_WET / M3_DRY ) ** TWO3
+
+         MOMENT3_CONC( 2 ) = MAX( CONMIN, M3_WET )
+         MOMENT2_CONC( 2 ) = MAX( CONMIN, M2_WET )
+
+C        coarse mode
+         M3_DRY = moment3_conc(3)
+         M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+     &          * AEROSPC_CONC( AH2O_IDX,3 )
+         M3_WET = M3_DRY + M3SUBT
+         M2_DRY = MOMENT2_CONC( 3 )
+         M2_WET = M2_DRY * ( M3_WET / M3_DRY ) ** TWO3
+
+         MOMENT3_CONC( 3 ) = MAX( CONMIN, M3_WET )
+         MOMENT2_CONC( 3 ) = MAX( CONMIN, M2_WET )
+
+C ***    Calculate geometric mean diameters and standard deviations of the
+C        "wet" size distribution
+         CALL GETPAR( .TRUE., .FALSE. )     
+
+C        Save getpar values to arrays
+         XXLSGAT( C,R ) = AEROMODE_SDEV( 1 )
+         XXLSGAC( C,R ) = AEROMODE_SDEV( 2 )
+         XXLSGCO( C,R ) = AEROMODE_SDEV( 3 )
+
+         DGATK( C,R )   = AEROMODE_DIAM( 1 )
+         DGACC( C,R )   = AEROMODE_DIAM( 2 )
+         DGCOR( C,R )   = AEROMODE_DIAM( 3 )
+
+         PDENSAT( C,R ) = AEROMODE_DENS( 1 )
+         PDENSAC( C,R ) = AEROMODE_DENS( 2 )
+         PDENSCO( C,R ) = AEROMODE_DENS( 3 )
+ 
+C        Calculate mean free path [ m ]:
+         XLM( C,R ) = 6.6328E-8 * P0 * AIRTEMP / ( T0 * AIRPRES )
+
+C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
+         AMU( C,R ) = 1.458E-6 * AIRTEMP * SQRT( AIRTEMP )
+     &              / ( AIRTEMP + 110.4 )
+
+         END DO ! Column LOOP
+      END DO   ! Row LOOP
+
+C *** get dry deposition velocities:
+
+      CALL GETDEP_V ( NCELLS, N_AE_DEP_SPC,
+     &                TA, DENS,
      &                XLM, AMU,
-     &                BLKWSTAR, BLKUSTAR, BLKRA,
+     &                WSTAR, USTAR, RA,
      &                DGATK, DGACC, DGCOR,
      &                XXLSGAT, XXLSGAC, XXLSGCO,
      &                PDENSAT, PDENSAC, PDENSCO,
      &                VDEP )
 
-C Return dry deposition velocities for aerosols.
-C These variables are for the first layer only.
+C Return dry deposition velocities for aerosols (first layer only).
 
-      DO NCELL = 1, CELLNUM
-         C = CCOL( NCELL )
-         R = CROW( NCELL )
-         DO V = 1, N_AE_DEPV
-            IF ( DEPV_SUR( V ) .GT. 0 ) THEN
-               VDEP_AE( V,C,R ) = VDEP( NCELL, DEPV_SUR( V ) )
-            ELSE
-               VDEP_AE( V,C,R ) = 0.0
-            END IF
+      N = 0
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
+            N = N + 1
+            DO V = 1, N_AE_DEPV
+               IF ( DEPV_SUR( V ) .GT. 0 ) THEN
+                  VDEP_AE( V,C,R ) = VDEP( N,DEPV_SUR( V ) )
+               ELSE
+                  VDEP_AE( V,C,R ) = 0.0
+               END IF
+            END DO
          END DO
       END DO
 
       RETURN
       END SUBROUTINE AERO_DEPV
 
-cccccccccccccccccccccccccccccccccccccccccccccccccc
-C *** subroutine for deposition velocities follows
-cccccccccccccccccccccccccccccccccccccccccccccccccc
-
-C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETDEP_V ( NUMCELLS, N_AE_DEP_SPC,
      &                      BLKTA, BLKDENS,
      &                      XLM, AMU,
@@ -1913,7 +491,7 @@ C     Reference:
 C     Binkowski F. S., and U. Shankar, The regional particulate
 C     model 1. Model description and preliminary results.
 C     J. Geophys. Res., 100, D12, 26191-26209, 1995.
-C
+ 
 C    May 05 D.Schwede: added impaction term to coarse mode dry deposition
 C 25 May 05 J.Pleim:  Updated dry dep velocity calculation for aerosols
 C                     to Venkatram and Pleim (1999)
@@ -1924,26 +502,24 @@ C                     coarse surface area and to account for variable
 C                     standard deviation of the coarse mode.
 C 08 Sep 08 P.Bhave:  Backward compatibility with AE4 mechanisms
 C                     standardized names of all coarse-mode variables
+C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-C *** input argumets
+C *** input arguments
 
       INTEGER NUMCELLS
       INTEGER N_AE_DEP_SPC
 
 C     meteorological information in blocked arays:
-
       REAL BLKTA  ( NUMCELLS )  ! air temperature [ K ]
       REAL BLKDENS( NUMCELLS )  ! air density  [ kg/m**3 ]
 
 C     atmospheric properties
-
       REAL XLM( NUMCELLS )      ! atmospheric mean free path [ m ]
       REAL AMU( NUMCELLS )      ! atmospheric dynamic viscosity [ kg/(m s) ]
 
 C     Planetary boundary laryer (PBL) variables:
-
       REAL BLKWSTAR( NUMCELLS ) ! convective velocity scale [ m/s ]
       REAL BLKUSTAR( NUMCELLS ) ! friction velocity [ m/s ]
       REAL BLKRA   ( NUMCELLS ) ! aerodynamic resistance [ s/m ]
@@ -1951,19 +527,16 @@ C     Planetary boundary laryer (PBL) variables:
 C     aerosol properties:
 
 C     modal diameters: [ m ]
-
       REAL DGATK( NUMCELLS )    ! nuclei mode geometric mean diameter  [ m ]
       REAL DGACC( NUMCELLS )    ! accumulation geometric mean diameter [ m ]
       REAL DGCOR( NUMCELLS )    ! coarse mode geometric mean diameter  [ m ]
 
 C     log of modal geometric standard deviations
-
       REAL XXLSGAT( NUMCELLS )  ! Aitken mode
       REAL XXLSGAC( NUMCELLS )  ! accumulation mode
       REAL XXLSGCO( NUMCELLS )  ! coarse mode
 
 C     average modal particle densities  [ kg/m**3 ]
-
       REAL PDENSAT( NUMCELLS )  ! average particle density in nuclei mode
       REAL PDENSAC( NUMCELLS )  ! average particle density in accumulation mode
       REAL PDENSCO( NUMCELLS )  ! average particle density in coarse mode
@@ -1973,31 +546,27 @@ C *** output argument
       REAL VDEP( NUMCELLS,N_AE_DEP_SPC ) ! deposition  velocity [ m/s ]
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
-
-      INTEGER, PARAMETER :: VDNATK = 1  ! Aitken mode number
-      INTEGER, PARAMETER :: VDNACC = 2  ! accumulation mode number
-      INTEGER, PARAMETER :: VDNCOR = 3  ! coarse mode number
-      INTEGER, PARAMETER :: VDMATK = 4  ! Aitken mode mass
-      INTEGER, PARAMETER :: VDMACC = 5  ! accumulation mode mass
-      INTEGER, PARAMETER :: VDMCOR = 6  ! coarse mode mass
-      INTEGER, PARAMETER :: VDSATK = 7  ! Aitken mode surface area
-      INTEGER, PARAMETER :: VDSACC = 8  ! accumulation mode surface area
-      INTEGER, PARAMETER :: VDSCOR = 9  ! coarse mode surface area
+      INTEGER, PARAMETER :: VDNATK = 1,  ! Aitken mode number
+     &                      VDNACC = 2,  ! accumulation mode number
+     &                      VDNCOR = 3,  ! coarse mode number
+     &                      VDMATK = 4,  ! Aitken mode mass
+     &                      VDMACC = 5,  ! accumulation mode mass
+     &                      VDMCOR = 6,  ! coarse mode mass
+     &                      VDSATK = 7,  ! Aitken mode surface area
+     &                      VDSACC = 8,  ! accumulation mode surface area
+     &                      VDSCOR = 9   ! coarse mode surface area
 
 C modal Knudsen numbers
-
       REAL KNATK   ! Aitken mode Knudsen number
       REAL KNACC   ! accumulation "
       REAL KNCOR   ! coarse mode
 
 C modal particle diffusivities for number, 2nd, and 3rd moment, or mass:
-
       REAL DCHAT0N, DCHAT0A, DCHAT0C
       REAL DCHAT2N, DCHAT2A, DCHAT2C
       REAL DCHAT3N, DCHAT3A, DCHAT3C
 
 C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
-
       REAL VGHAT0N, VGHAT0A, VGHAT0C
       REAL VGHAT2N, VGHAT2A, VGHAT2C
       REAL VGHAT3N, VGHAT3A, VGHAT3C
@@ -2017,32 +586,21 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL NU                   ! kinematic viscosity [ m**2 s**-1 ]
       REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
 
-      REAL, PARAMETER :: BHAT = 1.246 ! Constant from Cunningham slip correction
-
-      REAL, PARAMETER :: PI      = 3.141593 ! single precision
-
-      REAL, PARAMETER :: PI6     = PI / 6.0
-
-      REAL, PARAMETER :: THREEPI = 3.0 * PI
-
-      REAL, PARAMETER :: ONE3    = 1.0 / 3.0
-
-      REAL, PARAMETER :: TWO3    = 2.0 / 3.0
-
-      REAL, PARAMETER :: AVO = 6.0221367 E23 ! Avogadro's Constant [ 1/mol ]
-
-      REAL, PARAMETER :: RGASUNIV = 8.314510 ! universal gas const [ J/mol-K ]
-
-      REAL, PARAMETER :: BOLTZ = RGASUNIV / AVO ! Boltzmann's Constant [ J/K ]
-
-      REAL, PARAMETER :: GRAV = 9.80622 ! mean gravitational accel [ m/sec**2 ]
-                                        ! FSB NOTE: Value is now mean of polar
-                                        ! and equatorial values. Source: CRC
-                                        ! Handbook (76th Ed) page 14-6.
+      REAL, PARAMETER :: BHAT     = 1.246 ! Constant from Cunningham slip correction
+      REAL, PARAMETER :: PI       = 3.14159265 ! single precision
+      REAL, PARAMETER :: THREEPI  = 3.0 * PI
+      REAL, PARAMETER :: TWO3     = 2.0 / 3.0
+      REAL, PARAMETER :: AVO      = 6.0221367 E23  ! Avogadro's Constant [ 1/mol ]
+      REAL, PARAMETER :: RGASUNIV = 8.314510       ! universal gas const [ J/mol-K ]
+      REAL, PARAMETER :: BOLTZ    = RGASUNIV / AVO ! Boltzmann's Constant [ J/K ]
+      REAL, PARAMETER :: GRAV     = 9.80622  ! mean gravitational accel [ m/sec**2 ]
+                                             ! FSB NOTE: Value is now mean of polar
+                                             ! and equatorial values. Source: CRC
+                                             ! Handbook (76th Ed) page 14-6.
 
 C Scalar variables for  VARIABLE standard deviations.
 
-      REAL    L2SGAT, L2SGAC    ! see usage
+      REAL    L2SGAT, L2SGAC   ! see usage
       REAL    L2SGCO
 
       REAL    EAT1             ! Aitken mode exp( log^2( sigmag )/8 )
@@ -2115,7 +673,7 @@ C Scalar variables for  VARIABLE standard deviations.
 
       REAL    EIM              ! Impaction efficiency
 
-C----------------------------------------------------------------------
+C-----------------------------------------------------------------------
 
       DO NCELL = 1, NUMCELLS ! Calculate Knudsen numbers
 
@@ -2125,9 +683,9 @@ C----------------------------------------------------------------------
 
 C *** Calculate functions of variable standard deviation.
 
-         L2SGAT = XXLSGAT(NCELL) * XXLSGAT(NCELL)
-         L2SGAC = XXLSGAC(NCELL) * XXLSGAC(NCELL)
-         L2SGCO = XXLSGCO(NCELL) * XXLSGCO(NCELL)
+         L2SGAT = XXLSGAT( NCELL ) * XXLSGAT( NCEL L)
+         L2SGAC = XXLSGAC( NCELL ) * XXLSGAC( NCEL L)
+         L2SGCO = XXLSGCO( NCELL ) * XXLSGCO( NCEL L)
 
          EAT1   = EXP( 0.125 * L2SGAT )
          EAC1   = EXP( 0.125 * L2SGAC )
@@ -2199,60 +757,38 @@ C *** calculate inverses:
          ESACM32 = 1.0 / ESAC32
          ESCOM32 = 1.0 / ESCO32
 
-         DCONST1 = BOLTZ * BLKTA( NCELL ) /
-     &              ( THREEPI * AMU( NCELL ) )
+         DCONST1  = BOLTZ * BLKTA( NCELL ) / ( THREEPI * AMU( NCELL ) )
          DCONST1N = DCONST1 / DGATK( NCELL )
          DCONST1A = DCONST1 / DGACC( NCELL )
          DCONST1C = DCONST1 / DGCOR( NCELL )
          DCONST2  = GRAV / ( 18.0 * AMU( NCELL ) )
-         DCONST3N = DCONST2 * PDENSAT( NCELL ) * DGATK( NCELL ) **2
-         DCONST3A = DCONST2 * PDENSAC( NCELL ) * DGACC( NCELL ) **2
-         DCONST3C = DCONST2 * PDENSCO( NCELL ) * DGCOR( NCELL ) **2
+         DCONST3N = DCONST2 * PDENSAT( NCELL ) * DGATK( NCELL ) ** 2
+         DCONST3A = DCONST2 * PDENSAC( NCELL ) * DGACC( NCELL ) ** 2
+         DCONST3C = DCONST2 * PDENSCO( NCELL ) * DGCOR( NCELL ) ** 2
 
 C i-mode
-
-         DCHAT0N  = DCONST1N
-     &                    * ( ESAT04  + BHAT * KNATK * ESAT16 )
-         DCHAT2N  = DCONST1N
-     &                    * ( ESATM12  + BHAT * KNATK * ESATM16 )
-         DCHAT3N  = DCONST1N
-     &                    * ( ESATM20 + BHAT * KNATK * ESATM32 )
-         VGHAT0N  = DCONST3N
-     &                    * ( ESAT16  + BHAT * KNATK * ESAT04 )
-         VGHAT2N  = DCONST3N
-     &                    * ( ESAT48  + BHAT * KNATK * ESAT20 )
-         VGHAT3N  = DCONST3N
-     &                    * ( ESAT64  + BHAT * KNATK * ESAT28 )
+         DCHAT0N  = DCONST1N * ( ESAT04  + BHAT * KNATK * ESAT16 )
+         DCHAT2N  = DCONST1N * ( ESATM12 + BHAT * KNATK * ESATM16 )
+         DCHAT3N  = DCONST1N * ( ESATM20 + BHAT * KNATK * ESATM32 )
+         VGHAT0N  = DCONST3N * ( ESAT16  + BHAT * KNATK * ESAT04 )
+         VGHAT2N  = DCONST3N * ( ESAT48  + BHAT * KNATK * ESAT20 )
+         VGHAT3N  = DCONST3N * ( ESAT64  + BHAT * KNATK * ESAT28 )
 
 C j-mode
-
-         DCHAT0A  = DCONST1A
-     &                    * ( ESAC04  + BHAT * KNACC * ESAC16 )
-         DCHAT2A  = DCONST1A
-     &                    * ( ESACM12 + BHAT * KNACC * ESACM16 )
-         DCHAT3A  = DCONST1A
-     &                    * ( ESACM20 + BHAT * KNACC * ESACM32 )
-         VGHAT0A  = DCONST3A
-     &                    * ( ESAC16  + BHAT * KNACC * ESAC04 )
-         VGHAT2A  = DCONST3A
-     &                    * ( ESAC48  + BHAT * KNACC * ESAC20 )
-         VGHAT3A  = DCONST3A
-     &                    * ( ESAC64  + BHAT * KNACC * ESAC28 )
+         DCHAT0A  = DCONST1A * ( ESAC04  + BHAT * KNACC * ESAC16 )
+         DCHAT2A  = DCONST1A * ( ESACM12 + BHAT * KNACC * ESACM16 )
+         DCHAT3A  = DCONST1A * ( ESACM20 + BHAT * KNACC * ESACM32 )
+         VGHAT0A  = DCONST3A * ( ESAC16  + BHAT * KNACC * ESAC04 )
+         VGHAT2A  = DCONST3A * ( ESAC48  + BHAT * KNACC * ESAC20 )
+         VGHAT3A  = DCONST3A * ( ESAC64  + BHAT * KNACC * ESAC28 )
 
 C coarse mode
-
-         DCHAT0C  = DCONST1C
-     &                    * ( ESCO04  + BHAT * KNCOR * ESCO16 )
-         DCHAT2C  = DCONST1C
-     &                    * ( ESCOM12 + BHAT * KNCOR * ESCOM16 )
-         DCHAT3C  = DCONST1C
-     &                    * ( ESCOM20 + BHAT * KNCOR * ESCOM32 )
-         VGHAT0C  = DCONST3C
-     &                    * ( ESCO16  + BHAT * KNCOR * ESCO04 )
-         VGHAT2C  = DCONST3C
-     &                    * ( ESCO48  + BHAT * KNCOR * ESCO20 )
-         VGHAT3C  = DCONST3C
-     &                    * ( ESCO64  + BHAT * KNCOR * ESCO28 )
+         DCHAT0C  = DCONST1C * ( ESCO04  + BHAT * KNCOR * ESCO16 )
+         DCHAT2C  = DCONST1C * ( ESCOM12 + BHAT * KNCOR * ESCOM16 )
+         DCHAT3C  = DCONST1C * ( ESCOM20 + BHAT * KNCOR * ESCOM32 )
+         VGHAT0C  = DCONST3C * ( ESCO16  + BHAT * KNCOR * ESCO04 )
+         VGHAT2C  = DCONST3C * ( ESCO48  + BHAT * KNCOR * ESCO20 )
+         VGHAT3C  = DCONST3C * ( ESCO64  + BHAT * KNCOR * ESCO28 )
 
 C now calculate the deposition velocities
 
@@ -2268,107 +804,89 @@ C now calculate the deposition velocities
 C first do 0th moment for the deposition of number
 
 C  Aitken mode
-
          SC0N = NU / DCHAT0N
-         EIM = STOKEN**2 / 400.0 * ESAT64
+         EIM = STOKEN ** 2 / 400.0 * ESAT64
          EIM = MIN( EIM, 1.0 )
-         RD0N = 1.0 / ( UTSCALE *
-     &                ( SC0N ** ( -TWO3 ) + EIM ) )
+         RD0N = 1.0 / ( UTSCALE * ( SC0N ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDNATK ) = VGHAT0N
-     &           / ( 1.0 - EXP(-VGHAT0N * ( BLKRA( NCELL ) + RD0N ) ) )
+     &          / ( 1.0 - EXP( -VGHAT0N * ( BLKRA( NCELL ) + RD0N ) ) )
 
 C accumulation mode
-
          SC0A = NU / DCHAT0A
-         EIM = STOKEA**2 / 400.0 * ESAC64
+         EIM = STOKEA ** 2 / 400.0 * ESAC64
          EIM = MIN( EIM, 1.0 )
-         RD0A = 1.0 / ( UTSCALE *
-     &                ( SC0A ** ( -TWO3 ) + EIM ) )
+         RD0A = 1.0 / ( UTSCALE * ( SC0A ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDNACC ) = VGHAT0A
-     &           / ( 1.0 - EXP(-VGHAT0A * ( BLKRA( NCELL ) + RD0A ) ) )
+     &          / ( 1.0 - EXP( -VGHAT0A * ( BLKRA( NCELL ) + RD0A ) ) )
 
 C coarse mode
-
          SC0C = NU / DCHAT0C
-         EIM = STOKEC**2 / 400.0 * ESCO64
+         EIM = STOKEC ** 2 / 400.0 * ESCO64
          EIM = MIN( EIM, 1.0 )
-         RD0C = 1.0 / ( UTSCALE *
-     &                ( SC0C ** ( -TWO3 ) + EIM ) )
+         RD0C = 1.0 / ( UTSCALE * ( SC0C ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDNCOR ) = VGHAT0C
-     &           / ( 1.0 - EXP(-VGHAT0C * ( BLKRA( NCELL ) + RD0C ) ) )
+     &          / ( 1.0 - EXP( -VGHAT0C * ( BLKRA( NCELL ) + RD0C ) ) )
 
 C now do 2nd moment for the deposition of surface area
 
 C  Aitken mode
-
          SC2N = NU / DCHAT2N
-         EIM = STOKEN**2 / 400.0 * ESAT128
+         EIM = STOKEN ** 2 / 400.0 * ESAT128
          EIM = MIN( EIM, 1.0 )
-         RD2N = 1.0 / ( UTSCALE *
-     &                ( SC2N ** ( -TWO3 ) + EIM ) )
+         RD2N = 1.0 / ( UTSCALE * ( SC2N ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDSATK ) = VGHAT2N
-     &           / ( 1.0 - EXP(-VGHAT2N * ( BLKRA( NCELL ) + RD2N ) ) )
+     &          / ( 1.0 - EXP( -VGHAT2N * ( BLKRA( NCELL ) + RD2N ) ) )
 
 C accumulation mode
-
          SC2A = NU / DCHAT2A
-         EIM = STOKEA**2 / 400.0 * ESAC128
+         EIM = STOKEA ** 2 / 400.0 * ESAC128
          EIM = MIN( EIM, 1.0 )
-         RD2A = 1.0 / ( UTSCALE *
-     &                ( SC2A ** ( -TWO3 ) + EIM ) )
+         RD2A = 1.0 / ( UTSCALE * ( SC2A ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDSACC ) = VGHAT2A
-     &           / ( 1.0 - EXP(-VGHAT2A * ( BLKRA( NCELL ) + RD2A ) ) )
+     &          / ( 1.0 - EXP( -VGHAT2A * ( BLKRA( NCELL ) + RD2A ) ) )
 
 C coarse mode
-
          SC2C = NU / DCHAT2C
-         EIM = STOKEC**2 / 400.0 * ESCO128
+         EIM = STOKEC ** 2 / 400.0 * ESCO128
          EIM = MIN( EIM, 1.0 )
-         RD2C = 1.0 / ( UTSCALE *
-     &                ( SC2C ** ( -TWO3 ) + EIM ) )
+         RD2C = 1.0 / ( UTSCALE * ( SC2C ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDSCOR ) = VGHAT2C
-     &           / ( 1.0 - EXP(-VGHAT2C * ( BLKRA( NCELL ) + RD2C ) ) )
+     &          / ( 1.0 - EXP( -VGHAT2C * ( BLKRA( NCELL ) + RD2C ) ) )
 
 C now do 3rd moment for the deposition of mass
 
 C  Aitken mode
-
          SC3N = NU / DCHAT3N
-         EIM = STOKEN**2 / 400.0 * ESAT160
+         EIM = STOKEN ** 2 / 400.0 * ESAT160
          EIM = MIN( EIM, 1.0 )
-         RD3N = 1.0 / ( UTSCALE *
-     &                ( SC3N ** ( -TWO3 ) + EIM ) )
+         RD3N = 1.0 / ( UTSCALE * ( SC3N ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDMATK ) = VGHAT3N
-     &           / ( 1.0 - EXP(-VGHAT3N * ( BLKRA( NCELL ) + RD3N ) ) )
+     &          / ( 1.0 - EXP( -VGHAT3N * ( BLKRA( NCELL ) + RD3N ) ) )
 
 C accumulation mode
-
          SC3A = NU / DCHAT3A
-         EIM = STOKEA**2 / 400.0 * ESAC160
+         EIM = STOKEA ** 2 / 400.0 * ESAC160
          EIM = MIN( EIM, 1.0 )
-         RD3A = 1.0 / ( UTSCALE *
-     &                ( SC3A ** ( -TWO3 ) + EIM ) )
+         RD3A = 1.0 / ( UTSCALE * ( SC3A ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDMACC ) = VGHAT3A
-     &           / ( 1.0 - EXP(-VGHAT3A * ( BLKRA( NCELL ) + RD3A ) ) )
+     &          / ( 1.0 - EXP( -VGHAT3A * ( BLKRA( NCELL ) + RD3A ) ) )
 
 C coarse mode
-
          SC3C = NU / DCHAT3C
-         EIM = STOKEC**2 / 400.0 * ESCO160
+         EIM = STOKEC ** 2 / 400.0 * ESCO160
          EIM = MIN( EIM, 1.0 )
-         RD3C = 1.0 / ( UTSCALE *
-     &                ( SC3C ** ( -TWO3 ) + EIM ) )
+         RD3C = 1.0 / ( UTSCALE * ( SC3C ** ( -TWO3 ) + EIM ) )
 
          VDEP( NCELL,VDMCOR ) = VGHAT3C
-     &           / ( 1.0 - EXP(-VGHAT3C * ( BLKRA( NCELL ) + RD3C ) ) )
+     &          / ( 1.0 - EXP( -VGHAT3C * ( BLKRA( NCELL ) + RD3C ) ) )
 
       END DO ! end loop on deposition velocities
 
