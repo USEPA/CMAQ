@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.1 2010/07/19 18:05:32 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.2 2010/12/06 12:43:19 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -126,9 +126,10 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
             implicit none
-
-D           include SUBST_IODECL      ! I/O definitions and declarations
-D           integer, save :: logdev
+#ifdef Verbose
+            include SUBST_IODECL      ! I/O definitions and declarations
+            integer, save :: logdev
+#endif
 
             logical success
             integer, parameter :: dev_gc_nml = 15, dev_ae_nml = 16, dev_nr_nml = 17, dev_tr_nml = 18
@@ -186,7 +187,9 @@ c species table structures
             type ( ctrl_type )  :: mc_ctrl_init  = ctrl_type ( ' ', 0 )
 
 c----------------------------------------------------------------------------------------
-D           logdev = init3 ()
+#ifdef Verbose
+            logdev = init3 ()
+#endif
             success = .true.
 
 c intialize module public data
@@ -276,7 +279,9 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-D           write( logdev,'(5x,a)' ) '@@@ GC @@@'
+#ifdef Verbose
+            write( logdev,'(5x,a)' ) '@@@ GC @@@'
+#endif
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_gc_spc = i - 1; exit
@@ -459,7 +464,9 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-D           write( logdev,'(5x,a)' ) '@@@ AE @@@'
+#ifdef Verbose
+            write( logdev,'(5x,a)' ) '@@@ AE @@@'
+#endif
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_ae_spc = i - 1
@@ -641,7 +648,9 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0
             icall = 0
-D           write( logdev,'(5x,a)' ) '@@@ NR @@@'
+#ifdef Verbose
+            write( logdev,'(5x,a)' ) '@@@ NR @@@'
+#endif
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_nr_spc = i - 1
@@ -835,7 +844,9 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             j1 = 0; j2 = 0
             k1 = 0; k2 = 0; k3 = 0; k4 = 0; k5 = 0
             icall = 0
-D           write( logdev,'(5x,a)' ) '@@@ TR @@@'
+#ifdef Verbose
+            write( logdev,'(5x,a)' ) '@@@ TR @@@'
+#endif
             do i = 1, spc_dim
                if ( type_matrix( i ) .eq. bl ) then
                   n_tr_spc = i - 1; exit
@@ -966,9 +977,11 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
             implicit none
 
-D           include SUBST_IODECL      ! I/O definitions and declarations
-D           integer, save :: logdev
-D           logical, save :: firstime = .true.
+#ifdef Verbose
+            include SUBST_IODECL      ! I/O definitions and declarations
+            integer, save :: logdev
+            logical, save :: firstime = .true.
+#endif
 
             integer,            intent ( in out ) :: ic
             character( * ),     intent (  in ) :: str_in
@@ -992,10 +1005,12 @@ D           logical, save :: firstime = .true.
             integer maxlen
 !           integer, save :: ic = 0   ! subroutine call count
 
-D           if ( firstime ) then
-D              firstime = .false.
-D              logdev = init3 ()
-D           end if
+#ifdef Verbose
+            if ( firstime ) then
+               firstime = .false.
+               logdev = init3 ()
+            end if
+#endif
 
             ic = ic + 1
             maxlen = len_trim( str_in )
@@ -1029,13 +1044,17 @@ D           end if
             if ( chr .eq. dc ) nbf( fn ) = .false.
 
             do n = 1, fn
-D              write( logdev,'(3i4,l)' ) n, jp( n ), kp( n ), nbf( n )
-D              if ( kp( n ) .lt. jp( n ) ) then   ! don't depend on this - use bf( n )
-D                 write( logdev,* ) n, 'end of string < start'
-D              end if
+#ifdef Verbose
+               write( logdev,'(3i4,l)' ) n, jp( n ), kp( n ), nbf( n )
+               if ( kp( n ) .lt. jp( n ) ) then   ! don't depend on this - use bf( n )
+                  write( logdev,* ) n, 'end of string < start'
+               end if
+#endif
                if ( nbf( n ) ) then
                   str( n ) = str_in( jp( n ):kp( n ) )
-D                 write( logdev,* ) n, len_trim( str( n ) ), str( n )
+#ifdef Verbose
+                  write( logdev,* ) n, len_trim( str( n ) ), str( n )
+#endif
                end if
             end do
 
@@ -1075,8 +1094,10 @@ c if there is a surrogate name and the factor field is blank, assume fac = 1.0
                   surr1_out( n )%map = 0
                   surr1_out( n )%fac = 0.0
                end if
-D              write( logdev,* ) 'surr1', n, ip, surr1_out( n )%name, surr1_out( n )%map,
-D    &                            surr1_out( n )%fac
+#ifdef Verbose
+               write( logdev,* ) 'surr1', n, ip, surr1_out( n )%name, surr1_out( n )%map,
+     &                            surr1_out( n )%fac
+#endif
                ip = ip + 2
             end do
 
@@ -1089,7 +1110,9 @@ c type 2 surrogate (surr2)
                   surr2_out( n )%name = bl
                   surr2_out( n )%map = 0
                end if
-D              write( logdev,* ) 'surr2', n, ip, surr2_out( n )%name, surr2_out( n )%map
+#ifdef Verbose
+               write( logdev,* ) 'surr2', n, ip, surr2_out( n )%name, surr2_out( n )%map
+#endif
                ip = ip + 1
             end do
 
@@ -1107,7 +1130,9 @@ D              write( logdev,* ) 'surr2', n, ip, surr2_out( n )%name, surr2_out(
                   ctrl_out( n )%name = bl
                   ctrl_out( n )%map = 0
                end if
-D              write( logdev,* ) 'ctrl', n, ip, ctrl_out( n )%name, ctrl_out( n )%map
+#ifdef Verbose
+               write( logdev,* ) 'ctrl', n, ip, ctrl_out( n )%name, ctrl_out( n )%map
+#endif
                ip = ip + 1
             end do
 
@@ -1118,9 +1143,11 @@ c-------------------------------------------------------------------------------
             subroutine bubble ( n, ia, aa )
             implicit none
 
-D           include SUBST_IODECL      ! I/O definitions and declarations
-D           integer, save :: logdev
-D           logical, save :: firstime = .true.
+#ifdef Verbose
+            include SUBST_IODECL      ! I/O definitions and declarations
+            integer, save :: logdev
+            logical, save :: firstime = .true.
+#endif
 
             integer, intent( in ) :: n
             integer, intent( in out ) :: ia( n )
@@ -1129,14 +1156,16 @@ D           logical, save :: firstime = .true.
             integer i, it
             logical :: no_swap
 
-D           if ( firstime ) then
-D              firstime = .false.
-D              logdev = init3 ()
-D           end if
+#ifdef Verbose
+            if ( firstime ) then
+               firstime = .false.
+               logdev = init3 ()
+            end if
 
-D           do i = 1, n
-D              write( logdev,* ) i, ia( i ), aa( i )
-D           end do
+            do i = 1, n
+               write( logdev,* ) i, ia( i ), aa( i )
+            end do
+#endif
 
             do
                no_swap = .true.
@@ -1174,9 +1203,11 @@ c compress list; move blanks to end
                aa( i ) = ' '
                ia( i ) = 0
             end do
-D           do i = 1, n
-D              write( logdev,* ) i, ia( i ), aa( i )
-D           end do
+#ifdef Verbose
+            do i = 1, n
+               write( logdev,* ) i, ia( i ), aa( i )
+            end do
+#endif
 
             return
             end subroutine bubble
