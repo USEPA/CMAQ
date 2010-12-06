@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTBILIN.F,v 1.1 2010/07/20 12:49:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTBILIN.F,v 1.2 2010/12/06 13:06:52 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -13,6 +13,9 @@ C Function: 3d point source bi-linear interpolation data
 
 C Revision History:
 C     20 Nov 2007 J.Young: initial implementation
+C     13 Apr 2010 D. Wong: parallel bug fix - in subroutine ungridb2
+C                          calculations use the lower left corner of the
+C                          original domain
 
 C-----------------------------------------------------------------------
 
@@ -65,7 +68,7 @@ C----------------------------------------------------------------------
          USE HGRD_DEFN             ! horizontal domain specifications
          USE VGRD_DEFN             ! vertical domain specifications
 !        USE GRID_CONF             ! horizontal & vertical domain specifications
-         USE STK_PRMS, ONLY: MY_NSRC, MY_XLOCA, MY_YLOCA
+         USE STK_PRMS, ONLY: MY_NSRC, MY_XLOCA, MY_YLOCA, my_stkid
 
          IMPLICIT NONE
 
@@ -73,13 +76,13 @@ C----------------------------------------------------------------------
          LOGICAL               :: SUCCESS
 
 C External Functions:
-         INTEGER,         EXTERNAL :: SETUP_LOGDEV
+         INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C Local variables:
-         INTEGER          MY_CCOLS    ! local processor cross point number of columns
-         INTEGER          MY_CROWS    ! local processor cross point number of rows
-         INTEGER          MY_DCOLS    ! local processor dot point number of columns
-         INTEGER          MY_DROWS    ! local processor dot point number of rows
+         INTEGER MY_CCOLS    ! local processor cross point number of columns
+         INTEGER MY_CROWS    ! local processor cross point number of rows
+         INTEGER MY_DCOLS    ! local processor dot point number of columns
+         INTEGER MY_DROWS    ! local processor dot point number of rows
 
          INTEGER I, J, M, N, MSRC, IOS, LOGDEV
          CHARACTER( 16 ) :: PNAME = 'PTBILIN_INIT'
@@ -98,19 +101,16 @@ C----------------------------------------------------------------------
          IF ( MOD( I, NPROW ) .EQ. 0 ) YBND( 2 ) = .TRUE.
 
 C Set processor coordinate origins
-         MY_CXORIG = METCXORIG + XCELLCG * ( COLSX_PE( 1,M ) - 1 )
-         MY_CYORIG = METCYORIG + YCELLCG * ( ROWSX_PE( 1,M ) - 1 )
-         MY_DXORIG = METDXORIG + XCELLDG * ( COLSD_PE( 1,M ) - 1 )
-         MY_DYORIG = METDYORIG + YCELLDG * ( ROWSD_PE( 1,M ) - 1 )
+         MY_CXORIG = METCXORIG + XCELLCG * ( COLSX_PE( 1,1 ) - 1 )
+         MY_CYORIG = METCYORIG + YCELLCG * ( ROWSX_PE( 1,1 ) - 1 )
+         MY_DXORIG = METDXORIG + XCELLDG * ( COLSD_PE( 1,1 ) - 1 )
+         MY_DYORIG = METDYORIG + YCELLDG * ( ROWSD_PE( 1,1 ) - 1 )
+
          MY_CCOLS = MY_NCOLS
          MY_CROWS = MY_NROWS
-!        MY_DCOLS = MY_NCOLS_DOT   ! same as MY_NCOLS for non-upper bndy processors
-!        MY_DROWS = MY_NROWS_DOT   ! same as MY_NCOLS for non-upper bndy processors
          MY_DCOLS = MY_NCOLS + 1
          MY_DROWS = MY_NROWS + 1
          IF ( .NOT. XBND( 1 ) ) THEN    ! extend cells east by 1
-            MY_CXORIG = MY_CXORIG - XCELLCG
-            MY_DXORIG = MY_DXORIG - XCELLDG
             MY_CCOLS = MY_CCOLS + 1
             MY_DCOLS = MY_DCOLS + 1
          END IF
@@ -119,8 +119,6 @@ C Set processor coordinate origins
             MY_DCOLS = MY_DCOLS + 1
          END IF
          IF ( .NOT. YBND( 1 ) ) THEN    ! extend cells south by 1
-            MY_CYORIG = MY_CYORIG - YCELLCG
-            MY_DYORIG = MY_DYORIG - YCELLDG
             MY_CROWS = MY_CROWS + 1
             MY_DROWS = MY_DROWS + 1
          END IF
@@ -175,12 +173,12 @@ C Allocate ungridding arrays
             CALL CHECKMEM( IOS, 'CD', PNAME )
 
 C Compute un-gridding matrices for cross- and dot-point met data
-            CALL UNGRIDB2( MY_CCOLS, MY_CROWS, MY_CXORIG, MY_CYORIG,
+            CALL UNGRIDB2( 'X', MY_CCOLS, MY_CROWS, MY_CXORIG, MY_CYORIG,
      &                     XCELLCG, YCELLCG, MSRC,
      &                     MY_XLOCA( N )%ARRY, MY_YLOCA( N )%ARRY,
      &                     BILIN_DATA( N )%NX,
      &                     BILIN_DATA( N )%CX, I )
-            CALL UNGRIDB2( MY_DCOLS, MY_DROWS, MY_DXORIG, MY_DYORIG,
+            CALL UNGRIDB2( 'D', MY_DCOLS, MY_DROWS, MY_DXORIG, MY_DYORIG,
      &                     XCELLDG, YCELLDG, MSRC,
      &                     MY_XLOCA( N )%ARRY, MY_YLOCA( N )%ARRY,
      &                     BILIN_DATA( N )%ND,
