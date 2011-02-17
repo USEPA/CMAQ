@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/PMEM_DEFN.F,v 1.2 2010/12/06 13:00:02 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/PMEM_DEFN.F,v 1.3 2011/02/17 14:18:40 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -31,9 +31,9 @@ C Number of PM species in emission input file
       TYPE( PM_TYPE ), PARAMETER :: PM_EMIS( N_EMIS_PM ) = (/
 C                 Name        Aitken   Accum  Coarse
 C               ---------     ------  ------  ------
-     & PM_TYPE( 'POC    ', (/  0.001,  0.999,  0.000 /) ),
      & PM_TYPE( 'PSO4   ', (/  0.000,  1.000,  0.000 /) ),
      & PM_TYPE( 'PNO3   ', (/  0.000,  1.000,  0.000 /) ),
+     & PM_TYPE( 'POC    ', (/  0.001,  0.999,  0.000 /) ),
      & PM_TYPE( 'PEC    ', (/  0.001,  0.999,  0.000 /) ),
      & PM_TYPE( 'PMFINE ', (/  0.000,  1.000,  0.000 /) ),
      & PM_TYPE( 'PMC    ', (/  0.000,  0.000,  1.000 /) ) /)
@@ -43,13 +43,9 @@ C Search function for aerospc name array
 
       CHARACTER( 16 ) :: UNITSPM( N_EMIS_PM ) ! units of all PM species
 
-C Indices in the PM_EM array
-      INTEGER :: VPOC  = 1   ! primary fine organic carbon
-      INTEGER :: VPSO4 = 2   ! primary fine sulfate
-      INTEGER :: VPNO3 = 3   ! primary fine nitrate
-      INTEGER :: VPEC  = 4   ! primary fine elemental carbon
-      INTEGER :: VPMF  = 5   ! unspeciated fine aerosol
-      INTEGER :: VPMC  = 6   ! primary coarse aerosol
+C Required species and their indexes
+      Character( 16 ), Private, Parameter :: req_PSO4 = 'PSO4'
+      INTEGER :: VPSO4    ! index to primary fine sulfate
 
       INTEGER :: PMEMIS_MAP( N_EMIS_PM )      !pointers of aero # variable to CGRID
 
@@ -122,9 +118,14 @@ C If not, print error message and halt.
                END IF
             END DO
 
+C Find indices of required species
+
+            VPSO4 = FINDPMEMIS( req_PSO4 )
+
             RETURN
 
          END SUBROUTINE GET_PMEM_MAP
+
 
 C-----------------------------------------------------------------------
          FUNCTION FINDPMEMIS( VNAME ) RESULT( NDX )
