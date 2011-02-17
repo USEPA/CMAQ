@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/Attic/getalpha.f,v 1.2 2010/12/06 14:38:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/Attic/getalpha.f,v 1.3 2011/02/17 14:24:02 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -173,9 +173,9 @@ C...compute constant for obtaining dgc
 
         CLCONST = 6.0 / ( RHO_WATER * PI * EXP( 4.5 * LOG( SIGC ) ** 2 ) )
 
-        MINL2SG = LOG( MIN_SIGMA_G ) ** 2.0   ! minimum sigma_g = 1.05 (2.380480e-3)
-        MAXL2SG = LOG( MAX_SIGMA_G ) ** 2.0   ! maximum sigma_g = 2.5  (8.395887e-1)
-        DEFL2SG = LOG( DEF_SIGMA_G ) ** 2.0   ! default sigma_g = 1.7  (2.815663e-1)
+        MINL2SG = LOG( MIN_SIGMA_G ) ** 2.0        ! minimum sigma_g = 1.05 (2.380480e-3)
+        MAXL2SG = LOG( MAX_SIGMA_G ) ** 2.0        ! maximum sigma_g = 2.5  (8.395887e-1)
+        DEFL2SG = LOG( DEF_SIGMA_G( 1 ) ) ** 2.0   ! default sigma_g = 1.7  (2.815663e-1)
 
       END IF ! check on firstime
 
