@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.1 2010/12/06 15:44:55 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.2 2011/02/17 14:41:07 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -31,6 +31,10 @@ C Number of aerosol species and modes
 
 C Default minimum concentration
       Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
+      Real,    Parameter :: conmin_set( n_mode )  = (/conmin, conmin, conmin/)
+      Real,    Parameter :: conmin_so4( n_mode )  = (/1.0E-12,1.0E-6, conmin/)
+      Real,    Parameter :: conmin_cor( n_mode )  = (/conmin, conmin, 1.889544E-05/)
+
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -42,47 +46,49 @@ C-------------------------------------------------------------------------------
          Character( 16 ) :: name( n_mode )     ! names of aerosol species for each mode
          Real            :: min_conc( n_mode ) ! minimum concentration values for each mode
          Real            :: density            ! density [ kg/m^3 ]
-         Logical         :: isWet              ! wet flag
-         Logical         :: volatile           ! volatile flag
+         Logical         :: no_M2Wet           ! flag to exclude from 2nd moment during transport
+         Logical         :: nonVol_soa         ! non-volatile SOA flag
+         Logical         :: tracer             ! tracer flag; does have not mass
          Integer         :: charge             ! electroneutrality charge
          Real            :: visual_idx         ! visual index factor
+         Character( 16 ) :: optic_surr         ! optical surrogate name
          Character( 16 ) :: emis               ! emissions names
       End Type spcs_type
 
       Type( spcs_type ), Parameter :: aerospc( n_aerospc ) = (/
-C                  -----------Name--------------     --------Min_Conc------
-C                    Aitken    accum    coarse       Aitken  accum   coarse         density  isWet   volatile chrg visual emis
-C                  --------- --------- ---------     -------- -------- ------------ ------- -------- -------- ---- ------ -----
-     & spcs_type((/'ASO4I  ','ASO4J  ','ASO4K  '/),(/1.0E-12,1.0E-6, conmin/),      1800.0, .false.,  .true.,   2,  3.0, 'PSO4'),
-     & spcs_type((/'ANH4I  ','ANH4J  ','ANH4K  '/),(/conmin, conmin, conmin/),      1800.0, .false.,  .true.,  -1,  3.0, ' '),
-     & spcs_type((/'ANO3I  ','ANO3J  ','ANO3K  '/),(/conmin, conmin, conmin/),      1800.0, .false.,  .true.,   1,  3.0, 'PNO3'),
-     & spcs_type((/'AORGPAI','AORGPAJ','       '/),(/conmin, conmin, conmin/),      2000.0, .false.,  .true.,   0,  4.0, 'POC'),
-     & spcs_type((/'A25I   ','A25J   ','       '/),(/conmin, conmin, conmin/),      2200.0, .false.,  .true.,   0,  1.0, 'PMFINE'),
-     & spcs_type((/'AECI   ','AECJ   ','       '/),(/conmin, conmin, conmin/),      2200.0, .false.,  .true.,   0, 10.0, 'PEC '),
-     & spcs_type((/'ANAI   ','ANAJ   ','ANAK   '/),(/conmin, conmin, conmin/),      2200.0, .false.,  .true.,  -1,  0.0, ' '),
-     & spcs_type((/'ACLI   ','ACLJ   ','ACLK   '/),(/conmin, conmin, conmin/),      2200.0, .false.,  .true.,   1,  0.0, ' '),
-     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/),(/conmin, conmin, conmin/),      1000.0,  .true.,  .true.,   0,  0.0, ' '),
-     & spcs_type((/'       ','AALKJ  ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AXYL1J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AXYL2J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AXYL3J ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ATOL1J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ATOL2J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ATOL3J ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ABNZ1J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ABNZ2J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ABNZ3J ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ATRP1J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ATRP2J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AISO1J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AISO2J ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AISO3J ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','ASQTJ  ','       '/),(/conmin, conmin, conmin/),      2000.0,  .true.,  .true.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AOLGAJ ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AOLGBJ ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','AORGCJ ','       '/),(/conmin, conmin, conmin/),      2000.0, .false., .false.,   0,  4.0, ' '),
-     & spcs_type((/'       ','       ','ASOIL  '/),(/conmin, conmin, conmin/),      2600.0, .false.,  .true.,   0,  0.0, ' '),
-     & spcs_type((/'       ','       ','ACORS  '/),(/conmin, conmin, 1.889544E-05/),2200.0, .false.,  .true.,   0,  0.0, 'PMC')/)
+C                  -----------Name-------------- 
+C                    Aitken    Accum    Coarse      Min_Concs   Density no_M2Wet NonVolSOA  Tracer  Chrg Visual Opt_Surr  Emis
+C                  --------- --------- ---------    ---------- -------- -------- -------- -------- ---- ----- --------- --------
+     & spcs_type((/'ASO4I  ','ASO4J  ','ASO4K  '/), conmin_so4,  1800.0, .false., .false., .false.,  -2,  3.0, 'SOLUTE','PSO4'),
+     & spcs_type((/'ANH4I  ','ANH4J  ','ANH4K  '/), conmin_set,  1800.0, .false., .false., .false.,   1,  3.0, 'SOLUTE',' '),
+     & spcs_type((/'ANO3I  ','ANO3J  ','ANO3K  '/), conmin_set,  1800.0, .false., .false., .false.,  -1,  3.0, 'SOLUTE','PNO3'),
+     & spcs_type((/'AORGPAI','AORGPAJ','       '/), conmin_set,  2000.0, .false., .false., .false.,   0,  4.0, 'DUST',  'POC'),
+     & spcs_type((/'A25I   ','A25J   ','       '/), conmin_set,  2200.0, .false., .false., .false.,   0,  1.0, 'DUST',  'PMFINE'),
+     & spcs_type((/'AECI   ','AECJ   ','       '/), conmin_set,  2200.0, .false., .false., .false.,   0, 10.0, 'SOOT',  'PEC '),
+     & spcs_type((/'ANAI   ','ANAJ   ','ANAK   '/), conmin_set,  2200.0, .false., .false., .false.,   1,  0.0, 'SOLUTE',' '),
+     & spcs_type((/'ACLI   ','ACLJ   ','ACLK   '/), conmin_set,  2200.0, .false., .false., .false.,  -1,  0.0, 'SOLUTE',' '),
+     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), conmin_set,  1000.0,  .true., .false., .false.,   0,  0.0, 'WATER', ' '),
+     & spcs_type((/'       ','AALKJ  ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AXYL1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AXYL2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AXYL3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ATOL1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ATOL2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ATOL3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ABNZ1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ABNZ2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ABNZ3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ATRP1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ATRP2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AISO1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AISO2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AISO3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','ASQTJ  ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AOLGAJ ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','AORGCJ ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
+     & spcs_type((/'       ','       ','ASOIL  '/), conmin_set,  2600.0, .false., .false., .false.,   0,  0.0, 'DUST',  ' '),
+     & spcs_type((/'       ','       ','ACORS  '/), conmin_cor,  2200.0, .false., .false., .false.,   0,  0.0, 'DUST',  'PMC')/)
      
 C Required species
       Character( 16 ), Private, Parameter :: req_so4   = 'ASO4'  
@@ -99,7 +105,7 @@ C Indexes of required species
       Integer :: aso4_idx
       Integer :: anh4_idx
       Integer :: ano3_idx
-      Integer :: aorgpa_idx
+      Integer :: apoc_idx
       Integer :: ana_idx
       Integer :: acl_idx
       Integer :: ah2o_idx 
@@ -120,21 +126,20 @@ C-------------------------------------------------------------------------------
          Real            :: min_numconc  ! minimum number concentration
          Real            :: min_m2conc   ! minimum 2nd moment concentration
          Real            :: min_m3conc   ! minimum 3rd moment concentration
-         Real            :: min_num      ! minimum number
-         Real            :: min_m2       ! minimum 2nd moment
       End Type mode_type
 
-      Type ( mode_type ), Parameter :: aeromode( n_mode ) = (/
-C                   number     surface   minimum  minimum minimum  minimum   minimum
-C                    name       name     numconc  m2conc  m3conc    num       m2
-C                  ----------  ---------- ---------  ---------  ---------  ---------  ------------
-     &   mode_type('NUMATKN', 'SRFATKN', conmin, conmin, conmin, 0.298852, 0.524834E-16),
-     &   mode_type('NUMACC ', 'SRFACC ', conmin, conmin, conmin, 356.0190, 0.456022E-11),
-     &   mode_type('NUMCOR ', 'SRFCOR ', conmin, conmin, conmin, 1.000000, 0.346714E-11)/)
+      Type ( mode_type ), Parameter  :: aeromode( n_mode ) = (/
+C                   number     surface   minimum minimum minimum
+C                    name       name     numconc  m2conc  m3conc
+C                  ----------  -------  -------- -------  ------
+     &   mode_type('NUMATKN', 'SRFATKN', conmin,  conmin, conmin),
+     &   mode_type('NUMACC ', 'SRFACC ', conmin,  conmin, conmin),
+     &   mode_type('NUMCOR ', 'SRFCOR ', conmin,  conmin, conmin)/)
 
       Real, Parameter :: min_sigma_g = 1.05
       Real, Parameter :: max_sigma_g = 2.50
-      Real, Parameter :: def_sigma_g = 1.70
+      Real, Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)  ! background sigma-G for each mode
+      Real, Parameter :: def_diam( n_mode ) = (/ 1.0E-8, 7.0E-8, 1.0E-6 /)  ! background mean diameter for each mode
 
       Real            :: moment0_conc( n_mode )     ! 0th moment concentration
       Real            :: moment2_conc( n_mode )     ! 2nd moment concentration
@@ -151,6 +156,12 @@ C Geometric mean diameter (calculated by GETPAR)
 
 C Log of geometric standard deviation (calculated by GETPAR )
       Real :: aeromode_sdev( n_mode )
+
+C Minimum number (calculated in map_aero routine)
+      Real :: aeromode_minNum( n_mode )
+
+C Minimum 2nd moment (calculated in map_aero routine)
+      Real :: aeromode_minM2( n_mode )
 
 C Mapping for loading from and unloading to CGRID array
       Integer :: aerospc_map( n_aerospc,n_mode )  ! indices of aero species to CGRID
@@ -187,6 +198,8 @@ C External Functions:
 C Local Variables:
       Character( 80 ) :: xmsg
       Integer m, n, spc
+      Real  so4fac
+      Real  anthfac
 
       if ( .Not. mapped ) Then
          aerospc_mw = 0.0
@@ -242,7 +255,7 @@ C Find indices of required species
          aso4_idx   = findAero( req_so4,   .True. )
          anh4_idx   = findAero( req_nh4,   .True. )
          ano3_idx   = findAero( req_no3,   .True. )
-         aorgpa_idx = findAero( req_orgpa, .True. )
+         apoc_idx   = findAero( req_orgpa, .True. )
          ana_idx    = findAero( req_na,    .True. )
          acl_idx    = findAero( req_cl,    .True. )
          ah2o_idx   = findAero( req_h2o,   .True. )
@@ -252,6 +265,23 @@ C Find indices of required species
 C Compute common factors
          h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )
 
+C compute aeromode_minNum and aeromode_minM2
+         so4fac  = 1.0E-9 * f6dpi / aerospc( aso4_idx )%density
+         anthfac = 1.0E-9 * f6dpi / aerospc( acors_idx )%density
+
+         Do m = 1, n_mode
+            if( m .lt. n_mode ) Then
+               aeromode_minNum( m ) = so4fac * aerospc( aso4_idx )%min_conc( m ) /
+     &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
+            else
+               aeromode_minNum( m ) = anthfac * aerospc( acors_idx )%min_conc(m) /
+     &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
+            endif
+ 
+            aeromode_minM2( m ) = aeromode_minNum( m ) * def_diam(m)**2 *
+     &            Exp( 2.0 * Log( def_sigma_g(m) )**2 )
+         End do
+ 
          mapped = .True.
 
       End If   ! Not mapped
@@ -446,6 +476,6 @@ C Local Variables:
 
       Return
       End Function findAero
-      
+
       End Module aero_data
 
