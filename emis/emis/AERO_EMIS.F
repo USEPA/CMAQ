@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/AERO_EMIS.F,v 1.3 2010/12/06 13:28:33 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/AERO_EMIS.F,v 1.4 2011/02/17 14:17:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -226,7 +226,6 @@ C     Domain decomposition info from emission and meteorology files
          INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C     Variables for handling vapor-phase sulfuric acid emissions
-         REAL, PARAMETER :: MWH2SO4 = 98.0    ! molar mass [g/mol]
          INTEGER, SAVE :: VSULF               ! index to H2SO4 in VDEMIS array
 
 C     Third moment emissions rates [m3/m3/s]
@@ -577,9 +576,9 @@ C     from this so PM_EM(VPMC) holds only the coarse emission rate.
 
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
-                  EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                             * PRECURSOR_MW( SULF_IDX ) / CONVM
-                  VDEMIS( VSULF,L,C,R ) = 0.0
+               EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
+     &                          * PRECURSOR_MW( SULF_IDX ) / CONVM
+               VDEMIS( VSULF,L,C,R ) = 0.0
 
 C *** Assign fine-particle emission rates to the fine modes.
 C     Assume all non-seasalt-emissions of sulfate, nitrate, and unspeciated
@@ -599,6 +598,7 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                      DO N = 1, N_MODE
                         EP_PART( S,N ) = PM_EMIS( IDX )%EMIS_SPLIT( N )
      &                                 * EM_RATE( IDX )
+                        IF ( AEROSPC( S )%TRACER ) CYCLE
                         EMISM3( N ) = EMISM3( N ) + EP_PART( S,N )
      &                              * ( F6DPIM9 / AEROSPC( S )%DENSITY )
                      END DO
@@ -708,6 +708,7 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                         DO N = 1, N_MODE
                            EP_PART( S,N ) = PM_EMIS( IDX )%EMIS_SPLIT( N )
      &                                    * EM_RATE( IDX )
+                           IF ( AEROSPC( S )%TRACER ) CYCLE
                            EMISM3( N ) = EMISM3( N ) + EP_PART( S,N )
      &                                 * ( F6DPIM9 / AEROSPC( S )%DENSITY )
                         END DO
