@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_subs.F,v 1.1 2010/12/06 15:44:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_subs.F,v 1.2 2011/02/17 14:39:20 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -110,7 +110,9 @@ C-----------------------------------------------------------------------
       if ( firstime ) then
          firstime = .false.
          logdev = init3()
+#ifdef nomm
          write( logdev,* ) 'aero_subs: nomm'
+#endif
       end if
 
 C *** square root of the ambient temperature for later use
@@ -130,7 +132,7 @@ C     where beta = 1.458e-6 [ kg sec^-1 K**-0.5 ], s = 110.4 [ K ].
       AMU = 1.458E-6 * AIRTEMP * SQRT_TEMP / ( AIRTEMP + 110.4 )
 
 C *** Set minimums for coarse mode
-      MOMENT0_CONC( N_MODE ) = MAX( AEROMODE( N_MODE )%MIN_NUM,
+      MOMENT0_CONC( N_MODE ) = MAX( AEROMODE_MINNUM( N_MODE ),
      &                              MOMENT0_CONC( N_MODE ) )
 
 C *** Outside AEROPROC, the surface area concentration [ m**2 / m**3 ]
@@ -260,7 +262,7 @@ C *** calculate 3rd moment intermodal transfer rate by coagulation
 C *** TAKE ONE FORWARD TIME STEP - Solve Modal Dynamics Equations
 C     This code implements Section 1.4 of Binkowski and Roselle (2003)
 C     with two notable exceptions.  1) emissions are treated in
-C     CMAQ's vertical diffusion routine, so they do not appear in the
+C     CMAQ`s vertical diffusion routine, so they do not appear in the
 C     following equations. 2) new particle formation and condensational
 C     growth are now treated in the VOLINORG subroutine, so they do not
 C     appear in the following equations.
@@ -304,7 +306,7 @@ C     Note: LOSS is assumed to be non-negative.
       END IF ! test on loss
 
 C *** Transfer new value of M2_Aitken to the array
-      MOMENT2_CONC( 1 ) = MAX( REAL( AEROMODE( 1 )%MIN_M2 ), REAL( Y ) )
+      MOMENT2_CONC( 1 ) = MAX( REAL( AEROMODE_MINM2( 1 ) ), REAL( Y ) )
 
 C *** Accumulation mode: initial value of M2
       M20 = MOMENT2_CONC( 2 )
@@ -327,7 +329,7 @@ C     Note: LOSS is assumed to be non-negative.
       END IF ! test on loss
 
 C *** Transfer new value of M2_accum to moment array
-      MOMENT2_CONC( 2 ) = MAX( REAL( AEROMODE( 2 )%MIN_M2 ), REAL( Y ) )
+      MOMENT2_CONC( 2 ) = MAX( REAL( AEROMODE_MINM2( 2 ) ), REAL( Y ) )
 
 C *** Coarse mode: no change because coagulation of coarse particles
 C     is neglected in current model version.
@@ -354,7 +356,7 @@ C     Binkowski & Roselle (2003), with the c_i term equal to 0.
       END IF
 
 C *** Transfer new value of M0_Aitken to the moment array
-      MOMENT0_CONC( 1 ) = MAX( AEROMODE( 1 )%MIN_NUM, REAL( Y ) )
+      MOMENT0_CONC( 1 ) = MAX( AEROMODE_MINNUM( 1 ), REAL( Y ) )
 
 C *** Accumulation mode: initial value of M0
       Y0 = MOMENT0_CONC( 2 )
@@ -365,11 +367,11 @@ C     because emissions are treated outside the CMAQ aerosol module.
 C     The equation reduces to the form: dY/dt = -A * Y**2 , where
       A = BACAC( 1 )                 ! intramodal coagulation
 
-C *** Solve for M0_accum using Smoluchowski's solution
+C *** Solve for M0_accum using Smoluchowski`s solution
       Y = Y0 / ( 1.0D0 + A * Y0 * DT )
 
 C *** Transfer new value of M0_accum to the moment array
-      MOMENT0_CONC( 2 ) = MAX( AEROMODE( 2 )%MIN_NUM, REAL( Y ) )
+      MOMENT0_CONC( 2 ) = MAX( AEROMODE_MINNUM( 2 ), REAL( Y ) )
 
 C *** end of update for zeroth moment - note that the coarse mode number does
 C     not change because coarse-mode coagulation is neglected in the model
@@ -582,8 +584,6 @@ C *** Parameters:
       ! indices for inorganic species
       INTEGER, PARAMETER :: KNH4 = 1, KNO3 = 2, KCL = 3, KSO4 = 4, KNA = 5, KHP = 6
 
-      REAL( 8 ), PARAMETER :: MWH2SO4 = 98.0 ! molecular weight for H2SO4
-      REAL( 8 ), PARAMETER :: FAERH2SO4 = 1.0E-6 / MWH2SO4
       REAL( 8 ), PARAMETER :: D_TWOTHIRDS = 2.0D0 / 3.0D0
 
       REAL, PARAMETER :: CUTOFF = 0.05  ! [ug/m**3]
@@ -705,13 +705,21 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: NH3RAT         ! Mol. wt ratios NH3/NH4
       REAL( 8 ), SAVE :: HNO3RAT        ! Mol. wt ratios HNO3/NO3
       REAL( 8 ), SAVE :: HCLRAT         ! Mol. wt ratios HCL/CL 
+      REAL( 8 ), SAVE :: MWH2SO4        ! molecular weight for H2SO4
+      REAL( 8 ), SAVE :: FAERH2SO4      ! 1e-6 / mw(h2so4)
+
 
 C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
+#ifdef noiso
          write( logdev,* ) 'aero_subs, volinorg: noiso'
+#endif
+
+         MWH2SO4 = PRECURSOR_MW( SULF_IDX ) ! molecular weight for H2SO4
+         FAERH2SO4 = 1.0E-6 / MWH2SO4
 
          COFCBAR_SO4 = SQRT( 8.0 * RGASUNIV / ( PI * MWH2SO4 * 1.0E-3 ) )
          H2SO4RATM1 = AEROSPC_MW( ASO4_IDX ) / MWH2SO4
@@ -756,7 +764,7 @@ C     H+ concentration
       DO I = 1, N_MODE
          DO N = 1, N_AEROSPC
             HPLUS( I ) = HPLUS( I )
-     &                 + AEROSPC( N )%CHARGE * AEROSPC_CONC( N,I ) / AEROSPC_MW( N )
+     &                 - AEROSPC( N )%CHARGE * AEROSPC_CONC( N,I ) / AEROSPC_MW( N )
          END DO
       END DO
 
@@ -1084,7 +1092,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
 
             WETM3 = DRYM3 + M3SOA
      &            + ( 1.0D-9 * F6DPI / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 ) ) * H2O  
-            DRYM2 = MAX( REAL( AEROMODE( IMODE )%MIN_M2, 8 ), Y )
+            DRYM2 = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
             WETM2 = DRYM2 * ( WETM3 / DRYM3 ) ** D_TWOTHIRDS
 
 
@@ -1235,7 +1243,7 @@ C *** Initialize excess evaporated mass array
             IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANH4_IDX .OR. I .EQ. ANO3_IDX .OR.
      &           I .EQ. ANA_IDX  .OR. I .EQ. ACL_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
 
-            IF ( AEROSPC(I)%isWet ) THEN
+            IF ( AEROSPC(I)%NO_M2WET ) THEN
                M3SOA = M3SOA 
      &               + ( 1.0D-9 * F6DPI / AEROSPC( I )%DENSITY )
      &               * AEROSPC_CONC( I,IMODE )
@@ -1338,7 +1346,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
      &         + M3OTHR
 
          WETM3 = DRYM3 + M3SOA + REAL( H2OFAC, 8 ) * H2O 
-         DRYM2 = MAX( REAL( AEROMODE( IMODE )%MIN_M2, 8 ), Y )
+         DRYM2 = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
          WETM2 = DRYM2 * ( WETM3 / DRYM3 ) ** D_TWOTHIRDS
 
          AEROSPC_CONC( ANH4_IDX, IMODE ) = CFINAL( KNH4,IMODE )
@@ -1352,7 +1360,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
          HPLUS( IMODE ) = 0.0
          DO I = 1, N_AEROSPC
            HPLUS( IMODE ) = HPLUS( IMODE )
-     &                    + AEROSPC( I )%CHARGE * AEROSPC_CONC( I,IMODE ) / AEROSPC_MW( I )
+     &                    - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,IMODE ) / AEROSPC_MW( I )
          END DO
 
       END DO    ! end fine mode mass transfer calculations
@@ -1476,6 +1484,7 @@ C      doi:10.1029/2001JD001409, 2003.
 
       USE AERO_DATA
       USE MET_DATA
+      USE PRECURSOR_DATA, ONLY: PRECURSOR_MW, SULF_IDX 
 
       IMPLICIT NONE
 
@@ -1493,10 +1502,6 @@ C *** Arguments:
 C *** Parameters
       CHARACTER( 16 ), PARAMETER :: PNAME = 'NEWPART'
 
-C *** Conversion Factors:
-      REAL, PARAMETER :: MWH2SO4 = 98.0 ! molecular weight for H2SO4
-      REAL, PARAMETER :: ugm3_ncm3 = (AVO / MWh2so4) * 1.0e-12 ! micrograms/m**3 to number/cm**3
-
 C *** Particle size parameters:
       REAL, PARAMETER :: d20 = 2.0E-07            ! diameter of a new particle [cm]
       REAL, PARAMETER :: d20sq = d20 * d20        ! new-particle diameter squared [cm**2]
@@ -1508,18 +1513,21 @@ C *** Particle size parameters:
 
 C *** Local Variables used to determine nucleation rate
 
-      REAL Nwv     ! water vapor concentration [ 1/cm**3 ]
-      REAL Nav0    ! saturation vapor conc of H2SO4 [ 1/cm**3 ]
-      REAL Nav     ! H2SO4 vapor concentration [ 1/cm**3 ]
-      REAL Nac     ! critical H2SO4 vapor concentration [ 1/cm**3 ]
-      REAL RA      ! fractional relative acidity
-      REAL delta   ! temperature-correction term
-      REAL Xal     ! H2SO4 mole fraction in the critical nucleus
-      REAL Nsulf   ! see usage
-      REAL( 8 ) :: chi   ! factor to calculate Jnuc
-      REAL( 8 ) :: JnucK ! nucleation rate [ cm ** -3  s ** -1 ]
-                   ! (Kulmala et al.)
-      REAL tt      ! dummy variable for statement functions
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+
+      REAL, SAVE :: ugm3_ncm3   ! micrograms/m**3 to number/cm**3
+      REAL          Nwv         ! water vapor concentration [ 1/cm**3 ]
+      REAL          Nav0        ! saturation vapor conc of H2SO4 [ 1/cm**3 ]
+      REAL          Nav         ! H2SO4 vapor concentration [ 1/cm**3 ]
+      REAL          Nac         ! critical H2SO4 vapor concentration [ 1/cm**3 ]
+      REAL          RA          ! fractional relative acidity
+      REAL          delta       ! temperature-correction term
+      REAL          Xal         ! H2SO4 mole fraction in the critical nucleus
+      REAL          Nsulf       ! see usage
+      REAL( 8 )  :: chi         ! factor to calculate Jnuc
+      REAL( 8 )  :: JnucK       ! nucleation rate [ cm ** -3  s ** -1 ]
+                                ! (Kulmala et al.)
+      REAL          tt          ! dummy variable for statement functions
 
 C *** Statement Functions
       REAL ph2so4, ph2o ! arithmetic statement functions for saturation
@@ -1532,6 +1540,11 @@ C *** Statement Functions
      &                   - 8.2 * LOG( tt ) + tt * 5.7113E-03 )
 
 C-----------------------------------------------------------------------
+
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+         ugm3_ncm3 = ( AVO / PRECURSOR_MW( SULF_IDX ) ) * 1.0e-12 ! micrograms/m**3 to number/cm**3
+      END IF
 
 C *** Initialize variables
       DNDT     = 0.0D0
