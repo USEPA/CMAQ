@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aq_map.F,v 1.2 2010/12/06 14:35:35 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aq_map.F,v 1.3 2011/02/17 14:22:26 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -92,22 +92,21 @@ C Arguments:
       INTEGER, INTENT( IN )    :: JDATE     ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN )    :: JTIME     ! current model time, coded HHMMSS
 
+      REAL,    INTENT( IN )    :: WTBAR     ! total wat cont (kg/m2) int. thru cld
+      REAL,    INTENT( IN )    :: WCBAR     ! liq water content of cloud (kg/m3)
+      REAL,    INTENT( IN )    :: TBARC     ! mean cloud temp (K)
+      REAL,    INTENT( IN )    :: PBARC     ! mean cloud pressure (Pa)
+      REAL,    INTENT( IN )    :: CTHK1     ! aq chem calc cloud thickness
       REAL,    INTENT( IN )    :: AIRM      ! total air mass (moles/m2) in cloudy air
+      REAL,    INTENT( IN )    :: PRATE1    ! storm rainfall rate (mm/hr)
+      REAL,    INTENT( IN )    :: TAUCLD    ! cloud lifetime
+      REAL,    INTENT( IN )    :: POLC ( : )  ! avg vert conc incloud (moles/mole)
+      REAL,    INTENT( OUT )   :: CEND ( : )  ! ending incloud conc (moles/mole)
+      REAL,    INTENT( OUT )   :: REMOV( : )  ! moles/m2 or mm*mol/lit scavenged
+      REAL,    INTENT( INOUT ) :: REMOVAC   ! variable storing H+ deposition
       REAL,    INTENT( IN )    :: ALFA0     ! scav coef for aitken aerosol number
       REAL,    INTENT( IN )    :: ALFA2     ! scav coef for aitken aerosol sfc area
       REAL,    INTENT( IN )    :: ALFA3     ! scav coef for aitken aerosol mass
-      REAL,    INTENT( IN )    :: CTHK1     ! aq chem calc cloud thickness
-      REAL,    INTENT( IN )    :: PBARC     ! mean cloud pressure (Pa)
-      REAL,    INTENT( IN )    :: PRATE1    ! storm rainfall rate (mm/hr)
-      REAL,    INTENT( INOUT ) :: REMOVAC   ! variable storing H+ deposition
-      REAL,    INTENT( IN )    :: TAUCLD    ! cloud lifetime
-      REAL,    INTENT( IN )    :: TBARC     ! mean cloud temp (K)
-      REAL,    INTENT( IN )    :: WCBAR     ! liq water content of cloud (kg/m3)
-      REAL,    INTENT( IN )    :: WTBAR     ! total wat cont (kg/m2) int. thru cld
-
-      REAL,    INTENT(  IN ) :: POLC ( : )  ! avg vert conc incloud (moles/mole)
-      REAL,    INTENT( OUT ) :: CEND ( : )  ! ending incloud conc (moles/mole)
-      REAL,    INTENT( OUT ) :: REMOV( : )  ! moles/m2 or mm*mol/lit scavenged
 
 C Local Variables (scalars):
 
@@ -240,7 +239,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 
         DO SPC = 1, N_AEROSPC
           IF ( ( AEROSPC( SPC )%NAME( IMODE ) .NE. ' ' ) .AND.
-     &         ( .NOT. AEROSPC( SPC )%ISWET ) ) THEN
+     &         ( .NOT. AEROSPC( SPC )%NO_M2WET ) ) THEN
              M3OLD( IMODE ) = M3OLD( IMODE )
      &                      + ( AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )
      &                      / AEROSPC( SPC )%DENSITY )
@@ -295,7 +294,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 
         DO SPC = 1, N_AEROSPC
           IF ( ( AEROSPC( SPC )%NAME( IMODE ) .NE. ' ' ) .AND.
-     &         ( .NOT. AEROSPC( SPC )%ISWET ) ) THEN
+     &         ( .NOT. AEROSPC( SPC )%NO_M2WET ) ) THEN
              M3NEW( IMODE ) = M3NEW( IMODE )
      &                      + ( AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )
      &                      / AEROSPC( SPC )%DENSITY )
