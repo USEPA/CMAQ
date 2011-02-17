@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/getpar.f,v 1.1 2010/12/06 15:44:57 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/getpar.f,v 1.2 2011/02/17 14:38:31 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Subroutine getpar( m3_wet_flag, limit_sg  )
@@ -75,13 +75,13 @@ C-----------------------------------------------------------------------
 C *** Set bounds for ln(Sg)**2
 
       Do n = 1 , n_mode
-        If ( limit_sg ) Then
-          minl2sg( n ) = aeromode_sdev( n ) ** 2
-          maxl2sg( n ) = aeromode_sdev( n ) ** 2
-        Else
-          minl2sg( n ) = Log( min_sigma_g ) ** 2
-          maxl2sg( n ) = Log( max_sigma_g ) ** 2
-        EndIf
+         If ( limit_sg ) Then
+            minl2sg( n ) = aeromode_sdev( n ) ** 2
+            maxl2sg( n ) = aeromode_sdev( n ) ** 2
+         Else
+            minl2sg( n ) = Log( min_sigma_g ) ** 2
+            maxl2sg( n ) = Log( max_sigma_g ) ** 2
+         End If
       End Do
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
@@ -91,8 +91,10 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
          sumMass = 0.0
 
          Do spc = 1, n_aerospc
-            If ( aerospc( spc )%name( n ) .Ne. ' ' .And.
-     &         ( .Not. aerospc( spc )%iswet .Or. m3_wet_flag) ) Then
+            If ( aerospc( spc )%tracer ) Cycle
+            If ( aerospc( spc )%name( n ) .eq. ' ' ) Cycle
+
+            If ( .Not. aerospc( spc )%no_M2Wet .Or. m3_wet_flag ) Then
                factor = 1.0E-9 * f6dpi / aerospc( spc )%density
                sumM3  = sumM3 + factor * aerospc_conc( spc,n )
                sumMass = sumMass + aerospc_conc( spc,n )
@@ -103,11 +105,11 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
          aeromode_mass( n ) = sumMass
       End Do
 
-C *** Calculate modal average particle densities [ kg m**-3 ]
+C *** Calculate modal average particle densities [ kg/m**3 ]
 
       Do n = 1, n_mode    
         aeromode_dens( n ) = Max( Real( densmin,8 ),
-     &                            1.0E-9 * f6dpi * aeromode_mass( n ) /moment3_conc( n )  )
+     &                            1.0E-9 * f6dpi * aeromode_mass( n ) / moment3_conc( n )  )
       End Do
 
 C *** Calculate geometric standard deviations as follows:
@@ -132,7 +134,7 @@ C *** Aitken Mode:
          xfsum = one3d * Log( xxm0 ) + two3d * Log( xxm3 )
 
          lxfm2 = Log( xxm2 )
-         l2sg =  xfsum - lxfm2
+         l2sg = xfsum - lxfm2
 
          l2sg = Max( l2sg, minl2sg( n ) )
          l2sg = Min( l2sg, maxl2sg( n ) )
@@ -150,4 +152,3 @@ C *** Aitken Mode:
       Return
       End Subroutine getpar
 
-      
