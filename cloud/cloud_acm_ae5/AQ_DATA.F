@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/AQ_DATA.F,v 1.1 2010/12/06 14:42:05 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/AQ_DATA.F,v 1.2 2011/02/17 14:20:39 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
@@ -11,6 +11,7 @@ C
 C  Revision History:
 C     First version was coded in May 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C     Feb 2011: Steve Howard, Shawn Roselle, Prakash Bhave, Bill Hutzell -
 C
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerospc, conmin
@@ -117,27 +118,26 @@ C                      -------------   -------------   -------------    --------
      & sur_aer_type((/'SRF_AITKEN   ','SRF_ACCUM    ','SRF_COARSE   '/),     0.0,      0.0,      1.0)/)
 
 C...Required aerosol species
-      Character(16), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
-      Character(16), Parameter, Private :: req_anh4   = 'NH4_ACCUM'
-      Character(16), Parameter, Private :: req_ano3   = 'NO3_ACCUM'
-      Character(16), Parameter, Private :: req_asoa   = 'SOA_ACCUM'
-      Character(16), Parameter, Private :: req_aorgc  = 'AORGC_ACCUM'
-      Character(16), Parameter, Private :: req_apoa   = 'POA_ACCUM'
-      Character(16), Parameter, Private :: req_aec    = 'EC_ACCUM'  
-      Character(16), Parameter, Private :: req_apri   = 'PRI_ACCUM'
-      Character(16), Parameter, Private :: req_apric  = 'PRI_COARSE'
-      Character(16), Parameter, Private :: req_ana    = 'NA_ACCUM'  
-      Character(16), Parameter, Private :: req_acl    = 'CL_ACCUM'  
-      Character(16), Parameter, Private :: req_acaco3 = 'CACO3'
-      Character(16), Parameter, Private :: req_amgco3 = 'MGCO3'
-      Character(16), Parameter, Private :: req_aa3fe  = 'A3FE' 
-      Character(16), Parameter, Private :: req_ab2mn  = 'B2MN' 
-      Character(16), Parameter, Private :: req_ak     = 'K'   
-      Character(16), Parameter, Private :: req_num    = 'NUM_ACCUM' 
-      Character(16), Parameter, Private :: req_srf    = 'SRF_ACCUM' 
+      Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
+      Character( 16 ), Parameter, Private :: req_anh4   = 'NH4_ACCUM'
+      Character( 16 ), Parameter, Private :: req_ano3   = 'NO3_ACCUM'
+      Character( 16 ), Parameter, Private :: req_asoa   = 'SOA_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aorgc  = 'AORGC_ACCUM'
+      Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM'  
+      Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM'
+      Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE'
+      Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM'  
+      Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM'  
+      Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3'
+      Character( 16 ), Parameter, Private :: req_amgco3 = 'MGCO3'
+      Character( 16 ), Parameter, Private :: req_aa3fe  = 'A3FE' 
+      Character( 16 ), Parameter, Private :: req_ab2mn  = 'B2MN' 
+      Character( 16 ), Parameter, Private :: req_ak     = 'K'   
+      Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM' 
+      Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM' 
 
 C...Pointers for the AQCHEM array AEROSOL
-
       Integer :: lso4     !  Sulfate
       Integer :: lnh4     !  Ammonium
       Integer :: lno3     !  Nitrate
@@ -158,9 +158,8 @@ C...Pointers for the AQCHEM array AEROSOL
       Integer :: lsrf     !  Surface area
 
 C...Pointers for the AQCHEM arrays LIQUID and WETDEP
-
-      Integer, PARAMETER :: lacl        = 01  ! Hydrogen ion
-      Integer, PARAMETER :: lnh4accl    = 02  ! Ammonium(attributed to accum. mode)
+      Integer, Parameter :: lacl        = 01  ! Hydrogen ion
+      Integer, Parameter :: lnh4accl    = 02  ! Ammonium(attributed to accum. mode)
       Integer, Parameter :: lcal        = 03  ! Calcium
       Integer, Parameter :: lnaaccl     = 04  ! Sodium
       Integer, Parameter :: lohl        = 05  ! Hydroxyl radical
@@ -264,9 +263,9 @@ C-----------------------------------------------------------------------
       End If
 
 C...Build array of AE names that are mapped to AE_A2AQ
-      do spc = 1, n_ae_a2aq
+      Do spc = 1, n_ae_a2aq
          aename( spc ) = ae_spc( ae_a2aq_map( spc ) )
-      end do
+      End Do
 
 C...Set number of species in CGRID and used in Aqeuous module
       n_cgrid2aq = n_gc_g2aq + n_ae_a2aq + n_nr_n2aq + n_tr_t2aq
@@ -286,7 +285,7 @@ C...Set number of species in CGRID and used in Aqeuous module
 
       Allocate ( cgrid2aq_map( n_cgrid2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
-         xmsg = '*** Error allocating cgrid2aq or cgrid2aq_map'
+         xmsg = '*** Error allocating cgrid2aq_map'
          Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
@@ -336,7 +335,7 @@ C...Add addition aerosol surrogate species
       
 C...Prepare indices for aqueous species
 
-C...Load the CGRID to aqueous species pointers for the gases
+C...CGRID map to aqueous species pointers for the gases
       spc = 0
       Do var = 1, n_gc_g2aq
          spc = spc + 1
@@ -344,21 +343,21 @@ C...Load the CGRID to aqueous species pointers for the gases
          cgrid2aq_map( spc ) = gc_g2aq_map( var ) + gc_strt - 1
       End Do
 
-C...Load the CGRID to aqueous species pointers for the aerosols
+C...CGRID map to aqueous species pointers for the aerosols
       Do var = 1, n_ae_a2aq
          spc = spc + 1
          cgrid2aq( spc ) = ae_a2aq( var )
          cgrid2aq_map( spc ) = ae_a2aq_map( var ) + ae_strt - 1
       End Do
 
-C...Load the CGRID to aqueous species pointers for the non-reactives
+C...CGRID map to aqueous species pointers for the non-reactives
       Do var = 1, n_nr_n2aq
          spc = spc + 1
          cgrid2aq( spc ) = nr_n2aq( var )
          cgrid2aq_map( spc ) = nr_n2aq_map( var ) + nr_strt - 1
       End Do
 
-C...load the CGRID to aqueous species pointers for the tracers
+C...CGRID map to aqueous species pointers for the tracers
       Do var = 1, n_tr_t2aq
          spc = spc + 1
          cgrid2aq( spc ) = tr_t2aq( var )
@@ -430,8 +429,8 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       lsoa   = findSgrAer( req_asoa )    !  SOA
       lorgc  = findSgrAer( req_aorgc )   !  SOA (anthropogenic organic oligomers)
       lpoa   = findSgrAer( req_apoa )    !  Primary organic aerosol
-      lec    = findSgrAer( req_aec   )   !  Elemental carbon
-      lpri   = findSgrAer( req_apri  )   !  Primary aerosol (Aitken and Accumulation)
+      lec    = findSgrAer( req_aec )     !  Elemental carbon
+      lpri   = findSgrAer( req_apri )    !  Primary aerosol (Aitken and Accumulation)
       lpricor= findSgrAer( req_apric )   !  Primary aerosol (coarse)
       lna    = findSgrAer( req_ana )     !  Sodium
       lcl    = findSgrAer( req_acl )     !  Chloride ion
@@ -439,7 +438,7 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       lmgco3 = findSgrAer( req_amgco3 )  !  Magnesium Carbonate aerosol (place holder)
       la3fe  = findSgrAer( req_aa3fe )   !  Iron aerosol (place holder)
       lb2mn  = findSgrAer( req_ab2mn )   !  Manganese aerosol (place holder)
-      lk     = findSgrAer( req_ak  )     !  Potassium aerosol (Cl- tracked separately)
+      lk     = findSgrAer( req_ak )      !  Potassium aerosol (Cl- tracked separately)
       lnum   = findSgrAer( req_num )     !  Number
       lsrf   = findSgrAer( req_srf )     !  Surface area
 
@@ -471,11 +470,11 @@ C Local Variables:
       Integer spc
 
       Do spc = 1, ngas      
-        If ( srggas( spc )%name .Eq. Trim( vname ) ) Then
-           idx = spc
-           ! Write( *,'(a,i5)' ) vname, idx
-           Return
-        End If
+         If ( srggas( spc )%name .Eq. Trim( vname ) ) Then
+            idx = spc
+            ! Write( *,'(a,i5)' ) vname, idx
+            Return
+         End If
       End Do
 
       xmsg = 'Required Species ' // Trim( vname ) // ' Not found in SgrGas names array'
@@ -508,13 +507,13 @@ C Local Variables:
       Integer spc, n
 
       Do spc = 1, naer
-        Do n = 1, nmodes
-          If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
-             idx = spc
-             ! Write( *,'(a,i5)' ) vname, idx
-             Return
-          End If
-        End Do
+         Do n = 1, nmodes
+            If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
+               idx = spc
+               ! Write( *,'(a,i5)' ) vname, idx
+               Return
+            End If
+         End Do
       End Do
 
       xmsg = 'Required Species ' // Trim( vname ) // ' Not found in SgrAer names array'
@@ -522,5 +521,73 @@ C Local Variables:
 
       Return
       End Function findSgrAer
+
+C-----------------------------------------------------------------------
+      Subroutine set_aeconcmin( aeconcmin )
+C-----------------------------------------------------------------------
+C
+C  Function:
+C       set minimum concentrations for aerosol species
+C       routine called from convcld_acm
+C
+C  Preconditions:
+C       Dates and times represented YYYYDDD:HHMMSS.
+C
+C  Revision History:
+C       5/05 copied code from aero_depv to begin subroutine
+C       4/08 J.Kelly: added code to set min for coarse surface area
+C       21 Jun 10 J.Young: convert for Namelist redesign
+C-----------------------------------------------------------------------
+
+      Use cgrid_spcs            ! CGRID mechanism species
+      Use aero_data
+
+      Implicit None
+
+C..Includes:
+      Include SUBST_CONST               ! constants
+
+C..Functions:
+      Integer :: index1
+
+C..Parameters:
+      Real, Parameter :: cmin = 1.0E-25   ! minimum concentration for most species
+
+C..Arguments:
+      Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
+
+C..Local Variables:
+      Character( 16 ) :: pname = 'SET_AECONCMIN'   ! program name
+
+      Integer m        ! mode loop counter
+      Integer n        ! aerospc loop counter
+      Integer spc      ! species loop counter
+
+      aeconcmin = cmin
+
+      ! compute minimums for numbers and surfaces
+      Do m = 1, n_mode
+         spc = index1( aeromode( m )%num_name, n_ae_spc, ae_spc )
+         aeconcmin( spc ) = aeromode_minNum( m ) * mwair * 1.0E-3
+
+         spc = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
+         aeconcmin( spc ) = aeromode_minM2( m ) * pi * mwair * 1.0E-3
+      End Do
+
+      ! compute minimums for aerosol species
+      Do m = 1, n_mode
+         Do n = 1, n_aerospc
+            If ( aerospc( n )%name( m ) .Ne. ' ' ) Then
+               spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
+               If ( spc .Ne. 0 ) Then
+                  aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )
+                  aeconcmin( spc ) = Max( aeconcmin( spc ), cmin )
+               End If
+            End If
+         End Do
+      End Do 
+
+      Return
+      End Subroutine set_aeconcmin
 
       End Module aq_data
