@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/convcld_acm.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/convcld_acm.F,v 1.3 2011/02/17 14:23:22 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -96,6 +96,7 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE AQ_DATA
 
       IMPLICIT NONE
 
@@ -402,10 +403,6 @@ C...........Statement Functions
       QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
 
       INTERFACE
-        SUBROUTINE SET_AECONCMIN ( AECONCMIN )
-           IMPLICIT NONE
-           REAL,    INTENT( OUT ) :: AECONCMIN( : )
-        END SUBROUTINE SET_AECONCMIN
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
@@ -450,6 +447,7 @@ C...  event-statistics variables.
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
           CALL SET_AECONCMIN ( AECONCMIN )
+
         END IF
 
 C...check the grid resolution from the MET_CRO_2D and set an appropriate
