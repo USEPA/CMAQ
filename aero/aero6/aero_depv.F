@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_depv.F,v 1.2 2010/12/06 15:50:53 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_depv.F,v 1.3 2011/02/22 19:12:18 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
@@ -396,7 +396,7 @@ C        accumulation mode.
          M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
      &          * AEROSPC_CONC( AH2O_IDX,2 )
          DO SPC = 1, N_VAPOR
-            M3SUBT = M3SUBT + ( 1.0E-9 * F6DPI / AEROSPC( AORGPA_IDX )%DENSITY )
+            M3SUBT = M3SUBT + ( 1.0E-9 * F6DPI / AEROSPC( APOC_IDX )%DENSITY )
      &             * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
          END DO
 
