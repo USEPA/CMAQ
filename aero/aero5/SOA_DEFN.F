@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.1 2010/12/06 15:44:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.2 2011/02/22 17:54:08 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
@@ -37,7 +37,7 @@ C----------------------------------------------------------------------_
       Type( vapor_type ), Parameter :: vaporspc( n_vapor ) = (/
 C                    Name      Alpha    CStar     Enth    SOA Name    Origin   Decay   Drog Name
 C                 ----------  -------  --------  -------  ----------  ------  -------  -----------
-     & vapor_type('SV_ALK  ',  0.0718,   0.0200,  40.0E3, 'AALKJ   ',    'A',     8.0, 'ALKRXN   '),
+     & vapor_type('SV_ALK  ',  0.0718,   0.0200,  40.0E3, 'AALKJ   ',    'A',     8.0, 'ALK5RXN  '),
      & vapor_type('SV_XYL1 ',  0.0386,   1.3140,  32.0E3, 'AXYL1J  ',    'A',     8.0, 'XYLNRXN  '),
      & vapor_type('SV_XYL2 ',  0.1119,  34.4830,  32.0E3, 'AXYL2J  ',    'A',     8.0, 'XYLNRXN  '),
      & vapor_type('SV_TOL1 ',  0.0758,   2.3260,  18.0E3, 'ATOL1J  ',    'A',     7.0, 'TOLNRXN  '),
@@ -83,19 +83,23 @@ C orgprod species
          Real            :: alphaH       ! Stoichiometric coefficients for non-volatile aromatic SOA [ug/m^3]/[ug/m^3]
       End Type orgprod_type
 
-      Type( orgprod_type ), Parameter :: orgprod( n_orgprod ) = (/
-C                      Name      Parent      Aerospc    AlphaH
-C                   ----------  ----------  ----------  --------
-     & orgprod_type( 'ALKRXN',  'ALKRXN',  ' ',        0.000 ),
-     & orgprod_type( 'XYLNRXN', 'XYL',     ' ',        0.000 ),
-     & orgprod_type( 'XYLHRXN', 'XYL',     'AXYL3J',   0.373 ),
-     & orgprod_type( 'TOLNRXN', 'TOL',     ' ',        0.000 ),
-     & orgprod_type( 'TOLHRXN', 'TOL',     'ATOL3J',   0.471 ),
-     & orgprod_type( 'BNZNRXN', 'BENZENE', ' ',        0.000 ),
-     & orgprod_type( 'BNZHRXN', 'BENZENE', 'ABNZ3J',   0.484 ),
-     & orgprod_type( 'TRPRXN',  'TRPRXN',  ' ',        0.000 ),
-     & orgprod_type( 'ISOPRXN', 'ISOPRXN', ' ',        0.000 ),
-     & orgprod_type( 'SESQRXN', 'SESQRXN', ' ',        0.000 )/ )
+C   This default orgprod table is for CB05, parent names are changed in subroutine 
+C   extract_soa for the SAPRC99 and SAPRC07T mechanisms
+C
+      Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
+C                       Name      Parent     Aerospc    AlphaH
+C                    ----------  ---------  ---------  --------
+     & orgprod_type( 'ALK5RXN', 'ALK5RXN',  ' ',        0.000 ),
+     & orgprod_type( 'XYLNRXN', 'XYL',      ' ',        0.000 ),
+     & orgprod_type( 'XYLHRXN', 'XYL',      'AXYL3J',   0.373 ),
+     & orgprod_type( 'TOLNRXN', 'TOL',      ' ',        0.000 ),
+     & orgprod_type( 'TOLHRXN', 'TOL',      'ATOL3J',   0.471 ),
+     & orgprod_type( 'BNZNRXN', 'BENZENE',  ' ',        0.000 ),
+     & orgprod_type( 'BNZHRXN', 'BENZENE',  'ABNZ3J',   0.484 ),
+     & orgprod_type( 'TRPRXN',  'TRPRXN',   ' ',        0.000 ),
+     & orgprod_type( 'ISOPRXN', 'ISOPRXN',  ' ',        0.000 ),
+     & orgprod_type( 'SESQRXN', 'SESQRXN',  ' ',        0.000 ) /)
+
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
       Real    :: orgprod_conc   ( n_orgprod )  ! orgprod concentration
@@ -132,6 +136,7 @@ C Arguments:
 
 C Includes::
       Include SUBST_IOPARMS   ! I/O parameters definitions
+      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 C External Functions:
       Integer index1
@@ -143,9 +148,7 @@ C Local Variables:
       Integer         :: n
       Integer         :: spc
 
-      Real :: alk_factor = 1.00      ! Frac of CB producing SOA
-!     Real :: alk_factor = 0.56      ! Frac of RADM2 HC8 producing SOA
-!     Real :: alk_factor = 0.57      ! Frac of SAPRC99 ALK5 producing SOA
+      Real, Save :: alk_factor = 1.00
 
       If ( .Not. mapped ) Then
 
@@ -165,7 +168,32 @@ C Build mapping to CGRID for each vapor species
             End If
          End Do
 
-C Build mapping to CGRID for each ORGPROD species
+C define orgprod parent names based on mechanism dependence
+         If( INDEX(MECHNAME, 'CB05') .EQ. 0) then
+
+           If( INDEX(MECHNAME, 'SAPRC99') .GT. 0) then
+             alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
+             orgprod( 2)%parent = 'ARO2'
+             orgprod( 3)%parent = 'ARO2'
+             orgprod( 4)%parent = 'ARO1'
+             orgprod( 5)%parent = 'ARO1'
+           elseif( INDEX(MECHNAME, 'SAPRC07T') .GT. 0) then
+             alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
+             orgprod( 2)%parent = 'MXYL'
+             orgprod( 3)%parent = 'MXYL'
+             orgprod( 4)%parent = 'TOLUENE'
+             orgprod( 5)%parent = 'TOLUENE'
+           else
+             xmsg =  'Mechanism ' // MECHNAME
+     &            // ' is not supported in this version of the model'
+             Call m3exit( pname, 0, 0, xmsg, xstat3 )
+           End If
+
+         End If  ! non CB05 condition
+
+
+C Build mapping to CGRID for each ORGPROD species and find MW of parent
+
          orgprod_map = 0
          Do spc = 1, n_orgprod
             n = index1( orgprod( spc )%name, n_gc_g2ae, gc_g2ae )
@@ -217,7 +245,7 @@ C Build mapping array to orgprod species
 
          mapped = .True.
 
-      End If
+      End If     ! mapping condition
 
 C Compute gas conversion constant
       gasconv = airdens * 1.0E3 / mwair
@@ -657,8 +685,7 @@ C Local variables:
       Character( 80 ) :: xmsg
       Integer       :: i 
 
-C POA molecular weight is set to 220 g/mol, similar to a C15 compound
-      Real, Parameter :: mwpoa = 220.0        ! Molecular weight of POA [ g/mol ]
+      Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
       Real, Save ::  mw_vap_m1( n_vapor )     ! Inverse MW of SVOCs [ mol/g ]
 
@@ -730,13 +757,15 @@ C Set unit conversion and inverse mw constants
             mw_vap_m1( i ) = 1.0 / vapor_mw( i )
          End Do
 
+         mwpoa = aerospc_mw( apoc_idx )
+
       End If ! first_time
 
 C Compute 3rd moment, 2nd moment, and Dg without nonvolatile SOA. Cloud-produced
 C SOA (i.e., orgcj) is not subtracted here because it is unchanged in this subroutine
       old_m3 = moment3_conc( 2 )
       Do i = 1, n_aerospc
-         If ( .Not. aerospc( i )%volatile .And. i .Ne. aorgc_idx ) Then
+         If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
             old_m3 = old_m3 - orgfac * aerospc_conc( i,2 )
          End If
       End Do
@@ -802,9 +831,9 @@ C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
-      totorgsw = ( aerospc_conc( aorgpa_idx,1 ) + aerospc_conc( aorgpa_idx,2 ) ) / mwpoa
+      totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
       Do i = 1, n_aerospc
-         If ( .NOT. aerospc( i )%volatile ) Then
+         If ( aerospc( i )%nonVol_soa ) Then
             totorgsw = totorgsw + aerospc_conc( i,2 ) / aerospc_mw( i )
          End If
       End Do
@@ -907,7 +936,7 @@ C be inherited from include or namelist files to avoid hard-coded values.
 
       hplus = 0.0
       Do i = 1, n_aerospc
-         hplus = hplus + 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
+         hplus = hplus - 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
      &         / aerospc_mw( i )
       End Do
       hplus = Min( 530.0, Max ( 0.0, hplus ) ) ! restrict extrapolation
@@ -942,7 +971,7 @@ C condensation/evaporation does not affect the geometric standard deviation.
       new_m3 = old_m3
 
       Do i = 1, n_aerospc
-         If ( .Not.aerospc( i )%volatile .And. i .Ne. aorgc_idx ) Then
+         If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
             new_m3 = new_m3 + orgfac * aerospc_conc( i,2 )
          End If
       End Do
