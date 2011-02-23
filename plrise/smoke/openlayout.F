@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v 1.1 2010/07/20 11:30:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v 1.2 2011/02/23 16:58:55 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -24,7 +24,7 @@ C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling
 C             System
-C File: @(#)$Id: openlayout.F,v 1.1 2010/07/20 11:30:03 yoj Exp $
+C File: @(#)$Id: openlayout.F,v 1.2 2011/02/23 16:58:55 yoj Exp $
 C COPYRIGHT (C) 2002, MCNC Environmental Modeling Center
 C All Rights Reserved
 C See file COPYRIGHT for conditions of use.
@@ -34,7 +34,7 @@ C P.O. Box 12889
 C Research Triangle Park, NC  27709-2889
 C smoke@emc.mcnc.org
 C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v $
-C Last updated: $Date: 2010/07/20 11:30:03 $ 
+C Last updated: $Date: 2011/02/23 16:58:55 $ 
  
 C-----------------------------------------------------------------------
  
@@ -51,6 +51,7 @@ C Includes:
 C External Functions:
       CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
       INTEGER,         EXTERNAL :: SETUP_LOGDEV, TRIMLEN
+      LOGICAL,         EXTERNAL :: SETENVVAR
 
 C Local Parameters:
 
@@ -127,7 +128,6 @@ C Set up and open diagnostic file(s)
       VGTYP3D = -1
       VGTOP3D = 0.0
 
-!     UPNAM3D = 'FAKE_GRIDDED'   ! Mandatory!
       UPNAM3D = 'DISTR_GRIDDED'   ! Mandatory!
 
       FDESC3D = ' '  ! array
@@ -146,15 +146,17 @@ C Set up and open diagnostic file(s)
             CALL ENVSTR( PLAY_BASE, XMSG, ' ', BASE, IOS )
             IF ( IOS .NE. 0 ) THEN
                XMSG = 'Error retrieving Layer Fractions File base name env var'
-               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
+               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT3 )
             END IF
 
-            PLAY_EQ = BASE( 1:TRIMLEN( BASE ) ) // '_' // CMYPE // POSTSTR
+            PLAY_EQ = TRIM( BASE ) // '_' // CMYPE // POSTSTR
             WRITE( LNAME( N ),'( "PLAY_", I2.2 )' ) N
-            CALL SETENVVAR ( LNAME( N ), PLAY_EQ )
+            IF ( .NOT. SETENVVAR ( LNAME( N ), PLAY_EQ ) ) THEN
+               XMSG = 'Could not set environment variable for ' // PLAY_EQ
+               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT3 )
+            END IF
             IF ( .NOT. OPEN3( LNAME( N ), FSNEW3, UPNAM3D ) ) THEN
-               XMSG = 'Could not open '
-     &              // FDESC3D( 1 )( 1:TRIMLEN( FDESC3D( 1 ) ) ) // ' file'
+               XMSG = 'Could not open ' // TRIM( FDESC3D( 1 ) ) // ' file'
                CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
             END IF
 
