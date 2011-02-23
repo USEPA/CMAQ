@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.1 2010/07/19 17:10:30 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.2 2011/02/23 20:57:16 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,12 +26,17 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       FUNCTION SETUP_LOGDEV ()  RESULT ( LOGDEV )
 
+C Purpose
+C   Establish ancillary run time log files for each parallel processor
+C   Effectively no operation, if serial
+
 C Revision History:
-C
+C   ???      J.Young - initial
 C   26 Dec, 01 David Wong
 C      -- removed MPI_INIT call since the same function has been called in
 C         subroutine PAR_INIT
 C   11 Jun 02 J.Young - minor mods
+C   23 Feb 11 J.Young - SETENVVAR is a function, not a subroutine
 
       IMPLICIT NONE
 #include      SUBST_IODECL      # I/O definitions and declarations
@@ -47,6 +52,7 @@ C   11 Jun 02 J.Young - minor mods
       CHARACTER( 16 ) :: APPL = 'CTM_APPL'
 
       INTEGER, EXTERNAL :: TRIMLEN
+      LOGICAL, EXTERNAL :: SETENVVAR
       INTEGER :: ERROR, MYPE
       INTEGER :: LOGDEV
 
@@ -61,10 +67,13 @@ C   11 Jun 02 J.Young - minor mods
          WRITE ( CMYPE, '(I3.3)' ) MYPE
          IF ( APPL .NE. EQNAME(1:16 ) ) THEN
             IOLOGEQ = PRESTR // CMYPE // '.' // EQNAME( 1:TRIMLEN( EQNAME ) )
-            ELSE
+         ELSE
             IOLOGEQ = PRESTR // CMYPE
-            END IF
-         CALL SETENVVAR ( 'LOGFILE', IOLOGEQ )
+         END IF
+         IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
+            WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
+            STOP
+         END IF
 
       END IF
 
