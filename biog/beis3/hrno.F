@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.2 2011/02/23 16:38:01 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -98,7 +98,7 @@ C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: hrno.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C File: @(#)$Id: hrno.F,v 1.2 2011/02/23 16:38:01 yoj Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -107,7 +107,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v $
-C Last updated: $Date: 2010/07/20 11:26:47 $ 
+C Last updated: $Date: 2011/02/23 16:38:01 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -133,6 +133,7 @@ C External Functions
       INTEGER,         EXTERNAL :: TIME2SEC
       LOGICAL,         EXTERNAL :: ENVYN
       LOGICAL,         EXTERNAL :: CHKGRID
+      LOGICAL,         EXTERNAL :: CURRSTEP
       CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
 
 C Parameters:
@@ -505,7 +506,11 @@ C Non-convective (RN) and convective (RC) rain is the total amount for the met
 C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
 C make much sense to time-interpolate these values, since rain generally does not
 C fall at a constant rate for an output timestep.
-      CALL CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ), NDATE, NTIME )
+      IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+     &                     NDATE, NTIME ) ) THEN
+         MESG = 'Cannot get step date and time'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT3 )
+      END IF
       IF ( NDATE .EQ. RDATE .AND. NTIME .EQ. RTIME ) THEN   ! on the TSTEP (hour)
 
 C Read rainfall data

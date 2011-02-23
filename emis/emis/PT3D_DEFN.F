@@ -637,7 +637,7 @@ C Parameters:
 C External functions:
          INTEGER,         EXTERNAL :: SETUP_LOGDEV, TIME2SEC, SEC2TIME, SECSDIFF
          CHARACTER( 10 ), EXTERNAL :: HHMMSS
-         LOGICAL,         EXTERNAL :: WRITE3_DISTR   ! calls WRITE3 directly
+         LOGICAL,         EXTERNAL :: CURRSTEP, WRITE3_DISTR   ! calls WRITE3 directly
 
 C Local variables:
          INTEGER          CDATE      ! previous step start date
@@ -707,7 +707,11 @@ C For each time step, compute the layer fractions...
          IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
             WDATE = JDATE; WTIME = JTIME
             CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
-            CALL CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ), CDATE, CTIME )
+            IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+     &                           CDATE, CTIME ) ) THEN
+               XMSG = 'Cannot get step date and time'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+            END IF
             WDATE = CDATE; WTIME = CTIME
             WSTEP = 0
             WRTIME = .TRUE.
