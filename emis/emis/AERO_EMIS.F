@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/AERO_EMIS.F,v 1.4 2011/02/17 14:17:45 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/Attic/AERO_EMIS.F,v 1.5 2011/02/23 22:00:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -200,9 +200,9 @@ C     Emission rate of all aerosol species interpolated to current time
          INTEGER, ALLOCATABLE, SAVE :: WRSS_MAP( : )       !
 
 C Local variables for sea salt emission rates
-         REAL :: CR_SSM( N_AEROSPC,NSSMOD )   ! mass
-         REAL :: CR_SSN( NSSMOD )             ! number
-         REAL :: CR_SSS( NSSMOD )             ! surface area
+         REAL :: CR_SSM( N_AEROSPC,NSSMODE )   ! mass
+         REAL :: CR_SSN( NSSMODE )             ! number
+         REAL :: CR_SSS( NSSMODE )             ! surface area
          
 C     Factor for converting aerosol emissions from input units ...
          REAL CONVEM_PM_MASS                       ! into [ug/sec]
