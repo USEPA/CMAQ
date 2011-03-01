@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.2 2010/07/23 11:18:56 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.3 2011/03/01 17:45:54 sjr Exp $ 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_init.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_init.F 07 Jul 1997 10:20:52
 
@@ -270,8 +270,8 @@ C..open each one
             ELSEIF( NFL .EQ. 3 ) THEN
                OUTFNAME = CTM_IRR_3
             ELSEIF( NFL .GT. 3 ) THEN
-               CALL M3EXIT(PNAME, SDATE, STIME, XMSG, 
-     &            'Maximum number of IRR output files exceeded' , 2 )
+               XMSG = 'Maximum number of IRR output files exceeded'
+               CALL M3EXIT(PNAME, SDATE, STIME, XMSG, XSTAT2 )
             END IF
 
             ENV_DESC = 'IRR Output file ' // OUTFNAME 
