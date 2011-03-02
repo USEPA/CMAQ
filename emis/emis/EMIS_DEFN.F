@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.2 2010/12/06 13:05:16 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.3 2011/03/02 21:30:06 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -52,7 +52,6 @@ C-----------------------------------------------------------------------
       REAL,    PRIVATE, SAVE :: CNVTE      ! combined conversion factor
       REAL,    PRIVATE, SAVE :: DT         ! TSTEP (output) in sec
 
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: VDEMIS_AE( :,:,:,: ) ! aerosol emis
       REAL,    PRIVATE, ALLOCATABLE, SAVE :: BUFF( :,:,: )        ! read buffer
 
       INTEGER, PRIVATE, SAVE :: STRT_GC, FINI_GC, STRT_AE, FINI_AE,
@@ -75,6 +74,7 @@ C-----------------------------------------------------------------------
          USE BEIS_DEFN           ! biogenic emissions
          USE PT3D_DEFN           ! plume rise emissions
          USE PMEM_DEFN           ! defines emissions file(s) PM mapping
+         USE AERO_EMIS           ! inherits GRID_CONF
 
          IMPLICIT NONE
       
@@ -173,6 +173,13 @@ C set up PM species mapping from emissions file(s) for use in GET_AERO_EMIS
             NEMIS_AE = 0
          END IF
 
+         PM_EMLYRS = EMLAYS   ! set PM_EMLYRS in AERO_EMIS module
+
+         IF ( .NOT. AERO_EMIS_INIT( JDATE, JTIME, TSTEP, NEMIS_AE ) ) THEN
+            XMSG = 'Failure initializing aerosol emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
          N_SPC_EMIS = N_GC_EMIS
      &              + NEMIS_AE
      &              + N_NR_EMIS
@@ -239,17 +246,6 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          IF ( N_SPC_EMIS .LE. 0 ) THEN
             XMSG = 'There are no emissions: VDEMIS is set to zero' ! below
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-         END IF
-
-         IF ( N_AE_SPC .GT. 0 ) THEN   ! all EMLAYS
-            ALLOCATE ( VDEMIS_AE( NEMIS_AE,EMLAYS,MY_NCOLS,MY_NROWS ),
-     &                 STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = 'VDEMIS_AE memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-            VDEMIS_AE = 0.0   ! array assignment
          END IF
 
          ALLOCATE ( BUFF( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
@@ -435,8 +431,7 @@ C aerosol emissions - all units conversions done in GET_AERO_EMIS for aerosols
 C GET_AERO_EMIS in f90 module AERO_EMIS
 
          IF ( N_AE_SPC .GT. 0 ) THEN
-            CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, EMLAYS, RJACM,
-     &                           VDEMIS, VDEMIS_AE )
+            CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, RJACM, VDEMIS )
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
