@@ -79,6 +79,7 @@ C    3 Apr 09 J.Young: replace EMISPRM... include files with simpler implementat
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C**********************************************************************
 
+      USE GRID_CONF             ! horizontal & vertical domain configuration
       USE CGRID_SPCS            ! CGRID mechanism species
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE AERO_EMIS
@@ -281,36 +282,36 @@ C**********************************************************************
 C Get process index and convert units if necessary
       PRIND = INDEX1( PRNAME, NPRCS, PROCNAME )
 
-      IF( PRIND .EQ. 0 ) THEN
+      IF ( PRIND .EQ. 0 ) THEN
          UNIND = INDEX1( PRNAME, MXUNEXP, UNEXPPR )
-         IF( UNIND .EQ. 0 ) THEN
+         IF ( UNIND .EQ. 0 ) THEN
             MSG = 'Warning: Process Analysis not expecting process '
      &             // PRNAME 
             CALL M3MESG( MSG )
             NUNEXP = NUNEXP + 1
-            IF( NUNEXP .GT. MXUNEXP ) THEN
+            IF ( NUNEXP .GT. MXUNEXP ) THEN
                MSG = 'Maximum number of unexpected processes for '
      &              // 'Process Analysis exceeded' 
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-            ENDIF
+            END IF
             UNEXPPR( NUNEXP ) = PRNAME
-         ENDIF
-      ENDIF
+         END IF
+      END IF
       
-      IF( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CHEM' .AND.
+      IF ( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CHEM' .AND.
      &    PRNAME .NE. 'CLDS' .AND. PRNAME .NE. 'AERO' .AND.
      &    PRNAME .NE. 'PING' ) THEN
          SDATE = JDATE
          STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
          CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
-      ENDIF
+      END IF
 
 C..Compute delta conc for this process if requested
-      IF( PRIND .GT. 0 .AND. LPROCOUT( PRIND ) ) THEN
+      IF ( PRIND .GT. 0 .AND. LPROCOUT( PRIND ) ) THEN
          DO NPA = 1, N_IPR_SPC
             IPA = IPROUT( NPA, PRIND )
-            IF( IPA .NE. 0 ) THEN
+            IF ( IPA .NE. 0 ) THEN
                DO NGR = 1, NCGRID( NPA )
                   ICG = IPR2GRD( NPA, NGR )
                   ISV = IPR2SAV( NPA, NGR )
@@ -324,9 +325,9 @@ C..Compute delta conc for this process if requested
      &                         SPCOEF( NPA, NGR ) *
      &                         ( TCGRID( C, R, L ) - 
      &                           CSAV(  C, R, L, ISV ) )
-                        ENDDO
-                     ENDDO
-                  ENDDO
+                        END DO
+                     END DO
+                  END DO
 #else
                   DO L = MY_BEGLEV, MY_ENDLEV
                      PL = L - MY_BEGLEV + 1
@@ -339,14 +340,14 @@ C..Compute delta conc for this process if requested
      &                         SPCOEF( NPA, NGR ) *
      &                         ( CGRID( C, R, L, ICG ) - 
      &                           CSAV( PC, PR, PL, ISV ) )
-                        ENDDO
-                     ENDDO
-                  ENDDO
+                        END DO
+                     END DO
+                  END DO
 #endif
-               ENDDO
-            ENDIF
-         ENDDO 
-      ENDIF
+               END DO
+            END IF
+         END DO 
+      END IF
 
 C..Save concentrations for next delta c
       DO N = 1, NCSAVE
@@ -362,18 +363,18 @@ C..Save concentrations for next delta c
                DO C = MY_BEGCOL, MY_ENDCOL
                   PC = C - MY_BEGCOL + 1
                   CSAV( PC, PR, PL, N ) = CGRID( C, R, L, ICG ) 
-               ENDDO   
-            ENDDO
-         ENDDO
+               END DO   
+            END DO
+         END DO
 #endif
-      ENDDO
+      END DO
 
 C..Re-convert units if necessary and return 
-      IF( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CHEM' .AND.
-     &    PRNAME .NE. 'CLDS' .AND. PRNAME .NE. 'AERO' .AND.
-     &    PRNAME .NE. 'PING' ) THEN
+      IF ( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CHEM' .AND.
+     &     PRNAME .NE. 'CLDS' .AND. PRNAME .NE. 'AERO' .AND.
+     &     PRNAME .NE. 'PING' ) THEN
          CALL COUPLE ( CGRID, SDATE, STIME, TSTEP )
-      ENDIF
+      END IF
 
       RETURN
 
@@ -383,7 +384,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENTRY PA_UPDATE_EMIS( PRNAME, VEMIS, JDATE, JTIME, TSTEP )
 
 C..On first call, set pointers to emission species   
-      IF( LEMFIRST ) THEN
+      IF ( LEMFIRST ) THEN
 
 #ifdef emis_chem
          EMISVD = .FALSE.
@@ -395,7 +396,7 @@ C..On first call, set pointers to emission species
          IF ( ALLOCSTAT .NE. 0 ) THEN
             MSG = 'Failure allocating AE_EM_CONV'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
 C..Set-up pointers to emis, cdiff, chem, and aero processes         
          PRINDEM = INDEX1( 'EMIS', NPRCS, PROCNAME )
@@ -408,13 +409,13 @@ C..Set an index offset if reactive gas emissions are done in VDIF
             OFFSETG = N_GC_EMIS
          ELSE
             OFFSETG = 0
-         ENDIF
+         END IF
 C..Set an index offset if aerosol emissions are done in VDIF
          IF ( EM_AERO ) THEN
             OFFSETA = OFFSETG + N_AE_EMIS
          ELSE
             OFFSETA = OFFSETG
-         ENDIF
+         END IF
 
 #ifdef Verbose
          write( *,* ) ' No. of families: ', N_IPR_SPC
@@ -422,7 +423,6 @@ C..Set an index offset if aerosol emissions are done in VDIF
 
 C..Set the pointers to the emission array
          DO NPA = 1, N_IPR_SPC            ! foreach family
-
 
 #ifdef Verbose
             write( *,* ) ' '
@@ -436,58 +436,57 @@ C..Set the pointers to the emission array
      &                    NGR, IPR2GRD( NPA, NGR )
 #endif
 
-               ICG = IPR2GRD( NPA, NGR )  ! CTM species index in the family
-               IPR_NGR2EM( NPA, NGR, IND_VM ) = 0 
-               IPR_NGR2EM( NPA, NGR, IND_CH ) = 0 
-               IPR_NGR2EM( NPA, NGR, IND_AE ) = 0
-               IPR_AESPEC( NPA, NGR ) = .FALSE.
+               ICG = IPR2GRD( NPA,NGR )  ! CTM species index in the family
+               IPR_NGR2EM( NPA,NGR,IND_VM ) = 0 
+               IPR_NGR2EM( NPA,NGR,IND_CH ) = 0 
+               IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
+               IPR_AESPEC( NPA,NGR ) = .FALSE.
                IND = 0
 
 C..gas chem species
-               IF( ICG .LE. N_GC_SPC ) THEN
+               IF ( ICG .LE. N_GC_SPC ) THEN
 
                   SP_INDX = ICG - GC_STRT + 1
                   IND = FINDEX ( SP_INDX, N_GC_EMIS, GC_EMIS_MAP )
 
-                  IF( IND .GT. 0 ) THEN
-                     IF( EMISVD ) THEN
-                        IPR_NGR2EM( NPA, NGR, IND_VM ) = IND 
+                  IF ( IND .GT. 0 ) THEN
+                     IF ( EMISVD ) THEN
+                        IPR_NGR2EM( NPA,NGR,IND_VM ) = IND 
                      ELSE
-                        IPR_NGR2EM( NPA, NGR, IND_CH ) = IND 
-                        IPR_NGR2EM( NPA, NGR, IND_AE ) = 0
-                     ENDIF
+                        IPR_NGR2EM( NPA,NGR,IND_CH ) = IND 
+                        IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
+                     END IF
 !                    RELWTEM( ICG ) = CONVMW / GC_MOLWT( ICG )
 !                    EM_FAC(  ICG ) = GC_EMIS_FAC( IND )
-                  ENDIF   
+                  END IF   
 
 C..aerosol species
-               ELSEIF( ICG. GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
+               ELSE IF ( ICG. GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
 
                   SP_INDX = ICG - AE_STRT + 1
-                  IND = FINDEX ( SP_INDX , N_AE_EMIS, AE_EMIS_MAP )
+                  IND = FINDEX ( SP_INDX, N_AE_EMIS, AE_EMIS_MAP )
 
-                  IF( IND .GT. 0 ) THEN
-                     IF( EM_AERO ) THEN
-                        IPR_NGR2EM( NPA, NGR, IND_VM ) = IND + OFFSETG
-                        IPR_AESPEC( NPA, NGR ) = .TRUE.
+                  IF ( IND .GT. 0 ) THEN
+                     IF ( EM_AERO ) THEN
+                        IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETG
+                        IPR_AESPEC( NPA,NGR ) = .TRUE.
                         LAE_EM_IPR = .TRUE.
                      ELSE   ! PA in aero process not implemented
-                        IPR_NGR2EM( NPA, NGR, IND_AE ) = 0
-                     ENDIF
+                        IPR_NGR2EM( NPA,NGR,IND_AE ) = 0
+                     END IF
 #ifdef Verbose
                   write( *,* ) ' aero: NPA, NGR, IND_VM, IPR_NGR2EM =',
-     &                      NPA, NGR, IND_VM, IPR_NGR2EM( NPA, NGR, IND_VM )
+     &                      NPA, NGR, IND_VM, IPR_NGR2EM( NPA,NGR,IND_VM )
 #endif
-                  ENDIF
+                  END IF
 
 C..non-reactive species
-               ELSEIF( ICG. GE. NR_STRT .AND. ICG .LT. TR_STRT ) THEN
+               ELSE IF ( ICG. GE. NR_STRT .AND. ICG .LT. TR_STRT ) THEN
 
                   SP_INDX = ICG - NR_STRT + 1  
-                  IND = FINDEX ( SP_INDX , N_NR_EMIS, NR_EMIS_MAP )
-
-                  IF( IND .GT. 0 ) THEN
-                     IPR_NGR2EM( NPA, NGR, IND_VM ) = IND + OFFSETA
+                  IND = FINDEX ( SP_INDX, N_NR_EMIS, NR_EMIS_MAP )
+                  IF ( IND .GT. 0 ) THEN
+                     IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETA
 
 #ifdef Verbose
                      write( *,* ) ' nonr: NPA, NGR, IND_VM, IPR_NGR2EM =',
@@ -496,45 +495,44 @@ C..non-reactive species
 
 !                    RELWTEM( ICG ) = CONVMW / NR_MOLWT( SP_INDX )   
 !                    EM_FAC(  ICG ) = NR_EMIS_FAC( IND )
-                  ENDIF   
+                  END IF   
 
 C..tracer species
-               ELSEIF( ICG. GE. TR_STRT ) THEN
+               ELSE IF ( ICG. GE. TR_STRT ) THEN
 
                   SP_INDX = ICG - TR_STRT + 1  
-                  IND = FINDEX ( SP_INDX , N_TR_EMIS, TR_EMIS_MAP )
+                  IND = FINDEX ( SP_INDX, N_TR_EMIS, TR_EMIS_MAP )
 
-
-                  IF( IND .GT. 0 ) THEN
+                  IF ( IND .GT. 0 ) THEN
 #ifdef Verbose
                      write( *,* ) 'trac ind: ', ind
 #endif
-                     IPR_NGR2EM( NPA, NGR, IND_VM ) = IND + OFFSETA + N_NR_EMIS
-                  ENDIF
+                     IPR_NGR2EM( NPA,NGR,IND_VM ) = IND + OFFSETA + N_NR_EMIS
+                  END IF
 
-               ENDIF
+               END IF
 
 #ifdef Verbose
-               write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_VM ): ',
-     &                    IPR_NGR2EM( NPA, NGR, IND_VM )
-               write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_CH ): ',
-     &                    IPR_NGR2EM( NPA, NGR, IND_CH )
-               write( *,* ) ' IPR_NGR2EM( NPA, NGR, IND_AE ): ',
-     &                    IPR_NGR2EM( NPA, NGR, IND_AE )
+               write( *,* ) ' IPR_NGR2EM( NPA,NGR,IND_VM ): ',
+     &                    IPR_NGR2EM( NPA,NGR,IND_VM )
+               write( *,* ) ' IPR_NGR2EM(NPA,NGR,IND_CH ): ',
+     &                    IPR_NGR2EM( NPA,NGR,IND_CH )
+               write( *,* ) ' IPR_NGR2EM( NPA,NGR,IND_AE ): ',
+     &                    IPR_NGR2EM( NPA,NGR,IND_AE )
 #endif
 
-            ENDDO      ! end species in the family loop
-         ENDDO         ! end family loop
+            END DO      ! end species in the family loop
+         END DO         ! end family loop
 
 C..set layer layer thickenesses
 !        X3FACE( 0 ) = VGLVS_GD( 1 )
 !        DO L = 1, NLAYS
 !           X3FACE( L ) = VGLVS_GD( L + 1 )
 !           X3MIDL( L ) = 0.5 * ( X3FACE( L ) + X3FACE( L - 1 ) )
-!        ENDDO
+!        END DO
 
 C..set cell widths
-         IF( GDTYP_GD .EQ. LATGRD3 ) THEN
+         IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX = DG2M * XCELL_GD          ! in m.
             DY = DG2M * YCELL_GD *
      &           COS( PI180 * ( YORIG_GD + YCELL_GD * 
@@ -547,10 +545,10 @@ C..set cell widths
          DDY = 1.0 / DY
 
 C..check units on emissions file
-         IF( .NOT. DESC3( EMIS_1 ) ) THEN
+         IF ( .NOT. DESC3( EMIS_1 ) ) THEN
               MSG = 'Could not get '// EMIS_1 // ' file description'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-         ENDIF
+         END IF
 
          CALL UPCASE ( UNITS3D( 1 ) )
          IF ( UNITS3D( 1 ) .NE. 'MOLES/S'   .AND.
@@ -561,7 +559,7 @@ C..check units on emissions file
      &        UNITS3D( 1 ) .NE. 'MOL/SEC' ) THEN
             MSG = 'Units incorrect on ' // EMIS_1
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
 C..get number of emission layers
          EMISLYRS = NLAYS3D
@@ -580,19 +578,19 @@ C  ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
 
             DO N = 1, N_AE_EMIS
 
-               IF( INDEX( AE_EMIS( N ), 'NUM' ) .NE. 0 ) THEN
+               IF ( INDEX( AE_EMIS( N ), 'NUM' ) .NE. 0 ) THEN
                   AE_EM_CONV( N ) = REFAC * AVO / MGPG
-               ELSEIF( INDEX( AE_EMIS( N ), 'SRF' ) .NE. 0 ) THEN
+               ELSE IF ( INDEX( AE_EMIS( N ), 'SRF' ) .NE. 0 ) THEN
                   AE_EM_CONV( N ) = 1.0E+06 * REFAC / MGPG
                ELSE
-                  AE_EM_CONV( N ) = REFAC * AE_EM_MW( N )
-               ENDIF
+                  AE_EM_CONV( N ) = REFAC * AE_MOLWT( AE_EMIS_MAP( N ) )
+               END IF
 
-            ENDDO
+            END DO
 
-        ENDIF
+        END IF
 
-      ENDIF  ! LEMFIRST
+      END IF  ! LEMFIRST
 
 C..get midpoint of time step
       MDATE = JDATE
@@ -608,17 +606,17 @@ C..Get air density if needed
 !    &                    MDATE, MTIME, DENSA_J ) ) THEN
 !           CALL M3EXIT( PNAME, JDATE, JTIME,
 !    &                  'Could not interpolate DENSA_J', XSTAT1 )
-!     ENDIF
+!     END IF
 
-      IF( LAE_EM_IPR ) THEN
+      IF ( LAE_EM_IPR ) THEN
          VNAME = 'DENS'
          IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
      &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 
      &                       1,NLAYS,MDATE, MTIME, DENS ) ) THEN
            CALL M3EXIT( PNAME, JDATE, JTIME,
      &                  'Could not interpolate DENS', XSTAT1 )
-         ENDIF
-      ENDIF
+         END IF
+      END IF
 
 
 C..Compute delta conc due to emissions and adjust vdiff or chem
@@ -630,28 +628,28 @@ C..output if necessary for each output species
          IPEM = IPROUT( NPA, PRINDEM )    ! emis species index for this process
 
          IPAJ = 0
-         IF( PRNAME .EQ. 'VDIF' ) THEN
+         IF ( PRNAME .EQ. 'VDIF' ) THEN
             IPAJ = IPROUT( NPA, PRINDVD )
             IND = IND_VM
-         ELSEIF( PRNAME .EQ. 'CHEM' ) THEN
+         ELSE IF ( PRNAME .EQ. 'CHEM' ) THEN
             IPAJ = IPROUT( NPA, PRINDCH )
             IND = IND_CH
-         ELSEIF( PRNAME .EQ. 'AERO' ) THEN ! PA in aero not implemented!
+         ELSE IF ( PRNAME .EQ. 'AERO' ) THEN ! PA in aero not implemented!
             IPAJ = IPROUT( NPA, PRINDAE )
             IND = IND_AE
-         ENDIF
+         END IF
 
          DO NGR = 1, NCGRID( NPA )        ! foreach species in the family
             ICG = IPR2GRD( NPA, NGR )     ! CTM species index in the family
             IEM = IPR_NGR2EM( NPA, NGR, IND )
             LAESP= IPR_AESPEC( NPA, NGR )  ! Flag for aerosol species
 
-            IF( IEM .NE. 0 .AND. ( IPEM .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
+            IF ( IEM .NE. 0 .AND. ( IPEM .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
 
 #ifdef parallel
                CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, IEM )
 !              CALL SUBST_DATA_COPY ( DENSA_J, TDENSA_J )
-               IF( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
+               IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
 #endif
                DO L = MY_BEGLEV, TOPLEV
                   PL = L - MY_BEGLEV + 1
@@ -663,7 +661,7 @@ C..output if necessary for each output species
 C..compute the emissions
 
 #ifdef parallel
-!                       IF( IND .EQ. IND_AE ) THEN
+!                       IF ( IND .EQ. IND_AE ) THEN
 !                          EM = TVEMIS( C, R, L ) * EM_FAC( ICG ) * 
 !    &                          CONVEM( L ) * 1.0E-06 * DT / 
 !    &                          TDENSA_J( C, R, L )
@@ -671,17 +669,17 @@ C..compute the emissions
 !                          EM = TVEMIS( C, R, L ) * EM_FAC( ICG ) *
 !    &                          CONVEM( L ) * CONVMW * DT /
 !    &                          TDENSA_J( C, R, L )
-!                       ENDIF
+!                       END IF
 !                       EM = TVEMIS( C,R,L ) * DT
 
-                        IF( .NOT. LAESP ) THEN
+                        IF ( .NOT. LAESP ) THEN
                            EM = TVEMIS( C,R,L ) * DT
                         ELSE
                            EM = TVEMIS( C,R,L ) * DT * TDENS( C, R, L ) *
      &                          AE_EM_CONV( IEM - OFFSETG )
-                        ENDIF
+                        END IF
 #else
-!                       IF( IND .EQ. IND_AE ) THEN
+!                       IF ( IND .EQ. IND_AE ) THEN
 !                          EM = VEMIS( C, R, L, IEM ) * EM_FAC( ICG ) *
 !    &                          CONVEM( L ) * 1.0E-06 * DT /
 !    &                          DENSA_J( C, R, L )
@@ -692,34 +690,34 @@ c    &                          DENSA_J( C, R, L )
 !                          EM = VEMIS( C, R, L, IEM ) * EM_FAC( ICG ) *
 !    &                          CONVEM( L ) * CONVMW * DT /
 !    &                          DENSA_J( C, R, L )
-!                       ENDIF
+!                       END IF
 !                       EM = VEMIS( C,R,L,IEM ) * DT
 
-                        IF( .NOT. LAESP ) THEN
+                        IF ( .NOT. LAESP ) THEN
                            EM = VEMIS( C,R,L,IEM ) * DT
                         ELSE
                            EM = VEMIS( C,R,L,IEM ) * DT * DENS( C, R, L ) *
      &                          AE_EM_CONV( IEM - OFFSETG )
-                        ENDIF
+                        END IF
 #endif
 
 C..modify both the emiss process and the calling process
-                        IF( IPEM .NE. 0 ) THEN
+                        IF ( IPEM .NE. 0 ) THEN
                            DELC( PC, PR, PL, IPEM ) = 
      &                     DELC( PC, PR, PL, IPEM )
      &                         + SPCOEF( NPA, NGR ) * EM
-                        ENDIF
-                        IF( IPAJ .NE. 0 ) THEN
+                        END IF
+                        IF ( IPAJ .NE. 0 ) THEN
                            DELC( PC, PR, PL, IPAJ ) = 
      &                     DELC( PC, PR, PL, IPAJ )
      &                         - SPCOEF( NPA, NGR ) * EM
-                        ENDIF
-                     ENDDO
-                  ENDDO
-               ENDDO
-            ENDIF
-         ENDDO
-      ENDDO
+                        END IF
+                     END DO
+                  END DO
+               END DO
+            END IF
+         END DO
+      END DO
 
       RETURN
 
@@ -729,7 +727,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENTRY PA_UPDATE_DDEP( PRNAME, DDEP, JDATE, JTIME, TSTEP )
 
 C..On first call, set pointers to deposition species 
-      IF( LDDFIRST ) THEN
+      IF ( LDDFIRST ) THEN
 
          N_SPCS = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
          ALLOCATE ( NUMFAC( N_SPCS ),
@@ -737,7 +735,7 @@ C..On first call, set pointers to deposition species
          IF ( ALLOCSTAT .NE. 0 ) THEN
             MSG = 'Failure allocating NUMFAC or RELWTDD'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
          PRINDDD = INDEX1( 'DDEP', NPRCS, PROCNAME )
          PRINDVD = INDEX1( 'VDIF', NPRCS, PROCNAME )
@@ -750,62 +748,62 @@ C..set pointers for the ddep array
                IPR_NGR2DD( NPA, NGR ) = 0
                IND = 0
 
-               IF( ICG .LT. AE_STRT ) THEN
+               IF ( ICG .LT. AE_STRT ) THEN
 
                   SP_INDX = ICG - GC_STRT + 1
                   IND = FINDEX ( SP_INDX, N_GC_DEPV, GC_DEPV_MAP )
 
-                  IF( IND .NE. 0 ) THEN                  
+                  IF ( IND .NE. 0 ) THEN                  
                      IPR_NGR2DD( NPA, NGR ) = IND
                      RELWTDD( ICG ) = CONVMW / GC_MOLWT( ICG )
-                  ENDIF
+                  END IF
 
-               ELSEIF( ICG .GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
+               ELSE IF ( ICG .GE. AE_STRT .AND. ICG .LT. NR_STRT ) THEN
 
                   SP_INDX = ICG - AE_STRT + 1
                   IND = FINDEX ( SP_INDX, N_AE_DEPV, AE_DEPV_MAP )
 
-                  IF( IND .NE. 0 ) THEN                 
+                  IF ( IND .NE. 0 ) THEN                 
                      IPR_NGR2DD( NPA, NGR ) = N_GC_DEPV + IND
-                     IF( AE_SPC( SP_INDX )( 1 : 3 ) .EQ. 'NUM' ) THEN
+                     IF ( AE_SPC( SP_INDX )( 1 : 3 ) .EQ. 'NUM' ) THEN
                         NUMFAC( ICG ) = 1.0
-                     ELSE IF( AE_SPC( SP_INDX )( 1 : 3 ) .EQ. 'SRF' ) THEN
+                     ELSE IF ( AE_SPC( SP_INDX )( 1 : 3 ) .EQ. 'SRF' ) THEN
                         NUMFAC( ICG ) = 1.0
                      ELSE
                         NUMFAC( ICG ) = 1.0E+09
-                     ENDIF
-                  ENDIF
+                     END IF
+                  END IF
 
-               ELSEIF( ICG .GE. NR_STRT .AND. ICG .LT. TR_STRT ) THEN
+               ELSE IF ( ICG .GE. NR_STRT .AND. ICG .LT. TR_STRT ) THEN
 
                   SP_INDX = ICG - NR_STRT + 1
                   IND = FINDEX ( SP_INDX, N_NR_DEPV, NR_DEPV_MAP )
 
-                  IF( IND .NE. 0 )  THEN
+                  IF ( IND .NE. 0 )  THEN
                      IPR_NGR2DD( NPA, NGR ) = N_GC_DEPV + N_AE_DEPV + IND
                      RELWTDD( ICG ) = CONVMW / NR_MOLWT( SP_INDX )
-                  ENDIF
+                  END IF
 
-               ELSEIF( ICG .GE. TR_STRT ) THEN
+               ELSE IF ( ICG .GE. TR_STRT ) THEN
 
                   SP_INDX = ICG - TR_STRT + 1
                   IND = FINDEX ( SP_INDX, N_NR_DEPV, NR_DEPV_MAP )
 
-                  IF( IND .NE. 0 ) THEN
+                  IF ( IND .NE. 0 ) THEN
                      IPR_NGR2DD( NPA, NGR ) = N_GC_DEPV + N_AE_DEPV +
      &                                        N_NR_DEPV + IND
                      RELWTDD( ICG ) = CONVMW / TR_MOLWT( SP_INDX )
-                  ENDIF
-               ENDIF
-            ENDDO            
-         ENDDO
+                  END IF
+               END IF
+            END DO            
+         END DO
 
 
 C..set layer layer thickenesses
          X3FACE( 0 ) = VGLVS_GD( 1 )
          DO L = 1, NLAYS
             X3FACE( L ) = VGLVS_GD( L + 1 )
-         ENDDO
+         END DO
 
          L = 1
          CONVDD( L ) = 1.0 / ABS ( X3FACE( L ) - X3FACE( L - 1 ) ) 
@@ -818,7 +816,7 @@ c..get recipricol of msfx2
          IF ( ALLOCSTAT .NE. 0 ) THEN
             MSG = 'Failure allocating RMSFX4'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
          VNAME = 'MSFX2'
          IF ( .NOT. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -827,7 +825,7 @@ c..get recipricol of msfx2
             MSG = ' Error interpolating variable ' // VNAME //
      &             ' from ' // GRID_CRO_2D
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
          RMSFX2 = 1.0 /  RMSFX2        ! Array calculation
 
@@ -836,7 +834,7 @@ c..get recipricol of msfx2
          IF ( ALLOCSTAT .NE. 0 ) THEN
             MSG = 'Failure allocating RMSFX4'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
          CALL SUBST_DATA_COPY ( RMSFX2, TRMSFX2 )
 #endif
@@ -846,9 +844,9 @@ c..get recipricol of msfx2
 
          LDDFIRST = .FALSE.           
 
-      ENDIF
+      END IF
 
-      IF( MY_BEGLEV .GT. 1 ) RETURN
+      IF ( MY_BEGLEV .GT. 1 ) RETURN
 
 C..get midpoint of time step
       MDATE = JDATE
@@ -864,9 +862,9 @@ C..get density x jacobian and layer heights
      &                    MDATE, MTIME, DENSA_J ) ) THEN
             CALL M3EXIT( PNAME, JDATE, JTIME,
      &                   'Could not interpolate DENSA_J', XSTAT1 )
-      ENDIF
+      END IF
 
-      IF( N_AE_SPC .GT. 0 ) THEN
+      IF ( N_AE_SPC .GT. 0 ) THEN
 
          VNAME = 'ZF'
          IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
@@ -875,8 +873,8 @@ C..get density x jacobian and layer heights
      &                       MDATE, MTIME, ZF ) ) THEN
                CALL M3EXIT( PNAME, JDATE, JTIME,
      &                      'Could not interpolate ZF', XSTAT1 )
-         ENDIF
-      ENDIF
+         END IF
+      END IF
 
 #ifdef parallel
       CALL SUBST_DATA_COPY ( DENSA_J, TDENSA_J )
@@ -895,7 +893,7 @@ C..Compute delta conc due to ddep and adjust vdiff output if necessary
             ICG = IPR2GRD( NPA, NGR )
             IDD = IPR_NGR2DD( NPA, NGR )
 
-            IF( IDD .NE. 0 .AND. ( IPDD .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
+            IF ( IDD .NE. 0 .AND. ( IPDD .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
 
 #ifdef parallel
                CALL SUBST_DATA_COPY ( DDEP, TDDEP, IDD )
@@ -909,7 +907,7 @@ C..Compute delta conc due to ddep and adjust vdiff output if necessary
 C..compute the dep in ppm
 
 #ifdef parallel
-                     IF( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
+                     IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
                         NETDEP = TDDEP( C, R ) * CONVH2M *
      &                           NUMFAC( ICG ) / TZF( C, R, 1 )
                      ELSE
@@ -917,40 +915,39 @@ C..compute the dep in ppm
      &                           RELWTDD( ICG ) * CONVDD( 1 ) *
      &                           TRMSFX2( C, R ) / TDENSA_J( C, R, 1 ) 
 
-                     ENDIF
+                     END IF
 #else
-                     IF( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
+                     IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
                         NETDEP = DDEP( C, R, IDD ) * CONVH2M *
      &                           NUMFAC( ICG ) / ZF( C, R, 1 )
                      ELSE
                         NETDEP = DDEP( C, R, IDD ) * CONVH2M *
      &                           RELWTDD( ICG ) * CONVDD( 1 ) * 
      &                           RMSFX2( C, R ) / DENSA_J( C, R, 1 ) 
-                     ENDIF
+                     END IF
 #endif
 
 C..adjust the process analysis output arrays
 
-                     IF( IPDD .NE .0 ) THEN
+                     IF ( IPDD .NE .0 ) THEN
                         DELC( PC, PR, 1, IPDD ) = 
      &                  DELC( PC, PR, 1, IPDD )
      &                      - SPCOEF( NPA, NGR ) * NETDEP
-                     ENDIF
+                     END IF
 
-                     IF( IPAJ .NE. 0 ) THEN
+                     IF ( IPAJ .NE. 0 ) THEN
                         DELC( PC, PR, 1, IPAJ ) = 
      &                  DELC( PC, PR, 1, IPAJ )  
      &                      + SPCOEF( NPA, NGR ) * NETDEP
-                     ENDIF
-                  ENDDO
-               ENDDO
+                     END IF
+                  END DO
+               END DO
 
-            ENDIF
+            END IF
 
-         ENDDO
+         END DO
 
-      ENDDO
+      END DO
 
       RETURN
       END           
-
