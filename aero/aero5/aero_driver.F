@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.3 2011/02/22 19:12:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.4 2011/03/15 19:13:03 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,11 +26,11 @@ C %W% %P% %G% %U%
 C >>> 08/04/2000 Changes necessary to be able to read and process
 C two different types of emissions files.
 C the first type is the existing opperational PM2.5 & PM10 unspeciated
-C file. The new file format has speciated emissions. 
+C file. The new file format has speciated emissions.
 C >>> This version uses the FORTRAN 90 feature for runtime memory
 C allocation.
 
-C 1/12/99 David Wong at LM: 
+C 1/12/99 David Wong at LM:
 C   -- introduce new variable MY_NUMBLKS (eliminate NUMBLKS)
 C   -- re-calculate NOXYZ accordingly
 C FSB Updated for inclusion of surface area / second moment
@@ -40,7 +40,7 @@ C FSB/Jeff - May 01 - optional emissions processing
 C   Jerry Gipson - Jun 01 - added SOA linkages for saprc99
 C   Bill Hutzell - Jun 01 - simplified CBLK mapping
 C   Jerry Gipson - Jun 03 - modified for new soa treatment
-C   Jerry Gipson - Aug 03 - removed SOA prod form alkenes & added 
+C   Jerry Gipson - Aug 03 - removed SOA prod form alkenes & added
 C       emission adjustment factors for ALK & TOL ( RADM2 & SAPRC99 only)
 C   Shawn Roselle - Jan 04
 C   - removed SOA from transported aerosol surface area
@@ -49,10 +49,10 @@ C      parameters were being written to the AERDIAG files and mislabeled
 C      as WET.
 C   Prakash Bhave - May 04
 C   - changed AERODIAG species (added RH; removed M0 & M2dry)
-C   Jeff Young - Jan 05 - dyn alloc 
+C   Jeff Young - Jan 05 - dyn alloc
 C   - establish both horizontal & vertical domain specifications in one module
 c   Uma Shankar and Prakash Bhave - Jun 05
-c   - added code to handle the following species: ANAI, ANAJ, ANAK, ACLI, 
+c   - added code to handle the following species: ANAI, ANAJ, ANAK, ACLI,
 c     ACLJ, ACLK, ASO4K, AH2OK, ANO3K, and HCL; removed code for ASEAS
 c   - removed obsolete MW variables
 C   Prakash Bhave - Jul 05 - added PM25 mass-fraction calculations
@@ -62,11 +62,11 @@ C       and the aerosol diagnostic file
 C   Prakash Bhave - May 06 - changed units of DG variables from m to um in
 C       the aerosol diagnostic file as suggested by Dr. Bill Hutzell
 C   Sergey Napelenok - Sep 07 - SOA updates
-C   - added code to handle the following species: AALKJ, ATOL1J, ATOL2J, 
-C     ATOL3J, AXYL1J, AXYL2J, AXYL3J, ABNZ1J, ABNZ2J, ABNZ3J, AISO1J, AISO2J, 
-C     AISO3J, ATRP1J, ATRP2J, ASQTJ, AORGCJ, TOLNRXN, TOLHRXN, XYLNRXN, 
+C   - added code to handle the following species: AALKJ, ATOL1J, ATOL2J,
+C     ATOL3J, AXYL1J, AXYL2J, AXYL3J, ABNZ1J, ABNZ2J, ABNZ3J, AISO1J, AISO2J,
+C     AISO3J, ATRP1J, ATRP2J, ASQTJ, AORGCJ, TOLNRXN, TOLHRXN, XYLNRXN,
 C     XYLHRXN, BNZNRXN, BNZHRXN, ISOPRXN, and SESQRXN
-C   - removed following species: AORGAI, AORGAJ, AORGBI, AORGBJ, OLIRXN, 
+C   - removed following species: AORGAI, AORGAJ, AORGBI, AORGBJ, OLIRXN,
 C     CSLRXN, TOLRXN, XYLRXN
 C   Prakash Bhave - Oct 07 - SOA updates
 C   - added semi-volatile vapors to the CBLK array; moved ppm -> ug/m3 unit
@@ -78,12 +78,14 @@ C   - removed code to handle TERPSP (obsolete); renamed TERPRXN as TRPRXN
 C   David Wong - Jan 08 - rearranged calculation of dry 3rd moments to avoid
 C      NaN on some compilers (using the M3SUBT variable)
 C   Prakash Bhave - Jan 08 - updated MECHNAME check from AE4 to AE5
-C   Golam Sarwar -  Mar 08 - added a heterogeneous reaction producing HONO 
-C   J.Kelly - Apr 08 - added code to account for new species (ANH4K &
-C                      SRFCOR) and variable coarse std. deviation
-C                    - removed MW coding now located in AERO_INFO.f
-C                    - added LIMIT_Sg flag for call to GETPAR
-C   J.Young - Aug 10 - convert for Namelist redesign (replace include files)
+C   Golam Sarwar -  Mar 08 - added a heterogeneous reaction producing HONO
+C   Jim Kelly - Apr 08 - coarse mode updates
+C   - added code to account for new species (ANH4K & SRFCOR) and variable
+C     coarse std. deviation
+C   - removed MW coding now located in AERO_INFO.f
+C   - added LIMIT_Sg flag for call to GETPAR
+C   Jeff Young - Aug 10 - convert for Namelist redesign (replace include files)
+C   Steve Howard - Mar 11 - Renamed met_data to aeromet_data
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -92,12 +94,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AERO_DATA           ! aero variable data
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
-      USE MET_DATA            ! air properties data, eg., T, P, RH includes CONST.EXT
+      USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
 
       IMPLICIT NONE
- 
+
 C *** Includes:
- 
+
       INCLUDE SUBST_RXCMMN    ! to get mech name
       INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
       INCLUDE SUBST_IOFDESC   ! file header data structure
@@ -123,7 +125,7 @@ C *** Local Variables:
       CHARACTER( 16 ) :: VNAME            ! variable name
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER   MDATE, MTIME, MSTEP  ! julian date, time and 
+      INTEGER   MDATE, MTIME, MSTEP  ! julian date, time and
                                      ! timestep in sec
       INTEGER   C, R, L, V, N        ! loop counters
       INTEGER   SPC                  ! species loop counter
@@ -149,7 +151,7 @@ C *** Variable to set time step for writing visibility file
 
 C *** meteorological variables
       REAL PRES   ( NCOLS,NROWS,NLAYS )  ! Atmospheric pressure [ Pa ]
-      REAL TA     ( NCOLS,NROWS,NLAYS )  ! Air temperature [ K ] 
+      REAL TA     ( NCOLS,NROWS,NLAYS )  ! Air temperature [ K ]
       REAL DENS   ( NCOLS,NROWS,NLAYS )  ! Air density [ kg/m**-3 ]
       REAL QV     ( NCOLS,NROWS,NLAYS )  ! Water vapor mixing ratio [ kg/kg ]
 
@@ -210,7 +212,7 @@ C *** environment variable for AERDIAG file
 C *** flag for AERDIAG file [F], default
       LOGICAL, SAVE :: AERDIAG
 
-C *** first pass flag 
+C *** first pass flag
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C *** ratio of molecular weights of water vapor to dry air = 0.622015
@@ -231,7 +233,7 @@ C *** values of AL, BL, and CL are from:
 C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
 C                            Saturation Vapor Pressure,"
 C                            Jour. of Applied Meteorology, vol. 35,
-C                            pp 601-609, April, 1996.         
+C                            pp 601-609, April, 1996.
 
       ESATL( TT ) = AL * EXP( BL * ( TT - 273.15 ) / ( TT - 273.15 + CL ) )
 
@@ -331,7 +333,7 @@ C *** specific humidity [g H2O/g air]
      &                    MDATE, MTIME, QV ) ) THEN
          XMSG = 'Could not interpolate '// TRIM( VNAME ) // ' from MET_CRO_3D '
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF 
+      END IF
 
 C *** air density [kg/m3]
       VNAME = 'DENS'
@@ -355,7 +357,7 @@ C *** Grid cell meteorological data.
                AIRPRES  = PRES ( C,R,L )   ! Note pascals
                AIRQV    = QV   ( C,R,L )
                AIRDENS  = DENS ( C,R,L )
-               H2OSATVP = ESATL( AIRTEMP ) 
+               H2OSATVP = ESATL( AIRTEMP )
                H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
                AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) )
 
@@ -475,7 +477,7 @@ C *** Write dry aerosol distribution parameters to aerosol diagnostic array
                IF ( WRITETIME .AND. AERDIAG ) THEN
                   DIAM_SPC( C,R,L, 1 ) = EXP( AEROMODE_SDEV( 1 ) )
                   DIAM_SPC( C,R,L, 2 ) = EXP( AEROMODE_SDEV( 2 ) )
-                  DIAM_SPC( C,R,L, 3 ) = EXP( AEROMODE_SDEV( 3 ) ) 
+                  DIAM_SPC( C,R,L, 3 ) = EXP( AEROMODE_SDEV( 3 ) )
                   DIAM_SPC( C,R,L, 4 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! dry i-mode diam.
                   DIAM_SPC( C,R,L, 5 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! dry j-mode diam.
                   DIAM_SPC( C,R,L, 6 ) = AEROMODE_DIAM( 3 ) * 1.0e6  ! dry k-mode diam.
@@ -513,7 +515,7 @@ C *** If last call this hour, write visibility information.
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                  'Timestep written to', CTM_VIS_1,
      &                  'for date and time', MDATE, MTIME
-  
+
 C *** Write data to the aerosol diagnostic file.
          IF ( AERDIAG ) THEN
 
