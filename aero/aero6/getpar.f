@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/getpar.f,v 1.2 2011/02/17 14:38:31 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/getpar.f,v 1.3 2011/03/15 19:11:55 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Subroutine getpar( m3_wet_flag, limit_sg  )
@@ -8,14 +8,14 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C  Calculates the 3rd moments (M3), masses, aerosol densities, and
 C  geometric mean diameters (Dg) of all 3 modes, and the natural logs of
 C  geometric standard deviations (Sg) of the Aitken and accumulation modes.
- 
-C  The input logical variable, M3_WET_FLAG, dictates whether the 
+
+C  The input logical variable, M3_WET_FLAG, dictates whether the
 C  calculations in GETPAR are to assume that the aerosol is "wet" or
 C  "dry."  In the present context, a "wet" aerosol consists of all
-C  chemical components of the aerosol.  A "dry" aerosol excludes 
+C  chemical components of the aerosol.  A "dry" aerosol excludes
 C  particle-bound water and also excludes secondary organic aerosol.
- 
-C  NOTE! 2nd moment concentrations (M2) are passed into GETPAR in the 
+
+C  NOTE! 2nd moment concentrations (M2) are passed into GETPAR in the
 C  CBLK array and are modified within GETPAR only in the event that
 C  the Sg value of a given mode has gone outside of the acceptable
 C  range (1.05 to 2.50).  The GETPAR calculations implicitly assume
@@ -23,11 +23,13 @@ C  that the input value of M2 is consistent with the input value of
 C  M3_WET_FLAG.  If, for example, the input M2 value was calculated
 C  for a "dry" aerosol and the M3_WET_FLAG is .TRUE., GETPAR would
 C  incorrectly adjust the M2 concentrations!
- 
+
+C
+C SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
       Use aero_data
-      Use met_data
+      Use aeromet_data
 
       Implicit None
 
@@ -62,12 +64,12 @@ C Local Variables:
       Real,      Parameter :: dgmin = 1.0E-09   ! minimum particle diameter [ m ]
       Real,      Parameter :: densmin = 1.0E03  ! minimum particle density [ kg/m**3 ]
 
-      Real( 8 ) :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode 
+      Real( 8 ) :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode
       Real( 8 ) :: maxl2sg( n_mode )   ! max value of ln(sg)**2 for each mode
 
       Real      :: factor
-      Real( 8 ) :: sumM3 
-      Real( 8 ) :: sumMass 
+      Real( 8 ) :: sumM3
+      Real( 8 ) :: sumMass
       Integer   :: n, spc   ! loop counters
 
 C-----------------------------------------------------------------------
@@ -107,15 +109,15 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
 C *** Calculate modal average particle densities [ kg/m**3 ]
 
-      Do n = 1, n_mode    
+      Do n = 1, n_mode
         aeromode_dens( n ) = Max( Real( densmin,8 ),
      &                            1.0E-9 * f6dpi * aeromode_mass( n ) / moment3_conc( n )  )
       End Do
 
 C *** Calculate geometric standard deviations as follows:
 c        ln^2(Sg) = 1/3*ln(M0) + 2/3*ln(M3) - ln(M2)
-c     NOTES: 
-c      1. Equation 10-5a of [Binkowski:1999] and Equation 5a of 
+c     NOTES:
+c      1. Equation 10-5a of [Binkowski:1999] and Equation 5a of
 c         Binkowski&Roselle(2003) contain typographical errors.
 c      2. If the square of the logarithm of the geometric standard
 c         deviation is out of an acceptable range, reset this value and
@@ -127,9 +129,9 @@ c         below the minimum limit.
 C *** Aitken Mode:
 
       Do n = 1, n_mode
-         xxm0 = moment0_conc( n ) 
-         xxm2 = moment2_conc( n ) 
-         xxm3 = moment3_conc( n ) 
+         xxm0 = moment0_conc( n )
+         xxm2 = moment2_conc( n )
+         xxm3 = moment3_conc( n )
 
          xfsum = one3d * Log( xxm0 ) + two3d * Log( xxm3 )
 

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_depv.F,v 1.3 2011/02/22 19:12:18 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_depv.F,v 1.4 2011/03/15 19:11:55 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
@@ -59,15 +59,16 @@ C     domain specifications in one module
 C 07 Jun 05 P.Bhave: Added code to handle new species in the AE4
 C     mechanism: ANAI, ANAJ, ANAK, ACLI, ACLJ, ACLK, ASO4K, AH2OK,
 C     and ANO3K; look for ASEAS only when using AE3 mechanism
-C 30 Jan 08 S.Napelenok & P.Bhave: Added code to handle new SOA species 
+C 30 Jan 08 S.Napelenok & P.Bhave: Added code to handle new SOA species
 C     in AE5; defined DRY aerosol to include nonvolatile SOA spcs
 C 14 Apr 08 J.Kelly: Added code to handle new species ANH4K and SRFCOR.
-C     Also added code to handle variable coarse mode standard deviation 
+C     Also added code to handle variable coarse mode standard deviation
 C     in AE5 (no longer fixed at 2.2).
 C 08 Sep 08 P.Bhave: Backward compatibility with AE4 mechanisms
 C     standardized names of all coarse-mode variables
 C 19 Apr 10 S.Howard: aero re-engineering for modularity
 C 23 Apr 10 J.Young: replace chem mechanism include files with namelists
+C 10 Mar 11 S.Howard: Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -75,7 +76,7 @@ C-----------------------------------------------------------------------
 
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
-      USE MET_DATA            ! constants and met data
+      USE AEROMET_DATA        ! constants and met data
 
       IMPLICIT NONE
 
@@ -145,12 +146,12 @@ C Meteorological variables
       REAL, ALLOCATABLE, SAVE  :: XXLSGAT( :,: )    ! log of standard deviation
       REAL, ALLOCATABLE, SAVE  :: XXLSGAC( :,: )
       REAL, ALLOCATABLE, SAVE  :: XXLSGCO( :,: )
- 
+
       REAL, ALLOCATABLE, SAVE  :: DGATK( :,: )      ! geometric mean diameter
       REAL, ALLOCATABLE, SAVE  :: DGACC( :,: )
       REAL, ALLOCATABLE, SAVE  :: DGCOR( :,: )
 
-      REAL, ALLOCATABLE, SAVE  :: PDENSAT( :,: )    ! particle density         
+      REAL, ALLOCATABLE, SAVE  :: PDENSAT( :,: )    ! particle density
       REAL, ALLOCATABLE, SAVE  :: PDENSAC( :,: )
       REAL, ALLOCATABLE, SAVE  :: PDENSCO( :,: )
 
@@ -367,7 +368,7 @@ C        into aerospc_conc in aero_data module
 C ***    extract soa concentrations from CGRID
          CALL EXTRACT_SOA( CGRID( C,R,1,: ) )
 
-C ***    Calculate aerosol surface area to 2nd moment. 
+C ***    Calculate aerosol surface area to 2nd moment.
          DO S = 1, N_MODE
             N = AEROSRF_MAP( S )
             MOMENT2_CONC( S ) = CGRID( C,R,1,N ) / SNGL( PI )
@@ -375,7 +376,7 @@ C ***    Calculate aerosol surface area to 2nd moment.
 
 C ***    Calculate geometric mean diameters and standard deviations of the
 C        "dry" size distribution
-         CALL GETPAR( .FALSE., .FALSE. ) 
+         CALL GETPAR( .FALSE., .FALSE. )
 
 C add contribution of water and SOA
 
@@ -420,7 +421,7 @@ C        coarse mode
 
 C ***    Calculate geometric mean diameters and standard deviations of the
 C        "wet" size distribution
-         CALL GETPAR( .TRUE., .FALSE. )     
+         CALL GETPAR( .TRUE., .FALSE. )
 
 C        Save getpar values to arrays
          XXLSGAT( C,R ) = AEROMODE_SDEV( 1 )
@@ -434,7 +435,7 @@ C        Save getpar values to arrays
          PDENSAT( C,R ) = AEROMODE_DENS( 1 )
          PDENSAC( C,R ) = AEROMODE_DENS( 2 )
          PDENSCO( C,R ) = AEROMODE_DENS( 3 )
- 
+
 C        Calculate mean free path [ m ]:
          XLM( C,R ) = 6.6328E-8 * P0 * AIRTEMP / ( T0 * AIRPRES )
 
@@ -491,7 +492,7 @@ C     Reference:
 C     Binkowski F. S., and U. Shankar, The regional particulate
 C     model 1. Model description and preliminary results.
 C     J. Geophys. Res., 100, D12, 26191-26209, 1995.
- 
+
 C    May 05 D.Schwede: added impaction term to coarse mode dry deposition
 C 25 May 05 J.Pleim:  Updated dry dep velocity calculation for aerosols
 C                     to Venkatram and Pleim (1999)
@@ -616,8 +617,8 @@ C Scalar variables for  VARIABLE standard deviations.
       REAL    ESCO08           ! coarse       "
 
       REAL    ESAT12           ! Aitken       " **12
-      REAL    ESAC12           ! accumulation "     
-      REAL    ESCO12           ! coarse       "     
+      REAL    ESAC12           ! accumulation "
+      REAL    ESCO12           ! coarse       "
 
       REAL    ESAT16           ! Aitken       " **16
       REAL    ESAC16           ! accumulation "
@@ -640,8 +641,8 @@ C Scalar variables for  VARIABLE standard deviations.
       REAL    ESCO36           ! coarse       "
 
       REAL    ESAT48           ! Aitken       " **48
-      REAL    ESAC48           ! accumulation "     
-      REAL    ESCO48           ! coarse       "     
+      REAL    ESAC48           ! accumulation "
+      REAL    ESCO48           ! coarse       "
 
       REAL    ESAT64           ! Aitken       " **64
       REAL    ESAC64           ! accumulation "
@@ -656,12 +657,12 @@ C Scalar variables for  VARIABLE standard deviations.
       REAL    ESCO160          ! coarse       "
 
       REAL    ESATM12          ! Aitken       " **(-12)
-      REAL    ESACM12          ! accumulation "        
-      REAL    ESCOM12          ! coarse       "        
+      REAL    ESACM12          ! accumulation "
+      REAL    ESCOM12          ! coarse       "
 
       REAL    ESATM16          ! Aitken       " **(-16)
-      REAL    ESACM16          ! accumulation "        
-      REAL    ESCOM16          ! coarse       "        
+      REAL    ESACM16          ! accumulation "
+      REAL    ESCOM16          ! coarse       "
 
       REAL    ESATM20          ! Aitken       " **(-20)
       REAL    ESACM20          ! accumulation "

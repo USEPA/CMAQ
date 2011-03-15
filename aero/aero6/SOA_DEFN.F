@@ -1,19 +1,19 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/SOA_DEFN.F,v 1.2 2011/02/22 17:54:08 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/SOA_DEFN.F,v 1.3 2011/03/15 19:11:56 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
 
 C  Defines aerosol species arrays and parameters required in SOA processing.
- 
+
 C  Contains:
 C     Subroutine extract_soa
 C     Subroutine update_soa
 C     Function findVapor
 C     Function findOrgprod
 C     Subroutine orgaer
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
@@ -59,7 +59,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
       Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
- 
+
 C Indices of required species
       Integer :: iso1_idx
       Integer :: iso2_idx
@@ -75,7 +75,7 @@ C Indices of required species
       Integer :: drog_map  ( n_vapor )   ! drog mapping assignments
 
 C orgprod species
-    
+
       Type orgprod_type
          Character( 16 ) :: name
          Character( 16 ) :: parent
@@ -83,7 +83,7 @@ C orgprod species
          Real            :: alphaH       ! Stoichiometric coefficients for non-volatile aromatic SOA [ug/m^3]/[ug/m^3]
       End Type orgprod_type
 
-C   This default orgprod table is for CB05, parent names are changed in subroutine 
+C   This default orgprod table is for CB05, parent names are changed in subroutine
 C   extract_soa for the SAPRC99 and SAPRC07T mechanisms
 C
       Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
@@ -119,14 +119,16 @@ C-----------------------------------------------------------------------
       Subroutine extract_soa( conc )
 
 C  Extracts the required soa data from CGRID into the conc array.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
       Use aero_data       ! aero species
-      Use met_data        ! air and met variables
+      Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
 
       Implicit None
@@ -222,7 +224,7 @@ C Find indices of required species
 
 C Build mapping array to aero species
          soa_aeroMap = 0
-         Do spc = 1, n_vapor   
+         Do spc = 1, n_vapor
             If ( vaporspc( spc )%soa_name .Ne. ' ' ) Then
                soa_aeroMap( spc ) = findAero( vaporspc( spc )%soa_name, .True. )
             End If
@@ -237,7 +239,7 @@ C Build mapping array to aero species
 
 C Build mapping array to orgprod species
          drog_map = 0
-         Do spc = 1, n_vapor   
+         Do spc = 1, n_vapor
             If ( vaporspc( spc )%drog_name .Ne. ' ' ) Then
                drog_map( spc ) = findOrgprod( vaporspc( spc )%drog_name )
             End If
@@ -280,13 +282,15 @@ C-----------------------------------------------------------------------
       Subroutine update_soa( conc )
 
 C  Populates CGRID from the conc array with updated SOA values.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
-      Use met_data        ! air and met variables
+      Use aeromet_data    ! air and met variables
 
       Implicit None
 
@@ -347,7 +351,7 @@ C Local Variables:
       Character( 80 ) :: xmsg
       Integer         :: spc
 
-      Do spc = 1, n_vapor   
+      Do spc = 1, n_vapor
          If ( Trim( vaporspc( spc )%name ) .Eq. Trim( vname ) ) Then
             ndx = spc
             Return
@@ -416,7 +420,7 @@ C Output includes updated concentrations of SOA species, vapor-phase
 C semi-volatile organic compounds, and moments of the accumulation
 C mode.  The geometric mean diameter of the accumulation mode is also
 C updated.  All SOA formation is restricted to the accumulation mode.
- 
+
 C This code relies on 10 counter species to be incorporated in the
 C gas-phase chemical mechanisms to track the amounts of individual
 C ROG that reacted during the current time step (i.e., NPREC=10).
@@ -431,7 +435,7 @@ C       (7) benzene, low-NOx pathway (BNZHRXN)
 C       (8) monoterpenes (TRPRXN)
 C       (9) isoprene (ISOPRXN)
 C      (10) sesquiterpenes (SESQRXN)
- 
+
 C In total, 12 organic species are allowed to partition between the
 C vapor and particulate phases (i.e., NCVAP=12). The arrays of
 C length = NCVAP are ordered as follows:
@@ -442,14 +446,14 @@ C     (6&7) benzene, high-NOx pathway (2 products)
 C     (8&9) monoterpenes (2 products)
 C   (10&11) isoprene (2 products)
 C      (12) sesquiterpenes (1 product)
- 
+
 C Equilibrium partitioning calculations are based on the absorptive
 C partitioning model of Pankow (1994) that was extended by Odum et
 C al. (1996).  Saturation vapor pressures (cstar) and mass-based
 C stoichiometric yield coefficients (alpha) are obtained from smog-
 C chamber studies.  Saturation vapor pressures are modified as a
 C function of temperature using eqn 6 of Sheehan & Bowman (2001).
- 
+
 C If the pre-existing organic aerosol concentration is zero,
 C gas/particle equilibrium is established only after the organic gas
 C concentration reaches the threshold value defined in eqn 9 of
@@ -460,7 +464,7 @@ C particle-phase concentrations of each condensible species are
 C calculated iteratively using a globally convergent variation of
 C Newton's method (SUBROUTINE NEWT), as described in eqn 8 of Schell
 C et al. (2001).
- 
+
 C In addition to the various pathways of semi-volatile SOA formation
 C treated in previous versions of the model, four types of non-
 C volatile SOA are considered here:
@@ -471,12 +475,12 @@ C   (4) SOA formed by in-cloud oxidation  (SUBROUTINE AQCHEM)
 
 C Previous code revision history:
 C   Originally coded August 1, 2001 by Dr. Francis S. Binkowski
- 
+
 C   Revised April 4, 2003 by Gerald Gipson to allow for evaporation
 C   of organics from aerosols. Now total vapor + aerosol phase is
 C   repartitioned at each time step and totorgsw ( Mo ) does not
 C   include oldsoa.
- 
+
 C   Revised July 14, 2003 by Dr. Prakash V. Bhave
 C   - changed cstar(2,3) from 10.103 & 90.925 to 111.11 & 1000.0
 C     because smog chamber data of Kalberer et al. were collected
@@ -489,18 +493,18 @@ C   - changed variable names to reflect that the combined vapor +
 C     aerosol concentrations are now being repartitioned during
 C     each time step (not just the newly formed SVOC's)
 C   - added documentation and removed extraneous lines of code
- 
+
 C   Revised December 4, 2003 by Dr. Francis S. Binkowski
 C   - output variables ORGRATE and ORGBRATE removed and replaced
 C     by SOA_A and SOA_B, the newly equilibrated values of
 C     Anthropogenic and Biogenic SOA, respectively.  These are non-
 C     negative values.
 C   - variable jj also removed
- 
+
 C   Revised January 8, 2004 by Dr. Prakash V. Bhave
 C   - removed the output variable YIELD.  It has no physical meaning
 C     after the 12/04/2003 revisions.
- 
+
 C   Revised January 12, 2004 by Dr. Chris G. Nolte
 C   - for computational efficiency, modified the initial caer guess
 C     used as input to NEWT.  If NEWT returns check .eq. true, then
@@ -551,107 +555,107 @@ C   - Reduced SOA/SOC ratio of AISO1 and AISO2 from 2.5 to 1.6, and
 C     increased SOA/SOC ratio of AISO3 from 2.5 to 2.7.  Accordingly,
 C     the molar masses of AISO1 and AISO2 were decreased to 96 g/mol
 C     and the molar mass of AISO3 was increased to 162.
- 
+
 C References:
 C   1. Edney, E.O., T.E. Kleindienst, M. Lewandowski, and J.H.
 C      Offenberg, Updated SOA chemical mechanism for the Community
 C      Multi-Scale Air Quality model, EPA 600/X-07/025, U.S. EPA,
 C      Research Triangle Park, NC, 2007.
- 
+
 C   2. Pankow, J. F., An absorption model of gas/particle partitioning
 C      of organic compounds in the atmosphere, Atmos. Environ., Vol 28,
 C      No 2, 185-188, 1994.
- 
+
 C   3. Odum, J. R., T. Hoffmann, F. Bowman, D. Collins, R. C. Flagan,
 C      and J. H. Seinfeld, Gas/particle partitioning and secondary
 C      organic aerosol yields, Environ. Sci. Technol., Vol 30, No 8,
 C      2580-2585, 1996.
- 
+
 C   4. Sheehan, P. E. and F. M. Bowman, Estimated effects of temperature
 C      on secondary organic aerosol concentrations, Environ. Sci.
 C      Technol., Vol 35, No 11, 2129-2135, 2001.
- 
+
 C   5. Schell, B., I. J. Ackermann, H. Hass, F. S. Binkowski, and
 C      A. Abel, Modeling the formation of secondary organic aerosol
 C      within a comprehensive air quality modeling system, J. Geophys.
 C      Res., Vol 106, No D22, 28275-28293, 2001.
- 
+
 C   6. Strader, R., F. Lurmann, and S. N. Pandis, Evaluation of
 C      secondary organic aerosol formation in winter, Atmos. Environ.,
 C      Vol 33, 4849-4863, 1999.
- 
+
 C   7. Ng, N. L., J. H. Kroll, A. W. H. Chan, P. S. Chhabra, R. C.
 C      Flagan, and J. H. Seinfeld, Secondary organic aerosol formation
 C      from m-xylene, toluene, and benzene, Atmos. Chem. Phys., Vol 7,
 C      3909-3922, 2007a.
- 
+
 C   8. Griffin, R. J., D. R. Cocker III, R. C. Flagan, and J. H.
 C      Seinfeld, Organic aerosol formation from the oxidation of
 C      biogenic hydrocarbons, J. Geophys. Res., Vol 104, No D3,
 C      3555-3567, 1999.
- 
+
 C   9. Bian, F. and F. M. Bowman, Theoretical method for lumping
 C      multicomponent secondary organic aerosol mixtures, Environ.
 C      Sci. Technol., Vol 36, No 11, 2491-2497, 2002.
- 
+
 C  10. Offenberg, J. H., T. E. Kleindienst, M. Jaoui, M. Lewandowski,
 C      and E. O. Edney, Thermal properties of secondary organic
 C      aerosols, Geophys. Res. Lett., Vol 33, L03816, doi:10.1029/
 C      2005GL024623, 2006.
- 
+
 C  11. Bahreini, R., M. D. Keywood, N. L. Ng, V. Varutbangkul, S. Gao,
 C      R. C. Flagan, J. H. Seinfeld, D. R. Worsnop, and J. L. Jimenez,
 C      Measurements of secondary organic aerosol from oxidation of
 C      cycloalkenes, terpenes, and m-xylene using an Aerodyne aerosol
 C      mass spectrometer, Environ. Sci. Technol., Vol 39, 5674-5688,
 C      2005.
- 
+
 C  12. Alfarra, M. R., D. Paulsen, M. Gysel, A. A. Gaforth, J. Dommen,
 C      A. S. H. Prevot, D. R. Worsnop, U. Baltensperger, and H. Coe,
 C      A mass spectrometric study of secondary organic aerosols formed
 C      from the photooxidation of anthropogenic and biogenic precursors
 C      in a reaction chamber, Atmos. Chem. Phys., Vol 6, 5279-5293,
 C      2006.
- 
+
 C  13. Ng, N. L., P. S. Chhabra, A. W. H. Chan, J. D. Surratt, J. H.
 C      Kroll, A. J. Kwan, D. C. McCabe, P. O. Wennberg, A. Sorooshian,
 C      S. M. Murphy, N. F. Dalleska, R. C. Flagan, and J. H. Seinfeld,
 C      Effect of NOx level on secondary organic aerosol (SOA) formation
 C      from the photooxidation of terpenes, Atmos. Chem. Phys., Vol 7,
 C      5159-5174, 2007b.
- 
+
 C  14. Kostenidou, E., R. K. Pathak, and S. N. Pandis, An algorithm for
 C      the calculation of secondary organic aerosol density combining
 C      AMS and SMPS data, Aerosol Sci. Technol., Vol 41, 1002-1010,
 C      2007.
- 
+
 C  15. Offenberg, J. H., C. W. Lewis, M. Lewandowski, M. Jaoui, T. E.
 C      Kleindienst, and E. O. Edney, Contributions of toluene and
 C      alpha-pinene to SOA formed in an irradiated toluene/alpha-pinene/
 C      NOx/air mixture: comparison of results using 14C content and SOA
 C      organic tracer methods, Environ. Sci. Technol., Vol 41, 3972-
 C      3976, 2007.
- 
+
 C  16. Henze, D. K. and J. H. Seinfeld, Global secondary organic aerosol
 C      from isoprene oxidation, Geophys. Res. Lett., Vol 33, L09812,
 C      doi:10.1029/2006GL025976, 2006.
- 
+
 C  17. Kleindienst, T. E., M. Jaoui, M. Lewandowski, J. H. Offenberg,
 C      C. W. Lewis, P. V. Bhave, and E. O. Edney, Estimates of the
 C      contributions of biogenic and anthropogenic hydrocarbons to
 C      secondary organic aerosol at a southeastern US location, Atmos.
 C      Environ., Vol 41, 8288-8300, 2007.
- 
+
 C  18. Kalberer, M., D. Paulsen, M. Sax, M. Steinbacher, J. Dommen,
 C      A. S. H. Prevot, R. Fisseha, E. Weingartner, V. Frankevich,
 C      R. Zenobi, and U. Baltensperger, Identification of polymers as
 C      major components of atmospheric organic aerosols, Science, Vol
 C      303, 1659-1662, 2004.
- 
+
 C  19. Turpin, B. J. and H.-J. Lim, Species contributions to PM2.5 mass
 C      concentrations: revisiting common assumptions for estimating
 C      organic mass, Aero. Sci. Technol., Vol 35, 602-610, 2001.
- 
+
 C  20. Surratt, J. D., M. Lewandowski, J. H. Offenberg, M. Jaoui, T. E.
 C      Kleindienst, E. O. Edney, and J. H. Seinfeld, Effect of acidity
 C      on secondary organic aerosol formation from isoprene, Environ.
@@ -660,12 +664,14 @@ C      Sci. Technol., Vol 41, 5363-5369, 2007.
 C Revision History:
 C    First orgaer version was coded in April 2010 by Steve Howard with
 C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C  SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt
 
-      Use aero_data 
-      Use met_data 
+      Use aero_data
+      Use aeromet_data
 
       Implicit None
 
@@ -683,7 +689,7 @@ C Local variables:
       Logical, Save :: first_time = .True.
       Integer, Save :: logdev
       Character( 80 ) :: xmsg
-      Integer       :: i 
+      Integer       :: i
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
@@ -822,9 +828,9 @@ C process that conserves carbon mass.
       End Do
 
       aerospc_conc( aolga_idx,2 ) = aerospc_conc( aolga_idx,2 )
-     &                            + 12.0 * nsvpa * ( 1.0 - expdt ) * olgrat 
+     &                            + 12.0 * nsvpa * ( 1.0 - expdt ) * olgrat
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
-     &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat 
+     &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
 
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
@@ -887,10 +893,10 @@ C Try again with initial guess of 50/50 gas/aerosol split.
             End Do
             Call newt( layer, caer, n_vapor, check,
      &                 ctotf, c0, mw_vap_m1, totorgsw )
-            If ( check ) Then                           
+            If ( check ) Then
                Write( xmsg,'( A,I4 )' ) ' *** Problem in NEWT at Layer = ', layer
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
-            End If            
+            End If
          End If
 
 C Constrain caer to values between conmin and ctotf
@@ -922,7 +928,7 @@ C Constrain caer to values between conmin and ctotf
 C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
       Do i = 1, n_vapor
          aerospc_conc( soa_aeroMap( i ),2 ) = caer( i )
-         vapor_conc( i ) = ctotf( i ) - caer( i )         
+         vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
 
 C Acid-induced Isoprene SOA
@@ -976,7 +982,7 @@ C condensation/evaporation does not affect the geometric standard deviation.
          End If
       End Do
 
-      Do i = 1, n_vapor  
+      Do i = 1, n_vapor
          new_m3 = new_m3 + orgfac * aerospc_conc( soa_aeroMap( i ),2 )
       End Do
 
@@ -984,7 +990,7 @@ C condensation/evaporation does not affect the geometric standard deviation.
 
       moment3_conc( 2 ) = new_m3
       moment2_conc( 2 ) = new_m2
-      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( new_m2 / old_m2 )      
+      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( new_m2 / old_m2 )
 
       Return
       End Subroutine orgaer
@@ -993,42 +999,42 @@ C-----------------------------------------------------------------------
       SUBROUTINE NEWT( LAYER, X, N, CHECK,
      &                 CTOT, CSAT, IMWCV, MINITW )
 
-C  Description:                                                      
-C   This subroutine and the underlying subprograms constitute Dr.    
-C   Benedikt Schell's SOA model.                                     
-C                                                                    
-C  Adopted from Numerical Recipes in FORTRAN, Chapter 9.7, 2nd ed.   
-C                                                                    
-C  Given an initial guess X(1:N) for a root in N dimensions, find    
-C  the root by a globally convergent Newton's method. The vector of  
-C  functions to be zeroed, called FVEC(1:N) in the routine below, is 
-C  returned by a user-supplied subroutine that must be called FUNCV  
-C  and have the declaration SUBROUTINE FUNCV(N,X,FVEC). The output   
-C  quantity CHECK is false on a normal return and true if the        
-C  routine has converged to a local minimum of the function FMINV    
-C  defined below. In this case, user should try restarting from a    
-C  different initial guess.                                          
+C  Description:
+C   This subroutine and the underlying subprograms constitute Dr.
+C   Benedikt Schell's SOA model.
+C
+C  Adopted from Numerical Recipes in FORTRAN, Chapter 9.7, 2nd ed.
+C
+C  Given an initial guess X(1:N) for a root in N dimensions, find
+C  the root by a globally convergent Newton's method. The vector of
+C  functions to be zeroed, called FVEC(1:N) in the routine below, is
+C  returned by a user-supplied subroutine that must be called FUNCV
+C  and have the declaration SUBROUTINE FUNCV(N,X,FVEC). The output
+C  quantity CHECK is false on a normal return and true if the
+C  routine has converged to a local minimum of the function FMINV
+C  defined below. In this case, user should try restarting from a
+C  different initial guess.
 C
 C  Key Subroutines Called: FDJAC, FMINV, LNSRCH, LUBKSB, LUDCMP
-C                                                                    
+C
 C  Revision History:
-C     In CMAQ v4.3 - v4.7.1, this subroutine was embedded in a separate 
-C     Fortran module entitled SOA_NEWT.  Below, the Revision History from 
-C     the SOA_NEWT module has been merged with the Revision History from 
+C     In CMAQ v4.3 - v4.7.1, this subroutine was embedded in a separate
+C     Fortran module entitled SOA_NEWT.  Below, the Revision History from
+C     the SOA_NEWT module has been merged with the Revision History from
 C     this specific subroutine.
 C
-C CGN 01/12/04 removed ITS from call vector, added documentation, and 
+C CGN 01/12/04 removed ITS from call vector, added documentation, and
 C     removed extraneous lines of code
 C
 C SLN 09/18/07 updated NP and NPREC for compatibility with new SOA module
 C
 C PVB 11/19/07 renamed NP to NCVAP for consistency with ORGAER5 subroutine
 C
-C SH  02/10/10 embedded the old Fortran module, SOA_NEWT, into a new module, 
-C     SOA_DEFN, so all SOA-related code can be found in one file.  Renamed 
-C     NCVAP to n_vapor.  Its value is now set in SOA_DEFN (instead of inside 
+C SH  02/10/10 embedded the old Fortran module, SOA_NEWT, into a new module,
+C     SOA_DEFN, so all SOA-related code can be found in one file.  Renamed
+C     NCVAP to n_vapor.  Its value is now set in SOA_DEFN (instead of inside
 C     this subroutine).  Added TOLX to the call vector of Subroutine LNSRCH,
-C     since that parameter is now set in this subroutine (instead of in the 
+C     since that parameter is now set in this subroutine (instead of in the
 C     Fortran module).
 C
 C  References:
@@ -1092,11 +1098,11 @@ C-----------------------------------------------------------------------
       NN = N
       CALL FMINV( X,F )       ! The vector FVEC is also computed by this call
       TEST = 0.0              ! Test for initial guess being a root. Use more
-                              ! stringent test than simply TOLF.      
+                              ! stringent test than simply TOLF.
       DO I = 1, N
          IF ( ABS( FVEC( I ) ) .GT. TEST ) TEST = ABS( FVEC( I ))
       END DO
-            
+
       IF ( TEST .LT. 0.01 * TOLF ) RETURN  ! initial guess is a root
       SUM = 0.0                    ! Calculate STPMAX for line searches
       DO I = 1, N
@@ -1156,30 +1162,30 @@ C-----------------------------------------------------------------------
       END DO
       WRITE( *,'(a,i2)' ) 'MAXITS exceeded in NEWT ! Layer: ', LAYER
       END SUBROUTINE NEWT
-            
+
 C-----------------------------------------------------------------------
       SUBROUTINE FDJAC( N, X, FJAC )
-                                                                 
-C  Description:                                                      
-C    Get the Jacobian of the function                                  
-                                                                      
-C          ( a1 * X1^2 + b1 * X1 + c1 )                               
-C          ( a2 * X2^2 + b2 * X2 + c2 )                               
-C          ( a3 * X3^2 + b3 * X3 + c3 )                               
-C   F(X) = ( a4 * X4^2 + b4 * X4 + c4 ) = 0.                          
-C          ( ........................ )                               
-C          ( aN * XN^2 + bN * XN + cN )                               
-C                                                                     
-C    a_i = IMW_i                                                      
-C    b_i = SUM(X_j * IMW_j)_j.NE.i + CSAT_i * IMW_i  + M              
-C          - CTOT_i * IMW_i                                           
-C                                                                     
-C    c_i = - CTOT_i * [ SUM(X_j * IMW_j)_j.NE.i + M ]                 
-C                                                                     
-C           delta F_i    ( 2. * a_i * X_i + b_i          If i .EQ. j  
-C   J_ij = ----------- = (                                            
-C           delta X_j    ( ( X_i  - CTOT_i ) * IMW_j     If i .NE. j  
- 
+
+C  Description:
+C    Get the Jacobian of the function
+
+C          ( a1 * X1^2 + b1 * X1 + c1 )
+C          ( a2 * X2^2 + b2 * X2 + c2 )
+C          ( a3 * X3^2 + b3 * X3 + c3 )
+C   F(X) = ( a4 * X4^2 + b4 * X4 + c4 ) = 0.
+C          ( ........................ )
+C          ( aN * XN^2 + bN * XN + cN )
+C
+C    a_i = IMW_i
+C    b_i = SUM(X_j * IMW_j)_j.NE.i + CSAT_i * IMW_i  + M
+C          - CTOT_i * IMW_i
+C
+C    c_i = - CTOT_i * [ SUM(X_j * IMW_j)_j.NE.i + M ]
+C
+C           delta F_i    ( 2. * a_i * X_i + b_i          If i .EQ. j
+C   J_ij = ----------- = (
+C           delta X_j    ( ( X_i  - CTOT_i ) * IMW_j     If i .NE. j
+
 C Revision History:
 C   CGN 01/12/04 changed B1 & B2 to scalars
 C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
@@ -1226,18 +1232,18 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
 
       RETURN
       END SUBROUTINE FDJAC
-      
+
 C-----------------------------------------------------------------------
       SUBROUTINE FMINV( X,F )
 
-C Description:                                                      
-C    Returns f = 0.5 * F*F at X. SR FUNCV(N,X,F) is a fixed-name,    
+C Description:
+C    Returns f = 0.5 * F*F at X. SR FUNCV(N,X,F) is a fixed-name,
 C    user-supplied routine that returns the vector of functions at X.
-C    The common block NEWTV communicates the function values back to 
+C    The common block NEWTV communicates the function values back to
 C    NEWT.
- 
+
 C Adopted from Numerical Recipes in FORTRAN, Chapter 9.7, 2nd ed.
- 
+
 C Key Subroutines Called: FUNCV
 
 C Revision History:
@@ -1248,7 +1254,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       IMPLICIT NONE
 
       INTEGER N
-      
+
       REAL X( * ), F
       REAL FVEC
 
@@ -1265,20 +1271,20 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       F = 0.5 * SUM
       RETURN
       END SUBROUTINE FMINV
-      
+
 C-----------------------------------------------------------------------
       SUBROUTINE FUNCV( N, X, FVEC )
 
-C Description:                                                      
+C Description:
 C   From Equation (8) of Schell et al., 2001:
-C     Caer,i = Ctot,i - Csat,i * (Caer,i/MWi) / 
+C     Caer,i = Ctot,i - Csat,i * (Caer,i/MWi) /
 C                             ( sum_j (Caer,j/MWj) + Cinit/MWinit)
 C   Let Xi  = Caer,i
 C       a_i = 1 / MWi
 C       M   = Cinit/MWinit
 C       CTi = Ctot,i
 C       CSi = Csat,i
-C   Then,       
+C   Then,
 C       Xi  = CTi - CSi * (a_i * Xi) / ( sum_j (a_j * Xj) + M )
 C
 C   Multiply above equation by sum_j(a_j*Xj) + M and group terms
@@ -1289,13 +1295,13 @@ C   This equation is of the form F(X) = a_i*Xi^2 + b_i*Xi + c_i = 0.
 C     F(X) is stored as FVEC in this subroutine.
 C
 C   See also FDJAC.
-                                                                     
+
 C Key Subroutines Called: none
- 
+
 C Revision History:
 C CGN 01/12/04  Added documentation, removed extraneous lines of code
 C SH  02/10/10 renamed NCVAP to n_vapor.  Value is inherited from SOA_DEFN
- 
+
 C References:
 C   1. Schell, B., I. J. Ackermann, H. Hass, F. S. Binkowski, and
 C      A. Abel, Modeling the formation of secondary organic aerosol
@@ -1335,30 +1341,30 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
 
       RETURN
       END SUBROUTINE FUNCV
-      
+
 C-----------------------------------------------------------------------
       SUBROUTINE LNSRCH( CTOT,
      &                   N, XOLD, FOLD, G, P,
      &                   X, F, STPMAX, TOLX, CHECK)
 
-C Description:                                                      
-C   Given an n-dimensional point XOLD(1:N), the value of the function 
-C   and gradient there, FOLD and G(1:N), and a direction P(1:N),      
-C   finds a new point X(1:N) along the direction P from XOLD where    
-C   the function FUNC has decreased 'sufficiently'. The new function  
-C   value is returned in F. STPMAX is an input quantity that limits   
-C   the length of the steps so that you do not try to evaluate the    
-C   function in regions where it is undefined or subject to overflow. 
-C   P is usually the Newton direction. The output quantity CHECK is   
-C   false on a normal exit. It is true when X is too close to XOLD.   
-C   In a minimization algorithm, this usually signals convergence and 
-C   can be ignored. However, in a zero-finding algorithm the calling  
+C Description:
+C   Given an n-dimensional point XOLD(1:N), the value of the function
+C   and gradient there, FOLD and G(1:N), and a direction P(1:N),
+C   finds a new point X(1:N) along the direction P from XOLD where
+C   the function FUNC has decreased 'sufficiently'. The new function
+C   value is returned in F. STPMAX is an input quantity that limits
+C   the length of the steps so that you do not try to evaluate the
+C   function in regions where it is undefined or subject to overflow.
+C   P is usually the Newton direction. The output quantity CHECK is
+C   false on a normal exit. It is true when X is too close to XOLD.
+C   In a minimization algorithm, this usually signals convergence and
+C   can be ignored. However, in a zero-finding algorithm the calling
 C   program should check whether the convergence is spurious.
 C
-C  Adopted from Numerical Recipes in FORTRAN, Chapter 9.7, 2nd ed.   
- 
+C  Adopted from Numerical Recipes in FORTRAN, Chapter 9.7, 2nd ed.
+
 C Key Subroutines Called: FUNCV
- 
+
 C Revision History:
 C   SH  02/10/10 added TOLX to the call vector.  In previous versions, this
 C       parameter was declared in the Module SOA_NEWT (which contained this
@@ -1446,28 +1452,28 @@ C  avoid negative concentrations and set upper limit given by CTOT.
       GO TO 101
 
       END SUBROUTINE LNSRCH
-      
+
 C-----------------------------------------------------------------------
       SUBROUTINE LUBKSB( A, N, INDX, B )
 
-C Description:                                                     
-C   Solves the set of N linear equations A * X = B. Here A is input, 
-C   not as the matrix A but rather as its LU decomposition,          
-C   determined by the routine LUDCMP. B(1:N) is input as the right-  
+C Description:
+C   Solves the set of N linear equations A * X = B. Here A is input,
+C   not as the matrix A but rather as its LU decomposition,
+C   determined by the routine LUDCMP. B(1:N) is input as the right-
 C   hand side vector B, and returns with the solution vector X. A, N,
-C   and INDX are not modified by this routine and can be left in     
-C   place for successive calls with different right-hand sides B.    
+C   and INDX are not modified by this routine and can be left in
+C   place for successive calls with different right-hand sides B.
 C   This routine takes into account the possibility that B will begin
-C   with many zero elements, so it is efficient for use in matrix    
+C   with many zero elements, so it is efficient for use in matrix
 C   inversion.
-C                                                                 
-C  Adopted from Numerical Recipes in FORTRAN, Chapter 2.3, 2nd ed.  
-C                                                                    
+C
+C  Adopted from Numerical Recipes in FORTRAN, Chapter 2.3, 2nd ed.
+C
 C Key Subroutines Called: none
 C
 C Revision History:
 C    call vector modified to remove NCVAP and set dimensions to N.
- 
+
       IMPLICIT NONE
 
       INTEGER N, INDX( N )
@@ -1500,31 +1506,31 @@ C    call vector modified to remove NCVAP and set dimensions to N.
 
       RETURN
       END SUBROUTINE LUBKSB
-      
+
 C-----------------------------------------------------------------------
       SUBROUTINE LUDCMP( A, N, INDX, D )
 
-C Description:                                                     
+C Description:
 C   Given a matrix A(1:N,1:N), with physical dimension N by N, this
-C   routine replaces it by the LU decomposition of a rowwise         
+C   routine replaces it by the LU decomposition of a rowwise
 C   permutation of itself. A and N are input. A is output arranged as
-C   in equation (2.3.14) above; INDX(1:N) is an output vector that   
-C   records vector that records the row permutation effected by the  
-C   partial pivoting; D is output as +-1 depending on whether the    
-C   number of row interchanges was even or odd, respectively. This   
-C   routine is used in combination with SR LUBKSB to solve linear    
-C   equations or invert a matrix.                                    
-C                                                                   
-C  Adopted from Numerical Recipes in FORTRAN, Chapter 2.3, 2nd ed.  
-                                                                    
-C  Equation (2.3.14) Numerical Recipes, p 36:                       
-C   | b_11 b_12 b_13 b_14 |                                         
-C   | a_21 b_22 b_23 b_24 |                                         
-C   | a_31 a_32 b_33 b_34 |                                         
-C   | a_41 a_42 a_43 b_44 |                                         
-                                                                     
+C   in equation (2.3.14) above; INDX(1:N) is an output vector that
+C   records vector that records the row permutation effected by the
+C   partial pivoting; D is output as +-1 depending on whether the
+C   number of row interchanges was even or odd, respectively. This
+C   routine is used in combination with SR LUBKSB to solve linear
+C   equations or invert a matrix.
+C
+C  Adopted from Numerical Recipes in FORTRAN, Chapter 2.3, 2nd ed.
+
+C  Equation (2.3.14) Numerical Recipes, p 36:
+C   | b_11 b_12 b_13 b_14 |
+C   | a_21 b_22 b_23 b_24 |
+C   | a_31 a_32 b_33 b_34 |
+C   | a_41 a_42 a_43 b_44 |
+
 C Key Subroutines Called: None
- 
+
 C Revision History:
 C    call vector modified to remove NCVAP
 C    all dimensions now depend upon N only
@@ -1595,5 +1601,5 @@ C    all dimensions now depend upon N only
 
       RETURN
       END SUBROUTINE LUDCMP
-      
+
       End Module soa_defn

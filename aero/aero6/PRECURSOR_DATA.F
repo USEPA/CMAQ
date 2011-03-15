@@ -1,18 +1,18 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.1 2010/12/06 15:44:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.2 2011/03/15 19:11:56 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
 
 C  Defines gas phase aerosol precursor data.
- 
+
 C  Contains:
 C     Subroutine extract_precursor
 C     Subroutine map_precursor
 C     Subroutine update_precursor
 C     Function findPrecursor
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
@@ -55,10 +55,10 @@ C Required species
       Character( 16 ), Private, Parameter :: req_HONO   = 'HONO'
       Character( 16 ), Private, Parameter :: req_SULF   = 'SULF'
       Character( 16 ), Private, Parameter :: req_SULPRD = 'SULPRD'
-      Character( 16 ), Private, Parameter :: req_HCL    = 'HCL' 
-      Character( 16 ), Private, Parameter :: req_NH3    = 'NH3'  
+      Character( 16 ), Private, Parameter :: req_HCL    = 'HCL'
+      Character( 16 ), Private, Parameter :: req_NH3    = 'NH3'
 
-C Indices of required species 
+C Indices of required species
       Integer :: NO2_idx
       Integer :: N2O5_idx
       Integer :: HNO3_idx
@@ -69,7 +69,7 @@ C Indices of required species
       Integer :: NH3_idx
 
       Real    :: precursor_mw( n_precursor )   ! precursor M.W., g/mol from GC_SPC.EXT
-                                               ! or NR_SPC.EXT 
+                                               ! or NR_SPC.EXT
 
       Real    :: precursor_conc( n_precursor ) ! precursor concentration [ug/m^3]
 
@@ -80,12 +80,12 @@ C Private variables for loading and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
 
       Contains
- 
+
 C-----------------------------------------------------------------------
       Subroutine map_precursor()
 
 C  Defines mapping from CGRID for species concentration and moments.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
@@ -147,13 +147,15 @@ C-----------------------------------------------------------------------
       Subroutine extract_precursor( conc )
 
 C  Extracts the required precursor data from CGRID into conc.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
-      Use met_data            ! air and met variables
+      Use aeromet_data    ! air and met variables
 
       Implicit None
 
@@ -194,13 +196,15 @@ C------------------------------------------------------------------------
       Subroutine update_precursor( conc )
 
 C  Updates CGRID aerosol precursor values from the conc array.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
-      Use met_data        ! air and met variables
+      Use aeromet_data    ! air and met variables
 
       Implicit None
 
