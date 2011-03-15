@@ -1,22 +1,26 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.2 2011/02/17 14:41:07 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.3 2011/03/15 19:09:00 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
 
 C  Defines aerosol species arrays and the parameters required in aerosol
 C  processing.
- 
+C
 C  Contains:
 C     Subroutine map_aero
 C     Subroutine extract_aero
 C     Subroutine update_aero
 C     Function findAero
- 
+C
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
-C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C      Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 Inserted functionality of PMEM_DEFN
+C    -new subroutine map_pmemis
+C
 C----------------------------------------------------------------------
 
       Implicit None
@@ -25,9 +29,14 @@ C Number of aerosol species and modes
 
       Integer, Parameter :: n_aerospc = 30      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
-                                                ! 1 = Aitken 
-                                                ! 2 = accumulation 
-                                                ! 3 = coarse 
+                                                ! 1 = Aitken
+                                                ! 2 = accumulation
+                                                ! 3 = coarse
+
+C Define Logical values as T and F
+      Logical, Parameter, Private :: T = .true.
+      Logical, Parameter, Private :: F = .false.
+
 
 C Default minimum concentration
       Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
@@ -43,63 +52,66 @@ C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
 C-------------------------------------------------------------------------------------------------------
 
       Type spcs_type
-         Character( 16 ) :: name( n_mode )     ! names of aerosol species for each mode
-         Real            :: min_conc( n_mode ) ! minimum concentration values for each mode
-         Real            :: density            ! density [ kg/m^3 ]
-         Logical         :: no_M2Wet           ! flag to exclude from 2nd moment during transport
-         Logical         :: nonVol_soa         ! non-volatile SOA flag
-         Logical         :: tracer             ! tracer flag; does have not mass
-         Integer         :: charge             ! electroneutrality charge
-         Real            :: visual_idx         ! visual index factor
-         Character( 16 ) :: optic_surr         ! optical surrogate name
-         Character( 16 ) :: emis               ! emissions names
+         Character( 16 ) :: name( n_mode )       ! names of aerosol species for each mode
+         Real            :: min_conc( n_mode )   ! minimum concentration values for each mode
+         Real            :: density              ! density [ kg/m^3 ]
+         Logical         :: no_M2Wet             ! flag to exclude from 2nd moment during transport
+         Logical         :: nonVol_soa           ! non-volatile SOA flag
+         Logical         :: tracer               ! tracer flag; does have not mass
+         Integer         :: charge               ! electroneutrality charge
+         Real            :: visual_idx           ! visual index factor
+         Character( 16 ) :: optic_surr           ! optical surrogate name
+         Character( 16 ) :: emis                 ! anthropogenic PM emissions names
+         Real            :: emis_split( n_mode ) ! minimum concentration values for each mode
       End Type spcs_type
 
       Type( spcs_type ), Parameter :: aerospc( n_aerospc ) = (/
-C                  -----------Name-------------- 
-C                    Aitken    Accum    Coarse      Min_Concs   Density no_M2Wet NonVolSOA  Tracer  Chrg Visual Opt_Surr  Emis
-C                  --------- --------- ---------    ---------- -------- -------- -------- -------- ---- ----- --------- --------
-     & spcs_type((/'ASO4I  ','ASO4J  ','ASO4K  '/), conmin_so4,  1800.0, .false., .false., .false.,  -2,  3.0, 'SOLUTE','PSO4'),
-     & spcs_type((/'ANH4I  ','ANH4J  ','ANH4K  '/), conmin_set,  1800.0, .false., .false., .false.,   1,  3.0, 'SOLUTE',' '),
-     & spcs_type((/'ANO3I  ','ANO3J  ','ANO3K  '/), conmin_set,  1800.0, .false., .false., .false.,  -1,  3.0, 'SOLUTE','PNO3'),
-     & spcs_type((/'AORGPAI','AORGPAJ','       '/), conmin_set,  2000.0, .false., .false., .false.,   0,  4.0, 'DUST',  'POC'),
-     & spcs_type((/'A25I   ','A25J   ','       '/), conmin_set,  2200.0, .false., .false., .false.,   0,  1.0, 'DUST',  'PMFINE'),
-     & spcs_type((/'AECI   ','AECJ   ','       '/), conmin_set,  2200.0, .false., .false., .false.,   0, 10.0, 'SOOT',  'PEC '),
-     & spcs_type((/'ANAI   ','ANAJ   ','ANAK   '/), conmin_set,  2200.0, .false., .false., .false.,   1,  0.0, 'SOLUTE',' '),
-     & spcs_type((/'ACLI   ','ACLJ   ','ACLK   '/), conmin_set,  2200.0, .false., .false., .false.,  -1,  0.0, 'SOLUTE',' '),
-     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), conmin_set,  1000.0,  .true., .false., .false.,   0,  0.0, 'WATER', ' '),
-     & spcs_type((/'       ','AALKJ  ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AXYL1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AXYL2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AXYL3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ATOL1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ATOL2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ATOL3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ABNZ1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ABNZ2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ABNZ3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ATRP1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ATRP2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AISO1J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AISO2J ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AISO3J ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','ASQTJ  ','       '/), conmin_set,  2000.0,  .true., .false., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AOLGAJ ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','AORGCJ ','       '/), conmin_set,  2000.0, .false.,  .true., .false.,   0,  4.0, 'DUST',  ' '),
-     & spcs_type((/'       ','       ','ASOIL  '/), conmin_set,  2600.0, .false., .false., .false.,   0,  0.0, 'DUST',  ' '),
-     & spcs_type((/'       ','       ','ACORS  '/), conmin_cor,  2200.0, .false., .false., .false.,   0,  0.0, 'DUST',  'PMC')/)
-     
+C                                                                    nonVolSOA
+C                                                                         |   Charge                            Emissions
+C                  -----------Name--------------                  NoM2Wet |Tracer|                         ----Split Factor----
+C                    Aitken    Accum    Coarse     Min_Concs  Density  |  |  |   | Visidx OptSurr  Emis    Aitken Accum  Coarse
+C                  --------- --------- ---------   ---------- -------  +  +  +   + ----- -------- -------- ------ ------ ------
+     & spcs_type((/'ASO4I  ','ASO4J  ','ASO4K  '/),conmin_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE','PSO4  ',(/0.000,1.000,0.000/)),
+     & spcs_type((/'ANO3I  ','ANO3J  ','ANO3K  '/),conmin_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE','PNO3  ',(/0.000,1.000,0.000/)),
+     & spcs_type((/'ACLI   ','ACLJ   ','ACLK   '/),conmin_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'ANH4I  ','ANH4J  ','ANH4K  '/),conmin_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'ANAI   ','ANAJ   ','ANAK   '/),conmin_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'AORGPAI','AORGPAJ','       '/),conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC   ',(/0.001,0.999,0.000/)),
+     & spcs_type((/'AECI   ','AECJ   ','       '/),conmin_set, 2200.0, F, F, F,  0, 10.0,'SOOT  ','PEC   ',(/0.001,0.999,0.000/)),
+     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/),conmin_set, 1000.0, T, F, F,  0,  0.0,'WATER ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'A25I   ','A25J   ','       '/),conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMFINE',(/0.000,1.000,0.000/)),
+     & spcs_type((/'       ','AALKJ  ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AXYL1J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AXYL2J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AXYL3J ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ATOL1J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ATOL2J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ATOL3J ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ABNZ1J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ABNZ2J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ABNZ3J ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ATRP1J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ATRP2J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AISO1J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AISO2J ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AISO3J ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ASQTJ  ','       '/),conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AOLGAJ ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AOLGBJ ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AORGCJ ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','       ','ASOIL  '/),conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','       ','ACORS  '/),conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/))/)
+
 C Required species
-      Character( 16 ), Private, Parameter :: req_so4   = 'ASO4'  
-      Character( 16 ), Private, Parameter :: req_nh4   = 'ANH4'  
-      Character( 16 ), Private, Parameter :: req_no3   = 'ANO3'  
-      Character( 16 ), Private, Parameter :: req_orgpa = 'AORGPA'  
-      Character( 16 ), Private, Parameter :: req_na    = 'ANA'   
-      Character( 16 ), Private, Parameter :: req_cl    = 'ACL'   
-      Character( 16 ), Private, Parameter :: req_h2o   = 'AH2O'  
+      Character( 16 ), Private, Parameter :: req_so4   = 'ASO4'
+      Character( 16 ), Private, Parameter :: req_nh4   = 'ANH4'
+      Character( 16 ), Private, Parameter :: req_no3   = 'ANO3'
+      Character( 16 ), Private, Parameter :: req_orgpa = 'AORGPA'
+      Character( 16 ), Private, Parameter :: req_na    = 'ANA'
+      Character( 16 ), Private, Parameter :: req_cl    = 'ACL'
+      Character( 16 ), Private, Parameter :: req_h2o   = 'AH2O'
       Character( 16 ), Private, Parameter :: req_soil  = 'ASOIL'
-      Character( 16 ), Private, Parameter :: req_cors  = 'ACORS'  
+      Character( 16 ), Private, Parameter :: req_cors  = 'ACORS'
 
 C Indexes of required species
       Integer :: aso4_idx
@@ -108,7 +120,7 @@ C Indexes of required species
       Integer :: apoc_idx
       Integer :: ana_idx
       Integer :: acl_idx
-      Integer :: ah2o_idx 
+      Integer :: ah2o_idx
       Integer :: asoil_idx
       Integer :: acors_idx
 
@@ -168,6 +180,11 @@ C Mapping for loading from and unloading to CGRID array
       Integer :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
       Integer :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
 
+C Emissions mapping
+      Integer         :: n_emis_pm               ! number of aerospc with emissions
+      Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
+      Character( 16 ) :: pmem_units              ! units for PM emissions for all species
+
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
@@ -178,14 +195,14 @@ C-----------------------------------------------------------------------
       Subroutine map_aero()
 
 C  Defines aerosol mapping from CGRID for species concentration and moments.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
       Use cgrid_spcs            ! CGRID mechanism species
-      Use met_data
+      Use aeromet_data
 
       Implicit None
 
@@ -261,7 +278,7 @@ C Find indices of required species
          ah2o_idx   = findAero( req_h2o,   .True. )
          asoil_idx  = findAero( req_soil,  .True. )
          acors_idx  = findAero( req_cors,  .True. )
- 
+
 C Compute common factors
          h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )
 
@@ -270,18 +287,18 @@ C compute aeromode_minNum and aeromode_minM2
          anthfac = 1.0E-9 * f6dpi / aerospc( acors_idx )%density
 
          Do m = 1, n_mode
-            if( m .lt. n_mode ) Then
+            If( m .Lt. n_mode ) Then
                aeromode_minNum( m ) = so4fac * aerospc( aso4_idx )%min_conc( m ) /
      &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
-            else
+            Else
                aeromode_minNum( m ) = anthfac * aerospc( acors_idx )%min_conc(m) /
      &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
-            endif
- 
+            End If
+
             aeromode_minM2( m ) = aeromode_minNum( m ) * def_diam(m)**2 *
      &            Exp( 2.0 * Log( def_sigma_g(m) )**2 )
          End do
- 
+
          mapped = .True.
 
       End If   ! Not mapped
@@ -289,11 +306,119 @@ C compute aeromode_minNum and aeromode_minM2
       Return
       End Subroutine map_aero
 
+
+C-----------------------------------------------------------------------
+      Subroutine map_pmemis ( )
+C
+C  Set the emissions units from the header of EMIS_1 file
+C  verify that all the units are consistent
+
+      Include SUBST_IOPARMS   ! I/O parameters definitions
+#include      SUBST_IODECL
+      Include SUBST_IOFDESC   ! file header data structure
+      Include SUBST_FILES_ID  ! file name parameters
+
+      ! Parameters:
+      Character( 10 ), Parameter :: blank10 = ' '
+
+      ! External Functions:
+      Character( 2 ), External :: crlf
+      Integer, External :: index1
+
+      ! Local Variables:
+      Character( 16 ), Save :: pname = 'GET_PMEM_UNITS'
+      Character( 512 )      :: xmsg1
+      Character( 1024 )     :: xmsg2
+      Character( 10 )       :: units
+
+      Integer :: indx
+      Integer :: v
+      Logical :: found
+      Logical :: match
+
+      Logical, Save :: pm_mapped = .False.
+
+C  only create mapping on first call
+      If ( pm_mapped ) Return
+
+C Call routine to map aerosol species array
+      If ( .Not. mapped ) Call map_aero ( )
+
+C Open the gridded emissions file, which contains gas, aerosol, and non-reactive
+C species
+
+      If ( .Not. open3( emis_1, fsread3, pname ) ) Then
+         xmsg1 = 'Could not open '// emis_1 // ' file'
+         Call m3exit( pname, 0, 0, Trim( xmsg1 ), xstat1 )
+      End If
+
+      If ( .Not. desc3( emis_1 ) ) Then
+         xmsg1 = 'Could not get '// 'EMIS_1' // ' file description'
+         Call m3exit( pname, 0, 0, Trim( xmsg1 ), xstat2 )
+      End If
+
+C Search emissions file for emission species names. Verify that their units
+C are the same and set pmem_units
+
+      n_emis_pm = 0
+      pmem_units = 'null'
+      found = .True.
+      match = .True.
+      xmsg1 = 'Could not find the following species in emissions file'
+      xmsg2 = 'PM Units not uniform in EMIS_1 file.'
+
+      Do v = 1, n_aerospc
+         If( aerospc( v )%emis .Ne. ' ' ) Then
+            n_emis_pm = n_emis_pm + 1
+            pmem_map( n_emis_pm ) = v
+
+            indx = index1( aerospc( v )%emis, nvars3d, vname3d )
+            If ( indx .Le. 0 ) Then
+               xmsg1 = Trim( xmsg1 ) // crlf() // blank10
+     &                 // Trim( aerospc( v )%emis )
+               found = .False.
+               Cycle
+            End If
+
+            ! change UNITS to upper case
+            units = units3d( indx )
+            Call upcase( units )
+
+            !! save units on first emissions
+            If( pmem_units .Eq. 'null' ) pmem_units = units
+
+            !! check that all emissions units match
+            If( pmem_units .Ne. units ) match = .False.
+
+            !! build error message to use if mismatch
+            xmsg2 = Trim( xmsg2 ) // crlf() // blank10
+     &              // Trim( aerospc( v )%emis )
+     &              // '(' // Trim( units3d( indx ) ) // ')'
+         End If
+      End Do
+
+C  if emission species not found throw error
+      If ( .Not. found ) Then
+         Call m3exit( pname, 0, 0, Trim( xmsg1 ), xstat2 )
+      End If
+
+C  if Units mismatch throw error
+      If ( .Not. match ) Then
+         Call m3exit( pname, 0, 0, Trim( xmsg2 ), xstat2 )
+      End If
+
+      pm_mapped = .True.
+
+      Return
+
+      End Subroutine map_pmemis
+
+
 C-----------------------------------------------------------------------
       Subroutine extract_aero( conc, minchk )
 
 C  Extracts the required aerosol data from CGRID into conc.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
@@ -307,7 +432,7 @@ C Arguments:
 
 C Local Variables:
       Character( 80 ) :: xmsg
-      Integer m, n, spc 
+      Integer m, n, spc
 
       If ( .Not. mapped ) Then
          Call map_aero()
@@ -364,13 +489,13 @@ C-----------------------------------------------------------------------
       Subroutine update_aero( conc, minchk )
 
 C  Updates aerosol values in CGRID from the conc array.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
-      Use met_data      !fundamental constants, data type definitions, etc.
+      Use aeromet_data      !fundamental constants, data type definitions, etc.
 
       Implicit None
 
@@ -383,7 +508,7 @@ C includes:
 
 C local variables:
       Character( 80 ) :: xmsg
-      Integer m, n, spc 
+      Integer m, n, spc
 
       If ( .Not. mapped ) Then
          xmsg = 'CGRID Species has not been mapped'
@@ -401,7 +526,7 @@ C Copy aerospc_conc back to grid cell concentrations
                End If
             End Do
          End Do
-      Else 
+      Else
          Do m = 1, n_mode
             Do spc = 1, n_aerospc
                n = aerospc_map( spc,m )
@@ -428,17 +553,17 @@ C Copy aero number and surface area back to grid cell concentrations
 
       Do m = 1, n_mode
          n = aerosrf_map( m )
-         conc( n ) = pi * moment2_conc( m ) 
+         conc( n ) = pi * moment2_conc( m )
       End Do
 
       Return
-      End Subroutine update_aero   
+      End Subroutine update_aero
 
 C-----------------------------------------------------------------------
       Integer Function findAero( vname, required ) Result ( idx )
 
 C  Finds the index of 'required' aerosol species in the aerospc list
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
