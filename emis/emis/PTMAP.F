@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.2 2010/12/06 13:05:16 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.3 2011/03/15 18:53:19 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -49,7 +49,7 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS            ! CGRID mechanism species
          USE STK_EMIS              ! hourly point source emissions
-         USE PMEM_DEFN             ! defines emissions file(s) PM mapping
+         USE AERO_DATA             ! defines aerosol species             
          USE UDTYPES, ONLY: CARRY1 ! implementation for multiple
                                    ! groups of stack input files
          IMPLICIT NONE
@@ -83,6 +83,7 @@ C-----------------------------------------------------------------------
 
          CHARACTER( 16 )       :: PNAME = 'PTMAP_INIT'  ! procedure name
          INTEGER I, I2, J, K, L, N, NM, NCULL, IOS, LOGDEV
+         INTEGER IDX                                      
          LOGICAL          :: QUIT = .FALSE.
 
 !        LOGICAL :: NO_PMEMIS = .FALSE.   ! set to .TRUE. if N_AE_EMIS = 0
@@ -310,7 +311,8 @@ C point source emissions to PM species map
 
             I = 0
             DO J = 1, N_EMIS_PM
-               VNAME = PM_EMIS( J )%NAME
+               IDX = PMEM_MAP( J )
+               VNAME = AEROSPC( IDX )%EMIS
                K = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( K .GT. 0 ) THEN
                   I = I + 1
@@ -363,9 +365,10 @@ C point source emissions to PM species map
             IF ( N_AE_EMIS .GT. 0 ) THEN   ! assume PM species required
 C Check that the PM species names match EMIS_1
                DO I = 1, N_EMIS_PM
-                  J = INDEX1( PM_EMIS( I )%NAME, STKPM_VAR( N )%LEN, STKPM_VAR( N )%ARRY )
+                  IDX = PMEM_MAP( I )
+                  J = INDEX1( AEROSPC( IDX )%EMIS, STKPM_VAR( N )%LEN, STKPM_VAR( N )%ARRY )
                   IF ( J .LE. 0 ) THEN
-                     WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( PM_EMIS( I )%NAME )
+                     WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( AEROSPC( I )%EMIS )
      &                                        // ' Not in Stack Emissions file', N
 !                    QUIT = .TRUE.
                   END IF

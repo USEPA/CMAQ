@@ -107,7 +107,6 @@ C use N_SPC_EMIS+1 for non-accessed emissions
          USE CGRID_SPCS  ! CGRID mechanism species
          USE STK_PRMS  ! stack groups file
          USE STK_EMIS  ! hourly point source emissions
-         USE PMEM_DEFN ! defines emissions file(s) PM mapping
          USE PTMET     ! defines met variables used in plume rise
          USE PTBILIN   ! defines bi-linear interpolation from grid to pt src locations
          USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
@@ -608,7 +607,6 @@ C Time step part of laypoint
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE STK_PRMS  ! stack groups file
          USE STK_EMIS  ! hourly point source emissions
-         USE PMEM_DEFN ! defines emissions file(s) PM mapping
          USE PTMET, P_D => PTMET_DATA
          USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
          USE SUBST_MODULES         ! stenex
