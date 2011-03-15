@@ -1,0 +1,39 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/AEROMET_DATA.F,v 1.1 2011/03/15 19:07:13 sjr Exp $
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Module aeromet_data
+
+C Some parameters and meteorological variables required in aerosol
+C processing.
+
+C  Revision History:
+C     First version was coded in April 2010 by Steve Howard with
+C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 renamed file and module from MET_DATA to AEROMET_DATA
+C----------------------------------------------------------------------
+
+      Implicit None
+
+C Fundamental constants
+      Include SUBST_CONST    ! common constants
+
+      Real( 8 ), Parameter :: f6dpi = 6.0D0/ pi
+      Real( 8 ), Parameter :: pi6 = pi / 6.0D0
+      Real( 8 ), Parameter :: boltzmann = rgasuniv / avo  ! [ j/K ]
+
+C Concentration lower limit used for gas species
+      Real,      Parameter :: min_gasconc = 1.0E-30   ! [ kg/m^3 ]
+
+C Meteorological variables (data from MET_CRO_3D file)
+      Real :: airtemp      ! air temp [ K ]
+      Real :: airpres      ! air pressure [ Pa]
+      Real :: airdens      ! air density [ kg/m^3]
+      Real :: airRH        ! fractional relative humidity
+      Real :: airQV        ! water vapor mass mixing ratio [ kg_H2O/kg_air ]
+      Real :: H2OsatVP     ! saturation water vapor pressure [ Pa ]
+      Real :: H2OVP        ! ambient water vapor pressure [ Pa ]
+
+      End Module aeromet_data

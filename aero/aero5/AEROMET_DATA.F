@@ -1,16 +1,18 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/Attic/MET_DATA.F,v 1.1 2010/12/06 15:44:55 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AEROMET_DATA.F,v 1.1 2011/03/15 19:07:13 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      Module met_data
+      Module aeromet_data
 
 C Some parameters and meteorological variables required in aerosol
 C processing.
- 
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SH  03/10/11 renamed file and module from MET_DATA to AEROMET_DATA
 C----------------------------------------------------------------------
 
       Implicit None
@@ -34,4 +36,4 @@ C Meteorological variables (data from MET_CRO_3D file)
       Real :: H2OsatVP     ! saturation water vapor pressure [ Pa ]
       Real :: H2OVP        ! ambient water vapor pressure [ Pa ]
 
-      End Module met_data
+      End Module aeromet_data
