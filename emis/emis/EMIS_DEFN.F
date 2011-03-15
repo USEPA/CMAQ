@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.3 2011/03/02 21:30:06 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.4 2011/03/15 18:52:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -68,16 +68,16 @@ C-----------------------------------------------------------------------
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION EMIS_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS ) 
+         FUNCTION EMIS_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
          USE PT3D_DEFN           ! plume rise emissions
-         USE PMEM_DEFN           ! defines emissions file(s) PM mapping
          USE AERO_EMIS           ! inherits GRID_CONF
+         USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
 
          IMPLICIT NONE
-      
+
 C Includes:
 
          INCLUDE SUBST_CONST     ! constants
@@ -167,8 +167,7 @@ C Get number of emissions layers
             WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
      &                                // 'Vertical diffusion ...'
             NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS (originally, AE_EMIS.EXT)
-C set up PM species mapping from emissions file(s) for use in GET_AERO_EMIS
-            CALL GET_PMEM_MAP ( JDATE, JTIME )   ! set in PMEM_DEFN
+            CALL MAP_PMEMIS ( )   ! set up PM emitted species mapping
          ELSE
             NEMIS_AE = 0
          END IF
@@ -282,7 +281,6 @@ C-----------------------------------------------------------------------
          USE BEIS_DEFN           ! biogenic emissions
          USE BIOG_EMIS, ONLY: MSPCS
          USE PT3D_DEFN           ! plume rise emissions
-         USE PMEM_DEFN           ! defines emissions file(s) PM mapping
          USE PTMAP               ! defines emissions file(s) PM mapping
 
          IMPLICIT NONE
