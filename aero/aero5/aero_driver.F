@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.4 2011/03/15 19:13:03 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.5 2011/03/17 18:21:24 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -246,12 +246,6 @@ C ------------------ begin body of AERO_DRIVER -------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
-
-C *** Make sure an ae5 version of the mechanism is being used
-         IF ( INDEX ( MECHNAME, 'AE5' ) .LE. 0 ) THEN
-            XMSG = 'AERO5 requires an AE5 version of chemical mechanism'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
 
 C *** Get aerosol diagnostic file flag.
          AERDIAG = .FALSE.         ! default
