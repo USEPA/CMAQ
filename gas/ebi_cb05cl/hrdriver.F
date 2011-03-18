@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdriver.F,v 1.2 2010/12/06 14:44:39 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdriver.F,v 1.3 2011/03/18 12:46:24 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -142,9 +142,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          IF ( MECHNAME .NE. 'CB05CL_AE5_AQ' .AND.
      &        MECHNAME .NE. 'CB05CL_AE5CA_AQ' .AND.
-     &        MECHNAME .NE. 'CB05CL_AE5ST_AQ' ) THEN
+     &        MECHNAME .NE. 'CB05CL_AE5ST_AQ' .AND.
+     &        MECHNAME .NE. 'CB05CL_AE6_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
-     &            // ' the CB05CL_AE5 chemical mechanisms'
+     &            // ' the CB05CL chemical mechanisms'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
