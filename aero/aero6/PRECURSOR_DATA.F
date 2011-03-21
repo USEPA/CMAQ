@@ -1,52 +1,64 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.2 2011/03/15 19:11:56 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.3 2011/03/21 20:05:10 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
 
+C-----------------------------------------------------------------------
 C  Defines gas phase aerosol precursor data.
-
+C
 C  Contains:
 C     Subroutine extract_precursor
 C     Subroutine map_precursor
 C     Subroutine update_precursor
 C     Function findPrecursor
-
+C
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C HS  03/10/11 Made OH a required species
+C    -added OH to "precursor" array (set rxncounter to .FALSE.);
+C    -added "update" column to precursor array to note which species
+C     concentrations will be affected by aerosol routines
+C    -added req_OH and OH_idx variables
+C    -changed precursor_conc to Real(8)
+C
 C-----------------------------------------------------------------------
 
       Implicit None
 
-      Integer, Parameter :: n_precursor = 17   ! # of precursors
+      Integer, Parameter :: n_precursor = 18   ! # of precursors
 
       Type precursor_type
          Character( 16 ) :: name               ! species name
-         Logical         :: accum              ! accumulates
+         Logical         :: rxncounter         ! flag to reset counter species
+         Logical         :: update             ! update precursor concentration
+                                               ! in cgrid after aeroproc
       End Type precursor_type
 
       Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
-C                       Name       Accum
-C                    ----------   -------
-     & precursor_type( 'NO2     ', .False. ),
-     & precursor_type( 'N2O5    ', .False. ),
-     & precursor_type( 'HNO3    ', .False. ),
-     & precursor_type( 'HONO    ', .False. ),
-     & precursor_type( 'ISOPRXN ', .True.  ),
-     & precursor_type( 'TRPRXN  ', .True.  ),
-     & precursor_type( 'SULF    ', .False. ),
-     & precursor_type( 'SULPRD  ', .True.  ),
-     & precursor_type( 'HCL     ', .False. ),
-     & precursor_type( 'TOLNRXN ', .True.  ),
-     & precursor_type( 'TOLHRXN ', .True.  ),
-     & precursor_type( 'XYLNRXN ', .True.  ),
-     & precursor_type( 'XYLHRXN ', .True.  ),
-     & precursor_type( 'BNZNRXN ', .True.  ),
-     & precursor_type( 'BNZHRXN ', .True.  ),
-     & precursor_type( 'SESQRXN ', .True.  ),
-     & precursor_type( 'NH3     ', .False. ) /)
+C                       Name      RxnCounter  Update
+C                    ----------   ----------  ------
+     & precursor_type( 'NO2     ', .False. , .True.  ),
+     & precursor_type( 'N2O5    ', .False. , .True.  ),
+     & precursor_type( 'HNO3    ', .False. , .True.  ),
+     & precursor_type( 'HONO    ', .False. , .True.  ),
+     & precursor_type( 'ISOPRXN ', .True.  , .True.  ),
+     & precursor_type( 'TRPRXN  ', .True.  , .True.  ),
+     & precursor_type( 'SULF    ', .False. , .True.  ),
+     & precursor_type( 'SULPRD  ', .True.  , .True.  ),
+     & precursor_type( 'HCL     ', .False. , .True.  ),
+     & precursor_type( 'TOLNRXN ', .True.  , .True.  ),
+     & precursor_type( 'TOLHRXN ', .True.  , .True.  ),
+     & precursor_type( 'XYLNRXN ', .True.  , .True.  ),
+     & precursor_type( 'XYLHRXN ', .True.  , .True.  ),
+     & precursor_type( 'BNZNRXN ', .True.  , .True.  ),
+     & precursor_type( 'BNZHRXN ', .True.  , .True.  ),
+     & precursor_type( 'SESQRXN ', .True.  , .True.  ),
+     & precursor_type( 'NH3     ', .False. , .True.  ),
+     & precursor_type( 'OH      ', .False. , .False. ) /)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_NO2    = 'NO2'
@@ -57,6 +69,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_SULPRD = 'SULPRD'
       Character( 16 ), Private, Parameter :: req_HCL    = 'HCL'
       Character( 16 ), Private, Parameter :: req_NH3    = 'NH3'
+      Character( 16 ), Private, Parameter :: req_OH     = 'OH'
 
 C Indices of required species
       Integer :: NO2_idx
@@ -67,11 +80,11 @@ C Indices of required species
       Integer :: SULPRD_idx
       Integer :: HCL_idx
       Integer :: NH3_idx
+      Integer :: OH_idx
 
-      Real    :: precursor_mw( n_precursor )   ! precursor M.W., g/mol from GC_SPC.EXT
-                                               ! or NR_SPC.EXT
+      Real    :: precursor_mw( n_precursor )   ! mol wt from cgrid_spcs [g/mol] 
 
-      Real    :: precursor_conc( n_precursor ) ! precursor concentration [ug/m^3]
+      Real( 8 ) :: precursor_conc( n_precursor ) ! precursor concentration [ug/m^3]
 
       Real    :: so4rate                       ! sulfate gas-phase production rate [ug/m^3*s]
 
@@ -89,6 +102,8 @@ C  Defines mapping from CGRID for species concentration and moments.
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C HS  03/10/11 Changed vtmp to real(8)
 C----------------------------------------------------------------------
 
       Use cgrid_spcs          ! CGRID mechanism species
@@ -103,7 +118,7 @@ C Functions:
 
 C Local Variables:
       Character( 80 ) :: xmsg
-      Real            :: vtmp
+      Real( 8 )       :: vtmp
       Integer         :: n
       Integer         :: spc
 
@@ -138,6 +153,7 @@ C Find indices of required species
       SULPRD_idx = findPrecursor( req_SULPRD )
       HCL_idx    = findPrecursor( req_HCL )
       NH3_idx    = findPrecursor( req_NH3 )
+      OH_idx     = findPrecursor( req_OH )
 
       mapped = .True.
       Return
@@ -153,6 +169,7 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
+C HS  03/10/11 Changed vtmp and gasconv to real(8)
 C-----------------------------------------------------------------------
 
       Use aeromet_data    ! air and met variables
@@ -166,8 +183,8 @@ C Functions:
       Integer, External :: index1
 
 C Local Variables:
-      Real            :: gasconv       ! converts from [ppm] to [ug/m^3]
-      Real            :: vtmp
+      Real( 8 )       :: gasconv       ! converts from [ppm] to [ug/m^3]
+      Real( 8 )       :: vtmp
       Integer         :: n
       Integer         :: spc
 
@@ -176,7 +193,7 @@ C Local Variables:
       End If
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = Real( airdens * 1.0E3 / mwair, 8 )
 
 C Copy grid cell concentrations of precursor species
       precursor_conc = 0.0
@@ -202,6 +219,8 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
+C HS  03/10/11 Only update conc for species with "update" = .TRUE.;
+C    -changed vtmp and gasconv to real(8)
 C-----------------------------------------------------------------------
 
       Use aeromet_data    ! air and met variables
@@ -216,8 +235,8 @@ C includes:
 
 C local variables:
       Character( 80 ) :: xmsg
-      Real            :: gasconv       ! converts from [ppm] to [ug/m^3]
-      Real            :: vtmp
+      Real( 8 )       :: gasconv       ! converts from [ppm] to [ug/m^3]
+      Real( 8 )       :: vtmp
       Integer         :: n
       Integer         :: spc
 
@@ -227,18 +246,20 @@ C local variables:
       End If
 
 C compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = Real( airdens * 1.0E3 / mwair, 8 )
 
 C copy precursor_conc back to grid cell concentrations
       Do spc = 1, n_precursor
          n = precursor_map( spc )
          If ( n .Ne. 0 ) Then
-            If ( precursor( spc )%accum ) Then
-               conc( n ) = 0.0
-            Else
-               vtmp = precursor_mw( spc ) * gasconv
-               conc( n ) = Max( precursor_conc( spc ) / vtmp, min_gasconc )
-            End If
+            If ( precursor( spc )%update ) Then
+               If ( precursor( spc )%rxncounter ) Then
+                  conc( n ) = 0.0
+               Else
+                  vtmp = precursor_mw( spc ) * gasconv
+                  conc( n ) = Max( precursor_conc( spc ) / vtmp, min_gasconc )
+               End If
+            End if
          End If
       End Do
 
