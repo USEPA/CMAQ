@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_subs.F,v 1.3 2011/03/15 19:13:04 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_subs.F,v 1.4 2011/03/21 20:09:55 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -170,6 +170,8 @@ C      vector; replaced CBLK with aerospc structure; eliminated AERO_INFO
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C
+C HS  03/10/11 Added call to POAAGE between ORGAER and HETCHEM
+C
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -320,6 +322,10 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
+
+C *** POA Aging
+C     Increase primary NCOM concentration due to oxidative aging of POA.
+      CALL POAAGE ( DT )
 
 C *** Heterogeneous Chemistry
 C     Update the N2O5 and HNO3 concentrations to account for
