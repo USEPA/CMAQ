@@ -1,5 +1,5 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/saprc99_ae5_aq/Attic/GC_saprc99_ae5_aq_recon.nml,v 1.1 2010/07/21 13:30:36 yoj Exp $
+! $Header: /project/yoj/arc/MECHS/src/saprc99_ae5_aq/Attic/GC_saprc99_ae5_aq_recon.nml,v 1.2 2011/03/21 20:18:54 sjr Exp $
 
 &GC_nml
  
@@ -18,7 +18,7 @@ TYPE_MATRIX =
 'N2O5:108.0:::VD_N2O5:1.0:::N2O5:1.0:N2O5:N2O5:Yes:Yes:Yes:Yes',
 'HNO3: 63.0:::VD_HNO3:1.0:::HNO3:1.0:HNO3:HNO3:Yes:Yes:Yes:Yes',
 'O1D2: 16.0::::::::::::::Yes',
-'HO: 17.0::::::::::HO::::Yes',
+'HO: 17.0:::::::::OH:HO::::Yes',
 'HONO: 47.0:HONO:1.0:VD_HONO:1.0:::HNO2:1.0:HONO::Yes:Yes:Yes:Yes',
 'HO2: 33.0::::::::::::::Yes',
 'CO: 28.0:CO:1.0:VD_CO:1.0:::CO:1.0:::Yes:Yes:Yes:Yes',

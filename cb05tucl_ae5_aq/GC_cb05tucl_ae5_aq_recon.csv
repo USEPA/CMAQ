@@ -5,7 +5,7 @@ O,16,,,,,,,,,,,,,,Yes
 O3,48,,,VD_O3,1,,,O3,1,,O3,Yes,Yes,Yes,Yes
 NO3,62,,,VD_NO3,1,,,NO3,1,,,Yes,Yes,Yes,Yes
 O1D,16,,,,,,,,,,,,,,Yes
-OH,17,,,,,,,,,,HO,,,,Yes
+OH,17,,,,,,,,,OH,HO,,,,Yes
 HO2,33,,,,,,,,,,,,,,Yes
 N2O5,108,,,VD_N2O5,1,,,N2O5,1,N2O5,N2O5,Yes,Yes,Yes,Yes
 HNO3,63,,,VD_HNO3,1,,,HNO3,1,HNO3,HNO3,Yes,Yes,Yes,Yes
