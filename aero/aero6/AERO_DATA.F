@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.2 2011/03/15 19:15:20 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.3 2011/03/21 20:12:38 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -21,6 +21,7 @@ C
 C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C SH  03/10/11 Inserted functionality of PMEM_DEFN
 C    -new subroutine map_pmemis
+C HS  03/10/11 Made PNCOM a required species
 C
 C----------------------------------------------------------------------
 
@@ -122,6 +123,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_h2o   = 'AH2O'
       Character( 16 ), Private, Parameter :: req_soil  = 'ASOIL'
       Character( 16 ), Private, Parameter :: req_cors  = 'ACORS'
+      Character( 16 ), Private, Parameter :: req_ncom  = 'APNCOM'  
 
 C Indexes of required species
       Integer :: aso4_idx
@@ -133,6 +135,7 @@ C Indexes of required species
       Integer :: ah2o_idx
       Integer :: asoil_idx
       Integer :: acors_idx
+      Integer :: apncom_idx
 
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -209,6 +212,9 @@ C  Defines aerosol mapping from CGRID for species concentration and moments.
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C HS  03/10/11 Get index for new required species, PNCOM
+C
 C-----------------------------------------------------------------------
 
       Use cgrid_spcs            ! CGRID mechanism species
@@ -288,6 +294,7 @@ C Find indices of required species
          ah2o_idx   = findAero( req_h2o,   .True. )
          asoil_idx  = findAero( req_soil,  .True. )
          acors_idx  = findAero( req_cors,  .True. )
+         apncom_idx = findAero( req_ncom,  .True. )
 
 C Compute common factors
          h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )
