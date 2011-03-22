@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.4 2011/03/22 19:00:10 sjr Exp $
 
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
