@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/SOA_DEFN.F,v 1.3 2011/03/15 19:11:56 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/SOA_DEFN.F,v 1.4 2011/03/22 13:04:27 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
@@ -17,7 +17,9 @@ C     Subroutine orgaer
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
-C----------------------------------------------------------------------_
+C
+C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 values
+C-----------------------------------------------------------------------
       Implicit None
 
       Integer, Parameter :: n_vapor = 12    ! # of partitioning SVOCs
@@ -44,11 +46,11 @@ C                 ----------  -------  --------  -------  ----------  ------  --
      & vapor_type('SV_TOL2 ',  0.1477,  21.2770,  18.0E3, 'ATOL2J  ',    'A',     7.0, 'TOLNRXN  '),
      & vapor_type('SV_BNZ1 ',  0.0942,   0.3020,  18.0E3, 'ABNZ1J  ',    'A',     6.0, 'BNZNRXN  '),
      & vapor_type('SV_BNZ2 ',  1.1620, 111.1100,  18.0E3, 'ABNZ2J  ',    'A',     6.0, 'BNZNRXN  '),
-     & vapor_type('SV_TRP1 ',  0.1123,   7.4660,  40.0E3, 'ATRP1J  ',    'B',    10.0, 'TRPRXN   '),
-     & vapor_type('SV_TRP2 ',  0.5013, 110.7700,  40.0E3, 'ATRP2J  ',    'B',    10.0, 'TRPRXN   '),
+     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J  ',    'B',    10.0, 'TRPRXN   '),
+     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J  ',    'B',    10.0, 'TRPRXN   '),
      & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J  ',    'B',     5.0, 'ISOPRXN  '),
      & vapor_type('SV_ISO2 ',  0.0288,   0.6170,  40.0E3, 'AISO2J  ',    'B',     5.0, 'ISOPRXN  '),
-     & vapor_type('SV_SQT  ',  1.3000,  12.1930,  40.0E3, 'ASQTJ   ',    'B',    15.0, 'SESQRXN  ')/)
+     & vapor_type('SV_SQT  ',  1.5370,  24.9840,  40.0E3, 'ASQTJ   ',    'B',    15.0, 'SESQRXN  ')/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
