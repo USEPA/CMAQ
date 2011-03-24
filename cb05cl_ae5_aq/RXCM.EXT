@@ -1,35 +1,38 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/cb05cl_ae5_aq/RXCM.EXT,v 1.1 2010/12/03 14:39:51 yoj Exp $
+C $Header: /project/yoj/arc/MECHS/src/cb05cl_ae5_aq/RXCM.EXT,v 1.2 2011/03/24 16:15:48 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /home/sarwar/util/MP/cb05cl_ae5_aq/RXCM_cb05.EXT
-C for Mechanism Name: CB05CL_AE5_AQ   
+C  /home/hutzellb/cmaq_toxics/releases_2010/new_arc_mechanisms
+C  /cb05cl_ae5_aq/RXCM.EXT
+C for Mechanism Name: CB05CL_AE5_AQ                   
 
 C The following are reserved symbols declared in this INCLUDE file:
-C    MECHNAME  = Mechanism name
-C    NRXNS     = Number of mechanism reactions
-C    KUNITS    = Units of mechanism reactions
-C    KTYPE     = Reaction type
-C    IRXBITS   = Bit test mask vector for selected reactions
-C    IORDER    = Order of the reaction
-C    KTN1      = Number of type 1 reactions
-C    KRX1      = Reactions list pointer to type 1 reactions
-C    KTN2      = Number of type 2 reactions
-C    KRX2      = Reactions list pointer to type 2 reactions
-C    KTN3      = Number of type 3 reactions
-C    KRX3      = Reactions list pointer to type 3 reactions
-C    KTN4      = Number of type 4 reactions
-C    KRX4      = Reactions list pointer to type 4 reactions
-C    KTN5      = Number of type 5 reactions
-C    KRX5      = Reactions list pointer to type 5 reactions
-C    KTN6      = Number of type 6 reactions
-C    KRX6      = Reactions list pointer to type 6 reactions
-C    KTN7      = Number of type 7 reactions
-C    KRX7      = Reactions list pointer to type 7 reactions
+C    MECHNAME       = Mechanism name
+C    N_GAS_CHEM_SPC = Total number of species in gas phase chemical mechanism
+C    N_ACT_SP       = Number of active (determined by ODE solver) species in mechanism
+C    NRXNS          = Number of mechanism reactions
+C    KUNITS         = Units of mechanism reactions
+C    KTYPE          = Reaction type
+C    IRXBITS        = Bit test mask vector for selected reactions
+C    IORDER         = Order of the reaction
+C    KTN1           = Number of type 1 reactions
+C    KRX1           = Reactions list pointer to type 1 reactions
+C    KTN2           = Number of type 2 reactions
+C    KRX2           = Reactions list pointer to type 2 reactions
+C    KTN3           = Number of type 3 reactions
+C    KRX3           = Reactions list pointer to type 3 reactions
+C    KTN4           = Number of type 4 reactions
+C    KRX4           = Reactions list pointer to type 4 reactions
+C    KTN5           = Number of type 5 reactions
+C    KRX5           = Reactions list pointer to type 5 reactions
+C    KTN6           = Number of type 6 reactions
+C    KRX6           = Reactions list pointer to type 6 reactions
+C    KTN7           = Number of type 7 reactions
+C    KRX7           = Reactions list pointer to type 7 reactions
 
 C    NWM       = Number of air 3-body reactions
 C    NRXWM     = Reactions list pointer to air 3-body reactions
@@ -63,7 +66,11 @@ C    NMPHOT    = Number of mechanism photolytic reactions
 C    NPHOTAB   = Number of photolytic reactions tables
 C    IPH       = Reactions list pointer to photolytic reactions and tables
 
-      CHARACTER( 16 ), PARAMETER :: MECHNAME = 'CB05CL_AE5_AQ   '
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'CB05CL_AE5_AQ'
+
+      INTEGER, PARAMETER :: N_GAS_CHEM_SPC =  72
+
+      INTEGER, PARAMETER :: N_ACT_SP =  72
 
       INTEGER, PARAMETER :: NRXNS = 187
 
@@ -175,3 +182,81 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
      &             RXLABEL
 
 C End of Mechanism Reactions, Rates, etc. COMMON INCLUDE File ----------
+
+C    NSPECIAL     = Number of special rate coefficients
+C    SPECIAL      = Names of special rate coefficients
+C    NSPECIAL_RXN = Number of reactions with special rates
+C    ISPECIAL     = Pointers to reactions using special rates and their special rate coefficients
+C    MAXSPECTERMS = Max Number of each term type in  special rate coefficients
+C    KC_COEFFS    = Coefficients of standard rate coefficients  times concentration terms 
+C    INDEX_KTERMS  = Pointers to standard rate coefficients in  special rate coefficients
+C    INDEX_CTERMS  = Pointers to species concentrations in  special rate coefficients
+C    OPERATOR_COEFFS = Coefficients of preceeding special  rate coefficients used in special coefficient 
+C    OPERATORS       = Pointers to preceeding special  rate coefficients used in special coefficient 
+
+C Special Rate information not available ..
+      INTEGER, PARAMETER :: NSPECIAL_RXN = 0
+      INTEGER            :: ISPECIAL( 1, 2 )
+
+C Special Rate information not available ...
+      INTEGER, PARAMETER :: NSPECIAL = 0
+
+C Special Rate information not available ...
+      CHARACTER( 16 )    :: SPECIAL( 1 )
+
+      INTEGER, PARAMETER :: MAXSPECTERMS =  10
+      REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
+      INTEGER            :: INDEX_KTERMS( NSPECIAL + 1, MAXSPECTERMS)
+      INTEGER            :: INDEX_CTERMS( NSPECIAL + 1, MAXSPECTERMS)
+      REAL( 8 )          :: OPERATOR_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
+      INTEGER            :: OPERATORS( NSPECIAL + 1, MAXSPECTERMS)
+
+      COMMON     / MECHRX4 /
+     &             SPECIAL,
+     &             ISPECIAL,
+     &             KC_COEFFS,
+     &             INDEX_KTERMS,
+     &             INDEX_CTERMS,
+     &             OPERATOR_COEFFS,
+     &             OPERATORS
+
+
+C    Steady-state species section
+C    N_SS_SPC     = Number of species assumed to be in steady-state
+C    SS_SPC_DIM   = Dimension paramete for steady-state species
+C    SS_SPC       = Names of species assumed to be in steady-state
+C    MAX_SS_LOSS  = Max no. of SS loss rxns for any SS species
+C    MAX_SS_PROD  = Max no. of SS prod rxns for any SS species
+C    N_LOSS_RXNS  = No. of SS loss rxns for each SS species
+C    N_PROD_RXNS  = No. of SS prod rxns for each SS species
+C    SS_LOSS_RXNS = List of SS loss rxns for each SS species
+C    SS_PROD_RXNS = List of SS prod rxns for each SS species
+C    SS_PROD_COEF = List of SS prod yields for each SS species
+C    SS_RCT_IND   = SS species index if it is a rxn reactant
+
+      INTEGER, PARAMETER :: N_SS_SPC =   0
+
+      INTEGER, PARAMETER :: SS_SPC_DIM =   1
+
+      INTEGER, PARAMETER :: MAX_SS_LOSS =   0
+
+      INTEGER, PARAMETER :: MAX_SS_PROD =   0
+
+      CHARACTER( 16 )    :: SS_SPC( 1 )
+
+      INTEGER            :: N_LOSS_RXNS( 1 )
+      INTEGER            :: N_PROD_RXNS( 1 )
+      INTEGER            :: SS_LOSS_RXNS( 1, 1 )
+      INTEGER            :: SS_PROD_RXNS( 1, 1 )
+      INTEGER            :: SS_RCT_IND( 1 )
+
+      REAL               :: SS_PROD_COEF( 1,1 ) 
+
+      COMMON     / MECHRX5 /
+     &             SS_SPC,
+     &             N_LOSS_RXNS,
+     &             N_PROD_RXNS,
+     &             SS_LOSS_RXNS,
+     &             SS_PROD_RXNS,
+     &             SS_PROD_COEF,
+     &             SS_RCT_IND
