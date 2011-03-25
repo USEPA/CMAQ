@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.3 2011/03/15 19:09:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.4 2011/03/25 14:28:25 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -124,6 +124,10 @@ C Indexes of required species
       Integer :: asoil_idx
       Integer :: acors_idx
 
+C Index required for compilation only, but not used in aero5
+      Integer :: apncom_idx  
+
+C Molecular weights and concentrations of aerosol species
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
 
