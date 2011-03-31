@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.1 2011/03/29 13:12:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.2 2011/03/31 16:28:11 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -795,9 +795,6 @@ C...Read & Interpolate SNOCOV
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
-      SEAICE = 0.0
-      TEMPG  = 0.0
-
       IF ( HAS_SEAICE ) THEN
 
          VARNM = 'SEAICE'
@@ -835,8 +832,6 @@ C...Calculate current hour in GMT and julian day
       JULIAN_DAY = FLOAT( MOD( JDATE, 1000 ) )
 
 C...Calculate cosines of the zenith angles and compute NDARK
-
-      SEAICE = 0.0
 
       DO ROW = 1, MY_NROWS
          DO COL = 1, MY_NCOLS
