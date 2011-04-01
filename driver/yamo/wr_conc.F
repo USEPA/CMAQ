@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_conc.F,v 1.2 2010/12/06 12:52:13 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_conc.F,v 1.3 2011/04/01 15:41:37 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -43,27 +43,24 @@ C   29 Aug 06 J.Young: in conjunction with state CGRID file
 C   30 Jan 10 David Wong: modified the code to write one species at a time
 C                         in case ALLVAR3 cannot deal with large CONC size
 C   14 Sep 10 J.Young: fix ALLVAR3 bug in writing W_VEL
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE STD_CONC              ! standard CONC
       USE WVEL_DEFN             ! derived vertical velocity component
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C Include Files:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-#include      SUBST_IODECL      # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
 
 !     REAL      :: SGRID( :,:,:,: )
       INTEGER      JDATE        ! current model date, coded YYYYDDD
       INTEGER      JTIME        ! current model time, coded HHMMSS
       INTEGER      TSTEP        ! output timestep (HHMMSS)
-
-      INTEGER, EXTERNAL :: TRIMLEN  ! string length, excl. trailing blanks
 
 C Local variables:
 

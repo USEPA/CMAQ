@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v 1.2 2011/04/01 15:41:29 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -21,12 +21,13 @@ C  Subroutines and Functions Called:
  
 C  Revision History:
 C    Oct 2007 Jeff: Make a function and simplify for inline BEIS in CMAQ
+C    Feb 2011 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
  
 C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: EDSS Tools Library
-C File: @(#)$Id: chkgrid.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C File: @(#)$Id: chkgrid.F,v 1.2 2011/04/01 15:41:29 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -35,14 +36,14 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v $
-C Last updated: $Date: 2010/07/20 11:26:47 $
+C Last updated: $Date: 2011/04/01 15:41:29 $
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C Includes:
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
 
 C Arguments:
       CHARACTER( * ), INTENT( IN )  :: FNAME   ! File name

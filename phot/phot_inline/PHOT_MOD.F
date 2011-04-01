@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.1 2011/03/29 13:12:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.2 2011/04/01 15:41:52 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -798,13 +798,14 @@ C           -wavelength bin and temperature structure.
 C           -photolysis cross-sections and quantum
 C           -landuse type data for surface alebdo
 C
+C  Revision History:
+C   29 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_IOPARMS     ! Io/api parameters
-      INCLUDE SUBST_IOFDESC     ! Io/api file descriptions
-      INCLUDE SUBST_IODECL      ! Io/api declarations
       INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
 
 C***arguments
@@ -821,7 +822,6 @@ C***local
       CHARACTER(  30 ) :: LAND_EXPECT
       CHARACTER( 120 ) :: MSG                     ! buffer for messages to output
       CHARACTER( 120 ) :: FILE_LINE
-      CHARACTER( 255 ) :: EQNAME3                 ! full name of CSQY file for Mechanism(s)
 
 !     INTEGER, INTENT(OUT) :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
       INTEGER :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
@@ -833,26 +833,18 @@ C***local
       INTEGER :: ITT_LOAD
       INTEGER :: IWL_LOAD
 
-C***external functions
+C***external functions: none
 
-      INTEGER, EXTERNAL :: JUNIT  ! used to get the I/O unit number
+      LOG_UNIT = INIT3()
 
-      CALL NAMEVAL ( CSQY_FILE, EQNAME3 )
-      PHOTAB_UNIT = JUNIT()
-      LOG_UNIT    = INIT3()
+      PHOTAB_UNIT = GETEFILE( CSQY_FILE, .TRUE., .TRUE., PNAME )
 
-      OPEN ( UNIT = PHOTAB_UNIT,
-     &       FILE = EQNAME3,
-     &       FORM = 'FORMATTED',
-     &       STATUS = 'OLD',
-     &       IOSTAT = IOST )
-
-C...check for open errors
-
-      IF ( IOST .NE. 0 ) THEN
-         MSG = 'Could not open the CSQY data file: ' // TRIM( CSQY_FILE )
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      IF ( PHOTAB_UNIT .LT. 0 ) THEN
+         MSG = 'Error opening the CSQY data file: ' // TRIM( CSQY_FILE )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
+
+C...begin read
 
       READ( PHOTAB_UNIT,'(22X,A32)' ) JTABLE_REF
 

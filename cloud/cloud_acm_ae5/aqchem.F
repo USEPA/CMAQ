@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aqchem.F,v 1.2 2010/12/06 14:37:05 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aqchem.F,v 1.3 2011/04/01 15:41:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -90,6 +90,7 @@ C                       limit oxidation rates by the available mass for the
 C                       specified timestep.
 C   10 Oct 10 J.Young:  update to use aero_reeng by Steve Howard, Prakash Bhave,
 C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
+C   01 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
                         
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -117,11 +118,11 @@ C  AERWDEP(naer,nmodes) real     output     wet deposition for species
 C-----------------------------------------------------------------------
 
       USE AQ_DATA
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
       INCLUDE SUBST_CONST          ! constants
-      INCLUDE SUBST_IOPARMS        ! I/O parameters definitions
       INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
 
       CHARACTER( 120 ) :: XMSG = ' '  ! Exit status message

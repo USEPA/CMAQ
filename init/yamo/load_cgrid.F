@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.2 2010/12/06 12:55:13 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.3 2011/04/01 15:41:51 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -43,17 +43,17 @@ C   20 Nov 03 J.Young: enable loading RHOJ
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                      removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -97,11 +97,9 @@ C File variables:
       REAL         DENS( NCOLS,NROWS,NLAYS )       ! air density (kg/m^3)
       REAL         RHOJ( NCOLS,NROWS,NLAYS ) ! air density X Jacobian (kg/m^2)
 
-C External Functions (not already declared by IODECL3.EXT):
+C External Functions:
 
       INTEGER, EXTERNAL :: FINDEX       !  looks up number in table.
-      INTEGER, EXTERNAL :: INDEX1       !  looks up name in table.
-      INTEGER, EXTERNAL :: TRIMLEN      !  string length, excl. trailing blanks
 
 C Local Variables
 
@@ -200,9 +198,9 @@ C Get INDX
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
-     &                GC_SPC( SPC )( 1:TRIMLEN( GC_SPC( SPC ) ) )  //
-     &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
-     &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
+     &                TRIM( GC_SPC( SPC ) ) //
+     &                ' in ' // TRIM( FNAME ) //
+     &                ' Set to ' // TRIM( CONCMIN )
                CALL M3MESG( XMSG )
             END IF
          END DO
@@ -222,9 +220,9 @@ C Get INDX
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
-     &                AE_SPC( SPC )( 1:TRIMLEN( AE_SPC( SPC ) ) )  //
-     &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
-     &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
+     &                TRIM( AE_SPC( SPC ) ) //
+     &                ' in ' // TRIM( FNAME ) //
+     &                ' Set to ' // TRIM( CONCMIN )
                CALL M3MESG( XMSG )
             END IF
          END DO
@@ -244,9 +242,9 @@ C Get INDX
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
-     &                NR_SPC( SPC )( 1:TRIMLEN( NR_SPC( SPC ) ) )  //
-     &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
-     &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
+     &                TRIM( NR_SPC( SPC ) ) //
+     &                ' in ' // TRIM( FNAME ) //
+     &                ' Set to ' // TRIM( CONCMIN )
                CALL M3MESG( XMSG )
             END IF
          END DO
@@ -266,9 +264,9 @@ C Get INDX
             INDX( SPC ) = NDX
             IF ( NDX .EQ. 0 ) THEN
                XMSG = 'No IC found for species ' //
-     &                TR_SPC( SPC )( 1:TRIMLEN( TR_SPC( SPC ) ) )  //
-     &                ' in ' // FNAME( 1:TRIMLEN( FNAME ) ) //
-     &                ' Set to ' // CONCMIN( 1:TRIMLEN( CONCMIN ) ) 
+     &                TRIM( TR_SPC( SPC ) ) //
+     &                ' in ' // TRIM( FNAME ) //
+     &                ' Set to ' // TRIM( CONCMIN )
                CALL M3MESG( XMSG )
             END IF
          END DO
@@ -295,7 +293,7 @@ C IOFDESC common now loaded with FNAME header
      &           1,NLAYS, STRTROWINI,ENDROWINI, STRTCOLINI,ENDCOLINI,
      &           JDATE, JTIME, DBUFF ) ) THEN
                XMSG = 'Could not read ' //
-     &                VNAME3D( NDX )( 1:TRIMLEN( VNAME3D( NDX ) ) ) //
+     &                TRIM( VNAME3D( NDX ) ) //
      &                ' from ' // FNAME
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF

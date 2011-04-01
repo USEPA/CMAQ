@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_subs.F,v 1.4 2011/03/21 20:09:55 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_subs.F,v 1.5 2011/04/01 15:41:28 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -172,6 +172,8 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C
 C HS  03/10/11 Added call to POAAGE between ORGAER and HETCHEM
 C
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -191,6 +193,7 @@ C-----------------------------------------------------------------------
       USE AERO_DATA
       USE SOA_DEFN
       USE AEROMET_DATA
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -263,7 +266,6 @@ C *** local variables
       LOGICAL      M3_WET_FLAG
       LOGICAL   :: LIMIT_Sg = .FALSE.
 
-      include SUBST_IODECL    ! I/O definitions and declarations
       integer, save :: logdev
       logical, save :: firstime = .true.
 C-----------------------------------------------------------------------
@@ -714,6 +716,7 @@ C     15 Jul 08, J.Young, P.Bhave: increased cutoff to hybrid from .01 to .05 ug
 C                J.Young: change 'OPTIONFLAG' to just a logical variable, 'Hybrid'
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 
 C *** References
 C 1. Pilinis C, Capaldo KP, Nenes A, Pandis SN (2000) MADM - A new
@@ -728,11 +731,9 @@ C    ENVIRONMENT. 34(21):3617-3627
       USE PRECURSOR_DATA
       USE SOA_DEFN
       USE AEROMET_DATA
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
-
-C *** Includes:
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C *** Arguments:
       REAL    DT              ! time step [sec]

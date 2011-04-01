@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/matrix.F,v 1.2 2010/12/06 13:40:48 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/matrix.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE MATRIX ( A, B, C, D, E, X )
@@ -53,11 +53,11 @@ C---------------------------------------------------------
 
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C Includes:
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
 
       INTEGER, SAVE :: N_SPC_DIFF    ! global diffusion species
 

@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.4 2011/03/15 18:52:45 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.5 2011/04/01 15:41:38 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,6 +32,8 @@ C Revision History:
 C     28 Jul 2006 J.Young: initial implementation
 C     18 Aug 2007 J.Young: move beis part to separate module; add plume rise
 C     26 Jan 2010 J.Young: fix bug overwriting point source layer 1 NH3; inline rdemis
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                            removed deprecated TRIMLEN
 
 C-----------------------------------------------------------------------
 
@@ -73,6 +75,7 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
          USE PT3D_DEFN           ! plume rise emissions
+         USE UTILIO_DEFN            ! i/o api
          USE AERO_EMIS           ! inherits GRID_CONF
          USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
 
@@ -81,17 +84,11 @@ C-----------------------------------------------------------------------
 C Includes:
 
          INCLUDE SUBST_CONST     ! constants
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include         SUBST_IODECL    # I/O definitions and declarations
 
 C Arguments:
 
          INTEGER JDATE, JTIME, TSTEP
          LOGICAL :: SUCCESS
-
-C External Functions:
-
-         INTEGER, EXTERNAL :: ENVINT
 
 C Parameters:
 
@@ -282,14 +279,13 @@ C-----------------------------------------------------------------------
          USE BIOG_EMIS, ONLY: MSPCS
          USE PT3D_DEFN           ! plume rise emissions
          USE PTMAP               ! defines emissions file(s) PM mapping
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
 C Includes:
 
          INCLUDE SUBST_FILES_ID  ! file name parameters
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-         INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C Arguments:
 
@@ -299,10 +295,6 @@ C Arguments:
          REAL    RDX3F( NLAYS )             ! reciprocal layer thickness
          REAL    RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
          REAL    RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
-
-C External Functions:
-
-         INTEGER, EXTERNAL :: TRIMLEN
 
 C Local Variables:
 
@@ -345,7 +337,7 @@ C                                       vvvvvvv - emis surrogate names
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read  '
-     &              // GC_EMIS( S )( 1:TRIMLEN( GC_EMIS( S ) ) )
+     &              // TRIM( GC_EMIS( S ) )
      &              // ' from ' // EMIS_1
 !              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -455,7 +447,7 @@ C                                       vvvvvvv - emis surrogate names
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
                XMSG = 'Could not read  '
-     &              // NR_EMIS( S )( 1:TRIMLEN( NR_EMIS( S ) ) )
+     &              // TRIM( NR_EMIS( S ) )
      &              // ' from ' // EMIS_1
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -489,7 +481,7 @@ C                                               vvvvvvv - emis surrogate names
      &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                             JDATE, JTIME, BUFF ) ) THEN
                   XMSG = 'Could not read  '
-     &                 // TR_EMIS( S )( 1:TRIMLEN( TR_EMIS( S ) ) )
+     &                 // TRIM( TR_EMIS( S ) )
      &                 // ' from ' // EMIS_TRAC_1
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grsmvgear.F,v 1.1 2011/03/23 21:13:16 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grsmvgear.F,v 1.2 2011/04/01 15:41:44 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)grsmvgear.F       1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grsmvgear.F 07 Jul 1997 12:45:29
@@ -61,16 +61,17 @@ C                                       if MECHNAME contains 'TX' substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    30 Jun 10 J.Young: convert for Namelist redesign; move all
 C                    local include file variables into GRVARS module
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
+C                    with UTILIO_DEFN
 C**********************************************************************
 
       USE CGRID_SPCS          ! CGRID species number and offsets
+      USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
 
       IMPLICIT NONE
       
-C..INCLUDES:
-      INCLUDE SUBST_IOPARMS   ! Io/api parameters
-      INCLUDE SUBST_IODECL    ! Io/api declarations
+C..INCLUDES: None
       
 C..ARGUMENTS:
       INTEGER IRUN           ! Counter of calls to calling subroutine

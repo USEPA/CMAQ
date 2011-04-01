@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.2 2011/04/01 15:41:35 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
@@ -102,18 +102,17 @@ C           05 Oct 2009  Added condition that vegetation fraction must be
 C                        greater than zero to be considered a land point.  This
 C                        works around intermittent inconsistencies in surface
 C                        fields in some WRF data sets.  (T. Otte)
+C           16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
       USE DEPVVARS
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 C Includes:
 
       INCLUDE SUBST_CONST     ! constants
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
@@ -200,7 +199,6 @@ C Local Variables:
       REAL                       :: rwet                 ! wet sfc resist (cuticle or grnd)
       REAL                       :: rwetsfc
       REAL                       :: scw_pr_23            ! (scw/pr)**2/3
-      INTEGER,         EXTERNAL  :: secsdiff
       INTEGER, SAVE              :: strtcol
       INTEGER, SAVE              :: strtrow
       REAL,            PARAMETER :: svp2       = 17.67   ! from MM5 and WRF

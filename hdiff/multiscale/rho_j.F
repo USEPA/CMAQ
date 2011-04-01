@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/rho_j.F,v 1.1 2010/07/20 11:48:34 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/rho_j.F,v 1.2 2011/04/01 15:41:49 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -56,9 +56,11 @@ C                      as RHOJ( 0:NCOLS+1,, ).
 C                      NOTE: NTHIK must be = 1
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
+C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -66,9 +68,6 @@ C Includes:
       
 !     INCLUDE SUBST_HGRD_ID     ! horizontal dimensioning parameters
 !     INCLUDE SUBST_VGRD_ID     ! horizontal dimensioning parameters
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structuer
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
  
 C Parameters
@@ -94,13 +93,8 @@ C file variables:
       REAL, ALLOCATABLE :: DENSJ_BUF( :,:,: ) ! Jacobian * air density
       REAL, ALLOCATABLE :: DENSJ_BND( :,: )    ! boundary Jacobian * air density
  
-C External Functions (not already declared by IODECL3.EXT):
- 
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC, TRIMLEN
-#ifdef parallel
-      LOGICAL, EXTERNAL :: INTERPB
-#endif
-      
+C External Functions: None
+       
 C local variables:
       
       CHARACTER( 16 ) :: VNAME
@@ -204,8 +198,8 @@ C currently not implemented: case where only one origin component matches file's
 
       IF ( REVERT ) THEN
          XMSG = 'Current scenario interpolation step not available in both '
-     &        // MET_CRO_3D(1:TRIMLEN( MET_CRO_3D ) ) // 'and '
-     &        // MET_BDY_3D(1:TRIMLEN( MET_BDY_3D ) )
+     &        // TRIM( MET_CRO_3D ) // 'and '
+     &        // TRIM( MET_BDY_3D )
          CALL M3MESG( XMSG )
 !        CALL NEXTIME( MDATE, MTIME, -SEC2TIME( STEP / 2 ) )
          WRITE( AMSG,'( 2I8 )' ) LDATE( 1 ), LTIME( 1 )

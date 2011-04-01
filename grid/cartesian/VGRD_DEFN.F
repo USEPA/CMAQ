@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/VGRD_DEFN.F,v 1.1 2010/07/20 11:23:27 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/VGRD_DEFN.F,v 1.2 2011/04/01 15:41:46 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -29,6 +29,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Define the vertical layer structure (replaces COORD.EXT and VGRD.EXT)
 C Revision History: Jeff Young: 6 Dec 04: created
 C                              26 Jul 06: comments in line with PARMS3.EXT
+C                   S. Roselle 29 Mar 11: Replaced I/O API include files
+C                                         with UTILIO_DEFN
 C.......................................................................
 
       IMPLICIT NONE
@@ -86,11 +88,9 @@ C-----------------------------------------------------------------------
 
          FUNCTION VGRD_INIT ( ) RESULT ( SUCCESS )
 
-            IMPLICIT NONE
+            USE UTILIO_DEFN
 
-            INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-            INCLUDE SUBST_IOFDESC     ! file header data structure
-            INCLUDE SUBST_IODECL      ! I/O definitions and declarations
+            IMPLICIT NONE
 
             LOGICAL :: SUCCESS
 

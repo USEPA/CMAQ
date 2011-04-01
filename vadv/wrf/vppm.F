@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vadv/wrf/vppm.F,v 1.2 2010/12/06 13:47:39 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vadv/wrf/vppm.F,v 1.3 2011/04/01 15:41:58 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -92,16 +92,16 @@ C   08 May 09 J.Young: dimension CON with species; eliminate "STEEPEN" option
 C   18 Nov 09 J.Young: combine PPM velocity adjustment and vertically advected
 C                      concentrations on one code
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
       
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
       
 C Includes:
       
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
- 
       INTEGER, SAVE :: N_SPC_ADV
 
 C Arguments:
@@ -284,11 +284,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C get ppm coefficients CR, CL, DC, and C6
 
-      IMPLICIT NONE
+      USE UTILIO_DEFN
 
-C Includes:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
+      IMPLICIT NONE
 
 C arguments:
 

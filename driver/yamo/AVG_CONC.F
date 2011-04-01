@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/AVG_CONC.F,v 1.2 2010/12/06 12:49:30 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/AVG_CONC.F,v 1.3 2011/04/01 15:41:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -60,11 +60,7 @@ C species classes configuration for average CONC
 
          USE VGRD_DEFN             ! vertical layer specifications
          USE CGRID_SPCS            ! CGRID mechanism species
-
-         INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-#ifdef Verbose
-         include SUBST_IODECL      ! I/O definitions and declarations
-#endif
+         USE UTILIO_DEFN
 
          CHARACTER( 16 ) :: PNAME = 'A_CONC_DEFN'
          CHARACTER( 96 ) :: XMSG = ' '
@@ -78,8 +74,6 @@ C species classes configuration for average CONC
          INTEGER, ALLOCATABLE :: AE_MAP( : )
          INTEGER, ALLOCATABLE :: NR_MAP( : )
          INTEGER, ALLOCATABLE :: TR_MAP( : )
-
-         INTEGER, EXTERNAL :: INDEX1
 
          CHARACTER( 32 ) :: AVG_CONC_SPCS   = 'AVG_CONC_SPCS'
          CHARACTER( 32 ) :: ACONC_BLEV_ELEV = 'ACONC_BLEV_ELEV'

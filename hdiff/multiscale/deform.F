@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/deform.F,v 1.1 2010/07/20 11:48:34 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/deform.F,v 1.2 2011/04/01 15:41:49 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -62,9 +62,12 @@ C    25 MAr 04 G.Hammond: move wind velocity ghost cell updates outside layer
 C                         loop. Use SNL "swap3d".
 C    31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                       domain specifications in one module
+C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
+
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_GLOBAL_MAX_MODULE    ! stenex
 !     USE SUBST_COMM_MODULE     ! stenex
@@ -77,9 +80,6 @@ C-----------------------------------------------------------------------
 
 C Includes:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structuer
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
       INCLUDE SUBST_CONST       ! constants
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
@@ -99,12 +99,7 @@ C file variables:
       REAL      DENSJ_BUF( NCOLS,NROWS,NLAYS ) ! Jacobian * air density
       REAL      DENSJ_BND( NBNDY,NLAYS )       ! boundary Jacobian * air density
  
-C External Functions (not already declared by IODECL3.EXT):
- 
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC, TRIMLEN
-#ifdef parallel
-      LOGICAL, EXTERNAL :: INTERPB
-#endif
+C External Functions: None
       
 C local variables:
       
@@ -264,9 +259,9 @@ C currently not implemented: case where only one origin component matches file's
  
       IF ( REVERT ) THEN
          XMSG = 'Current scenario interpolation step not available in all of '
-     &        // MET_CRO_3D(1:TRIMLEN( MET_CRO_3D ) ) // ', '
-     &        // MET_BDY_3D(1:TRIMLEN( MET_BDY_3D ) ) // ' and '
-     &        // MET_DOT_3D(1:TRIMLEN( MET_DOT_3D ) )
+     &        // TRIM( MET_CRO_3D ) // ', '
+     &        // TRIM( MET_BDY_3D ) // ' and '
+     &        // TRIM( MET_DOT_3D )
          CALL M3MESG( XMSG )
 !        CALL NEXTIME( MDATE, MTIME, -SEC2TIME( STEP / 2 ) )
          WRITE( AMSG,'( 2I8 )' ) LDATE( 1 ), LTIME( 1 )

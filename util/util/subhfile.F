@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.1 2010/07/19 17:10:30 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.2 2011/04/01 15:41:57 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -30,14 +30,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C returns local starting and ending column and row indices for file FNAME
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 C Includes:
  
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structuer
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -50,10 +48,8 @@ C Arguments:
       INTEGER,         INTENT( OUT ) :: STRTROW ! local processor start row in file
       INTEGER,         INTENT( OUT ) ::  ENDROW ! local processor end row in file
 
-C External Functions (not already declared by IODECL3.EXT):
- 
-      INTEGER, EXTERNAL :: TRIMLEN
- 
+C External Functions:
+  
 C Parameters
 
       REAL( 8 ), PARAMETER :: HALF = 0.5D+00
@@ -91,7 +87,7 @@ C-----------------------------------------------------------------------
 
 C open cross file for subsequent comparison
 
-         BNAME = GRID_CRO_2D( 1:TRIMLEN( GRID_CRO_2D ) )
+         BNAME = TRIM( GRID_CRO_2D )
 
          IF ( .NOT. OPEN3( BNAME, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open '// BNAME
@@ -139,7 +135,7 @@ C open existing file for readonly access
       END IF
 
       IF ( .NOT. DESC3( FNAME ) ) THEN
-         XMSG = 'Could not get ' // FNAME( 1:TRIMLEN( FNAME ) )
+         XMSG = 'Could not get ' // TRIM( FNAME )
      &        // ' file description'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF

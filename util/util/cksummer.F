@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.1 2010/07/19 17:10:30 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.2 2011/04/01 15:41:57 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)cksummer.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.cksummer.F 03 Jun 1997 12:08:53
@@ -48,17 +48,17 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C    4 Feb 08 J.Young: checksums based on local processor
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
 
       IMPLICIT NONE
-
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
 
       CHARACTER( * ) SCIPROC    ! science process name
 !     REAL      :: CGRID( :,:,:,: )
@@ -86,8 +86,6 @@ C Local variables:
 
       INTEGER, SAVE :: OUTDEV    ! FORTRAN unit number for neg conc ascii file
 
-      INTEGER, EXTERNAL :: GETEFILE, TRIMLEN
- 
       LOGICAL ::  RDONLY = .FALSE.
       LOGICAL ::  FMTTED = .TRUE.
       INTEGER     STATUS       !  ENVSTR status
@@ -124,7 +122,7 @@ C-----------------------------------------------------------------------
 !        END IF
          CALL NAMEVAL ( APPL, EQNAME )
          WRITE( CMYPE,'(I3.3)' ) MYPE
-         DEVNAME = PRESTR // CMYPE // '.' // EQNAME( 1:TRIMLEN( EQNAME ) )
+         DEVNAME = PRESTR // CMYPE // '.' // TRIM( EQNAME )
 
       END IF
 

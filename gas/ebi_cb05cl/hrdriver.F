@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdriver.F,v 1.3 2011/03/18 12:46:24 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrdriver.F,v 1.4 2011/04/01 15:41:40 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -47,19 +47,18 @@ C                       This version replaces Huang and Chang use of numerical
 C                       solutions with analytical solutions derived in
 C                       Hertel et al.
 C  21 Jun 10 J.Young: convert for Namelist redesign
+C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE VGRD_DEFN             ! vertical layer specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE HRDATA
 
       IMPLICIT NONE
 
 C..Includes:
-      INCLUDE SUBST_IOPARMS   ! Io/api parameters
-      INCLUDE SUBST_IOFDESC   ! Io/api file descriptions
-      INCLUDE SUBST_IODECL    ! Io/api declarations
       INCLUDE SUBST_FILES_ID  ! CMAQ files
       INCLUDE SUBST_CONST     ! CMAQ constants
       INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
@@ -76,10 +75,6 @@ C..Parameters:
       REAL, PARAMETER :: PA2ATM = 1.0 / STDATMPA    ! Pascal to atm conv fac
 
 C..External Functions:
-      INTEGER INDEX1          ! Looks up name in a list
-      INTEGER JUNIT           ! Gets logical device number
-      INTEGER SEC2TIME        ! Returns time interval from seconds
-      INTEGER TIME2SEC        ! Returns seconds in time interval
 
 C..Saved Local Variables:
 

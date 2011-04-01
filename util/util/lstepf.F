@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/lstepf.F,v 1.1 2010/07/19 17:10:30 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/util/util/lstepf.F,v 1.2 2011/04/01 15:41:57 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -29,13 +29,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C returns the last data date & time on file FNAME
 C specifically used only for input files
 
+      USE UTILIO_DEFN
+
       IMPLICIT NONE
  
 C Includes:
  
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structuer
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -44,10 +43,8 @@ C Arguments:
       INTEGER      LDATE        ! last file data date, coded YYYYDDD
       INTEGER      LTIME        ! last file data time, coded HHMMSS
 
-C External Functions (not already declared by IODECL3.EXT):
- 
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC
- 
+C External Functions:
+  
 C local variables:
 
       CHARACTER( 16 ) :: PNAME = 'LSTEPF'

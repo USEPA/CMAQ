@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.2 2011/04/01 15:41:34 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPVVARS
@@ -31,6 +31,8 @@ C Revised:  19 Aug 2005  Original version.  (T. Otte and W. Hutzell)
 C           25 Nov 2006 J.Young: combine
 C           30 Apr 2008  Removed references to RADMDRY.  Added five air
 C                        toxic species to LTOTG.  (T. Otte and W. Hutzell)
+C           16 Feb 2011 S.Roselle: replaced I/O API include files with
+C                        UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
@@ -54,11 +56,9 @@ C----------------------------------------------------------------------
          FUNCTION DEPVVARS_INIT( ) RESULT ( SUCCESS )
 
          USE HGRD_DEFN
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
-
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include         SUBST_IODECL    # I/O definitions and declarations
 
          LOGICAL SUCCESS
 

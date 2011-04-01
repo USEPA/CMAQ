@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.2 2011/02/23 16:38:01 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.3 2011/04/01 15:41:30 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -93,12 +93,13 @@ C                      restructure growing season, col/row loops;
 C                      restructure PRECIP_ADJ
 C    Jan 27: D. Wong - Eliminate potential race condition with mype = 0 and
 C                      barrier implementation - it's not needed anyway.
+C    02/11 : S.Roselle-Replaced I/O API include files with UTILIO_DEFN
   
 C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: hrno.F,v 1.2 2011/02/23 16:38:01 yoj Exp $
+C File: @(#)$Id: hrno.F,v 1.3 2011/04/01 15:41:30 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -107,18 +108,16 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v $
-C Last updated: $Date: 2011/02/23 16:38:01 $ 
+C Last updated: $Date: 2011/04/01 15:41:30 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE BIOG_EMIS, ONLY: NSEF ! beis
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
         
 C Includes:
-      INCLUDE SUBST_IOPARMS    ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC    ! file header data structure
-#include      SUBST_IODECL    # I/O definitions and declarations
 
 C Arguments:
       INTEGER, INTENT( IN )    :: JDATE             ! current simulation date (YYYYDDD)
@@ -128,13 +127,7 @@ C Arguments:
       REAL,    INTENT( OUT )   :: EMPOL( NCOLS,NROWS,NSEF ) ! output NO emissions
 
 C External Functions
-      INTEGER,         EXTERNAL :: ENVINT
-      INTEGER,         EXTERNAL :: SECSDIFF
-      INTEGER,         EXTERNAL :: TIME2SEC
-      LOGICAL,         EXTERNAL :: ENVYN
       LOGICAL,         EXTERNAL :: CHKGRID
-      LOGICAL,         EXTERNAL :: CURRSTEP
-      CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
 
 C Parameters:
       INTEGER, PARAMETER :: MXRHRS = 24     ! no. of rainfall hours for YL95 algorithm
@@ -848,6 +841,8 @@ C    3/05  : create separate functions for PX vs non-PX versions
 C    1/10  : J.Young - restructure
 C-----------------------------------------------------------------------
 
+         USE UTILIO_DEFN
+
          IMPLICIT NONE
 
 C Function arguments:
@@ -860,7 +855,6 @@ C Function arguments:
          INTEGER, INTENT( INOUT ) :: PULSETIME ! date of pulse end
 
 C External functions:
-         INTEGER, EXTERNAL :: GETEFILE
          
 C Parameters:
          REAL, PARAMETER :: SAT_THRES = 0.95
@@ -933,6 +927,8 @@ C    1/10  : J.Young - restructure
   
 C-----------------------------------------------------------------------
 
+         USE UTILIO_DEFN
+
          IMPLICIT NONE
 
 C Function arguments:
@@ -943,7 +939,6 @@ C Function arguments:
          INTEGER, INTENT( INOUT ) :: PULSETIME ! time of pulse start
 
 C External functions:
-         INTEGER, EXTERNAL :: GETEFILE
 
 C Local variable
          INTEGER PTYPE_TEST
@@ -1053,13 +1048,14 @@ C-----------------------------------------------------------------------
 C Compute the day of the growing season corresponding to the given date
 C in yyyyddd format.
 
+         USE UTILIO_DEFN
+
          IMPLICIT NONE
          
 C Function arguments:
          INTEGER, INTENT( IN ) :: DATE   ! YYYYDDD
 
 C External functions:
-         INTEGER, EXTERNAL :: JULIAN
 
 C Parameters:
          INTEGER, PARAMETER :: GSTART_MONTH  = 04     ! April
@@ -1113,6 +1109,8 @@ C    reset; else, precipfact=14.68*...
 C Else if rainfall >=1.5 cm in last 24 hr, and time since last pulse is .ge. 13 days,
 C    reset; else, precipfact=18.46*...
 
+         USE UTILIO_DEFN
+
          IMPLICIT NONE
          
 C Function arguments:
@@ -1120,7 +1118,6 @@ C Function arguments:
          INTEGER, INTENT( INOUT ) :: PTYPE
          
 C External functions:
-         INTEGER, EXTERNAL :: SECSDIFF
 
 C Parameters:
          REAL, PARAMETER :: DAYPERSEC = 1.0 / ( 24.0 * 3600.0 ) ! = 0.000011574074074

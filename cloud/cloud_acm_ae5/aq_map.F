@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aq_map.F,v 1.3 2011/02/17 14:22:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aq_map.F,v 1.4 2011/04/01 15:41:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -44,6 +44,7 @@ C       3 06/07/05 sjr  added logic for coarse sulfate
 C       4 04/11/08 jtk  added logic for coarse ammonium
 C       5 10/10/10 yoj  update to use aero_reeng by Steve Howard, Prakash Bhave,
 C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
+C       6 03/01/11 sjr  replaced I/O API include files with UTILIO_DEFN;
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -73,10 +74,9 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS     ! CGRID mechanism species
       USE AQ_DATA        ! aqueous chemistry shared parameters
       USE AERO_DATA      ! aerosol shared parameters
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
-
-      INCLUDE SUBST_IOPARMS             ! I/O parameters definitions
 
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 

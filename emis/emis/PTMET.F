@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.1 2010/07/20 12:49:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.2 2011/04/01 15:41:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -13,6 +13,7 @@ C Function: 3d point source emissions met data
 
 C Revision History:
 C     20 Nov 2007 J.Young: initial implementation
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -247,11 +248,10 @@ C-----------------------------------------------------------------------
          SUBROUTINE READMC2 ( VNAME, JDATE, JTIME, XBUF )
 
             USE PTBILIN, ONLY: XBND, YBND
+            USE UTILIO_DEFN
 
             IMPLICIT NONE
 
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
             CHARACTER( * ) :: VNAME     ! variable name
@@ -319,11 +319,10 @@ C-----------------------------------------------------------------------
 
             USE VGRD_DEFN             ! vertical layer specifications
             USE PTBILIN, ONLY: XBND, YBND
+            USE UTILIO_DEFN
 
             IMPLICIT NONE
 
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
             CHARACTER( * ) :: VNAME     ! variable name
@@ -391,11 +390,10 @@ C-----------------------------------------------------------------------
 
             USE VGRD_DEFN             ! vertical layer specifications
             USE PTBILIN, ONLY: XBND, YBND
+            USE UTILIO_DEFN
 
             IMPLICIT NONE
 
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
             CHARACTER( * ) :: VNAME     ! variable name

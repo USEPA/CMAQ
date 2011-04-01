@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.3 2011/03/21 20:12:38 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.4 2011/04/01 15:41:29 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -22,6 +22,7 @@ C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C SH  03/10/11 Inserted functionality of PMEM_DEFN
 C    -new subroutine map_pmemis
 C HS  03/10/11 Made PNCOM a required species
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C
 C----------------------------------------------------------------------
 
@@ -219,14 +220,9 @@ C-----------------------------------------------------------------------
 
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
+      Use utilio_defn
 
       Implicit None
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
-
-C External Functions:
-      Integer index1
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -330,9 +326,10 @@ C
 C  Set the emissions units from the header of EMIS_1 file
 C  verify that all the units are consistent
 
-      Include SUBST_IOPARMS   ! I/O parameters definitions
-#include      SUBST_IODECL
-      Include SUBST_IOFDESC   ! file header data structure
+      Use utilio_defn
+
+      Implicit None
+
       Include SUBST_FILES_ID  ! file name parameters
 
       ! Parameters:
@@ -340,7 +337,6 @@ C  verify that all the units are consistent
 
       ! External Functions:
       Character( 2 ), External :: crlf
-      Integer, External :: index1
 
       ! Local Variables:
       Character( 16 ), Save :: pname = 'GET_PMEM_UNITS'
@@ -513,15 +509,13 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
       Use aeromet_data      !fundamental constants, data type definitions, etc.
+      Use utilio_defn
 
       Implicit None
 
 C arguments:
       Real, Intent( Out ) :: conc( : )
       Logical, Intent( In ) :: minchk
-
-C includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C local variables:
       Character( 80 ) :: xmsg
@@ -586,14 +580,13 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
+      Use utilio_defn
+
       Implicit None
 
 C Arguments:
       Character( * ) :: vname
       Logical :: required
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Character( 80 ) :: xmsg

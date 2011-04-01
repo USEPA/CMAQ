@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.2 2010/12/06 12:49:30 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.3 2011/04/01 15:41:36 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
@@ -74,6 +74,7 @@ C    6 Sep 06 J.Young: one-write cgrid file; SGRID in module
 C   27 May 09 J.Young: re-do parallel processing initialization
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   20 Jul 10 J.Young: re-do serial processing termination (eliminate par_noop)
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -82,6 +83,7 @@ C-----------------------------------------------------------------------
       USE AVG_CONC              ! integral average CONC
       USE WVEL_DEFN             ! derived vertical velocity component
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
+      USE UTILIO_DEFN
 #ifdef parallel
       USE SUBST_MODULES         ! stenex (using SUBST_INIT_MODULE)
       USE SWAP_SANDIA
@@ -90,8 +92,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
 C Include Files:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
@@ -103,12 +103,8 @@ C Load the mechanism COMMON ... (next two INCLUDE files)
       INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
       INCLUDE SUBST_RXDATA      ! chemical mechamism reactions DATA
 
-C External Functions (not already declared by IODECL3.EXT):
-      LOGICAL, EXTERNAL :: ENVYN ! get environment variable as boolean
+C External Functions:
       INTEGER, EXTERNAL :: SETUP_LOGDEV
-#ifdef parallel
-      LOGICAL, EXTERNAL :: PIO_RE_INIT   ! pario library
-#endif
 
 
 C Local variables:

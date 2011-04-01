@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/DEGRADE_SETUP_TOX.F,v 1.1 2011/03/23 21:13:16 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/DEGRADE_SETUP_TOX.F,v 1.2 2011/04/01 15:41:43 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,20 +34,20 @@ C  REVISION HISTORY: 07/29/05 : B.Hutzell - Initial version
 C                    01/08/07 : S.Roselle - Corrected minimum length for
 C                               species name (LEN_NAME)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
+C                    with UTILIO_DEFN
 C
 C**********************************************************************
 
       USE GRID_CONF    ! vertical and horizontal domain specs
       USE CGRID_SPCS   ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C.....INCLUDES:
 
       INCLUDE SUBST_CONST         ! constants
-      INCLUDE SUBST_IOPARMS       ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC       ! file header data structure
-      INCLUDE SUBST_IODECL        ! I/O definitions and declarations
 
 C..declare and define variables used by maps and data
 
@@ -168,9 +168,7 @@ C.....LOCAL VARIABLES:
 
          REAL(8) :: INV_T298K = 1.0D0 / TEMP_298K   ! K^-1
 
-C.....EXTERNAL FUNCTIONS:
-
-         INTEGER, EXTERNAL :: INDEX1   ! IOAPI function that return an array index
+C.....EXTERNAL FUNCTIONS: None
 
 C**********************************************************************
 

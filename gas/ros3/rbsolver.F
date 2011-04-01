@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.2 2011/04/01 15:41:43 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -48,16 +48,17 @@ C                    29 Jul 05     WTH: Added IF blocks that call degrade
 C                                       routines if CALL_DEG is true, i.e.,
 C                                       if MECHNAME contains 'TX' substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files
+C                               with UTILIO_DEFN
 C**********************************************************************
       USE GRID_CONF               ! horizontal & vertical domain specifications
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
 C..INCLUDES:
-      INCLUDE SUBST_IODECL        ! I/O API declarations
-      INCLUDE SUBST_IOPARMS       ! I/O API parameters
 
 C..ARGUMENTS:
       INTEGER LOGDEV              ! Unit number of output log
@@ -105,7 +106,6 @@ c..ROS3 solver parameters - from KPP
       REAL( 8 ), PARAMETER :: CONMIN   =  1.0D-30  ! Min conc
 
 C..EXTERNAL FUNCTIONS:
-      INTEGER JUNIT                                ! Gets unit number of file
 
 C..SAVED LOCAL VARIABLES:
       CHARACTER( 16 ), SAVE :: PNAME = 'RBSOLVER'  ! Procedure name

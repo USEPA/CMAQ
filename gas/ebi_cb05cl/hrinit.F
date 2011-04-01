@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrinit.F,v 1.2 2010/12/06 14:44:39 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05cl/hrinit.F,v 1.3 2011/04/01 15:41:40 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,15 +36,16 @@ C  Return Values: None
 C  Key Subroutines/Functions Called: None
  
 C  Revision History: Created by EBI solver program, Jan. 31, 2008
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE HRDATA
 
       IMPLICIT NONE
 
 C.....Includes:
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
       INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
 
 C.....Arguments: NONE

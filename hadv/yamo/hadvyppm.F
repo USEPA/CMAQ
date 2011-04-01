@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hadvyppm.F,v 1.2 2010/12/06 13:44:53 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hadvyppm.F,v 1.3 2011/04/01 15:41:47 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -47,11 +47,14 @@ C  19 Jan 2004: Jeff Young
 C   7 Jul 2007: Jeff Young - declare MTRHOJ dimensions properly in order to retain
 C                            them as declared in X_YAMO and Y_YAMO
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
       
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
+
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_COMM_MODULE     ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
@@ -60,8 +63,6 @@ C-----------------------------------------------------------------------
       
 C Includes:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
 
@@ -75,9 +76,7 @@ C Arguments:
                                 ! TSTEP(2) = sciproc sync. step (chem)
       INTEGER     ASTEP( : )    ! layer advection time step
 
-C External Functions not declared in IODECL3.EXT:
-      
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC
+C External Functions: None
       
 C Parameters:
 

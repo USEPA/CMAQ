@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.2 2010/12/06 13:53:00 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.3 2011/04/01 15:41:49 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -72,14 +72,16 @@ C                       domain specifications in one module
 C    17 Dec 09 J.Young: fix CONC initializing error for sub-cycling timesteps (DO 344)
 C                       reported by Talat Odman and Yongtao Hu of GA tech.
 C    21 Jun 10 J.Young: convert for Namelist redesign
+C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
 !     USE SUBST_COMM_MODULE     ! stenex
-      
+
 #ifdef parallel
       USE SWAP_SANDIA
 #endif
@@ -89,9 +91,6 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
 
 C Arguments:
@@ -103,10 +102,8 @@ C Arguments:
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
 
-C External Functions not declared in IODECL3.EXT:
-      
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC, GETEFILE
-      
+C External Functions: None
+           
 C Parameters:
 
 C Advected species dimension

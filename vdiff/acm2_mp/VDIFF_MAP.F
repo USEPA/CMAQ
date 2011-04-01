@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/VDIFF_MAP.F,v 1.2 2010/12/06 13:39:29 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/VDIFF_MAP.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,6 +35,7 @@ C Module depends on prior call to DEPV_INIT to get N_SPC_DEPV
 C Revision History:
 C   10 Apr 2008 J.Young: initial implementation using subroutine vdiff_map.F
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -63,12 +64,11 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS   ! CGRID mechanism species
          USE AERO_EMIS    ! aerosol emissions defns and fncts   maybe inherits CGRID_SPCS
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
 C Includes:
-         INCLUDE SUBST_IOPARMS
-         INCLUDE SUBST_IODECL    ! I/O definitions and declarations ! debug
          INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
 
 C Arguments:
@@ -78,7 +78,7 @@ C Arguments:
 C global emis species
          INTEGER N_SPC_EMIS
 
-C External Functions not previously declared in IODECL3.EXT:
+C External Functions:
          INTEGER, EXTERNAL :: FINDEX
 
 C Local variables:

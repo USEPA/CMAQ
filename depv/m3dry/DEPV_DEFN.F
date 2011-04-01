@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.2 2010/12/06 13:33:30 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.3 2011/04/01 15:41:34 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,6 +36,7 @@ C   29 Jan 2010 D. Wong: Eliminate potential race condition at the MYPE = 0
 C                        to open the diagnostic file. Eliminate the BARRIER
 C                        and the CLOSE3 and OPEN3.
 C   21 Jun 2010 J.Young: convert for Namelist redesign
+C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -134,6 +135,7 @@ C-----------------------------------------------------------------------
          USE HGRD_DEFN
          USE CGRID_SPCS          ! CGRID mechanism species
          USE DEPVVARS
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
@@ -142,8 +144,6 @@ C Includes:
 
          INCLUDE SUBST_CONST     ! constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include         SUBST_IODECL    # I/O definitions and declarations
 
 C Arguments:
          INTEGER JDATE, JTIME, TSTEP( 2 )
@@ -151,7 +151,6 @@ C Arguments:
          LOGICAL SUCCESS
 
 C External Functions:
-         INTEGER, EXTERNAL :: INDEX1               ! finds index of a string in a list
          INTEGER, EXTERNAL :: FINDEX               ! finds index of a number in a list
 
 C Parameters:
@@ -189,7 +188,6 @@ C environment variable for HONO interaction with surfaces
 C variables for deposition velocities diagnostic file
          INTEGER           :: STATUS      ! ENV... status
          CHARACTER( 80 )   :: VARDESC     ! environment variable description
-         LOGICAL, EXTERNAL :: ENVYN       ! get environment variable as boolean
 
 C environment variable for diagnostic DEPV file
          CHARACTER( 16 )   :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
@@ -737,6 +735,7 @@ C-----------------------------------------------------------------------
          USE HGRD_DEFN
          USE CGRID_SPCS          ! CGRID mechanism species
          USE DEPVVARS
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
@@ -749,17 +748,12 @@ C Arguments:
 
          INCLUDE SUBST_CONST     ! constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include         SUBST_IODECL    # I/O definitions and declarations
 
 C Parameters:
          REAL, PARAMETER :: RGAS1 = 1.0 / RGASUNIV ! univ. gas constant reciprocal
          REAL, PARAMETER :: H_VAP = 156.0E+03      ! enthalpy of vaporization (J/mol)
          REAL, PARAMETER :: TREF = 298.0           ! Reference temperature for Cstar
          REAL, PARAMETER :: TREF1 = 1.0 / TREF     ! Reciprocal ref temperature
-
-C External functions:
-         INTEGER, EXTERNAL  :: TIME2SEC
 
 C Local variables:
          REAL, SAVE    :: MW_POA  = 220.0      ! MW of primary organic AE

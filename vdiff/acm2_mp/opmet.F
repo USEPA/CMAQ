@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/opmet.F,v 1.1 2010/07/20 11:50:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/opmet.F,v 1.2 2011/04/01 15:42:00 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,20 +26,17 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPMET ( JDATE, JTIME, CONVPA )
 
+      USE UTILIO_DEFN
+
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
       INTEGER      JDATE      ! current model date, coded YYYYDDD
       INTEGER      JTIME      ! current model time, coded HHMMSS
       REAL         CONVPA     ! conversion factor to pressure in Pascals
 
-C External Functions not previously declared in IODECL3.EXT:
-
-      INTEGER, EXTERNAL :: INDEX1
+C External Functions: None
 
 C Local variables:
 

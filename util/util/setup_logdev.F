@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.2 2011/02/23 20:57:16 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.3 2011/04/01 15:41:57 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -37,9 +37,12 @@ C      -- removed MPI_INIT call since the same function has been called in
 C         subroutine PAR_INIT
 C   11 Jun 02 J.Young - minor mods
 C   23 Feb 11 J.Young - SETENVVAR is a function, not a subroutine
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
-#include      SUBST_IODECL      # I/O definitions and declarations
 
 #ifdef parallel      
       INCLUDE SUBST_MPI
@@ -51,8 +54,6 @@ C   23 Feb 11 J.Young - SETENVVAR is a function, not a subroutine
       CHARACTER( 96 ) :: IOLOGEQ
       CHARACTER( 16 ) :: APPL = 'CTM_APPL'
 
-      INTEGER, EXTERNAL :: TRIMLEN
-      LOGICAL, EXTERNAL :: SETENVVAR
       INTEGER :: ERROR, MYPE
       INTEGER :: LOGDEV
 
@@ -66,7 +67,7 @@ C   23 Feb 11 J.Young - SETENVVAR is a function, not a subroutine
          CALL NAMEVAL ( APPL, EQNAME )
          WRITE ( CMYPE, '(I3.3)' ) MYPE
          IF ( APPL .NE. EQNAME(1:16 ) ) THEN
-            IOLOGEQ = PRESTR // CMYPE // '.' // EQNAME( 1:TRIMLEN( EQNAME ) )
+            IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
          ELSE
             IOLOGEQ = PRESTR // CMYPE
          END IF

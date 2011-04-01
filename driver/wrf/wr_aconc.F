@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_aconc.F,v 1.2 2010/12/06 12:50:51 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_aconc.F,v 1.3 2011/04/01 15:41:37 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,10 +33,13 @@ C         species/layers to save (or domain).
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE AVG_CONC              ! integral average CONC
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
@@ -45,9 +48,6 @@ C-----------------------------------------------------------------------
 
 C Include Files:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-#include      SUBST_IODECL      # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
       REAL      :: AGRID( :,:,:,: )
@@ -62,8 +62,6 @@ C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'WR_ACONC'
       CHARACTER( 96 ) :: XMSG = ' '
-
-      INTEGER, EXTERNAL :: TRIMLEN  ! string length, excl. trailing blanks
 
       INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -104,7 +102,7 @@ C Try to open existing file for update
          CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
          IF ( .NOT. OK ) THEN
 
-            XMSG = 'Could not open ' // A_CONC_1( 1:TRIMLEN( A_CONC_1 ) )
+            XMSG = 'Could not open ' // TRIM( A_CONC_1 )
      &           // ' file for update - try to open new'
             CALL M3MESG( XMSG )
 
@@ -114,7 +112,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
 
                IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
                   XMSG = 'Could not get '
-     &                 // CTM_CONC_1( 1:TRIMLEN( CTM_CONC_1 ) )
+     &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -158,7 +156,7 @@ C Set file header attributes that differ from CONC and open the file
                WRITE( LOGDEV,* ) '      Avg Conc File Header Description:'
                DO K = 1, KD + L
                   WRITE( LOGDEV,* ) '    => ',
-     &            FDESC3D( K )( 1:TRIMLEN( FDESC3D( K ) ) )
+     &            TRIM( FDESC3D( K ) )
                END DO
 
                VAR = 0
@@ -208,7 +206,7 @@ C Set file header attributes that differ from CONC and open the file
 
                IF ( .NOT. OPEN3( A_CONC_1, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not open '
-     &                 // A_CONC_1( 1:TRIMLEN( A_CONC_1 ) ) // ' file'
+     &                 // TRIM( A_CONC_1 ) // ' file'
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
 
@@ -220,7 +218,7 @@ C File exists. Make sure it matches requested output.
 
             IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
                XMSG = 'Could not get '
-     &              // CTM_CONC_1( 1:TRIMLEN( CTM_CONC_1 ) )
+     &              // TRIM( CTM_CONC_1 )
      &              // ' file description'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -244,7 +242,7 @@ C File exists. Make sure it matches requested output.
 
             IF ( .NOT. DESC3( A_CONC_1 ) ) THEN
                XMSG = 'Could not get '
-     &              // A_CONC_1( 1:TRIMLEN( A_CONC_1 ) )
+     &              // TRIM( A_CONC_1 )
      &              // ' file description'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -323,7 +321,7 @@ C Check other header data with CONC file as reference
          IF ( .NOT. WRITE3( A_CONC_1, A_GC_SPC( SPC ),
      &      MDATE, MTIME, AGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
-     &           // A_GC_SPC( SPC )( 1:TRIMLEN( A_GC_SPC( SPC ) ) )
+     &           // TRIM( A_GC_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -335,7 +333,7 @@ C Check other header data with CONC file as reference
          IF ( .NOT. WRITE3( A_CONC_1, A_AE_SPC( SPC ),
      &      MDATE, MTIME, AGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
-     &           // A_AE_SPC( SPC )( 1:TRIMLEN( A_AE_SPC( SPC ) ) )
+     &           // TRIM( A_AE_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -347,7 +345,7 @@ C Check other header data with CONC file as reference
          IF ( .NOT. WRITE3( A_CONC_1, A_NR_SPC( SPC ),
      &      MDATE, MTIME, AGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
-     &           // A_NR_SPC( SPC )( 1:TRIMLEN( A_NR_SPC( SPC ) ) )
+     &           // TRIM( A_NR_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -359,7 +357,7 @@ C Check other header data with CONC file as reference
          IF ( .NOT. WRITE3( A_CONC_1, A_TR_SPC( SPC ),
      &      MDATE, MTIME, AGRID( :,:,:,VAR ) ) ) THEN
             XMSG = 'Could not write '
-     &           // A_TR_SPC( SPC )( 1:TRIMLEN( A_TR_SPC( SPC ) ) )
+     &           // TRIM( A_TR_SPC( SPC ) )
      &           // ' to ' // A_CONC_1
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF

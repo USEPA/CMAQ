@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.2 2011/04/01 15:41:42 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -54,20 +54,20 @@ C                    29 Jul 05     WTH: Added IF blocks that call degrade
 C                                       routines if MECHNAME contains 'TX' 
 C                                       substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files
+C                               with UTILIO_DEFN
 C**********************************************************************
 
       USE SUBST_MODULES
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RBDATA                ! ROS3 solver data
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
 C..INCLUDES:
 
-      INCLUDE SUBST_IOPARMS     ! I/O API parameters
-#include      SUBST_IODECL      ! I/O API declarations
-      INCLUDE SUBST_IOFDESC     ! I/O API file descriptions
       INCLUDE SUBST_FILES_ID    ! CMAQ files
       INCLUDE SUBST_CONST       ! CMAQ constants
       INCLUDE SUBST_RXCMMN      ! Mechanism reaction common block
@@ -90,9 +90,6 @@ C..PARAMETERS:
       REAL, PARAMETER    :: PA2ATM  = 1.0 / STDATMPA ! Pascal to atm conv fac
 
 C..EXTERNAL FUNCTIONS:
-
-      INTEGER, EXTERNAL :: SEC2TIME                 ! Returns time interval from seconds
-      INTEGER, EXTERNAL :: TIME2SEC                 ! Returns seconds in time interval
 
 C..SAVED LOCAL VARIABLES:
 
@@ -208,6 +205,7 @@ C for INTERPX
             USE GRID_CONF
             USE RBDATA
             USE CGRID_SPCS
+            USE UTILIO_DEFN
             IMPLICIT NONE
             INTEGER, INTENT( IN )   :: LOGDEV, JDATE, JTIME
             REAL,    INTENT( IN )   :: CHEMSTEP

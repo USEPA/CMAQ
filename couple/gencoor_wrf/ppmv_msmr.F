@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/Attic/ppmv_msmr.F,v 1.1 2010/07/20 12:36:52 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/Attic/ppmv_msmr.F,v 1.2 2011/04/01 15:41:34 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -93,9 +93,12 @@ C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX
 C   20 Aug 03 J.Young: add aero surf area conversions (M2PM3 <-> M2PM)
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                      removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -104,9 +107,6 @@ C Includes:
 !     INCLUDE SUBST_HGRD_ID     ! horizontal dimensioning parameters
 !     INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:

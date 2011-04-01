@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.3 2011/03/01 17:45:54 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.4 2011/04/01 15:41:55 sjr Exp $ 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_init.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_init.F 07 Jul 1997 10:20:52
 
@@ -79,10 +79,12 @@ C   16 Jan 06 J.Young: move PAGRD_INIT to par_init
 C    1 Apr 09 J.Young: remove cruft
 C    8 Jul 10 J.Young: restructure
 C   23 Jul 10 D.Wong:  move first OPEN3 try inside IF ( MYPE .EQ. 0 ) clause
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C**********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE PAGRD_DEFN            ! PA horiz domain specs
+      USE UTILIO_DEFN
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
 !     USE SUBST_DATA_COPY_MODULE   ! stenex
@@ -90,9 +92,6 @@ C**********************************************************************
       IMPLICIT NONE 
 
 C..INCLUDES:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
       INCLUDE SUBST_PACTL_ID    ! PA control parameters

@@ -7,6 +7,7 @@ C Function: biogenics emissions interface to the chemistry-transport model
 
 C Revision History:
 C     18 Aug 2007 J.Young: initial implementation
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -26,18 +27,14 @@ C=======================================================================
          USE HGRD_DEFN
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BIOG_EMIS           ! from beis
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include         SUBST_IODECL    # I/O definitions and declarations
          INCLUDE SUBST_CONST     ! constants
 
          INTEGER JDATE, JTIME, TSTEP
          LOGICAL SUCCESS
-
-         INTEGER, EXTERNAL :: TIME2SEC, INDEX1
-         LOGICAL, EXTERNAL :: ENVYN
 
          REAL, PARAMETER :: CMLMR = 1.0E+06       ! ppmV/Molar Mixing Ratio
 

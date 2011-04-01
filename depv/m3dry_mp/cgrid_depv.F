@@ -1,5 +1,5 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/cgrid_depv.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/cgrid_depv.F,v 1.2 2011/04/01 15:41:35 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -14,14 +14,12 @@ C use for bi-directional flux calculations in m3dry
 C Revision History:
 C   Jeff Young 11 Jan 07: created
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN             ! horizontal domain specifications
-
-C Includes:
-
-#include      SUBST_IODECL      ! I/O definitions and declarations
+      USE UTILIO_DEFN
 
 C Arguments:
 

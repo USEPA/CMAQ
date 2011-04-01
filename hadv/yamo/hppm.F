@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hppm.F,v 1.1 2010/07/20 11:33:28 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hppm.F,v 1.2 2011/04/01 15:41:47 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -131,10 +131,12 @@ C   11 May 09 J.Young: Simplify - remove STEEPEN option (never used); assume con
 C                      cell widths, DS( i )
 C   11 May 10 D.Wong: Change local dynamic arrays: make allocatable to enable proper
 C                     PGI compiliation; fix a max first dimension
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C----------------------------------------------------------------------
       
       USE HGRD_DEFN
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_UTIL_MODULE          ! stenex
@@ -143,9 +145,6 @@ C----------------------------------------------------------------------
 
 C Includes:
       
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
-
 #ifdef parallel
       INTEGER, PARAMETER :: SWP = 3
       INTEGER, PARAMETER :: X1 = 1

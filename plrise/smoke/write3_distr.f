@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/write3_distr.f,v 1.1 2010/07/20 11:30:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/write3_distr.f,v 1.2 2011/04/01 15:41:54 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -17,7 +17,10 @@ C Note: This function must live in a file that has a ".f" extension!
 
 C Revision History:
 C     5 Dec 2007 J.Young: initial implementation
+C    16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -28,7 +31,6 @@ C-----------------------------------------------------------------------
       REAL,           INTENT( IN ) :: DATA( DIM1,DIM2 )
       LOGICAL SUCCESS
 
-      LOGICAL, EXTERNAL :: WRITE3
       INTEGER, EXTERNAL :: SETUP_LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.

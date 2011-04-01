@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.1 2010/07/20 12:31:21 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.2 2011/04/01 15:41:53 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
@@ -58,10 +58,13 @@ C                       domain specifications in one module
 C    01 Dec 08 S.Roselle: dynamic allocation of arrays in jvalue input file:
 C                         allows for northern and southern hemisphere CMAQ
 C                         applications (issue reported by Erick Sperandio)
+C    23 Feb 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C
 C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
+
       USE SUBST_MODULES
 !     USE SUBST_UTIL_MODULE
 
@@ -69,9 +72,6 @@ C----------------------------------------------------------------------
 
 C include files:
 
-      INCLUDE SUBST_IOPARMS    ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC    ! file header data structuer
-      INCLUDE SUBST_IODECL     ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID   ! file name parameters
       INCLUDE SUBST_CONST      ! physical constants
       INCLUDE SUBST_RXCMMN     ! chemical mechamism reactions COMMON
@@ -93,12 +93,7 @@ C local parameters:
 
       REAL, PARAMETER :: MAOMW   = MWAIR / MWWAT ! m.w. of air over m.w. of H2O
 
-C external functions:
-
-      INTEGER      JUNIT              ! used to get next IO unit #
-      INTEGER      SECSDIFF           !
-      INTEGER      INDEX1
-      EXTERNAL     INDEX1
+C external functions: none
 
 C saved local variables:
 
@@ -134,7 +129,6 @@ C scratch local variables:
       CHARACTER( 16 ) :: VARNM
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
       CHARACTER( 16 ) :: PNAME = 'PHOT'
-      CHARACTER( 255 ) :: EQNAME
       CHARACTER( 120 ) :: XMSG = ' '
 
       INTEGER      JVUNIT
@@ -216,13 +210,12 @@ C----------------------------------------------------------------------
         STRTHR = FLOAT ( JTIME / 10000 )
         JDSTRT = FLOAT ( MOD ( JDATE, 1000 ) )
 
-        CALL NAMEVAL ( J2FILE, EQNAME )
-        JVUNIT = JUNIT( )
+        JVUNIT = GETEFILE( J2FILE, .TRUE., .TRUE., PNAME )
 
-        OPEN ( UNIT = JVUNIT, FILE = EQNAME, IOSTAT = IOST )
-        XMSG = 'Error opening JVALUE file'
-        IF ( IOST .NE. 0 )
-     &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        IF ( JVUNIT .LT. 0 ) THEN
+          XMSG = 'Error opening JVALUE file'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 
 C...read julian start date from the file..............................
 

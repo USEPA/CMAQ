@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_EMIS.F,v 1.1 2010/07/20 12:49:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_EMIS.F,v 1.2 2011/04/01 15:41:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -14,6 +14,7 @@ C           3d point source emissions
 
 C Revision History:
 C     16 Jan 2007 J.Young: initial implementation
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -52,18 +53,13 @@ c     END TYPE CARRY1
 
          FUNCTION STK_EMIS_INIT ( STKENAME, JDATE, JTIME ) RESULT ( SUCCESS )
 
-         IMPLICIT NONE
+         USE UTILIO_DEFN
 
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!include         SUBST_IODECL    # I/O definitions and declarations
-         INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-         INCLUDE SUBST_IOFDESC   ! file header data structure
+         IMPLICIT NONE
 
          CHARACTER( 16 ), INTENT( IN ) :: STKENAME( : )  ! stack groups emis file names
          INTEGER, INTENT( IN )         :: JDATE, JTIME
          LOGICAL SUCCESS
-
-         INTEGER, EXTERNAL :: SECSDIFF
 
          INTEGER I, J, N, NGRPS, LEN1, LEN2, V
 

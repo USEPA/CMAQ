@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.3 2011/03/15 18:53:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.4 2011/04/01 15:41:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -52,12 +52,13 @@ C-----------------------------------------------------------------------
          USE AERO_DATA             ! defines aerosol species             
          USE UDTYPES, ONLY: CARRY1 ! implementation for multiple
                                    ! groups of stack input files
+         USE UTILIO_DEFN
          IMPLICIT NONE
 
          INTEGER, INTENT( IN )  :: NPTGRPS
          LOGICAL SUCCESS
 
-         INTEGER, EXTERNAL :: INDEX1, SETUP_LOGDEV
+         INTEGER, EXTERNAL :: SETUP_LOGDEV
 
          TYPE :: STRNDX
             CHARACTER( 16 ) :: STR

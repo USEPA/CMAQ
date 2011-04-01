@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.1 2010/07/20 11:48:34 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.2 2011/04/01 15:41:49 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -68,9 +68,11 @@ C    6 Aug 01 J.Young: Use HGRD_DEFN; replace INTERP3 with INTERPX;
 C                      allocatable arrays
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
+C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_GLOBAL_MAX_MODULE    ! stenex
 !     USE SUBST_COMM_MODULE     ! stenex
@@ -81,9 +83,6 @@ C-----------------------------------------------------------------------
 C Includes:
       
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
 

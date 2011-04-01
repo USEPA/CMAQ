@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.2 2010/12/06 12:55:13 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.3 2011/04/01 15:41:51 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)initscen.F        1.4 /project/mod3/CMAQ/src/init/init/SCCS/s.initscen.F 25 Jul 1997 14:32:52
@@ -64,10 +64,13 @@ C   17 Mar 03 D.Wong: move barrier to avoid race conditions
 C   28 Aug 03 J.Young: following Zion Wang at CERT, only pe 0 closes
 C   30 May 05 J.Young: add call to load RHOJ into CGRID
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
@@ -76,8 +79,6 @@ C-----------------------------------------------------------------------
 
 C Includes:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -94,15 +95,6 @@ C Arguments:
 C Parameters:
 
       REAL, PARAMETER :: CMIN = 1.0E-30
-
-C External Functions (not already declared by IODECL3.EXT):
-
-      INTEGER, EXTERNAL :: ENVINT       !  get environment variable as integer
-      INTEGER      STATUS               !  ENVINT status
-      INTEGER, EXTERNAL :: TIME2SEC     !  converts HHMMSS to raw seconds
-      INTEGER, EXTERNAL :: TRIMLEN      !  string length, excl. trailing blanks
-
-      CHARACTER( 10 ), EXTERNAL :: HHMMSS  !  converts to string "HH:MM:SS"
 
 C Local Variables
 
@@ -128,6 +120,7 @@ C  environment variable description
       INTEGER      STEPSECS          ! seconds per time step
       INTEGER      TOTSECS           ! run duration seconds
       INTEGER      LOGDEV            ! FORTRAN unit number for log file
+      INTEGER      STATUS            !  ENVINT status
 
       INTERFACE
          SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
@@ -163,7 +156,7 @@ C-----------------------------------------------------------------------
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
          END IF
 
-!     WRITE( LOGDEV, '( 5X, A )') 'Program ' // PROGNAME( 1:TRIMLEN( PROGNAME ))
+!     WRITE( LOGDEV, '( 5X, A )') 'Program ' // TRIM( PROGNAME )
 !     WRITE( LOGDEV, '( 5X, A )') 'Input Values:'
 
       STDATE = 1995192        ! default

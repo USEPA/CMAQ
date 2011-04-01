@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.4 2011/03/22 13:04:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.5 2011/04/01 15:41:27 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
@@ -127,23 +127,21 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
+      Use utilio_defn
 
       Implicit None
 
-C Arguments:
-      Real, Intent( In ) :: conc( : )
-
-C Includes::
-      Include SUBST_IOPARMS   ! I/O parameters definitions
+C Includes:
       INCLUDE SUBST_RXCMMN    ! to get mech name
 
-C External Functions:
-      Integer index1
+C Arguments:
+      Real, Intent( In ) :: conc( : )
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -290,17 +288,16 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       Use aeromet_data    ! air and met variables
+      Use utilio_defn
 
       Implicit None
 
 C Arguments:
       Real, Intent( Out ) :: conc( : )
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -338,16 +335,17 @@ C  Finds the index of 'required' semivolatile species in the vaporspc list
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      Use utilio_defn
 
       Implicit None
 
 C Arguments:
       Character( * ) :: vname
       Integer ndx
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -374,16 +372,17 @@ C  Finds the index of 'required' organic product species in the orgprod list
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      Use UTILIO_DEFN        ! i/o api
 
       Implicit None
 
 C Arguments:
       Character( * ) :: vname
       Integer ndx
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -667,18 +666,17 @@ C Revision History:
 C    First orgaer version was coded in April 2010 by Steve Howard with
 C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
-C  SH  03/10/11 Renamed met_data to aeromet_data
+C SH  03/10/11 Renamed met_data to aeromet_data
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt
 
       Use aero_data
       Use aeromet_data
+      Use utilio_defn
 
       Implicit None
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Arguments:
       Real    :: dt            ! Synchronization time step [ s ]

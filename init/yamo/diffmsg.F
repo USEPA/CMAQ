@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/diffmsg.F,v 1.1 2010/07/19 18:09:42 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/diffmsg.F,v 1.2 2011/04/01 15:41:50 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,14 +33,16 @@ C Preconditions: None
 C Key Subroutines/ unctions Called:
  
 C Revision History: Prototype created by Jerry Gipson, September, 1997
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
  
 C----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
+
       IMPLICIT NONE 
 
-C..INCLUDES:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
+C..INCLUDES: None
      
 C..ARGUMENTS:
       CHARACTER*(*) VNAME        ! Variable NameName
@@ -50,12 +52,9 @@ C..ARGUMENTS:
       INTEGER  INT1         ! Value of integer variable 1
       INTEGER  INT2         ! Value of integer variable 2
 
-
 C..PARAMETERS: None
 
-C..EXTERNAL FUNCTIONS:
-      INTEGER LBLANK         ! Function for trimming leading blanks 
-      INTEGER TRIMLEN        ! Function for trimming trailing blanks
+C..EXTERNAL FUNCTIONS: None
 
 C..SAVED LOCAL VARIABLES: None
       
@@ -72,15 +71,15 @@ C----------------------------------------------------------------------
 
          ENTRY INTDIFF ( VNAME, INT1, INT2 )
          SV = LBLANK( VNAME ) + 1
-         EV = TRIMLEN( VNAME ) 
+         EV = LEN_TRIM( VNAME ) 
          WRITE( CHR1, 94020 ) INT1
          S1 = LBLANK( CHR1 ) + 1
-         E1 = TRIMLEN( CHR1 )
+         E1 = LEN_TRIM( CHR1 )
          WRITE( CHR2, 94020 ) INT2
          S2 = LBLANK( CHR2 ) + 1
-         E2 = TRIMLEN( CHR2 )
+         E2 = LEN_TRIM( CHR2 )
          SV = LBLANK( VNAME ) + 1
-         EV = TRIMLEN( VNAME ) 
+         EV = LEN_TRIM( VNAME ) 
          MSG = '    Inconsistent values for '// VNAME( SV:EV) //': '
      &         // CHR1( S1:E1 ) // ' versus ' // CHR2( S2:E2 )
          CALL M3MESG( MSG )
@@ -88,13 +87,13 @@ C----------------------------------------------------------------------
 
          ENTRY CHRDIFF ( VNAME, STR1, STR2 )
          SV = LBLANK( VNAME ) + 1
-         EV = TRIMLEN( VNAME ) 
+         EV = LEN_TRIM( VNAME ) 
          S1 = LBLANK( STR1 ) + 1
-         E1 = TRIMLEN( STR1 )
+         E1 = LEN_TRIM( STR1 )
          S2 = LBLANK( STR2 ) + 1
-         E2 = TRIMLEN( STR2 )
+         E2 = LEN_TRIM( STR2 )
          SV = LBLANK( VNAME ) + 1
-         EV = TRIMLEN( VNAME ) 
+         EV = LEN_TRIM( VNAME ) 
          MSG = '    Inconsistent values for '// VNAME( SV:EV) //': '
      &         // STR1( S1:E1 ) // ' versus ' // STR2( S2:E2 )
          CALL M3MESG( MSG )

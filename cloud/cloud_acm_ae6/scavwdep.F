@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/scavwdep.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/scavwdep.F,v 1.3 2011/04/01 15:41:33 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,6 +38,8 @@ C       1 07/27/99 sjr  added scavenging coefficient scaling factors
 C       3 Dec 00   Jeff move CGRID_MAP into f90 module
 C       4 Dec 02   sjr  revised calls to HLCONST
 C       5 Jun 10   J.Young: convert for Namelist redesign
+C       6 Mar 11   S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                       removed deprecated TRIMLEN
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -68,12 +70,12 @@ C    ALFA3      real    output  scav coef for aitken aerosol mass
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS                    ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C...........Includes:
 
-      INCLUDE SUBST_IOPARMS             ! I/O parameters definitions
       INCLUDE SUBST_CONST               ! constants
 
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
@@ -148,9 +150,8 @@ C...........Local Variables:
 
 C...........External Functions:
 
-      INTEGER       INDEXN
-      REAL          HLCONST
-      EXTERNAL      INDEXN, HLCONST
+      INTEGER, EXTERNAL :: INDEXN
+      REAL,    EXTERNAL :: HLCONST
 
 C-----------------------------------------------------------------------
 

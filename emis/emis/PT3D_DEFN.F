@@ -7,6 +7,7 @@ C Function: 3d point source emissions interface to the chemistry-transport model
 
 C Revision History:
 C     21 Nov 2007 J.Young: initial implementation
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -110,14 +111,11 @@ C use N_SPC_EMIS+1 for non-accessed emissions
          USE PTMET     ! defines met variables used in plume rise
          USE PTBILIN   ! defines bi-linear interpolation from grid to pt src locations
          USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
 C Includes:
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-         INCLUDE SUBST_IOFDESC   ! file header data structure
-!include         SUBST_IODECL    # I/O definitions and declarations
-         INCLUDE SUBST_IODECL    ! I/O definitions and declarations
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
 C Arguments:
@@ -130,9 +128,6 @@ C Arguments:
 
 C External Functions:
          INTEGER,         EXTERNAL :: SETUP_LOGDEV
-         INTEGER,         EXTERNAL :: INDEX1, ENVINT, PROMPTFFILE
-         LOGICAL,         EXTERNAL :: ENVYN
-         CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
 
 C Parameters:
 
@@ -609,15 +604,13 @@ C Time step part of laypoint
          USE STK_EMIS  ! hourly point source emissions
          USE PTMET, P_D => PTMET_DATA
          USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
+         USE UTILIO_DEFN
          USE SUBST_MODULES         ! stenex
 !        USE SUBST_UTIL_MODULE     ! stenex
 
          IMPLICIT NONE
 
 C Includes:
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!        INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-#include         SUBST_IODECL    # I/O definitions and declarations
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
 
@@ -633,9 +626,8 @@ C Parameters:
                                  ! assumes heat flux from file pt src file is in BTU/hr
 
 C External functions:
-         INTEGER,         EXTERNAL :: SETUP_LOGDEV, TIME2SEC, SEC2TIME, SECSDIFF
-         CHARACTER( 10 ), EXTERNAL :: HHMMSS
-         LOGICAL,         EXTERNAL :: CURRSTEP, WRITE3_DISTR   ! calls WRITE3 directly
+         INTEGER,         EXTERNAL :: SETUP_LOGDEV
+         LOGICAL,         EXTERNAL :: WRITE3_DISTR   ! calls WRITE3 directly
 
 C Local variables:
          INTEGER          CDATE      ! previous step start date
@@ -1182,11 +1174,9 @@ C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
 
          SUBROUTINE RETRIEVE_IOAPI_HEADER( FNAME, JDATE, JTIME )
 
-            IMPLICIT NONE
+            USE UTILIO_DEFN
 
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-            INCLUDE SUBST_IOFDESC   ! file header data structure
+            IMPLICIT NONE
 
             CHARACTER( * ) :: FNAME
             INTEGER        :: JDATE, JTIME
@@ -1210,11 +1200,10 @@ C-----------------------------------------------------------------------
 
             USE VGRD_DEFN             ! vertical layer specifications
             USE PTBILIN, ONLY: XBND, YBND
+            USE UTILIO_DEFN
 
             IMPLICIT NONE
 
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
             CHARACTER( * ) :: VNAME     ! variable name

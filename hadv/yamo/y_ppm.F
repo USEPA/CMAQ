@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/y_ppm.F,v 1.1 2010/07/20 11:33:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/y_ppm.F,v 1.2 2011/04/01 15:41:48 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -44,10 +44,12 @@ C   ghost values.
 C   11 May 2009: Jeff Young: Simplify - assume constant cell widths, DS( i )
 C   11 May 2010: Jeff Young: New hppm fix for PGI compiler by David Wong
 C   21 Jun 2010: Jeff Young: convert for Namelist redesign
+C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_COMM_MODULE     ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
@@ -61,8 +63,6 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
 
 C Arguments:
@@ -75,9 +75,8 @@ C Arguments:
 !     REAL,    INTENT( IN ) :: BCON( NBNDY,1: ) ! boundary concentrations
       REAL,    INTENT( IN ) :: BCON( :,: )      ! boundary concentrations
 
-C External Functions not declared in IODECL3.EXT:
+C External Functions:
 
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC
       REAL,    EXTERNAL :: ZFDBC
 
 C Parameters:

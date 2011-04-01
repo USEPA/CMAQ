@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_icl/CGRID_SPCS.F,v 1.1 2010/07/20 13:37:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_icl/CGRID_SPCS.F,v 1.2 2011/04/01 15:41:56 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -26,6 +26,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 c CGRID gas chem, aerosol, non-reactive, and tracer species definitions
 c based on Fortran include file specifications
 c Revision History: Jeff Young 31 Aug 09: created
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 c-----------------------------------------------------------------------
 
       implicit none
@@ -91,16 +92,19 @@ c-----------------------------------------------------------------------
 c init routine to set the CGRID species locations
 
          function cgrid_spcs_init() result ( success )
+            use UTILIO_DEFN
             implicit none
-
-D           include SUBST_IODECL      ! I/O definitions and declarations
-D           integer, save :: logdev
+#ifdef Verbose
+            integer, save :: logdev
+#endif
 
             logical success
             logical, save :: firstime = .true.
 
 c----------------------------------------------------------------------------------------
-D           logdev = init3 ()
+#ifdef Verbose
+            logdev = init3 ()
+#endif
             success = .true.
 
 c intialize module public data

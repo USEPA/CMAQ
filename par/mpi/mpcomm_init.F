@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/par/mpi/mpcomm_init.F,v 1.1 2010/07/19 17:24:57 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/par/mpi/mpcomm_init.F,v 1.2 2011/04/01 15:41:51 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE MPCOMM_INIT( NPROCS, MYPE, CLOCK, IERR )
@@ -28,6 +28,8 @@ C Purpose:   Initialization for parallel execution of CMAQ
  
 C Revision History: 
 C      Original version  5/09 Jeff Young - modified from par_init
+C      Modified 02/23/2011 by Shawn Roselle
+C          -- Replaced I/O API include files with UTILIO_DEFN
  
 C Argument List Description:
 C  In:
@@ -46,12 +48,13 @@ C Calls: M3WARN, MPI_INIT, MPI_COMM_RANK, MPI_COMM_SIZE, MPI_WTIME
  
 C........................................................................
 
+      USE UTILIO_DEFN
+
       IMPLICIT  NONE
 
 C Include Files
 
       INCLUDE SUBST_MPI         ! MPI definitions and parameters
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
 
 C Arguments
 

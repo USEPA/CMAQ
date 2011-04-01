@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.4 2011/03/15 19:11:55 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.5 2011/04/01 15:41:27 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
@@ -69,10 +69,12 @@ C     standardized names of all coarse-mode variables
 C 19 Apr 10 S.Howard: aero re-engineering for modularity
 C 23 Apr 10 J.Young: replace chem mechanism include files with namelists
 C 10 Mar 11 S.Howard: Renamed met_data to aeromet_data
+C 25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
@@ -83,9 +85,6 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE SUBST_RXCMMN    ! to get mech name
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments
@@ -94,9 +93,6 @@ C Arguments
       INTEGER      JTIME        ! current model time , coded HHMMSS
       INTEGER      TSTEP        ! model time step, coded HHMMSS
       REAL :: VDEP_AE( :,:,: )  ! surrogate deposition velocities [ m s**-1 ]
-
-C External Functions not previously declared in IODECL3.EXT:
-      INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC, INDEX1, TRIMLEN
 
 C Parameters
       REAL,    PARAMETER :: T0 = 288.15      ! [ K ] ! starting standard surface temp.

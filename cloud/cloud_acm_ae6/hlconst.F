@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/hlconst.F,v 1.1 2010/07/20 11:56:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/hlconst.F,v 1.2 2011/04/01 15:41:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -56,14 +56,15 @@ C                       O3, NO3, hexane, octane, nonane, methanol and
 C                       isoprene reference
 C  S.Roselle  10/10/07  changed pointers to parameters; reformatted
 C                       variable declarations
+C  S.Roselle  03/01/11  replaced I/O API include files with UTILIO_DEFN;
+C                       removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C...........INCLUDES and their descriptions
-
-      INCLUDE SUBST_IODECL              ! I/O definitions and declarations
-      INCLUDE SUBST_IOPARMS             ! I/O parameters definitions
 
 C...........PARAMETERS and their descriptions:
 
@@ -271,9 +272,6 @@ C...  Atmospheric Chemistry and Physics, 1997
 
 C...........EXTERNAL FUNCTIONS and their descriptions:
 
-      INTEGER, EXTERNAL :: INDEX1   ! array position for string matching
-      INTEGER, EXTERNAL :: TRIMLEN  ! string length, excl. trailing blanks
-
 C-----------------------------------------------------------------------
 C  begin body of subroutine HLCONST
 
@@ -282,7 +280,7 @@ C  begin body of subroutine HLCONST
 C...error if species not found in table
 
       IF ( SPC .LE. 0 ) THEN
-        XMSG = CNAME( 1:TRIMLEN( CNAME ) ) // ' not found in Henry''s '//
+        XMSG = TRIM( CNAME ) // ' not found in Henry''s '//
      &         ' Law Constant table in routine HLCONST.'
         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
@@ -311,7 +309,7 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
         CLMINUS   = 2.0E-03                ! chlorine ion conc [CL-]
         CLMINUSI  = 1.0 / CLMINUS          ! 1 / CLMINUS
 
-        CHECK_NAME: SELECT CASE ( CNAME( 1:TRIMLEN( CNAME ) ) )
+        CHECK_NAME: SELECT CASE ( TRIM( CNAME ) )
 
         CASE ('SO2')            !   SO2H2O <=> HSO3- + H+
                                 ! & HSO3- <=> SO3= + H+

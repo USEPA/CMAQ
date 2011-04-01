@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/opdiam.F,v 1.1 2010/07/20 11:55:06 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/opdiam.F,v 1.2 2011/04/01 15:41:28 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,17 +40,16 @@ C   25 May 06 P.Bhave: Changed units of all DG variables from m to um, as
 C                      suggested by Dr. Bill Hutzell
 C   11 Apr 08 J.Kelly: Added STDEVCOR and variables to account for dry & wet
 C                      DGCOR, M2COR_WET, and M3COR_DRY
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 !     INCLUDE SUBST_HGRD_ID   ! horizontal dimensioning parameters
 !     INCLUDE SUBST_VGRD_ID   ! vertical dimensioning parameters
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 !     INCLUDE SUBST_COORD_ID  ! coordinate and domain definitions (req IOPARMS)
 
 C...Arguments:

@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbinit.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbinit.F,v 1.2 2011/04/01 15:41:42 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,17 +40,18 @@ C                    & vertical domain specifications in one module (GRID_CONF)
 C                    Get BLKSIZE from module GRID_CONF
 C                    29 Jul 05 WTH: allocate variables used by degrade routines.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files
+C                               with UTILIO_DEFN
 C                      
 C***********************************************************************
       USE GRID_CONF                ! horizontal & vertical domain specifications
       USE RBDATA                   ! Rosenbrock solver data
       USE CGRID_SPCS               ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C.....INCLUDES:
-      INCLUDE SUBST_IOPARMS        ! Io/api parameters
-      INCLUDE SUBST_IODECL         ! Io/api declarations
       INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
 
 C.....ARGUMENTS: NONE
@@ -62,7 +63,6 @@ C.....PARAMETERS:
       REAL, PARAMETER              :: DEF_RTOL = 1.0E-03  ! Default RTOL
 
 C.....EXTERNAL FUNCTIONS:
-      REAL ENVREAL                 ! Gets real value of environment variable
 
 C.....SAVED VARIABLES: NONE
  

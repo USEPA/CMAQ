@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.2 2010/12/06 14:07:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.3 2011/04/01 15:41:33 sjr Exp $
 
 C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -57,6 +57,8 @@ C                       calculations (bug reported by Raymond D Wright)
 C      12 12 Aug 10 J.Young: replace CGRID mechanism include files with
 C                    namelists and merge Shawn Roselle's, Sergey Napelenok's
 C                    and Steve Howard's aerosol reengineering
+C      13 01 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                    removed deprecated TRIMLEN
  
 C  Called by:  CLDPROC
  
@@ -65,6 +67,7 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -72,9 +75,6 @@ C...........Includes:
 
       INCLUDE SUBST_CONST                ! constants
       INCLUDE SUBST_FILES_ID             ! file name parameters
-      INCLUDE SUBST_IOPARMS              ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC              ! file header data structuer
-      INCLUDE SUBST_IODECL               ! I/O definitions and declarations
 
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
@@ -169,8 +169,6 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C...........External Functions:
-      LOGICAL, EXTERNAL :: CURRSTEP
-      INTEGER, EXTERNAL :: SEC2TIME, SECSDIFF, TIME2SEC, INDEX1, TRIMLEN
 
       INTERFACE
         SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
@@ -250,7 +248,7 @@ C...  the met timestep in hours
      &           'in the Meteorological Model did not include ice/snow.  If',
      &           'it did, then you need to reprocess the meteorological data',
      &           'through MCIP and pass QI to file ',
-     &           MET_CRO_3D( 1:TRIMLEN( MET_CRO_3D ) ), ' to avoid',
+     &           TRIM( MET_CRO_3D ), ' to avoid',
      &           'errors in the wet deposition.'
           WRITE( LOGDEV, '((/5X,A),/)' )
      &           'Processing will continue with QI set to ZERO.  <<---<<'
@@ -267,7 +265,7 @@ C...  the met timestep in hours
      &           'in the Meteorological Model did not include ice/snow.  If',
      &           'it did, then you need to reprocess the meteorological data',
      &           'through MCIP and pass QS to file ',
-     &           MET_CRO_3D( 1:TRIMLEN( MET_CRO_3D ) ), ' to avoid',
+     &           TRIM( MET_CRO_3D ), ' to avoid',
      &           'errors in the wet deposition.'
           WRITE( LOGDEV, '((/5X,A),/)' )
      &           'Processing will continue with QS set to ZERO.  <<--<<'

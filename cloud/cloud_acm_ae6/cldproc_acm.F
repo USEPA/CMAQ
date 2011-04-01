@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.2 2010/12/06 14:07:18 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.3 2011/04/01 15:41:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -48,19 +48,17 @@ C     May 05  J. Pleim        Replaced RADMcld with RADMacmcld
 C     6/08/05 S.Roselle       added new cloud diagnostic variables
 C     7/21/09 D. Wong         fixed parallel bug in opening WET_DEP_2
 C     Oct 10  J.Young         convert for Namelist redesign
+C     3/01/11 S.Roselle       replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C...........INCLUDES
-
-      INCLUDE SUBST_IOPARMS          ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC          ! file header data structure
-#include      SUBST_IODECL           # I/O definitions and declarations
 
       INCLUDE SUBST_CONST            ! constants
       INCLUDE SUBST_FILES_ID         ! file name parameters
@@ -140,8 +138,6 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C...........EXTERNAL FUNCTIONS
-
-      LOGICAL, EXTERNAL :: ENVYN
 
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/par/mpi/par_term.F,v 1.1 2010/07/19 17:24:57 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/par/mpi/par_term.F,v 1.2 2011/04/01 15:41:52 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -37,6 +37,9 @@ C       Modified 08/24/1998 by AJB to remove from PAR_IO and put in CCTM.
 C       Modified 03/09/2001 by David Wong
 C         -- re-arrange the call sequence of MPI_FINALIZE so SHUT3 can be
 C            called correctly
+C       Modified 02/23/2011 by Shawn Roselle
+C         -- Replaced I/O API include files with UTILIO_DEFN; removed
+C            deprecated TRIMLEN
  
 C  ARGUMENT LIST DESCRIPTION: 
 C  IN:
@@ -53,11 +56,12 @@ C  CALLS:  PIO_TERM, ELAPTIM, M3WARN, MPI_FINALIZE
  
 C .......................................................................
 
+      USE UTILIO_DEFN
+
       IMPLICIT  NONE
 
 C INCLUDE FILES
 
-#include      SUBST_IODECL       # I/O definitions and declarations
       INCLUDE SUBST_MPI          ! MPI definitions and parameters.
 
 C ARGUMENTS:
@@ -81,8 +85,6 @@ C LOCAL VARIABLES:
 
       INTEGER         ELAPTIME
       INTEGER         LOGDEV
-      INTEGER, EXTERNAL :: TRIMLEN ! M3IO lib
-      CHARACTER( 24 ), EXTERNAL :: DT2STR ! Construct HH:MM:SS string - M3IO lib
 
 C .......................................................................
 C     begin function PAR_TERM( CALLER, JDATE, JTIME, BEGTIME )
@@ -118,7 +120,7 @@ C Construct PCALLER string
 
       WRITE ( PE_STR,'( A7 )' ) ' on PE '
       WRITE( CMYPE,'( I3.3 )' ) MYPE
-      STRLEN = MIN ( 16, TRIMLEN( CALLER ) )
+      STRLEN = MIN ( 16, LEN_TRIM( CALLER ) )
       CALL16 = CALLER( 1:STRLEN )
       PCALLER = CALL16( 1:STRLEN ) // PE_STR // CMYPE
       WRITE( LOGDEV,92010 ) PCALLER

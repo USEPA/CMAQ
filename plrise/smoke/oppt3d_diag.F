@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/oppt3d_diag.F,v 1.1 2010/07/20 11:30:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/oppt3d_diag.F,v 1.2 2011/04/01 15:41:54 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -25,17 +25,15 @@ C      4 Sep 2007 J.Young: initial
 C     29 Jan 2010 D. Wong: Eliminate potential race condition at the MYPE = 0
 C                          to open the diagnostic file. Eliminate the BARRIER
 C                          and the CLOSE3 and OPEN3.
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 C Includes:
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!include      SUBST_IODECL    # I/O definitions and declarations
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-      INCLUDE SUBST_IOFDESC   ! file header data structure
 
 C External Functions:
 

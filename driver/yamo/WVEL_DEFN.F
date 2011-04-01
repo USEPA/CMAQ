@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/WVEL_DEFN.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/WVEL_DEFN.F,v 1.2 2011/04/01 15:41:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -39,17 +39,13 @@ C           conc file
          FUNCTION WVEL_INIT () RESULT ( SUCCESS )
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
-
-         INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-         INCLUDE SUBST_IODECL      ! I/O definitions and declarations
+         USE UTILIO_DEFN
 
          LOGICAL SUCCESS
 
          CHARACTER( 16 ) :: PNAME = 'WVEL_INIT'
          CHARACTER( 16 ) :: CTM_WVEL = 'CTM_WVEL'
          CHARACTER( 96 ) :: XMSG = ' '
-
-         LOGICAL, EXTERNAL :: ENVYN
 
          INTEGER ALLOCSTAT, IERR
          INTEGER :: JDATE = 0, JTIME = 0

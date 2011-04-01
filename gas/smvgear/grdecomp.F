@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdecomp.F,v 1.1 2011/03/23 21:13:16 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdecomp.F,v 1.2 2011/04/01 15:41:44 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)grdecomp.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grdecomp.  F 07 Jul 1997 12:45:23
@@ -58,7 +58,7 @@ C***********************************************************************
 
       IMPLICIT NONE
       
-C..INCLUDES:
+C..INCLUDES: None
       
 C..ARGUMENTS: None
 

@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.1 2010/07/20 12:49:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.2 2011/04/01 15:41:38 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -14,6 +14,7 @@ C Function: biogenics emissions interface to the speciation profiles file
 C Revision History:
 C     ?? ??? ???? ?.?????: initial implementation
 C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -60,19 +61,15 @@ C-----------------------------------------------------------------------
       CONTAINS
          FUNCTION BIOG_INIT() RESULT ( SUCCESS )
 
-         IMPLICIT NONE
+         USE UTILIO_DEFN
 
-C Includes:
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-         INCLUDE SUBST_IODECL    ! I/O definitions and declarations ! debug
+         IMPLICIT NONE
 
 C Subroutine arguments:
          LOGICAL SUCCESS
 
 C External Functions:
-         CHARACTER( 2 ), EXTERNAL :: CRLF
-         INTEGER,        EXTERNAL :: PROMPTFFILE, GETFLINE, INDEX1
-         REAL,           EXTERNAL :: STR2REAL
+         INTEGER,        EXTERNAL :: GETFLINE
 
 C Parameters:
 C (A line from the profile file is a record.)

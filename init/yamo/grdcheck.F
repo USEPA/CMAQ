@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/grdcheck.F,v 1.1 2010/07/19 18:09:42 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/grdcheck.F,v 1.2 2011/04/01 15:41:50 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,16 +40,15 @@ C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C    6 Sep 06 J.Young: ensure LNLAYSOK is initialized - Michael Bane's suggestion
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
 C..INCLUDES:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
        
 C..ARGUMENTS:

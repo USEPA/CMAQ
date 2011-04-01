@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/AQ_DATA.F,v 1.2 2011/02/17 14:20:39 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/AQ_DATA.F,v 1.3 2011/04/01 15:41:31 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
@@ -12,6 +12,7 @@ C  Revision History:
 C     First version was coded in May 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C     Feb 2011: Steve Howard, Shawn Roselle, Prakash Bhave, Bill Hutzell -
+C     Mar 2011: Shawn Roselle, replaced I/O API include files with UTILIO_DEFN
 C
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerospc, conmin
@@ -227,14 +228,14 @@ C-----------------------------------------------------------------------
 
       Use cgrid_spcs          ! CGRID mechanism species
       Use aero_data
+      Use utilio_defn
 
       Implicit None
 
 C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Functions:
-      Integer, External :: index1, indexn
+      Integer, External :: indexn
 
 C Local Variables:
       Character( 100 ) :: xmsg
@@ -456,6 +457,8 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
+      Use utilio_defn
+
       Implicit None
 
 C Arguments:
@@ -463,7 +466,6 @@ C Arguments:
       Integer idx
 
 C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -493,6 +495,8 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
+      Use utilio_defn
+
       Implicit None
 
 C Arguments:
@@ -500,7 +504,6 @@ C Arguments:
       Integer idx
 
 C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -541,6 +544,7 @@ C-----------------------------------------------------------------------
 
       Use cgrid_spcs            ! CGRID mechanism species
       Use aero_data
+      Use utilio_defn
 
       Implicit None
 
@@ -548,7 +552,6 @@ C..Includes:
       Include SUBST_CONST               ! constants
 
 C..Functions:
-      Integer :: index1
 
 C..Parameters:
       Real, Parameter :: cmin = 1.0E-25   ! minimum concentration for most species

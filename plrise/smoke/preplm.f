@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/preplm.f,v 1.1 2010/07/20 11:30:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/preplm.f,v 1.2 2011/04/01 15:41:54 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -25,12 +25,13 @@ C    I/O API
 C Revision History:
 C    Copied from preplm.f v 1.2 in DAQM-V2 Emissions Preprocessor by
 C        M. Houyoux 3/99
+C    16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
  
 C-----------------------------------------------------------------------
 C Modified from:
  
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: preplm.f,v 1.1 2010/07/20 11:30:03 yoj Exp $
+C File: @(#)$Id: preplm.f,v 1.2 2011/04/01 15:41:54 sjr Exp $
 C COPYRIGHT (C) 2002, MCNC Environmental Modeling Center
 C All Rights Reserved
 C See file COPYRIGHT for conditions of use.
@@ -40,15 +41,16 @@ C P.O. Box 12889
 C Research Triangle Park, NC  27709-2889
 C smoke@emc.mcnc.org
 C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/preplm.f,v $
-C Last updated: $Date: 2010/07/20 11:30:03 $ 
+C Last updated: $Date: 2011/04/01 15:41:54 $ 
 C-----------------------------------------------------------------------
  
+      USE UTILIO_DEFN
+
       IMPLICIT NONE
  
 C Includes:
 
 C External Functions:
-      REAL,    EXTERNAL :: POLY
 
 C Parameters:
       INTEGER, PARAMETER :: DEG = 3       ! degree of interpolationg polynomial

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.1 2011/03/23 21:13:16 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.2 2011/04/01 15:41:44 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)grdriver.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grdriver.F 07 Jul 1997 12:45:24
@@ -66,17 +66,17 @@ C                    29 Jul 05     WTH: Added IF blocks that call degrade
 C                                       routines if MECHNAME contains 'TX' 
 C                                       substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
+C                    with UTILIO_DEFN
 C**********************************************************************
 
       USE CGRID_SPCS          ! CGRID species number and offsets
+      USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
 
       IMPLICIT NONE 
 
 C..INCLUDES:
-      INCLUDE SUBST_IOPARMS   ! Io/api parameters
-      INCLUDE SUBST_IOFDESC   ! Io/api file descriptions
-      INCLUDE SUBST_IODECL    ! Io/api declarations
       INCLUDE SUBST_FILES_ID  ! CMAQ files
       INCLUDE SUBST_CONST     ! CMAQ constants
       INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
@@ -100,10 +100,6 @@ C Pascal to atm conversion factor
       REAL, PARAMETER :: PA2ATM = 1.0 / STDATMPA
 
 C..EXTERNAL FUNCTIONS:
-      INTEGER, EXTERNAL :: INDEX1,     ! returns index of name in a list
-     &                     SEC2TIME,   ! Returns time interval from seconds
-     &                     TIME2SEC    ! Returns seconds in time interval
-
 #ifdef sunws
       REAL, EXTERNAL :: DTIME          ! Execution time elapsed since last call
 #endif
@@ -228,6 +224,8 @@ C for INTERPX
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
             USE GRID_CONF
+            USE UTILIO_DEFN
+            USE GRVARS
             IMPLICIT NONE
             INTEGER, INTENT( IN )   :: IRUN, JDATE, JTIME
             REAL, INTENT( IN )      :: CHEMSTEP

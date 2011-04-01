@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/conv_cgrid.F,v 1.2 2010/12/06 13:40:48 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/conv_cgrid.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,17 +35,17 @@ C Revision History:
 C   Written by: J.Young 21 Aug 03
 C   J.Young 31 Jan 05: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
       INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include      SUBST_IODECL    # I/O definitions and declarations
 
 C Arguments:
 

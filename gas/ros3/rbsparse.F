@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsparse.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsparse.F,v 1.2 2011/04/01 15:41:43 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -37,18 +37,19 @@ C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 2004.
 C                      Based on the SMVGEAR code originally developed by 
 C                      M. Jacobson, (Atm. Env., Vol 28, No 2, 1994)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files
+C                               with UTILIO_DEFN
 C
 C***********************************************************************
 
       USE RBDATA                       ! ROS3 solver data
       USE CGRID_SPCS                   ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
       
 C..INCLUDES:
       INCLUDE SUBST_RXCMMN             ! Mechanism reaction common block
-      INCLUDE SUBST_IOPARMS            ! I/O API parameters
-      INCLUDE SUBST_IODECL             ! I/O definitions and declarations
       
 C..ARGUMENTS:
       INTEGER LOGDEV                   ! Logical unit number for log file

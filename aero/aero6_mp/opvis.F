@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/opvis.F,v 1.1 2010/07/20 11:55:06 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/opvis.F,v 1.2 2011/04/01 15:41:28 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,17 +32,16 @@ C   8 Sep 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   03 Sep 01 David Wong: for new pario
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 !     INCLUDE SUBST_HGRD_ID   ! horizontal dimensioning parameters
 !     INCLUDE SUBST_VGRD_ID   ! vertical dimensioning parameters
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 !     INCLUDE SUBST_COORD_ID  ! coordinate and domain definitions (req IOPARMS)
 
 C...Arguments:

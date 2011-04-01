@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrsolver.F,v 1.1 2011/03/17 19:14:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrsolver.F,v 1.2 2011/04/01 15:41:41 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,16 +40,16 @@ C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
 C                             not change results
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   29 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS, ONLY: N_GC_SPC, GC_SPC     ! CGRID mechanism species      
+      USE UTILIO_DEFN
       USE HRDATA
 
       IMPLICIT NONE
 
 C..Includes:
-      INCLUDE SUBST_IODECL    ! IO/api declarations
-      INCLUDE SUBST_IOPARMS   ! Io/api parameters
 
 C..Arguments:
       INTEGER JDATE           ! Current date (YYYYDDD)
@@ -65,7 +65,6 @@ C..Parameters:
       REAL, PARAMETER :: ZERO = 0.0               ! zero
 
 C..External Functions:
-      INTEGER JUNIT
 
 C..Saved Local Variables:
       CHARACTER( 16 ), SAVE ::  PNAME = 'HRSOLVER'      ! Program name

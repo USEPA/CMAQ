@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.2 2010/12/06 13:39:29 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.3 2011/04/01 15:42:00 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -50,12 +50,14 @@ C    Nov 06 B.Hutzell, J.Young: depv module
 C    Mar 08 G.Sarwar: added heterogeneous reaction for HONO. It affects HONO, NO2 and HNO3
 C    Apr 08 J.Young: optional inline beis and plume rise emissions
 C 21 Jun 10 J.Young: convert for Namelist redesign
+C 16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE EMIS_DEFN           ! inherits GRID_CONF
       USE DEPV_DEFN
       USE VDIFF_MAP
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
@@ -65,8 +67,6 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_PACTL_ID  ! PA control parameters
       INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-#include      SUBST_IODECL    # I/O definitions and declarations
 
       CHARACTER( 120 ) :: XMSG = ' '
 
@@ -99,9 +99,7 @@ C ACM parameters
 
       INTEGER, PARAMETER :: IFACM = 1     ! 1 = acm, 0 = no acm
 
-C External Functions not previously declared in IODECL3.EXT:
-
-      INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC
+C External Functions: None
 
 C File variables:
 

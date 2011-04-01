@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.2 2010/12/06 13:45:26 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.3 2011/04/01 15:41:47 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -48,19 +48,19 @@ C   23 Jun 03 J.Young: for layer dependent advection tstep
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                      removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 C Includes:
  
       INCLUDE SUBST_CONST      ! constants
-      INCLUDE SUBST_IOPARMS    ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC    ! file header data structure
-      INCLUDE SUBST_IODECL     ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID   ! file name parameters
 
 C Arguments:
@@ -93,12 +93,7 @@ C File variables:
 
       REAL, ALLOCATABLE, SAVE :: BBUF    ( :,:,: ) ! bcon file buffer
 
-C External Functions not declared in IODECL3.EXT:
- 
-      INTEGER, EXTERNAL :: TRIMLEN, SEC2TIME, TIME2SEC
-#ifdef parallel
-      LOGICAL, EXTERNAL :: INTERPB
-#endif
+C External Functions: None
 
 C Local variables:
 
@@ -306,7 +301,7 @@ C Read & interpolate boundary concentrations
      &                          MDATE, MTIME, NBNDY*NLAYS,
      &                          BBUF( 1,1,VAR ) ) ) THEN
                XMSG = 'Could not read ' //
-     &                 BCNAME( VAR )(1:TRIMLEN( BCNAME ( VAR ) ) )  //
+     &                 TRIM( BCNAME ( VAR ) ) //
      &                ' from ' // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
@@ -335,7 +330,7 @@ C Read & interpolate boundary concentrations
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
                XMSG = 'Could not read ' //
-     &                 BCNAME( VAR )(1:TRIMLEN( BCNAME ( VAR ) ) )  //
+     &                 TRIM( BCNAME ( VAR ) ) //
      &                ' from ' // BNDY_AERO_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
@@ -384,7 +379,7 @@ C Read & interpolate boundary concentrations
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
                XMSG = 'Could not read ' //
-     &                 BCNAME( VAR )(1:TRIMLEN( BCNAME ( VAR ) ) )  //
+     &                 TRIM( BCNAME ( VAR ) ) //
      &                ' from ' // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
@@ -416,7 +411,7 @@ C Read & interpolate boundary concentrations
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
                XMSG = 'Could not read ' //
-     &                 BCNAME( VAR )(1:TRIMLEN( BCNAME ( VAR ) ) )  //
+     &                 TRIM( BCNAME ( VAR ) ) //
      &                ' from ' // BNDY_TRAC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 

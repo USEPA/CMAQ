@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker] 
-C $Header: /project/yoj/arc/CCTM/src/util/util/subhdomain.F,v 1.1 2010/07/19 17:10:30 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/subhdomain.F,v 1.2 2011/04/01 15:41:57 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,6 +33,7 @@ C             processor-to-subdomain map.
  
 C  Revision History: 
 C       Original version  12/05 by J Young - modified from pario's SUBDMAP
+C       16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
  
 C  Argument List Description:
 C  In:
@@ -49,6 +50,8 @@ C        INTEGER    ROWSX_PE( 2,NPROCS )   ! Row index range for each PE
  
 C----------------------------------------------------------------------
 
+      USE UTILIO_DEFN
+
       IMPLICIT  NONE
 
 C Arguments:
@@ -58,9 +61,6 @@ C Arguments:
       INTEGER COLSX_PE( 2,NPROCS ), ROWSX_PE( 2,NPROCS )
 
 C Include Files:
-
-      INCLUDE SUBST_IOPARMS      ! I/O parameters definitions
-      INCLUDE SUBST_IODECL       ! I/O definitions and declarations
 
 C External Functions:
 

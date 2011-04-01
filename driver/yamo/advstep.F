@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/advstep.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/advstep.F,v 1.2 2011/04/01 15:41:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -93,9 +93,11 @@ C   28 Oct 09 J.Young: Revert back from Percell's algorithm to Talat's fix for
 C                      multiple adv steps per sync step
 C   16 Mar 10 J.Young: Fix hdiv bug for MPI by communicating ghost cell data using
 C                      new hveloc to add hdiv and replace hcontvel
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE UTILIO_DEFN
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_GLOBAL_MAX_MODULE    ! stenex
 !     USE SUBST_UTIL_MODULE          ! stenex
@@ -104,9 +106,6 @@ C-----------------------------------------------------------------------
 
 C Includes:
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -123,10 +122,7 @@ C Parameters:
       REAL, PARAMETER :: CC = 0.75 ! maximum Courant number allowed
 !     REAL, PARAMETER :: CC = 0.99 ! maximum Courant number allowed
 
-C External Functions (not already declared by IODECL3.EXT):
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC, SECSDIFF, ENVINT
-      LOGICAL, EXTERNAL :: ENVYN, CURRSTEP
-      REAL,    EXTERNAL :: ENVREAL
+C External Functions:
 
 C Local Variables:
       INTEGER, SAVE :: LOGDEV       ! unit number for log device
@@ -192,6 +188,7 @@ C environment variable max horiz. div.
         SUBROUTINE HVELOC( FDATE, FTIME, FSTEP, UWIND, VWIND, HDIV )
             USE GRID_CONF
             USE SUBST_MODULES
+            USE UTILIO_DEFN
             IMPLICIT NONE
             INTEGER, INTENT( IN )  :: FDATE, FTIME, FSTEP
             REAL,    INTENT( OUT ) :: UWIND( :,:,: ), VWIND( :,:,: )

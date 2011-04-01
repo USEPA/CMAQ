@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.1 2010/07/20 11:23:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.2 2011/04/01 15:41:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -42,6 +42,8 @@ C                                      to here. create arrays COLSZ_PE and
 C                                      ROWSZ_PE for proc analy, which are
 C                                      equivalent to COLSX_PE and ROWSX_PE
 C                   J.Young  8 Jul 10: minor mods
+C                   S. Roselle 29 Mar 11: Replaced I/O API include files
+C                                      with UTILIO_DEFN
 C.......................................................................
 
       IMPLICIT NONE
@@ -92,10 +94,10 @@ C Buffer for writing IRR results
          FUNCTION PAGRD_INIT ( NPROCS, RANK ) RESULT ( SUCCESS )
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
+         USE M3UTILIO            ! i/o-api
          USE SUBST_MODULES       ! stenex
 !        USE SUBST_UTIL_MODULE   ! stenex
 
-         INCLUDE SUBST_IODECL      ! I/O definitions and declarations
          INCLUDE SUBST_PACTL_ID    ! PA control parameters
          INCLUDE SUBST_PACMN_ID    ! PA common block definitions
 

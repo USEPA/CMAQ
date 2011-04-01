@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/wrdaymsg.f,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/wrdaymsg.f,v 1.2 2011/04/01 15:41:31 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -16,11 +16,12 @@ C  Preconditions:
 C  Subroutines and Functions Called:
 C  Revision History:
 C    Created 9/99 by M. Houyoux
+C    02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: wrdaymsg.f,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C File: @(#)$Id: wrdaymsg.f,v 1.2 2011/04/01 15:41:31 sjr Exp $
 C COPYRIGHT (C) 2002, MCNC Environmental Modeling Center
 C All Rights Reserved
 C See file COPYRIGHT for conditions of use.
@@ -30,16 +31,16 @@ C P.O. Box 12889
 C Research Triangle Park, NC  27709-2889
 C smoke@emc.mcnc.org
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/wrdaymsg.f,v $
-C Last updated: $Date: 2010/07/20 11:26:47 $ 
+C Last updated: $Date: 2011/04/01 15:41:31 $ 
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C Includes:
 
 C External Functions:
-      CHARACTER( 14 ), EXTERNAL :: MMDDYY
-      INTEGER,         EXTERNAL :: WKDAY
 
 C Arguments:
       INTEGER       , INTENT(  IN ) :: JDATE    ! Julian date

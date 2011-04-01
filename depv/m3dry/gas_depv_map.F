@@ -18,24 +18,21 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/gas_depv_map.F,v 1.2 2010/12/06 13:33:30 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/gas_depv_map.F,v 1.3 2011/04/01 15:41:35 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
 
 C----------------------------------------------------------------------
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
       USE DEPVVARS
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
-
-C Includes:
-
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C Arguments:
 
@@ -44,10 +41,6 @@ C Arguments:
       INTEGER,         INTENT( OUT )   :: DEPV_SUR( : ) ! pointers to model species for
                                                         ! calculated deposition velocities
                                                         ! (surrogate dep vels [m/s**2])
-
-C External Functions not previously declared in IODECL3.EXT:
-
-      INTEGER, EXTERNAL :: INDEX1
 
 C Local variables:
 

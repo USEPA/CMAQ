@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/STD_CONC.F,v 1.2 2010/12/06 12:46:05 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/STD_CONC.F,v 1.3 2011/04/01 15:41:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -64,11 +64,7 @@ C species classes configuration for CONC
          USE HGRD_DEFN             ! horizontal domain specifications
          USE VGRD_DEFN             ! vertical layer specifications
          USE CGRID_SPCS            ! CGRID mechanism species
-
-         INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-#ifdef Verbose
-         include SUBST_IODECL      ! I/O definitions and declarations
-#endif
+         USE UTILIO_DEFN
 
          CHARACTER( 16 ) :: PNAME = 'CONC_DEFN'
          CHARACTER( 96 ) :: XMSG = ' '
@@ -82,8 +78,6 @@ C species classes configuration for CONC
          INTEGER, ALLOCATABLE :: AE_MAP( : )
          INTEGER, ALLOCATABLE :: NR_MAP( : )
          INTEGER, ALLOCATABLE :: TR_MAP( : )
-
-         INTEGER, EXTERNAL :: INDEX1
 
          CHARACTER( 32 ) :: STD_CONC_SPCS  = 'CONC_SPCS'
          CHARACTER( 32 ) :: CONC_BLEV_ELEV = 'CONC_BLEV_ELEV'

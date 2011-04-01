@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.1 2010/07/20 11:33:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.2 2011/04/01 15:41:46 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -43,17 +43,18 @@ C   OPEN3, DESC3, INDEX1, TRIMLEN, FINDEX, M3MESG, M3EXIT
 C Revision history:
 C   Jeff - Aug 1997 Based on beta version
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                      removed deprecated TRIMLEN
 
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
+
       IMPLICIT NONE
  
 C Includes:
 
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
@@ -62,9 +63,10 @@ C Arguments:
       CHARACTER( 16 ) :: BCNAME( * )     ! BC name for adv species
       REAL               BCFAC ( * )     ! Scale factor for BCs
 
-C External Functions not previously declared in IODECL3.EXT:
- 
-      INTEGER, EXTERNAL :: FINDEX, INDEX1, TRIMLEN
+C External Functions:
+
+      INTEGER, EXTERNAL :: FINDEX
+
 
 C Local variables:
  
@@ -130,10 +132,10 @@ C Map advected gas chemistry species to bc's
             END IF
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) BNDY_GASC_1( 1:TRIMLEN( BNDY_GASC_1 ) ),
-     &                           CONCMIN( 1:TRIMLEN( CONCMIN ) )
+            WRITE( LOGDEV,1009 ) TRIM( BNDY_GASC_1 ),
+     &                           TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) WRVAR( VAR )( 1:TRIMLEN( WRVAR( VAR ) ) )
+               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
       END IF
@@ -173,10 +175,10 @@ C Map advected aerosol species to bc's
             END IF
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) BNDY_AERO_1( 1:TRIMLEN( BNDY_AERO_1 ) ),
-     &                           CONCMIN( 1:TRIMLEN( CONCMIN ) )
+            WRITE( LOGDEV,1009 ) TRIM( BNDY_AERO_1 ),
+     &                           TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) WRVAR( VAR )( 1:TRIMLEN( WRVAR( VAR ) ) )
+               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
       END IF
@@ -216,10 +218,10 @@ C Map advected non-reactive species to bc's
             END IF
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) BNDY_NONR_1( 1:TRIMLEN( BNDY_NONR_1 ) ),
-     &                           CONCMIN( 1:TRIMLEN( CONCMIN ) )
+            WRITE( LOGDEV,1009 ) TRIM( BNDY_NONR_1 ),
+     &                           TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) WRVAR( VAR )( 1:TRIMLEN( WRVAR( VAR ) ) )
+               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
       END IF
@@ -259,10 +261,10 @@ C Map advected tracer species to bc's
             END IF
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) BNDY_TRAC_1( 1:TRIMLEN( BNDY_TRAC_1 ) ),
-     &                           CONCMIN( 1:TRIMLEN( CONCMIN ) )
+            WRITE( LOGDEV,1009 ) TRIM( BNDY_TRAC_1 ),
+     &                           TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) WRVAR( VAR )( 1:TRIMLEN( WRVAR( VAR ) ) )
+               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
       END IF

@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v 1.2 2011/02/23 16:58:55 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v 1.3 2011/04/01 15:41:53 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -19,12 +19,15 @@ C  Preconditions:
 C  Subroutines and Functions Called:
 C       I/O API 
 
+C Revision History:
+C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+
 C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling
 C             System
-C File: @(#)$Id: openlayout.F,v 1.2 2011/02/23 16:58:55 yoj Exp $
+C File: @(#)$Id: openlayout.F,v 1.3 2011/04/01 15:41:53 sjr Exp $
 C COPYRIGHT (C) 2002, MCNC Environmental Modeling Center
 C All Rights Reserved
 C See file COPYRIGHT for conditions of use.
@@ -34,24 +37,19 @@ C P.O. Box 12889
 C Research Triangle Park, NC  27709-2889
 C smoke@emc.mcnc.org
 C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v $
-C Last updated: $Date: 2011/02/23 16:58:55 $ 
+C Last updated: $Date: 2011/04/01 15:41:53 $ 
  
 C-----------------------------------------------------------------------
  
       USE HGRD_DEFN, ONLY: MYPE
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 C Includes:
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!include      SUBST_IODECL    # I/O definitions and declarations
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-      INCLUDE SUBST_IOFDESC   ! file header data structure
 
 C External Functions:
-      CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
-      INTEGER,         EXTERNAL :: SETUP_LOGDEV, TRIMLEN
-      LOGICAL,         EXTERNAL :: SETENVVAR
+      INTEGER,         EXTERNAL :: SETUP_LOGDEV
 
 C Local Parameters:
 

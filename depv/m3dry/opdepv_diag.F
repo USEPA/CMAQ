@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.1 2010/07/19 17:54:21 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.2 2011/04/01 15:41:35 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
@@ -30,16 +30,15 @@ C 2006-Jun-30 - created by W Hutzell
 C 2006-Dec-05 - modified by J.Young
 C 2010-Jan-29 - removed unneccesary CLOSE3 statement for CTM_DEPV_DIAG file
 C               to eliminate potential MPI race condition (D.Wong)
+C 2011-Feb-16 - replaced I/O API include files with UTILIO_DEFN (S.Roselle)
 
       USE HGRD_DEFN           ! horizontal grid specifications
       USE DEPVVARS
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
  
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C Arguments:
 

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.4 2011/03/22 19:00:10 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.5 2011/04/01 15:41:55 sjr Exp $
 
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
@@ -77,12 +77,14 @@ C                              horizontal & vertical domain specifications in
 C                              one module (GRID_CONF)
 C    3 Apr 09 J.Young: replace EMISPRM... include files with simpler implementation
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C**********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain configuration
       USE CGRID_SPCS            ! CGRID mechanism species
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE AERO_EMIS
+      USE UTILIO_DEFN
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_DATA_COPY_MODULE     ! stenex
 
@@ -91,10 +93,7 @@ C**********************************************************************
 C Includes:
 
       INCLUDE SUBST_CONST       ! Constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structuer
       INCLUDE SUBST_FILES_ID    ! file name parameters
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
       INCLUDE SUBST_PACMN_ID    ! PA control parameters
       INCLUDE SUBST_EMISPRM     ! Emissions processing control parameters
@@ -140,9 +139,6 @@ C aerosol emission conversion factor terms
 
 C External Functions: 
       INTEGER, EXTERNAL :: FINDEX    ! Finds the index of a number in a list
-      INTEGER, EXTERNAL :: INDEX1    ! Looks up name in table
-      INTEGER, EXTERNAL :: SEC2TIME  ! Converts seconds to HHMMSS
-      INTEGER, EXTERNAL :: TIME2SEC  ! Converts HHMMSS to seconds
 
 C Saved Local Variables:
       CHARACTER( 16 ), SAVE :: UNEXPPR( MXUNEXP )

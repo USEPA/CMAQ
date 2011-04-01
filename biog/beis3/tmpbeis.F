@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.2 2011/04/01 15:41:31 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -39,13 +39,14 @@ C  01/10: J.Young - move soil NO data and required input data processing to hrno
 C  01/10: D. Wong - Eliminate potential race condition at the MYPE = 0
 C                   to open the diagnostic file. Eliminate the BARRIER
 C                   and the CLOSE3 and OPEN3.
+C  02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 C Modified from:
  
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling
 C                System
-C File: @(#)$Id: tmpbeis.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C File: @(#)$Id: tmpbeis.F,v 1.2 2011/04/01 15:41:31 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -54,18 +55,16 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v $
-C Last updated: $Date: 2010/07/20 11:26:47 $ 
+C Last updated: $Date: 2011/04/01 15:41:31 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
+      USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
 
       IMPLICIT NONE
 
 C Includes:
-      INCLUDE SUBST_IOPARMS    ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC    ! file header data structure
-#include      SUBST_IODECL    # I/O definitions and declarations
         
 C Arguments:
       INTEGER, INTENT(  IN ) :: JDATE   ! current simulation date (YYYYDDD)
@@ -76,12 +75,7 @@ C Arguments:
       REAL,    INTENT( OUT ) :: EMISL( :,:,: )  ! emissions in moles/sec
 
 C External Functions
-      INTEGER,         EXTERNAL :: TIME2SEC 
-      INTEGER,         EXTERNAL :: ENVINT 
-      LOGICAL,         EXTERNAL :: ENVYN
       LOGICAL,         EXTERNAL :: CHKGRID
-      CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
-      CHARACTER( 10 ), EXTERNAL :: HHMMSS
 
 C Parameters:
       REAL,    PARAMETER :: HR2SEC = 1.0 / 3600.0

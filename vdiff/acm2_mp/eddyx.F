@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/eddyx.F,v 1.2 2010/07/20 11:53:04 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/eddyx.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -42,9 +42,11 @@ C                    MET_DOT_3D, and corrected algorithm that computes
 C                    component-wise shear so that B-staggered winds
 C                    will be properly used.  Removed map-scale factor
 C                    from wind shear calculation.
+C  SJR       02/11 - replaced I/O API include files with UTILIO_DEFN
 C--------------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal domain specifications
+      USE UTILIO_DEFN
       USE SUBST_MODULES         ! stenex
 
       IMPLICIT NONE
@@ -54,9 +56,6 @@ C Includes:
 !     INCLUDE SUBST_HGRD_ID     ! horizontal dimensioning parameters
 !     INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
       INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 !     INCLUDE SUBST_COORD_ID    ! coord. and domain definitions (req IOPARMS)
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
@@ -90,10 +89,7 @@ C small number for temperature difference
 
       REAL, PARAMETER :: EPS = 1.0E-08
 
-C External Functions not previously declared in IODECL3.EXT:
-
-      INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC, INDEX1
-      LOGICAL, EXTERNAL :: ENVYN
+C External Functions: None
 
 C                                123456789012345678901234567890
       CHARACTER( 30 ) :: MSG1 = ' Error interpolating variable '

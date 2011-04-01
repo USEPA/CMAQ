@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/GRVARS.F,v 1.1 2011/03/23 21:13:16 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/GRVARS.F,v 1.2 2011/04/01 15:41:43 sjr Exp $
 
       MODULE GRVARS
 
@@ -320,6 +320,8 @@ C Revision History: J.Young 17 Aug 01: create
 C                   J.Young 31 Jan 05: get MXCELLS from dyn alloc horizontal
 C                   & vertical domain specifications module (GRID_CONF)
 C                   29 Jul 05 WTH: added variable used by degrade routines.
+C                   29 Mar 11 S.Roselle: Replaced I/O API include files 
+C                   with UTILIO_DEFN
 C.......................................................................
 C Column index of ordered cells
       INTEGER, ALLOCATABLE, SAVE :: CCOL( : )
@@ -344,10 +346,8 @@ C Estimated stiffness of each cell
          SUBROUTINE GRVARS_INIT( JDATE, JTIME )
 !           USE GRID_CONF           ! horizontal & vertical domain specifications
             USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
+            USE UTILIO_DEFN
             IMPLICIT NONE
-
-            INCLUDE SUBST_IOPARMS   ! I/O API parameters
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
             INTEGER, INTENT( IN ) :: JDATE, JTIME
             INTEGER :: IOS

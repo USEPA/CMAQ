@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.2 2010/12/06 13:35:12 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.3 2011/04/01 15:41:33 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
@@ -45,18 +45,18 @@ C        - Jun 01 - update units conversion calls and comments
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                      removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE   
 
 C Include files:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -70,7 +70,7 @@ C Arguments:
                                 ! TSTEP(2) = sciproc sync. step (chem)
 C Parameters:
 
-C External Functions (not already declared by IODECL3.EXT):
+C External Functions:
 
 C File Variables:
  

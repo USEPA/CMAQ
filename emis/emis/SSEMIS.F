@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.2 2011/02/23 16:33:18 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.3 2011/04/01 15:41:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -277,6 +277,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revision History:
 C   26 Feb 10 J.Young:  Eliminate BARRIER, etc. to prevent MPI race condition
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+
+            USE UTILIO_DEFN
 
             IMPLICIT NONE
 
@@ -285,14 +288,10 @@ C Arguments:
             LOGICAL :: SUCCESS
 
 C Includes:
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-!           INCLUDE SUBST_IOFDESC   ! file header data structure
             INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C External Functions:
-            INTEGER, EXTERNAL :: ENVINT, SETUP_LOGDEV
-            LOGICAL, EXTERNAL :: ENVYN
+            INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C Local Variables:
             CHARACTER( 16 ), SAVE :: CTM_SSEMDIAG = 'CTM_SSEMDIAG' ! env var for
@@ -393,15 +392,14 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          SUBROUTINE OPSSEMIS ( JDATE, JTIME, TSTEP, NSSDIAG, WRSS_SPC )
 
 C   16 May 05 P.Bhave: original version, using OPDDEP as a template
-C    4 Mar 10 J.Young: accomodate Steve Howard`s reengineering
+C    4 Mar 10 J.Young: accomodate Steve Howard's reengineering
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-         INCLUDE SUBST_IOFDESC   ! file header data structure
-         INCLUDE SUBST_IODECL    ! I/O definitions and declarations
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
@@ -502,6 +500,7 @@ C   11 Apr 08 J.Kelly:  added code for (1) emission of coarse surface area,
 C                       (2) emission of coarse water, (3) enhanced surf zone
 C                       emissions, and (4) variable coarse std. deviation
 C   20 Feb 10 J.Young:  move out of AERO_EMIS proper into this module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
  
 C References:
 C    Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -520,6 +519,8 @@ C          breaking waves: Implications for cloud condensation nuclei in the
 C          remote marine atmosphere" J. Geophys. Res. (2006)
 C-----------------------------------------------------------------------
 
+            USE UTILIO_DEFN
+
             IMPLICIT NONE
 
 C Arguments
@@ -529,18 +530,9 @@ C Arguments
             REAL,    INTENT( IN ) :: CELLHGT               ! grid-cell height [sigma]
 
 C Includes:
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!           INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-#include            SUBST_IODECL    # I/O definitions and declarations
-!           INCLUDE SUBST_IOFDESC   ! file header data structure
             INCLUDE SUBST_FILES_ID  ! file name parameters
             INCLUDE SUBST_CONST     ! constants (for PI)
 
-C External Functions:
-            INTEGER, EXTERNAL :: TIME2SEC      ! fxn not declared in IODECL3.EXT
-            LOGICAL, EXTERNAL :: CURRSTEP
-
-C Local Variables:
             REAL    :: OFRAC              ! fractional seawater cover
             REAL    :: SFRAC              ! fractional surf-zone cover
             REAL    :: BLKPRS             ! atmospheric pressure [Pa]

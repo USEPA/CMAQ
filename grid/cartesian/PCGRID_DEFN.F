@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PCGRID_DEFN.F,v 1.1 2010/07/20 11:23:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PCGRID_DEFN.F,v 1.2 2011/04/01 15:41:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -49,6 +49,7 @@ C    Dec 04 - Jeff - dyn alloc - USE VGRD_DEFN
 C    Jan 05 - Jeff - dyn alloc - establish both horizontal & vertical
 C                    domain specifications in one module
 C 21 Jun 10 J.Young: convert for Namelist redesign
+C   29 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -62,8 +63,9 @@ C-----------------------------------------------------------------------
       CONTAINS
          FUNCTION PCGRID_INIT () RESULT ( SUCCESS )
 
+         USE UTILIO_DEFN
+
 !        INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
-         INCLUDE SUBST_IODECL      ! I/O definitions and declarations
 
          LOGICAL :: SUCCESS
          INTEGER :: ALLOCSTAT

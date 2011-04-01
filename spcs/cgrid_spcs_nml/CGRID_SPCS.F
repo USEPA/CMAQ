@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.2 2010/12/06 12:43:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.3 2011/04/01 15:41:56 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -26,6 +26,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 c CGRID gas chem, aerosol, non-reactive, and tracer species definitions
 c based on namelist specifications
 c Revision History: Jeff Young 31 Aug 09: created
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 c-----------------------------------------------------------------------
 
       implicit none
@@ -125,9 +126,9 @@ c init routine to allocate the above allocatables
 c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
+            use UTILIO_DEFN
             implicit none
 #ifdef Verbose
-            include SUBST_IODECL      ! I/O definitions and declarations
             integer, save :: logdev
 #endif
 
@@ -975,10 +976,11 @@ c 2) EMIS, ICBC, DEPV, SCAV  [any order]           <- surrogate type 1 (surr nam
 c 3) x2AE, x2AQ  [any order]                       <- surrogate type 2 (surr name only )
 c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
+            use UTILIO_DEFN
+
             implicit none
 
 #ifdef Verbose
-            include SUBST_IODECL      ! I/O definitions and declarations
             integer, save :: logdev
             logical, save :: firstime = .true.
 #endif
@@ -1141,10 +1143,12 @@ c type 2 surrogate (surr2)
 
 c----------------------------------------------------------------------------------------
             subroutine bubble ( n, ia, aa )
+
+            use UTILIO_DEFN
+
             implicit none
 
 #ifdef Verbose
-            include SUBST_IODECL      ! I/O definitions and declarations
             integer, save :: logdev
             logical, save :: firstime = .true.
 #endif

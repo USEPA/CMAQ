@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.2 2011/03/31 16:28:11 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.3 2011/04/01 15:41:53 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -87,6 +87,8 @@ C       - added call to a routine called AERO_PHOTDATA that returns opacity data
 C         on the aerosol distribution
 C       - revised NEW_OPTICS' arguments based on  aerosol redesign in CMAQ 
 C         version 5.0
+C     March 29, 2011 S.Roselle
+C       - Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
 C...modules
@@ -94,6 +96,7 @@ C...modules
 !     USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES        ! stenex
       USE AERO_DATA            ! describes aerosol distribution
@@ -103,10 +106,6 @@ C...modules
 
 C...include files
 
-      INCLUDE SUBST_IOPARMS    ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC    ! file header data structuer
-!     INCLUDE SUBST_IODECL     ! I/O definitions and declarations
-#include      SUBST_IODECL     # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID   ! file name parameters
 !     INCLUDE SUBST_CONST      ! physical constants--moved to PHOT_MOD.
       INCLUDE SUBST_RXCMMN     ! chemical mechanism reactions COMMON
@@ -136,12 +135,7 @@ C...parameters
       REAL, PARAMETER :: ZTOA         = 50.0E3   ! height of top of atmosphere [ m ] (=50km)
       REAL, PARAMETER :: SEAICE_POINT = 271.36 ! 230.0 ! 271.36   ! threshold to form sea ice [K]
                                                  ! based a 2005 WRF model Documentation
-C...external functions
-
-      LOGICAL, EXTERNAL :: ENVYN   ! get environment variable as boolean
-      INTEGER, EXTERNAL :: INDEX1
-      INTEGER, EXTERNAL :: SECSDIFF
-      INTEGER, EXTERNAL :: JULIAN  ! IOAPI function for Julian day given year, month, day
+C...external functions: none
 
 C...local variables
 
@@ -304,6 +298,8 @@ C FSB new arrays for new on-line cloud version
      &                              BLK_AE_VOL, BLK_AE_LSG, BLK_AE_DGN,
      &                              BLK_AE_NR, BLK_AE_NI )
 
+            USE CGRID_SPCS          ! CGRID mechanism species
+            USE UTILIO_DEFN
             USE AERO_DATA           ! aero variable data
             USE SOA_DEFN            ! gas soa data
             USE AEROMET_DATA        ! constants and met data
@@ -311,9 +307,6 @@ C FSB new arrays for new on-line cloud version
             IMPLICIT NONE
 C Includes:
             INCLUDE SUBST_RXCMMN    ! to get mech name
-            INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-            INCLUDE SUBST_IOFDESC   ! file header data structure
-            INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 C Arguments
             INTEGER, INTENT( IN )       :: COL     ! specified column index
             INTEGER, INTENT( IN )       :: ROW     ! specified row index

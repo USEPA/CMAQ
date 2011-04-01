@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.2 2010/12/06 14:52:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.3 2011/04/01 15:41:55 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_output.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_output.F 07 Jul 1997 10:20:55
@@ -76,20 +76,19 @@ C     15 Feb 06 J.Young: new pario PIO_RE_INIT from PIO_INIT to
 C           add flag to to control printing decomposition map
 C     10 Jul 10 J.Young: restructure so as to not keep reallocating
 C           DBUFF for IRR
+C     16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE PAGRD_DEFN            ! PA horiz domain specs
+      USE UTILIO_DEFN
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_DATA_COPY_MODULE     ! stenex
 
       IMPLICIT NONE 
 
 C Includes:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structurer
-#include      SUBST_IODECL      # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
@@ -133,7 +132,6 @@ C Scratch Local Variables:
      
 #ifdef parallel
       CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
-      LOGICAL, EXTERNAL :: PIO_RE_INIT
       LOGICAL, SAVE :: WFLG = .TRUE.   ! pio_init - print decomposition
 #endif
       INTEGER ALLOCSTAT

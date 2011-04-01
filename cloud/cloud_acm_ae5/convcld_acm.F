@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/convcld_acm.F,v 1.3 2011/02/17 14:23:22 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/convcld_acm.F,v 1.4 2011/04/01 15:41:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -92,10 +92,12 @@ C       7/05 J.Young: clean up and mod for CMAQ-F
 C       8/10 J.Young: replace chem mechanism include files with namelists
 C                    and accomodate Shawn Roselle's, Sergey Napelenok's
 C                    and Steve Howard's aerosol reengineering
+C       3/11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE AQ_DATA
 
       IMPLICIT NONE
@@ -104,9 +106,6 @@ C...........INCLUDES
 
       INCLUDE SUBST_CONST               ! constants
       INCLUDE SUBST_FILES_ID            ! file name parameters
-      INCLUDE SUBST_IOPARMS             ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC             ! file header data structuer
-      INCLUDE SUBST_IODECL              ! I/O definitions and declarations
 
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
@@ -386,8 +385,7 @@ C for INTERPX
 
 C...........External Functions
 
-      LOGICAL, EXTERNAL :: CURRSTEP
-      INTEGER, EXTERNAL :: SEC2TIME, SECSDIFF, TIME2SEC, SETUP_LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C...........Statement Functions
 

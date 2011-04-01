@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.3 2011/03/21 20:05:10 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.4 2011/04/01 15:41:27 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
@@ -104,17 +104,13 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C HS  03/10/11 Changed vtmp to real(8)
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
       Use cgrid_spcs          ! CGRID mechanism species
+      Use utilio_defn
 
       Implicit None
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
-
-C Functions:
-      Integer, External :: index1
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -221,17 +217,16 @@ C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C HS  03/10/11 Only update conc for species with "update" = .TRUE.;
 C    -changed vtmp and gasconv to real(8)
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       Use aeromet_data    ! air and met variables
+      Use utilio_defn
 
       Implicit None
 
 C arguments:
       Real, Intent( Out ) :: conc( : )
-
-C includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C local variables:
       Character( 80 ) :: xmsg
@@ -274,16 +269,17 @@ C  Finds the index of 'required' aerosol species in the precursor list
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C
+C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      Use utilio_defn
 
       Implicit None
 
 C Arguments:
       Character( * ) :: vname
       Integer ndx
-
-C Includes:
-      Include SUBST_IOPARMS   ! I/O parameters definitions
 
 C Local Variables:
       Integer         :: spc

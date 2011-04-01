@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/HGRD_DEFN.F,v 1.1 2010/07/20 11:23:27 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/HGRD_DEFN.F,v 1.2 2011/04/01 15:41:45 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,6 +36,8 @@ C                   J Young    07 Dec 04: remove layer dependency (for MXCELLS,
 C                                         MXBLKS) to implement vertical layer
 C                                         dyn alloc appropriately
 C                   J Young    22 Dec 05: move proc. anayl. stuff to PAGRD_DEFN
+C                   S. Roselle 29 Mar 11: Replaced I/O API include files
+C                                         with UTILIO_DEFN
 C.......................................................................
 
       IMPLICIT NONE
@@ -122,8 +124,9 @@ C Integral average conc
 
          FUNCTION HGRD_INIT ( NPROCS, MYID ) RESULT ( SUCCESS )
 
+         USE UTILIO_DEFN
+
 !        INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
-         INCLUDE SUBST_IODECL      ! I/O definitions and declarations
 
          INTEGER, INTENT( IN ) :: NPROCS  ! total worker processors
          INTEGER, INTENT( IN ) :: MYID
@@ -135,7 +138,6 @@ C Integral average conc
 
 C environment variable grid name to select from GRIDDESC
          CHARACTER( 16 ) :: HGRD_NAME = 'GRID_NAME'
-         LOGICAL, EXTERNAL :: DSCGRID ! get horizontal grid parameters
          INTEGER, EXTERNAL :: SETUP_LOGDEV
          INTEGER :: STATUS, ALST
 

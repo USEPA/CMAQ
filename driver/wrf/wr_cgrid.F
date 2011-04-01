@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_cgrid.F,v 1.1 2010/07/20 13:21:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_cgrid.F,v 1.2 2011/04/01 15:41:37 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,10 +35,13 @@ C Revision History:
 C      May 06 J.Young: initial
 C      Feb 08 J.Young: fix VDESC3D bug
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
@@ -47,9 +50,6 @@ C-----------------------------------------------------------------------
 
 C Include Files:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-#include      SUBST_IODECL      # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
       REAL, POINTER :: CGRID( :,:,:,: )
@@ -61,8 +61,6 @@ C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'WR_CGRID'
       CHARACTER( 96 ) :: XMSG = ' '
-
-      INTEGER, EXTERNAL :: TRIMLEN  ! string length, excl. trailing blanks
 
       INTEGER K, MXK, SPC, VAR
       INTEGER ALLOCSTAT
@@ -79,17 +77,6 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
 
-#ifdef parallel
-      INTERFACE
-         LOGICAL FUNCTION PTRWRITE3( S_CGRID, ALLVAR3, JDATE, JTIME, CGRID )
-            IMPLICIT NONE
-            CHARACTER( 16 ), INTENT( IN ) :: S_CGRID, ALLVAR3
-            INTEGER, INTENT( IN )         :: JDATE, JTIME
-            REAL, POINTER                 :: CGRID( :,:,:,: )
-         END FUNCTION PTRWRITE3
-      END INTERFACE
-#endif
-
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
@@ -105,7 +92,7 @@ C Try to open existing file for update
          CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
          IF ( .NOT. OK ) THEN
 
-            XMSG = 'Could not open ' // S_CGRID( 1:TRIMLEN( S_CGRID ) )
+            XMSG = 'Could not open ' // TRIM( S_CGRID )
      &           // ' file for update - try to open new'
             CALL M3MESG( XMSG )
 
@@ -115,7 +102,7 @@ C Get default file header attibutes from CONC file (assumes file already open)
 
                IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
                   XMSG = 'Could not get '
-     &                 // CTM_CONC_1( 1:TRIMLEN( CTM_CONC_1 ) )
+     &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -141,7 +128,7 @@ C Set file header attributes that differ from CONC and open the file
                WRITE( LOGDEV,* ) '       State CGRID File Header Description:'
                DO K = 1, 2
                   WRITE( LOGDEV,* ) '    => ',
-     &            FDESC3D( K )( 1:TRIMLEN( FDESC3D( K ) ) )
+     &            TRIM( FDESC3D( K ) )
                END DO
 
                VAR = 0
@@ -201,7 +188,7 @@ C pick up transported RHOJ
 
                IF ( .NOT. OPEN3( S_CGRID, FSNEW3, PNAME ) ) THEN
                   XMSG = 'Could not open '
-     &                 // S_CGRID( 1:TRIMLEN( S_CGRID ) ) // ' file'
+     &                 // TRIM( S_CGRID ) // ' file'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
@@ -216,7 +203,7 @@ C proc 0 has CTM_CONC_1 open
 
                IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
                   XMSG = 'Could not get '
-     &                 // CTM_CONC_1( 1:TRIMLEN( CTM_CONC_1 ) )
+     &                 // TRIM( CTM_CONC_1 )
      &                 // ' file description'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -240,7 +227,7 @@ C proc 0 has CTM_CONC_1 open
 
                IF ( .NOT. DESC3( S_CGRID ) ) THEN
                   XMSG = 'Could not get '
-     &                 // S_CGRID( 1:TRIMLEN( S_CGRID ) )
+     &                 // TRIM( S_CGRID )
      &                 // ' file description'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF

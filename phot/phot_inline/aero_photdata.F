@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.1 2011/03/29 13:12:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.2 2011/04/01 15:41:52 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_PHOTDATA ( COL, ROW, NLAYS, CGRID,
@@ -46,6 +46,7 @@ C
 C  REVISION HISTORY
 C     01/10/11 B.Hutzell - initial version created based on AERO_DESC module
 C                          in version 4.7 and aero_depv for version 5.0
+C     03/29/11 S.Roselle - Replaced I/O API include files with UTILIO_DEFN
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -60,6 +61,7 @@ C-----------------------------------------------------------------------
 
 !     USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
@@ -70,9 +72,6 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE SUBST_RXCMMN    ! to get mech name
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C Arguments:
 

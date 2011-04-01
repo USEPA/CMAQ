@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.2 2010/12/06 12:57:19 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/opconc.F,v 1.3 2011/04/01 15:41:51 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -53,20 +53,20 @@ C                      RHOJ to conc file
 C   22 Aug 06 J.Young: enable capturing IC's as 0 timestep
 C   11 Jun 08 J.Young: clean up
 C   30 Mar 10 David Wong: removed unnecessary barrier
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                      removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE WVEL_DEFN             ! derived vertical velocity component
       USE STD_CONC              ! standard CONC
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-#include      SUBST_IODECL      # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
@@ -76,16 +76,11 @@ C Arguments:
       INTEGER      JTIME        ! starting time (HHMMSS)
       INTEGER      TSTEP        ! output timestep (HHMMSS)
 
-C External Functions (not already declared by IODECL3.EXT):
-
-      INTEGER, EXTERNAL :: TRIMLEN      !  string length, excl. trailing blanks
-      INTEGER, EXTERNAL :: ENVINT       !  get environment variable as integer
-      INTEGER      STATUS               !  ENVINT status
-
 C Local Variables:
 
       REAL, ALLOCATABLE :: DBUFF( :,:,: )
       INTEGER      ALLOCSTAT
+      INTEGER      STATUS               !  ENVINT status
 
       CHARACTER( 16 ) :: PNAME = 'OPCONC'
       CHARACTER( 96 ) :: XMSG = ' '
@@ -159,8 +154,7 @@ C Set output file characteristics based on COORD.EXT and open it
       WRITE( LOGDEV,* ) ' '
       WRITE( LOGDEV,* ) '      Conc File Header Description:'
       DO K = 1, KD + L
-         WRITE( LOGDEV,* ) '    => ',
-     &   FDESC3D( K )( 1:TRIMLEN( FDESC3D( K ) ) )
+         WRITE( LOGDEV,* ) '    => ', TRIM( FDESC3D( K ) )
       END DO
 
       V = 0
@@ -256,13 +250,13 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, C_GC_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write ' //
-     &             C_GC_SPC( SPC )(1:TRIMLEN( C_GC_SPC( SPC ) ) ) //
+     &             TRIM( C_GC_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
-     &                SPC, V, C_GC_SPC( SPC )(1:TRIMLEN( C_GC_SPC( SPC ) ) )
+     &                SPC, V, TRIM( C_GC_SPC( SPC ) )
 
       END DO
 
@@ -277,13 +271,13 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, C_AE_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write ' //
-     &             C_AE_SPC( SPC )(1:TRIMLEN( C_AE_SPC( SPC ) ) ) //
+     &             TRIM( C_AE_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
-     &                SPC, V, C_AE_SPC( SPC )(1:TRIMLEN( C_AE_SPC( SPC ) ) )
+     &                SPC, V, TRIM( C_AE_SPC( SPC ) )
 
       END DO
 
@@ -298,13 +292,13 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, C_NR_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write ' //
-     &             C_NR_SPC( SPC )(1:TRIMLEN( C_NR_SPC( SPC ) ) ) //
+     &             TRIM( C_NR_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
-     &                SPC, V, C_NR_SPC( SPC )(1:TRIMLEN( C_NR_SPC( SPC ) ) )
+     &                SPC, V, TRIM( C_NR_SPC( SPC ) )
       END DO
 
       IF ( N_C_TR_SPC .NE. 0 ) WRITE( LOGDEV,'( /5X, "Inert tracer", A )' ) SSTR
@@ -318,13 +312,13 @@ C (inital data assumed to be in correct output units)
          IF ( .NOT. WRITE3( CTM_CONC_1, C_TR_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write ' //
-     &             C_TR_SPC( SPC )(1:TRIMLEN( C_TR_SPC( SPC ) ) ) //
+     &             TRIM( C_TR_SPC( SPC ) ) //
      &             ' to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          WRITE( LOGDEV,'( 5X, I4, " (", I3, ") ", A )' )
-     &                SPC, V, C_TR_SPC( SPC )(1:TRIMLEN( C_TR_SPC( SPC ) ) )
+     &                SPC, V, TRIM( C_TR_SPC( SPC ) )
 
       END DO
 

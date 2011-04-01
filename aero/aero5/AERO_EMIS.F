@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.2 2011/03/15 19:09:38 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.3 2011/04/01 15:41:27 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -58,6 +58,7 @@ C                       Jeff Young, and Sergey Napelenok
 C   23 Jul 10 D.Wong:   remove CLOSE3 and BARRIER
 C   24 Feb 11 J.Young:  Reorganized module with initialization and timestepping
 C                       procedures
+C   25 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -157,6 +158,7 @@ C   23 Mar 08 J.Young:  modifications to allow for in-line point source emission
 C   11 Apr 08 J.Kelly:  added code to emit coarse surface area
 C   09 Sep 08 P.Bhave:  backward compatibility with AE4 mechanisms
 C   20 Feb 10 J.Young:  move ssemis out to its own F90 module
+C   25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
@@ -172,16 +174,13 @@ C                   doi:10.1029/2001JD001409, 2003
 C-----------------------------------------------------------------------
 
          USE GRID_CONF           ! horizontal & vertical domain configuration
-         USE SSEMIS                               ! sea-salt emissions
+         USE SSEMIS              ! sea-salt emissions
          USE AERO_DATA
          USE PRECURSOR_DATA
-         USE CGRID_SPCS                           ! CGRID mechanism species
+         USE CGRID_SPCS          ! CGRID mechanism species
+         USE UTILIO_DEFN
 
          INCLUDE SUBST_RXCMMN    ! to get mech name
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!        INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-#include      SUBST_IODECL      # I/O definitions and declarations
-         INCLUDE SUBST_IOFDESC   ! file header data structure
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -194,10 +193,6 @@ C Arguments:
                                              ! TSTEP(2) = sciproc sync. step (chem)
          INTEGER, INTENT( IN ) :: NEMIS_AE   ! number of aerosol emissions species
          LOGICAL SUCCESS
-
-C External Functions:
-         INTEGER, EXTERNAL :: ENVYN
-         INTEGER, EXTERNAL :: INDEX1
 
 C Local Variables:
 
@@ -446,11 +441,9 @@ C ----------------------------------------------------------------------
          USE PTMAP, ONLY: N_SPC_PTPM, PTPM_MAP    ! defines emissions file(s) PM mapping
          USE AERO_DATA
          USE PRECURSOR_DATA
-         USE SSEMIS                               ! sea-salt emissions
+         USE SSEMIS              ! sea-salt emissions
+         USE UTILIO_DEFN
 
-         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!        INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-#include      SUBST_IODECL      # I/O definitions and declarations
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -498,7 +491,6 @@ C Surface area emission rates [m2/m3/s]
          REAL( 8 ) :: EM_SRF( N_MODE )
 
 C Miscellaneous variables
-         INTEGER, EXTERNAL :: TRIMLEN
          CHARACTER( 16 ), SAVE :: PNAME = 'GET_AERO_EMIS'
          INTEGER C, R, L, N, V, S         ! Loop indices
          REAL( 8 ) :: FINETOT

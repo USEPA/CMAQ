@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/opemis.F,v 1.1 2010/07/20 12:49:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/opemis.F,v 1.2 2011/04/01 15:41:40 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -30,16 +30,16 @@ C  7 Mar 02 - J.Young: add units string variations
 C 29 Oct 05 - J.Young: dyn. layers
 C 19 Feb 08 - David Wong: add EM_TRAC = .TRUE. when EMIS_TRAC_1 exists
 C 21 Jun 10 - J.Young: convert for Namelist redesign
+C 16 Feb 11 - S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C                        removed deprecated TRIMLEN
 
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
 C Arguments:
 
@@ -50,9 +50,9 @@ C Arguments:
       REAL         CONVEM     ! conversion for emissions rates
       INTEGER      EMLAYS     ! emissions layers from file
 
-C External Functions not previously declared in IODECL3.EXT:
+C External Functions:
 
-      INTEGER, EXTERNAL :: INDEX1, TRIMLEN, SETUP_LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C Local variables:
 
@@ -96,7 +96,7 @@ C Open the tracer emissions file
                UNITSCK = UNITS3D( V )
             ELSE
                XMSG = 'Emissions species '
-     &              // TR_EMIS( 1 )( 1:TRIMLEN( TR_EMIS( 1 ) ) )
+     &              // TRIM( TR_EMIS( 1 ) )
      &              // ' not found on ' // EMIS_1
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
@@ -110,7 +110,7 @@ C Open the tracer emissions file
                   END IF
                ELSE
                   XMSG = 'Emissions species '
-     &                 // TR_EMIS( N )( 1:TRIMLEN( TR_EMIS( 1 ) ) )
+     &                 // TRIM( TR_EMIS( N ) )
      &                 // ' not found on ' // EMIS_TRAC_1
                   CALL M3MESG( XMSG )
                END IF
@@ -153,7 +153,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                GO TO 101
             ELSE
                XMSG = 'Emissions species '
-     &              // GC_EMIS( 1 )( 1:TRIMLEN( GC_EMIS( 1 ) ) )
+     &              // TRIM( GC_EMIS( 1 ) )
      &              // ' not found on ' // EMIS_1
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
@@ -179,7 +179,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                END IF
             ELSE
                XMSG = 'Emissions species '
-     &              // GC_EMIS( N )( 1:TRIMLEN( GC_EMIS( N ) ) )
+     &              // TRIM( GC_EMIS( N ) )
      &              // ' not found on ' // EMIS_1
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
@@ -201,7 +201,7 @@ C Open the emissions file (for gas chem, aerosols and non-reactive species)
                END IF
             ELSE
                XMSG = 'Emissions species '
-     &              // NR_EMIS( N )( 1:TRIMLEN( NR_EMIS( N ) ) )
+     &              // TRIM( NR_EMIS( N ) )
      &              // ' not found on ' // EMIS_1
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF

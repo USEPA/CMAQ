@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vadv/yamo/zadvyppm.F,v 1.1 2010/07/20 12:42:26 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vadv/yamo/zadvyppm.F,v 1.2 2011/04/01 15:41:58 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -76,6 +76,7 @@ C                                accordingly
 C    21 Aug 09 J.Young: Don't bypass VPPMY if ITER = 0
 C    18 Nov 09 J.Young: Combine VPPMY and VPPM functionality
 C    21 Jun 10 J.Young: convert for Namelist redesign
+C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -83,13 +84,12 @@ C-----------------------------------------------------------------------
       USE WVEL_DEFN             ! derived vertical velocity component
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C Includes:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
  
 C Arguments:
@@ -100,10 +100,6 @@ C Arguments:
       INTEGER     TSTEP( 2 )    ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
- 
-C External Functions not declared in IODECL3.EXT:
- 
-      INTEGER, EXTERNAL :: TIME2SEC
  
 C Parameters:
 

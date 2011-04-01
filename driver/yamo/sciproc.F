@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.2 2010/12/06 12:50:51 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.3 2011/04/01 15:41:37 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -54,14 +54,15 @@ C    30 May 05 J.Young: mass-conserving advection (yamo)
 C     7 Jul 07 J.Young: No cksummer call after HADV - delay possible truncation of
 C                       HADV negative conc's until after ZADV
 C    25 Jul 08 S.Roselle: removed PING from modeled processes
+C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE   
 
 C Include files:
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 C Arguments:
@@ -78,10 +79,7 @@ C Arguments:
 
 C Parameters:
 
-C External Functions (not already declared by IODECL3.EXT):
-
-      INTEGER, EXTERNAL :: SEC2TIME
-      LOGICAL, EXTERNAL :: ENVYN
+C External Functions:
 
 C Local Variables:
 

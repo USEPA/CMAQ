@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/flcheck.F,v 1.1 2010/07/19 18:09:42 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/flcheck.F,v 1.2 2011/04/01 15:41:50 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -39,14 +39,14 @@ C                   and MEPSE files from being checked
 C                   Jeff - Nov 2000 - ck only input files for start date/time
 C   30 Mar 01 J.Young: elim reference to grid
 C    6 Jul 10 J.Young: minor mods - F90-ize
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
 C Includes:
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
-      INCLUDE SUBST_IODECL      ! I/O definitions and declarations
       INCLUDE SUBST_FILES_ID    ! file name parameters
       
 C Arguments:
@@ -56,9 +56,7 @@ C Arguments:
 
 C Parameters: None
 
-C External Functions:
-      INTEGER, EXTERNAL :: ENVINT    ! Gets integer value of environment variable 
-      LOGICAL, EXTERNAL :: ENVYN     ! Gets logical value of environment variable
+C External Functions: None
 
 C Saved Local Variables: None
       

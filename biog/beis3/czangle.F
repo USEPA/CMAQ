@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/czangle.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/czangle.F,v 1.2 2011/04/01 15:41:30 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -22,11 +22,12 @@ C Subroutines and Functions called:  none
 C Revision History:
 C   11/99: by Jeff Vukovich taken from v4.2 SMOKE prototype
 C   10/06: yoj
+C   02/11: Shawn Roselle: Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: czangle.F,v 1.1 2010/07/20 11:26:47 yoj Exp $
+C File: @(#)$Id: czangle.F,v 1.2 2011/04/01 15:41:30 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -35,17 +36,15 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/czangle.F,v $
-C Last updated: $Date: 2010/07/20 11:26:47 $ 
+C Last updated: $Date: 2011/04/01 15:41:30 $ 
 C----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C Includes:
 
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-!include      SUBST_IODECL    # I/O definitions and declarations
-      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-      INCLUDE SUBST_IOFDESC   ! file header data structure
       INCLUDE SUBST_CONST     ! constants
 
 C Arguments:

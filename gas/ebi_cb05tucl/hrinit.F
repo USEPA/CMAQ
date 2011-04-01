@@ -17,7 +17,7 @@ C   the MCNC Environmental Modeling Center are used with their         *
 C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrinit.F,v 1.1 2011/03/17 19:14:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrinit.F,v 1.2 2011/04/01 15:41:41 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,9 +36,11 @@ C  Key Subroutines/Functions Called: None
 C
 C  Revision History: Created by EBI solver program, Jan. 21, 2011
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   29 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE HRDATA
 
       IMPLICIT NONE

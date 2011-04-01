@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_driver.F,v 1.5 2011/03/17 18:21:24 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_driver.F,v 1.6 2011/04/01 15:41:27 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -86,6 +86,7 @@ C   - removed MW coding now located in AERO_INFO.f
 C   - added LIMIT_Sg flag for call to GETPAR
 C   Jeff Young - Aug 10 - convert for Namelist redesign (replace include files)
 C   Steve Howard - Mar 11 - Renamed met_data to aeromet_data
+C   S.Roselle- Mar 11 - replaced I/O API include files with UTILIO_DEFN
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -95,16 +96,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 C *** Includes:
 
       INCLUDE SUBST_RXCMMN    ! to get mech name
-      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC   ! file header data structure
-!     INCLUDE SUBST_IODECL    ! I/O definitions and declarations
-#include      SUBST_IODECL    # I/O definitions and declarations
       INCLUDE SUBST_FILES_ID  ! file name parameters (req IOPARMS)
       INCLUDE SUBST_PACTL_ID  ! process analysis
 
@@ -121,6 +119,7 @@ C *** CGRID is conc field (including gas and aerosol variables)
       INTEGER, SAVE :: LOGDEV             ! unit number for the log file
 
 C *** Local Variables:
+
       CHARACTER( 16 ), SAVE :: PNAME = 'AERO_DRIVER'
       CHARACTER( 16 ) :: VNAME            ! variable name
       CHARACTER( 96 ) :: XMSG = ' '
@@ -133,10 +132,6 @@ C *** Local Variables:
       INTEGER   ALLOCSTAT            ! memory allocation status
 
       LOGICAL   LERROR               ! Error flag
-
-C *** External Functions not previously declared in IODECL3.EXT:
-      INTEGER, EXTERNAL :: SECSDIFF, SEC2TIME, TIME2SEC, INDEX1
-      LOGICAL, EXTERNAL :: ENVYN     ! get environment variable as boolean
 
 C *** Grid Description
       REAL DX1                 ! Cell x-dimension

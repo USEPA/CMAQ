@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.2 2010/12/06 14:51:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.3 2011/04/01 15:41:55 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -27,9 +27,11 @@ C=======================================================================
       SUBROUTINE PA_MKHDR ( TYPE, NFL, OUTFNAME, SDATE, STIME, TSTEP )
 
 C   21 Jun 10 J.Young: convert for Namelist redesign
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE UTILIO_DEFN
       USE PAGRD_DEFN            ! PA horiz domain specs
 
       IMPLICIT NONE
@@ -38,8 +40,6 @@ C used in pa_init
 C FIRSTIME gets some FDESC3 common variables from GRID_CONF to be used
 C for both IPR and IRR if needed.
 
-      INCLUDE SUBST_IOPARMS     ! I/O parameters definitions
-      INCLUDE SUBST_IOFDESC     ! file header data structure
       INCLUDE SUBST_PACMN_ID    ! PA common block definitions
 
 C Arguments:
