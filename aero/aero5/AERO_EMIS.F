@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.3 2011/04/01 15:41:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.4 2011/04/04 18:53:52 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -59,6 +59,7 @@ C   23 Jul 10 D.Wong:   remove CLOSE3 and BARRIER
 C   24 Feb 11 J.Young:  Reorganized module with initialization and timestepping
 C                       procedures
 C   25 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   04 Apr 11 S.Howard: Added mode dimension to SS_MAP array
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -86,7 +87,7 @@ C Emission rate of all aerosol species interpolated to current time
       INTEGER, PRIVATE, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     !
       INTEGER, PRIVATE, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
       INTEGER, PRIVATE, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: SS_MAP  ( : )       !
+      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: SS_MAP  ( :,: )     !
 
 C EMBUFF     mass emission rate input global array
 C PM_EM      mass emission rate input localized to one grid cell
@@ -159,6 +160,7 @@ C   11 Apr 08 J.Kelly:  added code to emit coarse surface area
 C   09 Sep 08 P.Bhave:  backward compatibility with AE4 mechanisms
 C   20 Feb 10 J.Young:  move ssemis out to its own F90 module
 C   25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
+C   04 Apr 11 S.Howard: Reorganized SS_MAP as a 2-D array
 
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
@@ -298,7 +300,7 @@ C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, NUM_MAP, SRF_MAP, SS_MAP and
      &              EM_MAP ( N_AEROSPC, N_MODE ),
      &              NUM_MAP(            N_MODE ),
      &              SRF_MAP(            N_MODE ),
-     &              SS_MAP ( N_AEROSPC ), STAT = STATUS )
+     &              SS_MAP ( N_AEROSPC, N_MODE ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** memory allocation failed for '
      &           // 'EM_PART, EM_MAP, NUM_MAP, SRF_MAP, or SS_MAP'
@@ -342,15 +344,13 @@ C *** Map aerosol surface emission species
 C *** Map sea salt emission species
          SS_MAP = 0
          DO S = 1, NSSSPC
-            IDX = FINDAERO( WRSS_SPC( S ), .FALSE. )
-            IF ( IDX .NE. 0 ) THEN
-               SS_MAP( IDX ) = S
-               DO N = 1, N_MODE   ! add SEASALT indices to EM_MAP
-                  IF ( AEROSPC( IDX )%NAME( N ) .NE. ' ' ) THEN
-                     EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
-                  END IF
-               END DO
-            END IF
+            IDX = SSSPC_MAP( S )
+            DO N = 1, N_MODE   ! add SEASALT indices to EM_MAP
+               IF ( AEROSPC( IDX )%NAME( N ) .NE. ' ' ) THEN
+                  EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
+                  SS_MAP( IDX,N ) = S
+               END IF
+            END DO
          END DO
 
 C *** Map data modules
@@ -577,8 +577,8 @@ C     Convert units of SSOUTM from [g/m3/s] to [ug/m3/s].
                CR_SSM = 0.0   ! array assignment
                DO N = 1, N_MODE
                   DO S = 1, N_AEROSPC
-                     IF ( SS_MAP( S ) .NE. 0 )
-     &                  CR_SSM( S,N ) = SSOUTM( SS_MAP( S ),N,C,R ) * MGPG
+                     IF ( SS_MAP( S,N ) .NE. 0 )
+     &                  CR_SSM( S,N ) = SSOUTM( SS_MAP( S,N ),N,C,R ) * MGPG
                   END DO
                   CR_SSN( N ) = SSOUTN( N,C,R )
                   CR_SSS( N ) = SSOUTS( N,C,R )
