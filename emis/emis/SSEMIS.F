@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.3 2011/04/01 15:41:39 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.4 2011/04/04 18:53:05 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,64 +26,44 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE SSEMIS
 
+C Revision History:
+C   04 Apr 11 S.Howard: generalization to accomodate different sea-salt speciation
+C                       in aero5 and aero6
+
       USE HGRD_DEFN
 
-C number of chemical species in fresh sea-salt aerosol
-      INTEGER, PARAMETER :: NSSSPC = 4
+C Number of chemical species in fresh sea-salt aerosol
+      INTEGER :: NSSSPC
 
-C Indices to sea-salt species in mass-emission arrays
-      INTEGER, PARAMETER :: KNA  = 1   ! position of sodium
-      INTEGER, PARAMETER :: KCL  = 2   ! position of chloride
-      INTEGER, PARAMETER :: KSO4 = 3   ! position of sulfate
-      INTEGER, PARAMETER :: KH2O = 4   ! position of water
-
-C number of lognormal modes in sea-salt aerosol (only accumulation and coarse modes used)
+C Number of lognormal modes in sea-salt aerosol (only accumulation and coarse modes used)
       INTEGER, PARAMETER :: NSSMODE = 3
 
+C Position of H2O in sea-salt emission arrays
+      INTEGER :: KH2O
+
 C Sea-Salt Emissions Rates
-!     REAL  SSOUTM( NSSSPC,NSSMODE,NCOLS,NROWS )   ! mass emission rates [ug/m3/s]
-!     REAL  SSOUTN( NSSMODE,NCOLS,NROWS )          ! number emission rates [1/m3/s]
-!     REAL  SSOUTS( NSSMODE,NCOLS,NROWS )          ! surface-area emisrates [m2/m3/s]
+      INTEGER, ALLOCATABLE    :: SSSPC_MAP( : )     ! maps to aerospc array
       REAL, ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )  ! mass emission rates [ug/m3/s]
       REAL, ALLOCATABLE, SAVE :: SSOUTN( :,:,: )    ! number emission rates [1/m3/s]
       REAL, ALLOCATABLE, SAVE :: SSOUTS( :,:,: )    ! surface-area emisrates [m2/m3/s]
 
 C Variables for handling sea-salt emissions
-!     REAL, PRIVATE :: OCEAN( NCOLS,NROWS )       ! fractional sea water cover
-!     REAL, PRIVATE :: SZONE( NCOLS,NROWS )       ! fractional surf-zone cover
       REAL, PRIVATE, ALLOCATABLE, SAVE :: OCEAN( :,: )  ! fractional sea water cover
       REAL, PRIVATE, ALLOCATABLE, SAVE :: SZONE( :,: )  ! fractional surf-zone cover
 
 C Variables for the sea-salt diagnostic file
-!     INTEGER, PRIVATE, PARAMETER :: NSSDIAG = 12 ! number of species in sea-salt
-      INTEGER,          PARAMETER :: NSSDIAG = 12 ! number of species in sea-salt
-                                                  ! diagnostic emission file
-      REAL,    PRIVATE               :: SSOUTD( NSSDIAG )    ! emission rates
-      LOGICAL, PRIVATE, SAVE         :: SSEMDIAG   ! flag for SSEMIS diagnostic file
+      INTEGER :: NSSDIAG                ! number of species in sea-salt
+                                        ! diagnostic emission file
+      REAL,    PRIVATE, ALLOCATABLE  :: SSOUTD( : )        ! emission rates
+      LOGICAL, PRIVATE, SAVE         :: SSEMDIAG           ! flag for SSEMIS diagnostic file
       REAL,    PRIVATE, ALLOCATABLE, SAVE :: SSBF( :,:,: ) ! seasalt emiss accumulator
       REAL,    PRIVATE, ALLOCATABLE, SAVE :: WRSS( :,: )   ! seasalt emiss write buffer
       INTEGER, PRIVATE, SAVE         :: SDATE, STIME  ! scenario start date & time
 
 C Species names in the speciated sea-salt-emissions
-      CHARACTER( 16 ), SAVE :: WRSS_SPC( NSSDIAG )  ! species names
-      DATA WRSS_SPC(  1 ) / 'ANAJ'  /   ! accumulation mode sodium
-      DATA WRSS_SPC(  2 ) / 'ACLJ'  /   ! accumulation mode chloride
-      DATA WRSS_SPC(  3 ) / 'ASO4J' /   ! accumulation mode sulfate
-      DATA WRSS_SPC(  4 ) / 'AH2OJ' /   ! accumulation mode water
-      DATA WRSS_SPC(  5 ) / 'ANAK'  /   ! coarse mode sodium
-      DATA WRSS_SPC(  6 ) / 'ACLK'  /   ! coarse mode chloride
-      DATA WRSS_SPC(  7 ) / 'ASO4K' /   ! coarse mode sulfate
-      DATA WRSS_SPC(  8 ) / 'AH2OK' /   ! coarse mode water
-      DATA WRSS_SPC(  9 ) / 'ANUMJ' /   ! accumulation mode number
-      DATA WRSS_SPC( 10 ) / 'ANUMK' /   ! coarse mode number
-      DATA WRSS_SPC( 11 ) / 'ASRFJ' /   ! accumulation mode surface area
-      DATA WRSS_SPC( 12 ) / 'ASRFK' /   ! coarse mode surface area
+      CHARACTER( 16 ), ALLOCATABLE  :: WRSS_SPC( : )  ! species names
 
 C Variables interpolated from the meteorological input files
-!     REAL  PRES( NCOLS,NROWS )                   ! atmospheric pressure [Pa]
-!     REAL  TA  ( NCOLS,NROWS )                   ! air temperature [K]
-!     REAL  QV  ( NCOLS,NROWS )                   ! H2O mass mixing ratio [kg/kg]
-!     REAL  WSPD10( NCOLS,NROWS )                 ! wind speed at 10m [m/s]
       REAL, PRIVATE, ALLOCATABLE, SAVE :: PRES( :,: )    ! atmospheric pressure [Pa]
       REAL, PRIVATE, ALLOCATABLE, SAVE :: TA  ( :,: )    ! air temperature [K]
       REAL, PRIVATE, ALLOCATABLE, SAVE :: QV  ( :,: )    ! H2O mass mixing ratio [kg/kg]
@@ -278,8 +258,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Revision History:
 C   26 Feb 10 J.Young:  Eliminate BARRIER, etc. to prevent MPI race condition
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   04 Apr 11 S.Howard: dynamic allocation and generalization of indices for
+C                       SSOUTD, WRSS_SPC, and SSSPC_MAP
 
             USE UTILIO_DEFN
+            USE AERO_DATA
 
             IMPLICIT NONE
 
@@ -301,12 +284,81 @@ C Local Variables:
             CHARACTER( 80 ) :: VARDESC
             CHARACTER( 96 ) :: XMSG = ' '
             INTEGER STATUS
+            INTEGER N, M, L        
 
 C-----------------------------------------------------------------------
 
             LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
+C Count number of sea-salt species to compute NSSSPC and NSSDIAG values
+            NSSSPC = 0
+            NSSDIAG = 0
+
+C Count species where sea-salt speciation factor > 0
+            DO N = 1, N_AEROSPC
+               IF ( AEROSPC_SSF( 2,N ) + AEROSPC_SSF( 3,N ) .GT. 0.0 ) NSSSPC = NSSSPC + 1
+               IF ( AEROSPC_SSF( 2,N ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
+               IF ( AEROSPC_SSF( 3,N ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
+            END DO
+
+C Include H2O
+            NSSSPC = NSSSPC + 1
+            NSSDIAG = NSSDIAG + 2   !! count both J and K modes
+
+C Include NUMBER and SURFACE_AREA to diagnostic (J & K)
+            NSSDIAG = NSSDIAG + 4
+
+C Allocate mapping and diagnostic arrays
+            ALLOCATE ( SSOUTD( NSSDIAG ), WRSS_SPC( NSSDIAG ), SSSPC_MAP( NSSSPC ), STAT = STATUS )
+            IF ( STATUS .NE. 0 ) THEN
+               XMSG = '*** SSOUTD, WRSS_SPC memory allocation failed'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+
+C build mapping array SSSPC_MAP
+            NSSSPC = 0
+            DO N = 1, N_AEROSPC
+               IF ( AEROSPC_SSF( 2,N ) + AEROSPC_SSF( 3,N ) .GT. 0.0 ) THEN
+                  NSSSPC = NSSSPC + 1
+                  SSSPC_MAP( NSSSPC ) = N
+               END IF
+            END DO
+
+C Include H2O to mapping
+            NSSSPC = NSSSPC + 1      
+            KH2O = NSSSPC
+            SSSPC_MAP( NSSSPC ) = AH2O_IDX
+
+C Build WRSS_SPC arrays
+            NSSDIAG = 0
+            DO M = 2, NSSMODE
+               DO N = 1, N_AEROSPC
+                  IF ( AEROSPC_SSF( M,N ) .GT. 0.0 ) THEN
+                     NSSDIAG = NSSDIAG + 1
+                     WRSS_SPC( NSSDIAG ) = AEROSPC( N )%NAME(M)
+                  END IF
+               END DO
+
+C Include H2O
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = AEROSPC( AH2O_IDX )%NAME(M)
+            END DO
+
+C Include Mode NUMBER to diagnostic
+            DO M = 2, NSSMODE
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = AEROMODE( M )%NUM_NAME
+            END DO
+ 
+C Include Mode SURFACE_AREA to diagnostic
+            DO M = 2, NSSMODE
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = AEROMODE( M )%SRF_NAME
+            END DO
+
+C Allocate SS arrays using NSSSPC value
             ALLOCATE ( SSOUTM( NSSSPC,NSSMODE,NCOLS,NROWS ),
      &                 SSOUTN( NSSMODE,NCOLS,NROWS ),
      &                 SSOUTS( NSSMODE,NCOLS,NROWS ), STAT = STATUS )
@@ -501,6 +553,8 @@ C                       (2) emission of coarse water, (3) enhanced surf zone
 C                       emissions, and (4) variable coarse std. deviation
 C   20 Feb 10 J.Young:  move out of AERO_EMIS proper into this module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   04 Apr 11 S.Howard: moved speciation to AERO_DATA and generalized species
+C                       and modal references and density calculation
  
 C References:
 C    Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -520,6 +574,7 @@ C          remote marine atmosphere" J. Geophys. Res. (2006)
 C-----------------------------------------------------------------------
 
             USE UTILIO_DEFN
+            USE AERO_DATA
 
             IMPLICIT NONE
 
@@ -533,6 +588,7 @@ C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
             INCLUDE SUBST_CONST     ! constants (for PI)
 
+C Local Variables:
             REAL    :: OFRAC              ! fractional seawater cover
             REAL    :: SFRAC              ! fractional surf-zone cover
             REAL    :: BLKPRS             ! atmospheric pressure [Pa]
@@ -544,107 +600,93 @@ C Includes:
 
             CHARACTER( 16 ), SAVE :: PNAME = 'GET_SSEMIS'
             CHARACTER( 96 ) :: XMSG = ' '
-            INTEGER C, R, L, N, V         ! loop indices
+            INTEGER C, R, L, N, V, M, S         ! loop indices
 
 C Variables for calculating ambient RH as done in the aerosol module
             REAL, PARAMETER :: AA = 610.94      ! coefficients from Alduchov
             REAL, PARAMETER :: BB = 17.625      !  and Eskridge (1996)
             REAL, PARAMETER :: CC = 243.04
             REAL, PARAMETER :: EPSWATER = MWWAT / MWAIR
-            REAL    :: ESAT               ! saturation vapor pressure
-            REAL    :: BLKRH              ! fractional relative humidity
+            REAL      :: ESAT             ! saturation vapor pressure
+            REAL      :: BLKRH            ! fractional relative humidity
 
 C Variables for calculating solute mass fraction & size-correction factors
-            REAL    :: RH                 ! BLKRH constrained to 45-99% range
+            REAL      :: RH               ! BLKRH constrained to 45-99% range
             REAL( 8 ) :: DRH              ! double precision RH
-            REAL    :: C0                 ! (Diam @ formation) / (Diam @ ambient RH)
-            REAL    :: C80                ! (Diam @ 80% RH) / (Diam @ ambient RH)    
-            REAL    :: XSW                ! fractional solute weight fraction
-
-C Sea-salt speciation factors based on dry mass
-            REAL, PARAMETER :: SPCFAC_NA  = 0.3856
-            REAL, PARAMETER :: SPCFAC_CL  = 0.5389
-            REAL, PARAMETER :: SPCFAC_SO4 = 0.0755
-         
-C Bulk component densities [ kg/m3 ]
-            REAL, PARAMETER :: RHOH2O  = 1.0E3  ! density of water
-            REAL, PARAMETER :: RHOSO4  = 1.8E3  ! density of sulfate aerosol
-            REAL, PARAMETER :: RHOSEAS = 2.2E3  ! density of marine aerosol
+            REAL      :: C0               ! (Diam @ formation) / (Diam @ ambient RH)
+            REAL      :: C80              ! (Diam @ 80% RH) / (Diam @ ambient RH)    
+            REAL      :: XSW              ! fractional solute weight fraction
 
 C Density of dry sea salt [kg/m3] using volume additivity
-            REAL, PARAMETER :: RHOSSDRY = 1.0 / ( (SPCFAC_NA+SPCFAC_CL) / RHOSEAS
-     &                                        +    SPCFAC_SO4           / RHOSO4 )
-                                        !   (= 2.1261E3)
-            REAL    :: RHOSW       ! sea-salt particle density at ambient RH [g/m3]
+            REAL( 8 ) :: RHOSSDRY 
+            REAL( 8 ) :: RHOSW            ! sea-salt particle density at ambient RH [g/m3]
+            REAL( 8 ) :: RHSUM       
 
 C Maximum and minimum diameters for emission-flux integrations [m]
             REAL, PARAMETER :: DPMAX = 20.0E-6 ! upper limit used for the
                                                ! numerical integrations
-            REAL    :: DPMINO             ! minimum diameter for open-ocean flux
-            REAL    :: DPMAXO             ! maximum diameter for open-ocean flux
-!           REAL    :: DPMINS             ! minimum diameter for surf-zone flux
-!           REAL    :: DPMAXS             ! maximum diameter for surf-zone flux
+            REAL      :: DPMINO           ! minimum diameter for open-ocean flux
+            REAL      :: DPMAXO           ! maximum diameter for open-ocean flux
    
 C Wind-speed-dependent scaling factors for emissions flux functions
-            REAL    :: WDSCALO            ! Gong-Monahan open-ocean flux
-!           REAL    :: WDSCALS            ! deLeeuw surf-zone flux
+            REAL      :: WDSCALO          ! Gong-Monahan open-ocean flux
 
 C Fraction of whitecap coverage
-            REAL    :: WCAP
+            REAL      :: WCAP
 
 C Lognormal parameters and numerically-integrated fluxes at ambient RH
-            INTEGER :: IPOS               ! position of ambient RH in data arrays
-            REAL    :: DGNJRH             ! geometric mean of accum-mode flux [m]
-            REAL    :: DGNKRH             ! geometric mean of coarse-mode flux [m]
-            REAL    :: SIGJRH             ! geom std deviation of accum-mode flux
-            REAL    :: SIGKRH             ! geom std deviation of coarse-mode flux
-            REAL    :: FNJRH              ! magnitude of accum-mode flux [1/m2/s]
-            REAL    :: FNKRH              ! magnitude of coarse-mode flux [1/m2/s]
-            REAL    :: VFLXRH             ! total particle volume [m3/m2/s]
+            INTEGER   :: IPOS             ! position of ambient RH in data arrays
+            REAL      :: DGNJRH           ! geometric mean of accum-mode flux [m]
+            REAL      :: DGNKRH           ! geometric mean of coarse-mode flux [m]
+            REAL      :: SIGJRH           ! geom std deviation of accum-mode flux
+            REAL      :: SIGKRH           ! geom std deviation of coarse-mode flux
+            REAL      :: FNJRH            ! magnitude of accum-mode flux [1/m2/s]
+            REAL      :: FNKRH            ! magnitude of coarse-mode flux [1/m2/s]
+            REAL      :: VFLXRH           ! total particle volume [m3/m2/s]
 
 C Alternate forms of geometric std devs stored for efficiency
-            REAL    :: LNSGJ, LNSGK       ! natural log of std dev
-            REAL    :: RDIVJ, RDIVK       ! reciprocal of sqrt(2)*lnsg
+            REAL      :: LNSGJ, LNSGK     ! natural log of std dev
+            REAL      :: RDIVJ, RDIVK     ! reciprocal of sqrt(2)*lnsg
 
 C Geometric mean diameters by volume/mass [m]
-            REAL    :: DGVJRH             ! accumulation mode
-            REAL    :: DGVKRH             ! coarse mode
+            REAL      :: DGVJRH           ! accumulation mode
+            REAL      :: DGVKRH           ! coarse mode
 
 C Variables for converting 3rd moment emission rates to M0 and M2 rates
-            REAL    :: FACTNUMJ           ! conversion for accumulation mode M0
-            REAL    :: FACTNUMK           ! conversion for coarse mode M0
-            REAL    :: FACTM2J            ! conversion for accumulation mode M2
-            REAL    :: FACTM2K            ! conversion for coarse mode M2 
+            REAL      :: FACTNUMJ         ! conversion for accumulation mode M0
+            REAL      :: FACTNUMK         ! conversion for coarse mode M0
+            REAL      :: FACTM2J          ! conversion for accumulation mode M2
+            REAL      :: FACTM2K          ! conversion for coarse mode M2 
 
 C Variables for calculating fraction of mass emissions assigned to each mode
-            REAL    :: FFINJ              ! finite integral for accumulation mode
-            REAL    :: FFINK              ! finite integral for coarse mode
-            REAL    :: FRACMJ             ! mass fraction assigned to accumulation mode
-            REAL    :: FRACMK             ! mass fraction assigned to coarse mode
+            REAL      :: FFINJ            ! finite integral for accumulation mode
+            REAL      :: FFINK            ! finite integral for coarse mode
+            REAL      :: FRACMJ           ! mass fraction assigned to accumulation mode
+            REAL      :: FRACMK           ! mass fraction assigned to coarse mode
 
 C Mode-specific sea-salt mass emission rates [g/m3/s]
-            REAL    :: ESEASJ             ! accumulation mode
-            REAL    :: ESEASK             ! coarse mode
+            REAL( 8 ) :: ESEASJ           ! accumulation mode
+            REAL( 8 ) :: ESEASK           ! coarse mode
 
 C 3rd moment emission rates [m3/m3/s]
-            REAL    :: M3J                ! accumulation mode, 3rd moment
-            REAL    :: M3K                ! coarse mode, 3rd moment
+            REAL      :: M3J              ! accumulation mode, 3rd moment
+            REAL      :: M3K              ! coarse mode, 3rd moment
          
 C Variables for calculating dry surface-area emission rate for accum mode
-            REAL    :: WET_M3J, DRY_M3J   ! wet & dry 3rd moment emis rates [m3/m3/s] 
-            REAL    :: WET_M2J, DRY_M2J   ! wet & dry 2nd moment emis rates [m3/m3/s] 
-            REAL    :: WET_M3K, DRY_M3K   ! wet & dry 3rd moment emis rates [m3/m3/s] 
-            REAL    :: WET_M2K, DRY_M2K   ! wet & dry 2nd moment emis rates [m3/m3/s] 
+            REAL      :: WET_M3J, DRY_M3J ! wet & dry 3rd moment emis rates [m3/m3/s] 
+            REAL      :: WET_M2J, DRY_M2J ! wet & dry 2nd moment emis rates [m3/m3/s] 
+            REAL      :: WET_M3K, DRY_M3K ! wet & dry 3rd moment emis rates [m3/m3/s] 
+            REAL      :: WET_M2K, DRY_M2K ! wet & dry 2nd moment emis rates [m3/m3/s] 
 
             INTEGER, SAVE     :: WSTEP  = 0    ! local write counter
             INTEGER           :: MDATE, MTIME  ! SSEMIS write date&time
 
 C Mathematical constants; statement function for ERF approximation
-            REAL,      PARAMETER :: F6DPI = 6.0 / PI
-            REAL,      PARAMETER :: ONE3 = 1.0 / 3.0
-            REAL,      PARAMETER :: TWO3 = 2.0 / 3.0
-            REAL    :: ERF                ! ERF approx. statement function
-            REAL    :: X                  ! dummy argument for ERF
+            REAL, PARAMETER :: F6DPI = 6.0 / PI
+            REAL, PARAMETER :: ONE3 = 1.0 / 3.0
+            REAL, PARAMETER :: TWO3 = 2.0 / 3.0
+            REAL            :: ERF        ! ERF approx. statement function
+            REAL            :: X          ! dummy argument for ERF
             ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
 
 C----------------------------- Begin calc ------------------------------
@@ -754,9 +796,19 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
      &                + DRH * ( X_COEFF( 5 )
      &                + DRH * ( X_COEFF( 6 ) ) ) ) ) )
 
+C Calculate dry sea-salt [kg/m3]
+                  RHSUM = 0.0D0
+                  DO N = 1, NSSSPC
+                     IF ( N .EQ. KH2O ) CYCLE     !! do not include Water
+                     RHSUM = RHSUM + AEROSPC_SSF( 2, SSSPC_MAP( N ) ) 
+     &                     / AEROSPC( SSSPC_MAP( N ) )%DENSITY
+                  END DO
+                  RHOSSDRY = 1.0D0 / RHSUM    
+
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
-                  RHOSW = 1.0E+3 / ( XSW / RHOSSDRY + ( 1.0 - XSW ) / RHOH2O )
+                  RHOSW = 1.0D+3 / ( XSW / RHOSSDRY + ( 1.0D0 - XSW )
+     &                  / AEROSPC( AH2O_IDX )%DENSITY )
 
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)
@@ -832,18 +884,18 @@ C obtain speciated mass emissions.
                   ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * RHOSW
                   ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * RHOSW
 
-                  SSOUTM( KNA, 1,C,R ) = 0.0
-                  SSOUTM( KCL, 1,C,R ) = 0.0
-                  SSOUTM( KSO4,1,C,R ) = 0.0
-                  SSOUTM( KH2O,1,C,R ) = 0.0
-                  SSOUTM( KNA, 2,C,R ) = ESEASJ * XSW * SPCFAC_NA  ! ac mode sodium
-                  SSOUTM( KCL, 2,C,R ) = ESEASJ * XSW * SPCFAC_CL  ! ac mode chloride
-                  SSOUTM( KSO4,2,C,R ) = ESEASJ * XSW * SPCFAC_SO4 ! ac mode sulfate
-                  SSOUTM( KH2O,2,C,R ) = ESEASJ * ( 1.0 - XSW )    ! ac mode water
-                  SSOUTM( KNA, 3,C,R ) = ESEASK * XSW * SPCFAC_NA  ! crse mode sodium  
-                  SSOUTM( KCL, 3,C,R ) = ESEASK * XSW * SPCFAC_CL  ! crse mode chloride
-                  SSOUTM( KSO4,3,C,R ) = ESEASK * XSW * SPCFAC_SO4 ! crse mode sulfate 
-                  SSOUTM( KH2O,3,C,R ) = ESEASK * ( 1.0 - XSW )    ! crse mode water 
+                  DO N = 1, NSSSPC
+                     SSOUTM( N,1,C,R ) = 0.0
+                     IF ( N .EQ. KH2O ) THEN    ! Water
+                        SSOUTM( N,2,C,R ) = ESEASJ * ( 1.0 - XSW )
+                        SSOUTM( N,3,C,R ) = ESEASK * ( 1.0 - XSW )
+                     ELSE
+                        SSOUTM( N,2,C,R ) = ESEASJ * XSW
+     &                                    * AEROSPC_SSF( 2, SSSPC_MAP( N ) )
+                        SSOUTM( N,3,C,R ) = ESEASK * XSW
+     &                                    * AEROSPC_SSF( 3, SSSPC_MAP( N ) )
+                     END IF
+                  END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
                   M3J = ESEASJ * F6DPI / RHOSW
@@ -882,22 +934,31 @@ C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
 
 C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                   IF ( SSEMDIAG ) THEN
-                     AIRVOL       = CELLVOL / RJACM( C,R )
-                     SSOUTD(  1 ) = SSOUTM( KNA, 2,C,R )
-                     SSOUTD(  2 ) = SSOUTM( KCL, 2,C,R )
-                     SSOUTD(  3 ) = SSOUTM( KSO4,2,C,R )
-                     SSOUTD(  4 ) = SSOUTM( KH2O,2,C,R )
-                     SSOUTD(  5 ) = SSOUTM( KNA, 3,C,R )
-                     SSOUTD(  6 ) = SSOUTM( KCL, 3,C,R )
-                     SSOUTD(  7 ) = SSOUTM( KSO4,3,C,R )
-                     SSOUTD(  8 ) = SSOUTM( KH2O,3,C,R )
-                     SSOUTD(  9 ) = SSOUTN( 2,C,R )
-                     SSOUTD( 10 ) = SSOUTN( 3,C,R )
-                     SSOUTD( 11 ) = SSOUTS( 2,C,R )
-                     SSOUTD( 12 ) = SSOUTS( 3,C,R )
+                     S = 0
+                     DO M = 2, 3
+                        DO N = 1, NSSSPC
+                           IF ( N .EQ. KH2O .OR. AEROSPC_SSF( M,N ) .GT. 0 ) THEN
+                              S = S + 1
+                              SSOUTD( S ) = SSOUTM( N,M,C,R )
+                           END IF
+                        END DO
+                     END DO
+
+                     DO M = 2, 3
+                        S = S + 1
+                        SSOUTD( S ) = SSOUTN( M,C,R )
+                     END DO
+
+                     DO M = 2, 3
+                        S = S + 1
+                        SSOUTD( S ) = SSOUTS( M,C,R )
+                     END DO
+
+                     AIRVOL = CELLVOL / RJACM( C,R )
+
                      DO V = 1, NSSDIAG
                         SSBF( V,C,R ) = SSBF( V,C,R ) + SSOUTD( V ) * AIRVOL
-     &                                * FLOAT( TIME2SEC ( TSTEP( 1 ) ) )
+     &                                * FLOAT( TIME2SEC ( TSTEP( 2 ) ) )
                      END DO
                   END IF  ! SSEMDIAG
 
