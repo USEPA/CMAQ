@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.5 2011/04/01 15:41:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.6 2011/04/04 18:54:15 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -21,6 +21,7 @@ C
 C SH  03/10/11 Inserted functionality of PMEM_DEFN
 C    -new subroutine map_pmemis
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C SH  04/04/11 Added sea-salt speciation factors
 C
 C----------------------------------------------------------------------
 
@@ -102,6 +103,43 @@ C                  --------- --------- ---------   ---------- -------  +  +  +  
      & spcs_type((/'       ','AORGCJ ','       '/),conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','       ','ASOIL  '/),conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','       ','ACORS  '/),conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/))/)
+
+C Sea-Salt Speciation factors
+C NOTE: in SSEMIS.F, all sea-salt emissions are assumed to be in the accumulation 
+C       and coarse modes
+      Real, Parameter :: aerospc_ssf( n_mode, n_aerospc) = (/
+C        Aitken    Accum   Coarse
+C       -------  -------  -------
+     &   0.0000,  0.0755,  0.0755,          ! ASO4
+     &   0.0000,  0.0000,  0.0000,          ! ANO3
+     &   0.0000,  0.5389,  0.5389,          ! ACL
+     &   0.0000,  0.0000,  0.0000,          ! ANH4
+     &   0.0000,  0.3856,  0.3856,          ! ANA
+     &   0.0000,  0.0000,  0.0000,          ! AORGPA
+     &   0.0000,  0.0000,  0.0000,          ! AEC
+     &   0.0000,  0.0000,  0.0000,          ! AH2O
+     &   0.0000,  0.0000,  0.0000,          ! A25
+     &   0.0000,  0.0000,  0.0000,          ! AALK
+     &   0.0000,  0.0000,  0.0000,          ! AXYL1
+     &   0.0000,  0.0000,  0.0000,          ! AXYL2
+     &   0.0000,  0.0000,  0.0000,          ! AXYL3
+     &   0.0000,  0.0000,  0.0000,          ! ATOL1
+     &   0.0000,  0.0000,  0.0000,          ! ATOL2
+     &   0.0000,  0.0000,  0.0000,          ! ATOL3
+     &   0.0000,  0.0000,  0.0000,          ! ABNZ1
+     &   0.0000,  0.0000,  0.0000,          ! ABNZ2
+     &   0.0000,  0.0000,  0.0000,          ! ABNZ3
+     &   0.0000,  0.0000,  0.0000,          ! ATRP1
+     &   0.0000,  0.0000,  0.0000,          ! ATRP2
+     &   0.0000,  0.0000,  0.0000,          ! AISO1
+     &   0.0000,  0.0000,  0.0000,          ! AISO2
+     &   0.0000,  0.0000,  0.0000,          ! AISO3
+     &   0.0000,  0.0000,  0.0000,          ! ASQT
+     &   0.0000,  0.0000,  0.0000,          ! AOLGA
+     &   0.0000,  0.0000,  0.0000,          ! AOLGB
+     &   0.0000,  0.0000,  0.0000,          ! AORGC
+     &   0.0000,  0.0000,  0.0000,          ! ASOILS
+     &   0.0000,  0.0000,  0.0000 /)        ! ACORS
 
 C Required species
       Character( 16 ), Private, Parameter :: req_so4   = 'ASO4'
