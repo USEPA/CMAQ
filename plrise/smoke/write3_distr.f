@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/write3_distr.f,v 1.2 2011/04/01 15:41:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/write3_distr.f,v 1.3 2011/04/05 20:42:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -17,10 +17,10 @@ C Note: This function must live in a file that has a ".f" extension!
 
 C Revision History:
 C     5 Dec 2007 J.Young: initial implementation
-C    16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C    16 Feb 2011 S.Roselle: replaced I/O API include files with M3UTILIO
 C-----------------------------------------------------------------------
 
-      USE UTILIO_DEFN
+      USE M3UTILIO
 
       IMPLICIT NONE
 
