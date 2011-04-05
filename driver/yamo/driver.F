@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/driver.F,v 1.4 2011/04/05 13:49:53 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/driver.F,v 1.5 2011/04/05 14:48:04 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
@@ -101,7 +101,7 @@ C Include Files:
 
 C Load the mechanism COMMON ... (next two INCLUDE files)
       INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
-      INCLUDE SUBST_RXDATA      ! chemical mechamism reactions DATA
+!     INCLUDE SUBST_RXDATA      ! chemical mechamism reactions DATA
 
 C External Functions:
       INTEGER, EXTERNAL :: SETUP_LOGDEV
