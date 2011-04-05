@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/advstep.F,v 1.2 2011/04/01 15:41:36 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/advstep.F,v 1.3 2011/04/05 13:49:53 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -403,18 +403,22 @@ C Get the next wind field: do not interpolate
             END DO
          END DO
 
+#ifdef Verbose
 !        if ( jtime .gt. 075600 ) then
-D        if ( jtime .gt. 005600 ) then
-D           write( logdev,* ) 'local MX_HDIV_END: ', l, mx_hdiv_end( l )
-D        end if
+         if ( jtime .gt. 005600 ) then
+            write( logdev,* ) 'local MX_HDIV_END: ', l, mx_hdiv_end( l )
+         end if
+#endif
 
          WIND_IDX_END( L ) = SUBST_GLOBAL_MAX( WIND_IDX_END( L ) )
          MX_HDIV_END( L )  = SUBST_GLOBAL_MAX( MX_HDIV_END( L ) )
 
+#ifdef Verbose
 !        if ( jtime .gt. 075600 ) then
-D        if ( jtime .gt. 005600 ) then
-D           write( logdev,* ) 'global MX_HDIV_END: ', l, mx_hdiv_end( l )
-D        end if
+         if ( jtime .gt. 005600 ) then
+            write( logdev,* ) 'global MX_HDIV_END: ', l, mx_hdiv_end( l )
+         end if
+#endif
 
       END DO
 

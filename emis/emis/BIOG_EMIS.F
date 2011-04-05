@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.2 2011/04/01 15:41:38 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.3 2011/04/05 13:54:12 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -128,11 +128,15 @@ C Local variables
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
 
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
-D        INTEGER LOGDEV   ! debug
+#ifdef Verbose
+         integer logdev   ! debug
+#endif
 
 C-----------------------------------------------------------------------
 
-D        LOGDEV = INIT3()   ! debug
+#ifdef Verbose
+         logdev = init3()   ! debug
+#endif
          SUCCESS = .TRUE.
 
 C Open speciation profiles file
@@ -374,8 +378,10 @@ C Reposition sequential file for second pass
 
          EMSPC = ' '   ! array initialization
 
-D        WRITE( LOGDEV,* ) '    Biogenic emissions species:'
-D        WRITE( LOGDEV,* ) '    Pol POLNAMES  Spc SPCNAMES         Mspcs EMSPC'
+#ifdef Verbose
+         write( logdev,* ) '    Biogenic emissions species:'
+         write( logdev,* ) '    Pol POLNAMES  Spc SPCNAMES         Mspcs EMSPC'
+#endif
 C Find emitted species names
          MSPCS = 0
          DO POL = 1, NSEF
@@ -385,11 +391,14 @@ C Find emitted species names
                IF ( NDX .EQ. 0 ) THEN
                   MSPCS = MSPCS + 1
                   EMSPC( MSPCS ) = SPCNAMES( ISP,POL )
-D              WRITE( LOGDEV,'( 5X, I3, 1X, A5, 5X, I3, 1X, A16, I4, 3X, A16 )' )
-D    &              POL, BIOTYPES( POL ), ISP, SPCNAMES( ISP,POL ), MSPCS, EMSPC( MSPCS )
-D              ELSE
-D              WRITE( LOGDEV,'( 5X, I3, 1X, A5, 5X, I3, 1X, A16 )' )
-D    &              POL, BIOTYPES( POL ), ISP, SPCNAMES( ISP,POL )
+#ifdef Verbose
+                  write( logdev,'( 5X, I3, 1X, A5, 5X, I3, 1X, A16, I4, 3X, A16 )' )
+     &                   pol, biotypes( pol ), isp, spcnames( isp,pol ), mspcs,
+     &                   emspc( mspcs )
+               else
+                  write( logdev,'( 5X, I3, 1X, A5, 5X, I3, 1X, A16 )' )
+     &                   pol, biotypes( pol ), isp, spcnames( isp,pol )
+#endif
                END IF
             END DO
          END DO

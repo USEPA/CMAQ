@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.3 2011/04/01 15:41:36 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.4 2011/04/05 13:49:53 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
@@ -212,12 +212,12 @@ C and define vertical layer structure (in module GRID_CONF)
       END IF
 
 #ifdef Verbose
-D     write( logdev,* ) ' MYPE -> NPROCS:   ', MYPE, NPROCS
-D     write( logdev,* ) ' MYPE -> NPCOL:    ', MYPE, NPCOL
-D     write( logdev,* ) ' MYPE -> NPROW:    ', MYPE, NPROW
-D     write( logdev,* ) ' MYPE -> GL_NCOLS: ', MYPE, GL_NCOLS
-D     write( logdev,* ) ' MYPE -> GL_NROWS: ', MYPE, GL_NROWS
-D     write( logdev,* ) ' MYPE -> NLAYS:    ', MYPE, NLAYS
+      write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
+      write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
+      write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
+      write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
+      write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
+      write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
 #endif
 
 C Set CGRID mechanism
@@ -226,7 +226,7 @@ C Set CGRID mechanism
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
       END IF
 #ifdef Verbose
-D     write( logdev,* ) ' MYPE -> NSPCS:    ', MYPE, NSPCSD
+      write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif
 
 #ifdef parallel
@@ -244,12 +244,12 @@ C Initialize stencil exchange
      &              COLROW, GEO_ORI )
       CALL SWAP_INIT_SNL( NPCOL, NPROW )
 #ifdef Verbose
-D     write( logdev,* ) ' MYPE -> MNDIS:    ', MYPE, MNDIS
-D     write( logdev,* ) ' MYPE -> MEDIS:    ', MYPE, MEDIS
-D     write( logdev,* ) ' MYPE -> MSDIS:    ', MYPE, MSDIS
-D     write( logdev,* ) ' MYPE -> MWDIS:    ', MYPE, MWDIS
-D     write( logdev,* ) ' MYPE -> DATA_ORI: ', MYPE, COLROW
-D     write( logdev,* ) ' MYPE -> GEO_ORI:  ', MYPE, GEO_ORI
+      write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
+      write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
+      write( logdev,* ) ' MYPE -> MSDIS:    ', mype, msdis
+      write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
+      write( logdev,* ) ' MYPE -> DATA_ORI: ', mype, colrow
+      write( logdev,* ) ' MYPE -> GEO_ORI:  ', mype, geo_ori
 #endif
 #endif
 
