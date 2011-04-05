@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/scavwdep.F,v 1.3 2011/04/01 15:41:33 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/scavwdep.F,v 1.4 2011/04/05 14:29:53 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,6 +40,8 @@ C       4 Dec 02   sjr  revised calls to HLCONST
 C       5 Jun 10   J.Young: convert for Namelist redesign
 C       6 Mar 11   S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                       removed deprecated TRIMLEN
+C       6 Mar 11   B.Hutzell: added TRACER string for AE_SPCs to omit while
+C                       computing Aitken mode mass
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -276,7 +278,8 @@ C...compute total Aitken mode mass (ug/m3)
         PNTR = CGRID_SCAV_MAP( L_MASAKN( I ) )
         IF (( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'NUM' ) .EQ. 0 ) .AND.
      &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'SRF' ) .EQ. 0 ) .AND.
-     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'H2O' ) .EQ. 0 ) ) THEN
+     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'H2O' ) .EQ. 0 ) .AND.
+     &      ( INDEX( CGRID_SCAV( L_MASAKN( I ) ), 'TRACER' ) .EQ. 0 ) ) THEN
           MASAKN = MASAKN + ( POLC( PNTR ) * AIRM / CTHK1
      &           * AE_MOLWT( PNTR - AE_STRT + 1 ) * 1.0E6 )
         END IF
