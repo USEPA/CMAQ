@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.3 2011/04/01 15:41:49 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.4 2011/04/05 16:25:28 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -151,8 +151,9 @@ C Local Variables:
       REAL,    ALLOCATABLE, SAVE :: HALO_EAST ( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: BUF_NS    ( : )
       REAL,    ALLOCATABLE, SAVE :: BUF_EW    ( : )
-      INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : )   ! global diff map to CGRID
 #endif
+
+      INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : )   ! global diff map to CGRID
 
       INTEGER, SAVE :: LOGDEV
 
