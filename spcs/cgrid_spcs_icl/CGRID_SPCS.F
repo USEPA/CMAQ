@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_icl/CGRID_SPCS.F,v 1.2 2011/04/01 15:41:56 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_icl/CGRID_SPCS.F,v 1.3 2011/04/05 14:52:02 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -94,6 +94,10 @@ c init routine to set the CGRID species locations
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
             implicit none
+
+            include SUBST_RXCMMN      ! gas chemistry definitions and commons
+            include SUBST_RXDATA      ! gas chemistry data arrays
+
 #ifdef Verbose
             integer, save :: logdev
 #endif
