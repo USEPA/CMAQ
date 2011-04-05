@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.2 2011/04/01 15:41:31 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.3 2011/04/05 13:44:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -46,7 +46,7 @@ C Modified from:
  
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling
 C                System
-C File: @(#)$Id: tmpbeis.F,v 1.2 2011/04/01 15:41:31 sjr Exp $
+C File: @(#)$Id: tmpbeis.F,v 1.3 2011/04/05 13:44:32 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -55,7 +55,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v $
-C Last updated: $Date: 2011/04/01 15:41:31 $ 
+C Last updated: $Date: 2011/04/05 13:44:32 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -152,8 +152,10 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLBS,  ENDCOLBS,  STRTROWBS,  ENDROWBS   ! BIOSEASON
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2  ! MET_CRO_2D
 
-D     REAL,    ALLOCATABLE, SAVE :: EMISX( : )
-D     INTEGER, ALLOCATABLE, SAVE :: CX( : ), RX( : )
+#ifdef Verbose
+      REAL,    ALLOCATABLE, SAVE :: EMISX( : )
+      INTEGER, ALLOCATABLE, SAVE :: CX( : ), RX( : )
+#endif
 
 C-----------------------------------------------------------------------
 
@@ -422,12 +424,14 @@ C Initialize normalized emissons to be used
 
          LDATE = 0
 
-D        ALLOCATE( EMISX( MSPCS ), STAT=IOS )
-D        CALL CHECKMEM( IOS, 'EMISX', PNAME )
-D        ALLOCATE( CX( MSPCS ), STAT=IOS )
-D        CALL CHECKMEM( IOS, 'CX', PNAME )
-D        ALLOCATE( RX( MSPCS ), STAT=IOS )
-D        CALL CHECKMEM( IOS, 'RX', PNAME )
+#ifdef Verbose
+         ALLOCATE( EMISX( MSPCS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'EMISX', PNAME )
+         ALLOCATE( CX( MSPCS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'CX', PNAME )
+         ALLOCATE( RX( MSPCS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RX', PNAME )
+#endif
 
          IF ( BEMIS_DIAG ) EMISS = 0.0   ! array
 
@@ -437,7 +441,9 @@ C Loop thru the number of time steps (hourly)
 
       EMISL = 0.0   ! array
       EMPOL = 0.0   ! array
-D     EMISX = 0.0   ! array
+#ifdef Verbose
+      EMISX = 0.0   ! array
+#endif
 
 C Compute zenith angle
       CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
@@ -519,7 +525,9 @@ C Calculate temporal non-speciated soil NO emissions
 
 C Speciate emissions
 
-D     EMISX = 0.0; CX = 0; RX = 0    ! arrays
+#ifdef Verbose
+      EMISX = 0.0; CX = 0; RX = 0    ! arrays
+#endif
       DO K = 1, NSEF
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
@@ -531,44 +539,48 @@ D     EMISX = 0.0; CX = 0; RX = 0    ! arrays
                      I = I + 1
                      MLFC = MLFAC( S,K )
                      EMISL( I,C,R ) = EMISL( I,C,R ) + EMPL * MLFC
-D                    IF ( EMISL( I,C,R ) .GT. EMISX( I ) ) THEN
-D                        EMISX( I ) = EMISL( I,C,R )
-D                        CX( I ) = C
-D                        RX( I ) = R
-D                    END IF
+#ifdef Verbose
+                     IF ( EMISL( I,C,R ) .GT. EMISX( I ) ) THEN
+                         EMISX( I ) = EMISL( I,C,R )
+                         CX( I ) = C
+                         RX( I ) = R
+                     END IF
+#endif
                   END IF
                END DO
             END DO
          END DO
       END DO
 
-D     WRITE( LOGDEV,* ) ' '
-D     WRITE( LOGDEV,* ) '       from TMPBEIS312'
-D     WRITE( LOGDEV,* ) '    Spc   EMISL  MaxC MaxR'
-D     DO S = 1, N_SPC_BIOG
-D        WRITE( LOGDEV,'( 4X, I3, F10.5, 2I4 )' ) S, EMISX( S ), CX( S ), RX( S )
-D     END DO
+#ifdef Verbose
+      WRITE( LOGDEV,* ) ' '
+      WRITE( LOGDEV,* ) '       from TMPBEIS312'
+      WRITE( LOGDEV,* ) '    Spc   EMISL  MaxC MaxR'
+      DO S = 1, N_SPC_BIOG
+         WRITE( LOGDEV,'( 4X, I3, F10.5, 2I4 )' ) S, EMISX( S ), CX( S ), RX( S )
+      END DO
 
-D     EMISX = 0.0    ! array
-D     WRITE( LOGDEV,* ) ' '
-D     WRITE( LOGDEV,* ) '                   from TMPBEIS312'
-D     WRITE( LOGDEV,* ) '    Spc SpcName  Pol  MLFAC     EMPOL     EMISL( Spc,32,7 )'
-D     C = 32; R = 7
-D     DO K = 1, NSEF
-D        EMPL = EMPOL( C,R,K ) * HR2SEC
-D        IF ( EMPL .LE. 0.0 ) CYCLE
-D        I = 0
-D        DO S = 1, MSPCS
-D           IF ( BEIS_MAP( S ) .GT. 0 ) THEN
-D              I = I + 1
-D              MLFC = MLFAC( S,K )
-D              EMISX( I ) = EMISX( I ) + EMPL * MLFC
-D              IF ( MLFC .NE. 0.0 )
-D    &            WRITE( LOGDEV,'( 4X, I3, 2X, A6, 2X, I3, 1X, 3( 1PE10.3 ) )' )
-D    &                              S, EMSPC( I ), K,  MLFC, EMPL, EMISX( I )
-D           END IF
-D        END DO
-D     END DO
+      EMISX = 0.0    ! array
+      WRITE( LOGDEV,* ) ' '
+      WRITE( LOGDEV,* ) '                   from TMPBEIS312'
+      WRITE( LOGDEV,* ) '    Spc SpcName  Pol  MLFAC     EMPOL     EMISL( Spc,32,7 )'
+      C = 32; R = 7
+      DO K = 1, NSEF
+         EMPL = EMPOL( C,R,K ) * HR2SEC
+         IF ( EMPL .LE. 0.0 ) CYCLE
+         I = 0
+         DO S = 1, MSPCS
+            IF ( BEIS_MAP( S ) .GT. 0 ) THEN
+               I = I + 1
+               MLFC = MLFAC( S,K )
+               EMISX( I ) = EMISX( I ) + EMPL * MLFC
+               IF ( MLFC .NE. 0.0 )
+     &            WRITE( LOGDEV,'( 4X, I3, 2X, A6, 2X, I3, 1X, 3( 1PE10.3 ) )' )
+     &                              S, EMSPC( I ), K,  MLFC, EMPL, EMISX( I )
+            END IF
+         END DO
+      END DO
+#endif
 
       NTICS = NTICS + 1
       LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )

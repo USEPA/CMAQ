@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.3 2011/04/01 15:41:30 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.4 2011/04/05 13:44:31 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -99,7 +99,7 @@ C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: hrno.F,v 1.3 2011/04/01 15:41:30 sjr Exp $
+C File: @(#)$Id: hrno.F,v 1.4 2011/04/05 13:44:31 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -108,7 +108,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v $
-C Last updated: $Date: 2011/04/01 15:41:30 $ 
+C Last updated: $Date: 2011/04/05 13:44:31 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -218,9 +218,11 @@ C for INTERPX
       INTEGER       :: STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN  ! SOILINP
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2  ! MET_CRO_2D
 
-D     integer mxptype, ncfno0
-D     real    mxrntot, mxfac1, avgfac2, mxfac3, mxfac4
-D     real    mxtair, mxcfno
+#ifdef Verbose
+      integer mxptype, ncfno0
+      real    mxrntot, mxfac1, avgfac2, mxfac3, mxfac4
+      real    mxtair, mxcfno
+#endif
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
@@ -543,7 +545,9 @@ C Store hourly rainfall totals
             END DO
          END IF
 
-D        write( logdev,* ) 'hrno - INITIAL_DAY, IHR: ', initial_day, ihr
+#ifdef Verbose
+         write( logdev,* ) 'hrno - INITIAL_DAY, IHR: ', initial_day, ihr
+#endif
 
          IHR = IHR + 1
 
@@ -553,9 +557,10 @@ C Calculate temporal non-speciated soil NO emissions
  
       IF ( GROWSEASON( JDATE ) .EQ. 0 ) THEN   ! not growing season
 
-D        write( logdev,* ) ' not growing season'
-
-D        mxtair = 0.0; mxcfno = 0.0; ncfno0 = 0
+#ifdef Verbose
+         write( logdev,* ) ' not growing season'
+         mxtair = 0.0; mxcfno = 0.0; ncfno0 = 0
+#endif
 
          DO R = 1, NROWS
             DO C = 1, NCOLS
@@ -574,11 +579,15 @@ C Check min bounds for temperature and limit to 303 deg K
                   CFNO = EXP( 0.04686 * TAIR - 14.30579 ) ! grass (from BEIS2)
                ELSE
                   CFNO = 0.0
-D                 ncfno0 = ncfno0 + 1
+#ifdef Verbose
+                  ncfno0 = ncfno0 + 1
+#endif
                END IF
 
-D              mxtair = max( mxtair, tair )
-D              mxcfno = max( mxcfno, cfno )
+#ifdef Verbose
+               mxtair = max( mxtair, tair )
+               mxcfno = max( mxcfno, cfno )
+#endif
 
                EMPOL( C,R,NSEF ) = CFNO * ( NGROWAGNO( C,R )  ! agriculture
      &                                  +   NONAGNO( C,R ) )  ! non-agriculture
@@ -586,13 +595,17 @@ D              mxcfno = max( mxcfno, cfno )
             END DO  ! columns
          END DO  ! rows
 
-D     write( logdev,2009 ) ncfno0, mxtair, mxcfno
+#ifdef Verbose
+      write( logdev,2009 ) ncfno0, mxtair, mxcfno
 2009  format( 'hrno - NCFNO0, MAX TAIR,CFNO: ', i7, 2f10.5 )
+#endif
 
       ELSE   ! growing season
 
-D        mxptype = 0; mxrntot = 0.0
-D        mxfac1 = 0.0; avgfac2 = 0.0; mxfac3 = 0.0; mxfac4 = 0.0
+#ifdef Verbose
+         mxptype = 0; mxrntot = 0.0
+         mxfac1 = 0.0; avgfac2 = 0.0; mxfac3 = 0.0; mxfac4 = 0.0
+#endif
 
          DO R = 1, NROWS
             DO C = 1, NCOLS
@@ -686,20 +699,24 @@ C Calculate NO emissions by going thru temperature cases
                   FAC4 = 0.0
                END IF
 
-D              mxptype = max( mxptype, ptype( c,r ) )
-D              mxrntot = max( mxrntot, rntot( c,r ) )
-D              mxfac1 = max( mxfac1, fac1 )
-D              avgfac2 = avgfac2 + fac2
-D              mxfac3 = max( mxfac3, fac3 )
-D              mxfac4 = max( mxfac4, fac4 )
+#ifdef Verbose
+               mxptype = max( mxptype, ptype( c,r ) )
+               mxrntot = max( mxrntot, rntot( c,r ) )
+               mxfac1 = max( mxfac1, fac1 )
+               avgfac2 = avgfac2 + fac2
+               mxfac3 = max( mxfac3, fac3 )
+               mxfac4 = max( mxfac4, fac4 )
+#endif
 
                EMPOL( C,R,NSEF ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
 
             END DO  ! columns
          END DO  ! rows
 
-D     write( logdev,2011 ) mxptype, mxrntot, avgfac2/(ncols*nrows), mxfac1, mxfac3, mxfac4
+#ifdef Verbose
+      write( logdev,2011 ) mxptype, mxrntot, avgfac2/(ncols*nrows), mxfac1, mxfac3, mxfac4
 2011  format( 'hrno MAX PTYPE,RNTOT,AVGFAC2,FAC1,3,4: ', I2, 2f8.3 , 3f10.3 )
+#endif
 
       END IF  ! growing season check
 
