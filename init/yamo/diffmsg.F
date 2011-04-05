@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/diffmsg.F,v 1.2 2011/04/01 15:41:50 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/diffmsg.F,v 1.3 2011/04/05 20:59:34 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,6 +35,8 @@ C Key Subroutines/ unctions Called:
 C Revision History: Prototype created by Jerry Gipson, September, 1997
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
+C   04 Apr 11 S.Roselle: updated string blank space removal to use
+C                        fortran intrinsic functions
  
 C----------------------------------------------------------------------
 
@@ -45,9 +47,9 @@ C----------------------------------------------------------------------
 C..INCLUDES: None
      
 C..ARGUMENTS:
-      CHARACTER*(*) VNAME        ! Variable NameName
-      CHARACTER*(*) STR1         ! Value of character variable 1
-      CHARACTER*(*) STR2         ! Value of character variable 2
+      CHARACTER(*) VNAME        ! Variable Name
+      CHARACTER(*) STR1         ! Value of character variable 1
+      CHARACTER(*) STR2         ! Value of character variable 2
       
       INTEGER  INT1         ! Value of integer variable 1
       INTEGER  INT2         ! Value of integer variable 2
@@ -59,46 +61,29 @@ C..EXTERNAL FUNCTIONS: None
 C..SAVED LOCAL VARIABLES: None
       
 C..SCRATCH LOCAL VARIABLES:
-      CHARACTER*80 MSG
-      CHARACTER*20 CHR1      ! Value of variable 1 in character data
-      CHARACTER*20 CHR2      ! Value of variable 1 in character data
-
-      INTEGER SV, EV    ! Starting, ending position for variable name
-      INTEGER S1, E1    ! Starting, ending position for variable 1
-      INTEGER S2, E2    ! Starting, ending position for variable 2
+      CHARACTER( 80 ) MSG
+      CHARACTER( 20 ) CHR1      ! Value of variable 1 in character data
+      CHARACTER( 20 ) CHR2      ! Value of variable 1 in character data
 
 C----------------------------------------------------------------------
 
          ENTRY INTDIFF ( VNAME, INT1, INT2 )
-         SV = LBLANK( VNAME ) + 1
-         EV = LEN_TRIM( VNAME ) 
          WRITE( CHR1, 94020 ) INT1
-         S1 = LBLANK( CHR1 ) + 1
-         E1 = LEN_TRIM( CHR1 )
          WRITE( CHR2, 94020 ) INT2
-         S2 = LBLANK( CHR2 ) + 1
-         E2 = LEN_TRIM( CHR2 )
-         SV = LBLANK( VNAME ) + 1
-         EV = LEN_TRIM( VNAME ) 
-         MSG = '    Inconsistent values for '// VNAME( SV:EV) //': '
-     &         // CHR1( S1:E1 ) // ' versus ' // CHR2( S2:E2 )
+         MSG = '    Inconsistent values for '
+     &       // TRIM( ADJUSTL( VNAME ) ) // ': '
+     &       // TRIM( ADJUSTL( CHR1  ) ) // ' versus '
+     &       // TRIM( ADJUSTL( CHR2  ) )
          CALL M3MESG( MSG )
          RETURN
 
          ENTRY CHRDIFF ( VNAME, STR1, STR2 )
-         SV = LBLANK( VNAME ) + 1
-         EV = LEN_TRIM( VNAME ) 
-         S1 = LBLANK( STR1 ) + 1
-         E1 = LEN_TRIM( STR1 )
-         S2 = LBLANK( STR2 ) + 1
-         E2 = LEN_TRIM( STR2 )
-         SV = LBLANK( VNAME ) + 1
-         EV = LEN_TRIM( VNAME ) 
-         MSG = '    Inconsistent values for '// VNAME( SV:EV) //': '
-     &         // STR1( S1:E1 ) // ' versus ' // STR2( S2:E2 )
+         MSG = '    Inconsistent values for '
+     &       // TRIM( ADJUSTL( VNAME ) ) // ': '
+     &       // TRIM( ADJUSTL( STR1  ) ) // ' versus '
+     &       // TRIM( ADJUSTL( STR2  ) )
          CALL M3MESG( MSG )
          RETURN
-
 
 94020    FORMAT(I20)
          END
