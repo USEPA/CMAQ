@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.2 2011/04/01 15:41:35 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.3 2011/04/05 14:34:34 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
@@ -459,7 +459,7 @@ C-------------------------------------------------------------------------------
       DATA subname(50), dif0(50), ar(50), meso(50), mlwt(50) / 'HEXAMETHYLE_DIIS', 0.0380,   10.0,      0.0, 168.2/
       DATA subname(51), dif0(51), ar(51), meso(51), mlwt(51) / 'HYDRAZINE       ', 0.4164,   20.0,      0.0,  32.0/
       DATA subname(52), dif0(52), ar(52), meso(52), mlwt(52) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  98.0/
-      DATA subname(53), dif0(53), ar(53), meso(53), mlwt(53) / '2,4-TOLUENE_DIIS', 0.0610,   10.0,      0.0, 174.2/
+      DATA subname(53), dif0(53), ar(53), meso(53), mlwt(53) / '24-TOLUENE_DIIS ', 0.0610,   10.0,      0.0, 174.2/
       DATA subname(54), dif0(54), ar(54), meso(54), mlwt(54) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 101.2/
 
       IF ( first_call ) THEN
