@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/hlconst.F,v 1.2 2011/04/01 15:41:32 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/hlconst.F,v 1.3 2011/04/05 14:23:18 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -56,6 +56,9 @@ C                       O3, NO3, hexane, octane, nonane, methanol and
 C                       isoprene reference
 C  S.Roselle  10/10/07  changed pointers to parameters; reformatted
 C                       variable declarations
+C  W.Hutzell  03/07/08  added Henry's Law constants for 117 to 120
+C  W.Hutzell  01/01/09  added Henry's Law constants for 121 to 125 for
+C                       for SAPRC07T mechanism                 
 C  S.Roselle  03/01/11  replaced I/O API include files with UTILIO_DEFN;
 C                       removed deprecated TRIMLEN
 C-----------------------------------------------------------------------
@@ -68,7 +71,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 116     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 125     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -189,15 +192,15 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME( 57), A( 57), E( 57) / 'DATRA           ', 4.1E+05, 6.0E+03 /  ! assumed same as Atrazine
       DATA SUBNAME( 58), A( 58), E( 58) / 'ADIPIC_ACID     ', 2.0E+08, 0.0E+00 /  ! Saxena and Hildemann (1996)
       DATA SUBNAME( 59), A( 59), E( 59) / 'ACROLEIN        ', 8.2E+00, 0.0E+00 /  ! Meylan and Howard (1991)
-      DATA SUBNAME( 60), A( 60), E( 60) / '1,3-BUTADIENE   ', 1.4E-02, 0.0E+00 /  ! Mackay and Shiu (1981)
+      DATA SUBNAME( 60), A( 60), E( 60) / '13-BUTADIENE    ', 1.4E-02, 0.0E+00 /  ! Mackay and Shiu (1981)
       DATA SUBNAME( 61), A( 61), E( 61) / 'ACRYLONITRILE   ', 7.3E+00, 0.0E+00 /  ! Meylan and Howard (1991)
       DATA SUBNAME( 62), A( 62), E( 62) / 'CARBONTETRACHLOR', 3.4E-02, 4.2E+03 /  ! Staudinger and Roberts (1996)
       DATA SUBNAME( 63), A( 63), E( 63) / 'PROPYLENE_DICHLO', 3.4E-01, 4.3E+03 /  ! Staudinger and Roberts (1996)
-      DATA SUBNAME( 64), A( 64), E( 64) / '1,3DICHLORPROPEN', 6.5E-01, 4.2E+03 /  ! Wright et al (1992b)
-      DATA SUBNAME( 65), A( 65), E( 65) / '1,1,2,2-CL4ETHAN', 2.4E+00, 3.2E+03 /  ! Staudinger and Roberts (1996)
+      DATA SUBNAME( 64), A( 64), E( 64) / '13DICHLOROPROPEN', 6.5E-01, 4.2E+03 /  ! Wright et al (1992b)
+      DATA SUBNAME( 65), A( 65), E( 65) / '1122-CL4ETHANE  ', 2.4E+00, 3.2E+03 /  ! Staudinger and Roberts (1996)
       DATA SUBNAME( 66), A( 66), E( 66) / 'CHLOROFORM      ', 2.5E-01, 4.5E+03 /  ! Staudinger and Roberts (1996)
-      DATA SUBNAME( 67), A( 67), E( 67) / '1,2DIBROMOETHANE', 1.5E+00, 3.9E+03 /  ! Ashworth et al (1988)
-      DATA SUBNAME( 68), A( 68), E( 68) / '1,2DICHLOROETHAN', 7.3E-01, 4.2E+03 /  ! Staudinger and Roberts (1996)
+      DATA SUBNAME( 67), A( 67), E( 67) / '12DIBROMOETHANE ', 1.5E+00, 3.9E+03 /  ! Ashworth et al (1988)
+      DATA SUBNAME( 68), A( 68), E( 68) / '12DICHLOROETHANE', 7.3E-01, 4.2E+03 /  ! Staudinger and Roberts (1996)
       DATA SUBNAME( 69), A( 69), E( 69) / 'METHYLENE_CHLORI', 3.6E-01, 4.1E+03 /  ! Staudinger and Roberts (1996)
       DATA SUBNAME( 70), A( 70), E( 70) / 'PERCHLOROETHYLEN', 5.9E-02, 4.8E+03 /  ! Staudinger and Roberts (1996)
       DATA SUBNAME( 71), A( 71), E( 71) / 'TRICHLOROETHENE ', 1.0E-01, 4.6E+03 /  ! Staudinger and Roberts (1996)
@@ -238,7 +241,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(106), A(106), E(106) / '1NITRONAPHTHALEN', 5.68E+02, 0.0E+00 / ! Altschuh et al. (1999)
       DATA SUBNAME(107), A(107), E(107) / '2NITRONAPHTHALEN', 6.42E+02, 0.0E+00 / ! HENRYWIN v3.10 (Meylan and Howard, 1991)
       DATA SUBNAME(108), A(108), E(108) / '14NAPHTHOQUINONE', 5.08E+05, 0.0E+00 / ! HENRYWIN v3.10 (Meylan and Howard, 1991)
-      DATA SUBNAME(109), A(109), E(109) / '2,4-TOLUENE_DIIS', 7.25E+00, 0.0E+00 / ! HENRYWIN v3.10 (Meylan and Howard, 1991)
+      DATA SUBNAME(109), A(109), E(109) / '24-TOLUENE_DIIS ', 7.25E+00, 0.0E+00 / ! HENRYWIN v3.10 (Meylan and Howard, 1991)
       DATA SUBNAME(110), A(110), E(110) / 'HEXAMETHYLE_DIIS', 2.08E+01, 0.0E+00 / ! HENRYWIN v3.10 (Meylan and Howard, 1991)
       DATA SUBNAME(111), A(111), E(111) / 'HYDRAZINE       ', 1.14E+03, 0.0E+00 / ! Daubert and Danner (1989), and Amoore and Hautala (1983)
       DATA SUBNAME(112), A(112), E(112) / 'MALEIC_ANHYDRIDE', 2.54E+02, 0.0E+00 / ! HENRYWIN v3.10 (Meylan and Howard, 1991)
@@ -246,6 +249,15 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(114), A(114), E(114) / 'P_DICHLOROBENZEN', 2.38E+00, 0.0E+00 / ! MacKay and Shiu (1981), measured
       DATA SUBNAME(115), A(115), E(115) / 'M-XYLENE        ', 1.43E-01, 3.9E+03 / ! Staudinger and Roberts (2001)
       DATA SUBNAME(116), A(116), E(116) / 'P-XYLENE        ', 1.35E-01, 3.7E+03 / ! Staudinger and Roberts (2001)
+      DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 1.53E-02, 7.2E+03 / ! Staudinger and Roberts (2001)
+      DATA SUBNAME(118), A(118), E(118) / 'PROPANAL        ', 1.64E+00, 5.4E+03 / ! Staudinger and Roberts (2001)
+      DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 3.82E-01, 4.4E+03 / ! Staudinger and Roberts (2001)
+      DATA SUBNAME(120), A(120), E(120) / '124TRIMETH_BENZE', 1.50E-01, 4.3E+03 / ! Hanson et al. (1995)
+      DATA SUBNAME(121), A(121), E(121) / 'CHLOROACETALDEHY', 4.18E+01, 0.0E+00 / ! Bond Estimate by EPA SUITE PROGRAM  (2007)
+      DATA SUBNAME(122), A(122), E(122) / 'CHLOROACETONE   ', 3.82E-01, 0.0E+00 / ! Staudinger and Roberts (2001)
+      DATA SUBNAME(123), A(123), E(123) / 'NITROSYL_CHLORID', 5.10E-01, 0.0E+00 / ! Bond Estimate by EPA SUITE PROGRAM  (2007)
+      DATA SUBNAME(124), A(124), E(124) / 'NITRYL_CHLORIDE ', 2.43E-02, 0.0E+00 / ! Behnke et al. (1997), JGR, D102, 3795-3804
+      DATA SUBNAME(125), A(125), E(125) / 'HEXYL_HYDROPEROX', 1.23E+01, 0.0E+00 / ! Bond Estimated by EPA SUITE PROGRAM  (2007)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
