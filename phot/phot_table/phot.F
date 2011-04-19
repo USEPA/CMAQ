@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.2 2011/04/01 15:41:53 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.3 2011/04/19 14:08:48 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
@@ -34,7 +34,7 @@ C    above, below and in cumulus clouds.
 
 C Preconditions: HGRD_INIT() called from PAR_INIT, which is called from DRIVER
 
-C Subroutines/Functions called: INIT3
+C Subroutines/Functions called: INIT3, opphot
 
 C Revision history:
 C    prototype(adaptation from RADM), Rohit Mathur, April 1993.
@@ -59,6 +59,8 @@ C    01 Dec 08 S.Roselle: dynamic allocation of arrays in jvalue input file:
 C                         allows for northern and southern hemisphere CMAQ
 C                         applications (issue reported by Erick Sperandio)
 C    23 Feb 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
+C    06 Apr 11 B.Hutzell: added code that opens and writes photolysis rates
+C                         to an optional diagnostic file
 C
 C----------------------------------------------------------------------
 
@@ -129,7 +131,11 @@ C scratch local variables:
       CHARACTER( 16 ) :: VARNM
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
       CHARACTER( 16 ) :: PNAME = 'PHOT'
+      CHARACTER( 16 ), SAVE :: CTM_PHOTDIAG  = 'CTM_PHOTDIAG' ! PHOTDIAG env var
+      CHARACTER( 80 ) :: VARDESC      ! env var description
       CHARACTER( 120 ) :: XMSG = ' '
+
+      LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
 
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file
@@ -151,6 +157,8 @@ C scratch local variables:
       INTEGER      KHTA               ! altitude interpolation index
       INTEGER      IOST               ! i/o status code
       INTEGER      ALLOCSTAT
+      INTEGER      JTIME_CHK          ! To check for JTIME to write RJ values
+      INTEGER      ESTAT              ! status from environment var check
 
       REAL         CURRHR             ! current GMT hour
       REAL         THETA              ! function dummy argument
@@ -191,6 +199,7 @@ C for INTERPX
       INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+      INTEGER, SAVE :: TSTEP     ! current timestep
 
 C internal functions:
 
@@ -209,6 +218,7 @@ C----------------------------------------------------------------------
         STTIME = JTIME
         STRTHR = FLOAT ( JTIME / 10000 )
         JDSTRT = FLOAT ( MOD ( JDATE, 1000 ) )
+        TSTEP  = 010000  ! output timestep for photolysis diagnostic files
 
         JVUNIT = GETEFILE( J2FILE, .TRUE., .TRUE., PNAME )
 
@@ -469,10 +479,35 @@ C...get height
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+C...Get photolysis rate diagnostic file flag
+
+        PHOTDIAG = .FALSE.         ! default
+        VARDESC= 'Flag for writing the photolysis rate diagnostic file'
+        PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
+        IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+        IF ( ESTAT .EQ. 1 ) THEN
+          XMSG = 'Environment variable improperly formatted'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+        ELSE IF ( ESTAT .EQ. -1 ) THEN
+          XMSG =
+     &          'Environment variable set, but empty ... Using default:'
+          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+        ELSE IF ( ESTAT .EQ. -2 ) THEN
+          XMSG = 'Environment variable not set ... Using default:'
+          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+        END IF
+
+        IF ( PHOTDIAG ) THEN
+C...open the photolysis rate diagnostic files
+          IF ( MYPE .EQ. 0 ) CALL OPPHOT ( JDATE, JTIME, TSTEP )
+        END IF  ! photdiag
+
       END IF  ! FIRSTIME
 
 C...compute XLHA (local hr angle) deviation from noon
 C...  correct for current *positive* West longitude convention
+
+      JTIME_CHK = MOD( JTIME, 10000 )
 
       CURRHR = STRTHR
      &       + FLOAT ( SECSDIFF ( STDATE, STTIME, JDATE, JTIME ) )
@@ -504,6 +539,23 @@ C...  (assumes sun below horizon at *all* levels!)
         WRITE( LOGDEV, 1003) JDATE, JTIME
 1003    FORMAT( 8X, 'In darkness at ', I8.7, ':', I6.6,
      &          1X, 'GMT - no photolysis')
+
+        IF ( PHOTDIAG .AND. JTIME_CHK .EQ. 0 ) THEN
+
+          DO JP = 1, NPHOTAB
+            IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), JDATE,
+     &                         JTIME, RJ( :,:,:,JP ) ) ) THEN
+              XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+          END DO
+
+          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &           'RJ Values written to', CTM_RJ_2,
+     &           'for date and time', JDATE, JTIME
+
+        END IF ! if photdiag .and. jtime_chk .eq. 0
+
         RETURN
       END IF
 
@@ -738,6 +790,22 @@ C...  in cloud - linearly interpolate between base and top value
         END DO
 
       END IF
+
+      IF ( PHOTDIAG .AND. JTIME_CHK .EQ. 0 ) THEN
+
+        DO JP = 1, NPHOTAB
+          IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), JDATE,
+     &                       JTIME, RJ( :,:,:,JP ) ) ) THEN
+            XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+        END DO
+
+        WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &         'RJ Values written to', CTM_RJ_2,
+     &         'for date and time', JDATE, JTIME
+
+      END IF ! if photdiag .and. jtime_chk .eq. 0
 
       RETURN
       END
