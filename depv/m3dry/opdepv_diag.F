@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.2 2011/04/01 15:41:35 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.3 2011/04/19 14:44:34 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
@@ -42,21 +42,21 @@ C 2011-Feb-16 - replaced I/O API include files with UTILIO_DEFN (S.Roselle)
 
 C Arguments:
 
-      INTEGER         JDATE            ! current model date, coded YYYYDDD
-      INTEGER         JTIME            ! current model time, coded HHMMSS
-      INTEGER         TSTEP            ! output time step
+      INTEGER, INTENT( IN ) :: JDATE   ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME   ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP   ! output time step
 
 C number and names of gas deposition velocities
-      INTEGER            N_GDEPV_NAMES
-      CHARACTER( 16 ) :: GDEPV_NAMES( : )
+      INTEGER, INTENT( IN ) :: N_GDEPV_NAMES
+      CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
 
 C number and names of aerosol deposition velocities
-      INTEGER            N_ADEPV_NAMES
-      CHARACTER( 16 ) :: ADEPV_NAMES( : )
+      INTEGER, INTENT( IN ) :: N_ADEPV_NAMES
+      CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
 
 C number and names of (SOA+aerosol) species deposition velocities
-      INTEGER            N_SDEPV_NAMES
-      CHARACTER( 16 ) :: SDEPV_NAMES( : )
+      INTEGER, INTENT( IN ) :: N_SDEPV_NAMES
+      CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
 
 C Local variables:
 
