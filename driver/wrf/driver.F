@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.5 2011/04/05 14:48:04 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.6 2011/04/19 14:53:34 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
@@ -151,7 +151,7 @@ C Local variables:
          SUBROUTINE ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
             IMPLICIT NONE
             INTEGER, INTENT( IN )    :: JDATE, JTIME
-            INTEGER, INTENT( IN )    :: TSTEP( 2 )
+            INTEGER, INTENT( INOUT ) :: TSTEP( 2 )
             INTEGER, INTENT( OUT )   :: ASTEP( : )
             INTEGER, INTENT( OUT )   :: NREPS
          END SUBROUTINE ADVSTEP
