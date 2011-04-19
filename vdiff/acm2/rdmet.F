@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/rdmet.F,v 1.2 2011/04/01 15:42:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/rdmet.F,v 1.3 2011/04/19 18:31:55 sjr Exp $
  
 C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -48,15 +48,15 @@ C-----------------------------------------------------------------------
 
 C Arguments:
 
-      INTEGER      MDATE, MTIME                 ! internal simulation date&time
+      INTEGER, INTENT( IN )  :: MDATE, MTIME      ! internal simulation date&time
 !     REAL         RDEPVHT( NCOLS,NROWS )       ! reciprocal dep vel ht
 !     REAL         RJACM  ( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
 !     REAL         RRHOJ  ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
-      REAL      :: RDEPVHT( :,: )               ! air dens / dep vel ht
-      REAL      :: RJACM  ( :,:,: )             ! reciprocal mid-layer Jacobian
-      REAL      :: RVJACMF( :,:,: )             ! 1/ mid-full layer vert Jac
-      REAL      :: RRHOJ  ( :,:,: )             ! reciprocal density X Jacobian
-      REAL      :: DENS1  ( :,: )               ! layer 1 air density
+      REAL,    INTENT( OUT ) :: RDEPVHT( :,: )    ! air dens / dep vel ht
+      REAL,    INTENT( OUT ) :: RJACM  ( :,:,: )  ! reciprocal mid-layer Jacobian
+      REAL,    INTENT( OUT ) :: RVJACMF( :,:,: )  ! 1/ mid-full layer vert Jac
+      REAL,    INTENT( OUT ) :: RRHOJ  ( :,:,: )  ! reciprocal density X Jacobian
+      REAL,    INTENT( OUT ) :: DENS1  ( :,: )    ! layer 1 air density
 
 C File variables:
 

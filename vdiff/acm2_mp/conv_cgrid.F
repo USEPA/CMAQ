@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/conv_cgrid.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/conv_cgrid.F,v 1.4 2011/04/19 18:31:55 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -49,10 +49,10 @@ C-----------------------------------------------------------------------
 
 C Arguments:
 
-      REAL, POINTER :: CGRID( :,:,:,: )              !  concentrations
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
-      REAL :: CNGRD( :,:,:,: )  ! cgrid replacement
+      REAL, POINTER :: CGRID( :,:,:,: )            ! concentrations
+      INTEGER, INTENT( IN )    :: JDATE            ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )    :: JTIME            ! current model time, coded HHMMSS
+      REAL,    INTENT( INOUT ) :: CNGRD( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
 

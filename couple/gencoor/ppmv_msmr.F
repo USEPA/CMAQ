@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/ppmv_msmr.F,v 1.2 2011/04/01 15:41:34 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/ppmv_msmr.F,v 1.3 2011/04/19 18:29:44 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -111,13 +111,13 @@ C Includes:
 
 C Arguments:
 
-      INTEGER    NSPCS          ! number of species being converted
-      INTEGER    NLVLS          ! number of layers being converted
+      INTEGER, INTENT( IN ) :: NSPCS          ! number of species being converted
+      INTEGER, INTENT( IN ) :: NLVLS          ! number of layers being converted
 !     REAL       SGRID( NCOLS,NROWS,NLAYS,* ) ! CGRID subset
-      REAL    :: SGRID( :,:,:,: ) ! CGRID subset
-      REAL       MOLWT( NSPCS )     ! species molecular weights
-      INTEGER    CDATE          ! current date, coded YYYYDDD
-      INTEGER    CTIME          ! current time, coded HHMMSS
+      REAL,    INTENT( INOUT ) :: SGRID( :,:,:,: ) ! CGRID subset
+      REAL,    INTENT( IN ) :: MOLWT( NSPCS ) ! species molecular weights
+      INTEGER, INTENT( IN ) :: CDATE          ! current date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: CTIME          ! current time, coded HHMMSS
 
 C Parameters:
  
