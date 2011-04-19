@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.5 2011/04/01 15:41:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.6 2011/04/19 14:32:47 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
@@ -89,10 +89,10 @@ C Includes:
 
 C Arguments
       REAL, POINTER :: CGRID( :,:,:,: )
-      INTEGER      JDATE        ! current model date , coded YYYYDDD
-      INTEGER      JTIME        ! current model time , coded HHMMSS
-      INTEGER      TSTEP        ! model time step, coded HHMMSS
-      REAL :: VDEP_AE( :,:,: )  ! surrogate deposition velocities [ m s**-1 ]
+      INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
+      INTEGER, INTENT( IN )  :: TSTEP        ! model time step, coded HHMMSS
+      REAL,    INTENT( OUT ) :: VDEP_AE( :,:,: )  ! surrogate deposition velocities [ m s**-1 ]
 
 C Parameters
       REAL,    PARAMETER :: T0 = 288.15      ! [ K ] ! starting standard surface temp.
