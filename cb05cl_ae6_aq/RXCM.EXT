@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/cb05cl_ae6_aq/RXCM.EXT,v 1.1 2011/02/25 15:53:56 sjr Exp $
+C $Header: /project/yoj/arc/MECHS/src/cb05cl_ae6_aq/RXCM.EXT,v 1.2 2011/04/19 20:19:17 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -11,6 +11,8 @@ C for Mechanism Name: CB05CL_AE6_AQ
 
 C The following are reserved symbols declared in this INCLUDE file:
 C    MECHNAME  = Mechanism name
+C    N_GAS_CHEM_SPC = Total number of species in gas phase chemical mechanism
+C    N_ACT_SP       = Number of active (determined by ODE solver) species in mechanism
 C    NRXNS     = Number of mechanism reactions
 C    KUNITS    = Units of mechanism reactions
 C    KTYPE     = Reaction type
@@ -63,7 +65,11 @@ C    NMPHOT    = Number of mechanism photolytic reactions
 C    NPHOTAB   = Number of photolytic reactions tables
 C    IPH       = Reactions list pointer to photolytic reactions and tables
 
-      CHARACTER( 16 ), PARAMETER :: MECHNAME = 'CB05CL_AE6_AQ   '
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'CB05CL_AE6_AQ'
+
+      INTEGER, PARAMETER :: N_GAS_CHEM_SPC =  72
+
+      INTEGER, PARAMETER :: N_ACT_SP =  72
 
       INTEGER, PARAMETER :: NRXNS = 187
 
@@ -175,3 +181,81 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
      &             RXLABEL
 
 C End of Mechanism Reactions, Rates, etc. COMMON INCLUDE File ----------
+
+C    NSPECIAL     = Number of special rate coefficients
+C    SPECIAL      = Names of special rate coefficients
+C    NSPECIAL_RXN = Number of reactions with special rates
+C    ISPECIAL     = Pointers to reactions using special rates and their special rate coefficients
+C    MAXSPECTERMS = Max Number of each term type in  special rate coefficients
+C    KC_COEFFS    = Coefficients of standard rate coefficients  times concentration terms 
+C    INDEX_KTERMS  = Pointers to standard rate coefficients in  special rate coefficients
+C    INDEX_CTERMS  = Pointers to species concentrations in  special rate coefficients
+C    OPERATOR_COEFFS = Coefficients of preceeding special  rate coefficients used in special coefficient 
+C    OPERATORS       = Pointers to preceeding special  rate coefficients used in special coefficient 
+
+C Special Rate information not available ..
+      INTEGER, PARAMETER :: NSPECIAL_RXN = 0
+      INTEGER            :: ISPECIAL( 1, 2 )
+
+C Special Rate information not available ...
+      INTEGER, PARAMETER :: NSPECIAL = 0
+
+C Special Rate information not available ...
+      CHARACTER( 16 )    :: SPECIAL( 1 )
+
+      INTEGER, PARAMETER :: MAXSPECTERMS =  10
+      REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
+      INTEGER            :: INDEX_KTERMS( NSPECIAL + 1, MAXSPECTERMS)
+      INTEGER            :: INDEX_CTERMS( NSPECIAL + 1, MAXSPECTERMS)
+      REAL( 8 )          :: OPERATOR_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
+      INTEGER            :: OPERATORS( NSPECIAL + 1, MAXSPECTERMS)
+
+      COMMON     / MECHRX4 /
+     &             SPECIAL,
+     &             ISPECIAL,
+     &             KC_COEFFS,
+     &             INDEX_KTERMS,
+     &             INDEX_CTERMS,
+     &             OPERATOR_COEFFS,
+     &             OPERATORS
+
+
+C    Steady-state species section
+C    N_SS_SPC     = Number of species assumed to be in steady-state
+C    SS_SPC_DIM   = Dimension paramete for steady-state species
+C    SS_SPC       = Names of species assumed to be in steady-state
+C    MAX_SS_LOSS  = Max no. of SS loss rxns for any SS species
+C    MAX_SS_PROD  = Max no. of SS prod rxns for any SS species
+C    N_LOSS_RXNS  = No. of SS loss rxns for each SS species
+C    N_PROD_RXNS  = No. of SS prod rxns for each SS species
+C    SS_LOSS_RXNS = List of SS loss rxns for each SS species
+C    SS_PROD_RXNS = List of SS prod rxns for each SS species
+C    SS_PROD_COEF = List of SS prod yields for each SS species
+C    SS_RCT_IND   = SS species index if it is a rxn reactant
+
+      INTEGER, PARAMETER :: N_SS_SPC =   0
+
+      INTEGER, PARAMETER :: SS_SPC_DIM =   1
+
+      INTEGER, PARAMETER :: MAX_SS_LOSS =   0
+
+      INTEGER, PARAMETER :: MAX_SS_PROD =   0
+
+      CHARACTER( 16 )    :: SS_SPC( 1 )
+
+      INTEGER            :: N_LOSS_RXNS( 1 )
+      INTEGER            :: N_PROD_RXNS( 1 )
+      INTEGER            :: SS_LOSS_RXNS( 1, 1 )
+      INTEGER            :: SS_PROD_RXNS( 1, 1 )
+      INTEGER            :: SS_RCT_IND( 1 )
+
+      REAL               :: SS_PROD_COEF( 1,1 ) 
+
+      COMMON     / MECHRX5 /
+     &             SS_SPC,
+     &             N_LOSS_RXNS,
+     &             N_PROD_RXNS,
+     &             SS_LOSS_RXNS,
+     &             SS_PROD_RXNS,
+     &             SS_PROD_COEF,
+     &             SS_RCT_IND

@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/cb05cl_ae6_aq/RXDT.EXT,v 1.1 2011/02/25 15:53:56 sjr Exp $
+C $Header: /project/yoj/arc/MECHS/src/cb05cl_ae6_aq/RXDT.EXT,v 1.2 2011/04/19 20:19:17 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -18,6 +18,84 @@ C to load the COMMON INCLUDE file.
 
 C The following are reserved symbols declared in this INCLUDE file:
 C    IRXXN = Reactions index
+
+      CHARACTER( 16 ) :: GAS_CHEM_SPC( N_GAS_CHEM_SPC )
+
+! The below character array lists the species names used in the 
+! gas phase chemistry. The names and their order MUST agree with 
+! the GC_SPC array for the gas phase chemistry to work correctly. 
+      DATA GAS_CHEM_SPC(  1 ) / 'NO2             ' /
+      DATA GAS_CHEM_SPC(  2 ) / 'NO              ' /
+      DATA GAS_CHEM_SPC(  3 ) / 'O               ' /
+      DATA GAS_CHEM_SPC(  4 ) / 'O3              ' /
+      DATA GAS_CHEM_SPC(  5 ) / 'NO3             ' /
+      DATA GAS_CHEM_SPC(  6 ) / 'O1D             ' /
+      DATA GAS_CHEM_SPC(  7 ) / 'OH              ' /
+      DATA GAS_CHEM_SPC(  8 ) / 'HO2             ' /
+      DATA GAS_CHEM_SPC(  9 ) / 'N2O5            ' /
+      DATA GAS_CHEM_SPC( 10 ) / 'HNO3            ' /
+      DATA GAS_CHEM_SPC( 11 ) / 'HONO            ' /
+      DATA GAS_CHEM_SPC( 12 ) / 'PNA             ' /
+      DATA GAS_CHEM_SPC( 13 ) / 'H2O2            ' /
+      DATA GAS_CHEM_SPC( 14 ) / 'XO2             ' /
+      DATA GAS_CHEM_SPC( 15 ) / 'XO2N            ' /
+      DATA GAS_CHEM_SPC( 16 ) / 'NTR             ' /
+      DATA GAS_CHEM_SPC( 17 ) / 'ROOH            ' /
+      DATA GAS_CHEM_SPC( 18 ) / 'FORM            ' /
+      DATA GAS_CHEM_SPC( 19 ) / 'ALD2            ' /
+      DATA GAS_CHEM_SPC( 20 ) / 'ALDX            ' /
+      DATA GAS_CHEM_SPC( 21 ) / 'PAR             ' /
+      DATA GAS_CHEM_SPC( 22 ) / 'CO              ' /
+      DATA GAS_CHEM_SPC( 23 ) / 'MEO2            ' /
+      DATA GAS_CHEM_SPC( 24 ) / 'MEPX            ' /
+      DATA GAS_CHEM_SPC( 25 ) / 'MEOH            ' /
+      DATA GAS_CHEM_SPC( 26 ) / 'HCO3            ' /
+      DATA GAS_CHEM_SPC( 27 ) / 'FACD            ' /
+      DATA GAS_CHEM_SPC( 28 ) / 'C2O3            ' /
+      DATA GAS_CHEM_SPC( 29 ) / 'PAN             ' /
+      DATA GAS_CHEM_SPC( 30 ) / 'PACD            ' /
+      DATA GAS_CHEM_SPC( 31 ) / 'AACD            ' /
+      DATA GAS_CHEM_SPC( 32 ) / 'CXO3            ' /
+      DATA GAS_CHEM_SPC( 33 ) / 'PANX            ' /
+      DATA GAS_CHEM_SPC( 34 ) / 'ROR             ' /
+      DATA GAS_CHEM_SPC( 35 ) / 'OLE             ' /
+      DATA GAS_CHEM_SPC( 36 ) / 'ETH             ' /
+      DATA GAS_CHEM_SPC( 37 ) / 'IOLE            ' /
+      DATA GAS_CHEM_SPC( 38 ) / 'TOL             ' /
+      DATA GAS_CHEM_SPC( 39 ) / 'CRES            ' /
+      DATA GAS_CHEM_SPC( 40 ) / 'TO2             ' /
+      DATA GAS_CHEM_SPC( 41 ) / 'TOLRO2          ' /
+      DATA GAS_CHEM_SPC( 42 ) / 'OPEN            ' /
+      DATA GAS_CHEM_SPC( 43 ) / 'CRO             ' /
+      DATA GAS_CHEM_SPC( 44 ) / 'MGLY            ' /
+      DATA GAS_CHEM_SPC( 45 ) / 'XYL             ' /
+      DATA GAS_CHEM_SPC( 46 ) / 'XYLRO2          ' /
+      DATA GAS_CHEM_SPC( 47 ) / 'ISOP            ' /
+      DATA GAS_CHEM_SPC( 48 ) / 'ISPD            ' /
+      DATA GAS_CHEM_SPC( 49 ) / 'ISOPRXN         ' /
+      DATA GAS_CHEM_SPC( 50 ) / 'TERP            ' /
+      DATA GAS_CHEM_SPC( 51 ) / 'TRPRXN          ' /
+      DATA GAS_CHEM_SPC( 52 ) / 'SO2             ' /
+      DATA GAS_CHEM_SPC( 53 ) / 'SULF            ' /
+      DATA GAS_CHEM_SPC( 54 ) / 'SULRXN          ' /
+      DATA GAS_CHEM_SPC( 55 ) / 'ETOH            ' /
+      DATA GAS_CHEM_SPC( 56 ) / 'ETHA            ' /
+      DATA GAS_CHEM_SPC( 57 ) / 'CL2             ' /
+      DATA GAS_CHEM_SPC( 58 ) / 'CL              ' /
+      DATA GAS_CHEM_SPC( 59 ) / 'HOCL            ' /
+      DATA GAS_CHEM_SPC( 60 ) / 'CLO             ' /
+      DATA GAS_CHEM_SPC( 61 ) / 'FMCL            ' /
+      DATA GAS_CHEM_SPC( 62 ) / 'HCL             ' /
+      DATA GAS_CHEM_SPC( 63 ) / 'TOLNRXN         ' /
+      DATA GAS_CHEM_SPC( 64 ) / 'TOLHRXN         ' /
+      DATA GAS_CHEM_SPC( 65 ) / 'XYLNRXN         ' /
+      DATA GAS_CHEM_SPC( 66 ) / 'XYLHRXN         ' /
+      DATA GAS_CHEM_SPC( 67 ) / 'BENZENE         ' /
+      DATA GAS_CHEM_SPC( 68 ) / 'BENZRO2         ' /
+      DATA GAS_CHEM_SPC( 69 ) / 'BNZNRXN         ' /
+      DATA GAS_CHEM_SPC( 70 ) / 'BNZHRXN         ' /
+      DATA GAS_CHEM_SPC( 71 ) / 'SESQ            ' /
+      DATA GAS_CHEM_SPC( 72 ) / 'SESQRXN         ' /
 
       DATA  KUNITS /   2 /
 
