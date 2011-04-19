@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.2 2011/04/01 15:41:49 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.3 2011/04/19 16:28:10 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -88,14 +88,14 @@ C Includes:
 
 C Arguments:
       
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
-                                ! Contravariant diffusivity
+      INTEGER, INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
+                                       ! Contravariant diffusivity
 !     REAL         K11BAR3D( NCOLS+1,NROWS+1,NLAYS ) ! x1-flux points
 !     REAL         K22BAR3D( NCOLS+1,NROWS+1,NLAYS ) ! x2-flux points
-      REAL         K11BAR( :,:,: ) ! x1-flux points
-      REAL         K22BAR( :,:,: ) ! x2-flux points
-      REAL         DT                        ! diffusivity time step
+      REAL,    INTENT( OUT ) :: K11BAR( :,:,: ) ! x1-flux points
+      REAL,    INTENT( OUT ) :: K22BAR( :,:,: ) ! x2-flux points
+      REAL,    INTENT( OUT ) :: DT              ! diffusivity time step
  
 C Parameters:
  
@@ -151,9 +151,12 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE DEFORM( JDATE, JTIME, DEFORM3D )
+            USE GRID_CONF
+            USE UTILIO_DEFN
+            USE SUBST_MODULES
             IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: JDATE, JTIME
-            REAL, INTENT( IN )    :: DEFORM3D( :,:,: )
+            INTEGER, INTENT( IN )  :: JDATE, JTIME
+            REAL,    INTENT( OUT ) :: DEFORM3D( :,:,: )
          END SUBROUTINE DEFORM
       END INTERFACE
 

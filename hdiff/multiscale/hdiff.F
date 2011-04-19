@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.4 2011/04/05 16:25:28 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.5 2011/04/19 16:28:09 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -96,11 +96,11 @@ C Includes:
 C Arguments:
       
       REAL, POINTER :: CGRID( :,:,:,: )
-      INTEGER     JDATE         ! current model date, coded YYYYDDD
-      INTEGER     JTIME         ! current model time, coded HHMMSS
-      INTEGER     TSTEP( 2 )    ! time step vector (HHMMSS)
-                                ! TSTEP(1) = local output step
-                                ! TSTEP(2) = sciproc sync. step (chem)
+      INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+                                          ! TSTEP(1) = local output step
+                                          ! TSTEP(2) = sciproc sync. step (chem)
 
 C External Functions: None
            
@@ -168,11 +168,16 @@ C Local Variables:
 
       INTERFACE
          SUBROUTINE RHO_J ( JDATE, JTIME, TSTEP, RHOJ )
+            USE GRID_CONF
+            USE UTILIO_DEFN
             IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 2 )
             REAL,    INTENT( OUT ) :: RHOJ( :,:,: )
          END SUBROUTINE RHO_J
          SUBROUTINE HCDIFF3D ( JDATE, JTIME, K11BAR, K22BAR, DT )
+            USE GRID_CONF
+            USE UTILIO_DEFN
+            USE SUBST_MODULES
             IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME
             REAL,    INTENT( OUT ) :: K11BAR( :,:,: ), K22BAR( :,:,: )
