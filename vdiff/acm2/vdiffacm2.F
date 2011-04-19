@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.3 2011/04/01 15:42:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.4 2011/04/19 18:33:30 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -213,11 +213,11 @@ C ACM Local Variables
             IMPLICIT NONE
             REAL, POINTER :: CGRID( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            REAL,           INTENT( OUT ) :: CNGRD( :,:,:,: )
+            REAL,           INTENT( INOUT ) :: CNGRD( :,:,:,: )
          END SUBROUTINE CONV_CGRID
          SUBROUTINE REV_CGRID ( CNGRD, JDATE, JTIME, CGRID )
             IMPLICIT NONE
-            REAL,           INTENT( IN )  :: CNGRD( :,:,:,: )
+            REAL,           INTENT( INOUT ) :: CNGRD( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             REAL, POINTER :: CGRID( :,:,:,: )
          END SUBROUTINE REV_CGRID
