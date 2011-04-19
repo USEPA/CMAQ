@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.3 2011/04/01 15:41:34 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.4 2011/04/19 14:45:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -209,6 +209,7 @@ C environment variable for diagnostic DEPV file
      &                               N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
+               USE UTILIO_DEFN
                IMPLICIT NONE
                INTEGER,         INTENT( IN ) :: JDATE, JTIME, TSTEP
                INTEGER,         INTENT( IN ) :: N_GDEPV_NAMES
@@ -219,7 +220,9 @@ C environment variable for diagnostic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_DIAG
             SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
+               USE CGRID_SPCS
                USE DEPVVARS
+               USE UTILIO_DEFN
                IMPLICIT NONE
                INTEGER,         INTENT( IN )    :: N_DEPV_NAMES
                CHARACTER( 16 ), INTENT( INOUT ) :: DEPV_NAMES( : )
@@ -792,22 +795,28 @@ C Local variables:
             SUBROUTINE RDDEPV ( JDATE, JTIME, SGSPEC, DEPV )
                USE HGRD_DEFN
                USE CGRID_SPCS
+               USE UTILIO_DEFN
                IMPLICIT NONE
-               INTEGER, INTENT( IN )            :: JDATE, JTIME
-               LOGICAL, INTENT( IN )            :: SGSPEC( : )
-               REAL, INTENT( OUT )              :: DEPV( :,:,: )
+               INTEGER, INTENT( IN )  :: JDATE, JTIME
+               LOGICAL, INTENT( IN )  :: SGSPEC( : )
+               REAL,    INTENT( OUT ) :: DEPV( :,:,: )
             END SUBROUTINE RDDEPV
             SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
                USE GRID_CONF
                USE CGRID_SPCS
+               USE UTILIO_DEFN
+               USE AERO_DATA
+               USE SOA_DEFN
+               USE AEROMET_DATA
                IMPLICIT NONE
                REAL, POINTER          :: CGRID( :,:,:,: )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP
                REAL,    INTENT( OUT ) :: ADEPV( :,:,: )
             END SUBROUTINE AERO_DEPV
             SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
-               USE HGRD_DEFN
                USE CGRID_SPCS
+               USE HGRD_DEFN
+               USE UTILIO_DEFN
                IMPLICIT NONE
                LOGICAL, INTENT( IN )  :: GAS_DEPV_FOUND( : )
                INTEGER, INTENT( IN )  :: GAS_DEPV_SUR( : )
@@ -817,6 +826,7 @@ C Local variables:
             SUBROUTINE M3DRY ( JDATE, JTIME, ABFLUX, SFC_HONO, CGRIDL1, DEPVEL_GAS, PVD )
                USE HGRD_DEFN
                USE DEPVVARS
+               USE UTILIO_DEFN
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME
                LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO
