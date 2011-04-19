@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/rho_j.F,v 1.2 2011/04/01 15:41:49 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/rho_j.F,v 1.3 2011/04/19 16:27:01 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -74,13 +74,13 @@ C Parameters
 
 C Arguments:
       
-      INTEGER     JDATE        ! current model date, coded YYYYDDD
-      INTEGER     JTIME        ! current model time, coded HHMMSS
-      INTEGER     TSTEP( 2 )   ! time step vector (HHMMSS)
-                               ! TSTEP(1) = local output step
-                               ! TSTEP(2) = sciproc sync. step (chem)
+      INTEGER, INTENT( IN )  :: JDATE        ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME        ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )  :: TSTEP( 2 )   ! time step vector (HHMMSS)
+                                             ! TSTEP(1) = local output step
+                                             ! TSTEP(2) = sciproc sync. step (chem)
 !     REAL        RHOJ( 0:NCOLS+1,0:NROWS+1,NLAYS )  ! Jacobian * air density
-      REAL     :: RHOJI( :,:,: )
+      REAL,    INTENT( OUT ) :: RHOJI( :,:,: )
       
 C Parameters:
 

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/deform.F,v 1.2 2011/04/01 15:41:49 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/deform.F,v 1.3 2011/04/19 16:27:01 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -88,9 +88,9 @@ C Parameters:
 
 C Arguments:
       
-      REAL      :: DEFORM3D( :,:,: ) ! Wind deformation
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )  :: JDATE             ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME             ! current model time, coded HHMMSS
+      REAL,    INTENT( OUT ) :: DEFORM3D( :,:,: ) ! Wind deformation
       
 C Parameters:
 
