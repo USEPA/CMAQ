@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.3 2011/04/01 15:41:33 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.4 2011/04/19 18:30:17 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
@@ -62,12 +62,12 @@ C Include files:
 C Arguments:
 
 !     REAL      :: CGRID( :,:,:,: )  ! concentrations
-      REAL, POINTER :: CGRID( :,:,:,: )  ! concentrations
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
-      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
-                                ! TSTEP(1) = local output step
-                                ! TSTEP(2) = sciproc sync. step (chem)
+      REAL, POINTER :: CGRID( :,:,:,: )   ! concentrations
+      INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+                                          ! TSTEP(1) = local output step
+                                          ! TSTEP(2) = sciproc sync. step (chem)
 C Parameters:
 
 C External Functions:
@@ -106,14 +106,16 @@ C for INTERPX
       INTEGER     C, R, L, SPC     ! loop counters
 
       INTERFACE
-         SUBROUTINE MGPM3_KGPM3 ( NSPCS, NLAYS, SGRID )
+         SUBROUTINE MGPM3_KGPM3 ( NSPCS, NLVLS, SGRID )
+            USE GRID_CONF
             IMPLICIT NONE
-            INTEGER, INTENT( IN )  :: NSPCS, NLAYS
+            INTEGER, INTENT( IN )  :: NSPCS, NLVLS
             REAL, INTENT( INOUT )  :: SGRID( :,:,:,: )
          END SUBROUTINE MGPM3_KGPM3
-         SUBROUTINE KGPM3_MGPM3 ( NSPCS, NLAYS, SGRID )
+         SUBROUTINE KGPM3_MGPM3 ( NSPCS, NLVLS, SGRID )
+            USE GRID_CONF
             IMPLICIT NONE
-            INTEGER, INTENT( IN )  :: NSPCS, NLAYS
+            INTEGER, INTENT( IN )  :: NSPCS, NLVLS
             REAL, INTENT( INOUT )  :: SGRID( :,:,:,: )
          END SUBROUTINE KGPM3_MGPM3
       END INTERFACE
