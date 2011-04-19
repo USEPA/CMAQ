@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aq_map.F,v 1.4 2011/04/01 15:41:32 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/aq_map.F,v 1.5 2011/04/19 19:10:31 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -101,8 +101,8 @@ C Arguments:
       REAL,    INTENT( IN )    :: PRATE1    ! storm rainfall rate (mm/hr)
       REAL,    INTENT( IN )    :: TAUCLD    ! cloud lifetime
       REAL,    INTENT( IN )    :: POLC ( : )  ! avg vert conc incloud (moles/mole)
-      REAL,    INTENT( OUT )   :: CEND ( : )  ! ending incloud conc (moles/mole)
-      REAL,    INTENT( OUT )   :: REMOV( : )  ! moles/m2 or mm*mol/lit scavenged
+      REAL,    INTENT( INOUT ) :: CEND ( : )  ! ending incloud conc (moles/mole)
+      REAL,    INTENT( INOUT ) :: REMOV( : )  ! moles/m2 or mm*mol/lit scavenged
       REAL,    INTENT( INOUT ) :: REMOVAC   ! variable storing H+ deposition
       REAL,    INTENT( IN )    :: ALFA0     ! scav coef for aitken aerosol number
       REAL,    INTENT( IN )    :: ALFA2     ! scav coef for aitken aerosol sfc area
