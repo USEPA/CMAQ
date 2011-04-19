@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.4 2011/04/01 15:41:32 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.5 2011/04/19 19:13:41 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -401,30 +401,30 @@ C...........Statement Functions
       QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
 
       INTERFACE
-        SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
-     &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
-           IMPLICIT NONE
-           INTEGER, INTENT(  IN ) :: JDATE, JTIME
-           REAL,    INTENT(  IN ) :: WTBAR, WCBAR, TBARC, PBARC,
-     &                               CTHK1, AIRM, PRATE1, TAUCLD
-           REAL,    INTENT(  IN ) :: POLC ( : )
-           REAL,    INTENT( OUT ) :: REMOVAC
-           REAL,    INTENT( OUT ) :: CEND( : ), REMOV( : )
-           REAL,    INTENT(  IN ) :: ALFA0, ALFA2, ALFA3
-        END SUBROUTINE AQ_MAP
         SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                        CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                        REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
            IMPLICIT NONE
-           INTEGER, INTENT(  IN ) :: JDATE, JTIME
-           REAL,    INTENT(  IN ) :: WTBAR, WCBAR, TBARC, PBARC,
+           INTEGER, INTENT( IN )  :: JDATE, JTIME
+           REAL,    INTENT( IN )  :: WTBAR, WCBAR, TBARC, PBARC,
      &                               CTHK1, AIRM, PRATE1, TAUCLD
-           REAL,    INTENT(  IN ) :: POLC ( : )
+           REAL,    INTENT( IN )  :: POLC ( : )
            REAL,    INTENT( OUT ) :: REMOVAC
            REAL,    INTENT( OUT ) :: CEND( : ), REMOV( : )
-           REAL,    INTENT(  IN ) :: ALFA0, ALFA2, ALFA3
+           REAL,    INTENT( OUT ) :: ALFA0, ALFA2, ALFA3
         END SUBROUTINE SCAVWDEP
+        SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
+     &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
+     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
+           IMPLICIT NONE
+           INTEGER, INTENT( IN )    :: JDATE, JTIME
+           REAL,    INTENT( IN )    :: WTBAR, WCBAR, TBARC, PBARC,
+     &                                 CTHK1, AIRM, PRATE1, TAUCLD
+           REAL,    INTENT( IN )    :: POLC ( : )
+           REAL,    INTENT( INOUT ) :: REMOVAC
+           REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
+           REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
+        END SUBROUTINE AQ_MAP
       END INTERFACE
 
 C-----------------------------------------------------------------------
