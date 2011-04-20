@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.4 2011/04/01 15:41:29 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.5 2011/04/20 14:58:43 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -23,6 +23,7 @@ C SH  03/10/11 Inserted functionality of PMEM_DEFN
 C    -new subroutine map_pmemis
 C HS  03/10/11 Made PNCOM a required species
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C SH  04/04/11 Added sea-salt speciation factors
 C
 C----------------------------------------------------------------------
 
@@ -114,6 +115,50 @@ C                  --------- --------- ---------   ---------- -------  +  +  +  
      & spcs_type((/'       ','       ','ASOIL  '/),conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','       ','ACORS  '/),conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/))/)
 
+C Sea-Salt Speciation factors
+      Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = (/
+C        Aitken    Accum   Coarse
+C       -------  -------  -------
+     &   0.0000,  0.0755,  0.0755,          ! ASO4
+     &   0.0000,  0.0000,  0.0000,          ! ANO3
+     &   0.0000,  0.5389,  0.5389,          ! ACL
+     &   0.0000,  0.0000,  0.0000,          ! ANH4
+     &   0.0000,  0.3856,  0.3856,          ! ANA
+     &   0.0000,  0.0000,  0.0000,          ! ACA
+     &   0.0000,  0.0000,  0.0000,          ! AMG
+     &   0.0000,  0.0000,  0.0000,          ! AK
+     &   0.0000,  0.0000,  0.0000,          ! APOC
+     &   0.0000,  0.0000,  0.0000,          ! APNCOM
+     &   0.0000,  0.0000,  0.0000,          ! AEC
+     &   0.0000,  0.0000,  0.0000,          ! AFE
+     &   0.0000,  0.0000,  0.0000,          ! AAL
+     &   0.0000,  0.0000,  0.0000,          ! ASI
+     &   0.0000,  0.0000,  0.0000,          ! ATI
+     &   0.0000,  0.0000,  0.0000,          ! AMN
+     &   0.0000,  0.0000,  0.0000,          ! AH2O
+     &   0.0000,  0.0000,  0.0000,          ! AOTHR
+     &   0.0000,  0.0000,  0.0000,          ! AALK
+     &   0.0000,  0.0000,  0.0000,          ! AXYL1
+     &   0.0000,  0.0000,  0.0000,          ! AXYL2
+     &   0.0000,  0.0000,  0.0000,          ! AXYL3
+     &   0.0000,  0.0000,  0.0000,          ! ATOL1
+     &   0.0000,  0.0000,  0.0000,          ! ATOL2
+     &   0.0000,  0.0000,  0.0000,          ! ATOL3
+     &   0.0000,  0.0000,  0.0000,          ! ABNZ1
+     &   0.0000,  0.0000,  0.0000,          ! ABNZ2
+     &   0.0000,  0.0000,  0.0000,          ! ABNZ3
+     &   0.0000,  0.0000,  0.0000,          ! ATRP1
+     &   0.0000,  0.0000,  0.0000,          ! ATRP2
+     &   0.0000,  0.0000,  0.0000,          ! AISO1
+     &   0.0000,  0.0000,  0.0000,          ! AISO2
+     &   0.0000,  0.0000,  0.0000,          ! AISO3
+     &   0.0000,  0.0000,  0.0000,          ! ASQT
+     &   0.0000,  0.0000,  0.0000,          ! AOLGA
+     &   0.0000,  0.0000,  0.0000,          ! AOLGB
+     &   0.0000,  0.0000,  0.0000,          ! AORGC
+     &   0.0000,  0.0000,  0.0000,          ! ASOIL
+     &   0.0000,  0.0000,  0.0000 /)        ! ACORS
+
 C Required species
       Character( 16 ), Private, Parameter :: req_so4   = 'ASO4'
       Character( 16 ), Private, Parameter :: req_nh4   = 'ANH4'
@@ -138,6 +183,7 @@ C Indexes of required species
       Integer :: acors_idx
       Integer :: apncom_idx
 
+C Molecular weights and concentrations of aerosol species
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
 
@@ -339,7 +385,7 @@ C  verify that all the units are consistent
       Character( 2 ), External :: crlf
 
       ! Local Variables:
-      Character( 16 ), Save :: pname = 'GET_PMEM_UNITS'
+      Character( 16 ), Save :: pname = 'map_pmemis'
       Character( 512 )      :: xmsg1
       Character( 1024 )     :: xmsg2
       Character( 10 )       :: units
