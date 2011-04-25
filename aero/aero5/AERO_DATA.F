@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.6 2011/04/04 18:54:15 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.7 2011/04/25 18:56:47 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -138,7 +138,7 @@ C       -------  -------  -------
      &   0.0000,  0.0000,  0.0000,          ! AOLGA
      &   0.0000,  0.0000,  0.0000,          ! AOLGB
      &   0.0000,  0.0000,  0.0000,          ! AORGC
-     &   0.0000,  0.0000,  0.0000,          ! ASOILS
+     &   0.0000,  0.0000,  0.0000,          ! ASOIL
      &   0.0000,  0.0000,  0.0000 /)        ! ACORS
 
 C Required species
@@ -364,7 +364,7 @@ C  verify that all the units are consistent
       Character( 2 ), External :: crlf
 
       ! Local Variables:
-      Character( 16 ), Save :: pname = 'GET_PMEM_UNITS'
+      Character( 16 ), Save :: pname = 'map_pmemis'
       Character( 512 )      :: xmsg1
       Character( 1024 )     :: xmsg2
       Character( 10 )       :: units
