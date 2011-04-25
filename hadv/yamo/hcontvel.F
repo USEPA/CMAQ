@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hcontvel.F,v 1.3 2011/04/01 15:41:47 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hcontvel.F,v 1.4 2011/04/25 15:18:43 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)hcontvel.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.hcontvel.F 03 Jun 1997 12:08:52
@@ -132,7 +132,7 @@ C local variables:
       INTEGER    GXOFF, GYOFF ! global origin offset from file
       LOGICAL, SAVE :: WINDOW = .FALSE.      ! posit same file and global
                                              ! processing domain
-      LOGICAL, SAVE :: CSTAGUV = .FALSE.     ! Winds are available on C staggered grid?
+      LOGICAL, SAVE :: CSTAGUV = .TRUE.      ! Winds are available on C staggered grid?
       LOGICAL, SAVE :: FIRSTREADU = .TRUE.
       LOGICAL, SAVE :: FIRSTREADV = .TRUE.
       INTEGER, SAVE :: NCOLSDENS, NROWSDENS  ! local for DENSJ_BUF
@@ -192,17 +192,14 @@ C currently not implemented: case where only one origin component matches file's
          VNAME3D = ' '   ! array assignment
          IF ( .NOT. DESC3( MET_DOT_3D ) ) THEN
             XMSG = 'Could not get '
-     &           // TRIM( MET_DOT_3D )
-     &           // ' file description'
+     &           // TRIM( MET_DOT_3D ) // ' file description'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         VNAME = 'UWINDC'  ! trying to read C-staggered wind
-         IF ( INDEX1( VNAME, NVARS3D, VNAME3D ) .GT. 0 ) THEN
+         VNAME = 'UWINDC'
+         IF ( INDEX1( VNAME, NVARS3D, VNAME3D ) .LE. 0 ) THEN
             XMSG = 'Could not find ' // VNAME // ' in ' // MET_DOT_3D
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-            CSTAGUV = .TRUE.   ! C-staggered windfields on file
-         ELSE
             CSTAGUV = .FALSE.
          END IF
 
@@ -274,7 +271,7 @@ C try to read u-component wind on B-staggered grid as UWIND.
       IF ( UORV .EQ. UFLAG ) THEN
 
          IF ( CSTAGUV ) THEN
-            VNAME = 'UWINDC'  ! trying to read C-staggered wind
+            VNAME = 'UWINDC'  ! read C-staggered u-wind
             IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
      &                          STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
      &                          MDATE, MTIME, WIND ) ) THEN
@@ -294,7 +291,7 @@ C If u-component wind was C-staggered, read v-component wind on C-staggered
 C grid.  Otherwise, read v-component wind from B-staggered grid.
 
          IF ( CSTAGUV ) THEN
-            VNAME = 'VWINDC'  ! trying to read C-staggered wind
+            VNAME = 'VWINDC'  ! read C-staggered v-wind
             IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
      &                          STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
      &                          MDATE, MTIME, WIND ) ) THEN
@@ -388,7 +385,7 @@ C X Jacobian X Air Density
 
       IF ( UORV .EQ. UFLAG ) THEN
 
-         VNAME = 'UHAT_JD'  ! trying to read B-staggered coupled x1 wind
+         VNAME = 'UHAT_JD'  ! read B-staggered coupled x1 wind
          IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
      &                        STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
      &                        MDATE, MTIME, WIND ) ) THEN
@@ -412,7 +409,7 @@ C get west-direction RhoJ in halo cells and retrieve contravariant velocities
 
       ELSE
 
-         VNAME = 'VHAT_JD'  ! trying to read B-staggered x2 coupled wind
+         VNAME = 'VHAT_JD'  ! read B-staggered x2 coupled wind
          IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
      &                        STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
      &                        MDATE, MTIME, WIND ) ) THEN
