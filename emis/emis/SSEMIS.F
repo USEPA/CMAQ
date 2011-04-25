@@ -18,71 +18,80 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.4 2011/04/04 18:53:05 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.5 2011/04/25 16:45:19 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE SSEMIS
+C-----------------------------------------------------------------------
+C Description:
 
 C Revision History:
 C   04 Apr 11 S.Howard: generalization to accomodate different sea-salt speciation
 C                       in aero5 and aero6
+C   07 Apr 11 J.Young: additional mods
+C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
+      USE AERO_DATA, ONLY: N_MODE
+
+      IMPLICIT NONE
 
 C Number of chemical species in fresh sea-salt aerosol
       INTEGER :: NSSSPC
 
-C Number of lognormal modes in sea-salt aerosol (only accumulation and coarse modes used)
-      INTEGER, PARAMETER :: NSSMODE = 3
-
-C Position of H2O in sea-salt emission arrays
-      INTEGER :: KH2O
-
 C Sea-Salt Emissions Rates
-      INTEGER, ALLOCATABLE    :: SSSPC_MAP( : )     ! maps to aerospc array
       REAL, ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )  ! mass emission rates [ug/m3/s]
       REAL, ALLOCATABLE, SAVE :: SSOUTN( :,:,: )    ! number emission rates [1/m3/s]
       REAL, ALLOCATABLE, SAVE :: SSOUTS( :,:,: )    ! surface-area emisrates [m2/m3/s]
 
+      PUBLIC NSSSPC, SSOUTM, SSOUTN, SSOUTS, SSSPC_MAP, SSEMIS_INIT, GET_SSEMIS
+      PRIVATE
+
+C Position of H2O in sea-salt emission arrays
+      INTEGER :: KH2O
+
 C Variables for handling sea-salt emissions
-      REAL, PRIVATE, ALLOCATABLE, SAVE :: OCEAN( :,: )  ! fractional sea water cover
-      REAL, PRIVATE, ALLOCATABLE, SAVE :: SZONE( :,: )  ! fractional surf-zone cover
+      REAL,    ALLOCATABLE, SAVE :: OCEAN( :,: )   ! fractional sea water cover
+      REAL,    ALLOCATABLE, SAVE :: SZONE( :,: )   ! fractional surf-zone cover
+      INTEGER, ALLOCATABLE       :: SSSPC_MAP( : ) ! map to aerospc array
 
 C Variables for the sea-salt diagnostic file
       INTEGER :: NSSDIAG                ! number of species in sea-salt
                                         ! diagnostic emission file
-      REAL,    PRIVATE, ALLOCATABLE  :: SSOUTD( : )        ! emission rates
-      LOGICAL, PRIVATE, SAVE         :: SSEMDIAG           ! flag for SSEMIS diagnostic file
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: SSBF( :,:,: ) ! seasalt emiss accumulator
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: WRSS( :,: )   ! seasalt emiss write buffer
-      INTEGER, PRIVATE, SAVE         :: SDATE, STIME  ! scenario start date & time
+      REAL,    ALLOCATABLE       :: SSOUTD( : )   ! emission rates
+      LOGICAL, SAVE              :: SSEMDIAG      ! flag for SSEMIS diagnostic file
+      REAL,    ALLOCATABLE, SAVE :: SSBF( :,:,: ) ! seasalt emiss accumulator
+      REAL,    ALLOCATABLE, SAVE :: WRSS( :,: )   ! seasalt emiss write buffer
+      INTEGER, SAVE              :: SDATE, STIME  ! scenario start date & time
 
 C Species names in the speciated sea-salt-emissions
-      CHARACTER( 16 ), ALLOCATABLE  :: WRSS_SPC( : )  ! species names
+      CHARACTER( 16 ), ALLOCATABLE :: WRSS_SPC( : )  ! species names
 
 C Variables interpolated from the meteorological input files
-      REAL, PRIVATE, ALLOCATABLE, SAVE :: PRES( :,: )    ! atmospheric pressure [Pa]
-      REAL, PRIVATE, ALLOCATABLE, SAVE :: TA  ( :,: )    ! air temperature [K]
-      REAL, PRIVATE, ALLOCATABLE, SAVE :: QV  ( :,: )    ! H2O mass mixing ratio [kg/kg]
-      REAL, PRIVATE, ALLOCATABLE, SAVE :: WSPD10( :,: )  ! wind speed at 10m [m/s]
+      REAL,    ALLOCATABLE, SAVE :: PRES( :,: )    ! atmospheric pressure [Pa]
+      REAL,    ALLOCATABLE, SAVE :: TA  ( :,: )    ! air temperature [K]
+      REAL,    ALLOCATABLE, SAVE :: QV  ( :,: )    ! H2O mass mixing ratio [kg/kg]
+      REAL,    ALLOCATABLE, SAVE :: WSPD10( :,: )  ! wind speed at 10m [m/s]
 
 C Lognormal parameters fit to the open-ocean flux function
-      REAL, PRIVATE, SAVE :: DGNJ( 136 )     ! geom mean diam of accum-mode [um]
-      REAL, PRIVATE, SAVE :: DGNK( 136 )     ! geom mean diam of coarse-mode [um]
-      REAL, PRIVATE, SAVE :: SIGJ( 136 )     ! geom std deviation of accum-mode flux
-      REAL, PRIVATE, SAVE :: SIGK( 136 )     ! geom std deviation of coarse-mode flux
-      REAL, PRIVATE, SAVE :: FNJ ( 136 )     ! magnitude of accum-mode flux [1/m2/s]
-      REAL, PRIVATE, SAVE :: FNK ( 136 )     ! magnitude of coarse-mode flux [1/m2/s]
+      REAL,    SAVE :: DGNJ( 136 )     ! geom mean diam of accum-mode [um]
+      REAL,    SAVE :: DGNK( 136 )     ! geom mean diam of coarse-mode [um]
+      REAL,    SAVE :: SIGJ( 136 )     ! geom std deviation of accum-mode flux
+      REAL,    SAVE :: SIGK( 136 )     ! geom std deviation of coarse-mode flux
+      REAL,    SAVE :: FNJ ( 136 )     ! magnitude of accum-mode flux [1/m2/s]
+      REAL,    SAVE :: FNK ( 136 )     ! magnitude of coarse-mode flux [1/m2/s]
 
 C Open-ocean flux numerically integrated over size range of interest
-      REAL, PRIVATE, SAVE :: VFLUX( 136 )    ! total particle volume flux [m3/m2/s]
+      REAL,    SAVE :: VFLUX( 136 )    ! total particle volume flux [m3/m2/s]
 
 C Polycoeffs from Zhang et al. (2005)
-      REAL( 8 ), PRIVATE, SAVE :: C0_COEFF( 6 )   ! Eq 8
-      REAL( 8 ), PRIVATE, SAVE :: X_COEFF( 6 )    ! Eq 1
+      REAL( 8 ), SAVE :: C0_COEFF( 6 )   ! Eq 8
+      REAL( 8 ), SAVE :: X_COEFF( 6 )    ! Eq 1
+
+      INTEGER I
 
 C-------------------------- Data Statements ----------------------------
 
@@ -244,11 +253,11 @@ C Polynomial coefficients from Zhang et al. (2005)
       DATA X_COEFF  / 3.1657, -19.079,  55.72, -83.998, 63.436, -19.248 /
 
 C Domain decomposition info from emission and meteorology files
-      INTEGER, PRIVATE, SAVE :: GXOFF, GYOFF             ! origin offset
-      INTEGER, PRIVATE, SAVE :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1
-      INTEGER, PRIVATE, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+      INTEGER, SAVE :: GXOFF, GYOFF             ! origin offset
+      INTEGER, SAVE :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1
+      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER, PRIVATE, SAVE :: LOGDEV
+      INTEGER, SAVE :: LOGDEV
 
       CONTAINS
 
@@ -267,7 +276,7 @@ C                       SSOUTD, WRSS_SPC, and SSSPC_MAP
             IMPLICIT NONE
 
 C Arguments:
-            INTEGER :: JDATE, JTIME, TSTEP
+            INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
             LOGICAL :: SUCCESS
 
 C Includes:
@@ -284,45 +293,38 @@ C Local Variables:
             CHARACTER( 80 ) :: VARDESC
             CHARACTER( 96 ) :: XMSG = ' '
             INTEGER STATUS
-            INTEGER N, M, L        
+            INTEGER S, N, L        
 
 C-----------------------------------------------------------------------
 
             LOGDEV = SETUP_LOGDEV()
             SUCCESS = .TRUE.
 
-C Count number of sea-salt species to compute NSSSPC and NSSDIAG values
+C Map aerospc data
+            CALL MAP_AERO()
+
+C Determine number of sea-salt species
             NSSSPC = 0
-            NSSDIAG = 0
-
-C Count species where sea-salt speciation factor > 0
-            DO N = 1, N_AEROSPC
-               IF ( AEROSPC_SSF( 2,N ) + AEROSPC_SSF( 3,N ) .GT. 0.0 ) NSSSPC = NSSSPC + 1
-               IF ( AEROSPC_SSF( 2,N ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
-               IF ( AEROSPC_SSF( 3,N ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
+            DO S = 1, N_AEROSPC
+               IF ( AEROSPC_SSF( 2,S ) + AEROSPC_SSF( 3,S ) .GT. 0.0 ) NSSSPC = NSSSPC + 1
             END DO
-
 C Include H2O
             NSSSPC = NSSSPC + 1
-            NSSDIAG = NSSDIAG + 2   !! count both J and K modes
 
-C Include NUMBER and SURFACE_AREA to diagnostic (J & K)
-            NSSDIAG = NSSDIAG + 4
-
-C Allocate mapping and diagnostic arrays
-            ALLOCATE ( SSOUTD( NSSDIAG ), WRSS_SPC( NSSDIAG ), SSSPC_MAP( NSSSPC ), STAT = STATUS )
+C Allocate mapping array
+            ALLOCATE ( SSSPC_MAP( NSSSPC ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** SSOUTD, WRSS_SPC memory allocation failed'
+               XMSG = '*** SSSPC_MAP memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
 C build mapping array SSSPC_MAP
             NSSSPC = 0
-            DO N = 1, N_AEROSPC
-               IF ( AEROSPC_SSF( 2,N ) + AEROSPC_SSF( 3,N ) .GT. 0.0 ) THEN
+            DO S = 1, N_AEROSPC
+               IF ( AEROSPC_SSF( 2,S ) + AEROSPC_SSF( 3,S ) .GT. 0.0 ) THEN
                   NSSSPC = NSSSPC + 1
-                  SSSPC_MAP( NSSSPC ) = N
+                  SSSPC_MAP( NSSSPC ) = S
                END IF
             END DO
 
@@ -331,37 +333,10 @@ C Include H2O to mapping
             KH2O = NSSSPC
             SSSPC_MAP( NSSSPC ) = AH2O_IDX
 
-C Build WRSS_SPC arrays
-            NSSDIAG = 0
-            DO M = 2, NSSMODE
-               DO N = 1, N_AEROSPC
-                  IF ( AEROSPC_SSF( M,N ) .GT. 0.0 ) THEN
-                     NSSDIAG = NSSDIAG + 1
-                     WRSS_SPC( NSSDIAG ) = AEROSPC( N )%NAME(M)
-                  END IF
-               END DO
-
-C Include H2O
-               NSSDIAG = NSSDIAG + 1
-               WRSS_SPC( NSSDIAG ) = AEROSPC( AH2O_IDX )%NAME(M)
-            END DO
-
-C Include Mode NUMBER to diagnostic
-            DO M = 2, NSSMODE
-               NSSDIAG = NSSDIAG + 1
-               WRSS_SPC( NSSDIAG ) = AEROMODE( M )%NUM_NAME
-            END DO
- 
-C Include Mode SURFACE_AREA to diagnostic
-            DO M = 2, NSSMODE
-               NSSDIAG = NSSDIAG + 1
-               WRSS_SPC( NSSDIAG ) = AEROMODE( M )%SRF_NAME
-            END DO
-
 C Allocate SS arrays using NSSSPC value
-            ALLOCATE ( SSOUTM( NSSSPC,NSSMODE,NCOLS,NROWS ),
-     &                 SSOUTN( NSSMODE,NCOLS,NROWS ),
-     &                 SSOUTS( NSSMODE,NCOLS,NROWS ), STAT = STATUS )
+            ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
+     &                 SSOUTN( N_MODE,NCOLS,NROWS ),
+     &                 SSOUTS( N_MODE,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = '*** SSOUTM, SSOUTN or SSOUTS memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -421,8 +396,54 @@ C Get sea-salt-emission diagnostic output file flag.
                WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
             END IF
 
-            IF ( SSEMDIAG ) THEN    ! Open the sea-salt emission dignostic file
+            IF ( SSEMDIAG ) THEN    ! Open the sea-salt emission diagnostic file
+C Determine number of sea-salt species For diagnostic file
+            NSSDIAG = 0
+               DO S = 1, N_AEROSPC
+                  IF ( AEROSPC_SSF( 2,S ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
+                  IF ( AEROSPC_SSF( 3,S ) .GT. 0.0 ) NSSDIAG = NSSDIAG + 1
+               END DO
+C Include H2O
+               NSSDIAG = NSSDIAG + 2   !! count both J and K modes
+C Include NUMBER and SURFACE_AREA to diagnostic (J & K)
+               NSSDIAG = NSSDIAG + 4
 
+C Allocate diagnostic arrays
+               ALLOCATE ( SSOUTD( NSSDIAG ),
+     &                    WRSS_SPC( NSSDIAG ), STAT = STATUS )
+               IF ( STATUS .NE. 0 ) THEN
+                  XMSG = '*** SSOUTD or WRSS_SPC memory allocation failed'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+
+C Build diagnostic file write buffer (WRSS_SPC) array
+               NSSDIAG = 0
+               DO N = 2, N_MODE
+                  DO S = 1, N_AEROSPC
+                     IF ( AEROSPC_SSF( N,S ) .GT. 0.0 ) THEN
+                        NSSDIAG = NSSDIAG + 1
+                        WRSS_SPC( NSSDIAG ) = AEROSPC( S )%NAME( N )
+                     END IF
+                  END DO
+C Include H2O
+                  NSSDIAG = NSSDIAG + 1
+                  WRSS_SPC( NSSDIAG ) = AEROSPC( AH2O_IDX )%NAME( N )
+               END DO
+
+C Include Mode NUMBER to diagnostic
+               DO N = 2, N_MODE
+                  NSSDIAG = NSSDIAG + 1
+                  WRSS_SPC( NSSDIAG ) = AEROMODE( N )%NUM_NAME
+               END DO
+ 
+C Include Mode SURFACE_AREA to diagnostic
+               DO N = 2, N_MODE
+                  NSSDIAG = NSSDIAG + 1
+                  WRSS_SPC( NSSDIAG ) = AEROMODE( N )%SRF_NAME
+               END DO
+
+C Open the sea-salt emission dignostic file
                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
 
@@ -509,9 +530,9 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
             DO V = 1, NSSDIAG
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = WRSS_SPC( V )
-               IF ( VNAME3D( V )(1:4) .EQ. 'ANUM' ) THEN
+               IF ( VNAME3D( V )(1:3) .EQ. 'NUM' ) THEN
                   UNITS3D( V ) = 'number/s'
-               ELSE IF ( VNAME3D( V )(1:4) .EQ. 'ASRF' ) THEN
+               ELSE IF ( VNAME3D( V )(1:3) .EQ. 'SRF' ) THEN
                   UNITS3D( V ) = 'm2/s'
                ELSE
                   UNITS3D( V ) = 'g/s'
@@ -600,7 +621,7 @@ C Local Variables:
 
             CHARACTER( 16 ), SAVE :: PNAME = 'GET_SSEMIS'
             CHARACTER( 96 ) :: XMSG = ' '
-            INTEGER C, R, L, N, V, M, S         ! loop indices
+            INTEGER C, R, L, N, V, S         ! loop indices
 
 C Variables for calculating ambient RH as done in the aerosol module
             REAL, PARAMETER :: AA = 610.94      ! coefficients from Alduchov
@@ -757,12 +778,12 @@ C Initialize sea-salt output buffer
                      U10     = WSPD10( C,R )
                      RLAY1HT = RJACM ( C,R ) / CELLHGT
                   ELSE
-                     DO V = 1, NSSMODE
-                        DO N = 1, NSSSPC
-                           SSOUTM( N,V,C,R ) = 0.0
+                     DO N = 1, N_MODE
+                        DO S = 1, NSSSPC
+                           SSOUTM( S,N,C,R ) = 0.0
                         END DO
-                        SSOUTN( V,C,R ) = 0.0
-                        SSOUTS( V,C,R ) = 0.0
+                        SSOUTN( N,C,R ) = 0.0
+                        SSOUTS( N,C,R ) = 0.0
                      END DO
                      CYCLE
                   END IF
@@ -798,10 +819,10 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
 
 C Calculate dry sea-salt [kg/m3]
                   RHSUM = 0.0D0
-                  DO N = 1, NSSSPC
-                     IF ( N .EQ. KH2O ) CYCLE     !! do not include Water
-                     RHSUM = RHSUM + AEROSPC_SSF( 2, SSSPC_MAP( N ) ) 
-     &                     / AEROSPC( SSSPC_MAP( N ) )%DENSITY
+                  DO S = 1, NSSSPC
+                     IF ( S .EQ. KH2O ) CYCLE     !! do not include Water
+                     RHSUM = RHSUM + AEROSPC_SSF( 2, SSSPC_MAP( S ) ) 
+     &                     / AEROSPC( SSSPC_MAP( S ) )%DENSITY
                   END DO
                   RHOSSDRY = 1.0D0 / RHSUM    
 
@@ -884,16 +905,16 @@ C obtain speciated mass emissions.
                   ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * RHOSW
                   ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * RHOSW
 
-                  DO N = 1, NSSSPC
-                     SSOUTM( N,1,C,R ) = 0.0
-                     IF ( N .EQ. KH2O ) THEN    ! Water
-                        SSOUTM( N,2,C,R ) = ESEASJ * ( 1.0 - XSW )
-                        SSOUTM( N,3,C,R ) = ESEASK * ( 1.0 - XSW )
+                  DO S = 1, NSSSPC
+                     SSOUTM( S,1,C,R ) = 0.0
+                     IF ( S .EQ. KH2O ) THEN    ! Water
+                        SSOUTM( S,2,C,R ) = ESEASJ * ( 1.0 - XSW )
+                        SSOUTM( S,3,C,R ) = ESEASK * ( 1.0 - XSW )
                      ELSE
-                        SSOUTM( N,2,C,R ) = ESEASJ * XSW
-     &                                    * AEROSPC_SSF( 2, SSSPC_MAP( N ) )
-                        SSOUTM( N,3,C,R ) = ESEASK * XSW
-     &                                    * AEROSPC_SSF( 3, SSSPC_MAP( N ) )
+                        SSOUTM( S,2,C,R ) = ESEASJ * XSW
+     &                                    * AEROSPC_SSF( 2,SSSPC_MAP( S ) )
+                        SSOUTM( S,3,C,R ) = ESEASK * XSW
+     &                                    * AEROSPC_SSF( 3,SSSPC_MAP( S ) )
                      END IF
                   END DO
 
@@ -934,30 +955,30 @@ C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
 
 C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                   IF ( SSEMDIAG ) THEN
-                     S = 0
-                     DO M = 2, 3
-                        DO N = 1, NSSSPC
-                           IF ( N .EQ. KH2O .OR. AEROSPC_SSF( M,N ) .GT. 0 ) THEN
-                              S = S + 1
-                              SSOUTD( S ) = SSOUTM( N,M,C,R )
+                     V = 0
+                     DO N = 2, 3
+                        DO S = 1, NSSSPC
+                           IF ( S .EQ. KH2O .OR. AEROSPC_SSF( N,SSSPC_MAP( S ) ) .GT. 0 ) THEN
+                              V = V + 1
+                              SSOUTD( V ) = SSOUTM( S,N,C,R )
                            END IF
                         END DO
                      END DO
 
-                     DO M = 2, 3
-                        S = S + 1
-                        SSOUTD( S ) = SSOUTN( M,C,R )
+                     DO N = 2, 3
+                        V = V + 1
+                        SSOUTD( V ) = SSOUTN( N,C,R )
                      END DO
 
-                     DO M = 2, 3
-                        S = S + 1
-                        SSOUTD( S ) = SSOUTS( M,C,R )
+                     DO N = 2, 3
+                        V = V + 1
+                        SSOUTD( V ) = SSOUTS( N,C,R )
                      END DO
 
                      AIRVOL = CELLVOL / RJACM( C,R )
 
-                     DO V = 1, NSSDIAG
-                        SSBF( V,C,R ) = SSBF( V,C,R ) + SSOUTD( V ) * AIRVOL
+                     DO S = 1, NSSDIAG
+                        SSBF( S,C,R ) = SSBF( S,C,R ) + SSOUTD( S ) * AIRVOL
      &                                * FLOAT( TIME2SEC ( TSTEP( 2 ) ) )
                      END DO
                   END IF  ! SSEMDIAG
