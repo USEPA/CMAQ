@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.4 2011/04/04 18:53:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.5 2011/04/26 16:52:52 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -466,9 +466,9 @@ C     flag when PMC is calc'd from PM10
 !        Logical, Parameter :: PMCfromPM10 = .false.
 
 C Local variables for sea salt emission rates (grid cell value)
-         REAL :: CR_SSM( N_AEROSPC,NSSMODE )   ! mass
-         REAL :: CR_SSN( NSSMODE )             ! number
-         REAL :: CR_SSS( NSSMODE )             ! surface area
+         REAL :: CR_SSM( N_AEROSPC,N_MODE )   ! mass
+         REAL :: CR_SSN( N_MODE )             ! number
+         REAL :: CR_SSS( N_MODE )             ! surface area
 
          REAL( 8 ) :: GSFAC                    ! into [ug/m3/sec]
 
