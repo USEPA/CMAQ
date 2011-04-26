@@ -1,30 +1,28 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.4 2011/04/01 15:41:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.5 2011/04/26 12:33:56 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
 
-C-----------------------------------------------------------------------
 C  Defines gas phase aerosol precursor data.
-C
+
 C  Contains:
 C     Subroutine extract_precursor
 C     Subroutine map_precursor
 C     Subroutine update_precursor
 C     Function findPrecursor
-C
+
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
-C
+
 C HS  03/10/11 Made OH a required species
 C    -added OH to "precursor" array (set rxncounter to .FALSE.);
 C    -added "update" column to precursor array to note which species
 C     concentrations will be affected by aerosol routines
 C    -added req_OH and OH_idx variables
 C    -changed precursor_conc to Real(8)
-C
 C-----------------------------------------------------------------------
 
       Implicit None
@@ -60,6 +58,7 @@ C                    ----------   ----------  ------
      & precursor_type( 'NH3     ', .False. , .True.  ),
      & precursor_type( 'OH      ', .False. , .False. ) /)
 
+
 C Required species
       Character( 16 ), Private, Parameter :: req_NO2    = 'NO2'
       Character( 16 ), Private, Parameter :: req_N2O5   = 'N2O5'
@@ -82,7 +81,7 @@ C Indices of required species
       Integer :: NH3_idx
       Integer :: OH_idx
 
-      Real    :: precursor_mw( n_precursor )   ! mol wt from cgrid_spcs [g/mol] 
+      Real    :: precursor_mw( n_precursor )   ! mol wt from cgrid_spcs [g/mol]
 
       Real( 8 ) :: precursor_conc( n_precursor ) ! precursor concentration [ug/m^3]
 
@@ -91,6 +90,11 @@ C Indices of required species
 C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
       Logical, Private, Save :: mapped = .False.
+
+#ifdef verbose
+      Integer, Private, Save :: logdev
+      Integer, Private, External :: setup_logdev
+#endif
 
       Contains
 
@@ -102,7 +106,7 @@ C  Defines mapping from CGRID for species concentration and moments.
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
-C
+
 C HS  03/10/11 Changed vtmp to real(8)
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
@@ -117,6 +121,10 @@ C Local Variables:
       Real( 8 )       :: vtmp
       Integer         :: n
       Integer         :: spc
+
+#ifdef verbose
+      logdev = setup_logdev()
+#endif
 
       precursor_mw = 0.0
       precursor_map = 0
@@ -151,7 +159,23 @@ C Find indices of required species
       NH3_idx    = findPrecursor( req_NH3 )
       OH_idx     = findPrecursor( req_OH )
 
+#ifdef verbose
+      Write( logdev,'( /5x, a )' ) 'map_precursor required species'
+      Write( logdev,'( 5x, a, i4 )' ) 'NO2_idx:    ', NO2_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'N2O5_idx:   ', N2O5_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'HNO3_idx:   ', HNO3_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'HONO_idx:   ', HONO_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'SULF_idx:   ', SULF_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'SULPRD_idx: ', SULPRD_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'HCL_idx:    ', HCL_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'NH3_idx:    ', NH3_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'OH_idx:     ', OH_idx
+#endif
+
       mapped = .True.
+
+      Write( logdev,'( 5x, a )' ) ' --- Precursor Species Mapped ---'
+
       Return
       End Subroutine map_precursor
 
@@ -163,20 +187,18 @@ C  Extracts the required precursor data from CGRID into conc.
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
-C
+
 C SH  03/10/11 Renamed met_data to aeromet_data
 C HS  03/10/11 Changed vtmp and gasconv to real(8)
 C-----------------------------------------------------------------------
 
-      Use aeromet_data    ! air and met variables
+      Use aeromet_data            ! air and met variables
+      Use utilio_defn
 
       Implicit None
 
 C Arguments:
       Real, Intent( In ) :: conc( : )
-
-C Functions:
-      Integer, External :: index1
 
 C Local Variables:
       Real( 8 )       :: gasconv       ! converts from [ppm] to [ug/m^3]
@@ -213,14 +235,14 @@ C  Updates CGRID aerosol precursor values from the conc array.
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
-C
+
 C SH  03/10/11 Renamed met_data to aeromet_data
 C HS  03/10/11 Only update conc for species with "update" = .TRUE.;
 C    -changed vtmp and gasconv to real(8)
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      Use aeromet_data    ! air and met variables
+      Use aeromet_data        ! air and met variables
       Use utilio_defn
 
       Implicit None
@@ -254,7 +276,7 @@ C copy precursor_conc back to grid cell concentrations
                   vtmp = precursor_mw( spc ) * gasconv
                   conc( n ) = Max( precursor_conc( spc ) / vtmp, min_gasconc )
                End If
-            End if
+            End If
          End If
       End Do
 
