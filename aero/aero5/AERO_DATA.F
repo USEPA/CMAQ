@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.7 2011/04/25 18:56:47 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.8 2011/04/26 16:32:12 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -359,9 +359,6 @@ C  verify that all the units are consistent
 
       ! Parameters:
       Character( 10 ), Parameter :: blank10 = ' '
-
-      ! External Functions:
-      Character( 2 ), External :: crlf
 
       ! Local Variables:
       Character( 16 ), Save :: pname = 'map_pmemis'
