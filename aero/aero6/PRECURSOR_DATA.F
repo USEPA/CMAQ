@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.5 2011/04/26 12:33:56 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.6 2011/04/26 16:18:41 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
@@ -91,10 +91,8 @@ C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
       Logical, Private, Save :: mapped = .False.
 
-#ifdef verbose
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
-#endif
 
       Contains
 
@@ -122,9 +120,7 @@ C Local Variables:
       Integer         :: n
       Integer         :: spc
 
-#ifdef verbose
       logdev = setup_logdev()
-#endif
 
       precursor_mw = 0.0
       precursor_map = 0

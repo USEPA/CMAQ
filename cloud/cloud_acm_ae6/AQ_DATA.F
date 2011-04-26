@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.4 2011/04/26 13:07:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.5 2011/04/26 16:18:16 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
@@ -245,10 +245,8 @@ C...Pointers for the AQCHEM arrays LIQUID and WETDEP
 
       Logical, Private, Save :: mapped = .False.
 
-#ifdef verbose
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
-#endif
 
       Contains
  
@@ -291,9 +289,7 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-#ifdef verbose
       logdev = setup_logdev()
-#endif
 
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
