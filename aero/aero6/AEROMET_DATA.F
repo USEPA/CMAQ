@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AEROMET_DATA.F,v 1.1 2011/03/15 19:07:13 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AEROMET_DATA.F,v 1.2 2011/04/26 12:31:01 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aeromet_data
@@ -25,7 +25,7 @@ C Fundamental constants
       Real( 8 ), Parameter :: boltzmann = rgasuniv / avo  ! [ j/K ]
 
 C Concentration lower limit used for gas species
-      Real,      Parameter :: min_gasconc = 1.0E-30   ! [ kg/m^3 ]
+      Real,      Parameter :: min_gasconc = 1.0E-30   ! [ ug/m^3 ]
 
 C Meteorological variables (data from MET_CRO_3D file)
       Real :: airtemp      ! air temp [ K ]
