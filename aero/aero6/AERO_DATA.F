@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.6 2011/04/26 13:26:11 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.7 2011/04/26 16:19:43 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -55,10 +55,8 @@ C Define Logical values as T and F for the aerospc table
       Logical, Parameter, Private :: T = .true.
       Logical, Parameter, Private :: F = .false.
 
-#ifdef verbose
       Integer, Private, Save :: logdev
       Integer, Private, External :: setup_logdev
-#endif
 
 C-------------------------------------------------------------------------------------------------------
 
@@ -293,9 +291,7 @@ C Local Variables:
       Real  so4fac
       Real  anthfac
 
-#ifdef verbose
       logdev = setup_logdev()
-#endif
 
       if ( mapped ) Return
 
@@ -424,9 +420,6 @@ C  Verify that all the units on the file are consistent
 C Parameters:
       Character( 10 ), Parameter :: blank10 = ' '
 
-C External Functions:
-      Character( 2 ), External :: crlf
-
 C Local Variables:
       Character( 16 ), Save :: pname = 'map_pmemis'
       Character( 512 )      :: xmsg1
@@ -439,9 +432,7 @@ C Local Variables:
 
       Logical, Save :: pm_mapped = .False.
 
-#ifdef verbose
       logdev = setup_logdev()
-#endif
 
 C Create mapping only if first call
       If ( pm_mapped ) Return
