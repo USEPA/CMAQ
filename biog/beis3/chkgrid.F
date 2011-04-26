@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v 1.2 2011/04/01 15:41:29 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v 1.3 2011/04/26 16:22:55 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -27,7 +27,7 @@ C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: EDSS Tools Library
-C File: @(#)$Id: chkgrid.F,v 1.2 2011/04/01 15:41:29 sjr Exp $
+C File: @(#)$Id: chkgrid.F,v 1.3 2011/04/26 16:22:55 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -36,7 +36,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v $
-C Last updated: $Date: 2011/04/01 15:41:29 $
+C Last updated: $Date: 2011/04/26 16:22:55 $
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -50,7 +50,6 @@ C Arguments:
       LOGICAL                       :: SUCCESS ! true: comparison succeeded
 
 C External Functions:
-      CHARACTER( 2 ), EXTERNAL :: CRLF
 
 C Parameters:
       CHARACTER( 10 ), PARAMETER :: BLANK10  = ' '

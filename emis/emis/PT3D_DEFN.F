@@ -84,9 +84,6 @@ C Stack parameters
 C Private Parameters:
       CHARACTER(  10 ), PRIVATE, PARAMETER :: BLANK10 = ' '
 
-C Private External Functions:
-      CHARACTER(   2 ), PRIVATE,  EXTERNAL :: CRLF
-
 C cross-point layered grid file name
       CHARACTER(  16 ), PRIVATE,     SAVE :: GC3NAME
 
