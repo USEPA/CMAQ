@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.3 2011/04/01 15:41:31 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.4 2011/04/26 13:07:51 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
@@ -12,6 +12,8 @@ C  Revision History:
 C     First version was coded in May 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C     Feb 2011: Steve Howard, Shawn Roselle, Prakash Bhave, Bill Hutzell -
+C     Mar 2011: Sergey Napelenok - AE6 update for Ca/Mg/K/Fe/Mn 
+C               indexing, density, variable names
 C     Mar 2011: Shawn Roselle, replaced I/O API include files with UTILIO_DEFN
 C
 C-----------------------------------------------------------------------
@@ -20,9 +22,10 @@ C-----------------------------------------------------------------------
       Implicit None
 
       Integer, Parameter :: ngas = 15   ! number of gas-phase species for AQCHEM
-      Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
+!     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
+      Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
       Integer, Parameter :: naer = n_aerospc + naddaer  ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 44  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 51  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 20  ! maximum number of species for surrogate
 
@@ -107,14 +110,14 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Type ( sur_aer_type ) :: srgaer( naer )
 
 C... Additional Aerosol surrogate species to add to aerosol list
-      Type ( sur_aer_type ), private :: addsrgaer( NADDAER ) = (/
+      Type ( sur_aer_type ), private :: addsrgaer( naddaer ) = (/
 C                         Aitken         Accum             Coarse       Background   MolWt    Density
 C                      -------------   -------------   -------------    ---------- --------  ---------
-     & sur_aer_type((/'             ','             ','CACO3        '/),     0.0,    100.1,   2000.0),
-     & sur_aer_type((/'             ','             ','MGCO3        '/),     0.0,     84.3,   2000.0),
-     & sur_aer_type((/'             ','             ','A3FE         '/),   0.010,     55.8,   2000.0),
-     & sur_aer_type((/'             ','             ','B2MN         '/),   0.005,     54.9,   2000.0),
-     & sur_aer_type((/'             ','             ','K            '/),     0.0,     39.1,   2000.0),
+!    & sur_aer_type((/'             ','             ','CACO3        '/),     0.0,    100.1,   2200.0),
+!    & sur_aer_type((/'             ','             ','MGCO3        '/),     0.0,     84.3,   2200.0),
+!    & sur_aer_type((/'             ','             ','A3FE         '/),   0.000,     55.8,   2000.0),
+!    & sur_aer_type((/'             ','             ','B2MN         '/),   0.000,     54.9,   2000.0),
+!    & sur_aer_type((/'             ','             ','K            '/),     0.0,     39.1,   2200.0),
      & sur_aer_type((/'NUM_AITKEN   ','NUM_ACCUM    ','NUM_COARSE   '/),     0.0,      0.0,      1.0),
      & sur_aer_type((/'SRF_AITKEN   ','SRF_ACCUM    ','SRF_COARSE   '/),     0.0,      0.0,      1.0)/)
 
@@ -127,7 +130,7 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM'
       Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM'  
       Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM'
-      Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE'
+!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE' ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM'  
       Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM'  
       Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3'
@@ -138,6 +141,16 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM' 
       Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM' 
 
+      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM'     ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM'    ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM'    ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE' ! SLN 16March2011
+
+
 C...Pointers for the AQCHEM array AEROSOL
       Integer :: lso4     !  Sulfate
       Integer :: lnh4     !  Ammonium
@@ -147,21 +160,30 @@ C...Pointers for the AQCHEM array AEROSOL
       Integer :: lpoa     !  Primary organic aerosol
       Integer :: lec      !  Elemental carbon
       Integer :: lpri     !  Primary aerosol (Aitken and Accumulation)
-      Integer :: lpricor  !  Primary aerosol (coarse)
+!     Integer :: lpricor  !  Primary aerosol (coarse)
       Integer :: lna      !  Sodium
       Integer :: lcl      !  Chloride ion
-      Integer :: lcaco3   !  Calcium Carbonate aerosol (place holder)
-      Integer :: lmgco3   !  Magnesium Carbonate aerosol (place holder)
-      Integer :: la3fe    !  Iron aerosol (place holder)
-      Integer :: lb2mn    !  Manganese aerosol (place holder)
-      Integer :: lk       !  Potassium aerosol (Cl- tracked separately) (place holder)
+!     Integer :: lcaco3   !  Calcium Carbonate aerosol (place holder)
+!     Integer :: lmgco3   !  Magnesium Carbonate aerosol (place holder)
+!     Integer :: la3fe    !  Iron aerosol (place holder)
+!     Integer :: lb2mn    !  Manganese aerosol (place holder)
+!     Integer :: lk       !  Potassium aerosol (Cl- tracked separately) (place holder)
       Integer :: lnum     !  Number
       Integer :: lsrf     !  Surface area
+
+      Integer :: lcaacc   !  Ca in Accumulation mode (AE6) SLN 16March2011
+      Integer :: lmgacc   !  Mg in Accumulation mode (AE6) SLN 16March2011
+      Integer :: lkacc    !  K in Accumulation mode (AE6)  SLN 16March2011
+      Integer :: lfeacc   !  Fe in Accumulation mode (AE6) SLN 22March2011
+      Integer :: lmnacc   !  Mn in Accumulation mode (AE6) SLN 22March2011
+      Integer :: lsoilc   !  SOIL in Coarse mode (AE6)     SLN 16March2011
+      Integer :: lanthc   !  CORS in Coarse mode (AE6)     SLN 16March2011
+      Integer :: lseasc   !  SEAS in Coarse mode (AE6)     SLN 16March2011
 
 C...Pointers for the AQCHEM arrays LIQUID and WETDEP
       Integer, Parameter :: lacl        = 01  ! Hydrogen ion
       Integer, Parameter :: lnh4accl    = 02  ! Ammonium(attributed to accum. mode)
-      Integer, Parameter :: lcal        = 03  ! Calcium
+      Integer, Parameter :: lcacorl     = 03  ! coarse mode Calcium 
       Integer, Parameter :: lnaaccl     = 04  ! Sodium
       Integer, Parameter :: lohl        = 05  ! Hydroxyl radical
       Integer, Parameter :: lso4accl    = 06  ! Sulfate (attributed to accumulation mode)
@@ -177,8 +199,8 @@ C...Pointers for the AQCHEM arrays LIQUID and WETDEP
       Integer, Parameter :: lclaccl     = 16  ! chloride ion (attributed to accumulation mode)
       Integer, Parameter :: lh2o2l      = 17  ! hydrogen peroxide
       Integer, Parameter :: lo3l        = 18  ! ozone
-      Integer, Parameter :: lfel        = 19  ! iron
-      Integer, Parameter :: lmnl        = 20  ! Manganese
+      Integer, Parameter :: lfecorl     = 19  ! iron
+      Integer, Parameter :: lmncorl     = 20  ! Manganese
       Integer, Parameter :: lal         = 21  ! generalized anion associated with iron
       Integer, Parameter :: lfoal       = 22  ! Formic acid
       Integer, Parameter :: lhco2l      = 23  ! HCOO- ion
@@ -186,23 +208,32 @@ C...Pointers for the AQCHEM arrays LIQUID and WETDEP
       Integer, Parameter :: lpaal       = 25  ! Peroxyacidic acid
       Integer, Parameter :: lhcll       = 26  ! Hydrogen chloride
       Integer, Parameter :: lpriml      = 27  ! primary aerosol
-      Integer, Parameter :: lmgl        = 28  ! Magnesium
-      Integer, Parameter :: lkl         = 29  ! potassium
+      Integer, Parameter :: lmgcorl     = 28  ! coarse mode Magnesium
+      Integer, Parameter :: lkcorl      = 29  ! coarse mode Potassium
       Integer, Parameter :: lbl         = 30  ! generalized anion associated with manganese
       Integer, Parameter :: lhno3l      = 31  ! nitric acid
-      Integer, Parameter :: lprimcorl   = 32  ! coarse-mode primary aerosol
-      Integer, Parameter :: lnumcorl    = 33  ! coarse-mode number
-      Integer, Parameter :: lts6corl    = 34  ! sulfate (attributed to coarse mode)
-      Integer, Parameter :: lnacorl     = 35  ! sodium (attributed to coarse mode)
-      Integer, Parameter :: lclcorl     = 36  ! chloride ion (attributed to coarse mode)
-      Integer, Parameter :: lno3corl    = 37  ! nitrate (attributed to coarse mode)
-      Integer, Parameter :: lnh4corl    = 38  ! ammonium (attributed to coarse mode)
-      Integer, Parameter :: lsoal       = 39  ! secondary organic aerosols
-      Integer, Parameter :: lorgcl      = 40  ! in-cloud soa
-      integer, parameter :: lpoal       = 41  ! primary organic aerosols
-      Integer, Parameter :: lecl        = 42  ! elemental carbon
-      Integer, Parameter :: lglyl       = 43  ! glyoxal
-      Integer, Parameter :: lmglyl      = 44  ! methylglyoxal
+!     Integer, Parameter :: lprimcorl   = 32  ! coarse-mode primary aerosol
+      Integer, Parameter :: lnumcorl    = 32  ! coarse-mode number
+      Integer, Parameter :: lts6corl    = 33  ! sulfate (attributed to coarse mode)
+      Integer, Parameter :: lnacorl     = 34  ! sodium (attributed to coarse mode)
+      Integer, Parameter :: lclcorl     = 35  ! chloride ion (attributed to coarse mode)
+      Integer, Parameter :: lno3corl    = 36  ! nitrate (attributed to coarse mode)
+      Integer, Parameter :: lnh4corl    = 37  ! ammonium (attributed to coarse mode)
+      Integer, Parameter :: lsoal       = 38  ! secondary organic aerosols
+      Integer, Parameter :: lorgcl      = 39  ! in-cloud soa
+      integer, parameter :: lpoal       = 40  ! primary organic aerosols
+      Integer, Parameter :: lecl        = 41  ! elemental carbon
+      Integer, Parameter :: lglyl       = 42  ! glyoxal
+      Integer, Parameter :: lmglyl      = 43  ! methylglyoxal
+      Integer, Parameter :: lcaaccl     = 44  ! accumulation mode Calcium (AE6)   SLN 16March2011
+      Integer, Parameter :: lmgaccl     = 45  ! accumulation mode Magnesium (AE6) SLN 16March2011
+      Integer, Parameter :: lkaccl      = 46  ! accumulation mode Potassium (AE6) SLN 16March2011
+      Integer, Parameter :: lsoilcl     = 47  ! coarse mode SOIL (AE6)   SLN 16March2011
+      Integer, Parameter :: lanthcl     = 48  ! coarse mode CORS (lol) (AE6)   SLN 16March2011
+      Integer, Parameter :: lseascl     = 49  ! coarse mode SEAS (AE6) SLN 16March2011
+      Integer, Parameter :: lfeaccl     = 50  ! accumulation mode Iron (AE6)      SLN 22March2011
+      Integer, Parameter :: lmnaccl     = 51  ! accumulation mode Manganese (AE6) SLN 22March2011
+
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -213,6 +244,11 @@ C...Pointers for the AQCHEM arrays LIQUID and WETDEP
       Integer, Allocatable :: cgrid2aq_map( : )   ! allocated in AQ_DATA_INIT routine
 
       Logical, Private, Save :: mapped = .False.
+
+#ifdef verbose
+      Integer, Private, Save :: logdev
+      Integer, Private, External :: setup_logdev
+#endif
 
       Contains
  
@@ -227,12 +263,10 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C-----------------------------------------------------------------------
 
       Use cgrid_spcs          ! CGRID mechanism species
-      Use aero_data
       Use utilio_defn
+      Use aero_data
 
       Implicit None
-
-C Includes:
 
 C Functions:
       Integer, External :: indexn
@@ -256,6 +290,10 @@ C Local Variables:
       Integer :: ios
 
 C-----------------------------------------------------------------------
+
+#ifdef verbose
+      logdev = setup_logdev()
+#endif
 
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
@@ -298,7 +336,7 @@ C...Map aero species
 
          ! Skip H2O and SOIL species
          If ( spc .Eq. ah2o_idx ) Cycle
-         If ( spc .Eq. asoil_idx ) Cycle
+!        If ( spc .Eq. asoil_idx ) Cycle ! SLN 16March2011
 
          Do mode = 1, n_mode
 
@@ -322,7 +360,7 @@ C...Map aero species
 
       End Do   ! spc
 
-C...Add addition aerosol surrogate species
+C...Add additional aerosol surrogate species
       Do n = 1, naddaer
          spc = n_aerospc + n
          srgaer( spc ) = addsrgaer( n )
@@ -432,18 +470,70 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       lpoa   = findSgrAer( req_apoa )    !  Primary organic aerosol
       lec    = findSgrAer( req_aec )     !  Elemental carbon
       lpri   = findSgrAer( req_apri )    !  Primary aerosol (Aitken and Accumulation)
-      lpricor= findSgrAer( req_apric )   !  Primary aerosol (coarse)
+!     lpricor= findSgrAer( req_apric )   !  Primary aerosol (coarse)
       lna    = findSgrAer( req_ana )     !  Sodium
       lcl    = findSgrAer( req_acl )     !  Chloride ion
-      lcaco3 = findSgrAer( req_acaco3 )  !  Calcium Carbonate aerosol (place holder)
-      lmgco3 = findSgrAer( req_amgco3 )  !  Magnesium Carbonate aerosol (place holder)
-      la3fe  = findSgrAer( req_aa3fe )   !  Iron aerosol (place holder)
-      lb2mn  = findSgrAer( req_ab2mn )   !  Manganese aerosol (place holder)
-      lk     = findSgrAer( req_ak )      !  Potassium aerosol (Cl- tracked separately)
+!     lcaco3 = findSgrAer( req_acaco3 )  !  Calcium Carbonate aerosol (place holder)
+!     lmgco3 = findSgrAer( req_amgco3 )  !  Magnesium Carbonate aerosol (place holder)
+!     la3fe  = findSgrAer( req_aa3fe )   !  Iron aerosol (place holder)
+!     lb2mn  = findSgrAer( req_ab2mn )   !  Manganese aerosol (place holder)
+!     lk     = findSgrAer( req_ak )      !  Potassium aerosol (Cl- tracked separately)
       lnum   = findSgrAer( req_num )     !  Number
       lsrf   = findSgrAer( req_srf )     !  Surface area
+      lcaacc = findSgrAer( req_caacc )   !  Ca in Accumulation mode (AE6) SLN 16March2011
+      lmgacc = findSgrAer( req_mgacc )   !  Mg in Accumulation mode (AE6) SLN 16March2011
+      lkacc  = findSgrAer( req_kacc )    !  K in Accumulation mode (AE6)  SLN 16March2011
+      lfeacc = findSgrAer( req_feacc )   !  Fe in Accumulation mode (AE6) SLN 22March2011
+      lmnacc = findSgrAer( req_mnacc )   !  Mn in Accumulation mode (AE6) SLN 22March2011
+      lsoilc = findSgrAer( req_soilc )   !  SOIL in Coarse mode  (AE6)    SLN 16March2011
+      lanthc = findSgrAer( req_anthc )   !  CORS in Coarse mode  (AE6)    SLN 16March2011
+      lseasc = findSgrAer( req_seasc )   !  SEAS in Coarse mode  (AE6)    SLN 16March2011
 
       mapped = .True.
+
+#ifdef verbose
+      Write( logdev,'( /5x, a )' ) 'AQCHEM gas surrogate species'
+      Write( logdev,'( 5x, a, i4 )' ) 'lso2:   ', lso2
+      Write( logdev,'( 5x, a, i4 )' ) 'lhno3:  ', lhno3
+      Write( logdev,'( 5x, a, i4 )' ) 'ln2o5:  ', ln2o5
+      Write( logdev,'( 5x, a, i4 )' ) 'lco2:   ', lco2
+      Write( logdev,'( 5x, a, i4 )' ) 'lnh3:   ', lnh3
+      Write( logdev,'( 5x, a, i4 )' ) 'lh2o2:  ', lh2o2
+      Write( logdev,'( 5x, a, i4 )' ) 'lo3:    ', lo3
+      Write( logdev,'( 5x, a, i4 )' ) 'lfoa:   ', lfoa
+      Write( logdev,'( 5x, a, i4 )' ) 'lmhp:   ', lmhp
+      Write( logdev,'( 5x, a, i4 )' ) 'lpaa:   ', lpaa
+      Write( logdev,'( 5x, a, i4 )' ) 'lh2so4: ', lh2so4
+      Write( logdev,'( 5x, a, i4 )' ) 'lhcl:   ', lhcl
+      Write( logdev,'( 5x, a, i4 )' ) 'lgly:   ', lgly
+      Write( logdev,'( 5x, a, i4 )' ) 'lmgly:  ', lmgly
+      Write( logdev,'( 5x, a, i4 )' ) 'lho:    ', lho
+
+      Write( logdev,'( /5x, a )' ) 'AQCHEM aerosol surrogate species'
+      Write( logdev,'( 5x, a, i4 )' ) 'lso4:   ', lso4
+      Write( logdev,'( 5x, a, i4 )' ) 'lnh4:   ', lnh4
+      Write( logdev,'( 5x, a, i4 )' ) 'lno3:   ', lno3
+      Write( logdev,'( 5x, a, i4 )' ) 'lsoa:   ', lsoa
+      Write( logdev,'( 5x, a, i4 )' ) 'lorgc:  ', lorgc
+      Write( logdev,'( 5x, a, i4 )' ) 'lpoa:   ', lpoa
+      Write( logdev,'( 5x, a, i4 )' ) 'lec:    ', lec
+      Write( logdev,'( 5x, a, i4 )' ) 'lpri:   ', lpri
+      Write( logdev,'( 5x, a, i4 )' ) 'lna:    ', lna
+      Write( logdev,'( 5x, a, i4 )' ) 'lcl:    ', lcl
+      Write( logdev,'( 5x, a, i4 )' ) 'lnum:   ', lnum
+      Write( logdev,'( 5x, a, i4 )' ) 'lsrf:   ', lsrf
+      Write( logdev,'( 5x, a, i4 )' ) 'lcaacc: ', lcaacc
+      Write( logdev,'( 5x, a, i4 )' ) 'lmgacc: ', lmgacc
+      Write( logdev,'( 5x, a, i4 )' ) 'lkacc:  ', lkacc
+      Write( logdev,'( 5x, a, i4 )' ) 'lfeacc: ', lfeacc
+      Write( logdev,'( 5x, a, i4 )' ) 'lmnacc: ', lmnacc
+      Write( logdev,'( 5x, a, i4 )' ) 'lsoilc: ', lsoilc
+      Write( logdev,'( 5x, a, i4 )' ) 'lanthc: ', lanthc
+      Write( logdev,'( 5x, a, i4 )' ) 'lseasc: ', lseasc
+#endif
+
+      Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'
+
       Return
       End Subroutine aq_data_init
 
@@ -464,8 +554,6 @@ C-----------------------------------------------------------------------
 C Arguments:
       Character( * ) :: vname
       Integer idx
-
-C Includes:
 
 C Local Variables:
       Character( 80 ) :: xmsg
@@ -502,8 +590,6 @@ C-----------------------------------------------------------------------
 C Arguments:
       Character( * ) :: vname
       Integer idx
-
-C Includes:
 
 C Local Variables:
       Character( 80 ) :: xmsg
