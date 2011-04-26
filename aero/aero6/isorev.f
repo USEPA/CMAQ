@@ -18,14 +18,8 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/isorev.f,v 1.1 2010/07/20 11:55:06 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/isorev.f,v 1.2 2011/04/26 12:40:21 sjr Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
-C This is ISORROPIA Version 1.7 (3/15/06).  More information is available
-C at the ISORROPIA homepage: http://nenes.eas.gatech.edu/ISORROPIA/
-C
 C=======================================================================
 C
 C *** ISORROPIA CODE
@@ -35,7 +29,7 @@ C     AN AMMONIUM-SULFATE AEROSOL SYSTEM.
 C     THE COMPOSITION REGIME IS DETERMINED BY THE SULFATE RATIO AND BY 
 C     THE AMBIENT RELATIVE HUMIDITY.
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -65,17 +59,17 @@ C
       IF (SULRATW.LE.SULRAT) THEN
 C
       IF(METSTBL.EQ.1) THEN
-         SCASE = 'K2'
-         CALL CALCK2                 ! Only liquid (metastable)
+         SCASE = 'S2'
+         CALL CALCS2                 ! Only liquid (metastable)
       ELSE
 C
          IF (RH.LT.DRNH42S4) THEN    
-            SCASE = 'K1'
-            CALL CALCK1              ! NH42SO4              ; case K1
+            SCASE = 'S1'
+            CALL CALCS1              ! NH42SO4              ; case K1
 C
          ELSEIF (DRNH42S4.LE.RH) THEN
-            SCASE = 'K2'
-            CALL CALCK2              ! Only liquid          ; case K2
+            SCASE = 'S2'
+            CALL CALCS2              ! Only liquid          ; case K2
          ENDIF
       ENDIF
 C
@@ -88,28 +82,28 @@ C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'B4'
          CALL CALCB4                 ! Only liquid (metastable)
-         SCASE = 'L4'
+         SCASE = 'B4'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'B1'
             CALL CALCB1              ! NH4HSO4,LC,NH42SO4   ; case B1
-            SCASE = 'L1'
+            SCASE = 'B1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRLC) THEN         
             SCASE = 'B2'
             CALL CALCB2              ! LC,NH42S4            ; case B2
-            SCASE = 'L2'
+            SCASE = 'B2'
 C
          ELSEIF (DRLC.LE.RH .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'B3'
             CALL CALCB3              ! NH42S4               ; case B3
-            SCASE = 'L3'
+            SCASE = 'B3'
 C
          ELSEIF (DRNH42S4.LE.RH) THEN         
             SCASE = 'B4'
             CALL CALCB4              ! Only liquid          ; case B4
-            SCASE = 'L4'
+            SCASE = 'B4'
          ENDIF
       ENDIF
 C
@@ -124,18 +118,18 @@ C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'C2'
          CALL CALCC2                 ! Only liquid (metastable)
-         SCASE = 'M2'
+         SCASE = 'C2'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'C1'
             CALL CALCC1              ! NH4HSO4              ; case C1
-            SCASE = 'M1'
+            SCASE = 'C1'
 C
          ELSEIF (DRNH4HS4.LE.RH) THEN         
             SCASE = 'C2'
             CALL CALCC2              ! Only liquid          ; case C2
-            SCASE = 'M2'
+            SCASE = 'C2'
          ENDIF
       ENDIF
 C 
@@ -157,7 +151,7 @@ C     AN AMMONIUM-SULFATE-NITRATE AEROSOL SYSTEM.
 C     THE COMPOSITION REGIME IS DETERMINED BY THE SULFATE RATIO AND BY
 C     THE AMBIENT RELATIVE HUMIDITY.
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -222,28 +216,28 @@ C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'B4'
          CALL CALCB4                 ! Only liquid (metastable)
-         SCASE = 'O4'
+         SCASE = 'B4'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'B1'
             CALL CALCB1              ! NH4HSO4,LC,NH42SO4   ; case O1
-            SCASE = 'O1'
+            SCASE = 'B1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRLC) THEN         
             SCASE = 'B2'
             CALL CALCB2              ! LC,NH42S4            ; case O2
-            SCASE = 'O2'
+            SCASE = 'B2'
 C
          ELSEIF (DRLC.LE.RH .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'B3'
             CALL CALCB3              ! NH42S4               ; case O3
-            SCASE = 'O3'
+            SCASE = 'B3'
 C
          ELSEIF (DRNH42S4.LE.RH) THEN         
             SCASE = 'B4'
             CALL CALCB4              ! Only liquid          ; case O4
-            SCASE = 'O4'
+            SCASE = 'B4'
          ENDIF
       ENDIF
 C
@@ -268,18 +262,18 @@ C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'C2'
          CALL CALCC2                 ! Only liquid (metastable)
-         SCASE = 'P2'
+         SCASE = 'C2'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'C1'
             CALL CALCC1              ! NH4HSO4              ; case P1
-            SCASE = 'P1'
+            SCASE = 'C1'
 C
          ELSEIF (DRNH4HS4.LE.RH) THEN         
             SCASE = 'C2'
             CALL CALCC2              ! Only liquid          ; case P2
-            SCASE = 'P2'
+            SCASE = 'C2'
          ENDIF
       ENDIF
 C
@@ -314,7 +308,7 @@ C     AN AMMONIUM-SULFATE-NITRATE-CHLORIDE-SODIUM AEROSOL SYSTEM.
 C     THE COMPOSITION REGIME IS DETERMINED BY THE SULFATE & SODIUM 
 C     RATIOS AND BY THE AMBIENT RELATIVE HUMIDITY.
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -442,38 +436,38 @@ C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'I6'
          CALL CALCI6                 ! Only liquid (metastable)
-         SCASE = 'S6'
+         SCASE = 'I6'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'I1'
             CALL CALCI1              ! NA2SO4,(NH4)2SO4,NAHSO4,NH4HSO4,LC
-            SCASE = 'S1'
+            SCASE = 'I1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRNAHSO4) THEN         
             SCASE = 'I2'
             CALL CALCI2              ! NA2SO4,(NH4)2SO4,NAHSO4,LC
-            SCASE = 'S2'
+            SCASE = 'I2'
 C
          ELSEIF (DRNAHSO4.LE.RH .AND. RH.LT.DRLC) THEN         
             SCASE = 'I3'
             CALL CALCI3              ! NA2SO4,(NH4)2SO4,LC
-            SCASE = 'S3'
+            SCASE = 'I3'
 C
          ELSEIF (DRLC.LE.RH     .AND. RH.LT.DRNH42S4) THEN         
             SCASE = 'I4'
             CALL CALCI4              ! NA2SO4,(NH4)2SO4
-            SCASE = 'S4'
+            SCASE = 'I4'
 C
          ELSEIF (DRNH42S4.LE.RH .AND. RH.LT.DRNA2SO4) THEN         
             SCASE = 'I5'
             CALL CALCI5              ! NA2SO4
-            SCASE = 'S5'
+            SCASE = 'I5'
 C
          ELSEIF (DRNA2SO4.LE.RH) THEN         
             SCASE = 'I6'
             CALL CALCI6              ! NO SOLIDS
-            SCASE = 'S6'
+            SCASE = 'I6'
          ENDIF
       ENDIF
 C
@@ -490,23 +484,23 @@ C
       IF(METSTBL.EQ.1) THEN
          SCASE = 'J3'
          CALL CALCJ3                 ! Only liquid (metastable)
-         SCASE = 'T3'
+         SCASE = 'J3'
       ELSE
 C
          IF (RH.LT.DRNH4HS4) THEN         
             SCASE = 'J1'
             CALL CALCJ1              ! NH4HSO4,NAHSO4
-            SCASE = 'T1'
+            SCASE = 'J1'
 C
          ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRNAHSO4) THEN         
             SCASE = 'J2'
             CALL CALCJ2              ! NAHSO4
-            SCASE = 'T2'
+            SCASE = 'J2'
 C
          ELSEIF (DRNAHSO4.LE.RH) THEN         
             SCASE = 'J3'
             CALL CALCJ3              
-            SCASE = 'T3'
+            SCASE = 'J3'
          ENDIF
       ENDIF
 C
@@ -529,23 +523,340 @@ C
 C *** END OF SUBROUTINE ISRP3R *****************************************
 C
       END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE ISRP4R
+C *** THIS SUBROUTINE IS THE DRIVER ROUTINE FOR THE REVERSE PROBLEM OF
+C     AN AMMONIUM-SULFATE-NITRATE-CHLORIDE-SODIUM-CALCIUM-POTTASIUM-MAGNESIUM AEROSOL SYSTEM.
+C     THE COMPOSITION REGIME IS DETERMINED BY THE SULFATE & SODIUM
+C     RATIOS AND BY THE AMBIENT RELATIVE HUMIDITY.
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE ISRP4R (WI, RHI, TEMPI)
+      INCLUDE 'isrpia.inc'
+      DIMENSION WI(NCOMP)
+      LOGICAL   TRYLIQ
+ccC
+ccC *** ADJUST FOR TOO LITTLE AMMONIUM AND CHLORIDE ***********************
+ccC
+cc      WI(3) = MAX (WI(3), 1.D-10)  ! NH4+ : 1e-4 umoles/m3
+cc      WI(5) = MAX (WI(5), 1.D-10)  ! Cl-  : 1e-4 umoles/m3
+C
+C *** INITIALIZE ALL VARIABLES ******************************************
+C
+      TRYLIQ  = .TRUE.             ! Use liquid phase sulfate poor limit
+      IPROB   = 1            ! SOLVE REVERSE PROBLEM
+C      METSTBL = 1
+C
+10    CALL INIT4 (WI, RHI, TEMPI) ! COMMON block variables
+ccC
+ccC *** CHECK IF TOO MUCH SODIUM ; ADJUST AND ISSUE ERROR MESSAGE *********
+ccC
+cc      REST = 2.D0*WAER(2) + WAER(4) + WAER(5)
+cc      IF (WAER(1).GT.REST) THEN            ! NA > 2*SO4+CL+NO3 ?
+cc         WAER(1) = (ONE-1D-6)*REST         ! Adjust Na amount
+cc         CALL PUSHERR (0050, 'ISRP3R')     ! Warning error: Na adjusted
+cc      ENDIF
+C
+C *** CALCULATE SULFATE, CRUSTAL & SODIUM RATIOS ***********************
+C
+      IF (TRYLIQ) THEN                               ! ** WET AEROSOL
+         FRSO4   = WAER(2) - WAER(1)/2.0D0
+     &           - WAER(6) - WAER(7)/2.0D0 - WAER(8) ! SULFATE UNBOUND BY SODIUM,CALCIUM,POTTASIUM,MAGNESIUM
+         FRSO4   = MAX(FRSO4, TINY)
+         SRI     = GETASR(FRSO4, RHI)                ! SULFATE RATIO FOR NH4+
+         SULRATW = (WAER(1)+FRSO4*SRI+WAER(6)
+     &              +WAER(7)+WAER(8))/WAER(2)       ! LIMITING SULFATE RATIO
+         SULRATW = MIN (SULRATW, 2.0D0)
+      ELSE
+         SULRATW = 2.0D0                     ! ** DRY AEROSOL
+      ENDIF
+      SO4RAT = (WAER(1)+WAER(3)+WAER(6)+WAER(7)+WAER(8))/WAER(2)
+      CRNARAT = (WAER(1)+WAER(6)+WAER(7)+WAER(8))/WAER(2)
+      CRRAT  = (WAER(6)+WAER(7)+WAER(8))/WAER(2)
+C
+C *** FIND CALCULATION REGIME FROM (SULRAT,RH) **************************
+C
+C *** SULFATE POOR ; SODIUM+CRUSTALS POOR
+C
+      IF (SULRATW.LE.SO4RAT .AND. CRNARAT.LT.2.0) THEN
+C
+       IF(METSTBL.EQ.1) THEN
+         SCASE = 'V7'
+         CALL CALCV7                 ! Only liquid (metastable)
+       ELSE
+C
+         IF (RH.LT.DRNH4NO3) THEN
+            SCASE = 'V1'
+            CALL CALCV1              ! CaSO4, NH4NO3, NH4CL, (NH4)2SO4, MGSO4, NA2SO4, K2SO4
+C
+         ELSEIF (DRNH4NO3.LE.RH .AND. RH.LT.DRNH4CL) THEN
+            SCASE = 'V2'
+            CALL CALCV2              ! CaSO4, NH4CL, (NH4)2SO4, MGSO4, NA2SO4, K2SO4
+C
+         ELSEIF (DRNH4CL.LE.RH  .AND. RH.LT.DRNH42S4) THEN
+            SCASE = 'V3'
+            CALL CALCV3              ! CaSO4, (NH4)2SO4, MGSO4, NA2SO4, K2SO4
+C
+         ELSEIF (DRNH42S4.LE.RH  .AND. RH.LT.DRMGSO4) THEN
+            SCASE = 'V4'
+            CALL CALCV4              ! CaSO4, MGSO4, NA2SO4, K2SO4
+C
+         ELSEIF (DRMGSO4.LE.RH .AND. RH.LT.DRNA2SO4) THEN
+            SCASE = 'V5'
+            CALL CALCV5              ! CaSO4, NA2SO4, K2SO4
+C
+         ELSEIF (DRNA2SO4.LE.RH .AND. RH.LT.DRK2SO4) THEN
+            SCASE = 'V6'
+            CALL CALCV6              ! CaSO4, K2SO4
+C
+         ELSEIF (DRK2SO4.LE.RH) THEN
+            SCASE = 'V7'
+            CALL CALCV7              ! CaSO4
+         ENDIF
+       ENDIF
+C
+C *** SULFATE POOR: Rso4>2; (DUST + SODIUM) RICH: R(Cr+Na)>2; DUST POOR: Rcr<2.
+C
+      ELSEIF (SO4RAT.GE.SULRATW .AND. CRNARAT.GE.2.0) THEN
+C
+       IF (CRRAT.LE.2.0) THEN
+C
+        IF(METSTBL.EQ.1) THEN
+         SCASE = 'U8'
+         CALL CALCU8                 ! Only liquid (metastable)
+        ELSE
+C
+           IF (RH.LT.DRNH4NO3) THEN
+             SCASE = 'U1'
+             CALL CALCU1             ! CaSO4, NH4NO3, NH4CL, MGSO4, NA2SO4, K2SO4, NACL, NANO3
+C
+           ELSEIF (DRNH4NO3.LE.RH .AND. RH.LT.DRNANO3) THEN
+             SCASE = 'U2'
+             CALL CALCU2            ! CaSO4, NH4CL, MGSO4, NA2SO4, K2SO4, NACL, NANO3
+C
+           ELSEIF (DRNANO3.LE.RH  .AND. RH.LT.DRNACL) THEN
+             SCASE = 'U3'
+             CALL CALCU3            ! CaSO4, NH4CL, MGSO4, NA2SO4, K2SO4, NACL
+C
+           ELSEIF (DRNACL.LE.RH   .AND. RH.LT.DRNH4Cl) THEN
+             SCASE = 'U4'
+             CALL CALCU4            ! CaSO4, NH4CL, MGSO4, NA2SO4, K2SO4
+C
+           ELSEIF (DRNH4Cl.LE.RH .AND. RH.LT.DRMGSO4) THEN
+             SCASE = 'U5'
+             CALL CALCU5            ! CaSO4, MGSO4, NA2SO4, K2SO4
+C
+           ELSEIF (DRMGSO4.LE.RH .AND. RH.LT.DRNA2SO4) THEN
+             SCASE = 'U6'
+             CALL CALCU6            ! CaSO4, NA2SO4, K2SO4
+C
+           ELSEIF (DRNA2SO4.LE.RH .AND. RH.LT.DRK2SO4) THEN
+             SCASE = 'U7'
+             CALL CALCU7            ! CaSO4, K2SO4
+C
+           ELSEIF (DRK2SO4.LE.RH) THEN
+             SCASE = 'U8'
+             CALL CALCU8            ! CaSO4
+           ENDIF
+        ENDIF
+C
+C *** SULFATE POOR: Rso4>2; (DUST + SODIUM) RICH: R(Cr+Na)>2; DUST POOR: Rcr<2.
+C
+       ELSEIF (CRRAT.GT.2.0) THEN
+C
+        IF(METSTBL.EQ.1) THEN
+         SCASE = 'W13'
+         CALL CALCW13                 ! Only liquid (metastable)
+        ELSE
+C
+           IF (RH.LT.DRCACL2) THEN
+             SCASE = 'W1'
+             CALL CALCW1             ! CaSO4, CA(NO3)2, CACL2, K2SO4, KNO3, KCL, MGSO4,
+C                                    ! MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+           ELSEIF (DRCACL2.LE.RH .AND. RH.LT.DRMGCL2) THEN
+             SCASE = 'W2'
+             CALL CALCW2            ! CaSO4, CA(NO3)2, K2SO4, KNO3, KCL, MGSO4,
+C                                   ! MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+           ELSEIF (DRMGCL2.LE.RH  .AND. RH.LT.DRCANO32) THEN
+             SCASE = 'W3'
+             CALL CALCW3            ! CaSO4, CA(NO3)2, K2SO4, KNO3, KCL, MGSO4,
+C                                   ! MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL
+C
+           ELSEIF (DRCANO32.LE.RH   .AND. RH.LT.DRMGNO32) THEN
+             SCASE = 'W4'
+             CALL CALCW4            ! CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                                   ! MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL
+C
+           ELSEIF (DRMGNO32.LE.RH .AND. RH.LT.DRNH4NO3) THEN
+             SCASE = 'W5'
+             CALL CALCW5            ! CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                                   ! NANO3, NACL, NH4NO3, NH4CL
+C
+           ELSEIF (DRNH4NO3.LE.RH .AND. RH.LT.DRNANO3) THEN
+             SCASE = 'W6'
+             CALL CALCW6            ! CaSO4, K2SO4, KNO3, KCL, MGSO4, NANO3, NACL, NH4CL
+C
+           ELSEIF (DRNANO3.LE.RH .AND. RH.LT.DRNACL) THEN
+             SCASE = 'W7'
+             CALL CALCW7            ! CaSO4, K2SO4, KNO3, KCL, MGSO4, NACL, NH4CL
+C
+           ELSEIF (DRNACL.LE.RH .AND. RH.LT.DRNH4CL) THEN
+             SCASE = 'W8'
+             CALL CALCW8            ! CaSO4, K2SO4, KNO3, KCL, MGSO4, NH4CL
+C
+           ELSEIF (DRNH4CL.LE.RH .AND. RH.LT.DRKCL) THEN
+             SCASE = 'W9'
+             CALL CALCW9            ! CaSO4, K2SO4, KNO3, KCL, MGSO4
+C
+           ELSEIF (DRKCL.LE.RH .AND. RH.LT.DRMGSO4) THEN
+             SCASE = 'W10'
+             CALL CALCW10            ! CaSO4, K2SO4, KNO3, MGSO4
+C
+           ELSEIF (DRMGSO4.LE.RH .AND. RH.LT.DRKNO3) THEN
+             SCASE = 'W11'
+             CALL CALCW11            ! CaSO4, K2SO4, KNO3
+C
+           ELSEIF (DRKNO3.LE.RH .AND. RH.LT.DRK2SO4) THEN
+             SCASE = 'W12'
+             CALL CALCW12            ! CaSO4, K2SO4
+C
+           ELSEIF (DRK2SO4.LE.RH) THEN
+             SCASE = 'W13'
+             CALL CALCW13            ! CaSO4
+           ENDIF
+         ENDIF
+C        CALL CALCNH3
+       ENDIF
+C
+C *** SULFATE RICH (NO ACID): 1<Rso4<2;
+C
+      ELSEIF (1.0.LE.SO4RAT .AND. SO4RAT.LT.SULRATW) THEN
+      DO 800 I=1,NCOMP
+         W(I) = WAER(I)
+ 800  CONTINUE
+C
+       IF(METSTBL.EQ.1) THEN
+         SCASE = 'L9'
+         CALL CALCL9                 ! Only liquid (metastable)
+       ELSE
+C
+         IF (RH.LT.DRNH4HS4) THEN
+            SCASE = 'L1'
+            CALL CALCL1            ! CASO4,K2SO4,MGSO4,KHSO4,NA2SO4,(NH4)2SO4,NAHSO4,NH4HSO4,LC
+C
+         ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRNAHSO4) THEN
+            SCASE = 'L2'
+            CALL CALCL2            ! CASO4,K2SO4,MGSO4,KHSO4,NA2SO4,(NH4)2SO4,NAHSO4,LC
+C
+         ELSEIF (DRNAHSO4.LE.RH .AND. RH.LT.DRLC) THEN
+            SCASE = 'L3'
+            CALL CALCL3            ! CASO4,K2SO4,MGSO4,KHSO4,NA2SO4,(NH4)2SO4,LC
+C
+         ELSEIF (DRLC.LE.RH .AND. RH.LT.DRNH42S4) THEN
+            SCASE = 'L4'
+            CALL CALCL4            ! CASO4,K2SO4,MGSO4,KHSO4,NA2SO4,(NH4)2SO4
+C
+         ELSEIF (DRNH42S4.LE.RH .AND. RH.LT.DRKHSO4) THEN
+            SCASE = 'L5'
+            CALL CALCL5            ! CASO4,K2SO4,MGSO4,KHSO4,NA2SO4
+C
+         ELSEIF (DRKHSO4.LE.RH .AND. RH.LT.DRMGSO4) THEN
+            SCASE = 'L6'
+            CALL CALCL6            ! CASO4,K2SO4,MGSO4,NA2SO4
+C
+         ELSEIF (DRMGSO4.LE.RH .AND. RH.LT.DRNA2SO4) THEN
+            SCASE = 'L7'
+            CALL CALCL7            ! CASO4,K2SO4,NA2SO4
+C
+         ELSEIF (DRNA2SO4.LE.RH .AND. RH.LT.DRK2SO4) THEN
+            SCASE = 'L8'
+            CALL CALCL8            ! CASO4,K2SO4
+C
+	 ELSEIF (DRK2SO4.LE.RH) THEN
+            SCASE = 'L9'
+            CALL CALCL9            ! CaSO4
+	 ENDIF
+       ENDIF
+C
+      CALL CALCNHP                ! MINOR SPECIES: HNO3, HCl
+      CALL CALCNH3P               !                NH3
+C
+C *** SULFATE SUPER RICH (FREE ACID): Rso4<1;
+C
+      ELSEIF (SO4RAT.LT.1.0) THEN
+      DO 900 I=1,NCOMP
+         W(I) = WAER(I)
+ 900  CONTINUE
+C
+       IF(METSTBL.EQ.1) THEN
+         SCASE = 'K4'
+         CALL CALCK4                 ! Only liquid (metastable)
+       ELSE
+C
+         IF (RH.LT.DRNH4HS4) THEN                   ! RH < 0.4
+            SCASE = 'K1'
+            CALL CALCK1           ! NH4HSO4,NAHSO4,KHSO4,CASO4
+C
+         ELSEIF (DRNH4HS4.LE.RH .AND. RH.LT.DRNAHSO4) THEN
+            SCASE = 'K2'
+            CALL CALCK2           ! NAHSO4,KHSO4,CASO4
+C
+         ELSEIF (DRNAHSO4.LE.RH .AND. RH.LT.DRKHSO4) THEN
+            SCASE = 'K3'
+            CALL CALCK3           ! KHSO4,CASO4    0.52 < RH < 0.86
+C
+         ELSEIF (DRKHSO4.LE.RH) THEN
+            SCASE = 'K4'
+            CALL CALCK4           ! CASO4
+         ENDIF
+       ENDIF
+C
+      CALL CALCNHP                  ! MINOR SPECIES: HNO3, HCl
+      CALL CALCNH3P                 !                NH3
+C
+      ENDIF
+C
+C *** IF AFTER CALCULATIONS, SULRATW < SO4RAT < 2.0
+C                            and WATER = 0          => SULFATE RICH CASE.
+C
+      IF (SULRATW.LE.SO4RAT .AND. SO4RAT.LT.2.0
+     &                      .AND. WATER.LE.TINY) THEN
+          TRYLIQ = .FALSE.
+          GOTO 10
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE ISRP4R *****************************************
+C
+      END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCK2
-C *** CASE K2 
+C *** SUBROUTINE CALCS2
+C *** CASE S2
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0)
 C     2. LIQUID AEROSOL PHASE ONLY POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCK2
+      SUBROUTINE CALCS2
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NH3GI, NH3AQ
 C
@@ -610,14 +921,14 @@ C
 C
 20    RETURN
 C
-C *** END OF SUBROUTINE CALCK2 ****************************************
+C *** END OF SUBROUTINE CALCS2 ****************************************
 C
       END
 C=======================================================================
 C
 C *** ISORROPIA CODE
-C *** SUBROUTINE CALCK1
-C *** CASE K1 
+C *** SUBROUTINE CALCS1
+C *** CASE S1
 C
 C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0)
@@ -628,13 +939,13 @@ C     A SIMPLE MATERIAL BALANCE IS PERFORMED, AND THE SOLID (NH4)2SO4
 C     IS CALCULATED FROM THE SULFATES. THE EXCESS AMMONIA REMAINS IN
 C     THE GAS PHASE.
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
 C=======================================================================
 C
-      SUBROUTINE CALCK1
+      SUBROUTINE CALCS1
       INCLUDE 'isrpia.inc'
 C
       CNH42S4 = MIN(WAER(2),0.5d0*WAER(3))  ! For bad input problems
@@ -645,7 +956,7 @@ C
 C
       RETURN
 C
-C *** END OF SUBROUTINE CALCK1 ******************************************
+C *** END OF SUBROUTINE CALCS1 ******************************************
 C
       END
 
@@ -660,7 +971,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0)
 C     2. THERE IS ONLY A LIQUID PHASE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -669,9 +980,13 @@ C
       SUBROUTINE CALCN3
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NO3I, NH3AQ, NO3AQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -771,7 +1086,7 @@ C     1. SULFATE POOR (SULRAT > 2.0)
 C     2. THERE IS BOTH A LIQUID & SOLID PHASE
 C     3. SOLIDS POSSIBLE : (NH4)2SO4
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -779,9 +1094,13 @@ C=======================================================================
 C
       SUBROUTINE CALCN2
       INCLUDE 'isrpia.inc'
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -880,9 +1199,13 @@ C
       DOUBLE PRECISION FUNCTION FUNCN2 (P1)
       INCLUDE 'isrpia.inc'
       DOUBLE PRECISION NH4I, NO3I, NH3AQ, NO3AQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -983,7 +1306,7 @@ C     THERE ARE TWO REGIMES DEFINED BY RELATIVE HUMIDITY:
 C     1. RH < MDRH  ; ONLY SOLID PHASE POSSIBLE (SUBROUTINE CALCN1A)
 C     2. RH >= MDRH ; LIQUID PHASE POSSIBLE (MDRH REGION)
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1024,7 +1347,7 @@ C     1. SULFATE POOR (SULRAT > 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : (NH4)2SO4, NH4NO3
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1075,7 +1398,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM POOR (SODRAT < 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1085,9 +1408,13 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -1210,6 +1537,7 @@ C
 C *** END OF SUBROUTINE CALCQ5 ******************************************
 C
       END
+C
 C=======================================================================
 C
 C *** ISORROPIA CODE
@@ -1220,7 +1548,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM POOR (SODRAT < 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1231,9 +1559,13 @@ C
 C
       LOGICAL PSCONV1
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -1399,7 +1731,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID & LIQUID AEROSOL POSSIBLE
 C     3. SOLIDS POSSIBLE : NH4CL, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1450,7 +1782,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM POOR (SODRAT < 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1461,9 +1793,13 @@ C
 C
       LOGICAL PSCONV1, PSCONV6
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -1509,7 +1845,7 @@ C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
 C
       DO 10 I=1,NSWEEP
       A5  = XK5 *(WATER/GAMA(2))**3.         ! Na2SO4    <==> Na+
-      A7  = XK7 *(WATER/GAMA(4))**3.         ! (NH4)2SO4 <==> Na+
+      A7  = XK7 *(WATER/GAMA(4))**3.         ! (NH4)2SO4 <==> NH4+
       AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
 C
 C SODIUM SULFATE
@@ -1529,10 +1865,10 @@ C
 C
 C AMMONIUM SULFATE
 C
-      IF (NH4I*NH4I*SO4I .GT. A4) THEN
+      IF (NH4I*NH4I*SO4I .GT. A7) THEN
          BB =-(WAER(2)+WAER(3)-ROOT3)
          CC =  WAER(3)*(WAER(2)-ROOT3+0.5D0*WAER(3))
-         DD =-((WAER(2)-ROOT3)*WAER(3)**2.D0 + A4)/4.D0
+         DD =-((WAER(2)-ROOT3)*WAER(3)**2.D0 + A7)/4.D0
          CALL POLY3(BB, CC, DD, ROOT1, ISLV)
          IF (ISLV.NE.0) ROOT1 = TINY
          ROOT1 = MIN(ROOT1, WAER(3), WAER(2)-ROOT3, CHI6)
@@ -1652,7 +1988,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID & LIQUID AEROSOL POSSIBLE
 C     3. SOLIDS POSSIBLE : NH4CL, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1713,7 +2049,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM POOR (SODRAT < 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -1724,9 +2060,13 @@ C
 C
       LOGICAL PSCONV1, PSCONV4, PSCONV6
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -1821,10 +2161,10 @@ C
 C
 C AMMONIUM SULFATE
 C
-      IF (NH4I*NH4I*SO4I .GT. A4) THEN
+      IF (NH4I*NH4I*SO4I .GT. A7) THEN
          BB =-(WAER(2)+WAER(3)-ROOT2-ROOT3)
          CC = (WAER(3)-ROOT2)*(WAER(2)-ROOT3+0.5D0*(WAER(3)-ROOT2))
-         DD =-((WAER(2)-ROOT3)*(WAER(3)-ROOT2)**2.D0 + A4)/4.D0
+         DD =-((WAER(2)-ROOT3)*(WAER(3)-ROOT2)**2.D0 + A7)/4.D0
          CALL POLY3(BB, CC, DD, ROOT1, ISLV)
          IF (ISLV.NE.0) ROOT1 = TINY
          ROOT1 = MIN(ROOT1, WAER(3)-ROOT2, WAER(2)-ROOT3, CHI6)
@@ -1944,7 +2284,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM POOR (SODRAT < 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, (NH4)2SO4, NA2SO4
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2023,7 +2363,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM POOR (SODRAT < 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, (NH4)2SO4, NA2SO4
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2071,7 +2411,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM RICH (SODRAT >= 2.0)
 C     2. THERE IS ONLY A LIQUID PHASE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2081,9 +2421,13 @@ C
       INCLUDE 'isrpia.inc'
 C
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -2217,7 +2561,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM RICH (SODRAT >= 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2228,9 +2572,13 @@ C
 C
       LOGICAL PSCONV
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
       LOGICAL  NEAN, NEAC, NESN, NESC
 C
@@ -2406,7 +2754,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2463,7 +2811,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM RICH (SODRAT >= 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2474,9 +2822,13 @@ C
 C
       LOGICAL PSCONV1, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -2658,7 +3010,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2731,7 +3083,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM RICH (SODRAT >= 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -2742,9 +3094,13 @@ C
 C
       LOGICAL PSCONV1, PSCONV3, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -2978,7 +3334,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -3079,7 +3435,7 @@ C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
 C     1. SULFATE POOR (SULRAT > 2.0); SODIUM RICH (SODRAT >= 2.0)
 C     2. LIQUID AND SOLID PHASES ARE POSSIBLE
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -3090,9 +3446,13 @@ C
 C
       LOGICAL PSCONV1, PSCONV2, PSCONV3, PSCONV4
       DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ
+C
       COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
-     &               PSI1, PSI2, PSI3, PSI4, PSI5, PSI6, PSI7, PSI8,
-     &               A1,   A2,   A3,   A4,   A5,   A6,   A7,   A8
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
 C
 C *** SETUP PARAMETERS ************************************************
 C
@@ -3356,7 +3716,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -3512,7 +3872,7 @@ C     1. SULFATE POOR (SULRAT > 2.0) ; SODIUM RICH (SODRAT >= 2.0)
 C     2. SOLID AEROSOL ONLY
 C     3. SOLIDS POSSIBLE : NH4NO3, NH4CL, NANO3, NA2SO4, NANO3, NACL
 C
-C *** COPYRIGHT 1996-2006, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
 C *** GEORGIA INSTITUTE OF TECHNOLOGY
 C *** WRITTEN BY ATHANASIOS NENES
 C
@@ -3555,5 +3915,7979 @@ C
       RETURN
 C
 C *** END OF SUBROUTINE CALCR1A *****************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV7
+C *** CASE V7
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV7
+      INCLUDE 'isrpia.inc'
+C
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCV1A
+C
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI6   = CNH42S4
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C ION CONCENTRATIONS
+C
+      NAI    = WAER(1)
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                    ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                     ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCV7')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNA2SO4 = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = ZERO
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV7 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV6
+C *** CASE V6
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4
+C     4. Completely dissolved: NH4NO3, NH4CL, (NH4)2SO4, MGSO4, NA2SO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV6
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      ROOT7   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCV1A
+C
+      CHI9   = CCASO4
+      CHI7   = CK2SO4       ! SALTS
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI6   = CNH42S4
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7))
+         CC = WAER(7)*(WAER(2)-WAER(6)) + 0.25D0*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*WAER(2) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MIN (ROOT7,WAER(7)/2.0,MAX(WAER(2)-WAER(6),ZERO),CHI7)
+         ROOT7 = MAX (ROOT7, ZERO)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT7, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCV6')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNA2SO4 = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV6 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV5
+C *** CASE V5
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4
+C     4. Completely dissolved: NH4NO3, NH4CL, (NH4)2SO4, MGSO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV5
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSCONV1 =.TRUE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCV1A
+C
+      CHI9   = CCASO4
+      CHI7   = CK2SO4       ! SALTS
+      CHI1   = CNA2SO4
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI6   = CNH42S4
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX(WAER(2)-WAER(6) - ROOT1, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(1) - ROOT7)
+         CC = WAER(1)*((WAER(2)-WAER(6)) - ROOT7) + 0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6)) - ROOT7) - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &           MAX ((WAER(2)-WAER(6)) - ROOT7, ZERO), CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX ((WAER(2)-WAER(6)) - ROOT7 - ROOT1, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCV5')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV5******************************************
+C
+      END
+
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV4
+C *** CASE V4
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4
+C     4. Completely dissolved: NH4NO3, NH4CL, (NH4)2SO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV4
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSCONV1 =.TRUE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCV1A
+C
+      CHI9   = CCASO4
+      CHI7   = CK2SO4       ! SALTS
+      CHI1   = CNA2SO4
+      CHI8   = CMGSO4
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI6   = CNH42S4
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = WAER(2)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX((WAER(2)-WAER(6)) - ROOT1, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(1) - ROOT7)
+         CC = WAER(1)*((WAER(2)-WAER(6)) - ROOT7) + 0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6)) - ROOT7) - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &           MAX ((WAER(2)-WAER(6)) - ROOT7, ZERO), CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX ((WAER(2)-WAER(6)) - ROOT7 - ROOT1, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCV4')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV4******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV3
+C *** CASE V3
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, (NH4)2SO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS AND ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV3
+      INCLUDE 'isrpia.inc'
+      LOGICAL EXNO, EXCL
+      EXTERNAL CALCV1A, CALCV4
+C
+C *** REGIME DEPENDS ON AMBIENT RELATIVE HUMIDITY & POSSIBLE SPECIES ***
+C
+      EXNO = WAER(4).GT.TINY
+      EXCL = WAER(5).GT.TINY
+C
+      IF (EXNO .OR. EXCL) THEN             ! *** NITRATE OR CHLORIDE EXISTS
+         SCASE = 'V3 ; SUBCASE 1'
+         CALL CALCV3A
+         SCASE = 'V3 ; SUBCASE 1'
+C
+      ELSE                                 ! *** NO CHLORIDE AND NITRATE
+         IF (RH.LT.DRMO3) THEN
+            SCASE = 'V3 ; SUBCASE 2'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V3 ; SUBCASE 2'
+         ELSE
+            SCASE = 'V3 ; SUBCASE 3' ! MDRH (CaSO4, (NH4)2SO4, MGSO4, NA2SO4, K2SO4)
+            CALL CALCMDRPII (RH, DRMO3, DRNH42S4, CALCV1A, CALCV4)
+            SCASE = 'V3 ; SUBCASE 3'
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV3 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV3A
+C *** CASE V3A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, (NH4)2SO4
+C     4. Completely dissolved: NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV3A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1, PSCONV6
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSCONV1 =.TRUE.
+      PSCONV6 =.TRUE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+      PSI60   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+      ROOT6   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCV1A
+C
+      CHI9   = CCASO4
+      CHI7   = CK2SO4       ! SALTS
+      CHI1   = CNA2SO4
+      CHI8   = CMGSO4
+      CHI6   = CNH42S4
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI6   = CNH42S4
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = WAER(2)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      A6  = XK7 *(WATER/GAMA(4))**3.0        !(NH4)2SO4  <==> NH4+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1 - ROOT6)
+         CC = WAER(7)*((WAER(2) - WAER(6)) - ROOT1 - ROOT6) +
+     &        0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6))-ROOT1-ROOT6)-A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX (WAER(2)-WAER(6)-ROOT1-ROOT6, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(1) - ROOT7 - ROOT6)
+         CC = WAER(1)*((WAER(2)-WAER(6)) - ROOT7 - ROOT6) +
+     &        0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6))-ROOT7-ROOT6)-A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &                MAX (WAER(2)-WAER(6)-ROOT7-ROOT6, ZERO), CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C AMMONIUM SULFATE
+C
+      IF (NH4I*NH4I*SO4I .GT. A6) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(3) - ROOT7 - ROOT1)
+         CC = WAER(3)*((WAER(2)-WAER(6)) - ROOT7 - ROOT1) +
+     &        0.25*WAER(3)*WAER(3)
+         DD =-0.25*(WAER(3)*WAER(3)*((WAER(2)-WAER(6))-ROOT7-ROOT1)-A6)
+         CALL POLY3(BB, CC, DD, ROOT6, ISLV)
+         IF (ISLV.NE.0) ROOT6 = TINY
+         ROOT6 = MAX (ROOT6, ZERO)
+         ROOT6 = MIN (ROOT6, WAER(3)/2.0,
+     &                MAX (WAER(2)-WAER(6)-ROOT7-ROOT1, ZERO), CHI6)
+         PSI6  = CHI6-ROOT6
+      ENDIF
+      PSCONV6 = ABS(PSI6-PSI60) .LE. EPS*PSI60
+      PSI60   = PSI6
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT7 - ROOT1 - ROOT6, ZERO)
+      NH4I   = MAX (WAER(3) - 2.D0*ROOT6, ZERO)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1 .AND. PSCONV6) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCV3')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = CHI6 - PSI6
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV3A******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE
+C *** SUBROUTINE CALCV2
+C *** CASE V2
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, (NH4)2SO4, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV2
+      INCLUDE 'isrpia.inc'
+      LOGICAL EXNO, EXCL
+      EXTERNAL CALCV1A, CALCV3A, CALCV4
+C
+C *** REGIME DEPENDS ON AMBIENT RELATIVE HUMIDITY & POSSIBLE SPECIES ***
+C
+      EXNO = WAER(4).GT.TINY
+      EXCL = WAER(5).GT.TINY
+C
+      IF (EXNO) THEN                       ! *** NITRATE EXISTS
+         SCASE = 'V2 ; SUBCASE 1'
+         CALL CALCV2A
+         SCASE = 'V2 ; SUBCASE 1'
+C
+      ELSEIF (.NOT.EXNO .AND. EXCL) THEN   ! *** ONLY CHLORIDE EXISTS
+         IF (RH.LT.DRMO2) THEN
+            SCASE = 'V2 ; SUBCASE 2'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V2 ; SUBCASE 2'
+         ELSE
+            SCASE = 'V2 ; SUBCASE 3' ! MDRH CaSO4, NH4CL, (NH4)2SO4, MGSO4, NA2SO4, K2SO4
+            CALL CALCMDRPII (RH, DRMO2, DRNH4CL, CALCV1A, CALCV3A)
+            SCASE = 'V2 ; SUBCASE 3'
+         ENDIF
+C
+      ELSE                                 ! *** NO CHLORIDE AND NITRATE
+         IF (RH.LT.DRMO3) THEN
+            SCASE = 'V2 ; SUBCASE 2'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V2 ; SUBCASE 2'
+         ELSE
+            SCASE = 'V2 ; SUBCASE 4' ! MDRH CaSO4, (NH4)2SO4, MGSO4, NA2SO4, K2SO4
+            CALL CALCMDRPII (RH, DRMO3, DRNH42S4, CALCV1A, CALCV4)
+            SCASE = 'V2 ; SUBCASE 4'
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV2 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV2A
+C *** CASE V2A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, (NH4)2SO4, NH4CL
+C     4. Completely dissolved: NH4NO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV2A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1, PSCONV6, PSCONV4
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSCONV1 =.TRUE.
+      PSCONV6 =.TRUE.
+      PSCONV4 =.TRUE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+      PSI60   =-GREAT
+      PSI40   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+      ROOT6   = ZERO
+      ROOT4   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCV1A
+C
+      CHI9   = CCASO4
+      CHI7   = CK2SO4       ! SALTS
+      CHI1   = CNA2SO4
+      CHI8   = CMGSO4
+      CHI6   = CNH42S4
+      CHI4   = CNH4CL
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI6   = CNH42S4
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      A6  = XK7 *(WATER/GAMA(4))**3.0        ! (NH4)2SO4 <==> NH4+
+      A14 = XK14*(WATER/GAMA(6))**2.         ! NH4Cl     <==> NH4+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C AMMONIUM CHLORIDE
+C
+      IF (NH4I*CLI .GT. A14) THEN
+         BB    =-(WAER(3) + WAER(5) - 2.D0*ROOT6)
+         CC    = WAER(5)*(WAER(3) - 2.D0*ROOT6) - A14
+         DD    = BB*BB - 4.D0*CC
+         IF (DD.LT.ZERO) THEN
+            ROOT4 = ZERO
+         ELSE
+            DD    = SQRT(DD)
+            ROOT4A= 0.5D0*(-BB+DD)
+            ROOT4B= 0.5D0*(-BB-DD)
+            IF (ZERO.LE.ROOT4A) THEN
+               ROOT4 = ROOT4A
+            ELSE
+               ROOT4 = ROOT4B
+            ENDIF
+            ROOT4 = MAX(ROOT4, ZERO)
+            ROOT4 = MIN(ROOT4, WAER(5),
+     &                  MAX (WAER(3) - 2.D0*ROOT6, ZERO), CHI4)
+            PSI4  = CHI4 - ROOT4
+         ENDIF
+      ENDIF
+      PSCONV4 = ABS(PSI4-PSI40) .LE. EPS*PSI40
+      PSI40   = PSI4
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2) - WAER(6)) + WAER(7) - ROOT1 - ROOT6)
+         CC = WAER(7)*((WAER(2) - WAER(6)) - ROOT1 - ROOT6)
+     &        + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6))-ROOT1-ROOT6)-A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX (WAER(2)-WAER(6)-ROOT1-ROOT6, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2) - WAER(6)) + WAER(1) - ROOT7 - ROOT6)
+         CC = WAER(1)*((WAER(2) - WAER(6)) - ROOT7 - ROOT6) +
+     &        0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6))-ROOT7-ROOT6)-A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &                MAX (WAER(2)-WAER(6)-ROOT7-ROOT6, ZERO), CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C AMMONIUM SULFATE
+C
+      IF (NH4I*NH4I*SO4I .GT. A6) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(3) - ROOT7 - ROOT1 - ROOT4)
+         CC = WAER(3)*((WAER(2)-WAER(6)) - ROOT7 - ROOT1) + 0.25*
+     &      (WAER(3)-ROOT4)**2.0 + ROOT4*(ROOT1+ROOT7-(WAER(2)-WAER(6)))
+         DD =-0.25*((WAER(3)-ROOT4)**2.0 *
+     &              ((WAER(2)-WAER(6))-ROOT7-ROOT1) - A6)
+         CALL POLY3(BB, CC, DD, ROOT6, ISLV)
+         IF (ISLV.NE.0) ROOT6 = TINY
+         ROOT6 = MAX (ROOT6, ZERO)
+         ROOT6 = MIN (ROOT6, WAER(3)/2.0,
+     &                MAX (WAER(2)-WAER(6) - ROOT7 - ROOT1, ZERO), CHI6)
+         PSI6  = CHI6-ROOT6
+      ENDIF
+      PSCONV6 = ABS(PSI6-PSI60) .LE. EPS*PSI60
+      PSI60   = PSI6
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT7 - ROOT1 - ROOT6, ZERO)
+      NH4I   = MAX (WAER(3) - 2.D0*ROOT6, ZERO)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1 .AND. PSCONV6 .AND. PSCONV4) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCV2')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = CHI6 - PSI6
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI4 - PSI4
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV2A******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV1
+C *** CASE V1
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : (NH4)2SO4, NH4NO3, NH4Cl, NA2SO4, K2SO4, MGSO4, CASO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV1
+      INCLUDE 'isrpia.inc'
+      LOGICAL EXNO, EXCL
+      EXTERNAL CALCV1A, CALCV2A, CALCV3A, CALCV4
+C
+C *** REGIME DEPENDS ON AMBIENT RELATIVE HUMIDITY & POSSIBLE SPECIES ***
+C
+      EXNO = WAER(4).GT.TINY
+      EXCL = WAER(5).GT.TINY
+C
+      IF (EXNO .AND. EXCL) THEN           ! *** NITRATE & CHLORIDE EXIST
+         IF (RH.LT.DRMO1) THEN
+            SCASE = 'V1 ; SUBCASE 1'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V1 ; SUBCASE 1'
+         ELSE
+            SCASE = 'V1 ; SUBCASE 2' ! MDRH (NH4)2SO4, NH4NO3, NH4Cl, NA2SO4, K2SO4, MGSO4, CASO4
+            CALL CALCMDRPII (RH, DRMO1, DRNH4NO3, CALCV1A, CALCV2A)
+            SCASE = 'V1 ; SUBCASE 2'
+         ENDIF
+C
+      ELSE IF (EXNO .AND. .NOT.EXCL) THEN ! *** ONLY NITRATE EXISTS
+         IF (RH.LT.DRMV1) THEN
+            SCASE = 'V1 ; SUBCASE 1'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V1 ; SUBCASE 1'
+         ELSE
+            SCASE = 'V1 ; SUBCASE 3' ! MDRH (NH4)2SO4, NH4NO3, NA2SO4, K2SO4, MGSO4, CASO4
+            CALL CALCMDRPII (RH, DRMV1, DRNH4NO3, CALCV1A, CALCV2A)
+            SCASE = 'V1 ; SUBCASE 3'
+         ENDIF
+C
+      ELSE IF (.NOT.EXNO .AND. EXCL) THEN ! *** ONLY CHLORIDE EXISTS
+         IF (RH.LT.DRMO2) THEN
+            SCASE = 'V1 ; SUBCASE 1'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V1 ; SUBCASE 1'
+         ELSE
+            SCASE = 'V1 ; SUBCASE 4' ! MDRH (NH4)2SO4, NH4Cl, NA2SO4, K2SO4, MGSO4, CASO4
+            CALL CALCMDRPII (RH, DRMO2, DRNH4CL, CALCV1A, CALCV3A)
+            SCASE = 'V1 ; SUBCASE 4'
+         ENDIF
+C
+      ELSE                                ! *** NO CHLORIDE AND NITRATE
+         IF (RH.LT.DRMO3) THEN
+            SCASE = 'V1 ; SUBCASE 1'
+            CALL CALCV1A             ! SOLID
+            SCASE = 'V1 ; SUBCASE 1'
+         ELSE
+            SCASE = 'V1 ; SUBCASE 5' ! MDRH (NH4)2SO4, NA2SO4, K2SO4, MGSO4, CASO4
+            CALL CALCMDRPII (RH, DRMO3, DRNH42S4, CALCV1A, CALCV4)
+            SCASE = 'V1 ; SUBCASE 5'
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C      IF (RH.LT.DRMO1) THEN
+C         SCASE = 'V1 ; SUBCASE 1'
+C         CALL CALCV1A              ! SOLID PHASE ONLY POSSIBLE
+C         SCASE = 'V1 ; SUBCASE 1'
+C      ELSE
+C         SCASE = 'V1 ; SUBCASE 2'  ! LIQUID & SOLID PHASE POSSIBLE
+C         CALL CALCMDRPII (RH, DRMO1, DRNH4NO3, CALCV1A, CALCV2A)
+C         SCASE = 'V1 ; SUBCASE 2'
+C         ENDIF
+C
+C      RETURN
+C
+C *** END OF SUBROUTINE CALCV1 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCV1A
+C *** CASE V1A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : (NH4)2SO4, NH4NO3, NH4Cl, NA2SO4, K2SO4, MGSO4, CASO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCV1A
+      INCLUDE 'isrpia.inc'
+C
+C *** CALCULATE SOLIDS **************************************************
+C
+      CCASO4  = MIN (WAER(6), WAER(2))                     ! CCASO4
+      SO4FR   = MAX (WAER(2) - CCASO4, ZERO)
+      CAFR    = MAX (WAER(6) - CCASO4, ZERO)
+      CK2SO4  = MIN (0.5D0*WAER(7), SO4FR)                 ! CK2SO4
+      FRK     = MAX (WAER(7) - 2.D0*CK2SO4, ZERO)
+      SO4FR   = MAX (SO4FR - CK2SO4, ZERO)
+      CNA2SO4 = MIN (0.5D0*WAER(1), SO4FR)                 ! CNA2SO4
+      NAFR    = MAX (WAER(1) - 2.D0*CNA2SO4, ZERO)
+      SO4FR   = MAX (SO4FR - CNA2SO4, ZERO)
+      CMGSO4  = MIN (WAER(8), SO4FR)                       ! CMGSO4
+      FRMG    = MAX(WAER(8) - CMGSO4, ZERO)
+      SO4FR   = MAX(SO4FR - CMGSO4, ZERO)
+      CNH42S4 = MAX (MIN (SO4FR , 0.5d0*WAER(3)) , TINY)
+      FRNH3   = MAX (WAER(3) - 2.D0*CNH42S4, ZERO)
+C
+      CNH4NO3 = MIN (FRNH3, WAER(4))
+CCC      FRNO3   = MAX (WAER(4) - CNH4NO3, ZERO)
+      FRNH3   = MAX (FRNH3 - CNH4NO3, ZERO)
+C
+      CNH4CL  = MIN (FRNH3, WAER(5))
+CCC      FRCL    = MAX (WAER(5) - CNH4CL, ZERO)
+      FRNH3   = MAX (FRNH3 - CNH4CL, ZERO)
+C
+C *** OTHER PHASES ******************************************************
+C
+      WATER   = ZERO
+C
+      GNH3    = ZERO
+      GHNO3   = ZERO
+      GHCL    = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCV1A *****************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE
+C *** SUBROUTINE CALCU8
+C *** CASE U8
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0); CRUSTAL+SODIUM RICH (CRNARAT >= 2.0); CRUSTAL POOR (CRRAT<2)
+C     2. THERE IS ONLY A LIQUID PHASE
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU8
+      INCLUDE 'isrpia.inc'
+C
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      CALL CALCU1A
+C
+      CHI9   = CCASO4        ! SALTS
+C
+      PSI1   = CNA2SO4
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      FRST   = .TRUE.
+      CALAIN = .TRUE.
+      CALAOU = .TRUE.
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** SETUP LIQUID CONCENTRATIONS **************************************
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      AKW = XKW*RH*WATER*WATER                        ! H2O    <==> H+
+C
+      NAI    = WAER(1)
+      SO4I   = MAX(WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      KI     = WAER(7)
+      MGI    = WAER(8)
+
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG  = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU8')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2       = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3       = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4       = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3     = NH4I/HI/A2
+      GHNO3    = HI*NO3I/A3
+      GHCL     = HI*CLI /A4
+C
+      GASAQ(1) = NH3AQ
+      GASAQ(2) = CLAQ
+      GASAQ(3) = NO3AQ
+C
+      CNH42S4  = ZERO
+      CNH4NO3  = ZERO
+      CNH4CL   = ZERO
+      CNACL    = ZERO
+      CNANO3   = ZERO
+      CNA2SO4  = ZERO
+      CMGSO4   = ZERO
+      CK2SO4   = ZERO
+      CCASO4   = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU8 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU7
+C *** CASE U7
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), CRUSTAL+SODIUM RICH (CRNARAT >= 2.0); CRUSTAL POOR (CRRAT<2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4
+C     4. Completely dissolved: NH4NO3, NH4CL, NANO3, NACL, MGSO4, NA2SO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU7
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      ROOT7   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCU1A
+C
+      CHI7   = CK2SO4       ! SALTS
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+      MOLAL(1) = ZERO
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7))
+         CC = WAER(7)*(WAER(2)-WAER(6)) + 0.25D0*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*(WAER(2)-WAER(6)) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7,WAER(7)/2.0,MAX(WAER(2)-WAER(6),ZERO),CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      SO4I   = MAX (WAER(2) - WAER(6) - ROOT7, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU7')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CNA2SO4 = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU7 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU6
+C *** CASE U6
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4
+C     4. Completely dissolved: NH4NO3, NH4CL, NANO3, NACL, MGSO4
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU6
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSCONV1 =.TRUE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCU1A
+C
+      CHI1   = CNA2SO4            ! SALTS
+      CHI7   = CK2SO4
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+      MOLAL(1) = ZERO
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX((WAER(2)-WAER(6)) - ROOT1,ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(1) - ROOT7)
+         CC = WAER(1)*((WAER(2)-WAER(6)) - ROOT7) + 0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6)) - ROOT7) - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &                MAX((WAER(2)-WAER(6)) - ROOT7, ZERO) ,CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX (WAER(2) - WAER(6) - ROOT7 - ROOT1, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU6')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU6******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU5
+C *** CASE U5
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4
+C     4. Completely dissolved: NH4NO3, NH4CL, NANO3, NACL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU5
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.TRUE.
+      PSCONV1 =.TRUE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCU1A
+C
+      CHI1   = CNA2SO4            ! SALTS
+      CHI7   = CK2SO4
+      CHI8   = CMGSO4
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+      MOLAL(1) = ZERO
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX(WAER(2)-WAER(6)-ROOT1, ZERO),CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(1) - ROOT7)
+         CC = WAER(1)*((WAER(2)-WAER(6)) - ROOT7) + 0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6)) - ROOT7) - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &                MAX(WAER(2)-WAER(6)-ROOT7, ZERO),CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT7 - ROOT1, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU5')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU5******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU4
+C *** CASE U4
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), (DUST + SODIUM) RICH: R(Cr+Na)>2; DUST POOR: Rcr<2.
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU4
+      INCLUDE 'isrpia.inc'
+      LOGICAL  EXAN, EXAC, EXSN, EXSC
+      EXTERNAL CALCU1A, CALCU5
+C
+C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
+C
+      SCASE = 'U4 ; SUBCASE 2'
+      CALL CALCU1A              ! SOLID
+      SCASE = 'U4 ; SUBCASE 2'
+C
+      EXAN = CNH4NO3.GT.TINY    ! NH4NO3
+      EXAC = CNH4CL .GT.TINY    ! NH4CL
+      EXSN = CNANO3 .GT.TINY    ! NANO3
+      EXSC = CNACL  .GT.TINY    ! NACL
+C
+C *** REGIME DEPENDS ON RELATIVE HUMIDITY AND POSSIBLE SPECIES **********
+C
+      IF (EXAN .OR. EXSN .OR. EXSC) THEN   ! *** NH4NO3,NANO3 EXIST
+         IF (RH.GE.DRMM1) THEN
+            SCASE = 'U4 ; SUBCASE 1'
+            CALL CALCU4A
+            SCASE = 'U4 ; SUBCASE 1'
+         ENDIF
+C
+      ELSE IF (EXAC) THEN                  ! *** NH4CL EXISTS ONLY
+         IF (RH.GE.DRMR5) THEN
+            SCASE = 'U4 ; SUBCASE 3'
+            CALL CALCMDRPII (RH, DRMR5, DRNH4CL, CALCU1A, CALCU5)
+            SCASE = 'U4 ; SUBCASE 3'
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU4 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU4A
+C *** CASE U4A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL
+C     4. Completely dissolved: NH4NO3, NANO3, NACL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU4A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1, PSCONV4
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.FALSE.
+      PSCONV1 =.FALSE.
+      PSCONV4 =.FALSE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+      PSI40   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+      ROOT4   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCU1A
+C
+      CHI1   = CNA2SO4            ! SALTS
+      CHI4   = CNH4CL
+      CHI7   = CK2SO4
+      CHI8   = CMGSO4
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+      MOLAL(1) = ZERO
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      A14 = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX(WAER(2)-WAER(6)-ROOT1, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(1) - ROOT7)
+         CC = WAER(1)*((WAER(2)-WAER(6)) - ROOT7) + 0.25*WAER(1)*WAER(1)
+         DD =-0.25*(WAER(1)*WAER(1)*((WAER(2)-WAER(6)) - ROOT7) - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MAX (ROOT1, ZERO)
+         ROOT1 = MIN (ROOT1, WAER(1)/2.0,
+     &                MAX (WAER(2)-WAER(6)-ROOT7, ZERO), CHI1)
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C AMMONIUM CHLORIDE
+C
+      IF (NH4I*CLI .GT. A14) THEN
+         BB   =-(NH4I + CLI)
+         CC   =-A14 + NH4I*CLI
+         DD   = BB*BB - 4.D0*CC
+         ROOT4 = 0.5D0*(-BB-SQRT(DD))
+         IF (ROOT4.GT.TINY) THEN
+            ROOT4    = MIN(MAX (ROOT4, ZERO), CHI4)
+            PSI4    = CHI4 - ROOT4
+         ENDIF
+      ENDIF
+      PSCONV4 = ABS(PSI4-PSI40) .LE. EPS*PSI40
+      PSI40   = PSI4
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1, ZERO)
+      SO4I   = MAX (WAER(2) - WAER(6) - ROOT7 - ROOT1, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT4, ZERO)
+      NO3I   = WAER(4)
+      CLI    = MAX (WAER(5) - ROOT4, ZERO)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1 .AND. PSCONV4) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU4')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI4 - PSI4
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU4A ****************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU3
+C *** CASE U3
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), (DUST + SODIUM) RICH: R(Cr+Na)>2; DUST POOR: Rcr<2.
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL, NANO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU3
+      INCLUDE 'isrpia.inc'
+      LOGICAL  EXAN, EXAC, EXSN, EXSC
+      EXTERNAL CALCU1A, CALCU4A, CALCU5
+C
+C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
+C
+      SCASE = 'U3 ; SUBCASE 2'
+      CALL CALCU1A              ! SOLID
+      SCASE = 'U3 ; SUBCASE 2'
+C
+      EXAN = CNH4NO3.GT.TINY    ! NH4NO3
+      EXAC = CNH4CL .GT.TINY    ! NH4CL
+      EXSN = CNANO3 .GT.TINY    ! NANO3
+      EXSC = CNACL  .GT.TINY    ! NACL
+C
+C *** REGIME DEPENDS ON RELATIVE HUMIDITY AND POSSIBLE SPECIES **********
+C
+      IF (EXAN .OR. EXSN) THEN                   ! *** NH4NO3,NANO3 EXIST
+         IF (RH.GE.DRMM1) THEN
+            SCASE = 'U3 ; SUBCASE 1'
+            CALL CALCU3A
+            SCASE = 'U3 ; SUBCASE 1'
+         ENDIF
+C
+      ELSE IF (.NOT.EXAN .AND. .NOT.EXSN) THEN   ! *** NH4NO3,NANO3 = 0
+         IF      (     EXAC .AND.      EXSC) THEN
+            IF (RH.GE.DRMR4) THEN
+               SCASE = 'U3 ; SUBCASE 3'
+               CALL CALCMDRPII (RH, DRMR4, DRNACL, CALCU1A, CALCU4A)
+               SCASE = 'U3 ; SUBCASE 3'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND.      EXSC) THEN
+            IF (RH.GE.DRMR2) THEN
+               SCASE = 'U3 ; SUBCASE 4'
+               CALL CALCMDRPII (RH, DRMR2, DRNACL, CALCU1A, CALCU4A)
+               SCASE = 'U3 ; SUBCASE 4'
+            ENDIF
+
+         ELSE IF (     EXAC .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR5) THEN
+               SCASE = 'U3 ; SUBCASE 5'
+               CALL CALCMDRPII (RH, DRMR5, DRNACL, CALCU1A, CALCU5)
+               SCASE = 'U3 ; SUBCASE 5'
+            ENDIF
+         ENDIF
+C
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU3 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU3A
+C *** CASE U3A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL, NACL
+C     4. Completely dissolved: NH4NO3, NANO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU3A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1, PSCONV4, PSCONV3
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.FALSE.
+      PSCONV1 =.FALSE.
+      PSCONV4 =.FALSE.
+      PSCONV3 =.FALSE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+      PSI40   =-GREAT
+      PSI30   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+      ROOT4   = ZERO
+      ROOT3   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCU1A
+C
+      CHI1   = CNA2SO4            ! SALTS
+      CHI3   = CNACL
+      CHI4   = CNH4CL
+      CHI7   = CK2SO4
+      CHI8   = CMGSO4
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+      MOLAL(1) = ZERO
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      A14 = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+      A8  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX(WAER(2)-WAER(6)-ROOT1, ZERO),CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-(((WAER(2)-WAER(6))-ROOT7)*(WAER(1) - ROOT3))
+         CC = ((WAER(2) - WAER(6)) - ROOT7)*(WAER(1) - ROOT3) +
+     &          0.25D0*(WAER(1) - ROOT3)**2.
+         DD =-0.25D0*(((WAER(2) - WAER(6)) - ROOT7)*
+     &                  (WAER(1) - ROOT3)**2.D0 - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MIN (MAX(ROOT1, ZERO), MAX(WAER(1) - ROOT3, ZERO),
+     &                CHI1, MAX(WAER(2)-WAER(6), ZERO))
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C AMMONIUM CHLORIDE
+C
+      IF (NH4I*CLI .GT. A14) THEN
+         BB    =-(WAER(3) + WAER(5) - ROOT4)
+         CC    =-A14 + NH4I*(WAER(5) - ROOT4)
+         DD    = MAX(BB*BB - 4.D0*CC, ZERO)
+         ROOT4A= 0.5D0*(-BB+SQRT(DD))
+         ROOT4B= 0.5D0*(-BB-SQRT(DD))
+         IF (ZERO.LE.ROOT4A) THEN
+            ROOT4 = ROOT4A
+         ELSE
+            ROOT4 = ROOT4B
+         ENDIF
+         ROOT4 = MIN(MAX(ZERO, ROOT4), MAX(WAER(5)-ROOT3,ZERO),
+     &               CHI4, WAER(3))
+         PSI4  = CHI4 - ROOT4
+      ENDIF
+      PSCONV4 = ABS(PSI4-PSI40) .LE. EPS*PSI40
+      PSI40   = PSI4
+C
+C SODIUM CHLORIDE  ; To obtain new value for ROOT3
+C
+      IF (NAI*CLI .GT. A8) THEN
+         BB    =-((CHI1-2.D0*ROOT1) + (WAER(5) - ROOT4))
+         CC    = (CHI1-2.D0*ROOT1)*(WAER(5) - ROOT4) - A8
+         DD    = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT3A= 0.5D0*(-BB-SQRT(DD))
+         ROOT3B= 0.5D0*(-BB+SQRT(DD))
+         IF (ZERO.LE.ROOT3A) THEN
+            ROOT3 = ROOT3A
+         ELSE
+            ROOT3 = ROOT3B
+         ENDIF
+         ROOT3   = MIN(MAX(ROOT3, ZERO), CHI3)
+         PSI3    = CHI3-ROOT3
+      ENDIF
+      PSCONV3 = ABS(PSI3-PSI30) .LE. EPS*PSI30
+      PSI30   = PSI3
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.D0*ROOT1 - ROOT3, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT7 - ROOT1, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT4, ZERO)
+      NO3I   = WAER(4)
+      CLI    = MAX (WAER(5) - ROOT4 - ROOT3, ZERO)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1 .AND. PSCONV4 .AND. PSCONV3) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU3A')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    IF (CLI.LE.TINY .AND. WAER(5).GT.TINY) THEN !No disslv Cl-;solid only
+         DO 30 I=1,NIONS
+            MOLAL(I) = ZERO
+30       CONTINUE
+         DO 40 I=1,NGASAQ
+            GASAQ(I) = ZERO
+40       CONTINUE
+         CALL CALCU1A
+      ELSE
+      A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI4 - PSI4
+      CNACL   = CHI3 - PSI3
+      CNANO3  = ZERO
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU3A*****************************************
+C
+      END
+
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU2
+C *** CASE U2
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), (DUST + SODIUM) RICH: R(Cr+Na)>2; DUST POOR: Rcr<2.
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL, NANO3, NACL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU2
+      INCLUDE 'isrpia.inc'
+      LOGICAL  EXAN, EXAC, EXSN, EXSC
+      EXTERNAL CALCU1A, CALCU3A, CALCU4A, CALCU5
+C
+C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
+C
+      SCASE = 'U2 ; SUBCASE 2'
+      CALL CALCU1A              ! SOLID
+      SCASE = 'U2 ; SUBCASE 2'
+C
+      EXAN = CNH4NO3.GT.TINY    ! NH4NO3
+      EXAC = CNH4CL .GT.TINY    ! NH4CL
+      EXSN = CNANO3 .GT.TINY    ! NANO3
+      EXSC = CNACL  .GT.TINY    ! NACL
+C
+C *** REGIME DEPENDS ON RELATIVE HUMIDITY AND POSSIBLE SPECIES **********
+C
+      IF (EXAN) THEN                             ! *** NH4NO3 EXISTS
+        IF (RH.GE.DRMM1) THEN
+           SCASE = 'U2 ; SUBCASE 1'
+           CALL CALCU2A
+           SCASE = 'U2 ; SUBCASE 1'
+        ENDIF
+C
+      ELSE IF (.NOT.EXAN) THEN                   ! *** NH4NO3 = 0
+        IF      (     EXAC .AND.      EXSN .AND.      EXSC) THEN
+           IF (RH.GE.DRMM2) THEN
+              SCASE = 'U2 ; SUBCASE 3'
+               CALL CALCMDRPII (RH, DRMM2, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U2 ; SUBCASE 3'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND.      EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR1) THEN
+               SCASE = 'U2 ; SUBCASE 4'
+               CALL CALCMDRPII (RH, DRMR1, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U2 ; SUBCASE 4'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR2) THEN
+               SCASE = 'U2 ; SUBCASE 5'
+               CALL CALCMDRPII (RH, DRMR2, DRNACL, CALCU1A, CALCU4A)
+               SCASE = 'U2 ; SUBCASE 5'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR3) THEN
+               SCASE = 'U2 ; SUBCASE 6'
+               CALL CALCMDRPII (RH, DRMR3, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U2 ; SUBCASE 6'
+            ENDIF
+
+         ELSE IF (     EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR4) THEN
+               SCASE = 'U2 ; SUBCASE 7'
+               CALL CALCMDRPII (RH, DRMR4, DRNACL, CALCU1A, CALCU4A)
+               SCASE = 'U2 ; SUBCASE 7'
+            ENDIF
+
+         ELSE IF (     EXAC .AND. .NOT.EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR5) THEN
+               SCASE = 'U2 ; SUBCASE 8'
+               CALL CALCMDRPII (RH, DRMR5, DRNH4CL, CALCU1A, CALCU5)
+               SCASE = 'U2 ; SUBCASE 8'
+            ENDIF
+
+         ELSE IF (     EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
+           IF (RH.GE.DRMR6) THEN
+              SCASE = 'U2 ; SUBCASE 9'
+               CALL CALCMDRPII (RH, DRMR6, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U2 ; SUBCASE 9'
+            ENDIF
+         ENDIF
+C
+      ENDIF
+C
+      RETURN
+
+C      IF (W(4).GT.TINY) THEN        ! NO3 EXISTS, WATER POSSIBLE
+C         SCASE = 'U2 ; SUBCASE 1'
+C         CALL CALCU2A
+C         SCASE = 'U2 ; SUBCASE 1'
+C      ELSE                          ! NO3 NON EXISTANT, WATER NOT POSSIBLE
+C         SCASE = 'U2 ; SUBCASE 1'
+C         CALL CALCU1A
+C         SCASE = 'U2 ; SUBCASE 1'
+C      ENDIF
+CC
+C      IF (WATER.LE.TINY .AND. RH.LT.DRMM2) THEN      ! DRY AEROSOL
+C         SCASE = 'U2 ; SUBCASE 2'
+C         CALL CALCU2A
+C         SCASE = 'U2 ; SUBCASE 1'
+CC
+C      ELSEIF (WATER.LE.TINY .AND. RH.GE.DRMM2) THEN  ! MDRH OF M2
+C         SCASE = 'U2 ; SUBCASE 3'
+C         CALL CALCMDRPII (RH, DRMM2, DRNANO3, CALCU1A, CALCU3A)
+C         SCASE = 'U2 ; SUBCASE 3'
+C      ENDIF
+CC
+C      RETURN
+C
+C *** END OF SUBROUTINE CALCU2 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU2A
+C *** CASE U2A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), Cr+NA poor (CRNARAT < 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL, NACL, NANO3
+C     4. Completely dissolved: NH4NO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU2A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV7, PSCONV1, PSCONV4, PSCONV3, PSCONV5
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV7 =.FALSE.
+      PSCONV1 =.FALSE.
+      PSCONV4 =.FALSE.
+      PSCONV3 =.FALSE.
+      PSCONV5 =.FALSE.
+C
+      PSI70   =-GREAT                                 ! GREAT = 1.D10
+      PSI1O   =-GREAT
+      PSI40   =-GREAT
+      PSI30   =-GREAT
+      PSI50   =-GREAT
+C
+      ROOT7   = ZERO
+      ROOT1   = ZERO
+      ROOT4   = ZERO
+      ROOT3   = ZERO
+      ROOT5   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCU1A
+C
+      CHI1   = CNA2SO4            ! SALTS
+      CHI2   = CNANO3
+      CHI3   = CNACL
+      CHI4   = CNH4CL
+      CHI7   = CK2SO4
+      CHI8   = CMGSO4
+      CHI9   = CCASO4
+C
+      PSI1   = CNA2SO4      ! AMOUNT DISSOLVED
+      PSI2   = CNANO3
+      PSI3   = CNACL
+      PSI4   = CNH4CL
+      PSI5   = CNH4NO3
+      PSI7   = CK2SO4
+      PSI8   = CMGSO4
+      PSI9   = CCASO4
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+      MOLAL(1) = ZERO
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+      CALL CALCACT          ! CALCULATE ACTIVITY COEFFICIENTS
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A7  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A1  = XK5 *(WATER/GAMA(2))**3.0        ! NA2S04    <==> Na+
+      A14 = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A8  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      A9  = XK9 *(WATER/GAMA(3))**2.0        ! NaNO3     <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A7) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT1)
+         CC = WAER(7)*((WAER(2)-WAER(6)) - ROOT1) + 0.25*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*((WAER(2)-WAER(6)) - ROOT1) - A7)
+         CALL POLY3(BB, CC, DD, ROOT7, ISLV)
+         IF (ISLV.NE.0) ROOT7 = TINY
+         ROOT7 = MAX (ROOT7, ZERO)
+         ROOT7 = MIN (ROOT7, WAER(7)/2.0,
+     &                MAX(WAER(2)-WAER(6)-ROOT1, ZERO),CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI70) .LE. EPS*PSI70
+      PSI70   = PSI7
+C
+C SODIUM SULFATE
+C
+      IF (NAI*NAI*SO4I .GT. A1) THEN
+         BB =-(((WAER(2)-WAER(6))-ROOT7)*(WAER(1) - ROOT3 - ROOT5))
+         CC = ((WAER(2)-WAER(6)) - ROOT7)*(WAER(1) - ROOT3 - ROOT5) +
+     &         0.25D0*(WAER(1) - ROOT3 - ROOT5)**2.0
+         DD =-0.25D0*(((WAER(2) - WAER(6)) - ROOT7)*
+     &                (WAER(1) - ROOT3 - ROOT5)**2.D0 - A1)
+         CALL POLY3(BB, CC, DD, ROOT1, ISLV)
+         IF (ISLV.NE.0) ROOT1 = TINY
+         ROOT1 = MIN (MAX(ROOT1,ZERO), MAX(WAER(1)-ROOT3-ROOT5,ZERO),
+     &                CHI1, MAX(WAER(2)-WAER(6),ZERO))
+         PSI1  = CHI1-ROOT1
+      ENDIF
+      PSCONV1 = ABS(PSI1-PSI1O) .LE. EPS*PSI1O
+      PSI1O   = PSI1
+C
+C AMMONIUM CHLORIDE
+C
+      IF (NH4I*CLI .GT. A14) THEN
+         BB    =-(WAER(3) + WAER(5) - ROOT4)
+         CC    =-A14 + NH4I*(WAER(5) - ROOT4)
+         DD    = MAX(BB*BB - 4.D0*CC, ZERO)
+         ROOT4A= 0.5D0*(-BB+SQRT(DD))
+         ROOT4B= 0.5D0*(-BB-SQRT(DD))
+         IF (ZERO.LE.ROOT4A) THEN
+            ROOT4 = ROOT4A
+         ELSE
+            ROOT4 = ROOT4B
+         ENDIF
+         ROOT4 = MIN(MAX(ZERO, ROOT4), MAX(WAER(5)-ROOT3,ZERO),
+     &               CHI4, WAER(3))
+         PSI4  = CHI4 - ROOT4
+      ENDIF
+      PSCONV4 = ABS(PSI4-PSI40) .LE. EPS*PSI40
+      PSI40   = PSI4
+C
+C SODIUM CHLORIDE  ; To obtain new value for ROOT3
+C
+      IF (NAI*CLI .GT. A8) THEN
+         BB    =-((CHI1-2.D0*ROOT1-ROOT5) + (WAER(5) - ROOT4))
+         CC    = (CHI1-2.D0*ROOT1-ROOT5)*(WAER(5) - ROOT4) - A8
+         DD    = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT3A= 0.5D0*(-BB-SQRT(DD))
+         ROOT3B= 0.5D0*(-BB+SQRT(DD))
+         IF (ZERO.LE.ROOT3A) THEN
+            ROOT3 = ROOT3A
+         ELSE
+            ROOT3 = ROOT3B
+         ENDIF
+         ROOT3   = MIN(MAX(ROOT3, ZERO), CHI3)
+         PSI3    = CHI3-ROOT3
+      ENDIF
+      PSCONV3 = ABS(PSI3-PSI30) .LE. EPS*PSI30
+      PSI30   = PSI3
+C
+C SODIUM NITRATE
+C
+      IF (NAI*NO3I .GT. A9) THEN
+         BB    =-(WAER(4) + WAER(1) - 2.D0*ROOT1 - ROOT3)
+         CC    = WAER(4)*(WAER(1) - 2.D0*ROOT1 - ROOT3) - A9
+         DD    = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A= 0.5D0*(-BB-DD)
+         ROOT5B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI2)
+         PSI2  = CHI2-ROOT5
+      ENDIF
+C
+      PSCONV5 = ABS(PSI2-PSI20) .LE. EPS*PSI20
+      PSI20   = PSI2
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.0D0*ROOT7, ZERO)
+      NAI    = MAX (WAER(1) - 2.0D0*ROOT1 - ROOT3 - ROOT5, ZERO)
+      SO4I   = MAX (WAER(2) - WAER(6) - ROOT7 - ROOT1, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT4, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT5, ZERO)
+      CLI    = MAX (WAER(5) - ROOT4 - ROOT3, ZERO)
+      CAI    = ZERO
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C      IF (HI.LE.TINY) HI = SQRT(AKW)
+C      OHI   = AKW/HI
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV7 .AND. PSCONV1 .AND. PSCONV4 .AND. PSCONV3
+     &        .AND. PSCONV5) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCU2A')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    IF (CLI.LE.TINY .AND. WAER(5).GT.TINY) THEN !No disslv Cl-;solid only
+         DO 30 I=1,NIONS
+            MOLAL(I) = ZERO
+30       CONTINUE
+         DO 40 I=1,NGASAQ
+            GASAQ(I) = ZERO
+40       CONTINUE
+         CALL CALCU1A
+      ELSE                                     ! OK, aqueous phase present
+      A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI4 - PSI4
+      CNACL   = CHI3 - PSI3
+      CNANO3  = CHI2 - PSI2
+      CNA2SO4 = CHI1 - PSI1
+      CMGSO4  = ZERO
+      CK2SO4  = CHI7 - PSI7
+      CCASO4  = MIN (WAER(6), WAER(2))
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU2A*****************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCU1
+C *** CASE U1
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SO4RAT > 2.0), (DUST + SODIUM) RICH: R(Cr+Na)>2; DUST POOR: Rcr<2.
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : K2SO4, CASO4, NA2SO4, MGSO4, NH4CL, NANO3, NACL, NH4NO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU1
+      INCLUDE 'isrpia.inc'
+      LOGICAL  EXAN, EXAC, EXSN, EXSC
+      EXTERNAL CALCU1A, CALCU2A, CALCU3A, CALCU4A, CALCU5
+C
+C *** SOLVE FOR DRY CASE AND SEE WHICH SOLIDS ARE POSSIBLE **************
+C
+      SCASE = 'U1 ; SUBCASE 1'
+      CALL CALCU1A              ! SOLID
+      SCASE = 'U1 ; SUBCASE 1'
+C
+      EXAN = CNH4NO3.GT.TINY    ! NH4NO3
+      EXAC = CNH4CL .GT.TINY    ! NH4CL
+      EXSN = CNANO3 .GT.TINY    ! NANO3
+      EXSC = CNACL  .GT.TINY    ! NACL
+C
+C *** REGIME DEPENDS ON RELATIVE HUMIDITY AND POSSIBLE SPECIES **********
+C
+      IF (EXAN.OR.EXAC.OR.EXSC.OR.EXSN) THEN  ! *** WATER POSSIBLE
+         IF (RH.GE.DRMM1) THEN
+            SCASE = 'U1 ; SUBCASE 2'  ! MDRH
+            CALL CALCMDRPII (RH, DRMM1, DRNH4NO3, CALCU1A, CALCU2A)
+            SCASE = 'U1 ; SUBCASE 2'
+         ENDIF
+C
+      ELSE IF (.NOT.EXAN) THEN                   ! *** NH4NO3 = 0
+         IF      (     EXAC .AND.      EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMM2) THEN
+               SCASE = 'U1 ; SUBCASE 3'
+               CALL CALCMDRPII (RH, DRMM2, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U1 ; SUBCASE 3'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND.      EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR1) THEN
+              SCASE = 'U1 ; SUBCASE 4'
+               CALL CALCMDRPII (RH, DRMR1, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U1 ; SUBCASE 4'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR2) THEN
+               SCASE = 'U1 ; SUBCASE 5'
+               CALL CALCMDRPII (RH, DRMR2, DRNACL, CALCU1A, CALCU3A) !, CALCR4A)
+               SCASE = 'U1 ; SUBCASE 5'
+            ENDIF
+
+         ELSE IF (.NOT.EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR3) THEN
+               SCASE = 'U1 ; SUBCASE 6'
+               CALL CALCMDRPII (RH, DRMR3, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U1 ; SUBCASE 6'
+            ENDIF
+
+         ELSE IF (     EXAC .AND. .NOT.EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR4) THEN
+               SCASE = 'U1 ; SUBCASE 7'
+               CALL CALCMDRPII (RH, DRMR4, DRNACL, CALCU1A, CALCU3A) !, CALCR4A)
+               SCASE = 'U1 ; SUBCASE 7'
+            ENDIF
+
+         ELSE IF (     EXAC .AND. .NOT.EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR5) THEN
+               SCASE = 'U1 ; SUBCASE 8'
+               CALL CALCMDRPII (RH, DRMR5, DRNH4CL, CALCU1A, CALCU3A) !, CALCR5)
+               SCASE = 'U1 ; SUBCASE 8'
+            ENDIF
+
+         ELSE IF (     EXAC .AND.      EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR6) THEN
+               SCASE = 'U1 ; SUBCASE 9'
+               CALL CALCMDRPII (RH, DRMR6, DRNANO3, CALCU1A, CALCU3A)
+               SCASE = 'U1 ; SUBCASE 9'
+            ENDIF
+         ENDIF
+C
+      ELSE IF (.NOT.EXAC) THEN                   ! *** NH4CL  = 0
+         IF      (     EXAN .AND.      EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR7) THEN
+               SCASE = 'U1 ; SUBCASE 10'
+               CALL CALCMDRPII (RH, DRMR7, DRNH4NO3, CALCU1A, CALCU2A)
+               SCASE = 'U1 ; SUBCASE 10'
+            ENDIF
+
+         ELSE IF (     EXAN .AND. .NOT.EXSN .AND.      EXSC) THEN
+            IF (RH.GE.DRMR8) THEN
+              SCASE = 'U1 ; SUBCASE 11'
+              CALL CALCMDRPII (RH, DRMR8, DRNH4NO3, CALCU1A, CALCU2A)
+               SCASE = 'U1 ; SUBCASE 11'
+            ENDIF
+
+         ELSE IF (     EXAN .AND. .NOT.EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR9) THEN
+               SCASE = 'U1 ; SUBCASE 12'
+               CALL CALCMDRPII (RH, DRMR9, DRNH4NO3, CALCU1A, CALCU2A)
+               SCASE = 'U1 ; SUBCASE 12'
+            ENDIF
+
+         ELSE IF (     EXAN .AND.      EXSN .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR10) THEN
+               SCASE = 'U1 ; SUBCASE 13'
+               CALL CALCMDRPII (RH, DRMR10, DRNH4NO3, CALCU1A, CALCU2A)
+               SCASE = 'U1 ; SUBCASE 13'
+           ENDIF
+        ENDIF
+C
+      ELSE IF (.NOT.EXSN) THEN                  ! *** NANO3  = 0
+         IF      (     EXAN .AND.      EXAC .AND.      EXSC) THEN
+            IF (RH.GE.DRMR11) THEN
+               SCASE = 'U1 ; SUBCASE 14'
+               CALL CALCMDRPII (RH, DRMR11, DRNH4NO3, CALCU1A, CALCU2A)
+              SCASE = 'U1 ; SUBCASE 14'
+           ENDIF
+
+        ELSE IF (     EXAN .AND.      EXAC .AND. .NOT.EXSC) THEN
+            IF (RH.GE.DRMR12) THEN
+               SCASE = 'U1 ; SUBCASE 15'
+               CALL CALCMDRPII (RH, DRMR12, DRNH4NO3, CALCU1A, CALCU2A)
+               SCASE = 'U1 ; SUBCASE 15'
+            ENDIF
+         ENDIF
+C
+      ELSE IF (.NOT.EXSC) THEN                  ! *** NACL   = 0
+         IF      (     EXAN .AND.      EXAC .AND.      EXSN) THEN
+            IF (RH.GE.DRMR13) THEN
+               SCASE = 'U1 ; SUBCASE 16'
+               CALL CALCMDRPII (RH, DRMR13, DRNH4NO3, CALCU1A, CALCU2A)
+               SCASE = 'U1 ; SUBCASE 16'
+            ENDIF
+         ENDIF
+      ENDIF
+C
+      RETURN
+
+
+C      IF (RH.LT.DRMM1) THEN
+C         SCASE = 'U1 ; SUBCASE 1'
+C         CALL CALCU1A              ! SOLID PHASE ONLY POSSIBLE
+C         SCASE = 'U1 ; SUBCASE 1'
+C      ELSE
+C         SCASE = 'U1 ; SUBCASE 2'  ! LIQUID & SOLID PHASE POSSIBLE
+C         CALL CALCMDRPII (RH, DRMM1, DRNH4NO3, CALCU1A, CALCU2A)
+C         SCASE = 'U1 ; SUBCASE 2'
+C         ENDIF
+CC
+C      RETURN
+CC
+C *** END OF SUBROUTINE CALCU1 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE
+C *** SUBROUTINE CALCU1A
+C *** CASE U1A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0); CRUSTAL+SODIUM RICH (CRNARAT >= 2.0); CRUSTAL POOR (CRRAT<2)
+C     2. THERE IS ONLY A SOLID PHASE
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCU1A
+      INCLUDE 'isrpia.inc'
+C
+C *** CALCULATE SOLIDS *************************************************
+C
+      CCASO4  = MIN (WAER(6), WAER(2))                 ! CCASO4
+      SO4FR   = MAX(WAER(2) - CCASO4, ZERO)
+      CAFR    = MAX(WAER(6) - CCASO4, ZERO)
+      CK2SO4  = MIN (0.5D0*WAER(7), SO4FR)             ! CK2SO4
+      FRK     = MAX(WAER(7) - 2.D0*CK2SO4, ZERO)
+      SO4FR   = MAX(SO4FR - CK2SO4, ZERO)
+      CMGSO4  = MIN (WAER(8), SO4FR)                   ! CMGSO4
+      FRMG    = MAX(WAER(8) - CMGSO4, ZERO)
+      SO4FR   = MAX(SO4FR - CMGSO4, ZERO)
+      CNA2SO4 = MAX (SO4FR, ZERO)                      ! CNA2SO4
+      FRNA    = MAX (WAER(1) - 2.D0*CNA2SO4, ZERO)
+C
+      CNH42S4 = ZERO
+C
+      CNANO3  = MIN (FRNA, WAER(4))
+      FRNO3   = MAX (WAER(4)-CNANO3, ZERO)
+      FRNA    = MAX (FRNA-CNANO3, ZERO)
+C
+      CNACL   = MIN (FRNA, WAER(5))
+      FRCL    = MAX (WAER(5)-CNACL, ZERO)
+      FRNA    = MAX (FRNA-CNACL, ZERO)
+C
+      CNH4NO3 = MIN (FRNO3, WAER(3))
+      FRNO3   = MAX (FRNO3-CNH4NO3, ZERO)
+      FRNH3   = MAX (WAER(3)-CNH4NO3, ZERO)
+C
+      CNH4CL  = MIN (FRCL, FRNH3)
+      FRCL    = MAX (FRCL-CNH4CL, ZERO)
+      FRNH3   = MAX (FRNH3-CNH4CL, ZERO)
+C
+C *** OTHER PHASES ******************************************************
+C
+      WATER   = ZERO
+C
+      GNH3    = ZERO
+      GHNO3   = ZERO
+      GHCL    = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCU1A *****************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW13
+C *** CASE W13
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4
+C     4. Completely dissolved: CA(NO3)2, CACL2, K2SO4, KNO3, KCL, MGSO4,
+C                              MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS AND ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW13
+      INCLUDE 'isrpia.inc'
+C
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C ION CONCENTRATIONS
+C
+      NAI    = WAER(1)
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW13')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = ZERO
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = ZERO
+      KCL     = ZERO
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW13 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW12
+C *** CASE W12
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4
+C     4. Completely dissolved: CA(NO3)2, CACL2, KNO3, KCL, MGSO4,
+C                              MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW12
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSI9O   =-GREAT                                 ! GREAT = 1.D10
+      ROOT9   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7))
+         CC = WAER(7)*(WAER(2)-WAER(6)) + 0.25D0*WAER(7)*WAER(7)
+         DD =-0.25*(WAER(7)*WAER(7)*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0, (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW12')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = ZERO
+      KCL     = ZERO
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW12 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW11
+C *** CASE W11
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3
+C     4. Completely dissolved: CA(NO3)2, CACL2, KCL, MGSO4,
+C                              MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW11
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT                                ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13)
+         CC = (WAER(7)-ROOT13)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13)**2.0
+         DD =-0.25*((WAER(7)-ROOT13)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9,WAER(7)/2.0-ROOT13,(WAER(2)-WAER(6)),CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) + WAER(7) - 2.D0*ROOT9)
+         CC     = WAER(4)*(WAER(7) - 2.D0*ROOT9) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = MAX (WAER(4) - ROOT13, ZERO)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW11')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = ZERO
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW11 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW10
+C *** CASE W10
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4
+C     4. Completely dissolved: CA(NO3)2, CACL2, KCL,
+C                              MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW10
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT                                ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13)
+         CC = (WAER(7)-ROOT13)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13)**2.0
+         DD =-0.25*((WAER(7)-ROOT13)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9,WAER(7)/2.0-ROOT13,(WAER(2)-WAER(6)),CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) + WAER(7) - 2.D0*ROOT9)
+         CC     = WAER(4)*(WAER(7) - 2.D0*ROOT9) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = MAX (WAER(4) - ROOT13, ZERO)
+      CLI    = WAER(5)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW10')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = ZERO
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW10 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW9
+C *** CASE W9
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL
+C     4. Completely dissolved: CA(NO3)2, CACL2,
+C                              MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW9
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT                              ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = WAER(4)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5) + WAER(7) - 2.D0*ROOT9 - ROOT13)
+         CC     = WAER(5)*(WAER(7) - 2.D0*ROOT9 - ROOT13) - A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = WAER(3)
+      NO3I   = MAX (WAER(4) - ROOT13, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14, ZERO)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW9')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = ZERO
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW9 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW8
+C *** CASE W8
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL
+C     4. Completely dissolved: CA(NO3)2, CACL2,
+C                              MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW8
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O   =-GREAT                              ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI11  = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = WAER(4)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5) - ROOT5 + WAER(7) - 2.D0*ROOT9 - ROOT13)
+         CC     = (WAER(5)-ROOT5)*(WAER(7) - 2.D0*ROOT9 - ROOT13) - A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14)
+         CC     = (WAER(5)-ROOT14)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5, ZERO)
+      CAI    = ZERO
+      NAI    = WAER(1)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND.PSCONV5) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW8')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = ZERO
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW8 ******************************************
+C
+      END
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW7
+C *** CASE W7
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL
+C     4. Completely dissolved: CA(NO3)2, CACL2,
+C                              MG(NO3)2, MGCL2, NANO3, NH4NO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW7
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+      PSCONV7 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O  =-GREAT
+      PSI7O  =-GREAT                            ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+      ROOT7   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI7   = CNACL
+      CHI11  = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A7  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = WAER(4)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5)-ROOT5-ROOT7 + WAER(7)-2.D0*ROOT9-ROOT13)
+         CC     = (WAER(5)-ROOT5-ROOT7)*(WAER(7)-2.D0*ROOT9-ROOT13)-A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14 - ROOT7)
+         CC     = (WAER(5) - ROOT14 - ROOT7)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C SODIUM CLORIDE
+C
+      IF (NAI*CLI .GT. A7) THEN
+         BB     =-(WAER(5) + WAER(1) - ROOT14 - ROOT5)
+         CC     = (WAER(5) - ROOT14 - ROOT5)*WAER(1) - A7
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT7A = 0.5D0*(-BB-DD)
+         ROOT7B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT7A) THEN
+            ROOT7 = ROOT7A
+         ELSE
+            ROOT7 = ROOT7B
+         ENDIF
+         ROOT7 = MIN(MAX(ROOT7, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI7O) .LE. EPS*PSI7O
+      PSI7O   = PSI7
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5 - ROOT7, ZERO)
+      CAI    = ZERO
+      NAI    = MAX (WAER(1) - ROOT7, ZERO)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND. PSCONV5
+     &       .AND. PSCONV7) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW7')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = CHI7 - PSI7
+      CNANO3  = ZERO
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW7 ******************************************
+C
+      END
+
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW6
+C *** CASE W6
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL, NANO3
+C     4. Completely dissolved: CA(NO3)2, CACL2,
+C                              MG(NO3)2, MGCL2, NH4NO3
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW6
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+      PSCONV7 =.TRUE.
+      PSCONV8 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O   =-GREAT
+      PSI7O   =-GREAT
+      PSI8O   =-GREAT                     ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+      ROOT7   = ZERO
+      ROOT8   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI7   = CNACL
+      CHI8   = CNANO3
+      CHI11  = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A7  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      A8  = XK9 *(WATER/GAMA(3))**2.         ! NaNO3     <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) - ROOT8 + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = (WAER(4)-ROOT8)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5)-ROOT5-ROOT7 + WAER(7)-2.D0*ROOT9-ROOT13)
+         CC     = (WAER(5)-ROOT5-ROOT7)*(WAER(7)-2.D0*ROOT9-ROOT13)-A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14 - ROOT7)
+         CC     = (WAER(5) - ROOT14 - ROOT7)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C SODIUM CLORIDE
+C
+      IF (NAI*CLI .GT. A7) THEN
+         BB     =-(WAER(5) + WAER(1) - ROOT8 - ROOT14 - ROOT5)
+         CC     = (WAER(5) - ROOT14 - ROOT5)*(WAER(1)-ROOT8) - A7
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT7A = 0.5D0*(-BB-DD)
+         ROOT7B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT7A) THEN
+            ROOT7 = ROOT7A
+         ELSE
+            ROOT7 = ROOT7B
+         ENDIF
+         ROOT7 = MIN(MAX(ROOT7, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI7O) .LE. EPS*PSI7O
+      PSI7O   = PSI7
+C
+C SODIUM NITRATE
+C
+      IF (NAI*NO3I .GT. A8) THEN
+         BB     =-(WAER(4) - ROOT13 + WAER(1) - ROOT7)
+         CC     = (WAER(4) - ROOT13)*(WAER(1)-ROOT7) - A8
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT8A = 0.5D0*(-BB-DD)
+         ROOT8B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT8A) THEN
+            ROOT8 = ROOT8A
+         ELSE
+            ROOT8 = ROOT8B
+         ENDIF
+         ROOT8 = MIN(MAX(ROOT8, ZERO), CHI8)
+         PSI8  = CHI8-ROOT8
+      ENDIF
+      PSCONV8 = ABS(PSI8-PSI8O) .LE. EPS*PSI8O
+      PSI8O   = PSI8
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13 - ROOT8, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5 - ROOT7, ZERO)
+      CAI    = ZERO
+      NAI    = MAX (WAER(1) - ROOT7 - ROOT8, ZERO)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND. PSCONV5
+     &       .AND. PSCONV7 .AND. PSCONV8) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW6')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = CHI7 - PSI7
+      CNANO3  = CHI8 - PSI8
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW6 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW5
+C *** CASE W5
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL, NANO3, NH4NO3
+C     4. Completely dissolved: CA(NO3)2, CACL2,
+C                              MG(NO3)2, MGCL2
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW5
+      INCLUDE 'isrpia.inc'
+C
+      EXTERNAL CALCW1A, CALCW6
+C
+C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
+C
+      IF (WAER(4).GT.TINY)   THEN ! NO3 EXIST, WATER POSSIBLE
+         SCASE = 'W5 ; SUBCASE 1'
+         CALL CALCW5A
+         SCASE = 'W5 ; SUBCASE 1'
+      ELSE                                      ! NO3, CL NON EXISTANT
+         SCASE = 'W1 ; SUBCASE 1'
+         CALL CALCW1A
+         SCASE = 'W1 ; SUBCASE 1'
+      ENDIF
+C
+      IF (WATER.LE.TINY) THEN
+         IF (RH.LT.DRMP5) THEN        ! ONLY SOLIDS
+            WATER = TINY
+            DO 10 I=1,NIONS
+               MOLAL(I) = ZERO
+10          CONTINUE
+            CALL CALCW1A
+            SCASE = 'W5 ; SUBCASE 2'
+            RETURN
+         ELSE
+            SCASE = 'W5 ; SUBCASE 3'  ! MDRH REGION (CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                                                    NANO3, NACL, NH4NO3, NH4CL)
+            CALL CALCMDRPII (RH, DRMP5, DRNH4NO3, CALCW1A, CALCW6)
+            SCASE = 'W5 ; SUBCASE 3'
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW5 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW5A
+C *** CASE W5A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL,
+C                          NANO3, NH4NO3
+C     4. Completely dissolved: CA(NO3)2, CACL2, MG(NO3)2, MGCL2
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW5A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+      PSCONV7 =.TRUE.
+      PSCONV8 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O   =-GREAT
+      PSI7O   =-GREAT
+      PSI8O   =-GREAT                ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+      ROOT7   = ZERO
+      ROOT8   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI7   = CNACL
+      CHI8   = CNANO3
+      CHI6   = CNH4NO3
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A7  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      A8  = XK9 *(WATER/GAMA(3))**2.         ! NaNO3     <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) - ROOT8 + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = (WAER(4)-ROOT8)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5)-ROOT5-ROOT7 + WAER(7)-2.D0*ROOT9-ROOT13)
+         CC     = (WAER(5)-ROOT5-ROOT7)*(WAER(7)-2.D0*ROOT9-ROOT13)-A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14 - ROOT7)
+         CC     = (WAER(5) - ROOT14 - ROOT7)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C SODIUM CLORIDE
+C
+      IF (NAI*CLI .GT. A7) THEN
+         BB     =-(WAER(5) + WAER(1) - ROOT8 - ROOT14 - ROOT5)
+         CC     = (WAER(5) - ROOT14 - ROOT5)*(WAER(1)-ROOT8) - A7
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT7A = 0.5D0*(-BB-DD)
+         ROOT7B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT7A) THEN
+            ROOT7 = ROOT7A
+         ELSE
+            ROOT7 = ROOT7B
+         ENDIF
+         ROOT7 = MIN(MAX(ROOT7, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI7O) .LE. EPS*PSI7O
+      PSI7O   = PSI7
+C
+C SODIUM NITRATE
+C
+      IF (NAI*NO3I .GT. A8) THEN
+         BB     =-(WAER(4) - ROOT13 + WAER(1) - ROOT7)
+         CC     = (WAER(4) - ROOT13)*(WAER(1)-ROOT7) - A8
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT8A = 0.5D0*(-BB-DD)
+         ROOT8B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT8A) THEN
+            ROOT8 = ROOT8A
+         ELSE
+            ROOT8 = ROOT8B
+         ENDIF
+         ROOT8 = MIN(MAX(ROOT8, ZERO), CHI8)
+         PSI8  = CHI8-ROOT8
+      ENDIF
+      PSCONV8 = ABS(PSI8-PSI8O) .LE. EPS*PSI8O
+      PSI8O   = PSI8
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13 - ROOT8, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5 - ROOT7, ZERO)
+      CAI    = ZERO
+      NAI    = MAX (WAER(1) - ROOT7 - ROOT8, ZERO)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND. PSCONV5
+     &       .AND. PSCONV7 .AND. PSCONV8) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW5')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = CHI7 - PSI7
+      CNANO3  = CHI8 - PSI8
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW5 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW4
+C *** CASE W4
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                          MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW4
+      INCLUDE 'isrpia.inc'
+      EXTERNAL CALCW1A, CALCW5A
+C
+C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
+C
+      IF (WAER(4).GT.TINY)   THEN ! NO3 EXIST, WATER POSSIBLE
+         SCASE = 'W4 ; SUBCASE 1'
+         CALL CALCW4A
+         SCASE = 'W4 ; SUBCASE 1'
+      ELSE                                      ! NO3, CL NON EXISTANT
+         SCASE = 'W1 ; SUBCASE 1'
+         CALL CALCW1A
+         SCASE = 'W1 ; SUBCASE 1'
+      ENDIF
+C
+      IF (WATER.LE.TINY) THEN
+         IF (RH.LT.DRMP4) THEN        ! ONLY SOLIDS
+            WATER = TINY
+            DO 10 I=1,NIONS
+               MOLAL(I) = ZERO
+10          CONTINUE
+            CALL CALCW1A
+            SCASE = 'W4 ; SUBCASE 2'
+            RETURN
+         ELSE
+            SCASE = 'W4 ; SUBCASE 3'  ! MDRH REGION (CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                                                    MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL)
+            CALL CALCMDRPII (RH, DRMP4, DRMGNO32, CALCW1A, CALCW5A)
+            SCASE = 'W4 ; SUBCASE 3'
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW4 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW4A
+C *** CASE W4A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL,
+C                          NANO3, NH4NO3, MG(NO3)2
+C     4. Completely dissolved: CA(NO3)2, CACL2, MGCL2
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW4A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+      PSCONV7 =.TRUE.
+      PSCONV8 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O   =-GREAT
+      PSI7O   =-GREAT
+      PSI8O   =-GREAT                ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+      ROOT7   = ZERO
+      ROOT8   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI7   = CNACL
+      CHI8   = CNANO3
+      CHI6   = CNH4NO3
+      CHI15  = CMGNO32
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A7  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      A8  = XK9 *(WATER/GAMA(3))**2.         ! NaNO3     <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) - ROOT8 + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = (WAER(4)-ROOT8)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5)-ROOT5-ROOT7 + WAER(7)-2.D0*ROOT9-ROOT13)
+         CC     = (WAER(5)-ROOT5-ROOT7)*(WAER(7)-2.D0*ROOT9-ROOT13)-A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14 - ROOT7)
+         CC     = (WAER(5) - ROOT14 - ROOT7)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C SODIUM CLORIDE
+C
+      IF (NAI*CLI .GT. A7) THEN
+         BB     =-(WAER(5) + WAER(1) - ROOT8 - ROOT14 - ROOT5)
+         CC     = (WAER(5) - ROOT14 - ROOT5)*(WAER(1)-ROOT8) - A7
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT7A = 0.5D0*(-BB-DD)
+         ROOT7B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT7A) THEN
+            ROOT7 = ROOT7A
+         ELSE
+            ROOT7 = ROOT7B
+         ENDIF
+         ROOT7 = MIN(MAX(ROOT7, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI7O) .LE. EPS*PSI7O
+      PSI7O   = PSI7
+C
+C SODIUM NITRATE
+C
+      IF (NAI*NO3I .GT. A8) THEN
+         BB     =-(WAER(4) - ROOT13 + WAER(1) - ROOT7)
+         CC     = (WAER(4) - ROOT13)*(WAER(1)-ROOT7) - A8
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT8A = 0.5D0*(-BB-DD)
+         ROOT8B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT8A) THEN
+            ROOT8 = ROOT8A
+         ELSE
+            ROOT8 = ROOT8B
+         ENDIF
+         ROOT8 = MIN(MAX(ROOT8, ZERO), CHI8)
+         PSI8  = CHI8-ROOT8
+      ENDIF
+      PSCONV8 = ABS(PSI8-PSI8O) .LE. EPS*PSI8O
+      PSI8O   = PSI8
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13 - ROOT8, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5 - ROOT7, ZERO)
+      CAI    = ZERO
+      NAI    = MAX (WAER(1) - ROOT7 - ROOT8, ZERO)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND. PSCONV5
+     &       .AND. PSCONV7 .AND. PSCONV8) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW4')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = CHI7 - PSI7
+      CNANO3  = CHI8 - PSI8
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW4A ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW3
+C *** CASE W3
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : CaSO4, CA(NO3)2, K2SO4, KNO3, KCL, MGSO4,
+C                          MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW3
+      INCLUDE 'isrpia.inc'
+      EXTERNAL CALCW1A, CALCW4A
+C
+C *** REGIME DEPENDS ON THE EXISTANCE OF WATER AND OF THE RH ************
+C
+C      IF (WAER(4).GT.TINY .AND. WAER(5).GT.TINY) THEN ! NO3,CL EXIST, WATER POSSIBLE
+C         SCASE = 'W3 ; SUBCASE 1'
+C         CALL CALCW3A
+C         SCASE = 'W3 ; SUBCASE 1'
+C      ELSE                                      ! NO3, CL NON EXISTANT
+C         SCASE = 'W1 ; SUBCASE 1'
+C         CALL CALCW1A
+C         SCASE = 'W1 ; SUBCASE 1'
+C      ENDIF
+C
+      CALL CALCW1A
+      
+      IF (WATER.LE.TINY) THEN
+         IF (RH.LT.DRMP3) THEN        ! ONLY SOLIDS
+            WATER = TINY
+            DO 10 I=1,NIONS
+               MOLAL(I) = ZERO
+10          CONTINUE
+            CALL CALCW1A
+            SCASE = 'W3 ; SUBCASE 2'
+            RETURN
+         ELSE
+            SCASE = 'W3 ; SUBCASE 3'  ! MDRH REGION (CaSO4, CA(NO3)2, K2SO4, KNO3, KCL, MGSO4,
+C                                                    MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL)
+            CALL CALCMDRPII (RH, DRMP3, DRCANO32, CALCW1A, CALCW4A)
+            SCASE = 'W3 ; SUBCASE 3'
+         ENDIF
+      ELSE                                      ! NO3, CL NON EXISTANT
+         SCASE = 'W3 ; SUBCASE 1'
+         CALL CALCW3A
+         SCASE = 'W3 ; SUBCASE 1'
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW3 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW3A
+C *** CASE W3A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL,
+C                          NANO3, NH4NO3, CA(NO3)2, MG(NO3)2
+C     4. Completely dissolved: CACL2, MGCL2
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW3A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+      PSCONV7 =.TRUE.
+      PSCONV8 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O   =-GREAT
+      PSI7O   =-GREAT
+      PSI8O   =-GREAT                ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+      ROOT7   = ZERO
+      ROOT8   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI7   = CNACL
+      CHI8   = CNANO3
+      CHI6   = CNH4NO3
+      CHI15  = CMGNO32
+      CHI12  = CCANO32
+      CHI11   = CCASO4
+CC
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A7  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      A8  = XK9 *(WATER/GAMA(3))**2.         ! NaNO3     <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) - ROOT8 + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = (WAER(4)-ROOT8)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, ZERO))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5)-ROOT5-ROOT7 + WAER(7)-2.D0*ROOT9-ROOT13)
+         CC     = (WAER(5)-ROOT5-ROOT7)*(WAER(7)-2.D0*ROOT9-ROOT13)-A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14 - ROOT7)
+         CC     = (WAER(5) - ROOT14 - ROOT7)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C SODIUM CLORIDE
+C
+      IF (NAI*CLI .GT. A7) THEN
+         BB     =-(WAER(5) + WAER(1) - ROOT8 - ROOT14 - ROOT5)
+         CC     = (WAER(5) - ROOT14 - ROOT5)*(WAER(1)-ROOT8) - A7
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT7A = 0.5D0*(-BB-DD)
+         ROOT7B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT7A) THEN
+            ROOT7 = ROOT7A
+         ELSE
+            ROOT7 = ROOT7B
+         ENDIF
+         ROOT7 = MIN(MAX(ROOT7, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI7O) .LE. EPS*PSI7O
+      PSI7O   = PSI7
+C
+C SODIUM NITRATE
+C
+      IF (NAI*NO3I .GT. A8) THEN
+         BB     =-(WAER(4) - ROOT13 + WAER(1) - ROOT7)
+         CC     = (WAER(4) - ROOT13)*(WAER(1)-ROOT7) - A8
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT8A = 0.5D0*(-BB-DD)
+         ROOT8B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT8A) THEN
+            ROOT8 = ROOT8A
+         ELSE
+            ROOT8 = ROOT8B
+         ENDIF
+         ROOT8 = MIN(MAX(ROOT8, ZERO), CHI8)
+         PSI8  = CHI8-ROOT8
+      ENDIF
+      PSCONV8 = ABS(PSI8-PSI8O) .LE. EPS*PSI8O
+      PSI8O   = PSI8
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13 - ROOT8, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5 - ROOT7, ZERO)
+      CAI    = ZERO
+      NAI    = MAX (WAER(1) - ROOT7 - ROOT8, ZERO)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND. PSCONV5
+     &       .AND. PSCONV7 .AND. PSCONV8) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW3')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = CHI7 - PSI7
+      CNANO3  = CHI8 - PSI8
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW3A ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW2
+C *** CASE W2
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : CaSO4, CA(NO3)2, K2SO4, KNO3, KCL, MGSO4,
+C                          MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C     THERE ARE THREE REGIMES IN THIS CASE:
+C     1. CACL2(s) POSSIBLE. LIQUID & SOLID AEROSOL (SUBROUTINE CALCL2A)
+C     2. CACL2(s) NOT POSSIBLE, AND RH < MDRH. SOLID AEROSOL ONLY
+C     3. CACL2(s) NOT POSSIBLE, AND RH >= MDRH. SOLID & LIQUID AEROSOL
+C
+C     REGIMES 2. AND 3. ARE CONSIDERED TO BE THE SAME AS CASES W1A, W2B
+C     RESPECTIVELY
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+C
+      SUBROUTINE CALCW2
+      INCLUDE 'isrpia.inc'
+      EXTERNAL CALCW1A, CALCW3A, CALCW4A, CALCW5A, CALCW6
+C
+C *** FIND DRY COMPOSITION **********************************************
+C
+      CALL CALCW1A
+C
+C *** REGIME DEPENDS UPON THE POSSIBLE SOLIDS & RH **********************
+C
+      IF (CCACL2.GT.TINY) THEN
+         SCASE = 'W2 ; SUBCASE 1'
+         CALL CALCW2A
+         SCASE = 'W2 ; SUBCASE 1'
+      ENDIF
+C
+      IF (WATER.LE.TINY) THEN
+         IF (RH.LT.DRMP2) THEN             ! ONLY SOLIDS
+            WATER = TINY
+            DO 10 I=1,NIONS
+               MOLAL(I) = ZERO
+10          CONTINUE
+            CALL CALCW1A
+            SCASE = 'W2 ; SUBCASE 2'
+         ELSE
+            IF (CMGCL2.GT. TINY) THEN
+               SCASE = 'W2 ; SUBCASE 3'    ! MDRH (CaSO4, CA(NO3)2, K2SO4, KNO3, KCL, MGSO4, MGCL2,
+C                                                  MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL)
+               CALL CALCMDRPII (RH, DRMP2, DRMGCL2, CALCW1A, CALCW3A)
+               SCASE = 'W2 ; SUBCASE 3'
+            ENDIF
+            IF (WATER.LE.TINY .AND. RH.GE.DRMP3 .AND. RH.LT.DRMP4) THEN
+               SCASE = 'W2 ; SUBCASE 4'    ! MDRH (CaSO4, K2SO4, KNO3, KCL, MGSO4, CANO32,
+C                                                  MG(NO3)2, NANO3, NACL, NH4NO3, NH4CL)
+               CALL CALCMDRPII (RH, DRMP3, DRCANO32, CALCW1A, CALCW4A)
+               SCASE = 'W2 ; SUBCASE 4'
+            ENDIF
+            IF (WATER.LE.TINY .AND. RH.GE.DRMP4 .AND. RH.LT.DRMP5) THEN
+               SCASE = 'W2 ; SUBCASE 5'    ! MDRH (CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                                                  MGNO32, NANO3, NACL, NH4NO3, NH4CL)
+               CALL CALCMDRPII (RH, DRMP4, DRMGNO32, CALCW1A, CALCW5A)
+               SCASE = 'W2 ; SUBCASE 5'
+            ENDIF
+            IF (WATER.LE.TINY .AND. RH.GE.DRMP5) THEN
+               SCASE = 'W2 ; SUBCASE 6'    ! MDRH (CaSO4, K2SO4, KNO3, KCL, MGSO4,
+C                                                  NANO3, NACL, NH4NO3, NH4CL)
+               CALL CALCMDRPII (RH, DRMP5, DRNH4NO3, CALCW1A, CALCW6)
+               SCASE = 'W2 ; SUBCASE 6'
+            ELSE
+               WATER = TINY
+               DO 20 I=1,NIONS
+                  MOLAL(I) = ZERO
+20             CONTINUE
+               CALL CALCW1A
+               SCASE = 'W2 ; SUBCASE 2'
+            ENDIF
+         ENDIF
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW2 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW2A
+C *** CASE W2A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. THERE IS BOTH A LIQUID & SOLID PHASE
+C     3. SOLIDS POSSIBLE : CaSO4, K2SO4, KNO3, MGSO4, KCL, NH4CL, NACL,
+C                          NANO3, NH4NO3, CA(NO3)2, MG(NO3)2, MGCL2
+C     4. Completely dissolved: CACL2
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW2A
+      INCLUDE 'isrpia.inc'
+C
+      LOGICAL PSCONV9, PSCONV13, PSCONV14, PSCONV5, PSCONV7, PSCONV8
+      DOUBLE PRECISION NH4I, NAI, NO3I, NH3AQ, NO3AQ, CLAQ, CAI, KI, MGI
+C
+      COMMON /SOLUT/ CHI1, CHI2, CHI3, CHI4, CHI5, CHI6, CHI7, CHI8,
+     &               CHI9, CHI10, CHI11, CHI12, CHI13, CHI14, CHI15,
+     &               CHI16, CHI17, PSI1, PSI2, PSI3, PSI4, PSI5, PSI6,
+     &               PSI7, PSI8, PSI9, PSI10, PSI11, PSI12, PSI13,
+     &               PSI14, PSI15, PSI16, PSI17, A1, A2, A3, A4, A5, A6,
+     &               A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17
+C
+C *** SETUP PARAMETERS ************************************************
+C
+      FRST    =.TRUE.
+      CALAIN  =.TRUE.
+      CALAOU  =.TRUE.
+C
+      PSCONV9 =.TRUE.
+      PSCONV13=.TRUE.
+      PSCONV14=.TRUE.
+      PSCONV5 =.TRUE.
+      PSCONV7 =.TRUE.
+      PSCONV8 =.TRUE.
+C
+      PSI9O   =-GREAT
+      PSI13O  =-GREAT
+      PSI14O  =-GREAT
+      PSI5O   =-GREAT
+      PSI7O   =-GREAT
+      PSI8O   =-GREAT                ! GREAT = 1.D10
+C
+      ROOT9   = ZERO
+      ROOT13  = ZERO
+      ROOT14  = ZERO
+      ROOT5   = ZERO
+      ROOT7   = ZERO
+      ROOT8   = ZERO
+C
+C *** CALCULATE INITIAL SOLUTION ***************************************
+C
+      CALL CALCW1A
+C
+      CHI9   = CK2SO4       ! SALTS
+      CHI13  = CKNO3
+      CHI10  = CMGSO4
+      CHI14  = CKCL
+      CHI5   = CNH4CL
+      CHI7   = CNACL
+      CHI8   = CNANO3
+      CHI6   = CNH4NO3
+      CHI15  = CMGNO32
+      CHI12  = CCANO32
+      CHI16  = CMGCL2
+      CHI11   = CCASO4
+C
+      PSI1   = CNA2SO4      ! SALTS DISSOLVED
+      PSI5   = CNH4CL
+      PSI6   = CNH4NO3
+      PSI7   = CNACL
+      PSI8   = CNANO3
+      PSI9   = CK2SO4
+      PSI10  = CMGSO4
+      PSI11  = CCASO4
+      PSI12  = CCANO32
+      PSI13  = CKNO3
+      PSI14  = CKCL
+      PSI15  = CMGNO32
+      PSI16  = CMGCL2
+      PSI17  = CCACL2
+C
+      CALL CALCMR           ! WATER
+C
+      NAI    = WAER(1)      ! LIQUID CONCENTRATIONS
+      SO4I   = MAX (WAER(2) - WAER(6), ZERO)
+      NH4I   = WAER(3)
+      NO3I   = WAER(4)
+      CLI    = WAER(5)
+      CAI    = WAER(6)
+      KI     = WAER(7)
+      MGI    = WAER(8)
+C
+      HSO4I  = ZERO
+      NH3AQ  = ZERO
+      NO3AQ  = ZERO
+      CLAQ   = ZERO
+C
+C *** SOLVE EQUATIONS ; WITH ITERATIONS FOR ACTIVITY COEF. ************
+C
+      DO 10 I=1,NSWEEP
+C
+      A9  = XK17 *(WATER/GAMA(17))**3.0      ! K2SO4     <==> K+
+      A13 = XK19 *(WATER/GAMA(19))**2.0      ! KNO3      <==> K+
+      A14 = XK20 *(WATER/GAMA(20))**2.0      ! KCL       <==> K+
+      A5  = XK14*(WATER/GAMA(6))**2.0        ! NH4Cl     <==> NH4+
+      A7  = XK8 *(WATER/GAMA(1))**2.0        ! NaCl      <==> Na+
+      A8  = XK9 *(WATER/GAMA(3))**2.         ! NaNO3     <==> Na+
+      AKW = XKW*RH*WATER*WATER               ! H2O       <==> H+
+C
+C POTASSIUM SULFATE
+C
+      IF (KI*KI*SO4I .GT. A9) THEN
+         BB =-((WAER(2)-WAER(6)) + WAER(7) - ROOT13 - ROOT14)
+         CC = (WAER(7)-ROOT13-ROOT14)*(WAER(2)-WAER(6)) +
+     &         0.25D0*(WAER(7)-ROOT13-ROOT14)**2.0
+         DD =-0.25*((WAER(7)-ROOT13-ROOT14)**2.0*(WAER(2)-WAER(6)) - A9)
+         CALL POLY3(BB, CC, DD, ROOT9, ISLV)
+         IF (ISLV.NE.0) ROOT9 = TINY
+         ROOT9 = MIN (ROOT9, WAER(7)/2.0-ROOT13-ROOT14,
+     &                (WAER(2)-WAER(6)), CHI9)
+         ROOT9 = MAX (ROOT9, ZERO)
+         PSI9  = CHI9 - ROOT9
+      ENDIF
+      PSCONV9 = ABS(PSI9-PSI9O) .LE. EPS*PSI9O
+      PSI9O   = PSI9
+C
+C POTASSIUM NITRATE
+C
+      IF (KI*NO3I .GT. A13) THEN
+         BB     =-(WAER(4) - ROOT8 + WAER(7) - 2.D0*ROOT9 - ROOT14)
+         CC     = (WAER(4)-ROOT8)*(WAER(7) - 2.D0*ROOT9 - ROOT14) - A13
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT13A= 0.5D0*(-BB-DD)
+         ROOT13B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT13A) THEN
+            ROOT13 = ROOT13A
+         ELSE
+            ROOT13 = ROOT13B
+         ENDIF
+         ROOT13 = MIN(MAX(ROOT13, ZERO), CHI13)
+         PSI13  = CHI13-ROOT13
+      ENDIF
+      PSCONV13 = ABS(PSI13-PSI13O) .LE. EPS*PSI13O
+      PSI13O   = PSI13
+C
+C POTASSIUM CLORIDE
+C
+      IF (KI*CLI .GT. A14) THEN
+         BB     =-(WAER(5)-ROOT5-ROOT7 + WAER(7)-2.D0*ROOT9-ROOT13)
+         CC     = (WAER(5)-ROOT5-ROOT7)*(WAER(7)-2.D0*ROOT9-ROOT13)-A14
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT14A= 0.5D0*(-BB-DD)
+         ROOT14B= 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT14A) THEN
+            ROOT14 = ROOT14A
+         ELSE
+            ROOT14 = ROOT14B
+         ENDIF
+         ROOT14 = MIN(MAX(ROOT14, ZERO), CHI14)
+         PSI14  = CHI14-ROOT14
+      ENDIF
+      PSCONV14 = ABS(PSI14-PSI14O) .LE. EPS*PSI14O
+      PSI14O   = PSI14
+C
+C AMMONIUM CLORIDE
+C
+      IF (NH4I*CLI .GT. A5) THEN
+         BB     =-(WAER(5) + WAER(3) - ROOT14 - ROOT7)
+         CC     = (WAER(5) - ROOT14 - ROOT7)*WAER(3) - A5
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT5A = 0.5D0*(-BB-DD)
+         ROOT5B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT5A) THEN
+            ROOT5 = ROOT5A
+         ELSE
+            ROOT5 = ROOT5B
+         ENDIF
+         ROOT5 = MIN(MAX(ROOT5, ZERO), CHI5)
+         PSI5  = CHI5-ROOT5
+      ENDIF
+      PSCONV5 = ABS(PSI5-PSI5O) .LE. EPS*PSI5O
+      PSI5O   = PSI5
+C
+C SODIUM CLORIDE
+C
+      IF (NAI*CLI .GT. A7) THEN
+         BB     =-(WAER(5) + WAER(1) - ROOT8 - ROOT14 - ROOT5)
+         CC     = (WAER(5) - ROOT14 - ROOT5)*(WAER(1)-ROOT8) - A7
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT7A = 0.5D0*(-BB-DD)
+         ROOT7B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT7A) THEN
+            ROOT7 = ROOT7A
+         ELSE
+            ROOT7 = ROOT7B
+         ENDIF
+         ROOT7 = MIN(MAX(ROOT7, ZERO), CHI7)
+         PSI7  = CHI7-ROOT7
+      ENDIF
+      PSCONV7 = ABS(PSI7-PSI7O) .LE. EPS*PSI7O
+      PSI7O   = PSI7
+C
+C SODIUM NITRATE
+C
+      IF (NAI*NO3I .GT. A8) THEN
+         BB     =-(WAER(4) - ROOT13 + WAER(1) - ROOT7)
+         CC     = (WAER(4) - ROOT13)*(WAER(1)-ROOT7) - A8
+         DD     = SQRT(MAX(BB*BB - 4.D0*CC, TINY))
+         ROOT8A = 0.5D0*(-BB-DD)
+         ROOT8B = 0.5D0*(-BB+DD)
+         IF (ZERO.LE.ROOT8A) THEN
+            ROOT8 = ROOT8A
+         ELSE
+            ROOT8 = ROOT8B
+         ENDIF
+         ROOT8 = MIN(MAX(ROOT8, ZERO), CHI8)
+         PSI8  = CHI8-ROOT8
+      ENDIF
+      PSCONV8 = ABS(PSI8-PSI8O) .LE. EPS*PSI8O
+      PSI8O   = PSI8
+C
+C ION CONCENTRATIONS ; CORRECTIONS
+C
+      KI     = MAX (WAER(7) - 2.D0*ROOT9 - ROOT13 - ROOT14, ZERO)
+      SO4I   = MAX (WAER(2)-WAER(6) - ROOT9, ZERO)
+      NH4I   = MAX (WAER(3) - ROOT5, ZERO)
+      NO3I   = MAX (WAER(4) - ROOT13 - ROOT8, ZERO)
+      CLI    = MAX (WAER(5) - ROOT14 - ROOT5 - ROOT7, ZERO)
+      CAI    = ZERO
+      NAI    = MAX (WAER(1) - ROOT7 - ROOT8, ZERO)
+      MGI    = WAER(8)
+C
+C SOLUTION ACIDIC OR BASIC?
+C
+      GG   = 2.D0*SO4I + NO3I + CLI - NAI - NH4I
+     &       - 2.D0*CAI - KI - 2.D0*MGI
+      IF (GG.GT.TINY) THEN                        ! H+ in excess
+         BB =-GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         HI = 0.5D0*(-BB + SQRT(DD))
+         OHI= AKW/HI
+      ELSE                                        ! OH- in excess
+         BB = GG
+         CC =-AKW
+         DD = BB*BB - 4.D0*CC
+         OHI= 0.5D0*(-BB + SQRT(DD))
+         HI = AKW/OHI
+      ENDIF
+C
+C UNDISSOCIATED SPECIES EQUILIBRIA
+C
+      IF (HI.GT.OHI) THEN
+C         CALL CALCAMAQ2 (-GG, NH4I, OHI, NH3AQ)
+C         HI    = AKW/OHI
+C         HSO4I = ZERO
+C      ELSE
+C         GGNO3 = MAX(2.D0*SO4I + NO3I - NAI - NH4I - 2.D0*CAI
+C     &           - KI - 2.D0*MGI, ZERO)
+C         GGCL  = MAX(GG-GGNO3, ZERO)
+C         IF (GGCL .GT.TINY) CALL CALCCLAQ2 (GGCL, CLI, HI, CLAQ) ! HCl
+C         IF (GGNO3.GT.TINY) THEN
+C            IF (GGCL.LE.TINY) HI = ZERO
+C            CALL CALCNIAQ2 (GGNO3, NO3I, HI, NO3AQ)              ! HNO3
+C         ENDIF
+C
+C CONCENTRATION ADJUSTMENTS ; HSO4 minor species.
+C
+         CALL CALCHS4 (HI, SO4I, ZERO, DEL)
+      else
+        del= zero
+      ENDIF
+      SO4I  = SO4I  - DEL
+      HI    = HI    - DEL
+      HSO4I = DEL
+C         IF (HI.LE.TINY) HI = SQRT(AKW)
+      OHI   = AKW/HI
+C
+      IF (HI.LE.TINY) THEN
+      HI = SQRT(AKW)
+      OHI   = AKW/HI
+      ENDIF
+C
+C *** SAVE CONCENTRATIONS IN MOLAL ARRAY ******************************
+C
+      MOLAL(1) = HI
+      MOLAL(2) = NAI
+      MOLAL(3) = NH4I
+      MOLAL(4) = CLI
+      MOLAL(5) = SO4I
+      MOLAL(6) = HSO4I
+      MOLAL(7) = NO3I
+      MOLAL(8) = CAI
+      MOLAL(9) = KI
+      MOLAL(10)= MGI
+C
+C *** CALCULATE WATER **************************************************
+C
+      CALL CALCMR
+C
+C *** CALCULATE ACTIVITIES OR TERMINATE INTERNAL LOOP *****************
+C
+      IF (FRST.AND.CALAOU .OR. .NOT.FRST.AND.CALAIN) THEN
+         CALL CALCACT
+      ELSE
+         IF (PSCONV9 .AND. PSCONV13 .AND. PSCONV14 .AND. PSCONV5
+     &       .AND. PSCONV7 .AND. PSCONV8) GOTO 20
+      ENDIF
+10    CONTINUE
+ccc      CALL PUSHERR (0002, 'CALCW2')    ! WARNING ERROR: NO CONVERGENCE
+C
+C *** CALCULATE GAS / SOLID SPECIES (LIQUID IN MOLAL ALREADY) *********
+C
+20    A2      = (XK2/XKW)*R*TEMP*(GAMA(10)/GAMA(5))**2. ! NH3  <==> NH4+
+      A3      = XK4 *R*TEMP*(WATER/GAMA(10))**2.        ! HNO3 <==> NO3-
+      A4      = XK3 *R*TEMP*(WATER/GAMA(11))**2.        ! HCL  <==> CL-
+C
+      GNH3    = NH4I/HI/A2
+      GHNO3   = HI*NO3I/A3
+      GHCL    = HI*CLI /A4
+C
+      GASAQ(1)= NH3AQ
+      GASAQ(2)= CLAQ
+      GASAQ(3)= NO3AQ
+C
+      CNH42S4 = ZERO
+      CNH4NO3 = ZERO
+      CNH4CL  = CHI5 - PSI5
+      CNACL   = CHI7 - PSI7
+      CNANO3  = CHI8 - PSI8
+      CMGSO4  = ZERO
+      CK2SO4  = CHI9 - PSI9
+      CCASO4  = MIN (WAER(6), WAER(2))
+      CCANO32 = ZERO
+      CKNO3   = CHI13 - PSI13
+      KCL     = CHI14 - PSI14
+      CMGNO32 = ZERO
+      CMGCL2  = ZERO
+      CCACL2  = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW2A ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW1
+C *** CASE W1
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : CaSO4, CA(NO3)2, CACL2, K2SO4, KNO3, KCL, MGSO4,
+C                          MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C     THERE ARE TWO POSSIBLE REGIMES HERE, DEPENDING ON RELATIVE HUMIDITY:
+C     1. WHEN RH >= MDRH ; LIQUID PHASE POSSIBLE (MDRH REGION)
+C     2. WHEN RH < MDRH  ; ONLY SOLID PHASE POSSIBLE (SUBROUTINE CALCP1A)
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY,
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS & ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW1
+      INCLUDE 'isrpia.inc'
+      EXTERNAL CALCW1A, CALCW2A
+C
+C *** REGIME DEPENDS UPON THE AMBIENT RELATIVE HUMIDITY *****************
+C
+      IF (RH.LT.DRMP1) THEN
+         SCASE = 'W1 ; SUBCASE 1'
+         CALL CALCW1A              ! SOLID PHASE ONLY POSSIBLE
+         SCASE = 'W1 ; SUBCASE 1'
+      ELSE
+         SCASE = 'W1 ; SUBCASE 2'  ! LIQUID & SOLID PHASE POSSIBLE
+         CALL CALCMDRPII (RH, DRMP1, DRCACL2, CALCW1A, CALCW2A)
+         SCASE = 'W1 ; SUBCASE 2'
+      ENDIF
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW1 ******************************************
+C
+      END
+C
+C=======================================================================
+C
+C *** ISORROPIA CODE II
+C *** SUBROUTINE CALCW1A
+C *** CASE W1A
+C
+C     THE MAIN CHARACTERISTICS OF THIS REGIME ARE:
+C     1. SULFATE POOR (SULRAT > 2.0) ; Rcr+Na >= 2.0 ; Rcr > 2)
+C     2. SOLID AEROSOL ONLY
+C     3. SOLIDS POSSIBLE : CaSO4, CA(NO3)2, CACL2, K2SO4, KNO3, KCL, MGSO4,
+C                          MG(NO3)2, MGCL2, NANO3, NACL, NH4NO3, NH4CL
+C
+C *** COPYRIGHT 1996-2008, UNIVERSITY OF MIAMI, CARNEGIE MELLON UNIVERSITY
+C *** GEORGIA INSTITUTE OF TECHNOLOGY
+C *** WRITTEN BY CHRISTOS FOUNTOUKIS AND ATHANASIOS NENES
+C
+C=======================================================================
+C
+      SUBROUTINE CALCW1A
+      INCLUDE 'isrpia.inc'
+C
+C *** CALCULATE SOLIDS **************************************************
+C
+      CCASO4  = MIN (WAER(2), WAER(6))              !SOLID CASO4
+      CAFR    = MAX (WAER(6) - CCASO4, ZERO)
+      SO4FR   = MAX (WAER(2) - CCASO4, ZERO)
+      CK2SO4  = MIN (SO4FR, 0.5D0*WAER(7))          !SOLID K2SO4
+      FRK     = MAX (WAER(7) - 2.D0*CK2SO4, ZERO)
+      SO4FR   = MAX (SO4FR - CK2SO4, ZERO)
+      CMGSO4  = SO4FR                               !SOLID MGSO4
+      FRMG    = MAX (WAER(8) - CMGSO4, ZERO)
+      CNACL   = MIN (WAER(1), WAER(5))              !SOLID NACL
+      FRNA    = MAX (WAER(1) - CNACL, ZERO)
+      CLFR    = MAX (WAER(5) - CNACL, ZERO)
+      CCACL2  = MIN (CAFR, 0.5D0*CLFR)              !SOLID CACL2
+      CAFR    = MAX (CAFR - CCACL2, ZERO)
+      CLFR    = MAX (WAER(5) - 2.D0*CCACL2, ZERO)
+      CCANO32 = MIN (CAFR, 0.5D0*WAER(4))           !SOLID CA(NO3)2
+      CAFR    = MAX (CAFR - CCANO32, ZERO)
+      FRNO3   = MAX (WAER(4) - 2.D0*CCANO32, ZERO)
+      CMGCL2  = MIN (FRMG, 0.5D0*CLFR)              !SOLID MGCL2
+      FRMG    = MAX (FRMG - CMGCL2, ZERO)
+      CLFR    = MAX (CLFR - 2.D0*CMGCL2, ZERO)
+      CMGNO32 = MIN (FRMG, 0.5D0*FRNO3)             !SOLID MG(NO3)2
+      FRMG    = MAX (FRMG - CMGNO32, ZERO)
+      FRNO3   = MAX (FRNO3 - 2.D0*CMGNO32, ZERO)
+      CNANO3  = MIN (FRNA, FRNO3)                   !SOLID NANO3
+      FRNA    = MAX (FRNA - CNANO3, ZERO)
+      FRNO3   = MAX (FRNO3 - CNANO3, ZERO)
+      CKCL    = MIN (FRK, CLFR)                     !SOLID KCL
+      FRK     = MAX (FRK - CKCL, ZERO)
+      CLFR    = MAX (CLFR - CKCL, ZERO)
+      CKNO3   = MIN (FRK, FRNO3)                    !SOLID KNO3
+      FRK     = MAX (FRK - CKNO3, ZERO)
+      FRNO3   = MAX (FRNO3 - CKNO3, ZERO)
+C
+C *** OTHER PHASES ******************************************************
+C
+      WATER   = ZERO
+C
+      GNH3    = ZERO
+      GHNO3   = ZERO
+      GHCL    = ZERO
+C
+      RETURN
+C
+C *** END OF SUBROUTINE CALCW1A *****************************************
 C
       END
