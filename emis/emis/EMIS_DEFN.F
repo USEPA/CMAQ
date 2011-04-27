@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.5 2011/04/01 15:41:38 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.6 2011/04/27 17:20:00 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,6 +34,7 @@ C     18 Aug 2007 J.Young: move beis part to separate module; add plume rise
 C     26 Jan 2010 J.Young: fix bug overwriting point source layer 1 NH3; inline rdemis
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                            removed deprecated TRIMLEN
+C      6 Apr 2011 J.Young, R.Pinder: add lightning NO emissions capability
 
 C-----------------------------------------------------------------------
 
@@ -74,8 +75,9 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
+         USE LTNG_DEFN           ! NO emissions from lightning strikes
          USE PT3D_DEFN           ! plume rise emissions
-         USE UTILIO_DEFN            ! i/o api
+         USE UTILIO_DEFN
          USE AERO_EMIS           ! inherits GRID_CONF
          USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
 
@@ -159,6 +161,13 @@ C Get number of emissions layers
          WRITE( LOGDEV,1009 ) EMLAYS, NLAYS
 1009     FORMAT( / 10X, 'Number of Emissions Layers:         ', I3
      &           / 10X, 'out of total Number of Model Layers:', I3 )
+
+C lightning NO emissions?
+
+         IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP, EMLAYS ) ) THEN
+            XMSG = 'Failure initializing lightning emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
          IF ( N_AE_SPC .GT. 0 ) THEN
             WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
@@ -279,6 +288,7 @@ C-----------------------------------------------------------------------
          USE BIOG_EMIS, ONLY: MSPCS
          USE PT3D_DEFN           ! plume rise emissions
          USE PTMAP               ! defines emissions file(s) PM mapping
+         USE LTNG_DEFN           ! lightning NO emissions
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -295,6 +305,8 @@ C Arguments:
          REAL    RDX3F( NLAYS )             ! reciprocal layer thickness
          REAL    RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
          REAL    RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
+
+C External Functions:
 
 C Local Variables:
 
@@ -336,9 +348,8 @@ C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_1, GC_EMIS( S ), PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read  '
-     &              // TRIM( GC_EMIS( S ) )
-     &              // ' from ' // EMIS_1
+               XMSG = 'Could not read '
+     &              // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
 !              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
@@ -386,6 +397,25 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
      &                                    + CNVTC * VDEMIS_BI( N,C,R )
                       END IF
+                  END DO
+               END DO
+            END DO
+
+         END IF
+
+C lightning NO
+         IF ( LTNG_NO ) THEN
+
+            CALL GET_LTNG ( JDATE, JTIME, TSTEP )
+
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  DO L = 1, EMLAYS
+                     CNVTI = CONVPA * CNVTE * RDX3F( L )  ! per sec
+                     CNVTC = CNVTI * RRHOJ( C,R,L )
+                     V = LTNG_MAP
+                     VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
+     &                                 + VDEMIS_LT( C,R,L ) * CNVTC
                   END DO
                END DO
             END DO
@@ -446,9 +476,8 @@ C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_1, NR_EMIS( S ), PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read  '
-     &              // TRIM( NR_EMIS( S ) )
-     &              // ' from ' // EMIS_1
+               XMSG = 'Could not read '
+     &              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             CNVTI = CNVTP * NR_EMIS_FAC( S )
@@ -507,8 +536,10 @@ C                                               vvvvvvv - emis surrogate names
 C zero out emissions values for species not included in diffused list ...
 C accounts for emissions species names as a subset of the vert. diffused species list
 
-        VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
+         VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
 
-        END SUBROUTINE GET_EMIS
+         RETURN
+
+         END SUBROUTINE GET_EMIS
 
       END MODULE EMIS_DEFN
