@@ -17,7 +17,7 @@
 !C***********************************************************************
 
 !C RCS file, release, date & time of last delta, author, state, [and locker]
-!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.1 2011/04/27 17:19:04 sjr Exp $
+!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.2 2011/04/27 17:47:06 sjr Exp $
 
 !C what(1) key, module and SID; SCCS file; date and time of last delta:
 !C %W% %P% %G% %U%
@@ -386,7 +386,7 @@ C         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          LTNG_MAP = INDEX1( LTSPC, N_GC_EMIS, GC_EMIS )
          IF ( LTNG_MAP .EQ. 0 ) THEN
             XMSG = TRIM( LTSPC ) // ' not found in GC_EMIS table'
-            CALL M3EXIT
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE( VDEMIS_LT( NCOLS,NROWS,LTLYRS ), STAT = STATUS )
