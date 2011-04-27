@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.4 2011/04/26 13:38:20 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.5 2011/04/27 11:50:54 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -191,11 +191,11 @@ C                   doi:10.1029/2001JD001409, 2003
 C-----------------------------------------------------------------------
 
          USE GRID_CONF           ! horizontal & vertical domain configuration
+         USE CGRID_SPCS          ! CGRID mechanism species
          USE SSEMIS              ! sea-salt emissions
          USE DUST_EMIS           ! wind-blown dust emissions
          USE AERO_DATA
          USE PRECURSOR_DATA
-         USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
      
          INCLUDE SUBST_RXCMMN    ! to get mech name
@@ -518,6 +518,7 @@ C  Key Subroutines/Functions Called: SSEMIS_INIT, GET_SSEMIS, DUST_INIT, GET_DUS
  
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
+         USE CGRID_SPCS          ! CGRID mechanism species
          USE PT3D_DEFN, ONLY: PT3DEMIS, PMEMIS_PT ! from plume rise
          USE PTMAP, ONLY: N_SPC_PTPM, PTPM_MAP    ! defines emissions file(s) PM mapping
          USE AERO_DATA
