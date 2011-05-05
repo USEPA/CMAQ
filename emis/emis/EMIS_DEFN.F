@@ -1,3 +1,4 @@
+
 C***********************************************************************
 C   Portions of Models-3/CMAQ software were developed or based on      *
 C   information from various groups: Federal Government employees,     *
@@ -17,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.6 2011/04/27 17:20:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.7 2011/05/05 15:14:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -31,11 +32,13 @@ C Function: emissions interface to the chemistry-transport model
 C Revision History:
 C     28 Jul 2006 J.Young: initial implementation
 C     18 Aug 2007 J.Young: move beis part to separate module; add plume rise
+C     23 Sep 2009 B.Hutzell: modified algorithm that loads gas emissions from point
+C                 sources into VDEMIS array to enable multi-use of an emission species
 C     26 Jan 2010 J.Young: fix bug overwriting point source layer 1 NH3; inline rdemis
+C     07 Jan 2011 B.Hutzell: updated for namelist definition of model species
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                            removed deprecated TRIMLEN
 C      6 Apr 2011 J.Young, R.Pinder: add lightning NO emissions capability
-
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -47,7 +50,8 @@ C-----------------------------------------------------------------------
       INTEGER, SAVE :: N_SPC_EMIS ! global emissions species
       INTEGER, SAVE :: EMLAYS     ! no. of emis integration layers
                                   ! EMLAYS must be .LT. NLAYS
-      INTEGER,          SAVE :: EMLYRS     ! no. of layers on base emis input file -
+
+      INTEGER, PRIVATE, SAVE :: EMLYRS     ! no. of layers on base emis input file -
                                            ! a 2d file if inline, otherwise a 3d file
       INTEGER, PRIVATE, SAVE :: NEMIS_AE   ! no. of aero emis species
 
@@ -55,13 +59,16 @@ C-----------------------------------------------------------------------
       REAL,    PRIVATE, SAVE :: CNVTE      ! combined conversion factor
       REAL,    PRIVATE, SAVE :: DT         ! TSTEP (output) in sec
 
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: BUFF( :,:,: )        ! read buffer
+      REAL,    PRIVATE, ALLOCATABLE, SAVE :: BUFF( :,:,: ) ! read buffer
 
       INTEGER, PRIVATE, SAVE :: STRT_GC, FINI_GC, STRT_AE, FINI_AE,
      &                          STRT_NR, FINI_NR, STRT_TR, FINI_TR
       INTEGER, PRIVATE, SAVE :: SDATE, STIME  ! scenario start date/time (beis)
       INTEGER, PRIVATE       :: LDATE, LTIME  ! step start date/time (beis)
       INTEGER, PRIVATE, SAVE :: NDATE, NTIME  ! step next date/time (beis)
+
+      INTEGER, PRIVATE, SAVE :: LOGDEV
+      INTEGER, PRIVATE, EXTERNAL :: SETUP_LOGDEV
 
 #ifdef Verbose
       character( 16 ), allocatable, save :: emis_spc( : ) ! global emis surrogates
@@ -71,26 +78,30 @@ C-----------------------------------------------------------------------
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION EMIS_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
+         FUNCTION EMIS_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS ) 
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
          USE LTNG_DEFN           ! NO emissions from lightning strikes
          USE PT3D_DEFN           ! plume rise emissions
+         USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
          USE UTILIO_DEFN
          USE AERO_EMIS           ! inherits GRID_CONF
-         USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
 
          IMPLICIT NONE
 
 C Includes:
-
+      
+         INCLUDE SUBST_RXCMMN    ! for chem mechanism name
          INCLUDE SUBST_CONST     ! constants
 
 C Arguments:
 
-         INTEGER JDATE, JTIME, TSTEP
+         INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP ! TSTEP is output time step (HHMMSS)
          LOGICAL :: SUCCESS
+
+C External Functions:
+
 
 C Parameters:
 
@@ -103,19 +114,20 @@ C Local Variables:
 
          CHARACTER( 16 ), SAVE :: CTM_EMLAYS = 'CTM_EMLAYS'    ! env var for no. of
                                                                ! emiss. layers
+
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
-         INTEGER V, LOGDEV, STATUS
+         INTEGER STATUS
 #ifdef Verbose
-         integer s
+         integer s, v
 #endif
 
 C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-         LOGDEV = INIT3()
+         LOGDEV = SETUP_LOGDEV()
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
@@ -140,7 +152,7 @@ C Open Emissions files
 C Get number of emissions layers
 
          IF ( EMLAYS .LE. 1 ) THEN   ! better be inline plume rise run
-            EMLAYS = NLAYS   ! env var default
+            EMLAYS = NLAYS   ! default
             VARDESC = 'Number of emission layers'
             EMLAYS = ENVINT( CTM_EMLAYS, VARDESC, EMLAYS, STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -172,9 +184,9 @@ C lightning NO emissions?
          IF ( N_AE_SPC .GT. 0 ) THEN
             WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
      &                                // 'Vertical diffusion ...'
-            NEMIS_AE = N_AE_EMIS  ! from CGRID_SPCS (originally, AE_EMIS.EXT)
-            CALL MAP_PMEMIS ( )   ! set up PM emitted species mapping
-         ELSE
+            NEMIS_AE = N_AE_EMIS  ! defined in CGRID_SPCS
+            CALL MAP_PMEMIS( )   ! set up PM emitted species mapping
+          ELSE
             NEMIS_AE = 0
          END IF
 
@@ -285,10 +297,10 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS          ! CGRID mechanism species
          USE AERO_EMIS           ! inherits GRID_CONF
          USE BEIS_DEFN           ! biogenic emissions
+         USE LTNG_DEFN           ! lightning NO emissions
          USE BIOG_EMIS, ONLY: MSPCS
          USE PT3D_DEFN           ! plume rise emissions
          USE PTMAP               ! defines emissions file(s) PM mapping
-         USE LTNG_DEFN           ! lightning NO emissions
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -299,28 +311,25 @@ C Includes:
 
 C Arguments:
 
-         INTEGER JDATE, JTIME
-         INTEGER TSTEP( 2 )                 ! time step vector (HHMMSS)
-         REAL    CONVPA             ! conversion factor to pressure in Pascals
-         REAL    RDX3F( NLAYS )             ! reciprocal layer thickness
-         REAL    RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
-         REAL    RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
+         INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 2 )    ! time step vector (HHMMSS)
+         REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
+         REAL,    INTENT( IN ) :: RDX3F( NLAYS )             ! reciprocal layer thickness
+         REAL,    INTENT( IN ) :: RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
+         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
 
 C External Functions:
 
 C Local Variables:
 
-         REAL             CNVTC         ! combined conversion factor
-         REAL             CNVTI         ! intermediate combined conv. factor
-         REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
+         REAL             CNVTC         ! combined beis conversion factor
+         REAL             CNVTI         ! intermediate combined beis conv. factor
+         REAL, SAVE    :: CNVTP         ! intermediate combined beis conv. factor
          REAL             DELT          ! interpolation factor
          INTEGER          C, R, L, N, S, V ! loop induction variables
 
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ) :: XMSG = ' '
-#ifdef Verbose
-         integer, save :: logdev
-#endif
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER          GXOFF, GYOFF         ! global origin offset from file
          INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
@@ -329,9 +338,6 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-#ifdef Verbose
-            logdev = init3()
-#endif
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
@@ -348,12 +354,11 @@ C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_1, GC_EMIS( S ), PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read '
+               XMSG = 'Could not read  '
      &              // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
 !              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
-            CNVTI = CNVTP * GC_EMIS_FAC( S )
 
 C reactive gases (conversion to ppmv/s) VDEMIS in this order from RDEMIS
 C "Stores read an entire cache line, modify the target, then write back the
@@ -362,18 +367,32 @@ C  loads."
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLYRS
-                     CNVTC = CNVTI * RDX3F( L ) * RRHOJ( C,R,L )
                      VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                 + CNVTC * BUFF( C,R,L )
+     &                                 + GC_EMIS_FAC( S ) * BUFF( C,R,L )
                   END DO
                END DO
             END DO
 
 #ifdef Verbose
-            write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
+         write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
 #endif
 
          END DO   ! V
+
+C reactive gases conversion mol/s to ppmv/s
+
+         IF ( N_GC_EMIS .GT. 0 ) THEN
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  DO L = 1, EMLYRS
+                     CNVTC = CNVTP * RDX3F( L ) * RRHOJ( C,R,L )
+                     DO V = STRT_GC, FINI_GC
+                        VDEMIS( V,L,C,R ) = CNVTC * VDEMIS( V,L,C,R )
+                     END DO
+                  END DO
+               END DO
+            END DO
+         END IF
 
 C beis
 
@@ -436,10 +455,13 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the 27 AE emission
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
                      CNVTC = CNVTP * RDX3F( L ) * RRHOJ( C,R,L )
-                     DO S = 1, N_SPC_PTEM
-                        V = PTEM_MAP( S )  ! <- pointer to non-PM (non-aerosol) species
+!                    DO S = 1, N_SPC_PTEM
+                     DO S = 1, N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
+                        V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
+                        N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
+                        IF ( V .LT. 1 ) CYCLE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * VDEMIS_PT( C,R,L,S )
+     &                                    + CNVTC * VDEMIS_PT( C,R,L,N )
                      END DO
                   END DO
                END DO
@@ -459,7 +481,8 @@ C GET_AERO_EMIS in f90 module AERO_EMIS
                      DO V = STRT_AE, FINI_AE
                         S = V + 1 - STRT_AE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + VDEMIS_AE( S,L,C,R )
+!    &                                    + VDEMIS_AE( S,L,C,R )
+     &                                    + VDEMIS_AE( S,L,C,R ) * AE_EMIS_FAC( S )  ! DOES THIS NEED TO BE MAPPED?
                      END DO
                   END DO
                END DO
@@ -476,7 +499,7 @@ C                                       vvvvvvv - emis surrogate names
             IF ( .NOT. INTERPX( EMIS_1, NR_EMIS( S ), PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF ) ) THEN
-               XMSG = 'Could not read '
+               XMSG = 'Could not read  '
      &              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -495,7 +518,6 @@ C                                       vvvvvvv - emis surrogate names
 #ifdef Verbose
             write( logdev,* ) '  NR EMIS: ', s, '  ', nr_emis( s )
 #endif
-
          END DO
 
 C tracer gases (conversion to ppmv/s)
@@ -510,8 +532,7 @@ C                                               vvvvvvv - emis surrogate names
      &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                             JDATE, JTIME, BUFF ) ) THEN
                   XMSG = 'Could not read  '
-     &                 // TRIM( TR_EMIS( S ) )
-     &                 // ' from ' // EMIS_TRAC_1
+     &                 // TRIM( TR_EMIS( S ) ) // ' from ' // EMIS_TRAC_1
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
                CNVTI = CNVTP * TR_EMIS_FAC( S )
