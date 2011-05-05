@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.5 2011/04/26 16:52:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.6 2011/05/05 15:17:43 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -69,25 +69,30 @@ C-----------------------------------------------------------------------
 C aerosol emissions: [ppmv/s] for mass & number spcs, [m2/mol/s] for surface area spcs
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_AE( :,:,:,: )
 
+      INTEGER :: PM_EMLYRS   ! number of vertical layers on emis file (set in EMIS_DEFN)
+
+      PUBLIC VDEMIS_AE, PM_EMLYRS, AERO_EMIS_INIT, GET_AERO_EMIS
+      PRIVATE
+
 C Variables for converting mass emissions rate to number emissions rate
-      REAL,    PRIVATE, SAVE :: FACNUM( N_MODE )
+      REAL,    SAVE :: FACNUM( N_MODE )
 
 C Variables for converting mass emissions rate to 2nd moment emissions rate
-      REAL,    PRIVATE, SAVE :: FACSRF( N_MODE )
+      REAL,    SAVE :: FACSRF( N_MODE )
 
 C Variables for the thickness and volume of each grid cell
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: CELLHGT( : ) ! grid-cell height [sigma]
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: CELLVOL( : ) ! grid-cell volume [m2*sigma]
+      REAL,    ALLOCATABLE, SAVE :: CELLHGT( : ) ! grid-cell height [sigma]
+      REAL,    ALLOCATABLE, SAVE :: CELLVOL( : ) ! grid-cell volume [m2*sigma]
 
 C Emission rate of all aerosol species interpolated to current time
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: EMBUFF  ( :,:,:,: ) ! in all grid cells
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: PM_EM   ( : )       ! in one grid cell
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: EM_RATE ( : )       !
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     !
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: SS_MAP  ( :,: )     !
+      REAL,    ALLOCATABLE, SAVE :: EMBUFF  ( :,:,:,: ) ! in all grid cells
+      REAL,    ALLOCATABLE, SAVE :: PM_EM   ( : )       ! in one grid cell
+      REAL,    ALLOCATABLE, SAVE :: EM_RATE ( : )       !
+      REAL,    ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
+      INTEGER, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     ! index in namelist table
+      INTEGER, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
+      INTEGER, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
+      INTEGER, ALLOCATABLE, SAVE :: SS_MAP  ( :,: )     !
 
 C EMBUFF     mass emission rate input global array
 C PM_EM      mass emission rate input localized to one grid cell
@@ -96,28 +101,28 @@ C EM_PART    particulate mass emission rate in one grid cell
 C EM_MAP     particulate mass emission rate index in VDEMIS_AE (CGRID)
 C NUM_MAP    particulate number emission rate index in VDEMIS_AE (CGRID)
 C SRF_MAP    particulate sfc area emission rate index in VDEMIS_AE (CGRID)
-C SS_MAP     sea salt emissions rate index in VDEMIS_AE (CGRID)
+C SS_MAP     sea salt emission rate index in SSOUTM
 
 C Factor for converting aerosol emissions from input units ...
-      REAL,   PRIVATE, ALLOCATABLE, SAVE :: CONVEM_PM( : ) ! into [ug/m2/sec]
+      REAL,   ALLOCATABLE, SAVE :: CONVEM_PM( : ) ! into [ug/m2/sec]
 
 C Variables for converting emission rates into molar-mixing-ratio units
-      REAL,   PRIVATE, PARAMETER :: GPKG = 1.0E+03     ! g/kg
-      REAL,   PRIVATE, PARAMETER :: MGPG = 1.0E+06     ! ug/g
+      REAL,   PARAMETER :: GPKG = 1.0E+03     ! g/kg
+      REAL,   PARAMETER :: MGPG = 1.0E+06     ! ug/g
 
 C Domain decomposition info from emission and meteorology files
-      INTEGER, PRIVATE, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
-      INTEGER, PRIVATE, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+      INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
+      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C For handling vapor-phase sulfuric acid emissions
-      INTEGER, PRIVATE, SAVE :: VSULF        ! index to H2SO4 in VDEMIS array
-      INTEGER, PRIVATE, SAVE :: VPSO4_IDX    ! index to PSO4 in EM_RATE array
-
-      INTEGER :: PM_EMLYRS   ! number of vertical layers on emis file
+      INTEGER, SAVE :: VSULF               ! index to H2SO4 in VDEMIS array
+      INTEGER, SAVE :: VPSO4               ! index to PSO4 in EM_RATE array
 
 C Miscellaneous variables
-      INTEGER, PRIVATE :: IDX
-      CHARACTER( 96 ), PRIVATE :: XMSG = ' '
+      INTEGER :: IDX
+      CHARACTER( 96 ) :: XMSG = ' '
+      INTEGER, SAVE :: LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
       CONTAINS
 
@@ -176,10 +181,10 @@ C                   doi:10.1029/2001JD001409, 2003
 C-----------------------------------------------------------------------
 
          USE GRID_CONF           ! horizontal & vertical domain configuration
+         USE CGRID_SPCS          ! CGRID mechanism species
          USE SSEMIS              ! sea-salt emissions
          USE AERO_DATA
          USE PRECURSOR_DATA
-         USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
 
          INCLUDE SUBST_RXCMMN    ! to get mech name
@@ -190,9 +195,8 @@ C Arguments:
 
          INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
          INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
-         INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP      ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
-                                             ! TSTEP(2) = sciproc sync. step (chem)
          INTEGER, INTENT( IN ) :: NEMIS_AE   ! number of aerosol emissions species
          LOGICAL SUCCESS
 
@@ -217,7 +221,6 @@ C Domain decomposition info from emission and meteorology files
          INTEGER GXOFF, GYOFF          ! origin offset
 
 C Miscellaneous variables
-         INTEGER, SAVE     :: LOGDEV
          INTEGER STATUS                   ! ENV..., ALLOCATE status
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT'
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
@@ -225,10 +228,15 @@ C Miscellaneous variables
 
 C ----------------------------------------------------------------------
 
-         LOGDEV = INIT3()
+         LOGDEV = SETUP_LOGDEV()
+
+C *** Map data modules
+         CALL MAP_AERO()
+         CALL MAP_PRECURSOR()
+         CALL MAP_PMEMIS()
 
 C *** set up for sea-salt emission processing
-         IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+         IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing sea-salt emission processing'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
@@ -311,6 +319,7 @@ C *** Map indices of emission species
          EM_MAP = 0   ! array assignment
          DO S = 1, N_AEROSPC
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
+               ! Verify that aerospc( S )%emis is a pm emis
                DO N = 1, N_MODE
                   IF ( AEROSPC( S )%NAME( N ) .NE. ' ' ) THEN
                      EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
@@ -323,6 +332,9 @@ C *** Map aerosol number emission species
          NUM_MAP = 0
          DO N = 1, N_MODE
             NUM_MAP( N ) = INDEX1( AEROMODE( N )%NUM_NAME, N_AE_EMIS, AE_EMIS )
+#ifdef verbose
+            write( logdev,* ) 'num_map: ', n, num_map( n ), aeromode( n )%num_name
+#endif
             IF ( NUM_MAP( N ) .EQ. 0 ) THEN
                XMSG = 'Could not find ' // TRIM( AEROMODE( N )%NUM_NAME )
      &              // ' in AE_EMIS table'
@@ -334,6 +346,9 @@ C *** Map aerosol surface emission species
          SRF_MAP = 0
          DO N = 1, N_MODE
             SRF_MAP( N ) = INDEX1( AEROMODE( N )%SRF_NAME, N_AE_EMIS, AE_EMIS )
+#ifdef verbose
+            write( logdev,* ) 'srf_map: ', n, srf_map( n ), aeromode( n )%srf_name
+#endif
             IF ( SRF_MAP( N ) .EQ. 0 ) THEN
                XMSG = 'Could not find ' // TRIM( AEROMODE( N )%SRF_NAME )
      &              // ' in AE_EMIS table'
@@ -342,27 +357,46 @@ C *** Map aerosol surface emission species
          END DO
 
 C *** Map sea salt emission species
-         SS_MAP = 0
+         SS_MAP = 0  ! array assignment
          DO S = 1, NSSSPC
             IDX = SSSPC_MAP( S )
-            DO N = 1, N_MODE   ! add SEASALT indices to EM_MAP
+#ifdef verbose
+            write( logdev,* ) 'ssspc_map: ', s, idx, ssspc_map( s )
+#endif
+            DO N = 2, N_MODE   ! add SEASALT indices to EM_MAP
                IF ( AEROSPC( IDX )%NAME( N ) .NE. ' ' ) THEN
                   EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
                   SS_MAP( IDX,N ) = S
+#ifdef verbose
+               write( logdev,* ) 'ss_map: ', s, n, idx, ss_map( idx,n ), aerospc( idx )%name( n )
+#endif
                END IF
             END DO
          END DO
 
-C *** Map data modules
-         CALL MAP_PRECURSOR()
-         CALL MAP_AERO()
+#ifdef verbose
+         do s = 1, n_aerospc
+            do n = 1, n_mode
+               if ( em_map( s,n ) .ne. 0 ) then
+                  write( logdev,* ) 'em_map: ', n, s, em_map( s,n ), aerospc( s )%name( n )
+               end if
+            end do
+         end do
+#endif
 
 C *** find index of SO4 emissions
-         VPSO4_IDX = 0
+         VPSO4 = 0
          DO S = 1, N_EMIS_PM
-            IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) VPSO4_IDX = S
+!           IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) VPSO4 = S
+            IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) THEN
+               VPSO4 = S
+#ifdef verbose
+               write( logdev,* ) 'vpso4: ', s, pmem_map( s ), aso4_idx, vpso4
+#endif
+            END IF
          END DO
-         IF ( VPSO4_IDX .EQ. 0 ) THEN
+      
+         IF ( VPSO4 .EQ. 0 ) THEN
             XMSG = 'Cannot define index for SO4 emissions: '
      &           // 'aerospc%emis='' '' in AERO_DATA.F'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
@@ -393,11 +427,6 @@ C     their input units to [ug/s] and then to [ug/m2/s] using layer-
 C     specific grid-cell volume.  Calling DESC3( EMIS_1 ) assumes EMIS_1
 C     already opened.
 
-         IF ( .NOT. DESC3( EMIS_1 ) ) THEN
-            XMSG = 'Could not get '// EMIS_1 // ' file description'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
          IF ( PMEM_UNITS .EQ. 'G/S' .OR.
      &        PMEM_UNITS .EQ. 'g/s' ) THEN
             CONVEM_PM_MASS = MGPG                  ! (g/s) -> (ug/s)
@@ -413,7 +442,7 @@ C     already opened.
             CONVEM_PM( L ) = CONVEM_PM_MASS / CELLVOL( L )
          END DO
 
-C *** Get domain decomposition info from input files
+C *** Get domain window info from input files
 
          CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF,
      &                   STARTCOL, ENDCOL, STARTROW, ENDROW )
@@ -437,6 +466,7 @@ C  Key Subroutines/Functions Called: SSEMIS_INIT, GET_SSEMIS, DUST_INIT, GET_DUS
 
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
+         USE CGRID_SPCS          ! CGRID mechanism species
          USE PT3D_DEFN, ONLY: PT3DEMIS, PMEMIS_PT ! from plume rise
          USE PTMAP, ONLY: N_SPC_PTPM, PTPM_MAP    ! defines emissions file(s) PM mapping
          USE AERO_DATA
@@ -460,7 +490,7 @@ C Arguments:
 
 C Geometric Constants
          REAL, PARAMETER :: F6DPI = 6.0 / PI
-         REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI
+         REAL, PARAMETER :: F6DPIM9 = 1.0E-9 * F6DPI   ! 1.0E-9 = Kg/ug
 
 C     flag when PMC is calc'd from PM10
 !        Logical, Parameter :: PMCfromPM10 = .false.
@@ -493,7 +523,7 @@ C Surface area emission rates [m2/m3/s]
 C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'GET_AERO_EMIS'
          INTEGER C, R, L, N, V, S         ! Loop indices
-         REAL( 8 ) :: FINETOT
+!        REAL( 8 ) :: FINETOT
 #ifdef Verbose
          real sumem
 #endif
@@ -513,8 +543,7 @@ C     time.  Store result in EMBUFF array.
      &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,1,
      &                             JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
                   XMSG = 'Could not read '
-     &                 // TRIM( AEROSPC( IDX )%EMIS )
-     &                 // ' from ' // EMIS_1
+     &                 // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
                END IF
             END DO
@@ -538,8 +567,7 @@ C     time.  Store result in EMBUFF array.
      &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,PM_EMLYRS,
      &                             JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
                   XMSG = 'Could not read '
-     &                 // TRIM( AEROSPC( IDX )%EMIS )
-     &                 // ' from ' // EMIS_1
+     &                 // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
                END IF
             END DO
@@ -616,7 +644,7 @@ C     from this so PM_EM(VPMC) holds only the coarse emission rate.
 
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
-               EM_RATE( VPSO4_IDX ) = EM_RATE( VPSO4_IDX ) + VDEMIS( VSULF,L,C,R )
+               EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
      &                              * PRECURSOR_MW( SULF_IDX ) / CONVM
                VDEMIS( VSULF,L,C,R ) = 0.0
 
@@ -673,10 +701,11 @@ C *** Add sea salt to the total emissions of particle number and surface area
                END DO
 
 C *** Convert emission rates into molar-mixing-ratio units, as required by
-C     the vertical diffusion routines.  Mass and number emissions are
-C     converted to [ppmv/s].  Surface area emissions are converted to
-C     [m2/mol/s].  Save results in the VDEMIS_AE array.
-
+C     the vertical diffusion routines.  Mass and number emissions are converted
+C     to [ppmv/s].  Note: EM_PART has units of [ug/m3/s] and mol(s)/mol(air) is
+C     1.0e6 ppmv; so 1.0e-6 ug/g cancels the 1.0e6 ppmv/[mol(s)/mol(air)].
+C     Surface area emissions are converted to [m2/mol/s].
+C     Save results in the VDEMIS_AE array.
                DO N = 1, N_MODE
                   DO S = 1, N_AEROSPC
                      IF ( EM_MAP( S,N ) .GT. 0 ) THEN
@@ -732,7 +761,7 @@ C     from this so PM_EM(VPMC) holds only the coarse emission rate.
 
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
-                  EM_RATE( VPSO4_IDX ) = EM_RATE( VPSO4_IDX ) + VDEMIS( VSULF,L,C,R )
+                  EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
      &                                 * PRECURSOR_MW( SULF_IDX ) / CONVM
                   VDEMIS( VSULF,L,C,R ) = 0.0
 
