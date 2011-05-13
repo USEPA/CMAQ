@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.1 2011/04/25 15:28:08 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.2 2011/05/13 17:11:40 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
@@ -1081,6 +1081,8 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                do v = 1, 4
                   if ( utstar( c,r,v ) .ne. 999.9 ) then
                      diagv( 21+v ) = utstar( c,r,v )
+                  else
+                     diagv( 21+v ) = 0.0
                   end if
                end do   ! diagv(25)
 
