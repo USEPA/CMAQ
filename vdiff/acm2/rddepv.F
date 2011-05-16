@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/rddepv.F,v 1.2 2011/04/01 15:42:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/rddepv.F,v 1.3 2011/05/16 14:33:27 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -50,6 +50,7 @@ C                      domain specifications in one module
 C   07 Jun 05 P.Bhave: added logic for 'AE4' mechanism
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   16 May 11 J.Young: remove references to AERO3 and AERO4
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
@@ -75,8 +76,6 @@ C Local variables:
 
       REAL, ALLOCATABLE, SAVE :: DBUFF( :,: )       ! read buffer
 
-      LOGICAL, SAVE :: LAERO3_4 = .FALSE.   ! Flag for aero3 or aero4
-
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
       CHARACTER( 16 ), SAVE :: PNAME = 'RDDEPV'
@@ -95,9 +94,6 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME )  THEN
 
          FIRSTIME  =  .FALSE.
-
-         IF ( INDEX( MECHNAME, 'AE3' ) .NE. 0 .OR.
-     &        INDEX( MECHNAME, 'AE4' ) .NE. 0 ) LAERO3_4 = .TRUE.
 
          ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -137,8 +133,6 @@ C                                        vvvvvvv - dep vel surrogate name
       FINI = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
       DO V = STRT, FINI
          N = N + 1
-
-         IF ( LAERO3_4 .AND. SGSPEC( N ) ) CYCLE
 
 C                                        vvvvvvv - dep vel surrogate name
          IF ( .NOT. INTERPX( MET_CRO_2D, NR_DEPV( N ), PNAME,
