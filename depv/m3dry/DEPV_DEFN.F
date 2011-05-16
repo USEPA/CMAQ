@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.5 2011/05/13 17:17:13 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.6 2011/05/16 14:37:49 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -570,6 +570,7 @@ C Local variables:
             SUBROUTINE RDDEPV ( JDATE, JTIME, DEPV )
                USE HGRD_DEFN
                USE CGRID_SPCS
+               USE UTILIO_DEFN
                IMPLICIT NONE
                INTEGER, INTENT( IN )            :: JDATE, JTIME
                REAL, INTENT( OUT )              :: DEPV( :,:,: )
@@ -577,6 +578,10 @@ C Local variables:
             SUBROUTINE AERO_DEPV ( CGRID, JDATE, JTIME, TSTEP, ADEPV )
                USE GRID_CONF
                USE CGRID_SPCS
+               USE UTILIO_DEFN
+               USE AERO_DATA
+               USE SOA_DEFN
+               USE AEROMET_DATA
                IMPLICIT NONE
                REAL, POINTER          :: CGRID( :,:,:,: )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP
@@ -585,6 +590,7 @@ C Local variables:
             SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
                USE HGRD_DEFN
                USE CGRID_SPCS
+               USE UTILIO_DEFN
                IMPLICIT NONE
                LOGICAL, INTENT( IN )  :: GAS_DEPV_FOUND( : )
                INTEGER, INTENT( IN )  :: GAS_DEPV_SUR( : )
@@ -594,6 +600,7 @@ C Local variables:
             SUBROUTINE M3DRY ( JDATE, JTIME, ABFLUX, SFC_HONO, CGRIDL1, DEPVEL_GAS, PVD )
                USE HGRD_DEFN
                USE DEPVVARS
+               USE UTILIO_DEFN
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME
                LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO
