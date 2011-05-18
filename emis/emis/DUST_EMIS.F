@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.2 2011/05/13 17:11:40 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.3 2011/05/18 13:00:56 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
@@ -54,7 +54,7 @@ C Sea-Salt Emissions Rates
       real, allocatable, save :: dustoutn( :,:,: )    ! number emission rates [1/m**3/s]
       real, allocatable, save :: dustouts( :,:,: )    ! surface-area emisrates [m2/m**3/s]
 
-      public ndust_spc, dustoutm, dustoutn, dustouts, dust_spc,
+      public ndust_spc, dustoutm, dustoutn, dustouts, dust_type, dust_spc,
      &       dust_emis_init, get_dust_emis
       private
 
