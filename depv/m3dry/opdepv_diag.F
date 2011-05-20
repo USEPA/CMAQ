@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.3 2011/04/19 14:44:34 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.4 2011/05/20 16:57:29 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
@@ -31,8 +31,9 @@ C 2006-Dec-05 - modified by J.Young
 C 2010-Jan-29 - removed unneccesary CLOSE3 statement for CTM_DEPV_DIAG file
 C               to eliminate potential MPI race condition (D.Wong)
 C 2011-Feb-16 - replaced I/O API include files with UTILIO_DEFN (S.Roselle)
+C 2011-May-20 - modified diagnostic file header creation (D.Schwede)
 
-      USE HGRD_DEFN           ! horizontal grid specifications
+      USE GRID_CONF           ! horizontal & vertical domain specifications
       USE DEPVVARS
       USE UTILIO_DEFN
 
@@ -78,22 +79,35 @@ C Try to open existing file for update
      &        // 'try to open new'
          CALL M3MESG( XMSG )
 
-C Set output file characteristics based on conc file
+C Set output file characteristics based on GRIDDESC and open the dep velocity dignostic file
 
-         IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open ' // TRIM( CTM_CONC_1 )
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         SDATE3D = JDATE
+         STIME3D = JTIME
+         TSTEP3D = TSTEP
+         CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         IF ( .NOT. DESC3( CTM_CONC_1  ) ) THEN
-            XMSG = 'Could not get ' // TRIM( CTM_CONC_1 ) // ' file description'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN
-            XMSG = 'Could not close ' // TRIM( CTM_CONC_1 )
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         FTYPE3D = GRDDED3
+         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES
+         NCOLS3D = GL_NCOLS
+         NROWS3D = GL_NROWS
+         NLAYS3D =     1
+         NTHIK3D =     1
+         GDTYP3D = GDTYP_GD
+         P_ALP3D = P_ALP_GD
+         P_BET3D = P_BET_GD 
+         P_GAM3D = P_GAM_GD
+         XORIG3D = XORIG_GD
+         YORIG3D = YORIG_GD
+         XCENT3D = XCENT_GD
+         YCENT3D = YCENT_GD
+         XCELL3D = XCELL_GD
+         YCELL3D = YCELL_GD
+         VGTYP3D = VGTYP_GD
+         VGTOP3D = VGTOP_GD
+         DO L = 1, NLAYS3D + 1
+            VGLVS3D( L ) = VGLVS_GD( L )
+            END DO
+         GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
          FDESC3D = ' '   ! array
 
@@ -102,38 +116,6 @@ C Set output file characteristics based on conc file
      &               // ' the gas phase velocities are' 
          FDESC3D( 2 ) = 'estimated by the '
      &               //  DEPV_METHOD( 1:L ) // ' algorithm.'
-
-         FTYPE3D = GRDDED3
-
-         SDATE3D = JDATE 
-         STIME3D = JTIME 
-         TSTEP3D = TSTEP 
-
-!        WRITE( LOGDEV,* ) PNAME, ': TSTEP_DEPV_FILE = ', TSTEP_DEPV_FILE
-
-         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES
-!        NCOLS3D = GL_NCOLS
-!        NROWS3D = GL_NROWS
-         NLAYS3D =     1
-!        NTHIK3D =     1
-!        GDTYP3D = GDTYP_GD
-!        P_ALP3D = P_ALP_GD
-!        P_BET3D = P_BET_GD 
-!        P_GAM3D = P_GAM_GD
-!        XORIG3D = XORIG_GD
-!        YORIG3D = YORIG_GD
-!        XCENT3D = XCENT_GD
-!        YCENT3D = YCENT_GD
-!        XCELL3D = XCELL_GD
-!        YCELL3D = YCELL_GD
-!        VGTYP3D = VGTYP_GD
-!        VGTOP3D = VGTOP_GD
-!!       VGTPUN3D = VGTPUN_GD ! currently, not defined
-!        DO L = 1, NLAYS3D + 1
-!           VGLVS3D( L ) = VGLVS_GD( L )
-!        END DO
-!        GDNAM3D = GDNAME_GD
-!        GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
          N = 0
 
