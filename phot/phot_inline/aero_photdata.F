@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.2 2011/04/01 15:41:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.3 2011/06/01 16:54:49 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_PHOTDATA ( COL, ROW, NLAYS, CGRID,
@@ -95,7 +95,7 @@ C Parameters:
          REAL            :: IMAG_PART( N_MODE ) ! imaginary part
       END TYPE MODAL_COMPLEX
 
-      REAL, PARAMETER :: NUM_REFRACTIVE = 5
+      INTEGER, PARAMETER :: NUM_REFRACTIVE = 5
 
       TYPE( MODAL_COMPLEX ), PARAMETER :: REFRACTIVE_INDEX( NUM_REFRACTIVE ) = (/
 C *** FSB Water soluble values are modeled on data from Beyer et al. (1996)
