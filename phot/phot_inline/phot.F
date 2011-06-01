@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.3 2011/04/01 15:41:53 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.4 2011/06/01 17:10:04 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -313,11 +313,11 @@ C Arguments
             INTEGER, INTENT( IN )       :: NLAYS   ! # of vertical layers
 !     REAL, POINTER, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER               :: CGRID( :,:,:,: )
-            REAL, INTENT(IN) :: BLK_AE_NR ( :, : )      ! aerosol real part of refractive index
-            REAL, INTENT(IN) :: BLK_AE_NI ( :, : )      ! aerosol imaginary part of refractive index
-            REAL, INTENT(IN) :: BLK_AE_VOL( :, : )     ! aerosol modal volumes
-            REAL, INTENT(IN) :: BLK_AE_LSG( :, : )     ! aerosol modal log of geo. stand. dev
-            REAL, INTENT(IN) :: BLK_AE_DGN( :, : )     ! aerosol modal mean geometeric diam. [ m ]
+            REAL, INTENT(OUT) :: BLK_AE_NR ( :, : )     ! aerosol real part of refractive index
+            REAL, INTENT(OUT) :: BLK_AE_NI ( :, : )     ! aerosol imaginary part of refractive index
+            REAL, INTENT(OUT) :: BLK_AE_VOL( :, : )     ! aerosol modal volumes
+            REAL, INTENT(OUT) :: BLK_AE_LSG( :, : )     ! aerosol modal log of geo. stand. dev
+            REAL, INTENT(OUT) :: BLK_AE_DGN( :, : )     ! aerosol modal mean geometeric diam. [ m ]
          END SUBROUTINE AERO_PHOTDATA
       END INTERFACE
 C----------------------------------------------------------------------
