@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.8 2011/04/26 16:32:12 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.9 2011/07/11 13:14:33 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -107,39 +107,40 @@ C                  --------- --------- ---------   ---------- -------  +  +  +  
 C Sea-Salt Speciation factors
 C NOTE: in SSEMIS.F, all sea-salt emissions are assumed to be in the accumulation 
 C       and coarse modes
-      Real, Parameter :: aerospc_ssf( n_mode, n_aerospc) = (/
-C        Aitken    Accum   Coarse
-C       -------  -------  -------
-     &   0.0000,  0.0755,  0.0755,          ! ASO4
-     &   0.0000,  0.0000,  0.0000,          ! ANO3
-     &   0.0000,  0.5389,  0.5389,          ! ACL
-     &   0.0000,  0.0000,  0.0000,          ! ANH4
-     &   0.0000,  0.3856,  0.3856,          ! ANA
-     &   0.0000,  0.0000,  0.0000,          ! AORGPA
-     &   0.0000,  0.0000,  0.0000,          ! AEC
-     &   0.0000,  0.0000,  0.0000,          ! AH2O
-     &   0.0000,  0.0000,  0.0000,          ! A25
-     &   0.0000,  0.0000,  0.0000,          ! AALK
-     &   0.0000,  0.0000,  0.0000,          ! AXYL1
-     &   0.0000,  0.0000,  0.0000,          ! AXYL2
-     &   0.0000,  0.0000,  0.0000,          ! AXYL3
-     &   0.0000,  0.0000,  0.0000,          ! ATOL1
-     &   0.0000,  0.0000,  0.0000,          ! ATOL2
-     &   0.0000,  0.0000,  0.0000,          ! ATOL3
-     &   0.0000,  0.0000,  0.0000,          ! ABNZ1
-     &   0.0000,  0.0000,  0.0000,          ! ABNZ2
-     &   0.0000,  0.0000,  0.0000,          ! ABNZ3
-     &   0.0000,  0.0000,  0.0000,          ! ATRP1
-     &   0.0000,  0.0000,  0.0000,          ! ATRP2
-     &   0.0000,  0.0000,  0.0000,          ! AISO1
-     &   0.0000,  0.0000,  0.0000,          ! AISO2
-     &   0.0000,  0.0000,  0.0000,          ! AISO3
-     &   0.0000,  0.0000,  0.0000,          ! ASQT
-     &   0.0000,  0.0000,  0.0000,          ! AOLGA
-     &   0.0000,  0.0000,  0.0000,          ! AOLGB
-     &   0.0000,  0.0000,  0.0000,          ! AORGC
-     &   0.0000,  0.0000,  0.0000,          ! ASOIL
-     &   0.0000,  0.0000,  0.0000 /)        ! ACORS
+      Real, Parameter :: aerospc_ssf( n_mode, n_aerospc) = Reshape (
+C            Aitken    Accum   Coarse
+C       -    ------  -------  -------
+     &   (/  0.0,     0.0755,  0.0755,      ! ASO4
+     &       0.0,     0.0,     0.0,         ! ANO3
+     &       0.0,     0.5389,  0.5389,      ! ACL
+     &       0.0,     0.0,     0.0,         ! ANH4
+     &       0.0,     0.3856,  0.3856,      ! ANA
+     &       0.0,     0.0,     0.0,         ! AORGPA
+     &       0.0,     0.0,     0.0,         ! AEC
+     &       0.0,     0.0,     0.0,         ! AH2O
+     &       0.0,     0.0,     0.0,         ! A25
+     &       0.0,     0.0,     0.0,         ! AALK
+     &       0.0,     0.0,     0.0,         ! AXYL1
+     &       0.0,     0.0,     0.0,         ! AXYL2
+     &       0.0,     0.0,     0.0,         ! AXYL3
+     &       0.0,     0.0,     0.0,         ! ATOL1
+     &       0.0,     0.0,     0.0,         ! ATOL2
+     &       0.0,     0.0,     0.0,         ! ATOL3
+     &       0.0,     0.0,     0.0,         ! ABNZ1
+     &       0.0,     0.0,     0.0,         ! ABNZ2
+     &       0.0,     0.0,     0.0,         ! ABNZ3
+     &       0.0,     0.0,     0.0,         ! ATRP1
+     &       0.0,     0.0,     0.0,         ! ATRP2
+     &       0.0,     0.0,     0.0,         ! AISO1
+     &       0.0,     0.0,     0.0,         ! AISO2
+     &       0.0,     0.0,     0.0,         ! AISO3
+     &       0.0,     0.0,     0.0,         ! ASQT
+     &       0.0,     0.0,     0.0,         ! AOLGA
+     &       0.0,     0.0,     0.0,         ! AOLGB
+     &       0.0,     0.0,     0.0,         ! AORGC
+     &       0.0,     0.0,     0.0,         ! ASOIL
+     &       0.0,     0.0,     0.0, /),     ! ACORS
+     &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 C Required species
       Character( 16 ), Private, Parameter :: req_so4   = 'ASO4'
@@ -466,7 +467,6 @@ C Arguments:
       Logical, Intent( In ) :: minchk
 
 C Local Variables:
-      Character( 80 ) :: xmsg
       Integer m, n, spc
 
       If ( .Not. mapped ) Then
