@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.3 2011/05/18 13:00:56 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.4 2011/07/11 13:40:36 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
@@ -40,7 +40,8 @@ C Function: 3d point source emissions interface to the chemistry-transport model
 C Revision History:
 C 16 Dec 10 J.Young: Adapting Daniel Tong`s work on windblown dust
 C 21 Apr 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-                        
+C  8 Jul 11 J.Young: unified string lengths in character lists for compiler
+C                    compatibility
 C-----------------------------------------------------------------------
       use aero_data, only: n_mode
 
@@ -54,7 +55,7 @@ C Sea-Salt Emissions Rates
       real, allocatable, save :: dustoutn( :,:,: )    ! number emission rates [1/m**3/s]
       real, allocatable, save :: dustouts( :,:,: )    ! surface-area emisrates [m2/m**3/s]
 
-      public ndust_spc, dustoutm, dustoutn, dustouts, dust_type, dust_spc,
+      public ndust_spc, dustoutm, dustoutn, dustouts, dust_spc,
      &       dust_emis_init, get_dust_emis
       private
 
@@ -69,27 +70,27 @@ C - only accumulation and coarse modes used
 
 C speciation factors from SPECIATE composite of 4 desert soil profiles (Pouliot):
       type( dust_type ), parameter :: dust_spc( ndust_spc ) = (/
-C                   -------- name --------       -------- spcfac --------
-C                   Aitken  accum   coarse       Aitken  accum   coarse
-     &   dust_type( (/ ' ','ASO4J  ','ASO4K'/), (/ 0.0, 0.02250, 0.02655/) ),    ! Sulfate
-     &   dust_type( (/ ' ','ANO3J  ','ANO3K'/), (/ 0.0, 0.00020, 0.00160/) ),    ! Nitrate
-     &   dust_type( (/ ' ','ACLJ   ','ACLK '/), (/ 0.0, 0.00945, 0.01190/) ),    ! Chlorine
-     &   dust_type( (/ ' ','ANH4J  ','     '/), (/ 0.0, 0.00005, 0.0    /) ),    ! Ammonium
-     &   dust_type( (/ ' ','ANAJ   ','     '/), (/ 0.0, 0.03935, 0.0    /) ),    ! Sodium
-     &   dust_type( (/ ' ','ACAJ   ','     '/), (/ 0.0, 0.07940, 0.0    /) ),    ! Calcium
-     &   dust_type( (/ ' ','AMGJ   ','     '/), (/ 0.0, 0.0,     0.0    /) ),    ! Magnesium
-     &   dust_type( (/ ' ','AKJ    ','     '/), (/ 0.0, 0.03770, 0.0    /) ),    ! Potassium
-     &   dust_type( (/ ' ','APOCJ  ','     '/), (/ 0.0, 0.01075, 0.0    /) ),    ! Organic Carbon
-     &   dust_type( (/ ' ','APNCOMJ','     '/), (/ 0.0, 0.00430, 0.0    /) ),    ! Non-Carbon Organic Matter
-     &   dust_type( (/ ' ','AECJ   ','     '/), (/ 0.0, 0.0,     0.0    /) ),    ! Elemental Carbon
-     &   dust_type( (/ ' ','AFEJ   ','     '/), (/ 0.0, 0.03355, 0.0    /) ),    ! Iron
-     &   dust_type( (/ ' ','AALJ   ','     '/), (/ 0.0, 0.05695, 0.0    /) ),    ! Aluminum
-     &   dust_type( (/ ' ','ASIJ   ','     '/), (/ 0.0, 0.19425, 0.0    /) ),    ! Silicon
-     &   dust_type( (/ ' ','ATIJ   ','     '/), (/ 0.0, 0.00280, 0.0    /) ),    ! Titanium
-     &   dust_type( (/ ' ','AMNJ   ','     '/), (/ 0.0, 0.00115, 0.0    /) ),    ! Manganese
-     &   dust_type( (/ ' ','AH2OJ  ','     '/), (/ 0.0, 0.00541, 0.0    /) ),    ! Water
-     &   dust_type( (/ ' ','AOTHRJ ','     '/), (/ 0.0, 0.50219, 0.0    /) ),    ! Other
-     &   dust_type( (/ ' ','       ','ASOIL'/), (/ 0.0, 0.0,     0.95995/) ) /)  ! Non-Anion Dust
+C                        -------- name --------         -------- spcfac --------
+C                      Aitken    accum     coarse        Aitken  accum   coarse
+     &   dust_type( (/'       ','ASO4J  ','ASO4K  '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+     &   dust_type( (/'       ','ANO3J  ','ANO3K  '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
+     &   dust_type( (/'       ','ACLJ   ','ACLK   '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
+     &   dust_type( (/'       ','ANH4J  ','       '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
+     &   dust_type( (/'       ','ANAJ   ','       '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
+     &   dust_type( (/'       ','ACAJ   ','       '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
+     &   dust_type( (/'       ','AMGJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Magnesium
+     &   dust_type( (/'       ','AKJ    ','       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
+     &   dust_type( (/'       ','APOCJ  ','       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   dust_type( (/'       ','APNCOMJ','       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   dust_type( (/'       ','AECJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
+     &   dust_type( (/'       ','AFEJ   ','       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
+     &   dust_type( (/'       ','AALJ   ','       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
+     &   dust_type( (/'       ','ASIJ   ','       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
+     &   dust_type( (/'       ','ATIJ   ','       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
+     &   dust_type( (/'       ','AMNJ   ','       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
+     &   dust_type( (/'       ','AH2OJ  ','       '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
+     &   dust_type( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.50219, 0.0    /) ),   ! Other
+     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
 
       real, parameter :: fracmj = 0.20  ! mass fraction assigned to accum mode
       real, parameter :: fracmk = 0.80  ! mass fraction assigned to coarse mode
@@ -120,7 +121,7 @@ C of Binkowski & Roselle (2003)
 
       integer, parameter :: ndltyp = 3   ! number of desert land type beld1
       character( 16 ) :: vnmld( ndltyp ) = (/
-     &                   'USGS_shrubland',
+     &                   'USGS_shrubland ',
      &                   'USGS_shrubgrass',
      &                   'USGS_sprsbarren' /)
 
@@ -139,23 +140,23 @@ C Variables for the windblown dust diagnostic file:
 #endif
 
       character( 16 ) :: diagnm( ndust_diag ) = (/  ! output variable names
-     &                   'QSHLD', 'QSHGR', 'QSPBA', 'QCROP',
-     &                   'ETOTL',
-     &                   'LSHLD', 'LSHGR', 'LSPBA', 'LCROP',
-     &                   'TLDST',
-     &                   'TFABV', 'TFINF',
-     &                   'FMOIT', 'SD_EP', 'KV2HZ', 'WTMAX',
-     &                   'ULDBR', 'ULDVG', 'ULDUB', 'ULDFR',
-     &                   'USTAR',
-     &                   'USHLD', 'USHGR', 'USPBA', 'UCROP',
-     &                   'ASO4J', 'ANO3J', 'ACLJ', 'ANH4J',
-     &                   'ANAJ', 'ACAJ', 'AMGJ', 'AKJ',
-     &                   'APOCJ', 'APNCOMJ', 'AECJ',
-     &                   'AFEJ', 'AALJ', 'ASIJ', 'ATIJ', 'AMNJ',
-     &                   'AH2OJ', 'AOTHRJ',
-     &                   'ASO4K', 'ANO3K', 'ACLK', 'ASOIL',
-     &                   'ANUMJ', 'ANUMK', 'ASRFJ', 'ASRFK' /)
-!    &                   'STDEVJ', 'STDEVK'  /)
+     &                   'QSHLD  ', 'QSHGR  ', 'QSPBA  ', 'QCROP  ',
+     &                   'ETOTL  ',
+     &                   'LSHLD  ', 'LSHGR  ', 'LSPBA  ', 'LCROP  ',
+     &                   'TLDST  ',
+     &                   'TFABV  ', 'TFINF  ',
+     &                   'FMOIT  ', 'SD_EP  ', 'KV2HZ  ', 'WTMAX  ',
+     &                   'ULDBR  ', 'ULDVG  ', 'ULDUB  ', 'ULDFR  ',
+     &                   'USTAR  ' ,
+     &                   'USHLD  ', 'USHGR  ', 'USPBA  ', 'UCROP  ',
+     &                   'ASO4J  ', 'ANO3J  ', 'ACLJ   ', 'ANH4J  ',
+     &                   'ANAJ   ', 'ACAJ   ', 'AMGJ   ', 'AKJ    ',
+     &                   'APOCJ  ', 'APNCOMJ', 'AECJ   ',
+     &                   'AFEJ   ', 'AALJ   ', 'ASIJ   ', 'ATIJ   ', 'AMNJ   ',
+     &                   'AH2OJ  ', 'AOTHRJ ',
+     &                   'ASO4K  ', 'ANO3K  ', 'ACLK   ', 'ASOIL  ',
+     &                   'ANUMJ  ', 'ANUMK  ', 'ASRFJ  ', 'ASRFK  ' /)
+!    &                   'STDEVJ ', 'STDEVK '  /)
 
 C diagnostic output from duster (in PRMTR( :,:,1:29 ):
 C  1 'QSHLD'  QAM( C,R,1 ) * 1.E6  ! g/s->ug/s   emissions for shrub landuse type
