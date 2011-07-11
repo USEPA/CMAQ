@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/tfabove.F,v 1.1 2011/04/25 15:28:08 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/tfabove.F,v 1.2 2011/07/11 13:48:29 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       subroutine tfabove ( ustar, swind, uland, tfa )
@@ -33,6 +33,7 @@ C Revison History:
 C  Shan He at RTP 2003
 C  Jun 2009 D. Tong
 C  Jan 2011 J. Young: mods for inline wind-blown dust module
+C  Jun 2011 J. Young: add reshape to vd initialization for pgf90 compiler
 C-----------------------------------------------------------------------
 
       use hgrd_defn             ! horizontal domain specifications
@@ -60,19 +61,20 @@ C Based on Slinn 1982, fugitive dust in coarse mode, Vd average from
 C PM2~PM10; 3 wind velocities: 10, 5, 1 m/s; 4 canopy characteristics:
 C water and lamda = 1.0, 3.5, 5.0
 
-      real, save :: vd( 4,3 ) = ! deposition velocity [m/s]
-     &             (/ 0.0051,   ! natural water Vd(1,1), WindSpeed = 10 m/s, 
-     &                0.0152,   ! lamda = 2.0   Vd(2,1), WindSpeed = 10 m/s, 
-     &                0.0268,   ! lamda = 3.5   Vd(3,1), WindSpeed = 10 m/s, 
-     &                0.0382,   ! lamda = 5.0   Vd(4,1), WindSpeed = 10 m/s, 
-     &                0.0018,   ! natural water Vd(1,2), WindSpeed =  5 m/s, 
-     &                0.0056,   ! lamda = 2.0   Vd(2,2), WindSpeed =  5 m/s, 
-     &                0.0099,   ! lamda = 3.5   Vd(3,2), WindSpeed =  5 m/s, 
-     &                0.0141,   ! lamda = 5.0   Vd(4,2), WindSpeed =  5 m/s, 
-     &                0.0018,   ! natural water Vd(1,3), WindSpeed =  1 m/s, 
-     &                0.0020,   ! lamda = 2.0   Vd(2,3), WindSpeed =  1 m/s, 
-     &                0.0021,   ! lamda = 3.5   Vd(3,3), WindSpeed =  1 m/s, 
-     &                0.0030 /) ! lamda = 5.0   Vd(4,3), WindSpeed =  1 m/s, 
+      real, parameter :: vd( 4,3 ) = reshape (  ! deposition velocity [m/s]
+     &            (/ 0.0051,    ! natural water Vd(1,1), WindSpeed = 10 m/s
+     &               0.0152,    ! lamda = 2.0   Vd(2,1), WindSpeed = 10 m/s
+     &               0.0268,    ! lamda = 3.5   Vd(3,1), WindSpeed = 10 m/s 
+     &               0.0382,    ! lamda = 5.0   Vd(4,1), WindSpeed = 10 m/s
+     &               0.0018,    ! natural water Vd(1,2), WindSpeed =  5 m/s
+     &               0.0056,    ! lamda = 2.0   Vd(2,2), WindSpeed =  5 m/s
+     &               0.0099,    ! lamda = 3.5   Vd(3,2), WindSpeed =  5 m/s
+     &               0.0141,    ! lamda = 5.0   Vd(4,2), WindSpeed =  5 m/s
+     &               0.0018,    ! natural water Vd(1,3), WindSpeed =  1 m/s
+     &               0.0020,    ! lamda = 2.0   Vd(2,3), WindSpeed =  1 m/s
+     &               0.0021,    ! lamda = 3.5   Vd(3,3), WindSpeed =  1 m/s
+     &               0.0030 /), ! lamda = 5.0   Vd(4,3), WindSpeed =  1 m/s
+     &           (/ 4,3 /), order = (/ 1,2 /) )
 
       character( 16 ) :: pname = 'tfabove'
  
