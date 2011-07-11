@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/tfbelow.F,v 1.1 2011/04/25 15:28:08 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/tfbelow.F,v 1.2 2011/07/11 13:45:23 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       subroutine tfbelow ( jdate, jtime, uland, tfb )
@@ -39,6 +39,7 @@ C Revison History:
 C  Jun 2009 D. Tong
 C  Jan 2011 J. Young: mods for inline wind-blown dust module
 C  Apr 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  Jul 2011 J.Young: pad vnmld for uniform string lengths
 C-----------------------------------------------------------------------
 
       use hgrd_defn           ! horizontal domain specifications
@@ -66,14 +67,14 @@ C Arguments:
       integer, parameter :: nlutyp = 20   ! number of landuse types
 
       character( 16 ) :: vnmld( nlutyp ) =
-     &         (/ 'USGS_urban',       'USGS_drycrop',    'USGS_irrcrop',
-     &            'USGS_cropgrass',   'USGS_cropwdlnd',  'USGS_grassland', 
-     &            'USGS_shrubland',   'USGS_shrubgrass', 'USGS_savanna', 
-     &            'USGS_decidforest', 'USGS_evbrdleaf',  'USGS_coniferfor',
-     &            'USGS_mxforest',    'USGS_water',      'USGS_wetwoods',
-     &            'USGS_sprsbarren',  'USGS_woodtundr',  'USGS_mxtundra',
-!    &            'USGS_snowice',     'AGRICULTURE',     'FOREST' /)
-     &            'USGS_snowice',     'FOREST' /)
+     &         (/ 'USGS_urban      ', 'USGS_drycrop    ', 'USGS_irrcrop    ',
+     &            'USGS_cropgrass  ', 'USGS_cropwdlnd  ', 'USGS_grassland  ', 
+     &            'USGS_shrubland  ', 'USGS_shrubgrass ', 'USGS_savanna    ', 
+     &            'USGS_decidforest', 'USGS_evbrdleaf  ', 'USGS_coniferfor ',
+     &            'USGS_mxforest   ', 'USGS_water      ', 'USGS_wetwoods   ',
+     &            'USGS_sprsbarren ', 'USGS_woodtundr  ', 'USGS_mxtundra   ',
+!    &            'USGS_snowice    ', 'AGRICULTURE     ', 'FOREST          ' /)
+     &            'USGS_snowice    ', 'FOREST          ' /)
 
       real   :: lut( ncols,nrows,nlutyp ) ! landuse type fraction
 
