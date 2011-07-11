@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.7 2011/04/26 16:19:43 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.8 2011/07/11 13:02:25 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -29,6 +29,7 @@ C SH  04/04/11 Added sea-salt speciation factors
 C GS  04/09/11 Updated sea-salt speciation; replaced ANAK with ASEACAT;
 C              made MG, K, CA, SEACAT required species;
 C JY  04/21/11 Added optional log messages (verbose)
+C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C----------------------------------------------------------------------
 
       Implicit None
@@ -122,49 +123,50 @@ C                  --------- --------- ---------   ---------- -------  +  +  +  
      & spcs_type((/'       ','       ','ASEACAT'/),conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE',' '     ,(/0.000,0.000,1.000/))/)
 
 C Sea-Salt Speciation factors
-      Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = (/
-C        Aitken    Accum   Coarse
-C       -------  -------  -------
-     &   0.0,     0.0776,  0.0776,      ! ASO4
-     &   0.0,     0.0,     0.0,         ! ANO3
-     &   0.0,     0.5538,  0.5538,      ! ACL
-     &   0.0,     0.0,     0.0,         ! ANH4
-     &   0.0,     0.3086,  0.0,         ! ANA
-     &   0.0,     0.0368,  0.0,         ! AMG
-     &   0.0,     0.0114,  0.0,         ! AK
-     &   0.0,     0.0118,  0.0,         ! ACA
-     &   0.0,     0.0,     0.0,         ! APOC
-     &   0.0,     0.0,     0.0,         ! APNCOM
-     &   0.0,     0.0,     0.0,         ! AEC
-     &   0.0,     0.0,     0.0,         ! AFE
-     &   0.0,     0.0,     0.0,         ! AAL
-     &   0.0,     0.0,     0.0,         ! ASI
-     &   0.0,     0.0,     0.0,         ! ATI
-     &   0.0,     0.0,     0.0,         ! AMN
-     &   0.0,     0.0,     0.0,         ! AH2O
-     &   0.0,     0.0,     0.0,         ! AOTHR
-     &   0.0,     0.0,     0.0,         ! AALK
-     &   0.0,     0.0,     0.0,         ! AXYL1
-     &   0.0,     0.0,     0.0,         ! AXYL2
-     &   0.0,     0.0,     0.0,         ! AXYL3
-     &   0.0,     0.0,     0.0,         ! ATOL1
-     &   0.0,     0.0,     0.0,         ! ATOL2
-     &   0.0,     0.0,     0.0,         ! ATOL3
-     &   0.0,     0.0,     0.0,         ! ABNZ1
-     &   0.0,     0.0,     0.0,         ! ABNZ2
-     &   0.0,     0.0,     0.0,         ! ABNZ3
-     &   0.0,     0.0,     0.0,         ! ATRP1
-     &   0.0,     0.0,     0.0,         ! ATRP2
-     &   0.0,     0.0,     0.0,         ! AISO1
-     &   0.0,     0.0,     0.0,         ! AISO2
-     &   0.0,     0.0,     0.0,         ! AISO3
-     &   0.0,     0.0,     0.0,         ! ASQT
-     &   0.0,     0.0,     0.0,         ! AOLGA
-     &   0.0,     0.0,     0.0,         ! AOLGB
-     &   0.0,     0.0,     0.0,         ! AORGC
-     &   0.0,     0.0,     0.0,         ! ASOIL
-     &   0.0,     0.0,     0.0,         ! ACORS
-     &   0.0,     0.0,     0.3686 /)    ! ASEACAT
+      Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
+C            Aitken    Accum   Coarse
+C           -------  -------  -------
+     &   (/  0.0,     0.0776,  0.0776,      ! ASO4
+     &       0.0,     0.0,     0.0,         ! ANO3
+     &       0.0,     0.5538,  0.5538,      ! ACL
+     &       0.0,     0.0,     0.0,         ! ANH4
+     &       0.0,     0.3086,  0.0,         ! ANA
+     &       0.0,     0.0368,  0.0,         ! AMG
+     &       0.0,     0.0114,  0.0,         ! AK
+     &       0.0,     0.0118,  0.0,         ! ACA
+     &       0.0,     0.0,     0.0,         ! APOC
+     &       0.0,     0.0,     0.0,         ! APNCOM
+     &       0.0,     0.0,     0.0,         ! AEC
+     &       0.0,     0.0,     0.0,         ! AFE
+     &       0.0,     0.0,     0.0,         ! AAL
+     &       0.0,     0.0,     0.0,         ! ASI
+     &       0.0,     0.0,     0.0,         ! ATI
+     &       0.0,     0.0,     0.0,         ! AMN
+     &       0.0,     0.0,     0.0,         ! AH2O
+     &       0.0,     0.0,     0.0,         ! AOTHR
+     &       0.0,     0.0,     0.0,         ! AALK
+     &       0.0,     0.0,     0.0,         ! AXYL1
+     &       0.0,     0.0,     0.0,         ! AXYL2
+     &       0.0,     0.0,     0.0,         ! AXYL3
+     &       0.0,     0.0,     0.0,         ! ATOL1
+     &       0.0,     0.0,     0.0,         ! ATOL2
+     &       0.0,     0.0,     0.0,         ! ATOL3
+     &       0.0,     0.0,     0.0,         ! ABNZ1
+     &       0.0,     0.0,     0.0,         ! ABNZ2
+     &       0.0,     0.0,     0.0,         ! ABNZ3
+     &       0.0,     0.0,     0.0,         ! ATRP1
+     &       0.0,     0.0,     0.0,         ! ATRP2
+     &       0.0,     0.0,     0.0,         ! AISO1
+     &       0.0,     0.0,     0.0,         ! AISO2
+     &       0.0,     0.0,     0.0,         ! AISO3
+     &       0.0,     0.0,     0.0,         ! ASQT
+     &       0.0,     0.0,     0.0,         ! AOLGA
+     &       0.0,     0.0,     0.0,         ! AOLGB
+     &       0.0,     0.0,     0.0,         ! AORGC
+     &       0.0,     0.0,     0.0,         ! ASOIL
+     &       0.0,     0.0,     0.0,         ! ACORS
+     &       0.0,     0.0,     0.3686 /),   ! ASEACAT
+     &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 C Required species
       Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'  
@@ -533,7 +535,6 @@ C Arguments:
       Logical, Intent( In ) :: minchk
 
 C Local Variables:
-      Character( 80 ) :: xmsg
       Integer m, n, spc 
 
       If ( .Not. mapped ) Then
