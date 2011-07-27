@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdata_mod.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdata_mod.F,v 1.2 2011/07/27 20:01:48 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -169,8 +169,6 @@ c..indices for decomposition
 
       CONTAINS
          FUNCTION CELLVAR_ALLOC () RESULT ( SUCCESS )
-
-         INCLUDE SUBST_IODECL      ! I/O definitions and declarations
 
          LOGICAL :: SUCCESS
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
