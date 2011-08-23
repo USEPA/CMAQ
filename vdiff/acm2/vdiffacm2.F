@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.4 2011/04/19 18:33:30 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.5 2011/08/23 16:52:42 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -51,6 +51,11 @@ C    Mar 08 G.Sarwar: added heterogeneous reaction for HONO. It affects HONO, NO
 C    Apr 08 J.Young: optional inline beis and plume rise emissions
 C 21 Jun 10 J.Young: convert for Namelist redesign
 C 16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C 15 Aug 11 D. Schwede and G. Sarwar: Modified HONO calculation so that
+C              deposition velocity for NO2 that is output in DEPV file 
+C              does not include the loss due to the heterogeneous reaction.
+C              This additional loss is now accounted for in vdiff.F
+
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -574,12 +579,18 @@ C HNO3 is accounted as depositional loss; calculate increased deposition loss
 
 C For NO2, use special treatment
                ELSE IF ( V .EQ. NO2_HIT ) THEN
+
+C Loss of NO2 via the heterogeneous reaction is accounted for as an additional
+C depositional loss. Add the loss of NO2 via the heterogeneous reaction
+C to the regular deposition velocity (increased dep. vel.).  This will
+C reduce the NO2 conc. in the atmosphere without affecting the depositional loss.
+
+                  DEPV_NO2 = DEPVCR( V ) + 2.0 * PLDV_HONO / CONC_NO2
+                  EFAC1 ( V ) = EXP( -DEPV_NO2 * RDEPVHT( C,R ) * THBAR * DTS )
+                  EFAC2 ( V ) = EXP( -DEPV_NO2 * RDEPVHT( C,R ) * THETA * DTS )
+                  POL   ( V ) = PLDV( V,C,R ) / DEPV_NO2
                   CONC( NO2_MAP,1 ) = POL( V ) + ( CONC( NO2_MAP,1 ) - POL( V ) )
      &                              * EFAC1( V )
-
-C NO2 will be lost via the heterogeneous reaction without affecting the depositional loss
-                  DEPV_NO2 = DEPVCR( V ) - 2.0 * PLDV_HONO / CONC_NO2
-                  DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( NO2_MAP,1 )
 
 C --------- END of HET HONO RX ----------

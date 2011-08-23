@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.3 2011/04/05 14:34:34 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.4 2011/08/23 16:53:57 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
@@ -103,6 +103,10 @@ C                        greater than zero to be considered a land point.  This
 C                        works around intermittent inconsistencies in surface
 C                        fields in some WRF data sets.  (T. Otte)
 C           16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C           15 Aug 2011  Modified HONO calculation so that deposition velocity for NO2
+C                        that is output in DEPV file does not include the loss due to
+C                        the heterogeneous reaction. This additional loss is now
+C                        accounted for in vdiff.F (D. Schwede and G. Sarwar)
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
@@ -1138,12 +1142,10 @@ C Determine NO2 concentration needed for HONO production term.
 
 C Loss of NO2 via the heterogeneous reaction is accounted as additional
 C depositional loss. Add the loss of NO2 via the heterogeneous reaction
-C to the regular deposition velocity (increased dep. vel.).  This will
-C reduce the NO2 conc. in the atmosphere. Dep vel is adjusted back to the
-C original value in vdiffacm2 after NO2 conc is reduced but before calculating
-C depositional loss.
+C to the regular deposition velocity (increased dep. vel.) in vdiff.  This will
+C reduce the NO2 conc. in the atmosphere. 
 
-                     depvel_gas( n,c,r ) = depvel_gas( n,c,r ) + 2.0 * kno2 * zf( c,r )
+!                     depvel_gas( n,c,r ) = depvel_gas( n,c,r ) + 2.0 * kno2 * zf( c,r )
 
                   END IF
 
