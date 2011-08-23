@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.4 2011/08/23 16:53:57 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.5 2011/08/23 17:51:41 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
@@ -103,6 +103,8 @@ C                        greater than zero to be considered a land point.  This
 C                        works around intermittent inconsistencies in surface
 C                        fields in some WRF data sets.  (T. Otte)
 C           16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C           27 Jul 2011 J.Bash: Parmaterized the mesophyll resistance as a function
+C                        of solubility following Wesely 1989 Atmos Environ.
 C           15 Aug 2011  Modified HONO calculation so that deposition velocity for NO2
 C                        that is output in DEPV file does not include the loss due to
 C                        the heterogeneous reaction. This additional loss is now
@@ -153,8 +155,10 @@ C Local Variables:
       INTEGER                    :: gyoff                ! global origin offset from file
       REAL                       :: hcan
       REAL                       :: heff                 ! effective Henry's Law constant
+      REAL                       :: heff_ap              ! Henry's Law constant for leaf apoplast M/atm
       REAL,            EXTERNAL  :: hlconst              ! [M / atm]
       REAL                       :: hplus
+      REAL,            PARAMETER :: hplus_ap   = 1.0e-6  ! pH=6.0 leaf apoplast solution Ph (Massad et al 2008)
       REAL,            PARAMETER :: hplus_def  = 1.0e-5  ! pH=5.0
       REAL,            PARAMETER :: hplus_east = 1.0e-5  ! pH=5.0
       REAL,            PARAMETER :: hplus_h2o  = 7.94328e-9 ! 10.0**(-8.1)
@@ -246,7 +250,9 @@ C Local Variables:
 
       REAL                       :: ar       ( ltotg )        ! reactivity relative to HNO3
       REAL                       :: dif0     ( ltotg )        ! molecular diffusivity [cm2/s]
-      REAL                       :: meso     ( ltotg )        ! mesophyll resistance [s/m]
+      REAL                       :: meso     ( ltotg )        ! Exception for species that 
+                                                              ! react with cell walls. fo in 
+                                                              ! Wesely 1989 eq 6.
       REAL                       :: mlwt     ( ltotg )        ! molecular weight
       REAL, SAVE                 :: scc_pr_23( ltotg )        ! (SCC/PR)**2/3, fn of DIF0
       CHARACTER( 16 )            :: subname  ( ltotg )        ! for subroutine HLCONST
@@ -413,20 +419,20 @@ C-------------------------------------------------------------------------------
 
       DATA subname( 1), dif0( 1), ar( 1), meso( 1), mlwt( 1) / 'SO2             ', 0.1089,   10.0,      0.0,   64.0/
       DATA subname( 2), dif0( 2), ar( 2), meso( 2), mlwt( 2) / 'SULFATE         ', 0.0001,    0.0,      0.0,   96.0/
-      DATA subname( 3), dif0( 3), ar( 3), meso( 3), mlwt( 3) / 'NO2             ', 0.1361,    2.0,    500.0,   46.0/
-      DATA subname( 4), dif0( 4), ar( 4), meso( 4), mlwt( 4) / 'NO              ', 0.1802,    2.0,   9400.0,   30.0/
-      DATA subname( 5), dif0( 5), ar( 5), meso( 5), mlwt( 5) / 'O3              ', 0.1444,    8.0,      0.0,   48.0/
+      DATA subname( 3), dif0( 3), ar( 3), meso( 3), mlwt( 3) / 'NO2             ', 0.1361,    2.0,      0.1,   46.0/
+      DATA subname( 4), dif0( 4), ar( 4), meso( 4), mlwt( 4) / 'NO              ', 0.1802,    2.0,      0.0,   30.0/
+      DATA subname( 5), dif0( 5), ar( 5), meso( 5), mlwt( 5) / 'O3              ', 0.1444,    8.0,      1.0,   48.0/
       DATA subname( 6), dif0( 6), ar( 6), meso( 6), mlwt( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,   63.0/
-      DATA subname( 7), dif0( 7), ar( 7), meso( 7), mlwt( 7) / 'H2O2            ', 0.1300,   30.0,      0.0,   34.0/
+      DATA subname( 7), dif0( 7), ar( 7), meso( 7), mlwt( 7) / 'H2O2            ', 0.1300,   30.0,      1.0,   34.0/
       DATA subname( 8), dif0( 8), ar( 8), meso( 8), mlwt( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,   44.0/
       DATA subname( 9), dif0( 9), ar( 9), meso( 9), mlwt( 9) / 'FORMALDEHYDE    ', 0.1554,   10.0,      0.0,   30.0/
-      DATA subname(10), dif0(10), ar(10), meso(10), mlwt(10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.0,   48.0/
-      DATA subname(11), dif0(11), ar(11), meso(11), mlwt(11) / 'PEROXYACETIC_ACI', 0.0868,   20.0,      0.0,   76.0/
+      DATA subname(10), dif0(10), ar(10), meso(10), mlwt(10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.1,   48.0/
+      DATA subname(11), dif0(11), ar(11), meso(11), mlwt(11) / 'PEROXYACETIC_ACI', 0.0868,   20.0,      0.1,   76.0/
       DATA subname(12), dif0(12), ar(12), meso(12), mlwt(12) / 'ACETIC_ACID     ', 0.0944,   20.0,      0.0,   60.0/
       DATA subname(13), dif0(13), ar(13), meso(13), mlwt(13) / 'NH3             ', 0.1978,   20.0,      0.0,   17.0/
-      DATA subname(14), dif0(14), ar(14), meso(14), mlwt(14) / 'PAN             ', 0.0687,   16.0,      0.0,  121.0/
-      DATA subname(15), dif0(15), ar(15), meso(15), mlwt(15) / 'HNO2            ', 0.1349,   20.0,      0.0,   47.0/
-      DATA subname(16), dif0(16), ar(16), meso(16), mlwt(16) / 'CO              ', 0.1807,    5.0, 100000.0,   28.0/
+      DATA subname(14), dif0(14), ar(14), meso(14), mlwt(14) / 'PAN             ', 0.0687,   16.0,      0.1,  121.0/
+      DATA subname(15), dif0(15), ar(15), meso(15), mlwt(15) / 'HNO2            ', 0.1349,   20.0,      0.1,   47.0/
+      DATA subname(16), dif0(16), ar(16), meso(16), mlwt(16) / 'CO              ', 0.1807,    5.0,      0.0,   28.0/
       DATA subname(17), dif0(17), ar(17), meso(17), mlwt(17) / 'METHANOL        ', 0.1329,    2.0,      0.0,   32.0/
       DATA subname(18), dif0(18), ar(18), meso(18), mlwt(18) / 'N2O5            ', 0.0808, 5000.0,      0.0,  108.0/
       DATA subname(19), dif0(19), ar(19), meso(19), mlwt(19) / 'NO3             ', 0.1153, 5000.0,      0.0,   62.0/
@@ -437,7 +443,7 @@ C-------------------------------------------------------------------------------
       DATA subname(24), dif0(24), ar(24), meso(24), mlwt(24) / 'FMCL            ', 0.1094,   10.0,      0.0,   64.0/
       DATA subname(25), dif0(25), ar(25), meso(25), mlwt(25) / 'ICL1            ', 0.0664,   10.0,      0.0,   35.0/
       DATA subname(26), dif0(26), ar(26), meso(26), mlwt(26) / 'ICL2            ', 0.0664,   10.0,      0.0,   70.0/
-      DATA subname(27), dif0(27), ar(27), meso(27), mlwt(27) / 'HG              ', 0.1194,    0.1,   5000.0,  200.6/
+      DATA subname(27), dif0(27), ar(27), meso(27), mlwt(27) / 'HG              ', 0.1194,    0.1,      0.0,  200.6/
       DATA subname(28), dif0(28), ar(28), meso(28), mlwt(28) / 'HGIIGAS         ', 0.0976, 8000.0,      0.0,  270.6/
       DATA subname(29), dif0(29), ar(29), meso(29), mlwt(29) / 'TECDD_2378      ', 0.0525,    2.0,      0.0,  320.0/
       DATA subname(30), dif0(30), ar(30), meso(30), mlwt(30) / 'PECDD_12378     ', 0.0508,    2.0,      0.0,  354.0/
@@ -1013,7 +1019,10 @@ C-------------------------------------------------------------------------------
 
          ! Bulk stomatal resistance; include mesophyll resistance.
 
-                  rstom = rs( c,r ) * dwat / dif0( l ) + meso( l ) / laicr
+                  heff_ap = hlconst( subname( l ), temp2p0cr, effective, hplus_ap )
+
+                  rstom   = rs( c,r ) * dwat / dif0( l ) + 1/(heff_ap/3000+100*meso( l )) 
+     &                      / laicr
 
          ! Bulk surface resistance.
 
