@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.2 2011/04/01 15:41:34 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.3 2011/08/24 18:52:47 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPVVARS
@@ -36,7 +36,7 @@ C                        UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 54
+      INTEGER, PARAMETER :: LTOTG = 52
       CHARACTER( 16 )    :: DEPV_METHOD
 
 C-----------------------------------------------------------------------
@@ -97,36 +97,34 @@ C-------------------------------------------------------------------------------
          DEPSPC( 22 ) = 'HOCL'
          DEPSPC( 23 ) = 'HCL'
          DEPSPC( 24 ) = 'FMCL'
-         DEPSPC( 25 ) = 'ICL1'
-         DEPSPC( 26 ) = 'ICL2'
-         DEPSPC( 27 ) = 'HG'
-         DEPSPC( 28 ) = 'HGIIGAS'
-         DEPSPC( 29 ) = 'TECDD_2378' 
-         DEPSPC( 30 ) = 'PECDD_12378'
-         DEPSPC( 31 ) = 'HXCDD_123478' 
-         DEPSPC( 32 ) = 'HXCDD_123678'  
-         DEPSPC( 33 ) = 'HXCDD_123789'  
-         DEPSPC( 34 ) = 'HPCDD_1234678'  
-         DEPSPC( 35 ) = 'OTCDD'  
-         DEPSPC( 36 ) = 'TECDF_2378'  
-         DEPSPC( 37 ) = 'PECDF_12378'  
-         DEPSPC( 38 ) = 'PECDF_23478'  
-         DEPSPC( 39 ) = 'HXCDF_123478'  
-         DEPSPC( 40 ) = 'HXCDF_123678'  
-         DEPSPC( 41 ) = 'HXCDF_234678'  
-         DEPSPC( 42 ) = 'HXCDF_123789'  
-         DEPSPC( 43 ) = 'HPCDF_1234678'  
-         DEPSPC( 44 ) = 'HPCDF_1234789'  
-         DEPSPC( 45 ) = 'OTCDF'  
-         DEPSPC( 46 ) = 'NAPHTHALENE'  
-         DEPSPC( 47 ) = '1NITRONAPHTHA'  
-         DEPSPC( 48 ) = '2NITRONAPHTHA'  
-         DEPSPC( 49 ) = '14NAPHTHOQUIN'  
-         DEPSPC( 50 ) = 'HEXMETH_DIIS'
-         DEPSPC( 51 ) = 'HYDRAZINE'
-         DEPSPC( 52 ) = 'MAL_ANHYDRIDE'
-         DEPSPC( 53 ) = 'TOLUENE_DIIS'
-         DEPSPC( 54 ) = 'TRIETHYLAMINE'
+         DEPSPC( 25 ) = 'HG'
+         DEPSPC( 26 ) = 'HGIIGAS'
+         DEPSPC( 27 ) = 'TECDD_2378' 
+         DEPSPC( 28 ) = 'PECDD_12378'
+         DEPSPC( 29 ) = 'HXCDD_123478' 
+         DEPSPC( 30 ) = 'HXCDD_123678'  
+         DEPSPC( 31 ) = 'HXCDD_123789'  
+         DEPSPC( 32 ) = 'HPCDD_1234678'  
+         DEPSPC( 33 ) = 'OTCDD'  
+         DEPSPC( 34 ) = 'TECDF_2378'  
+         DEPSPC( 35 ) = 'PECDF_12378'  
+         DEPSPC( 36 ) = 'PECDF_23478'  
+         DEPSPC( 37 ) = 'HXCDF_123478'  
+         DEPSPC( 38 ) = 'HXCDF_123678'  
+         DEPSPC( 39 ) = 'HXCDF_234678'  
+         DEPSPC( 40 ) = 'HXCDF_123789'  
+         DEPSPC( 41 ) = 'HPCDF_1234678'  
+         DEPSPC( 42 ) = 'HPCDF_1234789'  
+         DEPSPC( 43 ) = 'OTCDF'  
+         DEPSPC( 44 ) = 'NAPHTHALENE'  
+         DEPSPC( 45 ) = '1NITRONAPHTHA'  
+         DEPSPC( 46 ) = '2NITRONAPHTHA'  
+         DEPSPC( 47 ) = '14NAPHTHOQUIN'  
+         DEPSPC( 48 ) = 'HEXMETH_DIIS'
+         DEPSPC( 49 ) = 'HYDRAZINE'
+         DEPSPC( 50 ) = 'MAL_ANHYDRIDE'
+         DEPSPC( 51 ) = 'TOLUENE_DIIS'
+         DEPSPC( 52 ) = 'TRIETHYLAMINE'
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
