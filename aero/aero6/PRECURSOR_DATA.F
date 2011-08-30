@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.6 2011/04/26 16:18:41 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/PRECURSOR_DATA.F,v 1.7 2011/08/30 13:19:06 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
@@ -23,11 +23,14 @@ C    -added "update" column to precursor array to note which species
 C     concentrations will be affected by aerosol routines
 C    -added req_OH and OH_idx variables
 C    -changed precursor_conc to Real(8)
+
+C H.Pye 05/22/11: added ALK5RXN to precursor list for SAPRC mechanisms
+C
 C-----------------------------------------------------------------------
 
       Implicit None
 
-      Integer, Parameter :: n_precursor = 18   ! # of precursors
+      Integer, Parameter :: n_precursor = 19   ! # of precursors
 
       Type precursor_type
          Character( 16 ) :: name               ! species name
@@ -48,6 +51,7 @@ C                    ----------   ----------  ------
      & precursor_type( 'SULF    ', .False. , .True.  ),
      & precursor_type( 'SULPRD  ', .True.  , .True.  ),
      & precursor_type( 'HCL     ', .False. , .True.  ),
+     & precursor_type( 'ALK5RXN ', .True.  , .True.  ),
      & precursor_type( 'TOLNRXN ', .True.  , .True.  ),
      & precursor_type( 'TOLHRXN ', .True.  , .True.  ),
      & precursor_type( 'XYLNRXN ', .True.  , .True.  ),
@@ -139,7 +143,8 @@ C Build mapping to CGRID for each precursor species
             Else
                xmsg = 'Species ' // Trim( precursor( spc )%name ) //
      &               ' in precursor name is not in GC_G2AE or NR_N2AE tables'
-               Call m3exit( 'xtract_precursor', 0, 0, xmsg, xstat3 )
+!              Call m3exit( 'xtract_precursor', 0, 0, xmsg, xstat3 )
+               Call m3warn( 'xtract_precursor', 0, 0, xmsg )
             End If
          End If
       End Do
