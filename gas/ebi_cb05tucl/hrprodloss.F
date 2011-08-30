@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrprodloss.F,v 1.1 2011/03/17 19:14:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrprodloss.F,v 1.2 2011/08/30 18:25:37 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -463,7 +463,7 @@ C***********************************************************************
       LOSS( TO2     ) =           RXRAT( 129 )      ! TO2+NO=0.86*NO2+1.2*HO2+...
      &                 +          RXRAT( 130 )      ! TO2+HO2=
 
-      PROD( TOLRO2  ) =   0.765 * RXRAT( 128 )      ! TOL+OH=0.765*TOLRO2+...
+      PROD( TOLRO2  ) =           RXRAT( 128 )      ! TOL+OH=TOLRO2+0.1*XO2+...
       LOSS( TOLRO2  ) =           RXRAT( 196 )      ! TOLRO2+NO=NO+TOLNRXN
      &                 +          RXRAT( 197 )      ! TOLRO2+HO2=HO2+TOLHRXN
 
@@ -535,7 +535,7 @@ C***********************************************************************
       LOSS( XYL     ) =           RXRAT( 154 )      ! XYL+OH=0.7*HO2+0.5*XO2+...
      &                 +          RXRAT( 195 )      ! XYL+CL=HCL+XO2+HO2
 
-      PROD( XYLRO2  ) =   0.804 * RXRAT( 154 )      ! OH+XYL=0.804*XYLRO2+...
+      PROD( XYLRO2  ) =           RXRAT( 154 )      ! OH+XYL=XYLRO2+0.5*XO2+...
       LOSS( XYLRO2  ) =           RXRAT( 198 )      ! XYLRO2+NO=NO+XYLNRXN
      &                 +          RXRAT( 199 )      ! XYLRO2+HO2=HO2+XYLHRXN
 
@@ -658,9 +658,9 @@ C***********************************************************************
       LOSS( XYLHRXN ) =   0.0
 
       PROD( BENZENE ) =   0.0
-      LOSS( BENZENE ) =           RXRAT( 200 )      ! BENZENE+OH=OH+0.764*BENZRO2
+      LOSS( BENZENE ) =           RXRAT( 200 )      ! BENZENE+OH=OH+BENZRO2
 
-      PROD( BENZRO2 ) =   0.764 * RXRAT( 200 )      ! BENZENE+OH=0.764*BENZRO2+OH
+      PROD( BENZRO2 ) =           RXRAT( 200 )      ! BENZENE+OH=BENZRO2+OH
       LOSS( BENZRO2 ) =           RXRAT( 201 )      ! BENZRO2+NO=NO+BNZNRXN
      &                 +          RXRAT( 202 )      ! BENZRO2+HO2=HO2+BNZHRXN
 
