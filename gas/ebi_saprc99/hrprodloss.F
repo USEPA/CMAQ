@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc99/hrprodloss.F,v 1.1 2011/04/05 20:27:42 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc99/hrprodloss.F,v 1.2 2011/08/30 20:00:36 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -836,7 +836,7 @@ C***********************************************************************
       PROD( ARO1     ) =   0.0
       LOSS( ARO1     ) =           RXRAT( 202 )      ! ARO1+HO=0.224*HO2+...
 
-      PROD( ARO1RO2  ) =   0.765 * RXRAT( 202 )      ! ARO1+HO=0.765*ARO1RO2+...
+      PROD( ARO1RO2  ) =           RXRAT( 202 )      ! ARO1+HO=ARO1RO2+...
       LOSS( ARO1RO2  ) =           RXRAT( 203 )      ! ARO1RO2+NO=NO+TOLNRXN
      &                  +          RXRAT( 204 )      ! ARO1RO2+HO2=HO2+TOLHRXN
 
@@ -849,7 +849,7 @@ C***********************************************************************
       PROD( ARO2     ) =   0.0
       LOSS( ARO2     ) =           RXRAT( 205 )      ! ARO2+HO=0.187*HO2+...
 
-      PROD( ARO2RO2  ) =   0.804 * RXRAT( 205 )      ! ARO2+HO=0.804*ARO2RO2+...
+      PROD( ARO2RO2  ) =           RXRAT( 205 )      ! ARO2+HO=ARO2RO2+...
       LOSS( ARO2RO2  ) =           RXRAT( 206 )      ! ARO2RO2+NO=NO+XYLNRXN
      &                  +          RXRAT( 207 )      ! ARO2RO2+HO2=HO2+XYLHRXN
 
@@ -862,7 +862,7 @@ C***********************************************************************
       PROD( BENZENE  ) =   0.0
       LOSS( BENZENE  ) =           RXRAT( 208 )      ! BENZENE+HO=0.236*HO2+...
 
-      PROD( BENZRO2  ) =   0.764 * RXRAT( 208 )      ! BENZENE+HO=0.764*BENZRO2+...
+      PROD( BENZRO2  ) =           RXRAT( 208 )      ! BENZENE+HO=BENZRO2+...
       LOSS( BENZRO2  ) =           RXRAT( 209 )      ! BENZRO2+NO=NO+BNZNRXN
      &                  +          RXRAT( 210 )      ! BENZRO2+HO2=HO2+BNZHRXN
 
