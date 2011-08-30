@@ -1,5 +1,5 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/saprc07tb_ae5_aq/GC_saprc07tb_ae5_aq.nml,v 1.1 2011/04/06 16:33:29 sjr Exp $
+! $Header: /project/yoj/arc/MECHS/src/saprc07tb_ae5_aq/GC_saprc07tb_ae5_aq.nml,v 1.2 2011/08/30 13:29:32 sjr Exp $
 
 &GC_nml
  
@@ -128,7 +128,7 @@ TYPE_MATRIX =
 'ALK3:58.6:ALK3:1.0:::::BUTANE:1.0:::Yes::Yes:Yes',
 'ALK4:77.6:ALK4:1.0:::::BUTANE:1.0:::Yes::Yes:Yes',
 'ALK5:118.9:ALK5:1.0:::::DECANE:1.0:::Yes::Yes:Yes',
-'ALK5RXN:118.9:::::::::ALKRXN:::::',
+'ALK5RXN:118.9:::::::::ALK5RXN:::::',
 'OLE1:72.3:OLE1:1.0:::::ETHENE:1.0:::Yes::Yes:Yes',
 'OLE2:75.8:OLE2:1.0:::::ETHENE:1.0:::Yes::Yes:Yes',
 'ARO1:95.2:ARO1:1.0:::::TOLUENE:1.0:::Yes::Yes:Yes',
