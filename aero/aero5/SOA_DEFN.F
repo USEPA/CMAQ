@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.5 2011/04/01 15:41:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.6 2011/08/30 13:50:33 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
@@ -19,6 +19,8 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 values
+C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction counters
+C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -40,12 +42,12 @@ C-----------------------------------------------------------------------
 C                    Name      Alpha    CStar     Enth    SOA Name    Origin   Decay   Drog Name
 C                 ----------  -------  --------  -------  ----------  ------  -------  -----------
      & vapor_type('SV_ALK  ',  0.0718,   0.0200,  40.0E3, 'AALKJ   ',    'A',     8.0, 'ALK5RXN  '),
-     & vapor_type('SV_XYL1 ',  0.0386,   1.3140,  32.0E3, 'AXYL1J  ',    'A',     8.0, 'XYLNRXN  '),
-     & vapor_type('SV_XYL2 ',  0.1119,  34.4830,  32.0E3, 'AXYL2J  ',    'A',     8.0, 'XYLNRXN  '),
-     & vapor_type('SV_TOL1 ',  0.0758,   2.3260,  18.0E3, 'ATOL1J  ',    'A',     7.0, 'TOLNRXN  '),
-     & vapor_type('SV_TOL2 ',  0.1477,  21.2770,  18.0E3, 'ATOL2J  ',    'A',     7.0, 'TOLNRXN  '),
-     & vapor_type('SV_BNZ1 ',  0.0942,   0.3020,  18.0E3, 'ABNZ1J  ',    'A',     6.0, 'BNZNRXN  '),
-     & vapor_type('SV_BNZ2 ',  1.1620, 111.1100,  18.0E3, 'ABNZ2J  ',    'A',     6.0, 'BNZNRXN  '),
+     & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J  ',    'A',     8.0, 'XYLNRXN  '),
+     & vapor_type('SV_XYL2 ',  0.0900,  34.4830,  32.0E3, 'AXYL2J  ',    'A',     8.0, 'XYLNRXN  '),
+     & vapor_type('SV_TOL1 ',  0.0580,   2.3260,  18.0E3, 'ATOL1J  ',    'A',     7.0, 'TOLNRXN  '),
+     & vapor_type('SV_TOL2 ',  0.1130,  21.2770,  18.0E3, 'ATOL2J  ',    'A',     7.0, 'TOLNRXN  '),
+     & vapor_type('SV_BNZ1 ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J  ',    'A',     6.0, 'BNZNRXN  '),
+     & vapor_type('SV_BNZ2 ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J  ',    'A',     6.0, 'BNZNRXN  '),
      & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J  ',    'B',    10.0, 'TRPRXN   '),
      & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J  ',    'B',    10.0, 'TRPRXN   '),
      & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J  ',    'B',     5.0, 'ISOPRXN  '),
@@ -93,11 +95,11 @@ C                       Name      Parent     Aerospc    AlphaH
 C                    ----------  ---------  ---------  --------
      & orgprod_type( 'ALK5RXN', 'ALK5RXN',  ' ',        0.000 ),
      & orgprod_type( 'XYLNRXN', 'XYL',      ' ',        0.000 ),
-     & orgprod_type( 'XYLHRXN', 'XYL',      'AXYL3J',   0.373 ),
+     & orgprod_type( 'XYLHRXN', 'XYL',      'AXYL3J',   0.300 ),
      & orgprod_type( 'TOLNRXN', 'TOL',      ' ',        0.000 ),
-     & orgprod_type( 'TOLHRXN', 'TOL',      'ATOL3J',   0.471 ),
+     & orgprod_type( 'TOLHRXN', 'TOL',      'ATOL3J',   0.360 ),
      & orgprod_type( 'BNZNRXN', 'BENZENE',  ' ',        0.000 ),
-     & orgprod_type( 'BNZHRXN', 'BENZENE',  'ABNZ3J',   0.484 ),
+     & orgprod_type( 'BNZHRXN', 'BENZENE',  'ABNZ3J',   0.370 ),
      & orgprod_type( 'TRPRXN',  'TRPRXN',   ' ',        0.000 ),
      & orgprod_type( 'ISOPRXN', 'ISOPRXN',  ' ',        0.000 ),
      & orgprod_type( 'SESQRXN', 'SESQRXN',  ' ',        0.000 ) /)
