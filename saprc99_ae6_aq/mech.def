@@ -1,6 +1,6 @@
 
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/saprc99_ae6_aq/mech.def,v 1.1 2011/04/06 16:51:11 sjr Exp $ 
+! $Header: /project/yoj/arc/MECHS/src/saprc99_ae6_aq/mech.def,v 1.2 2011/08/30 20:19:15 sjr Exp $ 
 
 ! what(1) key, module and SID; SCCS file; date and time of last delta:
 ! %W% %P% %G% %U%
@@ -43,6 +43,9 @@
 !  Added two reactions for ARO2RO2 (AR2N and AR2H), added XYLNRXN, XYLHRXN - counter species for aerosol from ARO2
 !  Added two reactions for BENZRO2 (BNZN and BNZH), added BNZNRXN, BNZHRXN - counter species for aerosol from BENZENE
 !  Added three reactions for SESQ from sesquiterpene (SSO3,SSOH, SSN3), added SESQRXN - counter species for aerosol from SESQ
+
+! B.Hutzell 07/22/11
+! Set product cofficients for BENZRO2, ARO1RO2 and ARO2RO2
 
 SAPRC99_AE6_AQ
 
@@ -297,16 +300,16 @@ REACTIONS[CM] =
          ALK5RXN # 1.11e-11@52;
 <b1OH> ARO1 + HO = 0.224*HO2 + 0.765*RO2_R + 0.011*RO2_N + 0.055*PROD2 +
          0.118*GLY + 0.119*MGLY + 0.017*PHEN + 0.207*CRES + 0.059*BALD +
-         0.491*DCB1 + 0.108*DCB2 + 0.051*DCB3 + 0.765*ARO1RO2 # 1.81e-12@-355;
+         0.491*DCB1 + 0.108*DCB2 + 0.051*DCB3 + 1.0*ARO1RO2 # 1.81e-12@-355;
 <AR1N> ARO1RO2 + NO  = NO  + TOLNRXN   # 2.70e-12@-360;
 <AR1H> ARO1RO2 + HO2 = HO2 + TOLHRXN   # 1.90e-13@-1300;
 <b2OH> ARO2 + HO = 0.187*HO2 + 0.804*RO2_R + 0.009*RO2_N + 0.097*GLY +
          0.287*MGLY + 0.087*BACL + 0.187*CRES + 0.05*BALD + 0.561*DCB1 +
-         0.099*DCB2 + 0.093*DCB3 + 0.804*ARO2RO2 # 2.64e-11;
+         0.099*DCB2 + 0.093*DCB3 + 1.0*ARO2RO2 # 2.64e-11;
 <AR2N> ARO2RO2 + NO  = NO  + XYLNRXN   # 2.70e-12@-360;
 <AR2H> ARO2RO2 + HO2 = HO2 + XYLHRXN   # 1.90e-13@-1300; 
 <BENZ> BENZENE + HO = 0.236*HO2 + 0.764*RO2_R + 0.207*GLY + 0.236*PHEN + 
-         0.764*DCB1 + 0.764*BENZRO2 #2.47e-12@206;   
+         0.764*DCB1 + 1.0*BENZRO2 #2.47e-12@206;   
 <BNZN> BENZRO2 + NO  = NO  + BNZNRXN   # 2.70e-12@-360;
 <BNZH> BENZRO2 + HO2 = HO2 + BNZHRXN   # 1.90e-13@-1300;
 <o1OH> OLE1 + HO = 0.91*RO2_R + 0.09*RO2_N + 0.205*R2O2 + 0.732*HCHO +
