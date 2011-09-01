@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.3 2011/04/01 15:41:37 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/wr_aconc.F,v 1.4 2011/09/01 12:44:40 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,6 +35,7 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
+C   20 Jul 11 J.Young: added option for ending time timestamp
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -61,13 +62,17 @@ C Local variables:
       INTEGER      MTIME        ! modified model time, coded HHMMSS
 
       CHARACTER( 16 ) :: PNAME = 'WR_ACONC'
+      CHARACTER( 16 ) :: ACONC_END_TIME = 'ACONC_END_TIME'
+      CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
       INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
+      LOGICAL, SAVE :: END_TIME = .FALSE.
 
       INTEGER      L, K, KD, VAR, SPC ! loop counters
+      INTEGER      STATUS
 
       INTEGER, SAVE :: A_NLYS
 
@@ -83,14 +88,32 @@ C-----------------------------------------------------------------------
 C Change output date/time to starting date/time - e.g. timestamp 1995196:090000
 C represents data computed from time 1995196:090000 to 1995196:100000
 
-      MDATE = JDATE
-      MTIME = JTIME
-      CALL NEXTIME ( MDATE, MTIME, -TSTEP )
+      IF ( FIRSTIME ) THEN
+         LOGDEV = INIT3 ()
+
+C Override default beginning time timestamp for ACONC?
+         VARDESC = 'Flag to Override default beginning time timestamp for ACONC'
+         END_TIME = ENVYN( ACONC_END_TIME, VARDESC, END_TIME, STATUS )
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         ELSE IF ( STATUS .NE. 0 ) THEN
+            WRITE( LOGDEV, '(5X, A)' ) VARDESC
+            XMSG = '... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         END IF
+
+      END IF
+
+      IF ( END_TIME ) THEN   ! ending time timestamp
+         MDATE = JDATE; MTIME = JTIME
+      ELSE                   ! beginning time timestamp
+         MDATE = JDATE; MTIME = JTIME
+         CALL NEXTIME ( MDATE, MTIME, -TSTEP )
+      END IF
 
       IF ( FIRSTIME ) THEN
-
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3 ()
 
 C Try to open existing file for update
 
