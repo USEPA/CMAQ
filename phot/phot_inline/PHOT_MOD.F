@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.2 2011/04/01 15:41:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.3 2011/09/01 16:47:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -53,6 +53,11 @@ C  The new subroutine GETNEWPAR now sets up the refractive indices.
 C  
 C  Bill Hutzell(Mar 2011) moved determining refractive indices to a
 C  separate file and new subroutine called AERO_PHOTDATA.
+C  
+C  Bill Hutzell(Jun 2011) modified TWOSTREAM_S subroutine to account for 
+C  GAM2 equal to zero in the Toon et al. (1989) solution to the two stream
+C  of the radiative transfer equation based on how the NCAR TUV model 
+C  implements the approximation
 C
 C-----------------------------------------------------------------------
 
@@ -73,6 +78,10 @@ C***Fundamental Constants: ( Source: CRC76, pp 1-1 to 1-6)
       REAL, PARAMETER :: PLANCK_C = 6.62606876E-34 ! Planck's Constant [Js]
       REAL, PARAMETER :: LIGHT_SPEED = 299792458.0 ! speed of light in a vacuum
 
+C***LOGDEV for NEW_OPTICS and supporting routines
+      
+      INTEGER, SAVE :: NEW_OPTICS_LOG
+      
 C***Information for photolysis
 
       INTEGER, SAVE :: NWL     ! number of wavelengths
@@ -212,6 +221,9 @@ C      -change array declaration to allow flexible number of
 C       wavelength bins 
 C   
 C-----------------------------------------------------------------------
+
+
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -404,6 +416,8 @@ C***arrays for new values
 
       IF ( FIRST ) THEN
 
+         NEW_OPTICS_LOG = INIT3()
+         
          NPHOT = NPHOTAB
          ALLOCATE( XXCS( NPHOTAB, IREFTEMPS, NWL ) )
          ALLOCATE( XXQY( NPHOTAB, IREFTEMPS, NWL ) )
@@ -1376,7 +1390,7 @@ C***set reference temperature differences AND find temperature range:
 
             DO IT = 1, IREFTEMPS - 1
                DELTA_REFT( IT ) = REFTEMP( IT + 1 ) - REFTEMP( IT )
-               IF ( XTEMP .GT. REFTEMP( IT ) .AND. XTEMP .LT. REFTEMP( IT + 1 ) ) THEN
+               IF ( XTEMP .GT. REFTEMP( IT ) .AND. XTEMP .LE. REFTEMP( IT + 1 ) ) THEN
                   ITEMP = IT
                END IF
             END DO
@@ -2147,6 +2161,10 @@ C***start code.
       HANGLE = 15.0 * ( TIME - 12.0 )  + EQT
       COSZEN = SINDEC * SINLAT + COSLAT * COSDEC * COS( RAD * HANGLE )
 
+C***do not allow zenith angle to be lower than 1 degree (COSZEN = 0.999998)
+C***when COSZEN is 1.0, gas-phase chemistry solver does not work properly 
+      IF (COSZEN .GT. 0.999998) COSZEN = 0.999998
+
       RETURN
       END SUBROUTINE GETZEN2
 
@@ -2516,6 +2534,7 @@ C***Some additional program constants:
 
 !!!!from above      REAL, PARAMETER :: PI          = 3.1415926535898  ! pi
       REAL, PARAMETER :: LARGEST     = 1.0E+36 ! largest machine number
+      REAL, PARAMETER :: SMALLEST    = 1.0E-36 ! largest machine number
       REAL, PARAMETER :: SQRTLRGST   = 1.0E+18 ! sqrt(largest)
       REAL, PARAMETER :: SQRTLRGSTM1 = 1.0E-18 ! 1/sqrt(largest)
       REAL, PARAMETER :: EPS         = 1.0E-3
@@ -2605,8 +2624,25 @@ C***calculate the gamma values from line 1 Table 1, page 16,289
 C***lambda = pg 16,290 equation 21
 C***big gamma = pg 16,290 equation 22
 
+         IF( ABS( GAM2 ) .LE. SMALLEST )THEN
+            WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( NEW_OPTICS_LOG, 2610)
+         ENDIF
+
+         IF( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0 )THEN
+            WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( NEW_OPTICS_LOG, 2611)
+         ENDIF
+ 
+     
          LAM(I) = SQRT( GAM1*GAM1 - GAM2*GAM2 )
-         BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
+
+         IF( ABS( GAM2 ) .LE. SMALLEST )THEN 
+C***adjustment based on NCAR TUV model
+            BGAM(I) = 0.0
+         ELSE
+            BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
+         ENDIF
 
          EXPON = EXP( -LAM(I) * TAUN(I) )
 
@@ -2730,6 +2766,19 @@ C***the following equations are from pg 16,291  equations 31 & 32
          ROW = ROW + 2
          J = J + 1
  60   CONTINUE
+
+2609  FORMAT(/ 'PHOT_MOD: Instability in Two Stream RadTran Subroutine'
+     &       / 'Layer: I = ',I3
+     &       / 'Asymmetry Factor: GI = ',ES12.4
+     &       / 'Single Scattering Albedo: OMI = ', ES12.4
+     &       / 'SIGN( MIN( ABS( GI ), 1.0 - 1.0E-7), GI ): G = ', ES12.4
+     &       / 'MIN( OMI, 1.0 - 1.0E-7 ): OM = ', ES12.4
+     &       / '0.25*( 7.0 - OM * ( 4.0 + 3.0 * G ) ): GAM1 = ', ES12.4
+     &       / '0.25*( OM * ( 4.0 + 3.0 * G ) - 1.0 ): GAM2 = ', ES12.4  /)
+
+2610  FORMAT(/ 'SETTING (GAM1 - SQRT( GAM1**2 - GAM2**2 ))/GAM2 to zero' /)
+
+2611  FORMAT(/ ' ( GAM1**2 - GAM2**2 ) < 0: NaNs introduced into solution ' /)
 
       RETURN
       END SUBROUTINE TWOSTREAM_S
