@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/STD_CONC.F,v 1.3 2011/04/01 15:41:36 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/STD_CONC.F,v 1.4 2011/09/02 13:21:41 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,7 +32,7 @@ C Function: species, layer pointers and definitions for standard CONC
 C calculations
 
       INTEGER, SAVE :: N_CSPCS    ! Number of species saved to conc file
-      CHARACTER( 16 ), SAVE :: CONC_SPCS( 200 ) ! conc file species list
+      CHARACTER( 16 ), SAVE, ALLOCATABLE :: CONC_SPCS( : ) ! conc file species list
       INTEGER, SAVE :: CONC_BLEV  ! Beginning level saved to conc file
       INTEGER, SAVE :: CONC_ELEV  ! Ending level saved to conc file
       INTEGER, SAVE :: C_NLAYS    ! Number of layers saved to conc file
@@ -73,6 +73,7 @@ C species classes configuration for CONC
          INTEGER ALLOCSTAT, STATUS
          INTEGER :: JDATE = 0
          INTEGER :: JTIME = 0
+         LOGICAL :: NAMELST = .FALSE.  ! .TRUE. => use all "CONC" in CGRID_SPCS
 
          INTEGER, ALLOCATABLE :: GC_MAP( : )
          INTEGER, ALLOCATABLE :: AE_MAP( : )
@@ -105,8 +106,18 @@ C-----------------------------------------------------------------------
 C Retrieve the species saved to the concentration file
 
          CALL GET_ENVLIST ( STD_CONC_SPCS, N_CSPCS, CONC_SPCS )
-         IF ( N_CSPCS .LE. 0 ) THEN   ! revert to include files
+         IF ( N_CSPCS .LE. 0 ) THEN   ! revert to Namelist files
+            NAMELST = .TRUE.
             N_CSPCS = N_GC_CONC + N_AE_CONC + N_NR_CONC + N_TR_SPC
+         END IF
+         
+         ALLOCATE ( CONC_SPCS( N_CSPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'CONC_SPCS memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         IF ( NAMELST ) THEN   ! use "CONC" species designated on Namelist files
             V = 0
             DO VAR = 1, N_GC_CONC
                V = V + 1
