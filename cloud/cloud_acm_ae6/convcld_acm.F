@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.5 2011/04/19 19:13:41 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.6 2011/09/09 17:49:00 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -93,6 +93,8 @@ C       8/10 J.Young: replace chem mechanism include files with namelists
 C                    and accomodate Shawn Roselle's, Sergey Napelenok's
 C                    and Steve Howard's aerosol reengineering
 C       3/11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C       7/11 G. Sarwar: calculate zenith angle to determine daytime and nightime 
+C                    needed for sulfur oxidation via metal catalysis
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -380,8 +382,17 @@ C-------------------------------------------
 
       INTEGER      GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
+      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2      !Golam Sarwar, July 1, 2011 
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+
+C Gridded meteorology data: Golam Sarwar, July 1, 2011 
+C Latitude and longitude for zenith angle calculation:     
+      REAL, ALLOCATABLE, SAVE :: LAT( :, : )    ! grid lat (deg) -90 <= LAT <= 90
+      REAL, ALLOCATABLE, SAVE :: LON( :, : )    ! grid lon (deg) -180 <= LON <= 180 
+      REAL          COSZEN( NCOLS, NROWS )      ! cosine of zenith angle
+      REAL          COSZ                        ! local cosine of zenith angle
+      LOGICAL       DARK                        ! DARK = TRUE is night,  DARK = FALSE is day
 
 C...........External Functions
 
@@ -415,7 +426,7 @@ C...........Statement Functions
         END SUBROUTINE SCAVWDEP
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
+     &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
            IMPLICIT NONE
            INTEGER, INTENT( IN )    :: JDATE, JTIME
            REAL,    INTENT( IN )    :: WTBAR, WCBAR, TBARC, PBARC,
@@ -424,6 +435,7 @@ C...........Statement Functions
            REAL,    INTENT( INOUT ) :: REMOVAC
            REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
+           LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
       END INTERFACE
 
@@ -488,6 +500,9 @@ C...  the met timestep in hours
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
 C...get horizontal domain window from met data
+
+         CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
+     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                  STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
@@ -567,6 +582,38 @@ C...allocate saved arrays
           XMSG = 'Failure allocating BCLDWT, CONCMINL, INCLOUD, OUTCLOUD or PCLD'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+
+C...  Get LAT, Golam Sarwar, July 1, 2011 
+
+         ALLOCATE ( LAT( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating LAT'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         XMSG = 'Could not read LAT from ' // GRID_CRO_2D
+         
+         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LAT', PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
+     &                       1, 1, 0, 0, LAT ) ) THEN
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C...  Get LON 
+
+         ALLOCATE ( LON( MY_NCOLS, MY_NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating LON'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         XMSG = 'Could not read LON from ' // GRID_CRO_2D
+
+         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
+     &                       1, 1, JDATE, JTIME, LON ) ) THEN
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
       END IF   ! Firstime
 
@@ -737,6 +784,10 @@ C...Get PBL height (m)
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
+C.. Compute zenith angle, Golam Sarwar, July 1, 2011 
+
+      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
+ 
 C...advance the MDATE and MTIME to the next time on the met file
 C...  to get ready to read the precipitation amounts.
 C...  Precipitation data WILL NOT BE INTERPOLATED!  Precipitation data
@@ -1639,10 +1690,23 @@ C...  re-adjust the ending and removed amounts for those species
 C...  that participated in cloud chemistry
 
           IF ( WCBAR .GT. 0.00001 ) THEN
+ 
+C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
+
+            COSZ = COSZEN( COL, ROW )
+
+            IF ( COSZ .LE. 0.0 ) THEN
+              DARK = .TRUE.   ! night
+            ELSE
+              DARK = .FALSE.  ! day
+            END IF
+
+C *** Golam Sarwar 
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
-     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
+     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
+
           END IF
 
           DO SPC = 1, NSPCSD

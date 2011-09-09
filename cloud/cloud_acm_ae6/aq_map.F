@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aq_map.F,v 1.5 2011/04/19 19:10:31 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aq_map.F,v 1.6 2011/09/09 17:49:00 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,7 +26,7 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
-     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
+     &                    REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
 
 C-----------------------------------------------------------------------
 C  DESCRIPTION:  This is an interface processor between the cloud dynamics
@@ -45,7 +45,8 @@ C       4 04/11/08 jtk  added logic for coarse ammonium
 C       5 10/10/10 yoj  update to use aero_reeng by Steve Howard, Prakash Bhave,
 C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
 C       6 03/01/11 sjr  replaced I/O API include files with UTILIO_DEFN;
- 
+C       7 07/01/01 gs   calculate zenith angle to determine daytime and nightime 
+C                       needed for sulfur oxidation via metal catalysis
 C  Called by:  RADMCLD and RESCLD
  
 C  Calls the following subroutines:  AQCHEM
@@ -69,6 +70,7 @@ C    REMOVAC    real    output  variable storing H+ deposition
 C    ALFA0      real     input  scav coef for aitken aerosol number
 C    ALFA2      real     input  scav coef for aitken aerosol surface area
 C    ALFA3      real     input  scav coef for aitken aerosol mass
+C    DARK       logical  input DARK = TRUE is night,  DARK = FALSE is day
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS     ! CGRID mechanism species
@@ -107,6 +109,7 @@ C Arguments:
       REAL,    INTENT( IN )    :: ALFA0     ! scav coef for aitken aerosol number
       REAL,    INTENT( IN )    :: ALFA2     ! scav coef for aitken aerosol sfc area
       REAL,    INTENT( IN )    :: ALFA3     ! scav coef for aitken aerosol mass
+      LOGICAL, INTENT( IN )    :: DARK      ! DARK = TRUE is night,  DARK = FALSE is day
 
 C Local Variables (scalars):
 
@@ -142,7 +145,7 @@ C-----------------------------------------------------------------------
 
 C...Initialization
 C...  event-statistics variables.
-
+     
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
@@ -251,7 +254,7 @@ C...perform aqueous-phase chemistry calculations
 
       CALL AQCHEM ( JDATE, JTIME, TBARC, PBARC, TAUCLD, PRATE1,
      &              WCBAR, WTBAR, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4 )
+     &              AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
 
 C...  compute the scavenging coefficient
       EALFA2T = EXP( -ALFA2 * TAUCLD )
