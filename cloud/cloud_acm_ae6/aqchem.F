@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.2 2011/04/26 13:07:16 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.3 2011/09/09 17:46:06 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,7 +26,7 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
-     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4 )
+     &                    AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
 
 C-----------------------------------------------------------------------
 C  Description:
@@ -93,6 +93,14 @@ C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
 C   01 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    9 Mar 11 S.Napelenok: update for AE6 - pH calculation now expanded to 
 C                       include Ca Mg K SOIL CORS SEAS
+C   23 May 11 G.Sarwar: update S(VI) production rate via H2O2, O3, MHP, PAA 
+C                       pathways (Jacobson 1997)
+C   23 May 11 G.Sarwar: update S(VI) production rate via O2 pathway (metal 
+C                       catalysis) (Martin and Goodman, 1991)
+C   01 Jul 11 G.Sarwar: Incorporate day and night dependent Fe III oxidation
+C                       state (Alexander et al.,  2009)
+C   12 Aug 11 G.Sarwar: Revise Fe and Mn solubility based on 
+C                       Alexander et al., 2009
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -103,7 +111,16 @@ C        S.J. Roselle, and R.J. Weber, CMAQ Model Performance Enhanced When
 C        In-Cloud Secondary Organic Aerosol is Included:  Comparison of Organic
 C        Carbon Predictions with Measurements, Environ. Sci. Technol., 42(23),
 C        8798-8802, 2008.
- 
+C     Jacobson, M., Development and application of a new air pollution modeling 
+C        system II. Aerosol module structure and design, Atmospheric 
+C        Environment, 31, 131-144, 1997
+C     Martin, R.L. and T.W. Good, catalyzed oxidation of sulfur dioxide in 
+C        solution: the iron-manganese synercism, Atmospheric Environment, 25A, 
+C        2395-2399, 1991
+C     Alexander, B., R.J. Park, D.J. jacob, S. Gong, Transition metal-catalyzed  
+C        oxidation of atmospheric sulfur: global implications for the sulfur
+C        budget, GRL, 114, D02309, 2009
+C
 C  Called by:  AQMAP
  
 C  Calls the following subroutines:  none
@@ -145,7 +162,7 @@ C...........Arguments:
       REAL,      INTENT( IN )  :: ALFA0     ! scav coef for aitken aerosol number
       REAL,      INTENT( IN )  :: ALFA2     ! scav coef for aitken aerosol sfc area
       REAL,      INTENT( IN )  :: ALFA3     ! scav coef for aitken aerosol mass
-      REAL,      INTENT( OUT ) :: HPWDEP   ! hydrogen wet deposition (mm mol/liter)
+      REAL,      INTENT( OUT ) :: HPWDEP    ! hydrogen wet deposition (mm mol/liter)
       REAL( 8 ), INTENT( OUT ) :: BETASO4  
       REAL,      INTENT( IN )  :: PRCRATE   ! precip rate (mm/hr)
       REAL,      INTENT( IN )  :: PRES_PA   ! pressure (Pa)
@@ -153,6 +170,7 @@ C...........Arguments:
       REAL,      INTENT( IN )  :: TEMP      ! temperature (K)
       REAL,      INTENT( IN )  :: WCAVG     ! liquid water content (kg/m3)
       REAL,      INTENT( IN )  :: WTAVG     ! total water content (kg/m3)
+      LOGICAL,   INTENT( IN )  :: DARK      ! DARK = TRUE is night,  DARK = FALSE is day     
       REAL( 8 ), INTENT( INOUT ) :: GAS    ( NGAS )         ! gas phase concentrations (mol/molV)
       REAL( 8 ), INTENT( INOUT ) :: AEROSOL( NAER, NMODES ) ! aerosol concentrations (mol/molV)
       REAL( 8 ), INTENT( INOUT ) :: GASWDEP( NGAS )         ! gas phase wet deposition array (mm mol/liter)
@@ -378,6 +396,12 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FE_OX           ! Fe(III) available for sulfate oxidation
       REAL( 8 ) :: MN_OX           ! Mn(II) available for sulfate oxidation
 
+      REAL( 8 ) :: FE_III          ! Fractional Fe(III) partitioning, GS - July 1, 2011
+      REAL( 8 ) :: MN_II           ! Fractional Mn(II) partitioning, GS - July 1, 2011
+      
+      REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
+      REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
+
 C...........Local Variables (arrays):
 
       REAL( 8 ) :: LIQUID( NLIQS ) ! wet deposition array (mm mol/liter)
@@ -494,14 +518,15 @@ C...dissociation constants
       HNO31 = 1.54D+01 * EXP(  8.70D+03 * TEMP1 )      ! Schwartz (1984)
 
 C...Kinetic oxidation rates
-C...   From Chamedies (1982)
 
-      RH2O2 = 8.0D+04 * EXP( -3650.0D0 * TEMP1 )
+C...   From Jacobson  (1997)
 
-C...From Kok
+      RH2O2 = 7.45D+07 * EXP( -15.96D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
 
-      RMHP = 1.75D+07 * EXP( -3801.0D0 * TEMP1 )
-      RPAA = 3.64D+07 * EXP( -3994.0D0 * TEMP1 )
+C...   From Jacobson, 1997
+
+      RMHP = 1.90D+07 * EXP( -12.75D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
+      RPAA = 3.60D+07 * EXP( -13.42D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
 
 C...From Carlton et al. (2007)
 
@@ -542,6 +567,18 @@ C...compute fractional weights for several species
         FNH3    = 1.0D0
         FNH4ACC = 0.0D0
       END IF
+
+C...Assign fraction partitioning of FE(III) and MN(II)
+
+      IF ( DARK .EQ. .TRUE.  ) FE_III = 0.9D0  ! Night time,GS 01July2011
+      IF ( DARK .EQ. .FALSE. ) FE_III = 0.1D0  ! Day time, GS  01July2011
+
+      MN_II = 1.0D0                     ! Same for day and night, GS  01July2011
+
+C...Assign solubility of Fe and Mn
+
+      FE_SOL = 0.1D0                   ! GS 01July2011
+      MN_SOL = 0.5D0                   ! GS 28July2011
 
 C...initial concentration from accumulation-mode aerosol loading (mol/liter)
 C...  an assumption is made that all of the accumulation-mode
@@ -698,8 +735,17 @@ C...   = Initial amount - amount deposited  (mol/liter)
         PRIM    = LOADING( LPRI,  ACC ) + LOADING( LPRI,  AKN ) - WETDEP( LPRIML ) * XC1
 !       PRIMCOR = LOADING( LPRICOR, COR ) - WETDEP( LPRIMCORL ) * XC1
         NUMCOR  = LOADING( LNUM,  COR ) - WETDEP( LNUMCORL  ) * XC1
-        A       = 3.0D0 * FE
-        B       = 2.0D0 * MN
+!       A       = 3.0D0 * FE
+!       B       = 2.0D0 * MN
+
+C       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
+C       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
+
+        FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
+        MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
+
+        A = 3.0D0 * FE_OX
+        B = 2.0D0 * MN_OX
 
 C...don't allow aerosol concentrations to go below zero
 
@@ -859,8 +905,10 @@ C...compute Ionic strength and activity coefficient by the Davies equation
 
           STION = 0.5D0
      &          * ( AE + NH4 + OH + HCO3 + HSO3
-     &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN )
-     &              + NO3 + HSO4 + 9.0D0 * FE + NA + K + CL + A + B + HCO2 )
+     &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN_OX )
+     &              + NO3 + HSO4 + 9.0D0 * FE_OX + NA + K + CL + A + B + HCO2 ) ! KMF 08September2011   
+C     &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN )
+C     &              + NO3 + HSO4 + 9.0D0 * FE + NA + K + CL + A + B + HCO2 )
           GM1LOG = -0.509D0 * ( SQRT( STION )
      &           / ( 1.0D0 + SQRT( STION ) ) - 0.2D0 * STION )
           GM2LOG = GM1LOG * 4.0D0
@@ -1048,9 +1096,9 @@ C...Define the total S(iv) available for oxidation
 
         TSIV = INITGAS( LSO2 ) * ONE_OVER_XL
 
-C...Calculate sulfur iv oxidation rate due to H2O2
+C...Calculate sulfur iv oxidation rate due to H2O2 (Jacobson, 1997)
 
-        DSIVDT( 1 ) = -RH2O2 * H2O2L * SO2L / ( 0.1D0 + AC )
+        DSIVDT( 1 ) = -RH2O2 * H2O2L * HSO3 * AC / ( 1.0D0 + 13.0D0 * AC )
         TH2O2 = INITGAS( LH2O2 ) * ONE_OVER_XL
         IF ( ( DSIVDT( 1 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
@@ -1060,14 +1108,11 @@ C...Calculate sulfur iv oxidation rate due to H2O2
           DTW( 1 ) = -0.05D0 * MIN( TH2O2, TSIV ) / DSIVDT( 1 )
         END IF
 
-C...Calculate sulfur iv oxidation rate due to O3
+C...Calculate sulfur iv oxidation rate due to O3 (Jacobson, 1997)
 
-        IF ( BB .GE. 2.7D0 ) THEN
-          DSIVDT( 2 ) = -4.19D+5 * ( 1.0D0 + 2.39D-4 / AC ) * O3L * SIV
-        ELSE
-          DSIVDT( 2 ) = -1.9D+4 * SIV * O3L / SQRT( AC )
-        END IF
-
+        DSIVDT( 2 ) = -( 2.4D4 * SO2L                                          +
+     &                   3.7D5 * EXP( -18.56 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * HSO3 + 
+     &                   1.5D9 * EXP( -17.72 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * SO3 ) * O3L 
         TO3 = INITGAS( LO3 ) * ONE_OVER_XL
         IF ( ( DSIVDT( 2 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
@@ -1077,36 +1122,12 @@ C...Calculate sulfur iv oxidation rate due to O3
           DTW( 2 ) = -0.01D0 * MIN( TO3, TSIV ) / DSIVDT( 2 )
         END IF
 
-C...Calculate sulfur iv oxidation rate due to 02 catalyzed by Mn++
-C...  and Fe+++  See Table IV Walcek & Taylor ( 1986)
-C...  adjust FE and MN for oxidation state and solubility
-C...
-C...         ox_state   solubility
-C...            -----   ------
-        FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
-        MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
+C...Calculate sulfur iv oxidation rate due to 02 catalyzed by Mn++ and Fe+++
+C...(Martin and Goodman, 1991)
 
-        IF ( BB .GE. 4.0D0 )  THEN  ! 4.0  < pH
-
-          IF ( SIV .LE. 1.0D-5 ) THEN
-            DSIVDT( 3 ) = -5000.0D0 * MN_OX * HSO3
-          ELSE IF ( SIV .GT. 1.0D-5 ) THEN
-            DSIVDT( 3 ) = -( 4.7D0 * MN_OX * MN_OX / AC
-     &                  + 1.0D+7 * FE_OX * SIV * SIV )
-          END IF  ! end of first pass through SIV conc.
-
-        ELSE          ! pH , + 4.0
-
-          IF ( SIV .LE. 1.0D-5 ) THEN
-            DSIVDT( 3 ) = -3.0D0 * ( 5000.0D0 * MN_OX * HSO3
-     &                  + 0.82D0 * FE_OX * SIV / AC )
-          ELSE
-            DSIVDT( 3 ) = -( 4.7D0 * MN_OX * MN_OX / AC
-     &                  + ( 0.82D0 * FE_OX * SIV / AC )
-     &                  * ( 1.0D0 + 1.7D+3 * MN_OX ** 1.5D0 / ( 6.3D-6 + FE_OX ) ) )
-          END IF ! end of second pass through SIV conc.
-
-        END IF  ! end of pass through pH
+        DSIVDT( 3 ) = - ( 750.0D0  * MN_OX * SIV +                 ! GS 4May2011
+     &                    2600.0D0 * FE_OX * SIV +                 ! GS 4May2011
+     &                    1.0D10   * MN_OX * FE_OX * SIV )         ! GS 4May2011
 
         IF ( ( DSIVDT( 3 ) .EQ. 0.0D0 ) .OR. ( TSIV .LE. CONMIN ) ) THEN
           DTW( 3 ) = DTRMV
@@ -1114,7 +1135,7 @@ C...            -----   ------
           DTW( 3 ) = -0.1D0 * TSIV / DSIVDT( 3 )
         END IF
 
-C...Calculate sulfur oxidation rate due to MHP
+C...Calculate sulfur oxidation rate due to MHP (Jacobson,  1997)
 
         DSIVDT( 4 ) = -RMHP * AC * MHPL * HSO3
         TMHP = INITGAS( LMHP ) * ONE_OVER_XL
@@ -1126,9 +1147,9 @@ C...Calculate sulfur oxidation rate due to MHP
           DTW( 4 ) = -0.1D0 * MIN( TMHP, TSIV ) / DSIVDT( 4 )
         END IF
 
-C...Calculate sulfur oxidation due to PAA
+C...Calculate sulfur oxidation due to PAA (Jacobson,  1997)
 
-        DSIVDT( 5 ) = -RPAA * HSO3 * PAAL * ( AC + 1.65D-5 )
+        DSIVDT( 5 ) = -( RPAA * AC + 7.00D2 ) * HSO3 * PAAL
         TPAA = INITGAS( LPAA ) * ONE_OVER_XL
         IF ( ( DSIVDT( 5 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
