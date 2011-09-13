@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/STD_CONC.F,v 1.4 2011/09/02 13:21:41 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/STD_CONC.F,v 1.5 2011/09/13 12:04:41 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -30,9 +30,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Function: species, layer pointers and definitions for standard CONC
 C calculations
+C Revision: J.Young 13Sep2011: Increase size of CONC_SPCS dimension -
+C           previous revision used dynamic allocation, but GET_ENVLIST
+C           was called with the CONC_SPCS argument before it was allocated
 
       INTEGER, SAVE :: N_CSPCS    ! Number of species saved to conc file
-      CHARACTER( 16 ), SAVE, ALLOCATABLE :: CONC_SPCS( : ) ! conc file species list
+      CHARACTER( 16 ), SAVE :: CONC_SPCS( 900 ) ! conc file species list
       INTEGER, SAVE :: CONC_BLEV  ! Beginning level saved to conc file
       INTEGER, SAVE :: CONC_ELEV  ! Ending level saved to conc file
       INTEGER, SAVE :: C_NLAYS    ! Number of layers saved to conc file
@@ -73,7 +76,6 @@ C species classes configuration for CONC
          INTEGER ALLOCSTAT, STATUS
          INTEGER :: JDATE = 0
          INTEGER :: JTIME = 0
-         LOGICAL :: NAMELST = .FALSE.  ! .TRUE. => use all "CONC" in CGRID_SPCS
 
          INTEGER, ALLOCATABLE :: GC_MAP( : )
          INTEGER, ALLOCATABLE :: AE_MAP( : )
@@ -106,18 +108,8 @@ C-----------------------------------------------------------------------
 C Retrieve the species saved to the concentration file
 
          CALL GET_ENVLIST ( STD_CONC_SPCS, N_CSPCS, CONC_SPCS )
-         IF ( N_CSPCS .LE. 0 ) THEN   ! revert to Namelist files
-            NAMELST = .TRUE.
+         IF ( N_CSPCS .LE. 0 ) THEN   ! revert to include files
             N_CSPCS = N_GC_CONC + N_AE_CONC + N_NR_CONC + N_TR_SPC
-         END IF
-         
-         ALLOCATE ( CONC_SPCS( N_CSPCS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'CONC_SPCS memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         IF ( NAMELST ) THEN   ! use "CONC" species designated on Namelist files
             V = 0
             DO VAR = 1, N_GC_CONC
                V = V + 1
