@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/eddyx.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/eddyx.F,v 1.4 2011/09/14 20:25:14 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -75,11 +75,11 @@ C Parameters:
 
       REAL, PARAMETER :: RLAM   = 80.0 ! asymptotic mixing length (m)
       REAL, PARAMETER :: KZ0UT  = 1.0  ! minimum eddy diffusivity (m**2/sec) KZ0
-      REAL, PARAMETER :: KZL    = 0.5  ! lowest KZ
-      REAL, PARAMETER :: KZU    = 2.0  ! highest KZ
+      REAL, PARAMETER :: KZL    = 0.01 ! lowest KZ
+      REAL, PARAMETER :: KZU    = 1.0  ! 2.0  ! highest KZ
       REAL, PARAMETER :: RIC    = 0.25 ! critical Richardson #
 !     REAL, PARAMETER :: PRAN   = 0.95 ! HOGSTROM(1988)
-      REAL, PARAMETER :: GAMH   = 15.0 ! Holtslag and Boville (1993)
+      REAL, PARAMETER :: GAMH   = 16.0 !15.0 ! Holtslag and Boville (1993)
       REAL, PARAMETER :: BETAH  = 5.0  ! Holtslag and Boville (1993)
       REAL, PARAMETER :: CGAM   = 0.0  ! Holtslag and Boville (1993)
       REAL, PARAMETER :: KARMAN = 0.4
@@ -150,6 +150,7 @@ C Local variables:
       REAL         ZOL
       REAL         ZFUNC, HPBL 
       REAL         EDDV                    ! local EDDYV
+      REAL         FH
 
       INTEGER      GXOFF, GYOFF            ! global origin offset from file
 C for INTERPX
@@ -575,8 +576,8 @@ C get ghost values for wind fields in case of free trop.
          ZFL = ZF( C,R,L )
          KZM = KZMIN( C,R,L )
 
+         ZOL = ZFL * MOLI( C,R )
          IF ( ZFL .LT. HPBL ) THEN
-            ZOL = ZFL * MOLI( C,R )
             IF ( ZOL .LT. 0.0 ) THEN
                IF ( ZFL .LT. 0.1 * HPBL ) THEN
                   PHIH = 1.0 / SQRT( 1.0 - GAMH * ZOL )
@@ -656,15 +657,20 @@ C-----------------
          SQL = ZK * RLAM / ( RLAM + ZK )
          SQL = SQL * SQL
 
-         IF ( RIB .GE. RIC ) THEN
-            EDDV = KZM
-         ELSE IF ( RIB .GE. 0.0 ) THEN
-            EDDV = KZM + SQRT( WS2 ) * ( 1.0 - RIB / RIC ) ** 2 * SQL
+         IF ( RIB .GE. 0.0 ) THEN
+            IF ( ZFL .LT. HPBL .AND. ZOL .GT. 0.0 ) THEN
+               FH = MAX( ( 1.0 - ZFL / HPBL ) ** 2, 0.01 ) * PHIH ** -2
+               SQL = ZK ** 2
+            ELSE
+               FH = ( MAX( 1.0 - RIB / RIC, 0.01 ) ) ** 2
+            END IF
+            EDDV = KZM + SQRT( WS2 ) * FH * SQL
          ELSE
             EDDV = KZM + SQRT( WS2 * ( 1.0 - 25.0 * RIB ) ) * SQL
          END IF
 
          IF ( ZFL .LT. HPBL ) THEN
+!            IF ( ZOL.LT.0.0.AND.EDYZ .GT. EDDV ) THEN
             IF ( EDYZ .GT. EDDV ) THEN
                EDDV = EDYZ
 !           ELSE
