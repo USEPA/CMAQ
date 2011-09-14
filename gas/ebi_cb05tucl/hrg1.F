@@ -16,9 +16,8 @@ C   for complying with vendor requirements.  Software copyrights by    *
 C   the MCNC Environmental Modeling Center are used with their         *
 C   permissions subject to the above restrictions.                     *
 C***********************************************************************
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrg1.F,v 1.1 2011/03/17 19:14:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrg1.F,v 1.2 2011/09/14 15:29:49 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 21, 2011
+C  REVISION HISTORY: Created by EBI solver program, Sept. 12, 2011
 C
 C**********************************************************************
       USE HRDATA
@@ -195,7 +194,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &    +          RKI( 103 ) * YC( CXO3    )   ! NO2+CXO3=PANX
      &    +          RKI( 115 ) * YC( ROR     )   ! NO2+ROR=NTR
      &    +          RKI( 133 ) * YC( CRO     )   ! NO2+CRO=CRON
-     &    +          RKI( 137 ) * YC( CRON    )   ! NO2+CRON=2*NTR
+     &    +          RKI( 137 ) * YC( CRNO    )   ! NO2+CRNO=2*NTR
      &    +          RKI( 152 ) * YC( OPO3    )   ! NO2+OPO3=OPAN
      &    +  0.800 * RKI( 172 ) * YC( ISOP    )   ! NO2+ISOP=0.2*NO+...
       L2     = 1.0 + L2 * DTC
@@ -220,7 +219,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &    +          RKI( 118 ) * YC( OLE     )   ! O3+OLE=0.18*ALD2+...
      &    +          RKI( 122 ) * YC( ETH     )   ! O3+ETH=FORM+...
      &    +          RKI( 126 ) * YC( IOLE    )   ! O3+IOLE=...
-     &    +          RKI( 138 ) * YC( CRON    )   ! O3+CRON=CRN2
+     &    +          RKI( 138 ) * YC( CRNO    )   ! O3+CRNO=CRN2
      &    +          RKI( 145 ) * YC( OPEN    )   ! O3+OPEN=...
      &    +          RKI( 159 ) * YC( ISOP    )   ! O3+ISOP=...
      &    +          RKI( 162 ) * YC( ISPD    )   ! O3+ISPD=...

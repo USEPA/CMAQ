@@ -16,9 +16,8 @@ C   for complying with vendor requirements.  Software copyrights by    *
 C   the MCNC Environmental Modeling Center are used with their         *
 C   permissions subject to the above restrictions.                     *
 C***********************************************************************
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrg2.F,v 1.1 2011/03/17 19:14:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrg2.F,v 1.2 2011/09/14 15:29:49 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,7 +32,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 21, 2011
+C  REVISION HISTORY: Created by EBI solver program, Sept. 12, 2011
 C
 C**********************************************************************
       USE HRDATA
@@ -83,16 +82,16 @@ C**********************************************************************
 
 
 c..stoichiometric coefficient for production of HOX from O3 via O1D
-      O1D_S =          RKI(  10 )                   ! O1D=O
-     &       +         RKI(  11 )                   ! O1D=2*OH
-     &       +         RKI(  38 )                   ! O1D=OH+HO2
+      O1D_S =           RKI(  10 )                   ! O1D=O
+     &       +          RKI(  11 )                   ! O1D=2*OH
+     &       +          RKI(  38 )                   ! O1D=OH+HO2
 
       OH_S =   2.000 * RKI(  11 )                   ! O1D=2*OH
      &      +          RKI(  38 )                   ! O1D=OH+HO2
 
       OH_S  = OH_S / O1D_S
 
-      HO2_S =          RKI(  38 )                   ! O1D=HO2+OH
+      HO2_S =           RKI(  38 )                   ! O1D=HO2+OH
 
       HO2_S  = HO2_S / O1D_S
 
@@ -104,7 +103,7 @@ c..Production of HO from HO2 (r4,5 terms )
       R4_5  = R4_5 * DTC
 
 c..Production of HO from HONO (r4,19 terms )
-      R4_19 =          RKI(  25 )                   ! HONO=OH+NO
+      R4_19 =           RKI(  25 )                   ! HONO=OH+NO
 
       R4_19 = R4_19 * DTC
 
@@ -224,8 +223,8 @@ c..Remaining HO2 production terms
      &    +          RXRAT( 188 )      ! CL+FORM=HO2+HCL+CO
      &    +          RXRAT( 191 )      ! CL+MEOH=HO2+HCL+FORM
      &    +          RXRAT( 192 )      ! CL+ETOH=HO2+HCL+ALD2
-     &    +          RXRAT( 194 )      ! CL+TOL=HO2+XO2+HCL
-     &    +          RXRAT( 195 )      ! CL+XYL=HO2+XO2+HCL
+     &    +  0.880 * RXRAT( 194 )      ! CL+TOL=0.88*HO2+0.88*XO2+...
+     &    +  0.840 * RXRAT( 195 )      ! CL+XYL=0.84*HO2+0.84*XO2+...
 
       P5 = YC0( HO2 ) + P5 * DTC
 

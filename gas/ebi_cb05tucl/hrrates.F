@@ -16,9 +16,8 @@ C   for complying with vendor requirements.  Software copyrights by    *
 C   the MCNC Environmental Modeling Center are used with their         *
 C   permissions subject to the above restrictions.                     *
 C***********************************************************************
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrrates.F,v 1.1 2011/03/17 19:14:26 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrrates.F,v 1.2 2011/09/14 15:29:50 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,7 +32,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 21, 2011
+C  REVISION HISTORY: Created by EBI solver program, Sept. 12, 2011
 C
 C***********************************************************************
       USE HRDATA
@@ -196,8 +195,8 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT( 134 ) = RKI( 134 ) * YC( CRO ) * YC( HO2 )
       RXRAT( 135 ) = RKI( 135 ) * YC( CRON ) * YC( OH )
       RXRAT( 136 ) = RKI( 136 ) * YC( CRON ) * YC( NO3 )
-      RXRAT( 137 ) = RKI( 137 ) * YC( CRON ) * YC( NO2 )
-      RXRAT( 138 ) = RKI( 138 ) * YC( CRON ) * YC( O3 )
+      RXRAT( 137 ) = RKI( 137 ) * YC( CRNO ) * YC( NO2 )
+      RXRAT( 138 ) = RKI( 138 ) * YC( CRNO ) * YC( O3 )
       RXRAT( 139 ) = RKI( 139 ) * YC( CRN2 ) * YC( NO )
       RXRAT( 140 ) = RKI( 140 ) * YC( CRN2 ) * YC( HO2 )
       RXRAT( 141 ) = RKI( 141 ) * YC( CRPX )

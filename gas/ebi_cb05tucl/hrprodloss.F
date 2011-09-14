@@ -16,9 +16,8 @@ C   for complying with vendor requirements.  Software copyrights by    *
 C   the MCNC Environmental Modeling Center are used with their         *
 C   permissions subject to the above restrictions.                     *
 C***********************************************************************
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrprodloss.F,v 1.2 2011/08/30 18:25:37 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrprodloss.F,v 1.3 2011/09/14 15:29:50 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 21, 2011
+C  REVISION HISTORY: Created by EBI solver program, Sept. 12, 2011
 C
 C***********************************************************************
       USE HRDATA
@@ -133,8 +132,8 @@ C***********************************************************************
      &                 +  2.000 * RXRAT( 185 )      ! CL+OLE=2*XO2+0.33*ALD2+...
      &                 +  1.700 * RXRAT( 186 )      ! CL+IOLE=1.7*XO2+0.7*FMCL+...
      &                 +          RXRAT( 187 )      ! CL+ISOP=XO2+0.15*HCL+HO2+...
-     &                 +          RXRAT( 194 )      ! CL+TOL=XO2+HCL+HO2
-     &                 +          RXRAT( 195 )      ! CL+XYL=XO2+HCL+HO2
+     &                 +  0.880 * RXRAT( 194 )      ! CL+TOL=0.88*XO2+HCL+...
+     &                 +  0.840 * RXRAT( 195 )      ! CL+XYL=0.84*XO2+HCL+...
       LOSS( XO2     ) =           RXRAT(  54 )      ! XO2+NO=NO2
      &                 +          RXRAT(  56 )      ! XO2+HO2=ROOH
      &                 +  2.000 * RXRAT(  58 )      ! XO2+XO2=
@@ -155,6 +154,8 @@ C***********************************************************************
      &                 +  0.009 * RXRAT( 171 )      ! OH+ETHA=0.009*XO2N+...
      &                 +  0.130 * RXRAT( 182 )      ! CL+PAR=0.13*XO2N+0.87*XO2+...
      &                 +  0.009 * RXRAT( 183 )      ! CL+ETHA=0.009*XO2N+...
+     &                 +  0.120 * RXRAT( 194 )      ! CL+TOL=0.12*XO2N+0.88*XO2+...
+     &                 +  0.160 * RXRAT( 195 )      ! CL+XYL=0.16*XO2N+0.84*XO2+...
       LOSS( XO2N    ) =           RXRAT(  55 )      ! XO2N+NO=NTR
      &                 +          RXRAT(  57 )      ! XO2N+HO2=ROOH
      &                 +  2.000 * RXRAT(  59 )      ! XO2N+XO2N=
@@ -163,7 +164,7 @@ C***********************************************************************
       PROD( NTR     ) =           RXRAT(  55 )      ! XO2N+NO=NTR
      &                 +          RXRAT( 115 )      ! ROR+NO2=NTR
      &                 +  0.140 * RXRAT( 129 )      ! TO2+NO=0.14*NTR+1.2*HO2+...
-     &                 +  2.000 * RXRAT( 137 )      ! CRON+NO2=2*NTR
+     &                 +  2.000 * RXRAT( 137 )      ! CRNO+NO2=2*NTR
      &                 +  0.140 * RXRAT( 149 )      ! CAO2+NO=0.14*NTR+1.2*HO2+...
      &                 +  0.800 * RXRAT( 160 )      ! NO3+ISOP=0.8*NTR+0.2*ISPD+...
      &                 +  0.850 * RXRAT( 163 )      ! NO3+ISPD=0.85*NTR+...
@@ -450,7 +451,7 @@ C***********************************************************************
 
       PROD( TOL     ) =   0.0
       LOSS( TOL     ) =           RXRAT( 128 )      ! TOL+OH=0.28*HO2+0.1*XO2+...
-     &                 +          RXRAT( 194 )      ! TOL+CL=HCL+XO2+HO2
+     &                 +          RXRAT( 194 )      ! TOL+CL=HCL+0.88*XO2+...
 
       PROD( CRES    ) =   0.180 * RXRAT( 128 )      ! TOL+OH=0.18*CRES+0.1*XO2+...
      &                 +          RXRAT( 134 )      ! CRO+HO2=CRES
@@ -497,16 +498,15 @@ C***********************************************************************
       PROD( CRON    ) =           RXRAT( 133 )      ! CRO+NO2=CRON
       LOSS( CRON    ) =           RXRAT( 135 )      ! CRON+OH=CRNO
      &                 +          RXRAT( 136 )      ! CRON+NO3=CRNO+HNO3
-     &                 +          RXRAT( 137 )      ! CRON+NO2=2*NTR
-     &                 +          RXRAT( 138 )      ! CRON+O3=CRN2
 
       PROD( CRNO    ) =           RXRAT( 135 )      ! CRON+OH=CRNO
      &                 +          RXRAT( 136 )      ! CRON+NO3=CRNO+HNO3
      &                 +          RXRAT( 139 )      ! CRN2+NO=CRNO+NO2
      &                 +          RXRAT( 141 )      ! CRPX=CRNO+OH
-      LOSS( CRNO    ) =   0.0
+      LOSS( CRNO    ) =           RXRAT( 137 )      ! CRNO+NO2=2*NTR
+     &                 +          RXRAT( 138 )      ! CRNO+O3=CRN2
 
-      PROD( CRN2    ) =           RXRAT( 138 )      ! CRON+O3=CRN2
+      PROD( CRN2    ) =           RXRAT( 138 )      ! CRNO+O3=CRN2
      &                 +          RXRAT( 142 )      ! CRPX+OH=CRN2
       LOSS( CRN2    ) =           RXRAT( 139 )      ! CRN2+NO=CRNO+NO2
      &                 +          RXRAT( 140 )      ! CRN2+HO2=CRPX
@@ -533,7 +533,7 @@ C***********************************************************************
 
       PROD( XYL     ) =   0.0
       LOSS( XYL     ) =           RXRAT( 154 )      ! XYL+OH=0.7*HO2+0.5*XO2+...
-     &                 +          RXRAT( 195 )      ! XYL+CL=HCL+XO2+HO2
+     &                 +          RXRAT( 195 )      ! XYL+CL=HCL+0.84*XO2+...
 
       PROD( XYLRO2  ) =           RXRAT( 154 )      ! OH+XYL=XYLRO2+0.5*XO2+...
       LOSS( XYLRO2  ) =           RXRAT( 198 )      ! XYLRO2+NO=NO+XYLNRXN
@@ -613,8 +613,8 @@ C***********************************************************************
      &                 +          RXRAT( 190 )      ! CL+ALDX=HCL+CXO3
      &                 +          RXRAT( 191 )      ! CL+MEOH=HCL+HO2+FORM
      &                 +          RXRAT( 192 )      ! CL+ETOH=HCL+HO2+ALD2
-     &                 +          RXRAT( 194 )      ! CL+TOL=HCL+XO2+HO2
-     &                 +          RXRAT( 195 )      ! CL+XYL=HCL+XO2+HO2
+     &                 +          RXRAT( 194 )      ! CL+TOL=HCL+0.88*XO2+...
+     &                 +          RXRAT( 195 )      ! CL+XYL=HCL+0.84*XO2+...
 
       PROD( HOCL    ) =           RXRAT( 178 )      ! CLO+HO2=HOCL
       LOSS( HOCL    ) =           RXRAT( 174 )      ! HOCL=OH+CL
@@ -641,8 +641,8 @@ C***********************************************************************
      &                 +          RXRAT( 190 )      ! CL+ALDX=HCL+CXO3
      &                 +          RXRAT( 191 )      ! CL+MEOH=HCL+HO2+FORM
      &                 +          RXRAT( 192 )      ! CL+ETOH=HCL+HO2+ALD2
-     &                 +          RXRAT( 194 )      ! CL+TOL=HCL+XO2+HO2
-     &                 +          RXRAT( 195 )      ! CL+XYL=HCL+XO2+HO2
+     &                 +          RXRAT( 194 )      ! CL+TOL=HCL+0.88*XO2+...
+     &                 +          RXRAT( 195 )      ! CL+XYL=HCL+0.84*XO2+...
       LOSS( HCL     ) =           RXRAT( 193 )      ! HCL+OH=CL
 
       PROD( TOLNRXN ) =           RXRAT( 196 )      ! TOLRO2+NO=TOLNRXN+NO
