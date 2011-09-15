@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.5 2011/05/05 14:56:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.6 2011/09/15 16:21:35 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -308,15 +308,16 @@ C Cull ...
 #endif
          N_SPC_PTEM = NCULL
 
-         ALLOCATE ( PTEM_MAP( (N_GC_EMIS + N_NR_EMIS + N_TR_EMIS) ), STAT=IOS )
+         ALLOCATE ( PTEM_MAP( N_GAS_EMIS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'PTEM_MAP', PNAME )
 
-         ALLOCATE ( SPC_PTEM_MAP( (N_GC_EMIS + N_NR_EMIS + N_TR_EMIS) ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'PTEM_MAP', PNAME )
+         ALLOCATE ( SPC_PTEM_MAP( N_GAS_EMIS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'SPC_PTEM_MAP', PNAME )
 
          ALLOCATE ( STKEM_NAME( N_SPC_PTEM ), STAT=IOS )
          CALL CHECKMEM( IOS, 'STKEM_NAME', PNAME )
 
+C>> WTH
          GSPC = 'UNDEFINED'
          DO I = 1, N_SPC_PTEM
             PTEM_MAP( I ) = VC( I )%NDX
@@ -337,7 +338,6 @@ C Cull ...
 #endif
          END DO
          
-CCC WTH
          GSPC = 'UNDEFINED'
 #ifdef Verbose
          WRITE( LOGDEV,* ) 'To match the number: N_GC_EMIS + N_NR_EMIS + N_TR_EMIS:',
@@ -641,11 +641,11 @@ C Cull ...
 1029     FORMAT( 5X, 'STKPM_VAR(', I2, ' )%ARRY:', 1X, 8(:A, 1X) )
 1031     FORMAT( 5X, 'GAS_MAP(', I2, ' )%ARRY(', I3, ' ) =', I3 )
 1033     FORMAT( 5X, 'PM_MAP(', I2, ' )%ARRY(', I3, ' ) =', I3 )
-1041     FORMAT( 5X, I3, 1X,'STKEM_NAME, PTEM_MAP = ', A, I3,' Model Species ', A )
+1041     FORMAT( 5X, I3, 1X,'STKEM_NAME, PTEM_MAP = ', A, I3, ' Model Species ', A )
 1043     FORMAT( 5X, I3, 1X,'STKPM_NAME, PTPM_MAP = ', A, I3 )
-1045     FORMAT( I3, 2X, 'PTEM_MAP =', I3, ' STKEM_NAME ', A, 1X,' SPC_PTEM_MAP =',
+1045     FORMAT( I3, 2X, 'PTEM_MAP =', I3, ' STKEM_NAME ', A, ' SPC_PTEM_MAP =',
      &           I3, ' into Model Species ', A )
-1046     FORMAT( 'WARNING: ', I3, ' No Point Emissions of ', A,' for Species ', A )
+1046     FORMAT( 'WARNING:', I4, ' No Point Emissions of ', A, ' for Species ', A )
          END FUNCTION PTMAP_INIT
 
       END MODULE PTMAP
