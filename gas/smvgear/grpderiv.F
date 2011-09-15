@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grpderiv.F,v 1.2 2011/04/01 15:41:44 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grpderiv.F,v 1.3 2011/09/15 17:53:00 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)grpderiv.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grpderiv.  F 07 Jul 1997 12:45:28
@@ -27,7 +27,7 @@ C @(#)grpderiv.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grpderiv.
 
 C***********************************************************************
 C
-C  FUNCTION: To compute [P]=[I]-bh[J] where J is the Jacobian matrix,
+C  FUNCTION: Compute [P]=[I]-bh[J] where J is the Jacobian matrix,
 C            (i.e., [J] = d[dCi/dt]/dCi), b is the Gear coefficient,
 C            and h is the time-step
 C
@@ -55,6 +55,7 @@ C                    & vertical domain specifications module (GRID_CONF)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                    with UTILIO_DEFN
+C                    22 Aug 11 J.Young: fixed bug: initialize CC2( NCELL,0 )
 C***********************************************************************
 
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -123,7 +124,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IARRY = IARRAY( NCSP ) 
       NONDIAG = IARRY - ISCHAN  
       NONDIAG1 = NONDIAG + 1
-      DO IAR = 1, NONDIAG
+!     DO IAR = 1, NONDIAG
+      DO IAR = 0, NONDIAG
          DO NCELL = 1, NUMCELLS
             CC2( NCELL, IAR ) = 0.0
          END DO
