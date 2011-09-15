@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.3 2011/04/01 15:41:55 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_output.F,v 1.4 2011/09/15 15:10:47 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_output.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_output.F 07 Jul 1997 10:20:55
@@ -27,25 +27,22 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE PA_OUTPUT( CGRID, JDATE, JTIME )
 
 C-----------------------------------------------------------------------
+ 
+C Function: Output the Process Analysis and/or Integrated Reaction Rate data           
+ 
+C Preconditions: None
+ 
+C Key Subroutines/Functions Called: INIT3, ENVSTR, M3EXIT
 C
-C  Function: To output the Process Analysis and/or Integrated Reaction
-C            Rate data           
-C
-C  Preconditions: None
-C
-C  Key Subroutines/Functions Called: INIT3, ENVSTR, M3EXIT
-C
-C  Revision History:
-C     Prototype created by Jerry Gipson, August, 1996
-C     allow env var for file names Jeff, Dec, 1996
-C     Modified May, 1997 by Jerry Gipson to be consistent
-C        with beta CTM
-C     Modified Sept, 1997 by Jerry Gipson to be consistent
-C        with targeted CTM
-C     Modified 1/19/99 by David Wong at LM:
+C Revision History:
+C  Prototype created by Jerry Gipson, August, 1996
+C  allow env var for file names Jeff, Dec, 1996
+C  Modified May, 1997 by Jerry Gipson to be consistent with beta CTM
+C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
+C  Modified 1/19/99 by David Wong at LM:
 C        -- add four include files because of new PA_CMN.EXT
 C        -- add DATA_COPY function call to redistribute PA grid
-C     Modified 2/26/99 by David Wong at LM:
+C  Modified 2/26/99 by David Wong at LM:
 C        -- remove SUBST_AE_SPC, SUBST_NR_SPC, SUBST_TR_SPC,
 C           three .EXT files
 C        -- replaced DATA_COPY function with dimension specific
@@ -53,10 +50,10 @@ C           DATA_COPY function and modified its argument list
 C        -- used ifdef statement to distinguish parallel
 C           implementation of IRR calculation which does not
 C           start at the origin
-C     Modified 22 Nov 00 by J.Young: Dave Wong's f90 stenex DATA_COPY
-C     30 Mar 01 J.Young: dyn alloc - Use PAGRD_DEFN, which Uses
-C        HGRD_DEFN; requires DBUFF for WRITE3
-C     10 Oct 01 David Wong
+C  Modified 22 Nov 00 by J.Young: Dave Wong's f90 stenex DATA_COPY
+C  30 Mar 01 J.Young: dyn alloc - Use PAGRD_DEFN, which Uses
+C                                 HGRD_DEFN; requires DBUFF for WRITE3
+C  10 Oct 01 David Wong
 C        -- use DBUFF to hold the output data for IRR data since
 C           parallel WRITE3 can't output subsection of data
 C        -- removed the usage of DBUFF for PA output
@@ -64,19 +61,18 @@ C        -- used a new formula to compute number of indexes in
 C           each IPR and IRR output file rather than file header
 C           to remove the call of DESC3 and use IPRFNAM and 
 C           IRRNAME to determine variable name
-C     10 Sep 02 J.Young: fix bug in IPRNAME, IRRNAME index
-C     31 Jan 05 J.Young: dyn alloc - establish both horizontal &
-C        vertical domain specifications in one module (GRID_CONF)
-C     23 Aug 05 David Wong
+C  10 Sep 02 J.Young: fix bug in IPRNAME, IRRNAME index
+C  31 Jan 05 J.Young: dyn alloc - establish both horizontal &
+C                     vertical domain specifications in one module (GRID_CONF)
+C  23 Aug 05 David Wong
 C        -- inserted PIO_INIT subroutine calls before and after
 C           outputing PA data which is smaller than the model
 C           domain size, to compute data indices correctly in each
 C           processor for the entire PARIO library functions
-C     15 Feb 06 J.Young: new pario PIO_RE_INIT from PIO_INIT to
-C           add flag to to control printing decomposition map
-C     10 Jul 10 J.Young: restructure so as to not keep reallocating
-C           DBUFF for IRR
-C     16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  15 Feb 06 J.Young: new pario PIO_RE_INIT from PIO_INIT to add flag
+C                     to control printing decomposition map
+C  10 Jul 10 J.Young: restructure so as to not keep reallocating DBUFF for IRR
+C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
@@ -103,8 +99,7 @@ C Parameters: None
 
 C External Functions: None 
 
-C Saved Local Variables: 
-
+C Local Variables: 
       CHARACTER( 16 ), SAVE :: PNAME = 'PA_OUTPUT'
       CHARACTER( 16 ), SAVE :: IPRFNAM( MXFILE3 )  ! IPR output file names
       CHARACTER( 16 ), SAVE :: IRRFNAM( MXFILE3 )  ! IRR output file names
@@ -113,7 +108,6 @@ C Saved Local Variables:
       INTEGER, SAVE :: LOGDEV           ! Unit number of output log
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call
 
-C Scratch Local Variables:
       CHARACTER( 80 ) ::  XMSG = ' '    ! Error message buffer
 
       INTEGER C         ! Loop index for columns

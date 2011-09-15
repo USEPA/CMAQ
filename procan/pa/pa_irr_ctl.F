@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr_ctl.F,v 1.2 2010/12/06 14:48:58 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_irr_ctl.F,v 1.3 2011/09/15 15:10:46 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_irr_ctl.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_irr_ctl.F 07 Jul 1997 10:20:54
@@ -28,19 +28,19 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                         CCOL, CROW, CLEV )
 
 C-----------------------------------------------------------------------
-C  Function: To set-up for and update the integrated reaction rates 
-C            computed by the subroutine pa_irr
+C Function: Set up for and update the integrated reaction rates 
+C           computed by the subroutine pa_irr
              
-C  Preconditions: None
+C Preconditions: None
  
-C  Key Subroutines/Functions Called: None
+C Key Subroutines/Functions Called: None
  
-C  Revision History: Prototype created by Jerry Gipson, November, 1996
-C                    Modified Sept, 1997 by Jerry Gipson to be consistent
-C                      with targeted CTM
-C                    Modified 1/19/99 by David Wong at LM:
+C Revision History
+C  Prototype created by Jerry Gipson, November, 1996
+C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
+C  Modified 1/19/99 by David Wong at LM:
 C                      -- add four include files because of new PA_CMN.EXT
-C                    Modified 2/26/99 by David Wong at LM:
+C  Modified 2/26/99 by David Wong at LM:
 C                      -- remove SUBST_AE_SPC, SUBST_NR_SPC, SUBST_TR_SPC, 
 C                         three .EXT files
 C                      -- use ifdef parallel to distinguish the need of
@@ -73,22 +73,22 @@ C..Arguments:
 !     INTEGER CLEV   ( MXCELLS )  ! Level pointer for cell
 !     INTEGER CROW   ( MXCELLS )  ! Row pointer for cell
                                                   ! block
-      LOGICAL :: LIRRBLK( : )     ! Flag for doing IRR
-      INTEGER :: BLKLEN ( : )     ! Number of cells in each
-      INTEGER :: LCELL  ( : )     ! Offset to 1st cell in each
-      INTEGER :: CCOL   ( : )     ! Column pointer for cell
-      INTEGER :: CROW   ( : )     ! Row pointer for cell
-      INTEGER :: CLEV   ( : )     ! Level pointer for cell
+      LOGICAL, INTENT( OUT ) :: LIRRBLK( : )     ! Flag for doing IRR
+      INTEGER, INTENT(  IN ) :: BLKLEN ( : )     ! Number of cells in each
+      INTEGER, INTENT(  IN ) :: LCELL  ( : )     ! Offset to 1st cell in each
+      INTEGER, INTENT(  IN ) :: CCOL   ( : )     ! Column pointer for cell
+      INTEGER, INTENT(  IN ) :: CROW   ( : )     ! Row pointer for cell
+      INTEGER, INTENT(  IN ) :: CLEV   ( : )     ! Level pointer for cell
 
-C..Additional or ather Arguments for ENTRY's
-      INTEGER NUMCELLS            ! Number of cells in one block
-      LOGICAL LIRRFLAG            ! Flag for doing IRR for one block
-      INTEGER OFFSET              ! Offset to 1st cell in a block
-!     INTEGER NORDCELL( MXCELLS ) ! Cell number of ordered cells in a block
-      INTEGER :: NORDCELL( : )    ! Cell number of ordered cells in a block
-      INTEGER NIRRCLS             ! No. of cells in block for IRR cells
-!     INTEGER IRRCELL( BLKSIZE )  ! Cell No. of an IRR cell
-      INTEGER IRRCELL( : )        ! Cell No. of an IRR cell
+C..Additional or other Arguments for ENTRY's
+      INTEGER, INTENT(  IN ) :: NUMCELLS         ! Number of cells in one block
+      INTEGER, INTENT(  IN ) :: OFFSET           ! Offset to 1st cell in a block
+      LOGICAL, INTENT( OUT ) :: LIRRFLAG        ! Flag for doing IRR for one block
+!     INTEGER                   NORDCELL( MXCELLS )
+      INTEGER, INTENT(  IN ) :: NORDCELL( : )    ! Cell number of ordered cells in a block
+      INTEGER, INTENT( INOUT ) :: NIRRCLS          ! No. of cells in block for IRR cells
+!     INTEGER                  IRRCELL( BLKSIZE )
+      INTEGER, INTENT( INOUT ) :: IRRCELL( : )    ! Cell No. of an IRR cell
 
 C..Parameters: None
 
@@ -120,9 +120,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ROW = CROW( ICL )
             LEV = CLEV( ICL )
             IF ( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
-     &          ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
-     &          LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) 
-     &          LIRRBLK( BLK ) = .TRUE.
+     &           ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
+     &           LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) 
+     &           LIRRBLK( BLK ) = .TRUE.
          END DO
       END DO 
       RETURN
@@ -133,7 +133,7 @@ c  calculations for the case in which when the cell composition of the
 c  block can change
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENTRY PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET, CCOL,
-     &                    CROW, CLEV, NORDCELL, NIRRCLS, IRRCELL )
+     &                     CROW, CLEV, NORDCELL, NIRRCLS, IRRCELL )
       NIRRCLS = 0
       DO NCELL = 1, NUMCELLS
          ICL = NORDCELL( OFFSET + NCELL )
@@ -158,7 +158,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENTRY PA_IRR_BLKSTRT ( NUMCELLS )
       DO NIRR = 1, NIRRVAR
          DO CELL = 1, NUMCELLS
-            IRRBLK( CELL, NIRR ) = 0.0
+            IRRBLK( CELL,NIRR ) = 0.0
          END DO
       END DO
       RETURN
@@ -178,26 +178,26 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LEV = CLEV( ICL )
          CELL = CELL + 1
          IF ( COL .GE. MY_IRR_BEGCOL .AND. COL .LE. MY_IRR_ENDCOL .AND.
-     &       ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
-     &       LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) THEN
+     &        ROW .GE. MY_IRR_BEGROW .AND. ROW .LE. MY_IRR_ENDROW .AND.
+     &        LEV .GE. MY_IRR_BEGLEV .AND. LEV .LE. MY_IRR_ENDLEV ) THEN
 
 C -- in serial case, calculations are shifted to the origin but not in
 C    parallel implementation
 
 #ifdef parallel
-             PC = COL
-             PR = ROW
-             PL = LEV
+            PC = COL
+            PR = ROW
+            PL = LEV
 #else
-             PC = COL - MY_IRR_BEGCOL + 1
-             PR = ROW - MY_IRR_BEGROW + 1
-             PL = LEV - MY_IRR_BEGLEV + 1
+            PC = COL - MY_IRR_BEGCOL + 1
+            PR = ROW - MY_IRR_BEGROW + 1
+            PL = LEV - MY_IRR_BEGLEV + 1
 #endif
-             DO NIRR = 1, NIRRVAR
-                IRROUT( PC, PR, PL, NIRR ) = IRROUT( PC, PR, PL, NIRR ) +
-     &                                       IRRBLK( CELL, NIRR )      
-             END DO
-          END IF
+            DO NIRR = 1, NIRRVAR
+               IRROUT( PC,PR,PL,NIRR ) = IRROUT( PC,PR,PL,NIRR )
+     &                                 + IRRBLK( CELL,NIRR )      
+            END DO
+         END IF
       END DO
 
       RETURN
@@ -230,10 +230,11 @@ C    parallel implementation
 #endif
 
          DO NIRR = 1, NIRRVAR
-            IRROUT( PC, PR, PL, NIRR ) = IRROUT( PC, PR, PL, NIRR ) +
-     &                                   IRRBLK( NCELL, NIRR )      
+            IRROUT( PC,PR,PL,NIRR ) = IRROUT( PC,PR,PL,NIRR )
+     &                              + IRRBLK( NCELL,NIRR )      
          END DO
       END DO
+
       RETURN
 
       END
