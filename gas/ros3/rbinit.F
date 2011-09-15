@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbinit.F,v 1.2 2011/04/01 15:41:42 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbinit.F,v 1.3 2011/09/15 15:01:47 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -25,16 +25,16 @@ C %W% %P% %G% %U%
       SUBROUTINE RBINIT
 C***********************************************************************
 C
-C  FUNCTION: To initialize species tolerances, allocate arrays, and 
+C  Function: To initialize species tolerances, allocate arrays, and 
 C            define grid structure
 C
-C  PRECONDITIONS: None
+C  Preconditions: None
 C
-C  RETURN VALUES: None
+C  Return Values: None
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C  Key Subroutines/Functions CALLED: None
 C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 2004
+C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    31 Jan 05 J.Young: dyn alloc - establish both horizontal
 C                    & vertical domain specifications in one module (GRID_CONF)
 C                    Get BLKSIZE from module GRID_CONF
@@ -51,23 +51,20 @@ C***********************************************************************
 
       IMPLICIT NONE
 
-C.....INCLUDES:
+C.....Includes:
       INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
 
-C.....ARGUMENTS: NONE
+C.....Arguments: NONE
 
-C.....PARAMETERS:
-
-      CHARACTER( 16 ), PARAMETER   :: PNAME = 'RBINIT'    ! Program name
+C.....Parameters:
+      CHARACTER( 16 ), PARAMETER   :: PNAME = 'RBINIT'    ! Procedure name
       REAL, PARAMETER              :: DEF_ATOL = 1.0E-07  ! Default ATOL
       REAL, PARAMETER              :: DEF_RTOL = 1.0E-03  ! Default RTOL
 
-C.....EXTERNAL FUNCTIONS:
+C.....External Functions:
 
-C.....SAVED VARIABLES: NONE
- 
-C.....LOCAL VARIABLES: 
-      CHARACTER( 132 ) :: MSG      ! Log message
+C.....Local Variables: 
+      CHARACTER( 132 ) :: XMSG     ! Log error message
       CHARACTER(  80 ) :: VARDESC  ! Description of environment variable 
 
       INTEGER N                    ! Loop index
@@ -101,63 +98,134 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MXCOUNT1 = N_GC_SPC * MAXGL3 * 3
       MXCOUNT2 = N_GC_SPC * MAXGL3 * 3
 
-      ALLOCATE( NKUSERAT( NRXNS, NCS2 ) )
-      ALLOCATE( NDERIVL(  NRXNS, NCS2 ) )
-      ALLOCATE( NDERIVP(  NRXNS, NCS2 ) )
-      ALLOCATE( IRM2( NRXNS, MXRCT + MXPRD, NCS2 ) )
-      ALLOCATE( ICOEFF( NRXNS, MXRP, NCS2 ) )
+      ALLOCATE( NKUSERAT( NRXNS,NCS2 ),
+     &          NDERIVL ( NRXNS,NCS2 ),
+     &          NDERIVP ( NRXNS,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating NKUSERAT, NDERIVL or NDERIVP'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( JARRAYPT( N_GC_SPC, N_GC_SPC, NCS2 ) )
-      ALLOCATE( JARRL( NRXNS, MXRR, NCS2 ) )
-      ALLOCATE( JARRP( NRXNS, MXRP, NCS2 ) )
-      ALLOCATE( JLIAL( NRXNS, MXRR, NCS2 ) )
-      ALLOCATE( JPIAL( NRXNS, MXRP, NCS2 ) )
+      ALLOCATE( IRM2( NRXNS,MXRCT+MXPRD,NCS2 ),
+     &          ICOEFF( NRXNS,MXRP,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating IRM2 or ICOEFF'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( INEW2OLD( N_GC_SPC,  NCS ) )
-      ALLOCATE( IOLD2NEW( N_GC_SPC,  NCS ) )
+      ALLOCATE( JARRAYPT( N_GC_SPC,N_GC_SPC,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating JARRAYPT'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( JZEROA( MXARRAY ) )
-      ALLOCATE( JZEROB( MXARRAY ) )
+      ALLOCATE( JARRL( NRXNS,MXRR,NCS2 ),
+     &          JARRP( NRXNS,MXRP,NCS2 ),
+     &          JLIAL( NRXNS,MXRR,NCS2 ),
+     &          JPIAL( NRXNS,MXRP,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating JARRL, JARRP, JLIAL, or JPIAL'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( JZLO( NCS2 ) )
-      ALLOCATE( IDEC1LO( N_GC_SPC, NCS2 ) )
-      ALLOCATE( IDEC1HI( N_GC_SPC, NCS2 ) )
+      ALLOCATE( INEW2OLD( N_GC_SPC,NCS ),
+     &          IOLD2NEW( N_GC_SPC,NCS ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating INEW2OLD or IOLD2NEW'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( IJDECA( MXCOUNT2 ) )
-      ALLOCATE( IJDECB( MXCOUNT2 ) )
-      ALLOCATE( IKDECA( MXCOUNT2 ) )
-      ALLOCATE( IKDECB( MXCOUNT2 ) )
-      ALLOCATE( KJDECA( MXCOUNT2 ) )
-      ALLOCATE( KJDECB( MXCOUNT2 ) )
+      ALLOCATE( JZEROA( MXARRAY ),
+     &          JZEROB( MXARRAY ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating JZEROA or JZEROB'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( JHIZ1( N_GC_SPC, NCS2 ) )
-      ALLOCATE( JHIZ2( N_GC_SPC, NCS2 ) )
-      ALLOCATE( KZLO1( N_GC_SPC, NCS2 ) )
-      ALLOCATE( KZLO2( N_GC_SPC, NCS2 ) )
-      ALLOCATE( KZHI0( N_GC_SPC, NCS2 ) )
-      ALLOCATE( KZHI1( N_GC_SPC, NCS2 ) )
-      ALLOCATE( KZERO( MXARRAY,  NCS2 ) )
-      ALLOCATE( KZILCH( N_GC_SPC, NCS2 ) )
-      ALLOCATE( MZHI0(  N_GC_SPC, NCS2 ) )
-      ALLOCATE( MZHI1(  N_GC_SPC, NCS2 ) )
-      ALLOCATE( MZILCH( N_GC_SPC, NCS2 ) )
-      ALLOCATE( MZLO1(  N_GC_SPC, NCS2 ) )
-      ALLOCATE( MZLO2(  N_GC_SPC, NCS2 ) )
+      ALLOCATE( JZLO( NCS2 ),
+     &          IDEC1LO( N_GC_SPC,NCS2 ),
+     &          IDEC1HI( N_GC_SPC,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating JZLO, IDEC1LO or IDEC1HI'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( VDIAG( BLKSIZE, N_GC_SPC ) )
+      ALLOCATE( IJDECA( MXCOUNT2 ),
+     &          IJDECB( MXCOUNT2 ),
+     &          IKDECA( MXCOUNT2 ),
+     &          IKDECB( MXCOUNT2 ),
+     &          KJDECA( MXCOUNT2 ),
+     &          KJDECB( MXCOUNT2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating IJDECA, IJDECB, IKDECA, IKDECB, KJDECA, or KJDECB'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( CC2( BLKSIZE, 0:MXARRAY ) )
+      ALLOCATE( JHIZ1( N_GC_SPC,NCS2 ),
+     &          JHIZ2( N_GC_SPC,NCS2 ),
+     &          KZLO1( N_GC_SPC,NCS2 ),
+     &          KZLO2( N_GC_SPC,NCS2 ),
+     &          KZHI0( N_GC_SPC,NCS2 ),
+     &          KZHI1( N_GC_SPC,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating JHIZ1, JHIZ2, KZLO1, KZLO2, KZHI0, or KZHI1'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
+      ALLOCATE( KZERO( MXARRAY,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating KZERO'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
+      ALLOCATE( KZILCH( N_GC_SPC,NCS2 ),
+     &          MZHI0 ( N_GC_SPC,NCS2 ),
+     &          MZHI1 ( N_GC_SPC,NCS2 ),
+     &          MZILCH( N_GC_SPC,NCS2 ),
+     &          MZLO1 ( N_GC_SPC,NCS2 ),
+     &          MZLO2 ( N_GC_SPC,NCS2 ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating KZILCH, MZHI0, MZHI1, MZILCH, MZLO1, or MZLO2'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
+      ALLOCATE( VDIAG( BLKSIZE,N_GC_SPC ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating VDIAG'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
+      ALLOCATE( CC2( BLKSIZE,0:MXARRAY ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating CC2'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
 c..cell & solver data
-      ALLOCATE( BLKTEMP( BLKSIZE ) )        
-      ALLOCATE( BLKPRES( BLKSIZE ) )        
-      ALLOCATE( BLKCH2O( BLKSIZE ) )       
-      ALLOCATE( BLKDENS( BLKSIZE ) )
+      ALLOCATE( BLKTEMP( BLKSIZE ),
+     &          BLKPRES( BLKSIZE ),
+     &          BLKCH2O( BLKSIZE ),
+     &          BLKDENS( BLKSIZE ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, or BLKDENS'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
-      ALLOCATE( RKI( BLKSIZE, NRXNS ) )    
-      ALLOCATE( ATOL( N_SPEC ) )            
-      ALLOCATE( RTOL( N_SPEC ) )            
-      ALLOCATE( Y( BLKSIZE, N_SPEC ) )    
+      NJPHOT  = NPHOTAB
+      ALLOCATE( RJBLK( BLKSIZE,NJPHOT ), STAT = STATUS )    
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating RJBLK'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
+      ALLOCATE( RKI( BLKSIZE,NRXNS ),
+     &          ATOL( N_SPEC ),
+     &          RTOL( N_SPEC ),
+     &          Y( BLKSIZE,N_SPEC ), STAT = STATUS )
+      IF ( STATUS .NE. 0 ) THEN
+         XMSG = 'ERROR allocating RKI, ATOL, RTOL, or Y'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set convergence tolerances for each species; currently uses
@@ -167,26 +235,26 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DEFTOL = DEF_RTOL
       GLBL_RTOL = ENVREAL( 'RB_RTOL', VARDESC, DEFTOL, STATUS )
       IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable RB_RTOL improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, MSG, 0 )
-      ELSEIF ( STATUS .LT. 0 ) THEN
+         XMSG = 'Environment variable RB_RTOL improperly formatted'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      ELSE IF ( STATUS .LT. 0 ) THEN
          GLBL_RTOL = DEF_RTOL
-      ENDIF
+      END IF
 
       VARDESC = 'Absolute tolerance for Rosenbrock Solver'
       DEFTOL = DEF_ATOL
       GLBL_ATOL = ENVREAL( 'RB_ATOL', VARDESC, DEFTOL, STATUS )
       IF ( STATUS .EQ. 1 ) THEN
-         MSG = 'Environment variable RB_ATOL improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, MSG, 0 )
-      ELSEIF ( STATUS .LT. 0 ) THEN
+         XMSG = 'Environment variable RB_ATOL improperly formatted'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      ELSE IF ( STATUS .LT. 0 ) THEN
          GLBL_ATOL = DEF_ATOL
-      ENDIF
+      END IF
 
       DO N = 1, N_GC_SPC
          ATOL( N ) = GLBL_ATOL
          RTOL( N ) = GLBL_RTOL
-      ENDDO
+      END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get number of cells in grid and store i,j,k indices of cells in
@@ -196,9 +264,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO LEV = 1, NLAYS
          DO COL = 1, MY_NCOLS
             DO ROW = 1, MY_NROWS
+!        DO ROW = 1, MY_NROWS
+!           DO COL = 1, MY_NCOLS
                NCOUNT = NCOUNT + 1
-               CROW( NCOUNT ) = ROW
                CCOL( NCOUNT ) = COL
+               CROW( NCOUNT ) = ROW
                CLEV( NCOUNT ) = LEV
             END DO
          END DO
@@ -209,31 +279,28 @@ c  Define block structure for grid; stop if maxblks exceeded
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NOXYZ = NCOUNT
       NBLKS = 1 + ( NOXYZ - 1 ) / BLKSIZE
-      IF( NBLKS .GT. MXBLKS ) THEN
-         WRITE( MSG, 92020 ) NBLKS, MXBLKS
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-      ENDIF
+      IF ( NBLKS .GT. MXBLKS ) THEN
+         WRITE( XMSG, 92020 ) NBLKS, MXBLKS
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
       IAVGSIZE = 1 + ( NOXYZ - 1 ) / NBLKS
       IAVGSIZE = MIN( IAVGSIZE, BLKSIZE )
       OFFSET = 0
 
-      DO 200 NBLK = 1, NBLKS
-         IF( NBLK .LT. NBLKS ) THEN
-            BLKCNO( NBLK ) = OFFSET
-            BLKLEN( NBLK ) = IAVGSIZE
-            OFFSET = OFFSET + IAVGSIZE
-         ELSE
-            BLKCNO( NBLK ) = OFFSET
-            BLKLEN( NBLK ) = NOXYZ - ( ( NBLK-1 ) * IAVGSIZE )
-         ENDIF
-  200 CONTINUE
+      DO NBLK = 1, NBLKS - 1
+         BLKCNO( NBLK ) = OFFSET
+         BLKLEN( NBLK ) = IAVGSIZE
+         OFFSET = OFFSET + IAVGSIZE
+      END DO
+      BLKCNO( NBLKS ) = OFFSET
+      BLKLEN( NBLKS ) = NOXYZ - ( ( NBLK-1 ) * IAVGSIZE )
 
       RETURN
       
-C********************** FORMAT STATEMENTS ******************************      
-92020 FORMAT( 1X, 'ERROR: MAXIMUM NUMBER OF BLOCKS EXCEEDED',
-     &            ' FOR GRID', 'NBLKS=', I3, 1X, ' MAXBLKS=',
-     &            I3, '  CHANGE GRPARMS.EXT' )
+C********************** FORMAT Statements ******************************      
+92020 FORMAT( 1X, 'ERROR: Maximum Number of Blocks Exceeded',
+     &            ' for Grid', 'NBLKS=', I3, 1X, ' MAXBLKS=',
+     &            I3, '  Change GRPARMS.EXT' )
 
       END

@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdecomp.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdecomp.F,v 1.2 2011/09/15 15:01:46 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,15 +26,15 @@ C %W% %P% %G% %U%
 
 C***********************************************************************
 C
-C  FUNCTION:  To decompose the matrix [A] into lower- and upper
+C  Function:  Decompose the matrix [A] into lower- and upper-
 C             triangular form to facilitate solution of the set of 
 C             linear simultaneous equations of the form [A]{x}={b}.
 C
-C  PRECONDITIONS: None
+C  Preconditions: None
 C                                                                     
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C  Key Subroutines/Functions Called: None
 C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 2004.
+C  Revision History: Prototype created by Jerry Gipson, August, 2004.
 C                      Based on the SMVGEAR code originally developed by 
 C                      M. Jacobson, (Atm. Env., Vol 28, No 2, 1994).
 C
@@ -44,24 +44,17 @@ C***********************************************************************
 
       IMPLICIT NONE
       
-C..INCLUDES:
+C..Includes:
       INTEGER NCSP            ! Index of chem mech to use
                               ! 1=gas/day, 2=gas/night
 
-      
-C..ARGUMENTS: None
+C..Arguments: None
 
+C..Parameters: None
 
-C..PARAMETERS: None
+C..External Functions: None
 
-
-C..EXTERNAL FUNCTIONS: None
-
-
-C..SAVED LOCAL VARIABLES: None
-
-
-C..SCRATCH LOCAL VARIABLES:
+C..Local Variables:
       INTEGER IAR             ! Pointer to diagonal terms
       INTEGER IC              ! Loop index for ops in decomp loop 1
       INTEGER IDLO            ! Start index for decomp loop 1
@@ -89,31 +82,32 @@ c  First loop of L-U decomposition
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       JHI2 = JZLO( NCSP )
       DO 100 J = 1, ISCHAN
-         IDLO = IDEC1LO( J, NCSP )
-         IDHI = IDEC1HI( J, NCSP )
-         DO 20 IC = IDLO, IDHI
+         IDLO = IDEC1LO( J,NCSP )
+         IDHI = IDEC1HI( J,NCSP )
+         DO IC = IDLO, IDHI
             IJ0 = IJDECA( IC )
             IJ1 = IJDECB( IC )
             IK0 = IKDECA( IC )
             IK1 = IKDECB( IC )
             KJ0 = KJDECA( IC )
             KJ1 = KJDECB( IC )
-            DO 20  NCELL = 1, NUMCELLS
-               CC2( NCELL, IJ0 ) = CC2( NCELL, IJ0 ) - 
-     &                             CC2( NCELL, IK0 ) * CC2( NCELL, KJ0 )
-               CC2( NCELL, IJ1 ) = CC2( NCELL, IJ1 ) - 
-     &                             CC2( NCELL, IK1 ) * CC2( NCELL, KJ1 )
-   20    CONTINUE
+            DO NCELL = 1, NUMCELLS
+               CC2( NCELL,IJ0 ) = CC2( NCELL,IJ0 )
+     &                          - CC2( NCELL,IK0 ) * CC2( NCELL,KJ0 )
+               CC2( NCELL,IJ1 ) = CC2( NCELL,IJ1 )
+     &                          - CC2( NCELL,IK1 ) * CC2( NCELL,KJ1 )
+            END DO
+         END DO
     
 c...vdiag = 1 / current diagonal term of the decomposed matrix
          IAR = JARRAYPT( J, J, NCSP )
-         DO 40 NCELL = 1, NUMCELLS
-            VDIAG( NCELL, J )  = 1.0 / CC2( NCELL, IAR )
-   40    CONTINUE
+         DO NCELL = 1, NUMCELLS
+            VDIAG( NCELL,J )  = 1.0 / CC2( NCELL,IAR )
+         END DO
    
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Second loop of decompostion. The elements of L are divided by the
-c  diagonal element, and the preocess is divided into parts to improve
+c  diagonal element, and the process is divided into parts to improve
 c  vectorization.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          JLO1 = JHI2 + 1
@@ -122,20 +116,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          JHI2 = JHI1 + JHIZ2( J, NCSP )
          
 c...do 2 terms at a time
-         DO 60 JC = JLO1, JHI1
+         DO JC = JLO1, JHI1
             IJA = JZEROA( JC )
             IJB = JZEROB( JC )
-            DO 60 NCELL = 1, NUMCELLS
-               CC2( NCELL, IJA ) = CC2( NCELL, IJA ) * VDIAG( NCELL, J )  
-               CC2( NCELL, IJB ) = CC2( NCELL, IJB ) * VDIAG( NCELL, J )  
-  60     CONTINUE
+            DO NCELL = 1, NUMCELLS
+               CC2( NCELL,IJA ) = CC2( NCELL,IJA ) * VDIAG( NCELL,J )  
+               CC2( NCELL,IJB ) = CC2( NCELL,IJB ) * VDIAG( NCELL,J )  
+            END DO
+         END DO
  
 c...do 1 term at a time 
-         DO 80 JC = JLO2, JHI2 
+         DO JC = JLO2, JHI2 
             IJA = JZEROA( JC )
-            DO 80 NCELL = 1, NUMCELLS
-               CC2( NCELL, IJA ) = CC2( NCELL, IJA ) * VDIAG( NCELL, J )  
-   80    CONTINUE
-  100 CONTINUE
+            DO NCELL = 1, NUMCELLS
+               CC2( NCELL,IJA ) = CC2( NCELL,IJA ) * VDIAG( NCELL,J )  
+            END DO
+         END DO
+100   CONTINUE
       RETURN
       END

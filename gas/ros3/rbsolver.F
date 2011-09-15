@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.2 2011/04/01 15:41:43 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.3 2011/09/15 15:01:47 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -27,13 +27,13 @@ C %W% %P% %G% %U%
 
 C**********************************************************************
 C
-C  FUNCTION: ROS3 solver 
+C  Function: ROS3 solver 
 C
-C  PRECONDITIONS: None
+C  Preconditions: None
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: 
+C  Key Subroutines/Functions Called: 
 C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 2004
+C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    Based on the solver described by Sandu et al
 C                    ( Atm. Env., Vol. 31, No. 20, 1997 ) and included
 C                    in the Kinetic PreProcessor-KPP ( see for example 
@@ -58,22 +58,23 @@ C**********************************************************************
 
       IMPLICIT NONE 
 
-C..INCLUDES:
+C..Includes:
+!      INCLUDE SUBST_IODECL        ! I/O API declarations
+!      INCLUDE SUBST_IOPARMS       ! I/O API parameters
+       INCLUDE SUBST_RXCMMN 
 
-C..ARGUMENTS:
-      INTEGER LOGDEV              ! Unit number of output log
-      INTEGER JDATE               ! Current date (YYYYDDD)
-      INTEGER JTIME               ! Current time (HHMMSS)
-      INTEGER NCSP                ! Index of chem mech to use
-                                  ! 1=gas/day, 2=gas/night
-      INTEGER NIRRCLS             ! No. of cells in block for IRR
-      INTEGER IRRCELL( BLKSIZE )  ! Cell No. of an IRR cell
+C..Arguments:
+      INTEGER, INTENT( IN ) :: LOGDEV        ! Unit number of output log
+      INTEGER, INTENT( IN ) :: JDATE         ! Current date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: JTIME         ! Current time (HHMMSS)
+      REAL,    INTENT( IN ) :: CHEMSTEP      ! Chem integration interval (min)
+      INTEGER, INTENT( IN ) :: NCSP          ! Index of chem mech to use
+                                                     ! 1=gas/day, 2=gas/night
+      LOGICAL, INTENT( IN ) :: LIRRFLAG      ! Flag for IRR calculations
+      INTEGER, INTENT( INOUT ) :: NIRRCLS       ! No. of cells in block for IRR
+      INTEGER, INTENT( IN ) :: IRRCELL( : )  ! Cell No. of an IRR cell
 
-      LOGICAL LIRRFLAG            ! Flag for IRR calculations
-
-      REAL    CHEMSTEP            ! Chem integration interval (min)
-
-C..PARAMETERS:
+C..Parameters:
 
 c..ROS3 solver parameters - from KPP
       REAL( 8 ), PARAMETER :: GAM =  0.43586652150845899941601945119356D+00
@@ -94,30 +95,29 @@ c..ROS3 solver parameters - from KPP
       REAL( 8 ), PARAMETER :: G3  =  0.21851380027664058511513169485832D+01
       REAL( 8 ), PARAMETER :: GROW = 1.0D+00 / 3.00D+00
 
-      REAL( 8 ), PARAMETER :: DTSTART  =  0.5D-01  ! Starting time step (min)
-      REAL( 8 ), PARAMETER :: DTMIN    =  1.0D-08  ! Min time step
-      REAL( 8 ), PARAMETER :: DTMAX    =  1.0D+01  ! Max time step
-      REAL( 8 ), PARAMETER :: UROUND   =  1.0D-18  ! Roundoff parameter
+      REAL( 8 ), PARAMETER :: DTSTART = 0.5D-01  ! Starting time step (min)
+      REAL( 8 ), PARAMETER :: DTMIN   = 1.0D-08  ! Min time step
+      REAL( 8 ), PARAMETER :: DTMAX   = 1.0D+01  ! Max time step
+      REAL( 8 ), PARAMETER :: UROUND  = 1.0D-18  ! Roundoff parameter
 
-      REAL( 8 ), PARAMETER :: FACMAX   =  1.0D+01  ! Max time step factor
-      REAL( 8 ), PARAMETER :: FACMIN   =  1.0D-01  ! Min time step factor
-      REAL( 8 ), PARAMETER :: FACONE   =  1.0D+00  ! Time step fac of 1.0
+      REAL( 8 ), PARAMETER :: FACMAX  = 1.0D+01  ! Max time step factor
+      REAL( 8 ), PARAMETER :: FACMIN  = 1.0D-01  ! Min time step factor
+      REAL( 8 ), PARAMETER :: FACONE  = 1.0D+00  ! Time step fac of 1.0
 
-      REAL( 8 ), PARAMETER :: CONMIN   =  1.0D-30  ! Min conc
+      REAL( 8 ), PARAMETER :: CONMIN  = 1.0D-30  ! Min conc
 
-C..EXTERNAL FUNCTIONS:
-
-C..SAVED LOCAL VARIABLES:
+C..External FUNCTIONS:
+ 
+C..Local Variables:
       CHARACTER( 16 ), SAVE :: PNAME = 'RBSOLVER'  ! Procedure name
       CHARACTER( 96 ) :: XMSG = ' '
       LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call
 
-C..LOCAL VARIABLES:
       INTEGER I, J, N, JSPC       ! Loop indices
       INTEGER IDIAGBEG            ! Index of diagonal start in Jac array 
       INTEGER OFFSET              ! Cell offset for blcock
       INTEGER NCELL               ! Cell loop index
-      INTEGER DUMMY( BLKSIZE )    ! Dummy array for IRR call
+      INTEGER :: DUMMY( BLKSIZE ) ! Dummy array for IRR call
       INTEGER NRX                 ! Loop index for reactions
       INTEGER ISPOLD              ! Species index for old array order
       INTEGER NCALL_DEGRADE       ! WTH
@@ -125,34 +125,41 @@ C..LOCAL VARIABLES:
 
       LOGICAL LPASS               ! Flag for convergence achieved
 
-      REAL DTCELL( BLKSIZE )             ! Time step for each cell for IRR
-      REAL, ALLOCATABLE, SAVE :: CIRR ( :, : )   ! Species concs for IRR analysis
-      REAL, ALLOCATABLE, SAVE :: RKIRR( :, : )    ! Rate constants for IRR analysis
+      REAL :: DTCELL( BLKSIZE )             ! Time step for each cell for IRR
+      REAL, ALLOCATABLE, SAVE :: CIRR ( :,: )   ! Species concs for IRR analysis
+      REAL, ALLOCATABLE, SAVE :: RKIRR( :,: )    ! Rate constants for IRR analysis
 
-      REAL( 8 )  D
-      REAL( 8 )  DT               ! Time step
-      REAL( 8 )  DTINV            ! Inverse of time step
-      REAL( 8 )  DTFAC            ! Time step scale factor
-      REAL( 8 )  GDTINV           ! Inverse of gamma x time step
-      REAL( 8 )  TNOW             ! Elapsed time at start of integration step
-      REAL( 8 )  TEND             ! Elapsed time at end of integration step
-      REAL( 8 )  DT_DEGRADE       ! WTH: Time step for degradation routine
-      REAL( 8 )  YTOL             ! Species tolerance
+      REAL( 8 ) :: D
+      REAL( 8 ) :: DT             ! Time step
+      REAL( 8 ) :: DTINV          ! Inverse of time step
+      REAL( 8 ) :: DTFAC          ! Time step scale factor
+      REAL( 8 ) :: GDTINV         ! Inverse of gamma x time step
+      REAL( 8 ) :: TNOW           ! Elapsed time at start of integration step
+      REAL( 8 ) :: TEND           ! Elapsed time at end of integration step
+      REAL( 8 ) :: DT_DEGRADE     ! WTH: Time step for degradation routine
+      REAL( 8 ) :: YTOL           ! Species tolerance
       REAL( 8 ), SAVE :: RNSPEC   ! Recipricol of # of species
-      REAL( 8 )  X1, X2           ! Temp ROS3 variables
-      REAL( 8 )  ERRYMAX          ! Cell/species stiffness estimate
-      REAL( 8 )  YLOWEPS          ! Tolerance ratio used in stiffness calc
-      REAL( 8 )  MAXERR           ! Max of cell error estimates
+      REAL( 8 ) :: X1, X2         ! Temp ROS3 variables
+      REAL( 8 ) :: ERRYMAX        ! Cell/species stiffness estimate
+      REAL( 8 ) :: YLOWEPS        ! Tolerance ratio used in stiffness calc
+      REAL( 8 ) :: MAXERR         ! Max of cell error estimates
+      REAL( 8 ) :: OLDERR         ! OLD max error 
 
-      REAL( 8 )  ERR( BLKSIZE )           ! Error est for each cell
+      INTEGER    COL_ERR          ! column for max of cell error estimate
+      INTEGER    ROW_ERR          ! row for max of cell error estimate
+      INTEGER    LAY_ERR          ! layer for max of cell error estimate
+      INTEGER    CELL_MAXERR      ! cell with maximum error estimate
+      REAL( 8 ) :: MAX_SPC_ERR      ! species error in the cell
+      
+      REAL( 8 ) :: ERR( BLKSIZE )           ! Error est for each cell
       REAL( 8 ), ALLOCATABLE, SAVE :: YDOT( :, : )   ! dc/dt array
 
 c.....ROS3 intermediate variables
-      REAL( 8 ), ALLOCATABLE, SAVE :: K1( :, : )    
-      REAL( 8 ), ALLOCATABLE, SAVE :: K2( :, : )
-      REAL( 8 ), ALLOCATABLE, SAVE :: K3( :, : )
-      REAL( 8 ), ALLOCATABLE, SAVE :: K4( :, : )
-      REAL( 8 ), ALLOCATABLE, SAVE :: YP( :, : )     ! Predicted conc
+      REAL( 8 ), ALLOCATABLE, SAVE :: K1( :,: )    
+      REAL( 8 ), ALLOCATABLE, SAVE :: K2( :,: )
+      REAL( 8 ), ALLOCATABLE, SAVE :: K3( :,: )
+      REAL( 8 ), ALLOCATABLE, SAVE :: K4( :,: )
+      REAL( 8 ), ALLOCATABLE, SAVE :: YP( :,: )     ! Predicted conc
 
 #ifdef rbdebug
 
@@ -165,6 +172,21 @@ c.....ROS3 intermediate variables
       LOGICAL, SAVE :: LOPEN = .FALSE.     ! Flag for debug file opened
 
 #endif
+
+      INTERFACE
+         SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
+            USE GRID_CONF
+            USE CGRID_SPCS
+            IMPLICIT NONE
+            INCLUDE SUBST_RXCMMN
+            LOGICAL LSTART, LCHGVL
+            REAL    :: RK( BLKSIZE,NRXNS )
+            REAL    :: CONC( :,: )
+            REAL    :: DELT( BLKSIZE )
+            INTEGER NUMCELLS
+            INTEGER :: ICLND( BLKSIZE )
+         END SUBROUTINE PA_IRR
+      END INTERFACE
 
 C**********************************************************************
 
@@ -233,19 +255,19 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       COL = 0
       ROW = 0
       LEV = 0
-      IF( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
-!     IF( JTIME .EQ. 160000 ) THEN
+      IF ( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
+!     IF ( JTIME .EQ. 160000 ) THEN
          LDEBUG = .TRUE.
       ELSE
          LDEBUG = .FALSE.
-      ENDIF
+      END IF
 
-      IF( LDEBUG ) THEN
-           IF( .NOT. LOPEN ) THEN
+      IF ( LDEBUG ) THEN
+           IF ( .NOT. LOPEN ) THEN
               DBGOUT = JUNIT()
               OPEN( UNIT = DBGOUT, FILE = 'debug.out' )
               LOPEN = .TRUE.
-           ENDIF
+           END IF
 
            WRITE( DBGOUT, '( A, 2I4, I3, 1X, I7, 1X, I6 ) ' )
      &             'Debug output for col/row/lev/date/time:', 
@@ -256,12 +278,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
            DO N = 1, N_SPEC
              WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
      &                     'SP ',N, GC_SPC( N ), Y( N )
-           ENDDO
+           END DO
            DO N = 1, N_RXNS
              WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
      &                     'RKI ', N, RKI( N )
-           ENDDO
-      ENDIF
+           END DO
+      END IF
 
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
@@ -269,7 +291,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
       ISCHAN = ISCHANG( NCS )
 
-      IDIAGBEG = IARRAY( NCSP) - ISCHAN + 1
+      IDIAGBEG = IARRAY( NCSP ) - ISCHAN + 1
 
       DT = MAX( DTMIN, DTSTART )
 
@@ -281,55 +303,54 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
       OFFSET = BLKCNO( BLKID )
 
-      IF( LIRRFLAG ) THEN
+      IF ( LIRRFLAG ) THEN
 
          DO NRX = 1, N_RXNS
             DO NCELL = 1, NIRRCLS
-               RKIRR( NCELL, NRX ) = RKI( IRRCELL( NCELL ), NRX )
-            ENDDO
-         ENDDO
+               RKIRR( NCELL,NRX ) = RKI( IRRCELL( NCELL ),NRX )
+            END DO
+         END DO
 
          DO NCELL = 1, NUMCELLS
             DTCELL( NCELL ) = 0.0
-         ENDDO
+         END DO
          DO I = 1, ISCHAN
             ISPOLD = INEW2OLD( I, NCS )
             DO NCELL = 1, NIRRCLS
-               CIRR( NCELL, ISPOLD ) = Y( IRRCELL( NCELL ), I )
-            ENDDO
-         ENDDO
-         CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, 
-     &                    NIRRCLS, DUMMY )
+               CIRR( NCELL, ISPOLD ) = Y( IRRCELL( NCELL ),I )
+            END DO
+         END DO
+         CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, NIRRCLS, DUMMY )
 
-      ENDIF
+      END IF
 
 
-  100 CONTINUE
+100   CONTINUE
 
       CALL RBFEVAL( NCSP, Y, YDOT )
 
-      IF( LORDERING ) THEN
+      IF ( LORDERING ) THEN
 
          DO JSPC = 1, ISCHAN  
             YLOWEPS = ATOL( JSPC ) / ( MIN( RTOL( JSPC ), 0.003D+00 ) )
             DO NCELL = 1, NUMCELLS
-               ERRYMAX  = YDOT( NCELL, JSPC ) / 
-     &                   ( Y( NCELL, JSPC ) + YLOWEPS )
-               ERRMX2( OFFSET + NCELL ) = ERRMX2( OFFSET + NCELL ) +
-     &                                    ERRYMAX * ERRYMAX
-            ENDDO
-         ENDDO
+               ERRYMAX  = YDOT( NCELL,JSPC )
+     &                  / ( Y( NCELL,JSPC ) + YLOWEPS )
+               ERRMX2( OFFSET + NCELL ) = ERRMX2( OFFSET + NCELL )
+     &                                  + ERRYMAX * ERRYMAX
+            END DO
+         END DO
 
          RETURN
 
-      ENDIF
+      END IF
 
       TEND = TNOW + DT 
 
-      IF( TEND .GT. CHEMSTEP ) THEN
+      IF ( TEND .GT. CHEMSTEP ) THEN
          DT = CHEMSTEP - TNOW
          TEND = CHEMSTEP
-      ENDIF    
+      END IF    
 
       DTINV = 1.0D+00 / DT
 
@@ -339,36 +360,36 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
       DO J = IDIAGBEG, IARRAY( NCSP )
          DO NCELL = 1, NUMCELLS
-           CC2( NCELL, J ) = CC2( NCELL, J ) - GDTINV
-         ENDDO
-      ENDDO
+            CC2( NCELL,J ) = CC2( NCELL,J ) - GDTINV
+         END DO
+      END DO
 
       CALL RBDECOMP( NCSP )
 
 c..stage 1
       DO N = 1, N_SPEC
          DO NCELL = 1, NUMCELLS
-            K1( NCELL, N ) = -YDOT( NCELL, N )
-         ENDDO
-      ENDDO      
+            K1( NCELL,N ) = -YDOT( NCELL,N )
+         END DO
+      END DO      
 
       CALL RBSOLVE( NCSP, K1 )
 
 c..stage 2
       DO N = 1, N_SPEC
          DO NCELL = 1, NUMCELLS
-            YP( NCELL, N ) = Y( NCELL, N ) + K1( NCELL, N )
-         ENDDO
-      ENDDO      
+            YP( NCELL,N ) = Y( NCELL,N ) + K1( NCELL,N )
+         END DO
+      END DO      
 
       CALL RBFEVAL( NCSP, YP, YDOT )
 
       X1 = C21 * DTINV
       DO N = 1, N_SPEC
          DO NCELL = 1, NUMCELLS
-            K2( NCELL, N ) = -YDOT( NCELL, N ) - X1 * K1( NCELL, N )
-         ENDDO
-      ENDDO      
+            K2( NCELL,N ) = -YDOT( NCELL,N ) - X1 * K1( NCELL,N )
+         END DO
+      END DO      
 
       CALL RBSOLVE( NCSP, K2 )
 
@@ -377,39 +398,50 @@ c..stage 3
       X2 = C32 * DTINV
       DO N = 1, N_SPEC
          DO NCELL = 1, NUMCELLS
-            K3( NCELL, N ) = -YDOT( NCELL, N ) - X1 * K1( NCELL, N ) - 
-     &                       X2 * K2( NCELL, N )
-         ENDDO
-      ENDDO
+            K3( NCELL,N ) = -YDOT( NCELL,N ) - X1 * K1( NCELL,N )
+     &                    - X2 * K2( NCELL, N )
+         END DO
+      END DO
 
       CALL RBSOLVE( NCSP, K3 )
 
 c..final solution
       DO N = 1, N_SPEC
          DO NCELL = 1, NUMCELLS
-            YP( NCELL, N ) = Y( NCELL, N ) + B1 * K1( NCELL, N ) + 
-     &                       B2 * K2( NCELL, N ) + B3 * K3( NCELL, N )
-         ENDDO
-      ENDDO
+            YP( NCELL,N ) = Y( NCELL,N ) + B1 * K1( NCELL,N )
+     &                     + B2 * K2( NCELL,N ) + B3 * K3( NCELL,N )
+         END DO
+      END DO
 
 c..Estimate error
       ERR = 0.0D+00
       DO N = 1, N_SPEC
          DO NCELL = 1, NUMCELLS
-            YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( NCELL, N ) )
-            ERR( NCELL ) = ERR( NCELL ) + ( ( D1 * K1( NCELL, N ) + 
-     &          D2 * K2( NCELL, N ) + D3 * K3( NCELL, N ) ) / YTOL ) ** 2
-        ENDDO
-      ENDDO
+            YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( NCELL,N ) )
+            ERR( NCELL ) = ERR( NCELL )
+     &                   + ( ( D1 * K1( NCELL,N ) + D2 * K2( NCELL,N )
+     &                       + D3 * K3( NCELL,N ) ) / YTOL ) ** 2
+        END DO
+      END DO
 
-      MAXERR = 0.0
+      MAXERR      = 0.0D+00
+      OLDERR      = MAXERR
+      MAX_SPC_ERR = 0.0D+00
+      
       DO NCELL = 1, NUMCELLS
          MAXERR = MAX( MAXERR, UROUND, SQRT( ERR( NCELL ) * RNSPEC ) )
-      ENDDO
+         IF ( OLDERR .NE. MAXERR )THEN
+            OLDERR  =  MAXERR
+            COL_ERR = CCOL( NCELL )
+            ROW_ERR = CROW( NCELL )
+            LAY_ERR = CLEV( NCELL )
+            CELL_MAXERR = NCELL 
+         END IF
+      END DO
 
       DTFAC = 0.9D+00 / MAXERR ** GROW
 
-      IF( MAXERR .LE. 1.0D+00 ) THEN
+      IF ( MAXERR .LE. 1.0D+00 ) THEN
 
 #ifdef rbstats
          NSTEPS = NSTEPS + 1
@@ -417,48 +449,48 @@ c..Estimate error
 
          DO N = 1, N_GC_SPC
             DO NCELL = 1, NUMCELLS
-               Y( NCELL, N ) = MAX( YP( NCELL, N ), CONMIN )
-            ENDDO
-         ENDDO
+               Y( NCELL,N ) = MAX( YP( NCELL,N ), CONMIN )
+            END DO
+         END DO
 
-         IF( LIRRFLAG ) THEN
+         IF ( LIRRFLAG ) THEN
             DO NCELL = 1, NUMCELLS
                DTCELL( NCELL ) = DT
-            ENDDO
+            END DO
             DO I = 1, ISCHAN
                ISPOLD = INEW2OLD( I, NCS )
                DO NCELL = 1, NIRRCLS
-                  CIRR( NCELL, ISPOLD ) = Y( IRRCELL( NCELL ), I )
-               ENDDO
-            ENDDO
+                  CIRR( NCELL,ISPOLD ) = Y( IRRCELL( NCELL ), I )
+               END DO
+            END DO
             CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
-     &                       NIRRCLS, DUMMY )
-         ENDIF
+     &                    NIRRCLS, DUMMY )
+         END IF
 
-         IF( CALL_DEG ) THEN  !:WTH applying degradation algorithm
+         IF ( CALL_DEG ) THEN  !:WTH applying degradation algorithm
 
             DT_DEGRADE = 60.0D0 * ( TEND - TNOW )
 
             DO I = 1, ISCHAN
-               ISPOLD = INEW2OLD( I, NCS )
+               ISPOLD = INEW2OLD( I,NCS )
                DO NCELL = 1, NUMCELLS
-                  Y_DEGRADE( NCELL, ISPOLD ) = Y( NCELL, I )
-               ENDDO
-            ENDDO
+                  Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,I )
+               END DO
+            END DO
 
             NCALL_DEGRADE = NCALL_DEGRADE + 1
 
             CALL DEGRADE( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
 
-         ENDIF            !:WTH
+         END IF            !:WTH
 
          TNOW = TEND
 
-         IF( LPASS ) THEN
+         IF ( LPASS ) THEN
             DTFAC = MAX( FACMIN, MIN( DTFAC, FACMAX ) )
          ELSE
             DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
-         ENDIF 
+         END IF 
 
          DT = MIN( DTMAX, MAX( DTMIN, DTFAC * DT ) )
 
@@ -467,34 +499,109 @@ c..Estimate error
       ELSE
 
 #ifdef rbstats
-         IF( NFAILS .EQ. 0 .AND. TNOW .EQ. 0.0 ) N_BAD_STARTS = N_BAD_STARTS + 1
+         IF ( NFAILS .EQ. 0 .AND. TNOW .EQ. 0.0 ) N_BAD_STARTS = N_BAD_STARTS + 1
          NFAILS = NFAILS + 1
 #endif
 
-c        DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
+!        DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
 
          DT = FACMIN * DT  
 
          LPASS = .FALSE.
 
-         IF( DT .LT. DTMIN ) THEN
+         IF ( DT .LT. DTMIN ) THEN
 
-            WRITE( LOGDEV, 92100 ) JDATE, JTIME
+            WRITE( LOGDEV, 92110 ) JDATE, JTIME,
+     &      ( COL_ERR + STARTCOLCO ), ( ROW_ERR + STARTROWCO ), LAY_ERR
 
+            WRITE( LOGDEV, 92113) N_SPEC, N_GC_SPC
+            WRITE( LOGDEV, 92216) MAXERR, SQRT( ERR( CELL_MAXERR ) * RNSPEC )
+     
+            DO N = 1, N_SPEC
+                YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( CELL_MAXERR, N ) )
+                MAX_SPC_ERR = ( ( D1 * K1( CELL_MAXERR,N ) 
+     &                      +     D2 * K2( CELL_MAXERR,N ) 
+     &                      +     D3 * K3( CELL_MAXERR,N ) ) 
+     &                      / YTOL ) ** 2
+     &                      / ERR( CELL_MAXERR )
+     
+                ISPOLD = INEW2OLD( N, NCS )
+                WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( GC_SPC( ISPOLD ) ),
+     &          MAX_SPC_ERR, Y( CELL_MAXERR,N ), YP( CELL_MAXERR,N )
+     
+            END DO
+
+            WRITE( LOGDEV, 92215 ) BLKTEMP( CELL_MAXERR ), BLKPRES( CELL_MAXERR ),
+     &      BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR )
+
+            WRITE( LOGDEV, 92115 )
+
+            DO N = 1, NJPHOT
+               WRITE( LOGDEV, 92214 ) N, PHOTAB( N ), RJBLK( CELL_MAXERR,N )
+            END DO
+
+c..write photolysis rates used in cell
+            DO N = 1, NMPHOT
+               IF ( IPH( N,3 ) .NE. 0 ) THEN
+                  I = IPH( N,1 )
+                  J = IPH( N,2 )
+                  IF ( RTDAT( 1, I ) .GT. 0.0D+00 )THEN
+                     WRITE( LOGDEV, 92116 ) TRIM( RXLABEL( I ) ),
+     &               TRIM( PHOTAB( J ) ), RKI( CELL_MAXERR,I ) / RTDAT( 1,I )
+                  END IF
+               END IF
+            END DO
+          
+            DO N = 1, NMPHOT
+               IF ( IPH( N,3 ) .EQ. 0 ) THEN
+                  I = IPH( N,1 )
+                  J = IPH( N,2 )
+                  WRITE( LOGDEV, 92117 ) TRIM( RXLABEL( I ) ),
+     &            TRIM( RXLABEL( J ) ), RKI( CELL_MAXERR, J )
+               END IF
+            END DO
+ 
+!           CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT2 )
             STOP
 
-         ENDIF
+         END IF
 
-      ENDIF
+      END IF
 
-      IF( TNOW .LT. CHEMSTEP ) GO TO 100
+      IF ( TNOW .LT. CHEMSTEP ) GO TO 100
 
       RETURN
-
-  999 CONTINUE
 
 92100 FORMAT( '      Convergence failure ', 
      &       '  JDATE = ', I7, '  JTIME = ' , I6 )
 
+92110 FORMAT( ' Convergence failure in Gas Chemistry Solver ', 
+     &       '  JDATE = ', I7, '  JTIME = ' , I6,
+     &       ' at COL = ', I4, ' ROW = ', I4, ' LAY = ', I4 ) 
+
+92113 FORMAT( 'Number of Species solved = ', I4, ' out of ',
+     &         I4, ' Total GC Species ')
+
+92114 FORMAT('GC_SPC( ', I4, ' ) = ', A16,' Error Contribution =', 
+     &        ES12.4, ' Initial Conc = ', ES12.4 , 
+     &        ' Predicted Conc = ', ES12.4 )
+     
+92115 FORMAT(' Rates used in Photolysis Reactions ')
+
+92116 FORMAT('Reaction: ', A16, ' uses PHOTAB ', A16, ' = ', ES12.4)
+
+92117 FORMAT('Reaction: ', A16, ' uses Reaction ', A16, ' = ', ES12.4)
+
+92216 FORMAT(/ 'MAXERR = ', ES12.4
+     &       / 'SQRT( ERR( CELL_MAXERR ) * RNSPEC ) = ', ES12.4)
+
+92214 FORMAT( I3, A16,' = ', E12.4)
+
+92215 FORMAT(/ 'Cell Properties '
+     &       / 'Temp = ', ES12.4, ' K '
+     &       / 'Press = ', ES12.4,' Pa '
+     &       / 'Dens = ', ES12.4, ' Kg/m3 ' 
+     &       / 'H2O Vapor = ', ES12.4, ' ppm ')
+      
       END
 

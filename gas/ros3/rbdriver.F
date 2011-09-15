@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.2 2011/04/01 15:41:42 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.3 2011/09/15 15:01:46 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -27,18 +27,18 @@ C %W% %P% %G% %U%
 
 C**********************************************************************
 C
-C  FUNCTION: To control gas phase chemistry calculations performed by
+C  Function: To control gas phase chemistry calculations performed by
 C            the vectorized Rosenbrock solver
 C
-C  PRECONDITIONS: None
+C  Preconditions: None
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: RBINIT
+C  Key Subroutines/Functions Called: RBINIT
 C                                    RBSPARSE
 C                                    PHOT
 C                                    CALCKS
 C                                    RBSOLVER
 C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 2004
+C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    Based on the solver described by Sandu et al
 C                    ( Atm. Env., Vol. 31, No. 20, 1997 ) and included
 C                    in the Kinetic PreProcessor ( see for example 
@@ -66,14 +66,14 @@ C**********************************************************************
 
       IMPLICIT NONE 
 
-C..INCLUDES:
+C..Includes:
 
       INCLUDE SUBST_FILES_ID    ! CMAQ files
       INCLUDE SUBST_CONST       ! CMAQ constants
       INCLUDE SUBST_RXCMMN      ! Mechanism reaction common block
       INCLUDE SUBST_PACTL_ID    ! Process analysis control parameters
  
-C..ARGUMENTS:
+C..Arguments:
 
       REAL, POINTER :: CONC( :,:,:,: )  ! Concentrations
 
@@ -81,17 +81,17 @@ C..ARGUMENTS:
       INTEGER JTIME                     ! Current time (HHMMSS)
       INTEGER TSTEP( 2 )                ! Time step vector (HHMMSS)
 
-C..PARAMETERS:
+C..Parameters:
 
       INTEGER, PARAMETER :: IZERO = 0                ! Integer zero
 
-      REAL, PARAMETER    :: CONCMIN = 1.0E-30        ! Minimum conc
-      REAL, PARAMETER    :: CONCOFM = 1.0E+06        ! conc. of M = 1E+06 ppm
-      REAL, PARAMETER    :: PA2ATM  = 1.0 / STDATMPA ! Pascal to atm conv fac
+      REAL,    PARAMETER :: CONCMIN = 1.0E-30        ! Minimum conc
+      REAL,    PARAMETER :: CONCOFM = 1.0E+06        ! conc. of M = 1E+06 ppm
+      REAL,    PARAMETER :: PA2ATM  = 1.0 / STDATMPA ! Pascal to atm conv fac
 
-C..EXTERNAL FUNCTIONS:
+C..External Functions:
 
-C..SAVED LOCAL VARIABLES:
+C..Local Variables:
 
       LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
       LOGICAL, SAVE :: LIRRBLK         ! Flag for IRR to be done for block
@@ -102,8 +102,6 @@ C..SAVED LOCAL VARIABLES:
       REAL,    SAVE :: AIRFC           ! Factor to convert gms air to ppm
       REAL,    SAVE :: MAOMV           ! Mol Wt of air over Mol Wt of water
 !     REAL,    SAVE :: CONV( NLAYS )   ! Volumetric emis conv facs
-
-C..LOCAL VARIABLES:
 
       CHARACTER(  16 ) :: PNAME = 'RBDRIVER' ! Procedure name
       CHARACTER(  16 ) :: VNAME              ! Name of I/O API data variable
@@ -138,7 +136,7 @@ C..LOCAL VARIABLES:
       INTEGER SPC             ! Species loop index
       INTEGER VAR             ! Variable number on I/O API file
 
-      INTEGER IRRCELL( BLKSIZE )               ! Cell No. of an IRR cell
+      INTEGER :: IRRCELL( BLKSIZE )   ! Cell No. of an IRR cell
 
 C for INTERPX
       INTEGER     GXOFF, GYOFF                 ! global origin offset from file
@@ -148,16 +146,17 @@ C for INTERPX
       REAL CHEMSTEP                            ! Chem integration interval (min)
       REAL VALLOW                              ! Value holder for sort routine
       
-      REAL DENSA_J( NCOLS, NROWS, NLAYS )      ! Cell density (Kg/m**3)
-      REAL DENS(    NCOLS, NROWS, NLAYS )      ! Cell density (Kg/m**3)
-      REAL PRES(    NCOLS, NROWS, NLAYS )      ! Cell pressure (Pa)
-      REAL QV(      NCOLS, NROWS, NLAYS )      ! Cell water vapor (Kg/Kg air)
-      REAL TA(      NCOLS, NROWS, NLAYS )      ! Cell temperature (K)
+      REAL :: DENSA_J( NCOLS,NROWS,NLAYS )      ! Cell density (Kg/m**3)
+      REAL :: DENS   ( NCOLS,NROWS,NLAYS )      ! Cell density (Kg/m**3)
+      REAL :: PRES   ( NCOLS,NROWS,NLAYS )      ! Cell pressure (Pa)
+      REAL :: QV     ( NCOLS,NROWS,NLAYS )      ! Cell water vapor (Kg/Kg air)
+      REAL :: TA     ( NCOLS,NROWS,NLAYS )      ! Cell temperature (K)
 
-      REAL RJBLK( BLKSIZE, NPHOTAB )           ! J-values for each cell in 
+!     REAL :: RJBLK( BLKSIZE,NPHOTAB )           ! J-values for each cell in 
                                                ! a block
 
-      REAL RJ( NCOLS, NROWS, NLAYS, NPHOTAB )  ! J-values for each cell      
+      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
+!     REAL, ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
 #ifdef rbstats
 
@@ -165,40 +164,47 @@ C for INTERPX
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: VSTATS( : )        !
 
       INTEGER, SAVE                      :: WSTEP = 0     
-      INTEGER, ALLOCATABLE, SAVE         :: STAT_SUM( : , : , : , : )
+      INTEGER, ALLOCATABLE, SAVE         :: STAT_SUM( :,:,:,: )
       INTEGER  EDATE, ETIME
 
-      REAL                               :: STATOUT( NCOLS, NROWS, NLAYS )
+      REAL                               :: STATOUT( NCOLS,NROWS,NLAYS )
 
 #endif
 
       INTERFACE
-!        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, NDARK, RJ )
-!           IMPLICIT NONE
-!           INTEGER, INTENT( IN )  :: MDATE, MTIME, JDATE, JTIME
-!           INTEGER, INTENT( OUT ) :: NDARK
-!           REAL,    INTENT( OUT ) :: RJ( :,:,:,: )
-!        END SUBROUTINE PHOT
+
+!?       SUBROUTINE PA_IRR_SETUP( NBLKS, LIRRBLK, LCELL, BLKLEN,
+!?   &                            CCOL, CROW, CLEV )
+!?          USE GRID_CONF
+!?          USE CGRID_SPCS
+!?          USE PAGRD_DEFN
+!?          IMPLICIT NONE
+!?          INTEGER NBLKS
+!?          LOGICAL :: LIRRBLK( : )
+!?          INTEGER :: LCELL( : ), BLKLEN( : )
+!?          INTEGER :: CCOL( : ), CROW( : ), CLEV( : )
+!?       END SUBROUTINE PA_IRR_SETUP
+
          SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET,
      &                             CCOL, CROW, CLEV, NORDCELL,
      &                             NIRRCLS, IRRCELL )
             IMPLICIT NONE
-            INTEGER, INTENT( IN )   :: NUMCELLS, OFFSET
-            LOGICAL, INTENT( OUT )  :: LIRRFLAG
-            INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )   :: NORDCELL( : )
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( OUT )  :: IRRCELL( : )
+            INTEGER, INTENT( IN )  :: NUMCELLS, OFFSET
+            LOGICAL, INTENT( OUT ) :: LIRRFLAG
+            INTEGER, INTENT( IN )  :: CCOL( : ), CROW( : ), CLEV( : )
+            INTEGER, INTENT( IN )  :: NORDCELL( : )
+            INTEGER, INTENT( INOUT ) :: NIRRCLS
+            INTEGER, INTENT( INOUT ) :: IRRCELL( : )
          END SUBROUTINE PA_IRR_CKBLK
          SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
      &                               CCOL, CROW, CLEV, NORDCELL,
      &                               NIRRCLS, IRRCELL )
             IMPLICIT NONE
-            INTEGER, INTENT( IN )   :: OFFSET
-            INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
-            INTEGER, INTENT( IN )   :: NORDCELL( : )
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( IN )   :: IRRCELL( : )
+            INTEGER, INTENT( IN ) :: OFFSET
+            INTEGER, INTENT( IN ) :: CCOL( : ), CROW( : ), CLEV( : )
+            INTEGER, INTENT( IN ) :: NORDCELL( : )
+            INTEGER, INTENT( INOUT ) :: NIRRCLS
+            INTEGER, INTENT( INOUT ) :: IRRCELL( : )
          END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
@@ -207,13 +213,25 @@ C for INTERPX
             USE CGRID_SPCS
             USE UTILIO_DEFN
             IMPLICIT NONE
-            INTEGER, INTENT( IN )   :: LOGDEV, JDATE, JTIME
-            REAL,    INTENT( IN )   :: CHEMSTEP
-            INTEGER, INTENT( IN )   :: NCSP
-            LOGICAL, INTENT( IN )   :: LIRRFLAG
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( IN )   :: IRRCELL( BLKSIZE )
+            INTEGER, INTENT( IN ) :: LOGDEV, JDATE, JTIME
+            REAL,    INTENT( IN ) :: CHEMSTEP
+            INTEGER, INTENT( IN ) :: NCSP
+            LOGICAL, INTENT( IN ) :: LIRRFLAG
+            INTEGER, INTENT( INOUT ) :: NIRRCLS
+            INTEGER, INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
+!        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, NDARK, RJ )
+!           USE CGRID_SPCS           ! CGRID species number and offsets
+!           USE PCGRID_DEFN          ! get cgrid
+!           USE UTILIO_DEFN          ! IOAPI infoe
+!           USE SUBST_MODULES        ! stenex
+!           USE AERO_DATA            ! describes aerosol distribution
+!!          USE PHOT_MOD             ! photolysis in-line module
+!           IMPLICIT NONE
+!           INTEGER, INTENT( IN )  :: MDATE, MTIME, JDATE, JTIME
+!           INTEGER, INTENT( OUT ) :: NDARK
+!           REAL,    INTENT( OUT ) :: RJ( :,:,:,: )
+!        END SUBROUTINE PHOT
       END INTERFACE
 
 C**********************************************************************
@@ -234,7 +252,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. CELLVAR_ALLOC() ) THEN
             MSG = 'Failure allocating variables dependent on horizontal extents'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         ENDIF
+         END IF
 
          CALL RBINIT
          CALL RBSPARSE( LOGDEV )
@@ -243,13 +261,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C...Initialize and report data
 
-         WRITE( LOGDEV, 92020 ) NOXYZ, BLKSIZE, NBLKS, BLKLEN( 1 ), 
-     &                          BLKLEN( NBLKS )
+         WRITE( LOGDEV, 92020 ) NOXYZ, BLKSIZE, NBLKS, BLKLEN( 1 ), BLKLEN( NBLKS )
 
          WRITE( LOGDEV, 92040 ) GLBL_RTOL, GLBL_ATOL
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+         STARTCOLCO = COLSX_PE( 1, MYPE + 1 )
+         ENDCOLCO   = COLSX_PE( 2, MYPE + 1 )
+         STARTROWCO = ROWSX_PE( 1, MYPE + 1 )
+         ENDROWCO   = ROWSX_PE( 2, MYPE + 1 )
 
 c..Open file for solver stats if requested
 #ifdef rbstats
@@ -258,18 +280,18 @@ c..Open file for solver stats if requested
          VSTATS( 2 ) = 'N_FAILS'
          VSTATS( 3 ) = 'N_STEPS'
 
-         IF( MYPE .EQ. 0 ) THEN
+         IF ( MYPE .EQ. 0 ) THEN
 
-            IF( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
+            IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
                MSG = 'Could not open ' // CTM_CONC_1 // ' file for readonly'
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-            ENDIF
+            END IF
 
-            IF( .NOT. DESC3( CTM_CONC_1 ) ) THEN
-               MSG = 'Could not get description of concentration file ' //
-     &             CTM_CONC_1
+            IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
+               MSG = 'Could not get description of concentration file '
+     &             // CTM_CONC_1
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-            ENDIF
+            END IF
 
             EDATE = JDATE
             ETIME = JTIME
@@ -294,13 +316,15 @@ c..Open file for solver stats if requested
             VTYPE3D( 2 ) = M3REAL
             VTYPE3D( 3 ) = M3REAL
             IF ( .NOT. OPEN3( CTM_RBSTATS_1, FSNEW3, PNAME ) ) THEN
-               MSG = 'Could not create '// CTM_RBSTATS_1 // ' file'
+               MSG = 'Could not create '// TRIM( CTM_RBSTATS_1 ) // ' file'
                CALL M3EXIT( PNAME, SDATE3D, STIME3D, MSG, XSTAT2 )
-            ENDIF
+            END IF
 
-         ENDIF
+         END IF
 
          ALLOCATE( STAT_SUM( MY_NCOLS, MY_NROWS, NLAYS, 3 ) )
+
+!        ALLOCATE( RJ( NCOLS, NROWS, NLAYS, NPHOTAB ) )
 
          STAT_SUM = 0
 
@@ -308,17 +332,17 @@ c..Open file for solver stats if requested
 
 C Determine whether DEGRADE rountines are needed.
 
-         IF( INDEX( MECHNAME, 'TX' ) .NE. 0 ) THEN
+         IF ( INDEX( MECHNAME, 'TX' ) .NE. 0 ) THEN
             CALL_DEG = .TRUE.
-            WRITE( LOGDEV, * ) 'TX DEGRADE ROUTINES USED'
+            WRITE( LOGDEV, * ) 'TX DEGRADE routines used'
             WRITE( LOGDEV, * ) 'MECHNAME contains TX substring'
-         ENDIF
+         END IF
 
-C setup degradation array
+C set up degradation array
 
          ALLOCATE( Y_DEGRADE( BLKSIZE, NSPCSD ) )
 
-      ENDIF      ! First call
+      END IF      ! First call
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Start of integration driver after first call
@@ -343,7 +367,7 @@ C.. Get ambient temperature in K
      &                    MIDDATE, MIDTIME, TA ) ) THEN
          MSG = 'Could not read TA from MET_CRO_3D'
          CALL M3EXIT( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-      ENDIF
+      END IF
       
 C.. Get specific humidity in Kg H2O / Kg air
 
@@ -353,7 +377,7 @@ C.. Get specific humidity in Kg H2O / Kg air
      &                    MIDDATE, MIDTIME, QV ) ) THEN
          MSG = 'Could not read QV from MET_CRO_3D'
          CALL M3EXIT( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-      ENDIF 
+      END IF 
       
 C.. Get pressure in Pascals
 
@@ -363,7 +387,7 @@ C.. Get pressure in Pascals
      &                    MIDDATE, MIDTIME, PRES ) ) THEN
          MSG = 'Could not read PRES from MET_CRO_3D'
          CALL M3EXIT ( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-      ENDIF
+      END IF
 
 C.. Get density in Kg/m^3
 
@@ -373,7 +397,7 @@ C.. Get density in Kg/m^3
      &                    MIDDATE, MIDTIME, DENS ) ) THEN
          MSG = 'Could not read DENS from MET_CRO_3D'
          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      ENDIF
+      END IF
 
 C.. Get photolysis rates in /min
 
@@ -384,7 +408,7 @@ c  Set flag for reordering of cells and put cells in sequential
 c  order initially
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LORDERING = .TRUE.
-      IF( .NOT. LREORDER .OR. NBLKS .EQ. 1 ) LORDERING = .FALSE.
+      IF ( .NOT. LREORDER .OR. NBLKS .EQ. 1 ) LORDERING = .FALSE.
       DO NCELL = 1, NOXYZ
          NORDCELL( NCELL ) = NCELL
       END DO
@@ -418,26 +442,25 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             COL = CCOL( CELLNUM )
             ROW = CROW( CELLNUM )
             LEV = CLEV( CELLNUM )
-            BLKTEMP( NCELL ) = TA( COL, ROW, LEV )
-            BLKDENS( NCELL ) = DENS( COL, ROW, LEV )
+            BLKTEMP( NCELL ) = TA( COL,ROW,LEV )
+            BLKDENS( NCELL ) = DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = PA2ATM * PRES( COL, ROW, LEV )
-            BLKCH2O( NCELL ) = MAX( QV( COL, ROW, LEV ) * MAOMV * 
-     &                              CONCOFM, 0.0 )          
-         ENDDO
+            BLKCH2O( NCELL ) = MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 )          
+         END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell concentrations in the block arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO ISP = 1, ISCHANG( NCS )
-            ISPNEW = IOLD2NEW( ISP, NCS )
+            ISPNEW = IOLD2NEW( ISP,NCS )
             DO NCELL = 1, NUMCELLS
                CELLNUM = NORDCELL( OFFSET + NCELL )
                COL = CCOL( CELLNUM )
                ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
-               Y( NCELL, ISPNEW ) = MAX( CONC( COL, ROW, LEV, ISP ), CONCMIN )
-            ENDDO                 
-         ENDDO
+               Y( NCELL,ISPNEW ) = MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN )
+            END DO                 
+         END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   Get photolytic and thermal rate constants & call solver
@@ -446,22 +469,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          DO NCELL = 1, NUMCELLS
             CELLNUM = NORDCELL( OFFSET + NCELL )
-            COL = CCOL( CELLNUM )
+            COL = CCOL( CELLNUM )   ! wrong order
             ROW = CROW( CELLNUM )
             LEV = CLEV( CELLNUM )
             DO NPH = 1, NPHOTAB
-               RJBLK( NCELL, NPH ) = RJ( COL, ROW, LEV, NPH )
-               IF( RJBLK( NCELL, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
-            ENDDO                         
-         ENDDO
+               RJBLK( NCELL,NPH ) = RJ( COL,ROW,LEV,NPH )
+               IF ( RJBLK( NCELL, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
+            END DO                         
+         END DO
          
-         CALL CALCKS( NPHOTAB, RJBLK )
+!        CALL CALCKS( NPHOTAB, RJBLK )
+         CALL CALCKS( )
 
-         IF( LSUNLIGHT ) THEN
+         IF ( LSUNLIGHT ) THEN
             NCSP = NCS
          ELSE
             NCSP = NCS + 1
-         ENDIF
+         END IF
 
 C  update cell concentrations for degradation routines
 
@@ -474,15 +498,15 @@ C  update cell concentrations for degradation routines
                   COL = CCOL( CELLNUM )
                   ROW = CROW( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  Y_DEGRADE( NCELL, ISP ) = MAX( CONC( COL, ROW, LEV, ISP ),
-     &                                           CONCMIN )
-               ENDDO
-            ENDDO
+                  Y_DEGRADE( NCELL,ISP ) = MAX( CONC( COL,ROW,LEV,ISP ),
+     &                                          CONCMIN )
+               END DO
+            END DO
 
 C initialize degradation routines
 
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK,
-     &                         NUMCELLS,   JDATE,   JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
 
          END IF
 
@@ -505,15 +529,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C..Update concentrations
             DO ISP = 1, ISCHANG( NCS )
-               ISPOLD  = INEW2OLD( ISP, NCS )
+               ISPOLD  = INEW2OLD( ISP,NCS )
                DO NCELL = 1, NUMCELLS
                   CELLNUM = NORDCELL( OFFSET + NCELL )
-                  ROW = CROW( CELLNUM )
                   COL = CCOL( CELLNUM )
+                  ROW = CROW( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  CONC( COL, ROW, LEV, ISPOLD ) = Y( NCELL, ISP ) 
-               ENDDO
-            ENDDO
+                  CONC( COL,ROW,LEV,ISPOLD ) = Y( NCELL,ISP ) 
+               END DO
+            END DO
 
             IF ( CALL_DEG ) THEN
 
@@ -522,9 +546,9 @@ C  Update degradation array with species treated by Rosenbach solver
                DO ISP = 1, ISCHANG( NCS )
                   ISPOLD  = INEW2OLD( ISP, NCS )
                   DO NCELL = 1, NUMCELLS
-                     Y_DEGRADE( NCELL, ISPOLD ) = Y( NCELL, ISP )
-                  ENDDO
-               ENDDO
+                     Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,ISP )
+                  END DO
+               END DO
 
 C  Update CGRID based on the degradation routines
 
@@ -532,28 +556,28 @@ C  Update CGRID based on the degradation routines
                DO ISP = NR_STRT, (TR_STRT-1)
                   DO NCELL = 1, NUMCELLS
                      CELLNUM = NORDCELL( OFFSET + NCELL )
-                     ROW = CROW( CELLNUM )
                      COL = CCOL( CELLNUM )
+                     ROW = CROW( CELLNUM )
                      LEV = CLEV( CELLNUM )
-                     CONC( COL, ROW, LEV, ISP ) = Y_DEGRADE( NCELL, ISP )
-                 ENDDO
-               ENDDO
-           ENDIF            !WTH
+                     CONC( COL,ROW,LEV,ISP ) = Y_DEGRADE( NCELL,ISP )
+                 END DO
+               END DO
+            END IF            !WTH
 
 #ifdef rbstats
 
             DO NCELL = 1, NUMCELLS
                CELLNUM = NORDCELL( OFFSET + NCELL )
-               ROW = CROW( CELLNUM )
                COL = CCOL( CELLNUM )
+               ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
-               STAT_SUM( COL, ROW, LEV, 1 ) = STAT_SUM( COL, ROW, LEV, 1 ) +
-     &            N_BAD_STARTS
-               STAT_SUM( COL, ROW, LEV, 2 ) = STAT_SUM( COL, ROW, LEV, 2 ) +
-     &            NFAILS
-               STAT_SUM( COL, ROW, LEV, 3 ) = STAT_SUM( COL, ROW, LEV, 3 ) +
-     &            NSTEPS
-            ENDDO
+               STAT_SUM( COL,ROW,LEV,1 ) = STAT_SUM( COL,ROW,LEV,1 )
+     &                                   + N_BAD_STARTS
+               STAT_SUM( COL,ROW,LEV,2 ) = STAT_SUM( COL,ROW,LEV,2 )
+     &                                   + NFAILS
+               STAT_SUM( COL,ROW,LEV,3 ) = STAT_SUM( COL,ROW,LEV,3 )
+     &                                   + NSTEPS
+            END DO
 
 #endif
                       
@@ -570,7 +594,7 @@ C  block loop again.  Taken from Jacobson 1994.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LORDERING ) THEN
          LORDERING = .FALSE.     
-         LVAL = NOXYZ * 0.5 + 1
+         LVAL = NOXYZ / 2 + 1
          IRVAL = NOXYZ
 600      CONTINUE
          IF ( LVAL .GT. 1 ) THEN
@@ -588,7 +612,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                NORDCELL( IRVAL ) = JREORD
                GO TO 100
             END IF
-         ENDIF
+         END IF
          IPAR = LVAL
          JPAR = LVAL + LVAL
 650      CONTINUE
@@ -621,7 +645,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       EDATE = JDATE
       ETIME = JTIME
       CALL NEXTIME( EDATE, ETIME, TSTEP( 2 ) )
-      IF( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
 
          WSTEP = 0
 
@@ -629,28 +653,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, NLAYS
-                     STATOUT( C, R, L ) = INT( STAT_SUM( C, R, L, S ) +
-     &                       0.00001 )
-                  ENDDO
-               ENDDO
-            ENDDO
+                     STATOUT( C, R, L ) = INT( STAT_SUM( C,R,L,S )
+     &                                  +  0.00001 )
+                  END DO
+               END DO
+            END DO
 
-            IF( .NOT. WRITE3( CTM_RBSTATS_1, VSTATS( S ),
+            IF ( .NOT. WRITE3( CTM_RBSTATS_1, VSTATS( S ),
      &            EDATE, ETIME, STATOUT ) ) THEN
                XMSG = 'Could not write ' // CTM_RBSTATS_1 // ' file'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            ENDIF  
+            END IF  
 
-         ENDDO
+         END DO
 
          STAT_SUM = 0.0
 
-      ENDIF
+      END IF
 
 #endif
 
       RETURN
-      
+
 C*********************** FORMAT STATEMENTS ****************************
 92020 FORMAT( / 10X, 'Chemistry Solver Blocking Parameters ... ',
      &        / 10X, 'Domain Size (number of cells):             ', I10

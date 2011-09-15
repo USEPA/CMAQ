@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolve.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolve.F,v 1.2 2011/09/15 15:01:47 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,17 +26,17 @@ C %W% %P% %G% %U%
 
 C**********************************************************************
 C
-C  FUNCTION:  To solve the set of linear simultaneous equations of the
+C  Function:  Solve the set of linear simultaneous equations of the
 C             form [A]{x}={b} using the decomposed lower and upper
 C             triangular matrices [L] and [U]. The subroutine first 
 C             solves for {c} in [L]{c}={b}, and then for {x} in
 C             [U]{x}={c}.
 C
-C  PRECONDITIONS: Subroutine DECOMP must have been called
+C  Preconditions: Subroutine DECOMP must have been called
 C                                                                     
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C  Key Subroutines/Functions Called: None
 C
-C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 2004.
+C  Revision History: Prototype created by Jerry Gipson, August, 2004.
 C                    Based on the SMVGEAR code originally developed by 
 C                    M. Jacobson, (Atm. Env., Vol 28, No 2, 1994)
 C
@@ -50,25 +50,22 @@ C***********************************************************************
 
       IMPLICIT NONE
       
-C..INCLUDES: None
+C..Includes: None
       
-C..ARGUMENTS:
-      INTEGER      NCSP                ! Index of chem mech to use
-                                       ! 1=gas/day, 2=gas/night
-      REAL( 8 )    RHS( BLKSIZE, * )   ! Right hand side = {b}
+C..Arguments:
+      INTEGER      NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
+      REAL( 8 ) :: RHS( BLKSIZE,* )   ! Right hand side = {b}
 
-C..PARAMETERS: None
+C..Parameters: None
 
-C..EXTERNAL FUNCTIONS: None
+C..External Functions: None
 
-C..SAVED LOCAL VARIABLES: None
-
-C..SCRATCH LOCAL VARIABLES:
+C..Local Variables:
       INTEGER I                        ! Loop index for number of species
       INTEGER IJ                       ! Counter of # of terms summed
-      INTEGER IJ0,IJ1,IJ2,             ! Pointers to loaction of ij entries in
-     &        IJ3,IJ4                  ! decomposed matrix
-      INTEGER J,J1,J2,J3,J4            ! Pointers to species # for dc/dt
+      INTEGER IJ0, IJ1, IJ2,           ! Pointers to location of ij entries in
+     &        IJ3, IJ4                 ! decomposed matrix
+      INTEGER J, J1, J2, J3, J4        ! Pointers to species # for dc/dt
       INTEGER JZ                       ! Loop index inner backsub loops
       INTEGER NCELL                    ! Loop index for number of cells
 
@@ -78,53 +75,56 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Back-substition loop 1
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IJ = 1 
-      DO 80 I = 1, ISCHAN
+      DO 60 I = 1, ISCHAN
       
 c.....sum 5 terms at a time
-         DO 20 JZ = 1, KZHI0( I, NCSP ), 5     
+         DO JZ = 1, KZHI0( I, NCSP ), 5     
             IJ0 = IJ 
             IJ1 = IJ + 1
             IJ2 = IJ + 2 
             IJ3 = IJ + 3 
             IJ4 = IJ + 4 
-            J   = KZERO( IJ0, NCSP )
-            J1  = KZERO( IJ1, NCSP )
-            J2  = KZERO( IJ2, NCSP )
-            J3  = KZERO( IJ3, NCSP )
-            J4  = KZERO( IJ4, NCSP )
+            J   = KZERO( IJ0,NCSP )
+            J1  = KZERO( IJ1,NCSP )
+            J2  = KZERO( IJ2,NCSP )
+            J3  = KZERO( IJ3,NCSP )
+            J4  = KZERO( IJ4,NCSP )
             IJ  = IJ + 5      
-            DO 20 NCELL = 1, NUMCELLS
-               RHS( NCELL,I ) = RHS( NCELL, I )
-     &                          - CC2( NCELL, IJ0 ) * RHS( NCELL,  J )
-     &                          - CC2( NCELL, IJ1 ) * RHS( NCELL, J1 )
-     &                          - CC2( NCELL, IJ2 ) * RHS( NCELL, J2 )
-     &                          - CC2( NCELL, IJ3 ) * RHS( NCELL, J3 )
-     &                          - CC2( NCELL, IJ4 ) * RHS( NCELL, J4 )
-   20    CONTINUE
+            DO NCELL = 1, NUMCELLS
+               RHS( NCELL,I ) = RHS( NCELL,I )
+     &                        - CC2( NCELL,IJ0 ) * RHS( NCELL, J )
+     &                        - CC2( NCELL,IJ1 ) * RHS( NCELL,J1 )
+     &                        - CC2( NCELL,IJ2 ) * RHS( NCELL,J2 )
+     &                        - CC2( NCELL,IJ3 ) * RHS( NCELL,J3 )
+     &                        - CC2( NCELL,IJ4 ) * RHS( NCELL,J4 )
+            END DO
+         END DO
    
 c.....sum 2 terms at a time
-         DO 40 JZ = KZLO1( I, NCSP ), KZHI1( I, NCSP ), 2    
+         DO JZ = KZLO1( I,NCSP ), KZHI1( I,NCSP ), 2    
             IJ0 = IJ 
             IJ1 = IJ + 1
-            J   = KZERO( IJ0, NCSP )
-            J1  = KZERO( IJ1, NCSP )
+            J   = KZERO( IJ0,NCSP )
+            J1  = KZERO( IJ1,NCSP )
             IJ  = IJ + 2       
-            DO 40 NCELL    = 1, NUMCELLS
-               RHS( NCELL, I ) = RHS( NCELL, I )
-     &                           - CC2( NCELL,IJ0 ) * RHS( NCELL,  J )
-     &                           - CC2( NCELL,IJ1 ) * RHS( NCELL, J1 )
-   40    CONTINUE
+            DO NCELL = 1, NUMCELLS
+               RHS( NCELL,I ) = RHS( NCELL,I )
+     &                        - CC2( NCELL,IJ0 ) * RHS( NCELL, J )
+     &                        - CC2( NCELL,IJ1 ) * RHS( NCELL,J1 )
+            END DO
+         END DO
    
 c.....sum 1 term at a time
-         DO 60 JZ = KZLO2( I, NCSP ), KZILCH( I, NCSP )    
+         DO JZ = KZLO2( I,NCSP ), KZILCH( I,NCSP )    
             IJ0 = IJ
-            J   = KZERO( IJ0, NCSP )
+            J   = KZERO( IJ0,NCSP )
             IJ  = IJ + 1        
-            DO 60 NCELL = 1, NUMCELLS
-               RHS( NCELL, I ) = RHS( NCELL, I )
-     &                           - CC2( NCELL, IJ0 ) * RHS( NCELL, J )
-   60    CONTINUE
-   80 CONTINUE
+            DO NCELL = 1, NUMCELLS
+               RHS( NCELL,I ) = RHS( NCELL,I )
+     &                        - CC2( NCELL,IJ0 ) * RHS( NCELL,J )
+            END DO
+         END DO
+60    CONTINUE
   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Back-substitution loop 2
@@ -132,55 +132,58 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 180 I = ISCHAN, 1, -1
 
 c...sum 5 terms at a time
-         DO 100 JZ = 1, MZHI0( I, NCSP ), 5   
+         DO JZ = 1, MZHI0( I,NCSP ), 5   
             IJ0 = IJ
             IJ1 = IJ + 1
             IJ2 = IJ + 2 
             IJ3 = IJ + 3 
             IJ4 = IJ + 4 
-            J   = KZERO( IJ0, NCSP )
-            J1  = KZERO( IJ1, NCSP )
-            J2  = KZERO( IJ2, NCSP )
-            J3  = KZERO( IJ3, NCSP )
-            J4  = KZERO( IJ4, NCSP )
+            J   = KZERO( IJ0,NCSP )
+            J1  = KZERO( IJ1,NCSP )
+            J2  = KZERO( IJ2,NCSP )
+            J3  = KZERO( IJ3,NCSP )
+            J4  = KZERO( IJ4,NCSP )
             IJ  = IJ + 5
-            DO 100 NCELL = 1, NUMCELLS
-               RHS( NCELL, I ) = RHS( NCELL, I )
-     &                          - CC2( NCELL, IJ0 ) * RHS( NCELL,  J ) 
-     &                          - CC2( NCELL, IJ1 ) * RHS( NCELL, J1 )
-     &                          - CC2( NCELL, IJ2 ) * RHS( NCELL, J2 )
-     &                          - CC2( NCELL, IJ3 ) * RHS( NCELL, J3 )
-     &                          - CC2( NCELL, IJ4 ) * RHS( NCELL, J4 )
-  100    CONTINUE
+            DO NCELL = 1, NUMCELLS
+               RHS( NCELL,I ) = RHS( NCELL,I )
+     &                        - CC2( NCELL,IJ0 ) * RHS( NCELL, J ) 
+     &                        - CC2( NCELL,IJ1 ) * RHS( NCELL,J1 )
+     &                        - CC2( NCELL,IJ2 ) * RHS( NCELL,J2 )
+     &                        - CC2( NCELL,IJ3 ) * RHS( NCELL,J3 )
+     &                        - CC2( NCELL,IJ4 ) * RHS( NCELL,J4 )
+            END DO
+         END DO
   
 c...sum 2 terms at a time 
-         DO 120 JZ = MZLO1( I, NCSP ), MZHI1( I, NCSP ), 2 
+         DO JZ = MZLO1( I,NCSP ), MZHI1( I,NCSP ), 2 
             IJ0 = IJ 
             IJ1 = IJ + 1
-            J   = KZERO( IJ0, NCSP )
-            J1  = KZERO( IJ1, NCSP )
+            J   = KZERO( IJ0,NCSP )
+            J1  = KZERO( IJ1,NCSP )
             IJ  = IJ + 2 
-            DO 120 NCELL = 1, NUMCELLS
-               RHS( NCELL, I ) = RHS( NCELL, I )
-     &                          - CC2( NCELL, IJ0 ) * RHS( NCELL,  J ) 
-     &                          - CC2( NCELL, IJ1 ) * RHS( NCELL, J1 ) 
- 120     CONTINUE
+            DO NCELL = 1, NUMCELLS
+               RHS( NCELL,I ) = RHS( NCELL,I )
+     &                        - CC2( NCELL,IJ0 ) * RHS( NCELL, J ) 
+     &                        - CC2( NCELL,IJ1 ) * RHS( NCELL,J1 ) 
+            END DO
+         END DO
  
 c...sum 1 term at a time
-         DO 140 JZ = MZLO2( I, NCSP ), MZILCH( I, NCSP ) 
+         DO JZ = MZLO2( I,NCSP ), MZILCH( I,NCSP ) 
             IJ0 = IJ 
-            J   = KZERO( IJ0, NCSP )
+            J   = KZERO( IJ0,NCSP )
             IJ  = IJ + 1  
-            DO 140 NCELL    = 1, NUMCELLS
-               RHS( NCELL, I ) = RHS( NCELL, I )
-     &                           - CC2( NCELL, IJ0 ) * RHS( NCELL, J ) 
-  140    CONTINUE
+            DO NCELL = 1, NUMCELLS
+               RHS( NCELL,I ) = RHS( NCELL,I )
+     &                        - CC2( NCELL,IJ0 ) * RHS( NCELL,J ) 
+            END DO
+         END DO
 
 c...adjust diagonal element
-         DO 160 NCELL = 1, NUMCELLS
-            RHS( NCELL, I ) = RHS( NCELL, I ) * VDIAG( NCELL, I )
- 160     CONTINUE
- 180  CONTINUE
+         DO NCELL = 1, NUMCELLS
+            RHS( NCELL,I ) = RHS( NCELL,I ) * VDIAG( NCELL,I )
+         END DO
+180   CONTINUE
  
       RETURN
       END

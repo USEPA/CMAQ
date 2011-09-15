@@ -18,15 +18,16 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbcalc_special.F,v 1.1 2011/03/23 21:10:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbcalc_special.F,v 1.2 2011/09/15 15:01:46 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
       SUBROUTINE RBCALC_SPECIAL( YIN )
+
 C**********************************************************************
 C
-C  Function: To calculate the rate expressions expressed by
+C  Function: Calculate the rate expressions expressed in the
 C            SPECIAL Block in the mechanism definition file. These
 C            expressions sum terms that are weighted products of rate
 C            constants and species concentrations within the REACTIONS
@@ -50,8 +51,8 @@ C
 C  Key Subroutines/Functions Called: None
 C
 C  Revision History: Prototype created by Bill Hutzell, Dec, 2009
-C
 C                     17 Mar 11 B.Hutzell: initial version submitted
+
 C**********************************************************************
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
