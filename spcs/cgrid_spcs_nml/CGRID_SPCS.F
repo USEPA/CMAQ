@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.4 2011/04/05 14:46:05 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.5 2011/09/15 15:25:10 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -417,6 +417,7 @@ c check Namelist gc_spc names and order against mech.def (in RXDT)
                do i = 1, n_gas_chem_spc
                   write( logdev,'( 9x, i4, 2x, a )' ) i, trim( gas_chem_spc( i ) )
                end do
+               return
             end if
                  
             gc_fini = gc_strt + n_gc_spc - 1
