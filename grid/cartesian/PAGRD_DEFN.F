@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.2 2011/04/01 15:41:45 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/PAGRD_DEFN.F,v 1.3 2011/09/15 15:15:11 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -30,20 +30,18 @@ C process analysis variables that are dependent on NCOLS, NROWS
 
 C Preconditions: HGRD_INIT() called from PAR_INIT, which is called from DRIVER
 
-C Revision History: J.Young 17 Aug 01: create
-C                   D.Wong, J.Young Oct 01: set dimensions for DELC and CSAV
-C                   correctly for subdomain; IRROUT must have full domain
-C                   because of SE_DATA_COPY in pa_output
-C                   J.Young 31 Jan 05: dyn alloc - establish both horizontal
-C                                      & vertical domain specifications in
-C                                      one module
-C                   J.Young 22 Dec 05: move proc. analy. stuff from HGRD_DEFN
-C                                      to here. create arrays COLSZ_PE and
-C                                      ROWSZ_PE for proc analy, which are
-C                                      equivalent to COLSX_PE and ROWSX_PE
-C                   J.Young  8 Jul 10: minor mods
-C                   S. Roselle 29 Mar 11: Replaced I/O API include files
-C                                      with UTILIO_DEFN
+C Revision History:
+C   J.Young 17 Aug 01: create
+C   D.Wong, J.Young Oct 01: set dimensions for DELC and CSAV correctly for
+C   subdomain; IRROUT must have full domain because of SE_DATA_COPY in pa_output
+C   J.Young 31 Jan 05: dyn alloc - establish both horizontal & vertical domain
+C   specifications in one module
+C   J.Young 22 Dec 05: move proc. analy. stuff from HGRD_DEFN to here. create
+C   arrays COLSZ_PE and ROWSZ_PE for proc analy, which are equivalent to
+C   COLSX_PE and ROWSX_PE
+C   J.Young  8 Jul 10: minor mods
+C   S. Roselle 29 Mar 11: Replaced I/O API include files with UTILIO_DEFN
+C   J.Young 14 Sep 11: allow default subdomain values
 C.......................................................................
 
       IMPLICIT NONE
@@ -117,9 +115,9 @@ C Buffer for writing IRR results
          INTEGER X1F0  ! dimension homotopy for parallel or serial
          CHARACTER( 16 ) :: PNAME = 'PAGRD_INIT'
          CHARACTER( 96 ) :: XMSG = ' '
-         CHARACTER( 32 ) :: PA_BCOL_ECOL    = 'PA_BCOL_ECOL'
-         CHARACTER( 32 ) :: PA_BROW_EROW    = 'PA_BROW_EROW'
-         CHARACTER( 32 ) :: PA_BLEV_ELEV    = 'PA_BLEV_ELEV'
+         CHARACTER( 32 ) :: PA_BCOL_ECOL = 'PA_BCOL_ECOL'
+         CHARACTER( 32 ) :: PA_BROW_EROW = 'PA_BROW_EROW'
+         CHARACTER( 32 ) :: PA_BLEV_ELEV = 'PA_BLEV_ELEV'
          CHARACTER( 16 ) :: V_LIST( 2 )
          INTEGER NV
 
@@ -145,31 +143,40 @@ C This function is expected to be called only once - at startup
 C Retrieve the process analysis subdomain dimensions:
 
                CALL GET_ENVLIST ( PA_BCOL_ECOL, NV, V_LIST )
-               IF ( NV .NE. 2 ) THEN
+               IF ( NV .LE. 0 ) THEN   ! default to GL_NCOLS
+                  PA_BEGCOL = 1; PA_ENDCOL = GL_NCOLS
+               ELSE IF ( NV .NE. 2 ) THEN
                   XMSG = 'Environment variable error for ' // PA_BCOL_ECOL
-                  CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
+                  CALL M3WARN ( PNAME, 0, 0, XMSG )
                   SUCCESS = .FALSE.; RETURN
+               ELSE
+                  READ( V_LIST( 1 ), '( I4 )' ) PA_BEGCOL
+                  READ( V_LIST( 2 ), '( I4 )' ) PA_ENDCOL
                END IF
-               READ( V_LIST( 1 ), '( I4 )' ) PA_BEGCOL
-               READ( V_LIST( 2 ), '( I4 )' ) PA_ENDCOL
 
                CALL GET_ENVLIST ( PA_BROW_EROW, NV, V_LIST )
-               IF ( NV .NE. 2 ) THEN
+               IF ( NV .LE. 0 ) THEN   ! default to GL_NCOLS
+                  PA_BEGROW = 1; PA_ENDROW = GL_NROWS
+               ELSE IF ( NV .NE. 2 ) THEN
                   XMSG = 'Environment variable error for ' // PA_BROW_EROW
-                  CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
+                  CALL M3WARN ( PNAME, 0, 0, XMSG )
                   SUCCESS = .FALSE.; RETURN
+               ELSE
+                  READ( V_LIST( 1 ), '( I4 )' ) PA_BEGROW
+                  READ( V_LIST( 2 ), '( I4 )' ) PA_ENDROW
                END IF
-               READ( V_LIST( 1 ), '( I4 )' ) PA_BEGROW
-               READ( V_LIST( 2 ), '( I4 )' ) PA_ENDROW
 
                CALL GET_ENVLIST ( PA_BLEV_ELEV, NV, V_LIST )
-               IF ( NV .NE. 2 ) THEN
+               IF ( NV .LE. 0 ) THEN   ! default to GL_NCOLS
+                  PA_BEGLEV = 1; PA_ENDLEV = NLAYS
+               ELSE IF ( NV .NE. 2 ) THEN
                   XMSG = 'Environment variable error for ' // PA_BLEV_ELEV
-                  CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
+                  CALL M3WARN ( PNAME, 0, 0, XMSG )
                   SUCCESS = .FALSE.; RETURN
+               ELSE
+                  READ( V_LIST( 1 ), '( I4 )' ) PA_BEGLEV
+                  READ( V_LIST( 2 ), '( I4 )' ) PA_ENDLEV
                END IF
-               READ( V_LIST( 1 ), '( I4 )' ) PA_BEGLEV
-               READ( V_LIST( 2 ), '( I4 )' ) PA_ENDLEV
 
                IF ( PA_BEGCOL .LT. 1 .OR. PA_ENDCOL .GT. GL_NCOLS .OR.
      &              PA_BEGROW .LT. 1 .OR. PA_ENDROW .GT. GL_NROWS .OR.
@@ -218,7 +225,7 @@ C       SUBHDOMAIN (below).
      &                    ROWSZ_PE( 2,NPROCS ), STAT = ALST )
                IF ( ALST .NE. 0 ) THEN
                   XMSG = '*** COLSX_PE or ROWSX_PE Memory allocation failed'
-                  CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
+                  CALL M3WARN ( PNAME, 0, 0, XMSG )
                   SUCCESS = .FALSE.; RETURN
                END IF
 
