@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.3 2011/04/01 15:41:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.4 2011/09/15 15:35:15 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)initscen.F        1.4 /project/mod3/CMAQ/src/init/init/SCCS/s.initscen.F 25 Jul 1997 14:32:52
@@ -122,6 +122,11 @@ C  environment variable description
       INTEGER      LOGDEV            ! FORTRAN unit number for log file
       INTEGER      STATUS            !  ENVINT status
 
+#ifdef Verbose3
+      real sumem
+      integer c, r, l, s, v
+#endif
+
       INTERFACE
          SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
             IMPLICIT NONE
@@ -155,9 +160,6 @@ C-----------------------------------------------------------------------
             MSG = 'Environment variable not set ... Using default:'
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
          END IF
-
-!     WRITE( LOGDEV, '( 5X, A )') 'Program ' // TRIM( PROGNAME )
-!     WRITE( LOGDEV, '( 5X, A )') 'Input Values:'
 
       STDATE = 1995192        ! default
       VARDESC = 'Scenario Starting Date (YYYYDDD)'
@@ -238,22 +240,26 @@ C Calculate number of output time steps for this model run:
       END IF
 
 C Initialize the CGRID array
-!     DO SPC = 1, NSPCSD   ! load CGRID with this many variables
-!        DO L = 1, NLAYS
-!           DO R = 1, MY_NROWS
-!              DO C = 1, MY_NCOLS
-!                 CGRID( C,R,L,SPC ) = CMIN
-!              END DO
-!           END DO
-!        END DO
-!     END DO
-
       CGRID = CMIN
 
 C Load CGRID
       IF ( N_GC_SPC .GT. 0 ) THEN
          FNAME = INIT_GASC_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'GC', CMIN, CGRID )
+#ifdef Verbose3
+         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
+         l = 1
+         do v = gc_strt, gc_fini
+            s = v + 1 - gc_strt
+            sumem = 0.0
+            do r = 1, my_nrows
+               do c = 1, my_ncols
+                  sumem = sumem + cgrid( c,r,l,v )
+               end do
+            end do
+            write( logdev,'("@@@c ", a, i5, g16.6)') gc_spc( s ), s, sumem
+         end do
+#endif
       END IF  ! N_GC_SPC > 0
 
 C load rhoj
@@ -264,18 +270,60 @@ C Get aerosols IC's. Note: INIT_AERO_1 may be setenv'ed to INIT_GASC_1
       IF ( N_AE_SPC .GT. 0 ) THEN
          FNAME = INIT_AERO_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'AE', CMIN, CGRID )
+#ifdef Verbose3
+         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
+         l = 1
+         do v = ae_strt, ae_fini
+            s = v + 1 - ae_strt
+            sumem = 0.0
+            do r = 1, my_nrows
+               do c = 1, my_ncols
+                  sumem = sumem + cgrid( c,r,l,v )
+               end do
+            end do
+            write( logdev,'("@@@c ", a, i5, g16.6)') ae_spc( s ), s, sumem
+         end do
+#endif
       END IF  ! N_AE_SPC > 0
 
 C Get non-reactives IC's. Note: INIT_NONR_1 may be setenv'ed to INIT_GASC_1
       IF ( N_NR_SPC .GT. 0 ) THEN
          FNAME = INIT_NONR_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'NR', CMIN, CGRID )
+#ifdef Verbose3
+         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
+         l = 1
+         do v = nr_strt, nr_fini
+            s = v + 1 - nr_strt
+            sumem = 0.0
+            do r = 1, my_nrows
+               do c = 1, my_ncols
+                  sumem = sumem + cgrid( c,r,l,v )
+               end do
+            end do
+            write( logdev,'("@@@c ", a, i5, g16.6)') nr_spc( s ), s, sumem
+         end do
+#endif
       END IF  ! N_NR_SPC > 0
 
 C Get tracer IC's. Note: INIT_TRAC_1 may be setenv'ed to INIT_GASC_1
       IF ( N_TR_SPC .GT. 0 ) THEN
          FNAME = INIT_TRAC_1
          CALL LOAD_CGRID ( FNAME, STDATE, STTIME, 'TR', CMIN, CGRID )
+#ifdef Verbose3
+         write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
+         l = 1
+         do v = tr_strt, tr_fini
+            s = v + 1 - tr_strt
+            sumem = 0.0
+            do r = 1, my_nrows
+               do c = 1, my_ncols
+                  sumem = sumem + cgrid( c,r,l,v )
+               end do
+            end do
+            write( logdev,'("@@@c ", a, i5, g16.6)') tr_spc( s ), s, sumem
+         end do
+#endif
       END IF  ! N_TR_SPC > 0
 
 C Test opening existing conc file for update
