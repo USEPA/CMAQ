@@ -19,78 +19,85 @@ C-----------------------------------------------------------------------
       REAL,             ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
       REAL,             ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
 
+      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, PMEMIS_PT, PT3D_INIT, GET_PT3D_EMIS
+      PRIVATE
+
 C Scenario start
-      INTEGER, PRIVATE,              SAVE :: SDATE = 0   ! Julian start date (YYYYDDD)
-      INTEGER, PRIVATE,              SAVE :: STIME = 0   ! start time (HHMMSS)
+      INTEGER,              SAVE :: SDATE = 0   ! Julian start date (YYYYDDD)
+      INTEGER,              SAVE :: STIME = 0   ! start time (HHMMSS)
 
 C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: LFRAC( :,: ) ! per source local layer fractn
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: TFRAC( : )   ! Temporary LFRAC
+      REAL,    ALLOCATABLE, SAVE :: LFRAC( :,: ) ! per source local layer fractn
+      REAL,    ALLOCATABLE, SAVE :: TFRAC( : )   ! Temporary LFRAC
 
 C debugging zplume
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
+      REAL,    ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
 
 C Stack emissions for sources within domain
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: STKEM( : )   ! per source local stk emis
-      INTEGER, PRIVATE,              SAVE :: EMLYRS       ! no. of emis layers
+      REAL,    ALLOCATABLE, SAVE :: STKEM( : )   ! per source local stk emis
+      INTEGER,              SAVE :: EMLYRS       ! no. of emis layers
+
+C Gas-phase Namelist emissions factors
+      REAL,    ALLOCATABLE, SAVE :: EMIS_FAC( : )  ! per species scaling factor
+      INTEGER,              SAVE :: N_EMIS_GAS_SPC ! number of gas-phase emissions species
 
 C Wildfire emissions source parameters
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: BFLUX( : )   ! Briggs buoyancy flux
+      REAL,    ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
+      REAL,    ALLOCATABLE, SAVE :: BFLUX( : )   ! Briggs buoyancy flux
 
 C Vertical coord values
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: VGLVSXG( : )
+      REAL,    ALLOCATABLE, SAVE :: VGLVSXG( : )
 
 C Play report log
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: RDEV( : )
+      INTEGER, ALLOCATABLE, SAVE :: RDEV( : )
 C Play files source id file
 #ifdef srcid
-      INTEGER, PRIVATE, ALLOCATABLE, SAVE :: LDEV( : )
+      INTEGER, ALLOCATABLE, SAVE :: LDEV( : )
 #endif
 C Plume rise info report files
-      CHARACTER( 13 ), PRIVATE, ALLOCATABLE, SAVE :: REPTNAME( : )
-      CHARACTER( 11 ), PRIVATE                    :: REPSTR
+      CHARACTER( 13 ), ALLOCATABLE, SAVE :: REPTNAME( : )
+      CHARACTER( 11 )                    :: REPSTR
 C Minimum layer for reporting srcs w/ high plumes
-      INTEGER, PRIVATE,              SAVE :: REP_LAYR
+      INTEGER, SAVE :: REP_LAYR
 
 C Layer fractions matrix output files
-      CHARACTER(  16 ), PRIVATE, ALLOCATABLE, SAVE :: PLAYNAME( : )
+      CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAYNAME( : )
 C Layer fractions source id output files
-      CHARACTER(  16 ), PRIVATE, ALLOCATABLE, SAVE :: PLAY_SRCID_NAME( : )
+      CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAY_SRCID_NAME( : )
 
 C Get heights from GRID_CRO file, if true
-      LOGICAL, PRIVATE,              SAVE :: ZSTATIC = .TRUE.
+      LOGICAL,              SAVE :: ZSTATIC = .TRUE.
 C Write point source 3d emis diagnostic file, if true
-      LOGICAL, PRIVATE,              SAVE :: PT3DDIAG = .FALSE.
+      LOGICAL,              SAVE :: PT3DDIAG = .FALSE.
 C Point source 3d emis diagnostic file names
 !     CHARACTER( 16 ),               SAVE :: PT3DNAME
 C Point source 3d emis diagnostic integral average write buffers
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: VDEMIS_BUF( :,:,:,: )
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: PMEMIS_BUF( :,:,:,: )
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_BUF( :,:,:,: )
+      REAL,    ALLOCATABLE, SAVE :: PMEMIS_BUF( :,:,:,: )
 C Diagnostic file avg factor
-      REAL,    PRIVATE                    :: DIVFAC
+      REAL                       :: DIVFAC
 C Write layer fractions diagnostic file, if true
-      LOGICAL, PRIVATE,              SAVE :: PT3DFRAC = .FALSE.
+      LOGICAL,              SAVE :: PT3DFRAC = .FALSE.
 
 C Numerical flag for plume vertical spread method
-      INTEGER, PRIVATE,              SAVE :: IPVERT
+      INTEGER,              SAVE :: IPVERT
 
 C Stack parameters
-      TYPE( RARRY1 ), PRIVATE, ALLOCATABLE, SAVE :: STK_DM( : )
-      TYPE( RARRY1 ), PRIVATE, ALLOCATABLE, SAVE :: STK_HT( : )
-      TYPE( RARRY1 ), PRIVATE, ALLOCATABLE, SAVE :: STK_TK( : )
-      TYPE( RARRY1 ), PRIVATE, ALLOCATABLE, SAVE :: STK_VEL( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_DM( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_HT( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_TK( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_VEL( : )
 
 C Private Parameters:
-      CHARACTER(  10 ), PRIVATE, PARAMETER :: BLANK10 = ' '
+      CHARACTER(  10 ), PARAMETER :: BLANK10 = ' '
 
 C cross-point layered grid file name
-      CHARACTER(  16 ), PRIVATE,     SAVE :: GC3NAME
+      CHARACTER(  16 ),     SAVE :: GC3NAME
 
 C hourly stack emissions file names
-      CHARACTER(  16 ), PRIVATE, ALLOCATABLE, SAVE :: STKENAME( : )
+      CHARACTER(  16 ), ALLOCATABLE, SAVE :: STKENAME( : )
 
-      CHARACTER( 120 ), PRIVATE           :: XMSG = ' '
+      CHARACTER( 240 )           :: XMSG = ' '
 
       CONTAINS
 
@@ -101,13 +108,13 @@ C=======================================================================
 
 C use N_SPC_EMIS+1 for non-accessed emissions
 
-         USE GRID_CONF ! horizontal & vertical domain specifications
+         USE GRID_CONF   ! horizontal & vertical domain specifications
          USE CGRID_SPCS  ! CGRID mechanism species
-         USE STK_PRMS  ! stack groups file
-         USE STK_EMIS  ! hourly point source emissions
-         USE PTMET     ! defines met variables used in plume rise
-         USE PTBILIN   ! defines bi-linear interpolation from grid to pt src locations
-         USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
+         USE STK_PRMS    ! stack groups file
+         USE STK_EMIS    ! hourly point source emissions
+         USE PTMET       ! defines met variables used in plume rise
+         USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
+         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -433,7 +440,12 @@ C Initialize stack emissions data
 
          ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
          CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
-         VDEMIS_PT = 0.0   ! array
+         VDEMIS_PT = 0.0   ! array assignment
+
+         N_EMIS_GAS_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
+         ALLOCATE ( EMIS_FAC( N_EMIS_GAS_SPC ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'EMIS_FAC', PNAME )
+         EMIS_FAC = 1.0   ! array assignment (default)
 
          ALLOCATE ( PMEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
          CALL CHECKMEM( IOS, 'PMEMIS_PT', PNAME )
@@ -579,6 +591,29 @@ C Compute ZSTK, DDZF
 
          END IF   ! ZSTATIC
 
+C Set Namelist emissions factors
+
+         V = 0
+         DO S = 1, N_SPC_PTEM
+
+            K = INDEX1 ( STKEM_NAME( S ), N_GC_EMIS, GC_EMIS )
+            IF ( K .NE. 0 ) THEN
+               V = V + 1
+               EMIS_FAC( V ) = GC_EMIS_FAC( K )
+            END IF
+            K = INDEX1 ( STKEM_NAME( S ), N_NR_EMIS, NR_EMIS )
+            IF ( K .NE. 0 ) THEN
+               V = V + 1
+               EMIS_FAC( V ) = NR_EMIS_FAC( K )
+            END IF
+            K = INDEX1 ( STKEM_NAME( S ), N_TR_EMIS, TR_EMIS )
+            IF ( K .NE. 0 ) THEN
+               V = V + 1
+               EMIS_FAC( V ) = TR_EMIS_FAC( K )
+            END IF
+
+         END DO
+
          SUCCESS = .TRUE.; RETURN
 
 93053    FORMAT("#  Src Id's for play file", I2, ', with', I10, ' total sources',
@@ -596,11 +631,12 @@ C-----------------------------------------------------------------------
 
 C Time step part of laypoint
 
-         USE GRID_CONF ! horizontal & vertical domain specifications
-         USE STK_PRMS  ! stack groups file
-         USE STK_EMIS  ! hourly point source emissions
+         USE GRID_CONF   ! horizontal & vertical domain specifications
+         USE CGRID_SPCS  ! CGRID mechanism species
+         USE STK_PRMS    ! stack groups file
+         USE STK_EMIS    ! hourly point source emissions
          USE PTMET, P_D => PTMET_DATA
-         USE PTMAP     ! defines pt src species mapping to VDEMIS* arrays
+         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
          USE UTILIO_DEFN
          USE SUBST_MODULES         ! stenex
 !        USE SUBST_UTIL_MODULE     ! stenex
@@ -657,7 +693,7 @@ C Local variables:
 
          INTEGER          IOS        ! i/o and allocate memory status
          INTEGER          L, S, V    ! counters
-         INTEGER          C, R, I, J, N
+         INTEGER          C, R, I, J, K, N
 
          INTEGER, SAVE :: WSTEP = 0
          INTEGER          WDATE, WTIME
@@ -666,7 +702,7 @@ C Local variables:
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER, SAVE :: LOGDEV
 
-#ifdef Verbose
+#ifdef Verbose1
          real mxzplm
 #endif
 
@@ -780,7 +816,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
 
 C Loop through sources and compute plume rise
 
-#ifdef Verbose
+#ifdef Verbose1
             mxzplm = 0.0
 #endif
 
@@ -842,7 +878,7 @@ C Convert heat flux (watts/m2 to m K /s )
      &                         WSTK, ZPLM )
                END IF
 
-#ifdef Verbose
+#ifdef Verbose1
                if ( zplm .gt. mxzplm ) mxzplm = zplm
 #endif
 
@@ -898,7 +934,7 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
                END DO
                LBOT = EMLYRS                      !  fallback
 
-#ifdef Verbose
+#ifdef Verbose1
                c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
             write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
 #endif
@@ -932,7 +968,7 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
                   END DO
                   LTOP = EMLYRS                   !  fallback
 
-#ifdef Verbose
+#ifdef Verbose1
             write( logdev,'(a, 4i4)' ) '> Hit top at c,r, for file, source: ', c, r, n, s
 #endif
 126               CONTINUE
@@ -1033,13 +1069,14 @@ C Apportion emissions to the layers
                      I = GAS_MAP( N )%ARRY( V )
                      J = STKEM_MAP( N )%ARRY( V )
                      VDEMIS_PT( C,R,L,I ) = VDEMIS_PT( C,R,L,I )
-     &                                    + LFRC * STKEM( J )
+!    &                                    + LFRC * STKEM( J )
+     &                                    + LFRC * EMIS_FAC( V ) * STKEM( J )
                   END DO
                   DO V = 1, STKPM_MAP( N )%LEN
                      I = PM_MAP( N )%ARRY( V )
                      J = STKPM_MAP( N )%ARRY( V )
                      PMEMIS_PT( C,R,L,I ) = PMEMIS_PT( C,R,L,I )
-     &                                    + LFRC * STKEM( J )
+     &                                    + LFRC * STKEM( J )   ! emis fac applied in AERO_EMIS
                   END DO
 
                END DO
@@ -1076,7 +1113,7 @@ C Possible report to REPRTLAY
      &            'for date and time', WDATE, WTIME
             END IF
 
-#ifdef Verbose
+#ifdef Verbose1
             write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
 #endif
 
@@ -1096,7 +1133,7 @@ C Possible report to REPRTLAY
 !              PMEMIS_BUF = PMEMIS_PT   ! array assignment
 !           ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
             IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-#ifdef Verbose
+#ifdef Verbose1
                write( logdev,* ) '   ntics: ', ntics
 #endif
 !              VDEMIS_BUF = VDEMIS_BUF + 2.0 * VDEMIS_PT   ! array assignment
@@ -1106,7 +1143,7 @@ C Possible report to REPRTLAY
             ELSE
 !              DIVFAC = 0.5 / FLOAT( NTICS )
                DIVFAC = 1.0 / FLOAT( NTICS )
-#ifdef Verbose
+#ifdef Verbose1
                write( logdev,* ) '   ntics, divfac: ', ntics, divfac
 #endif
                DO V = 1, N_SPC_PTEM
