@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.5 2011/08/23 16:52:42 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.6 2011/09/15 16:30:57 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -55,11 +55,13 @@ C 15 Aug 11 D. Schwede and G. Sarwar: Modified HONO calculation so that
 C              deposition velocity for NO2 that is output in DEPV file 
 C              does not include the loss due to the heterogeneous reaction.
 C              This additional loss is now accounted for in vdiff.F
+C 14 Sep 11 J.Young: fix TSTEP bug in call to DEPV_INIT
 
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
-      USE EMIS_DEFN           ! inherits GRID_CONF
+      USE GRID_CONF
+      USE EMIS_DEFN
       USE DEPV_DEFN
       USE VDIFF_MAP
       USE UTILIO_DEFN
@@ -278,7 +280,7 @@ C set vertical layer definitions from COORD.EXT
          END DO
          RDX3M( NLAYS ) = 0.0
 
-         IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP( 1 ), CGRID ) ) THEN
+         IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
