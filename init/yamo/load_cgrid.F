@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.3 2011/04/01 15:41:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.4 2011/09/15 15:34:37 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -45,6 +45,8 @@ C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
+C    2 Sep 11 J.Young: change ICBC_FAC policy to always assigning factor,
+C                      if specified, not just if a surrogate is also specified 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -61,7 +63,7 @@ C Arguments:
       CHARACTER( 16 ) :: FNAME
       INTEGER      JDATE
       INTEGER      JTIME
-      CHARACTER( 2 ) ::  SPC_CAT
+      CHARACTER( 2 ) :: SPC_CAT
       REAL         CMIN
 !     REAL      :: CGRID( :,:,:,: )  ! for initial CONC
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
@@ -181,95 +183,179 @@ C IOFDESC common now loaded with MET_CRO_3D header
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
+C The original policy for using surrogate names is first, check if the Namelist
+C species is on the IC file; if so ignore any surrogate. If the Namelist species
+C is not on the IC file, then check if the surrogate name is; if so also use the
+C scale factor (default = 1.0).
+C Note: parsing in CGRID_SPCS follows this policy for all the Namelist surrogate
+C types (EMIS, DEPV, ICBC, and SCAV).
+C => Change this for ICBC:
+C First check if there's a surrogate name in the Namelist and use it (and the
+C corresponding scale factor) if it exists. If it's not on the IC file, which it
+C wouldn't be if it were blank, then look for the Namelist species name.
+
 C Get INDX
       IF ( SPC_CAT .EQ. 'GC' ) THEN
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
-            NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
-            ICBC_FAC( SPC ) = 1.0
-            IF ( NDX .EQ. 0 ) THEN
-               ISUR = FINDEX ( SPC , N_GC_ICBC, GC_ICBC_MAP )
-               IF ( ISUR .NE. 0 ) THEN
-                  NDX = INDEX1( GC_ICBC ( ISUR ), NVARS3D, VNAME3D )
-                  ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
+
+C is there a surrogate name?
+            ISUR = FINDEX ( SPC, N_GC_ICBC, GC_ICBC_MAP )
+!           write( logdev,* ) '=c=spc,isur: ', spc, isur
+            IF ( ISUR .NE. 0 ) THEN
+C is it on the IC file?
+               NDX = INDEX1( GC_ICBC( ISUR ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX   ! index in the IC file
+                  IF ( GC_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
+                     ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
+                  ELSE
+                     ICBC_FAC( SPC ) = 1.0
+                  END IF
+!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               END IF
+            ELSE
+C is the (main) species name on the IC file?
+               NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX
+                  ICBC_FAC( SPC ) = 1.0
+               ELSE
+                  XMSG = 'No IC found for species ' // TRIM( GC_SPC( SPC ) )
+     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  CALL M3MESG( XMSG )
                END IF
             END IF
-            INDX( SPC ) = NDX
-            IF ( NDX .EQ. 0 ) THEN
-               XMSG = 'No IC found for species ' //
-     &                TRIM( GC_SPC( SPC ) ) //
-     &                ' in ' // TRIM( FNAME ) //
-     &                ' Set to ' // TRIM( CONCMIN )
-               CALL M3MESG( XMSG )
-            END IF
+
+#ifdef Verbose3
+            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( gc_spc( spc ) ),
+     &                        '   icbc_fac:', icbc_fac( spc )
+            write( logdev,* ) ' '
+#endif
+
          END DO
+
       ELSE IF ( SPC_CAT .EQ. 'AE' ) THEN
          SPC_STRT = AE_STRT
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
-            NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
-            ICBC_FAC( SPC ) = 1.0
-            IF ( NDX .EQ. 0 ) THEN
-               ISUR = FINDEX ( SPC , N_AE_ICBC, AE_ICBC_MAP )
-               IF ( ISUR .NE. 0 ) THEN
-                  NDX = INDEX1( AE_ICBC ( ISUR ), NVARS3D, VNAME3D )
-                  ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
+C is there a surrogate name?
+            ISUR = FINDEX ( SPC, N_AE_ICBC, AE_ICBC_MAP )
+!           write( logdev,* ) '=c=spc,isur: ', spc, isur
+            IF ( ISUR .NE. 0 ) THEN
+C is it on the IC file?
+               NDX = INDEX1( AE_ICBC( ISUR ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX   ! index in the IC file
+                  IF ( AE_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
+                     ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
+                  ELSE
+                     ICBC_FAC( SPC ) = 1.0
+                  END IF
+!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               END IF
+            ELSE
+C is the (main) species name on the IC file?
+               NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX
+                  ICBC_FAC( SPC ) = 1.0
+               ELSE
+                  XMSG = 'No IC found for species ' // TRIM( AE_SPC( SPC ) )
+     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  CALL M3MESG( XMSG )
                END IF
             END IF
-            INDX( SPC ) = NDX
-            IF ( NDX .EQ. 0 ) THEN
-               XMSG = 'No IC found for species ' //
-     &                TRIM( AE_SPC( SPC ) ) //
-     &                ' in ' // TRIM( FNAME ) //
-     &                ' Set to ' // TRIM( CONCMIN )
-               CALL M3MESG( XMSG )
-            END IF
+
+#ifdef Verbose3
+            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( ae_spc( spc ) ),
+     &                        '   icbc_fac:', icbc_fac( spc )
+            write( logdev,* ) ' '
+#endif
+
          END DO
+
       ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
          SPC_STRT = NR_STRT
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
-            NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
-            ICBC_FAC( SPC ) = 1.0
-            IF ( NDX .EQ. 0 ) THEN
-               ISUR = FINDEX ( SPC , N_NR_ICBC, NR_ICBC_MAP )
-               IF ( ISUR .NE. 0 ) THEN
-                  NDX = INDEX1( NR_ICBC ( ISUR ), NVARS3D, VNAME3D )
-                  ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
+C is there a surrogate name?
+            ISUR = FINDEX ( SPC, N_NR_ICBC, NR_ICBC_MAP )
+!           write( logdev,* ) '=c=spc,isur: ', spc, isur
+            IF ( ISUR .NE. 0 ) THEN
+C is it on the IC file?
+               NDX = INDEX1( NR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX   ! index in the IC file
+                  IF ( NR_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
+                     ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
+                  ELSE
+                     ICBC_FAC( SPC ) = 1.0
+                  END IF
+!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               END IF
+            ELSE
+C is the (main) species name on the IC file?
+               NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX
+                  ICBC_FAC( SPC ) = 1.0
+               ELSE
+                  XMSG = 'No IC found for species ' // TRIM( NR_SPC( SPC ) )
+     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  CALL M3MESG( XMSG )
                END IF
             END IF
-            INDX( SPC ) = NDX
-            IF ( NDX .EQ. 0 ) THEN
-               XMSG = 'No IC found for species ' //
-     &                TRIM( NR_SPC( SPC ) ) //
-     &                ' in ' // TRIM( FNAME ) //
-     &                ' Set to ' // TRIM( CONCMIN )
-               CALL M3MESG( XMSG )
-            END IF
+
+#ifdef Verbose3
+            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( nr_spc( spc ) ),
+     &                        '   icbc_fac:', icbc_fac( spc )
+            write( logdev,* ) ' '
+#endif
+
          END DO
+
       ELSE IF ( SPC_CAT .EQ. 'TR' ) THEN
          SPC_STRT = TR_STRT
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
-            NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
-            ICBC_FAC( SPC ) = 1.0
-            IF ( NDX .EQ. 0 ) THEN
-               ISUR = FINDEX ( SPC , N_TR_ICBC, TR_ICBC_MAP )
-               IF ( ISUR .NE. 0 ) THEN
-                  NDX = INDEX1( TR_ICBC ( ISUR ), NVARS3D, VNAME3D )
-                  ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
+C is there a surrogate name?
+            ISUR = FINDEX ( SPC, N_TR_ICBC, TR_ICBC_MAP )
+!           write( logdev,* ) '=c=spc,isur: ', spc, isur
+            IF ( ISUR .NE. 0 ) THEN
+C is it on the IC file?
+               NDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX   ! index in the IC file
+                  IF ( TR_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
+                     ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
+                  ELSE
+                     ICBC_FAC( SPC ) = 1.0
+                  END IF
+!                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               END IF
+            ELSE
+C is the (main) species name on the IC file?
+               NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
+               IF ( NDX .NE. 0 ) THEN
+                  INDX( SPC ) = NDX
+                  ICBC_FAC( SPC ) = 1.0
+               ELSE
+                  XMSG = 'No IC found for species ' // TRIM( TR_SPC( SPC ) )
+     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  CALL M3MESG( XMSG )
                END IF
             END IF
-            INDX( SPC ) = NDX
-            IF ( NDX .EQ. 0 ) THEN
-               XMSG = 'No IC found for species ' //
-     &                TRIM( TR_SPC( SPC ) ) //
-     &                ' in ' // TRIM( FNAME ) //
-     &                ' Set to ' // TRIM( CONCMIN )
-               CALL M3MESG( XMSG )
-            END IF
+
+#ifdef Verbose3
+            write( logdev,* ) '=c=spc,indx: ', spc, indx( spc ), trim( tr_spc( spc ) ),
+     &                        '   icbc_fac:', icbc_fac( spc )
+            write( logdev,* ) ' '
+#endif
+
          END DO
+
       ELSE IF ( SPC_CAT .EQ. 'RJ' ) THEN
          N_SPCS = 0
 !        WRITE( LOGDEV,'(/ 5X, A)' ) 'loading Density*Jacobian into CGRID'
@@ -289,12 +375,14 @@ C IOFDESC common now loaded with FNAME header
          NDX = INDX( SPC )
 
          IF ( NDX .GT. 0 ) THEN
+#ifdef Verbose3
+            write( logdev,* ) '=vname3d=: ', spc, v, ndx, icbc_fac( spc ), vname3d( ndx )
+#endif
             IF ( .NOT. XTRACT3( FNAME, VNAME3D ( NDX ),
      &           1,NLAYS, STRTROWINI,ENDROWINI, STRTCOLINI,ENDCOLINI,
      &           JDATE, JTIME, DBUFF ) ) THEN
-               XMSG = 'Could not read ' //
-     &                TRIM( VNAME3D( NDX ) ) //
-     &                ' from ' // FNAME
+               XMSG = 'Could not read ' // TRIM( VNAME3D( NDX ) )
+     &              // ' from ' // FNAME
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
