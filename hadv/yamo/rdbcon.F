@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.3 2011/04/01 15:41:47 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.4 2011/09/15 15:42:34 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -102,7 +102,7 @@ C Local variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      CHARACTER( 16 ) :: BLNK = '    '
+      CHARACTER( 16 ) :: BLNK = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BCNAME( : )  ! BC name for adv species
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
 
@@ -128,7 +128,22 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
       INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
 
+      INTERFACE
+         SUBROUTINE ADVBC_MAP( CONCMIN, BCNAME, BCFAC )
+            USE CGRID_SPCS
+            USE UTILIO_DEFN
+            IMPLICIT NONE
+            CHARACTER( 16 ), INTENT( IN )    :: CONCMIN
+            CHARACTER( 16 ), INTENT( INOUT ) :: BCNAME( : )
+            REAL,            INTENT( INOUT ) :: BCFAC ( : )
+         END SUBROUTINE ADVBC_MAP
+      END INTERFACE
+
       integer, save :: logdev
+#ifdef Verbose3
+      real sumem
+      integer s
+#endif
 C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
@@ -295,14 +310,13 @@ C Read & interpolate boundary concentrations
       FINI = N_GC_TRNS
       DO 141 VAR = STRT, FINI
          SPC = SPC + 1 
-         IF ( BCNAME ( VAR ) .NE. BLNK ) THEN
+         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
             IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ) , PNAME,
      &                          MDATE, MTIME, NBNDY*NLAYS,
      &                          BBUF( 1,1,VAR ) ) ) THEN
-               XMSG = 'Could not read ' //
-     &                 TRIM( BCNAME ( VAR ) ) //
-     &                ' from ' // BNDY_GASC_1
+               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
+     &              // ' from ' // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
             ELSE   ! found bc's (PPM) on file; convert
@@ -320,12 +334,25 @@ C Read & interpolate boundary concentrations
          END IF
 141   CONTINUE
 
+#ifdef Verbose3
+      if ( lvl .eq. 1 ) then
+         write( logdev,'(/"@@@b ", i8, i7.6)') jdate, jtime
+         do var = strt, fini
+            sumem = 0.0
+            do bnd = 1, nbndy
+               sumem = sumem + bcon( bnd,var )
+            end do
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+         end do
+      end if
+#endif
+
       SPC = 0
       STRT = N_GC_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS
       DO 151 VAR = STRT, FINI
          SPC = SPC + 1
-         IF ( BCNAME ( VAR ) .NE. BLNK ) THEN
+         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
             IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
@@ -335,7 +362,6 @@ C Read & interpolate boundary concentrations
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
             ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
-
                       ! on file; convert
                IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
                   DO BND = 1, NBNDY
@@ -359,28 +385,38 @@ C Read & interpolate boundary concentrations
                END IF
             END IF
          ELSE
-
             DO BND = 1, NBNDY
                BCON( BND,VAR ) = CMIN
             END DO
          END IF
 151   CONTINUE
 
+#ifdef Verbose3
+      if ( lvl .eq. 1 ) then
+         do var = strt, fini
+            sumem = 0.0
+            do bnd = 1, nbndy
+               sumem = sumem + bcon( bnd,var )
+            end do
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+         end do
+      end if
+#endif
+
       SPC = 0
       STRT = N_GC_TRNS + N_AE_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
       DO 161 VAR = STRT, FINI
          SPC = SPC + 1 
-         IF ( BCNAME ( VAR ) .NE. BLNK ) THEN
+         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
 !           write ( logdev,* ) '=== spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
-               XMSG = 'Could not read ' //
-     &                 TRIM( BCNAME ( VAR ) ) //
-     &                ' from ' // BNDY_NONR_1
+               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
+     &              // ' from ' // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
                ELSE   ! found bc's (PPM) on file; convert
@@ -398,6 +434,18 @@ C Read & interpolate boundary concentrations
             END IF
 161      CONTINUE
 
+#ifdef Verbose3
+      if ( lvl .eq. 1 ) then
+         do var = strt, fini
+            sumem = 0.0
+            do bnd = 1, nbndy
+               sumem = sumem + bcon( bnd,var )
+            end do
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+         end do
+      end if
+#endif
+
       SPC = 0
       STRT = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
@@ -410,9 +458,8 @@ C Read & interpolate boundary concentrations
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS,
      &                           BBUF( 1,1,VAR ) ) ) THEN
-               XMSG = 'Could not read ' //
-     &                 TRIM( BCNAME ( VAR ) ) //
-     &                ' from ' // BNDY_TRAC_1
+               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
+     &              // ' from ' // BNDY_TRAC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 
             ELSE   ! found bc's (PPM) on file; convert
@@ -429,6 +476,18 @@ C Read & interpolate boundary concentrations
             END DO
          END IF
 171   CONTINUE
+
+#ifdef Verbose3
+      if ( lvl .eq. 1 ) then
+         do var = strt, fini
+            sumem = 0.0
+            do bnd = 1, nbndy
+               sumem = sumem + bcon( bnd,var )
+            end do
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+         end do
+      end if
+#endif
 
 C for advecting Air Density X Jacobian
 
