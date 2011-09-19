@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.6 2011/09/09 17:49:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.7 2011/09/19 15:20:50 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -95,6 +95,9 @@ C                    and Steve Howard's aerosol reengineering
 C       3/11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C       7/11 G. Sarwar: calculate zenith angle to determine daytime and nightime 
 C                    needed for sulfur oxidation via metal catalysis
+C       9/11 S.Roselle: enable CMAQ subgrid cloud model only when met. driver
+C             uses a convective cloud parameterization (removed minimum
+C             horizontal grid resolution restriction)
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -478,18 +481,6 @@ C...get description from the met file
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-C...set flag to false if grid scale is less than 8 km
-
-        IF ( ( XCELL3D .LT. 8000.0 ) .OR.
-     &       ( YCELL3D .LT. 8000.0 ) ) THEN
-          CONVCLD = .FALSE.
-          XMSG = 'Grid resolution too small to run a sub-grid-scale '//
-     &           'convective cloud scheme.'
-          CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-          XMSG = 'An explicit cloud scheme should be used.'
-          CALL M3MESG ( XMSG )
-        END IF
-
 C...store met file time, date, and step information and compute
 C...  the met timestep in hours
 
@@ -501,14 +492,46 @@ C...  the met timestep in hours
 
 C...get horizontal domain window from met data
 
-         CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
+        CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
+     &                  STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                  STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+C...check convective precipitation on met files to determine if WRF used
+C...  a convective parameterization
+
+!       ALLOCATE ( RC( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+!       IF ( ALLOCSTAT .NE. 0 ) THEN
+!          XMSG = 'Failure allocating RC'
+!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!       END IF
+
+        VARNM = 'RC'
+!       IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
+!    &                    RC ) ) THEN
+        IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+     &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                      SDATE, STIME, RC ) ) THEN
+          XMSG = 'Could not read RC from ' // MET_CRO_2D
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+C...in coordination with MCIPv4.0, negative values will be loaded into the RC
+C...  field if a convective parameterization was not used in the WRF simulation
+
+        IF ( MAXVAL( RC ) .LT. 0.0 ) THEN
+          CONVCLD = .FALSE.
+          XMSG = 'MCIP files indicate no convective parameterization was '
+     &        // 'used in the WRF simulation'
+          CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+          XMSG = 'Processing will continue without subgrid clouds'
+          CALL M3MESG ( XMSG )
+          RETURN
+        END IF
 
 C...allocate saved arrays
 
@@ -617,6 +640,8 @@ C...  Get LON
 
       END IF   ! Firstime
 
+      IF ( .NOT. CONVCLD ) RETURN
+
 C...check option for processing clouds on the synchronization timestep
 
       IF ( SYNCCLD ) THEN
@@ -652,8 +677,7 @@ C...  set mdate:mtime to one-half step before the half-hour
 
         ATIME = SECSDIFF( MDATE, MTIME, JDATE, JTIME )
 
-        IF ( ( ( ATIME .LT. 0 ) .OR. ( ATIME .GE. STEP ) ) .OR.
-     &       ( .NOT. CONVCLD ) ) RETURN
+        IF ( ( ATIME .LT. 0 ) .OR. ( ATIME .GE. STEP ) ) RETURN
 
 C...the current timestep overlaps the half hour point
 C...  set the time to the half hour for data interpolation
