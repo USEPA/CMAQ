@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.4 2011/09/15 15:34:37 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.5 2011/09/21 12:37:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -195,6 +195,8 @@ C corresponding scale factor) if it exists. If it's not on the IC file, which it
 C wouldn't be if it were blank, then look for the Namelist species name.
 
 C Get INDX
+      INDX = 0   ! array assignment
+
       IF ( SPC_CAT .EQ. 'GC' ) THEN
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
@@ -273,7 +275,7 @@ C is the (main) species name on the IC file?
      &                        '   icbc_fac:', icbc_fac( spc )
             write( logdev,* ) ' '
 #endif
-
+ 
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
