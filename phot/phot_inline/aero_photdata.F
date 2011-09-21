@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.3 2011/06/01 16:54:49 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.4 2011/09/21 12:54:31 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_PHOTDATA ( COL, ROW, NLAYS, CGRID,
@@ -119,8 +119,8 @@ C Local saved variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.                ! first pass flag
 
-      INTEGER, SAVE :: LOGDEV                           ! unit number for the log file
-      INTEGER, SAVE :: REFRACT_INDX_MAP( N_AEROSPC )    ! map array for refactive index
+      INTEGER, SAVE :: LOGDEV                                ! unit number for the log file
+      INTEGER, ALLOCATABLE, SAVE :: REFRACT_INDX_MAP( : )    ! map array for refactive index
 
 C Local variables:
 
@@ -142,6 +142,10 @@ C-----------------------------------------------------------------------
 
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
+
+         CALL MAP_AERO()
+
+         ALLOCATE(  REFRACT_INDX_MAP( N_AEROSPC ) )
 
 C ***    Create map for refactive index for each species
          DO SPC = 1, N_AEROSPC
