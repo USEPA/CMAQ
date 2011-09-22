@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/init_degrade.F,v 1.1 2011/03/23 21:13:16 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/init_degrade.F,v 1.2 2011/09/22 20:24:17 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -75,17 +75,6 @@ C.....LOCAL VARIABLES:
 C**********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize constants and allocate arrays
-
-         CALL DEGRADE_DATA()
-
-         IF(N_REACT < 1)THEN
-           XMSG = 'UNABLE TO SET DEGRADE MODULE BASED ON MECHNAME '
-     &         // 'WHICH EQUALS ' // MECHNAME
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         ENDIF
-
-
-         CALL DEGRADE_MAP( JDATE, JTIME, LOGDEV )
 
          CONV_M2N = 1.0D-9 * AVO / MWAIR       ! AVO and MWAIR defined in CONST.EXT
 

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.2 2011/04/01 15:41:44 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grdriver.F,v 1.3 2011/09/22 20:24:17 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)grdriver.F        1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grdriver.F 07 Jul 1997 12:45:24
@@ -68,6 +68,8 @@ C                                       substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                    with UTILIO_DEFN
+C                    31 Aug 11 B.Hutzell revised method that determines calling
+C                              degrade routine
 C**********************************************************************
 
       USE CGRID_SPCS          ! CGRID species number and offsets
@@ -365,11 +367,16 @@ C...Initialize and report data
 
 C:WTH Determine whether DEGRADE rountines are needed.
 
-         IF( INDEX( MECHNAME, 'TX' ) .NE. 0 ) THEN
-            CALL_DEG = .TRUE.
-            WRITE( LOGDEV, * ) 'TX DEGRADE ROUTINES USED'
-            WRITE( LOGDEV, * ) 'MECHNAME contains TX substring'
-         END IF
+         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         IF( CALL_DEG ) THEN
+            WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
+            WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
+#ifdef verbose_gas         
+         ELSE
+            WRITE( LOGDEV, * ) 'DEGRADE ROUTINES not USED'
+            WRITE( LOGDEV, * ) 'Mechanism contains NO degraded species'
+#endif            
+         ENDIF
 
 C:WTH set up degradation array
 

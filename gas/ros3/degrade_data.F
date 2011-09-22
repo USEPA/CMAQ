@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/degrade_data.F,v 1.1 2011/03/23 21:13:15 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/degrade_data.F,v 1.2 2011/09/22 20:24:17 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -62,31 +62,7 @@ C.....INCLUDES:
 C**********************************************************************
 
 
-      SET_DEGRADE: SELECT CASE ( MECHNAME )
-        CASE('CB4TX1P_AE3_AQ', 'CB4TX1P_AQ')
-             N_REACT   = 16
-             AE5_MECH  = .FALSE.
-             GEN1_MECH = .TRUE.
-        CASE('SAPRC99TX2P_AE3_AQ', 'SAPRC99TX2P_AQ')
-             N_REACT   = 16
-             AE5_MECH  = .FALSE.
-             GEN1_MECH = .TRUE.
-        CASE('SAPRC99TX3_AE4_AQ', 'CB05CLTX_AE4_AQ', 'CB05TXHG_AE4_AQ')
-             N_REACT   = 22
-             AE5_MECH  = .FALSE.
-             GEN1_MECH = .FALSE.
-        CASE('SAPRC99TX3_AE5_AQ', 'CB05CLTX_AE5_AQ', 'CB05TXHG_AE5_AQ')
-             N_REACT   = 21
-             AE5_MECH  = .TRUE.
-             GEN1_MECH = .FALSE.
-        CASE('SAPRC99TX3_AE6_AQ', 'CB05CLTX_AE6_AQ', 'CB05TXHG_AE6_AQ')
-             N_REACT   = 21
-             AE5_MECH  = .TRUE.
-             GEN1_MECH = .FALSE.
-        CASE DEFAULT
-             N_REACT   = -1
-             RETURN
-      END SELECT SET_DEGRADE
+      N_REACT   = 21
 
 
       N_UNI_LOSS   = 1    ! Number of Unimolecular Loss Processes
@@ -348,23 +324,6 @@ C.. QUINOLINE
       BIRATE(15,1:4)  = (/1.16D-11, 1.16D-11, 1.00D-19, 1.60D-20/)
       BI_ACT(15,1:4)  = (/   0.0D0,    0.0D0,    0.0D0,    0.0D0/)
 
-      IF( GEN1_MECH )THEN
-      
-C.. add BENZENE for non-AE5 mechanism
-
-        REACT(16)       = 'BENZENE'
-        UNIRATE( 16, 1) = 0.0D0
-        UNI_ACT( 16, 1) = 0.0D0
-        UNI_TEXP(16, 1) = 0.0
-        BICAUSE(16,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
-        BIRATE(16,1:5)  = (/ 2.47D-12, 2.47D-12, 0.0D0, 0.0D0, 1.3D-15/)
-        BI_ACT(16,1:5)  = (/  207.0D0,  207.0D0, 0.0D0, 0.0D0, 0.0D0/)
-        BI_TEXP(16,1:5) = (/      0.,        0.,    0.,    0.,     0/)
-        RETURN 
-     
-      ENDIF
-
-
 C.. HEXAMETHYLENE DIISOCAYNATE
 
       REACT(16)       = 'HEXAMETHY_DIIS'
@@ -406,19 +365,6 @@ C.. P-DICHLOROBENZENE
       BICAUSE(21,1:2) = (/'OH ','HO '/)
       BIRATE(21,1:2)  = (/3.60D-13, 3.60D-13/)
       BI_ACT(21,1:2)  = (/   0.0D0,    0.0D0/)
-
-      IF( AE5_MECH )RETURN
-
-C.. add BENZENE for non-AE5 mechanisms
-      
-        REACT(22)       = 'BENZENE'
-        UNIRATE( 22, 1) = 0.0D0
-        UNI_ACT( 22, 1) = 0.0D0
-        UNI_TEXP(22, 1) = 0.0
-        BICAUSE(22,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
-        BIRATE(22,1:5)  = (/ 2.47D-12, 2.47D-12, 0.0D0, 0.0D0, 1.3D-15/)
-        BI_ACT(22,1:5)  = (/  207.0D0,  207.0D0, 0.0D0, 0.0D0, 0.0D0/)
-        BI_TEXP(22,1:5) = (/      0.,        0.,    0.,    0.,     0/)
 
          
       RETURN

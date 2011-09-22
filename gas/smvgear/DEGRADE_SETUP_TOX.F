@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/DEGRADE_SETUP_TOX.F,v 1.2 2011/04/01 15:41:43 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/DEGRADE_SETUP_TOX.F,v 1.3 2011/09/22 20:24:16 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,8 +34,8 @@ C  REVISION HISTORY: 07/29/05 : B.Hutzell - Initial version
 C                    01/08/07 : S.Roselle - Corrected minimum length for
 C                               species name (LEN_NAME)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
-C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
-C                    with UTILIO_DEFN
+C                    29 Mar 11 S.Roselle: Replaced I/O API include files
+C                               with UTILIO_DEFN
 C
 C**********************************************************************
 
@@ -60,7 +60,8 @@ C..declare and define variables used by maps and data
       INTEGER :: N_PHOTO_LOSS      ! Number of Photolysis Loss processes
       INTEGER :: N_PROCESSES       ! Total number of Loss processes
 
-      INTEGER, SAVE :: N_PHOTO_TAB ! number of photolysis rates in mechanism
+      INTEGER, SAVE :: N_PHOTO_TAB    ! Number of photolysis rates in mechanism
+      INTEGER, SAVE :: N_REACT_FOUND  ! Number of react species found in namelists
 
 C..looping data
 
@@ -146,9 +147,9 @@ C.....INCLUDES:
 
 C.....ARGUMENTS:
 
-         INTEGER :: JDATE        ! current model date , coded YYYYDDD
-         INTEGER :: JTIME        ! current model time , coded HHMMSS
-         INTEGER :: LOGDEV       ! unit number for the log file
+         INTEGER, INTENT( IN ) :: JDATE        ! current model date , coded YYYYDDD
+         INTEGER, INTENT( IN ) :: JTIME        ! current model time , coded HHMMSS
+         INTEGER, INTENT( IN ) :: LOGDEV       ! unit number for the log file
 
 C.....PARAMETERS:
 
@@ -168,7 +169,7 @@ C.....LOCAL VARIABLES:
 
          REAL(8) :: INV_T298K = 1.0D0 / TEMP_298K   ! K^-1
 
-C.....EXTERNAL FUNCTIONS: None
+C.....EXTERNAL FUNCTIONS:
 
 C**********************************************************************
 
@@ -180,7 +181,9 @@ C..Quality control on pairs of Reactant and Products
 
          WRITE( LOGDEV,* ) 'Comments on Species in degradation routines'
 
-         DO 10 I = 1, N_REACT
+         N_REACT_FOUND = 0
+
+         LOOP_REACT: DO I = 1, N_REACT
 
             VNAME( 1 ) = REACT( I )
 
@@ -238,13 +241,6 @@ C..Quality control on pairs of Reactant and Products
 
 C..Set up indices that point to concentrations in CGRID.
 
-            IF ( I == 1 ) THEN
-               WRITE( LOGDEV,* ) 'TABLE on Degradation Simulated.'
-               WRITE( LOGDEV,* ) 'Note: Rates use units of cm, sec, and molecules.'
-               WRITE( LOGDEV,* )
-               WRITE( LOGDEV,1600 )
-            ENDIF
-
             DO 20 J = 1, N_PROCESSES+1
 
                WNAME = VNAME( J )      ! note that reactant occupies VNAME(1)
@@ -259,15 +255,32 @@ C..Set up indices that point to concentrations in CGRID.
                      N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
                      MARKER = NR_STRT
                      IF ( N == 0 ) THEN
-                        WRITE( LOGDEV,* ) WNAME( 1:LEN_NAME ), ' is not '
-     &                       // 'in gas or nonreactive species table.'
-                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#ifdef verbose_gas
+                        WRITE( XMSG,* ) WNAME( 1:LEN_NAME ), ' is not '
+     &                       // 'in gas or nonreactive species table so '
+     &                       // 'its loss processes not calculated '
+!                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                         CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+#endif
+                         RXTANT_MAP( I ) = -1
+                         CYCLE
                      ENDIF
                   ENDIF
+
+                  N_REACT_FOUND = N_REACT_FOUND + 1
 
                ELSE
                   VNAME( J ) = 'NONE'
                   CYCLE
+               ENDIF
+
+C..write degrade data table
+
+               IF ( N_REACT_FOUND == 1 ) THEN
+                  WRITE( LOGDEV,* ) 'TABLE on Degradation Simulated.'
+                  WRITE( LOGDEV,* ) 'Note: Rates use units of cm, sec, and molecules.'
+                  WRITE( LOGDEV,* )
+                  WRITE( LOGDEV,1600 )
                ENDIF
 
 C..set map values
@@ -279,6 +292,10 @@ C..set map values
                ENDIF
 
 20          CONTINUE
+
+C..cycle N_REACT LOOP
+
+           IF( RXTANT_MAP( I ) .LT. 1 )CYCLE LOOP_REACT
 
 C..check UNIMOLECULAR decay rates
 
@@ -454,7 +471,10 @@ C..set value in map
      &              VNAME( J+K+1 ), PROD_MAP( I, J+K )
 
 70          CONTINUE
-10       CONTINUE
+
+         END DO LOOP_REACT
+
+         IF( N_REACT_FOUND .LT. 1 )RETURN
 
          WRITE( LOGDEV,* ) 'Note: If INDEX of CAUSE A OR B equals -1, the '
      &        // 'process is dropped from degradation '
