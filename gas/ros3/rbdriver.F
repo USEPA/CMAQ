@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.3 2011/09/15 15:01:46 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.4 2011/09/22 20:33:12 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -37,6 +37,9 @@ C                                    RBSPARSE
 C                                    PHOT
 C                                    CALCKS
 C                                    RBSOLVER
+C                                    FIND_DEGRADED
+C                                    INIT_DEGRADE
+C                                    FINAL_DEGRADE
 C
 C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    Based on the solver described by Sandu et al
@@ -56,6 +59,8 @@ C                                       substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
+C                    31 Aug 11 B.Hutzell revised method that determines calling
+C                              degrade routine
 C**********************************************************************
 
       USE SUBST_MODULES
@@ -332,13 +337,19 @@ c..Open file for solver stats if requested
 
 C Determine whether DEGRADE rountines are needed.
 
-         IF ( INDEX( MECHNAME, 'TX' ) .NE. 0 ) THEN
-            CALL_DEG = .TRUE.
-            WRITE( LOGDEV, * ) 'TX DEGRADE routines used'
-            WRITE( LOGDEV, * ) 'MECHNAME contains TX substring'
-         END IF
+         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         IF( CALL_DEG ) THEN
+            WRITE( LOGDEV, * ) 'DEGRADE ROUTINES USED'
+            WRITE( LOGDEV, * ) 'Mechanism contains degraded species'
+#ifdef verbose_gas         
+         ELSE
+            WRITE( LOGDEV, * ) 'DEGRADE ROUTINES not USED'
+            WRITE( LOGDEV, * ) 'Mechanism contains NO degraded species'
+#endif            
+         ENDIF
 
 C set up degradation array
+
 
          ALLOCATE( Y_DEGRADE( BLKSIZE, NSPCSD ) )
 
