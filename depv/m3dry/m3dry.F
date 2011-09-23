@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.7 2011/09/23 17:08:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.8 2011/09/23 20:21:59 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
@@ -713,6 +713,7 @@ C-------------------------------------------------------------------------------
 !        WRITE( xmsg,9001 ) vname, met_cro_2d
          WRITE( xmsg,9001 ) vname_ra, met_cro_2d
          GO TO 1001
+      END IF
 !     ELSE
       IF (vname_ra .EQ. 'RADYNI') THEN
          DO r = 1, my_nrows
@@ -751,6 +752,7 @@ C-------------------------------------------------------------------------------
      &                strtrow, endrow, 1, 1, jdate, jtime, rs) ) THEN
          WRITE( xmsg,9001 ) vname_rs, met_cro_2d
          GO TO 1001
+      END IF
 !     ELSE
       IF (vname_rs .EQ. 'RSTOMI') THEN
          DO r = 1, my_nrows
