@@ -18,13 +18,18 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/driver.F,v 1.6 2011/04/19 14:53:34 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/driver.F,v 1.7 2011/09/23 16:49:56 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+#ifdef twoway
+      SUBROUTINE CMAQ_DRIVER (WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP,
+     &                        TWOWAY_JDATE, TWOWAY_JTIME)
+#else
       PROGRAM  DRIVER
+#endif
 
 C-----------------------------------------------------------------------
 C Function:
@@ -75,6 +80,8 @@ C   27 May 09 J.Young: re-do parallel processing initialization
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   20 Jul 10 J.Young: re-do serial processing termination (eliminate par_noop)
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 D.Wong: incorporated twoway model implementation
+C   24 Aug 11 D.Wong: eliminated data and geo orientation in se_init call
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -84,12 +91,22 @@ C-----------------------------------------------------------------------
       USE WVEL_DEFN             ! derived vertical velocity component
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
+
+#ifdef twoway
+      USE SD_TIME_SERIES_MODULE
+#endif
+
 #ifdef parallel
       USE SUBST_MODULES         ! stenex (using SUBST_INIT_MODULE)
       USE SWAP_SANDIA
 #endif
 
       IMPLICIT NONE
+
+#ifdef twoway
+      INTEGER, INTENT(IN)  :: WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP
+      INTEGER, INTENT(OUT) :: TWOWAY_JDATE, TWOWAY_JTIME
+#endif
 
 C Include Files:
       INCLUDE SUBST_FILES_ID    ! I/O definitions and declarations
@@ -112,16 +129,19 @@ C Local variables:
       INTEGER      LOGDEV       ! FORTRAN unit number for log file
       INTEGER      STDATE       ! starting date,    format YYYYDDD
       INTEGER      STTIME       ! starting time,    format HHMMSS
-      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
+
       INTEGER, ALLOCATABLE, SAVE :: ASTEP( : )
       INTEGER      NSTEPS       ! run duration: number of output time steps
-      INTEGER      NREPS        ! number of model time steps per output step
+      INTEGER, SAVE :: NREPS    ! number of model time steps per output step
       INTEGER      ISTEP        ! current output time step number
       INTEGER      IREP         ! model step number within this output step
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
+      INTEGER, SAVE :: JDATE    ! current model date, coded YYYYDDD
+      INTEGER, SAVE :: JTIME    ! current model time, coded HHMMSS
       INTEGER      C, R, L, K, S, V     ! loop induction variables
       INTEGER      ALLOCSTAT
 
@@ -129,29 +149,38 @@ C Local variables:
       CHARACTER( 16 ) :: PNAME = 'DRIVER'
       CHARACTER( 96 ) :: XMSG = ' '
 
-      REAL, POINTER     :: CGRID( :,:,:,: )
-      REAL, ALLOCATABLE :: AGRID( :,:,:,: )
+      REAL, SAVE, POINTER     :: CGRID( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: AGRID( :,:,:,: )
       REAL    DIVFAC      ! trapezoidal average factor
       INTEGER A_NLYS
 
       INTEGER NPROCS      ! number of processors
 #ifdef parallel
-      INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
+!     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
       INTEGER PAR_ERR     ! Error code from parallel initialization. 
       REAL    CLOCK       ! Wall-clock time (sec) at initialization.
 #endif
+
+! These vaiables are for twoway model
+      LOGICAL, SAVE :: FIRST_RUN = .TRUE.
+      LOGICAL, SAVE :: SD_TIME_SERIES
+      LOGICAL       :: CMAQ_WRF_FEEDBACK
+
+      INTEGER, SAVE :: OUTPUT_TIME
+      INTEGER, SAVE :: STEP_COUNT = 0, TOTAL_STEPS = 0
+      INTEGER       :: STATUS, RUNLEN
 
       INTERFACE
          SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
             IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( OUT )   :: STDATE, STTIME, TSTEP( 2 )
+            INTEGER, INTENT( OUT )   :: STDATE, STTIME, TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: NSTEPS
          END SUBROUTINE INITSCEN
          SUBROUTINE ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
             IMPLICIT NONE
             INTEGER, INTENT( IN )    :: JDATE, JTIME
-            INTEGER, INTENT( INOUT ) :: TSTEP( 2 )
+            INTEGER, INTENT( INOUT ) :: TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: ASTEP( : )
             INTEGER, INTENT( OUT )   :: NREPS
          END SUBROUTINE ADVSTEP
@@ -164,13 +193,13 @@ C Local variables:
          SUBROUTINE PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 2 )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
          END SUBROUTINE PA_INIT
          SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
             IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( INOUT ) :: JDATE, JTIME
-            INTEGER, INTENT( IN )    :: TSTEP( 2 ), ASTEP( : )
+            INTEGER, INTENT( IN )    :: TSTEP( 3 ), ASTEP( : )
          END SUBROUTINE SCIPROC
          SUBROUTINE WR_ACONC ( AGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
@@ -191,159 +220,216 @@ C Local variables:
 
 C-----------------------------------------------------------------------
 
-      JDATE = 0; JTIME = 0
+      STEP_COUNT = STEP_COUNT + 1
+
+      IF ( FIRST_RUN ) THEN
+
+#ifdef twoway
+         STDATE   = WRF_SDATE
+         STTIME   = WRF_STIME
+         TSTEP(3) = SEC2TIME( WRF_TSTEP )
+         NSTEPS   = WRF_NSTEP
+
+         RUNLEN = ENVINT( 'CTM_RUNLEN', ' ', RUNLEN, STATUS )
+         TOTAL_STEPS = TIME2SEC( RUNLEN ) / WRF_TSTEP
+#endif
 
 #ifdef parallel
 C Start up processor communication
-      CALL MPCOMM_INIT( NPROCS, MYPE, CLOCK, PAR_ERR )
+         CALL MPCOMM_INIT( NPROCS, MYPE, CLOCK, PAR_ERR )
 #else
-      NPROCS = 1; MYPE = 0
+         NPROCS = 1
+         MYPE = 0
 #endif
 
+         JDATE = 0
+         JTIME = 0
+
 C Start I/O-API and set up log file(s)
-!     LOGDEV = INIT3()
-      LOGDEV = SETUP_LOGDEV()
+!        LOGDEV = INIT3()
+         LOGDEV = SETUP_LOGDEV()
 
 C Set up horizontal domain, calculate processor-to-subdomain maps
 C and define vertical layer structure (in module GRID_CONF)
-      IF ( .NOT. GRID_INIT ( NPROCS, MYPE ) ) THEN
-         XMSG = '*** Failure defining domain configuration'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+         IF ( .NOT. GRID_INIT ( NPROCS, MYPE ) ) THEN
+            XMSG = '*** Failure defining domain configuration'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
 #ifdef Verbose
-      write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
-      write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
-      write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
-      write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
-      write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
-      write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
+         write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
+         write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
+         write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
+         write( logdev,* ) ' MYPE -> GL_NCOLS: ', mype, gl_ncols
+         write( logdev,* ) ' MYPE -> GL_NROWS: ', mype, gl_nrows
+         write( logdev,* ) ' MYPE -> NLAYS:    ', mype, nlays
 #endif
 
 C Set CGRID mechanism
-      IF ( .NOT. CGRID_SPCS_INIT() ) THEN
-         XMSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
-      END IF
+         IF ( .NOT. CGRID_SPCS_INIT() ) THEN
+            XMSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
+         END IF
 #ifdef Verbose
-      write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
+         write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif
 
 #ifdef parallel
 C Initialize parallel I/O
-      IF ( .NOT. PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
-     &                        NCOLS, NROWS, NPCOL, NPROW, NPROCS,
-     &                        MYPE, .TRUE. ) ) THEN
-         XMSG = 'Failed to initialize parallel I/O library.'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+         IF ( .NOT. PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
+     &                           NCOLS, NROWS, NPCOL, NPROW, NPROCS,
+     &                           MYPE, .TRUE. ) ) THEN
+            XMSG = 'Failed to initialize parallel I/O library.'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
 C Initialize stencil exchange
-      CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
-     &              NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS,
-     &              COLROW, GEO_ORI )
-      CALL SWAP_INIT_SNL( NPCOL, NPROW )
+         CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
+     &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS)
+!    &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS,
+!    &                 COLROW, GEO_ORI )
+         CALL SWAP_INIT_SNL( NPCOL, NPROW )
 #ifdef Verbose
-      write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
-      write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
-      write( logdev,* ) ' MYPE -> MSDIS:    ', mype, msdis
-      write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
-      write( logdev,* ) ' MYPE -> DATA_ORI: ', mype, colrow
-      write( logdev,* ) ' MYPE -> GEO_ORI:  ', mype, geo_ori
+         write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
+         write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
+         write( logdev,* ) ' MYPE -> MSDIS:    ', mype, msdis
+         write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
+         write( logdev,* ) ' MYPE -> DATA_ORI: ', mype, colrow
+         write( logdev,* ) ' MYPE -> GEO_ORI:  ', mype, geo_ori
 #endif
 #endif
 
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
-      IF ( LIPR .OR. LIRR ) THEN
-         IF ( .NOT. PAGRD_INIT( NPROCS, MYPE ) ) THEN
-            XMSG = '*** Failure defining PA domain configuration'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         IF ( LIPR .OR. LIRR ) THEN
+            IF ( .NOT. PAGRD_INIT( NPROCS, MYPE ) ) THEN
+               XMSG = '*** Failure defining PA domain configuration'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
          END IF
-      END IF
 
-      IF ( NSPCSD .GT. MXVARS3 ) THEN
-         WRITE( XMSG,'(5X, A, I5, A)' ) 'The number of variables,', NSPCSD,
-     &   ' to be written to the State CGRID File'
-         WRITE( LOGDEV, '( A )' ) XMSG
-         WRITE( XMSG,'(5X, A, I5)' ) 'exceeds the I/O-API limit:', MXVARS3
-         WRITE( LOGDEV, '( A )' ) XMSG
-         XMSG = 'Recompile with an I/O-API lib having a larger MXVARS3'
-         WRITE( LOGDEV, '( 5X, A )' ) XMSG
-         CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT1 )
-      END IF
+         IF ( NSPCSD .GT. MXVARS3 ) THEN
+            WRITE( XMSG,'(5X, A, I5, A)' ) 'The number of variables,', NSPCSD,
+     &      ' to be written to the State CGRID File'
+            WRITE( LOGDEV, '( A )' ) XMSG
+            WRITE( XMSG,'(5X, A, I5)' ) 'exceeds the I/O-API limit:', MXVARS3
+            WRITE( LOGDEV, '( A )' ) XMSG
+            XMSG = 'Recompile with an I/O-API lib having a larger MXVARS3'
+            WRITE( LOGDEV, '( 5X, A )' ) XMSG
+            CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT1 )
+         END IF
 
 C Initialize PCGRID
-      IF ( .NOT. PCGRID_INIT () ) THEN
-         XMSG = 'Failure defining horizontal domain'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-      END IF
+         IF ( .NOT. PCGRID_INIT () ) THEN
+            XMSG = 'Failure defining horizontal domain'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
       
-      CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for PinG
+         CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )   ! required for PinG
 
 C Initalize CONC definitions (in STD_CONC F90 module)
-      CALL CONC_DEFN ()
+         CALL CONC_DEFN ()
 
 C Get avg CONC definitions, species and layer pointers (in AVG_CONC F90 module)
-      CALL A_CONC_DEFN ()
-      A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
+         CALL A_CONC_DEFN ()
+         A_NLYS = ACONC_ELEV - ACONC_BLEV + 1
 
 C Initialize optional derived vertical velocity writes to conc file
-      IF ( .NOT. WVEL_INIT () ) THEN
-         XMSG = 'Failure initializing derived vertical velocity writes'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-      END IF
+         IF ( .NOT. WVEL_INIT () ) THEN
+            XMSG = 'Failure initializing derived vertical velocity writes'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
 
 C Initialize conc field: Copy IC's to CONC file as step 0
 C Convention: the input file concentration units are always ppmV.
-      CALL INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
-      JDATE = STDATE; JTIME = STTIME
-      CALL CKSUMMER ( 'INITSCEN', CGRID, JDATE, JTIME )
+         CALL INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
+         JDATE = STDATE; JTIME = STTIME
+         CALL CKSUMMER ( 'INITSCEN', CGRID, JDATE, JTIME )
 
-      IF ( LIPR .OR. LIRR ) CALL PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
+         IF ( LIPR .OR. LIRR ) CALL PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
 
 C Verify input file header consistency and run duration
-      CALL FLCHECK ( JDATE, JTIME, TSTEP( 1 ) )
+         CALL FLCHECK ( JDATE, JTIME, TSTEP( 1 ) )
 
-      ALLOCATE ( AGRID( MY_NCOLS,MY_NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-         XMSG = 'AGRID memory allocation failed'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+         ALLOCATE ( AGRID( MY_NCOLS,MY_NROWS,A_NLYS,N_ASPCS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'AGRID memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
-      AGRID = 0.0
+         AGRID = 0.0
 
-      ALLOCATE ( ASTEP( NLAYS ), STAT = ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-         XMSG = 'ASTEP memory allocation failed'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+         ALLOCATE ( ASTEP( NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'ASTEP memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         FIRST_RUN = .FALSE.
+
+         OUTPUT_TIME = INT( TIME2SEC( TSTEP( 3 ) ) )
+
+#ifdef twoway
+         CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
+         IF ( STATUS .EQ. 1 ) THEN
+            PRINT *, 'Environment variable improperly formatted'
+            STOP
+         ELSE IF ( STATUS .EQ. -1 ) THEN
+            PRINT *, 'Environment variable set, but empty ... Using default:'
+         ELSE IF ( STATUS .EQ. -2 ) THEN
+            PRINT *, 'Environment variable not set ... Using default:'
+         END IF
+
+         IF ( CMAQ_WRF_FEEDBACK ) THEN
+            CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
+         END IF
+
+         SD_TIME_SERIES = ENVYN( "SD_TIME_SERIES", ' ', .FALSE., STATUS )
+         IF ( SD_TIME_SERIES ) THEN
+            CALL SD_TIME_SERIES_INIT ( LOGDEV, TSTEP( 3 ) )
+            CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
+         END IF
+#endif
+
+      END IF ! first_run
 
 C Main processing loop:
 
+#ifdef twoway
+      TWOWAY_JDATE = JDATE
+      TWOWAY_JTIME = JTIME
+#else
       DO 201 ISTEP = 1, NSTEPS   ! output time step loop
+#endif
 
 C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
          CALL ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
- 
-         DO V = 1, N_ASPCS
-            S = AVG_CONC_MAP( V )
-            L = 0
-            DO K = ACONC_BLEV, ACONC_ELEV
-               L = L + 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     AGRID( C,R,L,V ) = CGRID( C,R,K,S )
+
+         IF ( MOD(JTIME, TSTEP(1)) == 0) THEN
+            DO V = 1, N_ASPCS
+               S = AVG_CONC_MAP( V )
+               L = 0
+               DO K = ACONC_BLEV, ACONC_ELEV
+                  L = L + 1
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        AGRID( C,R,L,V ) = CGRID( C,R,K,S )
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
+         END IF
 
 C science process sequence:
          
+#ifdef twoway
+         DIVFAC = 0.5 / FLOAT( 3600 / TIME2SEC( TSTEP( 2 ) ) )
+#else
          DIVFAC = 0.5 / FLOAT( NREPS )
+#endif
 
-         DO IREP = 1, NREPS - 1
+!        DO IREP = 1, NREPS - 1
+         DO IREP = 1, NREPS
 
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
@@ -363,21 +449,24 @@ C science process sequence:
 
          END DO
 
-         CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
+!        CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
-         DO V = 1, N_ASPCS
-            S = AVG_CONC_MAP( V )
-            L = 0
-            DO K = ACONC_BLEV, ACONC_ELEV
-               L = L + 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-     &                                +            CGRID( C,R,K,S ) )
+         IF ( MOD( JTIME, TSTEP( 1 ) ) == 0 ) THEN
+            DO V = 1, N_ASPCS
+               S = AVG_CONC_MAP( V )
+               L = 0
+               DO K = ACONC_BLEV, ACONC_ELEV
+                  L = L + 1
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
+!    &                                   +            CGRID( C,R,K,S ) )
+     &                                   -            CGRID( C,R,K,S ) )
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
+         END IF
 
          DO V = 1, N_CSPCS
             S = CONC_MAP( V )
@@ -393,20 +482,40 @@ C science process sequence:
          END DO
 
 C write conc fields
-         CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
-         CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
-         IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+
+         IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) == 0 ) THEN
+            CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
+            CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
+            IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+         END IF
+
+#ifdef twoway
+
+      IF ( SD_TIME_SERIES ) THEN
+         CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
+      END IF
+
+#else
 
 201      CONTINUE
 
+#endif
+
+      IF ( ( STEP_COUNT == TOTAL_STEPS ) .OR. ( TOTAL_STEPS == 0 ) ) THEN
 C write CGRID state file for run continuation
-      CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+         CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+      END IF
+
+#ifdef twoway
+      END SUBROUTINE CMAQ_DRIVER
+#else
 
 C shut down
 #ifdef parallel
 C Clean up communications and shut down IOAPI
       CALL PAR_TERM ( PNAME, JDATE, JTIME, CLOCK )
-#else
+#endif
+
 C Shut down IOAPI
       IF ( SHUT3() ) THEN
          XMSG = '>>---->  Program completed successfully  <----<<'
@@ -417,6 +526,6 @@ C Shut down IOAPI
          WRITE ( LOGDEV,'( //5X, A, // )' ) XMSG
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
-#endif
 
-      END
+      END PROGRAM DRIVER
+#endif
