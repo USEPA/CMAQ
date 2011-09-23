@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.4 2011/09/15 15:35:15 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/initscen.F,v 1.5 2011/09/23 17:06:05 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)initscen.F        1.4 /project/mod3/CMAQ/src/init/init/SCCS/s.initscen.F 25 Jul 1997 14:32:52
@@ -66,6 +66,7 @@ C   30 May 05 J.Young: add call to load RHOJ into CGRID
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
+C   11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -87,9 +88,11 @@ C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
       INTEGER      STDATE       ! starting date,    format YYYYDDD
       INTEGER      STTIME       ! starting time,    format HHMMSS
-      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
       INTEGER      NSTEPS       ! run duration, as number of output time steps
 
 C Parameters:
@@ -147,6 +150,22 @@ C-----------------------------------------------------------------------
 
       LOGDEV = INIT3()
 
+      TSTEP( 1 )  = 010000         ! default
+      VARDESC = 'Scenario Output Time Step (HHMMSS)'
+      TSTEP( 1 ) = ENVINT( CTM_TSTEP, VARDESC, TSTEP( 1 ), STATUS )
+      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+      IF ( STATUS .EQ. 1 ) THEN
+         MSG = 'Environment variable improperly formatted'
+         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
+      ELSE IF ( STATUS .EQ. -1 ) THEN
+         MSG = 'Environment variable set, but empty ... Using default:'
+         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+      ELSE IF ( STATUS .EQ. -2 ) THEN
+         MSG = 'Environment variable not set ... Using default:'
+         WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+      END IF
+
+#ifndef twoway
       VARDESC = 'Main Program Name'
       CALL ENVSTR( CTM_PROGNAME, VARDESC, 'DRIVER', PROGNAME, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
@@ -206,20 +225,20 @@ C-----------------------------------------------------------------------
             WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
          END IF
 
-      TSTEP( 1 )  = 010000         ! default
-      VARDESC = 'Scenario Output Time Step (HHMMSS)'
-      TSTEP( 1 ) = ENVINT( CTM_TSTEP, VARDESC, TSTEP( 1 ), STATUS )
-         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( STATUS .EQ. 1 ) THEN
-            MSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
-         ELSE IF ( STATUS .EQ. -1 ) THEN
-            MSG = 'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-         ELSE IF ( STATUS .EQ. -2 ) THEN
-            MSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
-         END IF
+!     TSTEP( 1 )  = 010000         ! default
+!     VARDESC = 'Scenario Output Time Step (HHMMSS)'
+!     TSTEP( 1 ) = ENVINT( CTM_TSTEP, VARDESC, TSTEP( 1 ), STATUS )
+!        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+!        IF ( STATUS .EQ. 1 ) THEN
+!           MSG = 'Environment variable improperly formatted'
+!           CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT2 )
+!        ELSE IF ( STATUS .EQ. -1 ) THEN
+!           MSG = 'Environment variable set, but empty ... Using default:'
+!           WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+!        ELSE IF ( STATUS .EQ. -2 ) THEN
+!           MSG = 'Environment variable not set ... Using default:'
+!           WRITE( LOGDEV, '(5X, A, I9)' ) MSG, STTIME
+!        END IF
 
 C Calculate number of output time steps for this model run:
       IF ( RUNLEN .LT. 1000000 ) THEN
@@ -238,6 +257,7 @@ C Calculate number of output time steps for this model run:
      &         ' does not divide duration ' // HHMMSS( RUNLEN )
          CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT1 )
       END IF
+#endif
 
 C Initialize the CGRID array
       CGRID = CMIN
@@ -337,11 +357,11 @@ C Test opening existing conc file for update
       END IF
 
 !     IF ( MYPE .EQ. 0 ) THEN
-         IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN
-            MSG = 'Could not close ' // CTM_CONC_1
+!        IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN
+!           MSG = 'Could not close ' // CTM_CONC_1
 !           CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT1 )
-            CALL M3WARN( PNAME, STDATE, STTIME, MSG )
-            END IF
+!           CALL M3WARN( PNAME, STDATE, STTIME, MSG )
+!           END IF
 !        END IF
 
       CALL SUBST_BARRIER

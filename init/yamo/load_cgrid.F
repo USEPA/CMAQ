@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.5 2011/09/21 12:37:39 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.6 2011/09/23 17:06:05 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -144,6 +144,7 @@ C-----------------------------------------------------------------------
          LOGDEV = INIT3 ()
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
 C IOFDESC common now loaded with MET_CRO_3D header
 
          MXSPC = N_GC_SPC + N_AE_SPC + N_NR_SPC + N_TR_SPC
@@ -370,6 +371,7 @@ C Read into CGRID
 
       CALL SUBHFILE ( FNAME, GXOFF, GYOFF,
      &                STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI )
+
 C IOFDESC common now loaded with FNAME header
 
       DO SPC = 1, N_SPCS
@@ -559,10 +561,10 @@ C correct sulfate vapor concentration for part removed:
 
 C Close the file
 
-      IF ( .NOT. CLOSE3( FNAME ) ) THEN
-         XMSG = 'Could not close ' // FNAME // ' file'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+!     IF ( .NOT. CLOSE3( FNAME ) ) THEN
+!        XMSG = 'Could not close ' // FNAME // ' file'
+!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!     END IF
 
       RETURN
       END

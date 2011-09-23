@@ -17,7 +17,7 @@
 !C***********************************************************************
 
 !C RCS file, release, date & time of last delta, author, state, [and locker]
-!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.2 2011/04/27 17:47:06 sjr Exp $
+!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.3 2011/09/23 17:03:21 sjr Exp $
 
 !C what(1) key, module and SID; SCCS file; date and time of last delta:
 !C %W% %P% %G% %U%
@@ -34,6 +34,7 @@
 !C                 lightning NO from convective precip and NLDN data
 !C    10 Mar 2011: Jeff Young: code revisions
 !C    11 Apr 2011: S.Roselle: replaced I/O API include files with UTILIO_DEFN
+!C    11 May 11 D.Wong: incorporated twoway model implementation
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -414,7 +415,7 @@ C         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 !        include "/usr/local/intel/mkl/include/mkl_vml.f77"
          INCLUDE SUBST_CONST    ! constants
 
-         INTEGER JDATE, JTIME, TSTEP( 2 )
+         INTEGER JDATE, JTIME, TSTEP( 3 )
 
          REAL,   PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to hPa
 !        REAL,   PARAMETER :: WK = 8.0         ! shape parameter for weibull distribution

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/flcheck.F,v 1.2 2011/04/01 15:41:50 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/flcheck.F,v 1.3 2011/09/23 17:06:05 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,6 +40,7 @@ C                   Jeff - Nov 2000 - ck only input files for start date/time
 C   30 Mar 01 J.Young: elim reference to grid
 C    6 Jul 10 J.Young: minor mods - F90-ize
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -150,10 +151,10 @@ c skip checking ending time for output files
 
             END IF   ! successful open
 
-            IF ( .NOT. CLOSE3( LGCL_NAME( N ) ) ) THEN
-               MSG = '  >>> COULD NOT CLOSE ' // LGCL_NAME( N )
-               CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
-            END IF
+!           IF ( .NOT. CLOSE3( LGCL_NAME( N ) ) ) THEN
+!              MSG = '  >>> COULD NOT CLOSE ' // LGCL_NAME( N )
+!              CALL M3WARN ( PNAME, STDATE, STTIME, MSG )
+!           END IF
 
          END IF  ! skip Ping and Mepse files
 

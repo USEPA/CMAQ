@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.5 2011/09/15 15:10:46 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_init.F,v 1.6 2011/09/23 17:11:26 sjr Exp $ 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)pa_init.F	1.1 /project/mod3/CMAQ/src/procan/pa/SCCS/s.pa_init.F 07 Jul 1997 10:20:52
 
@@ -73,6 +73,7 @@ C   1 Apr 09 J.Young: remove cruft
 C   8 Jul 10 J.Young: restructure
 C  23 Jul 10 D.Wong:  move first OPEN3 try inside IF ( MYPE .EQ. 0 ) clause
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  11 May 11 D.Wong: incorporated twoway model implementation
 C**********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -94,9 +95,11 @@ C..Includes:
 C..Arguments:
       INTEGER SDATE    !  starting date,    format YYYYDDD
       INTEGER STIME    !  starting time,    format HHMMSS
-      INTEGER TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER TSTEP( 3 )   ! time step vector (HHMMSS)
                            ! TSTEP(1) = local output step
                            ! TSTEP(2) = sciproc sync. step (chem)
+                           ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                           !            step and wrf/cmaq call frequency
 
 !     REAL :: CGRID( NCOLS,NROWS,NLAYS,ALLSPC )
       REAL, POINTER :: CGRID( :,:,:,: )

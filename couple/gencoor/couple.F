@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.4 2011/04/19 18:30:17 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.5 2011/09/23 17:04:00 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
@@ -47,6 +47,7 @@ C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
+C   11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -65,9 +66,12 @@ C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )   ! concentrations
       INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+      INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                           ! TSTEP(1) = local output step
                                           ! TSTEP(2) = sciproc sync. step (chem)
+                                          ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                          !            step and wrf/cmaq call frequency
+
 C Parameters:
 
 C External Functions:

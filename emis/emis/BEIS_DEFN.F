@@ -8,6 +8,7 @@ C Function: biogenics emissions interface to the chemistry-transport model
 C Revision History:
 C     18 Aug 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C     10 May 2011 D.Wong: incorporated twoway model implementation
 
 C-----------------------------------------------------------------------
 
@@ -149,12 +150,12 @@ C=======================================================================
 
          IMPLICIT NONE
 
-         INTEGER JDATE, JTIME, TSTEP( 2 )
+         INTEGER JDATE, JTIME, TSTEP( 3 )
 
          INTERFACE
             SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, BEMIS )
                IMPLICIT NONE
-               INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 2 )
+               INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
                INTEGER, INTENT(  IN ) :: N_SPC_BIOG
                INTEGER, INTENT(  IN ) :: BEIS_MAP( : )
                REAL,    INTENT( OUT ) :: BEMIS( :,:,: )

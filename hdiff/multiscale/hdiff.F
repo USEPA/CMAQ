@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.5 2011/04/19 16:28:09 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hdiff.F,v 1.6 2011/09/23 17:09:49 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -73,6 +73,7 @@ C    17 Dec 09 J.Young: fix CONC initializing error for sub-cycling timesteps (D
 C                       reported by Talat Odman and Yongtao Hu of GA tech.
 C    21 Jun 10 J.Young: convert for Namelist redesign
 C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
+C    11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -98,9 +99,11 @@ C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
       INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+      INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                           ! TSTEP(1) = local output step
                                           ! TSTEP(2) = sciproc sync. step (chem)
+                                          ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                          !            step and wrf/cmaq call frequency
 
 C External Functions: None
            
@@ -171,7 +174,7 @@ C Local Variables:
             USE GRID_CONF
             USE UTILIO_DEFN
             IMPLICIT NONE
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 2 )
+            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( OUT ) :: RHOJ( :,:,: )
          END SUBROUTINE RHO_J
          SUBROUTINE HCDIFF3D ( JDATE, JTIME, K11BAR, K22BAR, DT )

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.6 2011/09/15 15:10:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.7 2011/09/23 17:11:27 sjr Exp $
 
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
@@ -72,6 +72,7 @@ C                              domain specifications in one module (GRID_CONF)
 C   3 Apr 09 J.Young: replace EMISPRM... include files with simpler implementation
 C  21 Jun 10 J.Young: convert for Namelist redesign
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  11 May 11 D.Wong: incorporated twoway model implementation
 C**********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain configuration
@@ -98,9 +99,11 @@ C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )  ! Conc array
       INTEGER JDATE    !  current date,    format YYYYDDD
       INTEGER JTIME    !  current time,    format HHMMSS
-      INTEGER TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER TSTEP( 3 )   ! time step vector (HHMMSS)
                            ! TSTEP(1) = local output step
                            ! TSTEP(2) = sciproc sync. step (chem)
+                           ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                           !            step and wrf/cmaq call frequency
 
 C Gas species counts:
       INTEGER, SAVE :: N_SPCS
@@ -255,14 +258,14 @@ C for INTERPX
 !           REAL, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER         :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN ) :: JDATE, JTIME
-            INTEGER, INTENT( IN ) :: TSTEP( 2 )
+            INTEGER, INTENT( IN ) :: TSTEP( 3 )
          END SUBROUTINE COUPLE
          SUBROUTINE DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
 !           REAL, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER         :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN ) :: JDATE, JTIME
-            INTEGER, INTENT( IN ) :: TSTEP( 2 )
+            INTEGER, INTENT( IN ) :: TSTEP( 3 )
          END SUBROUTINE DECOUPLE
       END INTERFACE
 

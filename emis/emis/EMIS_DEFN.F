@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.8 2011/09/15 16:18:53 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.9 2011/09/23 17:03:21 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,6 +38,7 @@ C     07 Jan 2011 B.Hutzell: updated for namelist definition of model species
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                            removed deprecated TRIMLEN
 C      6 Apr 2011 J.Young, R.Pinder: add lightning NO emissions capability
+C     11 May 2011 D.Wong: incorporated twoway model implementation
 
 C-----------------------------------------------------------------------
 
@@ -320,7 +321,7 @@ C Includes:
 C Arguments:
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
-         INTEGER, INTENT( IN ) :: TSTEP( 2 )    ! time step vector (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
          REAL,    INTENT( IN ) :: RDX3F( NLAYS )             ! reciprocal layer thickness
          REAL,    INTENT( IN ) :: RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian

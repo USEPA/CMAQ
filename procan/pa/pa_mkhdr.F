@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.3 2011/04/01 15:41:55 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_mkhdr.F,v 1.4 2011/09/23 17:11:27 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -28,6 +28,7 @@ C=======================================================================
 
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 D.Wong: incorporated twoway model implementation
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -48,9 +49,11 @@ C Arguments:
       CHARACTER( 16 ) :: OUTFNAME  ! Assigned IPR or IRR output file name
       INTEGER SDATE             ! starting date,    format YYYYDDD
       INTEGER STIME             ! starting time,    format HHMMSS
-      INTEGER TSTEP( 2 )        ! time step vector (HHMMSS)
+      INTEGER TSTEP( 3 )        ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
 
 C Local Variables:
       INTEGER AE_INDX   ! Index for aerosol species

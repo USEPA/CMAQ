@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.5 2011/04/25 16:45:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.6 2011/09/23 17:03:21 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -269,6 +269,7 @@ C   26 Feb 10 J.Young:  Eliminate BARRIER, etc. to prevent MPI race condition
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   04 Apr 11 S.Howard: dynamic allocation and generalization of indices for
 C                       SSOUTD, WRSS_SPC, and SSSPC_MAP
+C   11 May 11 D.Wong: incorporated twoway model implementation
 
             USE UTILIO_DEFN
             USE AERO_DATA
@@ -576,6 +577,7 @@ C   20 Feb 10 J.Young:  move out of AERO_EMIS proper into this module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   04 Apr 11 S.Howard: moved speciation to AERO_DATA and generalized species
 C                       and modal references and density calculation
+C   11 May 11 D.Wong: incorporated twoway model implementation
  
 C References:
 C    Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -600,7 +602,7 @@ C-----------------------------------------------------------------------
             IMPLICIT NONE
 
 C Arguments
-            INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 2 )
+            INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( IN ) :: CELLVOL               ! grid-cell volume [m2*sigma]
             REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS )  ! reciprocal Jacobian [1/m]
             REAL,    INTENT( IN ) :: CELLHGT               ! grid-cell height [sigma]

@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.6 2011/08/24 18:54:07 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.7 2011/09/23 17:08:00 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
@@ -114,11 +114,15 @@ C           15 Aug 2011  Modified HONO calculation so that deposition velocity f
 C                        that is output in DEPV file does not include the loss due to
 C                        the heterogeneous reaction. This additional loss is now
 C                        accounted for in vdiff.F (D. Schwede and G. Sarwar)
+C           22 Sep 2011 D.Wong: incorporated twoway model implementation
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
       USE DEPVVARS
       USE UTILIO_DEFN
+#ifdef twoway
+      USE twoway_data_module, only : num_land_cat
+#endif
 
       IMPLICIT NONE
 C Includes:
@@ -153,6 +157,8 @@ C Local Variables:
       INTEGER                    :: elapsedsec
       INTEGER, SAVE              :: endcol
       INTEGER, SAVE              :: endrow
+      INTEGER                    :: endcol_g
+      INTEGER                    :: endrow_g
       REAL                       :: es_air
       REAL                       :: es_grnd
       LOGICAL, SAVE              :: first_call = .TRUE.
@@ -214,6 +220,8 @@ C Local Variables:
       REAL                       :: scw_pr_23            ! (scw/pr)**2/3
       INTEGER, SAVE              :: strtcol
       INTEGER, SAVE              :: strtrow
+      INTEGER                    :: strtcol_g
+      INTEGER                    :: strtrow_g
       REAL,            PARAMETER :: svp2       = 17.67   ! from MM5 and WRF
       REAL,            PARAMETER :: svp3       = 29.65   ! from MM5 and WRF
       REAL,            PARAMETER :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
@@ -228,6 +236,7 @@ C Local Variables:
       REAL,    SAVE              :: xcent
       REAL                       :: xm                   ! liquid water mass frac
       CHARACTER( 96 )            :: xmsg = ' '
+      CHARACTER( 16 ), SAVE      :: vname_ra, vname_rc, vname_rn, vname_rs
       REAL,    SAVE              :: ycent
 
       REAL,    SAVE, ALLOCATABLE :: dluse     ( :,: )
@@ -304,6 +313,8 @@ C For Ammonia bi-directional flux
       REAL                       :: scn          ! for Rbg
       REAL                       :: ustg         ! for Rbg
       REAL                       :: vdg          ! Vd(nh3) to non-veg part [m/s]
+
+      INTEGER :: SPC
 
       REAL,    SAVE              :: luf_fac( n_lufrac )
       DATA luf_fac(  1 ) /   50.0 /                ! hardwired for 24-category USGS
@@ -493,6 +504,36 @@ C-------------------------------------------------------------------------------
             CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
          END IF
 
+ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
+
+         SPC = INDEX1( 'RA', NVARS3D, VNAME3D )
+         IF (SPC .GT. 0) THEN
+            vname_ra = 'RA'
+         ELSE
+            vname_ra = 'RADYNI'
+         END IF
+
+         SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+         IF (SPC .GT. 0) THEN
+            vname_rc = 'RCA'
+         ELSE
+            vname_rc = 'RC'
+         END IF
+
+         SPC = INDEX1( 'RS', NVARS3D, VNAME3D )
+         IF (SPC .GT. 0) THEN
+            vname_rs = 'RS'
+         ELSE
+            vname_rs = 'RSTOMI'
+         END IF
+
+         SPC = INDEX1( 'RNA', NVARS3D, VNAME3D )
+         IF (SPC .GT. 0) THEN
+            vname_rn = 'RNA'
+         ELSE
+            vname_rn = 'RN'
+         END IF
+
          xcent = xcent3d
          ycent = ycent3d
 
@@ -511,6 +552,8 @@ C-------------------------------------------------------------------------------
                EXIT
             END IF
          END DO
+
+         CALL subhfile ( grid_cro_2d, gxoff, gyoff, strtcol_g, endcol_g, strtrow_g, endrow_g )
 
          CALL subhfile ( met_cro_2d, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
 
@@ -531,25 +574,29 @@ C-------------------------------------------------------------------------------
          END IF
 
          vname = 'LON'
-         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-     &                strtrow, endrow, 1, 1, jdate, jtime, lon) ) THEN
+!        IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+!    &                strtrow, endrow, 1, 1, jdate, jtime, lon) ) THEN
+         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
+     &                strtrow_g, endrow_g, 1, 1, jdate, jtime, lon) ) THEN
             WRITE( xmsg,9001 ) vname, grid_cro_2d
             GO TO 1001
          END IF
 
          vname = 'LWMASK'
-         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-     &                strtrow, endrow, 1, 1, jdate, jtime, lwmask) ) THEN
+!        IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+!    &                strtrow, endrow, 1, 1, jdate, jtime, lwmask) ) THEN
+         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
+     &                strtrow_g, endrow_g, 1, 1, jdate, jtime, lwmask) ) THEN
             WRITE( xmsg,9001 ) vname, grid_cro_2d
             GO TO 1001
          END IF
  
-         vname = 'DLUSE'
-         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-     &                strtrow, endrow, 1, 1, jdate, jtime, dluse) ) THEN
-            WRITE( xmsg,9001 ) vname, grid_cro_2d
-            GO TO 1001
-         END IF
+!        vname = 'DLUSE'
+!        IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+!    &                strtrow, endrow, 1, 1, jdate, jtime, dluse) ) THEN
+!           WRITE( xmsg,9001 ) vname, grid_cro_2d
+!           GO TO 1001
+!        END IF
 
          IF ( abflux ) THEN
 
@@ -565,8 +612,13 @@ C-------------------------------------------------------------------------------
                CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
             END IF
             DO l = 1, nvars3d
-               IF ( vname3d( l ) == 'DLUSE' ) THEN
+!              IF ( vname3d( l ) == 'DLUSE' ) THEN
+               IF ( vname3d( l ) == 'LUFRAC_01' ) THEN
+#ifdef twoway
+                  IF ( NUM_LAND_CAT .NE. 24) THEN                   ! not USGS24
+#else
                   IF ( INDEX( vdesc3d( l ), 'USGS24' ) == 0 ) THEN  ! not USGS24
+#endif
                      WRITE( logdev,9005 ) TRIM( vdesc3d( l ) )
                      xmsg = 'ABORT'
                      GOTO 1001
@@ -581,8 +633,10 @@ C-------------------------------------------------------------------------------
             END IF
             DO k = 1, n_lufrac
                WRITE( vname,'( "LUFRAC_",I2.2 )' ) k
-               IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-     &                             strtrow, endrow, 1, 1, jdate, jtime,
+!              IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+!    &                             strtrow, endrow, 1, 1, jdate, jtime,
+               IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
+     &                             strtrow_g, endrow_g, 1, 1, jdate, jtime,
      &                             lufrac( k,:,: )) ) THEN
                   WRITE( xmsg,9001 ) vname, grid_cro_2d
                   GO TO 1001
@@ -614,8 +668,10 @@ C-------------------------------------------------------------------------------
                ALLOCATE ( purb( my_ncols,my_nrows ) )
             END IF
             vname = 'PURB'
-            IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-     &                   strtrow, endrow, 1, 1, jdate, jtime, purb) ) THEN
+!           IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+!    &                   strtrow, endrow, 1, 1, jdate, jtime, purb) ) THEN
+            IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
+     &                   strtrow_g, endrow_g, 1, 1, jdate, jtime, purb) ) THEN
                WRITE( xmsg,9001 ) vname, grid_cro_2d
                GO TO 1001
             END IF
@@ -650,12 +706,15 @@ C-------------------------------------------------------------------------------
          END IF
       END IF
 
-      vname = 'RADYNI'
-      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+!     vname = 'RADYNI'
+!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+      IF ( .NOT. interpx (met_cro_2d, vname_ra, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, ra) ) THEN
-         WRITE( xmsg,9001 ) vname, met_cro_2d
+!        WRITE( xmsg,9001 ) vname, met_cro_2d
+         WRITE( xmsg,9001 ) vname_ra, met_cro_2d
          GO TO 1001
-      ELSE
+!     ELSE
+      IF (vname_ra .EQ. 'RADYNI') THEN
          DO r = 1, my_nrows
             DO c = 1, my_ncols
                ra( c,r ) = 1.0 / MAX( ra( c,r ), resist_min )
@@ -663,10 +722,11 @@ C-------------------------------------------------------------------------------
          END DO
       END IF
 
-      vname = 'RC'
-      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+!     vname = 'RC'
+!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+      IF ( .NOT. interpx (met_cro_2d, vname_rc, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, rc) ) THEN
-         WRITE( xmsg,9001 ) vname, met_cro_2d
+         WRITE( xmsg,9001 ) vname_rc, met_cro_2d
          GO TO 1001
       END IF
 
@@ -677,19 +737,22 @@ C-------------------------------------------------------------------------------
          GO TO 1001
       END IF
 
-      vname = 'RN'
-      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+!     vname = 'RN'
+!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+      IF ( .NOT. interpx (met_cro_2d, vname_rn, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, rn) ) THEN
-         WRITE( xmsg,9001 ) vname, met_cro_2d
+         WRITE( xmsg,9001 ) vname_rn, met_cro_2d
          GO TO 1001
       END IF
 
-      vname = 'RSTOMI'
-      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+!     vname = 'RSTOMI'
+!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+      IF ( .NOT. interpx (met_cro_2d, vname_rs, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, rs) ) THEN
-         WRITE( xmsg,9001 ) vname, met_cro_2d
+         WRITE( xmsg,9001 ) vname_rs, met_cro_2d
          GO TO 1001
-      ELSE
+!     ELSE
+      IF (vname_rs .EQ. 'RSTOMI') THEN
          DO r = 1, my_nrows
             DO c = 1, my_ncols
                rs( c,r ) = 1.0 / MAX( rs( c,r ), resist_min )
