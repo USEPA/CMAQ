@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/advstep.F,v 1.3 2011/04/05 13:49:53 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/advstep.F,v 1.4 2011/09/23 16:53:00 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -94,6 +94,7 @@ C                      multiple adv steps per sync step
 C   16 Mar 10 J.Young: Fix hdiv bug for MPI by communicating ghost cell data using
 C                      new hveloc to add hdiv and replace hcontvel
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   10 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -111,9 +112,11 @@ C Includes:
 C Arguments:
       INTEGER, INTENT( IN ) :: JDATE ! current model simulation date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME ! current model simulation time (HHMMSS)
-      INTEGER, INTENT( INOUT ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+      INTEGER, INTENT( INOUT ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                 ! TSTEP( 1 ) = local output step - INTENT( IN )
                                 ! TSTEP( 2 ) = sciproc sync. step (chem) - INTENT( OUT )
+                                ! TSTEP( 3 ) = twoway model time step w.r.t. wrf time
+                                !              step and wrf/cmaq call frequency
       INTEGER, INTENT( OUT ) :: ASTEP( : )   ! layer advection sub-steps per sync step
                                              ! (HHMMSS)
       INTEGER, INTENT( OUT ) :: NREPS        ! no. of sync steps per output step
@@ -342,7 +345,11 @@ C Get the time of starting wind field: do not interpolate
 C Compute the least number of equal time steps that satisfy the Courant
 C condition (force TSTEP(2) to be no greater than MAXSYNC):
 
+#ifdef twoway
+      OSTEP = TIME2SEC( TSTEP( 3 ) )
+#else
       OSTEP = TIME2SEC( TSTEP( 1 ) )
+#endif
       MAXSYNC = MIN( OSTEP, MAXSYNC )
 
 C Make sure MINSYNC <= output time step
@@ -383,7 +390,11 @@ C A satisfactory MINSECS could not be found
 C Establish ending time for this Courant number calculation:
       EDATE = JDATE
       ETIME = JTIME
+#ifdef twoway
+      CALL NEXTIME( EDATE, ETIME, TSTEP( 3 ) )
+#else
       CALL NEXTIME( EDATE, ETIME, TSTEP( 1 ) )
+#endif
 
       IF ( SECSDIFF( FDATE, FTIME, EDATE, ETIME ) .GT. 0 )
 C Get the next wind field: do not interpolate

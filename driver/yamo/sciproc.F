@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.3 2011/04/01 15:41:37 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.4 2011/09/23 16:53:01 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -55,6 +55,7 @@ C     7 Jul 07 J.Young: No cksummer call after HADV - delay possible truncation 
 C                       HADV negative conc's until after ZADV
 C    25 Jul 08 S.Roselle: removed PING from modeled processes
 C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C    11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -70,9 +71,11 @@ C Arguments:
 
       INTEGER      JDATE        ! current model date, coded YYYYDDD
       INTEGER      JTIME        ! current model time, coded HHMMSS
-      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
 
 !     INTEGER      ASTEP( NLAYS )  ! layer advection time step
       INTEGER      ASTEP( : )      ! layer advection time step
@@ -114,62 +117,62 @@ C Local Variables:
             CHARACTER( * ), INTENT( IN ) :: PNAME
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE
          SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
             INTEGER, INTENT( IN )     :: ASTEP( : )
          END SUBROUTINE HADV
          SUBROUTINE ZADV ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE ZADV
          SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE COUPLE
          SUBROUTINE DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE DECOUPLE
          SUBROUTINE HDIFF ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE HDIFF
          SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE VDIFF
          SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CLDPROC
          SUBROUTINE CHEM ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CHEM
          SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 2 )
+            INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE AERO
       END INTERFACE
   
