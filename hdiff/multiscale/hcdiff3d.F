@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.3 2011/04/19 16:28:10 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.4 2011/09/23 17:09:32 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -69,6 +69,8 @@ C                      allocatable arrays
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
+C   03 Aug 11 David Wong: moved DT calculation outside the loop for efficency
+C                         purposes
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -291,12 +293,14 @@ C Obtain flux average values of contravariant diffusivities
                END DO
             END DO
 
-         DT = CFC * DX1 * DX2 / SUBST_GLOBAL_MAX ( EFFKB )
+!        DT = CFC * DX1 * DX2 / SUBST_GLOBAL_MAX ( EFFKB )
 
 !        WRITE( LOGDEV,1005 ) LVL, DT, EFFKB
 1005     FORMAT( '@2@ ', I3, 1X, F18.7, 1X, F12.7 )
 
          END DO ! for LVL
+
+      DT = CFC * DX1 * DX2 / SUBST_GLOBAL_MAX ( EFFKB )
 
       RETURN
       END
