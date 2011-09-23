@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_driver.F,v 1.6 2011/04/01 15:41:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_driver.F,v 1.7 2011/09/23 16:28:21 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -97,6 +97,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
       USE UTILIO_DEFN
+      USE CGRID_SPCS
 
       IMPLICIT NONE
 
@@ -112,9 +113,11 @@ C *** CGRID is conc field (including gas and aerosol variables)
       REAL, POINTER :: CGRID( :,:,:,: )              !  concentrations
       INTEGER      JDATE        ! Current model date , coded YYYYDDD
       INTEGER      JTIME        ! Current model time , coded HHMMSS
-      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
 
       INTEGER, SAVE :: LOGDEV             ! unit number for the log file
 
@@ -216,6 +219,9 @@ C *** ratio of molecular weights of water vapor to dry air = 0.622015
 C *** dry moment factor
       REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
 
+      LOGICAL :: TIME_TO_CALL_FEEDBACK_WRITE
+      LOGICAL, SAVE :: CMAQ_WRF_FEEDBACK
+
 C *** Statement Function **************
       REAL ESATL ! arithmetic statement function for vapor pressure [Pa]
       REAL TT
@@ -223,6 +229,8 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
       REAL, PARAMETER :: AL = 610.94
       REAL, PARAMETER :: BL = 17.625
       REAL, PARAMETER :: CL = 243.04
+
+      INTEGER, SAVE :: O3
 
 C *** values of AL, BL, and CL are from:
 C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -236,11 +244,32 @@ C *** End Statement Function  ********
 
       logical, save :: now = .true.
 
+#ifdef twoway
+      INTERFACE
+        SUBROUTINE FEEDBACK_WRITE (C, R, L, CGRID_DATA, O3_VALUE, JDATE, JTIME)
+          REAL, INTENT(IN) :: CGRID_DATA(:), O3_VALUE
+          INTEGER, INTENT(IN) :: C, R, L, JDATE, JTIME
+        END SUBROUTINE FEEDBACK_WRITE
+      END INTERFACE
+#endif
+
 C ------------------ begin body of AERO_DRIVER -------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
+
+#ifdef twoway
+! -- this is for twoway
+         VNAME = 'O3'
+         N = INDEX1( VNAME, N_GC_CONC, GC_CONC )
+         IF ( N .NE. 0 ) THEN
+            O3 = GC_STRT - 1 + GC_CONC_MAP( N )
+         ELSE
+            XMSG = 'Could not find ' // VNAME // 'in gas chem aerosol table'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+#endif
 
 C *** Get aerosol diagnostic file flag.
          AERDIAG = .FALSE.         ! default
@@ -281,6 +310,18 @@ C *** Open the aerosol parameters file (diameters and standard deviations).
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+#ifdef twoway
+         CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
+         IF ( STATUS .EQ. 1 ) THEN
+            PRINT *, 'Environment variable improperly formatted'
+            STOP
+         ELSE IF ( STATUS .EQ. -1 ) THEN
+            PRINT *, 'Environment variable set, but empty ... Using default:'
+         ELSE IF ( STATUS .EQ. -2 ) THEN
+            PRINT *, 'Environment variable not set ... Using default:'
+         END IF
+#endif
 
       END IF    ! FIRSTIME
 
@@ -332,6 +373,17 @@ C *** air density [kg/m3]
          XMSG = 'Could not interpolate '// TRIM( VNAME ) // ' from MET_CRO_3D '
          CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
       END IF
+
+#ifdef twoway
+! call FEEDBACK_WRITE when JTIME is mulitple of WRF time step
+      IF ( CMAQ_WRF_FEEDBACK ) THEN
+         IF ( MOD( MOD( JTIME, 10000 ), TSTEP( 3 ) ) .EQ. 0 ) THEN
+            TIME_TO_CALL_FEEDBACK_WRITE = .TRUE.
+         ELSE
+            TIME_TO_CALL_FEEDBACK_WRITE = .FALSE.
+         END IF
+      END IF
+#endif
 
 C --------------------- Begin loops over grid cells --------------------------
 
@@ -482,6 +534,16 @@ C     used in transport routines.  Put aeroSrf values back to CGRID
                   V = AEROSRF_MAP( N )
                   CGRID( C,R,L,V ) = PI * MOMENT2_CONC( N )
                END DO
+
+#ifdef twoway
+               IF ( CMAQ_WRF_FEEDBACK ) THEN
+                  IF ( TIME_TO_CALL_FEEDBACK_WRITE ) THEN
+                     CALL FEEDBACK_WRITE ( C, R, L, CGRID(C,R,L,:), CGRID(C,R,L,O3),
+!    &                                     aeromode_diam, aeromode_sdev, jdate, jtime)
+     &                                     JDATE, JTIME )
+                  END IF
+               END IF
+#endif
 
             END DO ! loop on MY_COLS
          END DO ! loop on MY_ROWS
