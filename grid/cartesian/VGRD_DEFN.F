@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/VGRD_DEFN.F,v 1.2 2011/04/01 15:41:46 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/VGRD_DEFN.F,v 1.3 2011/09/23 17:22:18 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -31,6 +31,7 @@ C Revision History: Jeff Young: 6 Dec 04: created
 C                              26 Jul 06: comments in line with PARMS3.EXT
 C                   S. Roselle 29 Mar 11: Replaced I/O API include files
 C                                         with UTILIO_DEFN
+C                   D. Wong    11 May 11: incorporated twoway model implementation
 C.......................................................................
 
       IMPLICIT NONE
@@ -97,7 +98,8 @@ C-----------------------------------------------------------------------
 !           INTEGER, SAVE :: LOGDEV
             LOGICAL, SAVE :: FIRSTIME = .TRUE.
             CHARACTER( 96 ) :: XMSG = ' '
-            CHARACTER( 16 ) :: LAYER_FILE = 'LAYER_FILE'
+!           CHARACTER( 16 ) :: LAYER_FILE = 'LAYER_FILE'
+            CHARACTER( 16 ) :: LAYER_FILE = 'MET_CRO_3D'
 
             INTEGER L, ALLOCSTAT
 
