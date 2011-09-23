@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.2 2011/04/01 15:41:57 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.3 2011/09/23 17:18:16 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)cksummer.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.cksummer.F 03 Jun 1997 12:08:53
@@ -50,6 +50,8 @@ C    4 Feb 08 J.Young: checksums based on local processor
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
+C   10 Aug 11 David Wong: reset output format 1PEw.d to meet the standard
+C                         w-d > 6
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -309,14 +311,14 @@ c003  FORMAT( 1X, 4I7, 9X, 1PE11.3)
 
 c005  FORMAT( 3X, A13, 1X, 'Conc field cksum after science process:',
 1005  FORMAT( 1X, 'after',
-     &        1X, A09, 1X, 'G ', 1PE13.7,
-     &                 1X, 'A ', 1PE13.7,
-     &                 1X, 'N ', 1PE13.7 )
+     &        1X, A09, 1X, 'G ', 1PE14.7,
+     &                 1X, 'A ', 1PE14.7,
+     &                 1X, 'N ', 1PE14.7 )
 
 1007  FORMAT( 1X, 'after',
-     &        1X, A09, 1X, 'G ', 1PE13.7,
-     &                 1X, 'A ', 1PE13.7,
-     &                 1X, 'N ', 1PE13.7,
-     &                 1X, 'T ', 1PE13.7 )
+     &        1X, A09, 1X, 'G ', 1PE14.7,
+     &                 1X, 'A ', 1PE14.7,
+     &                 1X, 'N ', 1PE14.7,
+     &                 1X, 'T ', 1PE14.7 )
 
       END
