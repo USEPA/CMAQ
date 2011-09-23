@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/par/mpi/mpcomm_init.F,v 1.2 2011/04/01 15:41:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/par/mpi/mpcomm_init.F,v 1.3 2011/09/23 17:12:34 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE MPCOMM_INIT( NPROCS, MYPE, CLOCK, IERR )
@@ -30,6 +30,8 @@ C Revision History:
 C      Original version  5/09 Jeff Young - modified from par_init
 C      Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with UTILIO_DEFN
+C      Modified 08/10/2011 by David Wong
+C          -- Called MPI_INIT if it is a regular CMAQ run
  
 C Argument List Description:
 C  In:
@@ -75,12 +77,14 @@ C------------------------------------------------------------------------
       IERR = 0
 
 C Start up MPI
+#ifndef twoway
       CALL MPI_INIT( FLAG )
       IF ( FLAG .NE. 0 ) THEN
          WRITE( XMSG,'(I6, A)' ) FLAG, 'Error in MPI_INIT.'
          CALL M3WARN ( PNAME, 0, 0, XMSG )
          IERR = 1; RETURN
       END IF
+#endif
 
 C Get wall-clock time
       CLOCK = REAL( MPI_WTIME() )
