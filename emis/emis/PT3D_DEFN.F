@@ -7,7 +7,20 @@ C Function: 3d point source emissions interface to the chemistry-transport model
 
 C Revision History:
 C     21 Nov 2007 J.Young: initial implementation
+C     1  Jun 2010 David Wong: In subroutine GET_PT3D_EMIS, removed a IF-THEN
+C                             block of code since the argument for TIME2SEC is in
+C                             HHMMSS format rather than day format and also
+C                             STKDATE is already set correctly
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C     11 May 2011 David Wong: incorporated twoway model implementation
+C     27 Jul 2011 David Wong: 1. in subroutine GET_PT3D_EMIS, use PRE_JDATE, and
+C                                LOC_STKDATE to track change of date during a
+C                                simulation when the start time is not 0, so
+C                                correct data can be pulled by INTERPX routine
+C                             2. used WINDOW logical variable (in subroutine
+C                                PT3D_INIT) to determine x and y orig information
+C                                and in subroutine READGC3, do not expand the
+C                                STATCOL and STRTROw in the west and south direction
 
 C-----------------------------------------------------------------------
 
@@ -154,6 +167,9 @@ C Local Variables:
          INTEGER          LOGDEV
 
          INTEGER I, J, K, L, M, N, S, SRC, V  ! counters and indices
+
+         INTEGER :: GXOFF, GYOFF
+         INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
 
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
@@ -307,6 +323,9 @@ C Get grid parameters from 3-d cross-point met file and store header information
 C Use time parameters for time defaults.
          CALL RETRIEVE_IOAPI_HEADER( MC3NAME, JDATE, JTIME )
 
+         CALL SUBHFILE ( MC3NAME, GXOFF, GYOFF,
+     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
+
 C Initialize reference grid with met file
 C (declared and stored in PTBILIN module)
          XCELLCG = XCELL3D
@@ -315,6 +334,21 @@ C (declared and stored in PTBILIN module)
          METCROWS = NROWS3D
          METCXORIG = XORIG3D
          METCYORIG = YORIG3D
+
+         IF ( ( GXOFF > 0 ) .AND. ( GYOFF > 0 ) ) THEN
+            WINDOW = .TRUE.
+         ELSE
+            WINDOW = .FALSE.
+         END IF
+
+         IF ( WINDOW ) THEN
+            METCXORIG = XORIG3D + XCELL3D
+            METCYORIG = YORIG3D + YCELL3D
+         ELSE
+            METCXORIG = XORIG3D
+            METCYORIG = YORIG3D
+         END IF
+
 !!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
 
 C Determine whether height information is time dependent or time independent.
@@ -649,7 +683,7 @@ C Includes:
 
 C Arguments:
          INTEGER               :: JDATE, JTIME
-         INTEGER, INTENT( IN ) :: TSTEP( 2 )
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )
 
 C Parameters:
          REAL,            PARAMETER :: USTARMIN = 0.1   ! Min valid value for USTAR
@@ -702,6 +736,8 @@ C Local variables:
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER, SAVE :: LOGDEV
 
+         INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
+
 #ifdef Verbose1
          real mxzplm
 #endif
@@ -711,6 +747,7 @@ C-----------------------------------------------------------------------
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
             LOGDEV = SETUP_LOGDEV()
+            PRE_JDATE = JDATE
          END IF
 
 C For each time step, compute the layer fractions...
@@ -780,15 +817,22 @@ C Convert pt source met data to bi-linear interpolated data
             END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-            IF ( SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME ) .NE. SYNCOFF( N ) ) THEN
-               STKDATE( N ) = SEC2TIME( TIME2SEC( JDATE ) + SYNCOFF( N ) )
+!           IF ( SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME ) .NE. SYNCOFF( N ) ) THEN
+!              STKDATE( N ) = SEC2TIME( TIME2SEC( JDATE ) + SYNCOFF( N ) )
+!           END IF
+
+            IF ( PRE_JDATE .NE. JDATE ) THEN
+               LOC_STKDATE = STKDATE( N ) + 1
+            ELSE
+               LOC_STKDATE = STKDATE( N )
             END IF
 
             DO V = 1, NVARS_EMIS( N )
                VNAME = STKSPC( N )%ARRY( V )
                IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                             STKDATE( N ), JTIME,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
      &                             STKEMIS( N )%ARRY( 1,V ) ) ) THEN
                   XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                   ' from ' // TRIM( STKENAME( N ) )
@@ -801,7 +845,8 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                   VNAME = FIRENAM( 1 )%ARRY( V )
                   IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
      &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                                STKDATE( N ), JTIME,
+!    &                                STKDATE( N ), JTIME,
+     &                                LOC_STKDATE, JTIME,
      &                                FIREVAR( 1 )%ARRY( 1,V ) ) ) THEN
                      XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                      ' from ' // TRIM( STKENAME( N ) )
@@ -1126,13 +1171,15 @@ C Possible report to REPRTLAY
          END DO   ! NPTGRPS
 
          IF ( PT3DDIAG ) THEN  ! store 3d point source emissions
-            NTICS = NTICS + 1
+!           NTICS = NTICS + 1
+            NTICS = NTICS + TIME2SEC( TSTEP( 2 ) )
 !           IF ( NTICS .EQ. 1 ) THEN
 !              write( logdev,* ) '   ntics: ', ntics
 !              VDEMIS_BUF = VDEMIS_PT   ! array assignment
 !              PMEMIS_BUF = PMEMIS_PT   ! array assignment
 !           ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-            IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
+!           IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
+            IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) ) THEN
 #ifdef Verbose1
                write( logdev,* ) '   ntics: ', ntics
 #endif
@@ -1266,9 +1313,9 @@ C for INTERPX
                CALL SUBHFILE ( GRID_CRO_3D, GXOFF, GYOFF,
      &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
 
-               IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
+!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
                IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-               IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
+!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
                LAY1 = 1; LAY2 = NLAYS
