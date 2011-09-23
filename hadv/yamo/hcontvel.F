@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hcontvel.F,v 1.4 2011/04/25 15:18:43 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/hcontvel.F,v 1.5 2011/09/23 17:05:13 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)hcontvel.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.hcontvel.F 03 Jun 1997 12:08:52
@@ -61,6 +61,9 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
+C   11 May 11 D.Wong: incorporated twoway model implementation
+C   28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
+C                         buffered file has only two time steps data
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -148,13 +151,19 @@ C-----------------------------------------------------------------------
          LOGDEV = INIT3 ()
 
          CALL LSTEPF( MET_CRO_3D, LDATE( 1 ), LTIME( 1 ) )
-         CALL LSTEPF( MET_BDY_3D, LDATE( 2 ), LTIME( 2 ) )
+!        CALL LSTEPF( MET_BDY_3D, LDATE( 2 ), LTIME( 2 ) )
          CALL LSTEPF( MET_DOT_3D, LDATE( 3 ), LTIME( 3 ) )
 
-         LDATE( 1 ) = MIN( LDATE( 1 ), LDATE( 2 ), LDATE( 3 ) )
+!        LDATE( 1 ) = MIN( LDATE( 1 ), LDATE( 2 ), LDATE( 3 ) )
+!        LTIME( 1 ) = SEC2TIME( MIN(
+!    &                         TIME2SEC( LTIME( 1 ) ),
+!    &                         TIME2SEC( LTIME( 2 ) ),
+!    &                         TIME2SEC( LTIME( 3 ) )
+!    &                         ) )
+
+         LDATE( 1 ) = MIN( LDATE( 1 ), LDATE( 3 ) )
          LTIME( 1 ) = SEC2TIME( MIN(
      &                         TIME2SEC( LTIME( 1 ) ),
-     &                         TIME2SEC( LTIME( 2 ) ),
      &                         TIME2SEC( LTIME( 3 ) )
      &                         ) )
 
@@ -234,6 +243,9 @@ C currently not implemented: case where only one origin component matches file's
       STEP  = TIME2SEC( TSTEP )
       CALL NEXTIME( MDATE, MTIME, SEC2TIME( STEP / 2 ) )
 
+#ifdef twoway
+      REVERT = .FALSE.
+#else
       IF ( MDATE .LT. LDATE( 1 ) ) THEN
          REVERT = .FALSE.
          ELSE IF ( MDATE .EQ. LDATE( 1 ) ) THEN
@@ -245,6 +257,7 @@ C currently not implemented: case where only one origin component matches file's
       ELSE   ! MDATE .GT. LDATE
          REVERT = .TRUE.
       END IF
+#endif
 
       IF ( REVERT ) THEN
          XMSG = 'Current scenario interpolation step not available in all of '
