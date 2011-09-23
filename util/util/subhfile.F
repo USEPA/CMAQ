@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.2 2011/04/01 15:41:57 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.3 2011/09/23 17:17:08 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -26,6 +26,8 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SUBHFILE ( FNAME, GXOFF, GYOFF,
      &                      STRTCOL, ENDCOL, STRTROW, ENDROW )
+
+C 11 May 11 D.Wong: incorporated twoway model implementation
 
 C returns local starting and ending column and row indices for file FNAME
 
@@ -69,6 +71,8 @@ C local variables:
       CHARACTER( 16 ) :: PNAME = 'SubhFile_Cell'
       CHARACTER( 16 ) :: BNAME
       CHARACTER( 96 ) :: XMSG = ' '
+
+      INTEGER       :: LOC_STRTCOL, LOC_ENDCOL, LOC_STRTROW, LOC_ENDROW
 
       REAL( 8 ), SAVE :: XORIG_B, YORIG_B
       REAL( 8 ), SAVE :: XCENT_B, YCENT_B
@@ -157,7 +161,9 @@ C mother grid center and grid cell resolution
      &          / 5X, 'YCELL_B:', F20.12, 2X, 'YCELL3D (file):', F20.12 )
 
          XMSG = 'File header inconsistent with GRID_CRO_2D'
+#ifndef twoway
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+#endif
       END IF
 
 C check some header data against GRIDDESC
@@ -251,15 +257,37 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
 
       INDX = MYPE + 1
       GXOFF   = XORIG_C - XORIG_F
-      STRTCOL = GXOFF + COLSX_PE( 1,INDX )
-      ENDCOL  = STRTCOL + MY_NCOLS - 1 + DOTFILE
+      LOC_STRTCOL = GXOFF + COLSX_PE( 1,INDX )
+      LOC_ENDCOL  = LOC_STRTCOL + MY_NCOLS - 1 + DOTFILE
       GYOFF   = YORIG_C - YORIG_F
-      STRTROW = GYOFF + ROWSX_PE( 1,INDX )
-      ENDROW  = STRTROW + MY_NROWS - 1 + DOTFILE
+      LOC_STRTROW = GYOFF + ROWSX_PE( 1,INDX )
+      LOC_ENDROW  = LOC_STRTROW + MY_NROWS - 1 + DOTFILE
       IF ( GXOFF .LT. 0 .OR. GYOFF .LT. 0 ) THEN
          XMSG = 'Model domain is outside file domain'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
+
+#ifdef twoway
+      IF ( ( FNAME == GRID_CRO_2D ) .OR.
+     $     ( FNAME == GRID_DOT_2D ) ) THEN
+         LOC_ENDCOL  = LOC_ENDCOL - LOC_STRTCOL + 1
+         LOC_STRTCOL = 1
+         LOC_ENDROW  = LOC_ENDROW - LOC_STRTROW + 1
+         LOC_STRTROW = 1
+      ELSE IF ( ( FNAME == MET_CRO_2D ) .OR.
+     $          ( FNAME == MET_CRO_3D ) .OR.
+     $          ( FNAME == MET_DOT_3D ) ) THEN
+         LOC_ENDCOL  = LOC_ENDCOL - LOC_STRTCOL + 2
+         LOC_STRTCOL = 2
+         LOC_ENDROW  = LOC_ENDROW - LOC_STRTROW + 2
+         LOC_STRTROW = 2
+      END IF
+#endif
+
+      STRTCOL = LOC_STRTCOL
+      ENDCOL  = LOC_ENDCOL
+      STRTROW = LOC_STRTROW
+      ENDROW  = LOC_ENDROW
 
 !     WRITE( LOGDEV,* ) ' '
 !     WRITE( LOGDEV,* ) ' File: ', FNAME
