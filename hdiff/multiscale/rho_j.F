@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/rho_j.F,v 1.3 2011/04/19 16:27:01 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/rho_j.F,v 1.4 2011/09/23 17:10:59 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -57,6 +57,9 @@ C                      NOTE: NTHIK must be = 1
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
+C   11 May 11 D.Wong: incorporated twoway model implementation
+C   28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
+C                         buffered file has only two time steps data
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -76,9 +79,11 @@ C Arguments:
       
       INTEGER, INTENT( IN )  :: JDATE        ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN )  :: JTIME        ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN )  :: TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )   ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
                                              ! TSTEP(2) = sciproc sync. step (chem)
+                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                             !            step and wrf/cmaq call frequency
 !     REAL        RHOJ( 0:NCOLS+1,0:NROWS+1,NLAYS )  ! Jacobian * air density
       REAL,    INTENT( OUT ) :: RHOJI( :,:,: )
       
@@ -142,14 +147,14 @@ C-----------------------------------------------------------------------
          MLAYS = SIZE ( RHOJI,3 )
 
          CALL LSTEPF( MET_CRO_3D, LDATE( 1 ), LTIME( 1 ) )
-         CALL LSTEPF( MET_BDY_3D, LDATE( 2 ), LTIME( 2 ) )
+!        CALL LSTEPF( MET_BDY_3D, LDATE( 2 ), LTIME( 2 ) )
 
-         LDATE( 1 ) = MIN( LDATE( 1 ), LDATE( 2 ) )
-         LTIME( 1 ) = SEC2TIME( MIN(
-     &                              TIME2SEC( LTIME( 1 ) ),
-     &                              TIME2SEC( LTIME( 2 ) )
-     &                              ) )
-
+!        LDATE( 1 ) = MIN( LDATE( 1 ), LDATE( 2 ) )
+!        LTIME( 1 ) = SEC2TIME( MIN(
+!    &                              TIME2SEC( LTIME( 1 ) ),
+!    &                              TIME2SEC( LTIME( 2 ) )
+!    &                              ) )
+ 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
 
@@ -184,17 +189,21 @@ C currently not implemented: case where only one origin component matches file's
       STEP   = TIME2SEC( TSTEP( 2 ) )
       CALL NEXTIME( MDATE, MTIME, SEC2TIME( STEP / 2 ) )
 
+#ifdef twoway
+      REVERT = .FALSE.
+#else
       IF ( MDATE .LT. LDATE( 1 ) ) THEN
          REVERT = .FALSE.
-         ELSE IF ( MDATE .EQ. LDATE( 1 ) ) THEN
-            IF ( MTIME .LE. LTIME( 1 ) ) THEN
-               REVERT = .FALSE.
-               ELSE
-               REVERT = .TRUE.
-               END IF
-         ELSE   ! MDATE .GT. LDATE
-         REVERT = .TRUE.
+      ELSE IF ( MDATE .EQ. LDATE( 1 ) ) THEN
+         IF ( MTIME .LE. LTIME( 1 ) ) THEN
+            REVERT = .FALSE.
+         ELSE
+            REVERT = .TRUE.
          END IF
+      ELSE   ! MDATE .GT. LDATE
+         REVERT = .TRUE.
+      END IF
+#endif
 
       IF ( REVERT ) THEN
          XMSG = 'Current scenario interpolation step not available in both '
