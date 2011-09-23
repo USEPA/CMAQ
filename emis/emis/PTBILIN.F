@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTBILIN.F,v 1.2 2010/12/06 13:06:52 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTBILIN.F,v 1.3 2011/09/23 16:56:51 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -16,7 +16,7 @@ C     20 Nov 2007 J.Young: initial implementation
 C     13 Apr 2010 D. Wong: parallel bug fix - in subroutine ungridb2
 C                          calculations use the lower left corner of the
 C                          original domain
-
+C     27 Jul 2011 David Wong: - fixed the description of XBND
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: BILIN_TYPE
@@ -36,7 +36,7 @@ c     END TYPE BILIN_TYPE
       TYPE( BILIN_TYPE ), ALLOCATABLE, SAVE :: BILIN_DATA( : )
 
 C Arrays which record .true. if local processor contains an exterior boundary
-      LOGICAL, SAVE :: XBND( 2 )    ! east-west
+      LOGICAL, SAVE :: XBND( 2 )    ! west-east
       LOGICAL, SAVE :: YBND( 2 )    ! south-north
 
       REAL( 8 )     :: METCXORIG   ! cross point grid X-coord origin of met grid
@@ -68,7 +68,7 @@ C----------------------------------------------------------------------
          USE HGRD_DEFN             ! horizontal domain specifications
          USE VGRD_DEFN             ! vertical domain specifications
 !        USE GRID_CONF             ! horizontal & vertical domain specifications
-         USE STK_PRMS, ONLY: MY_NSRC, MY_XLOCA, MY_YLOCA, my_stkid
+         USE STK_PRMS, ONLY: MY_NSRC, MY_XLOCA, MY_YLOCA
 
          IMPLICIT NONE
 
@@ -101,31 +101,38 @@ C----------------------------------------------------------------------
          IF ( MOD( I, NPROW ) .EQ. 0 ) YBND( 2 ) = .TRUE.
 
 C Set processor coordinate origins
-         MY_CXORIG = METCXORIG + XCELLCG * ( COLSX_PE( 1,1 ) - 1 )
-         MY_CYORIG = METCYORIG + YCELLCG * ( ROWSX_PE( 1,1 ) - 1 )
-         MY_DXORIG = METDXORIG + XCELLDG * ( COLSD_PE( 1,1 ) - 1 )
-         MY_DYORIG = METDYORIG + YCELLDG * ( ROWSD_PE( 1,1 ) - 1 )
+!        MY_CXORIG = METCXORIG + XCELLCG * ( COLSX_PE( 1,1 ) - 1 )
+!        MY_CYORIG = METCYORIG + YCELLCG * ( ROWSX_PE( 1,1 ) - 1 )
+!        MY_DXORIG = METDXORIG + XCELLDG * ( COLSD_PE( 1,1 ) - 1 )
+!        MY_DYORIG = METDYORIG + YCELLDG * ( ROWSD_PE( 1,1 ) - 1 )
+
+         MY_CXORIG = METCXORIG
+         MY_CYORIG = METCYORIG
+         MY_DXORIG = METDXORIG
+         MY_DYORIG = METDYORIG
 
          MY_CCOLS = MY_NCOLS
          MY_CROWS = MY_NROWS
          MY_DCOLS = MY_NCOLS + 1
          MY_DROWS = MY_NROWS + 1
-         IF ( .NOT. XBND( 1 ) ) THEN    ! extend cells east by 1
+
+!        IF ( .NOT. XBND( 1 ) ) THEN    ! extend cells west by 1
+!             MY_CCOLS = MY_CCOLS + 1
+!             MY_DCOLS = MY_DCOLS + 1
+!        END IF
+         IF ( .NOT. XBND( 2 ) ) THEN    ! extend cells east by 1
             MY_CCOLS = MY_CCOLS + 1
             MY_DCOLS = MY_DCOLS + 1
          END IF
-         IF ( .NOT. XBND( 2 ) ) THEN    ! extend cells west by 1
-            MY_CCOLS = MY_CCOLS + 1
-            MY_DCOLS = MY_DCOLS + 1
-         END IF
-         IF ( .NOT. YBND( 1 ) ) THEN    ! extend cells south by 1
-            MY_CROWS = MY_CROWS + 1
-            MY_DROWS = MY_DROWS + 1
-         END IF
+!        IF ( .NOT. YBND( 1 ) ) THEN    ! extend cells south by 1
+!           MY_CROWS = MY_CROWS + 1
+!           MY_DROWS = MY_DROWS + 1
+!        END IF
          IF ( .NOT. YBND( 2 ) ) THEN    ! extend cells north by 1
             MY_CROWS = MY_CROWS + 1
             MY_DROWS = MY_DROWS + 1
          END IF
+
          METCGRID = MY_CCOLS * MY_CROWS
          METDGRID = MY_DCOLS * MY_DROWS
 
