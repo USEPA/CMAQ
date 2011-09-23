@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.6 2011/09/15 16:25:39 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.7 2011/09/23 19:15:47 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -60,6 +60,8 @@ C   24 Feb 11 J.Young:  Reorganized module with initialization and timestepping
 C                       procedures
 C   25 Feb 11 J.Young:  add windblown dust module
 C   25 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 D.Wong: incorporated twoway model implementation
+
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -531,7 +533,7 @@ C  array) and converts into molar-mixing-ratio units, for use in the vertical
 C  diffusion routines
  
 C  Key Subroutines/Functions Called: SSEMIS_INIT, GET_SSEMIS, DUST_INIT, GET_DUST_EMIS
- 
+
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE CGRID_SPCS          ! CGRID mechanism species
@@ -550,9 +552,11 @@ C Arguments:
 
          INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
          INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
-         INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
                                              ! TSTEP(2) = sciproc sync. step (chem)
+                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                             !            step and wrf/cmaq call frequency
          REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! recip of mid-layer
                                                              ! Jacobian [1/m]
          REAL,    INTENT( INOUT ) :: VDEMIS( :,:,:,: ) ! gas emissions [ppmv/s]
