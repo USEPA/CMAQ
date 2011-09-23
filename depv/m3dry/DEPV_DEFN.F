@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.6 2011/05/16 14:37:49 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.7 2011/09/23 17:07:50 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -39,6 +39,8 @@ C   21 Jun 2010 J.Young: convert for Namelist redesign
 C   27 Jan 2011 J.Young: remove references to AERO3 and AERO4
 C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    5 May 2011 J.Young: remove writing diagnostic output for initial call
+C   11 May 2011 D.Wong: - incorporated twoway model implementation
+C                       - used a robust way to compute NTIME
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -121,7 +123,7 @@ C Includes:
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
-         INTEGER JDATE, JTIME, TSTEP( 2 )
+         INTEGER JDATE, JTIME, TSTEP( 3 )
          REAL, POINTER :: CGRID( :,:,:,: )
          LOGICAL SUCCESS
 
@@ -536,9 +538,11 @@ C-----------------------------------------------------------------------
 
 C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME     ! simulation date&time, tstep
-         INTEGER, INTENT( IN ) :: TSTEP( 2 )       ! time step vector (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )       ! time step vector (HHMMSS)
                                                    ! TSTEP(1) = local output step
                                                    ! TSTEP(2) = sciproc sync. step (chem)
+                                                   ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                                   !            step and wrf/cmaq call frequency
          REAL, POINTER         :: CGRID( :,:,:,: ) ! concentrations
 
          INCLUDE SUBST_CONST     ! constants
@@ -736,7 +740,9 @@ C-----------------------------------------------------------------------
             IF ( WRITE_TIME ) THEN
 
                NDATE = JDATE
-               NTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
+!              NTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
+               NTIME = SEC2TIME( TIME2SEC( TSTEP( 1 ) ) *
+     $                           ( TIME2SEC( JTIME ) / TIME2SEC(TSTEP( 1 ) ) ) )
                CALL NEXTIME( NDATE, NTIME, TSTEP( 1 ) )
 
                N = 0
