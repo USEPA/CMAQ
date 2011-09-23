@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.2 2011/04/01 15:41:39 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.3 2011/09/23 16:55:59 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -14,6 +14,9 @@ C Function: 3d point source emissions met data
 C Revision History:
 C     20 Nov 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C     27 Jul 2011 D.Wong: removed calculation which extends SRTCOL and STRTROW
+C                         to the west and south direction in subroutines: 
+C                         READMC2, READMC3, and READMD3
 
 C-----------------------------------------------------------------------
 
@@ -281,9 +284,9 @@ C for INTERPX
                CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
      &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
 
-               IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
+!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
                IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-               IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
+!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
                LAY1 = 1; LAY2 = 1
@@ -352,9 +355,9 @@ C for INTERPX
                CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
 
-               IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
+!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
                IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-               IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
+!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
                LAY1 = 1; LAY2 = NLAYS
@@ -410,6 +413,7 @@ C for INTERPX
             CHARACTER( 16 ) :: PNAME = 'READMD3'   ! procedure name
             CHARACTER( 96 ) :: XMSG = ' '
             LOGICAL         :: FIRSTIME = .TRUE.
+            CHARACTER( 16 ) :: LOC_VNAME
 
             integer, save :: logdev
             integer, external :: setup_logdev
@@ -423,9 +427,9 @@ C for INTERPX
                CALL SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
      &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
 
-               IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
+!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
                IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-               IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
+!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
                LAY1 = 1; LAY2 = NLAYS
@@ -441,14 +445,33 @@ C for INTERPX
 
             END IF
 
-            IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                          JDATE, JTIME, XBUF ) ) THEN
-
-               L1 = LEN_TRIM( VNAME )
-               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                ' from file MET_DOT_3D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            IF ( ( VNAME .EQ. 'UWIND' ) .OR. ( VNAME .EQ. 'VWIND' ) ) THEN
+!cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
+               IF (       INTERPX( MET_DOT_3D, VNAME, PNAME,
+     &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
+     &                             JDATE, JTIME, XBUF ) ) THEN
+               ELSE
+                  XMSG = 'Could not read ' // trim(VNAME) //
+     &                   ' from file MET_DOT_3D'
+                  LOC_VNAME = TRIM( VNAME ) // 'C'
+                  IF ( .NOT. INTERPX( MET_DOT_3D, LOC_VNAME, PNAME,
+     &                                STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
+     &                                JDATE, JTIME, XBUF ) ) THEN
+                     L1 = LEN_TRIM( LOC_VNAME )
+                     XMSG = 'Could not read ' // VNAME( 1:L1 ) //
+     &                      ' from file MET_DOT_3D'
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF
+               END IF 
+            ELSE
+               IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
+     &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
+     &                             JDATE, JTIME, XBUF ) ) THEN
+                  L1 = LEN_TRIM( VNAME )
+                  XMSG = 'Could not read ' // VNAME( 1:L1 ) //
+     &                   ' from file MET_DOT_3D'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF 
             END IF
 
             RETURN
