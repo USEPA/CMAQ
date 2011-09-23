@@ -1,12 +1,12 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/ungridb2.f,v 1.2 2010/12/06 13:31:14 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/ungridb2.f,v 1.3 2011/09/23 17:16:01 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C.......................................................................
-C Version "@(#)$Header: /project/yoj/arc/CCTM/src/plrise/smoke/ungridb2.f,v 1.2 2010/12/06 13:31:14 yoj Exp $"
+C Version "@(#)$Header: /project/yoj/arc/CCTM/src/plrise/smoke/ungridb2.f,v 1.3 2011/09/23 17:16:01 sjr Exp $"
 C EDSS/Models-3 I/O API.  Copyright (C) 1992-1999 MCNC
 C Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
 C See file "LGPL.txt" for conditions of use.
@@ -44,6 +44,11 @@ C                              2. use the translated values to compute index int
 C                                 singly-indexed grid
 C                              3. revert back to the original calculations for
 C                                 C, R, X and Y
+C      27 Jul 11: David Wong - used lower left corner instead of the cell center
+C                              to determine cell location
+C                            - removed extension to west and south direction
+C                            - properly put double precision value to a single
+C                              precision variable
  
 C-----------------------------------------------------------------------
 
@@ -82,8 +87,10 @@ C-----------------------------------------------------------------------
 
       DDX = 1.0D0 / XCELL           ! [1/m] DDX truncated to REAL( 4 )
       DDY = 1.0D0 / YCELL           ! [1/m] DDY truncated to REAL( 4 )
-      XD0 = XORIG + 0.5D0 * XCELL   ! [m]   XD0 truncated to REAL( 4 )
-      YD0 = YORIG + 0.5D0 * YCELL   ! [m]   YD0 truncated to REAL( 4 )
+!     XD0 = XORIG + 0.5D0 * XCELL   ! [m]   XD0 truncated to REAL( 4 )
+!     YD0 = YORIG + 0.5D0 * YCELL   ! [m]   YD0 truncated to REAL( 4 )
+      XD0 = XORIG
+      YD0 = YORIG
 
       in = 0
 
@@ -93,7 +100,7 @@ C-----------------------------------------------------------------------
          !!  that computer languages do the WRONG THING
          !!  for negative-number integer conversions and remainders:
 
-         X = DDX * ( XLOC( S ) - XD0 ) ! normalized grid coords
+         X = SNGL( DDX * ( XLOC( S ) - XD0 ) ) ! normalized grid coords
          IF ( X .GE. 0.0 ) THEN
             C = 1 + INT( X )                  ! truncated to integer
             X = MOD( X, 1.0 )                 ! trapped between 0 and 1
@@ -102,7 +109,7 @@ C-----------------------------------------------------------------------
             X = 1.0 - MOD( -X, 1.0 )          ! trapped between 0 and 1
          END IF
 
-         Y = DDY * ( YLOC( S ) - YD0 )  !  normalized grid coords
+         Y = SNGL( DDY * ( YLOC( S ) - YD0 ) )  !  normalized grid coords
          IF ( Y .GE. 0.0 ) THEN
             R = 1 + INT( Y )                  ! truncated to integer
             Y = MOD( Y, 1.0 )                 ! trapped between 0 and 1
@@ -119,12 +126,12 @@ C-----------------------------------------------------------------------
            LOC_R = R - ROWSD_PE( 1,MYPE+1 ) + 1
          END IF
 
-         IF ( .NOT. XBND( 2 ) ) THEN    ! west side
-           LOC_C = LOC_C + 1
-         END IF
-         IF ( .NOT. YBND( 1 ) ) THEN    ! south side
-           LOC_R = LOC_R + 1
-         END IF
+!        IF ( .NOT. XBND( 2 ) ) THEN    ! west side
+!          LOC_C = LOC_C + 1
+!        END IF
+!        IF ( .NOT. YBND( 1 ) ) THEN    ! south side
+!          LOC_R = LOC_R + 1
+!        END IF
 
          IF ( R .LT. 1 ) THEN                 ! r below grid
 
