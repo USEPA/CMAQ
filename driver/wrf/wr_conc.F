@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_conc.F,v 1.3 2011/04/01 15:41:37 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/wr_conc.F,v 1.4 2011/09/23 16:50:17 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -44,6 +44,7 @@ C   30 Jan 10 David Wong: modified the code to write one species at a time
 C                         in case ALLVAR3 cannot deal with large CONC size
 C   14 Sep 10 J.Young: fix ALLVAR3 bug in writing W_VEL
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 D.Wong: - let non I/O PEs open CTM_CONC_1 for read only
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -124,9 +125,11 @@ C-----------------------------------------------------------------------
 
 C open conc file for update
 
-         IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
-            XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         IF ( MYPE .NE. 0 ) THEN
+            IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
+               XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
          END IF
 
          IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
