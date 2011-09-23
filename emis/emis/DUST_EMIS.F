@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.4 2011/07/11 13:40:36 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.5 2011/09/23 16:58:55 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
@@ -40,6 +40,7 @@ C Function: 3d point source emissions interface to the chemistry-transport model
 C Revision History:
 C 16 Dec 10 J.Young: Adapting Daniel Tong`s work on windblown dust
 C 21 Apr 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C 11 May 11 D.Wong: incorporated twoway model implementation
 C  8 Jul 11 J.Young: unified string lengths in character lists for compiler
 C                    compatibility
 C-----------------------------------------------------------------------
@@ -704,10 +705,13 @@ C=======================================================================
          use utilio_defn
          use aero_data
 
+C       8/18/11 D.Wong: incorporated twoway model implementation and change
+C                       RC -> RCA and RN -> RNA and made it backward compatible
+
 C Arguments:
          integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
          integer, intent( in ) :: jtime      ! current model time, coded HHMMSS
-         integer, intent( in ) :: tstep( 2 ) ! sync, output time step
+         integer, intent( in ) :: tstep( 3 ) ! sync, output time step
          real,    intent( in ) :: rjacm( ncols,nrows ) ! reciprocal Jacobian [1/m]
          real,    intent( in ) :: cellhgt    ! grid-cell height [sigma]
 
@@ -764,6 +768,9 @@ C Parameters:
          real       :: rlay1hgt         ! reciprocal of layer-1 height [1/m]
          real       :: m3j              ! 3rd moment accumulation (J) mode emis rates [m3/m3/s]
          real       :: m3k              ! 3rd moment coarse mode (K) emis rates [m3/m3/s]
+
+         character (len = 16), save :: rc_name, rn_name    ! new names: RC -> RCA, RN -> RNA
+         logical, save :: firstime = .true.
 
 C Soil moisture limit: 13 types and 3 variables, which are:
 C    1 - saturation moisture limit,
@@ -844,6 +851,21 @@ C any dust emission.
 
 C-----------------------------------------------------------------------
 
+         if ( firstime ) then
+            firstime = .false.
+            if ( .not. desc3 ( met_cro_2d ) ) then
+               xmsg = 'Could not get ' // met_cro_2d //' file description'
+               call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+            end if
+            if ( INDEX1( 'RCA', nvars3d, vname3d ) > 0 ) then
+               rc_name = 'RCA'
+               rn_name = 'RNA'
+            else
+               rc_name = 'RC'
+               rn_name = 'RN'
+            end if
+         end if
+
          vname = 'USTAR'
          if ( .not. interpx( met_cro_2d, vname, pname,
      &                       strtcolmc2,endcolmc2, strtrowmc2,endrowmc2, 1,1,
@@ -891,7 +913,8 @@ C calculate transport factor above the canopy
             call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          end if
 
-         vname = 'RN'
+!        vname = 'RN'
+         vname = rn_name
          if ( .not. interpx( met_cro_2d, vname, pname,
      &                       strtcolmc2,endcolmc2, strtrowmc2,endrowmc2, 1,1,
      &                       jdate, jtime, rn ) ) then
@@ -899,7 +922,8 @@ C calculate transport factor above the canopy
             call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          end if
 
-         vname = 'RC'
+!        vname = 'RC'
+         vname = rc_name
          if ( .not. interpx( met_cro_2d, vname, pname,
      &                       strtcolmc2,endcolmc2, strtrowmc2,endrowmc2, 1,1,
      &                       jdate, jtime, rc ) ) then
