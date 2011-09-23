@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/UTILIO_DEFN.F,v 1.1 2011/04/01 15:29:48 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/util/util/UTILIO_DEFN.F,v 1.2 2011/09/23 17:16:45 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,6 +36,8 @@ C     "cpp" flags to achieve the function overloading.
 C              
 C  REVISION HISTORY:
 C       Original version 03/2011 by Shawn Roselle
+C                        08/2011 by David Wong
+C                          -- extended to handle buffer file
 C....................................................................
 
       MODULE UTILIO_DEFN
@@ -46,7 +48,8 @@ C....................................................................
      &                 EXCLUDE_M3EXIT  => M3EXIT,
      &                 EXCLUDE_M3WARN  => M3WARN,
      &                 EXCLUDE_SHUT3   => SHUT3,
-     &                 EXCLUDE_WRITE3  => WRITE3
+     &                 EXCLUDE_WRITE3  => WRITE3,
+     &                 BUF_WRITE3      => WRITE3
 
          USE PARUTILIO, INTERPB => PINTERPB,
      &                  M3ERR   => PM3ERR,
