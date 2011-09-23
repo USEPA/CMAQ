@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.3 2011/04/05 13:44:32 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.4 2011/09/23 16:37:33 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,13 +40,14 @@ C  01/10: D. Wong - Eliminate potential race condition at the MYPE = 0
 C                   to open the diagnostic file. Eliminate the BARRIER
 C                   and the CLOSE3 and OPEN3.
 C  02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
+C  05/11: D.Wong-incorporated twoway model implementation
 
 C-----------------------------------------------------------------------
 C Modified from:
  
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling
 C                System
-C File: @(#)$Id: tmpbeis.F,v 1.3 2011/04/05 13:44:32 sjr Exp $
+C File: @(#)$Id: tmpbeis.F,v 1.4 2011/09/23 16:37:33 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -55,7 +56,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v $
-C Last updated: $Date: 2011/04/05 13:44:32 $ 
+C Last updated: $Date: 2011/09/23 16:37:33 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -69,7 +70,7 @@ C Includes:
 C Arguments:
       INTEGER, INTENT(  IN ) :: JDATE   ! current simulation date (YYYYDDD)
       INTEGER, INTENT(  IN ) :: JTIME   ! current simulation time (HHMMSS)
-      INTEGER, INTENT(  IN ) :: TSTEP( 2 )      ! timestep vector
+      INTEGER, INTENT(  IN ) :: TSTEP( 3 )      ! timestep vector
       INTEGER, INTENT(  IN ) :: N_SPC_BIOG      ! model biogenic species
       INTEGER, INTENT(  IN ) :: BEIS_MAP( : )   ! mapping from beis3 to model species
       REAL,    INTENT( OUT ) :: EMISL( :,:,: )  ! emissions in moles/sec

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.6 2011/09/15 16:30:57 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.7 2011/09/23 16:36:51 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -51,6 +51,7 @@ C    Mar 08 G.Sarwar: added heterogeneous reaction for HONO. It affects HONO, NO
 C    Apr 08 J.Young: optional inline beis and plume rise emissions
 C 21 Jun 10 J.Young: convert for Namelist redesign
 C 16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C 11 May 11 D.Wong: - incorporated twoway model implementation
 C 15 Aug 11 D. Schwede and G. Sarwar: Modified HONO calculation so that
 C              deposition velocity for NO2 that is output in DEPV file 
 C              does not include the loss due to the heterogeneous reaction.
@@ -82,9 +83,11 @@ C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )              !  concentrations
       INTEGER      JDATE        ! current model date, coded YYYYDDD
       INTEGER      JTIME        ! current model time, coded HHMMSS
-      INTEGER      TSTEP( 2 )   ! time step vector (HHMMSS)
+      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
                                 ! TSTEP(1) = local output step
                                 ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
 
 C Parameters:
 
@@ -207,14 +210,14 @@ C ACM Local Variables
             CHARACTER( * ), INTENT( IN )  :: PNAME
             REAL,           INTENT( IN )  :: VDEMIS( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            INTEGER,        INTENT( IN )  :: TSTEP( 2 )
+            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE_EMIS
          SUBROUTINE PA_UPDATE_DDEP ( PNAME, DDEP, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
             CHARACTER( * ), INTENT( IN )  :: PNAME
             REAL,           INTENT( IN )  :: DDEP( :,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            INTEGER,        INTENT( IN )  :: TSTEP( 2 )
+            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE_DDEP
          SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
             IMPLICIT NONE

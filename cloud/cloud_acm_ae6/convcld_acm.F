@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.7 2011/09/19 15:20:50 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.8 2011/09/23 16:42:14 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -93,6 +93,7 @@ C       8/10 J.Young: replace chem mechanism include files with namelists
 C                    and accomodate Shawn Roselle's, Sergey Napelenok's
 C                    and Steve Howard's aerosol reengineering
 C       3/11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C       5/11/11 D.Wong: incorporated twoway model implementation
 C       7/11 G. Sarwar: calculate zenith angle to determine daytime and nightime 
 C                    needed for sulfur oxidation via metal catalysis
 C       9/11 S.Roselle: enable CMAQ subgrid cloud model only when met. driver
@@ -188,7 +189,7 @@ C...........Arguments
       REAL, POINTER :: CGRID( :,:,:,: )           ! concentrations
       INTEGER       JDATE               ! current model date, coded YYYYDDD
       INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 2 )          ! model time step, coded H*MMSS
+      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
       INTEGER       ICLDTYPE            ! 1: raining, 2: either CNP or PFW
       INTEGER       N_SPC_WDEP          ! # of wet deposition species
 !     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
@@ -209,6 +210,8 @@ C-------------------------------------------
 
       CHARACTER( 16 ) :: PNAME = 'CONVCLD_ACM'   ! prcess name
       CHARACTER( 16 ) :: VARNM               ! variable name for IOAPI to get
+
+      CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and new is RCA
 
       INTEGER       ATIME               ! time diff from half-hour
       INTEGER       CLTOP               ! model LAY containing cloud top
@@ -481,6 +484,15 @@ C...get description from the met file
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+C cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
+
+        SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+        IF ( SPC .GT. 0 ) THEN
+           RC_NAME = 'RCA'
+        ELSE
+           RC_NAME = 'RC'
+        END IF
+
 C...store met file time, date, and step information and compute
 C...  the met timestep in hours
 
@@ -510,13 +522,15 @@ C...  a convective parameterization
 !          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 !       END IF
 
-        VARNM = 'RC'
+!       VARNM = 'RC'
 !       IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
 !    &                    RC ) ) THEN
-        IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+!       IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+        IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
      &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                      SDATE, STIME, RC ) ) THEN
-          XMSG = 'Could not read RC from ' // MET_CRO_2D
+!         XMSG = 'Could not read RC from ' // MET_CRO_2D
+          XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -833,13 +847,15 @@ C...Get convective precipitation amount (cm)
 !        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 !     END IF
 
-      VARNM = 'RC'
+!     VARNM = 'RC'
 !     IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
 !    &                  RC ) ) THEN
-      IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+!     IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+      IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
      &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                    MDATE, MTIME, RC ) ) THEN
-        XMSG = 'Could not read RC from ' // MET_CRO_2D
+!       XMSG = 'Could not read RC from ' // MET_CRO_2D
+        XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 

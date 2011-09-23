@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/cldproc_acm.F,v 1.3 2011/04/01 15:41:32 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/cldproc_acm.F,v 1.4 2011/09/23 16:42:13 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -49,6 +49,7 @@ C     6/08/05 S.Roselle       added new cloud diagnostic variables
 C     7/21/09 D. Wong         fixed parallel bug in opening WET_DEP_2
 C     Oct 10  J.Young         convert for Namelist redesign
 C     3/01/11 S.Roselle       replaced I/O API include files with UTILIO_DEFN
+C     5/11/11 D.Wong:         incorporated twoway model implementation
 
 C-----------------------------------------------------------------------
 
@@ -86,7 +87,7 @@ C...........ARGUMENTS
       REAL, POINTER :: CGRID( :,:,:,: )                 ! concentrations
       INTEGER       JDATE            ! current model date, coded YYYYDDD
       INTEGER       JTIME            ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 2 )       ! model time step, coded HHMMSS
+      INTEGER       TSTEP( 3 )       ! model time step, coded HHMMSS
 
 C...........Local Variables
 
@@ -144,7 +145,7 @@ C...........EXTERNAL FUNCTIONS
      &                       N_SPC_WDEP, WDEP_MAP, DEP )
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 2 )
+            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )  :: N_SPC_WDEP
             INTEGER, INTENT( IN )  :: WDEP_MAP( : )
             REAL,    INTENT( OUT ) :: DEP( :,:,: )
@@ -153,7 +154,7 @@ C...........EXTERNAL FUNCTIONS
      &                            N_SPC_WDEP, WDEP_MAP, DEP )
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 2 )
+            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )  :: N_SPC_WDEP
             INTEGER, INTENT( IN )  :: WDEP_MAP( : )
             REAL,    INTENT( OUT ) :: DEP( :,:,: )

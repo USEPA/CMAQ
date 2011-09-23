@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v 1.3 2011/04/26 16:22:55 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v 1.4 2011/09/23 16:37:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -22,12 +22,13 @@ C  Subroutines and Functions Called:
 C  Revision History:
 C    Oct 2007 Jeff: Make a function and simplify for inline BEIS in CMAQ
 C    Feb 2011 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
+C    10 May 2011 D.Wong: incorporated twoway model implementation
  
 C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: EDSS Tools Library
-C File: @(#)$Id: chkgrid.F,v 1.3 2011/04/26 16:22:55 sjr Exp $
+C File: @(#)$Id: chkgrid.F,v 1.4 2011/09/23 16:37:32 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -36,7 +37,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/chkgrid.F,v $
-C Last updated: $Date: 2011/04/26 16:22:55 $
+C Last updated: $Date: 2011/09/23 16:37:32 $
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -99,6 +100,7 @@ C-----------------------------------------------------------------------
 C If grid information has already been initialized, then compare existing to this file
       IF ( GINIT ) THEN
 
+#ifndef twoway
 C Check settings that must be consistent for exact grid match
          IF ( NC .NE. NCOLS            .OR.
      &        NR .NE. NROWS            .OR.
@@ -111,6 +113,7 @@ C Check settings that must be consistent for exact grid match
      &             ' are inconsistent with initialized values.'
             CALL M3MSG2( MESG ) 
          END IF
+#endif
 
          XOFF = 0
          YOFF = 0

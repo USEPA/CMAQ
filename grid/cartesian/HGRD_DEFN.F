@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/HGRD_DEFN.F,v 1.2 2011/04/01 15:41:45 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/grid/cartesian/HGRD_DEFN.F,v 1.3 2011/09/23 16:40:13 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,6 +38,7 @@ C                                         dyn alloc appropriately
 C                   J Young    22 Dec 05: move proc. anayl. stuff to PAGRD_DEFN
 C                   S. Roselle 29 Mar 11: Replaced I/O API include files
 C                                         with UTILIO_DEFN
+C                   D. Wong    11 May 11: incorporated twoway model implementation
 C.......................................................................
 
       IMPLICIT NONE
@@ -203,6 +204,7 @@ C the grid description file pointed to by the GRIDDESC env var:
 
 C    Retrieve the domain decompostion processor array
 
+#ifndef twoway
             IF ( NPROCS .GT. 1 ) THEN
                CALL GET_ENVLIST ( NPCOL_NPROW, NV, V_LIST )
                IF ( NV .NE. 2 ) THEN
@@ -220,6 +222,7 @@ C    Retrieve the domain decompostion processor array
                NPCOL = 1
                NPROW = 1
             END IF
+#endif
 
 C Retrieve the species saved to integral average concentration file
 

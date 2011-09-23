@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.4 2011/04/05 13:44:31 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v 1.5 2011/09/23 16:37:33 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -94,12 +94,13 @@ C                      restructure PRECIP_ADJ
 C    Jan 27: D. Wong - Eliminate potential race condition with mype = 0 and
 C                      barrier implementation - it's not needed anyway.
 C    02/11 : S.Roselle-Replaced I/O API include files with UTILIO_DEFN
+C    05/11 : D. Wong - incorporated twoway model implementation
   
 C-----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: hrno.F,v 1.4 2011/04/05 13:44:31 sjr Exp $
+C File: @(#)$Id: hrno.F,v 1.5 2011/09/23 16:37:33 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -108,7 +109,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/hrno.F,v $
-C Last updated: $Date: 2011/04/05 13:44:31 $ 
+C Last updated: $Date: 2011/09/23 16:37:33 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -122,7 +123,7 @@ C Includes:
 C Arguments:
       INTEGER, INTENT( IN )    :: JDATE             ! current simulation date (YYYYDDD)
       INTEGER, INTENT( IN )    :: JTIME             ! current simulation time (HHMMSS)
-      INTEGER, INTENT( IN )    :: TSTEP( 2 )        ! time step vector (HHMMSS)
+      INTEGER, INTENT( IN )    :: TSTEP( 3 )        ! time step vector (HHMMSS)
       REAL,    INTENT( IN )    :: TA   ( NCOLS,NROWS )      ! air temperature [K]
       REAL,    INTENT( OUT )   :: EMPOL( NCOLS,NROWS,NSEF ) ! output NO emissions
 
@@ -218,6 +219,9 @@ C for INTERPX
       INTEGER       :: STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN  ! SOILINP
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2  ! MET_CRO_2D
 
+      CHARACTER( 16 ), SAVE :: VNAME_RC, VNAME_RN
+      INTEGER :: SPC
+
 #ifdef Verbose
       integer mxptype, ncfno0
       real    mxrntot, mxfac1, avgfac2, mxfac3, mxfac4
@@ -259,6 +263,20 @@ C Check that grid description matches BGRD file
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match previously set grid.'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+         SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+         IF ( SPC .GT. 0 ) THEN
+            VNAME_RC = 'RCA'
+         ELSE
+            VNAME_RC = 'RC'
+         END IF
+
+         SPC = INDEX1( 'RNA', NVARS3D, VNAME3D )
+         IF ( SPC .GT. 0 ) THEN
+            VNAME_RN = 'RNA'
+         ELSE
+            VNAME_RN = 'RN'
          END IF
 
 C Get domain decomp info for the met file
@@ -509,18 +527,18 @@ C fall at a constant rate for an output timestep.
       IF ( NDATE .EQ. RDATE .AND. NTIME .EQ. RTIME ) THEN   ! on the TSTEP (hour)
 
 C Read rainfall data
-         IF ( .NOT. XTRACT3( MNAME, 'RN',
+         IF ( .NOT. XTRACT3( MNAME, VNAME_RN,
      &                       1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
      &                       RDATE, RTIME, RN ) ) THEN
-            MESG = 'Could not read "' //  'RN' //
+            MESG = 'Could not read "' //  VNAME_RN //
      &              '" from file "' // TRIM( MNAME ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
 
-         IF ( .NOT. XTRACT3( MNAME, 'RC',
+         IF ( .NOT. XTRACT3( MNAME, VNAME_RC,
      &                       1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
      &                       RDATE, RTIME, RC ) ) THEN
-            MESG = 'Could not read "' //  'RC' //
+            MESG = 'Could not read "' //  VNAME_RC //
      &             '" from file "' // TRIM( MNAME ) // '"'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
