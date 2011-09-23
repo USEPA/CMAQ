@@ -171,6 +171,9 @@ C Local Variables:
          INTEGER :: GXOFF, GYOFF
          INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
 
+         LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
+                                           ! processing domain
+
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
                IMPLICIT NONE
