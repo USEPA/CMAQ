@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/AERO_EMIS.F,v 1.7 2011/09/23 19:15:47 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/AERO_EMIS.F,v 1.8 2011/09/29 14:52:18 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -61,6 +61,8 @@ C                       procedures
 C   25 Feb 11 J.Young:  add windblown dust module
 C   25 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
+C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
 
 C-----------------------------------------------------------------------
 
@@ -534,6 +536,11 @@ C  diffusion routines
  
 C  Key Subroutines/Functions Called: SSEMIS_INIT, GET_SSEMIS, DUST_INIT, GET_DUST_EMIS
 
+C  Revision History:
+
+C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
+C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
+ 
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE CGRID_SPCS          ! CGRID mechanism species
@@ -627,7 +634,8 @@ C     time.  Store result in EMBUFF array.
                DO L = 1, PM_EMLYRS
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
-                        EMBUFF( C,R,L,S ) = EMBUFF( C,R,L,S ) + PMEMIS_PT( C,R,L,V )
+!                       EMBUFF( C,R,L,S ) = EMBUFF( C,R,L,S ) + PMEMIS_PT( C,R,L,V )
+                        EMBUFF( C,R,L,V ) = EMBUFF( C,R,L,V ) + PMEMIS_PT( C,R,L,S )
                      END DO
                   END DO
                END DO
