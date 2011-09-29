@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.4 2011/09/22 20:33:12 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.5 2011/09/29 16:49:39 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -61,6 +61,7 @@ C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
 C                    31 Aug 11 B.Hutzell revised method that determines calling
 C                              degrade routine
+C                    29 Sep 11 D.Wong: incorporated twoway model implementation
 C**********************************************************************
 
       USE SUBST_MODULES
@@ -84,7 +85,7 @@ C..Arguments:
 
       INTEGER JDATE                     ! Current date (YYYYDDD)
       INTEGER JTIME                     ! Current time (HHMMSS)
-      INTEGER TSTEP( 2 )                ! Time step vector (HHMMSS)
+      INTEGER TSTEP( 3 )                ! Time step vector (HHMMSS)
 
 C..Parameters:
 
