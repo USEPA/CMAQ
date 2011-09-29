@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.9 2011/07/11 13:14:33 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_DATA.F,v 1.10 2011/09/29 15:22:18 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aero_data
@@ -139,7 +139,7 @@ C       -    ------  -------  -------
      &       0.0,     0.0,     0.0,         ! AOLGB
      &       0.0,     0.0,     0.0,         ! AORGC
      &       0.0,     0.0,     0.0,         ! ASOIL
-     &       0.0,     0.0,     0.0, /),     ! ACORS
+     &       0.0,     0.0,     0.0 /),      ! ACORS
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 C Required species
