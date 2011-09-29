@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.6 2011/05/05 15:17:43 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/AERO_EMIS.F,v 1.7 2011/09/29 15:08:02 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -60,6 +60,10 @@ C   24 Feb 11 J.Young:  Reorganized module with initialization and timestepping
 C                       procedures
 C   25 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   04 Apr 11 S.Howard: Added mode dimension to SS_MAP array
+C   11 May 11 D.Wong: incorporated twoway model implementation
+C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
+C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
+
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -90,17 +94,23 @@ C Emission rate of all aerosol species interpolated to current time
       REAL,    ALLOCATABLE, SAVE :: EM_RATE ( : )       !
       REAL,    ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
       INTEGER, ALLOCATABLE, SAVE :: EM_MAP  ( :,: )     ! index in namelist table
+      REAL,    ALLOCATABLE, SAVE :: EM_FAC  ( :,: )     ! Namelist emissions scaling factor
       INTEGER, ALLOCATABLE, SAVE :: NUM_MAP ( : )       !
+      REAL,    ALLOCATABLE, SAVE :: NUM_FAC ( : )       !
       INTEGER, ALLOCATABLE, SAVE :: SRF_MAP ( : )       !
+      REAL,    ALLOCATABLE, SAVE :: SRF_FAC ( : )       !
       INTEGER, ALLOCATABLE, SAVE :: SS_MAP  ( :,: )     !
 
 C EMBUFF     mass emission rate input global array
 C PM_EM      mass emission rate input localized to one grid cell
 C EM_RATE    scaled PM_EM
 C EM_PART    particulate mass emission rate in one grid cell
-C EM_MAP     particulate mass emission rate index in VDEMIS_AE (CGRID)
-C NUM_MAP    particulate number emission rate index in VDEMIS_AE (CGRID)
-C SRF_MAP    particulate sfc area emission rate index in VDEMIS_AE (CGRID)
+C EM_MAP                 mass emission rate index in VDEMIS_AE (CGRID)
+C EM_FAC                 mass emission Namelist scaling factor for VDEMIS_AE (CGRID)
+C NUM_MAP                number emission rate index in VDEMIS_AE (CGRID)
+C NUM_FAC
+C SRF_MAP               sfc area emission rate index in VDEMIS_AE (CGRID)
+C SRF_FAC
 C SS_MAP     sea salt emission rate index in SSOUTM
 
 C Factor for converting aerosol emissions from input units ...
@@ -297,7 +307,7 @@ C *** Allocate memory for PM_EM, EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, NUM_MAP, SRF_MAP, SS_MAP and DUST_MAP
+C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC, and SS_MAP
          ALLOCATE ( EM_RATE( N_EMIS_PM ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** EM_RATE memory allocation failed'
@@ -306,23 +316,28 @@ C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, NUM_MAP, SRF_MAP, SS_MAP and
 
          ALLOCATE ( EM_PART( N_AEROSPC, N_MODE ),
      &              EM_MAP ( N_AEROSPC, N_MODE ),
+     &              EM_FAC ( N_AEROSPC, N_MODE ),
      &              NUM_MAP(            N_MODE ),
+     &              NUM_FAC(            N_MODE ),
      &              SRF_MAP(            N_MODE ),
+     &              SRF_FAC(            N_MODE ),
      &              SS_MAP ( N_AEROSPC, N_MODE ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** memory allocation failed for '
-     &           // 'EM_PART, EM_MAP, NUM_MAP, SRF_MAP, or SS_MAP'
+     &           // 'EM_PART, EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SRF_MAP, SRF_FAC, or SS_MAP'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C *** Map indices of emission species
          EM_MAP = 0   ! array assignment
+         EM_FAC = 1.0 ! array assignment ! array assignment
          DO S = 1, N_AEROSPC
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
                ! Verify that aerospc( S )%emis is a pm emis
                DO N = 1, N_MODE
                   IF ( AEROSPC( S )%NAME( N ) .NE. ' ' ) THEN
                      EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
+                     EM_FAC( S,N ) = AE_EMIS_FAC( EM_MAP( S,N ) )
                   END IF
                END DO
             END IF
@@ -330,10 +345,12 @@ C *** Map indices of emission species
 
 C *** Map aerosol number emission species
          NUM_MAP = 0
+         NUM_FAC = 1.0 ! array assignment
          DO N = 1, N_MODE
             NUM_MAP( N ) = INDEX1( AEROMODE( N )%NUM_NAME, N_AE_EMIS, AE_EMIS )
-#ifdef verbose
-            write( logdev,* ) 'num_map: ', n, num_map( n ), aeromode( n )%num_name
+            NUM_FAC( N ) = AE_EMIS_FAC( NUM_MAP( N ) )
+#ifdef verbose1
+            write( logdev,* ) 'num_map: ', n, num_map( n ), aeromode( n )%num_name, num_fac( n )
 #endif
             IF ( NUM_MAP( N ) .EQ. 0 ) THEN
                XMSG = 'Could not find ' // TRIM( AEROMODE( N )%NUM_NAME )
@@ -344,10 +361,12 @@ C *** Map aerosol number emission species
 
 C *** Map aerosol surface emission species
          SRF_MAP = 0
+         SRF_FAC = 1.0 ! array assignment
          DO N = 1, N_MODE
             SRF_MAP( N ) = INDEX1( AEROMODE( N )%SRF_NAME, N_AE_EMIS, AE_EMIS )
-#ifdef verbose
-            write( logdev,* ) 'srf_map: ', n, srf_map( n ), aeromode( n )%srf_name
+            SRF_FAC( N ) = AE_EMIS_FAC( SRF_MAP( N ) )
+#ifdef verbose1
+            write( logdev,* ) 'srf_map: ', n, srf_map( n ), aeromode( n )%srf_name, srf_fac( n )
 #endif
             IF ( SRF_MAP( N ) .EQ. 0 ) THEN
                XMSG = 'Could not find ' // TRIM( AEROMODE( N )%SRF_NAME )
@@ -360,25 +379,25 @@ C *** Map sea salt emission species
          SS_MAP = 0  ! array assignment
          DO S = 1, NSSSPC
             IDX = SSSPC_MAP( S )
-#ifdef verbose
+#ifdef verbose1
             write( logdev,* ) 'ssspc_map: ', s, idx, ssspc_map( s )
 #endif
             DO N = 2, N_MODE   ! add SEASALT indices to EM_MAP
                IF ( AEROSPC( IDX )%NAME( N ) .NE. ' ' ) THEN
                   EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
                   SS_MAP( IDX,N ) = S
-#ifdef verbose
+#ifdef verbose1
                write( logdev,* ) 'ss_map: ', s, n, idx, ss_map( idx,n ), aerospc( idx )%name( n )
 #endif
                END IF
             END DO
          END DO
 
-#ifdef verbose
+#ifdef verbose1
          do s = 1, n_aerospc
             do n = 1, n_mode
                if ( em_map( s,n ) .ne. 0 ) then
-                  write( logdev,* ) 'em_map: ', n, s, em_map( s,n ), aerospc( s )%name( n )
+                  write( logdev,* ) 'em_map: ', n, s, em_map( s,n ), aerospc( s )%name( n ), em_fac( s,n )
                end if
             end do
          end do
@@ -390,7 +409,7 @@ C *** find index of SO4 emissions
 !           IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) VPSO4 = S
             IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) THEN
                VPSO4 = S
-#ifdef verbose
+#ifdef verbose1
                write( logdev,* ) 'vpso4: ', s, pmem_map( s ), aso4_idx, vpso4
 #endif
             END IF
@@ -464,6 +483,11 @@ C  diffusion routines
 
 C  Key Subroutines/Functions Called: SSEMIS_INIT, GET_SSEMIS, DUST_INIT, GET_DUST_EMIS
 
+C  Revision History:
+
+C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
+C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
+
 C ----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE CGRID_SPCS          ! CGRID mechanism species
@@ -481,9 +505,11 @@ C Arguments:
 
          INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
          INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
-         INTEGER, INTENT( IN ) :: TSTEP( 2 ) ! time step vector (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
                                              ! TSTEP(2) = sciproc sync. step (chem)
+                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                             !            step and wrf/cmaq call frequency
          REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! recip of mid-layer
                                                              ! Jacobian [1/m]
          REAL,    INTENT( INOUT ) :: VDEMIS( :,:,:,: ) ! gas emissions [ppmv/s]
@@ -524,7 +550,7 @@ C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'GET_AERO_EMIS'
          INTEGER C, R, L, N, V, S         ! Loop indices
 !        REAL( 8 ) :: FINETOT
-#ifdef Verbose
+#ifdef Verbose2
          real sumem
 #endif
 
@@ -553,7 +579,8 @@ C     time.  Store result in EMBUFF array.
                DO L = 1, PM_EMLYRS
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
-                     EMBUFF( C,R,L,S ) = EMBUFF( C,R,L,S ) + PMEMIS_PT( C,R,L,V )
+!                       EMBUFF( C,R,L,S ) = EMBUFF( C,R,L,S ) + PMEMIS_PT( C,R,L,V )
+                        EMBUFF( C,R,L,V ) = EMBUFF( C,R,L,V ) + PMEMIS_PT( C,R,L,S )
                      END DO
                   END DO
                END DO
@@ -709,12 +736,12 @@ C     Save results in the VDEMIS_AE array.
                DO N = 1, N_MODE
                   DO S = 1, N_AEROSPC
                      IF ( EM_MAP( S,N ) .GT. 0 ) THEN
-                        VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N )
+                        VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N ) * EM_FAC( S,N )
      &                                                   * ( CONVM / AEROSPC_MW( S ) )
                      END IF
                   END DO
-                     VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * CONVN
-                     VDEMIS_AE( SRF_MAP( N ),L,C,R ) = EM_SRF( N ) * CONVS
+                     VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * NUM_FAC( N ) * CONVN
+                     VDEMIS_AE( SRF_MAP( N ),L,C,R ) = EM_SRF( N ) * SRF_FAC( N ) * CONVS
                END DO
 
             END DO   ! loop on MY_NCOLS
@@ -803,28 +830,29 @@ C     [m2/mol/s].  Save results in the VDEMIS_AE array.
                   DO N = 1, N_MODE
                      DO S = 1, N_AEROSPC
                         IF ( EM_MAP( S,N ) .GT. 0 ) THEN
-                           VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N )
+                           VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N ) * EM_FAC( S,N )
      &                                                      * CONVM / AEROSPC_MW( S )
                         END IF
                      END DO
-                        VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * CONVN
-                        VDEMIS_AE( SRF_MAP( N ),L,C,R ) = EM_SRF( N ) * CONVS
+                        VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * NUM_FAC( N ) * CONVN
+                        VDEMIS_AE( SRF_MAP( N ),L,C,R ) = EM_SRF( N ) * SRF_FAC( N ) * CONVS
                   END DO
 
                END DO   ! loop on MY_NCOLS
             END DO   ! loop on MY_NROWS
          END DO   ! loop on PM_EMLYRS
 
-#ifdef Verbose
-         write( logdev,'(/"@@@",i8,i7.6)') jdate, jtime
+#ifdef Verbose2
+         write( logdev,'(/"@@@1",i8,i7.6)') jdate, jtime
+         l = 1
          do s = 1, n_ae_emis
             sumem = 0.0
             do r = 1, my_nrows
                do c = 1, my_ncols
-                  sumem = sumem + vdemis_ae( s,1,c,r )
+                  sumem = sumem + vdemis_ae( s,l,c,r )
                end do
             end do
-            write( logdev,'("@@@ ",a,g16.6)') ae_emis( s ), sumem
+            write( logdev,'("@@@1 ",a,g16.6)') ae_emis( s ), sumem
          end do
 #endif
 
