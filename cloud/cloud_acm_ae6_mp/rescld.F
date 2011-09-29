@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/rescld.F,v 1.1 2011/09/22 15:52:29 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/rescld.F,v 1.2 2011/09/29 18:29:01 sjr Exp $
 
 C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -62,6 +62,7 @@ C                    removed deprecated TRIMLEN
 C      14 01 Jul 11 G. Sarwar: calculate zenith angle to determine daytime and  
 C                    nightime needed for sulfur oxidation via metal catalysis
 C      15 10 Sep 11 B.Hutzell: adapted to define data used in HG_AQCHEM_DATA module
+C      16 29 Sep 11 D.Wong: incorporated twoway model implementation
  
 C  Called by:  CLDPROC
  
@@ -97,7 +98,7 @@ C...........Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )    ! concentrations
       INTEGER       JDATE               ! current model date, coded YYYYDDD
       INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 2 )          ! model time step, coded H*MMSS
+      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
       INTEGER       N_SPC_WDEP          ! # of wet deposition species
 !     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
       INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
@@ -113,6 +114,7 @@ C...........Local Variables:
 
       CHARACTER( 16 ), SAVE :: PNAME = 'RESCLD'    ! process name
       CHARACTER( 16 ) ::  VARNM               ! variable name for IOAPI to get
+      CHARACTER( 16 ), SAVE ::  VNAME_RN
 
       INTEGER       COL                 ! column loop counter
       INTEGER       ROW                 ! row loop counter
@@ -226,6 +228,20 @@ C...open MET_CRO_2D
         IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
           XMSG = 'Could not open '// MET_CRO_2D // ' file'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+C...get description from the met file
+
+        IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
+          XMSG = 'Could not get ' // MET_CRO_2D //' file description'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        SPC = INDEX1( 'RNA', NVARS3D, VNAME3D )
+        IF ( SPC .GT. 0 ) THEN
+           VNAME_RN = 'RNA'
+        ELSE
+           VNAME_RN = 'RN'
         END IF
 
 C...open MET_CRO_3D
@@ -551,13 +567,15 @@ C...  on the input file are amounts within the metfiles timestep.
 
 C...Get nonconvective precipitation amount (cm)
 
-      VARNM = 'RN'
+!     VARNM = 'RN'
 !     IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
 !    &                  RN ) ) THEN
-      IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+!     IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
+      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME_RN, PNAME,
      &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                    MDATE, MTIME, RN ) ) THEN
-        XMSG = 'Could not read RN from ' // MET_CRO_2D
+!       XMSG = 'Could not read RN from ' // MET_CRO_2D
+        XMSG = 'Could not read ' // TRIM( VNAME_RN ) // ' from ' // MET_CRO_2D
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
