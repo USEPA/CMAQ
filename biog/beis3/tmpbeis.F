@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.4 2011/09/23 16:37:33 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v 1.5 2011/09/30 19:46:45 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -47,7 +47,7 @@ C Modified from:
  
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling
 C                System
-C File: @(#)$Id: tmpbeis.F,v 1.4 2011/09/23 16:37:33 sjr Exp $
+C File: @(#)$Id: tmpbeis.F,v 1.5 2011/09/30 19:46:45 sjr Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -56,7 +56,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/tmpbeis.F,v $
-C Last updated: $Date: 2011/09/23 16:37:33 $ 
+C Last updated: $Date: 2011/09/30 19:46:45 $ 
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -332,7 +332,7 @@ C Check grid description against BGRD File
 
 C Get domain decomp info from the normalized emissions file (assume met files have
 C same grid dimensions)
-         CALL SUBHFILE ( NNAME, GXOFF, GYOFF,
+         CALL SUBHFILE ( GNAME, GXOFF, GYOFF,
      &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
 C Allocate memory for data and read
