@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.3 2011/08/24 18:52:47 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.4 2011/09/30 13:23:19 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPVVARS
@@ -33,10 +33,12 @@ C           30 Apr 2008  Removed references to RADMDRY.  Added five air
 C                        toxic species to LTOTG.  (T. Otte and W. Hutzell)
 C           16 Feb 2011 S.Roselle: replaced I/O API include files with
 C                        UTILIO_DEFN
+C           11 May 2011 J.Bash: Updated for NH3 bidirectional exchange
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
       INTEGER, PARAMETER :: LTOTG = 52
+      INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
 C-----------------------------------------------------------------------
