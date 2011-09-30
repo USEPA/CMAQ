@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/ABFLUX_MOD.F,v 1.1 2011/09/30 13:06:39 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/ABFLUX_MOD.F,v 1.2 2011/09/30 19:17:51 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -744,7 +744,8 @@ C-------------------------------------------------------------------------------
      &                  (1-deltaj(j,col,row))/( rwmb + rwx*cnh3c ))) + f_cut ! dry cuticle
                      f_soil = lufrac(j,col,row)*(vegj(j,col,row)*((cnh3g1 - cnh3c) * gg1(j) +  ! soil layer 1
      &                  (cnh3g2 - cnh3c) * gg2(j))) + f_soil   ! soil layer 2                        
-                     f_nat = f_nat + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1-vegj(j,col,row))*vdg*cnh3)/(1-agfrac-watfrac)
+                     f_nat = f_nat + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1-vegj(j,col,row))*vdg*cnh3)
+     &                     /(1-agfrac-watfrac)
                      If(f_emis .lt. 0.0) Then
                         Write(logdev,*)'f_nat : ', f_nat
                         Write(logdev,*)'f_dep : ', f_dep
