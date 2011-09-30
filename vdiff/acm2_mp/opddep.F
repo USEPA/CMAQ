@@ -18,13 +18,13 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/opddep.F,v 1.2 2011/04/01 15:42:00 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/opddep.F,v 1.3 2011/09/30 12:55:49 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP )
+      SUBROUTINE OPDDEP ( JDATE, JTIME, TSTEP, N_SPC_DDEP, ABFLUX )
 
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN
 C   03 Sep 01 David Wong: for new pario
@@ -32,6 +32,7 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 J.Bash: Modified to output NH3 bidi component fluxes
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -43,15 +44,20 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C Arguments:
 
-      INTEGER      JDATE      ! current model date, coded YYYYDDD
-      INTEGER      JTIME      ! current model time, coded HHMMSS
-      INTEGER      TSTEP      ! output time step
-      INTEGER      N_SPC_DDEP ! no. of dry dep species
+      INTEGER, INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )  :: TSTEP  ! output time step
+      INTEGER, INTENT( IN )  :: N_SPC_DDEP ! no. of dry dep species
+      LOGICAL, INTENT( IN )  :: ABFLUX
 
 C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'OPDDEP'
       CHARACTER( 96 ) :: XMSG = ' '
+
+! component flux varialbes      
+      INTEGER, PARAMETER :: LCMP  = 8
+      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP )
 
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
@@ -61,6 +67,15 @@ C-----------------------------------------------------------------------
 C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
+      
+         CMPSPC( 1 ) = 'NH3_Emis'
+         CMPSPC( 2 ) = 'NH3_Dep'
+         CMPSPC( 3 ) = 'NH3_Stom'
+         CMPSPC( 4 ) = 'NH3_Cut'
+         CMPSPC( 5 ) = 'NH3_Soil'
+         CMPSPC( 6 ) = 'NH3_Ag'
+         CMPSPC( 7 ) = 'NH3_Nat'
+         CMPSPC( 8 ) = 'NH3_Wat'	 
 
          XMSG = 'Could not open ' // CTM_DRY_DEP_1 // ' file for update - '
      &        // 'try to open new'
@@ -73,8 +88,11 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
          STIME3D = JTIME
          TSTEP3D = TSTEP
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
-
-         NVARS3D = N_SPC_DDEP
+         IF ( ABFLUX ) THEN
+            NVARS3D = N_SPC_DDEP + LCMP
+         ELSE 
+            NVARS3D = N_SPC_DDEP
+         END IF
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D =     1
@@ -94,7 +112,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
 !        VGTPUN3D = VGTPUN_GD ! currently, not defined
          DO L = 1, NLAYS3D + 1
             VGLVS3D( L ) = VGLVS_GD( L )
-            END DO
+         END DO
 !        GDNAM3D = GDNAME_GD
          GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
@@ -107,7 +125,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VNAME3D( V ) = GC_DDEP( N )
             UNITS3D( V ) = 'kg/hectare'
             VDESC3D( V ) = 'hourly dry deposition values'
-            END DO
+         END DO
 
          N = 0
          STRT = N_GC_DDEP + 1
@@ -118,13 +136,13 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VNAME3D( V ) = AE_DDEP( N )
             IF ( AE_DDEP( N )( 1:3 ) .EQ. 'NUM' ) THEN
                UNITS3D( V ) = 'number/hectare'
-               ELSE IF ( AE_DDEP( N )( 1:3 ) .EQ. 'SRF' ) THEN
+            ELSE IF ( AE_DDEP( N )( 1:3 ) .EQ. 'SRF' ) THEN
                UNITS3D( V ) = 'm**2/hectare'
-               ELSE
+            ELSE
                UNITS3D( V ) = 'kg/hectare'
-               END IF
+            END IF
             VDESC3D( V ) = 'hourly dry deposition values'
-            END DO
+         END DO
 
          N = 0
          STRT = N_GC_DDEP + N_AE_DDEP + 1
@@ -135,7 +153,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VNAME3D( V ) = NR_DDEP( N )
             UNITS3D( V ) = 'kg/hectare'
             VDESC3D( V ) = 'hourly dry deposition values'
-            END DO
+         END DO
 
          N = 0
          STRT = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + 1
@@ -146,21 +164,34 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VNAME3D( V ) = TR_DDEP( N )
             UNITS3D( V ) = '----'
             VDESC3D( V ) = 'hourly dry deposition values'
+         END DO
+	 
+         IF ( ABFLUX ) THEN
+            N = 0   
+            STRT = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + 1
+            FINI = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + LCMP
+            DO V = STRT, FINI
+               N = N + 1
+               VTYPE3D( V ) = M3REAL
+               VNAME3D( V ) = CMPSPC( N )
+               UNITS3D( V ) = 'kg/hectare'
+               VDESC3D( V ) = 'hourly dry deposition values'
             END DO
+         END IF
 
          FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
-            END DO
+         END DO
 
 C    Open dry deposition file
 
          IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not create '// CTM_DRY_DEP_1 // ' file'
             CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-            END IF
-
          END IF
+
+      END IF
 
       RETURN
       END
