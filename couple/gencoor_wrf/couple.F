@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couple.F,v 1.1 2011/09/26 19:34:38 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couple.F,v 1.2 2011/09/30 14:45:21 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
@@ -164,7 +164,7 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-         END IF       ! if firstime
+      END IF       ! if firstime
 
 C Read Jacobian X Air Density (Jacobian =  sq. root det. metric tensor)
 
