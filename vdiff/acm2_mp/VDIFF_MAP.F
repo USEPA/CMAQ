@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/VDIFF_MAP.F,v 1.3 2011/04/01 15:41:59 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/VDIFF_MAP.F,v 1.4 2011/09/30 13:00:08 sjr Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -30,40 +30,45 @@ C-----------------------------------------------------------------------
 C Function: index mapping between CGRID, diffusion, dry dep, and emissions
 C           species
 
-C Module depends on prior call to DEPV_INIT to get N_SPC_DEPV
+C Module depends on prior call to DEPV_INIT to get NDEPV_SPC
 
 C Revision History:
 C   10 Apr 2008 J.Young: initial implementation using subroutine vdiff_map.F
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
 
 C-----------------------------------------------------------------------
 
 C global diffusion species
-      INTEGER, SAVE :: N_SPC_DIFF
-
+      INTEGER, SAVE :: N_SPC_DIFF 
+     
 C global dry dep species
-      INTEGER, SAVE :: N_SPC_DDEP
+      INTEGER, SAVE :: N_SPC_DDEP 
 
       INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : ) ! global diff map to CGRID
-!     INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
+!      INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
       INTEGER, ALLOCATABLE, SAVE :: DF2EM   ( : ) ! map from diff spc to emis spc
       INTEGER, ALLOCATABLE, SAVE :: DD2DV   ( : ) ! map from ddep spc to depv spc
       INTEGER, ALLOCATABLE, SAVE :: DEPV_MAP( : ) ! global depv map to CGRID
-      INTEGER, ALLOCATABLE, SAVE :: DV2DF   ( : ) ! map from depv spc to diff spc
+      INTEGER, ALLOCATABLE, SAVE :: DV2DF   ( : )  ! map from depv spc to diff spc
 
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DDEP_SPC( : )
-      character( 16 ), allocatable, save :: diff_spc( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DIFF_SPC( : )
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: DEPV_SPC( : )
-      character( 16 ), allocatable, save :: dv2df_spc( : )
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: DV2DF_SPC( : )
+
+C component flux output variables 
+      INTEGER, PARAMETER :: LCMP  = 8
+      CHARACTER( 16 ), SAVE :: CMPSPC(LCMP)
 
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV ) RESULT ( SUCCESS )
+         FUNCTION VDIFF_MAP_INIT( N_SPC_DEPV  ) RESULT ( SUCCESS )
 
-         USE CGRID_SPCS   ! CGRID mechanism species
-         USE AERO_EMIS    ! aerosol emissions defns and fncts   maybe inherits CGRID_SPCS
+         USE CGRID_SPCS   ! CGRID species number and offsets
+         USE AERO_EMIS    ! aerosol emissions defns and fncts
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -77,7 +82,7 @@ C Arguments:
 
 C global emis species
          INTEGER N_SPC_EMIS
-
+ 
 C External Functions:
          INTEGER, EXTERNAL :: FINDEX
 
@@ -332,6 +337,15 @@ C create global maps to CGRID
                LERROR = .TRUE.
             END IF
          END DO
+
+         CMPSPC( 1 ) = 'NH3_Emis'
+         CMPSPC( 2 ) = 'NH3_Dep'
+         CMPSPC( 3 ) = 'NH3_Stom'
+         CMPSPC( 4 ) = 'NH3_Cut'
+         CMPSPC( 5 ) = 'NH3_Soil'
+         CMPSPC( 6 ) = 'NH3_Ag'
+         CMPSPC( 7 ) = 'NH3_Nat'
+         CMPSPC( 8 ) = 'NH3_Wat' 
 
 #ifdef Verbose
          DO N = 1, N_SPC_DDEP   ! debug
