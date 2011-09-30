@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc99/hrdriver.F,v 1.1 2011/04/05 20:27:42 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc99/hrdriver.F,v 1.2 2011/09/30 15:07:03 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -48,6 +48,7 @@ C                       solutions with analytical solutions derived in
 C                       Hertel et al.
 C  21 Jun 10 J.Young: convert for Namelist redesign
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -69,7 +70,7 @@ C..Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )  ! Species concentrations
       INTEGER JDATE           ! Current date (YYYYDDD)
       INTEGER JTIME           ! Current time (HHMMSS)
-      INTEGER TSTEP( 2 )      ! Time step vector (HHMMSS)
+      INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
       REAL, PARAMETER :: PA2ATM = 1.0 / STDATMPA    ! Pascal to atm conv fac
