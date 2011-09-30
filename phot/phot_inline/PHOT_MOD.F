@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.3 2011/09/01 16:47:45 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.4 2011/09/30 15:20:18 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -197,7 +197,7 @@ C///////////////////////////////////////////////////////////////////////
      &                        BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                        BLKO3, BLKNO2,
      &                        ZSFC, COSZEN, SINZEN, RSQD,
-     &                        LATCR, LONGCR, DAY, LWC, CLDFRC,
+     &                        LATCR, LONGCR, JDATE, LWC, CLDFRC,
      &                        BLKRJ, ETOT_SFC,
      &                        TAU_AERO, TAU_TOT, TAUO3_TOP,
      &                        TAU_RAY, SSA, TAU_CLOUD, STOZONE )
@@ -233,7 +233,7 @@ C***arguments
 
       INTEGER, INTENT(IN) :: NLAYS   ! # of vertical layers
       INTEGER, INTENT(IN) :: NMODE   ! # of aerosol modes
-      INTEGER, INTENT(IN) :: DAY     ! day of the year (e.g. feb 2 is 33)
+      INTEGER, INTENT(IN) :: JDATE   ! julian date YYYYDDD
 
       REAL, INTENT(IN) :: BLK_AE_NR ( NLAYS, NMODE ) ! aerosol real part of refractive index
       REAL, INTENT(IN) :: BLK_AE_NI ( NLAYS, NMODE ) ! aerosol imaginary part of refractive index
@@ -579,9 +579,11 @@ C***  above top of model domain.
 
       NBAR = HSCALE * DENSTOM
 
-C***get climatical average of ozone aloft
+C***get total ozone column
 
-      CALL O3AMT ( LATCR, LONGCR, DAY, STOZONE )
+!     DAY = JDATE - ( JDATE / 1000 ) * 1000
+!     CALL O3AMT ( LATCR, LONGCR, DAY, STOZONE )
+      Call O3TOTCOL ( LATCR, LONGCR, JDATE, STOZONE )
 
 C***set top of modeling domain
 

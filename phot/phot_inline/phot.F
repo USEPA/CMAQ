@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.4 2011/06/01 17:10:04 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.5 2011/09/30 15:20:19 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -163,7 +163,6 @@ C...local variables
       INTEGER JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER, SAVE :: TSTEP     ! current timestep
       INTEGER IPHOT              ! photolysis rate loop index
-      INTEGER NYEAR, JDAY
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -1238,13 +1237,6 @@ C..calculate needed aerosol properties in column
      &                            BLK_AE_VOL, BLK_AE_LSG, BLK_AE_DGN,
      &                            BLK_AE_NR, BLK_AE_NI )
 
-C...SA * Find day of the year
-
-            NYEAR = 0
-            JDAY  = 0
-            NYEAR = ( JDATE / 1000 ) * 1000
-            JDAY  = JDATE - NYEAR
-
 C...calculate the clear sky photolysis rates for all layers:
 
             CLDFRAC = 0.0
@@ -1260,7 +1252,7 @@ C...calculate the clear sky photolysis rates for all layers:
      &                        BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                        BLKO3, BLKNO2,
      &                        ZSFC, COSZEN, SINZEN, RSQD, LATCR, LONCR,
-     &                        JDAY, LWC, CLDFRAC,
+     &                        JDATE, LWC, CLDFRAC,
      &                        BLKRJ_CLR, ETOT_SFC,
      &                        TAU_AERO, TAU_TOT, TAUO3_TOP,
      &                        TAU_RAY, SSA, TAU_CLOUD, STOZONE )
@@ -1301,7 +1293,7 @@ C...calculate the in-cloud photolysis rates for all layers:
      &                           BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                           BLKO3, BLKNO2,
      &                           ZSFC, COSZEN, SINZEN, RSQD, LATCR, LONCR,
-     &                           JDAY, LWC, CLDFRAC,
+     &                           JDATE, LWC, CLDFRAC,
      &                           BLKRJ_CLD, ETOT_SFC,
      &                           TAU_AERO, TAU_TOT, TAUO3_TOP,
      &                           TAU_RAY, SSA, TAU_CLOUD, STOZONE )
