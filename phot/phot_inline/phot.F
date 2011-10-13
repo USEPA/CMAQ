@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.5 2011/09/30 15:20:19 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.6 2011/10/13 15:34:38 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -844,7 +844,11 @@ C...this convention on longititude should be reexamined for different domains
 
             IF ( .NOT. HAS_SEAICE ) THEN ! determine sea ice can form
                IF ( TEMPG( COL, ROW ) .LT. SEAICE_POINT .AND.
-     &              WATER_FRACTION( COL, ROW ) .GE. 0.95 ) SEAICE( COL, ROW ) = 1.0
+     &              WATER_FRACTION( COL, ROW ) .GE. 0.95 ) THEN
+     	            SEAICE( COL, ROW ) = 1.0
+               ELSE
+                  SEAICE( COL, ROW ) = 0.0
+               END IF
             END IF
 
 C...add water or sea ice to annual albedo and its correction factors
