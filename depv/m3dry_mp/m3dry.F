@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/m3dry.F,v 1.1 2011/09/30 19:10:29 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/m3dry.F,v 1.2 2011/10/20 19:25:26 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
@@ -1651,7 +1651,7 @@ C************* Call the Hg air surface exchange subroutine *********************
                   chgIIgas = cgridl1( n,c,r )
                   vdhgII   = depvel_gas( n,c,r )
 
-            END IF
+               END IF
                ! Check for negative values or NaN's
 
                IF ( depvel_gas( n,c,r ) < 0.0 .OR.
@@ -1661,7 +1661,7 @@ C************* Call the Hg air surface exchange subroutine *********************
 
          END DO ddloop
 
-         IF ( HGBIDI .AND. NINT( lwmask( c,r ) ) == 0 ) THEN ! water
+         IF ( HGBIDI .AND. NINT( lwmask( c,r ) ) == 0 .AND. ( vegcr .EQ. 0.0 )) THEN ! water
 
             CALL ASWX( chg, chgIIgas, vdhg, vdhgII, awhg, rgrnd( c,r ),
      &                 dpvd, c, r, jdate, jtime, dt(2) )

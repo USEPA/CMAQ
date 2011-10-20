@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.1 2011/09/30 19:10:29 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.2 2011/10/20 19:23:33 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
@@ -46,6 +46,10 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       CHARACTER( 96 ), Private :: XMSG = ' '
 ! shared variables
       CHARACTER( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
+
+! environment variable for mercury bi-directional flux
+      CHARACTER( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI'
+
       Integer, Parameter      :: HG_TOT = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC       
       Integer, Save           :: N_TOT
       Real, Save, Allocatable :: gamma1 ( :,: ) ! soil NH4/H
@@ -59,19 +63,45 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       LOGICAL, SAVE     :: INIT_ATX 
       LOGICAL, SAVE     :: INIT_ASX              
 
+
       Contains 
          SUBROUTINE INIT_BIDI( ABFLUX )
          USE GRID_CONF
          USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
          
-         IMPLICIT NONE         
+         IMPLICIT NONE
+         
+C...Arguments:            
          
          LOGICAL,     INTENT( IN ) :: abflux       
+ 
+C... Local:
+ 
+         CHARACTER( 16 )           :: PNAME = 'INIT_BIDI'
+         INTEGER                   :: STATUS
          
-         IF(INDEX1('HG', N_GC_DDEP, GC_DDEP) .GT. 0) HGBIDI = .TRUE.
+         If( INDEX1('HG', N_GC_DDEP, GC_DDEP) .GT. 0)Then 
          
-         If( ABFLUX .AND. .NOT. HGBIDI) Then
+            HGBIDI = .FALSE.
+            XMSG   = 'Flag for mercury bi-directional flux calculation'
+            HGBIDI = ENVYN( CTM_HGBIDI, XMSG, HGBIDI, STATUS )
+            If ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
+            If ( STATUS .EQ. 1 ) Then
+               XMSG = 'Environment variable improperly formatted'
+               CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+            Else If ( STATUS .EQ. -1 ) Then
+               XMSG = 'Environment variable set, but empty ... Using default:'
+               WRITE( LOGDEV, '(5X, A)' ) XMSG
+            Else If ( STATUS .EQ. -2 ) Then
+               XMSG = 'Environment variable not set ... Using default:'
+               WRITE( LOGDEV, '(5X, A)' ) XMSG
+            End If
+            
+         Endif
+         
+         If( ABFLUX .AND. .NOT. HGBIDI ) Then
+         
             N_TOT = NHx_TOT
             N_Hg  = 0            
             ALLOCATE( MEDIA_NAMES( N_TOT ) )
@@ -80,8 +110,9 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
             MEDIA_NAMES(2) = 'Gamma2         '
             MEDIA_NAMES(3) = 'MHpsl1         '
             MEDIA_NAMES(4) = 'MHpsl2         '
-         End If
-         If(.NOT. ABFLUX .AND. HGBIDI) Then
+            
+         Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
+         
             N_TOT = HG_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( HG_TOT ) )
@@ -92,8 +123,9 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
             MEDIA_NAMES(4) = 'HGZ0           '
             MEDIA_NAMES(5) = 'HGMES          ' ! mesophyll Hg
             MEDIA_NAMES(6) = 'HGCUT          '! cuticular Hg        
-         End If
-         If(ABFLUX .AND. HGBIDI) Then
+            
+         Else If( ABFLUX .AND. HGBIDI ) Then
+         
             N_TOT = HG_TOT + NHx_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( N_TOT ) )
@@ -108,6 +140,7 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
             MEDIA_NAMES(8)  = 'Gamma2         '
             MEDIA_NAMES(9)  = 'MHpsl1         '
             MEDIA_NAMES(10) = 'MHpsl2         '
+            
          End If
          
          ! allocate the media array variable
@@ -148,10 +181,10 @@ C--------------------------------------------------------------------------
          LOGDEV = INIT3()  
          
          If( ABFLUX .AND. .NOT. HGBIDI) Then
+
 !            N_TOT = NHx_TOT
 !            N_Hg  = 0            
 !            ALLOCATE( MEDIA_NAMES( N_TOT ) )
-
 !            MEDIA_NAMES(1) = 'Gamma1         ' 
 !            MEDIA_NAMES(2) = 'Gamma2         '
 !            MEDIA_NAMES(3) = 'MHpsl1         '
@@ -194,7 +227,7 @@ C--------------------------------------------------------------------------
                FDESC3D = ' '   ! array
 
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
-     &                     // 'concentraitons and surface exchange algorithms'
+     &                     // 'NH3 concentrations and surface exchange algorithms'
                         
                N = 0
 
@@ -226,12 +259,12 @@ C--------------------------------------------------------------------------
                   VDESC3D( N ) = 'Solid phase concentration'
                END DO              
             EndIf
-         EndIf ! abflux
-         If(.NOT. ABFLUX .AND. HGBIDI) Then
+            
+         Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
+         
 !            N_TOT = HG_TOT
 !            N_Hg  = HG_TOT
 !            ALLOCATE( MEDIA_NAMES( HG_TOT ) )
-
 !            MEDIA_NAMES(1) = 'DGM            ' ! Dissolved gaseous Hg
 !            MEDIA_NAMES(2) = 'DRM            '! Dissolved reactive Hg
 !            MEDIA_NAMES(3) = 'HGSOIL         '
@@ -271,7 +304,7 @@ C--------------------------------------------------------------------------
                FDESC3D = ' '   ! array
 
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
-     &                     // 'concentraitons and surface exchange algorithms'
+     &                     // 'HG concentrations and surface exchange algorithms'
 
                NVARS3D = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC
                NLAYS3D = 1
@@ -305,10 +338,10 @@ C--------------------------------------------------------------------------
                   UNITS3D( N ) = 'umol/g'
                   VDESC3D( N ) = 'Solid phase concentration'
                END DO
-            End If                                              
-         End If
+            End If
+            
+         Else If( ABFLUX .AND. HGBIDI ) Then
          
-         If(ABFLUX .AND. HGBIDI) Then
 !            N_TOT = HG_TOT + NHx_TOT
 !            N_Hg  = HG_TOT
 !            ALLOCATE( MEDIA_NAMES( N_TOT ) )
@@ -356,7 +389,7 @@ C--------------------------------------------------------------------------
                FDESC3D = ' '   ! array
 
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
-     &                     // 'concentraitons and surface exchange algorithms'
+     &                     // 'NH3 and HG concentrations and surface exchange algorithms'
 
                NVARS3D = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC
                NLAYS3D = 1
@@ -420,7 +453,8 @@ C--------------------------------------------------------------------------
                   UNITS3D( N ) = 'umol/g'
                   VDESC3D( N ) = 'Solid phase concentration'
                END DO        
-            End IF                                      
+            End IF
+                                                  
          End If         
 ! Open file, then close it for subsequent open by all processors
             
