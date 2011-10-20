@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.7 2011/09/30 12:41:08 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_depv.F,v 1.8 2011/10/20 20:23:10 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
@@ -716,7 +716,7 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL, PARAMETER :: PI       = 3.14159265 ! single precision
       REAL, PARAMETER :: THREEPI  = 3.0 * PI
       REAL, PARAMETER :: TWO3     = 2.0 / 3.0
-      REAL, PARAMETER :: AVO      = 6.0221367 E23  ! Avogadro's Constant [ 1/mol ]
+      REAL, PARAMETER :: AVO      = 6.0221367E23   ! Avogadro's Constant [ 1/mol ]
       REAL, PARAMETER :: RGASUNIV = 8.314510       ! universal gas const [ J/mol-K ]
       REAL, PARAMETER :: BOLTZ    = RGASUNIV / AVO ! Boltzmann's Constant [ J/K ]
       REAL, PARAMETER :: GRAV     = 9.80622  ! mean gravitational accel [ m/sec**2 ]
