@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.4 2011/09/15 15:42:34 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.5 2011/10/20 15:36:48 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -59,12 +59,10 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
  
 C Includes:
- 
       INCLUDE SUBST_CONST      ! constants
       INCLUDE SUBST_FILES_ID   ! file name parameters
 
 C Arguments:
- 
       INTEGER      JDATE       ! current model date, coded YYYYDDD
       INTEGER      JTIME       ! current model time, coded HHMMSS
       INTEGER      TSTEP       ! timestep
@@ -73,30 +71,25 @@ C Arguments:
       REAL      :: BCON( :,: ) ! boundary concentrations
 
 C Parameters:
- 
-!     REAL, PARAMETER ( MAOAVO = MWAIR / AVO * 1.0E-03 ) ! Ma/avo X Kg/g
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
- 
       REAL, PARAMETER :: CMIN = 1.0E-30
 
       CHARACTER( 16 ) :: CONCMIN
 
 C File variables:
-
-!     REAL        SQRDMT_BND( NBNDY,NLAYS )        ! boundary Jacobian
+!     REAL        JACOBM_BND( NBNDY,NLAYS )        ! boundary Jacobian
 !     REAL        RHOJ_BND  ( NBNDY,NLAYS )        ! mid-layer boundary RhoJ
-      REAL, ALLOCATABLE, SAVE :: SQRDMT_BND( :,: ) ! boundary Jacobian
+      REAL, ALLOCATABLE, SAVE :: JACOBM_BND( :,: ) ! boundary Jacobian
       REAL, ALLOCATABLE, SAVE :: RHOJ_BND  ( :,: ) ! mid-layer boundary RhoJ
 
-      REAL, ALLOCATABLE, SAVE :: SQRDMT_BUF( :,: ) ! grid Jacobian
+      REAL, ALLOCATABLE, SAVE :: JACOBM_BUF( :,: ) ! grid Jacobian
       REAL, ALLOCATABLE, SAVE :: RHOJ_BUF  ( :,: ) ! mid-layer grid RhoJ
 
-      REAL, ALLOCATABLE, SAVE :: BBUF    ( :,:,: ) ! bcon file buffer
+      REAL, ALLOCATABLE, SAVE :: BBUF      ( :,: ) ! bcon file buffer
 
 C External Functions: None
 
 C Local variables:
-
       CHARACTER( 16 ) :: PNAME = 'RDBCON'
       CHARACTER( 16 ) :: VNAME
 
@@ -141,7 +134,7 @@ C for INTERPX
 
       integer, save :: logdev
 #ifdef Verbose3
-      real sumem
+      real sumbc
       integer s
 #endif
 C-----------------------------------------------------------------------
@@ -169,7 +162,7 @@ C currently not implemented: case where only one origin component matches file's
             ENDROW  = ENDROWMC
          END IF
 
-         ALLOCATE ( BBUF( NBNDY,NLAYS,SIZE( BCON,2 ) ), STAT = ALLOCSTAT )
+         ALLOCATE ( BBUF( NBNDY,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BBUF'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -177,6 +170,8 @@ C currently not implemented: case where only one origin component matches file's
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
+
+!        write ( logdev,* ) '=0= window,n_spc_adv: ', window, n_spc_adv
 
          ALLOCATE ( BCNAME( N_SPC_ADV ),
      &              BCFAC( N_SPC_ADV ), STAT = ALLOCSTAT )
@@ -189,9 +184,9 @@ C create advected species map to bc's
  
          CALL ADVBC_MAP ( CONCMIN, BCNAME, BCFAC )
 
-         ALLOCATE ( SQRDMT_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
+         ALLOCATE ( JACOBM_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SQRDMT_BND'
+            XMSG = 'Failure allocating JACOBM_BND'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -203,10 +198,10 @@ C create advected species map to bc's
 
          IF ( WINDOW ) THEN
 
-            ALLOCATE ( SQRDMT_BUF( 0:MY_NCOLS+1,0:MY_NROWS+1 ),
+            ALLOCATE ( JACOBM_BUF( 0:MY_NCOLS+1,0:MY_NROWS+1 ),
      &                 STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating SQRDMT_BUF'
+               XMSG = 'Failure allocating JACOBM_BUF'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
@@ -241,7 +236,7 @@ C Read & interpolate boundary SqrDMT, and RhoJ
          VNAME = 'JACOBM'
          IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
      &                        STRTCOL,ENDCOL, STRTROW,ENDROW, LVL,LVL,
-     &                        MDATE, MTIME, SQRDMT_BUF ) ) THEN
+     &                        MDATE, MTIME, JACOBM_BUF ) ) THEN
             XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -252,28 +247,28 @@ C Fill in DENSJ array for boundaries
          DO ROW = 0, 0                                ! South
             DO COL = 1, MY_NCOLS+1
                COUNT = COUNT + 1
-               SQRDMT_BND( COUNT,LVL ) = SQRDMT_BUF( COL,ROW )
+               JACOBM_BND( COUNT,LVL ) = JACOBM_BUF( COL,ROW )
                RHOJ_BND  ( COUNT,LVL ) = RHOJ_BUF  ( COL,ROW )
             END DO
          END DO
          DO ROW = 1, MY_NROWS+1                       ! East
             DO COL = MY_NCOLS+1, MY_NCOLS+1
                COUNT = COUNT + 1
-               SQRDMT_BND( COUNT,LVL ) = SQRDMT_BUF( COL,ROW )
+               JACOBM_BND( COUNT,LVL ) = JACOBM_BUF( COL,ROW )
                RHOJ_BND  ( COUNT,LVL ) = RHOJ_BUF  ( COL,ROW )
             END DO
          END DO
          DO ROW = MY_NROWS+1, MY_NROWS+1              ! North
             DO COL = 0, MY_NCOLS
                COUNT = COUNT + 1
-               SQRDMT_BND( COUNT,LVL ) = SQRDMT_BUF( COL,ROW )
+               JACOBM_BND( COUNT,LVL ) = JACOBM_BUF( COL,ROW )
                RHOJ_BND  ( COUNT,LVL ) = RHOJ_BUF  ( COL,ROW )
             END DO
          END DO
          DO ROW = 0, MY_NROWS                         ! West
             DO COL = 0, 0
                COUNT = COUNT + 1
-               SQRDMT_BND( COUNT,LVL ) = SQRDMT_BUF( COL,ROW )
+               JACOBM_BND( COUNT,LVL ) = JACOBM_BUF( COL,ROW )
                RHOJ_BND  ( COUNT,LVL ) = RHOJ_BUF  ( COL,ROW )
             END DO
          END DO
@@ -286,7 +281,7 @@ C Fill in DENSJ array for boundaries
          VNAME = 'JACOBM'
          IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
      &                        MDATE, MTIME, NBNDY*NLAYS,
-     &                        SQRDMT_BND ) ) THEN
+     &                        JACOBM_BND ) ) THEN
             XMSG = 'Could not read' // VNAME // ' from ' // MET_BDY_3D
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
@@ -305,16 +300,13 @@ C Fill in DENSJ array for boundaries
 
 C Read & interpolate boundary concentrations
 
-      SPC = 0
       STRT = 1
       FINI = N_GC_TRNS
       DO 141 VAR = STRT, FINI
-         SPC = SPC + 1 
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
-            IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ) , PNAME,
-     &                          MDATE, MTIME, NBNDY*NLAYS,
-     &                          BBUF( 1,1,VAR ) ) ) THEN
+            IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
+     &                          MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
      &              // ' from ' // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -322,8 +314,14 @@ C Read & interpolate boundary concentrations
             ELSE   ! found bc's (PPM) on file; convert
 
                DO BND = 1, NBNDY
-                  BCON( BND,VAR ) = BCFAC( VAR )
-     &                            * BBUF( BND,LVL,VAR )
+!     if ( lvl .eq. 1 ) then
+!        write ( logdev,'(a,2i4,3(1pe13.3))' )
+!    &                      '=0= var,bnd,bcfac,bbuf,rhoj_bnd: ',
+!    &                           var,bnd,bcfac( var ),
+!    &                           bbuf( bnd,lvl ),rhoj_bnd( bnd,lvl )
+!     end if
+
+                  BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                END DO
             END IF
@@ -338,11 +336,11 @@ C Read & interpolate boundary concentrations
       if ( lvl .eq. 1 ) then
          write( logdev,'(/"@@@b ", i8, i7.6)') jdate, jtime
          do var = strt, fini
-            sumem = 0.0
+            sumbc = 0.0
             do bnd = 1, nbndy
-               sumem = sumem + bcon( bnd,var )
+               sumbc = sumbc + bcon( bnd,var )
             end do
-            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumbc
          end do
       end if
 #endif
@@ -354,8 +352,7 @@ C Read & interpolate boundary concentrations
          SPC = SPC + 1
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
             IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
-     &                           MDATE, MTIME, NBNDY*NLAYS,
-     &                           BBUF( 1,1,VAR ) ) ) THEN
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' //
      &                 TRIM( BCNAME ( VAR ) ) //
      &                ' from ' // BNDY_AERO_1
@@ -365,22 +362,18 @@ C Read & interpolate boundary concentrations
                       ! on file; convert
                IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
                   DO BND = 1, NBNDY
-                     BCON( BND,VAR ) = BCFAC( VAR )
-!    &                               * BBUF( BND,LVL,VAR ) * MAOAVO
-     &                               * BBUF( BND,LVL,VAR )
-     &                               * SQRDMT_BND( BND,LVL )
+                     BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                               * JACOBM_BND( BND,LVL )
                   END DO
                ELSE IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'SRF' ) THEN
                   DO BND = 1, NBNDY
-                     BCON( BND,VAR ) = BCFAC( VAR )
-     &                               * BBUF( BND,LVL,VAR )
-     &                               * SQRDMT_BND( BND,LVL )
+                     BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                               * JACOBM_BND( BND,LVL )
                   END DO
                ELSE
                   DO BND = 1, NBNDY
-                     BCON( BND,VAR ) = BCFAC( VAR )
-     &                               * BBUF( BND,LVL,VAR ) * KGPMG
-     &                               * SQRDMT_BND( BND,LVL )
+                     BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL ) * KGPMG
+     &                               * JACOBM_BND( BND,LVL )
                   END DO
                END IF
             END IF
@@ -394,27 +387,24 @@ C Read & interpolate boundary concentrations
 #ifdef Verbose3
       if ( lvl .eq. 1 ) then
          do var = strt, fini
-            sumem = 0.0
+            sumbc = 0.0
             do bnd = 1, nbndy
-               sumem = sumem + bcon( bnd,var )
+               sumbc = sumbc + bcon( bnd,var )
             end do
-            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumbc
          end do
       end if
 #endif
 
-      SPC = 0
       STRT = N_GC_TRNS + N_AE_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
       DO 161 VAR = STRT, FINI
-         SPC = SPC + 1 
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
 !           write ( logdev,* ) '=== spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
-     &                           MDATE, MTIME, NBNDY*NLAYS,
-     &                           BBUF( 1,1,VAR ) ) ) THEN
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
      &              // ' from ' // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -422,8 +412,7 @@ C Read & interpolate boundary concentrations
                ELSE   ! found bc's (PPM) on file; convert
 
                DO BND = 1, NBNDY
-                  BCON( BND,VAR ) = BCFAC( VAR )
-     &                            * BBUF( BND,LVL,VAR )
+                  BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                   END DO
                END IF
@@ -437,27 +426,24 @@ C Read & interpolate boundary concentrations
 #ifdef Verbose3
       if ( lvl .eq. 1 ) then
          do var = strt, fini
-            sumem = 0.0
+            sumbc = 0.0
             do bnd = 1, nbndy
-               sumem = sumem + bcon( bnd,var )
+               sumbc = sumbc + bcon( bnd,var )
             end do
-            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumbc
          end do
       end if
 #endif
 
-      SPC = 0
       STRT = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
       DO 171 VAR = STRT, FINI
-         SPC = SPC + 1 
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
 !           write ( logdev,* ) '====spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
-     &                           MDATE, MTIME, NBNDY*NLAYS,
-     &                           BBUF( 1,1,VAR ) ) ) THEN
+     &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
      &              // ' from ' // BNDY_TRAC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
@@ -465,8 +451,7 @@ C Read & interpolate boundary concentrations
             ELSE   ! found bc's (PPM) on file; convert
 
                DO BND = 1, NBNDY
-                  BCON( BND,VAR ) = BCFAC( VAR )
-     &                            * BBUF( BND,LVL,VAR )
+                  BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                END DO
             END IF
@@ -480,11 +465,11 @@ C Read & interpolate boundary concentrations
 #ifdef Verbose3
       if ( lvl .eq. 1 ) then
          do var = strt, fini
-            sumem = 0.0
+            sumbc = 0.0
             do bnd = 1, nbndy
-               sumem = sumem + bcon( bnd,var )
+               sumbc = sumbc + bcon( bnd,var )
             end do
-            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumem
+            write( logdev,'("@@@b ", a, g16.6)') bcname( var ), sumbc
          end do
       end if
 #endif
