@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.5 2011/09/15 15:25:10 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.6 2011/10/20 16:13:46 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -134,7 +134,8 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer, save :: logdev
             
             logical success
-            integer, parameter :: dev_gc_nml = 15, dev_ae_nml = 16, dev_nr_nml = 17, dev_tr_nml = 18
+!           integer, parameter :: dev_gc_nml = 15, dev_ae_nml = 16, dev_nr_nml = 17, dev_tr_nml = 18
+            integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
 !           logical gc_matrix_err, ae_matrix_err, nr_matrix_err, tr_matrix_err
             integer i, ios
             integer i1, i2, i3, i4      ! surrogate type 1 counters
@@ -154,6 +155,12 @@ c namelist variables
             namelist / AE_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
             namelist / NR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
             namelist / TR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
+
+            character( 16 ) :: gc_matrix = 'gc_matrix.nml'
+            character( 16 ) :: ae_matrix = 'ae_matrix.nml'
+            character( 16 ) :: nr_matrix = 'nr_matrix.nml'
+            character( 16 ) :: tr_matrix = 'tr_matrix.nml'
+            character( 256 ) :: eqname
 
 c intialize the surr1 table
             character( 4 ) :: surr1( 4 )
@@ -204,8 +211,14 @@ c from namelist files
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            open( file = 'gc_matrix.nml', unit = dev_gc_nml,
-!           open( file = 'test.nml', unit = dev_gc_nml,
+            call nameval( gc_matrix, eqname )
+
+            write( logdev,* ) ' '
+            write( logdev,* ) '    GC Species Namelist: ', trim( eqname )
+
+!           open( file = 'gc_matrix.nml', unit = dev_gc_nml,
+            dev_gc_nml = junit()
+            open( file = trim( eqname ), unit = dev_gc_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = GC_nml, unit = dev_gc_nml ) 
 
@@ -432,7 +445,14 @@ c check Namelist gc_spc names and order against mech.def (in RXDT)
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            open( file = 'ae_matrix.nml', unit = dev_ae_nml,
+            call nameval( ae_matrix, eqname )
+
+            write( logdev,* ) ' '
+            write( logdev,* ) '    AE Species Namelist: ', trim( eqname )
+
+!           open( file = 'ae_matrix.nml', unit = dev_ae_nml,
+            dev_ae_nml = junit()
+            open( file = trim( eqname ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
@@ -610,8 +630,14 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            open( file = 'nr_matrix.nml', unit = dev_nr_nml,
-!           open( file = 'test.nml', unit = dev_nr_nml,
+            call nameval( nr_matrix, eqname )
+
+            write( logdev,* ) ' '
+            write( logdev,* ) '    NR Species Namelist: ', trim( eqname )
+
+!           open( file = 'nr_matrix.nml', unit = dev_nr_nml,
+            dev_nr_nml = junit()
+            open( file = trim( eqname ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
 
@@ -802,8 +828,14 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_header = bl
             type_matrix = bl   ! array assignment
 
-            open( file = 'tr_matrix.nml', unit = dev_tr_nml,
-!           open( file = 'test.nml', unit = dev_tr_nml,
+            call nameval( tr_matrix, eqname )
+
+            write( logdev,* ) ' '
+            write( logdev,* ) '    TR Species Namelist: ', trim( eqname )
+
+!           open( file = 'tr_matrix.nml', unit = dev_tr_nml,
+            dev_tr_nml = junit()
+            open( file = trim( eqname ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = TR_nml, unit = dev_tr_nml )
 
