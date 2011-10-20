@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/vdiffacm2.F,v 1.1 2011/09/30 18:41:25 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/vdiffacm2.F,v 1.2 2011/10/20 16:58:25 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -1143,7 +1143,7 @@ C If last call this hour:  write accumulated depositions:
          END IF   ! MOSAIC
 
          If( ABFLUX .OR. HGBIDI ) Then    
-            Call WRASX_MEDIA( MDATE,MTIME )
+            Call WRASX_MEDIA( MDATE,MTIME, ABFLUX )
          EndIf 
  
          IF ( LIPR ) THEN
