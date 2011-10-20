@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.7 2011/09/23 17:11:27 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.8 2011/10/20 15:48:06 yoj Exp $
 
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
@@ -229,23 +229,23 @@ C Local Variables:
       REAL    EM        ! Computed emission rate
       REAL    NETDEP    ! Net dep for hour, converted to  kg/m**3
 
-      REAL    TCGRID( NCOLS, NROWS, NLAYS )  
+      REAL :: TCGRID( NCOLS,NROWS,NLAYS )  
 
-      REAL    DENSA_J(  NCOLS, NROWS, NLAYS )  ! Density times Jacobian
-      REAL    TDENSA_J( NCOLS, NROWS, NLAYS )  
+      REAL :: DENSA_J ( NCOLS,NROWS,NLAYS )  ! Density times Jacobian
+      REAL :: TDENSA_J( NCOLS,NROWS,NLAYS )  
 
-      REAL    DENS(  NCOLS, NROWS, NLAYS )     ! Density of air
-      REAL    TDENS( NCOLS, NROWS, NLAYS )  
+      REAL :: DENS ( NCOLS,NROWS,NLAYS )     ! Density of air
+      REAL :: TDENS( NCOLS,NROWS,NLAYS )  
 
-      REAL    TVEMIS( NCOLS, NROWS, NLAYS )
+      REAL :: TVEMIS( NCOLS,NROWS,NLAYS )
 
-      REAL    TDDEP( NCOLS, NROWS )
+      REAL :: TDDEP( NCOLS,NROWS )
 
-      REAL    ZF(  NCOLS, NROWS, NLAYS )       ! Layer heights
-      REAL    TZF( NCOLS, NROWS, NLAYS )
+      REAL :: ZF ( NCOLS,NROWS,NLAYS )       ! Layer heights
+      REAL :: TZF( NCOLS,NROWS,NLAYS )
 
-      REAL    X3FACE( 0:NLAYS )  ! vertical coordinate layer surface
-!     REAL    X3MIDL(   NLAYS )  ! vertical coordinate layer center
+      REAL :: X3FACE( 0:NLAYS )  ! vertical coordinate layer surface
+!     REAL :: X3MIDL(   NLAYS )  ! vertical coordinate layer center
 
       INTEGER      GXOFF, GYOFF             ! global origin offset from file
 C for INTERPX
@@ -255,14 +255,12 @@ C for INTERPX
       INTERFACE
          SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
-!           REAL, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER         :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN ) :: JDATE, JTIME
             INTEGER, INTENT( IN ) :: TSTEP( 3 )
          END SUBROUTINE COUPLE
          SUBROUTINE DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
             IMPLICIT NONE
-!           REAL, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER         :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN ) :: JDATE, JTIME
             INTEGER, INTENT( IN ) :: TSTEP( 3 )
@@ -277,8 +275,7 @@ C Get process index and convert units if necessary
       IF ( PRIND .EQ. 0 ) THEN
          UNIND = INDEX1( PRNAME, MXUNEXP, UNEXPPR )
          IF ( UNIND .EQ. 0 ) THEN
-            MSG = 'Warning: Process Analysis not expecting process '
-     &             // PRNAME 
+            MSG = 'Warning: Process Analysis not expecting process ' // PRNAME 
             CALL M3MESG( MSG )
             NUNEXP = NUNEXP + 1
             IF ( NUNEXP .GT. MXUNEXP ) THEN
@@ -290,11 +287,9 @@ C Get process index and convert units if necessary
          END IF
       END IF
       
-      IF ( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CHEM' .AND.
-     &     PRNAME .NE. 'CLDS' .AND. PRNAME .NE. 'AERO' .AND.
-     &     PRNAME .NE. 'PING' ) THEN
-         SDATE = JDATE
-         STIME = JTIME
+      IF ( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CLDS' .AND.
+     &     PRNAME .NE. 'CHEM' .AND. PRNAME .NE. 'AERO' ) THEN
+         SDATE = JDATE; STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
          CALL DECOUPLE( CGRID, SDATE, STIME, TSTEP )
       END IF
@@ -360,10 +355,9 @@ C..Save concentrations for next delta c
       END DO
 
 C..Re-convert units if necessary and return 
-      IF ( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CHEM' .AND.
-     &     PRNAME .NE. 'CLDS' .AND. PRNAME .NE. 'AERO' .AND.
-     &     PRNAME .NE. 'PING' ) THEN
-         CALL COUPLE ( CGRID, SDATE, STIME, TSTEP )
+      IF ( PRNAME .NE. 'VDIF' .AND. PRNAME .NE. 'CLDS' .AND.
+     &     PRNAME .NE. 'CHEM' .AND. PRNAME .NE. 'AERO' ) THEN
+         CALL COUPLE( CGRID, SDATE, STIME, TSTEP )
       END IF
 
       RETURN
@@ -388,7 +382,7 @@ C..On first call, set pointers to emission species
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
-C..Set-up pointers to emis, cdiff, chem, and aero processes         
+C..Set-up pointers to emis, vdiff, chem, and aero processes         
          PRINDEM = INDEX1( 'EMIS', NPRCS, PROCNAME )
          PRINDVD = INDEX1( 'VDIF', NPRCS, PROCNAME )
          PRINDCH = INDEX1( 'CHEM', NPRCS, PROCNAME )
@@ -614,7 +608,7 @@ C..output if necessary for each output species
       TOPLEV = MIN( MY_ENDLEV, EMISLYRS )
       DT = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
 
-      DO NPA = 1, N_IPR_SPC               ! foreach family
+      DO NPA = 1, N_IPR_SPC              ! foreach family
          IPEM = IPROUT( NPA,PRINDEM )    ! emis species index for this process
 
          IPAJ = 0
@@ -632,13 +626,12 @@ C..output if necessary for each output species
          DO NGR = 1, NCGRID( NPA )       ! foreach species in the family
             ICG = IPR2GRD( NPA,NGR )     ! CTM species index in the family
             IEM = IPR_NGR2EM( NPA,NGR,IND )
-            LAESP= IPR_AESPEC( NPA,NGR ) ! Flag for aerosol species
+            LAESP = IPR_AESPEC( NPA,NGR ) ! Flag for aerosol species
 
             IF ( IEM .NE. 0 .AND. ( IPEM .NE. 0 .OR. IPAJ .NE. 0 ) ) THEN
 
 #ifdef parallel
                CALL SUBST_DATA_COPY ( VEMIS, TVEMIS, IEM )
-!              CALL SUBST_DATA_COPY ( DENSA_J, TDENSA_J )
                IF ( LAESP ) CALL SUBST_DATA_COPY ( DENS, TDENS )
 #endif
                DO L = MY_BEGLEV, TOPLEV
@@ -650,46 +643,19 @@ C..output if necessary for each output species
 
 C..compute the emissions
 
-#ifdef parallel
-!                       IF ( IND .EQ. IND_AE ) THEN
-!                          EM = TVEMIS( C,R L ) * EM_FAC( ICG )
-!    &                        * CONVEM( L ) * 1.0E-06 * DT
-!    &                        / TDENSA_J( C,R,L )
-!                       ELSE
-!                          EM = TVEMIS( C,R,L ) * EM_FAC( ICG )
-!    &                        * CONVEM( L ) * CONVMW * DT
-!    &                        / TDENSA_J( C,R,L )
-!                       END IF
-!                       EM = TVEMIS( C,R,L ) * DT
-
                         IF ( .NOT. LAESP ) THEN
+#ifdef parallel
                            EM = TVEMIS( C,R,L ) * DT
                         ELSE
                            EM = TVEMIS( C,R,L ) * DT * TDENS( C,R,L )
      &                        * AE_EM_CONV( IEM - OFFSETG )
-                        END IF
 #else
-!                       IF ( IND .EQ. IND_AE ) THEN
-!                          EM = VEMIS( C,R,Lg, IEM ) * EM_FAC( ICG )
-!    &                        * CONVEM( L ) * 1.0E-06 * DT
-!    &                        / DENSA_J( C,R,Lg )
-!                       ELSE
-c                          EM = VEMIS( C,R,Lg, IEM ) * EM_FAC( ICG )
-c    &                        * CONVEM( L ) * RELWTEM( ICG ) * DT
-c    &                        / DENSA_J( C,R,Lg )
-!                          EM = VEMIS( C,R,Lg, IEM ) * EM_FAC( ICG )
-!    &                        * CONVEM( L ) * CONVMW * DT
-!    &                        / DENSA_J( C,R,Lg )
-!                       END IF
-!                       EM = VEMIS( C,R,L,IEM ) * DT
-
-                        IF ( .NOT. LAESP ) THEN
                            EM = VEMIS( C,R,L,IEM ) * DT
                         ELSE
                            EM = VEMIS( C,R,L,IEM ) * DT * DENS( C,R,Lg )
      &                        * AE_EM_CONV( IEM - OFFSETG )
-                        END IF
 #endif
+                        END IF
 
 C..modify both the emiss process and the calling process
                         IF ( IPEM .NE. 0 ) THEN
@@ -845,7 +811,6 @@ C..get density x jacobian and layer heights
 
       VNAME = 'DENSA_J'
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
-!    &                    1,NCOLS, 1,NROWS, 1,NLAYS,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, DENSA_J ) ) THEN
             CALL M3EXIT( PNAME, JDATE, JTIME,
@@ -856,7 +821,6 @@ C..get density x jacobian and layer heights
 
          VNAME = 'ZF'
          IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
-!    &                       1,NCOLS, 1,NROWS, 1,NLAYS,
      &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,1,NLAYS,
      &                       MDATE, MTIME, ZF ) ) THEN
                CALL M3EXIT( PNAME, JDATE, JTIME,
@@ -894,8 +858,8 @@ C..Compute delta conc due to ddep and adjust vdiff output if necessary
 
 C..compute the dep in ppm
 
-#ifdef parallel
                      IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
+#ifdef parallel
                         NETDEP = TDDEP( C,R ) * CONVH2M
      &                         * NUMFAC( ICG ) / TZF( C,R,1 )
                      ELSE
@@ -903,17 +867,15 @@ C..compute the dep in ppm
      &                         * RELWTDD( ICG ) * CONVDD( 1 )
      &                         * TRMSFX2( C,R ) / TDENSA_J( C,R,1 ) 
 
-                     END IF
 #else
-                     IF ( ICG .GE. AE_STRT. AND. ICG .LT. NR_STRT ) THEN
                         NETDEP = DDEP( C,R,IDD ) * CONVH2M
      &                         * NUMFAC( ICG ) / ZF( C,R,1 )
                      ELSE
                         NETDEP = DDEP( C,R,IDD ) * CONVH2M
      &                         * RELWTDD( ICG ) * CONVDD( 1 )
      &                         * RMSFX2( C,R ) / DENSA_J( C,R,1 ) 
-                     END IF
 #endif
+                     END IF
 
 C..adjust the process analysis output arrays
 
@@ -926,14 +888,12 @@ C..adjust the process analysis output arrays
                         DELC( PC,PR,1,IPAJ ) = DELC( PC,PR,1,IPAJ )  
      &                                       + SPCOEF( NPA,NGR ) * NETDEP
                      END IF
-                  END DO
-               END DO
+                  END DO   ! C
+               END DO   ! R
 
             END IF
-
-         END DO
-
-      END DO
+         END DO   ! NGR
+      END DO   ! NPA
 
       RETURN
       END           
