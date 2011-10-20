@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couplewrf.F,v 1.2 2011/09/30 14:45:22 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couplewrf.F,v 1.3 2011/10/20 15:55:40 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
@@ -48,6 +48,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
 C   16 Sep 11 S.Roselle: for Pleim`s zadv-wrf blend
+C   11 Oct 11 J.Young: eliminate ppmv_msmr
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -57,11 +58,9 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE   
 
 C Include files:
-
       INCLUDE SUBST_FILES_ID    ! file name parameters
 
 C Arguments:
-
 !     REAL      :: CGRID( :,:,:,: )  ! concentrations
       REAL, POINTER :: CGRID( :,:,:,: )   ! concentrations
       INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
@@ -69,19 +68,20 @@ C Arguments:
       INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                           ! TSTEP(1) = local output step
                                           ! TSTEP(2) = sciproc sync. step (chem)
-                                          ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                          !            step and wrf/cmaq call frequency
+                                          ! TSTEP(3) = twoway model time step w.r.t.
+                                          ! wrf time step and wrf/cmaq call frequency
 C Parameters:
+      REAL, PARAMETER :: GPKG = 1.0E+03   ! g/kg
+      REAL, PARAMETER :: MGPG = 1.0E+06   ! micro-g/g
+      REAL, PARAMETER :: CONV = GPKG * MGPG
 
 C External Functions:
 
 C File Variables:
- 
       REAL     :: JACOBM( NCOLS,NROWS,NLAYS )  !"total" Jacobian
       REAL     :: RHOJ  ( NCOLS,NROWS,NLAYS )  !"total" Jacobian * air density
 
 C Local Variables:
-
       CHARACTER( 16 ) :: PNAME = 'COUPLE_WRF'
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 96 ) :: XMSG = ' '
@@ -96,9 +96,6 @@ C Local Variables:
       INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m**3 species
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m**2/m**3 species
 
-!     REAL        SGRID( NCOLS,NROWS,NLAYS,N_AE_SPCD ) ! aerosol subsets
-      REAL, ALLOCATABLE :: SGRID( :,:,:,: ) ! aerosol subsets
-
       INTEGER     ALLOCSTAT
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
@@ -108,22 +105,6 @@ C for INTERPX
       INTEGER     C, R, L, SPC, V  ! loop counters
       INTEGER     RHOJ_LOC         ! pointer to transported RHOJ (in CGRID)
 
-!     logical, save :: write1
-
-      INTERFACE
-         SUBROUTINE MGPM3_KGPM3 ( NSPCS, NLVLS, SGRID )
-            USE GRID_CONF
-            IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: NSPCS, NLVLS
-            REAL, INTENT( INOUT ) :: SGRID( :,:,:,: )
-         END SUBROUTINE MGPM3_KGPM3
-         SUBROUTINE KGPM3_MGPM3 ( NSPCS, NLVLS, SGRID )
-            USE GRID_CONF
-            IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: NSPCS, NLVLS
-            REAL, INTENT( INOUT ) :: SGRID( :,:,:,: )
-         END SUBROUTINE KGPM3_MGPM3
-      END INTERFACE
 C-----------------------------------------------------------------------
 
 C If ISPCA .ne. 0, then air is advected and concs. are adjusted
@@ -161,20 +142,7 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
                END IF
             END DO
 
-!        write( logdev,'(a,i4)' ) ' nqae:', nqae
-!        do v = 1, nqae
-!           write( logdev,'(a,i4,2x,a)' ) ' v, qae_spc: ', v, ae_spc( qae( v ) )
-!        end do
-!        write( logdev,'(a,i4)' ) ' nnae:', nnae
-!        do v = 1, nnae
-!           write( logdev,'(a,i4,2x,a)' ) ' v, nae_spc: ', v, ae_spc( nae( v ) )
-!        end do
-!        write( logdev,'(a,i4)' ) ' nsae:', nsae
-!        do v = 1, nsae
-!           write( logdev,'(a,i4,2x,a)' ) ' v, sae_spc: ', v, ae_spc( sae( v ) )
-!        end do
-
-         END IF
+         END if
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
@@ -204,18 +172,10 @@ C Read Jacobian X Air Density (Jacobian =  sq. root det. metric tensor)
 C couple for advection - use density times the square root of the determinant
 C of the metric tensor (the Jacobian) = RHOJ
 
-!     write1 = .true.
- 
-C (air density X "total" jacobian) X mixing ratio [ppmV]
+C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing ratio [ppmV]
       IF ( N_GC_SPC .GT. 0 ) THEN
          OFF = GC_STRT - 1
-!        write( logdev,* ) '=== GC'
          DO V = 1, N_GC_TRNS
-!           if ( write1 ) then
-!           spc = gc_trns_map( v )
-!           write( logdev,'(a,2i4,2(2x,a))' ) ' v, gc_trns_map, gc_trns, gc_spc: ',
-!    &                            v, spc, gc_trns( v ), gc_spc( spc )
-!           end if
             SPC = OFF + GC_TRNS_MAP( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
@@ -227,7 +187,7 @@ C (air density X "total" jacobian) X mixing ratio [ppmV]
          END DO
       END IF
  
-C initialize RhoJ from MCIP
+C initialize RhoJ from MCIP - done once per sync step
       RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
          DO R = 1, MY_NROWS
@@ -237,95 +197,55 @@ C initialize RhoJ from MCIP
          END DO
       END DO
 
+!     write( logdev,'( a,i7,i7.6,1pe15.7 )' ) 'rhoj sum2:', jdate, jtime, sum( rhoj )
+
       OFF = AE_STRT - 1
-C micro-grams/m**3 -> Kg/m**3
+C CGRID in ug/m**3 -> ("total" Jacobian [m]) X [Kg/m**3]
       IF ( NQAE .GT. 0 ) THEN
-         ALLOCATE ( SGRID( MY_NCOLS,MY_NROWS,NLAYS,NQAE ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SGRID'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-!        write( logdev,* ) '=== QAE'
-         DO V = 1, NQAE
-!           if ( write1 ) then
-!           spc = ae_trns_map( qae( v ) )
-!           write( logdev,'(a,2i4,2(2x,a))' ) ' v, ae_trns_map, ae_trns, ae_spc: ',
-!    &                            v, spc, ae_trns( qae( v ) ), ae_spc( spc )
-!           end if
-            SPC = OFF + AE_TRNS_MAP( QAE( V ) )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     SGRID( C,R,L,V ) = CGRID( C,R,L,SPC )
-                  END DO
-               END DO
-            END DO
-         END DO
-         CALL MGPM3_KGPM3 ( NQAE, NLAYS, SGRID )
-C ("total" jacobian) X [Kg/m**3]
          DO V = 1, NQAE
             SPC = OFF + AE_TRNS_MAP( QAE( V ) )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,SPC ) = SGRID( C,R,L,V ) * JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = JACOBM( C,R,L ) * CGRID( C,R,L,SPC ) / CONV
                   END DO
                END DO
             END DO
          END DO
-         DEALLOCATE ( SGRID )
       END IF
 
-C CGRID in #/m**3 -> ("total" jacobian) X [#/m**3]
+C CGRID in #/m**3 -> ("total" Jacobian [m]) X [#/m**3]
       IF ( NNAE .GT. 0 ) THEN
-!        write( logdev,* ) '=== NAE'
          DO V = 1, NNAE
-!           if ( write1 ) then
-!           spc = ae_trns_map( nae( v ) )
-!           write( logdev,'(a,2i4,2(2x,a))' ) ' v, ae_trns_map, ae_trns, ae_spc: ',
-!    &                            v, spc, ae_trns( nae( v ) ), ae_spc( spc )
-!           end if
             SPC = OFF + AE_TRNS_MAP( NAE( V ) )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = JACOBM( C,R,L ) * CGRID( C,R,L,SPC )
                   END DO
                END DO
             END DO
          END DO
       END IF
 
-C CGRID in m**2/m**3 -> ("total" jacobian) X [m**2/m**3]
+C CGRID in m**2/m**3 -> ("total" Jacobian [m]) X [m**2/m**3]
       IF ( NSAE .GT. 0 ) THEN
-!        write( logdev,* ) '=== SAE'
          DO V = 1, NSAE
-!           if ( write1 ) then
-!           spc = ae_trns_map( sae( v ) )
-!           write( logdev,'(a,2i4,2(2x,a))' ) ' v, ae_trns_map, ae_trns, ae_spc: ',
-!    &                            v, spc, ae_trns( sae( v ) ), ae_spc( spc )
-!           end if
             SPC = OFF + AE_TRNS_MAP( SAE( V ) )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = JACOBM( C,R,L ) * CGRID( C,R,L,SPC )
                   END DO
                END DO
             END DO
          END DO
       END IF
 
-C (air density X "total" jacobian) X mixing ratio [ppmV]
+C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing ratio [ppmV]
       IF ( N_NR_SPC .GT. 0 ) THEN
          OFF = NR_STRT - 1
-!        write( logdev,* ) '=== NR'
          DO V = 1, N_NR_TRNS
-!           if ( write1 ) then
-!           spc = nr_trns_map( v )
-!           write( logdev,'(a,2i4,2(2x,a))' ) ' v, nr_trns_map, nr_trns, nr_spc: ',
-!    &                            v, spc, nr_trns( v ), nr_spc( spc )
-!           end if
             SPC = OFF + NR_TRNS_MAP( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
@@ -337,9 +257,11 @@ C (air density X "total" jacobian) X mixing ratio [ppmV]
          END DO
       END IF
  
-C (air density X "total" jacobian) X mixing ratio [ppmV]
+C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing ratio [ppmV]
       IF ( N_TR_SPC .GT. 0 ) THEN
-         DO SPC = TR_STRT, TR_STRT + N_TR_SPC - 1
+         OFF = TR_STRT - 1
+         DO V = 1, N_TR_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
@@ -349,8 +271,6 @@ C (air density X "total" jacobian) X mixing ratio [ppmV]
             END DO
          END DO
       END IF
-
-!     write1 = .false.
 
       RETURN
  
@@ -368,7 +288,7 @@ C entry DECOUPLE
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
  
-C Load RhoJ from transported RhoJ
+C retrieve transported RhoJ
       RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
          DO R = 1, MY_NROWS
@@ -380,7 +300,7 @@ C Load RhoJ from transported RhoJ
 
 C decouple for chemistry and diffusion
  
-C mixing ratio [ppmV] / (air density X "total" jacobian)
+C CGRID in mixing ratio [ppmV] X (air density X "total" Jacobian) -> mixing ratio [ppmV]
       IF ( N_GC_SPC .GT. 0 ) THEN
          OFF = GC_STRT - 1
          DO V = 1, N_GC_TRNS
@@ -396,39 +316,21 @@ C mixing ratio [ppmV] / (air density X "total" jacobian)
       END IF
  
       OFF = AE_STRT - 1
-C {J}Kg/m**3 -> {J}micro-grams/m**3
+C CGRID in Jacobian [m]) X [Kg/m**3] -> [ug/m**3]
       IF ( NQAE .GT. 0 ) THEN
-         ALLOCATE ( SGRID( MY_NCOLS,MY_NROWS,NLAYS,NQAE ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SGRID'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
          DO V = 1, NQAE
             SPC = OFF + AE_TRNS_MAP( QAE( V ) )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     SGRID( C,R,L,V ) = CGRID( C,R,L,SPC )
+                     CGRID( C,R,L,SPC ) = CONV * CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
             END DO
          END DO
-         CALL KGPM3_MGPM3 ( NQAE, NLAYS, SGRID )
-C [micro-grams/m**3] / ("total" jacobian)
-         DO V = 1, NQAE
-            SPC = OFF + AE_TRNS_MAP( QAE( V ) )
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,SPC ) = SGRID( C,R,L,V ) / JACOBM( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-         DEALLOCATE ( SGRID )
       END IF
 
-C CGRID in {J}[#/m**3] -> #/m**3
+C CGRID in Jacobian [m] X [#/m**3] -> #/m**3
       IF ( NNAE .GT. 0 ) THEN
          DO V = 1, NNAE
             SPC = OFF + AE_TRNS_MAP( NAE( V ) )
@@ -442,7 +344,7 @@ C CGRID in {J}[#/m**3] -> #/m**3
          END DO
       END IF
 
-C CGRID in {J}[m**2/m**3] -> m**2/m**3
+C CGRID in Jacobian [m] X [m**2/m**3] -> m**2/m**3
       IF ( NSAE .GT. 0 ) THEN
          DO V = 1, NSAE
             SPC = OFF + AE_TRNS_MAP( SAE( V ) )
@@ -456,7 +358,7 @@ C CGRID in {J}[m**2/m**3] -> m**2/m**3
          END DO
       END IF
 
-C mixing ratio [ppmV] / (air density X "total" jacobian)
+C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing ratio [ppmV]
       IF ( N_NR_SPC .GT. 0 ) THEN
          OFF = NR_STRT - 1
          DO V = 1, N_NR_TRNS
@@ -471,9 +373,11 @@ C mixing ratio [ppmV] / (air density X "total" jacobian)
          END DO
       END IF
  
-C mixing ratio [ppmV] / (air density X "total" jacobian)
+C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing ratio [ppmV]
       IF ( N_TR_SPC .GT. 0 ) THEN
-         DO SPC = TR_STRT, TR_STRT + N_TR_SPC - 1
+         OFF = TR_STRT - 1
+         DO V = 1, N_TR_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
