@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/hg_aqchem_data.F,v 1.1 2011/09/22 15:52:29 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/hg_aqchem_data.F,v 1.2 2011/10/20 16:23:07 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -170,7 +170,7 @@ c these vars based on jproc method of zenith calculation
 
       SUBROUTINE INIT_AQCHEM_HG(TEMP, WCAVG, JULIAN_DATE, ITIME, DARK)
 
-      USE AQ_DATA,    ONLY : AQCHEM_LAT, AQCHEM_LON, PE_NUMBER
+      USE AQ_DATA,    ONLY : AQCHEM_LAT, AQCHEM_LON
       USE UTILIO_DEFN
 
       IMPLICIT NONE
