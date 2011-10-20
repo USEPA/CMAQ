@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/cldproc_acm.F,v 1.5 2011/09/30 18:32:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/cldproc_acm.F,v 1.6 2011/10/20 16:55:34 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -52,9 +52,10 @@ C     3/01/11 S.Roselle       replaced I/O API include files with UTILIO_DEFN
 C     5/11/11 D.Wong:         incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE CGRID_SPCS          ! CGRID mechanism species
-      USE HGSIM, ONLY: GET_WDEP ! bidirection hg exchange
+      USE GRID_CONF                  ! horizontal & vertical domain specifications
+      USE CGRID_SPCS                 ! CGRID mechanism species
+      USE BIDI_MOD,   ONLY: HGBIDI   ! Flag for bidirectional Hg flux 
+      USE HGSIM,      ONLY: GET_WDEP ! bidirection hg exchange
       USE UTILIO_DEFN
 
       IMPLICIT NONE
@@ -675,26 +676,28 @@ C...compute cloud effects for convective (subgrid) clouds
 
 C...share wet deposition with bidirectional surface exchange algorithms
 
-!     Write(Logdev,*) 'Before Get_Wdep'
-      DO VAR = 1, N_GC_WDEP
-         IF ( TRIM( GC_WDEP( VAR ) ) .EQ. 'HG' ) THEN
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) + CONV_DEP( COL, ROW, VAR )
-                  CALL GET_WDEP ( 'HG      ', ACCM_WDEP, COL, ROW )
-               END DO
-            END DO
-         END IF
-         IF ( TRIM( GC_WDEP( VAR ) ) .EQ. 'HGIIGAS' ) THEN
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) + CONV_DEP( COL, ROW, VAR )
-                  CALL GET_WDEP ( 'HGIIGAS ', ACCM_WDEP, COL, ROW )
-               END DO
-            END DO
-         END IF
-      END DO
-!     Write(Logdev,*) 'after Get_Wdep'
+      IF( HGBIDI )THEN
+        DO VAR = 1, N_GC_WDEP
+           IF ( TRIM( GC_WDEP( VAR ) ) .EQ. 'HG' ) THEN
+             DO ROW = 1, MY_NROWS
+                DO COL = 1, MY_NCOLS
+                   ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) 
+     &                       + CONV_DEP( COL, ROW, VAR )
+                   CALL GET_WDEP ( 'HG      ', ACCM_WDEP, COL, ROW )
+                END DO
+             END DO
+           END IF
+           IF ( TRIM( GC_WDEP( VAR ) ) .EQ. 'HGIIGAS' ) THEN
+             DO ROW = 1, MY_NROWS
+                DO COL = 1, MY_NCOLS
+                   ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) 
+     &                       + CONV_DEP( COL, ROW, VAR )
+                   CALL GET_WDEP ( 'HGIIGAS ', ACCM_WDEP, COL, ROW )
+                END DO
+             END DO
+           END IF
+        END DO
+      END IF
 
 C...now check to see if it's time to write the deposition file
 
