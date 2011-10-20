@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_driver.F,v 1.7 2011/09/23 16:28:21 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/aero_driver.F,v 1.8 2011/10/20 20:15:34 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -87,6 +87,9 @@ C   - added LIMIT_Sg flag for call to GETPAR
 C   Jeff Young - Aug 10 - convert for Namelist redesign (replace include files)
 C   Steve Howard - Mar 11 - Renamed met_data to aeromet_data
 C   S.Roselle- Mar 11 - replaced I/O API include files with UTILIO_DEFN
+C   David Wong - Aug 11 - put in twoway model implementation
+C   David Wong - Oct 11 - extended the twoway implementation to handle finer
+C                         time resolution
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -377,7 +380,7 @@ C *** air density [kg/m3]
 #ifdef twoway
 ! call FEEDBACK_WRITE when JTIME is mulitple of WRF time step
       IF ( CMAQ_WRF_FEEDBACK ) THEN
-         IF ( MOD( MOD( JTIME, 10000 ), TSTEP( 3 ) ) .EQ. 0 ) THEN
+         IF ( MOD( TIME2SEC(MOD( JTIME, 10000 )), TIME2SEC(TSTEP( 3 )) ) .EQ. 0 ) THEN
             TIME_TO_CALL_FEEDBACK_WRITE = .TRUE.
          ELSE
             TIME_TO_CALL_FEEDBACK_WRITE = .FALSE.
