@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grsmvgear.F,v 1.2 2011/04/01 15:41:44 sjr Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/grsmvgear.F,v 1.3 2011/10/20 13:20:32 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)grsmvgear.F       1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.grsmvgear.F 07 Jul 1997 12:45:29
@@ -213,6 +213,30 @@ C..LOCAL VARIABLES:
 
 !     logical, save :: bingo1 = .true.
 !     logical, save :: bingo2
+      INTERFACE
+         SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
+            USE GRID_CONF
+            USE CGRID_SPCS
+            IMPLICIT NONE
+            INCLUDE SUBST_RXCMMN
+            LOGICAL LSTART, LCHGVL
+            REAL    :: RK( BLKSIZE,NRXNS )
+            REAL    :: CONC( :,: )
+            REAL    :: DELT( BLKSIZE )
+            INTEGER NUMCELLS
+            INTEGER :: ICLND( BLKSIZE )
+         END SUBROUTINE PA_IRR
+         SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
+           USE DEGRADE_SETUP_TOX
+           IMPLICIT NONE
+           REAL( 8 ), INTENT( IN ) :: CBLK( BLKSIZE,  NSPCSD ) ! array holding species concentrations
+           REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
+           INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
+         END SUBROUTINE
+      END INTERFACE
+
 
 C**********************************************************************      
 
