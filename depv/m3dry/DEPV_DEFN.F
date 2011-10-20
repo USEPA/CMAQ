@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.8 2011/09/30 13:28:54 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.9 2011/10/20 16:11:16 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,11 +38,13 @@ C                        and the CLOSE3 and OPEN3.
 C   21 Jun 2010 J.Young: convert for Namelist redesign
 C   27 Jan 2011 J.Young: remove references to AERO3 and AERO4
 C   20 Jan 2011 J. Bash: Passed the component fluxes and tstep between vdiff 
-C                          m3dry
+C                        & m3dry
 C   16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    5 May 2011 J.Young: remove writing diagnostic output for initial call
 C   22 Sep 2011 D. Wong: - incorporated twoway model implemenation
-C                        - used a robust way to compute NTIME
+C                        - used a robust way to compute WTIME
+C   11 Oct 2011 J.Young: PUBLIC/PRIVATE sections, re-do WTIME computation
+C                        and WTIME computation for MOSAIC
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -66,72 +68,78 @@ C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: CMP ( :,:,: )
 
-C gas species (gas-phase and gas non-reactive) deposition velocities
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DEPVEL_GAS( :,:,: )
-
-C gas species (gas-phase and gas non-reactive) deposition velocities for each land use category
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DEPVEL_GASJ( :,:,:,: )
-
-C gas species (gas-phase and gas non-reactive) deposition velocities for each land use category (stomatal and cuticular uptake only)
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: VD_FST_GASJ( :,:,:,: )      
-
-C m3dry-oriented bi-directional production [ppm-m/s]
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: PVD( :,:,: )
-
-C CGRID for m3dry bi-directional flux calculation
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: CGRIDL1( :,:,: )
-
 C flag in-lining depv
-      LOGICAL,          SAVE :: ILDEPV
-
-C flag for ammonia bi-directional flux with in-lining depv
-      LOGICAL,          SAVE :: ABFLUX
+      LOGICAL, SAVE :: ILDEPV
 
 C flag for HONO interaction with surfaces within in-lining depv
-      LOGICAL,          SAVE :: SFC_HONO = .FALSE.
+      LOGICAL, SAVE :: SFC_HONO = .FALSE.
+
+C flag for ammonia bi-directional flux with in-lining depv
+      LOGICAL, SAVE :: ABFLUX
 
 C flag for mosaic - luc specific deposition - within in-lining depv
-      LOGICAL,          SAVE :: MOSAIC = .FALSE.
+      LOGICAL, SAVE :: MOSAIC = .FALSE.
 
 C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-      LOGICAL,          SAVE :: FST = .FALSE.      
+      LOGICAL, SAVE :: FST = .FALSE.      
+
+      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST,
+     &             DEPV_INIT, GET_DEPV
+      PRIVATE
+
+C gas species (gas-phase and gas non-reactive) deposition velocities
+      REAL,    ALLOCATABLE, SAVE :: DEPVEL_GAS( :,:,: )
+
+C gas species (gas-phase and gas non-reactive) deposition velocities for each land use category
+!     REAL,    ALLOCATABLE, SAVE :: DEPVEL_GASJ( :,:,:,: )
+
+C gas species (gas-phase and gas non-reactive) deposition velocities for each land use category (stomatal and cuticular uptake only)
+!     REAL,    ALLOCATABLE, SAVE :: VD_FST_GASJ( :,:,:,: )      
+
+C m3dry-oriented bi-directional production [ppm-m/s]
+      REAL,    ALLOCATABLE, SAVE :: PVD( :,:,: )
+
+C CGRID for m3dry bi-directional flux calculation
+      REAL,    ALLOCATABLE, SAVE :: CGRIDL1( :,:,: )
 
 C flag for diagnostic DEPV file
-      LOGICAL, PRIVATE, SAVE :: DEPV_DIAG
+      LOGICAL, SAVE :: DEPV_DIAG
+      INTEGER, SAVE :: SDATE, STIME
 
-      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_GDEPV   ! gas depv
-      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_GDEPV( : )
-      INTEGER, PRIVATE,         ALLOCATABLE, SAVE :: GAS_DEPV_SUR( : )
-      LOGICAL, PRIVATE,         ALLOCATABLE, SAVE :: GAS_DEPV_FOUND( : )
+      INTEGER, SAVE                      :: N_UNIQUE_GDEPV   ! gas depv
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_GDEPV( : )
+      INTEGER, ALLOCATABLE, SAVE         :: GAS_DEPV_SUR( : )
+      LOGICAL, ALLOCATABLE, SAVE         :: GAS_DEPV_FOUND( : )
 
-      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_ADEPV   ! aero depv
-      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_ADEPV( : )
-      INTEGER, PRIVATE,         ALLOCATABLE, SAVE :: AER_DEPV_SUR( : )
+      INTEGER, SAVE                      :: N_UNIQUE_ADEPV   ! aero depv
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_ADEPV( : )
+      INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
 
-      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_SDEPV   ! SOA depv
-      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_SDEPV( : )
+      INTEGER, SAVE                      :: N_UNIQUE_SDEPV   ! SOA depv
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_SDEPV( : )
 
-      INTEGER, PRIVATE, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
-      INTEGER, PRIVATE, SAVE :: N_GAS_DEPV
+      INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
+      INTEGER, SAVE :: N_GAS_DEPV
 
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: ADEPVJ( :,:,:,: ) ! Aerosol dep vel from
+      REAL,    ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
+!     REAL,    ALLOCATABLE, SAVE :: ADEPVJ( :,:,:,: ) ! Aerosol dep vel from
                                                                ! subroutine AERO_DEPV
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DBUFF( :,: )      ! diagnostic output buffer
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DBUFF3( :,:,: )   ! diagnostic output buffer with 3 dimensions
+      REAL,    ALLOCATABLE, SAVE :: DBUFF( :,: )      ! diagnostic output buffer
+      REAL,    ALLOCATABLE, SAVE :: DBUFF3( :,:,: )   ! diagnostic output buffer with 3 dimensions
 
-      INTEGER, PRIVATE :: GXOFF, GYOFF              ! global origin offset from file
+      INTEGER :: GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
-      INTEGER, PRIVATE, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, PRIVATE, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
+      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: USTARJ( :,:,:)
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: RAJ( :,:,:)
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: LAIJ( :,:,:)
-!      REAL,    PRIVATE, ALLOCATABLE, SAVE :: Z0J( :,:,:)
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: UCROSS( :,:,:)
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: VCROSS( :,:,:)
-      REAL,    PRIVATE, ALLOCATABLE, SAVE :: DLUSE( :,: )
+!     REAL,    ALLOCATABLE, SAVE :: USTARJ( :,:,:)
+!     REAL,    ALLOCATABLE, SAVE :: RAJ( :,:,:)
+!     REAL,    ALLOCATABLE, SAVE :: LAIJ( :,:,:)
+!     REAL,    ALLOCATABLE, SAVE :: Z0J( :,:,:)
+      REAL,    ALLOCATABLE, SAVE :: UCROSS( :,:,:)
+      REAL,    ALLOCATABLE, SAVE :: VCROSS( :,:,:)
+      REAL,    ALLOCATABLE, SAVE :: DLUSE( :,: )
       
       CONTAINS
 
@@ -172,32 +180,29 @@ C Local variables:
          LOGICAL, ALLOCATABLE         :: AE_DEPV_FOUND( : )
 
 C environment variable for in-line DEPV
-         CHARACTER( 16 )   :: CTM_ILDEPV = 'CTM_ILDEPV'
+         CHARACTER( 16 )  :: CTM_ILDEPV = 'CTM_ILDEPV'
 
 C environment variable for ammonia bi-directional flux
-         CHARACTER( 16 )   :: CTM_ABFLUX = 'CTM_ABFLUX'
+         CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX'
 
 C environment variable for HONO interaction with surfaces
-         CHARACTER( 16 )   :: CTM_SFC_HONO = 'CTM_SFC_HONO'
+         CHARACTER( 16 )  :: CTM_SFC_HONO = 'CTM_SFC_HONO'
 
 C environment variable for mosaic - luc specific deposition velocities
-         CHARACTER( 16 )   :: CTM_MOSAIC = 'CTM_MOSAIC'
+         CHARACTER( 16 )  :: CTM_MOSAIC = 'CTM_MOSAIC'
 
 C environment variable for mosaic - luc specific stomatal flux
-         CHARACTER( 16 )   :: CTM_FST = 'CTM_FST'         
+         CHARACTER( 16 )  :: CTM_FST = 'CTM_FST'         
 
 C variables for deposition velocities diagnostic file
-         INTEGER           :: STATUS      ! ENV... status
-         CHARACTER( 80 )   :: VARDESC     ! environment variable description
+         INTEGER          :: STATUS      ! ENV... status
+         CHARACTER( 80 )  :: VARDESC     ! environment variable description
 
 C environment variable for diagnostic DEPV file
-         CHARACTER( 16 )   :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
-         LOGICAL           :: WRITE_TIME               ! write to file flag
-         INTEGER           :: NDATE, NTIME             ! write date and time
+         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
          
 C environment variable for diagnostic mosaic DEPV file
-         CHARACTER( 16 )   :: CTM_MOSAIC_FILE = 'CTM_MOSAIC_FILE'
-         LOGICAL           :: WRITE_TIME_MOS           ! write to file flag
+         CHARACTER( 16 )  :: CTM_MOSAIC_FILE = 'CTM_MOSAIC_FILE'
 
          CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
          CHARACTER( 120 ) :: XMSG = ' '
@@ -273,6 +278,8 @@ C-----------------------------------------------------------------------
          LOGDEV = INIT3()
 
          SUCCESS = .TRUE.
+
+         SDATE = JDATE; STIME = JTIME
 
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
          N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
@@ -436,9 +443,9 @@ C Mosaic method to get land-use specific stomatal flux
                WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
             END IF
             
-            If( ABFLUX ) Call INIT_BIDI( ABFLUX )
-            If( MOSAIC .OR. ABFLUX ) Call Init_LSM(JDate, JTime)
-            If( MOSAIC .OR. ABFLUX ) Call Init_Mosaic( JDATE, JTIME, LTOTG, MOSAIC )
+            IF ( ABFLUX ) CALL INIT_BIDI( ABFLUX )
+            IF ( MOSAIC .OR. ABFLUX ) CALL INIT_LSM( JDATE, JTIME )
+            IF ( MOSAIC .OR. ABFLUX ) CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC )
 C Allocate additional arrays needed for mosaic and initialize land use parameters
             IF ( MOSAIC ) THEN
                ALLOCATE ( DEPVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -449,12 +456,12 @@ C Allocate additional arrays needed for mosaic and initialize land use parameter
                END IF
                DEPVJ = 0.0
 
-!               ALLOCATE ( DEPVEL_GASJ( N_LUFRAC,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-!               IF ( ALLOCSTAT .NE. 0 ) THEN
-!                  XMSG = 'Failure allocating DEPVEL_GASJ array'
-!                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!                  SUCCESS = .FALSE.; RETURN
-!               END IF
+!              ALLOCATE ( DEPVEL_GASJ( N_LUFRAC,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+!              IF ( ALLOCSTAT .NE. 0 ) THEN
+!                 XMSG = 'Failure allocating DEPVEL_GASJ array'
+!                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+!                 SUCCESS = .FALSE.; RETURN
+!              END IF
 
                IF ( FST ) THEN
                   ALLOCATE ( DEPVJ_FST( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -464,23 +471,23 @@ C Allocate additional arrays needed for mosaic and initialize land use parameter
                      SUCCESS = .FALSE.; RETURN
                   END IF
   
-!                  ALLOCATE ( VD_FST_GASJ( N_LUFRAC,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-!                  IF ( ALLOCSTAT .NE. 0 ) THEN
-!                     XMSG = 'Failure allocating VD_FST_GASJ array'
-!                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!                     SUCCESS = .FALSE.; RETURN
-!                  END IF
+!                 ALLOCATE ( VD_FST_GASJ( N_LUFRAC,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+!                 IF ( ALLOCSTAT .NE. 0 ) THEN
+!                    XMSG = 'Failure allocating VD_FST_GASJ array'
+!                    CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+!                    SUCCESS = .FALSE.; RETURN
+!                 END IF
                END IF
 
-!               ALLOCATE ( USTARJ( N_LUFRAC,NCOLS,NROWS ),
-!     &                    RAJ   ( N_LUFRAC,NCOLS,NROWS ),
-!     &                    LAIJ  ( N_LUFRAC,NCOLS,NROWS ), 
-!     &                    Z0J   ( N_LUFRAC,NCOLS,NROWS ),STAT = ALLOCSTAT )
-!               IF ( ALLOCSTAT .NE. 0 ) THEN
-!                  XMSG = 'Failure allocating USTARJ or RAJ or LAIJ or Z0J array'
-!                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!                  SUCCESS = .FALSE.; RETURN
-!               END IF
+!              ALLOCATE ( USTARJ( N_LUFRAC,NCOLS,NROWS ),
+!     &                   RAJ   ( N_LUFRAC,NCOLS,NROWS ),
+!     &                   LAIJ  ( N_LUFRAC,NCOLS,NROWS ), 
+!     &                   Z0J   ( N_LUFRAC,NCOLS,NROWS ),STAT = ALLOCSTAT )
+!              IF ( ALLOCSTAT .NE. 0 ) THEN
+!                 XMSG = 'Failure allocating USTARJ or RAJ or LAIJ or Z0J array'
+!                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+!                 SUCCESS = .FALSE.; RETURN
+!              END IF
 
             END IF   ! mosaic                        
 
@@ -676,7 +683,7 @@ C Get diagnostic file flag.
 
             END IF
             
-!            If( MOSAIC .OR. ABFLUX ) Call Init_Mosaic( JDATE, JTIME, LTOTG, MOSAIC )
+!           IF( MOSAIC .OR. ABFLUX ) CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC )
             
             IF ( MOSAIC ) THEN
 
@@ -749,18 +756,19 @@ C Local variables:
          INTEGER          STRT, FINI
          LOGICAL       :: WRITE_TIME     ! write to file flag
          LOGICAL       :: WRITE_TIME_MOS ! write to file flag
-         INTEGER, SAVE :: WTIME = 0      ! local write counter [HHMMSS]
-         INTEGER, SAVE :: WTIME_MOS=0    ! local write counter [HHMMSS]
-         INTEGER       :: NDATE, NTIME   ! write date and time
+         INTEGER, SAVE :: WSTEP = 0      ! local write counter [HHMMSS]
+         INTEGER, SAVE :: WSTEP_MOS = 0  ! local write counter [HHMMSS]
+         INTEGER       :: CDATE, CTIME   ! step beginning date and time
+         INTEGER       :: WDATE, WTIME   ! write date and time
 
          CHARACTER( 16 )  :: PNAME = 'GET_DEPV'
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER C, R, N, V, NDX, J
+         INTEGER, SAVE :: LOGDEV
 
 #ifdef Verbose
          integer cw, rw
-         integer, save :: logdev
 #endif
 
          INTERFACE
@@ -784,17 +792,15 @@ C Local variables:
             END SUBROUTINE CGRID_DEPV
             SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST, 
      &                         CGRIDL1, DEPVEL_GAS, PVD, CMP )
-               
-               USE HGRD_DEFN      ! horizontal grid specifications
+               USE HGRD_DEFN
                USE DEPVVARS
-               USE VGRD_DEFN      ! to get VGTYP_GD
+               USE VGRD_DEFN
                USE UTILIO_DEFN   
-               USE SUBST_MODULES  ! stenex
-               Use ABFlux_Mod     ! bidi NH3 exchange routines
-               Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
+               USE SUBST_MODULES
+               Use ABFlux_Mod  ! bidi NH3 exchange routines
+               Use LSM_Mod     ! land surface model variables needed for mosaic and bidi
                Use Mosaic_Mod      ! contains mosaic routines
                Use Bidi_Mod, Only: lufrac
-      
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
                LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO, MOSAIC, FST
@@ -819,9 +825,7 @@ C Local variables:
          END INTERFACE
 
 C-----------------------------------------------------------------------
-#ifdef Verbose
-         logdev = init3()
-#endif
+         LOGDEV = INIT3()
 
          DEPV = 0.0         
 
@@ -829,10 +833,10 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
             CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-            Write(*,*) 'Before m3dry call'
+!           Write(*,*) 'Before m3dry call'
             CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
      &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
-             Write(*,*) 'after m3dry call'
+!           Write(*,*) 'after m3dry call'
 #ifdef Verbose
             cw = my_ncols/2; rw = my_nrows/2
 !           cw = 17; rw = 43
@@ -863,7 +867,8 @@ C-----------------------------------------------------------------------
                      IF ( MOSAIC ) THEN                        
                         DO J = 1, N_LUFRAC
                            DEPVJ( J,V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GASJ( J,NDX,C,R )
-                           IF ( FST ) DEPVJ_FST( J,V,C,R ) = GC_DEPV_FAC( N ) * VD_FST_GASJ( J,NDX,C,R )
+                           IF ( FST )
+     &                        DEPVJ_FST( J,V,C,R ) = GC_DEPV_FAC( N ) * VD_FST_GASJ( J,NDX,C,R )
                         END DO
                      END IF
                   END DO
@@ -891,7 +896,8 @@ C-----------------------------------------------------------------------
                      IF ( MOSAIC ) THEN
                         DO J = 1, N_LUFRAC
                            DEPVJ( J,V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GASJ( J,NDX,C,R )
-                           IF ( FST ) DEPVJ_FST( J,V,C,R ) = NR_DEPV_FAC( N ) * VD_FST_GASJ( J,NDX,C,R )
+                           IF ( FST )
+     &                        DEPVJ_FST( J,V,C,R ) = NR_DEPV_FAC( N ) * VD_FST_GASJ( J,NDX,C,R )
                         END DO
                      END IF
                   END DO
@@ -919,7 +925,8 @@ C-----------------------------------------------------------------------
                      IF ( MOSAIC ) THEN
                         DO J = 1, N_LUFRAC
                            DEPVJ( J,V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GASJ( J,NDX,C,R )
-                           IF ( FST ) DEPVJ_FST( J,V,C,R ) = TR_DEPV_FAC( N ) * VD_FST_GASJ( J,NDX,C,R )
+                           IF ( FST )
+     &                        DEPVJ_FST( J,V,C,R ) = TR_DEPV_FAC( N ) * VD_FST_GASJ( J,NDX,C,R )
                         END DO
                      END IF
                   END DO
@@ -948,31 +955,45 @@ C-----------------------------------------------------------------------
                      IF ( ILDEPV .AND. MOSAIC ) THEN
                         DO J = 1, N_LUFRAC
                            DEPVJ( J,V,C,R ) = AE_DEPV_FAC( N ) * ADEPVJ( J,N,C,R )
-                           IF ( FST ) DEPVJ_FST( J,V,C,R ) = 0.0 ! no stomatal or cuticular uptake for particles
+                           IF ( FST )
+     &                        DEPVJ_FST( J,V,C,R ) = 0.0 ! no stomatal or cuticular uptake for particles
                         END DO
                      END IF
                   END DO
                END DO
             END DO
 
-            END IF
+         END IF
 
          IF ( DEPV_DIAG ) THEN
 
-            WTIME = WTIME + TIME2SEC( TSTEP( 2 ) )
-            IF ( MOD( WTIME, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+            WRITE_TIME = .FALSE.
+            WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+!           IF ( MOD( WSTEP, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+!              WRITE_TIME = .TRUE.
+!           ELSE
+!              WRITE_TIME = .FALSE.
+!           END IF
+            IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+               WDATE = JDATE; WTIME = JTIME
+               CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
+               IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+     &                              CDATE, CTIME ) ) THEN
+                  XMSG = 'Cannot get step date and time'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               END IF
+               WDATE = CDATE; WTIME = CTIME
+               WSTEP = 0
                WRITE_TIME = .TRUE.
-            ELSE
-               WRITE_TIME = .FALSE.
             END IF
 
             IF ( WRITE_TIME ) THEN
 
-               NDATE = JDATE
-!              NTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
-               NTIME = SEC2TIME( TIME2SEC(TSTEP( 1 )) *
-     &                           ( TIME2SEC(JTIME) / TIME2SEC(TSTEP( 1 ))))
-               CALL NEXTIME( NDATE, NTIME, TSTEP( 1 ) )
+!              WDATE = JDATE
+!!             WTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
+!              WTIME = SEC2TIME( TIME2SEC(TSTEP( 1 )) *
+!    &                           ( TIME2SEC(JTIME) / TIME2SEC(TSTEP( 1 ))))
+!              CALL NEXTIME( WDATE, WTIME, TSTEP( 1 ) )
 
                N = 0
                DO V = 1, N_GC_DEPV
@@ -988,9 +1009,9 @@ C-----------------------------------------------------------------------
                      END DO
                      
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
-     &                                  NDATE, NTIME, DBUFF ) ) THEN
+     &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
 
                   END IF
@@ -1009,9 +1030,9 @@ C-----------------------------------------------------------------------
                         END DO
                      END DO
                      IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_GDEPV( NDX ),
-     &                                  NDATE, NTIME, DBUFF ) ) THEN
+     &                                  WDATE, WTIME, DBUFF ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
 
                   END IF
@@ -1028,9 +1049,9 @@ C-----------------------------------------------------------------------
                      END DO
                   END DO
                   IF ( .NOT. WRITE3( CTM_DEPV_DIAG, UNIQUE_ADEPV( N ),
-     &                               NDATE, NTIME, DBUFF ) ) THEN
+     &                               WDATE, WTIME, DBUFF ) ) THEN
                       XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                      CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                   END IF
 
                END DO
@@ -1041,18 +1062,31 @@ C-----------------------------------------------------------------------
 
          IF ( MOSAIC ) THEN
 
-            WTIME_MOS = WTIME_MOS + TIME2SEC( TSTEP( 2 ) )
-            IF ( MOD( WTIME_MOS, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+            WRITE_TIME_MOS = .FALSE.
+            WSTEP_MOS = WSTEP_MOS + TIME2SEC( TSTEP( 2 ) )
+!           IF ( MOD( WSTEP_MOS, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+!              WRITE_TIME_MOS = .TRUE.
+!           ELSE
+!              WRITE_TIME_MOS = .FALSE.
+!           END IF
+            IF ( WSTEP_MOS .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+               WDATE = JDATE; WTIME = JTIME
+               CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
+               IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+     &                              CDATE, CTIME ) ) THEN
+                  XMSG = 'Cannot get step date and time'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               END IF
+               WDATE = CDATE; WTIME = CTIME
+               WSTEP_MOS = 0
                WRITE_TIME_MOS = .TRUE.
-            ELSE
-               WRITE_TIME_MOS = .FALSE.
             END IF
 
             IF ( WRITE_TIME_MOS ) THEN
 
-               NDATE = JDATE
-               NTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
-               CALL NEXTIME( NDATE, NTIME, TSTEP( 1 ) )
+               WDATE = JDATE
+               WTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
+               CALL NEXTIME( WDATE, WTIME, TSTEP( 1 ) )
 
                N = 0
                DO V = 1, N_GC_DEPV
@@ -1069,9 +1103,9 @@ C-----------------------------------------------------------------------
                         END DO
                      END DO
                      IF ( .NOT. WRITE3( CTM_DEPV_MOS, UNIQUE_GDEPV( NDX ),
-     &                                  NDATE, NTIME, DBUFF3 ) ) THEN
+     &                                  WDATE, WTIME, DBUFF3 ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
 
                      IF ( FST ) THEN
@@ -1083,9 +1117,9 @@ C-----------------------------------------------------------------------
                            END DO
                         END DO
                         IF ( .NOT. WRITE3( CTM_DEPV_FST, UNIQUE_GDEPV( NDX ),
-     &                                     NDATE, NTIME, DBUFF3 ) ) THEN
+     &                                     WDATE, WTIME, DBUFF3 ) ) THEN
                            XMSG = 'Could not write ' // CTM_DEPV_FST // ' file'
-                           CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                           CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                         END IF
                      END IF
                   END IF
@@ -1106,9 +1140,9 @@ C-----------------------------------------------------------------------
                         END DO
                      END DO
                      IF ( .NOT. WRITE3( CTM_DEPV_MOS, UNIQUE_GDEPV( NDX ),
-     &                                  NDATE, NTIME, DBUFF3 ) ) THEN
+     &                                  WDATE, WTIME, DBUFF3 ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_MOS // ' file'
-                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
 
                      IF ( FST ) THEN
@@ -1120,9 +1154,9 @@ C-----------------------------------------------------------------------
                            END DO
                         END DO
                         IF ( .NOT. WRITE3( CTM_DEPV_FST, UNIQUE_GDEPV( NDX ),
-     &                                     NDATE, NTIME, DBUFF3 ) ) THEN
+     &                                     WDATE, WTIME, DBUFF3 ) ) THEN
                             XMSG = 'Could not write ' // CTM_DEPV_FST // ' file'
-                            CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                            CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                         END IF
                      END IF
 
@@ -1142,9 +1176,9 @@ C-----------------------------------------------------------------------
                      END DO
                   END DO
                   IF ( .NOT. WRITE3( CTM_DEPV_MOS, UNIQUE_ADEPV( N ),
-     &                               NDATE, NTIME, DBUFF3 ) ) THEN
+     &                               WDATE, WTIME, DBUFF3 ) ) THEN
                       XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                      CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                   END IF
 
                   IF ( FST ) THEN
@@ -1156,9 +1190,9 @@ C-----------------------------------------------------------------------
                         END DO
                      END DO
                      IF ( .NOT. WRITE3( CTM_DEPV_FST, UNIQUE_ADEPV( N ),
-     &                                  NDATE, NTIME, DBUFF3 ) ) THEN
+     &                                  WDATE, WTIME, DBUFF3 ) ) THEN
                          XMSG = 'Could not write ' // CTM_DEPV_FST // ' file'
-                         CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                         CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                      END IF
                   END IF
 
@@ -1178,9 +1212,9 @@ C-----------------------------------------------------------------------
                END DO
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LAIJ',
-     &                            NDATE, NTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, DBUFF3) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write RA for each LUC to file
@@ -1193,9 +1227,9 @@ C-----------------------------------------------------------------------
                END DO
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RAJ',
-     &                            NDATE, NTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, DBUFF3) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write USTAR for each LUC to file
@@ -1208,9 +1242,9 @@ C-----------------------------------------------------------------------
                END DO
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'USTARJ',
-     &                            NDATE, NTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, DBUFF3) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write Z0 for each LUC to file
@@ -1223,9 +1257,9 @@ C-----------------------------------------------------------------------
                END DO
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'Z0J',
-     &                            NDATE, NTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, DBUFF3 ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
-                   CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+                   CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
             END IF   ! write_time
