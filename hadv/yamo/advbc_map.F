@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.3 2011/09/15 15:41:23 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.4 2011/10/20 15:59:10 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -56,22 +56,17 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
  
 C Includes:
-
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
-
       CHARACTER( 16 ), INTENT( IN )    :: CONCMIN     ! min value allowed for BCs
       CHARACTER( 16 ), INTENT( INOUT ) :: BCNAME( : ) ! BC name for adv species
       REAL,            INTENT( INOUT ) :: BCFAC ( : ) ! Scale factor for BCs
 
 C External Functions:
-
       INTEGER, EXTERNAL :: FINDEX
 
-
 C Local variables:
- 
       CHARACTER( 16 ) :: PNAME = 'ADVBC_MAP'
       CHARACTER( 16 ) :: BLNK = ' '
       CHARACTER( 96 ) :: XMSG = ' '
@@ -86,7 +81,7 @@ C Local variables:
       INTEGER    LOGDEV, IERR
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-C Map advected gas chemistry species to bc`s
+C Map advected species to bc`s
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
@@ -115,7 +110,7 @@ C Map advected reactive gas species to bc`s
             XMSG = 'Could not get ' // BNDY_GASC_1 // ' file description'
             CALL M3EXIT( PNAME, XDATE, XTIME, XMSG, XSTAT1 )
          END IF
- 
+
          WRCNT = 0
          DO VAR = 1, N_GC_TRNS
             SPC = SPC + 1
@@ -127,16 +122,14 @@ C is there a surrogate name?
 C is it on the BC file?
                INDX = INDEX1( GC_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
+C if there`s a surrogate name, CGRID_SPCS will handle setting GC_ICBC_FAC
                   BCNAME( SPC ) = VNAME3D( INDX )
-                  IF ( GC_ICBC( ISUR ) .NE. ' ' ) THEN
-                     BCFAC( SPC ) = GC_ICBC_FAC( ISUR )
-                  ELSE
-                     BCFAC( SPC ) = 1.0
-                  END IF
                ELSE   ! not on the BC file
                   BCNAME( SPC ) = BLNK
-                  BCFAC( SPC ) = 1.0
+                  WRCNT = WRCNT + 1
+                  WRVAR( WRCNT ) = GC_TRNS( VAR )
                END IF
+               BCFAC( SPC ) = GC_ICBC_FAC( ISUR )
 !              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
             ELSE
 C is the (main) species name on the BC file?
@@ -158,9 +151,9 @@ C is the (main) species name on the BC file?
 
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) TRIM( BNDY_GASC_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_GASC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
+               WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF
 
@@ -192,15 +185,12 @@ C is it on the BC file?
                INDX = INDEX1( AE_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
-                  IF ( AE_ICBC( ISUR ) .NE. ' ' ) THEN
-                     BCFAC( SPC ) = AE_ICBC_FAC( ISUR )
-                  ELSE
-                     BCFAC( SPC ) = 1.0
-                  END IF
                ELSE   ! not on the BC file
                   BCNAME( SPC ) = BLNK
-                  BCFAC( SPC ) = 1.0
+                  WRCNT = WRCNT + 1
+                  WRVAR( WRCNT ) = AE_TRNS( VAR )
                END IF
+               BCFAC( SPC ) = AE_ICBC_FAC( ISUR )
 !              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
             ELSE
 C is the (main) species name on the BC file?
@@ -222,9 +212,9 @@ C is the (main) species name on the BC file?
 
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) TRIM( BNDY_AERO_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_AERO_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
+               WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
 
@@ -256,15 +246,12 @@ C is it on the BC file?
                INDX = INDEX1( NR_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
-                  IF ( NR_ICBC( ISUR ) .NE. ' ' ) THEN
-                     BCFAC( SPC ) = NR_ICBC_FAC( ISUR )
-                  ELSE
-                     BCFAC( SPC ) = 1.0
-                  END IF
                ELSE   ! not on the BC file
                   BCNAME( SPC ) = BLNK
-                  BCFAC( SPC ) = 1.0
+                  WRCNT = WRCNT + 1
+                  WRVAR( WRCNT ) = NR_TRNS( VAR )
                END IF
+               BCFAC( SPC ) = NR_ICBC_FAC( ISUR )
 !              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
             ELSE
 C is the (main) species name on the BC file?
@@ -286,9 +273,9 @@ C is the (main) species name on the BC file?
 
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) TRIM( BNDY_NONR_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_NONR_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
+               WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
 
@@ -320,15 +307,12 @@ C is it on the BC file?
                INDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
-                  IF ( TR_ICBC( ISUR ) .NE. ' ' ) THEN
-                     BCFAC( SPC ) = TR_ICBC_FAC( ISUR )
-                  ELSE
-                     BCFAC( SPC ) = 1.0
-                  END IF
                ELSE   ! not on the BC file
                   BCNAME( SPC ) = BLNK
-                  BCFAC( SPC ) = 1.0
+                  WRCNT = WRCNT + 1
+                  WRVAR( WRCNT ) = TR_ADV( VAR )
                END IF
+               BCFAC( SPC ) = TR_ICBC_FAC( ISUR )
 !              write( logdev,* ) '=b=_fac in sur: ', bcfac( spc )
             ELSE
 C is the (main) species name on the BC file?
@@ -350,9 +334,9 @@ C is the (main) species name on the BC file?
 
          END DO
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1009 ) TRIM( BNDY_TRAC_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_TRAC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
-               WRITE( LOGDEV,1015 ) TRIM( WRVAR( VAR ) )
+               WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
          END IF 
 
@@ -360,9 +344,8 @@ C is the (main) species name on the BC file?
 
       RETURN
 
-1009  FORMAT( / 5X, 'No BC''s in file ', A, ' for the following adv species:',
+1019  FORMAT( / 5X, 'No BC''s in file ', A, ' for the following adv species:',
      &          1X, 'Set to ', A )
-
-1015  FORMAT( 10X, A )
+1025  FORMAT( 10X, A )
 
       END
