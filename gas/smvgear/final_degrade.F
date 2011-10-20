@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/final_degrade.F,v 1.1 2011/03/23 21:13:16 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/final_degrade.F,v 1.2 2011/10/20 13:21:59 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,6 +33,10 @@ C
 C  CALLED BY: GRDRIVER or RBDRIVER
 C
 C  REVISION HISTORY: 07/29/05 : B.Hutzell - Initial version
+C                    09/30/11 : B.Hutzell - added CYCLE statements to allow 
+C                               optional degraded species i.e., RXTANT_MAP( I )
+C                               is less than zero
+C
 C
 C**********************************************************************
 
@@ -42,7 +46,7 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL(8)         ::  CBLK( BLKSIZE, NSPCSD ) ! species conc in cell
+      REAL( 8 ),   INTENT( INOUT ) ::  CBLK( BLKSIZE, NSPCSD ) ! species conc in cell
 
 C.....LOCAL VARIABLES:
 
@@ -60,6 +64,8 @@ C**********************************************************************
 c..update CBLK
 
             I_RXT = RXTANT_MAP( I )
+
+            IF( I_RXT < 0 )CYCLE LOOP_REACT
 
             CBLK( I_CELL, I_RXT ) = CURR_CONC( I_CELL, I_RXT )
 

@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/DEGRADE_SETUP_TOX.F,v 1.3 2011/09/22 20:24:16 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/DEGRADE_SETUP_TOX.F,v 1.4 2011/10/20 13:21:59 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,6 +36,9 @@ C                               species name (LEN_NAME)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
+C                    29 Sep 11 B.Hutzell added CYCLE statements to allow 
+C                              optional degraded species when it is not in
+C                              namelists
 C
 C**********************************************************************
 

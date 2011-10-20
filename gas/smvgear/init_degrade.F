@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/init_degrade.F,v 1.2 2011/09/22 20:24:17 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/init_degrade.F,v 1.3 2011/10/20 13:21:59 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,6 +34,9 @@ C
 C  CALLED BY: GRDRIVER or RBDRIVER
 C
 C  REVISION HISTORY:  07/29/05 : B.Hutzell - Initial version
+C                     09/30/11 : B.Hutzell - added CYCLE statements to allow 
+C                                optional degraded species i.e., RXTANT_MAP( I )
+C                                is less than zero
 C
 C**********************************************************************
 
@@ -45,17 +48,16 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL(8)     :: CBLK ( BLKSIZE, NSPCSD )            !  species concentration in cell
-      REAL(8)     :: TCELL( BLKSIZE )                    !  cell temperature  [ k ]
-      REAL(8)     :: DCELL( BLKSIZE )                    !  cell air density  [ kg/m^3 ]
-      REAL        :: PHOTO_CELL( BLKSIZE, N_PHOTO_TAB )  !  Photolysis table for cell [1/s]
+      REAL( 8 ), INTENT( IN ) :: CBLK ( BLKSIZE, NSPCSD )           !  species concentration in cell
+      REAL( 8 ), INTENT( IN ) :: TCELL( BLKSIZE )                    !  cell temperature  [ k ]
+      REAL( 8 ), INTENT( IN ) :: DCELL( BLKSIZE )                   !  cell air density  [ kg/m^3 ]
+      REAL,      INTENT( IN ) :: PHOTO_CELL( BLKSIZE, N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
 
-      INTEGER     :: NUMCELLS     ! number of grid cells in block
-
-      INTEGER     :: JDATE         ! current model date , coded YYYYDDD
-      INTEGER     :: JTIME         ! current model time , coded HHMMSS
-      INTEGER     :: LOGDEV        ! unit number for the log
-      INTEGER     :: BLKID         ! number for the block
+      INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
+      INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
+      INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
+      INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
+      INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
 
 C.....LOCAL VARIABLES:
 
@@ -115,6 +117,8 @@ C         ENDDO
 
          LOOP_REACT: DO I = 1, N_REACT ! calculated rate constants
 
+            IF( RXTANT_MAP( I ) < 0 )CYCLE LOOP_REACT
+
             LOOP_UNIRATE: DO J = 1, N_UNI_LOSS
 
                 RATE_CONST( I_CELL, I, J ) = UNIRATE( I, J )
@@ -150,7 +154,7 @@ C         ENDDO
                 K = PHOTO_MAP( I, J )
                 IF ( K < 1 ) CYCLE
                 RATE_CONST( I_CELL, I, J+TRI_STOP ) = A_PHOTO( I, J )
-     &                                          * PHOTO_CELL( I_CELL, K )
+     &                                              * PHOTO_CELL( I_CELL, K )
 
             ENDDO LOOP_PHOTORATE
 
