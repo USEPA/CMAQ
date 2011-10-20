@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/ABFLUX_MOD.F,v 1.2 2011/09/30 19:17:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/ABFLUX_MOD.F,v 1.3 2011/10/20 16:30:29 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -259,12 +259,12 @@ C Private variables used in this module and subroutines
                Tot_Ag = 0.0                   
                    Do l = 1, e2c_cats
 ! convert units from kg/ha N to mol/l
-                     If(pHs1(c,r,l)   .GT. 4.0  .AND.
-     $                  pHs2(c,r,l)   .GT. 4.0  .AND.
-     $                  pHs1(c,r,l)   .LT. 9.0  .AND.
-     $                  pHs2(c,r,l)   .LT. 9.0  .AND.
-     $                        .NOT. IsNaN(pHs1(c,r,l)).AND. 
-     $                        .NOT. IsNaN(pHs2(c,r,l)).AND.
+                     If(pHs1(c,r,l) .GT. 4.0        .AND.
+     &                  pHs2(c,r,l) .GT. 4.0        .AND.
+     &                  pHs1(c,r,l) .LT. 9.0        .AND.
+     &                  pHs2(c,r,l) .LT. 9.0        .AND.
+     &                  pHs1(c,r,l) .EQ. pHs1(c,r,l).AND. 
+     &                  pHs2(c,r,l) .EQ. pHs2(c,r,l).AND.
      &                  Beld_ag(c,r,l) .GT. 0.0 ) Then
                         If(INDEX( Beld_Names( l ), '_ir' ) .GT. 0) Then
                            frac_ir(c,r)  = frac_ir(c,r) + Beld_ag(c,r,l)/100.0
@@ -278,8 +278,8 @@ C Private variables used in this module and subroutines
                         gamma2(c,r)   = gamma2(c,r)+NH4ps2(c,r,l)*1.0e-4/14.0/0.05/
      &                                  10**(-pHs2(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
                         MHp2(c,r)     = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10**(-pHs2(c,r,l))                                                                  
-                        If(.NOT. IsNaN(F_rate(c,r,l)) .AND. F_rate(c,r,l) .GT. 0.0 .AND.
-     $                     .NOT. IsNaN(F_depth(c,r,l)) ) Then
+                        If(F_rate(c,r,l)  .EQ. F_rate(c,r,l) .AND. F_rate(c,r,l) .GT. 0.0 .AND.
+     $                     F_depth(c,r,l) .EQ. F_depth(c,r,l) ) Then
 ! FAO fertlizer use statistics estimate that US fertilizer use in 2002 contained 92.5% NH3     
 ! injected fertilizer                           
                            If( F_depth(c,r,l) .GT. 0.01 ) Then                                      
@@ -292,7 +292,7 @@ C Private variables used in this module and subroutines
      $                                            1.0e-4/14.0/0.01/10**(-pHs2(c,r,l))*0.925                                                      
                            EndIf
                         EndIf
-                        If( IsNaN(fagam1(c,r)) .OR. IsNaN(fagam2(c,r))) Then
+                        If( fagam1(c,r) .NE. fagam1(c,r) .OR. fagam2(c,r) .NE.  fagam2(c,r)) Then
                             XMSG = 'NaN in fagam Calculation'
                             Call M3EXIT( PName, JDate, JTime,XMSG, XSTAT1)
                         EndIf     
@@ -311,8 +311,10 @@ C Private variables used in this module and subroutines
 ! Set a minimum Gamma for Ag based off of Zhang et al. 2010                                             
                      gamma1(c,r)   = max(gamma1(c,r),630.0)
                      gamma2(c,r)   = max(gamma2(c,r),630.0) 
-                     If( IsNaN(gamma1(c,r)) .OR. IsNaN(gamma2(c,r)) .OR. 
-     $                   IsNaN(MHp2(c,r)) .OR. IsNaN(MHp2(c,r))) Then
+                     If( gamma1(c,r) .NE. gamma1(c,r) .OR. 
+     &                   gamma2(c,r) .NE. gamma2(c,r) .OR. 
+     &                   MHp1(c,r)   .NE. MHp1(c,r)   .OR. 
+     &                   MHp2(c,r)   .NE. MHp2(c,r)) Then
                         XMSG = 'NaN in grid cell Gamma Calculation'
                         Call M3EXIT( PName, JDate, JTime,XMSG, XSTAT1)   
                      EndIf
@@ -363,21 +365,21 @@ C Private variables used in this module and subroutines
                         frac_ir(c,r)  = frac_ir(c,r) + Beld_ag(c,r,l)/100.0
                      End If
                      Tot_Ag        = Tot_Ag + Beld_ag(c,r,l)/100.0                  
-                     If(.NOT. IsNaN(F_rate(c,r,l)) .AND. F_rate(c,r,l) .GT. 0.0 .AND.
-     $                  .NOT. IsNaN(F_depth(c,r,l)) ) Then
+                     If( F_rate(c,r,l)  .EQ. F_rate(c,r,l) .AND. F_rate(c,r,l) .GT. 0.0 .AND.
+     $                   F_depth(c,r,l) .EQ. F_depth(c,r,l) ) Then
 ! Injected fertilizer                        
-                        If(.NOT. IsNaN(F_depth(c,r,l)) .AND. F_depth(c,r,l) .GT. 0.01 ) Then                                      
+                        If(F_depth(c,r,l) .EQ. F_depth(c,r,l) .AND. F_depth(c,r,l) .GT. 0.01 ) Then                                      
                            fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0*
      $                                         1.0e-4/14.0/0.05/10**(-pHs1(c,r,l))*0.925
                         End If
 ! surface applied fertilizer                        
-                        If(.NOT. IsNaN(F_depth(c,r,l)) .AND. F_depth(c,r,l) .LE. 0.01 
+                        If(F_depth(c,r,l) .EQ. F_depth(c,r,l) .AND. F_depth(c,r,l) .LE. 0.01 
      &                     .AND. F_depth(c,r,l) .GE. 0.00 ) Then 
                            fagam1(c,r) = fagam1(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0*
      $                                         1.0e-4/14.0/0.01/10**(-pHs2(c,r,l))*0.925                                                      
                         EndIf
                      EndIf
-                     If( IsNaN(fagam1(c,r)) .OR. IsNaN(fagam2(c,r)))        Then                           
+                     If( fagam1(c,r) .NE. fagam1(c,r) .OR. fagam2(c,r) .NE. fagam2(c,r))        Then                           
                         XMSG = 'NaN in fagam Calculation'
                         Call M3EXIT( PName, JDate, JTime,XMSG, XSTAT1)
                      EndIf                         
@@ -391,8 +393,10 @@ C Private variables used in this module and subroutines
 ! get the agricultrual only relevant number                                 
                      gamma1(c,r) = gamma1(c,r)+fagam1(c,r)/Tot_Ag
                      gamma2(c,r) = gamma2(c,r)+fagam2(c,r)/Tot_Ag   
-                     If( IsNaN(gamma1(c,r)) .OR. IsNaN(gamma2(c,r)) .OR. 
-     $                   IsNaN(MHp2(c,r)) .OR. IsNaN(MHp2(c,r))) Then
+                     If( gamma1(c,r) .NE. gamma1(c,r) .OR. 
+     &                   gamma2(c,r) .NE. gamma2(c,r) .OR. 
+     $                   MHp1(c,r)   .NE. MHp1(c,r)   .OR. 
+     &                   MHp2(c,r)   .NE. MHp2(c,r) ) Then
                         XMSG = 'NaN in grid cell Gamma Calculation'
                         Call M3EXIT( PName, JDate, JTime,XMSG, XSTAT1)   
                      EndIf   
@@ -461,23 +465,23 @@ C-------------------------------------------------------------------------------
          Real, Intent( OUT ) :: f_wat         
          
          REAL,            PARAMETER :: kvis       = 0.132   ! [cm^2 / s] at 273.15K
-         REAL(KIND=16)              :: aq           ! Quadradic equation variable
-         REAL(KIND=16)              :: bq           ! Quadradic equation variable
+         REAL(KIND=8)               :: aq           ! Quadradic equation variable
+         REAL(KIND=8)               :: bq           ! Quadradic equation variable
          REAL                       :: cnh3c        ! In canopy NH3 concentration [ppm]
          REAL                       :: cnh3g1,cnh3g2        ! NH3 compensation concentration for ground [ppm]
          REAL                       :: cnh3s        ! NH3 compensation concentration for stomatal [ppm]
-         REAL(KIND=16)              :: cq           ! Quadradic equation variable
+         REAL(KIND=8)               :: cq           ! Quadradic equation variable
          REAL                       :: del0         ! for Rbg
-         REAL(KIND=16)              :: ga           ! Ga  = 1/Ra [m/s]
+         REAL(KIND=8)               :: ga           ! Ga  = 1/Ra [m/s]
          REAL                       :: gammas       ! [NH4+]/[H+]
-         REAL(KIND=16)              :: gcw
-         REAL(KIND=16)              :: gg1(n_lufrac)! Gg  = 1/(Rgnd(nh3)+Rinc) [m/s]  
-         REAL(KIND=16)              :: gg2(n_lufrac)! Gg  = 1/(Rgnd(nh3)+Rinc) [m/s]
-         REAL(KIND=16)              :: gsb          ! Gsb = 1/(Rstom(nh3)+Rb(nh3)) [m/s]
-         REAL(KIND=16)              :: gt
+         REAL(KIND=8)               :: gcw
+         REAL(KIND=8)               :: gg1(n_lufrac)! Gg  = 1/(Rgnd(nh3)+Rinc) [m/s]  
+         REAL(KIND=8)               :: gg2(n_lufrac)! Gg  = 1/(Rgnd(nh3)+Rinc) [m/s]
+         REAL(KIND=8)               :: gsb          ! Gsb = 1/(Rstom(nh3)+Rb(nh3)) [m/s]
+         REAL(KIND=8)               :: gt
          INTEGER                    :: k,j
          REAL,            PARAMETER :: karman = 0.4 ! von Karman constant
-         REAL(KIND=16 )             :: qq           ! intermediate variable
+         REAL(KIND=8)               :: qq           ! intermediate variable
          REAL                       :: rbgj(n_lufrac)
          REAL,            PARAMETER :: rwm = 20!35.0   ! Minimum NH3 cuticle resistance [s/m]
          REAL                       :: rwmb         ! Rwmb = Rwm + Rb
@@ -488,8 +492,8 @@ C-------------------------------------------------------------------------------
          REAL                       :: wg_ir        ! 1 cm soil moisture  
          REAL                       :: w5cm         ! soil moisture in top 5 cm (vol frc)
          REAL,            PARAMETER :: d1 = 0.01    ! Top soil layer depth (1 cm)
-         REAL(KIND=16)              :: ldry,dp,rsoil1,rsoil2,a1,agfrac,sqrr,ddd
-         REAL(KIND=16)              :: watfrac ! water fraction
+         REAL(KIND=8)               :: ldry,dp,rsoil1,rsoil2,a1,agfrac,sqrr,ddd
+         REAL(KIND=8)               :: watfrac ! water fraction
          INTEGER                    :: ist
 
          logdev =  init3()
@@ -792,7 +796,7 @@ C-------------------------------------------------------------------------------
          Real,          Intent( IN )    :: wg        ! Soil Moisture
          Real,          Intent( IN )    :: CNH3c     ! Canopy compensation point
          Real,          Intent( IN )    :: MHp       ! molar H concentration
-         Real(KIND=16), Intent( IN )    :: gg(n_lufrac) ! soil-air conductance        
+         Real(KIND=8),  Intent( IN )    :: gg(n_lufrac) ! soil-air conductance        
          Real,          Intent( INOUT ) :: gam        ! updated gamma
          Integer,       Intent( IN )    :: ist    ! Soil Type
          Integer,       Intent( IN )    :: dt     ! time step in s
@@ -871,7 +875,7 @@ C-------------------------------------------------------------------------------
             gam = 20.0
          End If            
          
-         If( IsNaN(gam) ) Then
+         If( gam .NE. gam ) Then
             XMSG = 'NaN in Gamma Calculation'
             Write(logdev,*) 'MNHx   :', MNHx
             Write(logdev,*) 'gam    :', gam
