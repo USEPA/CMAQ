@@ -18,7 +18,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.6 2011/09/23 17:06:05 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.7 2011/10/20 15:40:53 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -118,10 +118,10 @@ C for XTRACT3
       REAL         DBUFF( NCOLS,NROWS,NLAYS )
 
       INTEGER      SPC_STRT
-      INTEGER      N_SPCS
+      INTEGER      N_SPCS                     ! no. of species for this call
       INTEGER      NDX                        ! loop copy of INDX
       INTEGER      ISUR                       ! surrogate index
-      INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices
+      INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices for all IC species
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
       INTEGER      C, R, L, SPC, V            ! loop counters
       INTEGER      ASPC                       ! CGRID RHOJ pointer
@@ -132,6 +132,8 @@ C for XTRACT3
       CHARACTER( 16 ) :: CONCMIN
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 40 ) :: CHWARN = 'Domain extents different from model for '
+      CHARACTER( 24 ) :: ESTR1 = 'No IC found for species '
+      CHARACTER( 34 ) :: ESTR2 = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
@@ -144,7 +146,6 @@ C-----------------------------------------------------------------------
          LOGDEV = INIT3 ()
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
 C IOFDESC common now loaded with MET_CRO_3D header
 
          MXSPC = N_GC_SPC + N_AE_SPC + N_NR_SPC + N_TR_SPC
@@ -184,6 +185,8 @@ C IOFDESC common now loaded with MET_CRO_3D header
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
+      ESTR2 = ' in ' // TRIM( FNAME ) // '; set to ' // TRIM( CONCMIN )
+
 C The original policy for using surrogate names is first, check if the Namelist
 C species is on the IC file; if so ignore any surrogate. If the Namelist species
 C is not on the IC file, then check if the surrogate name is; if so also use the
@@ -193,16 +196,16 @@ C types (EMIS, DEPV, ICBC, and SCAV).
 C => Change this for ICBC:
 C First check if there's a surrogate name in the Namelist and use it (and the
 C corresponding scale factor) if it exists. If it's not on the IC file, which it
-C wouldn't be if it were blank, then look for the Namelist species name.
+C wouldn`t be if it were blank, then look for the Namelist species name.
 
 C Get INDX
       INDX = 0   ! array assignment
 
       IF ( SPC_CAT .EQ. 'GC' ) THEN
+         WRITE( LOGDEV,1009 ) 'transported gas-phase species'
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
-
 C is there a surrogate name?
             ISUR = FINDEX ( SPC, N_GC_ICBC, GC_ICBC_MAP )
 !           write( logdev,* ) '=c=spc,isur: ', spc, isur
@@ -210,13 +213,13 @@ C is there a surrogate name?
 C is it on the IC file?
                NDX = INDEX1( GC_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
+C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   INDX( SPC ) = NDX   ! index in the IC file
-                  IF ( GC_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
-                     ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
-                  ELSE
-                     ICBC_FAC( SPC ) = 1.0
-                  END IF
+                  ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               ELSE
+                  XMSG = ESTR1 // TRIM( GC_SPC( SPC ) ) // ESTR2
+                  CALL M3MESG( XMSG )
                END IF
             ELSE
 C is the (main) species name on the IC file?
@@ -225,8 +228,7 @@ C is the (main) species name on the IC file?
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
                ELSE
-                  XMSG = 'No IC found for species ' // TRIM( GC_SPC( SPC ) )
-     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  XMSG = ESTR1 // TRIM( GC_SPC( SPC ) ) // ESTR2
                   CALL M3MESG( XMSG )
                END IF
             END IF
@@ -236,10 +238,13 @@ C is the (main) species name on the IC file?
      &                        '   icbc_fac:', icbc_fac( spc )
             write( logdev,* ) ' '
 #endif
+            IF ( INDX( SPC ) .GT. 0 )
+     &         WRITE( LOGDEV,1013 ) INDX( SPC ), GC_SPC( SPC ), ICBC_FAC( SPC )
 
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'AE' ) THEN
+         WRITE( LOGDEV,1009 ) 'transported aerosol species'
          SPC_STRT = AE_STRT
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
@@ -251,12 +256,11 @@ C is it on the IC file?
                NDX = INDEX1( AE_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  IF ( AE_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
-                     ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
-                  ELSE
-                     ICBC_FAC( SPC ) = 1.0
-                  END IF
+                  ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               ELSE
+                  XMSG = ESTR1 // TRIM( AE_SPC( SPC ) ) // ESTR2
+                  CALL M3MESG( XMSG )
                END IF
             ELSE
 C is the (main) species name on the IC file?
@@ -265,8 +269,7 @@ C is the (main) species name on the IC file?
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
                ELSE
-                  XMSG = 'No IC found for species ' // TRIM( AE_SPC( SPC ) )
-     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  XMSG = ESTR1 // TRIM( AE_SPC( SPC ) ) // ESTR2
                   CALL M3MESG( XMSG )
                END IF
             END IF
@@ -276,10 +279,13 @@ C is the (main) species name on the IC file?
      &                        '   icbc_fac:', icbc_fac( spc )
             write( logdev,* ) ' '
 #endif
+            IF ( INDX( SPC ) .GT. 0 )
+     &         WRITE( LOGDEV,1013 ) INDX( SPC ), AE_SPC( SPC ), ICBC_FAC( SPC )
  
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'NR' ) THEN
+         WRITE( LOGDEV,1009 ) 'transported non-reactive gas species'
          SPC_STRT = NR_STRT
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
@@ -291,12 +297,11 @@ C is it on the IC file?
                NDX = INDEX1( NR_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  IF ( NR_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
-                     ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
-                  ELSE
-                     ICBC_FAC( SPC ) = 1.0
-                  END IF
+                  ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               ELSE
+                  XMSG = ESTR1 // TRIM( NR_SPC( SPC ) ) // ESTR2
+                  CALL M3MESG( XMSG )
                END IF
             ELSE
 C is the (main) species name on the IC file?
@@ -305,8 +310,7 @@ C is the (main) species name on the IC file?
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
                ELSE
-                  XMSG = 'No IC found for species ' // TRIM( NR_SPC( SPC ) )
-     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  XMSG = ESTR1 // TRIM( NR_SPC( SPC ) ) // ESTR2
                   CALL M3MESG( XMSG )
                END IF
             END IF
@@ -316,10 +320,13 @@ C is the (main) species name on the IC file?
      &                        '   icbc_fac:', icbc_fac( spc )
             write( logdev,* ) ' '
 #endif
+            IF ( INDX( SPC ) .GT. 0 )
+     &         WRITE( LOGDEV,1013 ) INDX( SPC ), NR_SPC( SPC ), ICBC_FAC( SPC )
 
          END DO
 
       ELSE IF ( SPC_CAT .EQ. 'TR' ) THEN
+         WRITE( LOGDEV,1009 ) 'transported inert tracer gas species'
          SPC_STRT = TR_STRT
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
@@ -331,12 +338,11 @@ C is it on the IC file?
                NDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  IF ( TR_ICBC_FAC( ISUR ) .NE. ' ' ) THEN
-                     ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
-                  ELSE
-                     ICBC_FAC( SPC ) = 1.0
-                  END IF
+                  ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
 !                 write( logdev,* ) '=c=_fac in sur: ', icbc_fac( spc )
+               ELSE
+                  XMSG = ESTR1 // TRIM( TR_SPC( SPC ) ) // ESTR2
+                  CALL M3MESG( XMSG )
                END IF
             ELSE
 C is the (main) species name on the IC file?
@@ -345,8 +351,7 @@ C is the (main) species name on the IC file?
                   INDX( SPC ) = NDX
                   ICBC_FAC( SPC ) = 1.0
                ELSE
-                  XMSG = 'No IC found for species ' // TRIM( TR_SPC( SPC ) )
-     &                 // ' in ' // TRIM( FNAME ) // ' Set to ' // TRIM( CONCMIN )
+                  XMSG = ESTR1 // TRIM( TR_SPC( SPC ) ) // ESTR2
                   CALL M3MESG( XMSG )
                END IF
             END IF
@@ -356,6 +361,8 @@ C is the (main) species name on the IC file?
      &                        '   icbc_fac:', icbc_fac( spc )
             write( logdev,* ) ' '
 #endif
+            IF ( INDX( SPC ) .GT. 0 )
+     &         WRITE( LOGDEV,1013 ) INDX( SPC ), TR_SPC( SPC ), ICBC_FAC( SPC )
 
          END DO
 
@@ -371,7 +378,6 @@ C Read into CGRID
 
       CALL SUBHFILE ( FNAME, GXOFF, GYOFF,
      &                STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI )
-
 C IOFDESC common now loaded with FNAME header
 
       DO SPC = 1, N_SPCS
@@ -428,11 +434,13 @@ C Load RHOJ for transport and mixing ratio advection adjustment
 
          WRITE( LOGDEV,'(/ 5X, A)' ) 'Density*Jacobian loaded into CGRID'
 
+!        write( logdev,'( a,i7,i7.6,1pe15.7 )' ) 'rhoj sum1:', jdate, jtime, sum( rhoj )
+
       END IF
 
       IF ( SPC_CAT .EQ. 'AE' ) THEN
 
-C are ASO4J IC's available on the file?
+C are ASO4J IC`s available on the file?
 
          VNAME = 'ASO4J'
          NDX = INDEX1( VNAME, NVARS3D, VNAME3D )
@@ -567,4 +575,7 @@ C Close the file
 !     END IF
 
       RETURN
+
+1009  FORMAT( / 5X, 'IC/BC Factors used for ', A )
+1013  FORMAT( 5X, I3, 2X, A, 1PG13.5 )
       END
