@@ -17,7 +17,7 @@ C   the MCNC Environmental Modeling Center are used with their         *
 C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/hrsolver.F,v 1.1 2011/10/20 16:15:25 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/hrsolver.F,v 1.2 2011/10/20 21:04:05 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -345,7 +345,7 @@ c.....start inner loop over unless max backups exceeded
                END DO
 
                MSG = 'ERROR: Stopping because of EBI convergence failures'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, STAT )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 
             END IF
 
