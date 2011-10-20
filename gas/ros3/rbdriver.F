@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.5 2011/09/29 16:49:39 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbdriver.F,v 1.6 2011/10/20 13:55:25 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -238,6 +238,34 @@ C for INTERPX
 !           INTEGER, INTENT( OUT ) :: NDARK
 !           REAL,    INTENT( OUT ) :: RJ( :,:,:,: )
 !        END SUBROUTINE PHOT
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+           USE DEGRADE_SETUP_TOX
+           IMPLICIT NONE
+           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
+           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
+           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
+           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
+         END SUBROUTINE FIND_DEGRADED
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
+     &                         JDATE, JTIME, LOGDEV, BLKID )
+           USE DEGRADE_SETUP_TOX
+           IMPLICIT NONE
+           INCLUDE SUBST_RXCMMN   
+           REAL( 8 ), INTENT( IN ) :: CBLK ( BLKSIZE, NSPCSD )           !  species concentration in cell
+           REAL( 8 ), INTENT( IN ) :: TCELL( BLKSIZE )                    !  cell temperature  [ k ]
+           REAL( 8 ), INTENT( IN ) :: DCELL( BLKSIZE )                   !  cell air density  [ kg/m^3 ]
+           REAL,      INTENT( IN ) :: PHOTO_CELL( BLKSIZE, N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
+           INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
+           INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: LOGDEV    ! unit number for the log
+           INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
+         END SUBROUTINE INIT_DEGRADE      
+         SUBROUTINE FINAL_DEGRADE( CBLK )
+           USE DEGRADE_SETUP_TOX
+           IMPLICIT NONE
+           REAL( 8 ), INTENT( INOUT ) :: CBLK( BLKSIZE, NSPCSD ) ! species conc in cell
+         END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 
 C**********************************************************************

@@ -17,7 +17,7 @@ C   permissions subject to the above restrictions.                     *
 C***********************************************************************
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.3 2011/09/15 15:01:47 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsolver.F,v 1.4 2011/10/20 13:55:25 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,6 +32,7 @@ C
 C  Preconditions: None
 C
 C  Key Subroutines/Functions Called: 
+C                                    DEGRADE
 C
 C  Revision History: Prototype created by Jerry Gipson, August, 2004
 C                    Based on the solver described by Sandu et al
@@ -186,6 +187,15 @@ c.....ROS3 intermediate variables
             INTEGER NUMCELLS
             INTEGER :: ICLND( BLKSIZE )
          END SUBROUTINE PA_IRR
+         SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
+           USE DEGRADE_SETUP_TOX
+           IMPLICIT NONE
+           REAL( 8 ), INTENT( IN ) :: CBLK( BLKSIZE,  NSPCSD ) ! array holding species concentrations
+           REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
+           INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
+         END SUBROUTINE
       END INTERFACE
 
 C**********************************************************************
