@@ -1,6 +1,6 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.6 2011/09/15 16:21:35 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMAP.F,v 1.7 2011/10/20 16:05:32 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -54,8 +54,6 @@ C-----------------------------------------------------------------------
          USE CGRID_SPCS            ! CGRID mechanism species
          USE STK_EMIS              ! hourly point source emissions
          USE AERO_DATA             ! defines aerosol species
-         USE UDTYPES, ONLY: CARRY1 ! implementation for multiple
-                                   ! groups of stack input files
          USE UTILIO_DEFN
 
          IMPLICIT NONE
@@ -67,6 +65,7 @@ C-----------------------------------------------------------------------
 
          TYPE :: STRNDX
             CHARACTER( 16 ) :: STR
+!           CHARACTER( 16 ), POINTER :: STR
             INTEGER         :: NDX
          END TYPE STRNDX
 
@@ -261,7 +260,9 @@ C point source emissions to gas-phase species map
          END DO
 
          ALLOCATE( V( NM ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'V', PNAME )
          ALLOCATE( VC( NM ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'VC', PNAME )
 
          DO I = 1, NM
             V( I )%STR = GVNM( I )
@@ -401,7 +402,10 @@ C>> WTH
 #endif
             END IF
          END DO
-CCC WTH         
+C<< WTH         
+
+         IF ( ALLOCATED( V ) ) DEALLOCATE( V )
+         IF ( ALLOCATED( VC ) ) DEALLOCATE( VC )
 
          DO N = 1, NPTGRPS
             J = 0
@@ -543,7 +547,9 @@ C Check that the PM species names match EMIS_1
          END IF
 
          ALLOCATE( V( NM ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'V', PNAME )
          ALLOCATE( VC( NM ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'VC', PNAME )
 
          DO I = 1, NM
             V( I )%STR = PVNM( I )
@@ -622,10 +628,12 @@ C Cull ...
 #endif
          END DO
 
-         IF ( ALLOCATED ( GMAP ) ) DEALLOCATE ( GMAP )
-         IF ( ALLOCATED ( GLST ) ) DEALLOCATE ( GLST )
-         IF ( ALLOCATED ( GVNM ) ) DEALLOCATE ( GVNM )
-         IF ( ALLOCATED ( GSPC ) ) DEALLOCATE ( GSPC )
+         IF ( ALLOCATED( GMAP ) ) DEALLOCATE( GMAP )
+         IF ( ALLOCATED( GLST ) ) DEALLOCATE( GLST )
+         IF ( ALLOCATED( GVNM ) ) DEALLOCATE( GVNM )
+         IF ( ALLOCATED( GSPC ) ) DEALLOCATE( GSPC )
+         IF ( ALLOCATED( V ) )    DEALLOCATE( V )
+         IF ( ALLOCATED( VC ) )   DEALLOCATE( VC )
 
          RETURN
 
