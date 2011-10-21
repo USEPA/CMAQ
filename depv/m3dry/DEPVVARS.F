@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.5 2011/10/21 16:10:31 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPVVARS.F,v 1.6 2011/10/21 16:10:34 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE DEPVVARS

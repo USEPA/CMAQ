@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/MOSAIC_MOD.F,v 1.2 2011/10/21 16:10:32 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/MOSAIC_MOD.F,v 1.3 2011/10/21 16:10:35 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module MOSAIC_MOD

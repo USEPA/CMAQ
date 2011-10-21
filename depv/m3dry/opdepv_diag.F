@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.5 2011/10/21 16:10:33 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.6 2011/10/21 16:10:38 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
