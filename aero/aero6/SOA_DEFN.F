@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/SOA_DEFN.F,v 1.7 2011/10/21 16:10:02 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/SOA_DEFN.F,v 1.8 2011/10/21 16:10:07 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn

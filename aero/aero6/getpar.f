@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/getpar.f,v 1.4 2011/10/21 16:10:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/getpar.f,v 1.5 2011/10/21 16:10:09 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Subroutine getpar( m3_wet_flag, limit_sg  )

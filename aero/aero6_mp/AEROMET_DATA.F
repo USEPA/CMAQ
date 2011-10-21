@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/AEROMET_DATA.F,v 1.3 2011/10/21 16:10:02 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/AEROMET_DATA.F,v 1.4 2011/10/21 16:10:07 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aeromet_data

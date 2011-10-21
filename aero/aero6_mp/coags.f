@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/coags.f,v 1.2 2011/10/21 16:10:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/coags.f,v 1.3 2011/10/21 16:10:08 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETCOAGS( LAMDA, KFMATAC, KFMAT, KFMAC, KNC, 
