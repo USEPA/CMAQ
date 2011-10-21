@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/WVEL_DEFN.F,v 1.3 2011/10/21 16:10:39 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/WVEL_DEFN.F,v 1.4 2011/10/21 16:10:42 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
