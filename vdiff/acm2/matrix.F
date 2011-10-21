@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/matrix.F,v 1.4 2011/10/21 16:11:42 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/matrix.F,v 1.5 2011/10/21 16:11:45 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE MATRIX ( A, B, C, D, E, X )
