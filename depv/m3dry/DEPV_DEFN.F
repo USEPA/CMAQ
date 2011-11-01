@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.10 2011/10/21 16:10:31 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.11 2011/11/01 18:42:51 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -428,20 +428,22 @@ C Mosaic method to get land-use specific deposition velocities?
             END IF
 
 C Mosaic method to get land-use specific stomatal flux
-            FST = .FALSE.
-            VARDESC = 'Flag for land-use specific stomatal flux calculation'
-            FST = ENVYN( CTM_FST, VARDESC, MOSAIC, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+            IF ( MOSAIC ) THEN
+               FST = .FALSE.
+               VARDESC = 'Flag for land-use specific stomatal flux calculation'
+               FST = ENVYN( CTM_FST, VARDESC, MOSAIC, STATUS )
+               IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+               IF ( STATUS .EQ. 1 ) THEN
+                  XMSG = 'Environment variable improperly formatted'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               ELSE IF ( STATUS .EQ. -1 ) THEN
+                  XMSG = 'Environment variable set, but empty ... Using default:'
+                  WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+               ELSE IF ( STATUS .EQ. -2 ) THEN
+                  XMSG = 'Environment variable not set ... Using default:'
+                  WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+               END IF
             END IF
             
             IF ( ABFLUX ) CALL INIT_BIDI( ABFLUX )

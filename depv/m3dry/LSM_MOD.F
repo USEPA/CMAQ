@@ -19,12 +19,11 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/LSM_MOD.F,v 1.3 2011/10/21 16:10:35 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/LSM_MOD.F,v 1.4 2011/11/01 18:42:52 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module LSM_Mod
        
-C
 C Revision History: J. Bash June 16 11: Created
        
       Implicit None
@@ -38,12 +37,11 @@ C Revision History: J. Bash June 16 11: Created
       REAL,   SAVE, ALLOCATABLE  :: lwmask    ( :,: )
       Integer, Save              :: n_lufrac
       Character( 80 ), Save      :: LAND_SCHEME
-      
 
 C-------------------------------------------------------------------------------
 C Soil Characteristics by Type
 C
-C   #  SOIL TYPE  WSAT  WFC  WWLT    B   CGSAT   JP   AS   C2R  C1SAT  WRES
+C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
 C   1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082   .020
 C   2  LOAMY SAND .410 .150  .075  4.38  3.057    4  .404  3.7  .098   .035
@@ -59,23 +57,23 @@ C  11  CLAY       .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
 C
 C-------------------------------------------------------------------------------
 !-- WSAT is saturated soil moisture (M^3/M^3) (JN90)
-      DATA WSAT  /  0.395, 0.410, 0.435, 0.485, 0.451, 0.420, 0.477,    
-     &              0.476, 0.426, 0.482, 0.482/
-!-- WWLT is wilting point (M^3/M^3) (JN90)
-      DATA WWLT  /  0.068, 0.075, 0.114, 0.179, 0.155, 0.175, 0.218,    
-     &              0.250, 0.219, 0.283, 0.286/
-!-- B is slop of the retention curve (NP89)
-      DATA BSLP  /  4.05,  4.38,  4.90,  5.30,  5.39,  7.12,  7.75,   
-     &              8.52, 10.40, 10.40, 11.40/
-!-- WRES is residual soil moisture (Rawls et al 1982)
-      DATA WRES  /  0.020, 0.035, 0.041, 0.015, 0.027, 0.068, 0.040,    
-     &              0.075, 0.109, 0.056, 0.090/
+      DATA WSAT  /  0.395, 0.410, 0.435, 0.485, 0.451, 0.420, 0.477,
+     &              0.476, 0.426, 0.482, 0.482 /
 !-- WFC is soil field capacity (Rawls et al 1982)     
-      DATA WFC   /  0.135, 0.150, 0.195, 0.255, 0.240, 0.255, 0.322,    
-     &              0.325, 0.310, 0.370, 0.367/  
-! -- RHOB  is the soil bulk dnesity following Lyons et al 1997   
-      DATA RHOB  /  1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,    
-     &              1.66e6, 1.83e6, 1.78e6, 1.83e6/     
+      DATA WFC   /  0.135, 0.150, 0.195, 0.255, 0.240, 0.255, 0.322,
+     &              0.325, 0.310, 0.370, 0.367 /
+!-- WWLT is wilting point (M^3/M^3) (JN90)
+      DATA WWLT  /  0.068, 0.075, 0.114, 0.179, 0.155, 0.175, 0.218,
+     &              0.250, 0.219, 0.283, 0.286 /
+!-- B is slop of the retention curve (NP89)
+      DATA BSLP  /  4.05,  4.38,  4.90,  5.30,  5.39,  7.12,  7.75,
+     &              8.52, 10.40, 10.40, 11.40 /
+!-- WRES is residual soil moisture (Rawls et al 1982)
+      DATA WRES  /  0.020, 0.035, 0.041, 0.015, 0.027, 0.068, 0.040,
+     &              0.075, 0.109, 0.056, 0.090 /
+! -- RHOB is the soil bulk dnesity following Lyons et al 1997   
+      DATA RHOB  /  1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
+     &              1.66e6, 1.83e6, 1.78e6, 1.83e6 /
 
 !*****************************************************************************
 ! MODIS-ONLY (1XX)/MODIS (2XX) LU characterization
@@ -107,72 +105,71 @@ C-------------------------------------------------------------------------------
       Integer, Parameter :: n_modis = 20
       Integer, Parameter :: n_nlcd  = 50
       Integer, Parameter :: n_usgs  = 24
-      REAL, DIMENSION(n_modis), TARGET  :: RSMIN_MODIS, Z00_MODIS,     
-     &                                 VEG0_MODIS, VEGMN0_MODIS,   
-     &                                 LAI0_MODIS, LAIMN0_MODIS,   
-     &                                 SNUP0_MODIS, ALBF_MODIS, 
-     &                                 LUF_FAC_MODIS, HGLU_FAC_MODIS
+      REAL, DIMENSION(n_modis), TARGET :: RSMIN_MODIS, Z00_MODIS,     
+     &                                    VEG0_MODIS, VEGMN0_MODIS,   
+     &                                    LAI0_MODIS, LAIMN0_MODIS,   
+     &                                    SNUP0_MODIS, ALBF_MODIS, 
+     &                                    LUF_FAC_MODIS, HGLU_FAC_MODIS
 
       DATA RSMIN_MODIS                                    
-     &       /  175.0,  120.0,  175.0,  200.0,  200.0,    
-     &          200.0,  200.0,  150.0,  120.0,  100.0,    
-     &          160.0,   70.0,  150.0,  100.0, 9999.0,    
-     &          100.0, 9999.0,  175.0,  120.0,  100.0  /
+     &        / 175.0,  120.0,  175.0,  200.0,  200.0,
+     &          200.0,  200.0,  150.0,  120.0,  100.0,
+     &          160.0,   70.0,  150.0,  100.0, 9999.0,
+     &          100.0, 9999.0,  175.0,  120.0,  100.0 /
 
       DATA Z00_MODIS                                      
-     &       /   50.0,   50.0,   50.0,   50.0,   50.0,    
-     &            5.0,    6.0,    5.0,   15.0,   12.0,    
-     &           12.0,   30.0,   15.0,   50.0,   14.0,    
-     &            0.1,   0.01,   30.0,   15.0,   10.0  /
+     &        /  50.0,   50.0,   50.0,   50.0,   50.0,
+     &            5.0,    6.0,    5.0,   15.0,   12.0,
+     &           12.0,   30.0,   15.0,   50.0,   14.0,
+     &            0.1,   0.01,   30.0,   15.0,   10.0 /
 
       DATA VEG0_MODIS                                     
-     &       /   90.0,   95.0,   95.0,   95.0,   95.0,    
-     &           90.0,   75.0,   80.0,   70.0,   85.0,    
-     &           75.0,   95.0,   40.0,   95.0,    5.0,    
-     &           20.0,    0.0,   70.0,   40.0,   20.0  /
+     &        /  90.0,   95.0,   95.0,   95.0,   95.0,
+     &           90.0,   75.0,   80.0,   70.0,   85.0,
+     &           75.0,   95.0,   40.0,   95.0,    5.0,
+     &           20.0,    0.0,   70.0,   40.0,   20.0 /
 
       DATA VEGMN0_MODIS                                   
-     &       /   80.0,   85.0,   50.0,   50.0,   60.0,    
-     &           50.0,   50.0,   60.0,   50.0,   60.0,    
-     &           45.0,   10.0,   20.0,   40.0,    2.0,    
-     &            5.0,    0.0,   50.0,   20.0,    5.0  /
+     &        /  80.0,   85.0,   50.0,   50.0,   60.0,
+     &           50.0,   50.0,   60.0,   50.0,   60.0,
+     &           45.0,   10.0,   20.0,   40.0,    2.0,
+     &            5.0,    0.0,   50.0,   20.0,    5.0 /
 
       DATA LAI0_MODIS                                     
-     &       /    5.0,    5.0,    5.0,    5.0,    5.0,     
-     &            3.0,    2.0,    2.5,    2.0,    2.5,    
-     &            3.0,    3.0,    3.0,    3.0,    0.1,    
-     &            1.0,    0.0,    3.4,    2.4,    1.4  /
+     &        /   5.0,    5.0,    5.0,    5.0,    5.0,
+     &            3.0,    2.0,    2.5,    2.0,    2.5,
+     &            3.0,    3.0,    3.0,    3.0,    0.1,
+     &            1.0,    0.0,    3.4,    2.4,    1.4 /
 
       DATA LAIMN0_MODIS                                   
-     &       /    3.0,    4.0,    1.0,    1.0,    2.0,     
-     &            1.0,    1.0,    1.0,    1.0,    1.0,    
-     &            1.0,    0.5,    1.0,    1.0,    0.1,     
-     &            0.5,    0.0,    2.0,    1.0,    0.1  /
+     &        /   3.0,    4.0,    1.0,    1.0,    2.0,
+     &            1.0,    1.0,    1.0,    1.0,    1.0,
+     &            1.0,    0.5,    1.0,    1.0,    0.1,
+     &            0.5,    0.0,    2.0,    1.0,    0.1 /
 
       DATA SNUP0_MODIS                                    
-     &       /   0.08,   0.08,   0.08,   0.08,   0.08,     
-     &           0.03,   0.035,  0.03,   0.04,   0.04,    
-     &           0.015,  0.04,   0.04,   0.04,   0.02,      
-     &           0.02,   0.01,   0.80,   0.40,   0.015  /
+     &        /  0.08,   0.08,   0.08,   0.08,   0.08,
+     &           0.03,   0.035,  0.03,   0.04,   0.04,
+     &           0.015,  0.04,   0.04,   0.04,   0.02,
+     &           0.02,   0.01,   0.80,   0.40,   0.015 /
 
       DATA ALBF_MODIS                                     
-     &       /   12.0,   12.0,   14.0,   16.0,   13.0,     
-     &           22.0,   20.0,   22.0,   20.0,   19.0,    
-     &           14.0,   17.0,   15.0,   18.0,   55.0,     
-     &           25.0,    8.0,   15.0,   15.0,   25.0  /
+     &        /  12.0,   12.0,   14.0,   16.0,   13.0,
+     &           22.0,   20.0,   22.0,   20.0,   19.0,
+     &           14.0,   17.0,   15.0,   18.0,   55.0,
+     &           25.0,    8.0,   15.0,   15.0,   25.0 /
      
       DATA LUF_FAC_MODIS
-     &       /  100.0,  100.0,  100.0,  100.0,  100.0, 
-     &          100.0,  100.0,  100.0,  100.0,  100.0, 
-     &          100.0,  160.0,   50.0,  130.0,    0.0, 
-     &           10.0,    0.0,   10.0,   10.0,    0.0  /  
+     &        / 100.0,  100.0,  100.0,  100.0,  100.0,
+     &          100.0,  100.0,  100.0,  100.0,  100.0,
+     &          100.0,  160.0,   50.0,  130.0,    0.0,
+     &           10.0,    0.0,   10.0,   10.0,    0.0 /  
      
       DATA HGLU_FAC_MODIS
-     &       /   40.0,  130.0,   81.0,   81.0,  139.0, 
-     &          125.0,  125.0,  125.0,  125.0,   20.0, 
-     &          125.0,   80.0,  190.0,   50.0,    0.0, 
-     &          125.0,    0.0,   62.0,   62.0,   18.0  /  
-
+     &        /  40.0,  130.0,   81.0,   81.0,  139.0,
+     &          125.0,  125.0,  125.0,  125.0,   20.0,
+     &          125.0,   80.0,  190.0,   50.0,    0.0,
+     &          125.0,    0.0,   62.0,   62.0,   18.0 /  
 
 !*****************************************************************************
 ! NLCD (1XX)/MODIS (2XX) LU characterization
@@ -234,11 +231,11 @@ C-------------------------------------------------------------------------------
 ! 50 2255   9999.   0.1    00.  00.  0.0  0.0    fill value (normally ocean water)
 !------------------------------------------------------------------------------------
 
-      REAL, DIMENSION(n_nlcd), TARGET  :: RSMIN_NLCD, Z00_NLCD,      
-     &                                    VEG0_NLCD, VEGMN0_NLCD,    
-     &                                    LAI0_NLCD, LAIMN0_NLCD,    
-     &                                    SNUP0_NLCD, ALBF_NLCD, 
-     &                                    LUF_FAC_NLCD, HGLU_FAC_NLCD
+      REAL, DIMENSION(n_nlcd), TARGET :: RSMIN_NLCD, Z00_NLCD,      
+     &                                   VEG0_NLCD, VEGMN0_NLCD,    
+     &                                   LAI0_NLCD, LAIMN0_NLCD,    
+     &                                   SNUP0_NLCD, ALBF_NLCD, 
+     &                                   LUF_FAC_NLCD, HGLU_FAC_NLCD
 
       DATA RSMIN_NLCD                                        
      &       / 9999.0,  9999.0,   120.0,   120.0,   140.0,   
@@ -391,11 +388,11 @@ C-------------------------------------------------------------------------------
 ! 24  SnwIc  300.    5.   5.  02.  0.1  0.1  Perennial Snowfields or Glaciers
 !-----------------------------------------------------------------------------
 
-      REAL, DIMENSION(n_usgs), TARGET  :: RSMIN_USGS, Z00_USGS,   
-     &                                    VEG0_USGS, VEGMN0_USGS, 
-     &                                    LAI0_USGS, LAIMN0_USGS, 
-     &                                    SNUP0_USGS, ALBF_USGS, 
-     &                                    LUF_FAC_USGS, HGLU_FAC_USGS
+      REAL, DIMENSION(n_usgs), TARGET :: RSMIN_USGS, Z00_USGS,   
+     &                                   VEG0_USGS, VEGMN0_USGS, 
+     &                                   LAI0_USGS, LAIMN0_USGS, 
+     &                                   SNUP0_USGS, ALBF_USGS, 
+     &                                   LUF_FAC_USGS, HGLU_FAC_USGS
 
       DATA RSMIN_USGS                                         
      &       /  150.0,    70.0,    60.0,    70.0,    80.0,   
@@ -495,19 +492,18 @@ C-------------------------------------------------------------------------------
          END IF        
          
 #ifdef twoway
-         IF ( NUM_LAND_CAT == 24) THEN
+         IF ( NUM_LAND_CAT .EQ. 24 ) THEN
             LAND_SCHEME = 'USGS24'
-         ELSE IF ( NUM_LAND_CAT == 20) THEN
+         ELSE IF ( NUM_LAND_CAT .EQ. 20 ) THEN
             LAND_SCHEME = 'MODIS'
-         ELSE IF ( NUM_LAND_CAT == 50) THEN
+         ELSE IF ( NUM_LAND_CAT .EQ. 50 ) THEN
             LAND_SCHEME = 'NLCD-MODIS'
          END IF
 #else
          DO l = 1, NVARS3D ! determine land character
             IF ( VNAME3D( l ) .EQ. 'DLUSE' ) THEN
-               IF ( INDEX( VDESC3D( l ), 'USGS24' ) .NE. 0 ) LAND_SCHEME = 'USGS24'
-               IF ( INDEX( VDESC3D( l ), 'MODIS' ) .NE. 0 )  LAND_SCHEME = 'MODIS'
-C...overwrite if NLCD-MODIS scheme
+               IF ( INDEX( VDESC3D( l ), 'USGS24' ) .NE. 0 )     LAND_SCHEME = 'USGS24'
+               IF ( INDEX( VDESC3D( l ), 'MODIS' ) .NE. 0 )      LAND_SCHEME = 'MODIS'
                IF ( INDEX( VDESC3D( l ), 'NLCD-MODIS' ) .NE. 0 ) LAND_SCHEME = 'NLCD-MODIS'
             END IF
          END DO         

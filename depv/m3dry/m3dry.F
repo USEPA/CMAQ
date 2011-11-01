@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.10 2011/10/21 16:10:32 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.11 2011/11/01 18:42:52 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas, 
@@ -143,7 +143,7 @@ C-------------------------------------------------------------------------------
       USE SUBST_MODULES  ! stenex
       Use ABFlux_Mod     ! bidi NH3 exchange routines
       Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
-      Use Mosaic_Mod      ! contains mosaic routines
+      Use Mosaic_Mod     ! contains mosaic routines
       Use Bidi_Mod, Only: lufrac
 #ifdef twoway
       USE twoway_data_module, only : num_land_cat
@@ -158,14 +158,14 @@ C Includes:
 
 C Arguments:
 
-      INTEGER,     INTENT( IN )    :: jdate
-      INTEGER,     INTENT( IN )    :: jtime
-      Integer,     Intent( IN )    :: dt(3)      !model time step 
-      LOGICAL,     INTENT( IN )    :: abflux, sfc_hono, mosaic, fst
-      REAL,        INTENT( IN )    :: cgridl1( :,:,: )    ! layer 1 concentrations
-      REAL,        INTENT( OUT )   :: depvel_gas( :,:,: )
-      REAL,        INTENT( OUT )   :: pvd( :,:,: )
-      REAL,        INTENT( OUT )   :: cmp( :,:,: ) ! Bidi component fluxes JOB
+      INTEGER,     INTENT( IN )  :: jdate
+      INTEGER,     INTENT( IN )  :: jtime
+      INTEGER,     INTENT( IN )  :: dt(3)      !model time step 
+      LOGICAL,     INTENT( IN )  :: abflux, sfc_hono, mosaic, fst
+      REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
+      REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
+      REAL,        INTENT( OUT ) :: pvd( :,:,: )
+      REAL,        INTENT( OUT ) :: cmp( :,:,: ) ! Bidi component fluxes JOB
       
 C Local Variables:
 
@@ -268,7 +268,7 @@ C Local Variables:
 
 !     REAL,    SAVE, ALLOCATABLE :: dluse     ( :,: )
       REAL,    SAVE, ALLOCATABLE :: lon       ( :,: )
-!      REAL,    SAVE, ALLOCATABLE :: lwmask    ( :,: ) moved to LSM_MOD
+!     REAL,    SAVE, ALLOCATABLE :: lwmask    ( :,: ) moved to LSM_MOD
       REAL                       :: lai       ( ncols,nrows ) ! leaf area index [area/area]
       REAL                       :: prsfc     ( ncols,nrows ) ! surface pressure [Pa]
       REAL                       :: q2        ( ncols,nrows ) ! 2-m water vapor mix rat [kg/kg]
@@ -314,17 +314,17 @@ C For Ammonia bi-directional flux
       REAL                       :: sltyp     ( ncols,nrows ) ! soil type
       REAL                       :: wg        ( ncols,nrows ) ! soil moisture in top 1 cm (vol frc)
       REAL                       :: w2        ( ncols,nrows ) ! soil moisture in top 1 m (vol frc)
-      Real                       :: cnh3         ! Layer 1 NH3 concentration from CGRID [ppm]
-      Real                       :: tpvd         ! temp pvd variable
-      Real                       :: f_stom       ! stomatal flux component
-      Real                       :: f_cut        ! cuticular flux component
-      Real                       :: f_soil       ! soil flux component
-      Real                       :: f_emis       ! Emission flux component
-      Real                       :: f_dep        ! Deposition flux component
-      Real                       :: f_ag         ! flux from agriculture
-      Real                       :: f_nat        ! flux from natural systems
-      Real                       :: f_wat        ! direct flux to surface water
-      Real                       :: lnh3         ! loss part of ammonia flux
+      REAL                       :: cnh3         ! Layer 1 NH3 concentration from CGRID [ppm]
+      REAL                       :: tpvd         ! temp pvd variable
+      REAL                       :: f_stom       ! stomatal flux component
+      REAL                       :: f_cut        ! cuticular flux component
+      REAL                       :: f_soil       ! soil flux component
+      REAL                       :: f_emis       ! Emission flux component
+      REAL                       :: f_dep        ! Deposition flux component
+      REAL                       :: f_ag         ! flux from agriculture
+      REAL                       :: f_nat        ! flux from natural systems
+      REAL                       :: f_wat        ! direct flux to surface water
+      REAL                       :: lnh3         ! loss part of ammonia flux
                                                  ! Note that lnh3 is stored in DEPVEL_GAS(nh3) for use in vdiff
 C-------------------------------------------------------------------------------
 C For Mosaic with Ammonia bi-directional flux 
@@ -334,51 +334,51 @@ C For Mosaic with Ammonia bi-directional flux
       REAL, PARAMETER           :: ftmin = 0.0000001             ! m/s
       REAL, PARAMETER           :: nscat = 16
       REAL, PARAMETER           :: rsmax = 5000.0                ! s/m
-      Real                      :: soit2     ( ncols,nrows ) ! soil temperature in top m [K]
-      Real                      :: qv        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
-      Real                      :: pres      ( ncols,nrows ) ! layer 1 pressure [Pa]
-      Real                      :: zh        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
-      Real                      :: moli      ( ncols,nrows ) ! inverse of Monin-Obukhov length [m]
-      Real                      :: ta        ( ncols,nrows ) ! layer 1 temperature [K]      
-      Real                      :: uwind     ( ncols+1,nrows+1 ) ! dot grid horizontal wind            
-      Real                      :: vwind     ( ncols+1,nrows+1 ) ! dot grid cross wind                   
-      Real                      :: v_cross
-      Real                      :: u_cross
-      Real                      :: rich
-      Real                      :: rsj      
-      Real                      :: psihmm5      
-      Real                      :: presmb ! pressure in mb
-      Real                      :: qvs                   ! specific humidity layer 1
-      Real                      :: soit2cr
-      Real                      :: theta
-      Real                      :: thetav
-      Real                      :: betap
-      Real                      :: hu
-      Real                      :: dthvdz
-      Real                      :: radl
-      Real                      :: radf
-      Real                      :: f1
-      Real                      :: f2 
-      Real                      :: f3 
-      Real                      :: f4
-      Real                      :: ftot  
-      Real                      :: fshelt
-      Real                      :: gs  
-      Real                      :: ga
-      Real                      :: racj
-      Real                      :: rcij
-      Real                      :: raw
-      Real                      :: rgwwat        
-      Real                      :: w2avail
-      Real                      :: w2mxav            
-      Real                      :: wfccr      
-      Real                      :: zrufcr
-      Real                      :: zol   ! zh*moli
-      Real                      :: zntol ! z0*moli
-      Integer                   :: soilcat
-      Integer                   :: j
-      Integer                   :: jday
-!      Integer, Save              :: n_spc_m3dry = ltotg       ! from DEPVVARS module
+      REAL                      :: soit2     ( ncols,nrows ) ! soil temperature in top m [K]
+      REAL                      :: qv        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
+      REAL                      :: pres      ( ncols,nrows ) ! layer 1 pressure [Pa]
+      REAL                      :: zh        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
+      REAL                      :: moli      ( ncols,nrows ) ! inverse of Monin-Obukhov length [m]
+      REAL                      :: ta        ( ncols,nrows ) ! layer 1 temperature [K]      
+      REAL                      :: uwind     ( ncols+1,nrows+1 ) ! dot grid horizontal wind            
+      REAL                      :: vwind     ( ncols+1,nrows+1 ) ! dot grid cross wind                   
+      REAL                      :: v_cross
+      REAL                      :: u_cross
+      REAL                      :: rich
+      REAL                      :: rsj      
+      REAL                      :: psihmm5      
+      REAL                      :: presmb ! pressure in mb
+      REAL                      :: qvs                   ! specific humidity layer 1
+      REAL                      :: soit2cr
+      REAL                      :: theta
+      REAL                      :: thetav
+      REAL                      :: betap
+      REAL                      :: hu
+      REAL                      :: dthvdz
+      REAL                      :: radl
+      REAL                      :: radf
+      REAL                      :: f1
+      REAL                      :: f2 
+      REAL                      :: f3 
+      REAL                      :: f4
+      REAL                      :: ftot  
+      REAL                      :: fshelt
+      REAL                      :: gs  
+      REAL                      :: ga
+      REAL                      :: racj
+      REAL                      :: rcij
+      REAL                      :: raw
+      REAL                      :: rgwwat        
+      REAL                      :: w2avail
+      REAL                      :: w2mxav            
+      REAL                      :: wfccr      
+      REAL                      :: zrufcr
+      REAL                      :: zol   ! zh*moli
+      REAL                      :: zntol ! z0*moli
+      INTEGER                   :: soilcat
+      INTEGER                   :: j
+      INTEGER                   :: jday
+!     Integer, Save             :: n_spc_m3dry = ltotg       ! from DEPVVARS module
                                                  
 C-------------------------------------------------------------------------------
 C-- Chemical-Dependent Parameters (Original Source: Modified ADOM - Padro)
@@ -581,9 +581,9 @@ C-------------------------------------------------------------------------------
 
          CALL subhfile ( met_cro_2d, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
          
-!         Write(logdev,*) 'Before read lufrac'
-!         Write(logdev,*) 'n_lufrac', n_lufrac
-         If( abflux .OR. mosaic ) Then                                 
+!        Write(logdev,*) 'Before read lufrac'
+!        Write(logdev,*) 'n_lufrac', n_lufrac
+         IF ( abflux .OR. mosaic ) THEN                                 
             IF ( .NOT. ALLOCATED ( lufrac ) ) THEN
                ALLOCATE ( lufrac( n_lufrac,my_ncols,my_nrows ) )
             END IF
@@ -598,12 +598,12 @@ C-------------------------------------------------------------------------------
                   GO TO 1001
                END IF
             END DO                      
-         End If        
+         END IF        
              
-!         Write(logdev,*) 'Before init_ABFlux'
-         If ( abflux ) Then         
+!        Write(logdev,*) 'Before init_ABFlux'
+         IF ( abflux ) THEN         
             CALL Init_ABFlux(jdate, jtime)
-         EndIf         
+         END IF         
 
 C-------------------------------------------------------------------------------
 C Read fields from grid_cro_2d.
@@ -716,7 +716,7 @@ C-------------------------------------------------------------------------------
          GO TO 1001
       END IF
 !     ELSE
-      IF (vname_ra .EQ. 'RADYNI') THEN
+      IF ( vname_ra .EQ. 'RADYNI' ) THEN
          DO r = 1, my_nrows
             DO c = 1, my_ncols
                ra( c,r ) = 1.0 / MAX( ra( c,r ), resist_min )
@@ -755,7 +755,7 @@ C-------------------------------------------------------------------------------
          GO TO 1001
       END IF
 !     ELSE
-      IF (vname_rs .EQ. 'RSTOMI') THEN
+      IF ( vname_rs .EQ. 'RSTOMI' ) THEN
          DO r = 1, my_nrows
             DO c = 1, my_ncols
                rs( c,r ) = 1.0 / MAX( rs( c,r ), resist_min )
@@ -836,7 +836,7 @@ C-------------------------------------------------------------------------------
       END IF        
                
 !      Write(logdev,*) 'Before read metcro2d variables'
-      If( abflux .OR. mosaic ) Then               
+      IF( abflux .OR. mosaic ) THEN               
          vname = 'SOIM1'
          IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, wg) ) THEN
@@ -864,7 +864,7 @@ C-------------------------------------------------------------------------------
            WRITE( XMSG,9001 ) vname, met_cro_2d
            GO TO 1001
          END IF   
-      EndiF
+      END IF
 C-------------------------------------------------------------------------------
 C Read fields from met_cro_3d.
 C-------------------------------------------------------------------------------
@@ -887,8 +887,8 @@ C-------------------------------------------------------------------------------
          END IF
       END IF
       
-!      Write(logdev,*) 'Before read metcro3d variables'
-      IF ( abflux .OR. mosaic ) Then
+!     Write(logdev,*) 'Before read metcro3d variables'
+      IF ( abflux .OR. mosaic ) THEN
          vname = 'ZH'
          IF ( .NOT. interpx ( met_cro_3d, vname, pname, strtcol,  endcol,
      &                     strtrow, endrow, 1, 1, jdate, jtime, zh) ) THEN
@@ -929,7 +929,7 @@ C-------------------------------------------------------------------------------
             WRITE( xmsg,9001 ) vname, met_dot_3d
             GO TO 1001
          END IF      
-      EndIf
+      END IF
       
 C-------------------------------------------------------------------------------
 C Loop over grid cells and calculate dry deposition.
@@ -941,7 +941,7 @@ C-------------------------------------------------------------------------------
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
       cmp       ( :,:,: ) = 0.0  !     "       "    "    "    " JOB
       
-!      Write(logdev,*) 'Before devel_gasj'
+!     Write(logdev,*) 'Before devel_gasj'
       IF ( mosaic .OR. abflux ) THEN
          depvel_gasj( :,:,:,: ) = 0.0 !     "       "    "    "    "
          ustarj     ( :,:,: )   = 0.0 !     "       "    "    "    "
@@ -953,10 +953,10 @@ C-------------------------------------------------------------------------------
          CALL SUBST_COMM ( VWIND, DSPL_N1_E0_S0_W0, DRCN_N )         
       END IF
 
-      jday = jdate - 1000 * nint(jdate/1000.)
+      jday = jdate - 1000 * ( jdate/1000 )
             
-!      WRITE(LOGDEV,*) 'my_nrows: ', my_nrows
-!      WRITE(LOGDEV,*) 'my_ncols: ', my_ncols      
+!     WRITE(LOGDEV,*) 'my_nrows: ', my_nrows
+!     WRITE(LOGDEV,*) 'my_ncols: ', my_ncols      
       
       DO r = 1, my_nrows
       DO c = 1, my_ncols
@@ -969,36 +969,36 @@ C-------------------------------------------------------------------------------
          vegcr     = veg    ( c,r )
          soit2cr   = soit2  ( c,r )
          zrufcr    = zruf   ( c,r ) 
-         soilcat   = NINT(sltyp( c,r ))
+         soilcat   = NINT( sltyp( c,r ) )
          ifsnow    = MAX( 0, NINT( snocov( c,r ) ) )
          
-!         Write(logdev,*) 'before lufraccr'
+!        Write(logdev,*) 'before lufraccr'
          IF ( abflux .OR. mosaic ) THEN                       
-            Do j = 1, n_lufrac 
+            DO j = 1, n_lufrac 
                lufraccr( j ) = lufrac( j,c,r )
-            End Do
+            END DO
          
-            IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
-!               Write(logdev,*) 'Before call calc_lai'
-               CALL Calc_Lai(jday, jtime, soit2cr, lufraccr, laicr, zrufcr, 
-     &                       laijcr, z0jcr, vegjcr, logdev, c, r )
-               DO j=1,n_lufrac
+            IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
+!              Write(logdev,*) 'Before call calc_lai'
+               CALL Calc_Lai( jday, jtime, soit2cr, lufraccr, laicr, zrufcr, 
+     &                        laijcr, z0jcr, vegjcr, logdev, c, r )
+               DO j = 1, n_lufrac
                   laij(j,c,r) = laijcr(j)
                   z0j(j,c,r)  = z0jcr(j)
                   vegj(j,c,r) = vegjcr( j )
                END DO
             ELSE        
-               DO j=1,n_lufrac
+               DO j = 1, n_lufrac
                   laij(j,c,r)   = 0.0
                   z0j(j,c,r)    = 0.000001
                   vegj( j,c,r ) = 0.0
                END DO
             END IF 
-         EndIf ! mosaic loop
+         END IF ! mosaic loop
 
 ! Calculate the relative humidity of air and ground.
 
-         IF ( temp2p0cr <= stdtemp ) THEN
+         IF ( temp2p0cr .LE. stdtemp ) THEN
             es_air = vp0 * EXP( 22.514 - (6.15e3 / temp2p0cr) )
          ELSE
             es_air = vp0 * EXP( svp2 * (temp2p0cr - stdtemp) /
@@ -1009,7 +1009,7 @@ C-------------------------------------------------------------------------------
          rh_air  = 100.0 * q2p0cr / qss_air
          rh_air  = MIN( 100.0, rh_air )
 
-         IF ( tempgcr <= stdtemp ) THEN
+         IF ( tempgcr .LE. stdtemp ) THEN
             es_grnd = vp0 * EXP( 22.514 - (6.15e3 / tempgcr) )
          ELSE
             es_grnd = vp0 * EXP( svp2 * (tempgcr - stdtemp) /
@@ -1020,15 +1020,15 @@ C-------------------------------------------------------------------------------
          rh_grnd  = 100.0 * q2p0cr / qss_grnd
          rh_grnd  = MIN( 100.0, rh_grnd )
         
-!         Write(logdev,*) 'Before OM simularity vars'
+!        Write(logdev,*) 'Before OM simularity vars'
          IF ( mosaic .OR. abflux ) THEN
             zol   = zh(c,r) * moli(c,r)
-            presmb = pres(c,r)/100.    ! convert layer 1 preesure from Pa to mb
-            qvs = qv(c,r)/(1. + qv(c,r))
-            theta = ta(c,r) * (1000./presmb)**(287.04/1004.E0)
-            thetav = theta*(1+0.61*qv(c,r))
+            presmb = pres(c,r)/100.0    ! convert layer 1 preesure from Pa to mb
+            qvs = qv(c,r)/(1.0 + qv(c,r))
+            theta = ta(c,r) * (1000.0/presmb)**(287.04/1004.e0)
+            thetav = theta*(1.0+0.61*qv(c,r))
 
-            IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
+            IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 ! raj is estimated using stability correction based on MOL for grid cell for now
                DO j = 1, n_lufrac
 
@@ -1037,69 +1037,71 @@ C-------------------------------------------------------------------------------
                   V_cross = 0.25 * (VWIND(C,R) + VWIND(C+1,R) +
      &                              VWIND(C,R+1) + VWIND(C+1,R+1))
 
-                  IF (lufraccr( j ) > 0.0 ) THEN
+                  IF ( lufraccr( j ) .GT. 0.0 ) THEN
                      ustarj( j,c,r ) = ustarcr * SQRT( LOG( zh( c,r ) / Zrufcr )
      &                                               / LOG( zh( c,r ) / z0j( j,c,r ) ) )
                      zntol = z0j(j,c,r) * moli(c,r)
 
 ! ra calculation depends on met model used
-                     Select Case(vgtyp_gd)
-                        Case(7)
-!                           Write(logdev,*) 'Before call ra_wrf'
-                           Call ra_wrf(moli(c,r),zol,zntol,zh(c,r),ustarj(j,c,r),z0j(j,c,r),j,c,r)
-                        Case(2)
-                           If (Land_Scheme .EQ. 'USGS24') then              
-                              Select Case(j)
-                                 Case(16) ! water
+                     SELECT CASE(vgtyp_gd)
+                        CASE(7)
+!                          Write(logdev,*) 'Before call ra_wrf'
+                           CALL ra_wrf(moli(c,r),zol,zntol,zh(c,r),ustarj(j,c,r),z0j(j,c,r),j,c,r)
+                        CASE(2)
+                           IF ( Land_Scheme .EQ. 'USGS24' ) THEN              
+                              SELECT CASE(j)
+                                 CASE(16) ! water
                                     wfccr = -999.
-                                 Case Default ! Land
+                                 CASE DEFAULT ! Land
                                     wfccr = wfc(soilcat)
-                              End Select
-                           End If
-                           If (Land_Scheme .EQ. 'NLCD-MODIS') then              
-                              Select Case(j)
-                                 Case(1,31,48) ! water
+                              END SELECT
+                           END IF
+                           IF ( Land_Scheme .EQ. 'NLCD-MODIS' ) THEN              
+                              SELECT CASE(j)
+                                 CASE(1,31,48) ! water
                                     wfccr = -999.
-                                 Case Default ! Land
+                                 CASE DEFAULT ! Land
                                     wfccr = wfc(soilcat)
-                              End Select
-                           End If
-                          If (Land_Scheme .EQ. 'MODIS') then              
-                             Select Case(j)
-                                Case(17) ! water
+                              END SELECT
+                           END IF
+                          IF ( Land_Scheme .EQ. 'MODIS' ) THEN              
+                             SELECT CASE(j)
+                                CASE(17) ! water
                                    wfccr = -999.
-                                Case Default ! Land
+                                CASE DEFAULT ! Land
                                    wfccr = wfc(soilcat)
-                             End Select
-                           End If                        
-!                           Write(logdev,*) 'Before call ra_mm5'
-                           Call ra_mm5(wspd10(c,r),u_cross,v_cross,theta,thetav,tempgcr,qv(c,r),qss_grnd,
+                             END SELECT
+                           END IF                        
+!                          Write(logdev,*) 'Before call ra_mm5'
+                           CALL ra_mm5( wspd10(c,r),u_cross,v_cross,theta,thetav,tempgcr,qv(c,r),qss_grnd,
      &                          snocov(c,r),prsfc(c,r),lwmask(c,r),
      &                          wg(c,r),wfccr,zh(c,r),z0j(j,c,r),ustarj(j,c,r),raj(j,c,r),rich,
-     &                          psihmm5,betap,hu,dthvdz)
-                        Case Default
+     &                          psihmm5,betap,hu,dthvdz )
+                        CASE DEFAULT
                            xmsg = 'met file format not recognized for mosaic'
                            CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
-                     End Select
-                  END IF ! lufraccr > 0
+                     END SELECT
+!                    rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
+                  END IF  ! lufraccr > 0
                END DO
             ELSE    ! water - no need to do mosaic
-               DO j=1, n_lufrac
+               DO j = 1, n_lufrac
                   ustarj (j,c,r ) = ustarcr
-                  raj (j,c,r ) = ra(c,r)
-                  z0j (j,c,r ) = zrufcr
+                  raj (j,c,r )    = ra(c,r)
+                  z0j (j,c,r )    = zrufcr
+!                 rbcj(j)         = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
                END DO
-            END IF !land or water     
-         EndIf
+            END IF  ! land or water     
+         END IF
 
-         IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
+         IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 
             IF ( .NOT. ifwr ) THEN  ! approx canopy wetness - dew from Wesely
 
             ! canopy is wet if > trace precip. or moist with light winds
 
-               IF ( ( rn( c,r ) + rc( c,r ) > 0.025 ) .OR.
-     &              ( (0.6 + wspd10( c,r ))*(100.0-rh_grnd) <= 19.0 ) ) THEN
+               IF ( ( rn( c,r ) + rc( c,r ) .GT. 0.025 ) .OR.
+     &              ( (0.6 + wspd10( c,r ))*(100.0-rh_grnd) .LE. 19.0 ) ) THEN
 
                   delta( c,r )      = 1.0
                   lstwetdate( c,r ) = jdate
@@ -1107,22 +1109,22 @@ C-------------------------------------------------------------------------------
 
                ELSE
 
-                  IF ( rgrnd( c,r ) > 5.0 ) THEN  ! day (if at night, persist delta)
+                  IF ( rgrnd( c,r ) .GT. 5.0 ) THEN  ! day (if at night, persist delta)
 
                   ! Determine if canopy was recently wet.
 
-                     IF ( ( lstwetdate( c,r ) > 0 ) .AND.
-     &                    ( lstwettime( c,r ) > 0 ) ) THEN  ! canopy recently wet
+                     IF ( ( lstwetdate( c,r ) .GT. 0 ) .AND.
+     &                    ( lstwettime( c,r ) .GT. 0 ) ) THEN  ! canopy recently wet
 
                         elapsedsec = secsdiff ( lstwetdate( c,r ),
      &                                          lstwettime( c,r ),
      &                                          jdate, jtime )
 
-                        IF ( ( elapsedsec >     0 ) .AND.     ! assume canopy stays
-     &                       ( elapsedsec <= 7200 ) ) THEN    ! wet for 2 h
+                        IF ( ( elapsedsec .GT.     0 ) .AND.     ! assume canopy stays
+     &                       ( elapsedsec .LE. 7200 ) ) THEN    ! wet for 2 h
                            delta( c,r ) = 1.0
-                        ELSE IF ( ( elapsedsec >  7200 ) .AND.     ! ramp down DELTA
-     &                            ( elapsedsec < 10800 ) ) THEN    ! between 2 & 3 h
+                        ELSE IF ( ( elapsedsec .GT.  7200 ) .AND.     ! ramp down DELTA
+     &                            ( elapsedsec .LT. 10800 ) ) THEN    ! between 2 & 3 h
                            delta( c,r ) = ( 10800.0 - FLOAT( elapsedsec ) ) / 3600.0
                         ELSE
                            delta( c,r )      = 0.0
@@ -1136,17 +1138,17 @@ C-------------------------------------------------------------------------------
 
                END IF
                
-!               Write(logdev,*) 'Before load deltaj'
-               If( mosaic .OR. abflux ) Then
-                  Do j=1,n_lufrac
+!              Write(logdev,*) 'Before load deltaj'
+               IF ( mosaic .OR. abflux ) THEN
+                  DO j = 1, n_lufrac
                       deltaj(j,c,r) = delta(c,r)
-                  End Do
-               EndIf
+                  END DO
+               END IF
 
             ELSE  ! Already have canopy wetness explicitly from met model
 
                wrmax = 0.2e-3 * vegcr * laicr   ! [m]
-               IF ( wr( c,r ) <= 0.0 ) THEN
+               IF ( wr( c,r ) .LE. 0.0 ) THEN
                   delta( c,r ) = 0.0
                ELSE
                   delta( c,r ) = wr( c,r ) / wrmax   ! refer to SiB model
@@ -1154,26 +1156,26 @@ C-------------------------------------------------------------------------------
                END IF
                               
 !               Write(logdev,*) 'Before deltaj calc'
-               If( mosaic .OR. abflux ) Then
-                  Do j=1,n_lufrac
+               IF ( mosaic .OR. abflux ) THEN
+                  DO j = 1, n_lufrac
                      wrmax = 0.2e-3 * vegj(j,c,r) * laij(j,c,r)   ! [m] changed to vegj for mosaic JOB
-                     If ( (wr( c,r ) <= 0.0) .or. (laij(j,c,r) <= 0)) Then
+                     IF ( (wr( c,r ) .LE. 0.0) .or. (laij(j,c,r) .LE. 0)) THEN
                         deltaj( j,c,r ) = 0.0
-                     Else
+                     ELSE
                         deltaj( j,c,r ) = wr( c,r ) / wrmax   ! refer to SiB model
                         deltaj( j,c,r ) = MIN( deltaj( j,c,r ), 1.0 )
-                     End If
-                  End Do               
-               EndIf
+                     END IF
+                  END DO               
+               END IF
                
             END IF   ! canopy wetness
 
       ! Assign a pH for rain water based on longitude if US simulation.
       ! Otherwise use default pH.  Use pH value in HPLUS calculation.
 
-            IF ( ( ycent >=   30.0 ) .AND. ( ycent <=  45.0 ) .AND.
-     &           ( xcent >= -120.0 ) .AND. ( xcent <= -70.0 ) ) THEN
-               IF ( lon( c,r ) > -100.0 ) THEN
+            IF ( ( ycent .GE.   30.0 ) .AND. ( ycent .LE.  45.0 ) .AND.
+     &           ( xcent .GE. -120.0 ) .AND. ( xcent .LE. -70.0 ) ) THEN
+               IF ( lon( c,r ) .GT. -100.0 ) THEN
                   hplus = hplus_east
                ELSE
                   hplus = hplus_west
@@ -1202,7 +1204,7 @@ C-------------------------------------------------------------------------------
 
             n = n + 1
 
-            IF ( TRIM( depspc( l ) ) == 'SULF' ) THEN  ! Sulfate (SULF)
+            IF ( TRIM( depspc( l ) ) .EQ. 'SULF' ) THEN  ! Sulfate (SULF)
 
          ! Sulfate calculation follows Wesely (1985), Eqn. 11.
 
@@ -1210,7 +1212,7 @@ C-------------------------------------------------------------------------------
      &                  ustarcr )
                depvel_gas( n,c,r ) = 1.0 / ( ra( c,r ) + rbsulf )
                
-!               Write(logdev,*) 'Before calc rbsulf and depvel_gasj'
+!              Write(logdev,*) 'Before calc rbsulf and depvel_gasj'
                IF ( mosaic ) THEN
                   DO j = 1, n_lufrac
                      IF ( lufraccr( j ) .GT. 0.0 ) THEN
@@ -1219,12 +1221,11 @@ C-------------------------------------------------------------------------------
                         depvel_gasj( j,l,c,r ) = 1.0 / ( raj( j,c,r ) + rbsulf )
                      END IF
                   END DO
-               END IF ! mosaic
+               END IF  ! mosaic
 
             ELSE
 
-               IF ( ( NINT(lwmask( c,r )) == 0 ) .OR. ( vegcr == 0.0 ) ) THEN  ! water                 
-                                
+               IF ( ( NINT(lwmask( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water                 
 
          ! Use CMAQ function for calculating the effective Henry's Law
          ! constant.  Note that original M3DRY wants inverse, non-
@@ -1244,7 +1245,7 @@ C-------------------------------------------------------------------------------
                   scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
                   rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
                   rsurf = rgw                  
-!                  Write(logdev,*) 'Before call rsurfj'
+!                 Write(logdev,*) 'Before call rsurfj'
                   IF ( mosaic ) THEN
                      DO j = 1, n_lufrac
                         IF ( lufraccr( j ) .GT. 0.0 ) THEN
@@ -1268,7 +1269,7 @@ C-------------------------------------------------------------------------------
          ! Wet surface resistance.  (Note DELTA = CWC in ADOM lingo.)
          ! This now applies to cuticle and ground.
 
-                  IF ( TRIM( depspc( l ) ) /= 'O3' ) THEN
+                  IF ( TRIM( depspc( l ) ) .NE. 'O3' ) THEN
                      rwet = rcw0 / heff      ! wet cuticle
                   ELSE
                   ! Set RCW/LAI = 200 s/m on basis of Keysburg exp for O3
@@ -1283,7 +1284,7 @@ C-------------------------------------------------------------------------------
 
          ! If the surface is cold and wet, use dry snow.
 
-                  IF ( tempgcr < stdtemp ) THEN
+                  IF ( tempgcr .LT. stdtemp ) THEN
                      rwetsfc = rsnow
                   ELSE
                      rwetsfc = rwet
@@ -1291,7 +1292,7 @@ C-------------------------------------------------------------------------------
 
          ! Dry cuticle resistance.
 
-                  IF ( TRIM( depspc( l ) ) /= 'NH3' ) THEN
+                  IF ( TRIM( depspc( l ) ) .NE. 'NH3' ) THEN
                      rcut = rcut0 * a0 / ar( l )
                   ELSE
                      rcut = 4000.0 * EXP( -0.054 * rh_air )
@@ -1304,10 +1305,10 @@ C-------------------------------------------------------------------------------
                   rgnd  = rg0 * a0 / ar( l )
                   rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) / rgnd + delta( c,r ) / rgw )
      &                  + rinc          ! Add in-canopy part
-!                  Write(logdev,*) 'Before call rdndcj'
-                  If( mosaic .OR. abflux ) Then
-                     DO j=1,n_lufrac
-                        IF (lufraccr( j ) > 0.0 ) THEN
+!                 Write(logdev,*) 'Before call rdndcj'
+                  IF ( mosaic .OR. abflux ) THEN
+                     DO j = 1, n_lufrac
+                        IF (lufraccr( j ) .GT. 0.0 ) THEN
                            hcanj ( j ) = Z0j( j,c,r ) * 10.0
                            rincj( j,c,r )  = 14.0 * laij( j,c,r ) * hcanj( j )
      &                                     / ustarj( j,c,r )
@@ -1316,14 +1317,14 @@ C-------------------------------------------------------------------------------
      &                                     + rincj( j,c,r )      ! Add in-canopy part
                         END IF
                      END DO
-                  EndIf
+                  END IF
                   
          ! Determine the snow liquid water mass fraction (0.0 to 0.5).
 
                   xm = 0.02 * ( temp2p0cr - ( stdtemp - 1.0 ) )**2
                   xm = MIN (xm, 0.5)
                   xm = MAX (xm, 0.0)
-                  IF ( temp2p0cr < ( stdtemp - 1.0 ) ) xm = 0.0                  
+                  IF ( temp2p0cr .LT. ( stdtemp - 1.0 ) ) xm = 0.0                  
 
          ! Bulk stomatal resistance; include mesophyll resistance.
 
@@ -1333,25 +1334,25 @@ C-------------------------------------------------------------------------------
      &                  + 1.0 / ( heff_ap / 3000.0 + 100.0 * meso( l ) ) / laicr
 
 ! Recalculate stomal resistance for each land use category
-!                  Write(logdev,*) 'Before calc rstomj'
+!                 Write(logdev,*) 'Before calc rstomj'
                   IF ( mosaic .OR. abflux ) THEN
-                     DO j=1,n_lufraC
-                        IF (lufraccr( j ) > 0.0 ) THEN
-                           if ((Land_scheme .eq. 'USGS24' .and. j .ne. 16) .or. 
-     &                         (Land_scheme .eq. 'NLCD-MODIS' .and. j.ne. 1 .and. j 
-     &                          .ne. 31 .and. j.ne. 48) .or. 
-     &                         (Land_scheme .eq. 'MODIS' .and. j .ne. 17 )) then
+                     DO j = 1, n_lufraC
+                        IF ( lufraccr( j ) .GT. 0.0 ) THEN
+                           IF ( (Land_scheme .EQ. 'USGS24' .AND. j .NE. 16) .OR. 
+     &                          (Land_scheme .EQ. 'NLCD-MODIS' .AND. j .NE. 1 .AND.
+     &                           j .NE. 31 .AND. j .NE. 48) .OR. 
+     &                          (Land_scheme .EQ. 'MODIS' .AND. j .NE. 17 )) THEN
                               IF ( laij( j,c,r ) .LT. 0.00001 ) THEN
                                  rstomj( j,l,c,r ) = rsmax
                               ELSE
 !-RADIATION
-                                 IF ( rsmin( j ) .GT. 130.0 ) THEN
+                                 IF ( rsmin_p( j ) .GT. 130.0 ) THEN
                                     radl = 30.0                       ! W/M2
                                  ELSE
                                     radl = 100.0                      ! W/M2
                                  END IF
                                  radf = 1.1 * rgrnd( c,r ) / ( radl * laij( j,c,r ) )     ! NP89 - EQN34
-                                 f1   = ( rsmin( j ) / rsmax + radf ) / ( 1.0 + radf )
+                                 f1   = ( rsmin_p( j ) / rsmax + radf ) / ( 1.0 + radf )
 
 !-SOIL MOISTURE
                                  w2avail = w2( c,r ) - wwlt( soilcat )
@@ -1371,7 +1372,7 @@ C-------------------------------------------------------------------------------
                                  ftot = laij( j,c,r ) * f1 * f2 * f4
                                  ftot = MAX( ftot,ftmin )
                                  fshelt = 1.0   ! go back to NP89
-                                 gs     = ftot / ( rsmin( j ) * fshelt )
+                                 gs     = ftot / ( rsmin_p( j ) * fshelt )
                                  raw = raj( j,c,r ) + 4.503 / ustarj( j,c,r )
                                  ga     = 1.0 / raw
 
@@ -1399,17 +1400,17 @@ C-------------------------------------------------------------------------------
 
                   rsurf = 1.0 / rci
                   
-!                  Write(logdev,*) 'Before call rsurfj'
+!                 Write(logdev,*) 'Before call rsurfj'
                   IF ( mosaic ) THEN
                      DO j = 1, n_lufrac
 
                         IF ( lufraccr( j ) .GT. 0.0 ) THEN
 !                          IF ( j .eq. iwat ) THEN ! water -- code duplicate from above as it
                                               ! would only have been calculated above if it is a water cell
-                           IF ( ( Land_scheme .EQ. 'USGS24' .AND. J .EQ. 16 ) .OR.
-     &                          ( Land_scheme .EQ. 'NLCD-MODIS' .AND. J .EQ. 1 .OR.
-     &                            J .EQ. 31 .OR. J.EQ. 48 ).OR.
-     &                          ( Land_scheme .EQ. 'MODIS' .AND. J .EQ. 17 ) ) THEN   ! water
+                           IF ( ( Land_scheme .EQ. 'USGS24' .AND. j .EQ. 16 ) .OR.
+     &                          ( Land_scheme .EQ. 'NLCD-MODIS' .AND. j .EQ. 1 .OR.
+     &                            j .EQ. 31 .OR. j .EQ. 48 ) .OR.
+     &                          ( Land_scheme .EQ. 'MODIS' .AND. j .EQ. 17 ) ) THEN   ! water
                               ctemp2 = temp2p0cr - stdtemp
                               lv     = lv0 - dlvdt * ctemp2
                               cp_air = 1004.67 * ( 1.0 + 0.84 * q2p0cr )               ! [J/kg/K]
@@ -1453,12 +1454,20 @@ C-------------------------------------------------------------------------------
 
                depvel_gas( n,c,r ) = 1.0 / ( rsurf + rac )
                
-!               Write(logdev,*) 'Before calc devel_gasj'
+               IF ( mosaic .OR. abflux ) THEN   ! initialize col/row boundary layer resistance
+                  DO j = 1, n_lufrac 
+                     IF ( lufraccr( j ) .GT. 0.0 ) THEN
+                        rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
+                     END IF
+                  END DO
+               END IF  ! mosaic
+
                IF ( mosaic ) THEN
+!                 Write(logdev,*) 'Before calc devel_gasj'
                   DO j = 1, n_lufrac 
                      IF ( lufraccr( j ) .GT. 0.0 ) THEN
                         
-                        rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
+!                       rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
                         racj = raj( j,c,r ) + rbcj(j)
                         depvel_gasj( j,l,c,r) = 1.0 / ( rsurfj( j,l,c,r ) + racj )
                         IF ( depvel_gasj( j,l,c,r ) .LT. 0.0 .OR.
@@ -1473,11 +1482,11 @@ C-------------------------------------------------------------------------------
                            CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
                         END IF
                         IF ( fst ) THEN
-                           IF ((( Land_scheme .EQ. 'USGS24' .AND. J .EQ. 16 )   .OR.
-     &                          ( Land_scheme .EQ. 'NLCD-MODIS' .AND. J .EQ. 1  .OR.
-     &                            J .EQ. 31 .OR. J.EQ. 48 )                     .OR.
-     &                          ( Land_scheme .EQ. 'MODIS' .AND. J .EQ. 17 ) )  .OR. 
-     &                          ( lwmask( c,r ) .EQ. 0.0  ) ) THEN                         ! water
+                           IF ( (( Land_scheme .EQ. 'USGS24' .AND. j .EQ. 16 )   .OR.
+     &                           ( Land_scheme .EQ. 'NLCD-MODIS' .AND. j .EQ. 1  .OR.
+     &                             j .EQ. 31 .OR. j .EQ. 48 )                    .OR.
+     &                           ( Land_scheme .EQ. 'MODIS' .AND. j .EQ. 17 ) )  .OR. 
+     &                           ( lwmask( c,r ) .EQ. 0.0  ) ) THEN                         ! water
                               vd_fst_gasj( j,l,c,r) = 0.0
                            ELSE
                               vd_fst_gasj(j,l,c,r) = (1.0/(racj+rsurfj(j,l,c,r)))*(rsurfj(j,l,c,r)/rstomj(j,l,c,r))
@@ -1502,18 +1511,17 @@ C-------------------------------------------------------------------------------
 C--------------------------------------------------------------------------               
                IF ( abflux ) THEN   ! Ammonia Bidirectional Flux
 
-                  IF ( TRIM( depspc( l ) ) == 'NH3' ) THEN
+                  IF ( TRIM( depspc( l ) ) .EQ. 'NH3' ) THEN
                      cnh3  = cgridl1( n,c,r )
 
-!                     Write(logdev,*) 'Before call Get_flux'
-                     IF ( NINT( lwmask( c,r ) ) /= 0 ) THEN  ! land
-                        Call Get_Flux(tempgcr,rh_air,cnh3,rwetsfc,rgw,wg(c,r),w2(c,r),
-     &                                sltyp(c,r),dif0(l),r,c,l,tpvd,lnh3,
-     &                                f_stom,f_cut,f_soil,f_emis,f_dep,f_ag,f_nat, f_wat,
-     &                                dt(2))
+!                    Write(logdev,*) 'Before call Get_flux'
+                     IF ( NINT( lwmask( c,r ) ) .NE. 0 ) THEN  ! land
+                        CALL Get_Flux( tempgcr,rh_air,cnh3,rwetsfc,rgw,wg(c,r),w2(c,r),
+     &                                 sltyp(c,r),dif0(l),r,c,l,tpvd,lnh3,
+     &                                 f_stom,f_cut,f_soil,f_emis,f_dep,f_ag,f_nat, f_wat,
+     &                                 dt(2) )
                         pvd( n,c,r ) = tpvd
                         depvel_gas( n,c,r ) = lnh3
-                        
                         
                         cmp(1,c,r) = f_emis
                         cmp(2,c,r) = f_dep
@@ -1524,9 +1532,9 @@ C--------------------------------------------------------------------------
                         cmp(7,c,r) = f_nat
                         cmp(8,c,r) = f_wat
                         
-                     Else   ! water
-                        cmp(8,c,r) = depvel_gas( n,c,r )* cnh3
-                     End If
+                     ELSE   ! water
+                        cmp(8,c,r) = depvel_gas( n,c,r ) * cnh3
+                     END IF
                   END IF   ! 'NH3'
 
                END IF   ! abflux
@@ -1583,13 +1591,13 @@ C reduce the NO2 conc. in the atmosphere. Dep vel is adjusted back to the
 C original value in vdiffacm2 after NO2 conc is reduced but before calculating
 C depositional loss.
 
-!                     depvel_gas( n,c,r ) = depvel_gas( n,c,r ) + 2.0 * kno2 * zf( c,r )
+!                    depvel_gas( n,c,r ) = depvel_gas( n,c,r ) + 2.0 * kno2 * zf( c,r )
 
                   END IF
 
 C Calculate production (pvd) for HONO; unit = ppm * m/s
 
-                  IF ( TRIM( depspc( l ) ) == 'HONO' )
+                  IF ( TRIM( depspc( l ) ) .EQ. 'HONO' )
      &               pvd( n,c,r ) = kno2 * conc_no2 * zf( c,r )
 
                END IF
@@ -1597,13 +1605,13 @@ C--------------------------------------------------------------------------
 
                ! Check for negative values or NaN's
 
-               IF ( depvel_gas( n,c,r ) < 0.0 .OR.
-     &              depvel_gas( n,c,r ) /= depvel_gas( n,c,r ) ) GO TO 999
+               IF ( depvel_gas( n,c,r ) .LT. 0.0 .OR.
+     &              depvel_gas( n,c,r ) .NE. depvel_gas( n,c,r ) ) GO TO 999
 
             END IF   ! special condition for sulfate (SULF)
 
-         END DO ddloop                  
-      
+         END DO ddloop  ! (l = 1, n_spc_m3dry)
+
       END DO   ! c
       END DO   ! r                  
 
@@ -1693,5 +1701,4 @@ C-------------------------------------------------------------------------------
      &       / 1x, '***   Rstomj  = ', e13.6,
      &       / 1x, 70('*') /)
      
-
       END SUBROUTINE m3dry
