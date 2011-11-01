@@ -1,6 +1,6 @@
 
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/cb05tucl_ae5_aq/mech.def,v 1.2 2011/08/30 18:42:21 sjr Exp $ 
+! $Header: /project/yoj/arc/MECHS/src/cb05tucl_ae5_aq/mech.def,v 1.3 2011/11/01 12:49:57 sjr Exp $ 
 
 ! what(1) key, module and SID; SCCS file; date and time of last delta:
 ! %W% %P% %G% %U%
@@ -86,13 +86,21 @@ CB05TUCL_AE5_AQ
 !
 !  Added two chlorine reactions for TOL and XYL (CL22 - CL23) (suggested by Greg Yarwood)
 !  The mechanism now contains 23 reactions for chlorine chemistry 
-
+!
 !  Chemical reactions for SOA remained same (number of chemical reactions 10)
 !  Thus, the total number of chemical reacctions in the gas-phase chemistry is 205
 !
+! Golam Sarwar 05/25/11
+!  Rate constant of RXN 169 (SO2 + OH) is revised based NASA/JPL 2006  
+!
+!  Revised the two chlorine reactions for TOL and XYL (CL22 - CL23) based on suggestion by Greg Yarwood
+!
 ! B.Hutzell 07/22/11
-! Set product cofficients for BENZRO2, TOLRO2 and XYLRO2
-
+!  Set product cofficients for BENZRO2, TOLRO2 and XYLRO2
+!
+! Golam Sarwar 09/05/11
+!  Fixed type errors in reaction R137 and R138 (CRON changed to CRNO in both reactions)   
+!
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
 
@@ -392,8 +400,8 @@ REACTIONS[CM] =
 <R134>  CRO  + HO2         = CRES                     # 5.5E-12;
 <R135>  CRON + OH          = CRNO                     # 1.53E-12;
 <R136>  CRON + NO3         = CRNO + HNO3              # 3.8E-12;
-<R137>  CRON + NO2         = 2*NTR                    # 2.1E-12;
-<R138>  CRON + O3          = CRN2                     # 2.86E-13;
+<R137>  CRNO + NO2         = 2*NTR                    # 2.1E-12;
+<R138>  CRNO + O3          = CRN2                     # 2.86E-13;
 <R139>  CRN2 + NO          = CRNO + NO2               # 2.54E-12 @ -360;
 <R140>  CRN2 + HO2         = CRPX                     # 2.4E-13 @ -1300;
 <R141>  CRPX               = CRNO + OH                # 0.01/<NO2_SAPRC99>; 
@@ -526,7 +534,8 @@ REACTIONS[CM] =
                              + 0.470*ALDX  
                              + 0.530*NTR
                              + TRPRXN               # 3.7E-12 @ -175.;
-<R169>  SO2  + OH          = SULF + HO2 + SULRXN    # 3.0E-31 ^-3.3 & 1.5E-12;
+<R169>  SO2  + OH          = SULF + HO2 + SULRXN    # 3.3E-31 ^-4.3 &
+                                                      1.6E-12 ^ 0.0;
 <R170>  OH   + ETOH        = HO2       
                              + 0.900*ALD2 
                              + 0.050*ALDX  
@@ -602,8 +611,14 @@ REACTIONS[CM] =
                              + 1.000*HO2
                              + 1.000*ALD2             # 8.2E-11 @ -45;                            
 <CL21>  HCL  + OH         = CL                        # 6.58E-13^1.16 @ -58;
-<CL22>  CL   + TOL        = HCL + XO2 + HO2           # 6.1E-11;
-<CL23>  CL   + XYL        = HCL + XO2 + HO2           # 1.2E-10;
+<CL22>  CL   + TOL        = HCL 
+                             + 0.88*XO2 
+                             + 0.88*HO2
+                             + 0.12*XO2N              # 6.1E-11;
+<CL23>  CL   + XYL        = HCL 
+                             + 0.84*XO2 
+                             + 0.84*HO2
+                             + 0.16*XO2N              # 1.2E-10;                             
 <SA01>  TOLRO2  + NO      = NO  + TOLNRXN             # 2.70e-12@-360;
 <SA02>  TOLRO2  + HO2     = HO2 + TOLHRXN             # 1.90e-13@-1300;
 <SA03>  XYLRO2  + NO      = NO  + XYLNRXN             # 2.70e-12@-360;
