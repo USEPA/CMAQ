@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/poaage.F,v 1.4 2011/10/21 16:10:15 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/poaage.F,v 1.5 2011/11/03 18:41:14 sjr Exp $
 
 
 
@@ -64,17 +64,17 @@ C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/poaage.F,v 1.4 2011/10/21 16:
 !C             -dPOCRm/dt = dNCOMm/det
 !C        moles of NCOMm: NCOMm = NCOMm(0) + POCRm(0)*[1-EXP(-koheff*[OH]*t)] = 
 !C                        NCOMm(0) + POCRm(0)*(1-expdt)
-!C        NCOMg = NCOMm*16.5 
-!C          - every mole of newly formed NCOM contains on average 1 oxygen atom 
-!C            and 0.5 hydrogen atoms (on average, 1/2 of reactions for C=O and 
-!C            1/2 of reactions form C-OH or two reactions lead to COOH) 
+!C        NCOMg = NCOMm*15.0 
+!C          - every mole of newly formed NCOM results in an average gain of 1 oxygen atom 
+!C            and an average loss of 1 hydrogen atoms (on average, two oxidation steps 
+!C            convert a CH3 functional group into a COOH functional group) 
 !C               -(based on Heald et al. (2010)) 
 !C      Rewrite NCOM formation equation using grams: 
-!C        NCOMg/16.5 = NCOMg(0)/16.5 + POCRm*(1-expdt) 
+!C        NCOMg/15.0 = NCOMg(0)/15.0 + POCRm*(1-expdt) 
 !C                         |
 !C                         |
 !C                         V 
-!C        NCOMg == NCOM(0) + 16.5*POCRm*(1-expdt)
+!C        NCOMg == NCOM(0) + 15.0*POCRm*(1-expdt)
 !C
 !C #####################################################################
 !C
@@ -99,9 +99,9 @@ C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/poaage.F,v 1.4 2011/10/21 16:
 !C      Artaxo, P. (2010), A simplified description of the evolution of 
 !C      organic aerosol composition in the atmosphere, GRL, 37, L08803. 
 !C
-!C   3. Simon, H. and Bhave, P.V. (2011), Simulatingthe degree of 
-!C      oxidation in atmospheric organic particles.
-!C      In preparation for ES&T.
+!C   3. Simon, H. and Bhave, P.V. (2011), Simulating the degree of oxidation 
+!C      in atmospheric organic particles  
+!C      In Review at ES&T.
 !C
 !C   4. Weitkamp, E.A., Lambe, A.T., Donahue, N.M., Robinson, A.L. (2008),
 !C      Laboratory measurements of the heterogeneous oxidation of condensed-
@@ -209,8 +209,8 @@ C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/poaage.F,v 1.4 2011/10/21 16:
 
 !C calculate new NCOM concentrations
 
-      aerospc_conc(APNCOM_IDX,1) = aerospc_conc(APNCOM_IDX,1) + 16.5 * POCRmi * ( 1.0 - expdt_POC)
-      aerospc_conc(APNCOM_IDX,2) = aerospc_conc(APNCOM_IDX,2) + 16.5 * POCRmj * ( 1.0 - expdt_POC)
+      aerospc_conc(APNCOM_IDX,1) = aerospc_conc(APNCOM_IDX,1) + 15.0 * POCRmi * ( 1.0 - expdt_POC)
+      aerospc_conc(APNCOM_IDX,2) = aerospc_conc(APNCOM_IDX,2) + 15.0 * POCRmj * ( 1.0 - expdt_POC)
 
      
       RETURN
