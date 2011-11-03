@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_PRMS.F,v 1.3 2011/10/21 16:10:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_PRMS.F,v 1.4 2011/11/03 15:19:08 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,6 +32,7 @@ C Function: stack parameters from stack groups file
 C Revision History:
 C     29 Dec 2006 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C      3 Nov 2011 D.Wong: fix source location within grid determination bug
 
 C-----------------------------------------------------------------------
 
@@ -88,7 +89,7 @@ c     END TYPE RARRY1
 
          INTEGER SDATE, STIME
          INTEGER SCOL, ECOL, SROW, EROW
-         INTEGER NLAYS, C, R, STRT_SRC, END_SRC, MY_DELTA, N, NGRPS
+         INTEGER NLAYS, C, R, X, Y, STRT_SRC, END_SRC, MY_DELTA, N, NGRPS
 
          INTEGER M, S, SRC, V, ASTAT
          CHARACTER( 96 ) :: XMSG = ' '
@@ -226,9 +227,19 @@ C-----------------------------------------------------------------------
             MY_NSRC( N ) = 0
             STRT_SRC = 0; END_SRC = 0
             DO S = 1, NSRC( N )
-               C = 1 + INT( ( XLOCA( S ) - XORIG_GD ) / XCELL_GD )
+               X = ( XLOCA( S ) - XORIG_GD ) / XCELL_GD
+               IF ( X .GE. 0.0 ) THEN
+                  C = 1 + INT( X )
+               ELSE
+                  C = -1 - INT( -X )
+               END IF
                IF ( C .GE. SCOL .AND. C .LE. ECOL ) THEN
-                  R = 1 + INT( ( YLOCA( S ) - YORIG_GD ) / YCELL_GD )
+                  Y = ( YLOCA( S ) - YORIG_GD ) / YCELL_GD
+                  IF ( Y .GE. 0.0 ) THEN
+                     R = 1 + INT( Y )
+                  ELSE
+                     R = -1 - INT( -Y )
+                  END IF
                   IF ( R .GE. SROW .AND. R .LE. EROW ) THEN
                      IF ( STRT_SRC .LE. 0 ) STRT_SRC = S
                      END_SRC = S
