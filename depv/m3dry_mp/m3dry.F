@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/m3dry.F,v 1.3 2011/10/21 16:10:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/m3dry.F,v 1.4 2011/11/03 18:25:28 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
@@ -1241,8 +1241,11 @@ C-------------------------------------------------------------------------------
                   IF ( TRIM( depspc( l ) ) == 'HG' ) THEN  ! elemental mercury gas
 ! calculate and save Henry's constant for use in HGSIM
 
-                     awhg = hlconst( subname( l ), tw, effective, hplus_h2o )* 0.08205 * tw
-
+                     IF( HGBIDI ) THEN 
+                        awhg = hlconst( subname( l ), tw, effective, hplus_h2o )* 0.08205 * tw
+                     ELSE
+                        rsurf = 1.0e30
+                     END IF
                   ELSE   ! any species other than elemental mercury gas
 
          ! Use CMAQ function for calculating the effective Henry's Law
@@ -1365,13 +1368,13 @@ C-------------------------------------------------------------------------------
                                  rstomj( j,l,c,r ) = rsmax
                               ELSE
 !-RADIATION
-                                 IF ( rsmin( j ) .GT. 130.0 ) THEN
+                                 IF ( rsmin_p( j ) .GT. 130.0 ) THEN
                                     radl = 30.0                       ! W/M2
                                  ELSE
                                     radl = 100.0                      ! W/M2
                                  END IF
                                  radf = 1.1 * rgrnd( c,r ) / ( radl * laij( j,c,r ) )     ! NP89 - EQN34
-                                 f1   = ( rsmin( j ) / rsmax + radf ) / ( 1.0 + radf )
+                                 f1   = ( rsmin_p( j ) / rsmax + radf ) / ( 1.0 + radf )
 
 !-SOIL MOISTURE
                                  w2avail = w2( c,r ) - wwlt( soilcat )
@@ -1391,7 +1394,7 @@ C-------------------------------------------------------------------------------
                                  ftot = laij( j,c,r ) * f1 * f2 * f4
                                  ftot = MAX( ftot,ftmin )
                                  fshelt = 1.0   ! go back to NP89
-                                 gs     = ftot / ( rsmin( j ) * fshelt )
+                                 gs     = ftot / ( rsmin_p( j ) * fshelt )
                                  raw = raj( j,c,r ) + 4.503 / ustarj( j,c,r )
                                  ga     = 1.0 / raw
 
@@ -1471,12 +1474,20 @@ C-------------------------------------------------------------------------------
                rac = ra( c,r ) + rbc
 
                depvel_gas( n,c,r ) = 1.0 / ( rsurf + rac )
+              
+               IF ( mosaic .OR. abflux ) THEN   ! initialize col/row boundary layer resistance
+                  DO j = 1, n_lufrac 
+                     IF ( lufraccr( j ) .GT. 0.0 ) THEN
+                        rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
+                     END IF
+                  END DO
+               END IF  ! mosaic
 
                IF ( mosaic ) THEN
                   DO j = 1, n_lufrac
                      IF ( lufraccr( j ) .GT. 0.0 ) THEN
 
-                        rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
+!                        rbcj(j) = 5.0 / ustarj( j,c,r ) * scc_pr_23( l )
                         racj = raj( j,c,r ) + rbcj(j)
                         depvel_gasj( j,l,c,r) = 1.0 / ( rsurfj( j,l,c,r ) + racj )
                         IF ( depvel_gasj( j,l,c,r ) .LT. 0.0 .OR.

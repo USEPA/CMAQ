@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.3 2011/10/21 16:10:34 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.4 2011/11/03 18:25:28 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
@@ -47,6 +47,8 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       CHARACTER( 96 ), Private :: XMSG = ' '
 ! shared variables
       CHARACTER( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
+      Character( 16 ), Save , Allocatable :: MEDIA_UNITS( : )
+      Character( 80 ), Save , Allocatable :: MEDIA_DESCR( : )
 
 ! environment variable for mercury bi-directional flux
       CHARACTER( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI'
@@ -105,49 +107,89 @@ C... Local:
          
             N_TOT = NHx_TOT
             N_Hg  = 0            
-            ALLOCATE( MEDIA_NAMES( N_TOT ) )
+            ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
-            MEDIA_NAMES(1) = 'Gamma1         ' 
-            MEDIA_NAMES(2) = 'Gamma2         '
-            MEDIA_NAMES(3) = 'MHpsl1         '
-            MEDIA_NAMES(4) = 'MHpsl2         '
+            MEDIA_NAMES( 1 ) = 'Gamma1' 
+            MEDIA_UNITS( 1 ) = '' 
+            MEDIA_DESCR( 1 ) = 'NH4+/H+ in Soil layer 1'
+            MEDIA_NAMES( 2 ) = 'Gamma2'
+            MEDIA_UNITS( 2 ) = '' 
+            MEDIA_DESCR( 2 ) = 'NH4+/H+ in Soil layer 2'
+            MEDIA_NAMES( 3 ) = 'MHpsl1'
+            MEDIA_UNITS( 3 ) = 'mol/l' 
+            MEDIA_DESCR( 3 ) = 'Molar H+ in Soil layer 1'
+            MEDIA_NAMES( 4 ) = 'MHpsl2'
+            MEDIA_UNITS( 4 ) = 'mol/l' 
+            MEDIA_DESCR( 4 ) = 'Molar H+ in Soil layer 2'
             
          Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
          
             N_TOT = HG_TOT
             N_Hg  = HG_TOT
-            ALLOCATE( MEDIA_NAMES( HG_TOT ) )
+            ALLOCATE( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
-            MEDIA_NAMES(1) = 'DGM            ' ! Dissolved gaseous Hg
-            MEDIA_NAMES(2) = 'DRM            '! Dissolved reactive Hg
-            MEDIA_NAMES(3) = 'HGSOIL         '
-            MEDIA_NAMES(4) = 'HGZ0           '
-            MEDIA_NAMES(5) = 'HGMES          ' ! mesophyll Hg
-            MEDIA_NAMES(6) = 'HGCUT          '! cuticular Hg        
+            MEDIA_NAMES( 1 ) = 'DGM            ' ! Dissolved gaseous Hg
+            MEDIA_UNITS( 1 ) = 'umol/mol' 
+            MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
+            MEDIA_NAMES( 2 ) = 'DRM            ' ! Dissolved reactive Hg
+            MEDIA_UNITS( 2 ) = 'umol/mol' 
+            MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
+            MEDIA_NAMES( 3 ) = 'HGSOIL         '
+            MEDIA_UNITS( 3 ) = 'umol/mol'      
+            MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
+            MEDIA_NAMES( 4 ) = 'HGZ0           '
+            MEDIA_UNITS( 4 ) = 'ppmV'      
+            MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
+            MEDIA_NAMES( 5 ) = 'HGMES          ' ! mesophyll Hg
+            MEDIA_UNITS( 5 ) = 'umol/g'      
+            MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
+            MEDIA_NAMES( 6 ) = 'HGCUT          ' ! cuticular Hg  
+            MEDIA_UNITS( 6 ) = 'umol/g'      
+            MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
          Else If( ABFLUX .AND. HGBIDI ) Then
          
             N_TOT = HG_TOT + NHx_TOT
             N_Hg  = HG_TOT
-            ALLOCATE( MEDIA_NAMES( N_TOT ) )
+            ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
-            MEDIA_NAMES(1)  = 'DGM            ' ! Dissolved gaseous Hg
-            MEDIA_NAMES(2)  = 'DRM            '! Dissolved reactive Hg
-            MEDIA_NAMES(3)  = 'HGSOIL         '
-            MEDIA_NAMES(4)  = 'HGZ0           '
-            MEDIA_NAMES(5)  = 'HGMES          ' ! mesophyll Hg
-            MEDIA_NAMES(6)  = 'HGCUT          '! cuticular Hg        
-            MEDIA_NAMES(7)  = 'Gamma1         ' 
-            MEDIA_NAMES(8)  = 'Gamma2         '
-            MEDIA_NAMES(9)  = 'MHpsl1         '
-            MEDIA_NAMES(10) = 'MHpsl2         '
+            MEDIA_NAMES( 1 ) = 'DGM            ' ! Dissolved gaseous Hg
+            MEDIA_UNITS( 1 ) = 'umol/mol' 
+            MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
+            MEDIA_NAMES( 2 ) = 'DRM            ' ! Dissolved reactive Hg
+            MEDIA_UNITS( 2 ) = 'umol/mol' 
+            MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
+            MEDIA_NAMES( 3 ) = 'HGSOIL         '
+            MEDIA_UNITS( 3 ) = 'umol/mol'      
+            MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
+            MEDIA_NAMES( 4 ) = 'HGZ0           '
+            MEDIA_UNITS( 4 ) = 'ppmV'      
+            MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
+            MEDIA_NAMES( 5 ) = 'HGMES          ' ! mesophyll Hg
+            MEDIA_UNITS( 5 ) = 'umol/g'      
+            MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
+            MEDIA_NAMES( 6 ) = 'HGCUT          ' ! cuticular Hg  
+            MEDIA_UNITS( 6 ) = 'umol/g'      
+            MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'   
+            MEDIA_NAMES( 7 ) = 'Gamma1' 
+            MEDIA_UNITS( 7 ) = '' 
+            MEDIA_DESCR( 7 ) = 'NH4+/H+ in Soil layer 1'
+            MEDIA_NAMES( 8 ) = 'Gamma2'
+            MEDIA_UNITS( 8 ) = '' 
+            MEDIA_DESCR( 8 ) = 'NH4+/H+ in Soil layer 2'
+            MEDIA_NAMES( 9 ) = 'MHpsl1'
+            MEDIA_UNITS( 9 ) = 'mol/l' 
+            MEDIA_DESCR( 9 ) = 'Molar H+ in Soil layer 1'
+            MEDIA_NAMES( 10 ) = 'MHpsl2'
+            MEDIA_UNITS( 10 ) = 'mol/l' 
+            MEDIA_DESCR( 10 ) = 'Molar H+ in Soil layer 2'
             
          End If
          
          ! allocate the media array variable
          IF ( .NOT. ALLOCATED ( CMEDIA ) ) THEN
-            ALLOCATE ( CMEDIA( N_TOT,NCOLS,NROWS ) )
-            CMEDIA( :,:,: ) = 0.0
+            ALLOCATE ( CMEDIA( NCOLS,NROWS,N_TOT ) )
+            CMEDIA = 0.0
          END IF         
          
          RETURN
@@ -501,10 +543,10 @@ C--------------------------------------------------------------------------
          If( ABFLUX ) Then
             Do R = 1, My_NRows
                Do C = 1, My_NCols
-                  CMedia( N_Hg+1,C,R ) = Gamma1( C,R )
-                  CMedia( N_Hg+2,C,R ) = Gamma2( C,R )
-                  CMedia( N_Hg+3,C,R ) = MHp1( C,R )
-                  CMedia( N_Hg+4,C,R ) = MHp2( C,R )
+                  CMedia( C,R,N_Hg+1 ) = Gamma1( C,R )
+                  CMedia( C,R,N_Hg+2 ) = Gamma2( C,R )
+                  CMedia( C,R,N_Hg+3 ) = MHp1( C,R )
+                  CMedia( C,R,N_Hg+4 ) = MHp2( C,R )
                End Do
             End Do
          End If
@@ -512,7 +554,7 @@ C--------------------------------------------------------------------------
          DO V = 1, N_TOT ! species/media loop
             DO R = 1, My_NRows ! row loop
                DO C = 1,My_NCols  ! column loop
-                  WRMC( C, R ) = CMEDIA( V, C, R )
+                  WRMC( C, R ) = CMEDIA( C,R,V  )
                END DO
             END DO
 
