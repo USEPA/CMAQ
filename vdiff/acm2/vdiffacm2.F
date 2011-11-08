@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.9 2011/10/21 16:11:43 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.10 2011/11/08 12:40:54 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -335,10 +335,9 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
 
          IF ( MYPE .EQ. 0 ) CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
          
-         IF( ABFLUX  .AND. MYPE .EQ. 0 ) Then
-            Call OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
-         End If  
-
+         IF ( ABFLUX .AND. MYPE .EQ. 0 ) THEN
+            CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
+         END IF  
 
 C Allocate and initialize dry deposition array
 
@@ -354,8 +353,8 @@ C Allocate and initialize dry deposition array
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
             
-         DDEP = 0.0
-         ICMP = 0.0
+         DDEP = 0.0   ! array assignment
+         ICMP = 0.0   ! array assignment
 
 C set auxiliary depv arrays
 
@@ -405,7 +404,7 @@ C set auxiliary depv arrays
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         CNGRD = 0.0
+         CNGRD = 0.0   ! array assignment
  
          ALLOCATE ( CONC( N_SPC_DIFF,NLAYS),
      &              EMIS( N_SPC_DIFF,NLAYS ), STAT = ALLOCSTAT )
@@ -443,7 +442,7 @@ C Allocate MOSAIC array
                XMSG = 'Failure allocating DDEPJ'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
-            DDEPJ = 0.0
+            DDEPJ = 0.0   ! array assignment
 
             IF ( FST ) THEN
 
@@ -465,7 +464,7 @@ C Allocate FST array
                   XMSG = 'Failure allocating DDEPJ_FST'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
-               DDEPJ_FST = 0.0
+               DDEPJ_FST = 0.0   ! array assignment
 
             END IF      ! if Fst
 
@@ -527,8 +526,8 @@ C Convert non-molar mixing ratio species and re-order CGRID
 
       IF ( WSTEP .EQ. 0 ) DDEP = 0.0
       IF ( WSTEP .EQ. 0 ) ICMP = 0.0
-      IF ( WSTEP .EQ. 0 .AND. MOSAIC) DDEPJ = 0.0
-      IF ( WSTEP .EQ. 0 .AND. MOSAIC .AND. FST) DDEPJ_FST = 0.0
+      IF ( WSTEP .EQ. 0 .AND. MOSAIC ) DDEPJ = 0.0
+      IF ( WSTEP .EQ. 0 .AND. MOSAIC .AND. FST ) DDEPJ_FST = 0.0
 
 C ------------------------------------------- Row, Col LOOPS -----------
 
@@ -639,11 +638,11 @@ C End ACM insert
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RDEPVHT( C,R ) * THBAR * DTS )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RDEPVHT( C,R ) * THETA * DTS )
             POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )
-            IF( ABFLUX .AND. TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3') THEN      
-               DO I = 1,LCMP          
-                  CMPF(I) = ICMP( I,C,R )
-               ENDDO
-            ENDIF            
+            IF ( ABFLUX .AND. TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN      
+               DO I = 1, LCMP          
+                  CMPF( I ) = ICMP( I,C,R )
+               END DO
+            END IF            
          END DO
 
          IF ( MOSAIC ) THEN
@@ -719,11 +718,11 @@ C For NH3, use bi-directional flux
      &                                 * EFAC1( V )
                   DDBF( V ) = DDBF( V )
      &                      + THBAR * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
-                  IF( ABFLUX .AND. TRIM(DV2DF_SPC( V ) ) .EQ. 'NH3') THEN
-                     DO I = 1,LCMP        
-                        CMPF(I) = CMPF(I) + THBAR*CMP( I,C,R )*DD_CONV(V)*DTDENS1
-                     ENDDO
-                  ENDIF
+                  IF ( ABFLUX .AND. TRIM ( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+                     DO I = 1, LCMP        
+                        CMPF( I ) = CMPF( I ) + THBAR * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1
+                     END DO
+                  END IF
 
                END IF
 
@@ -745,12 +744,12 @@ C For NH3, use bi-directional flux
                         DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
                      END DO
 ! no longer necessary now that Het HONO no longer changes the NO2 dep vel. JOB
-!                  ELSE IF ( V .EQ. NO2_HIT ) THEN
-!                     DO J = 1, N_LUFRAC
-!                        DEPV_NO2 = DEPVJCR( J,V ) - 2.0 * PLDV_HONO / CONC_NO2
-!                        DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
-!                        DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( NO2_MAP,1 )
-!                     END DO
+!                 ELSE IF ( V .EQ. NO2_HIT ) THEN
+!                    DO J = 1, N_LUFRAC
+!                       DEPV_NO2 = DEPVJCR( J,V ) - 2.0 * PLDV_HONO / CONC_NO2
+!                       DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
+!                       DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( NO2_MAP,1 )
+!                    END DO
 
 C --------- END of HET HONO RX ----------
 
@@ -781,13 +780,13 @@ C --------- END of HET HONO RX ----------
                            DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
      &                                      + THBAR * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
                         END DO
-!                     ELSE IF ( V .EQ. NO2_HIT ) THEN
-!                        DO J = 1, N_LUFRAC
-!                           DEPV_NO2 = DEPVJCR_FST( J,V ) - 2.0 * PLDV_HONO / CONC_NO2
-!                           DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
-!                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-!     &                                      + THBAR * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
-!                        END DO
+!                    ELSE IF ( V .EQ. NO2_HIT ) THEN
+!                       DO J = 1, N_LUFRAC
+!                          DEPV_NO2 = DEPVJCR_FST( J,V ) - 2.0 * PLDV_HONO / CONC_NO2
+!                          DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
+!                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+!     &                                     + THBAR * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
+!                       END DO
                      ELSE
 
                         DO J = 1, N_LUFRAC
@@ -942,11 +941,11 @@ C For NH3, use bi-directional flux
      &                                 * EFAC2( V )
                   DDBF( V ) = DDBF( V )
      &                      + THETA * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
-                  IF(TRIM(DV2DF_SPC( V ) ) .EQ. 'NH3') THEN
-                     DO I = 1,LCMP
-                        CMPF(I) = CMPF(I) + THETA*CMP( I,C,R )*DD_CONV(V)*DTDENS1   
-                     ENDDO
-                  ENDIF
+                  IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+                     DO I = 1, LCMP
+                        CMPF( I ) = CMPF( I ) + THETA * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1   
+                     END DO
+                  END IF
 
                END IF
 
@@ -954,44 +953,45 @@ C For NH3, use bi-directional flux
     
             IF ( MOSAIC ) THEN
                DO V = 1, N_SPC_DEPV
-!                  IF ( V .EQ. HONO_HIT ) THEN
-!                     DO J = 1, N_LUFRAC
-!                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HONO_MAP,1 )
-!                     END DO
-!                  ELSE IF ( V .EQ. HNO3_HIT ) THEN
-!                     DO J = 1, N_LUFRAC
-!                       DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
-!                     END DO
-!                  ELSE IF ( V .EQ. NO2_HIT ) THEN
-!                     DO J = 1, N_LUFRAC
-!                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( NO2_MAP,1 )
-!                     END DO
-!                  ELSE
+                  IF ( V .EQ. HONO_HIT ) THEN
+                     DO J = 1, N_LUFRAC
+                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HONO_MAP,1 )
+                     END DO
+                  ELSE IF ( V .EQ. HNO3_HIT ) THEN
+                     DO J = 1, N_LUFRAC
+                       DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
+                     END DO
+!                 ELSE IF ( V .EQ. NO2_HIT ) THEN
+!                    DO J = 1, N_LUFRAC
+!                       DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( NO2_MAP,1 )
+!                    END DO
+!                 ELSE
                      DO J = 1, N_LUFRAC
                         DDBFJ( J,V ) = DDBFJ( J,V )
      &                               + THETA * DD_FACJ( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
                      END DO
- !                 END IF
+                  END IF
                END DO
                IF ( FST ) THEN
                   DO V = 1, N_SPC_DEPV
-!                     IF ( V .EQ. HONO_HIT ) THEN
-!                        DO J = 1, N_LUFRAC
-!                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HONO_MAP,1 )
-!                        END DO
-!                     ELSE IF ( V .EQ. HNO3_HIT ) THEN
-!                        DO J = 1, N_LUFRAC
-!                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
-!                        END DO
-!                     ELSE IF ( V .EQ. NO2_HIT ) THEN
-!                        DO J = 1, N_LUFRAC
-!                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
-!                        END DO
-!                     ELSE
+                     IF ( V .EQ. HONO_HIT ) THEN
                         DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
+                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HONO_MAP,1 )
                         END DO
-!                     END IF
+                     ELSE IF ( V .EQ. HNO3_HIT ) THEN
+                        DO J = 1, N_LUFRAC
+                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
+                        END DO
+!                    ELSE IF ( V .EQ. NO2_HIT ) THEN
+!                       DO J = 1, N_LUFRAC
+!                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
+!                       END DO
+                     ELSE
+                        DO J = 1, N_LUFRAC
+                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+     &                                      + THETA * DD_FACJ_FST( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
+                        END DO
+                     END IF
                   END DO
                END IF   ! FST
             END IF   ! MOSAIC
@@ -1008,11 +1008,11 @@ C For NH3, use bi-directional flux
             DDEP( V,C,R ) = DDBF( V )
          END DO
  
-         If ( ABFLUX ) Then
+         IF ( ABFLUX ) THEN
             DO I = 1, LCMP
                ICMP( I,C,R ) = CMPF( I )
-            ENDDO
-         EndIF
+            END DO
+         END IF
  
          IF ( MOSAIC ) THEN
             DO V = 1, N_SPC_DEPV
@@ -1027,7 +1027,7 @@ C For NH3, use bi-directional flux
                   END DO
                END DO
             END IF
-         ENDIF
+         END IF
 
 344   CONTINUE         !  end loop on col C
 345   CONTINUE         !  end loop on row R
@@ -1059,7 +1059,7 @@ C If last call this hour:  write accumulated depositions:
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
     
-            IF(ABFLUX .AND. TRIM(DDEP_SPC( V ) ) .EQ. 'NH3') THEN 
+            IF ( ABFLUX .AND. TRIM( DDEP_SPC( V ) ) .EQ. 'NH3' ) THEN 
                DO I = 1, LCMP 
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
@@ -1115,12 +1115,14 @@ C If last call this hour:  write accumulated depositions:
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
                         DO J = 1, N_LUFRAC
-                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R )* LUFRAC(J,C,R)
+                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * LUFRAC( J,C,R )
                            WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
                            IF ( DDEPJ_FST( J,S,C,R ) .GT. DDEPJ( J,S,C,R ) ) THEN
                               WRITE( LOGDEV,* ) 'FST too big !!!'
-                              WRITE( LOGDEV,* ) 'J,S,C,R = ', J,S,C,R
-                              WRITE( LOGDEV,* ) 'DDEPJ: ', DDEPJ( J,S,C,R ), DDEPJ_FST( J,S,C,R )
+                              WRITE( LOGDEV,* ) 'J,S,C,R = ', J, S, C, R
+                              WRITE( LOGDEV,* ) 'DDEPJ,DDEPJ_FST: ', DDEPJ( J,S,C,R ), DDEPJ_FST( J,S,C,R )
+                              WRITE( LOGDEV,* ) 'DDEP Species: ', DDEP_SPC( V )
+                              wRITE( LOGDEV,* ) 'Time and date: ', MTIME, MDATE
                            END IF
                         END DO
                         WRDDJ_FST( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
@@ -1143,9 +1145,9 @@ C If last call this hour:  write accumulated depositions:
 
          END IF   ! MOSAIC
 
-         If( ABFLUX ) Then    
-            Call WRASX_MEDIA( MDATE,MTIME )
-         EndIf 
+         IF ( ABFLUX ) THEN    
+            CALL WRASX_MEDIA( MDATE, MTIME )
+         END IF 
  
          IF ( LIPR ) THEN
             DO V = 1, N_SPC_DEPV
