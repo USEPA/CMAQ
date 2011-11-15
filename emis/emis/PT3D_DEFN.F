@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.10 2011/10/21 16:10:46 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.11 2011/11/15 14:08:24 yoj Exp $
 
  
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -43,6 +43,7 @@ C                             2. used WINDOW logical variable (in subroutine
 C                                PT3D_INIT) to determine x and y orig information
 C                                and in subroutine READGC3, do not expand the
 C                                STATCOL and STRTROw in the west and south direction
+C     29 Oct 2011 J.Young: fix domain windowing
 
 C-----------------------------------------------------------------------
 
@@ -273,7 +274,8 @@ C get diagnostic files options
      &                'NOTE: Environment variable REP_LAYR_MIN is '//
      &                'greater than the number of emissions ' //
      &                CRLF() // BLANK10 // 'layers (', EMLYRS, '). '//
-     &                'Resetting to equal number of emissions layers.'
+     &                'Resetting to number of emissions layers.'
+               REP_LAYR = EMLYRS
             ELSE
                WRITE( XMSG,94010 )
      &                'logging stack data for plume rise .ge. layer', REP_LAYR
@@ -360,18 +362,38 @@ C (declared and stored in PTBILIN module)
          METCXORIG = XORIG3D
          METCYORIG = YORIG3D
 
-         IF ( ( GXOFF > 0 ) .AND. ( GYOFF > 0 ) ) THEN
+         IF ( ( GXOFF .GT. 0 ) .AND. ( GYOFF .GT. 0 ) ) THEN
             WINDOW = .TRUE.
          ELSE
             WINDOW = .FALSE.
          END IF
 
          IF ( WINDOW ) THEN
-            METCXORIG = XORIG3D + XCELL3D
-            METCYORIG = YORIG3D + YCELL3D
+            METCXORIG = XORIG3D + REAL( GXOFF,8 ) * XCELL3D
+            METCYORIG = YORIG3D + REAL( GYOFF,8 ) * YCELL3D
          ELSE
             METCXORIG = XORIG3D
             METCYORIG = YORIG3D
+         END IF
+
+!!!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
+
+C Get grid parameters from 3-d dot-point met file and store header information.
+C (declared and stored in PTBILIN module)
+         CALL RETRIEVE_IOAPI_HEADER( MD3NAME, JDATE, JTIME )
+         XCELLDG = XCELL3D
+         YCELLDG = YCELL3D
+         METDXORIG = XORIG3D
+         METDYORIG = YORIG3D
+         METDCOLS = NCOLS3D
+         METDROWS = NROWS3D
+
+         IF ( WINDOW ) THEN
+            METDXORIG = XORIG3D + REAL( GXOFF,8 ) * XCELL3D
+            METDYORIG = YORIG3D + REAL( GYOFF,8 ) * YCELL3D
+         ELSE
+            METDXORIG = XORIG3D
+            METDYORIG = YORIG3D
          END IF
 
 !!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
@@ -394,17 +416,6 @@ C Non-hydrostatic is time-independent and hydrostatic is time-dependent.
             GC3NAME = PROMPTMFILE( 'Enter name for CROSS-POINT LAYERED GRID file',
      &                             FSREAD3, 'GRID_CRO_3D', PNAME )
          END IF
-
-C Get grid parameters from 3-d cross-point met file and store header information.
-C (declared and stored in PTBILIN module)
-         CALL RETRIEVE_IOAPI_HEADER( MD3NAME, JDATE, JTIME )
-         XCELLDG = XCELL3D
-         YCELLDG = YCELL3D
-         METDXORIG = XORIG3D
-         METDYORIG = YORIG3D
-!!!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
-         METDCOLS = NCOLS3D
-         METDROWS = NROWS3D
 
 C Compare number of meteorology layers to number of emissions layers
          IF ( EMLYRS .LE. NLAYS ) THEN
