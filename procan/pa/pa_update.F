@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.9 2011/10/21 16:11:34 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/procan/pa/pa_update.F,v 1.10 2011/12/08 16:22:11 sjr Exp $
 
       SUBROUTINE PA_UPDATE( PRNAME, CGRID, JDATE, JTIME, TSTEP )
 
@@ -653,7 +653,7 @@ C..compute the emissions
 #else
                            EM = VEMIS( C,R,L,IEM ) * DT
                         ELSE
-                           EM = VEMIS( C,R,L,IEM ) * DT * DENS( C,R,Lg )
+                           EM = VEMIS( C,R,L,IEM ) * DT * DENS( C,R,L )
      &                        * AE_EM_CONV( IEM - OFFSETG )
 #endif
                         END IF
