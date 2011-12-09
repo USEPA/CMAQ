@@ -18,13 +18,13 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/rddepv.F,v 1.5 2011/10/21 16:11:46 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/rddepv.F,v 1.6 2011/12/09 14:19:17 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE RDDEPV ( JDATE, JTIME, SGSPEC, DEPV )
+      SUBROUTINE RDDEPV ( JDATE, JTIME, DEPV )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -52,6 +52,7 @@ C   07 Jun 05 P.Bhave: added logic for 'AE4' mechanism
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   16 May 11 J.Young: remove references to AERO3 and AERO4
+C   09 Dec 11 J.Young: remove unused Flag for SGTOT species
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
@@ -66,7 +67,6 @@ C-----------------------------------------------------------------------
 C Arguments:
 
       INTEGER, INTENT( IN )  :: JDATE, JTIME ! internal simulation date&time, tstep
-      LOGICAL, INTENT( IN )  :: SGSPEC( : )  ! Flag for SGTOT spec in NR_DEPV list
       REAL,    INTENT( OUT ) :: DEPV( :,:,: )
 
 C Paramters:
