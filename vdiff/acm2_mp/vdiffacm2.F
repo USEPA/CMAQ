@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/vdiffacm2.F,v 1.4 2011/11/08 12:42:03 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/vdiffacm2.F,v 1.5 2011/12/09 13:08:37 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -941,7 +941,7 @@ C For NH3, use bi-directional flux
      &                                 * EFAC2( V )
                   DDBF( V ) = DDBF( V )
      &                      + THETA * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
-                  IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+                  IF ( ABFLUX .AND. TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
                      DO I = 1, LCMP
                         CMPF( I ) = CMPF( I ) + THETA * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1   
                      END DO
@@ -965,7 +965,7 @@ C For NH3, use bi-directional flux
 !                    DO J = 1, N_LUFRAC
 !                       DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( NO2_MAP,1 )
 !                    END DO
-!                 ELSE
+                  ELSE
                      DO J = 1, N_LUFRAC
                         DDBFJ( J,V ) = DDBFJ( J,V )
      &                               + THETA * DD_FACJ( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
