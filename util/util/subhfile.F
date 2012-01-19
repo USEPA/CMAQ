@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.4 2011/10/21 16:11:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/subhfile.F,v 1.5 2012/01/19 15:36:09 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -115,20 +115,20 @@ C set base header data
 
 C Scale resolution
 
-         XCELL_B = FLOAT( NINT( TENK * XCELL_B ) ) / TENK
-         YCELL_B = FLOAT( NINT( TENK * YCELL_B ) ) / TENK
+         XCELL_B = REAL( IDNINT( TENK * XCELL_B ), 8 ) / TENK
+         YCELL_B = REAL( IDNINT( TENK * YCELL_B ), 8 ) / TENK
 
 C Convert to grid cell coord and truncate
 
          XORIG_B = XORIG_B / XCELL_B
-         XORIG_B = FLOAT( NINT( ONEK * XORIG_B ) ) / ONEK
+         XORIG_B = REAL( IDNINT( ONEK * XORIG_B ), 8 ) / ONEK
          YORIG_B = YORIG_B / YCELL_B
-         YORIG_B = FLOAT( NINT( ONEK * YORIG_B ) ) / ONEK
+         YORIG_B = REAL( IDNINT( ONEK * YORIG_B ), 8 ) / ONEK
 
          XORIG_C = XORIG_GD / XCELL_GD
-         XORIG_C = FLOAT( NINT( ONEK * XORIG_C ) ) / ONEK
+         XORIG_C = REAL( IDNINT( ONEK * XORIG_C ), 8 ) / ONEK
          YORIG_C = YORIG_GD / YCELL_GD
-         YORIG_C = FLOAT( NINT( ONEK * YORIG_C ) ) / ONEK
+         YORIG_C = REAL( IDNINT( ONEK * YORIG_C ), 8 ) / ONEK
 
       END IF   ! FIRSTIME
 
@@ -185,14 +185,14 @@ C check some header data against GRIDDESC
 C Convert to grid cell coord and truncate
 
       XORIG_F = XORIG3D / XCELL3D
-      XORIG_F = FLOAT( NINT( ONEK * XORIG_F ) ) / ONEK
+      XORIG_F = REAL( IDNINT( ONEK * XORIG_F ), 8 ) / ONEK
       YORIG_F = YORIG3D / YCELL3D
-      YORIG_F = FLOAT( NINT( ONEK * YORIG_F ) ) / ONEK
+      YORIG_F = REAL( IDNINT( ONEK * YORIG_F ), 8 ) / ONEK
  
 C Check if file (cross or dot) is "lined up"
 
-      RELOFFX = THOU * NINT( ONEK * ( XORIG_B - XORIG_F ) )
-      RELOFFX = RELOFFX - ONE * NINT( RELOFFX )
+      RELOFFX = THOU * REAL( IDNINT( ONEK * ( XORIG_B - XORIG_F ) ), 8 )
+      RELOFFX = RELOFFX - ONE * REAL( IDNINT( RELOFFX ), 8 )
 
       IF ( ABS( RELOFFX ) .GT. MIN_DOUBLE ) THEN ! it better be a dot file
          IF ( ABS( RELOFFX ) .LT. HALF - MIN_DOUBLE .OR.
@@ -204,8 +204,8 @@ C Check if file (cross or dot) is "lined up"
             END IF
       END IF
 
-      RELOFFY = THOU * NINT( ONEK * ( YORIG_B - YORIG_F ) )
-      RELOFFY = RELOFFY - ONE * NINT( RELOFFY )
+      RELOFFY = THOU * REAL( IDNINT( ONEK * ( YORIG_B - YORIG_F ) ), 8 )
+      RELOFFY = RELOFFY - ONE * REAL( IDNINT( RELOFFY ), 8 )
 
       IF ( ABS( RELOFFY ) .GT. MIN_DOUBLE ) THEN ! it better be a dot file
          IF ( ABS( RELOFFY ) .LT. HALF - MIN_DOUBLE .OR.
@@ -224,8 +224,8 @@ C Check if file (cross or dot) is "lined up"
 C check the file against the processor setup (COORD.EXT), and get the offsets
 
       DOTFILE = 0
-      RELOFFX = THOU * NINT( ONEK * ( XORIG_C - XORIG_F ) )
-      RELOFFX = RELOFFX - ONE * NINT( RELOFFX )
+      RELOFFX = THOU * REAL( IDNINT( ONEK * ( XORIG_C - XORIG_F ) ), 8 )
+      RELOFFX = RELOFFX - ONE * REAL( IDNINT( RELOFFX ), 8 )
 
       IF ( ABS( RELOFFX ) .GT. MIN_DOUBLE ) THEN ! it better be a dot file
          IF ( ABS( RELOFFX ) .LT. HALF - MIN_DOUBLE .OR.
@@ -237,8 +237,8 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
             END IF
       END IF
 
-      RELOFFY = THOU * NINT( ONEK * ( YORIG_C - YORIG_F ) )
-      RELOFFY = RELOFFY - ONE * NINT( RELOFFY )
+      RELOFFY = THOU * REAL( IDNINT( ONEK * ( YORIG_C - YORIG_F ) ), 8 )
+      RELOFFY = RELOFFY - ONE * REAL( IDNINT( RELOFFY ), 8 )
 
       IF ( ABS( RELOFFY ) .GT. MIN_DOUBLE ) THEN ! it better be a dot file
          IF ( ABS( RELOFFY ) .LT. HALF - MIN_DOUBLE .OR.
@@ -257,10 +257,10 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
       END IF
 
       INDX = MYPE + 1
-      GXOFF   = XORIG_C - XORIG_F
+      GXOFF = IDINT( XORIG_C - XORIG_F )
       LOC_STRTCOL = GXOFF + COLSX_PE( 1,INDX )
       LOC_ENDCOL  = LOC_STRTCOL + MY_NCOLS - 1 + DOTFILE
-      GYOFF   = YORIG_C - YORIG_F
+      GYOFF = IDINT( YORIG_C - YORIG_F )
       LOC_STRTROW = GYOFF + ROWSX_PE( 1,INDX )
       LOC_ENDROW  = LOC_STRTROW + MY_NROWS - 1 + DOTFILE
       IF ( GXOFF .LT. 0 .OR. GYOFF .LT. 0 ) THEN
@@ -269,15 +269,15 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
       END IF
 
 #ifdef twoway
-      IF ( ( FNAME == GRID_CRO_2D ) .OR.
-     $     ( FNAME == GRID_DOT_2D ) ) THEN
+      IF ( ( FNAME .EQ. GRID_CRO_2D ) .OR.
+     &     ( FNAME .EQ. GRID_DOT_2D ) ) THEN
          LOC_ENDCOL  = LOC_ENDCOL - LOC_STRTCOL + 1
          LOC_STRTCOL = 1
          LOC_ENDROW  = LOC_ENDROW - LOC_STRTROW + 1
          LOC_STRTROW = 1
-      ELSE IF ( ( FNAME == MET_CRO_2D ) .OR.
-     $          ( FNAME == MET_CRO_3D ) .OR.
-     $          ( FNAME == MET_DOT_3D ) ) THEN
+      ELSE IF ( ( FNAME .EQ. MET_CRO_2D ) .OR.
+     &          ( FNAME .EQ. MET_CRO_3D ) .OR.
+     &          ( FNAME .EQ. MET_DOT_3D ) ) THEN
          LOC_ENDCOL  = LOC_ENDCOL - LOC_STRTCOL + 2
          LOC_STRTCOL = 2
          LOC_ENDROW  = LOC_ENDROW - LOC_STRTROW + 2
