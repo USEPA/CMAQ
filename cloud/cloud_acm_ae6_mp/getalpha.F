@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/Attic/getalpha.f,v 1.6 2011/10/21 16:10:27 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/getalpha.F,v 1.1 2012/01/19 13:41:21 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -59,6 +59,8 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
+      INCLUDE SUBST_CONST   ! PI, RGASUNIV, AVO, GRAV
+
 C...........Parameters:
 
       REAL, PARAMETER :: SIGC = 1.2     ! geometric standard deviation for cloud droplets
@@ -67,20 +69,16 @@ C...........Parameters:
 
       REAL, PARAMETER :: T0 = 288.0
 
-      REAL, PARAMETER :: PI = 3.14159265
-
       REAL, PARAMETER :: ONE3 = 1.0 / 3.0
 
       REAL, PARAMETER :: TWO3 = 2.0 / 3.0
 
-      REAL, PARAMETER :: KBOLTZ = 1.38066E-23 ! [ J/K ]
+      REAL, PARAMETER :: KBOLTZ = RGASUNIV / AVO    ! 1.38065E-23 [ J/K ]
 
       REAL, PARAMETER :: RHOPART = 1.0E3   ! particle density [ kg/ m**3 ]
 
 !sjr  REAL, PARAMETER :: AERCONST = 6.0E-9 / ( RHOPART * PI / 6.0 )
       REAL, PARAMETER :: AERCONST = 1.0E-9 / ( RHOPART * PI / 6.0 )
-
-      REAL, PARAMETER :: GRAV = 9.8        ! [ m/s**2 ]
 
       REAL, PARAMETER :: RHO_WATER = 1.0E3 ! density of water at 20 C & 1 ATM [ kg/m**3 ]
 
