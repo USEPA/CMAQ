@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/opddep.F,v 1.5 2011/10/21 16:11:45 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/opddep.F,v 1.6 2012/01/19 14:40:52 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,6 +34,7 @@ C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 J.Bash: Modified to output NH3 bidi component fluxes
+C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -45,11 +46,11 @@ C   11 May 11 J.Bash: Modified to output NH3 bidi component fluxes
 
 C Arguments:
 
-      INTEGER, INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
-      INTEGER, INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN )  :: TSTEP  ! output time step
-      INTEGER, INTENT( IN )  :: N_SPC_DDEP ! no. of dry dep species
-      LOGICAL, INTENT( IN )  :: ABFLUX
+      INTEGER, INTENT( IN ) :: JDATE  ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME  ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP  ! output time step
+      INTEGER, INTENT( IN ) :: N_SPC_DDEP ! no. of dry dep species
+      LOGICAL, INTENT( IN ) :: ABFLUX
 
 C Local variables:
 
@@ -69,14 +70,14 @@ C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
       
-         CMPSPC( 1 ) = 'NH3_Emis'
-         CMPSPC( 2 ) = 'NH3_Dep'
-         CMPSPC( 3 ) = 'NH3_Stom'
-         CMPSPC( 4 ) = 'NH3_Cut'
-         CMPSPC( 5 ) = 'NH3_Soil'
-         CMPSPC( 6 ) = 'NH3_Ag'
-         CMPSPC( 7 ) = 'NH3_Nat'
-         CMPSPC( 8 ) = 'NH3_Wat'	 
+         CMPSPC( 1 ) = 'NH3_Emis        '
+         CMPSPC( 2 ) = 'NH3_Dep         '
+         CMPSPC( 3 ) = 'NH3_Stom        '
+         CMPSPC( 4 ) = 'NH3_Cut         '
+         CMPSPC( 5 ) = 'NH3_Soil        '
+         CMPSPC( 6 ) = 'NH3_Ag          '
+         CMPSPC( 7 ) = 'NH3_Nat         '
+         CMPSPC( 8 ) = 'NH3_Wat         '
 
          XMSG = 'Could not open ' // CTM_DRY_DEP_1 // ' file for update - '
      &        // 'try to open new'
@@ -166,7 +167,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             UNITS3D( V ) = '----'
             VDESC3D( V ) = 'hourly dry deposition values'
          END DO
-	 
+
          IF ( ABFLUX ) THEN
             N = 0   
             STRT = N_GC_DDEP + N_AE_DDEP + N_NR_DDEP + N_TR_DDEP + 1

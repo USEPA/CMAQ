@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/VDIFF_MAP.F,v 1.6 2011/10/21 16:11:44 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/VDIFF_MAP.F,v 1.7 2012/01/19 14:41:42 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,6 +38,7 @@ C   10 Apr 2008 J.Young: initial implementation using subroutine vdiff_map.F
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 J.Bash: Modified for NH3 bidi component fluxes
+C   04 Jan 12 J.Young: Initalize char strings with blank padding
 
 C-----------------------------------------------------------------------
 
@@ -48,7 +49,7 @@ C global dry dep species
       INTEGER, SAVE :: N_SPC_DDEP 
 
       INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : ) ! global diff map to CGRID
-!      INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
+!     INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
       INTEGER, ALLOCATABLE, SAVE :: DF2EM   ( : ) ! map from diff spc to emis spc
       INTEGER, ALLOCATABLE, SAVE :: DD2DV   ( : ) ! map from ddep spc to depv spc
       INTEGER, ALLOCATABLE, SAVE :: DEPV_MAP( : ) ! global depv map to CGRID
@@ -61,7 +62,7 @@ C global dry dep species
 
 C component flux output variables 
       INTEGER, PARAMETER :: LCMP  = 8
-      CHARACTER( 16 ), SAVE :: CMPSPC(LCMP)
+      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP )
 
       CONTAINS
 
@@ -90,7 +91,7 @@ C External Functions:
 C Local variables:
          
          CHARACTER( 80 )  :: XMSG       ! Message text
-         CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP'
+         CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP       '
 
          INTEGER NEMIS_AE
          INTEGER STRT, FINI
@@ -339,14 +340,14 @@ C create global maps to CGRID
             END IF
          END DO
 
-         CMPSPC( 1 ) = 'NH3_Emis'
-         CMPSPC( 2 ) = 'NH3_Dep'
-         CMPSPC( 3 ) = 'NH3_Stom'
-         CMPSPC( 4 ) = 'NH3_Cut'
-         CMPSPC( 5 ) = 'NH3_Soil'
-         CMPSPC( 6 ) = 'NH3_Ag'
-         CMPSPC( 7 ) = 'NH3_Nat'
-         CMPSPC( 8 ) = 'NH3_Wat' 
+         CMPSPC( 1 ) = 'NH3_Emis        '
+         CMPSPC( 2 ) = 'NH3_Dep         '
+         CMPSPC( 3 ) = 'NH3_Stom        '
+         CMPSPC( 4 ) = 'NH3_Cut         '
+         CMPSPC( 5 ) = 'NH3_Soil        '
+         CMPSPC( 6 ) = 'NH3_Ag          '
+         CMPSPC( 7 ) = 'NH3_Nat         '
+         CMPSPC( 8 ) = 'NH3_Wat         '
 
 #ifdef Verbose
          DO N = 1, N_SPC_DDEP   ! debug
