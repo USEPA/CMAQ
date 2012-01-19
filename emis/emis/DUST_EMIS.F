@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.6 2011/10/21 16:10:45 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/DUST_EMIS.F,v 1.7 2012/01/19 15:21:13 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module dust_emis
@@ -72,27 +72,27 @@ C - only accumulation and coarse modes used
 
 C speciation factors from SPECIATE composite of 4 desert soil profiles (Pouliot):
       type( dust_type ), parameter :: dust_spc( ndust_spc ) = (/
-C                        -------- name --------         -------- spcfac --------
-C                      Aitken    accum     coarse        Aitken  accum   coarse
-     &   dust_type( (/'       ','ASO4J  ','ASO4K  '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
-     &   dust_type( (/'       ','ANO3J  ','ANO3K  '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
-     &   dust_type( (/'       ','ACLJ   ','ACLK   '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
-     &   dust_type( (/'       ','ANH4J  ','       '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
-     &   dust_type( (/'       ','ANAJ   ','       '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
-     &   dust_type( (/'       ','ACAJ   ','       '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
-     &   dust_type( (/'       ','AMGJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Magnesium
-     &   dust_type( (/'       ','AKJ    ','       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
-     &   dust_type( (/'       ','APOCJ  ','       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
-     &   dust_type( (/'       ','APNCOMJ','       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   dust_type( (/'       ','AECJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
-     &   dust_type( (/'       ','AFEJ   ','       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
-     &   dust_type( (/'       ','AALJ   ','       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
-     &   dust_type( (/'       ','ASIJ   ','       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
-     &   dust_type( (/'       ','ATIJ   ','       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
-     &   dust_type( (/'       ','AMNJ   ','       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   dust_type( (/'       ','AH2OJ  ','       '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
-     &   dust_type( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.50219, 0.0    /) ),   ! Other
-     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
+C                      ------------------------ name ------------------------       ------- spcfac -------
+C                      Aitken             accum              coarse                 Aitken  accum   coarse
+     &   dust_type( (/'                ','ASO4J           ','ASO4K           '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+     &   dust_type( (/'                ','ANO3J           ','ANO3K           '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
+     &   dust_type( (/'                ','ACLJ            ','ACLK            '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
+     &   dust_type( (/'                ','ANH4J           ','                '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
+     &   dust_type( (/'                ','ANAJ            ','                '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
+     &   dust_type( (/'                ','ACAJ            ','                '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
+     &   dust_type( (/'                ','AMGJ            ','                '/), (/ 0.0, 0.0,     0.0    /) ),   ! Magnesium
+     &   dust_type( (/'                ','AKJ             ','                '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
+     &   dust_type( (/'                ','APOCJ           ','                '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   dust_type( (/'                ','APNCOMJ         ','                '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   dust_type( (/'                ','AECJ            ','                '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
+     &   dust_type( (/'                ','AFEJ            ','                '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
+     &   dust_type( (/'                ','AALJ            ','                '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
+     &   dust_type( (/'                ','ASIJ            ','                '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
+     &   dust_type( (/'                ','ATIJ            ','                '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
+     &   dust_type( (/'                ','AMNJ            ','                '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
+     &   dust_type( (/'                ','AH2OJ           ','                '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
+     &   dust_type( (/'                ','AOTHRJ          ','                '/), (/ 0.0, 0.50219, 0.0    /) ),   ! Other
+     &   dust_type( (/'                ','                ','ASOIL           '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
 
       real, parameter :: fracmj = 0.20  ! mass fraction assigned to accum mode
       real, parameter :: fracmk = 0.80  ! mass fraction assigned to coarse mode
@@ -470,13 +470,13 @@ C Get soil type data
 C Get grid cell area
 C note: crude estimate is made for LAT/LONG coordinate systems
          if ( gdtyp_gd .eq. latgrd3 ) then
-            dx1 = dg2m * xcell_gd ! in m
-            dx2 = dg2m * ycell_gd
-     &          * cos( pi180*( yorig_gd + ycell_gd
+            dx1 = dg2m * real( xcell_gd, 4 ) ! in m
+            dx2 = dg2m * real( ycell_gd, 4 )
+     &          * cos( pi180*( yorig_gd + real( ycell_gd, 4 )
      &          * float( gl_nrows/2 ) ) ) ! in m
          else
-            dx1 = xcell_gd        ! in m
-            dx2 = ycell_gd        ! in m
+            dx1 = real( xcell_gd, 4 )        ! in m
+            dx2 = real( ycell_gd, 4 )        ! in m
          end if
          cellarea = dx1 * dx2
 
@@ -625,7 +625,7 @@ C Arguments:
          character( 16 ) :: wrdust_spc( ndust_diag )
 
 C Local variables:
-         character( 16 ) :: pname = 'OPDUST_EMIS'
+         character( 16 ) :: pname = 'OPDUST_EMIS     '
          character( 96 ) :: xmsg = ' '
 
          integer      v, l       ! loop induction variables
@@ -742,7 +742,7 @@ C Parameters:
          real, parameter :: f6dpi = 6.0 / pi
          real, parameter :: gpkg = 1.0e03     ! g/kg
 
-         character( 16 ) :: pname = 'GET_DUST_EMIS'
+         character( 16 ) :: pname = 'GET_DUST_EMIS   '
          character( 16 ) :: vname
          character( 96 ) :: xmsg
          integer c, r, j, m, v
@@ -770,7 +770,7 @@ C Parameters:
          real       :: m3j              ! 3rd moment accumulation (J) mode emis rates [m3/m3/s]
          real       :: m3k              ! 3rd moment coarse mode (K) emis rates [m3/m3/s]
 
-         character (len = 16), save :: rc_name, rn_name    ! new names: RC -> RCA, RN -> RNA
+         character( 16 ), save :: rc_name, rn_name    ! new names: RC -> RCA, RN -> RNA
          logical, save :: firstime = .true.
 
 C Soil moisture limit: 13 types and 3 variables, which are:
