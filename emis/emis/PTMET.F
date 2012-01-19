@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.4 2011/10/21 16:10:46 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.5 2012/01/19 15:26:14 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -349,7 +349,7 @@ C-----------------------------------------------------------------------
             CHARACTER( * ) :: VNAME     ! variable name
             INTEGER           JDATE     ! Julian date
             INTEGER           JTIME     ! time
-            REAL              XBUF( * ) ! read buffer
+            REAL              XBUF( :,: ) ! read buffer
 
             INTEGER      GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
@@ -378,7 +378,8 @@ C for INTERPX
 !              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
-               LAY1 = 1; LAY2 = NLAYS
+!              LAY1 = 1; LAY2 = NLAYS
+               LAY1 = 1; LAY2 = SIZE( XBUF,2 )
 
 !              write( logdev,* ) 'file: ', MET_CRO_3D, 'var: ', vname
 !              write( logdev,* ) 'cols: ', endcol-strtcol+1
@@ -407,7 +408,7 @@ C for INTERPX
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE READMD3( VNAME, JDATE, JTIME, XBUF )
+         SUBROUTINE READMD3( VNAME, JDATE, JTIME, DBUF )
 
             USE VGRD_DEFN             ! vertical layer specifications
             USE PTBILIN, ONLY: XBND, YBND
@@ -420,7 +421,7 @@ C-----------------------------------------------------------------------
             CHARACTER( * ) :: VNAME     ! variable name
             INTEGER           JDATE     ! Julian date
             INTEGER           JTIME     ! time
-            REAL              XBUF( * ) ! read buffer
+            REAL              DBUF( :,: ) ! read buffer
 
             INTEGER      GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
@@ -450,7 +451,8 @@ C for INTERPX
 !              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
                IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
 
-               LAY1 = 1; LAY2 = NLAYS
+!              LAY1 = 1; LAY2 = NLAYS
+               LAY1 = 1; LAY2 = SIZE( DBUF,2 )
 
 !              write( logdev,* ) 'file: ', met_dot_3d, 'var: ', vname
 !              write( logdev,* ) 'cols: ', endcol-strtcol+1
@@ -467,14 +469,14 @@ C for INTERPX
 !cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
                IF (       INTERPX( MET_DOT_3D, VNAME, PNAME,
      &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                             JDATE, JTIME, XBUF ) ) THEN
+     &                             JDATE, JTIME, DBUF ) ) THEN
                ELSE
                   XMSG = 'Could not read ' // trim(VNAME) //
      &                   ' from file MET_DOT_3D'
                   LOC_VNAME = TRIM( VNAME ) // 'C'
                   IF ( .NOT. INTERPX( MET_DOT_3D, LOC_VNAME, PNAME,
      &                                STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                                JDATE, JTIME, XBUF ) ) THEN
+     &                                JDATE, JTIME, DBUF ) ) THEN
                      L1 = LEN_TRIM( LOC_VNAME )
                      XMSG = 'Could not read ' // VNAME( 1:L1 ) //
      &                      ' from file MET_DOT_3D'
@@ -484,7 +486,7 @@ C for INTERPX
             ELSE
                IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
      &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                             JDATE, JTIME, XBUF ) ) THEN
+     &                             JDATE, JTIME, DBUF ) ) THEN
                   L1 = LEN_TRIM( VNAME )
                   XMSG = 'Could not read ' // VNAME( 1:L1 ) //
      &                   ' from file MET_DOT_3D'
