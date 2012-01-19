@@ -19,13 +19,13 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.6 2011/10/21 16:10:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.7 2012/01/19 14:27:23 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
      &                         N_GDEPV_NAMES, GDEPV_NAMES,
-     &                         N_ADEPV_NAMES, ADEPV_NAMES, 
-     &                         N_SDEPV_NAMES, SDEPV_NAMES)
+     &                         N_ADEPV_NAMES, ADEPV_NAMES )
+!    &                         N_SDEPV_NAMES, SDEPV_NAMES)
 
 C 2006-Jun-30 - created by W Hutzell
 C 2006-Dec-05 - modified by J.Young
@@ -57,8 +57,8 @@ C number and names of aerosol deposition velocities
       CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
 
 C number and names of (SOA+aerosol) species deposition velocities
-      INTEGER, INTENT( IN ) :: N_SDEPV_NAMES
-      CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
+!     INTEGER, INTENT( IN ) :: N_SDEPV_NAMES
+!     CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
 
 C Local variables:
 
@@ -88,7 +88,8 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
          FTYPE3D = GRDDED3
-         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES
+!        NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES
+         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D =     1
@@ -138,16 +139,16 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
             VDESC3D( N ) = 'aerosol phase dry deposition velocity'
          END DO
 
-         N = N_GDEPV_NAMES + N_ADEPV_NAMES
+!        N = N_GDEPV_NAMES + N_ADEPV_NAMES
 
-         DO V = 1, N_SDEPV_NAMES
-            N = N + 1
-            VTYPE3D( N ) = M3REAL
-            VNAME3D( N ) = SDEPV_NAMES( V )
-            UNITS3D( N ) = 'cm/sec'
-            VDESC3D( N ) = 'deposition velocity for (GAS-AEROSOL) '
-     &                  // ' semi-volatile compound'
-         END DO
+!        DO V = 1, N_SDEPV_NAMES
+!           N = N + 1
+!           VTYPE3D( N ) = M3REAL
+!           VNAME3D( N ) = SDEPV_NAMES( V )
+!           UNITS3D( N ) = 'cm/sec'
+!           VDESC3D( N ) = 'deposition velocity for (GAS-AEROSOL) '
+!    &                  // ' semi-volatile compound'
+!        END DO
 
 C Open diagnostic file, then close it for subsequent open by all processors
 

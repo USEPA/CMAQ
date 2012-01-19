@@ -19,13 +19,13 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/opdepv_mos.F,v 1.3 2011/10/21 16:10:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/opdepv_mos.F,v 1.4 2012/01/19 14:27:24 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_MOS  ( JDATE, JTIME, TSTEP,
      &                         N_GDEPV_NAMES, GDEPV_NAMES,
-     &                         N_ADEPV_NAMES, ADEPV_NAMES, 
-     &                         N_SDEPV_NAMES, SDEPV_NAMES)
+     &                         N_ADEPV_NAMES, ADEPV_NAMES )
+!    &                         N_SDEPV_NAMES, SDEPV_NAMES )
 
 C 2011-May-20 - created by D.Schwede - modified from opdepv_diag.F
 
@@ -53,8 +53,8 @@ C number and names of aerosol deposition velocities
       CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
 
 C number and names of (SOA+aerosol) species deposition velocities
-      INTEGER            N_SDEPV_NAMES
-      CHARACTER( 16 ) :: SDEPV_NAMES( : )
+!     INTEGER            N_SDEPV_NAMES
+!     CHARACTER( 16 ) :: SDEPV_NAMES( : )
 
 C Local variables:
 
@@ -84,7 +84,8 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
          FTYPE3D = GRDDED3
-         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES + 4
+!        NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES + 4
+         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + 4
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D = N_LUFRAC   ! preempting normal use of vertical layers
@@ -137,14 +138,14 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
 
          N = N_GDEPV_NAMES + N_ADEPV_NAMES
 
-         DO V = 1, N_SDEPV_NAMES
-            N = N + 1
-            VTYPE3D( N ) = M3REAL
-            VNAME3D( N ) = SDEPV_NAMES( V )
-            UNITS3D( N ) = 'cm/sec'
-            VDESC3D( N ) = 'deposition velocity for (GAS-AEROSOL) '
-     &                  // ' semi-volatile compound'
-         END DO
+!        DO V = 1, N_SDEPV_NAMES
+!           N = N + 1
+!           VTYPE3D( N ) = M3REAL
+!           VNAME3D( N ) = SDEPV_NAMES( V )
+!           UNITS3D( N ) = 'cm/sec'
+!           VDESC3D( N ) = 'deposition velocity for (GAS-AEROSOL) '
+!    &                  // ' semi-volatile compound'
+!        END DO
 
          N = N + 1
             VTYPE3D( N ) = M3REAL
