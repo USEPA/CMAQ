@@ -18,7 +18,7 @@
 /***********************************************************************/
 
 /* RCS file, release, date & time of last delta, author, state, [and locker] */
-/* $Header: /project/yoj/arc/CCTM/src/par/mpi/distr_env.c,v 1.1 2010/07/21 11:33:17 yoj Exp $  */
+/* $Header: /project/yoj/arc/CCTM/src/par/mpi/distr_env.c,v 1.2 2012/01/19 17:44:40 yoj Exp $  */
 
 /* what(1) key, module and SID; SCCS file; date and time of last delta: */
 /* %W% %P% %G% %U% */
@@ -43,7 +43,7 @@
 
 extern char **environ;
 #define TEMP_BUF_SIZE   102400
-#define CURR_STR_SIZE   1024
+#define CURR_STR_SIZE   10240
 
 extern void distr_env_ (int *myid_p, int *numprocs_p)
 {
