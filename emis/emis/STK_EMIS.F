@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_EMIS.F,v 1.3 2011/10/21 16:10:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_EMIS.F,v 1.4 2012/01/19 15:25:35 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -180,7 +180,10 @@ C The FIRENAM_FIREVAR to match use in PT3D_DEFN
                FIREVAR( 1 )%LEN1 = LEN1
                FIREVAR( 1 )%LEN2 = NVARS_FIRE
             ELSE
-               STKSPC( N )%ARRY = VNAME3D   ! array
+!              STKSPC( N )%ARRY = VNAME3D   ! array
+               DO J = 1, STKSPC( N )%LEN
+                  STKSPC( N )%ARRY( J ) = VNAME3D( J )
+               END DO
             END IF
 
          END DO
