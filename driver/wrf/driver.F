@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.9 2011/10/21 16:10:43 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/driver.F,v 1.10 2012/01/19 14:32:57 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 1997 09:20:18
@@ -295,8 +295,8 @@ C Initialize stencil exchange
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
          write( logdev,* ) ' MYPE -> MSDIS:    ', mype, msdis
          write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
-         write( logdev,* ) ' MYPE -> DATA_ORI: ', mype, colrow
-         write( logdev,* ) ' MYPE -> GEO_ORI:  ', mype, geo_ori
+!        write( logdev,* ) ' MYPE -> DATA_ORI: ', mype, colrow
+!        write( logdev,* ) ' MYPE -> GEO_ORI:  ', mype, geo_ori
 #endif
 #endif
 
@@ -406,7 +406,7 @@ C Main processing loop:
 C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
          CALL ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
 
-         IF ( MOD(JTIME, TSTEP(1)) == 0) THEN
+         IF ( MOD( JTIME, TSTEP( 1 ) ) .EQ. 0 ) THEN
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
                L = 0
@@ -452,7 +452,7 @@ C science process sequence:
 
 !        CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
-         IF ( MOD( JTIME, TSTEP( 1 ) ) == 0 ) THEN
+         IF ( MOD( JTIME, TSTEP( 1 ) ) .EQ. 0 ) THEN
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
                L = 0
@@ -484,7 +484,7 @@ C science process sequence:
 
 C write conc fields
 
-         IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) == 0 ) THEN
+         IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
@@ -502,7 +502,7 @@ C write conc fields
 
 #endif
 
-      IF ( ( STEP_COUNT == TOTAL_STEPS ) .OR. ( TOTAL_STEPS == 0 ) ) THEN
+      IF ( ( STEP_COUNT .EQ. TOTAL_STEPS ) .OR. ( TOTAL_STEPS .EQ. 0 ) ) THEN
 C write CGRID state file for run continuation
          CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
       END IF
@@ -521,7 +521,6 @@ C Shut down IOAPI
       IF ( SHUT3() ) THEN
          XMSG = '>>---->  Program completed successfully  <----<<'
          WRITE ( LOGDEV,'( //5X, A, // )' ) XMSG
-         STOP
       ELSE
          XMSG = ' *** FATAL ERROR shutting down Models-3 I/O *** '
          WRITE ( LOGDEV,'( //5X, A, // )' ) XMSG
