@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 !C RCS file, release, date & time of last delta, author, state, [and locker]
-!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.4 2011/10/21 16:10:46 yoj Exp $
+!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.5 2012/01/19 15:24:39 yoj Exp $
 
 !C what(1) key, module and SID; SCCS file; date and time of last delta:
 !C %W% %P% %G% %U%
@@ -109,8 +109,8 @@
          INCLUDE SUBST_CONST     ! constants
 
 !C Arguments:
-C         INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
-C         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
+C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
+C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          INTEGER :: JDATE, JTIME, TSTEP
          INTEGER :: EMLAYS     ! number of emissions layers
 
@@ -437,8 +437,10 @@ C         INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          REAL    SUM_FRAC ! stores the sum of vertical fractions to re-normalize the column
          REAL    WEIGHT ! used to normalize emissions to total amount
          REAL    inErfB, inErfT !  nputs to error funciton calculation
-         REAL    outErfB, outErfT !  utputs from error funciton calculation
+         REAL    outErfB, outErfT ! outputs from error funciton calculation
          REAL :: LTEMIS( LTLYRS )
+         REAL    XCELLR, YCELLR   ! cell spacing ratio to 36Km
+         REAL    FLASH_FAC        ! lightning flashes factor
 
          LOGICAL, SAVE :: LASTTIC   ! true: last sync step this output tstep
          REAL    DIVFAC   ! averaging factor for diagnostic file
@@ -518,11 +520,14 @@ C statement function for ERF approximation
 
             ELSE
 
+               XCELLR =  REAL( XCELL_GD, 4 ) / 36000.0
+               YCELLR =  REAL( YCELL_GD, 4 ) / 36000.0
+               FLASH_FAC = 147.0 * XCELLR * YCELLR * 500.0 * 4.0 / ( 60.0 * 60.0 )
+               ! 147 flahses, but adjust depending on horizontal grid resolution
+               ! 500 moles N per flash * 3 intercloud strikes per ground strike
                DO ROW = 1, MY_NROWS 
                   DO COL = 1, MY_NCOLS
-                     COLUMN_LTNG_NO( COL,ROW ) = LTNG_RC( COL,ROW )
-     &               * 147.0 * ( XCELL_GD * YCELL_GD / 36000.0**2 )   ! 147 flahses, but adjust depending on horizontal grid resolution
-     &               *  500.0 * 4.0 / ( 60.0 * 60.0 ) ! 500 moles N per flash * 3 intercloud strikes per ground strike
+                     COLUMN_LTNG_NO( COL,ROW ) = FLASH_FAC * LTNG_RC( COL,ROW )
                   END DO
                END DO
 
@@ -636,7 +641,7 @@ C statement function for ERF approximation
                   END IF
 
                   VDEMIS_DIAG = 0.0   ! array assignment
-                  NTICS = 0.0
+                  NTICS = 0
                   CALL NEXTIME( LDATE, LTIME, TSTEP( 1 ) )
 
                END IF ! LASTTIC
