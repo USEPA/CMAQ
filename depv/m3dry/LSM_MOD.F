@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/LSM_MOD.F,v 1.4 2011/11/01 18:42:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/LSM_MOD.F,v 1.5 2012/01/19 14:23:58 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module LSM_Mod
@@ -455,7 +455,7 @@ C-------------------------------------------------------------------------------
      &            0.0,  100.0,   100.0,    10.0,     0.0,
      &            0.0,    0.0,     0.0,     0.0            /
      
-      DATA LUF_FAC_USGS
+      DATA HGLU_FAC_USGS
      &       /  190.0,   80.0,    32.0,    56.0,    50.0, 
      &           26.0,   20.0,   125.0,    73.0,    51.0, 
      &           81.0,   81.0,   130.0,    40.0,   139.0, 
