@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/eddyx.F,v 1.6 2011/10/21 16:11:44 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/eddyx.F,v 1.7 2012/01/19 14:42:46 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -660,7 +660,7 @@ C-----------------
 
          IF ( RIB .GE. 0.0 ) THEN
             IF ( ZFL .LT. HPBL .AND. ZOL .GT. 0.0 ) THEN
-               FH = MAX( ( 1.0 - ZFL / HPBL ) ** 2, 0.01 ) * PHIH ** -2
+               FH = MAX( ( 1.0 - ZFL / HPBL ) ** 2, 0.01 ) * PHIH ** ( -2 )
                SQL = ZK ** 2
             ELSE
                FH = ( MAX( 1.0 - RIB / RIC, 0.01 ) ) ** 2
