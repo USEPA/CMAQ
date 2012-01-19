@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.5 2011/10/21 16:11:28 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.6 2012/01/19 15:38:30 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_PHOTDATA ( COL, ROW, NLAYS, CGRID,
@@ -66,7 +66,7 @@ C-----------------------------------------------------------------------
 
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
-      USE AEROMET_DATA        ! constants and met data
+      USE AEROMET_DATA        ! Includes CONST.EXT
 
       IMPLICIT NONE
 
@@ -100,25 +100,25 @@ C Parameters:
 
       TYPE( MODAL_COMPLEX ), PARAMETER :: REFRACTIVE_INDEX( NUM_REFRACTIVE ) = (/
 C *** FSB Water soluble values are modeled on data from Beyer et al. (1996)
-C                                        Real_Part             Imag_Part
-C                                    ------------------     ------------------
-C                         Name         I     J     K         I     J     K
-C                        --------    ------------------     ------------------
-     &   MODAL_COMPLEX( 'SOLUTE  ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
-     &   MODAL_COMPLEX( 'SEASALT ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
-     &   MODAL_COMPLEX( 'DUST    ', (/1.53, 1.53, 1.53/), (/0.01, 0.01, 0.01/)),
-     &   MODAL_COMPLEX( 'WATER   ', (/1.34, 1.34, 1.34/), (/0.00, 0.00, 0.00/)),
-C *** FSB The following values for soot like particles are modified from
+C                                                Real_Part             Imag_Part
+C                                            ------------------     ------------------
+C                         Name                 I     J     K         I     J     K
+C                        --------            ------------------     ------------------
+     &   MODAL_COMPLEX( 'SOLUTE          ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
+     &   MODAL_COMPLEX( 'SEASALT         ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
+     &   MODAL_COMPLEX( 'DUST            ', (/1.53, 1.53, 1.53/), (/0.01, 0.01, 0.01/)),
+     &   MODAL_COMPLEX( 'WATER           ', (/1.34, 1.34, 1.34/), (/0.00, 0.00, 0.00/)),
+C *** FSB The following values for soot-like particles are modified from
 C         Table 1 of Horvath (1995). They are size dependent effective
 C         refractive indices fit to data on absorption by carbon
-     &   MODAL_COMPLEX( 'SOOT    ', (/1.53, 1.53, 0.00/), (/0.14, 0.05, 0.00/))/)
+     &   MODAL_COMPLEX( 'SOOT            ', (/1.53, 1.53, 0.00/), (/0.14, 0.05, 0.00/))/)
 
 C Local saved variables:
 
-      CHARACTER( 16 ), SAVE :: AE_VRSN                  ! Aerosol version name
-      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_PHOTDATA'  ! routine name
+      CHARACTER( 16 ), SAVE :: AE_VRSN                     ! Aerosol version name
+      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_PHOTDATA   '  ! procedure name
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.                ! first pass flag
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.                   ! first pass flag
 
       INTEGER, SAVE :: LOGDEV                                ! unit number for the log file
       INTEGER, ALLOCATABLE, SAVE :: REFRACT_INDX_MAP( : )    ! map array for refactive index
@@ -186,7 +186,7 @@ C ***    extract soa concentrations from CGRID
 C ***    Calculate aerosol surface area to 2nd moment.
          DO M = 1, N_MODE
             N = AEROSRF_MAP( M )
-            MOMENT2_CONC( M ) = CGRID( COL,ROW,L,N ) / SNGL( PI )
+            MOMENT2_CONC( M ) = CGRID( COL,ROW,L,N ) / PI
          END DO
 
 C ***    Calculate geometric mean diameters and standard deviations of the
@@ -201,7 +201,7 @@ C        "dry" size distribution
                IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
                IF ( AEROSPC( SPC )%NAME( N ) .EQ. ' ' ) CYCLE  ! neglect undefined species
 
-               FACTOR = 1.0E-9 * F6DPI / AEROSPC( SPC )%DENSITY
+               FACTOR = 1.0E-9 * F6PI / AEROSPC( SPC )%DENSITY
                M = REFRACT_INDX_MAP( SPC )
                SUMRI_R = SUMRI_R + FACTOR
      &                 * AEROSPC_CONC( SPC,N )
