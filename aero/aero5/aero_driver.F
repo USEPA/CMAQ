@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.10 2011/10/21 16:10:08 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.11 2012/01/19 13:12:57 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -476,7 +476,7 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
 
 C     Aitken mode
                M3_WET = MOMENT3_CONC( 1 )
-               M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,1 )
                M3_DRY = M3_WET - M3SUBT
                M2_WET = MOMENT2_CONC( 1 )
@@ -488,11 +488,11 @@ C     Aitken mode
 C     accumulation mode
                M3_WET = MOMENT3_CONC( 2 )
 
-               M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,2 )
                DO SPC = 1, N_VAPOR
                   M3SUBT = M3SUBT
-     &                   + ( 1.0E-9 * F6DPI / AEROSPC( APOC_IDX )%DENSITY )
+     &                   + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
      &                   * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
                END DO
 
@@ -505,7 +505,7 @@ C     accumulation mode
 
 C     coarse mode
                M3_WET = MOMENT3_CONC(3)
-               M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,3 )
                M3_DRY = M3_WET - M3SUBT
                M2_WET = MOMENT2_CONC( 3 )

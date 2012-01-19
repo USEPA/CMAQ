@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/getpar.f,v 1.6 2011/10/21 16:10:14 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/getpar.f,v 1.7 2012/01/19 13:13:27 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Subroutine getpar( m3_wet_flag, limit_sg  )
@@ -47,7 +47,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C-----------------------------------------------------------------------
 
       Use aero_data
-      Use aeromet_data
+      Use aeromet_data   ! Includes CONST.EXT
 
       Implicit None
 
@@ -115,7 +115,7 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
             If ( aerospc( spc )%name( n ) .eq. ' ' ) Cycle
 
             If ( .Not. aerospc( spc )%no_M2Wet .Or. m3_wet_flag ) Then
-               factor = 1.0E-9 * f6dpi / aerospc( spc )%density
+               factor = 1.0E-9 * f6pi / aerospc( spc )%density
                sumM3  = sumM3 + factor * aerospc_conc( spc,n )
                sumMass = sumMass + aerospc_conc( spc,n )
             End If
@@ -128,8 +128,8 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 C *** Calculate modal average particle densities [ kg/m**3 ]
 
       Do n = 1, n_mode
-        aeromode_dens( n ) = Max( Real( densmin,8 ),
-     &                            1.0E-9 * f6dpi * aeromode_mass( n ) / moment3_conc( n )  )
+        aeromode_dens( n ) = Max( densmin,
+     &                            1.0E-9 * f6pi * aeromode_mass( n ) / moment3_conc( n ) )
       End Do
 
 C *** Calculate geometric standard deviations as follows:
