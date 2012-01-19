@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.7 2011/10/21 16:10:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/SSEMIS.F,v 1.8 2012/01/19 15:29:11 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -250,8 +250,8 @@ C Volume flux at 1 m/s numerically integrated over full size range [m3/m2/s]
      &      4.2082E-15 /                                                  
 
 C Polynomial coefficients from Zhang et al. (2005)         
-      DATA C0_COEFF / 28.376, -205.44, 653.37, -1031.7, 803.18, -247.08 /
-      DATA X_COEFF  / 3.1657, -19.079,  55.72, -83.998, 63.436, -19.248 /
+      DATA C0_COEFF / 28.376D0, -205.44D0, 653.37D0, -1031.7D0, 803.18D0, -247.08D0 /
+      DATA X_COEFF  / 3.1657D0, -19.079D0,  55.72D0, -83.998D0, 63.436D0, -19.248D0 /
 
 C Domain decomposition info from emission and meteorology files
       INTEGER, SAVE :: GXOFF, GYOFF             ! origin offset
@@ -599,6 +599,7 @@ C-----------------------------------------------------------------------
 
             USE UTILIO_DEFN
             USE AERO_DATA
+            USE AEROMET_DATA   ! Includes CONST.EXT
 
             IMPLICIT NONE
 
@@ -610,7 +611,6 @@ C Arguments
 
 C Includes:
             INCLUDE SUBST_FILES_ID  ! file name parameters
-            INCLUDE SUBST_CONST     ! constants (for PI)
 
 C Local Variables:
             REAL    :: OFRAC              ! fractional seawater cover
@@ -637,9 +637,9 @@ C Variables for calculating ambient RH as done in the aerosol module
 C Variables for calculating solute mass fraction & size-correction factors
             REAL      :: RH               ! BLKRH constrained to 45-99% range
             REAL( 8 ) :: DRH              ! double precision RH
-            REAL      :: C0               ! (Diam @ formation) / (Diam @ ambient RH)
-            REAL      :: C80              ! (Diam @ 80% RH) / (Diam @ ambient RH)    
-            REAL      :: XSW              ! fractional solute weight fraction
+            REAL( 8 ) :: C0               ! (Diam @ formation) / (Diam @ ambient RH)
+            REAL( 8 ) :: C80              ! (Diam @ 80% RH) / (Diam @ ambient RH)    
+            REAL( 8 ) :: XSW              ! fractional solute weight fraction
 
 C Density of dry sea salt [kg/m3] using volume additivity
             REAL( 8 ) :: RHOSSDRY 
@@ -706,7 +706,6 @@ C Variables for calculating dry surface-area emission rate for accum mode
             INTEGER           :: MDATE, MTIME  ! SSEMIS write date&time
 
 C Mathematical constants; statement function for ERF approximation
-            REAL, PARAMETER :: F6DPI = 6.0 / PI
             REAL, PARAMETER :: ONE3 = 1.0 / 3.0
             REAL, PARAMETER :: TWO3 = 2.0 / 3.0
             REAL            :: ERF        ! ERF approx. statement function
@@ -810,7 +809,7 @@ C Calculate size-correction factors from Equations 8 & 9 of Zhang et al.
      &               + DRH * ( C0_COEFF( 4 )
      &               + DRH * ( C0_COEFF( 5 )
      &               + DRH * ( C0_COEFF( 6 ) ) ) ) ) )
-                  C80 = C0 / 1.97
+                  C80 = C0 / 1.97D0
 
 C Calculate solute mass fraction using Equation 1 of Zhang et al.
                   XSW =         X_COEFF( 1 )
@@ -824,23 +823,25 @@ C Calculate dry sea-salt [kg/m3]
                   RHSUM = 0.0D0
                   DO S = 1, NSSSPC
                      IF ( S .EQ. KH2O ) CYCLE     !! do not include Water
-                     RHSUM = RHSUM + AEROSPC_SSF( 2, SSSPC_MAP( S ) ) 
-     &                     / AEROSPC( SSSPC_MAP( S ) )%DENSITY
+                     RHSUM = RHSUM
+     &                     + REAL( ( AEROSPC_SSF( 2,SSSPC_MAP( S ) ) 
+     &                             / AEROSPC( SSSPC_MAP( S ) )%DENSITY ), 8 )
                   END DO
                   RHOSSDRY = 1.0D0 / RHSUM    
 
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
-                  RHOSW = 1.0D+3 / ( XSW / RHOSSDRY + ( 1.0D0 - XSW )
-     &                  / AEROSPC( AH2O_IDX )%DENSITY )
+                  RHOSW = 1.0D+3 / ( XSW / RHOSSDRY
+     &                  + ( 1.0D0 - XSW )
+     &                  / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 ) )
 
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)
 
 C Gong-Monahan flux function is valid from 0.03-5.0 um dry radius;
 C multiply by 4 to get wet diameter at 80% RH
-                  DPMINO = 1.2E-7 / C80 
-                  DPMAXO = MIN( DPMAX, DPMAX / C80 ) 
+                  DPMINO = 1.2E-7 / REAL( C80, 4 )
+                  DPMAXO = MIN( DPMAX, DPMAX / REAL( C80, 4 ) ) 
 
 C deLeeuw flux function is valid from 1.6-20 um diameter at formation
 !                 DPMINS = 1.6E-6 / C0 
@@ -905,25 +906,25 @@ C scaling for wind speed, dividing by grid-cell height, and multiplying
 C by particle density.  Multiply by chemical speciation factors to
 C obtain speciated mass emissions.
 
-                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * RHOSW
-                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * RHOSW
+                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
+                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
 
                   DO S = 1, NSSSPC
                      SSOUTM( S,1,C,R ) = 0.0
                      IF ( S .EQ. KH2O ) THEN    ! Water
-                        SSOUTM( S,2,C,R ) = ESEASJ * ( 1.0 - XSW )
-                        SSOUTM( S,3,C,R ) = ESEASK * ( 1.0 - XSW )
+                        SSOUTM( S,2,C,R ) = ESEASJ * REAL( ( 1.0D0 - XSW ), 4 )
+                        SSOUTM( S,3,C,R ) = ESEASK * REAL( ( 1.0D0 - XSW ), 4 )
                      ELSE
-                        SSOUTM( S,2,C,R ) = ESEASJ * XSW
+                        SSOUTM( S,2,C,R ) = ESEASJ * REAL( XSW, 4 )
      &                                    * AEROSPC_SSF( 2,SSSPC_MAP( S ) )
-                        SSOUTM( S,3,C,R ) = ESEASK * XSW
+                        SSOUTM( S,3,C,R ) = ESEASK * REAL( XSW, 4 )
      &                                    * AEROSPC_SSF( 3,SSSPC_MAP( S ) )
                      END IF
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
-                  M3J = ESEASJ * F6DPI / RHOSW
-                  M3K = ESEASK * F6DPI / RHOSW
+                  M3J = ESEASJ * F6PI / REAL( RHOSW, 4 )
+                  M3K = ESEASK * F6PI / REAL( RHOSW, 4 )
 
 C Calculate factors for converting 3rd moment emission rates into number
 C and 2nd moment emission rates.  See Equations 7b and 7c of Binkowski &
@@ -944,12 +945,12 @@ C Calculate dry 2nd moment while holding the standard deviation constant.
 C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
                   WET_M3J = M3J 
                   WET_M2J = M3J * FACTM2J
-                  DRY_M3J = WET_M3J - F6DPI * SSOUTM( KH2O,2,C,R ) * 1.0E-06
+                  DRY_M3J = WET_M3J - F6PI * SSOUTM( KH2O,2,C,R ) * 1.0E-06
                   DRY_M2J = WET_M2J * ( DRY_M3J / WET_M3J ) ** TWO3
 
                   WET_M3K = M3K
                   WET_M2K = M3K * FACTM2K
-                  DRY_M3K = WET_M3K - F6DPI * SSOUTM( KH2O,3,C,R ) * 1.0E-06
+                  DRY_M3K = WET_M3K - F6PI * SSOUTM( KH2O,3,C,R ) * 1.0E-06
                   DRY_M2K = WET_M2K * ( DRY_M3K / WET_M3K ) ** TWO3
 
                   SSOUTS( 1,C,R ) = 0.0
