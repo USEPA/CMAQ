@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.11 2011/11/15 14:08:24 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.12 2012/01/19 15:23:37 yoj Exp $
 
  
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -125,7 +125,7 @@ C Stack parameters
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_VEL( : )
 
 C Private Parameters:
-      CHARACTER(  10 ), PARAMETER :: BLANK10 = ' '
+      CHARACTER(  10 ), PARAMETER :: BLANK10 = '          '
 
 C cross-point layered grid file name
       CHARACTER(  16 ),     SAVE :: GC3NAME
@@ -172,9 +172,9 @@ C External Functions:
 C Parameters:
 
 C Local Variables:
-         CHARACTER( 16 ), SAVE :: CTM_PT3DEMIS = 'CTM_PT3DEMIS' ! env var for in-line
-                                                                ! 3d pt src emis
-         CHARACTER( 16 )       :: PNAME = 'PT3D_INIT'  ! procedure name
+         CHARACTER( 16 ), SAVE :: CTM_PT3DEMIS = 'CTM_PT3DEMIS    ' ! env var for in-line
+                                                                    ! 3d pt src emis
+         CHARACTER( 16 )       :: PNAME = 'PT3D_INIT       ' ! procedure name
          CHARACTER( 16 )       :: VNAME    ! variable name buffer
          CHARACTER( 16 ), SAVE, ALLOCATABLE :: STKGNAME( : ) ! stack groups file name
 
@@ -758,7 +758,7 @@ C Local variables:
          REAL             SFRACT     ! smoldering fraction size (1-BESIZE)
 
          CHARACTER(  8 ) :: CINT     ! integer to character buffer for warning messages
-         CHARACTER( 16 ) :: PNAME = 'GET_PT3D_EMIS'   ! procedure name
+         CHARACTER( 16 ) :: PNAME = 'GET_PT3D_EMIS   '   ! procedure name
          CHARACTER( 16 ) :: VNAME    ! variable name buffer
 
          INTEGER          IOS        ! i/o and allocate memory status
@@ -1086,7 +1086,7 @@ C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
 
 C If layer fractions are negative, put in the first layer
                MV = MINVAL( TFRAC( 1:EMLYRS ) )
-               IF ( MV .LT. 0 ) THEN
+               IF ( MV .LT. 0.0 ) THEN
 
                   WRITE( CINT,'( I8 )' ) S
                   WRITE( XMSG,94010 ) 'WARNING: One or more negative plume '

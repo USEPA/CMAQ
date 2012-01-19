@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/cropcal.F,v 1.3 2011/10/21 16:10:47 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/cropcal.F,v 1.4 2012/01/19 15:23:37 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       subroutine cropcal ( jdate, jtime, agland )
@@ -35,6 +35,7 @@ C      2003 Daniel Tong:
 C  Jan 2011 Jeff Young: mods for inline wind-blown dust module
 C  Apr 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  Jul 2011 J.Young: pad vnmld and vcrop for uniform string lengths
+C  Jan 2012 J.Young: pad vnmld and vcrop for 16 char string lengths
  
 C Subroutines and Functions Called:
 C   open3, xtract3, m3exit
@@ -54,7 +55,7 @@ C Arguments:
       real,    intent( out ) :: agland( :,: ) ! total erodible crop land fraction
 
 C Local Variables:
-      character(  16 ) :: pname = 'CROPCAL'
+      character(  16 ) :: pname = 'CROPCAL         '
       character(  16 ) :: dust_lu_1 = 'DUST_LU_1'
       character( 120 ) :: xmsg = ' '
 
@@ -66,11 +67,12 @@ C Local Variables:
       
       integer, parameter :: nlcrp = 17
       character( 16 ) :: vnmld( nlcrp ) =  ! beld01
-     &         ( / 'Alfalfa  ',  'Barley   ',  'Corn     ', 'Cotton   ', 
-     &             'Grass    ',  'Hay      ',  'Misc_crop', 'Oats     ',  
-     &             'Pasture  ',  'Peanuts  ',  'Potatoes ', 'Rice     ',
-     &             'Rye      ',  'Sorghum  ',  'Soybeans ', 'Tobacco  ',
-     &             'Wheat    ' / )
+     &         ( / 'Alfalfa         ', 'Barley          ', 'Corn            ',
+     &             'Cotton          ', 'Grass           ', 'Hay             ',
+     &             'Misc_crop       ', 'Oats            ', 'Pasture         ',
+     &             'Peanuts         ', 'Potatoes        ', 'Rice            ',
+     &             'Rye             ', 'Sorghum         ', 'Soybeans        ',
+     &             'Tobacco         ', 'Wheat           ' / )
 
 C Conventional tillage (0-15% residue) fraction for 17 crops as VNMLD list
       real :: ctilf( nlcrp ) =
@@ -93,12 +95,12 @@ C No tillage fraction for 17 crops as VNMLD list
 
       integer, parameter :: ncrop = 18
       character( 16 ) :: vcrop( ncrop ) =  ! crop calendar )CROPCAL)
-     &         ( / 'Alfalfa     ', 'BarleySpring', 'BarleyFall  ',
-     &             'Corn        ', 'Cotton      ', 'Hay         ',
-     &             'OatsSpring  ', 'OatsFall    ', 'Peanuts     ',
-     &             'Potatoes    ', 'Rice        ', 'Rye         ',
-     &             'Sorghum     ', 'Soybeans    ', 'Sugerbeets  ',
-     &             'Tobacco     ', 'WheatSpring ', 'WheatWinter ' / )
+     &         ( / 'Alfalfa         ', 'BarleySpring    ', 'BarleyFall      ',
+     &             'Corn            ', 'Cotton          ', 'Hay             ',
+     &             'OatsSpring      ', 'OatsFall        ', 'Peanuts         ',
+     &             'Potatoes        ', 'Rice            ', 'Rye             ',
+     &             'Sorghum         ', 'Soybeans        ', 'Sugerbeets      ',
+     &             'Tobacco         ', 'WheatSpring     ', 'WheatWinter     ' / )
 
       character( 16 ) :: crname( 3 ) = ! crop calendar NetCDF file name
      &         ( / 'CROPMAP01',        ! begin planting

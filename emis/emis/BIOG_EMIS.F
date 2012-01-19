@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.4 2011/10/21 16:10:45 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.5 2012/01/19 15:23:37 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -57,19 +57,19 @@ C Names for BEIS species, emitted model species
 C DO NOT CHANGE THE ORDER OF THESE ARRAYS
 
       CHARACTER( 5 ) :: BIOTYPES( NSEF )
-      DATA              BIOTYPES / 'ISOP',  'MBO',   'METH', 
-     &                             'APIN',  'BPIN',  'D3CAR', 'DLIM',
-     &                             'CAMPH', 'MYRC',  'ATERP', 'BPHE', 
-     &                             'SABI',  'PCYM' , 'OCIM',  'ATHU',
-     &                             'TRPO',  'GTERP', 'ETHE',  'PROPE',
-     &                             'ETHO',  'ACET',  'HEXA',  'HEXE',
-     &                             'HEXY',  'FORM',  'ACTAL', 'BUTE',
-     &                             'ETHA',  'FORAC', 'ACTAC', 'BUTO',
-     &                             'CO',    'ORVOC', 'SESQT',
-     &                             'NO' /
+      DATA              BIOTYPES / 'ISOP ', 'MBO  ', 'METH ', 
+     &                             'APIN ', 'BPIN ', 'D3CAR', 'DLIM ',
+     &                             'CAMPH', 'MYRC ', 'ATERP', 'BPHE ', 
+     &                             'SABI ', 'PCYM ', 'OCIM ', 'ATHU ',
+     &                             'TRPO ', 'GTERP', 'ETHE ', 'PROPE',
+     &                             'ETHO ', 'ACET ', 'HEXA ', 'HEXE ',
+     &                             'HEXY ', 'FORM ', 'ACTAL', 'BUTE ',
+     &                             'ETHA ', 'FORAC', 'ACTAC', 'BUTO ',
+     &                             'CO   ', 'ORVOC', 'SESQT',
+     &                             'NO   ' /
 
       CHARACTER( 5 ) :: LAITYPES( NLAI ) 
-      DATA              LAITYPES / 'ISOP', 'MBO', 'METH' /
+      DATA              LAITYPES / 'ISOP ', 'MBO  ', 'METH ' /
 
       CHARACTER( 1 ) :: SEASON( NSEASONS )
       DATA              SEASON / 'S', 'W' /
