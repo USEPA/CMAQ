@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/hetchem.f,v 1.6 2011/10/21 16:10:14 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/hetchem.f,v 1.7 2012/01/19 13:13:59 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -113,7 +113,7 @@ C-----------------------------------------------------------------------
 
       USE AERO_DATA
       USE PRECURSOR_DATA
-      USE AEROMET_DATA
+      USE AEROMET_DATA   ! Includes CONST.EXT
 
       IMPLICIT NONE
 
@@ -121,13 +121,11 @@ C *** Arguments
       REAL,    INTENT( OUT ) :: GAMMA     ! N2O5->NO3 rxn probability
       REAL,    INTENT( IN )  :: DT        ! Synchronization time step
 
-
 C *** Parameters
       REAL, PARAMETER :: STD_DIFF_N2O5 = 0.1E-4  ! molecular diffusivity
                                                  ! of N2O5 at 101325 Pa
                                                  ! and 273.15 K [m2/sec]
       REAL, PARAMETER :: GPKG = 1.0E+03          ! g/kg unit conversion
-
 
 C *** Local Variables
 
@@ -178,48 +176,48 @@ C *** compute only on first pass
         DFHNO3 = precursor_mw( HNO3_IDX ) / 1.0E-6
       End If   ! first time condition
 
-c *** fetch vapor-phase concentrations [ug/m3]
+C *** fetch vapor-phase concentrations [ug/m3]
       GHNO3 = precursor_conc( HNO3_IDX )
       GN2O5 = precursor_conc( N2O5_IDX )
       GNO2  = precursor_conc( NO2_IDX )
       GHONO = precursor_conc( HONO_IDX )
 
-c *** set up variables needed for calculating KN2O5
+C *** set up variables needed for calculating KN2O5
 
-c *** capture values of "dry" 2nd and 3rd moments before equilibration
-c     the folowing code assumes that GETPAR has been called with
-c     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
-c     been adjusted for the new SOA.
+C *** capture values of "dry" 2nd and 3rd moments before equilibration
+C     the folowing code assumes that GETPAR has been called with
+C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
+C     been adjusted for the new SOA.
       OLD_M3_I = moment3_conc( 1 )
       OLD_M3_J = moment3_conc( 2 )
       OLD_M2_I = moment2_conc( 1 )
       OLD_M2_J = moment2_conc( 2 )
 
-c *** compute GAMMA as function of TEMP, RH, & particle composition
-c     Note: the last argument to this function can be changed to use
-c     a different parameterization of GAMMA.
+C *** compute GAMMA as function of TEMP, RH, & particle composition
+C     Note: the last argument to this function can be changed to use
+C     a different parameterization of GAMMA.
       GAMMA = N2O5PROB( AIRTEMP, AIRRH, 0 )
 
-c *** calculate molecular speed (m/s) using Eq 4 of Pleim et al (1995)
+C *** calculate molecular speed (m/s) using Eq 4 of Pleim et al (1995)
       CBAR = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
      &             / ( PI * precursor_mw( N2O5_IDX ) ) )
 
-c *** correct molecular diffusivity for ambient conditions
+C *** correct molecular diffusivity for ambient conditions
       DIFF_N2O5 = STD_DIFF_N2O5
      &          * ( ( AIRTEMP / STDTEMP ) ** 1.75 )
      &          * ( STDATMPA / AIRPRES )
 
-c *** estimate the "wet third moments" by adding aerosol water
-c      Note: this is the H2O concentration from previous time step
+C *** estimate the "wet third moments" by adding aerosol water
+C      Note: this is the H2O concentration from previous time step
       WET_M3_I = OLD_M3_I + H2OFAC * aerospc_conc( AH2O_IDX,1 )
       WET_M3_J = OLD_M3_J + H2OFAC * aerospc_conc( AH2O_IDX,2 )
 
-c *** calculate "wet second moment" assuming that H2O does not
-c     affect the geometric standard deviation
+C *** calculate "wet second moment" assuming that H2O does not
+C     affect the geometric standard deviation
       WET_M2_I = OLD_M2_I * ( WET_M3_I / OLD_M3_I ) ** ( 2.0 / 3.0 )
       WET_M2_J = OLD_M2_J * ( WET_M3_J / OLD_M3_J ) ** ( 2.0 / 3.0 )
 
-c *** calculate "wet" geometric mean (same as median) diameters
+C *** calculate "wet" geometric mean (same as median) diameters
       DG_AT_WET = aeromode_diam( 1 ) * SQRT( WET_M2_I / OLD_M2_I )
       DG_AC_WET = aeromode_diam( 2 ) * SQRT( WET_M2_J / OLD_M2_J )
 
@@ -229,50 +227,50 @@ C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
       DE_AC_WET = DG_AC_WET * EXP( 1.5
      &          * ( LOG( EXP( aeromode_sdev( 2 ) ) ) ** 2.0 ) )
 
-c *** calculate pseudo-first order rate constant using Eq 2 of
-c     Pleim et al (1995)
+C *** calculate pseudo-first order rate constant using Eq 2 of
+C     Pleim et al (1995)
       XXF_AT = WET_M2_I /
      &         ( 4.0 + 0.5 * DE_AT_WET * GAMMA * CBAR / DIFF_N2O5 )
       XXF_AC = WET_M2_J /
      &         ( 4.0 + 0.5 * DE_AC_WET * GAMMA * CBAR / DIFF_N2O5 )
       KN2O5 =   GAMMA * CBAR * PI * ( XXF_AT + XXF_AC )
 
-c *** calculate fraction of N2O5 remaining after chemical reaction
+C *** calculate fraction of N2O5 remaining after chemical reaction
       EXPDT_N2O5 = EXP( - KN2O5 * DT )
 
-c *** set up variables needed for calculating KNO2
+C *** set up variables needed for calculating KNO2
 
-c *** calculate aerosol surface area
+C *** calculate aerosol surface area
       TOTSURFA = ( WET_M2_I + WET_M2_J ) * PI
 
-c *** calculate pseudo-first order rate constant using Eq 1 of Vogel
-c     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
-c     by 60 to convert it into 1/sec
+C *** calculate pseudo-first order rate constant using Eq 1 of Vogel
+C     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
+C     by 60 to convert it into 1/sec
       KNO2 = MAX ( 0.0, 5.0E-5 * TOTSURFA )
 
-c *** calculate fraction of NO2 remaining after chemical reaction
+C *** calculate fraction of NO2 remaining after chemical reaction
       EXPDT_NO2 = EXP( -2.0 * KNO2 * DT )
 
-c *** compute new gas-phase concs after heterogeneous reactions occur
+C *** compute new gas-phase concs after heterogeneous reactions occur
 
-c *** adjust nitrous acid for contribution from NO2
+C *** adjust nitrous acid for contribution from NO2
       GHONO = GHONO
      &      + ( 0.5 * GNO2  * FAERNO2  * DFHONO ) * ( 1.0 - EXPDT_NO2 )
 
-c *** adjust nitric acid for contributions from N2O5 and NO2
+C *** adjust nitric acid for contributions from N2O5 and NO2
       GHNO3 = GHNO3
      &      + ( 2.0 * GN2O5 * FAERN2O5 * DFHNO3 ) * ( 1.0 - EXPDT_N2O5 )
      &      + ( 0.5 * GNO2  * FAERNO2  * DFHNO3 ) * ( 1.0 - EXPDT_NO2 )
 
-c *** adjust N2O5 for heterogeneous loss
+C *** adjust N2O5 for heterogeneous loss
       GN2O5 = GN2O5 * EXPDT_N2O5
 
-c *** adjust NO2 for heterogeneous loss
+C *** adjust NO2 for heterogeneous loss
       GNO2  = GNO2  * EXPDT_NO2
 
 C *** UPDATE GAS and PM CONCENTRATIONS
-c     HNO3, N2O5, NO2, and HONO concs are changed in this subroutine.
-c     Ensure that all species remain above the minimum concentration.
+C     HNO3, N2O5, NO2, and HONO concs are changed in this subroutine.
+C     Ensure that all species remain above the minimum concentration.
       precursor_conc( HNO3_IDX ) = MAX( GHNO3, CONMIN )
       precursor_conc( N2O5_IDX ) = MAX( GN2O5, CONMIN )
       precursor_conc( NO2_IDX )  = MAX( GNO2, CONMIN )
@@ -285,84 +283,84 @@ c     Ensure that all species remain above the minimum concentration.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       REAL FUNCTION N2O5PROB( TEMP, RH, GPARAM )
 
-c  Calculates the N2O5 heterogeneous reaction probability, which is the
-c  fraction of collisions between a gaseous N2O5 molecule and a particle
-c  surface that leads to nitrate production.  In the literature, this
-c  probability is commonly referred to with the Greek letter, GAMMA.  To
-c  avoid conflicts with the intrinsic GAMMA function on some compilers,
-c  we refer to the reaction probability as N2O5PROB in this function.
+C  Calculates the N2O5 heterogeneous reaction probability, which is the
+C  fraction of collisions between a gaseous N2O5 molecule and a particle
+C  surface that leads to nitrate production.  In the literature, this
+C  probability is commonly referred to with the Greek letter, GAMMA.  To
+C  avoid conflicts with the intrinsic GAMMA function on some compilers,
+C  we refer to the reaction probability as N2O5PROB in this function.
 
-c  A variety of parameterizations of N2O5PROB are available in this
-c  function.  Users may select among the different parameterizations
-c  by changing the input argument, GPARAM.  This argument may take on
-c  the following values (see code for further details):
-c     1. Constant value of 0.1 based on Dentener & Crutzen (1993)
-c     2. Function of particle SO4 and NO3, based on Riemer et al. (2003)
-c     3. Function of RH, Temp, and particle composition, based on a
-c        combination of parameterizations by Evans & Jacob (2005) and
-c        Riemer et al. (2003)
-c  If GPARAM matches none of the above values, the default calculation
-c  of N2O5PROB is a function of RH, T, particle composition, and phase
-c  state, based on the parameterization by Davis et al. (2008).
+C  A variety of parameterizations of N2O5PROB are available in this
+C  function.  Users may select among the different parameterizations
+C  by changing the input argument, GPARAM.  This argument may take on
+C  the following values (see code for further details):
+C     1. Constant value of 0.1 based on Dentener & Crutzen (1993)
+C     2. Function of particle SO4 and NO3, based on Riemer et al. (2003)
+C     3. Function of RH, Temp, and particle composition, based on a
+C        combination of parameterizations by Evans & Jacob (2005) and
+C        Riemer et al. (2003)
+C  If GPARAM matches none of the above values, the default calculation
+C  of N2O5PROB is a function of RH, T, particle composition, and phase
+C  state, based on the parameterization by Davis et al. (2008).
 
-c  Key Subroutines Called: none
+C  Key Subroutines Called: none
 
-c  Key Functions Called: CRHB, IRHX
+C  Key Functions Called: CRHB, IRHX
 
-c  Revision History:
-c    First version was coded in November 2007 by Dr. Prakash Bhave
-c    using excerpts of the HETCHEM subroutine, which contained only
-c    one option for computing N2O5PROB (i.e., GPARAM = 3).
-c
-c  PVB 11/03/07 Removed code that sets N2O5PROB to zero when RH < 1%.
-c
-c  PVB 11/05/07 Corrected GPARAM = 3 option to fix the typographical
-c               error in the paper by Evans & Jacob (2005), which was
-c               found by Dr. Jerry Davis.
-c
-c  PVB 04/11/08 Updated formulas for LAM1 & LAM2 based on revised paper
-c               by Davis et al. (2008).  Added APNDX flag so users may
-c               switch between base parameterization and the alternative
-c               discussed in Appendix A by Davis et al.  Set default
-c               parameterization to match equations in Appendix A.
-c               Reduced all regression coefficients by one decimal place
-c               for consistency with revised paper.
-c
-c  JTK 04/17/08 Moved molar mass to AERO_INFO.f
-c
-c  SH  12/08/09 Use new Fortran modules (aero_data, met_data) in lieu of
-c               CBLK array and AERO_INFO module
-c
-c  SH  03/10/11 Renamed met_data to aeromet_data
-c
-c References:
-c   1. Dentener, F.J. and P.J. Crutzen, Reaction of N2O5 on tropospheric
-c      aerosols: Impact of global distributions of NOx, O3, and OH.
-c      J. Geophys. Res., Vol 98, 7149-7163, 1993.
-c
-c   2. Riemer, N., H. Vogel, B. Vogel, B. Schell, I. Ackermann, C.
-c      Kessler, and H. Hass, Impact of the heterogeneous hydrolysis
-c      of N2O5 on chemistry of nitrate aerosol formation in the lower
-c      troposphere under photosmog conditions.  J. Geophys. Res., Vol
-c      108, No D4, 4144, doi:10.1029/2002JD002436, 2003.
-c
-c   3. Evans, M.J. and D.J. Jacob, Impact of new laboratory studies of
-c      N2O5 hydrolysis on global model budgets of tropospheric nitrogen
-c      oxides, ozone, and OH.  Geophys. Res. Lett., 32, L09813,
-c      doi:10.1029/2005GL022469, 2005.
-c
-c   4. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
-c      reaction probabilities on the surface of particles containing
-c      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
-c      press.
-c
-c   5. Mentel, T.F., M. Sohn, and A. Wahner, Nitrate effect in the
-c      heterogeneous hydrolysis of dinitrogen pentoxide on aqueous
-c      aerosols.  Phys. Chem. Chem. Phys., 1, 5451-5457, 1999.
+C  Revision History:
+C    First version was coded in November 2007 by Dr. Prakash Bhave
+C    using excerpts of the HETCHEM subroutine, which contained only
+C    one option for computing N2O5PROB (i.e., GPARAM = 3).
+C
+C  PVB 11/03/07 Removed code that sets N2O5PROB to zero when RH < 1%.
+C
+C  PVB 11/05/07 Corrected GPARAM = 3 option to fix the typographical
+C               error in the paper by Evans & Jacob (2005), which was
+C               found by Dr. Jerry Davis.
+C
+C  PVB 04/11/08 Updated formulas for LAM1 & LAM2 based on revised paper
+C               by Davis et al. (2008).  Added APNDX flag so users may
+C               switch between base parameterization and the alternative
+C               discussed in Appendix A by Davis et al.  Set default
+C               parameterization to match equations in Appendix A.
+C               Reduced all regression coefficients by one decimal place
+C               for consistency with revised paper.
+C
+C  JTK 04/17/08 Moved molar mass to AERO_INFO.f
+C
+C  SH  12/08/09 Use new Fortran modules (aero_data, met_data) in lieu of
+C               CBLK array and AERO_INFO module
+C
+C  SH  03/10/11 Renamed met_data to aeromet_data
+ 
+C References:
+C   1. Dentener, F.J. and P.J. Crutzen, Reaction of N2O5 on tropospheric
+C      aerosols: Impact of global distributions of NOx, O3, and OH.
+C      J. Geophys. Res., Vol 98, 7149-7163, 1993.
+C
+C   2. Riemer, N., H. Vogel, B. Vogel, B. Schell, I. Ackermann, C.
+C      Kessler, and H. Hass, Impact of the heterogeneous hydrolysis
+C      of N2O5 on chemistry of nitrate aerosol formation in the lower
+C      troposphere under photosmog conditions.  J. Geophys. Res., Vol
+C      108, No D4, 4144, doi:10.1029/2002JD002436, 2003.
+C
+C   3. Evans, M.J. and D.J. Jacob, Impact of new laboratory studies of
+C      N2O5 hydrolysis on global model budgets of tropospheric nitrogen
+C      oxides, ozone, and OH.  Geophys. Res. Lett., 32, L09813,
+C      doi:10.1029/2005GL022469, 2005.
+C
+C   4. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
+C      reaction probabilities on the surface of particles containing
+C      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
+C      press.
+C
+C   5. Mentel, T.F., M. Sohn, and A. Wahner, Nitrate effect in the
+C      heterogeneous hydrolysis of dinitrogen pentoxide on aqueous
+C      aerosols.  Phys. Chem. Chem. Phys., 1, 5451-5457, 1999.
 C-----------------------------------------------------------------------
 
       USE AERO_DATA
-      USE AEROMET_DATA
+      USE AEROMET_DATA   ! Includes CONST.EXT
 
       IMPLICIT NONE
 
@@ -425,49 +423,49 @@ C     in Eq 7 by Davis et al (2008)
 
 C-----------------------------------------------------------------------
 
-c *** retrieve particle-phase ammonium, nitrate, and sulfate [ug/m3]
+C *** retrieve particle-phase ammonium, nitrate, and sulfate [ug/m3]
       ANH4 = aerospc_conc( ANH4_IDX,1 ) + aerospc_conc( ANH4_IDX,2 )
       ANO3 = aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 )
       ASO4 = aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 )
 
-c *** User Option: GPARAM = 1
-c     Dentener and Crutzen (1993) recommended a constant value of
-c     N2O5PROB = 0.1, which was used in CMAQ prior to ver4.3.  In more
-c     recent literature, this value has been recognized as an upper
-c     estimate of N2O5PROB so it should not be used for routine
-c     simulations.  It is included here only to facilitate sensitivity
-c     studies by CMAQ model users.
+C *** User Option: GPARAM = 1
+C     Dentener and Crutzen (1993) recommended a constant value of
+C     N2O5PROB = 0.1, which was used in CMAQ prior to ver4.3.  In more
+C     recent literature, this value has been recognized as an upper
+C     estimate of N2O5PROB so it should not be used for routine
+C     simulations.  It is included here only to facilitate sensitivity
+C     studies by CMAQ model users.
       IF ( GPARAM .EQ. 1 ) THEN
          N2O5PROB = 0.1
          RETURN
       END IF
 
-c *** User Options: GPARAM = 2 and 3
-c     These options both employ Eqs 2 and 3 by Riemer et al (2003), in
-c     which N2O5PROB varies according to the particle-phase sulfate and
-c     nitrate concentrations.  In both options, the NO3 effect (i.e.,
-c     GAMMA1/GAMMA2) is assumed to be a factor of 10 based on Mentel et
-c     al (1999) and Riemer et al (2003).
-c      - When GPARAM = 2, upper limit of N2O5PROB is fixed at 0.02.
-c        This was the default setting in CMAQ ver4.3 through ver4.5.1.
-c      - When GPARAM = 3, upper limit of N2O5PROB is a function of
-c        ambient TEMP & RH based on the "Sulfate" equation in Table 1
-c        by Evans & Jacob (2005).  This was the default setting in CMAQ
-c        ver4.6.  After that release, a typographical error was found
-c        in the published equation of Evans & Jacob (2005) so this code
-c        has been corrected accordingly.
+C *** User Options: GPARAM = 2 and 3
+C     These options both employ Eqs 2 and 3 by Riemer et al (2003), in
+C     which N2O5PROB varies according to the particle-phase sulfate and
+C     nitrate concentrations.  In both options, the NO3 effect (i.e.,
+C     GAMMA1/GAMMA2) is assumed to be a factor of 10 based on Mentel et
+C     al (1999) and Riemer et al (2003).
+C      - When GPARAM = 2, upper limit of N2O5PROB is fixed at 0.02.
+C        This was the default setting in CMAQ ver4.3 through ver4.5.1.
+C      - When GPARAM = 3, upper limit of N2O5PROB is a function of
+C        ambient TEMP & RH based on the "Sulfate" equation in Table 1
+C        by Evans & Jacob (2005).  This was the default setting in CMAQ
+C        ver4.6.  After that release, a typographical error was found
+C        in the published equation of Evans & Jacob (2005) so this code
+C        has been corrected accordingly.
       IF ( GPARAM .EQ. 2 ) THEN
 
          GAMMA1 = 0.02
 
       ELSE IF ( GPARAM .EQ. 3 ) THEN
 
-c        In this function, RH is in fractional units whereas the
-c        published equation by Evans&Jacob refers to RH as a percentage.
+C        In this function, RH is in fractional units whereas the
+C        published equation by Evans&Jacob refers to RH as a percentage.
          ALPHA = 2.79E-4 + RH * ( 1.3E-2 + RH * ( -3.43E-2 + 7.52E-2 * RH ) )
 
-c        To fix the typographical error by Evans & Jacob (2005), the
-c        sign of BETA has been switched in this code.
+C        To fix the typographical error by Evans & Jacob (2005), the
+C        sign of BETA has been switched in this code.
          IF ( TEMP .LT. 282.0 ) THEN
             GAMMA1 = 3.0199517 * ALPHA   ! (10.0 ** 0.48) * ALPHA
          ELSE
@@ -491,27 +489,27 @@ c        sign of BETA has been switched in this code.
 
       END IF
 
-c *** Default setting in current version of CMAQ:
-c     This code implements the paramaterization given in Eq 15 by Davis
-c     et al (2008), in which N2O5PROB is a function of RH, TEMP,
-c     particle composition, and phase state.  Note: In this function, RH
-c     is in fractional units whereas the published equations refer to RH
-c     as a percentage.
+C *** Default setting in current version of CMAQ:
+C     This code implements the paramaterization given in Eq 15 by Davis
+C     et al (2008), in which N2O5PROB is a function of RH, TEMP,
+C     particle composition, and phase state.  Note: In this function, RH
+C     is in fractional units whereas the published equations refer to RH
+C     as a percentage.
 
-c *** Check whether the ambient RH is below the crystallization RH for
-c     the given inorganic particle composition.
+C *** Check whether the ambient RH is below the crystallization RH for
+C     the given inorganic particle composition.
       CRYSTAL = CRHB( RH, .TRUE. )
 
-c *** Check whether the ambient RH exceeds the RH of ice formation.
+C *** Check whether the ambient RH exceeds the RH of ice formation.
       FROZEN = IRHX( TEMP, RH )
 
-c *** Set N2O5PROB to constant value if particles contain ice, based on
-c     Eq 14 by Davis et al (2008).
+C *** Set N2O5PROB to constant value if particles contain ice, based on
+C     Eq 14 by Davis et al (2008).
       IF ( FROZEN ) THEN
          N2O5PROB = 0.02                               ! Eq 14
 
-c *** Compute mole-fractional-composition of particles based on Eq 11 by
-c     Davis et al (2008).
+C *** Compute mole-fractional-composition of particles based on Eq 11 by
+C     Davis et al (2008).
       ELSE
          NNO3 = ANO3 / aerospc_mw( ANO3_IDX )
          NSO4 = ASO4 / aerospc_mw( ASO4_IDX )
@@ -522,13 +520,13 @@ c     Davis et al (2008).
          X2 = MAX( 0.0, MIN( 1.0 - X3, NNH4/NANI - 1.0 ) )
          X1 = 1.0 - ( X2 + X3 )
 
-c *** Compute N2O5PROB on pure NH4NO3 particles using Eqs 6 and 8 by
-c     Davis et al (2008).
+C *** Compute N2O5PROB on pure NH4NO3 particles using Eqs 6 and 8 by
+C     Davis et al (2008).
          LAM3 = -8.10774 + 4.902 * RH                  ! Eq 6
          GAM3 = MIN( LOGITINV( LAM3 ), 0.0154 )        ! Eq 8
 
-c *** Compute N2O5PROB on dry particles using Eqs 9, 10, and 13 by
-c     Davis et al (2008).
+C *** Compute N2O5PROB on dry particles using Eqs 9, 10, and 13 by
+C     Davis et al (2008).
          IF ( CRYSTAL ) THEN
             T293     = MAX( 0.0, TEMP - 293.0 )
             LAMD     = -6.13376 + 3.592 * RH           ! Eq 9
@@ -537,11 +535,11 @@ c     Davis et al (2008).
             N2O5PROB = ( X1 + X2 ) * GAMD              ! Eq 13
      &                + X3 * MIN( GAMD, GAM3 )
 
-c *** Compute N2O5PROB on aqeuous particles using Eqs A1, A2, 8, and 12
-c     by Davis et al (2008).  When APNDX = .TRUE. (default), Eqs A1-A2
-c     are used for reaction probability on aqueous sulfate particles.
-c     Switch to .FALSE. if Eqs 4-5 are desired.  See Appendix A by
-c     Davis et al. (2008) for a discussion of these options.
+C *** Compute N2O5PROB on aqeuous particles using Eqs A1, A2, 8, and 12
+C     by Davis et al (2008).  When APNDX = .TRUE. (default), Eqs A1-A2
+C     are used for reaction probability on aqueous sulfate particles.
+C     Switch to .FALSE. if Eqs 4-5 are desired.  See Appendix A by
+C     Davis et al. (2008) for a discussion of these options.
          ELSE
             T291 = MAX( 0.0, TEMP - 291.0 )
             IF ( APNDX ) THEN
@@ -572,28 +570,28 @@ c     Davis et al. (2008) for a discussion of these options.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       LOGICAL FUNCTION CRHB( RH, COMPLETE )
 
-c  Determines whether the ambient RH is below the crystallization relative
-c  humidity (CRH).  The output of this logical function is .TRUE. when the
-c  ambient RH is below the CRH and .FALSE. otherwise.  The empirical
-c  equations developed by Martin et al (2003) are applied to determine the
-c  CRH for a given mixture of sulfate, nitrate, and ammonium.  Though those
-c  equations are validated only at 293K, they are applied at all ambient
-c  temperatures because insufficient data exist to estimate the temperature
-c  dependence of the CRH of mixed sulfate-nitrate-ammonium particles.
-c  Users can opt to compute either the RH of initial crystal formation
-c (i.e., COMPLETE .EQ. .FALSE.) or the RH of compete crystallization (i.e.,
-c  COMPLETE .EQ. .TRUE.).
+C  Determines whether the ambient RH is below the crystallization relative
+C  humidity (CRH).  The output of this logical function is .TRUE. when the
+C  ambient RH is below the CRH and .FALSE. otherwise.  The empirical
+C  equations developed by Martin et al (2003) are applied to determine the
+C  CRH for a given mixture of sulfate, nitrate, and ammonium.  Though those
+C  equations are validated only at 293K, they are applied at all ambient
+C  temperatures because insufficient data exist to estimate the temperature
+C  dependence of the CRH of mixed sulfate-nitrate-ammonium particles.
+C  Users can opt to compute either the RH of initial crystal formation
+C (i.e., COMPLETE .EQ. .FALSE.) or the RH of compete crystallization (i.e.,
+C  COMPLETE .EQ. .TRUE.).
 
-c  References:
-c   1. Martin, S.T., J.C. Schlenker, A. Malinowski, H.-M. Hung, and
-c      Y. Rudich, Crystallization of atmospheric sulfate-nitrate-
-c      ammonium particles.  Geophys. Res. Lett., 30(21), 2102,
-c      doi:10.1029/2003GL017930, 2003.
+C  References:
+C   1. Martin, S.T., J.C. Schlenker, A. Malinowski, H.-M. Hung, and
+C      Y. Rudich, Crystallization of atmospheric sulfate-nitrate-
+C      ammonium particles.  Geophys. Res. Lett., 30(21), 2102,
+C      doi:10.1029/2003GL017930, 2003.
 
-c  Revision History:
-c    PVB 11/05/07 Coded the first version.
-c    JTK 04/17/08 Moved molar mass to AERO_INFO.f
-c    SH  12/08/09 Use aero_data module in lieu of CBLK array
+C  Revision History:
+C    PVB 11/05/07 Coded the first version.
+C    JTK 04/17/08 Moved molar mass to AERO_INFO.f
+C    SH  12/08/09 Use aero_data module in lieu of CBLK array
 
 C-----------------------------------------------------------------------
 
@@ -626,13 +624,13 @@ C *** intermediate variables used in CRH equations
 
 C-----------------------------------------------------------------------
 
-c *** Experimental measurements of CRH are lacking below 1% relative
-c     humidity.  Under those very dry conditions, we assume that
-c     particles will crystallize.  Equations by Martin et al (2003) for
-c     internally-mixed sulfate-nitrate-ammonium particles yield maximum
-c     CRH values of 35.03% and 34.50% for initial crystal formation and
-c     complete crystallization, respectively.  Therefore, the full CRH
-c     calculation can be avoided when RH > 35.1%.
+C *** Experimental measurements of CRH are lacking below 1% relative
+C     humidity.  Under those very dry conditions, we assume that
+C     particles will crystallize.  Equations by Martin et al (2003) for
+C     internally-mixed sulfate-nitrate-ammonium particles yield maximum
+C     CRH values of 35.03% and 34.50% for initial crystal formation and
+C     complete crystallization, respectively.  Therefore, the full CRH
+C     calculation can be avoided when RH > 35.1%.
       IF ( RH .LE. 0.01 ) THEN
          CRHB = .TRUE.    ! ambient particles are dry
          RETURN
@@ -641,7 +639,7 @@ c     calculation can be avoided when RH > 35.1%.
          RETURN
       END IF
 
-c *** calculate total particle-phase composition [micromoles/m3]
+C *** calculate total particle-phase composition [micromoles/m3]
       NNO3 = ( aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 ) )
      &     / aerospc_mw( ANO3_IDX )
       NSO4 = ( aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 ) )
@@ -649,28 +647,28 @@ c *** calculate total particle-phase composition [micromoles/m3]
       NNH4 = ( aerospc_conc( ANH4_IDX,1 ) + aerospc_conc( ANH4_IDX,2 ) )
      &     / aerospc_mw( ANH4_IDX )
 
-c *** calculate total anion and cation concentrations
-      NCAT = MAX( NNH4, 2.0*NSO4 + NNO3 )
+C *** calculate total anion and cation concentrations
+      NCAT = MAX( NNH4, 2.0 * NSO4 + NNO3 )
       NANI = NNO3 + NSO4
 
-c *** calculate ammonium and sulfate mole fractions
+C *** calculate ammonium and sulfate mole fractions
       X = NNH4 / NCAT
       Y = NSO4 / NANI
 
-c *** Experimental data of Martin et al. (2003) show no crystal
-c     formation when X < 0.50 or Y < 0.22.  For these particle
-c     compositions, the full CRH calculation can be avoided.
-c
-c     Note: Martin's equation for initial crystal formation returns
-c     very large CRH values when X and Y approach zero.  However,
-c     those values were verified to be erroneous by personal
-c     communication with Dr. Scot Martin on Aug. 30, 2007.
+C *** Experimental data of Martin et al. (2003) show no crystal
+C     formation when X < 0.50 or Y < 0.22.  For these particle
+C     compositions, the full CRH calculation can be avoided.
+C
+C     Note: Martin's equation for initial crystal formation returns
+C     very large CRH values when X and Y approach zero.  However,
+C     those values were verified to be erroneous by personal
+C     communication with Dr. Scot Martin on Aug. 30, 2007.
       IF ( ( X .LT. 0.50 ) .OR. ( Y .LT. 0.22 ) ) THEN
          CRHB = .FALSE.   ! ambient RH exceeds CRH
          RETURN
       END IF
 
-c *** store some terms needed to evaluate the CRH equations
+C *** store some terms needed to evaluate the CRH equations
       X2   = X * X
       XY   = X * Y
       X2Y  = X2 * Y
@@ -678,7 +676,7 @@ c *** store some terms needed to evaluate the CRH equations
       XY2  = X * Y2
       RDEN = 1.0 / ( 25.0 + ( X - 0.7 ) * ( Y - 0.5 ) )
 
-c *** calculate CRH using empirical equations of Martin et al (2003)
+C *** calculate CRH using empirical equations of Martin et al (2003)
       IF ( COMPLETE ) THEN
 
          CRH = 3143.44 + (63.07 * X) + (0.114 * X2) + (87.97 * Y)
@@ -693,7 +691,7 @@ c *** calculate CRH using empirical equations of Martin et al (2003)
 
       END IF
 
-c *** set value of the output variable, CRHB
+C *** set value of the output variable, CRHB
       IF ( RH .LE. CRH ) THEN
          CRHB = .TRUE.    ! ambient particles are dry
       ELSE
@@ -707,18 +705,18 @@ c *** set value of the output variable, CRHB
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       LOGICAL FUNCTION IRHX( TEMP, RH )
 
-c  Determines whether the ambient RH has exceeded the RH of ice formation,
-c  based on the Goff-Gratch equations as given by List (1984).
+C  Determines whether the ambient RH has exceeded the RH of ice formation,
+C  based on the Goff-Gratch equations as given by List (1984).
 
-c  References:
-c   1. Goff, J.A. and S. Gratch, Low-pressure properties of water from
-c      -160 to 212 F, in Transactions of the American Society of Heating
-c      and Ventilating Engineers, pp 95-122, New York, 1946.
-c   2. List, R.J. (editor), Smithsonian Meteorological Tables, 5th ed.
-c      pp. 350, 1984.
+C  References:
+C   1. Goff, J.A. and S. Gratch, Low-pressure properties of water from
+C      -160 to 212 F, in Transactions of the American Society of Heating
+C      and Ventilating Engineers, pp 95-122, New York, 1946.
+C   2. List, R.J. (editor), Smithsonian Meteorological Tables, 5th ed.
+C      pp. 350, 1984.
 
-c  Revision History:
-c   PVB 11/06/07 Coded the first version.
+C  Revision History:
+C   PVB 11/06/07 Coded the first version.
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -761,36 +759,36 @@ C-----------------------------------------------------------------------
 
       IF ( TEMP .LT. T0 ) THEN
 
-c *** To mitigate the computational expense associated with Goff-Gratch
-c     equations, use a 2nd order polynomial function to approximate IRH.
-c     This approximation, EIRH, matches IRH from the full Goff-Gratch
-c     equations within 0.004 over the entire low-temperature range of
-c     interest (200 to 275K) and is used for screening purposes.
+C *** To mitigate the computational expense associated with Goff-Gratch
+C     equations, use a 2nd order polynomial function to approximate IRH.
+C     This approximation, EIRH, matches IRH from the full Goff-Gratch
+C     equations within 0.004 over the entire low-temperature range of
+C     interest (200 to 275K) and is used for screening purposes.
          EIRH = 1.61299 + TEMP * ( 4.4117437E-5 * TEMP - 1.4293888E-2 )
          LIRH = EIRH - 0.005
          UIRH = EIRH + 0.005
 
          IF ( RH .GT. UIRH ) THEN
             IRHX = .TRUE.
-         ELSEIF ( RH .LT. LIRH ) THEN
+         ELSE IF ( RH .LT. LIRH ) THEN
             IRHX = .FALSE.
          ELSE
 
-c *** Compute IRH using Goff-Gratch equations as given by List (1984)
-            TSDT  = TST/TEMP
-            TDTS  = TEMP/TST
-            T0DT  = T0/TEMP
-            TDT0  = TEMP/T0
-            LOGPW = -7.90298 * (TSDT - 1.0)
-     &            + 5.02808 * LOG10(TSDT)
-     &            - 1.3816E-7 * (10.0 ** (11.344 * (1.0 - TDTS)) -1.0)
-     &            + 8.1328E-3 * (10.0 ** (-3.49149*(TSDT - 1.0)) -1.0)
+C *** Compute IRH using Goff-Gratch equations as given by List (1984)
+            TSDT  = TST / TEMP
+            TDTS  = TEMP / TST
+            T0DT  = T0 / TEMP
+            TDT0  = TEMP / T0
+            LOGPW = -7.90298 * ( TSDT - 1.0 )
+     &            + 5.02808 * LOG10( TSDT )
+     &            - 1.3816E-7 * ( 10.0 ** ( 11.344 *  (1.0 - TDTS) ) -1.0 )
+     &            + 8.1328E-3 * ( 10.0 ** ( -3.49149* (TSDT - 1.0) ) -1.0 )
      &            + LOGPST
             LOGPI = -9.09718 * (T0DT - 1.0)
-     &            - 3.56654 * LOG10(T0DT)
+     &            - 3.56654 * LOG10( T0DT )
      &            + .876793 * (1.0 - TDT0)
      &            + LOGP0
-            IRH   = 10.0 ** (LOGPI - LOGPW)
+            IRH   = 10.0 ** ( LOGPI - LOGPW )
 
             IF ( RH .GT. IRH ) THEN
                IRHX = .TRUE.
