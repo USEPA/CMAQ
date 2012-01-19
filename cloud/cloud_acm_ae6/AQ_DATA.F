@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.7 2012/01/19 13:53:19 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
@@ -63,38 +63,38 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Type ( sur_gas_type ), Parameter :: srggas( ngas ) = (/
 C                          Name       Background
 C                       ----------    ----------
-     & sur_gas_type( 'SO2       ',        0.0 ),
-     & sur_gas_type( 'HNO3      ',        0.0 ),
-     & sur_gas_type( 'N2O5      ',        0.0 ),
-     & sur_gas_type( 'CO2       ',      340.0 ),
-     & sur_gas_type( 'NH3       ',        0.0 ),
-     & sur_gas_type( 'H2O2      ',        0.0 ),
-     & sur_gas_type( 'O3        ',        0.0 ),
-     & sur_gas_type( 'FOA       ',        0.0 ),
-     & sur_gas_type( 'MHP       ',        0.0 ),
-     & sur_gas_type( 'PAA       ',        0.0 ),
-     & sur_gas_type( 'H2SO4     ',        0.0 ),
-     & sur_gas_type( 'HCL       ',        0.0 ),
-     & sur_gas_type( 'GLY       ',        0.0 ),
-     & sur_gas_type( 'MGLY      ',        0.0 ),
-     & sur_gas_type( 'HO        ',        0.0 ) / )
+     & sur_gas_type( 'SO2             ',        0.0 ),
+     & sur_gas_type( 'HNO3            ',        0.0 ),
+     & sur_gas_type( 'N2O5            ',        0.0 ),
+     & sur_gas_type( 'CO2             ',      340.0 ),
+     & sur_gas_type( 'NH3             ',        0.0 ),
+     & sur_gas_type( 'H2O2            ',        0.0 ),
+     & sur_gas_type( 'O3              ',        0.0 ),
+     & sur_gas_type( 'FOA             ',        0.0 ),
+     & sur_gas_type( 'MHP             ',        0.0 ),
+     & sur_gas_type( 'PAA             ',        0.0 ),
+     & sur_gas_type( 'H2SO4           ',        0.0 ),
+     & sur_gas_type( 'HCL             ',        0.0 ),
+     & sur_gas_type( 'GLY             ',        0.0 ),
+     & sur_gas_type( 'MGLY            ',        0.0 ),
+     & sur_gas_type( 'HO              ',        0.0 ) / )
 
 C...Required gas species
-      Character( 16 ), Parameter, Private :: req_so2   = 'SO2'
-      Character( 16 ), Parameter, Private :: req_hno3  = 'HNO3'
-      Character( 16 ), Parameter, Private :: req_n2o5  = 'N2O5'
-      Character( 16 ), Parameter, Private :: req_co2   = 'CO2'
-      Character( 16 ), Parameter, Private :: req_nh3   = 'NH3'
-      Character( 16 ), Parameter, Private :: req_h2o2  = 'H2O2'
-      Character( 16 ), Parameter, Private :: req_o3    = 'O3'
-      Character( 16 ), Parameter, Private :: req_foa   = 'FOA'
-      Character( 16 ), Parameter, Private :: req_mhp   = 'MHP'
-      Character( 16 ), Parameter, Private :: req_paa   = 'PAA'
-      Character( 16 ), Parameter, Private :: req_h2so4 = 'H2SO4'
-      Character( 16 ), Parameter, Private :: req_hcl   = 'HCL'  
-      Character( 16 ), Parameter, Private :: req_gly   = 'GLY'  
-      Character( 16 ), Parameter, Private :: req_mgly  = 'MGLY' 
-      Character( 16 ), Parameter, Private :: req_ho    = 'HO'   
+      Character( 16 ), Parameter, Private :: req_so2   = 'SO2             '
+      Character( 16 ), Parameter, Private :: req_hno3  = 'HNO3            '
+      Character( 16 ), Parameter, Private :: req_n2o5  = 'N2O5            '
+      Character( 16 ), Parameter, Private :: req_co2   = 'CO2             '
+      Character( 16 ), Parameter, Private :: req_nh3   = 'NH3             '
+      Character( 16 ), Parameter, Private :: req_h2o2  = 'H2O2            '
+      Character( 16 ), Parameter, Private :: req_o3    = 'O3              '
+      Character( 16 ), Parameter, Private :: req_foa   = 'FOA             '
+      Character( 16 ), Parameter, Private :: req_mhp   = 'MHP             '
+      Character( 16 ), Parameter, Private :: req_paa   = 'PAA             '
+      Character( 16 ), Parameter, Private :: req_h2so4 = 'H2SO4           '
+      Character( 16 ), Parameter, Private :: req_hcl   = 'HCL             '
+      Character( 16 ), Parameter, Private :: req_gly   = 'GLY             '
+      Character( 16 ), Parameter, Private :: req_mgly  = 'MGLY            '
+      Character( 16 ), Parameter, Private :: req_ho    = 'HO              '
 
 C...Pointers for the AQCHEM array GAS
 
@@ -129,44 +129,44 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C... Additional Aerosol surrogate species to add to aerosol list
       Type ( sur_aer_type ), private :: addsrgaer( naddaer ) = (/
-C                         Aitken         Accum             Coarse       Background   MolWt    Density
-C                      -------------   -------------   -------------    ---------- --------  ---------
-!    & sur_aer_type((/'             ','             ','CACO3        '/),     0.0,    100.1,   2200.0),
-!    & sur_aer_type((/'             ','             ','MGCO3        '/),     0.0,     84.3,   2200.0),
-!    & sur_aer_type((/'             ','             ','A3FE         '/),   0.000,     55.8,   2000.0),
-!    & sur_aer_type((/'             ','             ','B2MN         '/),   0.000,     54.9,   2000.0),
-!    & sur_aer_type((/'             ','             ','K            '/),     0.0,     39.1,   2200.0),
-     & sur_aer_type((/'NUM_AITKEN   ','NUM_ACCUM    ','NUM_COARSE   '/),     0.0,      0.0,      1.0),
-     & sur_aer_type((/'SRF_AITKEN   ','SRF_ACCUM    ','SRF_COARSE   '/),     0.0,      0.0,      1.0)/)
+C                         Aitken             Accum              Coarse         Background MolWt Density
+C                      -------------      -------------      -------------     --------- ------ --------
+!    & sur_aer_type((/'                ','                ','CACO3           '/),   0.0, 100.1, 2200.0),
+!    & sur_aer_type((/'                ','                ','MGCO3           '/),   0.0,  84.3, 2200.0),
+!    & sur_aer_type((/'                ','                ','A3FE            '/),   0.0,  55.8, 2000.0),
+!    & sur_aer_type((/'                ','                ','B2MN            '/),   0.0,  54.9, 2000.0),
+!    & sur_aer_type((/'                ','                ','K               '/),   0.0,  39.1, 2200.0),
+     & sur_aer_type((/'NUM_AITKEN      ','NUM_ACCUM       ','NUM_COARSE      '/),   0.0,   0.0,    1.0),
+     & sur_aer_type((/'SRF_AITKEN      ','SRF_ACCUM       ','SRF_COARSE      '/),   0.0,   0.0,    1.0)/)
 
 C...Required aerosol species
-      Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
-      Character( 16 ), Parameter, Private :: req_anh4   = 'NH4_ACCUM'
-      Character( 16 ), Parameter, Private :: req_ano3   = 'NO3_ACCUM'
-      Character( 16 ), Parameter, Private :: req_asoa   = 'SOA_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aorgc  = 'AORGC_ACCUM'
-      Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM'  
-      Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM'
-!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM'  
-      Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM'  
-      Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3'
-      Character( 16 ), Parameter, Private :: req_amgco3 = 'MGCO3'
-      Character( 16 ), Parameter, Private :: req_aa3fe  = 'A3FE' 
-      Character( 16 ), Parameter, Private :: req_ab2mn  = 'B2MN' 
-      Character( 16 ), Parameter, Private :: req_ak     = 'K'   
-      Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM' 
-      Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM' 
+      Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_anh4   = 'NH4_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_ano3   = 'NO3_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_asoa   = 'SOA_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_aorgc  = 'AORGC_ACCUM     '
+      Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM        '
+      Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM       '
+!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE      ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM        '
+      Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM        '
+      Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3           '
+      Character( 16 ), Parameter, Private :: req_amgco3 = 'MGCO3           '
+      Character( 16 ), Parameter, Private :: req_aa3fe  = 'A3FE            '
+      Character( 16 ), Parameter, Private :: req_ab2mn  = 'B2MN            '
+      Character( 16 ), Parameter, Private :: req_ak     = 'K               '
+      Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM       '
 
-      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM'     ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM'    ! SLN 22March2011
-      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM'    ! SLN 22March2011
-      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM        ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM        ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM         ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM        ' ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM        ' ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE     ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE     ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE     ' ! SLN 16March2011
 
 
 C...Pointers for the AQCHEM array AEROSOL
@@ -346,7 +346,8 @@ C...Map aero species
       Call map_aero()
 
       Do spc = 1, n_aerospc
-         srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
+         srgaer( spc ) = sur_aer_type( (/'                ','                ','                '/),
+     &                                0.0, 0.0, 0.0 )
 
          ! Skip H2O and SOIL species
          If ( spc .Eq. ah2o_idx ) Cycle
@@ -566,7 +567,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Arguments:
-      Character( * ) :: vname
+      Character( 16 ) :: vname
       Integer idx
 
 C Local Variables:
@@ -582,7 +583,7 @@ C Local Variables:
       End Do
 
       xmsg = 'Required Species ' // Trim( vname ) // ' Not found in SgrGas names array'
-      Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
+      Call m3exit( 'findSgrGas', 0, 0, xmsg, xstat3 )
 
       Return
       End Function findSgrGas
@@ -602,7 +603,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Arguments:
-      Character( * ) :: vname
+      Character( 16 ) :: vname
       Integer idx
 
 C Local Variables:
@@ -620,7 +621,7 @@ C Local Variables:
       End Do
 
       xmsg = 'Required Species ' // Trim( vname ) // ' Not found in SgrAer names array'
-      Call m3exit( 'AQ_DATA', 0, 0, xmsg, xstat3 )
+      Call m3exit( 'findSgrAer', 0, 0, xmsg, xstat3 )
 
       Return
       End Function findSgrAer
@@ -680,7 +681,7 @@ C..Local Variables:
       ! compute minimums for aerosol species
       Do m = 1, n_mode
          Do n = 1, n_aerospc
-            If ( aerospc( n )%name( m ) .Ne. ' ' ) Then
+            If ( aerospc( n )%name( m ) .Ne. '                ' ) Then
                spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
                If ( spc .Ne. 0 ) Then
                   aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )
