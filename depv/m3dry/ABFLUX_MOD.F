@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.6 2011/11/01 18:42:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.7 2012/01/19 14:18:22 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -82,20 +82,54 @@ C Private variables used in this module and subroutines
          Real, Save, Allocatable :: Beld_ag ( :,:,: )        
          Real                    :: Tot_Ag          ! total ag in the grid cell    
  
-         Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
+         Character( 16 ), Parameter :: pname = 'Init_ABFlux     ' 
          CHARACTER( 16 )            :: vname
          CHARACTER( 96 )            :: xmsg = ' '
          Character( 20 ), Save      :: Beld_Names(e2c_cats)
-         Data Beld_Names / 'Hay', 'Hay_ir', 'Alfalfa', 'Alfalfa_ir', 'Other_Grass',
-     &                     'Other_Grass_ir', 'Barley', 'Barley_ir', 'BeansEdible',
-     &                     'BeansEdible_ir', 'CornGrain', 'CornGrain_ir', 'CornSilage',
-     &                     'CornSilage_ir', 'Cotton', 'Cotton_ir', 'Oats', 'Oats_ir',
-     &                     'Peanuts', 'Peanuts_ir', 'Potatoes', 'Potatoes_ir', 
-     &                     'Rice', 'Rice_ir', 'Rye', 'Rye_ir', 'SorghumGrain', 
-     &                     'SorghumGrain_ir', 'SorghumSilage', 'SorghumSilage_ir', 
-     &                     'Soybeans', 'Soybeans_ir','Wheat_Spring', 'Wheat_Spring_ir', 
-     &                     'Wheat_Winter', 'Wheat_Winter_ir', 'Other_Crop', 'Other_Crop_ir', 
-     &                     'Canola', 'Canola_ir', 'Beans', 'Beans_ir' /
+C Some compilers do not pad with blank characters in data initialization
+C                          '12345678901234567890'
+         Data Beld_Names / 'Hay                 ',  !  1
+     &                     'Hay_ir              ',  !  2
+     &                     'Alfalfa             ',  !  3
+     &                     'Alfalfa_ir          ',  !  4
+     &                     'Other_Grass         ',  !  5
+     &                     'Other_Grass_ir      ',  !  6
+     &                     'Barley              ',  !  7
+     &                     'Barley_ir           ',  !  8
+     &                     'BeansEdible         ',  !  9
+     &                     'BeansEdible_ir      ',  ! 10
+     &                     'CornGrain           ',  ! 11
+     &                     'CornGrain_ir        ',  ! 12
+     &                     'CornSilage          ',  ! 13
+     &                     'CornSilage_ir       ',  ! 14
+     &                     'Cotton              ',  ! 15
+     &                     'Cotton_ir           ',  ! 16
+     &                     'Oats                ',  ! 17
+     &                     'Oats_ir             ',  ! 18
+     &                     'Peanuts             ',  ! 19
+     &                     'Peanuts_ir          ',  ! 20
+     &                     'Potatoes            ',  ! 21
+     &                     'Potatoes_ir         ',  ! 22
+     &                     'Rice                ',  ! 23
+     &                     'Rice_ir             ',  ! 24
+     &                     'Rye                 ',  ! 25
+     &                     'Rye_ir              ',  ! 26
+     &                     'SorghumGrain        ',  ! 27
+     &                     'SorghumGrain_ir     ',  ! 28
+     &                     'SorghumSilage       ',  ! 29
+     &                     'SorghumSilage_ir    ',  ! 30
+     &                     'Soybeans            ',  ! 31
+     &                     'Soybeans_ir         ',  ! 32
+     &                     'Wheat_Spring        ',  ! 33
+     &                     'Wheat_Spring_ir     ',  ! 34
+     &                     'Wheat_Winter        ',  ! 35
+     &                     'Wheat_Winter_ir     ',  ! 36
+     &                     'Other_Crop          ',  ! 37
+     &                     'Other_Crop_ir       ',  ! 38
+     &                     'Canola              ',  ! 39
+     &                     'Canola_ir           ',  ! 40
+     &                     'Beans               ',  ! 41
+     &                     'Beans_ir            ' / ! 42
  
          logdev =  init3() 
  
@@ -198,7 +232,7 @@ C Private variables used in this module and subroutines
                Go To 1001
             End If
          END DO
-  
+
 ! Allocate variable needed soil processes and fertilization
          If ( .Not. Allocated ( gamma1 ) ) Then
             Allocate ( gamma1 ( my_ncols,my_nrows ) )
@@ -228,6 +262,7 @@ C Private variables used in this module and subroutines
             Allocate ( frac_ir ( my_ncols,my_nrows ) )
          End If
          frac_ir = 0.0                 
+
 ! get fertilizer from the previous month to estimate soil NH4+        
 ! time in the files is not the same
          If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
@@ -275,23 +310,23 @@ C Private variables used in this module and subroutines
 ! following based on Venterea and Rolston 2000 JGR                        
                         Tot_Ag      = Tot_Ag + Beld_ag(c,r,l)/100.0                  
                         gamma1(c,r) = gamma1(c,r)+NH4ps1(c,r,l)*1.0e-4/14.0/0.01
-     &                              / 10**(-pHs1(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
-                        MHp1(c,r)   = MHp1(c,r)+Beld_ag(c,r,l)/100.0*10**(-pHs1(c,r,l))
+     &                              / 10.0**(-pHs1(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
+                        MHp1(c,r)   = MHp1(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs1(c,r,l))
                         gamma2(c,r) = gamma2(c,r)+NH4ps2(c,r,l)*1.0e-4/14.0/0.05
-     &                              / 10**(-pHs2(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
-                        MHp2(c,r)   = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10**(-pHs2(c,r,l))                                                                  
+     &                              / 10.0**(-pHs2(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
+                        MHp2(c,r)   = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs2(c,r,l))                                                                  
                         If ( .Not. IsNaN( F_rate(c,r,l) ) .And. F_rate(c,r,l) .Gt. 0.0 .And.
      &                       .Not. IsNaN( F_depth(c,r,l) ) ) Then
 ! FAO fertlizer use statistics estimate that US fertilizer use in 2002 contained 92.5% NH3     
 ! injected fertilizer
                            If ( F_depth(c,r,l) .Gt. 0.01 ) Then
                               fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                    * 1.0e-4/14.0/0.05/10**(-pHs1(c,r,l))*0.925
+     &                                    * 1.0e-4/14.0/0.05/10.0**(-pHs1(c,r,l))*0.925
                            End If
 ! Surface applied fertlizer                           
                            If ( F_depth(c,r,l) .Le. 0.01 .And. F_depth(c,r,l) .Ge. 0.00 ) Then 
                               fagam1(c,r) = fagam1(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                    * 1.0e-4/14.0/0.01/10**(-pHs2(c,r,l))*0.925
+     &                                    * 1.0e-4/14.0/0.01/10.0**(-pHs2(c,r,l))*0.925
                            End If
                         End If
                         If ( IsNaN( fagam1(c,r) ) .Or. IsNaN( fagam2(c,r) ) ) Then
@@ -328,6 +363,7 @@ C Private variables used in this module and subroutines
             End Do ! c
 !           xmsg = 'NaN in fagam Calculation' ! JOB debugging
 !           Call M3exit( pname, jdate, jtime, xmsg, xstat1) ! JOB debuggin
+
          Else ! read          
 ! for whatever reason the jdate and jtime get messed up by the e2c files
             Write(Logdev,*) 'Reading soil NHx from Previous CMAQ run'         
@@ -356,6 +392,7 @@ C Private variables used in this module and subroutines
                Write( xmsg,9001 ) vname, INIT_MEDC_1
                Go To 1001
             End If
+
             Do c = 1, My_Ncols
                Do r = 1, My_Nrows
                   Tot_Ag = 0.0 
@@ -370,13 +407,13 @@ C Private variables used in this module and subroutines
 ! Injected fertilizer                        
                         If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .Gt. 0.01 ) Then                                      
                            fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                 * 1.0e-4/14.0/0.05/10**(-pHs1(c,r,l))*0.925
+     &                                 * 1.0e-4/14.0/0.05/10.0**(-pHs1(c,r,l))*0.925
                         End If
 ! surface applied fertilizer                        
                         If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .LE. 0.01 
-     &                       .And. F_depth(c,r,l) .GE. 0.00 ) Then
+     &                       .And. F_depth(c,r,l) .GE. 0.0 ) Then
                            fagam1(c,r) = fagam1(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                 * 1.0e-4/14.0/0.01/10**(-pHs2(c,r,l))*0.925
+     &                                 * 1.0e-4/14.0/0.01/10.0**(-pHs2(c,r,l))*0.925
                         End If
                      End If
                      If ( IsNaN( fagam1(c,r) ) .Or. IsNaN( fagam2(c,r) ) ) Then
@@ -442,7 +479,7 @@ C-------------------------------------------------------------------------------
          Integer, Intent( IN )  :: dt
          Integer, Intent( IN )  :: sp ! species index
          
-         Real,    Intent( IN )  :: Tempg        
+         Real,    Intent( IN )  :: tempg        
          Real,    Intent( IN )  :: rh_air         
          Real,    Intent( IN )  :: cNH3
          Real,    Intent( IN )  :: rwetsfc        
@@ -480,7 +517,8 @@ C-------------------------------------------------------------------------------
          Real,        Parameter :: karman = 0.4 ! von Karman constant
          Real( 8 )              :: qq           ! intermediate variable
          Real                   :: rbgj( n_lufrac )
-         Real,        Parameter :: rwm = 20 ! 35.0 ! Minimum NH3 cuticle resistance [s/m]
+!        Real,        Parameter :: rwm = 35.0   ! Minimum NH3 cuticle resistance [s/m]
+         Real,        Parameter :: rwm = 20.0   ! Minimum NH3 cuticle resistance [s/m]
          Real                   :: rwmb         ! Rwmb = Rwm + Rb
          Real                   :: rwx          ! Rw = Rwm + Rwx * CNH3C [s/m]
          Real                   :: scn          ! for Rbg
@@ -489,7 +527,14 @@ C-------------------------------------------------------------------------------
          Real                   :: wg_ir        ! 1 cm soil moisture  
          Real                   :: w5cm         ! soil moisture in top 5 cm (vol frc)
          Real,        Parameter :: d1 = 0.01    ! Top soil layer depth (1 cm)
-         Real( 8 )              :: ldry, dp, rsoil1, rsoil2, a1, agfrac, sqrr, ddd
+         Real( 8 )              :: ldry
+         Real( 8 )              :: dp
+         Real( 8 )              :: rsoil1
+         Real( 8 )              :: rsoil2
+         Real( 8 )              :: a1
+         Real( 8 )              :: agfrac
+         Real( 8 )              :: sqrr
+         Real( 8 )              :: ddd
          Real( 8 )              :: watfrac ! water fraction
          Real                   :: xxx          ! lumped variable
          Real,        Parameter :: f_emis_lim = -1.0e-08 ! limit to report to log: if below, probably due to numerical precision error
@@ -517,7 +562,7 @@ C-------------------------------------------------------------------------------
          Else
             wg_ir = wg
          End If
-         ldry= d1 * ( EXP((1.0-wg_ir/wsat(ist))**5)-1 ) / 1.718
+         ldry= d1 * ( EXP((1.0-wg_ir/wsat(ist))**5)-1.0 ) / 1.718
          dp  = dif*1.0E-4 * wsat(ist)**2 *                           
      &         (1.0-wres(ist)/wsat(ist))**(2.0+3.0/bslp(ist))
          rsoil1=ldry/dp
@@ -525,7 +570,7 @@ C-------------------------------------------------------------------------------
          If ( frac_ir(Col,Row) .Gt. 0.0 .And. w5cm .LT. 0.75*wfc(ist) ) Then
             w5cm = (1.0-frac_ir(Col,Row))*w5cm+frac_ir(Col,Row)*0.75*wfc(ist)
          End If
-         ldry = 0.05*(EXP((1.0-w5cm/wsat(ist))**5)-1)/1.718
+         ldry = 0.05*(EXP((1.0-w5cm/wsat(ist))**5)-1.0)/1.718
          rsoil2 = ldry / dp
          
          If ( Land_Scheme .Eq. 'USGS24' ) Then
@@ -565,14 +610,15 @@ C-------------------------------------------------------------------------------
                   cnh3s  = 0.0
                   cnh3g1 = 0.0
                   cnh3g2 = 0.0
-                  Go To 1002
+                  Go To 101
                End If
 
 !> Compute compensation point. gamma is specified according to the amount of 
 !> cultivated vegetation               
                gammas = luf_fac_p( j )
-               a1    = 161512.0 / tempg * 10.0 ** ( -4507.11 / tempg ) 
-               a1    = a1 * 24.5 * 1.0E6  ! ppm
+               a1    = 161512.0d0 / real( tempg, 8 )
+     &               * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) )
+               a1    = a1 * 24.5d0 * 1.0d6  ! ppm
                cnh3s = a1 * gammas       
          
 !> Set a maximum [NH4]/[H+] ratio at 200,000 based on output from the AIM aerosol
@@ -638,7 +684,7 @@ C-------------------------------------------------------------------------------
                cnh3g1 = a1 * Max(cnh3g1,0.01)         
                cnh3g2 = a1 * Max(cnh3g2,0.01)
 
-1002           Continue
+101            Continue
 
 !> Cuticle resistance : rw = rwx * cnh3c + rwm
                If ( laij(j,col,row) .Gt. 0.0 ) Then
@@ -654,14 +700,17 @@ C-------------------------------------------------------------------------------
                   aq    = rwx * gt
                   bq    = rwmb * gt + laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ) - rwx * qq
                   cq    = -rwmb * qq
-                  sqrr = ( bq * bq - 4.0 * aq * cq )
+!                 sqrr = ( bq * bq - 4.0 * aq * cq )
+                  sqrr = -5.0D-1 * ( bq + sign( 1.0D0,bq ) * sqrt( bq**2 - 4.0D0*aq*cq) )
+!> find the positive root
                   If ( sqrr .Ge. 0.0 ) Then
-!                    cnh3c = ( -bq + ( sqrr )**0.5 ) / ( 2.0 * aq )
-                     cnh3c = ( -bq + Sqrt( sqrr ) ) / ( 2.0 * aq )
-                  Else
-                     Write(logdev,*)' sqrr,bq,aq,cq=',sqrr,bq,aq,cq
-                     Write(logdev,*)' laij,raj,deltaj,lufrac=',laij(j,col,row),raj(j,col,row),deltaj(j,col,row),lufrac(j,col,row)
-                     cnh3c = ( -bq ) / ( 2.0 * aq )
+!                    cnh3c = ( -bq + Sqrt( sqrr ) ) / ( 2.0 * aq )
+                     cnh3c = sqrr/aq
+                  Else ! because cq is always negative
+                  !  Write(logdev,*)' sqrr,bq,aq,cq=',sqrr,bq,aq,cq
+                  !  Write(logdev,*)' laij,raj,deltaj,lufrac=',laij(j,col,row),raj(j,col,row),deltaj(j,col,row),lufrac(j,col,row)
+!                    cnh3c = ( -bq ) / ( 2.0 * aq )
+                     cnh3c = cq/sqrr
                   End If
                   If ( cnh3c .Lt. 0.0 ) Then
                      Write(logdev,*) ' j,cnh3c=', j,cnh3c
@@ -674,20 +723,20 @@ C-------------------------------------------------------------------------------
                      Write(logdev,*) ' cnh3s,cnh3g1,cnh3g2', cnh3s, cnh3g1, cnh3g2
                      cnh3c = 0.0
                   End If
-                        
+
                   ddd = (1.0-deltaj(j,col,row)) / rgndcj(j,col,row) + deltaj(j,col,row) / rgw 
 
                   vdg = 1.0 / ( raj(j,col,row) + rbcj(j) + 1.0/ddd )
                End If ! laij > 0.0            
-            
+
 !> Integrate over the land uses
-               Select Case(j) 
+               Select Case(j)
                   Case(1,31,48:50) ! no vegetation
                      lnh3 = lnh3 + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row))
-                  Case Default     ! vegetation            
+                  Case Default     ! vegetation
                      pvd  = pvd + lufrac(j,col,row) * cnh3c * ga * vegj(j,col,row)
                      lnh3 = lnh3 + lufrac(j,col,row)*(( 1.0 - vegj(j,col,row) ) * vdg + vegj(j,col,row) * ga )
-               End Select            
+               End Select
 
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                Select Case(j)
@@ -700,7 +749,7 @@ C-------------------------------------------------------------------------------
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
 !    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
 
-                       xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                     xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
                      f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
      &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                     / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
@@ -712,7 +761,7 @@ C-------------------------------------------------------------------------------
 !    &                  (qq-ga*cnh3))**0.5)/(2.0*aq)
 
                     !!! mixed Real's !!!!
-                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                     xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
                      f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
      &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * (qq-ga*cnh3) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
@@ -721,7 +770,7 @@ C-------------------------------------------------------------------------------
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
 !    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
 
-                       xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                     xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
                      f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
      &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                     / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
@@ -735,9 +784,9 @@ C-------------------------------------------------------------------------------
                      f_ag = f_ag + lufrac(j,col,row) * ( vegj(j,col,row)*ga*(cnh3c-cnh3)
      &                    -( 1.0-vegj(j,col,row) )*vdg*cnh3 ) / agfrac
                      If ( f_emis .lt. f_emis_lim ) Then
+                        Write(logdev,*) 'ag f_emis: ', f_emis
                         Write(logdev,*) 'ag f_ag  : ', f_ag
                         Write(logdev,*) 'ag f_dep : ', f_dep
-                        Write(logdev,*) 'ag f_emis: ', f_emis
                         Write(logdev,*) 'ag f_stom: ', f_stom
                         Write(logdev,*) 'ag f_cut : ', f_cut
                         Write(logdev,*) 'ag f_soil: ', f_soil
@@ -756,7 +805,7 @@ C-------------------------------------------------------------------------------
 !    &                      * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb
 !    &                      * (qq-ga*cnh3) )**0.5 ) / ( 2.0 * aq )
 
-                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                     xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
                      f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
      &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq-ga*cnh3) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
@@ -765,7 +814,7 @@ C-------------------------------------------------------------------------------
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
 !    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
 
-                       xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                     xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
                      f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
      &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                     / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
@@ -779,9 +828,9 @@ C-------------------------------------------------------------------------------
                      f_nag = f_nag + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1.0-vegj(j,col,row))*vdg*cnh3)
      &                     / (1.0-agfrac-watfrac)
                      If ( f_emis .lt. f_emis_lim ) Then
+                        Write(logdev,*) 'f_emis: ', f_emis
                         Write(logdev,*) 'f_nag : ', f_nag
                         Write(logdev,*) 'f_dep : ', f_dep
-                        Write(logdev,*) 'f_emis: ', f_emis
                         Write(logdev,*) 'f_stom: ', f_stom
                         Write(logdev,*) 'f_cut : ', f_cut
                         Write(logdev,*) 'f_soil: ', f_soil
@@ -804,7 +853,7 @@ C-------------------------------------------------------------------------------
      &        MHp2(Col,Row) .Lt. 1.0e-5 ) Then  
             Call Calc_Nitrif ( Tempg,w5cm,Cnh3c,gg2,gamma2(Col,Row),ist,dt,MHp2(Col,Row),Col,Row )
          End If
-                  
+
          Return         
          End Subroutine Get_Flux
 !------------------------------------------------------------------------------
@@ -812,7 +861,7 @@ C-------------------------------------------------------------------------------
 ! nitrification, leaching, and run off
 ! Soil ammonium, pH, leaching, and run off are defined in the module
 !------------------------------------------------------------------------------
-         Subroutine Calc_Nitrif ( Tempg, wg, CNH3c, gg, gam, ist, dt, MHp,C,R )  
+         Subroutine Calc_Nitrif ( Tempg, wg, CNH3c, gg, gam, ist, dt, MHp, C, R )  
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: lufrac
@@ -820,18 +869,17 @@ C-------------------------------------------------------------------------------
          
          Implicit None                
          
-         Real,          Intent( IN )    :: Tempg     ! Soil Temperature
-         Real,          Intent( IN )    :: wg        ! Soil Moisture
-         Real,          Intent( IN )    :: CNH3c     ! Canopy compensation point
-         Real,          Intent( IN )    :: MHp       ! molar H concentration
-         Real(KIND= 8), Intent( IN )    :: gg(n_lufrac) ! soil-air conductance        
-         Real,          Intent( INOUT ) :: gam        ! updated gamma
-         Integer,       Intent( IN )    :: ist    ! Soil Type
-         Integer,       Intent( IN )    :: dt     ! time step in s
-         Integer,       Intent( IN )    :: C      ! Column
-         Integer,       Intent( IN )    :: R      ! Row
-                 
-         
+         Real,      Intent( IN )    :: Tempg     ! Soil Temperature
+         Real,      Intent( IN )    :: wg        ! Soil Moisture
+         Real,      Intent( IN )    :: CNH3c     ! Canopy compensation point
+         Real,      Intent( IN )    :: MHp       ! molar H concentration
+         Real( 8 ), Intent( IN )    :: gg(n_lufrac) ! soil-air conductance        
+         Real,      Intent( INOUT ) :: gam        ! updated gamma
+         Integer,   Intent( IN )    :: ist    ! Soil Type
+         Integer,   Intent( IN )    :: dt     ! time step in s
+         Integer,   Intent( IN )    :: C      ! Column
+         Integer,   Intent( IN )    :: R      ! Row
+
          Real    :: fTg    ! nitrification temperature factor
          Real    :: fSWg   ! nitrification Soil Water factor
          Real    :: fpHg   ! nitrification pH factor 
@@ -846,20 +894,20 @@ C-------------------------------------------------------------------------------
          Integer :: i   ! loop counter
          CHARACTER( 96 )            :: xmsg = ' '
          Character( 16 ), Parameter :: pname = 'Calc_Nitrif' 
-         
+
 ! convert the ambient concentrations from ppm to mol/l
-         MNH3 = CNH3c / 24.45 / 1.0e6
-         
+         MNH3 = CNH3c / 24.45 * 1.0e-6
+
 ! Get the soil pH         
          pHsl = -log10(MHp)
-         
+
 ! get NH4+ from gamma ([NH4+]/[H+] with units in mol/l)         
          MNHx = min(gam/wg,2.0e5)*MHp
 
 ! Estimate the soil nitrification rate following Reddy et al 1979 starting with
 ! the temperature parameter         
          fTg = max( 0.041 * (Tempg-278.15), 0.0)
-! Estimate the soil water parameter         
+! Estimate the soil water parameter
          wg25 = wwlt(ist) + 0.25*(wfc(ist)-wwlt(ist))
          If ( wg .Le. wwlt(ist)) fSWg = 0.1
          If ( wg .Lt. wg25 .And. wg .Gt. wwlt(ist) ) Then
@@ -867,18 +915,18 @@ C-------------------------------------------------------------------------------
             fSWg = max( 0.1, 0.1 + 0.9*Sqrt( (wg-wwlt(ist)) / (wfc(ist)-wwlt(ist)) ),
      &                      ( wg-wwlt(ist) ) / ( 0.25 * ( wfc(ist)-wwlt(ist) ) ) )
          End If
-         If ( wg .Ge. wg25 .And. wg .Lt. wfc(ist) ) fSWg = 1
-         
-         If ( wg .Ge. wfc(ist) ) Then 
+         If ( wg .Ge. wg25 .And. wg .Lt. wfc(ist) ) fSWg = 1.0
+
+         If ( wg .Ge. wfc(ist) ) Then
             fSWg = max(0.1, 1.0-(wg-wfc(ist) ) / (wsat(ist)-wfc(ist)))
          End If
 ! Estimate the pH factor
          If ( pHsl .Lt. 7.0 ) fpHg = 0.307*pHsl-1.269
          If ( pHsl .Ge. 7.0 .And. pHsl .Lt. 7.4 ) fpHg = 1.0
          If ( pHsl .Ge. 7.4) fpHg = 5.367-0.599
-                  
-         Kn = fTg*fSWg*fpHg/24/3600 !Kn is in 1/d in EPIC 
-! Estimate the soil evasion rate         
+
+         Kn = fTg * fSWg * fpHg / 24.0 / 3600.0  ! Kn is in 1/d in EPIC
+! Estimate the soil evasion rate
          kvg    = 0.0
          Kvs    = 0.0
          ag_tot = 0.0
@@ -886,43 +934,46 @@ C-------------------------------------------------------------------------------
             If ( lufrac(i,C,R) .Gt. 0.0 ) Then
                Select Case(i)
                   Case(19:20)
-                     kvg = kvg + gg(i)*lufrac(i,C,R)
-                     Kvs = Kvs + ( 161512.0 / tempg * 10.0**( -4507.11 / tempg) )
+                     kvg = kvg + gg(i) * lufrac(i,C,R)
+                     Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
+     &                         * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
      &                   * gg(i) / MHp*lufrac(i,C,R)
-                     ag_tot = ag_tot + lufrac(i,C,R)                             
-               End Select               
+                     ag_tot = ag_tot + lufrac(i,C,R)
+               End Select
             End If
          End Do
          If ( ag_tot .Gt. 0.0 ) Then
             kvg = kvg/ag_tot
-            Kvs = Kvs/ag_tot        
-            MNHx = kvg*MNH3/(Kvs+Kn)+(MNHx-kvg*MNH3/(Kvs+Kn))*exp(-(Kvs+Kn)*dt)         
+            Kvs = Kvs/ag_tot
+            MNHx = kvg*MNH3/(Kvs+Kn)+(MNHx-kvg*MNH3/(Kvs+Kn))*exp(-(Kvs+Kn)*dt)
             gam = MNHx/MHp*wg + max(gam/wg-2.0e5,0.0)*wg
          Else
             gam = 20.0
-         End If            
-         
+         End If
+
          If ( IsNaN(gam) ) Then
             xmsg = 'NaN in Gamma Calculation'
             Write(logdev,*) 'MNHx   :', MNHx
             Write(logdev,*) 'gam    :', gam
             Write(logdev,*) 'MHp    :', MHp
             Write(logdev,*) 'ag_tot :', ag_tot
-            Call M3exit( pname, 0, 0, xmsg, xstat1)   
+            Call M3exit( pname, 0, 0, xmsg, xstat1)
          End If
-         
+
          Return
          End Subroutine Calc_Nitrif
 
          Logical Function IsNaN( a ) ! required for Portland Group compiler (pgi)
             Real :: a
-            If ( a .Ne. a ) Then   ! requires -Kieee flag for pgi
-               IsNaN = .true.
-            Else
+            If ( a .Eq. a ) Then   ! requires -Kieee flag for pgi
+!               write( *,* ) '==IsNaN false: ', a
                IsNaN = .false.
+            Else
+!               write( *,* ) '==IsNaN true: ', a
+               IsNaN = .true.
             End If
             Return
          End Function IsNaN  ! error, if pgf90
 !        End  ! error, if ifort
-         
+
       End Module ABFlux_Mod
