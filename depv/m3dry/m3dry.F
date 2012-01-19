@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.11 2011/11/01 18:42:52 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas, 
@@ -160,7 +160,7 @@ C Arguments:
 
       INTEGER,     INTENT( IN )  :: jdate
       INTEGER,     INTENT( IN )  :: jtime
-      INTEGER,     INTENT( IN )  :: dt(3)      !model time step 
+      INTEGER,     INTENT( IN )  :: dt( 3 )      ! model time step 
       LOGICAL,     INTENT( IN )  :: abflux, sfc_hono, mosaic, fst
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
@@ -332,7 +332,7 @@ C For Mosaic with Ammonia bi-directional flux
       REAL, PARAMETER           :: gamah = 11.6
       REAL, PARAMETER           :: f3min = 0.25
       REAL, PARAMETER           :: ftmin = 0.0000001             ! m/s
-      REAL, PARAMETER           :: nscat = 16
+      REAL, PARAMETER           :: nscat = 16.0
       REAL, PARAMETER           :: rsmax = 5000.0                ! s/m
       REAL                      :: soit2     ( ncols,nrows ) ! soil temperature in top m [K]
       REAL                      :: qv        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
@@ -558,11 +558,11 @@ C-------------------------------------------------------------------------------
             vname_rn = 'RN'
          END IF
 
-         xcent = xcent3d
-         ycent = ycent3d        
+         xcent = real( xcent3d, 4 )
+         ycent = real( ycent3d, 4 )
 
          DO l = 1, nvars3d
-            IF ( vname3d( l ) == 'WR' ) THEN   ! canopy wetness is in METCRO2D
+            IF ( vname3d( l ) .EQ. 'WR' ) THEN   ! canopy wetness is in METCRO2D
                ifwr = .TRUE.
                WRITE( logdev,6501 )
                EXIT
@@ -570,7 +570,7 @@ C-------------------------------------------------------------------------------
          END DO
 
          DO l = 1, nvars3d
-            IF ( vname3d( l ) == 'Q2' ) THEN   ! 2-m mixing ratio is in METCRO2D
+            IF ( vname3d( l ) .EQ. 'Q2' ) THEN   ! 2-m mixing ratio is in METCRO2D
                ifq2 = .TRUE.
                WRITE( logdev,6503 )
                EXIT
@@ -581,16 +581,13 @@ C-------------------------------------------------------------------------------
 
          CALL subhfile ( met_cro_2d, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
          
-!        Write(logdev,*) 'Before read lufrac'
-!        Write(logdev,*) 'n_lufrac', n_lufrac
+!        Write( logdev,* ) 'n_lufrac: ', n_lufrac
          IF ( abflux .OR. mosaic ) THEN                                 
             IF ( .NOT. ALLOCATED ( lufrac ) ) THEN
                ALLOCATE ( lufrac( n_lufrac,my_ncols,my_nrows ) )
             END IF
             DO l = 1, n_lufrac
                WRITE( vname,'( "LUFRAC_",I2.2 )' ) l
-!              IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-!    &                             strtrow, endrow, 1, 1, jdate, jtime,
                IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
      &                             strtrow_g, endrow_g, 1, 1, jdate, jtime,
      &                             lufrac( l,:,: )) ) THEN   
@@ -600,9 +597,8 @@ C-------------------------------------------------------------------------------
             END DO                      
          END IF        
              
-!        Write(logdev,*) 'Before init_ABFlux'
          IF ( abflux ) THEN         
-            CALL Init_ABFlux(jdate, jtime)
+            CALL Init_ABFlux( jdate, jtime )
          END IF         
 
 C-------------------------------------------------------------------------------
@@ -622,8 +618,6 @@ C-------------------------------------------------------------------------------
 !        END IF
 
          vname = 'LON'
-!        IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-!    &                strtrow, endrow, 1, 1, jdate, jtime, lon) ) THEN
          IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
      &                strtrow_g, endrow_g, 1, 1, jdate, jtime, lon) ) THEN
             WRITE( xmsg,9001 ) vname, grid_cro_2d
@@ -631,8 +625,6 @@ C-------------------------------------------------------------------------------
          END IF
 
          vname = 'LWMASK'
-!        IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-!    &                strtrow, endrow, 1, 1, jdate, jtime, lwmask) ) THEN
          IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
      &                strtrow_g, endrow_g, 1, 1, jdate, jtime, lwmask) ) THEN
             WRITE( xmsg,9001 ) vname, grid_cro_2d
@@ -669,8 +661,6 @@ C-------------------------------------------------------------------------------
                ALLOCATE ( purb( my_ncols,my_nrows ) )
             END IF
             vname = 'PURB'
-!           IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-!    &                   strtrow, endrow, 1, 1, jdate, jtime, purb) ) THEN
             IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
      &                   strtrow_g, endrow_g, 1, 1, jdate, jtime, purb) ) THEN
                WRITE( xmsg,9001 ) vname, grid_cro_2d
@@ -707,15 +697,11 @@ C-------------------------------------------------------------------------------
          END IF
       END IF
 
-!     vname = 'RADYNI'
-!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
       IF ( .NOT. interpx (met_cro_2d, vname_ra, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, ra) ) THEN
-!        WRITE( xmsg,9001 ) vname, met_cro_2d
          WRITE( xmsg,9001 ) vname_ra, met_cro_2d
          GO TO 1001
       END IF
-!     ELSE
       IF ( vname_ra .EQ. 'RADYNI' ) THEN
          DO r = 1, my_nrows
             DO c = 1, my_ncols
@@ -724,8 +710,6 @@ C-------------------------------------------------------------------------------
          END DO
       END IF
 
-!     vname = 'RC'
-!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
       IF ( .NOT. interpx (met_cro_2d, vname_rc, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, rc) ) THEN
          WRITE( xmsg,9001 ) vname_rc, met_cro_2d
@@ -739,22 +723,17 @@ C-------------------------------------------------------------------------------
          GO TO 1001
       END IF
 
-!     vname = 'RN'
-!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
       IF ( .NOT. interpx (met_cro_2d, vname_rn, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, rn) ) THEN
          WRITE( xmsg,9001 ) vname_rn, met_cro_2d
          GO TO 1001
       END IF
 
-!     vname = 'RSTOMI'
-!     IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
       IF ( .NOT. interpx (met_cro_2d, vname_rs, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, rs) ) THEN
          WRITE( xmsg,9001 ) vname_rs, met_cro_2d
          GO TO 1001
       END IF
-!     ELSE
       IF ( vname_rs .EQ. 'RSTOMI' ) THEN
          DO r = 1, my_nrows
             DO c = 1, my_ncols
@@ -835,8 +814,8 @@ C-------------------------------------------------------------------------------
          GO TO 1001
       END IF        
                
-!      Write(logdev,*) 'Before read metcro2d variables'
-      IF( abflux .OR. mosaic ) THEN               
+!     Write(logdev,*) 'Before read metcro2d variables'
+      IF ( abflux .OR. mosaic ) THEN               
          vname = 'SOIM1'
          IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
      &                strtrow, endrow, 1, 1, jdate, jtime, wg) ) THEN
@@ -864,6 +843,7 @@ C-------------------------------------------------------------------------------
            WRITE( XMSG,9001 ) vname, met_cro_2d
            GO TO 1001
          END IF   
+
       END IF
 C-------------------------------------------------------------------------------
 C Read fields from met_cro_3d.
@@ -893,6 +873,7 @@ C-------------------------------------------------------------------------------
          IF ( .NOT. interpx ( met_cro_3d, vname, pname, strtcol,  endcol,
      &                     strtrow, endrow, 1, 1, jdate, jtime, zh) ) THEN
             WRITE( xmsg,9001 ) vname, met_cro_3d
+
             GO TO 1001
          END IF
 
@@ -900,6 +881,7 @@ C-------------------------------------------------------------------------------
          IF ( .NOT. interpx (met_cro_3d, vname, pname, strtcol,  endcol,
      &                    strtrow, endrow, 1, 1, jdate, jtime, qv) ) THEN
             WRITE( xmsg,9001 ) vname, met_cro_3d
+
             GO TO 1001
          END IF
 
@@ -907,6 +889,7 @@ C-------------------------------------------------------------------------------
          IF ( .NOT. interpx (met_cro_3d, vname, pname, strtcol,  endcol,
      &                    strtrow, endrow, 1, 1, jdate, jtime, ta) ) THEN
             WRITE( xmsg,9001 ) vname, met_cro_3d
+
             GO TO 1001
          END IF
 
@@ -914,6 +897,7 @@ C-------------------------------------------------------------------------------
          IF ( .NOT. interpx (met_cro_3d, vname, pname, strtcol,  endcol,
      &                    strtrow, endrow, 1, 1, jdate, jtime, pres) ) THEN
             WRITE( xmsg,9001 ) vname, met_cro_3d
+
             GO TO 1001
          END IF      
 
@@ -921,12 +905,14 @@ C-------------------------------------------------------------------------------
          IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
             WRITE( xmsg,9001 ) vname, met_dot_3d
+
             GO TO 1001
          END IF
          vname = 'VWIND'
          IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, vwind) ) THEN
             WRITE( xmsg,9001 ) vname, met_dot_3d
+
             GO TO 1001
          END IF      
       END IF
@@ -940,9 +926,10 @@ C-------------------------------------------------------------------------------
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
       cmp       ( :,:,: ) = 0.0  !     "       "    "    "    " JOB
-      
+
 !     Write(logdev,*) 'Before devel_gasj'
       IF ( mosaic .OR. abflux ) THEN
+
          depvel_gasj( :,:,:,: ) = 0.0 !     "       "    "    "    "
          ustarj     ( :,:,: )   = 0.0 !     "       "    "    "    "
          IF ( fst ) then
@@ -955,9 +942,6 @@ C-------------------------------------------------------------------------------
 
       jday = jdate - 1000 * ( jdate/1000 )
             
-!     WRITE(LOGDEV,*) 'my_nrows: ', my_nrows
-!     WRITE(LOGDEV,*) 'my_ncols: ', my_ncols      
-      
       DO r = 1, my_nrows
       DO c = 1, my_ncols
 
@@ -971,29 +955,31 @@ C-------------------------------------------------------------------------------
          zrufcr    = zruf   ( c,r ) 
          soilcat   = NINT( sltyp( c,r ) )
          ifsnow    = MAX( 0, NINT( snocov( c,r ) ) )
-         
-!        Write(logdev,*) 'before lufraccr'
-         IF ( abflux .OR. mosaic ) THEN                       
+
+         IF ( abflux .OR. mosaic ) THEN
             DO j = 1, n_lufrac 
                lufraccr( j ) = lufrac( j,c,r )
             END DO
-         
-            IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
+
+            IF ( ( NINT( lwmask( c,r ) ) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 !              Write(logdev,*) 'Before call calc_lai'
-               CALL Calc_Lai( jday, jtime, soit2cr, lufraccr, laicr, zrufcr, 
+
+               CALL Calc_Lai( jday, jtime, soit2cr, lufraccr, laicr, zrufcr,
      &                        laijcr, z0jcr, vegjcr, logdev, c, r )
                DO j = 1, n_lufrac
                   laij(j,c,r) = laijcr(j)
                   z0j(j,c,r)  = z0jcr(j)
                   vegj(j,c,r) = vegjcr( j )
                END DO
-            ELSE        
+
+            ELSE
                DO j = 1, n_lufrac
                   laij(j,c,r)   = 0.0
                   z0j(j,c,r)    = 0.000001
                   vegj( j,c,r ) = 0.0
                END DO
             END IF 
+            
          END IF ! mosaic loop
 
 ! Calculate the relative humidity of air and ground.
@@ -1043,11 +1029,11 @@ C-------------------------------------------------------------------------------
                      zntol = z0j(j,c,r) * moli(c,r)
 
 ! ra calculation depends on met model used
-                     SELECT CASE(vgtyp_gd)
-                        CASE(7)
+                     SELECT CASE( vgtyp_gd )
+                        CASE( 7 )
 !                          Write(logdev,*) 'Before call ra_wrf'
                            CALL ra_wrf(moli(c,r),zol,zntol,zh(c,r),ustarj(j,c,r),z0j(j,c,r),j,c,r)
-                        CASE(2)
+                        CASE( 2 )
                            IF ( Land_Scheme .EQ. 'USGS24' ) THEN              
                               SELECT CASE(j)
                                  CASE(16) ! water
@@ -1159,7 +1145,7 @@ C-------------------------------------------------------------------------------
                IF ( mosaic .OR. abflux ) THEN
                   DO j = 1, n_lufrac
                      wrmax = 0.2e-3 * vegj(j,c,r) * laij(j,c,r)   ! [m] changed to vegj for mosaic JOB
-                     IF ( (wr( c,r ) .LE. 0.0) .or. (laij(j,c,r) .LE. 0)) THEN
+                     IF ( ( wr( c,r ) .LE. 0.0 ) .or. ( laij(j,c,r) .LE. 0.0 ) ) THEN
                         deltaj( j,c,r ) = 0.0
                      ELSE
                         deltaj( j,c,r ) = wr( c,r ) / wrmax   ! refer to SiB model
@@ -1392,11 +1378,11 @@ C-------------------------------------------------------------------------------
          ! Bulk surface resistance.
 
                   rci = vegcr
-     &                * ( 1.0/rstom + (1.0-delta( c,r )) * laicr / rcut
+     &                * ( 1.0/rstom + (1.0-delta( c,r ) ) * laicr / rcut
      &                +   ( delta( c,r ) * laicr / rwetsfc ) + 1.0 / rgndc )
-     &                + (1-ifsnow) * ( (1.0 - vegcr) * ( (1.0-delta( c,r )) /
+     &                + real( 1-ifsnow ) * ( (1.0 - vegcr) * ( (1.0-delta( c,r ) ) /
      &                                  rgnd + delta( c,r ) / rgw ) )
-     &                + ifsnow * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) )
+     &                + real( ifsnow ) * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) )
 
                   rsurf = 1.0 / rci
                   
@@ -1435,10 +1421,10 @@ C-------------------------------------------------------------------------------
      &                             * laij( j,c,r ) / rcut
      &                             + ( deltaj( j,c,r ) * laij( j,c,r ) / rwetsfc )
      &                             + 1.0 / rgndcj( j,c,r ) )
-     &                             + ( 1 - ifsnow) * ( ( 1.0 - vegj( j,c,r ))
+     &                             + real( 1 - ifsnow ) * ( ( 1.0 - vegj( j,c,r ))
      &                                  * ( ( 1.0 - deltaj( j,c,r ) ) / rgnd
      &                             +                deltaj( j,c,r ) / rgw ) )
-     &                             + ifsnow * ( ( 1.0 - xm) / rsnow + xm / ( rsndiff + rgw ) )
+     &                             + real( ifsnow ) * ( ( 1.0 - xm) / rsnow + xm / ( rsndiff + rgw ) )
                               rsurfj(j,l,c,r) = 1.0 / rcij
                            END IF
                         END IF
@@ -1581,7 +1567,7 @@ C by 60 to convert it into 1/sec.
 
 C Determine NO2 concentration needed for HONO production term.
 
-                  IF ( TRIM( depspc( l ) ) == 'NO2' ) THEN
+                  IF ( TRIM( depspc( l ) ) .EQ. 'NO2' ) THEN
                      conc_no2 = cgridl1( n,c,r )
 
 C Loss of NO2 via the heterogeneous reaction is accounted as additional
@@ -1626,6 +1612,7 @@ C-------------------------------------------------------------------------------
       xmsg = 'ABORT'
 
 1001  CONTINUE
+
       CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
 
       RETURN
