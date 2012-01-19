@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.11 2011/11/01 18:42:51 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/DEPV_DEFN.F,v 1.12 2012/01/19 14:22:45 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -46,6 +46,7 @@ C   22 Sep 2011 D. Wong: - incorporated twoway model implemenation
 C                        - used a robust way to compute WTIME
 C   11 Oct 2011 J.Young: PUBLIC/PRIVATE sections, re-do WTIME computation
 C                        and WTIME computation for MOSAIC
+C   13 Dec 2011 J.Young: removed separate SOA variables - no longer used
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -117,14 +118,10 @@ C flag for diagnostic DEPV file
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_ADEPV( : )
       INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
 
-      INTEGER, SAVE                      :: N_UNIQUE_SDEPV   ! SOA depv
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_SDEPV( : )
-
       INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
       INTEGER, SAVE :: N_GAS_DEPV
 
       REAL,    ALLOCATABLE, SAVE :: ADEPV( :,:,: )    ! Aerosol dep vel from
-!     REAL,    ALLOCATABLE, SAVE :: ADEPVJ( :,:,:,: ) ! Aerosol dep vel from
                                                                ! subroutine AERO_DEPV
       REAL,    ALLOCATABLE, SAVE :: DBUFF( :,: )      ! diagnostic output buffer
       REAL,    ALLOCATABLE, SAVE :: DBUFF3( :,:,: )   ! diagnostic output buffer with 3 dimensions
@@ -134,10 +131,6 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-!     REAL,    ALLOCATABLE, SAVE :: USTARJ( :,:,:)
-!     REAL,    ALLOCATABLE, SAVE :: RAJ( :,:,:)
-!     REAL,    ALLOCATABLE, SAVE :: LAIJ( :,:,:)
-!     REAL,    ALLOCATABLE, SAVE :: Z0J( :,:,:)
       REAL,    ALLOCATABLE, SAVE :: UCROSS( :,:,:)
       REAL,    ALLOCATABLE, SAVE :: VCROSS( :,:,:)
       REAL,    ALLOCATABLE, SAVE :: DLUSE( :,: )
@@ -181,31 +174,31 @@ C Local variables:
          LOGICAL, ALLOCATABLE         :: AE_DEPV_FOUND( : )
 
 C environment variable for in-line DEPV
-         CHARACTER( 16 )  :: CTM_ILDEPV = 'CTM_ILDEPV'
+         CHARACTER( 16 )  :: CTM_ILDEPV = 'CTM_ILDEPV      '
 
 C environment variable for ammonia bi-directional flux
-         CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX'
+         CHARACTER( 16 )  :: CTM_ABFLUX = 'CTM_ABFLUX      '
 
 C environment variable for HONO interaction with surfaces
-         CHARACTER( 16 )  :: CTM_SFC_HONO = 'CTM_SFC_HONO'
+         CHARACTER( 16 )  :: CTM_SFC_HONO = 'CTM_SFC_HONO    '
 
 C environment variable for mosaic - luc specific deposition velocities
-         CHARACTER( 16 )  :: CTM_MOSAIC = 'CTM_MOSAIC'
+         CHARACTER( 16 )  :: CTM_MOSAIC = 'CTM_MOSAIC      '
 
 C environment variable for mosaic - luc specific stomatal flux
-         CHARACTER( 16 )  :: CTM_FST = 'CTM_FST'         
+         CHARACTER( 16 )  :: CTM_FST = 'CTM_FST         '         
 
 C variables for deposition velocities diagnostic file
          INTEGER          :: STATUS      ! ENV... status
          CHARACTER( 80 )  :: VARDESC     ! environment variable description
 
 C environment variable for diagnostic DEPV file
-         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
+         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE    '
          
 C environment variable for diagnostic mosaic DEPV file
-         CHARACTER( 16 )  :: CTM_MOSAIC_FILE = 'CTM_MOSAIC_FILE'
+!        CHARACTER( 16 )  :: CTM_MOSAIC_FILE = 'CTM_MOSAIC_FILE'
 
-         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
+         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT       '
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER          AE_OFFSET            ! Offset to AE start in CGRID
@@ -217,8 +210,8 @@ C environment variable for diagnostic mosaic DEPV file
          INTERFACE
             SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
      &                               N_GDEPV_NAMES, GDEPV_NAMES,
-     &                               N_ADEPV_NAMES, ADEPV_NAMES,
-     &                               N_SDEPV_NAMES, SDEPV_NAMES )
+     &                               N_ADEPV_NAMES, ADEPV_NAMES )
+!    &                               N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
                USE UTILIO_DEFN
@@ -228,13 +221,13 @@ C environment variable for diagnostic mosaic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-               INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
+!              INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
+!              CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_DIAG
             SUBROUTINE OPDEPV_MOS ( JDATE, JTIME, TSTEP,
      &                              N_GDEPV_NAMES, GDEPV_NAMES,
-     &                              N_ADEPV_NAMES, ADEPV_NAMES,
-     &                              N_SDEPV_NAMES, SDEPV_NAMES )
+     &                              N_ADEPV_NAMES, ADEPV_NAMES )
+!    &                              N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
                USE UTILIO_DEFN
@@ -244,13 +237,13 @@ C environment variable for diagnostic mosaic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-               INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
+!              INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
+!              CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_MOS
             SUBROUTINE OPDEPV_FST ( JDATE, JTIME, TSTEP,
      &                              N_GDEPV_NAMES, GDEPV_NAMES,
-     &                              N_ADEPV_NAMES, ADEPV_NAMES,
-     &                              N_SDEPV_NAMES, SDEPV_NAMES )
+     &                              N_ADEPV_NAMES, ADEPV_NAMES )
+!    &                              N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
                USE UTILIO_DEFN
@@ -260,8 +253,8 @@ C environment variable for diagnostic mosaic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-               INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
-               CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
+!              INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
+!              CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_FST
             SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
                USE CGRID_SPCS
@@ -447,10 +440,13 @@ C Mosaic method to get land-use specific stomatal flux
             END IF
             
             IF ( ABFLUX ) CALL INIT_BIDI( ABFLUX )
-            IF ( MOSAIC .OR. ABFLUX ) CALL INIT_LSM( JDATE, JTIME )
-            IF ( MOSAIC .OR. ABFLUX ) CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC )
+            IF ( MOSAIC .OR. ABFLUX ) THEN
+               CALL INIT_LSM( JDATE, JTIME )
+               CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
+            END IF
 C Allocate additional arrays needed for mosaic and initialize land use parameters
             IF ( MOSAIC ) THEN
+
                ALLOCATE ( DEPVJ( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DEPVJ array'
@@ -459,13 +455,6 @@ C Allocate additional arrays needed for mosaic and initialize land use parameter
                END IF
                DEPVJ = 0.0
 
-!              ALLOCATE ( DEPVEL_GASJ( N_LUFRAC,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-!              IF ( ALLOCSTAT .NE. 0 ) THEN
-!                 XMSG = 'Failure allocating DEPVEL_GASJ array'
-!                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!                 SUCCESS = .FALSE.; RETURN
-!              END IF
-
                IF ( FST ) THEN
                   ALLOCATE ( DEPVJ_FST( N_LUFRAC,N_SPC_DEPV+1,NCOLS,NROWS ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -473,24 +462,7 @@ C Allocate additional arrays needed for mosaic and initialize land use parameter
                      CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                      SUCCESS = .FALSE.; RETURN
                   END IF
-  
-!                 ALLOCATE ( VD_FST_GASJ( N_LUFRAC,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
-!                 IF ( ALLOCSTAT .NE. 0 ) THEN
-!                    XMSG = 'Failure allocating VD_FST_GASJ array'
-!                    CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!                    SUCCESS = .FALSE.; RETURN
-!                 END IF
                END IF
-
-!              ALLOCATE ( USTARJ( N_LUFRAC,NCOLS,NROWS ),
-!     &                   RAJ   ( N_LUFRAC,NCOLS,NROWS ),
-!     &                   LAIJ  ( N_LUFRAC,NCOLS,NROWS ), 
-!     &                   Z0J   ( N_LUFRAC,NCOLS,NROWS ),STAT = ALLOCSTAT )
-!              IF ( ALLOCSTAT .NE. 0 ) THEN
-!                 XMSG = 'Failure allocating USTARJ or RAJ or LAIJ or Z0J array'
-!                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-!                 SUCCESS = .FALSE.; RETURN
-!              END IF
 
             END IF   ! mosaic                        
 
@@ -680,13 +652,10 @@ C Get diagnostic file flag.
                IF ( MYPE .EQ. 0 ) THEN
                   CALL OPDEPV_DIAG ( JDATE, JTIME, TSTEP( 1 ),
      &                               N_UNIQUE_GDEPV, UNIQUE_GDEPV,
-     &                               N_UNIQUE_ADEPV, UNIQUE_ADEPV,
-     &                               N_UNIQUE_SDEPV, UNIQUE_SDEPV )
+     &                               N_UNIQUE_ADEPV, UNIQUE_ADEPV )
                END IF
 
             END IF
-            
-!           IF( MOSAIC .OR. ABFLUX ) CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC )
             
             IF ( MOSAIC ) THEN
 
@@ -700,8 +669,7 @@ C Get diagnostic file flag.
                IF ( MYPE .EQ. 0 ) THEN
                   CALL OPDEPV_MOS ( JDATE, JTIME, TSTEP( 1 ),
      &                              N_UNIQUE_GDEPV, UNIQUE_GDEPV,
-     &                              N_UNIQUE_ADEPV, UNIQUE_ADEPV,
-     &                              N_UNIQUE_SDEPV, UNIQUE_SDEPV )
+     &                              N_UNIQUE_ADEPV, UNIQUE_ADEPV )
                END IF
 
                IF ( FST ) THEN
@@ -709,8 +677,7 @@ C Get diagnostic file flag.
                   IF ( MYPE .EQ. 0 ) THEN
                      CALL OPDEPV_FST ( JDATE, JTIME, TSTEP( 1 ),
      &                                 N_UNIQUE_GDEPV, UNIQUE_GDEPV,
-     &                                 N_UNIQUE_ADEPV, UNIQUE_ADEPV,
-     &                                 N_UNIQUE_SDEPV, UNIQUE_SDEPV )
+     &                                 N_UNIQUE_ADEPV, UNIQUE_ADEPV )
                   END IF
                            
                END IF  ! FST
@@ -764,7 +731,7 @@ C Local variables:
          INTEGER       :: CDATE, CTIME   ! step beginning date and time
          INTEGER       :: WDATE, WTIME   ! write date and time
 
-         CHARACTER( 16 )  :: PNAME = 'GET_DEPV'
+         CHARACTER( 16 )  :: PNAME = 'GET_DEPV        '
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER C, R, N, V, NDX, J
@@ -836,10 +803,11 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
             CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-!           Write(*,*) 'Before m3dry call'
+!           Write( logdev,* ) '==5 ', abflux, sfc_hono, mosaic, fst,
+!    &                                size ( depvel_gas ), size ( pvd ), size ( cmp )
+
             CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
      &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
-!           Write(*,*) 'after m3dry call'
 #ifdef Verbose
             cw = my_ncols/2; rw = my_nrows/2
 !           cw = 17; rw = 43
@@ -1173,7 +1141,7 @@ C-----------------------------------------------------------------------
 
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
-                        DO J = 1,N_LUFRAC
+                        DO J = 1, N_LUFRAC
                            DBUFF3( C,R,J ) = 100.0 * ADEPVJ( J,NDX,C,R )   ! cm/sec
                         END DO
                      END DO
@@ -1205,10 +1173,10 @@ C-----------------------------------------------------------------------
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      DO J = 1, N_LUFRAC
-                        IF ( LUFRAC( J,C,R ) .GT. 0 ) THEN
+                        IF ( LUFRAC( J,C,R ) .GT. 0.0 ) THEN
                            DBUFF3( C,R,J ) = LAIJ( J,C,R )
                         ELSE
-                           DBUFF3( C,R,J ) = 0.   ! only output values where there is that plant type
+                           DBUFF3( C,R,J ) = 0.0  ! only output values where there is that plant type
                         ENDIF
                      ENDDO
                   END DO
