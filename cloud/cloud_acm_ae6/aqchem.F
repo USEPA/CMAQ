@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.4 2011/10/21 16:10:23 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.5 2012/01/19 13:51:58 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -35,7 +35,7 @@ C    Compute concentration changes in cloud due to aqueous chemistry,
 C    scavenging and wet deposition amounts.
 C
 C  Revision History:
-C      No   Date   Who	What
+C      No   Date   Who  What
 C      -- -------- ---  -----------------------------------------
 C      0  / /86    CW   BEGIN PROGRAM - Walceks's Original Code
 C      1  / /86    RB   INCORPORATE INTO RADM
@@ -571,8 +571,11 @@ C...compute fractional weights for several species
 
 C...Assign fraction partitioning of FE(III) and MN(II)
 
-      IF ( DARK .EQ. .TRUE.  ) FE_III = 0.9D0  ! Night time,GS 01July2011
-      IF ( DARK .EQ. .FALSE. ) FE_III = 0.1D0  ! Day time, GS  01July2011
+      IF ( DARK ) THEN
+        FE_III = 0.9D0  ! Night time, GS 01July2011
+      ELSE
+        FE_III = 0.1D0  ! Day time, GS 01July2011
+      END IF
 
       MN_II = 1.0D0                     ! Same for day and night, GS  01July2011
 
@@ -1286,7 +1289,7 @@ C...    S(iv) available then scale the rates to conserve mass
           DSIVDT( 2 ) = DSIVDT( 2 ) * DSIV_SCALE
           DSIVDT( 3 ) = DSIVDT( 3 ) * DSIV_SCALE
           DSIVDT( 4 ) = DSIVDT( 4 ) * DSIV_SCALE
-          DSIVDT( 5 ) = DSIVDT( 5 ) * DSIV_SCALE       	
+          DSIVDT( 5 ) = DSIVDT( 5 ) * DSIV_SCALE
         END IF
 
 C...Set DSIV(I), I = 0,NUMOX, the amount of S(IV) oxidized by each
