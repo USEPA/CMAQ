@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.8 2011/10/21 16:11:24 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/init/yamo/load_cgrid.F,v 1.9 2012/01/19 14:47:23 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -92,13 +92,13 @@ C fraction of sulfuric acid vapor taken as aerosol for first time step
 C initial fraction of total aerosol sulfate in the Aitken mode
       REAL, PARAMETER :: IFRACATKN = 0.04
 
-      INTEGER MXSPC
+      INTEGER, SAVE :: MXSPC
       INTEGER ASTAT
 
 C File variables:
 
-      REAL         DENS( NCOLS,NROWS,NLAYS )       ! air density (kg/m^3)
-      REAL         RHOJ( NCOLS,NROWS,NLAYS ) ! air density X Jacobian (kg/m^2)
+      REAL      :: DENS( NCOLS,NROWS,NLAYS )       ! air density (kg/m^3)
+      REAL      :: RHOJ( NCOLS,NROWS,NLAYS ) ! air density X Jacobian (kg/m^2)
 
 C External Functions:
 
@@ -115,8 +115,8 @@ C Local Variables
 
 C for XTRACT3
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-      INTEGER          STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI
-      REAL         DBUFF( NCOLS,NROWS,NLAYS )
+      INTEGER       :: STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI
+      REAL      :: DBUFF( NCOLS,NROWS,NLAYS )
 
       INTEGER      SPC_STRT
       INTEGER      N_SPCS                     ! no. of species for this call
@@ -200,7 +200,10 @@ C corresponding scale factor) if it exists. If it's not on the IC file, which it
 C wouldn`t be if it were blank, then look for the Namelist species name.
 
 C Get INDX
-      INDX = 0   ! array assignment
+!     INDX = 0   ! array assignment
+      DO SPC = 1, MXSPC
+         INDX( SPC ) = 0
+      END DO
 
       IF ( SPC_CAT .EQ. 'GC' ) THEN
          WRITE( LOGDEV,1009 ) 'transported gas-phase species'
