@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.10 2011/10/21 16:10:12 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_EMIS.F,v 1.11 2012/01/19 13:20:08 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -246,7 +246,7 @@ C Domain decomposition info from emission and meteorology files
 
 C Miscellaneous variables
          INTEGER STATUS                   ! ENV..., ALLOCATE status
-         CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT'
+         CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT  '
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
          INTEGER L, N, S                  ! Loop indices
 
@@ -356,8 +356,8 @@ C *** Allocate memory for EM_RATE, EM_PART, EM_MAP, EM_FAC, NUM_MAP, NUM_FAC, SR
          END IF
 
 C *** Map indices of emission species
+      write( logdev,* ) '=== aerospc em_map'
          EM_MAP = 0  
-         EM_FAC = 1.0 ! array assignment ! array assignment
          DO S = 1, N_AEROSPC
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
                ! Verify that aerospc( S )%emis is a pm emis
@@ -365,16 +365,48 @@ C *** Map indices of emission species
                   IF ( AEROSPC( S )%NAME( N ) .NE. ' ' .AND.
      &                 AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
                      EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
+      write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_map( s,n )
                      if ( em_map( s,n ) .eq. 0 ) then
-                        write( logdev,* ) s, n, em_map( s,n )
+                        write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
                      end if
-                     EM_FAC( S,N ) = AE_EMIS_FAC( EM_MAP( S,N ) )
                   END IF
                END DO
             END IF
          END DO
 
-C *** Map aerosol number emission species
+C *** set across-the-board adjustment factors (from Namelist file)
+C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for non-zero split factor
+      write( logdev,* ) 'modified aerospc em_fac'
+         EM_FAC = 1.0 ! array assignment
+         DO S = 1, N_AEROSPC
+            IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
+               DO N = 1, N_MODE
+                  IF ( AEROSPC( S )%NAME( N ) .NE. ' ' ) THEN
+                     L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
+                     IF ( L .GT. 0 ) THEN
+                        EM_FAC( S,N ) = AE_EMIS_FAC( L )
+                        if ( em_fac( s,n ) .ne. 1.0 ) then
+                           write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_fac( s,n )
+                        end if
+                     END IF
+                  END IF
+               END DO
+            ELSE
+               DO N = 1, N_MODE
+                  IF ( AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
+                     L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
+                     IF ( AE_EMIS( L ) .NE. ' ' ) THEN
+                        EM_FAC( S,N ) = AE_EMIS_FAC( L )
+                        if ( em_fac( s,n ) .ne. 1.0 ) then
+                           write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_fac( s,n )
+                        end if
+                     END IF
+                  END IF
+               END DO
+            END IF
+         END DO
+
+C *** Map aerosol number emission species and set across-the-board adjustment factors
          NUM_MAP = 0   ! array assignment
          NUM_FAC = 1.0 ! array assignment
          DO N = 1, N_MODE
@@ -390,7 +422,7 @@ C *** Map aerosol number emission species
             END IF
          END DO
 
-C *** Map aerosol surface emission species
+C *** Map aerosol surface emission species and set across-the-board adjustment factors
          SRF_MAP = 0   ! array assignment
          SRF_FAC = 1.0 ! array assignment
          DO N = 1, N_MODE
