@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.5 2011/10/21 16:11:19 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/advbc_map.F,v 1.6 2012/01/19 14:50:30 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -69,7 +69,8 @@ C External Functions:
 
 C Local variables:
       CHARACTER( 16 ) :: PNAME = 'ADVBC_MAP'
-      CHARACTER( 16 ) :: BLNK = ' '
+!     CHARACTER( 16 ) :: BLNK = ' '
+      CHARACTER( 16 ) :: BLNK = '                '
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: WRVAR( : )
 
@@ -145,7 +146,7 @@ C is the (main) species name on the BC file?
             END IF
 
 #ifdef Verbose3
-            write( logdev,* ) '=b=spc,name: ', spc, trim( bcname( spc ) ),
+            write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
@@ -206,7 +207,7 @@ C is the (main) species name on the BC file?
             END IF
 
 #ifdef Verbose3
-            write( logdev,* ) '=b=spc,name: ', spc, trim( bcname( spc ) ),
+            write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
@@ -267,7 +268,7 @@ C is the (main) species name on the BC file?
             END IF
 
 #ifdef Verbose3
-            write( logdev,* ) '=b=spc,name: ', spc, trim( bcname( spc ) ),
+            write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
@@ -328,7 +329,7 @@ C is the (main) species name on the BC file?
             END IF
 
 #ifdef Verbose3
-            write( logdev,* ) '=b=spc,name: ', spc, trim( bcname( spc ) ),
+            write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
