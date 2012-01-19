@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_depv.F,v 1.11 2011/10/21 16:10:13 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_depv.F,v 1.12 2012/01/19 13:12:14 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)aero_depv.F       1.3 /project/mod3/CMAQ/src/ae_depv/aero_depv/SCCS/s.aero_depv.F 18 Jun 1997 12:55:48
@@ -82,9 +82,10 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN      
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
-      USE AEROMET_DATA        ! constants and met data
+      USE AEROMET_DATA        ! Includes CONST.EXT
       USE Mosaic_Mod, Only: ADEPVJ, USTARJ, RAJ  ! Shared mosaic variables
       Use LSM_Mod, Only: N_LUFRAC
+      Use DEPV_DEFN, Only: ABFLUX
 
       IMPLICIT NONE
 
@@ -197,32 +198,32 @@ C Meteorological variables
         SUBROUTINE GETDEP_V ( BLKTA, BLKDENS,
      &                        XLM, AMU,
      &                        BLKWSTAR, BLKUSTAR, BLKRA,
-     &                        BLKUSTARJ, BLKRAJ, MOSAIC,
      &                        DGATK, DGACC, DGCOR,
      &                        XXLSGAT, XXLSGAC, XXLSGCO,
      &                        PDENSAT, PDENSAC, PDENSCO,
-     &                        VDEP, VDEPJ )
-          REAL, INTENT(IN) :: BLKTA  ( :,: )  ! air temperature [ K ]
-          REAL, INTENT(IN) :: BLKDENS( :,: )  ! air density  [ kg/m**3 ]
-          REAL, INTENT(IN) :: XLM( :,: )      ! atmospheric mean free path [ m ]
-          REAL, INTENT(IN) :: AMU( :,: )      ! atmospheric dynamic viscosity [ kg/(m s) ]
-          REAL, INTENT(IN) :: BLKWSTAR( :,: ) ! convective velocity scale [ m/s ]
-          REAL, INTENT(IN) :: BLKUSTAR( :,: ) ! friction velocity [ m/s ]
-          REAL, INTENT(IN) :: BLKRA   ( :,: ) ! aerodynamic resistance [ s/m ]
-          REAL, INTENT(IN) :: BLKUSTARJ( :,:,: ) ! friction velocity [ m/s ]
-          REAL, INTENT(IN) :: BLKRAJ   ( :,:,: ) ! aerodynamic resistance [ s/m ]
-          LOGICAL, INTENT(IN) :: MOSAIC
-          REAL, INTENT(IN) :: DGATK( :,: )    ! nuclei mode geometric mean diameter  [ m ]
-          REAL, INTENT(IN) :: DGACC( :,: )    ! accumulation geometric mean diameter [ m ]
-          REAL, INTENT(IN) :: DGCOR( :,: )    ! coarse mode geometric mean diameter  [ m ]
-          REAL, INTENT(IN) :: XXLSGAT( :,: )  ! Aitken mode
-          REAL, INTENT(IN) :: XXLSGAC( :,: )  ! accumulation mode
-          REAL, INTENT(IN) :: XXLSGCO( :,: )  ! coarse mode
-          REAL, INTENT(IN) :: PDENSAT( :,: )  ! average particle density in nuclei mode
-          REAL, INTENT(IN) :: PDENSAC( :,: )  ! average particle density in accumulation mode
-          REAL, INTENT(IN) :: PDENSCO( :,: )  ! average particle density in coarse mode
-          REAL, INTENT(OUT) :: VDEP( :,:,: ) ! deposition  velocity [ m/s ]
-          REAL, INTENT(OUT) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
+     &                        VDEP, VDEPJ,
+     &                        MOSAIC, BLKUSTARJ, BLKRAJ )
+          REAL, INTENT( IN ) :: BLKTA  ( :,: )  ! air temperature [ K ]
+          REAL, INTENT( IN ) :: BLKDENS( :,: )  ! air density  [ kg/m**3 ]
+          REAL, INTENT( IN ) :: XLM( :,: )      ! atmospheric mean free path [ m ]
+          REAL, INTENT( IN ) :: AMU( :,: )      ! atmospheric dynamic viscosity [ kg/(m s) ]
+          REAL, INTENT( IN ) :: BLKWSTAR( :,: ) ! convective velocity scale [ m/s ]
+          REAL, INTENT( IN ) :: BLKUSTAR( :,: ) ! friction velocity [ m/s ]
+          REAL, INTENT( IN ) :: BLKRA   ( :,: ) ! aerodynamic resistance [ s/m ]
+          REAL, INTENT( IN ) :: DGATK( :,: )    ! nuclei mode geometric mean diameter  [ m ]
+          REAL, INTENT( IN ) :: DGACC( :,: )    ! accumulation geometric mean diameter [ m ]
+          REAL, INTENT( IN ) :: DGCOR( :,: )    ! coarse mode geometric mean diameter  [ m ]
+          REAL, INTENT( IN ) :: XXLSGAT( :,: )  ! Aitken mode
+          REAL, INTENT( IN ) :: XXLSGAC( :,: )  ! accumulation mode
+          REAL, INTENT( IN ) :: XXLSGCO( :,: )  ! coarse mode
+          REAL, INTENT( IN ) :: PDENSAT( :,: )  ! average particle density in nuclei mode
+          REAL, INTENT( IN ) :: PDENSAC( :,: )  ! average particle density in accumulation mode
+          REAL, INTENT( IN ) :: PDENSCO( :,: )  ! average particle density in coarse mode
+          REAL, INTENT( OUT ) :: VDEP( :,:,: ) ! deposition  velocity [ m/s ]
+          REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
+          LOGICAL, INTENT( IN ) :: MOSAIC
+          REAL, OPTIONAL, INTENT( IN ) :: BLKUSTARJ( :,:,: ) ! friction velocity [ m/s ]
+          REAL, OPTIONAL, INTENT( IN ) :: BLKRAJ   ( :,:,: ) ! aerodynamic resistance [ s/m ]
         END SUBROUTINE GETDEP_V
       END INTERFACE
 
@@ -447,7 +448,7 @@ C ***    extract soa concentrations from CGRID
 C ***    Calculate aerosol surface area to 2nd moment. 
          DO S = 1, N_MODE
             N = AEROSRF_MAP( S )
-            MOMENT2_CONC( S ) = CGRID( C,R,1,N ) / SNGL( PI )
+            MOMENT2_CONC( S ) = CGRID( C,R,1,N ) / PI
          END DO
 
 C ***    Calculate geometric mean diameters and standard deviations of the
@@ -458,7 +459,7 @@ C add contribution of water and SOA
 
 C        Aitken mode.
          M3_DRY = MOMENT3_CONC( 1 )
-         M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+         M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &          * AEROSPC_CONC( AH2O_IDX,1 )
          M3_WET = M3_DRY + M3SUBT
          M2_DRY = MOMENT2_CONC( 1 )
@@ -470,10 +471,10 @@ C        Aitken mode.
 C        accumulation mode.
          M3_DRY = MOMENT3_CONC( 2 )
 
-         M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+         M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &          * AEROSPC_CONC( AH2O_IDX,2 )
          DO SPC = 1, N_VAPOR
-            M3SUBT = M3SUBT + ( 1.0E-9 * F6DPI / AEROSPC( APOC_IDX )%DENSITY )
+            M3SUBT = M3SUBT + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
      &             * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
          END DO
 
@@ -486,7 +487,7 @@ C        accumulation mode.
 
 C        coarse mode
          M3_DRY = moment3_conc(3)
-         M3SUBT = ( 1.0E-9 * F6DPI / AEROSPC( AH2O_IDX )%DENSITY )
+         M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &          * AEROSPC_CONC( AH2O_IDX,3 )
          M3_WET = M3_DRY + M3SUBT
          M2_DRY = MOMENT2_CONC( 3 )
@@ -525,14 +526,24 @@ C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
 C *** get dry deposition velocities:
 
 !     CALL GETDEP_V ( NCELLS, N_AE_DEP_SPC,
-      CALL GETDEP_V ( TA, DENS,
-     &                XLM, AMU,
-     &                WSTAR, USTAR, RA,
-     &                USTARJ, RAJ, MOSAIC,
-     &                DGATK, DGACC, DGCOR,
-     &                XXLSGAT, XXLSGAC, XXLSGCO,
-     &                PDENSAT, PDENSAC, PDENSCO,
-     &                VDEP, VDEPJ )
+      IF ( MOSAIC .OR. ABFLUX ) THEN
+         CALL GETDEP_V ( TA, DENS,
+     &                   XLM, AMU,
+     &                   WSTAR, USTAR, RA,
+     &                   DGATK, DGACC, DGCOR,
+     &                   XXLSGAT, XXLSGAC, XXLSGCO,
+     &                   PDENSAT, PDENSAC, PDENSCO,
+     &                   VDEP, VDEPJ,
+     &                   MOSAIC, USTARJ, RAJ )
+      ELSE
+         CALL GETDEP_V ( TA, DENS,
+     &                   XLM, AMU,
+     &                   WSTAR, USTAR, RA,
+     &                   DGATK, DGACC, DGCOR,
+     &                   XXLSGAT, XXLSGAC, XXLSGCO,
+     &                   PDENSAT, PDENSAC, PDENSCO,
+     &                   VDEP, VDEPJ, MOSAIC )
+      END IF
 
 C Return dry deposition velocities for aerosols (first layer only).
 
@@ -578,11 +589,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETDEP_V ( BLKTA, BLKDENS,
      &                      XLM, AMU,
      &                      BLKWSTAR, BLKUSTAR, BLKRA,
-     &                      BLKUSTARJ, BLKRAJ, MOSAIC,
      &                      DGATK, DGACC, DGCOR,
      &                      XXLSGAT, XXLSGAC, XXLSGCO,
      &                      PDENSAT, PDENSAC, PDENSCO,
-     &                      VDEP, VDEPJ )
+     &                      VDEP, VDEPJ,
+     &                      MOSAIC, BLKUSTARJ, BLKRAJ )
 
 C *** Calculate deposition velocity for Aitken, accumulation, and
 C     coarse modes.
@@ -604,73 +615,51 @@ C                     standardized names of all coarse-mode variables
 C-----------------------------------------------------------------------
 
       USE LSM_MOD, Only: n_lufrac      ! to get n_lufrac
+      USE AEROMET_DATA   ! Includes CONST.EXT
 
       IMPLICIT NONE
 
 C *** input arguments
 
-!     INTEGER NUMCELLS
-!     INTEGER N_AE_DEP_SPC
-
 C     meteorological information in blocked arays:
-!     REAL BLKTA  ( NUMCELLS )  ! air temperature [ K ]
-!     REAL BLKDENS( NUMCELLS )  ! air density  [ kg/m**3 ]
-      REAL, INTENT(IN) :: BLKTA  ( :,: )  ! air temperature [ K ]
-      REAL, INTENT(IN) :: BLKDENS( :,: )  ! air density  [ kg/m**3 ]
+      REAL, INTENT( IN ) :: BLKTA  ( :,: )  ! air temperature [ K ]
+      REAL, INTENT( IN ) :: BLKDENS( :,: )  ! air density  [ kg/m**3 ]
 
 C     atmospheric properties
-!     REAL XLM( NUMCELLS )      ! atmospheric mean free path [ m ]
-!     REAL AMU( NUMCELLS )      ! atmospheric dynamic viscosity [ kg/(m s) ]
-      REAL, INTENT(IN) :: XLM( :,: )      ! atmospheric mean free path [ m ]
-      REAL, INTENT(IN) :: AMU( :,: )      ! atmospheric dynamic viscosity [ kg/(m s) ]
+      REAL, INTENT( IN ) :: XLM( :,: )      ! atmospheric mean free path [ m ]
+      REAL, INTENT( IN ) :: AMU( :,: )      ! atmospheric dynamic viscosity [ kg/(m s) ]
 
 C     Planetary boundary laryer (PBL) variables
-!     REAL BLKWSTAR( NUMCELLS ) ! convective velocity scale [ m/s ]
-!     REAL BLKUSTAR( NUMCELLS ) ! friction velocity [ m/s ]
-!     REAL BLKRA   ( NUMCELLS ) ! aerodynamic resistance [ s/m ]
-      REAL, INTENT(IN) :: BLKWSTAR( :,: ) ! convective velocity scale [ m/s ]
-      REAL, INTENT(IN) :: BLKUSTAR( :,: ) ! friction velocity [ m/s ]
-      REAL, INTENT(IN) :: BLKRA   ( :,: ) ! aerodynamic resistance [ s/m ]
-
-C     Mosaic variables
-!     REAL BLKUSTARJ( N_LUFRAC,NUMCELLS ) ! friction velocity [ m/s ]
-!     REAL BLKRAJ   ( N_LUFRAC,NUMCELLS ) ! aerodynamic resistance [ s/m ]
-      REAL, INTENT(IN) :: BLKUSTARJ( :,:,: ) ! friction velocity [ m/s ]
-      REAL, INTENT(IN) :: BLKRAJ   ( :,:,: ) ! aerodynamic resistance [ s/m ]
-      LOGICAL, INTENT(IN) :: MOSAIC
+      REAL, INTENT( IN ) :: BLKWSTAR( :,: ) ! convective velocity scale [ m/s ]
+      REAL, INTENT( IN ) :: BLKUSTAR( :,: ) ! friction velocity [ m/s ]
+      REAL, INTENT( IN ) :: BLKRA   ( :,: ) ! aerodynamic resistance [ s/m ]
 
 C     aerosol properties:
 
 C     modal diameters: [ m ]
-!     REAL DGATK( NUMCELLS )    ! nuclei mode geometric mean diameter  [ m ]
-!     REAL DGACC( NUMCELLS )    ! accumulation geometric mean diameter [ m ]
-!     REAL DGCOR( NUMCELLS )    ! coarse mode geometric mean diameter  [ m ]
-      REAL, INTENT(IN) :: DGATK( :,: )    ! nuclei mode geometric mean diameter  [ m ]
-      REAL, INTENT(IN) :: DGACC( :,: )    ! accumulation geometric mean diameter [ m ]
-      REAL, INTENT(IN) :: DGCOR( :,: )    ! coarse mode geometric mean diameter  [ m ]
+      REAL, INTENT( IN ) :: DGATK( :,: )    ! nuclei mode geometric mean diameter  [ m ]
+      REAL, INTENT( IN ) :: DGACC( :,: )    ! accumulation geometric mean diameter [ m ]
+      REAL, INTENT( IN ) :: DGCOR( :,: )    ! coarse mode geometric mean diameter  [ m ]
 
 C     log of modal geometric standard deviations
-!     REAL XXLSGAT( NUMCELLS )  ! Aitken mode
-!     REAL XXLSGAC( NUMCELLS )  ! accumulation mode
-!     REAL XXLSGCO( NUMCELLS )  ! coarse mode
-      REAL, INTENT(IN) :: XXLSGAT( :,: )  ! Aitken mode
-      REAL, INTENT(IN) :: XXLSGAC( :,: )  ! accumulation mode
-      REAL, INTENT(IN) :: XXLSGCO( :,: )  ! coarse mode
+      REAL, INTENT( IN ) :: XXLSGAT( :,: )  ! Aitken mode
+      REAL, INTENT( IN ) :: XXLSGAC( :,: )  ! accumulation mode
+      REAL, INTENT( IN ) :: XXLSGCO( :,: )  ! coarse mode
 
 C     average modal particle densities  [ kg/m**3 ]
-!     REAL PDENSAT( NUMCELLS )  ! average particle density in nuclei mode
-!     REAL PDENSAC( NUMCELLS )  ! average particle density in accumulation mode
-!     REAL PDENSCO( NUMCELLS )  ! average particle density in coarse mode
-      REAL, INTENT(IN) :: PDENSAT( :,: )  ! average particle density in nuclei mode
-      REAL, INTENT(IN) :: PDENSAC( :,: )  ! average particle density in accumulation mode
-      REAL, INTENT(IN) :: PDENSCO( :,: )  ! average particle density in coarse mode
+      REAL, INTENT( IN ) :: PDENSAT( :,: )  ! average particle density in nuclei mode
+      REAL, INTENT( IN ) :: PDENSAC( :,: )  ! average particle density in accumulation mode
+      REAL, INTENT( IN ) :: PDENSCO( :,: )  ! average particle density in coarse mode
+
+C     Mosaic variables
+      REAL, OPTIONAL, INTENT( IN ) :: BLKUSTARJ( :,:,: ) ! friction velocity [ m/s ]
+      REAL, OPTIONAL, INTENT( IN ) :: BLKRAJ   ( :,:,: ) ! aerodynamic resistance [ s/m ]
+      LOGICAL, INTENT( IN ) :: MOSAIC
 
 C *** output arguments
 
-!     REAL VDEP( NUMCELLS,N_AE_DEP_SPC ) ! deposition  velocity [ m/s ]
-!     REAL VDEPJ( N_LUFRAC,NUMCELLS,N_AE_DEP_SPC ) ! deposition  velocity [ m/s ] for each land use category
-      REAL, INTENT(OUT) :: VDEP( :,:,: ) ! deposition  velocity [ m/s ]
-      REAL, INTENT(OUT) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
+      REAL, INTENT( OUT ) :: VDEP( :,:,: ) ! deposition  velocity [ m/s ]
+      REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
 
 C *** array indices hardcoded to match SUBROUTINE AERO_DEPV
       INTEGER, PARAMETER :: VDNATK = 1,  ! Aitken mode number
@@ -712,18 +701,11 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL UTSCALE              ! scratch function of USTAR and WSTAR
       REAL NU                   ! kinematic viscosity [ m**2 s**-1 ]
       REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
+      REAL TWOXLM
 
-      REAL, PARAMETER :: BHAT     = 1.246 ! Constant from Cunningham slip correction
-      REAL, PARAMETER :: PI       = 3.14159265 ! single precision
-      REAL, PARAMETER :: THREEPI  = 3.0 * PI
-      REAL, PARAMETER :: TWO3     = 2.0 / 3.0
-      REAL, PARAMETER :: AVO      = 6.0221367E23   ! Avogadro's Constant [ 1/mol ]
-      REAL, PARAMETER :: RGASUNIV = 8.314510       ! universal gas const [ J/mol-K ]
-      REAL, PARAMETER :: BOLTZ    = RGASUNIV / AVO ! Boltzmann's Constant [ J/K ]
-      REAL, PARAMETER :: GRAV     = 9.80622  ! mean gravitational accel [ m/sec**2 ]
-                                             ! FSB NOTE: Value is now mean of polar
-                                             ! and equatorial values. Source: CRC
-                                             ! Handbook (76th Ed) page 14-6.
+      REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
+      REAL, PARAMETER :: THREEPI = 3.0 * PI
+      REAL, PARAMETER :: TWO3    = 2.0 / 3.0
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -803,33 +785,25 @@ C Scalar variables for VARIABLE standard deviations.
 C-----------------------------------------------------------------------
 
       VDEP  = 0.0   ! array assignment
-      IF (MOSAIC) THEN
+      IF ( MOSAIC ) THEN
          VDEPJ = 0.0   ! array assignment
       END IF
 
-!     DO NCELL = 1, NUMCELLS
-      DO R = 1, SIZE(BLKTA, 2)
-         DO C = 1, SIZE(BLKTA, 1)
+      DO R = 1, SIZE( BLKTA, 2 )
+         DO C = 1, SIZE( BLKTA, 1 )
 
 C *** Calculate Knudsen numbers
 
-!           KNATK = 2.0 * XLM( NCELL ) / DGATK( NCELL )
-!           KNACC = 2.0 * XLM( NCELL ) / DGACC( NCELL )
-!           KNCOR = 2.0 * XLM( NCELL ) / DGCOR( NCELL )
-
-            KNATK = 2.0 * XLM( C, R ) / DGATK( C, R )
-            KNACC = 2.0 * XLM( C, R ) / DGACC( C, R )
-            KNCOR = 2.0 * XLM( C, R ) / DGCOR( C, R )
+            TWOXLM = XLM( C,R ) + XLM( C,R )
+            KNATK = TWOXLM / DGATK( C,R )
+            KNACC = TWOXLM / DGACC( C,R )
+            KNCOR = TWOXLM / DGCOR( C,R )
 
 C *** Calculate functions of variable standard deviation.
 
-!           L2SGAT = XXLSGAT( NCELL ) * XXLSGAT( NCEL L)
-!           L2SGAC = XXLSGAC( NCELL ) * XXLSGAC( NCEL L)
-!           L2SGCO = XXLSGCO( NCELL ) * XXLSGCO( NCEL L)
-
-            L2SGAT = XXLSGAT( C, R ) * XXLSGAT( C, R )
-            L2SGAC = XXLSGAC( C, R ) * XXLSGAC( C, R )
-            L2SGCO = XXLSGCO( C, R ) * XXLSGCO( C, R )
+            L2SGAT = XXLSGAT( C,R ) * XXLSGAT( C,R )
+            L2SGAC = XXLSGAC( C,R ) * XXLSGAC( C,R )
+            L2SGCO = XXLSGCO( C,R ) * XXLSGCO( C,R )
 
             EAT1   = EXP( 0.125 * L2SGAT )
             EAC1   = EXP( 0.125 * L2SGAC )
@@ -901,23 +875,14 @@ C *** calculate inverses:
             ESACM32 = 1.0 / ESAC32
             ESCOM32 = 1.0 / ESCO32
 
-!           DCONST1  = BOLTZ * BLKTA( NCELL ) / ( THREEPI * AMU( NCELL ) )
-!           DCONST1N = DCONST1 / DGATK( NCELL )
-!           DCONST1A = DCONST1 / DGACC( NCELL )
-!           DCONST1C = DCONST1 / DGCOR( NCELL )
-!           DCONST2  = GRAV / ( 18.0 * AMU( NCELL ) )
-!           DCONST3N = DCONST2 * PDENSAT( NCELL ) * DGATK( NCELL ) * DGATK( NCELL )
-!           DCONST3A = DCONST2 * PDENSAC( NCELL ) * DGACC( NCELL ) * DGACC( NCELL )
-!           DCONST3C = DCONST2 * PDENSCO( NCELL ) * DGCOR( NCELL ) * DGCOR( NCELL )
-
-            DCONST1  = BOLTZ * BLKTA( C, R ) / ( THREEPI * AMU( C, R ) )
-            DCONST1N = DCONST1 / DGATK( C, R )
-            DCONST1A = DCONST1 / DGACC( C, R )
-            DCONST1C = DCONST1 / DGCOR( C, R )
-            DCONST2  = GRAV / ( 18.0 * AMU( C, R ) )
-            DCONST3N = DCONST2 * PDENSAT( C, R ) * DGATK( C, R ) * DGATK( C, R )
-            DCONST3A = DCONST2 * PDENSAC( C, R ) * DGACC( C, R ) * DGACC( C, R )
-            DCONST3C = DCONST2 * PDENSCO( C, R ) * DGCOR( C, R ) * DGCOR( C, R )
+            DCONST1  = BOLTZMANN * BLKTA( C,R ) / ( THREEPI * AMU( C,R ) )
+            DCONST1N = DCONST1 / DGATK( C,R )
+            DCONST1A = DCONST1 / DGACC( C,R )
+            DCONST1C = DCONST1 / DGCOR( C,R )
+            DCONST2  = GRAV / ( 18.0 * AMU( C,R ) )
+            DCONST3N = DCONST2 * PDENSAT( C,R ) * DGATK( C,R ) * DGATK( C,R )
+            DCONST3A = DCONST2 * PDENSAC( C,R ) * DGACC( C,R ) * DGACC( C,R )
+            DCONST3C = DCONST2 * PDENSCO( C,R ) * DGCOR( C,R ) * DGCOR( C,R )
 
 C i-mode
             DCHAT0N  = DCONST1N * ( ESAT04  + BHAT * KNATK * ESAT16 )
@@ -945,19 +910,14 @@ C coarse mode
 
 C now calculate the deposition velocities
 
-!           NU = AMU( NCELL ) / BLKDENS( NCELL )
-!           USTFAC = BLKUSTAR( NCELL ) * BLKUSTAR( NCELL ) / ( GRAV * NU )
-            NU = AMU( C, R ) / BLKDENS( C, R )
-            USTFAC = BLKUSTAR( C, R ) * BLKUSTAR( C, R ) / ( GRAV * NU )
+            NU = AMU( C,R ) / BLKDENS( C,R )
+            USTFAC = BLKUSTAR( C,R ) * BLKUSTAR( C,R ) / ( GRAV * NU )
             STOKEN = DCONST3N * USTFAC
             STOKEA = DCONST3A * USTFAC
             STOKEC = DCONST3C * USTFAC
-!           UTSCALE = BLKUSTAR( NCELL )
-!    &              + 0.24 * BLKWSTAR( NCELL ) * BLKWSTAR( NCELL )
-!    &              /        BLKUSTAR( NCELL )
-            UTSCALE = BLKUSTAR( C, R )
-     &              + 0.24 * BLKWSTAR( C, R ) * BLKWSTAR( C, R )
-     &              /        BLKUSTAR( C, R )
+            UTSCALE = BLKUSTAR( C,R )
+     &              + 0.24 * BLKWSTAR( C,R ) * BLKWSTAR( C,R )
+     &              /        BLKUSTAR( C,R )
 
 C first do 0th moment for the deposition of number
 
@@ -967,20 +927,14 @@ C  Aitken mode
             EIM = MIN( EIM, 1.0 )
             RD0N = 1.0 / ( UTSCALE * ( SC0N ** ( -TWO3 ) + EIM ) )
 
-!           VDEP( NCELL,VDNATK ) = VGHAT0N
-!    &             / ( 1.0 - EXP( -VGHAT0N * ( BLKRA( NCELL ) + RD0N ) ) )
-
-            VDEP( C, R,VDNATK ) = VGHAT0N
-     &             / ( 1.0 - EXP( -VGHAT0N * ( BLKRA( C, R ) + RD0N ) ) )
+            VDEP( C,R,VDNATK ) = VGHAT0N
+     &             / ( 1.0 - EXP( -VGHAT0N * ( BLKRA( C,R ) + RD0N ) ) )
 
 C accumulation mode
             SC0A = NU / DCHAT0A
             EIM = STOKEA ** 2 / 400.0 * ESAC64
             EIM = MIN( EIM, 1.0 )
             RD0A = 1.0 / ( UTSCALE * ( SC0A ** ( -TWO3 ) + EIM ) )
-
-!           VDEP( NCELL,VDNACC ) = VGHAT0A
-!    &             / ( 1.0 - EXP( -VGHAT0A * ( BLKRA( NCELL ) + RD0A ) ) )
 
             VDEP( C,R,VDNACC ) = VGHAT0A
      &             / ( 1.0 - EXP( -VGHAT0A * ( BLKRA( C,R ) + RD0A ) ) )
@@ -990,9 +944,6 @@ C coarse mode
             EIM = STOKEC ** 2 / 400.0 * ESCO64
             EIM = MIN( EIM, 1.0 )
             RD0C = 1.0 / ( UTSCALE * ( SC0C ** ( -TWO3 ) + EIM ) )
-
-!           VDEP( NCELL,VDNCOR ) = VGHAT0C
-!    &             / ( 1.0 - EXP( -VGHAT0C * ( BLKRA( NCELL ) + RD0C ) ) )
 
             VDEP( C,R,VDNCOR ) = VGHAT0C
      &             / ( 1.0 - EXP( -VGHAT0C * ( BLKRA( C,R ) + RD0C ) ) )
@@ -1005,9 +956,6 @@ C  Aitken mode
             EIM = MIN( EIM, 1.0 )
             RD2N = 1.0 / ( UTSCALE * ( SC2N ** ( -TWO3 ) + EIM ) )
 
-!           VDEP( NCELL,VDSATK ) = VGHAT2N
-!    &             / ( 1.0 - EXP( -VGHAT2N * ( BLKRA( NCELL ) + RD2N ) ) )
-
             VDEP( C,R,VDSATK ) = VGHAT2N
      &             / ( 1.0 - EXP( -VGHAT2N * ( BLKRA( C,R ) + RD2N ) ) )
 
@@ -1017,9 +965,6 @@ C accumulation mode
             EIM = MIN( EIM, 1.0 )
             RD2A = 1.0 / ( UTSCALE * ( SC2A ** ( -TWO3 ) + EIM ) )
 
-!           VDEP( NCELL,VDSACC ) = VGHAT2A
-!    &             / ( 1.0 - EXP( -VGHAT2A * ( BLKRA( NCELL ) + RD2A ) ) )
-
             VDEP( C,R,VDSACC ) = VGHAT2A
      &             / ( 1.0 - EXP( -VGHAT2A * ( BLKRA( C,R ) + RD2A ) ) )
 
@@ -1028,9 +973,6 @@ C coarse mode
             EIM = STOKEC ** 2 / 400.0 * ESCO128
             EIM = MIN( EIM, 1.0 )
             RD2C = 1.0 / ( UTSCALE * ( SC2C ** ( -TWO3 ) + EIM ) )
-
-!           VDEP( NCELL,VDSCOR ) = VGHAT2C
-!    &             / ( 1.0 - EXP( -VGHAT2C * ( BLKRA( NCELL ) + RD2C ) ) )
 
             VDEP( C,R,VDSCOR ) = VGHAT2C
      &             / ( 1.0 - EXP( -VGHAT2C * ( BLKRA( C,R ) + RD2C ) ) )
@@ -1043,9 +985,6 @@ C  Aitken mode
             EIM = MIN( EIM, 1.0 )
             RD3N = 1.0 / ( UTSCALE * ( SC3N ** ( -TWO3 ) + EIM ) )
 
-!           VDEP( NCELL,VDMATK ) = VGHAT3N
-!    &             / ( 1.0 - EXP( -VGHAT3N * ( BLKRA( NCELL ) + RD3N ) ) )
-
             VDEP( C,R,VDMATK ) = VGHAT3N
      &             / ( 1.0 - EXP( -VGHAT3N * ( BLKRA( C,R ) + RD3N ) ) )
 
@@ -1054,9 +993,6 @@ C accumulation mode
             EIM = STOKEA ** 2 / 400.0 * ESAC160
             EIM = MIN( EIM, 1.0 )
             RD3A = 1.0 / ( UTSCALE * ( SC3A ** ( -TWO3 ) + EIM ) )
-
-!           VDEP( NCELL,VDMACC ) = VGHAT3A
-!    &             / ( 1.0 - EXP( -VGHAT3A * ( BLKRA( NCELL ) + RD3A ) ) )
 
             VDEP( C,R,VDMACC ) = VGHAT3A
      &             / ( 1.0 - EXP( -VGHAT3A * ( BLKRA( C,R ) + RD3A ) ) )
@@ -1067,34 +1003,22 @@ C coarse mode
             EIM = MIN( EIM, 1.0 )
             RD3C = 1.0 / ( UTSCALE * ( SC3C ** ( -TWO3 ) + EIM ) )
 
-!           VDEP( NCELL,VDMCOR ) = VGHAT3C
-!    &             / ( 1.0 - EXP( -VGHAT3C * ( BLKRA( NCELL ) + RD3C ) ) )
-
             VDEP( C,R,VDMCOR ) = VGHAT3C
      &             / ( 1.0 - EXP( -VGHAT3C * ( BLKRA( C,R ) + RD3C ) ) )
-
-!     END DO ! end loop on cells
 
 C Do mosaic calculations - essentially a repeat of the above, using the mosaic vars
             IF ( MOSAIC ) THEN
 
-!        DO NCELL = 1, NUMCELLS ! Calculate Knudsen numbers
                DO J = 1, N_LUFRAC
-!                 IF ( BLKRAJ( J,NCELL ) .GT. 0.0 ) THEN
                   IF ( BLKRAJ( J,C,R ) .GT. 0.0 ) THEN
 
 C now calculate the deposition velocities
 
-!                    NU = AMU( NCELL ) / BLKDENS( NCELL )
-!                    USTFAC = BLKUSTARJ( J,NCELL ) * BLKUSTARJ( J,NCELL ) / ( GRAV * NU )
                      NU = AMU( C,R ) / BLKDENS( C,R )
                      USTFAC = BLKUSTARJ( J,C,R ) * BLKUSTARJ( J,C,R ) / ( GRAV * NU )
                      STOKEN = DCONST3N * USTFAC
                      STOKEA = DCONST3A * USTFAC
                      STOKEC = DCONST3C * USTFAC
-!                    UTSCALE = BLKUSTARJ( J,NCELL )
-!    &                       + 0.24 * BLKWSTAR( NCELL ) * BLKWSTAR( NCELL )
-!    &                       /        BLKUSTARJ( J,NCELL )
                      UTSCALE = BLKUSTARJ( J,C,R )
      &                       + 0.24 * BLKWSTAR( C,R ) * BLKWSTAR( C,R )
      &                       /        BLKUSTARJ( J,C,R )
@@ -1108,9 +1032,6 @@ C  Aitken mode
                      EIM = MIN( EIM, 1.0 )
                      RD0N = 1.0 / ( UTSCALE * ( SC0N ** ( -TWO3 ) + EIM ) )
 
-!                    VDEPJ( J,NCELL,VDNATK ) = VGHAT0N
-!    &                       / ( 1.0 - EXP(-VGHAT0N * ( BLKRAJ( J,NCELL ) + RD0N ) ) )
-
                      VDEPJ( J,C,R,VDNATK ) = VGHAT0N
      &                       / ( 1.0 - EXP(-VGHAT0N * ( BLKRAJ( J,C,R ) + RD0N ) ) )
 
@@ -1121,9 +1042,6 @@ C accumulation mode
                      EIM = MIN( EIM, 1.0 )
                      RD0A = 1.0 / ( UTSCALE * ( SC0A ** ( -TWO3 ) + EIM ) )
 
-!                    VDEPJ( J,NCELL,VDNACC ) = VGHAT0A
-!    &                       / ( 1.0 - EXP(-VGHAT0A * ( BLKRAJ( J,NCELL ) + RD0A ) ) )
-
                      VDEPJ( J,C,R,VDNACC ) = VGHAT0A
      &                       / ( 1.0 - EXP(-VGHAT0A * ( BLKRAJ( J,C,R ) + RD0A ) ) )
 
@@ -1133,9 +1051,6 @@ C coarse mode
                      EIM = STOKEC ** 2 / 400.0 * ESCO64
                      EIM = MIN( EIM, 1.0 )
                      RD0C = 1.0 / ( UTSCALE * ( SC0C ** ( -TWO3 ) + EIM ) )
-
-!                    VDEPJ( J,NCELL,VDNCOR ) = VGHAT0C
-!    &                       / ( 1.0 - EXP(-VGHAT0C * ( BLKRAJ( J,NCELL ) + RD0C ) ) )
 
                      VDEPJ( J,C,R,VDNCOR ) = VGHAT0C
      &                       / ( 1.0 - EXP(-VGHAT0C * ( BLKRAJ( J,C,R ) + RD0C ) ) )
@@ -1149,9 +1064,6 @@ C  Aitken mode
                      EIM = MIN( EIM, 1.0 )
                      RD2N = 1.0 / ( UTSCALE * ( SC2N ** ( -TWO3 ) + EIM ) )
 
-!                    VDEPJ( J,NCELL,VDSATK ) = VGHAT2N
-!    &                     / ( 1.0 - EXP(-VGHAT2N * ( BLKRAJ( J,NCELL ) + RD2N ) ) )
-
                      VDEPJ( J,C,R,VDSATK ) = VGHAT2N
      &                     / ( 1.0 - EXP(-VGHAT2N * ( BLKRAJ( J,C,R ) + RD2N ) ) )
 
@@ -1162,9 +1074,6 @@ C accumulation mode
                      EIM = MIN( EIM, 1.0 )
                      RD2A = 1.0 / ( UTSCALE * ( SC2A ** ( -TWO3 ) + EIM ) )
 
-!                    VDEPJ( J,NCELL,VDSACC ) = VGHAT2A
-!    &                       / ( 1.0 - EXP(-VGHAT2A * ( BLKRAJ( J,NCELL ) + RD2A ) ) )
-
                      VDEPJ( J,C,R,VDSACC ) = VGHAT2A
      &                       / ( 1.0 - EXP(-VGHAT2A * ( BLKRAJ( J,C,R ) + RD2A ) ) )
 
@@ -1174,9 +1083,6 @@ C coarse mode
                      EIM = STOKEC ** 2 / 400.0 * ESCO128
                      EIM = MIN( EIM, 1.0 )
                      RD2C = 1.0 / ( UTSCALE * ( SC2C ** ( -TWO3 ) + EIM ) )
-
-!                    VDEPJ( J,NCELL,VDSCOR ) = VGHAT2C
-!    &                       / ( 1.0 - EXP(-VGHAT2C * ( BLKRAJ( J,NCELL ) + RD2C ) ) )
 
                      VDEPJ( J,C,R,VDSCOR ) = VGHAT2C
      &                       / ( 1.0 - EXP(-VGHAT2C * ( BLKRAJ( J,C,R ) + RD2C ) ) )
@@ -1190,9 +1096,6 @@ C  Aitken mode
                      EIM = MIN( EIM, 1.0 )
                      RD3N = 1.0 / ( UTSCALE * ( SC3N ** ( -TWO3 ) + EIM ) )
 
-!                    VDEPJ( J,NCELL,VDMATK ) = VGHAT3N
-!    &                       / ( 1.0 - EXP(-VGHAT3N * ( BLKRAJ( J,NCELL ) + RD3N ) ) )
-
                      VDEPJ( J,C,R,VDMATK ) = VGHAT3N
      &                       / ( 1.0 - EXP(-VGHAT3N * ( BLKRAJ( J,C,R ) + RD3N ) ) )
 
@@ -1202,9 +1105,6 @@ C accumulation mode
                      EIM = STOKEA ** 2 / 400.0 * ESAC160
                      EIM = MIN( EIM, 1.0 )
                      RD3A = 1.0 / ( UTSCALE * ( SC3A ** ( -TWO3 ) + EIM ) )
-
-!                    VDEPJ( J,NCELL,VDMACC ) = VGHAT3A
-!    &                       / ( 1.0 - EXP(-VGHAT3A * ( BLKRAJ( J,NCELL ) + RD3A ) ) )
 
                      VDEPJ( J,C,R,VDMACC ) = VGHAT3A
      &                       / ( 1.0 - EXP(-VGHAT3A * ( BLKRAJ( J,C,R ) + RD3A ) ) )
@@ -1216,9 +1116,6 @@ C coarse mode
                      EIM = MIN( EIM, 1.0 )
                      RD3C = 1.0 / ( UTSCALE * ( SC3C ** ( -TWO3 ) + EIM ) )
 
-!                    VDEPJ( J,NCELL,VDMCOR ) = VGHAT3C
-!    &                     / ( 1.0 - EXP(-VGHAT3C * ( BLKRAJ( J,NCELL ) + RD3C ) ) )
-
                      VDEPJ( J,C,R,VDMCOR ) = VGHAT3C
      &                     / ( 1.0 - EXP(-VGHAT3C * ( BLKRAJ( J,C,R ) + RD3C ) ) )
 
@@ -1227,7 +1124,6 @@ C coarse mode
                END DO ! n_lufrac
 
             END IF ! mosaic
-!     END DO ! end loop on cells
          END DO ! end loop on C
       END DO ! end loop on R
 
