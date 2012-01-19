@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_PRMS.F,v 1.4 2011/11/03 15:19:08 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_PRMS.F,v 1.5 2012/01/19 15:28:13 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -89,7 +89,8 @@ c     END TYPE RARRY1
 
          INTEGER SDATE, STIME
          INTEGER SCOL, ECOL, SROW, EROW
-         INTEGER NLAYS, C, R, X, Y, STRT_SRC, END_SRC, MY_DELTA, N, NGRPS
+         INTEGER NLAYS, C, R, STRT_SRC, END_SRC, MY_DELTA, N, NGRPS
+         REAL    X, Y
 
          INTEGER M, S, SRC, V, ASTAT
          CHARACTER( 96 ) :: XMSG = ' '
@@ -172,7 +173,7 @@ C-----------------------------------------------------------------------
             STIME = STIME3D
 
             DO V = 1, NVARS3D
-               IF ( VNAME3D( V ) .EQ. 'ACRESBURNED' ) FIRE_ON( N ) = .TRUE.
+               IF ( TRIM( VNAME3D( V ) ) .EQ. 'ACRESBURNED' ) FIRE_ON( N ) = .TRUE.
             END DO
 
             ALLOCATE ( XLOCA( NSRC( N ) ), STAT = ASTAT )
@@ -227,14 +228,14 @@ C-----------------------------------------------------------------------
             MY_NSRC( N ) = 0
             STRT_SRC = 0; END_SRC = 0
             DO S = 1, NSRC( N )
-               X = ( XLOCA( S ) - XORIG_GD ) / XCELL_GD
+               X = ( XLOCA( S ) - REAL( XORIG_GD, 4 ) ) / REAL( XCELL_GD, 4 )
                IF ( X .GE. 0.0 ) THEN
                   C = 1 + INT( X )
                ELSE
                   C = -1 - INT( -X )
                END IF
                IF ( C .GE. SCOL .AND. C .LE. ECOL ) THEN
-                  Y = ( YLOCA( S ) - YORIG_GD ) / YCELL_GD
+                  Y = ( YLOCA( S ) - REAL( YORIG_GD, 4 ) ) / REAL( YCELL_GD, 4 )
                   IF ( Y .GE. 0.0 ) THEN
                      R = 1 + INT( Y )
                   ELSE
@@ -297,12 +298,12 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
             MY_XLOCA( N )%LEN = MY_NSRC( N )
             ALLOCATE ( MY_XLOCA( N )%ARRY( MY_NSRC( N ) ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'MY_XLOCA', PNAME )
-            MY_XLOCA( N )%ARRY = 0   ! array
+            MY_XLOCA( N )%ARRY = 0.0   ! array
 
             MY_YLOCA( N )%LEN = MY_NSRC( N )
             ALLOCATE ( MY_YLOCA( N )%ARRY( MY_NSRC( N ) ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'MY_YLOCA', PNAME )
-            MY_YLOCA( N )%ARRY = 0   ! array
+            MY_YLOCA( N )%ARRY = 0.0   ! array
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN
 
