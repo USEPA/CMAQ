@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrdata_mod.F,v 1.2 2011/10/21 16:10:52 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tucl/hrdata_mod.F,v 1.3 2012/01/19 15:40:50 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -38,9 +38,9 @@ C  Revision History: Created by EBI solver program, Jan. 21, 2011
 C-----------------------------------------------------------------------
 
 c..EBI solver fixed parameters
-      INTEGER, PARAMETER ::  NEBITER = 1000  ! No. of iterations for EBI
+      INTEGER, PARAMETER :: NEBITER = 1000  ! Max No. of iterations for EBI
 
-      REAL, PARAMETER    ::  DELTAT = 2.5D+00     ! EBI time step
+      REAL,    PARAMETER :: DELTAT = 2.5    ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
