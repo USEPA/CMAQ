@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.6 2011/10/21 16:11:20 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/rdbcon.F,v 1.7 2012/01/19 14:51:13 yoj Exp $
  
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -91,12 +91,12 @@ C File variables:
 C External Functions: None
 
 C Local variables:
-      CHARACTER( 16 ) :: PNAME = 'RDBCON'
+      CHARACTER( 16 ) :: PNAME = 'RDBCON          '
       CHARACTER( 16 ) :: VNAME
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      CHARACTER( 16 ) :: BLNK = ' '
+      CHARACTER( 16 ) :: BLNK = '                '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BCNAME( : )  ! BC name for adv species
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
 
@@ -306,7 +306,10 @@ C Read & interpolate boundary concentrations
       DO 141 VAR = STRT, FINI
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
+            bbuf = 0.0   ! array assignment
+
             IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
+ !          IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), 'DBG',
      &                          MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
      &              // ' from ' // BNDY_GASC_1
@@ -314,13 +317,17 @@ C Read & interpolate boundary concentrations
 
             ELSE   ! found bc's (PPM) on file; convert
 
+ !    if ( lvl .eq. 1 )
+ !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
+
                DO BND = 1, NBNDY
-!     if ( lvl .eq. 1 ) then
-!        write ( logdev,'(a,2i4,3(1pe13.3))' )
+
+ !    if ( lvl .eq. 1 ) then
+ !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
 !    &                      '=0= var,bnd,bcfac,bbuf,rhoj_bnd: ',
-!    &                           var,bnd,bcfac( var ),
-!    &                           bbuf( bnd,lvl ),rhoj_bnd( bnd,lvl )
-!     end if
+ !   &                      '=b= bnd,bcfac,bbuf,rhoj_bnd: ',
+ !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), rhoj_bnd( bnd,lvl )
+ !    end if
 
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
@@ -353,6 +360,7 @@ C Read & interpolate boundary concentrations
          SPC = SPC + 1
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
             IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
+ !          IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), 'DBG',
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' //
      &                 TRIM( BCNAME ( VAR ) ) //
@@ -402,9 +410,10 @@ C Read & interpolate boundary concentrations
       DO 161 VAR = STRT, FINI
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
-!           write ( logdev,* ) '=== spc,var,bcname: ', spc, var, bcname( var )
+!           write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
+ !          IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), 'DBG',
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
                XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
      &              // ' from ' // BNDY_NONR_1
@@ -441,7 +450,7 @@ C Read & interpolate boundary concentrations
       DO 171 VAR = STRT, FINI
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
-!           write ( logdev,* ) '====spc,var,bcname: ', spc, var, bcname( var )
+!           write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
