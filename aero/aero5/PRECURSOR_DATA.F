@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/PRECURSOR_DATA.F,v 1.9 2011/10/21 16:10:07 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero5/PRECURSOR_DATA.F,v 1.10 2012/01/19 13:11:38 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
@@ -60,37 +60,37 @@ C-----------------------------------------------------------------------
       Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
 C                       Name      RxnCounter  Update
 C                    ----------   ----------  ------
-     & precursor_type( 'NO2     ', .False. , .True.  ),
-     & precursor_type( 'N2O5    ', .False. , .True.  ),
-     & precursor_type( 'HNO3    ', .False. , .True.  ),
-     & precursor_type( 'HONO    ', .False. , .True.  ),
-     & precursor_type( 'ISOPRXN ', .True.  , .True.  ),
-     & precursor_type( 'TRPRXN  ', .True.  , .True.  ),
-     & precursor_type( 'SULF    ', .False. , .True.  ),
-     & precursor_type( 'SULPRD  ', .True.  , .True.  ),
-     & precursor_type( 'HCL     ', .False. , .True.  ),
-     & precursor_type( 'ALK5RXN ', .True.  , .True.  ),
-     & precursor_type( 'TOLNRXN ', .True.  , .True.  ),
-     & precursor_type( 'TOLHRXN ', .True.  , .True.  ),
-     & precursor_type( 'XYLNRXN ', .True.  , .True.  ),
-     & precursor_type( 'XYLHRXN ', .True.  , .True.  ),
-     & precursor_type( 'BNZNRXN ', .True.  , .True.  ),
-     & precursor_type( 'BNZHRXN ', .True.  , .True.  ),
-     & precursor_type( 'SESQRXN ', .True.  , .True.  ),
-     & precursor_type( 'NH3     ', .False. , .True.  ),
-     & precursor_type( 'OH      ', .False. , .False. ) /)
+     & precursor_type( 'NO2             ', .False. , .True.  ),
+     & precursor_type( 'N2O5            ', .False. , .True.  ),
+     & precursor_type( 'HNO3            ', .False. , .True.  ),
+     & precursor_type( 'HONO            ', .False. , .True.  ),
+     & precursor_type( 'ISOPRXN         ', .True.  , .True.  ),
+     & precursor_type( 'TRPRXN          ', .True.  , .True.  ),
+     & precursor_type( 'SULF            ', .False. , .True.  ),
+     & precursor_type( 'SULPRD          ', .True.  , .True.  ),
+     & precursor_type( 'HCL             ', .False. , .True.  ),
+     & precursor_type( 'ALK5RXN         ', .True.  , .True.  ),
+     & precursor_type( 'TOLNRXN         ', .True.  , .True.  ),
+     & precursor_type( 'TOLHRXN         ', .True.  , .True.  ),
+     & precursor_type( 'XYLNRXN         ', .True.  , .True.  ),
+     & precursor_type( 'XYLHRXN         ', .True.  , .True.  ),
+     & precursor_type( 'BNZNRXN         ', .True.  , .True.  ),
+     & precursor_type( 'BNZHRXN         ', .True.  , .True.  ),
+     & precursor_type( 'SESQRXN         ', .True.  , .True.  ),
+     & precursor_type( 'NH3             ', .False. , .True.  ),
+     & precursor_type( 'OH              ', .False. , .False. ) /)
 
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_NO2    = 'NO2'
-      Character( 16 ), Private, Parameter :: req_N2O5   = 'N2O5'
-      Character( 16 ), Private, Parameter :: req_HNO3   = 'HNO3'
-      Character( 16 ), Private, Parameter :: req_HONO   = 'HONO'
-      Character( 16 ), Private, Parameter :: req_SULF   = 'SULF'
-      Character( 16 ), Private, Parameter :: req_SULPRD = 'SULPRD'
-      Character( 16 ), Private, Parameter :: req_HCL    = 'HCL'
-      Character( 16 ), Private, Parameter :: req_NH3    = 'NH3'
-      Character( 16 ), Private, Parameter :: req_OH     = 'OH'
+      Character( 16 ), Private, Parameter :: req_NO2    = 'NO2             '
+      Character( 16 ), Private, Parameter :: req_N2O5   = 'N2O5            '
+      Character( 16 ), Private, Parameter :: req_HNO3   = 'HNO3            '
+      Character( 16 ), Private, Parameter :: req_HONO   = 'HONO            '
+      Character( 16 ), Private, Parameter :: req_SULF   = 'SULF            '
+      Character( 16 ), Private, Parameter :: req_SULPRD = 'SULPRD          '
+      Character( 16 ), Private, Parameter :: req_HCL    = 'HCL             '
+      Character( 16 ), Private, Parameter :: req_NH3    = 'NH3             '
+      Character( 16 ), Private, Parameter :: req_OH     = 'OH              '
 
 C Indices of required species
       Integer :: NO2_idx
@@ -319,7 +319,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Arguments:
-      Character( * ) :: vname
+      Character( 16 ) :: vname
       Integer ndx
 
 C Local Variables:
