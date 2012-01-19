@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.4 2011/10/21 16:11:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/util/util/setup_logdev.F,v 1.5 2012/01/19 15:31:10 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -53,7 +53,7 @@ C                        removed deprecated TRIMLEN
       CHARACTER(  8 ) :: PRESTR = 'CTM_LOG_'
       CHARACTER(  3 ) :: CMYPE
       CHARACTER( 96 ) :: IOLOGEQ
-      CHARACTER( 16 ) :: APPL = 'CTM_APPL'
+      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
 
       INTEGER :: ERROR, MYPE
       INTEGER :: LOGDEV
@@ -67,7 +67,7 @@ C                        removed deprecated TRIMLEN
       IF ( MYPE .NE. 0 ) THEN
          CALL NAMEVAL ( APPL, EQNAME )
          WRITE ( CMYPE, '(I3.3)' ) MYPE
-         IF ( APPL .NE. EQNAME(1:16 ) ) THEN
+         IF ( APPL .NE. EQNAME(1:8 ) ) THEN
             IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( EQNAME )
          ELSE
             IOLOGEQ = PRESTR // CMYPE

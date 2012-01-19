@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.4 2011/10/21 16:11:37 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.5 2012/01/19 15:34:21 yoj Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)cksummer.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.cksummer.F 03 Jun 1997 12:08:53
@@ -81,7 +81,7 @@ C Local variables:
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
       CHARACTER( 96 ) :: XMSG = ' '
 !     CHARACTER( 16 ), SAVE :: OUTNAME = 'FLOOR_FILE'
-      CHARACTER( 16 ) :: APPL = 'CTM_APPL'
+      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
       CHARACTER( 48 ) :: EQNAME
       CHARACTER(  6 ) :: PRESTR = 'FLOOR_'
       CHARACTER(  3 ) :: CMYPE
