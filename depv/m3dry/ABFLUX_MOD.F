@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.7 2012/01/19 14:18:22 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.8 2012/01/20 18:27:32 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -537,7 +537,8 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: ddd
          Real( 8 )              :: watfrac ! water fraction
          Real                   :: xxx          ! lumped variable
-         Real,        Parameter :: f_emis_lim = -1.0e-08 ! limit to report to log: if below, probably due to numerical precision error
+!        Real,        Parameter :: f_emis_lim = -1.0e-08 ! limit to report to log: if below, probably due to numerical precision error
+         Real,        Parameter :: f_emis_lim = -1.0e-07 ! limit to report to log: if below, probably due to numerical precision error
          Integer                :: k,j
          Integer                :: ist
 
