@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/HGSIM.F,v 1.2 2011/10/21 16:10:35 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/HGSIM.F,v 1.3 2012/01/24 21:15:18 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,18 +34,25 @@ C          applying Fick's law  across the atmospheric surface media
 C          concentration gradient.
 C
 C Revision History:
-C      12 Aug 2008 J. Bash initial implementation
-C       2 Apr 2009 J. Bash for solar irradation on the order of 1e-3 w/m2
-C                          the mercury surface water photo redox scheme
-C                          became unstable. A conditional statement was
-C                          added to correct this instability.
+C      12 Aug  2008  J. Bash initial implementation
+C       2 Apr  2009  J. Bash for solar irradation on the order of 1e-3 w/m2
+C                           the mercury surface water photo redox scheme
+C                           became unstable. A conditional statement was
+C                           added to correct this instability.
 C       4 June 2009 J. Bash Corrected the time stamp on WRASX_MEDIA to be
-C                          consistant with other CMAQ modules reported by
-C                         (T.Myers)
-C     22 Oct  2009 J. Bash Corrected a units conversion error in ASWX and ATX
-C                          reported by (P. Pongprueksa) and added a more
-C                          robust soil diffusion model adapted from the
-C                          Community Land Model 3.5.
+C                           consistant with other CMAQ modules reported by
+C                          (T.Myers)
+C     22 Oct   2009 J. Bash Corrected a units conversion error in ASWX and ATX
+C                           reported by (P. Pongprueksa) and added a more
+C                           robust soil diffusion model adapted from the
+C                           Community Land Model 3.5.
+C     13 Sept 2011  J. Bash Updated the Hg bidi model to share data with the 
+C                           NH3 bidirectional exchange model in a more general
+C                           framework using BIDI_MOD.F and LSM_MOD.F modules. 
+C                           Hg bidirectional exchange is now a run time option. 
+C     17 Jan  2012  J. Bash Removed the dependence on the LAPACK libraries
+C                           and found analytical solutions to all the Hg
+C                           exchange equations.
 C
 C  References:
 C
@@ -68,9 +75,9 @@ C     water, Marine Chem. 107, 278-294
 C-----------------------------------------------------------------------
       IMPLICIT NONE
 
-C    Shared variables
+!    Shared variables
 
-C     Private variables used in this routine and
+!     Private variables used in this routine and
       REAL, ALLOCATABLE,       PRIVATE :: HgLU_Fac(:)
       Real, ALLOCATABLE, Save, Private :: fevgrn(:,:)  ! fraction of evergreen land use
 
@@ -81,32 +88,35 @@ C     Private variables used in this routine and
       INTEGER, SAVE,PRIVATE :: LOGDEV
       Character( 80 ), Save, Private   :: LAND_SCHEME
 
-C variable needed for SGEEV eigen value funciton
+! variable needed for analytical solutions of exchange equations
       REAL, ALLOCATABLE, PRIVATE :: KO(:,:)
-      REAL, ALLOCATABLE, PRIVATE :: COEFS(:,:)
       REAL, ALLOCATABLE, PRIVATE :: EIVAL(:)
-      REAL, ALLOCATABLE, PRIVATE :: WI(:)
-      REAL, ALLOCATABLE, PRIVATE :: WORK(:)
       REAL, ALLOCATABLE, PRIVATE :: VR(:,:)
-      REAL, ALLOCATABLE, PRIVATE :: VL(:,:)
+      REAL(8), PRIVATE :: ax     ! coefficients used of the  
+      REAL(8), PRIVATE :: bx     ! quadratic and cubic equations
+      REAL(8), PRIVATE :: cx     ! ATX and ASWX
+      REAL(8), PRIVATE :: Qx     ! coefficients used to solve for 
+      REAL(8), PRIVATE :: Rx     ! the roots of the cubic equation
+      REAL(8), PRIVATE :: ThetaX ! in ATX
+      REAL(8), PRIVATE :: ev1    ! Temporary variables used to 
+      REAL(8), PRIVATE :: ev2    ! calculate the eigen vectors 
+      REAL(8), PRIVATE :: ev3    ! in ATX and ASWX
+      REAL(8), PRIVATE :: evmax  !
+      REAL(8), PRIVATE :: DetKO  ! Variables used to solve for the 
+      REAL(8), PRIVATE :: DetK1  ! non-homogeneous part of the solution
+      REAL(8), PRIVATE :: DetK2  ! a system of equations in ATX and
+      REAL(8), PRIVATE :: DetK3  ! ASWX using Cramer's Rule
+      REAL(8), PRIVATE :: DetEV  ! Variables used to solve for the 
+      REAL(8), PRIVATE :: DetE1  ! integration constants in the 
+      REAL(8), PRIVATE :: DetE2  ! system of equations in ATX and
+      REAL(8), PRIVATE :: DetE3  ! ASWX using Cramer's Rule
+      
       INTEGER, PRIVATE :: NC
-      INTEGER, PRIVATE :: LDA
-      INTEGER, PRIVATE :: LDVR
-      INTEGER, PRIVATE :: LDVL
       INTEGER, PRIVATE :: i
       INTEGER, PRIVATE :: j
-      INTEGER, PRIVATE :: LWORK
-      INTEGER, PRIVATE :: INFO
-
-C variable needed for SGETRF LU matrix factorization
-      REAL,    ALLOCATABLE, PRIVATE :: EVECTS(:,:) ! eigen vectors
-      INTEGER, ALLOCATABLE, PRIVATE :: IPIV(:)     ! pivot locations for LU decomp
-
-C variable needed for SGETRS linear system solver function
-      REAL, ALLOCATABLE, PRIVATE :: B( :,: )   ! Surface media concentration vector
-      REAL, ALLOCATABLE, PRIVATE :: NHS( :,: ) ! non-homogenious solution
-      INTEGER, PRIVATE :: NRHS
-      INTEGER, PRIVATE :: LDB
+      
+      REAL, ALLOCATABLE, PRIVATE :: B( : )   ! Surface media concentration vector
+      REAL, ALLOCATABLE, PRIVATE :: NHS( : ) ! non-homogenious solution
 
       INTEGER, SAVE, PRIVATE :: dt  ! internal model time step
 
@@ -115,26 +125,20 @@ C input/output parameters
       INTEGER, PRIVATE :: N_AQ_CONC  ! aqueous media concentrations
       INTEGER, PRIVATE :: N_GAS_CONC ! gaseous media concentrations
       INTEGER, PRIVATE :: N_SOL_CONC ! solid media concentrations
-!      INTEGER, PRIVATE :: N_TOT
-!      Integer, Private :: n_lufrac ! number of land use categories
 
       CHARACTER( 16 ), ALLOCATABLE, PRIVATE :: MEDIA_NAMES( : )
 
       REAL, ALLOCATABLE, PRIVATE ::  WRMC( :,: ) ! media read/write buffer
-!      REAL, ALLOCATABLE, PRIVATE :: CMEDIA( :,:,: ) ! surface layer concs
       REAL, ALLOCATABLE, PRIVATE :: MLAI( :,: ) ! used to track change in LAI
-!      Real, Save, Allocatable :: lufrac( :,:,: ) ! land use fraction
 
       CONTAINS
 
          SUBROUTINE INIT_HGSIM( JDATE, JTIME )
 
          USE HGRD_DEFN           ! horizontal grid specifications
-!         USE SUBST_MODULES       ! stenex
          USE UTILIO_DEFN
- !        USE GRID_CONF
          USE LSM_MOD
-         USE Bidi_Mod!, Only: Media_Names, CMedia, Hg_Tot, INIT_LAI, lufrac
+         USE Bidi_Mod
 
          IMPLICIT NONE
 
@@ -142,16 +146,10 @@ C input/output parameters
 
          INTEGER, INTENT( IN ) :: JDATE
          INTEGER, INTENT( IN ) :: JTIME
-!         INTEGER, INTENT( IN ) :: STRTCOL
-!         INTEGER, INTENT( IN ) :: STRTROW
-!         INTEGER, INTENT( IN ) :: ENDCOL
-!         INTEGER, INTENT( IN ) :: ENDROW
 
          INTEGER      GXOFF, GYOFF              ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
          INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-!         INTEGER, EXTERNAL  :: TRIMLEN
-!         INTEGER, EXTERNAL  :: ENVINT
 
          CHARACTER( 16 ) :: PNAME = 'INIT_HGSIM'
          CHARACTER( 96 ) :: MSG = ' '
@@ -178,7 +176,6 @@ C--------------------------------------------------------------------------
 
          SELECT CASE( LAND_SCHEME )
             CASE( 'USGS24' )
-!               n_lufrac = n_usgs
                ALLOCATE (  Hglu_fac( n_lufrac ) )
                Hglu_fac = HGLU_FAC_USGS
                DO C = 1, MY_NCOLS
@@ -187,7 +184,6 @@ C--------------------------------------------------------------------------
                   END DO
                END DO
             CASE( 'MODIS' )
-!               n_lufrac = n_modis
                ALLOCATE (  Hglu_fac( n_lufrac ) )
                Hglu_fac = HGLU_FAC_MODIS
                DO C = 1, MY_NCOLS
@@ -196,7 +192,6 @@ C--------------------------------------------------------------------------
                   END DO
                END DO
             CASE( 'NLCD-MODIS' )
-!               n_lufrac = n_nlcd
                ALLOCATE (  Hglu_fac( n_lufrac ) )
                Hglu_fac = HGLU_FAC_NLCD
                DO C = 1, MY_NCOLS
@@ -238,7 +233,7 @@ C **** Read in saved surface layer concentrations
 
                DO R = 1, MY_NROWS
                   DO C = 1,MY_NCOLS
-                     CMEDIA( V,C,R ) = WRMC( C,R )
+                     CMEDIA( C,R,V ) = WRMC( C,R )
                   END DO
                END DO
             END DO
@@ -320,347 +315,330 @@ C Arguments passed to and from m3dry
 
          CHARACTER( 16 ), PARAMETER :: pname      = 'ATX'
 
-         REAL   :: vdHG   ! Elemental Hg deposition velocity
-         REAL   :: vdHGct   ! Hg cuticular transfer velocity
-         REAL   :: vdHGst  ! stomatal transfer velocity
-         REAL   :: vdHGsl
-         REAL   :: pdHgsl
-         REAL   :: rgnd
-         REAL   :: rgndc
+         REAL(8)   :: vdHG   ! Elemental Hg deposition velocity
+         REAL(8)   :: vdHGct   ! Hg cuticular transfer velocity
+         REAL(8)   :: vdHGst  ! stomatal transfer velocity
+         REAL(8)   :: vdHGsl
+         REAL(8)   :: pdHgsl
+         REAL(8)   :: rgnd
+         REAL(8)   :: rgndc
 
-         REAL :: ZC, ZM ! depth of model surface media
+         REAL(8) :: ZC, ZM ! depth of model surface media
 
 !Model concentrations
 
-         REAL, SAVE :: Cc         ! cuticular Hg(0) concentrations
-         REAL, SAVE :: Cm         ! mesophyll Hg(0) concentrations
-         REAL, SAVE :: CgHg       ! Soil Hg(0) concentrations
-         REAL, SAVE :: CHgzo      ! Hg(0) concentrations at z = zo
-         REAL, SAVE :: CgHgII0    ! Soil Hg(II) concentrations
-         REAL :: vdHgt   ! sum of Hg deposition velocities
+         REAL(8), SAVE :: Cc         ! cuticular Hg(0) concentrations
+         REAL(8), SAVE :: Cm         ! mesophyll Hg(0) concentrations
+         REAL(8), SAVE :: CgHg       ! Soil Hg(0) concentrations
+         REAL(8), SAVE :: CHgzo      ! Hg(0) concentrations at z = zo
+         REAL(8), SAVE :: CgHgII0    ! Soil Hg(II) concentrations
+         REAL(8) :: vdHgt   ! sum of Hg deposition velocities
 !********* reduction and partioning terms *******************************
-         REAL :: kr      ! soil divalent mercury reduction term
-         REAL :: Kam     ! air mesophyll partitioning coefficient for Hg(II)
-         REAL :: Kac     ! air cuticule partitioning coeffiecient for Hg(II)
-         REAL :: Kow     ! HgCl2 Octanol water partioning coefficient
-         REAL :: Kpwc    ! Hg(0) air-vegetation surface partitioning coefficient
-         REAL :: Kpwm    ! Hg(0) air-mesophyll partitioning coefficient
-         REAL :: Kas     ! Hg(0) air-soil partitioning coefficient
+         REAL(8) :: kr      ! soil divalent mercury reduction term
+         REAL(8) :: Kam     ! air mesophyll partitioning coefficient for Hg(II)
+         REAL(8) :: Kac     ! air cuticule partitioning coeffiecient for Hg(II)
+         REAL(8) :: Kow     ! HgCl2 Octanol water partioning coefficient
+         REAL(8) :: Kpwc    ! Hg(0) air-vegetation surface partitioning coefficient
+         REAL(8) :: Kpwm    ! Hg(0) air-mesophyll partitioning coefficient
+         REAL(8) :: Kas     ! Hg(0) air-soil partitioning coefficient
 !********* vegetation poperties *****************************************
-         REAL :: lm   ! leaf mesophyll lipid fraction
-         REAL :: lc   ! cuticular wax mesophyll lipid fraction
-         REAL :: Wp   ! water content fraction of the leaf
-         REAL :: bc   ! Emprical coefficeint to describe differences in plant lipids
-         REAL :: flai ! Factor in mercury accumulation due to biodilution or scenescence
+         REAL(8) :: lm   ! leaf mesophyll lipid fraction
+         REAL(8) :: lc   ! cuticular wax mesophyll lipid fraction
+         REAL(8) :: Wp   ! water content fraction of the leaf
+         REAL(8) :: bc   ! Emprical coefficeint to describe differences in plant lipids
+         REAL(8) :: flai ! Factor in mercury accumulation due to biodilution or scenescence
 !********* Intermediate concentration variables *********************
          REAL, SAVE :: Hgm
          REAL, SAVE :: Hgc
          REAL, SAVE :: Hgs
 !******** soil properties ***********************************************
-         REAL, PARAMETER :: kvis   = 0.132 ! [cm^2 / s] at 273.15K
-         REAL, PARAMETER :: karman = 0.4   ! von Karman constant
-         REAL            :: ldry           ! diffusion length
-         Real            :: rbg            ! soil boundary layer resistance
-         REAL            :: scn            ! for Rbg
-         REAL            :: ustg           ! for Rbg
-         REAL            :: del0           ! for Rbg
-          Real            :: dp                    ! for Rsoil
-         Integer         :: ist            ! soil type
+         REAL(8), PARAMETER :: kvis   = 0.132D0 ! [cm^2 / s] at 273.15K
+         REAL,    PARAMETER :: karman = 0.4   ! von Karman constant
+         REAL(8)            :: ldry           ! diffusion length
+         Real(8)            :: rbg            ! soil boundary layer resistance
+         REAL(8)            :: scn            ! for Rbg
+         REAL(8)            :: ustg           ! for Rbg
+         REAL(8)            :: del0           ! for Rbg
+         Real(8)            :: dp                    ! for Rsoil
+         Integer            :: ist            ! soil type
 !********* Unit conversions *********************
-         REAL :: M3MOLVOL ! molar volume of air at stp m3/mol
+         REAL(8) :: M3MOLVOL ! molar volume of air at stp m3/mol
+!********* Variables used to handle an over determined system
+         LOGICAL :: EV23 ! eigen values 1 and 3 are the same 
 
-         M3MOLVOL = MOLVOL/1.0e3
-!         Write(logdev,*) 'Before INIT_LAI'
+         M3MOLVOL = MOLVOL/1.0D3
          If( INIT_LAI ) Then
             MLAI( c,r ) = lai
-            flai = 1.0
+            flai = 1.0D0
          EndIf
-!         Write(logdev,*) 'Before INIT_ATX'
          If( INIT_ATX ) Then
 ! Equilibrium Hg(0) mesophyll concentration in a 5 month box model simulation
 ! umol/g leaf dry matter
-            Cm     = fevgrn(c,r)*6.0e-6 + (1.0-fevgrn(c,r))*CMEDIA(5,c,r)
+            Cm     = fevgrn(c,r)*6.0D-6 + (1.0D0-fevgrn(c,r))*CMEDIA(c,r,5)
 ! Cuticular Hg(0) concentration in a 5 month box model simulation
-            Cc     = fevgrn(c,r)*6.0e-7 + (1.0-fevgrn(c,r))*CMEDIA(6,c,r)
-            CgHg   = CMEDIA( 3,c,r )  ! ng/g bulk soil concentration
-            CHgzo  = CMEDIA( 4,c,r )  ! ng/g bulk soil concentration
+            Cc     = fevgrn(c,r)*6.0D-7 + (1.0D0-fevgrn(c,r))*CMEDIA(c,r,6)
+            CgHg   = CMEDIA( c,r,3 )  ! ng/g bulk soil concentration
+            CHgzo  = CMEDIA( c,r,4 )  ! ng/g bulk soil concentration
          Else
             If( MLAI(c,r) .EQ. 0.0 ) Then
-               flai = 1.0
+               flai = 1.0D0
             Else
-               flai = max(lai/MLAI( c,r ),1.0) ! bio dilution
+               flai = max(lai/MLAI( c,r ),1.0D0) ! bio dilution
             End If
             if(flai .GT. 3.0) Write(Logdev,*) 'LAI factor: ', flai
             MLAI( c,r ) = lai
-            Cm     = CMEDIA( 5,c,r )/flai  ! ng/g bulk leaf concentration
-            Cc     = CMEDIA( 6,c,r )/flai  ! ng/g bulk leaf concentration
-            CgHg   = CMEDIA( 3,c,r )  ! ng/g bulk soil concentration
-            CHgzo  = CMEDIA( 4,c,r )  ! ng/g bulk soil concentration
+            Cm     = CMEDIA( c,r,5 )/flai  ! ng/g bulk leaf concentration
+            Cc     = CMEDIA( c,r,6 )/flai  ! ng/g bulk leaf concentration
+            CgHg   = CMEDIA( c,r,3 )  ! ng/g bulk soil concentration
+            CHgzo  = CMEDIA( c,r,4 )  ! ng/g bulk soil concentration
          EndIf
-!         Write(logdev,*) 'After INIT_ATX'
-!         Write(logdev,*) 'flai, MLAI', flai, MLAI(c,r)
 
          dt     = tstep
 
 ! Model layer depths
 
-         ZC     = 71*LAI ! g/m**2 based off of leaf litter fall
-         ZM     = 71*LAI ! measurements at UCONN's experimental
+         ZC     = 7.1D1*LAI ! g/m**2 based off of leaf litter fall
+         ZM     = 7.1D1*LAI ! measurements at UCONN's experimental
 ! forest Bash and Miller 2009 Atmos. Environ.
 
 !***************** canopy parameters *********************************
-         Kow  = 4.15    ! For Hg, Mason 1996
-         lm   = 0.02    ! From Trapp and Matthis 1995
-         lc   = 0.02    ! Assumed cuticular wax lipid content
-         Wp   = 0.8     ! leaf water fraction, Trapp and Mathis 1996
-         bc   = 0.95   ! For barley, Trapp and Mathis 1996
-         Kpwc = (Wp+lc*1.0/0.822*Kow**bc)*MWWAT                 ! g/umol
-         Kpwm = (Wp+lm*1.0/0.822*Kow**bc)*MWWAT                 ! g/umol
+         Kow  = 4.15D0    ! For Hg, Mason 1996
+         lm   = 2.0D-2    ! From Trapp and Matthis 1995
+         lc   = 2.0D-2    ! Assumed cuticular wax lipid content
+         Wp   = 8.0D-1     ! leaf water fraction, Trapp and Mathis 1996
+         bc   = 9.5D-1   ! For barley, Trapp and Mathis 1996
+         Kpwc = (Wp+lc*1.0D0/8.22D-1*Kow**bc)*MWWAT                 ! g/umol
+         Kpwm = (Wp+lm*1.0D0/8.22D-1*Kow**bc)*MWWAT                 ! g/umol
 ! Partitioning coeficients following the methodology of the PEM model
-         kac = (Kpwc*(1-del)) +  ! evasion from dry cuticles
+         kac = (Kpwc*(1.0D0-del)) +  ! evasion from dry cuticles
      &         Kpwc*del*H        ! g/mol cuticle surface
          kam = Kpwm*H            ! g/mol apoplast solution
 !**************** soil parameters ************************************
 ! Compute quasi-laminar boundary layer resistance at the soil surface
          scn  = kvis / diff
-         ustg = max(ustar * EXP(-lai), 0.001)
-         del0 = 1.0E-4 * kvis / ( karman * ustg )
-         rbg  = ( scn - LOG( 10.0 * del0 ) ) / ( karman * ustg )
+         ustg = max(ustar * EXP(-lai), 1.0D-3)
+         del0 = 1.0D-4 * kvis / ( karman * ustg )
+         rbg  = ( scn - LOG( 1.0D1 * del0 ) ) / ( karman * ustg )
 ! Compute soil resistance
          ist = nint(Sltype)
          if (ist.lt.1.or.ist.gt.11) then
             WRITE(logdev,*) ' ist=',ist
             ist = 4
          endif
-!         Write(logdev,*) 'before rgnd'
-         ldry= ZG*(EXP((1-wg/wsat(ist))**5)-1)/1.718
-         dp  = diff*1.E-4 * wsat(ist)**2 *
-     &         (1.-wres(ist)/wsat(ist))**(2.+3./bslp(ist))
+         ldry= MAX(ZG*(EXP((1.0D0-wg/wsat(ist))**5)-1.0D0)/1.718D0,1.0D-12)
+         dp  = diff*1.D-4 * wsat(ist)**2 *
+     &         (1.0D0-wres(ist)/wsat(ist))**(2.0D0+3.0D0/bslp(ist))
 ! Soil divalent mercury reduction rate following Scholz et al 2003
          If(TS1CM .GT. 273.15) Then
-            kr     = 8e-11
+            kr     = 8.0D-11
             rgnd   = ldry/dp
          Else ! if the soil is frozen limit diffusion and reduction
-            kr     = 0.0
-            rgnd   = 1.0e6
+            kr     = 0.0D0
+            rgnd   = 1.0D6
          EndIf
-!         Write(logdev,*) 'After rgnd, rgnd:', rgnd
-
 
          Kas = H
-         cgHgII0 = 0.0
-!         Write(logdev,*) 'Before cgHgII0'
-!         Write(logdev,*) 'Size hglu_fac     ',size(hglu_fac)
-!         Write(logdev,*) 'Size lufrac(i,c,r)',size(lufrac,1),size(lufrac,2),size(lufrac,3)
-!         Write(logdev,*) '(n_lufrac,c,r)',n_lufrac,',',c,',',r
+         cgHgII0 = 0.0D0
+
          Do i = 1, n_lufrac
             cgHgII0 = cgHgII0+hglu_fac(i)*lufrac(i,c,r)
          EndDo
-!         Write(logdev,*) 'cgHgII0', cgHgII0
-!         Write(logdev,*) 'H', H
-
 
 C diffusion through soil from Scholtz et al. 2003
-         rgndc  = rgnd + 0.5*rinc ! new soil diffusion model accounts for wet surfaces
-         vdHg   = 1/(ra+0.5*rinc)
-         vdHgst = 1/( rbc + rstom )
-         vdHgct = lai*(( 1.0 - del  )/( rbc + rcut )
+         rgndc  = rgnd + 5.0D-1*rinc ! new soil diffusion model accounts for wet surfaces
+         vdHg   = 1/(ra+5.0D-1*rinc)
+         vdHgst = 1.0D0/( rbc + rstom )
+         vdHgct = lai*(( 1.0D0 - del  )/( rbc + rcut )
      &            + ( del )/(rbc + rwetsfc ))
-         vdHgsl = veg/( rbg + rgndc + 0.5*rinc)
-     &            + ((1-ifsnow) *( 1.0 - veg )*( 1.0-del ))/(rbg + rgnd )
-     &            + (del * (1-ifsnow))/(rbg + rgw )
-     &            + (ifsnow*(1.0 - xm))/( rbg + rsnow )
+         vdHgsl = veg/( rbg + rgndc + 5.0D-1*rinc)
+     &            + ((1-ifsnow) *( 1.0D0 - veg )*( 1.0D0-del ))/(rbg + rgnd )
+     &            + (del * (1.0D0-ifsnow))/(rbg + rgw )
+     &            + (ifsnow*(1.0D0 - xm))/( rbg + rsnow )
      &            + (xm*ifsnow)/(rbc + rsndiff + rgw)
-         pdHgsl = 1/(ra + 1/vdHgsl )     ! production term with no canopy
+         pdHgsl = 1.0D0/(ra + 1.0D0/vdHgsl )     ! production term with no canopy
 
          vdHgt = vdHg + vdHgst + vdHgct + vdHgsl
 
          CHgzo = (vdHg*Hg+vdHgst/kam*Cm+vdHgct/kac*Cc+vdHgsl/Kas*cgHg)
      &                    /vdHgt
 
-         dpvd = veg * vdHg * CHgzo + (1-veg) * pdHgsl/Kas * CgHg
+         dpvd = veg * vdHg * CHgzo + (1.0D0-veg) * pdHgsl/Kas * CgHg
 
          dvel = pdHgsl + veg *(vdhg-pdHgsl)
 
 
 ! Load array A
          NC = 3
-         LDA = 3
-         LDVR = 3
-         LDVL = 3
-         LWORK = 204
-
-         ALLOCATE ( KO(NC,NC), VR(NC,NC), VL(NC,NC), EIVAL(NC),
-     &              WI(NC), WORK(LWORK), COEFS(NC,NC) )
+         ALLOCATE ( KO(NC,NC), VR(NC,NC), EIVAL(NC))
 
 
-         KO = 0.0
-!         Write(logdev,*) 'Before load KO'
-!         Write(logdev,*) 'H', H
-!         Write(logdev,*) 'vdHgst', vdHgst
-!         Write(logdev,*) 'vdHgct', vdHgct
-!         Write(logdev,*) 'vdHgsl', vdHgsl
-!         Write(logdev,*) 'ZM', ZM
-!         Write(logdev,*) 'ZC', ZC
-!         Write(logdev,*) 'ZG', ZG
-!         Write(logdev,*) 'kam', kam
-!         Write(logdev,*) 'kac', kac
-!         Write(logdev,*) 'kas', kas
-!         Write(logdev,*) 'wg', wg
-!         Write(logdev,*) 'M3MOLVOL', M3MOLVOL
- !        Write(logdev,*) 'vdHgt', vdHgt
+         KO = 0.0D0
 
-         KO(1,1) = -vdHgst/(ZM*kam*M3MOLVOL)*(1-vdHgst/(kam*vdHgt))
+         KO(1,1) = -vdHgst/(ZM*kam*M3MOLVOL)*(1.0D0-vdHgst/(kam*vdHgt))
          KO(1,2) =  vdHgst/(ZM*M3MOLVOL)*vdHgct/(kac*vdHgt)
          KO(1,3) =  vdHgst/(ZM*M3MOLVOL)*vdHgsl/(H*vdHgt)
          KO(2,1) =  vdHgct/(ZC*M3MOLVOL)*vdHgst/(kam*vdHgt)
-         KO(2,2) = -vdHgct/(ZC*kac*M3MOLVOL)*(1-vdHgct/(kac*vdHgt))
+         KO(2,2) = -vdHgct/(ZC*kac*M3MOLVOL)*(1.0D0-vdHgct/(kac*vdHgt))
          KO(2,3) =  vdHgct/(ZC*M3MOLVOL)*vdHgsl/(H*vdHgt)
          KO(3,1) =  vdHgsl/(ZG*wg)*vdHgst/(kam*vdHgt)
          KO(3,2) =  vdHgsl/(ZG*wg)*vdHgct/(kac*vdHgt)
-         KO(3,3) = -vdHgsl/(ZG*wg*Kas)*(1-vdHgsl/(H*vdHgt))
-!         Write(logdev,*) 'KO: ', KO
+         KO(3,3) = -vdHgsl/(ZG*wg*Kas)*(1.0D0-vdHgsl/(H*vdHgt))
 
-!         Write(logdev,*) 'Before load COEFS'
+
+         ALLOCATE( NHS(NC))
+
+         NHS = 0.0D0
+
+!        load the non-homogenious part of the system of equations
+         NHS(1) = -vdHgst/ZM*(vdHg*HG/M3MOLVOL)/vdHgt
+         NHS(2) = -vdHgct/ZC*(vdHg*HG/M3MOLVOL)/vdHgt
+         NHS(3) = -vdHgsl/(ZG*wg)*(vdHg*HG)/vdHgt -
+     &             kr*rhob(ist)*cgHgII0*(ZG)/(1.0D3*2.0059D2)
+
+         ALLOCATE( B(NC))
+
+         B = 0.0D0
+
+!        Load the initial conditions
+
+         B(1) = real( Cm,   8 )
+         B(2) = real( Cc,   8 )
+         B(3) = real( CgHg, 8 )
+
+!*****************************************************************************
+! Get eigen values and vectors where the cubic equation is:
+! lambda**3+ax*lambda**2+bx*lambda+cx = 0
+! and is solved following Numerical recipies for Fortran equations 5.6.10-5.6.12
+!*****************************************************************************
+
+         ax = -(KO(1,1)+KO(2,2)+KO(3,3))
+ 
+         bx = -(KO(2,3)*KO(3,2)+KO(2,1)*KO(1,2)+
+     &          KO(3,1)*KO(1,3)-KO(1,1)*KO(2,2)-
+     &          KO(1,1)*KO(3,3)-KO(2,2)*KO(3,3))
+
+         cx = (KO(1,1)*KO(2,3)*KO(3,2)+
+     &         KO(3,1)*KO(1,3)*KO(2,2)+
+     &         KO(2,1)*KO(1,2)*KO(3,3)-
+     &         KO(3,1)*KO(1,2)*KO(2,3)-
+     &         KO(2,1)*KO(1,3)*KO(3,2)-
+     &         KO(1,1)*KO(2,2)*KO(3,3))
+     
+         Qx = (ax**2-3.0D0*bx)/9.0D0
+         Rx = (2.0D0*ax**3-9.0D0*ax*bx+27.0D0*cx)/54.0D0 
+
+! There will always be three real roots in this system
+! so we can use the simple geometric solution for a 
+! cubic equation.
+         ThetaX   = acos(Rx/SQRT(Qx**3))
+ 
+         EIVAL(1) = -2.0D0*sqrt(Qx)*cos(ThetaX/3.0D0)-ax/3.0D0
+         EIVAL(2) = -2.0D0*sqrt(Qx)*cos((ThetaX+2.0D0*Pi)/3.0D0)-ax/3.0D0
+         EIVAL(3) = -2.0D0*sqrt(Qx)*cos((ThetaX-2.0D0*Pi)/3.0D0)-ax/3.0D0            
+ 
+! Solve for the eigenvectors by setting the first element to 1 and using
+! Cramer's rule to solve the second and third elements using the first
+! two equations         
+ 
          DO i = 1, NC
-            DO j = 1, NC
-               COEFS(i,j) = KO(i,j)
-            END DO
+            ev1 =   1.0D0
+            ev2 = (KO(2,1)*KO(1,3)-(KO(1,1)-EIVAL(i))*KO(2,3))/
+     &            (KO(1,2)*KO(2,3)-(KO(2,2)-EIVAL(i))*KO(1,3))  
+            ev3 = ((KO(1,1)-EIVAL(i))*(KO(2,2)-EIVAL(i))-KO(2,1)*KO(1,2))/
+     &            (KO(1,2)*KO(2,3)-(KO(2,2)-EIVAL(i))*KO(1,3))
+            evmax = max(abs(ev1),abs(ev2),abs(ev3))
+! scale the eigenvector
+            VR(1,i) = ev1/evmax
+            VR(2,i) = ev2/evmax
+            VR(3,i) = ev3/evmax        
          END DO
-!         Write(logdev,*) 'COEFS: ', COEFS
-
-         NRHS = 1
-         LDB = 3
-
-         ALLOCATE( NHS(LDB,NRHS))
-
-         NHS = 0.0
-
-!         Write(logdev,*) 'Before load NHS'
-         NHS(1,1) = -vdHgst/ZM*(vdHg*HG/M3MOLVOL)/vdHgt
-         NHS(2,1) = -vdHgct/ZC*(vdHg*HG/M3MOLVOL)/vdHgt
-         NHS(3,1) = -vdHgsl/(ZG*wg)*(vdHg*HG)/vdHgt -
-     &               kr*rhob(ist)*cgHgII0*(ZG)/(1.0e3*200.59)
-
-!         Write(logdev,*) 'NHS: ', NHS
-         ALLOCATE( B(LDB,NRHS))
-
-         B = 0.0
-
-!         Write(logdev,*) 'Before load B'
-!         Write(logdev,*) 'Size B(LBD,NRHS) ',size(B,1), size(B,2)
-!         Write(logdev,*) 'Cm,Cc,CgHg',Cm,',',Cc,',',CgHg
-!         Write(logdev,*) 'B ', B
-         B(1,1) = Cm
-         B(2,1) = Cc
-         B(3,1) = CgHg
-!         Write(logdev,*) 'B ', B
-
-
-!         Write(logdev,*) 'Before allocate EVECTS and IPIV'
-         ALLOCATE( EVECTS(NC, NC ), IPIV(LDA))
-
-         EVECTS = 0.0
-
-C*****************************************************************************
-C********** call LAPACK DGEEV to get eigen values and vectors ****************
-C*****************************************************************************
-
-!         Write(logdev,*) 'Before call SGEEV'
-         CALL SGEEV('N','V',NC,KO,LDA,EIVAL,WI,VR, LDVR,VR,LDVR,WORK,LWORK,INFO)
-
-         IF ( INFO .NE. 0 ) THEN
-            IF ( INFO .LT. 0 ) THEN
-               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
-            ELSE
-               WRITE( LOGDEV,* ) 'SGEEV failed to compute all eigenvalues and vectors'
-            END IF
-               XMSG = '*** SGEEV fails ***'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-!         Write(logdev,*) 'Before load EVECTS'
-         DO i = 1, NC
-            DO j = 1, NC
-               EVECTS(i,j) = VR(i,j)
-            END DO
-         END DO
-!         Write(logdev,*) 'EVECTS'
+         IF( EIVAL(2) .EQ. EIVAL(3) ) THEN
+! Two roots are the same and independent eigenvectors need to be found 
+! simply select a different element of the vector to be unity
+            ev1 = ( KO(1,3)*(         KO(2,2)-EIVAL(3))-KO(1,2)*KO(2,3))/
+     &            ((KO(1,1)-EIVAL(3))*KO(2,3)-          KO(1,3)*KO(2,1))
+            ev2 = -1.0D0  
+            ev3 = ( KO(2,1)*          KO(1,2)-(KO(1,1)-EIVAL(3))*(KO(2,2)-EIVAL(3)))/
+     &            ((KO(1,1)-EIVAL(3))*KO(2,3)- KO(1,3)*           KO(2,1))
+            evmax = max(abs(ev1),abs(ev2),abs(ev3))
+! scale the eigenvector
+            VR(1,3) = ev1/evmax
+            VR(2,3) = ev2/evmax
+            VR(3,3) = ev3/evmax
+         ENDIF    
 
 C******************************************************************************
-C******* Do the non homogenious part ******************************************
+C******* Find the non homogenious solution ************************************
 C******************************************************************************
 
+! solve for KO*x = NHS using Cramer's Rule
 
-! call LAPACK SGETRF to calculate the LU array factorization
-         CALL SGETRF(NC, NC, COEFS, LDA, IPIV, INFO)
+         DetKO = KO(1,1)*KO(2,2)*KO(3,3)-KO(1,1)*KO(3,2)*KO(2,3)+
+     &           KO(2,1)*KO(3,2)*KO(1,3)-KO(2,1)*KO(1,2)*KO(3,3)+
+     &           KO(3,1)*KO(1,2)*KO(2,3)-KO(3,1)*KO(2,2)*KO(1,3)
 
-         IF ( INFO .NE. 0 ) THEN
-            IF ( INFO .LT. 0 ) THEN
-               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
-            ELSE
-               WRITE( LOGDEV,* ) 'The upper triangular matrix is singular'
-            END IF
-            XMSG = '*** SGETRF fails ***'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-! call LAPACK SGETRS linear system solver for initial conditions
-         CALL SGETRS('N', NC, NRHS, COEFS, LDA, IPIV, NHS, LDB, INFO )
-!
-         IF ( INFO .NE. 0 ) THEN
-            WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
-            XMSG = '*** SGETRS fails ***'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
+         DetK1 = NHS(1)*KO(2,2)*KO(3,3)-NHS(1)*KO(3,2)*KO(2,3)+
+     &           NHS(2)*KO(3,2)*KO(1,3)-NHS(2)*KO(1,2)*KO(3,3)+
+     &           NHS(3)*KO(1,2)*KO(2,3)-NHS(3)*KO(2,2)*KO(1,3)
+     
+         DetK2 = KO(1,1)*NHS(2)*KO(3,3)-KO(1,1)*NHS(3)*KO(2,3)+
+     &           KO(2,1)*NHS(3)*KO(1,3)-KO(2,1)*NHS(1)*KO(3,3)+
+     &           KO(3,1)*NHS(1)*KO(2,3)-KO(3,1)*NHS(2)*KO(1,3)
+     
+         DetK3 = KO(1,1)*KO(2,2)*NHS(3)-KO(1,1)*KO(3,2)*NHS(2)+
+     &           KO(2,1)*KO(3,2)*NHS(1)-KO(2,1)*KO(1,2)*NHS(3)+
+     &           KO(3,1)*KO(1,2)*NHS(2)-KO(3,1)*KO(2,2)*NHS(1)
+     
+         NHS(1) = DetK1/DetKO
+         NHS(2) = DetK2/DetKO
+         NHS(3) = DetK3/DetKO    
 
 C******************************************************************************
 C*** Update the IC's for the Non-homogenious solutions and solve the system ***
 C******************************************************************************
 
-!         Write(logdev,*) 'Before load B'
+!        Subtract the non-homogenious solution from the 
          DO i = 1, NC
-            B(i,1) = B(i,1) - NHS(i,1)
+            B(i) = B(i)-NHS(i)
          ENDDO
-!         Write(logdev,*) 'B: ', B
 
-! call LAPACK SGETRF to calculate the LU array factorization
-         CALL SGETRF(NC, NC, EVECTS, LDA, IPIV, INFO)
+!        Solve x for VR*x=B using Cramer's Rule
 
-         IF ( INFO .NE. 0 ) THEN
-            WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRF is incorrect'
-            XMSG = '*** SGETRS fails ***'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-
-! call LAPACK SGETRS linear system solver for initial conditions
-         CALL SGETRS('N', NC, NRHS, EVECTS, LDA, IPIV, B, LDB, INFO )
-
-         IF( INFO .NE. 0 ) THEN
-            WRITE(*,*) 'Error in non homogenious SGETRS!!'
-            WRITE(*,*) 'INFO: ', INFO
-         END IF
-
-!         WRITE(LOGDEV,*) 'Hg: ', HG, 'Hgm: ', Cm, 'Hgc: ', Cc, 'Hgs: ', CgHg
+         DetEV = VR(1,1)*VR(2,2)*VR(3,3)-VR(1,1)*VR(3,2)*VR(2,3)+
+     &           VR(2,1)*VR(3,2)*VR(1,3)-VR(2,1)*VR(1,2)*VR(3,3)+
+     &           VR(3,1)*VR(1,2)*VR(2,3)-VR(3,1)*VR(2,2)*VR(1,3)
+ 
+         DetE1 = B(1)*VR(2,2)*VR(3,3)-B(1)*VR(3,2)*VR(2,3)+
+     &           B(2)*VR(3,2)*VR(1,3)-B(2)*VR(1,2)*VR(3,3)+
+     &           B(3)*VR(1,2)*VR(2,3)-B(3)*VR(2,2)*VR(1,3)
+     
+         DetE2 = VR(1,1)*B(2)*VR(3,3)-VR(1,1)*B(3)*VR(2,3)+
+     &           VR(2,1)*B(3)*VR(1,3)-VR(2,1)*B(1)*VR(3,3)+
+     &           VR(3,1)*B(1)*VR(2,3)-VR(3,1)*B(2)*VR(1,3)
+     
+         DetE3 = VR(1,1)*VR(2,2)*B(3)-VR(1,1)*VR(3,2)*B(2)+
+     &           VR(2,1)*VR(3,2)*B(1)-VR(2,1)*VR(1,2)*B(3)+
+     &           VR(3,1)*VR(1,2)*B(2)-VR(3,1)*VR(2,2)*B(1)  
+     
+         B(1) = DetE1/DetEV        
+         B(2) = DetE2/DetEV        
+         B(3) = DetE3/DetEV   
 
 ! update the surface array
          Hgm = 0.0
          Hgc = 0.0
          Hgs = 0.0
 
-!        Write(logdev,*) 'Before calc Hg conc line 645'
          DO i = 1, NC
-            Hgm = Hgm + B(i,1) * VR(1,i) * EXP( EIVAL(i) * dt )
-            Hgc = Hgc + B(i,1) * VR(2,i) * EXP( EIVAL(i) * dt )
-            Hgs = Hgs + B(i,1) * VR(3,i) * EXP( EIVAL(i) * dt )
+            Hgm = Hgm + B(i) * VR(1,i) * EXP( EIVAL(i) * dt )
+            Hgc = Hgc + B(i) * VR(2,i) * EXP( EIVAL(i) * dt )
+            Hgs = Hgs + B(i) * VR(3,i) * EXP( EIVAL(i) * dt )
          END DO
 
-         Hgm   = Hgm + NHS(1,1)
-         Hgc   = Hgc + NHS(2,1)
-         Hgs   = Hgs + NHS(3,1)
-
-!               WRITE(LOGDEV,*) 'Hg: ', HG, 'Hgm: ', Cm, 'Hgc: ', Cc, 'Hgs: ', CgHg
+         Hgm   = Hgm + NHS(1)
+         Hgc   = Hgc + NHS(2)
+         Hgs   = Hgs + NHS(3) 
+ 
          IF ( Hgm .LT. 0.0 ) THEN
 
             XMSG = '*** Negative concentration in Hgm resetting it to zero ***'
@@ -678,28 +656,24 @@ C******************************************************************************
          END IF
 
          IF ( Hgs .LT. 0.0 ) THEN
-
+! This can happen when the soil moisture approaches zero limiting the Hg that 
+! can evade from this source.
             XMSG = '*** Negative concentration in Hgs resetting it to zero ***'
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             Hgs = max(Hgs, 0.0)
 
          END IF
 
-!         Write(logdev,*) 'Before load CMEDIA line 680'
-         CMEDIA( 1,c,r ) = 0.0 ! water
-         CMEDIA( 2,c,r ) = 0.0 ! water
-         CMEDIA( 3,c,r ) = Hgs
-         CMEDIA( 4,c,r ) = CHgzo
-         CMEDIA( 5,c,r ) = Hgm
-         CMEDIA( 6,c,r ) = Hgc
+         CMEDIA( c,r,1 ) = 0.0 ! water
+         CMEDIA( c,r,2 ) = 0.0 ! water
+         CMEDIA( c,r,3 ) = Hgs
+         CMEDIA( c,r,4 ) = CHgzo
+         CMEDIA( c,r,5 ) = Hgm
+         CMEDIA( c,r,6 ) = Hgc
 
-         DEALLOCATE( KO, VR, VL, EIVAL, WI, WORK, COEFS )
+         DEALLOCATE( KO, VR, EIVAL )
 
-         DEALLOCATE( B )
-
-         DEALLOCATE( NHS )
-
-         DEALLOCATE( EVECTS, IPIV )
+         DEALLOCATE( B, NHS )
 
          RETURN
 
@@ -756,8 +730,8 @@ C********* Intermediate concentration variables *********************
             cDGM    = Hg*awhg*3 ! assume 3x eq con.
             cHgIIaq = 3.57e-6   ! from Whalin et al 2007
          ELSE
-            cDGM    = CMEDIA( 1,c,r )
-            cHgIIaq = CMEDIA( 2,c,r )
+            cDGM    = CMEDIA( c,r,1 )
+            cHgIIaq = CMEDIA( c,r,2 )
          END IF
 
          dt   = TSTEP
@@ -778,16 +752,10 @@ C in the absence of photo-redox reactions divalent Hg accumulates
          ELSE
 
             NC    = 2
-            LDA   = 2
-            LDVR  = 2
-            LDVL  = 2
-            LWORK = 16 ! use the box model to calculate optimal size of the
-                     ! work array
 
-            ALLOCATE ( KO(NC,NC), COEFS(NC,NC), VR(NC,NC), VL(NC,NC), EIVAL(NC),
-     &              WI(NC), WORK(LWORK) )
+            ALLOCATE ( KO(NC,NC), VR(NC,NC), EIVAL(NC) )
 
-            KO = 0.0
+            KO = 0.0D0
 
 C 240 w/m**2 is the 'typical light spectrum' from Whalin et al 2007 Marine Chem.
 C attenuation at 1 m = 1/K (1-exp(-K Z)) = 0.758 using a K of 0.58
@@ -799,145 +767,109 @@ C attenuation at 1 m = 1/K (1-exp(-K Z)) = 0.758 using a K of 0.58
             KO( 2,1 )   = kox * satten * rgrnd/rref
             KO( 2,2 )   = -kphot * satten * rgrnd/rref
 
-            COEFS = 0.0
-
-            DO i = 1, NC
-               DO j = 1, NC
-                  COEFS(i,j) = KO(i,j)
-               END DO
-            END DO
-
-            NRHS = 1
-            LDB = 2
-
-            ALLOCATE( NHS(LDB,NRHS))
+            ALLOCATE( NHS(NC))
 
             NHS = 0.0
 
-            NHS(1,1) = -vdHg/ZSURF*HG
-            NHS(2,1) = -vdHgII/ZSURF*HgIIgas
+            NHS(1) = -vdHg/ZSURF*HG
+            NHS(2) = -vdHgII/ZSURF*HgIIgas
 
-            ALLOCATE( B(LDB,NRHS))
+            ALLOCATE( B(NC))
 
             B = 0.0
 
-            B( 1,1 ) = cDGM
-            B( 2,1 ) = cHgIIaq
+            B( 1 ) = REAL( cDGM,    8)   
+            B( 2 ) = REAL( cHgIIaq, 8)
 
-            ALLOCATE( EVECTS(NC, NC ), IPIV(LDA))
-
-            EVECTS = 0.0
 
 C*****************************************************************************
-C********** call LAPACK DGEEV to get eigen values and vectors ****************
+! Get eigen values and vectors where the cubic equation is:
+! ax*lambda**2+bx*lambda+cx = 0
+! and is solved following Numerical recipies for Fortran equations 5.6.2-5.6.5
 C*****************************************************************************
 
-         CALL SGEEV('N','V',NC,KO,LDA,EIVAL,WI,VR, LDVR,VR,LDVR,WORK,LWORK,INFO)
-
-            IF ( INFO .NE. 0 ) THEN
-               IF ( INFO .LT. 0 ) THEN
-                  WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
-               ELSE
-                  WRITE( LOGDEV,* ) 'SGEEV failed to compute all eigenvalues and vectors'
-               END IF
-               XMSG = '*** SGEEV fails ***'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            DO i = 1, NC
-               DO j = 1, NC
-                  EVECTS(i,j) = VR(i,j)
-               END DO
-            END DO
+            ax = 1.0D0
+            bx = -(KO(1,1)+KO(2,2))
+            cx = KO(1,1)*KO(2,2)-KO(1,2)*KO(2,1)
+    
+            Qx = -5.0D-1*(bx+sign(1.0D0,bx)*sqrt(bx**2-4.0D0*ax*cx))
+    
+            EIVAL(1) = Qx/ax
+            EIVAL(2) = cx/Qx
+    
+! Solve for the eigenvectors
+         DO i = 1, NC
+            ev1   = 1.0D0
+            ev2   = -(KO(2,1)*ev1)/(KO(2,2)-EIVAL(i))
+            evmax = max(abs(ev1),abs(ev2))
+! scale the eigenvector
+            VR(1,i) = ev1/evmax
+            VR(2,i) = ev2/evmax
+         END DO
 
 C******************************************************************************
 C******* Do the non homogenious part ******************************************
 C******************************************************************************
-! call LAPACK SGETRF to calculate the LU array factorization
-            CALL SGETRF(NC, NC, COEFS, LDA, IPIV, INFO)
 
-            IF ( INFO .NE. 0 ) THEN
-               IF ( INFO .LT. 0 ) THEN
-                  WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
-               ELSE
-                  WRITE( LOGDEV,* ) 'The upper triangular matrix is singular'
-               END IF
-               XMSG = '*** SGETRF fails ***'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+! solve for x in  KO*x = NHS using Cramer's Rule
 
-! call LAPACK SGETRS linear system solver for initial conditions
-            CALL SGETRS('N', NC, NRHS, COEFS, LDA, IPIV, NHS, LDB, INFO )
-!
-            IF ( INFO .NE. 0 ) THEN
-               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRS is incorrect'
-               XMSG = '*** SGETRS fails ***'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+         DetKO  = KO(1,1)*KO(2,2)-KO(1,2)*KO(2,1)  
+ 
+         DetK1 = NHS(1)*KO(2,2)-NHS(2)*KO(1,2)
+         DetK2 = NHS(2)*KO(1,1)-NHS(1)*KO(2,1)
+ 
+         NHS(1) = DetK1/DetKO
+         NHS(2) = DetK2/DetKO 
 
 C******************************************************************************
 C*** Update the IC's for the Non-homogenious solutions and solve the system ***
 C******************************************************************************
 
             DO i = 1, NC
-               B(i,1) = B(i,1) - NHS(i,1)
+               B(i) = B(i) - NHS(i)
             ENDDO
 
-! call LAPACK SGETRF to calculate the LU array factorization
-            CALL SGETRF(NC, NC, EVECTS, LDA, IPIV, INFO)
+!        Solve for x in VR*x=B using Cramer's Rule
 
-            IF ( INFO .NE. 0 ) THEN
-               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRF is incorrect'
-               XMSG = '*** SGETRF fails ***'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-
-! call LAPACK SGETRS linear system solver for initial conditions
-            CALL SGETRS('N', NC, NRHS, EVECTS, LDA, IPIV, B, LDB, INFO )
-
-            IF( INFO .NE. 0 ) THEN
-               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRS is incorrect'
-               XMSG = '*** SGETRS fails ***'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
+         DetEV  = VR(1,1)*VR(2,2)-VR(1,2)*VR(2,1)
+ 
+         DetE1  = B(1)*VR(2,2)-B(2)*VR(1,2) 
+         DetE2  = B(2)*VR(1,1)-B(1)*VR(2,1)
+ 
+         B(1) = DetE1/DetEV
+         B(2) = DetE2/DetEV
 
 ! update the surface array
-            DGM = 0.0
-            DRM = 0.0
+            DGM = 0.0D0
+            DRM = 0.0D0
 
             DO i = 1, NC
-               DGM = DGM + B(i,1) * VR(1,i) * EXP( EIVAL(i) * dt )
-               DRM = DRM + B(i,1) * VR(2,i) * EXP( EIVAL(i) * dt )
+               DGM = DGM + B(i) * VR(1,i) * EXP( EIVAL(i) * dt )
+               DRM = DRM + B(i) * VR(2,i) * EXP( EIVAL(i) * dt )
             END DO
 
-            DGM     = DGM   + NHS(1,1)
-            DRM     = DRM   + NHS(2,1)
+            DGM     = DGM   + NHS(1)
+            DRM     = DRM   + NHS(2)
+    
+            DEALLOCATE( KO, VR, EIVAL )
 
-            DEALLOCATE( KO, VR, VL, EIVAL, WI, WORK, COEFS )
+            DEALLOCATE( B, NHS )
 
-            DEALLOCATE( B )
-
-            DEALLOCATE( NHS )
-
-            DEALLOCATE( EVECTS, IPIV )
-
-         END IF
-
+         END IF         
+    
          IF ( DGM .LT. 0.0 .OR. DRM .LT. 0.0 ) THEN
-
-            XMSG = '*** Negative concentration ***'
+            
+            XMSG = '*** Negative concentration ***'                
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 
-         END IF
+         END IF 
 
-         CMEDIA( 1,c,r ) = DGM
-         CMEDIA( 2,c,r ) = DRM
-         CMEDIA( 3,c,r ) = 0.0 ! land
-         CMEDIA( 4,c,r ) = 0.0 ! land
-         CMEDIA( 5,c,r ) = 0.0 ! land
-         CMEDIA( 6,c,r ) = 0.0 ! land
+         CMEDIA( c,r,1 ) = DGM
+         CMEDIA( c,r,2 ) = DRM
+         CMEDIA( c,r,3 ) = 0.0 ! land
+         CMEDIA( c,r,4 ) = 0.0 ! land
+         CMEDIA( c,r,5 ) = 0.0 ! land
+         CMEDIA( c,r,6 ) = 0.0 ! land
 
          RETURN
 
@@ -962,7 +894,6 @@ C------------------------------------------------------------------------------
          REAL, PARAMETER :: MWHG    = 200.59 ! molecular weight of Hg
          REAL, PARAMETER :: UGOKG   = 1.0e9  ! ug/kg conversion
          REAL, PARAMETER :: GH2ONM3 = 1.0e6  ! g H2O in M^3 H2O
-         REAL, PARAMETER :: MWH2O   = 18.02  ! molecular weight of H2O
          REAL  WDEP_LOAD   ! loading due to wet deposition
 
 
@@ -975,13 +906,13 @@ C------------------------------------------------------------------------------
 
             IF( TRIM(CSE) .EQ. 'HG      ' ) THEN
 
-               CMEDIA( 1,C,R ) = CMEDIA( 1,C,R ) + WDEP_LOAD
+               CMEDIA( C,R,1 ) = CMEDIA( C,R,1 ) + WDEP_LOAD
 
             END IF
 
             IF( TRIM(CSE) .EQ. 'HGIIGAS ' ) THEN
 
-               CMEDIA( 2,C,R ) = CMEDIA( 2,C,R ) + WDEP_LOAD
+               CMEDIA( C,R,2 ) = CMEDIA( C,R,2 ) + WDEP_LOAD
 
             END IF
 
@@ -991,4 +922,3 @@ C------------------------------------------------------------------------------
 
          END SUBROUTINE GET_WDEP
       END MODULE HGSIM
-
