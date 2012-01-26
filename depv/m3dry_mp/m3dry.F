@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/m3dry.F,v 1.4 2011/11/03 18:25:28 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/m3dry.F,v 1.5 2012/01/26 18:45:36 sjr Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas,
@@ -529,7 +529,7 @@ C-------------------------------------------------------------------------------
          logdev  = init3()
 
          DO l = 1, n_spc_m3dry
-            IF ( dif0( l ) > 0.0 ) THEN
+            IF ( dif0( l ) .GT. 0.0 ) THEN
                scc_pr_23( l ) = ( ( kvis / dif0( l ) ) / pr ) ** twothirds
             ELSE
                scc_pr_23( l ) = 0.0
@@ -571,11 +571,11 @@ C-------------------------------------------------------------------------------
             vname_rn = 'RN'
          END IF
 
-         xcent = xcent3d
-         ycent = ycent3d
+         xcent = real( xcent3d, 4 )
+         ycent = real( ycent3d, 4 )
 
          DO l = 1, nvars3d
-            IF ( vname3d( l ) == 'WR' ) THEN   ! canopy wetness is in METCRO2D
+            IF ( vname3d( l ) .EQ. 'WR' ) THEN   ! canopy wetness is in METCRO2D
                ifwr = .TRUE.
                WRITE( logdev,6501 )
                EXIT
@@ -583,7 +583,7 @@ C-------------------------------------------------------------------------------
          END DO
 
          DO l = 1, nvars3d
-            IF ( vname3d( l ) == 'Q2' ) THEN   ! 2-m mixing ratio is in METCRO2D
+            IF ( vname3d( l ) .EQ. 'Q2' ) THEN   ! 2-m mixing ratio is in METCRO2D
                ifq2 = .TRUE.
                WRITE( logdev,6503 )
                EXIT
@@ -998,7 +998,7 @@ C-------------------------------------------------------------------------------
                lufraccr( j ) = lufrac( j,c,r )
             End Do
 
-            IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
+            IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
                CALL Calc_Lai(jday, jtime, soit2cr, lufraccr, laicr, zrufcr,
      &                       laijcr, z0jcr, vegjcr, logdev, c, r )
                DO j=1,n_lufrac
@@ -1017,7 +1017,7 @@ C-------------------------------------------------------------------------------
 
 ! Calculate the relative humidity of air and ground.
 
-         IF ( temp2p0cr <= stdtemp ) THEN
+         IF ( temp2p0cr .LE. stdtemp ) THEN
             es_air = vp0 * EXP( 22.514 - (6.15e3 / temp2p0cr) )
          ELSE
             es_air = vp0 * EXP( svp2 * (temp2p0cr - stdtemp) /
@@ -1028,7 +1028,7 @@ C-------------------------------------------------------------------------------
          rh_air  = 100.0 * q2p0cr / qss_air
          rh_air  = MIN( 100.0, rh_air )
 
-         IF ( tempgcr <= stdtemp ) THEN
+         IF ( tempgcr .LE. stdtemp ) THEN
             es_grnd = vp0 * EXP( 22.514 - (6.15e3 / tempgcr) )
          ELSE
             es_grnd = vp0 * EXP( svp2 * (tempgcr - stdtemp) /
@@ -1046,7 +1046,7 @@ C-------------------------------------------------------------------------------
             theta = ta(c,r) * (1000./presmb)**(287.04/1004.E0)
             thetav = theta*(1+0.61*qv(c,r))
 
-            IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
+            IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 ! raj is estimated using stability correction based on MOL for grid cell for now
                DO j = 1, n_lufrac
 
@@ -1055,7 +1055,7 @@ C-------------------------------------------------------------------------------
                   V_cross = 0.25 * (VWIND(C,R) + VWIND(C+1,R) +
      &                              VWIND(C,R+1) + VWIND(C+1,R+1))
 
-                  IF (lufraccr( j ) > 0.0 ) THEN
+                  IF (lufraccr( j ) .GT. 0.0 ) THEN
                      ustarj( j,c,r ) = ustarcr * SQRT( LOG( zh( c,r ) / Zrufcr )
      &                                               / LOG( zh( c,r ) / z0j( j,c,r ) ) )
                      zntol = z0j(j,c,r) * moli(c,r)
@@ -1108,13 +1108,13 @@ C-------------------------------------------------------------------------------
             END IF !land or water
          EndIf
 
-         IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
+         IF ( ( NINT(lwmask( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 
             IF ( .NOT. ifwr ) THEN  ! approx canopy wetness - dew from Wesely
 
             ! canopy is wet if > trace precip. or moist with light winds
 
-               IF ( ( rn( c,r ) + rc( c,r ) > 0.025 ) .OR.
+               IF ( ( rn( c,r ) + rc( c,r ) .GT. 0.025 ) .OR.
      &              ( (0.6 + wspd10( c,r ))*(100.0-rh_grnd) <= 19.0 ) ) THEN
 
                   delta( c,r )      = 1.0
@@ -1123,22 +1123,22 @@ C-------------------------------------------------------------------------------
 
                ELSE
 
-                  IF ( rgrnd( c,r ) > 5.0 ) THEN  ! day (if at night, persist delta)
+                  IF ( rgrnd( c,r ) .GT. 5.0 ) THEN  ! day (if at night, persist delta)
 
                   ! Determine if canopy was recently wet.
 
-                     IF ( ( lstwetdate( c,r ) > 0 ) .AND.
-     &                    ( lstwettime( c,r ) > 0 ) ) THEN  ! canopy recently wet
+                     IF ( ( lstwetdate( c,r ) .GT. 0 ) .AND.
+     &                    ( lstwettime( c,r ) .GT. 0 ) ) THEN  ! canopy recently wet
 
                         elapsedsec = secsdiff ( lstwetdate( c,r ),
      &                                          lstwettime( c,r ),
      &                                          jdate, jtime )
 
-                        IF ( ( elapsedsec >     0 ) .AND.     ! assume canopy stays
-     &                       ( elapsedsec <= 7200 ) ) THEN    ! wet for 2 h
+                        IF ( ( elapsedsec .GT.     0 ) .AND.     ! assume canopy stays
+     &                       ( elapsedsec .LE. 7200 ) ) THEN    ! wet for 2 h
                            delta( c,r ) = 1.0
-                        ELSE IF ( ( elapsedsec >  7200 ) .AND.     ! ramp down DELTA
-     &                            ( elapsedsec < 10800 ) ) THEN    ! between 2 & 3 h
+                        ELSE IF ( ( elapsedsec .GT.  7200 ) .AND.     ! ramp down DELTA
+     &                            ( elapsedsec .LT. 10800 ) ) THEN    ! between 2 & 3 h
                            delta( c,r ) = ( 10800.0 - FLOAT( elapsedsec ) ) / 3600.0
                         ELSE
                            delta( c,r )      = 0.0
@@ -1161,7 +1161,7 @@ C-------------------------------------------------------------------------------
             ELSE  ! Already have canopy wetness explicitly from met model
 
                wrmax = 0.2e-3 * vegcr * laicr   ! [m]
-               IF ( wr( c,r ) <= 0.0 ) THEN
+               IF ( wr( c,r ) .LE. 0.0 ) THEN
                   delta( c,r ) = 0.0
                ELSE
                   delta( c,r ) = wr( c,r ) / wrmax   ! refer to SiB model
@@ -1171,7 +1171,7 @@ C-------------------------------------------------------------------------------
                If( mosaic .OR. abflux ) Then
                   Do j=1,n_lufrac
                      wrmax = 0.2e-3 * vegj(j,c,r) * laij(j,c,r)   ! [m] changed to vegj for mosaic JOB
-                     If ( (wr( c,r ) <= 0.0) .or. (laij(j,c,r) <= 0)) Then
+                     If ( (wr( c,r ) .LE. 0.0) .or. (laij(j,c,r) .LE. 0)) Then
                         deltaj( j,c,r ) = 0.0
                      Else
                         deltaj( j,c,r ) = wr( c,r ) / wrmax   ! refer to SiB model
@@ -1185,9 +1185,9 @@ C-------------------------------------------------------------------------------
       ! Assign a pH for rain water based on longitude if US simulation.
       ! Otherwise use default pH.  Use pH value in HPLUS calculation.
 
-            IF ( ( ycent >=   30.0 ) .AND. ( ycent <=  45.0 ) .AND.
-     &           ( xcent >= -120.0 ) .AND. ( xcent <= -70.0 ) ) THEN
-               IF ( lon( c,r ) > -100.0 ) THEN
+            IF ( ( ycent .GE.   30.0 ) .AND. ( ycent .LE.  45.0 ) .AND.
+     &           ( xcent .GE. -120.0 ) .AND. ( xcent .LE. -70.0 ) ) THEN
+               IF ( lon( c,r ) .GT. -100.0 ) THEN
                   hplus = hplus_east
                ELSE
                   hplus = hplus_west
@@ -1216,7 +1216,7 @@ C-------------------------------------------------------------------------------
 
             n = n + 1
 
-            IF ( TRIM( depspc( l ) ) == 'SULF' ) THEN  ! Sulfate (SULF)
+            IF ( TRIM( depspc( l ) ) .EQ. 'SULF' ) THEN  ! Sulfate (SULF)
 
          ! Sulfate calculation follows Wesely (1985), Eqn. 11.
 
@@ -1236,9 +1236,9 @@ C-------------------------------------------------------------------------------
 
             ELSE
 
-               IF ( ( NINT(lwmask( c,r )) == 0 ) .OR. ( vegcr == 0.0 ) ) THEN  ! water
+               IF ( ( NINT(lwmask( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
 
-                  IF ( TRIM( depspc( l ) ) == 'HG' ) THEN  ! elemental mercury gas
+                  IF ( TRIM( depspc( l ) ) .EQ. 'HG' ) THEN  ! elemental mercury gas
 ! calculate and save Henry's constant for use in HGSIM
 
                      IF( HGBIDI ) THEN 
@@ -1288,12 +1288,12 @@ C-------------------------------------------------------------------------------
 
                   heff  = heff * 0.08205 * temp2p0cr
 
-!                  IF ( TRIM( depspc( l ) ) == 'HG' ) awhg = heff
+!                  IF ( TRIM( depspc( l ) ) .EQ. 'HG' ) awhg = heff
 
          ! Wet surface resistance.  (Note DELTA = CWC in ADOM lingo.)
          ! This now applies to cuticle and ground.
 
-                  IF ( TRIM( depspc( l ) ) /= 'O3' ) THEN
+                  IF ( TRIM( depspc( l ) ) .NE. 'O3' ) THEN
                      rwet = rcw0 / heff      ! wet cuticle
                   ELSE
                   ! Set RCW/LAI = 200 s/m on basis of Keysburg exp for O3
@@ -1308,7 +1308,7 @@ C-------------------------------------------------------------------------------
 
          ! If the surface is cold and wet, use dry snow.
 
-                  IF ( tempgcr < stdtemp ) THEN
+                  IF ( tempgcr .LT. stdtemp ) THEN
                      rwetsfc = rsnow
                   ELSE
                      rwetsfc = rwet
@@ -1316,7 +1316,7 @@ C-------------------------------------------------------------------------------
 
          ! Dry cuticle resistance.
 
-                  IF ( TRIM( depspc( l ) ) /= 'NH3' ) THEN
+                  IF ( TRIM( depspc( l ) ) .NE. 'NH3' ) THEN
                      rcut = rcut0 * a0 / ar( l )
                   ELSE
                      rcut = 4000.0 * EXP( -0.054 * rh_air )
@@ -1331,7 +1331,7 @@ C-------------------------------------------------------------------------------
      &                  + rinc          ! Add in-canopy part
                   If( mosaic .OR. abflux ) Then
                      DO j=1,n_lufrac
-                        IF (lufraccr( j ) > 0.0 ) THEN
+                        IF (lufraccr( j ) .GT. 0.0 ) THEN
                            hcanj ( j ) = Z0j( j,c,r ) * 10.0
                            rincj( j,c,r )  = 14.0 * laij( j,c,r ) * hcanj( j )
      &                                     / ustarj( j,c,r )
@@ -1347,7 +1347,7 @@ C-------------------------------------------------------------------------------
                   xm = 0.02 * ( temp2p0cr - ( stdtemp - 1.0 ) )**2
                   xm = MIN (xm, 0.5)
                   xm = MAX (xm, 0.0)
-                  IF ( temp2p0cr < ( stdtemp - 1.0 ) ) xm = 0.0
+                  IF ( temp2p0cr .LT. ( stdtemp - 1.0 ) ) xm = 0.0
 
          ! Bulk stomatal resistance; include mesophyll resistance.
 
@@ -1359,7 +1359,7 @@ C-------------------------------------------------------------------------------
 ! Recalculate stomal resistance for each land use category
                   IF ( mosaic .OR. abflux ) THEN
                      DO j=1,n_lufraC
-                        IF (lufraccr( j ) > 0.0 ) THEN
+                        IF (lufraccr( j ) .GT. 0.0 ) THEN
                            if ((Land_scheme .eq. 'USGS24' .and. j .ne. 16) .or.
      &                         (Land_scheme .eq. 'NLCD-MODIS' .and. j.ne. 1 .and. j
      &                          .ne. 31 .and. j.ne. 48) .or.
@@ -1534,7 +1534,7 @@ C--------------------------------------------------------------------------
                   IF ( TRIM( depspc( l ) ) == 'NH3' ) THEN
                      cnh3  = cgridl1( n,c,r )
 
-                     IF ( NINT( lwmask( c,r ) ) /= 0 ) THEN  ! land
+                     IF ( NINT( lwmask( c,r ) ) .NE. 0 ) THEN  ! land
                         Call Get_Flux(tempgcr,rh_air,cnh3,rwetsfc,rgw,wg(c,r),w2(c,r),
      &                                sltyp(c,r),dif0(l),r,c,l,tpvd,lnh3,
      &                                f_stom,f_cut,f_soil,f_emis,f_dep,f_ag,f_nat, f_wat,
@@ -1601,7 +1601,7 @@ C by 60 to convert it into 1/sec.
 
 C Determine NO2 concentration needed for HONO production term.
 
-                  IF ( TRIM( depspc( l ) ) == 'NO2' ) THEN
+                  IF ( TRIM( depspc( l ) ) .EQ. 'NO2' ) THEN
                      conc_no2 = cgridl1( n,c,r )
 
 C Loss of NO2 via the heterogeneous reaction is accounted as additional
@@ -1617,7 +1617,7 @@ C depositional loss.
 
 C Calculate production (pvd) for HONO; unit = ppm * m/s
 
-                  IF ( TRIM( depspc( l ) ) == 'HONO' )
+                  IF ( TRIM( depspc( l ) ) .EQ. 'HONO' )
      &               pvd( n,c,r ) = kno2 * conc_no2 * zf( c,r )
 
                END IF
@@ -1625,7 +1625,7 @@ C--------------------------------------------------------------------------
 C Bidirectional mercury flux section
 C--------------------------------------------------------------------------
 
-               IF ( HGBIDI .AND. TRIM( depspc( l ) ) == 'HG' ) THEN
+               IF ( HGBIDI .AND. TRIM( depspc( l ) ) .EQ. 'HG' ) THEN
 
                   lhg = n
 
@@ -1658,7 +1658,7 @@ C************* Call the Hg air surface exchange subroutine *********************
 
                END IF ! 'HG'
 
-               IF ( HGBIDI .AND. TRIM( depspc( l ) ) == 'HGIIGAS' ) THEN ! vd Hg(II)
+               IF ( HGBIDI .AND. TRIM( depspc( l ) ) .EQ. 'HGIIGAS' ) THEN ! vd Hg(II)
 
                   chgIIgas = cgridl1( n,c,r )
                   vdhgII   = depvel_gas( n,c,r )
@@ -1666,14 +1666,14 @@ C************* Call the Hg air surface exchange subroutine *********************
                END IF
                ! Check for negative values or NaN's
 
-               IF ( depvel_gas( n,c,r ) < 0.0 .OR.
-     &              depvel_gas( n,c,r ) /= depvel_gas( n,c,r ) ) GO TO 999
+               IF ( depvel_gas( n,c,r ) .LT. 0.0 .OR.
+     &              depvel_gas( n,c,r ) .NE. depvel_gas( n,c,r ) ) GO TO 999
 
             END IF   ! special condition for sulfate (SULF)
 
          END DO ddloop
 
-         IF ( HGBIDI .AND. NINT( lwmask( c,r ) ) == 0 .AND. ( vegcr .EQ. 0.0 )) THEN ! water
+         IF ( HGBIDI .AND. NINT( lwmask( c,r ) ) .EQ. 0 .AND. ( vegcr .EQ. 0.0 )) THEN ! water
 
             CALL ASWX( chg, chgIIgas, vdhg, vdhgII, awhg, rgrnd( c,r ),
      &                 dpvd, c, r, jdate, jtime, dt(2) )

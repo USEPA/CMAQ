@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/convcld_acm.F,v 1.3 2011/10/21 16:10:27 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/convcld_acm.F,v 1.4 2012/01/26 18:45:09 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -588,7 +588,7 @@ C...allocate saved arrays
         END IF
 
         DO LAY = 1, NLAYS
-          SIGF( LAY ) = 1 - X3FACE_GD( LAY )
+          SIGF( LAY ) = 1.0 - X3FACE_GD( LAY )
         END DO
         SIGF( 0 ) = 1.0
 
@@ -1451,12 +1451,20 @@ C...test for convergence, then cut the interval in half
 C...if fa*fb < 0 then zero lies between ta & tc
 C...  if fa*fb > 0 then zero lies between tc & tb
 
-            IF ( FTST ) 590, 590, 591
-590           TEMPB = TEMPC
+!           IF ( FTST ) 590, 590, 591
+!590           TEMPB = TEMPC
+!             GO TO 599
+!591           TEMPA = TEMPC
+!             FA = FB
+!             GO TO 599
+
+            IF ( FTST .LE. 0.0 ) THEN
+              TEMPB = TEMPC
               GO TO 599
-591           TEMPA = TEMPC
-              FA = FB
+            ELSE
+              TEMPA = TEMPC
               GO TO 599
+            END IF
 
 595         CONTINUE   ! exit from iterator, convergence achieved
 

@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.4 2011/11/03 18:25:28 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/BIDI_MOD.F,v 1.5 2012/01/26 18:45:35 sjr Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module Bidi_Mod
@@ -51,7 +51,7 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Character( 80 ), Save , Allocatable :: MEDIA_DESCR( : )
 
 ! environment variable for mercury bi-directional flux
-      CHARACTER( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI'
+      CHARACTER( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI      '
 
       Integer, Parameter      :: HG_TOT = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC       
       Integer, Save           :: N_TOT
@@ -81,8 +81,9 @@ C...Arguments:
  
 C... Local:
  
-         CHARACTER( 16 )           :: PNAME = 'INIT_BIDI'
-         INTEGER                   :: STATUS
+         CHARACTER( 16 ) :: PNAME = 'INIT_BIDI       '
+         CHARACTER( 80 ) :: VARDESC
+         INTEGER         :: STATUS
          
          If( INDEX1('HG', N_GC_DDEP, GC_DDEP) .GT. 0)Then 
          
@@ -109,41 +110,41 @@ C... Local:
             N_Hg  = 0            
             ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
-            MEDIA_NAMES( 1 ) = 'Gamma1' 
-            MEDIA_UNITS( 1 ) = '' 
+            MEDIA_NAMES( 1 ) = 'Gamma1          '
+            MEDIA_UNITS( 1 ) = '                '
             MEDIA_DESCR( 1 ) = 'NH4+/H+ in Soil layer 1'
-            MEDIA_NAMES( 2 ) = 'Gamma2'
-            MEDIA_UNITS( 2 ) = '' 
+            MEDIA_NAMES( 2 ) = 'Gamma2          '
+            MEDIA_UNITS( 2 ) = '                '
             MEDIA_DESCR( 2 ) = 'NH4+/H+ in Soil layer 2'
-            MEDIA_NAMES( 3 ) = 'MHpsl1'
-            MEDIA_UNITS( 3 ) = 'mol/l' 
+            MEDIA_NAMES( 3 ) = 'MHpsl1          '
+            MEDIA_UNITS( 3 ) = 'mol/l           '
             MEDIA_DESCR( 3 ) = 'Molar H+ in Soil layer 1'
-            MEDIA_NAMES( 4 ) = 'MHpsl2'
-            MEDIA_UNITS( 4 ) = 'mol/l' 
+            MEDIA_NAMES( 4 ) = 'MHpsl2          '
+            MEDIA_UNITS( 4 ) = 'mol/l           '
             MEDIA_DESCR( 4 ) = 'Molar H+ in Soil layer 2'
-            
+               
          Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
          
             N_TOT = HG_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
-            MEDIA_NAMES( 1 ) = 'DGM            ' ! Dissolved gaseous Hg
+            MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
             MEDIA_UNITS( 1 ) = 'umol/mol' 
             MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
-            MEDIA_NAMES( 2 ) = 'DRM            ' ! Dissolved reactive Hg
+            MEDIA_NAMES( 2 ) = 'DRM             ' ! Dissolved reactive Hg
             MEDIA_UNITS( 2 ) = 'umol/mol' 
             MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
-            MEDIA_NAMES( 3 ) = 'HGSOIL         '
+            MEDIA_NAMES( 3 ) = 'HGSOIL          '
             MEDIA_UNITS( 3 ) = 'umol/mol'      
             MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
-            MEDIA_NAMES( 4 ) = 'HGZ0           '
+            MEDIA_NAMES( 4 ) = 'HGZ0            '
             MEDIA_UNITS( 4 ) = 'ppmV'      
             MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
-            MEDIA_NAMES( 5 ) = 'HGMES          ' ! mesophyll Hg
+            MEDIA_NAMES( 5 ) = 'HGMES           ' ! mesophyll Hg
             MEDIA_UNITS( 5 ) = 'umol/g'      
             MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
-            MEDIA_NAMES( 6 ) = 'HGCUT          ' ! cuticular Hg  
+            MEDIA_NAMES( 6 ) = 'HGCUT           ' ! cuticular Hg  
             MEDIA_UNITS( 6 ) = 'umol/g'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
@@ -153,34 +154,34 @@ C... Local:
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
-            MEDIA_NAMES( 1 ) = 'DGM            ' ! Dissolved gaseous Hg
+            MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
             MEDIA_UNITS( 1 ) = 'umol/mol' 
             MEDIA_DESCR( 1 ) = 'Surface water dissolved Hg(0)'
-            MEDIA_NAMES( 2 ) = 'DRM            ' ! Dissolved reactive Hg
+            MEDIA_NAMES( 2 ) = 'DRM             ' ! Dissolved reactive Hg
             MEDIA_UNITS( 2 ) = 'umol/mol' 
             MEDIA_DESCR( 2 ) = 'Surface water dissolved Hg(II)'
-            MEDIA_NAMES( 3 ) = 'HGSOIL         '
+            MEDIA_NAMES( 3 ) = 'HGSOIL          '
             MEDIA_UNITS( 3 ) = 'umol/mol'      
             MEDIA_DESCR( 3 ) = 'Soil water dissolved Hg(0)'
-            MEDIA_NAMES( 4 ) = 'HGZ0           '
+            MEDIA_NAMES( 4 ) = 'HGZ0            '
             MEDIA_UNITS( 4 ) = 'ppmV'      
             MEDIA_DESCR( 4 ) = 'Hg(0) compensation point'
-            MEDIA_NAMES( 5 ) = 'HGMES          ' ! mesophyll Hg
+            MEDIA_NAMES( 5 ) = 'HGMES           ' ! mesophyll Hg
             MEDIA_UNITS( 5 ) = 'umol/g'      
             MEDIA_DESCR( 5 ) = 'Hg(0) bound to leaf mesophyll'
-            MEDIA_NAMES( 6 ) = 'HGCUT          ' ! cuticular Hg  
+            MEDIA_NAMES( 6 ) = 'HGCUT           ' ! cuticular Hg  
             MEDIA_UNITS( 6 ) = 'umol/g'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'   
-            MEDIA_NAMES( 7 ) = 'Gamma1' 
+            MEDIA_NAMES( 7 ) = 'Gamma1          ' 
             MEDIA_UNITS( 7 ) = '' 
             MEDIA_DESCR( 7 ) = 'NH4+/H+ in Soil layer 1'
-            MEDIA_NAMES( 8 ) = 'Gamma2'
+            MEDIA_NAMES( 8 ) = 'Gamma2          '
             MEDIA_UNITS( 8 ) = '' 
             MEDIA_DESCR( 8 ) = 'NH4+/H+ in Soil layer 2'
             MEDIA_NAMES( 9 ) = 'MHpsl1'
             MEDIA_UNITS( 9 ) = 'mol/l' 
             MEDIA_DESCR( 9 ) = 'Molar H+ in Soil layer 1'
-            MEDIA_NAMES( 10 ) = 'MHpsl2'
+            MEDIA_NAMES( 10 ) = 'MHpsl2         '
             MEDIA_UNITS( 10 ) = 'mol/l' 
             MEDIA_DESCR( 10 ) = 'Molar H+ in Soil layer 2'
             
@@ -214,7 +215,7 @@ C... Local:
          INTEGER,     INTENT( IN ) :: TSTEP
          LOGICAL,     INTENT( IN ) :: abflux
 
-         CHARACTER( 16 ) :: PNAME = 'OPASX_MEDIA'
+         CHARACTER( 16 ) :: PNAME = 'OPASX_MEDIA     '
          CHARACTER( 80 ) :: VARDESC
          CHARACTER( 96 ) :: MSG = ' '
 
@@ -529,7 +530,7 @@ C--------------------------------------------------------------------------
          REAL          WRMC( My_NCols,My_NRows )         ! media write buffer
          INTEGER V, R, C
 
-         CHARACTER( 16 ) :: PNAME = 'WRASX_MEDIA'
+         CHARACTER( 16 ) :: PNAME = 'WRASX_MEDIA     '
          
 !*****************************************************************************         
          LOGDEV = INIT3()    

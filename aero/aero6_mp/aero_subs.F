@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_subs.F,v 1.2 2011/10/21 16:10:13 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_subs.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -224,12 +224,12 @@ C *** local variables
       REAL( 8 ) :: CGR( N_MODE-1 ) ! Aitken & Accum. modes
 
       REAL( 8 ) :: LAMDA      ! mean free path [ m ]
-      REAL( 8 ) :: KNC        ! KNC = TWO3 * BOLTZ *  AIRTEMP / AMU
+      REAL( 8 ) :: KNC        ! KNC = TWO3 * BOLTZMANN *  AIRTEMP / AMU
 
 C *** Free Molecular regime (depends upon modal density)
-      REAL( 8 ) :: KFMAT      ! = SQRT( 3.0*BOLTZ * AIRTEMP / PDENSAT )
-      REAL( 8 ) :: KFMAC      ! = SQRT( 3.0*BOLTZ * AIRTEMP / PDENSAC )
-      REAL( 8 ) :: KFMATAC    ! = SQRT( 6.0*BOLTZ * AIRTEMP / ( PDENSAT + PDENSAC ) )
+      REAL( 8 ) :: KFMAT      ! = SQRT( 3.0*BOLTZMANN * AIRTEMP / PDENSAT )
+      REAL( 8 ) :: KFMAC      ! = SQRT( 3.0*BOLTZMANN * AIRTEMP / PDENSAC )
+      REAL( 8 ) :: KFMATAC    ! = SQRT( 6.0*BOLTZMANN * AIRTEMP / ( PDENSAT + PDENSAC ) )
 
 C *** Intermodal coagulation rates [ m**3/s ] ( 0th & 2nd moments )
       REAL( 8 ) :: BATAC( 2 ) ! Aitken to accumulation
@@ -581,7 +581,7 @@ C     intermodal coagulation.
          IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
-         IF( AEROSPC( SPC )%NAME( 2 ) .EQ. 'APHGJ' )THEN 
+         IF( TRIM(AEROSPC( SPC )%NAME( 2 )) .EQ. 'APHGJ' )THEN 
 ! assumes all production adsorb onto accumulation mode
              TMASS = TMASS + PHG_RATE * DT
          END IF
@@ -937,9 +937,9 @@ C-----------------------------------------------------------------------
 
          COFCBAR_SO4 = SQRT( 8.0 * RGASUNIV / ( PI * MWH2SO4 * 1.0E-3 ) )
          H2SO4RATM1 = AEROSPC_MW( ASO4_IDX ) / MWH2SO4
-         SO4FAC  = 1.0E-9 * F6DPI / AEROSPC( ASO4_IDX )%DENSITY
-         SOILFAC = 1.0E-9 * F6DPI / AEROSPC( ASOIL_IDX )%DENSITY
-         ANTHFAC = 1.0E-9 * F6DPI / AEROSPC( ACORS_IDX )%DENSITY
+         SO4FAC  = 1.0D-9 * F6DPI / AEROSPC( ASO4_IDX )%DENSITY
+         SOILFAC = 1.0D-9 * F6DPI / AEROSPC( ASOIL_IDX )%DENSITY
+         ANTHFAC = 1.0D-9 * F6DPI / AEROSPC( ACORS_IDX )%DENSITY
 
 !        DF( KNH4 ) = 1.0D6 * AEROSPC_MW( ANH4_IDX )
 !        DF( KNO3 ) = 1.0D6 * AEROSPC_MW( ANO3_IDX )
@@ -1513,11 +1513,11 @@ C *** Initialize excess evaporated mass array
 
             IF ( AEROSPC( I )%NO_M2WET ) THEN
                M3SOA = M3SOA 
-     &               + ( 1.0D-9 * F6DPI / AEROSPC( I )%DENSITY )
+     &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
      &               * AEROSPC_CONC( I,IMODE )
             ELSE
                M3OTHR = M3OTHR
-     &                + ( 1.0D-9 * F6DPI / AEROSPC( I )%DENSITY )
+     &                + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
      &                * AEROSPC_CONC( I,IMODE )
             END IF   
 
@@ -2699,6 +2699,8 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
+      INCLUDE SUBST_CONST    ! for PI
+
 C    Input variables
       REAL   DGN     ! geometric mean Stokes diameter by number [ m ]
       REAL   XXLSG   ! natural log of geometric standard deviation
@@ -2709,7 +2711,7 @@ C    Output variable
 
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142135623731    !  SQRT( 2 )
-      REAL, PARAMETER :: PI = 3.14159265358979324   ! PI (single precision 3.141593)
+!      REAL, PARAMETER :: PI = 3.14159265358979324   ! PI (single precision 3.141593)
 
       REAL, PARAMETER :: DCA25 = 2.5 ! aerodynamic diameter cut point [ um ]
       REAL, PARAMETER :: B = 0.21470 ! Cunningham slip-correction approx. param [ um ]
@@ -2978,6 +2980,8 @@ C     using 20 symmetric points
  
       implicit none
 
+      INCLUDE SUBST_CONST     ! physical and mathematical constants
+
       real nr, ni  ! indices of refraction
       real alfv    ! Mie parameter for dgv
       real xlnsig  ! log of geometric standard deviation
@@ -2989,15 +2993,15 @@ C     using 20 symmetric points
       real xxqalf  ! function to calculate the extinction ceofficient
       real qalfip, qalfim   ! extinction efficiencies at abscissas
 
-      real, parameter :: pi      = 3.14159265
-      real, parameter :: sqrtpi  = 1.77245385
-      real, parameter :: sqrtpi1 = 1.0 / sqrtpi
+!     real, parameter :: pi      = 3.14159265
+!     real, parameter :: sqrtpi  = 1.77245385
+!     real, parameter :: sqrtpi1 = 1.0 / sqrtpi
       real, parameter :: sqrt2   = 1.41421356
-      real, parameter :: three_pi_two = 3.0 * pi / 2.0
-      real, parameter :: const = three_pi_two * sqrtpi1
+!     real, parameter :: three_pi_two = 3.0 * pi / 2.0
+!     real, parameter :: const = three_pi_two * sqrtpi1
 
       integer i
-      real sum, xi,wxi,xf
+      real const, sum, xi, wxi, xf
 
       integer, parameter :: n = 10   ! one-half the number of abscissas
       real ghxi( n ) ! Gauss-Hermite abscissas
@@ -3034,6 +3038,7 @@ C *** tests show that 20 point is adquate.
       end do ! i
 
 C fsb      bext = const * aa * sum
+      const = 3.0 * sqrt( pi ) / 2.0
       bext = const * sum ! corrected 07/21/2000 FSB; found by Rokjin Park
 
       return

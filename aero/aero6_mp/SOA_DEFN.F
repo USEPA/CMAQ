@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/SOA_DEFN.F,v 1.2 2011/10/21 16:10:12 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/SOA_DEFN.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
@@ -59,28 +59,28 @@ C-----------------------------------------------------------------------
       Type( vapor_type ), Parameter :: vaporspc( n_vapor ) = (/
 C                    Name      Alpha    CStar     Enth    SOA Name    Origin   Decay   Drog Name
 C                 ----------  -------  --------  -------  ----------  ------  -------  -----------
-     & vapor_type('SV_ALK  ',  0.0718,   0.0200,  40.0E3, 'AALKJ   ',    'A',     8.0, 'ALK5RXN  '),
-     & vapor_type('SV_XYL1 ',  0.0310,   1.3140,  32.0E3, 'AXYL1J  ',    'A',     8.0, 'XYLNRXN  '),
-     & vapor_type('SV_XYL2 ',  0.0900,  34.4830,  32.0E3, 'AXYL2J  ',    'A',     8.0, 'XYLNRXN  '),
-     & vapor_type('SV_TOL1 ',  0.0580,   2.3260,  18.0E3, 'ATOL1J  ',    'A',     7.0, 'TOLNRXN  '),
-     & vapor_type('SV_TOL2 ',  0.1130,  21.2770,  18.0E3, 'ATOL2J  ',    'A',     7.0, 'TOLNRXN  '),
-     & vapor_type('SV_BNZ1 ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J  ',    'A',     6.0, 'BNZNRXN  '),
-     & vapor_type('SV_BNZ2 ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J  ',    'A',     6.0, 'BNZNRXN  '),
-     & vapor_type('SV_TRP1 ',  0.1393,  14.7920,  40.0E3, 'ATRP1J  ',    'B',    10.0, 'TRPRXN   '),
-     & vapor_type('SV_TRP2 ',  0.4542, 133.7297,  40.0E3, 'ATRP2J  ',    'B',    10.0, 'TRPRXN   '),
-     & vapor_type('SV_ISO1 ',  0.2320, 116.0100,  40.0E3, 'AISO1J  ',    'B',     5.0, 'ISOPRXN  '),
-     & vapor_type('SV_ISO2 ',  0.0288,   0.6170,  40.0E3, 'AISO2J  ',    'B',     5.0, 'ISOPRXN  '),
-     & vapor_type('SV_SQT  ',  1.5370,  24.9840,  40.0E3, 'ASQTJ   ',    'B',    15.0, 'SESQRXN  ')/)
+     & vapor_type('SV_ALK          ',  0.0718,   0.0200,  40.0E3, 'AALKJ           ', 'A',  8.0, 'ALK5RXN         '),
+     & vapor_type('SV_XYL1         ',  0.0310,   1.3140,  32.0E3, 'AXYL1J          ', 'A',  8.0, 'XYLNRXN         '),
+     & vapor_type('SV_XYL2         ',  0.0900,  34.4830,  32.0E3, 'AXYL2J          ', 'A',  8.0, 'XYLNRXN         '),
+     & vapor_type('SV_TOL1         ',  0.0580,   2.3260,  18.0E3, 'ATOL1J          ', 'A',  7.0, 'TOLNRXN         '),
+     & vapor_type('SV_TOL2         ',  0.1130,  21.2770,  18.0E3, 'ATOL2J          ', 'A',  7.0, 'TOLNRXN         '),
+     & vapor_type('SV_BNZ1         ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J          ', 'A',  6.0, 'BNZNRXN         '),
+     & vapor_type('SV_BNZ2         ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J          ', 'A',  6.0, 'BNZNRXN         '),
+     & vapor_type('SV_TRP1         ',  0.1393,  14.7920,  40.0E3, 'ATRP1J          ', 'B', 10.0, 'TRPRXN          '),
+     & vapor_type('SV_TRP2         ',  0.4542, 133.7297,  40.0E3, 'ATRP2J          ', 'B', 10.0, 'TRPRXN          '),
+     & vapor_type('SV_ISO1         ',  0.2320, 116.0100,  40.0E3, 'AISO1J          ', 'B',  5.0, 'ISOPRXN         '),
+     & vapor_type('SV_ISO2         ',  0.0288,   0.6170,  40.0E3, 'AISO2J          ', 'B',  5.0, 'ISOPRXN         '),
+     & vapor_type('SV_SQT          ',  1.5370,  24.9840,  40.0E3, 'ASQTJ           ', 'B', 15.0, 'SESQRXN         ')/)
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
-      Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2'
-      Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
-      Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
-      Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
-      Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
-      Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
-      Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
+      Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1         '
+      Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2         '
+      Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1           '
+      Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2           '
+      Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3           '
+      Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA           '
+      Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB           '
+      Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC           '
 
 C Indices of required species
       Integer :: iso1_idx
@@ -111,16 +111,16 @@ C
       Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
 C                       Name      Parent     Aerospc    AlphaH
 C                    ----------  ---------  ---------  --------
-     & orgprod_type( 'ALK5RXN', 'ALK5RXN',  ' ',        0.000 ),
-     & orgprod_type( 'XYLNRXN', 'XYL',      ' ',        0.000 ),
-     & orgprod_type( 'XYLHRXN', 'XYL',      'AXYL3J',   0.300 ),
-     & orgprod_type( 'TOLNRXN', 'TOL',      ' ',        0.000 ),
-     & orgprod_type( 'TOLHRXN', 'TOL',      'ATOL3J',   0.360 ),
-     & orgprod_type( 'BNZNRXN', 'BENZENE',  ' ',        0.000 ),
-     & orgprod_type( 'BNZHRXN', 'BENZENE',  'ABNZ3J',   0.370 ),
-     & orgprod_type( 'TRPRXN',  'TRPRXN',   ' ',        0.000 ),
-     & orgprod_type( 'ISOPRXN', 'ISOPRXN',  ' ',        0.000 ),
-     & orgprod_type( 'SESQRXN', 'SESQRXN',  ' ',        0.000 ) /)
+     & orgprod_type( 'ALK5RXN         ', 'ALK5RXN         ', '                ', 0.000 ),
+     & orgprod_type( 'XYLNRXN         ', 'XYL             ', '                ', 0.000 ),
+     & orgprod_type( 'XYLHRXN         ', 'XYL             ', 'AXYL3J          ', 0.300 ),
+     & orgprod_type( 'TOLNRXN         ', 'TOL             ', '                ', 0.000 ),
+     & orgprod_type( 'TOLHRXN         ', 'TOL             ', 'ATOL3J          ', 0.360 ),
+     & orgprod_type( 'BNZNRXN         ', 'BENZENE         ', '                ', 0.000 ),
+     & orgprod_type( 'BNZHRXN         ', 'BENZENE         ', 'ABNZ3J          ', 0.370 ),
+     & orgprod_type( 'TRPRXN          ', 'TRPRXN          ', '                ', 0.000 ),
+     & orgprod_type( 'ISOPRXN         ', 'ISOPRXN         ', '                ', 0.000 ),
+     & orgprod_type( 'SESQRXN         ', 'SESQRXN         ', '                ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
@@ -133,7 +133,7 @@ C mapping variables used for loading and unloading to CGRID array
       Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
       Logical, Private, Save :: mapped = .False.
 
-      Character( 16 ), Private, Save :: pname = 'Soa_Defn'
+      Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
       Contains
 
@@ -364,7 +364,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Arguments:
-      Character( * ) :: vname
+      Character( 16 ) :: vname
       Integer ndx
 
 C Local Variables:
@@ -401,7 +401,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Arguments:
-      Character( * ) :: vname
+      Character( 16 ) :: vname
       Integer ndx
 
 C Local Variables:

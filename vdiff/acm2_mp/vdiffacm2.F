@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/vdiffacm2.F,v 1.5 2011/12/09 13:08:37 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2_mp/vdiffacm2.F,v 1.6 2012/01/26 18:45:26 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)vdiffim.F 1.8 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.vdiffim.F 25 Jul 1997 12:57:45
@@ -602,7 +602,7 @@ C Modify Timestep for ACM
 C-----------------------------------------------------------------------
 
          NLP = INT( DTSEC / DTLIM + 0.99 )
-         DTS = DTSEC / NLP
+         DTS = DTSEC / REAL( NLP )
          DTDENS1 = DTS * DENS1( C,R )
 
 #ifdef Verbose

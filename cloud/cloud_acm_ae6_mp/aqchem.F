@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.2 2011/10/21 16:10:26 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.3 2012/01/26 18:45:08 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -644,8 +644,11 @@ C...compute fractional weights for several species
 
 C...Assign fraction partitioning of FE(III) and MN(II)
 
-      IF ( DARK .EQ. .TRUE.  ) FE_III = 0.9D+0  ! Night time,GS 01July2011
-      IF ( DARK .EQ. .FALSE. ) FE_III = 0.1D+0  ! Day time, GS  01July2011
+      IF ( DARK ) THEN
+        FE_III = 0.9D+0  ! Night time, GS 01July2011
+      ELSE
+        FE_III = 0.1D+0  ! Day time, GS 01July2011
+      END IF
 
       MN_II = 1.0D+0                     ! Same for day and night, GS  01July2011
 

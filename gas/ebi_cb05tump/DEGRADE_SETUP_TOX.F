@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/DEGRADE_SETUP_TOX.F,v 1.2 2011/10/21 16:10:55 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/DEGRADE_SETUP_TOX.F,v 1.3 2012/01/26 18:43:32 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -50,7 +50,7 @@ C.....INCLUDES:
 
 C..declare and define variables used by maps and data
 
-      CHARACTER(16), PARAMETER :: BLANK = ' '  ! default value for characters
+      CHARACTER(16), PARAMETER :: BLANK = '                '  ! default value for characters
 
       INTEGER :: N_REACT           ! Maxumim number of  species being degraded
       INTEGER :: N_UNI_LOSS        ! Number of Unimolecular Loss Processes
@@ -155,7 +155,7 @@ C.....PARAMETERS:
 
 C.....LOCAL VARIABLES:
 
-         CHARACTER(  16 ) :: PNAME =  'DEGRADE_MAP    '     ! name of routine
+         CHARACTER(  16 ) :: PNAME =  'DEGRADE_MAP     '     ! name of routine
          CHARACTER(  16 ) :: EMTPTY
          CHARACTER(  16 ) :: WNAME                          ! SCRATCH variable
          CHARACTER(  16 ) :: VNAME( N_PROCESSES+1 )         ! SCRATCH variable
@@ -268,7 +268,7 @@ C..Set up indices that point to concentrations in CGRID.
                   N_REACT_FOUND = N_REACT_FOUND + 1
 
                ELSE
-                  VNAME( J ) = 'NONE'
+                  VNAME( J ) = 'NONE           '
                   CYCLE
                ENDIF
 
@@ -339,7 +339,7 @@ C..checking degradation rates
 
                IF ( LEN_NAME < 1 ) CYCLE
 
-               IF ( WNAME == 'DENSITY' ) THEN      ! special case rate proportion to air density
+               IF ( WNAME == 'DENSITY         ' ) THEN      ! special case rate proportion to air density
                   RAD_MAP( I, J ) = 9999
                   WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
      &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
