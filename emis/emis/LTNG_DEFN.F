@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 !C RCS file, release, date & time of last delta, author, state, [and locker]
-!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.5 2012/01/19 15:24:39 yoj Exp $
+!C $Header: /project/yoj/arc/CCTM/src/emis/emis/LTNG_DEFN.F,v 1.6 2012/01/27 19:57:47 sjr Exp $
 
 !C what(1) key, module and SID; SCCS file; date and time of last delta:
 !C %W% %P% %G% %U%
@@ -75,6 +75,7 @@
       REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK    ( :,: ) ! reduce offshore strikes
       REAL,    ALLOCATABLE, SAVE :: ICCG          ( :,: ) ! intercloud strikes per cloud to ground strike
       REAL,    ALLOCATABLE, SAVE :: MOLSNFLASH    ( :,: ) ! moles N per flash
+      REAL,    ALLOCATABLE, SAVE :: MOLSNIC       ( :,: ) ! moles N per IC flash
 
 !C    scenario time/date needed for diagnostic output
       INTEGER, SAVE :: SDATE     ! scenario start date
@@ -234,6 +235,7 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
      &                   ICCG         ( NCOLS,NROWS ),
      &                   OCEAN_MASK   ( NCOLS,NROWS ),
      &                   MOLSNFLASH   ( NCOLS,NROWS ),
+     &                   MOLSNIC      ( NCOLS,NROWS ),
      &                   STRIKE_FACTOR( NCOLS,NROWS ), STAT = STATUS )
                IF ( STATUS .NE. 0 ) THEN
                   XMSG = 'LRATIO, ICCG, OCEAN_MASK, MOLSNFLASH or STRIKE_FACTOR' 
@@ -268,6 +270,12 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
      &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
      &                             JDATE, JTIME, MOLSNFLASH ) ) THEN
                   XMSG = 'Could not read MOLSN from' // TRIM( ANAME )
+               END IF
+
+               IF ( .NOT. INTERPX( ANAME, "MOLSNIC", PNAME,
+     &                             STRTCOLLT3,ENDCOLLT3, STRTROWLT3,ENDROWLT3, 1,1,
+     &                             JDATE, JTIME, MOLSNIC ) ) THEN
+                  XMSG = 'Could not read MOLSNIC from' // TRIM( ANAME )
                END IF
               
                IF ( .NOT. INTERPX( ANAME, "STRKCNT", PNAME,
@@ -502,12 +510,14 @@ C statement function for ERF approximation
 
                DO ROW = 1, MY_NROWS 
                   DO COL = 1, MY_NCOLS
-                     COLUMN_LTNG_NO( COL,ROW ) = LTNG_RC( COL,ROW )
-     &               * STRIKE_FACTOR( COL,ROW )  ! flashes per unit precip
-     &               * LRATIO( COL,ROW )         ! ratio derived from NLDN data
-     &               * OCEAN_MASK( COL,ROW )     ! reduce offshore strikes
-     &               * ( 1.0 + ICCG( COL,ROW ) ) ! intercloud strikes per cloud to ground strike
-     &               *   MOLSNFLASH( COL,ROW )   ! moles of N per flash
+                     COLUMN_LTNG_NO( COL,ROW ) = 
+     &                  (LTNG_RC( COL,ROW )
+     &                    * STRIKE_FACTOR( COL,ROW ) ! flashes per unit precip
+     &                    * LRATIO( COL,ROW ) ! ratio derived from NLDN data
+     &                    * OCEAN_MASK( COL,ROW ) ! reduce offshore strikes
+     &                    * ( MOLSNFLASH( COL,ROW ) +  ! moles N per flash
+!                             intercloud strikes per cloud to ground strike
+     &                        (MOLSNIC(COL,ROW) * ICCG( COL,ROW ) )))
      &                 / ( 60.0 * 60.0 )         ! get time units right
 
 !                   write( logdev,'( 2i4, 7f9.4 )' ) col,row,
