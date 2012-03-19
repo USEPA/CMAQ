@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.5 2012/01/19 13:51:58 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.6 2012/03/19 15:43:49 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -102,6 +102,14 @@ C   01 Jul 11 G.Sarwar: Incorporate day and night dependent Fe III oxidation
 C                       state (Alexander et al.,  2009)
 C   12 Aug 11 G.Sarwar: Revise Fe and Mn solubility based on 
 C                       Alexander et al., 2009
+C    8 Mar 12 J.Bash:   FE_OX and MN_OX were calculated from FE and MN before
+C                       a floor value of 0.0 was established for these 
+C                       concentrations sometimes resulting in negative 
+C                       concentrations and model crashes. The code used to 
+C                       estimate FE_OX and MN_OX was moved to be after a floor 
+C                       value for FE and MN was set. Also the washout rate was
+C                       removed from the calculation of the estimate for doubling
+C                       the time step based on sulfur oxidized < 5%.
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -240,7 +248,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
       REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3
       REAL( 8 ) :: FRACLIQ         ! fraction of water in liquid form
-      REAL( 8 ) :: FOA1            ! First dissociation constant for FOA
+      REAL( 8 ) :: FOA1            ! First dissociation constant for FOA (Formic Acid)
       REAL( 8 ) :: FOAH            ! Henry's Law constant for FOA
       REAL( 8 ) :: FOA1H           ! FOAH*FOA1
       REAL( 8 ) :: FOAL            ! FOA conc in cloudwater (mol/liter)
@@ -419,13 +427,10 @@ C...........External Functions:
 
       REAL, EXTERNAL :: HLCONST
 
-#ifdef verbose
-      integer, save :: logdev
-      integer, external :: setup_logdev
-#endif
+      INTEGER, SAVE :: LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C*********************************************************************
-C     begin body of subroutine AQCHEM
 
 C...Initialization
 
@@ -433,9 +438,7 @@ C...Initialization
 
         FIRSTIME = .FALSE.
 
-#ifdef verbose
-      logdev = setup_logdev()
-#endif
+        LOGDEV = SETUP_LOGDEV()
 
 C...Make sure an AE6 version of the mechanism is being used
 
@@ -699,22 +702,22 @@ C...   = Initial amount - amount deposited  (mol/liter)
         SEASCOR = MAX( LOADING( LSEASC,COR ) - WETDEP( LSEASCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
 
 
-        FECOR   = 0.0281D0  * (100.0D0/55.8D0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
-     &          + 0.0467D0  * (100.0D0/55.8D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        MNCOR   = 0.00078D0 * (100.0D0/54.9D0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
-     &          + 0.0011D0  * (100.0D0/54.9D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        NACOR   = 0.8373D0  * ( 23.0D0/23.0D0) * SEASCOR                         ! SLN 29March2011
-     &          + 0.0652D0  * (100.0D0/23.0D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0023D0  * (100.0D0/23.0D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        MGCOR   = 0.0997D0  * ( 23.0D0/24.3D0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0000D0  * (100.0D0/24.3D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0032D0  * (100.0D0/24.3D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        CACOR   = 0.0320D0  * ( 23.0D0/40.1D0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0872D0  * (100.0D0/40.1D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0562D0  * (100.0D0/40.1D0) * ANTHCOR / ( 1.0 - 0.00325 )
-        KCOR    = 0.0310D0  * ( 23.0D0/39.1D0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0252D0  * (100.0D0/39.1D0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0176D0  * (100.0D0/39.1D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        FECOR   = 0.0281D0  * ( 100.0D0 / 55.8D0 ) * SOILCOR / ( 1.0 - 0.04642 ) ! SLN 22March2011
+     &          + 0.0467D0  * ( 100.0D0 / 55.8D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
+        MNCOR   = 0.00078D0 * ( 100.0D0 / 54.9D0 ) * SOILCOR / ( 1.0 - 0.04642 ) ! SLN 22March2011
+     &          + 0.0011D0  * ( 100.0D0 / 54.9D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
+        NACOR   = 0.8373D0  * (  23.0D0 / 23.0D0 ) * SEASCOR                     ! SLN 29March2011
+     &          + 0.0652D0  * ( 100.0D0 / 23.0D0 ) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0023D0  * ( 100.0D0 / 23.0D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
+        MGCOR   = 0.0997D0  * (  23.0D0 / 24.3D0 ) * SEASCOR                     ! SLN 16March2011
+     &          + 0.0000D0  * ( 100.0D0 / 24.3D0 ) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0032D0  * ( 100.0D0 / 24.3D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
+        CACOR   = 0.0320D0  * (  23.0D0 / 40.1D0 ) * SEASCOR                     ! SLN 16March2011
+     &          + 0.0872D0  * ( 100.0D0 / 40.1D0 ) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0562D0  * ( 100.0D0 / 40.1D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
+        KCOR    = 0.0310D0  * (  23.0D0 / 39.1D0 ) * SEASCOR                     ! SLN 16March2011
+     &          + 0.0252D0  * ( 100.0D0 / 39.1D0 ) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0176D0  * ( 100.0D0 / 39.1D0 ) * ANTHCOR / ( 1.0 - 0.00325 )
 
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
@@ -742,14 +745,8 @@ C...   = Initial amount - amount deposited  (mol/liter)
 !       A       = 3.0D0 * FE
 !       B       = 2.0D0 * MN
 
-C       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
-C       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
-
-        FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
-        MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
-
-        A = 3.0D0 * FE_OX
-        B = 2.0D0 * MN_OX
+!       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
+!       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011       
 
 C...don't allow aerosol concentrations to go below zero
 
@@ -767,8 +764,12 @@ C...don't allow aerosol concentrations to go below zero
         PRIM    = MAX( PRIM,    0.0D0 )
 !       PRIMCOR = MAX( PRIMCOR, 0.0D0 )
         NUMCOR  = MAX( NUMCOR,  0.0D0 )
-        A       = MAX( A,       0.0D0 )
-        B       = MAX( B,       0.0D0 )
+
+        FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
+        MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
+
+        A = 3.0D0 * FE_OX
+        B = 2.0D0 * MN_OX
 
         SK6TS6 = SK6 * TS6
 
@@ -967,7 +968,7 @@ C...  Gas and liquid phase concentrations
 C...return an error if the pH is not in range
 
         IF ( ( HA .LT. 0.1D0 ) .OR. ( HA .GT. 9.9D0 ) ) THEN
-!         print *, ha
+!         write( logdev,* ) ha
           XMSG = 'PH VALUE OUT OF RANGE'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
         END IF
@@ -1090,7 +1091,7 @@ C...  the next timestep, else exit loop 20.
 C...make kinetics calculations
 C...  note: DS4(i) and DSIV(I) are negative numbers!
 
-        DTRMV = 300.0
+        DTRMV = TAUCLD / 3.0D0
         IF ( ( CTHK1 .GT. 1.0D-10 ) .AND. ( PRCRATE .GT. 1.0D-10 ) )
      &     DTRMV = 3.6D0 * WTAVG * 1000.0D0 * CTHK1 / PRCRATE  ! <<<uma found bug, was .36
         DTRMV = MIN( DTRMV, 300.0D0 )
@@ -1178,7 +1179,7 @@ C...Calculate a minimum time step required
 C...check for large time step
 
         IF ( DTW( 0 ) .GT. 8.0D+37 ) THEN
-          WRITE(6,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
+          WRITE( LOGDEV,1001 ) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
         ELSE
 
 C...CALCULATE IN-CLOUD SOA PRODUCTION
@@ -1214,8 +1215,7 @@ C...Calculate OH consumption
 C...calculate the change in sulfur iv for this time step
 
 60        CONTINUE
-          DTS6 = ABS( DTW( 0 ) * ( -DSIVDT( 0 ) - TS6 * PRCRATE
-     &         / ( 3600.0D0 * CTHK1 * WTAVG ) ) )
+          DTS6 = ABS( DTW( 0 ) * DSIVDT( 0 ) )
 
 C...If DSIV(0), sulfur iv oxidized during this time step would be
 C... less than 5% of sulfur oxidized since time 0, then double DT
@@ -1282,7 +1282,7 @@ C...  recalculate the total S(iv) oxidation rate
 C...  if the total S(iv) oxidation rate over the timestep exceeds the amount of
 C...    S(iv) available then scale the rates to conserve mass
 
-        IF (-DSIVDT( 0 ) * DTW( 0 ) .GT. TSIV ) THEN
+        IF ( -DSIVDT( 0 ) * DTW( 0 ) .GT. TSIV ) THEN
           DSIV_SCALE = TSIV / ( -DSIVDT( 0 ) * DTW( 0 ) )
           DSIVDT( 0 ) = DSIVDT( 0 ) * DSIV_SCALE
           DSIVDT( 1 ) = DSIVDT( 1 ) * DSIV_SCALE
