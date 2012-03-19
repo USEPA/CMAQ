@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.7 2011/10/21 16:11:35 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F,v 1.8 2012/03/19 15:44:24 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module cgrid_spcs
@@ -157,10 +157,10 @@ c namelist variables
             namelist / NR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
             namelist / TR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
 
-            character( 16 ) :: gc_matrix = 'gc_matrix.nml'
-            character( 16 ) :: ae_matrix = 'ae_matrix.nml'
-            character( 16 ) :: nr_matrix = 'nr_matrix.nml'
-            character( 16 ) :: tr_matrix = 'tr_matrix.nml'
+            character( 16 ) :: gc_matrix = 'gc_matrix_nml'
+            character( 16 ) :: ae_matrix = 'ae_matrix_nml'
+            character( 16 ) :: nr_matrix = 'nr_matrix_nml'
+            character( 16 ) :: tr_matrix = 'tr_matrix_nml'
             character( 256 ) :: eqname
 
 c intialize the surr1 table
