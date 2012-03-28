@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.3 2012/01/26 18:45:08 sjr Exp $
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.4 2012/03/28 15:39:52 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -105,6 +105,14 @@ C                       Alexander et al., 2009
 C   15 Aug 11 B.Hutzell: adapted for TXHG version by adding aerosol tracers and
 C                        mercury-chlorine chemistry from CMAQ version 4.71
 C
+C    8 Mar 12 J.Bash:   FE_OX and MN_OX were calculated from FE and MN before
+C                       a floor value of 0.0 was established for these
+C                       concentrations sometimes resulting in negative
+C                       concentrations and model crashes. The code used to
+C                       estimate FE_OX and MN_OX was moved to be after a floor
+C                       value for FE and MN was set. Also the washout rate was
+C                       removed from the calculation of the estimate for doubling
+C                       the time step based on sulfur oxidized < 5%.
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
 C        vertical distributions of acidity and sulfate within cumulus
@@ -154,9 +162,9 @@ C...........Parameters:
 
       INTEGER, PARAMETER :: NUMOX = 5          ! number of oxidation reactions
 
-      REAL( 8 ), PARAMETER :: H2ODENS = 1000.0D+0   ! water density at 20 C and 1 ATM (kg/m3)
-      REAL( 8 ), PARAMETER :: SEC2HR  = 1.0D+0 / 3600.0D+0 ! convert seconds to hours
-      REAL( 8 ), PARAMETER :: SCVEFF  = 100.0D+0    ! Scavenging efficiency (%)
+      REAL( 8 ), PARAMETER :: H2ODENS = 1000.0D0   ! water density at 20 C and 1 ATM (kg/m3)
+      REAL( 8 ), PARAMETER :: SEC2HR  = 1.0D0 / 3600.0D0 ! convert seconds to hours
+      REAL( 8 ), PARAMETER :: SCVEFF  = 100.0D0    ! Scavenging efficiency (%)
 
 C...........Arguments:
 
@@ -407,8 +415,8 @@ C...........Local Variables (scalars):
 
 C...........Local Variables (arrays):
 
-      REAL( 8 )   :: LOADING( MAX_NAER, NMODES ) ! aerosol loading (mol/liter)
-      REAL( 8 )   :: INITGAS( NGAS ) ! initial gas partial pressure (atm)
+      REAL( 8 ) :: LOADING( MAX_NAER, NMODES ) ! aerosol loading (mol/liter)
+      REAL( 8 ) :: INITGAS( NGAS ) ! initial gas partial pressure (atm)
 
       REAL( 8 ) :: LIQUID( NLIQS ) ! wet deposition array (mm mol/liter)
       REAL( 8 ) :: WETDEP( NLIQS ) ! wet deposition array (mm mol/liter)
@@ -417,7 +425,6 @@ C...........Local Variables (arrays):
       REAL( 8 ) :: DTW   ( 0:NUMOX ) ! cloud chemistry timestep (sec)
 
       REAL( 8 ) :: ONE_OVER_TEMP     ! 1.0 / TEMP
-
 
 C...........External Functions:
 
@@ -480,15 +487,15 @@ C...........External Functions:
 
 ! statement function for intrinsic Cl2 Henry's Law Constant
 ! based on Figure A2 in Lin and Pehkonen (JGR,1998)
-      REAL(8)            ::  HINTCL2
-      REAL(8), PARAMETER ::  A_HINTCL2 = 5.67D-8
-      REAL(8), PARAMETER ::  B_HINTCL2 = 2.50D-5
-      REAL(8), PARAMETER ::  C_HINTCL2 = 3.59D-3
-      REAL(8), PARAMETER ::  D_HINTCL2 = 1.49D-1
-      REAL(8)            ::  TEMPC                ! Temperature deg Celsius
+      REAL( 8 )            :: HINTCL2
+      REAL( 8 ), PARAMETER :: A_HINTCL2 = 5.67D-8
+      REAL( 8 ), PARAMETER :: B_HINTCL2 = 2.50D-5
+      REAL( 8 ), PARAMETER :: C_HINTCL2 = 3.59D-3
+      REAL( 8 ), PARAMETER :: D_HINTCL2 = 1.49D-1
+      REAL( 8 )            :: TEMPC                ! Temperature deg Celsius
 
-      HINTCL2( TEMPC ) = A_HINTCL2 * TEMPC**3
-     &                 + B_HINTCL2 * TEMPC**2
+      HINTCL2( TEMPC ) = A_HINTCL2 * TEMPC ** 3
+     &                 + B_HINTCL2 * TEMPC ** 2
      &                 - C_HINTCL2 * TEMPC
      &                 + D_HINTCL2
 
@@ -498,7 +505,6 @@ C...........External Functions:
 #endif
 
 C*********************************************************************
-C     begin body of subroutine AQCHEM
 
 C...Initialization
 
@@ -526,11 +532,11 @@ C...  use Henry's law constant for glyoxal as a surrogate for methyl glyoxal
 
       END IF    ! FIRSTIME
 
-      ONE_OVER_TEMP = 1.0D+0 / TEMP
+      ONE_OVER_TEMP = 1.0D0 / TEMP
 
 C...check for bad temperature, cloud air mass, or pressure
 
-      IF ( TEMP .LE. 0.0D+0 .OR. AIRM .LE. 0.0D+0 .OR. PRES_PA .LE. 0.0D+0 ) THEN
+      IF ( TEMP .LE. 0.0D0 .OR. AIRM .LE. 0.0D0 .OR. PRES_PA .LE. 0.0D0 ) THEN
         XMSG = 'MET DATA ERROR'
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
       END IF
@@ -539,24 +545,24 @@ C...initialize counters and compute several conversion factors
 
       ICNTAQ     = 0
       ITERAT     = 0
-      DSIV_SCALE = 1.0D+0
+      DSIV_SCALE = 1.0D0
       RT         = ( MOLVOL / STDTEMP ) * TEMP         ! R * T (liter atm / mol)
       PRES_ATM   = PRES_PA /  STDATMPA                 ! pressure (atm)
-      CTHK1      = AIRM * RT / ( PRES_ATM * 1000.0D+0 ) ! cloud thickness (m)
+      CTHK1      = AIRM * RT / ( PRES_ATM * 1000.0D0 ) ! cloud thickness (m)
       XL         = WCAVG * RT / H2ODENS                ! conversion factor (l-atm/mol)
-      ONE_OVER_XL      = 1.0D+0 / XL
+      ONE_OVER_XL      = 1.0D0 / XL
       PRES_ATM_OVER_XL = PRES_ATM / XL
-      TST       = 0.999D+0
-      GM        = SCVEFF / 100.0D+0
-      ACT1      = 1.0D+0
-      ACT2      = 1.0D+0
-      GM2       = 1.0D+0
-      TIMEW     = 0.0D+0
-      RECIPAP1  = 1.0D+0 / PRES_ATM
-      XC1       = 1.0D+0 / ( WCAVG * CTHK1 )
-      XC2       = RT / ( 1000.0D+0 * CTHK1 )
+      TST       = 0.999D0
+      GM        = SCVEFF / 100.0D0
+      ACT1      = 1.0D0
+      ACT2      = 1.0D0
+      GM2       = 1.0D0
+      TIMEW     = 0.0D0
+      RECIPAP1  = 1.0D0 / PRES_ATM
+      XC1       = 1.0D0 / ( WCAVG * CTHK1 )
+      XC2       = RT / ( 1000.0D0 * CTHK1 )
       FRACLIQ   = WCAVG / WTAVG
-      TWASH     = WTAVG * 1000.0D+0 * CTHK1 * 3600.0D+0
+      TWASH     = WTAVG * 1000.0D0 * CTHK1 * 3600.0D0
      &          / ( H2ODENS * MAX( 1.0D-20, REAL( PRCRATE,8 ) ) )
 
 C...set equilibrium constants as a function of temperature
@@ -576,7 +582,7 @@ C...   Henry`s law constants
       MGLYH = HLCONST( MGLYSUR,            TEMP, .FALSE., 0.0 )
       HOH   = HLCONST( 'OH              ', TEMP, .FALSE., 0.0 )
 
-      TEMP1 = ONE_OVER_TEMP - 1.0D+0 / 298.0D+0
+      TEMP1 = ONE_OVER_TEMP - 1.0D0 / 298.0D0
 
 C...dissociation constants
 
@@ -595,12 +601,12 @@ C...Kinetic oxidation rates
 
 C...   From Jacobson  (1997)
 
-      RH2O2 = 7.45D+07 * EXP( -15.96D+0 * ( ( 298.0D+0 / TEMP )  - 1.0D+0 ) )
+      RH2O2 = 7.45D+07 * EXP( -15.96D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
 
 C...   From Jacobson, 1997
 
-      RMHP = 1.90D+07 * EXP( -12.75D+0 * ( ( 298.0D+0 / TEMP )  - 1.0D+0 ) )
-      RPAA = 3.60D+07 * EXP( -13.42D+0 * ( ( 298.0D+0 / TEMP )  - 1.0D+0 ) )
+      RMHP = 1.90D+07 * EXP( -12.75D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
+      RPAA = 3.60D+07 * EXP( -13.42D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
 
 C...From Carlton et al. (2007)
 
@@ -609,53 +615,53 @@ C...From Carlton et al. (2007)
 
 C...make initializations
 
-      WETDEP  = 0.0D+0
-      LOADING = 0.0D+0
-      INITGAS = 0.0D+0
+      WETDEP  = 0.0D0
+      LOADING = 0.0D0
+      INITGAS = 0.0D0
 
-      DSIVDT = 0.0D+0
-      DTW    = 0.0D+0
-      DS4    = 0.0D+0
+      DSIVDT = 0.0D0
+      DTW    = 0.0D0
+      DS4    = 0.0D0
 
-      DGLY1  = 0.0D+0
-      DMGLY1 = 0.0D+0
-      DORGC  = 0.0D+0
+      DGLY1  = 0.0D0
+      DMGLY1 = 0.0D0
+      DORGC  = 0.0D0
 !     DOH1   = 0.0
 
 C...compute fractional weights for several species
 
       TOTNIT = GAS( LHNO3 ) + AEROSOL( LNO3, ACC )
-      IF ( TOTNIT .GT. 0.0D+0 ) THEN
+      IF ( TOTNIT .GT. 0.0D0 ) THEN
         FHNO3   = GAS( LHNO3 ) / TOTNIT
         FNO3ACC = AEROSOL( LNO3, ACC ) / TOTNIT
       ELSE
-        FHNO3   = 1.0D+0
-        FNO3ACC = 0.0D+0
+        FHNO3   = 1.0D0
+        FNO3ACC = 0.0D0
       END IF
 
       TOTAMM = GAS( LNH3 ) + AEROSOL( LNH4, ACC )
-      IF ( TOTAMM .GT. 0.0D+0 ) THEN
+      IF ( TOTAMM .GT. 0.0D0 ) THEN
         FNH3    = GAS( LNH3 ) / TOTAMM
         FNH4ACC = AEROSOL( LNH4, ACC ) / TOTAMM
       ELSE
-        FNH3    = 1.0D+0
-        FNH4ACC = 0.0D+0
+        FNH3    = 1.0D0
+        FNH4ACC = 0.0D0
       END IF
 
 C...Assign fraction partitioning of FE(III) and MN(II)
 
       IF ( DARK ) THEN
-        FE_III = 0.9D+0  ! Night time, GS 01July2011
+        FE_III = 0.9D0  ! Night time, GS 01July2011
       ELSE
-        FE_III = 0.1D+0  ! Day time, GS 01July2011
+        FE_III = 0.1D0  ! Day time, GS 01July2011
       END IF
 
-      MN_II = 1.0D+0                     ! Same for day and night, GS  01July2011
+      MN_II = 1.0D0                     ! Same for day and night, GS  01July2011
 
 C...Assign solubility of Fe and Mn
 
-      FE_SOL = 0.1D+0                   ! GS 01July2011
-      MN_SOL = 0.5D+0                   ! GS 28July2011
+      FE_SOL = 0.1D0                   ! GS 01July2011
+      MN_SOL = 0.5D0                   ! GS 28July2011
 
 C...initial concentration from accumulation-mode aerosol loading (mol/liter)
 C...  an assumption is made that all of the accumulation-mode
@@ -721,33 +727,33 @@ C...dissociation constants
 
 C...used by solution for CL2 and HOCL
 
-      PHOCL_VIA_PCL2 = 0.0D+0
-      LHOCL_VIA_LCL2 = 0.0D+0
-      CL_VIA_PCL2    = 0.0D+0
-      OCL_VIA_PCL2   = 0.0D+0
-      DCL2DT         = 0.0D+0
-      DCL21          = 0.0D+0
+      PHOCL_VIA_PCL2 = 0.0D0
+      LHOCL_VIA_LCL2 = 0.0D0
+      CL_VIA_PCL2    = 0.0D0
+      OCL_VIA_PCL2   = 0.0D0
+      DCL2DT         = 0.0D0
+      DCL21          = 0.0D0
 
 C...used to track change in oxidized gaseous and particulate mercury
 
-      PREV_HGII_FINE = 0.0D+0
-      DELT_HGII_FINE = 0.0D+0
-      DELTA_HGO      = 0.0D+0
-      DELTA_HGIIGAS  = 0.0D+0
-      DELTA_ADS_HG   = 0.0D+0
-      DELTA_DADS_HG  = 0.0D+0
-      WETDEP_ADS_HG  = 0.0D+0
+      PREV_HGII_FINE = 0.0D0
+      DELT_HGII_FINE = 0.0D0
+      DELTA_HGO      = 0.0D0
+      DELTA_HGIIGAS  = 0.0D0
+      DELTA_ADS_HG   = 0.0D0
+      DELTA_DADS_HG  = 0.0D0
+      WETDEP_ADS_HG  = 0.0D0
 
 C...forms of mercuric adsorbed onto elemental carbon
 
-      SHGCL2      = 0.0D+0
-      SHGSO3      = 0.0D+0
-      SHGDISULF   = 0.0D+0
-      SHGII       = 0.0D+0
-      SHGOHP      = 0.0D+0
-      SHGHY       = 0.0D+0
-      SHGOHCL     = 0.0D+0
-      ADSORBED_HG = 0.0D+0
+      SHGCL2      = 0.0D0
+      SHGSO3      = 0.0D0
+      SHGDISULF   = 0.0D0
+      SHGII       = 0.0D0
+      SHGOHP      = 0.0D0
+      SHGHY       = 0.0D0
+      SHGOHCL     = 0.0D0
+      ADSORBED_HG = 0.0D0
 
 C...initialize mercury chemistry parameters
 
@@ -766,7 +772,7 @@ C...set aitken-mode aerosol loading (mol/liter)
 
         DO ISPC = 1, NAER
           LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * PRES_ATM_OVER_XL
-     &                         * ( 1.0D+0 - EXP( -ALFA3 * TIMEW ) )
+     &                         * ( 1.0D0 - EXP( -ALFA3 * TIMEW ) )
         END DO
 
 C...Initial gas phase partial pressures (atm)
@@ -808,32 +814,32 @@ C...   = initial partial pressure - amount deposited partial pressure
 C...Molar concentrations of soluble aerosols
 C...   = Initial amount - amount deposited  (mol/liter)
 
-        TS6COR  = MAX( LOADING( LSO4,  COR ) - WETDEP( LTS6CORL ) * XC1, 0.0D+0 )
-        NO3COR  = MAX( LOADING( LNO3,  COR ) - WETDEP( LNO3CORL ) * XC1, 0.0D+0 )
-!       NACOR   = MAX( LOADING( LNA,   COR ) - WETDEP( LNACORL  ) * XC1, 0.0D+0 ) ! SLN 29March2011
-        CLCOR   = MAX( LOADING( LCL,   COR ) - WETDEP( LCLCORL  ) * XC1, 0.0D+0 )
-        NH4COR  = MAX( LOADING( LNH4,  COR ) - WETDEP( LNH4CORL ) * XC1, 0.0D+0 )
-        SOILCOR = MAX( LOADING( LSOILC,COR ) - WETDEP( LSOILCL  ) * XC1, 0.0D+0 ) ! SLN 16March2011
-        ANTHCOR = MAX( LOADING( LANTHC,COR ) - WETDEP( LANTHCL  ) * XC1, 0.0D+0 ) ! SLN 16March2011
-        SEASCOR = MAX( LOADING( LSEASC,COR ) - WETDEP( LSEASCL  ) * XC1, 0.0D+0 ) ! SLN 16March2011
+        TS6COR  = MAX( LOADING( LSO4,  COR ) - WETDEP( LTS6CORL ) * XC1, 0.0D0 )
+        NO3COR  = MAX( LOADING( LNO3,  COR ) - WETDEP( LNO3CORL ) * XC1, 0.0D0 )
+!       NACOR   = MAX( LOADING( LNA,   COR ) - WETDEP( LNACORL  ) * XC1, 0.0D0 ) ! SLN 29March2011
+        CLCOR   = MAX( LOADING( LCL,   COR ) - WETDEP( LCLCORL  ) * XC1, 0.0D0 )
+        NH4COR  = MAX( LOADING( LNH4,  COR ) - WETDEP( LNH4CORL ) * XC1, 0.0D0 )
+        SOILCOR = MAX( LOADING( LSOILC,COR ) - WETDEP( LSOILCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
+        ANTHCOR = MAX( LOADING( LANTHC,COR ) - WETDEP( LANTHCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
+        SEASCOR = MAX( LOADING( LSEASC,COR ) - WETDEP( LSEASCL  ) * XC1, 0.0D0 ) ! SLN 16March2011
 
 
-        FECOR   = 0.0281D+0  * (100.0D+0/55.8D+0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
-     &          + 0.0467D+0  * (100.0D+0/55.8D+0) * ANTHCOR / ( 1.0 - 0.00325 )
-        MNCOR   = 0.00078D+0 * (100.0D+0/54.9D+0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
-     &          + 0.0011D+0  * (100.0D+0/54.9D+0) * ANTHCOR / ( 1.0 - 0.00325 )
-        NACOR   = 0.8373D+0  * ( 23.0D+0/23.0D+0) * SEASCOR                         ! SLN 29March2011
-     &          + 0.0652D+0  * (100.0D+0/23.0D+0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0023D+0  * (100.0D+0/23.0D+0) * ANTHCOR / ( 1.0 - 0.00325 )
-        MGCOR   = 0.0997D+0  * ( 23.0D+0/24.3D+0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0000D+0  * (100.0D+0/24.3D+0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0032D+0  * (100.0D+0/24.3D+0) * ANTHCOR / ( 1.0 - 0.00325 )
-        CACOR   = 0.0320D+0  * ( 23.0D+0/40.1D+0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0872D+0  * (100.0D+0/40.1D+0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0562D+0  * (100.0D+0/40.1D+0) * ANTHCOR / ( 1.0 - 0.00325 )
-        KCOR    = 0.0310D+0  * ( 23.0D+0/39.1D+0) * SEASCOR                         ! SLN 16March2011
-     &          + 0.0252D+0  * (100.0D+0/39.1D+0) * SOILCOR / ( 1.0 - 0.04642 )
-     &          + 0.0176D+0  * (100.0D+0/39.1D+0) * ANTHCOR / ( 1.0 - 0.00325 )
+        FECOR   = 0.0281D0  * (100.0D0/55.8D0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
+     &          + 0.0467D0  * (100.0D0/55.8D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        MNCOR   = 0.00078D0 * (100.0D0/54.9D0) * SOILCOR / ( 1.0 - 0.04642 )     ! SLN 22March2011
+     &          + 0.0011D0  * (100.0D0/54.9D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        NACOR   = 0.8373D0  * ( 23.0D0/23.0D0) * SEASCOR                         ! SLN 29March2011
+     &          + 0.0652D0  * (100.0D0/23.0D0) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0023D0  * (100.0D0/23.0D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        MGCOR   = 0.0997D0  * ( 23.0D0/24.3D0) * SEASCOR                         ! SLN 16March2011
+     &          + 0.0000D0  * (100.0D0/24.3D0) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0032D0  * (100.0D0/24.3D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        CACOR   = 0.0320D0  * ( 23.0D0/40.1D0) * SEASCOR                         ! SLN 16March2011
+     &          + 0.0872D0  * (100.0D0/40.1D0) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0562D0  * (100.0D0/40.1D0) * ANTHCOR / ( 1.0 - 0.00325 )
+        KCOR    = 0.0310D0  * ( 23.0D0/39.1D0) * SEASCOR                         ! SLN 16March2011
+     &          + 0.0252D0  * (100.0D0/39.1D0) * SOILCOR / ( 1.0 - 0.04642 )
+     &          + 0.0176D0  * (100.0D0/39.1D0) * ANTHCOR / ( 1.0 - 0.00325 )
 
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
@@ -858,44 +864,42 @@ C...   = Initial amount - amount deposited  (mol/liter)
         PRIM    = LOADING( LPRI,  ACC ) + LOADING( LPRI,  AKN ) - WETDEP( LPRIML ) * XC1
 !       PRIMCOR = LOADING( LPRICOR, COR ) - WETDEP( LPRIMCORL ) * XC1
         NUMCOR  = LOADING( LNUM,  COR ) - WETDEP( LNUMCORL  ) * XC1
-!       A       = 3.0D+0 * FE
-!       B       = 2.0D+0 * MN
+!       A       = 3.0D0 * FE
+!       B       = 2.0D0 * MN
 
-C       FE_OX = 0.5D+0 * 0.62D+0 * FE      ! SLN 28March2011
-C       MN_OX = 1.0D+0 * 0.84D+0 * MN      ! SLN 28March2011
+!       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
+!       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
+
+C...don't allow aerosol concentrations to go below zero
+
+        TS6     = MAX( TS6,     0.0D0 )
+        NA      = MAX( NA,      0.0D0 )
+        CA      = MAX( CA,      0.0D0 )
+        MG      = MAX( MG,      0.0D0 )
+        K       = MAX( K,       0.0D0 )
+        FE      = MAX( FE,      0.0D0 )
+        MN      = MAX( MN,      0.0D0 )
+        SOA     = MAX( SOA,     0.0D0 )
+        ORGC    = MAX( ORGC,    0.0D0 )
+        POA     = MAX( POA,     0.0D0 )
+        EC      = MAX( EC,      0.0D0 )
+        PRIM    = MAX( PRIM,    0.0D0 )
+!       PRIMCOR = MAX( PRIMCOR, 0.0D0 )
+        NUMCOR  = MAX( NUMCOR,  0.0D0 )
 
         FE_OX = FE_III * FE_SOL * FE     ! GS 01July2011
         MN_OX = MN_II  * MN_SOL * MN     ! GS 01July2011
 
-        A = 3.0D+0 * FE_OX
-        B = 2.0D+0 * MN_OX
-
-C...don't allow aerosol concentrations to go below zero
-
-        TS6     = MAX( TS6,     0.0D+0 )
-        NA      = MAX( NA,      0.0D+0 )
-        CA      = MAX( CA,      0.0D+0 )
-        MG      = MAX( MG,      0.0D+0 )
-        K       = MAX( K,       0.0D+0 )
-        FE      = MAX( FE,      0.0D+0 )
-        MN      = MAX( MN,      0.0D+0 )
-        SOA     = MAX( SOA,     0.0D+0 )
-        ORGC    = MAX( ORGC,    0.0D+0 )
-        POA     = MAX( POA,     0.0D+0 )
-        EC      = MAX( EC,      0.0D+0 )
-        PRIM    = MAX( PRIM,    0.0D+0 )
-!       PRIMCOR = MAX( PRIMCOR, 0.0D+0 )
-        NUMCOR  = MAX( NUMCOR,  0.0D+0 )
-        A       = MAX( A,       0.0D+0 )
-        B       = MAX( B,       0.0D+0 )
+        A = 3.0D0 * FE_OX
+        B = 2.0D0 * MN_OX
 
         SK6TS6 = SK6 * TS6
 
 C...find solution of the equation using a method of reiterative
 C...  bisections Make initial guesses for pH:   between .01  to  10.
 
-        HA =  0.01D+0
-        HB = 10.0D+0
+        HA =  0.01D0
+        HB = 10.0D0
 
 C...For TXHG Version perturb HCL with CL2 dissociation
 
@@ -921,7 +925,7 @@ C...Gas Species specific to TXHG Versions
 C...don't allow gas concentrations to go below zero
 
         DO IGAS = 1, NGAS
-          INITGAS( IGAS ) = MAX( INITGAS( IGAS ), 0.0D+0 )
+          INITGAS( IGAS ) = MAX( INITGAS( IGAS ), 0.0D0 )
         END DO
 
 C...Aerosol specific to TXHG Versions
@@ -953,13 +957,13 @@ C...Concentrations of sorbed Hg species = Initial amount - amount deposited  (mo
         SHGOHCL   = DHG( ISHGOHCL ) - DHG( IDHGOHCL )
      &            - WETDEP( LSHGOHCLL ) * XC1
 
-        SHGCL2    = MAX( SHGCL2,    0.0D+0 )
-        SHGSO3    = MAX( SHGSO3,    0.0D+0 )
-        SHGDISULF = MAX( SHGDISULF, 0.0D+0 )
-        SHGII     = MAX( SHGII,     0.0D+0 )
-        SHGOHP    = MAX( SHGOHP,    0.0D+0 )
-        SHGHY     = MAX( SHGHY,     0.0D+0 )
-        SHGOHCL   = MAX( SHGOHCL,   0.0D+0 )
+        SHGCL2    = MAX( SHGCL2,    0.0D0 )
+        SHGSO3    = MAX( SHGSO3,    0.0D0 )
+        SHGDISULF = MAX( SHGDISULF, 0.0D0 )
+        SHGII     = MAX( SHGII,     0.0D0 )
+        SHGOHP    = MAX( SHGOHP,    0.0D0 )
+        SHGHY     = MAX( SHGHY,     0.0D0 )
+        SHGOHCL   = MAX( SHGOHCL,   0.0D0 )
 
         WETDEP_ADS_HG = WETDEP( LSHGCL2L )
      &                + WETDEP( LSHGSO3L )
@@ -970,16 +974,16 @@ C...Concentrations of sorbed Hg species = Initial amount - amount deposited  (mo
      &                + WETDEP( LSHGOHCLL )
 
         HGCOR     = LOADING( LPHG_COR, COR ) - WETDEP( LPHGCORL ) * XC1
-        HGCOR     = MAX( HGCOR ,     0.0D+0 )
+        HGCOR     = MAX( HGCOR ,     0.0D0 )
 
-        TRACER    = MAX( TRACER,    0.0D+0 )
-        TRACERCOR = MAX( TRACERCOR, 0.0D+0 )
+        TRACER    = MAX( TRACER,    0.0D0 )
+        TRACERCOR = MAX( TRACERCOR, 0.0D0 )
 
 C...Determine the change in HGII_FINE and update previous value
 C...HGII_FINE deposition is accounted above by the depostion of adsorbed mercury.
 
         HGII_FINE       = LOADING( LPHG,  ACC ) + LOADING( LPHG,  AKN )
-!        DELT_HGII_FINE  = MAX(HGII_FINE - PREV_HGII_FINE, 0.0D+0)
+!       DELT_HGII_FINE  = MAX(HGII_FINE - PREV_HGII_FINE, 0.0D0)
         DELT_HGII_FINE  = HGII_FINE - PREV_HGII_FINE
         PREV_HGII_FINE  = HGII_FINE
 
@@ -990,28 +994,28 @@ C...HGII_FINE deposition is accounted above by the depostion of adsorbed mercury
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
           END IF
 
-          HA = MAX( HA - 0.8D+0, 0.1D+0 )
-          HB = MIN( HB + 0.8D+0, 9.9D+0 )
-          AE = 10.0D+0 ** ( -HA )
+          HA = MAX( HA - 0.8D0, 0.1D0 )
+          HB = MIN( HB + 0.8D0, 9.9D0 )
+          AE = 10.0D0 ** ( -HA )
 
-          RECIPA1 = 1.0D+0 / ( AE * ACT1 )
-          RECIPA2 = 1.0D+0 / ( AE * AE * ACT2 )
+          RECIPA1 = 1.0D0 / ( AE * ACT1 )
+          RECIPA2 = 1.0D0 / ( AE * AE * ACT2 )
 
 C...calculate final gas phase partial pressure of SO2, NH3, HNO3
 C...  HCOOH, and CO2 (atm)
 
-          PSO2F = INITGAS( LSO2 ) / ( 1.0D+0 + XLSO2 * ( 1.0D+0 + SO21 * RECIPA1
+          PSO2F = INITGAS( LSO2 ) / ( 1.0D0 + XLSO2 * ( 1.0D0 + SO21 * RECIPA1
      &          + SO212 * RECIPA2 ) )
 
-          PNH3F = INITGAS( LNH3 ) / ( 1.0D+0 + XLNH3 * ( 1.0D+0 + NH3DH20 * AE ) )
+          PNH3F = INITGAS( LNH3 ) / ( 1.0D0 + XLNH3 * ( 1.0D0 + NH3DH20 * AE ) )
 
-          PHCLF = INITGAS( LHCL ) / ( 1.0D+0 + XLHCL *  ( 1.0D+0 + HCL1 * RECIPA1 ) )
+          PHCLF = INITGAS( LHCL ) / ( 1.0D0 + XLHCL *  ( 1.0D0 + HCL1 * RECIPA1 ) )
 
-          PFOAF = INITGAS( LFOA ) / ( 1.0D+0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
+          PFOAF = INITGAS( LFOA ) / ( 1.0D0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
 
-          PHNO3F = INITGAS( LHNO3 ) / ( 1.0D+0 + XLHNO3 * ( 1.0D+0 + HNO31 * RECIPA1 ) )
+          PHNO3F = INITGAS( LHNO3 ) / ( 1.0D0 + XLHNO3 * ( 1.0D0 + HNO31 * RECIPA1 ) )
 
-          PCO2F = INITGAS( LCO2 ) / ( 1.0D+0 + XLCO2 * ( 1.0D+0 + CO21 * RECIPA1
+          PCO2F = INITGAS( LCO2 ) / ( 1.0D0 + XLCO2 * ( 1.0D0 + CO21 * RECIPA1
      &          + CO212 * RECIPA2 ) )
 
 C...calculate liquid phase concentrations (moles/liter)
@@ -1030,15 +1034,15 @@ C...calculate liquid phase concentrations (moles/liter)
 
 C...compute functional value
 
-!         FA = AE + NH4 + NA + 2.0D+0 * ( CA + MG - CO3 - SO3 - SO4 )
+!         FA = AE + NH4 + NA + 2.0D0 * ( CA + MG - CO3 - SO3 - SO4 )
 !    &       - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
-          FA = AE + NH4 + NA + K + 2.0D+0 * ( CA + MG - CO3 - SO3 - SO4 )  ! SLN 16March2011
+          FA = AE + NH4 + NA + K + 2.0D0 * ( CA + MG - CO3 - SO3 - SO4 )  ! SLN 16March2011
      &       - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
 
 C...For TXHG Version gases
 
-          PHO2F  = INITGAS( LHO2 ) / ( 1.0D+0 + XLHO2 * ( 1.0D+0 + HO21 * RECIPA1 ) )
-          PHOCLF = INITGAS( LHOCL ) / ( 1.0D+0 + XLHOCL * ( 1.0D+0 + HOCL1 * RECIPA1 ) )
+          PHO2F  = INITGAS( LHO2 ) / ( 1.0D0 + XLHO2 * ( 1.0D0 + HO21 * RECIPA1 ) )
+          PHOCLF = INITGAS( LHOCL ) / ( 1.0D0 + XLHOCL * ( 1.0D0 + HOCL1 * RECIPA1 ) )
 
 C...compute dissolved O2 ion
 
@@ -1047,26 +1051,26 @@ C...compute dissolved O2 ion
 C..calculate how CL ion and pH effect on PCL2
 
           CL_SAFE  = MAX( CL, 1.0D-10)
-          RECIPCL1 = 1.0D+0 / ( CL_SAFE * ACT1 )
-          RECIPCL2 = 1.0D+0 / ( CL_SAFE * CL_SAFE * ACT2 )
+          RECIPCL1 = 1.0D0 / ( CL_SAFE * ACT1 )
+          RECIPCL2 = 1.0D0 / ( CL_SAFE * CL_SAFE * ACT2 )
 
-          CL2H_COF  = 1.0D+0
+          CL2H_COF  = 1.0D0
      &              + CL21 * RECIPCL1 * RECIPA1
      &              + CL2_HOCL1 * RECIPCL1 * RECIPA2
 
           HEFFCL2 = CL2H * CL2H_COF
 
-          PCl2F = INITGAS( LCL2 ) / ( 1.0D+0 + XL * CL2H * CL2H_COF )
+          PCl2F = INITGAS( LCL2 ) / ( 1.0D0 + XL * CL2H * CL2H_COF )
 
-          CL_VIA_PCL2  = CL2H * (CL2H_COF - 1.0D+0 ) * PCL2F
+          CL_VIA_PCL2  = CL2H * ( CL2H_COF - 1.0D0 ) * PCL2F
           OCL_VIA_PCL2 = CL2_HOCL1 * CL2H * RECIPCL1 * RECIPA2 * PCL2F
 
 C...Correct CL and calculate OCL
 
           CL_TOTAL = ( CL + CL_VIA_PCL2 )
           CL_SAFE  = MAX( CL_TOTAL, 1.0D-10 )
-          RECIPCL1 = 1.0D+0 / ( CL_SAFE * ACT1 )
-          RECIPCL2 = 1.0D+0 / ( CL_SAFE * CL_SAFE * ACT2 )
+          RECIPCL1 = 1.0D0 / ( CL_SAFE * ACT1 )
+          RECIPCL2 = 1.0D0 / ( CL_SAFE * CL_SAFE * ACT2 )
           OCL      = HOCL1 * HOCLH  * PHOCLF  * RECIPA1
           OCL_TOTAL = OCL + OCL_VIA_PCL2
 
@@ -1075,9 +1079,9 @@ C...Calculate Mercury Gas to Liquid Partitioning
           HEFFHGCL2 =  XLHGCL2
      &              *  HGCL2_FACTOR_HLCONST( SO3, OH, CL_TOTAL, ACT2 )
 
-          PHGIIGASF = INITGAS( LHGIIGAS )  / ( 1.0D+0 + HEFFHGCL2 )
+          PHGIIGASF = INITGAS( LHGIIGAS ) / ( 1.0D0 + HEFFHGCL2 )
 
-          PHGF      = INITGAS( LHG ) / ( 1.0D+0 + XLHG )
+          PHGF      = INITGAS( LHG ) / ( 1.0D0 + XLHG )
 
 
 C...adjust functional value for CL2 effects
@@ -1085,7 +1089,6 @@ C...adjust functional value for CL2 effects
           FA = FA - CL_VIA_PCL2 - O2 - OCL_TOTAL
 
 C...Start iteration and bisection ****************<<<<<<<
-
           DO I30C = 1, 10000
 
             IF ( I30C .GE. 10000 ) THEN
@@ -1093,8 +1096,8 @@ C...Start iteration and bisection ****************<<<<<<<
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
-            BB = ( HA + HB ) / 2.0D+0
-            AE = 10.0D+0 ** ( -BB )
+            BB = ( HA + HB ) / 2.0D0
+            AE = 10.0D0 ** ( -BB )
 
             ICNTAQ = ICNTAQ + 1
             IF ( ICNTAQ .GE. 60000 ) THEN
@@ -1102,24 +1105,24 @@ C...Start iteration and bisection ****************<<<<<<<
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
-            RECIPA1 = 1.0D+0 / ( AE * ACT1 )
-            RECIPA2 = 1.0D+0 / ( AE * AE * ACT2 )
+            RECIPA1 = 1.0D0 / ( AE * ACT1 )
+            RECIPA2 = 1.0D0 / ( AE * AE * ACT2 )
 
 C...calculate final gas phase partial pressure of SO2, NH3, HCL, HNO3
 C...  HCOOH, and CO2 (atm)
 
-            PSO2F = INITGAS( LSO2 ) / ( 1.0D+0 + XLSO2
-     &            * ( 1.0D+0 + SO21 * RECIPA1 + SO212 * RECIPA2 ) )
+            PSO2F = INITGAS( LSO2 ) / ( 1.0D0 + XLSO2
+     &            * ( 1.0D0 + SO21 * RECIPA1 + SO212 * RECIPA2 ) )
 
-            PNH3F = INITGAS( LNH3 ) / ( 1.0D+0 + XLNH3 * ( 1.0D+0 + NH3DH20 * AE ) )
+            PNH3F = INITGAS( LNH3 ) / ( 1.0D0 + XLNH3 * ( 1.0D0 + NH3DH20 * AE ) )
 
-            PHCLF = INITGAS( LHCL ) / ( 1.0D+0 + XLHCL *  ( 1.0D+0 + HCL1 * RECIPA1 ) )
+            PHCLF = INITGAS( LHCL ) / ( 1.0D0 + XLHCL *  ( 1.0D0 + HCL1 * RECIPA1 ) )
 
-            PHNO3F = INITGAS( LHNO3 ) / ( 1.0D+0 + XLHNO3 * ( 1.0D+0 + HNO31 * RECIPA1 ) )
+            PHNO3F = INITGAS( LHNO3 ) / ( 1.0D0 + XLHNO3 * ( 1.0D0 + HNO31 * RECIPA1 ) )
 
-            PFOAF = INITGAS( LFOA ) / ( 1.0D+0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
+            PFOAF = INITGAS( LFOA ) / ( 1.0D0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
 
-            PCO2F = INITGAS( LCO2 ) / ( 1.0D+0 + XLCO2 * ( 1.0D+0 + CO21 * RECIPA1
+            PCO2F = INITGAS( LCO2 ) / ( 1.0D0 + XLCO2 * ( 1.0D0 + CO21 * RECIPA1
      &            + CO212 * RECIPA2 ) )
 
 C...calculate liquid phase concentrations (moles/liter)
@@ -1137,15 +1140,15 @@ C...calculate liquid phase concentrations (moles/liter)
             CL   = HCL1H   * PHCLF  * RECIPA1 ! new for sea salt
 
 C...compute functional value
-!           FB = AE + NH4 + NA + 2.0D+0 * ( CA + MG - CO3 - SO3 - SO4 )
+!           FB = AE + NH4 + NA + 2.0D0 * ( CA + MG - CO3 - SO3 - SO4 )
 !    &         - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
-            FB = AE + NH4 + NA + K + 2.0D+0 * ( CA + MG - CO3 - SO3 - SO4 )  ! SLN 16March2011
+            FB = AE + NH4 + NA + K + 2.0D0 * ( CA + MG - CO3 - SO3 - SO4 )  ! SLN 16March2011
      &         - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
 
 C...For TXHG Version
 
-            PHO2F  = INITGAS( LHO2 ) / ( 1.0D+0 + XLHO2 * ( 1.0D+0 + HO21 * RECIPA1 ) )
-            PHOCLF = INITGAS( LHOCL ) / ( 1.0D+0 + XLHOCL * ( 1.0D+0 + HOCL1 * RECIPA1 ) )
+            PHO2F  = INITGAS( LHO2 ) / ( 1.0D0 + XLHO2 * ( 1.0D0 + HO21 * RECIPA1 ) )
+            PHOCLF = INITGAS( LHOCL ) / ( 1.0D0 + XLHOCL * ( 1.0D0 + HOCL1 * RECIPA1 ) )
 
 C...compute dissolved O2 ion
 
@@ -1154,26 +1157,26 @@ C...compute dissolved O2 ion
 !..calculate how CL ion and pH effect on PCL2
 
             CL_SAFE  = MAX( CL, 1.0D-10 )
-            RECIPCL1 = 1.0D+0 / ( CL_SAFE * ACT1 )
-            RECIPCL2 = 1.0D+0 / ( CL_SAFE * CL_SAFE * ACT2 )
+            RECIPCL1 = 1.0D0 / ( CL_SAFE * ACT1 )
+            RECIPCL2 = 1.0D0 / ( CL_SAFE * CL_SAFE * ACT2 )
 
-            CL2H_COF  = 1.0D+0
+            CL2H_COF  = 1.0D0
      &                + CL21 * RECIPCL1 * RECIPA1
      &                + CL2_HOCL1 * RECIPCL1 * RECIPA2
 
             HEFFCL2 = CL2H * CL2H_COF
 
-            PCl2F   = INITGAS( LCL2 ) / ( 1.0D+0 + XL * CL2H * CL2H_COF )
+            PCl2F   = INITGAS( LCL2 ) / ( 1.0D0 + XL * CL2H * CL2H_COF )
 
-            CL_VIA_PCL2  = CL2H * ( CL2H_COF - 1.0D+0 ) * PCL2F
+            CL_VIA_PCL2  = CL2H * ( CL2H_COF - 1.0D0 ) * PCL2F
             OCL_VIA_PCL2 = CL2_HOCL1 * CL2H * RECIPCL1 * RECIPA2 * PCL2F
 
 C...Correct CL and calculate OCL
 
             CL_TOTAL = ( CL + CL_VIA_PCL2 )
             CL_SAFE  = MAX( CL_TOTAL, 1.0D-10 )
-            RECIPCL1 = 1.0D+0 / ( CL_SAFE * ACT1 )
-            RECIPCL2 = 1.0D+0 / ( CL_SAFE * CL_SAFE * ACT2 )
+            RECIPCL1 = 1.0D0 / ( CL_SAFE * ACT1 )
+            RECIPCL2 = 1.0D0 / ( CL_SAFE * CL_SAFE * ACT2 )
             OCL      = HOCL1 * HOCLH  * PHOCLF  * RECIPA1
             OCL_TOTAL = OCL + OCL_VIA_PCL2
 
@@ -1182,9 +1185,9 @@ C...Calculate Mercuric Gas to Liquid Partitioning
             HEFFHGCL2 =  XLHGCL2
      &                *  HGCL2_FACTOR_HLCONST( SO3, OH, CL_TOTAL, ACT2 )
 
-            PHGIIGASF = INITGAS( LHGIIGAS ) / ( 1.0D+0 + HEFFHGCL2 )
+            PHGIIGASF = INITGAS( LHGIIGAS ) / ( 1.0D0 + HEFFHGCL2 )
 
-            PHGF      = INITGAS( LHG ) / ( 1.0D+0 + XLHG )
+            PHGF      = INITGAS( LHG ) / ( 1.0D0 + XLHG )
 
 C...adjust functional value for CL2 effects
 
@@ -1193,7 +1196,7 @@ C...adjust functional value for CL2 effects
 C...Calculate and check the sign of the product of the two functional values
 
             FTST = FA * FB
-            IF ( FTST .LE. 0.0D+0 ) THEN
+            IF ( FTST .LE. 0.0D0 ) THEN
               HB = BB
             ELSE
               HA = BB
@@ -1210,22 +1213,22 @@ C...end of zero-finding routine ****************<<<<<<<<<<<<
 
 C...compute Ionic strength and activity coefficient by the Davies equation
 
-          STION = 0.5D+0
+          STION = 0.5D0
      &          * ( AE + NH4 + OH + HCO3 + HSO3
-     &              + 4.0D+0 * ( SO4 + CO3 + SO3 + CA + MG + MN_OX )
-     &              + NO3 + HSO4 + 9.0D+0 * FE_OX + NA + K + CL + A + B + HCO2 ) ! KMF 08September2011
-C     &              + 4.0D+0 * ( SO4 + CO3 + SO3 + CA + MG + MN )
-C     &              + NO3 + HSO4 + 9.0D+0 * FE + NA + K + CL + A + B + HCO2 )
+     &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN_OX )
+     &              + NO3 + HSO4 + 9.0D0 * FE_OX + NA + K + CL + A + B + HCO2 ) ! KMF 08September2011
+C     &              + 4.0D0 * ( SO4 + CO3 + SO3 + CA + MG + MN )
+C     &              + NO3 + HSO4 + 9.0D0 * FE + NA + K + CL + A + B + HCO2 )
 
 C...for TXHG Version ionic stength for CL2 effects
 
-          STION = STION + ( 0.5D+0 * ( O2 + CL_VIA_PCL2 + OCL_TOTAL ) )
+          STION = STION + ( 0.5D0 * ( O2 + CL_VIA_PCL2 + OCL_TOTAL ) )
 
-          GM1LOG = -0.509D+0 * ( SQRT( STION )
-     &           / ( 1.0D+0 + SQRT( STION ) ) - 0.2D+0 * STION )
-          GM2LOG = GM1LOG * 4.0D+0
-          GM1  = 10.0D+0 ** GM1LOG
-          GM2  = MAX( 10.0D+0 ** GM2LOG, 1.0D-30 )
+          GM1LOG = -0.509D0 * ( SQRT( STION )
+     &           / ( 1.0D0 + SQRT( STION ) ) - 0.2D0 * STION )
+          GM2LOG = GM1LOG * 4.0D0
+          GM1  = 10.0D0 ** GM1LOG
+          GM2  = MAX( 10.0D0 ** GM2LOG, 1.0D-30 )
           ACTB = ACT1
           ACT1 = MAX( GM1 * GM1, 1.0D-30 )
           ACT2 = MAX( GM1 * GM1 * GM2, 1.0D-30 )
@@ -1277,8 +1280,8 @@ C...  Gas and liquid phase concentrations
 
 C...return an error if the pH is not in range
 
-        IF ( ( HA .LT. 0.1D+0 ) .OR. ( HA .GT. 9.9D+0 ) ) THEN
-!         print *, ha
+        IF ( ( HA .LT. 0.1D0 ) .OR. ( HA .GT. 9.9D0 ) ) THEN
+!         write( logdev,* ) ha
           XMSG = 'PH VALUE OUT OF RANGE'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
         END IF
@@ -1287,23 +1290,23 @@ C...Make those concentration calculations which can be made outside
 C...  of the function.
 
         SO2L = SO2H * PSO2F
-        HPLUS = 10.0D+0 ** ( -BB )
+        HPLUS = 10.0D0 ** ( -BB )
         SIV = SO3 + HSO3 + SO2L
 
 C...Calculate final gas phase concentrations of oxidants (atm)
 
-        PH2O2F = ( INITGAS( LH2O2 ) + XL * DS4( 1 ) ) / ( 1.0D+0 + XLH2O2 )
-        PO3F   = ( INITGAS( LO3 )   + XL * DS4( 2 ) ) / ( 1.0D+0 + XLO3   )
-        PMHPF  = ( INITGAS( LMHP )  + XL * DS4( 4 ) ) / ( 1.0D+0 + XLMHP  )
-        PPAAF  = ( INITGAS( LPAA )  + XL * DS4( 5 ) ) / ( 1.0D+0 + XLPAA  )
-        PGLYF  = ( INITGAS( LGLY )                  ) / ( 1.0D+0 + GLYH * XL )
-        PMGLYF = ( INITGAS( LMGLY )                 ) / ( 1.0D+0 + MGLYH * XL )
-        PHOF   = ( INITGAS( LHO )                   ) / ( 1.0D+0 + HOH * XL)
+        PH2O2F = ( INITGAS( LH2O2 ) + XL * DS4( 1 ) ) / ( 1.0D0 + XLH2O2 )
+        PO3F   = ( INITGAS( LO3 )   + XL * DS4( 2 ) ) / ( 1.0D0 + XLO3   )
+        PMHPF  = ( INITGAS( LMHP )  + XL * DS4( 4 ) ) / ( 1.0D0 + XLMHP  )
+        PPAAF  = ( INITGAS( LPAA )  + XL * DS4( 5 ) ) / ( 1.0D0 + XLPAA  )
+        PGLYF  = ( INITGAS( LGLY )                  ) / ( 1.0D0 + GLYH * XL )
+        PMGLYF = ( INITGAS( LMGLY )                 ) / ( 1.0D0 + MGLYH * XL )
+        PHOF   = ( INITGAS( LHO )                   ) / ( 1.0D0 + HOH * XL)
 
-        PH2O2F = MAX( PH2O2F, 0.0D+0 )
-        PO3F   = MAX( PO3F,   0.0D+0 )
-        PMHPF  = MAX( PMHPF,  0.0D+0 )
-        PPAAF  = MAX( PPAAF,  0.0D+0 )
+        PH2O2F = MAX( PH2O2F, 0.0D0 )
+        PO3F   = MAX( PO3F,   0.0D0 )
+        PMHPF  = MAX( PMHPF,  0.0D0 )
+        PPAAF  = MAX( PPAAF,  0.0D0 )
 
 C...Calculate liquid phase concentrations of oxidants (moles/liter)
 
@@ -1345,7 +1348,7 @@ C... Mercuric liquid phase concentrations (moles/liter)
 C...Speciate liquid particulate phase mercury into adsorbed species
 C...and add to change array
 
-        IF ( TOTAL_LHGIIGAS .GT. 0.0D+0 ) THEN
+        IF ( TOTAL_LHGIIGAS .GT. 0.0D0 ) THEN
 
 C....based on speciation of liquid HGII via HGIIGAS
 
@@ -1360,7 +1363,7 @@ C....based on speciation of liquid HGII via HGIIGAS
 
         ELSE ! evenly into various species
 
-          SPECIATE  = DELT_HGII_FINE / 7.0D+0
+          SPECIATE  = DELT_HGII_FINE / 7.0D0
           AHGCL2    = SPECIATE
           AHGII     = SPECIATE
           AHGSO3    = SPECIATE
@@ -1392,20 +1395,20 @@ C...Update adsorbed species and their differentials
 C...compute modal concentrations
 
         SO4COR  = SK6 * TS6COR / ( AE * GM2 + SK6 )
-        HSO4COR = MAX( TS6COR - SO4COR, 0.0D+0 )
+        HSO4COR = MAX( TS6COR - SO4COR, 0.0D0 )
 
-        TS6ACC  = MAX( TS6  - TS6COR,   0.0D+0 )
-        SO4ACC  = MAX( SO4  - SO4COR,   0.0D+0 )
-        HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D+0 )
-        NO3ACC  = MAX( NO3  - NO3COR,   0.0D+0 )
-        NAACC   = MAX( NA   - NACOR,    0.0D+0 )
-        CLACC   = MAX( CL   - CLCOR,    0.0D+0 )
-        NH4ACC  = MAX( NH4  - NH4COR,   0.0D+0 )
-        CAACC   = MAX( CA   - CACOR,    0.0D+0 ) ! AE6
-        MGACC   = MAX( MG   - MGCOR,    0.0D+0 ) ! AE6
-        KACC    = MAX( K    - KCOR,     0.0D+0 ) ! AE6
-        FEACC   = MAX( FE   - FECOR,    0.0D+0 ) ! AE6
-        MNACC   = MAX( MN   - MNCOR,    0.0D+0 ) ! AE6
+        TS6ACC  = MAX( TS6  - TS6COR,   0.0D0 )
+        SO4ACC  = MAX( SO4  - SO4COR,   0.0D0 )
+        HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D0 )
+        NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
+        NAACC   = MAX( NA   - NACOR,    0.0D0 )
+        CLACC   = MAX( CL   - CLCOR,    0.0D0 )
+        NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
+        CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6
+        MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6
+        KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
+        FEACC   = MAX( FE   - FECOR,    0.0D0 ) ! AE6
+        MNACC   = MAX( MN   - MNCOR,    0.0D0 ) ! AE6
 
 C...load the liquid concentration array with current values
 
@@ -1489,7 +1492,7 @@ C...Update for CL2 effects
 
         LHOCL_VIA_LCL2 = LHOCL_VIA_LCL2  + CL2H * ( CL2H_COF - 1.0 ) * PCL2F
         CL_VIA_PCL2    = LHOCL_VIA_LCL2
-        HOCL_L         = HOCL_L + CL2H * ( CL2H_COF - 1.0D+0 ) * PCL2F
+        HOCL_L         = HOCL_L + CL2H * ( CL2H_COF - 1.0D0 ) * PCL2F
         OCL            = OCL    + CL2H * CL2_HOCL1 * RECIPCL1 * RECIPA2 * PCL2F
 
 C...if the maximum cloud lifetime has not been reached, then compute
@@ -1500,10 +1503,10 @@ C...  the next timestep, else exit loop 20.
 C...make kinetics calculations
 C...  note: DS4(i) and DSIV(I) are negative numbers!
 
-        DTRMV = 300.0
+        DTRMV = TAUCLD / 3.0D0
         IF ( ( CTHK1 .GT. 1.0D-10 ) .AND. ( PRCRATE .GT. 1.0D-10 ) )
-     &     DTRMV = 3.6D+0 * WTAVG * 1000.0D+0 * CTHK1 / PRCRATE  ! <<<uma found bug, was .36
-        DTRMV = MIN( DTRMV, 300.0D+0 )
+     &     DTRMV = 3.6D0 * WTAVG * 1000.0D0 * CTHK1 / PRCRATE  ! <<<uma found bug, was .36
+        DTRMV = MIN( DTRMV, 300.0D0 )
         ITERAT = ITERAT + 1
 
 C...Define the total S(iv) available for oxidation
@@ -1512,71 +1515,71 @@ C...Define the total S(iv) available for oxidation
 
 C...Calculate sulfur iv oxidation rate due to H2O2 (Jacobson, 1997)
 
-        DSIVDT( 1 ) = -RH2O2 * H2O2L * HSO3 * HPLUS / ( 1.0D+0 + 13.0D+0 * HPLUS )
+        DSIVDT( 1 ) = -RH2O2 * H2O2L * HSO3 * HPLUS / ( 1.0D0 + 13.0D0 * HPLUS )
         TH2O2 = INITGAS( LH2O2 ) * ONE_OVER_XL
-        IF ( ( DSIVDT( 1 ) .EQ. 0.0D+0 ) .OR.
+        IF ( ( DSIVDT( 1 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
      &       ( TH2O2 .LE. CONMIN ) ) THEN
           DTW( 1 ) = DTRMV
         ELSE
-          DTW( 1 ) = -0.05D+0 * MIN( TH2O2, TSIV ) / DSIVDT( 1 )
+          DTW( 1 ) = -0.05D0 * MIN( TH2O2, TSIV ) / DSIVDT( 1 )
         END IF
 
 C...Calculate sulfur iv oxidation rate due to O3 (Jacobson, 1997)
 
         DSIVDT( 2 ) = -( 2.4D4 * SO2L                                          +
-     &                   3.7D5 * EXP( -18.56 * ( ( 298.0D+0 / TEMP ) - 1.0D+0 ) ) * HSO3 +
-     &                   1.5D9 * EXP( -17.72 * ( ( 298.0D+0 / TEMP ) - 1.0D+0 ) ) * SO3 ) * O3L
+     &                   3.7D5 * EXP( -18.56 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * HSO3 +
+     &                   1.5D9 * EXP( -17.72 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) ) * SO3 ) * O3L
 
         TO3 = INITGAS( LO3 ) * ONE_OVER_XL
-        IF ( ( DSIVDT( 2 ) .EQ. 0.0D+0 ) .OR.
+        IF ( ( DSIVDT( 2 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
      &       ( TO3 .LE. CONMIN ) ) THEN
           DTW( 2 ) = DTRMV
         ELSE
-          DTW( 2 ) = -0.01D+0 * MIN( TO3, TSIV ) / DSIVDT( 2 )
+          DTW( 2 ) = -0.01D0 * MIN( TO3, TSIV ) / DSIVDT( 2 )
         END IF
 
 C...Calculate sulfur iv oxidation rate due to 02 catalyzed by Mn++ and Fe+++
 C...(Martin and Goodman, 1991)
 
-        DSIVDT( 3 ) = - ( 750.0D+0  * MN_OX * SIV +                 ! GS 4May2011
-     &                    2600.0D+0 * FE_OX * SIV +                 ! GS 4May2011
+        DSIVDT( 3 ) = - ( 750.0D0  * MN_OX * SIV +                 ! GS 4May2011
+     &                    2600.0D0 * FE_OX * SIV +                 ! GS 4May2011
      &                    1.0D10   * MN_OX * FE_OX * SIV )         ! GS 4May2011
 
-        IF ( ( DSIVDT( 3 ) .EQ. 0.0D+0 ) .OR. ( TSIV .LE. CONMIN ) ) THEN
+        IF ( ( DSIVDT( 3 ) .EQ. 0.0D0 ) .OR. ( TSIV .LE. CONMIN ) ) THEN
           DTW( 3 ) = DTRMV
         ELSE
-          DTW( 3 ) = -0.1D+0 * TSIV / DSIVDT( 3 )
+          DTW( 3 ) = -0.1D0 * TSIV / DSIVDT( 3 )
         END IF
 
 C...Calculate sulfur oxidation rate due to MHP (Jacobson,  1997)
 
         DSIVDT( 4 ) = -RMHP * HPLUS * MHPL * HSO3
         TMHP = INITGAS( LMHP ) * ONE_OVER_XL
-        IF ( ( DSIVDT( 4 ) .EQ. 0.0D+0 ) .OR.
+        IF ( ( DSIVDT( 4 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
      &       ( TMHP .LE. CONMIN ) ) THEN
           DTW( 4 ) = DTRMV
         ELSE
-          DTW( 4 ) = -0.1D+0 * MIN( TMHP, TSIV ) / DSIVDT( 4 )
+          DTW( 4 ) = -0.1D0 * MIN( TMHP, TSIV ) / DSIVDT( 4 )
         END IF
 
 C...Calculate sulfur oxidation due to PAA (Jacobson,  1997)
 
         DSIVDT( 5 ) = -( RPAA * HPLUS + 7.00D2 ) * HSO3 * PAAL
         TPAA = INITGAS( LPAA ) * ONE_OVER_XL
-        IF ( ( DSIVDT( 5 ) .EQ. 0.0D+0 ) .OR.
+        IF ( ( DSIVDT( 5 ) .EQ. 0.0D0 ) .OR.
      &       ( TSIV  .LE. CONMIN ) .OR.
      &       ( TPAA .LE. CONMIN ) ) THEN
           DTW( 5 ) = DTRMV
         ELSE
-          DTW( 5 ) = -0.1D+0 * MIN( TPAA, TSIV ) / DSIVDT( 5 )
+          DTW( 5 ) = -0.1D0 * MIN( TPAA, TSIV ) / DSIVDT( 5 )
         END IF
 
 C...Calculate total sulfur iv oxidation rate
 
-        DSIVDT( 0 ) = 0.0D+0
+        DSIVDT( 0 ) = 0.0D0
         DO IOX = 1, NUMOX
           DSIVDT( 0 ) = DSIVDT( 0 ) + DSIVDT( IOX )
         END DO
@@ -1625,15 +1628,14 @@ C...Calculate OH consumption
 C...calculate the change in sulfur iv for this time step
 
 60        CONTINUE
-          DTS6 = ABS( DTW( 0 ) * ( -DSIVDT( 0 ) - TS6 * PRCRATE
-     &         / ( 3600.0D+0 * CTHK1 * WTAVG ) ) )
+          DTS6 = ABS( DTW( 0 ) * DSIVDT( 0 ) )
 
 C...If DSIV(0), sulfur iv oxidized during this time step would be
 C... less than 5% of sulfur oxidized since time 0, then double DT
 
           IF ( DTW( 0 ) .LE. TAUCLD ) THEN
-            IF ( DTS6 .LT. 0.05D+0 * TS6 ) THEN
-              DTW( 0 ) = DTW( 0 ) * 2.0D+0
+            IF ( DTS6 .LT. 0.05D0 * TS6 ) THEN
+              DTW( 0 ) = DTW( 0 ) * 2.0D0
               GO TO 60
             END IF
           END IF
@@ -1643,7 +1645,7 @@ C... less than 5% of sulfur oxidized since time 0, then double DT
 C...Limit the timestep to prevent negative SO2 concentrations and mass creation
 C...  for sulfate (suggested by Bonyoung Koo)
 
-        IF ( DSIVDT( 0 ) .LT. 0.0D+0 ) THEN
+        IF ( DSIVDT( 0 ) .LT. 0.0D0 ) THEN
 !         DTW( 0 ) = MIN( DTW( 0 ), -TSIV * 1.00001 / DSIVDT( 0 ) )
           DTW( 0 ) = MIN( DTW( 0 ), -TSIV / DSIVDT( 0 ) )
         END IF
@@ -1663,7 +1665,7 @@ C...  TAUCLD sec., then set DTW(0) so that total time will be TAUCLD
         IF ( TIMEW + DTW( 0 ) .GT. TAUCLD ) DTW( 0 ) = TAUCLD - TIMEW
 !       IF ( TS6 .LT. 1.0D-11 ) DTW( 0 ) = TAUCLD - TIMEW
 !       IF ( ITERAT .GT. 100 ) DTW( 0 ) = TAUCLD - TIMEW
-        IF ( ITERAT .GT. 100 ) DTW( 0 ) = MAX( 1.0D+0, DTW( 0 ) )
+        IF ( ITERAT .GT. 100 ) DTW( 0 ) = MAX( 1.0D0, DTW( 0 ) )
 
 C...limit timestep to no more than the washout time
 
@@ -1693,7 +1695,7 @@ C...  recalculate the total S(iv) oxidation rate
 C...  if the total S(iv) oxidation rate over the timestep exceeds the amount of
 C...    S(iv) available then scale the rates to conserve mass
 
-        IF (-DSIVDT( 0 ) * DTW( 0 ) .GT. TSIV ) THEN
+        IF ( -DSIVDT( 0 ) * DTW( 0 ) .GT. TSIV ) THEN
           DSIV_SCALE = TSIV / ( -DSIVDT( 0 ) * DTW( 0 ) )
           DSIVDT( 0 ) = DSIVDT( 0 ) * DSIV_SCALE
           DSIVDT( 1 ) = DSIVDT( 1 ) * DSIV_SCALE
@@ -1719,7 +1721,7 @@ csteadystate        DOH1   = DOH1   + DTW( 0 ) * DOHDT
 C...Calculate AORGC Production:  4% SOAcld (ORGC) yield from glyoxal
 C...  and methylglyoxal is assumed
 
-        DORGC = DORGC - ( 0.04D+0 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
+        DORGC = DORGC - ( 0.04D0 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
 
 C...Get Mercury chemistry rates
 
@@ -1776,17 +1778,17 @@ C...integrate or mercury rates
 C...Compute depositions and concentrations for each species
 
 !!!     WETFAC = PRCRATE * FRACLIQ * DTW( 0 ) * SEC2HR     !!!numerical integration errors with this expression
-        WETFAC = ( 1.0D+0 - EXP( -DTW( 0 ) / TWASH ) ) / XC1  !!!new analytic soln to be used in CMAQv5.0
+        WETFAC = ( 1.0D0 - EXP( -DTW( 0 ) / TWASH ) ) / XC1  !!!new analytic soln to be used in CMAQv5.0
 
         DO LIQ = 1, NLIQS
           WETDEP( LIQ ) = WETDEP( LIQ ) + LIQUID( LIQ ) * WETFAC
-!          WETDEP( LIQ ) = MIN( WETDEP( LIQ ) * XC1, LIQUID( LIQ ))
+!         WETDEP( LIQ ) = MIN( WETDEP( LIQ ) * XC1, LIQUID( LIQ ))
         END DO
 
 C...For TXHG Version: Compute liquid chlorine species deposition from CL2 dissociation products
 
-        DEPHOCL_VIA_LCL2    = MIN( 1.0D+0, WETFAC ) * LHOCL_VIA_LCL2
-        DEPCL_VIA_LCL2      = MIN( 1.0D+0, WETFAC ) * CL_VIA_PCL2
+        DEPHOCL_VIA_LCL2    = MIN( 1.0D0, WETFAC ) * LHOCL_VIA_LCL2
+        DEPCL_VIA_LCL2      = MIN( 1.0D0, WETFAC ) * CL_VIA_PCL2
 
         WETDEP( LHOCL )     = WETDEP( LHOCL )   + DEPHOCL_VIA_LCL2
         WETDEP( LCLACCL )   = WETDEP( LCLACCL ) + DEPCL_VIA_LCL2
@@ -1809,10 +1811,10 @@ C...  scavenging aerosol number in the accumulation mode
 
       DEPSUM = ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
 
-      IF ( ( LOADING( LSO4, ACC ) + LOADING( LSO4, AKN ) - DS4( 0 ) ) .NE. 0.0D+0 ) THEN
+      IF ( ( LOADING( LSO4, ACC ) + LOADING( LSO4, AKN ) - DS4( 0 ) ) .NE. 0.0D0 ) THEN
         BETASO4 = DEPSUM / ( ( LOADING( LSO4, ACC ) + LOADING( LSO4, AKN ) - DS4( 0 ) ) * TAUCLD )
       ELSE
-        BETASO4 = 0.0D+0
+        BETASO4 = 0.0D0
       END IF
 
       EBETASO4T = EXP( -BETASO4 * TAUCLD )
@@ -1839,8 +1841,8 @@ C...gas-phase species wet deposition (mm mol/lit)
       GASWDEP( LPAA   ) = WETDEP( LPAAL  )
       GASWDEP( LHCL   ) = WETDEP( LHCLL  )
       GASWDEP( LHNO3  ) = WETDEP( LHNO3L )
-      GASWDEP( LN2O5  ) = 0.0D+0
-      GASWDEP( LH2SO4 ) = 0.0D+0
+      GASWDEP( LN2O5  ) = 0.0D0
+      GASWDEP( LH2SO4 ) = 0.0D0
       GASWDEP( LGLY   ) = WETDEP( LGLYL  )
       GASWDEP( LMGLY  ) = WETDEP( LMGLYL )
 !     GASWDEP( LHO    ) = WETDEP( LOHL   )
@@ -1869,8 +1871,8 @@ C...gas concentrations (mol/molV)
 
       GAS( LNH3   ) = FNH3  * TOTAMM
       GAS( LHNO3  ) = FHNO3 * TOTNIT
-      GAS( LN2O5  ) = 0.0D+0 ! assume all into aerosol
-      GAS( LH2SO4 ) = 0.0D+0 ! assume all into aerosol
+      GAS( LN2O5  ) = 0.0D0 ! assume all into aerosol
+      GAS( LH2SO4 ) = 0.0D0 ! assume all into aerosol
 
 C...Compute Species in TXHG Version
 
@@ -1887,13 +1889,13 @@ C...aerosol species wet deposition (mm mol/lit)
 C...  there is no wet deposition of aitken particles, they attached
 C...  to the accumulation mode particles
 
-      AERWDEP( LSO4, AKN ) = 0.0D+0
-      AERWDEP( LNH4, AKN ) = 0.0D+0
-      AERWDEP( LNO3, AKN ) = 0.0D+0
-      AERWDEP( LEC,  AKN ) = 0.0D+0
-      AERWDEP( LPRI, AKN ) = 0.0D+0
+      AERWDEP( LSO4, AKN ) = 0.0D0
+      AERWDEP( LNH4, AKN ) = 0.0D0
+      AERWDEP( LNO3, AKN ) = 0.0D0
+      AERWDEP( LEC,  AKN ) = 0.0D0
+      AERWDEP( LPRI, AKN ) = 0.0D0
 
-      AERWDEP( LPOA, AKN ) = 0.0D+0
+      AERWDEP( LPOA, AKN ) = 0.0D0
 
       AERWDEP( LSO4, ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
       AERWDEP( LNH4, ACC ) = WETDEP( LNH4ACCL )
@@ -1910,8 +1912,8 @@ C...  to the accumulation mode particles
       AERWDEP( LNH4, COR ) = WETDEP( LNH4CORL  )
 !     AERWDEP( LPRICOR, COR ) = WETDEP( LPRIMCORL )
 
-      AERWDEP( LNA, AKN  ) = 0.0D+0
-      AERWDEP( LCL, AKN  ) = 0.0D+0
+      AERWDEP( LNA, AKN  ) = 0.0D0
+      AERWDEP( LCL, AKN  ) = 0.0D0
       AERWDEP( LNA, ACC  ) = WETDEP( LNAACCL )
       AERWDEP( LCL, ACC  ) = WETDEP( LCLACCL )
 !     AERWDEP( LNA, COR  ) = WETDEP( LNACORL )
@@ -1932,19 +1934,19 @@ C...  to the accumulation mode particles
       AERWDEP( LFEACC, ACC ) = WETDEP( LFEACCL )  ! AE6 - SLN 22March2011
       AERWDEP( LMNACC, ACC ) = WETDEP( LMNACCL )  ! AE6 - SLN 22March2011
 
-!     AERWDEP( LNUM, AKN ) = 0.0D+0
-!     AERWDEP( LNUM, ACC ) = 0.0D+0
-!     AERWDEP( LNUM, COR ) = 0.0D+0
-!     AERWDEP( LSRF, AKN ) = 0.0D+0
-!     AERWDEP( LSRF, ACC ) = 0.0D+0
-!     AERWDEP( LSRF, COR ) = 0.0D+0
+!     AERWDEP( LNUM, AKN ) = 0.0D0
+!     AERWDEP( LNUM, ACC ) = 0.0D0
+!     AERWDEP( LNUM, COR ) = 0.0D0
+!     AERWDEP( LSRF, AKN ) = 0.0D0
+!     AERWDEP( LSRF, ACC ) = 0.0D0
+!     AERWDEP( LSRF, COR ) = 0.0D0
 
 C...Compute for Aerosol species in  TXHG Version
 
-      AERWDEP( LTRACER_AKN, AKN ) = 0.0D+0
+      AERWDEP( LTRACER_AKN, AKN ) = 0.0D0
       AERWDEP( LTRACER_ACC, ACC ) = WETDEP( LTRACERL )
       AERWDEP( LTRACER_COR, COR ) = WETDEP( LTRACERCORL )
-      AERWDEP( LPHG, AKN ) = 0.0D+0
+      AERWDEP( LPHG, AKN ) = 0.0D0
       AERWDEP( LPHG, ACC ) = WETDEP( LSHGCL2L )
      &                     + WETDEP( LSHGSO3L )
      &                     + WETDEP( LSHGDISULFL )
@@ -2030,5 +2032,5 @@ C...formats
      &       'TS6=', F10.5, 'DTW(0)=', F10.5, 'CTHK1=', F10.5,
      &       'WTAVG=', F10.5 )
 
-1002  FORMAT(65(1X, ES12.4, 4X))
+1002  FORMAT( 65(1X, ES12.4, 4X) )
       END
