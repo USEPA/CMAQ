@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/MOSAIC_MOD.F,v 1.5 2012/01/19 14:25:41 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/MOSAIC_MOD.F,v 1.6 2012/03/28 16:11:09 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module MOSAIC_MOD
@@ -27,9 +27,10 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Contains the shared variables and subrountes needed estimated the resistances
 C from natural and agricultrual lands for NH3 bidirectional flux
  
-C Revision History: J. Bash June 16 11: Created
-C                   J. Young Oct 31 11: changed lai0, laimn0, rsmin, veg0, vegmn0,
+C Revision History: J. Bash June 16 2011: Created
+C                   J. Young Oct 31 2011: changed lai0, laimn0, rsmin, veg0, vegmn0,
 C                                       z00, & luf_fac to pointers to save memory
+C                   D. Schwede Mar 12 2012: fixed errors in crop lai
 
       Implicit None
       
@@ -297,7 +298,7 @@ C initialize
 
 C calculate fseas based on deep soil temperature
          If ( soit2 .Le. 290.0 ) Then
-            fseas = MAX( 1.0 - 0.015625 * ( 290.0 - soit2 ) ** 2, 0.0)
+            fseas = MAX( 1.0 - 0.015625 * ( 290.0 - soit2 ) ** 2, 0.0 )
          Else
             fseas = 1.0
          End If
@@ -305,8 +306,8 @@ C calculate fseas based on deep soil temperature
 C get individual LAIs for LUCs for this date - lu_type: 1 = USGS; lu_type: 2 = NLCD
          Do j = 1, n_lufrac
             total_frac = total_frac + lufrac( j )
-            vegcrj( j ) = ( ( 1. - fseas ) * vegmn0_p( j ) + fseas * veg0_p( j ) )/100.
-            If ( ( Land_Scheme .EQ. 'USGS24' .And. ( j .Le. 2 .And. j .Le. 4 ) ) .OR.
+            vegcrj( j ) = ( ( 1.0 - fseas ) * vegmn0_p( j ) + fseas * veg0_p( j ) )/100.
+            If ( ( Land_Scheme .EQ. 'USGS24' .And. ( j .Ge. 2 .And. j .Le. 4 ) ) .OR.
      &           ( Land_Scheme .EQ. 'NLCD-MODIS' .And. ( j .EQ. 20 .OR. j .EQ. 43  ) ) .OR.
      &           ( Land_Scheme .EQ. 'MODIS' .And. ( j .EQ. 12 ) ) ) Then
                sum_crop_frac = sum_crop_frac + lufrac( j )
@@ -327,20 +328,20 @@ C total frac needs to be non-water
          Select Case(Land_Scheme)
             Case('USGS24')
                If ( lufrac( 16 ) .Gt. 0.10 ) Then
-                  total_frac = total_frac-lufrac( 16 )
+                  total_frac = total_frac - lufrac( 16 )
                Else
                   total_frac = 1.0
                End If
             Case('NLCD-MODIS')
                argw = lufrac( 1 ) + lufrac( 31 ) + lufrac( 48 ) + lufrac( 50 )
                If ( argw .Gt. 0.10 ) Then
-                  total_frac = total_frac-argw
+                  total_frac = total_frac - argw
                Else
                   total_frac = 1.0
                End If
             Case('MODIS')
                If ( lufrac( 17 ) .Gt. 0.10 ) Then
-                  total_frac = total_frac-lufrac( 16 )
+                  total_frac = total_frac - lufrac( 16 )
                Else
                   total_frac = 1.0
                End If
@@ -378,7 +379,7 @@ C total frac needs to be non-water
 #endif
 
 C check to see if correction needed
-            If ( lai_crop .Lt. 0.0 .OR. lai_crop .Gt. 3.16 ) Then   ! method didn't work - numerical error - use approximation based on fseas
+            If ( lai_crop .Lt. 0.5 .OR. lai_crop .Gt. 3.16 ) Then   ! method didn't work - numerical error - use approximation based on fseas
 
 #ifdef Verbose
                Write( logdev,'(a, 2i4, a, f12.5)' ) 'Numerical error in Calc_LAI at c,r: ', c, r, ' - bad lai_crop = ', lai_crop
