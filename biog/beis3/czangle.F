@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/biog/beis3/czangle.F,v 1.3 2011/10/21 16:10:17 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/biog/beis3/czangle.F,v 1.4 2012/03/28 16:05:37 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -41,11 +41,13 @@ C Revision History:
 C   11/99: by Jeff Vukovich taken from v4.2 SMOKE prototype
 C   10/06: yoj
 C   02/11: Shawn Roselle: Replaced I/O API include files with UTILIO_DEFN
+C   03/12: J. Bash: Bound COSZEN against numerical rounding errors
+
 C----------------------------------------------------------------------
 C Modified from:
 
 C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
-C File: @(#)$Id: czangle.F,v 1.3 2011/10/21 16:10:17 yoj Exp $
+C File: @(#)$Id: czangle.F,v 1.4 2012/03/28 16:05:37 yoj Exp $
 C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
 C All Rights Reserved
 C Carolina Environmental Program
@@ -54,7 +56,7 @@ C 137 E. Franklin St., CB# 6116
 C Chapel Hill, NC 27599-6116
 C smoke@unc.edu
 C Pathname: $Source: /project/yoj/arc/CCTM/src/biog/beis3/czangle.F,v $
-C Last updated: $Date: 2011/10/21 16:10:17 $ 
+C Last updated: $Date: 2012/03/28 16:05:37 $ 
 C----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -163,10 +165,14 @@ C The equation of time adjustment
             TST    =  TK - EQT                 !  true solar time
             HRANGL =  PI180 * 15.0 * ABS( TST - 12.0 ) !  hour angle
                    
-C Compute the sine of the solar elevation (cosine of zenith angle)
+C Compute the cosine of zenith angle (sine of the solar elevation)
           
             COSZEN( C,R ) = DECSIN * SINLAT( C,R )
      &                    + DECCOS * COSLAT( C,R ) * COS( HRANGL )
+
+C Bound against numerical rounding errors
+
+            COSZEN( C,R ) = MIN( MAX( COSZEN( C,R ), -1.0 ), 1.0 )
                    
          END DO
       END DO
