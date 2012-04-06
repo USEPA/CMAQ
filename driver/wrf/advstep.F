@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/driver/wrf/advstep.F,v 1.6 2011/10/21 16:10:42 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/driver/wrf/advstep.F,v 1.7 2012/04/06 13:28:48 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -96,6 +96,7 @@ C   16 Mar 10 J.Young: Fix hdiv bug for MPI by communicating ghost cell data usi
 C                      new hveloc to add hdiv and replace hcontvel
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   10 May 11 D.Wong: incorporated twoway model implementation
+C    6 Apr 12 J.Young: changed default HDIV_LIM to 0.9; made CFL an env var
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -123,8 +124,6 @@ C Arguments:
       INTEGER, INTENT( OUT ) :: NREPS        ! no. of sync steps per output step
 
 C Parameters:
-      REAL, PARAMETER :: CC = 0.75 ! maximum Courant number allowed
-!     REAL, PARAMETER :: CC = 0.99 ! maximum Courant number allowed
 
 C External Functions:
 
@@ -135,8 +134,10 @@ C Local Variables:
 
       INTEGER, SAVE :: MAXSYNC       ! force max TSTEP(2) (sec)
       INTEGER, SAVE :: MINSYNC       ! force min TSTEP(2) (sec)
-      REAL,    SAVE :: SIGST         ! sigma_sync_top value
       INTEGER, SAVE :: ADVLAYR       ! adv=sync at least up to this level
+      REAL,    SAVE :: SIGST         ! sigma_sync_top value
+      REAL,    SAVE :: HDIV_LIM      ! cutoff for max horizontal divergence step adj
+      REAL,    SAVE :: CFL           ! maximum Courant-Friedrichs-Lewy number allowed
 
       INTEGER, SAVE :: WSTEP = 0     ! wind file interpolation time step
       INTEGER, SAVE :: SDATE, STIME  ! wind file start date and time
@@ -145,7 +146,6 @@ C Local Variables:
       INTEGER, SAVE :: OSTEP         ! output time step (sec)
 
       REAL,    SAVE :: IDX1, IDX2    ! 1/dx1, 1/dx2
-      REAL,    SAVE :: HDIV_LIM = 1.0  ! cutoff for max horizontal divergence step mod
 
       INTEGER :: MINSECS             ! effective MINSYNC (sec) that divides TSTEP(1)
  
@@ -183,9 +183,11 @@ C environment variable max sync step
       CHARACTER( 16 ) :: CTM_MAXSYNC = 'CTM_MAXSYNC'
 C environment variable min sync step
       CHARACTER( 16 ) :: CTM_MINSYNC = 'CTM_MINSYNC'
-C environment variable adv layer
+C environment variable adv top layer for sync step calculation
       CHARACTER( 16 ) :: SIGMA_SYNC_TOP = 'SIGMA_SYNC_TOP'
-C environment variable max horiz. div.
+C environment variable max Courant-Friedrichs-Lewy number allowed
+      CHARACTER( 16 ) :: CTM_ADV_CFL = 'CTM_ADV_CFL'
+C environment variable max horizontal divergence for adv step adjustment
       CHARACTER( 16 ) :: ADV_HDIV_LIM = 'ADV_HDIV_LIM'
 
       INTERFACE
@@ -224,9 +226,28 @@ C-----------------------------------------------------------------------
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 
+!        CFL = 0.9              ! default
+         CFL = 0.75             ! default
+         VARDESC = 'Maximum CFL number allowed'
+         CFL = ENVREAL( CTM_ADV_CFL, VARDESC, CFL, STATUS )
+         IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+
          SIGST = 0.7            ! default
          VARDESC = 'Minimum layer limit for which adv = sync'
          SIGST = ENVREAL( SIGMA_SYNC_TOP, VARDESC, SIGST, STATUS )
+         IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+
+         HDIV_LIM = 0.9
+         VARDESC = 'Maximum horiz. div. limit for adv step adjustment'
+         HDIV_LIM = ENVREAL( ADV_HDIV_LIM, VARDESC, HDIV_LIM, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
@@ -337,9 +358,6 @@ C Get the time of starting wind field: do not interpolate
             WIND_IDX_BEG( L ) = SUBST_GLOBAL_MAX( WIND_IDX_BEG( L ) )
             MX_HDIV_BEG( L )  = SUBST_GLOBAL_MAX( MX_HDIV_BEG( L ) )
          END DO
-
-         VARDESC = 'Maximum horiz. div. limit for which adv = sync'
-         HDIV_LIM = ENVREAL( ADV_HDIV_LIM, VARDESC, HDIV_LIM, STATUS )
 
       END IF   ! FIRSTIME
 
@@ -455,7 +473,7 @@ C satisfies both conditions).
             SYNC = OSTEP / REP
             IF ( SYNC .LE. MAXSYNC ) THEN   ! enforce max TSTEP(2)
                ADV = SYNC
-               IF ( MXUOVDX * REAL( ADV ) .LT. CC ) THEN   ! CC satisfied
+               IF ( MXUOVDX * REAL( ADV ) .LT. CFL ) THEN   ! CFL satisfied
                   IF ( SYNC .GE. MINSECS ) THEN   ! force min TSTEP(2)
                      NREPS = REP
                      GO TO 301
@@ -505,7 +523,7 @@ C If you get here: could not determine satisfactory advection time step.
          DO REP = 1, SYNC
             IF ( MOD( SYNC, REP ) .EQ. 0 ) THEN
                ADV = SYNC / REP
-               IF ( WIND_IDX( L ) * REAL( ADV ) .LT. CC ) THEN  ! Layer CC satisfied
+               IF ( WIND_IDX( L ) * REAL( ADV ) .LT. CFL ) THEN  ! Layer CFL satisfied
                   NADVS( L ) = REP
                   ASTEP( L ) = SEC2TIME( ADV )
                   GO TO 401
