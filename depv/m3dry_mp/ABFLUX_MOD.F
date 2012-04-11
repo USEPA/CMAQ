@@ -17,30 +17,34 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/ABFLUX_MOD.F,v 1.9 2012/04/11 12:11:11 yoj Exp $
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/ABFLUX_MOD.F,v 1.8 2012/01/20 18:27:32 yoj Exp $
-
-c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
 
-C Contains the shared variables and subrountes needed for the bidirectional 
-C NH3 flux model in CMAQ
-C
-C INIT_ABFLUX - Intitiales the NH3 flux routines, allocates arrays, reads in
-C               intial soil NH3 & H concentrations, and fertilizer application
-C               amounts and timing for the model run
- 
-C Revision History: J. Bash Dec 08 10: Created
-C                   J. Bash May 11 11: Updated for CMAQ 5.0
-C                   J.Young Oct 26 11: KIND=16->KIND=8 for Portland Group compiler (pgi)
-C                                      IsNaN function   "    "        "      "
-C                                      (This Module must be compiled w/ -Kieee if pgi)
+! Contains the shared variables and subrountes needed for the bidirectional 
+! NH3 flux model in CMAQ
+!
+! INIT_ABFLUX - Intializes the NH3 flux routines, allocates arrays, reads in
+!               intial soil NH3 & H concentrations, and fertilizer application
+!               amounts and timing for the model run
+! 
+! Revision History: J. Bash Dec 08 10: Created
+!                   J. Bash May 11 11: Updated for CMAQ 5.0
+!                   J.Young Oct 26 11: KIND=16->KIND=8 for Portland Group compiler (pgi)
+!                                      IsNaN function   "    "        "      "
+!                                      (This Module must be compiled w/ -Kieee if pgi)
+!                   J. Bash Jan 31 12: New daily EPIC output now includes soil NH3 from 
+!                                      mineralization of organic and no longer includes 
+!                                      the monthly fertilizer totals. The initialization 
+!                                      of soil NH3 was rewritten to reflect this.
+!-----------------------------------------------------------------------------------------
 
       Implicit None
-C shared variables
+! shared variables
 
-C Private variables used in this module and subroutines  
+! Private variables used in this module and subroutines  
       Real, Save, Allocatable, Private :: frac_ir( :,: ) ! irrigated fraction of ag    
       Real, Save, Allocatable, Private :: fagam1 ( :,: ) ! due to fertilizer app
       Real, Save, Allocatable, Private :: fagam2 ( :,: ) ! due to fertilizer app
@@ -66,14 +70,9 @@ C Private variables used in this module and subroutines
 ! Local Variables
 
          Integer, Intent( In )  :: jdate
-         Integer, Intent( In )  :: jtime
-!        Integer, Intent( In )  :: endcol
-!        Integer, Intent( In )  :: endrow
-!        Integer, Intent( In )  :: strtcol
-!        Integer, Intent( In )  :: strtrow   
+         Integer, Intent( In )  :: jtime   
          Integer                :: c,r,l,k
          Integer, Parameter :: e2c_cats = 42   ! number of crop catigories
-         Integer, Parameter :: N_apps   = 10   ! number of fertilizer applicaitons        
          Integer            :: GXOFF, GYOFF    ! global origin offset from file
          integer, save      :: strtcol, endcol, strtrow, endrow
   
@@ -138,7 +137,8 @@ C                          '12345678901234567890'
             Call m3exit( pname, jdate, jtime, xmsg, xstat2 )
          End If         
          
-         Call SUBHFILE ( grid_cro_2d, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )         
+         Call SUBHFILE ( grid_cro_2d, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
+
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
          Select Case( jdate )
@@ -223,7 +223,7 @@ C                          '12345678901234567890'
          If ( .Not. Allocated ( Beld_ag ) ) Then
             Allocate ( Beld_ag ( my_ncols,my_nrows,e2c_cats ) )
          End If
-         DO k = 1, e2c_cats
+         Do k = 1, e2c_cats
             vname = BELD_Names(k)
             If ( .Not. Interpx (BELD4_LU, vname, pname, strtcol, endcol,
      &                          strtrow, endrow, 1, 1, jdate, jtime,
@@ -231,7 +231,7 @@ C                          '12345678901234567890'
                Write( xmsg,9001 ) vname, BELD4_LU
                Go To 1001
             End If
-         END DO
+         End Do
 
 ! Allocate variable needed soil processes and fertilization
          If ( .Not. Allocated ( gamma1 ) ) Then
@@ -279,13 +279,13 @@ C                          '12345678901234567890'
                Allocate ( NH4ps2 ( my_ncols,my_nrows,e2c_cats ) )
             End If
             NH4ps2 = 0.0  
-            vname = 'L1_NO3'
+            vname = 'L1_NH3'
             If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow,  endrow,
      &                       strtcol, endcol, jdate, 0, NH4ps1) ) Then
                Write( xmsg,9001 ) vname, E2C_FERT
                Go To 1001
             End If
-            vname = 'L2_NO3'
+            vname = 'L2_NH3'
             If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow,  endrow,
      &                       strtcol, endcol, jdate, 0, NH4ps2) ) Then
                Write( xmsg,9001 ) vname, E2C_FERT
@@ -296,24 +296,27 @@ C                          '12345678901234567890'
                   Tot_Ag = 0.0                   
                   Do l = 1, e2c_cats
 ! convert units from kg/ha N to mol/l
-                     If ( pHs1(c,r,l) .Gt. 4.0       .And.
-     &                    pHs2(c,r,l) .Gt. 4.0       .And.
-     &                    pHs1(c,r,l) .Lt. 9.0       .And.
-     &                    pHs2(c,r,l) .Lt. 9.0       .And.
-     &                    .Not. IsNaN( pHs1(c,r,l) ) .And. 
-     &                    .Not. IsNaN( pHs2(c,r,l) ) .And.
+                     If ( pHs1(c,r,l)   .Gt. 4.0       .And.
+     &                    pHs2(c,r,l)   .Gt. 4.0       .And.
+     &                    pHs1(c,r,l)   .Lt. 9.0       .And.
+     &                    pHs2(c,r,l)   .Lt. 9.0       .And.
+     &                    NH4ps1(c,r,l) .Gt. 0.0       .And.
+     &                    NH4ps2(c,r,l) .Gt. 0.0       .And.
+     &                    F_rate(c,r,l) .Gt. 0.0       .And.
+     &                    .Not. IsNaN( pHs1(c,r,l) )   .And. 
+     &                    .Not. IsNaN( pHs2(c,r,l) )   .And.
+     &                    .Not. IsNaN( NH4ps1(c,r,l) ) .And.
+     &                    .Not. IsNaN( NH4ps2(c,r,l) ) .And.
      &                    Beld_ag(c,r,l) .Gt. 0.0 ) Then
                         If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                            frac_ir(c,r) = frac_ir(c,r) + Beld_ag(c,r,l)/100.0
-                        End If
-! EPIC currently only outputs nitrate concentrations, assume that soil NH4 is 25% of NO3 and NO2
-! following based on Venterea and Rolston 2000 JGR                        
-                        Tot_Ag      = Tot_Ag + Beld_ag(c,r,l)/100.0                  
+                        End If                    
+                        Tot_Ag      = Tot_Ag + Beld_ag(c,r,l)/100.0
                         gamma1(c,r) = gamma1(c,r)+NH4ps1(c,r,l)*1.0e-4/14.0/0.01
-     &                              / 10.0**(-pHs1(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
+     &                              / 10.0**(-pHs1(c,r,l))*Beld_ag(c,r,l)/100.0
                         MHp1(c,r)   = MHp1(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs1(c,r,l))
                         gamma2(c,r) = gamma2(c,r)+NH4ps2(c,r,l)*1.0e-4/14.0/0.05
-     &                              / 10.0**(-pHs2(c,r,l))*0.25*Beld_ag(c,r,l)/100.0
+     &                              / 10.0**(-pHs2(c,r,l))*Beld_ag(c,r,l)/100.0
                         MHp2(c,r)   = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs2(c,r,l))                                                                  
                         If ( .Not. IsNaN( F_rate(c,r,l) ) .And. F_rate(c,r,l) .Gt. 0.0 .And.
      &                       .Not. IsNaN( F_depth(c,r,l) ) ) Then
@@ -405,7 +408,7 @@ C                          '12345678901234567890'
                      If ( .Not. IsNaN( F_rate(c,r,l) ) .And. F_rate(c,r,l) .Gt. 0.0 .And.
      &                    .Not. IsNaN( F_depth(c,r,l) ) ) Then
 ! Injected fertilizer                        
-                        If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .Gt. 0.01 ) Then                                      
+                        If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .Gt. 0.01 ) Then
                            fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
      &                                 * 1.0e-4/14.0/0.05/10.0**(-pHs1(c,r,l))*0.925
                         End If
@@ -442,7 +445,7 @@ C                          '12345678901234567890'
          
          Return
 !------------------------------------------------------------------------------
-! Error handeling section
+! Error handling section
 !------------------------------------------------------------------------------
 1001     Continue
          Call m3exit( pname, jdate, jtime, xmsg, xstat1 )
