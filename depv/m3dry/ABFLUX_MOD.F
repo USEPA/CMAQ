@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.9 2012/04/11 12:11:11 yoj Exp $
+! $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.10 2012/04/11 13:55:22 yoj Exp $
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -26,7 +26,7 @@
 ! Contains the shared variables and subrountes needed for the bidirectional 
 ! NH3 flux model in CMAQ
 !
-! INIT_ABFLUX - Intializes the NH3 flux routines, allocates arrays, reads in
+! INIT_ABFLUX - Initializes the NH3 flux routines, allocates arrays, reads in
 !               intial soil NH3 & H concentrations, and fertilizer application
 !               amounts and timing for the model run
 ! 
@@ -39,7 +39,7 @@
 !                                      mineralization of organic and no longer includes 
 !                                      the monthly fertilizer totals. The initialization 
 !                                      of soil NH3 was rewritten to reflect this.
-!-----------------------------------------------------------------------------------------
+!----------------------------------------------------------------------------------------
 
       Implicit None
 ! shared variables
@@ -138,7 +138,6 @@ C                          '12345678901234567890'
          End If         
          
          Call SUBHFILE ( grid_cro_2d, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
-
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
          Select Case( jdate )
@@ -405,18 +404,25 @@ C                          '12345678901234567890'
                         frac_ir(c,r) = frac_ir(c,r) + Beld_ag(c,r,l)/100.0
                      End If
                      Tot_Ag = Tot_Ag + Beld_ag(c,r,l)/100.0                  
-                     If ( .Not. IsNaN( F_rate(c,r,l) ) .And. F_rate(c,r,l) .Gt. 0.0 .And.
-     &                    .Not. IsNaN( F_depth(c,r,l) ) ) Then
+                     If ( .Not. IsNaN( F_rate(c,r,l) )  .And. 
+     &                     F_rate(c,r,l) .Gt. 0.0       .And.
+     &                    .Not. IsNaN( F_depth(c,r,l) ) .And. 
+     &                    .Not. IsNaN( pHs2(c,r,l) )    .And.
+     &                    .Not. IsNaN( pHs1(c,r,l) )    .And.  
+     &                    pHs1(c,r,l) .Gt. 4.0          .And.
+     &                    pHs2(c,r,l) .Gt. 4.0          .And. 
+     &                    pHs1(c,r,l) .Lt. 9.0          .And.
+     &                    pHs2(c,r,l) .Lt. 9.0 ) Then
 ! Injected fertilizer                        
                         If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .Gt. 0.01 ) Then
                            fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                 * 1.0e-4/14.0/0.05/10.0**(-pHs1(c,r,l))*0.925
+     &                                 * 1.0e-4/14.0/0.05/10.0**(-pHs2(c,r,l))*0.925
                         End If
 ! surface applied fertilizer                        
                         If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .LE. 0.01 
      &                       .And. F_depth(c,r,l) .GE. 0.0 ) Then
                            fagam1(c,r) = fagam1(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                 * 1.0e-4/14.0/0.01/10.0**(-pHs2(c,r,l))*0.925
+     &                                 * 1.0e-4/14.0/0.01/10.0**(-pHs1(c,r,l))*0.925
                         End If
                      End If
                      If ( IsNaN( fagam1(c,r) ) .Or. IsNaN( fagam2(c,r) ) ) Then
