@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.5 2011/10/21 16:11:27 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.5 2011/10/21 16:11:27 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -219,7 +219,10 @@ C  Mar 2011 Bill Hutzell
 C      -revised arguement to account for aerosol redesign in 
 C       CMAQ version 5.0
 C      -change array declaration to allow flexible number of
-C       wavelength bins 
+C       wavelength bins
+C  Apr 2012 Bill Hutzell
+C      -revised error checking to needed photolysis data 
+C      -modified case statement for RACM2 photolysis rates
 C   
 C-----------------------------------------------------------------------
 
@@ -387,7 +390,8 @@ C***  the values for beta/ LWC also give beta in [1/m] with LWC in [g/m **3]
       REAL G_CLOUD              ! local cloud asymmetry factor
       REAL OM_CLOUD             ! local cloud single scattering albedo
 
-      LOGICAL, SAVE :: FIRST = .TRUE.  ! Flag for first call
+      LOGICAL, SAVE :: FIRST      = .TRUE.  ! Flag for first call
+      LOGICAL       :: ERROR_FLAG = .FALSE.
 
       CHARACTER( 80 ) XMSG
 
@@ -465,9 +469,11 @@ C***  reference data in module CSQY_DATA
          DO IPHOT = 1, NPHOT
             IP_MAP = INDEXR( PHOTAB( IPHOT ), NPHOT_MAP, PNAME_MAP )
             IF ( IP_MAP .LE. 0 ) THEN
-               XMSG = 'Mechanism photolysis reaction not found in ' //
+               XMSG = 'FATAL ERROR: photolysis reaction ' // TRIM( PHOTAB( IPHOT ) )
+     &             // ' not found in ' //
      &                'the reference data! '
-               CALL M3EXIT ( 'NEW_OPTICS', 0, 0, XMSG, 1 )
+               ERROR_FLAG = .TRUE.
+               CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
             END IF
             IP_REF = PHOT_MAP( IP_MAP )
 
@@ -478,26 +484,34 @@ C***  the appropriate pointers for later processing
 
             IF  ( ( PNAME_MAP( IP_MAP ) .EQ. 'NO2' ) .OR.
      &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_SAPRC99' ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_06'     ) )LNO2 = IPHOT
-
+     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_06'      ) .OR.
+     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_RACM2' ) ) LNO2 = IPHOT
 
             IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_SAPRC99' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_06'      ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O1D_IUPAC04' ) ) LO3O1D = IPHOT
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_SAPRC99' )  .OR.
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_06'      )  .OR.
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_NASA06'  ) ) LO3O1D = IPHOT
 
 
             IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' ) ) LO3O3P = IPHOT
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
+     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
 
 
-            IF ( PNAME_REF( IPHOT ) .EQ. 'KETONE'   ) LKETONE   = IPHOT
-            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ADJ' ) LMGLY_ADJ = IPHOT
-            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ABS' ) LMGLY_ABS = IPHOT
-            IF ( PNAME_REF( IPHOT ) .EQ. 'ACETONE'  ) LACETONE  = IPHOT
-            IF ( PNAME_REF( IPHOT ) .EQ. 'HCHOR_06' ) LHCHOR_06 = IPHOT
+            IF ( PNAME_REF( IPHOT ) .EQ. 'KETONE'   .OR.
+     &           PNAME_REF( IPHOT ) .EQ. 'KET_RACM2' )      LKETONE   = IPHOT
+     
+            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ADJ' )       LMGLY_ADJ = IPHOT
+            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ABS' )       LMGLY_ABS = IPHOT
+            
+            IF ( PNAME_REF( IPHOT ) .EQ. 'ACETONE'  .OR. 
+     &           PNAME_REF( IPHOT ) .EQ. 'CH3COCH3_RACM2' ) LACETONE  = IPHOT
+            
+            IF ( PNAME_REF( IPHOT ) .EQ. 'HCHOR_06' .OR.
+     &           PNAME_REF( IPHOT ) .EQ. 'HCHO_RAD_RACM2' ) LHCHOR_06 = IPHOT
 
 C***load the local cross section & quantum yield data from the reference
 C***  dataset for this photolysis reaction
@@ -512,9 +526,10 @@ C***  dataset for this photolysis reaction
 
          END DO   ! iphot
 
-         IF ( LO3O1D .EQ. 0 ) THEN
+         IF ( LNO2   .EQ. 0 ) THEN
             XMSG = 'NO2 cross-section not found in the CSQY data! '
-            CALL M3EXIT ( 'NEW_OPTICS', 0, 0, XMSG, 1 )
+            ERROR_FLAG = .TRUE.
+            CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
          END IF
          IF ( LO3O1D .EQ. 0 ) THEN
             XMSG = 'O3(1D) production not found in the CSQY data! '
@@ -522,7 +537,13 @@ C***  dataset for this photolysis reaction
          END IF
          IF ( LO3O3P .EQ. 0 ) THEN
             XMSG = 'O3 cross-section not found in the CSQY data! '
-            CALL M3EXIT ( 'NEW_OPTICS', 0, 0, XMSG, 1 )
+            ERROR_FLAG = .TRUE.
+            CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
+         END IF
+
+         IF( ERROR_FLAG )THEN
+           XMSG = 'The above fatal error(s) found in CSQY data! '
+           CALL M3EXIT( 'NEW_OPTICS', 0, 0, XMSG, 1 )
          END IF
 
          FIRST = .FALSE.
@@ -1449,7 +1470,7 @@ C***Make density corrections using values from Fast-JX V. 5.0
 
                SELECT CASE ( PNAME_REF( IPHOT ) )
 
-                  CASE ( 'CCHO_R', 'ALD2' )      ! 'CH3CHO -> CH3 + HCO'
+                  CASE ( 'CCHO_R', 'ALD2', 'CH3CHO_RACM2' )      ! 'CH3CHO -> CH3 + HCO'
 
                      IF ( QYZ( LAYS, IWL, IPHOT ) .GT. 1.0E-5 ) THEN
                               QDUM = QYZ( LAYS, IWL, IPHOT )
@@ -1459,7 +1480,7 @@ C***Make density corrections using values from Fast-JX V. 5.0
                         QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
                      END IF
 
-                  CASE ( 'C2CHO' )  ! 'C2H5CHO -> C2H5 + HCO'
+                  CASE ( 'C2CHO', 'ALD_RACM2', 'BALD_RACM2',  'UALD_RACM2' )  ! C3 and higher aldehydes
 
 C***density correction to quantum yield
 
@@ -1499,7 +1520,7 @@ C***remove wavelength dependence
                      QYZ( LAYS, IWL, IPHOT ) = MIN(1.0, QYZ( LAYS, IWL, IPHOT ))
                      QYZ( LAYS, IWL, IPHOT ) = MAX(0.0, QYZ( LAYS, IWL, IPHOT ))
 
-                  CASE ( 'MACR-06', 'MACR_06' )
+                  CASE ( 'MACR-06', 'MACR_06', 'MACR_RACM2' )
 
 C***quantum yield based on 2.76 times MVK from
 C***  Gierczak, T., J. B. Burkholder, R. K. Talukdar, A. Mellouki, S. B. Barone,
@@ -1551,7 +1572,7 @@ C***the factor 2.645 normalizes at surface and allows mech.def adjustment
                      QYZ( LAYS, IWL, IPHOT ) = MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) )
                      QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
 
-                  CASE ( 'MGLY-06' , 'BACL-07', 'MGLY_06' , 'BACL_07' )
+                  CASE ( 'MGLY-06' , 'BACL-07', 'MGLY_06' , 'BACL_07', 'MGLY_IUPAC04' )
 
 C***temperature/density correction to quantum yield
 
@@ -1612,7 +1633,7 @@ C***  Gardner et. al may support this conclusion.
                      QYZ( LAYS, IWL, IPHOT ) = MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) )
                      QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
 
-                  CASE ( 'HCHOM-06', 'HCHOM_06' )  ! 'CH2O -> H2 + CO'
+                  CASE ( 'HCHOM-06', 'HCHOM_06', 'HCHO_MOL_RACM2' )  ! 'CH2O -> H2 + CO'
 
 C***temperature/density correction to quantum yield
 
@@ -1658,7 +1679,7 @@ C***reduce wavelength dependence
 
                      END IF
 
-                  CASE (  'ACET-06' , 'ACET_06', 'ACETONE' ) ! 'CH3COCH3 -> products'
+                  CASE (  'ACET-06' , 'ACET_06', 'ACETONE', 'CH3COCH3_RACM2' ) ! 'CH3COCH3 -> products'
 
 C***temperature/density correction to quantum yield
 
@@ -1688,12 +1709,36 @@ C***              pp 283-297, 2000.
 
                      END IF
 
-                  CASE (  'KETONE'   )
+                  CASE (  'KETONE'  )
 
                      CSZ( LAYS, IWL, IPHOT ) = CSZ( LAYS, IWL, IPHOT )
      &                                       * 1.0 / ( 1.0 + 0.80E-19 * DENS( LAYS ) )
 
-                  CASE (  'MGLY_ADJ' ,  'MGLY_ABS' )
+                  CASE ( 'KET_RACM2', 'HKET_RACM2', 'MEK_RACM2', 'MVK_RACM2' ) ! Ketone treatement from W. Stockwell sbox
+
+                     IF( QYZ( LAYS, IWL, IPHOT ) .GT. 1.0E-5  )THEN
+                         QYZ( LAYS, IWL, IPHOT ) =  1.0 
+     &                                           / (1.0 + 4.057E-20*DENS(LAYS)
+     &                                           * (1.0/QYZ(LAYS, IWL, IPHOT )-1.0))
+                         QYZ( LAYS, IWL, IPHOT ) = MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) )
+                         QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
+                     ELSE
+                         QYZ( LAYS, IWL, IPHOT ) = 0.0
+                     END IF
+
+                  CASE ( 'GLYH2_RACM2', 'GLYF_RACM2', 'GLYHX_RACM2', 'MGLY_RACM2'  ) ! glyoxal treatement from W. Stockwell sbox
+
+                     IF( QYZ( LAYS, IWL, IPHOT ) .GT. 1.0E-5  )THEN
+                         QYZ( LAYS, IWL, IPHOT ) =  1.0 
+     &                                           / (1.0 + 4.057E-20*DENS(LAYS)
+     &                                           * (1.0/QYZ(LAYS, IWL, IPHOT )-1.0))
+                         QYZ( LAYS, IWL, IPHOT ) = MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) )
+                         QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
+                     ELSE
+                         QYZ( LAYS, IWL, IPHOT ) = 0.0
+                     END IF
+
+                  CASE (  'MGLY_ADJ',  'MGLY_ABS' )
 
                      CSZ( LAYS, IWL, IPHOT ) = CSZ( LAYS, IWL, IPHOT )
      &                                       * 1.0 / ( 1.0 + 1.67E-19 * DENS( LAYS ) )
