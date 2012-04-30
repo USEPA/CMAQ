@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.11 2012/04/19 17:03:23 yoj Exp $
+! $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.10 2012/04/11 13:55:22 yoj Exp $
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -26,7 +26,7 @@
 ! Contains the shared variables and subrountes needed for the bidirectional 
 ! NH3 flux model in CMAQ
 !
-! INIT_ABFLUX - Intitiales the NH3 flux routines, allocates arrays, reads in
+! INIT_ABFLUX - Initializes the NH3 flux routines, allocates arrays, reads in
 !               intial soil NH3 & H concentrations, and fertilizer application
 !               amounts and timing for the model run
 ! 
@@ -39,15 +39,7 @@
 !                                      mineralization of organic and no longer includes 
 !                                      the monthly fertilizer totals. The initialization 
 !                                      of soil NH3 was rewritten to reflect this.
-!                   J. Bash Apr 19 12: Set bounds on the soil moisture from the met. model
-!                                      to be between saturation and residual soil moisture
-!                                      to avoid errors in the soil resistance from rounding
-!                                      errors. Corrected a units conversion error in the 
-!                                      coupling of the soil NH4 to the atmospheric NH3.
-!                                      This will maintain a better mass balance and have
-!                                      a small impact on the model results ~ 1% of the
-!                                      ambient NH3 concentrations.
-!---------------------------------------------------------------------------------------------
+!----------------------------------------------------------------------------------------
 
       Implicit None
 ! shared variables
@@ -309,6 +301,7 @@ C                          '12345678901234567890'
      &                    pHs2(c,r,l)   .Lt. 9.0       .And.
      &                    NH4ps1(c,r,l) .Gt. 0.0       .And.
      &                    NH4ps2(c,r,l) .Gt. 0.0       .And.
+     &                    F_rate(c,r,l) .Gt. 0.0       .And.
      &                    .Not. IsNaN( pHs1(c,r,l) )   .And. 
      &                    .Not. IsNaN( pHs2(c,r,l) )   .And.
      &                    .Not. IsNaN( NH4ps1(c,r,l) ) .And.
@@ -579,15 +572,11 @@ C-------------------------------------------------------------------------------
          Else
             wg_ir = wg
          End If
-         wg_ir = Min(wg_ir,wsat(ist))
-         wg_ir = Max(wg_ir,wres(ist))
          ldry= d1 * ( EXP((1.0-wg_ir/wsat(ist))**5)-1.0 ) / 1.718
-         dp  = dif*1.0E-4 * wsat(ist)**2
-     &       * (1.0-wres(ist)/wsat(ist))**(2.0+3.0/bslp(ist))
+         dp  = dif*1.0E-4 * wsat(ist)**2 *                           
+     &         (1.0-wres(ist)/wsat(ist))**(2.0+3.0/bslp(ist))
          rsoil1=ldry/dp
          w5cm = 0.2 *wg_ir + 0.8 * w2
-         w5cm = Min(w5cm,wsat(ist))
-         w5cm = Max(w5cm,wres(ist))
          If ( frac_ir(Col,Row) .Gt. 0.0 .And. w5cm .LT. 0.75*wfc(ist) ) Then
             w5cm = (1.0-frac_ir(Col,Row))*w5cm+frac_ir(Col,Row)*0.75*wfc(ist)
          End If
@@ -868,11 +857,11 @@ C-------------------------------------------------------------------------------
 !> -----Compute nitrification rates for agricultural areas only where there is NHx and H+   
          If ( gamma1(Col,Row) .Gt. 0.0 .And. MHp1(Col,Row) .Gt. 1.0e-9 .And.
      &        MHp1(Col,Row) .Lt. 1.0e-5 ) Then  
-            Call Calc_Nitrif ( Tempg,wg_ir,Cnh3c,gg1,gamma1(Col,Row),ist,dt, MHp1(Col,Row),Col,Row, 1.0D-2 )
+            Call Calc_Nitrif ( Tempg,wg_ir,Cnh3c,gg1,gamma1(Col,Row),ist,dt, MHp1(Col,Row),Col,Row )
          End If
          If ( gamma2(Col,Row) .Gt. 0.0 .And. MHp2(Col,Row) .Gt. 1.0e-9 .And.
      &        MHp2(Col,Row) .Lt. 1.0e-5 ) Then  
-            Call Calc_Nitrif ( Tempg,w5cm,Cnh3c,gg2,gamma2(Col,Row),ist,dt,MHp2(Col,Row),Col,Row, 5.0D-2 )
+            Call Calc_Nitrif ( Tempg,w5cm,Cnh3c,gg2,gamma2(Col,Row),ist,dt,MHp2(Col,Row),Col,Row )
          End If
 
          Return         
@@ -882,7 +871,7 @@ C-------------------------------------------------------------------------------
 ! nitrification, leaching, and run off
 ! Soil ammonium, pH, leaching, and run off are defined in the module
 !------------------------------------------------------------------------------
-         Subroutine Calc_Nitrif ( Tempg, wg, CNH3c, gg, gam, ist, dt, MHp, C, R, ds )  
+         Subroutine Calc_Nitrif ( Tempg, wg, CNH3c, gg, gam, ist, dt, MHp, C, R )  
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: lufrac
@@ -894,8 +883,7 @@ C-------------------------------------------------------------------------------
          Real,      Intent( IN )    :: wg        ! Soil Moisture
          Real,      Intent( IN )    :: CNH3c     ! Canopy compensation point
          Real,      Intent( IN )    :: MHp       ! molar H concentration
-         Real( 8 ), Intent( IN )    :: gg(n_lufrac) ! soil-air conductance
-         Real( 8 ), Intent( IN )    :: ds          ! soil depth in m
+         Real( 8 ), Intent( IN )    :: gg(n_lufrac) ! soil-air conductance        
          Real,      Intent( INOUT ) :: gam        ! updated gamma
          Integer,   Intent( IN )    :: ist    ! Soil Type
          Integer,   Intent( IN )    :: dt     ! time step in s
@@ -956,10 +944,10 @@ C-------------------------------------------------------------------------------
             If ( lufrac(i,C,R) .Gt. 0.0 ) Then
                Select Case(i)
                   Case(19:20)
-                     kvg = kvg + gg(i) / ( wg * ds ) * lufrac(i,C,R)
+                     kvg = kvg + gg(i) * lufrac(i,C,R)
                      Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
      &                         * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
-     &                   * gg(i) / ( wg * ds ) / MHp * lufrac(i,C,R)
+     &                   * gg(i) / MHp*lufrac(i,C,R)
                      ag_tot = ag_tot + lufrac(i,C,R)
                End Select
             End If
