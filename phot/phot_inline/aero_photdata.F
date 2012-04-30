@@ -97,7 +97,7 @@ C Parameters:
       END TYPE MODAL_COMPLEX
 
       INTEGER, PARAMETER :: NUM_REFRACTIVE = 5
-
+!!!!!!
       TYPE( MODAL_COMPLEX ), PARAMETER :: REFRACTIVE_INDEX( NUM_REFRACTIVE ) = (/
 C *** FSB Water soluble values are modeled on data from Beyer et al. (1996)
 C                                                Real_Part             Imag_Part
