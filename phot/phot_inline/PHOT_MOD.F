@@ -497,7 +497,6 @@ C***  the appropriate pointers for later processing
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
 
 
