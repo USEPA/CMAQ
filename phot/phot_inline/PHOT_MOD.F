@@ -119,6 +119,16 @@ C***Cloud albedo values from JPROC
       REAL, ALLOCATABLE, SAVE :: XO3CS( :,: )       !
       REAL, ALLOCATABLE, SAVE :: TEMP_O3_STRAT( : ) ! temperature for XO3CS, K
 
+      INTEGER, PARAMETER :: NUM_REFRACTIVE = 5
+
+      TYPE MODAL_COMPLEX
+         CHARACTER( 16 ) :: NAME                           ! name of complex property
+         REAL, ALLOCATABLE, DIMENSION( :, : ) :: REAL_PART ! real part
+         REAL, ALLOCATABLE, DIMENSION( :, : ) :: IMAG_PART ! imaginary part
+      END TYPE MODAL_COMPLEX
+
+      TYPE( MODAL_COMPLEX ), SAVE :: REFRACTIVE_INDEX( NUM_REFRACTIVE )
+
 C***Indices for special case photolysis cross sections
 
       INTEGER, SAVE :: LNO2
@@ -219,10 +229,7 @@ C  Mar 2011 Bill Hutzell
 C      -revised arguement to account for aerosol redesign in 
 C       CMAQ version 5.0
 C      -change array declaration to allow flexible number of
-C       wavelength bins
-C  Apr 2012 Bill Hutzell
-C      -revised error checking to needed photolysis data 
-C      -modified case statement for RACM2 photolysis rates
+C       wavelength bins 
 C   
 C-----------------------------------------------------------------------
 
@@ -239,8 +246,8 @@ C***arguments
       INTEGER, INTENT(IN) :: NMODE   ! # of aerosol modes
       INTEGER, INTENT(IN) :: JDATE   ! julian date YYYYDDD
 
-      REAL, INTENT(IN) :: BLK_AE_NR ( NLAYS, NMODE ) ! aerosol real part of refractive index
-      REAL, INTENT(IN) :: BLK_AE_NI ( NLAYS, NMODE ) ! aerosol imaginary part of refractive index
+      REAL, INTENT(IN) :: BLK_AE_NR ( :, :, :  )     ! aerosol real part of refractive index
+      REAL, INTENT(IN) :: BLK_AE_NI ( :, :, :  )     ! aerosol imaginary part of refractive index
       REAL, INTENT(IN) :: BLK_AE_VOL( NLAYS, NMODE ) ! aerosol modal volumes
       REAL, INTENT(IN) :: BLK_AE_LSG( NLAYS, NMODE ) ! aerosol modal log of geo. stand. dev
       REAL, INTENT(IN) :: BLK_AE_DGN( NLAYS, NMODE ) ! aerosol modal mean geometeric diam. [ m ]
@@ -469,8 +476,7 @@ C***  reference data in module CSQY_DATA
          DO IPHOT = 1, NPHOT
             IP_MAP = INDEXR( PHOTAB( IPHOT ), NPHOT_MAP, PNAME_MAP )
             IF ( IP_MAP .LE. 0 ) THEN
-               XMSG = 'FATAL ERROR: photolysis reaction ' // TRIM( PHOTAB( IPHOT ) )
-     &             // ' not found in ' //
+               XMSG = 'Mechanism photolysis reaction not found in ' //
      &                'the reference data! '
                ERROR_FLAG = .TRUE.
                CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
@@ -480,7 +486,6 @@ C***  reference data in module CSQY_DATA
 C***check to see if this photolysis reaction is a special case that
 C***  is referenced in other sections of the code.  if so, then set
 C***  the appropriate pointers for later processing
-
 
             IF  ( ( PNAME_MAP( IP_MAP ) .EQ. 'NO2' ) .OR.
      &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_SAPRC99' ) .OR.
@@ -496,7 +501,6 @@ C***  the appropriate pointers for later processing
             IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P' ) .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
      &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
 
@@ -681,12 +685,12 @@ C***modal properties
             XXLSG( 2 ) = BLK_AE_LSG( II, 2 )
             XXLSG( 3 ) = BLK_AE_LSG( II, 3 )
 
-            NR_MODE( 1 ) = BLK_AE_NR( II, 1 )
-            NR_MODE( 2 ) = BLK_AE_NR( II, 2 )
-            NR_MODE( 3 ) = BLK_AE_NR( II, 3 )
-            NI_MODE( 1 ) = BLK_AE_NI( II, 1 )
-            NI_MODE( 2 ) = BLK_AE_NI( II, 2 )
-            NI_MODE( 3 ) = BLK_AE_NI( II, 3 )
+            NR_MODE( 1 ) = BLK_AE_NR( II, 1, IWL )
+            NR_MODE( 2 ) = BLK_AE_NR( II, 2, IWL )
+            NR_MODE( 3 ) = BLK_AE_NR( II, 3, IWL )
+            NI_MODE( 1 ) = BLK_AE_NI( II, 1, IWL )
+            NI_MODE( 2 ) = BLK_AE_NI( II, 2, IWL )
+            NI_MODE( 3 ) = BLK_AE_NI( II, 3, IWL )
 
 C***calculate the extinction and scattering coefficients
 C***  in [ 1 / m ] and the asymmetry factor for the  aerosol
@@ -841,6 +845,7 @@ C   29 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE AERO_DATA, ONLY: N_MODE
 
       IMPLICIT NONE
 
@@ -859,7 +864,9 @@ C***local
       CHARACTER(  16 ) :: PHOT_EXPECT
       CHARACTER(  30 ) :: LAND_EXPECT
       CHARACTER( 120 ) :: MSG                     ! buffer for messages to output
-      CHARACTER( 120 ) :: FILE_LINE
+      CHARACTER( 240 ) :: FILE_LINE
+
+      CHARACTER(  16 ),  ALLOCATABLE :: AE_RERACT_REF( : )
 
 !     INTEGER, INTENT(OUT) :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
       INTEGER :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
@@ -870,6 +877,11 @@ C***local
       INTEGER :: IPHOT_LOAD
       INTEGER :: ITT_LOAD
       INTEGER :: IWL_LOAD
+      INTEGER :: STRT, FINI
+      INTEGER :: NAE_REFRACT_REF 
+
+      REAL,       ALLOCATABLE :: AE_IMAG_REFRACT( :, : )
+      REAL,       ALLOCATABLE :: AE_REAL_REFRACT( :, : )
 
 C***external functions: none
 
@@ -894,7 +906,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(10X,I4)' ) NPHOT_MAP
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(22x,a32)' ) jtable_ref
       write( log_unit,'(10x,i4)' ) nphot_map
 #endif
@@ -908,7 +920,7 @@ C...begin read
       DO IPHOT_LOAD = 1, NPHOT_MAP
          READ( PHOTAB_UNIT,'(A16)' ) PNAME_REF( IPHOT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(i3,1x,a16)' ) iphot_load, pname_ref( iphot_load )
 #endif
 
@@ -918,13 +930,13 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(10X,I3)' ) NTEMP_REF
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(10x,i3)' ) ntemp_ref
 #endif
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,* ) trim( file_line )
 #endif
 
@@ -935,13 +947,13 @@ C...begin read
       DO ITT_LOAD = 1, NTEMP_REF
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,* ) trim( file_line )
 #endif
 
          READ( FILE_LINE,* ) IPHOT_LOAD, TEMP_BASE( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(4x,f6.2)' ) temp_base( itt_load )
 #endif
 
@@ -949,15 +961,77 @@ C...begin read
 
       ALLOCATE( TEMP_REF( NTEMP_REF, NPHOT_MAP) )
 
-      DO ITT_LOAD = 1, 7 ! skip next 7 lines
+      DO ITT_LOAD = 1, 13 ! skip next 13 lines
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+#ifdef verbose_phot
+         write( log_unit, * )  FILE_LINE
+#endif
       END DO
 
-      READ( PHOTAB_UNIT,'(17X,I3)' ) NWL_REF
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+#ifdef verbose_phot
+      write( log_unit, * )FILE_LINE
+#endif
+
+!      READ( PHOTAB_UNIT,'(17X,I3)' ) NWL_REF
+!     READ( FILE_LINE,'(17X,I3,2X,17X,I3)' ) NWL_REF, NAE_REFRACT_REF
+#ifdef verbose_phot
+      READ( FILE_LINE, 4999) NWL_REF
+#endif
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      
+#ifdef verbose_phot
+      write( log_unit, * )FILE_LINE
+#endif
+
+      READ( FILE_LINE, 4999)NAE_REFRACT_REF
+
+4999  FORMAT(17X,I3,2X,17X,I3)
+
+      IF( NAE_REFRACT_REF .NE. NUM_REFRACTIVE )THEN
+         WRITE( LOG_UNIT,* ) 'NAE_REFRACT_REF  = ', NAE_REFRACT_REF
+         MSG = 'NAERO_REFRACT used in ' // CSQY_FILE
+     &       // ' does equal NWL in PHOT_MOD.F file. '
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+      
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+#ifdef verbose_phot
+      write( log_unit, '(a3, 1x, a16)')'IDX', 'REFRACTIVE_IDX'
+#endif
+
+      ALLOCATE( AE_RERACT_REF   ( NAE_REFRACT_REF ) )
+          
+#ifdef verbose_phot
+      write( log_unit, '(a3, 1x, a16)')'IDX', 'REFRACTIVE_IDX'
+#endif
+
+      STRT = SCAN(FILE_LINE, '=', BACK = .TRUE.) + 1
+      FINI =  LEN(FILE_LINE)
+
+      READ( FILE_LINE( STRT:FINI ), * )( AE_RERACT_REF( ITT_LOAD ), 
+     &                                   ITT_LOAD = 1, NAE_REFRACT_REF )
+
+      DO ITT_LOAD = 1, NAE_REFRACT_REF 
+! set up refractive indices used by aero_photdata routine
+
+          REFRACTIVE_INDEX( ITT_LOAD )%NAME = AE_RERACT_REF( ITT_LOAD )
+          ALLOCATE( REFRACTIVE_INDEX( ITT_LOAD )%REAL_PART( N_MODE, NWL_REF ) )         
+          ALLOCATE( REFRACTIVE_INDEX( ITT_LOAD )%IMAG_PART( N_MODE, NWL_REF )  ) 
+           
+#ifdef verbose_phot
+          write( log_unit, '(i3, 1x, a16)')itt_load, refractive_index( itt_load )%name
+#endif
+
+      END DO
+
+      
+      
       NWL       = NWL_REF
       NWL_PHOT  = NWL
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(17x,i3)' ) nwl_ref
 #endif
 
@@ -970,6 +1044,9 @@ C...begin read
       END IF
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+#ifdef verbose_phot
+      write( log_unit, * )FILE_LINE
+#endif
 
       ALLOCATE( STWL_REF        ( NWL_REF ) )
       ALLOCATE( EFFWL_REF       ( NWL_REF ) )
@@ -978,20 +1055,34 @@ C...begin read
       ALLOCATE( CLD_BETA_REF    ( NWL_REF ) )
       ALLOCATE( CLD_COALBEDO_REF( NWL_REF ) )
       ALLOCATE( CLD_G_REF       ( NWL_REF ) )
+      ALLOCATE( AE_REAL_REFRACT ( NAE_REFRACT_REF, NWL_REF ) )
+      ALLOCATE( AE_IMAG_REFRACT ( NAE_REFRACT_REF, NWL_REF ) )
 
       DO IWL_LOAD = 1, NWL_REF
-         READ( PHOTAB_UNIT,'(4X,3(F8.3,2X),2X,ES12.4,2X,2(F8.3,2X),ES12.4,2X)' )
+!         READ( PHOTAB_UNIT,'(4X,3(F8.3,2X),2X,ES12.4,2X,2(F8.3,2X),ES12.4,2X)' )
+         READ( PHOTAB_UNIT, * )iphot_load,
      &         STWL_REF( IWL_LOAD ), EFFWL_REF( IWL_LOAD ),
      &         ENDWL_REF( IWL_LOAD ), FSOLAR_REF( IWL_LOAD ),
      &         CLD_BETA_REF( IWL_LOAD ), CLD_G_REF( IWL_LOAD ),
-     &         CLD_COALBEDO_REF( IWL_LOAD )
+     &         CLD_COALBEDO_REF( IWL_LOAD ),
+     &         ( AE_REAL_REFRACT( ITT_LOAD, IWL_LOAD ), 
+     &           AE_IMAG_REFRACT( ITT_LOAD, IWL_LOAD ),
+     &           ITT_LOAD = 1, NAE_REFRACT_REF )
 
-#ifdef Verbose
-         write( log_unit,'(4x,3(f8.3,2x),2x,es12.4,2x,2(f8.3,2x),es12.4,2x)' )
+               DO ITT_LOAD = 1, NAE_REFRACT_REF
+                  REFRACTIVE_INDEX( ITT_LOAD )%REAL_PART( 1:N_MODE, IWL_LOAD ) 
+     &                                      = AE_REAL_REFRACT( ITT_LOAD, IWL_LOAD )
+                  REFRACTIVE_INDEX( ITT_LOAD )%IMAG_PART( 1:N_MODE, IWL_LOAD ) 
+     &                                      = AE_IMAG_REFRACT( ITT_LOAD, IWL_LOAD )
+               END DO
+#ifdef verbose_phot
+         write( log_unit,'(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))' )
      &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
      &          endwl_ref( iwl_load ),fsolar_ref( iwl_load ),
      &          cld_beta_ref( iwl_load ), cld_g_ref( iwl_load ),
-     &          cld_coalbedo_ref( iwl_load )
+     &          cld_coalbedo_ref( iwl_load ),
+     &          ( ae_real_refract( itt_load, iwl_load ),
+     &            ae_imag_refract( itt_load, iwl_load ), itt_load = 1, nae_refract_ref )
 #endif
 
       END DO
@@ -1017,7 +1108,7 @@ C...begin read
      &            PHOT_EXPECT, TEMP_REF( ITT_LOAD, IPHOT_LOAD),
      &            ( CS_REF( IPHOT_LOAD, ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( cs_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1035,7 +1126,7 @@ C...begin read
 
             QY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF) = EQY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF)
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( qy_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1055,7 +1146,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(15X,I3)' ) NTEMP_STRAT_REF
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(16x,i3)' ) ntemp_strat_ref
 #endif
 
@@ -1069,7 +1160,7 @@ C...begin read
      &         PHOT_EXPECT, TEMP_STRAT_REF( ITT_LOAD ),
      &         ( O3_CS_STRAT_REF( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &          phot_expect, temp_strat_ref( itt_load ),
      &          ( o3_cs_strat_ref( itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1096,7 +1187,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) INDEX_OCEAN_REF
       READ( PHOTAB_UNIT,5013 ) INDEX_SEA_ICE
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 )'NUMB_LANDUSE_REF    = ', numb_landuse_ref
       write( log_unit,6013 )'INDEX_GRASSLAND_REF = ', index_grassland_ref
       write( log_unit,6013 )'INDEX_OCEAN_REF     = ', index_ocean_ref
@@ -1116,7 +1207,7 @@ C...begin read
      &                            ZENITH_COEFF_REF( ITT_LOAD ),
      &                            SEASON_COEFF_REF( ITT_LOAD ),
      &                            SNOW_COEFF_REF( ITT_LOAD )
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,5012 ) landuse_ref( itt_load ),
      &                          zenith_coeff_ref( itt_load ),
      &                          season_coeff_ref( itt_load ),
@@ -1130,7 +1221,7 @@ C...begin read
          READ( PHOTAB_UNIT,'(A30,1X,40(1PE12.6,2X))' ) LAND_EXPECT,
      &        ( SPECTRAL_ALBEDO_REF(IWL_LOAD, ITT_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(a30,1x,40(1pe12.6,2x))' ) trim( land_expect ),
      &        ( spectral_albedo_ref(iwl_load, itt_load), iwl_load = 1, nwl_ref )
 #endif
@@ -1144,7 +1235,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_NLCD
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_NLCD_MODIS = ', numb_landuse_nlcd
       write( log_unit,6009 ) '! I', 'LANDUSE_NLCD-MODIS', 'INDEX_ALBREF',
      &                       'FAC_ALBREF'
@@ -1159,7 +1250,7 @@ C...begin read
      &                            ALBMAP_REF2NLCD( ITT_LOAD ),
      &                            ALBFAC_REF2NLCD( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_nlcd( itt_load ),
      &                          albmap_ref2nlcd( itt_load ),
      &                          albfac_ref2nlcd( itt_load )
@@ -1170,7 +1261,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_USGS
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_USGS = ', numb_landuse_usgs
       write( log_unit,6009 ) '! I','LANDUSE_USGS', 'INDEX_ALBREF', 'FAC_ALBREF'
 #endif
@@ -1184,7 +1275,7 @@ C...begin read
      &                            ALBMAP_REF2USGS( ITT_LOAD ),
      &                            ALBFAC_REF2USGS( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_usgs( itt_load ),
      &                          albmap_ref2usgs( itt_load ),
      &                          albfac_ref2usgs( itt_load )
@@ -1195,7 +1286,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_MODIS
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_MODIS = ', numb_landuse_modis
       write( log_unit,6009 ) '! I','LANDUSE_MODIS', 'INDEX_ALBREF', 'FAC_ALBREF'
 #endif
@@ -1209,7 +1300,7 @@ C...begin read
      &                            ALBMAP_REF2MODIS( ITT_LOAD ),
      &                            ALBFAC_REF2MODIS( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_modis( itt_load ),
      &                          albmap_ref2modis( itt_load ),
      &                          albfac_ref2modis( itt_load )
@@ -1258,7 +1349,7 @@ C...begin read
 5013  FORMAT( 22X,I3 )
 5016  FORMAT( 4X,A60,1X,I3,2X,3(F8.3,2X) )
 
-#ifdef Verbose
+#ifdef verbose_phot
 6009  format( a3,', ',8(a,', ') )
 6013  format( a22,1x,i3 )
 6016  format( i3,1x,a60,1x,i3,2x,3(f8.3,2x) )
@@ -3031,6 +3122,17 @@ C***aerosol extinction coefficients
 
       REAL, PARAMETER :: SCALE = 1.0E09   ! scale factor [1/nm] -> [1/m]
 
+!     INTERFACE
+!      SUBROUTINE RRTM_FAST_OPTICS(NR, NI, ALFV_IN, XLNSIG,  BEXT, BSCAT, G) 
+!        IMPLICIT NONE
+!        REAL, INTENT(IN)    :: NR, NI  ! indices of refraction
+!        REAL, INTENT(IN)    :: ALFV_IN ! Mie parameter for dgv
+!        REAL, INTENT(IN)    :: XLNSIG  ! log of geometri!  standard deviation
+!        REAL, INTENT(OUT)   :: BEXT    ! normalized extinction coefficient
+!        REAL, INTENT(OUT)   :: BSCAT   ! normalized scattering coefficient
+!        REAL, INTENT(OUT)   :: G       ! asymmetry factor
+!      END SUBROUTINE RRTM_FAST_OPTICS
+!     END INTERFACE
 C***initialize variables
 
       BEXT  = 0.0
@@ -3060,9 +3162,11 @@ C***  exp(3.0 * xlnsig*xlnsig)  converts dgn to dgv (volume diameter)
 
 !!!         CALL FAST_OPTICS ( NRX, NIX, ALPHAV, SIGMA_G, BETA_EX,
 !!!     &                      BETA_SC, G )
-         CALL FAST_OPTICS ( NRX, NIX, ALPHAV, LSIGX, BETA_EX,
-     &                      BETA_SC, G )
+          CALL FAST_OPTICS ( NRX, NIX, ALPHAV, LSIGX, BETA_EX,
+      &                      BETA_SC, G )
 
+!        CALL RRTM_FAST_OPTICS(NRX, NIX, ALPHAV, LSIGX, BETA_EX, BETA_SC, G)
+         
 C***fast_optics  returns the normalized values
 C***  Calculate the actual extinction and scattering coefficients
 C***  by multplying by the modal volume and dividing by the wavelength.
