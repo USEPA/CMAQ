@@ -1,16 +1,7 @@
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/saprc07tc_ae6_aq/RXDT.EXT,v 1.1 2011/04/06 16:38:07 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C --------- Mechanism Reactions, Rates, etc. DATA INCLUDE File ---------
-C  /home/hutzellb/cmaq_toxics/releases_2010/new_arc_mechanisms
-C  /saprc07tc_ae5_aq/RXDT.EXT
+C  /home/hwo/tools/mech_processor/saprc07tc_ae6_aq/RXDT.EXT
 C Generated from ...
-C  /home/hutzellb/cmaq_toxics/releases_2010/new_arc_mechanisms
-C  /saprc07tc_ae6_aq/mech.def
+C  /home/hwo/mech_git_archive/saprc07tc_ae6_aq/mech.def
 C for Mechanism Name: SAPRC07TC_AE6_AQ                
 
 C This DATA INCLUDE file must be preceded by the corresponding
@@ -771,7 +762,7 @@ C    IRXXN = Reactions index
      5     11,   32,   32,   32,   32,   32,  132,  132,  132,  132,
      6    132,  132,  132,  132,   32,   32,  132,   32,    2,   11,
      7      2,   11,    2,   11,    0,    0,    9,    5,  128,    9,
-     8      0,    5,  132,    9,    4,    5,    3,    0,  128/
+     8      0,    5,  128,    9,    4,    5,    3,    0,  128/
 
       DATA ( IRR( IRXXN,  5 ), IRXXN = 1, NRXNS ) /
      O      3,    0,    0,    0,    0,    0,    0,    0,    0,    0,
