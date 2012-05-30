@@ -18,9 +18,10 @@
 !             to &1.33. For reaction 20, the rate constant went from 1.63e-10 to
 !             1.63e-10@-60. For reactions BR18 and BR19, the fall off parameter 
 !             changed from &1.0 to &1.41.
-! 03/04/2020  B. Hutzell changed the rate constant for N2O5 and H2O termmolecular
+! 03/04/2010  B. Hutzell changed the rate constant for N2O5 and H2O termmolecular
 !             reactions to zero and cut the bimolecular rate constant for N2O5 and H2O
 !             to 1.0e-22 from 2.2e-22 based on preferences in IUPAC 2010 data sheet
+! 05/30/2012  B. Hutzell corrected Reaction TR10 so product is CL not HCL
 
 SAPRC07TC_AE6_AQ 
 
@@ -990,7 +991,7 @@ REACTIONS [CM] =
 <TR07> CCHO_PRIMARY + OH  = OH   # 4.40e-12@-365;
 <TR08> CCHO_PRIMARY       =      # 1.0/<CCHO_R>;
 <TR09> CCHO_PRIMARY + NO3 = NO3  # 1.40e-12@1860;
-<TR10> CCHO_PRIMARY + CL  = HCL  # 8.00e-11;
+<TR10> CCHO_PRIMARY + CL  =  CL  # 8.00e-11;
 
 <TR11> ACROLEIN_PRIMARY + OH  = OH  # 1.99e-11;
 <TR12> ACROLEIN_PRIMARY + O3  = O3  # 1.40e-15@2528;
