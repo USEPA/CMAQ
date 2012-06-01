@@ -17,25 +17,25 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tb/hrdata_mod.F,v 1.2 2011/10/21 16:10:59 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE  HRDATA
 
-C-----------------------------------------------------------------------
-C  Function:  Mechanism & solver data for EBI solver
- 
-C  Preconditions: For the SAPRC07TB family of mechanisms
- 
-C  Key Subroutines/Functions Called: None
- 
-C  Revision History: Created by EBI solver program, Feb. 9, 2011
-C-----------------------------------------------------------------------
+C*************************************************************************
+C
+C  FUNCTION:  Mechanism & solver data for EBI solver
+C
+C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
+C
+C*************************************************************************
 
 c..EBI solver fixed parameters
       INTEGER, PARAMETER ::  NEBITER = 1000  ! No. of iterations for EBI
@@ -55,28 +55,30 @@ c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
 
+
 c..Miscellaneous variables
-      INTEGER   LOGDEV       ! Unit number of output log
-      INTEGER   N_EBI_IT     ! No. of iterations for EBI
-      INTEGER   N_EBI_STEPS  ! No. of time steps for EBI
-      INTEGER   N_INR_STEPS  ! No. of inner time steps for EBI
+      INTEGER   LOGDEV        ! Unit number of output log
+      INTEGER   N_EBI_IT      ! No. of iterations for EBI
+      INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
+      INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
 
       REAL    EBI_TMSTEP   ! Time step for EBI loops (min)
 
 c...Allocatable arrays
-      INTEGER, ALLOCATABLE :: EBISP( : )      ! Index of EBI species
-      INTEGER, ALLOCATABLE :: SSASP( : )      ! Index of ss species
-      INTEGER, ALLOCATABLE :: ACTSP( : )      ! Index of active species
+      INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
+      INTEGER, ALLOCATABLE :: SSASP( : )         ! Index of ss species
+      INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
 
-      REAL( 8 ), ALLOCATABLE :: RKI    ( : )  ! Rate constants
+      REAL( 8 ), ALLOCATABLE ::  RKI(   : )   ! Rate constants
       REAL( 8 ), ALLOCATABLE :: RKI_SAV( : )  ! Saved values of RKI for SS species calcs
-      REAL,      ALLOCATABLE :: RXRAT  ( : )  ! Reaction rates
-      REAL,      ALLOCATABLE :: RTOL   ( : )  ! Species tolerances
-      REAL,      ALLOCATABLE :: YC     ( : )  ! Species concentrations
-      REAL,      ALLOCATABLE :: YC0    ( : )  ! Species concentrations
-      REAL,      ALLOCATABLE :: YCP    ( : )  ! Species concentrations
-      REAL,      ALLOCATABLE :: PROD   ( : )  ! Prod of species
-      REAL,      ALLOCATABLE :: LOSS   ( : )  ! Loss of species
+      REAL, ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
+      REAL, ALLOCATABLE ::  RTOL(  : )     ! Species tolerances
+      REAL, ALLOCATABLE ::  YC(    : )     ! Species concentrations
+      REAL, ALLOCATABLE ::  YC0(   : )     ! Species concentrations
+      REAL, ALLOCATABLE ::  YCP(   : )     ! Species concentrations
+      REAL, ALLOCATABLE ::  PROD(  : )     ! Prod of species
+      REAL, ALLOCATABLE ::  LOSS(  : )     ! Loss of species
+
 
 c..Species indices
       INTEGER   NO2
