@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.6 2012/01/19 15:38:30 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/phot/phot_inline/aero_photdata.F,v 1.5 2011/10/21 16:11:28 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_PHOTDATA ( COL, ROW, NLAYS, CGRID,
@@ -66,7 +66,9 @@ C-----------------------------------------------------------------------
 
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
-      USE AEROMET_DATA        ! Includes CONST.EXT
+      USE AEROMET_DATA        ! constants and met data
+      
+      USE PHOT_MOD, ONLY : NWL, NUM_REFRACTIVE, REFRACTIVE_INDEX, WAVELENGTH  
 
       IMPLICIT NONE
 
@@ -82,44 +84,37 @@ C Arguments:
 !     REAL, POINTER, INTENT( INOUT ) :: CGRID( :,:,:,: )
       REAL, POINTER         :: CGRID( :,:,:,: )
 
-      REAL, INTENT( OUT ) :: BLK_AE_NR ( :,: )     ! aerosol real part of refractive index
-      REAL, INTENT( OUT ) :: BLK_AE_NI ( :,: )     ! aerosol imaginary part of refractive index
+      REAL, INTENT( OUT ) :: BLK_AE_NR ( :,:,: )   ! aerosol real part of refractive index
+      REAL, INTENT( OUT ) :: BLK_AE_NI ( :,:,: )   ! aerosol imaginary part of refractive index
       REAL, INTENT( OUT ) :: BLK_AE_VOL( :,: )     ! aerosol modal volumes
       REAL, INTENT( OUT ) :: BLK_AE_LSG( :,: )     ! aerosol modal log of geo. stand. dev
       REAL, INTENT( OUT ) :: BLK_AE_DGN( :,: )     ! aerosol modal mean geometeric diam. [ m ]
 
 C Parameters:
 
-      TYPE MODAL_COMPLEX
-         CHARACTER( 16 ) :: NAME      ! name of complex property
-         REAL            :: REAL_PART( N_MODE ) ! real part
-         REAL            :: IMAG_PART( N_MODE ) ! imaginary part
-      END TYPE MODAL_COMPLEX
+!      TYPE( MODAL_COMPLEX ), PARAMETER :: REFRACTIVE_INDEX( NUM_REFRACTIVE ) = (/
+!C *** FSB Water soluble values are modeled on data from Beyer et al. (1996)
+!C                                        Real_Part             Imag_Part
+!C                                    ------------------     ------------------
+!C                         Name         I     J     K         I     J     K
+!C                        --------    ------------------     ------------------
+!     &   MODAL_COMPLEX( 'SOLUTE  ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
+!     &   MODAL_COMPLEX( 'SEASALT ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
+!     &   MODAL_COMPLEX( 'DUST    ', (/1.53, 1.53, 1.53/), (/0.01, 0.01, 0.01/)),
+!     &   MODAL_COMPLEX( 'WATER   ', (/1.34, 1.34, 1.34/), (/0.00, 0.00, 0.00/)),
+!C *** FSB The following values for soot like particles are modified from
+!C         Table 1 of Horvath (1995). They are size dependent effective
+!C         refractive indices fit to data on absorption by carbon
+!     &   MODAL_COMPLEX( 'SOOT    ', (/1.53, 1.53, 0.00/), (/0.14, 0.05, 0.00/))/)
 
-      INTEGER, PARAMETER :: NUM_REFRACTIVE = 5
-
-      TYPE( MODAL_COMPLEX ), PARAMETER :: REFRACTIVE_INDEX( NUM_REFRACTIVE ) = (/
-C *** FSB Water soluble values are modeled on data from Beyer et al. (1996)
-C                                                Real_Part             Imag_Part
-C                                            ------------------     ------------------
-C                         Name                 I     J     K         I     J     K
-C                        --------            ------------------     ------------------
-     &   MODAL_COMPLEX( 'SOLUTE          ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
-     &   MODAL_COMPLEX( 'SEASALT         ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
-     &   MODAL_COMPLEX( 'DUST            ', (/1.53, 1.53, 1.53/), (/0.01, 0.01, 0.01/)),
-     &   MODAL_COMPLEX( 'WATER           ', (/1.34, 1.34, 1.34/), (/0.00, 0.00, 0.00/)),
-C *** FSB The following values for soot-like particles are modified from
-C         Table 1 of Horvath (1995). They are size dependent effective
-C         refractive indices fit to data on absorption by carbon
-     &   MODAL_COMPLEX( 'SOOT            ', (/1.53, 1.53, 0.00/), (/0.14, 0.05, 0.00/))/)
-
+      
 C Local saved variables:
 
-      CHARACTER( 16 ), SAVE :: AE_VRSN                     ! Aerosol version name
-      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_PHOTDATA   '  ! procedure name
+      CHARACTER( 16 ), SAVE :: AE_VRSN                  ! Aerosol version name
+      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_PHOTDATA'  ! routine name
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.                   ! first pass flag
-
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.                ! first pass flag
+  
       INTEGER, SAVE :: LOGDEV                                ! unit number for the log file
       INTEGER, ALLOCATABLE, SAVE :: REFRACT_INDX_MAP( : )    ! map array for refactive index
 
@@ -137,22 +132,48 @@ C Local variables:
       INTEGER L, V, N, M            ! loop counters
       INTEGER SPC                   ! species loop counter
 
+#ifdef verbose_phot
+      character( 26 ), allocatable :: lambda_list( : )
+#endif
+      
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
+
 
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
          CALL MAP_AERO()
-
+                  
          ALLOCATE(  REFRACT_INDX_MAP( N_AEROSPC ) )
 
 C ***    Create map for refactive index for each species
+
+#ifdef verbose_phot
+         allocate( lambda_list( nwl ) )
+         do v = 1, nwl
+            write( lambda_list( v ), 5000)int(wavelength( v )), 
+     &      int(wavelength( v ))
+         end do
+         write( logdev, 5001)(lambda_list( v ), v = 1, nwl)
+5000     format(2x,'NR_',i3.3,7x,'NI_',i3.3,5x)
+5001     format('     AE_SPC     ',1x,'  REFRACT_INDX  ',1x,200(a26))
+#endif 
          DO SPC = 1, N_AEROSPC
             DO M = 1, NUM_REFRACTIVE
                IF ( AEROSPC( SPC )%OPTIC_SURR .EQ. REFRACTIVE_INDEX( M )%NAME ) THEN
                   REFRACT_INDX_MAP( SPC ) = M
+#ifdef verbose_phot
+                  do n = 1, n_mode
+                     if ( aerospc( spc )%name( n )(1:1) .eq. ' ' ) cycle
+                        write( logdev, 5002)trim( aerospc( spc )%name( n ) ), 
+     &                  trim( refractive_index( m )%name ),
+     &                  (refractive_index( m )%real_part( n, v ),
+     &                   refractive_index( m )%imag_part( n, v ), v = 1, nwl)
+                  end do 
+5002     format(2(a16,1x),200(es12.4,1x))                    
+#endif                  
                   EXIT
                END IF
             END DO
@@ -165,6 +186,7 @@ C ***    Create map for refactive index for each species
                END DO
             END IF
          END DO
+
 
       END IF    ! FIRSTIME
 
@@ -186,7 +208,7 @@ C ***    extract soa concentrations from CGRID
 C ***    Calculate aerosol surface area to 2nd moment.
          DO M = 1, N_MODE
             N = AEROSRF_MAP( M )
-            MOMENT2_CONC( M ) = CGRID( COL,ROW,L,N ) / PI
+            MOMENT2_CONC( M ) = CGRID( COL,ROW,L,N ) / SNGL( PI )
          END DO
 
 C ***    Calculate geometric mean diameters and standard deviations of the
@@ -194,26 +216,31 @@ C        "dry" size distribution
          CALL GETPAR ( .TRUE., .FALSE. )
 
          DO N = 1, N_MODE
-            SUMRI_R = 0.0D+0
-            SUMRI_I = 0.0D+0
+         
+            LOOP_WAVE: DO V = 1, NWL
+               SUMRI_R = 0.0D+0
+               SUMRI_I = 0.0D+0
 
-            DO SPC = 1, N_AEROSPC
-               IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
-               IF ( AEROSPC( SPC )%NAME( N ) .EQ. ' ' ) CYCLE  ! neglect undefined species
+               DO SPC = 1, N_AEROSPC
+                  IF ( AEROSPC( SPC )%TRACER ) CYCLE              ! neglect tracer species
+                  IF ( AEROSPC( SPC )%NAME( N ) .EQ. ' ' ) CYCLE  ! neglect undefined species
 
-               FACTOR = 1.0E-9 * F6PI / AEROSPC( SPC )%DENSITY
-               M = REFRACT_INDX_MAP( SPC )
-               SUMRI_R = SUMRI_R + FACTOR
-     &                 * AEROSPC_CONC( SPC,N )
-     &                 * REFRACTIVE_INDEX( M )%REAL_PART( N )
-               SUMRI_I = SUMRI_I + FACTOR
-     &                 * AEROSPC_CONC( SPC,N )
-     &                 * REFRACTIVE_INDEX( M )%IMAG_PART( N )
-            END DO  ! species loop
+                  FACTOR = 1.0E-9 * F6DPI / AEROSPC( SPC )%DENSITY
+                  M = REFRACT_INDX_MAP( SPC )
+                  SUMRI_R = SUMRI_R + FACTOR
+     &                    * AEROSPC_CONC( SPC,N )
+     &                    * REFRACTIVE_INDEX( M )%REAL_PART( N, V )
+                  SUMRI_I = SUMRI_I + FACTOR
+     &                    * AEROSPC_CONC( SPC,N )
+     &                    * REFRACTIVE_INDEX( M )%IMAG_PART( N, V )
+               END DO  ! species loop
 
 C ***       Update output array values
-            BLK_AE_NR ( L, N ) = SUMRI_R / MOMENT3_CONC( N )
-            BLK_AE_NI ( L, N ) = SUMRI_I / MOMENT3_CONC( N )
+               BLK_AE_NR ( L, N, V ) = SUMRI_R / MOMENT3_CONC( N )
+               BLK_AE_NI ( L, N, V ) = SUMRI_I / MOMENT3_CONC( N )
+
+            END DO LOOP_WAVE
+            
             BLK_AE_LSG( L, N ) = AEROMODE_SDEV( N )
             BLK_AE_DGN( L, N ) = AEROMODE_DIAM( N )
             BLK_AE_VOL( L, N ) = PI6 * MOMENT3_CONC( N )

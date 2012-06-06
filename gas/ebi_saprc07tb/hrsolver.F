@@ -17,32 +17,31 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tb/hrsolver.F,v 1.3 2011/10/21 16:11:01 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
+       SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
 
-C-----------------------------------------------------------------------
-C  Function: EBI solver
- 
-C  Preconditions: For the SAPRC07TB family of mechanisms
- 
-C  Key Subroutines/Functions Called:  HRRATES, HRG1, HRG2, HRG3,
+
+C**********************************************************************
+C
+C  FUNCTION: EBI solver
+C
+C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
- 
-C  Revision History: Created by EBI solver program, Feb. 9, 2011
+C
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
 C                             not change results
 C   21 Jun 10 J.Young: convert for Namelist redesign
-C   05 Apr 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-C-----------------------------------------------------------------------
+C**********************************************************************
 
       USE CGRID_SPCS, ONLY: N_GC_SPC, GC_SPC   ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -50,14 +49,15 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-C..Includes:
+C..INCLUDES:
 
-C..Arguments:
+
+C..ARGUMENTS:
       INTEGER JDATE           ! Current date (YYYYDDD)
       INTEGER JTIME           ! Current time (HHMMSS)
       INTEGER C, R, L         ! Cell col, row, lev
 
-C..Parameters:
+C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
       INTEGER, PARAMETER :: STAT = 1     ! Status code
 
@@ -65,29 +65,32 @@ C..Parameters:
       REAL, PARAMETER :: MAXPRED = 1.0E+03    ! Upper limit on predicted conc
       REAL, PARAMETER :: ZERO = 0.0               ! zero
 
-C..External Functions:
+C..EXTERNAL FUNCTIONS:
 
-C..Saved Local Variables:
+
+C..SAVED LOCAL VARIABLES:
       CHARACTER( 16 ), SAVE ::  PNAME = 'HRSOLVER'      ! Program name
       LOGICAL, ALLOCATABLE, SAVE :: LEBISPFL( : )  ! Flag for EBI species
       LOGICAL, SAVE :: LFIRST = .TRUE.             ! Flag for first call
 
-C..Scratch Local Variables:
+
+C..SCRATCH LOCAL VARIABLES:
 
       CHARACTER( 132 ) :: MSG           ! Message text
 
-      INTEGER CELLNO        ! Cell no. for debug output
-      INTEGER ITER          ! Loop index for Backward Euler iterations
-      INTEGER S             ! Loop index for species
-      INTEGER NEBI          ! Loop index for time steps
-      INTEGER NINR          ! No. of inner time steps
-      INTEGER N             ! Loop index
-      INTEGER EBI           ! Loop index
-      INTEGER NBKUPS        ! No. of times time step reduced
-      INTEGER ERR           ! Allocate error flag
+      INTEGER CELLNO          ! Cell no. fo debug output
+      INTEGER ITER            ! Loop index for Backward Euler iterations
+      INTEGER S               ! Loop index for species
+      INTEGER NEBI            ! Loop index for time steps
+      INTEGER NINR            ! No. of inner time steps
+      INTEGER N               ! Loop index
+      INTEGER EBI             ! Loop index
+      INTEGER NBKUPS          ! No. of times time step reduced
+      INTEGER ERR             ! Allocate error flag
 
-      LOGICAL LEBI_CONV     ! Flag for EBI convergence
-      LOGICAL MXFL          ! hit MAXPRED flag
+
+      LOGICAL LEBI_CONV             ! Flag for EBI convergence
+      LOGICAL MXFL                  ! hit MAXPRED flag
 
       REAL DTC              ! Time step to take
       REAL FXDLOSS          ! Total loss due to negative stoichiometry
@@ -103,36 +106,39 @@ C..Scratch Local Variables:
       INTEGER DBGOUT          ! Output unit for debu outpt
 
       LOGICAL LDEBUG          ! Debug output flag
-      LOGICAL, SAVE :: LOPEN = .FALSE.
+      LOGICAL, SAVE  :: LOPEN = .FALSE.
 #endif
 
-C-----------------------------------------------------------------------
 
-      IF ( LFIRST ) THEN
-         LFIRST = .FALSE.
-         LOGDEV = INIT3( )
+C**********************************************************************
 
-         ALLOCATE ( LEBISPFL( N_GC_SPC ), STAT = ERR )
-         IF ( ERR .NE. 0 ) THEN
-            MSG = 'Error allocating LEBISPFL'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-      END IF
+
+       IF( LFIRST ) THEN
+          LFIRST = .FALSE.
+          LOGDEV = INIT3( )
+
+          ALLOCATE ( LEBISPFL( N_GC_SPC ), STAT = ERR )
+          IF ( ERR .NE. 0 ) THEN
+             MSG = 'Error allocating LEBISPFL'
+             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+          END IF
+       END IF
+
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
       COL = 0
       ROW = 0
       LEV = 0
-      IF ( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
+      IF( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
 c      IF( JTIME .EQ. 160000 ) THEN
          LDEBUG = .TRUE.
       ELSE
          LDEBUG = .FALSE.
       END IF
 
-      IF ( LDEBUG ) THEN
-           IF ( .NOT. LOPEN ) THEN
+      IF( LDEBUG ) THEN
+           IF( .NOT. LOPEN ) THEN
               DBGOUT = JUNIT()
               OPEN( UNIT = DBGOUT, FILE = 'debug.out' )
               LOPEN = .TRUE.
@@ -156,6 +162,8 @@ c      IF( JTIME .EQ. 160000 ) THEN
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
+
+
       N_EBI_IT = 0
 
       DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-tep loop
@@ -164,7 +172,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          NBKUPS = 0
          N_INR_STEPS = 1
 
- 100     CONTINUE                        !  Restart location
+100      CONTINUE                        !  Restart location
 
          DO 2000 NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
 
@@ -182,12 +190,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
-               IF ( LDEBUG ) THEN
+               IF( LDEBUG ) THEN
                   WRITE( DBGOUT, '( A, I5 )' ) 'ITER NO ', ITER
                   WRITE( DBGOUT, '( A, F12.5 )' )
      &               ' DTC=', DTC
 
-                  IF ( ITER .EQ. 1 ) THEN
+                  IF( ITER .EQ. 1 ) THEN
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
                      DO N = 1, N_RXNS
                         WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
@@ -197,6 +205,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                END IF
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
+
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Call routines to compute concentrations of groups 1-4
@@ -210,6 +219,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                CALL HRG4( DTC )
 
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Do the Euler backward method
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -217,9 +227,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
+
                   YCP( S ) = YC( S )*( ( YC0( S ) + PROD( S ) * DTC ) /
-     &                                 ( YC ( S ) + LOSS( S ) * DTC ) )
+     &                               ( YC ( S ) + LOSS( S ) * DTC ) )
+
+
                END DO
+
+
+
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Check for convergence
@@ -229,13 +245,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( EPSLON, YCP( S ) )
-                  IF ( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
+                  IF( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
      &               ( YC( S ) + YCP( S ) ) ) THEN
                      LEBI_CONV = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
 c..if predictions growing too large, treat as a convergence failure
-                  IF ( YCP( S ) .GT. MAXPRED ) then
+                  IF( YCP( S ) .GT. MAXPRED ) then
                      MXFL = .TRUE.
                      GO TO 1010
                   END IF
@@ -244,11 +260,11 @@ c..if predictions growing too large, treat as a convergence failure
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
-               IF ( LDEBUG ) THEN
+               IF( LDEBUG ) THEN
                   WRITE( DBGOUT, '( A, I5 )' ) 'Concs after ITER= ', ITER
                   DO S = 1, N_SPEC
 
-                     IF ( LEBISPFL( S ) ) THEN
+                     IF( LEBISPFL( S ) ) THEN
                         NOTE = 'CONV FAIL'
                      ELSE
                         NOTE = '         '
@@ -257,16 +273,18 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                      WRITE( DBGOUT, '( I3, 1X, A, 1PE13.5, 1X, A )' )
      &                            S, GC_SPC( S ), YC( S ), NOTE
                   END DO
-                  IF ( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
+                  IF( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
      &                 '****Convergence achieved'
                END IF
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
-               IF ( LEBI_CONV ) GO TO 2000
+                IF( LEBI_CONV )THEN
+                   GO TO 2000
+                END IF
 
- 1000       CONTINUE
+1000        CONTINUE
 
 c...Convergence failure section; cut the inner time step in half &
 c.....start inner loop over unless max backups exceeded
@@ -275,7 +293,7 @@ c.....start inner loop over unless max backups exceeded
 
             NBKUPS = NBKUPS + 1
 
-            IF ( NBKUPS .LE. MXBKUPS ) THEN
+            IF( NBKUPS .LE. MXBKUPS ) THEN
 
                IF ( MXFL ) THEN
                   WRITE( LOGDEV, 92010 ) C, R, L, TRIM( GC_SPC( S ) ), NBKUPS
@@ -299,11 +317,11 @@ c.....start inner loop over unless max backups exceeded
 
                WRITE( LOGDEV, 92060 )
                DO S = 1, N_SPEC
-                  IF ( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) GC_SPC( S )
+                  IF( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) GC_SPC( S )
                END DO
 
                MSG = 'ERROR: Stopping because of EBI convergence failures'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
 
             END IF
 
@@ -312,6 +330,7 @@ c.....start inner loop over unless max backups exceeded
 3000  CONTINUE
 
       RETURN
+
 
 92000 FORMAT( 'WARNING: EBI Euler convergence failure' /
      &        '         Reducing EBI time step because of ',

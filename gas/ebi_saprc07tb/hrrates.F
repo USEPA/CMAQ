@@ -17,9 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tb/hrrates.F,v 1.2 2011/10/21 16:11:00 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
 C
 C***********************************************************************
       USE HRDATA

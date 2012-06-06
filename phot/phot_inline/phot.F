@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/phot.F,v 1.7 2011/10/21 16:11:28 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/phot/phot_inline/phot.F,v 1.7 2011/10/21 16:11:28 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -264,11 +264,13 @@ C FSB new arrays for new on-line cloud version
       REAL BLKRJ_CLR( NLAYS, NPHOTAB ) ! photolysis rates
       REAL BLKRJ_CLD( NLAYS, NPHOTAB ) ! photolysis rates
 
-      REAL BLK_AE_NR ( NLAYS, N_MODE )      ! aerosol real part of refractive index
-      REAL BLK_AE_NI ( NLAYS, N_MODE )      ! aerosol imaginary part of refractive index
-      REAL BLK_AE_VOL( NLAYS, N_MODE )     ! aerosol modal volumes
-      REAL BLK_AE_LSG( NLAYS, N_MODE )     ! aerosol modal log of geo. stand. dev
-      REAL BLK_AE_DGN( NLAYS, N_MODE )     ! aerosol modal mean geometeric diam. [ m ]
+!      REAL BLK_AE_NR ( NLAYS, N_MODE, NWL )  ! aerosol real part of refractive index
+!      REAL BLK_AE_NI ( NLAYS, N_MODE, NWL )  ! aerosol imaginary part of refractive index
+      REAL, ALLOCATABLE, SAVE :: BLK_AE_NR (     :,      :,  :  )  ! aerosol real part of refractive index
+      REAL, ALLOCATABLE, SAVE :: BLK_AE_NI (     :,      :,  :  )  ! aerosol imaginary part of refractive index
+      REAL                    :: BLK_AE_VOL( NLAYS, N_MODE )       ! aerosol modal volumes
+      REAL                    :: BLK_AE_LSG( NLAYS, N_MODE )       ! aerosol modal log of geo. stand. dev
+      REAL                    :: BLK_AE_DGN( NLAYS, N_MODE )       ! aerosol modal mean geometeric diam. [ m ]
 
       REAL WBAR   ( NCOLS, NROWS ) ! avg cloud liq water cont (g/m**3)
       REAL CLDT   ( NCOLS, NROWS ) ! cloud top, as K index
@@ -304,6 +306,8 @@ C FSB new arrays for new on-line cloud version
             USE SOA_DEFN            ! gas soa data
             USE AEROMET_DATA        ! constants and met data
 
+            USE PHOT_MOD, ONLY : NWL, NUM_REFRACTIVE, REFRACTIVE_INDEX
+
             IMPLICIT NONE
 C Includes:
             INCLUDE SUBST_RXCMMN    ! to get mech name
@@ -313,8 +317,8 @@ C Arguments
             INTEGER, INTENT( IN )       :: NLAYS   ! # of vertical layers
 !     REAL, POINTER, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER               :: CGRID( :,:,:,: )
-            REAL, INTENT(OUT) :: BLK_AE_NR ( :, : )     ! aerosol real part of refractive index
-            REAL, INTENT(OUT) :: BLK_AE_NI ( :, : )     ! aerosol imaginary part of refractive index
+            REAL, INTENT(OUT) :: BLK_AE_NR ( :, :, : )  ! aerosol real part of refractive index
+            REAL, INTENT(OUT) :: BLK_AE_NI ( :, :, : )  ! aerosol imaginary part of refractive index
             REAL, INTENT(OUT) :: BLK_AE_VOL( :, : )     ! aerosol modal volumes
             REAL, INTENT(OUT) :: BLK_AE_LSG( :, : )     ! aerosol modal log of geo. stand. dev
             REAL, INTENT(OUT) :: BLK_AE_DGN( :, : )     ! aerosol modal mean geometeric diam. [ m ]
@@ -503,7 +507,7 @@ C...overwrite if NLCD-MODIS scheme
          END IF
 
          IF ( .NOT. HAS_SEAICE ) THEN
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'NO SEAICE '
 #endif
             XMSG = 'MET_CRO_2D DOES NOT CONTAIN SEA ICE DATA. THE SURFACE ALBEDO '
@@ -516,10 +520,22 @@ C...overwrite if NLCD-MODIS scheme
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'allocated TEMPG array'
 #endif
 
+         END IF
+
+         ALLOCATE ( BLK_AE_NR ( NLAYS, N_MODE, NWL ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating BLK_AE_NR'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         ALLOCATE ( BLK_AE_NI ( NLAYS, N_MODE, NWL ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating BLK_AE_NR'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          ALLOCATE ( SURFACE_ALBEDO( NWL, MY_NCOLS, MY_NROWS ),
