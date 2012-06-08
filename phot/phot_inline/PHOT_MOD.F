@@ -18,11 +18,8 @@
 !------------------------------------------------------------------------!
 
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.5 2011/10/21 16:11:27 yoj Exp $
+C $Header$
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PHOT_MOD
@@ -220,6 +217,8 @@ C      -revised arguement to account for aerosol redesign in
 C       CMAQ version 5.0
 C      -change array declaration to allow flexible number of
 C       wavelength bins 
+C  Apr 2012 Bill Hutzell
+C      -improved checking and error messages for needed photolysis data
 C   
 C-----------------------------------------------------------------------
 
@@ -387,7 +386,8 @@ C***  the values for beta/ LWC also give beta in [1/m] with LWC in [g/m **3]
       REAL G_CLOUD              ! local cloud asymmetry factor
       REAL OM_CLOUD             ! local cloud single scattering albedo
 
-      LOGICAL, SAVE :: FIRST = .TRUE.  ! Flag for first call
+      LOGICAL, SAVE :: FIRST      = .TRUE.  ! Flag for first call
+      LOGICAL       :: ERROR_FLAG = .FALSE.
 
       CHARACTER( 80 ) XMSG
 
@@ -439,8 +439,7 @@ C***  The 1.0e4 is for the area [ cm **2 ] -> [ m**2 ]
 
          DO IWL = 1, NWL
             LAMDA = WAVELENGTH( IWL )
-            CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED )
-     &                      / LAMDA
+            CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED ) / LAMDA
          END DO
 
          COS85 = COS( 85.0 * PI180 )
@@ -465,9 +464,11 @@ C***  reference data in module CSQY_DATA
          DO IPHOT = 1, NPHOT
             IP_MAP = INDEXR( PHOTAB( IPHOT ), NPHOT_MAP, PNAME_MAP )
             IF ( IP_MAP .LE. 0 ) THEN
-               XMSG = 'Mechanism photolysis reaction not found in ' //
+               XMSG = 'FATAL ERROR: photolysis reaction ' // TRIM( PHOTAB( IPHOT ) )
+     &             // ' not found in ' //
      &                'the reference data! '
-               CALL M3EXIT ( 'NEW_OPTICS', 0, 0, XMSG, 1 )
+               ERROR_FLAG = .TRUE.
+               CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
             END IF
             IP_REF = PHOT_MAP( IP_MAP )
 
@@ -512,9 +513,10 @@ C***  dataset for this photolysis reaction
 
          END DO   ! iphot
 
-         IF ( LO3O1D .EQ. 0 ) THEN
+         IF ( LNO2   .EQ. 0 ) THEN
             XMSG = 'NO2 cross-section not found in the CSQY data! '
-            CALL M3EXIT ( 'NEW_OPTICS', 0, 0, XMSG, 1 )
+            ERROR_FLAG = .TRUE.
+            CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
          END IF
          IF ( LO3O1D .EQ. 0 ) THEN
             XMSG = 'O3(1D) production not found in the CSQY data! '
@@ -522,7 +524,13 @@ C***  dataset for this photolysis reaction
          END IF
          IF ( LO3O3P .EQ. 0 ) THEN
             XMSG = 'O3 cross-section not found in the CSQY data! '
-            CALL M3EXIT ( 'NEW_OPTICS', 0, 0, XMSG, 1 )
+            ERROR_FLAG = .TRUE.
+            CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
+         END IF
+
+         IF( ERROR_FLAG )THEN
+           XMSG = 'The above fatal error(s) found in CSQY data! '
+           CALL M3EXIT( 'NEW_OPTICS', 0, 0, XMSG, 1 )
          END IF
 
          FIRST = .FALSE.
@@ -584,7 +592,7 @@ C***get total ozone column
 
 !     DAY = JDATE - ( JDATE / 1000 ) * 1000
 !     CALL O3AMT ( LATCR, LONGCR, DAY, STOZONE )
-      Call O3TOTCOL ( LATCR, LONGCR, JDATE, STOZONE )
+      CALL O3TOTCOL ( LATCR, LONGCR, JDATE, STOZONE )
 
 C***set top of modeling domain
 

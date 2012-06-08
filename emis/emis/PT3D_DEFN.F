@@ -44,6 +44,8 @@ C                                PT3D_INIT) to determine x and y orig informatio
 C                                and in subroutine READGC3, do not expand the
 C                                STATCOL and STRTROw in the west and south direction
 C     29 Oct 2011 J.Young: fix domain windowing
+C     30 Apr 2012 C.Nolte: fix number of substeps, NTICS to be the number of
+C                          synchronization time steps rather than the number of seconds. 
 
 C-----------------------------------------------------------------------
 
@@ -1207,31 +1209,19 @@ C Possible report to REPRTLAY
          END DO   ! NPTGRPS
 
          IF ( PT3DDIAG ) THEN  ! store 3d point source emissions
-!           NTICS = NTICS + 1
-            NTICS = NTICS + TIME2SEC( TSTEP( 2 ) )
-!           IF ( NTICS .EQ. 1 ) THEN
-!              write( logdev,* ) '   ntics: ', ntics
-!              VDEMIS_BUF = VDEMIS_PT   ! array assignment
-!              PMEMIS_BUF = PMEMIS_PT   ! array assignment
-!           ELSE IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-!           IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
-            IF ( NTICS .LT. TIME2SEC( TSTEP( 1 ) ) ) THEN
+            NTICS = NTICS + 1
+            VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT   ! array assignmnt
+            PMEMIS_BUF = PMEMIS_BUF + PMEMIS_PT   ! array assignmnt
 #ifdef Verbose1
-               write( logdev,* ) '   ntics: ', ntics
+            write( logdev,* ) '   ntics, jtime: ', ntics, jtime
 #endif
-!              VDEMIS_BUF = VDEMIS_BUF + 2.0 * VDEMIS_PT   ! array assignment
-!              PMEMIS_BUF = PMEMIS_BUF + 2.0 * PMEMIS_PT   ! array assignment
-               VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT
-               PMEMIS_BUF = PMEMIS_BUF + PMEMIS_PT
-            ELSE
-!              DIVFAC = 0.5 / FLOAT( NTICS )
+            IF ( NTICS .GE. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) ) THEN
                DIVFAC = 1.0 / FLOAT( NTICS )
 #ifdef Verbose1
                write( logdev,* ) '   ntics, divfac: ', ntics, divfac
 #endif
                DO V = 1, N_SPC_PTEM
-                  VDEMIS_BUF( :,:,:,V ) = DIVFAC
-     &                                  * ( VDEMIS_BUF( :,:,:,V ) + VDEMIS_PT( :,:,:,V ) )
+                  VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
                   IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKEM_NAME( V ),
      &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Error writing "VDEMIS_PT" to '
@@ -1240,8 +1230,7 @@ C Possible report to REPRTLAY
                   END IF
                END DO
                DO V = 1, N_SPC_PTPM
-                  PMEMIS_BUF( :,:,:,V ) = DIVFAC
-     &                                  * ( PMEMIS_BUF( :,:,:,V ) + PMEMIS_PT( :,:,:,V ) )
+                  PMEMIS_BUF( :,:,:,V ) = DIVFAC * PMEMIS_BUF( :,:,:,V )
                   IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKPM_NAME( V ),
      &                               WDATE, WTIME, PMEMIS_BUF( :,:,:,V ) ) ) THEN
                      XMSG = 'Error writing "PMEMIS_PT" to '
@@ -1257,9 +1246,6 @@ C Possible report to REPRTLAY
             NTICS = 0
             END IF
          END IF
-
-!        VDEMIS_PT = 0.0   ! array assignment
-!        PMEMIS_PT = 0.0   ! array assignment
 
          RETURN
 
