@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ros3/degrade.F,v 1.3 2011/10/21 16:11:12 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/gas/ros3/degrade.F,v 1.3 2011/10/21 16:11:12 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -51,11 +51,11 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL(8)      CBLK( BLKSIZE, N_GC_SPC )   ! array holding species concentrations
-      REAL(8)      TSTEP                       ! time step for integrations [sec]
-      INTEGER      JDATE                       ! current model date , coded YYYYDDD
-      INTEGER      JTIME                       ! current model time , coded HHMMSS
-      INTEGER      BLKID                       ! ID number for the BLK
+      REAL( 8 ), INTENT( IN ) :: CBLK( BLKSIZE,  NSPCSD ) ! array holding species concentrations
+      REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
+      INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
+      INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
+      INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
 
 C.....PARAMETERS:
 
@@ -77,7 +77,7 @@ C.....LOCAL VARIABLES:
       INTEGER        :: I, J, K, L, I_CELL          ! loop counters
       INTEGER, SAVE  :: I_SIZE                      ! scratch
 
-      REAL(8)        ::  DT                                ! degradation time step, sec
+      REAL           ::  TSTEP                             ! time step for integrations
       REAL(8)        ::  TRANS    ( BLKSIZE )              ! molecules/cm^3 transferred to products
       REAL(8)        ::  NET_RATE ( BLKSIZE )              ! net rate of transfer   [sec^-1]
       REAL(8)        ::  NET_LIFE ( BLKSIZE )              ! lifetime based on net transfer rate  [sec]
