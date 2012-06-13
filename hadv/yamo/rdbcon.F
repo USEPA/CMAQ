@@ -51,6 +51,7 @@ C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
+C   08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C-----------------------------------------------------------------------
 
       USE GRID_CONF            ! horizontal & vertical domain specifications
@@ -91,12 +92,12 @@ C File variables:
 C External Functions: None
 
 C Local variables:
-      CHARACTER( 16 ) :: PNAME = 'RDBCON          '
+      CHARACTER( 16 ) :: PNAME = 'RDBCON'
       CHARACTER( 16 ) :: VNAME
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      CHARACTER( 16 ) :: BLNK = '                '
+      CHARACTER( 16 ) :: BLNK = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BCNAME( : )  ! BC name for adv species
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
 
