@@ -1,12 +1,5 @@
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/cb05tump_ae6_aq/RXCM.EXT,v 1.1 2011/09/20 17:54:52 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /home/hwo/cmaq-v5.0/AE6_based_HAPS_mechanism/cb05tump_ae6_aq/RXCM.EXT
+C  /home/hwo/tools/mech_processor/cb05tump_ae6_aq/RXCM.EXT
 C for Mechanism Name: CB05TUMP_AE6_AQ                 
 
 C The following are reserved symbols declared in this INCLUDE file:
@@ -71,7 +64,7 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
 
       INTEGER, PARAMETER :: N_ACT_SP =  94
 
-      INTEGER, PARAMETER :: NRXNS = 263
+      INTEGER, PARAMETER :: NRXNS = 253
 
       INTEGER            :: KUNITS
 
@@ -81,13 +74,13 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
 
       INTEGER            :: IORDER( NRXNS )
 
-      INTEGER, PARAMETER :: KTN1 =  89
+      INTEGER, PARAMETER :: KTN1 =  86
       INTEGER            :: KRX1( KTN1 )
 
       INTEGER, PARAMETER :: KTN2 =   1
       INTEGER            :: KRX2( KTN2 )
 
-      INTEGER, PARAMETER :: KTN3 = 121
+      INTEGER, PARAMETER :: KTN3 = 114
       INTEGER            :: KRX3( KTN3 )
 
       INTEGER, PARAMETER :: KTN4 =   1
