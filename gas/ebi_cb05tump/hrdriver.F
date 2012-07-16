@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/hrdriver.F,v 1.2 2011/10/21 16:10:56 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,7 +34,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 27, 2011
+C  REVISION HISTORY: Created by EBI solver program, July 16, 2012
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -149,14 +149,14 @@ C for INTERPX
            INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
            INTEGER, INTENT( IN ) :: LOGDEV ! unit number for the log
-         END SUBROUTINE INIT_DEGRADE      
+         END SUBROUTINE INIT_DEGRADE
          SUBROUTINE FINAL_DEGRADE( CBLK )
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
            REAL, INTENT( INOUT ) :: CBLK( NSPCSD )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
        END INTERFACE
-       
+
 C**********************************************************************
 
       IF( N_GC_SPC .EQ. 0 ) RETURN
@@ -197,7 +197,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
-         MODEL_SPECIES = NSPCSD 
+         MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
 
 ! Determine whether DEGRADE rountines are needed.
 
