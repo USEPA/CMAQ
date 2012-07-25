@@ -62,7 +62,7 @@ C       the wet and dry adjustment factor is made using the relative amount of s
 C       moisture in the top layer (1cm) as the interpolating factor.  The relative
 C       amount of soil moisture is determined by taking the MCIP soil moisture field
 C       and dividing by the saturation value defined for each soil type in the PX
-C       version of MCIP the soil temperature is used in PX version
+C       version of MCIP. The soil temperature is used in PX version
  
 C    The Precipation Adjustment factor is based on section 4.1 with the following
 C    modifications:
@@ -101,18 +101,19 @@ C                    and time since pulse initiation
 C     PULSETYPE      determines type & duration of NO emission pulse from rainrate
       
 C Revision History:
-C    10/01 : Prototype by GAP
-C    10/03 : modified transition to non growing season for jul-oct of the year
-C    08/04 : Converted to SMOKE code style by C Seppanen
-C    Mar 07: Restructure; J.Young
-C    Jan 26: J.Young - move input data reads from tmpbeis;
-C                      remove ck & report if TAIR > 315;
-C                      restructure growing season, col/row loops;
-C                      restructure PRECIP_ADJ
-C    Jan 27: D. Wong - Eliminate potential race condition with mype = 0 and
-C                      barrier implementation - it's not needed anyway.
-C    02/11 : S.Roselle-Replaced I/O API include files with UTILIO_DEFN
-C    05/11 : D. Wong - incorporated twoway model implementation
+C    10/01: Prototype by GAP
+C    10/03: modified transition to non growing season for jul-oct of the year
+C    08/04: Converted to SMOKE code style by C Seppanen
+C   Mar 07: Restructure; J.Young
+C   Jan 26: J.Young - move input data reads from tmpbeis;
+C                     remove ck & report if TAIR > 315;
+C                     restructure growing season, col/row loops;
+C                     restructure PRECIP_ADJ
+C   Jan 27: D. Wong - Eliminate potential race condition with mype = 0 and
+C                     barrier implementation - not needed anyway.
+C    02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
+C    05/11: D. Wong - incorporated twoway model implementation
+C    05/12: J.Young - make PX_version the default
   
 C-----------------------------------------------------------------------
 C Modified from:
@@ -139,11 +140,11 @@ C-----------------------------------------------------------------------
 C Includes:
 
 C Arguments:
-      INTEGER, INTENT( IN )    :: JDATE             ! current simulation date (YYYYDDD)
-      INTEGER, INTENT( IN )    :: JTIME             ! current simulation time (HHMMSS)
-      INTEGER, INTENT( IN )    :: TSTEP( 3 )        ! time step vector (HHMMSS)
-      REAL,    INTENT( IN )    :: TA   ( NCOLS,NROWS )      ! air temperature [K]
-      REAL,    INTENT( OUT )   :: EMPOL( NCOLS,NROWS,NSEF ) ! output NO emissions
+      INTEGER, INTENT( IN )  :: JDATE             ! current simulation date (YYYYDDD)
+      INTEGER, INTENT( IN )  :: JTIME             ! current simulation time (HHMMSS)
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )        ! time step vector (HHMMSS)
+      REAL,    INTENT( IN )  :: TA   ( NCOLS,NROWS )      ! air temperature [K]
+      REAL,    INTENT( OUT ) :: EMPOL( NCOLS,NROWS,NSEF ) ! output NO emissions
 
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
@@ -262,7 +263,7 @@ C Determine last timestamp
 
 C Check if using PX version of MCIP
          PX_VERSION = ENVYN( 'PX_VERSION', 'MCIP is PX version?',
-     &                       .FALSE., IOS )
+     &                       .TRUE., IOS )
 
 C Open met file
          MNAME = PROMPTMFILE(

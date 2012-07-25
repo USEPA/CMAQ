@@ -18,11 +18,13 @@
 !------------------------------------------------------------------------!
 
 
+<<<<<<< HEAD
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/arc/CCTM/src/phot/phot_inline/PHOT_MOD.F,v 1.5 2011/10/21 16:11:27 yoj Exp $
+=======
+C $Header$
+>>>>>>> origin/master
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PHOT_MOD
@@ -219,10 +221,16 @@ C  Mar 2011 Bill Hutzell
 C      -revised arguement to account for aerosol redesign in 
 C       CMAQ version 5.0
 C      -change array declaration to allow flexible number of
+<<<<<<< HEAD
 C       wavelength bins
 C  Apr 2012 Bill Hutzell
 C      -revised error checking to needed photolysis data 
 C      -modified case statement for RACM2 photolysis rates
+=======
+C       wavelength bins 
+C  Apr 2012 Bill Hutzell
+C      -improved checking and error messages for needed photolysis data
+>>>>>>> origin/master
 C   
 C-----------------------------------------------------------------------
 
@@ -443,8 +451,7 @@ C***  The 1.0e4 is for the area [ cm **2 ] -> [ m**2 ]
 
          DO IWL = 1, NWL
             LAMDA = WAVELENGTH( IWL )
-            CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED )
-     &                      / LAMDA
+            CONV_WM2( IWL ) = 1.0E13 * ( PLANCK_C * LIGHT_SPEED ) / LAMDA
          END DO
 
          COS85 = COS( 85.0 * PI180 )
@@ -605,7 +612,7 @@ C***get total ozone column
 
 !     DAY = JDATE - ( JDATE / 1000 ) * 1000
 !     CALL O3AMT ( LATCR, LONGCR, DAY, STOZONE )
-      Call O3TOTCOL ( LATCR, LONGCR, JDATE, STOZONE )
+      CALL O3TOTCOL ( LATCR, LONGCR, JDATE, STOZONE )
 
 C***set top of modeling domain
 
