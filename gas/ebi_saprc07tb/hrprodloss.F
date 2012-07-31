@@ -17,9 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tb/hrprodloss.F,v 1.2 2011/10/21 16:11:00 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -36,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
 C
 C***********************************************************************
       USE HRDATA
@@ -2119,7 +2118,6 @@ C***********************************************************************
      &                          +          RXRAT( 390 )      ! CL+ARO2=0.828*xHO2+...
      &                          +          RXRAT( 391 )      ! CL+TERP=0.548*HCL+...
      &                          +          RXRAT( 392 )      ! CL+SESQ=0.252*xHO2+...
-     &                          +          RXRAT( 407 )      ! CL+CCHO_PRIMARY=HCL
 
       PROD( CLNO             ) =           RXRAT( 319 )      ! CL+NO=CLNO
       LOSS( CLNO             ) =           RXRAT( 320 )      ! CLNO=CL+NO
@@ -2165,7 +2163,6 @@ C***********************************************************************
      &                          +  0.279 * RXRAT( 388 )      ! OLE2+CL=0.279*HCL+...
      &                          +  0.548 * RXRAT( 391 )      ! TERP+CL=0.548*HCL+...
      &                          +  0.548 * RXRAT( 392 )      ! SESQ+CL=0.548*HCL+...
-     &                          +          RXRAT( 407 )      ! CCHO_PRIMARY+CL=HCL
       LOSS( HCL              ) =           RXRAT( 338 )      ! HCL+OH=CL
 
       PROD( CLO              ) =           RXRAT( 326 )      ! CL+HO2=CLO+OH
@@ -2261,7 +2258,7 @@ C***********************************************************************
       LOSS( CCHO_PRIMARY     ) =           RXRAT( 404 )      ! CCHO_PRIMARY+OH=OH
      &                          +          RXRAT( 405 )      ! CCHO_PRIMARY=
      &                          +          RXRAT( 406 )      ! CCHO_PRIMARY+NO3=NO3
-     &                          +          RXRAT( 407 )      ! CCHO_PRIMARY+CL=HCL
+     &                          +          RXRAT( 407 )      ! CCHO_PRIMARY+CL=CL
 
       PROD( ACROLEIN_PRIMARY ) =   0.0
       LOSS( ACROLEIN_PRIMARY ) =           RXRAT( 408 )      ! ACROLEIN_PRIMARY+OH=OH

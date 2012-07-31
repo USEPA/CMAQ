@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/hrg2.F,v 1.2 2011/10/21 16:10:56 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 27, 2011
+C  REVISION HISTORY: Created by EBI solver program, July 16, 2012
 C
 C**********************************************************************
       USE HRDATA
@@ -275,7 +275,7 @@ c..OH loss terms not in R5_4 & R19_4
      &    +  0.250 * RKI( 166 ) * YC( TERP             )   ! OH+TERP=0.75*HO2+...
      &    +          RKI( 179 ) * YC( FMCL             )   ! OH+FMCL=CL+CO
      &    +          RKI( 193 ) * YC( HCL              )   ! OH+HCL=CL
-     &    +          RKI( 262 ) * YC( HG               )   ! OH+HG=...
+     &    +          RKI( 252 ) * YC( HG               )   ! OH+HG=...
 
       L4    = 1.0 + L4 * DTC + R5_4 + R19_4
 

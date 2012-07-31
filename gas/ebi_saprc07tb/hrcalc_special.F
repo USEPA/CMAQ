@@ -17,9 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tb/hrcalc_special.F,v 1.2 2011/10/21 16:10:59 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -27,34 +26,37 @@ C %W% %P% %G% %U%
       SUBROUTINE HRCALC_SPECIAL
 
 C***********************************************************************
-C  Function: To calculate special concentration dependent rate constants
- 
-C  Preconditions: For the SAPRC07TB family of mechanisms
- 
-C  Key Subroutines/Functions Called: None
- 
-C  Revision History: Created by EBI solver program, Feb. 9, 2011
+C
+C  FUNCTION: To calculate special concentration dependent rate constants
+C
+C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
+C
 C***********************************************************************
       USE HRDATA
 
       IMPLICIT NONE
 
-C.....Includes: NONE
+C.....INCLUDES: NONE
 
-C.....Arguments: NONE
+C.....ARGUMENTS: NONE
 
-C.....Parameters: NONE
+C.....PARAMETERS: NONE
 
-C.....External Functions: NONE
+C.....EXTERNAL FUNCTIONS: NONE
 
-C.....Saved Variables:
+C.....SAVED VARIABLES:
 
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRCALC_SPECIAL'   ! Program name
 
       REAL, SAVE ::  MNLOSS = 1.0E-30   ! Min value of loss freq
       REAL, SAVE ::  MNCONC = 1.0E-30   ! Min concentration value
 
-C.....Local Variables:
+
+C.....LOCAL VARIABLES:
 
 c..Names assigned to special rate constants
       REAL RO2NO           
@@ -66,6 +68,7 @@ c..Names assigned to special rate constants
       REAL RO2XRO          
       REAL RO2RO2M         
       REAL RO22NN          
+
 
 c***********************************************************************
 
@@ -185,4 +188,5 @@ c..set individual mechanism rate constants
       RKI(  368 ) = RO2XRO      !  RKI<CP28>
 
       RETURN
+
       END

@@ -17,29 +17,26 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tc/hrinit.F,v 1.2 2011/10/21 16:11:03 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HRINIT
-
-C-----------------------------------------------------------------------
-C  Function: To initialize species tolerances, arrays, and indices
- 
-C  Preconditions: For the SAPRC07TC family of mechanisms
- 
-C  Return Values: None
- 
-C  Key Subroutines/Functions Called: None
- 
-C  Revision History: Created by EBI solver program, Feb. 11, 2011
+C***********************************************************************
+C
+C  FUNCTION: To initialize species tolerances, arrays, and indices
+C
+C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
+C
+C  RETURN VALUES: None
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
 C   21 Jun 10 J.Young: convert for Namelist redesign
-C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-C-----------------------------------------------------------------------
+C***********************************************************************
 
       USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -47,27 +44,29 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-C.....Includes:
+C.....INCLUDES:
       INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
 
-C.....Arguments: NONE
+C.....ARGUMENTS: NONE
 
-C.....Parameters: NONE
+C.....PARAMETERS: NONE
 
-C.....External Functions:
+
+C.....EXTERNAL FUNCTIONS:
       INTEGER  FINDEX         ! Finds location of a number in a list
 
-C.....Saved Variables:
+C.....SAVED VARIABLES:
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
-C.....Local Variables:
-      CHARACTER( 132 ) :: MSG = ' '       ! Log message
+
+C.....LOCAL VARIABLES:
+      CHARACTER( 132 ) ::  MSG       ! Log message
 
       INTEGER IND             ! Species index
       INTEGER N               ! Loop index
       INTEGER IOS             ! Allocate error status
 
-C-----------------------------------------------------------------------
+C***********************************************************************
 
       N_SPEC = N_GC_SPC
       N_RXNS = NRXNS
@@ -79,14 +78,17 @@ C-----------------------------------------------------------------------
      &          YC0(  N_SPEC),
      &          YCP(  N_SPEC),
      &          PROD( N_SPEC),
-     &          LOSS( N_SPEC), STAT = IOS )
-      IF ( IOS .NE. 0 ) THEN
-         MSG = 'Error allocating RKI, RXRAT, RTOL, YC, YC0, YCP, PROD, or LOSS'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-      END IF
+     &          LOSS( N_SPEC),
+     &          STAT = IOS )
+
+       IF ( IOS .NE. 0 ) THEN
+          MSG = 'Error allocating RKI, RXRAT, RTOL, YC, YC0, YCP, PROD, LOSS, or PNEG'
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+       END IF
 
       NING1 = 4
       NING2 = 4
+
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set species indices and pointers
@@ -243,10 +245,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ACROLEIN_PRIMARY  = 150
 
 c..Allocate and define ebi species
+
       N_EBISP  = 137
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
-         MSG = 'Error allocating EBISP'
+         MSG = 'Error allocating EBISP' 
          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
@@ -543,5 +546,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( CCHO_PRIMARY     ) = 1.0E-03
       RTOL( ACROLEIN_PRIMARY ) = 1.0E-03
 
+
       RETURN
+
       END

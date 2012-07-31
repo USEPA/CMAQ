@@ -17,24 +17,23 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_saprc07tb/hrdriver.F,v 1.3 2011/10/21 16:10:59 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 
-C-----------------------------------------------------------------------
-C  Function: Driver subroutine for Euler Backward Iterative solver
- 
-C  Preconditions: For the SAPRC07TB family of mechanisms
- 
-C  Key Subroutines/Functions Called:  HRINIT, PHOT, HRCALCKS, HRSOLVER
- 
-C  Revision History: Created by EBI solver program, Feb. 9, 2011
+C**********************************************************************
+C
+C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
+C
+C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+C
+C  REVISION HISTORY: Created by EBI solver program, June 1, 2012
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -48,14 +47,15 @@ C                       This version replaces Huang and Chang use of numerical
 C                       solutions with analytical solutions derived in
 C                       Hertel et al.
 C   21 Jun 10 J.Young: convert for Namelist redesign
-C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-C  11 May 11 D.Wong: incorporated twoway model implementation
-C-----------------------------------------------------------------------
+C   11 May 11 D.Wong: incorporated twoway model implementation
+C   27 Sep 11 B.Hutzell: revised method for defining CALL_DEG variable
+C
+C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE VGRD_DEFN             ! vertical layer specifications
       USE CGRID_SPCS            ! CGRID mechanism species
-      USE UTILIO_DEFN
+      USE UTILIO_DEFN           ! IOAPI parameters and functions declarations
       USE HRDATA
 
       IMPLICIT NONE
@@ -77,6 +77,7 @@ C..Parameters:
       REAL, PARAMETER :: PA2ATM = 1.0 / STDATMPA    ! Pascal to atm conv fac
 
 C..External Functions:
+
 
 C..Saved Local Variables:
 
@@ -126,14 +127,15 @@ C..Scratch Local Variables:
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-C-----------------------------------------------------------------------
 
-      IF ( N_GC_SPC .EQ. 0 ) RETURN
+C**********************************************************************
+
+      IF( N_GC_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( LFIRST ) THEN
+      IF( LFIRST ) THEN
 
          LOGDEV = INIT3( )
 
@@ -150,22 +152,23 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          EMISVD = .TRUE.
 #endif
 
-         IF ( INDEX( MECHNAME, 'AE' ) .NE. 0 ) THEN
+         IF( INDEX( MECHNAME, 'AE' ) .NE. 0 ) THEN
            L_AE_VRSN = .TRUE.
          ELSE
            L_AE_VRSN = .FALSE.
          END IF
 
-         IF ( INDEX( MECHNAME, 'AQ' ) .NE. 0 ) THEN
+         IF( INDEX( MECHNAME, 'AQ' ) .NE. 0 ) THEN
            L_AQ_VRSN = .TRUE.
          ELSE
            L_AQ_VRSN = .FALSE.
          END IF
 
-         IF ( LIRR ) THEN
+         IF( LIRR ) THEN
             MSG = 'IRR Analysis not allowed with EBI solver'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
+
 
          CALL HRINIT
 
@@ -181,11 +184,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          MAOMV =  MWAIR / MWWAT
 
 c..If emissions processing requested stop
-         IF ( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
+         IF( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
+
             MSG = 'ERROR: EBI solver not configured to '//
      &            'process emissions in chemistry'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+
          END IF   ! End if doing emissions
+
 
 #ifdef hrstats
          ISTFL = JUNIT()
@@ -195,6 +201,7 @@ c..If emissions processing requested stop
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
 
          LFIRST = .FALSE.
 
@@ -212,11 +219,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C.. Compute number of time step loops and step size for EBI solver
       DELT_SEC = DELTAT * 60.0 + 0.1
-      IF ( DELT_SEC .GE. ITMSTEP ) THEN
+      IF( DELT_SEC .GE. ITMSTEP ) THEN
          N_EBI_STEPS = 1
          EBI_TMSTEP = FLOAT( ITMSTEP ) / 60.0
       ELSE
-         IF ( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
+         IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
             N_EBI_STEPS = ITMSTEP / DELT_SEC
          ELSE
             N_EBI_STEPS = ITMSTEP / DELT_SEC + 1
@@ -225,6 +232,7 @@ C.. Compute number of time step loops and step size for EBI solver
       END IF
 
       N_INR_STEPS = 1
+
 
 C.. Get ambient temperature in K
 
@@ -244,6 +252,7 @@ C.. Get specific humidity in Kg H2O / Kg air
          MSG = 'Could not read QV from MET_CRO_3D'
          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
+
 
 C.. Get pressure in Pascals
       VNAME = 'PRES'
@@ -276,20 +285,23 @@ c..Load ICs
                   YC( S ) = MAX( CGRID( C, R, L, S ), 1.0E-30 )
                END DO
 
+
 c..Set physical quantities
                TEMP = TA( C, R, L )
                ATMPRES = PA2ATM * PRES( C, R, L )
                H2O  = MAX ( QV( C, R, L ) * MAOMV *  1.0E+06, 0.0 )
 
+
 c..Get rate constants
                LSUNLIGHT = .FALSE.
                DO NPH = 1, NPHOTAB
                   RJIN( NPH ) = RJ( C, R, L, NPH )
-                  IF ( RJ( C, R, L, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
+                  IF( RJ( C, R, L, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
                END DO
 
                CALL HRCALCKS( NPHOTAB, LSUNLIGHT, RJIN, TEMP,
      &                        ATMPRES, H2O, RKI )
+
 
 c..Call EBI solver
                N_EBI_IT = 0
@@ -302,14 +314,19 @@ c..Call EBI solver
                SUMEBI = SUMEBI + FLOAT( N_EBI_IT )
 #endif
 
+
 c..Update concentration array
                DO S = 1, N_GC_SPC
                   CGRID( C, R, L, S ) = YC( S )
                END DO
 
+
             END DO
          END DO
       END DO
+
+
+
 
 #ifdef hrstats
       AVGEBI = SUMEBI / FLOAT( NCOLS * NROWS * NLAYS )
@@ -318,7 +335,7 @@ c..Update concentration array
 
       RETURN
 
-C----------------------- FORMAT STATEMENTS ----------------------------
+C*********************** FORMAT STATEMENTS ****************************
 
 92000 FORMAT( / 10X, 'Euler Backward Iterative Parameters -'
      &        / 10X, 'Chemistry Integration Time Interval (min):', F12.4,

@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/hrsolver.F,v 1.3 2011/10/21 16:10:58 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -32,11 +32,11 @@ C  FUNCTION: EBI solver
 C
 C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3,
-C                                     HRG4, HRPRODLOSS,
+C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
+C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 27, 2011
+C  REVISION HISTORY: Created by EBI solver program, July 16, 2012
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -123,7 +123,6 @@ C..SCRATCH LOCAL VARIABLES:
         END SUBROUTINE
       END INTERFACE
 
-
 C**********************************************************************
 
 
@@ -186,7 +185,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          NBKUPS = 0
          N_INR_STEPS = 1
 
- 100     CONTINUE                        !  Restart location
+100      CONTINUE                        !  Restart location
 
          DO 2000 NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
 
@@ -301,20 +300,20 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
                 IF( LEBI_CONV )THEN
-  
+
                    DTG = 60.0D0 * REAL(DTC, 8)
-                   IF(CALL_DEG)CALL DEGRADE(YC, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation r
-  
+                   IF(CALL_DEG)CALL DEGRADE(YC, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
+
                    GO TO 2000
-  
+
                 END IF
 
- 1000       CONTINUE
+1000        CONTINUE
 
 c...Convergence failure section; cut the inner time step in half &
 c.....start inner loop over unless max backups exceeded
 
- 1010       CONTINUE
+1010        CONTINUE
 
             NBKUPS = NBKUPS + 1
 
@@ -346,13 +345,13 @@ c.....start inner loop over unless max backups exceeded
                END DO
 
                MSG = 'ERROR: Stopping because of EBI convergence failures'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
 
             END IF
 
- 2000    CONTINUE
+2000     CONTINUE
 
- 3000 CONTINUE
+3000  CONTINUE
 
       RETURN
 
