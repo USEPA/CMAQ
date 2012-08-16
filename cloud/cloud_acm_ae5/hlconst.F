@@ -296,7 +296,6 @@ C...  Atmospheric Chemistry and Physics, 1997
 
 C...........EXTERNAL FUNCTIONS and their descriptions:
 
-      INTEGER, EXTERNAL :: TRIMLEN  ! string length, excl. trailing blanks
 
 C-----------------------------------------------------------------------
 C  begin body of subroutine HLCONST
