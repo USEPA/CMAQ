@@ -140,12 +140,17 @@ C***Indices for special case photolysis cross sections
       REAL,          ALLOCATABLE, SAVE :: SNOW_COEFF_REF( : )
       REAL,          ALLOCATABLE, SAVE :: SPECTRAL_ALBEDO_REF( :,: )
 
-      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD  = 50
-      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD
-      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD( : )
-      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD( : )
-      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD( : )
+      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD50  = 50
+      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD50
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD50( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD50( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD50( : )
 
+      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD40  = 40
+      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD40
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD40( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD40( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD40( : )
 
       INTEGER, PARAMETER :: NUMB_EXPECT_USGS  = 24
       INTEGER, SAVE      :: NUMB_LANDUSE_USGS
@@ -158,6 +163,8 @@ C***Indices for special case photolysis cross sections
       CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_MODIS( : )
       INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2MODIS( : )
       REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2MODIS( : )
+      
+      LOGICAL, SAVE      :: NO_NLCD40
 
 C***special information for acetone
 C***  Reference:
@@ -866,6 +873,7 @@ C***local
       INTEGER :: IPHOT_LOAD
       INTEGER :: ITT_LOAD
       INTEGER :: IWL_LOAD
+      
 
 C***external functions: none
 
@@ -1137,28 +1145,28 @@ C...begin read
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
       END DO
 
-      READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_NLCD
+      READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_NLCD50
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
 #ifdef Verbose
-      write( log_unit,6013 ) 'NUMB_NLCD_MODIS = ', numb_landuse_nlcd
-      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD-MODIS', 'INDEX_ALBREF',
+      write( log_unit,6013 ) 'NUMB_NLCD50_MODIS = ', numb_landuse_NLCD50
+      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD50-MODIS', 'INDEX_ALBREF',
      &                       'FAC_ALBREF'
 #endif
 
-      ALLOCATE( LANDUSE_NLCD( NUMB_LANDUSE_NLCD )  )
-      ALLOCATE( ALBMAP_REF2NLCD( NUMB_LANDUSE_NLCD )  )
-      ALLOCATE( ALBFAC_REF2NLCD( NUMB_LANDUSE_NLCD )  )
+      ALLOCATE( LANDUSE_NLCD50( NUMB_LANDUSE_NLCD50 )  )
+      ALLOCATE( ALBMAP_REF2NLCD50( NUMB_LANDUSE_NLCD50 )  )
+      ALLOCATE( ALBFAC_REF2NLCD50( NUMB_LANDUSE_NLCD50 )  )
 
-      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD
-         READ( PHOTAB_UNIT,5016 ) LANDUSE_NLCD( ITT_LOAD ),
-     &                            ALBMAP_REF2NLCD( ITT_LOAD ),
-     &                            ALBFAC_REF2NLCD( ITT_LOAD )
+      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD50
+         READ( PHOTAB_UNIT,5016 ) LANDUSE_NLCD50( ITT_LOAD ),
+     &                            ALBMAP_REF2NLCD50( ITT_LOAD ),
+     &                            ALBFAC_REF2NLCD50( ITT_LOAD )
 
 #ifdef Verbose
-         write( log_unit,6016 ) itt_load, landuse_nlcd( itt_load ),
-     &                          albmap_ref2nlcd( itt_load ),
-     &                          albfac_ref2nlcd( itt_load )
+         write( log_unit,6016 ) itt_load, landuse_NLCD50( itt_load ),
+     &                          albmap_ref2NLCD50( itt_load ),
+     &                          albfac_ref2NLCD50( itt_load )
 #endif
 
       END DO
@@ -1213,6 +1221,42 @@ C...begin read
 
       END DO
 
+      NO_NLCD40 = .TRUE.  ! default condition that file does not contain NLCD40 Landuse data
+      
+      READ( PHOTAB_UNIT,5013, 101 ) NUMB_LANDUSE_NLCD40
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
+
+#ifdef Verbose
+      write( log_unit,6013 ) 'NUMB_NLCD40_MODIS = ', numb_landuse_NLCD40
+      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD40-MODIS', 'INDEX_ALBREF',
+     &                       'FAC_ALBREF'
+#endif
+
+      ALLOCATE( LANDUSE_NLCD50( NUMB_LANDUSE_NLCD40 )  )
+      ALLOCATE( ALBMAP_REF2NLCD50( NUMB_LANDUSE_NLCD40 )  )
+      ALLOCATE( ALBFAC_REF2NLCD50( NUMB_LANDUSE_NLCD40 )  )
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD40
+         READ( PHOTAB_UNIT,5016 ) LANDUSE_NLCD40( ITT_LOAD ),
+     &                            ALBMAP_REF2NLCD40( ITT_LOAD ),
+     &                            ALBFAC_REF2NLCD40( ITT_LOAD )
+
+#ifdef Verbose
+         write( log_unit,6016 ) itt_load, landuse_NLCD40( itt_load ),
+     &                          albmap_ref2NLCD40( itt_load ),
+     &                          albfac_ref2NLCD40( itt_load )
+#endif
+
+      END DO
+      
+      NO_NLCD40 = .FALSE.
+
+101   IF( NO_NLCD40 )THEN
+          MSG = CSQY_FILE // ' does not contain data for NLCD40 land use and '
+     &       // 'and corresponds to CMAQ version 5.01.'
+          CALL M3MESG(PNAME, MSG)
+      END IF
+          
       ALLOCATE( WAVELENGTH( NWL_PHOT ) )
       ALLOCATE( FEXT      ( NWL_PHOT ) )
       ALLOCATE( ALB       ( NWL_PHOT ) )
