@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/ebi_cb05tump/hrinit.F,v 1.2 2011/10/21 16:10:57 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 27, 2011
+C  REVISION HISTORY: Created by EBI solver program, July 16, 2012
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C***********************************************************************
 

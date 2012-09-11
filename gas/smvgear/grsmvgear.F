@@ -263,7 +263,7 @@ C**********************************************************************
      &              CHOLD( BLKSIZE, N_GC_SPC ),
      &              DTLOS( BLKSIZE, NSPCS1 ),
      &              CONC ( BLKSIZE, N_GC_SPC*MXORDER ),
-     &              YNEW_DEGRADE( BLKSIZE, N_GC_SPC), STAT = IOS )
+     &              YNEW_DEGRADE( BLKSIZE, NSPCSD), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failure for '
      &          // 'CEST, CHOLD, DTLOS, CONC, or YNEW_DEGRADE'

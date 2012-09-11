@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/opphot.F,v 1.3 2011/10/21 16:11:28 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/phot/phot_inline/opphot.F,v 1.3 2011/10/21 16:11:28 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -111,7 +111,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
 
          N = 1
          VNAME3D( N ) = 'COSZENS'
-         UNITS3D( N ) = ' '
+         UNITS3D( N ) = 'NONE'
          VDESC3D( N ) = 'Cosine of Solar Zenith Angle'
          VTYPE3D( N ) = M3REAL
 
@@ -148,28 +148,28 @@ C...assumes that lamba in nanometers is on order of 100 or less
 
             N = N + 1
             VNAME3D( N ) = 'TAU_AERO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ' '
+            UNITS3D( N ) = 'NONE'
             VDESC3D( N ) = 'Aerosol Optical Depth, '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'TAU_TOT_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ' '
+            UNITS3D( N ) = 'NONE'
             VDESC3D( N ) = 'Total Optical Depth, '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'TAUO3_TOP_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ' '
+            UNITS3D( N ) = 'NONE'
             VDESC3D( N ) = 'Optical Depth of O3 above model domain, '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
 
             N = N + 1
             VNAME3D( N ) = 'ALBEDO_W' // TRIM( LAMBDA )
-            UNITS3D( N ) = ' '
+            UNITS3D( N ) = 'NONE'
             VDESC3D( N ) = 'Surface Albedo at the wavelength '
      &                   // TRIM( LAMBDA ) // ' nm'
             VTYPE3D( N ) = M3REAL
