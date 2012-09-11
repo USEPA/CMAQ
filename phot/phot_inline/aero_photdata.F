@@ -48,6 +48,7 @@ C  REVISION HISTORY
 C     01/10/11 B.Hutzell - initial version created based on AERO_DESC module
 C                          in version 4.7 and aero_depv for version 5.0
 C     03/29/11 S.Roselle - Replaced I/O API include files with UTILIO_DEFN
+C     06/08/12 J.Young   - remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -100,23 +101,23 @@ C Parameters:
 !!!!!!
       TYPE( MODAL_COMPLEX ), PARAMETER :: REFRACTIVE_INDEX( NUM_REFRACTIVE ) = (/
 C *** FSB Water soluble values are modeled on data from Beyer et al. (1996)
-C                                                Real_Part             Imag_Part
-C                                            ------------------     ------------------
-C                         Name                 I     J     K         I     J     K
-C                        --------            ------------------     ------------------
-     &   MODAL_COMPLEX( 'SOLUTE          ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
-     &   MODAL_COMPLEX( 'SEASALT         ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/)),
-     &   MODAL_COMPLEX( 'DUST            ', (/1.53, 1.53, 1.53/), (/0.01, 0.01, 0.01/)),
-     &   MODAL_COMPLEX( 'WATER           ', (/1.34, 1.34, 1.34/), (/0.00, 0.00, 0.00/)),
-C *** FSB The following values for soot-like particles are modified from
+C                                       Real_Part             Imag_Part
+C                                  ------------------     ------------------
+C                         Name        I     J     K         I     J     K
+C                        --------  ------------------     ------------------
+     &   MODAL_COMPLEX( 'SOLUTE ', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/) ),
+     &   MODAL_COMPLEX( 'SEASALT', (/1.50, 1.50, 1.50/), (/0.00, 0.00, 0.00/) ),
+     &   MODAL_COMPLEX( 'DUST   ', (/1.53, 1.53, 1.53/), (/0.01, 0.01, 0.01/) ),
+     &   MODAL_COMPLEX( 'WATER  ', (/1.34, 1.34, 1.34/), (/0.00, 0.00, 0.00/) ),
+     &   MODAL_COMPLEX( 'SOOT   ', (/1.53, 1.53, 0.00/), (/0.14, 0.05, 0.00/) ) /)
+C *** FSB The above values for soot-like particles are modified from
 C         Table 1 of Horvath (1995). They are size dependent effective
 C         refractive indices fit to data on absorption by carbon
-     &   MODAL_COMPLEX( 'SOOT            ', (/1.53, 1.53, 0.00/), (/0.14, 0.05, 0.00/))/)
 
 C Local saved variables:
 
       CHARACTER( 16 ), SAVE :: AE_VRSN                     ! Aerosol version name
-      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_PHOTDATA   '  ! procedure name
+      CHARACTER( 16 ), SAVE :: PNAME = 'AERO_PHOTDATA'     ! procedure name
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.                   ! first pass flag
 

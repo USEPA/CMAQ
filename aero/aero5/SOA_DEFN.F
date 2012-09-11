@@ -39,6 +39,7 @@ C
 C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 values
 C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction counters
 C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
+C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -57,30 +58,31 @@ C-----------------------------------------------------------------------
       End Type vapor_type
 
       Type( vapor_type ), Parameter :: vaporspc( n_vapor ) = (/
-C                        Name           Alpha    CStar     Enth       SOA Name    Origin  Decay     Drog Name
-C                  ----------------    -------  --------  -------  ----------------   --   ----   ----------------
-     & vapor_type('SV_ALK          ',  0.0718,   0.0200,  40.0E3, 'AALKJ           ', 'A',  8.0, 'ALK5RXN         '),
-     & vapor_type('SV_XYL1         ',  0.0310,   1.3140,  32.0E3, 'AXYL1J          ', 'A',  8.0, 'XYLNRXN         '),
-     & vapor_type('SV_XYL2         ',  0.0900,  34.4830,  32.0E3, 'AXYL2J          ', 'A',  8.0, 'XYLNRXN         '),
-     & vapor_type('SV_TOL1         ',  0.0580,   2.3260,  18.0E3, 'ATOL1J          ', 'A',  7.0, 'TOLNRXN         '),
-     & vapor_type('SV_TOL2         ',  0.1130,  21.2770,  18.0E3, 'ATOL2J          ', 'A',  7.0, 'TOLNRXN         '),
-     & vapor_type('SV_BNZ1         ',  0.0720,   0.3020,  18.0E3, 'ABNZ1J          ', 'A',  6.0, 'BNZNRXN         '),
-     & vapor_type('SV_BNZ2         ',  0.8880, 111.1100,  18.0E3, 'ABNZ2J          ', 'A',  6.0, 'BNZNRXN         '),
-     & vapor_type('SV_TRP1         ',  0.1393,  14.7920,  40.0E3, 'ATRP1J          ', 'B', 10.0, 'TRPRXN          '),
-     & vapor_type('SV_TRP2         ',  0.4542, 133.7297,  40.0E3, 'ATRP2J          ', 'B', 10.0, 'TRPRXN          '),
-     & vapor_type('SV_ISO1         ',  0.2320, 116.0100,  40.0E3, 'AISO1J          ', 'B',  5.0, 'ISOPRXN         '),
-     & vapor_type('SV_ISO2         ',  0.0288,   0.6170,  40.0E3, 'AISO2J          ', 'B',  5.0, 'ISOPRXN         '),
-     & vapor_type('SV_SQT          ',  1.5370,  24.9840,  40.0E3, 'ASQTJ           ', 'B', 15.0, 'SESQRXN         ')/)
+C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
+C                                                          Name   Origin        Name
+C                  -------    -------  --------  -------  ------    --  ----   -------
+     & vapor_type('SV_ALK ',  0.0718,   0.0200,  40.0E3, 'AALKJ ', 'A',  8.0, 'ALK5RXN'),
+     & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J', 'A',  8.0, 'XYLNRXN'),
+     & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J', 'A',  8.0, 'XYLNRXN'),
+     & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J', 'A',  7.0, 'TOLNRXN'),
+     & vapor_type('SV_TOL2',  0.1130,  21.2770,  18.0E3, 'ATOL2J', 'A',  7.0, 'TOLNRXN'),
+     & vapor_type('SV_BNZ1',  0.0720,   0.3020,  18.0E3, 'ABNZ1J', 'A',  6.0, 'BNZNRXN'),
+     & vapor_type('SV_BNZ2',  0.8880, 111.1100,  18.0E3, 'ABNZ2J', 'A',  6.0, 'BNZNRXN'),
+     & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J', 'B', 10.0, 'TRPRXN '),
+     & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J', 'B', 10.0, 'TRPRXN '),
+     & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN')/)
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1         '
-      Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2         '
-      Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1           '
-      Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2           '
-      Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3           '
-      Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA           '
-      Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB           '
-      Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC           '
+      Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
+      Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2'
+      Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
+      Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
+      Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
+      Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
+      Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
+      Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
 
 C Indices of required species
       Integer :: iso1_idx
@@ -109,18 +111,18 @@ C   This default orgprod table is for CB05, parent names are changed in subrouti
 C   extract_soa for the SAPRC99 and SAPRC07T mechanisms
 C
       Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
-C                          Name                Parent             Aerospc        AlphaH
-C                     ----------------    ----------------    ----------------   ------ 
-     & orgprod_type( 'ALK5RXN         ', 'ALK5RXN         ', '                ', 0.000 ),
-     & orgprod_type( 'XYLNRXN         ', 'XYL             ', '                ', 0.000 ),
-     & orgprod_type( 'XYLHRXN         ', 'XYL             ', 'AXYL3J          ', 0.300 ),
-     & orgprod_type( 'TOLNRXN         ', 'TOL             ', '                ', 0.000 ),
-     & orgprod_type( 'TOLHRXN         ', 'TOL             ', 'ATOL3J          ', 0.360 ),
-     & orgprod_type( 'BNZNRXN         ', 'BENZENE         ', '                ', 0.000 ),
-     & orgprod_type( 'BNZHRXN         ', 'BENZENE         ', 'ABNZ3J          ', 0.370 ),
-     & orgprod_type( 'TRPRXN          ', 'TRPRXN          ', '                ', 0.000 ),
-     & orgprod_type( 'ISOPRXN         ', 'ISOPRXN         ', '                ', 0.000 ),
-     & orgprod_type( 'SESQRXN         ', 'SESQRXN         ', '                ', 0.000 ) /)
+C                      Name      Parent     Aerospc  AlphaH
+C                     -------    -------    ------   ------ 
+     & orgprod_type( 'ALK5RXN', 'ALK5RXN', '      ', 0.000 ),
+     & orgprod_type( 'XYLNRXN', 'XYL    ', '      ', 0.000 ),
+     & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.300 ),
+     & orgprod_type( 'TOLNRXN', 'TOL    ', '      ', 0.000 ),
+     & orgprod_type( 'TOLHRXN', 'TOL    ', 'ATOL3J', 0.360 ),
+     & orgprod_type( 'BNZNRXN', 'BENZENE', '      ', 0.000 ),
+     & orgprod_type( 'BNZHRXN', 'BENZENE', 'ABNZ3J', 0.370 ),
+     & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
+     & orgprod_type( 'ISOPRXN', 'ISOPRXN', '      ', 0.000 ),
+     & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
@@ -195,16 +197,16 @@ C define orgprod parent names based on mechanism dependence
 
             If ( INDEX( MECHNAME, 'SAPRC99' ) .GT. 0 ) then
                alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
-               orgprod( 2 )%parent = 'ARO2            '
-               orgprod( 3 )%parent = 'ARO2            '
-               orgprod( 4 )%parent = 'ARO1            '
-               orgprod( 5 )%parent = 'ARO1            '
+               orgprod( 2 )%parent = 'ARO2'
+               orgprod( 3 )%parent = 'ARO2'
+               orgprod( 4 )%parent = 'ARO1'
+               orgprod( 5 )%parent = 'ARO1'
             Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
                alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
-               orgprod( 2 )%parent = 'MXYL            '
-               orgprod( 3 )%parent = 'MXYL            '
-               orgprod( 4 )%parent = 'TOLUENE         '
-               orgprod( 5 )%parent = 'TOLUENE         '
+               orgprod( 2 )%parent = 'MXYL'
+               orgprod( 3 )%parent = 'MXYL'
+               orgprod( 4 )%parent = 'TOLUENE'
+               orgprod( 5 )%parent = 'TOLUENE'
             Else
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -1192,7 +1194,7 @@ C    Get the Jacobian of the function
 C          ( a1 * X1^2 + b1 * X1 + c1 )
 C          ( a2 * X2^2 + b2 * X2 + c2 )
 C          ( a3 * X3^2 + b3 * X3 + c3 )
-C   F(X) = ( a4 * X4^2 + b4 * X4 + c4 ) = 0.
+C   F(X) = ( a4 * X4^2 + b4 * X4 + c4 ) = 0.0
 C          ( ........................ )
 C          ( aN * XN^2 + bN * XN + cN )
 C
@@ -1213,7 +1215,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       IMPLICIT NONE
 
       INTEGER N                 ! dimension of problem
-      REAL X( N )                 ! initial guess of CAER
+      REAL X( N )               ! initial guess of CAER
 
       REAL CT
       REAL CS

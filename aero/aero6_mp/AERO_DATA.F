@@ -49,6 +49,7 @@ C              made MG, K, CA, SEACAT required species;
 C JY  04/21/11 Added optional log messages (verbose_aero)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C BH  08/31/11 Adapted for mercury and HAP mechanisms
+C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
 C----------------------------------------------------------------------
 
       Implicit None
@@ -56,7 +57,7 @@ C----------------------------------------------------------------------
 C Number of aerosol species and modes
 
 !     Integer, Parameter :: n_aerospc = 40      ! number of aero species
-      Integer, Parameter :: n_aerolist = 62      ! number of aero species
+      Integer, Parameter :: n_aerolist = 62     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -66,24 +67,25 @@ C Number of aerosol species and modes
 
 C Default minimum concentration
       Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
-      Real,    Parameter :: conmin_set( n_mode )  = (/conmin, conmin, conmin/)
-      Real,    Parameter :: conmin_so4( n_mode )  = (/1.0E-12,1.0E-6, conmin/)
-      Real,    Parameter :: conmin_cor( n_mode )  = (/conmin, conmin, 1.889544E-05/)
+      Real,    Parameter :: cm_set( n_mode ) = (/ conmin, conmin, conmin /)
+      Real,    Parameter :: cm_so4( n_mode ) = (/ 1.0E-12,1.0E-6, conmin /)
+      Real,    Parameter :: cm_cor( n_mode ) = (/ conmin, conmin, 1.889544E-05 /)
 
-      Real,    Parameter :: esplit_fine( n_mode )  = (/0.001,0.999,0.000/)
-      Real,    Parameter :: esplit_accu( n_mode )  = (/0.000,1.000,0.000/)
-      Real,    Parameter :: esplit_coar( n_mode )  = (/0.000,0.000,1.000/)
-      Real,    Parameter :: esplit_zero( n_mode )  = (/0.000,0.000,0.000/)
+C Emissions splits
+      Real,    Parameter :: es_fin( n_mode ) = (/ 0.001, 0.999, 0.0   /)
+      Real,    Parameter :: es_acc( n_mode ) = (/ 0.0  , 1.0  , 0.0   /)
+      Real,    Parameter :: es_cor( n_mode ) = (/ 0.0  , 0.0  , 1.0   /)
+      Real,    Parameter :: es_0  ( n_mode ) = (/ 0.0  , 0.0  , 0.0   /)
 
-      Real,    Parameter :: ssf_aso4(   n_mode )  = (/0.0000,0.0776,0.0776/)
-      Real,    Parameter :: ssf_ana(    n_mode )  = (/0.0000,0.3086,0.0000/)
-      Real,    Parameter :: ssf_acl(    n_mode )  = (/0.0000,0.5338,0.5338/)
-      Real,    Parameter :: ssf_amg(    n_mode )  = (/0.0000,0.0368,0.0000/)
-      Real,    Parameter :: ssf_aca(    n_mode )  = (/0.0000,0.0114,0.0000/)
-      Real,    Parameter :: ssf_ak(     n_mode )  = (/0.0000,0.0118,0.0000/)
-      Real,    Parameter :: ssf_sea(    n_mode )  = (/0.0000,0.0000,0.3686/)
-      Real,    Parameter :: ssf_zero(   n_mode )  = (/0.0000,0.0000,0.0000/)
-
+C Sea salt factors
+      Real,    Parameter :: ss_so4( n_mode ) = (/ 0.0   , 0.0776, 0.0776 /)
+      Real,    Parameter :: ss_na ( n_mode ) = (/ 0.0   , 0.3086, 0.0    /)
+      Real,    Parameter :: ss_cl ( n_mode ) = (/ 0.0   , 0.5338, 0.5338 /)
+      Real,    Parameter :: ss_mg ( n_mode ) = (/ 0.0   , 0.0368, 0.0    /)
+      Real,    Parameter :: ss_ca ( n_mode ) = (/ 0.0   , 0.0114, 0.0    /)
+      Real,    Parameter :: ss_k  ( n_mode ) = (/ 0.0   , 0.0118, 0.0    /)
+      Real,    Parameter :: ss_sea( n_mode ) = (/ 0.0   , 0.0   , 0.3686 /)
+      Real,    Parameter :: ss_0  ( n_mode ) = (/ 0.0   , 0.0   , 0.0    /)
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -117,141 +119,79 @@ C-------------------------------------------------------------------------------
       Type( spcs_type ), Allocatable, Save :: aerospc ( : )
 
       Type( spcs_type ), Parameter   :: aerolist( n_aerolist ) = (/
-C                                                                                              nonVolSOA
-C                                                                                                   |   Charge                                                      
-C                              -----------Name--------------                                NoM2Wet |Tracer|                                            Emissions   Sea Salt
-C                        Aitken             Accum            Coarse          Min_Concs  Density  |  |  |   | Visidx    OptSurr        Emis               Splits      factors
-C                      ---------          ---------         ---------        ---------- -------  +  +  +   + -----    --------       --------           ----------- ---------
-     & spcs_type((/'ASO4I           ','ASO4J           ','ASO4K           '/),
-     &            conmin_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE        ','PSO4            ',esplit_accu,ssf_aso4),
-     & spcs_type((/'ANO3I           ','ANO3J           ','ANO3K           '/),
-     &            conmin_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE        ','PNO3            ',esplit_accu,ssf_zero),
-     & spcs_type((/'ACLI            ','ACLJ            ','ACLK            '/),
-     &            conmin_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE        ','PCL             ',esplit_accu, ssf_acl),
-     & spcs_type((/'ANH4I           ','ANH4J           ','ANH4K           '/),
-     &            conmin_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE        ','PNH4            ',esplit_accu,ssf_zero),
-     & spcs_type((/'ANAI            ','ANAJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE        ','PNA             ',esplit_accu, ssf_ana),
-     & spcs_type((/'                ','AMGJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  2,  1.0,'DUST          ','PMG             ',esplit_accu, ssf_amg),
-     & spcs_type((/'                ','AKJ             ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  1,  1.0,'DUST          ','PK              ',esplit_accu,  ssf_ak),
-     & spcs_type((/'                ','ACAJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  2,  1.0,'DUST          ','PCA             ',esplit_accu, ssf_aca),
-     & spcs_type((/'APOCI           ','APOCJ           ','                '/),
-     &            conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST          ','POC             ',esplit_fine,ssf_zero),
-     & spcs_type((/'APNCOMI         ','APNCOMJ         ','                '/),
-     &            conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST          ','PNCOM           ',esplit_fine,ssf_zero),
-     & spcs_type((/'AECI            ','AECJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0, 10.0,'SOOT          ','PEC             ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','AFEJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST          ','PFE             ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','AALJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST          ','PAL             ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','ASIJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST          ','PSI             ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','ATIJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST          ','PTI             ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','AMNJ            ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST          ','PMN             ',esplit_accu,ssf_zero),
-     & spcs_type((/'AH2OI           ','AH2OJ           ','AH2OK           '/),
-     &            conmin_set, 1000.0, T, F, F,  0,  0.0,'WATER         ','PH2O            ',esplit_accu,ssf_zero),
-     & spcs_type((/'AOTHRI          ','AOTHRJ          ','                '/),
-     &            conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST          ','PMOTHR          ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','AALKJ           ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AXYL1J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AXYL2J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AXYL3J          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ATOL1J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ATOL2J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ATOL3J          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ABNZ1J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ABNZ2J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ABNZ3J          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ATRP1J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ATRP2J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AISO1J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AISO2J          ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AISO3J          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','ASQTJ           ','                '/),
-     &            conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AOLGAJ          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AOLGBJ          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','AORGCJ          ','                '/),
-     &            conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST          ','                ',esplit_zero,ssf_zero),
-     & spcs_type((/'                ','                ','ASOIL           '/),
-     &            conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST          ','                ',esplit_coar,ssf_zero),
-     & spcs_type((/'                ','                ','ACORS           '/),
-     &            conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST          ','PMC             ',esplit_coar,ssf_zero),
-     & spcs_type((/'                ','                ','ASEACAT         '/),
-     &            conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE        ','                ',esplit_coar, ssf_sea),
+C                                                                        nonVolSOA
+C                                                                            |   Charge                                                      
+C                    ------------Name--------------                  NoM2Wet |Tracer|       OptSurr               Emissions Sea Salt
+C                    Aitken      Accum       Coarse     Min_Concs Density |  |  |   | Visidx   |      Emis          Splits  factors
+C                   ---------   ---------   ---------     ------  ------  +  +  +   +  ----  ------   -------------  ------ ------
+     & spcs_type((/'ASO4I    ','ASO4J    ','ASO4K    '/), cm_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE','PSO4         ',es_acc,ss_so4),
+     & spcs_type((/'ANO3I    ','ANO3J    ','ANO3K    '/), cm_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE','PNO3         ',es_acc,  ss_0),
+     & spcs_type((/'ACLI     ','ACLJ     ','ACLK     '/), cm_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE','PCL          ',es_acc, ss_cl),
+     & spcs_type((/'ANH4I    ','ANH4J    ','ANH4K    '/), cm_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE','PNH4         ',es_acc,  ss_0),
+     & spcs_type((/'ANAI     ','ANAJ     ','         '/), cm_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE','PNA          ',es_acc, ss_na),
+     & spcs_type((/'         ','AMGJ     ','         '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PMG          ',es_acc, ss_mg),
+     & spcs_type((/'         ','AKJ      ','         '/), cm_set, 2200.0, F, F, F,  1,  1.0,'DUST  ','PK           ',es_acc,  ss_k),
+     & spcs_type((/'         ','ACAJ     ','         '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PCA          ',es_acc, ss_ca),
+     & spcs_type((/'APOCI    ','APOCJ    ','         '/), cm_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC          ',es_fin,  ss_0),
+     & spcs_type((/'APNCOMI  ','APNCOMJ  ','         '/), cm_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','PNCOM        ',es_fin,  ss_0),
+     & spcs_type((/'AECI     ','AECJ     ','         '/), cm_set, 2200.0, F, F, F,  0, 10.0,'SOOT  ','PEC          ',es_fin,  ss_0),
+     & spcs_type((/'         ','AFEJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PFE          ',es_acc,  ss_0),
+     & spcs_type((/'         ','AALJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PAL          ',es_acc,  ss_0),
+     & spcs_type((/'         ','ASIJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PSI          ',es_acc,  ss_0),
+     & spcs_type((/'         ','ATIJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PTI          ',es_acc,  ss_0),
+     & spcs_type((/'         ','AMNJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMN          ',es_acc,  ss_0),
+     & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O         ',es_acc,  ss_0),
+     & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR       ',es_acc,  ss_0),
+     & spcs_type((/'         ','AALKJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AXYL1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AXYL2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AXYL3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ATOL1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ATOL2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ATOL3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ABNZ1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ABNZ2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ABNZ3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ATRP1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ATRP2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AISO1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AISO2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AISO3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','ASQTJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AOLGAJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AOLGBJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AORGCJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','         ','ASOIL    '/), cm_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','             ',es_cor,  ss_0),
+     & spcs_type((/'         ','         ','ACORS    '/), cm_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC          ',es_cor,  ss_0),
+     & spcs_type((/'         ','         ','ASEACAT  '/), cm_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','             ',es_cor,ss_sea),
 C the below tracer are optional and their usage depend on the AE namelist for the mechanism
-C                                                                                              nonVolSOA
-C                                                                                                   |   Charge                                                      
-C                              -----------Name--------------                                NoM2Wet |Tracer|                                            Emissions   Sea Salt
-C                        Aitken             Accum            Coarse          Min_Concs  Density  |  |  |   | Visidx    OptSurr        Emis               Splits      factors
-C                      ---------          ---------         ---------        ---------- -------  +  +  +   + -----    --------       --------           ----------- ---------
-     & spcs_type((/'ANII            ','ANIJ            ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','NICKEL_F        ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','ANIK            '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','NICKEL_C        ',esplit_coar,ssf_zero),
-     & spcs_type((/'ACR_VII         ','ACR_VIJ         ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','CHROMHEX_F      ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','ACR_VIK         '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','CHROMHEX_C      ',esplit_coar,ssf_zero),
-     & spcs_type((/'ACR_IIII        ','ACR_IIIJ        ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','CHROMTRI_F      ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','ACR_IIIK        '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','CHROMTRI_C      ',esplit_coar,ssf_zero),
-     & spcs_type((/'ABEI            ','ABEJ            ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','BERYLLIUM_F     ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','ABEK            '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','BERYLLIUM_C     ',esplit_coar,ssf_zero),
-     & spcs_type((/'APBI            ','APBJ            ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','LEAD_F          ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','APBK            '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','LEAD_C          ',esplit_coar,ssf_zero),
-     & spcs_type((/'ADE_OTHRI       ','ADE_OTHRJ       ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','DIESEL_PMFINE   ',esplit_fine,ssf_zero),
-     & spcs_type((/'ADE_ECI         ','ADE_ECJ         ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','DIESEL_PMEC     ',esplit_fine,ssf_zero),
-     & spcs_type((/'ADE_OCI         ','ADE_OCJ         ','                '/),
-     &            conmin_set, 2000.0, F, T, T, 0, 0.0,'DUST            ','DIESEL_PMOC     ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','ADE_NO3J        ','                '/),
-     &            conmin_set, 1800.0, F, T, T, 0, 0.0,'DUST            ','DIESEL_PMNO3    ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','ADE_SO4J        ','                '/),
-     &            conmin_set, 1800.0, F, T, T, 0, 0.0,'DUST            ','DIESEL_PMSO4    ',esplit_accu,ssf_zero),
-     & spcs_type((/'                ','                ','ADE_K           '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','DIESEL_PMC      ',esplit_coar,ssf_zero),
-     & spcs_type((/'ACDI            ','ACDJ            ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','CADMIUM_F       ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','ACDK            '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','CADMIUM_C       ',esplit_coar,ssf_zero),
-     & spcs_type((/'AMN_HAPSI       ','AMN_HAPSJ       ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','MANGANESE_F     ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','AMN_HAPSK       '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','MANGANESE_C     ',esplit_coar,ssf_zero),
-     & spcs_type((/'APHGI           ','APHGJ           ','                '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','PHGI            ',esplit_fine,ssf_zero),
-     & spcs_type((/'                ','                ','APHGK           '/),
-     &            conmin_set, 2200.0, F, T, T, 0, 0.0,'DUST            ','                ',esplit_zero,ssf_zero) 
+C                                                                        nonVolSOA
+C                                                                            |   Charge                                                      
+C                    ------------Name--------------                  NoM2Wet |Tracer|       OptSurr               Emissions Sea Salt
+C                    Aitken      Accum       Coarse     Min_Concs Density |  |  |   | Visidx   |      Emis          Splits  factors
+C                   ---------   ---------   ---------     ------- ------  +  +  +   +  ----  ------   -------------  ------ ------
+     & spcs_type((/'ANII     ','ANIJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','NICKEL_F     ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','ANIK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','NICKEL_C     ',es_cor,  ss_0),
+     & spcs_type((/'ACR_VII  ','ACR_VIJ  ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','CHROMHEX_F   ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','ACR_VIK  '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','CHROMHEX_C   ',es_cor,  ss_0),
+     & spcs_type((/'ACR_IIII ','ACR_IIIJ ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','CHROMTRI_F   ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','ACR_IIIK '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','CHROMTRI_C   ',es_cor,  ss_0),
+     & spcs_type((/'ABEI     ','ABEJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','BERYLLIUM_F  ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','ABEK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','BERYLLIUM_C  ',es_cor,  ss_0),
+     & spcs_type((/'APBI     ','APBJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','LEAD_F       ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','APBK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','LEAD_C       ',es_cor,  ss_0),
+     & spcs_type((/'ADE_OTHRI','ADE_OTHRJ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','DIESEL_PMFINE',es_fin,  ss_0),
+     & spcs_type((/'ADE_ECI  ','ADE_ECJ  ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','DIESEL_PMEC  ',es_fin,  ss_0),
+     & spcs_type((/'ADE_OCI  ','ADE_OCJ  ','         '/), cm_set, 2000.0, F, T, T,  0,  0.0,'DUST  ','DIESEL_PMOC  ',es_fin,  ss_0),
+     & spcs_type((/'         ','ADE_NO3J ','         '/), cm_set, 1800.0, F, T, T,  0,  0.0,'DUST  ','DIESEL_PMNO3 ',es_acc,  ss_0),
+     & spcs_type((/'         ','ADE_SO4J ','         '/), cm_set, 1800.0, F, T, T,  0,  0.0,'DUST  ','DIESEL_PMSO4 ',es_acc,  ss_0),
+     & spcs_type((/'         ','         ','ADE_K    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','DIESEL_PMC   ',es_cor,  ss_0),
+     & spcs_type((/'ACDI     ','ACDJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','CADMIUM_F    ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','ACDK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','CADMIUM_C    ',es_cor,  ss_0),
+     & spcs_type((/'AMN_HAPSI','AMN_HAPSJ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','MANGANESE_F  ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','AMN_HAPSK'/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','MANGANESE_C  ',es_cor,  ss_0),
+     & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','PHGI         ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','             ',es_0,    ss_0)
      & /)                                                                                                                          
                                                                                                                       
 C Sea-Salt Speciation factors
@@ -302,21 +242,21 @@ C           -------  -------  -------
 !     &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_so4    = 'ASO4            '  
-      Character( 16 ), Private, Parameter :: req_no3    = 'ANO3            '  
-      Character( 16 ), Private, Parameter :: req_cl     = 'ACL             '   
-      Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4            '  
-      Character( 16 ), Private, Parameter :: req_na     = 'ANA             '   
-      Character( 16 ), Private, Parameter :: req_mg     = 'AMG             '           
-      Character( 16 ), Private, Parameter :: req_k      = 'AK              ' 
-      Character( 16 ), Private, Parameter :: req_ca     = 'ACA             ' 
-      Character( 16 ), Private, Parameter :: req_poc    = 'APOC            '  
-      Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O            '  
-      Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL           '
-      Character( 16 ), Private, Parameter :: req_cors   = 'ACORS           ' 
-      Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM          '  
-      Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT         ' 
-      Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ           '
+      Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'  
+      Character( 16 ), Private, Parameter :: req_no3    = 'ANO3'  
+      Character( 16 ), Private, Parameter :: req_cl     = 'ACL'   
+      Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4'  
+      Character( 16 ), Private, Parameter :: req_na     = 'ANA'   
+      Character( 16 ), Private, Parameter :: req_mg     = 'AMG'           
+      Character( 16 ), Private, Parameter :: req_k      = 'AK' 
+      Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
+      Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
+      Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'  
+      Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
+      Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
+      Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
+      Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT' 
+      Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
     
 C Indices of required species
       Integer, Save  :: aso4_idx
@@ -355,12 +295,12 @@ C-------------------------------------------------------------------------------
       End Type mode_type
 
       Type ( mode_type ), Parameter  :: aeromode( n_mode ) = (/
-C                       number           surface            minimum minimum minimum
-C                        name             name              numconc  m2conc  m3conc
-C                  -   ---------         -------           -------- -------  ------
-     &   mode_type('NUMATKN         ', 'SRFATKN         ', conmin,  conmin, conmin),
-     &   mode_type('NUMACC          ', 'SRFACC          ', conmin,  conmin, conmin),
-     &   mode_type('NUMCOR          ', 'SRFCOR          ', conmin,  conmin, conmin)/)
+C                    number    surface  minimum minimum minimum
+C                     name      name    numconc  m2conc  m3conc
+C                   --------   -------   ------  ------  ------
+     &   mode_type('NUMATKN', 'SRFATKN', conmin, conmin, conmin),
+     &   mode_type('NUMACC ', 'SRFACC ', conmin, conmin, conmin),
+     &   mode_type('NUMCOR ', 'SRFCOR ', conmin, conmin, conmin)/)
 
       Real, Parameter :: min_sigma_g = 1.05
       Real, Parameter :: max_sigma_g = 2.50

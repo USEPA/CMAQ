@@ -31,6 +31,7 @@ C     First version was coded in May 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C     Feb 2011: Steve Howard, Shawn Roselle, Prakash Bhave, Bill Hutzell -
 C     Mar 2011: Shawn Roselle, replaced I/O API include files with UTILIO_DEFN
+C     Jun 2012: J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerospc, conmin
@@ -126,15 +127,15 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C... Additional Aerosol surrogate species to add to aerosol list
       Type ( sur_aer_type ), private :: addsrgaer( NADDAER ) = (/
-C                         Aitken         Accum             Coarse       Background   MolWt    Density
-C                      -------------   -------------   -------------    ---------- --------  ---------
-     & sur_aer_type((/'             ','             ','CACO3        '/),     0.0,    100.1,   2000.0),
-     & sur_aer_type((/'             ','             ','MGCO3        '/),     0.0,     84.3,   2000.0),
-     & sur_aer_type((/'             ','             ','A3FE         '/),   0.010,     55.8,   2000.0),
-     & sur_aer_type((/'             ','             ','B2MN         '/),   0.005,     54.9,   2000.0),
-     & sur_aer_type((/'             ','             ','K            '/),     0.0,     39.1,   2000.0),
-     & sur_aer_type((/'NUM_AITKEN   ','NUM_ACCUM    ','NUM_COARSE   '/),     0.0,      0.0,      1.0),
-     & sur_aer_type((/'SRF_AITKEN   ','SRF_ACCUM    ','SRF_COARSE   '/),     0.0,      0.0,      1.0)/)
+C                         Aitken       Accum         Coarse      Background   MolWt   Density
+C                      ----------    ---------    ----------     ----------  ------   -------
+     & sur_aer_type((/'          ', '         ', 'CACO3     '/),     0.0,    100.1,   2000.0),
+     & sur_aer_type((/'          ', '         ', 'MGCO3     '/),     0.0,     84.3,   2000.0),
+     & sur_aer_type((/'          ', '         ', 'A3FE      '/),   0.010,     55.8,   2000.0),
+     & sur_aer_type((/'          ', '         ', 'B2MN      '/),   0.005,     54.9,   2000.0),
+     & sur_aer_type((/'          ', '         ', 'K         '/),     0.0,     39.1,   2000.0),
+     & sur_aer_type((/'NUM_AITKEN', 'NUM_ACCUM', 'NUM_COARSE'/),     0.0,      0.0,      1.0),
+     & sur_aer_type((/'SRF_AITKEN', 'SRF_ACCUM', 'SRF_COARSE'/),     0.0,      0.0,      1.0)/)
 
 C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
@@ -177,50 +178,50 @@ C...Pointers for the AQCHEM array AEROSOL
       Integer :: lsrf     !  Surface area
 
 C...Pointers for the AQCHEM arrays LIQUID and WETDEP
-      Integer, Parameter :: lacl        = 01  ! Hydrogen ion
-      Integer, Parameter :: lnh4accl    = 02  ! Ammonium(attributed to accum. mode)
-      Integer, Parameter :: lcal        = 03  ! Calcium
-      Integer, Parameter :: lnaaccl     = 04  ! Sodium
-      Integer, Parameter :: lohl        = 05  ! Hydroxyl radical
-      Integer, Parameter :: lso4accl    = 06  ! Sulfate (attributed to accumulation mode)
-      Integer, Parameter :: lhso4accl   = 07  ! bisulfate (attributed to accumulation mode)
-      Integer, Parameter :: lso3l       = 08  ! sulfite
-      Integer, Parameter :: lhso3l      = 09  ! bisulfite
-      Integer, Parameter :: lso2l       = 10  ! sulfur dioxide
-      Integer, Parameter :: lco3l       = 11  ! carbonate
-      Integer, Parameter :: lhco3l      = 12  ! bicarbonate
-      Integer, Parameter :: lco2l       = 13  ! carbon dioxide
-      Integer, Parameter :: lno3accl    = 14  ! nitrate(attributed to accumulation mode)
-      Integer, Parameter :: lnh3l       = 15  ! ammonia
-      Integer, Parameter :: lclaccl     = 16  ! chloride ion (attributed to accumulation mode)
-      Integer, Parameter :: lh2o2l      = 17  ! hydrogen peroxide
-      Integer, Parameter :: lo3l        = 18  ! ozone
-      Integer, Parameter :: lfel        = 19  ! iron
-      Integer, Parameter :: lmnl        = 20  ! Manganese
-      Integer, Parameter :: lal         = 21  ! generalized anion associated with iron
-      Integer, Parameter :: lfoal       = 22  ! Formic acid
-      Integer, Parameter :: lhco2l      = 23  ! HCOO- ion
-      Integer, Parameter :: lmhpl       = 24  ! Methyl hydrogen peroxide
-      Integer, Parameter :: lpaal       = 25  ! Peroxyacidic acid
-      Integer, Parameter :: lhcll       = 26  ! Hydrogen chloride
-      Integer, Parameter :: lpriml      = 27  ! primary aerosol
-      Integer, Parameter :: lmgl        = 28  ! Magnesium
-      Integer, Parameter :: lkl         = 29  ! potassium
-      Integer, Parameter :: lbl         = 30  ! generalized anion associated with manganese
-      Integer, Parameter :: lhno3l      = 31  ! nitric acid
-      Integer, Parameter :: lprimcorl   = 32  ! coarse-mode primary aerosol
-      Integer, Parameter :: lnumcorl    = 33  ! coarse-mode number
-      Integer, Parameter :: lts6corl    = 34  ! sulfate (attributed to coarse mode)
-      Integer, Parameter :: lnacorl     = 35  ! sodium (attributed to coarse mode)
-      Integer, Parameter :: lclcorl     = 36  ! chloride ion (attributed to coarse mode)
-      Integer, Parameter :: lno3corl    = 37  ! nitrate (attributed to coarse mode)
-      Integer, Parameter :: lnh4corl    = 38  ! ammonium (attributed to coarse mode)
-      Integer, Parameter :: lsoal       = 39  ! secondary organic aerosols
-      Integer, Parameter :: lorgcl      = 40  ! in-cloud soa
-      integer, parameter :: lpoal       = 41  ! primary organic aerosols
-      Integer, Parameter :: lecl        = 42  ! elemental carbon
-      Integer, Parameter :: lglyl       = 43  ! glyoxal
-      Integer, Parameter :: lmglyl      = 44  ! methylglyoxal
+      Integer, Parameter :: lacl      = 01  ! Hydrogen ion
+      Integer, Parameter :: lnh4accl  = 02  ! Ammonium(attributed to accum. mode)
+      Integer, Parameter :: lcal      = 03  ! Calcium
+      Integer, Parameter :: lnaaccl   = 04  ! Sodium
+      Integer, Parameter :: lohl      = 05  ! Hydroxyl radical
+      Integer, Parameter :: lso4accl  = 06  ! Sulfate (attributed to accumulation mode)
+      Integer, Parameter :: lhso4accl = 07  ! bisulfate (attributed to accumulation mode)
+      Integer, Parameter :: lso3l     = 08  ! sulfite
+      Integer, Parameter :: lhso3l    = 09  ! bisulfite
+      Integer, Parameter :: lso2l     = 10  ! sulfur dioxide
+      Integer, Parameter :: lco3l     = 11  ! carbonate
+      Integer, Parameter :: lhco3l    = 12  ! bicarbonate
+      Integer, Parameter :: lco2l     = 13  ! carbon dioxide
+      Integer, Parameter :: lno3accl  = 14  ! nitrate(attributed to accumulation mode)
+      Integer, Parameter :: lnh3l     = 15  ! ammonia
+      Integer, Parameter :: lclaccl   = 16  ! chloride ion (attributed to accumulation mode)
+      Integer, Parameter :: lh2o2l    = 17  ! hydrogen peroxide
+      Integer, Parameter :: lo3l      = 18  ! ozone
+      Integer, Parameter :: lfel      = 19  ! iron
+      Integer, Parameter :: lmnl      = 20  ! Manganese
+      Integer, Parameter :: lal       = 21  ! generalized anion associated with iron
+      Integer, Parameter :: lfoal     = 22  ! Formic acid
+      Integer, Parameter :: lhco2l    = 23  ! HCOO- ion
+      Integer, Parameter :: lmhpl     = 24  ! Methyl hydrogen peroxide
+      Integer, Parameter :: lpaal     = 25  ! Peroxyacidic acid
+      Integer, Parameter :: lhcll     = 26  ! Hydrogen chloride
+      Integer, Parameter :: lpriml    = 27  ! primary aerosol
+      Integer, Parameter :: lmgl      = 28  ! Magnesium
+      Integer, Parameter :: lkl       = 29  ! potassium
+      Integer, Parameter :: lbl       = 30  ! generalized anion associated with manganese
+      Integer, Parameter :: lhno3l    = 31  ! nitric acid
+      Integer, Parameter :: lprimcorl = 32  ! coarse-mode primary aerosol
+      Integer, Parameter :: lnumcorl  = 33  ! coarse-mode number
+      Integer, Parameter :: lts6corl  = 34  ! sulfate (attributed to coarse mode)
+      Integer, Parameter :: lnacorl   = 35  ! sodium (attributed to coarse mode)
+      Integer, Parameter :: lclcorl   = 36  ! chloride ion (attributed to coarse mode)
+      Integer, Parameter :: lno3corl  = 37  ! nitrate (attributed to coarse mode)
+      Integer, Parameter :: lnh4corl  = 38  ! ammonium (attributed to coarse mode)
+      Integer, Parameter :: lsoal     = 39  ! secondary organic aerosols
+      Integer, Parameter :: lorgcl    = 40  ! in-cloud soa
+      integer, parameter :: lpoal     = 41  ! primary organic aerosols
+      Integer, Parameter :: lecl      = 42  ! elemental carbon
+      Integer, Parameter :: lglyl     = 43  ! glyoxal
+      Integer, Parameter :: lmglyl    = 44  ! methylglyoxal
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )

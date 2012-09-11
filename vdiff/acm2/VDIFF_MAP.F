@@ -91,7 +91,7 @@ C External Functions:
 C Local variables:
          
          CHARACTER( 80 )  :: XMSG       ! Message text
-         CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP       '
+         CHARACTER( 16 )  :: PNAME = 'VDIFF_MAP'
 
          INTEGER NEMIS_AE
          INTEGER STRT, FINI
@@ -340,14 +340,14 @@ C create global maps to CGRID
             END IF
          END DO
 
-         CMPSPC( 1 ) = 'NH3_Emis        '
-         CMPSPC( 2 ) = 'NH3_Dep         '
-         CMPSPC( 3 ) = 'NH3_Stom        '
-         CMPSPC( 4 ) = 'NH3_Cut         '
-         CMPSPC( 5 ) = 'NH3_Soil        '
-         CMPSPC( 6 ) = 'NH3_Ag          '
-         CMPSPC( 7 ) = 'NH3_Nat         '
-         CMPSPC( 8 ) = 'NH3_Wat         '
+         CMPSPC( 1 ) = 'NH3_Emis'
+         CMPSPC( 2 ) = 'NH3_Dep '
+         CMPSPC( 3 ) = 'NH3_Stom'
+         CMPSPC( 4 ) = 'NH3_Cut '
+         CMPSPC( 5 ) = 'NH3_Soil'
+         CMPSPC( 6 ) = 'NH3_Ag  '
+         CMPSPC( 7 ) = 'NH3_Nat '
+         CMPSPC( 8 ) = 'NH3_Wat '
 
 #ifdef Verbose
          DO N = 1, N_SPC_DDEP   ! debug
