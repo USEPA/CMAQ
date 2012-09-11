@@ -118,7 +118,7 @@ C Map advected reactive gas species to bc`s
             SPC = SPC + 1
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
-            ISUR = INDEX1( GC_TRNS( VAR ), N_GC_ICBC, GC_ICBC )
+            ISUR = FINDEX( GC_TRNS_MAP( VAR ), N_GC_ICBC, GC_ICBC_MAP )
 !           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
             IF ( ISUR .NE. 0 ) THEN
 C is it on the BC file?
@@ -180,7 +180,7 @@ C Map advected aerosol species to bc`s
             SPC = SPC + 1
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
-            ISUR = INDEX1( AE_TRNS( VAR ), N_AE_ICBC, AE_ICBC )
+            ISUR = FINDEX( AE_TRNS_MAP( VAR ), N_AE_ICBC, AE_ICBC_MAP )
 !           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
             IF ( ISUR .NE. 0 ) THEN
 C is it on the BC file?
@@ -241,7 +241,7 @@ C Map advected non-reactive species to bc`s
             SPC = SPC + 1
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
-            ISUR = INDEX1( NR_TRNS( VAR ), N_NR_ICBC, NR_ICBC )
+            ISUR = FINDEX( NR_TRNS_MAP( VAR ), N_NR_ICBC, NR_ICBC_MAP )
 !           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
             IF ( ISUR .NE. 0 ) THEN
 C is it on the BC file?
@@ -302,7 +302,7 @@ C Map advected tracer species to bc`s
             SPC = SPC + 1
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
-            ISUR = INDEX1( TR_ADV( VAR ), N_TR_ICBC, TR_ICBC )
+            ISUR = FINDEX( TR_ADV_MAP( VAR ), N_TR_ICBC, TR_ICBC_MAP )
 !           write( logdev,* ) '=b=var,spc,isur: ', var, spc, isur
             IF ( ISUR .NE. 0 ) THEN
 C is it on the BC file?

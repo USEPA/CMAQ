@@ -33,6 +33,7 @@ C     Feb 2011: Steve Howard, Shawn Roselle, Prakash Bhave, Bill Hutzell -
 C     Mar 2011: Sergey Napelenok - AE6 update for Ca/Mg/K/Fe/Mn 
 C               indexing, density, variable names
 C     Mar 2011: Shawn Roselle, replaced I/O API include files with UTILIO_DEFN
+C     Jun 2012: J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerospc, conmin
@@ -63,38 +64,38 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Type ( sur_gas_type ), Parameter :: srggas( ngas ) = (/
 C                          Name       Background
 C                       ----------    ----------
-     & sur_gas_type( 'SO2             ',        0.0 ),
-     & sur_gas_type( 'HNO3            ',        0.0 ),
-     & sur_gas_type( 'N2O5            ',        0.0 ),
-     & sur_gas_type( 'CO2             ',      340.0 ),
-     & sur_gas_type( 'NH3             ',        0.0 ),
-     & sur_gas_type( 'H2O2            ',        0.0 ),
-     & sur_gas_type( 'O3              ',        0.0 ),
-     & sur_gas_type( 'FOA             ',        0.0 ),
-     & sur_gas_type( 'MHP             ',        0.0 ),
-     & sur_gas_type( 'PAA             ',        0.0 ),
-     & sur_gas_type( 'H2SO4           ',        0.0 ),
-     & sur_gas_type( 'HCL             ',        0.0 ),
-     & sur_gas_type( 'GLY             ',        0.0 ),
-     & sur_gas_type( 'MGLY            ',        0.0 ),
-     & sur_gas_type( 'HO              ',        0.0 ) / )
+     & sur_gas_type( 'SO2       ',        0.0 ),
+     & sur_gas_type( 'HNO3      ',        0.0 ),
+     & sur_gas_type( 'N2O5      ',        0.0 ),
+     & sur_gas_type( 'CO2       ',      340.0 ),
+     & sur_gas_type( 'NH3       ',        0.0 ),
+     & sur_gas_type( 'H2O2      ',        0.0 ),
+     & sur_gas_type( 'O3        ',        0.0 ),
+     & sur_gas_type( 'FOA       ',        0.0 ),
+     & sur_gas_type( 'MHP       ',        0.0 ),
+     & sur_gas_type( 'PAA       ',        0.0 ),
+     & sur_gas_type( 'H2SO4     ',        0.0 ),
+     & sur_gas_type( 'HCL       ',        0.0 ),
+     & sur_gas_type( 'GLY       ',        0.0 ),
+     & sur_gas_type( 'MGLY      ',        0.0 ),
+     & sur_gas_type( 'HO        ',        0.0 ) / )
 
 C...Required gas species
-      Character( 16 ), Parameter, Private :: req_so2   = 'SO2             '
-      Character( 16 ), Parameter, Private :: req_hno3  = 'HNO3            '
-      Character( 16 ), Parameter, Private :: req_n2o5  = 'N2O5            '
-      Character( 16 ), Parameter, Private :: req_co2   = 'CO2             '
-      Character( 16 ), Parameter, Private :: req_nh3   = 'NH3             '
-      Character( 16 ), Parameter, Private :: req_h2o2  = 'H2O2            '
-      Character( 16 ), Parameter, Private :: req_o3    = 'O3              '
-      Character( 16 ), Parameter, Private :: req_foa   = 'FOA             '
-      Character( 16 ), Parameter, Private :: req_mhp   = 'MHP             '
-      Character( 16 ), Parameter, Private :: req_paa   = 'PAA             '
-      Character( 16 ), Parameter, Private :: req_h2so4 = 'H2SO4           '
-      Character( 16 ), Parameter, Private :: req_hcl   = 'HCL             '
-      Character( 16 ), Parameter, Private :: req_gly   = 'GLY             '
-      Character( 16 ), Parameter, Private :: req_mgly  = 'MGLY            '
-      Character( 16 ), Parameter, Private :: req_ho    = 'HO              '
+      Character( 16 ), Parameter, Private :: req_so2   = 'SO2'
+      Character( 16 ), Parameter, Private :: req_hno3  = 'HNO3'
+      Character( 16 ), Parameter, Private :: req_n2o5  = 'N2O5'
+      Character( 16 ), Parameter, Private :: req_co2   = 'CO2'
+      Character( 16 ), Parameter, Private :: req_nh3   = 'NH3'
+      Character( 16 ), Parameter, Private :: req_h2o2  = 'H2O2'
+      Character( 16 ), Parameter, Private :: req_o3    = 'O3'
+      Character( 16 ), Parameter, Private :: req_foa   = 'FOA'
+      Character( 16 ), Parameter, Private :: req_mhp   = 'MHP'
+      Character( 16 ), Parameter, Private :: req_paa   = 'PAA'
+      Character( 16 ), Parameter, Private :: req_h2so4 = 'H2SO4'
+      Character( 16 ), Parameter, Private :: req_hcl   = 'HCL'
+      Character( 16 ), Parameter, Private :: req_gly   = 'GLY'
+      Character( 16 ), Parameter, Private :: req_mgly  = 'MGLY'
+      Character( 16 ), Parameter, Private :: req_ho    = 'HO'
 
 C...Pointers for the AQCHEM array GAS
 
@@ -129,44 +130,44 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 C... Additional Aerosol surrogate species to add to aerosol list
       Type ( sur_aer_type ), private :: addsrgaer( naddaer ) = (/
-C                         Aitken             Accum              Coarse         Background MolWt Density
-C                      -------------      -------------      -------------     --------- ------ --------
-!    & sur_aer_type((/'                ','                ','CACO3           '/),   0.0, 100.1, 2200.0),
-!    & sur_aer_type((/'                ','                ','MGCO3           '/),   0.0,  84.3, 2200.0),
-!    & sur_aer_type((/'                ','                ','A3FE            '/),   0.0,  55.8, 2000.0),
-!    & sur_aer_type((/'                ','                ','B2MN            '/),   0.0,  54.9, 2000.0),
-!    & sur_aer_type((/'                ','                ','K               '/),   0.0,  39.1, 2200.0),
-     & sur_aer_type((/'NUM_AITKEN      ','NUM_ACCUM       ','NUM_COARSE      '/),   0.0,   0.0,    1.0),
-     & sur_aer_type((/'SRF_AITKEN      ','SRF_ACCUM       ','SRF_COARSE      '/),   0.0,   0.0,    1.0)/)
+C                        Aitken        Accum        Coarse      Background   MolWt  Density
+C                      ----------    ----------   ----------    ----------  ------  -------
+!    & sur_aer_type((/'          ', '          ', 'CACO3     '/),   0.0,     100.1,  2200.0),
+!    & sur_aer_type((/'          ', '          ', 'MGCO3     '/),   0.0,      84.3,  2200.0),
+!    & sur_aer_type((/'          ', '          ', 'A3FE      '/),   0.0,      55.8,  2000.0),
+!    & sur_aer_type((/'          ', '          ', 'B2MN      '/),   0.0,      54.9,  2000.0),
+!    & sur_aer_type((/'          ', '          ', 'K         '/),   0.0,      39.1,  2200.0),
+     & sur_aer_type((/'NUM_AITKEN', 'NUM_ACCUM ', 'NUM_COARSE'/),   0.0,       0.0,     1.0),
+     & sur_aer_type((/'SRF_AITKEN', 'SRF_ACCUM ', 'SRF_COARSE'/),   0.0,       0.0,     1.0)/)
 
 C...Required aerosol species
-      Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM       '
-      Character( 16 ), Parameter, Private :: req_anh4   = 'NH4_ACCUM       '
-      Character( 16 ), Parameter, Private :: req_ano3   = 'NO3_ACCUM       '
-      Character( 16 ), Parameter, Private :: req_asoa   = 'SOA_ACCUM       '
-      Character( 16 ), Parameter, Private :: req_aorgc  = 'AORGC_ACCUM     '
-      Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM       '
-      Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM        '
-      Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM       '
-!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE      ' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM        '
-      Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM        '
-      Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3           '
-      Character( 16 ), Parameter, Private :: req_amgco3 = 'MGCO3           '
-      Character( 16 ), Parameter, Private :: req_aa3fe  = 'A3FE            '
-      Character( 16 ), Parameter, Private :: req_ab2mn  = 'B2MN            '
-      Character( 16 ), Parameter, Private :: req_ak     = 'K               '
-      Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM       '
-      Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM       '
+      Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
+      Character( 16 ), Parameter, Private :: req_anh4   = 'NH4_ACCUM'
+      Character( 16 ), Parameter, Private :: req_ano3   = 'NO3_ACCUM'
+      Character( 16 ), Parameter, Private :: req_asoa   = 'SOA_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aorgc  = 'AORGC_ACCUM'
+      Character( 16 ), Parameter, Private :: req_apoa   = 'POA_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aec    = 'EC_ACCUM'
+      Character( 16 ), Parameter, Private :: req_apri   = 'PRI_ACCUM'
+!     Character( 16 ), Parameter, Private :: req_apric  = 'PRI_COARSE'  ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_ana    = 'NA_ACCUM'
+      Character( 16 ), Parameter, Private :: req_acl    = 'CL_ACCUM'
+      Character( 16 ), Parameter, Private :: req_acaco3 = 'CACO3'
+      Character( 16 ), Parameter, Private :: req_amgco3 = 'MGCO3'
+      Character( 16 ), Parameter, Private :: req_aa3fe  = 'A3FE'
+      Character( 16 ), Parameter, Private :: req_ab2mn  = 'B2MN'
+      Character( 16 ), Parameter, Private :: req_ak     = 'K'
+      Character( 16 ), Parameter, Private :: req_num    = 'NUM_ACCUM'
+      Character( 16 ), Parameter, Private :: req_srf    = 'SRF_ACCUM'
 
-      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM        ' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM        ' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM         ' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM        ' ! SLN 22March2011
-      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM        ' ! SLN 22March2011
-      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE     ' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE     ' ! SLN 16March2011
-      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE     ' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_caacc  = 'CA_ACCUM'    ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_mgacc  = 'MG_ACCUM'    ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_kacc   = 'K_ACCUM'     ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_feacc  = 'FE_ACCUM'    ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_mnacc  = 'MN_ACCUM'    ! SLN 22March2011
+      Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE' ! SLN 16March2011
+      Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE' ! SLN 16March2011
 
 
 C...Pointers for the AQCHEM array AEROSOL
@@ -199,59 +200,58 @@ C...Pointers for the AQCHEM array AEROSOL
       Integer :: lseasc   !  SEAS in Coarse mode (AE6)     SLN 16March2011
 
 C...Pointers for the AQCHEM arrays LIQUID and WETDEP
-      Integer, Parameter :: lacl        = 01  ! Hydrogen ion
-      Integer, Parameter :: lnh4accl    = 02  ! Ammonium(attributed to accum. mode)
-      Integer, Parameter :: lcacorl     = 03  ! coarse mode Calcium 
-      Integer, Parameter :: lnaaccl     = 04  ! Sodium
-      Integer, Parameter :: lohl        = 05  ! Hydroxyl radical
-      Integer, Parameter :: lso4accl    = 06  ! Sulfate (attributed to accumulation mode)
-      Integer, Parameter :: lhso4accl   = 07  ! bisulfate (attributed to accumulation mode)
-      Integer, Parameter :: lso3l       = 08  ! sulfite
-      Integer, Parameter :: lhso3l      = 09  ! bisulfite
-      Integer, Parameter :: lso2l       = 10  ! sulfur dioxide
-      Integer, Parameter :: lco3l       = 11  ! carbonate
-      Integer, Parameter :: lhco3l      = 12  ! bicarbonate
-      Integer, Parameter :: lco2l       = 13  ! carbon dioxide
-      Integer, Parameter :: lno3accl    = 14  ! nitrate(attributed to accumulation mode)
-      Integer, Parameter :: lnh3l       = 15  ! ammonia
-      Integer, Parameter :: lclaccl     = 16  ! chloride ion (attributed to accumulation mode)
-      Integer, Parameter :: lh2o2l      = 17  ! hydrogen peroxide
-      Integer, Parameter :: lo3l        = 18  ! ozone
-      Integer, Parameter :: lfecorl     = 19  ! iron
-      Integer, Parameter :: lmncorl     = 20  ! Manganese
-      Integer, Parameter :: lal         = 21  ! generalized anion associated with iron
-      Integer, Parameter :: lfoal       = 22  ! Formic acid
-      Integer, Parameter :: lhco2l      = 23  ! HCOO- ion
-      Integer, Parameter :: lmhpl       = 24  ! Methyl hydrogen peroxide
-      Integer, Parameter :: lpaal       = 25  ! Peroxyacidic acid
-      Integer, Parameter :: lhcll       = 26  ! Hydrogen chloride
-      Integer, Parameter :: lpriml      = 27  ! primary aerosol
-      Integer, Parameter :: lmgcorl     = 28  ! coarse mode Magnesium
-      Integer, Parameter :: lkcorl      = 29  ! coarse mode Potassium
-      Integer, Parameter :: lbl         = 30  ! generalized anion associated with manganese
-      Integer, Parameter :: lhno3l      = 31  ! nitric acid
-!     Integer, Parameter :: lprimcorl   = 32  ! coarse-mode primary aerosol
-      Integer, Parameter :: lnumcorl    = 32  ! coarse-mode number
-      Integer, Parameter :: lts6corl    = 33  ! sulfate (attributed to coarse mode)
-      Integer, Parameter :: lnacorl     = 34  ! sodium (attributed to coarse mode)
-      Integer, Parameter :: lclcorl     = 35  ! chloride ion (attributed to coarse mode)
-      Integer, Parameter :: lno3corl    = 36  ! nitrate (attributed to coarse mode)
-      Integer, Parameter :: lnh4corl    = 37  ! ammonium (attributed to coarse mode)
-      Integer, Parameter :: lsoal       = 38  ! secondary organic aerosols
-      Integer, Parameter :: lorgcl      = 39  ! in-cloud soa
-      integer, parameter :: lpoal       = 40  ! primary organic aerosols
-      Integer, Parameter :: lecl        = 41  ! elemental carbon
-      Integer, Parameter :: lglyl       = 42  ! glyoxal
-      Integer, Parameter :: lmglyl      = 43  ! methylglyoxal
-      Integer, Parameter :: lcaaccl     = 44  ! accumulation mode Calcium (AE6)   SLN 16March2011
-      Integer, Parameter :: lmgaccl     = 45  ! accumulation mode Magnesium (AE6) SLN 16March2011
-      Integer, Parameter :: lkaccl      = 46  ! accumulation mode Potassium (AE6) SLN 16March2011
-      Integer, Parameter :: lsoilcl     = 47  ! coarse mode SOIL (AE6)   SLN 16March2011
-      Integer, Parameter :: lanthcl     = 48  ! coarse mode CORS (lol) (AE6)   SLN 16March2011
-      Integer, Parameter :: lseascl     = 49  ! coarse mode SEAS (AE6) SLN 16March2011
-      Integer, Parameter :: lfeaccl     = 50  ! accumulation mode Iron (AE6)      SLN 22March2011
-      Integer, Parameter :: lmnaccl     = 51  ! accumulation mode Manganese (AE6) SLN 22March2011
-
+      Integer, Parameter :: lacl      = 01  ! Hydrogen ion
+      Integer, Parameter :: lnh4accl  = 02  ! Ammonium(attributed to accum. mode)
+      Integer, Parameter :: lcacorl   = 03  ! coarse mode Calcium 
+      Integer, Parameter :: lnaaccl   = 04  ! Sodium
+      Integer, Parameter :: lohl      = 05  ! Hydroxyl radical
+      Integer, Parameter :: lso4accl  = 06  ! Sulfate (attributed to accumulation mode)
+      Integer, Parameter :: lhso4accl = 07  ! bisulfate (attributed to accumulation mode)
+      Integer, Parameter :: lso3l     = 08  ! sulfite
+      Integer, Parameter :: lhso3l    = 09  ! bisulfite
+      Integer, Parameter :: lso2l     = 10  ! sulfur dioxide
+      Integer, Parameter :: lco3l     = 11  ! carbonate
+      Integer, Parameter :: lhco3l    = 12  ! bicarbonate
+      Integer, Parameter :: lco2l     = 13  ! carbon dioxide
+      Integer, Parameter :: lno3accl  = 14  ! nitrate(attributed to accumulation mode)
+      Integer, Parameter :: lnh3l     = 15  ! ammonia
+      Integer, Parameter :: lclaccl   = 16  ! chloride ion (attributed to accumulation mode)
+      Integer, Parameter :: lh2o2l    = 17  ! hydrogen peroxide
+      Integer, Parameter :: lo3l      = 18  ! ozone
+      Integer, Parameter :: lfecorl   = 19  ! iron
+      Integer, Parameter :: lmncorl   = 20  ! Manganese
+      Integer, Parameter :: lal       = 21  ! generalized anion associated with iron
+      Integer, Parameter :: lfoal     = 22  ! Formic acid
+      Integer, Parameter :: lhco2l    = 23  ! HCOO- ion
+      Integer, Parameter :: lmhpl     = 24  ! Methyl hydrogen peroxide
+      Integer, Parameter :: lpaal     = 25  ! Peroxyacidic acid
+      Integer, Parameter :: lhcll     = 26  ! Hydrogen chloride
+      Integer, Parameter :: lpriml    = 27  ! primary aerosol
+      Integer, Parameter :: lmgcorl   = 28  ! coarse mode Magnesium
+      Integer, Parameter :: lkcorl    = 29  ! coarse mode Potassium
+      Integer, Parameter :: lbl       = 30  ! generalized anion associated with manganese
+      Integer, Parameter :: lhno3l    = 31  ! nitric acid
+!     Integer, Parameter :: lprimcorl = 32  ! coarse-mode primary aerosol
+      Integer, Parameter :: lnumcorl  = 32  ! coarse-mode number
+      Integer, Parameter :: lts6corl  = 33  ! sulfate (attributed to coarse mode)
+      Integer, Parameter :: lnacorl   = 34  ! sodium (attributed to coarse mode)
+      Integer, Parameter :: lclcorl   = 35  ! chloride ion (attributed to coarse mode)
+      Integer, Parameter :: lno3corl  = 36  ! nitrate (attributed to coarse mode)
+      Integer, Parameter :: lnh4corl  = 37  ! ammonium (attributed to coarse mode)
+      Integer, Parameter :: lsoal     = 38  ! secondary organic aerosols
+      Integer, Parameter :: lorgcl    = 39  ! in-cloud soa
+      integer, parameter :: lpoal     = 40  ! primary organic aerosols
+      Integer, Parameter :: lecl      = 41  ! elemental carbon
+      Integer, Parameter :: lglyl     = 42  ! glyoxal
+      Integer, Parameter :: lmglyl    = 43  ! methylglyoxal
+      Integer, Parameter :: lcaaccl   = 44  ! accumulation mode Calcium (AE6)   SLN 16March2011
+      Integer, Parameter :: lmgaccl   = 45  ! accumulation mode Magnesium (AE6) SLN 16March2011
+      Integer, Parameter :: lkaccl    = 46  ! accumulation mode Potassium (AE6) SLN 16March2011
+      Integer, Parameter :: lsoilcl   = 47  ! coarse mode SOIL (AE6)   SLN 16March2011
+      Integer, Parameter :: lanthcl   = 48  ! coarse mode CORS (lol) (AE6)   SLN 16March2011
+      Integer, Parameter :: lseascl   = 49  ! coarse mode SEAS (AE6) SLN 16March2011
+      Integer, Parameter :: lfeaccl   = 50  ! accumulation mode Iron (AE6)      SLN 22March2011
+      Integer, Parameter :: lmnaccl   = 51  ! accumulation mode Manganese (AE6) SLN 22March2011
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -346,8 +346,7 @@ C...Map aero species
       Call map_aero()
 
       Do spc = 1, n_aerospc
-         srgaer( spc ) = sur_aer_type( (/'                ','                ','                '/),
-     &                                0.0, 0.0, 0.0 )
+         srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
          ! Skip H2O and SOIL species
          If ( spc .Eq. ah2o_idx ) Cycle
@@ -681,7 +680,7 @@ C..Local Variables:
       ! compute minimums for aerosol species
       Do m = 1, n_mode
          Do n = 1, n_aerospc
-            If ( aerospc( n )%name( m ) .Ne. '                ' ) Then
+            If ( aerospc( n )%name( m ) .Ne. ' ' ) Then
                spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
                If ( spc .Ne. 0 ) Then
                   aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )
