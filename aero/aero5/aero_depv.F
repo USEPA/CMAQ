@@ -75,6 +75,7 @@ C 20 May 11 D.Schwede: Modified for mosaic
 C 31 Aug 11 J.Bash: Moved shared mosaic variables to MOSAIC_MOD
 C 27 Sep 11 David Wong: replaced all run time dynamic arrays with allocatable
 C                       arrays to avoid run time memory issue  
+C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -125,15 +126,15 @@ C set up species dimension and indices for deposition velocity internal array VD
 C Local variables:
 
       CHARACTER( 16 ) :: VDAE_NAME( N_AE_DEP_SPC )! dep vel surrogate name table
-      DATA         VDAE_NAME( 1 ) / 'VNUMATKN        ' /
-      DATA         VDAE_NAME( 2 ) / 'VNUMACC         ' /
-      DATA         VDAE_NAME( 3 ) / 'VNUMCOR         ' /
-      DATA         VDAE_NAME( 4 ) / 'VMASSI          ' /
-      DATA         VDAE_NAME( 5 ) / 'VMASSJ          ' /
-      DATA         VDAE_NAME( 6 ) / 'VMASSC          ' /
-      DATA         VDAE_NAME( 7 ) / 'VSRFATKN        ' /
-      DATA         VDAE_NAME( 8 ) / 'VSRFACC         ' /
-      DATA         VDAE_NAME( 9 ) / 'VSRFCOR         ' /
+      DATA         VDAE_NAME( 1 ) / 'VNUMATKN' /
+      DATA         VDAE_NAME( 2 ) / 'VNUMACC ' /
+      DATA         VDAE_NAME( 3 ) / 'VNUMCOR ' /
+      DATA         VDAE_NAME( 4 ) / 'VMASSI  ' /
+      DATA         VDAE_NAME( 5 ) / 'VMASSJ  ' /
+      DATA         VDAE_NAME( 6 ) / 'VMASSC  ' /
+      DATA         VDAE_NAME( 7 ) / 'VSRFATKN' /
+      DATA         VDAE_NAME( 8 ) / 'VSRFACC ' /
+      DATA         VDAE_NAME( 9 ) / 'VSRFCOR ' /
 
       INTEGER, ALLOCATABLE, SAVE :: DEPV_SUR( : )   ! pointer to surrogate
 

@@ -2,19 +2,13 @@
 
 # ====================== CCTMv5.0.1 Build Script ======================= #
 # Usage: bldit.cctm >&! bldit.cctm.log                                   #
-# Requirements: I/O API & netCDF libs, CVS, and a Fortran compiler,      #
+# Requirements: I/O API & netCDF libs, Git, and a Fortran compiler,      #
 #               MPICH for multiprocessor computing                       #
 # Note that this script is configured/tested for Red Hat Linux O/S       #
 # The following environment variables must be set for this script to     #
 # build an executable.                                                   #
-#   setenv M3MODEL <source code CVS archive>                             #
+#   setenv M3MODEL <source code Git repository>                          #
 #   setenv M3LIB   <code libraries>                                      #
-# If building on a machine which is accessing the CVS archive remotely   #
-# CVS_REMOTE_USER and CVS_REMOTE_MACH must be set in the environment.    #
-# The remote machine must be set up for passwordless access from ssh.    #
-#   setenv CVS_REMOTE_USER <user ID on remote machine>                   #
-#   setenv CVS_REMOTE_MACH <CVS archive remote machine>                  #
-# The sourced file, relinc.cctm is required to get the include files.    #
 # To report problems or request help with this script/program:           #
 #             http://www.cmascenter.org/html/help.html                   #
 # ====================================================================== #
@@ -29,20 +23,14 @@
 
 #> Source the config.cmaq file to set the build environment
 #source ./config.cmaq
- source /home/yoj/src/arc/config.cmaq
-
-#> Check for remote archive settings:
-#if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then 
-#   echo " CVS_REMOTE_USER or CVS_REMOTE_MACH not set"
-#   echo " Using local CVS archive"
-#endif
+ source /home/yoj/src/repo/config.cmaq
 
 #> Check for M3MODEL and M3LIB settings:
  if ( ! -e $M3MODEL || ! -e $M3LIB ) then 
     echo "   $M3MODEL or $M3LIB directory not found"
     exit 1
  endif
- echo "   Model archive path: $M3MODEL"
+ echo "   Model repository path: $M3MODEL"
  echo "         library path: $M3LIB"
 
  set BLD_OS = `uname -s`        ## Script set up for Linux only 
@@ -57,17 +45,14 @@
 
 #:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
 
-#> user choices: cvs archives
+#> user choices: Git repository
 #setenv Project $M3MODEL/CCTM-git
  setenv GlobInc $M3HOME/ICL-git
  setenv Mechs   $M3HOME/MECHS-git
 
-#> user choices: base working directory
+#> user choices: base working directory, application string
 #set Base = $cwd
  set Base = ..
-#setenv ARCHROOT $Base   # default
- setenv ARCHROOT $cwd    # default
-
  set APPL  = v501
  set MODEL = CCTM_${APPL}_$EXEC_ID
  set CFG   = cfg.$MODEL
@@ -179,7 +164,7 @@
 
 #> Set location of M3Bld executable
 #set Blder = $M3LIB/build/bldmake
- set Blder = ~shq/src/bldmake/bldmake
+ set Blder = $M3HOME/BLDMAKE-git/bldmake
 
 #> Set location of libraries/include files
  set LIOAPI  = "${M3LIB}/ioapi_3.1/Linux2_${system}${compiler_ext} -lioapi"
@@ -222,7 +207,7 @@
     if ( "$brnch[$i]" == "*" ) @ l = $i + 1
  end
  set rep = `echo $M3MODEL | tr "/" "#"`
- set rln = "repo:${rep},branch:${brnch[$l]}"
+ set rln = "repo:${rep},branch:${brnch[$l]},compiler:${COMPILER}"
  set ref = $Bld/$rln
 #cd $Bld
 

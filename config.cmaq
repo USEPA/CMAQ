@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ================= CMAQ5.0.1 Configuration Script ================== #
-# Requirements: I/O API & netCDF libs, CVS, PGI, Intel, Gnu Compiler  #
+# Requirements: I/O API & netCDF libs, Git, PGI, Intel, Gnu Compiler  #
 #               Collection (GCC), MPICH for multiprocessor computing  #
 # Note that this script is configured/tested for Red Hat Linux O/S    #
 #                                                                     #
@@ -13,12 +13,12 @@
 #> sourced from bldit.<model>
 #> env var $COMPILER set in bldit
 
-#> to accomdate Carlie's ioapi naming convention, the env var compiler_ext
-#> does not follow the compiler directory name and must be set.
+#> To accomdate Carlie's ioapi naming convention, which does not follow
+#> the compiler directory name, the env var "compiler_ext" must be set.
  set echo
 
-#> model archive location
- setenv M3HOME  /home/yoj/src/arc
+#> model repository location
+ setenv M3HOME  /home/yoj/src/repo
  setenv M3MODEL $M3HOME/CCTM-git
  setenv M3DATA  $M3HOME/data
 
@@ -103,9 +103,4 @@
 
 #> set executable id
  setenv EXEC_ID ${bld_os}_${system}${compiler}
-
-#> set only if CVS archive is on a remote computer
-# setenv CVS_REMOTE_MACH address.of.your.computer
-# setenv CVS_REMOTE_USER remote_user_name
-# setenv CVS_RSH ssh
 

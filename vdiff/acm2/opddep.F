@@ -35,6 +35,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 J.Bash: Modified to output NH3 bidi component fluxes
 C   04 Jan 12 J.Young: Initalize char strings with blank padding
+C   08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -70,14 +71,14 @@ C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
       
-         CMPSPC( 1 ) = 'NH3_Emis        '
-         CMPSPC( 2 ) = 'NH3_Dep         '
-         CMPSPC( 3 ) = 'NH3_Stom        '
-         CMPSPC( 4 ) = 'NH3_Cut         '
-         CMPSPC( 5 ) = 'NH3_Soil        '
-         CMPSPC( 6 ) = 'NH3_Ag          '
-         CMPSPC( 7 ) = 'NH3_Nat         '
-         CMPSPC( 8 ) = 'NH3_Wat         '
+         CMPSPC( 1 ) = 'NH3_Emis'
+         CMPSPC( 2 ) = 'NH3_Dep '
+         CMPSPC( 3 ) = 'NH3_Stom'
+         CMPSPC( 4 ) = 'NH3_Cut '
+         CMPSPC( 5 ) = 'NH3_Soil'
+         CMPSPC( 6 ) = 'NH3_Ag  '
+         CMPSPC( 7 ) = 'NH3_Nat '
+         CMPSPC( 8 ) = 'NH3_Wat '
 
          XMSG = 'Could not open ' // CTM_DRY_DEP_1 // ' file for update - '
      &        // 'try to open new'

@@ -44,6 +44,7 @@ C 21 Apr 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C 11 May 11 D.Wong: incorporated twoway model implementation
 C  8 Jul 11 J.Young: unified string lengths in character lists for compiler
 C                    compatibility
+C  8 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C-----------------------------------------------------------------------
       use aero_data, only: n_mode
 
@@ -72,27 +73,27 @@ C - only accumulation and coarse modes used
 
 C speciation factors from SPECIATE composite of 4 desert soil profiles (Pouliot):
       type( dust_type ), parameter :: dust_spc( ndust_spc ) = (/
-C                      ------------------------ name ------------------------       ------- spcfac -------
-C                      Aitken             accum              coarse                 Aitken  accum   coarse
-     &   dust_type( (/'                ','ASO4J           ','ASO4K           '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
-     &   dust_type( (/'                ','ANO3J           ','ANO3K           '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
-     &   dust_type( (/'                ','ACLJ            ','ACLK            '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
-     &   dust_type( (/'                ','ANH4J           ','                '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
-     &   dust_type( (/'                ','ANAJ            ','                '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
-     &   dust_type( (/'                ','ACAJ            ','                '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
-     &   dust_type( (/'                ','AMGJ            ','                '/), (/ 0.0, 0.0,     0.0    /) ),   ! Magnesium
-     &   dust_type( (/'                ','AKJ             ','                '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
-     &   dust_type( (/'                ','APOCJ           ','                '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
-     &   dust_type( (/'                ','APNCOMJ         ','                '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   dust_type( (/'                ','AECJ            ','                '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
-     &   dust_type( (/'                ','AFEJ            ','                '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
-     &   dust_type( (/'                ','AALJ            ','                '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
-     &   dust_type( (/'                ','ASIJ            ','                '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
-     &   dust_type( (/'                ','ATIJ            ','                '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
-     &   dust_type( (/'                ','AMNJ            ','                '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   dust_type( (/'                ','AH2OJ           ','                '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
-     &   dust_type( (/'                ','AOTHRJ          ','                '/), (/ 0.0, 0.50219, 0.0    /) ),   ! Other
-     &   dust_type( (/'                ','                ','ASOIL           '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
+C                      ---------- name --------------      ------- spcfac -------
+C                      Aitken     accum      coarse        Aitken  accum   coarse
+     &   dust_type( (/'       ', 'ASO4J  ', 'ASO4K  '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+     &   dust_type( (/'       ', 'ANO3J  ', 'ANO3K  '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
+     &   dust_type( (/'       ', 'ACLJ   ', 'ACLK   '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
+     &   dust_type( (/'       ', 'ANH4J  ', '       '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
+     &   dust_type( (/'       ', 'ANAJ   ', '       '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
+     &   dust_type( (/'       ', 'ACAJ   ', '       '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
+     &   dust_type( (/'       ', 'AMGJ   ', '       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Magnesium
+     &   dust_type( (/'       ', 'AKJ    ', '       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
+     &   dust_type( (/'       ', 'APOCJ  ', '       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   dust_type( (/'       ', 'APNCOMJ', '       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   dust_type( (/'       ', 'AECJ   ', '       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
+     &   dust_type( (/'       ', 'AFEJ   ', '       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
+     &   dust_type( (/'       ', 'AALJ   ', '       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
+     &   dust_type( (/'       ', 'ASIJ   ', '       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
+     &   dust_type( (/'       ', 'ATIJ   ', '       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
+     &   dust_type( (/'       ', 'AMNJ   ', '       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
+     &   dust_type( (/'       ', 'AH2OJ  ', '       '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
+     &   dust_type( (/'       ', 'AOTHRJ ', '       '/), (/ 0.0, 0.50219, 0.0    /) ),   ! Other
+     &   dust_type( (/'       ', '       ', 'ASOIL  '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
 
       real, parameter :: fracmj = 0.20  ! mass fraction assigned to accum mode
       real, parameter :: fracmk = 0.80  ! mass fraction assigned to coarse mode
