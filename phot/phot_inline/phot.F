@@ -513,7 +513,7 @@ C...overwrite if NLCD-MODIS scheme
          END IF
 
          IF ( .NOT. HAS_SEAICE ) THEN
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'NO SEAICE '
 #endif
             XMSG = 'MET_CRO_2D DOES NOT CONTAIN SEA ICE DATA. THE SURFACE ALBEDO '
@@ -526,7 +526,7 @@ C...overwrite if NLCD-MODIS scheme
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'allocated TEMPG array'
 #endif
 

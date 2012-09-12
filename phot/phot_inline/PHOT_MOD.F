@@ -898,7 +898,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(10X,I4)' ) NPHOT_MAP
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(22x,a32)' ) jtable_ref
       write( log_unit,'(10x,i4)' ) nphot_map
 #endif
@@ -912,7 +912,7 @@ C...begin read
       DO IPHOT_LOAD = 1, NPHOT_MAP
          READ( PHOTAB_UNIT,'(A16)' ) PNAME_REF( IPHOT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(i3,1x,a16)' ) iphot_load, pname_ref( iphot_load )
 #endif
 
@@ -922,13 +922,13 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(10X,I3)' ) NTEMP_REF
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(10x,i3)' ) ntemp_ref
 #endif
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,* ) trim( file_line )
 #endif
 
@@ -939,13 +939,13 @@ C...begin read
       DO ITT_LOAD = 1, NTEMP_REF
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,* ) trim( file_line )
 #endif
 
          READ( FILE_LINE,* ) IPHOT_LOAD, TEMP_BASE( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(4x,f6.2)' ) temp_base( itt_load )
 #endif
 
@@ -961,7 +961,7 @@ C...begin read
       NWL       = NWL_REF
       NWL_PHOT  = NWL
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(17x,i3)' ) nwl_ref
 #endif
 
@@ -990,7 +990,7 @@ C...begin read
      &         CLD_BETA_REF( IWL_LOAD ), CLD_G_REF( IWL_LOAD ),
      &         CLD_COALBEDO_REF( IWL_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(4x,3(f8.3,2x),2x,es12.4,2x,2(f8.3,2x),es12.4,2x)' )
      &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
      &          endwl_ref( iwl_load ),fsolar_ref( iwl_load ),
@@ -1021,7 +1021,7 @@ C...begin read
      &            PHOT_EXPECT, TEMP_REF( ITT_LOAD, IPHOT_LOAD),
      &            ( CS_REF( IPHOT_LOAD, ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( cs_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1039,7 +1039,7 @@ C...begin read
 
             QY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF) = EQY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF)
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( qy_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1059,7 +1059,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(15X,I3)' ) NTEMP_STRAT_REF
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(16x,i3)' ) ntemp_strat_ref
 #endif
 
@@ -1073,7 +1073,7 @@ C...begin read
      &         PHOT_EXPECT, TEMP_STRAT_REF( ITT_LOAD ),
      &         ( O3_CS_STRAT_REF( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &          phot_expect, temp_strat_ref( itt_load ),
      &          ( o3_cs_strat_ref( itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1100,7 +1100,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) INDEX_OCEAN_REF
       READ( PHOTAB_UNIT,5013 ) INDEX_SEA_ICE
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 )'NUMB_LANDUSE_REF    = ', numb_landuse_ref
       write( log_unit,6013 )'INDEX_GRASSLAND_REF = ', index_grassland_ref
       write( log_unit,6013 )'INDEX_OCEAN_REF     = ', index_ocean_ref
@@ -1120,7 +1120,7 @@ C...begin read
      &                            ZENITH_COEFF_REF( ITT_LOAD ),
      &                            SEASON_COEFF_REF( ITT_LOAD ),
      &                            SNOW_COEFF_REF( ITT_LOAD )
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,5012 ) landuse_ref( itt_load ),
      &                          zenith_coeff_ref( itt_load ),
      &                          season_coeff_ref( itt_load ),
@@ -1134,7 +1134,7 @@ C...begin read
          READ( PHOTAB_UNIT,'(A30,1X,40(1PE12.6,2X))' ) LAND_EXPECT,
      &        ( SPECTRAL_ALBEDO_REF(IWL_LOAD, ITT_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(a30,1x,40(1pe12.6,2x))' ) trim( land_expect ),
      &        ( spectral_albedo_ref(iwl_load, itt_load), iwl_load = 1, nwl_ref )
 #endif
@@ -1148,7 +1148,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_NLCD50
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_NLCD50_MODIS = ', numb_landuse_NLCD50
       write( log_unit,6009 ) '! I', 'LANDUSE_NLCD50-MODIS', 'INDEX_ALBREF',
      &                       'FAC_ALBREF'
@@ -1163,7 +1163,7 @@ C...begin read
      &                            ALBMAP_REF2NLCD50( ITT_LOAD ),
      &                            ALBFAC_REF2NLCD50( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_NLCD50( itt_load ),
      &                          albmap_ref2NLCD50( itt_load ),
      &                          albfac_ref2NLCD50( itt_load )
@@ -1174,7 +1174,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_USGS
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_USGS = ', numb_landuse_usgs
       write( log_unit,6009 ) '! I','LANDUSE_USGS', 'INDEX_ALBREF', 'FAC_ALBREF'
 #endif
@@ -1188,7 +1188,7 @@ C...begin read
      &                            ALBMAP_REF2USGS( ITT_LOAD ),
      &                            ALBFAC_REF2USGS( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_usgs( itt_load ),
      &                          albmap_ref2usgs( itt_load ),
      &                          albfac_ref2usgs( itt_load )
@@ -1199,7 +1199,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_MODIS
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_MODIS = ', numb_landuse_modis
       write( log_unit,6009 ) '! I','LANDUSE_MODIS', 'INDEX_ALBREF', 'FAC_ALBREF'
 #endif
@@ -1213,7 +1213,7 @@ C...begin read
      &                            ALBMAP_REF2MODIS( ITT_LOAD ),
      &                            ALBFAC_REF2MODIS( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_modis( itt_load ),
      &                          albmap_ref2modis( itt_load ),
      &                          albfac_ref2modis( itt_load )
@@ -1223,10 +1223,10 @@ C...begin read
 
       NO_NLCD40 = .TRUE.  ! default condition that file does not contain NLCD40 Landuse data
       
-      READ( PHOTAB_UNIT,5013, 101 ) NUMB_LANDUSE_NLCD40
+      READ( PHOTAB_UNIT,5013, END = 101 ) NUMB_LANDUSE_NLCD40
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_NLCD40_MODIS = ', numb_landuse_NLCD40
       write( log_unit,6009 ) '! I', 'LANDUSE_NLCD40-MODIS', 'INDEX_ALBREF',
      &                       'FAC_ALBREF'
@@ -1241,7 +1241,7 @@ C...begin read
      &                            ALBMAP_REF2NLCD40( ITT_LOAD ),
      &                            ALBFAC_REF2NLCD40( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_NLCD40( itt_load ),
      &                          albmap_ref2NLCD40( itt_load ),
      &                          albfac_ref2NLCD40( itt_load )
@@ -1252,9 +1252,11 @@ C...begin read
       NO_NLCD40 = .FALSE.
 
 101   IF( NO_NLCD40 )THEN
-          MSG = CSQY_FILE // ' does not contain data for NLCD40 land use and '
-     &       // 'and corresponds to CMAQ version 5.01.'
-          CALL M3MESG(PNAME, MSG)
+          MSG = TRIM( PNAME ) // ':'
+     &       // TRIM( CSQY_FILE )
+     &       // ' does not contain data for NLCD40 land use and'
+     &       // ' corresponds to CMAQ version 5.01.'
+          CALL M3MESG( MSG )
       END IF
           
       ALLOCATE( WAVELENGTH( NWL_PHOT ) )
@@ -1298,7 +1300,7 @@ C...begin read
 5013  FORMAT( 22X,I3 )
 5016  FORMAT( 4X,A60,1X,I3,2X,3(F8.3,2X) )
 
-#ifdef Verbose
+#ifdef verbose_phot
 6009  format( a3,', ',8(a,', ') )
 6013  format( a22,1x,i3 )
 6016  format( i3,1x,a60,1x,i3,2x,3(f8.3,2x) )
