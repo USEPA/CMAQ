@@ -1,21 +1,21 @@
 
-C***********************************************************************
-C   Portions of Models-3/CMAQ software were developed or based on      *
-C   information from various groups: Federal Government employees,     *
-C   contractors working on a United States Government contract, and    *
-C   non-Federal sources (including research institutions).  These      *
-C   research institutions have given the Government permission to      *
-C   use, prepare derivative works, and distribute copies of their      *
-C   work in Models-3/CMAQ to the public and to permit others to do     *
-C   so.  EPA therefore grants similar permissions for use of the       *
-C   Models-3/CMAQ software, but users are requested to provide copies  *
-C   of derivative works to the Government without restrictions as to   *
-C   use by others.  Users are responsible for acquiring their own      *
-C   copies of commercial software associated with Models-3/CMAQ and    *
-C   for complying with vendor requirements.  Software copyrights by    *
-C   the MCNC Environmental Modeling Center are used with their         *
-C   permissions subject to the above restrictions.                     *
-C***********************************************************************
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header$
@@ -265,11 +265,11 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(124), A(124), E(124) / 'NITRYL_CHLORIDE ', 2.43E-02, 0.0E+00 /  ! Behnke et al. (1997), JGR, D102, 3795-3804
       DATA SUBNAME(125), A(125), E(125) / 'HEXYL_HYDROPEROX', 1.23E+01, 0.0E+00 /  ! Bond Estimated by EPA SUITE PROGRAM  (2007)
 
-      DATA SUBNAME(126), A(126), E(126) / 'HYDROXY_NITRATES', 1.7E+04,  9.2E+03 /  ! Shepson et al. (1996), Treves et al. (2000)
-      DATA SUBNAME(127), A(127), E(127) / 'HYDROXY_PEROXIDE', 8.3E+04,  7.4E+03 /  ! using value for H2O2
-      DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.0E+03,  0       /  ! Kames and Schurath (1992)
-      DATA SUBNAME(129), A(129), E(129) / 'HACET           ', 2.93E+03, 0       /  ! Spaulding et al. (2002)
-      DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5200   /   ! Staudinger and Roberts (1996) 
+      DATA SUBNAME(126), A(126), E(126) / 'HYDROXY_NITRATES', 1.70E+04, 9.20E+03 /  ! Shepson et al. (1996), Treves et al. (2000)
+      DATA SUBNAME(127), A(127), E(127) / 'HYDROXY_PEROXIDE', 8.30E+04, 7.40E+03 /  ! using value for H2O2
+      DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.00E+03, 0.00E+00 /  ! Kames and Schurath (1992)
+      DATA SUBNAME(129), A(129), E(129) / 'HACET           ', 2.93E+03, 0.00E+00 /  ! Spaulding et al. (2002)
+      DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
