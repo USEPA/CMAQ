@@ -116,6 +116,8 @@ C***Cloud albedo values from JPROC
       REAL, ALLOCATABLE, SAVE :: XO3CS( :,: )       !
       REAL, ALLOCATABLE, SAVE :: TEMP_O3_STRAT( : ) ! temperature for XO3CS, K
 
+      CHARACTER(16), ALLOCATABLE, SAVE  :: PHOTOLYSIS_RATE( : ) ! subset of photolysis rates from CSQY DATA
+
 C***Indices for special case photolysis cross sections
 
       INTEGER, SAVE :: LNO2
@@ -428,6 +430,7 @@ C***arrays for new values
          NEW_OPTICS_LOG = INIT3()
          
          NPHOT = NPHOTAB
+         ALLOCATE( PHOTOLYSIS_RATE ( NPHOTAB ) )
          ALLOCATE( XXCS( NPHOTAB, IREFTEMPS, NWL ) )
          ALLOCATE( XXQY( NPHOTAB, IREFTEMPS, NWL ) )
          ALLOCATE( CONV_WM2( NWL ) )
@@ -479,42 +482,61 @@ C***  reference data in module CSQY_DATA
                CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
             END IF
             IP_REF = PHOT_MAP( IP_MAP )
+            PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )
 
 C***check to see if this photolysis reaction is a special case that
 C***  is referenced in other sections of the code.  if so, then set
 C***  the appropriate pointers for later processing
 
+            SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
+               CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06' )
+                     LO3O3P = IPHOT
+               CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2' )
+                     LNO2 = IPHOT
+               CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06' )
+                     LO3O1D = IPHOT
+               CASE( 'KETONE', 'KET_RACM2' )
+                     LKETONE   = IPHOT
+               CASE( 'MGLY_ADJ' )
+                     LMGLY_ADJ = IPHOT
+               CASE(  'MGLY_ABS' )
+                     LMGLY_ABS = IPHOT
+               CASE( 'ACETONE', 'CH3COCH3_RACM2' )
+                     LACETONE  = IPHOT
+               CASE( 'HCHOR_06', 'HCHO_RAD_RACM2')
+                     LHCHOR_06 = IPHOT
+            END SELECT
 
-            IF  ( ( PNAME_MAP( IP_MAP ) .EQ. 'NO2' ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_SAPRC99' ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_06'      ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_RACM2' ) ) LNO2 = IPHOT
+!           IF  ( ( PNAME_MAP( IP_MAP ) .EQ. 'NO2' ) .OR.
+!    &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_SAPRC99' ) .OR.
+!    &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_06'      ) .OR.
+!    &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_RACM2' ) ) LNO2 = IPHOT
 
-            IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_SAPRC99' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_06'      )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_NASA06'  ) ) LO3O1D = IPHOT
-
-
-            IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
+!           IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D' ) .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_SAPRC99' )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_06'      )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O1D_IUPAC04' )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_NASA06'  ) ) LO3O1D = IPHOT
 
 
-            IF ( PNAME_REF( IPHOT ) .EQ. 'KETONE'   .OR.
-     &           PNAME_REF( IPHOT ) .EQ. 'KET_RACM2' )      LKETONE   = IPHOT
+!           IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P' ) .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
+
+
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'KETONE'   .OR.
+!    &           PNAME_REF( IPHOT ) .EQ. 'KET_RACM2' )      LKETONE   = IPHOT
      
-            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ADJ' )       LMGLY_ADJ = IPHOT
-            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ABS' )       LMGLY_ABS = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ADJ' )       LMGLY_ADJ = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ABS' )       LMGLY_ABS = IPHOT
             
-            IF ( PNAME_REF( IPHOT ) .EQ. 'ACETONE'  .OR. 
-     &           PNAME_REF( IPHOT ) .EQ. 'CH3COCH3_RACM2' ) LACETONE  = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'ACETONE'  .OR. 
+!    &           PNAME_REF( IPHOT ) .EQ. 'CH3COCH3_RACM2' ) LACETONE  = IPHOT
             
-            IF ( PNAME_REF( IPHOT ) .EQ. 'HCHOR_06' .OR.
-     &           PNAME_REF( IPHOT ) .EQ. 'HCHO_RAD_RACM2' ) LHCHOR_06 = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'HCHOR_06' .OR.
+!    &           PNAME_REF( IPHOT ) .EQ. 'HCHO_RAD_RACM2' ) LHCHOR_06 = IPHOT
 
 C***load the local cross section & quantum yield data from the reference
 C***  dataset for this photolysis reaction
@@ -1510,7 +1532,7 @@ C***  reference temperature, then use the value at the maximum reference tempera
 
 C***Make density corrections using values from Fast-JX V. 5.0
 
-               SELECT CASE ( PNAME_REF( IPHOT ) )
+               SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
 
                   CASE ( 'CCHO_R', 'ALD2', 'CH3CHO_RACM2' )      ! 'CH3CHO -> CH3 + HCO'
 
