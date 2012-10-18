@@ -1,5 +1,6 @@
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5/RXCM.EXT
+C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
+C  /RXCM.EXT
 C for Mechanism Name: SAPRC07TIC_AE6_AQ               
 
 C The following are reserved symbols declared in this INCLUDE file:

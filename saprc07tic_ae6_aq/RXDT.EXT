@@ -1,8 +1,9 @@
 C --------- Mechanism Reactions, Rates, etc. DATA INCLUDE File ---------
-C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5/RXDT.EXT
+C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
+C  /RXDT.EXT
 C Generated from ...
-C  /home/hwo/cmaq-v5.0/mechanisms/saprc07tc_xya_isoprene_v5_v50
-C  /mech_saprc07tc_xya_isoprene_v5.def
+C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
+C  /mech_saprc07tic_ae6_aq.def
 C for Mechanism Name: SAPRC07TIC_AE6_AQ               
 
 C This DATA INCLUDE file must be preceded by the corresponding
@@ -2908,7 +2909,7 @@ C    IRXXN = Reactions index
      3     3.6000D-12, 2.0000D-31, 3.7200D-05, 1.0000D+00, 1.3000D-12,
      +     2.0300D-16, 2.2000D-13, 3.0800D-34, 4.0000D-12, 8.5000D-13,
      4     1.0000D+00, 1.8000D-12, 4.8000D-11, 3.3000D-31, 7.7000D-12,
-     +     1.0000D+00, 2.7600D-11, 1.7000D-10, 0.0000D+00, 2.3000D-12,
+     +     0.0000D+00, 2.7600D-11, 1.7000D-10, 0.0000D+00, 2.3000D-12,
      5     3.4600D-13, 3.3400D-14, 1.3000D-12, 6.3900D-14, 7.4000D-13,
      +     2.6000D-12, 3.8000D-13, 2.3000D-12, 2.0000D-13, 3.5000D-14,
      6     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00,

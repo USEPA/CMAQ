@@ -18,6 +18,10 @@
 ! 06/07/2012  B. Hutzell corrected Reaction TR10 so product is CL not HCL
 ! 06/07/2012  B. Hutzell changed OH + NO2 rate constant to recommndations given
 !             in supplementary material for Mollner et al. (2010), Science 330, 646.
+! 08/21/2012  B. Hutzell turned off NO2EX cycle to setting EX1 rate constant to zero
+!             Note that EXOH originally used rate constant of zero by insert a blank
+!             in the appropriate space. A zero has replaced the blank to remove 
+!             ambiguities.
 
 
   SAPRC07TIC_AE6_AQ
@@ -74,11 +78,11 @@ REACTIONS [CM] =
 <43> OH + HO2 =  # 4.80e-11@-250;
 <44> OH + SO2 = HO2 + SULF + SULRXN # 3.30e-31^-4.30&1.60e-12&0.60&1.0;
 <45> OH + H2 = HO2 # 7.70e-12@2100;
-<EX1> NO2 = NO2EX # 1.0/<NO2EX>;
+<EX1> NO2 = NO2EX # 0.0/<NO2EX>;
 <EX2> NO2EX + M = NO2 # 2.76e-11;
 <EX3> NO2EX + H2O = NO2 # 1.70e-10;
-<EXOH> NO2EX + H2O = OH + HONO # 0.0e+00;
-!<EXOH> NO2EX + H2O = OH + HONO # 1.7e-13;
+<EXOH> NO2EX + H2O = OH + HONO # 0.0E+00;
+!<EXOH> NO2EX + H2O = OH + HONO # 1.7E-13;
 <BR01> MEO2 + NO = NO2 + HCHO + HO2 # 2.30e-12@-360;
 <BR02> MEO2 + HO2 = COOH # 3.46e-13^0.36@-780;
 <BR03> MEO2 + HO2 = HCHO # 3.34e-14^-3.53@-780;
