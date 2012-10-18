@@ -1537,9 +1537,11 @@ C***Make density corrections using values from Fast-JX V. 5.0
                   CASE ( 'CCHO_R', 'ALD2', 'CH3CHO_RACM2' )      ! 'CH3CHO -> CH3 + HCO'
 
                      IF ( QYZ( LAYS, IWL, IPHOT ) .GT. 1.0E-5 ) THEN
-                              QDUM = QYZ( LAYS, IWL, IPHOT )
-                              QYZ( LAYS, IWL, IPHOT ) = 1.0
-     &                           / ( 1.0 + ( 1.0 / QDUM - 1.0 ) * DENS( LAYS ) / 2.465E19 )
+                        QDUM = 0.0
+                     ELSE
+                        QDUM = QYZ( LAYS, IWL, IPHOT )
+                        QYZ( LAYS, IWL, IPHOT ) = 1.0
+     &                                         / ( 1.0 + ( 1.0 / QDUM - 1.0 ) * DENS( LAYS ) / 2.465E19 )
                         QYZ( LAYS, IWL, IPHOT ) = MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) )
                         QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
                      END IF
