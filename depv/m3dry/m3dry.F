@@ -137,6 +137,7 @@ C                          (David Wong)
 C           7 Jun 2012  Allow read of C-staggered (UWINDC and VWINDC) wind and B-staggered 
 C                       (UWIND and VWIND) from MET_DOT_3D to maintain compatibility with
 C                       current and previous versions of MCIP (J. Bash)
+C          12 Sep 2012  Added code for NLCD40 land use classification
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
