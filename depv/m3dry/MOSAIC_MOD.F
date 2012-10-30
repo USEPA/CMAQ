@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/MOSAIC_MOD.F,v 1.6 2012/03/28 16:11:09 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/MOSAIC_MOD.F,v 1.6 2012/03/28 16:11:09 yoj Exp $
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module MOSAIC_MOD
@@ -27,10 +27,11 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Contains the shared variables and subrountes needed estimated the resistances
 C from natural and agricultrual lands for NH3 bidirectional flux
  
-C Revision History: J. Bash June 16 2011: Created
-C                   J. Young Oct 31 2011: changed lai0, laimn0, rsmin, veg0, vegmn0,
-C                                       z00, & luf_fac to pointers to save memory
-C                   D. Schwede Mar 12 2012: fixed errors in crop lai
+C Revision History: J. Bash June 16 2011:    Created
+C                   J. Young Oct 31 2011:    changed lai0, laimn0, rsmin, veg0, vegmn0,
+C                                             z00, & luf_fac to pointers to save memory
+C                   D. Schwede Mar 12 2012:  fixed errors in crop lai
+C                   D. Schwede Sept 07 2012: updated code for NLCD40 land use classification
 
       Implicit None
       
@@ -135,15 +136,24 @@ C...overwrite if NLCD-MODIS scheme
                vegmn0_p  => VEGMN0_MODIS                       !  "       "
                z00_p     => Z00_MODIS                          !  "       "
                luf_fac_p => LUF_FAC_MODIS                      !  "       "
-            Case( 'NLCD-MODIS' )
+            Case( 'NLCD50' )
 !              n_lufrac = n_nlcd
-               rsmin_p   => RSMIN_NLCD                         ! array assignment
-               lai0_p    => LAI0_NLCD                          !  "       "
-               laimn0_p  => LAIMN0_NLCD                        !  "       "
-               veg0_p    => VEG0_NLCD                          !  "       "
-               vegmn0_p  => VEGMN0_NLCD                        !  "       "
-               z00_p     => Z00_NLCD                           !  "       "
-               luf_fac_p => LUF_FAC_NLCD                       !  "       "
+               rsmin_p   => RSMIN_NLCD50                       ! array assignment
+               lai0_p    => LAI0_NLCD50                        !  "       "
+               laimn0_p  => LAIMN0_NLCD50                      !  "       "
+               veg0_p    => VEG0_NLCD50                        !  "       "
+               vegmn0_p  => VEGMN0_NLCD50                      !  "       "
+               z00_p     => Z00_NLCD50                         !  "       "
+               luf_fac_p => LUF_FAC_NLCD50                     !  "       "
+            Case( 'NLCD40' )
+!              n_lufrac = n_nlcd
+               rsmin_p   => RSMIN_NLCD40                       ! array assignment
+               lai0_p    => LAI0_NLCD40                        !  "       "
+               laimn0_p  => LAIMN0_NLCD40                      !  "       "
+               veg0_p    => VEG0_NLCD40                        !  "       "
+               vegmn0_p  => VEGMN0_NLCD40                      !  "       "
+               z00_p     => Z00_NLCD40                         !  "       "
+               luf_fac_p => LUF_FAC_NLCD40                     !  "       "
             Case Default
 !              Write(Logdev,*) 'Land use scheme is ', LAND_SCHEME
                xmsg = 'Land use scheme not supported'
@@ -296,6 +306,9 @@ C initialize
          total_frac = 0.0
          znotc = 0.0
 
+!         write(logdev,*) 'in calc-lai: land_scheme, n_lufrac ',land_scheme,n_lufrac
+
+
 C calculate fseas based on deep soil temperature
          If ( soit2 .Le. 290.0 ) Then
             fseas = MAX( 1.0 - 0.015625 * ( 290.0 - soit2 ) ** 2, 0.0 )
@@ -303,16 +316,18 @@ C calculate fseas based on deep soil temperature
             fseas = 1.0
          End If
 
-C get individual LAIs for LUCs for this date - lu_type: 1 = USGS; lu_type: 2 = NLCD
+C get individual LAIs for LUCs for this date 
          Do j = 1, n_lufrac
             total_frac = total_frac + lufrac( j )
             vegcrj( j ) = ( ( 1.0 - fseas ) * vegmn0_p( j ) + fseas * veg0_p( j ) )/100.
-            If ( ( Land_Scheme .EQ. 'USGS24' .And. ( j .Ge. 2 .And. j .Le. 4 ) ) .OR.
-     &           ( Land_Scheme .EQ. 'NLCD-MODIS' .And. ( j .EQ. 20 .OR. j .EQ. 43  ) ) .OR.
+            If ( ( Land_Scheme .EQ. 'USGS24' .And. ( j .Ge. 2 .And. j .LE. 4 ) ) .OR.
+     &           ( Land_Scheme .EQ. 'NLCD50' .And. ( j .EQ. 20 .OR. j .EQ. 43  ) ) .OR.
+     &           ( Land_Scheme .EQ. 'NLCD40' .And. ( j .EQ. 12 .OR. j .EQ. 38  ) ) .OR.
      &           ( Land_Scheme .EQ. 'MODIS' .And. ( j .EQ. 12 ) ) ) Then
                sum_crop_frac = sum_crop_frac + lufrac( j )
             Else If ( ( Land_Scheme .EQ. 'USGS24' .And. ( j .EQ. 5 .OR. j .EQ. 6 ) ) .OR.
-     &                ( Land_Scheme .EQ. 'NLCD-MODIS' .And. j .EQ. 45 ).OR.
+     &                ( Land_Scheme .EQ. 'NLCD50' .And. j .EQ. 45 ).OR.
+     &                ( Land_Scheme .EQ. 'NLCD40' .And. j .EQ. 14 ).OR.
      &                ( Land_Scheme .EQ. 'MODIS' .And. ( j .EQ. 14 ) ) ) Then
                sum_mos_frac = sum_mos_frac + lufrac( j )
                sum_mos_lai = sum_mos_lai + lufrac( j ) * ( laimn0_p( j )
@@ -332,8 +347,15 @@ C total frac needs to be non-water
                Else
                   total_frac = 1.0
                End If
-            Case('NLCD-MODIS')
+            Case('NLCD50')
                argw = lufrac( 1 ) + lufrac( 31 ) + lufrac( 48 ) + lufrac( 50 )
+               If ( argw .Gt. 0.10 ) Then
+                  total_frac = total_frac - argw
+               Else
+                  total_frac = 1.0
+               End If
+            Case('NLCD40')
+               argw = lufrac( 17 ) + lufrac( 21 )
                If ( argw .Gt. 0.10 ) Then
                   total_frac = total_frac - argw
                Else
@@ -387,10 +409,12 @@ C check to see if correction needed
                Select Case(Land_Scheme)
                   Case('USGS24')
                      lai_crop = MAX( laimn0_p( 2 ) + fseas * ( 3.16 - laimn0_p( 2 ) ), 0.5 )   ! max lai-crop is really 3.16 not 3.0 as in table
-                  Case('NLCD-MODIS')
-                     lai_crop = MAX( laimn0_p( 20 ) + fseas * ( 3.16 -laimn0_p( 20 ) ), 0.5 )
+                  Case('NLCD50')  ! since values are the same for LUC 20 and 43 only need one
+                     lai_crop = MAX( laimn0_p( 20 ) + fseas * ( 3.16 - laimn0_p( 20 ) ), 0.5 )
+                  Case('NLCD40')  ! since values are the same for LUC 12 and 38 only need one
+                     lai_crop = MAX( laimn0_p( 38 ) + fseas * ( 3.16 - laimn0_p( 38 ) ), 0.5 )
                   Case('MODIS')
-                     lai_crop = MAX( laimn0_p( 12 ) + fseas * ( 3.16 -laimn0_p( 12 ) ), 0.5 )
+                     lai_crop = MAX( laimn0_p( 12 ) + fseas * ( 3.16 - laimn0_p( 12 ) ), 0.5 )
                End Select
                
 #ifdef Verbose
@@ -403,9 +427,12 @@ C check to see if correction needed
                      lai_mos6 = 0.5 * ( laimn0_p( 6 ) + fseas * ( lai0_p( 6 ) - laimn0_p( 6 ) ) ) + 0.5 * lai_crop
                      new_sum_nat_lai = total_frac * laig - ( lai_crop * sum_crop_frac + lai_mos5 * lufrac( 5 ) + 
      &                                 lai_mos6 * lufrac( 6 ) )
-                  Case('NLCD-MODIS')
+                  Case('NLCD50')
                      lai_mos45 = 0.5 * ( laimn0_p( 45 ) + fseas * ( lai0_p( 45 ) - laimn0_p( 45 ) ) ) + 0.5 * lai_crop
                      new_sum_nat_lai = total_frac * laig - ( lai_crop * sum_crop_frac + lai_mos45* lufrac( 45 ) )
+                  Case('NLCD40')
+                     lai_mos14 = 0.5 * ( laimn0_p( 14 ) + fseas * ( lai0_p( 14 ) - laimn0_p( 14 ) ) ) + 0.5 * lai_crop
+                     new_sum_nat_lai = total_frac * laig - ( lai_crop * sum_crop_frac + lai_mos14* lufrac( 14 ) )
                   Case('MODIS')
                      lai_mos14 = 0.5 * ( laimn0_p( 14 ) + fseas * ( lai0_p( 14 ) - laimn0_p( 14 ) ) ) + 0.5 * lai_crop
                      new_sum_nat_lai = total_frac * laig - ( lai_crop * sum_crop_frac + lai_mos14 * lufrac( 14 ) )
@@ -421,8 +448,10 @@ C check to see if correction needed
                Select Case(Land_Scheme)
                   Case('USGS24')
                      Write( logdev,* ) 'Old lai: ', laicrj( 1 ), laicrj( 7 ), laicrj( 11 ), laicrj( 15 )   
-                  Case('NLCD-MODIS')
+                  Case('NLCD50')
                      Write( logdev,* ) 'Old lai: ', laicrj( 1 ), laicrj( 14 ), laicrj( 9 ), laicrj( 11 )
+                  Case('NLCD40')
+                     Write( logdev,* ) 'Old lai: ', laicrj( 17 ), laicrj( 10 ), laicrj( 4 ), laicrj( 5 )
                   Case('MODIS')
                      Write( logdev,* ) 'Old lai: ', laicrj( 17 ), laicrj( 10 ), laicrj( 4 ), laicrj( 5 )
                End Select           
@@ -438,7 +467,7 @@ C check to see if correction needed
 #ifdef Verbose
                      Write( logdev,* ) 'New lai: ', laicrj( 1 ), laicrj( 7 ), laicrj( 11 ), laicrj( 15 )
 #endif                     
-                  Case('NLCD-MODIS')
+                  Case('NLCD50')
                      Do j = 2, 19
                         laicrj( j ) = laicrj( j ) * correction
                      End Do
@@ -451,6 +480,17 @@ C check to see if correction needed
                      laicrj( 44 ) = laicrj( 44 ) * correction
                      laicrj( 46 ) = laicrj( 46 ) * correction
                      laicrj( 47 ) = laicrj( 47 ) * correction
+                  Case('NLCD40')
+                     Do j = 1, 11
+                        laicrj( j ) = laicrj( j ) * correction
+                     End Do
+                     laicrj( 13 ) = laicrj( 13 ) * correction
+                     Do j = 15, 16
+                        laicrj( j ) = laicrj( j ) * correction
+                     End Do
+                     Do j = 22, 40
+                       laicrj( j ) = laicrj( j ) * correction
+                     End Do                  
                   Case('MODIS')
                      Do j = 1, 11
                         laicrj( j ) = laicrj( j ) * correction
@@ -504,7 +544,7 @@ C which should have been caught by testing lai
                   z0crj( j )  = 0.5 * ( znotc + z00_p( j ) )
                   vegcrj( j ) = ( (1.0-vseas) * vegmn0_p(j) + vseas * veg0_p(j) ) / 100.0
                End Do
-            Case('NLCD-MODIS')
+            Case('NLCD50')
                laicrj( 20 ) = lai_crop
                z0crj ( 20 ) = znotc
                vegcrj( 20 ) = ( (1.0-vseas) * vegmn0_p(20) + vseas * veg0_p(20) ) / 100.0
@@ -515,6 +555,17 @@ C which should have been caught by testing lai
      &                      + 0.5 * lai_crop
                z0crj ( 45 ) = 0.5 * ( znotc + z00_p( 45 ) )
                vegcrj( 45 ) = ( (1.0-vseas) * vegmn0_p(45) + vseas * veg0_p(45) ) / 100.0
+            Case('NLCD40')
+               laicrj( 12 ) = lai_crop
+               z0crj ( 12 ) = znotc
+               vegcrj( 12 ) = ( (1.0-vseas) * vegmn0_p(12) + vseas * veg0_p(12) ) / 100.0
+               laicrj( 14 ) = 0.5 * ( laimn0_p( 14 ) + fseas * ( lai0_p( 14 ) - laimn0_p( 14 ) ) )
+     &                      + 0.5 * lai_crop
+               z0crj ( 14 ) = 0.5 * ( znotc + z00_p( 14 ) )
+               vegcrj( 14 ) = ( (1.0-vseas) * vegmn0_p(14) + vseas * veg0_p(14) ) / 100.0
+               laicrj( 38 ) = lai_crop
+               z0crj ( 38 ) = znotc
+               vegcrj( 38 ) = ( (1.0-vseas) * vegmn0_p(12) + vseas * veg0_p(12) ) / 100.0
             Case('MODIS')
                laicrj( 12 ) = lai_crop
                z0crj ( 12 ) = znotc
@@ -522,7 +573,7 @@ C which should have been caught by testing lai
                laicrj( 14 ) = 0.5 * ( laimn0_p( 14 ) + fseas * ( lai0_p( 14 ) - laimn0_p( 14 ) ) )
      &                      + 0.5 * lai_crop
                z0crj ( 14 ) = 0.5 * ( znotc + z00_p( 14 ) )
-               vegcrj( 12 ) = ( (1.0-vseas) * vegmn0_p(12) + vseas * veg0_p(12) ) / 100.0
+               vegcrj( 14 ) = ( (1.0-vseas) * vegmn0_p(14) + vseas * veg0_p(14) ) / 100.0
          End Select      
 
          sum_lai = SUM( laicrj * lufrac )

@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas, 
@@ -134,6 +134,9 @@ C                          (David Wong)
 C           26 Sep 2011 -- made the number of actual and dummy arguments the same in
 C                          calling subroutine Init_ABFlux
 C                          (David Wong)
+C           7 Jun 2012  Allow read of C-staggered (UWINDC and VWINDC) wind and B-staggered 
+C                       (UWIND and VWIND) from MET_DOT_3D to maintain compatibility with
+C                       current and previous versions of MCIP (J. Bash)
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
@@ -901,19 +904,29 @@ C-------------------------------------------------------------------------------
             GO TO 1001
          END IF      
 
-         vname = 'UWIND'
+! Try to read the U and V wind components on the C-staggered grid. If this fails,
+! try reading them off of the B-staggered grid for backwards compatibility with MCIP
+         vname = 'UWINDC'
          IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
-            WRITE( xmsg,9001 ) vname, met_dot_3d
+            vname = 'UWIND'
+            IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
+     &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
+	       WRITE( xmsg,9001 ) vname, met_dot_3d
 
-            GO TO 1001
+               GO TO 1001
+            END IF
          END IF
-         vname = 'VWIND'
+         vname = 'VWINDC'
          IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, vwind) ) THEN
-            WRITE( xmsg,9001 ) vname, met_dot_3d
+                vname = 'VWIND'
+            IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
+     &                    strtrow, endrow+1, 1, 1, jdate, jtime, vwind) ) THEN
+               WRITE( xmsg,9001 ) vname, met_dot_3d
 
-            GO TO 1001
+               GO TO 1001
+	    END IF
          END IF      
       END IF
       
@@ -962,7 +975,6 @@ C-------------------------------------------------------------------------------
             END DO
 
             IF ( ( NINT( lwmask( c,r ) ) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
-!              Write(logdev,*) 'Before call calc_lai'
 
                CALL Calc_Lai( jday, jtime, soit2cr, lufraccr, laicr, zrufcr,
      &                        laijcr, z0jcr, vegjcr, logdev, c, r )
@@ -1042,9 +1054,17 @@ C-------------------------------------------------------------------------------
                                     wfccr = wfc(soilcat)
                               END SELECT
                            END IF
-                           IF ( Land_Scheme .EQ. 'NLCD-MODIS' ) THEN              
+                           IF ( Land_Scheme .EQ. 'NLCD50' ) THEN              
                               SELECT CASE(j)
                                  CASE(1,31,48) ! water
+                                    wfccr = -999.
+                                 CASE DEFAULT ! Land
+                                    wfccr = wfc(soilcat)
+                              END SELECT
+                           END IF
+                           IF ( Land_Scheme .EQ. 'NLCD40' ) THEN              
+                              SELECT CASE(j)
+                                 CASE(17,21) ! water
                                     wfccr = -999.
                                  CASE DEFAULT ! Land
                                     wfccr = wfc(soilcat)
@@ -1325,8 +1345,10 @@ C-------------------------------------------------------------------------------
                      DO j = 1, n_lufraC
                         IF ( lufraccr( j ) .GT. 0.0 ) THEN
                            IF ( (Land_scheme .EQ. 'USGS24' .AND. j .NE. 16) .OR. 
-     &                          (Land_scheme .EQ. 'NLCD-MODIS' .AND. j .NE. 1 .AND.
+     &                          (Land_scheme .EQ. 'NLCD50' .AND. j .NE. 1 .AND.
      &                           j .NE. 31 .AND. j .NE. 48) .OR. 
+     &                          (Land_scheme .EQ. 'NLCD40' .AND. j .NE. 17 .AND.
+     &                           j .NE. 21) .OR.  
      &                          (Land_scheme .EQ. 'MODIS' .AND. j .NE. 17 )) THEN
                               IF ( laij( j,c,r ) .LT. 0.00001 ) THEN
                                  rstomj( j,l,c,r ) = rsmax
@@ -1394,8 +1416,10 @@ C-------------------------------------------------------------------------------
 !                          IF ( j .eq. iwat ) THEN ! water -- code duplicate from above as it
                                               ! would only have been calculated above if it is a water cell
                            IF ( ( Land_scheme .EQ. 'USGS24' .AND. j .EQ. 16 ) .OR.
-     &                          ( Land_scheme .EQ. 'NLCD-MODIS' .AND. j .EQ. 1 .OR.
+     &                          ( Land_scheme .EQ. 'NLCD50' .AND. j .EQ. 1 .OR.
      &                            j .EQ. 31 .OR. j .EQ. 48 ) .OR.
+     &                          ( Land_scheme .EQ. 'NLCD40' .AND. j .EQ. 17 .OR.
+     &                            j .EQ. 21) .OR.
      &                          ( Land_scheme .EQ. 'MODIS' .AND. j .EQ. 17 ) ) THEN   ! water
                               ctemp2 = temp2p0cr - stdtemp
                               lv     = lv0 - dlvdt * ctemp2
@@ -1469,8 +1493,10 @@ C-------------------------------------------------------------------------------
                         END IF
                         IF ( fst ) THEN
                            IF ( (( Land_scheme .EQ. 'USGS24' .AND. j .EQ. 16 )   .OR.
-     &                           ( Land_scheme .EQ. 'NLCD-MODIS' .AND. j .EQ. 1  .OR.
+     &                           ( Land_scheme .EQ. 'NLCD50' .AND. j .EQ. 1      .OR.
      &                             j .EQ. 31 .OR. j .EQ. 48 )                    .OR.
+     &                           ( Land_scheme .EQ. 'NLCD40' .AND. j .EQ. 17     .OR.
+     &                            j .EQ. 21) .OR.
      &                           ( Land_scheme .EQ. 'MODIS' .AND. j .EQ. 17 ) )  .OR. 
      &                           ( lwmask( c,r ) .EQ. 0.0  ) ) THEN                         ! water
                               vd_fst_gasj( j,l,c,r) = 0.0
@@ -1505,7 +1531,7 @@ C--------------------------------------------------------------------------
                         CALL Get_Flux( tempgcr,rh_air,cnh3,rwetsfc,rgw,wg(c,r),w2(c,r),
      &                                 sltyp(c,r),dif0(l),r,c,l,tpvd,lnh3,
      &                                 f_stom,f_cut,f_soil,f_emis,f_dep,f_ag,f_nat, f_wat,
-     &                                 dt(2) )
+     &                                 dt(2), jtime )
                         pvd( n,c,r ) = tpvd
                         depvel_gas( n,c,r ) = lnh3
                         

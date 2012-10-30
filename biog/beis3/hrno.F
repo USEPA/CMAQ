@@ -404,6 +404,8 @@ C If initial run, initialize some variables, otherwise get them from file
 
          ELSE
 
+            RHOURS = 24
+
 C Open saved NO rain data file
             SOILINP = PROMPTMFILE(
      &                'Enter name for NO EMISSIONS SAVE file',
