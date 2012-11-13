@@ -1285,14 +1285,6 @@ C...begin read
       ALLOCATE( FEXT      ( NWL_PHOT ) )
       ALLOCATE( ALB       ( NWL_PHOT ) )
 
-      DO IWL_LOAD = 1, NWL_PHOT
-         IF ( WAVELENGTH( IWL_LOAD ) .LE. 380.1 ) THEN
-            ALB( IWL_LOAD ) = 0.05
-         ELSE
-            ALB( IWL_LOAD ) = 0.10
-         END IF
-      END DO
-
       ALLOCATE( CLOUD_BETA_LWC( NWL_PHOT ) )  ! cloud extinction coef divided by LWC
       ALLOCATE( CLOUD_COALBEDO( NWL_PHOT ) )  ! cloud coalbedo
       ALLOCATE( CLOUD_G       ( NWL_PHOT ) )  ! cloud asymmetry factor
@@ -1303,6 +1295,14 @@ C...begin read
          CLOUD_G       ( IWL_LOAD ) = CLD_G_REF       ( IWL_LOAD )
          CLOUD_COALBEDO( IWL_LOAD ) = CLD_COALBEDO_REF( IWL_LOAD )
          CLOUD_BETA_LWC( IWL_LOAD ) = CLD_BETA_REF    ( IWL_LOAD )
+      END DO
+
+      DO IWL_LOAD = 1, NWL_PHOT
+         IF ( WAVELENGTH( IWL_LOAD ) .LE. 380.1 ) THEN
+            ALB( IWL_LOAD ) = 0.05
+         ELSE
+            ALB( IWL_LOAD ) = 0.10
+         END IF
       END DO
 
       NTEMP_STRAT = NTEMP_STRAT_REF
