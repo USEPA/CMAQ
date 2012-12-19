@@ -12,15 +12,17 @@
 #> config.cmaq
 #> sourced from bldit.<model>
 #> env var $COMPILER set in bldit
+# Things to set: M3HOME, M3MODEL, INFINITY
 
 #> To accomdate Carlie's ioapi naming convention, which does not follow
 #> the compiler directory name, the env var "compiler_ext" must be set.
  set echo
 
 #> model repository location
- setenv M3HOME  /home/yoj/src/repo
- setenv M3MODEL $M3HOME/CCTM-git
- setenv M3DATA  $M3HOME/data
+ setenv M3HOME  /project/inf10w/havala/git/
+ setenv M3MODEL $M3HOME/CCTMgitrepo
+ setenv INFINITY yes  # For Infinity
+# setenv INFINITY no  # for Terrae and HPC, any value other than yes  
 
 #===============================================================================
 
@@ -34,6 +36,7 @@
 #setenv extra_lib "-lrdmacm -libumad -lopa -lmpl -lrt -lpthread -libverbs -ldl"
 #setenv extra_lib "-lrdmacm -libumad "
 
+
 #> for terra:
  switch ( $COMPILER )
     case intel:
@@ -41,18 +44,18 @@
 #< module load intel-11.1 impi_3.2.2.006
        setenv compiler intel
        setenv compiler_ext ifort
-       setenv myFC /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-######## vvvvv infinity
-#    setenv myFC /share/linux86_64/intel/fc/11.1.059/bin/intel64/ifort
-       setenv myCC /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/icc
-######## vvvvv infinity
-#    setenv myCC /share/linux86_64/intel/cc/11.1.059/bin/intel64/icc
+       setenv myFC ifort
+       setenv myCC icc
        setenv myLINK_FLAG "-i-static"
-       setenv myFFLAGS "-fixed -132 -O3 -override-limits -fno-alias -mp1"
-       setenv myFRFLAGS "-free -O3 -fno-alias -mp1"
+       setenv myFFLAGS "-fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise"
+       setenv myFRFLAGS "-free -O3 -fno-alias -mp1 -fp-model precise"
        setenv myCFLAGS "-O2"
        setenv mpi "-lmpich"
        setenv extra_lib "-lmpiif"
+       if ( $INFINITY == 'yes' ) then
+          setenv extra_lib "-lrdmacm -libumad -lrt" # from David Wong's scom
+       endif
+
        breaksw
 
     case pgi:
@@ -99,6 +102,9 @@
 
 #> generate library locations
        setenv M3LIB ${lib_basedir}/${system}/${compiler}
+       if ( $INFINITY == 'yes' ) then
+           setenv M3LIB ${lib_basedir}/${system}i/${compiler}
+       endif
        setenv MPI_INC $M3LIB/mpich/include
 
 #> set executable id
