@@ -19,8 +19,7 @@
 
 #> model repository location
  setenv M3HOME  /home/yoj/src/repo
- setenv M3MODEL $M3HOME/CCTM-git
- setenv M3DATA  $M3HOME/data
+ setenv M3MODEL /home/yoj/src/dev/CCTM
 
 #===============================================================================
 
@@ -48,8 +47,8 @@
 ######## vvvvv infinity
 #    setenv myCC /share/linux86_64/intel/cc/11.1.059/bin/intel64/icc
        setenv myLINK_FLAG "-i-static"
-       setenv myFFLAGS "-fixed -132 -O3 -override-limits -fno-alias -mp1"
-       setenv myFRFLAGS "-free -O3 -fno-alias -mp1"
+       setenv myFFLAGS "-fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise"
+       setenv myFRFLAGS "-free -O3 -fno-alias -mp1 -fp-model precise"
        setenv myCFLAGS "-O2"
        setenv mpi "-lmpich"
        setenv extra_lib "-lmpiif"
@@ -103,4 +102,4 @@
 
 #> set executable id
  setenv EXEC_ID ${bld_os}_${system}${compiler}
-
+ unset echo
