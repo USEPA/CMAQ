@@ -109,4 +109,4 @@
 
 #> set executable id
  setenv EXEC_ID ${bld_os}_${system}${compiler}
-
+ unset echo
