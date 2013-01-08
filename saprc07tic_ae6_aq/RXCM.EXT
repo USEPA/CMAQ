@@ -1,7 +1,6 @@
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
-C  /RXCM.EXT
-C for Mechanism Name: SAPRC07TIC_AE6_AQ               
+C  /work/MOD3DEV/has/isoprene/cctm/trunk/mechupdate/20120831_IV/RXCM.EXT
+C for Mechanism Name: SAPRC07TCxy2_AE6_AQ             
 
 C The following are reserved symbols declared in this INCLUDE file:
 C    MECHNAME       = Mechanism name
@@ -59,13 +58,13 @@ C    NMPHOT    = Number of mechanism photolytic reactions
 C    NPHOTAB   = Number of photolytic reactions tables
 C    IPH       = Reactions list pointer to photolytic reactions and tables
 
-      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TIC_AE6_AQ'
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TCxy2_AE6_AQ'
 
-      INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 179
+      INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 184
 
-      INTEGER, PARAMETER :: N_ACT_SP = 179
+      INTEGER, PARAMETER :: N_ACT_SP = 184
 
-      INTEGER, PARAMETER :: NRXNS = 789
+      INTEGER, PARAMETER :: NRXNS = 842
 
       INTEGER            :: KUNITS
 
@@ -75,13 +74,13 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
 
       INTEGER            :: IORDER( NRXNS )
 
-      INTEGER, PARAMETER :: KTN1 = 130
+      INTEGER, PARAMETER :: KTN1 = 135
       INTEGER            :: KRX1( KTN1 )
 
       INTEGER, PARAMETER :: KTN2 =   4
       INTEGER            :: KRX2( KTN2 )
 
-      INTEGER, PARAMETER :: KTN3 = 155
+      INTEGER, PARAMETER :: KTN3 = 157
       INTEGER            :: KRX3( KTN3 )
 
       INTEGER, PARAMETER :: KTN4 =  11
@@ -90,7 +89,7 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
       INTEGER, PARAMETER :: KTN5 =   0
       INTEGER            :: KRX5( 1 )
 
-      INTEGER, PARAMETER :: KTN6 = 402
+      INTEGER, PARAMETER :: KTN6 = 447
       INTEGER            :: KRX6( KTN6 )
 
       INTEGER, PARAMETER :: KTN7 =   0
@@ -130,7 +129,7 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
       INTEGER            :: NREACT( NRXNS )
       INTEGER            :: NPRDCT( NRXNS )
 
-      INTEGER, PARAMETER :: NMPHOT =  64
+      INTEGER, PARAMETER :: NMPHOT =  65
       INTEGER            :: IPH( NMPHOT,3 )
 
       COMMON     / MECHRX1 /
