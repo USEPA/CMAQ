@@ -1,6 +1,6 @@
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /work/MOD3DEV/has/isoprene/cctm/trunk/mechupdate/20120831_IV/RXCM.EXT
-C for Mechanism Name: SAPRC07TCxy2_AE6_AQ             
+C  /project/inf10w/havala/git/solverupdate/saprc07tic_ae6_aq/RXCM.EXT
+C for Mechanism Name: SAPRC07TIC_AE6_AQ               
 
 C The following are reserved symbols declared in this INCLUDE file:
 C    MECHNAME       = Mechanism name
@@ -58,7 +58,7 @@ C    NMPHOT    = Number of mechanism photolytic reactions
 C    NPHOTAB   = Number of photolytic reactions tables
 C    IPH       = Reactions list pointer to photolytic reactions and tables
 
-      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TCxy2_AE6_AQ'
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TIC_AE6_AQ'
 
       INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 184
 

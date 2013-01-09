@@ -1,8 +1,9 @@
 C --------- Mechanism Reactions, Rates, etc. DATA INCLUDE File ---------
-C  /work/MOD3DEV/has/isoprene/cctm/trunk/mechupdate/20120831_IV/RXDT.EXT
+C  /project/inf10w/havala/git/solverupdate/saprc07tic_ae6_aq/RXDT.EXT
 C Generated from ...
-C  /work/MOD3DEV/has/isoprene/cctm/trunk/BLD_s07tc_xya_v5.0/mech.def
-C for Mechanism Name: SAPRC07TCxy2_AE6_AQ             
+C  /project/inf10w/havala/git/solverupdate/../MECHgitrepo
+C  /saprc07tic_ae6_aq/mech_saprc07tic_ae6_aq.def
+C for Mechanism Name: SAPRC07TIC_AE6_AQ               
 
 C This DATA INCLUDE file must be preceded by the corresponding
 C COMMON INCLUDE file, which contains all the appropriate type
@@ -3104,7 +3105,7 @@ C    IRXXN = Reactions index
      +     2.5000D-31, 3.0000D-12, 1.4000D-13, 1.8000D-11, 3.3000D-39,
      1     3.6000D-30, 1.3000D-03, 1.0000D-22, 0.0000D+00, 4.5000D-14,
      +     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.6300D-10,
-     2     2.3800D-11, 7.0000D-31, 1.0000D+00, 2.5000D-12, 1.8000D-30,
+     2     2.3800D-11, 7.0000D-31, 1.0000D+00, 2.5000D-12, 1.4800D-30,
      +     2.0000D-11, 2.4000D-14, 1.0000D+00, 1.4400D-13, 1.7000D-12,
      3     3.6000D-12, 2.0000D-31, 3.7200D-05, 1.0000D+00, 1.3000D-12,
      +     2.0300D-16, 2.2000D-13, 3.0800D-34, 4.0000D-12, 8.5000D-13,
@@ -3619,7 +3620,7 @@ C    IRXXN = Reactions index
 
       DATA ( RFDAT( 1,IRXXN ), IRXXN = 1, NFALLOFF ) /
      &     3.0000D-11, 2.2000D-11, 1.9000D-12, 9.7000D+14, 3.6000D-11,
-     &     2.8000D-11, 2.1990D+03, 0.0000D+00, 2.9000D-12, 5.4200D+15,
+     &     2.5800D-11, 2.1990D+03, 0.0000D+00, 2.9000D-12, 5.4200D+15,
      &     9.8000D+02, 3.1800D+03, 1.6000D-12, 1.2100D-11, 4.0000D+16,
      &     8.8000D-12, 8.3000D-13, 1.0000D-10, 1.0000D-10, 1.5000D-11,
      &     3.7100D+15, 3.1000D-10, 2.2000D-10/
