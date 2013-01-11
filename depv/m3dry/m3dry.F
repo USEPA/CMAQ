@@ -341,7 +341,7 @@ C For Mosaic with Ammonia bi-directional flux
       REAL                      :: soit2     ( ncols,nrows ) ! soil temperature in top m [K]
       REAL                      :: qv        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
       REAL                      :: pres      ( ncols,nrows ) ! layer 1 pressure [Pa]
-      REAL                      :: zh        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
+      REAL                      :: zh        ( ncols,nrows ) ! mid-layer height above ground [m]
       REAL                      :: moli      ( ncols,nrows ) ! inverse of Monin-Obukhov length [m]
       REAL                      :: ta        ( ncols,nrows ) ! layer 1 temperature [K]      
       REAL                      :: uwind     ( ncols+1,nrows+1 ) ! dot grid horizontal wind            
