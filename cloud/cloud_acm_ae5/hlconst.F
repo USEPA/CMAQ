@@ -62,6 +62,10 @@ C  W.Hutzell  01/01/09  added Henry's Law constants for 121 to 125 for
 C                       for SAPRC07T mechanism                 
 C  S.Roselle  03/01/11  replaced I/O API include files with UTILIO_DEFN;
 C                       removed deprecated TRIMLEN
+C  Y.Xie      6/11/10  added Henry's Law constants for 126 to 130 for 
+C                       isoprene chemistry in SAPRC07               
+C  W.Hutzell  08/16/12  updated IOAPI and Henry Constant names to V5.01
+C                       standards
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -72,7 +76,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 125     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 130     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -250,15 +254,24 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(114), A(114), E(114) / 'P_DICHLOROBENZEN', 2.38E+00, 0.0E+00 / ! MacKay and Shiu (1981), measured
       DATA SUBNAME(115), A(115), E(115) / 'M-XYLENE        ', 1.43E-01, 3.9E+03 / ! Staudinger and Roberts (2001)
       DATA SUBNAME(116), A(116), E(116) / 'P-XYLENE        ', 1.35E-01, 3.7E+03 / ! Staudinger and Roberts (2001)
-      DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 1.53E-02, 7.2E+03 / ! Staudinger and Roberts (2001)
-      DATA SUBNAME(118), A(118), E(118) / 'PROPANAL        ', 1.64E+00, 5.4E+03 / ! Staudinger and Roberts (2001)
-      DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 3.82E-01, 4.4E+03 / ! Staudinger and Roberts (2001)
-      DATA SUBNAME(120), A(120), E(120) / '124TRIMETH_BENZE', 1.50E-01, 4.3E+03 / ! Hanson et al. (1995)
-      DATA SUBNAME(121), A(121), E(121) / 'CHLOROACETALDEHY', 4.18E+01, 0.0E+00 / ! Bond Estimate by EPA SUITE PROGRAM  (2007)
-      DATA SUBNAME(122), A(122), E(122) / 'CHLOROACETONE   ', 3.82E-01, 0.0E+00 / ! Staudinger and Roberts (2001)
-      DATA SUBNAME(123), A(123), E(123) / 'NITROSYL_CHLORID', 5.10E-01, 0.0E+00 / ! Bond Estimate by EPA SUITE PROGRAM  (2007)
-      DATA SUBNAME(124), A(124), E(124) / 'NITRYL_CHLORIDE ', 2.43E-02, 0.0E+00 / ! Behnke et al. (1997), JGR, D102, 3795-3804
-      DATA SUBNAME(125), A(125), E(125) / 'HEXYL_HYDROPEROX', 1.23E+01, 0.0E+00 / ! Bond Estimated by EPA SUITE PROGRAM  (2007)
+
+      DATA SUBNAME(117), A(117), E(117) / 'N-HEXANE        ', 1.53E-02, 7.2E+03 /  ! Staudinger and Roberts (2001)
+      DATA SUBNAME(118), A(118), E(118) / 'PROPANAL        ', 1.64E+00, 5.4E+03 /  ! Staudinger and Roberts (2001)
+      DATA SUBNAME(119), A(119), E(119) / 'STYRENE         ', 3.82E-01, 4.4E+03 /  ! Staudinger and Roberts (2001)
+
+      DATA SUBNAME(120), A(120), E(120) / '124TRIMETH_BENZE', 1.50E-01, 4.3E+03 /  ! Hanson et al. (1995)
+      DATA SUBNAME(121), A(121), E(121) / 'CHLOROACETALDEHY', 4.18E+01, 0.0E+00 /  ! Bond Estimate by EPA SUITE PROGRAM  (2007)
+      DATA SUBNAME(122), A(122), E(122) / 'CHLOROACETONE   ', 3.82E-01, 0.0E+00 /  ! Staudinger and Roberts (2001)
+
+      DATA SUBNAME(123), A(123), E(123) / 'NITROSYL_CHLORID', 5.10E-01, 0.0E+00 /  ! Bond Estimate by EPA SUITE PROGRAM  (2007)
+      DATA SUBNAME(124), A(124), E(124) / 'NITRYL_CHLORIDE ', 2.43E-02, 0.0E+00 /  ! Behnke et al. (1997), JGR, D102, 3795-3804
+      DATA SUBNAME(125), A(125), E(125) / 'HEXYL_HYDROPEROX', 1.23E+01, 0.0E+00 /  ! Bond Estimated by EPA SUITE PROGRAM  (2007)
+
+      DATA SUBNAME(126), A(126), E(126) / 'HYDROXY_NITRATES', 1.7E+04,  9.2E+03 /  ! Shepson et al. (1996), Treves et al. (2000)
+      DATA SUBNAME(127), A(127), E(127) / 'HYDROXY_PEROXIDE', 8.3E+04,  7.4E+03 /  ! using value for H2O2
+      DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.0E+03,  0       /  ! Kames and Schurath (1992)
+      DATA SUBNAME(129), A(129), E(129) / 'HACET           ', 2.93E+03, 0       /  ! Spaulding et al. (2002)
+      DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5200   /   ! Staudinger and Roberts (1996) 
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
