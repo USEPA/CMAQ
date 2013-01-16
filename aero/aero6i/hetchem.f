@@ -87,6 +87,10 @@ c              met_data) in lieu of CBLK array and AERO_INFO module
 c
 c SH  03/10/11 Renamed met_data to aeromet_data
 c
+c HOTP 01/15/2013 Since hetchem is now called after volinorg, assume
+c              moments are already wet and remove adjustments based
+c              on a dry assumption
+c
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
 c      Gallani, An improved representation of the reaction of N2O5 on
@@ -135,14 +139,9 @@ C *** chemical species concentrations
       REAL      GNO2     ! gas-phase NO2 [ug/m3]
       REAL      GHONO    ! gas-phase HONO [ug/m3]
 
-C *** 2nd and 3rd moments before equilibration (without H2O)
-      REAL      OLD_M3_I, OLD_M3_J
-      REAL      OLD_M2_I, OLD_M2_J
-
 C *** variables for N2O5 + H2O -> 2 HNO3 conversion
       REAL      WET_M3_I, WET_M3_J   ! M3 before equilibration w.H2O
       REAL      WET_M2_I, WET_M2_J   ! M2 before equilibration w.H2O
-      REAL      DG_AT_WET, DG_AC_WET ! Initial median diameter w.H2O
       REAL      DE_AT_WET, DE_AC_WET ! Initial effective diameter w.H2O
       REAL      XXF_AT, XXF_AC       ! modal factors to calculate KN2O5
       REAL      CBAR       ! molecular velocity (m/s)
@@ -184,15 +183,6 @@ C *** fetch vapor-phase concentrations [ug/m3]
 
 C *** set up variables needed for calculating KN2O5
 
-C *** capture values of "dry" 2nd and 3rd moments before equilibration
-C     the folowing code assumes that GETPAR has been called with
-C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
-C     been adjusted for the new SOA.
-      OLD_M3_I = moment3_conc( 1 )
-      OLD_M3_J = moment3_conc( 2 )
-      OLD_M2_I = moment2_conc( 1 )
-      OLD_M2_J = moment2_conc( 2 )
-
 C *** compute GAMMA as function of TEMP, RH, & particle composition
 C     Note: the last argument to this function can be changed to use
 C     a different parameterization of GAMMA.
@@ -207,24 +197,18 @@ C *** correct molecular diffusivity for ambient conditions
      &          * ( ( AIRTEMP / STDTEMP ) ** 1.75 )
      &          * ( STDATMPA / AIRPRES )
 
-C *** estimate the "wet third moments" by adding aerosol water
-C      Note: this is the H2O concentration from previous time step
-      WET_M3_I = OLD_M3_I + H2OFAC * aerospc_conc( AH2O_IDX,1 )
-      WET_M3_J = OLD_M3_J + H2OFAC * aerospc_conc( AH2O_IDX,2 )
+C *** Assume moments are wet (VOLINORG requires them that way)
+C     Get 2nd and 3rd moments
+      WET_M2_I = moment2_conc( 1 )
+      WET_M2_J = moment2_conc( 2 )
 
-C *** calculate "wet second moment" assuming that H2O does not
-C     affect the geometric standard deviation
-      WET_M2_I = OLD_M2_I * ( WET_M3_I / OLD_M3_I ) ** ( 2.0 / 3.0 )
-      WET_M2_J = OLD_M2_J * ( WET_M3_J / OLD_M3_J ) ** ( 2.0 / 3.0 )
+      WET_M3_I = moment3_conc( 1 )
+      WET_M3_J = moment3_conc( 2 )
 
-C *** calculate "wet" geometric mean (same as median) diameters
-      DG_AT_WET = aeromode_diam( 1 ) * SQRT( WET_M2_I / OLD_M2_I )
-      DG_AC_WET = aeromode_diam( 2 ) * SQRT( WET_M2_J / OLD_M2_J )
-
-C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
-      DE_AT_WET = DG_AT_WET * EXP( 1.5
+C *** Calculate effective diameters using Eq 3 of Pleim et al (1995)
+      DE_AT_WET = aeromode_diam( 1 ) * EXP( 1.5
      &          * ( LOG( EXP( aeromode_sdev( 1 ) ) ) ** 2.0 ) )
-      DE_AC_WET = DG_AC_WET * EXP( 1.5
+      DE_AC_WET = aeromode_diam( 2)  * EXP( 1.5
      &          * ( LOG( EXP( aeromode_sdev( 2 ) ) ) ** 2.0 ) )
 
 C *** calculate pseudo-first order rate constant using Eq 2 of

@@ -175,6 +175,8 @@ C HS  03/10/11 Added call to POAAGE between ORGAER and HETCHEM
 
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 
+C HOTP 01/15/2013 Moved hetchem after volinorg to access isorropia info
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -330,11 +332,6 @@ C *** POA Aging
 C     Increase primary NCOM concentration due to oxidative aging of POA.
       CALL POAAGE ( DT )
 
-C *** Heterogeneous Chemistry
-C     Update the N2O5 and HNO3 concentrations to account for
-C     heterogenous nitrate formation.
-      CALL HETCHEM ( GAMMA_N2O5, DT )
-
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle
 C     production and a fully dynamic treatment of inorganic gas-to-
@@ -361,6 +358,11 @@ C     needed in subroutine VOLINORG
 
       CALL VOLINORG( DT, COL, ROW, LAYER,
      &               DV_SO4, CGR, M3_WET_FLAG )
+
+C *** Heterogeneous Chemistry
+C     Update the N2O5 and HNO3 concentrations to account for
+C     heterogenous nitrate formation.
+      CALL HETCHEM ( GAMMA_N2O5, DT )
 
 C *** Coagulation
 C     Calculate coagulation coefficients using a method dictated by
