@@ -49,13 +49,14 @@ C              made MG, K, CA, SEACAT required species;
 C JY  04/21/11 Added optional log messages (verbose)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C HOTP 01/16/13 removed isoprene acid enhanced aerosol
 C----------------------------------------------------------------------
 
       Implicit None
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 40      ! number of aero species
+      Integer, Parameter :: n_aerospc = 39      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -132,7 +133,6 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','ATRP2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AISO3J ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ASQTJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGAJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
@@ -177,7 +177,6 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! ATRP2
      &       0.0,     0.0,     0.0,         ! AISO1
      &       0.0,     0.0,     0.0,         ! AISO2
-     &       0.0,     0.0,     0.0,         ! AISO3
      &       0.0,     0.0,     0.0,         ! ASQT
      &       0.0,     0.0,     0.0,         ! AOLGA
      &       0.0,     0.0,     0.0,         ! AOLGB
