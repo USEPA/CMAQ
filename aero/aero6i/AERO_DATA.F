@@ -50,13 +50,14 @@ C JY  04/21/11 Added optional log messages (verbose)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
 C HOTP 01/16/13 removed isoprene acid enhanced aerosol
+C HP  08/26/12 Added isoprene derived products
 C----------------------------------------------------------------------
 
       Implicit None
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 39      ! number of aero species
+      Integer, Parameter :: n_aerospc = 41      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -139,7 +140,9 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','AORGCJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','       ','ASOIL  '/), conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ACORS  '/), conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/)),
-     & spcs_type((/'       ','       ','ASEACAT'/), conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,1.000/))/)
+     & spcs_type((/'       ','       ','ASEACAT'/), conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,1.000/)),
+     & spcs_type((/'       ','AIEPXJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AIPANJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
 
 C Sea-Salt Speciation factors
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
@@ -183,7 +186,9 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AORGC
      &       0.0,     0.0,     0.0,         ! ASOIL
      &       0.0,     0.0,     0.0,         ! ACORS
-     &       0.0,     0.0,     0.3686 /),   ! ASEACAT
+     &       0.0,     0.0,     0.3686,      ! ASEACAT
+     &       0.0,     0.0,     0.0,         ! AIEPX
+     &       0.0,     0.0,     0.0 /),      ! AIPAN
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 C Required species
@@ -201,6 +206,8 @@ C Required species
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
       Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT' 
+      Character( 16 ), Private, Parameter :: req_aiepx  = 'AIEPX' 
+      Character( 16 ), Private, Parameter :: req_aipan  = 'AIPAN' 
      
 C Indices of required species
       Integer :: aso4_idx
@@ -217,6 +224,8 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: apncom_idx
       Integer :: aseacat_idx
+      Integer :: aiepx_idx
+      Integer :: aipan_idx
 
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -384,6 +393,8 @@ C Find indices of required species
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
+      aiepx_idx   = findAero( req_aiepx, .True. )
+      aipan_idx   = findAero( req_aipan, .True. )
 
 #ifdef verbose
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -402,6 +413,8 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
 #endif
+      Write( logdev,'( 5x, a, i4 )' ) 'aiepx_idx:', aiepx_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aipan_idx:', aipan_idx
  
 C Compute common factors
       h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )

@@ -42,6 +42,8 @@ C                      suggested by Dr. Bill Hutzell
 C   11 Apr 08 J.Kelly: Added STDEVCOR and variables to account for dry & wet
 C                      DGCOR, M2COR_WET, and M3COR_DRY
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   18 Jan 13 H.Pye:   Added isoprene SOA (IEPOX, IMAE) diagnostic info
+C                      and changed blank units to na for VERDI usage
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
@@ -85,7 +87,7 @@ C diagnostic file
          TSTEP3D = TSTEP
          CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         NVARS3D = 23 
+         NVARS3D = 27 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D = NLAYS
@@ -113,17 +115,17 @@ C diagnostic file
 
          VTYPE3D( 1 ) = M3REAL
          VNAME3D( 1 ) = 'STDEVATKN'
-         UNITS3D( 1 ) = ' '
+         UNITS3D( 1 ) = 'na'
          VDESC3D( 1 ) = 'Aitken mode standard deviation (dry and wet)'
 
          VTYPE3D( 2 ) = M3REAL
          VNAME3D( 2 ) = 'STDEVACC'
-         UNITS3D( 2 ) = ' '
+         UNITS3D( 2 ) = 'na'
          VDESC3D( 2 ) = 'Accumulation mode standard deviation (dry and wet)'
 
          VTYPE3D( 3 ) = M3REAL
          VNAME3D( 3 ) = 'STDEVCOR'
-         UNITS3D( 3 ) = ' '
+         UNITS3D( 3 ) = 'na'
          VDESC3D( 3 ) = 'Coarse mode standard deviation (dry and wet)'
             
          VTYPE3D( 4 ) = M3REAL
@@ -203,28 +205,48 @@ C diagnostic file
 
          VTYPE3D( 19 ) = M3REAL
          VNAME3D( 19 ) = 'RH'
-         UNITS3D( 19 ) = ' '
+         UNITS3D( 19 ) = 'na'
          VDESC3D( 19 ) = 'Relative humidity'
 
          VTYPE3D( 20 ) = M3REAL
          VNAME3D( 20 ) = 'PM25AT'
-         UNITS3D( 20 ) = ' '
+         UNITS3D( 20 ) = 'fraction'
          VDESC3D( 20 ) = 'Fine fraction of Aitken mode'
 
          VTYPE3D( 21 ) = M3REAL
          VNAME3D( 21 ) = 'PM25AC'
-         UNITS3D( 21 ) = ' '
+         UNITS3D( 21 ) = 'fraction'
          VDESC3D( 21 ) = 'Fine fraction of accumulation mode'
 
          VTYPE3D( 22 ) = M3REAL
          VNAME3D( 22 ) = 'PM25CO'
-         UNITS3D( 22 ) = ' '
+         UNITS3D( 22 ) = 'fraction'
          VDESC3D( 22 ) = 'Fine fraction of coarse mode'
 
          VTYPE3D( 23 ) = M3REAL
          VNAME3D( 23 ) = 'GAMMA_N2O5'
-         UNITS3D( 23 ) = ' '
+         UNITS3D( 23 ) = 'na'
          VDESC3D( 23 ) = 'N2O5 Heterogeneous reaction probability'
+
+         VTYPE3D( 24 ) = M3REAL
+         VNAME3D( 24 ) = 'EQLBHJ'
+         UNITS3D( 24 ) = 'ug/m**3'
+         VDESC3D( 24 ) = 'H+ concentration from equilbrium (isor)'
+
+         VTYPE3D( 25 ) = M3REAL
+         VNAME3D( 25 ) = 'k_prtcl_iepox'
+         UNITS3D( 25 ) = '1/s'
+         VDESC3D( 25 ) = 'IEPOX particle phase reaction rate'
+
+         VTYPE3D( 26 ) = M3REAL
+         VNAME3D( 26 ) = 'GAMMA_IEPOX'
+         UNITS3D( 26 ) = 'na'
+         VDESC3D( 26 ) = 'IEPOX Heterogeneous reaction probability'
+
+         VTYPE3D( 27 ) = M3REAL
+         VNAME3D( 27 ) = 'GAMMA_IMAE'
+         UNITS3D( 27 ) = 'na'
+         VDESC3D( 27 ) = 'IMAE Heterogeneous reaction probability'
 
          FDESC3D( 1 ) = 'aerosol distribution parameters'
          DO L = 2, MXDESC3

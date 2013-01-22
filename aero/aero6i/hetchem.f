@@ -25,7 +25,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HETCHEM( GAMMA, DT )
+      SUBROUTINE HETCHEM( GAMMAN2O5, DT, 
+     &                    EQLBH, KPARTIEPOX, GAMMAIEPOX, GAMMAIMAE )
 
 c Calculates the heterogeneous conversion of N2O5 to HNO3 by following
 c the Model Description section by Pleim et al. (1995).
@@ -90,6 +91,9 @@ c
 c HOTP 01/15/2013 Since hetchem is now called after volinorg, assume
 c              moments are already wet and remove adjustments based
 c              on a dry assumption
+c HOTP 01/18/2013 Uptake IEPOX and IMAE onto accumulation mode aerosol
+c              -renamed GAMMA for N2O5 to GAMMAN2O5
+c              
 c
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
@@ -122,14 +126,19 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
 C *** Arguments
-      REAL,    INTENT( OUT ) :: GAMMA     ! N2O5->NO3 rxn probability
-      REAL,    INTENT( IN )  :: DT        ! Synchronization time step
+      REAL,    INTENT( OUT ) :: GAMMAN2O5    ! N2O5->NO3 rxn probability
+      REAL,    INTENT( IN )  :: DT           ! Synchronization time step
+      REAL( 8 ), INTENT( IN )  :: EQLBH      ! J-mode H+ [ug/m**3]
+      REAL( 8 ), INTENT( OUT ) :: KPARTIEPOX ! IEPOX particle phase rxn rate [1/s]
+      REAL( 8 ), INTENT( OUT ) :: GAMMAIEPOX ! IEPOX uptake coeff []
+      REAL( 8 ), INTENT( OUT ) :: GAMMAIMAE  ! IMAE uptake coeff []
 
 C *** Parameters
       REAL, PARAMETER :: STD_DIFF_N2O5 = 0.1E-4  ! molecular diffusivity
                                                  ! of N2O5 at 101325 Pa
                                                  ! and 273.15 K [m2/sec]
       REAL, PARAMETER :: GPKG = 1.0E+03          ! g/kg unit conversion
+      REAL, PARAMETER :: GAMMAGLY = 2.9E-03      ! Gamma for glyoxal
 
 C *** Local Variables
 
@@ -138,6 +147,10 @@ C *** chemical species concentrations
       REAL      GN2O5    ! gas-phase dinitrogen pentoxide [ug/m3]
       REAL      GNO2     ! gas-phase NO2 [ug/m3]
       REAL      GHONO    ! gas-phase HONO [ug/m3]
+      REAL      GIEPOX   ! gas-phase IEPOX [ug/m3]
+      REAL      GIMAE    ! gas-phase IMAE [ug/m3]
+      REAL      GIHMML   ! gas-phase IHMML [ug/m3]
+
 
 C *** variables for N2O5 + H2O -> 2 HNO3 conversion
       REAL      WET_M3_I, WET_M3_J   ! M3 before equilibration w.H2O
@@ -145,6 +158,7 @@ C *** variables for N2O5 + H2O -> 2 HNO3 conversion
       REAL      DE_AT_WET, DE_AC_WET ! Initial effective diameter w.H2O
       REAL      XXF_AT, XXF_AC       ! modal factors to calculate KN2O5
       REAL      CBAR       ! molecular velocity (m/s)
+      REAL      CBARIEPOX, CBARIMAE, CBARIHMML ! molecular velocity (m/s)
       REAL      DIFF_N2O5  ! ambient molecular diffusivity [m2/s]
       REAL      N2O5PROB   ! function to compute GAMMA
       REAL      KN2O5      ! pseudo-first order rate constant
@@ -160,6 +174,12 @@ C *** variables for 2 NO2 + H2O -> HONO + HNO3 conversion
       REAL      KNO2       ! pseudo-first order rate constant
       REAL      EXPDT_NO2  ! fraction of NO2 left after chemical rxn
       REAL      TOTSURFA   ! aerosol surface area (m**2/m**3)
+
+C *** other  variables for isoprene
+      REAL( 8 ) :: GAMMAIHMML
+      REAL      KIEPOX, KIMAE, KIHMML
+      REAL      DIEPOX, DIMAE, DIHMML
+      REAL      EXPDT_IEPOX, EXPDT_IMAE, EXPDT_IHMML
 
 C *** first time switch
       LOGICAL, SAVE ::  firstime = .true.
@@ -180,17 +200,40 @@ C *** fetch vapor-phase concentrations [ug/m3]
       GN2O5 = precursor_conc( N2O5_IDX )
       GNO2  = precursor_conc( NO2_IDX )
       GHONO = precursor_conc( HONO_IDX )
+      GIEPOX = precursor_conc( IEPOX_IDX )
+      GIMAE  = precursor_conc( IMAE_IDX )
+      GIHMML = precursor_conc( IHMML_IDX )
 
 C *** set up variables needed for calculating KN2O5
 
 C *** compute GAMMA as function of TEMP, RH, & particle composition
 C     Note: the last argument to this function can be changed to use
 C     a different parameterization of GAMMA.
-      GAMMA = N2O5PROB( AIRTEMP, AIRRH, 0 )
+      GAMMAN2O5 = N2O5PROB( AIRTEMP, AIRRH, 0 )
 
 C *** calculate molecular speed (m/s) using Eq 4 of Pleim et al (1995)
       CBAR = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
      &             / ( PI * precursor_mw( N2O5_IDX ) ) )
+
+C*************************************
+C *** Compute GAMMA for IEPOX, IMAE (also returns part phase rxn rate)
+C      CALL GAMIEPOX( EQLBH, KPARTIEPOX, GAMMAIEPOX )
+C      CALL GAMIMAE(  EQLBH, GAMMAIMAE )
+C      GAMMAIHMML = GAMMAIMAE
+      KPARTIEPOX = 0.0d0
+
+      GAMMAIEPOX = GAMMAGLY
+      GAMMAIMAE  = GAMMAGLY
+      GAMMAIHMML = GAMMAIMAE
+
+C *** molecular speed for isoprene derived products too      
+      CBARIEPOX = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &             / ( PI * precursor_mw( IEPOX_IDX ) ) )
+      CBARIMAE = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &             / ( PI * precursor_mw( IMAE_IDX ) ) )
+      CBARIHMML = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &             / ( PI * precursor_mw( IHMML_IDX ) ) )
+C*************************************
 
 C *** correct molecular diffusivity for ambient conditions
       DIFF_N2O5 = STD_DIFF_N2O5
@@ -214,10 +257,10 @@ C *** Calculate effective diameters using Eq 3 of Pleim et al (1995)
 C *** calculate pseudo-first order rate constant using Eq 2 of
 C     Pleim et al (1995)
       XXF_AT = WET_M2_I /
-     &         ( 4.0 + 0.5 * DE_AT_WET * GAMMA * CBAR / DIFF_N2O5 )
+     &         ( 4.0 + 0.5 * DE_AT_WET * GAMMAN2O5 * CBAR / DIFF_N2O5 )
       XXF_AC = WET_M2_J /
-     &         ( 4.0 + 0.5 * DE_AC_WET * GAMMA * CBAR / DIFF_N2O5 )
-      KN2O5 =   GAMMA * CBAR * PI * ( XXF_AT + XXF_AC )
+     &         ( 4.0 + 0.5 * DE_AC_WET * GAMMAN2O5 * CBAR / DIFF_N2O5 )
+      KN2O5 =   GAMMAN2O5 * CBAR * PI * ( XXF_AT + XXF_AC )
 
 C *** calculate fraction of N2O5 remaining after chemical reaction
       EXPDT_N2O5 = EXP( - KN2O5 * DT )
@@ -234,6 +277,37 @@ C     by 60 to convert it into 1/sec
 
 C *** calculate fraction of NO2 remaining after chemical reaction
       EXPDT_NO2 = EXP( -2.0 * KNO2 * DT )
+
+C*************************************
+C *** rate constant for isoprene derived
+C     note molecular weights of these species less than 
+C       10% different from N2O5 so little error in using DIFF_N2O5
+C     k = A / ( r / Dg + 4 / (cbar *gamma)  )
+      KIEPOX =
+     &         WET_M2_J * PI / ( 0.5 * DE_AC_WET / DIFF_N2O5 +
+     &                           4.0 / ( CBARIEPOX * GAMMAIEPOX) )
+      KIMAE  =
+     &         WET_M2_J * PI / ( 0.5 * DE_AC_WET / DIFF_N2O5 +
+     &                           4.0 / ( CBARIMAE  * GAMMAIMAE) )
+      KIHMML =
+     &         WET_M2_J * PI / ( 0.5 * DE_AC_WET / DIFF_N2O5 +
+     &                           4.0 / ( CBARIHMML * GAMMAIHMML) )
+
+C *** fraction remaining after reaction
+      EXPDT_IEPOX = EXP( - KIEPOX * DT )
+      EXPDT_IMAE  = EXP( - KIMAE  * DT )
+      EXPDT_IHMML = EXP( - KIHMML * DT )
+
+C *** Delta (positive)
+      DIEPOX      = GIEPOX * (1.0 - EXPDT_IEPOX )
+      DIMAE       = GIMAE  * (1.0 - EXPDT_IMAE )
+      DIHMML      = GIHMML * (1.0 - EXPDT_IHMML )
+
+C *** Final gas-phase concentration
+      GIEPOX      = GIEPOX * EXPDT_IEPOX
+      GIMAE       = GIMAE  * EXPDT_IMAE
+      GIHMML      = GIHMML * EXPDT_IHMML
+C*************************************
 
 C *** compute new gas-phase concs after heterogeneous reactions occur
 
@@ -259,6 +333,18 @@ C     Ensure that all species remain above the minimum concentration.
       precursor_conc( N2O5_IDX ) = MAX( GN2O5, CONMIN )
       precursor_conc( NO2_IDX )  = MAX( GNO2, CONMIN )
       precursor_conc( HONO_IDX ) = MAX( GHONO, CONMIN )
+
+C*************************************
+C *** Update gas and aerosol concs
+      precursor_conc( IEPOX_IDX ) = MAX( GIEPOX, CONMIN )
+      precursor_conc( IMAE_IDX )  = MAX( GIMAE,  CONMIN )
+      precursor_conc( IHMML_IDX ) = MAX( GIHMML, CONMIN )
+      aerospc_conc( AIEPX_IDX,2 ) = MAX( aerospc_conc(AIEPX_IDX,2) +
+     &                        DIEPOX, CONMIN)
+      aerospc_conc( AIPAN_IDX,2 ) = MAX( aerospc_conc(AIPAN_IDX,2) +
+     &            ( DIMAE + DIHMML ) , CONMIN)
+
+C*************************************
 
       RETURN
 

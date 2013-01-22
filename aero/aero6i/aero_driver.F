@@ -91,6 +91,8 @@ C   S.Roselle- Mar 11 - replaced I/O API include files with UTILIO_DEFN
 C   David Wong - Aug 11 - put in twoway model implementation
 C   David Wong - Oct 11 - extended the twoway implementation to handle finer
 C                         time resolution
+C   HOT Pye - Jan 13 - Additional information for IEPOX and IMAE aerosol 
+C                      written to AERODIAG file
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -168,14 +170,18 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,23 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,27 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
       REAL AMU             ! atmospheric dynamic viscosity [ kg/m s ]
 
-C *** N2O5 heterogeneous reaction probability [ ]
-      REAL GAMMA_N2O5      ! computed in SUBROUTINE EQL3
+C *** heterogeneous reaction 
+      REAL GAMMA_N2O5      ! N2O5 heterogenous reaction prob [ ] 
+      REAL( 8 ) :: EQLBHJ      ! H+ from isoropia [ug/m**3]
+      REAL( 8 ) :: KPARTIEPOX  ! IEPOX particle phase rxn rate [1/s]
+      REAL( 8 ) :: GAMMA_IEPOX ! IEPOX heterogeneous reaction prob [ ]
+      REAL( 8 ) :: GAMMA_IMAE  ! IMAE heterogenous reaction prob [ ]
 
 C *** mass fraction of each mode less than 2.5um aerodynamic diameter
       REAL PM25( N_MODE )  ! fine fractions
@@ -421,7 +427,8 @@ C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
 
 C *** Aerosol process routines
-               CALL AEROPROC( DT, C, R, L, GAMMA_N2O5 )
+               CALL AEROPROC( DT, C, R, L, GAMMA_N2O5,
+     &                     EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C *** Update aerosol variables conc back into CGRID (set minimum)
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )
@@ -468,6 +475,10 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,21 ) = PM25( 2 )            ! j-mode fine fraction
                   DIAM_SPC( C,R,L,22 ) = PM25( 3 )            ! coarse-mode fine fraction
                   DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5           ! N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,24 ) = SNGL( EQLBHJ      )  ! H+ from equilibrium (isoropia)
+                  DIAM_SPC( C,R,L,25 ) = SNGL( KPARTIEPOX  )  ! IEPOX particle phase rxn rate
+                  DIAM_SPC( C,R,L,26 ) = SNGL( GAMMA_IEPOX )  ! IEPOX het rxn prob
+                  DIAM_SPC( C,R,L,27 ) = SNGL( GAMMA_IMAE  )  ! IMAE het rxn prob
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
