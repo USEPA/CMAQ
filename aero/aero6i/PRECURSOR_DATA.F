@@ -206,9 +206,6 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'IMAE_idx:   ', IMAE_idx
       Write( logdev,'( 5x, a, i4 )' ) 'IHMML_idx:  ', IHMML_idx
 #endif
-      Write( logdev,'( 5x, a, i4 )' ) 'IEPOX_idx:  ', IEPOX_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'IMAE_idx:   ', IMAE_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'IHMML_idx:  ', IHMML_idx
 
       mapped = .True.
 

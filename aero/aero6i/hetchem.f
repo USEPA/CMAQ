@@ -151,11 +151,10 @@ C *** chemical species concentrations
       REAL      GIMAE    ! gas-phase IMAE [ug/m3]
       REAL      GIHMML   ! gas-phase IHMML [ug/m3]
 
-
 C *** variables for N2O5 + H2O -> 2 HNO3 conversion
       REAL      WET_M3_I, WET_M3_J   ! M3 before equilibration w.H2O
       REAL      WET_M2_I, WET_M2_J   ! M2 before equilibration w.H2O
-      REAL      DE_AT_WET, DE_AC_WET ! Initial effective diameter w.H2O
+      REAL      DE_AT_WET, DE_AC_WET ! Initial effective diameter w.H2O [m]
       REAL      XXF_AT, XXF_AC       ! modal factors to calculate KN2O5
       REAL      CBAR       ! molecular velocity (m/s)
       REAL      CBARIEPOX, CBARIMAE, CBARIHMML ! molecular velocity (m/s)
@@ -176,10 +175,20 @@ C *** variables for 2 NO2 + H2O -> HONO + HNO3 conversion
       REAL      TOTSURFA   ! aerosol surface area (m**2/m**3)
 
 C *** other  variables for isoprene
-      REAL( 8 ) :: GAMMAIHMML
-      REAL      KIEPOX, KIMAE, KIHMML
-      REAL      DIEPOX, DIMAE, DIHMML
-      REAL      EXPDT_IEPOX, EXPDT_IMAE, EXPDT_IHMML
+      INTEGER   :: prec_idx, aero_idx    ! prescursor and aerosol index (temporary)
+      INTEGER   :: i                     ! counter
+      REAL      :: RADIUS                ! effective radius of accumulation mode [m]
+      REAL( 8 ) :: GAMMAIHMML            ! IHMML uptake coeff [] (same as IMAE)
+      REAL      :: KIEPOX, KIMAE, KIHMML ! Heterogeneous reaction rate const [1/s]
+      REAL      :: DIEPOX, DIMAE, DIHMML ! Mass taken up to aero phase [ug/m3]
+      REAL      :: EXPDT_IEPOX, EXPDT_IMAE, EXPDT_IHMML ! Exp(-khet*dt) []
+      REAL( 8 ) :: fTET(2), fOS(2), fON(2) ! Fraction tetrol, organoS, organoN for IEPOX (1) and IMAE (2) []
+      REAL( 8 ) :: old_m3, old_m2, new_m3, new_m2 ! old and new moment information
+      REAL( 8 ) :: DELTA                 ! amount of mass added to aerosol (temporary) [ug/m3]
+      REAL( 8 ) :: delta1, delta2        ! intermediates for amount of mass added
+      REAL( 8 ) :: dimer1, dimer2        ! intermediates for IEPOX, IMAE and IHMML dimers [ ug/m4 ]
+      REAL( 8 ) :: dimerloss1, dimerloss2 ! intermediates for amount of monomer converted to dimer [ug/m3]
+      REAL( 8 ) :: iepoxmonomers, imaemonomers ! intermediates for initial amount of monomer [ug/m3]
 
 C *** first time switch
       LOGICAL, SAVE ::  firstime = .true.
@@ -200,9 +209,6 @@ C *** fetch vapor-phase concentrations [ug/m3]
       GN2O5 = precursor_conc( N2O5_IDX )
       GNO2  = precursor_conc( NO2_IDX )
       GHONO = precursor_conc( HONO_IDX )
-      GIEPOX = precursor_conc( IEPOX_IDX )
-      GIMAE  = precursor_conc( IMAE_IDX )
-      GIHMML = precursor_conc( IHMML_IDX )
 
 C *** set up variables needed for calculating KN2O5
 
@@ -214,26 +220,6 @@ C     a different parameterization of GAMMA.
 C *** calculate molecular speed (m/s) using Eq 4 of Pleim et al (1995)
       CBAR = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
      &             / ( PI * precursor_mw( N2O5_IDX ) ) )
-
-C*************************************
-C *** Compute GAMMA for IEPOX, IMAE (also returns part phase rxn rate)
-C      CALL GAMIEPOX( EQLBH, KPARTIEPOX, GAMMAIEPOX )
-C      CALL GAMIMAE(  EQLBH, GAMMAIMAE )
-C      GAMMAIHMML = GAMMAIMAE
-      KPARTIEPOX = 0.0d0
-
-      GAMMAIEPOX = GAMMAGLY
-      GAMMAIMAE  = GAMMAGLY
-      GAMMAIHMML = GAMMAIMAE
-
-C *** molecular speed for isoprene derived products too      
-      CBARIEPOX = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
-     &             / ( PI * precursor_mw( IEPOX_IDX ) ) )
-      CBARIMAE = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
-     &             / ( PI * precursor_mw( IMAE_IDX ) ) )
-      CBARIHMML = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
-     &             / ( PI * precursor_mw( IHMML_IDX ) ) )
-C*************************************
 
 C *** correct molecular diffusivity for ambient conditions
       DIFF_N2O5 = STD_DIFF_N2O5
@@ -278,8 +264,53 @@ C     by 60 to convert it into 1/sec
 C *** calculate fraction of NO2 remaining after chemical reaction
       EXPDT_NO2 = EXP( -2.0 * KNO2 * DT )
 
+C *** compute new gas-phase concs after heterogeneous reactions occur
+
+C *** adjust nitrous acid for contribution from NO2
+      GHONO = GHONO
+     &      + ( 0.5 * GNO2  * FAERNO2  * DFHONO ) * ( 1.0 - EXPDT_NO2 )
+
+C *** adjust nitric acid for contributions from N2O5 and NO2
+      GHNO3 = GHNO3
+     &      + ( 2.0 * GN2O5 * FAERN2O5 * DFHNO3 ) * ( 1.0 - EXPDT_N2O5 )
+     &      + ( 0.5 * GNO2  * FAERNO2  * DFHNO3 ) * ( 1.0 - EXPDT_NO2 )
+
+C *** adjust N2O5 for heterogeneous loss
+      GN2O5 = GN2O5 * EXPDT_N2O5
+
+C *** adjust NO2 for heterogeneous loss
+      GNO2  = GNO2  * EXPDT_NO2
+
+C *** UPDATE GAS and PM CONCENTRATIONS
+C     HNO3, N2O5, NO2, and HONO concs are changed in this subroutine.
+C     Ensure that all species remain above the minimum concentration.
+      precursor_conc( HNO3_IDX ) = MAX( GHNO3, CONMIN )
+      precursor_conc( N2O5_IDX ) = MAX( GN2O5, CONMIN )
+      precursor_conc( NO2_IDX )  = MAX( GNO2, CONMIN )
+      precursor_conc( HONO_IDX ) = MAX( GHONO, CONMIN )
+
 C*************************************
-C *** rate constant for isoprene derived
+C *** PERFORM ISOPRENE PRODUCT UPTAKE
+C *** Fetch gas-phase concentrations
+      GIEPOX = precursor_conc( IEPOX_IDX )
+      GIMAE  = precursor_conc( IMAE_IDX )
+      GIHMML = precursor_conc( IHMML_IDX )
+
+C *** molecular speed       
+      CBARIEPOX = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &             / ( PI * precursor_mw( IEPOX_IDX ) ) )
+      CBARIMAE = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &             / ( PI * precursor_mw( IMAE_IDX ) ) )
+      CBARIHMML = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &             / ( PI * precursor_mw( IHMML_IDX ) ) )
+
+C *** Compute GAMMA and other info for IEPOX, IMAE 
+      RADIUS = DE_AC_WET/2.0d0 ! particle size
+      CALL CALCISOPGAMMAS( EQLBH, RADIUS, 
+     &                     GAMMAIEPOX, GAMMAIMAE, GAMMAIHMML, 
+     &                     KPARTIEPOX, fTET, fOS, fON )
+
+C *** Heterogeneous rate constant for isoprene derived species
 C     note molecular weights of these species less than 
 C       10% different from N2O5 so little error in using DIFF_N2O5
 C     k = A / ( r / Dg + 4 / (cbar *gamma)  )
@@ -307,48 +338,394 @@ C *** Final gas-phase concentration
       GIEPOX      = GIEPOX * EXPDT_IEPOX
       GIMAE       = GIMAE  * EXPDT_IMAE
       GIHMML      = GIHMML * EXPDT_IHMML
-C*************************************
 
-C *** compute new gas-phase concs after heterogeneous reactions occur
-
-C *** adjust nitrous acid for contribution from NO2
-      GHONO = GHONO
-     &      + ( 0.5 * GNO2  * FAERNO2  * DFHONO ) * ( 1.0 - EXPDT_NO2 )
-
-C *** adjust nitric acid for contributions from N2O5 and NO2
-      GHNO3 = GHNO3
-     &      + ( 2.0 * GN2O5 * FAERN2O5 * DFHNO3 ) * ( 1.0 - EXPDT_N2O5 )
-     &      + ( 0.5 * GNO2  * FAERNO2  * DFHNO3 ) * ( 1.0 - EXPDT_NO2 )
-
-C *** adjust N2O5 for heterogeneous loss
-      GN2O5 = GN2O5 * EXPDT_N2O5
-
-C *** adjust NO2 for heterogeneous loss
-      GNO2  = GNO2  * EXPDT_NO2
-
-C *** UPDATE GAS and PM CONCENTRATIONS
-C     HNO3, N2O5, NO2, and HONO concs are changed in this subroutine.
-C     Ensure that all species remain above the minimum concentration.
-      precursor_conc( HNO3_IDX ) = MAX( GHNO3, CONMIN )
-      precursor_conc( N2O5_IDX ) = MAX( GN2O5, CONMIN )
-      precursor_conc( NO2_IDX )  = MAX( GNO2, CONMIN )
-      precursor_conc( HONO_IDX ) = MAX( GHONO, CONMIN )
-
-C*************************************
-C *** Update gas and aerosol concs
+C *** Update gas concs
       precursor_conc( IEPOX_IDX ) = MAX( GIEPOX, CONMIN )
       precursor_conc( IMAE_IDX )  = MAX( GIMAE,  CONMIN )
       precursor_conc( IHMML_IDX ) = MAX( GIHMML, CONMIN )
-      aerospc_conc( AIEPX_IDX,2 ) = MAX( aerospc_conc(AIEPX_IDX,2) +
-     &                        DIEPOX, CONMIN)
-      aerospc_conc( AIPAN_IDX,2 ) = MAX( aerospc_conc(AIPAN_IDX,2) +
-     &            ( DIMAE + DIHMML ) , CONMIN)
+
+C *** Store old aerosol moment info
+      old_m3 = 0.0d0
+      Do i = 1, n_aerospc
+         old_m3 = old_m3 + aerospc_conc( i, 2 )
+      End Do
+      old_m2 = moment2_conc( 2 )
+
+C *** Update IEPOX derived species in aersol
+C     Aerosol species concentrations increase as a result of uptake but
+C     may decrease as a result of oligomerization (dimer formation).
+C     Mole ratios are used to attribute the dimers to the monomers.
+      prec_idx = IEPOX_idx
+      iepoxmonomers = aerospc_conc( aietet_idx, 2 )/ aerospc_mw( aietet_idx ) 
+     &                + aerospc_conc( aieos_idx, 2 )/ aerospc_mw( aieos_idx )
+     &                + aerospc_conc( aieon_idx, 2 )/ aerospc_mw( aieon_idx )
+
+C     Dimers
+      aero_idx = ADIM_idx
+      dimer1 = DIEPOX / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * (1-fTET(1)-fOS(1)-fON(1))
+      delta = dimer1
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+C     Tetrols
+      aero_idx = AIETET_idx
+      delta1 = DIEPOX / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fTET(1)
+      dimerloss1 = dimer1 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / iepoxmonomers
+     &            * aerospc_mw( aero_idx )
+      delta = delta1 - dimerloss1
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+C     Organosulfate
+      aero_idx = AIEOS_idx
+      delta1 = DIEPOX / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fOS(1)
+      dimerloss1 = dimer1 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / iepoxmonomers
+     &            * aerospc_mw( aero_idx )
+      delta = delta1 - dimerloss1
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+C     Organonitrate
+      aero_idx = AIEON_idx
+      delta1 = DIEPOX / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fON(1)
+      dimerloss1 = dimer1 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / iepoxmonomers
+     &            * aerospc_mw( aero_idx )
+      delta = delta1 - dimerloss1
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+
+C *** Update IMAE+IHMML derived species in aerosol
+      imaemonomers = aerospc_conc( aimga_idx, 2 )/ aerospc_mw( aimga_idx ) 
+     &               + aerospc_conc( aimos_idx, 2 )/ aerospc_mw( aimos_idx )
+     &               + aerospc_conc( aimon_idx, 2 )/ aerospc_mw( aimon_idx )
+
+C     Dimers
+      aero_idx = ADIM_idx
+
+      prec_idx = IMAE_idx
+      dimer1 = DIMAE  / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * (1-fTET(2)-fOS(2)-fON(2))
+
+      prec_idx = IHMML_idx
+      dimer2 = DIHMML / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * (1-fTET(2)-fOS(2)-fON(2))
+
+      delta = dimer1 + dimer2
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2 ) + delta, CONMIN)
+
+C     MGA
+      aero_idx = AIMGA_idx
+
+      prec_idx = IMAE_idx
+      delta1 = DIMAE / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fTET(2)
+      dimerloss1 = dimer1 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / imaemonomers
+     &            * aerospc_mw( aero_idx )
+
+      prec_idx = IHMML_idx
+      delta2 = DIHMML / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fTET(2)
+      dimerloss2 = dimer2 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / imaemonomers
+     &            * aerospc_mw( aero_idx )
+
+      delta = delta1 + delta2 - dimerloss1 - dimerloss2
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+C     Organosulfate
+      aero_idx = AIMOS_idx
+
+      prec_idx = IMAE_idx
+      delta1 = DIMAE / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fOS(2)
+      dimerloss1 = dimer1 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / imaemonomers
+     &            * aerospc_mw( aero_idx )
+
+      prec_idx = IHMML_idx
+      delta2 = DIHMML / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fOS(2)
+      dimerloss2 = dimer2 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx, 2) / aerospc_mw( aero_idx ) / imaemonomers
+     &            * aerospc_mw( aero_idx )
+
+      delta = delta1 + delta2 - dimerloss1 - dimerloss2
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+C     Organonitrate
+      aero_idx = AIMON_idx
+
+      prec_idx = IMAE_idx
+      delta1 = DIMAE / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fON(2)
+      dimerloss1 = dimer1 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx,2) / aerospc_mw( aero_idx ) / imaemonomers
+     &            * aerospc_mw( aero_idx )
+
+      prec_idx = IHMML_idx
+      delta2 = DIHMML / precursor_mw ( prec_idx ) * aerospc_mw ( aero_idx ) * fON(2)
+      dimerloss2 = dimer2 / aerospc_mw ( ADIM_idx ) * 
+     &            aerospc_conc( aero_idx,2) / aerospc_mw( aero_idx ) / imaemonomers
+     &            * aerospc_mw( aero_idx )
+
+      delta = delta1 + delta2 - dimerloss1 - dimerloss2
+      aerospc_conc( aero_idx,2 ) = MAX( aerospc_conc( aero_idx,2) + delta, CONMIN)
+
+C     Note that for now, we are not decreasing the inorganic sulfate or nitrate 
+C     concentrations (sulfate is not converted to organosulfate). This may
+C     lead to slight overestimates in the organosulfate concentrations, but
+C     given the uncertainty and the fact that most sulfate should remain inorganic,
+C     this approach is ok for now.
+
+C *** Update 2nd Moment
+      new_m3 = 0.0d0
+      Do i = 1, n_aerospc
+         new_m3 = new_m3 + aerospc_conc( i, 2 )
+      End Do
+      new_m2 = old_m2 * ( new_m3 / old_m3 ) ** ( 2.0 / 3.0 )
+      moment2_conc( 2 ) = new_m2
 
 C*************************************
 
       RETURN
 
       END SUBROUTINE HETCHEM
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE CALCISOPGAMMAS( EQLBH, RADIUS, 
+     &                           GAMMAIEPOX, GAMMAIMAE, GAMMAIHMML, 
+     &                           KPARTIEPOX, fTET, fOS, fON )
+
+C  Calculates the uptake coefficients (gammas) for IEPOX, IMAE, and IHMML      
+C  based on particle phase H+ (EQLBH) and other particle constituents.
+C  Also returns calculated particle phase reaction rate, fraction of uptake
+C  producing tetrols, organosulfates, and organonitrates. The fraction 
+C  dimers can be computed by difference.
+
+C  Note that indices 1 and 2 are used for both acids (1=H+, 2=bisulfate) and
+C  the organics (1=IEPOX, 2=IMAE).
+
+C  Key Subroutines Called: none
+
+C  Key Functions Called: none
+
+C  Revision History: 
+C  HOTP 1/18/13 First coding
+
+C  References
+C  1. Chan, M. N., et al. "Characterization and quantification of isoprene-
+C     derived expoxydiols in ambient aerosol in the Southeastern United States,"
+C     Environ. Sci. Technol., 2010, 44, 4590-4596.
+C  2. Eddingsaas, N. C., VanderVelde, D. G., Wennberg, P. O. "Kinetics 
+C     and products of the acid-catalyzed ring-opening of atmospherically
+C     relevant butyl epoxy alcohols," J. Phys. Chem A., 2010, 114, 8106-8113.
+C  3. Gharagheizi, F., et al. "Representation and prediction of molecular diffusivity
+C     of nonelectrolyte organic compounds in water at infinite dilution using the
+C     artificial neural network-group contribution method," J. Chemical & Engineering
+C     Data, 2011, 46, 1741-1750.
+C  4. Hanson, D. R., Ravishankara, A. R., Solomon, S. "Heterogeneous reactions in
+C     sulfuric acid aerosols: A framework for model calculations," J. Geophys. Res.,
+C     1994, 99, 3615-3629.
+C  5. McNeill, V. F., et al. "Aqueous-phase secondary organic aerosol and organosulfate 
+C     formation in atmospheric aerosols: A modeling study," Environ Sci Technol., 2012,
+C     46, 8075-8081.
+C-----------------------------------------------------------------------
+
+      Use aero_data
+      Use precursor_data
+      Use aeromet_data   ! Includes CONST.EXT (pi) and airtemp
+      Use utilio_defn    ! error message and abort
+
+      Implicit None
+
+C *** Arguments
+      Real( 8 ), Intent( IN )  :: EQLBH  ! Particle Phase H+ from isor [ug/m**3]
+      Real, Intent( IN )       :: RADIUS ! Particle radius [m]
+      Real( 8 ), Intent( OUT ) :: GAMMAIEPOX ! Uptake coeff for IEPOX []
+      Real( 8 ), Intent( OUT ) :: GAMMAIMAE  ! Uptake coeff for MAE []
+      Real( 8 ), Intent( OUT ) :: GAMMAIHMML ! Uptake coeff for HMML []
+      Real( 8 ), Intent( OUT ) :: KPARTIEPOX ! Particle phase reaction rate for IEPOX [1/s]
+      Real( 8 ), Intent( OUT ) :: fTET(2), fOS(2), fON(2) 
+                                  ! fraction of tetrol, organonitrate, organosulfate, and dimers []
+                                  ! dimers are remaining first value for IEPOX-derived, second for IMAE-derived
+C *** Parameters
+C     For gamma calculation
+      Real( 8 ), Parameter :: alpha        = 0.02d0 ! accomodation coefficient from McNeill et al. 2012 []
+      Real( 8 ), Parameter :: diffusivity  = 1.0d-9 ! liquid phase diffusivity, based on C4-C5 epoxides 
+                                                    ! and diols at infinite dilution in water (Gharagheizi et al. 2011) [m2/s]
+      Real( 8 ), Parameter :: RgasLatmmolK = 0.08206d0 ! Universal gas constant [L atm/mol K]
+      Real( 8 ), Parameter :: small        = 1d-8   ! small number to prevent calculations that may have precision issues
+      Real( 8 ), Parameter :: smaller      = 1d-20  ! smaller number to prevent division by zero
+
+C     Acid related
+      Integer, Parameter   :: n_acids      = 2 ! number of acids: H+ and HSO4-
+      Integer, Parameter   :: hacid_idx    = 1 ! H+ acid index
+      Integer, Parameter   :: hso4acid_idx = 2 ! HSO4 acid index
+      Real( 8 ), Parameter :: mwt_acid( n_acids ) = (/ 1.0d0, 97.06d0 /) ! molecular weights of acids
+
+C     Move these to hlconst in future
+      Real( 8 ), Parameter :: Heff(2) = (/ 1.9d7, 1.2d5 /) ! Henry's law coeff for IEPOX (Chan et al.) and IMAE (HenryWin)
+
+C     Diagnostic
+      Character (16 ), Parameter :: pname = 'HETCHEM'
+
+C *** Local Variables
+      Integer   :: i, acid_idx, idx(2) ! counter and temporary indices
+      Real( 8 ) :: q, fq, denom        ! quantities in Hanson et al. 1994 equation for gamma []
+      Real( 8 ) :: nu                  ! molecular speed [m/s], note this is the same as CBAR but we want to avoid excessive passing
+      Real( 8 ) :: acidmolconc( n_acids ) ! concentration of acid in mol/m3
+      Real( 8 ) :: acid                ! temporary concentration of acid in mol/m3
+      Real( 8 ) :: nuc                 ! nucleophile concentration in mol/m3
+      Real( 8 ) :: charge              ! temporary for charge balance calculation [umol/m3]
+      Real( 8 ) :: volume              ! particle volume [L/m3 air]
+      Real( 8 ) :: kchem, kparticle(2), kchemos(2), kchemon(2), kchemtet(2) ! intermediate particle phase rxn rates, indicies for IEPOX and IMAE 
+      Real( 8 ) :: gammaisop(2)        ! temporary value for IEPOX (1) and IMAE (2) gammas
+      Character ( 80 ) :: xmsg         ! error message
+
+C-----------------------------------------------------------------------
+
+C *** Determine H+ acid concentration [mol/m3]
+      acidmolconc(hacid_idx) = max( eqlbh, 0.0d0 ) / mwt_acid( hacid_idx ) * 1d-6
+
+C *** Calculate HSO4 by charge balance
+C     Note: if isorropia has returned a negative H+ concentration
+C     we effectively treat all H+ like HSO4 (slightly less effective
+C     in catalyzing the ring-opening)
+      charge = 0.0  ! umol/m3
+      Do i = 1, n_aerospc
+         charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
+     &         / aerospc_mw( i )
+      End Do
+      acidmolconc(hso4acid_idx) = max( ( charge*1d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
+
+C *** J-mode particle volume [L/m**3 air]
+      volume = 0.0d0
+      Do i = 1, n_aerospc 
+         volume = volume + aerospc_conc( i, 2 ) / aerospc(i)%density * 1.0d-6
+      End Do
+
+C *** Loop over nucleophile/acid pairs defined in acid_nuc_pairs in AERO_DATA
+C     and calculate rate of particle phase reaction
+      kchem     = 0.0d0   ! intermediate value
+      kparticle = 0.0d0   ! accumulating IEPOX and IMAE value
+      kchemos   = 0.0d0   ! accumulating organosulfate for IEPOX and IMAE
+      kchemon   = 0.0d0   ! accumulating organonitrate for IEPOX and IMAE
+      kchemtet  = 0.0d0   ! accumulating tetrols or equivalent for IEPOX and IMAE
+
+      Do i = 1, n_nucpairs
+
+C        Find J-mode nucleophile concentration in ug/m3 and convert to mol/m3
+         nuc = aerospc_conc( acid_nucmap_idx(i), 2 ) / 
+     &         aerospc_mw( acid_nucmap_idx(i) ) * 1.0d-6
+
+C        Find acid concentration in mol/m3
+         if (    acid_nuc_pairs(i)%acid == 'HPLUS' ) then
+            acid_idx = 1
+         elseif( acid_nuc_pairs(i)%acid == 'HSO4' ) then
+            acid_idx = 2
+         else 
+             xmsg = 'Acid species ' // Trim( acid_nuc_pairs(i)%acid) // 
+     &              ' Not recognized in hetchem'
+             Call m3exit( pname, 0, 0, xmsg, xstat3 )
+         endif
+         acid = acidmolconc( acid_idx ) ! mol/m3
+
+C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
+         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume**2
+
+C        Store information with speciation for IEPOX
+         if ( acid_nuc_pairs(i)%parent == 'IEPOX' ) then  
+            kparticle(1)  = kparticle(1) + kchem
+            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then
+              kchemos(1)  = kchemos(1)   + kchem
+            elseif( acid_nuc_pairs(i)%prod == 'AIEONJ' ) then
+              kchemon(1)  = kchemon(1)   + kchem
+            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then
+              kchemtet(1) = kchemtet(1)  + kchem
+            endif
+         endif
+
+C        Store information with speciation for IMAE
+         if ( acid_nuc_pairs(i)%parent == 'IMAE' ) then  
+            kparticle(2)  = kparticle(2) + kchem
+            if( acid_nuc_pairs(i)%prod == 'AIMOSJ' ) then
+              kchemos(2)  = kchemos(2)   + kchem
+            elseif( acid_nuc_pairs(i)%prod == 'AIMONJ' ) then
+              kchemon(2)  = kchemon(2)   + kchem
+            elseif( acid_nuc_pairs(i)%prod == 'AIMGAJ' ) then
+              kchemtet(2) = kchemtet(2)  + kchem
+            endif
+         endif
+
+      End Do
+
+!       do i=1,n_nucpairs
+!        print*,'pair ',acid_nuc_pairs(i)%acid, acid_nuc_pairs(i)%nuc
+!        print*,'nucs ', aerospc_conc( acid_nucmap_idx(i), 2)
+!       enddo
+!     print*,'eqlbh',eqlbh
+!      print*, 'aerospc_conc', aerospc_conc
+!      print*,'volume',volume
+!      print*,'acids', acidmolconc
+!      print*,'kparticle', kparticle
+!      print*,'kchemos',kchemos
+!      print*,'kchemon',kchemon
+!      print*,'kchemtet',kchemtet
+
+      
+
+C *** Calculate gammas for IEPOX and IMAE
+      idx(1) = IEPOX_idx
+      idx(2) = IMAE_idx
+
+C     Loop over precursor species and calculate gamma
+C     (see Hanson et al. 1994 JGR Eqn (2) for details)
+      Do  i = 1, 2 
+
+C        Note that if the rate of particle phase reaction is very slow, there may not
+C        be enough digits of precision to properly calculate fq which can result in
+C        erroneously high gamma values. Only calculate gamma if particle phase reaction
+C        is faster than 1e-8 1/s
+         if ( kparticle(i) .gt. small ) then
+
+            ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
+            q = dble(radius) * sqrt ( kparticle(i)/ diffusivity ) 
+
+            ! Perform exp in double precision (dexp), also prevent negatives arising 
+            ! from difference in numbers of similar size, fq should always be positive
+            fq = max( ( ( dexp(2*q) + 1 ) / ( dexp(2*q) - 1 ) - 1/q ), smaller )
+
+            ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
+            nu = sqrt( 8 * Rgasuniv * airtemp /( dpi * precursor_mw( idx(i) ) * 1d-3 ) )
+
+            ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
+            denom =  1/alpha + nu/ ( 4 * Heff(i) * RgasLatmmolK * airtemp 
+     &                * sqrt ( diffusivity * kparticle(i) ) * fq ) 
+
+            gammaisop(i) = 1/denom
+
+C        No/slow reaction
+         else
+            gammaisop( i ) = 0d0
+         endif
+
+      End Do
+
+C *** Calculate final values to return
+      gammaiepox = gammaisop(1)  
+      gammaimae  = gammaisop(2)  
+      gammaihmml = gammaimae
+      kpartiepox = kparticle(1)
+
+      Do i = 1, 2 
+         if ( kparticle(i) .gt. small ) then
+            ftet(i) = kchemtet(i)/kparticle(i)
+            fos(i)  = kchemos(i)/kparticle(i)
+            fon(i)  = kchemon(i)/kparticle(i)
+         else
+           ftet(i) = 0d0
+           fos(i) =  0d0
+           fon(i) =  0d0
+         endif
+      End Do
+
+      RETURN
+ 
+      END SUBROUTINE CALCISOPGAMMAS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       REAL FUNCTION N2O5PROB( TEMP, RH, GPARAM )

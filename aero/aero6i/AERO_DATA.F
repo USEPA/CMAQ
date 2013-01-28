@@ -49,25 +49,38 @@ C              made MG, K, CA, SEACAT required species;
 C JY  04/21/11 Added optional log messages (verbose)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
-C HOTP 01/16/13 removed isoprene acid enhanced aerosol
-C HP  08/26/12 Added isoprene derived products
+C HOTP 01/16/13 Removed isoprene acid enhanced aerosol and added new isoprene aerosol
+C HOTP 01/18/13 Added information for particle phase reaction of isoprene products
+C               based on Eddingsaas et al. 2010
+C
+C References:
+C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and 
+C    products of the acid-catalyzed ring-opening of atmospherically relevant
+C    butyl epoxy alcohols," J. Phys. Chem. A., 2010, 114, 8106-8113.
 C----------------------------------------------------------------------
 
       Implicit None
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 41      ! number of aero species
+      Integer, Parameter :: n_aerospc = 46      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
                                                 ! 3 = coarse 
+      Integer, Parameter :: n_nucpairs = 24     ! number of acid/nucleophile pairs 
 
 C Default minimum concentration
       Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
       Real,    Parameter :: conmin_set( n_mode )  = (/conmin, conmin, conmin/)
       Real,    Parameter :: conmin_so4( n_mode )  = (/1.0E-12,1.0E-6, conmin/)
       Real,    Parameter :: conmin_cor( n_mode )  = (/conmin, conmin, 1.889544E-05/)
+
+C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010)
+      Real ( 8 ), Parameter :: k_H_water    = 9.0d-4
+      Real ( 8 ), Parameter :: k_H_nuc      = 2.0d-4
+      Real ( 8 ), Parameter :: k_HSO4_water = 1.31d-5
+      Real ( 8 ), Parameter :: k_HSO4_nuc   = 2.92d-6
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -141,8 +154,13 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','       ','ASOIL  '/), conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ACORS  '/), conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ASEACAT'/), conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,1.000/)),
-     & spcs_type((/'       ','AIEPXJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AIPANJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
+     & spcs_type((/'       ','AIETETJ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AIEOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AIEONJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ADIMJ  ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AIMGAJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AIMOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AIMONJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
 
 C Sea-Salt Speciation factors
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
@@ -187,9 +205,57 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! ASOIL
      &       0.0,     0.0,     0.0,         ! ACORS
      &       0.0,     0.0,     0.3686,      ! ASEACAT
-     &       0.0,     0.0,     0.0,         ! AIEPX
-     &       0.0,     0.0,     0.0 /),      ! AIPAN
+     &       0.0,     0.0,     0.0,         ! AIETET
+     &       0.0,     0.0,     0.0,         ! AIEOS
+     &       0.0,     0.0,     0.0,         ! AIEON
+     &       0.0,     0.0,     0.0,         ! ADIM
+     &       0.0,     0.0,     0.0,         ! AIMGA
+     &       0.0,     0.0,     0.0,         ! AIMOS
+     &       0.0,     0.0,     0.0 /),      ! AIMON
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
+
+C Acid catalyzed particle phase reactions
+      Type acid_cat
+           Character( 16 ) :: parent ! gas-phase parent species
+           Character( 16 ) :: nuc    ! aerosol-phase nucleophile that adds to epoxide ring
+           Character( 16 ) :: acid   ! acid that catalyzes epoxide ring opening
+           Real( 8 )       :: kchem  ! particle phase rate constant
+           Character( 16 ) :: prod   ! product of nucleophile+parent
+      End Type acid_cat
+
+
+      Type( acid_cat ), Parameter :: acid_nuc_pairs( n_nucpairs ) = (/
+C                  Parent   Nucleophile     Acid     Rate Constant  Product
+C                 (parent)    (nuc)        (acid)      (kchem)      (prod)
+C                 --------  -----------  ----------  ------------- --------
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ', k_H_water,    'AIETETJ' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ', k_H_nuc,      'AIEOSJ'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ', k_H_nuc,      'AIEONJ'  ),
+     &   acid_cat('IEPOX',  'AIEOSJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
+     &   acid_cat('IEPOX',  'AIEONJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
+     &   acid_cat('IEPOX',  'AIETETJ  ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ', k_HSO4_water, 'AIETETJ' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ', k_HSO4_nuc,   'AIEOSJ'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ', k_HSO4_nuc,   'AIEONJ'  ),
+     &   acid_cat('IEPOX',  'AIEOSJ   ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ),
+     &   acid_cat('IEPOX',  'AIEONJ   ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ),
+     &   acid_cat('IEPOX',  'AIETETJ  ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ),
+     &   acid_cat('IMAE',   'AH2OJ    ', 'HPLUS   ', k_H_water,    'AIMGAJ'  ),
+     &   acid_cat('IMAE',   'ASO4J    ', 'HPLUS   ', k_H_nuc,      'AIMOSJ'  ),
+     &   acid_cat('IMAE',   'ANO3J    ', 'HPLUS   ', k_H_nuc,      'AIMONJ'  ),
+     &   acid_cat('IMAE',   'AIMOSJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
+     &   acid_cat('IMAE',   'AIMONJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
+     &   acid_cat('IMAE',   'AIMGAJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
+     &   acid_cat('IMAE',   'AH2OJ    ', 'HSO4    ', k_HSO4_water, 'AIMGAJ'  ),
+     &   acid_cat('IMAE',   'ASO4J    ', 'HSO4    ', k_HSO4_nuc,   'AIMOSJ'  ),
+     &   acid_cat('IMAE',   'ANO3J    ', 'HSO4    ', k_HSO4_nuc,   'AIMONJ'  ),
+     &   acid_cat('IMAE',   'AIMOSJ   ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ),
+     &   acid_cat('IMAE',   'AIMONJ   ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ),
+     &   acid_cat('IMAE',   'AIMGAJ   ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ) /)
+
+C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
+      Integer :: acid_prodmap_idx( n_nucpairs )
+      Integer :: acid_nucmap_idx(  n_nucpairs )
 
 C Required species
       Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'  
@@ -197,7 +263,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_cl     = 'ACL'   
       Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4'  
       Character( 16 ), Private, Parameter :: req_na     = 'ANA'   
-      Character( 16 ), Private, Parameter :: req_mg     = 'AMG'           
+      Character( 16 ), Private, Parameter :: req_mg     = 'AMG'         
       Character( 16 ), Private, Parameter :: req_k      = 'AK' 
       Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
       Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
@@ -205,9 +271,14 @@ C Required species
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
-      Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT' 
-      Character( 16 ), Private, Parameter :: req_aiepx  = 'AIEPX' 
-      Character( 16 ), Private, Parameter :: req_aipan  = 'AIPAN' 
+      Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT'
+      Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
+      Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
+      Character( 16 ), Private, Parameter :: req_ieon   = 'AIEON'
+      Character( 16 ), Private, Parameter :: req_dim    = 'ADIM'
+      Character( 16 ), Private, Parameter :: req_imga   = 'AIMGA'
+      Character( 16 ), Private, Parameter :: req_imos   = 'AIMOS'
+      Character( 16 ), Private, Parameter :: req_imon   = 'AIMON'
      
 C Indices of required species
       Integer :: aso4_idx
@@ -224,8 +295,13 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: apncom_idx
       Integer :: aseacat_idx
-      Integer :: aiepx_idx
-      Integer :: aipan_idx
+      Integer :: aietet_idx
+      Integer :: aieos_idx
+      Integer :: aieon_idx
+      Integer :: adim_idx
+      Integer :: aimga_idx
+      Integer :: aimos_idx
+      Integer :: aimon_idx
 
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -306,6 +382,7 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C HS  01/24/11 Renamed AORGPA as POC for AERO6
 C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
+C HOTP 01/22/13 Add IEPOX and IMAE derived species
 C-----------------------------------------------------------------------
 
       Use cgrid_spcs            ! CGRID mechanism species
@@ -393,8 +470,21 @@ C Find indices of required species
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
-      aiepx_idx   = findAero( req_aiepx, .True. )
-      aipan_idx   = findAero( req_aipan, .True. )
+      aietet_idx  = findAero( req_ietet,  .True. )
+      aieos_idx   = findAero( req_ieos,   .True. )
+      aieon_idx   = findAero( req_ieon,   .True. )
+      adim_idx    = findAero( req_dim,    .True. )
+      aimga_idx   = findAero( req_imga,   .True. )
+      aimos_idx   = findAero( req_imos,   .True. )
+      aimon_idx   = findAero( req_imon,   .True. )
+
+C Find indices for acid catalyzed species
+      acid_prodmap_idx = 0
+      acid_nucmap_idx  = 0
+      Do n = 1, n_nucpairs
+        acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
+        acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
+      End Do
 
 #ifdef verbose
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -412,9 +502,20 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
+      Do n = 1, n_nucpairs
+        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
+        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
+      End Do
+      Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx:  ', aietet_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:   ', aieos_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aieon_idx:   ', aieon_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:    ', adim_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:   ', aimga_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:   ', aimos_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimon_idx:   ', aimon_idx
 #endif
-      Write( logdev,'( 5x, a, i4 )' ) 'aiepx_idx:', aiepx_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aipan_idx:', aipan_idx
+         
+
  
 C Compute common factors
       h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )
