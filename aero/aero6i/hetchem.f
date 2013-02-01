@@ -624,6 +624,11 @@ C        Find acid concentration in mol/m3
          endif
          acid = acidmolconc( acid_idx ) ! mol/m3
 
+C        Correct sulfate for presence of bisulfate
+         if( acid_nuc_pairs(i)%nuc == 'ASO4J' ) then
+            nuc = max( nuc - acidmolconc( hso4acid_idx ), 0.0d0 )
+         endif
+
 C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
          kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume**2
 
