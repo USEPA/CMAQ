@@ -1655,7 +1655,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
       END DO    ! end fine mode mass transfer calculations
 
 C *** Divide H+ between two modes using charge balance HPLUS as proxy
-      EQLBHJ = EQLBHIJ * HPLUS( 2 ) / ( HPLUS( 1 ) + HPLUS ( 2 ) )
+      EQLBHJ = EQLBHIJ !* HPLUS( 2 ) / ( HPLUS( 1 ) + HPLUS ( 2 ) )
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
