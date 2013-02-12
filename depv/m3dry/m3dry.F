@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas, 
@@ -134,6 +134,9 @@ C                          (David Wong)
 C           26 Sep 2011 -- made the number of actual and dummy arguments the same in
 C                          calling subroutine Init_ABFlux
 C                          (David Wong)
+C           7 Jun 2012  Allow read of C-staggered (UWINDC and VWINDC) wind and B-staggered 
+C                       (UWIND and VWIND) from MET_DOT_3D to maintain compatibility with
+C                       current and previous versions of MCIP (J. Bash)
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
@@ -901,19 +904,29 @@ C-------------------------------------------------------------------------------
             GO TO 1001
          END IF      
 
-         vname = 'UWIND'
+! Try to read the U and V wind components on the C-staggered grid. If this fails,
+! try reading them off of the B-staggered grid for backwards compatibility with MCIP
+         vname = 'UWINDC'
          IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
-            WRITE( xmsg,9001 ) vname, met_dot_3d
+            vname = 'UWIND'
+            IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
+     &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
+	       WRITE( xmsg,9001 ) vname, met_dot_3d
 
-            GO TO 1001
+               GO TO 1001
+            END IF
          END IF
-         vname = 'VWIND'
+         vname = 'VWINDC'
          IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, vwind) ) THEN
-            WRITE( xmsg,9001 ) vname, met_dot_3d
+                vname = 'VWIND'
+            IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
+     &                    strtrow, endrow+1, 1, 1, jdate, jtime, vwind) ) THEN
+               WRITE( xmsg,9001 ) vname, met_dot_3d
 
-            GO TO 1001
+               GO TO 1001
+	    END IF
          END IF      
       END IF
       
