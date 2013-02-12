@@ -1522,8 +1522,8 @@ C--------------------------------------------------------------------------
                         pvd( n,c,r ) = tpvd
                         depvel_gas( n,c,r ) = lnh3
                         
-                        cmp(1,c,r) = f_emis
-                        cmp(2,c,r) = f_dep
+                        cmp(1,c,r) = max(f_emis,0.0)
+                        cmp(2,c,r) = max(f_dep,0.0)
                         cmp(3,c,r) = f_stom
                         cmp(4,c,r) = f_cut
                         cmp(5,c,r) = f_soil
