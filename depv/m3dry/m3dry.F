@@ -1532,6 +1532,7 @@ C--------------------------------------------------------------------------
                         cmp(8,c,r) = f_wat
                         
                      ELSE   ! water
+		        cmp(2,c,r) = depvel_gas( n,c,r ) * cnh3
                         cmp(8,c,r) = depvel_gas( n,c,r ) * cnh3
                      END IF
                   END IF   ! 'NH3'
