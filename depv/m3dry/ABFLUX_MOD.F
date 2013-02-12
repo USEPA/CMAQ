@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.11 2012/04/19 17:03:23 yoj Exp $
+! $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/ABFLUX_MOD.F,v 1.11 2012/04/19 17:03:23 yoj Exp $
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module ABFlux_Mod
@@ -47,6 +47,12 @@
 !                                      This will maintain a better mass balance and have
 !                                      a small impact on the model results ~ 1% of the
 !                                      ambient NH3 concentrations.
+!                   J. Bash Apr 19 12: The apoplast compensation point for agricultural land use 
+!                                      is now a function of the soil ammonium concentration 
+!                                      following Massad et al. 2010 doi:10.5194/acp-10-10359-2010
+!                   J. Bash Aug 29 12: The subroutine was modified to utilize new EPIC output that 
+!                                      estimates the ammonium content of fertilizer applied to the 
+!                                      1cm and 5cm soil layers. 
 !---------------------------------------------------------------------------------------------
 
       Implicit None
@@ -84,8 +90,8 @@
          Integer            :: GXOFF, GYOFF    ! global origin offset from file
          integer, save      :: strtcol, endcol, strtrow, endrow
   
-         Real, Save, Allocatable :: F_depth ( :,:,: ) ! fertlizer application date 
-         Real, Save, Allocatable :: F_rate  ( :,:,: ) ! fertlizer application date 
+         Real, Save, Allocatable :: F_rate1 ( :,:,: ) ! fertlizer application to layer 1 
+         Real, Save, Allocatable :: F_rate2 ( :,:,: ) ! fertlizer application to layer 2
          Real, Save, Allocatable :: Beld_ag ( :,:,: )        
          Real                    :: Tot_Ag          ! total ag in the grid cell    
  
@@ -140,12 +146,12 @@ C                          '12345678901234567890'
  
          logdev =  init3() 
  
-         If ( .Not. desc3( grid_cro_2d ) ) Then
-            xmsg = 'Could not get  grid_cro_2d  file description '
-            Call m3exit( pname, jdate, jtime, xmsg, xstat2 )
-         End If         
+!         If ( .Not. desc3( grid_cro_2d ) ) Then
+!            xmsg = 'Could not get  grid_cro_2d  file description '
+!            Call m3exit( pname, jdate, jtime, xmsg, xstat2 )
+!         End If         
          
-         Call SUBHFILE ( grid_cro_2d, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
+!         Call SUBHFILE ( grid_cro_2d, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
          Select Case( jdate )
@@ -177,6 +183,9 @@ C                          '12345678901234567890'
            xmsg = 'Could not open '// E2C_SOIL // ' file'
            Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
          End If
+
+         Call SUBHFILE ( E2C_SOIL, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
+
          If ( .Not. Allocated ( pHs1 ) ) Then
             Allocate ( pHs1 ( my_ncols,my_nrows,e2c_cats ) )
          End If
@@ -203,22 +212,22 @@ C                          '12345678901234567890'
            xmsg = 'Could not open '// E2C_FERT // ' file'
            Call M3exit ( pname, 0, 0, xmsg, xstat1 )
          End If                  
-         If ( .Not. Allocated ( F_depth ) ) Then
-            Allocate ( F_depth ( my_ncols,my_nrows,e2c_cats ) )
+         If ( .Not. Allocated ( F_rate1 ) ) Then
+            Allocate ( F_rate1 ( my_ncols,my_nrows,e2c_cats ) )
          End If
-         If ( .Not. Allocated ( F_rate ) ) Then
-            Allocate ( F_rate ( my_ncols,my_nrows,e2c_cats ) )
+         If ( .Not. Allocated ( F_rate2 ) ) Then
+            Allocate ( F_rate2 ( my_ncols,my_nrows,e2c_cats ) )
          End If
          
-         vname = 'APP_DEPTH'
+         vname = 'L1_ANH3'
          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow,  endrow,
-     &                       strtcol, endcol, jdate, 0, F_depth ) ) Then
+     &                       strtcol, endcol, jdate, 0, F_rate1 ) ) Then
             Write( xmsg,9001 ) vname, E2C_FERT
             Go To 1001
          End If
-         vname = 'MN'
+         vname = 'L2_ANH3'
          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow,  endrow,
-     &                    strtcol, endcol, jdate, 0, F_rate ) ) Then
+     &                       strtcol, endcol, jdate, 0, F_rate2 ) ) Then
             Write( xmsg,9001 ) vname, E2C_FERT
             Go To 1001
          End If                 
@@ -323,20 +332,18 @@ C                          '12345678901234567890'
                         MHp1(c,r)   = MHp1(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs1(c,r,l))
                         gamma2(c,r) = gamma2(c,r)+NH4ps2(c,r,l)*1.0e-4/14.0/0.05
      &                              / 10.0**(-pHs2(c,r,l))*Beld_ag(c,r,l)/100.0
-                        MHp2(c,r)   = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs2(c,r,l))                                                                  
-                        If ( .Not. IsNaN( F_rate(c,r,l) ) .And. F_rate(c,r,l) .Gt. 0.0 .And.
-     &                       .Not. IsNaN( F_depth(c,r,l) ) ) Then
-! FAO fertlizer use statistics estimate that US fertilizer use in 2002 contained 92.5% NH3     
-! injected fertilizer
-                           If ( F_depth(c,r,l) .Gt. 0.01 ) Then
-                              fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                    * 1.0e-4/14.0/0.05/10.0**(-pHs1(c,r,l))*0.925
-                           End If
-! Surface applied fertlizer                           
-                           If ( F_depth(c,r,l) .Le. 0.01 .And. F_depth(c,r,l) .Ge. 0.00 ) Then 
-                              fagam1(c,r) = fagam1(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                    * 1.0e-4/14.0/0.01/10.0**(-pHs2(c,r,l))*0.925
-                           End If
+                        MHp2(c,r)   = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs2(c,r,l)) 
+			If ( .Not. IsNaN( F_rate1(c,r,l) ) .And. 
+     &                             F_rate1(c,r,l) .Gt. 0.0 ) Then
+! Surface applied fertlizer                                        
+                           fagam1(c,r) = fagam1(c,r)+F_rate1(c,r,l)*Beld_ag(c,r,l)/100.0
+     &                                 * 1.0e-4/14.0/0.01/10.0**(-pHs1(c,r,l))	                  
+                        End If                                                                 
+                        If ( .Not. IsNaN( F_rate2(c,r,l) ) .And.
+     &                             F_rate2(c,r,l) .Gt. 0.0 ) Then
+! Injected fertilizer
+                           fagam2(c,r) = fagam2(c,r)+F_rate2(c,r,l)*Beld_ag(c,r,l)/100.0
+     &                                 * 1.0e-4/14.0/0.05/10.0**(-pHs2(c,r,l))	                  
                         End If
                         If ( IsNaN( fagam1(c,r) ) .Or. IsNaN( fagam2(c,r) ) ) Then
                             xmsg = 'NaN in fagam Calculation'
@@ -411,26 +418,23 @@ C                          '12345678901234567890'
                         frac_ir(c,r) = frac_ir(c,r) + Beld_ag(c,r,l)/100.0
                      End If
                      Tot_Ag = Tot_Ag + Beld_ag(c,r,l)/100.0                  
-                     If ( .Not. IsNaN( F_rate(c,r,l) )  .And. 
-     &                     F_rate(c,r,l) .Gt. 0.0       .And.
-     &                    .Not. IsNaN( F_depth(c,r,l) ) .And. 
-     &                    .Not. IsNaN( pHs2(c,r,l) )    .And.
+                     If ( .Not. IsNaN( F_rate1(c,r,l) ) .And. 
+     &                     F_rate1(c,r,l) .Gt. 0.0      .And.
      &                    .Not. IsNaN( pHs1(c,r,l) )    .And.  
      &                    pHs1(c,r,l) .Gt. 4.0          .And.
+     &                    pHs1(c,r,l) .Lt. 9.0 ) Then
+! surface applied fertilizer                        
+                         fagam1(c,r) = fagam1(c,r)+F_rate1(c,r,l)*Beld_ag(c,r,l)/100.0
+     &                               * 1.0e-4/14.0/0.01/10.0**(-pHs1(c,r,l))
+                     End If
+		     If ( .Not. IsNaN( F_rate2(c,r,l) ) .And. 
+     &                     F_rate2(c,r,l) .Gt. 0.0      .And. 
+     &                    .Not. IsNaN( pHs2(c,r,l) )    .And. 
      &                    pHs2(c,r,l) .Gt. 4.0          .And. 
-     &                    pHs1(c,r,l) .Lt. 9.0          .And.
      &                    pHs2(c,r,l) .Lt. 9.0 ) Then
 ! Injected fertilizer                        
-                        If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .Gt. 0.01 ) Then
-                           fagam2(c,r) = fagam2(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                 * 1.0e-4/14.0/0.05/10.0**(-pHs2(c,r,l))*0.925
-                        End If
-! surface applied fertilizer                        
-                        If ( .Not. IsNaN( F_depth(c,r,l) ) .And. F_depth(c,r,l) .LE. 0.01 
-     &                       .And. F_depth(c,r,l) .GE. 0.0 ) Then
-                           fagam1(c,r) = fagam1(c,r)+F_rate(c,r,l)*Beld_ag(c,r,l)/100.0
-     &                                 * 1.0e-4/14.0/0.01/10.0**(-pHs1(c,r,l))*0.925
-                        End If
+                         fagam2(c,r) = fagam2(c,r)+F_rate2(c,r,l)*Beld_ag(c,r,l)/100.0
+     &                               * 1.0e-4/14.0/0.05/10.0**(-pHs2(c,r,l))
                      End If
                      If ( IsNaN( fagam1(c,r) ) .Or. IsNaN( fagam2(c,r) ) ) Then
                         xmsg = 'NaN in fagam Calculation'
@@ -653,9 +657,13 @@ C-------------------------------------------------------------------------------
                      Case(2:3) ! Ag                
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir),2.0e5)
                         cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm),2.0e5)                     
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+     &                               1.0e4*12.3+20.3))    
                      Case(4:5) ! Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir)*0.67+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(max(gamma2(Col,Row)/w5cm,C_gam/w5cm)*0.67+0.33*20.0/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*( Max(gamma2(Col,Row),C_gam)*10**(-7.0)*w5cm*
+     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s			
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(20.0/w5cm,2.0e5)
@@ -673,12 +681,18 @@ C-------------------------------------------------------------------------------
 !                       write(logdev,*) 'wg_ir',wg_ir !job debugging                                        
                         cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
                         cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
+     &                               w5cm*14.0*0.05*1.0e4*12.3+20.3))
                      Case(43)   ! Canada Ag
                         cnh3g1 = Min(C_gam/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+     &                               1.0e4*12.3+20.3))
                      Case(45) ! Canada Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(C_gam*0.67/wg_ir+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam*0.67/w5cm+0.33*20.0/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
+     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(20.0/w5cm,2.0e5)
@@ -693,9 +707,13 @@ C-------------------------------------------------------------------------------
                      Case(12) ! Ag                
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir),2.0e5)
                         cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm),2.0e5)                     
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+     &                               1.0e4*12.3+20.3))  
                      Case(14)   !Ag Mosaic
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir)*0.67+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm)*0.67+0.33*20.0/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*10**(-7.0)*w5cm*
+     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(20.0/w5cm,2.0e5)
@@ -762,6 +780,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                Select Case(j)
                   Case(1,31,48) ! water
+                     f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                      f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                   Case(2,8,16,17,49:50) ! no veg
 !> Zero out the compensation points for deposition
