@@ -30,29 +30,30 @@
 !               intial soil NH3 & H concentrations, and fertilizer application
 !               amounts and timing for the model run
 ! 
-! Revision History: J. Bash Dec 08 10: Created
-!                   J. Bash May 11 11: Updated for CMAQ 5.0
-!                   J.Young Oct 26 11: KIND=16->KIND=8 for Portland Group compiler (pgi)
-!                                      IsNaN function   "    "        "      "
-!                                      (This Module must be compiled w/ -Kieee if pgi)
-!                   J. Bash Jan 31 12: New daily EPIC output now includes soil NH3 from 
-!                                      mineralization of organic and no longer includes 
-!                                      the monthly fertilizer totals. The initialization 
-!                                      of soil NH3 was rewritten to reflect this.
-!                   J. Bash Apr 19 12: Set bounds on the soil moisture from the met. model
-!                                      to be between saturation and residual soil moisture
-!                                      to avoid errors in the soil resistance from rounding
-!                                      errors. Corrected a units conversion error in the 
-!                                      coupling of the soil NH4 to the atmospheric NH3.
-!                                      This will maintain a better mass balance and have
-!                                      a small impact on the model results ~ 1% of the
-!                                      ambient NH3 concentrations.
-!                   J. Bash Apr 19 12: The apoplast compensation point for agricultural land use 
-!                                      is now a function of the soil ammonium concentration 
-!                                      following Massad et al. 2010 doi:10.5194/acp-10-10359-2010
-!                   J. Bash Aug 29 12: The subroutine was modified to utilize new EPIC output that 
-!                                      estimates the ammonium content of fertilizer applied to the 
-!                                      1cm and 5cm soil layers. 
+! Revision History: J. Bash Dec 08 10:      Created
+!                   J. Bash May 11 11:      Updated for CMAQ 5.0
+!                   J.Young Oct 26 11:      KIND=16->KIND=8 for Portland Group compiler (pgi)
+!                                           IsNaN function   "    "        "      "
+!                                           (This Module must be compiled w/ -Kieee if pgi)
+!                   J. Bash Jan 31 12:      New daily EPIC output now includes soil NH3 from 
+!                                           mineralization of organic and no longer includes 
+!                                           the monthly fertilizer totals. The initialization 
+!                                           of soil NH3 was rewritten to reflect this.
+!                   J. Bash Apr 19 12:      Set bounds on the soil moisture from the met. model
+!                                           to be between saturation and residual soil moisture
+!                                           to avoid errors in the soil resistance from rounding
+!                                           errors. Corrected a units conversion error in the 
+!                                           coupling of the soil NH4 to the atmospheric NH3.
+!                                           This will maintain a better mass balance and have
+!                                           a small impact on the model results ~ 1% of the
+!                                           ambient NH3 concentrations.
+!                   J. Bash Apr 19 12:      The apoplast compensation point for agricultural land use 
+!                                           is now a function of the soil ammonium concentration 
+!                                           following Massad et al. 2010 doi:10.5194/acp-10-10359-2010
+!                   J. Bash Aug 29 12:      The subroutine was modified to utilize new EPIC output that 
+!                                           estimates the ammonium content of fertilizer applied to the 
+!                                           1cm and 5cm soil layers. 
+!                   D. Schwede Sept 12 12:  Added code for NLCD40 land use classification
 !---------------------------------------------------------------------------------------------
 
       Implicit None
@@ -482,7 +483,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------          
          Subroutine Get_Flux( tempg, rh_air, cNH3, rwetsfc, rgw, wg, w2, Sltype, dif, 
      &                        row, col, sp, pvd, lnh3, f_stom, f_cut, f_soil, f_emis,
-     &                        f_dep, f_ag, f_nag, f_wat, dt )
+     &                        f_dep, f_ag, f_nag, f_wat, dt, jtime )
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2, lufrac
@@ -497,6 +498,7 @@ C-------------------------------------------------------------------------------
          Integer, Intent( IN )  :: Row
          Integer, Intent( IN )  :: Col
          Integer, Intent( IN )  :: dt
+	   Integer, Intent( IN )  :: jtime
          Integer, Intent( IN )  :: sp ! species index
          
          Real,    Intent( IN )  :: tempg        
@@ -600,15 +602,22 @@ C-------------------------------------------------------------------------------
          
          If ( Land_Scheme .Eq. 'USGS24' ) Then
             agfrac  = lufrac(  2,Col,Row ) +      lufrac(  3,Col,Row ) + 
+     &                lufrac(  4,Col,Row ) +
      &           0.67*lufrac(  5,Col,Row ) + 0.67*lufrac(  6,Col,Row )
             watfrac = lufrac( 16,Col,Row )  
          End If
          
-         If ( Land_Scheme .Eq. 'NLCD-MODIS' ) Then
+         If ( Land_Scheme .Eq. 'NLCD50' ) Then
             agfrac  = lufrac( 19,Col,Row ) +      lufrac( 20,Col,Row ) + 
      &                lufrac( 43,Col,Row ) + 0.67*lufrac( 45,Col,Row )
             watfrac = lufrac(  1,Col,Row ) +      lufrac( 31,Col,Row ) + 
      &                lufrac( 48,Col,Row )         
+         End If
+
+         If ( Land_Scheme .Eq. 'NLCD40' ) Then
+            agfrac  = lufrac( 12,Col,Row ) +      lufrac( 14,Col,Row ) + 
+     &                lufrac( 37,Col,Row ) + 0.67*lufrac( 38,Col,Row )
+            watfrac = lufrac( 17,Col,Row ) +      lufrac( 21,Col,Row )
          End If
          
          If ( Land_Scheme .Eq. 'MODIS' ) Then
@@ -654,12 +663,12 @@ C-------------------------------------------------------------------------------
                      Case(16,24) ! water, ice or snow
                         cnh3g1 = 0.0
                         cnh3g2 = 0.0
-                     Case(2:3) ! Ag                
+                     Case(2:4) ! Ag                
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir),2.0e5)
                         cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm),2.0e5)                     
-			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
      &                               1.0e4*12.3+20.3))    
-                     Case(4:5) ! Ag mosaic 67% ag 33% mosaic
+                     Case(5:6) ! Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir)*0.67+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(max(gamma2(Col,Row)/w5cm,C_gam/w5cm)*0.67+0.33*20.0/w5cm,2.0e5)
 			cnh3s  = max(cnh3s,a1*( Max(gamma2(Col,Row),C_gam)*10**(-7.0)*w5cm*
@@ -670,15 +679,12 @@ C-------------------------------------------------------------------------------
                   End Select
                End If
                
-               If ( Land_Scheme .Eq. 'NLCD-MODIS' ) Then
+               If ( Land_Scheme .Eq. 'NLCD50' ) Then
                   Select Case( j )
                      Case(1:2,31,46,48:50) ! water, ice or snow
                         cnh3g1 = 0.0
                         cnh3g2 = 0.0
-                     Case(19:20) ! U.S. Ag
-!                       write(logdev,*) 'frac_ir',frac_ir(Col,Row) !job debugging                
-!                       write(logdev,*) 'Gamma1',gamma1(Col,Row) !job debugging                
-!                       write(logdev,*) 'wg_ir',wg_ir !job debugging                                        
+                     Case(19:20) ! U.S. Ag                                     
                         cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
                         cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
 			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
@@ -698,6 +704,33 @@ C-------------------------------------------------------------------------------
                         cnh3g2 = Min(20.0/w5cm,2.0e5)
                   End Select
                End If
+
+               If ( Land_Scheme .Eq. 'NLCD40' ) Then
+                  Select Case( j )
+                     Case(15,17:22) ! water, ice or snow
+                        cnh3g1 = 0.0
+                        cnh3g2 = 0.0
+                     Case(37:38) ! U.S. Ag		        
+                        cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
+                        cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
+     &                               w5cm*14.0*0.05*1.0e4*12.3+20.3))
+                     Case(12)   ! Canada Ag
+                        cnh3g1 = Min(C_gam/wg_ir,2.0e5)
+                        cnh3g2 = Min(C_gam/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+     &                               1.0e4*12.3+20.3))
+                     Case(14) ! Canada Ag mosaic 67% ag 33% mosaic
+                        cnh3g1 = Min(C_gam*0.67/wg_ir+0.33*20.0/wg_ir,2.0e5)
+                        cnh3g2 = Min(C_gam*0.67/w5cm+0.33*20.0/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
+     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
+                     Case Default ! not ag
+                        cnh3g1 = Min(20.0/wg_ir,2.0e5)
+                        cnh3g2 = Min(20.0/w5cm,2.0e5)
+                  End Select
+               End If
+               
                
                If ( Land_Scheme .Eq. 'MODIS' ) Then
                   Select Case( j )
@@ -769,118 +802,466 @@ C-------------------------------------------------------------------------------
                End If ! laij > 0.0            
 
 !> Integrate over the land uses
-               Select Case(j)
-                  Case(1,31,48:50) ! no vegetation
-                     lnh3 = lnh3 + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row))
-                  Case Default     ! vegetation
-                     pvd  = pvd + lufrac(j,col,row) * cnh3c * ga * vegj(j,col,row)
-                     lnh3 = lnh3 + lufrac(j,col,row)*(( 1.0 - vegj(j,col,row) ) * vdg + vegj(j,col,row) * ga )
-               End Select
+               If ( Land_Scheme .Eq. 'USGS24' ) Then
+                  Select Case(j)
+                     Case(16) ! no vegetation
+                        lnh3 = lnh3 + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row))
+                     Case Default     ! vegetation
+                        pvd  = pvd + lufrac(j,col,row) * cnh3c * ga * vegj(j,col,row)
+                        lnh3 = lnh3 + lufrac(j,col,row)*(( 1.0 - vegj(j,col,row) ) * vdg + vegj(j,col,row) * ga )
+                  End Select
 
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
-               Select Case(j)
-                  Case(1,31,48) ! water
-                     f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
-                     f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
-                  Case(2,8,16,17,49:50) ! no veg
+                  Select Case(j)
+                     Case(16) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+                        f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
+                     Case(24) ! no veg
 !> Zero out the compensation points for deposition
 !                    f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
 !    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
 !    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
 
-                     xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
-                     f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
-     &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
-     &                     / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
-                  Case(19:20,43,45) ! agriculture
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+                     Case(2:6) ! agriculture
 !> Zero out the atmospheric NH3 concentration for emissions
-!                    f_emis = f_emis + lufrac(j,col,row)*vegj(j,col,row)*ga*( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row) * 
+!                       f_emis = f_emis + lufrac(j,col,row)*vegj(j,col,row)*ga*( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row) * 
 !    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * (qq-ga*cnh3) -rwmb * gt - 
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * 
 !    &                  (qq-ga*cnh3))**0.5)/(2.0*aq)
 
                     !!! mixed Real's !!!!
-                     xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
-                     f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
      &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * (qq-ga*cnh3) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
-!                    f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
 !    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
 !    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
 
-                     xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
-                     f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
-     &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
-     &                     / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
-                     f_cut = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
-     &                     * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc)    ! wet cuticle
-     &                     + (1.0 - deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
-                     f_soil = f_soil + lufrac(j,col,row) * ( vegj(j,col,row) * ( (cnh3g1 - cnh3c) * gg1(j)  ! soil layer 1
-     &                      + (cnh3g2 - cnh3c) * gg2(j) ) )    ! soil layer 2                                                  
-                     f_ag = f_ag + lufrac(j,col,row) * ( vegj(j,col,row)*ga*(cnh3c-cnh3)
-     &                    -( 1.0-vegj(j,col,row) )*vdg*cnh3 ) / agfrac
-                     If ( f_emis .lt. f_emis_lim ) Then
-                        Write(logdev,*) 'ag f_emis: ', f_emis
-                        Write(logdev,*) 'ag f_ag  : ', f_ag
-                        Write(logdev,*) 'ag f_dep : ', f_dep
-                        Write(logdev,*) 'ag f_stom: ', f_stom
-                        Write(logdev,*) 'ag f_cut : ', f_cut
-                        Write(logdev,*) 'ag f_soil: ', f_soil
-                        Write(logdev,*) 'ag lufrac: ', lufrac(j,col,row)
-                        Write(logdev,*) 'ag vegj  : ', vegj(j,col,row)
-                        Write(logdev,*) 'ag ga    : ', ga
-                        Write(logdev,*) 'ag vdg   : ', vdg
-                        Write(logdev,*) 'ag agfrac: ', agfrac
-                     End If
-                  Case Default ! natural 
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                        * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc)    ! wet cuticle
+     &                        + (1.0 - deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row) * ( vegj(j,col,row) * ( (cnh3g1 - cnh3c) * gg1(j)  ! soil layer 1
+     &                         + (cnh3g2 - cnh3c) * gg2(j) ) )    ! soil layer 2                                                  
+                        f_ag = f_ag + lufrac(j,col,row) * ( vegj(j,col,row)*ga*(cnh3c-cnh3)
+     &                       -( 1.0-vegj(j,col,row) )*vdg*cnh3 ) / agfrac
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'ag f_emis: ', f_emis
+                           Write(logdev,*) 'ag f_ag  : ', f_ag
+                           Write(logdev,*) 'ag f_dep : ', f_dep
+                           Write(logdev,*) 'ag f_stom: ', f_stom
+                           Write(logdev,*) 'ag f_cut : ', f_cut
+                           Write(logdev,*) 'ag f_soil: ', f_soil
+                           Write(logdev,*) 'ag lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'ag vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ag ga    : ', ga
+                           Write(logdev,*) 'ag vdg   : ', vdg
+                           Write(logdev,*) 'ag agfrac: ', agfrac
+                        End If
+                     Case Default ! natural 
 !> Zero out the atmospheric NH3 concentration for emissions
-!                    f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga
-!    &                      * ( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
-!    &                      * ( 1.0 - deltaj(j,col,row) )
-!    &                      + ((rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
-!    &                      * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb
-!    &                      * (qq-ga*cnh3) )**0.5 ) / ( 2.0 * aq )
+!                       f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga
+!    &                         * ( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) )
+!    &                         + ((rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb
+!    &                         * (qq-ga*cnh3) )**0.5 ) / ( 2.0 * aq )
+                    
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                     ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                     laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                     cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+                       
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+!> Components of the flux for stomatal, cuticular and soil surfaces
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                         * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc )    ! wet cuticle
+     &                         + (1.0-deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) ) ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row)*( vegj(j,col,row)*( (cnh3g1 - cnh3c) * gg1(j) +  ! soil layer 1
+     &                     (cnh3g2 - cnh3c) * gg2(j)) )  ! soil layer 2                        
+                        f_nag = f_nag + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1.0-vegj(j,col,row))*vdg*cnh3)
+     &                        / (1.0-agfrac-watfrac)
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'f_emis: ', f_emis
+                           Write(logdev,*) 'f_nag : ', f_nag
+                           Write(logdev,*) 'f_dep : ', f_dep
+                           Write(logdev,*) 'f_stom: ', f_stom
+                           Write(logdev,*) 'f_cut : ', f_cut
+                           Write(logdev,*) 'f_soil: ', f_soil
+                           Write(logdev,*) 'lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ga    : ', ga
+                           Write(logdev,*) 'vdg   : ', vdg
+                           Write(logdev,*) 'agfrac: ', agfrac
+                        End If
+                  End Select
+               End IF ! Land_Scheme USGS
 
-                     xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
-                     f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
-     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq-ga*cnh3) ) ) / ( 2.0 * aq )
+               If ( Land_Scheme .Eq. 'NLCD50' ) Then
+                  Select Case(j)
+                     Case(1,31,48:50) ! no vegetation
+                        lnh3 = lnh3 + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row))
+                     Case Default     ! vegetation
+                        pvd  = pvd + lufrac(j,col,row) * cnh3c * ga * vegj(j,col,row)
+                        lnh3 = lnh3 + lufrac(j,col,row)*(( 1.0 - vegj(j,col,row) ) * vdg + vegj(j,col,row) * ga )
+                  End Select
+
+!> -------Compute Fluxes  and integrate over LU for output JOB -------------------
+                  Select Case(j)
+                     Case(1,31,48) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+                        f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
+                     Case(2,8,16,17,49:50) ! no veg
 !> Zero out the compensation points for deposition
 !                    f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
 !    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
 !    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
 !    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
 
-                     xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
-                     f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
-     &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
-     &                     / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+                     Case(19:20,43,45) ! agriculture
+!> Zero out the atmospheric NH3 concentration for emissions
+!                       f_emis = f_emis + lufrac(j,col,row)*vegj(j,col,row)*ga*( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * (qq-ga*cnh3) -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * 
+!    &                  (qq-ga*cnh3))**0.5)/(2.0*aq)
+
+                    !!! mixed Real's !!!!
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * (qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
-                     f_cut  = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
-     &                      * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc )    ! wet cuticle
-     &                      + (1.0-deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) ) ! dry cuticle
-                     f_soil = f_soil + lufrac(j,col,row)*( vegj(j,col,row)*( (cnh3g1 - cnh3c) * gg1(j) +  ! soil layer 1
-     &                  (cnh3g2 - cnh3c) * gg2(j)) )  ! soil layer 2                        
-                     f_nag = f_nag + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1.0-vegj(j,col,row))*vdg*cnh3)
-     &                     / (1.0-agfrac-watfrac)
-                     If ( f_emis .lt. f_emis_lim ) Then
-                        Write(logdev,*) 'f_emis: ', f_emis
-                        Write(logdev,*) 'f_nag : ', f_nag
-                        Write(logdev,*) 'f_dep : ', f_dep
-                        Write(logdev,*) 'f_stom: ', f_stom
-                        Write(logdev,*) 'f_cut : ', f_cut
-                        Write(logdev,*) 'f_soil: ', f_soil
-                        Write(logdev,*) 'lufrac: ', lufrac(j,col,row)
-                        Write(logdev,*) 'vegj  : ', vegj(j,col,row)
-                        Write(logdev,*) 'ga    : ', ga
-                        Write(logdev,*) 'vdg   : ', vdg
-                        Write(logdev,*) 'agfrac: ', agfrac
-                     End If
-               End Select
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                        * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc)    ! wet cuticle
+     &                        + (1.0 - deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row) * ( vegj(j,col,row) * ( (cnh3g1 - cnh3c) * gg1(j)  ! soil layer 1
+     &                         + (cnh3g2 - cnh3c) * gg2(j) ) )    ! soil layer 2                                                  
+                        f_ag = f_ag + lufrac(j,col,row) * ( vegj(j,col,row)*ga*(cnh3c-cnh3)
+     &                       -( 1.0-vegj(j,col,row) )*vdg*cnh3 ) / agfrac
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'ag f_emis: ', f_emis
+                           Write(logdev,*) 'ag f_ag  : ', f_ag
+                           Write(logdev,*) 'ag f_dep : ', f_dep
+                           Write(logdev,*) 'ag f_stom: ', f_stom
+                           Write(logdev,*) 'ag f_cut : ', f_cut
+                           Write(logdev,*) 'ag f_soil: ', f_soil
+                           Write(logdev,*) 'ag lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'ag vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ag ga    : ', ga
+                           Write(logdev,*) 'ag vdg   : ', vdg
+                           Write(logdev,*) 'ag agfrac: ', agfrac
+                        End If
+                     Case Default ! natural 
+!> Zero out the atmospheric NH3 concentration for emissions
+!                       f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga
+!    &                         * ( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) )
+!    &                         + ((rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb
+!    &                         * (qq-ga*cnh3) )**0.5 ) / ( 2.0 * aq )
+                    
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                     ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                     laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                     cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+                       
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+!> Components of the flux for stomatal, cuticular and soil surfaces
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                         * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc )    ! wet cuticle
+     &                         + (1.0-deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) ) ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row)*( vegj(j,col,row)*( (cnh3g1 - cnh3c) * gg1(j) +  ! soil layer 1
+     &                     (cnh3g2 - cnh3c) * gg2(j)) )  ! soil layer 2                        
+                        f_nag = f_nag + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1.0-vegj(j,col,row))*vdg*cnh3)
+     &                        / (1.0-agfrac-watfrac)
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'f_emis: ', f_emis
+                           Write(logdev,*) 'f_nag : ', f_nag
+                           Write(logdev,*) 'f_dep : ', f_dep
+                           Write(logdev,*) 'f_stom: ', f_stom
+                           Write(logdev,*) 'f_cut : ', f_cut
+                           Write(logdev,*) 'f_soil: ', f_soil
+                           Write(logdev,*) 'lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ga    : ', ga
+                           Write(logdev,*) 'vdg   : ', vdg
+                           Write(logdev,*) 'agfrac: ', agfrac
+                        End If
+                  End Select
+              End If  ! NLCD50
+
+               If ( Land_Scheme .Eq. 'NLCD40' ) Then
+                  Select Case(j)
+                     Case(17:21) ! no vegetation
+                        lnh3 = lnh3 + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row))
+                     Case Default     ! vegetation
+                        pvd  = pvd + lufrac(j,col,row) * cnh3c * ga * vegj(j,col,row)
+                        lnh3 = lnh3 + lufrac(j,col,row)*(( 1.0 - vegj(j,col,row) ) * vdg + vegj(j,col,row) * ga )
+                  End Select
+
+!> -------Compute Fluxes  and integrate over LU for output JOB -------------------
+                  Select Case(j)
+                     Case(17,21) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+                        f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
+                     Case(18:20,22,35,36) ! no veg
+!> Zero out the compensation points for deposition
+!                    f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+                     Case(12,14,37,38) ! agriculture
+!> Zero out the atmospheric NH3 concentration for emissions
+!                       f_emis = f_emis + lufrac(j,col,row)*vegj(j,col,row)*ga*( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * (qq-ga*cnh3) -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * 
+!    &                  (qq-ga*cnh3))**0.5)/(2.0*aq)
+
+                    !!! mixed Real's !!!!
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * (qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+!> Components of the flux for stomatal, cuticular and soil surfaces
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                        * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc)    ! wet cuticle
+     &                        + (1.0 - deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row) * ( vegj(j,col,row) * ( (cnh3g1 - cnh3c) * gg1(j)  ! soil layer 1
+     &                         + (cnh3g2 - cnh3c) * gg2(j) ) )    ! soil layer 2                                                  
+                        f_ag = f_ag + lufrac(j,col,row) * ( vegj(j,col,row)*ga*(cnh3c-cnh3)
+     &                       -( 1.0-vegj(j,col,row) )*vdg*cnh3 ) / agfrac
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'ag f_emis: ', f_emis
+                           Write(logdev,*) 'ag f_ag  : ', f_ag
+                           Write(logdev,*) 'ag f_dep : ', f_dep
+                           Write(logdev,*) 'ag f_stom: ', f_stom
+                           Write(logdev,*) 'ag f_cut : ', f_cut
+                           Write(logdev,*) 'ag f_soil: ', f_soil
+                           Write(logdev,*) 'ag lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'ag vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ag ga    : ', ga
+                           Write(logdev,*) 'ag vdg   : ', vdg
+                           Write(logdev,*) 'ag agfrac: ', agfrac
+                        End If
+                     Case Default ! natural 
+!> Zero out the atmospheric NH3 concentration for emissions
+!                       f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga
+!    &                         * ( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) )
+!    &                         + ((rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb
+!    &                         * (qq-ga*cnh3) )**0.5 ) / ( 2.0 * aq )
+                    
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                     ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                     laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                     cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+                       
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+!> Components of the flux for stomatal, cuticular and soil surfaces
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                         * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc )    ! wet cuticle
+     &                         + (1.0-deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) ) ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row)*( vegj(j,col,row)*( (cnh3g1 - cnh3c) * gg1(j) +  ! soil layer 1
+     &                     (cnh3g2 - cnh3c) * gg2(j)) )  ! soil layer 2                        
+                        f_nag = f_nag + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1.0-vegj(j,col,row))*vdg*cnh3)
+     &                        / (1.0-agfrac-watfrac)
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'f_emis: ', f_emis
+                           Write(logdev,*) 'f_nag : ', f_nag
+                           Write(logdev,*) 'f_dep : ', f_dep
+                           Write(logdev,*) 'f_stom: ', f_stom
+                           Write(logdev,*) 'f_cut : ', f_cut
+                           Write(logdev,*) 'f_soil: ', f_soil
+                           Write(logdev,*) 'lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ga    : ', ga
+                           Write(logdev,*) 'vdg   : ', vdg
+                           Write(logdev,*) 'agfrac: ', agfrac
+                        End If
+                  End Select
+              End If  ! NLCD40
+
+               If ( Land_Scheme .Eq. 'MODIS' ) Then
+                  Select Case(j)
+                     Case(17) ! no vegetation
+                        lnh3 = lnh3 + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row))
+                     Case Default     ! vegetation
+                        pvd  = pvd + lufrac(j,col,row) * cnh3c * ga * vegj(j,col,row)
+                        lnh3 = lnh3 + lufrac(j,col,row)*(( 1.0 - vegj(j,col,row) ) * vdg + vegj(j,col,row) * ga )
+                  End Select
+
+!> -------Compute Fluxes  and integrate over LU for output JOB -------------------
+                  Select Case(j)
+                     Case(17) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+                        f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
+                     Case(15) ! no veg
+!> Zero out the compensation points for deposition
+!                    f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+                     Case(12,14) ! agriculture
+!> Zero out the atmospheric NH3 concentration for emissions
+!                       f_emis = f_emis + lufrac(j,col,row)*vegj(j,col,row)*ga*( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * (qq-ga*cnh3) -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * 
+!    &                  (qq-ga*cnh3))**0.5)/(2.0*aq)
+
+                    !!! mixed Real's !!!!
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * (qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                  ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                  laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                  cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+!> Components of the flux for stomatal, cuticular and soil surfaces
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                        * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc)    ! wet cuticle
+     &                        + (1.0 - deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row) * ( vegj(j,col,row) * ( (cnh3g1 - cnh3c) * gg1(j)  ! soil layer 1
+     &                         + (cnh3g2 - cnh3c) * gg2(j) ) )    ! soil layer 2                                                  
+                        f_ag = f_ag + lufrac(j,col,row) * ( vegj(j,col,row)*ga*(cnh3c-cnh3)
+     &                       -( 1.0-vegj(j,col,row) )*vdg*cnh3 ) / agfrac
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'ag f_emis: ', f_emis
+                           Write(logdev,*) 'ag f_ag  : ', f_ag
+                           Write(logdev,*) 'ag f_dep : ', f_dep
+                           Write(logdev,*) 'ag f_stom: ', f_stom
+                           Write(logdev,*) 'ag f_cut : ', f_cut
+                           Write(logdev,*) 'ag f_soil: ', f_soil
+                           Write(logdev,*) 'ag lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'ag vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ag ga    : ', ga
+                           Write(logdev,*) 'ag vdg   : ', vdg
+                           Write(logdev,*) 'ag agfrac: ', agfrac
+                        End If
+                     Case Default ! natural 
+!> Zero out the atmospheric NH3 concentration for emissions
+!                       f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga
+!    &                         * ( rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) )
+!    &                         + ((rwx * (qq-ga*cnh3) -rwmb * gt - laij(j,col,row)
+!    &                         * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb
+!    &                         * (qq-ga*cnh3) )**0.5 ) / ( 2.0 * aq )
+                    
+                        xxx = rwx * (qq-ga*cnh3) - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_emis = f_emis + lufrac(j,col,row) * vegj(j,col,row) * ga * ( xxx
+     &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq-ga*cnh3) ) ) / ( 2.0 * aq )
+!> Zero out the compensation points for deposition
+!                       f_dep = f_dep + lufrac(j,col,row)*(vegj(j,col,row)*ga*( cnh3 - (rwx * ga * cnh3 -rwmb * gt - laij(j,col,row) * 
+!    &                     ( 1.0 - deltaj(j,col,row) ) + ((rwx * ga * cnh3 -rwmb * gt - 
+!    &                     laij(j,col,row) * ( 1.0 - deltaj(j,col,row) ))**2 + 4.0 * aq * rwmb * ga * 
+!    &                     cnh3 )**0.5)/(2.0*aq)) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3)
+                       
+                        xxx = rwx * ga * cnh3 - rwmb * gt - laij(j,col,row) * ( 1.0 - deltaj(j,col,row) )
+                        f_dep = f_dep + lufrac(j,col,row) * ( vegj(j,col,row) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / (2.0 * aq) ) + ( 1.0 - vegj(j,col,row) ) * vdg * cnh3 )
+!> Components of the flux for stomatal, cuticular and soil surfaces
+                        f_stom = f_stom + lufrac(j,col,row)*vegj(j,col,row) * (cnh3s - cnh3c) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + lufrac(j,col,row) * (-cnh3c * vegj(j,col,row) * laij(j,col,row)
+     &                         * ( deltaj(j,col,row)/( rbcj(j)+rwetsfc )    ! wet cuticle
+     &                         + (1.0-deltaj(j,col,row))/( rwmb + rwx*cnh3c ) ) ) ! dry cuticle
+                        f_soil = f_soil + lufrac(j,col,row)*( vegj(j,col,row)*( (cnh3g1 - cnh3c) * gg1(j) +  ! soil layer 1
+     &                     (cnh3g2 - cnh3c) * gg2(j)) )  ! soil layer 2                        
+                        f_nag = f_nag + lufrac(j,col,row)*(vegj(j,col,row)*ga*(cnh3c-cnh3)-(1.0-vegj(j,col,row))*vdg*cnh3)
+     &                        / (1.0-agfrac-watfrac)
+                        If ( f_emis .lt. f_emis_lim ) Then
+                           Write(logdev,*) 'f_emis: ', f_emis
+                           Write(logdev,*) 'f_nag : ', f_nag
+                           Write(logdev,*) 'f_dep : ', f_dep
+                           Write(logdev,*) 'f_stom: ', f_stom
+                           Write(logdev,*) 'f_cut : ', f_cut
+                           Write(logdev,*) 'f_soil: ', f_soil
+                           Write(logdev,*) 'lufrac: ', lufrac(j,col,row)
+                           Write(logdev,*) 'vegj  : ', vegj(j,col,row)
+                           Write(logdev,*) 'ga    : ', ga
+                           Write(logdev,*) 'vdg   : ', vdg
+                           Write(logdev,*) 'agfrac: ', agfrac
+                        End If
+                  End Select
+              End If  ! MODIS
+
             End If ! Lufrac > 0.0
          End Do ! n_lufrac         
          
@@ -973,14 +1354,46 @@ C-------------------------------------------------------------------------------
          ag_tot = 0.0
          Do i = 1, n_lufrac
             If ( lufrac(i,C,R) .Gt. 0.0 ) Then
-               Select Case(i)
-                  Case(19:20)
-                     kvg = kvg + gg(i) / ( wg * ds ) * lufrac(i,C,R)
-                     Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
-     &                         * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
-     &                   * gg(i) / ( wg * ds ) / MHp * lufrac(i,C,R)
-                     ag_tot = ag_tot + lufrac(i,C,R)
-               End Select
+               If ( Land_Scheme .Eq. 'USGS24' ) Then
+                 Select Case(i)
+                    Case(2:6)
+                       kvg = kvg + gg(i) / ( wg * ds ) * lufrac(i,C,R)
+                       Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
+     &                           * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
+     &                     * gg(i) / ( wg * ds ) / MHp * lufrac(i,C,R)
+                       ag_tot = ag_tot + lufrac(i,C,R)
+                 End Select
+               End If
+               If ( Land_Scheme .Eq. 'NLCD50' ) Then
+                 Select Case(i)
+                    Case(19:20)
+                       kvg = kvg + gg(i) / ( wg * ds ) * lufrac(i,C,R)
+                       Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
+     &                           * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
+     &                     * gg(i) / ( wg * ds ) / MHp * lufrac(i,C,R)
+                       ag_tot = ag_tot + lufrac(i,C,R)
+                 End Select
+               End If
+               If ( Land_Scheme .Eq. 'NLCD40' ) Then
+                 Select Case(i)
+                    Case(37:38)
+                       kvg = kvg + gg(i) / ( wg * ds ) * lufrac(i,C,R)
+                       Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
+     &                           * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
+     &                     * gg(i) / ( wg * ds ) / MHp * lufrac(i,C,R)
+                       ag_tot = ag_tot + lufrac(i,C,R)
+                 End Select
+               End If
+               If ( Land_Scheme .Eq. 'MODIS' ) Then
+                 Select Case(i)
+                    Case(12,14)
+                       kvg = kvg + gg(i) / ( wg * ds ) * lufrac(i,C,R)
+                       Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
+     &                           * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) ) )
+     &                     * gg(i) / ( wg * ds ) / MHp * lufrac(i,C,R)
+                       ag_tot = ag_tot + lufrac(i,C,R)
+                 End Select
+               End If
             End If
          End Do
          If ( ag_tot .Gt. 0.0 ) Then

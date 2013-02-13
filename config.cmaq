@@ -101,5 +101,5 @@
        setenv MPI_INC $M3LIB/mpich/include
 
 #> set executable id
- setenv EXEC_ID ${bld_os}_${system}${compiler}
+ setenv EXEC_ID ${bld_os}${system}${compiler}
  unset echo

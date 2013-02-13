@@ -59,9 +59,9 @@
 
 #> user choices: base working directory, application string
 #set Base = $cwd
- set Base = /home/ezv/cctm/v5.0.1
+ set Base = /home/ezv/cctm/Dev/
  set APPL  = v5.0.1_cb05tucl
- set MODEL = CCTM_${APPL}_$EXEC_ID
+ set MODEL = CCTM_${APPL}_${EXEC_ID}
  set CFG   = cfg.$MODEL
 
 #set Local   # do NOT copy the source files into the BLD directory -
@@ -139,7 +139,7 @@
 #set ModGas    = gas/smvgear
 #set ModGas    = gas/ros3
 #set ModGas    = gas/ebi_cb05cl
- set ModGas    = gas/ebi_cb05tucl
+set ModGas    = gas/ebi_cb05tucl
 #set ModGas    = gas/ebi_cb05tump
 #set ModGas    = gas/ebi_saprc99
 #set ModGas    = gas/ebi_saprc07tb

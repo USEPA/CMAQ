@@ -137,6 +137,7 @@ C                          (David Wong)
 C           7 Jun 2012  Allow read of C-staggered (UWINDC and VWINDC) wind and B-staggered 
 C                       (UWIND and VWIND) from MET_DOT_3D to maintain compatibility with
 C                       current and previous versions of MCIP (J. Bash)
+C          12 Sep 2012  Added code for NLCD40 land use classification (D. Schwede)
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
@@ -340,7 +341,7 @@ C For Mosaic with Ammonia bi-directional flux
       REAL                      :: soit2     ( ncols,nrows ) ! soil temperature in top m [K]
       REAL                      :: qv        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
       REAL                      :: pres      ( ncols,nrows ) ! layer 1 pressure [Pa]
-      REAL                      :: zh        ( ncols,nrows ) ! layer 1 water vapor mix rat [kg/kg]
+      REAL                      :: zh        ( ncols,nrows ) ! mid-layer height above ground [m]
       REAL                      :: moli      ( ncols,nrows ) ! inverse of Monin-Obukhov length [m]
       REAL                      :: ta        ( ncols,nrows ) ! layer 1 temperature [K]      
       REAL                      :: uwind     ( ncols+1,nrows+1 ) ! dot grid horizontal wind            
@@ -975,7 +976,6 @@ C-------------------------------------------------------------------------------
             END DO
 
             IF ( ( NINT( lwmask( c,r ) ) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
-!              Write(logdev,*) 'Before call calc_lai'
 
                CALL Calc_Lai( jday, jtime, soit2cr, lufraccr, laicr, zrufcr,
      &                        laijcr, z0jcr, vegjcr, logdev, c, r )
@@ -1055,9 +1055,17 @@ C-------------------------------------------------------------------------------
                                     wfccr = wfc(soilcat)
                               END SELECT
                            END IF
-                           IF ( Land_Scheme .EQ. 'NLCD-MODIS' ) THEN              
+                           IF ( Land_Scheme .EQ. 'NLCD50' ) THEN              
                               SELECT CASE(j)
                                  CASE(1,31,48) ! water
+                                    wfccr = -999.
+                                 CASE DEFAULT ! Land
+                                    wfccr = wfc(soilcat)
+                              END SELECT
+                           END IF
+                           IF ( Land_Scheme .EQ. 'NLCD40' ) THEN              
+                              SELECT CASE(j)
+                                 CASE(17,21) ! water
                                     wfccr = -999.
                                  CASE DEFAULT ! Land
                                     wfccr = wfc(soilcat)
@@ -1338,8 +1346,10 @@ C-------------------------------------------------------------------------------
                      DO j = 1, n_lufraC
                         IF ( lufraccr( j ) .GT. 0.0 ) THEN
                            IF ( (Land_scheme .EQ. 'USGS24' .AND. j .NE. 16) .OR. 
-     &                          (Land_scheme .EQ. 'NLCD-MODIS' .AND. j .NE. 1 .AND.
+     &                          (Land_scheme .EQ. 'NLCD50' .AND. j .NE. 1 .AND.
      &                           j .NE. 31 .AND. j .NE. 48) .OR. 
+     &                          (Land_scheme .EQ. 'NLCD40' .AND. j .NE. 17 .AND.
+     &                           j .NE. 21) .OR.  
      &                          (Land_scheme .EQ. 'MODIS' .AND. j .NE. 17 )) THEN
                               IF ( laij( j,c,r ) .LT. 0.00001 ) THEN
                                  rstomj( j,l,c,r ) = rsmax
@@ -1407,8 +1417,10 @@ C-------------------------------------------------------------------------------
 !                          IF ( j .eq. iwat ) THEN ! water -- code duplicate from above as it
                                               ! would only have been calculated above if it is a water cell
                            IF ( ( Land_scheme .EQ. 'USGS24' .AND. j .EQ. 16 ) .OR.
-     &                          ( Land_scheme .EQ. 'NLCD-MODIS' .AND. j .EQ. 1 .OR.
+     &                          ( Land_scheme .EQ. 'NLCD50' .AND. j .EQ. 1 .OR.
      &                            j .EQ. 31 .OR. j .EQ. 48 ) .OR.
+     &                          ( Land_scheme .EQ. 'NLCD40' .AND. j .EQ. 17 .OR.
+     &                            j .EQ. 21) .OR.
      &                          ( Land_scheme .EQ. 'MODIS' .AND. j .EQ. 17 ) ) THEN   ! water
                               ctemp2 = temp2p0cr - stdtemp
                               lv     = lv0 - dlvdt * ctemp2
@@ -1482,8 +1494,10 @@ C-------------------------------------------------------------------------------
                         END IF
                         IF ( fst ) THEN
                            IF ( (( Land_scheme .EQ. 'USGS24' .AND. j .EQ. 16 )   .OR.
-     &                           ( Land_scheme .EQ. 'NLCD-MODIS' .AND. j .EQ. 1  .OR.
+     &                           ( Land_scheme .EQ. 'NLCD50' .AND. j .EQ. 1      .OR.
      &                             j .EQ. 31 .OR. j .EQ. 48 )                    .OR.
+     &                           ( Land_scheme .EQ. 'NLCD40' .AND. j .EQ. 17     .OR.
+     &                            j .EQ. 21) .OR.
      &                           ( Land_scheme .EQ. 'MODIS' .AND. j .EQ. 17 ) )  .OR. 
      &                           ( lwmask( c,r ) .EQ. 0.0  ) ) THEN                         ! water
                               vd_fst_gasj( j,l,c,r) = 0.0
@@ -1518,7 +1532,7 @@ C--------------------------------------------------------------------------
                         CALL Get_Flux( tempgcr,rh_air,cnh3,rwetsfc,rgw,wg(c,r),w2(c,r),
      &                                 sltyp(c,r),dif0(l),r,c,l,tpvd,lnh3,
      &                                 f_stom,f_cut,f_soil,f_emis,f_dep,f_ag,f_nat, f_wat,
-     &                                 dt(2) )
+     &                                 dt(2), jtime )
                         pvd( n,c,r ) = tpvd
                         depvel_gas( n,c,r ) = lnh3
                         
