@@ -599,20 +599,20 @@ C-------------------------------------------------------------------------------
          CALL subhfile ( met_cro_2d, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
          
 ! Used in the Hg bidi model
-         IF ( .NOT. ALLOCATED ( lufrac ) ) THEN
-            ALLOCATE ( lufrac( n_lufrac,my_ncols,my_nrows ) )
-         END IF
-         DO l = 1, n_lufrac
-            WRITE( vname,'( "LUFRAC_",I2.2 )' ) l
-!              IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
-!    &                             strtrow, endrow, 1, 1, jdate, jtime,
-               IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
-     &                             strtrow_g, endrow_g, 1, 1, jdate, jtime,
-     &                             lufrac( l,:,: )) ) THEN
-               WRITE( xmsg,9001 ) vname, grid_cro_2d
-               GO TO 1001
+         IF ( abflux .OR. mosaic .or. hgbidi ) THEN  
+            IF ( .NOT. ALLOCATED ( lufrac ) ) THEN
+               ALLOCATE ( lufrac( n_lufrac,my_ncols,my_nrows ) )
             END IF
-         END DO
+             DO l = 1, n_lufrac
+               WRITE( vname,'( "LUFRAC_",I2.2 )' ) l
+                  IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol_g, endcol_g,
+     &                                strtrow_g, endrow_g, 1, 1, jdate, jtime,
+     &                                lufrac( l,:,: )) ) THEN
+                  WRITE( xmsg,9001 ) vname, grid_cro_2d
+                  GO TO 1001
+               END IF
+            END DO
+         END IF	    
              
          IF ( abflux ) THEN         
             CALL Init_ABFlux( jdate, jtime )
@@ -852,16 +852,7 @@ C-------------------------------------------------------------------------------
      &                strtrow, endrow, 1, 1, jdate, jtime, moli) ) THEN
              WRITE( xmsg,9001 ) vname, met_cro_2d
              GO TO 1001
-         END IF             
-
-         IF( HGBIDI ) THEN
-           vname = 'SOIT1'
-           IF ( .NOT. interpx (MET_CRO_2D, vname, pname, strtcol,  endcol,
-     &                strtrow, endrow, 1, 1, jdate, jtime, ts1cm) ) THEN
-              WRITE( XMSG,9001 ) vname, MET_CRO_2D
-              GO TO 1001
-           END IF
-         END IF
+         END IF                      
 
          vname = 'SOIT2'
          IF ( .NOT. interpx( met_cro_2d, vname, pname, strtcol,  endcol,
@@ -870,6 +861,15 @@ C-------------------------------------------------------------------------------
            GO TO 1001
          END IF   
 
+      END IF
+      
+      IF( HGBIDI ) THEN
+        vname = 'SOIT1'
+        IF ( .NOT. interpx (MET_CRO_2D, vname, pname, strtcol,  endcol,
+     &             strtrow, endrow, 1, 1, jdate, jtime, ts1cm) ) THEN
+           WRITE( XMSG,9001 ) vname, MET_CRO_2D
+           GO TO 1001
+        END IF
       END IF
 C-------------------------------------------------------------------------------
 C Read fields from met_cro_3d.
@@ -1579,6 +1579,7 @@ C--------------------------------------------------------------------------
                         cmp(8,c,r) = f_wat
                         
                      ELSE   ! water
+		        cmp(2,c,r) = depvel_gas( n,c,r ) * cnh3
                         cmp(8,c,r) = depvel_gas( n,c,r ) * cnh3
                      END IF
                   END IF   ! 'NH3'

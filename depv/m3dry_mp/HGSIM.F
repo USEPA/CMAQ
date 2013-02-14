@@ -53,6 +53,7 @@ C                           Hg bidirectional exchange is now a run time option.
 C     17 Jan  2012  J. Bash Removed the dependence on the LAPACK libraries
 C                           and found analytical solutions to all the Hg
 C                           exchange equations.
+C     14 Feb 2013   J. Bash Added support for the NLCD 40 (2006) land use data
 C
 C  References:
 C
@@ -191,13 +192,24 @@ C--------------------------------------------------------------------------
                      fevgrn(c,r) = lufrac(1,c,r)+lufrac(2,c,r)+0.5*lufrac(5,c,r)
                   END DO
                END DO
-            CASE( 'NLCD-MODIS' )
+             CASE( 'NLCD40' )
                ALLOCATE (  Hglu_fac( n_lufrac ) )
-               Hglu_fac = HGLU_FAC_NLCD
+               Hglu_fac = HGLU_FAC_NLCD40
+               DO C = 1, MY_NCOLS
+                   DO R = 1, MY_NROWS
+                      fevgrn(c,r) = lufrac(1,c,r) + lufrac(2,c,r) +
+     &                              0.5*lufrac(5,c,r) + lufrac(29,c,r) +
+     &                              0.5*lufrac(30,c,r)
+                  END DO
+               END DO
+	    CASE( 'NLCD50' )
+               ALLOCATE (  Hglu_fac( n_lufrac ) )
+               Hglu_fac = HGLU_FAC_NLCD50
                DO C = 1, MY_NCOLS
                    DO R = 1, MY_NROWS
                       fevgrn(c,r) = lufrac(10,c,r) + 0.5*lufrac(11,c,r) +
-     &                              lufrac(32,c,r) + 0.5*lufrac(36,c,r)
+     &                              lufrac(32,c,r) + lufrac(32,c,r) + 
+     &                              0.5*lufrac(36,c,r)
                   END DO
                END DO
             CASE DEFAULT

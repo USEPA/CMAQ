@@ -599,10 +599,6 @@ C-------------------------------------------------------------------------------
          End If
          ldry = 0.05*(EXP((1.0-w5cm/wsat(ist))**5)-1.0)/1.718
          rsoil2 = ldry / dp
-!	 if(int(jtime) .eq. (int(jtime/10000)*10000)) Then
-	    Write(Logdev,*) '1cm',rsoil1,ist, wg_ir
-	    Write(Logdev,*) '5cm',rsoil2,ist, w5cm
-!	 Endif
          
          If ( Land_Scheme .Eq. 'USGS24' ) Then
             agfrac  = lufrac(  2,Col,Row ) +      lufrac(  3,Col,Row ) + 
@@ -670,7 +666,7 @@ C-------------------------------------------------------------------------------
                      Case(2:4) ! Ag                
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir),2.0e5)
                         cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm),2.0e5)                     
-			      cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
      &                               1.0e4*12.3+20.3))    
                      Case(5:6) ! Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir)*0.67+0.33*20.0/wg_ir,2.0e5)
@@ -688,10 +684,7 @@ C-------------------------------------------------------------------------------
                      Case(1:2,31,46,48:50) ! water, ice or snow
                         cnh3g1 = 0.0
                         cnh3g2 = 0.0
-                     Case(19:20) ! U.S. Ag
-!                       write(logdev,*) 'frac_ir',frac_ir(Col,Row) !job debugging                
-!                       write(logdev,*) 'Gamma1',gamma1(Col,Row) !job debugging                
-!                       write(logdev,*) 'wg_ir',wg_ir !job debugging                                        
+                     Case(19:20) ! U.S. Ag                                     
                         cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
                         cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
 			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
@@ -717,18 +710,21 @@ C-------------------------------------------------------------------------------
                      Case(15,17:22) ! water, ice or snow
                         cnh3g1 = 0.0
                         cnh3g2 = 0.0
-                     Case(37:38) ! U.S. Ag
-!                       write(logdev,*) 'frac_ir',frac_ir(Col,Row) !job debugging                
-!                       write(logdev,*) 'Gamma1',gamma1(Col,Row) !job debugging                
-!                       write(logdev,*) 'wg_ir',wg_ir !job debugging                                        
+                     Case(37:38) ! U.S. Ag		        
                         cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
                         cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
+     &                               w5cm*14.0*0.05*1.0e4*12.3+20.3))
                      Case(12)   ! Canada Ag
                         cnh3g1 = Min(C_gam/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+     &                               1.0e4*12.3+20.3))
                      Case(14) ! Canada Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(C_gam*0.67/wg_ir+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam*0.67/w5cm+0.33*20.0/w5cm,2.0e5)
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
+     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(20.0/w5cm,2.0e5)
@@ -818,6 +814,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(16) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(24) ! no veg
 !> Zero out the compensation points for deposition
@@ -932,6 +929,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(1,31,48) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(2,8,16,17,49:50) ! no veg
 !> Zero out the compensation points for deposition
@@ -1046,6 +1044,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(17,21) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(18:20,22,35,36) ! no veg
 !> Zero out the compensation points for deposition
@@ -1160,6 +1159,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(17) ! water
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(15) ! no veg
 !> Zero out the compensation points for deposition
