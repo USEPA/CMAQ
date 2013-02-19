@@ -558,7 +558,7 @@ C     Acid related
       Real( 8 ), Parameter :: mwt_acid( n_acids ) = (/ 1.0d0, 97.06d0 /) ! molecular weights of acids
 
 C     Move these to hlconst in future
-      Real( 8 ), Parameter :: Heff(2) = (/ 1.9d7, 1.2d5 /) ! Henry's law coeff for IEPOX (Chan et al.) and IMAE (HenryWin)
+      Real( 8 ) :: Heff(2)  ! Henry's law coeff for IEPOX and IMAE (HenryWin)
 
 C     Diagnostic
       Character (16 ), Parameter :: pname = 'HETCHEM'
@@ -575,6 +575,9 @@ C *** Local Variables
       Real( 8 ) :: kchem, kparticle(2), kchemos(2), kchemon(2), kchemtet(2) ! intermediate particle phase rxn rates, indicies for IEPOX and IMAE 
       Real( 8 ) :: gammaisop(2)        ! temporary value for IEPOX (1) and IMAE (2) gammas
       Character ( 80 ) :: xmsg         ! error message
+
+C *** External functions
+      Real, External :: HLCONST        ! Henry's Law constants (in cloud module)
 
 C-----------------------------------------------------------------------
 
@@ -676,6 +679,10 @@ C        Store information with speciation for IMAE
 C *** Calculate gammas for IEPOX and IMAE
       idx(1) = IEPOX_idx
       idx(2) = IMAE_idx
+
+C *** Henry's Law coefficients
+      Heff( 1 ) = dble(HLCONST( 'IEPOX', airtemp, .False., 0 ))
+      Heff( 2 ) = dble(HLCONST( 'IMAE',  airtemp, .False., 0 ))
 
 C     Loop over precursor species and calculate gamma
 C     (see Hanson et al. 1994 JGR Eqn (2) for details)

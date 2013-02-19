@@ -1445,6 +1445,18 @@ C *** Set flags to account for mass conservation violations in ISRP3F
 C *** Save H+ concentration information in microgram/m3 for consistency
       EQLBHIJ = AERLIQ(1) * 1.0d6  
 
+C     debug
+      IF (EQLBHIJ .lt. 0.0 ) THEN
+         print*,'Negative HPLUS from isorropia'
+         print*,'WI    ', WI
+         print*,'RHI   ', RHI
+         print*,'TEMPI ',TEMPI
+         print*,'CNTRL ',CNTRL
+         print*,'WT    ',WT
+         print*,'AERLIQ',AERLIQ
+         print*,'SCASI ',SCASI
+      endif
+
 C *** Update gas-phase concentrations
       PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
       PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
@@ -1655,6 +1667,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
       END DO    ! end fine mode mass transfer calculations
 
 C *** Divide H+ between two modes using charge balance HPLUS as proxy
+C     Charge balance is problematic, just use I+J mode
       EQLBHJ = EQLBHIJ !* HPLUS( 2 ) / ( HPLUS( 1 ) + HPLUS ( 2 ) )
 
 C *** Update the third moments, geometric mean diameters, geometric 

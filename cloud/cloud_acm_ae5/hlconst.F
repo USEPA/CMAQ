@@ -66,6 +66,7 @@ C  Y.Xie      6/11/10  added Henry's Law constants for 126 to 130 for
 C                       isoprene chemistry in SAPRC07               
 C  W.Hutzell  08/16/12  updated IOAPI and Henry Constant names to V5.01
 C                       standards
+C  H.Pye      02/05/13  added Henry's Law 131-132 for IEPOX and IMAE
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -76,7 +77,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 130     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 132     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -271,7 +272,9 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(127), A(127), E(127) / 'HYDROXY_PEROXIDE', 8.3E+04,  7.4E+03 /  ! using value for H2O2
       DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.0E+03,  0       /  ! Kames and Schurath (1992)
       DATA SUBNAME(129), A(129), E(129) / 'HACET           ', 2.93E+03, 0       /  ! Spaulding et al. (2002)
-      DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5200   /   ! Staudinger and Roberts (1996) 
+      DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5200    /   ! Staudinger and Roberts (1996) 
+      DATA SUBNAME(131), A(131), E(131) / 'IEPOX           ', 2.7E+06,  0       /  ! Pye et al. in prep, compare to Chan et al. 2010 ES&T
+      DATA SUBNAME(132), A(132), E(132) / 'IMAE            ', 1.2E+05,  0       /  ! Pye et al. in prep
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
