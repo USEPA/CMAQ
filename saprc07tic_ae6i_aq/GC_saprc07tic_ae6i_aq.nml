@@ -184,11 +184,11 @@ TYPE_MATRIX =
 'MVKOO:119.1:::::::::::Yes:::Yes',
 'MACROO:119.1:::::::::::Yes:::Yes',
 'PYRUACD:88.1:::::VD_HNO3:1.0:PYRUVIC_ACID    :1.0:::Yes:Yes:Yes:Yes',
-'IEPOX:118.13:::::VD_OP:1.5:HYDROXY_PEROXIDE:1.0:IEPOX::Yes:Yes:Yes:Yes',
+'IEPOX:118.13:::::VD_OP:1.5:IEPOX:1.0:IEPOX::Yes:Yes:Yes:Yes',
 'IEPOXOO:149.12:::::::::::Yes:::Yes',
 'IMACO3:101.08:::::::::::Yes:::Yes',
 'IMPAA:102.08:::::VD_PAA:1.0:PEROXYACETIC_ACI:1.0::PAA:Yes:Yes:Yes:Yes',
 'IMAPAN:147.09:::::VD_PAN:1.0:MPAN:1.0:::Yes:Yes:Yes:Yes',
-'IMAE:102.0:::::VD_ORA:1.0:PROPANOIC_ACID:1.0:IMAE::Yes:Yes:Yes:Yes',
+'IMAE:102.0:::::VD_ORA:1.0:IMAE:1.0:IMAE::Yes:Yes:Yes:Yes',
 'IHMML:102.0:::::VD_ORA:1.0:PROPANOIC_ACID:1.0:IHMML::Yes:Yes:Yes:Yes'
 /
