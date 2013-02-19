@@ -39,24 +39,15 @@ NTEMP =    6
 ! equivalent radius of 10 micrometers. 
 ! Note: Cloud extinction/LWC is in [1/m] over [g/m **3] where LWC is in g/m**3
 ! 
-! Complex refractive indices for aerosol components are based on 
-! 1) Hess, M. P. Koepke, and I. Schult, Optical properties of aerosols and
-! clouds: The software package OPAC, Bulletin of the American Meteorological
-! Society, Vol 79, No 5, pp 831 - 844, May 1998. Available at
-! www.lrz-muenchen.de/~uh234an/www/radaer/opac.htm
-! 2) Segelstein, D., 1981: The Complex Refractive Index of Water, M.S. Thesis,
-! University of Missouri--Kansas City, MO
-N_INLINE_BAND =    7, 
-NAERO_REFRACT =    5, 
-NAMES_REFRACT_INDX = WATER, SOLUTE, DUST, SEASALT, SOOT
-! I, START_WL_BIN(nm), EFFECT_WL_BIN_(nm), END_WL_BIN_(nm), solar_photons_(cm-2*s-1), CLD_EXT/LWC_(m2/g), CLD_ASYM_FACT, CLD_COALBEDO, AE_WATER_REAL, AE_WATER_IMAG, AE_SOLUTE_REAL, AE_SOLUTE_IMAG, AE_DUST_REAL, AE_DUST_IMAG, AE_SEASALT_REAL, AE_SEASALT_IMAG, AE_SOOT_REAL, AE_SOOT_IMAG
-  1,  291.000,  294.590,  298.300,   5.8828E+14,    0.154,    0.868,   6.9921E-06,    1.373,   4.4522E-09,    1.530,   1.0374E-02,    1.530,   1.0374E-02,    1.510,   2.3237E-06,    1.727,   4.6784E-01
-  2,  298.300,  303.151,  307.500,   7.6354E+14,    0.155,    0.869,   6.4844E-06,    1.370,   3.9350E-09,    1.530,   7.8622E-03,    1.530,   8.0609E-03,    1.510,   1.8973E-06,    1.740,   4.6961E-01
-  3,  307.500,  310.007,  312.500,   5.0412E+14,    0.156,    0.869,   6.0792E-06,    1.368,   3.5394E-09,    1.530,   7.3992E-03,    1.530,   8.0000E-03,    1.510,   1.6643E-06,    1.742,   4.6900E-01
-  4,  312.500,  316.434,  320.300,   8.9628E+14,    0.156,    0.869,   5.6397E-06,    1.366,   3.2873E-09,    1.530,   7.0130E-03,    1.530,   8.0000E-03,    1.510,   1.4486E-06,    1.743,   4.6835E-01
-  5,  320.300,  333.076,  345.000,   3.8537E+15,    0.156,    0.868,   4.2764E-06,    1.362,   2.9125E-09,    1.530,   6.0069E-03,    1.530,   8.0000E-03,    1.510,   8.8650E-07,    1.747,   4.6668E-01
-  6,  345.000,  381.997,  412.500,   1.5457E+16,    0.155,    0.866,   1.4743E-06,    1.353,   1.8931E-09,    1.530,   5.0081E-03,    1.530,   8.0000E-03,    1.504,   1.4358E-07,    1.750,   4.6170E-01
-  7,  412.500,  607.723,  850.000,   2.1307E+17,    0.157,    0.862,   6.7391E-06,    1.333,   5.2523E-08,    1.528,   7.0012E-03,    1.528,   8.0000E-03,    1.492,   1.5223E-06,    1.750,   4.3813E-01
+N_INLINE_BAND =    7
+! I, START_WL_BIN(nm), EFFECT_WL_BIN_(nm), END_WL_BIN_(nm), solar_photons_(cm-2*s-1), CLD_EXT/LWC_(m2/g), CLD_ASYM_FACT, CLD_COALBEDO, 
+  1,  291.000,  294.590,  298.300,   5.8828E+14,    0.154,    0.868,   6.9921E-06, 
+  2,  298.300,  303.151,  307.500,   7.6354E+14,    0.155,    0.869,   6.4844E-06, 
+  3,  307.500,  310.007,  312.500,   5.0412E+14,    0.156,    0.869,   6.0792E-06, 
+  4,  312.500,  316.434,  320.300,   8.9628E+14,    0.156,    0.869,   5.6397E-06, 
+  5,  320.300,  333.076,  345.000,   3.8537E+15,    0.156,    0.868,   4.2764E-06, 
+  6,  345.000,  381.997,  412.500,   1.5457E+16,    0.155,    0.866,   1.4743E-06, 
+  7,  412.500,  607.723,  850.000,   2.1307E+17,    0.157,    0.862,   6.7391E-06, 
 !...  CS  = absorption cross sections averaged over UCI Solar Flux
 !...  QY  = quantum yields averaged over UCI Solar Flux
 !...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
