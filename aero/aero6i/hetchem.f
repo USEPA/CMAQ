@@ -25,15 +25,17 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HETCHEM( GAMMAN2O5, DT, 
+      SUBROUTINE HETCHEM( INORG, GAMMAN2O5, DT, 
      &                    EQLBH, KPARTIEPOX, GAMMAIEPOX, GAMMAIMAE )
 
 c Calculates the heterogeneous conversion of N2O5 to HNO3 by following
 c the Model Description section by Pleim et al. (1995).
+c For the INORG=T call, perform inorganic heterogenous chemistry
+c For the INORG=F call, perform organic heterogeneous chemistry
 
 c Key Subroutines Called: none
 c
-c Key Functions Called: N2O5PROB
+c Key Functions Called: N2O5PROB, CALCISOPGAMMAS
 c
 c Revision History:
 c    First version was coded in November 2007 by Dr. Prakash Bhave
@@ -88,9 +90,16 @@ c              met_data) in lieu of CBLK array and AERO_INFO module
 c
 c SH  03/10/11 Renamed met_data to aeromet_data
 c
-c HOTP 01/15/2013 Since hetchem is now called after volinorg, assume
+c HOTP 01/15/2013 Hetchem now computes inorganic and organic heterogeneous
+c              chemistry. Since the organic calculations require information
+c              from isorropia, hetchem for those species should be called
+c              after volinorg. Inorganic het rxns (INORG=T) make only gas-phase
+c              species that must be partitioned in isoropia. Use
+c              a T/F flag (INORG) so that hetchem can be called before and after
+c              isorropia. For hetchem called after volinorg, assume
 c              moments are already wet and remove adjustments based
-c              on a dry assumption
+c              on a dry assumption.
+c
 c HOTP 01/18/2013 Uptake IEPOX and IMAE onto accumulation mode aerosol
 c              -renamed GAMMA for N2O5 to GAMMAN2O5
 c              
@@ -117,6 +126,8 @@ c   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
 c      B. Vogel, A comparison of CMAQ HONO predictions with observations
 c      from the Northeast Oxidant and Particle Study, Atmospheric
 c      Environment, 2008, in press.
+c
+c   5. Pye et al. in prep, SOA from later generation isoprene products 
 C-----------------------------------------------------------------------
 
       USE AERO_DATA
@@ -126,6 +137,7 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
 C *** Arguments
+      LOGICAL, INTENT( IN  ) :: INORG        ! T for inorganic, F for organic
       REAL,    INTENT( OUT ) :: GAMMAN2O5    ! N2O5->NO3 rxn probability
       REAL,    INTENT( IN )  :: DT           ! Synchronization time step
       REAL( 8 ), INTENT( IN )  :: EQLBH      ! J-mode H+ [ug/m**3]
@@ -151,9 +163,14 @@ C *** chemical species concentrations
       REAL      GIMAE    ! gas-phase IMAE [ug/m3]
       REAL      GIHMML   ! gas-phase IHMML [ug/m3]
 
+C *** 2nd and 3rd moments before equilibration (without H2O)
+      REAL      OLD_M3_I, OLD_M3_J
+      REAL      OLD_M2_I, OLD_M2_J
+
 C *** variables for N2O5 + H2O -> 2 HNO3 conversion
       REAL      WET_M3_I, WET_M3_J   ! M3 before equilibration w.H2O
       REAL      WET_M2_I, WET_M2_J   ! M2 before equilibration w.H2O
+      REAL      DG_AT_WET, DG_AC_WET ! Initial median diameter w.H2O
       REAL      DE_AT_WET, DE_AC_WET ! Initial effective diameter w.H2O [m]
       REAL      XXF_AT, XXF_AC       ! modal factors to calculate KN2O5
       REAL      CBAR       ! molecular velocity (m/s)
@@ -204,6 +221,9 @@ C *** compute only on first pass
         DFHNO3 = precursor_mw( HNO3_IDX ) / 1.0E-6
       End If   ! first time condition
 
+C *** Inorganic heterogeneous reactions
+      IF ( INORG ) THEN
+
 C *** fetch vapor-phase concentrations [ug/m3]
       GHNO3 = precursor_conc( HNO3_IDX )
       GN2O5 = precursor_conc( N2O5_IDX )
@@ -211,6 +231,15 @@ C *** fetch vapor-phase concentrations [ug/m3]
       GHONO = precursor_conc( HONO_IDX )
 
 C *** set up variables needed for calculating KN2O5
+
+C *** capture values of "dry" 2nd and 3rd moments before equilibration
+C     the folowing code assumes that GETPAR has been called with
+C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
+C     been adjusted for the new SOA.
+      OLD_M3_I = moment3_conc( 1 )
+      OLD_M3_J = moment3_conc( 2 )
+      OLD_M2_I = moment2_conc( 1 )
+      OLD_M2_J = moment2_conc( 2 )
 
 C *** compute GAMMA as function of TEMP, RH, & particle composition
 C     Note: the last argument to this function can be changed to use
@@ -226,18 +255,24 @@ C *** correct molecular diffusivity for ambient conditions
      &          * ( ( AIRTEMP / STDTEMP ) ** 1.75 )
      &          * ( STDATMPA / AIRPRES )
 
-C *** Assume moments are wet (VOLINORG requires them that way)
-C     Get 2nd and 3rd moments
-      WET_M2_I = moment2_conc( 1 )
-      WET_M2_J = moment2_conc( 2 )
+C *** estimate the "wet third moments" by adding aerosol water
+C      Note: this is the H2O concentration from previous time step
+      WET_M3_I = OLD_M3_I + H2OFAC * aerospc_conc( AH2O_IDX,1 )
+      WET_M3_J = OLD_M3_J + H2OFAC * aerospc_conc( AH2O_IDX,2 )
 
-      WET_M3_I = moment3_conc( 1 )
-      WET_M3_J = moment3_conc( 2 )
+C *** calculate "wet second moment" assuming that H2O does not
+C     affect the geometric standard deviation
+      WET_M2_I = OLD_M2_I * ( WET_M3_I / OLD_M3_I ) ** ( 2.0 / 3.0 )
+      WET_M2_J = OLD_M2_J * ( WET_M3_J / OLD_M3_J ) ** ( 2.0 / 3.0 )
 
-C *** Calculate effective diameters using Eq 3 of Pleim et al (1995)
-      DE_AT_WET = aeromode_diam( 1 ) * EXP( 1.5
+C *** calculate "wet" geometric mean (same as median) diameters
+      DG_AT_WET = aeromode_diam( 1 ) * SQRT( WET_M2_I / OLD_M2_I )
+      DG_AC_WET = aeromode_diam( 2 ) * SQRT( WET_M2_J / OLD_M2_J )
+
+C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
+      DE_AT_WET = DG_AT_WET * EXP( 1.5
      &          * ( LOG( EXP( aeromode_sdev( 1 ) ) ) ** 2.0 ) )
-      DE_AC_WET = aeromode_diam( 2)  * EXP( 1.5
+      DE_AC_WET = DG_AC_WET * EXP( 1.5
      &          * ( LOG( EXP( aeromode_sdev( 2 ) ) ) ** 2.0 ) )
 
 C *** calculate pseudo-first order rate constant using Eq 2 of
@@ -289,7 +324,39 @@ C     Ensure that all species remain above the minimum concentration.
       precursor_conc( NO2_IDX )  = MAX( GNO2, CONMIN )
       precursor_conc( HONO_IDX ) = MAX( GHONO, CONMIN )
 
+C *** Zero out the organic outputs
+      KPARTIEPOX = 0d0 ! IEPOX particle phase rxn rate [1/s]
+      GAMMAIEPOX = 0d0 ! IEPOX uptake coeff []
+      GAMMAIMAE  = 0d0 ! IMAE uptake coeff []
+
 C*************************************
+C *** Organic heteterogeneous reaction
+C     Must be performed after the VOLINORG call such that H+ is
+C     available from isorropia
+      ELSE
+
+C *** correct molecular diffusivity for ambient conditions
+      DIFF_N2O5 = STD_DIFF_N2O5
+     &          * ( ( AIRTEMP / STDTEMP ) ** 1.75 )
+     &          * ( STDATMPA / AIRPRES )
+
+C *** Assume moments are wet (VOLINORG requires them that way)
+C     Get 2nd and 3rd moments
+      WET_M2_I = moment2_conc( 1 )
+      WET_M2_J = moment2_conc( 2 )
+
+      WET_M3_I = moment3_conc( 1 )
+      WET_M3_J = moment3_conc( 2 )
+
+C *** Calculate effective diameters using Eq 3 of Pleim et al (1995)
+      DE_AT_WET = aeromode_diam( 1 ) * EXP( 1.5
+     &          * ( LOG( EXP( aeromode_sdev( 1 ) ) ) ** 2.0 ) )
+      DE_AC_WET = aeromode_diam( 2)  * EXP( 1.5
+     &          * ( LOG( EXP( aeromode_sdev( 2 ) ) ) ** 2.0 ) )
+
+C *** calculate aerosol surface area
+      TOTSURFA = ( WET_M2_I + WET_M2_J ) * PI
+
 C *** PERFORM ISOPRENE PRODUCT UPTAKE
 C *** Fetch gas-phase concentrations
       GIEPOX = precursor_conc( IEPOX_IDX )
@@ -479,6 +546,11 @@ C *** Update 2nd Moment
       new_m2 = old_m2 * ( new_m3 / old_m3 ) ** ( 2.0 / 3.0 )
       moment2_conc( 2 ) = new_m2
 
+C *** Zero out inorganic outputs
+      GAMMAN2O5 = 0.0
+
+C     End of organic calculations
+      ENDIF
 C*************************************
 
       RETURN
@@ -540,8 +612,8 @@ C *** Arguments
       Real( 8 ), Intent( OUT ) :: GAMMAIHMML ! Uptake coeff for HMML []
       Real( 8 ), Intent( OUT ) :: KPARTIEPOX ! Particle phase reaction rate for IEPOX [1/s]
       Real( 8 ), Intent( OUT ) :: fTET(2), fOS(2), fON(2) 
-                                  ! fraction of tetrol, organonitrate, organosulfate, and dimers []
-                                  ! dimers are remaining first value for IEPOX-derived, second for IMAE-derived
+                                  ! fraction of tetrol, organonitrate, organosulfate []
+                                  ! first value for IEPOX-derived, second for IMAE-derived
 C *** Parameters
 C     For gamma calculation
       Real( 8 ), Parameter :: alpha        = 0.02d0 ! accomodation coefficient from McNeill et al. 2012 []
@@ -557,8 +629,8 @@ C     Acid related
       Integer, Parameter   :: hso4acid_idx = 2 ! HSO4 acid index
       Real( 8 ), Parameter :: mwt_acid( n_acids ) = (/ 1.0d0, 97.06d0 /) ! molecular weights of acids
 
-C     Move these to hlconst in future
-      Real( 8 ) :: Heff(2)  ! Henry's law coeff for IEPOX and IMAE (HenryWin)
+C     Henry's law coeff for IEPOX (1) and IMAE (2) (HenryWin v 3.2)
+      Real( 8 ) :: Heff(2)  
 
 C     Diagnostic
       Character (16 ), Parameter :: pname = 'HETCHEM'

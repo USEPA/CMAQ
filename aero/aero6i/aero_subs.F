@@ -178,8 +178,10 @@ C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 
 C HOTP 01/15/2013 Updates for isoprene SOA from heterogenous uptake
 C       of IEPOX and IMAE. 
-C      -Move hetchem after volinorg to access isorropia info
-C      -Pass information to AERODIAM diagnotistic file
+C      -Add T/F flag to hetchem, T for inorganic, F for organic
+C      -Add hetchem after volinorg for organic het chem
+C        (uses isorropia info)
+C      -Pass information to AERODIAM diagnostic file
 
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
@@ -229,6 +231,7 @@ C *** local variables
       REAL         AMU        ! atmospheric dynamic viscosity [kg/m s]
       REAL         M2_OLD     ! second moment concentration excluding H2O
       REAL         M3_OLD     ! third moment concentration excluding H2O
+      REAL         TEMP       ! temporary variable when GAMMAN2O5 not returned from hetchem
 
       REAL( 8 ) :: CGR( N_MODE-1 ) ! Aitken & Accum. modes
 
@@ -276,6 +279,7 @@ C *** local variables
       INTEGER      N          ! loop counter
       LOGICAL      M3_WET_FLAG
       LOGICAL   :: LIMIT_Sg = .FALSE.
+      LOGICAL   :: INORG      ! T for inorganic hetchem, F for organic
 
       integer, save :: logdev 
       logical, save :: firstime = .true.
@@ -340,6 +344,14 @@ C *** POA Aging
 C     Increase primary NCOM concentration due to oxidative aging of POA.
       CALL POAAGE ( DT )
 
+C *** Heterogeneous Chemistry
+C     Update the N2O5 and HNO3 concentrations to account for
+C     heterogenous nitrate formation.
+      INORG = .TRUE.
+      EQLBHJ = 0d0 ! initialize, not used on this call (INORG = T)
+      CALL HETCHEM ( INORG, GAMMA_N2O5, DT, 
+     &               EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
+
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle
 C     production and a fully dynamic treatment of inorganic gas-to-
@@ -368,11 +380,10 @@ C     needed in subroutine VOLINORG
      &               DV_SO4, CGR, M3_WET_FLAG, EQLBHJ )
 
 C *** Heterogeneous Chemistry
-C     Update the N2O5 and HNO3 concentrations to account for
-C     heterogenous nitrate formation.
 C     Calculate IEPOX and IMAE derived aerosol and update concs and
 C     aerosol moment information, Pass diagnostic information
-      CALL HETCHEM ( GAMMA_N2O5, DT, 
+      INORG = .FALSE.
+      CALL HETCHEM ( INORG, TEMP, DT, 
      &               EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C *** Coagulation
@@ -845,7 +856,6 @@ C     mass partitioning between the modes
       LOGICAL HYBRID ! mass transfer option flag (mass transfer if .TRUE.)
       REAL( 8 ) :: DELT                 ! time step DT [s]
       REAL( 8 ) :: HPLUS( N_MODE )      ! scratch var for H+ [umol/m**3] from charge balance
-      REAL( 8 ) :: EQLBHIJ              ! H+ from isoropia calculation [ug/m**3=umol/m**3]
 
       REAL( 8 ), SAVE :: H2SO4RATM1     ! Mol. wt. ratio of SO4/H2SO4
 
@@ -1443,10 +1453,11 @@ C *** Set flags to account for mass conservation violations in ISRP3F
      &               AERSLD, SCASI, OTHER )
 
 C *** Save H+ concentration information in microgram/m3 for consistency
-      EQLBHIJ = AERLIQ(1) * 1.0d6  
+C     Assume J mode dominates I+J H+ concentration
+      EQLBHJ = AERLIQ(1) * 1.0d6  
 
 C     debug
-      IF (EQLBHIJ .lt. 0.0 ) THEN
+      IF (EQLBHJ .lt. 0.0 ) THEN
          print*,'Negative HPLUS from isorropia'
          print*,'WI    ', WI
          print*,'RHI   ', RHI
@@ -1466,7 +1477,7 @@ C *** Update gas-phase concentrations
       gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
       gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
  
-      EQLBHIJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
+      EQLBHJ =  HPLUS( 2 )  ! use charge balance if lacking isoropia info 
 #endif
 
 C *** Change in volatile inorganic PM concentration to achieve
@@ -1665,10 +1676,6 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
          END DO
 
       END DO    ! end fine mode mass transfer calculations
-
-C *** Divide H+ between two modes using charge balance HPLUS as proxy
-C     Charge balance is problematic, just use I+J mode
-      EQLBHJ = EQLBHIJ !* HPLUS( 2 ) / ( HPLUS( 1 ) + HPLUS ( 2 ) )
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
