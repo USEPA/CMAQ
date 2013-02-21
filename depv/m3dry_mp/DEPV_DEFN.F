@@ -443,6 +443,7 @@ C Mosaic method to get land-use specific stomatal flux
             END IF
             
             IF ( ABFLUX ) CALL INIT_BIDI( ABFLUX )
+            IF ( MOSAIC .OR. ABFLUX .OR. HGBIDI ) CALL INIT_LSM(JDATE, JTIME, LOGDEV)
             IF ( MOSAIC .OR. ABFLUX ) THEN
                CALL INIT_LSM( JDATE, JTIME, LOGDEV )
                CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
@@ -774,7 +775,8 @@ C Local variables:
                Use ABFlux_Mod  ! bidi NH3 exchange routines
                Use LSM_Mod     ! land surface model variables needed for mosaic and bidi
                Use Mosaic_Mod      ! contains mosaic routines
-               Use Bidi_Mod, Only: lufrac
+	       Use HGSIM
+               Use Bidi_Mod, Only: lufrac, HgBidi
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
                LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO, MOSAIC, FST

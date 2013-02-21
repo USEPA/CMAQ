@@ -103,7 +103,7 @@ C... Local:
             End If
             
          Endif
-         
+	 
          If( ABFLUX .AND. .NOT. HGBIDI ) Then
          
             N_TOT = NHx_TOT
@@ -124,7 +124,6 @@ C... Local:
             MEDIA_DESCR( 4 ) = 'Molar H+ in Soil layer 2'
                
          Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
-         
             N_TOT = HG_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
@@ -149,7 +148,6 @@ C... Local:
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
          Else If( ABFLUX .AND. HGBIDI ) Then
-         
             N_TOT = HG_TOT + NHx_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
@@ -185,7 +183,7 @@ C... Local:
             MEDIA_UNITS( 10 ) = 'mol/l' 
             MEDIA_DESCR( 10 ) = 'Molar H+ in Soil layer 2'
             
-         End If
+         End If	
          
          ! allocate the media array variable
          IF ( .NOT. ALLOCATED ( CMEDIA ) ) THEN
@@ -226,14 +224,6 @@ C--------------------------------------------------------------------------
          
          If( ABFLUX .AND. .NOT. HGBIDI) Then
 
-!            N_TOT = NHx_TOT
-!            N_Hg  = 0            
-!            ALLOCATE( MEDIA_NAMES( N_TOT ) )
-!            MEDIA_NAMES(1) = 'Gamma1         ' 
-!            MEDIA_NAMES(2) = 'Gamma2         '
-!            MEDIA_NAMES(3) = 'MHpsl1         '
-!            MEDIA_NAMES(4) = 'MHpsl2         '
-
             IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
 
                XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
@@ -246,7 +236,7 @@ C--------------------------------------------------------------------------
                TSTEP3D = TSTEP
                CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-               NVARS3D = NHx_TOT
+               NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
                NLAYS3D =     1
@@ -304,17 +294,7 @@ C--------------------------------------------------------------------------
                END DO              
             EndIf
             
-         Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
-         
-!            N_TOT = HG_TOT
-!            N_Hg  = HG_TOT
-!            ALLOCATE( MEDIA_NAMES( HG_TOT ) )
-!            MEDIA_NAMES(1) = 'DGM            ' ! Dissolved gaseous Hg
-!            MEDIA_NAMES(2) = 'DRM            '! Dissolved reactive Hg
-!            MEDIA_NAMES(3) = 'HGSOIL         '
-!            MEDIA_NAMES(4) = 'HGZ0           '
-!            MEDIA_NAMES(5) = 'HGMES          ' ! mesophyll Hg
-!            MEDIA_NAMES(6) = 'HGCUT          '! cuticular Hg        
+         Else If( .NOT. ABFLUX .AND. HGBIDI ) Then              
             
             IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
 
@@ -327,7 +307,7 @@ C--------------------------------------------------------------------------
                STIME3D = JTIME
                TSTEP3D = TSTEP
                CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
-               NVARS3D = HG_TOT
+               NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
                NLAYS3D =     1
@@ -350,7 +330,6 @@ C--------------------------------------------------------------------------
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
      &                     // 'HG concentrations and surface exchange algorithms'
 
-               NVARS3D = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC
                NLAYS3D = 1
 
                N = 0
@@ -384,22 +363,7 @@ C--------------------------------------------------------------------------
                END DO
             End If
             
-         Else If( ABFLUX .AND. HGBIDI ) Then
-         
-!            N_TOT = HG_TOT + NHx_TOT
-!            N_Hg  = HG_TOT
-!            ALLOCATE( MEDIA_NAMES( N_TOT ) )
-
-!            MEDIA_NAMES(1)  = 'DGM            ' ! Dissolved gaseous Hg
-!            MEDIA_NAMES(2)  = 'DRM            '! Dissolved reactive Hg
-!            MEDIA_NAMES(3)  = 'HGSOIL         '
-!            MEDIA_NAMES(4)  = 'HGZ0           '
-!            MEDIA_NAMES(5)  = 'HGMES          ' ! mesophyll Hg
-!            MEDIA_NAMES(6)  = 'HGCUT          '! cuticular Hg        
-!            MEDIA_NAMES(7)  = 'Gamma1         ' 
-!            MEDIA_NAMES(8)  = 'Gamma2         '
-!            MEDIA_NAMES(9)  = 'MHpsl1         '
-!            MEDIA_NAMES(10) = 'MHpsl2         '
+         Else If( ABFLUX .AND. HGBIDI ) Then         
             
             IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
 
@@ -412,7 +376,7 @@ C--------------------------------------------------------------------------
                STIME3D = JTIME
                TSTEP3D = TSTEP
                CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
-               NVARS3D = HG_TOT
+               NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
                NLAYS3D =     1
@@ -435,7 +399,6 @@ C--------------------------------------------------------------------------
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
      &                     // 'NH3 and HG concentrations and surface exchange algorithms'
 
-               NVARS3D = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC
                NLAYS3D = 1
 
                N = 0

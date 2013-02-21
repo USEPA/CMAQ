@@ -79,20 +79,20 @@ C-----------------------------------------------------------------------
 !    Shared variables
 
 !     Private variables used in this routine and
-      REAL, ALLOCATABLE,       PRIVATE :: HgLU_Fac(:)
-      Real, ALLOCATABLE, Save, Private :: fevgrn(:,:)  ! fraction of evergreen land use
+      REAL(8), ALLOCATABLE,       PRIVATE :: HgLU_Fac(:)
+      REAL(8), ALLOCATABLE, SAVE, PRIVATE :: fevgrn(:,:)  ! fraction of evergreen land use
 
-      REAL, PARAMETER, PRIVATE :: zsurf  = 1 ! ocean slab depth (m)
-      REAL, PARAMETER, PRIVATE :: ZG = 0.05
+      REAL(8), PARAMETER, PRIVATE :: zsurf  = 1d+0 ! ocean slab depth (m)
+      REAL(8), PARAMETER, PRIVATE :: ZG = 5d-2
 
       CHARACTER( 96 ), PRIVATE :: XMSG = ' '
       INTEGER, SAVE,PRIVATE :: LOGDEV
       Character( 80 ), Save, Private   :: LAND_SCHEME
 
 ! variable needed for analytical solutions of exchange equations
-      REAL, ALLOCATABLE, PRIVATE :: KO(:,:)
-      REAL, ALLOCATABLE, PRIVATE :: EIVAL(:)
-      REAL, ALLOCATABLE, PRIVATE :: VR(:,:)
+      REAL(8), ALLOCATABLE, PRIVATE :: KO(:,:)
+      REAL(8), ALLOCATABLE, PRIVATE :: EIVAL(:)
+      REAL(8), ALLOCATABLE, PRIVATE :: VR(:,:)
       REAL(8), PRIVATE :: ax     ! coefficients used of the  
       REAL(8), PRIVATE :: bx     ! quadratic and cubic equations
       REAL(8), PRIVATE :: cx     ! ATX and ASWX
@@ -116,8 +116,8 @@ C-----------------------------------------------------------------------
       INTEGER, PRIVATE :: i
       INTEGER, PRIVATE :: j
       
-      REAL, ALLOCATABLE, PRIVATE :: B( : )   ! Surface media concentration vector
-      REAL, ALLOCATABLE, PRIVATE :: NHS( : ) ! non-homogenious solution
+      REAL(8), ALLOCATABLE, PRIVATE :: B( : )   ! Surface media concentration vector
+      REAL(8), ALLOCATABLE, PRIVATE :: NHS( : ) ! non-homogenious solution
 
       INTEGER, SAVE, PRIVATE :: dt  ! internal model time step
 
@@ -129,8 +129,8 @@ C input/output parameters
 
       CHARACTER( 16 ), ALLOCATABLE, PRIVATE :: MEDIA_NAMES( : )
 
-      REAL, ALLOCATABLE, PRIVATE ::  WRMC( :,: ) ! media read/write buffer
-      REAL, ALLOCATABLE, PRIVATE :: MLAI( :,: ) ! used to track change in LAI
+      REAL(8), ALLOCATABLE, PRIVATE ::  WRMC( :,: ) ! media read/write buffer
+      REAL(8), ALLOCATABLE, PRIVATE :: MLAI( :,: ) ! used to track change in LAI
 
       CONTAINS
 
@@ -202,7 +202,7 @@ C--------------------------------------------------------------------------
      &                              0.5*lufrac(30,c,r)
                   END DO
                END DO
-	    CASE( 'NLCD50' )
+            CASE( 'NLCD50' )
                ALLOCATE (  Hglu_fac( n_lufrac ) )
                Hglu_fac = HGLU_FAC_NLCD50
                DO C = 1, MY_NCOLS
@@ -379,6 +379,7 @@ C Arguments passed to and from m3dry
          LOGICAL :: EV23 ! eigen values 1 and 3 are the same 
 
          M3MOLVOL = MOLVOL/1.0D3
+         
          If( INIT_LAI ) Then
             MLAI( c,r ) = lai
             flai = 1.0D0
@@ -675,6 +676,12 @@ C******************************************************************************
             Hgs = max(Hgs, 0.0)
 
          END IF
+	 
+         IF ( Hgm .NE. Hgm .OR. Hgc .NE. Hgc .OR. Hgs .NE. Hgs ) THEN
+            XMSG = '*** NaN in Hgs, Hgc, or Hgm ***'
+            Write(LOGDEV,*) 'Hgm',Hgm,'Hgc',Hgc,'Hgs',Hgs
+	    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)	    
+         END IF
 
          CMEDIA( c,r,1 ) = 0.0 ! water
          CMEDIA( c,r,2 ) = 0.0 ! water
@@ -724,18 +731,18 @@ C Includes:
          CHARACTER( 16 ), PARAMETER :: pname      = 'ASWX'
 
 C*************************** Ocean box parameters ***********************
-         REAL, PARAMETER :: satten = 0.758
+         REAL(8), PARAMETER :: satten = 7.58d-1
 C*************************** Model concentrations ***********************
-         REAL, SAVE :: cDGM
-         REAL, SAVE :: cHgIIaq
+         REAL(8), SAVE :: cDGM
+         REAL(8), SAVE :: cHgIIaq
 C***** reduction and partioning terms from Whalin et al 2007 ************
-         REAL, PARAMETER :: rref  = 240    ! referance incoming radiation
+         REAL(8), PARAMETER :: rref  = 240d+0    ! referance incoming radiation
                                            ! for redox measurements (w/m2)
-         REAL, PARAMETER :: kphot = 6.5e-4 ! drm photoreduction rate 1/s
-         REAL, PARAMETER :: kox   = 7.2e-4 ! dgm photo-oxidation rate 1/s
+         REAL(8), PARAMETER :: kphot = 6.5d-4 ! drm photoreduction rate 1/s
+         REAL(8), PARAMETER :: kox   = 7.2d-4 ! dgm photo-oxidation rate 1/s
 C********* Intermediate concentration variables *********************
-         REAL, SAVE :: DGM
-         REAL, SAVE :: DRM
+         REAL(8), SAVE :: DGM
+         REAL(8), SAVE :: DRM
 
 
          IF (INIT_ASX ) THEN
@@ -871,7 +878,9 @@ C******************************************************************************
     
          IF ( DGM .LT. 0.0 .OR. DRM .LT. 0.0 ) THEN
             
-            XMSG = '*** Negative concentration ***'                
+            XMSG = '*** Negative concentration ***'   
+            WRITE(LOGDEV,*) 'awhg',awhg,'HG',HG
+            WRITE(LOGDEV,*) 'DGM',DGM,'DRM',DRM             
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 
          END IF 

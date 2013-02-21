@@ -612,11 +612,15 @@ C-------------------------------------------------------------------------------
                   GO TO 1001
                END IF
             END DO
-         END IF	    
+         END IF    
              
          IF ( abflux ) THEN         
             CALL Init_ABFlux( jdate, jtime )
-         END IF         
+         END IF     
+ 
+         IF ( hgbidi ) THEN
+            Call Init_HGSIM(jdate, jtime)
+         END IF    
 
 C-------------------------------------------------------------------------------
 C Read fields from grid_cro_2d.
@@ -935,7 +939,7 @@ C-------------------------------------------------------------------------------
             vname = 'UWIND'
             IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
-	       WRITE( xmsg,9001 ) vname, met_dot_3d
+               WRITE( xmsg,9001 ) vname, met_dot_3d
 
                GO TO 1001
             END IF
@@ -949,7 +953,7 @@ C-------------------------------------------------------------------------------
                WRITE( xmsg,9001 ) vname, met_dot_3d
 
                GO TO 1001
-	    END IF
+            END IF
          END IF      
       END IF
       
@@ -1579,7 +1583,7 @@ C--------------------------------------------------------------------------
                         cmp(8,c,r) = f_wat
                         
                      ELSE   ! water
-		        cmp(2,c,r) = depvel_gas( n,c,r ) * cnh3
+                        cmp(2,c,r) = depvel_gas( n,c,r ) * cnh3
                         cmp(8,c,r) = depvel_gas( n,c,r ) * cnh3
                      END IF
                   END IF   ! 'NH3'
