@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vadv/yamo/vppm.F,v 1.5 2011/10/21 16:11:40 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/vadv/wrf/vppm.F,v 1.5 2011/10/21 16:11:40 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -94,6 +94,12 @@ C   18 Nov 09 J.Young: combine PPM velocity adjustment and vertically advected
 C                      concentrations on one code
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   31 Jul 12 J.Bash: Changed the adjustment to VEL to be the square root
+C                     of the flux*dt over the estimated flux*dt because
+C                     the relationship between the flux and velocity is 
+C                     roughly a second order polynomial and adjustments
+C                     under conditions with CFL near 1 could result in 
+C                     errors using a linear approximation. 
 C----------------------------------------------------------------------
       
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -108,12 +114,11 @@ C Includes:
 C Arguments:
  
       INTEGER, INTENT(  IN )   :: NI          ! number of zones (cells)
-      REAL,    INTENT(  IN )   :: DT          ! time step
       REAL,    INTENT(  IN )   :: DS ( NI )   ! distance between zone (cell) boundaries
       REAL,    INTENT(  IN )   :: FLX( NI+1 ) ! fluxes at zone (cell) boundaries
+      REAL,    INTENT(  IN )   :: DT          ! time step
       REAL,    INTENT( INOUT ) :: VEL( NI+1 ) ! velocities at zone (cell) boundaries
       REAL,    INTENT( INOUT ) :: CON( :,: ) ! concs in a vertical column
-!     logical, intent( out )   :: error
 
 !!! NOTE: Even tho' VEL is not used on output, declaring it as INTENT(IN) causes the
 !!!       code to fail. ifort compiler error?
@@ -142,6 +147,7 @@ C Local variables:
       INTEGER ICNT             ! no. of times fdn, fup exceeds fm, fp error range
       
       INTEGER I, S             ! loop index
+      INTEGER, PARAMETER :: MAXCNT = 50
 
 C----------------------------------------------------------------------
       
@@ -169,14 +175,11 @@ c   length of segment leaving = y = v(i+1)dt
 c   segment integral ave. conc. = cr(i) + 1/2[c6(i)-dc(i)]dx -1/3[c6(i)]dx**2
 
       FM( 1:NI+1 ) = 0.0
-      FP( 0:NI ) = 0.0
+      FP( 0:NI ) = 0.0     
 
       DO I = 1, NI
          IF ( VEL( I ) .LT. 0.0 ) THEN
             FDN = -FLX( I ) * DT
-!           if ( fdn .lt. 0.0 ) then
-!              write( *,* ) '@@@ i,dt,fdn: ', i, dt, fdn
-!           end if
             ICNT = 0
 66          CONTINUE
             Y = -VEL( I ) * DT
@@ -184,29 +187,22 @@ c   segment integral ave. conc. = cr(i) + 1/2[c6(i)-dc(i)]dx -1/3[c6(i)]dx**2
             FM( I ) = Y * ( CL( I ) + 0.5 * X
      &              * ( DC( I ) + C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
             IF ( ABS( FM( I ) - FDN ) .GT. EPSF * FDN ) THEN
-               VEL( I ) = VEL( I ) * ( FDN / FM( I ) )
+               VEL( I ) = VEL( I ) * SQRT( FDN / FM( I ) )
                ICNT = ICNT + 1
 !              if ( vel( i ) .ge. 0.0 ) then
 !                 write( *,2013 ) '@#@ icnt,i,fdn,fm,vel changed sign: ',
 !    &                            icnt, i, fdn, fm( i ), vel( i )
 2013              format( a, 2i4, 2( f15.5 ), 1pe15.3 )
 !              end if
-!              if ( icnt .gt. 12 ) then
-!                 write( *,2013 ) '### icnt,l,fdn,fm,vel:',
-!    &                            icnt, i, fdn, fm( i ), vel( i )
-!                 if ( icnt .gt. 50 ) then
-!!                   error = .true.; return
-!                    stop
-!                 end if
-!              end if
+               IF ( ICNT .GT. MAXCNT ) THEN
+                  XMSG = ' max iterations exceeded in vppm at 66'
+                  CALL M3EXIT( 'VPPM', 0, 0, XMSG, XSTAT1 )                     
+               END IF
                GO TO 66
             END IF
          END IF
          IF ( VEL( I+1 ) .GT. 0.0 ) THEN
             FUP = FLX( I+1 ) * DT
-!           if ( fup .lt. 0.0 ) then
-!              write( *,* ) '@@@ i,dt,fup: ', i, dt, fup
-!           end if
             ICNT = 0
 77          CONTINUE
             Y = VEL( I+1 ) * DT
@@ -214,20 +210,16 @@ c   segment integral ave. conc. = cr(i) + 1/2[c6(i)-dc(i)]dx -1/3[c6(i)]dx**2
             FP( I ) = Y * ( CR( I ) - 0.5 * X
      &              * ( DC( I ) - C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
             IF ( ABS( FP( I ) - FUP ) .GT. EPSF * FUP ) THEN
-               VEL( I+1 ) = VEL( I+1 ) * ( FUP / FP( I ) )
+               VEL( I+1 ) = VEL( I+1 ) * SQRT( FUP / FP( I ) )
                ICNT = ICNT + 1
 !              if ( vel( i+1 ) .le. 0.0 ) then
 !                 write( *,2013 ) '@#@ icnt,i,fup,fp,vel changed sign: ',
 !    &                            icnt, i, fdn, fm( i ), vel( i+1 )
 !              end if
-!              if ( icnt .gt. 12 ) then
-!                 write( *,2013 ) '### icnt,l,fup,fp,vel:',
-!    &                            icnt, i, fup, fp( i ), vel( i+1 )
-!                 if ( icnt .gt. 50 ) then
-!!                   error = .true.; return
-!                    stop
-!                 end if
-!              end if
+               IF ( ICNT .GT. MAXCNT ) THEN
+                  XMSG = ' max iterations exceeded in vppm at 77'
+                  CALL M3EXIT( 'VPPM', 0, 0, XMSG, XSTAT1 )                     
+               END IF
                GO TO 77
             END IF
          END IF
