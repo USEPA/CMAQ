@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/vadv/wrf/zadvppmwrf.F,v 1.2 2011/10/21 16:11:39 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/vadv/wrf/zadvppmwrf.F,v 1.2 2011/10/21 16:11:39 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -79,6 +79,8 @@ C    18 Nov 09 J.Young: Combine VPPMY and VPPM functionality
 C    21 Jun 10 J.Young: convert for Namelist redesign
 C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
+C    31 Jul 12 J.Bash: Changed the zadv dt for cases where cc > 1 to be 
+C                      more stable for conditions when cc > 10
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -87,6 +89,9 @@ C-----------------------------------------------------------------------
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
       USE UTILIO_DEFN
+#ifdef snl_timing
+      USE TIMING
+#endif
 
       IMPLICIT NONE
 
@@ -115,9 +120,9 @@ C Advected species dimension
 
 C File Variables:
 
-      REAL        RHOJM1( NCOLS,NROWS,NLAYS ) ! RhoJ (Kg/m**3) from Met file at start of tstep
-      REAL        RHOJM2( NCOLS,NROWS,NLAYS ) ! RhoJ (Kg/m**3) from Met file at end of tstep
-      REAL        WY   ( NLAYS,NCOLS,NROWS ) ! Diagnosed vert vel ala yamo
+      REAL        RHOJM1( NCOLS,NROWS,NLAYS ) ! RhoJ from Met file at start of tstep
+      REAL        RHOJM2( NCOLS,NROWS,NLAYS ) ! RhoJ from Met file at end of tstep
+      REAL        WY   ( NLAYS,NCOLS,NROWS )  ! Diagnosed vert vel ala yamo
 
 C Local variables:
 
@@ -149,17 +154,15 @@ C for INTERPX
 
       CHARACTER( 96 ) :: XMSG = ' '
       INTEGER, SAVE :: ASPC                ! pointer in CGRID to transported RHOJ
-      REAL          RJ1( NLAYS )        ! local adjusted RHOJ
-      REAL          RJ2( NLAYS )        ! local RHOJM at tstep + 1
+      REAL          RJ1( NLAYS )           ! local adjusted RHOJ
+      REAL          RJ2( NLAYS )           ! local RHOJM at tstep + 1
       REAL          RJT( NLAYS )           ! local adjusted RHOJ
-      REAL          RJT2( NLAYS )           ! local RHOJM at tstep + 1
       REAL          DRJ, DUDX, DVDY
       REAL          DIVV( NLAYS )
       REAL          CC                     ! local Courant No.
       REAL          DTNEW                  ! sub timestep
       REAL          DSDT                   ! DS/DT
-      REAL          NSTEP                  ! integral DT divisor
-      REAL, ALLOCATABLE, SAVE :: FBLN( : )  ! blending function for upper layers
+      REAL, ALLOCATABLE, SAVE :: FBLN( : ) ! blending function for upper layers
       INTEGER       ALLOCSTAT
 
       INTEGER, SAVE :: LOGDEV
@@ -199,13 +202,13 @@ C-----------------------------------------------------------------------
 
 C Get default file header attibutes from MET_CRO_3D (assumes file already open)
 
-C Get dx3 from COORD include file
+C Get dx3 from the GRID_CONF(VGRD) F90 module
          WRITE( LOGDEV,* ) ' '
          WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
          DO LVL = 1, NLAYS
             DS ( LVL ) = ABS ( X3FACE_GD( LVL ) - X3FACE_GD( LVL-1 ) )
-!            FBLN(LVL) = 1.0-1.0/(1.0+EXP(15.*(X3FACE_GD( LVL )-0.5)))
-            FBLN(LVL) = 1.0
+!           FBLN( LVL ) = 1.0 - 1.0 / ( 1.0 + EXP( 15.0 * ( X3FACE_GD( LVL ) - 0.5 ) ) )
+            FBLN( LVL ) = 1.0
             WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
      &                                         DS( LVL ), FBLN(LVL)
          END DO
@@ -250,21 +253,33 @@ C No boundary conditions are needed because VEL(1) = VEL(NLAYS+1) = 0
 C Get rho*J at start of sync step
       MDATE = JDATE
       MTIME = JTIME
+#ifdef snl_timing
+      call start_timing( zadv_int, read_int, 1 )
+#endif
       IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
      &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &           MDATE, MTIME, RHOJM1 ) ) THEN
          XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
          CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
       END IF
+#ifdef snl_timing
+      call stop_timing( zadv_int, read_int )
+#endif
 
 C Get rho*J at end of sync step
       CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
+#ifdef snl_timing
+      call start_timing( zadv_int, read_int, 1 )
+#endif
       IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
      &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &           MDATE, MTIME, RHOJM2 ) ) THEN
          XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
          CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
       END IF
+#ifdef snl_timing
+      call stop_timing( zadv_int, read_int )
+#endif
 
 C Get the contravariant x1 velocity component
 
@@ -305,17 +320,18 @@ C Get the contravariant x1 velocity component
             FLX( 1 ) = 0.0
             DRJ = 0.0
             DO LVL = 1, NLAYS
-               DSDT = DS( LVL ) / DELT
-               RJT( LVL ) = CON1( LVL,N_SPC_ADV )
-!              DUDX = (UHATJD(COL+1,ROW,LVL)-UHATJD(COL,ROW,LVL))/ XCELL_GD
-!              DVDY = (VHATJD(COL,ROW+1,LVL)-VHATJD(COL,ROW,LVL))/ YCELL_GD
-!              DIVV( LVL ) = DUDX*DS(LVL) + DVDY*DS(LVL)
-               DIVV(LVL) = (RJ1(LVL)-RJT(LVL))*DSDT
+               DSDT = DS( LVL ) / DELT              ! initial for this col/row
+               RJT( LVL ) = CON1( LVL,N_SPC_ADV )   ! initial for this col/row
+!              DUDX = ( UHATJD( COL+1,ROW,LVL ) - UHATJD( COL,ROW,LVL ) ) / XCELL_GD
+!              DVDY = ( VHATJD( COL,ROW+1,LVL ) - VHATJD( COL,ROW,LVL ) ) / YCELL_GD
+!              DIVV( LVL ) = DUDX * DS( LVL ) + DVDY * DS( LVL )
+               DIVV( LVL ) = ( RJ1( LVL ) - RJT( LVL ) ) * DSDT
                DRJ = DRJ - DIVV( LVL )
-!               IF(LVL.EQ.15)write(logdev,*)' DSDT=',DSDT,' DIVV=',DIVV( LVL )
+!              if ( lvl .eq. 15 ) write( logdev,* ) ' DSDT=', dsdt
+!    &                                              ' DIVV=', divv( lvl )
             END DO
                         
-111         CONTINUE
+111         CONTINUE   ! iteration loop if CC > 1
 
             FLUX = 0.0
             DO LVL = 1, NLAYS
@@ -325,44 +341,52 @@ C Get the contravariant x1 velocity component
                FLUX = FLUX - DSDT * ( RJ2( LVL ) - RJT( LVL ) )
                FLX( LVL+1 ) = FLX( LVL ) - DS( LVL ) * DRJ - DIVV( LVL )
 !              write( logdev,* ) '@@2 l=', l, ' flx=', flx( l+1 ), flux, x3face_gd( l )
-               FLX( LVL+1 )= FBLN(LVL)*FLX(LVL+1) + (1.0 -FBLN(LVL))  *FLUX
-               FLUX       = FLX( LVL+1 )
+               FLX( LVL+1 ) = FBLN( LVL ) * FLX( LVL+1 ) + ( 1.0 - FBLN( LVL ) ) * FLUX
+               FLUX = FLX( LVL+1 )
             END DO
+
+!           if ( jtime .ge. 191000 .and. col .eq. 46 .and. row .eq. 15 )
+!    &         write( logdev,* )' density R,C,L1=', row, col,
+!    &                          ' RJT,1,2 =', rjt( 1 ), rj1( 1 ), rj2( 1 )
 
             DO LVL = 2, NLAYS
                IF ( FLX( LVL ) .GE. 0.0 ) THEN
                   VEL( LVL ) = FLX( LVL ) / RJT( LVL-1 )
                ELSE
                   VEL( LVL ) = FLX( LVL ) / RJT( LVL )
-               END If
-!               IF(JTIME.GE.191000.AND.COL.eq.46.and.ROW.eq.15)
-!     >           write(logdev,*)' density R,C,L=',ROW,COL,LVL,
-!     >          ' RJT,1,2 =', RJT(LVL),RJ1(LVL),RJ2(LVL),' Omega=',VEL(LVL)
-
+               END IF
+!              if ( jtime .ge. 191000 .and. col .eq. 46 .and. row .eq. 15 )
+!    &            write( logdev,* )' density R,C,L =', row, col, lvl,
+!    &                             ' RJT,1,2 =', rjt( lvl ), rj1( lvl ), rj2( lvl ),
+!    &                             ' Omega=', vel( lvl )
             END DO
-!               IF(JTIME.GE.191000.AND.COL.eq.46.and.ROW.eq.15)
-!     >           write(logdev,*)' density R,C,L1=',ROW,COL,
-!     >          ' RJT,1,2 =', RJT(1),RJ1(1),RJ2(1)
 
             VEL( NLAYS+1 ) = FLX( NLAYS+1 ) / RJT( NLAYS )
 
 C Find Maximum Courant Number
 
             CC = 0.0
+            DTNEW = DELT
 
             DO LVL = 2, NLAYS
                IF ( VEL( LVL ) .GT. 0.0 ) THEN
                   CC = MAX ( CC, ( VEL( LVL ) * DELT / DS( LVL-1 ) ) )
+                  DTNEW = MIN( DTNEW, 0.9 * DELT / CC )
                ELSE
                   CC = MAX ( CC, ( -VEL( LVL ) * DELT / DS( LVL ) ) )
+   !              DTNEW = MIN( DTNEW, DELT / MAX( CC, 0.9 ) )
+                  DTNEW = MIN( DTNEW, 0.9 * DELT / MAX( CC, 1.0 ) ) ! MAX in case vel = 0
                END IF
             END DO
 
             LVL = NLAYS+1
             IF ( VEL( LVL ) .GT. 0.0 ) THEN
                CC = MAX ( CC, ( VEL( LVL ) * DELT / DS( LVL-1 ) ) )
+               DTNEW = MIN( DTNEW, 0.9 * DELT / CC )
             ELSE
                CC = MAX ( CC, ( -VEL( LVL ) * DELT / DS( LVL-1 ) ) )
+   !           DTNEW = MIN( DTNEW, DELT / MAX( CC, 0.9 ) )
+               DTNEW = MIN( DTNEW, 0.9 * DELT / MAX( CC, 1.0 ) ) ! MAX in case vel = 0
             END IF
 
             IF ( CC .GT. 1.0 ) THEN ! courant number is larger than unity
@@ -376,8 +400,7 @@ C if Courant number with the new velocity and sub-time step is larger than
 C unity again, then the last sub-time step would be split into further
 C sub-steps.
 
-               NSTEP = FLOAT( INT( CC ) + 1 )
-               DTNEW = DELT / NSTEP
+               DTNEW = MAX( DTNEW, 1.0 )       
 
                CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1 )
                DELT = DELT - DTNEW
@@ -400,9 +423,7 @@ C sub-steps.
                   WRITE( XMSG,2013 ) JTIME, TSTEP( 2 ), MAXITER
 2013              FORMAT( 'vert adv soln failed at', I7.6,  ' with adv step:',
      &                     I7.6, ' HHMMSS', 2X, 'Max Iterations =', I3 )
-                 if ( iter .gt. 10*maxiter ) then
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-                 end if
                END IF
 
                GO TO 111
