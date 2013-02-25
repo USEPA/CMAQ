@@ -1,0 +1,134 @@
+#! /bin/csh -f
+
+
+ date
+ set echo
+
+  set BASE  = $cwd
+#set BASE  = /home/hwo/cmaq-v5.0/AE6_based_HAPS_mechanism
+#set BASE = /home/hwo/tools/csv_to_nml-file
+#set Xpath = /home/hwo/tools/mech_processor/BLD-kpp_special_SS4
+#set Xpath = /home/hwo/tools/mech_processor/BLD-ggb_special_SS4
+ set Xpath = /home/hwo/tools/mech_processor/BLD-kpp_hetero
+ set EXEC  = CHEMMECH_ggb_SS4
+ set APPL  = test
+
+# mechanism input file ........................................................
+
+#set BASE = /home/hwo/cmaq-v5.0/mechanisms
+ set MECH_ARCHIVE = /home/hwo/mech_git_archive
+#set BASE = /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
+ set BASE = /home/hwo/tools/mech_processor
+#set Mpath = ${BASE}/racm2_ae6_aq
+#set Mpath = ${BASE}/saprc07tc_ae6_aq
+#set Mpath = ${BASE}/S11b_updates
+#set Mechanism = saprc07tb_ae5_aq
+#set Mechanism = cb05cltx_ae5_aq
+#set Mechanism = cb05tutx_ae6_aq
+#set Mechanism = cb05tump_ae6_aq
+#set Mechanism = cb05tuhg_ae6_aq
+#set Mechanism = cb05tucl_ae6_aq
+#set Mechanism = saprc99tx3_ae6_aq
+
+#set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq cb05tucl_ae6_aq )
+#set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq )
+ 
+#set mechanisms = saprc07tb_ae6_aq
+#set mechanisms = cb05tucl_ae6_aq
+ set mechanisms = saprc07tic_ae6_aq
+#set mechanisms = saprc07tc_ae6_aq
+#set mechanisms = S11c_updates
+#set mechanisms = racm2_ae6_aq
+#set mechanisms = saprc07tc_xya_isoprene_v4
+#set mechanisms = saprc07tc_xya_isoprene_v5
+#set mechanisms = ozone_tracer
+
+foreach Mechanism ( $mechanisms )
+
+#set  Mpath = ${BASE}/${Mechanism}
+ set  Mpath = ${BASE}/saprc07tc_xya_isoprene_v5-zero_NO2EX
+#set  Mpath = ${BASE}/${Mechanism}
+#set  Mpath = ${BASE}/${Mechanism}_v50
+
+#set MCFL =  mech_SAPRC07TB_AE5_AQ.def
+#set MCFL =  mech_cb05tutx_ae6_aq.def
+#set MCFL =  mech_cb05tump_ae6_aq.def
+#set MCFL =  mech_cb05tuhg_ae6_aq.def
+#set MCFL =  mech_saprc99tx3_ae6_aq.def
+#set MCFL =  mech.def
+#set MCFL =  mech_S11c_updates.def
+#set MCFL =  mech.def.RACM2
+ set MCFL =  mech_${Mechanism}.def
+ set KPP_EQN =  mech_${Mechanism}.eqn
+ set KPP_SPC =  mech_${Mechanism}.spc
+
+# output files ................................................................
+
+
+#set Opath = ${BASE}/${Mechanism}
+ set Opath = ${Mpath}
+#set Opath = /home/hwo/tools/mech_processor/${Mechanism}
+#set Opath = ${BASE}/test
+ set KPP_Out_Path = ${Opath}
+
+
+ if( !( -e $Mpath/$MCFL ) )then
+   \ls $Mpath/$MCFL
+    exit()
+ endif
+ set echo
+ setenv MECHDEF  $Mpath/$MCFL
+#set KPP_Out_Path = $cwd
+ setenv EQNS_KPP_FILE ${KPP_Out_Path}/${KPP_EQN}
+ setenv SPCS_KPP_FILE ${KPP_Out_Path}/${KPP_SPC}
+
+if( ! ( -d $Opath ) ) mkdir -p $Opath
+if( ! ( -d ${KPP_Out_Path} ) )mkdir -p ${KPP_Out_Path}
+
+if( $Opath != ${Mpath} )\cp -f $MECHDEF $Opath/.
+
+ setenv SPCSDATX    $Opath/SPCS.ext #<- temporary file, read by Species Processor
+ setenv RXNSDATX    $Opath/RXDT.EXT
+ setenv RXNSCOMX    $Opath/RXCM.EXT
+ setenv RXNS_MODULE $Opath/RXNS_MODULE.F
+ 
+ set NML    = ${Mpath}
+ set NML_TR = ${MECH_ARCHIVE}/trac0
+
+ set GC_NML = $NML/GC_${Mechanism}.nml
+ set AE_NML = $NML/AE_${Mechanism}.nml
+ set NR_NML = $NML/NR_${Mechanism}.nml
+#set AE_NML = $NML/AE_saprc07tc_ae6_aq.nml
+#set NR_NML = $NML/NR_saprc07tc_ae6_aq.nml
+#set GC_NML = $NML/GC_saprc11tc_ae6_aq.nml
+
+ set TR_NML = $NML_TR/Species_Table_TR_0.nml
+
+
+setenv gc_matrix_nml $GC_NML
+setenv ae_matrix_nml $AE_NML
+setenv nr_matrix_nml $NR_NML
+setenv tr_matrix_nml $TR_NML
+
+
+ unset echo
+
+#set system = `uname -i`
+#if ($system == i386)then
+#    set compiler = pgf
+#else
+#    set compiler = ifc
+#endif
+#source /home/hwo/scom -c $compiler
+#
+#cd $Xpath ; make clean ; make ; cd $BASE
+
+ ls -l $Xpath/$EXEC
+
+ $Xpath/$EXEC
+
+end
+
+ exit()
+
+
