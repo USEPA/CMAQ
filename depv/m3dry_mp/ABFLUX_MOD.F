@@ -334,7 +334,7 @@ C                          '12345678901234567890'
                         gamma2(c,r) = gamma2(c,r)+NH4ps2(c,r,l)*1.0e-4/14.0/0.05
      &                              / 10.0**(-pHs2(c,r,l))*Beld_ag(c,r,l)/100.0
                         MHp2(c,r)   = MHp2(c,r)+Beld_ag(c,r,l)/100.0*10.0**(-pHs2(c,r,l)) 
-                        If ( .Not. IsNaN( F_rate1(c,r,l) ) .And. 
+			If ( .Not. IsNaN( F_rate1(c,r,l) ) .And. 
      &                             F_rate1(c,r,l) .Gt. 0.0 ) Then
 ! Surface applied fertlizer                                        
                            fagam1(c,r) = fagam1(c,r)+F_rate1(c,r,l)*Beld_ag(c,r,l)/100.0
@@ -428,7 +428,7 @@ C                          '12345678901234567890'
                          fagam1(c,r) = fagam1(c,r)+F_rate1(c,r,l)*Beld_ag(c,r,l)/100.0
      &                               * 1.0e-4/14.0/0.01/10.0**(-pHs1(c,r,l))
                      End If
-                     If ( .Not. IsNaN( F_rate2(c,r,l) ) .And. 
+		     If ( .Not. IsNaN( F_rate2(c,r,l) ) .And. 
      &                     F_rate2(c,r,l) .Gt. 0.0      .And. 
      &                    .Not. IsNaN( pHs2(c,r,l) )    .And. 
      &                    pHs2(c,r,l) .Gt. 4.0          .And. 
@@ -498,7 +498,7 @@ C-------------------------------------------------------------------------------
          Integer, Intent( IN )  :: Row
          Integer, Intent( IN )  :: Col
          Integer, Intent( IN )  :: dt
-         Integer, Intent( IN )  :: jtime
+	   Integer, Intent( IN )  :: jtime
          Integer, Intent( IN )  :: sp ! species index
          
          Real,    Intent( IN )  :: tempg        
@@ -671,8 +671,8 @@ C-------------------------------------------------------------------------------
                      Case(5:6) ! Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir)*0.67+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(max(gamma2(Col,Row)/w5cm,C_gam/w5cm)*0.67+0.33*20.0/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*( Max(gamma2(Col,Row),C_gam)*10**(-7.0)*w5cm*
-     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s	
+			cnh3s  = max(cnh3s,a1*( Max(gamma2(Col,Row),C_gam)*10**(-7.0)*w5cm*
+     &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s			
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(20.0/w5cm,2.0e5)
@@ -687,17 +687,17 @@ C-------------------------------------------------------------------------------
                      Case(19:20) ! U.S. Ag                                     
                         cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
                         cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
      &                               w5cm*14.0*0.05*1.0e4*12.3+20.3))
                      Case(43)   ! Canada Ag
                         cnh3g1 = Min(C_gam/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
      &                               1.0e4*12.3+20.3))
                      Case(45) ! Canada Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(C_gam*0.67/wg_ir+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam*0.67/w5cm+0.33*20.0/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
      &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
@@ -713,17 +713,17 @@ C-------------------------------------------------------------------------------
                      Case(37:38) ! U.S. Ag		        
                         cnh3g1 = Min(gamma1(Col,Row)/wg_ir,2.0e5)
                         cnh3g2 = Min(gamma2(Col,Row)/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*MHp2(Col,Row)*			
      &                               w5cm*14.0*0.05*1.0e4*12.3+20.3))
                      Case(12)   ! Canada Ag
                         cnh3g1 = Min(C_gam/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
      &                               1.0e4*12.3+20.3))
                      Case(14) ! Canada Ag mosaic 67% ag 33% mosaic
                         cnh3g1 = Min(C_gam*0.67/wg_ir+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(C_gam*0.67/w5cm+0.33*20.0/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*
      &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
@@ -739,13 +739,13 @@ C-------------------------------------------------------------------------------
                         cnh3g2 = 0.0
                      Case(12) ! Ag                
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir),2.0e5)
-                        cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm),2.0e5)
-                        cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
+                        cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm),2.0e5)                     
+			cnh3s  = max(cnh3s,a1*(C_gam*10**(-7.0)*w5cm*14.0*0.05*
      &                               1.0e4*12.3+20.3))  
                      Case(14)   !Ag Mosaic
                         cnh3g1 = Min(Max(gamma1(Col,Row)/wg_ir,C_gam/wg_ir)*0.67+0.33*20.0/wg_ir,2.0e5)
                         cnh3g2 = Min(Max(gamma2(Col,Row)/w5cm,C_gam/w5cm)*0.67+0.33*20.0/w5cm,2.0e5)
-                        cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*10**(-7.0)*w5cm*
+			cnh3s  = max(cnh3s,a1*(gamma2(Col,Row)*10**(-7.0)*w5cm*
      &                              14.0*0.05*1.0e4*12.3+20.3))*0.67+0.33*cnh3s
                      Case Default ! not ag
                         cnh3g1 = Min(20.0/wg_ir,2.0e5)
@@ -814,7 +814,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(16) ! water
-                        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(24) ! no veg
 !> Zero out the compensation points for deposition
@@ -929,7 +929,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(1,31,48) ! water
-                        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(2,8,16,17,49:50) ! no veg
 !> Zero out the compensation points for deposition
@@ -1044,7 +1044,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(17,21) ! water
-                        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(18:20,22,35,36) ! no veg
 !> Zero out the compensation points for deposition
@@ -1159,7 +1159,7 @@ C-------------------------------------------------------------------------------
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                   Select Case(j)
                      Case(17) ! water
-                        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
+		        f_dep = f_dep + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3
                         f_wat = f_wat + lufrac(j,col,row)/(rsurfj(j,sp,col,row)+raj(j,col,row)) * cnh3/watfrac
                      Case(15) ! no veg
 !> Zero out the compensation points for deposition

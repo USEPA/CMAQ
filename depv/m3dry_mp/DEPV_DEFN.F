@@ -775,7 +775,7 @@ C Local variables:
                Use ABFlux_Mod  ! bidi NH3 exchange routines
                Use LSM_Mod     ! land surface model variables needed for mosaic and bidi
                Use Mosaic_Mod      ! contains mosaic routines
-	       Use HGSIM
+               Use HGSIM
                Use Bidi_Mod, Only: lufrac, HgBidi
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)

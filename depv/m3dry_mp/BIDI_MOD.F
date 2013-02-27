@@ -183,7 +183,7 @@ C... Local:
             MEDIA_UNITS( 10 ) = 'mol/l' 
             MEDIA_DESCR( 10 ) = 'Molar H+ in Soil layer 2'
             
-         End If	
+         End If
          
          ! allocate the media array variable
          IF ( .NOT. ALLOCATED ( CMEDIA ) ) THEN
