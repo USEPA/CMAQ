@@ -39,6 +39,7 @@ C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
 R1  REVISION HISTORY: Prototype created by Jerry Gipson, January, 2002
 C   31 Mar 09 J.Young: replace include files with mechanism namelists
+C   07 Mar 13 B.Hutzell revised type 9 falloff rate constants 
 C
 C***********************************************************************
 
@@ -187,11 +188,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             RK( IRXN ) = RK0 + ( RK3 / ( 1.0 + RK3 / RK2 ) ) 
 
          ELSEIF( KTYPE( IRXN ) .EQ. 9 ) THEN
-            RK1 = RTDAT( 1,IRXN ) * EXP( RTDAT( 2, IRXN ) * TINV )
-            RK2 = 1.0E+06 * CFACT * RTDAT( 3,IRXN ) * 
-     &               EXP( RFDAT( 1, NRT )  * TINV )
-     &              
-            RK( IRXN ) = RK1 + RK2 
+            RK1 = RTDAT( 1,IRXN ) * EXP( RTDAT( 2, IRXN ) * TINV ) 
+     &             * ( TEMP * TI300 ) ** RFDAT( 2, NRT )
+
+            RK2 = 1.0E+06 * CFACT * RTDAT( 3,IRXN )
+     &             * EXP( RFDAT( 1, NRT )  * TINV )
+     &             * ( TEMP * TI300 ) ** RFDAT( 3, NRT )
+
+            RK3 = RFDAT( 4, NRT ) * EXP( RFDAT( 5, NRT )  * TINV )
+
+            RKI( IRXN ) = RK1 + RK2 + RK3
 
          ELSE
             RK0 = 1.0E+06 * CFACT * 
