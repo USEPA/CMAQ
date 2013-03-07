@@ -1,0 +1,850 @@
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrcalcks.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrcalcks.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrcalcks.F,v 1.1.1.1 2011/04/05 20:29:37 sjr Exp $
+24a26
+> C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+27,29c29,30
+< C**********************************************************************
+< C
+< C  FUNCTION: To compute thermal and photolytic reaction rate
+---
+> C-----------------------------------------------------------------------
+> C  Function: To compute thermal and photolytic reaction rate
+31,32c32,33
+< C
+< C  PRECONDITIONS: Photolysis rates for individual species must have
+---
+>  
+> C  Preconditions: Photolysis rates for individual species must have
+36,39c37,40
+< C
+< C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+< C
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+>  
+> C  Key Subroutines/Functions Called: None
+>  
+> C  Revision History: Created by EBI solver program, Feb. 9, 2011
+41,44c42
+< C
+< C***********************************************************************
+< 
+< 
+---
+> C-----------------------------------------------------------------------
+47,48c45
+< 
+< C..INCLUDES:
+---
+> C..Includes:
+51,52c48,49
+< C..ARGUMENTS:
+<       INTEGER NJPHOT                   ! Number of J-values set in PHOT
+---
+> C..Arguments:
+>       INTEGER      NJPHOT              ! Number of J-values set in PHOT
+54c51
+<       LOGICAL LSUNLIGHT                ! Flag for daytime
+---
+>       LOGICAL      LSUNLIGHT           ! Flag for daytime
+56,60c53,57
+<       REAL      H2O                         ! Cell H2O mixing ratio (ppmV)
+<       REAL      TEMP                        ! Cell temperature (deg K)
+<       REAL      PRES                        ! Cell pressure (atm)
+<       REAL( 8 ) RK( NRXNS )
+<       REAL      RJIN( NJPHOT )              ! J-values for each cell
+---
+>       REAL         H2O                 ! Cell H2O mixing ratio (ppmV)
+>       REAL         TEMP                ! Cell temperature (deg K)
+>       REAL         PRES                ! Cell pressure (atm)
+>       REAL( 8 ) :: RK( NRXNS )
+>       REAL         RJIN( NJPHOT )      ! J-values for each cell
+61a59,62
+> C..Parameters:
+>       REAL, PARAMETER :: COEF1 = 7.33981E+15  ! Molec/cc to ppm conv factor coefficient
+>       REAL, PARAMETER :: CONSTC = 0.6  ! Constant for reaction type 7
+>       REAL, PARAMETER :: TI300 = 1.0 / 300.0
+63,66c64
+< C..PARAMETERS:
+<       REAL, PARAMETER :: COEF1     = 7.33981E+15 ! Molec/cc to ppm conv factor coefficient
+<       REAL, PARAMETER :: CONSTC    = 0.6         ! Constant for reaction type 7
+<       REAL, PARAMETER :: TI300     = 1.0 / 300.0 ! 1/deg K
+---
+> C..External Functions: None
+68,72c66
+< 
+< C..EXTERNAL FUNCTIONS: None
+< 
+< 
+< C..SAVED LOCAL VARIABLES:
+---
+> C..Saved Local Variables:
+75,76c69
+< 
+< C..SCRATCH LOCAL VARIABLES:
+---
+> C..Scratch Local Variables:
+83,89c76,82
+<       REAL    RK0            ! K0 in falloff rate expressions
+<       REAL    RK1            ! k1 in falloff rate expressions
+<       REAL    RK2            ! K2 in falloff rate expressions
+<       REAL    RK3            ! K3 in falloff rate expressions
+<       REAL    XEND           ! Exponent in falloff rate expressions
+<       REAL( 8 )  :: CFACT    ! molec/cc to ppm conversion factor
+<       REAL( 8 )  :: TINV     ! Reciprocal of temperature, /deg K
+---
+>       REAL RK0               ! K0 in falloff rate expressions
+>       REAL RK1               ! k1 in falloff rate expressions
+>       REAL RK2               ! K2 in falloff rate expressions
+>       REAL RK3               ! K3 in falloff rate expressions
+>       REAL XEND              ! Exponent in falloff rate expressions
+>       REAL( 8 ) :: CFACT     ! molec/cc to ppm conversion factor
+>       REAL( 8 ) :: TINV      ! Reciprocal of temperature, /deg K
+91c84
+< C***********************************************************************
+---
+> C-----------------------------------------------------------------------
+103c96
+<       IF( .NOT. LSUNLIGHT ) THEN
+---
+>       IF ( .NOT. LSUNLIGHT ) THEN
+115c108
+<             IF( IPH( NRT, 3 ) .NE. 0 ) THEN
+---
+>             IF ( IPH( NRT, 3 ) .NE. 0 ) THEN
+123c116
+<             IF( IPH( NRT, 3 ) .EQ. 0 ) THEN
+---
+>             IF ( IPH( NRT, 3 ) .EQ. 0 ) THEN
+128a122
+> 
+181c175
+<          IF( KTYPE( IRXN ) .EQ. 8 ) THEN
+---
+>          IF ( KTYPE( IRXN ) .EQ. 8 ) THEN
+188c182
+<          ELSEIF( KTYPE( IRXN ) .EQ. 9 ) THEN
+---
+>          ELSE IF ( KTYPE( IRXN ) .EQ. 9 ) THEN
+207c201
+<   100 CONTINUE
+---
+> 100   CONTINUE
+234d227
+< 
+238c231
+<       IF( KUNITS .EQ. 2 ) THEN
+---
+>       IF ( KUNITS .EQ. 2 ) THEN
+241,245c234,235
+< 
+<             IF( KTYPE( N ) .NE. 0 ) THEN   ! Do all non-photolytic reactions
+< 
+<                IF( IORDER( N ) .EQ. 2 ) THEN
+< 
+---
+>             IF ( KTYPE( N ) .NE. 0 ) THEN   ! Do all non-photolytic reactions
+>                IF ( IORDER( N ) .EQ. 2 ) THEN
+247,249c237
+< 
+<                ELSEIF( IORDER( N ) .EQ. 3 ) THEN
+< 
+---
+>                ELSE IF ( IORDER( N ) .EQ. 3 ) THEN
+251,253c239
+< 
+<                ELSEIF( IORDER( N ) .EQ. 1 ) THEN
+< 
+---
+>                ELSE IF ( IORDER( N ) .EQ. 1 ) THEN
+255,257c241
+< 
+<                ELSEIF( IORDER( N ) .EQ. 0 ) THEN
+< 
+---
+>                ELSE IF ( IORDER( N ) .EQ. 0 ) THEN
+259d242
+< 
+261d243
+< 
+262a245
+> 200      CONTINUE
+264d246
+<   200    CONTINUE
+268d249
+< 
+270,272c251
+< 
+<             IF( IORDER( IRXN ) .EQ. 2 ) THEN
+< 
+---
+>             IF ( IORDER( IRXN ) .EQ. 2 ) THEN
+274,276c253
+< 
+<             ELSEIF( IORDER( IRXN ) .EQ. 3 ) THEN
+< 
+---
+>             ELSE IF ( IORDER( IRXN ) .EQ. 3 ) THEN
+278d254
+< 
+280,281c256
+< 
+<   300    CONTINUE
+---
+> 300      CONTINUE
+289c264
+<       IF( NWM .GT. 0 ) THEN
+---
+>       IF ( NWM .GT. 0 ) THEN
+296c271
+<       IF( NWO2 .GT. 0 ) THEN
+---
+>       IF ( NWO2 .GT. 0 ) THEN
+303c278
+<       IF( NWN2 .GT. 0 ) THEN
+---
+>       IF ( NWN2 .GT. 0 ) THEN
+310c285
+<       IF( NWW .GT. 0 ) THEN
+---
+>       IF ( NWW .GT. 0 ) THEN
+317c292
+<       IF( NWCH4 .GT. 0 ) THEN
+---
+>       IF ( NWCH4 .GT. 0 ) THEN
+324,325c299
+< 
+<       IF( NWH2 .GT. 0 ) THEN
+---
+>       IF ( NWH2 .GT. 0 ) THEN
+333d306
+< 
+336,337d308
+< 
+< 
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrcalc_special.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrcalc_special.F
+0a1
+> 
+17a19
+> 
+19c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrcalc_special.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+27,35c29,35
+< C
+< C  FUNCTION: To calculate special concentration dependent rate constants
+< C
+< C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+< C
+< C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+< C
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+< C
+---
+> C  Function: To calculate special concentration dependent rate constants
+>  
+> C  Preconditions: For the SAPRC07TB family of mechanisms
+>  
+> C  Key Subroutines/Functions Called: None
+>  
+> C  Revision History: Created by EBI solver program, Feb. 9, 2011
+41c41
+< C.....INCLUDES: NONE
+---
+> C.....Includes: NONE
+43c43
+< C.....ARGUMENTS: NONE
+---
+> C.....Arguments: NONE
+45c45
+< C.....PARAMETERS: NONE
+---
+> C.....Parameters: NONE
+47c47
+< C.....EXTERNAL FUNCTIONS: NONE
+---
+> C.....External Functions: NONE
+49c49
+< C.....SAVED VARIABLES:
+---
+> C.....Saved Variables:
+56,57c56
+< 
+< C.....LOCAL VARIABLES:
+---
+> C.....Local Variables:
+70d68
+< 
+189d186
+< 
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrdata_mod.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrdata_mod.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrdata_mod.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+24a26
+> C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+27,37c29,37
+< C*************************************************************************
+< C
+< C  FUNCTION:  Mechanism & solver data for EBI solver
+< C
+< C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+< C
+< C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+< C
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+< C
+< C*************************************************************************
+---
+> C-----------------------------------------------------------------------
+> C  Function:  Mechanism & solver data for EBI solver
+>  
+> C  Preconditions: For the SAPRC07TB family of mechanisms
+>  
+> C  Key Subroutines/Functions Called: None
+>  
+> C  Revision History: Created by EBI solver program, Feb. 9, 2011
+> C-----------------------------------------------------------------------
+57d56
+< 
+59,62c58,61
+<       INTEGER   LOGDEV        ! Unit number of output log
+<       INTEGER   N_EBI_IT      ! No. of iterations for EBI
+<       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
+<       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
+---
+>       INTEGER   LOGDEV       ! Unit number of output log
+>       INTEGER   N_EBI_IT     ! No. of iterations for EBI
+>       INTEGER   N_EBI_STEPS  ! No. of time steps for EBI
+>       INTEGER   N_INR_STEPS  ! No. of inner time steps for EBI
+67,69c66,68
+<       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
+<       INTEGER, ALLOCATABLE :: SSASP( : )         ! Index of ss species
+<       INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
+---
+>       INTEGER, ALLOCATABLE :: EBISP( : )      ! Index of EBI species
+>       INTEGER, ALLOCATABLE :: SSASP( : )      ! Index of ss species
+>       INTEGER, ALLOCATABLE :: ACTSP( : )      ! Index of active species
+71c70
+<       REAL( 8 ), ALLOCATABLE ::  RKI(   : )   ! Rate constants
+---
+>       REAL( 8 ), ALLOCATABLE :: RKI    ( : )  ! Rate constants
+73,80c72,78
+<       REAL, ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
+<       REAL, ALLOCATABLE ::  RTOL(  : )     ! Species tolerances
+<       REAL, ALLOCATABLE ::  YC(    : )     ! Species concentrations
+<       REAL, ALLOCATABLE ::  YC0(   : )     ! Species concentrations
+<       REAL, ALLOCATABLE ::  YCP(   : )     ! Species concentrations
+<       REAL, ALLOCATABLE ::  PROD(  : )     ! Prod of species
+<       REAL, ALLOCATABLE ::  LOSS(  : )     ! Loss of species
+< 
+---
+>       REAL,      ALLOCATABLE :: RXRAT  ( : )  ! Reaction rates
+>       REAL,      ALLOCATABLE :: RTOL   ( : )  ! Species tolerances
+>       REAL,      ALLOCATABLE :: YC     ( : )  ! Species concentrations
+>       REAL,      ALLOCATABLE :: YC0    ( : )  ! Species concentrations
+>       REAL,      ALLOCATABLE :: YCP    ( : )  ! Species concentrations
+>       REAL,      ALLOCATABLE :: PROD   ( : )  ! Prod of species
+>       REAL,      ALLOCATABLE :: LOSS   ( : )  ! Loss of species
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrdriver.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrdriver.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrdriver.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+24a26
+> C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+27,35c29,36
+< C**********************************************************************
+< C
+< C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
+< C
+< C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+< C
+< C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+< C
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C-----------------------------------------------------------------------
+> C  Function: Driver subroutine for Euler Backward Iterative solver
+>  
+> C  Preconditions: For the SAPRC07TB family of mechanisms
+>  
+> C  Key Subroutines/Functions Called:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+>  
+> C  Revision History: Created by EBI solver program, Feb. 9, 2011
+49,50c50,51
+< C
+< C**********************************************************************
+---
+> C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+> C-----------------------------------------------------------------------
+55c56
+<       USE UTILIO_DEFN           ! IOAPI parameters and functions declarations
+---
+>       USE UTILIO_DEFN
+78d78
+< 
+126a127
+> C-----------------------------------------------------------------------
+128,130c129
+< C**********************************************************************
+< 
+<       IF( N_GC_SPC .EQ. 0 ) RETURN
+---
+>       IF ( N_GC_SPC .EQ. 0 ) RETURN
+135c134
+<       IF( LFIRST ) THEN
+---
+>       IF ( LFIRST ) THEN
+139c138,139
+<          IF( MECHNAME .NE. 'SAPRC07TB_AE5_AQ' ) THEN
+---
+>          IF ( MECHNAME .NE. 'SAPRC07TB_AE5_AQ' .AND.
+>      &        MECHNAME .NE. 'SAPRC07TB_AE6_AQ' ) THEN
+141c141
+<      &            // ' the SAPRC07TB_AE5_AQ chemical mechanism'
+---
+>      &            // ' the SAPRC07TB chemical mechanisms'
+151c151
+<          IF( INDEX( MECHNAME, 'AE' ) .NE. 0 ) THEN
+---
+>          IF ( INDEX( MECHNAME, 'AE' ) .NE. 0 ) THEN
+157c157
+<          IF( INDEX( MECHNAME, 'AQ' ) .NE. 0 ) THEN
+---
+>          IF ( INDEX( MECHNAME, 'AQ' ) .NE. 0 ) THEN
+163c163
+<          IF( LIRR ) THEN
+---
+>          IF ( LIRR ) THEN
+168d167
+< 
+183,184c182
+<          IF( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
+< 
+---
+>          IF ( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
+188d185
+< 
+191d187
+< 
+217c213
+<       IF( DELT_SEC .GE. ITMSTEP ) THEN
+---
+>       IF ( DELT_SEC .GE. ITMSTEP ) THEN
+221c217
+<          IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
+---
+>          IF ( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
+231d226
+< 
+251d245
+< 
+283d276
+< 
+289d281
+< 
+294c286
+<                   IF( RJ( C, R, L, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
+---
+>                   IF ( RJ( C, R, L, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
+300d291
+< 
+312d302
+< 
+318d307
+< 
+323,325d311
+< 
+< 
+< 
+333c319
+< C*********************** FORMAT STATEMENTS ****************************
+---
+> C----------------------- FORMAT STATEMENTS ----------------------------
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrg1.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrg1.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrg1.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+36c37
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+Only in /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq: .hrg1.F.swp
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrg2.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrg2.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrg2.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+35c36
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrg3.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrg3.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrg3.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+35c36
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrg4.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrg4.F
+0a1
+> 
+17a19
+> 
+19c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrg4.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+34c36
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrinit.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrinit.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrinit.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+24a26
+> C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+26,36c28,38
+< C***********************************************************************
+< C
+< C  FUNCTION: To initialize species tolerances, arrays, and indices
+< C
+< C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+< C
+< C  RETURN VALUES: None
+< C
+< C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+< C
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> 
+> C-----------------------------------------------------------------------
+> C  Function: To initialize species tolerances, arrays, and indices
+>  
+> C  Preconditions: For the SAPRC07TB family of mechanisms
+>  
+> C  Return Values: None
+>  
+> C  Key Subroutines/Functions Called: None
+>  
+> C  Revision History: Created by EBI solver program, Feb. 9, 2011
+38c40,41
+< C***********************************************************************
+---
+> C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+> C-----------------------------------------------------------------------
+46c49
+< C.....INCLUDES:
+---
+> C.....Includes:
+49,51c52
+< C.....ARGUMENTS: NONE
+< 
+< C.....PARAMETERS: NONE
+---
+> C.....Arguments: NONE
+52a54
+> C.....Parameters: NONE
+54c56
+< C.....EXTERNAL FUNCTIONS:
+---
+> C.....External Functions:
+57c59
+< C.....SAVED VARIABLES:
+---
+> C.....Saved Variables:
+60,62c62,63
+< 
+< C.....LOCAL VARIABLES:
+<       CHARACTER( 132 ) ::  MSG       ! Log message
+---
+> C.....Local Variables:
+>       CHARACTER( 132 ) :: MSG = ' '       ! Log message
+68c69
+< C***********************************************************************
+---
+> C-----------------------------------------------------------------------
+80,86c81,85
+<      &          LOSS( N_SPEC),
+<      &          STAT = IOS )
+< 
+<        IF ( IOS .NE. 0 ) THEN
+<           MSG = 'Error allocating RKI, RXRAT, RTOL, YC, YC0, YCP, PROD, LOSS, or PNEG'
+<           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+<        END IF
+---
+>      &          LOSS( N_SPEC), STAT = IOS )
+>       IF ( IOS .NE. 0 ) THEN
+>          MSG = 'Error allocating RKI, RXRAT, RTOL, YC, YC0, YCP, PROD, or LOSS'
+>          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+>       END IF
+91d89
+< 
+247d244
+< 
+251c248
+<          MSG = 'Error allocating EBISP' 
+---
+>          MSG = 'Error allocating EBISP'
+548d544
+< 
+550d545
+< 
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrprodloss.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrprodloss.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrprodloss.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+37c38
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrrates.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrrates.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrrates.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+35c36
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+> C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+diff -r --report-identical-files /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq/hrsolver.F /home/hutzellb/cmaq_toxics/releases_2010/ebi_saprc07tb_April-29-2011/hrsolver.F
+18a19
+> 
+20c21
+< C $Header$
+---
+> C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrsolver.F,v 1.1.1.1 2011/04/05 20:29:38 sjr Exp $
+25,26c26,27
+<        SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
+< 
+---
+> C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+>       SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
+28,34c29,34
+< C**********************************************************************
+< C
+< C  FUNCTION: EBI solver
+< C
+< C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+< C
+< C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3,
+---
+> C-----------------------------------------------------------------------
+> C  Function: EBI solver
+>  
+> C  Preconditions: For the SAPRC07TB family of mechanisms
+>  
+> C  Key Subroutines/Functions Called:  HRRATES, HRG1, HRG2, HRG3,
+36,37c36,37
+< C
+< C  REVISION HISTORY: Created by EBI solver program, May 10, 2011
+---
+>  
+> C  Revision History: Created by EBI solver program, Feb. 9, 2011
+43c43,44
+< C**********************************************************************
+---
+> C   05 Apr 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+> C-----------------------------------------------------------------------
+51,52c52
+< C..INCLUDES:
+< 
+---
+> C..Includes:
+54c54
+< C..ARGUMENTS:
+---
+> C..Arguments:
+59c59
+< C..PARAMETERS:
+---
+> C..Parameters:
+67c67
+< C..EXTERNAL FUNCTIONS:
+---
+> C..External Functions:
+69,70c69
+< 
+< C..SAVED LOCAL VARIABLES:
+---
+> C..Saved Local Variables:
+75,76c74
+< 
+< C..SCRATCH LOCAL VARIABLES:
+---
+> C..Scratch Local Variables:
+80,88c78,86
+<       INTEGER CELLNO          ! Cell no. fo debug output
+<       INTEGER ITER            ! Loop index for Backward Euler iterations
+<       INTEGER S               ! Loop index for species
+<       INTEGER NEBI            ! Loop index for time steps
+<       INTEGER NINR            ! No. of inner time steps
+<       INTEGER N               ! Loop index
+<       INTEGER EBI             ! Loop index
+<       INTEGER NBKUPS          ! No. of times time step reduced
+<       INTEGER ERR             ! Allocate error flag
+---
+>       INTEGER CELLNO        ! Cell no. for debug output
+>       INTEGER ITER          ! Loop index for Backward Euler iterations
+>       INTEGER S             ! Loop index for species
+>       INTEGER NEBI          ! Loop index for time steps
+>       INTEGER NINR          ! No. of inner time steps
+>       INTEGER N             ! Loop index
+>       INTEGER EBI           ! Loop index
+>       INTEGER NBKUPS        ! No. of times time step reduced
+>       INTEGER ERR           ! Allocate error flag
+90,92c88,89
+< 
+<       LOGICAL LEBI_CONV             ! Flag for EBI convergence
+<       LOGICAL MXFL                  ! hit MAXPRED flag
+---
+>       LOGICAL LEBI_CONV     ! Flag for EBI convergence
+>       LOGICAL MXFL          ! hit MAXPRED flag
+108c105
+<       LOGICAL, SAVE  :: LOPEN = .FALSE.
+---
+>       LOGICAL, SAVE :: LOPEN = .FALSE.
+111,123c108
+< C**********************************************************************
+< 
+< 
+<        IF( LFIRST ) THEN
+<           LFIRST = .FALSE.
+<           LOGDEV = INIT3( )
+< 
+<           ALLOCATE ( LEBISPFL( N_GC_SPC ), STAT = ERR )
+<           IF ( ERR .NE. 0 ) THEN
+<              MSG = 'Error allocating LEBISPFL'
+<              CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+<           END IF
+<        END IF
+---
+> C-----------------------------------------------------------------------
+124a110,119
+>       IF ( LFIRST ) THEN
+>          LFIRST = .FALSE.
+>          LOGDEV = INIT3( )
+> 
+>          ALLOCATE ( LEBISPFL( N_GC_SPC ), STAT = ERR )
+>          IF ( ERR .NE. 0 ) THEN
+>             MSG = 'Error allocating LEBISPFL'
+>             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+>          END IF
+>       END IF
+131c126
+<       IF( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
+---
+>       IF ( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
+138,139c133,134
+<       IF( LDEBUG ) THEN
+<            IF( .NOT. LOPEN ) THEN
+---
+>       IF ( LDEBUG ) THEN
+>            IF ( .NOT. LOPEN ) THEN
+163,164d157
+< 
+< 
+191c184
+<                IF( LDEBUG ) THEN
+---
+>                IF ( LDEBUG ) THEN
+196c189
+<                   IF( ITER .EQ. 1 ) THEN
+---
+>                   IF ( ITER .EQ. 1 ) THEN
+207d199
+< 
+220d211
+< 
+228d218
+< 
+230,232c220
+<      &                               ( YC ( S ) + LOSS( S ) * DTC ) )
+< 
+< 
+---
+>      &                                 ( YC ( S ) + LOSS( S ) * DTC ) )
+235,237d222
+< 
+< 
+< 
+246c231
+<                   IF( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
+---
+>                   IF ( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
+252c237
+<                   IF( YCP( S ) .GT. MAXPRED ) then
+---
+>                   IF ( YCP( S ) .GT. MAXPRED ) then
+261c246
+<                IF( LDEBUG ) THEN
+---
+>                IF ( LDEBUG ) THEN
+265c250
+<                      IF( LEBISPFL( S ) ) THEN
+---
+>                      IF ( LEBISPFL( S ) ) THEN
+274c259
+<                   IF( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
+---
+>                   IF ( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
+281,283c266
+<                 IF( LEBI_CONV )THEN
+<                    GO TO 2000
+<                 END IF
+---
+>                IF ( LEBI_CONV ) GO TO 2000
+290c273
+<  1010       CONTINUE
+---
+> 1010        CONTINUE
+294c277
+<             IF( NBKUPS .LE. MXBKUPS ) THEN
+---
+>             IF ( NBKUPS .LE. MXBKUPS ) THEN
+318c301
+<                   IF( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) GC_SPC( S )
+---
+>                   IF ( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) GC_SPC( S )
+326c309
+<  2000    CONTINUE
+---
+> 2000     CONTINUE
+328c311
+<  3000 CONTINUE
+---
+> 3000  CONTINUE
+332d314
+< 
+Only in /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq: RXCM.EXT
+Only in /home/hutzellb/code_beta_v50/gas/EBI_saprc07tb_ae5_aq: RXDT.EXT
