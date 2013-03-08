@@ -26,7 +26,7 @@ C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP )
+     &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
 
 C-----------------------------------------------------------------------
 C
@@ -98,6 +98,8 @@ C       5/11/11 D.Wong: incorporated twoway model implementation
 C       9/11 S.Roselle: enable CMAQ subgrid cloud model only when met. driver
 C             uses a convective cloud parameterization (removed minimum
 C             horizontal grid resolution restriction)
+C       02Aug12 S.Roselle:  instrumented to calculate and return
+C                           transmissivity for convective clouds
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -195,6 +197,7 @@ C...........Arguments
       INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
 !     REAL          CONV_DEP( NCOLS, NROWS, * )  ! depositions (etc.)
       REAL       :: CONV_DEP( :,:,: )   ! depositions (etc.)
+      REAL       :: SUBTRANS( :,:,: )
 
 C...........Local Variables
 
@@ -317,6 +320,7 @@ C-------------------------------------------
       REAL          WTBAR               ! total wat cont (kg/m2) int. thru cloud depth
       REAL          X1                  ! intermediate vbles in lapse rate calculation X1 also reused as scratch vble in mixing
       REAL          XXXX                ! scratch vbl used in entrainment solver
+      REAL          CLOD, LWP      
       REAL, ALLOCATABLE, SAVE :: AECONCMIN( : ) ! array of minimum concentrations
       REAL, ALLOCATABLE, SAVE :: BMOL   ( : )   ! moles/m2 species below cloud
       REAL, ALLOCATABLE, SAVE :: CBASE0 ( : )   ! initial ave trace gas mix rat below cld
@@ -1652,6 +1656,31 @@ C...Compute cloud mean quantities
           WCBAR = WCBAR / CTHK              ! ave liq wat content in kg/m3
 
           WTBAR = WTBAR / CTHK              ! ave con wat content in kg/m3
+
+C...Calculate the cloud optical depth using a formula derived from
+C...  Stephens (1978), JAS(35), pp2111-2132.
+C...  only calculate the cloud optical depth when the liquid water
+C...  path is >= 10 g/m2
+
+          LWP = WTBAR * CTHK * 1000.0  ! converts to g/m2
+          IF ( LWP .GE. 10.0 ) THEN
+             CLOD = 10.0**( 0.2633 + 1.7095 * LOG( LOG10( LWP ) ) )
+          ELSE
+             CLOD = 0.0
+          END IF
+
+C...If no cloud or optical depth < 5, set clear sky values.
+C...  (i.e. don't do anything)
+
+          IF ( CLOD .GE. 5.0 ) THEN
+
+             IF ( ICLDTYPE .EQ. 1 ) THEN  ! precipitating cloud
+                SUBTRANS( COL, ROW, 1 ) = 1.0 + FRAC * ( ( 5.0 - EXP ( -CLOD ) ) / ( 4.0 + 0.42 * CLOD ) - 1.0 )
+             ELSE
+                SUBTRANS( COL, ROW, 2 ) = 1.0 + FRAC * ( ( 5.0 - EXP ( -CLOD ) ) / ( 4.0 + 0.42 * CLOD ) - 1.0 )
+             END IF
+              
+          END IF	  
 
 C...Finally, get in cloud pollutant concentrations in moles sp
 C...  per mole air
