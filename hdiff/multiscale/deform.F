@@ -383,6 +383,7 @@ C create U/RhoJ - update ghost regions for RhoJ
 
       CALL SUBST_COMM ( DENSJ, DSPL_N0_E1_S0_W1, DRCN_E_W, COMMSTR )
 
+      LOC_UWIND = 0.0   ! array assignment
       DO LVL = 1, MLAYS
          DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS + 1
@@ -396,6 +397,7 @@ C create V/RhoJ - update ghost regions for RhoJ
 
       CALL SUBST_COMM ( DENSJ, DSPL_N1_E0_S1_W0, DRCN_N_S, COMMSTR )
 
+      LOC_VWIND = 0.0   ! array assignment
       DO LVL = 1, MLAYS
          DO ROW = 1, MY_NROWS + 1
             DO COL = 1, MY_NCOLS

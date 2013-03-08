@@ -287,8 +287,10 @@ C             direction to receive from: NSEW)
       CALL SUBST_COMM ( RHOJ, DSPL_N0_E0_S1_W1, DRCN_S_W, COMMSTR )
 #endif
 
-C get face values for RHOJ (assumes dx1 = dx2)
+C initialize RK11, RK22 with face values for RHOJ (assumes dx1 = dx2)
 
+      RK11 = 0.0   ! array assignment
+      RK22 = 0.0   ! array assignment
       DO L = 1, NLAYS
          DO R = STARTROW, ENDROW        !  DO R = 1, NROWS + 1
             DO C = STARTCOL, ENDCOL     !     DO C = 1, NCOLS + 1
