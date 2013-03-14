@@ -226,7 +226,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                RK3 = RFDAT( 4, NRT ) * EXP( RFDAT( 5, NRT )  * TINV( NCELL ) )
 
-               RKI( NCELL,IRXN ) = RK1 + RK2 + RK3
+               RK( NCELL,IRXN ) = RK1 + RK2 + RK3
 
             ENDDO
          ELSE

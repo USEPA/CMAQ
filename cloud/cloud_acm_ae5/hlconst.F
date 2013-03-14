@@ -63,6 +63,8 @@ C  Y.Xie      6/11/10  added Henry's Law constants for 126 to 130 for
 C                       isoprene chemistry in SAPRC07               
 C  W.Hutzell  08/16/12  updated IOAPI and Henry Constant names to V5.01
 C                       standards
+C  W.Hutzell  01/30/13  updated PHENOL, and add values for CATECHOL and
+C                       XYLENOL
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -74,7 +76,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 130     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 133     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -187,7 +189,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME( 49), A( 49), E( 49) / 'PEROXYACETIC_ACI', 8.4E+02, 5.3E+03 /  ! O'Sullivan et al. 1996
       DATA SUBNAME( 50), A( 50), E( 50) / 'PROPANOIC_ACID  ', 5.7E+03, 0.0E+00 /  ! Kahn et al. 1995
       DATA SUBNAME( 51), A( 51), E( 51) / '2-NITROPHENOL   ', 7.0E+01, 4.6E+03 /  ! USEPA 1982
-      DATA SUBNAME( 52), A( 52), E( 52) / 'PHENOL          ', 1.9E+03, 7.3E+03 /  ! USEPA 1982
+      DATA SUBNAME( 52), A( 52), E( 52) / 'PHENOL          ', 3.3E+03, 3.6E+03 /  ! Meylan and Howard (1991)
       DATA SUBNAME( 53), A( 53), E( 53) / 'BIACETYL        ', 7.4E+01, 5.7E+03 /  ! Betteron 1991
       DATA SUBNAME( 54), A( 54), E( 54) / 'BENZALDEHYDE    ', 3.9E+01, 4.8E+03 /  ! Staudinger and Roberts 1996
       DATA SUBNAME( 55), A( 55), E( 55) / 'PINENE          ', 4.9E-02, 0.0E+00 /  ! Karl and Lindinger 1997
@@ -270,6 +272,8 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.00E+03, 0.00E+00 /  ! Kames and Schurath (1992)
       DATA SUBNAME(129), A(129), E(129) / 'HACET           ', 2.93E+03, 0.00E+00 /  ! Spaulding et al. (2002)
       DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
+      DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
+      DATA SUBNAME(132), A(132), E(132) / 'CATECHOL        ', 3.16E+05, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
