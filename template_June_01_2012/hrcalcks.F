@@ -197,7 +197,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             RK3 = RFDAT( 4, NRT ) * EXP( RFDAT( 5, NRT )  * TINV )
 
-            RKI( IRXN ) = RK1 + RK2 + RK3
+            RK( IRXN ) = RK1 + RK2 + RK3
 
          ELSE
             RK0 = 1.0E+06 * CFACT * 
