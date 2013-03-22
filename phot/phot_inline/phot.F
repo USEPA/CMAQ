@@ -839,6 +839,8 @@ C...Calculate current hour in GMT and julian day
 
 C...Calculate cosines of the zenith angles and compute NDARK
 
+      NDARK = 0
+
       DO ROW = 1, MY_NROWS
          DO COL = 1, MY_NCOLS
 
@@ -859,7 +861,7 @@ C...this convention on longititude should be reexamined for different domains
             IF ( .NOT. HAS_SEAICE ) THEN ! determine sea ice can form
                IF ( TEMPG( COL, ROW ) .LT. SEAICE_POINT .AND.
      &              WATER_FRACTION( COL, ROW ) .GE. 0.95 ) THEN
-     	            SEAICE( COL, ROW ) = 1.0
+                  SEAICE( COL, ROW ) = 1.0
                ELSE
                   SEAICE( COL, ROW ) = 0.0
                END IF
