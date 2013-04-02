@@ -407,11 +407,13 @@ C...Get latitudes
 
             IF ( VNAME3D( V ) .EQ. 'DLUSE' ) THEN
                IF ( INDEX( VDESC3D( V ), 'USGS24' ) .NE. 0 ) LAND_SCHEME = 'USGS24'
-               IF ( INDEX( VDESC3D( V ), 'MODIS' ) .NE. 0 ) LAND_SCHEME = 'MODIS'
+               IF ( INDEX( VDESC3D( V ), ' MODIS' ) .NE. 0 ) LAND_SCHEME = 'MODIS'
 
 C...overwrite if NLCD-MODIS scheme
 
-               IF ( INDEX( VDESC3D( V ), 'NLCD-MODIS' ) .NE. 0 ) LAND_SCHEME = 'NLCD-MODIS'
+               IF ( INDEX( VDESC3D( V ), 'NLCD-MODIS' ) .NE. 0 ) LAND_SCHEME = 'NLCD50'
+               IF ( INDEX( VDESC3D( V ),     'NLCD50' ) .NE. 0 ) LAND_SCHEME = 'NLCD50'
+               IF ( INDEX( VDESC3D( V ),     'NLCD40' ) .NE. 0 ) LAND_SCHEME = 'NLCD40'
             END IF
 
          END DO
@@ -421,8 +423,16 @@ C...overwrite if NLCD-MODIS scheme
               NUMB_LANDUSE = NUMB_LANDUSE_USGS  ! 24
            CASE( 'MODIS' )
               NUMB_LANDUSE = NUMB_LANDUSE_MODIS ! 33
-           CASE( 'NLCD-MODIS' )
-              NUMB_LANDUSE = NUMB_LANDUSE_NLCD  ! 50
+           CASE( 'NLCD50' )
+              NUMB_LANDUSE = NUMB_LANDUSE_NLCD50  ! 50
+           CASE( 'NLCD40' )
+              NUMB_LANDUSE = NUMB_LANDUSE_NLCD40  ! 40
+              IF( NO_NLCD40 )THEN
+                  XMSG =  'GRID_CRO_2D uses NLCD40 landuse scheme but '
+     &                 // 'CSQY_FILE does not albedo factors for the '
+     &                 // 'NLCD40'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+              END IF
            CASE DEFAULT
               NUMB_LANDUSE = 2 ! simple land-water suface albedo
          END SELECT
@@ -503,7 +513,7 @@ C...overwrite if NLCD-MODIS scheme
          END IF
 
          IF ( .NOT. HAS_SEAICE ) THEN
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'NO SEAICE '
 #endif
             XMSG = 'MET_CRO_2D DOES NOT CONTAIN SEA ICE DATA. THE SURFACE ALBEDO '
@@ -516,7 +526,7 @@ C...overwrite if NLCD-MODIS scheme
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'allocated TEMPG array'
 #endif
 
@@ -606,9 +616,12 @@ C...overwrite if NLCD-MODIS scheme
             CASE( 'MODIS' )
                ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2MODIS( 1:NUMB_LANDUSE )
                ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2MODIS( 1:NUMB_LANDUSE )
-            CASE( 'NLCD-MODIS' )
-               ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2NLCD( 1:NUMB_LANDUSE )
-               ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2NLCD( 1:NUMB_LANDUSE )
+            CASE( 'NLCD50' )
+               ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2NLCD50( 1:NUMB_LANDUSE )
+               ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2NLCD50( 1:NUMB_LANDUSE )
+            CASE( 'NLCD40' )
+               ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2NLCD40( 1:NUMB_LANDUSE )
+               ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2NLCD40( 1:NUMB_LANDUSE )
             CASE DEFAULT
                ALBMAP_TO_REF( 1 ) = INDEX_GRASSLAND_REF
                ALBFAC_TO_REF( 1 ) = 1.0
@@ -826,6 +839,8 @@ C...Calculate current hour in GMT and julian day
 
 C...Calculate cosines of the zenith angles and compute NDARK
 
+      NDARK = 0
+
       DO ROW = 1, MY_NROWS
          DO COL = 1, MY_NCOLS
 
@@ -846,7 +861,7 @@ C...this convention on longititude should be reexamined for different domains
             IF ( .NOT. HAS_SEAICE ) THEN ! determine sea ice can form
                IF ( TEMPG( COL, ROW ) .LT. SEAICE_POINT .AND.
      &              WATER_FRACTION( COL, ROW ) .GE. 0.95 ) THEN
-     	            SEAICE( COL, ROW ) = 1.0
+                  SEAICE( COL, ROW ) = 1.0
                ELSE
                   SEAICE( COL, ROW ) = 0.0
                END IF
