@@ -74,7 +74,7 @@ C External Functions:
 C Local parameters:
       INTEGER,   PARAMETER :: NDELIM = 4
       CHARACTER, PARAMETER :: DELIMLST( NDELIM ) =
-     &                        (/ ',', ' ', ';', '	' /)
+     &                        (/ ',', ' ', ';', '       ' /)
 
 C Arrays for sorting non-delimiters on a per-machine basis:
       INTEGER            NDINDX  ( NDELIM )

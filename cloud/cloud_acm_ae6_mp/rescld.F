@@ -696,7 +696,7 @@ C...  update variables used in hg_aqchem_data modules
                   IF ( COSZ .LE. 0.0 ) THEN
                     DARK = .TRUE.   ! night
                   ELSE
-                  	DARK = .FALSE.  ! day
+                    DARK = .FALSE.  ! day
                   END IF
 
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,

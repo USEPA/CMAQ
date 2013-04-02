@@ -660,7 +660,7 @@ C...  Get LON
 C...check option for processing clouds on the synchronization timestep
 
       IF ( SYNCCLD ) THEN
-      	
+
         MDATE = JDATE
         MTIME = JTIME
 

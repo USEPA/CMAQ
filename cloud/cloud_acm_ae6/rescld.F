@@ -689,7 +689,7 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
                   IF ( COSZ .LE. 0.0 ) THEN
                     DARK = .TRUE.   ! night
                   ELSE
-                  	DARK = .FALSE.  ! day
+                    DARK = .FALSE.  ! day
                   END IF
 
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,

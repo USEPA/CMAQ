@@ -473,7 +473,7 @@ C
          ELSE
            DTWHG(IORGC+ NUMOX_V46 ) = 0.1D+0 * (MIN(ORGC, HGII ))/DHGDT(IORGC)
          END IF
-	   
+ 
          DHGDT(IHGDISULF) = KORGC * ORGC * HGDISULF 
          IF ( ( DHGDT(IHGDISULF) .EQ. 0.0D+0 ) .OR.( HGDISULF .LE. 1.00D-30 ) ) THEN
            DTWHG(IHGDISULF + NUMOX_V46 ) = DTRMV
@@ -686,28 +686,28 @@ C Don't allow any aqeuous mercury species concentrations to become negative
               DHGDT(IORGC)   = DHGDT(IORGC) * DHG_SCALE 
               DHGDT(ISHGII) = DHGDT(ISHGII) * DHG_SCALE 
           END IF
-  	
+
           LOSS_HG_SPECIES = DHGDT(IHGDISULF) + DHGDT(ISHGDISULF)
           IF ( HGDISULF .LT.  LOSS_HG_SPECIES * DTRMV ) THEN
               DHG_SCALE = HGDISULF / ( LOSS_HG_SPECIES * DTRMV )
               DHGDT(IHGDISULF)   = DHGDT(IHGDISULF)  * DHG_SCALE 
               DHGDT(ISHGDISULF)  = DHGDT(ISHGDISULF) * DHG_SCALE 
           END IF
-  	
+
           LOSS_HG_SPECIES = DHGDT(IHGOHP) + DHGDT(ISHGOHP)
           IF ( HGOHP .LT.  LOSS_HG_SPECIES * DTRMV ) THEN
               DHG_SCALE = HGOHP / ( LOSS_HG_SPECIES * DTRMV )
               DHGDT(IHGOHP)   = DHGDT(IHGOHP)  * DHG_SCALE 
               DHGDT(ISHGOHP)  = DHGDT(ISHGOHP) * DHG_SCALE 
           END IF
-  	
+
           LOSS_HG_SPECIES = DHGDT(IHGOHCL) + DHGDT(ISHGOHCL)
           IF ( HGOHCL .LT.  LOSS_HG_SPECIES * DTRMV ) THEN
               DHG_SCALE = HGOHCL / ( LOSS_HG_SPECIES * DTRMV )
               DHGDT(IHGOHCL)   = DHGDT(IHGOHCL)  * DHG_SCALE 
               DHGDT(ISHGOHCL)  = DHGDT(ISHGOHCL) * DHG_SCALE 
           END IF
-  	
+
           LOSS_HG_SPECIES = DHGDT(IHGCL2) + DHGDT(ISHGCL2)
           IF ( HGCL2L .LT.  LOSS_HG_SPECIES * DTRMV ) THEN
               DHG_SCALE = HGCL2L / ( LOSS_HG_SPECIES * DTRMV )
