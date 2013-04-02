@@ -537,14 +537,12 @@ C                                       vvvvvvv - emis surrogate names
                END IF
 	       DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     DO L = 1, EMLYRS                     
-                        BUFF( C,R,L ) = BUFF( C,R,L ) - FERT( C,R,L )
-			IF(BUFF( C,R,L ) .LT. 0.0 ) THEN
-                           XMSG = 'Negative values in NH3 emissions' 
-     &                          //'Error in NH3 Bidi emissions'                          
-                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-			END IF
-                     END DO
+                     BUFF( C,R,1 ) = BUFF( C,R,1 ) - FERT( C,R,1 )
+                     IF(BUFF( C,R,1 ) .LT. 0.0 ) THEN
+                        XMSG = 'Negative values in NH3 emissions' 
+     &                       //'Error in NH3 Bidi emissions'                          
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     END IF
                   END DO
                END DO    
             END IF ! ABFLUX
