@@ -282,8 +282,8 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
             SUCCESS = .FALSE.; RETURN
          END IF
          BUFF = 0.0   ! array assignment
-	 
-         IF( ABFLUX ) THEN
+
+         IF ( ABFLUX ) THEN
             ALLOCATE ( FERT( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
                XMSG = 'FERT memory allocation failed'
@@ -525,9 +525,9 @@ C                                       vvvvvvv - emis surrogate names
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 ! subtract the fertilizer emissions from the NEI for use in the NH3 bidirectional
-! exchange model JOB	    
-            IF( ABFLUX .AND. TRIM( NR_EMIS( S ) ) .EQ. 'NH3' ) THEN
-	       FERT = 0.0   ! array assignment
+! exchange model JOB
+            IF ( ABFLUX .AND. TRIM( NR_EMIS( S ) ) .EQ. 'NH3' ) THEN
+               FERT = 0.0   ! array assignment
                IF ( .NOT. INTERPX( EMIS_1, 'NH3_FERT', PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, FERT ) ) THEN
@@ -535,7 +535,7 @@ C                                       vvvvvvv - emis surrogate names
      &                   // EMIS_1
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
-	       DO R = 1, MY_NROWS
+               DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      BUFF( C,R,1 ) = BUFF( C,R,1 ) - FERT( C,R,1 )
                      IF(BUFF( C,R,1 ) .LT. 0.0 ) THEN
@@ -546,7 +546,7 @@ C                                       vvvvvvv - emis surrogate names
                   END DO
                END DO    
             END IF ! ABFLUX
-	    
+
             CNVTI = CNVTP * NR_EMIS_FAC( S )
 
             DO R = 1, MY_NROWS

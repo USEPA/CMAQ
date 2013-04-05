@@ -35,7 +35,7 @@ C    Compute concentration changes in cloud due to aqueous chemistry,
 C    scavenging and wet deposition amounts.
 C
 C  Revision History:
-C      No   Date   Who	What
+C      No   Date   Who  What
 C      -- -------- ---  -----------------------------------------
 C      0  / /86    CW   BEGIN PROGRAM - Walceks's Original Code
 C      1  / /86    RB   INCORPORATE INTO RADM
@@ -1157,7 +1157,7 @@ C...    S(iv) available then scale the rates to conserve mass
           DSIVDT( 2 ) = DSIVDT( 2 ) * DSIV_SCALE
           DSIVDT( 3 ) = DSIVDT( 3 ) * DSIV_SCALE
           DSIVDT( 4 ) = DSIVDT( 4 ) * DSIV_SCALE
-          DSIVDT( 5 ) = DSIVDT( 5 ) * DSIV_SCALE       	
+          DSIVDT( 5 ) = DSIVDT( 5 ) * DSIV_SCALE
         END IF
 
 C...Set DSIV(I), I = 0,NUMOX, the amount of S(IV) oxidized by each

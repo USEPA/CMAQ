@@ -202,7 +202,7 @@ C--------------------------------------------------------------------------
      &                              0.5*lufrac(30,c,r)
                   END DO
                END DO
-	    CASE( 'NLCD50' )
+             CASE( 'NLCD50' )
                ALLOCATE (  Hglu_fac( n_lufrac ) )
                Hglu_fac = HGLU_FAC_NLCD50
                DO C = 1, MY_NCOLS
@@ -567,7 +567,7 @@ C diffusion through soil from Scholtz et al. 2003
             ThetaX   =  0.0D0
             EIVAL(1) = -2.0D0*sqrt(Qx)*DCOS(ThetaX/3.0D0)-ax/3.0D0
             EIVAL(2) = -2.0D0*sqrt(Qx)*DCOS((ThetaX+2.0D0*Pi)/3.0D0)-ax/3.0D0
-            EIVAL(3) = -2.0D0*sqrt(Qx)*DCOS((ThetaX-2.0D0*Pi)/3.0D0)-ax/3.0D0	 
+            EIVAL(3) = -2.0D0*sqrt(Qx)*DCOS((ThetaX-2.0D0*Pi)/3.0D0)-ax/3.0D0
             DO i = 1, NC
                ev1 =   1.0D0
                ev2 = (KO(2,1)*KO(1,3)-(KO(1,1)-EIVAL(i))*KO(2,3))/
@@ -686,21 +686,21 @@ C******************************************************************************
 ! can evade from this source.
             XMSG = '*** Negative concentration in Hgs resetting it to zero flux condition ***'
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-	    WRITE(LOGDEV,*) 'wg  :',wg_min, 'Hgs :', Hgs, 'H :',H
-	    WRITE(LOGDEV,*) 'Col :',c, 'Row :', r
+            WRITE(LOGDEV,*) 'wg  :',wg_min, 'Hgs :', Hgs, 'H :',H
+            WRITE(LOGDEV,*) 'Col :',c, 'Row :', r
             Hgs = CHgzo*H 
 
          END IF
-	 
+
          IF ( Hgm .NE. Hgm .OR. Hgc .NE. Hgc .OR. Hgs .NE. Hgs ) THEN
             XMSG = '*** NaN in Hgs, Hgc, or Hgm ***'
             WRITE(LOGDEV,*) 'Col',c,'Row',r
             WRITE(LOGDEV,*) 'Hgm',Hgm,'Hgc',Hgc,'Hgs',Hgs
             WRITE(LOGDEV,*) 'B      :',B
-	    WRITE(LOGDEV,*) 'NHS    :',NHS
-	    WRITE(LOGDEV,*) 'KO     :',KO
-	    WRITE(LOGDEV,*) 'cgHgII0: ',cgHgII0
-	    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)	    
+            WRITE(LOGDEV,*) 'NHS    :',NHS
+            WRITE(LOGDEV,*) 'KO     :',KO
+            WRITE(LOGDEV,*) 'cgHgII0: ',cgHgII0
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)
          END IF
 
          CMEDIA( c,r,1 ) = 0.0 ! water

@@ -617,7 +617,7 @@ C...allocate saved arrays
 C...check option for processing clouds on the synchronization timestep
 
       IF ( SYNCCLD ) THEN
-      	
+
         MDATE = JDATE
         MTIME = JTIME
 
@@ -1680,7 +1680,7 @@ C...  (i.e. don't do anything)
                 SUBTRANS( COL, ROW, 2 ) = 1.0 + FRAC * ( ( 5.0 - EXP ( -CLOD ) ) / ( 4.0 + 0.42 * CLOD ) - 1.0 )
              END IF
               
-          END IF	  
+          END IF
 
 C...Finally, get in cloud pollutant concentrations in moles sp
 C...  per mole air

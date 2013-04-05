@@ -913,7 +913,7 @@ C-------------------------------------------------------------------------------
             vname = 'UWIND'
             IF ( .NOT. interpx (met_dot_3d, vname, pname, strtcol,  endcol+1,
      &                    strtrow, endrow+1, 1, 1, jdate, jtime, uwind) ) THEN
-	       WRITE( xmsg,9001 ) vname, met_dot_3d
+               WRITE( xmsg,9001 ) vname, met_dot_3d
 
                GO TO 1001
             END IF
@@ -927,7 +927,7 @@ C-------------------------------------------------------------------------------
                WRITE( xmsg,9001 ) vname, met_dot_3d
 
                GO TO 1001
-	    END IF
+            END IF
          END IF      
       END IF
       
@@ -1536,18 +1536,18 @@ C--------------------------------------------------------------------------
                         pvd( n,c,r ) = tpvd
                         depvel_gas( n,c,r ) = lnh3
                         
-                        cmp(1,c,r) = max(f_emis,0.0)
-                        cmp(2,c,r) = max(f_dep,0.0)
-                        cmp(3,c,r) = f_stom
-                        cmp(4,c,r) = f_cut
-                        cmp(5,c,r) = f_soil
-                        cmp(6,c,r) = f_ag
-                        cmp(7,c,r) = f_nat
-                        cmp(8,c,r) = f_wat
+                        cmp( 1,c,r ) = max( f_emis, 0.0 )
+                        cmp( 2,c,r ) = max( f_dep, 0.0 )
+                        cmp( 3,c,r ) = f_stom
+                        cmp( 4,c,r ) = f_cut
+                        cmp( 5,c,r ) = f_soil
+                        cmp( 6,c,r ) = f_ag
+                        cmp( 7,c,r ) = f_nat
+                        cmp( 8,c,r ) = f_wat
                         
                      ELSE   ! water
-		        cmp(2,c,r) = depvel_gas( n,c,r ) * cnh3
-                        cmp(8,c,r) = depvel_gas( n,c,r ) * cnh3
+                        cmp( 2,c,r ) = depvel_gas( n,c,r ) * cnh3
+                        cmp( 8,c,r ) = depvel_gas( n,c,r ) * cnh3
                      END IF
                   END IF   ! 'NH3'
 

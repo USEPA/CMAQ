@@ -859,7 +859,7 @@ C...this convention on longititude should be reexamined for different domains
             IF ( .NOT. HAS_SEAICE ) THEN ! determine sea ice can form
                IF ( TEMPG( COL, ROW ) .LT. SEAICE_POINT .AND.
      &              WATER_FRACTION( COL, ROW ) .GE. 0.95 ) THEN
-     	            SEAICE( COL, ROW ) = 1.0
+                  SEAICE( COL, ROW ) = 1.0
                ELSE
                   SEAICE( COL, ROW ) = 0.0
                END IF
