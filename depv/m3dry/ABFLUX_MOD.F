@@ -99,15 +99,15 @@
          Real, Save, Allocatable :: F_rate2 ( :,:,: ) ! fertlizer application to layer 2
          Real, Save, Allocatable :: Beld_ag ( :,:,: )        
          Real                    :: Tot_Ag          ! total ag in the grid cell    
-	 Real, Parameter ::  convl1 = 7.142857e-04   ! ha/m**2 * mol/g N * 1/z_soil_l1 	 
-         Real, Parameter ::  convl2 = 1.428571e-04   ! ha/m**2 * mol/g N * 1/z_soil_l2 
+         Real, Parameter :: convl1 = 7.142857e-04   ! ha/m**2 * mol/g N * 1/z_soil_l1 
+         Real, Parameter :: convl2 = 1.428571e-04   ! ha/m**2 * mol/g N * 1/z_soil_l2 
          Real            :: pHfac1
          Real            :: pHfac2
  
-         Character( 16 ), Parameter :: pname = 'Init_ABFlux     ' 
+         Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
          Character( 16 )            :: vname
          Character( 96 )            :: xmsg = ' '
-         Character( 20 ), Save      :: Beld_Names(e2c_cats)
+         Character( 20 ), Save      :: Beld_Names( e2c_cats )
 C Some compilers do not pad with blank characters in data initialization
 C                          '12345678901234567890'
          Data Beld_Names / 'Hay                 ',  !  1
@@ -334,7 +334,7 @@ C                          '12345678901234567890'
                         If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                            frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
                         End If                    
-                        Tot_Ag      = Tot_Ag + Beld_ag( c,r,l )
+                        Tot_Ag        = Tot_Ag + Beld_ag( c,r,l )
                         gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
      &                                / pHfac1 * Beld_ag( c,r,l )
                         MHp1( c,r )   = MHp1( c,r ) + Beld_ag( c,r,l ) * pHfac1
@@ -561,10 +561,10 @@ C-------------------------------------------------------------------------------
          Real                   :: w5cm         ! soil moisture in top 5 cm (vol frc)
          Real,        Parameter :: d1 = 0.01    ! Top soil layer depth (1 cm)
          Real,        Parameter :: d2 = 0.05    ! Bottom soil layer mid depth (5 cm)
-	 Real,        Parameter :: twothree = 2.0/3.0
-	 Real,        Parameter :: onethree = 1.0/3.0
-	 Real,        Parameter :: MolN     = 14.007  ! g/mol N
-	 Real,        Parameter :: MolNH3   = 17.01  ! g/mol NH3
+         Real,        Parameter :: twothree = 2.0/3.0
+         Real,        Parameter :: onethree = 1.0/3.0
+         Real,        Parameter :: MolN     = 14.007  ! g/mol N
+         Real,        Parameter :: MolNH3   = 17.01  ! g/mol NH3
          Real( 8 )              :: ldry
          Real( 8 )              :: dp
          Real( 8 )              :: rsoil1
@@ -690,28 +690,28 @@ C-------------------------------------------------------------------------------
 
                      cnh3g2 = 0.0
      
-                  Case( 'AG' ) ! Ag                
+                  Case( 'AG' ) ! Ag
 
                      cnh3g1 = Min( Max( gamma1( col,row ) / wg_ir, C_gam / wg_ir ),
      &                                  maxgam)
 
                      cnh3g2 = Min( Max( gamma2( col,row ) / w5cm, C_gam / w5cm), 
-     &                                  maxgam )                     
+     &                                  maxgam )
 
-                     cnh3s  = Max( cnh3s, a1 *( Max(gamma2(col,row),C_gam) * 1.0e-7 * w5cm * MolN * d2 *
-     &                             1.0e4 * 12.3 + 20.3 ) )
-     
-                  Case( 'AGMOS' ) ! Ag mosaic 67% ag 33% mosaic		  
+                     cnh3s  = Max( cnh3s, a1 *( Max(gamma2(col,row),C_gam) * 1.0e-7
+     &                                          * w5cm * MolN * d2 * 1.0e4 * 12.3 + 20.3 ) )
 
-                     cnh3g1 = Min( Max( gamma1( col,row ) / wg_ir, C_gam / wg_ir) *
-     &                        twothree + onethree * natgam / wg_ir , maxgam )
+                  Case( 'AGMOS' ) ! Ag mosaic 67% ag 33% mosaic 
 
-                     cnh3g2 = Min( Max( gamma2( col,row ) / w5cm, C_gam / w5cm ) * 
-     &                       twothree + onethree * natgam / w5cm, maxgam )
+                     cnh3g1 = Min( Max( gamma1( col,row ) / wg_ir, C_gam / wg_ir)
+     &                                  * twothree + onethree * natgam / wg_ir, maxgam )
 
-                     cnh3s  = Max( cnh3s,a1*( Max(gamma2(col,row),C_gam) * 1.0e-7 * 
-     &                             w5cm * MolN * d2 *1.0e4 * 12.3 + 20.3 ) ) * 
-     &                             twothree + onethree * cnh3s
+                     cnh3g2 = Min( Max( gamma2( col,row ) / w5cm, C_gam / w5cm )
+     &                                  * twothree + onethree * natgam / w5cm, maxgam )
+
+                     cnh3s  = Max( cnh3s, a1 * ( Max(gamma2(col,row),C_gam) * 1.0e-7
+     &                                       * w5cm * MolN * d2 *1.0e4 * 12.3 + 20.3 ) )
+     &                      * twothree + onethree * cnh3s
 
                   Case Default ! not ag
 
@@ -719,19 +719,19 @@ C-------------------------------------------------------------------------------
 
                      cnh3g2 = Min( natgam / w5cm, maxgam )
 
-               End Select                      
+               End Select
 
-               cnh3g1 = a1 * Max(cnh3g1,0.01)         
-               cnh3g2 = a1 * Max(cnh3g2,0.01)
+               cnh3g1 = a1 * Max( cnh3g1, 0.01 )
+               cnh3g2 = a1 * Max( cnh3g2, 0.01 )
 
 101            Continue
 
 !> Cuticle resistance : rw = rwx * cnh3c + rwm
                If ( laij( j,col,row ) .Gt. 0.0 ) Then
 
-                  rwx   = rwetsfc * MolNH3 * 1000.0 / 24.5  ! in ppb/ cso2c 		  
+                  rwx   = rwetsfc * MolNH3 * 1000.0 / 24.5  ! in ppb/ cso2c 
                   rwmb  = rwm * Max( 1.0, 0.5 * ( 100.0-rh_air ) ) + rbcj( j )
-                  ga    = 1.0 / ( raj( j,col,row ) + 0.5 * rincj( j,col,row ) ) 
+                  ga    = 1.0 / ( raj( j,col,row ) + 0.5 * rincj( j,col,row ) )
                   gsb   = 1.0 / ( rstomj( j,sp,col,row ) + rbcj( j ) )
                   gg1( j )= 1.0 / ( rbgj( j ) + 0.5 * rincj( j,col,row ) + rsoil1 )
                   gg2( j )= 1.0 / ( rbgj( j ) + 0.5 * rincj( j,col,row ) + rsoil2 )
@@ -744,30 +744,28 @@ C-------------------------------------------------------------------------------
                   sqrr = -0.5d0 * ( bq + sign( 1.0d0,bq ) * sqrt( bq * bq - 4.0d0 * aq * cq ) )
 !> find the positive root
                   If ( sqrr .Ge. 0.0 ) Then
-                     cnh3c = sqrr/aq
+                     cnh3c = sqrr / aq
                   Else ! because cq is always negative
-                     cnh3c = cq/sqrr
+                     cnh3c = cq / sqrr
                   End If
 ! if the compensation point less than zero reset it to zero
-                  If ( cnh3c .Lt. 0.0 ) Then
-                     cnh3c = 0.0
-                  End If
+                  cnh3c = max( cnh3c, 0.0 )
 
-                  ddd = ( 1.0 - deltaj( j,col,row ) ) / rgndcj( j,col,row ) + 
-     &                  deltaj( j,col,row ) / rgw 
+                  ddd = ( 1.0 - deltaj( j,col,row ) ) / rgndcj( j,col,row )
+     &                + deltaj( j,col,row ) / rgw
 
                   vdg = 1.0 / ( raj( j,col,row ) + rbcj( j ) + 1.0 / ddd )
-               End If ! laij > 0.0            
+               End If  ! laij > 0.0
 
 !> Integrate over the land uses        
                Select Case( cat_lu( j ) )
                   Case( 'WATER','SNOWICE' ) ! no vegetation
-                     lnh3 = lnh3 + lufrac( j,col,row ) / ( rsurfj( j,sp,col,row ) + 
-     &                                                     raj( j,col,row ) )
+                     lnh3 = lnh3 + lufrac( j,col,row ) / ( rsurfj( j,sp,col,row )
+     &                                                     + raj( j,col,row ) )
                   Case Default     ! vegetation
                      pvd  = pvd + lufrac( j,col,row ) * cnh3c * ga * vegj( j,col,row )
-                     lnh3 = lnh3 + lufrac( j,col,row ) * ( ( 1.0 - vegj( j,col,row ) ) * 
-     &                      vdg + vegj( j,col,row ) * ga )
+                     lnh3 = lnh3 + lufrac( j,col,row ) * ( ( 1.0 - vegj( j,col,row ) )
+     &                    * vdg + vegj( j,col,row ) * ga )
                End Select
 
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
@@ -786,7 +784,7 @@ C-------------------------------------------------------------------------------
 !> Zero out the atmospheric NH3 concentration for emissions
                      xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
                      f_emis = f_emis + lufrac( j,col,row ) * vegj( j,col,row ) * ga * ( xxx
-     &                   + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
+     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
                      xxx = rwx * ga * cnh3 - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
                      f_dep = f_dep + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga
@@ -798,7 +796,7 @@ C-------------------------------------------------------------------------------
      &                     * ( deltaj( j,col,row ) / ( rbcj( j ) + rwetsfc )    ! wet cuticle
      &                     + ( 1.0 - deltaj( j,col,row ) ) / ( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
                      f_soil = f_soil + lufrac( j,col,row ) * ( vegj( j,col,row ) * ( (cnh3g1 - cnh3c) * gg1( j )  ! soil layer 1
-     &                      + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2                                                  
+     &                      + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2
                      f_ag = f_ag + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga * ( cnh3c - cnh3 )
      &                    -( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 ) / agfrac
                      If ( f_emis .lt. f_emis_lim ) Then
@@ -808,13 +806,13 @@ C-------------------------------------------------------------------------------
                         Write(logdev,*) 'ag f_stom: ', f_stom
                         Write(logdev,*) 'ag f_cut : ', f_cut
                         Write(logdev,*) 'ag f_soil: ', f_soil
-                        Write(logdev,*) 'ag lufrac: ', lufrac(j,col,row)
-                        Write(logdev,*) 'ag vegj  : ', vegj(j,col,row)
+                        Write(logdev,*) 'ag lufrac: ', lufrac( j,col,row )
+                        Write(logdev,*) 'ag vegj  : ', vegj( j,col,row )
                         Write(logdev,*) 'ag ga    : ', ga
                         Write(logdev,*) 'ag vdg   : ', vdg
                         Write(logdev,*) 'ag agfrac: ', agfrac
                      End If
-                  Case Default ! natural 
+                  Case Default ! natural
 !> Zero out the atmospheric NH3 concentration for emissions
                      xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
                      f_emis = f_emis + lufrac( j,col,row ) * vegj( j,col,row ) * ga * ( xxx
@@ -830,9 +828,9 @@ C-------------------------------------------------------------------------------
      &                      * ( deltaj( j,col,row ) / ( rbcj( j ) + rwetsfc )    ! wet cuticle
      &                      + ( 1.0 - deltaj( j,col,row ) ) / ( rwmb + rwx * cnh3c ) ) ) ! dry cuticle
                      f_soil = f_soil + lufrac( j,col,row ) * ( vegj( j,col,row ) * ( ( cnh3g1 - cnh3c ) * gg1( j ) +  ! soil layer 1
-     &                        ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2                        
-                     f_nag = f_nag + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga * ( cnh3c- cnh3 ) - 
-     &                     ( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 ) / (1.0-agfrac-watfrac)
+     &                        ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2
+                     f_nag = f_nag + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga * ( cnh3c- cnh3 )
+     &                     - ( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 ) / ( 1.0 - agfrac - watfrac )
                      If ( f_emis .lt. f_emis_lim ) Then
                         Write(logdev,*) 'f_emis: ', f_emis
                         Write(logdev,*) 'f_nag : ', f_nag
@@ -840,24 +838,26 @@ C-------------------------------------------------------------------------------
                         Write(logdev,*) 'f_stom: ', f_stom
                         Write(logdev,*) 'f_cut : ', f_cut
                         Write(logdev,*) 'f_soil: ', f_soil
-                        Write(logdev,*) 'lufrac: ', lufrac(j,col,row)
-                        Write(logdev,*) 'vegj  : ', vegj(j,col,row)
+                        Write(logdev,*) 'lufrac: ', lufrac( j,col,row )
+                        Write(logdev,*) 'vegj  : ', vegj( j,col,row )
                         Write(logdev,*) 'ga    : ', ga
                         Write(logdev,*) 'vdg   : ', vdg
                         Write(logdev,*) 'agfrac: ', agfrac
                      End If
                End Select
             End If ! Lufrac > 0.0
-         End Do ! n_lufrac         
-         
-!> -----Compute nitrification rates for agricultural areas only where there is NHx and H+   
+         End Do ! n_lufrac
+ 
+!> -----Compute nitrification rates for agricultural areas only where there is NHx and H+ 
          If ( gamma1( col,row ) .Gt. 0.0 .And. MHp1( col,row ) .Gt. 1.0e-9 .And.
-     &        MHp1( col,row ) .Lt. 1.0e-5 ) Then  
-            Call Calc_Nitrif ( Tempg,wg_ir,Cnh3c,gg1,gamma1(col,row),ist,dt, MHp1(col,row),col,row,d1 )
+     &        MHp1( col,row ) .Lt. 1.0e-5 ) Then
+            Call Calc_Nitrif ( Tempg, wg_ir, Cnh3c, gg1, gamma1( col,row ), ist, dt,
+     &                         MHp1( col,row ), col, row, d1 )
          End If
          If ( gamma2( col,row ) .Gt. 0.0 .And. MHp2( col,row ) .Gt. 1.0e-9 .And.
      &        MHp2( col,row ) .Lt. 1.0e-5 ) Then  
-            Call Calc_Nitrif ( Tempg,w5cm,Cnh3c,gg2,gamma2(col,row),ist,dt,MHp2(col,row),col,row,d2 )
+            Call Calc_Nitrif ( Tempg, w5cm, Cnh3c, gg2, gamma2( col,row ), ist, dt,
+     &                         MHp2( col,row ), col, row, d2 )
          End If
 
          Return         
@@ -906,21 +906,21 @@ C-------------------------------------------------------------------------------
          MNH3 = CNH3c / 24.45 * 1.0e-6
 
 ! Get the soil pH         
-         pHsl = -log10(MHp)
+         pHsl = -log10( MHp )
 
-! get NH4+ from gamma ([NH4+]/[H+] with units in mol/l)         
-         MNHx = min(gam/wg,2.0e5)*MHp
+! get NH4+ from gamma ([NH4+]/[H+] with units in mol/l)
+         MNHx = min( gam / wg, 2.0e5 ) * MHp
 
 ! Estimate the soil nitrification rate following Reddy et al 1979 starting with
-! the temperature parameter         
-         fTg = max( 0.041 * ( Tempg - 278.15 ), 0.0)
+! the temperature parameter
+         fTg = max( 0.041 * ( Tempg - 278.15 ), 0.0 )
  
 ! Estimate the soil water parameter
          wg25 = wwlt( ist ) + 0.25 * ( wfc( ist ) - wwlt( ist ) )
          If ( wg .Le. wwlt( ist ) ) fSWg = 0.1
          If ( wg .Lt. wg25 .And. wg .Gt. wwlt( ist ) ) Then
-            fSWg = max( 0.1, 0.1 + 0.9 * Sqrt( ( wg - wwlt( ist ) ) / 
-     &                ( wfc( ist ) - wwlt( ist ) ) ), ( wg - wwlt( ist ) ) / 
+            fSWg = max( 0.1, 0.1 + 0.9 * Sqrt( ( wg - wwlt( ist ) ) /
+     &                ( wfc( ist ) - wwlt( ist ) ) ), ( wg - wwlt( ist ) ) /
      &                ( 0.25 * ( wfc( ist ) - wwlt( ist ) ) ) )
          End If
          If ( wg .Ge. wg25 .And. wg .Lt. wfc( ist ) ) fSWg = 1.0
@@ -953,19 +953,19 @@ C-------------------------------------------------------------------------------
          If ( ag_tot .Gt. 0.0 ) Then
             kvg = kvg / ag_tot
             Kvs = Kvs / ag_tot
-            MNHx = kvg * MNH3 / ( Kvs + Kn ) + ( MNHx - kvg * MNH3 / ( Kvs + Kn ) ) * 
-     &             exp( - ( Kvs + Kn ) * dt )
-            gam = MNHx / MHp * wg + max( gam / wg - maxgam , 0.0 ) * wg
+            MNHx = kvg * MNH3 / ( Kvs + Kn ) + ( MNHx - kvg * MNH3 / ( Kvs + Kn ) )
+     &           * exp( - ( Kvs + Kn ) * dt )
+            gam = MNHx / MHp * wg + max( gam / wg - maxgam, 0.0 ) * wg
          Else
             gam = natgam
          End If
 
-         If ( IsNaN(gam) ) Then
+         If ( IsNaN( gam ) ) Then
             xmsg = 'NaN in Gamma Calculation'
-            Write(logdev,*) 'MNHx   :', MNHx
-            Write(logdev,*) 'gam    :', gam
-            Write(logdev,*) 'MHp    :', MHp
-            Write(logdev,*) 'ag_tot :', ag_tot
+            Write( logdev,* ) 'MNHx   :', MNHx
+            Write( logdev,* ) 'gam    :', gam
+            Write( logdev,* ) 'MHp    :', MHp
+            Write( logdev,* ) 'ag_tot :', ag_tot
             Call M3exit( pname, 0, 0, xmsg, xstat1)
          End If
 
@@ -975,10 +975,10 @@ C-------------------------------------------------------------------------------
          Logical Function IsNaN( a ) ! required for Portland Group compiler (pgi)
             Real :: a
             If ( a .Eq. a ) Then   ! requires -Kieee flag for pgi
-!               write( *,* ) '==IsNaN false: ', a
+!              write( *,* ) '==IsNaN false: ', a
                IsNaN = .false.
             Else
-!               write( *,* ) '==IsNaN true: ', a
+!              write( *,* ) '==IsNaN true: ', a
                IsNaN = .true.
             End If
             Return
