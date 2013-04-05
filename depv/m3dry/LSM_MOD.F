@@ -39,8 +39,12 @@ C      Sept 12 12  D. Schwede  Added NLCD40 land use classification.
 C                              Also some changes made to values in tables for NLCD50.
 C                              Maintain compatability with previous versions of MCIP and detect NLCD-MODIS
 C                              as the same as NLCD50
-C      Nov  5  12  D. Schwede  Modified albedo for NLCD pasture and grass categories so that they are mosre
+C      Nov  5  12  D. Schwede  Modified albedo for NLCD pasture and grass categories so that they are more
 C                              consistent with the MODIS and USGS values
+C      Apr  4  13 J. Bash      Added general water, forest, shrub, grass, snow/ice, 
+C                              agricultural land use classification in a land use type 
+C                              to simplify how bidirecitonal NH3 code handles different 
+C                              land use data sets. 
 C------------------------------------------------------------------------------
        
       Implicit None
@@ -49,17 +53,23 @@ C------------------------------------------------------------------------------
       REAL,   SAVE               :: wsat (11)
       REAL,   SAVE               :: bslp (11)
       REAL,   SAVE               :: wres (11)
-      Real,   SAVE               :: wfc  (11)
-      Real,   SAVE               :: rhob (11)
+      REAL,   SAVE               :: wfc  (11)
+      REAL,   SAVE               :: rhob (11)
       REAL,   SAVE, ALLOCATABLE  :: lwmask    ( :,: )
-      REAL,   SAVE, ALLOCATABLE  :: seaice    ( :,: )
-      Integer, Save              :: n_lufrac
-      Character( 80 ), Save      :: LAND_SCHEME
+      REAL,   SAVE, ALLOCATABLE  :: seaice    ( :,: )      
+      INTEGER, SAVE              :: n_lufrac      
+      CHARACTER( 80 ), SAVE      :: LAND_SCHEME
+      CHARACTER( 5 ),  SAVE, ALLOCATABLE :: cat_lu( : )
 
-      Integer, Parameter :: n_modis = 20
-      Integer, Parameter :: n_nlcd50  = 50
-      Integer, Parameter :: n_nlcd40  = 40
-      Integer, Parameter :: n_usgs  = 24
+      INTEGER, PARAMETER :: n_modis   = 20
+      INTEGER, PARAMETER :: n_nlcd50  = 50
+      INTEGER, PARAMETER :: n_nlcd40  = 40
+      INTEGER, PARAMETER :: n_usgs    = 24
+      
+      TYPE lu_type
+         CHARACTER( 30 ) :: name
+         CHARACTER( 16 ) :: lu_cat
+      END TYPE lu_type
 
 
 C-------------------------------------------------------------------------------
@@ -128,12 +138,37 @@ C-------------------------------------------------------------------------------
 ! 20    100.   10.    20.   5.  1.4  0.1  0.015 25. 246.0   18 Barren Tundra
 !------------------------------------------------------------------------------------
       
+      TYPE( lu_type ), PARAMETER :: MODIS( n_modis ) =  (/      
+!               ------ Description --------    --LU cat --
+     & lu_type('Evergreen Needleleaf Forest ', 'FOREST  '),  ! 1
+     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 2 
+     & lu_type('Deciduous Needleleaf Forest ', 'FOREST  '),  ! 3
+     & lu_type('Deciduous Broadleaf Forest  ', 'FOREST  '),  ! 4
+     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 5
+     & lu_type('Closed Shrublands           ', 'SHRUB   '),  ! 6
+     & lu_type('Open Shrublands             ', 'SHRUB   '),  ! 7
+     & lu_type('Woody Savanna               ', 'FOREST  '),  ! 8
+     & lu_type('Savanna                     ', 'FOREST  '),  ! 9     
+     & lu_type('Grasslands                  ', 'GRASS   '),  ! 10     
+     & lu_type('Perminent Wetlands          ', 'WETLAND '),  ! 11    
+     & lu_type('Croplands                   ', 'AG      '),  ! 12    
+     & lu_type('Urban and Built-up          ', 'BUILT   '),  ! 13     
+     & lu_type('Crop/Natural Mosaic         ', 'AGMOS   '),  ! 14
+     & lu_type('Snow and Ice                ', 'SNOWICE '),  ! 15    
+     & lu_type('Sparsely Vegetated          ', 'BARREN  '),  ! 16
+     & lu_type('IGBP water                  ', 'WATER   '),  ! 17
+     & lu_type('Wooded Tundra               ', 'FOREST  '),  ! 18    
+     & lu_type('Mixed Tundra                ', 'SHRUB   '),  ! 19
+     & lu_type('Barren Tundra               ', 'GRASS   ')/) ! 20
+!------------------------------------------------------------------------------------
+
+      
       REAL, DIMENSION(n_modis), TARGET :: RSMIN_MODIS, Z00_MODIS,     
      &                                    VEG0_MODIS, VEGMN0_MODIS,   
      &                                    LAI0_MODIS, LAIMN0_MODIS,   
      &                                    SNUP0_MODIS, ALBF_MODIS, 
-     &                                    LUF_FAC_MODIS, HGLU_FAC_MODIS
-
+     &                                    LUF_FAC_MODIS, HGLU_FAC_MODIS          
+     
       DATA RSMIN_MODIS                                       
      &        / 175.0,   120.0,   175.0,   200.0,    200.0,   
      &          200.0,   200.0,   150.0,   120.0,    100.0,   
@@ -255,12 +290,67 @@ C-------------------------------------------------------------------------------
 ! 50   9999.   0.1    00.  00.  0.0  0.0   0.01    8    0.0     0  fill value (normally ocean water)
 !------------------------------------------------------------------------------------
                                                  
+      TYPE( lu_type ), PARAMETER :: NLCD50( n_nlcd50 ) =  (/      
+!               ------ Description --------    --LU cat --
+     & lu_type('Open water                  ', 'WATER   '),  ! 1
+     & lu_type('Perennial Ice/snow          ', 'SNOWICE '),  ! 2
+     & lu_type('Developed, Open space       ', 'BUILT   '),  ! 3
+     & lu_type('Developed, Low Intensity    ', 'BUILT   '),  ! 4
+     & lu_type('Developed, Medium Intensity ', 'BUILT   '),  ! 5
+     & lu_type('Developed, High Intensity   ', 'BUILT   '),  ! 6
+     & lu_type('Barren land                 ', 'BARREN  '),  ! 7
+     & lu_type('Unconsolidated Shore        ', 'BARREN  '),  ! 8
+     & lu_type('Deciduous Forest            ', 'FOREST  '),  ! 9
+     & lu_type('Evergreen Forest            ', 'FOREST  '),  ! 10
+     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 11
+     & lu_type('Dwarf Scrub                 ', 'SHRUB   '),  ! 12
+     & lu_type('Shrub/Scrub                 ', 'SHRUB   '),  ! 13
+     & lu_type('Grassland/Herbaceous        ', 'GRASS   '),  ! 14
+     & lu_type('Sedge/Herbaceous            ', 'GRASS   '),  ! 15
+     & lu_type('Lichens                     ', 'BARREN  '),  ! 16
+     & lu_type('Moss                        ', 'BARREN  '),  ! 17
+     & lu_type('Tundra                      ', 'BARREN  '),  ! 18
+     & lu_type('Pasture/Hay                 ', 'AG      '),  ! 19
+     & lu_type('Cultivated Crops            ', 'AG      '),  ! 20    
+     & lu_type('Woody Wetland               ', 'WETLAND '),  ! 21
+     & lu_type('Palustrine Forested Wetland ', 'WETLAND '),  ! 22    
+     & lu_type('Palustrine Shrub Wetland    ', 'WETLAND '),  ! 23    
+     & lu_type('Estuarine Forested Wetland  ', 'WETLAND '),  ! 24    
+     & lu_type('Estuarine Shrub Wetland     ', 'WETLAND '),  ! 25    
+     & lu_type('Emergent Herbaceous Wetland ', 'WETLAND '),  ! 26    
+     & lu_type('Palustrine Emergent Wetland ', 'WETLAND '),  ! 27    
+     & lu_type('Estuarine Emergent Wetland  ', 'WETLAND '),  ! 28    
+     & lu_type('Palustrine Aquatic Bed      ', 'WETLAND '),  ! 29    
+     & lu_type('Estuarine Aquatic Bed       ', 'WETLAND '),  ! 30    
+     & lu_type('Open water (mapped to 1)    ', 'WATER   '),  ! 31
+     & lu_type('Evergreen Needleleaf Forest ', 'FOREST  '),  ! 32
+     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 33 
+     & lu_type('Deciduous Needleleaf Forest ', 'FOREST  '),  ! 34
+     & lu_type('Deciduous Broadleaf Forest  ', 'FOREST  '),  ! 35
+     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 36
+     & lu_type('Closed Shrublands           ', 'SHRUB   '),  ! 37
+     & lu_type('Open Shrublands             ', 'SHRUB   '),  ! 38
+     & lu_type('Woody Savanna               ', 'FOREST  '),  ! 39
+     & lu_type('Savanna                     ', 'FOREST  '),  ! 40     
+     & lu_type('Grasslands                  ', 'GRASS   '),  ! 41     
+     & lu_type('Perminent Wetlands          ', 'WETLAND '),  ! 42    
+     & lu_type('Croplands                   ', 'AG      '),  ! 43    
+     & lu_type('Urban and Built-up          ', 'BUILT   '),  ! 44     
+     & lu_type('Crop/Natural Mosaic         ', 'AGMOS   '),  ! 45
+     & lu_type('Snow and Ice                ', 'SNOWICE '),  ! 46    
+     & lu_type('Sparsely Vegetated          ', 'BARREN  '),  ! 47
+     & lu_type('IGBP water                  ', 'WATER   '),  ! 48
+     & lu_type('unclassified                ', 'SNOWICE '),  ! 49    
+     & lu_type('fill (normally ocean water) ', 'WATER   ')/) ! 50
+
+!------------------------------------------------------------------------------------
+      
       REAL, DIMENSION(n_nlcd50), TARGET :: RSMIN_NLCD50, Z00_NLCD50,      
      &                                   VEG0_NLCD50, VEGMN0_NLCD50,    
      &                                   LAI0_NLCD50, LAIMN0_NLCD50,    
      &                                   SNUP0_NLCD50, ALBF_NLCD50, 
-     &                                   LUF_FAC_NLCD50, HGLU_FAC_NLCD50
-                                               
+     &                                   LUF_FAC_NLCD50, HGLU_FAC_NLCD50                                           
+
       DATA RSMIN_NLCD50
      &        / 9999.0,  9999.0,   120.0,   120.0,   140.0,   
      &           160.0,   100.0,   100.0,   200.0,   175.0,   
@@ -431,14 +521,58 @@ C-------------------------------------------------------------------------------
 ! 39    200.   55.    90.  80.  5.0  2.0  0.08  15. 271.0  125 Woody Wetland
 ! 40    120.   11.    60.  40.  2.0  1.0  0.04  18. 248.0  125 Emergent Herbaceous Wetland
 !------------------------------------------------------------------------------------
+ 
+       TYPE( lu_type ), PARAMETER :: NLCD40( n_nlcd40 ) =  (/      
+!               ------ Description --------    --LU cat --
+     & lu_type('Evergreen Needleleaf Forest ', 'FOREST  '),  ! 1
+     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 2 
+     & lu_type('Deciduous Needleleaf Forest ', 'FOREST  '),  ! 3
+     & lu_type('Deciduous Broadleaf Forest  ', 'FOREST  '),  ! 4
+     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 5
+     & lu_type('Closed Shrublands           ', 'SHRUB   '),  ! 6
+     & lu_type('Open Shrublands             ', 'SHRUB   '),  ! 7
+     & lu_type('Woody Savanna               ', 'FOREST  '),  ! 8
+     & lu_type('Savanna                     ', 'FOREST  '),  ! 9     
+     & lu_type('Grasslands                  ', 'GRASS   '),  ! 10     
+     & lu_type('Perminent Wetlands          ', 'WETLAND '),  ! 11    
+     & lu_type('Croplands                   ', 'AG      '),  ! 12    
+     & lu_type('Urban and Built-up          ', 'BUILT   '),  ! 13     
+     & lu_type('Crop/Natural Mosaic         ', 'AGMOS   '),  ! 14
+     & lu_type('Snow and Ice                ', 'SNOWICE '),  ! 15    
+     & lu_type('Sparsely Vegetated          ', 'BARREN  '),  ! 16
+     & lu_type('IGBP water                  ', 'WATER   '),  ! 17
+     & lu_type('unclassified MODIS          ', 'SNOWICE '),  ! 18    
+     & lu_type('fill (normally ocean water) ', 'WATER   '),  ! 19
+     & lu_type('unclassified NLCD           ', 'SNOWICE '),  ! 20  
+     & lu_type('Open water                  ', 'WATER   '),  ! 21
+     & lu_type('Perennial Ice/snow          ', 'SNOWICE '),  ! 22 
+     & lu_type('Developed, Open space       ', 'BUILT   '),  ! 23
+     & lu_type('Developed, Low Intensity    ', 'BUILT   '),  ! 24
+     & lu_type('Developed, Medium Intensity ', 'BUILT   '),  ! 25
+     & lu_type('Developed, High Intensity   ', 'BUILT   '),  ! 26
+     & lu_type('Barren land                 ', 'BARREN  '),  ! 27
+     & lu_type('Deciduous Forest            ', 'FOREST  '),  ! 28
+     & lu_type('Evergreen Forest            ', 'FOREST  '),  ! 29
+     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 30
+     & lu_type('Dwarf Scrub                 ', 'SHRUB   '),  ! 31
+     & lu_type('Shrub/Scrub                 ', 'SHRUB   '),  ! 32
+     & lu_type('Grassland/Herbaceous        ', 'GRASS   '),  ! 33
+     & lu_type('Sedge/Herbaceous            ', 'GRASS   '),  ! 34
+     & lu_type('Lichens                     ', 'BARREN  '),  ! 35
+     & lu_type('Moss                        ', 'BARREN  '),  ! 36
+     & lu_type('Pasture/Hay                 ', 'AG      '),  ! 37
+     & lu_type('Cultivated Crops            ', 'AG      '),  ! 38    
+     & lu_type('Woody Wetland               ', 'WETLAND '),  ! 39 
+     & lu_type('Emergent Herbaceous Wetland ', 'WETLAND ')/) ! 40 
+!------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------
                                                
       REAL, DIMENSION(n_nlcd40), TARGET  :: RSMIN_NLCD40, Z00_NLCD40,  
      &                                 VEG0_NLCD40, VEGMN0_NLCD40,    
      &                                 LAI0_NLCD40, LAIMN0_NLCD40,    
      &                                SNUP0_NLCD40, ALBF_NLCD40,      
      &                              LUF_FAC_NLCD40, HGLU_FAC_NLCD40
-
-                                               
+                                                     
       DATA RSMIN_NLCD40                                      
      &        / 175.0,   120.0,   175.0,   200.0,    200.0,   
      &          200.0,   200.0,   150.0,   120.0,    100.0,   
@@ -571,13 +705,41 @@ C-------------------------------------------------------------------------------
 ! 23  BGTun  100.    5.   5.  02.  0.1  0.1  0.025  25.0  246.0   18.0  Bare Ground Tundra
 ! 24  SnwIc  300.    5.   5.  02.  0.1  0.1  0.02   55.0    0.0    0.0  Perennial Snowfields or Glaciers
 !-----------------------------------------------------------------------------
+
+      TYPE( lu_type ), PARAMETER :: USGS24( n_usgs ) =  (/      
+!               ------ Description --------    --LU cat --
+     & lu_type('Urban or Built-up Land      ', 'BUILT   '),  ! 1
+     & lu_type('Dryland Crop and Pasture    ', 'AG      '),  ! 2
+     & lu_type('Irr. Cropland and Pasture   ', 'AG      '),  ! 3
+     & lu_type('Mixed Dry/Irr Crop and Past ', 'AG      '),  ! 4
+     & lu_type('Grassland/Cropland Mosaic   ', 'AGMOS   '),  ! 5
+     & lu_type('Woodland/Cropland Mosaic    ', 'AGMOS   '),  ! 6
+     & lu_type('Grassland                   ', 'GRASS   '),  ! 7
+     & lu_type('Shrubland                   ', 'SHRUB   '),  ! 8
+     & lu_type('Mixed Shrubland/Grassland   ', 'SHRUB   '),  ! 9
+     & lu_type('Savanna                     ', 'SHRUB   '),  ! 10
+     & lu_type('Broadleaf Deciduous Forest  ', 'FOREST  '),  ! 11
+     & lu_type('Deciduous Coniferous Forest ', 'FOREST  '),  ! 12
+     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 13
+     & lu_type('Evergreen Coniferous Forest ', 'FOREST  '),  ! 14
+     & lu_type('Mixed forest                ', 'FOREST  '),  ! 15
+     & lu_type('Water                       ', 'WATER   '),  ! 16
+     & lu_type('Herbaceous Wetland          ', 'WETLAND '),  ! 17
+     & lu_type('Forested Wetlands           ', 'WETLAND '),  ! 18
+     & lu_type('Barren or Sparsely Vegetated', 'BARREN  '),  ! 19     
+     & lu_type('Herbaceous Tundra           ', 'SHRUB   '),  ! 20
+     & lu_type('Shrub and Brush Tundra      ', 'SHRUB   '),  ! 21
+     & lu_type('Mixed Tundra                ', 'SHRUB   '),  ! 22
+     & lu_type('Bare Ground Tundra          ', 'BARREN  '),  ! 23
+     & lu_type('Snowfields or Glaciers      ', 'SNOWICE ')/) ! 24
+!-----------------------------------------------------------------------------
                                                
       REAL, DIMENSION(n_usgs), TARGET :: RSMIN_USGS, Z00_USGS,   
      &                                   VEG0_USGS, VEGMN0_USGS, 
      &                                   LAI0_USGS, LAIMN0_USGS, 
      &                                   SNUP0_USGS, ALBF_USGS, 
-     &                                   LUF_FAC_USGS, HGLU_FAC_USGS
-                                               
+     &                                   LUF_FAC_USGS, HGLU_FAC_USGS                                          
+
       DATA RSMIN_USGS                                         
      &       /  150.0,    70.0,    60.0,    70.0,    80.0,   
      &          180.0,   100.0,   200.0,   150.0,   120.0,   
@@ -647,27 +809,27 @@ C-------------------------------------------------------------------------------
      &           81.0,   81.0,   130.0,    40.0,   139.0, 
      &            0.0,  125.0,   125.0,    26.0,    62.0,
      &           62.0,   62.0,    18.0,     0.0            /
-      Contains                                 
-         Subroutine INIT_LSM( JDate, JTime, logdev )   
+      CONTAINS                                 
+         SUBROUTINE INIT_LSM( JDate, JTime, logdev )   
                                                
-         Use HGRD_DEFN                         
-         Use UTILIO_DEFN                       
+         USE HGRD_DEFN                         
+         USE UTILIO_DEFN                       
 #ifdef twoway                                  
-         USE twoway_data_module, only : num_land_cat
+         USE twoway_data_module, ONLY : num_land_cat
 #endif                                         
                                                
-         Implicit None                         
+         IMPLICIT NONE                         
                                                
          INCLUDE SUBST_FILES_ID  ! file name parameters         
                                                
-         Integer, Intent( In )  :: jdate       
-         Integer, Intent( In )  :: jtime  
-         Integer, Intent( In )  :: logdev       
+         INTEGER, INTENT( In )  :: jdate       
+         INTEGER, INTENT( In )  :: jtime  
+         INTEGER, INTENT( In )  :: logdev       
          CHARACTER( 240 )       :: XMSG = ' '  
          CHARACTER(  16 ), SAVE :: PNAME = 'Init_LSM'
          INTEGER      :: GXOFF, GYOFF            ! global origin offset from file
          INTEGER      :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-         Integer l                             
+         INTEGER l                             
                                                
          LAND_SCHEME = 'UNKNOWN'               
          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
@@ -703,18 +865,34 @@ C-------------------------------------------------------------------------------
                                                
          SELECT CASE( LAND_SCHEME )            
             CASE( 'USGS24' )                   
-               n_lufrac = n_usgs               
+               n_lufrac    = n_usgs
+               If ( .Not. Allocated ( cat_lu ) ) Then
+                  Allocate ( cat_lu ( n_lufrac ) )
+               End If
+               cat_lu = USGS24%lu_cat
             CASE( 'MODIS' )                    
-               n_lufrac = n_modis              
+               n_lufrac    = n_modis 
+               If ( .Not. Allocated ( cat_lu ) ) Then
+                  Allocate ( cat_lu ( n_lufrac ) )
+               End If             
+               cat_lu = MODIS%lu_cat
             CASE( 'NLCD50' )               
-               n_lufrac = n_nlcd50               
+               n_lufrac    = n_nlcd50  
+              If ( .Not. Allocated ( cat_lu ) ) Then
+                  Allocate ( cat_lu ( n_lufrac ) )
+               End If             
+               cat_lu = NLCD50%lu_cat
             CASE( 'NLCD40' )               
-               n_lufrac = n_nlcd40               
+               n_lufrac    = n_nlcd40   
+               If ( .Not. Allocated ( cat_lu ) ) Then
+                  Allocate ( cat_lu ( n_lufrac ) )
+               End If            
+               cat_lu = NLCD40%lu_cat
             CASE DEFAULT                       
                xmsg = 'Land use scheme not supported'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END SELECT                            
                                                
-         End Subroutine Init_LSM               
+         END SUBROUTINE Init_LSM               
                                                
-      End Module LSM_Mod                       
+      END MODULE LSM_Mod                       
