@@ -89,6 +89,9 @@ C-----------------------------------------------------------------------
       USE SUBST_MODULES              ! stenex
 !     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
       USE UTILIO_DEFN
+#ifdef snl_timing
+      USE TIMING
+#endif
 
       IMPLICIT NONE
 
@@ -250,21 +253,33 @@ C No boundary conditions are needed because VEL(1) = VEL(NLAYS+1) = 0
 C Get rho*J at start of sync step
       MDATE = JDATE
       MTIME = JTIME
+#ifdef snl_timing
+      call start_timing( zadv_int, read_int, 1 )
+#endif
       IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
      &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &           MDATE, MTIME, RHOJM1 ) ) THEN
          XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
          CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
       END IF
+#ifdef snl_timing
+      call stop_timing( zadv_int, read_int )
+#endif
 
 C Get rho*J at end of sync step
       CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
+#ifdef snl_timing
+      call start_timing( zadv_int, read_int, 1 )
+#endif
       IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
      &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &           MDATE, MTIME, RHOJM2 ) ) THEN
          XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
          CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
       END IF
+#ifdef snl_timing
+      call stop_timing( zadv_int, read_int )
+#endif
 
 C Get the contravariant x1 velocity component
 

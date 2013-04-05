@@ -473,7 +473,7 @@ C
          ELSE
            DTWHG(IORGC+ NUMOX_V46 ) = 0.1D+0 * (MIN(ORGC, HGII ))/DHGDT(IORGC)
          END IF
- 
+
          DHGDT(IHGDISULF) = KORGC * ORGC * HGDISULF 
          IF ( ( DHGDT(IHGDISULF) .EQ. 0.0D+0 ) .OR.( HGDISULF .LE. 1.00D-30 ) ) THEN
            DTWHG(IHGDISULF + NUMOX_V46 ) = DTRMV

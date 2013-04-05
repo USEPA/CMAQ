@@ -19,14 +19,14 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.7 2011/10/21 16:10:24 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.7 2011/10/21 16:10:24 yoj Exp $
 
 C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
-     &                    N_SPC_WDEP, WDEP_MAP, DEP )
+     &                    N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
 
 C-----------------------------------------------------------------------
 C  FUNCTION: Resolved-scale CLOUD processor Models-3 science process:
@@ -63,6 +63,8 @@ C                    removed deprecated TRIMLEN
 C      14 11 May D.Wong: incorporated twoway model implementation
 C      15 01 Jul 11 G. Sarwar: calculate zenith angle to determine daytime and  
 C                    nightime needed for sulfur oxidation via metal catalysis
+C      16 02Aug12 S.Roselle:  instrumented to calculate and return
+C                             transmissivity for resolved clouds
  
 C  Called by:  CLDPROC
  
@@ -102,6 +104,7 @@ C...........Arguments:
       INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
 !     REAL          DEP  ( NCOLS,NROWS,* )  ! depositions (etc.)
       REAL       :: DEP  ( :,:,: )      ! depositions (etc.)
+      REAL       :: RESTRANS( :,: )
 
 C...........Local Variables:
 
@@ -142,6 +145,7 @@ C...........Local Variables:
       REAL          QCRGCOL             ! vert column integrated liquid water content
       REAL          QCRISGCOL           ! vert column integrated total water content
       REAL          QRSGCOL             ! vert column integrated precip content
+      REAL          QCICOL              ! vert column integrated cloud content
       REAL          RAIN                ! non-conv rainfall rate (mm/hr)
       REAL          REMOVAC             ! variable storing H+ deposition
       REAL          TAUCLD              ! cloud lifetime (sec)
@@ -149,6 +153,7 @@ C...........Local Variables:
       REAL          WCBAR               ! liq water content of cloud (kg/m3)
       REAL          WPBAR               ! precipitation water content (kg/m3)
       REAL          WTBAR               ! total water content of cloud (kg/m3)
+      REAL          LWP, CLOD
 
       REAL, ALLOCATABLE, SAVE :: POLC ( : )   ! incloud conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: CEND ( : )   ! ending conc (mol/mol)
@@ -600,6 +605,7 @@ C... include layer thickness in the column integration
           QCRGCOL   = 0.0
           QCRISGCOL = 0.0
           QRSGCOL   = 0.0
+          QCICOL    = 0.0
           DO LAY = 1, NLAYS
             QC( COL, ROW, LAY ) = MAX( QC( COL, ROW, LAY ), 0.0 )
             QR( COL, ROW, LAY ) = MAX( QR( COL, ROW, LAY ), 0.0 )
@@ -619,7 +625,31 @@ C... include layer thickness in the column integration
      &                * DZZ( COL, ROW, LAY )
      &                * ( QR( COL, ROW, LAY ) + QS( COL, ROW, LAY )
      &                +   QG( COL, ROW, LAY ) )
+            QCICOL    = QCICOL + DENS( COL, ROW, LAY )
+     &                * DZZ( COL, ROW, LAY )
+     &                * ( QC( COL, ROW, LAY ) + QI( COL, ROW, LAY ) )
           END DO
+
+C...Calculate the cloud optical depth using a formula derived from
+C...  Stephens (1978), JAS(35), pp2111-2132.
+C...  only calculate the cloud optical depth when the liquid water
+C...  path is >= 10 g/m2
+
+          LWP = QCICOL * 1000.0  ! converts to g/m2
+          IF ( LWP .GE. 10.0 ) THEN
+             CLOD = 10.0**( 0.2633 + 1.7095 * LOG( LOG10( LWP ) ) )
+          ELSE
+             CLOD = 0.0
+          END IF
+
+C...If no cloud or optical depth < 5, set clear sky values.
+C...  (i.e. don't do anything)
+
+          IF ( CLOD .GE. 5.0 ) THEN
+
+             RESTRANS( COL, ROW ) = ( 5.0 - EXP ( -CLOD ) ) / ( 4.0 + 0.42 * CLOD )
+              
+          END IF
 
 C...loop through layers
 
