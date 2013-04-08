@@ -224,17 +224,18 @@ C Acid catalyzed particle phase reactions
       End Type acid_cat
 
 
+C     Parameters optimized for methytetrol and methylglyceric acid production
       Type( acid_cat ), Parameter :: acid_nuc_pairs( n_nucpairs ) = (/
 C                  Parent   Nucleophile     Acid     Rate Constant  Product
 C                 (parent)    (nuc)        (acid)      (kchem)      (prod)
 C                 --------  -----------  ----------  ------------- --------
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ', k_H_water,    'AIETETJ' ),
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ', k_H_nuc,      'AIETETJ' ),
      &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ', k_H_nuc,      'AIEOSJ'  ),
      &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ', k_H_nuc,      'AIEONJ'  ),
      &   acid_cat('IEPOX',  'AIEOSJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
      &   acid_cat('IEPOX',  'AIEONJ   ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
      &   acid_cat('IEPOX',  'AIETETJ  ', 'HPLUS   ', k_H_nuc,      'ADIMJ'   ),
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ', k_HSO4_water, 'AIETETJ' ),
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ', k_HSO4_nuc,   'AIETETJ' ),
      &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ', k_HSO4_nuc,   'AIEOSJ'  ),
      &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ', k_HSO4_nuc,   'AIEONJ'  ),
      &   acid_cat('IEPOX',  'AIEOSJ   ', 'HSO4    ', k_HSO4_nuc,   'ADIMJ'   ),
