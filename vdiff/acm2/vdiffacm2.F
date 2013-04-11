@@ -61,6 +61,8 @@ C              deposition velocity for NO2 that is output in DEPV file
 C              does not include the loss due to the heterogeneous reaction.
 C              This additional loss is now accounted for in vdiff.F
 C 14 Sep 11 J.Young: fix TSTEP bug in call to DEPV_INIT
+C 11 Apr 13 J.Young: fix double adjustment of conc for DDBF in heterogeneous HONO
+C                    if-then-else clauses; eliminate some white space
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -99,8 +101,6 @@ C Parameters:
 C explicit, THETA = 0, implicit, THETA = 1
       REAL, PARAMETER :: THETA = 0.5,  ! For dry deposition term
      &                   THBAR = 1.0 - THETA
-      REAL THRAT  ! THBAR/THETA
-
       REAL, PARAMETER :: M2PHA = 1.0E+04       ! 1 hectare = 1.0e4 m**2
       REAL, PARAMETER :: CMLMR = 1.0E+06       ! ppmV/Molar Mixing Ratio
       REAL, PARAMETER :: CNVTD = M2PHA / CMLMR / MWAIR ! combined ddep
@@ -716,8 +716,7 @@ C For NH3, use bi-directional flux
 
                   CONC( DV2DF( V ),1 ) = POL( V ) + ( CONC( DV2DF( V ),1 ) - POL( V ) )
      &                                 * EFAC1( V )
-                  DDBF( V ) = DDBF( V )
-     &                      + THBAR * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
+                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( DV2DF( V ),1 )
                   IF ( ABFLUX .AND. TRIM ( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
                      DO I = 1, LCMP        
                         CMPF( I ) = CMPF( I ) + THBAR * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1
@@ -729,14 +728,11 @@ C For NH3, use bi-directional flux
             END DO
     
             IF ( MOSAIC ) THEN
-
                DO V = 1, N_SPC_DEPV
-
                   IF ( V .EQ. HONO_HIT ) THEN
                      DO J = 1, N_LUFRAC
                         DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( HONO_MAP,1 )
                      END DO
-
                   ELSE IF ( V .EQ. HNO3_HIT ) THEN
                      DO J = 1, N_LUFRAC
                         DEPV_HNO3 = DEPVJCR( J,V ) + PLDV_HONO / CONC_NO2
@@ -754,20 +750,14 @@ C For NH3, use bi-directional flux
 C --------- END of HET HONO RX ----------
 
                   ELSE
-
                      DO J = 1, N_LUFRAC
                         DDBFJ( J,V ) = DDBFJ( J,V )
      &                               + THBAR * DD_FACJ( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
                      END DO
-
                   END IF
-
                END DO
-
                IF ( FST ) THEN
-
                   DO V = 1, N_SPC_DEPV
-
                      IF ( V .EQ. HONO_HIT ) THEN
                         DO J = 1, N_LUFRAC
                            DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
@@ -788,15 +778,12 @@ C --------- END of HET HONO RX ----------
 !     &                                     + THBAR * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
 !                       END DO
                      ELSE
-
                         DO J = 1, N_LUFRAC
                            DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
      &                                      + THBAR * DD_FACJ_FST( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
                         END DO
                      END IF
-
                   END DO
-
                END IF   ! FST
 
             END IF   ! MOSAIC
@@ -939,8 +926,7 @@ C For NH3, use bi-directional flux
 
                   CONC( DV2DF( V ),1 ) = POL( V ) + ( CONC( DV2DF( V ),1 ) - POL( V ) )
      &                                 * EFAC2( V )
-                  DDBF( V ) = DDBF( V )
-     &                      + THETA * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
+                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( DV2DF( V ),1 )
                   IF ( ABFLUX .AND. TRIM ( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
                      DO I = 1, LCMP
                         CMPF( I ) = CMPF( I ) + THETA * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1   
@@ -959,7 +945,7 @@ C For NH3, use bi-directional flux
                      END DO
                   ELSE IF ( V .EQ. HNO3_HIT ) THEN
                      DO J = 1, N_LUFRAC
-                       DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
+                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
                      END DO
 !                 ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                    DO J = 1, N_LUFRAC
@@ -976,15 +962,18 @@ C For NH3, use bi-directional flux
                   DO V = 1, N_SPC_DEPV
                      IF ( V .EQ. HONO_HIT ) THEN
                         DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HONO_MAP,1 )
+                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( HONO_MAP,1 )
                         END DO
                      ELSE IF ( V .EQ. HNO3_HIT ) THEN
                         DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
+                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
                         END DO
 !                    ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                       DO J = 1, N_LUFRAC
-!                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
+!                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
 !                       END DO
                      ELSE
                         DO J = 1, N_LUFRAC
