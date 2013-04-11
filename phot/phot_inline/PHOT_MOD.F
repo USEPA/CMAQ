@@ -1393,25 +1393,27 @@ C-----------------------------------------------------------------------
 C  Purpose: Calculate values of absorption cross
 C     section and quantum yield, given, temperature and air
 C     pressure and density.
-C
+ 
 C     FSB This version uses different reference temperatures for
 C     different species.
-C
+ 
 C  coded 10/14/2004 by Dr. Francis S. Binkowski
 C     Carolina Environmental Program
 C     University of North Carolina at Chapel Hill
 C     email: frank_binkowski@unc.edu
-C
+ 
 C  reference for acetone:
 C     Cameron-Smith, Philip J., Incorporating non_linear computation
 C     code (Fast-J), Journal of Atmospheric Chemistry, Vol. 37,
 C     pp 283-297, 2000)
-C
+ 
 C  Mar 2011: Bill Hutzell
 C     - revised interpolation method for a general number of
 C     interpolation points
 C     - revised density corrections for specific photolysis reactions
-C
+ 
+   Apr 2013: Jeff Young
+      - added QDUM initialization in CASE starting with 'MGLY-06'
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -1662,6 +1664,8 @@ C***remove wavelength dependence
      &                          / ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - 1.0 )
                            QDUM = QDUM
      &                          / ( QDUM + 1.36E8 * PRESSURE )
+                        ELSE
+                           QDUM = 0.0
                         END IF
 
                      ELSE IF ( WAVELENGTH( IWL ) .LE. 240.0 ) THEN
