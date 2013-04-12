@@ -973,7 +973,7 @@ C For NH3, use bi-directional flux
 !                    ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                       DO J = 1, N_LUFRAC
 !                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
+!    &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
 !                       END DO
                      ELSE
                         DO J = 1, N_LUFRAC
