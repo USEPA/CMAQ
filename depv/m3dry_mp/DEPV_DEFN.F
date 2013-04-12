@@ -47,6 +47,8 @@ C                        - used a robust way to compute WTIME
 C   11 Oct 2011 J.Young: PUBLIC/PRIVATE sections, re-do WTIME computation
 C                        and WTIME computation for MOSAIC
 C   13 Dec 2011 J.Young: removed separate SOA variables - no longer used
+C   11 May 2013 J.Young: invoke INIT_LSM regardless of MOSAIC or ABFLUX option
+
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -93,12 +95,6 @@ C flag for mosaic - luc specific deposition - stomatal flux only - within in-lin
 C gas species (gas-phase and gas non-reactive) deposition velocities
       REAL,    ALLOCATABLE, SAVE :: DEPVEL_GAS( :,:,: )
 
-C gas species (gas-phase and gas non-reactive) deposition velocities for each land use category
-!     REAL,    ALLOCATABLE, SAVE :: DEPVEL_GASJ( :,:,:,: )
-
-C gas species (gas-phase and gas non-reactive) deposition velocities for each land use category (stomatal and cuticular uptake only)
-!     REAL,    ALLOCATABLE, SAVE :: VD_FST_GASJ( :,:,:,: )      
-
 C m3dry-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: PVD( :,:,: )
 
@@ -117,9 +113,6 @@ C flag for diagnostic DEPV file
       INTEGER, SAVE                      :: N_UNIQUE_ADEPV   ! aero depv
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: UNIQUE_ADEPV( : )
       INTEGER, ALLOCATABLE, SAVE         :: AER_DEPV_SUR( : )
-
-      INTEGER, PRIVATE, SAVE                      :: N_UNIQUE_SDEPV   ! SOA depv
-      CHARACTER( 16 ), PRIVATE, ALLOCATABLE, SAVE :: UNIQUE_SDEPV( : )
 
       INTEGER, SAVE :: NR_OFFSET            ! Offset to NR start in CGRID
       INTEGER, SAVE :: N_GAS_DEPV
@@ -199,7 +192,6 @@ C environment variable for diagnostic DEPV file
          CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE    '
          
 C environment variable for diagnostic mosaic DEPV file
-!        CHARACTER( 16 )  :: CTM_MOSAIC_FILE = 'CTM_MOSAIC_FILE'
 
          CHARACTER( 16 )  :: PNAME = 'DEPV_INIT       '
          CHARACTER( 120 ) :: XMSG = ' '
@@ -214,7 +206,6 @@ C environment variable for diagnostic mosaic DEPV file
             SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
      &                               N_GDEPV_NAMES, GDEPV_NAMES,
      &                               N_ADEPV_NAMES, ADEPV_NAMES )
-!    &                               N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
                USE UTILIO_DEFN
@@ -224,13 +215,10 @@ C environment variable for diagnostic mosaic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-!              INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
-!              CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_DIAG
             SUBROUTINE OPDEPV_MOS ( JDATE, JTIME, TSTEP,
      &                              N_GDEPV_NAMES, GDEPV_NAMES,
      &                              N_ADEPV_NAMES, ADEPV_NAMES )
-!    &                              N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
                USE UTILIO_DEFN
@@ -240,13 +228,10 @@ C environment variable for diagnostic mosaic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-!              INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
-!              CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_MOS
             SUBROUTINE OPDEPV_FST ( JDATE, JTIME, TSTEP,
      &                              N_GDEPV_NAMES, GDEPV_NAMES,
      &                              N_ADEPV_NAMES, ADEPV_NAMES )
-!    &                              N_SDEPV_NAMES, SDEPV_NAMES )
                USE HGRD_DEFN
                USE DEPVVARS
                USE UTILIO_DEFN
@@ -256,8 +241,6 @@ C environment variable for diagnostic mosaic DEPV file
                CHARACTER( 16 ), INTENT( IN ) :: GDEPV_NAMES( : )
                INTEGER,         INTENT( IN ) :: N_ADEPV_NAMES
                CHARACTER( 16 ), INTENT( IN ) :: ADEPV_NAMES( : )
-!              INTEGER,         INTENT( IN ) :: N_SDEPV_NAMES
-!              CHARACTER( 16 ), INTENT( IN ) :: SDEPV_NAMES( : )
             END SUBROUTINE OPDEPV_FST
             SUBROUTINE GAS_DEPV_MAP ( N_DEPV_NAMES, DEPV_NAMES, DEPV_SUR )
                USE CGRID_SPCS
@@ -442,10 +425,9 @@ C Mosaic method to get land-use specific stomatal flux
                END IF
             END IF
             
+            CALL INIT_LSM( JDATE, JTIME )
             IF ( ABFLUX ) CALL INIT_BIDI( ABFLUX )
-            IF ( MOSAIC .OR. ABFLUX .OR. HGBIDI ) CALL INIT_LSM(JDATE, JTIME, LOGDEV)
             IF ( MOSAIC .OR. ABFLUX ) THEN
-               CALL INIT_LSM( JDATE, JTIME, LOGDEV )
                CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
             END IF
 C Allocate additional arrays needed for mosaic and initialize land use parameters
@@ -946,11 +928,6 @@ C-----------------------------------------------------------------------
 
             WRITE_TIME = .FALSE.
             WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-!           IF ( MOD( WSTEP, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
-!              WRITE_TIME = .TRUE.
-!           ELSE
-!              WRITE_TIME = .FALSE.
-!           END IF
             IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
                WDATE = JDATE; WTIME = JTIME
                CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
@@ -965,12 +942,6 @@ C-----------------------------------------------------------------------
             END IF
 
             IF ( WRITE_TIME ) THEN
-
-!              WDATE = JDATE
-!!             WTIME = TSTEP( 1 ) * ( JTIME / TSTEP( 1 ) )
-!              WTIME = SEC2TIME( TIME2SEC(TSTEP( 1 )) *
-!    &                           ( TIME2SEC(JTIME) / TIME2SEC(TSTEP( 1 ))))
-!              CALL NEXTIME( WDATE, WTIME, TSTEP( 1 ) )
 
                N = 0
                DO V = 1, N_GC_DEPV
@@ -1041,11 +1012,6 @@ C-----------------------------------------------------------------------
 
             WRITE_TIME_MOS = .FALSE.
             WSTEP_MOS = WSTEP_MOS + TIME2SEC( TSTEP( 2 ) )
-!           IF ( MOD( WSTEP_MOS, TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
-!              WRITE_TIME_MOS = .TRUE.
-!           ELSE
-!              WRITE_TIME_MOS = .FALSE.
-!           END IF
             IF ( WSTEP_MOS .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
                WDATE = JDATE; WTIME = JTIME
                CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
@@ -1183,8 +1149,8 @@ C-----------------------------------------------------------------------
                            DBUFF3( C,R,J ) = LAIJ( J,C,R )
                         ELSE
                            DBUFF3( C,R,J ) = 0.0  ! only output values where there is that plant type
-                        ENDIF
-                     ENDDO
+                        END IF
+                     END DO
                   END DO
                END DO
 
@@ -1199,7 +1165,7 @@ C-----------------------------------------------------------------------
                   DO C = 1, MY_NCOLS
                      DO J = 1, N_LUFRAC
                           DBUFF3( C,R,J ) = RAJ( J,C,R )
-                     ENDDO
+                     END DO
                   END DO
                END DO
 
@@ -1214,7 +1180,7 @@ C-----------------------------------------------------------------------
                   DO C = 1, MY_NCOLS
                      DO J = 1, N_LUFRAC
                           DBUFF3( C,R,J ) = USTARJ( J,C,R )
-                     ENDDO
+                     END DO
                   END DO
                END DO
 
@@ -1229,7 +1195,7 @@ C-----------------------------------------------------------------------
                   DO C = 1, MY_NCOLS
                      DO J = 1, N_LUFRAC
                           DBUFF3( C,R,J ) = Z0J( J,C,R )
-                     ENDDO
+                     END DO
                   END DO
                END DO
 
