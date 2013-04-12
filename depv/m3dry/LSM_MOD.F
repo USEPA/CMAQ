@@ -810,7 +810,7 @@ C-------------------------------------------------------------------------------
      &            0.0,  125.0,   125.0,    26.0,    62.0,
      &           62.0,   62.0,    18.0,     0.0            /
       CONTAINS                                 
-         SUBROUTINE INIT_LSM( JDate, JTime, logdev )   
+         SUBROUTINE INIT_LSM( JDate, JTime )   
                                                
          USE HGRD_DEFN                         
          USE UTILIO_DEFN                       
@@ -824,7 +824,6 @@ C-------------------------------------------------------------------------------
                                                
          INTEGER, INTENT( In )  :: jdate       
          INTEGER, INTENT( In )  :: jtime  
-         INTEGER, INTENT( In )  :: logdev       
          CHARACTER( 240 )       :: XMSG = ' '  
          CHARACTER(  16 ), SAVE :: PNAME = 'Init_LSM'
          INTEGER      :: GXOFF, GYOFF            ! global origin offset from file
@@ -861,7 +860,7 @@ C-------------------------------------------------------------------------------
             END IF                             
          END DO                                
 #endif                                         
-!       Write(Logdev,*) 'Land use scheme is ', TRIM(LAND_SCHEME) 
+!       Write( *,* ) 'Land use scheme is ', TRIM(LAND_SCHEME) 
                                                
          SELECT CASE( LAND_SCHEME )            
             CASE( 'USGS24' )                   
