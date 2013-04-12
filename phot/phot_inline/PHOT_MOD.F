@@ -1412,8 +1412,8 @@ C     - revised interpolation method for a general number of
 C     interpolation points
 C     - revised density corrections for specific photolysis reactions
  
-   Apr 2013: Jeff Young
-      - added QDUM initialization in CASE starting with 'MGLY-06'
+C  Apr 2013: Jeff Young
+C     - added QDUM initialization in CASE starting with 'MGLY-06'
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
