@@ -42,16 +42,19 @@ C 6)   setenv BLAY_ELAY "1 5"
 C In example (1), not only parse out the named items "O3", "NO" and "NO2",
 C but also obtain the count on the number of itmes (=3).
 
+! Revision: 2013/02/11 David Wong: increased the max env var length from 256 to 1000
+
       IMPLICIT NONE
 
       CHARACTER( * ), INTENT ( IN ) :: ENV_VAR
       INTEGER, INTENT ( OUT ) :: NVARS
       CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
 
-      CHARACTER(  16 ) :: PNAME = 'GET_ENVLIST'
-      CHARACTER( 256 ) :: E_VAL
-      CHARACTER(   1 ) :: CHR
-      CHARACTER(  96 ) :: XMSG
+      INTEGER, PARAMETER   :: MAX_LEN = 10000
+      CHARACTER(  16 )     :: PNAME = 'GET_ENVLIST'
+      CHARACTER( MAX_LEN ) :: E_VAL
+      CHARACTER(   1 )     :: CHR
+      CHARACTER(  96 )     :: XMSG
       INTEGER STATUS
 
       INTEGER :: JP( SIZE( VAL_LIST ) ), KP( SIZE( VAL_LIST ) )
@@ -66,7 +69,7 @@ C                    |          |          |        |
          CALL M3WARN( PNAME, 0, 0, XMSG )
          NVARS = 0
          RETURN
-         END IF
+      END IF
 
 C Parse:
 
@@ -78,27 +81,27 @@ C don't count until 1st char in string
 
 101   CONTINUE
       IP = IP + 1
-      IF ( IP .GT. 256 ) GO TO 301
+      IF ( IP .GT. MAX_LEN ) GO TO 301
       CHR = E_VAL( IP:IP )
       IF ( CHR .EQ. ' ' .OR. ICHAR ( CHR ) .EQ. 09 ) GO TO 101
       JP( NVARS ) = IP   ! 1st char
 
 201   CONTINUE
       IP = IP + 1
-      IF ( IP .GT. 256 ) THEN
+      IF ( IP .GT. MAX_LEN ) THEN
          XMSG = 'Environment variable value too long'
          CALL M3EXIT( PNAME, 0, 0, XMSG, 2 )
-         END IF
+      END IF
       CHR = E_VAL( IP:IP )
       IF ( CHR .NE. ' ' .AND.
      &     CHR .NE. ',' .AND.
      &     CHR .NE. ';' .OR.
      &     ICHAR ( CHR ) .EQ. 09 ) THEN  ! 09 = horizontal tab
          GO TO 201
-         ELSE
+      ELSE
          KP( NVARS ) = IP - 1 ! last char in this item
          NVARS = NVARS + 1
-         END IF 
+      END IF 
 
       GO TO 101
 
@@ -107,7 +110,7 @@ C don't count until 1st char in string
 
       DO V = 1, NVARS
          VAL_LIST( V ) = E_VAL( JP( V ):KP( V ) )
-         END DO
+      END DO
 
       RETURN 
       END
