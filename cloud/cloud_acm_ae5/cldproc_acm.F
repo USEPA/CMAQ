@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/cldproc_acm.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -51,6 +51,8 @@ C     7/21/09 D. Wong         fixed parallel bug in opening WET_DEP_2
 C     Oct 10  J.Young         convert for Namelist redesign
 C     3/01/11 S.Roselle       replaced I/O API include files with UTILIO_DEFN
 C     5/11/11 D.Wong:         incorporated twoway model implementation
+C     02Aug12 S.Roselle:      instrumented to output transmissivity for 
+C                             convective and resolved clouds
 
 C-----------------------------------------------------------------------
 
@@ -131,6 +133,8 @@ C...........Local Variables
       REAL, ALLOCATABLE, SAVE :: DENS    ( :,:,: ) ! air density (kg/m3)
       REAL, ALLOCATABLE, SAVE :: CONV_DEP( :,:,: ) ! convective wdep only
       REAL, ALLOCATABLE, SAVE :: TOT_DEP ( :,:,: ) ! total wdep
+      REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )
+      REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: )
 
       REAL FAC                       ! temp conversion factor
       REAL CCMIN
@@ -143,22 +147,24 @@ C...........EXTERNAL FUNCTIONS
 
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
-     &                       N_SPC_WDEP, WDEP_MAP, DEP )
+     &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )  :: N_SPC_WDEP
             INTEGER, INTENT( IN )  :: WDEP_MAP( : )
             REAL,    INTENT( OUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT ) :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, WDEP_MAP, DEP )
+     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )  :: N_SPC_WDEP
             INTEGER, INTENT( IN )  :: WDEP_MAP( : )
             REAL,    INTENT( OUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -400,7 +406,7 @@ C...advance to time variable for the output file to the next hour
               TSTEP3D = 010000   ! 1-hour timesteps (hhmmss)
               CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  on the next hour
 
-              NVARS3D = N_SPC_WDEP + 8
+              NVARS3D = N_SPC_WDEP + 8 + 4
 
 C...define output descriptor for pressure at the lifting condensation
 C...level (LCL)
@@ -462,6 +468,38 @@ C...define output descriptor for non-precipitating cloud fraction
               VNAME3D( VAR ) = 'NP_CLDFRAC'
               UNITS3D( VAR ) = ' '
               VDESC3D( VAR ) = 'NP cloud fraction'
+
+C...define output descriptor for precipitating cloud transmissivity
+
+              VAR = VAR + 1
+              VTYPE3D( VAR ) = M3REAL
+              VNAME3D( VAR ) = 'PR_TRANS'
+              UNITS3D( VAR ) = ' '
+              VDESC3D( VAR ) = 'PR cloud transmissivity'
+
+C...define output descriptor for non-precipitating cloud transmissivity
+
+              VAR = VAR + 1
+              VTYPE3D( VAR ) = M3REAL
+              VNAME3D( VAR ) = 'NP_TRANS'
+              UNITS3D( VAR ) = ' '
+              VDESC3D( VAR ) = 'NP cloud transmissivity'
+
+C...define output descriptor for resolved cloud transmissivity
+
+              VAR = VAR + 1
+              VTYPE3D( VAR ) = M3REAL
+              VNAME3D( VAR ) = 'RES_TRANS'
+              UNITS3D( VAR ) = ' '
+              VDESC3D( VAR ) = 'Resolved cloud transmissivity'
+
+C...define output descriptor for overall cloud transmissivity
+
+              VAR = VAR + 1
+              VTYPE3D( VAR ) = M3REAL
+              VNAME3D( VAR ) = 'CLD_TRANS'
+              UNITS3D( VAR ) = ' '
+              VDESC3D( VAR ) = 'Total cloud transmissivity'
 
 C...initialize the file descriptors
 
@@ -526,7 +564,7 @@ C...initialize the deposition array before processing clouds
 
         TOT_DEP = 0.0
 
-        ALLOCATE ( CONV_DEP( MY_NCOLS,MY_NROWS,N_SPC_WDEP+8 ),
+        ALLOCATE ( CONV_DEP( MY_NCOLS,MY_NROWS,N_SPC_WDEP+8+4 ),
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CONV_DEP'
@@ -534,6 +572,24 @@ C...initialize the deposition array before processing clouds
         END IF
 
         CONV_DEP = 0.0
+
+        ALLOCATE ( RESTRANS ( MY_NCOLS,MY_NROWS ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating RESTRANS'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        RESTRANS = 1.0
+
+        ALLOCATE ( SUBTRANS ( MY_NCOLS,MY_NROWS,2 ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating SUBTRANS'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        SUBTRANS = 1.0
 
         ALLOCATE ( DENS( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -666,12 +722,12 @@ C...determine no. of moles of tracer gas per moles of air by volume
 C...compute cloud effects for the resolved clouds and resolved rainwater
 
       CALL RESCLD ( CGRID, JDATE, JTIME, TSTEP,
-     &              N_SPC_WDEP, WDEP_MAP, TOT_DEP )
+     &              N_SPC_WDEP, WDEP_MAP, TOT_DEP, RESTRANS )
 
 C...compute cloud effects for convective (subgrid) clouds
 
       CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP )
+     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
 
 C...now check to see if it's time to write the deposition file
 
@@ -690,6 +746,24 @@ C...now check to see if it's time to write the deposition file
             END DO
           END DO
         END DO
+
+        DO ROW = 1, MY_NROWS
+          DO COL = 1, MY_NCOLS
+            VAR = N_SPC_WDEP + 8 + 1
+            CONV_DEP( COL, ROW, VAR ) = SUBTRANS( COL, ROW, 1 )
+            VAR = VAR + 1
+            CONV_DEP( COL, ROW, VAR ) = SUBTRANS( COL, ROW, 2 )
+            VAR = VAR + 1
+            CONV_DEP( COL, ROW, VAR ) = RESTRANS( COL, ROW )
+            VAR = VAR + 1
+            CONV_DEP( COL, ROW, VAR ) = SUBTRANS( COL, ROW, 1 )
+     &                                * SUBTRANS( COL, ROW, 2 )
+     &                                * RESTRANS( COL, ROW )
+          END DO
+        END DO
+
+        RESTRANS = 1.0
+        SUBTRANS = 1.0
 
 C...write data to the normal wet deposition file
 

@@ -26,8 +26,8 @@ C @(#)driver.F  1.2 /project/mod3/CMAQ/src/driver/ctm/SCCS/s.driver.F 07 Jul 199
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
-      SUBROUTINE CMAQ_DRIVER (WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP,
-     &                        TWOWAY_JDATE, TWOWAY_JTIME)
+      SUBROUTINE CMAQ_DRIVER ( WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP,
+     &                         TWOWAY_JDATE, TWOWAY_JTIME )
 #else
       PROGRAM  DRIVER
 #endif
@@ -105,8 +105,8 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
 #ifdef twoway
-      INTEGER, INTENT(IN)  :: WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP
-      INTEGER, INTENT(OUT) :: TWOWAY_JDATE, TWOWAY_JTIME
+      INTEGER, INTENT( IN )  :: WRF_SDATE, WRF_STIME, WRF_TSTEP, WRF_NSTEP
+      INTEGER, INTENT( OUT ) :: TWOWAY_JDATE, TWOWAY_JTIME
 #endif
 
 C Include Files:
@@ -162,12 +162,14 @@ C Local variables:
       REAL    CLOCK       ! Wall-clock time (sec) at initialization.
 #endif
 
-! These vaiables are for twoway model
-      LOGICAL, SAVE :: FIRST_RUN = .TRUE.
+      LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
+
+#ifdef twoway
       LOGICAL, SAVE :: SD_TIME_SERIES
       LOGICAL       :: CMAQ_WRF_FEEDBACK
+      INTEGER, SAVE :: myNREPS = 0
+#endif
 
-      INTEGER, SAVE :: OUTPUT_TIME
       INTEGER, SAVE :: STEP_COUNT = 0, TOTAL_STEPS = 0
       INTEGER       :: STATUS, RUNLEN
 
@@ -226,10 +228,10 @@ C-----------------------------------------------------------------------
       IF ( FIRST_RUN ) THEN
 
 #ifdef twoway
-         STDATE   = WRF_SDATE
-         STTIME   = WRF_STIME
-         TSTEP(3) = SEC2TIME( WRF_TSTEP )
-         NSTEPS   = WRF_NSTEP
+         STDATE     = WRF_SDATE
+         STTIME     = WRF_STIME
+         TSTEP( 3 ) = SEC2TIME( WRF_TSTEP )
+         NSTEPS     = WRF_NSTEP
 
          RUNLEN = ENVINT( 'CTM_RUNLEN', ' ', RUNLEN, STATUS )
          TOTAL_STEPS = TIME2SEC( RUNLEN ) / WRF_TSTEP
@@ -287,16 +289,12 @@ C Initialize parallel I/O
 C Initialize stencil exchange
          CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS)
-!    &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS,
-!    &                 COLROW, GEO_ORI )
          CALL SWAP_INIT_SNL( NPCOL, NPROW )
 #ifdef Verbose
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
          write( logdev,* ) ' MYPE -> MSDIS:    ', mype, msdis
          write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
-!        write( logdev,* ) ' MYPE -> DATA_ORI: ', mype, colrow
-!        write( logdev,* ) ' MYPE -> GEO_ORI:  ', mype, geo_ori
 #endif
 #endif
 
@@ -368,8 +366,6 @@ C Verify input file header consistency and run duration
 
          FIRST_RUN = .FALSE.
 
-         OUTPUT_TIME = INT( TIME2SEC( TSTEP( 3 ) ) )
-
 #ifdef twoway
          CMAQ_WRF_FEEDBACK = ENVYN( 'CMAQ_WRF_FEEDBACK', ' ', .FALSE., STATUS )
          IF ( STATUS .EQ. 1 ) THEN
@@ -424,12 +420,11 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 C science process sequence:
          
 #ifdef twoway
-         DIVFAC = 0.5 / FLOAT( 3600 / TIME2SEC( TSTEP( 2 ) ) )
+         myNREPS = myNREPS + NREPS
 #else
          DIVFAC = 0.5 / FLOAT( NREPS )
 #endif
 
-!        DO IREP = 1, NREPS - 1
          DO IREP = 1, NREPS
 
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
@@ -450,9 +445,12 @@ C science process sequence:
 
          END DO
 
-!        CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-
          IF ( MOD( JTIME, TSTEP( 1 ) ) .EQ. 0 ) THEN
+#ifdef twoway
+         print *, ' ==d== NREPS d ', myNREPS
+         DIVFAC = 0.5 / FLOAT( myNREPS )
+         myNREPS = 0
+#endif
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
                L = 0
@@ -461,7 +459,6 @@ C science process sequence:
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
                         AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-!    &                                   +            CGRID( C,R,K,S ) )
      &                                   -            CGRID( C,R,K,S ) )
                      END DO
                   END DO
@@ -491,11 +488,9 @@ C write conc fields
          END IF
 
 #ifdef twoway
-
       IF ( SD_TIME_SERIES ) THEN
          CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
       END IF
-
 #else
 
 201      CONTINUE
