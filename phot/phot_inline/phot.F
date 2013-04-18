@@ -90,6 +90,8 @@ C       - revised NEW_OPTICS' arguments based on  aerosol redesign in CMAQ
 C         version 5.0
 C     March 29, 2011 S.Roselle
 C       - Replaced I/O API include files with UTILIO_DEFN
+C     Apr. 11, 2013 David Wong
+C       - obtain LAND_SCHEME information from LSM_MOD for the twoway model
 C----------------------------------------------------------------------
 
 C...modules
@@ -98,6 +100,7 @@ C...modules
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
+      USE LSM_MOD, ONLY: LAND_SCHEME
 
       USE SUBST_MODULES        ! stenex
       USE AERO_DATA            ! describes aerosol distribution
@@ -226,7 +229,7 @@ C for INTERPX
 
       REAL, ALLOCATABLE, SAVE :: SSA      ( : ) ! aerosol single scattering albedo
 
-      CHARACTER( 80 )         :: LAND_SCHEME
+      CHARACTER( 80 )         :: LOC_LAND_SCHEME
       INTEGER                 :: NUMB_LANDUSE
 
       REAL, ALLOCATABLE       :: FRACTION_LANDUSE( :,:,: ) ! fractional cover for a landuse
@@ -397,7 +400,10 @@ C...Get latitudes
              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
           END IF
 
-         LAND_SCHEME = 'UNKNOWN'
+#ifdef twoway
+         LOC_LAND_SCHEME = LAND_SCHEME
+#else
+         LOC_LAND_SCHEME = 'UNKNOWN'
          IF ( .NOT. DESC3( GRID_CRO_2D ) ) THEN
             XMSG = 'COULD NOT GET GRID_CRO_2D FILE DESCRIPTION '
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
@@ -406,23 +412,34 @@ C...Get latitudes
          DO V = 1, NVARS3D ! determine land character
 
             IF ( VNAME3D( V ) .EQ. 'DLUSE' ) THEN
-               IF ( INDEX( VDESC3D( V ), 'USGS24' ) .NE. 0 ) LAND_SCHEME = 'USGS24'
-               IF ( INDEX( VDESC3D( V ), 'MODIS' ) .NE. 0 ) LAND_SCHEME = 'MODIS'
+               IF ( INDEX( VDESC3D( V ), 'USGS24' ) .NE. 0 ) LOC_LAND_SCHEME = 'USGS24'
+               IF ( INDEX( VDESC3D( V ), ' MODIS' ) .NE. 0 ) LOC_LAND_SCHEME = 'MODIS'
 
 C...overwrite if NLCD-MODIS scheme
 
-               IF ( INDEX( VDESC3D( V ), 'NLCD-MODIS' ) .NE. 0 ) LAND_SCHEME = 'NLCD-MODIS'
+               IF ( INDEX( VDESC3D( V ), 'NLCD-MODIS' ) .NE. 0 ) LOC_LAND_SCHEME = 'NLCD50'
+               IF ( INDEX( VDESC3D( V ),     'NLCD50' ) .NE. 0 ) LOC_LAND_SCHEME = 'NLCD50'
+               IF ( INDEX( VDESC3D( V ),     'NLCD40' ) .NE. 0 ) LOC_LAND_SCHEME = 'NLCD40'
             END IF
 
          END DO
+#endif
 
-         SELECT CASE( LAND_SCHEME )
+         SELECT CASE( LOC_LAND_SCHEME )
            CASE( 'USGS24' )
               NUMB_LANDUSE = NUMB_LANDUSE_USGS  ! 24
            CASE( 'MODIS' )
               NUMB_LANDUSE = NUMB_LANDUSE_MODIS ! 33
-           CASE( 'NLCD-MODIS' )
-              NUMB_LANDUSE = NUMB_LANDUSE_NLCD  ! 50
+           CASE( 'NLCD50' )
+              NUMB_LANDUSE = NUMB_LANDUSE_NLCD50  ! 50
+           CASE( 'NLCD40' )
+              NUMB_LANDUSE = NUMB_LANDUSE_NLCD40  ! 40
+              IF( NO_NLCD40 )THEN
+                  XMSG =  'GRID_CRO_2D uses NLCD40 landuse scheme but '
+     &                 // 'CSQY_FILE does not albedo factors for the '
+     &                 // 'NLCD40'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+              END IF
            CASE DEFAULT
               NUMB_LANDUSE = 2 ! simple land-water suface albedo
          END SELECT
@@ -449,8 +466,8 @@ C...overwrite if NLCD-MODIS scheme
 
          FRACTION_LANDUSE  = 0.0
 
-         IF ( LAND_SCHEME .NE. 'UNKNOWN' ) THEN
-            XMSG = ': Identified ' // TRIM( LAND_SCHEME )
+         IF ( LOC_LAND_SCHEME .NE. 'UNKNOWN' ) THEN
+            XMSG = ': Identified ' // TRIM( LOC_LAND_SCHEME )
      &           // ' land use scheme for surface albedo used by inline'
      &           // ' photolysis calculation.'
             DO V = 1, NUMB_LANDUSE
@@ -470,7 +487,7 @@ C...overwrite if NLCD-MODIS scheme
                END DO
             END DO
          ELSE
-            XMSG = ': Undentified ' // TRIM( LAND_SCHEME )
+            XMSG = ': Undentified ' // TRIM( LOC_LAND_SCHEME )
      &           // ' land use scheme for inline photolysis calculation.'
      &           // ' Using default land-water albedo for inline photolysis'
      &           // ' calculation.'
@@ -503,7 +520,7 @@ C...overwrite if NLCD-MODIS scheme
          END IF
 
          IF ( .NOT. HAS_SEAICE ) THEN
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'NO SEAICE '
 #endif
             XMSG = 'MET_CRO_2D DOES NOT CONTAIN SEA ICE DATA. THE SURFACE ALBEDO '
@@ -516,7 +533,7 @@ C...overwrite if NLCD-MODIS scheme
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( logdev,* ) 'allocated TEMPG array'
 #endif
 
@@ -599,16 +616,19 @@ C...overwrite if NLCD-MODIS scheme
          ALBMAP_TO_REF   = -1
          ALBFAC_TO_REF   = 0.0
 
-         SELECT CASE( LAND_SCHEME )
+         SELECT CASE( LOC_LAND_SCHEME )
             CASE( 'USGS24' )
                ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2USGS( 1:NUMB_LANDUSE )
                ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2USGS( 1:NUMB_LANDUSE )
             CASE( 'MODIS' )
                ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2MODIS( 1:NUMB_LANDUSE )
                ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2MODIS( 1:NUMB_LANDUSE )
-            CASE( 'NLCD-MODIS' )
-               ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2NLCD( 1:NUMB_LANDUSE )
-               ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2NLCD( 1:NUMB_LANDUSE )
+            CASE( 'NLCD50' )
+               ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2NLCD50( 1:NUMB_LANDUSE )
+               ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2NLCD50( 1:NUMB_LANDUSE )
+            CASE( 'NLCD40' )
+               ALBMAP_TO_REF( 1:NUMB_LANDUSE ) = ALBMAP_REF2NLCD40( 1:NUMB_LANDUSE )
+               ALBFAC_TO_REF( 1:NUMB_LANDUSE ) = ALBFAC_REF2NLCD40( 1:NUMB_LANDUSE )
             CASE DEFAULT
                ALBMAP_TO_REF( 1 ) = INDEX_GRASSLAND_REF
                ALBFAC_TO_REF( 1 ) = 1.0
@@ -826,6 +846,8 @@ C...Calculate current hour in GMT and julian day
 
 C...Calculate cosines of the zenith angles and compute NDARK
 
+      NDARK = 0
+
       DO ROW = 1, MY_NROWS
          DO COL = 1, MY_NCOLS
 
@@ -846,7 +868,7 @@ C...this convention on longititude should be reexamined for different domains
             IF ( .NOT. HAS_SEAICE ) THEN ! determine sea ice can form
                IF ( TEMPG( COL, ROW ) .LT. SEAICE_POINT .AND.
      &              WATER_FRACTION( COL, ROW ) .GE. 0.95 ) THEN
-     	            SEAICE( COL, ROW ) = 1.0
+                  SEAICE( COL, ROW ) = 1.0
                ELSE
                   SEAICE( COL, ROW ) = 0.0
                END IF

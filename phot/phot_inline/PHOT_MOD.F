@@ -116,6 +116,8 @@ C***Cloud albedo values from JPROC
       REAL, ALLOCATABLE, SAVE :: XO3CS( :,: )       !
       REAL, ALLOCATABLE, SAVE :: TEMP_O3_STRAT( : ) ! temperature for XO3CS, K
 
+      CHARACTER(16), ALLOCATABLE, SAVE  :: PHOTOLYSIS_RATE( : ) ! subset of photolysis rates from CSQY DATA
+
 C***Indices for special case photolysis cross sections
 
       INTEGER, SAVE :: LNO2
@@ -140,12 +142,17 @@ C***Indices for special case photolysis cross sections
       REAL,          ALLOCATABLE, SAVE :: SNOW_COEFF_REF( : )
       REAL,          ALLOCATABLE, SAVE :: SPECTRAL_ALBEDO_REF( :,: )
 
-      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD  = 50
-      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD
-      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD( : )
-      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD( : )
-      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD( : )
+      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD50  = 50
+      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD50
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD50( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD50( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD50( : )
 
+      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD40  = 40
+      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD40
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD40( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD40( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD40( : )
 
       INTEGER, PARAMETER :: NUMB_EXPECT_USGS  = 24
       INTEGER, SAVE      :: NUMB_LANDUSE_USGS
@@ -158,6 +165,8 @@ C***Indices for special case photolysis cross sections
       CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_MODIS( : )
       INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2MODIS( : )
       REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2MODIS( : )
+      
+      LOGICAL, SAVE      :: NO_NLCD40
 
 C***special information for acetone
 C***  Reference:
@@ -421,6 +430,7 @@ C***arrays for new values
          NEW_OPTICS_LOG = INIT3()
          
          NPHOT = NPHOTAB
+         ALLOCATE( PHOTOLYSIS_RATE ( NPHOTAB ) )
          ALLOCATE( XXCS( NPHOTAB, IREFTEMPS, NWL ) )
          ALLOCATE( XXQY( NPHOTAB, IREFTEMPS, NWL ) )
          ALLOCATE( CONV_WM2( NWL ) )
@@ -472,42 +482,61 @@ C***  reference data in module CSQY_DATA
                CALL M3WARN ( 'NEW_OPTICS', 0, 0, XMSG )
             END IF
             IP_REF = PHOT_MAP( IP_MAP )
+            PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )
 
 C***check to see if this photolysis reaction is a special case that
 C***  is referenced in other sections of the code.  if so, then set
 C***  the appropriate pointers for later processing
 
+            SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
+               CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06' )
+                     LO3O3P = IPHOT
+               CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2' )
+                     LNO2 = IPHOT
+               CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06' )
+                     LO3O1D = IPHOT
+               CASE( 'KETONE', 'KET_RACM2' )
+                     LKETONE   = IPHOT
+               CASE( 'MGLY_ADJ' )
+                     LMGLY_ADJ = IPHOT
+               CASE(  'MGLY_ABS' )
+                     LMGLY_ABS = IPHOT
+               CASE( 'ACETONE', 'CH3COCH3_RACM2' )
+                     LACETONE  = IPHOT
+               CASE( 'HCHOR_06', 'HCHO_RAD_RACM2')
+                     LHCHOR_06 = IPHOT
+            END SELECT
 
-            IF  ( ( PNAME_MAP( IP_MAP ) .EQ. 'NO2' ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_SAPRC99' ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_06'      ) .OR.
-     &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_RACM2' ) ) LNO2 = IPHOT
+!           IF  ( ( PNAME_MAP( IP_MAP ) .EQ. 'NO2' ) .OR.
+!    &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_SAPRC99' ) .OR.
+!    &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_06'      ) .OR.
+!    &            ( PNAME_MAP( IP_MAP ) .EQ. 'NO2_RACM2' ) ) LNO2 = IPHOT
 
-            IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_SAPRC99' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_06'      )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_NASA06'  ) ) LO3O1D = IPHOT
-
-
-            IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P' ) .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
-     &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
+!           IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D' ) .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_SAPRC99' )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_06'      )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O1D_IUPAC04' )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O1D_NASA06'  ) ) LO3O1D = IPHOT
 
 
-            IF ( PNAME_REF( IPHOT ) .EQ. 'KETONE'   .OR.
-     &           PNAME_REF( IPHOT ) .EQ. 'KET_RACM2' )      LKETONE   = IPHOT
+!           IF ( ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P' ) .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_SAPRC99' )   .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_06'      )   .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3_O3P_IUPAC04' )  .OR.
+!    &           ( PNAME_MAP( IP_MAP ) .EQ. 'O3O3P_NASA06'  ) ) LO3O3P = IPHOT
+
+
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'KETONE'   .OR.
+!    &           PNAME_REF( IPHOT ) .EQ. 'KET_RACM2' )      LKETONE   = IPHOT
      
-            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ADJ' )       LMGLY_ADJ = IPHOT
-            IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ABS' )       LMGLY_ABS = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ADJ' )       LMGLY_ADJ = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'MGLY_ABS' )       LMGLY_ABS = IPHOT
             
-            IF ( PNAME_REF( IPHOT ) .EQ. 'ACETONE'  .OR. 
-     &           PNAME_REF( IPHOT ) .EQ. 'CH3COCH3_RACM2' ) LACETONE  = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'ACETONE'  .OR. 
+!    &           PNAME_REF( IPHOT ) .EQ. 'CH3COCH3_RACM2' ) LACETONE  = IPHOT
             
-            IF ( PNAME_REF( IPHOT ) .EQ. 'HCHOR_06' .OR.
-     &           PNAME_REF( IPHOT ) .EQ. 'HCHO_RAD_RACM2' ) LHCHOR_06 = IPHOT
+!           IF ( PNAME_REF( IPHOT ) .EQ. 'HCHOR_06' .OR.
+!    &           PNAME_REF( IPHOT ) .EQ. 'HCHO_RAD_RACM2' ) LHCHOR_06 = IPHOT
 
 C***load the local cross section & quantum yield data from the reference
 C***  dataset for this photolysis reaction
@@ -866,6 +895,7 @@ C***local
       INTEGER :: IPHOT_LOAD
       INTEGER :: ITT_LOAD
       INTEGER :: IWL_LOAD
+      
 
 C***external functions: none
 
@@ -890,7 +920,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(10X,I4)' ) NPHOT_MAP
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(22x,a32)' ) jtable_ref
       write( log_unit,'(10x,i4)' ) nphot_map
 #endif
@@ -904,7 +934,7 @@ C...begin read
       DO IPHOT_LOAD = 1, NPHOT_MAP
          READ( PHOTAB_UNIT,'(A16)' ) PNAME_REF( IPHOT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(i3,1x,a16)' ) iphot_load, pname_ref( iphot_load )
 #endif
 
@@ -914,13 +944,13 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(10X,I3)' ) NTEMP_REF
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(10x,i3)' ) ntemp_ref
 #endif
 
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,* ) trim( file_line )
 #endif
 
@@ -931,13 +961,13 @@ C...begin read
       DO ITT_LOAD = 1, NTEMP_REF
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,* ) trim( file_line )
 #endif
 
          READ( FILE_LINE,* ) IPHOT_LOAD, TEMP_BASE( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(4x,f6.2)' ) temp_base( itt_load )
 #endif
 
@@ -953,7 +983,7 @@ C...begin read
       NWL       = NWL_REF
       NWL_PHOT  = NWL
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(17x,i3)' ) nwl_ref
 #endif
 
@@ -982,7 +1012,7 @@ C...begin read
      &         CLD_BETA_REF( IWL_LOAD ), CLD_G_REF( IWL_LOAD ),
      &         CLD_COALBEDO_REF( IWL_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(4x,3(f8.3,2x),2x,es12.4,2x,2(f8.3,2x),es12.4,2x)' )
      &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
      &          endwl_ref( iwl_load ),fsolar_ref( iwl_load ),
@@ -1013,7 +1043,7 @@ C...begin read
      &            PHOT_EXPECT, TEMP_REF( ITT_LOAD, IPHOT_LOAD),
      &            ( CS_REF( IPHOT_LOAD, ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( cs_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1031,7 +1061,7 @@ C...begin read
 
             QY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF) = EQY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF)
 
-#ifdef Verbose
+#ifdef verbose_phot
             write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &             phot_expect, temp_ref( itt_load, iphot_load),
      &             ( qy_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1051,7 +1081,7 @@ C...begin read
 
       READ( PHOTAB_UNIT,'(15X,I3)' ) NTEMP_STRAT_REF
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,'(16x,i3)' ) ntemp_strat_ref
 #endif
 
@@ -1065,7 +1095,7 @@ C...begin read
      &         PHOT_EXPECT, TEMP_STRAT_REF( ITT_LOAD ),
      &         ( O3_CS_STRAT_REF( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
      &          phot_expect, temp_strat_ref( itt_load ),
      &          ( o3_cs_strat_ref( itt_load, iwl_load), iwl_load = 1, nwl_ref )
@@ -1092,7 +1122,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) INDEX_OCEAN_REF
       READ( PHOTAB_UNIT,5013 ) INDEX_SEA_ICE
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 )'NUMB_LANDUSE_REF    = ', numb_landuse_ref
       write( log_unit,6013 )'INDEX_GRASSLAND_REF = ', index_grassland_ref
       write( log_unit,6013 )'INDEX_OCEAN_REF     = ', index_ocean_ref
@@ -1112,7 +1142,7 @@ C...begin read
      &                            ZENITH_COEFF_REF( ITT_LOAD ),
      &                            SEASON_COEFF_REF( ITT_LOAD ),
      &                            SNOW_COEFF_REF( ITT_LOAD )
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,5012 ) landuse_ref( itt_load ),
      &                          zenith_coeff_ref( itt_load ),
      &                          season_coeff_ref( itt_load ),
@@ -1126,7 +1156,7 @@ C...begin read
          READ( PHOTAB_UNIT,'(A30,1X,40(1PE12.6,2X))' ) LAND_EXPECT,
      &        ( SPECTRAL_ALBEDO_REF(IWL_LOAD, ITT_LOAD), IWL_LOAD = 1, NWL_REF )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,'(a30,1x,40(1pe12.6,2x))' ) trim( land_expect ),
      &        ( spectral_albedo_ref(iwl_load, itt_load), iwl_load = 1, nwl_ref )
 #endif
@@ -1137,28 +1167,28 @@ C...begin read
          READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
       END DO
 
-      READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_NLCD
+      READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_NLCD50
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
-      write( log_unit,6013 ) 'NUMB_NLCD_MODIS = ', numb_landuse_nlcd
-      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD-MODIS', 'INDEX_ALBREF',
+#ifdef verbose_phot
+      write( log_unit,6013 ) 'NUMB_NLCD50_MODIS = ', numb_landuse_NLCD50
+      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD50-MODIS', 'INDEX_ALBREF',
      &                       'FAC_ALBREF'
 #endif
 
-      ALLOCATE( LANDUSE_NLCD( NUMB_LANDUSE_NLCD )  )
-      ALLOCATE( ALBMAP_REF2NLCD( NUMB_LANDUSE_NLCD )  )
-      ALLOCATE( ALBFAC_REF2NLCD( NUMB_LANDUSE_NLCD )  )
+      ALLOCATE( LANDUSE_NLCD50( NUMB_LANDUSE_NLCD50 )  )
+      ALLOCATE( ALBMAP_REF2NLCD50( NUMB_LANDUSE_NLCD50 )  )
+      ALLOCATE( ALBFAC_REF2NLCD50( NUMB_LANDUSE_NLCD50 )  )
 
-      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD
-         READ( PHOTAB_UNIT,5016 ) LANDUSE_NLCD( ITT_LOAD ),
-     &                            ALBMAP_REF2NLCD( ITT_LOAD ),
-     &                            ALBFAC_REF2NLCD( ITT_LOAD )
+      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD50
+         READ( PHOTAB_UNIT,5016 ) LANDUSE_NLCD50( ITT_LOAD ),
+     &                            ALBMAP_REF2NLCD50( ITT_LOAD ),
+     &                            ALBFAC_REF2NLCD50( ITT_LOAD )
 
-#ifdef Verbose
-         write( log_unit,6016 ) itt_load, landuse_nlcd( itt_load ),
-     &                          albmap_ref2nlcd( itt_load ),
-     &                          albfac_ref2nlcd( itt_load )
+#ifdef verbose_phot
+         write( log_unit,6016 ) itt_load, landuse_NLCD50( itt_load ),
+     &                          albmap_ref2NLCD50( itt_load ),
+     &                          albfac_ref2NLCD50( itt_load )
 #endif
 
       END DO
@@ -1166,7 +1196,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_USGS
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_USGS = ', numb_landuse_usgs
       write( log_unit,6009 ) '! I','LANDUSE_USGS', 'INDEX_ALBREF', 'FAC_ALBREF'
 #endif
@@ -1180,7 +1210,7 @@ C...begin read
      &                            ALBMAP_REF2USGS( ITT_LOAD ),
      &                            ALBFAC_REF2USGS( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_usgs( itt_load ),
      &                          albmap_ref2usgs( itt_load ),
      &                          albfac_ref2usgs( itt_load )
@@ -1191,7 +1221,7 @@ C...begin read
       READ( PHOTAB_UNIT,5013 ) NUMB_LANDUSE_MODIS
       READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
 
-#ifdef Verbose
+#ifdef verbose_phot
       write( log_unit,6013 ) 'NUMB_MODIS = ', numb_landuse_modis
       write( log_unit,6009 ) '! I','LANDUSE_MODIS', 'INDEX_ALBREF', 'FAC_ALBREF'
 #endif
@@ -1205,7 +1235,7 @@ C...begin read
      &                            ALBMAP_REF2MODIS( ITT_LOAD ),
      &                            ALBFAC_REF2MODIS( ITT_LOAD )
 
-#ifdef Verbose
+#ifdef verbose_phot
          write( log_unit,6016 ) itt_load, landuse_modis( itt_load ),
      &                          albmap_ref2modis( itt_load ),
      &                          albfac_ref2modis( itt_load )
@@ -1213,17 +1243,47 @@ C...begin read
 
       END DO
 
+      NO_NLCD40 = .TRUE.  ! default condition that file does not contain NLCD40 Landuse data
+      
+      READ( PHOTAB_UNIT,5013, END = 101 ) NUMB_LANDUSE_NLCD40
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE ! skip line
+
+#ifdef verbose_phot
+      write( log_unit,6013 ) 'NUMB_NLCD40_MODIS = ', numb_landuse_NLCD40
+      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD40-MODIS', 'INDEX_ALBREF',
+     &                       'FAC_ALBREF'
+#endif
+
+      ALLOCATE( LANDUSE_NLCD40( NUMB_LANDUSE_NLCD40 )  )
+      ALLOCATE( ALBMAP_REF2NLCD40( NUMB_LANDUSE_NLCD40 )  )
+      ALLOCATE( ALBFAC_REF2NLCD40( NUMB_LANDUSE_NLCD40 )  )
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD40
+         READ( PHOTAB_UNIT,5016 ) LANDUSE_NLCD40( ITT_LOAD ),
+     &                            ALBMAP_REF2NLCD40( ITT_LOAD ),
+     &                            ALBFAC_REF2NLCD40( ITT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,6016 ) itt_load, landuse_NLCD40( itt_load ),
+     &                          albmap_ref2NLCD40( itt_load ),
+     &                          albfac_ref2NLCD40( itt_load )
+#endif
+
+      END DO
+      
+      NO_NLCD40 = .FALSE.
+
+101   IF( NO_NLCD40 )THEN
+          MSG = TRIM( PNAME ) // ':'
+     &       // TRIM( CSQY_FILE )
+     &       // ' does not contain data for NLCD40 land use and'
+     &       // ' corresponds to CMAQ version 5.01.'
+          CALL M3MESG( MSG )
+      END IF
+          
       ALLOCATE( WAVELENGTH( NWL_PHOT ) )
       ALLOCATE( FEXT      ( NWL_PHOT ) )
       ALLOCATE( ALB       ( NWL_PHOT ) )
-
-      DO IWL_LOAD = 1, NWL_PHOT
-         IF ( WAVELENGTH( IWL_LOAD ) .LE. 380.1 ) THEN
-            ALB( IWL_LOAD ) = 0.05
-         ELSE
-            ALB( IWL_LOAD ) = 0.10
-         END IF
-      END DO
 
       ALLOCATE( CLOUD_BETA_LWC( NWL_PHOT ) )  ! cloud extinction coef divided by LWC
       ALLOCATE( CLOUD_COALBEDO( NWL_PHOT ) )  ! cloud coalbedo
@@ -1235,6 +1295,14 @@ C...begin read
          CLOUD_G       ( IWL_LOAD ) = CLD_G_REF       ( IWL_LOAD )
          CLOUD_COALBEDO( IWL_LOAD ) = CLD_COALBEDO_REF( IWL_LOAD )
          CLOUD_BETA_LWC( IWL_LOAD ) = CLD_BETA_REF    ( IWL_LOAD )
+      END DO
+
+      DO IWL_LOAD = 1, NWL_PHOT
+         IF ( WAVELENGTH( IWL_LOAD ) .LE. 380.1 ) THEN
+            ALB( IWL_LOAD ) = 0.05
+         ELSE
+            ALB( IWL_LOAD ) = 0.10
+         END IF
       END DO
 
       NTEMP_STRAT = NTEMP_STRAT_REF
@@ -1254,7 +1322,7 @@ C...begin read
 5013  FORMAT( 22X,I3 )
 5016  FORMAT( 4X,A60,1X,I3,2X,3(F8.3,2X) )
 
-#ifdef Verbose
+#ifdef verbose_phot
 6009  format( a3,', ',8(a,', ') )
 6013  format( a22,1x,i3 )
 6016  format( i3,1x,a60,1x,i3,2x,3(f8.3,2x) )
@@ -1325,25 +1393,27 @@ C-----------------------------------------------------------------------
 C  Purpose: Calculate values of absorption cross
 C     section and quantum yield, given, temperature and air
 C     pressure and density.
-C
+ 
 C     FSB This version uses different reference temperatures for
 C     different species.
-C
+ 
 C  coded 10/14/2004 by Dr. Francis S. Binkowski
 C     Carolina Environmental Program
 C     University of North Carolina at Chapel Hill
 C     email: frank_binkowski@unc.edu
-C
+ 
 C  reference for acetone:
 C     Cameron-Smith, Philip J., Incorporating non_linear computation
 C     code (Fast-J), Journal of Atmospheric Chemistry, Vol. 37,
 C     pp 283-297, 2000)
-C
+ 
 C  Mar 2011: Bill Hutzell
 C     - revised interpolation method for a general number of
 C     interpolation points
 C     - revised density corrections for specific photolysis reactions
-C
+ 
+C  Apr 2013: Jeff Young
+C     - added QDUM initialization in CASE starting with 'MGLY-06'
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -1464,14 +1534,16 @@ C***  reference temperature, then use the value at the maximum reference tempera
 
 C***Make density corrections using values from Fast-JX V. 5.0
 
-               SELECT CASE ( PNAME_REF( IPHOT ) )
+               SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
 
                   CASE ( 'CCHO_R', 'ALD2', 'CH3CHO_RACM2' )      ! 'CH3CHO -> CH3 + HCO'
 
                      IF ( QYZ( LAYS, IWL, IPHOT ) .GT. 1.0E-5 ) THEN
-                              QDUM = QYZ( LAYS, IWL, IPHOT )
-                              QYZ( LAYS, IWL, IPHOT ) = 1.0
-     &                           / ( 1.0 + ( 1.0 / QDUM - 1.0 ) * DENS( LAYS ) / 2.465E19 )
+                        QDUM = 0.0
+                     ELSE
+                        QDUM = QYZ( LAYS, IWL, IPHOT )
+                        QYZ( LAYS, IWL, IPHOT ) = 1.0
+     &                                         / ( 1.0 + ( 1.0 / QDUM - 1.0 ) * DENS( LAYS ) / 2.465E19 )
                         QYZ( LAYS, IWL, IPHOT ) = MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) )
                         QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, QYZ( LAYS, IWL, IPHOT ) )
                      END IF
@@ -1592,6 +1664,8 @@ C***remove wavelength dependence
      &                          / ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - 1.0 )
                            QDUM = QDUM
      &                          / ( QDUM + 1.36E8 * PRESSURE )
+                        ELSE
+                           QDUM = 0.0
                         END IF
 
                      ELSE IF ( WAVELENGTH( IWL ) .LE. 240.0 ) THEN

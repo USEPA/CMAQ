@@ -256,7 +256,7 @@ C...set the standard deviation to a fixed value (e.g. 1.7)
 
 C...calculate the 2nd moment based on the fixed standard deviation
 
-      	AM2 = EXP( TWO3 * LOG( AM3 ) +
+        AM2 = EXP( TWO3 * LOG( AM3 ) +
      &             ONE3 * LOG( AM0 ) -
      &             L2SGI )
 

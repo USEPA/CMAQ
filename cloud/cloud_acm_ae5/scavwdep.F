@@ -32,7 +32,7 @@ C-----------------------------------------------------------------------
 C  Description: Compute simplistic incloud scavenging and wet removal
  
 C  Revision History:
-C      No   Date   Who	What
+C      No   Date   Who  What
 C      -- -------- ---  -----------------------------------------
 C       0 01/15/98 sjr  created program
 C       1 07/27/99 sjr  added scavenging coefficient scaling factors

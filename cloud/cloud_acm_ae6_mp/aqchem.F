@@ -35,7 +35,7 @@ C    Compute concentration changes in cloud due to aqueous chemistry,
 C    scavenging and wet deposition amounts.
 C
 C  Revision History:
-C      No   Date   Who	What
+C      No   Date   Who  What
 C      -- -------- ---  -----------------------------------------
 C      0  / /86    CW   BEGIN PROGRAM - Walceks's Original Code
 C      1  / /86    RB   INCORPORATE INTO RADM

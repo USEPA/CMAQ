@@ -36,7 +36,7 @@ C     map species from their order in the array POLC, CEND, REMOV to
 C     the species that are expected for AQCHEM, ie GAS and AEROSOL.
  
 C  Revision History:
-C      No   Date   Who	What
+C      No   Date   Who  What
 C      -- -------- ---  -----------------------------------------
 C       0 01/15/98 sjr  created program
 C       1 02/13/98 sjr  modified/generalized the mapping procedure
