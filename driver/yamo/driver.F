@@ -83,6 +83,7 @@ C   20 Jul 10 J.Young: re-do serial processing termination (eliminate par_noop)
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   24 Aug 11 D.Wong: eliminated data and geo orientation in se_init call
+C    8 Jan 13 C.Nolte: fixed load AGRID bug if TSTEP(1) .ne. 010000 hhmmss
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -402,20 +403,18 @@ C Main processing loop:
 C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
          CALL ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
 
-         IF ( MOD( JTIME, TSTEP( 1 ) ) .EQ. 0 ) THEN
-            DO V = 1, N_ASPCS
-               S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = CGRID( C,R,K,S )
-                     END DO
+         DO V = 1, N_ASPCS
+            S = AVG_CONC_MAP( V )
+            L = 0
+            DO K = ACONC_BLEV, ACONC_ELEV
+               L = L + 1
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     AGRID( C,R,L,V ) = CGRID( C,R,K,S )
                   END DO
                END DO
             END DO
-         END IF
+         END DO
 
 C science process sequence:
          
@@ -445,26 +444,24 @@ C science process sequence:
 
          END DO
 
-         IF ( MOD( JTIME, TSTEP( 1 ) ) .EQ. 0 ) THEN
 #ifdef twoway
          print *, ' ==d== NREPS d ', myNREPS
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
-            DO V = 1, N_ASPCS
-               S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-     &                                   -            CGRID( C,R,K,S ) )
-                     END DO
+         DO V = 1, N_ASPCS
+            S = AVG_CONC_MAP( V )
+            L = 0
+            DO K = ACONC_BLEV, ACONC_ELEV
+               L = L + 1
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
+     &                                -            CGRID( C,R,K,S ) )
                   END DO
                END DO
             END DO
-         END IF
+         END DO
 
          DO V = 1, N_CSPCS
             S = CONC_MAP( V )
@@ -488,9 +485,9 @@ C write conc fields
          END IF
 
 #ifdef twoway
-      IF ( SD_TIME_SERIES ) THEN
-         CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
-      END IF
+         IF ( SD_TIME_SERIES ) THEN
+            CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
+         END IF
 #else
 
 201      CONTINUE
@@ -498,7 +495,7 @@ C write conc fields
 #endif
 
       IF ( ( STEP_COUNT .EQ. TOTAL_STEPS ) .OR. ( TOTAL_STEPS .EQ. 0 ) ) THEN
-C write CGRID state file for run continuation
+C write CGRID state file for subsequent runs
          CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
       END IF
 
