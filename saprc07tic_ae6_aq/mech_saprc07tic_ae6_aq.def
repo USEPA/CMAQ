@@ -1,14 +1,7 @@
-
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/saprc07tc_ae5_aq/mech.def,v 1.1 2011/04/06 16:38:07 sjr Exp $ 
-
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 ! 01/20/2010: B. Hutzell created based on SAPRC07T Mechanism, version "C"
-!             from William Carter dated 12-Jan-2010 09:56. The version from
-!             Carter incoporates comments from CARB peer review and corrects  
-!             errors explained in Appendix E of the SAPRC07 report.
+!             from William Carter dated 12-Jan-2010 09:56. The version from Carter
+!             incoporates comments from CARB peer review and corrects errors 
+!             explained in Appendix E of the SAPRC07 report.
 !             1) Added species and reactions for secondary organic aerosol 
 !                production as represented in the CMAQ AERO5 alogrithm.
 !             2) Added reactive tracers for HCHO, CCHO, and ACROLEIN emissions
@@ -18,14 +11,20 @@
 !             to &1.33. For reaction 20, the rate constant went from 1.63e-10 to
 !             1.63e-10@-60. For reactions BR18 and BR19, the fall off parameter 
 !             changed from &1.0 to &1.41.
-! 03/04/2010  B. Hutzell changed the rate constant for N2O5 and H2O termmolecular
+! 11/09/2011  Y. Xie added updated isprene oxidation (OH, NO3) scheme
+! 02/10/2012  B. Hutzell changed the rate constant for N2O5 and H2O termmolecular
 !             reactions to zero and cut the bimolecular rate constant for N2O5 and H2O
 !             to 1.0e-22 from 2.2e-22 based on preferences in IUPAC 2010 data sheet
-! 05/30/2012  B. Hutzell corrected Reaction TR10 so product is CL not HCL
-! 05/31/2012  B. Hutzell changed OH + NO2 rate constant to recommndations given
+! 06/07/2012  B. Hutzell corrected Reaction TR10 so product is CL not HCL
+! 06/07/2012  B. Hutzell changed OH + NO2 rate constant to recommndations given
 !             in supplementary material for Mollner et al. (2010), Science 330, 646.
+! 08/21/2012  B. Hutzell turned off NO2EX cycle to setting EX1 rate constant to zero
+!             Note that EXOH originally used rate constant of zero by insert a blank
+!             in the appropriate space. A zero has replaced the blank to remove 
+!             ambiguities.
 
-SAPRC07TC_AE5_AQ 
+
+  SAPRC07TIC_AE6_AQ
 
 ELIMINATE =
 XN;
@@ -46,7 +45,7 @@ REACTIONS [CM] =
 <11> NO2 + NO3 = N2O5 # 3.60e-30^-4.10&1.90e-12^0.20&0.35&1.33;
 <12> N2O5 = NO2 + NO3 # 1.30e-03^-3.50@11000&9.70e+14^0.10@11080&0.35&1.33;
 <13> N2O5 + H2O = 2*HNO3 # 1.00e-22;
-<14> N2O5 + H2O + H2O = 2*HNO3 # 0.0e+00;
+<14> N2O5 + H2O + H2O = 2*HNO3 # 0.00e+00;
 !<14> N2O5 + H2O + H2O = 2*HNO3 # 1.80e-39;
 <15> NO2 + NO3 = NO + NO2 # 4.50e-14@1260;
 <16> NO3 = NO # 1.0/<NO3NO_06>;
@@ -82,8 +81,8 @@ REACTIONS [CM] =
 <EX1> NO2 = NO2EX # 0.0/<NO2EX>;
 <EX2> NO2EX + M = NO2 # 2.76e-11;
 <EX3> NO2EX + H2O = NO2 # 1.70e-10;
-<EXOH> NO2EX + H2O = OH + HONO # 0.0e+00;
-!<EXOH> NO2EX + H2O = OH + HONO # 1.7e-13;
+<EXOH> NO2EX + H2O = OH + HONO # 0.0E+00;
+!<EXOH> NO2EX + H2O = OH + HONO # 1.7E-13;
 <BR01> MEO2 + NO = NO2 + HCHO + HO2 # 2.30e-12@-360;
 <BR02> MEO2 + HO2 = COOH # 3.46e-13^0.36@-780;
 <BR03> MEO2 + HO2 = HCHO # 3.34e-14^-3.53@-780;
@@ -143,17 +142,8 @@ REACTIONS [CM] =
 <BR52> MAPAN = MACO3 + NO2 # 1.60e+16@13486;
 <BR53> MAPAN = 0.6*MACO3 + 0.6*NO2 + 0.4*CO2 + 0.4*HCHO + 0.4*MECO3 + 0.4*NO3
         # 1.0/<PAN>;
-<BR54> MACO3 + NO = NO2 + CO2 + HCHO + MECO3 # 1.0*K<BR31>;
-<BR55> MACO3 + HO2 = 0.75*RCOOOH + 0.25*RCOOH + 0.25*O3 + XC # 1.0*K<BR22>;
-<BR56> MACO3 + NO3 = NO2 + CO2 + HCHO + MECO3 # 1.0*K<BR09>;
-<BR57> MACO3 + MEO2 = 2*HCHO + HO2 + CO2 + MECO3 # 1.0*K<BR24>;
-<BR58> MACO3 + RO2C = CO2 + HCHO + MECO3 # 1.0*K<BR25>;
-<BR59> MACO3 + RO2XC = CO2 + HCHO + MECO3 # 1.0*K<BR25>;
-<BR60> MACO3 + MECO3 = 2*CO2 + MEO2 + HCHO + MECO3 # 1.0*K<BR27>;
-<BR61> MACO3 + RCO3 = HCHO + MECO3 + RO2C + xHO2 + yROOH + xCCHO + 2*CO2
-        # 1.0*K<BR27>;
-<BR62> MACO3 + BZCO3 = HCHO + MECO3 + BZO + RO2C + 2*CO2 # 1.0*K<BR27>;
-<BR63> MACO3 + MACO3 = 2*HCHO + 2*MECO3 + 2*CO2 # 1.0*K<BR27>;
+
+
 <BR64> TBUO + NO2 = RNO3 - 2*XC # 2.40e-11;
 <BR65> TBUO = ACETONE + MEO2 # 7.50e+14@8152;
 <BR66> BZO + NO2 = NPHE # 2.30e-11@-150;
@@ -332,8 +322,7 @@ REACTIONS [CM] =
          0.184*MGLY + 0.35*AFG1 + 0.35*AFG2 + 0.139*AFG3 + 0.003*MACR +
          0.004*MVK + 0.003*IPRD + 0.095*xHO2 + 0.163*xRCO3 + 0.163*xHCHO +
          0.095*xMGLY + 0.264*yR6OOH - 0.575*XC # 1.43e-17;
-<BP54> MACR + OH = 0.5*MACO3 + 0.5*RO2C + 0.5*xHO2 + 0.416*xCO + 0.084*xHCHO +
-         0.416*xMEK + 0.084*xMGLY + 0.5*yROOH - 0.416*XC # 8.00e-12@-380;
+
 <BP55> MACR + O3 = 0.208*OH + 0.108*HO2 + 0.1*RO2C + 0.45*CO + 0.117*CO2 +
          0.1*HCHO + 0.9*MGLY + 0.333*HCOOH + 0.1*xRCO3 + 0.1*xHCHO + 0.1*yROOH -
          0.1*XC # 1.40e-15@2100;
@@ -343,9 +332,7 @@ REACTIONS [CM] =
 <BP58> MACR = 0.33*OH + 0.67*HO2 + 0.34*MECO3 + 0.33*MACO3 + 0.33*RO2C +
          0.67*CO + 0.34*HCHO + 0.33*xMECO3 + 0.33*xHCHO + 0.33*yROOH
         # 1.0/<MACR_06>;
-<BP59> MVK + OH = 0.975*RO2C + 0.025*RO2XC + 0.025*zRNO3 + 0.3*xHO2 +
-         0.675*xMECO3 + 0.3*xHCHO + 0.675*xHOCCHO + 0.3*xMGLY + yROOH -
-         0.05*XC # 2.60e-12@-610;
+
 <BP60> MVK + O3 = 0.164*OH + 0.064*HO2 + 0.05*RO2C + 0.05*xHO2 + 0.475*CO +
          0.124*CO2 + 0.05*HCHO + 0.95*MGLY + 0.351*HCOOH + 0.05*xRCO3 +
          0.05*xHCHO + 0.05*yROOH - 0.05*XC # 8.50e-16@1520;
@@ -353,8 +340,8 @@ REACTIONS [CM] =
 <BP63> MVK = 0.4*MEO2 + 0.6*CO + 0.6*PRD2 + 0.4*MACO3 - 2.2*XC # 1.0/<MVK_06>;
 <BP64> IPRD + OH = 0.289*MACO3 + 0.67*RO2C + 0.67*xHO2 + 0.041*RO2XC +
          0.041*zRNO3 + 0.336*xCO + 0.055*xHCHO + 0.129*xHOCCHO + 0.013*xRCHO +
-         0.15*xMEK + 0.332*xPROD2 + 0.15*xGLY + 0.174*xMGLY - 0.504*XC +
-         0.711*yR6OOH # 6.19e-11;
+         0.15*xMEK + 0.332*xPROD2 + 0.15*xGLY + 0.174*xMGLY + 0.711*yR6OOH 
+         - 0.504*XC  # 6.19e-11;
 <BP65> IPRD + O3 = 0.285*OH + 0.4*HO2 + 0.048*RO2C + 0.048*xRCO3 + 0.498*CO +
          0.14*CO2 + 0.124*HCHO + 0.21*MEK + 0.023*GLY + 0.742*MGLY + 0.1*HCOOH +
          0.372*RCOOH + 0.047*xHOCCHO + 0.001*xHCHO + 0.048*yR6OOH - 0.329*XC
@@ -382,7 +369,7 @@ REACTIONS [CM] =
          0.074*RCHO + 0.063*xRCHO + 0.008*xACETONE + 0.124*MEK + 0.083*xMEK +
          0.19*PRD2 + 0.261*xPROD2 + 0.066*yROOH + 0.591*yR6OOH + 0.396*XC
         # 1.0/<IC3ONO2>;
-<BP72> HOCCHO + OH = MECO3 # 1.0*K<BP08>;
+
 <BP73> HOCCHO = CO + 2*HO2 + HCHO # 1.0/<HOCCHO_IUPAC>;
 <BP74> HOCCHO + NO3 = HNO3 + MECO3 # 1.0*K<BP10>;
 <BP75> ACROLEIN + OH = 0.25*xHO2 + 0.75*MACO3 + 0.25*RO2C + 0.167*xCO +
@@ -662,16 +649,12 @@ REACTIONS [CM] =
 <BT08> BUTADIENE13 + O3P = 0.25*HO2 + 0.117*xHO2 + 0.118*xMACO3 + 0.235*RO2C +
          0.015*RO2XC + 0.015*zRNO3 + 0.115*xCO + 0.115*xACROLEIN + 0.001*xAFG1 +
          0.001*xAFG2 + 0.75*PRD2 + 0.25*yROOH - 1.532*XC # 2.26e-11@40;
-<BE06> ISOPRENE + OH = 0.907*xHO2 + 0.986*RO2C + 0.093*RO2XC + 0.093*zRNO3 +
-         0.624*xHCHO + 0.23*xMACR + 0.32*xMVK + 0.357*xIPRD + yR6OOH + 
-         ISOPRXN - 0.167*XC # 2.54e-11@-410;
+
 <BE07> ISOPRENE + O3 = 0.066*HO2 + 0.266*OH + 0.192*xMACO3 + 0.192*RO2C +
          0.008*RO2XC + 0.008*zRNO3 + 0.275*CO + 0.122*CO2 + 0.4*HCHO +
          0.192*xHCHO + 0.204*HCOOH + 0.39*MACR + 0.16*MVK + 0.15*IPRD +
          0.1*PRD2 + 0.2*yR6OOH - 0.559*XC # 7.86e-15@1912;
-<BE08> ISOPRENE + NO3 = 0.749*xHO2 + 0.187*xNO2 + 0.936*RO2C + 0.064*RO2XC +
-         0.064*zRNO3 + 0.936*xIPRD + yR6OOH + 0.813*XN - 0.064*XC
-        # 3.03e-12@448;
+
 <BE09> ISOPRENE + O3P = 0.25*MEO2 + 0.24*xMACO3 + 0.24*RO2C + 0.01*RO2XC +
          0.01*zRNO3 + 0.24*xHCHO + 0.75*PRD2 + 0.25*yR6OOH - 1.01*XC
         # 3.50e-11;
@@ -685,8 +668,8 @@ REACTIONS [CM] =
          TRPRXN + 2.999*XC # 5.00e-16@530;
 <BT11> APIN + NO3 = 0.056*xHO2 + 0.643*xNO2 + 0.007*xRCO3 + 1.05*RO2C +
          0.293*RO2XC + 0.293*zRNO3 + 0.005*xCO + 0.007*xHCHO + 0.684*xRCHO +
-         0.069*xACETONE + 0.002*xMGLY + 0.056*xRNO3 + yR6OOH + 0.301*XN +
-         TRPRXN + 5.608*XC # 1.19e-12@-490;
+         0.069*xACETONE + 0.002*xMGLY + 0.056*xRNO3 + yR6OOH + TRPRXN + 0.301*XN
+         + 5.608*XC # 1.19e-12@-490;
 <BT12> APIN + O3P = PRD2 + TRPRXN + 4*XC # 3.20e-11;
 <BE10> ACETYLENE + OH = 0.3*HO2 + 0.7*OH + 0.3*CO + 0.3*HCOOH + 0.7*GLY
         # 5.50e-30^-2.00&8.30e-13&0.60&1.0;
@@ -993,7 +976,7 @@ REACTIONS [CM] =
 <TR07> CCHO_PRIMARY + OH  = OH   # 4.40e-12@-365;
 <TR08> CCHO_PRIMARY       =      # 1.0/<CCHO_R>;
 <TR09> CCHO_PRIMARY + NO3 = NO3  # 1.40e-12@1860;
-<TR10> CCHO_PRIMARY + CL  =  CL  # 8.00e-11;
+<TR10> CCHO_PRIMARY + CL  = CL  # 8.00e-11;
 
 <TR11> ACROLEIN_PRIMARY + OH  = OH  # 1.99e-11;
 <TR12> ACROLEIN_PRIMARY + O3  = O3  # 1.40e-15@2528;
@@ -1002,7 +985,408 @@ REACTIONS [CM] =
 <TR15> ACROLEIN_PRIMARY       =     # 1.0/<ACRO_09>;
 <TR16> ACROLEIN_PRIMARY + CL  = CL  # 2.94e-10;
 
+
+
+!******* starting of new isoprene mechanism******
+
+! ISOPRENE + OH  reactions
+
+<IS1> ISOPRENE + OH = ISOPO2 + ISOPRXN # 2.54e-11@-410;
+
+<IS2> ISOPO2 + NO = 0.40*MVK + 0.26*MACR + 0.883*NO2 + 0.07*ISOPND +
+         0.047*ISOPNB + 0.66*HCHO + 0.10*HC5 + 0.043*ARO2 + 0.08*DIBOO +
+         0.803*HO2 # 2.60e-12@-380;
+
+
+<IS3> ISOPO2 + HO2 = 0.880*ISOPOOH + 0.120*OH + 0.047*MACR + 0.073*MVK + 
+          0.120*HO2 + 0.120*HCHO # 2.06e-13@-1300;  
+
+<IS4> ISOPO2 + MEO2 = 0.45*HO2 + 0.37*HCHO + 0.23*MVK + 0.15*MACR + 0.05*DIBOO
+         + 0.06*HC5 + 0.02*ARO2 + 0.5*PRD2 + 0.5*HCHO + 0.5*HO2 + 0.25*HCHO +
+         0.25*MEOH - 0.62*XC # 1.80e-12;
+
+<IS5> ISOPO2 + RO2C = 0.45*HO2 + 0.37*HCHO + 0.23*MVK + 0.15*MACR + 0.05*DIBOO
+         + 0.06*HC5 + 0.02*ARO2 + 0.5*PRD2 - 0.62*XC # 6.80e-13;
+
+<IS6> ISOPO2 + ISOPO2 = 0.91*HO2 + 0.75*HCHO + 0.45*MVK + 0.29*MACR +
+         0.09*DIBOO + 0.11*HC5 + 0.05*ARO2 + PRD2 - 1.24*XC # 2.30e-12;
+
+
+<IS7> ISOPO2 + MECO3 = MEO2 + CO2 + 0.91*HO2 + 0.75*HCHO + 0.45*MVK +
+         0.29*MACR + 0.09*DIBOO + 0.11*HC5 + 0.05*ARO2 -
+         0.16*XC # 4.40e-13@-1070;
+
+
+<IS107> ISOPO2 = HO2 + HPALD  # 4.07e8@7694;
+
+<IS137> HPALD = OH + HO2 + 0.5*HACET + 0.5*MGLY + 0.25*HOCCHO + 0.25*GLY 
+          + HCHO #  1.0/<HPALD>;
+
+<IS138> HPALD + OH = OH + PRD2 - XC # 4.60e-11; 
+
+
+
+! ISOPRENE + NO3 reactions        
+
+<IS9> ISOPRENE + NO3 = NISOPO2 # 3.03e-12@448; 
+
+<IS10> NISOPO2 + NO3 = 0.70*NIT1 + 0.035*MVK + 0.035*MACR + 1.3*NO2 + 0.80*HO2 
+         + 0.070*HCHO + 0.23*HC5 # 2.30e-12; 
+
+<IS11> NISOPO2 + NO = 0.70*NIT1 + 0.035*MVK + 0.035*MACR + 1.3*NO2 + 0.80*HO2 
+         + 0.070*HCHO + 0.23*HC5 # 2.60e-12@-380; 
+
+<IS12> NISOPO2 + HO2 = NISOPOOH # 2.06e-13@-1300; 
+
+<IS13> NISOPO2 + MEO2 = 0.35*NIT1 + 0.0175*MVK + 0.0175*MACR + 0.15*NO2 + 
+         0.40*HO2 + 0.035*HCHO + 0.115*HC5 + 0.25*NIT1 + 0.25*ISOPND +
+         0.5*HCHO + 0.5*HO2 + 0.25*HCHO + 0.25*MEOH # 1.30e-12;
+
+<IS14> NISOPO2 + RO2C = 0.35*NIT1 + 0.0175*MVK + 0.0175*MACR + 0.15*NO2 +
+         0.40*HO2 + 0.035*HCHO + 0.115*HC5 + 0.25*NIT1 + 0.25*ISOPND # 6.04e-13;
+
+<IS140> NISOPO2 + NISOPO2 = 0.70*NIT1 + 0.035*MVK + 0.035*MACR + 0.3*NO2 + 
+         0.80*HO2 + 0.070*HCHO + 0.23*HC5 + 0.5*NIT1 + 0.5*ISOPND # 1.20e-12;
+
+<IS15> NISOPO2 + MECO3 = MEO2 + CO2 + 0.70*NIT1 + 0.035*MVK + 0.035*MACR + 
+         0.3*NO2 + 0.80*HO2 + 0.070*HCHO + 0.23*HC5 # 4.40e-13@-1070;
+
+
+
+! HC5
+
+<IS17> HC5 + OH = HC5OO # 1.42e-11@-610;
+
+<IS18> HC5OO + NO = NO2 + 0.234*HOCCHO + 0.234*MGLY + 0.216*GLY + 0.216*HACET + 
+         0.29*DHMOB + 0.17*RCOOH + 0.09*PRD2 + 0.09*CO + HO2 + 0.16*XC # 
+         2.60e-12@-380;
+
+<IS19> HC5OO + HO2 = R6OOH - XC # 2.06e-13@-1300;
+
+
+<IS20> HC5OO + MEO2 = 0.117*HOCCHO + 0.117*MGLY + 0.108*GLY + 0.108*HACET + 
+         0.145*DHMOB + 0.085*RCOOH + 0.045*PRD2 + 0.045*CO + 0.5*HO2 + 
+         0.5*PRD2 + 0.25*HCHO + 0.25*MEOH + 0.5*HO2 + 0.5*HCHO - 0.42*XC # 
+         2.00e-13;
+
+
+<IS21> HC5OO + RO2C = 0.117*HOCCHO + 0.117*MGLY + 0.108*GLY + 0.108*HACET + 
+         0.145*DHMOB + 0.085*RCOOH + 0.045*PRD2 + 0.045*CO + 0.5*HO2 + 
+         0.5*PRD2 - 0.42*XC # 3.50e-14;
+
+
+<IS22> HC5OO + MECO3 = MEO2 + CO2 + 0.234*HOCCHO + 0.234*MGLY + 0.216*GLY + 
+         0.216*HACET + 0.29*DHMOB + 0.17*RCOOH + 0.09*PRD2 + 0.09*CO + HO2 + 
+         0.16*XC # 4.40e-13@-1070;
+
+
+<IS24> HC5 + O3 = 0.50*MGLY + 0.35*GLY + 0.79*OH + 0.02*HCHO + 0.35*HOCCHO +  
+         0.59*CO + 0.15*HACET + 0.13*RCOOH + 0.08*CO2 + 0.6*HO2 + 
+         0.35*MECO3 - 0.13*XC # 3.94-15@1520;
+
+
+!ISOPN formed from OH oxidation
+
+<IS25> ISOPND + OH = ISOPNOOD # 2.40e-11@-410;
+
+<IS26> ISOPNOOD + NO = 0.34*PRD2 + 0.15*PROPNN + 0.44*HACET + 0.07*MVKN + 
+         0.13*ETHLN + 0.31*HCOOH + 0.31*NO3 + 0.72*HCHO + 0.15*HOCCHO + 
+         1.34*NO2 + 0.35*HO2 - 0.68*XC # 2.60e-12@-380;
+
+<IS141> ISOPNOOD + HO2 = RNO3I - XC # 2.06e-13@-1300;
+
+<IS142> ISOPNOOD + MEO2 = 0.17*PRD2 + 0.075*PROPNN + 0.22*HACET + 0.035*MVKN +
+         0.065*ETHLN + 0.155*HCOOH + 0.155*NO3 + 0.36*HCHO + 0.075*HOCCHO + 
+         0.17*NO2 + 0.175*HO2 + 0.5*RNO3I + 0.25*HCHO + 0.25*MEOH + 0.5*HO2 
+         + 0.5*HCHO - 0.84*XC  # 2.00e-13;
+
+<IS143> ISOPNOOD + RO2C = 0.17*PRD2 + 0.075*PROPNN + 0.22*HACET + 0.035*MVKN +
+         0.065*ETHLN + 0.155*HCOOH + 0.155*NO3 + 0.36*HCHO + 0.075*HOCCHO +
+         0.17*NO2 + 0.175*HO2 + 0.5*RNO3I - 0.84*XC  # 3.50e-14;
+
+<IS144> ISOPNOOD + MECO3 = MEO2 + CO2 + 0.34*PRD2 + 0.15*PROPNN + 0.44*HACET + 
+          0.07*MVKN + 0.13*ETHLN + 0.31*HCOOH + 0.31*NO3 + 0.72*HCHO + 
+          0.15*HOCCHO + 0.34*NO2 + 0.35*HO2 - 0.68*XC # 4.40e-13@-1070;
+
+
+<IS27> ISOPND + O3 = 0.36*ETHLN + 0.29*PROPNN + 0.70*MGLY + 0.12*RCOOH  
+         + 0.39*HO2 + 0.038*HCHO + 0.029*CO + 0.73*OH + 0.017*CO2 + 0.36*NO2
+         + 0.16*HACET + 0.34*HOCCHO - 0.26*XC  # 8.70e-15@1520; 
+
+
+<IS28> ISOPNB + OH = ISOPNOOB # 3.28e-12@-410;
+
+<IS29> ISOPNOOB + NO = 0.6*HOCCHO + 0.6*HACET + 0.4*HCHO + 0.4*HO2 + 0.26*MACRN 
+         + 0.14*MVKN + 1.6*NO2 # 2.60e-12@-380;
+
+<IS145> ISOPNOOB + HO2 = RNO3I - XC # 2.06e-13@-1300;
+
+<IS146> ISOPNOOB + MEO2 = 0.3*HOCCHO + 0.3*HACET + 0.2*HCHO + 0.2*HO2 + 
+         0.13*MACRN + 0.07*MVKN + 0.3*NO2 + 0.5*RNO3I + 0.25*HCHO + 0.25*MEOH + 
+         0.5*HO2 + 0.5*HCHO - 0.5*XC  # 2.00e-13; 
+
+<IS147> ISOPNOOB + RO2C = 0.3*HOCCHO + 0.3*HACET + 0.2*HCHO + 0.2*HO2 +
+         0.13*MACRN + 0.07*MVKN + 0.3*NO2 + 0.5*RNO3I - 0.5*XC # 3.50e-14; 
+
+<IS148> ISOPNOOB + MECO3 = MEO2 + CO2 + 0.6*HOCCHO + 0.6*HACET + 0.4*HCHO + 
+           0.4*HO2 + 0.26*MACRN + 0.14*MVKN + 0.6*NO2 # 4.40e-13@-1070;
+
+
+<IS30> ISOPNB + O3 = 0.12*MVKN + 0.32*MACRN + 0.34*OH + 0.08*HO2 + 0.26*CO + 
+         0.07*CO2 + 0.16*HCOOH + 0.56*HCHO + 0.28*RNO3I + 0.04*HACET 
+         + 0.28*NO2 + 0.24*BACL - 0.57*XC # 2.13e-14@1520;   
+
+
+
+!ISOPN formed from NO3 oxidation 
+
+<IS31>  NIT1 + NO3 = 0.6*NIT1NO3OOA + 0.6*HNO3 + 0.4*NIT1NO3OOB # 3.15e-13@448;
+
+<IS32> NIT1NO3OOA + NO3 =  NO2 + PROPNNB + CO + CO2 + HO2  # 4.00e-12;
+
+<IS34> NIT1NO3OOA + NO =  NO2 + PROPNNB + CO + CO2 + HO2  # 1.0*K<BR31>; 
+
+<IS109> NIT1NO3OOA + NO2 =  MAPAN + XN + XC  # 1.0*K<BR28>;
+
+<IS36> NIT1NO3OOA + HO2 = 0.75*RCOOOH + 0.25*RCOOH + 0.25*O3 + 
+         XN + 2*XC # 1.0*K<BR22>;
+
+<IS38> NIT1NO3OOA + RO2C = PROPNNB + CO + CO2 + HO2 #  1.0*K<BR25>;
+
+<IS40> NIT1NO3OOA + MEO2 =  PROPNNB + CO + CO2 + HO2 + HCHO + HO2 # 1.0*K<BR24>; 
+
+<IS41> NIT1NO3OOA + MECO3 = MEO2 + CO2 + PROPNNB + CO + CO2 + HO2 # 1.0*K<BR27>;
+
+
+<IS33> NIT1NO3OOB + NO3 = PROPNNB + GLY + NO2 + NO2 # 2.30e-12; 
+
+<IS35> NIT1NO3OOB + NO = 0.94*PROPNNB + 0.94*GLY + 0.94*NO2 + 0.06*RNO3I +
+         0.94*NO2 - 0.06*XC + 0.13*XN # 2.60e-12@-380; 
+
+<IS37> NIT1NO3OOB + HO2 = RNO3I - XC + XN # 2.06e-13@-1300; 
+
+<IS39> NIT1NO3OOB + RO2C = 0.7*PROPNNB + 0.7*GLY + 0.7*NO2 + 0.3*RNO3I 
+         - 0.3*XC + 0.3*XN # 3.50e-14;
+
+<IS43> NIT1NO3OOB + MEO2 = 0.7*PROPNNB + 0.7*GLY + 0.7*NO2 + 0.3*RNO3I +
+         0.25*HCHO + 0.25*MEOH +  0.5*HO2 + 0.5*HCHO - 0.3*XC + 
+         0.3*XN # 2.00e-13;
+
+<IS44> NIT1NO3OOB + MECO3 = MEO2 + CO2 + PROPNNB + GLY + NO2  # 4.40e-13@-1070;
+
+
+
+
+<IS46> NIT1 + O3 = 0.3*PROPNNB + 0.45*CO + 0.15*OH + 0.45*HO2 + 0.15*CO2 +
+         0.7*GLY + 0.7*OH + 0.7*NO2 + 0.7*MGLY # 4.15e-15@1520;
+
+
+<IS47> NIT1 + OH = 0.345*NIT1NO3OOA + 0.655*NIT1OHOO # 7.48e-12@-410;
+
+<IS48> NIT1OHOO + NO = 0.919*PROPNNB + 0.919*GLY + 0.015*CO + 0.015*RNO3I + 
+         0.934*NO2 + 0.934*HO2 + 0.066*RNO3I - 0.096*XC + 
+         0.066*XN # 2.60e-12@-380;
+
+<IS50> NIT1OHOO + HO2 = R6OOH + XN - XC  # 2.06e-13@-1300;
+
+<IS51> NIT1OHOO + RO2C = 0.689*PROPNNB + 0.689*GLY + 0.011*CO + 0.011*RNO3I + 
+         0.7*HO2 + 0.3*RNO3I - 0.323*XC # 3.50e-14;
+
+<IS52> NIT1OHOO + MEO2 = 0.689*PROPNNB + 0.689*GLY + 0.011*CO + 0.011*RNO3I +
+         0.7*HO2 + 0.3*RNO3I + 0.25*HCHO + 0.25*MEOH + 0.50*HCHO +
+         0.50*HO2 - 0.323*XC # 2.00e-13;
+
+<IS53> NIT1OHOO + MECO3 = MEO2 + CO2 + 0.984*PROPNNB + 0.984*GLY + 0.016*CO + 
+         0.016*RNO3I + HO2 - 0.033*XC # 4.40e-13@-1070;
+
+
+!DIBOO
+
+<IS55> DIBOO + NO = NO2 + HO2 + 0.52*HOCCHO + 0.52*MGLY + 0.48*GLY + 0.48*HACET 
+         # 2.60e-12@-380;
+
+<IS102> DIBOO + HO2 =  R6OOH - XC # 2.06e-13@-1300;
+ 
+<IS103> DIBOO + MEO2 = 0.5*HO2 + 0.26*HOCCHO + 0.26*MGLY + 0.24*GLY + 
+         0.24*HACET + 0.5*PRD2 + 0.25*HCHO + 0.25*MEOH + 0.5*HCHO + 
+         0.50*HO2 - 0.5*XC # 2.00e-13;
+ 
+<IS104> DIBOO + RO2C = 0.5*HO2 + 0.26*HOCCHO + 0.26*MGLY + 0.24*GLY +
+         0.24*HACET + 0.5*PRD2 - 0.5*XC # 3.50e-14;
+
+<IS105> DIBOO + MECO3 = HO2 + 0.52*HOCCHO + 0.52*MGLY + 0.48*GLY + 0.48*HACET + 
+         MEO2 + CO2 # 4.40e-13@-1070;
+
+
+
+!MVK
+
+<IS56> MVK + OH = MVKOO # 2.60e-12@-610;
+
+<IS57> MVKOO + NO = 0.625*HOCCHO + 0.625*MECO3 + 0.265*MGLY + 0.265*HCHO + 
+         0.265*HO2 + 0.11*MVKN + 0.89*NO2 # 2.60e-12@-380;
+
+<IS58> MVKOO + HO2 = ROOH + XC # 1.82e-13@-1300;
+
+<IS59> MVKOO + MEO2 = 0.35*HOCCHO + 0.35*MECO3 + 0.15*MGLY + 0.15*HCHO +
+         0.15*HO2 + 0.5*MEK + 0.25*HCHO + 0.25*MEOH + 0.5*HCHO + 0.50*HO2 
+         # 2.00e-13;
+
+<IS60> MVKOO + RO2C = 0.35*HOCCHO + 0.35*MECO3 + 0.15*MGLY + 0.15*HCHO +
+         0.15*HO2  + 0.5*MEK # 3.50e-14;
+
+<IS61> MVKOO + MECO3 = MEO2 + CO2 + 0.7*HOCCHO + 0.7*MECO3 + 0.3*MGLY 
+         + 0.3*HCHO + 0.3*HO2 # 4.40e-13@-1070;
+
+
+
+!MACR 
+
+<IS00> MACR + OH = 0.47*MACROO + 0.53*MACO3 # 8.00e-12@-380;
+
+<IS63> MACROO + NO = 0.85*NO2 + 0.85*HO2 + 0.72*HACET + 0.72*CO + 0.13*HCHO + 
+         0.13*MGLY + 0.15*MACRN # 2.60e-12@-380; 
+
+<IS64> MACROO + HO2 = ROOH + XC # 1.82e-13@-1300;
+
+<IS65> MACROO + MEO2 = 0.50*HO2 + 0.424*HACET + 0.424*CO + 0.076*HCHO + 
+         0.076*MGLY + 0.5*PRD2 + 0.25*HCHO + 0.25*MEOH + 0.5*HCHO + 
+         0.5*HO2 - XC # 2.00e-13;  
+
+<IS66> MACROO + RO2C = 0.50*HO2 + 0.424*HACET + 0.424*CO + 0.076*HCHO + 
+         0.076*MGLY + 0.5*PRD2 - XC # 3.50e-14;
+
+<IS67> MACROO + MECO3 = MEO2 + CO2 + HO2 + 0.15*MGLY + 0.85*HACET + 0.85*CO + 
+         0.15*HCHO # 4.40e-13@-1070;
+
+
+
+!MACO3
+
+<IS69> MACO3 + NO = NO2 + CO + CO2 + HCHO + MEO2 # 6.70e-12@-340;   
+
+<IS70> MACO3 + HO2 = 0.75*RCOOOH + 0.25*RCOOH + 0.25*O3 + XC # 1.0*K<BR22>;
+
+<IS71> MACO3 + NO3 = NO2 + CO + CO2 + HCHO + MEO2 # 4.00e-12;
+<IS72> MACO3 + MEO2 = HCHO + HO2 + CO + CO2 + HCHO + MEO2 # 1.0*K<BR24>;
+<IS73> MACO3 + RO2C = CO + CO2 + HCHO + MEO2 # 1.0*K<BR25>;
+<IS74> MACO3 + RO2XC = CO + CO2 + HCHO + MEO2 # 1.0*K<BR25>;
+<IS75> MACO3 + MECO3 = CO2 + MEO2 + CO + CO2 + HCHO + MEO2 # 1.0*K<BR27>;
+<IS76> MACO3 + RCO3 = CO + CO2 + HCHO + MEO2 + RO2C + xHO2 + yROOH + xCCHO + CO2
+        # 1.0*K<BR27>;
+<IS77> MACO3 + BZCO3 = CO + CO2 + HCHO + MEO2 + BZO + RO2C + CO2 # 1.0*K<BR27>;
+<IS78> MACO3 + MACO3 = 2*CO + 2*CO2 + 2*HCHO + 2*MEO2 # 1.0*K<BR27>;
+
+<IS108> MAPAN + OH = HACET + CO + NO2 # 2.90e-11;
+
+
+!HOCCHO 
+
+<IS79> HOCCHO + OH = 0.75*HO2 + 0.25*OH + 0.13*GLY + 0.52*CO + 0.35*CO2 
+         + 0.16*HCOOH + 0.71*HCHO # 0.8e-11;
+
+
+!HACET
+
+<IS80> HACET + OH = 0.75*MGLY + 0.825*HO2 + 0.125*HCOOH + 0.1*OH + 0.125*MEO2 + 
+         0.20*CO2 + 0.05*CO + 0.125*CCOOH # 2.15e-12@-305;
+
+<IS81> HACET = HO2 + MECO3 + HCHO # 1.75e-1/<MEK_06>;
+
+!ETHLN
+
+<IS82> ETHLN + OH = HCHO + CO2 + NO2 # 2.94e-12@-365;
+
+<IS111> ETHLN = NO2 + HCHO + HO2 + CO # 1.0/<NOA>; 
+
+!PROPNN
+
+<IS83> PROPNN + OH = MGLY + NO2 # 4.0e-13;  
+<IS93> PROPNNB + OH = MGLY + NO2 # 4.0e-13;
+
+<IS97> PROPNN = MECO3 + HCHO + NO2 # 1.0/<NOA>;
+<IS98> PROPNNB = MECO3 + HCHO + NO2 # 1.0/<NOA>;
+ 
+
+!MVKN
+
+<IS84> MVKN + OH = 0.65*HCOOH + 0.65*MGLY + 0.35*HCHO + 0.35*PYRUACD + NO3 # 
+         3.50e-12@-140;
+
+<IS106> MVKN = MECO3 + NO2 + HOCCHO # 1.0/<NOA>;
+
+!MACRN
+
+<IS85> MACRN + OH = 0.08*CCOOH + 0.08*HCHO + 0.08*NO3 + 0.07*HCOOH + 0.07*NO3 + 
+         0.07*MGLY + 0.85*HACET + 0.85*NO2 + 0.93*CO2 # 1.28e-11@-405;
+
+<IS110> MACRN = HACET + NO2 + CO + HO2 # 1.0/<C2CHO>;
+
+!DHMOB
+
+<IS86> DHMOB + OH = 1.5*CO + 0.5*HO2 + 0.5*HACET + 0.5*PRD2 - XC # 1.00e-11; 
+
+
+!CH3C(O)C(O)OH
+
+<IS87> PYRUACD = CCHO + CO2  # 1.0/<MGLY_06>; 
+
+
+!Peroxides from reactions with OH
+
+<IS88> ISOPOOH + OH = IEPOX + OH # 1.9e-11@-390;
+
+<IS89> ISOPOOH + OH = 0.387*ISOPO2 + 0.613*HC5 + 0.613*OH # 4.75e-12@-200;
+
+<IS90> IEPOX + OH = IEPOXOO # 5.78e-11@400;
+
+<IS91> IEPOXOO + HO2 = 0.725*HACET + 0.275*HOCCHO + 0.275*GLY + 0.275*MGLY + 
+         1.125*OH + 0.825*HO2 + 0.200*CO2 + 0.375*HCHO + 0.074*HCOOH + 0.251*CO 
+         # 2.06e-13@-1300;  
+
+<IS96> IEPOXOO + NO = 0.725*HACET + 0.275*HOCCHO + 0.275*GLY + 0.275*MGLY +
+         0.125*OH + 0.825*HO2 + 0.200*CO2 + 0.375*HCHO + 0.074*HCOOH + 0.251*CO 
+         + NO2 # 2.60e-12@-380;
+
+<IS112> IEPOXOO + MEO2 = 0.363*HACET + 0.138*HOCCHO + 0.138*GLY + 0.138*MGLY + 
+         0.063*OH + 0.413*HO2 + 0.100*CO2 + 0.188*HCHO + 0.037*HCOOH + 0.126*CO
+         + 0.5*PRD2 + 0.5*HCHO + 0.5*HO2 + 0.25*HCHO + 0.25*MEOH 
+         - 0.5*XC # 2.00e-13;
+
+<IS113> IEPOXOO + RO2C = 0.363*HACET + 0.138*HOCCHO + 0.138*GLY + 0.138*MGLY +
+         0.063*OH + 0.413*HO2 + 0.100*CO2 + 0.188*HCHO + 0.037*HCOOH + 0.126*CO
+         + 0.5*PRD2 - 0.5*XC # 3.50e-14;
+
+<IS114> IEPOXOO + MECO3 = 0.725*HACET + 0.275*HOCCHO + 0.275*GLY + 0.275*MGLY +
+         0.125*OH + 0.825*HO2 + 0.200*CO2 + 0.375*HCHO + 0.074*HCOOH + 0.251*CO
+         + MEO2 + CO2 # 4.40e-13@-1070;
+
+
+<IS92> ISOPOOH = OH + 0.91*HO2 + 0.75*HCHO + 0.45*MVK +                      
+         0.29*MACR + 0.09*DIBOO + 0.11*HC5 + 0.05*ARO2 -
+         0.16*XC #  1.0/<COOH>;
+
+
+
+! RNO3 from isoprene
+
+<IS94> RNO3I + OH = NO2 + HO2 + PRD2 # 8.00e-12;
+
+
+! Peroxides from reactions with NO3 
+
+<IS99> NISOPOOH + OH = RNO3I + OH # 5.00e-11;
+
+<IS139> NISOPOOH + OH = 0.3*NISOPO2 + 0.7*OH + 0.7*NIT1 # 0.38e-11@-200;
+
+
+
+
+!******* end of new isoprene mechanism******         
+
+
 endmech
+
 
 constants
 < C1> ATM_AIR = 1.0E+06

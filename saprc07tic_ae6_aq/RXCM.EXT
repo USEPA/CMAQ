@@ -1,6 +1,7 @@
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /home/hwo/tools/mech_processor/saprc07tb_ae5_aq/RXCM.EXT
-C for Mechanism Name: SAPRC07TB_AE5_AQ                
+C  /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
+C  /RXCM.EXT
+C for Mechanism Name: SAPRC07TIC_AE6_AQ               
 
 C The following are reserved symbols declared in this INCLUDE file:
 C    MECHNAME       = Mechanism name
@@ -58,13 +59,13 @@ C    NMPHOT    = Number of mechanism photolytic reactions
 C    NPHOTAB   = Number of photolytic reactions tables
 C    IPH       = Reactions list pointer to photolytic reactions and tables
 
-      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TB_AE5_AQ'
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TIC_AE6_AQ'
 
-      INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 150
+      INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 179
 
-      INTEGER, PARAMETER :: N_ACT_SP = 150
+      INTEGER, PARAMETER :: N_ACT_SP = 179
 
-      INTEGER, PARAMETER :: NRXNS = 413
+      INTEGER, PARAMETER :: NRXNS = 789
 
       INTEGER            :: KUNITS
 
@@ -74,13 +75,13 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
 
       INTEGER            :: IORDER( NRXNS )
 
-      INTEGER, PARAMETER :: KTN1 =  94
+      INTEGER, PARAMETER :: KTN1 = 130
       INTEGER            :: KRX1( KTN1 )
 
       INTEGER, PARAMETER :: KTN2 =   4
       INTEGER            :: KRX2( KTN2 )
 
-      INTEGER, PARAMETER :: KTN3 = 103
+      INTEGER, PARAMETER :: KTN3 = 155
       INTEGER            :: KRX3( KTN3 )
 
       INTEGER, PARAMETER :: KTN4 =  11
@@ -89,7 +90,7 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
       INTEGER, PARAMETER :: KTN5 =   0
       INTEGER            :: KRX5( 1 )
 
-      INTEGER, PARAMETER :: KTN6 =  49
+      INTEGER, PARAMETER :: KTN6 = 402
       INTEGER            :: KRX6( KTN6 )
 
       INTEGER, PARAMETER :: KTN7 =   0
@@ -129,7 +130,7 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
       INTEGER            :: NREACT( NRXNS )
       INTEGER            :: NPRDCT( NRXNS )
 
-      INTEGER, PARAMETER :: NMPHOT =  55
+      INTEGER, PARAMETER :: NMPHOT =  64
       INTEGER            :: IPH( NMPHOT,3 )
 
       COMMON     / MECHRX1 /
@@ -164,7 +165,7 @@ C    IPH       = Reactions list pointer to photolytic reactions and tables
      &             RTDAT,
      &             RFDAT
 
-      INTEGER, PARAMETER :: NPHOTAB =  39
+      INTEGER, PARAMETER :: NPHOTAB =  41
       CHARACTER( 16 )    :: PHOTAB( NPHOTAB )
 
       CHARACTER( 16 )    :: RXLABEL( NRXNS )
@@ -186,11 +187,15 @@ C    INDEX_CTERMS  = Pointers to species concentrations in  special rate coeffic
 C    OPERATOR_COEFFS = Coefficients of preceeding special  rate coefficients used in special coefficient 
 C    OPERATORS       = Pointers to preceeding special  rate coefficients used in special coefficient 
 
-      INTEGER, PARAMETER :: NSPECIAL_RXN =  74
-      INTEGER            :: ISPECIAL( NSPECIAL_RXN,2 )
+C Special Rate information not available ..
+      INTEGER, PARAMETER :: NSPECIAL_RXN = 0
+      INTEGER            :: ISPECIAL( 1, 2 )
 
-      INTEGER, PARAMETER :: NSPECIAL =   9
-      CHARACTER( 16 )    :: SPECIAL( NSPECIAL )
+C Special Rate information not available ...
+      INTEGER, PARAMETER :: NSPECIAL = 0
+
+C Special Rate information not available ...
+      CHARACTER( 16 )    :: SPECIAL( 1 )
 
       INTEGER, PARAMETER :: MAXSPECTERMS =  10
       REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)

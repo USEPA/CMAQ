@@ -1,13 +1,5 @@
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/saprc07tc_ae5_aq/RXCM.EXT,v 1.1 2011/04/06 16:36:46 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C -------- Mechanism Reactions, Rates, etc. COMMON INCLUDE File --------
-C  /home/hutzellb/cmaq_toxics/releases_2010/new_arc_mechanisms
-C  /saprc07tc_ae5_aq/RXCM.EXT
+C  /home/hwo/tools/mech_processor/saprc07tc_ae5_aq/RXCM.EXT
 C for Mechanism Name: SAPRC07TC_AE5_AQ                
 
 C The following are reserved symbols declared in this INCLUDE file:
