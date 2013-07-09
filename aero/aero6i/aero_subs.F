@@ -1457,16 +1457,16 @@ C     Assume J mode dominates I+J H+ concentration
       EQLBHJ = AERLIQ(1) * 1.0d6  
 
 C     debug
-      IF (EQLBHJ .lt. 0.0 ) THEN
-         print*,'Negative HPLUS from isorropia'
-         print*,'WI    ', WI
-         print*,'RHI   ', RHI
-         print*,'TEMPI ',TEMPI
-         print*,'CNTRL ',CNTRL
-         print*,'WT    ',WT
-         print*,'AERLIQ',AERLIQ
-         print*,'SCASI ',SCASI
-      endif
+!      IF (EQLBHJ .lt. 0.0 ) THEN
+!         print*,'Negative HPLUS from isorropia'
+!         print*,'WI    ', WI
+!         print*,'RHI   ', RHI
+!         print*,'TEMPI ',TEMPI
+!         print*,'CNTRL ',CNTRL
+!         print*,'WT    ',WT
+!         print*,'AERLIQ',AERLIQ
+!         print*,'SCASI ',SCASI
+!      endif
 
 C *** Update gas-phase concentrations
       PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
