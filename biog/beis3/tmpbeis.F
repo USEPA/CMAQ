@@ -108,6 +108,12 @@ C Gridded meteorology data:
       REAL,    ALLOCATABLE, SAVE :: SSOLAR( :,: )     ! Surface radiation [W/m**2]
       REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )     ! cosine of zenith angle
       REAL,    ALLOCATABLE, SAVE :: PRES  ( :,: )     ! surface pressure [Pa]
+      REAL,    ALLOCATABLE, SAVE :: LAI   ( :,: )     ! WRF modeled lai m^2/m^2
+      REAL,    ALLOCATABLE, SAVE :: USTAR ( :,: )     ! Sufrace friction velocity m/s
+      REAL,    ALLOCATABLE, SAVE :: RSTOM ( :,: )     ! Stomatal Resistance s/m
+      REAL,    ALLOCATABLE, SAVE :: RATM  ( :,: )     ! Atmospheric Resistance s/m      
+      REAL,    ALLOCATABLE, SAVE :: Q2    ( :,: )     ! Water vapor mixing ratio kg/kg 
+      REAL,    ALLOCATABLE, SAVE :: TEMPG ( :,: )     ! Soil temperature K
       INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
 
 C Gridded beis emissions
@@ -421,6 +427,26 @@ C Allocate memory for arrays
          ALLOCATE( PRES( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'PRES', PNAME )
 
+! New variables to calculate leaf temperature
+         ALLOCATE( LAI( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'LAI', PNAME )	 
+
+         ALLOCATE( USTAR( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'USTAR', PNAME )	 	 
+
+         ALLOCATE( RSTOM( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RSTOM', PNAME )	 
+
+         ALLOCATE( RATM( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RATM', PNAME )	 
+
+         ALLOCATE( Q2( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'Q2', PNAME )	 
+
+         ALLOCATE( TEMPG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'TEMPG', PNAME )	 
+! End of new variables 
+
          IF ( BEMIS_DIAG ) THEN
             ALLOCATE( EMISS( NCOLS,NROWS,N_SPC_BIOG ), STAT=IOS )
             CALL CHECKMEM( IOS, 'EMISS', PNAME )
@@ -534,10 +560,76 @@ C Read surface pressure data
      &           '" from file "' // TRIM( MNAME ) // '"'
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
+! New variables to calculate leaf temperature
+! Read WRF PX LAI
+      IF ( .NOT. INTERPX( MNAME, 'LAI', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, LAI ) ) THEN
+         MESG = 'Could not read "' // 'LAI' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+! Read surface friction velocity 
+      IF ( .NOT. INTERPX( MNAME, 'USTAR', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, USTAR ) ) THEN
+         MESG = 'Could not read "' // 'USTAR' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+! Read stomatal resistance 
+      IF ( .NOT. INTERPX( MNAME, 'RSTOMI', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, RSTOM ) ) THEN
+         MESG = 'Could not read "' // 'RSTOMI' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+      DO R = 1, MY_NROWS
+         DO C = 1, MY_NCOLS
+            RSTOM( C,R ) = 1.0/MAX( RSTOM( C,R ), 1.0e-30 )
+         END DO
+      END DO
+
+! Read aerodynamic resistance 
+      IF ( .NOT. INTERPX( MNAME, 'RADYNI', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, RATM ) ) THEN
+         MESG = 'Could not read "' // 'RADYNI' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+      DO R = 1, MY_NROWS
+         DO C = 1, MY_NCOLS
+            RATM( C,R ) = 1.0/MAX( RATM( C,R ), 1.0e-30 )
+         END DO
+      END DO
+
+! Read surface layer water vapor mixing ratio
+      IF ( .NOT. INTERPX( MNAME, 'Q2', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, Q2 ) ) THEN
+         MESG = 'Could not read "' // 'Q2' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+! Read soil temperature 
+      IF ( .NOT. INTERPX( MNAME, 'SOIT1', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, TEMPG ) ) THEN
+         MESG = 'Could not read "' // 'SOIT1' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+! End of new variables 
 
 C Calculate temporal non-speciated beis emissions
       CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, COSZEN, SEMIS,
-     &            SLAI, TASFC, SSOLAR, PRES, EMPOL )
+     &            SLAI, TASFC, SSOLAR, PRES, LAI, USTAR, RSTOM, RATM, Q2, 
+     &            TEMPG, EMPOL )
 
 C Calculate temporal non-speciated soil NO emissions
       CALL HRNO( JDATE, JTIME, TSTEP, TASFC, EMPOL )

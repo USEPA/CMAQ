@@ -25,7 +25,8 @@ C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
-     &                  SLAI, TA, RSOLAR, PRES, EMPOL )
+     &                  SLAI, TA, RSOLAR, PRES, LAI, USTAR, RSTOM, RATM, 
+     &                  Q2, TEMPG, EMPOL )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -65,8 +66,9 @@ C-----------------------------------------------------------------------
       USE BIOG_EMIS, ONLY: NSEF, NLAI, LAITYPES
 
       IMPLICIT NONE
-
 C Includes:
+
+      INCLUDE SUBST_CONST     ! constants
 
 C Arguments:
       INTEGER, INTENT( IN ) :: JDATE   ! current simulation date (YYYYDDD)
@@ -78,9 +80,15 @@ C Arguments:
       REAL,    INTENT( IN ) :: COSZEN( NX,NY )        ! cosine of zenith angle
       REAL,    INTENT( IN ) :: SEMIS ( NX,NY,NSEF-1 ) ! normalized emissions
       REAL,    INTENT( IN ) :: SLAI  ( NX,NY,NLAI )   ! leaf area indices
-      REAL,    INTENT( IN ) :: TA    ( NX,NY )        ! surface air temperature [K]
+      REAL,    INTENT( IN ) :: TA    ( NX,NY )        ! 2 meter air temperature [K]
       REAL,    INTENT( IN ) :: RSOLAR( NX,NY )        ! surface radiation [w/m**2]
       REAL,    INTENT( IN ) :: PRES  ( NX,NY )        ! surface pressure [Pa]
+      REAL,    INTENT( IN ) :: LAI   ( NX,NY )        ! WRF LAI [m**2/m**2]
+      REAL,    INTENT( IN ) :: USTAR ( NX,NY )        ! surface friciton velocity [m/s]
+      REAL,    INTENT( IN ) :: RSTOM ( NX,NY )        ! Stomatal resistance [s/m]
+      REAL,    INTENT( IN ) :: RATM  ( NX,NY )        ! Aerodynamic resistance [s/m]
+      REAL,    INTENT( IN ) :: Q2    ( NX,NY )        ! Two meter water vapor mixing ratio [kg/kg]
+      REAL,    INTENT( IN ) :: TEMPG ( NX,NY )        ! Ground temperature [K]
 
       REAL,    INTENT( OUT ) :: EMPOL( NX,NY,NSEF )   ! output emissions
 
@@ -94,7 +102,24 @@ C Local Variables:
       REAL           CFSESQT      ! sesquiterpene corr fac
       REAL           PAR          ! photo. actinic flux (UE/M**2-S) (UE=micro-einsteins)
       REAL           CT, DT       ! temperature correction
-      REAL           TAIR         ! local surface temperature
+      REAL           TAIR         ! local 2 meter temperature
+      REAL           DTLEAF       ! Difference between mean canopy leaf and ambient temperature [K]
+      REAL           TLEAF        ! Mean canopy leaf temperature [K]
+      REAL           RBW          ! Quasi-laminar boundary layer resistance for water vapor [s/m]
+      REAL           RBH          ! Quasi-laminar boundary layer resistance for heat [s/m]     
+      REAL           RH           ! Relative humidity [ratio 0-1]
+      REAL           ES           ! Saturation vapor pressure for 2 meter T  [Pa]          
+      REAL           SHF          ! Soil heat flux [W/m**2]    
+      REAL           DVAP         ! vapor pressure deficit [Pa/Pa]  
+      REAL           SSVP         ! Slope of the saturation vapor pressure curve over P [1/K] 
+      REAL           GVAP         ! canopy water vapor conuctance m/s
+      REAL           GHT          ! canopy heat conductance m/s      
+      REAL           CPAIR        ! specific heat of air
+      REAL           LHV          ! Latent heat of vaporization       
+      REAL           CPOT         ! potential temperature conversion 
+      REAL           DENS         ! Dry air density kg/m**3
+      REAL           LHSH_DIV     ! W/m**2 to K units conversion 
+      REAL           LHSH_COMP    ! latent/sensible heat flux component of leaf energy bal
       REAL           RK           ! k from Geron and Guenther
       REAL           CSUBL        ! C sub l
       REAL           TLAI         ! local LAI
@@ -104,6 +129,17 @@ C Local Variables:
       REAL           PARDB        ! PAR direct beam
       REAL           PARDIF       ! PAR diffuse
       REAL           COSZ         ! local cosine of zenith angle
+      
+      REAL, PARAMETER :: SVP2       = 17.67   ! from MM5 and WRF PX
+      REAL, PARAMETER :: SVP3       = 29.65   ! from MM5 and WRF PX
+      REAL, PARAMETER :: CV         = 8.0e-6  ! Resistance to soil heat conductance under vegetation [s/m]
+      REAL, PARAMETER :: RRAD       = 230.0   ! Atmospheric radiative resistance Monteith 1973 [s/m]
+      REAL, PARAMETER :: PR         = 0.709   ! prandtl number [dim'less]
+      REAL, PARAMETER :: KVIS       = 0.132   ! kinimatic viscosity of air
+      REAL, PARAMETER :: DWAT       = 0.2178  ! Diffusivity of water vapor in air
+      REAL, PARAMETER :: SCW        = KVIS/DWAT ! schmidt number for water vapor
+      REAL, PARAMETER :: TWOTHIRDS  = 2.0 / 3.0
+      REAL, PARAMETER :: REFLDV     = 0.057 ! visible light reflection coefficient from MEGAN 2.10 
 
       CHARACTER( 5 )   :: BTMP    ! temporary variable name
       CHARACTER( 256 ) :: MESG    ! message buffer
@@ -111,13 +147,13 @@ C Local Variables:
       CHARACTER( 16 )  :: PROGNAME = 'BEIS3'   ! procedure name
 
 C-----------------------------------------------------------------------
-
+      
 C Loop through cells
       DO R = 1, NY
          DO C = 1, NX
 
             TAIR = TA( C,R )         ! unit in degree K
-            COSZ = COSZEN( C,R )
+            COSZ = COSZEN( C,R )            
 
 C Check min bounds for temperature
 C Note we no longer cap temperature for isoprene
@@ -127,16 +163,50 @@ C Note we no longer cap temperature for isoprene
                CALL M3EXIT( PROGNAME, JDATE, JTIME, MESG, 2 )
             END IF
 
-C Calculate temperature correction term
-            DT = 28668.514 / TAIR
-            CT = EXP( 37.711 - 0.398570815 * DT ) /
-     &               ( 1.0 + EXP( 91.301 - DT ) )
-
             SOLRAD = RSOLAR( C,R )
 
 C Cosine of zenith angle to zenith angle (radians)
             ZEN =  ACOS( COSZ )
             PSFC = PRES( C,R )
+	    
+C atmospheric water vapor variables used for leaf latent heat flux
+	    IF ( TAIR .LE. STDTEMP ) THEN
+               ES = VP0 * EXP( 22.514 - (6.15e3 / TAIR) )
+            ELSE
+               ES = VP0 * EXP( SVP2 * (TAIR - STDTEMP) /
+     &                                (TAIR - SVP3) )
+            END IF
+	    RH   = Q2( C,R )*(PSFC-ES)/(0.622*ES)
+	    RH   = MIN(1.0,RH)
+            DVAP = ES*(1.0-RH)/PSFC
+	    SSVP = (SVP2*(STDTEMP-SVP3)*ES/(TAIR-SVP3)**2)/
+     &              PSFC
+
+C calculate the soil heaf flux under a canopy folowing WRF3.4.1 PX
+            SHF = -2.0*PI/SIDAY*(TEMPG( C,R ) - TAIR)/CV
+
+C calculate the heat and water vapor quasilaminar boundary layer resistance
+            RBH = 5.0/USTAR( C,R )
+	    RBW = RBH*(SCW/PR)**TWOTHIRDS
+	   
+C calculate the specific heat of air and latent heat of vaporization
+            CPAIR = CPD * (1.0 + 0.84 * Q2( C,R ))
+	    LHV   = LV0 - 2370.0 * (TAIR - STDTEMP)
+
+C calculate the leaf  water vapor and heat conductance 
+            GHT  = 1 / (RATM( C,R ) + RBH  ) + 1/RRAD
+            GVAP = 1 / (RATM( C,R ) + RBW + RSTOM( C,R ) * LAI( C,R ))
+
+C Calculate the potential temperature conversion from the sensible heat flux in WRF 3.4.1
+            CPOT = (STDATMPA/PSFC)**(RDGAS/CPAIR)
+
+C Calculate the solar radiation and soil heat flux of the leaf energy budget
+            DENS     =  PSFC /( RDGAS * TAIR )
+            LHSH_DIV =  DENS * CPOT * CPAIR * (GHT + 1 / (RATM( C,R ) + RBH  )) + 
+     &                  DENS * LHV * SSVP * GVAP
+
+C calculate the latent heat flux portion of the leaf energy budget 
+            LHSH_COMP = SHF - LHV * DENS * GVAP * (ES-RH*ES)/ PSFC
 
 C Direct and diffuse photosynthetically active radiation
             CALL GETPARB( SOLRAD, PSFC, COSZ, PARDB, PARDIF )
@@ -184,23 +254,33 @@ C Initialize csubl
      &              COSZ .LE. 0.02079483 ) THEN
                   EMPOL( C,R,I ) = 0.0
                ELSE
-                  IF ( TLAI .GT. 0.1 ) THEN
-                     CSUBL = CLNEW( ZEN, PARDB, PARDIF, TLAI )
-                  ELSE  ! keep this or not?
-                     CSUBL = CGUEN( PAR )
-                  END IF
+!                  IF ( TLAI .GT. 0.1 ) THEN
+                  CALL CLNEW_SUB( ZEN, PARDB, PARDIF, TLAI, LHSH_DIV,
+     &                            LHSH_COMP, DTLEAF, CSUBL, SOLRAD, REFLDV )
+ !                 ELSE  ! keep this or not?
+ !                    CSUBL = CGUEN( PAR )
+ !                 END IF
+                  TLEAF = DTLEAF + TAIR
+C Calculate temperature correction term
+                  DT = 28668.514 / TLEAF
+                  CT = EXP( 37.711 - 0.398570815 * DT ) /
+     &                    ( 1.0 + EXP( 91.301 - DT ) )
                   EMPOL( C,R,I ) = SEMIS( C,R,I ) * CT * CSUBL
                END IF
 
             END DO ! end ISOP and MBO calculations loop
 
+            CALL CLNEW_SUB( ZEN, PARDB, PARDIF, LAI( C,R ), LHSH_DIV,
+     &                      LHSH_COMP, DTLEAF, CSUBL, SOLRAD, REFLDV )
+     
+            TLEAF = TAIR + DTLEAF
 C Calculate other biogenic emissions except NO
 C Note not speciated here
 C Limit temerature to 315 K for monoterpenes and other VOCs
-            TAIR = MIN( TAIR, 315.0 )
+            TLEAF = MIN( TLEAF, 315.0 )
 
-            CFOVOC  = EXP( 0.09 * ( TAIR - 303.0 ) )
-            CFSESQT = EXP( 0.17 * ( TAIR - 303.0 ) )
+            CFOVOC  = EXP( 0.09 * ( TLEAF - 303.0 ) )
+            CFSESQT = EXP( 0.17 * ( TLEAF - 303.0 ) )
 
             DO I = NLAI + 1, NSEF - 2
                EMPOL( C,R,I ) = SEMIS( C,R,I ) * CFOVOC
@@ -224,15 +304,23 @@ C-----------------------------------------------------------------------
       CONTAINS
 
 C Function to calculate csubl based on zenith angle, par, and lai
-         REAL FUNCTION CLNEW( ZEN, PARDB, PARDIF, TLAI )
+         SUBROUTINE CLNEW_SUB( ZEN, PARDB, PARDIF, TLAI, LHSH_DIV,
+     &                              LHSH_COMP, DTLEAF, CSUBL,
+     &                              SOLRAD, REFLDV )
 
          IMPLICIT NONE
 
 C Function arguments:
-         REAL, INTENT( IN ) :: PARDB    ! direct beam PAR( umol/m2-s)
-         REAL, INTENT( IN ) :: PARDIF   ! diffuse PAR ( umol/m2-s)
-         REAL, INTENT( IN ) :: ZEN      ! solar zenith angle (radians)
-         REAL, INTENT( IN ) :: TLAI     ! leaf area index for grid cell
+         REAL, INTENT( IN )  :: PARDB    ! direct beam PAR( umol/m2-s)
+         REAL, INTENT( IN )  :: PARDIF   ! diffuse PAR ( umol/m2-s)
+         REAL, INTENT( IN )  :: ZEN      ! solar zenith angle (radians)
+         REAL, INTENT( IN )  :: TLAI     ! leaf area index for grid cell
+	 REAL, INTENT( IN )  :: LHSH_DIV  
+	 REAL, INTENT( IN )  :: LHSH_COMP
+ 	 REAL, INTENT( IN )  :: SOLRAD
+	 REAL, INTENT( IN )  :: REFLDV
+	 REAL, INTENT( OUT ) :: CSUBL
+	 REAL, INTENT( OUT ) :: DTLEAF    ! leaf temperature [K]
 
 C Parameters:
          REAL, PARAMETER :: ALPHA = 0.8 ! leaf absorptivity
@@ -246,6 +334,10 @@ C Local variables:
          REAL CANPARDIF        ! exponentially wtd diffuse PAR (umol/m2-s)
          REAL PARSHADE         ! PAR on shaded leaves (umol/m2-s)
          REAL PARSUN           ! PAR on sunlit leaves (umol/m2-s)
+         REAL SOLSUN           ! RS transmitted to sunlit leaves W/m**2
+	 REAL SOLSHADE         ! RS transmitted to shaded leaves W/m**2
+	 REAL DTLSUN            ! Sun leaf temperature (K)
+	 REAL DTLSHADE          ! Shade leaf temperure (K)
          REAL LAISUN           ! LAI that is sunlit
          REAL FRACSUN          ! fraction of leaves that are sunlit
          REAL FRACSHADE        ! fraction of leaves that are shaded
@@ -257,37 +349,63 @@ C-----------------------------------------------------------------------
             FIRSTIME = .FALSE.
             SQALPHA = SQRT( ALPHA )
          END IF
-
-C CN98 - eqn 15.4, assume x=1
-         KBE = 0.5 * SQRT( 1.0 + TAN( ZEN ) * TAN( ZEN ) )
+         IF ( TLAI .GT. 0.1 ) THEN
+            IF ( PARDB + PARDIF .GT. 0.01 .OR.
+     &              COSZ .GT. 0.02079483 ) THEN
+C CN98 - eqn 15.4, assume x=1 (can use a table or atributes to change this)
+               KBE = 0.5 * SQRT( 1.0 + TAN( ZEN ) * TAN( ZEN ) )
 
 C CN98 - p. 261 (this is usually small)
-         CANPARSCAT = 0.5 * PARDB * ( EXP( -1.0 * SQALPHA * KBE * TLAI )
-     &              - EXP( -1.0 * KBE * TLAI ) )
+               CANPARSCAT = 0.5 * PARDB * ( EXP( -1.0 * SQALPHA * KBE * TLAI )
+     &                    - EXP( -1.0 * KBE * TLAI ) )
 
 C CN98 - p. 261 (assume exponentially wtd avg)
-         CANPARDIF  = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * TLAI ) )
-     &            / ( SQALPHA * KD * TLAI )
+               CANPARDIF  = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * TLAI ) )
+     &                  / ( SQALPHA * KD * TLAI )
 
 C CN98 - p. 261 (for next 3 eqns)
 C note that we use the incoming (not absorbed) PAR
-         PARSHADE   = CANPARDIF + CANPARSCAT
-         PARSUN     = KBE * PARDB + PARSHADE
-         LAISUN     = ( 1.0 - EXP( -1.0 * KBE * TLAI ) ) / KBE
-         FRACSUN    = LAISUN / TLAI
-         FRACSHADE  = 1.0 - FRACSUN
+               PARSHADE   = CANPARDIF + CANPARSCAT
+               PARSUN     = KBE * PARDB + PARSHADE
+               LAISUN     = ( 1.0 - EXP( -1.0 * KBE * TLAI ) ) / KBE
+               FRACSUN    = LAISUN / TLAI
+               FRACSHADE  = 1.0 - FRACSUN
 
 C cguen is Guenther's eqn for computing light correction as a function of
 C PAR...fracSun should probably be higher since sunlit leaves tend to be
 C thicker than shaded leaves. But since we need to make crude assumptions
 C regarding leaf orientation (x=1), we will not attempt to fix at the moment.
 
-         CLNEW = FRACSUN * CGUEN( PARSUN )
-     &         + FRACSHADE * CGUEN( PARSHADE )
+               CSUBL = FRACSUN * CGUEN( PARSUN )
+     &               + FRACSHADE * CGUEN( PARSHADE )
+     
+C calculate the leaf temperature following Campbel and Norman 1998 eq 14.6 
+C with the addition of incomming atmospheric long wave irradiation resulting 
+C in the cacelation of the long wave radiation budget
+         
+               SOLSUN    = SOLRAD * PARSUN / ( PARDB + PARDIF )
+               SOLSHADE  = SOLRAD * PARSHADE / ( PARDB + PARDIF )
+               DTLSUN    = ((1.0 - REFLDV) * SOLSUN + LHSH_COMP ) / LHSH_DIV
+               DTLSHADE  = ((1.0 - REFLDV) * SOLSHADE + LHSH_COMP ) / LHSH_DIV
+               DTLEAF    = FRACSUN * DTLSUN + FRACSHADE * DTLSHADE
+               DTLEAF    = MIN(DTLEAF,  10.0) 
+               DTLEAF    = MAX(DTLEAF, -10.0) 
+            
+	    ELSE ! to prevent divide by 0 when there is no solar rad
+	       CSUBL = 0.0
+               DTLEAF    = LHSH_COMP / LHSH_DIV
+               DTLEAF    = MIN(DTLEAF,  10.0) 
+               DTLEAF    = MAX(DTLEAF, -10.0) 
+	    END IF	       
+	    
+         ELSE 
+            CSUBL = CGUEN( PARDB + PARDIF )
+	    DTLEAF    = ((1.0 - REFLDV) * SOLRAD + LHSH_COMP ) / LHSH_DIV
+            DTLEAF    = MIN(DTLEAF,  10.0) 
+            DTLEAF    = MAX(DTLEAF, -10.0) 	    
+         END IF
 
-         RETURN
-
-         END FUNCTION CLNEW
+         END SUBROUTINE CLNEW_SUB
 
 C-----------------------------------------------------------------------
 
