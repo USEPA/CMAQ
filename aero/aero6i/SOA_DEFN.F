@@ -41,6 +41,9 @@ C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction
 C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C HOTP 01/16/13 Remove acid enhanced isoprene and isoprene oligomers
+C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
+C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
+C               Values in Table 6 of Ng et al. (previously used) are incorrect.
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -114,9 +117,9 @@ C                      Name      Parent     Aerospc  AlphaH
 C                     -------    -------    ------   ------ 
      & orgprod_type( 'ALK5RXN', 'ALK5RXN', '      ', 0.000 ),
      & orgprod_type( 'XYLNRXN', 'XYL    ', '      ', 0.000 ),
-     & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.300 ),
+     & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.360 ),
      & orgprod_type( 'TOLNRXN', 'TOL    ', '      ', 0.000 ),
-     & orgprod_type( 'TOLHRXN', 'TOL    ', 'ATOL3J', 0.360 ),
+     & orgprod_type( 'TOLHRXN', 'TOL    ', 'ATOL3J', 0.300 ),
      & orgprod_type( 'BNZNRXN', 'BENZENE', '      ', 0.000 ),
      & orgprod_type( 'BNZHRXN', 'BENZENE', 'ABNZ3J', 0.370 ),
      & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
