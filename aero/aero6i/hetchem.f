@@ -101,6 +101,7 @@ c              moments are already wet and remove adjustments based
 c              on a dry assumption.
 c
 c HOTP 01/18/2013 Uptake IEPOX and IMAE onto accumulation mode aerosol
+c              following Pye et al. 2013.
 c              -renamed GAMMA for N2O5 to GAMMAN2O5
 c              
 c
@@ -127,7 +128,9 @@ c      B. Vogel, A comparison of CMAQ HONO predictions with observations
 c      from the Northeast Oxidant and Particle Study, Atmospheric
 c      Environment, 2008, in press.
 c
-c   5. Pye et al. in prep, SOA from later generation isoprene products 
+c   5. Pye et al., Epoxide pathways improve model predictions of isoprene
+c      markers and reveal key role of acidity in aerosol formation,
+c      Envion. Sci. Technol, 2013, doi: 10.1021/es402106h. 
 C-----------------------------------------------------------------------
 
       USE AERO_DATA
@@ -595,6 +598,9 @@ C     1994, 99, 3615-3629.
 C  5. McNeill, V. F., et al. "Aqueous-phase secondary organic aerosol and organosulfate 
 C     formation in atmospheric aerosols: A modeling study," Environ Sci Technol., 2012,
 C     46, 8075-8081.
+C  6. Pye et al., Epoxide pathways improve model predictions of isoprene
+C     markers and reveal key role of acidity in aerosol formation,
+C     Envion. Sci. Technol, 2013, doi: 10.1021/es402106h. 
 C-----------------------------------------------------------------------
 
       Use aero_data
