@@ -40,13 +40,13 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Integer, Parameter, Private :: NHx_TOT = NHx_AQ_CONC + NHx_GAS_CONC + NHx_SOL_CONC       
       Integer, Parameter, Private :: HG_AQ_CONC   = 3
       Integer, Parameter, Private :: HG_GAS_CONC  = 1      
-      Integer, Parameter, Private :: HG_SOL_CONC = 2           
+      Integer, Parameter, Private :: HG_SOL_CONC  = 2           
       
       Integer, Save,   Private :: N_Hg
-      INTEGER, Save,   Private :: LOGDEV      
-      CHARACTER( 96 ), Private :: XMSG = ' '
+      Integer, Save,   Private :: LOGDEV      
+      Character( 96 ), Private :: XMSG = ' '
 ! shared variables
-      CHARACTER( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
+      Character( 16 ), Save , Allocatable :: MEDIA_NAMES( : )
       Character( 16 ), Save , Allocatable :: MEDIA_UNITS( : )
       Character( 80 ), Save , Allocatable :: MEDIA_DESCR( : )
 
@@ -61,31 +61,31 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Real, Save, Allocatable :: MHp2   ( :,: ) ! molar H+  
       Real, Save, Allocatable :: CMEDIA ( :,:,: ) ! surface layer concs 
       Real, Save, Allocatable :: lufrac ( :,:,: ) 
-      LOGICAL, SAVE     :: HGBIDI  
-      LOGICAL, SAVE     :: INIT_LAI   
-      LOGICAL, SAVE     :: INIT_ATX 
-      LOGICAL, SAVE     :: INIT_ASX              
+      Logical, Save     :: HGBIDI  
+      Logical, Save     :: INIT_LAI   
+      Logical, Save     :: INIT_ATX 
+      Logical, Save     :: INIT_ASX              
 
 
       Contains 
-         SUBROUTINE INIT_BIDI( ABFLUX )
-         USE GRID_CONF
-         USE CGRID_SPCS          ! CGRID mechanism species
-         USE UTILIO_DEFN
+         Subroutine INIT_BIDI( ABFLUX )
+         Use GRID_CONF
+         Use CGRID_SPCS          ! CGRID mechanism species
+         Use UTILIO_DEFN
          
-         IMPLICIT NONE
+         Implicit None
          
 C...Arguments:            
          
-         LOGICAL,     INTENT( IN ) :: abflux       
+         Logical,     Intent( In ) :: abflux       
  
 C... Local:
  
-         CHARACTER( 16 ) :: PNAME = 'INIT_BIDI       '
-         CHARACTER( 80 ) :: VARDESC
-         INTEGER         :: STATUS
+         Character( 16 ) :: PNAME = 'INIT_BIDI       '
+         Character( 80 ) :: VARDESC
+         Integer         :: STATUS
          
-         If( INDEX1('HG', N_GC_DDEP, GC_DDEP) .GT. 0)Then 
+         If ( INDEX1('HG', N_GC_DDEP, GC_DDEP) .GT. 0 ) Then 
          
             HGBIDI = .FALSE.
             XMSG   = 'Flag for mercury bi-directional flux calculation'
@@ -102,29 +102,28 @@ C... Local:
                WRITE( LOGDEV, '(5X, A)' ) XMSG
             End If
             
-         Endif
-         
-         If( ABFLUX .AND. .NOT. HGBIDI ) Then
+         End If
+
+         If ( ABFLUX .AND. .NOT. HGBIDI ) Then
          
             N_TOT = NHx_TOT
             N_Hg  = 0            
             ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'Gamma1          '
-            MEDIA_UNITS( 1 ) = '                '
+            MEDIA_UNITS( 1 ) = ' '
             MEDIA_DESCR( 1 ) = 'NH4+/H+ in Soil layer 1'
             MEDIA_NAMES( 2 ) = 'Gamma2          '
-            MEDIA_UNITS( 2 ) = '                '
+            MEDIA_UNITS( 2 ) = ' '
             MEDIA_DESCR( 2 ) = 'NH4+/H+ in Soil layer 2'
             MEDIA_NAMES( 3 ) = 'MHpsl1          '
-            MEDIA_UNITS( 3 ) = 'mol/l           '
+            MEDIA_UNITS( 3 ) = 'mol/l'
             MEDIA_DESCR( 3 ) = 'Molar H+ in Soil layer 1'
             MEDIA_NAMES( 4 ) = 'MHpsl2          '
-            MEDIA_UNITS( 4 ) = 'mol/l           '
+            MEDIA_UNITS( 4 ) = 'mol/l'
             MEDIA_DESCR( 4 ) = 'Molar H+ in Soil layer 2'
                
-         Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
-         
+         Else If ( .NOT. ABFLUX .AND. HGBIDI ) Then
             N_TOT = HG_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
@@ -148,8 +147,7 @@ C... Local:
             MEDIA_UNITS( 6 ) = 'umol/g'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
-         Else If( ABFLUX .AND. HGBIDI ) Then
-         
+         Else If ( ABFLUX .AND. HGBIDI ) Then
             N_TOT = HG_TOT + NHx_TOT
             N_Hg  = HG_TOT
             ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
@@ -173,10 +171,10 @@ C... Local:
             MEDIA_UNITS( 6 ) = 'umol/g'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'   
             MEDIA_NAMES( 7 ) = 'Gamma1          ' 
-            MEDIA_UNITS( 7 ) = '' 
+            MEDIA_UNITS( 7 ) = ' ' 
             MEDIA_DESCR( 7 ) = 'NH4+/H+ in Soil layer 1'
             MEDIA_NAMES( 8 ) = 'Gamma2          '
-            MEDIA_UNITS( 8 ) = '' 
+            MEDIA_UNITS( 8 ) = ' ' 
             MEDIA_DESCR( 8 ) = 'NH4+/H+ in Soil layer 2'
             MEDIA_NAMES( 9 ) = 'MHpsl1'
             MEDIA_UNITS( 9 ) = 'mol/l' 
@@ -188,14 +186,14 @@ C... Local:
          End If
          
          ! allocate the media array variable
-         IF ( .NOT. ALLOCATED ( CMEDIA ) ) THEN
-            ALLOCATE ( CMEDIA( NCOLS,NROWS,N_TOT ) )
+         If ( .Not. Allocated ( CMEDIA ) ) Then
+            Allocate ( CMEDIA( NCOLS,NROWS,N_TOT ) )
             CMEDIA = 0.0
-         END IF         
+         End If         
          
-         RETURN
+         Return
          
-         END SUBROUTINE INIT_BIDI
+         End Subroutine INIT_BIDI
 !*****************************************************************************
 !************** Iput / output section of the module **************************
 !*****************************************************************************
@@ -224,15 +222,7 @@ C... Local:
 C--------------------------------------------------------------------------
          LOGDEV = INIT3()  
          
-         If( ABFLUX .AND. .NOT. HGBIDI) Then
-
-!            N_TOT = NHx_TOT
-!            N_Hg  = 0            
-!            ALLOCATE( MEDIA_NAMES( N_TOT ) )
-!            MEDIA_NAMES(1) = 'Gamma1         ' 
-!            MEDIA_NAMES(2) = 'Gamma2         '
-!            MEDIA_NAMES(3) = 'MHpsl1         '
-!            MEDIA_NAMES(4) = 'MHpsl2         '
+         If ( ABFLUX .AND. .NOT. HGBIDI) Then
 
             IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
 
@@ -246,7 +236,7 @@ C--------------------------------------------------------------------------
                TSTEP3D = TSTEP
                CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-               NVARS3D = NHx_TOT
+               NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
                NLAYS3D =     1
@@ -304,17 +294,7 @@ C--------------------------------------------------------------------------
                END DO              
             EndIf
             
-         Else If( .NOT. ABFLUX .AND. HGBIDI ) Then
-         
-!            N_TOT = HG_TOT
-!            N_Hg  = HG_TOT
-!            ALLOCATE( MEDIA_NAMES( HG_TOT ) )
-!            MEDIA_NAMES(1) = 'DGM            ' ! Dissolved gaseous Hg
-!            MEDIA_NAMES(2) = 'DRM            '! Dissolved reactive Hg
-!            MEDIA_NAMES(3) = 'HGSOIL         '
-!            MEDIA_NAMES(4) = 'HGZ0           '
-!            MEDIA_NAMES(5) = 'HGMES          ' ! mesophyll Hg
-!            MEDIA_NAMES(6) = 'HGCUT          '! cuticular Hg        
+         Else If ( .NOT. ABFLUX .AND. HGBIDI ) Then              
             
             IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
 
@@ -327,7 +307,7 @@ C--------------------------------------------------------------------------
                STIME3D = JTIME
                TSTEP3D = TSTEP
                CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
-               NVARS3D = HG_TOT
+               NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
                NLAYS3D =     1
@@ -350,7 +330,6 @@ C--------------------------------------------------------------------------
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
      &                     // 'HG concentrations and surface exchange algorithms'
 
-               NVARS3D = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC
                NLAYS3D = 1
 
                N = 0
@@ -384,22 +363,7 @@ C--------------------------------------------------------------------------
                END DO
             End If
             
-         Else If( ABFLUX .AND. HGBIDI ) Then
-         
-!            N_TOT = HG_TOT + NHx_TOT
-!            N_Hg  = HG_TOT
-!            ALLOCATE( MEDIA_NAMES( N_TOT ) )
-
-!            MEDIA_NAMES(1)  = 'DGM            ' ! Dissolved gaseous Hg
-!            MEDIA_NAMES(2)  = 'DRM            '! Dissolved reactive Hg
-!            MEDIA_NAMES(3)  = 'HGSOIL         '
-!            MEDIA_NAMES(4)  = 'HGZ0           '
-!            MEDIA_NAMES(5)  = 'HGMES          ' ! mesophyll Hg
-!            MEDIA_NAMES(6)  = 'HGCUT          '! cuticular Hg        
-!            MEDIA_NAMES(7)  = 'Gamma1         ' 
-!            MEDIA_NAMES(8)  = 'Gamma2         '
-!            MEDIA_NAMES(9)  = 'MHpsl1         '
-!            MEDIA_NAMES(10) = 'MHpsl2         '
+         Else If ( ABFLUX .AND. HGBIDI ) Then         
             
             IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
 
@@ -412,7 +376,7 @@ C--------------------------------------------------------------------------
                STIME3D = JTIME
                TSTEP3D = TSTEP
                CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
-               NVARS3D = HG_TOT
+               NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
                NLAYS3D =     1
@@ -435,7 +399,6 @@ C--------------------------------------------------------------------------
                FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
      &                     // 'NH3 and HG concentrations and surface exchange algorithms'
 
-               NVARS3D = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC
                NLAYS3D = 1
 
                N = 0
@@ -535,13 +498,13 @@ C--------------------------------------------------------------------------
 !*****************************************************************************         
          LOGDEV = INIT3()    
          
-         If( HGBIDI ) Then
+         If ( HGBIDI ) Then
             INIT_LAI = .FALSE.   
             INIT_ATX = .FALSE.   
             INIT_ASX = .FALSE.
          End If
          
-         If( ABFLUX ) Then
+         If ( ABFLUX ) Then
             Do R = 1, My_NRows
                Do C = 1, My_NCols
                   CMedia( C,R,N_Hg+1 ) = Gamma1( C,R )
@@ -574,4 +537,5 @@ C--------------------------------------------------------------------------
          RETURN
 
          END SUBROUTINE WRASX_MEDIA
+
       End Module Bidi_Mod   

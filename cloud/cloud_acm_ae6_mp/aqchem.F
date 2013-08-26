@@ -35,7 +35,7 @@ C    Compute concentration changes in cloud due to aqueous chemistry,
 C    scavenging and wet deposition amounts.
 C
 C  Revision History:
-C      No   Date   Who	What
+C      No   Date   Who  What
 C      -- -------- ---  -----------------------------------------
 C      0  / /86    CW   BEGIN PROGRAM - Walceks's Original Code
 C      1  / /86    RB   INCORPORATE INTO RADM
@@ -113,6 +113,9 @@ C                       estimate FE_OX and MN_OX was moved to be after a floor
 C                       value for FE and MN was set. Also the washout rate was
 C                       removed from the calculation of the estimate for doubling
 C                       the time step based on sulfur oxidized < 5%.
+C
+C   28 Nov 12 G.Sarwar: Sulfate inhibition effect is implemented in the metal catalysis pathway
+C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
 C        vertical distributions of acidity and sulfate within cumulus
@@ -1542,11 +1545,13 @@ C...Calculate sulfur iv oxidation rate due to O3 (Jacobson, 1997)
 
 C...Calculate sulfur iv oxidation rate due to 02 catalyzed by Mn++ and Fe+++
 C...(Martin and Goodman, 1991)
+C...Implement sulfate inhibition based on Martin and Good, 1991
 
         DSIVDT( 3 ) = - ( 750.0D0  * MN_OX * SIV +                 ! GS 4May2011
      &                    2600.0D0 * FE_OX * SIV +                 ! GS 4May2011
      &                    1.0D10   * MN_OX * FE_OX * SIV )         ! GS 4May2011
-
+     &                / ( 1.0D0 + 75.0D0 *( TS6**0.67D0 ))         ! GS 28Nov2012     
+     
         IF ( ( DSIVDT( 3 ) .EQ. 0.0D0 ) .OR. ( TSIV .LE. CONMIN ) ) THEN
           DTW( 3 ) = DTRMV
         ELSE

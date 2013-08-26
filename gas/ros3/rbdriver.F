@@ -272,7 +272,7 @@ C for INTERPX
 C**********************************************************************
 
       IF ( N_GC_SPC .EQ. 0 ) THEN
-         WRITE( LOGDEV,* ) '*** WARNING: Gas-Chemistry processing bypassed!'
+         CALL M3MESG( '*** WARNING: Gas-Chemistry processing bypassed!' )
          RETURN
       END IF
 

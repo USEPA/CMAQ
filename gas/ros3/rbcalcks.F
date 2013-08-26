@@ -28,8 +28,8 @@ C %W% %P% %G% %U%
 
 C**********************************************************************
  
-C  Function: To compute thermal and photolytic reaction rate 
-C            coefficients for each reaction.
+C  FUNCTION: To compute thermal and photolytic reaction  
+C            rate coefficients for each reaction.
  
 C  Preconditions: Photolysis rates for individual species must have 
 C                 been calculated and stored in RKPHOT. Expects 
@@ -43,6 +43,7 @@ C                      Adapted from CALCKS in CMAQ SMVGEAR
 C                    31 Jan 05 J.Young: get BLKSIZE from dyn alloc horizontal
 C                    & vertical domain specifications module (GRID_CONF)
 C                    28 Jun 10 J.Young: remove unnecessary modules and includes
+C                    23 Jan 13 B.Hutzell revised type 9 falloff rate constants 
 C***********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -203,11 +204,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          ELSE IF ( KTYPE( IRXN ) .EQ. 9 ) THEN
             DO NCELL = 1, NUMCELLS
-               RK1 = RTDAT( 1,IRXN ) * EXP( RTDAT( 2,IRXN ) * TINV( NCELL ) )
-               RK2 = 1.0E+06 * CFACT( NCELL ) * RTDAT( 3,IRXN )
+                   
+               RK1 = RTDAT( 1,IRXN ) * EXP( RTDAT( 2, IRXN ) * TINV( NCELL ) ) 
+     &             * ( BLKTEMP( NCELL ) * TI300 ) ** RFDAT( 2, NRT )
+     
+               RK2 = 1.0E+06 * CFACT( NCELL ) * RTDAT( 3,IRXN ) 
      &             * EXP( RFDAT( 1, NRT )  * TINV( NCELL ) )
-     &              
-               RKI( NCELL,IRXN ) = RK1 + RK2 
+     &             * ( BLKTEMP( NCELL ) * TI300 ) ** RFDAT( 3, NRT )
+     
+               RK3 = RFDAT( 4, NRT ) * EXP( RFDAT( 5, NRT )  * TINV( NCELL ) )
+               
+               RKI( NCELL,IRXN ) = RK1 + RK2 + RK3
+
             END DO
          ELSE
             DO NCELL = 1, NUMCELLS 
@@ -252,7 +260,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( KUNITS .EQ. 2 ) THEN
          DO 200 N = 1, NRXNS
 
-            IF ( KTYPE( N ) .NE. 0 ) THEN   ! Do all non-photolytic reactions
+            IF ( KTYPE( N ) .GT. 0 ) THEN   ! Skip photolytic reactions
 
                IF ( IORDER( N ) .EQ. 2 ) THEN
                   DO NCELL = 1, NUMCELLS

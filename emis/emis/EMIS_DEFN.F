@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.10 2011/10/21 16:10:46 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/emis/emis/EMIS_DEFN.F,v 1.10 2011/10/21 16:10:46 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -40,10 +40,13 @@ C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                            removed deprecated TRIMLEN
 C      6 Apr 2011 J.Young, R.Pinder: add lightning NO emissions capability
 C     11 May 2011 D.Wong: incorporated twoway model implementation
+C      5 Jun 2012 J.Bash: Added support for NH3 bidirectional exchange. Fertilizer
+C                         sector emissions are subtracted from the total NH3 emissions
+C                         if the CTM_ABFLUX flag is set
 
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE GRID_CONF           ! horizontal & vertical domain specifications      
 
       IMPLICIT NONE
 
@@ -70,6 +73,7 @@ C-----------------------------------------------------------------------
       REAL,    SAVE :: DT         ! TSTEP (output) in sec
 
       REAL,    ALLOCATABLE, SAVE :: BUFF( :,:,: )        ! read buffer
+      REAL,    ALLOCATABLE, SAVE :: FERT( :,:,: )        ! read buffer
 
       INTEGER, SAVE :: STRT_GC, FINI_GC, STRT_AE, FINI_AE,
      &                 STRT_NR, FINI_NR, STRT_TR, FINI_TR
@@ -94,6 +98,7 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN         ! I/O API
          USE AERO_EMIS           ! inherits GRID_CONF
          USE AERO_DATA, ONLY: MAP_PMEMIS  ! access subroutine map_pmemis
+         USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
 
          IMPLICIT NONE
 
@@ -278,6 +283,15 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          END IF
          BUFF = 0.0   ! array assignment
 
+         IF ( ABFLUX ) THEN
+            ALLOCATE ( FERT( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
+            IF ( STATUS .NE. 0 ) THEN
+               XMSG = 'FERT memory allocation failed'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+            FERT = 0.0   ! array assignment
+         END IF
 C combined gas emssions conversion factor
 
          CNVTE = CMLMR * CONVEM * MWAIR / ( DX1 * DX2 )
@@ -312,6 +326,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE PTMAP               ! defines emissions file(s) PM mapping
          USE LTNG_DEFN           ! lightning NO emissions
          USE UTILIO_DEFN
+         USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
 
          IMPLICIT NONE
 
@@ -509,6 +524,29 @@ C                                       vvvvvvv - emis surrogate names
      &              // TRIM( NR_EMIS( S ) ) // ' from ' // EMIS_1
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
+! subtract the fertilizer emissions from the NEI for use in the NH3 bidirectional
+! exchange model JOB
+            IF ( ABFLUX .AND. TRIM( NR_EMIS( S ) ) .EQ. 'NH3' ) THEN
+               FERT = 0.0   ! array assignment
+               IF ( .NOT. INTERPX( EMIS_1, 'NH3_FERT', PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
+     &                          JDATE, JTIME, FERT ) ) THEN
+                  XMSG = 'Could not read NH3_FERT from'
+     &                   // EMIS_1
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     BUFF( C,R,1 ) = BUFF( C,R,1 ) - FERT( C,R,1 )
+                     IF(BUFF( C,R,1 ) .LT. 0.0 ) THEN
+                        XMSG = 'Negative values in NH3 emissions' 
+     &                       //'Error in NH3 Bidi emissions'                          
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     END IF
+                  END DO
+               END DO    
+            END IF ! ABFLUX
+
             CNVTI = CNVTP * NR_EMIS_FAC( S )
 
             DO R = 1, MY_NROWS

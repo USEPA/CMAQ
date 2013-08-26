@@ -64,6 +64,7 @@ C   25 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
 C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
+C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4"
 
 C-----------------------------------------------------------------------
 
@@ -121,7 +122,7 @@ C Factor for converting aerosol emissions from input units ...
 
 C *** PVB: temporary hack to speciate PMC
       REAL,    SAVE :: SPFC_ACORS
-      REAL,    SAVE :: SPFC ASO4
+      REAL,    SAVE :: SPFC_ASO4
       REAL,    SAVE :: SPFC_ANO3
       REAL,    SAVE :: SPFC_ACL
       REAL,    SAVE :: SPFC_AH2O
@@ -440,7 +441,7 @@ C *** Map aerosol surface emission species and set across-the-board adjustment f
 
 C *** PVB: temporary hack to speciate PMC
          SPFC_ACORS = ( 1.0 - 0.00325 ) * AEROSPC( ACORS_IDX )%EMIS_SPLIT( N_MODE )
-         SPFC ASO4  = 0.00100 * AEROSPC( ASO4_IDX )%EMIS_SPLIT( N_MODE )
+         SPFC_ASO4  = 0.00100 * AEROSPC( ASO4_IDX )%EMIS_SPLIT( N_MODE )
          SPFC_ANO3  = 0.00048 * AEROSPC( ANO3_IDX )%EMIS_SPLIT( N_MODE )
          SPFC_ACL   = 0.00145 * AEROSPC( ACL_IDX )%EMIS_SPLIT( N_MODE )
          SPFC_AH2O  = 0.00032 * AEROSPC( AH2O_IDX )%EMIS_SPLIT( N_MODE )
@@ -789,7 +790,7 @@ C     Binkowski & Roselle (2003).
                   END DO
                   N = N_MODE
                   IF ( IDX .EQ. ASO4_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC ASO4 * EM_RATE( S )
+                     EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
                   ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
                      EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S )
                   ELSE IF ( IDX .EQ. ACL_IDX ) THEN
@@ -918,7 +919,7 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                      END DO
                      N = N_MODE
                      IF ( IDX .EQ. ASO4_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC ASO4 * EM_RATE( S )
+                        EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
                      ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
                         EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S )
                      ELSE IF ( IDX .EQ. ACL_IDX ) THEN
