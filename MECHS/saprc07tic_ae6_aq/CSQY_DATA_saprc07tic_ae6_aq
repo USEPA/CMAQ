@@ -691,8 +691,8 @@ INDEX_OCEAN_WATER  =   17
   5 Cropland-Grassland Mosaic                                     14     1.000
   6 Cropland-Woodland Mosaic                                      14     0.889
   7 Grassland                                                     10     1.000
-  8 Shrubland                                                      6     1.000
-  9 Mixed Shrubland-Grassland                                      6     1.000
+  8 Shrubland                                                      7     1.000
+  9 Mixed Shrubland-Grassland                                      7     1.000
  10 Savannah                                                       9     1.000
  11 Deciduous Broadleaf Forest                                     4     1.000
  12 Deciduous Needleleaf Forest                                    3     1.000
