@@ -59,6 +59,7 @@ C                   to open the diagnostic file. Eliminate the BARRIER
 C                   and the CLOSE3 and OPEN3.
 C  02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C  05/11: D.Wong-incorporated twoway model implementation
+C  05/13: D.Wong-replaced M3EXIT with M3WARN when CHKGRID is called in the twoway model
 
 C-----------------------------------------------------------------------
 C Modified from:
@@ -230,7 +231,11 @@ C Check grid definition
             IF ( .NOT. CHKGRID( BNAME ) ) THEN
                MESG = 'Grid in file "' // TRIM( BNAME ) //
      &                '" does not match previously set grid.'
+#ifdef twoway
+               CALL M3WARN( PNAME, 0, 0, MESG )
+#else
                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+#endif
             END IF
 
 C Get domain decomp info for the bioseasons switch file
@@ -264,7 +269,11 @@ C Check that grid description matches BGRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match previously set grid.'
+#ifdef twoway
+            CALL M3WARN( PNAME, 0, 0, MESG )
+#else
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+#endif
          END IF
 
 C Get domain decomp info for the met file
@@ -345,7 +354,11 @@ C Check grid description against BGRD File
          IF ( .NOT. CHKGRID( GNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( GNAME ) //
      &             '" does not match previously set grid.'
+#ifdef twoway
+            CALL M3WARN( PNAME, 0, 0, MESG )
+#else
             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+#endif
          END IF
 
 C Get domain decomp info from the normalized emissions file (assume met files have
