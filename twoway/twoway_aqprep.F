@@ -27,6 +27,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 left corner. Note: ioffset >= 5 and joffset >= 5
 !           11 Aug 2011  (David Wong)
 !              -- updated to comply with CMAQ 5.0
+!           10 Jun 2013  (David Wong)
+!              -- updated to NLCD40
+!           24 Sep 2013  (David Wong)
+!              -- consolidated x- and y-cent calculation
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -495,6 +499,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      else if ((config_flags%mminlu == 'NLCD') .or. (config_flags%mminlu == 'NLCD50')) then
         lwater = 1  ! and also 31 and 47...to be combined, below
         lice   = 2  ! and also 46...to be combined, below
+     else if (config_flags%mminlu == 'NLCD40') then
+        lwater = 21
+        lice   = 22
      else
         print *, ' Warning: Unknow landuse type ', config_flags%mminlu, grid%num_land_cat
      end if
@@ -513,6 +520,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      gridcro2d_data_wrf (:,:,4) = grid%ht (sc:ec, sr:er)
 
      gridcro2d_data_wrf (:,:,5) = grid%landmask (sc:ec, sr:er)
+
+     gridcro2d_data_wrf (:,:,7) = grid%lu_index (sc:ec, sr:er)
 
 !    where ( ( nint(land_use_index(:,:)) == lwater ) .or. ( nint(land_use_index(:,:)) == lice ) )  ! water
 !      gridcro2d_data_wrf(:,:,5) = 0.0
@@ -1399,26 +1408,7 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 !        assumption for two-way modeling...at least initially.)
 !
 ! Note:  DX and DY are the same for our application.
-!-------------------------------------------------------------------------------
-
-  IF ( map_proj == 1 ) THEN
-     ioapi_header%xcent = stand_lon
-     IF ( wrf_lc_ref_lat > 0.0) THEN
-        ioapi_header%ycent = wrf_lc_ref_lat
-     ELSE
-        ioapi_header%ycent = ( truelat1 + truelat2 ) * 0.5
-     END IF
-  ELSE IF ( map_proj == 2 ) THEN
-     ioapi_header%xcent = stand_lon
-     ioapi_header%ycent = moad_cen_lat
-  ELSE IF ( map_proj == 3 ) THEN
-     ioapi_header%xcent = stand_lon
-     ioapi_header%ycent = 0.0
-  ELSE
-     write (6, *) ' Unknown projection '
-  END IF
-
-!-------------------------------------------------------------------------------
+!
 ! (XCENT_GD, YCENT_GD):
 ! For most projections, these are the longitude, -180 < X <= 180, and the
 !   latitude, -90 <= Y <= 90, for the center of the grid's respective Cartesian
@@ -1429,16 +1419,25 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 !-------------------------------------------------------------------------------
 
   IF ( map_proj == 1 ) THEN
-    IF ( wrf_lc_ref_lat > 0.0) THEN
-      ref_lat  = wrf_lc_ref_lat
-    ELSE
-      ref_lat  = ( truelat1 + truelat2 ) * 0.5
-    ENDIF
+     ioapi_header%xcent = stand_lon
+     IF ( wrf_lc_ref_lat > 0.0) THEN
+       ref_lat  = wrf_lc_ref_lat
+     ELSE
+       ref_lat  = ( truelat1 + truelat2 ) * 0.5
+     ENDIF
+     ioapi_header%ycent = ref_lat
 
-    CALL ll2xy_lam (moad_cen_lat, cen_lon, truelat1, truelat2, stand_lon, ref_lat, xxx, yyy)
+     CALL ll2xy_lam (moad_cen_lat, cen_lon, truelat1, truelat2, stand_lon, ref_lat, xxx, yyy)
   ELSE IF ( map_proj == 2 ) THEN
-    CALL ll2xy_ps (moad_cen_lat, cen_lon, truelat1, cen_lon, xxx, yyy)
-  ENDIF
+     ioapi_header%xcent = stand_lon
+     ioapi_header%ycent = moad_cen_lat
+     CALL ll2xy_ps (moad_cen_lat, cen_lon, truelat1, cen_lon, xxx, yyy)
+  ELSE IF ( map_proj == 3 ) THEN
+     ioapi_header%xcent = stand_lon
+     ioapi_header%ycent = 0.0
+  ELSE
+     write (6, *) ' Unknown projection '
+  END IF
 
   nthik = 1
   cntrx = FLOAT(gncols - 1)/2.0 + 1.0
@@ -1447,17 +1446,20 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 ! xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
 ! yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
   if (mod(gl_ncols, 2) == 0) then
-     xorig = xxx - DBLE( cntrx - FLOAT(1) ) * DBLE(dx)
+!    xorig = xxx - DBLE( cntrx - FLOAT(1) ) * DBLE(dx)
+     xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
   else
      xorig = xxx - DBLE( cntrx - 0.5 ) * DBLE(dx)
   end if
   if (mod(gl_nrows, 2) == 0) then
-     yorig = yyy - DBLE( cntry - FLOAT(1) ) * DBLE(dy)
+!    yorig = yyy - DBLE( cntry - FLOAT(1) ) * DBLE(dy)
+     yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
   else
      yorig = yyy - DBLE( cntry - 0.5 ) * DBLE(dy)
   end if
 
-  IF ( wrf_lc_ref_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
+! IF ( wrf_lc_ref_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
+  IF ( moad_cen_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
 
     xtemp = xorig / 500.0
     ytemp = yorig / 500.0
