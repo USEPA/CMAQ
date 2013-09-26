@@ -13,6 +13,7 @@ C             I/O library.
               
 C  REVISION HISTORY:
 C       Original version 02/04 by David Wong
+C       26Sep2013 J.Young increase MXNVARHD from 200 to 2048 - needed for DDM3D
 C....................................................................
 
       MODULE PINTERPB_MODULE
@@ -20,7 +21,7 @@ C....................................................................
 C         Parameters         Description
 C         ----------         -----------
 
-      INTEGER, PARAMETER :: MXNVARHD = 200    ! Max number of buffered file variables.
+      INTEGER, PARAMETER :: MXNVARHD = 2048   ! Max number of buffered file variables.
 
 C  -----------------------------------------------------------------
 C  The following (dynamic) variables are used to determine when
