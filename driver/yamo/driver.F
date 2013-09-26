@@ -84,6 +84,8 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   24 Aug 11 D.Wong: eliminated data and geo orientation in se_init call
 C    8 Jan 13 C.Nolte: fixed load AGRID bug if TSTEP(1) .ne. 010000 hhmmss
+C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
+C                      indicated in TSTEP(1) for twoway model
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -357,7 +359,7 @@ C Verify input file header consistency and run duration
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         AGRID = 0.0
+!        AGRID = 0.0
 
          ALLOCATE ( ASTEP( NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -403,18 +405,24 @@ C Main processing loop:
 C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
          CALL ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
 
-         DO V = 1, N_ASPCS
-            S = AVG_CONC_MAP( V )
-            L = 0
-            DO K = ACONC_BLEV, ACONC_ELEV
-               L = L + 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     AGRID( C,R,L,V ) = CGRID( C,R,K,S )
+#ifdef twoway
+         IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+#endif
+            DO V = 1, N_ASPCS
+               S = AVG_CONC_MAP( V )
+               L = 0
+               DO K = ACONC_BLEV, ACONC_ELEV
+                  L = L + 1
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        AGRID( C,R,L,V ) = CGRID( C,R,K,S )
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
+#ifdef twoway
+         END IF
+#endif
 
 C science process sequence:
          
@@ -445,23 +453,27 @@ C science process sequence:
          END DO
 
 #ifdef twoway
-         print *, ' ==d== NREPS d ', myNREPS
+         IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
+!        print *, ' ==d== NREPS d ', myNREPS
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
-         DO V = 1, N_ASPCS
-            S = AVG_CONC_MAP( V )
-            L = 0
-            DO K = ACONC_BLEV, ACONC_ELEV
-               L = L + 1
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-     &                                -            CGRID( C,R,K,S ) )
+            DO V = 1, N_ASPCS
+               S = AVG_CONC_MAP( V )
+               L = 0
+               DO K = ACONC_BLEV, ACONC_ELEV
+                  L = L + 1
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
+     &                                   -            CGRID( C,R,K,S ) )
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
+#ifdef twoway
+         END IF
+#endif
 
          DO V = 1, N_CSPCS
             S = CONC_MAP( V )
