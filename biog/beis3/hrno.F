@@ -114,7 +114,12 @@ C                     barrier implementation - not needed anyway.
 C    02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C    05/11: D. Wong - incorporated twoway model implementation
 C    05/12: J.Young - make PX_version the default
-  
+C    05/13: D.Wong  - replaced M3EXIT with M3WARN when CHKGRID is called in the twoway model
+C    09/13: D.Wong  - made the code more robust by
+C                     * allowing simulation start time at any hour rather than 0
+C                     * allowing finer met data time step and maintaining an hourly
+C                       rainfall bucket
+ 
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -188,6 +193,7 @@ C Local Variables:
       REAL,    ALLOCATABLE, SAVE :: RN       ( :,: )  ! nonconvective rainfall
       REAL,    ALLOCATABLE, SAVE :: RC       ( :,: )  ! convective rainfall
       REAL,    ALLOCATABLE, SAVE :: RAINFALL ( :,:,: ) ! rainfall for 24 hours
+      REAL,    ALLOCATABLE, SAVE :: C_RAINFALL ( :,: ) ! rainfall for current hour
       REAL,    ALLOCATABLE, SAVE :: RNTOT    ( :,: )  ! RN + RC
       INTEGER, ALLOCATABLE, SAVE :: PTYPE    ( :,: )  ! NO emissions 'pulse type'
       INTEGER, ALLOCATABLE, SAVE :: PULSEDATE( :,: )  ! date when NO emission pulse begins
@@ -215,6 +221,7 @@ C Local Variables:
       INTEGER          I, J, K, R, C, L   ! counters
       LOGICAL          OK
       INTEGER          IOS                ! IO or memory allocation status
+      INTEGER, SAVE :: METSTEP            ! met_cro_2d time step
       
       REAL,    SAVE :: EFAC
       REAL             CFNO               ! NO correction factor
@@ -229,6 +236,7 @@ C Local Variables:
 
       INTEGER, SAVE :: LOGDEV
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRSTHR  = .TRUE.
       CHARACTER( 256 ) :: MESG            ! message buffer
       CHARACTER( 16 )  :: PNAME = 'HRNO'  ! procedure name
 
@@ -249,7 +257,7 @@ C for INTERPX
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
+!        FIRSTIME = .FALSE.
 
          LOGDEV = INIT3()
 
@@ -277,11 +285,17 @@ C Get description of met file
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
 
+         METSTEP = TSTEP3D
+
 C Check that grid description matches BGRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match previously set grid.'
+#ifdef twoway
+            CALL M3WARN( PNAME, 0, 0, MESG )
+#else
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+#endif
          END IF
 
          SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
@@ -377,7 +391,7 @@ C Allocate memory for data and read
 
          ALLOCATE( RNTOT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RNTOT', PNAME )
-         RNTOT = 0.0   ! array assignment
+!        RNTOT = 0.0   ! array assignment
 
          ALLOCATE( PTYPE( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'PTYPE', PNAME )
@@ -393,7 +407,7 @@ C for the Yienger and Levy algorithm
          WRITE( LOGDEV,'(/5X, A)' ) 'Temporal BEIS ...'
          MESG = 'Initial run?'
          INITIAL_RUN = ENVYN( 'INITIAL_RUN', MESG, .FALSE., IOS )
-         RHOURS = MIN( MXRHRS, MSTEPS )
+!        RHOURS = MIN( MXRHRS, MSTEPS )
 
 C If initial run, initialize some variables, otherwise get them from file
          IF ( INITIAL_RUN ) THEN
@@ -402,6 +416,7 @@ C If initial run, initialize some variables, otherwise get them from file
             PULSETIME = 0   ! array
             PTYPE     = 0   ! array
 
+            RHOURS = 24
          ELSE
 
             RHOURS = 24
@@ -438,8 +453,10 @@ C Get domain decomp info for the NO rain data file
          END IF   ! initial run
 
          ALLOCATE( RAINFALL( NCOLS,NROWS,RHOURS ), STAT=IOS )
+         ALLOCATE( C_RAINFALL( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RAINFALL', PNAME )
          RAINFALL = 0.0   ! array
+         C_RAINFALL = 0.0 ! array
 
          ALLOCATE( DDTTM( RHOURS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'DDTTM', PNAME )
@@ -498,7 +515,7 @@ C Close input file
          END IF   ! not initial run
 
          RDATE = SDATE; RTIME = STIME
-         IHR = 0
+!        IHR = 0
          EFAC = EXP( -0.103 * 30.0 )
 
       END IF   ! FIRSTIME
@@ -540,36 +557,51 @@ C Non-convective (RN) and convective (RC) rain is the total amount for the met
 C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
 C make much sense to time-interpolate these values, since rain generally does not
 C fall at a constant rate for an output timestep.
-      IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+      IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, METSTEP,
      &                     NDATE, NTIME ) ) THEN
          MESG = 'Cannot get step date and time'
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT3 )
       END IF
-      IF ( NDATE .EQ. RDATE .AND. NTIME .EQ. RTIME ) THEN   ! on the TSTEP (hour)
 
-C Read rainfall data
-         IF ( .NOT. XTRACT3( MNAME, VNAME_RN,
-     &                       1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
-     &                       RDATE, RTIME, RN ) ) THEN
-            MESG = 'Could not read "' //  VNAME_RN //
-     &              '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      IF ( .NOT. XTRACT3( MNAME, VNAME_RN,
+     &                    1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
+     &                    RDATE, RTIME, RN ) ) THEN
+         MESG = 'Could not read "' //  VNAME_RN //
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+      IF ( .NOT. XTRACT3( MNAME, VNAME_RC,
+     &                    1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
+     &                    RDATE, RTIME, RC ) ) THEN
+         MESG = 'Could not read "' //  VNAME_RC //
+     &          '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+C Store current time step rainfall totals
+      IF ( NDATE .EQ. RDATE .AND. NTIME .EQ. RTIME ) THEN   ! on the METSTEP
+
+         IF (FIRSTIME) THEN
+            FIRSTIME = .FALSE.
+            IHR = MOD(RTIME / 10000 + 23, 24)   ! previous hour bin, to accommodate non-zero start hour
          END IF
 
-         IF ( .NOT. XTRACT3( MNAME, VNAME_RC,
-     &                       1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
-     &                       RDATE, RTIME, RC ) ) THEN
-            MESG = 'Could not read "' //  VNAME_RC //
-     &             '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
+! for the viery first hour, use previous 24 hour data to compute precip adjustment
 
-C Store hourly rainfall totals
          NDX = 1 + MOD( IHR, MXRHRS )
-         RAINFALL( :,:,NDX ) = RN + RC
+!        RAINFALL( :,:,NDX ) = RN + RC
+         C_RAINFALL = C_RAINFALL + RN + RC
          WRITE( DDTTM( NDX ),'(I8,":",I6.6)' ) RDATE, RTIME
 
-         CALL NEXTIME( RDATE, RTIME, TSTEP( 1 ) )
+         IF (MOD(NTIME, 10000) == 0) THEN    ! at the hourly mark
+            RAINFALL( :,:,NDX ) = C_RAINFALL
+            C_RAINFALL = 0.0
+            IHR = IHR + 1
+         END IF
+
+!        CALL NEXTIME( RDATE, RTIME, TSTEP( 1 ) )
+         CALL NEXTIME( RDATE, RTIME, METSTEP )
 
          IF ( INITIAL_RUN ) THEN
             IF ( IHR .LT. MXRHRS ) THEN
@@ -588,9 +620,9 @@ C Store hourly rainfall totals
          write( logdev,* ) 'hrno - INITIAL_DAY, IHR: ', initial_day, ihr
 #endif
 
-         IHR = IHR + 1
+!        IHR = IHR + 1
 
-      END IF   ! on the output tstep
+      END IF   ! on the METSTEP
 
 C Calculate temporal non-speciated soil NO emissions
  
@@ -845,6 +877,8 @@ C Write soil NO rain data file
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
 
+      NDX = 1 + MOD( IHR, MXRHRS )
+      RAINFALL( :,:,NDX ) = C_RAINFALL
       DO I = 1, RHOURS
          WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
          IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( 1,1,I ) ) ) THEN
