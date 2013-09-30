@@ -45,6 +45,11 @@ C 11 May 11 D.Wong: incorporated twoway model implementation
 C  8 Jul 11 J.Young: unified string lengths in character lists for compiler
 C                    compatibility
 C  8 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
+C 30 Sep 13 J.Young: corrected diag file units description; added snow cover adjustment;
+C                    adjusted F/G (vertical to horizontal flux) ratio to be continuous
+C                    for clay content > 0.2; convert volumetric soil moisture to
+C                    gravimetric water content; corrected soil moisture factor (fmoit);
+C                    use lwmask>0 rather than sltyp>0 (non-existent) for over water test
 C-----------------------------------------------------------------------
       use aero_data, only: n_mode
 
@@ -539,15 +544,18 @@ CCCCCCCC kludge (fixed in wrf-px after 4 Mar 11)
 C Calculate maximum amount of the adsorbed water
 C    w` = 0.0014(%clay)**2 + 0.17(%clay)
 C    Fecan et al. 1999 Annales Geophys.,17,144-157.
-               wmax( c,r ) = ( 0.0014 * clayc( j ) + 0.17 ) * clayc( j )
+!              wmax( c,r ) = ( 0.0014 * clayc( j ) + 0.17 ) * clayc( j ) <-error
+C clayc in [Kg/Kg] -> wmax in [Kg/Kg]
+               wmax( c,r ) = ( 0.14 * clayc( j ) + 0.17 ) * clayc( j )
 
-C    log(F/G) = 0.134(%clayX100)-6
+C    log(F/G) = 0.134(%clay)-6
 C    F/G (vertical to horizontal flux) ratio is a function of clay content 0~20%
 C    Marticorena and Bergametti, 1995
                if ( clayc( j ) .le. 0.2 ) then
                   kvh( c,r ) = 10.0 ** ( 13.4 * clayc( j ) - 6.0 )
                else
-                  kvh( c,r ) = 2.0e-4
+!                 kvh( c,r ) = 2.0e-4
+                  kvh( c,r ) = 4.786e-4 ! = 10.0 ** ( 13.4 * 0.2 - 6.0 )
                end if
 
 C erodibility potential of soil component
@@ -557,12 +565,12 @@ C erodibility potential of soil component
 
             end if   ! over land
 
-            if ( wmax ( c,r ) .lt. 0.0 .or. wmax ( c,r ) .gt. 1.0    .or.
-     &           kvh  ( c,r ) .lt. 0.0 .or. kvh  ( c,r ) .gt. 5.0e-4 .or.
-     &           sd_ep( c,r ) .lt. 0.0 .or. sd_ep( c,r ) .gt. 1.0 ) then
-               xmsg = '*** ERROR in WMAX, KVH or SD_EP'
-               call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-            end if
+!           if ( wmax ( c,r ) .lt. 0.0 .or. wmax ( c,r ) .gt. 1.0    .or.
+!    &           kvh  ( c,r ) .lt. 0.0 .or. kvh  ( c,r ) .gt. 5.0e-4 .or.
+!    &           sd_ep( c,r ) .lt. 0.0 .or. sd_ep( c,r ) .gt. 1.0 ) then
+!              xmsg = '*** ERROR in WMAX, KVH or SD_EP'
+!              call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+!           end if
 
          end do   ! c
          end do   ! r
@@ -673,14 +681,14 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
                vtype3d( v ) = m3real
                vname3d( v ) = wrdust_spc( v )
                if ( vname3d( v )(1:4) .eq. 'ANUM' ) then
-                  units3d( v ) = 'number/s'
+                  units3d( v ) = 'number/m**3/s'
                else if ( vname3d( v )(1:4) .eq. 'ASRF' ) then
-                  units3d( v ) = 'm2/s'
+                  units3d( v ) = 'm**2/m**3/s'
                else
-                  units3d( v ) = 'g/s'
+                  units3d( v ) = 'g/m**3/s'
                end if
-               vdesc3d( v ) = 'hourly ' // trim( vname3d( v ) )
-     &                     // ' windblown dust emission rate'
+               vdesc3d( v ) = 'hourly avg ' // trim( vname3d( v ) )
+     &                     // ' wbdust emis rate per grid cell volume'
             end do
 
             fdesc3d( 1 ) = 'hourly layer-1 windblown dust emission rates'
@@ -753,8 +761,9 @@ C Parameters:
 
                        ! automatic arrays
          real       :: fmoit ( ncols,nrows )        ! factor of soil moisture on u*t
-         real       :: rn    ( ncols,nrows )        ! preciptation nonconvective
-         real       :: rc    ( ncols,nrows )        ! preciptation convective
+         real       :: rn    ( ncols,nrows )        ! nonconvective preciptation
+         real       :: rc    ( ncols,nrows )        ! convective preciptation
+         real       :: snow  ( ncols,nrows )        ! grid cell fraction snow-covered
          real       :: ustar ( ncols,nrows )        ! friction velocity [m/s]
          real       :: utstar( ncols,nrows,ndltyp+1 ) ! threshold U* [m/s]
          real       :: soimt ( ncols,nrows )        ! soil moisture (m**3/m**3)
@@ -828,6 +837,24 @@ C any dust emission.
      &              1.70,   0.78,   0.54,     ! Clay
      &              9.99,   9.99,   9.99 /),  ! Other
      &           (/ nsltyp,3 /), order = (/ 2,1 /) )
+C D.Tong change:
+!        real :: uthfv( nsltyp,3 ) = reshape (
+!    &           (/ 0.34,   0.34,   0.23,     ! Sand
+!    &              0.47,   0.47,   0.24,     ! Loamy Sand
+!    &              0.22,   0.42,   0.16,     ! Sandy Loam
+!    &              0.22,   0.22,   0.51,     ! Silt Loam
+!    &              0.22,   0.22,   0.71,     ! Silt
+!    &              0.28,   0.29,   0.43,     ! Loam
+!    &              0.42,   0.42,   0.58,     ! Sandy Clay Loam
+!    &              0.32,   0.20,   0.32,     ! Silty Clay Loam
+!    &              0.42,   0.42,   0.63,     ! Clay Loam
+!    &              0.42,   0.42,   0.45,     ! Sandy Clay
+!    &              0.20,   0.20,   0.19,     ! Silty Clay
+!    &              0.42,   0.42,   0.29,     ! Clay
+!    &              9.99,   9.99,   3.40 /),  ! Other
+!!   &           (/ nsltyp,3/) )  <- error: fill rows first
+!    &           (/ nsltyp,3 /), order = (/ 2,1 /) )
+
 
          real :: dmsk( 4 ) = ! land use type desert fraction
      &           (/ 0.50,    ! shrubland
@@ -915,6 +942,16 @@ C calculate transport factor above the canopy
             call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          end if
 
+C Convert volumetric soil moisture to gravimetric water content based on Zender,
+C et al. (2003)
+C The met model soil moisture is assumed to be in volumetric units (m**3/m**3).
+C If it is already gravimetric (Kg/Kg), the following conversion should be disabled
+C below:
+C           soimt( c,r ) = soimt( c,r )
+C    &                   * 1000.0 / ( 2600.0 * ( 0.511 + 0.00126 * sandc( j ) ) )
+C sandc in %  else, 0.126 * sandc( j )
+C numerically has the effect of reducing soimt by from 0.62794 to 0.78277
+
 !        vname = 'RN'
          vname = rn_name
          if ( .not. interpx( met_cro_2d, vname, pname,
@@ -933,9 +970,17 @@ C calculate transport factor above the canopy
             call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          end if
 
+         vname = 'SNOCOV'
+         if ( .not. interpx( met_cro_2d, vname, pname,
+     &                       strtcolmc2,endcolmc2, strtrowmc2,endrowmc2, 1,1,
+     &                       jdate, jtime, snow ) ) then
+            xmsg = 'Could not read '// trim( vname ) // ' from MET_CRO_2D '
+            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+         end if
+
 C-----------------------------------------------------------------------
 C  formula of Draxler & Gillette (2001) Atmos. Environ.
-C      F   =  K A (r/g) U* ( U*^2 - Ut*^2 )
+C      F   =  K A (r/g) U * ( U*^2 - Ut*^2 )
 C  where
 C      F   = emission flux                         [g/m**2-s]
 C      K   = constant 2.0E-04                      [1/m]
@@ -961,27 +1006,46 @@ C Initialize windblown dust diagnostics output buffer
          do r = 1, my_nrows
          do c = 1, my_ncols
             dust_em( c,r ) = 0.0
-            fmoit( c,r ) = 999.9
+!           fmoit( c,r ) = 999.9
+            fmoit( c,r ) = 0.0   ! for diagnostic output visualization
             do m = 1, 4
-               utstar( c,r,m ) = 999.9
+!              utstar( c,r,m ) = 999.9
+               utstar( c,r,m ) = 0.0   ! for diagnostic output visualization
                qam   ( c,r,m ) = 0.0
                elus  ( c,r,m ) = 0.0
                utem  ( c,r,m ) = 0.0
             end do
             rlay1hgt = rjacm ( c,r ) / cellhgt
 
-c Dust possiblity if rain < 1/100 in. (1 in. = 2.540 cm) and not over water (SLTYP = 0)
-            if ( ( ( rn( c,r ) + rc( c,r ) ) .le. 0.0254 ) .and. ! rn, rc = [cm]
-     &           ( sltyp( c,r ) .gt. 0.0 ) ) then
+            if ( snow( c,r ) .gt. 0.0 ) cycle   ! grid cell snow covered
+
+C ???? possiblity if rain < 1/100 in. (1 in. = 2.540 cm) and not over water (SLTYP = 0)
+C Dust possiblity if rain < 1/100 in. (1 in. = 2.540 cm) and not over water (SLTYP = 14)
+!           if ( ( ( rn( c,r ) + rc( c,r ) ) .le. 0.0254 ) .and. ! rn, rc = [cm]
+!??  &           ( sltyp( c,r ) .gt. 0.0 ) ) then
+!    &           ( sltyp( c,r ) .lt. 14.0 ) ) then
+C Dust possiblity if not over water and rain < 1/100 in. (1 in. = 2.540 cm)
+            if ( ( lwmask( c,r ) .gt. 0.0 ) .and.
+     &           ( rn( c,r ) + rc( c,r ) ) .le. 0.0254 ) then ! rn, rc = [cm]
 
                j = nint( sltyp( c,r ) )
-               if ( j .gt. 13 ) j = 13
+               if ( j .gt. 13 ) j = 13  ! = ?
 
-C soil moisture effect on U*t
-               if ( soimt( c,r ) .le. wmax( c,r ) ) then
+C Change soil moisture units from volumetric (m**3/m**3) to gravimetric (Kg/Kg)
+               soimt( c,r ) = soimt( c,r )
+     &                      * 1000.0 / ( 2600.0 * ( 0.511 + 0.126 * sandc( j ) ) )
+
+C Soil moisture effect on U*t
+!              if ( 100.0 * soimt( c,r ) .le. wmax( c,r ) ) then
+               if ( soimt( c,r ) .le. wmax( c,r ) ) then   ! wmax in [Kg/Kg]
                   fmoit( c,r ) = 1.0
                else if ( soimt( c,r ) .le. soilml( j,1 ) ) then
-                  fmoit( c,r ) = sqrt( 1.0 + 1.21 * ( soimt( c,r ) - wmax( c,r ) )**0.68 )
+C The following formula is based on soimt in [Kg/Kg] and wmax in [%]
+!                 fmoit( c,r ) = sqrt( 1.0 + 1.21
+!    &                         * ( 100.0 * soimt( c,r ) - wmax( c,r ) )**0.68 )
+C wmax is in [Kg/Kg]
+                  fmoit( c,r ) = sqrt( 1.0 + 27.7195
+     &                         * ( soimt( c,r ) - wmax( c,r ) ) ** 0.68 )
                end if
 
 C Dust occurs where erodible land exists, soil moisture is less than saturation,
@@ -1011,6 +1075,7 @@ C Adjust U*t based on soil moisture ---
                         if ( ustar( c,r ) .gt. utstar( c,r,m ) ) then
                            ! wind erosion occurs only when U* > U*t
                            utem( c,r,m ) = ustar( c,r )
+!                          utem( c,r,m ) = ( ustar( c,r ) + utstar( c,r,m ) )
      &                                   * ( ustar( c,r ) * ustar( c,r )
      &                                   -   utstar( c,r,m ) * utstar( c,r,m ) )
                            qam( c,r,m ) = cfac * kvh( c,r ) * utem( c,r,m ) * sd_ep( c,r )
@@ -1048,7 +1113,7 @@ C Adjust dust emissions for transport factors
          do r = 1, my_nrows
          do c = 1, my_ncols
 
-C J/K mass emis rate [g/s]  (edust( 1 ) not used)
+C J/K mass emis rate [g/m**3/s]  (edust( 1 ) not used)
             edust( 2 ) = fracmj * dust_em( c,r )
             edust( 3 ) = fracmk * dust_em( c,r )
 
@@ -1062,16 +1127,16 @@ C J/K mass emis rate [g/s]  (edust( 1 ) not used)
                end do
             end do
 
-C J/K 3rd moment emis rate [m3/s] (needed for number and surface)
+C J/K 3rd moment emis rate [1/s] (needed for number and surface)
             m3j = edust( 2 ) * f6dpi / ( gpkg * dustmode_dens( 2 ) )
             m3k = edust( 3 ) * f6dpi / ( gpkg * dustmode_dens( 3 ) )
 
-C Mode-specific emission rates of particle number [1/s]
+C Mode-specific emission rates of particle number [1/m**3/s]
             dustoutn( 1,c,r ) = 0.0
             dustoutn( 2,c,r ) = m3j * factnumj
             dustoutn( 3,c,r ) = m3k * factnumk
 
-C Mode-specific dry surface area emission rates [m2/s].
+C Mode-specific dry surface area emission rates [m2/m**3/s].
 C 2nd moment multiplied by PI to obtain the surface area emissions rate.
             dustouts( 1,c,r ) = 0.0
             dustouts( 2,c,r ) = m3j * factsrfj
