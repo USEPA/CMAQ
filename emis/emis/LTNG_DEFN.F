@@ -36,6 +36,10 @@
 !C    10 Mar 2011: Jeff Young: code revisions
 !C    11 Apr 2011: S.Roselle: replaced I/O API include files with UTILIO_DEFN
 !C    11 May 11 D.Wong: incorporated twoway model implementation
+!C     6 May 13 D.Wong: replaced species name RC with RCA in the twoway model
+!C    10 Jun 13 D.Wong: modified the code to work in the twoway model mode
+!C    24 Sep 13 D.Wong: modified the code to allow finer met data time step
+!C                      rather than fixed with one hour data
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -108,6 +112,7 @@
 
 !C Includes:
          INCLUDE SUBST_CONST     ! constants
+         INCLUDE SUBST_FILES_ID  ! file name parameters
 
 !C Arguments:
 C        INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
@@ -288,10 +293,22 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 
 !C Set up domain based on met file
 !C Open met file
+#ifdef twoway
+            IF (MYPE == 0) then
+               MNAME = PROMPTMFILE( 
+     &                 'Enter name for gridded met input file',
+     &                 FSRDWR3, CTM_CONC_1, PNAME )
+            ELSE
+               MNAME = PROMPTMFILE( 
+     &                 'Enter name for gridded met input file',
+     &                 FSREAD3, CTM_CONC_1, PNAME )
+            END IF
+#else
             MNAME = PROMPTMFILE( 
      &              'Enter name for gridded met input file',
      &              FSREAD3, 'MET_CRO_3D', PNAME )
 !           write(*,*) "LTNG INIT MNAME", MNAME
+#endif
 
 !C Read description of domain (there may be a better way to get this info)
             IF ( .NOT. DESC3( MNAME ) ) THEN
@@ -422,7 +439,8 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 
 !     need to change this to set this path in the Makefile
 !        include "/usr/local/intel/mkl/include/mkl_vml.f77"
-         INCLUDE SUBST_CONST    ! constants
+         INCLUDE SUBST_CONST     ! constants
+         INCLUDE SUBST_FILES_ID  ! file name parameters
 
          INTEGER JDATE, JTIME, TSTEP( 3 )
 
@@ -459,6 +477,10 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 
          INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
+         CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and new is RCA
+         INTEGER               :: SPC
+         INTEGER               :: CDATE, CTIME
+
 C statement function for ERF approximation
          REAL :: ERF                ! ERF approx. statement function
          REAL :: X                  ! dummy argument for ERF
@@ -483,9 +505,25 @@ C statement function for ERF approximation
             CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
      &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
-            IF ( .NOT. INTERPX( MNAME, "RC", PNAME,  ! convective rain in cm
+            SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+            IF ( SPC .GT. 0 ) THEN
+               RC_NAME = 'RCA'
+            ELSE
+               RC_NAME = 'RC'
+            END IF
+
+            IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE3D, STIME3D, TSTEP3D,
+     &                           CDATE, CTIME ) ) THEN
+              XMSG = 'Cannot get step-starting date and time'
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+            CALL NEXTIME ( CDATE, CTIME, TSTEP3D )  ! set mdate:mtime to the hour
+
+!           IF ( .NOT. INTERPX( MNAME, "RC", PNAME,  ! convective rain in cm
+            IF ( .NOT. INTERPX( MNAME, RC_NAME, PNAME,  ! convective rain in cm
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                          JDATE, JTIME, LTNG_RC ) ) THEN
+     &                          CDATE, CTIME, LTNG_RC ) ) THEN
                XMSG = 'Could not read RC from ' // TRIM( MNAME )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )     
             END IF
@@ -632,10 +670,16 @@ C statement function for ERF approximation
 
             IF ( LTNGDIAG ) THEN
 
+               IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
+                  XMSG = 'Could not get description of file "'
+     &                 // TRIM( CTM_CONC_1 ) // '"'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               END IF
+
                VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                NTICS = NTICS + 1
                LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
-      
+
                IF ( LASTTIC ) THEN   ! time to write out
 
                   DIVFAC = 1.0 / FLOAT( NTICS )
