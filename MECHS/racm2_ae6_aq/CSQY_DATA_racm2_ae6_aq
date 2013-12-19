@@ -448,17 +448,17 @@ INDEX_OCEAN_WATER  =   17
   3 DECIDUOUS NEEDLE FOREST           0.320     0.770     3.100
   4 DECIDUOUS BROADLEAF FOREST        0.390     0.730     2.700
   5 MIXED FOREST                      0.220     0.780     3.000
-  6 CLOSED SHRUBS                     0.280     0.730     2.200
+  6 CLOSED SHRUBS                     0.280     0.730     8.600
   7 OPEN / SHRUBS                     0.400     0.770     3.600
-  8 WOODY SAVANNA                     0.470     0.780     2.100
-  9 SAVANNA                           0.530     0.780     3.000
- 10 GRASSLAND                         0.530     0.790     3.800
+  8 WOODY SAVANNA                     0.470     0.780     7.800
+  9 SAVANNA                           0.530     0.780    25.900
+ 10 GRASSLAND                         0.530     0.790    19.600
  11 PERMANENT WETLANDS                0.350     0.780     4.900
- 12 CROPLAND                          0.410     0.800     4.500
+ 12 CROPLAND                          0.410     0.800    26.500
  13 URBAN                             0.100     0.670     3.600
- 14 CROP MOSAIC                       0.400     0.800     3.600
+ 14 CROP MOSAIC                       0.400     0.800    15.900
  15 PERMANENT SNOW                    0.100     1.000     1.700
- 16 BARREN / DESSERT                  0.400     0.960     3.500
+ 16 BARREN / DESSERT                  0.400     0.960     5.700
  17 OCEAN WATER                       0.410     1.000     1.000
  18 TUNDRA                            0.580     0.250     4.000
  19 FRESH SNOW                        0.100     1.000     1.000
@@ -548,7 +548,7 @@ INDEX_OCEAN_WATER  =   17
   5 Cropland-Grassland Mosaic                                     14     1.000
   6 Cropland-Woodland Mosaic                                      14     0.889
   7 Grassland                                                     10     1.000
-  8 Shrubland                                                      6     1.000
+  8 Shrubland                                                      7     1.000
   9 Mixed Shrubland-Grassland                                      7     1.000
  10 Savannah                                                       9     1.000
  11 Deciduous Broadleaf Forest                                     4     1.000
