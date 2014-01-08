@@ -43,6 +43,7 @@ C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4
 C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
+C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2 
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -210,6 +211,12 @@ C define orgprod parent names based on mechanism dependence
                orgprod( 3 )%parent = 'MXYL'
                orgprod( 4 )%parent = 'TOLUENE'
                orgprod( 5 )%parent = 'TOLUENE'
+            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
+               orgprod( 2 )%parent = 'XYM'
+               orgprod( 3 )%parent = 'XYM'
+               orgprod( 4 )%parent = 'TOL'
+               orgprod( 5 )%parent = 'TOL'
             Else
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'

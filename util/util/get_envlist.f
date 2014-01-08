@@ -43,6 +43,7 @@ C In example (1), not only parse out the named items "O3", "NO" and "NO2",
 C but also obtain the count on the number of itmes (=3).
 
 ! Revision: 2013/02/11 David Wong: increased the max env var length from 256 to 1000
+! 13 Dec 2013 J.Young: 1000 breaks BUFLEN in IOAPI's envgets.c. Change to 512.
 
       IMPLICIT NONE
 
@@ -50,7 +51,7 @@ C but also obtain the count on the number of itmes (=3).
       INTEGER, INTENT ( OUT ) :: NVARS
       CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
 
-      INTEGER, PARAMETER   :: MAX_LEN = 10000
+      INTEGER, PARAMETER   :: MAX_LEN = 512
       CHARACTER(  16 )     :: PNAME = 'GET_ENVLIST'
       CHARACTER( MAX_LEN ) :: E_VAL
       CHARACTER(   1 )     :: CHR

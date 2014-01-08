@@ -2,12 +2,14 @@
 ! Purpose:  Define general information in each of the buffer files
 !
 ! Revised:  April 2007  Original version.  David Wong
+!           July, 16 2013  David Wong -- corrected the unit for RA and RS
+!                                     -- added DLUSE in GRIDCRO2D
 !===============================================================================
 
   module twoway_met_param_module
 
     INTEGER, PARAMETER :: max_nvars       = 1000
-    INTEGER, PARAMETER :: n_gridcro2d_var = 6
+    INTEGER, PARAMETER :: n_gridcro2d_var = 7
     INTEGER, PARAMETER :: n_griddot2d_var = 1
     INTEGER, PARAMETER :: n_metcro3d_var  = 14
     INTEGER, PARAMETER :: n_metdot3d_var  = 4
@@ -16,12 +18,14 @@
     CHARACTER (LEN = 16), PARAMETER :: gridcro2d_vlist(n_gridcro2d_var) = &
       (/ 'LAT             ', 'LON             ',            &
          'MSFX2           ', 'HT              ',            &
-         'LWMASK          ', 'PURB            '  /)
+         'LWMASK          ', 'PURB            ',            &
+         'DLUSE           '                      /)
 
     CHARACTER (LEN = 16), PARAMETER :: gridcro2d_units(n_gridcro2d_var) = &
       (/ 'DEGREES         ', 'DEGREES         ',            &
          '(M/M)**2        ', 'M               ',            &
-         '-               ', 'PERCENT         '  /)
+         '-               ', 'PERCENT         ',            &
+         'CATEGORY        '                      /)
 
     CHARACTER (LEN = 16), PARAMETER :: griddot2d_vlist(n_griddot2d_var) = &
       (/ 'MSFD2           '                      /)
@@ -78,8 +82,8 @@
       (/ 'Pascal          ', 'M/S             ',            &
          'M/S             ', 'M               ',            &
          'M               ', '1/M             ',            &
-         'WATTS/M**2      ', 'M/S             ',            &
-         'M/S             ', 'M/S             ',            &
+         'WATTS/M**2      ', 'S/M             ',            &
+         'S/M             ', 'M/S             ',            &
          'WATTS/M**2      ', 'WATTS/M**2      ',            &
          'CM              ', 'CM              ',            &
          'FRACTION        ', 'M               ',            &
