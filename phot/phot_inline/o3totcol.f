@@ -17,24 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-!-----------------------------------------------------------------------!
-!  The Community Multiscale Air Quality (CMAQ) system software is in    !
-!  continuous development by various groups and is based on information !
-!  from these groups: Federal Government employees, contractors working !
-!  within a United States Government contract, and non-Federal sources  !
-!  including research institutions.  These groups give the Government   !
-!  permission to use, prepare derivative works of, and distribute copies!
-!  of their work in the CMAQ system to the public and to permit others  !
-!  to do so.  The United States Environmental Protection Agency         !
-!  therefore grants similar permission to use the CMAQ system software, !
-!  but users are requested to provide copies of derivative works or     !
-!  products designed to operate in the CMAQ system to the United States !
-!  Government without restrictions as to use by others.  Software       !
-!  that is used with the CMAQ system but distributed under the GNU      !
-!  General Public License or the GNU Lesser General Public License is   !
-!  subject to their copyright restrictions.                             !
-!-----------------------------------------------------------------------!
-
 ! RCS file, release, date & time of last delta, author, state, [and locker]
 ! $Header: /project/yoj/arc/CCTM/src/phot/phot_inline/o3totcol.f,v 1.2 2011/10/21 16:11:28 yoj Exp $ 
 
@@ -50,6 +32,8 @@
 !
 ! Revision history:
 !     Aug 11 J.Streicher: initial version
+!     Dec 2013 S.Roselle: time-records adjusted to input file provided;
+!                         improved logfile reporting
 !
 !----------------------------------------------------------------------
 
@@ -69,28 +53,35 @@
 
       integer, parameter :: nlat = 17 ! or 19
       integer, parameter :: nlon = 17
-      integer, parameter :: nt   = 570 ! or 1000
+!     integer, parameter :: nt   = 570 ! or 1000
+      integer, save :: nt
 
 ! local variables
 
       character( 16 ), save :: tmfile = 'OMI'
       character( 16 ), save :: pname = 'O3TOTCOL'
-      CHARACTER( 96 ) :: XMSG = ' '
-      
+      character( 96 ) :: xmsg = ' '
+      character( 96 ) :: xmsgs( 3 )
       logical, save :: firsttime = .true.
 
+      integer :: allocstat
       integer :: ilat
       integer :: ilon
       integer, save :: it
       integer :: i
       integer :: icount
+      integer :: ios
+      integer, save :: logdev           ! output log unit number
+      integer :: nrecs
       integer, save :: tmunit
       integer :: jyear
       integer, save :: jdate_prev = 0
-      
+      integer, save :: jstdate, jenddate, jtdate_temp
+
       real( 4 ), save :: lat( nlat )
       real( 4 ), save :: lon( nlon )
-      real( 4 ), save :: t( nt )
+!     real( 4 ), save :: t( nt )
+      real( 4 ), allocatable, save :: t( : )
       real( 4 ), save :: oz( nlat, nlon, 2 ) ! two timestep for interpolation
       real( 4 ) :: flag( 8 )
       real( 4 ), save :: x1
@@ -108,6 +99,7 @@
       if ( firsttime ) then
       
         firsttime = .false.
+        logdev = init3()
         
 ! Assign values to array of longitudes: lon
 
@@ -119,6 +111,21 @@
 
         if ( tmunit .lt. 0 ) then
           xmsg = 'Error opening ' // tmfile
+          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+        end if
+
+        nrecs = 0
+        read( tmunit, * ) ! skip header record
+        do
+          read( tmunit, *, iostat=ios )
+          if ( ios /= 0 ) exit
+          nrecs = nrecs + 1
+        end do
+        if ( nrecs .gt. 0 ) nt = nrecs / nlat
+
+        allocate ( t( nt ), stat = allocstat )
+        if ( allocstat .ne. 0 ) then
+          xmsg = 'Failure allocating T'
           call m3exit ( pname, jdate, 0, xmsg, xstat1 )
         end if
 
@@ -168,6 +175,20 @@
           if ( tdate_temp .gt. enddate ) then
             tdate_temp = tdate_temp - 1.0
           end if
+          jenddate = int( enddate ) * 1000
+     &             + int( ( 1.0 / yr2day( int( enddate ) ) )
+     &                  * ( enddate - int( enddate ) ) )
+          jtdate_temp = int( tdate_temp ) * 1000
+     &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
+     &                 * ( tdate_temp - int( tdate_temp ) ) )
+          xmsg = 'Requested date is beyond available data on OMI file:  <' 
+     &           // dt2str( jenddate, 0 )
+          call m3warn ( pname, jdate, 0, xmsg )
+          xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day '
+          xmsgs( 2 ) = 'of the last available year on the '
+     &               // 'OMI input file:' // dt2str( jtdate_temp, 0 ) // '<<---<<'
+          xmsgs( 3 ) = ' '
+          call m3parag ( 3, xmsgs )
 
 ! Submitted date is outside of ozone database range.
 !     Total column ozone will be estimated from the corresponding Julian Day of
@@ -178,6 +199,20 @@
           if ( tdate_temp .lt. stdate ) then
             tdate_temp = tdate_temp + 1.0
           end if
+          jstdate = int( stdate ) * 1000
+     &            + int( ( 1.0 / yr2day( int( stdate ) ) )
+     &               * ( stdate - int( stdate ) ) )
+          jtdate_temp = int( tdate_temp ) * 1000
+     &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
+     &                 * ( tdate_temp - real( int( tdate_temp ) ) ) )
+          xmsg = 'Requested date preceeds available data on OMI file:  >' 
+     &           // dt2str( jstdate, 0 )
+          call m3warn ( pname, jdate, 0, xmsg )
+          xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day'
+          xmsgs( 2 ) = 'of the next available year on the OMI input file:'
+     &               // dt2str( jtdate_temp, 0 ) // '<<---<<'
+          xmsgs( 3 ) = ' '
+          call m3parag ( 3, xmsgs )
 
 ! Submitted date falls within the satellite data measurement gap beginning
 !     on 24 Nov 1994 and ending on 22 Jul 1996.
@@ -190,7 +225,24 @@
           else
             tdate_temp = tdate + 1.0  ! use subsequent year
           end if
+          jtdate_temp = int( tdate_temp ) * 1000
+     &                + nint( ( 1.0 / yr2day( int( tdate_temp ) ) )
+     &                 * ( tdate_temp - int( tdate_temp ) ) )
+          xmsg = 'Requested date falls within satellite data'
+     &           // ' measurement gap: 24 Nov 1994 - 22 Jul 1996'
+          call m3warn ( pname, jdate, 0, xmsg )
+          xmsgs( 1 ) = 'Total column ozone will be estimated from the corresponding Julian Day'
+          xmsgs( 2 ) = 'of the closest available year on the OMI input file:'
+     &               // dt2str( jtdate_temp, 0 ) // '<<---<<'
+          xmsgs( 3 ) = ' '
+          call m3parag ( 3, xmsgs )
         
+        else
+          xmsgs( 1 ) = 'Total column ozone will be interpolated to day '
+     &               // dt2str( jdate, 0 )
+          xmsgs( 2 ) = 'from data available on the OMI input file'
+          xmsgs( 3 ) = ' '
+          call m3parag ( 3, xmsgs )
         end if
 
 ! When adding x lines of data to OMI.dat, increase upper limit by x
