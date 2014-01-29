@@ -20,9 +20,6 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/biog/beis3/parsline.f,v 1.3 2011/10/21 16:10:18 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
         SUBROUTINE PARSLINE( LINE, N, SEGMENT )
@@ -43,6 +40,9 @@ C  Subroutines and Functions Called:
 C  Revision History:
 C    Created by M. Houyoux 3/99
 C    02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
+C    01/14: D.Wong-Reduced NDELIM to 3 and use only 3 delimiters (comma, blank
+C           space and semicolon) since it only deals with one character when calling
+C           FINDC. DELIMLST is now standard compliant (gfortran happy)
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -72,9 +72,8 @@ C Arguments:
 C External Functions:
 
 C Local parameters:
-      INTEGER,   PARAMETER :: NDELIM = 4
-      CHARACTER, PARAMETER :: DELIMLST( NDELIM ) =
-     &                        (/ ',', ' ', ';', '       ' /)
+      INTEGER,   PARAMETER :: NDELIM = 3
+      CHARACTER, PARAMETER :: DELIMLST( NDELIM ) = (/ ',', ' ', ';' /)
 
 C Arrays for sorting non-delimiters on a per-machine basis:
       INTEGER            NDINDX  ( NDELIM )
