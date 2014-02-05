@@ -36,6 +36,7 @@ C   31 Mar 09 J.Young: replace include files with mechanism namelists
 C   17 Sep 09 B.Hutzell: extended mapping algorithm to allow multiple usage
 C                        of an emission species from an individual source  
 C    6 Apr 11 S.Howard: replace Module PMEM_DEFN with AERO_DATA
+C   19 Dec 13 J.Young: fix index bug in AEROSPC log report
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: IARRY1, CARRY1 ! implementation for multiple
@@ -551,7 +552,7 @@ C Check that the PM species names match EMIS_1
                   K = PMEM_MAP( I )
                   IDX = INDEX1( AEROSPC( K )%EMIS, STKPM_VAR( N )%LEN, STKPM_VAR( N )%ARRY )
                   IF ( IDX .LE. 0 ) THEN
-                     WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( AEROSPC( I )%EMIS )
+                     WRITE( LOGDEV,'(5X, A, I3)' ) TRIM( AEROSPC( K )%EMIS )
      &                                        // ' Not in Stack Emissions file', N
 !                    QUIT = .TRUE.
                   END IF
