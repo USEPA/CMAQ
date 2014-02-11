@@ -175,6 +175,9 @@ C HS  03/10/11 Added call to POAAGE between ORGAER and HETCHEM
 
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 
+C JB  02/07/14 Added Jai Xing's mass balance fix when there is excessive
+C              condensation or evaporation under cold conditions
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -1483,41 +1486,9 @@ C *** Initialize excess evaporated mass array
          CINORG( KK,  IMODE ) = AEROSPC_CONC( AK_IDX,   IMODE )
          CINORG( KMG, IMODE ) = AEROSPC_CONC( AMG_IDX,  IMODE )
 
-         WETM3 = MOMENT3_CONC( IMODE )
-         WETM2 = MOMENT2_CONC( IMODE )
-
-         IF ( IMODE .EQ. 1 ) THEN
-            RATE = DMDT_SO4 + CONDSO4( IMODE )
-         ELSE
-            RATE = CONDSO4( IMODE )
-         END IF
-
-         M3OTHR = 0.0
-         M3SOA = 0.0
-         DO I = 1, N_AEROSPC
-
-            ! Skip thermodynamically-active inorganic species
-            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR. 
-     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR. 
-     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
-
-            IF ( AEROSPC( I )%NO_M2WET ) THEN
-               M3SOA = M3SOA 
-     &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
-     &               * AEROSPC_CONC( I,IMODE )
-            ELSE
-               M3OTHR = M3OTHR
-     &                + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
-     &                * AEROSPC_CONC( I,IMODE )
-            END IF   
-
-         END DO    ! N_AEROSPC loop
-
-         DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
-         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
-
+!** Jai Xing's VOLINORG fix
          DO ISP = 1, NVOLINORG
-         
+
             CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
      &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
      &                          * DF( ISP )
@@ -1534,7 +1505,7 @@ C *** Initialize excess evaporated mass array
                CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
 
                IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE ) 
+                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE )
                   CFINAL( ISP,IMODE ) = 0.0D0
 
                   IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
@@ -1543,15 +1514,51 @@ C *** Initialize excess evaporated mass array
                      ELSE
                         WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
                         CFINAL( ISP,1 ) = 0.0D0
-!                       STOP
                      END IF
-                  END IF 
+                  END IF
                END IF
 
-            END IF   ! IMODE = 1
-            
-         END DO 
-                        
+            END IF  ! IMODE = 1
+
+         END DO ! ISP
+
+      END DO    ! IMODE
+      
+      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
+
+         WETM3 = MOMENT3_CONC( IMODE )
+         WETM2 = MOMENT2_CONC( IMODE )
+
+         IF ( IMODE .EQ. 1 ) THEN
+            RATE = DMDT_SO4 + CONDSO4( IMODE )
+         ELSE
+            RATE = CONDSO4( IMODE )
+         END IF
+
+         M3OTHR = 0.0
+         M3SOA = 0.0
+         DO I = 1, N_AEROSPC
+
+            ! Skip thermodynamically-active inorganic species
+            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR.
+     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR.
+     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
+
+            IF ( AEROSPC( I )%NO_M2WET ) THEN
+               M3SOA = M3SOA
+     &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
+     &               * AEROSPC_CONC( I,IMODE )
+            ELSE
+               M3OTHR = M3OTHR
+     &                + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
+     &                * AEROSPC_CONC( I,IMODE )
+            END IF   
+
+         END DO    ! N_AEROSPC loop
+
+         DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
+         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
+
          SO4 = CINORG( KSO4,IMODE ) + RATE * CONVFAC
 
 C *** Double precision vars for CALC_H2O
@@ -1564,16 +1571,9 @@ C *** Double precision vars for CALC_H2O
          WI( 7 ) = CINORG( KK,  IMODE ) * CFAC_AK
          WI( 8 ) = CINORG( KMG, IMODE ) * CFAC_AMG
 
-#ifdef verbose
-!        write( logdev,'(a, 8e13.3)' ) "VOLINORG,WI's:",
-!    &                                  wi( 1 ), wi( 2 ), wi( 3 ), wi( 4 ),
-!    &                                  wi( 5 ), wi( 6 ), wi( 7 ), wi( 8 )
-!        write( logdev,* ) "VOLINORG,RH,T:", rhi, tempi
-#endif
-
-         CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW ) 
+         CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW )
             
-         H2O = H2O_NEW * DFH2OR8 
+         H2O = H2O_NEW * DFH2OR8
 
 C *** Compute net change in 3rd moment due to dry inorganic mass transfer
 C     (includes nucleated sulfate mass)
