@@ -79,6 +79,10 @@ C    18 Nov 09 J.Young: Combine VPPMY and VPPM functionality
 C    21 Jun 10 J.Young: convert for Namelist redesign
 C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
+C    02 Jan 14 J.Bash: Changed the subtime step when the CFL > 1 to be 
+C                      the time needed for a CFL = 0.9. This provides a 
+C                      longer subtime step for CFL < 10 and a shorter time
+C                      step for CFL > 10 than the earlier code. 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -152,7 +156,6 @@ C for INTERPX
       REAL          CC                     ! local Courant No.
       REAL          DTNEW                  ! sub timestep
       REAL          DSDT                   ! DS/DT
-      REAL          NSTEP                  ! integral DT divisor
       INTEGER       ALLOCSTAT
  
       INTEGER, SAVE :: LOGDEV
@@ -317,8 +320,7 @@ C if Courant number with the new velocity and sub-time step is larger than
 C unity again, then the last sub-time step would be split into further
 C sub-steps.
 
-               NSTEP = FLOAT( INT( CC ) + 1 )
-               DTNEW = DELT / NSTEP
+               DTNEW = MAX( 0.9 * DELT / CC ,1.0 )
 
                CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1 )
                DELT = DELT - DTNEW
