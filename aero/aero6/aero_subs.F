@@ -1517,11 +1517,14 @@ C *** Initialize excess evaporated mass array
                      END IF
                   END IF
                END IF
+
             END IF  ! IMODE = 1
+
          END DO ! ISP
+
       END DO    ! IMODE
       
-      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass      
+      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
 
          WETM3 = MOMENT3_CONC( IMODE )
          WETM2 = MOMENT2_CONC( IMODE )
@@ -1537,12 +1540,12 @@ C *** Initialize excess evaporated mass array
          DO I = 1, N_AEROSPC
 
             ! Skip thermodynamically-active inorganic species
-            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR. 
-     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR. 
+            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR.
+     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR.
      &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
 
             IF ( AEROSPC( I )%NO_M2WET ) THEN
-               M3SOA = M3SOA 
+               M3SOA = M3SOA
      &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
      &               * AEROSPC_CONC( I,IMODE )
             ELSE
@@ -1554,8 +1557,8 @@ C *** Initialize excess evaporated mass array
          END DO    ! N_AEROSPC loop
 
          DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
-         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS         
-                        
+         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
+
          SO4 = CINORG( KSO4,IMODE ) + RATE * CONVFAC
 
 C *** Double precision vars for CALC_H2O
@@ -1568,9 +1571,9 @@ C *** Double precision vars for CALC_H2O
          WI( 7 ) = CINORG( KK,  IMODE ) * CFAC_AK
          WI( 8 ) = CINORG( KMG, IMODE ) * CFAC_AMG
 
-         CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW ) 
+         CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW )
             
-         H2O = H2O_NEW * DFH2OR8 
+         H2O = H2O_NEW * DFH2OR8
 
 C *** Compute net change in 3rd moment due to dry inorganic mass transfer
 C     (includes nucleated sulfate mass)
