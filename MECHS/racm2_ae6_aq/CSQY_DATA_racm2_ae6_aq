@@ -600,8 +600,6 @@ INDEX_OCEAN_WATER  =   17
  31 Low Intensity Residential                                     13     1.000
  32 High Intensity Residential                                    13     1.000
  33 Industrial or Commercial                                      13     1.000
-<<<<<<< HEAD
-=======
  NUMB_NLCD40_MODIS =   40
 ! I, LANDUSE_NLCD40-MODIS, INDEX_ALBREF, FAC_ALBREF, 
   1 Evergreen Needleleaf Forest                                    1     1.000
