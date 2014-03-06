@@ -22,6 +22,11 @@
 !             Note that EXOH originally used rate constant of zero by insert a blank
 !             in the appropriate space. A zero has replaced the blank to remove 
 !             ambiguities.
+! 12/20/2012  H. Pye Added later generation isoprene products formed under high NOx
+!             conditions. Includes separation of some previously lumped species (MACO3,
+!             MAPAN) and inclusion of new species such as MAE and HMML. For MAE and HMML
+!             formation, see Kjaergaard et al. (2012), J Phys Chem A and Lin et al.
+!             (2012) submitted to PNAS.
 
 
   SAPRC07TIC_AE6_AQ
@@ -326,12 +331,7 @@ REACTIONS [CM] =
 <BP55> MACR + O3 = 0.208*OH + 0.108*HO2 + 0.1*RO2C + 0.45*CO + 0.117*CO2 +
          0.1*HCHO + 0.9*MGLY + 0.333*HCOOH + 0.1*xRCO3 + 0.1*xHCHO + 0.1*yROOH -
          0.1*XC # 1.40e-15@2100;
-<BP56> MACR + NO3 = 0.5*MACO3 + 0.5*RO2C + 0.5*HNO3 + 0.5*xHO2 + 0.5*xCO +
-         0.5*yROOH + 1.5*XC + 0.5*XN # 1.50e-12@1815;
 <BP57> MACR + O3P = RCHO + XC # 6.34e-12;
-<BP58> MACR = 0.33*OH + 0.67*HO2 + 0.34*MECO3 + 0.33*MACO3 + 0.33*RO2C +
-         0.67*CO + 0.34*HCHO + 0.33*xMECO3 + 0.33*xHCHO + 0.33*yROOH
-        # 1.0/<MACR_06>;
 
 <BP60> MVK + O3 = 0.164*OH + 0.064*HO2 + 0.05*RO2C + 0.05*xHO2 + 0.475*CO +
          0.124*CO2 + 0.05*HCHO + 0.95*MGLY + 0.351*HCOOH + 0.05*xRCO3 +
@@ -649,15 +649,14 @@ REACTIONS [CM] =
 <BT08> BUTADIENE13 + O3P = 0.25*HO2 + 0.117*xHO2 + 0.118*xMACO3 + 0.235*RO2C +
          0.015*RO2XC + 0.015*zRNO3 + 0.115*xCO + 0.115*xACROLEIN + 0.001*xAFG1 +
          0.001*xAFG2 + 0.75*PRD2 + 0.25*yROOH - 1.532*XC # 2.26e-11@40;
-
 <BE07> ISOPRENE + O3 = 0.066*HO2 + 0.266*OH + 0.192*xMACO3 + 0.192*RO2C +
          0.008*RO2XC + 0.008*zRNO3 + 0.275*CO + 0.122*CO2 + 0.4*HCHO +
          0.192*xHCHO + 0.204*HCOOH + 0.39*MACR + 0.16*MVK + 0.15*IPRD +
          0.1*PRD2 + 0.2*yR6OOH - 0.559*XC # 7.86e-15@1912;
-
 <BE09> ISOPRENE + O3P = 0.25*MEO2 + 0.24*xMACO3 + 0.24*RO2C + 0.01*RO2XC +
          0.01*zRNO3 + 0.24*xHCHO + 0.75*PRD2 + 0.25*yR6OOH - 1.01*XC
         # 3.50e-11;
+
 <BT09> APIN + OH = 0.799*xHO2 + 0.004*xRCO3 + 1.042*RO2C + 0.197*RO2XC +
          0.197*zRNO3 + 0.002*xCO + 0.022*xHCHO + 0.776*xRCHO + 0.034*xACETONE +
          0.02*xMGLY + 0.023*xBACL + yR6OOH + TRPRXN + 6.2*XC # 1.21e-11@-436;
@@ -842,9 +841,6 @@ REACTIONS [CM] =
 <TP01> ACROLEIN + CL = 0.484*xHO2 + 0.274*xCL + 0.216*MACO3 + 1.032*RO2C +
          0.026*RO2XC + 0.026*zRNO3 + 0.216*HCL + 0.484*xCO + 0.274*xHCHO +
          0.274*xGLY + 0.484*xCLCCHO + 0.784*yROOH - 0.294*XC # 2.94e-10;
-<CP16> MACR + CL = 0.25*HCL + 0.165*MACO3 + 0.802*RO2C + 0.033*RO2XC +
-         0.033*zRNO3 + 0.802*xHO2 + 0.541*xCO + 0.082*xIPRD + 0.18*xCLCCHO +
-         0.541*xCLACET + 0.835*yROOH + 0.208*XC # 3.85e-10;
 <CP17> MVK + CL = 1.283*RO2C + 0.053*RO2XC + 0.053*zRNO3 + 0.322*xHO2 +
          0.625*xMECO3 + 0.947*xCLCCHO + yROOH + 0.538*XC # 2.32e-10;
 <CP18> IPRD + CL = 0.401*HCL + 0.084*HO2 + 0.154*MACO3 + 0.73*RO2C +
@@ -1242,7 +1238,6 @@ REACTIONS [CM] =
 
 !MACR 
 
-<IS00> MACR + OH = 0.47*MACROO + 0.53*MACO3 # 8.00e-12@-380;
 
 <IS63> MACROO + NO = 0.85*NO2 + 0.85*HO2 + 0.72*HACET + 0.72*CO + 0.13*HCHO + 
          0.13*MGLY + 0.15*MACRN # 2.60e-12@-380; 
@@ -1383,6 +1378,84 @@ REACTIONS [CM] =
 
 
 !******* end of new isoprene mechanism******         
+! make IMACO3 instead of MACO3
+<IS00> MACR + OH = 0.47*MACROO + 0.53*IMACO3 # 8.00e-12@-380;
+<BP56> MACR + NO3 = 0.5*IMACO3 + 0.5*RO2C + 0.5*HNO3 + 0.5*xHO2 + 0.5*xCO +
+         0.5*yROOH + 1.5*XC + 0.5*XN # 1.50e-12@1815;
+<BP58> MACR = 0.33*OH + 0.67*HO2 + 0.34*MECO3 + 0.33*IMACO3 + 0.33*RO2C +
+         0.67*CO + 0.34*HCHO + 0.33*xMECO3 + 0.33*xHCHO + 0.33*yROOH
+        # 1.0/<MACR_06>;
+<CP16> MACR + CL = 0.25*HCL + 0.165*IMACO3 + 0.802*RO2C + 0.033*RO2XC +
+         0.033*zRNO3 + 0.802*xHO2 + 0.541*xCO + 0.082*xIPRD + 0.18*xCLCCHO +
+         0.541*xCLACET + 0.835*yROOH + 0.208*XC # 3.85e-10; 
+<IA69> IMACO3 + NO = NO2 + CO + CO2 + HCHO + MEO2 # 6.70e-12@-340;   
+! production of MPAA from MACO3 + HO2 as per Kjaergaard paper
+<IA70> IMACO3 + HO2 = 0.75*IMPAA + 0.25*RCOOH + 0.25*O3 + XC # 1.0*K<BR22>;
+<IA71> IMACO3 + NO3 = NO2 + CO + CO2 + HCHO + MEO2 # 4.00e-12;
+<IA72> IMACO3 + MEO2 = HCHO + HO2 + CO + CO2 + HCHO + MEO2 # 1.0*K<BR24>;
+<IA73> IMACO3 + RO2C = CO + CO2 + HCHO + MEO2 # 1.0*K<BR25>;
+<IA74> IMACO3 + RO2XC = CO + CO2 + HCHO + MEO2 # 1.0*K<BR25>;
+<IA75> IMACO3 + MECO3 = CO2 + MEO2 + CO + CO2 + HCHO + MEO2 # 1.0*K<BR27>;
+<IA76> IMACO3 + RCO3 = CO +CO2 + HCHO + MEO2 + RO2C + xHO2 + yROOH + xCCHO + CO2
+        # 1.0*K<BR27>;
+<IA77> IMACO3 + BZCO3 = CO + CO2 + HCHO + MEO2 + BZO + RO2C + CO2 # 1.0*K<BR27>;
+<IA78> IMACO3 + MACO3 = 2*CO + 2*CO2 + 2*HCHO + 2*MEO2 # 1.0*K<BR27>;
+<IA79> IMACO3 + IMACO3 = 2*CO + 2*CO2 + 2*HCHO + 2*MEO2 # 1.0*K<BR27>;
+
+<IA51> IMACO3 + NO2 = IMAPAN # 1.0*K<BR28>;
+<IA52> IMAPAN = IMACO3 + NO2 # 1.60e+16@13486;
+<IA53> IMAPAN = 0.6*IMACO3 + 0.6*NO2 + 0.4*CO2 + 0.4*HCHO + 0.4*MECO3 +
+       0.4*NO3 # 1.0/<PAN>;
+
+! new cross reactions
+<IC01> xCO + IMACO3 = IMACO3 + CO # 1.0*K<BR25>;
+<IC02> xTBUO + IMACO3 = IMACO3 + TBUO # 1.0*K<BR25>;
+<IC03> xMACO3 + IMACO3 = IMACO3 + MACO3 # 1.0*K<BR25>;
+<IC04> xRCO3 + IMACO3 = IMACO3 + RCO3 # 1.0*K<BR25>;
+<IC05> xMECO3 + IMACO3 = IMACO3 + MECO3 # 1.0*K<BR25>;
+<IC06> xMEO2 + IMACO3 = IMACO3 + MEO2 # 1.0*K<BR25>;
+<IC07> xNO2 + IMACO3 = IMACO3 + NO2 # 1.0*K<BR25>;
+<IC08> xOH + IMACO3 = IMACO3 + OH # 1.0*K<BR25>;
+<IC09> xHO2 + IMACO3 = IMACO3 + HO2 # 1.0*K<BR25>;
+<IC10> xACROLEIN + IMACO3 = IMACO3 + ACROLEIN # 1.0*K<BR25>;
+<IC11> xHOCCHO + IMACO3 = IMACO3 + HOCCHO # 1.0*K<BR25>;
+<IC12> zRNO3 + IMACO3 = IMACO3 + PRD2 + HO2 # 1.0*K<BR25>;
+<IC13> yRAOOH + IMACO3 = IMACO3 # 1.0*K<BR25>;
+<IC14> yR6OOH + IMACO3 = IMACO3 # 1.0*K<BR25>;
+<IC15> yROOH + IMACO3 = IMACO3 # 1.0*K<BR25>;
+<IC16> xRNO3 + IMACO3 = IMACO3 + RNO3 # 1.0*K<BR25>;
+<IC17> xIPRD + IMACO3 = IMACO3 + IPRD # 1.0*K<BR25>;
+<IC18> xMVK + IMACO3 = IMACO3 + MVK # 1.0*K<BR25>;
+<IC19> xMACR + IMACO3 = IMACO3 + MACR # 1.0*K<BR25>;
+<IC20> xAFG3 + IMACO3 = IMACO3 + AFG3 # 1.0*K<BR25>;
+<IC21> xAFG2 + IMACO3 = IMACO3 + AFG2 # 1.0*K<BR25>;
+<IC22> xAFG1 + IMACO3 = IMACO3 + AFG1 # 1.0*K<BR25>;
+<IC23> xBALD + IMACO3 = IMACO3 + BALD # 1.0*K<BR25>;
+<IC24> xBACL + IMACO3 = IMACO3 + BACL # 1.0*K<BR25>;
+<IC25> xMGLY + IMACO3 = IMACO3 + MGLY # 1.0*K<BR25>;
+<IC26> xGLY + IMACO3 = IMACO3 + GLY # 1.0*K<BR25>;
+<IC27> xPROD2 + IMACO3 = IMACO3 + PRD2 # 1.0*K<BR25>;
+<IC28> xMEK + IMACO3 = IMACO3 + MEK # 1.0*K<BR25>;
+<IC29> xACETONE + IMACO3 = IMACO3 + ACETONE # 1.0*K<BR25>;
+<IC30> xRCHO + IMACO3 = IMACO3 + RCHO # 1.0*K<BR25>;
+<IC31> xCCHO + IMACO3 = IMACO3 + CCHO # 1.0*K<BR25>;
+<IC32> xHCHO + IMACO3 = IMACO3 + HCHO # 1.0*K<BR25>;
+<IC33> xCL + IMACO3 = IMACO3 + CL # 1.0*K<BR25>;
+<IC34> xCLACET + IMACO3 = IMACO3 + CLACET # 1.0*K<BR25>;
+<IC35> xCLCCHO + IMACO3 = IMACO3 + CLCCHO # 1.0*K<BR25>;
+
+!  get yields from Edney/Bartolotti calculations
+!  or maybe assume same overall yield of CalTech paper (61%) but split it
+!  up between MAE and HMML
+<IA108> IMAPAN + OH = 0.03*HACET + 0.03*CO + 0.81*NO3 + 0.21*IMAE +
+      0.57*IHMML + 0.19*PAN + 0.19*HCHO + 0.19*HO2 # 3.00e-11;
+! need to decay MAE and HMML - use same rate as IEPOX decay <IS90>? Or
+!  use rate calculated from structure-activity relationships (Kwok, 1995)
+<IA90> IMAE + OH =  # 1.E-12;
+<IA91> IHMML + OH = # 4.4E-12;
+!  formation of HMML from MPAA - use rate from MCM species MACO3H and
+!  17% yield of HMML from from CalTech paper
+<IA92> IMPAA + OH = 0.83*IMACO3 + 0.17*IHMML # 1.66E-11;
 
 
 endmech
