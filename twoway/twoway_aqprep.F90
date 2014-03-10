@@ -34,6 +34,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !           17 Jan 2014  (David Wong)
 !              -- refomulated the xorig and yorig calculation regardless of odd 
 !                 or even number of grid cells
+!           10 Mar 2014  (David Wong)
+!              -- fixed bug in the refomulated the xorig and yorig calculation
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -1431,6 +1433,7 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
      ioapi_header%ycent = ref_lat
 
      CALL ll2xy_lam (moad_cen_lat, cen_lon, truelat1, truelat2, stand_lon, ref_lat, xxx, yyy)
+
   ELSE IF ( map_proj == 2 ) THEN
      ioapi_header%xcent = stand_lon
      ioapi_header%ycent = moad_cen_lat
@@ -1446,10 +1449,10 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
   cntrx = FLOAT(gncols - 1)/2.0 + 1.0
   cntry = FLOAT(gnrows - 1)/2.0 + 1.0
 
-! xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
-! yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
-  xorig = xxx - DBLE( cntrx - 0.5 ) * DBLE(dx)
-  yorig = yyy - DBLE( cntry - 0.5 ) * DBLE(dy)
+  xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
+  yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
+! xorig = xxx - DBLE( cntrx - 0.5 ) * DBLE(dx)
+! yorig = yyy - DBLE( cntry - 0.5 ) * DBLE(dy)
 
 ! IF ( wrf_lc_ref_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
   IF ( moad_cen_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
