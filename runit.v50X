@@ -1,0 +1,155 @@
+#! /bin/csh -f
+# C-shell script to run CR_EBI_SOLVER 
+
+ date; set timestamp; set echo 
+
+ set BASE            = $cwd
+ set STEM            = $BASE
+ set EXDIR           = ${BASE}/BLD  
+ set EXEC            = cr_ebi_solver 
+
+#Define the gas, aerosol and aqueous components in MECHNAME
+#setenv GC_NAME       CB05TUCL
+#setenv AE_NAME       AE5
+#setenv AQ_NAME       AQ
+
+#setenv GC_NAME       SAPRC07TC
+#setenv GC_NAME       SAPRC07TIC
+ setenv GC_NAME       CB05UTCL
+ setenv AE_NAME       AE6
+ setenv AQ_NAME       AQ
+
+#path for mechanism RXCM.EXT and RXDT.EXT files
+#set REP              = ${STEM}/mechanisms
+#set REP              = /home/hwo/cmaq-v5.0/AE6_based_HAPS_mechanism
+#set REP              = /home/hwo/tools/csv_to_nml-file
+#set MECH             = saprc07tc_xya_isoprene_v4_v50
+#set REP              = /home/hwo/cmaq-v5.0/mechanisms
+#set REP              = /home/hwo/CCTM_git_repository/MECHS
+#set REP              = /home/hwo/tools/mech_processor
+ set REP              = /home/hwo/tools/create_ebi_cmaq_v50
+#set MECH             = saprc07tc_ae6_aq
+#set MECH             = saprc07tc_xya_isoprene_v5-zero_NO2EX
+#set MECH             = saprc07tc_xya_isoprene_v5_v50
+#set MECH             = cb05tucl_ae6_aq
+ set MECH             = cb05tucl_clno2_hetchem
+#set MECH             = saprc07tb_ae6_aq
+
+#uses CMAQ version 5.0 of these include files for gas phase
+#chemistry
+ setenv RXCMN_FL      ${REP}/${MECH}/RXCM.EXT
+ setenv RXDAT_FL      ${REP}/${MECH}/RXDT.EXT
+ setenv RXNS_DATA_SRC ${REP}/${MECH}/RXNS_DATA_MODULE.F90
+
+ if( ! ( -e ${RXCMN_FL} ) )then
+       \ls ${RXCMN_FL}
+ #     exit()
+ endif
+if ( ! ( -e ${RXDAT_FL} ) )then
+       \ls ${RXDAT_FL}
+#      exit()
+ endif 
+if ( ! ( -e ${RXNS_DATA_SRC} ) )then
+       \ls ${RXNS_DATA_SRC}
+       exit()
+ endif 
+
+set echo
+
+# using templates for CMAQ version 5.0 
+#setenv TMPLDIR         ${STEM}/template_May_06_2011
+#setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial
+#setenv TMPLDIR         ${STEM}/template_Aug_30_2011
+#setenv TMPLDIR         ${STEM}/template_June_01_2012-ncell
+ setenv TMPLDIR         ${STEM}/template_RXNS
+ setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial-mod_2
+
+#creation program source code uses IOAPI 3.1 modules if src_ioapi equals 31
+ set src_ioapi_31 = "T"
+
+if( ${src_ioapi_31} == "T" )then
+#setenv SRCDIR          ${STEM}/src_May_17_2011-ncell
+ setenv SRCDIR          ${STEM}/src_RXNS
+else
+ setenv SRCDIR          ${STEM}/src_Oct_19_2010
+endif
+
+# output directory
+set day = ` date "+%b-%d-%Y" `
+ set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
+ setenv OUTDIR        ${BASE}/EBI_NCELL-${MECH}_${day}
+
+ setenv COPYRT_FLAG      N
+ setenv CVS_HDR_FLAG     N
+
+ setenv ALL_MECHS       F    # obsolete option 
+ setenv PAR_NEG_FLAG    T    # True for CB4 and CB05 but false for SAPRC99/07T
+ setenv DEGRADE_SUBS    F    # include calls for HAPs degrade routines
+# below option is a possible solution based on work by Golam Sawar if the 
+# mechanism includes excited NO2.  The user employs it at their own risk 
+# and should check the EBI solver's accuracy against the Gear or Rosenbrock solver
+ setenv NO2EX_CYCLE     F    # modify group one solution to include excited NO2
+
+#Set the below compound names within the mechanism
+# Mechanism                  SAPRC99         CB4
+#                         #   or SAPRC07  #  CB05    #
+ setenv MECH_NO    NO     #  NO           # NO       # Mechanism name for nitric oxide
+ setenv MECH_NO2   NO2    #  NO2          # NO2      # Mechanism name for nitrogen dioxide
+ setenv MECH_NO2EX NO2EX  #  NO2EX        # NO2S     # Mechanism name for excited nitrogen dioxide
+ setenv MECH_O3    O3     #  O3           # O3       # Mechanism name for ozone
+ setenv MECH_O3P   O      #  O3P          # O        # Mechanism name for ground state oxygen atom
+ setenv MECH_O1D   O1D    #  O1D2 or O1D  # O1D      # Mechanism name for excited state oxygen atom
+ setenv MECH_OH    OH     #  HO or OH     # OH       # Mechanism name for hydroxyl radical
+ setenv MECH_HO2   HO2    #  HO2          # HO2      # Mechanism name for hydroperoxy radical
+ setenv MECH_HONO  HONO   #  HONO         # HONO     # Mechanism name for nitrous acid
+ setenv MECH_HNO4  PNA    #  HNO4         # PNA      # Mechanism name for peroxynitric acid
+ setenv MECH_PAN   PAN    #  PAN          # PAN      # Mechanism name for peroxy acetyl nitrate
+ setenv MECH_C2O3  C2O3   #CCO_O2 or MECO3 # C2O3    # Mechanism name for peroxy acetyl radical
+ setenv MECH_NO3   NO3    #   NO3         # NO3      # Mechanism name for nitrate radical
+ setenv MECH_N2O5  N2O5   #   N2O5        # N2O5     # Mechanism name for dinitrogen pentoxide
+ 
+ rm cr_ebi_solver
+
+#########################################################
+ unalias rm
+
+ if( -e ./BLD ) then
+    echo "Removing old BLD directory"
+    /bin/rm -rf ./BLD
+ endif
+
+ mkdir BLD
+
+ cp makefile.v50X  ./BLD/Makefile
+#cp Makefile ./BLD
+
+ cd BLD
+
+ make
+
+ cd ..
+ 
+set echo
+##########################################################
+
+ if(  -e $OUTDIR  ) then
+
+    echo "Removing old solver files"
+    /bin/rm -f ${OUTDIR}/*.[f,F]
+
+ else
+
+   mkdir -p $OUTDIR
+   \cp -f ${RXNS_DATA_SRC} $OUTDIR/.
+
+ endif
+
+#mkdir $OUTDIR
+
+ $EXDIR/$EXEC
+
+ if( $DEGRADE_SUBS  == "T" )then
+     cp ${DEGRADE_CODES}/*.[f,F]  ${OUTDIR}/.
+ endif
+
+ exit() 
