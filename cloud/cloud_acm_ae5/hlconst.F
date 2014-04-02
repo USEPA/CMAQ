@@ -58,14 +58,17 @@ C  S.Roselle  10/10/07  changed pointers to parameters; reformatted
 C                       variable declarations
 C  W.Hutzell  03/07/08  added Henry's Law constants for 117 to 120
 C  W.Hutzell  01/01/09  added Henry's Law constants for 121 to 125 for
-C                       for SAPRC07T mechanism  
+C                       for SAPRC07T mechanism                 
 C  Y.Xie      6/11/10  added Henry's Law constants for 126 to 130 for 
 C                       isoprene chemistry in SAPRC07               
+C  S.Roselle  03/01/11  replaced I/O API include files with UTILIO_DEFN;
+C                       removed deprecated TRIMLEN
 C  W.Hutzell  08/16/12  updated IOAPI and Henry Constant names to V5.01
 C                       standards
 C  W.Hutzell  01/30/13  updated PHENOL, and add values for CATECHOL and
 C                       XYLENOL
-C  G.Sarwar   12/18/13  added Henry's Law constants for 133 to 138
+C  H.Pye      02/05/13  added Henry's Law 133-134 for IEPOX and IMAE
+C  G.Sarwar   12/18/13  added Henry's Law constants for 135 to 140
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -77,7 +80,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 138     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 140     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -283,12 +286,15 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(137), A(137), E(137) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
       DATA SUBNAME(138), A(138), E(138) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
 
-      DATA SUBNAME(133), A(133), E(133) / 'DIETHYLKETONE   ', 2.00E+01, 9.2E+03 /   ! ROLF SANDERS COMPILATION (1999)/JANINI AND QUADDORA (1986)
-      DATA SUBNAME(134), A(134), E(134) / 'N-PROPANOL      ', 1.10E+02, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/YAWS AND YANG (1992)
-      DATA SUBNAME(135), A(135), E(135) / 'ETHYLENEGLYCOL  ', 4.00E+06, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/BONE ET AL. (1983)
-      DATA SUBNAME(136), A(136), E(136) / 'HYDROXY-ACETONE ', 2.00E+04, 0.0E+00 /   ! MATSUNAGA ET AL., 41, 790-796, AE, (2007)            
-      DATA SUBNAME(137), A(137), E(137) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
-      DATA SUBNAME(138), A(138), E(138) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
+      DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
+      DATA SUBNAME(134), A(134), E(134) / 'IMAE            ', 1.2E+05,  0.00E+00 /  ! Pye et al. ES&T (2013)
+
+      DATA SUBNAME(135), A(135), E(135) / 'DIETHYLKETONE   ', 2.00E+01, 9.2E+03 /   ! ROLF SANDERS COMPILATION (1999)/JANINI AND QUADDORA (1986)
+      DATA SUBNAME(136), A(136), E(136) / 'N-PROPANOL      ', 1.10E+02, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/YAWS AND YANG (1992)
+      DATA SUBNAME(137), A(137), E(137) / 'ETHYLENEGLYCOL  ', 4.00E+06, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/BONE ET AL. (1983)
+      DATA SUBNAME(138), A(138), E(138) / 'HYDROXY-ACETONE ', 2.00E+04, 0.0E+00 /   ! MATSUNAGA ET AL., 41, 790-796, AE, (2007)            
+      DATA SUBNAME(139), A(139), E(139) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
+      DATA SUBNAME(140), A(140), E(140) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

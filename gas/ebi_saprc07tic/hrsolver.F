@@ -1,22 +1,21 @@
 
-!------------------------------------------------------------------------!
-!  The Community Multiscale Air Quality (CMAQ) system software is in     !
-!  continuous development by various groups and is based on information  !
-!  from these groups: Federal Government employees, contractors working  !
-!  within a United States Government contract, and non-Federal sources   !
-!  including research institutions.  These groups give the Government    !
-!  permission to use, prepare derivative works of, and distribute copies !
-!  of their work in the CMAQ system to the public and to permit others   !
-!  to do so.  The United States Environmental Protection Agency          !
-!  therefore grants similar permission to use the CMAQ system software,  !
-!  but users are requested to provide copies of derivative works or      !
-!  products designed to operate in the CMAQ system to the United States  !
-!  Government without restrictions as to use by others.  Software        !
-!  that is used with the CMAQ system but distributed under the GNU       !
-!  General Public License or the GNU Lesser General Public License is    !
-!  subject to their copyright restrictions.                              !
-!------------------------------------------------------------------------!
-
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header$
 
@@ -32,10 +31,10 @@ C  FUNCTION: EBI solver
 C
 C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
+C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3,
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 18, 2012
+C  REVISION HISTORY: Created by EBI solver program, Jan. 9, 2013
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -109,7 +108,6 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL, SAVE  :: LOPEN = .FALSE.
 #endif
 
-
 C**********************************************************************
 
 
@@ -172,7 +170,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          NBKUPS = 0
          N_INR_STEPS = 1
 
-100      CONTINUE                        !  Restart location
+ 100     CONTINUE                        !  Restart location
 
          DO 2000 NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
 
@@ -281,12 +279,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                    GO TO 2000
                 END IF
 
-1000        CONTINUE
+ 1000       CONTINUE
 
 c...Convergence failure section; cut the inner time step in half &
 c.....start inner loop over unless max backups exceeded
 
-1010        CONTINUE
+ 1010       CONTINUE
 
             NBKUPS = NBKUPS + 1
 
@@ -318,13 +316,13 @@ c.....start inner loop over unless max backups exceeded
                END DO
 
                MSG = 'ERROR: Stopping because of EBI convergence failures'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, STAT )
 
             END IF
 
-2000     CONTINUE
+ 2000    CONTINUE
 
-3000  CONTINUE
+ 3000 CONTINUE
 
       RETURN
 
