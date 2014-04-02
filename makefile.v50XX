@@ -1,0 +1,130 @@
+ 
+FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+FPP = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+ 
+ioapi_path   = /home/wdx/lib/x86_64/ifc/ioapi_3.1/Linux2_x86_64ifort
+netcdf_path  = /home/wdx/lib/x86_64/ifc/netcdf/lib
+
+F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I $(ioapi_path)  -I.
+F90_FLAGS  = -free -O3 -fno-alias -mp1   -I $(ioapi_path)  -I.
+ 
+CC = cc
+CPP  = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+ 
+CPP_FLAGS  =  
+ 
+C_FLAGS    = -O2  -DFLDMN
+LINK_FLAGS = -i-static 
+IOAPI_INC =  /home/wdx/lib/src/ioapi_3.1/ioapi/fixed_src
+ 
+LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -lnetcdf
+#
+#
+
+ LOAD     = $(FC) $(F_FLAGS) -I -g -CB -CU -traceback
+ LOAD_F90 = $(FC) $(F90_FLAGS) -I -g -CB -CU -traceback
+ LDFLAGS = $(LINK_FLAGS)
+ ICL_DIR = $(IOAPI_INC)
+
+#
+ INCLUDES = \
+  -DSUBST_IOPARMS=\"$(ICL_DIR)/PARMS3.EXT\" \
+  -DSUBST_IODECL=\"$(ICL_DIR)/IODECL3.EXT\" \
+  -DSUBST_RXCMMN=\"$(RXCMN_FL)\" \
+  -DSUBST_RXDATA=\"$(RXDAT_FL)\"
+
+
+OBJS = module_envvar.o \
+       module_glbldata.o \
+       RXNS_DATA_MODULE.o \
+       driver.o \
+       set_glbldata.o \
+       util_subs.o \
+       err_check.o \
+       wr_driver.o \
+       wr_calcks.o \
+       wr_solver.o \
+       wr_init.o \
+       wr_data.o \
+       wr_gp1.o \
+       wr_gp2.o \
+       wr_gp3.o \
+       wr_gp4.o \
+       wr_prodloss.o \
+       wr_rates.o \
+       wr_ssa.o \
+       wr_special.o \
+       wr_copyrt.o \
+       wr_cvshdr.o \
+ 
+
+#
+cr_ebi_solver: $(OBJS) 
+	$(LOAD) $(LDFLAGS) -o cr_ebi_solver $(OBJS) $(LIBS)
+
+RXNS_DATA_MODULE.o: $(RXNS_DATA_SRC)
+	$(LOAD_F90) -c $(INCLUDES) $(RXNS_DATA_SRC)
+
+module_envvar.o:  $(SRCDIR)/module_envvar.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_envvar.F
+
+module_glbldata.o:  $(SRCDIR)/module_glbldata.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_glbldata.F
+
+driver.o:  $(SRCDIR)/driver.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/driver.F
+
+set_glbldata.o:  $(SRCDIR)/set_glbldata.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/set_glbldata.F
+
+util_subs.o:  $(SRCDIR)/util_subs.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/util_subs.F
+
+err_check.o:  $(SRCDIR)/err_check.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/err_check.F
+
+wr_driver.o:  $(SRCDIR)/wr_driver.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_driver.F
+
+wr_calcks.o:  $(SRCDIR)/wr_calcks.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_calcks.F
+
+wr_solver.o:  $(SRCDIR)/wr_solver.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_solver.F
+
+wr_data.o:  $(SRCDIR)/wr_data.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_data.F
+
+wr_init.o:  $(SRCDIR)/wr_init.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_init.F
+
+wr_gp1.o:  $(SRCDIR)/wr_gp1.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_gp1.F
+
+wr_gp2.o:  $(SRCDIR)/wr_gp2.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_gp2.F
+
+wr_gp3.o:  $(SRCDIR)/wr_gp3.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_gp3.F
+
+wr_gp4.o:  $(SRCDIR)/wr_gp4.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_gp4.F
+
+wr_prodloss.o:  $(SRCDIR)/wr_prodloss.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_prodloss.F
+
+wr_rates.o:  $(SRCDIR)/wr_rates.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_rates.F
+
+wr_special.o:  $(SRCDIR)/wr_special.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_special.F
+
+wr_ssa.o:  $(SRCDIR)/wr_ssa.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_ssa.F
+
+wr_copyrt.o:  $(SRCDIR)/wr_copyrt.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_copyrt.F
+
+wr_cvshdr.o:  $(SRCDIR)/wr_cvshdr.F 
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/wr_cvshdr.F
+
