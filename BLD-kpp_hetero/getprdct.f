@@ -73,25 +73,31 @@ c...arguments
 
 c... local
 
-      CHARACTER( 16 ) :: SPECIES
-      INTEGER         :: NSPEC
-      INTEGER         :: ICHR
-      LOGICAL         :: LCOEFF
-      LOGICAL         :: LNEG
-      INTEGER, SAVE   :: ITAB
-      REAL( 8 )       :: NUMBER
+      CHARACTER( 16 )         :: SPECIES
+      CHARACTER( 16 ),  SAVE :: RXN_PRODUCTS( MAXPRODS ) ! unique list of reaction products
+      INTEGER                 :: NSPEC
+      INTEGER                 :: ICHR
+      INTEGER                 :: PRODUCT_INDEX ! pointer for reaction product
+      LOGICAL                 :: LCOEFF
+      LOGICAL                 :: LNEG
+      LOGICAL                 :: CONSTANT_SPECIES
+      INTEGER, SAVE           :: ITAB
+      INTEGER, SAVE           :: NUMB_PRODUCTS ! number of unique reaction products
+      REAL( 8 )                :: NUMBER
 
 c..ELIMINATE related variables
 
 c..STEADY_STATE related variables
-      INTEGER SS_INDEX
-      REAL             :: SS_COEF
+      INTEGER            :: SS_INDEX
+      REAL               :: SS_COEF
  
       INTEGER, EXTERNAL :: INDEX1
 
 
-      IF ( ICOL .EQ. 3 )THEN
-           ITAB = 0  ! ICOL = 3 initially for each reaction
+      IF ( ICOL .EQ. 3 )THEN  ! ICOL = 3 initially for each reaction
+           NUMB_PRODUCTS = 0  
+           RXN_PRODUCTS  = '                '
+           ITAB          = 0  
       ENDIF
       ITAB = ITAB + 1
       LCOEFF = .FALSE.
@@ -136,56 +142,94 @@ c..Skip any steady-state species, but sum-up its coefficients in each reaction
          RETURN
       ENDIF
 
+      CONSTANT_SPECIES = .FALSE.
+
       IF ( SPECIES( 1:4 ) .EQ. 'M   '  .OR.
      &     SPECIES( 1:4 ) .EQ. 'm   ' ) THEN
          IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 8)
+         CONSTANT_SPECIES = .TRUE.
+         NUMB_PRODUCTS  = NUMB_PRODUCTS + 1
+         PRODUCT_INDEX  = NUMB_PRODUCTS
+         RXN_PRODUCTS( PRODUCT_INDEX ) = SPECIES
       ELSE IF ( SPECIES( 1:4 ) .EQ. 'H2O '  .OR.
      &          SPECIES( 1:4 ) .EQ. 'h2o ' ) THEN
          IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 9)
+         CONSTANT_SPECIES = .TRUE.
+         NUMB_PRODUCTS  = NUMB_PRODUCTS + 1
+         PRODUCT_INDEX  = NUMB_PRODUCTS
+         RXN_PRODUCTS( PRODUCT_INDEX ) = SPECIES
       ELSE IF ( SPECIES( 1:4 ) .EQ. 'O2  '  .OR.
      &          SPECIES( 1:4 ) .EQ. 'o2  ' ) THEN
          IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 10)
+         CONSTANT_SPECIES = .TRUE.
+         NUMB_PRODUCTS  = NUMB_PRODUCTS + 1
+         PRODUCT_INDEX  = NUMB_PRODUCTS
+         RXN_PRODUCTS( PRODUCT_INDEX ) = SPECIES
       ELSE IF ( SPECIES( 1:4 ) .EQ. 'N2  '  .OR.
      &          SPECIES( 1:4 ) .EQ. 'n2  ' ) THEN
          IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 11)
+         CONSTANT_SPECIES = .TRUE.
+         NUMB_PRODUCTS  = NUMB_PRODUCTS + 1
+         PRODUCT_INDEX  = NUMB_PRODUCTS
+         RXN_PRODUCTS( PRODUCT_INDEX ) = SPECIES
       ELSE
-         ICOL = ICOL + 1
-         IF ( ICOL .GT. MAXPRODS+3 ) THEN
-            WRITE( *,2005 ) INBUF
-            STOP
+c..Check if species is already counted as a reaction product
+         IF( NUMB_PRODUCTS .NE. 0 )THEN
+             PRODUCT_INDEX = INDEX1( SPECIES, NUMB_PRODUCTS, RXN_PRODUCTS )
+         ELSE
+             PRODUCT_INDEX = 0
          END IF
-         CALL LKUPSPEC ( NS, SPECIES, SPCLIS, NXX, SPC1RX, NSPEC )
-         IRR( NXX,ICOL ) = NSPEC
+         IF( PRODUCT_INDEX .NE. 0 ) THEN
+            ITAB = ITAB - 1
+            WRITE( 6, 2006 )NXX, TRIM(RXLABEL(NXX)), TRIM( SPECIES )
+2006  FORMAT('REACTION# ', I5, ' : ', A,' has a reoccurance for product ', A,
+     &       ' adjusting product and coefficient arrays.')
+         ELSE
+            NUMB_PRODUCTS  = NUMB_PRODUCTS + 1
+            PRODUCT_INDEX  = NUMB_PRODUCTS
+            RXN_PRODUCTS( PRODUCT_INDEX ) = SPECIES
+            ICOL = ICOL + 1
+            IF ( ICOL .GT. MAXPRODS+3 ) THEN
+                WRITE( *,2005 ) INBUF
+               STOP
+            END IF
+            CALL LKUPSPEC ( NS, SPECIES, SPCLIS, NXX, SPC1RX, NSPEC )
+            IRR( NXX,ICOL ) = NSPEC
+         ENDIF
       END IF  ! SPECIES .EQ. 'M   '
 
       IF ( LCOEFF ) THEN
          IF ( LNEG ) THEN
-            SC( NXX,ITAB ) = -NUMBER
-            WRITE(KPPEQN_UNIT,'(A,F8.5,3A)', ADVANCE = 'NO')
-     &      '- ',SC( NXX,ITAB ),'*',TRIM(SPECIES),' '
+            SC( NXX, PRODUCT_INDEX ) = -NUMBER + SC( NXX, PRODUCT_INDEX )
+!            SC( NXX,ITAB ) = -NUMBER
+!            WRITE(KPPEQN_UNIT,'(A,F8.5,3A)', ADVANCE = 'NO')
+!     &      '- ',SC( NXX,ITAB ),'*',TRIM(SPECIES),' '
          ELSE
-            SC( NXX,ITAB ) = NUMBER
-            IF( ICOL .EQ. 4 )THEN
-                WRITE(KPPEQN_UNIT,'(F8.5, 3A)', ADVANCE = 'NO')
-     &          SC( NXX,ITAB ),'*',TRIM(SPECIES),' '
-            ELSE
-                WRITE(KPPEQN_UNIT,'(A,F8.5,3A)', ADVANCE = 'NO')
-     &          '+ ',SC( NXX,ITAB ),'*',TRIM(SPECIES),' '
-            END IF
+            SC( NXX, PRODUCT_INDEX ) = NUMBER  + SC( NXX, PRODUCT_INDEX )
+!            SC( NXX,ITAB ) = NUMBER
+!            IF( ICOL .EQ. 4 )THEN
+!                WRITE(KPPEQN_UNIT,'(F8.5, 3A)', ADVANCE = 'NO')
+!     &          SC( NXX,ITAB ),'*',TRIM(SPECIES),' '
+!            ELSE
+!                WRITE(KPPEQN_UNIT,'(A,F8.5,3A)', ADVANCE = 'NO')
+!    &          '+ ',SC( NXX,ITAB ),'*',TRIM(SPECIES),' '
+!            END IF
          END IF
       ELSE IF ( LNEG ) THEN
-         SC( NXX,ITAB ) = -1.0
-         WRITE(KPPEQN_UNIT,'(3A)', ADVANCE = 'NO')
-     &          '- ',TRIM(SPECIES),' '
-      ELSE
-         SC( NXX,ITAB ) = 1.0
-         IF( ICOL .EQ. 4 )THEN
-             WRITE(KPPEQN_UNIT,'(3A)', ADVANCE = 'NO')
-     &       ' ',TRIM(SPECIES),' '
-         ELSE
-             WRITE(KPPEQN_UNIT,'(3A)', ADVANCE = 'NO')
-     &          '+ ',TRIM(SPECIES),' '
-         END IF
+         SC( NXX, PRODUCT_INDEX ) = -1.0D0  + SC( NXX, PRODUCT_INDEX )
+!         SC( NXX,ITAB ) = -1.0
+!         WRITE(KPPEQN_UNIT,'(3A)', ADVANCE = 'NO')
+!    &          '- ',TRIM(SPECIES),' '
+      ELSE 
+         SC( NXX, PRODUCT_INDEX ) = 1.0D0  + SC( NXX, PRODUCT_INDEX )
+!         SC( NXX,ITAB ) = 1.0
+!         IF( ICOL .EQ. 4 )THEN
+!             WRITE(KPPEQN_UNIT,'(3A)', ADVANCE = 'NO')
+!     &       ' ',TRIM(SPECIES),' '
+!         ELSE
+!            WRITE(KPPEQN_UNIT,'(3A)', ADVANCE = 'NO')
+!     &          '+ ',TRIM(SPECIES),' '
+!         END IF
       END IF
       
       RETURN

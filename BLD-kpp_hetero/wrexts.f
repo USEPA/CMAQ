@@ -35,7 +35,6 @@ C @(#)WREXTS.F	1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.WREXTS.F 02 Jan 199
      &                   DESCRP_MECH,
      &                   NS, SPCLIS, SPC1RX,
      &                   NR,
-     &                   MXPRD,
      &                   IP, 
      &                   NAMCONSTS,
      &                   CVAL, SS1RX ) ! ,
@@ -55,7 +54,6 @@ C Argument variables
       INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
       CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
       INTEGER,          INTENT ( IN ) :: NR
-      INTEGER,          INTENT ( IN ) :: MXPRD             ! max no. products
       INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
       INTEGER,          INTENT ( IN ) :: IP
       CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( MAXCONSTS )
@@ -162,7 +160,12 @@ C                    1234567890123456789012345678901234567890123456789012
 1041  FORMAT( 'C', 1X, 8('-'), 1X, A52, 1X,  8('-') )
       CALL WRHDR1 ( EXUNIT_RXCM, EQNAME_RXCM, 72 )
       WRITE( EXUNIT_RXCM, 1033 ) DESCRP_MECH
-      WRITE( EXUNIT_RXCM, 1043 )
+      
+      IF( WRITE_CGRID_DATA )THEN
+          WRITE( EXUNIT_RXCM, 1043 )
+      ELSE
+          WRITE( EXUNIT_RXCM, 1143 )
+      END IF
 1043  FORMAT( /'C', 1X, 'The following are reserved symbols declared in this',
      &              1X, 'INCLUDE file:'
      &        /'C', 4X, 'MECHNAME       = Mechanism name'
@@ -192,11 +195,32 @@ C                    1234567890123456789012345678901234567890123456789012
      &        /'C', 4X, 'KRX6           = Reactions list pointer to type 6 reactions'
      &        /'C', 4X, 'KTN7           = Number of type 7 reactions'
      &        /'C', 4X, 'KRX7           = Reactions list pointer to type 7 reactions' )
-!    &        /'C', 4X, 'KCNV           = Number of reactions for possible PPM units',
-!    &              1X, 'conversion',
-!    &        /'C', 4X, 'KRXCNV         = Reactions list pointer to units conversion',
-!    &              1X, 'reactions' )
-
+1143  FORMAT( /'C', 1X, 'The following are reserved symbols declared in this',
+     &              1X, 'INCLUDE file:'
+     &        /'C', 4X, 'MECHNAME       = Mechanism name'
+     &        /'C', 4X, 'N_GAS_CHEM_SPC = Total number of gas species in chemical mechanism'
+     &        /'C', 4X, 'NUMB_CHEM_SPC  = Total number of gas species in chemical mechanism'
+     &        /'C', 4X, 'N_ACT_SP       = Number of active (determined by ODE solver) species in mechanism'
+     &        /'C', 4X, 'GAS_CHEM_SPC   = Names of gas species in chemical mechanism'
+     &        /'C', 4X, 'NRXNS          = Number of mechanism reactions'
+     &        /'C', 4X, 'KUNITS         = Units of mechanism reactions'
+     &        /'C', 4X, 'KTYPE          = Reaction type'
+     &        /'C', 4X, 'IRXBITS        = Bit test mask vector for selected reactions'
+     &        /'C', 4X, 'IORDER         = Order of the reaction'
+     &        /'C', 4X, 'KTN1           = Number of type 1 reactions'
+     &        /'C', 4X, 'KRX1           = Reactions list pointer to type 1 reactions'
+     &        /'C', 4X, 'KTN2           = Number of type 2 reactions'
+     &        /'C', 4X, 'KRX2           = Reactions list pointer to type 2 reactions'
+     &        /'C', 4X, 'KTN3           = Number of type 3 reactions'
+     &        /'C', 4X, 'KRX3           = Reactions list pointer to type 3 reactions'
+     &        /'C', 4X, 'KTN4           = Number of type 4 reactions'
+     &        /'C', 4X, 'KRX4           = Reactions list pointer to type 4 reactions'
+     &        /'C', 4X, 'KTN5           = Number of type 5 reactions'
+     &        /'C', 4X, 'KRX5           = Reactions list pointer to type 5 reactions'
+     &        /'C', 4X, 'KTN6           = Number of type 6 reactions'
+     &        /'C', 4X, 'KRX6           = Reactions list pointer to type 6 reactions'
+     &        /'C', 4X, 'KTN7           = Number of type 7 reactions'
+     &        /'C', 4X, 'KRX7           = Reactions list pointer to type 7 reactions' )
 
 
       IF ( HAS_CONSTS ) THEN
@@ -316,22 +340,34 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 1061  FORMAT( /6X, 'CHARACTER( 32 ), PARAMETER ::',
      &         1X, 'MECHNAME = ''', A, '''' )
 
+      print*,'WREXTS: WRITE_CGRID_DATA = ',WRITE_CGRID_DATA
 
-      WRITE( EXUNIT_RXCM, 2053 ) NS + N_SS_SPC, NS + N_SS_SPC
-2053  FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: N_GAS_CHEM_SPC =', I4,
-     &        /6X, 'INTEGER, PARAMETER', 1X, ':: NUMB_MECH_SPC  =', I4 )
-
-      WRITE( EXUNIT_RXCM, 2057 )
-2057  FORMAT( /6X, 'CHARACTER( 16 ) :: GAS_CHEM_SPC( N_GAS_CHEM_SPC )',
-     &        /6X, 'CHARACTER( 16 ) :: CHEMISTRY_SPC( NUMB_MECH_SPC )',
-     &        /6X, 'CHARACTER( 16 ) :: SPECIES_TYPE(  NUMB_MECH_SPC )',
-     &        /6X, 'INTEGER         :: CGRID_INDEX (  NUMB_MECH_SPC )')
+      IF( WRITE_CGRID_DATA )THEN
+          WRITE( EXUNIT_RXCM, 2053 )N_GAS_CHEM_SPC,  NUMB_MECH_SPCS 
+2053      FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: N_GAS_CHEM_SPC =', I4,
+     &            /6X, 'INTEGER, PARAMETER', 1X, ':: NUMB_MECH_SPC  =', I4 )
+      ELSE
+          WRITE( EXUNIT_RXCM, 2153 )N_GAS_CHEM_SPC
+2153      FORMAT( /6X, 'INTEGER, PARAMETER', 1X, ':: N_GAS_CHEM_SPC =', I4 )
+      
+      END IF
+       
+      IF( WRITE_CGRID_DATA )THEN
+          WRITE( EXUNIT_RXCM, 2057 )
+2057      FORMAT( /6X, 'CHARACTER( 16 ) :: GAS_CHEM_SPC( N_GAS_CHEM_SPC )',
+     &            /6X, 'CHARACTER( 16 ) :: CHEMISTRY_SPC( NUMB_MECH_SPC )',
+     &            /6X, 'CHARACTER( 16 ) :: SPECIES_TYPE(  NUMB_MECH_SPC )',
+     &            /6X, 'INTEGER         :: CGRID_INDEX (  NUMB_MECH_SPC )')
+      ELSE
+          WRITE( EXUNIT_RXCM, 2157 )
+2157      FORMAT( /6X, 'CHARACTER( 16 ) :: GAS_CHEM_SPC( N_GAS_CHEM_SPC )')
+      END IF
 
       WRITE( EXUNIT_RXDT, 2052 )
 2052  FORMAT(/, '! The below character and integer arrays list the model species names used in the ',
      &       /, '! chemical mechanism. The gas species and their order should agree with ',
      &       /, '! the GC_SPC array for the gas phase chemistry to work correctly. ',
-     &       /, '! The CHEMISTRY_SPC names and species type should agree with the CGRID_SPCS module' /)
+     &       /, '! If present, the CHEMISTRY_SPC names and species type should agree with the CGRID_SPCS module' /)
 
       DO ISPC = 1, NS 
          IF( SPECIES_TYPE( ISPC ) .NE. 'GC' )CYCLE
@@ -346,13 +382,14 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
       WRITE( EXUNIT_RXDT,'( 2/ )')
 
-      DO ISPC = 1, NS + N_SS_SPC
-         WRITE( EXUNIT_RXDT, 2061 ) ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
-     &   SPECIES_TYPE( ISPC )
-2061     FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
+      IF( WRITE_CGRID_DATA )THEN
+          DO ISPC = 1, NS + N_SS_SPC
+             WRITE( EXUNIT_RXDT, 2061 ) ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
+     &       SPECIES_TYPE( ISPC )
+2061         FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
      &           ' ) / ''', A16, ''', ', I4,', ''', A2, ''' /')
-      END DO
-
+          END DO
+      END IF
 
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -869,7 +906,11 @@ c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 c     1st Common Block
 c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
-      WRITE( EXUNIT_RXCM, 1901 )
+      IF( WRITE_CGRID_DATA )THEN
+          WRITE( EXUNIT_RXCM, 1901 )
+      ELSE
+          WRITE( EXUNIT_RXCM, 1911 )
+      END IF
 1901  FORMAT( /5X, ' COMMON     / MECHRX1 /'
      &        /5X, '&             KUNITS,'
      &        /5X, '&             KTYPE,'
@@ -899,6 +940,33 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
      &        /5X, '&             NREACT,'
      &        /5X, '&             NPRDCT,'
      &        /5X, '&             IPH,', 
+     &        /5X,  '&             IHETERO' )
+1911  FORMAT( /5X, ' COMMON     / MECHRX1 /'
+     &        /5X, '&             KUNITS,'
+     &        /5X, '&             KTYPE,'
+     &        /5X, '&             GAS_CHEM_SPC,'
+     &        /5X, '&             IRXBITS,'
+     &        /5X, '&             IORDER,'
+     &        /5X, '&             KRX1,'
+     &        /5X, '&             KRX2,'
+     &        /5X, '&             KRX3,'
+     &        /5X, '&             KRX4,'
+     &        /5X, '&             KRX7,'
+     &        /5X, '&             KRX5,'
+     &        /5X, '&             KRX6,'
+!    &        /5X, '&             KRXCNV,'
+     &        /5X, '&             NRXWM,'
+     &        /5X, '&             NRXWW,'
+     &        /5X, '&             NRXWO2,'
+     &        /5X, '&             NRXWN2,'
+     &        /5X, '&             NRXWCH4,'
+     &        /5X, '&             NRXWH2,'
+     &        /5X, '&             IRR,'
+     &        /5X, '&             IRRFALL,'
+     &        /5X, '&             SC,'
+     &        /5X, '&             NREACT,'
+     &        /5X, '&             NPRDCT,'
+     &        /5X, '&             IPH,',
      &        /5X,  '&             IHETERO' )
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

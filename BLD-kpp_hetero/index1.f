@@ -36,8 +36,11 @@ C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C searchs to LENGTH for string NAME in string array LIST
 
       IMPLICIT NONE
-      INTEGER LENGTH, INDX
-      CHARACTER*( * ) NAME, LIST( * )
+      INTEGER,         INTENT( IN ) :: LENGTH
+      CHARACTER*( * ), INTENT( IN ) :: NAME
+      CHARACTER*( * ), INTENT( IN ) :: LIST( * )
+
+      INTEGER INDX
 
       INDX = 1
 101   CONTINUE

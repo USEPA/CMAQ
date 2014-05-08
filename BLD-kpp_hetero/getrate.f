@@ -227,6 +227,7 @@ C '#' or '%' signals beginning of part of line that has rate constant data
 
          IF ( CHR .EQ. '~' ) THEN        ! heteorogeneous rx
             KTYPE( NXX ) = -1
+            print*,'Reactions #', NXX,' is heterogeneous'
             IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 0 )
             IH = IH + 1
             IHETERO( IH,1 ) = NXX

@@ -61,7 +61,6 @@ c..local Variables for steady-state species
       INTEGER            :: LPOINT, IEOL
       INTEGER            :: I, ICOL, ISPC, IRX, IDX
       INTEGER            :: NXX, IPR, IPHOTAB, NC
-      INTEGER            :: MXPRD                            ! max no. products
       INTEGER            :: DUMMY_COEF( MAXRXNUM )               ! Yields for the DUMMY variable in each reaction
       INTEGER            :: SS1RX( MAXNLIST )                    ! First reaction occurrence for each SS species
       
@@ -156,7 +155,7 @@ c..Variables for species to be dropped from mechanism
            CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( MAXRXNUM,2 )
         END SUBROUTINE GETRATE
         SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX, NR,
-     &                      MXPRD, IP,  NAMCONSTS, CVAL, SS1RX  ) 
+     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
           USE MECHANISM_DATA
           IMPLICIT NONE
           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
@@ -164,7 +163,6 @@ c..Variables for species to be dropped from mechanism
           INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
           CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
           INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: MXPRD             ! max no. products
           INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
           INTEGER,          INTENT ( IN ) :: IP
           CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( MAXCONSTS )
@@ -194,13 +192,6 @@ c..Variables for species to be dropped from mechanism
        END SUBROUTINE WRSS_EXT
       END INTERFACE 
   
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C Initialize module and local mechanism array variables
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      
-      ALLOCATE( INDEX_FIXED_SPECIES( MAXRXNUM, MAXRCTNTS ) )
-      INDEX_FIXED_SPECIES = 0
-      NRXN_FIXED_SPECIES  = 0
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Find names for KPP output files
@@ -658,7 +649,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE(KPPEQN_UNIT,'(A)')' ;'
       END DO
 
-
+      RETURN
+      
 1993  FORMAT( / 5X, '*** ERROR: Special label already used'
      &        / 5X, 'Processing for special label number:', I6 )
 1994  FORMAT( / 5X, '*** ERROR: Equal sign expected after special label'
@@ -807,9 +799,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
 
-       WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
-
-       STOP
        END SUBROUTINE WRT_KPP_INPUTS
           
        SUBROUTINE  CONVERT_CASE_BAK ( BUFFER, UPPER )

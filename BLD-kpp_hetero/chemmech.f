@@ -54,7 +54,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER I, ICOL, ISPC, IRX, IDX
 
       INTEGER NR, IP, NXX, NS, IPR, IPHOTAB, NC
-      INTEGER MXPRD                            ! max no. products
 
 
 !      INTEGER NPRDCT( MAXRXNUM )               ! no. of products for rx j
@@ -99,7 +98,7 @@ c..Variables for species to be dropped from mechanism
      &                    'ATM_CH4         ' /)
       CHARACTER(  16 ) :: CLABEL                  ! mechanism constants label
       REAL( 8 )        :: CONSTVAL                ! retrieved constant
-      REAL( 8 )        :: CVAL( MAXCONSTS )       ! mechanism constants value
+      REAL( 8 )        :: CVAL( MAXCONSTS )
       INTEGER, PARAMETER :: LUNOUT = 6
 
 !         INTEGER IRR( MAXRXNUM,MAXPRODS+3 )
@@ -109,6 +108,14 @@ c..Variables for species to be dropped from mechanism
       CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXDT = 'RXNSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXCM = 'RXNSCOMX'
+      CHARACTER(  12 ) :: RXNS_MODULE = 'RXNS_MODULE'
+      
+      CHARACTER(  16 ) :: RXNS_DATA_MODULE = 'RXNS_DATA_MODULE'
+      CHARACTER(  16 ) :: RXNS_FUNC_MODULE = 'RXNS_FUNC_MODULE'
+      CHARACTER(  16 ) :: OUT_DIR          = 'OUTDIR'
+
+      CHARACTER(  5 )    :: CGRID_DATA
+      CHARACTER( 16 )    :: CGRID_NMLS = 'WRITE_CGRID_DATA'
 
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
@@ -169,7 +176,7 @@ c..Variables for species to be dropped from mechanism
            CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( MAXRXNUM,2 )
         END SUBROUTINE GETRATE
         SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX, NR,
-     &                      MXPRD, IP,  NAMCONSTS, CVAL, SS1RX  ) 
+     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
           USE MECHANISM_DATA
           IMPLICIT NONE
           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
@@ -177,7 +184,6 @@ c..Variables for species to be dropped from mechanism
           INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
           CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
           INTEGER,          INTENT ( IN ) :: NR
-          INTEGER,          INTENT ( IN ) :: MXPRD             ! max no. products
           INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
           INTEGER,          INTENT ( IN ) :: IP
           CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( MAXCONSTS )
@@ -242,6 +248,29 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INDEX_FIXED_SPECIES = 0
       NRXN_FIXED_SPECIES  = 0
 
+! determine whether to write out CMAQ CGRID species name and indices to output
+
+         CALL NAMEVAL ( CGRID_NMLS, CGRID_DATA )
+
+         CALL CONVERT_CASE( CGRID_DATA, .TRUE.)
+
+         IF( CGRID_DATA(1:1) .EQ. 'T' .OR. CGRID_DATA(1:1) .EQ. 'Y' )THEN
+             WRITE_CGRID_DATA = .TRUE.
+             WRITE(6,'(A)')'Environment Variable WRITE_CGRID_DATA set to '
+     &       // TRIM( CGRID_DATA ) // ' and adding CMAQ CGRID data to output '
+         ELSE IF(  CGRID_DATA(1:1) .EQ. 'F' .OR. CGRID_DATA(1:1) .EQ. 'N' )THEN
+             WRITE_CGRID_DATA = .FALSE.
+             WRITE(6,'(A)')'Environment Variable WRITE_CGRID_DATA set to '
+     &      // TRIM( CGRID_DATA ) // ' and not writing CMAQ CGRID data to output '
+         ELSE
+             WRITE(6,' (A)')'Environment Variable WRITE_CGRID_DATA set to '
+     &       // TRIM( CGRID_DATA ) // ' and must equal T, Y, F, or N.'
+     &       // ' Using default value of F'
+             WRITE_CGRID_DATA = .FALSE.
+         END IF
+
+      print*,'CHEMMECH: WRITE_CGRID_DATA = ',WRITE_CGRID_DATA
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Open mechanism input file and get the first non-comment line
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -261,6 +290,11 @@ c symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (NAMEVAL):
       CALL NAMEVAL ( EXFLNM_SPCS, EQNAME_SPCS )
       CALL NAMEVAL ( EXFLNM_RXDT, EQNAME_RXDT )
       CALL NAMEVAL ( EXFLNM_RXCM, EQNAME_RXCM )
+      CALL NAMEVAL ( RXNS_MODULE, FNAME_MODULE )
+
+      CALL NAMEVAL ( RXNS_DATA_MODULE, FNAME_DATA_MODULE )
+      CALL NAMEVAL ( RXNS_FUNC_MODULE, FNAME_FUNC_MODULE )
+      CALL NAMEVAL ( OUT_DIR, OUTDIR )
 
       OPEN ( UNIT = EXUNIT_SPCS, FILE = EQNAME_SPCS, STATUS = 'UNKNOWN' )
       OPEN ( UNIT = EXUNIT_RXDT, FILE = EQNAME_RXDT, STATUS = 'UNKNOWN' )
@@ -477,6 +511,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF 
       IF ( CHR .EQ. '<' ) THEN   ! label for this reaction
          CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL( NXX,1 ) )
+         RXLABEL( NXX ) = LABEL( NXX,1 )
       END IF
       ICOL = 0
       IORDER( NXX ) = 0
@@ -739,7 +774,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
        ALLOCATE( MECHANISM_INDEX( NUMB_MECH_SPCS ), MECHANISM_SPC( NUMB_MECH_SPCS ),
      &          CGRID_INDEX( NUMB_MECH_SPCS ), SPECIES_TYPE( NUMB_MECH_SPCS )  )
-      
+
+       
        DO I = 1, NUMB_MECH_SPCS
          MECHANISM_INDEX( I ) = I
          MECHANISM_SPC( I )   = SPCLIS( I )
@@ -747,10 +783,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C Set CGRID mechanism
 
-       IF ( .NOT. CGRID_SPCS_INIT() ) THEN
-           STOP 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
+       IF( WRITE_CGRID_DATA )THEN
+           IF ( .NOT. CGRID_SPCS_INIT() ) THEN
+               STOP 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
+           ELSE
+               PRINT*,'Computed CGRID species and indices'
+           END IF
+       ELSE
+           SPECIES_TYPE = 'GC'
+           CGRID_INDEX  = -1
        END IF
 
+        N_GAS_CHEM_SPC = 0 
+        DO ISPC = 1, NUMB_MECH_SPCS
+           IF( SPECIES_TYPE( ISPC ) .NE. 'GC' )CYCLE
+           N_GAS_CHEM_SPC =  N_GAS_CHEM_SPC + 1
+       END DO
 
       NRXNS = NR
       
@@ -758,13 +806,10 @@ C Set CGRID mechanism
      &              DESCRP_MECH,
      &              NS, SPCLIS, SPC1RX,
      &              NR,
-     &              MXPRD,
      &              IP,
      &              NAMCONSTS,
-     &              CVAL, SS1RX ) ! , 
-!     &              N_SS_SPC,
-!     &              SS_SPC,
-!     &              SS1RX ) ! , IRR, SC )
+     &              CVAL, SS1RX ) 
+     
       
 
       CALL WRSPECIAL_EXT( )
@@ -777,14 +822,33 @@ C Set CGRID mechanism
       CLOSE( KPPEQN_UNIT )
 
       MECHANISM = DESCRP_MECH
+      CONST( 1:MAXCONSTS ) = CVAL( 1:MAXCONSTS )
       
-!      CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
       
-      CALL WRT_CALCKS( )
+!     CALL WRT_CALCKS( )
+
+      print*,'calling WRT_RATE_CONSTANT '
+      
+      EQUATIONS_MECHFILE = EQNAME_MECH
+      
+      CALL WRT_RATE_CONSTANT( NR, IP, LABEL, NS, SPCLIS  )
+
+!     print*,'calling WRT_FEVAL ' 
+
+!     CALL WRT_FEVAL(  )
+      
+!     print*,'called WRT_FEVAL ' 
+      
+!     CALL WRT_JACOB_BLK( )
+
+!      CALL WRT_JACOB( 1 )         
+!      CALL WRT_JACOB( 2 )         
       
       CLOSE( EXUNIT_SPCS )
       CLOSE( EXUNIT_RXDT )
       CLOSE( EXUNIT_RXCM )
+
+      CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
       CLOSE( KPPEQN_UNIT )
 
 

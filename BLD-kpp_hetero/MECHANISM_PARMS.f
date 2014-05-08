@@ -6,7 +6,7 @@
   
          INTEGER, PARAMETER :: MAXSPEC     = 700
 
-         INTEGER, PARAMETER :: MAXPRODS    = 30   ! mechanism products dimension
+         INTEGER, PARAMETER :: MAXPRODS    = 40   ! mechanism products dimension
 
          INTEGER, PARAMETER :: MAXRCTNTS   = 3    ! mechanism reactants dimension
 

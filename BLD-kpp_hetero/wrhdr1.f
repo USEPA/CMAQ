@@ -48,7 +48,7 @@ C----------------------------------------------------------------------
       LX = FMT_LEN - 3
       IF ( LS .LE. LX ) THEN
          WRITE( EXUNIT, 1001 ) NAMESTR( 1:LS )
-1001     FORMAT( 'C', 2X, A )
+1001     FORMAT( '!', 2X, A )
       ELSE
 C Try for wrap-around: find a "natural" break, e.g. a '/'
 C Limit wrap-around cut off to 50% of the original length ...

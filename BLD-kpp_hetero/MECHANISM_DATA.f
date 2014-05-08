@@ -5,6 +5,8 @@
          IMPLICIT NONE
 
 
+
+         CHARACTER( 120 ) :: EQUATIONS_MECHFILE
          CHARACTER(  32 ) :: MECHNAME
          
          INTEGER KUNITS, 
@@ -32,12 +34,13 @@
          REAL( 8 ) :: RTDAT( 3,MAXRXNUM )
          REAL( 8 ) :: RFDAT( 5,MAXFALLOFF )
          REAL( 8 ) :: CONST( MAXCONSTS )        
-         
-         INTEGER NRXNS            ! number of reactions
-         INTEGER NMPHOT           ! number of photolysis reactions
-         INTEGER NSPECIAL_RXN     ! number of special rate constant reactions
-         INTEGER ISPECIAL( MAXSPECRXNS,2 )
-         INTEGER NSPECIAL
+          
+         INTEGER         :: NRXNS                      ! number of reactions
+         INTEGER         :: NPDERIV                    ! number nonzero PD in mechanism
+         INTEGER         :: NMPHOT                     ! number of photolysis reactions
+         INTEGER         :: NSPECIAL_RXN               ! number of special rate constant reactions
+         INTEGER         :: ISPECIAL( MAXSPECRXNS,2 )
+         INTEGER         :: NSPECIAL
          CHARACTER( 16 ) :: SPECIAL( MAXSPECRXNS )
 
          INTEGER         :: NKC_TERMS(  MAXSPECRXNS )
@@ -58,11 +61,14 @@
          INTEGER NHETERO                          ! no. of unique heteorogeneous rates 
          CHARACTER( 16 ) :: HETERO( MAXPHOTRXNS ) ! names of unique heteorogeneous rates
 
+         INTEGER MXPRD                            ! max no. products
+
          INTEGER NPRDCT( MAXRXNUM )               ! no. of products for rx j
          INTEGER NREACT( MAXRXNUM )               ! no. of reactants for rx j
          INTEGER IRR( MAXRXNUM,MAXPRODS+3 )
          REAL    SC ( MAXRXNUM,MAXPRODS )
-
+         REAL( 8 ), ALLOCATABLE, SAVE :: NET_RCOEFF( :, :)
+         
 c.. Variables for steady-state species
          INTEGER         :: N_SS_SPC = 0                         ! No. of SS species
          CHARACTER( 16 ) :: SS_SPC( MAXNLIST )                   ! List of SS pecies names
@@ -85,20 +91,116 @@ c.. Variables for steady-state species
          CHARACTER( 120 ) :: EQNAME_SPCS
          CHARACTER( 120 ) :: EQNAME_RXDT
          CHARACTER( 120 ) :: EQNAME_RXCM
-         CHARACTER( 120 ) :: RXNS_MODULE
+         CHARACTER( 120 ) :: FNAME_MODULE
+         CHARACTER( 120 ) :: FNAME_DATA_MODULE
+         CHARACTER( 120 ) :: FNAME_FUNC_MODULE
+         CHARACTER( 120 ) :: OUTDIR 
 
          INTEGER        ::  EXUNIT_SPCS
          INTEGER        ::  EXUNIT_RXDT
          INTEGER        ::  EXUNIT_RXCM
+         
          INTEGER        ::  MODULE_UNIT
+         INTEGER        ::  DATA_MODULE_UNIT
+         INTEGER        ::  FUNC_MODULE_UNIT
          
-         INTEGER,            ALLOCATABLE ::  CGRID_INDEX ( : )
-         CHARACTER( 16),     ALLOCATABLE ::  CGRID_SPC   ( : )
-         CHARACTER(LEN = 2), ALLOCATABLE ::  SPECIES_TYPE( : )
+         LOGICAL, SAVE      :: WRITE_CGRID_DATA  ! species data based on CMAQ NMLS
+
+         INTEGER,            ALLOCATABLE ::  CGRID_INDEX  ( : )
+         INTEGER,            ALLOCATABLE ::  TYPE_INDEX   ( : )
+         REAL,               ALLOCATABLE ::  SPECIES_MOLWT( : )
+         CHARACTER( 16),     ALLOCATABLE ::  CGRID_SPC    ( : )
+         CHARACTER(LEN = 2), ALLOCATABLE ::  SPECIES_TYPE ( : )
          
-         INTEGER                       ::  NUMB_MECH_SPCS
+         INTEGER                      ::  N_GAS_CHEM_SPC
+         INTEGER                      ::  NUMB_MECH_SPCS
          INTEGER ,        ALLOCATABLE ::  MECHANISM_INDEX( : )
          CHARACTER( 16 ), ALLOCATABLE ::  MECHANISM_SPC  ( : )
+
+c..Miscellaneous variables
+         INTEGER, PARAMETER :: NCS  = 1        ! no. of chemical mechanisms
+         INTEGER, PARAMETER :: NCS2 = 2 * NCS  ! accounts for day/night 
+
+
+c..Sparse Matrix maximum dimensions
+         INTEGER, PARAMETER :: MAXGL   = 250   ! Max # of P/L terms per species
+         INTEGER, PARAMETER :: MAXGL2  = 200    ! Dimension (smaller than maxgl)
+         INTEGER, PARAMETER :: MAXGL3  = 200   ! Dimension (smaller than maxgl)
+         INTEGER, PARAMETER :: MXARRAY = 10000 ! Max # of terms in I-hJ matrix
+
+c..Mechanism specific variables
+         INTEGER, SAVE :: N_SPEC               ! No. of species in mech
+         INTEGER, SAVE :: N_RXNS               ! No. of reactions in mech
+
+         INTEGER, SAVE :: MXCOUNT1, MXCOUNT2   ! Sparse matrx pntr dimensions
+         INTEGER, SAVE :: MXRR, MXRP           ! Max # of PD terms
+
+
+c..Sparse Matrix variables 
+         INTEGER, SAVE :: ISCHAN          ! No. of reacting species in current mech
+         INTEGER, SAVE :: ISCHANG( NCS  ) ! No. of reacting species in day & nite
+         INTEGER, SAVE :: NUSERAT( NCS2 ) ! No. of active rxns in day & nite
+         INTEGER, SAVE :: IARRAY(  NCS2 ) ! No. of PD terms in I-hJ matrix
+
+C Most of the following are allocated
+         INTEGER, ALLOCATABLE, SAVE :: NKUSERAT( :,: )     ! Rxn nos of active rxns
+         INTEGER, ALLOCATABLE, SAVE :: NET_EFFECT( :, : )   ! reaction's net effect on species
+         INTEGER, ALLOCATABLE, SAVE :: IRM2  ( :,:,: )     ! Species rxn array
+         INTEGER, ALLOCATABLE, SAVE :: ICOEFF( :,:,: )     ! stoich coeff indx
+         
+         INTEGER, ALLOCATABLE, SAVE :: JARRAYPT( :,:,: )   ! A-Matrix index
+         INTEGER, ALLOCATABLE, SAVE :: JARRL( :,:,: )      ! Pntr to PD Loss term
+         INTEGER, ALLOCATABLE, SAVE :: JARRP( :,:,: )      ! Pntr to PD Prod term
+         INTEGER, ALLOCATABLE, SAVE :: JLIAL( :,:,: )      ! Spec # for PD loss term
+         INTEGER, ALLOCATABLE, SAVE :: JPIAL( :,:,: )      ! Spec # for PD prod term 
+        
+         INTEGER, ALLOCATABLE, SAVE :: INEW2OLD( :,: )     ! Spec index xref
+         INTEGER, ALLOCATABLE, SAVE :: IOLD2NEW( :,: )     ! Spec index xref
+
+         INTEGER, ALLOCATABLE, SAVE :: NDERIVL( :,: )      ! # of PD loss terms
+         INTEGER, ALLOCATABLE, SAVE :: NDERIVP( :,: )      ! # of PD prod terms
+
+C descirbes the partial derivatives in each sparse Jacobian component
+
+         INTEGER, ALLOCATABLE,   SAVE :: NDERIVN1( :, : )      ! # PD with a coefficient of -1
+         INTEGER, ALLOCATABLE,   SAVE :: NDERIVP1( :, : )      ! # PD with a coefficient of  1 
+         INTEGER, ALLOCATABLE,   SAVE :: NDERIVCO( :, : )      ! # PD with other coefficients
+         INTEGER, ALLOCATABLE,   SAVE :: PDERIVN1( :, :, : )   ! PD index with a coefficient of -1
+         INTEGER, ALLOCATABLE,   SAVE :: PDERIVP1( :, :, : )   ! PD index with a coefficient of  1 
+         INTEGER, ALLOCATABLE,   SAVE :: PDERIVCO( :, :, : )   ! PD index with other coefficients
+         REAL( 8 ), ALLOCATABLE, SAVE :: PD_COEFF( :, :, : )   ! PD coefficients
+ 
+
+c..indices for decomposition
+         INTEGER, ALLOCATABLE, SAVE :: JZLO( : )           ! # of ops in decmp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: IDEC1LO( :,: )      ! decomp loop 1 bound
+         INTEGER, ALLOCATABLE, SAVE :: IDEC1HI( :,: )      ! decomp loop 1 bound
+         
+         INTEGER, ALLOCATABLE, SAVE :: IJDECA( : ) ! Pntr for ij term 1 in decomp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: IJDECB( : ) ! Pntr for ij term 2 in decomp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: IKDECA( : ) ! Pntr for ik term 1 in decomp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: IKDECB( : ) ! Pntr for ik term 2 in decomp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: KJDECA( : ) ! Pntr for kj term 1 in decomp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: KJDECB( : ) ! Pntr for kj term 2 in decomp loop 1
+         INTEGER, ALLOCATABLE, SAVE :: JZEROA( : ) ! Pntr for j term 1 in decomp loop 2
+         INTEGER, ALLOCATABLE, SAVE :: JZEROB( : ) ! Pntr for j term 2 in decomp loop 2
+
+         INTEGER, ALLOCATABLE, SAVE :: JHIZ1( :,: )  ! # of 2-term groups in dcmp loop 2
+         INTEGER, ALLOCATABLE, SAVE :: JHIZ2( :,: )  ! # of 1-term groups in dcmp loop 2
+
+         
+         INTEGER, ALLOCATABLE, SAVE :: KZLO1( :,: )  ! Start indx for 2-term bksb loop 1
+         INTEGER, ALLOCATABLE, SAVE :: KZLO2( :,: )  ! Start indx for 1-term bksb loop 1
+         INTEGER, ALLOCATABLE, SAVE :: KZHI0( :,: )  ! End index for 5-term bksub loop 1
+         INTEGER, ALLOCATABLE, SAVE :: KZHI1( :,: )  ! End index for 2-term bksub loop 1
+         INTEGER, ALLOCATABLE, SAVE :: KZERO( :,: )  ! Pointer to bksub j index
+         
+         INTEGER, ALLOCATABLE, SAVE :: MZHI0 ( :,: ) ! End index for 5-term bksub loop 2
+         INTEGER, ALLOCATABLE, SAVE :: MZHI1 ( :,: ) ! End index for 2-term bksub loop 2
+         INTEGER, ALLOCATABLE, SAVE :: MZILCH( :,: ) ! # of calcs in bksub loop 2 (U)
+         INTEGER, ALLOCATABLE, SAVE :: MZLO1 ( :,: ) ! Start indx for 2-term bksb loop 2
+         INTEGER, ALLOCATABLE, SAVE :: MZLO2 ( :,: ) ! Start indx for 1-term bksb loop 2
+         INTEGER, ALLOCATABLE, SAVE :: KZILCH( :,: ) ! # of calcs in bksub loop 1 (L)
 
 
          CONTAINS

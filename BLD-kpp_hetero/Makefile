@@ -1,7 +1,7 @@
 # original file copied from /home/yoj/src/mech/BLD_2, 1/31/2008
 # need to source scom command for compilers
 
-  MODEL = CHEMMECH_ggb_SS4
+  MODEL = CHEMMECH_ggb_SS4-sol
 
 
 #  FC = $(myFC) 
@@ -9,15 +9,23 @@
 #  F_FLAGS = $(myFFLAGS) -I . -g
 #  C_FLAGS = $(myCFLAGS) -DFLDMN=1
 
- COMPILER = INTEL
- COMPILER = PGF90
+# COMPILER = INTEL
+# COMPILER = PGF90
 #COMPILER = GFORT
+
+ifndef COMPILER
+  COMPILER = INTEL
+# COMPILER = PGF90
+#COMPILER = GFORT
+endif
 
 ifeq ($(COMPILER),INTEL)
 
-FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
-F_FLAGS = -fixed -132 -O3 -override-limits -check uninit -check bounds -check format -g -traceback -warn unused -override-limits -fno-alias -mp1  -I . -g
+#FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+#CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
+FC = ifort
+CC = icc
+F_FLAGS = -fixed -132 -O3 -override-limits -check uninit -check bounds -check format -g -traceback -warn nounused -override-limits -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
 LINK_FLAGS = -i-static
@@ -25,18 +33,23 @@ LINK_FLAGS = -i-static
 else
  FC = /usr/local/pgi/linux86-64/10.5/bin/pgf90
  CC    = /usr/local/pgi/linux86-64/10.5/bin/pgcc
+#FC = pgf90
+#CC = pgcc
 
 # compiler options for subroutines
  F_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
+ f_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
  LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
  ifeq ($(COMPILER),GFORT)
    FC    = /usr/local/gcc-4.6/bin/gfortran
    CC    = /usr/bin/gcc
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -I. -fcheck=all
+#  FC    = gfortran
+#  CC    = gcc
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -fcheck=all -I. 
    F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32 -I. -fcheck=all
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32 -fcheck=all -I. 
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
@@ -79,6 +92,18 @@ OBJECTS =\
     wrss_ext.o  \
     wrt_kpp_inputs.o \
     wrt_rate_calcks.o \
+    wrt_feval.o \
+    wrt_reactions_module.o \
+    wrbf6_fortran90.o \
+    wrbf16c_fortran90.o \
+    wrbf12d_fortran90.o \
+    wrbf12s_fortran90.o \
+    wrspecial_ext_fortran90.o \
+    wrexts_fortran90.o \
+    wrss_ext_fortran90.o  \
+    wrt_jacob_blk.o \
+    wrt_jacob_blk_fortran90.o \
+    wrt_jacob.o \
     vallabchr.o \
     valwrdchr.o \
     nameval.o
