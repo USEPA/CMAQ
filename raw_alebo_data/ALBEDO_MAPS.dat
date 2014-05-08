@@ -1,0 +1,658 @@
+ 1 Open water                      1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Open water                      2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Open water                      3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Open water                      4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Open water                      5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Open water                      6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Open water                      7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 2 Perennial Ice/snow              1 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 2 Perennial Ice/snow              2 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 2 Perennial Ice/snow              3 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 2 Perennial Ice/snow              4 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 2 Perennial Ice/snow              5 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 2 Perennial Ice/snow              6 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 2 Perennial Ice/snow              7 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 3 Developed, Open space           1 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 3 Developed, Open space           2 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 3 Developed, Open space           3 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 3 Developed, Open space           4 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 3 Developed, Open space           5 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 3 Developed, Open space           6 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 3 Developed, Open space           7 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        1 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        2 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        3 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        4 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        5 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        6 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 4 Developed, Low Intensity        7 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     1 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     2 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     3 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     4 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     5 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     6 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 5 Developed, Medium Intensity     7 13.000   1.067   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       1 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       2 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       3 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       4 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       5 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       6 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 6 Developed, High Intensity       7 13.000   1.133   0.000   0.0000   0.0000 URBAN                         
+ 7 Barren land                     1 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 7 Barren land                     2 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 7 Barren land                     3 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 7 Barren land                     4 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 7 Barren land                     5 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 7 Barren land                     6 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 7 Barren land                     7 16.000   0.800   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            1 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            2 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            3 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            4 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            5 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            6 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 8 Unconsolidated Shore            7 16.000   1.400   0.000   0.0000   0.0000 BARREN / DESSERT              
+ 9 Deciduous Forest                1  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 9 Deciduous Forest                2  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 9 Deciduous Forest                3  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 9 Deciduous Forest                4  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 9 Deciduous Forest                5  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 9 Deciduous Forest                6  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 9 Deciduous Forest                7  4.000   0.938   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+10 Evergreen Forest                1  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+10 Evergreen Forest                2  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+10 Evergreen Forest                3  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+10 Evergreen Forest                4  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+10 Evergreen Forest                5  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+10 Evergreen Forest                6  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+10 Evergreen Forest                7  1.000   0.833   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+11 Mixed Forest                    1  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+11 Mixed Forest                    2  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+11 Mixed Forest                    3  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+11 Mixed Forest                    4  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+11 Mixed Forest                    5  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+11 Mixed Forest                    6  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+11 Mixed Forest                    7  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+12 Dwarf Scrub                     1  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+12 Dwarf Scrub                     2  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+12 Dwarf Scrub                     3  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+12 Dwarf Scrub                     4  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+12 Dwarf Scrub                     5  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+12 Dwarf Scrub                     6  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+12 Dwarf Scrub                     7  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     1  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     2  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     3  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     4  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     5  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     6  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+13 Shrub/Scrub                     7  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+14 Grassland/Herbaceous            1  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+14 Grassland/Herbaceous            2  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+14 Grassland/Herbaceous            3  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+14 Grassland/Herbaceous            4  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+14 Grassland/Herbaceous            5  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+14 Grassland/Herbaceous            6  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+14 Grassland/Herbaceous            7  8.000   1.136   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                1  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                2  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                3  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                4  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                5  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                6  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+15 Sedge/Herbaceous                7  8.000   1.046   0.000   0.0000   0.0000 WOODY SAVANNA                 
+16 Lichens                         1 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+16 Lichens                         2 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+16 Lichens                         3 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+16 Lichens                         4 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+16 Lichens                         5 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+16 Lichens                         6 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+16 Lichens                         7 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            1 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            2 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            3 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            4 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            5 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            6 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+17 Moss                            7 10.000   1.053   0.000   0.0000   0.0000 GRASSLAND                     
+18 Tundra                          1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Tundra                          2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Tundra                          3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Tundra                          4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Tundra                          5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Tundra                          6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Tundra                          7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Pasture/Hay                     1 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+19 Pasture/Hay                     2 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+19 Pasture/Hay                     3 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+19 Pasture/Hay                     4 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+19 Pasture/Hay                     5 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+19 Pasture/Hay                     6 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+19 Pasture/Hay                     7 14.000   1.278   0.000   0.0000   0.0000 CROP MOSAIC                   
+20 Cultivated Crops                1 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+20 Cultivated Crops                2 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+20 Cultivated Crops                3 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+20 Cultivated Crops                4 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+20 Cultivated Crops                5 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+20 Cultivated Crops                6 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+20 Cultivated Crops                7 12.000   1.176   0.000   0.0000   0.0000 CROPLAND                      
+21 Woody Wetland                   1 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+21 Woody Wetland                   2 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+21 Woody Wetland                   3 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+21 Woody Wetland                   4 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+21 Woody Wetland                   5 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+21 Woody Wetland                   6 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+21 Woody Wetland                   7 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     1 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     2 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     3 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     4 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     5 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     6 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+22 Palustrine Forested Wetland     7 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  1 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  2 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  3 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  4 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  5 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  6 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+23 Palustrine Scrub/Shrub Wetland  7 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      1 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      2 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      3 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      4 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      5 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      6 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+24 Estuarine Forested Wetland      7 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   1 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   2 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   3 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   4 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   5 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   6 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+25 Estuarine Scrub/Shrub Wetland   7 11.000   1.071   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     1 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     2 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     3 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     4 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     5 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     6 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+26 Emergent Herbaceous Wetland     7 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     1 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     2 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     3 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     4 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     5 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     6 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+27 Palustrine Emergent Wetland     7 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      1 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      2 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      3 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      4 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      5 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      6 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+28 Estuarine Emergent Wetland      7 11.000   1.286   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+29 Palustrine Aquatic Bed          1 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+29 Palustrine Aquatic Bed          2 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+29 Palustrine Aquatic Bed          3 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+29 Palustrine Aquatic Bed          4 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+29 Palustrine Aquatic Bed          5 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+29 Palustrine Aquatic Bed          6 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+29 Palustrine Aquatic Bed          7 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           1 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           2 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           3 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           4 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           5 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           6 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+30 Estuarine Aquatic Bed           7 17.000   1.250   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+31 Open water (mapped to 1)        7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+32 Evergreen Needleleaf Forest     1  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+32 Evergreen Needleleaf Forest     2  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+32 Evergreen Needleleaf Forest     3  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+32 Evergreen Needleleaf Forest     4  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+32 Evergreen Needleleaf Forest     5  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+32 Evergreen Needleleaf Forest     6  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+32 Evergreen Needleleaf Forest     7  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+33 Evergreen Broadleaf Forest      1  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+33 Evergreen Broadleaf Forest      2  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+33 Evergreen Broadleaf Forest      3  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+33 Evergreen Broadleaf Forest      4  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+33 Evergreen Broadleaf Forest      5  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+33 Evergreen Broadleaf Forest      6  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+33 Evergreen Broadleaf Forest      7  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+34 Deciduous Needleleaf Forest     1  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+34 Deciduous Needleleaf Forest     2  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+34 Deciduous Needleleaf Forest     3  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+34 Deciduous Needleleaf Forest     4  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+34 Deciduous Needleleaf Forest     5  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+34 Deciduous Needleleaf Forest     6  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+34 Deciduous Needleleaf Forest     7  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+35 Deciduous Broadleaf Forest      1  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+35 Deciduous Broadleaf Forest      2  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+35 Deciduous Broadleaf Forest      3  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+35 Deciduous Broadleaf Forest      4  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+35 Deciduous Broadleaf Forest      5  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+35 Deciduous Broadleaf Forest      6  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+35 Deciduous Broadleaf Forest      7  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+36 Mixed Forest                    1  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+36 Mixed Forest                    2  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+36 Mixed Forest                    3  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+36 Mixed Forest                    4  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+36 Mixed Forest                    5  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+36 Mixed Forest                    6  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+36 Mixed Forest                    7  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+37 Closed Shrublands               1  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+37 Closed Shrublands               2  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+37 Closed Shrublands               3  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+37 Closed Shrublands               4  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+37 Closed Shrublands               5  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+37 Closed Shrublands               6  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+37 Closed Shrublands               7  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+38 Open Shrublands                 1  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+38 Open Shrublands                 2  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+38 Open Shrublands                 3  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+38 Open Shrublands                 4  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+38 Open Shrublands                 5  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+38 Open Shrublands                 6  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+38 Open Shrublands                 7  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+39 Woody Savanna                   1  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+39 Woody Savanna                   2  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+39 Woody Savanna                   3  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+39 Woody Savanna                   4  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+39 Woody Savanna                   5  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+39 Woody Savanna                   6  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+39 Woody Savanna                   7  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+40 Savanna                         1  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+40 Savanna                         2  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+40 Savanna                         3  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+40 Savanna                         4  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+40 Savanna                         5  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+40 Savanna                         6  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+40 Savanna                         7  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+41 Grasslands                      1 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+41 Grasslands                      2 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+41 Grasslands                      3 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+41 Grasslands                      4 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+41 Grasslands                      5 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+41 Grasslands                      6 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+41 Grasslands                      7 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+42 Perminent Wetlands              1 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+42 Perminent Wetlands              2 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+42 Perminent Wetlands              3 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+42 Perminent Wetlands              4 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+42 Perminent Wetlands              5 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+42 Perminent Wetlands              6 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+42 Perminent Wetlands              7 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+43 Croplands                       1 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+43 Croplands                       2 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+43 Croplands                       3 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+43 Croplands                       4 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+43 Croplands                       5 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+43 Croplands                       6 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+43 Croplands                       7 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+44 Urban andBuilt-up               1 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+44 Urban andBuilt-up               2 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+44 Urban andBuilt-up               3 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+44 Urban andBuilt-up               4 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+44 Urban andBuilt-up               5 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+44 Urban andBuilt-up               6 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+44 Urban andBuilt-up               7 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+45 Cropland/Natural Vegetation Mo  1 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+45 Cropland/Natural Vegetation Mo  2 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+45 Cropland/Natural Vegetation Mo  3 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+45 Cropland/Natural Vegetation Mo  4 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+45 Cropland/Natural Vegetation Mo  5 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+45 Cropland/Natural Vegetation Mo  6 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+45 Cropland/Natural Vegetation Mo  7 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+46 Snow and Ice                    1 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+46 Snow and Ice                    2 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+46 Snow and Ice                    3 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+46 Snow and Ice                    4 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+46 Snow and Ice                    5 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+46 Snow and Ice                    6 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+46 Snow and Ice                    7 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+47 Barren or Sparsely Vegetated    1 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+47 Barren or Sparsely Vegetated    2 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+47 Barren or Sparsely Vegetated    3 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+47 Barren or Sparsely Vegetated    4 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+47 Barren or Sparsely Vegetated    5 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+47 Barren or Sparsely Vegetated    6 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+47 Barren or Sparsely Vegetated    7 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+48 IGBP water                      1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+48 IGBP water                      2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+48 IGBP water                      3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+48 IGBP water                      4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+48 IGBP water                      5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+48 IGBP water                      6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+48 IGBP water                      7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+49 unclassified                    7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+50 fill value (normally ocean wat  7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+ 1 Urban or Built-up Land          1 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 1 Urban or Built-up Land          2 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 1 Urban or Built-up Land          3 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 1 Urban or Built-up Land          4 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 1 Urban or Built-up Land          5 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 1 Urban or Built-up Land          6 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 1 Urban or Built-up Land          7 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+ 2 Dryland Cropland and Pasture    1 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 2 Dryland Cropland and Pasture    2 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 2 Dryland Cropland and Pasture    3 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 2 Dryland Cropland and Pasture    4 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 2 Dryland Cropland and Pasture    5 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 2 Dryland Cropland and Pasture    6 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 2 Dryland Cropland and Pasture    7 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  1 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  2 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  3 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  4 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  5 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  6 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 3 Irrigated Cropland and Pasture  7 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     1 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     2 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     3 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     4 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     5 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     6 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 4 Mixed Dry/Irr Crop and Past     7 12.000   1.059   0.000   0.0000   0.0000 CROPLAND                      
+ 5 Grassland/Cropland Mosaic       1 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 5 Grassland/Cropland Mosaic       2 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 5 Grassland/Cropland Mosaic       3 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 5 Grassland/Cropland Mosaic       4 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 5 Grassland/Cropland Mosaic       5 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 5 Grassland/Cropland Mosaic       6 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 5 Grassland/Cropland Mosaic       7 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        1 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        2 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        3 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        4 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        5 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        6 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 6 Woodland/Cropland Mosaic        7 14.000   0.889   0.000   0.0000   0.0000 CROP MOSAIC                   
+ 7 Grassland                       1 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 7 Grassland                       2 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 7 Grassland                       3 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 7 Grassland                       4 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 7 Grassland                       5 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 7 Grassland                       6 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 7 Grassland                       7 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+ 8 Shrubland                       1  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 8 Shrubland                       2  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 8 Shrubland                       3  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 8 Shrubland                       4  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 8 Shrubland                       5  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 8 Shrubland                       6  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 8 Shrubland                       7  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 9 Mixed Shrubland/Grassland       1  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 9 Mixed Shrubland/Grassland       2  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 9 Mixed Shrubland/Grassland       3  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 9 Mixed Shrubland/Grassland       4  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 9 Mixed Shrubland/Grassland       5  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 9 Mixed Shrubland/Grassland       6  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 9 Mixed Shrubland/Grassland       7  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+10 Savanna                         1  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Savanna                         2  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Savanna                         3  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Savanna                         4  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Savanna                         5  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Savanna                         6  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Savanna                         7  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+11 Broadleaf Deciduous Forest      1  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+11 Broadleaf Deciduous Forest      2  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+11 Broadleaf Deciduous Forest      3  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+11 Broadleaf Deciduous Forest      4  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+11 Broadleaf Deciduous Forest      5  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+11 Broadleaf Deciduous Forest      6  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+11 Broadleaf Deciduous Forest      7  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+12 Deciduous Coniferous Forest     1  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+12 Deciduous Coniferous Forest     2  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+12 Deciduous Coniferous Forest     3  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+12 Deciduous Coniferous Forest     4  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+12 Deciduous Coniferous Forest     5  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+12 Deciduous Coniferous Forest     6  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+12 Deciduous Coniferous Forest     7  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+13 Evergreen Broadleaf Forest (Pa  1  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+13 Evergreen Broadleaf Forest (Pa  2  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+13 Evergreen Broadleaf Forest (Pa  3  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+13 Evergreen Broadleaf Forest (Pa  4  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+13 Evergreen Broadleaf Forest (Pa  5  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+13 Evergreen Broadleaf Forest (Pa  6  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+13 Evergreen Broadleaf Forest (Pa  7  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+14 Evergreen Coniferous Forest     1  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+14 Evergreen Coniferous Forest     2  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+14 Evergreen Coniferous Forest     3  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+14 Evergreen Coniferous Forest     4  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+14 Evergreen Coniferous Forest     5  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+14 Evergreen Coniferous Forest     6  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+14 Evergreen Coniferous Forest     7  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+15 Mixed forest                    1  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+15 Mixed forest                    2  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+15 Mixed forest                    3  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+15 Mixed forest                    4  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+15 Mixed forest                    5  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+15 Mixed forest                    6  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+15 Mixed forest                    7  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+16 Water                           1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+16 Water                           2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+16 Water                           3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+16 Water                           4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+16 Water                           5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+16 Water                           6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+16 Water                           7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 Herbaceous Wetland (none in ea  1 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+17 Herbaceous Wetland (none in ea  2 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+17 Herbaceous Wetland (none in ea  3 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+17 Herbaceous Wetland (none in ea  4 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+17 Herbaceous Wetland (none in ea  5 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+17 Herbaceous Wetland (none in ea  6 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+17 Herbaceous Wetland (none in ea  7 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  1 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  2 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  3 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  4 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  5 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  6 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+18 Forested Wetlands (e.g. Evergl  7 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+19 Barren or Sparsely Vegetated    1 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+19 Barren or Sparsely Vegetated    2 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+19 Barren or Sparsely Vegetated    3 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+19 Barren or Sparsely Vegetated    4 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+19 Barren or Sparsely Vegetated    5 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+19 Barren or Sparsely Vegetated    6 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+19 Barren or Sparsely Vegetated    7 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+20 Herbaceous Tundra               1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Herbaceous Tundra               2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Herbaceous Tundra               3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Herbaceous Tundra               4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Herbaceous Tundra               5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Herbaceous Tundra               6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Herbaceous Tundra               7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+21 Shrub and Brush Tundra          7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+22 Mixed Tundra                    7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+23 Bare Ground Tundra              7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+24 Perennial Snowfields or Glacie  1 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+24 Perennial Snowfields or Glacie  2 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+24 Perennial Snowfields or Glacie  3 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+24 Perennial Snowfields or Glacie  4 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+24 Perennial Snowfields or Glacie  5 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+24 Perennial Snowfields or Glacie  6 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+24 Perennial Snowfields or Glacie  7 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+ 1 Evergreen Needleleaf Forest     1  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 1 Evergreen Needleleaf Forest     2  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 1 Evergreen Needleleaf Forest     3  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 1 Evergreen Needleleaf Forest     4  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 1 Evergreen Needleleaf Forest     5  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 1 Evergreen Needleleaf Forest     6  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 1 Evergreen Needleleaf Forest     7  1.000   1.000   0.000   0.0000   0.0000 EVERGREEN NEEDLE FOREST       
+ 2 Evergreen Broadleaf Forest      1  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 2 Evergreen Broadleaf Forest      2  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 2 Evergreen Broadleaf Forest      3  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 2 Evergreen Broadleaf Forest      4  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 2 Evergreen Broadleaf Forest      5  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 2 Evergreen Broadleaf Forest      6  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 2 Evergreen Broadleaf Forest      7  2.000   1.000   0.000   0.0000   0.0000 EVERGREEN BROADLEAF FOREST    
+ 3 Deciduous Needleleaf Forest     1  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 3 Deciduous Needleleaf Forest     2  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 3 Deciduous Needleleaf Forest     3  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 3 Deciduous Needleleaf Forest     4  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 3 Deciduous Needleleaf Forest     5  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 3 Deciduous Needleleaf Forest     6  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 3 Deciduous Needleleaf Forest     7  3.000   1.000   0.000   0.0000   0.0000 DECIDUOUS NEEDLE FOREST       
+ 4 Deciduous Broadleaf Forest      1  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 4 Deciduous Broadleaf Forest      2  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 4 Deciduous Broadleaf Forest      3  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 4 Deciduous Broadleaf Forest      4  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 4 Deciduous Broadleaf Forest      5  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 4 Deciduous Broadleaf Forest      6  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 4 Deciduous Broadleaf Forest      7  4.000   1.000   0.000   0.0000   0.0000 DECIDUOUS BROADLEAF FOREST    
+ 5 Mixed Forest                    1  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 5 Mixed Forest                    2  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 5 Mixed Forest                    3  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 5 Mixed Forest                    4  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 5 Mixed Forest                    5  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 5 Mixed Forest                    6  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 5 Mixed Forest                    7  5.000   1.000   0.000   0.0000   0.0000 MIXED FOREST                  
+ 6 Closed Shrublands               1  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 6 Closed Shrublands               2  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 6 Closed Shrublands               3  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 6 Closed Shrublands               4  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 6 Closed Shrublands               5  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 6 Closed Shrublands               6  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 6 Closed Shrublands               7  6.000   1.000   0.000   0.0000   0.0000 CLOSED SHRUBS                 
+ 7 Open Shrublands                 1  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 7 Open Shrublands                 2  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 7 Open Shrublands                 3  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 7 Open Shrublands                 4  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 7 Open Shrublands                 5  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 7 Open Shrublands                 6  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 7 Open Shrublands                 7  7.000   1.000   0.000   0.0000   0.0000 OPEN / SHRUBS                 
+ 8 Woody Savanna                   1  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 8 Woody Savanna                   2  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 8 Woody Savanna                   3  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 8 Woody Savanna                   4  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 8 Woody Savanna                   5  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 8 Woody Savanna                   6  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 8 Woody Savanna                   7  8.000   1.000   0.000   0.0000   0.0000 WOODY SAVANNA                 
+ 9 Savanna                         1  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+ 9 Savanna                         2  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+ 9 Savanna                         3  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+ 9 Savanna                         4  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+ 9 Savanna                         5  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+ 9 Savanna                         6  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+ 9 Savanna                         7  9.000   1.000   0.000   0.0000   0.0000 SAVANNA                       
+10 Grasslands                      1 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+10 Grasslands                      2 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+10 Grasslands                      3 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+10 Grasslands                      4 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+10 Grasslands                      5 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+10 Grasslands                      6 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+10 Grasslands                      7 10.000   1.000   0.000   0.0000   0.0000 GRASSLAND                     
+11 Perminent Wetlands              1 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+11 Perminent Wetlands              2 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+11 Perminent Wetlands              3 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+11 Perminent Wetlands              4 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+11 Perminent Wetlands              5 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+11 Perminent Wetlands              6 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+11 Perminent Wetlands              7 11.000   1.000   0.000   0.0000   0.0000 PERMANENT WETLANDS            
+12 Croplands                       1 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+12 Croplands                       2 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+12 Croplands                       3 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+12 Croplands                       4 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+12 Croplands                       5 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+12 Croplands                       6 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+12 Croplands                       7 12.000   1.000   0.000   0.0000   0.0000 CROPLAND                      
+13 Urban andBuilt-up               1 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+13 Urban andBuilt-up               2 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+13 Urban andBuilt-up               3 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+13 Urban andBuilt-up               4 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+13 Urban andBuilt-up               5 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+13 Urban andBuilt-up               6 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+13 Urban andBuilt-up               7 13.000   1.000   0.000   0.0000   0.0000 URBAN                         
+14 Cropland/Natural Vegetation     1 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+14 Cropland/Natural Vegetation     2 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+14 Cropland/Natural Vegetation     3 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+14 Cropland/Natural Vegetation     4 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+14 Cropland/Natural Vegetation     5 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+14 Cropland/Natural Vegetation     6 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+14 Cropland/Natural Vegetation     7 14.000   1.000   0.000   0.0000   0.0000 CROP MOSAIC                   
+15 Snow and Ice                    1 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+15 Snow and Ice                    2 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+15 Snow and Ice                    3 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+15 Snow and Ice                    4 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+15 Snow and Ice                    5 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+15 Snow and Ice                    6 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+15 Snow and Ice                    7 15.000   1.000   0.000   0.0000   0.0000 PERMANENT SNOW                
+16 Barren or Sparsely Vegetated    1 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+16 Barren or Sparsely Vegetated    2 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+16 Barren or Sparsely Vegetated    3 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+16 Barren or Sparsely Vegetated    4 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+16 Barren or Sparsely Vegetated    5 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+16 Barren or Sparsely Vegetated    6 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+16 Barren or Sparsely Vegetated    7 16.000   1.000   0.000   0.0000   0.0000 BARREN / DESSERT              
+17 IGBP water                      1 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 IGBP water                      2 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 IGBP water                      3 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 IGBP water                      4 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 IGBP water                      5 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 IGBP water                      6 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+17 IGBP water                      7 17.000   1.000   0.000   0.0000   0.0000 OCEAN WATER                   
+18 Mixed Tundra                    1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Mixed Tundra                    2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Mixed Tundra                    3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Mixed Tundra                    4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Mixed Tundra                    5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Mixed Tundra                    6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+18 Mixed Tundra                    7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+19 Wooded Tundra                   7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   1 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   2 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   3 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   4 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   5 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   6 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
+20 Barren Tundra                   7 18.000   1.000   0.000   0.0000   0.0000 TUNDRA                        
