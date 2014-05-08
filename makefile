@@ -1,15 +1,18 @@
  
-FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-FPP = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
- 
-ioapi_path   = /home/wdx/lib/x86_64/ifc/ioapi_3.1/Linux2_x86_64ifort
-netcdf_path  = /home/wdx/lib/x86_64/ifc/netcdf/lib
+#FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+#FPP = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+FC = ifort
+FPP = $(FC)
+
+ioapi_path   = /home/wdx/$(WDX_LIB)/x86_64/ifc/ioapi_3.1/Linux2_x86_64ifort
+netcdf_path  = /home/wdx/$(WDX_LIB)/x86_64/ifc/netcdf/lib
 
 F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I $(ioapi_path)  -I.
 F90_FLAGS  = -free -O3 -fno-alias -mp1   -I $(ioapi_path)  -I.
  
 CC = cc
-CPP  = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+#CPP  = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+CPP = $(FPP)
  
 CPP_FLAGS  =  
  
@@ -17,11 +20,12 @@ C_FLAGS    = -O2  -DFLDMN
 LINK_FLAGS = -i-static 
 IOAPI_INC =  /home/wdx/lib/src/ioapi_3.1/ioapi/fixed_src
  
-LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -lnetcdf
+LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -l -l$(NETCDF)
 #
 #
 
- LOAD    = $(FC) $(F_FLAGS) -I -g -CB -CU -traceback
+ LOAD     = $(FC) $(F_FLAGS) -I -g -CB -CU -traceback
+ LOAD_F90 = $(FC) $(F90_FLAGS) -I -g -CB -CU -traceback
  LDFLAGS = $(LINK_FLAGS)
  ICL_DIR = $(IOAPI_INC)
 
@@ -58,6 +62,9 @@ OBJS = module_envvar.o \
 #
 cr_ebi_solver: $(OBJS) 
 	$(LOAD) $(LDFLAGS) -o cr_ebi_solver $(OBJS) $(LIBS)
+
+$(RXNS_DATA).o: $(RXNS_DATA).F90
+	$(LOAD_F90) -c $(INCLUDES) $(RXNS_DATA).o
 
 module_envvar.o:  $(SRCDIR)/module_envvar.F 
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/module_envvar.F

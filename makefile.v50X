@@ -1,6 +1,8 @@
  
-FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-FPP = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+#FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+#FPP = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+FC = ifort
+FPP = $(FC)
  
 ioapi_path   = /home/wdx/lib/x86_64/ifc/ioapi_3.1/Linux2_x86_64ifort
 netcdf_path  = /home/wdx/lib/x86_64/ifc/netcdf/lib

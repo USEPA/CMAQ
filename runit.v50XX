@@ -61,7 +61,7 @@ set echo
 #setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial
 #setenv TMPLDIR         ${STEM}/template_Aug_30_2011
 #setenv TMPLDIR         ${STEM}/template_June_01_2012-ncell
- setenv TMPLDIR         ${STEM}/template_RXNS
+ setenv TMPLDIR         ${STEM}/template_RXNSSS
  setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial-mod_2
 
 #creation program source code uses IOAPI 3.1 modules if src_ioapi equals 31
@@ -120,7 +120,7 @@ set day = ` date "+%b-%d-%Y" `
 
  mkdir BLD
 
- cp makefile.v50X  ./BLD/Makefile
+ cp makefile.v50XX  ./BLD/Makefile
 #cp Makefile ./BLD
 
  cd BLD

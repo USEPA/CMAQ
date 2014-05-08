@@ -61,7 +61,8 @@ set echo
 #setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial
 #setenv TMPLDIR         ${STEM}/template_Aug_30_2011
 #setenv TMPLDIR         ${STEM}/template_June_01_2012-ncell
- setenv TMPLDIR         ${STEM}/template_RXNS
+#setenv TMPLDIR         ${STEM}/template_RXNSSS
+ setenv TMPLDIR         ${STEM}/template_RXNST
  setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial-mod_2
 
 #creation program source code uses IOAPI 3.1 modules if src_ioapi equals 31
@@ -69,7 +70,8 @@ set echo
 
 if( ${src_ioapi_31} == "T" )then
 #setenv SRCDIR          ${STEM}/src_May_17_2011-ncell
- setenv SRCDIR          ${STEM}/src_RXNS
+#setenv SRCDIR          ${STEM}/src_RXNS
+ setenv SRCDIR          ${STEM}/src_RXNST
 else
  setenv SRCDIR          ${STEM}/src_Oct_19_2010
 endif
@@ -112,6 +114,16 @@ set day = ` date "+%b-%d-%Y" `
 
 #########################################################
  unalias rm
+ 
+ set is_sol = `uname -n | grep sol | wc -l`
+
+if ($is_sol) then
+    setenv WDX_LIB "lib_sol"
+    setenv NETCDF  "netcdff"
+else
+    setenv WDX_LIB "lib"
+    setenv NETCDF  "netcdf"
+endif    
 
  if( -e ./BLD ) then
     echo "Removing old BLD directory"
@@ -120,7 +132,7 @@ set day = ` date "+%b-%d-%Y" `
 
  mkdir BLD
 
- cp makefile.v50X  ./BLD/Makefile
+ cp makefile.v50XX  ./BLD/Makefile
 #cp Makefile ./BLD
 
  cd BLD
