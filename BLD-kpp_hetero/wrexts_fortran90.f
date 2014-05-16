@@ -63,6 +63,8 @@ C Argument variables
       
 C Local Variables
 
+      REAL, PARAMETER   :: ONE = 1.0
+      
       INTEGER ISPC, IRX, IFLD0, IFLD1, IFLD2, NLINES
 
       INTEGER, EXTERNAL :: JUNIT
@@ -438,15 +440,20 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
       WRITE( WRUNIT,'( 2/ )')
 
-      IF( WRITE_CGRID_DATA )THEN
+      IF( USE_SPCS_NAMELISTS )THEN
           DO ISPC = 1, NS + N_SS_SPC
              WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
      &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC )
-2061         FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
-     &           ' ), SPECIES_MOLWT(', I4,' ) / ''', A16, ''', ', I4,', ''', A2, ''', ', F7.2,' /')
+          END DO
+      ELSE
+          DO ISPC = 1, NS + N_SS_SPC
+             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
+     &       SPECIES_TYPE( ISPC ), ONE
           END DO
       END IF
 
+2061   FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
+     &       ' ), SPECIES_MOLWT(', I4,' ) / ''', A16, ''', ', I4,', ''', A2, ''', ', F7.2,' /')
 
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

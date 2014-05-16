@@ -104,7 +104,9 @@ c.. Variables for steady-state species
          INTEGER        ::  DATA_MODULE_UNIT
          INTEGER        ::  FUNC_MODULE_UNIT
          
-         LOGICAL, SAVE      :: WRITE_CGRID_DATA  ! species data based on CMAQ NMLS
+
+         LOGICAL, SAVE      :: USE_SPCS_NAMELISTS  ! species data based on CMAQ NMLS
+         LOGICAL, SAVE      :: WRITE_CGRID_DATA  = .TRUE.
 
          INTEGER,            ALLOCATABLE ::  CGRID_INDEX  ( : )
          INTEGER,            ALLOCATABLE ::  TYPE_INDEX   ( : )

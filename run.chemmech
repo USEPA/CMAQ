@@ -5,26 +5,25 @@
  set echo
 
   set BASE  = $cwd
-#set BASE  = /home/hwo/cmaq-v5.0/AE6_based_HAPS_mechanism
-#set BASE = /home/hwo/tools/csv_to_nml-file
-#set Xpath = /home/hwo/tools/mech_processor/BLD-kpp_special_SS4
-#set Xpath = /home/hwo/tools/mech_processor/BLD-ggb_special_SS4
- set Xpath = /home/hwo/tools/mech_processor/BLD-kpp_hetero
- set EXEC  = CHEMMECH_ggb_SS4-sol
+#set BASE  = /home/hutzellb/cmaq-v5.0/AE6_based_HAPS_mechanism
+#set BASE = /home/hutzellb/tools/csv_to_nml-file
+#set Xpath = /home/hutzellb/tools/mech_processor/BLD-kpp_special_SS4
+#set Xpath = /home/hutzellb/tools/mech_processor/BLD-ggb_special_SS4
+ set Xpath = /home/hutzellb/tools/mech_processor/BLD-kpp_hetero
+ set EXEC  = CHEMMECH_ggb_SS4
  set APPL  = test
 
-#option to write CGRID species names and indices to output
-#REQUIRE CMAQ namelist defined as defined lower in this scipt  [T|Y|F|N]
- setenv WRITE_CGRID_DATA T
+#option use CMAQ species namelists to determine CGRID species indices to output
+ setenv USE_SPCS_NAMELISTS F
 
 # mechanism input file ........................................................
 
-#set BASE = /home/hwo/cmaq-v5.0/mechanisms
-#set MECH_ARCHIVE = /home/hwo/mech_git_archive
- set MECH_ARCHIVE = /home/hwo/CCTM_git_repository/MECHS
-#set BASE = /home/hwo/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
- set BASE = /home/hwo/tools/mech_processor
-#set BASE = /home/hwo/tools/CSQY_table_processor/cb05tucl-halogen_update
+#set BASE = /home/hutzellb/cmaq-v5.0/mechanisms
+#set MECH_ARCHIVE = /home/hutzellb/mech_git_archive
+ set MECH_ARCHIVE = /home/hutzellb/CCTM_git_repository/MECHS
+#set BASE = /home/hutzellb/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
+ set BASE = /home/hutzellb/tools/mech_processor
+#set BASE = /home/hutzellb/tools/CSQY_table_processor/cb05tucl-halogen_update
 #set Mpath = ${BASE}/racm2_ae6_aq
 #set Mpath = ${BASE}/saprc07tc_ae6_aq
 #set Mpath = ${BASE}/S11b_updates
@@ -80,8 +79,8 @@ foreach Mechanism ( $mechanisms )
 
 
 #set Opath = ${BASE}/${Mechanism}_test
- set Opath = ${Mpath}"-sol"
-#set Opath = /home/hwo/tools/mech_processor/${Mechanism}
+ set Opath = ${Mpath}
+#set Opath = /home/hutzellb/tools/mech_processor/${Mechanism}
 #set Opath = ${BASE}/test
  set KPP_Out_Path = ${Opath}
 
@@ -136,7 +135,7 @@ setenv tr_matrix_nml $TR_NML
 #else
 #    set compiler = ifc
 #endif
-#source /home/hwo/scom -c $compiler
+#source /home/hutzellb/scom -c $compiler
 #
 #cd $Xpath ; make clean ; make ; cd $BASE
 

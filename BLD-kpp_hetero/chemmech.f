@@ -115,7 +115,7 @@ c..Variables for species to be dropped from mechanism
       CHARACTER(  16 ) :: OUT_DIR          = 'OUTDIR'
 
       CHARACTER(  5 )    :: CGRID_DATA
-      CHARACTER( 16 )    :: CGRID_NMLS = 'WRITE_CGRID_DATA'
+      CHARACTER( 32 )    :: CGRID_NMLS = 'USE_SPCS_NAMELISTS'
 
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
@@ -255,21 +255,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL CONVERT_CASE( CGRID_DATA, .TRUE.)
 
          IF( CGRID_DATA(1:1) .EQ. 'T' .OR. CGRID_DATA(1:1) .EQ. 'Y' )THEN
-             WRITE_CGRID_DATA = .TRUE.
+             USE_SPCS_NAMELISTS = .TRUE.
              WRITE(6,'(A)')'Environment Variable WRITE_CGRID_DATA set to '
      &       // TRIM( CGRID_DATA ) // ' and adding CMAQ CGRID data to output '
          ELSE IF(  CGRID_DATA(1:1) .EQ. 'F' .OR. CGRID_DATA(1:1) .EQ. 'N' )THEN
-             WRITE_CGRID_DATA = .FALSE.
+             USE_SPCS_NAMELISTS = .FALSE.
              WRITE(6,'(A)')'Environment Variable WRITE_CGRID_DATA set to '
      &      // TRIM( CGRID_DATA ) // ' and not writing CMAQ CGRID data to output '
          ELSE
              WRITE(6,' (A)')'Environment Variable WRITE_CGRID_DATA set to '
      &       // TRIM( CGRID_DATA ) // ' and must equal T, Y, F, or N.'
      &       // ' Using default value of F'
-             WRITE_CGRID_DATA = .FALSE.
+             USE_SPCS_NAMELISTS = .FALSE.
          END IF
 
-      print*,'CHEMMECH: WRITE_CGRID_DATA = ',WRITE_CGRID_DATA
+      print*,'CHEMMECH: USE_SPCS_NAMELISTS = ',USE_SPCS_NAMELISTS
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Open mechanism input file and get the first non-comment line
@@ -783,7 +783,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C Set CGRID mechanism
 
-       IF( WRITE_CGRID_DATA )THEN
+       IF( USE_SPCS_NAMELISTS )THEN
            IF ( .NOT. CGRID_SPCS_INIT() ) THEN
                STOP 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
            ELSE
@@ -791,7 +791,7 @@ C Set CGRID mechanism
            END IF
        ELSE
            SPECIES_TYPE = 'GC'
-           CGRID_INDEX  = -1
+           CGRID_INDEX(1:NUMB_MECH_SPCS)  =  MECHANISM_INDEX(1:NUMB_MECH_SPCS)
        END IF
 
         N_GAS_CHEM_SPC = 0 

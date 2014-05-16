@@ -1,7 +1,7 @@
 # original file copied from /home/yoj/src/mech/BLD_2, 1/31/2008
 # need to source scom command for compilers
 
-  MODEL = CHEMMECH_ggb_SS4-sol
+  MODEL = CHEMMECH_ggb_SS4
 
 
 #  FC = $(myFC) 
