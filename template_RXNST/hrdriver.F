@@ -61,6 +61,7 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
+      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE 
 
@@ -98,6 +99,7 @@ C..Scratch Local Variables:
       CHARACTER(  16 ) :: VNAME         ! Name of I/O API data variable
       
       INTEGER C, E, L, R, S   ! Loop indices
+      INTEGER ISP             ! array index
 
       INTEGER AVGEBI          ! Average no. of EBI iterations
       INTEGER DELT_SEC        ! EBI max time step in seconds
@@ -159,13 +161,14 @@ R5           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log fi
 R5           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
 R5         END SUBROUTINE FIND_DEGRADED
 R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
+R5           USE RXNS_DATA
 R5           USE DEGRADE_SETUP_TOX
 R5           IMPLICIT NONE
 R5           
-R5           REAL, INTENT( IN ) :: CBLK( NSPCSD )            !  species concentration in cell
+R5           REAL, INTENT( IN ) :: CBLK( : )            !  species concentration in cell
 R5           REAL, INTENT( IN ) :: TCELL                     !  cell temperature  [ k ]
 R5           REAL, INTENT( IN ) :: DCELL                     !  cell air density  [ kg/m^3 ]
-R5           REAL, INTENT( IN ) :: PHOTO_CELL( N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
+R5           REAL, INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
 R5           INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
 R5           INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
 R5           INTEGER, INTENT( IN ) :: LOGDEV ! unit number for the log
@@ -367,9 +370,9 @@ c..Load ICs
                INV_DENS = 1.0 / DENS( C,R,L )
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
-                  IF( TRIM( SPECIES_TYPE( SPC ) ) .EQ. 'AE' )THEN 
-                      YC( NCELL, SPC ) = MAX( FORWARD_CONV( SPC ) * INV_DENS
-     &                          *       CGRID( C,R,L,S ), CONCMIN)
+                  IF( CONVERT_CONC( SPC ) )THEN 
+                      YC( NCELL, SPC ) = MAX( CONMIN, INV_DENS
+     &                                 * FORWARD_CONV( SPC )*CGRID( C,R,L,S ))
                   ELSE
                       YC( NCELL, SPC ) = MAX( CGRID( C,R,L,S ), CONCMIN)
                   END IF
@@ -378,7 +381,7 @@ c..Load ICs
 R5               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
 R5
 R5                  YCCELL(1: MODEL_SPECIES) = CGRID(C,R,L,1: MODEL_SPECIES)
-R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN,
+R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME, LOGDEV)
 R5               END IF
 
@@ -419,7 +422,7 @@ c..Call EBI solver
 c..Update concentration array
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
-                  IF( TRIM( SPECIES_TYPE( SPC ) ) .EQ. 'AE' )THEN 
+                  IF( CONVERT_CONC( SPC ) )THEN 
                       CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
      &                                      * YC( NCELL, SPC ), CONCMIN)
                   ELSE
@@ -429,12 +432,13 @@ c..Update concentration array
 
 R5               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
 R5                  CALL FINAL_DEGRADE(YCCELL)
-R5                  DO SPC = 1, MODEL_SPECIES
+R5                  UPDATE_DEGRADED: DO SPC = 1, N_REACT
+R5                     ISP = RXTANT_MAP( SPC )
 R5                     DO S = 1, NUMB_MECH_SPC
-R5                        IF(  CGRID_INDEX( S ) .EQ. SPC )CYCLE
-R5                        CGRID(C,R,L,SPC) = YCCELL(SPC)
+R5                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
 R5                     END DO
-R5                  END DO
+R5                     CGRID(C,R,L,ISP) = YCCELL(ISP)
+R5                  END DO UPDATE_DEGRADED
 R5               END IF
 
             END DO

@@ -113,9 +113,10 @@ R5      REAL( 8 ) DTG         ! Time step in degrade routines, sec
 
 R5      INTERFACE ! for degrade algorithm
 R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
+R5          USE RXNS_DATA
 R5          USE DEGRADE_SETUP_TOX
 R5          IMPLICIT NONE
-R5          REAL,      INTENT( IN ) :: CBLK( NSPCSD ) ! array holding species concentrations
+R5          REAL,      INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
 R5          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
 R5          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
 R5          INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
@@ -239,8 +240,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
 
-                  YCP( NCELL, S ) = YC( NCELL, S )*( ( YC0( NCELL, S ) + PROD( NCELL, S ) * DTC ) /
-     &                               ( YC( NCELL, S ) + LOSS( NCELL, S ) * DTC ) )
+                  YCP( NCELL, S ) =  YC( NCELL, S )*( ( YC0( NCELL, S ) + PROD( NCELL, S ) * DTC )
+     &                            / ( YC( NCELL, S ) + LOSS( NCELL, S ) * DTC ) )
 
 
                END DO
@@ -293,7 +294,11 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                 IF( LEBI_CONV )THEN
 R5
 R5                   DTG = 60.0D0 * REAL(DTC, 8)
-R5                   IF(CALL_DEG)CALL DEGRADE(YC, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
+R5                   DO S = 1, NUMB_MECH_SPC
+R5                      N = CGRID_INDEX( S )
+R5                      YCCELL( N ) = YC( NCELL, S )
+R5                   END DO
+R5                   IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
 R5
                    GO TO 2000
 R5

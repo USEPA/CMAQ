@@ -90,15 +90,16 @@ R4   &          PNEG( MAX_CELLS_EBI, N_SPEC),
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
+      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+         MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
       DO N = 1, NUMB_MECH_SPC
-         IF( TRIM( SPECIES_TYPE( N ) ) .NE. 'AE' )THEN
-             FORWARD_CONV( N ) = 1.0D0
-             REVERSE_CONV( N ) = 1.0D0
-         ELSE
-             FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
-             REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
-         END IF
-       END DO
+         FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
+         REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
+      END DO
+
 
       NING1 = 4
       NING2 = 4

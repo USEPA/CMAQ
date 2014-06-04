@@ -63,7 +63,7 @@ set echo
 #setenv TMPLDIR         ${STEM}/template_June_01_2012-ncell
 #setenv TMPLDIR         ${STEM}/template_RXNSSS
  setenv TMPLDIR         ${STEM}/template_RXNST
- setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial-mod_2
+ setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial-RXNST
 
 #creation program source code uses IOAPI 3.1 modules if src_ioapi equals 31
  set src_ioapi_31 = "T"
@@ -78,8 +78,8 @@ endif
 
 # output directory
 set day = ` date "+%b-%d-%Y" `
- set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
- setenv OUTDIR        ${BASE}/EBI_NCELL-${MECH}_${day}
+#set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
+ setenv OUTDIR        ${BASE}/output/EBI_NCELL-${MECH}_${day}
 
  setenv COPYRT_FLAG      N
  setenv CVS_HDR_FLAG     N
@@ -156,12 +156,10 @@ set echo
 
  endif
 
-#mkdir $OUTDIR
-
  $EXDIR/$EXEC
 
  if( $DEGRADE_SUBS  == "T" )then
-     cp ${DEGRADE_CODES}/*.[f,F]  ${OUTDIR}/.
+     \cp -f ${DEGRADE_CODES}/*.[f,F]  ${OUTDIR}/.
  endif
 
  exit() 
