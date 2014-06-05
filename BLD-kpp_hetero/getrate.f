@@ -66,8 +66,6 @@ C=======================================================================
       USE MECHANISM_DATA
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
-!      INCLUDE 'CHMECH.e'
  
       CHARACTER(  1 ), INTENT( INOUT ) :: CHR
       CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
@@ -430,7 +428,7 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
                IF( NOT_POWER )THEN
                    NUMREALS = NUMREALS + 1
-                   IF ( MOD(NUMREALS, 2) .EQ. 0 )NUMBER = -NUMBER
+                   IF ( MOD(NUMREALS, 2) .EQ. 0 .AND. NUMBER .NE. 0.0D+0 )NUMBER = -NUMBER
                    IF ( NUMREALS .LE. 3 ) THEN
                        RTDAT( NUMREALS,NXX ) = NUMBER
                    ELSE

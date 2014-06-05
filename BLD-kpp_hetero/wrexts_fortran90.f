@@ -63,7 +63,8 @@ C Argument variables
       
 C Local Variables
 
-      REAL, PARAMETER   :: ONE = 1.0
+      REAL,   PARAMETER   :: ONE = 1.0
+   
       
       INTEGER ISPC, IRX, IFLD0, IFLD1, IFLD2, NLINES
 
@@ -363,23 +364,23 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 !     WRITE( EXUNIT_SPCS, 1055 )
 !055  FORMAT( /6X, 'INTEGER    ISPCS' )
 
-      WRITE( EXUNIT_SPCS, 1057 )
+!      WRITE( EXUNIT_SPCS, 1057 )
 !057  FORMAT( /6X, 'CHARACTER*16 CTMSPC(NSPCS )'
-1057  FORMAT( /6X, 'CHARACTER( 16 ) :: SPCNAMES( NSPCS )'
-     &        /6X, 'INTEGER         :: SPC1RX( NSPCS )' / )
+!1057  FORMAT( /6X, 'CHARACTER( 16 ) :: SPCNAMES( NSPCS )'
+!     &        /6X, 'INTEGER         :: SPC1RX( NSPCS )' / )
 
  
 
-      DO ISPC = 1, NS
-         WRITE( EXUNIT_SPCS, 1059 ) ISPC, ISPC, SPCLIS( ISPC ), SPC1RX( ISPC )
+!     DO ISPC = 1, NS
+!        WRITE( EXUNIT_SPCS, 1059 ) ISPC, ISPC, SPCLIS( ISPC ), SPC1RX( ISPC )
 !059     FORMAT( 6X, 'DATA', 1X, 'CTMSPC(', I3, '),', 1X, 'SPC1RX(', I3, ')',
-1059     FORMAT( 6X, 'DATA', 1X, 'SPCNAMES(', I3, '),', 1X, 'SPC1RX(', I3, ')',
-     &           2X, '/ ''', A16, ''',', I4, ' /' )
-      END DO
+!1059     FORMAT( 6X, 'DATA', 1X, 'SPCNAMES(', I3, '),', 1X, 'SPC1RX(', I3, ')',
+!    &           2X, '/ ''', A16, ''',', I4, ' /' )
+!     END DO
 
-      DO ISPC = 1, N_SS_SPC
-         WRITE( EXUNIT_SPCS, 1059 ) ISPC + NS, ISPC + NS, SS_SPC( ISPC ), SS1RX( ISPC )
-      END DO
+!     DO ISPC = 1, N_SS_SPC
+!        WRITE( EXUNIT_SPCS, 1059 ) ISPC + NS, ISPC + NS, SS_SPC( ISPC ), SS1RX( ISPC )
+!     END DO
 
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
@@ -415,6 +416,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
      &            /6X, 'CHARACTER( 16 ) :: SPECIES_TYPE(  NUMB_MECH_SPC )',
      &            /6X, 'INTEGER         :: CGRID_INDEX (  NUMB_MECH_SPC )',
      &            /6X, 'INTEGER         :: TYPE_INDEX  (  NUMB_MECH_SPC )',
+     &            /6X, 'LOGICAL         :: CONVERT_CONC(  NUMB_MECH_SPC )',
      &            /6X, 'REAL            :: SPECIES_MOLWT( NUMB_MECH_SPC )')
       ELSE
           WRITE( WRUNIT, 2157 )
@@ -439,21 +441,32 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       END DO
 
       WRITE( WRUNIT,'( 2/ )')
-
+      
+      WRITE( WRUNIT, 2064 )      
       IF( USE_SPCS_NAMELISTS )THEN
+          WRITE( WRUNIT, 2062 ) 
           DO ISPC = 1, NS + N_SS_SPC
-             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
-     &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC )
+             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC,  ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
+     &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC ), CONVERT_CONC( ISPC )
           END DO
       ELSE
+          WRITE( WRUNIT, 2063 ) 
           DO ISPC = 1, NS + N_SS_SPC
-             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
-     &       SPECIES_TYPE( ISPC ), ONE
+             WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC, ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
+     &       SPECIES_TYPE( ISPC ), ONE, USE_SPCS_NAMELISTS
           END DO
       END IF
 
 2061   FORMAT( 6X, 'DATA', 1X, 'CHEMISTRY_SPC(', I4, ' ), CGRID_INDEX(', I4,' ), SPECIES_TYPE(', I4,
-     &       ' ), SPECIES_MOLWT(', I4,' ) / ''', A16, ''', ', I4,', ''', A2, ''', ', F7.2,' /')
+     &       ' ), SPECIES_MOLWT(', I4,' ), CONVERT_CONC(', I4,' ) / ''', A16, ''', ', I4,', ''', A2, ''', ', 
+     &       F7.2,', ', L1,' /')
+
+2062  FORMAT( /6X,'LOGICAL   :: MAPPED_TO_CGRID = .TRUE. '  /)
+2063  FORMAT( /6X,'LOGICAL   :: MAPPED_TO_CGRID = .FALSE. ' /)
+2064  FORMAT(/'! MAPPED_TO_CGRID declares whether CMAQ namelists were used to determine ',
+     &       /'! the below values of CGRID_INDEX, SPECIES_TYPE, SPECIES_MOLWT, and CONVERT_CONC' 
+     &       /6X, 'LOGICAL, PARAMETER, PRIVATE :: F = .FALSE.' 
+     &       /6X, 'LOGICAL, PARAMETER, PRIVATE :: T = .TRUE.'  /)
 
 
 c_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

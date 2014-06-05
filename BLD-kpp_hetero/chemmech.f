@@ -781,6 +781,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          MECHANISM_SPC( I )   = SPCLIS( I )
        END DO
 
+      MECHANISM( 1:LEN(MECHANISM) ) = DESCRP_MECH( 1:LEN(MECHANISM) )
+
+      CONST( 1:MAXCONSTS ) = CVAL( 1:MAXCONSTS )
 C Set CGRID mechanism
 
        IF( USE_SPCS_NAMELISTS )THEN
@@ -821,13 +824,11 @@ C Set CGRID mechanism
 
       CLOSE( KPPEQN_UNIT )
 
-      MECHANISM = DESCRP_MECH
-      CONST( 1:MAXCONSTS ) = CVAL( 1:MAXCONSTS )
       
       
-!     CALL WRT_CALCKS( )
+!      CALL WRT_CALCKS( )
 
-      print*,'calling WRT_RATE_CONSTANT '
+!      print*,'calling WRT_RATE_CONSTANT '
       
       EQUATIONS_MECHFILE = EQNAME_MECH
       
@@ -848,8 +849,10 @@ C Set CGRID mechanism
       CLOSE( EXUNIT_RXDT )
       CLOSE( EXUNIT_RXCM )
 
+
       CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
-      CLOSE( KPPEQN_UNIT )
+
+      WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
 
 
 1993  FORMAT( / 5X, '*** ERROR: Special label already used'
@@ -990,8 +993,7 @@ C Set CGRID mechanism
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
 
-       WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
-
+ 
        STOP
        END     
        SUBROUTINE  CONVERT_CASE ( BUFFER, UPPER )

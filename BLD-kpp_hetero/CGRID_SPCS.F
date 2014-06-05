@@ -1012,16 +1012,19 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             
             allocate ( cgrid_spc( nspcsd - 1 ), nml_spc( nspcsd - 1 ), 
      &                 nml_index( nspcsd - 1 ), nml_type( nspcsd - 1 ), 
-     &                 nml_molwt( nspcsd - 1 ),  type_index( nspcsd - 1 ), stat = ios )
+     &                 nml_molwt( nspcsd - 1 ), type_index( nspcsd - 1 ),
+     &                  stat = ios )
            
-            allocate ( species_molwt( nspcsd - 1 ), stat = ios )
+            allocate ( species_molwt( nspcsd - 1 ), convert_conc( nspcsd - 1 ), stat = ios )
 
+     
             j = 0
             cgrid_spc  = 'BLANK'
             nml_index  = -1
             type_index = -1
             nml_type   = '??'
             nml_molwt  = -1.0
+	    convert_conc = .False.
             
             do i = 1, n_gc_spc ! load GC names and indices 
                j = j + 1
@@ -1039,6 +1042,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                nml_type( j )     = 'AE'
                type_index( j )   = i
                nml_molwt( j )    = ae_molwt( i )
+               convert_conc( j ) = .True.
             end do  
 
             do i = 1, n_nr_spc ! load NR names and indices 

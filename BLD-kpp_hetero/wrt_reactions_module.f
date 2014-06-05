@@ -70,6 +70,7 @@ c..Variables for species to be dropped from mechanism
       LOGICAL         :: LERROR
       LOGICAL         :: KPP_DUMMY   = .FALSE.
       LOGICAL         :: FIRST_TERM  = .TRUE.
+      LOGICAL         :: EXISTING
       REAL( 8 )       :: WREXT_COEFFS( MAXSPECTERMS)
       INTEGER         :: WREXT_INDEX(  MAXSPECTERMS)
 
@@ -95,6 +96,7 @@ c..Variables for species to be dropped from mechanism
       CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXDT = 'RXNSDATX'
       CHARACTER(  12 ) :: EXFLNM_RXCM = 'RXNSCOMX'
+      CHARACTER( 140 ) :: FILE_LINE
 
       INTEGER, EXTERNAL :: JUNIT
       INTEGER            :: ICOUNT, IPRODUCT, ISP
@@ -184,6 +186,11 @@ c..Variables for species to be dropped from mechanism
       INTEGER MZ                   ! # of nonzero calcs in backsub loop 2
       INTEGER SPECIAL_TERMS         ! Total # of terms in special rate
       INTEGER COUNT_TERMS           ! Active count of terms in a special rate
+      INTEGER TEMPLATE_UNIT         ! IO unit # for mapping subroutine
+            
+      CHARACTER(  32 ) :: MAPPING_ROUTINE = 'MAPPING_ROUTINE'
+      CHARACTER( 256 ) :: EQNAME
+
 
 
       LOGICAL LITE               ! option to omitted specific write statements
@@ -302,765 +309,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MXCOUNT1 = N_SPEC * MAXGL3 * 3
       MXCOUNT2 = N_SPEC * MAXGL3 * 3
       
-         ALLOCATE( ISAPORL ( NS ),
-     &             ISPARDER( NS, NS ),
-     &             LZERO   ( NS, NS ),
-     &             IZILCH  ( NS, NCS2 ),
-     &             JZILCH  ( NS, NCS2 ), STAT = STATUS )
-         IF ( STATUS .NE. 0 ) THEN
-            XMSG = '*** Memory allocation failed'
-            WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-            STOP
-         END IF
-
-
-      ALLOCATE( NKUSERAT( NRXNS,NCS2 ),
-     &          NDERIVL ( NRXNS,NCS2 ),
-     &          NDERIVP ( NRXNS,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating NKUSERAT, NDERIVL or NDERIVP'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( IRM2( NRXNS,MXRCT+MXPRD,NCS2 ),
-     &          ICOEFF( NRXNS,MXRP,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating IRM2 or ICOEFF'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( JARRAYPT( NS,NS,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating JARRAYPT'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( JARRL( NRXNS,MXRR,NCS2 ),
-     &          JARRP( NRXNS,MXRP,NCS2 ),
-     &          JLIAL( NRXNS,MXRR,NCS2 ),
-     &          JPIAL( NRXNS,MXRP,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating JARRL, JARRP, JLIAL, or JPIAL'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( INEW2OLD( N_SPEC,NCS ),
-     &          IOLD2NEW( N_SPEC,NCS ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating INEW2OLD or IOLD2NEW'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( JZEROA( MXARRAY ),
-     &          JZEROB( MXARRAY ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating JZEROA or JZEROB'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( JZLO( NCS2 ),
-     &          IDEC1LO( N_SPEC,NCS2 ),
-     &          IDEC1HI( N_SPEC,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating JZLO, IDEC1LO or IDEC1HI'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( IZEROI( MXCOUNT1 ),
-     &          IZEROK( MXCOUNT2 ),
-     &          JZERO ( MXCOUNT1 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating IZERO, IZEROK, JZERO'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-
-      ALLOCATE( IJDECA( MXCOUNT2 ),
-     &          IJDECB( MXCOUNT2 ),
-     &          IKDECA( MXCOUNT2 ),
-     &          IKDECB( MXCOUNT2 ),
-     &          KJDECA( MXCOUNT2 ),
-     &          KJDECB( MXCOUNT2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating IJDECA, IJDECB, IKDECA, IKDECB, KJDECA, or KJDECB'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( JHIZ1( N_SPEC,NCS2 ),
-     &          JHIZ2( N_SPEC,NCS2 ),
-     &          KZLO1( N_SPEC,NCS2 ),
-     &          KZLO2( N_SPEC,NCS2 ),
-     &          KZHI0( N_SPEC,NCS2 ),
-     &          KZHI1( N_SPEC,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating JHIZ1, JHIZ2, KZLO1, KZLO2, KZHI0, or KZHI1'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( KZERO( MXARRAY,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating KZERO'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-      ALLOCATE( KZILCH( N_SPEC,NCS2 ),
-     &          MZHI0 ( N_SPEC,NCS2 ),
-     &          MZHI1 ( N_SPEC,NCS2 ),
-     &          MZILCH( N_SPEC,NCS2 ),
-     &          MZLO1 ( N_SPEC,NCS2 ),
-     &          MZLO2 ( N_SPEC,NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating KZILCH, MZHI0, MZHI1, MZILCH, MZLO1, or MZLO2'
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-
-!      ALLOCATE( VDIAG( BLKSIZE,NS ), STAT = STATUS )
-!      IF ( STATUS .NE. 0 ) THEN
-!         XMSG = 'ERROR allocating VDIAG'
-!         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-!         STOP
-!      END IF
-
-!      ALLOCATE( CC2( BLKSIZE,0:MXARRAY ), STAT = STATUS )
-!      IF ( STATUS .NE. 0 ) THEN
-!         XMSG = 'ERROR allocating CC2'
-!         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-!         STOP
-!      END IF
-
-         DO NCSP = 1, NCS2
-            DO ISPC = 1, NS
-               IZILCH( ISPC,NCSP ) = 0
-               JZILCH( ISPC,NCSP ) = 0
-               JHIZ1 ( ISPC,NCSP ) = 0
-               JHIZ2 ( ISPC,NCSP ) = 0
-               KZILCH( ISPC,NCSP ) = 0
-               MZILCH( ISPC,NCSP ) = 0
-            END DO
-         END DO
-
-         DO NCSP = 1, NCS2
-            NUSERAT( NCSP ) = 0
-            DO NK = 1, NRXNS
-               NDERIVL( NK,NCSP ) = 0
-               NDERIVP( NK,NCSP ) = 0
-            END DO
-         END DO
-         
-         DO NCSP = 1, NCS
-            ISCHANG( NCSP ) = 0
-         END DO
-
-
-         DO NCSP = 1, NCS2
-            DO ISP = 1, N_SPEC
-               IZILCH( ISP,NCSP ) = 0
-               JZILCH( ISP,NCSP ) = 0
-               JHIZ1 ( ISP,NCSP ) = 0
-               JHIZ2 ( ISP,NCSP ) = 0
-               KZILCH( ISP,NCSP ) = 0
-               MZILCH( ISP,NCSP ) = 0
-            END DO
-         END DO
-
-         DO NCSP = 1, NCS2
-            NUSERAT( NCSP ) = 0
-            DO NK = 1, NRXNS
-               NDERIVL( NK,NCSP ) = 0
-               NDERIVP( NK,NCSP ) = 0
-            END DO
-         END DO
-         
-         DO NCSP = 1, NCS
-            ISCHANG( NCSP ) = 0
-         END DO
-         
-         JARRAYPT = 0
-
-         IJDECA = 0
-         IKDECA = 0
-         KJDECA = 0
-
-         IJDECB = 0
-         IKDECB = 0
-         KJDECB = 0
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Determine active reactions for day and then night (i.e., photo
-c  reactions determined by BTEST=.TRUE. are not included for nighttime)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-               
-       DO NRX = 1, NRXNS
-          IF ( NREACT( NRX ) .GT. 0 ) THEN
-             NUSERAT( NCS ) = NUSERAT( NCS ) + 1
-             NU = NUSERAT( NCS )
-             NKUSERAT( NU, NCS ) = NRX
-             IF ( .NOT. ( BTEST ( IRXBITS( NRX ),1 ) ) ) THEN
-                NUSERAT( NCS + 1 ) = NUSERAT( NCS + 1 ) + 1
-                NU = NUSERAT( NCS + 1 )
-                NKUSERAT( NU, NCS + 1 ) = NRX
-             END IF
-          END IF
-       END DO
-
- 
-       NCSP = NCS
-
-       ALLOCATE ( NET_EFFECT( N_SPEC, NRXNS ), 
-     &            NET_RCOEFF( N_SPEC, NRXNS ) )
-
-
-       NET_EFFECT    = 0     ! default setting, species not net reactant or product
-       NET_RCOEFF = 0.0D0 ! initialize   
- 
-       DO NK =  1, NRXNS
-
-C...Set NET_EFFECT for reaction product
-            DO NP = 1, NPRDCT( NK )
-               ISP2 = IRR( NK,NP+3 )
-               
-               NET_EFFECT( ISP2, NK )    = 3
-               
-               NET_RCOEFF( ISP2, NK ) = NET_RCOEFF( ISP2, NK )
-     &                                  + REAL(SC( NK,NP ), 8)
-            END DO
-         
-C..Check whether reaction has a species as both reactant and product
-
-         
-         DO NRT = 1, NREACT( NK )
-
-            ISP = IRR( NK,NRT )
-            NET_RCOEFF( ISP, NK ) = NET_RCOEFF( ISP, NK ) - 1.0D0
-            DO NP = 1, NPRDCT( NK )
-               ISP2 = IRR( NK,NP+3 )
-
-               IF( ISP .EQ. ISP2 )THEN
-                   IF( NET_RCOEFF( ISP, NK ) .EQ. 0.0D0 )THEN ! reaction has no net effect
-
-                       NET_EFFECT( ISP, NK ) = 0
-
-                   ELSE IF( NET_RCOEFF( ISP, NK ) .LT. 0.0D0 )THEN ! net loss
-
-                       IF( NET_RCOEFF( ISP, NK ) .EQ. -1.0D0 )THEN ! only loss process
-                           NET_EFFECT( ISP, NK ) = -1
-                       ELSE
-                           NET_EFFECT( ISP, NK ) = -2
-                       END IF
-
-                   ELSE IF( NET_RCOEFF( ISP, NK ) .GT. 0.0D0 )THEN ! loss is not 100% 
-
-                       NET_EFFECT( ISP, NK ) = 2
-
-                   END IF
-               END IF
-            END DO
-            IF( NET_RCOEFF( ISP, NK ) .LT. 0.0D0 )THEN
-                IF( NET_RCOEFF( ISP, NK ) .EQ. -1.0D0 )THEN
-                     NET_EFFECT( ISP, NK ) = -1
-                ELSE
-                     NET_EFFECT( ISP, NK ) = -2
-                END IF
-            END IF 
-            
-         END DO                      
-
-         WRITE(6,'(5A,I2,A,ES12.4)')'For reactant ', TRIM(MECHANISM_SPC( ISP )),' : reaction ',
-     &   RXLABEL( NK ),' NET_EFFECT = ',NET_EFFECT( ISP, NK ),' NET_RCOEFF = ', NET_RCOEFF( ISP, NK )
-                       
-                   
-        END DO               ! END LOOP OVER REACTIONS
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Initialize Prod/loss and PD tabulator arrays
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-      NSPECT( NCS ) = N_SPEC
-      DO ISP = 1, NSPECT( NCS )
-         ISAPORL( ISP ) = 0
-      END DO
-
-      DO ISP = 1, NSPECT( NCS )
-         DO ISP2 = 1, NSPECT( NCS )
-            ISPARDER( ISP,ISP2 ) = 0
-         END DO
-      END DO
-   
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Set the number of Partial derivative terms in the Jacobian and
-c  count the number of terms for each species
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO NRX = 1, NRXNS
-        DO NRT = 1, 3
-            IREACT = IRR( NRX,NRT )
-            IF ( IREACT .EQ. 0 )CYCLE
-            DO NRPP = 1, 3 + MXPRD
-               IPORR = IRR( NRX,NRPP )
-               IF ( IPORR .EQ. 0 )CYCLE
-               IF( ABS(NET_RCOEFF( IPORR, NRX )) .GT. 1.0D-6 )ISPARDER( IPORR,IREACT ) = 1               
-            END DO
-         END DO
-      END DO
-
-      DO IREACT = 1, NSPECT( NCS ) 
-         DO IPORR = 1, NSPECT( NCS )
-            IF ( ISPARDER( IPORR,IREACT ) .EQ. 1 ) 
-     &           ISAPORL( IPORR ) = ISAPORL( IPORR ) + 1
-         END DO
-      END DO
- 
-      DO IPORR = 1, NSPECT( NCS )
-         PRINT*,TRIM(SPCLIS( IPORR )),' has ', ISAPORL( IPORR ),' partial derivatives'
-      END DO
-     
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Sort the species, putting all with zero partial derivative 
-c  terms at the bottom and those with fewest PD terms at top.
-c  Set arrays for species with zero PD terms
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      NOCHANG = NSPECT( NCS )
-      ISCHAN   = N_SPEC
-      DO JOLD = 1, NSPECT( NCS )
-         IF ( ISAPORL( JOLD ) .GT. 0 ) THEN
-            ISCHANG( NCS ) = ISCHANG( NCS ) + 1
-            JNEW = ISCHANG( NCS )
-            INEW2OLD( JNEW,NCS ) = JOLD
-            IOLD2NEW( JOLD,NCS ) = JNEW
-         ELSE
-            INEW2OLD( NOCHANG,NCS ) = JOLD
-            IOLD2NEW( JOLD,NCS ) = NOCHANG
-            NOCHANG = NOCHANG - 1
-         END IF
-      END DO
-  
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Now sort by number of PD terms, fewest at position 1, most at
-c  the end position. 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO JNEW = 1, ISCHANG( NCS )
-c  Uncomment the following three lines to turn off species ordering;
-c  not recommended since computational efficiency reduced
-!        INEW2OLD( JNEW,NCS ) = JNEW
-!        IOLD2NEW( JNEW,NCS ) = JNEW
-!        IF ( JNEW .NE. 0 ) CYCLE
-         JOLD = INEW2OLD( JNEW,NCS )
-         MINVALU = ISAPORL( JOLD )
-         IMINOLD = JOLD
-         IMINNEW = JNEW
-
-         DO INEW = JNEW + 1, ISCHANG( NCS )
-            IOLD = INEW2OLD( INEW,NCS )
-            IF ( ISAPORL( IOLD ) .LT. MINVALU ) THEN
-               MINVALU = ISAPORL( IOLD )
-               IMINOLD = IOLD
-               IMINNEW = INEW
-            END IF
-         END DO
-
-         INEW2OLD( IMINNEW,NCS ) = JOLD
-         INEW2OLD( JNEW,NCS )    = IMINOLD
-         IOLD2NEW( JOLD,NCS )    = IMINNEW
-         IOLD2NEW( IMINOLD,NCS ) = JNEW
-      END DO
-
-       DO ISP = 1, NSPECT( NCS )
-          PRINT*,'ISP = ',ISP,'SORTED SPECIES( ', INEW2OLD(ISP,NCS),' ) = ',
-     &   TRIM( MECHANISM_SPC(INEW2OLD(ISP,NCS)) )
-       END DO
-      
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Fill the irm2 array using the new species order developed above.
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO NRX = 1, NRXNS
-         DO NRT = 1, NREACT( NRX )
-            IREACT = IRR( NRX,NRT )
-            IRM2( NRX,NRT,NCS ) = IOLD2NEW( IREACT,NCS )
-         END DO
-
-         DO NP = 1, NPRDCT( NRX )
-            IPROD = IRR( NRX, NP + 3 )
-            IRM2( NRX,NP+3,NCS ) = IOLD2NEW( IPROD,NCS )
-         END DO
-         
-!         IF ( NREACT( NRX ) .GT. 0 ) THEN
-!            NUSERAT( NCS ) = NUSERAT( NCS ) + 1
-!            NU = NUSERAT( NCS )
-!           NKUSERAT( NU, NCS ) = NRX
-!            IF ( .NOT. ( BTEST ( IRXBITS( NRX ),1 ) ) ) THEN
-!               NUSERAT( NCS + 1 ) = NUSERAT( NCS + 1 ) + 1
-!               NU = NUSERAT( NCS + 1 )
-!               NKUSERAT( NU, NCS + 1 ) = NRX
-!            END IF
-!         END IF
-      END DO
-
-
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Do symbolic LU decomposition to determine sparse storage array
-c  structures. Done twice, first for day and then for night. An entry
-c  of 1 in lzero means a non-negative entry in the Jacobian. First
-c  put ones on the diagonal and zeroes everywhere else.
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO 700 IFSUN = 1, 2
-         NCSP = IFSUN
-         DO I = 1, ISCHANG( NCS )
-            DO J = 1, ISCHANG( NCS )
-               LZERO( J,I ) = 0
-            END DO
-            LZERO( I,I ) = 1
-         END DO
-  
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Fill in the rest of the entries in the Jacobian
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         DO NRX = 1, NUSERAT( NCSP )
-            NK = NKUSERAT( NRX,NCSP )
-            DO NRT = 1, NREACT( NK )
-               IRE  = IRM2( NK,NRT,NCS )
-               DO JAL = 1, NREACT( NK )
-                  JRE = IRM2( NK,JAL,NCS )
-                  JOLD = INEW2OLD( JRE, NCS )
-                  IF( ABS(NET_RCOEFF( JOLD, NK )) .GT. 1.0D-6 )THEN
-                      LZERO( JRE,IRE ) = 1
-                  END IF
-               END DO
-               DO IAP = 1, NPRDCT( NK )
-                  JPR = IRM2( NK,3+IAP,NCS )
-                  JOLD = INEW2OLD( JPR, NCS )
-                  IF( ABS(NET_RCOEFF( JOLD, NK )) .GT. 1.0D-6 )THEN
-                      LZERO( JPR,IRE ) = 1 
-                  END IF 
-               END DO
-           END DO
-         END DO
- 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Set up arrays for decomposition / back-substitution of sparse     
-c  matrices by removing all calculations involving a zero.          
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         IF ( IFNEVER.EQ.0 ) THEN
-            IFNEVER = 1
-            ICNT    = 0 
-            JCNT    = 0 
-            ICCOUNT = 0
-            JCCOUNT = 0
-         END IF
-         KOUNT0A = 0
-         KOUNT0  = 0
-         ICNTA   = 0
-         ICNTB   = 0
-         JCNTA   = 0
-         JCNTB   = 0
-         KCNTA   = 0
-         MCNTA   = 0
-         KCNT    = 0
-         MCNT    = 0
-         IARRAY2 = 0
-         
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Count number of entries w/ and w/o sparse matrix storage
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc         
-         DO J = 1, ISCHANG( NCS )
-            DO K = 1, ISCHANG( NCS )
-               KOUNT0A = KOUNT0A + 1
-               IF ( LZERO( J,K ) .EQ. 1 ) KOUNT0 = KOUNT0 + 1
-            END DO
-         END DO
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Do the symbolic decomposition (ludcmp) converting [A] to [L][U] 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         ICLO( NCSP ) = ICNT + 1
-         JCLO( NCSP ) = JCNT + 1
-         DO J = 1, ISCHANG( NCS )
-            J1 = J - 1
-            
-c...  First loop of decomposition
-            DO I = 2, ISCHANG( NCS ) 
-               I1 = J1 
-               IF ( I .LE. J1 ) I1 = I - 1
-               DO K = 1, I1
-                  ICNTA = ICNTA + 1
-                  IF ( LZERO( I,K ) .EQ. 1 .AND. LZERO( K,J ) .EQ. 1 )
-     &               THEN
-                     IZILCH( J,NCSP ) = IZILCH( J,NCSP ) + 1
-                     ICNT             = ICNT + 1
-                     ICNTB            = ICNTB + 1
-                     IZEROK( ICNT )   = K   
-                     IZEROI( ICNT )   = I
-                     LZERO( I,J )     = 1 
-                  END IF
-               END DO
-            END DO
-c... Second loop of decomposition 
-            DO I = J + 1, ISCHANG( NCS ) 
-               JCNTA = JCNTA + 1
-               IF ( LZERO( I,J ) .EQ. 1 ) THEN
-                  JZILCH( J,NCSP ) = JZILCH( J,NCSP ) + 1
-                  JCNT             = JCNT  + 1
-                  JCNTB            = JCNTB + 1
-                  JZERO( JCNT )    = I  
-               END IF
-            END DO 
-         END DO
-  
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Do symbolic back-substition for solving [L][U]{x}={b}. Store data
-c  in sparse matrix pointer jarraypt.
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c... First loop of back-substitution
-         DO I = 2, ISCHANG( NCS )
-            I1 = I - 1
-            DO J = 1, I1    
-               KCNTA = KCNTA + 1
-               IF ( LZERO( I,J ) .EQ. 1 ) THEN 
-                  KZILCH( I,NCSP ) = KZILCH( I,NCSP ) + 1
-                  KCNT = KCNT + 1
-                  IARRAY2 = IARRAY2 + 1
-                  KZERO( IARRAY2,NCSP ) = J
-                  JARRAYPT( I,J,NCSP ) = IARRAY2 
-               END IF
-            END DO
-         END DO 
-
-c... Second loop of back-substitution 
-         DO I = ISCHANG( NCS ) - 1, 1, -1
-            I2 = I + 1
-            DO J = I + 1, ISCHANG( NCS )
-               MCNTA = MCNTA + 1
-               IF ( LZERO( I,J ) .EQ. 1 ) THEN 
-                  MZILCH( I,NCSP )      = MZILCH( I,NCSP ) + 1
-                  MCNT                  = MCNT + 1
-                  IARRAY2               = IARRAY2 + 1
-                  KZERO( IARRAY2,NCSP ) = J
-                  JARRAYPT( I,J,NCSP )  = IARRAY2 
-               END IF
-            END DO
-         END DO
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Fill jarraypt with remaining diagonal array points and save counts
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         DO I = 1, ISCHANG( NCS ) 
-            IARRAY2 = IARRAY2 + 1
-            JARRAYPT( I,I,NCSP ) = IARRAY2 
-         END DO
-         IARRAY( NCSP ) = IARRAY2 
-         PRINT*,'IARRAY( ', NCSP, ' ) = ', IARRAY( NCSP )
-         KNTARRAY = KCNTA + MCNTA + ISCHANG( NCS )
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Do decomposition again to change arrays to use jarraypt
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-         JCB = JCLO( NCSP ) 
-         JZLO( NCSP ) = JCCOUNT
-         ICBSUM = ICLO( NCSP ) - 1 
-         IJSTEP = 2   
-
-         DO J = 1, ISCHANG( NCS )
-
-c...First loop of decomposition
-            IDEC1LO( J,NCSP ) = ICCOUNT + 1
-            ICB = ICBSUM  + 1
-            ICBSUM = ICBSUM + IZILCH( J, NCSP )
-
-            DO KA = 1, IZILCH( J,NCSP ), IJSTEP
-               ICCOUNT = ICCOUNT + 1
-               IPA = IZEROI( ICB ) 
-               KPA = IZEROK( ICB ) 
-               IJDECA( ICCOUNT ) = JARRAYPT( IPA,  J,NCSP ) 
-               IKDECA( ICCOUNT ) = JARRAYPT( IPA,KPA,NCSP )
-               KJDECA( ICCOUNT ) = JARRAYPT( KPA,  J,NCSP )
-               IF ( ICB + 1 .LE. ICBSUM ) THEN
-                  IPB = IZEROI( ICB + 1 ) 
-                  KPB = IZEROK( ICB + 1 ) 
-                  IJDECB( ICCOUNT ) = JARRAYPT( IPB,  J,NCSP ) 
-                  IKDECB( ICCOUNT ) = JARRAYPT( IPB,KPB,NCSP )
-                  KJDECB( ICCOUNT ) = JARRAYPT( KPB,  J,NCSP )
-               END IF
-               ICB = ICB + IJSTEP   
-            END DO
-
-            IDEC1HI( J,NCSP ) = ICCOUNT  
-            
-c...Second loop of decomposition
-            JZ = JZILCH( J, NCSP )
-
-            DO I = 1, JZ - 1, 2
-               JCCOUNT           = JCCOUNT + 1
-               JHIZ1( J,NCSP )   = JHIZ1( J,NCSP ) + 1
-               IA                = JZERO( JCB )
-               IB                = JZERO( JCB + 1 )
-               JZEROA( JCCOUNT ) = JARRAYPT( IA,J,NCSP )
-               JZEROB( JCCOUNT ) = JARRAYPT( IB,J,NCSP )
-               JCB = JCB + 2
-            END DO
-
-            IF ( MOD( JZ,2 ) .EQ. 1 ) THEN 
-               JCCOUNT           = JCCOUNT + 1
-               JHIZ2( J,NCSP )   = JHIZ2( J,NCSP ) + 1
-               IA                = JZERO( JCB )
-               JZEROA( JCCOUNT ) = JARRAYPT( IA,J,NCSP )
-               JCB               = JCB + 1 
-            END IF
-         END DO
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Group terms to increase efficiency in back-substition
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c... First back-substitution loop
-         DO I = 1, ISCHANG( NCS ) 
-            KZ              = KZILCH( I,NCSP )
-            KZHI0( I,NCSP ) = KZ - 4 
-            JZ3             = 0
-
-            DO JZ = 1, KZHI0( I,NCSP ), 5     
-               JZ3 = JZ + 4
-            END DO  
-
-            KZLO1( I,NCSP ) = JZ3 + 1
-            KZHI1( I,NCSP ) = KZ  - 1 
-            JZ4 = JZ3 
-
-            DO JZ = JZ3 + 1, KZ - 1, 2    
-               JZ4 = JZ + 1
-            END DO
-
-            KZLO2( I,NCSP ) = JZ4 + 1
-         END DO
- 
-c... Second loop of back-substitution
-         DO I = ISCHANG( NCS ), 1, -1
-            MZ = MZILCH( I,NCSP ) 
-            MZHI0( I,NCSP ) = MZ - 4  
-            JZ3 = 0 
-
-            DO JZ = 1, MZHI0( I,NCSP ), 5  
-               JZ3 = JZ + 4 
-            END DO
-
-            MZLO1( I,NCSP ) = JZ3 + 1
-            MZHI1( I,NCSP ) = MZ  - 1
-            JZ4 = JZ3 
-
-            DO JZ = JZ3+1, MZ-1, 2 
-               JZ4 = JZ + 1 
-            END DO
-
-            MZLO2( I,NCSP ) = JZ4 + 1
-         END DO
- 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Check dimensions 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         IF ( ICNT .GT. MXCOUNT2 .OR. JCNT .GT. MXCOUNT1 .OR. 
-     &        IARRAY2 .GT. MXARRAY .OR. ICCOUNT .GT. MXCOUNT2 .OR.
-     &        JCCOUNT .GT. MXARRAY ) THEN
-            WRITE( MSG, 94000 ) 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94020 ) MXCOUNT2, ICNT 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94040 ) MXCOUNT1, JCNT 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94060 ) MXARRAY, IARRAY2 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94080 ) MXARRAY, ICCOUNT 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT 
-            WRITE( 6, * ) MSG
-            STOP
-         END IF           
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Set final arrays for partial derivative calculations
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         DO NRX = 1, NUSERAT( NCSP )
-            NK = NKUSERAT( NRX,NCSP )
-            DO IAL = 1, NREACT( NK )
-               IR = IRM2( NK,IAL,NCS )
-
-               DO JAL = 1, NREACT( NK )
-                  JR = IRM2( NK,JAL,NCS )
-                  IAR = JARRAYPT( JR,IR,NCSP )
-                  NDERIVL( NK,NCSP ) = NDERIVL( NK,NCSP ) + 1
-                  NLS = NDERIVL( NK,NCSP )
-                  JARRL( NK,NLS,NCSP ) = IAR
-                  JLIAL( NK,NLS,NCSP ) = IAL
-                  NDLMAX = MAX( NLS,NDLMAX )
-               END DO
-               
-               DO IAP = 1, NPRDCT( NK )
-                  JP = IRM2( NK,IAP+3,NCS )
-                  IAR = JARRAYPT( JP,IR,NCSP )
-                  NDERIVP( NK,NCSP ) = NDERIVP( NK,NCSP ) + 1
-                  NPR = NDERIVP( NK,NCSP )
-                  JARRP(  NK,NPR,NCSP ) = IAR
-                  JPIAL(  NK,NPR,NCSP ) = IAL
-                  ICOEFF( NK,NPR,NCSP ) = 0
-                  IF ( ABS( SC( NK,IAP ) - 1.0 ) .GT. 1.0E-06 ) THEN
-                     ICOEFF( NK,NPR,NCSP ) = IAP
-                  END IF
-                  NDPMAX = MAX( NPR,NDPMAX )
-               END DO
-            END DO     
-         END DO
-  
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Check dimensions of PD arrays
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         IF ( NDPMAX .GT. MXRP .OR. NDLMAX .GT. MXRR ) THEN
-            WRITE( MSG, 94000 ) 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94200 ) MXRP, NDPMAX 
-            WRITE( 6, * ) MSG
-            WRITE( MSG, 94220 ) MXRR, NDLMAX 
-            WRITE( 6, * ) MSG
-            STOP
-         END IF
-700   CONTINUE
-
-      NPDERIV  = SUM( NREACT )
-      
-      MXIARRAY  = MAXVAL( IARRAY ) + 1
-
-      ALLOCATE( NDERIVN1( 0:MXIARRAY, NCS2 ),    
-     &           NDERIVP1( 0:MXIARRAY, NCS2 ),
-     &           NDERIVCO( 0:MXIARRAY, NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating NDERIVN1, NDERIVP1, NDERIVCO  '
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-      
-      NDERIVN1 = 0
-      NDERIVP1 = 0
-      NDERIVCO = 0
-      
-      ALLOCATE( PDERIVN1(  NPDERIV, 0:MXIARRAY, NCS2 ),
-     &           PDERIVP1( NPDERIV, 0:MXIARRAY, NCS2 ),
-     &           PDERIVCO( NPDERIV, 0:MXIARRAY, NCS2 ), 
-     &           PD_COEFF( NPDERIV, 0:MXIARRAY, NCS2 ), STAT = STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating PDERIVN1, PDERIVP1, PDERIVCO, PD_COEFF '
-         WRITE( 6, * )'WRT_REACTIONS_MODULE : ' // XMSG
-         STOP
-      END IF
-      
-      PDERIVN1 = 0
-      PDERIVP1 = 0
-      PDERIVCO = 0
-      PD_COEFF = 0.0D0
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Find names for output module file
@@ -1130,8 +378,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       WRITE( MODULE_UNIT,'(7X,"MODULE RXNS_FUNCTION", 3/ 7X, "IMPLICIT NONE" 3/ )')
 
-      WRITE( MODULE_UNIT, 4601)MECHNAME
-      WRITE( MODULE_UNIT, 4500) 
+      WRITE( MODULE_UNIT, 4611 )TRIM( MECHNAME )
+      
+      WRITE( MODULE_UNIT, 4510) 
       
        ISPC = INDEX(EQN_MECH_KPP,'/mech', BACK= .TRUE.) + 1
        NXX  = INDEX(EQN_MECH_KPP,'.eqn', BACK= .TRUE.)  - 1
@@ -1227,13 +476,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE(MODULE_UNIT,95060)
       WRITE(MODULE_UNIT,4504)
 
-!      WRITE(MODULE_UNIT,'(A)')' '
-! initialize special rate expressions in Update_Rconst subroutine
-!      DO NXX = 1, NSPECIAL
-!         WRITE(MODULE_UNIT,95100)SPECIAL( NXX ) 
-!      END DO
+! start writing the subroutine for rate constants 
 
-      WRITE(MODULE_UNIT,99890)
+      WRITE(MODULE_UNIT,99880)
       
       IF( KUNITS .EQ. 2 )THEN
           WRITE(MODULE_UNIT,'(3A)')'! All rate constants converted from  molec/cm3 to ppm'
@@ -1243,10 +488,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           WRITE(MODULE_UNIT,'(3A)')'! and 1/sec to 1/min'
           WRITE(MODULE_UNIT,'(3A)')'! Remainder use ppm and 1/min '
       END IF
+
+! write IF block for photolysis rates
       
       IF( IP .GT. 0 )THEN
-          WRITE(MODULE_UNIT,5115)
-5115   FORMAT(/ 13X,'IF(  LSUNLIGHT )THEN ! set photolysis rates ')
+         WRITE(MODULE_UNIT,99879)
           DO IPR = 1, IP
              NXX = IPH( IPR,1 )
              IF( NXX .LE. 0 )CYCLE
@@ -1267,10 +513,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                 END IF
              END IF
          END DO
-          WRITE(MODULE_UNIT,5116)
-5116   FORMAT(/13X,'END IF' /)
-5117  FORMAT(/    '!  Reaction Label ', A / 16X, 'RKI( NCELL, ', I4, ') = ')
+         WRITE(MODULE_UNIT,99881)
       END IF
+
+5117  FORMAT(/    '!  Reaction Label ', A / 16X, 'RKI( NCELL, ', I4, ') = ')
+      WRITE(MODULE_UNIT,99882)
+      
+! write loop for remaining rates
       
       DO NXX = 1, NR
 
@@ -1290,11 +539,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              IDX = IHETERO( IPR, 2 )
              IF( RTDAT(1, NXX) .NE. 1.0 )THEN
                  WRITE(MODULE_UNIT,5027, ADVANCE = 'NO')REAL(RTDAT(1, NXX),8),TRIM( HETERO(IDX) )
-                 PRINT*,REAL(RTDAT(1, NXX),8),TRIM( HETERO(IDX) )
              ELSE
                  WRITE(MODULE_UNIT,5128, ADVANCE = 'NO')TRIM( HETERO(IDX) )
-                 PRINT*,TRIM( HETERO(IDX) )
-                 WRITE(6,5028)TRIM( HETERO(IDX) )
              END IF
 !          CASE(  0 )
 !             DO IPR = 1, IP
@@ -1316,17 +562,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                END IF
 !             END IF
           CASE( 1 )
-             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
-             WRITE(MODULE_UNIT,'(1PD12.4)', ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8)
+             WRITE(MODULE_UNIT,5111, ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8)
+             CALL WRITE_RATE_CONVERT_AFTER(MODULE_UNIT, IORDER(NXX))
           CASE( 2 )
-             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
-             WRITE(MODULE_UNIT,5029, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(2, NXX)
+             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
+             WRITE(MODULE_UNIT,5129, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(2, NXX)
           CASE( 3 )
-             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
-             WRITE(MODULE_UNIT,5003, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX)
+             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
+             WRITE(MODULE_UNIT,5103, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX)
           CASE( 4 )
-             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
-             WRITE(MODULE_UNIT,5004, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX), RTDAT(2, NXX)
+             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
+             WRITE(MODULE_UNIT,5104, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX), RTDAT(2, NXX)
           CASE( 5 )
              IRX = INT( RTDAT( 3, NXX) )
              WRITE(MODULE_UNIT,5005, ADVANCE = 'NO')IRX,RTDAT( 1, NXX ), RTDAT(2, NXX )
@@ -1339,7 +585,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              END IF
           CASE( 7 )
              IF( RTDAT(2, NXX) .NE. 0.0 )THEN
-                 WRITE(MODULE_UNIT,5014, ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8),REAL(RTDAT(2, NXX), 8)
+                 WRITE(MODULE_UNIT,5114, ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8),REAL(RTDAT(2, NXX), 8)
              ELSE
                  WRITE(MODULE_UNIT,5007, ADVANCE = 'NO')REAL(RTDAT(1, NXX), 8)
              END IF
@@ -1347,27 +593,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              DO IDX = 1, NFALLOFF
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
-             CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
-             WRITE(MODULE_UNIT,5008, ADVANCE = 'NO')RTDAT(1,NXX),(1.0*RTDAT(2,NXX)),RTDAT(3,NXX),
+             CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
+             WRITE(MODULE_UNIT,5108, ADVANCE = 'NO')RTDAT(1,NXX),(1.0*RTDAT(2,NXX)),RTDAT(3,NXX),
      &      (1.0*RFDAT(1,IDX)),RFDAT(2,IDX),(1.0*RFDAT(3,IDX))
           CASE( 9 )
              DO IDX = 1, NFALLOFF
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
-             CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
+             CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
              IF( RFDAT( 2, IDX ) .EQ. 0.0 .AND. RFDAT( 3, IDX ) .EQ. 0.0 )THEN
-                 WRITE(MODULE_UNIT,5009, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(2,NXX),
+                 WRITE(MODULE_UNIT,5109, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(2,NXX),
      &           RTDAT(3,NXX),1.0*RFDAT(1,IDX)
              ELSE 
-                 WRITE(MODULE_UNIT,5019, ADVANCE = 'NO')RTDAT(1,NXX),RFDAT(2, IDX),RTDAT(2,NXX),
+                 WRITE(MODULE_UNIT,5119, ADVANCE = 'NO')RTDAT(1,NXX),RFDAT(2, IDX),RTDAT(2,NXX),
      &           RTDAT(3,NXX),RFDAT(3, IDX),1.0*RFDAT(1,IDX),RFDAT(4, IDX),RFDAT(5, IDX)
               END IF 
           CASE( 10 )
              DO IDX = 1, NFALLOFF
                 IF( IRRFALL( IDX ) .EQ. NXX )EXIT
              END DO
-             CALL WRITE_RATE_CONVERT_LOCAL(MODULE_UNIT, IORDER(NXX))
-             WRITE(MODULE_UNIT, 5010, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(3,NXX),RTDAT(2,NXX),
+             CALL WRITE_RATE_CONVERT_BEFORE(MODULE_UNIT, IORDER(NXX))
+             WRITE(MODULE_UNIT, 5110, ADVANCE = 'NO')RTDAT(1,NXX),RTDAT(3,NXX),RTDAT(2,NXX),
      &      RFDAT(1,IDX),RFDAT(3,IDX),RFDAT(2,IDX),RFDAT(5,IDX),RFDAT(4,IDX)
           CASE( 11 )
              WRITE(MODULE_UNIT, 1498 )TRIM(LABEL(NXX,1))
@@ -1386,11 +632,35 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END DO
 
       WRITE(MODULE_UNIT,99991)
+      
+      TEMPLATE_UNIT = JUNIT()
+      CALL NAMEVAL( MAPPING_ROUTINE, EQNAME )
+    
+      INQUIRE( FILE = TRIM( EQNAME ), EXIST = EXISTING )
+      
+      IF( .NOT. EXISTING )THEN
+         WRITE(6,*)'CANNOT LOCATE FILE: ' // TRIM(EQNAME)
+	 STOP
+      END IF
 
+      OPEN( UNIT = TEMPLATE_UNIT, FILE = TRIM( EQNAME ), ERR = 40000)
+      
+      DO NC = 1, 1000
+        READ (TEMPLATE_UNIT,'(A)',END=39999)FILE_LINE
+	WRITE( MODULE_UNIT,'(A)')TRIM( FILE_LINE )
+      END DO
+      
+39999 CLOSE( TEMPLATE_UNIT )
 
       WRITE( MODULE_UNIT,'(7X,"END MODULE RXNS_FUNCTION")')
       CLOSE( MODULE_UNIT )
+      RETURN
 
+40000 WRITE(6,*)'Unable to open below file for cgrid mapping subroutine:'
+      WRITE(6,*)TRIM( EQNAME )
+      WRITE(6,*)'IO UNIT = ',TEMPLATE_UNIT
+      STOP
+      
 1498  FORMAT(/ '! RKI for Reaction ', A,' set in SPECIAL_RATES Routine' )
 
 1501  FORMAT(/    '!  Reaction Label ', A / 13X, 'RKI( NCELL, ', I4, ') = ')
@@ -1560,9 +830,142 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 9X,'FALL_T09 = K1 + K2 * CAIR'
      &      / 9X,'RETURN'
      &     2/ 7X,'END FUNCTION FALL_T09'       )
+
+4510  FORMAT(/7X,'CONTAINS'
+     &      2/ 
+     &      / 7X,'REAL( 8 ) FUNCTION POWER_T02( TEMPOT300,A0,B0 )'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! rate constant for CMAQ Arrhenuis reaction type 2'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: TEMPOT300'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: B0'
+     &      / 9X,'! Local: None'
+     &      / 9X,'POWER_T02 =  A0 * TEMPOT300**B0'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION POWER_T02'
+     &      / 7X,'REAL( 8 ) FUNCTION ARRHENUIS_T04( INV_TEMP,TEMPOT300,A0,B0,C0 )'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! rate constant for CMAQ Arrhenuis reaction type 4'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: INV_TEMP'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: TEMPOT300'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: B0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C0'
+     &      / 9X,'! Local:'
+     &      / 9X,'INTRINSIC DEXP'
+     &      / 9X,'ARRHENUIS_T04 =  A0 * DEXP( B0 * INV_TEMP ) * TEMPOT300**C0'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION ARRHENUIS_T04'
+     &      / 7X,'REAL( 8 ) FUNCTION ARRHENUIS_T03( INV_TEMP,A0,B0 )'
+     &      / '! rate constant for CMAQ Arrhenuis reaction type 3'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ),   INTENT( IN ) ::  INV_TEMP'
+     &      / 9X,'REAL( 8 ),     INTENT(IN) ::  A0'
+     &      / 9X,'REAL( 8 ),     INTENT(IN) ::  B0'
+     &      / 9X,'! Local:'
+     &      / 9X,'INTRINSIC DEXP'
+     &      / 9X,'ARRHENUIS_T03 =  A0 * DEXP( B0 * INV_TEMP )'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION ARRHENUIS_T03 '
+     &      / 7X,'REAL( 8 ) FUNCTION FALLOFF_T08(INV_TEMP,CAIR,A0,C0,A2,C2,A3,C3)'
+     &      / '! rate constant for CMAQ fall off reaction type 8'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: INV_TEMP'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: CAIR'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A3'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C3'
+     &      / 9X,'! Local:'
+     &      / 9X,'REAL( 8 ) K0'
+     &      / 9X,'REAL( 8 ) K2'
+     &      / 9X,'REAL( 8 ) K3'
+     &      / 9X,'INTRINSIC DEXP'
+     &      / 9X,'K0 = A0 * DEXP( C0 * INV_TEMP )'
+     &      / 9X,'K2 = A2 * DEXP( C2 * INV_TEMP )'
+     &      / 9X,'K3 = A3 * DEXP( C3 * INV_TEMP )'
+     &      / 9X,'K3 = K3 * CAIR'
+     &      / 9X,'FALLOFF_T08 = K0 + K3/( 1.0D0 + K3/K2 )'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION FALLOFF_T08'
+     &      / 7X,'REAL( 8 ) FUNCTION FALLOFF_T09(INV_TEMP,CAIR,A1,C1,A2,C2)'
+     &      / '! rate constant for CMAQ fall off reaction type 9'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: INV_TEMP'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: CAIR'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C2'
+     &      / 9X,'!  Local:'
+     &      / 9X,'REAL( 8 ) K1'
+     &      / 9X,'REAL( 8 ) K2'
+     &      / 9X,'INTRINSIC DEXP'
+     &      / 9X,'K1 = A1 * DEXP( C1 * INV_TEMP )'
+     &      / 9X,'K2 = A2 * DEXP( C2 * INV_TEMP )'
+     &      / 9X,'FALLOFF_T09 = K1 + K2 * CAIR'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION FALLOFF_T09'
+     &      / 7X,'REAL( 8 ) FUNCTION FALLOFF_T10(INV_TEMP,TEMPOT300,CAIR,A0,B0,C0,A1,B1,C1,CE,CF)'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! rate constant for CMAQ fall off reaction type 10'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: INV_TEMP'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: TEMPOT300'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: CAIR'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: B0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C0'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: B1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: CE'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: CF'
+     &      / 9X,'! Local:'
+     &      / 9X,'REAL( 8 ) K0'
+     &      / 9X,'REAL( 8 ) K1'
+     &      / 9X,'REAL( 8 ) KEND'
+     &      / 9X,'K0 = A0 * CAIR * DEXP(B0*INV_TEMP)* TEMPOT300**C0'
+     &      / 9X,'K1 = A1 * DEXP(B1*INV_TEMP) * TEMPOT300**C1'
+     &      / 9X,'KEND = ( ( 1.0D0 + ( ( 1.0D0 / CE ) * DLOG10( K0 / K1 ) ) ** 2.0D0 ) )'
+     &      / 9X,'KEND = 1.0D0 / KEND'
+     &      / 9X,'FALLOFF_T10 = ( K0 / ( 1.0D0 + K0/K1 ) ) * CF ** KEND'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION FALLOFF_T10' 
+     &      / 7X,'REAL( 8 ) FUNCTION FALLOFF_T11(INV_TEMP,TEMPOT300,CAIR,A1,B1,C1,A2, B2, C2)'
+     &      / '! rate constant for CMAQ fall off reaction type 11'
+     &      / '! actually expanded form of type 9'
+     &      / 9X,'IMPLICIT NONE'
+     &      / '! Arguements:'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: INV_TEMP'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: TEMPOT300'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: CAIR'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: B1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: A2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: B2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: C2'
+     &      /9X,'!  Local:'
+     &      / 9X,'REAL( 8 ) K1'
+     &      / 9X,'REAL( 8 ) K2'
+     &      / 9X,'INTRINSIC DEXP'
+     &      / 9X,'K1 = A1 * DEXP( C1 * INV_TEMP ) * TEMPOT300**B1'
+     &      / 9X,'K2 = A2 * DEXP( C2 * INV_TEMP ) * TEMPOT300**B2'
+     &      / 9X,'FALLOFF_T11 = K1 + K2 * CAIR'
+     &      / 9X,'RETURN'
+     &      / 7X,'END FUNCTION FALLOFF_T11'  /     )
+    
     
 4501   FORMAT( '! Name of Mechanism ', A
-     &        / 7X,'PUBLIC             :: CALC_RCONST, SPECIAL_RATES'
+     &       2/ 7X,'PUBLIC             :: CALC_RCONST, SPECIAL_RATES'
      &       2/ 7X,'REAL( 8 ), PRIVATE :: CAIR          ! air number density (wet) [molec/cm^3]'
      &        / 7X,'REAL( 8 ), PRIVATE :: CFACT         ! molec/cc to ppm conversion factor   '/
      &        / 7X,'REAL( 8 ), PRIVATE :: CFACT_SQU     ! molec/cc to ppm conversion factor squared  '/
@@ -1576,7 +979,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        / 7X,'REAL( 8 ), PRIVATE :: RFACTOR       ! Convertor cm^3/(molec*sec) to 1/(ppm*min)'
      &        / 7X,'REAL,      PRIVATE :: H2O           ! Cell H2O mixing ratio (ppmV)')
 
-4601   FORMAT( '! Name of Mechanism ', A
+4601   FORMAT( '! Name of Mechanism ', A32
      &        / 7X,'PUBLIC             :: CALC_RCONST, SPECIAL_RATES'
      &       2/ 7X,'REAL( 8 ), PRIVATE :: CAIR          ! air number density (wet) [molec/cm^3]'
      &        / 7X,'REAL( 8 ), PRIVATE :: CFACT         ! Convertor cm^3/(molec*sec) to 1/(ppm*min)'/
@@ -1589,8 +992,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        / 7X,'REAL( 8 ), PRIVATE :: INV_RFACT     ! ppm/min to molec/(cm^3*min)'
      &        / 7X,'REAL( 8 ), PRIVATE :: RFACT_SQU     ! cm^6/(molec^2*min) to 1/(ppm^2*min)'
      &        / 7X,'REAL( 8 ), PRIVATE :: RFACT         ! cm^3/(molec*min) to 1/(ppm*min)'
-     &        / 7X,'REAL,      PRIVATE :: H2O           ! Cell H2O mixing ratio (ppmV)')
-     
+     &        / 7X,'REAL       PRIVATE :: H2O           ! Cell H2O mixing ratio (ppmV)')
+
+4611   FORMAT( '! Name of Mechanism ', A
+     &        // 7X,'PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES' )
+          
 4502   FORMAT(  '! pointers and names to specific photolysis rates' )
 4503   FORMAT(  7X,'INTEGER, PARAMETER  :: IJ_',A16,' = ', I3 )
 4504   FORMAT(' ' )
@@ -1623,21 +1029,45 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5001   FORMAT( 1X, 'RJBLK( NCELL, IJ_',A, ' )' )
 5100   FORMAT(1PD12.4,' * RKI( NCELL, ',I4,' )')
 5101   FORMAT(  'RKI( NCELL, ',I4,' )')
+5029   FORMAT('POWE_T02( ',1PD12.4,', ', 1PD12.4,' )')
 5002   FORMAT('ARRE_T04( ',1PD12.4,', 0.0000D+0,', 1PD12.4,' )')
 5003   FORMAT('ARRE_T03( ',1PD12.4,', ', 1PD12.4,' )')
 5004   FORMAT('ARRE_T04( ', 1PD12.4,', ', 1PD12.4,', ', 1PD12.4,' )')
-5005   FORMAT('RKI( NCELL, ' I4, ' ) / ARR2( ',1PD12.4,', ',1PD12.4,' )')            
-5006   FORMAT(1PD12.4,' * RKI( NCELL, ' I4, ' ) ')   
-5007   FORMAT(1PD12.4,' *( 1.0D0 + 0.6D0 * PRESS )')             
+5014   FORMAT('ARRE_T04( ',1PD12.4,', 0.0000D+0,', 1PD12.4,' )  * PRESS ')             
 5008   FORMAT('FALL_T08( ', 3(1PD12.4,', '), ' & ' / 5X, '&', 47X, 2(1PD12.4,', '), 1PD12.4, ' )' )
 5009   FORMAT('FALL_T09( ', 3(1PD12.4,', '), ' & ' / 5X, '&', 47X, 1PD12.4, ' )' )
 5010   FORMAT('FALL_T10( ', 3(1PD12.4,', '), ' & ' / 5X,'&', 47X, 3(1PD12.4,', '),  ' & '
      &        / 5X, '&', 47X, 1PD12.4,', ', 1PD12.4,' )')
-5011   FORMAT(1PD12.4,' * ',A)             
-5012   FORMAT(A)
-5014   FORMAT('ARRE_T04( ',1PD12.4,', 0.0000D+0,', 1PD12.4,' )  * PRESS ')             
 5019   FORMAT('FALL_T11( ', 3(1PD12.4,', ') / 5X,'&', 47X,  3(1PD12.4,', ')
      &                   / 5X,'&', 47X,  1PD12.4,' )')
+
+!format statements for calling rate constant functions
+
+5111   FORMAT(1PD12.4) 
+5129   FORMAT('POWER_T02( TEMPOT300, ',1PD12.4,', ', 1PD12.4,' )')
+5102   FORMAT('ARRHENUIS_T04( INV_TEMP,  TEMPOT300,',1PD12.4,', 0.0000D+0,', 1PD12.4,' )')
+5103   FORMAT('ARRHENUIS_T03( INV_TEMP,',1PD12.4,', ', 1PD12.4,' )')
+5104   FORMAT('ARRHENUIS_T04( INV_TEMP,  TEMPOT300,',  ' & ' / 5X, '&', 49X, 1PD12.4,', ', 1PD12.4,
+     &        ', ', 1PD12.4,' )')
+5114   FORMAT('ARRHENUIS_T04( INV_TEMP,  TEMPOT300,',  ' & ' / 5X, '&', 49X, 1PD12.4,', 0.0000D+0,',
+     &        1PD12.4,' )  * PRESS ')             
+5108   FORMAT('FALLOFF_T08( INV_TEMP,  CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', '), ' & ' / 5X, '&',
+     &         47X, 2(1PD12.4,', '), 1PD12.4, ' )' )
+5109   FORMAT('FALLOFF_T09( INV_TEMP,  CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', '), ' & ' / 5X, '&',
+     &         47X, 1PD12.4, ' )' )
+5110   FORMAT('FALLOFF_T10( INV_TEMP,  TEMPOT300,  CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', '), ' & ' 
+     &        / 5X,'&', 47X, 3(1PD12.4,', '),  ' & '
+     &        / 5X, '&', 47X, 1PD12.4,', ', 1PD12.4,' )')
+5119   FORMAT('FALLOFF_T11( INV_TEMP,TEMPOT300,CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', ') / 5X,'&',
+     &         47X,  3(1PD12.4,', ')
+     &        / 5X,'&', 47X,  1PD12.4,' )')
+
+
+5005   FORMAT('RKI( NCELL, ' I4, ' ) / ARR2( ',1PD12.4,', ',1PD12.4,' )')            
+5006   FORMAT(1PD12.4,' * RKI( NCELL, ' I4, ' ) ')   
+5007   FORMAT(1PD12.4,' *( 1.0D0 + 0.6D0 * PRESS )')             
+5011   FORMAT(1PD12.4,' * ',A)             
+5012   FORMAT(A)
 5027   FORMAT(1PD12.4,' * KHETERO( NCELL, IK_',A,' )')
 5028   FORMAT( 1X, 'KHETERO( NCELL, IK_',A, ' )' )
 5128   FORMAT( 1X, 'BLKHET(  NCELL, IK_',A, ' )' )
@@ -1648,7 +1078,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5024   FORMAT(7X,'INTEGER, PARAMETER  :: IK_',A16,' = ', I3 )
 5025   FORMAT('DATA HETERO(', I3,' ) / ''',A16,''' /')
 5026   FORMAT(7X,'INTEGER, PARAMETER  :: NHETERO  = ', I3,'  ! number of heterogeneous rates ')
-5029   FORMAT('POWE_T02( ',1PD12.4,', ', 1PD12.4,' )')
 94000 FORMAT( 1X,'One of the dimensions below is too small:')
 94020 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICNT    = ',I6)  
 94040 FORMAT( 1X,'DIMENSION: MXCOUNT1 = ',I6,' VARIABLE: JCNT    = ',I6)  
@@ -1682,7 +1111,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
 
-99880 FORMAT(7X,'SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, LSUNLIGHT, RKI, NUMCELLS )' //
+99880 FORMAT(7X,'SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, RKI, NUMCELLS )' //
      & '!**********************************************************************' //
      & '!  Function: To compute thermal and photolytic reaction rate' /
      & '!            coefficients for each reaction.' //
@@ -1690,34 +1119,51 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & '!                 been calculated and stored in RJPHOT. Expects' /
      & '!                 temperature in deg K, pressure in atm., water' /
      & '!                 vapor in ppmV, and J-values in /min.' /
-     & '!  Key Subroutines/Functions Called: None ' /
+     & '!  Key Subroutines/Functions Called: POWER_02, ARRHRENUIS_T0*, FALLOFF_T* ' /
      & '!***********************************************************************'///
-     &      //  7X,'USE RXNS_DATA'
-     &       /  7X,'USE AEROSOL_CHEMISTRY     ! rates for heterogeneous reactions' //
+     &      //  7X,'USE RXNS_DATA'  //
      & '        IMPLICIT NONE  ' //
      & '!  Arguements: None ' //
      & '        REAL( 8 ), INTENT( IN  ) :: BLKTEMP( : )      ! temperature, deg K '/
      & '        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! Reciprocal of temperature, Pa '/
      & '        REAL( 8 ), INTENT( IN  ) :: BLKH2O ( : )      ! water mixing ratio, ppm '/
      & '        REAL( 8 ), INTENT( IN  ) :: RJBLK  ( :, : )   ! photolysis rates, 1/min '/ 
+     & '        REAL( 8 ), INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min'/
      & '        INTEGER,   INTENT( IN  ) :: NUMCELLS          ! Number of cells in block ' /
-     & '        REAL( 8 ), INTENT( OUT ) :: RKI ( :, : )   ! reaction rate constant, ppm/min '/
      & '        LOGICAL,   INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? ' /
+     & '        REAL( 8 ), INTENT( OUT ) :: RKI ( :, : )   ! reaction rate constant, ppm/min '/
      & '!..Parameters: ' //
      & '        REAL( 8 ), PARAMETER :: COEF1  = 7.33981D+15     ! Molec/cc to ppm conv factor ' /
      & '        REAL( 8 ), PARAMETER :: CONSTC = 0.6D+0          ! Constant for reaction type 7' /
      & '        REAL( 8 ), PARAMETER :: TI300  = 1.0D+0/300.0D+0 ! reciprocal of 300 deg K' /
+     & '        REAL( 8 ), PARAMETER :: SFACT  = 60.D+0          ! seconds per minute ' /
      & '!..External Functions: None' //
      & '!..Local Variables:' //
-     & '        INTEGER NRT                  ! Loop index for reaction types '/
-     & '        INTEGER IRXN                 ! Reaction number'/
-     & '        INTEGER JNUM                 ! J-value species # from PHOT)'/
-     & '        INTEGER KNUM                 ! Reaction # for a relative rate coeff.'/
-     & '        INTEGER N                    ! Loop index for reactions'/
-     & '        INTEGER NCELL                ! Loop index for # of cells in the block' 
-     & //
-     & '          RKI = 0.0 ' /
-     & '          DO NCELL = 1, NUMCELLS ' /
+     & '        INTEGER   :: NRT           ! Loop index for reaction types '/
+     & '        INTEGER   :: IRXN          ! Reaction number'/
+     & '        INTEGER   :: JNUM          ! J-value species # from PHOT)'/
+     & '        INTEGER   :: KNUM          ! Reaction # for a relative rate coeff.'/
+     & '        INTEGER   :: N             ! Loop index for reactions'/
+     & '        INTEGER   :: NCELL         ! Loop index for # of cells in the block' /
+     & '        REAL( 8 ) :: CAIR          ! air number density (wet) [molec/cm^3]' /
+     & '        REAL( 8 ) :: CFACT         ! Convertor cm^3/(molec*sec) to 1/(ppm*min)'/
+     & '        REAL( 8 ) :: CFACT_SQU     ! Convertor cm^6/(molec^2*sec) to 1/(ppm^2*min)'/
+     & '        REAL( 8 ) :: INV_CFACT     ! ppm/min to molec/(cm^3*sec)'/
+     & '        REAL( 8 ) :: TEMPOT300     ! temperature divided by 300 K, dimensionaless '/
+     & '        REAL( 8 ) :: INV_TEMP      ! reciprocal of air temperature, K-1' /
+     & '        REAL( 8 ) :: TEMP          ! air temperature, K' /
+     & '        REAL( 8 ) :: PRESS         ! pressure [Atm] ' /
+     & '        REAL( 8 ) :: INV_RFACT     ! ppm/min to molec/(cm^3*min)' /
+     & '        REAL( 8 ) :: RFACT_SQU     ! cm^6/(molec^2*min) to 1/(ppm^2*min)' /
+     & '        REAL( 8 ) :: RFACT         ! cm^3/(molec*min) to 1/(ppm*min)' /
+     & '        REAL      :: H2O           ! Cell H2O mixing ratio (ppmV)'  //
+     & '        RKI = 0.0 ' / )
+99879   FORMAT(/'        IF( LSUNLIGHT )THEN ' /
+     &          '            DO NCELL = 1, NUMCELLS ' )
+99881   FORMAT(/'            END DO ' /     
+     &          '        END IF ' )
+99882   FORMAT(/
+     & '        DO NCELL = 1, NUMCELLS ' /
      & '!  Set-up conversion factors '/
      & '             INV_TEMP  = 1.0D+00 / BLKTEMP( NCELL ) '/
      & '             CAIR      = 1.0D+06 * COEF1 * BLKPRES( NCELL ) * INV_TEMP '/
@@ -1725,7 +1171,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & '             CFACT_SQU = 6.0D-11 * CAIR * CAIR '/
      & '             INV_CFACT = 6.0D+07 / CAIR '/     
      & '             TEMP      = BLKTEMP( NCELL ) '/
-     & '             TEMPOT300 = BLKTEMP( NCELL ) * TI300 ' // )
+     & '             TEMPOT300 = BLKTEMP( NCELL ) * TI300 '  )
 
 99991  FORMAT(7X // 7X, ' END DO  ' 
      & / '!  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]'
@@ -1902,7 +1348,7 @@ C   begin body of subroutine  UPCASE
         RETURN
         END SUBROUTINE CONVERT_CASE_LOCAL
 
-      SUBROUTINE WRITE_RATE_CONVERT_LOCAL(OUT_UNIT, RXN_ORDER)
+      SUBROUTINE WRITE_RATE_CONVERT_BEFORE(OUT_UNIT, RXN_ORDER)
         IMPLICIT NONE
         INTEGER, INTENT( IN ) :: OUT_UNIT
         INTEGER, INTENT( IN ) :: RXN_ORDER
@@ -1918,11 +1364,32 @@ C   begin body of subroutine  UPCASE
              WRITE(OUT_UNIT, 95003, ADVANCE = 'NO')
         END SELECT
 95000   FORMAT(' INV_CFACT * ')                
-95001   FORMAT(' 60.0D0 * ')                
+95001   FORMAT(' SFACT * ')                
 95002   FORMAT(' CFACT * ')                
 95003   FORMAT(' CFACT_SQU * ')                
         RETURN
-      END SUBROUTINE WRITE_RATE_CONVERT_LOCAL
+      END SUBROUTINE WRITE_RATE_CONVERT_BEFORE
+      SUBROUTINE WRITE_RATE_CONVERT_AFTER(OUT_UNIT, RXN_ORDER)
+        IMPLICIT NONE
+        INTEGER, INTENT( IN ) :: OUT_UNIT
+        INTEGER, INTENT( IN ) :: RXN_ORDER
+        
+         SELECT CASE( RXN_ORDER )
+           CASE( 0 )
+             WRITE(OUT_UNIT, 95000, ADVANCE = 'NO')
+           CASE( 1 )
+             WRITE(OUT_UNIT, 95001, ADVANCE = 'NO')
+           CASE( 2 )
+             WRITE(OUT_UNIT, 95002, ADVANCE = 'NO')
+           CASE( 3 )
+             WRITE(OUT_UNIT, 95003, ADVANCE = 'NO')
+        END SELECT
+95000   FORMAT(' * INV_CFACT ')                
+95001   FORMAT(' * SFACT ')                
+95002   FORMAT(' * CFACT ')                
+95003   FORMAT(' * CFACT_SQU ')                
+        RETURN
+      END SUBROUTINE WRITE_RATE_CONVERT_AFTER
       SUBROUTINE WRITE_RATE_CONVERT_TIME(OUT_UNIT, RXN_ORDER)
         IMPLICIT NONE
         INTEGER, INTENT( IN ) :: OUT_UNIT

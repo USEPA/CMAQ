@@ -110,6 +110,7 @@ c.. Variables for steady-state species
 
          INTEGER,            ALLOCATABLE ::  CGRID_INDEX  ( : )
          INTEGER,            ALLOCATABLE ::  TYPE_INDEX   ( : )
+         LOGICAL, SAVE,      ALLOCATABLE ::  CONVERT_CONC ( : )
          REAL,               ALLOCATABLE ::  SPECIES_MOLWT( : )
          CHARACTER( 16),     ALLOCATABLE ::  CGRID_SPC    ( : )
          CHARACTER(LEN = 2), ALLOCATABLE ::  SPECIES_TYPE ( : )

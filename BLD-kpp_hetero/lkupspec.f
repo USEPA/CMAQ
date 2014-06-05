@@ -60,7 +60,7 @@ C=======================================================================
       END IF         
       SPCLIS( NS ) = SPECIES
       NSPEC = NS
-      SPC1RX( NS ) = NXX
+      SPC1RX( NS ) = NS
       RETURN
 2001  FORMAT( / 5X, '*** ERROR: ',
      &        'Maximum number of species = ', I3, ' exceeded' )

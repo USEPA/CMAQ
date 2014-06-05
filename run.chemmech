@@ -4,86 +4,41 @@
  date
  set echo
 
-  set BASE  = $cwd
-#set BASE  = /home/hutzellb/cmaq-v5.0/AE6_based_HAPS_mechanism
-#set BASE = /home/hutzellb/tools/csv_to_nml-file
+#set BASE  = $cwd
+ set BASE = /home/hutzellb/tools/mech_processor
+
+
 #set Xpath = /home/hutzellb/tools/mech_processor/BLD-kpp_special_SS4
 #set Xpath = /home/hutzellb/tools/mech_processor/BLD-ggb_special_SS4
  set Xpath = /home/hutzellb/tools/mech_processor/BLD-kpp_hetero
  set EXEC  = CHEMMECH_ggb_SS4
- set APPL  = test
 
-#option use CMAQ species namelists to determine CGRID species indices to output
- setenv USE_SPCS_NAMELISTS F
+#option use CMAQ species namelists to determine CGRID species indices
+ setenv USE_SPCS_NAMELISTS T
 
 # mechanism input file ........................................................
 
-#set BASE = /home/hutzellb/cmaq-v5.0/mechanisms
-#set MECH_ARCHIVE = /home/hutzellb/mech_git_archive
- set MECH_ARCHIVE = /home/hutzellb/CCTM_git_repository/MECHS
-#set BASE = /home/hutzellb/tools/mech_processor/saprc07tc_xya_isoprene_v5-zero_NO2EX
- set BASE = /home/hutzellb/tools/mech_processor
-#set BASE = /home/hutzellb/tools/CSQY_table_processor/cb05tucl-halogen_update
-#set Mpath = ${BASE}/racm2_ae6_aq
-#set Mpath = ${BASE}/saprc07tc_ae6_aq
-#set Mpath = ${BASE}/S11b_updates
-#set Mechanism = saprc07tb_ae5_aq
-#set Mechanism = cb05cltx_ae5_aq
-#set Mechanism = cb05tutx_ae6_aq
-#set Mechanism = cb05tump_ae6_aq
-#set Mechanism = cb05tuhg_ae6_aq
-#set Mechanism = cb05tucl_ae6_aq
-#set Mechanism = saprc99tx3_ae6_aq
+#set MECH_ARCHIVE = /home/hutzellb/CCTM_git_repository/MECHS
 
 #set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq cb05tucl_ae6_aq )
 #set mechanisms = ( cb05cltx_ae5_aq )
  
 #set mechanisms = saprc07tb_ae6_aq
-#set mechanisms = cb05tucl_ae6st_aq
- set mechanisms = cb05tucl_ae6_aq
-#set mechanisms = saprc07tic_ae6_aq
-#set mechanisms = saprc07tc_ae6_aq
-#set mechanisms = S11c_updates
-#set mechanisms = racm2_ae6_aq
-#set mechanisms = racm2_ae6st_aq
-#set mechanisms = cb05tucl-chlorine_update
-#set mechanisms = saprc07tc_xya_isoprene_v4
-#set mechanisms = saprc07tc_xya_isoprene_v5
-#set mechanisms = ozone_tracer
+# set mechanisms = cb05tucl_ae6_aq
+ set mechanisms = cb05e6_ae6_aq
+#set mechanisms = ( cb05tucl_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq racm2_ae6_aq )
 
 foreach Mechanism ( $mechanisms )
 
- set  Mpath = ${BASE}/${Mechanism}
- set  Mpath = ${BASE}/cb05tucl_clno2_b3
-#set  Mpath = ${BASE}/${Mechanism}-hetchem
-#set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
-#set  Mpath = ${BASE}/saprc07tc_xya_isoprene_v5-zero_NO2EX
-#set  Mpath = ${BASE}/${Mechanism}
-#set  Mpath = ${BASE}/${Mechanism}_v50
-
-#set MCFL =  mech_SAPRC07TB_AE5_AQ.def
-#set MCFL =  mech_cb05tutx_ae6_aq.def
-#set MCFL =  mech_cb05tump_ae6_aq.def
-#set MCFL =  mech_cb05tuhg_ae6_aq.def
-#set MCFL =  mech-saprc99tx3_ae6_aq.def
+# set  Mpath = ${BASE}/${Mechanism}
+# set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
+  set  Mpath = ${BASE}/input/cb05e6
+# set  Mpath = ${BASE}/input/cb05tucl_update
+#set  Mpath = ${BASE}/input/cb05tucl_clno2_b3
 #set MCFL =  mech-${Mechanism}.def
-#set MCFL =  mech.def
- set MCFL =   mech_revision_B3.def
-#set MCFL =  mech_S11c_updates.def
-#set MCFL =  mech.def.RACM2
-#set MCFL =  mech_${Mechanism}.def
- set KPP_EQN =  mech_${Mechanism}.eqn
- set KPP_SPC =  mech_${Mechanism}.spc
-
-# output files ................................................................
-
-
-#set Opath = ${BASE}/${Mechanism}_test
- set Opath = ${Mpath}
-#set Opath = /home/hutzellb/tools/mech_processor/${Mechanism}
-#set Opath = ${BASE}/test
- set KPP_Out_Path = ${Opath}
-
+# set MCFL =  mech.def
+  set MCFL =   mech_CB05e6.def
+# set MCFL =   mech_revision_B3.def
 
  if( !( -e $Mpath/$MCFL ) )then
    \ls $Mpath/$MCFL
@@ -91,25 +46,13 @@ foreach Mechanism ( $mechanisms )
  endif
  set echo
  setenv MECHDEF  $Mpath/$MCFL
-#set KPP_Out_Path = $cwd
- setenv EQNS_KPP_FILE ${KPP_Out_Path}/${KPP_EQN}
- setenv SPCS_KPP_FILE ${KPP_Out_Path}/${KPP_SPC}
 
-if( ! ( -d $Opath ) ) mkdir -p $Opath
-if( ! ( -d ${KPP_Out_Path} ) )mkdir -p ${KPP_Out_Path}
-
-if( $Opath != ${Mpath} )\cp -f $MECHDEF $Opath/.
-
- setenv SPCSDATX    $Opath/SPCS.ext #<- temporary file, read by Species Processor
- setenv RXNSDATX    $Opath/RXDT.EXT
- setenv RXNSCOMX    $Opath/RXCM.EXT
-
- setenv RXNS_DATA_MODULE $Opath/RXNS_DATA_MODULE.F90
- setenv RXNS_FUNC_MODULE $Opath/RXNS_FUNC_MODULE.F90
- setenv OUTDIR           $Opath
+ setenv MAPPING_ROUTINE "/home/hutzellb/tools/mech_processor/BLD-kpp_hetero/map_chemistry_spc.F90"
  
+
  set NML    = ${Mpath}
- set NML_TR = ${MECH_ARCHIVE}/trac0
+ set NML_TR = ${NML}
+#set NML_TR = ${MECH_ARCHIVE}/trac0
 
  set GC_NML = $NML/GC_${Mechanism}.nml
  set AE_NML = $NML/AE_${Mechanism}.nml
@@ -126,6 +69,34 @@ setenv ae_matrix_nml $AE_NML
 setenv nr_matrix_nml $NR_NML
 setenv tr_matrix_nml $TR_NML
 
+
+# set Opath = ${Mpath}
+# set Opath = ${BASE}/output/cb05tucl_clno2_b3_mod_gfort
+  set Opath = ${BASE}/output/${Mechanism}_test
+  if( ! ( -d $Opath ) ) mkdir -p $Opath
+
+# output files ................................................................
+
+ if( $Opath != ${Mpath} )\cp -f $MECHDEF $Opath/.
+
+ setenv SPCSDATX    $Opath/SPCS.ext #<- temporary file, read by Species Processor
+ setenv RXNSDATX    $Opath/RXDT.EXT
+ setenv RXNSCOMX    $Opath/RXCM.EXT
+
+ setenv RXNS_DATA_MODULE $Opath/RXNS_DATA_MODULE.F90
+ setenv RXNS_FUNC_MODULE $Opath/RXNS_FUNC_MODULE.F90
+ setenv OUTDIR           $Opath
+
+ set KPP_Out_Path = ${Opath}
+ if( ! ( -d ${KPP_Out_Path} ) )mkdir -p ${KPP_Out_Path}
+
+ set KPP_EQN =  mech_${Mechanism}.eqn
+ set KPP_SPC =  mech_${Mechanism}.spc
+
+ setenv EQNS_KPP_FILE ${KPP_Out_Path}/${KPP_EQN}
+ setenv SPCS_KPP_FILE ${KPP_Out_Path}/${KPP_SPC}
+
+ 
 
  unset echo
 

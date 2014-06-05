@@ -16,7 +16,7 @@
 ifndef COMPILER
   COMPILER = INTEL
 # COMPILER = PGF90
-#COMPILER = GFORT
+ COMPILER = GFORT
 endif
 
 ifeq ($(COMPILER),INTEL)
@@ -43,17 +43,19 @@ else
  LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
  ifeq ($(COMPILER),GFORT)
-   FC    = /usr/local/gcc-4.6/bin/gfortran
+#  FC    = /usr/local/gcc-4.6/bin/gfortran
    CC    = /usr/bin/gcc
-#  FC    = gfortran
+   FC    = gfortran
 #  CC    = gcc
    f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -fcheck=all -I. 
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -I. 
    F_FLAGS       = $(f_FLAGS)
    f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32 -fcheck=all -I. 
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32 -I. 
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
-   LINK_FLAGS    = -static
+   LINK_FLAGS    = 
  endif
 
 endif

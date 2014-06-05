@@ -42,20 +42,25 @@ C=======================================================================
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
-      CHARACTER(  1 ) :: CHR
-      CHARACTER( 81 ) :: INBUF
-      INTEGER IMECH, LPOINT, IEOL
-      REAL( 8 ) :: NUMBER
-      LOGICAL LDECIMAL, LEXP
+
+      INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
+      CHARACTER(  1 ), INTENT( INOUT ) :: CHR     ! current character from buffer
+      CHARACTER( 81 ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
+      INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
+      INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
+      REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
+!Local:
+      LOGICAL         :: LDECIMAL, LEXP, LZERO
       CHARACTER( 15 ) :: NUMSTRING 
-      INTEGER START, LENGTH, NUMSIGNS
+      INTEGER         :: START, LENGTH, NUMSIGNS
+      REAL            :: LOCAL_NUMBER
 
       START = LPOINT
       LENGTH = 0
       NUMSIGNS = 0
       LDECIMAL = .FALSE.
       LEXP = .FALSE.
+      LZERO = .TRUE.
 101   CONTINUE
       IF ( LENGTH .NE. 0 ) THEN
          LPOINT = LPOINT + 1
@@ -75,8 +80,10 @@ C=======================================================================
             STOP
          END IF        
       END IF   
+      IF ( CHR .NE. '0' )LZERO = .FALSE.
       IF ( CHR .GE. '0' .AND. CHR .LE. '9' ) GO TO 101
-      IF ( CHR .EQ. 'E' .OR. CHR .EQ. 'e' ) THEN
+      IF ( CHR .EQ. 'E' .OR. CHR .EQ. 'e' .OR.
+     &     CHR .EQ. 'D' .OR. CHR .EQ. 'd' )THEN
          IF ( .NOT. LEXP ) THEN
             LEXP = .TRUE.
             GO TO 101
@@ -104,7 +111,11 @@ c end of the numeric string
          NUMSTRING = NUMSTRING( 1:LENGTH ) // '.'
          LENGTH = LENGTH + 1
       END IF
-      READ ( NUMSTRING( 1:LENGTH ),'(D15.4)' ) NUMBER
+       READ ( NUMSTRING( 1:LENGTH ),'(D15.4)' ) NUMBER
+!      READ( NUMSTRING( 1:LENGTH ), * )LOCAL_NUMBER
+      IF( LZERO )THEN
+         NUMBER = 0.0D+0
+      END IF
       IF ( LPOINT .GT. IEOL ) THEN
            CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
            WRITE(KPPEQN_UNIT,'(A)')' '

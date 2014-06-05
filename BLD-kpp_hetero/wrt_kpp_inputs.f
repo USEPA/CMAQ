@@ -309,11 +309,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 4604  FORMAT('REAL(dp), PARAMETER  :: ', A16,' = ', 1PD12.4 )
 ! write inline data for constant species
       WRITE(KPPEQN_UNIT, 4714 )
-      IF ( MAXVAL( CVAL ) .GT. 0.0D0 ) THEN
+      IF ( MAXVAL( CONST ) .GT. 0.0D0 ) THEN
          DO IPR = 1, MAXCONSTS
             ISPC = INDEX1 ( TRIM( NAMCONSTS( IPR ) ), MAXCONSTS, NAMCONSTS )
             IF( ISPC .LT. 1 )CYCLE
-            WRITE( KPPEQN_UNIT, 1310 )  NAMCONSTS( IPR ), REAL(CVAL( ISPC ), 8)
+            WRITE( KPPEQN_UNIT, 1310 )  NAMCONSTS( IPR ), REAL(CONST( ISPC ), 8)
          END DO
 1310     FORMAT('REAL(dp), PARAMETER ::', 1X, A16,' =', 1PD12.5  )
       END IF
@@ -551,8 +551,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                  PRINT*,REAL(RTDAT(1, NXX),8),TRIM( HETERO(IDX) )
              ELSE
                  WRITE(KPPEQN_UNIT,5028, ADVANCE = 'NO')TRIM( HETERO(IDX) )
-                 PRINT*,TRIM( HETERO(IDX) )
-                 WRITE(6,5028)TRIM( HETERO(IDX) )
              END IF
           CASE(  0 )
              DO IPR = 1, IP
