@@ -1,11 +1,16 @@
        MODULE CSQY_PARAMETERS
 
+#ifndef mech_includes
+        USE RXNS_DATA
+#endif	   
+
         IMPLICIT NONE
 
 
-
-          INCLUDE SUBST_RXCMMN    ! to get mech name
-          INCLUDE SUBST_RXDATA    ! to get photolysis rate names
+#ifdef mech_includes
+           INCLUDE SUBST_RXCMMN    ! to get mech name
+           INCLUDE SUBST_RXDATA    ! to get photolysis rate names
+#endif	   
 
 !    MXWL     = maximum number of wavelength bands to process
 !    MXWLIN   = maximum number of wavelength bands on input files

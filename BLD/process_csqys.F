@@ -153,10 +153,10 @@ C...open input file
      &        STATUS = 'OLD',
      &        IOSTAT = IOST )
 
-        OPEN( UNIT = CSQY_UNIT,
-     &        FILE = 'CSQY_BLOCK.dat',
-     &        STATUS = 'UNKNOWN',
-     &        IOSTAT = IOST )
+!       OPEN( UNIT = CSQY_UNIT,
+!    &        FILE = 'CSQY_BLOCK.dat',
+!    &        STATUS = 'UNKNOWN',
+!    &        IOSTAT = IOST )
          
 
 C...check for open errors

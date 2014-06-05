@@ -1,5 +1,9 @@
        MODULE JPROC_PROFILE
 
+#ifndef mech_includes
+        USE RXNS_DATA
+#endif	   
+
         IMPLICIT NONE
 
 !          INCLUDE 'JVALPARMS.EXT'    ! jproc parameters
@@ -10,8 +14,10 @@
 !          INCLUDE 'CB05CL_AE5_AQ/RXCM.EXT'
 !          INCLUDE 'CB05CL_AE5_AQ/RXDT.EXT'
 
+#ifdef mech_includes
            INCLUDE SUBST_RXCMMN    ! to get mech name
            INCLUDE SUBST_RXDATA    ! to get photolysis rate names
+#endif	   
 
 !...........PARAMETERS from JPROC and their descriptions
 !    MXWL     = maximum number of wavelength bands to process

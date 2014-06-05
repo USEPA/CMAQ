@@ -13,10 +13,11 @@
 
 
 ifndef COMPILER
-  COMPILER = INTEL
-# COMPILER = PGF90
-#COMPILER = GFORT
+#COMPILER = INTEL
+#COMPILER = PGF90
+ COMPILER = GFORT
 endif
+
 
 ifeq ($(COMPILER),INTEL)
 
@@ -26,6 +27,8 @@ FC = ifort
 CC = icc
 F_FLAGS = -fixed -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
 f_FLAGS = -fixed -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
 LINK_FLAGS = -i-static
@@ -72,14 +75,20 @@ endif
 
 LIBRARIES = 
 
+
+ifndef USE_RXNS_MODULES
  INCLUDES = \
- -Dverbose_phot\
+ -Dverbose_phot -Dmech_includes \
  -DSUBST_RXCMMN=\"$(MECH_INC)/RXCM.EXT\" \
  -DSUBST_RXDATA=\"$(MECH_INC)/RXDT.EXT\" 
+else
+ INCLUDES  = -Dverbose_phot
+endif
 
 
 #CHECK_CSQY_DATA.o \
 
+ifndef USE_RXNS_MODULES
  OBJECTS =\
  BIN_DATA.o \
  CSQY_PARAMETERS.o \
@@ -102,6 +111,31 @@ LIBRARIES =
  xc_qy_td_effect.o \
  convert_case.o \
  nameval.o
+else
+ OBJECTS =\
+ BIN_DATA.o \
+ RXNS_DATA_MODULE.o \
+ CSQY_PARAMETERS.o \
+ ALBEDO_REFER_DATA.o \
+ CSQY_REFER_DATA.o \
+ driver.o \
+ intavg_b.o \
+ intavg_c.o \
+ intavg.o \
+ wrt_csqy_data_only.o \
+ wrt_csqy_data.o \
+ wrt_optics_data.o \
+ optics_water_cloud.o \
+ optics_ice_cloud.o \
+ aero_refract_index.o \
+ process_csqys.o \
+ spectral_reflect.o \
+ wvbin_average-b.o \
+ wvbin_average.o \
+ xc_qy_td_effect.o \
+ convert_case.o \
+ nameval.o
+endif
  
 # wrbf12d.o \
 # wrbf12d_w_headerb.o \
@@ -117,6 +151,16 @@ $(MODEL): $(OBJECTS)
 .f.o:
 	$(FC) $(F_FLAGS) -c $<
 
+.F90.o:
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+
+ RXNS_DATA_MODULE.o: $(MECH_INC)/RXNS_DATA_MODULE.F90
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(MECH_INC)/RXNS_DATA_MODULE.F90
+	
+
+.f90.o:
+	$(FC) -c $(f90_FLAGS) $<
 
 .c.o:
 	$(CC) $(C_FLAGS) -c $<
