@@ -152,7 +152,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
-93030 FORMAT( /15X, 'CALL SPECIAL_RATES( NCELL, YC, RKI )' / )
+93030 FORMAT( /15X, 'CALL SPECIAL_RATES( NUMCELLS=NCELL, IOLD2NEW=IOLD2NEW, NCS=1, ',
+     &         'Y=YC, RKI=RKI )' / )
 93040 FORMAT( 'c..Special treatment of PAR because of negative product ',
      &        'stoichiometry' /
      &        15X,'IF( PNEG( NCELL, PAR ) .GT. 0.0 ) THEN' /

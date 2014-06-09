@@ -90,6 +90,17 @@ R4   &          PNEG( MAX_CELLS_EBI, N_SPEC),
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
+      IF( NSPECIAL .GT. 0 )THEN
+          ALLOCATE( N_SPEC, 1 ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+               MSG = 'Error allocating IOLD2NEW'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          END IF
+          DO N = 1, NUMB_MECH_SPC
+             IOLD2NEW( N, 1 ) = N
+          END DO
+       END IF
+
       IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
          MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
