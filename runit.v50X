@@ -20,14 +20,9 @@
  setenv AQ_NAME       AQ
 
 #path for mechanism RXCM.EXT and RXDT.EXT files
-#set REP              = ${STEM}/mechanisms
-#set REP              = /home/hwo/cmaq-v5.0/AE6_based_HAPS_mechanism
-#set REP              = /home/hwo/tools/csv_to_nml-file
-#set MECH             = saprc07tc_xya_isoprene_v4_v50
-#set REP              = /home/hwo/cmaq-v5.0/mechanisms
-#set REP              = /home/hwo/CCTM_git_repository/MECHS
-#set REP              = /home/hwo/tools/mech_processor
- set REP              = /home/hwo/tools/create_ebi_cmaq_v50
+#set REP              = /home/hutzellb/CCTM_git_repository/MECHS
+#set REP              = /home/hutzellb/tools/mech_processor
+ set REP              = /home/hutzellb/tools/create_ebi_cmaq_v50
 #set MECH             = saprc07tc_ae6_aq
 #set MECH             = saprc07tc_xya_isoprene_v5-zero_NO2EX
 #set MECH             = saprc07tc_xya_isoprene_v5_v50
@@ -121,7 +116,7 @@ if ($is_sol) then
     setenv WDX_LIB "lib_sol"
     setenv NETCDF  "netcdff"
 else
-    setenv WDX_LIB "lib"
+    setenv WDX_LIB "/home/hutzellb/tools"
     setenv NETCDF  "netcdf"
 endif    
 
