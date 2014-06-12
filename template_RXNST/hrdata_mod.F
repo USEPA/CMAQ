@@ -73,7 +73,7 @@ c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
       INTEGER, ALLOCATABLE :: SSASP( : )         ! Index of ss species
       INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
-      INTEGER, ALLOCATABLE :: IOLD2NEW( : : )    ! YC species map, used if NSPECIAL > 0
+      INTEGER, ALLOCATABLE :: IOLD2NEW( :,: )    ! YC species map, used if NSPECIAL > 0
 
       REAL( 8 ), ALLOCATABLE ::  RKI   (   :,  : )   ! Rate constants 
       REAL( 8 ), ALLOCATABLE ::  RKI_SAV(  :,  : )   ! Saved values of RKI for SS species calcs

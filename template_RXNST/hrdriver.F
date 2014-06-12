@@ -61,7 +61,7 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE 
 
