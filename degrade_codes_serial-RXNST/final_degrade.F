@@ -17,59 +17,66 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-      SUBROUTINE HRCALC_SPECIAL
 
-C***********************************************************************
+      SUBROUTINE FINAL_DEGRADE( CBLK )
+C**********************************************************************
 C
-C  FUNCTION: To calculate special concentration dependent rate constants
+C  FUNCTION: Update CBLK concentrations with concentrations from degrade
+C            routines
 C
-R1  PRECONDITIONS: For SAPRC99 family of mechanisms
+C  CALLED BY: HRDRIVER
 C
-C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C  REVISION HISTORY: 07/29/05 : B.Hutzell - Initial version
+C                    09/30/11 : B.Hutzell - added CYCLE statements to allow 
+C                               optional degraded species i.e., RXTANT_MAP( I )
+C                               is less than zero
 C
-R2  REVISION HISTORY: Prototype created by Jerry Gipson, July, 2009
-C
-C***********************************************************************
-      USE HRDATA
+C**********************************************************************
+
+      USE DEGRADE_SETUP_TOX
 
       IMPLICIT NONE
 
-C.....INCLUDES: NONE
- 
-C.....ARGUMENTS: NONE 
+C.....ARGUMENTS:
 
-C.....PARAMETERS: NONE
-
-C.....EXTERNAL FUNCTIONS: NONE
-
-C.....SAVED VARIABLES:
-
-      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRCALC_SPECIAL'   ! Program name
-
-      REAL, SAVE ::  MNLOSS = 1.0E-30   ! Min value of loss freq
-      REAL, SAVE ::  MNCONC = 1.0E-30   ! Min concentration value
-
+      REAL, INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 
 C.....LOCAL VARIABLES:
 
-c..Names assigned to special rate constants
-R3
+      REAL, PARAMETER ::  CONMIN = 1.0E-30
 
-c***********************************************************************
+      INTEGER         ::  I_RXT, I_PROD   ! indices
+      INTEGER         ::  I, J, K         ! loop counters
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  This subroutine calculates special rate constants that may depend on
-c  species concentrations.  The special rate constants are computed first,
-c  and then the mechanism specific rate constants are set to the value
-c  of the appropriate rate constant
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C**********************************************************************
 
-S1
+      LOOP_REACT: DO I = 1, N_REACT ! Loop over each reactant
 
-  
+c..update CBLK
+
+         I_RXT = RXTANT_MAP( I )
+         IF( I_RXT < 0 )CYCLE LOOP_REACT
+
+         CBLK( I_RXT ) = CURR_CONC( I_RXT )
+
+         LOOP_PROD: DO J = 1, N_PROCESSES
+
+            I_PROD = PROD_MAP( I, J )
+
+            IF( I_PROD < 1 ) CYCLE ! no specified product
+
+            CBLK( I_PROD ) = CURR_CONC( I_PROD )
+
+         ENDDO LOOP_PROD
+
+      ENDDO LOOP_REACT
+
+      END SUBROUTINE FINAL_DEGRADE
+

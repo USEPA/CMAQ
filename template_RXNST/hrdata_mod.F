@@ -38,9 +38,9 @@ C
 C*************************************************************************
 
 c..EBI solver fixed parameters
-      INTEGER, PARAMETER ::  NEBITER       = 1000  ! No. of iterations for EBI
-      INTEGER, PARAMETER ::  MAX_CELLS_EBI = 1
-      REAL, PARAMETER    ::  DELTAT = 2.5D+00     ! EBI time step
+      INTEGER, PARAMETER    ::  NEBITER       = 1000  ! No. of iterations for EBI
+      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1
+      REAL( 8 ), PARAMETER  ::  DELTAT = 2.5D+00     ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -73,21 +73,23 @@ c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
       INTEGER, ALLOCATABLE :: SSASP( : )         ! Index of ss species
       INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
+      INTEGER, ALLOCATABLE :: IOLD2NEW( :,: )    ! YC species map, used if NSPECIAL > 0
 
-      REAL( 8 ), ALLOCATABLE ::  RKI   (   :,  : )   ! Rate constants 
-      REAL( 8 ), ALLOCATABLE ::  RKI_SAV(  :,  : )   ! Saved values of RKI for SS species calcs
+      REAL( 8 ), ALLOCATABLE ::  RKI(   :,  : )     ! Rate constants 
+      REAL( 8 ), ALLOCATABLE ::  RKI_SAV(  :,  : )  ! Saved values of RKI for SS species calcs
 
-      REAL( 8 ), ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
-      REAL( 8 ), ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
+      REAL( 8 ), ALLOCATABLE ::  YC (   :, : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC0(   :, : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YCP(   :, : )      ! Species concentrations
+
+      REAL, ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
+      REAL, ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
       
-      REAL, ALLOCATABLE ::  RXRAT( :, : )     ! Reaction rates 
-      REAL, ALLOCATABLE ::  RTOL(  : )     ! Species tolerances 
-      REAL, ALLOCATABLE ::  YC(    :, : )     ! Species concentrations
-R5    REAL, ALLOCATABLE ::  YCCELL( : )    ! ALL Species in cgrid
-      REAL, ALLOCATABLE ::  YC0(   :, : )     ! Species concentrations
-      REAL, ALLOCATABLE ::  YCP(   :, : )     ! Species concentrations
-      REAL, ALLOCATABLE ::  PROD(  :, : )     ! Prod of species 
-      REAL, ALLOCATABLE ::  LOSS(  :, : )     ! Loss of species 
-R3      REAL, ALLOCATABLE ::  PNEG( :,  : )     ! Negative production rates
+      REAL( 8 ), ALLOCATABLE ::  RXRAT( :, : )     ! Reaction rates 
+      REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances 
+R5    REAL( 8 ), ALLOCATABLE ::  YCCELL( : )       ! ALL Species in cgrid
+      REAL( 8 ), ALLOCATABLE ::  PROD(  :, : )     ! Prod of species 
+      REAL( 8 ), ALLOCATABLE ::  LOSS(  :, : )     ! Loss of species 
+R3      REAL( 8 ), ALLOCATABLE ::  PNEG( :,  : )   ! Negative production rates
 
 

@@ -41,6 +41,7 @@ C***********************************************************************
       USE UTILIO_DEFN
       USE HRDATA
       USE RXNS_DATA
+      USE RXNS_FUNCTION
        
       IMPLICIT NONE
 
@@ -90,15 +91,27 @@ R4   &          PNEG( MAX_CELLS_EBI, N_SPEC),
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
+      IF( NSPECIAL .GT. 0 )THEN
+          ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+               MSG = 'Error allocating IOLD2NEW'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          END IF
+          DO N = 1, NUMB_MECH_SPC
+             IOLD2NEW( N, 1 ) = N
+          END DO
+       END IF
+
+      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+         MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      END IF
+
       DO N = 1, NUMB_MECH_SPC
-         IF( TRIM( SPECIES_TYPE( N ) ) .NE. 'AE' )THEN
-             FORWARD_CONV( N ) = 1.0D0
-             REVERSE_CONV( N ) = 1.0D0
-         ELSE
-             FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
-             REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
-         END IF
-       END DO
+         FORWARD_CONV( N ) = REAL(1.0E-3 * MWAIR / SPECIES_MOLWT( N ), 8)
+         REVERSE_CONV( N ) = REAL(1.0E+3 / MWAIR * SPECIES_MOLWT( N ), 8)
+      END DO
+
 
       NING1 = 4
       NING2 = 4

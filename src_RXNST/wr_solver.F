@@ -40,6 +40,7 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: IOUT         ! Unit no. of output file
       INTEGER  :: LOGDEV       ! Unit no. of logdev
 
+      LOGICAL  :: LOUT0 = .FALSE.  ! Flag for line 1 output processed
       LOGICAL  :: LOUT1 = .FALSE.  ! Flag for line 1 output processed
       LOGICAL  :: LOUT2 = .FALSE.  ! Flag for line 2 output processed
       LOGICAL  :: LOUT3 = .FALSE.  ! Flag for line 3 output processed
@@ -93,7 +94,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       ELSE
 
-         IF( LINEIN( 2 : 2 ) .EQ. '1' .AND. .NOT. LOUT1 ) THEN
+         IF( LINEIN( 2 : 2 ) .EQ. '0' .AND. .NOT. LOUT0 ) THEN
+
+            IF( NSPECIAL .NE. 0 ) WRITE( IOUT, 93029 ) 
+
+            LOUT0 = .TRUE.             
+
+         ELSEIF( LINEIN( 2 : 2 ) .EQ. '1' .AND. .NOT. LOUT1 ) THEN
 
             WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
 
@@ -109,7 +116,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             IF( NSPECIAL .NE. 0 ) WRITE( IOUT, 93030 ) 
 
-            LOUT2 = .TRUE. 
+            LOUT3 = .TRUE. 
             
          ELSEIF( LINEIN( 2 : 2 ) .EQ. '4' .AND. .NOT. LOUT4 ) THEN
 
@@ -152,7 +159,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
-93030 FORMAT( /15X, 'CALL SPECIAL_RATES( NCELL, YC, RKI )' / )
+93029 FORMAT( 6X,'USE RXNS_FUNCTION, ONLY : SPECIAL_RATES' )
+93030 FORMAT( /15X, 'CALL SPECIAL_RATES( NUMCELLS=NCELL, IOLD2NEW=IOLD2NEW, NCS=1, ',
+     &         'Y=YC, RKI=RKI )' / )
 93040 FORMAT( 'c..Special treatment of PAR because of negative product ',
      &        'stoichiometry' /
      &        15X,'IF( PNEG( NCELL, PAR ) .GT. 0.0 ) THEN' /

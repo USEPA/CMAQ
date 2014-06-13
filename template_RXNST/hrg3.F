@@ -43,7 +43,7 @@ C**********************************************************************
 C..INCLUDES:  NONE
 
 C..ARGUMENTS:      
-      REAL DTC              ! Time step
+      REAL( 8 ), INTENT( IN ) :: DTC              ! Time step
 
 
 C..PARAMETERS: NONE

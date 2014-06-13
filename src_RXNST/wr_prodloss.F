@@ -38,7 +38,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 100 )  ::    LINOUT
       CHARACTER(  16 )  ::    SPOUT                ! Ouput species
       CHARACTER(  16 )  ::    SPEC     
-      CHARACTER(  30 )  ::    VNAME     
+      CHARACTER(  40 )  ::    VNAME     
       CHARACTER( 256 )  ::    FNAME                ! Name of file to open
       CHARACTER(  72 )  ::    CLINE                ! Line of c's
 

@@ -61,6 +61,7 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
+R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE 
 
@@ -78,7 +79,6 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL, PARAMETER :: PA2ATM  = 1.0 / STDATMPA    ! Pascal to atm conv fac
       REAL, PARAMETER :: CONCMIN = 1.0E-30           ! minimum species concentration allowed
 
 C..External Functions:
@@ -91,13 +91,15 @@ C..Saved Local Variables:
       INTEGER, SAVE :: ISTFL            ! Unit no. of iteration stat output file
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call to this subroutine
 
-      REAL, SAVE :: MAOMV               ! Mol Wt of air over Mol Wt of water
+      REAL,      SAVE :: MAOMV    ! Mol Wt of air over Mol Wt of water times 1.0E6
+      REAL( 8 ), SAVE :: PA2ATM   ! Pascal to atm conv fac
 
 C..Scratch Local Variables:
       CHARACTER( 132 ) :: MSG           ! Message text
       CHARACTER(  16 ) :: VNAME         ! Name of I/O API data variable
       
       INTEGER C, E, L, R, S   ! Loop indices
+      INTEGER ISP             ! array index
 
       INTEGER AVGEBI          ! Average no. of EBI iterations
       INTEGER DELT_SEC        ! EBI max time step in seconds
@@ -119,6 +121,7 @@ C..Scratch Local Variables:
       REAL INV_DENS           ! reciprocal of air mass density, m3/Kg
       REAL CHEMSTEP           ! Chemistry integration interval (min)
       REAL SUMEBI             ! Sum of EBI iterations
+
 
       REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
       REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
@@ -159,13 +162,14 @@ R5           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log fi
 R5           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
 R5         END SUBROUTINE FIND_DEGRADED
 R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
+R5           USE RXNS_DATA
 R5           USE DEGRADE_SETUP_TOX
 R5           IMPLICIT NONE
 R5           
-R5           REAL, INTENT( IN ) :: CBLK( NSPCSD )            !  species concentration in cell
+R5           REAL, INTENT( IN ) :: CBLK( : )            !  species concentration in cell
 R5           REAL, INTENT( IN ) :: TCELL                     !  cell temperature  [ k ]
 R5           REAL, INTENT( IN ) :: DCELL                     !  cell air density  [ kg/m^3 ]
-R5           REAL, INTENT( IN ) :: PHOTO_CELL( N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
+R5           REAL, INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
 R5           INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
 R5           INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
 R5           INTEGER, INTENT( IN ) :: LOGDEV ! unit number for the log
@@ -252,8 +256,9 @@ R5         END IF
             WRITE( LOGDEV, 92040 ) CHEMISTRY_SPC( SPC ), RTOL( SPC )
          END DO
 
-         MAOMV =  MWAIR / MWWAT
-
+         MAOMV  =  1.0E6 * MWAIR / MWWAT
+         PA2ATM =  REAL( 1.0 / STDATMPA, 8)
+	 
 c..If emissions processing requested stop
          IF( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
 
@@ -367,26 +372,26 @@ c..Load ICs
                INV_DENS = 1.0 / DENS( C,R,L )
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
-                  IF( TRIM( SPECIES_TYPE( SPC ) ) .EQ. 'AE' )THEN 
-                      YC( NCELL, SPC ) = MAX( FORWARD_CONV( SPC ) * INV_DENS
-     &                          *       CGRID( C,R,L,S ), CONCMIN)
+                  IF( CONVERT_CONC( SPC ) )THEN 
+                      YC( NCELL, SPC ) = REAL( MAX( CONCMIN, INV_DENS
+     &                                 * FORWARD_CONV( SPC )*CGRID( C,R,L,S )), 8 )
                   ELSE
-                      YC( NCELL, SPC ) = MAX( CGRID( C,R,L,S ), CONCMIN)
+                      YC( NCELL, SPC ) = REAL( MAX( CGRID( C,R,L,S ), CONCMIN), 8 )
                   END IF
                END DO
 
 R5               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
 R5
 R5                  YCCELL(1: MODEL_SPECIES) = CGRID(C,R,L,1: MODEL_SPECIES)
-R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN,
+R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME, LOGDEV)
 R5               END IF
 
 c..Set physical quantities
-                TEMP     = REAL( TA( C,R,L ), 8)
-                PRESCELL = REAL( PRES( C,R,L ), 8)
-                ATMPRES  = REAL( PA2ATM * PRESCELL, 8)
-                H2O      = REAL( MAX ( MAOMV * 1.0E+06 * QV( C,R,L ), 0.0 ), 8)
+                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
+                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
+                ATMPRES( NCELL )  = PA2ATM * PRESCELL( NCELL )
+                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
@@ -419,22 +424,23 @@ c..Call EBI solver
 c..Update concentration array
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
-                  IF( TRIM( SPECIES_TYPE( SPC ) ) .EQ. 'AE' )THEN 
+                  IF( CONVERT_CONC( SPC ) )THEN 
                       CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                      * YC( NCELL, SPC ), CONCMIN)
+     &                                 * REAL( YC( NCELL, SPC ), 4), CONCMIN)
                   ELSE
-                      CGRID( C,R,L,S ) = MAX( YC( NCELL, SPC ), CONCMIN)
+                      CGRID( C,R,L,S ) = MAX( REAL( YC( NCELL, SPC ), 4), CONCMIN)
                   END IF
                END DO
 
 R5               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
 R5                  CALL FINAL_DEGRADE(YCCELL)
-R5                  DO SPC = 1, MODEL_SPECIES
+R5                  UPDATE_DEGRADED: DO SPC = 1, N_REACT
+R5                     ISP = RXTANT_MAP( SPC )
 R5                     DO S = 1, NUMB_MECH_SPC
-R5                        IF(  CGRID_INDEX( S ) .EQ. SPC )CYCLE
-R5                        CGRID(C,R,L,SPC) = YCCELL(SPC)
+R5                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
 R5                     END DO
-R5                  END DO
+R5                     CGRID(C,R,L,ISP) = YCCELL(ISP)
+R5                  END DO UPDATE_DEGRADED
 R5               END IF
 
             END DO

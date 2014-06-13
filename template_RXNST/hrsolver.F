@@ -47,6 +47,7 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE RXNS_DATA
       USE HRDATA
+R0      
 
       IMPLICIT NONE 
 
@@ -62,9 +63,9 @@ C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
       INTEGER, PARAMETER :: STAT = 1     ! Status code
 
-      REAL, PARAMETER :: EPSLON  = 1.0E-30    ! Small number
-      REAL, PARAMETER :: MAXPRED = 1.0E+03    ! Upper limit on predicted conc
-      REAL, PARAMETER :: ZERO    = 0.0        ! zero 
+      REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
+      REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
+      REAL( 8 ), PARAMETER :: ZERO    = 0.0D0      ! zero 
 
 C..EXTERNAL FUNCTIONS:
 
@@ -93,7 +94,7 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL LEBI_CONV             ! Flag for EBI convergence
       LOGICAL MXFL                  ! hit MAXPRED flag
 
-      REAL DTC              ! Time step to take
+      REAL( 8 ) DTC              ! Time step to take
 R5      REAL( 8 ) DTG         ! Time step in degrade routines, sec
       REAL FXDLOSS          ! Total loss due to negative stoichiometry
       REAL VARLOSS          ! Loss excluding negative stoichiometry
@@ -113,9 +114,10 @@ R5      REAL( 8 ) DTG         ! Time step in degrade routines, sec
 
 R5      INTERFACE ! for degrade algorithm
 R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
+R5          USE RXNS_DATA
 R5          USE DEGRADE_SETUP_TOX
 R5          IMPLICIT NONE
-R5          REAL,      INTENT( IN ) :: CBLK( NSPCSD ) ! array holding species concentrations
+R5          REAL,      INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
 R5          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
 R5          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
 R5          INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
@@ -178,11 +180,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       
 
       N_EBI_IT = 0
+      DTC = REAL( EBI_TMSTEP, 8 )
+
 
       DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-tep loop
 
-         DTC = EBI_TMSTEP
-         NBKUPS = 0
+          NBKUPS = 0
          N_INR_STEPS = 1
 
 100      CONTINUE                        !  Restart location
@@ -239,8 +242,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
 
-                  YCP( NCELL, S ) = YC( NCELL, S )*( ( YC0( NCELL, S ) + PROD( NCELL, S ) * DTC ) /
-     &                               ( YC( NCELL, S ) + LOSS( NCELL, S ) * DTC ) )
+                  YCP( NCELL, S ) =  YC( NCELL, S )*( ( YC0( NCELL, S ) + PROD( NCELL, S ) * DTC )
+     &                            / ( YC( NCELL, S ) + LOSS( NCELL, S ) * DTC ) )
 
 
                END DO
@@ -292,8 +295,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                 IF( LEBI_CONV )THEN
 R5
-R5                   DTG = 60.0D0 * REAL(DTC, 8)
-R5                   IF(CALL_DEG)CALL DEGRADE(YC, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
+R5                   DTG = 60.0D0 * DTC
+R5                   DO S = 1, NUMB_MECH_SPC
+R5                      N = CGRID_INDEX( S )
+R5                      YCCELL( N ) = YC( NCELL, S )
+R5                   END DO
+R5                   IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
 R5
                    GO TO 2000
 R5
@@ -320,7 +327,7 @@ c.....start inner loop over unless max backups exceeded
                   YC( NCELL, S ) = YC0( NCELL, s )
                END DO
 
-               DTC = 0.5 * DTC
+               DTC = 0.5D0 * DTC
 
                N_INR_STEPS = 2 ** NBKUPS
 
