@@ -46,7 +46,7 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL, INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
+      REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 
 C.....LOCAL VARIABLES:
 

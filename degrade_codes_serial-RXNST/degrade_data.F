@@ -44,11 +44,11 @@ C                      08/31/11 : B.Hutzell - Removed removed capabilities with 
 C                                             HAPs mechanisms
 C**********************************************************************
 
+      USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN        ! Mechanism reaction common block
 
 C**********************************************************************
 

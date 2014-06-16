@@ -117,7 +117,7 @@ R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
 R5          USE RXNS_DATA
 R5          USE DEGRADE_SETUP_TOX
 R5          IMPLICIT NONE
-R5          REAL,      INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
+R5          REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
 R5          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
 R5          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
 R5          INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS

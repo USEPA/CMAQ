@@ -166,18 +166,18 @@ R5           USE RXNS_DATA
 R5           USE DEGRADE_SETUP_TOX
 R5           IMPLICIT NONE
 R5           
-R5           REAL, INTENT( IN ) :: CBLK( : )            !  species concentration in cell
-R5           REAL, INTENT( IN ) :: TCELL                     !  cell temperature  [ k ]
-R5           REAL, INTENT( IN ) :: DCELL                     !  cell air density  [ kg/m^3 ]
-R5           REAL, INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
-R5           INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
-R5           INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-R5           INTEGER, INTENT( IN ) :: LOGDEV ! unit number for the log
+R5           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
+R5           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
+R5           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
+R5           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
+R5           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
+R5           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
+R5           INTEGER,   INTENT( IN ) :: LOGDEV ! unit number for the log
 R5         END SUBROUTINE INIT_DEGRADE      
 R5         SUBROUTINE FINAL_DEGRADE( CBLK )
 R5           USE DEGRADE_SETUP_TOX
 R5           IMPLICIT NONE
-R5           REAL, INTENT( INOUT ) :: CBLK( NSPCSD )    !  species concentration in cell
+R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( NSPCSD )    !  species concentration in cell
 R5         END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 
@@ -382,7 +382,7 @@ c..Load ICs
 
 R5               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
 R5
-R5                  YCCELL(1: MODEL_SPECIES) = CGRID(C,R,L,1: MODEL_SPECIES)
+R5                  YCCELL(1: MODEL_SPECIES) = REAL( CGRID(C,R,L,1: MODEL_SPECIES), 8)
 R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME, LOGDEV)
 R5               END IF
@@ -439,7 +439,7 @@ R5                     ISP = RXTANT_MAP( SPC )
 R5                     DO S = 1, NUMB_MECH_SPC
 R5                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
 R5                     END DO
-R5                     CGRID(C,R,L,ISP) = YCCELL(ISP)
+R5                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
 R5                  END DO UPDATE_DEGRADED
 R5               END IF
 
