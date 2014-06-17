@@ -36,6 +36,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 or even number of grid cells
 !           10 Mar 2014  (David Wong)
 !              -- fixed bug in the refomulated the xorig and yorig calculation
+!           14 May 2014  (David Wong)
+!              -- made a distinction between USGS 24 and USGS 33
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -563,7 +565,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
               gridcro2d_data_wrf(c,r,6) = 0.0
            else  ! land is dominant over water in cell
               if ( grid%landusef(ii,lwater,jj) < 1.0 ) then
-                 if (config_flags%mminlu == 'USGS') then
+                 if ((config_flags%mminlu == 'USGS') .and. (config_flags%num_land_cat == 33)) then
                     gridcro2d_data_wrf(c,r,6) = ( ( grid%landusef(ii,1,jj)  + grid%landusef(ii,31,jj) +    &
                                                     grid%landusef(ii,32,jj) + grid%landusef(ii,33,jj) ) /  &
                                                   (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0

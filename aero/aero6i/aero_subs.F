@@ -26,7 +26,8 @@ C %W% %P% %G% %U%
 C routines for aerosol formation and transformation processes
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER, GAMMA_N2O5 )
+      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER, GAMMA_N2O5, 
+     &                     EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C-----------------------------------------------------------------------
 C  SUBROUTINE AEROPROC advances the number, second moment, and mass
@@ -175,8 +176,12 @@ C HS  03/10/11 Added call to POAAGE between ORGAER and HETCHEM
 
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 
-C JB  02/07/14 Added Jai Xing's mass balance fix when there is excessive
-C              condensation or evaporation under cold conditions
+C HOTP 01/15/2013 Updates for isoprene SOA from heterogenous uptake
+C       of IEPOX and IMAE. 
+C      -Add T/F flag to hetchem, T for inorganic, F for organic
+C      -Add hetchem after volinorg for organic het chem
+C        (uses isorropia info)
+C      -Pass information to AERODIAM diagnostic file
 
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
@@ -206,7 +211,11 @@ C *** arguments:
       INTEGER, INTENT( IN ) :: COL         ! Column of cell
       INTEGER, INTENT( IN ) :: ROW         ! Row of cell
       INTEGER, INTENT( IN ) :: LAYER       ! Layer of cell
-      REAL,    INTENT( OUT ) :: GAMMA_N2O5 ! N2O5 heterogeneous reaction probability [ ]
+      REAL,    INTENT( OUT )   :: GAMMA_N2O5  ! N2O5 heterogeneous reaction probability [ ]
+      REAL( 8 ), INTENT( OUT ) :: EQLBHJ      ! H+ concentration from isoropia, J-mode [ug/m**3]
+      REAL( 8 ), INTENT( OUT ) :: KPARTIEPOX  ! IEPOX particle phase rxn rate [1/s]
+      REAL( 8 ), INTENT( OUT ) :: GAMMA_IEPOX ! IEPOX heterogeneous reaction prob 
+      REAL( 8 ), INTENT( OUT ) :: GAMMA_IMAE  ! IMAE heterogeneous reaction prob 
 
 C *** Parameters
       REAL, PARAMETER :: DIFFSULF = 9.36E-06  ! molecular diffusiviity for sulfuric acid
@@ -222,6 +231,7 @@ C *** local variables
       REAL         AMU        ! atmospheric dynamic viscosity [kg/m s]
       REAL         M2_OLD     ! second moment concentration excluding H2O
       REAL         M3_OLD     ! third moment concentration excluding H2O
+      REAL         TEMP       ! temporary variable when GAMMAN2O5 not returned from hetchem
 
       REAL( 8 ) :: CGR( N_MODE-1 ) ! Aitken & Accum. modes
 
@@ -269,6 +279,7 @@ C *** local variables
       INTEGER      N          ! loop counter
       LOGICAL      M3_WET_FLAG
       LOGICAL   :: LIMIT_Sg = .FALSE.
+      LOGICAL   :: INORG      ! T for inorganic hetchem, F for organic
 
       integer, save :: logdev 
       logical, save :: firstime = .true.
@@ -336,7 +347,10 @@ C     Increase primary NCOM concentration due to oxidative aging of POA.
 C *** Heterogeneous Chemistry
 C     Update the N2O5 and HNO3 concentrations to account for
 C     heterogenous nitrate formation.
-      CALL HETCHEM ( GAMMA_N2O5, DT )
+      INORG = .TRUE.
+      EQLBHJ = 0d0 ! initialize, not used on this call (INORG = T)
+      CALL HETCHEM ( INORG, GAMMA_N2O5, DT, 
+     &               EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle
@@ -363,7 +377,14 @@ C     needed in subroutine VOLINORG
       CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
 
       CALL VOLINORG( DT, COL, ROW, LAYER,
-     &               DV_SO4, CGR, M3_WET_FLAG )
+     &               DV_SO4, CGR, M3_WET_FLAG, EQLBHJ )
+
+C *** Heterogeneous Chemistry
+C     Calculate IEPOX and IMAE derived aerosol and update concs and
+C     aerosol moment information, Pass diagnostic information
+      INORG = .FALSE.
+      CALL HETCHEM ( INORG, TEMP, DT, 
+     &               EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C *** Coagulation
 C     Calculate coagulation coefficients using a method dictated by
@@ -690,7 +711,7 @@ C *** Set minimum value for all concentrations in the CBLK array
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VOLINORG( DT, COL, ROW, LAYER,
-     &                     DV_SO4, CGR, M3_WET_FLAG )
+     &                     DV_SO4, CGR, M3_WET_FLAG, EQLBHJ )
 
 C *** Calculates the partitioning of inorganic components (CL,NO3,NH4,SO4)
 C     between the aerosol and gas phase over the operator synchronization
@@ -705,6 +726,7 @@ C     modes are equilibrated with the gas phase.
 
 C     Returns updated volatile inorganic species concentrations in the gas
 C     and particulate phase, and the aerosol modal parameters
+C     Also returns J-mode H+ concentration estimated by isoropia (EQLBHJ)
 
 C *** Revision history: 4/07 - Moved HCOND3 and NEWPART3 calls from 
 C                              AEROPROC to this subroutine for 
@@ -716,6 +738,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C GS  04/26/11 Replaced existing ISORROPIA with ISORROPIA 2.1
 C              Updated coarse-mode aerosol speciation and H+ calculation  
+C HOTP 01/17/13 Returns J-mode H+ concentration in ug/m**3 (EQLBHJ) from isoropia 
 
 C *** References
 C 1. Pilinis C, Capaldo KP, Nenes A, Pandis SN (2000) MADM - A new
@@ -747,6 +770,7 @@ C *** Arguments:
                               ! after correction for ambient conditions
       REAL( 8 ) :: CGR( N_MODE-1 ) ! 3rd moment SO4 growth rate [m^3/m^3-s]
       LOGICAL M3_WET_FLAG     ! flag to include water in GETPAR update
+      REAL( 8 ), intent( out ) :: EQLBHJ ! H+ concentration from isoropia for J-mode [ug/m**3]
 
 C *** Parameters: 
       INTEGER, PARAMETER :: NINORG = 9      ! number of inorganic species
@@ -831,7 +855,7 @@ C *** Variables for volatile species mass transfer between gas and aerosol and
 C     mass partitioning between the modes 
       LOGICAL HYBRID ! mass transfer option flag (mass transfer if .TRUE.)
       REAL( 8 ) :: DELT                 ! time step DT [s]
-      REAL( 8 ) :: HPLUS( N_MODE )      ! scratch var for H+ [umol/m**3]
+      REAL( 8 ) :: HPLUS( N_MODE )      ! scratch var for H+ [umol/m**3] from charge balance
 
       REAL( 8 ), SAVE :: H2SO4RATM1     ! Mol. wt. ratio of SO4/H2SO4
 
@@ -1428,6 +1452,22 @@ C *** Set flags to account for mass conservation violations in ISRP3F
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
 
+C *** Save H+ concentration information in microgram/m3 for consistency
+C     Assume J mode dominates I+J H+ concentration
+      EQLBHJ = AERLIQ(1) * 1.0d6  
+
+C     debug
+!      IF (EQLBHJ .lt. 0.0 ) THEN
+!         print*,'Negative HPLUS from isorropia'
+!         print*,'WI    ', WI
+!         print*,'RHI   ', RHI
+!         print*,'TEMPI ',TEMPI
+!         print*,'CNTRL ',CNTRL
+!         print*,'WT    ',WT
+!         print*,'AERLIQ',AERLIQ
+!         print*,'SCASI ',SCASI
+!      endif
+
 C *** Update gas-phase concentrations
       PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
       PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
@@ -1436,6 +1476,8 @@ C *** Update gas-phase concentrations
       gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * 1.0d-6 / real( precursor_mw( nh3_idx ), 8 )
       gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
       gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
+ 
+      EQLBHJ =  HPLUS( 2 )  ! use charge balance if lacking isoropia info 
 #endif
 
 C *** Change in volatile inorganic PM concentration to achieve
@@ -1486,9 +1528,41 @@ C *** Initialize excess evaporated mass array
          CINORG( KK,  IMODE ) = AEROSPC_CONC( AK_IDX,   IMODE )
          CINORG( KMG, IMODE ) = AEROSPC_CONC( AMG_IDX,  IMODE )
 
-!** Jai Xing's VOLINORG fix
-         DO ISP = 1, NVOLINORG
+         WETM3 = MOMENT3_CONC( IMODE )
+         WETM2 = MOMENT2_CONC( IMODE )
 
+         IF ( IMODE .EQ. 1 ) THEN
+            RATE = DMDT_SO4 + CONDSO4( IMODE )
+         ELSE
+            RATE = CONDSO4( IMODE )
+         END IF
+
+         M3OTHR = 0.0
+         M3SOA = 0.0
+         DO I = 1, N_AEROSPC
+
+            ! Skip thermodynamically-active inorganic species
+            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR. 
+     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR. 
+     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
+
+            IF ( AEROSPC( I )%NO_M2WET ) THEN
+               M3SOA = M3SOA 
+     &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
+     &               * AEROSPC_CONC( I,IMODE )
+            ELSE
+               M3OTHR = M3OTHR
+     &                + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
+     &                * AEROSPC_CONC( I,IMODE )
+            END IF   
+
+         END DO    ! N_AEROSPC loop
+
+         DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
+         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
+
+         DO ISP = 1, NVOLINORG
+         
             CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
      &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
      &                          * DF( ISP )
@@ -1505,7 +1579,7 @@ C *** Initialize excess evaporated mass array
                CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
 
                IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE )
+                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE ) 
                   CFINAL( ISP,IMODE ) = 0.0D0
 
                   IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
@@ -1514,51 +1588,15 @@ C *** Initialize excess evaporated mass array
                      ELSE
                         WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
                         CFINAL( ISP,1 ) = 0.0D0
+!                       STOP
                      END IF
-                  END IF
+                  END IF 
                END IF
 
-            END IF  ! IMODE = 1
-
-         END DO ! ISP
-
-      END DO    ! IMODE
-      
-      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
-
-         WETM3 = MOMENT3_CONC( IMODE )
-         WETM2 = MOMENT2_CONC( IMODE )
-
-         IF ( IMODE .EQ. 1 ) THEN
-            RATE = DMDT_SO4 + CONDSO4( IMODE )
-         ELSE
-            RATE = CONDSO4( IMODE )
-         END IF
-
-         M3OTHR = 0.0
-         M3SOA = 0.0
-         DO I = 1, N_AEROSPC
-
-            ! Skip thermodynamically-active inorganic species
-            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR.
-     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR.
-     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
-
-            IF ( AEROSPC( I )%NO_M2WET ) THEN
-               M3SOA = M3SOA
-     &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
-     &               * AEROSPC_CONC( I,IMODE )
-            ELSE
-               M3OTHR = M3OTHR
-     &                + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
-     &                * AEROSPC_CONC( I,IMODE )
-            END IF   
-
-         END DO    ! N_AEROSPC loop
-
-         DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
-         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
-
+            END IF   ! IMODE = 1
+            
+         END DO 
+                        
          SO4 = CINORG( KSO4,IMODE ) + RATE * CONVFAC
 
 C *** Double precision vars for CALC_H2O
@@ -1571,9 +1609,16 @@ C *** Double precision vars for CALC_H2O
          WI( 7 ) = CINORG( KK,  IMODE ) * CFAC_AK
          WI( 8 ) = CINORG( KMG, IMODE ) * CFAC_AMG
 
-         CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW )
+#ifdef verbose
+!        write( logdev,'(a, 8e13.3)' ) "VOLINORG,WI's:",
+!    &                                  wi( 1 ), wi( 2 ), wi( 3 ), wi( 4 ),
+!    &                                  wi( 5 ), wi( 6 ), wi( 7 ), wi( 8 )
+!        write( logdev,* ) "VOLINORG,RH,T:", rhi, tempi
+#endif
+
+         CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW ) 
             
-         H2O = H2O_NEW * DFH2OR8
+         H2O = H2O_NEW * DFH2OR8 
 
 C *** Compute net change in 3rd moment due to dry inorganic mass transfer
 C     (includes nucleated sulfate mass)
