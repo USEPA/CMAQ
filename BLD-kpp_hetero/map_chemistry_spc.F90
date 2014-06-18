@@ -114,7 +114,7 @@
     &                    CGRID_INDEX( I ),NML_INDEX( I1 )
                          WRITE( LOGDEV,'( /5X, A )' )XMSG
                       END IF
-                      IF(CONVERT_CONC( I ) .NE. NML_CONVERT( I1 ))THEN
+                      IF(CONVERT_CONC( I ) .NEQV. NML_CONVERT( I1 ))THEN
                          SUCCESS = .FALSE.
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' species unit conversion flag does not match mechanism value.'

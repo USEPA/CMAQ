@@ -639,18 +639,23 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INQUIRE( FILE = TRIM( EQNAME ), EXIST = EXISTING )
       
       IF( .NOT. EXISTING )THEN
-         WRITE(6,*)'CANNOT LOCATE FILE: ' // TRIM(EQNAME)
+         WRITE(6,*)'ERROR: CANNOT LOCATE FILE: ' // TRIM(EQNAME)
 	 STOP
       END IF
 
-      OPEN( UNIT = TEMPLATE_UNIT, FILE = TRIM( EQNAME ), ERR = 40000)
+      OPEN( UNIT = TEMPLATE_UNIT, FILE = TRIM( EQNAME ), STATUS = 'OLD', ERR = 40000)
       
       DO NC = 1, 1000
         READ (TEMPLATE_UNIT,'(A)',END=39999)FILE_LINE
 	WRITE( MODULE_UNIT,'(A)')TRIM( FILE_LINE )
       END DO
       
-39999 CLOSE( TEMPLATE_UNIT )
+39999 IF( NC .LT. 3)THEN
+         WRITE(6,*)'ERROR: ' // TRIM( EQNAME ) // ' is empty file. '
+         WRITE(6,*)'Check run script for variable MAPPING_ROUTINE'
+         STOP
+      END IF
+      CLOSE( TEMPLATE_UNIT )
 
       WRITE( MODULE_UNIT,'(7X,"END MODULE RXNS_FUNCTION")')
       CLOSE( MODULE_UNIT )
