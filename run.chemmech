@@ -5,12 +5,12 @@
  set echo
 
 #set BASE  = $cwd
- set BASE = /home/hutzellb/tools/mech_processor
+ set BASE = /home/${USER}/tools/mech_processor
 
 
-#set Xpath = /home/hutzellb/tools/mech_processor/BLD-kpp_special_SS4
-#set Xpath = /home/hutzellb/tools/mech_processor/BLD-ggb_special_SS4
- set Xpath = /home/hutzellb/tools/mech_processor/BLD-kpp_hetero
+#set Xpath = /home/${USER}/tools/mech_processor/BLD-kpp_special_SS4
+#set Xpath = /home/${USER}/tools/mech_processor/BLD-ggb_special_SS4
+ set Xpath = /home/${USER}/tools/mech_processor/BLD-kpp_hetero
  set EXEC  = CHEMMECH_ggb_SS4
 
 #option use CMAQ species namelists to determine CGRID species indices
@@ -18,7 +18,7 @@
 
 # mechanism input file ........................................................
 
-#set MECH_ARCHIVE = /home/hutzellb/CCTM_git_repository/MECHS
+#set MECH_ARCHIVE = /home/${USER}/CCTM_git_repository/MECHS
 
 #set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq cb05tucl_ae6_aq )
 #set mechanisms = ( cb05cltx_ae5_aq )
@@ -47,7 +47,7 @@ foreach Mechanism ( $mechanisms )
  set echo
  setenv MECHDEF  $Mpath/$MCFL
 
-  setenv MAPPING_ROUTINE "/home/hutzellb/tools/mech_processor/BLD-kpp_hetero/map_chemistry_spc.F90"
+  setenv MAPPING_ROUTINE "/home/${USER}/tools/mech_processor/BLD-kpp_hetero/map_chemistry_spc.F90"
  
 
  set NML    = ${Mpath}
@@ -106,7 +106,7 @@ setenv tr_matrix_nml $TR_NML
 #else
 #    set compiler = ifc
 #endif
-#source /home/hutzellb/scom -c $compiler
+#source /home/${USER}/scom -c $compiler
 #
 #cd $Xpath ; make clean ; make ; cd $BASE
 
