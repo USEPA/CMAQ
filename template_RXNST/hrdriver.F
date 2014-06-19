@@ -79,7 +79,6 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL, PARAMETER :: PA2ATM  = 1.0 / STDATMPA    ! Pascal to atm conv fac
       REAL, PARAMETER :: CONCMIN = 1.0E-30           ! minimum species concentration allowed
 
 C..External Functions:
@@ -92,7 +91,8 @@ C..Saved Local Variables:
       INTEGER, SAVE :: ISTFL            ! Unit no. of iteration stat output file
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call to this subroutine
 
-      REAL, SAVE :: MAOMV               ! Mol Wt of air over Mol Wt of water
+      REAL,      SAVE :: MAOMV    ! Mol Wt of air over Mol Wt of water times 1.0E6
+      REAL( 8 ), SAVE :: PA2ATM   ! Pascal to atm conv fac
 
 C..Scratch Local Variables:
       CHARACTER( 132 ) :: MSG           ! Message text
@@ -121,6 +121,7 @@ C..Scratch Local Variables:
       REAL INV_DENS           ! reciprocal of air mass density, m3/Kg
       REAL CHEMSTEP           ! Chemistry integration interval (min)
       REAL SUMEBI             ! Sum of EBI iterations
+
 
       REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
       REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
@@ -255,8 +256,9 @@ R5         END IF
             WRITE( LOGDEV, 92040 ) CHEMISTRY_SPC( SPC ), RTOL( SPC )
          END DO
 
-         MAOMV =  MWAIR / MWWAT
-
+         MAOMV  =  1.0E6 * MWAIR / MWWAT
+         PA2ATM =  REAL( 1.0 / STDATMPA, 8)
+	 
 c..If emissions processing requested stop
          IF( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
 
@@ -371,10 +373,10 @@ c..Load ICs
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN 
-                      YC( NCELL, SPC ) = MAX( CONMIN, INV_DENS
-     &                                 * FORWARD_CONV( SPC )*CGRID( C,R,L,S ))
+                      YC( NCELL, SPC ) = REAL( MAX( CONCMIN, INV_DENS
+     &                                 * FORWARD_CONV( SPC )*CGRID( C,R,L,S )), 8 )
                   ELSE
-                      YC( NCELL, SPC ) = MAX( CGRID( C,R,L,S ), CONCMIN)
+                      YC( NCELL, SPC ) = REAL( MAX( CGRID( C,R,L,S ), CONCMIN), 8 )
                   END IF
                END DO
 
@@ -386,10 +388,10 @@ R5     &                              JDATE, JTIME, LOGDEV)
 R5               END IF
 
 c..Set physical quantities
-                TEMP     = REAL( TA( C,R,L ), 8)
-                PRESCELL = REAL( PRES( C,R,L ), 8)
-                ATMPRES  = REAL( PA2ATM * PRESCELL, 8)
-                H2O      = REAL( MAX ( MAOMV * 1.0E+06 * QV( C,R,L ), 0.0 ), 8)
+                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
+                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
+                ATMPRES( NCELL )  = PA2ATM * PRESCELL( NCELL )
+                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
@@ -424,9 +426,9 @@ c..Update concentration array
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN 
                       CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                      * YC( NCELL, SPC ), CONCMIN)
+     &                                 * REAL( YC( NCELL, SPC ), 4), CONCMIN)
                   ELSE
-                      CGRID( C,R,L,S ) = MAX( YC( NCELL, SPC ), CONCMIN)
+                      CGRID( C,R,L,S ) = MAX( REAL( YC( NCELL, SPC ), 4), CONCMIN)
                   END IF
                END DO
 

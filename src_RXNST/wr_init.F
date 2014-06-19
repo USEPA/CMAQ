@@ -39,9 +39,9 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER(  16 )  ::    SPEC     
       CHARACTER( 256 )  ::    FNAME                ! Name of file to open
       CHARACTER(  72 )  ::    CLINE                ! Line of c's
-      CHARACTER(   7 )  ::    LOW_TOL = '1.0E+00'  ! Low tolerance            
-      CHARACTER(   7 )  ::    STD_TOL = '1.0E-03'  ! Standard tolerance 
-      CHARACTER(   7 )  ::    HII_TOL = '1.0E-06'  ! High or tight tolerance
+      CHARACTER(   7 )  ::    LOW_TOL = '1.0D+00'  ! Low tolerance            
+      CHARACTER(   7 )  ::    STD_TOL = '1.0D-03'  ! Standard tolerance 
+      CHARACTER(   7 )  ::    HII_TOL = '1.0D-06'  ! High or tight tolerance
 
    
 
