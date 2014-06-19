@@ -530,7 +530,7 @@ c..NO2-->NO2EX
       WRITE( GROUP, '(I1)' ) GRPNO
       WRITE( RNUM , '( I3 )' ) IRX
       VOUT = ADJUSTL( VNAME )
-      EV = LEN_TRIM( VNAME )
+      EV = LEN_TRIM( VNAME ) 
 
       DO S = 1, EV
          FILLR( S : S ) = ' '
@@ -575,8 +575,8 @@ c..build the output line
             LINOUT = '      ' // VOUT( 1 : EV )  // ' =  ' // COUT // 
      &               'RKI( NCELL, '  // RNUM // ' )'
          ELSE
-            LINOUT = '     &' // FILLR( 1 : EV ) // '  + ' // COUT //
-     &               'RKI( NCELL, '  // RNUM // ' )'
+            LINOUT = '     &' // FILLR( 1 : MAX( 1, (EV-1) )) // '  +  ' 
+     &             // COUT //  'RKI( NCELL, '  // RNUM // ' )'
          END IF
          EPOS = LEN_TRIM( LINOUT )
 
@@ -672,8 +672,8 @@ c..Special case for HONO being formed from NO2EX -- relate it to NO2
             LINOUT = '      '  // VNAME( 1 : EV ) // ' =  ' // COUT //
      &               'RXRAT( NCELL, ' // RNUM // ' )'
          ELSE
-            LINOUT = '     &'  // FILLR( 1 : EV ) // '  + ' // COUT //
-     &               'RXRAT( NCELL, ' // RNUM // ' )'
+            LINOUT = '     &'  // FILLR( 1 : MAX( 1, (EV-1) )) // '  +  ' 
+     &             // COUT // 'RXRAT( NCELL, ' // RNUM // ' )'
          END IF
 
          READ( RNUM, '(I3)' ) N
