@@ -258,7 +258,7 @@ R5         END IF
 
          MAOMV  =  1.0E6 * MWAIR / MWWAT
          PA2ATM =  REAL( 1.0 / STDATMPA, 8)
-	 
+
 c..If emissions processing requested stop
          IF( .NOT. EMISVD ) THEN  ! assumes emis processing in gas chem
 
@@ -382,7 +382,10 @@ c..Load ICs
 
 R5               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
 R5
-R5                  YCCELL(1: MODEL_SPECIES) = REAL( CGRID(C,R,L,1: MODEL_SPECIES), 8)
+R5                  YCCELL = 0.0D0
+R5                  DO S = 1, MODEL_SPECIES
+R5                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
+R5                  END DO
 R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME, LOGDEV)
 R5               END IF
@@ -436,6 +439,7 @@ R5               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
 R5                  CALL FINAL_DEGRADE(YCCELL)
 R5                  UPDATE_DEGRADED: DO SPC = 1, N_REACT
 R5                     ISP = RXTANT_MAP( SPC )
+R5                     IF( ISP .LE. 0 )CYCLE UPDATE_DEGRADED
 R5                     DO S = 1, NUMB_MECH_SPC
 R5                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
 R5                     END DO

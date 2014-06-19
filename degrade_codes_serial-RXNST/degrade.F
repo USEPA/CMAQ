@@ -54,7 +54,7 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL,      INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
+      REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
       REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
       INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
       INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
@@ -89,18 +89,20 @@ C.....LOCAL VARIABLES:
 C**********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize maps
-         I_SIZE = SIZE( CURR_CONC )
+         I_SIZE = SIZE( CBLK )
          FIRSTCALL = .FALSE.
       ENDIF
 
-C..Update gas phase concentrations and their changes
+C..Update concentrations except degraded species
 
-      DO I = 1, NSPCSD
+      LOOP_NEW: DO I = 1, I_SIZE
          DO J = 1, N_REACT
-            IF( RXTANT_MAP( J ) .EQ. I )CYCLE
-            CURR_CONC( I ) = CBLK( I ) 
+            IF( RXTANT_MAP( J ) .EQ. I )THEN
+                CYCLE LOOP_NEW
+            END IF
          ENDDO
-      ENDDO
+	 CURR_CONC( I ) = CBLK( I ) 
+      ENDDO LOOP_NEW
       
       DELT_CONC = 0.0D0
 
@@ -115,11 +117,17 @@ C..Quality Control on time step
 C..Loop over each reactant
 
       LOOP_REACT: DO I = 1, N_REACT
+      
 
-         LOSS_RATE( 1:N_PROCESSES ) = 0.0D0
+         LOSS_RATE = 0.0D0
+         NET_RATE  = 0.0D0
+         NET_LIFE  = 0.0D0
 
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_REACT
+	 
+
+         IF( CURR_CONC( I_RXT ) <= CONMIN )CYCLE LOOP_REACT
 
          LOOP_UNIRATE: DO J = UNI_START, UNI_STOP
              LOSS_RATE( J ) = RATE_CONST( I, J )
@@ -137,7 +145,7 @@ C..Loop over each reactant
             ELSE
                LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
      &                        * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
-            ENDIF
+	    ENDIF
          ENDDO LOOP_BIRATE
 
          L = 0
@@ -158,13 +166,17 @@ C..Loop over each reactant
             LOSS_RATE( J ) = RATE_CONST( I, J )
          ENDDO LOOP_PHOTORATE
 
-         NET_RATE = SUM( LOSS_RATE )
-         NET_LIFE = 1.0D0 / NET_RATE
+         LOOP_RATE :  DO J = 1, N_PROCESSES
+               NET_RATE = NET_RATE + LOSS_RATE( J )
+         ENDDO LOOP_RATE
+	 	 
+         IF ( NET_RATE * DT .LE. 1.0D-20 ) CYCLE LOOP_REACT
 
-         TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - EXP( -NET_RATE * DT ) )
-     &         - CONMIN
+         NET_LIFE = 1.0D0 / NET_RATE	 
+	 
+         TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - DEXP( -NET_RATE * DT ) )
 
-         IF ( TRANS <= CONMIN ) CYCLE
+         IF ( TRANS <= CONMIN ) CYCLE LOOP_REACT
 
          DELT_CONC( I_RXT ) = TRANS
 
@@ -186,16 +198,15 @@ C..update concentrations
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_UPDATE1
 
-         IF ( DELT_CONC( I_RXT ) <= CONMIN ) CYCLE
-         CURR_CONC( I_RXT ) = CURR_CONC( I_RXT )
-     &                      - REAL( DELT_CONC( I_RXT ) )
+         IF ( DELT_CONC( I_RXT ) <= CONMIN .OR. CURR_CONC( I_RXT ) <= CONMIN ) CYCLE
+         CURR_CONC( I_RXT ) = MAX( CURR_CONC( I_RXT ) - DELT_CONC( I_RXT ), CONMIN )
 
          LOOP_UPDATE2: DO J = 1, N_PROCESSES
             I_PROD = PROD_MAP( I, J )
             IF ( I_PROD < 1 ) CYCLE ! no specified product
             CURR_CONC( I_PROD ) = CURR_CONC( I_PROD )
      &                          + RATE_YIELD( I, J )
-     &                          * REAL( DELT_CONC( I_PROD ) )
+     &                          * MAX( DELT_CONC( I_PROD ), CONMIN )
          ENDDO LOOP_UPDATE2
 
       ENDDO LOOP_UPDATE1

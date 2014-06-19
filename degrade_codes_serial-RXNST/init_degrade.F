@@ -62,10 +62,13 @@ C.....LOCAL VARIABLES:
       CHARACTER( 144 )        :: XMSG                   ! Message text
       CHARACTER( 16  ), SAVE  :: PNAME = 'INIT_DEGRADE' ! Routine name
 
-      REAL(8), SAVE ::  CONV_M2N      ! factor to convert ppm times mass density in [kg/m^3]
-                                      ! into number density in [molecules/cm^3]
-      REAL(8)       ::  CONV_FACT     ! conversion factor from ppm to molecules/cm^3
-      REAL(8)       ::  INV_TEMP      ! reciprocal of temperature, [K^-1]
+      REAL(8), SAVE ::  MASS_TO_NUMBER ! air mass density( Kg/m3) to number density( #/cm3 ) [ (# per moles)/Kg ]
+
+      REAL(8), SAVE ::  CONV_M2N       ! factor to convert ppm times mass density in [kg/m^3]
+                                       ! into number density in [molecules/cm^3]
+				       
+      REAL(8)       ::  CONV_FACT      ! conversion factor from ppm to molecules/cm^3
+      REAL(8)       ::  INV_TEMP       ! reciprocal of temperature, [K^-1]
 
       INTEGER       :: I, J, K        ! loop counters
       INTEGER, SAVE :: ISIZE          ! dimension of CBLK array
@@ -77,7 +80,9 @@ C**********************************************************************
       IF ( FIRSTCALL ) THEN  ! initialize constants and allocate arrays
 
 
-         CONV_M2N = 1.0D-9 * AVO / MWAIR       ! AVO and MWAIR defined in CONST.EXT
+         MASS_TO_NUMBER = REAL( 1.0E-3*AVO / MWAIR, 8 )
+	 
+	 CONV_M2N       = 1.0D-6 * MASS_TO_NUMBER
 
          ISIZE = SIZE( CBLK )
          
@@ -90,17 +95,20 @@ C**********************************************************************
       ENDIF
 
 C..initialize concentrations and their changes
-
-      PREV_CONC( 1:ISIZE ) = CBLK( 1:ISIZE )
-      CURR_CONC( 1:ISIZE ) = CBLK( 1:ISIZE )
-      DELT_CONC( 1:ISIZE ) = 0.0D0
-
-      NUMB_DENS = 1.0E-3 * DCELL / MWAIR
-      TEMP = TCELL
-
+      DELT_CONC  = 0.0D0
       RATE_CONST = 0.0D0
-      CONV_FACT = CONV_M2N * DCELL
-      INV_TEMP = 1.0D0 / TEMP
+
+      DO I = 1, ISIZE
+         PREV_CONC( I ) = MAX( CBLK( I ), 0.0D0 )
+         CURR_CONC( I ) = PREV_CONC( I )
+      END DO
+         
+
+      NUMB_DENS = MASS_TO_NUMBER * REAL( DCELL, 8 )
+      TEMP = REAL( TCELL, 8 )
+
+      CONV_FACT  = CONV_M2N * REAL( DCELL, 8 )
+      INV_TEMP   = 1.0D0 / TEMP
 
       LOOP_REACT: DO I = 1, N_REACT ! calculated rate constants
 
@@ -110,29 +118,23 @@ C..initialize concentrations and their changes
 
             RATE_CONST( I, J ) = UNIRATE( I, J )
      &                         * TEMP**UNI_TEXP( I, J )
-     &                         * EXP( -UNI_ACT( I, J )
-     &                         * INV_TEMP )
+     &                         * DEXP( -UNI_ACT( I, J )*INV_TEMP )
 
          ENDDO LOOP_UNIRATE
 
          LOOP_BIRATE: DO J = 1, N_BI_LOSS
 
-            RATE_CONST( I, J+UNI_STOP ) = BIRATE( I, J )
+            RATE_CONST( I, J+UNI_STOP ) = CONV_FACT * BIRATE( I, J )
      &                                  * TEMP**BI_TEXP( I, J )
-     &                                  * EXP( -BI_ACT( I, J )
-     &                                  * INV_TEMP )
-     &                                  * CONV_FACT
+     &                                  * DEXP( -BI_ACT( I, J )*INV_TEMP )
 
          ENDDO LOOP_BIRATE
 
          LOOP_TRIRATE: DO J = 1, N_TRI_LOSS
 
-            RATE_CONST( I, J+BI_STOP ) = TRIRATE( I, J )
+            RATE_CONST( I, J+BI_STOP ) = CONV_FACT * CONV_FACT * TRIRATE( I, J )
      &                                 * TEMP**TRI_TEXP( I, J )
-     &                                 * EXP( -TRI_ACT( I, J )
-     &                                 * INV_TEMP )
-     &                                 * CONV_FACT
-     &                                 * CONV_FACT
+     &                                 * DEXP( -TRI_ACT( I, J )*INV_TEMP )
 
          ENDDO LOOP_TRIRATE
 
@@ -146,6 +148,12 @@ C..initialize concentrations and their changes
          ENDDO LOOP_PHOTORATE
 
       ENDDO LOOP_REACT
+
+
+      DO I = 1, N_REACT
+         J = RXTANT_MAP( I )
+         IF( J < 0 )CYCLE 
+      END DO
 
       RETURN
 
