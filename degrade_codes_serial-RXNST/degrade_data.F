@@ -161,7 +161,7 @@ C.. ACRYLONITRILE
       UNIRATE( 1, 1) = 0.0D0
       UNI_ACT( 1, 1) = 0.0D0
       UNI_TEXP(1, 1) = 0.0
-      BICAUSE(1,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(1,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(1,1:5)  = (/ 4.8D-12, 4.8D-12, 1.9D-19, 6.3D-18, 5.2D-14/)
       BI_ACT(1,1:5)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, -1.4D+3/)
       BI_TEXP(1,1:5) = (/      0.,       0.,   0.,    0.,      0./)
@@ -172,7 +172,7 @@ C.. CARBON TETRACHLORIDE
       UNIRATE( 2, 1) = 0.0D0
       UNI_ACT( 2, 1) = 0.0D0
       UNI_TEXP(2, 1) = 0.0
-      BICAUSE(2,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(2,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(2,1:5)  = (/ 1.0D-12, 1.0D-12, 0.0D0, 0.0D0, 9.55D-11/)
       BI_ACT(2,1:5)  = (/2300.0D0,2300.0D0, 0.0D0, 0.0D0, 7.80D+03/)
       BI_TEXP(2,1:5) = (/      0.,       0.,   0.,    0.,       0./)
@@ -183,7 +183,7 @@ C.. PROPYLENE DICHLORIDE
       UNIRATE( 3, 1) = 0.0D0
       UNI_ACT( 3, 1) = 0.0D0
       UNI_TEXP(3, 1) = 0.0
-      BICAUSE(3,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(3,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(3,1:5)  = (/ 2.2D-13, 2.2D-13, 0.0D0, 0.0D0, 1.1D-11/)
       BI_ACT(3,1:5)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, 0.0D0/)
       BI_TEXP(3,1:5) = (/      0.,       0.,   0.,    0.,    0./)
@@ -205,7 +205,7 @@ C.. 1,1,2,2TETRACHLOROETHANE
       UNIRATE( 5, 1) = 0.0D0
       UNI_ACT( 5, 1) = 0.0D0
       UNI_TEXP(5, 1) = 0.0
-      BICAUSE(5,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(5,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(5,1:5)  = (/2.46D-13, 2.46D-13, 0.0D0, 0.0D0, 1.91D-13/)
       BI_ACT(5,1:5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.00D0/)
       BI_TEXP(5,1:5) = (/      0.,       0.,    0.,    0.,     0./)
@@ -216,7 +216,7 @@ C.. CHLOROFORM
       UNIRATE( 6, 1) = 0.0D0
       UNI_ACT( 6, 1) = 0.0D0
       UNI_TEXP(6, 1) = 0.0
-      BICAUSE(6,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(6,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(6,1:5)  = (/6.30D-18, 6.30D-18, 0.0D0, 0.0D0, 4.9D-12/)
       BI_ACT(6,1:5)  = (/  504.D0,   504.D0, 0.0D0, 0.0D0, 1.24D+3/)
       BI_TEXP(6,1:5) = (/      2.,       2.,    0.,    0.,      0./)
@@ -238,7 +238,7 @@ C.. 1,2DICHLOROTHANE
       UNIRATE( 8, 1) = 0.0D0
       UNI_ACT( 8, 1) = 0.0D0
       UNI_TEXP(8, 1) = 0.0
-      BICAUSE(8,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(8,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(8,1:5)  = (/1.10D-17, 1.10D-17, 0.0D0, 0.0D0, 4.93D-11/)
       BI_ACT(8,1:5)  = (/  409.D0,   409.D0, 0.0D0, 0.0D0, 1.09D+3/)
       BI_TEXP(8,1:5) = (/      2.,       2.,    0.,    0.,      0./)
@@ -249,7 +249,7 @@ C.. ETHYLENE OXIDE
       UNIRATE( 9, 1) = 0.0D0
       UNI_ACT( 9, 1) = 0.0D0
       UNI_TEXP(9, 1) = 0.0
-      BICAUSE(9,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(9,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(9,1:5)  = (/7.60D-14, 7.60D-14, 0.0D0, 0.0D0, 5.0D-12/)
       BI_ACT(9,1:5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.0D0/)
       BI_TEXP(9,1:5) = (/      0.,       0.,    0.,    0.,    0./)
@@ -260,7 +260,7 @@ C.. METHYLENE CHLORIDE
       UNIRATE( 10, 1) = 0.0D0
       UNI_ACT( 10, 1) = 0.0D0
       UNI_TEXP(10, 1) = 0.0
-      BICAUSE(10,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(10,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(10,1:5)  = (/8.54D-18, 8.54D-18, 0.0D0, 0.0D0, 2.81D-11/)
       BI_ACT(10,1:5)  = (/  500.D0,   500.D0, 0.0D0, 0.0D0, 1.3D+3/)
       BI_TEXP(10,1:5) = (/      2.,      2.,     0.,    0.,    0./)
@@ -271,7 +271,7 @@ C.. PERCHLOROETHYLENE
       UNIRATE(11, 1)  = 0.0D0
       UNI_ACT( 11, 1) = 0.0D0
       UNI_TEXP(11, 1) = 0.0
-      BICAUSE(11,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(11,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(11,1:5)  = (/9.64D-12, 9.64D-12, 0.0D0, 0.0D0, 3.72D-8/)
       BI_ACT(11,1:5)  = (/ 1209.D0,  1209.D0, 0.0D0, 0.0D0, 0.0D0/)
       BI_TEXP(11,1:5) = (/      0.,       0.,    0.,     0., -1.2/)
@@ -282,7 +282,7 @@ C.. TRICHLOROETHYLENE
       UNIRATE( 12, 1) = 0.0D0
       UNI_ACT( 12, 1) = 0.0D0
       UNI_TEXP(12, 1) = 0.0
-      BICAUSE(12,1:5) = (/'OH ','HO ','O3 ','NO3','CL'/)
+      BICAUSE(12,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
       BIRATE(12,1:5)  = (/5.63D-13, 5.63D-13, 0.0D0, 0.0D0, 8.07D-11/)
       BI_ACT(12,1:5)  = (/ -427.D0,  -427.D0, 0.0D0, 0.0D0, 0.0D0/)
       BI_TEXP(12,1:5) = (/      0.,       0.,    0.,    0.,    0./)
@@ -293,7 +293,7 @@ C.. VINYL CHLORIDE
       UNIRATE(13, 1)  = 0.0D0
       UNI_ACT( 13, 1) = 0.0D0
       UNI_TEXP(13, 1) = 0.0
-      BICAUSE(13,1:5) = (/'OH ','HO ','O3 ','NO3', 'CL'/)
+      BICAUSE(13,1:5) = (/'OH ','HO ','O3 ','NO3', 'CL '/)
       BIRATE(13,1:5)  = (/1.69D-12, 1.69D-12, 0.0D0,1.84D-13, 1.27D-10/)
       BI_ACT(13,1:5)  = (/ -422.D0,  -422.D0, 0.0D0, 1764.D0, 0.0D0/)
       BI_TEXP(13,1:5) = (/      0.,       0.,    0.,      0.,    0./)
