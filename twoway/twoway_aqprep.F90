@@ -31,6 +31,13 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- updated to NLCD40
 !           24 Sep 2013  (David Wong)
 !              -- consolidated x- and y-cent calculation
+!           17 Jan 2014  (David Wong)
+!              -- refomulated the xorig and yorig calculation regardless of odd 
+!                 or even number of grid cells
+!           10 Mar 2014  (David Wong)
+!              -- fixed bug in the refomulated the xorig and yorig calculation
+!           14 May 2014  (David Wong)
+!              -- made a distinction between USGS 24 and USGS 33
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -558,7 +565,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
               gridcro2d_data_wrf(c,r,6) = 0.0
            else  ! land is dominant over water in cell
               if ( grid%landusef(ii,lwater,jj) < 1.0 ) then
-                 if (config_flags%mminlu == 'USGS') then
+                 if ((config_flags%mminlu == 'USGS') .and. (config_flags%num_land_cat == 33)) then
                     gridcro2d_data_wrf(c,r,6) = ( ( grid%landusef(ii,1,jj)  + grid%landusef(ii,31,jj) +    &
                                                     grid%landusef(ii,32,jj) + grid%landusef(ii,33,jj) ) /  &
                                                   (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
@@ -1428,6 +1435,7 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
      ioapi_header%ycent = ref_lat
 
      CALL ll2xy_lam (moad_cen_lat, cen_lon, truelat1, truelat2, stand_lon, ref_lat, xxx, yyy)
+
   ELSE IF ( map_proj == 2 ) THEN
      ioapi_header%xcent = stand_lon
      ioapi_header%ycent = moad_cen_lat
@@ -1443,20 +1451,10 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
   cntrx = FLOAT(gncols - 1)/2.0 + 1.0
   cntry = FLOAT(gnrows - 1)/2.0 + 1.0
 
-! xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
-! yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
-  if (mod(gl_ncols, 2) == 0) then
-!    xorig = xxx - DBLE( cntrx - FLOAT(1) ) * DBLE(dx)
-     xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
-  else
-     xorig = xxx - DBLE( cntrx - 0.5 ) * DBLE(dx)
-  end if
-  if (mod(gl_nrows, 2) == 0) then
-!    yorig = yyy - DBLE( cntry - FLOAT(1) ) * DBLE(dy)
-     yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
-  else
-     yorig = yyy - DBLE( cntry - 0.5 ) * DBLE(dy)
-  end if
+  xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
+  yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
+! xorig = xxx - DBLE( cntrx - 0.5 ) * DBLE(dx)
+! yorig = yyy - DBLE( cntry - 0.5 ) * DBLE(dy)
 
 ! IF ( wrf_lc_ref_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
   IF ( moad_cen_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
