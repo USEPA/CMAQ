@@ -46,7 +46,7 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL, INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
+      REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 
 C.....LOCAL VARIABLES:
 
@@ -62,7 +62,8 @@ C**********************************************************************
 c..update CBLK
 
          I_RXT = RXTANT_MAP( I )
-         IF( I_RXT < 0 )CYCLE LOOP_REACT
+
+         IF( I_RXT <= 0 )CYCLE LOOP_REACT
 
          CBLK( I_RXT ) = CURR_CONC( I_RXT )
 

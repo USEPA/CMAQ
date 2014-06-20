@@ -44,11 +44,11 @@ C                      08/31/11 : B.Hutzell - Removed removed capabilities with 
 C                                             HAPs mechanisms
 C**********************************************************************
 
+      USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN        ! Mechanism reaction common block
 
 C**********************************************************************
 
@@ -115,10 +115,6 @@ C..arrays to store indices to CGRID
       ALLOCATE( PHOTO_MAP ( N_REACT, N_PHOTO_LOSS ) )
 
       REACT      = BLANK
-      UNI_PROD   = BLANK
-      BI_PROD    = BLANK
-      TRI_PROD   = BLANK
-      PHOTO_PROD = BLANK
       PHOTO_NAME = BLANK
       BICAUSE    = BLANK
       TRICAUSE   = BLANK
@@ -142,6 +138,12 @@ C..arrays to store indices to CGRID
       PHOTO_YIELD = 0.0
 
       RATE_YIELD = 1.0D0
+
+! product are unused aspect and results not returned cgrid 
+      UNI_PROD   = BLANK
+      BI_PROD    = BLANK
+      TRI_PROD   = BLANK
+      PHOTO_PROD = BLANK
 
 C..Initialize maps
 

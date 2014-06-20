@@ -87,7 +87,7 @@ set day = ` date "+%b-%d-%Y" `
 
  setenv ALL_MECHS       F    # obsolete option 
  setenv PAR_NEG_FLAG    F    # True for CB4 and CB05 but false for SAPRC99/07T
- setenv DEGRADE_SUBS    F    # include calls for HAPs degrade routines
+ setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines
 # below option is a possible solution based on work by Golam Sawar if the 
 # mechanism includes excited NO2.  The user employs it at their own risk 
 # and should check the EBI solver's accuracy against the Gear or Rosenbrock solver
