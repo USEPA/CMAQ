@@ -575,7 +575,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              WRITE(MODULE_UNIT,5104, ADVANCE = 'NO')RTDAT(1, NXX), RTDAT(3, NXX), RTDAT(2, NXX)
           CASE( 5 )
              IRX = INT( RTDAT( 3, NXX) )
-             WRITE(MODULE_UNIT,5005, ADVANCE = 'NO')IRX,RTDAT( 1, NXX ), RTDAT(2, NXX )
+             WRITE(MODULE_UNIT,5115, ADVANCE = 'NO')IRX,(1.0D0/RTDAT( 1, NXX )), -RTDAT(2, NXX )
           CASE( 6 )
              IRX = INT( RTDAT( 2, NXX) )
              IF( RTDAT( 1, NXX ) .NE. 1.0 )THEN
@@ -944,7 +944,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 9X,'FALLOFF_T10 = ( K0 / ( 1.0D0 + K0/K1 ) ) * CF ** KEND'
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION FALLOFF_T10' 
-     &      / 7X,'REAL( 8 ) FUNCTION FALLOFF_T11(INV_TEMP,TEMPOT300,CAIR,A1,B1,C1,A2, B2, C2)'
+     &      / 7X,'REAL( 8 ) FUNCTION FALLOFF_T11(INV_TEMP,TEMPOT300,CAIR,A1,B1,C1,A2, B2, C2, D1, D2)'
      &      / '! rate constant for CMAQ fall off reaction type 11'
      &      / '! actually expanded form of type 9'
      &      / 9X,'IMPLICIT NONE'
@@ -958,13 +958,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A2'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B2'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: C2'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: D1'
+     &      / 9X,'REAL( 8 ), INTENT( IN ) :: D2'
      &      /9X,'!  Local:'
      &      / 9X,'REAL( 8 ) K1'
      &      / 9X,'REAL( 8 ) K2'
+     &      / 9X,'REAL( 8 ) K3'
      &      / 9X,'INTRINSIC DEXP'
      &      / 9X,'K1 = A1 * DEXP( C1 * INV_TEMP ) * TEMPOT300**B1'
      &      / 9X,'K2 = A2 * DEXP( C2 * INV_TEMP ) * TEMPOT300**B2'
-     &      / 9X,'FALLOFF_T11 = K1 + K2 * CAIR'
+     &      / 9X,'K3 = D1 * DEXP( D2 * INV_TEMP )'
+     &      / 9X,'FALLOFF_T11 = K1 + K2 * CAIR + K3'
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION FALLOFF_T11'  /     )
     
@@ -1043,8 +1047,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5009   FORMAT('FALL_T09( ', 3(1PD12.4,', '), ' & ' / 5X, '&', 47X, 1PD12.4, ' )' )
 5010   FORMAT('FALL_T10( ', 3(1PD12.4,', '), ' & ' / 5X,'&', 47X, 3(1PD12.4,', '),  ' & '
      &        / 5X, '&', 47X, 1PD12.4,', ', 1PD12.4,' )')
-5019   FORMAT('FALL_T11( ', 3(1PD12.4,', ') / 5X,'&', 47X,  3(1PD12.4,', ')
-     &                   / 5X,'&', 47X,  1PD12.4,' )')
+5019   FORMAT('FALL_T11( ', 3(1PD12.4,', '), '&', / 5X,'&', 47X,  3(1PD12.4,', '), ' & ',
+     &                   / 5X,'&', 47X,  1PD12.4,', ', 1PD12.4,' )')
 
 !format statements for calling rate constant functions
 
@@ -1063,12 +1067,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5110   FORMAT('FALLOFF_T10( INV_TEMP,  TEMPOT300,  CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', '), ' & ' 
      &        / 5X,'&', 47X, 3(1PD12.4,', '),  ' & '
      &        / 5X, '&', 47X, 1PD12.4,', ', 1PD12.4,' )')
-5119   FORMAT('FALLOFF_T11( INV_TEMP,TEMPOT300,CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', ') / 5X,'&',
-     &         47X,  3(1PD12.4,', ')
-     &        / 5X,'&', 47X,  1PD12.4,' )')
-
+5119   FORMAT('FALLOFF_T11( INV_TEMP,TEMPOT300,CAIR,', ' & ' / 5X, '&', 47X, 3(1PD12.4,', '), '&', / 5X,'&',
+     &         47X,  3(1PD12.4,', '),' & ',
+     &        / 5X,'&', 47X,  1PD12.4,', ', 1PD12.4,' )')
 
 5005   FORMAT('RKI( NCELL, ' I4, ' ) / ARR2( ',1PD12.4,', ',1PD12.4,' )')            
+5115   FORMAT('RKI( NCELL, ' I4, ' ) * ARRHENUIS_T03( INV_TEMP,',1PD12.4,', ',1PD12.4,' )')            
 5006   FORMAT(1PD12.4,' * RKI( NCELL, ' I4, ' ) ')   
 5007   FORMAT(1PD12.4,' *( 1.0D0 + 0.6D0 * PRESS )')             
 5011   FORMAT(1PD12.4,' * ',A)             
