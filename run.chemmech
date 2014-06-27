@@ -23,21 +23,21 @@
 #set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq cb05tucl_ae6_aq )
 #set mechanisms = ( cb05cltx_ae5_aq )
  
-set mechanisms = saprc07tc_ae6_aq
-  set mechanisms = cb05tucl_ae6_aq
- set mechanisms = racm2_ae6_aq
+  set mechanisms = saprc07tb_ae6_aq
+#  set mechanisms = cb05tucl_ae6_aq
+#set mechanisms = racm2_ae6_aq
 #set mechanisms = cb05e6cl_ae6_aq
 #set mechanisms = ( cb05tucl_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq racm2_ae6_aq )
 
 foreach Mechanism ( $mechanisms )
 
- set  Mpath = ${BASE}/input/${Mechanism}-hetchem
+  set  Mpath = ${BASE}/input/${Mechanism}-hetchem
 # set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
 #set  Mpath = ${BASE}/input/cb05e6cl
 # set  Mpath = ${BASE}/input/cb05tucl_update
 # set  Mpath = ${BASE}/input/cb05tucl_clno2_b3
 #set MCFL =  mech-${Mechanism}.def
-  set MCFL =  mech.def
+   set MCFL =  mech.def
 # set MCFL =   mech_CB05e6cl.def
 # set MCFL =   mech_revision_B3.def
 
@@ -73,7 +73,7 @@ setenv tr_matrix_nml $TR_NML
 
 # set Opath = ${Mpath}
 # set Opath = ${BASE}/output/cb05tucl_clno2_b3
-  set Opath = ${BASE}/output/${Mechanism}
+  set Opath = ${BASE}/output/${Mechanism}-check
   if( ! ( -d $Opath ) ) mkdir -p $Opath
 
 # output files ................................................................
