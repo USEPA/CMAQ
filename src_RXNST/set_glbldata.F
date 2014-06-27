@@ -86,7 +86,7 @@ c..NO
          GRP_SPC( N ) = MECH_NO
       ELSE
          EOS = LEN_TRIM( MECH_NO )
-         MSG = 'ERROR: Group species ' // MECH_NO( 1 : EOS ) //
+         MSG = 'ERROR: MECH_NO Group species ' // MECH_NO( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -99,7 +99,7 @@ c..NO2
          GRP_SPC( N ) = MECH_NO2
       ELSE
         EOS = LEN_TRIM( MECH_NO2 )
-        MSG = 'ERROR: Group species ' // MECH_NO2( 1 : EOS ) //
+        MSG = 'ERROR: MECH_NO2 Group species ' // MECH_NO2( 1 : EOS ) //
      &        ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -112,7 +112,7 @@ c..O3
          GRP_SPC( N ) = MECH_O3
       ELSE
          EOS = LEN_TRIM( MECH_O3 )
-         MSG = 'ERROR: Group species ' // MECH_O3( 1 : EOS ) //
+         MSG = 'ERROR: MECH_O3 Group species ' // MECH_O3( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -125,7 +125,7 @@ c..O3P
          GRP_SPC( N ) = MECH_O3P
       ELSE
          EOS = LEN_TRIM( MECH_O3P )
-         MSG = 'ERROR: Group species ' // MECH_O3P( 1 : EOS ) //
+         MSG = 'ERROR: ECH_O3P Group species ' // MECH_O3P( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -138,7 +138,7 @@ c..O1D
          GRP_SPC( N ) = MECH_O1D
       ELSE
          EOS = LEN_TRIM( MECH_O1D )
-         MSG = 'ERROR: Group species ' // MECH_O1D( 1 : EOS ) //
+         MSG = 'ERROR: MECH_O1D Group species value: ' // MECH_O1D( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -151,7 +151,7 @@ c..OH
          GRP_SPC( N ) = MECH_OH
       ELSE
          EOS = LEN_TRIM( MECH_OH )
-         MSG = 'ERROR: Group species ' // MECH_O1D( 1 : EOS ) //
+         MSG = 'ERROR: MECH_OH Group species ' // MECH_OH( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -164,7 +164,7 @@ c..HO2
          GRP_SPC( N ) = MECH_HO2
       ELSE
          EOS = LEN_TRIM( MECH_HO2 )
-         MSG = 'ERROR: Group species ' // MECH_HO2( 1 : EOS ) //
+         MSG = 'ERROR: MECH_HO2 Group species ' // MECH_HO2( 1 : EOS ) //
      &         ' not found in mechanism' 
          LERROR = .TRUE.
       END IF
@@ -176,7 +176,7 @@ c..HONO
          GRP_SPC( N ) = MECH_HONO
       ELSE
          EOS = LEN_TRIM( MECH_HONO )
-         MSG = 'ERROR: Group species ' // MECH_HONO( 1 : EOS ) //
+         MSG = 'ERROR: MECH_HONO Group species ' // MECH_HONO( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -189,7 +189,7 @@ c..HNO4
          GRP_SPC( N ) = MECH_HNO4
       ELSE
          EOS = LEN_TRIM( MECH_HNO4 )
-         MSG = 'ERROR: Group species ' // MECH_HNO4( 1 : EOS ) //
+         MSG = 'ERROR: MECH_HNO4 Group species ' // MECH_HNO4( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -202,7 +202,7 @@ C..C2O3
          GRP_SPC( N ) = MECH_C2O3
       ELSE
          EOS = LEN_TRIM( MECH_C2O3 )
-         MSG = 'ERROR: Group species ' // MECH_C2O3( 1 : EOS ) //
+         MSG = 'ERROR: MECH_C2O3 Group species ' // MECH_C2O3( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -215,7 +215,7 @@ C..PAN
          GRP_SPC( N ) = MECH_PAN
       ELSE
          EOS = LEN_TRIM( MECH_PAN )
-         MSG = 'ERROR: Group species ' // MECH_PAN( 1 : EOS ) //
+         MSG = 'ERROR: MECH_PAN Group species ' // MECH_PAN( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -228,7 +228,7 @@ c..NO3
          GRP_SPC( N ) = MECH_NO3
       ELSE
          EOS = LEN_TRIM( MECH_NO3 )
-         MSG = 'ERROR: Group species ' // MECH_NO3( 1 : EOS ) //
+         MSG = 'ERROR: MECH_NO3 Group species ' // MECH_NO3( 1 : EOS ) //
      &         ' not found in mechanism' 
          LERROR = .TRUE.
       END IF
@@ -239,7 +239,7 @@ c..N2O5
          GRP_SPC( N ) = MECH_N2O5
       ELSE
          EOS = LEN_TRIM( MECH_N2O5 )
-         MSG = 'ERROR: Group species ' // MECH_N2O5( 1 : EOS ) //
+         MSG = 'ERROR: MECH_N2O5 Group species ' // MECH_N2O5( 1 : EOS ) //
      &         ' not found in mechanism' 
          CALL M3MESG( MSG )
          LERROR = .TRUE.
@@ -253,7 +253,7 @@ c..NO2EX
             GRP_SPC( N ) = MECH_NO2EX
          ELSE
             EOS = LEN_TRIM( MECH_NO2EX )
-            MSG = 'ERROR: Group species ' // MECH_NO2EX( 1 : EOS ) //
+            MSG = 'ERROR: MECH_NO2EXGroup species ' // MECH_NO2EX( 1 : EOS ) //
      &         ' not found in mechanism' 
             CALL M3MESG( MSG )
             LERROR = .TRUE.
