@@ -36,7 +36,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C does CHR belong to a list of valid characters?
 
       IMPLICIT NONE
-      CHARACTER( 1 ) :: CHR
+      CHARACTER( 1 ), INTENT( IN ) :: CHR
 
       VALLABCHR = .TRUE.
       IF ( CHR .EQ. '<' .OR.

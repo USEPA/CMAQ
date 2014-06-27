@@ -16,7 +16,7 @@
 ifndef COMPILER
   COMPILER = INTEL
 # COMPILER = PGF90
- COMPILER = GFORT
+#COMPILER = GFORT
 endif
 
 ifeq ($(COMPILER),INTEL)
@@ -69,6 +69,7 @@ OBJECTS =\
     chemmech.o \
     eatcom.o \
     check_ss_spc.o \
+    check_order_specials.o \
     getchar.o \
     getlabel.o \
     get_operator.o \
@@ -93,8 +94,6 @@ OBJECTS =\
     wrspecial_ext.o \
     wrss_ext.o  \
     wrt_kpp_inputs.o \
-    wrt_rate_calcks.o \
-    wrt_feval.o \
     wrt_reactions_module.o \
     wrbf6_fortran90.o \
     wrbf16c_fortran90.o \
@@ -103,9 +102,6 @@ OBJECTS =\
     wrspecial_ext_fortran90.o \
     wrexts_fortran90.o \
     wrss_ext_fortran90.o  \
-    wrt_jacob_blk.o \
-    wrt_jacob_blk_fortran90.o \
-    wrt_jacob.o \
     vallabchr.o \
     valwrdchr.o \
     nameval.o

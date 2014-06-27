@@ -275,7 +275,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Open mechanism input file and get the first non-comment line
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMECH = JUNIT()
-      PRINT*,'IMECH = ',IMECH 
       CALL NAMEVAL ( MECHNAME, EQNAME_MECH )
       OPEN ( UNIT = IMECH, FILE = EQNAME_MECH, STATUS = 'UNKNOWN' )
 !Open output file for conversion to KPP Equations Format
@@ -744,7 +743,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           ENDDO
        ENDDO 
 
- 
+       IF( NSPECIAL .GT. 0 )CALL CHECK_ORDER_SPECIAL()
+       
        DO IRX = 1, NSPECIAL_RXN
           ISPC = ISPECIAL( IRX, 1)
           DO IPR = 1, NREACT( ISPC )
@@ -823,27 +823,10 @@ C Set CGRID mechanism
       CALL WRSS_EXT( NR ) 
 
       CLOSE( KPPEQN_UNIT )
-
-      
-      
-!      CALL WRT_CALCKS( )
-
-!      print*,'calling WRT_RATE_CONSTANT '
       
       EQUATIONS_MECHFILE = EQNAME_MECH
       
       CALL WRT_RATE_CONSTANT( NR, IP, LABEL, NS, SPCLIS  )
-
-!     print*,'calling WRT_FEVAL ' 
-
-!     CALL WRT_FEVAL(  )
-      
-!     print*,'called WRT_FEVAL ' 
-      
-!     CALL WRT_JACOB_BLK( )
-
-!      CALL WRT_JACOB( 1 )         
-!      CALL WRT_JACOB( 2 )         
       
       CLOSE( EXUNIT_SPCS )
       CLOSE( EXUNIT_RXDT )
@@ -1076,10 +1059,16 @@ C   begin body of subroutine  UPCASE
              WRITE(OUT_UNIT, 95002, ADVANCE = 'NO')
            CASE( 3 )
              WRITE(OUT_UNIT, 95003, ADVANCE = 'NO')
+           CASE( -1 )
+             WRITE(OUT_UNIT, 95004, ADVANCE = 'NO')
+           CASE( -2 )
+             WRITE(OUT_UNIT, 95005, ADVANCE = 'NO')
         END SELECT
 95000   FORMAT(' INV_RFACTOR * ')                
 95001   FORMAT(' 60.0D0 * ')                
 95002   FORMAT(' RFACTOR * ')                
 95003   FORMAT(' RFACTOR_SQU * ')                
+95004   FORMAT(' ( 60.0D0 / RFACTOR ) * ')                
+95005   FORMAT(' ( 60.0D0 / RFACTOR_SQU ) * ')                
         RETURN
       END SUBROUTINE WRITE_RATE_CONVERT

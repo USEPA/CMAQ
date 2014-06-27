@@ -34,9 +34,14 @@
             LOGICAL,         ALLOCATABLE     :: NML_CONVERT( : )
             REAL,            ALLOCATABLE     :: NML_MOLWT  ( : )
             REAL                             :: DELTA            ! fractional difference
+	    
+	    LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
-            LOGDEV  = JUNIT()
-            SUCCESS = .TRUE.
+	    IF( INITIALIZED )RETURN
+	    
+	    INITIALIZED = .TRUE.
+            LOGDEV      = JUNIT()
+            SUCCESS     = .TRUE.
 
 
             ALLOCATE ( CGRID_SPC( NSPCSD - 1 ),    &
@@ -49,6 +54,7 @@
 
 
             J = 0
+	    
 
             NML_INDEX     = -1
             TYPE_INDEX    = -1

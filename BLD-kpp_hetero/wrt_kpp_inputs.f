@@ -90,6 +90,8 @@ c..Variables for species to be dropped from mechanism
       REAL( 8 )           :: CONSTVAL                ! retrieved constant
       REAL( 8 )            :: CVAL( MAXCONSTS )       ! mechanism constants value
       INTEGER, PARAMETER  :: LUNOUT = 6
+      INTEGER             :: IDIFF_ORDER           ! difference between order of two separate reactions
+      LOGICAL             :: FALLOFF_RATE       ! whether a reaction is a falloff type
 
 
       CHARACTER(  12 ) :: EXFLNM_SPCS = 'SPCSDATX'
@@ -588,14 +590,26 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !                IF( KRX5( IDX ) .EQ. NXX )EXIT
 !             END DO         
              IRX = INT( RTDAT( 3, NXX) )
-!             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT(KPPEQN_UNIT, IORDER(NXX))
+	     IDIFF_ORDER = IORDER(NXX) - IORDER(IRX)
+	     IF( IDIFF_ORDER .NE. 0 )THEN
+	         FALLOFF_RATE = ( KTYPE(IRX) .GT. 7 .AND. KTYPE(IRX) .LT. 11 )
+                 IF( KUNITS .EQ. 2 .OR. FALLOFF_RATE )THEN
+	           CALL WRITE_RATE_CONVERT(KPPEQN_UNIT, IDIFF_ORDER )
+		 END IF
+	     END IF
              WRITE(KPPEQN_UNIT,5005, ADVANCE = 'NO')IRX,RTDAT( 1, NXX ), RTDAT(2, NXX )
           CASE( 6 )
 !             DO IDX = 1, KTN6
 !                IF( KRX6( IDX ) .EQ. NXX )EXIT
 !             END DO         
              IRX = INT( RTDAT( 2, NXX) )
-!            IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT(KPPEQN_UNIT, IORDER(NXX))
+	     IDIFF_ORDER = IORDER(NXX) - IORDER(IRX)
+	     IF( IDIFF_ORDER .NE. 0 )THEN
+	         FALLOFF_RATE = ( KTYPE(IRX) .GT. 7 .AND. KTYPE(IRX) .LT. 11 )
+                 IF( KUNITS .EQ. 2 .OR. FALLOFF_RATE )THEN
+	           CALL WRITE_RATE_CONVERT(KPPEQN_UNIT, IDIFF_ORDER )
+		 END IF
+	     END IF
              IF( RTDAT( 1, NXX ) .NE. 1.0 )THEN
                  WRITE(KPPEQN_UNIT, 5006, ADVANCE = 'NO')REAL(RTDAT( 1, NXX ), 8), IRX
              ELSE
