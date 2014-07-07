@@ -93,11 +93,13 @@ C   David Wong - Oct 11 - extended the twoway implementation to handle finer
 C                         time resolution
 C   HOT Pye - Jan 13 - Additional information for IEPOX and IMAE aerosol 
 C                      written to AERODIAG file
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
+      USE RXNS_DATA           ! chemical mechanism data
       USE AERO_DATA           ! aero variable data
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
@@ -109,7 +111,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C *** Includes:
 
-      INCLUDE SUBST_RXCMMN    ! to get mech name
       INCLUDE SUBST_FILES_ID  ! file name parameters (req IOPARMS)
       INCLUDE SUBST_PACTL_ID  ! process analysis
 

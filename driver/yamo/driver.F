@@ -87,9 +87,11 @@ C    8 Jan 13 C.Nolte: fixed load AGRID bug if TSTEP(1) .ne. 010000 hhmmss
 C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
 C                      indicated in TSTEP(1) for twoway model
 C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
+      USE RXNS_DATA             ! chemical mechanism data
       USE CGRID_SPCS, ONLY: CGRID_SPCS_INIT  ! CGRID mechanism species
       USE STD_CONC              ! standard CONC
       USE AVG_CONC              ! integral average CONC
@@ -121,9 +123,6 @@ C Include Files:
       INCLUDE SUBST_MPI         ! MPI definitions and parameters
 #endif
 
-C Load the mechanism COMMON ... (next two INCLUDE files)
-      INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
-!     INCLUDE SUBST_RXDATA      ! chemical mechamism reactions DATA
 
 C External Functions:
       INTEGER, EXTERNAL :: SETUP_LOGDEV

@@ -30,6 +30,7 @@ c Revision History:
 c Jeff Young 31 Aug 09: created
 c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 c-----------------------------------------------------------------------
 
       implicit none
@@ -127,10 +128,10 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
+            use RXNS_DATA           ! chemical mechanism data
+	    
             implicit none
 
-            include SUBST_RXCMMN      ! gas chemistry definitions and commons
-            include SUBST_RXDATA      ! gas chemistry data arrays
 
             integer, save :: logdev
             

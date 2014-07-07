@@ -43,16 +43,17 @@ C       Date   Who          What
 C     -------- ----------   -----------------------------------------
 C     04/2011  B.Hutzell    initial version created based on opphot.F in the 
 C                           inline_phot module
+C     07 Jul 14 B.Hutzell:  replaced mechanism include file(s) with fortran module
 C
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE RXNS_DATA           ! chemical mechanism data
 
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_RXCMMN    ! chemical mechamism reactions COMMON
 
 C...Arguments
 

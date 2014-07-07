@@ -44,6 +44,7 @@ C HOTP 01/16/13 Remove acid enhanced isoprene and isoprene oligomers
 C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -154,6 +155,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
+      Use rxns_data       ! chemical mechanism data
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
@@ -162,7 +164,6 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Includes:
-      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 C Arguments:
       Real, Intent( In ) :: conc( : )

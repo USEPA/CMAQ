@@ -110,12 +110,12 @@ C $Header: /project/yoj/arc/CCTM/src/aero/aero5/poaage.F,v 1.5 2011/11/03 18:41:
 !c   
 !C-----------------------------------------------------------------------
 
+      USE RXNS_DATA           ! chemical mechanism data
       USE AERO_DATA
       USE PRECURSOR_DATA
                            
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 !C *** Arguments
       REAL,    INTENT( IN )  :: DT        ! Synchronization time step

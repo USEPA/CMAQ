@@ -40,6 +40,7 @@ C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 
 C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction counters
 C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -152,6 +153,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
+      Use rxns_data       ! chemical mechanism data
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
@@ -160,7 +162,6 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Includes:
-      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 C Arguments:
       Real, Intent( In ) :: conc( : )
