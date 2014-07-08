@@ -56,6 +56,8 @@ C                    30 Jun 10 J.Young: convert for Namelist redesign; move all
 C                    local include file variables into GRVARS module
 C***********************************************************************
 
+      USE RXNS_DATA
+      USE RXNS_FUNCTION
       USE GRVARS              ! inherits GRID_CONF
 
       IMPLICIT NONE
@@ -80,7 +82,8 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER NRX              ! Loop index for number of reactions
 C***********************************************************************      
       
-      IF( NSPECIAL_RXN .GT. 0 ) CALL CALC_SPECIAL   ! calculate special rate coefficients
+!      IF( NSPECIAL_RXN .GT. 0 ) CALL CALC_SPECIAL   ! calculate special rate coefficients
+      IF ( NSPECIAL_RXN .GT. 0 ) CALL SPECIAL_RATES( NUMCELLS, IOLD2NEW, NCS, CNEW, RK )   ! calculate special rate coefficients
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Increment call counter and initialize dcdt=gloss

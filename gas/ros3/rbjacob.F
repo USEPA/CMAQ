@@ -44,12 +44,12 @@ C                    22 Aug 11 J.Young: fixed bug: initialize CC2( NCELL,0 )
 C
 C***********************************************************************
 
+      USE RXNS_DATA
       USE RBDATA                ! ROS3 solver data
 
       IMPLICIT NONE
 
 C..Includes:
-      INCLUDE SUBST_RXCMMN      ! Mechanism reaction common block
 
 C..Arguments:
       INTEGER   :: NCSP         ! Index of chem mech to use; 1=gas/day, 2=gas/night

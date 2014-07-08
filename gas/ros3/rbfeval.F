@@ -44,19 +44,18 @@ C                    28 Jun 10 J.Young: remove unnecessary modules and includes
 C
 C***********************************************************************
 
+      USE RXNS_DATA
+      USE RXNS_FUNCTION
       USE RBDATA               ! ROS3 solver data
 
       IMPLICIT NONE
 
 C..Includes:
-      INCLUDE SUBST_RXCMMN     ! Mechanism reaction common block
 
 C..Arguments:
-      INTEGER NCSP                       ! Index of chem mech to use
-                                         ! 1=gas/day, 2=gas/night
-
-      REAL( 8 ) :: YIN(  BLKSIZE,* )     ! Species concs, ppm
-      REAL( 8 ) :: YDOT( BLKSIZE,* )     ! Species rates of change, ppm/min
+      INTEGER NCSP ! Index of mech to use: 1=gas/day, 2=gas/night
+      REAL( 8 ) :: YIN(  :, : )     ! Species concs, ppm
+      REAL( 8 ) :: YDOT( :, : )     ! Species rates of change, ppm/min
 
 C..Parameters: None
 
@@ -75,7 +74,8 @@ C..Local Variables:
 
 C***********************************************************************      
 
-      IF ( NSPECIAL_RXN .GT. 0 ) CALL RBCALC_SPECIAL( YIN )   ! calculate special rate coefficients
+!     IF ( NSPECIAL_RXN .GT. 0 ) CALL RBCALC_SPECIAL( YIN )   ! calculate special rate coefficients
+      IF ( NSPECIAL_RXN .GT. 0 ) CALL SPECIAL_RATES( NUMCELLS, IOLD2NEW, NCS, YIN, RKI )   ! calculate special rate coefficients
 
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

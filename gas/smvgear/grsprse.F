@@ -57,6 +57,7 @@ C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                    with UTILIO_DEFN
 C***********************************************************************
 
+      USE RXNS_DATA
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
@@ -169,11 +170,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( ISAPORL ( N_GC_SPC ),
-     &              ISPARDER( N_GC_SPC, N_GC_SPC ),
-     &              LZERO   ( N_GC_SPC, N_GC_SPC ),
-     &              IZILCH  ( N_GC_SPC, NCS2 ),
-     &              JZILCH  ( N_GC_SPC, NCS2 ), STAT = IOS )
+         ALLOCATE ( ISAPORL ( NUMB_MECH_SPC ),
+     &              ISPARDER( NUMB_MECH_SPC, NUMB_MECH_SPC ),
+     &              LZERO   ( NUMB_MECH_SPC, NUMB_MECH_SPC ),
+     &              IZILCH  ( NUMB_MECH_SPC, NCS2 ),
+     &              JZILCH  ( NUMB_MECH_SPC, NCS2 ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failure for '
      &          // 'ISAPORL, ISPARDER, IZILCH, JZILCH, or LZERO'
@@ -181,7 +182,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          DO JSP = 1, NCS2
-            DO ISP = 1, N_GC_SPC
+            DO ISP = 1, NUMB_MECH_SPC
                IZILCH( ISP, JSP ) = 0
                JZILCH( ISP, JSP ) = 0
                JHIZ1 ( ISP, JSP ) = 0
@@ -210,7 +211,7 @@ c Initialize Prod/loss and PD tabulator arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCS12 = NCS
 
-      NSPECT( NCS ) = N_GC_SPC
+      NSPECT( NCS ) = NUMB_MECH_SPC
       DO ISP = 1, NSPECT( NCS )
          ISAPORL( ISP ) = 0
       ENDDO
@@ -329,8 +330,8 @@ c  put ones on the diagonal and zeroes everywhere else.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 700 IFSUN = 1, 2
          NCS12 = IFSUN
-         DO I = 1, N_GC_SPC
-            DO J = 1, N_GC_SPC
+         DO I = 1, NUMB_MECH_SPC
+            DO J = 1, NUMB_MECH_SPC
                LZERO( J, I ) = 0
             ENDDO
             LZERO( I, I ) = 1

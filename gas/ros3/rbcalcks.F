@@ -47,13 +47,13 @@ C                    23 Jan 13 B.Hutzell revised type 9 falloff rate constants
 C***********************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE RXNS_DATA
       USE RBDATA                ! Rosenbrock solver data
 
       IMPLICIT NONE
       
 C..Includes:
 
-      INCLUDE SUBST_RXCMMN 
 
 C..Arguments: None
 

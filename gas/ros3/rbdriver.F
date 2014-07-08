@@ -63,13 +63,18 @@ C                               with UTILIO_DEFN
 C                    31 Aug 11 B.Hutzell revised method that determines calling
 C                              degrade routine
 C                    29 Sep 11 D.Wong: incorporated twoway model implementation
+C                    18 Jan 13 B.Hutzell: added using heteorogeneous rate constants
 C**********************************************************************
 
       USE SUBST_MODULES
+      USE RXNS_DATA
+      USE RXNS_FUNCTION
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RBDATA                ! ROS3 solver data
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE AEROSOL_CHEMISTRY
+      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE 
 
@@ -77,7 +82,6 @@ C..Includes:
 
       INCLUDE SUBST_FILES_ID    ! CMAQ files
       INCLUDE SUBST_CONST       ! CMAQ constants
-      INCLUDE SUBST_RXCMMN      ! Mechanism reaction common block
       INCLUDE SUBST_PACTL_ID    ! Process analysis control parameters
  
 C..Arguments:
@@ -100,7 +104,8 @@ C..External Functions:
 
 C..Local Variables:
 
-      LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
+      LOGICAL, SAVE :: LFIRST    = .TRUE. ! Flag for first call to this subroutine
+      LOGICAL, SAVE :: FIRSTCALL = .TRUE. ! Another Flag for first call
       LOGICAL, SAVE :: LIRRBLK         ! Flag for IRR to be done for block
 
       INTEGER, SAVE :: LOGDEV          ! Unit number of output log
@@ -165,6 +170,7 @@ C for INTERPX
       REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
 !     REAL, ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
 #ifdef rbstats
 
       CHARACTER( 16 ), SAVE              :: CTM_RBSTATS_1 = 'CTM_RBSTATS_1' 
@@ -174,7 +180,7 @@ C for INTERPX
       INTEGER, ALLOCATABLE, SAVE         :: STAT_SUM( :,:,:,: )
       INTEGER  EDATE, ETIME
 
-      REAL                               :: STATOUT( NCOLS,NROWS,NLAYS )
+      REAL     ALLOCATABLE, SAVE         :: STATOUT( :, :, : )
 
 #endif
 
@@ -216,6 +222,7 @@ C for INTERPX
          SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
             USE GRID_CONF
+            USE RXNS_DATA
             USE RBDATA
             USE CGRID_SPCS
             USE UTILIO_DEFN
@@ -227,18 +234,6 @@ C for INTERPX
             INTEGER, INTENT( INOUT ) :: NIRRCLS
             INTEGER, INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
-!        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, NDARK, RJ )
-!           USE CGRID_SPCS           ! CGRID species number and offsets
-!           USE PCGRID_DEFN          ! get cgrid
-!           USE UTILIO_DEFN          ! IOAPI infoe
-!           USE SUBST_MODULES        ! stenex
-!           USE AERO_DATA            ! describes aerosol distribution
-!!          USE PHOT_MOD             ! photolysis in-line module
-!           IMPLICIT NONE
-!           INTEGER, INTENT( IN )  :: MDATE, MTIME, JDATE, JTIME
-!           INTEGER, INTENT( OUT ) :: NDARK
-!           REAL,    INTENT( OUT ) :: RJ( :,:,:,: )
-!        END SUBROUTINE PHOT
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
@@ -249,13 +244,13 @@ C for INTERPX
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
      &                         JDATE, JTIME, LOGDEV, BLKID )
+           USE RXNS_DATA
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           INCLUDE SUBST_RXCMMN   
-           REAL( 8 ), INTENT( IN ) :: CBLK ( BLKSIZE, NSPCSD )           !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( BLKSIZE )                    !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( BLKSIZE )                   !  cell air density  [ kg/m^3 ]
-           REAL,      INTENT( IN ) :: PHOTO_CELL( BLKSIZE, N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
+           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )           !  species concentration in cell
+           REAL( 8 ), INTENT( IN ) :: TCELL( : )              !  cell temperature  [ k ]
+           REAL( 8 ), INTENT( IN ) :: DCELL( : )                   !  cell air density  [ kg/m^3 ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
@@ -265,13 +260,13 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           REAL( 8 ), INTENT( INOUT ) :: CBLK( BLKSIZE, NSPCSD ) ! species conc in cell
+           REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
          END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 
 C**********************************************************************
 
-      IF ( N_GC_SPC .EQ. 0 ) THEN
+      IF ( NUMB_MECH_SPC .EQ. 0 ) THEN
          CALL M3MESG( '*** WARNING: Gas-Chemistry processing bypassed!' )
          RETURN
       END IF
@@ -281,8 +276,10 @@ c  On first call, call routines to set-up for Gear solver and
 c  set-up to do emissions here if that option is invoked
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
-         LFIRST = .FALSE.
-         LOGDEV = INIT3( )
+         LFIRST   = .FALSE.
+         LOGDEV   = INIT3( )
+         ROS3_LOG = LOGDEV
+!        GASLOG   = LOGDEV
 
          IF ( .NOT. CELLVAR_ALLOC() ) THEN
             MSG = 'Failure allocating variables dependent on horizontal extents'
@@ -358,12 +355,14 @@ c..Open file for solver stats if requested
          END IF
 
          ALLOCATE( STAT_SUM( MY_NCOLS, MY_NROWS, NLAYS, 3 ) )
+         ALLOCATE(  STATOUT( MY_NCOLS, MY_NROWS, NLAYS ) )
 
-!        ALLOCATE( RJ( NCOLS, NROWS, NLAYS, NPHOTAB ) )
 
          STAT_SUM = 0
 
 #endif
+
+         ALLOCATE( BLKHET( BLKSIZE, NHETERO ) )
 
 C Determine whether DEGRADE rountines are needed.
 
@@ -443,6 +442,7 @@ C.. Get density in Kg/m^3
 C.. Get photolysis rates in /min
 
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )                    
+      CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set flag for reordering of cells and put cells in sequential  
@@ -483,28 +483,36 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             COL = CCOL( CELLNUM )
             ROW = CROW( CELLNUM )
             LEV = CLEV( CELLNUM )
-            BLKTEMP( NCELL ) = TA( COL,ROW,LEV )
-            BLKDENS( NCELL ) = DENS( COL,ROW,LEV )
-            BLKPRES( NCELL ) = PA2ATM * PRES( COL, ROW, LEV )
-            BLKCH2O( NCELL ) = MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 )          
+            BLKTEMP( NCELL ) = REAL( TA( COL,ROW,LEV ), 8 )
+            BLKDENS( NCELL ) = REAL( DENS( COL,ROW,LEV ), 8 )
+            BLKSVOL( NCELL ) = REAL( 1.0 / BLKDENS( NCELL ), 8 )
+            BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
+            BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
          END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell concentrations in the block arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO ISP = 1, ISCHANG( NCS )
+            SPC    = CGRID_INDEX( ISP )
+!            SPC    = ISP 
             ISPNEW = IOLD2NEW( ISP,NCS )
             DO NCELL = 1, NUMCELLS
                CELLNUM = NORDCELL( OFFSET + NCELL )
                COL = CCOL( CELLNUM )
                ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
-               Y( NCELL,ISPNEW ) = MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN )
+               IF( CONVERT_CONC( ISP ) )THEN 
+                   Y( NCELL,ISPNEW ) = REAL( MAX( FORWARD_CONV( ISP ) * BLKSVOL( NCELL )
+     &                               *       CONC( COL,ROW,LEV,SPC ), CONCMIN), 8 )
+               ELSE
+                   Y( NCELL,ISPNEW ) = REAL( MAX( CONC( COL,ROW,LEV,SPC ), CONCMIN), 8 )
+               END IF
             END DO                 
          END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C   Get photolytic and thermal rate constants & call solver
+C   Get photolytic, heteorogeneous and thermal rate constants & call solver
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LSUNLIGHT = .FALSE.
 
@@ -513,14 +521,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             COL = CCOL( CELLNUM )   ! wrong order
             ROW = CROW( CELLNUM )
             LEV = CLEV( CELLNUM )
+            DO NPH = 1, NHETERO
+               BLKHET( NCELL, NPH ) =  KHETERO( NPH, COL, ROW, LEV )
+            END DO
             DO NPH = 1, NPHOTAB
-               RJBLK( NCELL,NPH ) = RJ( COL,ROW,LEV,NPH )
-               IF ( RJBLK( NCELL, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
+               RJBLK( NCELL,NPH ) = REAL( RJ( COL,ROW,LEV,NPH ), 8 )
+               IF ( RJBLK( NCELL, NPH ) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
             END DO                         
          END DO
          
-!        CALL CALCKS( NPHOTAB, RJBLK )
-         CALL CALCKS( )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, RKI, NUMCELLS )
 
          IF ( LSUNLIGHT ) THEN
             NCSP = NCS
@@ -539,8 +549,7 @@ C  update cell concentrations for degradation routines
                   COL = CCOL( CELLNUM )
                   ROW = CROW( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  Y_DEGRADE( NCELL,ISP ) = MAX( CONC( COL,ROW,LEV,ISP ),
-     &                                          CONCMIN )
+                  Y_DEGRADE( NCELL,ISP ) = REAL(MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN), 8 )
                END DO
             END DO
 
@@ -571,38 +580,52 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C..Update concentrations
             DO ISP = 1, ISCHANG( NCS )
                ISPOLD  = INEW2OLD( ISP,NCS )
+               SPC     = CGRID_INDEX( ISPOLD )
                DO NCELL = 1, NUMCELLS
                   CELLNUM = NORDCELL( OFFSET + NCELL )
                   COL = CCOL( CELLNUM )
                   ROW = CROW( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  CONC( COL,ROW,LEV,ISPOLD ) = Y( NCELL,ISP ) 
-               END DO
+                  IF( CONVERT_CONC( ISPOLD ) )THEN 
+                     CONC( COL,ROW,LEV,SPC ) = REAL( REVERSE_CONV( ISPOLD ) 
+     &                                       *       BLKDENS( NCELL ) * Y( NCELL,ISP ), 4)
+                  ELSE
+                     CONC( COL,ROW,LEV,SPC ) = REAL( Y( NCELL,ISP ), 4)
+                  END IF
+              END DO
             END DO
+
+
+
 
             IF ( CALL_DEG ) THEN
 
 C  Update degradation array with species treated by Rosenbach solver
+C
+C               DO ISP = 1, ISCHANG( NCS )
+C                  ISPOLD  = INEW2OLD( ISP, NCS )
+C                  DO NCELL = 1, NUMCELLS
+C                     Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,ISP )
+C                  END DO
+C               END DO
 
-               DO ISP = 1, ISCHANG( NCS )
-                  ISPOLD  = INEW2OLD( ISP, NCS )
-                  DO NCELL = 1, NUMCELLS
-                     Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,ISP )
-                  END DO
-               END DO
 
 C  Update CGRID based on the degradation routines
-
                CALL FINAL_DEGRADE( Y_DEGRADE )
-               DO ISP = NR_STRT, (TR_STRT-1)
+               UPDATE_DEGRADED: DO ISP = 1, N_REACT
+                  S = RXTANT_MAP( ISP )
+                  IF( S .LE. 0 )CYCLE UPDATE_DEGRADED                  
+                  DO SPC = 1, NUMB_MECH_SPC
+                     IF( S .EQ. CGRID_INDEX( SPC ) )CYCLE UPDATE_DEGRADED
+                  END DO
                   DO NCELL = 1, NUMCELLS
                      CELLNUM = NORDCELL( OFFSET + NCELL )
                      COL = CCOL( CELLNUM )
                      ROW = CROW( CELLNUM )
                      LEV = CLEV( CELLNUM )
-                     CONC( COL,ROW,LEV,ISP ) = Y_DEGRADE( NCELL,ISP )
-                 END DO
-               END DO
+                     CONC( COL,ROW,LEV,S ) = REAL( Y_DEGRADE( NCELL,S ), 4)
+                  END DO
+               END DO UPDATE_DEGRADED
             END IF            !WTH
 
 #ifdef rbstats
@@ -627,7 +650,10 @@ C  Update CGRID based on the degradation routines
 
          END IF
 
+
 500   CONTINUE
+
+
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  End of block loop; reorder cells if necessary and go back do the  
@@ -712,8 +738,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       END IF
 
+       
 #endif
 
+
+      IF( FIRSTCALL )FIRSTCALL = .FALSE.
+      
       RETURN
 
 C*********************** FORMAT STATEMENTS ****************************

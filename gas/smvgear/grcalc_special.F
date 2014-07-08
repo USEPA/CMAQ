@@ -56,6 +56,7 @@ C                     17 Mar 11 B.Hutzell: initial version submitted
 C**********************************************************************
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE RXNS_DATA
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE GRVARS
 

@@ -92,19 +92,22 @@ C   B.Hutzell- Aug 11 - Adapted for mercury and HAP mechanisms
 C   David Wong - Aug 11 - put in twoway model implementation
 C   David Wong - Oct 11 - extended the twoway implementation to handle finer
 C                         time resolution
-C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
+C                            diagnostic outputs on reaction gamma and yield 
+C                            values 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
-      USE RXNS_DATA           ! chemical mechanism data
+      USE RXNS_DATA
       USE AERO_DATA           ! aero variable data
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
       USE UTILIO_DEFN
       USE CGRID_SPCS
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K
 
       IMPLICIT NONE
 
@@ -170,14 +173,11 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,23 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,26 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
       REAL AMU             ! atmospheric dynamic viscosity [ kg/m s ]
-
-C *** N2O5 heterogeneous reaction probability [ ]
-      REAL GAMMA_N2O5      ! computed in SUBROUTINE EQL3
 
 C *** mass fraction of each mode less than 2.5um aerodynamic diameter
       REAL PM25( N_MODE )  ! fine fractions
@@ -280,7 +280,9 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 C *** Get aerosol diagnostic file flag.
          AERDIAG = .FALSE.         ! default
          VARDESC = 'Flag for writing the aerosol diagnostic file'
-         AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
+!        AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
+!        AERDIAG = .TRUE.
+         STATUS  = 0
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
@@ -307,11 +309,11 @@ C *** Open the met files.
 C *** Set up file structure for visibility file. It has two variables,
 C     visual range in deciview units (dimensionless) and extinction in
 C     units of (1/km) and is for layer 1 only.
-         IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+!        IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( AERDIAG .AND. MYPE .EQ. 0 )
-     &      CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+!        IF ( AERDIAG .AND. MYPE .EQ. 0 )
+!    &      CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -430,7 +432,7 @@ C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
 
 C *** Aerosol process routines
-               CALL AEROPROC( DT, C, R, L, GAMMA_N2O5 )
+               CALL AEROPROC( DT, C, R, L )
 
 C *** Update aerosol variables conc back into CGRID (set minimum)
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )
@@ -476,7 +478,10 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,20 ) = PM25( 1 )            ! i-mode fine fraction
                   DIAM_SPC( C,R,L,21 ) = PM25( 2 )            ! j-mode fine fraction
                   DIAM_SPC( C,R,L,22 ) = PM25( 3 )            ! coarse-mode fine fraction
-                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5           ! N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
@@ -562,6 +567,7 @@ C     used in transport routines.  Put aeroSrf values back to CGRID
          END DO ! loop on MY_ROWS
       END DO ! loop on NLAYS
 
+       WRITETIME = .FALSE. ! set to false for boxmodel version
 C *** If last call this hour, write visibility information.
       IF ( WRITETIME ) THEN
          MDATE = JDATE
@@ -570,11 +576,11 @@ C *** If last call this hour, write visibility information.
          WSTEP = 0
          WRITETIME = .FALSE.
 
-         IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
-     &                      MDATE, MTIME, VIS_SPC ) ) THEN
-            XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
-            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+!         IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
+!     &                      MDATE, MTIME, VIS_SPC ) ) THEN
+!            XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
+!            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+!         END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                  'Timestep written to', CTM_VIS_1,
@@ -583,11 +589,11 @@ C *** If last call this hour, write visibility information.
 C *** Write data to the aerosol diagnostic file.
          IF ( AERDIAG ) THEN
 
-            IF ( .NOT. WRITE3( CTM_DIAM_1, ALLVAR3,
-     &                         MDATE, MTIME, DIAM_SPC ) ) THEN
-               XMSG = 'Could not write ' // CTM_DIAM_1 // ' file'
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+ !           IF ( .NOT. WRITE3( CTM_DIAM_1, ALLVAR3,
+ !    &                         MDATE, MTIME, DIAM_SPC ) ) THEN
+ !              XMSG = 'Could not write ' // CTM_DIAM_1 // ' file'
+ !              CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+ !           END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_DIAM_1,

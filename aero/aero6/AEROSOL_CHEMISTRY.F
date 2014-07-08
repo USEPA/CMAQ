@@ -1,0 +1,1517 @@
+       MODULE AEROSOL_CHEMISTRY
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+       IMPLICIT NONE
+       
+       
+       REAL( 8 ), PUBLIC, ALLOCATABLE     :: KHETERO(   :, :, : , :  ) ! heterogeneous reaction rates, 
+                                                                       ! units: (ppm**(RXN Order-1)*min)**-1
+       REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_N2O5IJ( :, : , :  ) ! Fine modes N2O5 reaction effic.
+       REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_N2O5K(  :, : , :  ) ! Coarse mode N2O5 reaction effic.
+       REAL,      PUBLIC, ALLOCATABLE     :: YCLNO2IJ   (  :, : , :  ) ! Yield CLNO2 in Fine modes 
+       REAL,      PUBLIC, ALLOCATABLE     :: YCLNO2K    (  :, : , :  ) ! Yield CLNO2 in coarse mode 
+       
+       PUBLIC HETCHEM_RATES
+       
+       PRIVATE 
+
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 17
+       
+       CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
+     &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
+     &                       'HETERO_N2O5IJY   ', 'HETERO_N2O5KY    ', 
+     &                       'HETERO_NO2       ', 'HETERO_H2NO3PAIJ ',
+     &                       'HETERO_H2NO3PBIJ ', 'HETERO_H2NO3PAK  ',
+     &                       'HETERO_H2NO3PBK  ', 'HETERO_H2NO3PAI  ',
+     &                       'HETERO_H2NO3PBI  ', 'HETERO_H2NO3PAJ  ',
+     &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
+     &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
+     &                       'HETERO_PNCOMLJ   ' /)
+
+       INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
+       INTEGER, PARAMETER  :: IA_N2O5K          =   2
+       INTEGER, PARAMETER  :: IA_N2O5IJY        =   3
+       INTEGER, PARAMETER  :: IA_N2O5KY         =   4
+       INTEGER, PARAMETER  :: IA_NO2            =   5
+       INTEGER, PARAMETER  :: IA_H2NO3PAIJ      =   6
+       INTEGER, PARAMETER  :: IA_H2NO3PBIJ      =   7
+       INTEGER, PARAMETER  :: IA_H2NO3PAK       =   8
+       INTEGER, PARAMETER  :: IA_H2NO3PBK       =   9
+       INTEGER, PARAMETER  :: IA_H2NO3PAI       =   10
+       INTEGER, PARAMETER  :: IA_H2NO3PBI       =   11
+       INTEGER, PARAMETER  :: IA_H2NO3PAJ       =   12
+       INTEGER, PARAMETER  :: IA_H2NO3PBJ       =   13
+       INTEGER, PARAMETER  :: IA_N2O5I          =   14
+       INTEGER, PARAMETER  :: IA_N2O5J          =   15
+       INTEGER, PARAMETER  :: IA_PNCOMLI        =   16
+       INTEGER, PARAMETER  :: IA_PNCOMLJ        =   17
+
+       INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
+     &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
+     &                       IA_N2O5IJY  , IA_N2O5KY   , 
+     &                       IA_NO2      , IA_H2NO3PAIJ,
+     &                       IA_H2NO3PBIJ, IA_H2NO3PAK ,
+     &                       IA_H2NO3PBK , IA_H2NO3PAI ,
+     &                       IA_H2NO3PBI , IA_H2NO3PAJ ,
+     &                       IA_H2NO3PBJ , IA_N2O5I    , 
+     &                       IA_N2O5J    , IA_PNCOMLI  ,
+     &                       IA_PNCOMLJ   /)
+
+             
+       INTEGER               :: SELECTED_AERO_RATES
+       INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
+       
+       LOGICAL              :: DUMP_CELL
+       INTEGER              :: LOGDEV
+ 
+      CONTAINS
+
+      SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
+
+c Calculates the heterogeneous reactions for N2O5, NO2 and CLNO2. 
+c
+c Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
+c                         N2O5_GAMMA
+c
+c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
+c            in aero6 module of CMAQ version 5.01. The adaptation includes
+C            heterogeneous nitryl chloride production used for Sarwar et al.
+c            (2012).
+c
+c  REFERENCES:
+c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
+c      Gallani, An improved representation of the reaction of N2O5 on
+c      aerosols for mesoscale air quality models.  In "Regional
+c      Photochemical Measurement and Modeling Studies, Vol 2 - Results
+c      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
+c      904-913, 1995.
+c
+c   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
+c      reaction probabilities on the surface of particles containing
+c      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
+c      press.
+c
+c   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
+c      simulated vertical profiles of nitrous acid - Part II. Model
+c      simulations and indications for a photolytic source, Atmospheric
+c      Environment, 37, 2957-2966, 2003.
+c
+c   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
+c      B. Vogel, A comparison of CMAQ HONO predictions with observations
+c      from the Northeast Oxidant and Particle Study, Atmospheric
+c      Environment, 2008, in press.
+C
+c   5. Bertram, T. H. and J.A. Thornton, Toward a general parameterization
+c      of N2O5 reactivity on aqueous particles: the competing effects of 
+c      particle liquid water, nitrate, and chloride, ACP, 9, 8351-8363, 2009 
+c
+c   6. Sarwar, G., H. Simon2, P. Bhave1, and G. Yarwood. Examining the impact of 
+C      heterogeneous nitryl chloride production on air quality across the United
+C      States. Atmos. Chem. Phys., 12, 6455-6473, 2012.
+c
+C-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
+      USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE RXNS_DATA
+      USE AERO_DATA
+      USE PRECURSOR_DATA
+      USE SOA_DEFN
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_CONST       ! CMAQ constants
+
+C *** Arguments
+      REAL,            POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
+      REAL,            INTENT( IN )  :: TEMP  ( :,:,: )    ! temperature [K]
+      REAL,            INTENT( IN )  :: PRESS ( :,:,: )    ! pressure [Pa]
+      REAL,            INTENT( IN )  :: WVAPOR( :,:,: )    ! water vapor mass mixing ratio(Kg/Kg air)
+      REAL, OPTIONAL, INTENT( IN )  :: DENS ( :,:,: )     ! air density(Kg/m3 air)
+
+      CHARACTER(16), SAVE ::  PNAME = 'HETCHEM_RATES'
+      
+      INTEGER              ::  OFFSET          ! Starting cell number of a block
+      INTEGER              ::  CELLNUM         ! Cell number 
+
+
+C *** Parameters
+      REAL( 8 ), PARAMETER :: AQUEOUS_FREQUENCY = 1.0D+9
+      REAL( 8 ), PARAMETER :: INV_SQRT_MWNO2  = 1.47425932467825D-1
+      REAL( 8 ), PARAMETER :: INV_SQRT_MWN2O5 = 9.62161363758323D-2
+      REAL( 8 ), PARAMETER :: UGM3_CONV_FAC   = 8.31251724585556D00 ! =1.0E-3*AIRDENS_STD*(PRESS_STD/TEMP_STD)
+      REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
+      REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
+
+
+      REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.1D-4  ! molecular diffusivity
+                                                      ! of N2O5 at 101325 Pa
+                                                      ! and 273.15 K [m2/sec]
+
+      REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
+      REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
+      REAL,      PARAMETER :: PA2ATM      = 1.0 / STDATMPA               ! Pascal to atm conv fac
+      REAL,      PARAMETER :: WMASS2PPM   = 1.0E6 * MWAIR / MWWAT        ! H20 mixing ratio to ppm
+      REAL,      PARAMETER :: MAOMV       = MWAIR / MWWAT
+      REAL,      PARAMETER :: CONCOFM     = 1.0E+06        ! conc. of M = 1E+06 ppm
+      REAL,      PARAMETER :: INV_STDTEMP = 1.0 / STDTEMP
+      REAL,      PARAMETER :: EPSWATER    = MWWAT / MWAIR
+
+
+C *** Local Variables
+      REAL( 8 ) :: AIRTEMP          ! air temperature [K}
+!      REAL( 8 ) :: AIRPRES          ! air pressure [Pa]
+!      REAL( 8 ) :: AIRQV            ! water vapor mass mixing ratio [g/g]
+      REAL( 8 ) :: GAMMA            ! fine mode N2O5->NO3 rxn probability
+      REAL( 8 ) :: GAMMAK           ! coarse mode N2O5->NO3 rxn probability
+      REAL( 8 ) :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
+      REAL( 8 ) :: KNO2             ! pseudo-first order rate constant, sec-1
+
+      REAL( 8 )   :: CBAR_COEFF       ! cell coefficient for mean molecular speed
+      REAL( 8 )   :: ADJUST_DIFF      ! Cell temp and press correction to diffusivity
+      REAL( 8 )   :: INV_DIFFUSIVITY  ! reciprocal molecular diffusivity [m2/sec] 
+
+C *** 2nd and 3rd moments before equilibration (without H2O)
+      REAL( 8 )   :: OLD_M3( N_MODE ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
+      REAL( 8 )   :: OLD_M2( N_MODE ) ! OLD_M2_I, OLD_M2_J, OLD_M2_K
+
+      REAL( 8 )   :: WET_M3( N_MODE ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 before equilibration w.H2O
+      REAL( 8 )   :: WET_M2( N_MODE ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 before equilibration w.H2O
+      REAL( 8 )   :: DG_WET( N_MODE ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
+      REAL( 8 )   :: DE_WET( N_MODE ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
+
+      REAL( 8 )   :: XXF( N_MODE )         ! XXF_AT,    XXF_AC,    XXF_CO    ! modal factors to calculate KN2O5
+      REAL( 8 )   :: CL_PPM( N_MODE )      ! aerosol chlorine in ppm
+      REAL( 8 )   :: YIELD_CLNO2( N_MODE ) ! model reactions yields of CLNO2
+      
+      REAL( 8 )       :: H2OSATVP ! saturation vapor pressure    [Atm]
+      REAL( 8 )       :: H2OVP    ! ambient water vapor pressure [Atm]
+      REAL( 8 )       :: AIRRH    ! Relative Humidity            [Fractional]
+      REAL( 8 )       :: YIELDIJ  ! fine mode reaction yield, dimensionaless
+      REAL( 8 )       :: YIELDK   ! coarse mode reaction yield, dimensionaless
+      REAL( 8 )       :: TOTSURFA ! aerosol surface area (m**2/m**3)
+      REAL( 8 )       :: FACTOR   ! scratch multiplicative factor
+      REAL( 8 )       :: RFACTOR  ! factor converting rate constant from cm3/molec/sec to 1/ppm/min
+      
+      REAL( 8 )       :: CBAR             ! molecular velocity (m/s)
+
+
+      LOGICAL         :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
+      LOGICAL         :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
+
+C *** variables for parameterization by Bertram and Thornton 
+      REAL            :: ACL           ! i+j or k mode chloride, ug/m3 
+      REAL            :: AH2O          ! i+j or k mode water, ug/m3          
+      REAL            :: POC           ! i or j mode primary organic carbon, ug/m3 
+      REAL            :: PNCOM         ! i or j mode primary noncarbon organic matter, ug/m3          
+      REAL,      SAVE :: MWCLH2O       ! ratio of MWCL/MWH2O 
+      REAL,      SAVE :: MWH2OCL       ! ratio of MWH20/MWCL 
+      REAL,      SAVE :: MWCLCLNO2     ! ratio of MWCL/MWCLNO2
+      REAL( 8 ), SAVE :: INV_MWCL      ! ratio of 1.0D0/MWCL 
+      REAL( 8 )       :: PPM_FACTOR    ! conversion factor to umoles/m3 to ppm
+      
+      
+      LOGICAL, SAVE        :: FIRSTIME = .TRUE.
+      INTEGER, EXTERNAL    :: SETUP_LOGDEV
+
+      INTEGER              :: NCELL, IRATE        ! loop counter
+      INTEGER              :: INDX               ! found array index
+      INTEGER, SAVE        :: CLNO2_IDX
+
+      INTEGER              :: C
+      INTEGER              :: R
+      INTEGER              :: L
+      INTEGER              :: N
+      
+C *** variables for getting aerosol diagnostic file flag
+      INTEGER          :: STATUS                      ! ENV... status
+      CHARACTER( 80 )  :: VARDESC                     ! environment variable description
+      CHARACTER( 16 )  :: CTM_AERDIAG = 'CTM_AERDIAG' ! environment variable for AERDIAG file
+      LOGICAL, SAVE    :: AERDIAG                     ! flag for AERDIAG file [F], default
+      
+      CHARACTER( 132 ) :: XMSG
+      
+C *** Statement Function **************
+      REAL( 8 )            :: ESATL      ! arithmetic statement function for vapor pressure [Pa]
+      REAL( 8 )            :: INV_ESATL ! arithmetic statement function for reciporcal vapor pressure [Pa]
+      REAL( 8 )            :: TT
+C *** Coefficients for the equation, ESATL defining saturation vapor pressure
+!      REAL( 8 ), PARAMETER :: AL = 610.94D0 / STDATMPA
+      REAL( 8 ), PARAMETER :: AL = 610.94D0 
+      REAL( 8 ), PARAMETER :: BL = 17.625D0
+      REAL( 8 ), PARAMETER :: CL = 243.04D0
+      REAL( 8 ), PARAMETER :: DL = 1.0D0 / 610.94D0 
+
+C *** values of AL, BL, and CL are from:
+C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
+C                            Saturation Vapor Pressure,"
+C                            Jour. of Applied Meteorology, vol. 35,
+C                            pp 601-609, April, 1996.
+
+      ESATL( TT )     = AL * DEXP( BL * ( TT - 273.15D0 ) / ( TT - 273.15D0 + CL ) )
+      INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
+
+      
+      INTERFACE
+        SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
+          USE AERO_DATA
+          USE AEROMET_DATA 
+          IMPLICIT NONE
+          LOGICAL, INTENT( IN ) :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
+          LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
+        END SUBROUTINE GETPAR
+      END INTERFACE 
+  
+
+C-----------------------------------------------------------------------
+
+      IF( NHETERO .LT. 1 )RETURN
+
+C *** compute only on first pass
+
+      IF ( FIRSTIME ) THEN
+      
+        FIRSTIME = .FALSE.
+
+        LOGDEV = INIT3()
+         
+C *** Get aerosol diagnostic file flag.
+        AERDIAG = .FALSE.         ! default
+        VARDESC = 'Flag for writing the aerosol diagnostic file'
+!       AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
+        STATUS = 0
+        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+        IF ( STATUS .EQ. 1 ) THEN
+           XMSG = 'Environment variable improperly formatted'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+        ELSE IF ( STATUS .EQ. -1 ) THEN
+           XMSG = 'Environment variable set, but empty ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
+        ELSE IF ( STATUS .EQ. -2 ) THEN
+           XMSG = 'Environment variable not set ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
+        END IF
+
+        CALL MAP_AERO()
+        CALL MAP_PRECURSOR()
+
+        ALLOCATE( WHICH_AERO_RATE( NHETERO ) )
+        
+        WHICH_AERO_RATE = -1
+        
+        DO IRATE = 1, NHETERO
+           INDX = INDEX1( HETERO( IRATE ), NUMB_AERO_RATES, NAMES_AERO_RATES )
+           IF( INDX .LT. 1 )THEN
+               XMSG = 'Heterogeneous Reaction Label '// TRIM ( HETERO( IRATE ) )
+     &             // ' is not in list of available Reaction Rates.'
+               CALL M3EXIT( 'HETCHEM_RATES', 0, 0, XMSG, XSTAT3 )
+           END IF 
+           SELECTED_AERO_RATES = SELECTED_AERO_RATES + 1
+           WHICH_AERO_RATE( SELECTED_AERO_RATES ) = INDEX_AERO_RATES( INDX )
+       END DO
+ 
+        
+       ALLOCATE( KHETERO( SELECTED_AERO_RATES, MY_NCOLS, MY_NROWS, NLAYS ) )
+       
+       IF( AERDIAG )THEN
+           ALLOCATE( GAMMA_N2O5IJ( MY_NCOLS, MY_NROWS, NLAYS ) )
+           ALLOCATE(  GAMMA_N2O5K( MY_NCOLS, MY_NROWS, NLAYS ) )
+           ALLOCATE(     YCLNO2IJ( MY_NCOLS, MY_NROWS, NLAYS ) )
+           ALLOCATE(      YCLNO2K( MY_NCOLS, MY_NROWS, NLAYS ) )
+       END IF
+
+       INV_MWCL  = REAL( 1.0 / aerospc_mw( ACL_IDX ), 8 )
+       MWCLH2O   = aerospc_mw( ACL_IDX ) / aerospc_mw( AH2O_IDX )
+       MWH2OCL   = 1.0 / MWCLH2O
+       CLNO2_IDX = INDEX1( 'CLNO2', NUMB_MECH_SPC, CHEMISTRY_SPC )
+       
+       IF( CLNO2_IDX .GT. 0 )THEN
+C           MWCLCLNO2 = aerospc_mw( ACL_IDX) / SPECIES_MOLWT( CLNO2_IDX ) ?? fix later, Sarwar
+            MWCLCLNO2 = 0.4355
+
+       ELSE
+            MWCLCLNO2 = 0.0
+       END IF
+       
+       
+      END IF   ! first time condition
+
+      KHETERO      = 0.0D0
+      
+      IF( AERDIAG )THEN
+          GAMMA_N2O5IJ = 0.0
+          GAMMA_N2O5K  = 0.0
+          YCLNO2IJ     = 0.0
+          YCLNO2K      = 0.0
+      END IF
+     
+
+      LOOP_LAY: DO L = 1, NLAYS
+         LOOP_ROW: DO R = 1, MY_NROWS
+            LOOP_COL: DO C = 1, MY_NCOLS
+     
+#ifdef verbose_hetchem        
+               IF( L .EQ. 1 .AND. R .EQ. INT(MY_NROWS/2)+1 .AND. C .EQ. INT(MY_NCOLS/2)+1 )THEN
+                  DUMP_CELL = .TRUE.
+               ELSE
+                  DUMP_CELL = .FALSE.
+               END IF
+#endif         
+      
+C *** extract grid cell concentrations of aero species from CGRID
+C     into aerospc_conc in aero_data module
+               CALL EXTRACT_AERO ( CGRID( C, R, L, : ), .TRUE. )
+
+C *** extract soa concentrations from CGRID
+               CALL EXTRACT_SOA ( CGRID( C, R, L,: ) )
+
+C *** extract in inorganic aerosol processors
+
+               CALL EXTRACT_PRECURSOR( CGRID( C, R, L, : ) ) 
+               
+               AIRTEMP = REAL(   TEMP( C, R, L ), 8 )
+!               AIRPRES = REAL(  PRESS( C, R, L ), 8 )
+!               AIRQV   = REAL( WVAPOR( C, R, L ), 8 )
+
+C *** to compute RH & molecular kinetic factors
+
+               H2OVP    = REAL(  PRESS( C, R, L )*WVAPOR( C, R, L )
+     &                 /        (EPSWATER  + WVAPOR( C, R, L )), 8 )    
+     
+               AIRRH    = MAX( 0.005D0, MIN( 0.99D0, H2OVP * INV_ESATL( AIRTEMP ) ) )
+
+               CBAR_COEFF  = REAL( SQRT( CFACTOR * TEMP( C, R, L ) ), 8) 
+               
+               ADJUST_DIFF = REAL((TEMP( C, R, L )*INV_STDTEMP)**1.75 * (STDATMPA/PRESS( C, R, L )), 8)
+
+              IF( PRESENT( DENS ) )THEN
+                  PPM_FACTOR  = 1.0E-3 * MWAIR / DENS(C, R, L )
+              ELSE
+                  PPM_FACTOR  = UGM3_CONV_FAC * REAL( TEMP( C, R, L ) / PRESS( C, R, L ), 8 )
+              END IF
+              
+              RFACTOR     = 60.0D0 * COEF1 * REAL( PRESS( C, R, L ) / TEMP( C, R, L ), 8 )
+
+C *** Update the third moments, geometric mean diameters, geometric
+C     standard deviations, modal mass totals, and modal particle
+C     densities, based on the concentrations of M2, M0, and speciated
+C     masses resulting from transport, cloud processing, and gas-phase
+C     chemistry.  Ignore H2O and semi-volatile SOA (i.e., M3_WET_FLAG
+C     = .FALSE.) because those species are not transported with the
+C     2nd moment and their concentrations will be updated subsequently
+C     to establish gas/particle equilibrium.
+               M3_WET_FLAG = .False.
+               LIMIT_Sg    = .False.
+
+               MOMENT2_CONC = MOMENT2_CONC / PI
+      
+               CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+    
+C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
+
+               DO N = 1, N_MODE
+              
+C *** capture values of "dry" 2nd and 3rd moments before equilibration
+C     the folowing code assumes that GETPAR has been called with
+C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
+C     been adjusted for the new SOA.
+                 OLD_M2( N ) = REAL( MOMENT2_CONC( N ), 8)
+                 OLD_M3( N ) = REAL( MOMENT3_CONC( N ), 8)
+C *** estimate the "wet third moments" by adding aerosol water
+C      Note: this is the H2O concentration from previous time step
+                WET_M3( N ) = OLD_M3( N ) + H2OFAC * REAL(aerospc_conc( AH2O_IDX,N ), 8)
+C *** calculate "wet second moment" assuming that H2O does not
+C     affect the geometric standard deviation
+                WET_M2( N ) = OLD_M2( N ) * ( WET_M3( N ) / OLD_M3( N ) ) ** ( 2.0D0 / 3.0D0 )
+C *** calculate "wet" geometric mean (same as median) diameters
+                DG_WET( N ) = REAL( aeromode_diam( N ), 8) * DSQRT( WET_M2( N ) / OLD_M2( N ))
+C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
+                DE_WET( N ) = DG_WET( N ) 
+     &                      * REAL( EXP( 1.5 * ( LOG( EXP( aeromode_sdev( N ) ) ) ** 2.0 ) ), 8)
+             END DO
+
+C *** calculate N2O5 molecular speed (m/s) using Eq 4 of Pleim et al (1995)
+
+             CBAR = CBAR_COEFF * INV_SQRT_MWN2O5 
+
+C *** correct N2O5 molecular diffusivity for ambient conditions
+
+             INV_DIFFUSIVITY  = 1.0D0 / ( STD_DIFF_N2O5 * ADJUST_DIFF )
+
+C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
+              YIELD_CLNO2 = 0.0D0
+              YIELDIJ     = 0.0D0
+              DO N = 1, N_MODE          
+
+                 IF( N .LE. 2 )THEN
+                    GAMMA        = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
+                    IF( AERDIAG ) GAMMA_N2O5IJ( C, R, L ) = REAL( GAMMA, 4 )
+                 ELSE IF( N .EQ. 3 )THEN
+                    GAMMA        = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
+                    IF( AERDIAG ) GAMMA_N2O5K( C, R, L ) = REAL( GAMMA, 4 )
+                 ELSE
+                    GAMMA = 0.0D0
+                 END IF
+
+                                     
+                 XXF( N ) = WET_M2( N )
+     &                   / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA * CBAR * INV_DIFFUSIVITY )
+     
+                 KN2O5( N ) = GAMMA * XXF( N )
+                 
+c *** get fine aerosol H2O and chlorine concentrations in
+                 AH2O = REAL( aerospc_conc( AH2O_IDX,N ), 8 )
+                 ACL  = REAL( aerospc_conc( ACL_IDX, N ), 8 )
+
+                 CL_PPM( N ) = PPM_FACTOR * ( ACL * INV_MWCL )
+
+C *** If only a small amount of water is present on aerosol, keep YIELD_CLNO2 zero
+                IF( AH2O .GT. 1.0D-1 .AND. ACL .GT. 2.0D-5 )THEN
+                    IF( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
+                      YIELD_CLNO2( N ) = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
+                    END IF
+                END IF
+ 
+              END DO
+
+c *** compute yield from lumped Aitken and Accumulations concentrations
+              AH2O = REAL( aerospc_conc( AH2O_IDX,1 )+ aerospc_conc( AH2O_IDX,2 ), 8 )
+              ACL  = REAL( aerospc_conc( ACL_IDX,1 ) + aerospc_conc( ACL_IDX,2 ) , 8 )
+              IF( AH2O .GT. 1.0D-1 .AND. ACL .GT. 2.0D-5 )THEN
+                 IF( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
+                    YIELDIJ = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
+                 END IF
+              END IF  
+              
+             KN2O5 = CBAR * DPI * KN2O5
+C *** calculate aerosol surface area
+             TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
+
+             LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
+             
+        
+               SELECT CASE( WHICH_AERO_RATE( IRATE ) )
+                 CASE( IA_N2O5IJ )  
+
+                    KHETERO( IRATE, C, R, L ) = 60.0D0 * ( KN2O5( 1 ) + KN2O5( 2 ) )! convert to min-1
+                          
+                 CASE( IA_N2O5K )  
+
+                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KN2O5 (3) ! convert to min-1
+                     
+                 CASE( IA_N2O5J )  
+
+                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KN2O5 (2) ! convert to min-1
+                     
+                 CASE( IA_N2O5I )  
+
+                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KN2O5 (1) ! convert to min-1
+                     
+                 CASE( IA_N2O5IJY )  
+                 
+                     KHETERO( IRATE, C, R, L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1                    
+                     IF( AERDIAG ) YCLNO2IJ( C, R, L ) = REAL( YIELDIJ, 4 )
+                     
+                 CASE( IA_N2O5KY )  
+                 
+                     KHETERO( IRATE, C, R, L )  = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
+                     IF( AERDIAG ) YCLNO2K( C, R, L ) = REAL( YIELD_CLNO2( 3 ), 4 )
+
+                 CASE( IA_H2NO3PAIJ )  
+                
+                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                          *  MAX((1.0D0 - YIELDIJ), 0.0D0) 
+                      IF( AERDIAG ) YCLNO2IJ( C, R, L ) = REAL( YIELDIJ, 4 )
+                     
+                 CASE( IA_H2NO3PBIJ )  
+                 
+                      IF( YIELDIJ .GT. 0.0D0 )THEN
+
+                         KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY * YIELDIJ 
+     &                                             / (CL_PPM( 1 ) + CL_PPM( 2 ))   ! 1/(min*ppm)
+                      ELSE
+                         KHETERO( IRATE, C, R, L ) = 0.0D0
+                      END IF
+                     
+                 CASE( IA_H2NO3PAI )
+
+                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                          * MAX((1.0D0 - YIELD_CLNO2( 1 )), 0.0D0) 
+
+                 CASE( IA_H2NO3PBI )
+
+                      IF( YIELD_CLNO2( 1 ) .GT. 0.0D0 )THEN
+
+                          KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                              *  YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
+                          IF( AERDIAG ) THEN
+                              FACTOR = CL_PPM( 1 )/(CL_PPM( 1 )+ CL_PPM( 2 ))
+                              YCLNO2IJ( C, R, L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
+     &                                             + YCLNO2IJ( C, R, L )
+                          END IF
+                       ELSE
+                               KHETERO( IRATE, C, R, L ) = 0.0D0
+                       END IF 
+                              
+                 CASE( IA_H2NO3PAJ )
+                                     
+                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                          * MAX((1.0D0 -  YIELD_CLNO2( 2 )), 0.0D0) 
+                               
+                 CASE( IA_H2NO3PBJ )
+                                     
+                      IF(  YIELD_CLNO2( 2 ) .GT. 0.0D0 )THEN
+
+                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
+     &                                              *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
+                          IF( AERDIAG ) THEN
+                              FACTOR = CL_PPM( 2 )/(CL_PPM( 1 )+ CL_PPM( 2 ))
+                              YCLNO2IJ( C, R, L ) = REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
+     &                                            + YCLNO2IJ( C, R, L )
+                          END IF                               
+                      ELSE
+                          KHETERO( IRATE, C, R, L ) = 0.0D0
+                      END IF 
+                                
+                 CASE( IA_PNCOMLI )
+                                     
+                      POC   = REAL( aerospc_conc( APOC_IDX,1 ), 8 )
+                      PNCOM = REAL( aerospc_conc( APNCOM_IDX,1 ), 8 )
+                      
+                      KHETERO( IRATE, C, R, L ) =  RFACTOR * PNCOM_LOSS( POC, PNCOM )
+                      
+                 CASE( IA_PNCOMLJ )
+                                     
+                      POC   = REAL( aerospc_conc( APOC_IDX,2 ), 8 )
+                      PNCOM = REAL( aerospc_conc( APNCOM_IDX,2 ), 8 )
+                      
+                      KHETERO( IRATE, C, R, L ) =  RFACTOR * PNCOM_LOSS( POC, PNCOM )
+
+                 CASE( IA_H2NO3PAK )
+                                     
+                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                          *  MAX((1.0D0 -  YIELD_CLNO2( 3 )), 0.0D0) ! * KN2O5( 3 )
+                               
+                 CASE( IA_H2NO3PBK )
+                                     
+                      IF(  YIELD_CLNO2( 3 ) .GT. 0.0D0 )THEN
+                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
+     &                                              *  YIELD_CLNO2( 3 ) * KN2O5( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
+                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
+     &                                              *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
+                          IF( AERDIAG ) YCLNO2K( C, R, L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
+                      ELSE
+                          KHETERO( IRATE, C, R, L ) = 0.0D0
+                      END IF 
+                               
+                 CASE( IA_NO2 )
+      
+C *** calculate pseudo-first order rate constant using Eq 1 of Vogel
+C     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
+C     by 60 to convert it into 1/sec
+                     KNO2 = MAX ( 0.0D0, 5.0D-5 * TOTSURFA )
+
+                     KHETERO( IRATE, C, R, L )  = 60.0D0 * KNO2 ! convert to min-1
+                           
+               END SELECT
+
+             END DO LOOP_RATES
+
+#ifdef verbose_hetchem
+             IF( DUMP_CELL )THEN
+
+                  WRITE(LOGDEV,*)'In GAS HETCHEM for MYPE = ', MYPE
+                  WRITE(LOGDEV, 9499)C, R, L
+                  WRITE(LOGDEV,'(A,ES12.4)')'TEMP        = ',AIRTEMP
+                  WRITE(LOGDEV,'(A,ES12.4)')'AIRRH       = ',AIRRH
+                  WRITE(LOGDEV,'(A,ES12.4)')'DIFFUSIVITY = ',1.0 / INV_DIFFUSIVITY
+                  WRITE(LOGDEV,'(A,ES12.4)')'INV_SQRT_MWN2O5 = ',INV_SQRT_MWN2O5
+                  WRITE(LOGDEV,'(A,ES12.4)')'CBAR_COEFF      = ',CBAR_COEFF
+                  WRITE(LOGDEV,'(A,ES12.4)')'CBAR        = ',CBAR
+                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTORA = ',UGM3_CONV_FAC * REAL( TEMP( C, R, L ) / PRESS( C, R, L ), 8 )
+                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTOR = ',PPM_FACTOR
+                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTOR*INV_MWCL = ',PPM_FACTOR*INV_MWCL
+                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTORA*INV_MWCL = ',
+     &            UGM3_CONV_FAC * REAL( TEMP( C, R, L ) / PRESS( C, R, L ), 8 )*INV_MWCL
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLI_PPM  = ',CL_PPM(1)
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLJ_PPM  = ',CL_PPM(2)
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLK_PPM  = ',CL_PPM(3)
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4I = ',(aerospc_conc( ANH4_IDX,1 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3I = ',(aerospc_conc( ANO3_IDX,1 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4I = ',(aerospc_conc( ASO4_IDX,1 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLI  = ',(aerospc_conc( ACL_IDX,1 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OI = ',(aerospc_conc( AH2O_IDX,1 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4J = ',(aerospc_conc( ANH4_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3J = ',(aerospc_conc( ANO3_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4J = ',(aerospc_conc( ASO4_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLJ  = ',(aerospc_conc( ACL_IDX,2))
+                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OJ = ',(aerospc_conc( AH2O_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4IJ = ',(aerospc_conc( ANH4_IDX,1 )+aerospc_conc( ANH4_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3IJ = ',(aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4IJ = ',(aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLIJ  = ',(aerospc_conc( ACL_IDX,1 ) + aerospc_conc( ACL_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OIJ = ',(aerospc_conc( AH2O_IDX,1 ) + aerospc_conc( AH2O_IDX,2 ))
+                  WRITE(LOGDEV,'(A,ES12.4)')'GAMMA       = ',N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4K= ',(aerospc_conc( ANH4_IDX,3))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3K= ',(aerospc_conc( ANO3_IDX,3))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4K= ',(aerospc_conc( ASO4_IDX,3))
+                  WRITE(LOGDEV,'(A,ES12.4)')'ACLK = ',(aerospc_conc( ACL_IDX, 3))
+                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OK= ',(aerospc_conc( AH2O_IDX,3))
+                  WRITE(LOGDEV,'(A,ES12.4)')'GAMMAK      = ',N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
+                  WRITE(LOGDEV,'(A,ES12.4)')'XXF_AT      = ',XXF( 1 )
+                  WRITE(LOGDEV,'(A,ES12.4)')'XXF_AC      = ',XXF( 2 )
+                  WRITE(LOGDEV,'(A,ES12.4)')'XXF_COR     = ',XXF( 3 )
+                  WRITE(LOGDEV,9500)'KN2O5IJ = ',60.0D0*(KN2O5(1)+KN2O5(2)),' 1/min'
+                  WRITE(LOGDEV,9500)'KN2O5K= ',60.0D0*KN2O5(3),' 1/min'
+                  WRITE(LOGDEV,9500)'KNO2  = ', 60.0D0*KNO2,' 1/min'
+                  WRITE(LOGDEV,9500)'YIELDI = ', YIELD_CLNO2(1),' '
+                  WRITE(LOGDEV,9500)'YIELDJ = ', YIELD_CLNO2(2),' '
+                  WRITE(LOGDEV,9500)'YIELDIJ = ', YIELDIJ,' '
+                  WRITE(LOGDEV,9500)'YIELDK= ', YIELD_CLNO2(3),' '
+                  DO N = 1, NHETERO
+                    WRITE(LOGDEV,9500)HETERO( N ) // ' = ', KHETERO( N, C, R, L ),' '
+                  END DO
+9499              FORMAT('At COL = ',I3,' ROW = ',I3,' LAY = ',I3)
+9500              FORMAT(A,ES12.4,A)          
+            END IF          
+#endif
+        
+            END DO LOOP_COL
+         END DO  LOOP_ROW
+      END DO LOOP_LAY
+
+      RETURN
+
+      END SUBROUTINE HETCHEM_RATES
+      REAL( 8 ) FUNCTION PNCOM_LOSS( POC, PNCOM )
+!C Calculates rate constant in cm3 molec-1 sec-1 for PNCOM loss by reacting 
+!  with OH, derived from the reactions in the below POA aging scheme 
+! in CMAQ v5.0-v5.02:
+!C start with the definition of POCRm 
+!C      - POCRm = reduced primary organic carbon (molar concentration)
+!  changes POCRm correspond to changes in PNCOM via a rate constant
+!  koheff*[OH] that comes from Weitkamp et al (2008) and George et al (2007)
+!C
+!C POCRm = POC/12 - Omoles
+!  where Omoles represent fraction that is already PNCOM oxidized
+!C Omoles = NCOM/(16 + PHOrat) if 14/12 < (POC + NCOM)/POC <  44/12 
+!C      - see Simon et al (2011) for derivation
+!C Omoles = NCOM/16            if (POC + NCOM)/POC >= 44/12 
+!C      - interpretted as POC is fully oxidized and all 
+!C        NCOM is oxygen 
+!C Omoles = 0                  if (POC + NCOM)/POC <= 14/12 
+!C      - if OM/OC < 1.167, then POC is fully reduced and all 
+!C        NCOM is hydrogen
+!C      - see Simon et al. (2011) for derivation
+!C note:we divide POC by 12 b/c we want moles of carbon atoms not moles 
+!C      of POC (since each carbon atom w\in the molecule is allowed 
+!C      to react)
+!C note: we calculate Omoles based on the equations above derived from 
+!C      Heald et al (2010) and documented in Simon et al (2011).
+!C
+!C The following rate equation comes from the reaction above:
+!C      dPOCRm/dt = POCRm*koheff*[OH] 
+!C        -assume that [OH] does not change as a result of this reaction
+!C      solve for POCRm at time, t
+!C        moles: POCRm(t) = POCRm(0)*EXP(-koheff*[OH]*t) = POCRm(0)*expdt
+!C
+!C      One mole of "NCOMm" is formed for every mole of POCRm that reacts:
+!C             -dPOCRm/dt = dNCOMm/det
+!C        moles of NCOMm: NCOMm = NCOMm(0) + POCRm(0)*[1-EXP(-koheff*[OH]*t)] = 
+!C                        NCOMm(0) + POCRm(0)*(1-expdt)
+!C        NCOMg = NCOMm*15.0 
+!C          - every mole of newly formed NCOM results in an average gain of 1 oxygen atom 
+!C            and an average loss of 1 hydrogen atoms (on average, two oxidation steps 
+!C            convert a CH3 functional group into a COOH functional group) 
+!C               -(based on Heald et al. (2010)) 
+!C      Rewrite NCOM formation equation using grams: 
+!C        NCOMg/15.0 = NCOMg(0)/15.0 + POCRm*(1-expdt) 
+!C                         |
+!C                         |
+!C                         V 
+!C        NCOMg == NCOM(0) + 15.0*POCRm*(1-expdt)
+!                          or
+!        dNCOMg/dt = (15.0/12.0)*POC*koheff*[OH]-15.0*Omoles*PNCOM*koheff*[OH]
+!            ----> 15.0*Omoles*koheff is rate constant of PNCOM loss
+!C
+!C
+!C 
+!c Key Subroutines Called: none
+!c
+!c Key Functions Called: none
+!c
+!c Revision History:
+!c    June 2014:  Bill Hutzell-initial version based on the poaaging subroutine
+!c                in CMAQ v5.0 thru v5.0.2.
+!C 
+!c  REFERENCES:
+!c   1. George, I.J., Vlasenko, A., Slowik, J.G., Broekhuizen, K., 
+!C      Abbatt, J.P.D. (2007), Heterogeneous oxidation of saturated
+!C      organic aerosols by hydroxyl radicals: uptake kinetics, 
+!C      condesned-phase products, and particle size change, 
+!C      Atmospheric Chemistry and Physics, 7, 4187-4201 
+!c     
+!c   2. Heald, C.L., Kroll, J.H., Jimenez, J.L., Docherty, K.S., 
+!C      DeCarlo, P.F., Aiken, A.C., Chen, Q., Martin, S.T., Farmer, S.T.,
+!C      Artaxo, P. (2010), A simplified description of the evolution of 
+!C      organic aerosol composition in the atmosphere, GRL, 37, L08803. 
+!C
+!C   3. Simon, H. and Bhave, P.V. (2011), Simulating the degree of oxidation 
+!C      in atmospheric organic particles  
+!C      In Review at ES&T.
+!C
+!C   4. Weitkamp, E.A., Lambe, A.T., Donahue, N.M., Robinson, A.L. (2008),
+!C      Laboratory measurements of the heterogeneous oxidation of condensed-
+!C      phase organic molecular markers for motor vehicl exhaust, 42, 
+!C      7950-7956.
+!c   
+!C-----------------------------------------------------------------------
+      
+      IMPLICIT NONE
+      
+!Arguments: Note specific units do not material as long as consistent
+!           between arguments, i.e., the same
+       REAL, INTENT( IN ) :: POC    ! concentration of primary organic carbon
+       REAL, INTENT( IN ) :: PNCOM  ! concentration of primart noncarbon organic matter
+!Parameter:
+       REAL( 8 ), PARAMETER :: KOHEFF      =       2.5D-12  ! POC + OH rate constant, cm3 molec-1 sec-1
+       REAL,      PARAMETER :: LOWER_LIMIT =   7.0D0/6.0D0
+       REAL,      PARAMETER :: UPPER_LIMIT =  11.0D0/3.0D0
+       REAL( 8 ), PARAMETER :: MAX_RATE    = 15.0D0/16.0D0 * KOHEFF ! max rate constant for PNCOM loss
+!Local    
+       REAL( 8 )            :: RATIO   ! the hydrogen to oxygen ratio in organic matter
+       
+        
+        PNCOM_LOSS = 0.0D0
+
+        IF(  POC .LE. 1.0D-30 )RETURN
+              
+        RATIO = REAL(( POC + PNCOM )/ POC, 8)
+
+        IF( RATIO .GT. LOWER_LIMIT .AND. RATIO .LT. UPPER_LIMIT )THEN
+           PNCOM_LOSS = 15.0D0*KOHEFF
+     &                /(16.0D0+(UPPER_LIMIT-RATIO)/(RATIO-LOWER_LIMIT))
+        ELSE IF( RATIO .GE. UPPER_LIMIT )THEN 
+           PNCOM_LOSS = MAX_RATE
+        END IF
+        
+        RETURN   
+      END FUNCTION PNCOM_LOSS
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      REAL( 8 ) FUNCTION N2O5_GAMMA( TEMP, RH, GPARAM )
+
+C  Calculates the N2O5 heterogeneous reaction probability, which is the
+C  fraction of collisions between a gaseous N2O5 molecule and a particle
+C  surface that leads to nitrate production.  In the literature, this
+C  probability is commonly referred to with the Greek letter, GAMMA.  To
+C  avoid conflicts with the intrinsic GAMMA function on some compilers,
+C  we refer to the reaction probability as N2O5_GAMMA in this function.
+
+C  A variety of parameterizations of N2O5_GAMMA are available in this
+C  function.  Users may select among the different parameterizations
+C  by changing the input argument, GPARAM.  This argument may take on
+C  the following values (see code for further details):
+C     1. Constant value of 0.1 based on Dentener & Crutzen (1993)
+C     2. Function of particle SO4 and NO3, based on Riemer et al. (2003)
+C     3. Function of RH, Temp, and particle composition, based on a
+C        combination of parameterizations by Evans & Jacob (2005) and
+C        Riemer et al. (2003)
+C  If GPARAM matches none of the above values, the default calculation
+C  of N2O5_GAMMA is a function of RH, T, particle composition, and phase
+C  state, based on the parameterization by Davis et al. (2008).
+
+C  Key Subroutines Called: none
+
+C  Key Functions Called: CRYSTALIZED, FREEZES
+
+C  Revision History:
+C    First version was coded in November 2007 by Dr. Prakash Bhave
+C    using excerpts of the HETCHEM subroutine, which contained only
+C    one option for computing N2O5_GAMMA (i.e., GPARAM = 3).
+C
+C  PVB 11/03/07 Removed code that sets N2O5_GAMMA to zero when RH < 1%.
+C
+C  PVB 11/05/07 Corrected GPARAM = 3 option to fix the typographical
+C               error in the paper by Evans & Jacob (2005), which was
+C               found by Dr. Jerry Davis.
+C
+C  PVB 04/11/08 Updated formulas for LAM1 & LAM2 based on revised paper
+C               by Davis et al. (2008).  Added APNDX flag so users may
+C               switch between base parameterization and the alternative
+C               discussed in Appendix A by Davis et al.  Set default
+C               parameterization to match equations in Appendix A.
+C               Reduced all regression coefficients by one decimal place
+C               for consistency with revised paper.
+C
+C  JTK 04/17/08 Moved molar mass to AERO_INFO.f
+C
+C  SH  12/08/09 Use new Fortran modules (aero_data, met_data) in lieu of
+C               CBLK array and AERO_INFO module
+C
+C  SH  03/10/11 Renamed met_data to aeromet_data
+
+C  GS  13/03/14 Added an opiton for N2O5 heterogeneous reaction probability
+C               based on Bertram and Thornton (2009) (fine and coarse mode)
+ 
+C References:
+C   1. Dentener, F.J. and P.J. Crutzen, Reaction of N2O5 on tropospheric
+C      aerosols: Impact of global distributions of NOx, O3, and OH.
+C      J. Geophys. Res., Vol 98, 7149-7163, 1993.
+C
+C   2. Riemer, N., H. Vogel, B. Vogel, B. Schell, I. Ackermann, C.
+C      Kessler, and H. Hass, Impact of the heterogeneous hydrolysis
+C      of N2O5 on chemistry of nitrate aerosol formation in the lower
+C      troposphere under photosmog conditions.  J. Geophys. Res., Vol
+C      108, No D4, 4144, doi:10.1029/2002JD002436, 2003.
+C
+C   3. Evans, M.J. and D.J. Jacob, Impact of new laboratory studies of
+C      N2O5 hydrolysis on global model budgets of tropospheric nitrogen
+C      oxides, ozone, and OH.  Geophys. Res. Lett., 32, L09813,
+C      doi:10.1029/2005GL022469, 2005.
+C
+C   4. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
+C      reaction probabilities on the surface of particles containing
+C      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
+C      press.
+C
+C   5. Mentel, T.F., M. Sohn, and A. Wahner, Nitrate effect in the
+C      heterogeneous hydrolysis of dinitrogen pentoxide on aqueous
+C      aerosols.  Phys. Chem. Chem. Phys., 1, 5451-5457, 1999.
+C
+C   6. Bertram, T. H. and J.A. Thornton, Toward a general parameterization
+C      of N2O5 reactivity on aqueous particles: the competing effects of 
+C      particle liquid water, nitrate, and chloride, ACP, 9, 8351-8363, 2009. 
+
+C-----------------------------------------------------------------------
+
+      USE AERO_DATA
+      USE AEROMET_DATA   ! Includes CONST.EXT
+
+      IMPLICIT NONE
+
+C *** Arguments
+      REAL( 8 ),    INTENT( IN ) :: TEMP     ! Air temperature [ K ]
+      REAL( 8 ),    INTENT( IN ) :: RH       ! Fractional relative humidity
+      INTEGER,      INTENT( IN ) :: GPARAM   ! switch to select among
+                                             !  parameterizations
+
+C *** Parameters
+
+C *** switch for alternative parameterization of LAM1 & LAM2
+C     when APNDX = .TRUE. (default), Eqs A1-A2 are used for reaction
+C     probability on aqueous sulfate particles.  Alternatively, set
+C     APNDX = .FALSE. to use Eqs 4-5.
+      LOGICAL, PARAMETER :: APNDX = .TRUE.
+
+C *** Local Variables
+
+C *** chemical species concentrations [ug/m3]
+      REAL      ANH4      ! i+j mode ammonium
+      REAL      ANO3      ! i+j mode nitrate
+      REAL      ASO4      ! i+j mode sulfate
+
+C *** variables for computing N2O5_GAMMA when GPARAM = 2 or 3
+      REAL      FRACSO4   ! aerosol mass ratio of SO4/(SO4+NO3)
+      REAL      GAMMA1    ! upper limit of rxn prob
+      REAL      GAMMA2    ! lower limit of rxn prob
+      REAL      ALPHA     ! RH-dependent parameter to compute GAMMA1
+      REAL      BETA      ! TEMP-dependent parameter to compute GAMMA1
+
+C *** variables for default parameterization of N2O5_GAMMA
+!     LOGICAL, EXTERNAL ::   CRYSTALIZED      ! function to determine if RH is below CRH
+      LOGICAL   CRYSTAL   ! true if ambient RH < CRH, false otherwise
+!     LOGICAL, EXTERNAL ::   FREEZES   ! function to determine whether RH exceeds IRH
+      LOGICAL   FROZEN    ! true if ambient RH > IRH, false otherwise
+      REAL      NNO3      ! particle-phase nitrate [micromoles/m3]
+      REAL      NSO4      ! particle-phase sulfate [micromoles/m3]
+      REAL      NNH4      ! particle-phase ammonium [micromoles/m3]
+      REAL      NANI      ! particle-phase anions [micromoles/m3]
+      REAL      X1        ! mole fraction of ammonium bisulfate
+      REAL      X2        ! mole fraction of ammonium sulfate
+      REAL      X3        ! mole fraction of ammonium nitrate
+      REAL      LAM1      ! logit transformation of N2O5_GAMMA on
+      REAL      LAM2      !   aqueous NH4HSO4 [LAM1], aqueous (NH4)2SO4
+      REAL      LAM3      !   [LAM2], aqueous NH4NO3 [LAM3], and dry
+      REAL      LAMD      !   sulfate-containing particles [LAMD]
+      REAL      GAM1      ! reaction probability on aqueous NH4HSO4
+      REAL      GAM2      !    "          "      "     "    (NH4)2SO4
+      REAL      GAM3      !    "          "      "     "    NH4NO3
+      REAL      GAMD      !    "          "      " dry sulfate particles
+      REAL      T293,T291 ! temperature threshold variables
+      REAL      RH46      ! RH threshold variable
+
+C *** variables for parameterization based on Bertram and Thornton (2009), added by Golam Sarwar
+C *** variables for parameterization by Bertram and Thornton, Golam Sarwar
+
+      REAL      ACLF      ! I & J mode chloride, ug/m3 
+      REAL      AH2OF     ! I & J mode water, ug/m3    
+      REAL      ANO3F     ! I & J mode nitrate, ug/m3  
+
+      REAL      ACLK      ! k mode chloride, ug/m3 
+      REAL      AH2OK     ! k mode water, ug/m3    
+      REAL      ANO3K     ! k mode nitrate, ug/m3  
+
+      REAL      ACLM      ! k mode chloride (l), [moles / liter of particles] 
+      REAL      AH2OM     ! k mode water    (l), [moles / liter of particles] 
+      REAL      ANO3M     ! k mode nitrate  (l), [moles / liter of particles] 
+   
+      REAL DEN1           ! local varible
+      REAL DEN2           ! local varible
+      REAL DEN            ! local varible
+
+      REAL, PARAMETER :: A = 3.2E-08       ! Unit [s] - Table 2       
+      REAL, PARAMETER :: BETA_BT = 1.15E06 ! Unit [1/s] - Table 2  
+      REAL, PARAMETER :: DELTA = 1.3E-01   ! Unit [1/M] - Table 2  
+      REAL, PARAMETER :: K3OK2B = 6.0E-02  ! Unit [ ] - Table 2  
+      REAL, PARAMETER :: K4OK2B = 29.0     ! Unit [ ] - Table 2  
+      REAL K2FP                            ! varible in eqn 10  
+      REAL PMASSAT                         ! Aitken mode mass concentration [ug/m**3]
+      REAL PMASSAC                         ! accumulation mode mass conc [ug/m**3]
+      REAL PMASSC                          ! coarse mode mass concentration [ug/m**3]        
+
+      INTEGER      SPC                     ! loop counter
+
+C *** statement function for inverting the logit transformation given
+C     in Eq 7 by Davis et al (2008)
+      REAL      LOGITINV  ! statement function
+      REAL      XX        ! dummy argument for LOGITINV
+      LOGITINV( XX ) = 1.0 / ( 1.0 + EXP( -XX ) )
+
+C-----------------------------------------------------------------------
+
+C *** retrieve particle-phase ammonium, nitrate, and sulfate [ug/m3]
+      ANH4 = aerospc_conc( ANH4_IDX,1 ) + aerospc_conc( ANH4_IDX,2 )
+      ANO3 = aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 )
+      ASO4 = aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 )
+
+c *** Retrieve fine-mode particle-phase liquid water, chloride, nitrate [ug/m3], Golam Sarwar
+      AH2OF  = aerospc_conc( AH2O_IDX,1 ) + aerospc_conc( AH2O_IDX,2 ) 
+      ACLF   = aerospc_conc( ACL_IDX,1 )  + aerospc_conc( ACL_IDX,2 ) 
+      ANO3F  = aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 )
+
+c *** Retrieve coarse-mode particle-phase liquid water, chloride, nitrate [ug/m3]
+      AH2OK  = aerospc_conc( AH2O_IDX,3 )
+      ACLK   = aerospc_conc(  ACL_IDX,3 )
+      ANO3K  = aerospc_conc( ANO3_IDX,3 )      
+
+      WHAT_OPTION: SELECT CASE( GPARAM )
+
+         CASE ( 1 )
+C *** User Option: GPARAM = 1
+C     Dentener and Crutzen (1993) recommended a constant value of
+C     N2O5_GAMMA = 0.1, which was used in CMAQ prior to ver4.3.  In more
+C     recent literature, this value has been recognized as an upper
+C     estimate of N2O5_GAMMA so it should not be used for routine
+C     simulations.  It is included here only to facilitate sensitivity
+C     studies by CMAQ model users.
+
+            N2O5_GAMMA = 0.1D0
+            RETURN
+            
+          CASE( 2, 3 )
+C *** User Options: GPARAM = 2 and 3
+C     These options both employ Eqs 2 and 3 by Riemer et al (2003), in
+C     which N2O5_GAMMA varies according to the particle-phase sulfate and
+C     nitrate concentrations.  In both options, the NO3 effect (i.e.,
+C     GAMMA1/GAMMA2) is assumed to be a factor of 10 based on Mentel et
+C     al (1999) and Riemer et al (2003).
+C      - When GPARAM = 2, upper limit of N2O5_GAMMA is fixed at 0.02.
+C        This was the default setting in CMAQ ver4.3 through ver4.5.1.
+C      - When GPARAM = 3, upper limit of N2O5_GAMMA is a function of
+C        ambient TEMP & RH based on the "Sulfate" equation in Table 1
+C        by Evans & Jacob (2005).  This was the default setting in CMAQ
+C        ver4.6.  After that release, a typographical error was found
+C        in the published equation of Evans & Jacob (2005) so this code
+C        has been corrected accordingly.
+
+            IF( GPARAM .EQ. 2 )THEN
+            
+                GAMMA1 = 0.02D0
+
+            ELSE 
+C        In this function, RH is in fractional units whereas the
+C        published equation by Evans&Jacob refers to RH as a percentage.
+
+               ALPHA = 2.79D-4 + RH * ( 1.3D-2 + RH * ( -3.43D-2 + 7.52D-2 * RH ) )
+
+C        To fix the typographical error by Evans & Jacob (2005), the
+C        sign of BETA has been switched in this code.
+
+               IF ( TEMP .LT. 282.0D0 ) THEN
+                  GAMMA1 = 3.0199517D0 * ALPHA   ! (10.0 ** 0.48) * ALPHA
+               ELSE
+                  BETA  = 0.04D0 * ( 294.0D0 - TEMP )
+                  GAMMA1 = ALPHA * ( 10.0D0 ** BETA )
+               END IF
+            END IF
+
+            IF ( ANO3 .GT. 0.0 ) THEN
+               FRACSO4 = ASO4 / ( ASO4 + ANO3 )
+            ELSE
+               FRACSO4 = 1.0
+            END IF
+
+            GAMMA2 = 0.1D0 * GAMMA1
+            N2O5_GAMMA = GAMMA2 + REAL( FRACSO4, 8 ) * ( GAMMA1 - GAMMA2 )
+   
+            RETURN
+
+         CASE ( 4 )
+
+C *** User Option: GPARAM = 4 
+C     It calculates N2O5_GAMMA based on the work of Bertran and Thornton, 2009
+C     Added by Golam Sarwar for CLNO2 chemistry and facilitate sensitivity
+  
+C *** Calculate Aitken-mode mass concentration [ ug/m**3 ]
+     
+         PMASSAT = 0.0
+
+         DO SPC = 1, N_AEROSPC        
+
+          IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' .OR. 
+     &         AEROSPC( SPC )%NAME( 1 ) .EQ. 'ASO4GASI' .OR. 
+     &         AEROSPC( SPC )%NAME( 1 ) .EQ. 'ASO4EMISI' .OR. 
+     &         AEROSPC( SPC )%NAME( 1 ) .EQ. 'ASO4ICBCI' ) CYCLE                     
+
+          PMASSAT = PMASSAT + AEROSPC_CONC( SPC,1 )            
+
+         END DO       
+
+        PMASSAT = MAX( CONMIN, PMASSAT )
+
+C *** Calculate Accumulation-mode mass concentration [ ug/m**3 ]
+
+         PMASSAC  = 0.0
+         
+         DO SPC = 1, N_AEROSPC
+
+          IF ( AEROSPC( SPC )%NAME( 2 ) .EQ. ' ' .OR.
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQH2O2J' .OR.           
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQO3J' .OR.  
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQFEMNJ' .OR.  
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQMHPJ' .OR.  
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQPAAJ' .OR.                  
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4GASJ' .OR. 
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4EMISJ' .OR. 
+     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4ICBCJ' ) CYCLE 
+
+          PMASSAC = PMASSAC + AEROSPC_CONC( SPC,2 )            
+
+         END DO       
+
+        PMASSAC = MAX( CONMIN, PMASSAC )
+
+C*** Calculate N2O5PROB 
+C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
+        
+         AH2OM = ( AH2OF * 1000.0 ) / (aerospc_mw( AH2O_IDX) * ( PMASSAT + PMASSAC ))
+         ACLM  = ( ACLF  * 1000.0 ) / (aerospc_mw( ACL_IDX)  * ( PMASSAT + PMASSAC )) 
+         ANO3M = ( ANO3F * 1000.0 ) / (aerospc_mw( ANO3_IDX) * ( PMASSAT + PMASSAC )) 
+            
+         K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM)
+          
+         DEN1 = K3OK2B * ( AH2OM / ANO3M )
+
+         DEN2 = K4OK2B * ( ACLM  / ANO3M  )
+
+         DEN  = DEN1 + 1.0 + DEN2
+         
+         N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8)
+                   
+         RETURN
+
+         CASE ( 5 )
+   
+C *** User Option: GPARAM = 5 (coarse-mode particles)
+C     It calculates N2O5_GAMMA based on the work of Bertran and Thornton, 2009
+C     Added by Golam Sarwar for CLNO2 chemistry 
+
+C *** Calculate coarse-mode mass concentration [ ug/m**3 ]
+   
+         PMASSC  = 0.0
+
+         DO SPC = 1, N_AEROSPC
+
+          IF ( AEROSPC( SPC )%NAME( 3 ) .EQ. ' ' .OR.
+     &         AEROSPC( SPC )%NAME( 3 ) .EQ. 'ASO4GASK' .OR. 
+     &         AEROSPC( SPC )%NAME( 3 ) .EQ. 'ASO4EMISK' .OR. 
+     &         AEROSPC( SPC )%NAME( 3 ) .EQ. 'ASO4ICBCK' ) CYCLE 
+
+          PMASSC = PMASSC + AEROSPC_CONC( SPC,3 )            
+
+         END DO       
+
+        PMASSC = MAX( CONMIN, PMASSC )
+
+C *** Calculate N2O5PROB 
+C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
+        
+         AH2OM = ( AH2OK * 1000.0 ) / (aerospc_mw( AH2O_IDX) * PMASSC )
+         ACLM  = ( ACLK  * 1000.0 ) / (aerospc_mw( ACL_IDX)  * PMASSC ) 
+         ANO3M = ( ANO3K * 1000.0 ) / (aerospc_mw( ANO3_IDX) * PMASSC ) 
+            
+         K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM)
+          
+         DEN1 = K3OK2B * ( AH2OM / ANO3M )
+
+         DEN2 = K4OK2B * ( ACLM  / ANO3M  )
+
+         DEN  = DEN1 + 1.0 + DEN2      
+
+         N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8)
+                   
+         RETURN
+    
+!             IF( DUMP_CELL )THEN
+!                WRITE(*,*)'AH2OM = ',AH2OM
+!                WRITE(*,*)'ACLM  = ',ACLM
+!                WRITE(*,*)'ANO3M = ',ANO3M
+!                WRITE(*,*)'DEN   = ',DEN
+!                WRITE(*,*)'DEN1  = ',DEN1
+!                WRITE(*,*)'DEN2  = ',DEN2
+!                WRITE(*,*)'K2FP  = ',K2FP
+!                WRITE(*,*)'GAMMAK = ',A * K2FP * (1.0 - 1.0 / DEN)
+!             END IF
+                                
+             RETURN
+             
+         CASE DEFAULT
+      
+C *** Default setting in current version of CMAQ:
+C     This code implements the paramaterization given in Eq 15 by Davis
+C     et al (2008), in which N2O5_GAMMA is a function of RH, TEMP,
+C     particle composition, and phase state.  Note: In this function, RH
+C     is in fractional units whereas the published equations refer to RH
+C     as a percentage.
+
+C *** Check whether the ambient RH is below the crystallization RH for
+C     the given inorganic particle composition.
+            CRYSTAL = CRYSTALIZED( RH, .TRUE. )
+
+C *** Check whether the ambient RH exceeds the RH of ice formation.
+            FROZEN = FREEZES( TEMP, RH )
+      
+            IF ( FROZEN ) THEN
+C *** Set N2O5_GAMMA to constant value if particles contain ice, based on
+C     Eq 14 by Davis et al (2008).
+
+               N2O5_GAMMA = 0.02D0                               ! Eq 14
+
+            ELSE
+C *** Compute mole-fractional-composition of particles based on Eq 11 by
+C     Davis et al (2008).
+               NNO3 = ANO3 / aerospc_mw( ANO3_IDX )
+               NSO4 = ASO4 / aerospc_mw( ASO4_IDX )
+               NNH4 = ANH4 / aerospc_mw( ANH4_IDX )
+               NANI = NNO3 + NSO4
+         
+               X3 = NNO3 / NANI
+               X2 = MAX( 0.0, MIN( 1.0 - X3, NNH4/NANI - 1.0 ) )
+               X1 = 1.0 - ( X2 + X3 )
+
+C *** Compute N2O5_GAMMA on pure NH4NO3 particles using Eqs 6 and 8 by
+C     Davis et al (2008).
+               LAM3 = -8.10774 + 4.902 * RH                  ! Eq 6
+               GAM3 = MIN( LOGITINV( LAM3 ), 0.0154 )        ! Eq 8
+
+C *** Compute N2O5_GAMMA on dry particles using Eqs 9, 10, and 13 by
+C     Davis et al (2008).
+               IF ( CRYSTAL ) THEN
+                  T293     = MAX( 0.0, REAL( TEMP ) - 293.0 )
+                  LAMD     = -6.13376 + 3.592 * RH                    ! Eq 9
+     &                     - 0.19688 * T293
+                  GAMD     = MIN( LOGITINV( LAMD ), 0.0124 )          ! Eq 10
+                  N2O5_GAMMA = REAL( ( X1 + X2 ) * GAMD              ! Eq 13
+     &                       +         X3 * MIN( GAMD, GAM3 ), 8)
+
+C *** Compute N2O5_GAMMA on aqeuous particles using Eqs A1, A2, 8, and 12
+C     by Davis et al (2008).  When APNDX = .TRUE. (default), Eqs A1-A2
+C     are used for reaction probability on aqueous sulfate particles.
+C     Switch to .FALSE. if Eqs 4-5 are desired.  See Appendix A by
+C     Davis et al. (2008) for a discussion of these options.
+               ELSE
+                  T291 = MAX( 0.0, REAL( TEMP ) - 291.0 )
+                  IF ( APNDX ) THEN
+                     RH46  = MIN( 0.0, REAL( RH )- 0.46 )
+                     LAM2  = -3.64849 + 9.553 * RH46         ! Eq A2
+                     LAM1  = LAM2 + 0.97579                  ! Eqs A1 & A2
+     &                     - 0.20427 * T291
+                  ELSE
+                     LAM1  = -4.10612 + 2.386 * RH           ! Eq 4
+     &                     - 0.23771 * T291
+                     LAM2  = LAM1 - 0.80570                  ! Eqs 4 & 5
+     &                     + 0.10225 * T291
+                  END IF
+
+                  GAM1     = MIN( LOGITINV( LAM1 ), 0.08585 )! Eq 8
+                  GAM2     = MIN( LOGITINV( LAM2 ), 0.053 )  ! Eq 9
+                  N2O5_GAMMA = REAL( ( X1 * GAM1 )                   ! Eq 12
+     &                       +       ( X2 * GAM2 )
+     &                       +       ( X3 * GAM3 ), 8)
+
+               END IF
+            END IF
+
+      END SELECT WHAT_OPTION
+
+!         print*,' N2O5_GAMMA = ',N2O5_GAMMA
+
+      RETURN
+
+      END FUNCTION N2O5_GAMMA
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      LOGICAL FUNCTION CRYSTALIZED( RH, COMPLETE )
+
+C  Determines whether the ambient RH is below the crystallization relative
+C  humidity (CRH).  The output of this logical function is .TRUE. when the
+C  ambient RH is below the CRH and .FALSE. otherwise.  The empirical
+C  equations developed by Martin et al (2003) are applied to determine the
+C  CRH for a given mixture of sulfate, nitrate, and ammonium.  Though those
+C  equations are validated only at 293K, they are applied at all ambient
+C  temperatures because insufficient data exist to estimate the temperature
+C  dependence of the CRH of mixed sulfate-nitrate-ammonium particles.
+C  Users can opt to compute either the RH of initial crystal formation
+C (i.e., COMPLETE .EQ. .FALSE.) or the RH of compete crystallization (i.e.,
+C  COMPLETE .EQ. .TRUE.).
+
+C  References:
+C   1. Martin, S.T., J.C. Schlenker, A. Malinowski, H.-M. Hung, and
+C      Y. Rudich, Crystallization of atmospheric sulfate-nitrate-
+C      ammonium particles.  Geophys. Res. Lett., 30(21), 2102,
+C      doi:10.1029/2003GL017930, 2003.
+
+C  Revision History:
+C    PVB 11/05/07 Coded the first version.
+C    JTK 04/17/08 Moved molar mass to AERO_INFO.f
+C    SH  12/08/09 Use aero_data module in lieu of CBLK array
+
+C-----------------------------------------------------------------------
+
+      USE aero_data
+
+      IMPLICIT NONE
+
+C *** Arguments
+      REAL( 8 ), INTENT( IN )    :: RH        ! fractional relative humidity
+      LOGICAL,   INTENT( IN )    :: COMPLETE  ! flag deciding which CRH
+                                              !  equation to use
+
+C *** Local Variables
+
+C *** chemical species concentrations [micromoles/m3]
+      REAL      NSO4     ! i+j mode sulfate
+      REAL      NNO3     ! i+j mode nitrate
+      REAL      NNH4     ! i+j mode ammonium
+      REAL      NCAT     ! i+j mode cations
+      REAL      NANI     ! i+j mode anions
+
+C *** cation and anion mole fractions used in CRH equations
+      REAL X         ! ammonium/cation mole fraction: NH4/(NH4+H)
+      REAL Y         ! sulfate/anion mole fraction:  SO4/(SO4+NO3)
+
+C *** intermediate variables used in CRH equations
+      REAL X2, XY, Y2, X2Y, XY2, RDEN
+
+      REAL CRH       ! crystallization RH (fractional units)
+
+C-----------------------------------------------------------------------
+
+C *** Experimental measurements of CRH are lacking below 1% relative
+C     humidity.  Under those very dry conditions, we assume that
+C     particles will crystallize.  Equations by Martin et al (2003) for
+C     internally-mixed sulfate-nitrate-ammonium particles yield maximum
+C     CRH values of 35.03% and 34.50% for initial crystal formation and
+C     complete crystallization, respectively.  Therefore, the full CRH
+C     calculation can be avoided when RH > 35.1%.
+      IF ( RH .LE. 0.01D0 ) THEN
+         CRYSTALIZED = .TRUE.    ! ambient particles are dry
+         RETURN
+      ELSE IF ( RH .GT. 0.351D0 ) THEN
+         CRYSTALIZED = .FALSE.   ! ambient RH exceeds CRH
+         RETURN
+      END IF
+
+C *** calculate total particle-phase composition [micromoles/m3]
+      NNO3 = ( aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 ) )
+     &     / aerospc_mw( ANO3_IDX )
+      NSO4 = ( aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 ) )
+     &     / aerospc_mw( ASO4_IDX )
+      NNH4 = ( aerospc_conc( ANH4_IDX,1 ) + aerospc_conc( ANH4_IDX,2 ) )
+     &     / aerospc_mw( ANH4_IDX )
+
+C *** calculate total anion and cation concentrations
+      NCAT = MAX( NNH4, 2.0 * NSO4 + NNO3 )
+      NANI = NNO3 + NSO4
+
+C *** calculate ammonium and sulfate mole fractions
+      X = NNH4 / NCAT
+      Y = NSO4 / NANI
+
+C *** Experimental data of Martin et al. (2003) show no crystal
+C     formation when X < 0.50 or Y < 0.22.  For these particle
+C     compositions, the full CRH calculation can be avoided.
+C
+C     Note: Martin's equation for initial crystal formation returns
+C     very large CRH values when X and Y approach zero.  However,
+C     those values were verified to be erroneous by personal
+C     communication with Dr. Scot Martin on Aug. 30, 2007.
+      IF ( ( X .LT. 0.50 ) .OR. ( Y .LT. 0.22 ) ) THEN
+         CRYSTALIZED = .FALSE.   ! ambient RH exceeds CRH
+         RETURN
+      END IF
+
+C *** store some terms needed to evaluate the CRH equations
+      X2   = X * X
+      XY   = X * Y
+      X2Y  = X2 * Y
+      Y2   = Y * Y
+      XY2  = X * Y2
+      RDEN = 1.0 / ( 25.0 + ( X - 0.7 ) * ( Y - 0.5 ) )
+
+C *** calculate CRH using empirical equations of Martin et al (2003)
+      IF ( COMPLETE ) THEN
+
+         CRH = 3143.44 + (63.07 * X) + (0.114 * X2) + (87.97 * Y)
+     &       - (125.73 * XY) + (0.586 * X2Y) + (0.95 * Y2)
+     &       - (1.384 * XY2) - (79692.5 * RDEN)
+
+      ELSE
+
+         CRH = -697.908 - (15.351 * X) + (0.43 * X2) - (22.11 * Y)
+     &       + (33.882 * XY) - (1.818 * X2Y) + (0.772 * Y2)
+     &       - (1.636 * XY2) + (17707.6 * RDEN)
+
+      END IF
+
+C *** set value of the output variable, CRYSTALIZED
+      IF ( RH .LE. REAL( CRH, 8 ) ) THEN
+         CRYSTALIZED = .TRUE.    ! ambient particles are dry
+      ELSE
+         CRYSTALIZED = .FALSE.   ! ambient RH exceeds CRH
+      END IF
+
+      RETURN
+
+      END FUNCTION CRYSTALIZED
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      LOGICAL FUNCTION FREEZES( TEMP, RH )
+
+C  Determines whether the ambient RH has exceeded the RH of ice formation,
+C  based on the Goff-Gratch equations as given by List (1984).
+
+C  References:
+C   1. Goff, J.A. and S. Gratch, Low-pressure properties of water from
+C      -160 to 212 F, in Transactions of the American Society of Heating
+C      and Ventilating Engineers, pp 95-122, New York, 1946.
+C   2. List, R.J. (editor), Smithsonian Meteorological Tables, 5th ed.
+C      pp. 350, 1984.
+
+C  Revision History:
+C   PVB 11/06/07 Coded the first version.
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+C *** Arguments
+      REAL( 8 ), INTENT( IN ) ::  TEMP        ! Air temperature [ K ]
+      REAL( 8 ), INTENT( IN ) ::  RH          ! Fractional relative humidity
+
+C *** Parameters
+
+C *** The following values are taken from List (1984).  Note that
+C     these differ slightly from the original equations published by
+C     Goff & Gratch (1946).  We also note that T0 and PST differ
+C     slightly from STDTEMP and STDATMPA in the AERO_INFO module.
+C     Here, we use 273.16 K and 1013.246 hPa to be consistent with
+C     the Goff-Gratch equations as given by List (1984).
+      REAL( 8 ), PARAMETER :: TST = 373.16D0    ! steam-point temperature, K
+      REAL( 8 ), PARAMETER :: T0  = 273.16D0    ! ice-point temperature, K
+      REAL( 8 ), PARAMETER :: PST = 1013.246D0  ! sat vapor pres at TST, hPa
+      REAL( 8 ), PARAMETER :: P0  = 6.1071D0    ! sat vapor pres at T0, hPa
+
+      REAL( 8 ), PARAMETER :: LOGPST = 3.0057149D0     ! LOG10(PST)
+      REAL( 8 ), PARAMETER :: LOGP0  = 0.78583503D0    ! LOG10(P0)
+
+C *** Local Variables
+
+C *** estimates of IRH using a polynomial approximation
+      REAL( 8 )      EIRH   ! IRH approximated using 2nd order polynomial
+      REAL( 8 )      LIRH   ! lower-bound of IRH
+      REAL( 8 )      UIRH   ! upper-bound of IRH
+
+C *** variables used to compute RH of ice formation
+      REAL( 8 )      TSDT, TDTS, T0DT, TDT0  ! intermediate variables
+      REAL( 8 )      LOGPW  ! log10 of saturation vapor pressure over H2O
+      REAL( 8 )      LOGPI  ! log10 of saturation vapor pressure over ice
+
+      REAL( 8 )      IRH    ! fractional RH at which ice forms
+
+C-----------------------------------------------------------------------
+
+      IF ( TEMP .LT. T0 ) THEN
+
+C *** To mitigate the computational expense associated with Goff-Gratch
+C     equations, use a 2nd order polynomial function to approximate IRH.
+C     This approximation, EIRH, matches IRH from the full Goff-Gratch
+C     equations within 0.004 over the entire low-temperature range of
+C     interest (200 to 275K) and is used for screening purposes.
+         EIRH = 1.61299D0 + TEMP * ( 4.4117437D-5 * TEMP - 1.4293888D-2 )
+         LIRH = EIRH - 0.005D0
+         UIRH = EIRH + 0.005D0
+
+         IF ( RH .GT. UIRH ) THEN
+            FREEZES = .TRUE.
+         ELSE IF ( RH .LT. LIRH ) THEN
+            FREEZES = .FALSE.
+         ELSE
+
+C *** Compute IRH using Goff-Gratch equations as given by List (1984)
+            TSDT  = TST / TEMP
+            TDTS  = TEMP / TST
+            T0DT  = T0 / TEMP
+            TDT0  = TEMP / T0
+            LOGPW = -7.90298D0 * ( TSDT - 1.0D0 )
+     &            + 5.02808D0 * DLOG10( TSDT )
+     &            - 1.3816D-7 * ( 10.0D0 ** ( 11.344D0 *  (1.0D0 - TDTS) ) - 1.0D0 )
+     &            + 8.1328D-3 * ( 10.0D0 ** ( -3.49149D0 * (TSDT - 1.0D0) ) - 1.0D0 )
+     &            + LOGPST
+            LOGPI = -9.09718D0 * (T0DT - 1.0D0)
+     &            - 3.56654D0 * DLOG10( T0DT )
+     &            + .876793D0 * (1.0D0 - TDT0)
+     &            + LOGP0
+            IRH   = 10.0D0 ** ( LOGPI - LOGPW )
+
+            IF ( RH .GT. IRH ) THEN
+               FREEZES = .TRUE.
+            ELSE
+               FREEZES = .FALSE.
+            END IF
+
+         END IF
+      ELSE
+         FREEZES = .FALSE.
+      END IF
+
+      RETURN
+
+      END FUNCTION FREEZES
+      
+      END MODULE AEROSOL_CHEMISTRY

@@ -57,6 +57,7 @@ C                     17 Mar 11 B.Hutzell: initial version submitted
 C**********************************************************************
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE RXNS_DATA
       USE RBDATA              ! ROS3 solver data
       USE CGRID_SPCS          ! CGRID species number and offsets
 
@@ -64,7 +65,6 @@ C**********************************************************************
 
 C..Includes:
 
-      INCLUDE SUBST_RXCMMN
 
 C..Arguments:
 

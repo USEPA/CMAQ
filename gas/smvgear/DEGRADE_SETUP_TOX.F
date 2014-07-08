@@ -122,8 +122,11 @@ C..saved cell concentrations
 
       REAL(8), ALLOCATABLE :: PREV_CONC( :,: )
       REAL(8), ALLOCATABLE :: CURR_CONC( :,: )
-      REAL                 :: TEMP             ! cell temperature [ K ]
-      REAL,    ALLOCATABLE :: NUMB_DENS( : )   ! cell air number density [ 1/CM^3 ]
+      REAL,    ALLOCATABLE :: TEMP( : )        ! cell temperature [ K ]
+      REAL(8), ALLOCATABLE :: INV_TEMP( : )    ! reciprocal of cell temperature [ 1/K ]
+      REAL(8), ALLOCATABLE :: NUMB_DENS( : )   ! cell air number density [ 1/CM^3 ]
+      REAL(8), ALLOCATABLE :: CONV_FACT( : )   ! conversion factor from ppm to molecules/cm^3
+
 
       REAL(8), ALLOCATABLE :: DELT_CONC( :,: ) ! changes predicted by degrade routine
 
@@ -143,11 +146,12 @@ C  CALLED BY: INIT_DEGRADE
 C
 C**********************************************************************
 
+         USE RXNS_DATA
+
          IMPLICIT NONE
 
 C.....INCLUDES:
 
-         INCLUDE SUBST_RXCMMN        ! Mechanism reaction common block
 
 C.....ARGUMENTS:
 
@@ -157,7 +161,7 @@ C.....ARGUMENTS:
 
 C.....PARAMETERS:
 
-         REAL(8), PARAMETER :: TEMP_298K  = 298.15        ! K
+         REAL(8), PARAMETER :: TEMP_298K  = 298.15D0       ! K
 
 C.....LOCAL VARIABLES:
 

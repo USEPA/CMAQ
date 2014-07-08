@@ -47,7 +47,7 @@ C**********************************************************************
 
 C.....ARGUMENTS:
 
-      REAL( 8 ),   INTENT( INOUT ) ::  CBLK( BLKSIZE, NSPCSD ) ! species conc in cell
+      REAL( 8 ),   INTENT( INOUT ) ::  CBLK( :, : ) ! species conc in cell
 
 C.....LOCAL VARIABLES:
 

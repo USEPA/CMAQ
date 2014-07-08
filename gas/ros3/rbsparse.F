@@ -43,6 +43,7 @@ C                               with UTILIO_DEFN
  
 C***********************************************************************
 
+      USE RXNS_DATA
       USE RBDATA                       ! ROS3 solver data
       USE CGRID_SPCS                   ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -50,7 +51,6 @@ C***********************************************************************
       IMPLICIT NONE
       
 C..Includes:
-      INCLUDE SUBST_RXCMMN             ! Mechanism reaction common block
       
 C..Arguments:
       INTEGER LOGDEV                   ! Logical unit number for log file
@@ -154,18 +154,18 @@ c  Initialize some variables on first call
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
 
-         ALLOCATE( ISAPORL ( N_GC_SPC ),
-     &             ISPARDER( N_GC_SPC,N_GC_SPC ),
-     &             LZERO   ( N_GC_SPC,N_GC_SPC ),
-     &             IZILCH  ( N_GC_SPC,NCS2 ),
-     &             JZILCH  ( N_GC_SPC,NCS2 ), STAT = IOS )
+         ALLOCATE( ISAPORL ( NUMB_MECH_SPC ),
+     &             ISPARDER( NUMB_MECH_SPC,NUMB_MECH_SPC ),
+     &             LZERO   ( NUMB_MECH_SPC,NUMB_MECH_SPC ),
+     &             IZILCH  ( NUMB_MECH_SPC,NCS2 ),
+     &             JZILCH  ( NUMB_MECH_SPC,NCS2 ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failed'
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
          DO NCSP = 1, NCS2
-            DO ISP = 1, N_GC_SPC
+            DO ISP = 1, NUMB_MECH_SPC
                IZILCH( ISP,NCSP ) = 0
                JZILCH( ISP,NCSP ) = 0
                JHIZ1 ( ISP,NCSP ) = 0
@@ -204,7 +204,7 @@ c Initialize Prod/loss and PD tabulator arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCSP = NCS
 
-      NSPECT( NCS ) = N_GC_SPC
+      NSPECT( NCS ) = NUMB_MECH_SPC
       DO ISP = 1, NSPECT( NCS )
          ISAPORL( ISP ) = 0
       END DO
@@ -323,8 +323,8 @@ c  put ones on the diagonal and zeroes everywhere else.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 700 IFSUN = 1, 2
          NCSP = IFSUN
-         DO I = 1, N_GC_SPC
-            DO J = 1, N_GC_SPC
+         DO I = 1, NUMB_MECH_SPC
+            DO J = 1, NUMB_MECH_SPC
                LZERO( J,I ) = 0
             END DO
             LZERO( I,I ) = 1

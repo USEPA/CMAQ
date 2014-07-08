@@ -66,6 +66,7 @@ C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                    with UTILIO_DEFN
 C**********************************************************************
 
+      USE RXNS_DATA
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
@@ -153,6 +154,7 @@ C..LOCAL VARIABLES:
       INTEGER ROW            ! Row number of cell
       INTEGER, SAVE :: S_DATE_TIME( 8 ), F_DATE_TIME( 8 )
       INTEGER, SAVE :: NSPCS1 ! # of species plus 1
+      INTEGER  SPC           ! species index
       INTEGER IOS            ! Allocate status
 
       INTEGER, ALLOCATABLE, SAVE :: DUMMY( : )    ! Dummy array for IRR call
@@ -217,9 +219,9 @@ C..LOCAL VARIABLES:
       INTERFACE
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
             USE GRID_CONF
+            USE RXNS_DATA
             USE CGRID_SPCS
             IMPLICIT NONE
-            INCLUDE SUBST_RXCMMN
             LOGICAL LSTART, LCHGVL
             REAL    :: RK( BLKSIZE,NRXNS )
             REAL    :: CONC( :,: )
@@ -228,9 +230,10 @@ C..LOCAL VARIABLES:
             INTEGER :: ICLND( BLKSIZE )
          END SUBROUTINE PA_IRR
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
-           USE DEGRADE_SETUP_TOX
+          USE RXNS_DATA
+          USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           REAL( 8 ), INTENT( IN ) :: CBLK( BLKSIZE,  NSPCSD ) ! array holding species concentrations
+           REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
            REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
            INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
@@ -241,28 +244,15 @@ C..LOCAL VARIABLES:
 
 C**********************************************************************      
 
-!     if ( bingo1 ) then
-!        bingo1 = .false.
-!        write( *,* ) 'mype-smvgear,LIRRFLAG: ', mype, lirrflag
-!        bingo2 = lirrflag
-!     end if
-!     if ( bingo2 .ne. lirrflag ) then
-!        bingo2 = lirrflag
-!        write( *,* ) 'mype-smvgear,LIRRFLAG change: ', mype, lirrflag
-!     end if
-
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
 
-         NSPCS1 = N_GC_SPC + 1
+         NSPCS1 = NUMB_MECH_SPC + 1
       
-!        write( *,* ) 'mype-BLKSIZE,NSPCS1,MXORDER,NRXNS: ',
-!    &                 mype,blksize, nspcs1, mxorder, nrxns
-
          ALLOCATE ( CEST ( BLKSIZE, NSPCS1 ),
-     &              CHOLD( BLKSIZE, N_GC_SPC ),
+     &              CHOLD( BLKSIZE, NUMB_MECH_SPC ),
      &              DTLOS( BLKSIZE, NSPCS1 ),
-     &              CONC ( BLKSIZE, N_GC_SPC*MXORDER ),
+     &              CONC ( BLKSIZE, NUMB_MECH_SPC*MXORDER ),
      &              YNEW_DEGRADE( BLKSIZE, NSPCSD), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failure for '
@@ -271,7 +261,7 @@ C**********************************************************************
          END IF
 
 !        IF ( LIRRFLAG ) THEN
-            ALLOCATE ( CIRR(  BLKSIZE, N_GC_SPC ),
+            ALLOCATE ( CIRR(  BLKSIZE, NUMB_MECH_SPC ),
      &                 DUMMY( BLKSIZE ),
      &                 DTCELL( BLKSIZE ),
      &                 RKIRR(  BLKSIZE, NRXNS ), STAT = IOS )
@@ -288,7 +278,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up for debug output and initialize variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LDEBUG .AND. IRUN .EQ. IRUNBUG .AND. BLKID .EQ. IBLKBUG ) THEN
-!     IF( LDEBUG .AND. IRUN .EQ. IRUNBUG .AND. BLKID .EQ. 19 ) THEN
          LDBOUT = .TRUE.
       ELSE
          LDBOUT = .FALSE.
@@ -371,7 +360,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             WRITE( IUNDBG, 93040 ) IRUN, NSTEPS + 1, NSUBFUN
             DO ISPNEW = 1, ISCHAN
                ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93060 ) ISPNEW, GC_SPC( ISPOLD ), 
+               WRITE( IUNDBG, 93060 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
      &                                CNEW( ICPR, ISPNEW )
             ENDDO
             WRITE( IUNDBG, 93080 ) ISCHAN + 1, CONCOFM
@@ -381,7 +370,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             WRITE( IUNDBG, 93160 ) IRUN, NSTEPS+1, NSUBFUN
             DO ISPNEW = 1, ISCHAN
                ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93180 ) ISPNEW, GC_SPC( ISPOLD ),
+               WRITE( IUNDBG, 93180 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
      &                                GLOSS( ICPR, ISPNEW )
             ENDDO
          ENDIF
@@ -472,11 +461,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF( CALL_DEG ) THEN   !:WTH Initialize for degradation routines
          YNEW_DEGRADE = 0.0D0
-         DO ISPNEW = 1, N_GC_SPC
+         DO I = 1, ISCHAN
+            ISPOLD = INEW2OLD( I,NCS )
+            SPC    = CGRID_INDEX( ISPOLD )
             DO NCELL = 1, NUMCELLS
-               YNEW_DEGRADE( NCELL, ISPNEW ) = BLKCONC( NCELL, ISPNEW )
-            ENDDO
-         ENDDO
+               YNEW_DEGRADE( NCELL,SPC ) = BLKCONC( NCELL, I )
+            END DO
+         END DO
       ENDIF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -541,7 +532,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                JSPC1  = ISPNEW +     ISCHAN
                JSPC2  = ISPNEW + 2 * ISCHAN
                JSPC3  = ISPNEW + 3 * ISCHAN
-               WRITE( IUNDBG, 93300 ) ISPNEW, GC_SPC( ISPOLD ),
+               WRITE( IUNDBG, 93300 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
      &                        CONC( ICPR, ISPNEW ), CONC( ICPR, JSPC1 ),
      &                        CONC( ICPR, JSPC2 ),  CONC( ICPR, JSPC3 )
             ENDDO
@@ -627,7 +618,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             JSPC1 = ISPNEW +     ISCHAN
             JSPC2 = ISPNEW + 2 * ISCHAN
             JSPC3 = ISPNEW + 3 * ISCHAN
-            WRITE( IUNDBG, 93340 ) ISPNEW, GC_SPC( ISPOLD ), 
+            WRITE( IUNDBG, 93340 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
      &                        CONC( ICPR, ISPNEW ), CONC( ICPR, JSPC1 ),
      &                        CONC( ICPR, JSPC2 ), CONC( ICPR, JSPC3 )
          ENDDO
@@ -672,7 +663,7 @@ c.....JEVAL = -1 to prevent recalling PDERIV until necessary
                      ISPOLD = INEW2OLD( ISPC, NCS )
                      JSPOLD = INEW2OLD( JSPC, NCS )
                      WRITE( IUNDBG, 93420 ) ISPC, JSPC, IPTR, 
-     &                               GC_SPC( ISPOLD ), GC_SPC( JSPOLD ),
+     &                               CHEMISTRY_SPC( ISPOLD ), CHEMISTRY_SPC( JSPOLD ),
      &                               CC2( ICPR, IPTR )
   480             CONTINUE
                ENDDO
@@ -703,7 +694,7 @@ c.....output if necessary
                WRITE( IUNDBG, 93040 ) IRUN, NSTEPS+1, NSUBFUN
                DO ISPNEW = 1, ISCHAN
                   ISPOLD = INEW2OLD( ISPNEW, NCS )
-                  WRITE( IUNDBG, 93060 ) ISPNEW, GC_SPC( ISPOLD ),
+                  WRITE( IUNDBG, 93060 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
      &                                   CNEW( ICPR, ISPNEW )
                ENDDO
                WRITE( IUNDBG, 93080 ) ISCHAN + 1, CONCOFM
@@ -714,7 +705,7 @@ c.....output if necessary
             WRITE( IUNDBG, 93500 ) IRUN, NSTEPS+1, NSUBFUN
             DO ISPNEW = 1,ISCHAN
                ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93520 ) ISPNEW, GC_SPC( ISPOLD ), 
+               WRITE( IUNDBG, 93520 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
      &                                GLOSS( ICPR, ISPNEW )
             ENDDO
             WRITE( IUNDBG, 93360 )
@@ -723,7 +714,7 @@ c.....output if necessary
             WRITE( IUNDBG, 93460 ) L3+1, IRUN, NSTEPS+1, DELT      
             DO ISPNEW = 1,ISCHAN
                ISPOLD = INEW2OLD( ISPNEW, NCS )
-               WRITE( IUNDBG, 93480 ) L3, ISPNEW, GC_SPC( ISPOLD ), 
+               WRITE( IUNDBG, 93480 ) L3, ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
      &                                CNEW( ICPR, ISPNEW )
             ENDDO
          ENDIF        
@@ -742,7 +733,7 @@ c.....first derivative and do debug output if necessary
          WRITE( IUNDBG, 93540 ) IRUN ,NSTEPS+1, L3+1, DELT
          DO ISPNEW = 1, ISCHAN
             ISPOLD = INEW2OLD( ISPNEW, NCS )
-            WRITE( IUNDBG, 93560 ) ISPNEW, GC_SPC( ISPOLD ), 
+            WRITE( IUNDBG, 93560 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ), 
      &                             GLOSS( ICPR, ISPNEW )
          ENDDO
       ENDIF
@@ -755,7 +746,7 @@ c.....Backsub.f originally from numerical recipes (Press et al.)
          WRITE( IUNDBG, 93580 ) IRUN, NSTEPS+1, L3+1, DELT
          DO ISPNEW = 1, ISCHAN
            ISPOLD = INEW2OLD( ISPNEW, NCS )
-           WRITE( IUNDBG, 93600 ) ISPNEW, GC_SPC( ISPOLD ),
+           WRITE( IUNDBG, 93600 ) ISPNEW, CHEMISTRY_SPC( ISPOLD ),
      &                            GLOSS( ICPR, ISPNEW )
          ENDDO
          WRITE( IUNDBG, 93360 )
@@ -864,7 +855,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CCONOUT = CONC(  ICPR, ISPC ) + ASET( NQQ, 1 ) * 
      &                   DTLOS( ICPR, ISPC )
                ISPOLD = INEW2OLD( ISPC, NCS )
-               WRITE( IUNDBG, 93720 ) I, GC_SPC( ISPOLD ), CCONOUT
+               WRITE( IUNDBG, 93720 ) I, CHEMISTRY_SPC( ISPOLD ), CCONOUT
             ENDDO
             WRITE( IUNDBG, 93360 )
          ENDIF
@@ -1004,12 +995,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          IF( CALL_DEG ) THEN   !:WTH update DT_DEGRADE and apply
             DT_DEGRADE = 60.0D0 * DELT + DT_DEGRADE
-            IF( DT_DEGRADE .GE. DTMIN_DEGRADE .OR.
-     &          ( CHEMSTEP - XELAPS ) .LE. OMIC ) THEN
+            IF( DT_DEGRADE .GE. DTMIN_DEGRADE .OR. ( CHEMSTEP - XELAPS ) .LE. OMIC ) THEN
                DO I = 1, ISCHAN
                   ISPOLD = INEW2OLD( I, NCS )
+                  SPC      = CGRID_INDEX( ISPOLD )
                   DO NCELL = 1, NUMCELLS
-                     YNEW_DEGRADE( NCELL, ISPOLD ) = CONC( NCELL, I )
+                     YNEW_DEGRADE( NCELL, SPC ) = CONC( NCELL, I )
                   ENDDO
                ENDDO
                CALL DEGRADE( YNEW_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
@@ -1033,7 +1024,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   JSPC1  = I + ISCHAN
                   JSPC2  = I + 2 * ISCHAN
                   JSPC3  = I + 3 * ISCHAN
-                  WRITE( IUNDBG, 93800 ) JSPC, GC_SPC( ISPOLD ), 
+                  WRITE( IUNDBG, 93800 ) JSPC, CHEMISTRY_SPC( ISPOLD ), 
      &                                   CONC( ICPR,  JSPC ),
      &                                   CONC( ICPR, JSPC1 ),
      &                                   CONC( ICPR, JSPC2 ),
