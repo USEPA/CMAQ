@@ -280,8 +280,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 C *** Get aerosol diagnostic file flag.
          AERDIAG = .FALSE.         ! default
          VARDESC = 'Flag for writing the aerosol diagnostic file'
-!        AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
-!        AERDIAG = .TRUE.
+         AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
          STATUS  = 0
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN
@@ -312,8 +311,7 @@ C     units of (1/km) and is for layer 1 only.
 !        IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
-!        IF ( AERDIAG .AND. MYPE .EQ. 0 )
-!    &      CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+        IF ( AERDIAG .AND. MYPE .EQ. 0 )CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -576,11 +574,11 @@ C *** If last call this hour, write visibility information.
          WSTEP = 0
          WRITETIME = .FALSE.
 
-!         IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
-!     &                      MDATE, MTIME, VIS_SPC ) ) THEN
-!            XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
-!            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-!         END IF
+         IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
+     &                      MDATE, MTIME, VIS_SPC ) ) THEN
+            XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
+            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                  'Timestep written to', CTM_VIS_1,
@@ -589,11 +587,11 @@ C *** If last call this hour, write visibility information.
 C *** Write data to the aerosol diagnostic file.
          IF ( AERDIAG ) THEN
 
- !           IF ( .NOT. WRITE3( CTM_DIAM_1, ALLVAR3,
- !    &                         MDATE, MTIME, DIAM_SPC ) ) THEN
- !              XMSG = 'Could not write ' // CTM_DIAM_1 // ' file'
- !              CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
- !           END IF
+            IF ( .NOT. WRITE3( CTM_DIAM_1, ALLVAR3,
+     &                         MDATE, MTIME, DIAM_SPC ) ) THEN
+               XMSG = 'Could not write ' // CTM_DIAM_1 // ' file'
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_DIAM_1,

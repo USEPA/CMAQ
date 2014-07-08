@@ -182,6 +182,9 @@ C BH  06/11/14 Removed Call to HETCHEM and GAMMA_N2O5 argument
 C              because of merging of gas and heterogeneous 
 C              chemistry
 
+C BH  07/08/14 Used ifdef statement to remove call to POAAGE
+
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
