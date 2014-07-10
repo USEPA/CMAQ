@@ -172,7 +172,7 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,27 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,30 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]

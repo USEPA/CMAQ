@@ -337,7 +337,7 @@ C *** Get domain decomp info from the MET_CRO_3D file
       CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
 
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
-      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) WRITETIME = .FALSE.
+      IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) WRITETIME = .TRUE.
 
 C *** Set floating point synchronization time step:
       DT = FLOAT( MSTEP ) ! set time step in seconds
