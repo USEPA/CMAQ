@@ -210,6 +210,12 @@ C define orgprod parent names based on mechanism dependence
                orgprod( 3 )%parent = 'MXYL'
                orgprod( 4 )%parent = 'TOLUENE'
                orgprod( 5 )%parent = 'TOLUENE'
+            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
+               orgprod( 2 )%parent = 'XYM'
+               orgprod( 3 )%parent = 'XYM'
+               orgprod( 4 )%parent = 'TOL'
+               orgprod( 5 )%parent = 'TOL'
             Else
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -820,6 +826,9 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
+#ifdef poaaging
+C Oligomerization
+       WRITE(6,*)'SOA Oligomerization'
 C Oligomerization
 
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
@@ -858,11 +867,11 @@ C Only decrease aerosol concentrations for species that participate in oligomeri
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
 
+#endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
-
       totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
       Do i = 1, n_aerospc
          If ( aerospc( i )%nonVol_soa ) Then
