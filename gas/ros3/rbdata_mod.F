@@ -63,7 +63,7 @@ c..Sparse Matrix maximum dimensions
       INTEGER, PARAMETER :: MAXGL   = 150   ! Max # of P/L terms per species
       INTEGER, PARAMETER :: MAXGL2  = 70    ! Dimension (smaller than maxgl)
       INTEGER, PARAMETER :: MAXGL3  = 100   ! Dimension (smaller than maxgl)
-      INTEGER, PARAMETER :: MXARRAY = 4200  ! Max # of terms in I-hJ matrix
+      INTEGER, PARAMETER :: MXARRAY = 4400  ! Max # of terms in I-hJ matrix
 
 c..Mechanism specific variables
       INTEGER, SAVE :: N_SPEC               ! No. of species in mech
