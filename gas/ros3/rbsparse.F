@@ -67,7 +67,7 @@ C..Local Variables:
       INTEGER, SAVE :: NDLMAX  = 0     ! Max # of PD loss terms in any reaction
       INTEGER, SAVE :: NDPMAX  = 0     ! Max # of PD prod terms in any reaction
 
-      CHARACTER( 16 ) :: PNAME = 'GRSPRSE'     ! Procedure name
+      CHARACTER( 16 ) :: PNAME = 'RBSPRSE'     ! Procedure name
       CHARACTER( 80 ) :: MSG                   ! Mesaage text for output log
 
       INTEGER I,J,K,I1,J1,I2       ! Matrix loop indices
@@ -604,7 +604,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94060 ) MXARRAY, IARRAY2 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94080 ) MXARRAY, ICCOUNT 
+            WRITE( MSG, 94080 ) MXCOUNT2, ICCOUNT 
             CALL M3MESG( MSG )
             WRITE( MSG, 94100 ) MXARRAY, JCCOUNT 
             CALL M3MESG( MSG )
@@ -667,8 +667,10 @@ C********************** FORMAT STATEMENTS ******************************
 94020 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICNT    = ',I6)  
 94040 FORMAT( 1X,'DIMENSION: MXCOUNT1 = ',I6,' VARIABLE: JCNT    = ',I6)  
 94060 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: IARRAY2 = ',I6)  
-94080 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: ICCOUNT = ',I6)  
-94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6)
+94080 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICCOUNT = ',I6)  
+94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6
+     &     / 1X, 'NOTE:      MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3',
+     &     / 1X, 'WHERE:     MAXGL3   = ',I6 )
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)
       END
