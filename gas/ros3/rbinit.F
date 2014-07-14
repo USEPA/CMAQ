@@ -267,7 +267,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          RTOL( N ) = GLBL_RTOL
          FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
          REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
-         print*,CHEMISTRY_SPC(  N ),SPECIES_MOLWT( N ),REVERSE_CONV( N ),FORWARD_CONV( N )
       END DO
       
 
