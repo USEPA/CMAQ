@@ -354,11 +354,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        iglg = 0
 c        write( logdev,8200 ) 
 c8200    format(//1x,'jacobian ')
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(1:1),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(1:1),j=1,n_spec)
 c8211    format( 9x, 40( 2x,A1 ) )
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(2:2),j=1,n_spec)
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(3:3),j=1,n_spec)
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(4:4),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(2:2),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(3:3),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(4:4),j=1,n_spec)
 c        write( logdev,8210 ) (i,i=1,ischang(ncs))
 c8210    format( /9x, 40I3 )
 c        DO 585 i = 1, ischang( ncs )
@@ -371,7 +371,7 @@ c              else
 c                 ichrout( j ) = ' '
 c              end if
 c584         continue
-c            write( logdev,8220 ) gc_spc( k ), i, (ichrout( j ), j=1,n_spec)
+c            write( logdev,8220 ) chemistry_spc( k ), i, (ichrout( j ), j=1,n_spec)
 c8220        format( 1x, A4, 1x, I2, 1x, 40( 2x,A1 ) )
 c585     continue
 c        write( logdev,8230 ) iglg

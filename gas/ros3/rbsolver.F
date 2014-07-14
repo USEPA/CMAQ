@@ -306,7 +306,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
               WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
               DO N = 1, N_SPEC
                  WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
-     &                           'SP ',N, GC_SPC( N ), Y( NCELL, N )
+     &                           'SP ',N, CHEMISTRY_SPC( N ), Y( NCELL, N )
               END DO
               DO N = 1, N_RXNS
                  WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
@@ -556,7 +556,7 @@ c..Estimate error
      &                      / ERR( CELL_MAXERR )
      
                 ISPOLD = INEW2OLD( N, NCS )
-                WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( GC_SPC( ISPOLD ) ),
+                WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( CHEMISTRY_SPC( ISPOLD ) ),
      &          MAX_SPC_ERR, Y( CELL_MAXERR,N ), YP( CELL_MAXERR,N )
      
             END DO
@@ -612,7 +612,7 @@ c..write photolysis rates used in cell
 92113 FORMAT( 'Number of Species solved = ', I4, ' out of ',
      &         I4, ' Total GC Species ')
 
-92114 FORMAT('GC_SPC( ', I4, ' ) = ', A16,' Error Contribution =', 
+92114 FORMAT('CHEMISTRY_SPC( ', I4, ' ) = ', A16,' Error Contribution =', 
      &        ES12.4, ' Initial Conc = ', ES12.4 , 
      &        ' Predicted Conc = ', ES12.4 )
      
