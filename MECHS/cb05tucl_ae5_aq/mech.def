@@ -100,6 +100,10 @@ CB05TUCL_AE5_AQ
 !
 ! Golam Sarwar 09/05/11
 !  Fixed type errors in reaction R137 and R138 (CRON changed to CRNO in both reactions)   
+
+! B.Hutzell 07/14/14
+! added inorganic heterogeneous reactions for N2O5 and NO2, and oligomerization reactions for 
+! SOA species
 !
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
@@ -629,6 +633,28 @@ REACTIONS[CM] =
 <SA08>  SESQ + O3         = O3  + SESQRXN             # 1.16E-14;
 <SA09>  SESQ + OH         = OH  + SESQRXN             # 1.97E-10;
 <SA10>  SESQ + NO3        = NO3 + SESQRXN             # 1.90E-11;
+
+! iorganic heteorogeneous reactions from hetchem version 5.0.2
+
+<HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;
+
+<HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
+
+! oligomerization reaction for secondary organic aerosols
+
+!<OLIG_ALKENE>     AALKJ  = 1.1428*AOLGAJ  # 9.48816E-6;
+<OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
+<OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
+<OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
+<OLIG_TOLUENE2>   ATOL2J = 1.0000*AOLGAJ  # 9.48816E-6;
+<OLIG_BENZENE1>   ABNZ1J = 0.85714*AOLGAJ # 9.48816E-6;
+<OLIG_BENZENE2>   ABNZ2J = 0.85714*AOLGAJ # 9.48816E-6;
+<OLIG_TERPENE1>   ATRP1J = 1.0000*AOLGBJ  # 9.48816E-6;
+<OLIG_TERPENE2>   ATRP2J = 1.0000*AOLGBJ  # 9.48816E-6;
+<OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ    # 9.48816E-6;
+<OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ    # 9.48816E-6;
+<OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ    # 9.48816E-6;
+
 END MECH
 
 CONSTANTS
