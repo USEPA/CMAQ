@@ -39,6 +39,7 @@ C  Revision History: Prototype created by Jerry Gipson, August, 2004.
 C                      Based on the SMVGEAR code originally developed by 
 C                      M. Jacobson, (Atm. Env., Vol 28, No 2, 1994).
 C
+C  14 Jul 14 B.Hutzell: added intent declaration to arguments
 C***********************************************************************
 
       USE RBDATA              ! ROS3 solver data
@@ -46,8 +47,8 @@ C***********************************************************************
       IMPLICIT NONE
       
 C..Includes:
-      INTEGER NCSP            ! Index of chem mech to use
-                              ! 1=gas/day, 2=gas/night
+      INTEGER, INTENT( IN ) :: NCSP  ! Index of chem mech to use
+                                     ! 1=gas/day, 2=gas/night
 
 C..Arguments: None
 

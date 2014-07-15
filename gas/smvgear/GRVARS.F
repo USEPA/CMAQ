@@ -336,6 +336,11 @@ C                   & vertical domain specifications module (GRID_CONF)
 C                   29 Jul 05 WTH: added variable used by degrade routines.
 C                   29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                   with UTILIO_DEFN
+C                   15 Jul 14 B.Hutzell: 1) replaced mechanism include files with 
+C                   RXNS_DATA module, 2) inserted call to function MAP_CHEMISTRY_SPECIES 
+C                   RXNS_FUNCTION module, 3) changed several array declarations from fixed
+C                   to allocatable dimensions, and 4) inserted do loop that calculates species
+C                   unit conversion factors based on species type
 C.......................................................................
 C Column index of ordered cells
       INTEGER, ALLOCATABLE, SAVE :: CCOL( : )

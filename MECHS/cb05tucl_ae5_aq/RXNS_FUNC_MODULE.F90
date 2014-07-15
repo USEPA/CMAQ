@@ -728,28 +728,30 @@
              RKI( NCELL,  206) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
 !  Reaction Label HET_N02         
              RKI( NCELL,  207) =  BLKHET(  NCELL, IK_HETERO_NO2 )
-!  Reaction Label OLIG_XYLENE1    
+!  Reaction Label OLIG_ALKENE     
              RKI( NCELL,  208) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_XYLENE2    
+!  Reaction Label OLIG_XYLENE1    
              RKI( NCELL,  209) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE1   
+!  Reaction Label OLIG_XYLENE2    
              RKI( NCELL,  210) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE2   
+!  Reaction Label OLIG_TOLUENE1   
              RKI( NCELL,  211) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE1   
+!  Reaction Label OLIG_TOLUENE2   
              RKI( NCELL,  212) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE2   
+!  Reaction Label OLIG_BENZENE1   
              RKI( NCELL,  213) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE1   
+!  Reaction Label OLIG_BENZENE2   
              RKI( NCELL,  214) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE2   
+!  Reaction Label OLIG_TERPENE1   
              RKI( NCELL,  215) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE1  
+!  Reaction Label OLIG_TERPENE2   
              RKI( NCELL,  216) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE2  
+!  Reaction Label OLIG_ISOPRENE1  
              RKI( NCELL,  217) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_SESQT1     
+!  Reaction Label OLIG_ISOPRENE2  
              RKI( NCELL,  218) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_SESQT1     
+             RKI( NCELL,  219) =   9.4882D-06 * SFACT 
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

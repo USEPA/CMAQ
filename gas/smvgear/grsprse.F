@@ -55,6 +55,9 @@ C                    30 Jun 10 J.Young: convert for Namelist redesign; move all
 C                    local include file variables into GRVARS module
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                    with UTILIO_DEFN
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module and supplement error message when array
+C                    bounds exceed maximum values
 C***********************************************************************
 
       USE RXNS_DATA
@@ -581,9 +584,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94060 ) MXARRAY, IARRAY2 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94080 ) MXARRAY, ICCOUNT 
+            WRITE( MSG, 94080 ) MXCOUNT2, ICCOUNT 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT 
+            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT, MAXGL3 
             CALL M3MESG( MSG )
             EXITSTAT = 2
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', EXITSTAT )
@@ -704,8 +707,10 @@ C********************** FORMAT STATEMENTS ******************************
 94020 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICNT    = ',I6)  
 94040 FORMAT( 1X,'DIMENSION: MXCOUNT1 = ',I6,' VARIABLE: JCNT    = ',I6)  
 94060 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: IARRAY2 = ',I6)  
-94080 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: ICCOUNT = ',I6)  
-94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6)
+94080 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICCOUNT = ',I6)  
+94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6
+     &     / 1X, 'NOTE:      MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3',
+     &     / 1X, 'WHERE:     MAXGL3   = ',I6 )
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)
       END

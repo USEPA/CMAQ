@@ -72,6 +72,13 @@ C                    with UTILIO_DEFN
 C                    31 Aug 11 B.Hutzell revised method that determines calling
 C                              degrade routine
 C                    29 Sep 11 D.Wong: incorporated twoway model implementation
+C                    15 Jul 14 B.Hutzell: 1) replaced mechanism include files with 
+C                    RXNS_DATA module, 2) replaced call to CALCLK with CALC_RCONST
+C                    in RXNS_FUNCTION module, 3) enabled reactions between all 
+C                    species type by using unit conversion factors and 4) updated
+C                    the explicit interace SMVGEAR, 5) added using heteorogeneous 
+C                    rate constants by calling subroutine in AEROSOL_CHEMISTRY module,
+C                    and 6) revised usage for INIT_DEGRADE and FINAL_DEGRADE routines
 C**********************************************************************
 
       USE RXNS_DATA
@@ -101,7 +108,7 @@ C..PARAMETERS:
 C Integer zero
       INTEGER, PARAMETER :: IZERO = 0
 
-C Conc. of M = 1E+06 ppm
+C Conc. of M = 1E+06 ppm 
       REAL, PARAMETER :: CONCOFM = 1.0E+06
 
 C Pascal to atm conversion factor
@@ -229,15 +236,18 @@ C for INTERPX
          END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
-            USE GRID_CONF
+            USE RXNS_DATA
+            USE CGRID_SPCS         
             USE UTILIO_DEFN
-            USE GRVARS
+            USE GRVARS              
             IMPLICIT NONE
-            INTEGER, INTENT( IN )   :: IRUN, JDATE, JTIME
-            REAL, INTENT( IN )      :: CHEMSTEP
-            LOGICAL, INTENT( IN )   :: LIRRFLAG
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( IN )   :: IRRCELL( BLKSIZE )
+            INTEGER, INTENT( IN ) :: IRUN               ! Counter of calls to calling subroutine
+            INTEGER, INTENT( IN ) :: JDATE              ! Date at start of integration
+            INTEGER, INTENT( IN ) :: JTIME              ! Time at start of integration
+            INTEGER, INTENT( IN ) :: NIRRCLS            ! No. of cells in block for IRR
+            INTEGER, INTENT( IN ) :: IRRCELL( BLKSIZE ) ! Cell No. of an IRR cell
+            LOGICAL, INTENT( IN ) :: LIRRFLAG           ! Flag for IRR calculations
+            REAL,    INTENT( IN ) :: CHEMSTEP           ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
            USE DEGRADE_SETUP_TOX

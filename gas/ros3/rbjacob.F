@@ -41,6 +41,8 @@ C                    31 Jan 05 J.Young: get BLKSIZE from dyn alloc horizontal
 C                    & vertical domain specifications module (GRID_CONF)
 C                    28 Jun 10 J.Young: remove unneccesary modules and include files
 C                    22 Aug 11 J.Young: fixed bug: initialize CC2( NCELL,0 )
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module and added intent declarations to arguments
 C
 C***********************************************************************
 
@@ -52,9 +54,8 @@ C***********************************************************************
 C..Includes:
 
 C..Arguments:
-      INTEGER   :: NCSP         ! Index of chem mech to use; 1=gas/day, 2=gas/night
-
-      REAL( 8 ) :: YIN( BLKSIZE,* )    ! Species concs, ppm
+      INTEGER,   INTENT( IN ) :: NCSP         ! Index of chem mech to use; 1=gas/day, 2=gas/night
+      REAL( 8 ), INTENT( IN ) :: YIN( :, : )    ! Species concs, ppm
 
 C..Parameters: None
 

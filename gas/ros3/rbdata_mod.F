@@ -41,6 +41,8 @@ C                    Get BLKSIZE from module GRID_CONF
 C                    29 Jul 05 WTH: added variable used by degrade routines.
 C                    10 Aug 11 J.Young: Replaced I/O API include files
 C                                       with UTILIO_DEFN
+C                   15 Jul 14 B.Hutzell: 1) added variable to variable to converted
+C                   species concentration unit based on species type
 C*************************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications

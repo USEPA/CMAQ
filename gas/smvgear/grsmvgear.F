@@ -64,6 +64,8 @@ C                    30 Jun 10 J.Young: convert for Namelist redesign; move all
 C                    local include file variables into GRVARS module
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                    with UTILIO_DEFN
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module and added intent declarations to arguments
 C**********************************************************************
 
       USE RXNS_DATA
@@ -76,13 +78,13 @@ C**********************************************************************
 C..INCLUDES: None
       
 C..ARGUMENTS:
-      INTEGER IRUN           ! Counter of calls to calling subroutine
-      INTEGER JDATE          ! Date at start of integration
-      INTEGER JTIME          ! Time at start of integration
-      INTEGER NIRRCLS        ! No. of cells in block for IRR
-      INTEGER IRRCELL( BLKSIZE )  ! Cell No. of an IRR cell
-      LOGICAL LIRRFLAG       ! Flag for IRR calculations
-      REAL CHSTEP            ! Chemistry integration interval (min) 
+      INTEGER, INTENT( IN ) :: IRUN               ! Counter of calls to calling subroutine
+      INTEGER, INTENT( IN ) :: JDATE              ! Date at start of integration
+      INTEGER, INTENT( IN ) :: JTIME              ! Time at start of integration
+      INTEGER, INTENT( IN ) :: NIRRCLS            ! No. of cells in block for IRR
+      INTEGER, INTENT( IN ) :: IRRCELL( : )       ! Cell No. of an IRR cell
+      LOGICAL, INTENT( IN ) :: LIRRFLAG           ! Flag for IRR calculations
+      REAL,    INTENT( IN ) :: CHSTEP             ! Chemistry integration interval (min) 
 
 C..PARAMETERS:
       INTEGER, PARAMETER :: NZERO = 0 ! Integer  zero
@@ -93,7 +95,7 @@ C..PARAMETERS:
       REAL( 8 ), PARAMETER ::    ZERO = 0.0
       REAL( 8 ), PARAMETER ::     PT2 = 0.2
       REAL( 8 ), PARAMETER ::   PT003 = 0.003
-      REAL( 8 ), PARAMETER ::    OMIC = 0.000001
+      REAL( 8 ), PARAM/SMVGEATETER ::    OMIC = 0.000001
       REAL( 8 ), PARAMETER :: OPT2MIC = 0.0000012
       REAL( 8 ), PARAMETER :: OPT3MIC = 0.0000013
       REAL( 8 ), PARAMETER :: OPT4MIC = 0.0000014

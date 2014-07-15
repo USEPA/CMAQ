@@ -40,7 +40,9 @@ C                      M. Jacobson, (Atm. Env., Vol 28, No 2, 1994)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
- 
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module and supplement error message when array
+C                    bounds exceed maximum values
 C***********************************************************************
 
       USE RXNS_DATA
@@ -606,7 +608,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94080 ) MXCOUNT2, ICCOUNT 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT 
+            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT, MAXGL3
             CALL M3MESG( MSG )
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT1 )
          END IF           
@@ -669,7 +671,7 @@ C********************** FORMAT STATEMENTS ******************************
 94060 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: IARRAY2 = ',I6)  
 94080 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICCOUNT = ',I6)  
 94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6
-     &     / 1X, 'NOTE:      MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3',
+     &     / 1X, 'NOTE:      MXCOUNT[1,2] = NUMB_MECH_SPC * MAXGL3 * 3',
      &     / 1X, 'WHERE:     MAXGL3   = ',I6 )
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)

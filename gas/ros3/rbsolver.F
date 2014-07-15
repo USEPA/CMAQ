@@ -52,6 +52,9 @@ C                                       if MECHNAME contains 'TX' substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module, updated explicit interfaces and revised
+C                    block for FPP flag redebug is set in compilation
 C**********************************************************************
       USE GRID_CONF               ! horizontal & vertical domain specifications
       USE RXNS_DATA
@@ -62,8 +65,6 @@ C**********************************************************************
       IMPLICIT NONE 
 
 C..Includes:
-!      INCLUDE SUBST_IODECL        ! I/O API declarations
-!      INCLUDE SUBST_IOPARMS       ! I/O API parameters
 
 C..Arguments:
       INTEGER, INTENT( IN ) :: LOGDEV        ! Unit number of output log
@@ -194,20 +195,38 @@ c.....ROS3 intermediate variables
             USE RXNS_FUNCTION
             USE RBDATA          ! ROS3 solver data
             IMPLICIT NONE
-            INTEGER NCSP       ! Index of chem mech to use: 1=gas/day, 2=gas/night
-            REAL( 8 ) :: YIN(  :,  : )     ! Species concs, ppm
-            REAL( 8 ) :: YDOT( :, : )     ! Species rates of change, ppm/min
+            INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
+            REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
+            REAL( 8 ), INTENT(   OUT ) :: YDOT( :, : )  ! Species rates of change, ppm/min
          END SUBROUTINE RBFEVAL
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
            USE RXNS_DATA
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
            REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
-           REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
-           INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
+           REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
+           INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
          END SUBROUTINE DEGRADE
+         SUBROUTINE RBSOLVE( NCSP, RHS )
+           USE RBDATA                       ! ROS3 solver data
+           IMPLICIT NONE
+           INTEGER,   INTENT( IN )    ::  NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
+           REAL( 8 ), INTENT( INOUT ) ::  RHS( :,: )  ! Right hand side = {b}
+         END SUBROUTINE RBSOLVE
+         SUBROUTINE RBJACOB( NCSP, YIN )
+           USE RXNS_DATA
+           USE RBDATA                ! ROS3 solver data
+           IMPLICIT NONE
+           INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use; 1=gas/day, 2=gas/night
+           REAL( 8 ), INTENT( IN ) :: YIN( :,: )  ! Species concs, ppm
+         END SUBROUTINE RBJACOB
+         SUBROUTINE RBDECOMP( NCSP )
+           USE RBDATA              ! ROS3 solver data
+           IMPLICIT NONE
+           INTEGER, INTENT( IN ) :: NCSP  ! Index of chem mech to use: 1=gas/day, 2=gas/night
+         END SUBROUTINE
       END INTERFACE
 
 C**********************************************************************

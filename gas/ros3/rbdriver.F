@@ -63,7 +63,13 @@ C                               with UTILIO_DEFN
 C                    31 Aug 11 B.Hutzell revised method that determines calling
 C                              degrade routine
 C                    29 Sep 11 D.Wong: incorporated twoway model implementation
-C                    18 Jan 13 B.Hutzell: added using heteorogeneous rate constants
+C                    18 Jan 13 B.Hutzell: 1) added using heteorogeneous rate constants
+C                    by using function in AEROSOL_CHEMISTRY module,
+C                    15 Jul 14 B.Hutzell: 1) replaced mechanism include files with 
+C                    RXNS_DATA module, 2) replaced call to CALCLK with CALC_RCONST in 
+C                    RXNS_FUNCTION module, 3) enabled reactions between all species 
+C                    types by using unit conversion factors and 4) revised usage for 
+C                    INIT_DEGRADE and FINAL_DEGRADE routines
 C**********************************************************************
 
       USE SUBST_MODULES
@@ -247,10 +253,10 @@ C for INTERPX
            USE RXNS_DATA
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )           !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( : )              !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( : )                   !  cell air density  [ kg/m^3 ]
-           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) !  Photolysis table for cell [1/s]
+           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
+           REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
+           REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) ! Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
