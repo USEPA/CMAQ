@@ -1848,7 +1848,7 @@
 	    IF( INITIALIZED )RETURN
 	
 	    INITIALIZED = .TRUE.
-            LOGDEV      = JUNIT()
+            LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
 
@@ -1924,21 +1924,21 @@
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' cgrid index does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                         WRITE( XMSG,'(A,I3,1X,I3)')'CGRID Indices: Mechanism Requires, NML Value = ',    &
+                         WRITE( XMSG,'(A,I3,1X,I3)')'CGRID Indices: Mechanism and NML Values are ',    &
     &                    CGRID_INDEX( I ),NML_INDEX( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                       IF(CONVERT_CONC( I ) .NEQV. NML_CONVERT( I1 ))THEN
                          SUCCESS = .FALSE.
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' species unit conversion flag does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                         WRITE( XMSG,'(A,1X,L21X,L2)')'CONVERSION FLAGS: Mechanism Requires, NML Value = ', &
+                         WRITE( XMSG,'(A,1X,L21X,L2)')'CONVERSION FLAGS: Mechanism and NML Values are ', &
     &                    CONVERT_CONC( I ),NML_CONVERT( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
-                         WRITE( XMSG,'(A,1X,A3,1X,A3)')'SPECIES TYPE: Mechanism Requires, NML Value = ',    &
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
+                         WRITE( XMSG,'(A,1X,A3,1X,A3)')'SPECIES TYPE: Mechanism and NML Values are ',    &
     &                    SPECIES_TYPE( I ),NML_TYPE( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                       DELTA = ( SPECIES_MOLWT( I ) - NML_MOLWT( I1 ) )/MAX(NML_MOLWT( I1 ),1.0E-20)
                       IF( ABS( DELTA ) .GE. 0.05 )THEN
@@ -1946,32 +1946,32 @@
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' species molecular weight does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                         WRITE( XMSG,'(A,2(ES12.4,1X))')'Molecular Weight: Mechanism Value, NML Value = ', &
+                         WRITE( XMSG,'(A,2(ES12.4,1X))')'Molecular Weight: Mechanism and NML Values are ', &
     &                    SPECIES_MOLWT( I ), NML_MOLWT( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                  END IF
               END IF
               IF( INDEX( CHEMISTRY_SPC( I ), 'SRF') .GT. 0 )THEN
-                  FOUND = .FALSE.
+                  SUCCESS = .FALSE.
                   XMSG = '*** reactions cannot use modal aerosol surface area as species'
                   WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                   XMSG = TRIM( CHEMISTRY_SPC( I ) )
-                  WRITE( LOGDEV,'( 9X, I4, 2X, A )' ) I, TRIM( XMSG )
+                  WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
               END IF
               IF( INDEX( CHEMISTRY_SPC( I ), 'NUM') .GT. 0 )THEN
-                  FOUND = .FALSE.
+                  SUCCESS = .FALSE.
                   XMSG = '*** reactions cannot use modal aerosol number density as species'
                   WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                   XMSG = TRIM( CHEMISTRY_SPC( I ) )
-                  WRITE( LOGDEV,'( 9X, I4, 2X, A )' ) I, TRIM( XMSG )
+                  WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
               END IF
-              IF ( .NOT. FOUND .OR. .NOT. SUCCESS ) THEN
+              IF ( .NOT. FOUND ) THEN
                  XMSG = 'Fatal error: Mechanism Species found not in species namelist:'
                  WRITE( LOGDEV,'( /5X, A )', ADVANCE = 'NO' ) TRIM( XMSG )
                  XMSG = TRIM( CHEMISTRY_SPC( I ) )
-                 WRITE( LOGDEV,'( 9X, I4, 2X, A )' ) I, TRIM( XMSG )
-                 SUCCESS = FOUND
+                 WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
+                 SUCCESS = .FALSE.
               END IF
             END DO
 
