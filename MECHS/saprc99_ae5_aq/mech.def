@@ -1,10 +1,4 @@
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/MECHS/src/saprc99_ae5_aq/mech.def,v 1.2 2011/08/30 20:14:19 sjr Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 ! SAPRC-99 Fixed Parameter Mechanism 
 ! Created from BASEMECH.XLS 21-Jan-2000 18:19
 ! Modified by Jerry Gipson 02/08/01 for Models3 implementation:
