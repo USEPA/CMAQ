@@ -129,13 +129,13 @@ C... Additional Aerosol surrogate species to add to aerosol list
       Type ( sur_aer_type ), private :: addsrgaer( NADDAER ) = (/
 C                         Aitken       Accum         Coarse      Background   MolWt   Density
 C                      ----------    ---------    ----------     ----------  ------   -------
-     & sur_aer_type((/'          ', '         ', 'CACO3     '/),     0.0,    100.1,   2000.0),
-     & sur_aer_type((/'          ', '         ', 'MGCO3     '/),     0.0,     84.3,   2000.0),
-     & sur_aer_type((/'          ', '         ', 'A3FE      '/),   0.010,     55.8,   2000.0),
-     & sur_aer_type((/'          ', '         ', 'B2MN      '/),   0.005,     54.9,   2000.0),
-     & sur_aer_type((/'          ', '         ', 'K         '/),     0.0,     39.1,   2000.0),
-     & sur_aer_type((/'NUM_AITKEN', 'NUM_ACCUM', 'NUM_COARSE'/),     0.0,      0.0,      1.0),
-     & sur_aer_type((/'SRF_AITKEN', 'SRF_ACCUM', 'SRF_COARSE'/),     0.0,      0.0,      1.0)/)
+     & sur_aer_type((/'          ', '          ', 'CACO3     '/),     0.0,    100.1,   2000.0),
+     & sur_aer_type((/'          ', '          ', 'MGCO3     '/),     0.0,     84.3,   2000.0),
+     & sur_aer_type((/'          ', '          ', 'A3FE      '/),   0.010,     55.8,   2000.0),
+     & sur_aer_type((/'          ', '          ', 'B2MN      '/),   0.005,     54.9,   2000.0),
+     & sur_aer_type((/'          ', '          ', 'K         '/),     0.0,     39.1,   2000.0),
+     & sur_aer_type((/'NUM_AITKEN', 'NUM_ACCUM ', 'NUM_COARSE'/),     0.0,      0.0,      1.0),
+     & sur_aer_type((/'SRF_AITKEN', 'SRF_ACCUM ', 'SRF_COARSE'/),     0.0,      0.0,      1.0)/)
 
 C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
