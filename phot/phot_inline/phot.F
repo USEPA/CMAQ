@@ -98,6 +98,7 @@ C----------------------------------------------------------------------
 C...modules
 
 !     USE GRID_CONF            ! horizontal & vertical domain specifications
+      USE RXNS_DATA            ! chemistry varaibles and data
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
