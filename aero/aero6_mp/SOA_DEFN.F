@@ -44,7 +44,11 @@ C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
 C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2 
-
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran
+C                      module
+C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
+C                      optional because process represented in chemical
+C                      mechanism
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -837,9 +841,9 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
-#ifdef poaaging
+#ifdef Oligo_aero
 C Oligomerization
-      WRITE(6,*)'Oligomerization'
+!     WRITE(6,*)'Oligomerization'
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
 C process that conserves carbon mass.
 
@@ -867,7 +871,7 @@ C process that conserves carbon mass.
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
 #else
-      WRITE(6,*)'No Oligomerization'
+!     WRITE(6,*)'No Oligomerization'
 #endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile

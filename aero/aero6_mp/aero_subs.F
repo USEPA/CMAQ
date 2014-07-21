@@ -182,6 +182,9 @@ C              chemistry
 C JB  02/07/14 Added Jai Xing's mass balance fix when there is excessive
 C              condensation or evaporation under cold conditions
 
+C BH  07/21/14 Removed call to POAAGE because reaction represented in
+C              chemical mechanism
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -332,12 +335,6 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
-
-#ifdef poaaging
-C *** POA Aging
-C     Increase primary NCOM concentration due to oxidative aging of POA.
-      CALL POAAGE ( DT )
-#endif
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle

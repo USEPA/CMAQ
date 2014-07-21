@@ -45,6 +45,9 @@ C               follow experimental data of Ng et al. 2007 ACP as shown in Table
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
 C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2 
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
+C                      optional because process represented in chemical
+C                      mechanism
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -836,6 +839,7 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
+#ifdef Oligo_aero
 C Oligomerization
 
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
@@ -865,6 +869,7 @@ C process that conserves carbon mass.
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
 
+#endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid

@@ -190,7 +190,7 @@ C BH  07/08/14 Removed Call to first call to HETCHEM that conduct inorganic
 C              chemistry and GAMMA_N2O5 argument
 C              as a first step to placing  the heterogeneous chemistry
 C              in mechanism definitions file
-C              Used ifdef statement to remove call to POAAGE
+C BH  07/21/14 Removed call to POAAGE based on the same reason
 
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
@@ -347,12 +347,6 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
-
-#ifdef poaaging
-C *** POA Aging
-C     Increase primary NCOM concentration due to oxidative aging of POA.
-      CALL POAAGE ( DT )
-#endif
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle

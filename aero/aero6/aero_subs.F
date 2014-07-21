@@ -182,7 +182,7 @@ C BH  06/11/14 Removed Call to HETCHEM and GAMMA_N2O5 argument
 C              because of merging of gas and heterogeneous 
 C              chemistry
 
-C BH  07/08/14 Used ifdef statement to remove call to POAAGE
+C BH  07/08/14 Removed call to POAAGE
 
 
 C  REFERENCES:
@@ -335,11 +335,6 @@ C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
  
-#ifdef poaaging
-C *** POA Aging
-C     Increase primary NCOM concentration due to oxidative aging of POA.
-      CALL POAAGE ( DT )
-#endif
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle

@@ -45,6 +45,8 @@ C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
+C                      optional because process represented in chemical mechanism
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -826,9 +828,9 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
-#ifdef poaaging
+#ifdef Oligo_aero
 C Oligomerization
-       WRITE(6,*)'SOA Oligomerization'
+!      WRITE(6,*)'SOA Oligomerization'
 C Oligomerization
 
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
