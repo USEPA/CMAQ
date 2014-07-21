@@ -67,8 +67,8 @@ C
 C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE UTILIO_DEFN
       USE RXNS_DATA           ! chemical mechanism data
+      USE UTILIO_DEFN
 
       USE SUBST_MODULES
 !     USE SUBST_UTIL_MODULE
