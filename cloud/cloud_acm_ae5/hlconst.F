@@ -89,7 +89,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 142     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 140     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -283,7 +283,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
       DATA SUBNAME(132), A(132), E(132) / 'CATECHOL        ', 3.16E+05, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
       
-      DATA SUBNAME(133), A(134), E(134) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
+      DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
       DATA SUBNAME(134), A(134), E(134) / 'IMAE            ', 1.2E+05,  0.00E+00 /  ! Pye et al. ES&T (2013)
 
       DATA SUBNAME(135), A(135), E(135) / 'DIETHYLKETONE   ', 2.00E+01, 9.2E+03 /   ! ROLF SANDERS COMPILATION (1999)/JANINI AND QUADDORA (1986)
