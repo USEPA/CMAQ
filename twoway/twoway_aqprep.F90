@@ -38,6 +38,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- fixed bug in the refomulated the xorig and yorig calculation
 !           14 May 2014  (David Wong)
 !              -- made a distinction between USGS 24 and USGS 33
+!           21 Jul 2014  (David Wong)
+!              -- add new LU type: MODIFIED_IGBP_MODIS_NOAH and made a distinction 
+!                 between NLCD, NLCD50 and NLCD40
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -500,7 +503,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      if (config_flags%mminlu == 'USGS') then
         lwater = 16
         lice   = 24
-     else if (config_flags%mminlu == 'MODIS') then
+     else if ((config_flags%mminlu == 'MODIS') .or. (config_flags%mminlu == 'MODIFIED_IGBP_MODIS_NOAH')) then
         lwater = 17
         lice   = 15
      else if ((config_flags%mminlu == 'NLCD') .or. (config_flags%mminlu == 'NLCD50')) then
@@ -569,19 +572,29 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                     gridcro2d_data_wrf(c,r,6) = ( ( grid%landusef(ii,1,jj)  + grid%landusef(ii,31,jj) +    &
                                                     grid%landusef(ii,32,jj) + grid%landusef(ii,33,jj) ) /  &
                                                   (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
-                 else if (config_flags%mminlu == 'MODIS') then
+                 else if ((config_flags%mminlu == 'USGS') .and. (config_flags%num_land_cat == 24)) then
+                    gridcro2d_data_wrf(c,r,6) = ( grid%landusef(ii,1,jj) /  &
+                                                (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
+                 else if ((config_flags%mminlu == 'MODIS') .or. (config_flags%mminlu == 'MODIFIED_IGBP_MODIS_NOAH')) then
                     gridcro2d_data_wrf(c,r,6) = ( grid%landusef(ii,13,jj) /  &
                                                 (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
-                 else if (config_flags%mminlu == 'NLCD') then
+                 else if ((config_flags%mminlu == 'NLCD') .or. (config_flags%mminlu == 'NLCD50')) then
                     gridcro2d_data_wrf(c,r,6) = ( ( grid%landusef(ii,3,jj) * 0.10 +    &
                                                     grid%landusef(ii,4,jj) * 0.35 +    &
                                                     grid%landusef(ii,5,jj) * 0.65 +    &
                                                     grid%landusef(ii,6,jj) * 0.90 +    &
                                                     grid%landusef(ii,44,jj)       ) /  &
                                                   (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
+                 else if (config_flags%mminlu == 'NLCD40') then
+                    gridcro2d_data_wrf(c,r,6) = ( ( grid%landusef(ii,23,jj) * 0.10 +    &
+                                                    grid%landusef(ii,24,jj) * 0.35 +    &
+                                                    grid%landusef(ii,25,jj) * 0.65 +    &
+                                                    grid%landusef(ii,26,jj) * 0.90 +    &
+                                                    grid%landusef(ii,13,jj)       ) /  &
+                                                  (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
                  else
-                    gridcro2d_data_wrf(c,r,6) = ( grid%landusef(ii,1,jj) /  &
-                                                (1.0 - grid%landusef(ii,lwater,jj)) ) * 100.0
+                    print *, ' Warning:: Unknow Land Use type'
+                    stop
                  end if
               else
                  gridcro2d_data_wrf(c,r,6) = 0.0
