@@ -210,7 +210,8 @@ C define orgprod parent names based on mechanism dependence
                orgprod( 2 )%parent = 'MXYL'
                orgprod( 3 )%parent = 'MXYL'
                orgprod( 4 )%parent = 'TOLUENE'
-            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
+               orgprod( 5 )%parent = 'TOLUENE'
+            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then
                alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
                orgprod( 2 )%parent = 'XYM'
                orgprod( 3 )%parent = 'XYM'
