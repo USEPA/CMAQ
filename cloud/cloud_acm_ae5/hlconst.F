@@ -278,13 +278,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
       DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
       DATA SUBNAME(132), A(132), E(132) / 'CATECHOL        ', 3.16E+05, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
-      
-      DATA SUBNAME(133), A(133), E(133) / 'DIETHYLKETONE   ', 2.00E+01, 9.2E+03 /   ! ROLF SANDERS COMPILATION (1999)/JANINI AND QUADDORA (1986)
-      DATA SUBNAME(134), A(134), E(134) / 'N-PROPANOL      ', 1.10E+02, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/YAWS AND YANG (1992)
-      DATA SUBNAME(135), A(135), E(135) / 'ETHYLENEGLYCOL  ', 4.00E+06, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/BONE ET AL. (1983)
-      DATA SUBNAME(136), A(136), E(136) / 'HYDROXY-ACETONE ', 2.00E+04, 0.0E+00 /   ! MATSUNAGA ET AL., 41, 790-796, AE, (2007)            
-      DATA SUBNAME(137), A(137), E(137) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
-      DATA SUBNAME(138), A(138), E(138) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
 
       DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
       DATA SUBNAME(134), A(134), E(134) / 'IMAE            ', 1.2E+05,  0.00E+00 /  ! Pye et al. ES&T (2013)
