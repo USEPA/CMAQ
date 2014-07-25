@@ -41,6 +41,10 @@ C            called correctly
 C       Modified 02/23/2011 by Shawn Roselle
 C         -- Replaced I/O API include files with UTILIO_DEFN; removed
 C            deprecated TRIMLEN
+C       Modified 04/21/2014 by David Wong
+C         -- Reorganized the shut down sequence: MPI and then IOAPI
+C         -- Removed M3EXIT call inside SHUT3 block to avoid infinite loop
+C            reported by Carlie Coats
  
 C  ARGUMENT LIST DESCRIPTION: 
 C  IN:
@@ -129,21 +133,21 @@ C Construct PCALLER string
       IF ( JDATE .GT. 0 .OR. JTIME .GT. 0 )
      &   WRITE( LOGDEV,92020 ) DT2STR( JDATE, JTIME ), JDATE, JTIME
 
-C Shut down IOAPI
-
-      IF ( .NOT. SHUT3() ) THEN
-         WRITE( LOGDEV,91000 )
-     &         'ERROR ABORT in program *** ', PCALLER, ' ***',
-     &         'Could not shut down M3IO correctly'
-         CALL M3EXIT ( 'PAR_TERM', 0, 0, MSG, 1 )
-      END IF
-
 C Clean up communications
 
       CALL MPI_FINALIZE ( IERR )
       IF ( IERR .NE. 0 ) THEN
          MSG = 'Error terminating MPI'
          CALL M3EXIT ( 'PAR_TERM', 0, 0, MSG, 1 )
+      END IF
+
+C Shut down IOAPI
+
+      IF ( .NOT. SHUT3() ) THEN
+         WRITE( LOGDEV,91000 )
+     &         'ERROR ABORT in program *** ', PCALLER, ' ***',
+     &         'Could not shut down M3IO correctly'
+!        CALL M3EXIT ( 'PAR_TERM', 0, 0, MSG, 1 )
       END IF
 
       RETURN

@@ -86,6 +86,7 @@ C   24 Aug 11 D.Wong: eliminated data and geo orientation in se_init call
 C    8 Jan 13 C.Nolte: fixed load AGRID bug if TSTEP(1) .ne. 010000 hhmmss
 C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
 C                      indicated in TSTEP(1) for twoway model
+C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -528,7 +529,7 @@ C Shut down IOAPI
       ELSE
          XMSG = ' *** FATAL ERROR shutting down Models-3 I/O *** '
          WRITE ( LOGDEV,'( //5X, A, // )' ) XMSG
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
       END PROGRAM DRIVER
