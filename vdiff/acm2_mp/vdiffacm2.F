@@ -71,9 +71,11 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIDI_MOD
       USE LSM_MOD, ONLY: n_lufrac
-
-      USE SUBST_MODULES              ! stenex
-!     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
+#endif
 
       IMPLICIT NONE
 

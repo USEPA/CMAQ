@@ -76,10 +76,13 @@ C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_GLOBAL_MAX_MODULE    ! stenex
-!     USE SUBST_COMM_MODULE     ! stenex
-!     USE SUBST_UTIL_MODULE     ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_GLOBAL_MAX_MODULE, SE_COMM_MODULE,
+                                !               SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_MAX_MODULE, NOOP_COMM_MODULE,
+                                !               NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
       
@@ -156,7 +159,11 @@ C for INTERPX
          SUBROUTINE DEFORM( JDATE, JTIME, DEFORM3D )
             USE GRID_CONF
             USE UTILIO_DEFN
-            USE SUBST_MODULES
+#ifdef parallel
+            USE SE_MODULES
+#else
+            USE NOOP_MODULES
+#endif
             IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME
             REAL,    INTENT( OUT ) :: DEFORM3D( :,:,: )

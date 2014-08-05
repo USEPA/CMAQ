@@ -102,8 +102,10 @@ C-----------------------------------------------------------------------
 #endif
 
 #ifdef parallel
-      USE SUBST_MODULES         ! stenex (using SUBST_INIT_MODULE)
+      USE SE_MODULES            ! stenex (using SE_INIT_MODULE)
       USE SWAP_SANDIA
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_INIT_MODULE)
 #endif
 
       IMPLICIT NONE

@@ -101,8 +101,11 @@ C...modules
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
       USE LSM_MOD, ONLY: LAND_SCHEME
-
-      USE SUBST_MODULES        ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
       USE AERO_DATA            ! describes aerosol distribution
       USE PHOT_MOD             ! photolysis in-line module
 

@@ -48,17 +48,18 @@ C--------------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal domain specifications
       USE UTILIO_DEFN
-      USE SUBST_MODULES         ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex
+#else
+      USE NOOP_MODULES          ! stenex
+#endif
 
       IMPLICIT NONE
 
 C Includes:
 
-!     INCLUDE SUBST_HGRD_ID     ! horizontal dimensioning parameters
-!     INCLUDE SUBST_VGRD_ID     ! vertical dimensioning parameters
       INCLUDE SUBST_CONST       ! constants
       INCLUDE SUBST_FILES_ID    ! file name parameters
-!     INCLUDE SUBST_COORD_ID    ! coord. and domain definitions (req IOPARMS)
       INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
 
 C Arguments:

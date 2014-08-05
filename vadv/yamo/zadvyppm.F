@@ -88,8 +88,11 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE WVEL_DEFN             ! derived vertical velocity component
-      USE SUBST_MODULES              ! stenex
-!     USE SUBST_GLOBAL_SUM_MODULE    ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
+#endif
       USE UTILIO_DEFN
 
       IMPLICIT NONE
