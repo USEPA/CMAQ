@@ -463,7 +463,7 @@ C     diagnostic array (lowest vertical layer only)
 C *** Write wet diameters, 2nd, and 3rd moments to aerosol diagnostic array
 C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                IF ( WRITETIME .AND. AERDIAG ) THEN
-                  DIAM_SPC = 0.0
+                  DIAM_SPC( C,R,L, : ) = 0.0
                   DIAM_SPC( C,R,L, 7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
                   DIAM_SPC( C,R,L, 8 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! wet j-mode diam.
                   DIAM_SPC( C,R,L, 9 ) = AEROMODE_DIAM( 3 ) * 1.0E6  ! wet k-mode diam.
