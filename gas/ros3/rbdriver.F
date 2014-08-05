@@ -65,7 +65,6 @@ C                              degrade routine
 C                    29 Sep 11 D.Wong: incorporated twoway model implementation
 C**********************************************************************
 
-      USE SUBST_MODULES
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RBDATA                ! ROS3 solver data
       USE CGRID_SPCS            ! CGRID mechanism species

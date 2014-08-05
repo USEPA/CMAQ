@@ -713,8 +713,6 @@ C Time step part of laypoint
          USE PTMET, P_D => PTMET_DATA
          USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
          USE UTILIO_DEFN
-         USE SUBST_MODULES         ! stenex
-!        USE SUBST_UTIL_MODULE     ! stenex
 
          IMPLICIT NONE
 
