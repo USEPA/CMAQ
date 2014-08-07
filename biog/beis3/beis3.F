@@ -46,6 +46,7 @@ C   6/05 : updates for BEIS3.3 by D. Schwede (BEIS3.13)
 C   8/05 : additional diagnostic messages for PAR out of bounds (G. Pouliot)
 C  10/06 : yoj
 C   1/10 : yoj remove ck & report if TAIR > 315
+C   7/14 : JOB added leaf temperature and two layer canopy model
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -176,18 +177,18 @@ C Note we no longer cap temperature for isoprene
 C Cosine of zenith angle to zenith angle (radians)
             ZEN =  ACOS( COSZ )
             PSFC = PRES( C,R )
-	    
+    
 C atmospheric water vapor variables used for leaf latent heat flux
-	    IF ( TAIR .LE. STDTEMP ) THEN
+            IF ( TAIR .LE. STDTEMP ) THEN
                ES = VP0 * EXP( 22.514 - (6.15e3 / TAIR) )
             ELSE
                ES = VP0 * EXP( SVP2 * (TAIR - STDTEMP) /
      &                                (TAIR - SVP3) )
             END IF
-	    RH   = Q2( C,R )*(PSFC-ES)/(0.622*ES)
-	    RH   = MIN(1.0,RH)
+            RH   = Q2( C,R )*(PSFC-ES)/(0.622*ES)
+            RH   = MIN(1.0,RH)
             DVAP = ES*(1.0-RH)/PSFC
-	    SSVP = (SVP2*(STDTEMP-SVP3)*ES/(TAIR-SVP3)**2)/
+            SSVP = (SVP2*(STDTEMP-SVP3)*ES/(TAIR-SVP3)**2)/
      &              PSFC
 
 C calculate the soil heaf flux under a canopy folowing WRF3.4.1 PX
@@ -195,11 +196,11 @@ C calculate the soil heaf flux under a canopy folowing WRF3.4.1 PX
 
 C calculate the heat and water vapor quasilaminar boundary layer resistance
             RBH = 5.0/USTAR( C,R )
-	    RBW = RBH*(SCW/PR)**TWOTHIRDS
-	   
+            RBW = RBH*(SCW/PR)**TWOTHIRDS
+   
 C calculate the specific heat of air and latent heat of vaporization
             CPAIR = CPD * (1.0 + 0.84 * Q2( C,R ))
-	    LHV   = LV0 - 2370.0 * (TAIR - STDTEMP)
+            LHV   = LV0 - 2370.0 * (TAIR - STDTEMP)
 
 C calculate the leaf  water vapor and heat conductance 
             GHT  = 1 / (RATM( C,R ) + RBH  ) + 1/RRAD
@@ -257,7 +258,7 @@ C Adjust methanol based on T. Pierce recommendation (1-16-03)
 
 C Initialize csubl
                CSUBL_SUN   = 0.0
-               CSUBL_SHADE = 0.0	       
+               CSUBL_SHADE = 0.0       
 
                IF ( PAR .LE. 0.01 .OR.
      &              COSZ .LE. 0.02079483 ) THEN
@@ -269,10 +270,10 @@ C Initialize csubl
      &                            SOLRAD, REFLDV )
 
                   TLEAF_SUN   = DTLEAF_SUN   + TAIR
-		  TLEAF_SHADE = DTLEAF_SHADE + TAIR
+                  TLEAF_SHADE = DTLEAF_SHADE + TAIR
 C Calculate temperature correction term
                   DT_SUN   = 28668.514 / TLEAF_SUN
-                  DT_SHADE = 28668.514 / TLEAF_SHADE		  
+                  DT_SHADE = 28668.514 / TLEAF_SHADE 
                   CT_SUN   = EXP( 37.711 - 0.398570815 * DT_SUN ) /
      &                          ( 1.0 + EXP( 91.301 - DT_SUN ) )
                   CT_SHADE = EXP( 37.711 - 0.398570815 * DT_SHADE ) /
@@ -294,7 +295,7 @@ C Calculate other biogenic emissions except NO
 C Note not speciated here
 C Limit temerature to 315 K for monoterpenes and other VOCs
             TLEAF_SUN   = MIN( TLEAF_SUN, 315.0 )
-            TLEAF_SHADE = MIN( TLEAF_SHADE, 315.0 )	    
+            TLEAF_SHADE = MIN( TLEAF_SHADE, 315.0 )    
 
             CFOVOC  = FRACSUN   * EXP( 0.09 * ( TLEAF_SUN   - 303.0 ) ) + 
      &                FRACSHADE * EXP( 0.09 * ( TLEAF_SHADE - 303.0 ) ) 
@@ -335,14 +336,14 @@ C Function arguments:
          REAL, INTENT( IN )  :: PARDIF   ! diffuse PAR ( umol/m2-s)
          REAL, INTENT( IN )  :: ZEN      ! solar zenith angle (radians)
          REAL, INTENT( IN )  :: TLAI     ! leaf area index for grid cell
-	 REAL, INTENT( IN )  :: LHSH_DIV  
-	 REAL, INTENT( IN )  :: LHSH_COMP
- 	 REAL, INTENT( IN )  :: SOLRAD
-	 REAL, INTENT( IN )  :: REFLDV
-	 REAL, INTENT( OUT ) :: CSUBL_SUN
-	 REAL, INTENT( OUT ) :: CSUBL_SHADE
-	 REAL, INTENT( OUT ) :: DTLSUN           ! Sun leaf temperature [K]
-	 REAL, INTENT( OUT ) :: DTLSHADE         ! Sun leaf temperature [K]
+         REAL, INTENT( IN )  :: LHSH_DIV  
+         REAL, INTENT( IN )  :: LHSH_COMP
+         REAL, INTENT( IN )  :: SOLRAD
+         REAL, INTENT( IN )  :: REFLDV
+         REAL, INTENT( OUT ) :: CSUBL_SUN
+         REAL, INTENT( OUT ) :: CSUBL_SHADE
+         REAL, INTENT( OUT ) :: DTLSUN           ! Sun leaf temperature [K]
+         REAL, INTENT( OUT ) :: DTLSHADE         ! Sun leaf temperature [K]
          REAL, INTENT( OUT ) :: FRACSUN          ! fraction of leaves that are sunlit
          REAL, INTENT( OUT ) :: FRACSHADE        ! fraction of leaves that are shaded
 
@@ -359,7 +360,7 @@ C Local variables:
          REAL PARSHADE         ! PAR on shaded leaves (umol/m2-s)
          REAL PARSUN           ! PAR on sunlit leaves (umol/m2-s)
          REAL SOLSUN           ! RS transmitted to sunlit leaves W/m**2
-	 REAL SOLSHADE         ! RS transmitted to shaded leaves W/m**2
+         REAL SOLSHADE         ! RS transmitted to shaded leaves W/m**2
          REAL LAISUN           ! LAI that is sunlit
 
 
@@ -410,31 +411,31 @@ C in the cacelation of the long wave radiation budget
                DTLSHADE  = ((1.0 - REFLDV) * SOLSHADE + LHSH_COMP ) / LHSH_DIV
                DTLSUN    = MIN(DTLSUN,  10.0) 
                DTLSUN    = MAX(DTLSUN, -10.0) 
-	       DTLSHADE  = MIN(DTLSHADE,  10.0) 
+               DTLSHADE  = MIN(DTLSHADE,  10.0) 
                DTLSHADE  = MAX(DTLSHADE, -10.0) 
             
-	    ELSE ! to prevent divide by 0 when there is no solar rad
-	       CSUBL_SUN   = 0.0
-	       CSUBL_SHADE = 0.0
-	       FRACSUN     = 0.2
-	       FRACSHADE   = 0.8
+            ELSE ! to prevent divide by 0 when there is no solar rad
+               CSUBL_SUN   = 0.0
+               CSUBL_SHADE = 0.0
+               FRACSUN     = 0.2
+               FRACSHADE   = 0.8
                DTLSUN      = LHSH_COMP / LHSH_DIV
-	       DTLSHADE    = LHSH_COMP / LHSH_DIV
+               DTLSHADE    = LHSH_COMP / LHSH_DIV
                DTLSUN      = MIN(DTLSUN,  10.0) 
                DTLSUN      = MAX(DTLSUN, -10.0) 
-	       DTLSHADE    = MIN(DTLSHADE,  10.0) 
+               DTLSHADE    = MIN(DTLSHADE,  10.0) 
                DTLSHADE    = MAX(DTLSHADE, -10.0) 
-	    END IF	       
-	    
+            END IF       
+    
          ELSE 
             CSUBL_SUN   = CGUEN( PARDB + PARDIF )
-	    CSUBL_SHADE = CGUEN( PARDB + PARDIF )
-	    FRACSUN     = 1.0
-	    FRACSHADE   = 0.0
-	    DTLSUN      = ((1.0 - REFLDV) * SOLRAD + LHSH_COMP ) / LHSH_DIV
-	    DTLSHADE    = 0.0
+            CSUBL_SHADE = CGUEN( PARDB + PARDIF )
+            FRACSUN     = 1.0
+            FRACSHADE   = 0.0
+            DTLSUN      = ((1.0 - REFLDV) * SOLRAD + LHSH_COMP ) / LHSH_DIV
+            DTLSHADE    = 0.0
             DTLSUN      = MIN(DTLSUN,  10.0) 
-            DTLSUN      = MAX(DTLSUN, -10.0)  	    
+            DTLSUN      = MAX(DTLSUN, -10.0)      
          END IF
 
          END SUBROUTINE CLNEW_SUB

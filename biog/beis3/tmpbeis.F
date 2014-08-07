@@ -59,7 +59,8 @@ C                   to open the diagnostic file. Eliminate the BARRIER
 C                   and the CLOSE3 and OPEN3.
 C  02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C  05/11: D.Wong-incorporated twoway model implementation
-
+C  07/14: J.Bash-Added meteorological variables needed for leaf temperature
+C                calculations.
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -429,22 +430,22 @@ C Allocate memory for arrays
 
 ! New variables to calculate leaf temperature
          ALLOCATE( LAI( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'LAI', PNAME )	 
+         CALL CHECKMEM( IOS, 'LAI', PNAME ) 
 
          ALLOCATE( USTAR( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'USTAR', PNAME )	 	 
+         CALL CHECKMEM( IOS, 'USTAR', PNAME )
 
          ALLOCATE( RSTOM( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'RSTOM', PNAME )	 
+         CALL CHECKMEM( IOS, 'RSTOM', PNAME )
 
          ALLOCATE( RATM( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'RATM', PNAME )	 
+         CALL CHECKMEM( IOS, 'RATM', PNAME )
 
          ALLOCATE( Q2( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'Q2', PNAME )	 
+         CALL CHECKMEM( IOS, 'Q2', PNAME )
 
          ALLOCATE( TEMPG( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'TEMPG', PNAME )	 
+         CALL CHECKMEM( IOS, 'TEMPG', PNAME )
 ! End of new variables 
 
          IF ( BEMIS_DIAG ) THEN
