@@ -61,6 +61,9 @@ C              deposition velocity for NO2 that is output in DEPV file
 C              does not include the loss due to the heterogeneous reaction.
 C              This additional loss is now accounted for in vdiff.F
 C 14 Sep 11 J.Young: fix TSTEP bug in call to DEPV_INIT
+C 11 Apr 13 J.Young: fix double adjustment of conc for DDBF in heterogeneous HONO
+C                    if-then-else clauses; eliminate some white space
+C  6 Aug 14 J.Young: implement Pleim`s ACM-MATRIX1 solver; efficiency updates
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -101,16 +104,12 @@ C Parameters:
 C explicit, THETA = 0, implicit, THETA = 1
       REAL, PARAMETER :: THETA = 0.5,  ! For dry deposition term
      &                   THBAR = 1.0 - THETA
-      REAL THRAT  ! THBAR/THETA
-
       REAL, PARAMETER :: M2PHA = 1.0E+04       ! 1 hectare = 1.0e4 m**2
       REAL, PARAMETER :: CMLMR = 1.0E+06       ! ppmV/Molar Mixing Ratio
       REAL, PARAMETER :: CNVTD = M2PHA / CMLMR / MWAIR ! combined ddep
                                                        ! conversion factor
 C ACM parameters
 
-      REAL, PARAMETER :: CRANKP = 0.5
-      REAL, PARAMETER :: CRANKQ = 1.0 - CRANKP
       REAL, PARAMETER :: KARMAN = 0.4
       REAL, PARAMETER :: EPS = 1.0E-06
 
@@ -183,15 +182,22 @@ C ACM Local Variables
       REAL        EDDY  ( NLAYS )
       REAL        MBARKS( NLAYS )               ! by layer
       REAL        MDWN  ( NLAYS )               ! ACM down mix rate
-      REAL        MFAC                          ! intermediate loop factor
+      REAL        MFAC  ( NLAYS )               ! intermediate loop factor
       REAL        AA    ( NLAYS )               ! matrix column one
-      REAL        BB    ( NLAYS )               ! diagonal
+      REAL        BB1   ( NLAYS )               ! MATRIX1 diagonal
+      REAL        BB2   ( NLAYS )               ! TRI diagonal
       REAL        CC    ( NLAYS )               ! subdiagonal
-      REAL        EE    ( NLAYS )               ! superdiagonal
-      REAL, ALLOCATABLE, SAVE :: DD    ( :,: )  ! R.H.S
-      REAL, ALLOCATABLE, SAVE :: UU    ( :,: )  ! returned solution
-      REAL        XPLUS
-      REAL        XMINUS
+      REAL        EE1   ( NLAYS )               ! MATRIX1 superdiagonal
+      REAL        EE2   ( NLAYS )               ! TRI superdiagonal
+      REAL, ALLOCATABLE, SAVE :: DD( :,: )      ! R.H.S
+      REAL, ALLOCATABLE, SAVE :: UU( :,: )      ! returned solution
+      REAL        DFACP, DFACQ
+      REAL     :: DFSP( NLAYS ), DFSQ( NLAYS )  ! intermediate loop factors
+      REAL        DELC, DELP, RP, RQ
+      REAL     :: LFAC1( NLAYS )                ! intermediate factor for CONVT
+      REAL     :: LFAC2( NLAYS )                ! intermediate factor for CONVT
+      REAL     :: LFAC3( NLAYS )                ! intermediate factor for eddy
+      REAL     :: LFAC4( NLAYS )                ! intermediate factor for eddy
       REAL, ALLOCATABLE, SAVE :: DEPVCR     ( : )   ! dep vel in one cell
       REAL, ALLOCATABLE, SAVE :: DEPVJCR    ( :,: ) ! dep vel in one cell for each land use category
       REAL, ALLOCATABLE, SAVE :: DEPVJCR_FST( :,: ) ! dep vel (stomatal uptake only) in one cell for each land use category      
@@ -199,13 +205,13 @@ C ACM Local Variables
       REAL, ALLOCATABLE, SAVE :: EFAC2 ( : )
       REAL, ALLOCATABLE, SAVE :: POL   ( : )    ! prodn/lossrate = PLDV/DEPV
       REAL        PLDV_HONO                     ! PLDV for HONO
-      REAL        CONC_NO2                      ! CONC of NO2
       REAL        DEPV_NO2                      ! Dep. Vel. of NO2
       REAL        DEPV_HNO3                     ! Dep. Vel. of HNO3
       REAL        FNL
       INTEGER     NLP, NL, LCBL
       INTEGER, SAVE :: NO2_HIT, HONO_HIT, HNO3_HIT, NO2_MAP, HONO_MAP, HNO3_MAP
-      REAL        DTLIM, DTS, DTACM, RZ, DELC, LFAC1, LFAC2
+      INTEGER, SAVE :: NH3_HIT
+      REAL        DTLIM, DTS, DTACM, RZ
 
       INTEGER, SAVE :: LOGDEV
  
@@ -214,8 +220,7 @@ C ACM Local Variables
       INTEGER      MDATE, MTIME, MSTEP          ! internal simulation date&time
                                                 ! array in vert. mixing
       INTERFACE
-         SUBROUTINE RDMET( MDATE, MTIME, RDEPVHT, RJACM, RVJACMF, RRHOJ,
-     &                     DENS1 )
+         SUBROUTINE RDMET( MDATE, MTIME, RDEPVHT, RJACM, RVJACMF, RRHOJ, DENS1 )
             IMPLICIT NONE
             INTEGER,        INTENT( IN )  :: MDATE, MTIME
             REAL,           INTENT( OUT ) :: RDEPVHT( :,: )
@@ -260,12 +265,13 @@ C ACM Local Variables
             INTEGER,        INTENT( OUT ) :: LPBL  ( :,: )
             LOGICAL,        INTENT( OUT ) :: CONVCT( :,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE MATRIX ( A, B, C, D, E, X )
+         SUBROUTINE MATRIX1 ( KL, A, B, E, D, X )
             IMPLICIT NONE
-            REAL,           INTENT( IN )  :: A( : ), B( : ), C( : ), E( : )
+            INTEGER,        INTENT( IN )  :: KL
+            REAL,           INTENT( IN )  :: A( : ), B( : ), E( : )
             REAL,           INTENT( IN )  :: D( :,: )
             REAL,           INTENT( OUT ) :: X( :,: )
-         END SUBROUTINE MATRIX
+         END SUBROUTINE MATRIX1
          SUBROUTINE TRI ( L, D, U, B, X )
             IMPLICIT NONE
             REAL,           INTENT( IN )  :: L( : ), D( : ), U( : )
@@ -314,18 +320,19 @@ C create global maps
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         HONO_HIT = 0; HNO3_HIT = 0; NO2_HIT  = 0
-         HONO_MAP = 0; HNO3_MAP = 0; NO2_MAP  = 0
+         HONO_HIT = 0; HNO3_HIT = 0; NO2_HIT  = 0; NH3_HIT = 0
+                       HNO3_MAP = 0; NO2_MAP  = 0
          DO V = 1, N_SPC_DEPV
             IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'NO2' ) THEN
                NO2_HIT = V
                NO2_MAP = DV2DF( V )
             ELSE IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'HONO' ) THEN
                HONO_HIT = V
-               HONO_MAP = DV2DF( V )
             ELSE IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'HNO3' ) THEN
                HNO3_HIT = V
                HNO3_MAP = DV2DF( V )
+            ELSE IF ( TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+               NH3_HIT = V
             END IF
          END DO
 
@@ -487,7 +494,6 @@ C read & interpolate met data
 C read & interpolate deposition velocities
 
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )
-!      Write(logdev,*) 'After get_depv'
       
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
 
@@ -526,10 +532,14 @@ C Convert non-molar mixing ratio species and re-order CGRID
 
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
-      IF ( WSTEP .EQ. 0 ) DDEP = 0.0
-      IF ( WSTEP .EQ. 0 ) ICMP = 0.0
-      IF ( WSTEP .EQ. 0 .AND. MOSAIC ) DDEPJ = 0.0
-      IF ( WSTEP .EQ. 0 .AND. MOSAIC .AND. FST ) DDEPJ_FST = 0.0
+      IF ( WSTEP .EQ. 0 ) THEN
+         DDEP = 0.0                      ! array assignment
+         ICMP = 0.0                      ! array assignment
+         IF ( MOSAIC ) THEN
+            DDEPJ = 0.0                  ! array assignment
+            IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
+         END IF
+      END IF
 
 C ------------------------------------------- Row, Col LOOPS -----------
 
@@ -558,8 +568,6 @@ C New couple ACM & EDDY ------------------------------------------------
             MEDDY = SEDDY( 1,C,R ) / ( XPBL( C,R ) - X3FACE_GD( 1 ) )
             FNL = 1.0 / ( 1.0 + ( ( KARMAN / ( -HOL( C,R ) ) ) ** 0.3333 )
      &                / ( 0.72 * KARMAN ) )
-
-!           IF ( FNL .GT. 1.0 ) WRITE( LOGDEV,* ) ' FNL= ', FNL
 
             MBAR = MEDDY * FNL
             DO L = 1, LCBL - 1
@@ -593,7 +601,6 @@ C New couple ACM & EDDY ------------------------------------------------
             MDWN( LCBL ) = MBARKS( LCBL )
 
 C Modify Timestep for ACM
-
             RZ     = ( X3FACE_GD( LCBL ) - X3FACE_GD( 1 ) ) * RDX3F( 1 )
             DTACM  = 1.0 / ( MBAR * RZ )
             DTLIM  = MIN( 0.75 * DTACM, DTLIM )
@@ -606,6 +613,8 @@ C-----------------------------------------------------------------------
          NLP = INT( DTSEC / DTLIM + 0.99 )
          DTS = DTSEC / REAL( NLP )
          DTDENS1 = DTS * DENS1( C,R )
+         DFACP = THETA * DTS
+         DFACQ = THBAR * DTS
 
 #ifdef Verbose
         IF ( R .EQ. MY_NROWS / 2 .AND. C .EQ. MY_NCOLS / 2 )
@@ -613,8 +622,6 @@ C-----------------------------------------------------------------------
      &                           MBAR, FNL
 1021        FORMAT( ' CONVCT, DTS, EDDYV, MBAR, FNL: ', L3, 1X, 4(1PE13.5) )
 #endif
-
-C End ACM insert
 
          DO L = 1, NLAYS
             DO V = 1, N_SPC_DIFF
@@ -630,22 +637,63 @@ C End ACM insert
          END DO
 
          DO L = 1, NLAYS
+            DFSP( L ) = DFACP * RDX3F( L )
+            DFSQ( L ) = DFACQ * RDX3F( L )
             EDDY( L ) = SEDDY( L,C,R )
          END DO
 
+         RP = DFACP * RDEPVHT( C,R )
+         RQ = DFACQ * RDEPVHT( C,R )
          DO V = 1, N_SPC_DEPV
             DDBF( V )   = DDEP( V,C,R )
             DEPVCR( V ) = DEPV( V,C,R )
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
-            EFAC1 ( V ) = EXP( -DEPVCR( V ) * RDEPVHT( C,R ) * THBAR * DTS )
-            EFAC2 ( V ) = EXP( -DEPVCR( V ) * RDEPVHT( C,R ) * THETA * DTS )
+            EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
+            EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
             POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )
-            IF ( ABFLUX .AND. TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN      
+            IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                DO I = 1, LCMP          
                   CMPF( I ) = ICMP( I,C,R )
                END DO
             END IF            
          END DO
+         PLDV_HONO = PLDV( HONO_HIT,C,R )
+
+C These don`t change in the NLP sub-time step loop:---------------------
+         DO L = 1, NLAYS
+            AA ( L ) = 0.0
+            BB1( L ) = 0.0
+            EE1( L ) = 0.0
+            CC ( L ) = 0.0
+            EE2( L ) = 0.0
+            BB2( L ) = 0.0
+         END DO
+         IF ( CONVCT( C,R ) ) THEN
+            L = 1
+            DELP = XPBL( C,R ) - X3FACE_GD( L )
+            BB1( L ) = 1.0 + DELP * DFSP( L ) * MBARKS( L )
+            LFAC1( L ) = DFSQ( L ) * DELP * MBARKS( L )
+            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * DX3F( L+1 )
+            DO L = 2, LCBL
+               AA ( L ) = -DFACP * MBARKS( L )
+               BB1( L ) = 1.0 + DFACP * MDWN( L )
+               EE1( L ) = -DFSP( L-1 ) * DX3F( L ) * MDWN( L )
+               MFAC( L ) = DX3F( L+1 ) * RDX3F( L ) * MDWN( L+1 )
+            END DO
+         END IF
+
+         DO L = 1, NLAYS
+            EE2( L ) = - DFSP( L ) * EDDY( L )
+            LFAC3( L ) = DFSQ( L ) * EDDY( L )
+         END DO
+
+         BB2( 1 ) = 1.0 - EE2( 1 )
+         DO L = 2, NLAYS
+            CC ( L ) = - DFSP( L ) * EDDY( L-1 )
+            BB2( L ) = 1.0 - CC( L ) - EE2( L )
+            LFAC4( L ) = DFSQ( L ) * EDDY( L-1 )
+         END DO
+C ----------------------------------------------------------------------
 
          IF ( MOSAIC ) THEN
             DO V = 1, N_SPC_DEPV
@@ -666,9 +714,6 @@ C End ACM insert
             END IF
          END IF
 
-         PLDV_HONO = PLDV( HONO_HIT,C,R )
-         CONC_NO2 = CONC( NO2_MAP,1 )
-
 C-----------------------------------------------------------------------
 
          DO 301 NL = 1, NLP      ! loop over sub time
@@ -677,20 +722,14 @@ C --------- HET HONO RX -----------------
 
             DO V = 1, N_SPC_DEPV
 
-C For HONO, use special treatment
-               IF ( V .EQ. HONO_HIT ) THEN
-                  CONC( HONO_MAP,1 ) = POL( V ) + ( CONC( HONO_MAP,1 ) - POL( V ) )
-     &                               * EFAC1( V )
-                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( HONO_MAP,1 )
-
 C For HNO3, use special treatment
-               ELSE IF ( V .EQ. HNO3_HIT ) THEN
+               IF ( V .EQ. HNO3_HIT ) THEN
                   CONC( HNO3_MAP,1 ) = POL( V ) + ( CONC( HNO3_MAP,1 ) - POL( V ) )
      &                               * EFAC1( V )
 
 C HNO3 produced via the heterogeneous reaction sticks on the surfaces
 C HNO3 is accounted as depositional loss; calculate increased deposition loss
-                  DEPV_HNO3 = DEPVCR( V ) + PLDV_HONO / CONC_NO2
+                  DEPV_HNO3 = DEPVCR( V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                   DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( HNO3_MAP,1 )
 
@@ -702,9 +741,9 @@ C depositional loss. Add the loss of NO2 via the heterogeneous reaction
 C to the regular deposition velocity (increased dep. vel.).  This will
 C reduce the NO2 conc. in the atmosphere without affecting the depositional loss.
 
-                  DEPV_NO2 = DEPVCR( V ) + 2.0 * PLDV_HONO / CONC_NO2
-                  EFAC1 ( V ) = EXP( -DEPV_NO2 * RDEPVHT( C,R ) * THBAR * DTS )
-                  EFAC2 ( V ) = EXP( -DEPV_NO2 * RDEPVHT( C,R ) * THETA * DTS )
+                  DEPV_NO2 = DEPVCR( V ) + 2.0 * PLDV_HONO / CONC( NO2_MAP,1 )
+                  EFAC1 ( V ) = EXP( -DEPV_NO2 * RP )
+                  EFAC2 ( V ) = EXP( -DEPV_NO2 * RQ )
                   POL   ( V ) = PLDV( V,C,R ) / DEPV_NO2
                   CONC( NO2_MAP,1 ) = POL( V ) + ( CONC( NO2_MAP,1 ) - POL( V ) )
      &                              * EFAC1( V )
@@ -718,9 +757,8 @@ C For NH3, use bi-directional flux
 
                   CONC( DV2DF( V ),1 ) = POL( V ) + ( CONC( DV2DF( V ),1 ) - POL( V ) )
      &                                 * EFAC1( V )
-                  DDBF( V ) = DDBF( V )
-     &                      + THBAR * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
-                  IF ( ABFLUX .AND. TRIM ( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+                  DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( DV2DF( V ),1 )
+                  IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      DO I = 1, LCMP        
                         CMPF( I ) = CMPF( I ) + THBAR * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1
                      END DO
@@ -731,85 +769,60 @@ C For NH3, use bi-directional flux
             END DO
     
             IF ( MOSAIC ) THEN
-
                DO V = 1, N_SPC_DEPV
-
-                  IF ( V .EQ. HONO_HIT ) THEN
+C --------------- HET HONO RX -----------------
+                  IF ( V .EQ. HNO3_HIT ) THEN
                      DO J = 1, N_LUFRAC
-                        DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( HONO_MAP,1 )
-                     END DO
-
-                  ELSE IF ( V .EQ. HNO3_HIT ) THEN
-                     DO J = 1, N_LUFRAC
-                        DEPV_HNO3 = DEPVJCR( J,V ) + PLDV_HONO / CONC_NO2
+                        DEPV_HNO3 = DEPVJCR( J,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                         DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
                         DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
                      END DO
 ! no longer necessary now that Het HONO no longer changes the NO2 dep vel. JOB
 !                 ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                    DO J = 1, N_LUFRAC
-!                       DEPV_NO2 = DEPVJCR( J,V ) - 2.0 * PLDV_HONO / CONC_NO2
+!                       DEPV_NO2 = DEPVJCR( J,V ) - 2.0 * PLDV_HONO / CONC( NO2_MAP,1 )
 !                       DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
 !                       DDBFJ( J,V ) = DDBFJ( J,V ) + THBAR * DD_FACJ( J,V ) * CONC( NO2_MAP,1 )
 !                    END DO
-
 C --------- END of HET HONO RX ----------
 
                   ELSE
-
                      DO J = 1, N_LUFRAC
                         DDBFJ( J,V ) = DDBFJ( J,V )
      &                               + THBAR * DD_FACJ( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
                      END DO
-
                   END IF
-
                END DO
-
                IF ( FST ) THEN
-
                   DO V = 1, N_SPC_DEPV
-
-                     IF ( V .EQ. HONO_HIT ) THEN
+                     IF ( V .EQ. HNO3_HIT ) THEN
                         DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
-     &                                      + THBAR * DD_FACJ_FST( J,V ) * CONC( HONO_MAP,1 )
-                        END DO
-                     ELSE IF ( V .EQ. HNO3_HIT ) THEN
-                        DO J = 1, N_LUFRAC
-                           DEPV_HNO3 = DEPVJCR_FST( J,V ) + PLDV_HONO / CONC_NO2
+                           DEPV_HNO3 = DEPVJCR_FST( J,V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                            DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
                            DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
      &                                      + THBAR * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
                         END DO
 !                    ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                       DO J = 1, N_LUFRAC
-!                          DEPV_NO2 = DEPVJCR_FST( J,V ) - 2.0 * PLDV_HONO / CONC_NO2
+!                          DEPV_NO2 = DEPVJCR_FST( J,V ) - 2.0 * PLDV_HONO / CONC( NO2_MAP,1 )
 !                          DD_FACJ_FST( J,V ) = DTDENS1 * DD_CONV( V ) * DEPV_NO2
 !                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
 !     &                                     + THBAR * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
 !                       END DO
                      ELSE
-
                         DO J = 1, N_LUFRAC
                            DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
      &                                      + THBAR * DD_FACJ_FST( J,V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
                         END DO
                      END IF
-
                   END DO
-
                END IF   ! FST
 
             END IF   ! MOSAIC
 
-C Init variables for use below
+C Init R.H.S. matrix elements
 
             DO L = 1, NLAYS
-               AA( L ) = 0.0
-               BB( L ) = 0.0
-               CC( L ) = 0.0
-               EE( L ) = 0.0
                DO V = 1, N_SPC_DIFF
                   DD( V,L ) = 0.0
                   UU( V,L ) = 0.0
@@ -820,89 +833,65 @@ C Compute tendency of CBL concentrations - semi-implicit solution
 C Define arrays A,B,E which make up MATRIX and D which is RHS
 
             IF ( CONVCT( C,R ) ) THEN
-               DO L = 2, LCBL
-                  AA( L )   = -CRANKP * MBARKS( L ) * DTS
-                  BB( L )   = 1.0 + CRANKP * MDWN( L ) * DTS
-                  EE( L-1 ) = -CRANKP * MDWN( L ) * DTS * DX3F( L )
-     &                      * RDX3F( L-1 )
-                  MFAC = DX3F( L+1 ) * RDX3F( L ) * MDWN( L+1 )
-                  DO V = 1, N_SPC_DIFF
-                     DELC = DTS * ( MBARKS( L ) * CONC( V,1 )
-     &                              - MDWN( L ) * CONC( V,L )
-     &                              + MFAC      * CONC( V,L+1 ) )
-                     DD( V,L ) = CONC( V,L ) + CRANKQ * DELC
-                  END DO
-               END DO
-            END IF
+C Subroutine MATRIX then solves for U if convective, then TRI solves for U
 
-            AA( 2 ) = AA( 2 ) - EDDY( 1 ) * CRANKP * RDX3F( 2 ) * DTS
-            EE( 1 ) = EE( 1 ) - EDDY( 1 ) * CRANKP * RDX3F( 1 ) * DTS
-
-            DO L = 2, NLAYS
-               IF ( L .GT. LCBL ) THEN
-                  BB( L ) = 1.0
-                  DO V = 1, N_SPC_DIFF
-                     DD( V,L ) = CONC( V,L )
-                  END DO
-               END IF
-               XPLUS  = EDDY( L )   * RDX3F( L ) * DTS
-               XMINUS = EDDY( L-1 ) * RDX3F( L ) * DTS
-               BB( L ) = BB( L ) + ( XPLUS + XMINUS ) * CRANKP
-               CC( L ) = - XMINUS * CRANKP
-               EE( L ) = EE( L ) - XPLUS * CRANKP
-               IF ( L .EQ. NLAYS ) THEN
-                  DO V = 1, N_SPC_DIFF
-                     DD( V,L ) = DD( V,L )
-     &                         - CRANKQ * XMINUS
-     &                         * ( CONC( V,L ) - CONC( V,L-1 ) )
-                  END DO
-               ELSE
-                  LFAC1 = CRANKQ * XPLUS
-                  LFAC2 = CRANKQ * XMINUS
-                  DO V = 1, N_SPC_DIFF
-                     DD( V,L ) = DD( V,L )
-     &                         + LFAC1
-     &                         * ( CONC( V,L+1 ) - CONC( V,L ) )
-     &                         - LFAC2
-     &                         * ( CONC( V,L ) - CONC( V,L-1 ) )
-                     IF ( L .LE. EMLAYS ) DD( V,L ) = DD( V,L ) + EMIS( V,L )
-                  END DO
-               END IF
-            END DO
-
-            BB( 1 ) = 1.0
-            DO V = 1, N_SPC_DIFF
-               DD( V,1 ) = CONC( V,1 )
-            END DO
-
-            IF ( CONVCT( C,R ) ) THEN
-               LFAC1 = ( XPBL( C,R ) - X3FACE_GD( 1 ) ) * RDX3F( 1 ) * DTS
-               LFAC2 = CRANKQ * MDWN( 2 ) * DX3F( 2 )
-     &               * RDX3F( 1 ) * DTS
-               BB( 1 ) = BB( 1 ) + CRANKP * MBARKS( 1 ) * LFAC1
-               LFAC1 = CRANKQ * MBARKS( 1 ) * LFAC1
+               L = 1
                DO V = 1, N_SPC_DIFF
-                  DD( V,1 ) = DD( V,1 )
-     &                      - LFAC1 * CONC( V,1 )
-     &                      + LFAC2 * CONC( V,2 ) ! net mixing above
+                  DD( V,L ) = CONC( V,L )
+     &                      - LFAC1( L ) * CONC( V,L )
+     &                      + LFAC2( L ) * CONC( V,L+1 )
                END DO
+
+               DO L = 2, LCBL
+                  DO V = 1, N_SPC_DIFF
+                     DELC = MBARKS( L ) * CONC( V,1 )
+     &                    -   MDWN( L ) * CONC( V,L )
+     &                    +   MFAC( L ) * CONC( V,L+1 )
+                     DD( V,L ) = CONC( V,L ) + DFACQ * DELC
+                  END DO
+               END DO
+
+               CALL MATRIX1 ( LCBL, AA, BB1, EE1, DD, UU )
+
+C update conc
+               DO L = 1, LCBL
+                  DO V = 1, N_SPC_DIFF
+                     CONC( V,L ) = UU( V,L )
+                  END DO
+               END DO
+
+C reinitialize for TRI solver
+               DO L = 1, NLAYS
+                  DO V = 1, N_SPC_DIFF
+                     DD( V,L ) = 0.0
+                     UU( V,L ) = 0.0
+                  END DO
+               END DO
+
             END IF
 
-            BB( 1 ) = BB( 1 ) + CRANKP * EDDY( 1 ) * RDX3F( 1 ) * DTS
-            LFAC1 = CRANKQ * EDDY( 1 ) * RDX3F( 1 ) * DTS
+            L = 1
             DO V = 1, N_SPC_DIFF
-               DD( V,1 ) = DD( V,1 )
-     &                   + LFAC1 * ( CONC( V,2 ) - CONC( V,1 ) )
-     &                   + EMIS( V,1 )
+               DD( V,L ) = CONC( V,L )
+     &                   + LFAC3( L ) * ( CONC( V,L+1 ) - CONC( V,L ) )
+     &                   + EMIS( V,L )
+            END DO
+            DO L = 2, NLAYS-1
+               DO V = 1, N_SPC_DIFF
+                  DD( V,L ) = CONC( V,L )
+     &                      + LFAC3( L ) * ( CONC( V,L+1 ) - CONC( V,L ) )
+     &                      - LFAC4( L ) * ( CONC( V,L ) - CONC( V,L-1 ) )
+     &                      + EMIS( V,L )
+               END DO
             END DO
 
-C Subroutine MATRIX then solves for U if ACM2, else TRI solves for U
+            L = NLAYS
+            DO V = 1, N_SPC_DIFF
+               DD( V,L ) = CONC( V,L )
+     &                   - LFAC4( L ) * ( CONC( V,L ) - CONC( V,L-1 ) )
+            END DO
 
-            IF ( CONVCT( C,R ) ) THEN
-               CALL MATRIX ( AA, BB, CC, DD, EE, UU )
-            ELSE
-               CALL TRI ( CC, BB, EE, DD, UU )
-            END IF
+            CALL TRI ( CC, BB2, EE2, DD, UU )
 
 C Load into CGRID
             DO L = 1, NLAYS
@@ -915,13 +904,7 @@ C Load into CGRID
 
 C --------- HET HONO RX -----------------
 
-               IF ( V .EQ. HONO_HIT ) THEN
-
-                  CONC( HONO_MAP,1 ) = POL( V ) + ( CONC( HONO_MAP,1 ) - POL( V ) )
-     &                               * EFAC2( V )
-                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( HONO_MAP,1 )
-
-               ELSE IF ( V .EQ. HNO3_HIT ) THEN
+               IF ( V .EQ. HNO3_HIT ) THEN
 
                   CONC( HNO3_MAP,1 ) = POL( V ) + ( CONC( HNO3_MAP,1 ) - POL( V ) )
      &                               * EFAC2( V )
@@ -941,9 +924,8 @@ C For NH3, use bi-directional flux
 
                   CONC( DV2DF( V ),1 ) = POL( V ) + ( CONC( DV2DF( V ),1 ) - POL( V ) )
      &                                 * EFAC2( V )
-                  DDBF( V ) = DDBF( V )
-     &                      + THETA * DD_FAC( V ) * ( CONC( DV2DF( V ),1 ) - POL( V ) )
-                  IF ( ABFLUX .AND. TRIM( DV2DF_SPC( V ) ) .EQ. 'NH3' ) THEN
+                  DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( DV2DF( V ),1 )
+                  IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                      DO I = 1, LCMP
                         CMPF( I ) = CMPF( I ) + THETA * CMP( I,C,R ) * DD_CONV( V ) * DTDENS1   
                      END DO
@@ -955,13 +937,9 @@ C For NH3, use bi-directional flux
     
             IF ( MOSAIC ) THEN
                DO V = 1, N_SPC_DEPV
-                  IF ( V .EQ. HONO_HIT ) THEN
+                  IF ( V .EQ. HNO3_HIT ) THEN
                      DO J = 1, N_LUFRAC
-                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HONO_MAP,1 )
-                     END DO
-                  ELSE IF ( V .EQ. HNO3_HIT ) THEN
-                     DO J = 1, N_LUFRAC
-                       DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
+                        DDBFJ( J,V ) = DDBFJ( J,V ) + THETA * DD_FACJ( J,V ) * CONC( HNO3_MAP,1 )
                      END DO
 !                 ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                    DO J = 1, N_LUFRAC
@@ -976,17 +954,15 @@ C For NH3, use bi-directional flux
                END DO
                IF ( FST ) THEN
                   DO V = 1, N_SPC_DEPV
-                     IF ( V .EQ. HONO_HIT ) THEN
+                     IF ( V .EQ. HNO3_HIT ) THEN
                         DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HONO_MAP,1 )
-                        END DO
-                     ELSE IF ( V .EQ. HNO3_HIT ) THEN
-                        DO J = 1, N_LUFRAC
-                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
+                           DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+     &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( HNO3_MAP,1 )
                         END DO
 !                    ELSE IF ( V .EQ. NO2_HIT ) THEN
 !                       DO J = 1, N_LUFRAC
-!                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V ) + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
+!                          DDBFJ_FST( J,V ) = DDBFJ_FST( J,V )
+!    &                                      + THETA * DD_FACJ_FST( J,V ) * CONC( NO2_MAP,1 )
 !                       END DO
                      ELSE
                         DO J = 1, N_LUFRAC
