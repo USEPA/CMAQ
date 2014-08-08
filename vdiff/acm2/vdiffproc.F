@@ -67,6 +67,7 @@ C  2 May 14 J.Pleim, J.Young: replace the banded tridiagonal matrix solver for t
 C           convective PBL, with the ACM1 matrix solver followed by the tridiagonal
 C           matrix solver
 C 30 May 14 J.Young: split vdiff calculation out of vdiff proc.
+C 31 Jul 14 J.Young: incorporate gravitational settling for J-,K-mode aerosols
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -105,15 +106,14 @@ C Arguments:
                                 !            step and wrf/cmaq call frequency
 
 C Parameters:
-      REAL, PARAMETER :: ALPHA = 1.1  ! reciprocal max layer thickness for vsed flux
-!     REAL, PARAMETER :: ALPHA = 2.0  ! reciprocal max layer thickness for vsed flux
 
 C External Functions: None
 
 C Local Variables: 
       CHARACTER( 16 ), SAVE :: PNAME = 'VDIFFPROC'
+      CHARACTER( 16 ), SAVE :: AERO_GRAV_SETL = 'CTM_GRAV_SETL'
       CHARACTER( 80 ) :: VARDESC                ! env variable description
-
+      LOGICAL, SAVE :: GRAV_SETL
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER, SAVE :: WSTEP  = 0               ! local write counter
       INTEGER  STATUS                           ! ENV... status
@@ -143,7 +143,7 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
 
-c Local Variables
+C Local Variables
 
       INTEGER, SAVE :: LOGDEV
  
@@ -209,6 +209,18 @@ c Local Variables
             REAL, INTENT( INOUT ) :: DDEPJ_FST( :,:,:,: )
             REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: )
          END SUBROUTINE VDIFFACMX
+         SUBROUTINE SEDI( DTSEC, SEDVEL, CGRID, CNGRD )
+            USE CGRID_SPCS
+            USE GRID_CONF
+            USE VDIFF_MET
+            USE VDIFF_MAP
+            USE UTILIO_DEFN
+            IMPLICIT NONE
+            REAL, INTENT( IN )    :: DTSEC
+            REAL, INTENT( OUT )   :: SEDVEL   ( :,:,:,: )
+            REAL, POINTER         :: CGRID    ( :,:,:,: )
+            REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: )
+         END SUBROUTINE SEDI
 
       END INTERFACE
 
@@ -235,6 +247,12 @@ C Initialize the met data
             XMSG = 'Failure initializing met module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+C Get gravitational settling (sedi) flag.
+         GRAV_SETL = .TRUE.         ! default
+         VARDESC = 'Using J-,K-mode aerosols gravitational settling'
+         GRAV_SETL = ENVYN( AERO_GRAV_SETL, VARDESC, GRAV_SETL, STATUS )
+         IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
 
 C Get diagnostic files flag.
          VDIFFDIAG = .FALSE.         ! default
@@ -282,10 +300,18 @@ C Set up for process analysis
             END IF
          END IF
 
-C Open sedi diagnostics file (ioapi header from cgrd)
+C Set up for grav. settling
+         IF ( GRAV_SETL ) THEN
+            ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating VSED_AE'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+
+C Open vdiff diagnostics file (ioapi header from cgrd)
          IF ( VDIFFDIAG ) THEN
-!           IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
-            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), .false. ) ) THEN
+            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
                XMSG = 'Failure initializing sedi diagnostics module'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -327,11 +353,21 @@ C Open sedi diagnostics file (ioapi header from cgrd)
       DTSEC = FLOAT( MSTEP )
       CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP / 2 ) )
 
+C Convert non-molar mixing ratio species and re-order CGRID
+      CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
+
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )
       
 C read & interpolate met data
       CALL GET_MET ( MDATE, MTIME, MSTEP )
+
+      IF ( GRAV_SETL ) THEN
+C Get gravitational settling velocity for the vsed aero species:
+C AERO_SEDV assumes that every aero species is dry deposited and is diffused (trns)
+C Calculate the changes in the layer J-,K-mode aerosol concentrations
+         CALL SEDI( DTSEC, VSED_AE, CGRID, CNGRD )
+      END IF
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, RDX3F, RRHOJ, RJACM )
@@ -370,9 +406,6 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
          END DO
       END DO
 
-C Convert non-molar mixing ratio species and re-order CGRID
-      CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
-
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
@@ -394,6 +427,15 @@ C Calculate the change in concentration and dry dep from vertical diffusion and 
                NLPCR_MIN( C,R ) = MIN( NLPCR_MEAN( C,R ), NLPCR_MIN( C,R ) )
             END DO
          END DO
+         IF ( GRAV_SETL ) THEN
+            DTCCR_SUM = DTCCR_SUM + DTCCR_MEAN    ! array assignment
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  DTCCR_MAX( C,R ) = MAX( DTCCR_MEAN( C,R ), DTCCR_MAX( C,R ) )
+                  DTCCR_MIN( C,R ) = MIN( DTCCR_MEAN( C,R ), DTCCR_MIN( C,R ) )
+               END DO
+            END DO
+         END IF
       END IF
 
 C Revert non-molar mixing ratio species and re-order CGRID
@@ -445,6 +487,30 @@ C If last call this hour:  write accumulated depositions:
          
 C Write vdiff diagnostics
          IF ( VDIFFDIAG ) THEN
+            IF ( GRAV_SETL ) THEN   ! Write vsed diagnostics
+
+               DO V = 1, N_VSED
+                  S = VSED_MAP( V )
+                  DO L = 1, NLAYS
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           VSED_BUF( C,R,L,V ) = VSED_AE( S,L,C,R )
+                        END DO
+                     END DO
+                  END DO
+                  IF ( .NOT. WRITE3( VSED_DIAG, VSED_NAME( V ),
+     &                               MDATE, MTIME, VSED_BUF( 1,1,1,V ) ) ) THEN
+                     XMSG = 'Could not write ' // TRIM( VSED_NAME( V ) )
+     &                    // ' to ' // VSED_DIAG
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  END IF
+               END DO
+
+               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &               'Timestep written to', VSED_DIAG,
+     &               'for date and time', MDATE, MTIME
+
+            END IF   ! GRAV_SETL
 
 C Write other diagnostics
             NLPCR_MEAN = NLPCR_SUM / FLOAT( NTICS )
@@ -466,6 +532,28 @@ C Write other diagnostics
             NLPCR_MAX = 0.0      ! array assignment
             NLPCR_MIN = 9.9E30   ! array assignment
             NLPCR_SUM = 0.0      ! array assignment
+
+            IF ( GRAV_SETL ) THEN   ! Write vsed diagnostics
+               DTCCR_MEAN = DTCCR_SUM / FLOAT( NTICS )
+               IF ( .NOT. WRITE3( VDFF_DIAG, 'SEDI_DTC_MEAN',
+     &                            MDATE, MTIME, DTCCR_MEAN ) ) THEN
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MEAN to ' // VDFF_DIAG
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               IF ( .NOT. WRITE3( VDFF_DIAG, 'SEDI_DTC_MAX',
+     &                            MDATE, MTIME, DTCCR_MAX ) ) THEN
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MAX to ' // VDFF_DIAG
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               IF ( .NOT. WRITE3( VDFF_DIAG, 'SEDI_DTC_MIN',
+     &                            MDATE, MTIME, DTCCR_MIN ) ) THEN
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MIN to ' // VDFF_DIAG
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+               DTCCR_MAX = 0.0      ! array assignment
+               DTCCR_MIN = 9.9E30   ! array assignment
+               DTCCR_SUM = 0.0      ! array assignment
+            END IF
 
             CNVCT = 0.0   ! array assignment
             DO R = 1, MY_NROWS
