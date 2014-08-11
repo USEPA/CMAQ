@@ -61,6 +61,7 @@ C  02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C  05/11: D.Wong-incorporated twoway model implementation
 C  07/14: J.Bash-Added meteorological variables needed for leaf temperature
 C                calculations.
+C  08/14: J.Bash-Added backwards compatibility for earlier versions of MCIP
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -581,32 +582,52 @@ C Read surface pressure data
       END IF
 
 ! Read stomatal resistance 
-      IF ( .NOT. INTERPX( MNAME, 'RSTOMI', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, RSTOM ) ) THEN
-         MESG = 'Could not read "' // 'RSTOMI' // 
+      IF ( INDEX1( 'RS', NVARS3D, VNAME3D ) .GT. 0 ) THEN
+         IF ( .NOT. INTERPX( MNAME, 'RS', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RSTOM ) ) THEN
+            MESG = 'Could not read "' // 'RS' // 
      &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-      DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
-            RSTOM( C,R ) = 1.0/MAX( RSTOM( C,R ), 1.0e-30 )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      ELSE 
+         IF ( .NOT. INTERPX( MNAME, 'RSTOMI', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RSTOM ) ) THEN
+            MESG = 'Could not read "' // 'RSTOMI' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               RSTOM( C,R ) = 1.0/MAX( RSTOM( C,R ), 1.0e-30 )
+            END DO
          END DO
-      END DO
+      END IF
 
 ! Read aerodynamic resistance 
-      IF ( .NOT. INTERPX( MNAME, 'RADYNI', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, RATM ) ) THEN
-         MESG = 'Could not read "' // 'RADYNI' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-      DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
-            RATM( C,R ) = 1.0/MAX( RATM( C,R ), 1.0e-30 )
+      IF ( INDEX1( 'RA', NVARS3D, VNAME3D ) .GT. 0 ) THEN
+         IF ( .NOT. INTERPX( MNAME, 'RA', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RATM ) ) THEN
+            MESG = 'Could not read "' // 'RA' // 
+     &              '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      ELSE 
+         IF ( .NOT. INTERPX( MNAME, 'RADYNI', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RATM ) ) THEN
+            MESG = 'Could not read "' // 'RADYNI' // 
+     &              '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               RATM( C,R ) = 1.0/MAX( RATM( C,R ), 1.0e-30 )
+            END DO
          END DO
-      END DO
+      END IF
 
 ! Read surface layer water vapor mixing ratio
       IF ( .NOT. INTERPX( MNAME, 'Q2', PNAME,
