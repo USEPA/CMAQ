@@ -534,6 +534,13 @@ C If new date, read season switch
       WRITE( MESG,94030 ) HHMMSS( JTIME )
       CALL M3MSG2( MESG )
 
+C repopulate the met_cro_2d variable attributes
+      IF ( .NOT. DESC3( MNAME ) ) THEN
+         MESG = 'Could not get description of file "'
+     &           // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
 C Read temperature data
 !     IF ( .NOT. INTERPX( MNAME, 'TEMP10', PNAME,
       IF ( .NOT. INTERPX( MNAME, 'TEMP2', PNAME,
