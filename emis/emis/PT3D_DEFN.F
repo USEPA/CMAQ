@@ -49,6 +49,8 @@ C                          synchronization time steps rather than the number of 
 C     19 Dec 2013 D. Wong: used WRTIME, a robust way to determine when to write the 
 C                          PT3D diagnostic file instead of relying on NTICS in particular
 C                          for the twoway model where a time step can be sub-divided.
+C     29 Jul 2014 D. Wong: in subroutine PT3D_INIT, to check each individual file,
+C                          MET_CRO_3D and MET_DOT_3D has window property or not
 
 C-----------------------------------------------------------------------
 
@@ -199,8 +201,8 @@ C Local Variables:
          INTEGER :: GXOFF, GYOFF
          INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
 
-         LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
-                                           ! processing domain
+!        LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
+!                                          ! processing domain
 
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
@@ -367,13 +369,14 @@ C (declared and stored in PTBILIN module)
          METCXORIG = XORIG3D
          METCYORIG = YORIG3D
 
-         IF ( ( GXOFF .GT. 0 ) .AND. ( GYOFF .GT. 0 ) ) THEN
-            WINDOW = .TRUE.
-         ELSE
-            WINDOW = .FALSE.
-         END IF
+!        IF ( ( GXOFF .GT. 0 ) .AND. ( GYOFF .GT. 0 ) ) THEN
+!           WINDOW = .TRUE.
+!        ELSE
+!           WINDOW = .FALSE.
+!        END IF
 
-         IF ( WINDOW ) THEN
+!        IF ( WINDOW ) THEN
+         IF ( ( GXOFF .GT. 0 ) .AND. ( GYOFF .GT. 0 ) ) THEN
             METCXORIG = XORIG3D + REAL( GXOFF,8 ) * XCELL3D
             METCYORIG = YORIG3D + REAL( GYOFF,8 ) * YCELL3D
          ELSE
@@ -393,7 +396,11 @@ C (declared and stored in PTBILIN module)
          METDCOLS = NCOLS3D
          METDROWS = NROWS3D
 
-         IF ( WINDOW ) THEN
+         CALL SUBHFILE ( MD3NAME, GXOFF, GYOFF,
+     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
+
+!        IF ( WINDOW ) THEN
+         IF ( ( GXOFF .GT. 0 ) .AND. ( GYOFF .GT. 0 ) ) THEN
             METDXORIG = XORIG3D + REAL( GXOFF,8 ) * XCELL3D
             METDYORIG = YORIG3D + REAL( GYOFF,8 ) * YCELL3D
          ELSE
