@@ -32,8 +32,6 @@ C diagnostic output of acm2 parameters and sedimentation velocities
       logical, save :: vdiffdiag                   ! write diagnostic files
 
       character( 16 ), save :: vdiff_diag_file = 'VDIFF_DIAG_FILE'
-      character( 16 ) :: vdff_diag = 'VDFF_DIAG'   ! env var to 2D diagnostic file
-      character( 16 ) :: vsed_diag = 'VSED_DIAG'   ! env var to 3D diagnostic file
 
       integer, save :: n_vdiff
       integer, save :: n_vsed
@@ -127,7 +125,7 @@ C Create the vsed_map (find the 1st vsed_ae species for each of the 6 surrogate 
             end do
          end if
 
-C open CGRID file
+C open CONC file
          ok = open3( ctm_conc_1, fsread3, pname )
          ok = desc3( ctm_conc_1 )
          if ( .not. ok ) then
@@ -153,9 +151,9 @@ C open CGRID file
             end do
 
             if ( mype .eq. 0 ) then
-               ok = open3( vsed_diag, fsnew3, pname )
+               ok = open3( ctm_vsed_diag, fsnew3, pname )
                if ( .not. ok ) then
-                  xmsg = 'could not create '// trim( vsed_diag ) // ' file'
+                  xmsg = 'could not create '// trim( ctm_vsed_diag ) // ' file'
                   call m3warn( 'vdiff_diag', jdate, jtime, xmsg )
                   success = .false.; return
                end if
@@ -213,9 +211,9 @@ C open CGRID file
             vdesc3d( v ) = 'PBL top sigma layer'
 
          if ( mype .eq. 0 ) then
-            ok = open3( vdff_diag, fsnew3, pname )
+            ok = open3( ctm_vdiff_diag, fsnew3, pname )
             if ( .not. ok ) then
-               xmsg = 'could not create '// trim( vdff_diag ) // ' file'
+               xmsg = 'could not create '// trim( ctm_vdiff_diag ) // ' file'
                call m3warn( pname, jdate, jtime, xmsg )
                success = .false.; return
             end if
