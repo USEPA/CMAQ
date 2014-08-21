@@ -164,9 +164,11 @@ C Local variables:
       INTEGER NPROCS      ! number of processors
 #ifdef parallel
 !     INTEGER, PARAMETER :: GEO_ORI = 0   ! stenex array order: 0 (Cartesian), 1 (Matrix)
-      INTEGER PAR_ERR     ! Error code from parallel initialization. 
-      REAL    CLOCK       ! Wall-clock time (sec) at initialization.
+      INTEGER PAR_ERR     ! Error code from parallel initialization
+      REAL    BEGTIME     ! Wall-clock time (sec) at MPI initialization
+      REAL    ENDTIME     ! Wall-clock time (sec) at MPI finish
 #endif
+      INTEGER ELAPTIME    ! ENDTIME-BEGTIME
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
 
@@ -245,7 +247,7 @@ C-----------------------------------------------------------------------
 
 #ifdef parallel
 C Start up processor communication
-         CALL MPCOMM_INIT( NPROCS, MYPE, CLOCK, PAR_ERR )
+         CALL MPCOMM_INIT( NPROCS, MYPE, BEGTIME, PAR_ERR )
 #else
          NPROCS = 1
          MYPE = 0
@@ -518,21 +520,29 @@ C write CGRID state file for subsequent runs
       END SUBROUTINE CMAQ_DRIVER
 #else
 
-C shut down
-#ifdef parallel
-C Clean up communications and shut down IOAPI
-      CALL PAR_TERM ( PNAME, JDATE, JTIME, CLOCK )
-#endif
-
 C Shut down IOAPI
       IF ( SHUT3() ) THEN
          XMSG = '>>---->  Program completed successfully  <----<<'
-         WRITE ( LOGDEV,'( //5X, A, // )' ) XMSG
+         WRITE ( LOGDEV,'( //5X, A, / )' ) XMSG
+         WRITE( LOGDEV,2015 ) DT2STR( JDATE, JTIME ), JDATE, JTIME
       ELSE
          XMSG = ' *** FATAL ERROR shutting down Models-3 I/O *** '
-         WRITE ( LOGDEV,'( //5X, A, // )' ) XMSG
-!        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         WRITE ( LOGDEV,'( //5X, A, / )' ) XMSG
       END IF
+
+#ifdef parallel
+C Shut down MPI
+      ENDTIME = MPI_WTIME()   ! get final wall-clock time
+      ELAPTIME = NINT ( ENDTIME - BEGTIME )
+      IF ( MYPE .EQ. 0 ) WRITE( *,2021 ) ELAPTIME
+      CALL MPI_FINALIZE ( PAR_ERR )
+      IF ( PAR_ERR .NE. 0 ) THEN
+         STOP 'Error terminating MPI'
+      END IF
+#endif
+
+2015  FORMAT( 5X , 'Date and time ', A, ' (', I7, ':', I6.6, ')' )
+2021  FORMAT( //5X, 'The elapsed time for this job was', I7.6, ' seconds.' / )
 
       END PROGRAM DRIVER
 #endif
