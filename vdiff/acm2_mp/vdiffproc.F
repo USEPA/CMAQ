@@ -314,7 +314,7 @@ C Set up for grav. settling
 C Open vdiff diagnostics file (ioapi header from cgrd)
          IF ( VDIFFDIAG ) THEN
             IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
-               XMSG = 'Failure initializing sedi diagnostics module'
+               XMSG = 'Failure initializing vdiff diagnostics module'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
@@ -500,35 +500,35 @@ C Write vdiff diagnostics
                         END DO
                      END DO
                   END DO
-                  IF ( .NOT. WRITE3( VSED_DIAG, VSED_NAME( V ),
+                  IF ( .NOT. WRITE3( CTM_VSED_DIAG, VSED_NAME( V ),
      &                               MDATE, MTIME, VSED_BUF( 1,1,1,V ) ) ) THEN
                      XMSG = 'Could not write ' // TRIM( VSED_NAME( V ) )
-     &                    // ' to ' // VSED_DIAG
+     &                    // ' to ' // CTM_VSED_DIAG
                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
                END DO
 
                WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &               'Timestep written to', VSED_DIAG,
+     &               'Timestep written to', CTM_VSED_DIAG,
      &               'for date and time', MDATE, MTIME
 
             END IF   ! GRAV_SETL
 
 C Write other diagnostics
             NLPCR_MEAN = NLPCR_SUM / FLOAT( NTICS )
-            IF ( .NOT. WRITE3( VDFF_DIAG, 'NLP_MEAN',
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MEAN',
      &                         MDATE, MTIME, NLPCR_MEAN ) ) THEN
-               XMSG = 'Could not write ' //  'NLP_MEAN to ' // VDFF_DIAG
+               XMSG = 'Could not write ' //  'NLP_MEAN to ' // CTM_VDIFF_DIAG
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-            IF ( .NOT. WRITE3( VDFF_DIAG, 'NLP_MAX',
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MAX',
      &                         MDATE, MTIME, NLPCR_MAX ) ) THEN
-               XMSG = 'Could not write ' //  'NLP_MAX to ' // VDFF_DIAG
+               XMSG = 'Could not write ' //  'NLP_MAX to ' // CTM_VDIFF_DIAG
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-            IF ( .NOT. WRITE3( VDFF_DIAG, 'NLP_MIN',
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'NLP_MIN',
      &                         MDATE, MTIME, NLPCR_MIN ) ) THEN
-               XMSG = 'Could not write ' //  'NLP_MIN to ' // VDFF_DIAG
+               XMSG = 'Could not write ' //  'NLP_MIN to ' // CTM_VDIFF_DIAG
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             NLPCR_MAX = 0.0      ! array assignment
@@ -537,19 +537,19 @@ C Write other diagnostics
 
             IF ( GRAV_SETL ) THEN   ! Write vsed diagnostics
                DTCCR_MEAN = DTCCR_SUM / FLOAT( NTICS )
-               IF ( .NOT. WRITE3( VDFF_DIAG, 'SEDI_DTC_MEAN',
+               IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MEAN',
      &                            MDATE, MTIME, DTCCR_MEAN ) ) THEN
-                  XMSG = 'Could not write ' //  'SEDI_DTC_MEAN to ' // VDFF_DIAG
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MEAN to ' // CTM_VDIFF_DIAG
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
-               IF ( .NOT. WRITE3( VDFF_DIAG, 'SEDI_DTC_MAX',
+               IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MAX',
      &                            MDATE, MTIME, DTCCR_MAX ) ) THEN
-                  XMSG = 'Could not write ' //  'SEDI_DTC_MAX to ' // VDFF_DIAG
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MAX to ' // CTM_VDIFF_DIAG
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
-               IF ( .NOT. WRITE3( VDFF_DIAG, 'SEDI_DTC_MIN',
+               IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'SEDI_DTC_MIN',
      &                            MDATE, MTIME, DTCCR_MIN ) ) THEN
-                  XMSG = 'Could not write ' //  'SEDI_DTC_MIN to ' // VDFF_DIAG
+                  XMSG = 'Could not write ' //  'SEDI_DTC_MIN to ' // CTM_VDIFF_DIAG
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
                DTCCR_MAX = 0.0      ! array assignment
@@ -563,20 +563,20 @@ C Write other diagnostics
                   IF ( CONVCT( C,R ) ) CNVCT( C,R ) = 1.0
                END DO
             END DO
-            IF ( .NOT. WRITE3( VDFF_DIAG, 'CONVCT',
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'CONVCT',
      &                         MDATE, MTIME, CNVCT ) ) THEN
-               XMSG = 'Could not write ' //  'convct to ' // VDFF_DIAG
+               XMSG = 'Could not write ' //  'convct to ' // CTM_VDIFF_DIAG
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
-            IF ( .NOT. WRITE3( VDFF_DIAG, 'LPBL',
+            IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'LPBL',
      &                         MDATE, MTIME, REAL( LPBL ) ) ) THEN
-               XMSG = 'Could not write ' //  'lpbl to ' // VDFF_DIAG
+               XMSG = 'Could not write ' //  'lpbl to ' // CTM_VDIFF_DIAG
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6, I6 )' )
-     &            'Timestep written to', VDFF_DIAG,
+     &            'Timestep written to', CTM_VDIFF_DIAG,
      &            'for date and time (and ntics)', MDATE, MTIME, NTICS
             NTICS = 0
 
