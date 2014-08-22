@@ -86,7 +86,7 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
       REAL( 8 ), ALLOCATABLE ::  PROD(  :, : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  :, : )     ! Loss of species
-      REAL, ALLOCATABLE ::  PNEG( :,  : )     ! Negative production rates
+      REAL( 8 ), ALLOCATABLE ::  PNEG( :,  : )     ! Negative production rates
 
 
 c..Species indices
