@@ -282,7 +282,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
       DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
       DATA SUBNAME(132), A(132), E(132) / 'CATECHOL        ', 3.16E+05, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
-      
       DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
       DATA SUBNAME(134), A(134), E(134) / 'IMAE            ', 1.2E+05,  0.00E+00 /  ! Pye et al. ES&T (2013)
 

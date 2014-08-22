@@ -294,8 +294,8 @@ C *** compute only on first pass
 C *** Get aerosol diagnostic file flag.
         AERDIAG = .FALSE.         ! default
         VARDESC = 'Flag for writing the aerosol diagnostic file'
-!       AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
-        STATUS = 0
+        AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
+!       STATUS = 0
         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
         IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
