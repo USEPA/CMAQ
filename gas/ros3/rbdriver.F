@@ -72,7 +72,6 @@ C                    types by using unit conversion factors and 4) revised usage
 C                    INIT_DEGRADE and FINAL_DEGRADE routines
 C**********************************************************************
 
-      USE SUBST_MODULES
       USE RXNS_DATA
       USE RXNS_FUNCTION
       USE GRID_CONF             ! horizontal & vertical domain specifications

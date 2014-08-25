@@ -69,9 +69,11 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_COMM_MODULE     ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_COMM_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE)
+#endif
 
       IMPLICIT NONE
 

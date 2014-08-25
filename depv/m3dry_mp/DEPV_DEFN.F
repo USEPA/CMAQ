@@ -754,7 +754,11 @@ C Local variables:
                USE DEPVVARS
                USE VGRD_DEFN
                USE UTILIO_DEFN   
-               USE SUBST_MODULES
+#ifdef parallel
+               USE SE_MODULES
+#else
+               USE NOOP_MODULES
+#endif
                Use ABFlux_Mod  ! bidi NH3 exchange routines
                Use LSM_Mod     ! land surface model variables needed for mosaic and bidi
                Use Mosaic_Mod      ! contains mosaic routines

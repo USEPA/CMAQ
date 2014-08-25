@@ -51,12 +51,11 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_COMM_MODULE     ! stenex
-!     USE SUBST_UTIL_MODULE     ! stenex
-
 #ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
       USE SWAP_SANDIA
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
 
       IMPLICIT NONE

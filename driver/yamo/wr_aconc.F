@@ -42,9 +42,11 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE AVG_CONC              ! integral average CONC
       USE UTILIO_DEFN
-
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_UTIL_MODULE     ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
 
