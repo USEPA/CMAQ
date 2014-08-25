@@ -85,7 +85,7 @@ C diagnostic file
          TSTEP3D = TSTEP
          CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         NVARS3D = 23 
+         NVARS3D = 26 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D = NLAYS
@@ -223,10 +223,25 @@ C diagnostic file
 
          VTYPE3D( 23 ) = M3REAL
          VNAME3D( 23 ) = 'GAMMA_N2O5'
-         UNITS3D( 23 ) = '----'
-         VDESC3D( 23 ) = 'N2O5 Heterogeneous reaction probability'
+         UNITS3D( 23 ) = ' '
+         VDESC3D( 23 ) = 'Fine Mode N2O5 Heterogeneous reaction probability'
 
-         FDESC3D( 1 ) = 'aerosol distribution parameters'
+         VTYPE3D( 24 ) = M3REAL
+         VNAME3D( 24 ) = 'GAMMA_N2O5K'
+         UNITS3D( 24 ) = ' '
+         VDESC3D( 24 ) = 'Coarse Mode N2O5 Heterogeneous reaction probability'
+
+         VTYPE3D( 25 ) = M3REAL
+         VNAME3D( 25 ) = 'YIELD_CLNO2'
+         UNITS3D( 25 ) = ' '
+         VDESC3D( 25 ) = 'Fine Mode CLNO2 Heterogeneous reaction yield'
+
+         VTYPE3D( 26 ) = M3REAL
+         VNAME3D( 26 ) = 'YIELD_CLNO2K'
+         UNITS3D( 26 ) = ' '
+         VDESC3D( 26 ) = 'Coarse Mode CLNO2 Heterogeneous reaction yield'
+
+         FDESC3D( 1 ) = 'aerosol distribution and chemistry parameters'
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
             END DO

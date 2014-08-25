@@ -26,14 +26,14 @@ C %W% %P% %G% %U%
 C routines for aerosol formation and transformation processes
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER, GAMMA_N2O5 )
+      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER )
 
 C-----------------------------------------------------------------------
 C  SUBROUTINE AEROPROC advances the number, second moment, and mass
 C   concentrations for each mode over the time interval DT.
 
 C  KEY SUBROUTINES CALLED:
-C     GETPAR, ORGAER5, HETCHEM, GETCOAGS, INTERCOAG_GH, INTRACOAG_GH,
+C     GETPAR, ORGAER5, GETCOAGS, INTERCOAG_GH, INTRACOAG_GH,
 C     VOLINORG
 
 C  KEY FUNCTIONS CALLED:  ERF, ERFC, GETAF
@@ -178,6 +178,13 @@ C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C JB  02/07/14 Added Jai Xing's mass balance fix when there is excessive
 C              condensation or evaporation under cold conditions
 
+C BH  06/11/14 Removed Call to HETCHEM and GAMMA_N2O5 argument
+C              because of merging of gas and heterogeneous 
+C              chemistry
+
+C BH  07/08/14 Removed call to POAAGE
+
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -206,7 +213,6 @@ C *** arguments:
       INTEGER, INTENT( IN ) :: COL         ! Column of cell
       INTEGER, INTENT( IN ) :: ROW         ! Row of cell
       INTEGER, INTENT( IN ) :: LAYER       ! Layer of cell
-      REAL,    INTENT( OUT ) :: GAMMA_N2O5 ! N2O5 heterogeneous reaction probability [ ]
 
 C *** Parameters
       REAL, PARAMETER :: DIFFSULF = 9.36E-06  ! molecular diffusiviity for sulfuric acid
@@ -328,15 +334,7 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
-
-C *** POA Aging
-C     Increase primary NCOM concentration due to oxidative aging of POA.
-      CALL POAAGE ( DT )
-
-C *** Heterogeneous Chemistry
-C     Update the N2O5 and HNO3 concentrations to account for
-C     heterogenous nitrate formation.
-      CALL HETCHEM ( GAMMA_N2O5, DT )
+ 
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle

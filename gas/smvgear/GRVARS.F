@@ -28,7 +28,6 @@ C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/GRVARS.F,v 1.3 2011/10/21 16:11
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
 
 C......................................................................
 C  INCLUDE FILE: GRPARMS.EXT
@@ -50,9 +49,10 @@ C # of chemical mechanisms used
 
 C 2 * # of chemical mechanisms
       INTEGER, PARAMETER :: NCS2 = 2 * NCS
+      INTEGER, PARAMETER :: MXRCT = 3       ! max no. of reactants
 
 C Maximum # of terms in [P]=[I]-bh[J]
-      INTEGER, PARAMETER :: MXARRAY = 4200
+      INTEGER, PARAMETER :: MXARRAY = 4400
 
 C Maximum # prod/loss terms for a species
       INTEGER, PARAMETER :: MAXGL = 150
@@ -63,28 +63,27 @@ C A dimension smaller that MAXGL
 C A dimension smaller MAXGL2
       INTEGER, PARAMETER :: MAXGL3 = 100
 
+C Maximum order possible      
+      INTEGER, PARAMETER :: MXORDER = 7
+
 C Sparse matrix pointer dimension     
-!     INTEGER, PARAMETER :: MXCOUNT1 = N_GC_SPC * MAXGL3 * 3
       INTEGER :: MXCOUNT1
 
 C Sparse matrix pointer dimension     
-!     INTEGER, PARAMETER :: MXCOUNT2 = N_GC_SPC * MAXGL3 * 3
       INTEGER :: MXCOUNT2
 
 C Sparse matrix pointer dimension     
-      INTEGER, PARAMETER :: MXCOUNT3 = NRXNS * 4
+      INTEGER :: MXCOUNT3 
 
 C Sparse matrix pointer dimension
-      INTEGER, PARAMETER :: MXCOUNT4 = NRXNS * 5
+      INTEGER :: MXCOUNT4 
 
 C Maximum # of reactant PD terms
-      INTEGER, PARAMETER :: MXRR = 3 * 3
+      INTEGER :: MXRR
 
 C Maximum # of product PD terms
-      INTEGER, PARAMETER :: MXRP = 3 * MXPRD
+      INTEGER :: MXRP 
 
-C Maximum order possible      
-      INTEGER, PARAMETER :: MXORDER = 7
       
 C............................ end GRPARMS.EXT .........................
 
@@ -201,15 +200,18 @@ C......................................................................
       INTEGER, ALLOCATABLE, SAVE :: KJDECB( : )  ! Pointer for kj term 2 in decomp loop 1
       INTEGER NUSERAT(    NCS2 )  ! Number of active reactions in day and
                                   ! night mechanisms 
+                                  
       INTEGER, ALLOCATABLE, SAVE :: IDEC1LO ( :, : ) ! Inner start index for dcmp loop 1
       INTEGER, ALLOCATABLE, SAVE :: IDEC1HI ( :, : ) ! Inner end index for dcmp loop 1
       INTEGER, ALLOCATABLE, SAVE :: INEW2OLD( :, : ) ! Gives sorted species number from
-                                               ! original species number index
+                                                     ! original species number index
       INTEGER, ALLOCATABLE, SAVE :: IOLD2NEW( :, : ) ! Gives original species number 
-                                               ! from sorted species number index
+                                                     ! from sorted species number index
       INTEGER, ALLOCATABLE, SAVE :: JHIZ1   ( :, : ) ! # of 2-term groups in dcmp loop 2
       INTEGER, ALLOCATABLE, SAVE :: JHIZ2   ( :, : ) ! # of 1-term groups in dcmp loop 2
-      INTEGER  KZERO( MXARRAY, NCS2 ) ! Pointer to bksub j index 
+
+      INTEGER                    :: KZERO   ( MXARRAY, NCS2 )                ! Pointer to bksub j index 
+      
       INTEGER, ALLOCATABLE, SAVE :: KZHI0 ( :, : )  ! End index for 5-term bksub loop 1
       INTEGER, ALLOCATABLE, SAVE :: KZHI1 ( :, : )  ! End index for 2-term bksub loop 1
       INTEGER, ALLOCATABLE, SAVE :: KZILCH( :, : )  ! # of calcs in bksub loop 1 (L) 
@@ -220,23 +222,21 @@ C......................................................................
       INTEGER, ALLOCATABLE, SAVE :: MZILCH( :, : )  ! # of calcs in bksub loop 2 (U)
       INTEGER, ALLOCATABLE, SAVE :: MZLO1 ( :, : )  ! Start index for 2-term bksub loop 2
       INTEGER, ALLOCATABLE, SAVE :: MZLO2 ( :, : )  ! Start index for 1-term bksub loop 2
-      INTEGER NDERIVL ( NRXNS, NCS2 )  ! # of loss PD terms per reaction
-      INTEGER NDERIVP ( NRXNS, NCS2 )  ! # of prod PD terms per reaction
-      INTEGER NKUSERAT( NRXNS, NCS2 )  ! Rxn numbers of active reactions
-                                          ! in day and night  
-      INTEGER ICOEFF( NRXNS, MXRP, NCS2 )     ! Pointer to location of a 
-                                              ! non-unit stoichiometric coeff.
-      INTEGER JARRL ( NRXNS, MXRR, NCS2 )     ! Pointer to PD location of 
-                                              ! loss term     
-      INTEGER JARRP ( NRXNS, MXRP, NCS2 )     ! Pointer to PD location of 
-                                              ! prod term     
-      INTEGER JLIAL ( NRXNS,    MXRR, NCS2 )  ! Species # for PD loss term
-      INTEGER JPIAL ( NRXNS,    MXRP, NCS2 )  ! Species # for PD prod term 
-      INTEGER IRM2  ( NRXNS, 3+MXPRD, NCS2 )  ! Mechanism reaction/species
-                                              ! using new (sorted) species
-                                              ! numbers                                             
+      
+      INTEGER, ALLOCATABLE, SAVE :: NDERIVL ( :, : )  ! # of loss PD terms per reaction
+      INTEGER, ALLOCATABLE, SAVE :: NDERIVP ( :, : )  ! # of prod PD terms per reaction
+      INTEGER, ALLOCATABLE, SAVE :: NKUSERAT( :, : )  ! Rxn numbers of active reactions
+                                                      ! in day and night  
+
+      INTEGER, ALLOCATABLE, SAVE :: IRM2  ( :,:,: )     ! Species rxn array
+      INTEGER, ALLOCATABLE, SAVE :: ICOEFF( :,:,: )     ! stoich coeff indx
+      INTEGER, ALLOCATABLE, SAVE :: JARRL( :,:,: )      ! Pntr to PD Loss term
+      INTEGER, ALLOCATABLE, SAVE :: JARRP( :,:,: )      ! Pntr to PD Prod term
+      INTEGER, ALLOCATABLE, SAVE :: JLIAL( :,:,: )      ! Spec # for PD loss term
+      INTEGER, ALLOCATABLE, SAVE :: JPIAL( :,:,: )      ! Spec # for PD prod term 
+                                                                                           
       INTEGER, ALLOCATABLE, SAVE :: JARRAYPT( :, :, : ) ! Pointer to location of the
-                                                  ! PD terms in the 1D vector
+                                                        ! PD terms in the 1D vector
                                            
       REAL( 8 ) :: CONP15( MXORDER )   ! Gear parameters used in convergence test
       REAL( 8 ) :: CONPST( MXORDER )   ! Gear parameters used in convergence test
@@ -298,19 +298,32 @@ C......................................................................
 
       REAL( 8 ) :: HMAX                ! Maximum Gear time step (min)
       REAL( 8 ) :: R1DELT              ! Time step times Gear coefficient
-      REAL( 8 ) :: BLKCH2O( BLKSIZE )  ! Water conc. of each cell (ppm)
-      REAL( 8 ) :: BLKPRES( BLKSIZE )  ! Pressure of each cell  (mb)
-      REAL( 8 ) :: BLKTEMP( BLKSIZE )  ! Temperature of each cell in block (K) 
+
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKTEMP( : )      ! Cell temp, deg K
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKPRES( : )      ! Cell press, Pa
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKCH2O( : )      ! Cell water conc, ppm
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
+      REAL( 8 ), ALLOCATABLE, SAVE :: RJBLK( :,: )      ! J-values for each cell in block
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block
+
+
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCONC( :, : ) ! Species conc. for cells in block
-                                            ! in original species order (ppm) 
+                                                      ! in original species order (ppm) 
+      REAL( 8 ), ALLOCATABLE, SAVE :: CNEW( :, : )    ! Species conc. for cells in block
+                                                      ! in sorted species order (ppm)
+      REAL( 8 ), ALLOCATABLE, SAVE :: EMBLK( :, : )   ! Species emissions in each cell
+      REAL( 8 ), ALLOCATABLE, SAVE :: GLOSS( :, : )   ! dc/dt for each species (i.e., RHS)
+      REAL( 8 ), ALLOCATABLE, SAVE :: VDIAG( :, : )   ! L-U Diagonal terms  
+      
       REAL( 8 ) :: CC2(     BLKSIZE, 0:MXARRAY )  ! Array holding Jacobian
-      REAL( 8 ), ALLOCATABLE, SAVE :: CNEW( :, : )  ! Species conc. for cells in block
-                                            ! in sorted species order (ppm)
-      REAL( 8 ), ALLOCATABLE, SAVE :: EMBLK( :, : )  ! Species emissions in each cell
-      REAL( 8 ), ALLOCATABLE, SAVE :: GLOSS( :, : )  ! dc/dt for each species (i.e., RHS)
-      REAL( 8 ) :: RK(      BLKSIZE,     NRXNS )  ! Rate const. for each cell
-      REAL( 8 ) :: RXRAT(   BLKSIZE,     NRXNS )  ! Reaction rates for each cell
-      REAL( 8 ), ALLOCATABLE, SAVE :: VDIAG( :, : ) ! L-U Diagonal terms  
+
+      REAL( 8 ), ALLOCATABLE, SAVE :: RK   ( :,: )    ! Rate constants 
+      REAL( 8 ), ALLOCATABLE, SAVE :: RXRAT( :,: )    ! Reaction rates for each cell
+
+
+      REAL( 8 ), ALLOCATABLE, SAVE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
+      REAL( 8 ), ALLOCATABLE, SAVE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
 
 C........................... end GRVARS3.EXT ..........................
 
@@ -323,6 +336,11 @@ C                   & vertical domain specifications module (GRID_CONF)
 C                   29 Jul 05 WTH: added variable used by degrade routines.
 C                   29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                   with UTILIO_DEFN
+C                   15 Jul 14 B.Hutzell: 1) replaced mechanism include files with 
+C                   RXNS_DATA module, 2) inserted call to function MAP_CHEMISTRY_SPECIES 
+C                   RXNS_FUNCTION module, 3) changed several array declarations from fixed
+C                   to allocatable dimensions, and 4) inserted do loop that calculates species
+C                   unit conversion factors based on species type
 C.......................................................................
 C Column index of ordered cells
       INTEGER, ALLOCATABLE, SAVE :: CCOL( : )
@@ -345,20 +363,32 @@ C Estimated stiffness of each cell
       CONTAINS
 
          SUBROUTINE GRVARS_INIT( JDATE, JTIME )
-!           USE GRID_CONF           ! horizontal & vertical domain specifications
-            USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
+
+            USE RXNS_DATA
             USE UTILIO_DEFN
+            USE RXNS_FUNCTION
+
             IMPLICIT NONE
 
+C.....Includes:
+            INCLUDE SUBST_CONST          ! common constants
+
             INTEGER, INTENT( IN ) :: JDATE, JTIME
-            INTEGER :: IOS
+            INTEGER :: IOS, N
             CHARACTER( 16 ) :: PNAME = 'GRVARS_INIT'   ! Procedure name
             CHARACTER( 96 ) :: MSG = ' '
 
 C-----------------------------------------------------------------------
 
-            MXCOUNT1 = N_GC_SPC * MAXGL3 * 3
-            MXCOUNT2 = N_GC_SPC * MAXGL3 * 3
+            MXCOUNT1 = NUMB_MECH_SPC * MAXGL3 * 3
+            MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3
+
+            MXCOUNT3 = NRXNS * 4
+            MXCOUNT4 = NRXNS * 5
+
+            MXRR = 3 * 3
+
+            MXRP = 3 * MXPRD
 
             ALLOCATE ( IJDECA( MXCOUNT2 ),
      &                 IJDECB( MXCOUNT2 ),
@@ -378,22 +408,22 @@ C-----------------------------------------------------------------------
             KJDECA = 0   ! array assignment
             KJDECB = 0   ! array assignment
 
-            ALLOCATE ( IDEC1LO ( N_GC_SPC, NCS2 ),
-     &                 IDEC1HI ( N_GC_SPC, NCS2 ),
-     &                 INEW2OLD( N_GC_SPC,  NCS ),
-     &                 IOLD2NEW( N_GC_SPC,  NCS ),
-     &                 JHIZ1   ( N_GC_SPC, NCS2 ),
-     &                 JHIZ2   ( N_GC_SPC, NCS2 ),
-     &                 KZHI0   ( N_GC_SPC, NCS2 ),
-     &                 KZHI1   ( N_GC_SPC, NCS2 ),
-     &                 KZILCH  ( N_GC_SPC, NCS2 ),
-     &                 KZLO1   ( N_GC_SPC, NCS2 ),
-     &                 KZLO2   ( N_GC_SPC, NCS2 ),
-     &                 MZHI0   ( N_GC_SPC, NCS2 ),
-     &                 MZHI1   ( N_GC_SPC, NCS2 ),
-     &                 MZILCH  ( N_GC_SPC, NCS2 ),
-     &                 MZLO1   ( N_GC_SPC, NCS2 ),
-     &                 MZLO2   ( N_GC_SPC, NCS2 ), STAT = IOS )
+            ALLOCATE ( IDEC1LO ( NUMB_MECH_SPC, NCS2 ),
+     &                 IDEC1HI ( NUMB_MECH_SPC, NCS2 ),
+     &                 INEW2OLD( NUMB_MECH_SPC,  NCS ),
+     &                 IOLD2NEW( NUMB_MECH_SPC,  NCS ),
+     &                 JHIZ1   ( NUMB_MECH_SPC, NCS2 ),
+     &                 JHIZ2   ( NUMB_MECH_SPC, NCS2 ),
+     &                 KZHI0   ( NUMB_MECH_SPC, NCS2 ),
+     &                 KZHI1   ( NUMB_MECH_SPC, NCS2 ),
+     &                 KZILCH  ( NUMB_MECH_SPC, NCS2 ),
+     &                 KZLO1   ( NUMB_MECH_SPC, NCS2 ),
+     &                 KZLO2   ( NUMB_MECH_SPC, NCS2 ),
+     &                 MZHI0   ( NUMB_MECH_SPC, NCS2 ),
+     &                 MZHI1   ( NUMB_MECH_SPC, NCS2 ),
+     &                 MZILCH  ( NUMB_MECH_SPC, NCS2 ),
+     &                 MZLO1   ( NUMB_MECH_SPC, NCS2 ),
+     &                 MZLO2   ( NUMB_MECH_SPC, NCS2 ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for'
      &              // 'IDEC1LO, IDEC1HI, INEW2OLD, IOLD2NEW, JHIZ1, JHIZ2, '
@@ -402,18 +432,18 @@ C-----------------------------------------------------------------------
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF
 
-            ALLOCATE ( JARRAYPT( N_GC_SPC, N_GC_SPC, NCS2 ), STAT = IOS )
+            ALLOCATE ( JARRAYPT( NUMB_MECH_SPC, NUMB_MECH_SPC, NCS2 ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for JARRAYPT'
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF
             JARRAYPT = 0   ! array assignment
 
-            ALLOCATE ( BLKCONC( BLKSIZE,  N_GC_SPC ),
-     &                 CNEW   ( BLKSIZE,  N_GC_SPC ),
-     &                 EMBLK  ( BLKSIZE,  N_GC_SPC ),
-     &                 GLOSS  ( BLKSIZE,  N_GC_SPC ),
-     &                 VDIAG  ( BLKSIZE,  N_GC_SPC ), STAT = IOS )
+            ALLOCATE ( BLKCONC( BLKSIZE,  NUMB_MECH_SPC ),
+     &                 CNEW   ( BLKSIZE,  NUMB_MECH_SPC ),
+     &                 EMBLK  ( BLKSIZE,  NUMB_MECH_SPC ),
+     &                 GLOSS  ( BLKSIZE,  NUMB_MECH_SPC ),
+     &                 VDIAG  ( BLKSIZE,  NUMB_MECH_SPC ), STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                MSG = '*** Memory allocation failed for '
      &             // 'BLKCONC, CNEW, EMBLK, GLOSS, or VDIAG'
@@ -432,6 +462,72 @@ C-----------------------------------------------------------------------
      &              // ' CCOL, CROW, CLEV, BLKCNO, BLKLEN, NORDCELL, or ERRMX2'
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF
+
+c..cell & solver data
+            ALLOCATE( BLKTEMP( BLKSIZE ),
+     &                BLKPRES( BLKSIZE ),
+     &                BLKCH2O( BLKSIZE ),
+     &                BLKDENS( BLKSIZE ),
+     &                BLKSVOL( BLKSIZE ), STAT = IOS )
+           IF ( IOS .NE. 0 ) THEN
+                MSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKSVOL or BLKDENS'
+                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+           END IF
+
+           ALLOCATE( RJBLK( BLKSIZE,NPHOTAB ),
+     &               BLKHET( BLKSIZE, NHETERO ), STAT = IOS )    
+           IF ( IOS .NE. 0 ) THEN
+                MSG = 'ERROR allocating RJBLK or BLKHET'
+                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+           END IF
+
+          ALLOCATE( FORWARD_CONV( NUMB_MECH_SPC ),
+     &              REVERSE_CONV( NUMB_MECH_SPC ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+             MSG = 'ERROR allocating FORWARD_CONV or REVERSE_CONV'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          END IF
+
+          IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+               MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          END IF
+
+          DO N = 1, NUMB_MECH_SPC
+             FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
+             REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
+          END DO
+
+          ALLOCATE( NKUSERAT( NRXNS,NCS2 ),
+     &              NDERIVL ( NRXNS,NCS2 ),
+     &              NDERIVP ( NRXNS,NCS2 ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+               MSG = 'ERROR allocating NKUSERAT, NDERIVL or NDERIVP'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          END IF
+
+          ALLOCATE(    RK( BLKSIZE,NRXNS ),
+     &              RXRAT( BLKSIZE,NRXNS ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+             MSG = 'ERROR allocating RK  or RXRAT'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          END IF
+         
+          ALLOCATE( JARRL( NRXNS,MXRR,NCS2 ),
+     &              JARRP( NRXNS,MXRP,NCS2 ),
+     &              JLIAL( NRXNS,MXRR,NCS2 ),
+     &              JPIAL( NRXNS,MXRP,NCS2 ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+             MSG = 'ERROR allocating JARRL, JARRP, JLIAL, or JPIAL'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          END IF
+
+          ALLOCATE( IRM2( NRXNS,MXRCT+MXPRD,NCS2 ),
+     &              ICOEFF( NRXNS,MXRP,NCS2 ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+               MSG = 'ERROR allocating IRM2 or ICOEFF'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          END IF
 
          END SUBROUTINE GRVARS_INIT
 

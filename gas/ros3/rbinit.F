@@ -43,17 +43,23 @@ C                    29 Jul 05 WTH: allocate variables used by degrade routines.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
+C                   15 Jul 14 B.Hutzell: 1) replaced mechanism include files with 
+C                   RXNS_DATA module, 2) inserted call to function MAP_CHEMISTRY_SPECIES 
+C                   RXNS_FUNCTION module, and 3) inserted do loop that calculates species
+C                   unit conversion factors based on species type
 C                      
 C***********************************************************************
+      USE RXNS_DATA
       USE GRID_CONF                ! horizontal & vertical domain specifications
       USE RBDATA                   ! Rosenbrock solver data
       USE CGRID_SPCS               ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RXNS_FUNCTION
 
       IMPLICIT NONE
 
 C.....Includes:
-      INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
+      Include SUBST_CONST          ! common constants
 
 C.....Arguments: NONE
 
@@ -90,14 +96,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       LREORDER = .TRUE.
 
-      N_SPEC = N_GC_SPC
+      N_SPEC = NUMB_MECH_SPC
       N_RXNS = NRXNS   ! loads RBDATA from RXCM.EXT
 
       MXRR = 3 * MXRCT
       MXRP = 3 * MXPRD
 
-      MXCOUNT1 = N_GC_SPC * MAXGL3 * 3
-      MXCOUNT2 = N_GC_SPC * MAXGL3 * 3
+      MXCOUNT1 = NUMB_MECH_SPC * MAXGL3 * 3
+      MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3
 
       ALLOCATE( NKUSERAT( NRXNS,NCS2 ),
      &          NDERIVL ( NRXNS,NCS2 ),
@@ -114,7 +120,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
-      ALLOCATE( JARRAYPT( N_GC_SPC,N_GC_SPC,NCS2 ), STAT = STATUS )
+      ALLOCATE( JARRAYPT( NUMB_MECH_SPC,NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JARRAYPT'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -129,8 +135,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
-      ALLOCATE( INEW2OLD( N_GC_SPC,NCS ),
-     &          IOLD2NEW( N_GC_SPC,NCS ), STAT = STATUS )
+      ALLOCATE( INEW2OLD( NUMB_MECH_SPC,NCS ),
+     &          IOLD2NEW( NUMB_MECH_SPC,NCS ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating INEW2OLD or IOLD2NEW'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -144,8 +150,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
       ALLOCATE( JZLO( NCS2 ),
-     &          IDEC1LO( N_GC_SPC,NCS2 ),
-     &          IDEC1HI( N_GC_SPC,NCS2 ), STAT = STATUS )
+     &          IDEC1LO( NUMB_MECH_SPC,NCS2 ),
+     &          IDEC1HI( NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JZLO, IDEC1LO or IDEC1HI'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -162,12 +168,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
-      ALLOCATE( JHIZ1( N_GC_SPC,NCS2 ),
-     &          JHIZ2( N_GC_SPC,NCS2 ),
-     &          KZLO1( N_GC_SPC,NCS2 ),
-     &          KZLO2( N_GC_SPC,NCS2 ),
-     &          KZHI0( N_GC_SPC,NCS2 ),
-     &          KZHI1( N_GC_SPC,NCS2 ), STAT = STATUS )
+      ALLOCATE( JHIZ1( NUMB_MECH_SPC,NCS2 ),
+     &          JHIZ2( NUMB_MECH_SPC,NCS2 ),
+     &          KZLO1( NUMB_MECH_SPC,NCS2 ),
+     &          KZLO2( NUMB_MECH_SPC,NCS2 ),
+     &          KZHI0( NUMB_MECH_SPC,NCS2 ),
+     &          KZHI1( NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating JHIZ1, JHIZ2, KZLO1, KZLO2, KZHI0, or KZHI1'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -179,18 +185,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
-      ALLOCATE( KZILCH( N_GC_SPC,NCS2 ),
-     &          MZHI0 ( N_GC_SPC,NCS2 ),
-     &          MZHI1 ( N_GC_SPC,NCS2 ),
-     &          MZILCH( N_GC_SPC,NCS2 ),
-     &          MZLO1 ( N_GC_SPC,NCS2 ),
-     &          MZLO2 ( N_GC_SPC,NCS2 ), STAT = STATUS )
+      ALLOCATE( KZILCH( NUMB_MECH_SPC,NCS2 ),
+     &          MZHI0 ( NUMB_MECH_SPC,NCS2 ),
+     &          MZHI1 ( NUMB_MECH_SPC,NCS2 ),
+     &          MZILCH( NUMB_MECH_SPC,NCS2 ),
+     &          MZLO1 ( NUMB_MECH_SPC,NCS2 ),
+     &          MZLO2 ( NUMB_MECH_SPC,NCS2 ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating KZILCH, MZHI0, MZHI1, MZILCH, MZLO1, or MZLO2'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
-      ALLOCATE( VDIAG( BLKSIZE,N_GC_SPC ), STAT = STATUS )
+      ALLOCATE( VDIAG( BLKSIZE,NUMB_MECH_SPC ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating VDIAG'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -206,7 +212,8 @@ c..cell & solver data
       ALLOCATE( BLKTEMP( BLKSIZE ),
      &          BLKPRES( BLKSIZE ),
      &          BLKCH2O( BLKSIZE ),
-     &          BLKDENS( BLKSIZE ), STAT = STATUS )
+     &          BLKDENS( BLKSIZE ),
+     &          BLKSVOL( BLKSIZE ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, or BLKDENS'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -220,9 +227,11 @@ c..cell & solver data
       END IF
 
       ALLOCATE( RKI( BLKSIZE,NRXNS ),
-     &          ATOL( N_SPEC ),
-     &          RTOL( N_SPEC ),
-     &          Y( BLKSIZE,N_SPEC ), STAT = STATUS )
+     &          ATOL( NUMB_MECH_SPC ),
+     &          RTOL( NUMB_MECH_SPC ),
+     &          FORWARD_CONV( NUMB_MECH_SPC ),
+     &          REVERSE_CONV( NUMB_MECH_SPC ),
+     &          Y( BLKSIZE,NUMB_MECH_SPC ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
          XMSG = 'ERROR allocating RKI, ATOL, RTOL, or Y'
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
@@ -252,10 +261,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          GLBL_ATOL = DEF_ATOL
       END IF
 
-      DO N = 1, N_GC_SPC
+      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+         XMSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+      END IF
+
+      DO N = 1, NUMB_MECH_SPC
          ATOL( N ) = GLBL_ATOL
          RTOL( N ) = GLBL_RTOL
+         FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
+         REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
       END DO
+      
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get number of cells in grid and store i,j,k indices of cells in

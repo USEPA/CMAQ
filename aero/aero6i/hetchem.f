@@ -655,7 +655,18 @@ C *** Local Variables
       Character ( 80 ) :: xmsg         ! error message
 
 C *** External functions
-      Real, External :: HLCONST        ! Henry's Law constants (in cloud module)
+!     Real, External :: HLCONST        ! Henry's Law constants (in cloud module)
+
+      INTERFACE
+         REAL FUNCTION HLCONST ( CNAME, TEMP, EFFECTIVE, HPLUS )
+           USE UTILIO_DEFN
+           IMPLICIT NONE
+           CHARACTER*(*), INTENT ( IN ) :: CNAME
+           REAL,          INTENT ( IN ) :: TEMP
+           LOGICAL,       INTENT ( IN ) :: EFFECTIVE
+           REAL,          INTENT ( IN ) :: HPLUS
+        END FUNCTION HLCONST
+      END INTERFACE
 
 C-----------------------------------------------------------------------
 
@@ -759,8 +770,8 @@ C *** Calculate gammas for IEPOX and IMAE
       idx(2) = IMAE_idx
 
 C *** Henry's Law coefficients
-      Heff( 1 ) = dble(HLCONST( 'IEPOX', airtemp, .False., 0 ))
-      Heff( 2 ) = dble(HLCONST( 'IMAE',  airtemp, .False., 0 ))
+      Heff( 1 ) = REAL(HLCONST( 'IEPOX', airtemp, .False., 0.0 ), 8)
+      Heff( 2 ) = REAL(HLCONST( 'IMAE',  airtemp, .False., 0.0 ), 8)
 
 C     Loop over precursor species and calculate gamma
 C     (see Hanson et al. 1994 JGR Eqn (2) for details)

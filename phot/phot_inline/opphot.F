@@ -41,17 +41,18 @@ C     01/2008  S.Roselle    Adapted from OPDIAM in the aerosol module
 C                           for opening the photolysis diagnostic files
 C     03/2011  B.Hutzell    Generalized and modified to write out surface albedo
 C     03/29/11 S.Roselle    Replaced I/O API include files with UTILIO_DEFN
+C     07Jul 14 B.Hutzell:   replaced mechanism include file(s) with fortran module
 C
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE RXNS_DATA           ! chemical mechanism data
       USE PHOT_MOD            ! photolysis in-line module
 
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_RXCMMN    ! chemical mechamism reactions COMMON
 
 C...Arguments
 

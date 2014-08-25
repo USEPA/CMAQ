@@ -76,9 +76,11 @@ C 31 Aug 11 J.Bash: Moved shared mosaic variables to MOSAIC_MOD
 C 27 Sep 11 David Wong: replaced all run time dynamic arrays with allocatable
 C                       arrays to avoid run time memory issue  
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE RXNS_DATA           ! chemical mechanism data
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN      
       USE AERO_DATA           ! aero variable data
@@ -92,7 +94,6 @@ C-----------------------------------------------------------------------
 
 C Includes:
 
-      INCLUDE SUBST_RXCMMN    ! to get mech name
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments
