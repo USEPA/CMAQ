@@ -49,7 +49,7 @@ C global dry dep species
       INTEGER, SAVE :: N_SPC_DDEP 
 
       INTEGER, ALLOCATABLE, SAVE :: DIFF_MAP( : ) ! global diff map to CGRID
-!     INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
+      INTEGER, ALLOCATABLE, SAVE :: DF2DV   ( : ) ! map from diff spc to depv spc
       INTEGER, ALLOCATABLE, SAVE :: DF2EM   ( : ) ! map from diff spc to emis spc
       INTEGER, ALLOCATABLE, SAVE :: DD2DV   ( : ) ! map from ddep spc to depv spc
       INTEGER, ALLOCATABLE, SAVE :: DEPV_MAP( : ) ! global depv map to CGRID
@@ -99,12 +99,12 @@ C Local variables:
          INTEGER ALLOCSTAT
 
          LOGICAL LERROR                    ! Error flag
-#ifdef Verbose
+#ifdef Verbose_Vdiff
          INTEGER LOGDEV   ! debug
 #endif
 
 C-----------------------------------------------------------------------
-#ifdef Verbose
+#ifdef Verbose_Vdiff
          LOGDEV = INIT3()   ! debug
 #endif
          SUCCESS = .TRUE.
@@ -118,7 +118,7 @@ C-----------------------------------------------------------------------
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
 
          ALLOCATE ( DIFF_MAP( N_SPC_DIFF+1 ),
-!    &              DF2DV( N_SPC_DIFF+1 ),
+     &              DF2DV( N_SPC_DIFF+1 ),
      &              DF2EM( N_SPC_DIFF+1 ),
      &              diff_spc( n_spc_diff ), stat = allocstat )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -213,69 +213,72 @@ C create global maps to CGRID
             END IF
          END DO
 
-!        I = 0; S = 0; N = 0
-!        DO V = 1, N_GC_TRNS ! assumes dep.vel species subset of vdif species
-!           N = N + 1
-!           INDX = FINDEX( GC_TRNS_MAP( V ), N_GC_DEPV, GC_DEPV_MAP )
-!           IF ( INDX .GT. 0 ) THEN
-!              I = I + 1
-!              DF2DV( N ) = S + INDX
-!           ELSE
-!              DF2DV( N ) = N_SPC_DEPV + 1
-!           END IF
-!        END DO
-!        S = S + I     ! S should now be = N_GC_DEPV
+#ifdef Verbose_Vdiff
+         WRITE( LOGDEV,* ) '   n  DF2EM(n)'
+         DO N = 1, N_SPC_DIFF
+            WRITE( LOGDEV,'(2I6)' ) N, DF2EM( N )
+         END DO
+#endif
 
-!        I = 0
-!        DO V = 1, N_AE_TRNS
-!           N = N + 1
-!           INDX = FINDEX( AE_TRNS_MAP( V ), N_AE_DEPV, AE_DEPV_MAP )
-!           IF ( INDX .GT. 0 ) THEN
-!              I = I + 1
-!              DF2DV( N ) = S + INDX
-!           ELSE
-!              DF2DV( N ) = N_SPC_DEPV + 1
-!           END IF
-!        END DO
-!        S = S + I     ! S should now be = N_GC_DEPV + N_AE_DEPV
+         I = 0; S = 0; N = 0
+         DO V = 1, N_GC_TRNS ! assumes dep.vel species subset of vdif species
+            N = N + 1
+            INDX = FINDEX( GC_TRNS_MAP( V ), N_GC_DEPV, GC_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               I = I + 1
+               DF2DV( N ) = S + INDX
+            ELSE
+               DF2DV( N ) = N_SPC_DEPV + 1
+            END IF
+         END DO
+         S = S + I     ! S should now be = N_GC_DEPV
 
-!        I = 0
-!        DO V = 1, N_NR_TRNS
-!           N = N + 1
-!           INDX = FINDEX( NR_TRNS_MAP( V ), N_NR_DEPV, NR_DEPV_MAP )
-!           IF ( INDX .GT. 0 ) THEN
-!              I = I + 1
-!              DF2DV( N ) = S + INDX
-!           ELSE
-!              DF2DV( N ) = N_SPC_DEPV + 1
-!           END IF
-!        END DO
-!        S = S + I     ! S should now be = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
+         I = 0
+         DO V = 1, N_AE_TRNS
+            N = N + 1
+            INDX = FINDEX( AE_TRNS_MAP( V ), N_AE_DEPV, AE_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               I = I + 1
+               DF2DV( N ) = S + INDX
+            ELSE
+               DF2DV( N ) = N_SPC_DEPV + 1
+            END IF
+         END DO
+         S = S + I     ! S should now be = N_GC_DEPV + N_AE_DEPV
 
-!        DO V = 1, N_TR_DIFF
-!           N = N + 1
-!           INDX = FINDEX( TR_DIFF_MAP( V ), N_TR_DEPV, TR_DEPV_MAP )
-!           IF ( INDX .GT. 0 ) THEN
-!              DF2DV( N ) = S + INDX
-!           ELSE
-!              DF2DV( N ) = N_SPC_DEPV + 1
-!           END IF
-!        END DO
+         I = 0
+         DO V = 1, N_NR_TRNS
+            N = N + 1
+            INDX = FINDEX( NR_TRNS_MAP( V ), N_NR_DEPV, NR_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               I = I + 1
+               DF2DV( N ) = S + INDX
+            ELSE
+               DF2DV( N ) = N_SPC_DEPV + 1
+            END IF
+         END DO
+         S = S + I     ! S should now be = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
 
-#ifdef Verbose
-         DO N = 1, N_SPC_DIFF   ! debug
-!           WRITE( LOGDEV,'(A,3I4)' ) '  N, DF2EM(N), DF2DV(N): ',
-!    &                                   N, DF2EM( N ), DF2DV( N )
-            WRITE( LOGDEV,'(A,2I4)' ) '  N, DF2EM(N): ', N, DF2EM( N )
+         DO V = 1, N_TR_DIFF
+            N = N + 1
+            INDX = FINDEX( TR_DIFF_MAP( V ), N_TR_DEPV, TR_DEPV_MAP )
+            IF ( INDX .GT. 0 ) THEN
+               DF2DV( N ) = S + INDX
+            ELSE
+               DF2DV( N ) = N_SPC_DEPV + 1
+            END IF
+         END DO
+
+#ifdef Verbose_Vdiff
+         WRITE( LOGDEV,* ) '   n  DF2DV(n)'
+         DO N = 1, N_SPC_DIFF
+            WRITE( LOGDEV,'(2I6)' ) N, DF2DV( N )
          END DO
 #endif
 
          LERROR = .FALSE.
-         S = 0
-         V = 0
-         STRT = 1
-         FINI = N_GC_DDEP
-         DO N = STRT, FINI
+         S = 0; V = 0
+         DO N = 1, N_GC_DDEP
             V = V + 1
             INDX = FINDEX ( GC_DDEP_MAP( N ), N_GC_DEPV, GC_DEPV_MAP )
             IF ( INDX .GT. 0 ) THEN
@@ -290,9 +293,7 @@ C create global maps to CGRID
          END DO
 
          S = N_GC_DEPV
-         STRT = 1
-         FINI = N_AE_DDEP
-         DO N = STRT, FINI
+         DO N = 1, N_AE_DDEP
             V = V + 1
             INDX = FINDEX ( AE_DDEP_MAP( N ), N_AE_DEPV, AE_DEPV_MAP )
             IF ( INDX .GT. 0 ) THEN
@@ -307,9 +308,7 @@ C create global maps to CGRID
          END DO
 
          S = N_GC_DEPV + N_AE_DEPV
-         STRT = 1
-         FINI = N_NR_DDEP
-         DO N = STRT, FINI
+         DO N = 1, N_NR_DDEP
             V = V + 1
             INDX = FINDEX ( NR_DDEP_MAP( N ), N_NR_DEPV, NR_DEPV_MAP )
             IF ( INDX .GT. 0 ) THEN
@@ -324,9 +323,7 @@ C create global maps to CGRID
          END DO
 
          S = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV
-         STRT = 1
-         FINI = N_TR_DEPV
-         DO N = STRT, FINI
+         DO N = 1, N_TR_DEPV
             V = V + 1
             INDX = FINDEX ( TR_DDEP_MAP( N ), N_TR_DEPV, TR_DEPV_MAP )
             IF ( INDX .GT. 0 ) THEN
@@ -349,10 +346,10 @@ C create global maps to CGRID
          CMPSPC( 7 ) = 'NH3_Nat '
          CMPSPC( 8 ) = 'NH3_Wat '
 
-#ifdef Verbose
-         DO N = 1, N_SPC_DDEP   ! debug
-            WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DD2DV(N), DDEP_SPC(N): ',
-     &                                       N, DD2DV( N ), DDEP_SPC( N )
+#ifdef Verbose_Vdiff
+         WRITE( LOGDEV,* ) '   n  DD2DV(n)  DDEP_SPC(n)'
+         DO N = 1, N_SPC_DDEP
+            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DD2DV( N ), DDEP_SPC( N )
          END DO
 #endif
 
@@ -382,10 +379,10 @@ C create global maps to CGRID
             DEPV_SPC( S ) = TR_SPC( TR_DEPV_MAP( V ) )
          END DO
 
-#ifdef Verbose
-         DO N = 1, N_SPC_DEPV   ! debug
-            WRITE( LOGDEV,'(A,2I4,3X,A)' ) ' N, DEPV_MAP(N), DEPV_SPC(N): ',
-     &                                       N, DEPV_MAP( N ), DEPV_SPC( N )
+#ifdef Verbose_Vdiff
+         WRITE( LOGDEV,* ) '   n  DEPV_MAP(n)  DEPV_SPC(n)'
+         DO N = 1, N_SPC_DEPV
+            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DEPV_MAP( N ), DEPV_SPC( N )
          END DO
 #endif
 
@@ -411,16 +408,14 @@ C create global maps to CGRID
             DIFF_SPC( S ) = TR_SPC( TR_DIFF_MAP( V ) )
          END DO
 
-#ifdef Verbose
-         DO N = 1, N_SPC_DIFF   ! debug
-            WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N,      DIFF_MAP(N), DIFF_SPC(N): ',
-     &                                  N,      DIFF_MAP( N ), DIFF_SPC( N )
+#ifdef Verbose_Vdiff
+         WRITE( LOGDEV,* ) '   n  DIFF_map(n)  DIFF_spc(n)'
+         DO N = 1, N_SPC_DIFF   ! DEBUG
+            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DIFF_MAP( N ), DIFF_SPC( N )
          END DO
 #endif
 
-
-         S = 0
-         V = 0
+         S = 0; V = 0
          DO N = 1, N_GC_DEPV
             V = V + 1
             INDX = FINDEX ( GC_DEPV_MAP( N ), N_GC_TRNS, GC_TRNS_MAP )
@@ -480,10 +475,10 @@ C create global maps to CGRID
             END IF
          END DO
 
-#ifdef Verbose
-         DO N = 1, N_SPC_DEPV   ! debug
-            WRITE( LOGDEV,'(A,2I4,2X,A)' ) ' N, DV2DF(N), dv2df_spc(n): ',
-     &                                  N, DV2DF( N ), dv2df_spc( n )
+#ifdef Verbose_Vdiff
+         WRITE( LOGDEV,* ) '   n  DV2DF(n)  DV2DF(n)'
+         DO N = 1, N_SPC_DEPV
+            WRITE( LOGDEV,'(2I6,9X,A)' ) N, DV2DF( N ), dv2df_spc( N )
          END DO
 #endif
 

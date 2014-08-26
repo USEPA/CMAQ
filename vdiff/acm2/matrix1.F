@@ -22,35 +22,21 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/matrix.F,v 1.5 2011/10/21 16:11:45 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE MATRIX ( A, B, C, D, E, X )
+      SUBROUTINE MATRIX1 ( KL, A, B, E, D, X )
 
-C---------------------------------------------------------
-C-- Bordered band diagonal matrix solver for ACM2
+C Rather than solving the ACM2 banded tridiagonal matrix using LU decomposition,
+C it is much faster to split the solution into the ACM1 convective solver followed
+C by the tridiagonal solver
+C MATRIX1 is the ACM1 solver. When the PBL is convective, this solver is called
+C followed by TRI. If not convective, only TRI is called.
 
-C-- ACM2 Matrix is in this form:
-C   B1 E1
-C   A2 B2 E2
-C   A3 C3 B3 E3
-C   A4    C4 B4 E4
-C   A5       C5 B5 E5
-C   A6          C6 B6
-
-C--Upper Matrix is
-C  U11 U12
-C      U22 U23
-C          U33 U34
-C              U44 U45
-C                  U55 U56
-C                      U66
-
-C--Lower Matrix is:
-C  1
-C L21  1
-C L31 L32  1
-C L41 L42 L43  1
-C L51 L52 L53 L54  1
-C L61 L62 L63 L64 L65 1
-C---------------------------------------------------------
+C-- ACM1 Matrix is in this form (there is no subdiagonal:
+C   B1 E2                     <- note E2 (flux from layer above), not E1
+C   A2 B2 E3
+C   A3    B3 E4
+C   A4       B4 E5
+C   A5          B5 E6
+C   A6             B6
 
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -59,28 +45,21 @@ C---------------------------------------------------------
       IMPLICIT NONE
 
 C Includes:
-
       INTEGER, SAVE :: N_SPC_DIFF    ! global diffusion species
 
 C Arguments:
-
-      REAL, INTENT( IN )  :: A( : )     ! matrix column one
-      REAL, INTENT( IN )  :: B( : )     ! diagonal
-      REAL, INTENT( IN )  :: C( : )     ! subdiagonal
-      REAL, INTENT( IN )  :: E( : )     ! superdiagonal
-      REAL, INTENT( IN )  :: D( :,: )   ! R.H.S
-      REAL, INTENT( OUT ) :: X( :,: )   ! returned solution
+      INTEGER, INTENT( IN )  :: KL         ! CBL sigma height
+      REAL,    INTENT( IN )  :: A( : )     ! matrix column one
+      REAL,    INTENT( IN )  :: B( : )     ! diagonal
+      REAL,    INTENT( IN )  :: E( : )     ! superdiagonal
+      REAL,    INTENT( IN )  :: D( :,: )   ! R.H.S
+      REAL,    INTENT( OUT ) :: X( :,: )   ! returned solution
 
 C Locals:
+      REAL, ALLOCATABLE, SAVE :: BETA( : )
+      REAL  ALPHA, GAMA 
 
-      REAL, ALLOCATABLE, SAVE :: Y( :,: )
-      REAL L  ( NLAYS,NLAYS )
-      REAL U  ( NLAYS )
-      REAL UP1( NLAYS )
-      REAL RU ( NLAYS )
-      REAL DD, DD1, YSUM
-
-      INTEGER I, J, V, IOS
+      INTEGER L, V, IOS
 
       CHARACTER( 120 ) :: XMSG = ' '
       LOGICAL :: FIRSTIME = .TRUE.
@@ -90,64 +69,39 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
-         ALLOCATE ( Y( N_SPC_DIFF,NLAYS ), STAT = IOS )
+         ALLOCATE ( BETA( N_SPC_DIFF ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
-            XMSG = 'Failure allocating Y'
+            XMSG = 'Failure allocating BETA'
             CALL M3EXIT( 'MATRIX', 0, 0, XMSG, XSTAT1 )
          END IF
       END IF   ! FIRSTIME
 
-C-- Define Upper and Lower matrices
-
-      L( 1,1 ) = 1.0
-      U( 1 ) = B( 1 )
-      RU( 1 ) = 1.0 / B( 1 )
-
-      DO I = 2, NLAYS
-         L( I,I ) = 1.0
-         L( I,1 ) = A( I ) / B( 1 )
-         UP1( I-1 ) = E( I-1 )
-      END DO
-
-      DO I = 3, NLAYS
-         DO J = 2, I - 2
-            DD = B( J ) - L( J,J-1 ) * E( J-1 )
-            L( I,J ) = - L( I,J-1 ) * E( J-1 ) / DD
-         END DO
-         J = I - 1
-         DD = B( J ) - L( J,J-1 ) * E( J-1 )
-         L( I,J ) = ( C( I ) - L( I,J-1 ) * E( J-1 ) ) / DD
-      END DO
-
-      DO I = 2, NLAYS
-         U( I ) = B( I ) - L( I,I-1 ) * E( I-1 )
-         RU( I ) = 1.0 / U( I )
-      END DO
-
-C-- Forward sub for Ly=d
+C-- ACM1 matrix solver
 
       DO V = 1, N_SPC_DIFF
-         Y( V,1 ) = D( V,1 )
-         DO I = 2, NLAYS
-            YSUM = D( V,I )
-            DO J = 1, I-1
-               YSUM = YSUM - L( I,J ) * Y( V,J )
-            END DO
-            Y( V,I ) = YSUM
+         BETA( V ) = D( V,1 )
+      END DO
+      GAMA = B( 1 )
+      ALPHA = 1.0
+
+      DO L = 2, KL
+         ALPHA = -ALPHA * E( L ) / B( L )
+         DO V = 1, N_SPC_DIFF
+            BETA( V ) = ALPHA * D( V,L ) + BETA( V )
          END DO
+         GAMA = GAMA + ALPHA * A( L )
+      END DO
+
+      DO V = 1, N_SPC_DIFF
+         X( V,1 )  = BETA( V ) / GAMA
+         X( V,KL ) = ( D( V,KL ) - A( KL ) * X( V,1 ) ) / B( KL )
       END DO
 
 C-- Back sub for Ux=y
 
-      DO V= 1, N_SPC_DIFF
-         X( V,NLAYS ) = Y( V,NLAYS ) * RU( NLAYS )
-      END DO
-
-      DO I = NLAYS - 1, 1, -1
-         DD = RU( I )
-         DD1 = UP1( I )
+      DO L = KL-1, 2, -1
          DO V = 1, N_SPC_DIFF
-            X( V,I ) = ( Y( V,I ) - DD1 * X( V,I+1 ) ) * DD
+            X( V,L ) = ( D( V,L ) - A( L ) * X( V,1 ) - E( L+1 ) * X( V,L+1 ) ) / B( L )
          END DO
       END DO
 
