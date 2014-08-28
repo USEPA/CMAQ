@@ -45,17 +45,18 @@ C  REVISION HISTORY:  07/29/05 : B.Hutzell - Initial version
 C
 C**********************************************************************
 
+      USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
 
       IMPLICIT NONE
 
 C.....ARGUMENTS:
 
-      REAL( 8 ), INTENT( IN ) :: CBLK( BLKSIZE,  NSPCSD ) ! array holding species concentrations
-      REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
-      INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
-      INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
-      INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
+      REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
+      REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
+      INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
+      INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
+      INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
 
 C.....PARAMETERS:
 
@@ -98,23 +99,29 @@ C..Quality Control on time step
 
       TSTEP = DT
       BLOCK_A : IF ( TSTEP < 0.0D0 ) THEN
-         XMSG = ' Time step has negative value. '
+         WRITE(XMSG,'(A)')TRIM(' Time step has negative value. ')
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
       ENDIF BLOCK_A
 
-C..update current concentrations
+C..Update concentrations except degraded species
 
-      DO J = 1, N_GC_SPC
-         DO I_CELL = 1, NUM_CELLS
+      LOOP_UPDATE0: DO J = 1, NSPCSD
+         DO I = 1, N_REACT
+            IF( RXTANT_MAP( I ) .EQ. J )CYCLE LOOP_UPDATE0
+         END DO
+         DO I_CELL = 1, NUM_CELLS	       
             CURR_CONC( I_CELL, J ) = CBLK( I_CELL, J )
          ENDDO
-      ENDDO
+      ENDDO LOOP_UPDATE0
 
 C..Loop over each reactant
 
       LOOP_REACT: DO I = 1, N_REACT
 
          I_RXT = RXTANT_MAP( I )
+	 
+         IF( I_RXT < 0 )CYCLE LOOP_REACT
+
 
          LOSS_RATE = 0.0D0
          NET_RATE  = 0.0D0
@@ -122,6 +129,7 @@ C..Loop over each reactant
 
          LOOP_UNIRATE: DO J = UNI_START, UNI_STOP
             DO I_CELL = 1, NUM_CELLS
+               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, I, J )
             ENDDO
          ENDDO LOOP_UNIRATE
@@ -134,11 +142,13 @@ C..Loop over each reactant
             IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
             IF ( I_RAD > 900 ) THEN
                DO I_CELL = 1, NUM_CELLS
+                  IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                   LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, I, J )
-     &                                  * NUMB_DENS( I_CELL )
+     &                                   * NUMB_DENS( I_CELL )
                ENDDO
             ELSE
                DO I_CELL = 1, NUM_CELLS
+                  IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                   LOSS_RATE( I_CELL, J ) = 0.5D0 * RATE_CONST( I_CELL, I, J )
      &                                   * ( PREV_CONC( I_CELL, I_RAD )
      &                                   +   CURR_CONC( I_CELL, I_RAD ) )
@@ -154,6 +164,7 @@ C..Loop over each reactant
             J_RAD = RAD2_MAP( I, L, 2 )
             IF ( I_RAD < 1 .OR. J_RAD < 1 ) CYCLE   ! radical species are undefined
             DO I_CELL = 1, NUM_CELLS
+               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                LOSS_RATE( I_CELL, J ) =  0.5D0 * RATE_CONST( I_CELL, I, J )
      &                                * ( PREV_CONC( I_CELL, I_RAD )
      &                                *   PREV_CONC( I_CELL, J_RAD )
@@ -166,39 +177,40 @@ C..Loop over each reactant
          LOOP_PHOTORATE: DO J = PHOTO_START, PHOTO_STOP
             L = L + 1
             DO I_CELL = 1, NUM_CELLS
+               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, I, J )
             ENDDO
          ENDDO LOOP_PHOTORATE
 
          LOOP_RATE :  DO J = 1, N_PROCESSES
             DO I_CELL = 1, NUM_CELLS
+               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                NET_RATE( I_CELL ) = NET_RATE( I_CELL )
      &                            + LOSS_RATE( I_CELL, J )
             ENDDO
          ENDDO LOOP_RATE
 
          LOOP_LIFE: DO I_CELL = 1, NUM_CELLS
-C           IF ( NET_RATE( I_CELL ) * DT .LE. 1.0D-20 ) CYCLE
+            IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
+            IF ( NET_RATE( I_CELL ) * DT .LE. 1.0D-20 ) CYCLE
             NET_LIFE( I_CELL ) = 1.0D0 / NET_RATE( I_CELL )
             TRANS( I_CELL ) = CURR_CONC( I_CELL, I_RXT )
-     &                      * ( 1.0D0
-     &                      -  DBLE( EXP( -REAL( NET_RATE( I_CELL )
-     &                      *  DT ) ) ) )
+     &                      * ( 1.0D0 - DEXP( - NET_RATE( I_CELL )*DT ) )
      &                      - CONMIN
-            DELT_CONC( I_CELL, I_RXT ) = -MAX( TRANS( I_CELL ), 0.0D0 )
+            DELT_CONC( I_CELL, I_RXT ) = - MAX( TRANS( I_CELL ), 0.0D0 )
          ENDDO LOOP_LIFE
 
-         LOOP_PROD: DO I_CELL = 1, NUM_CELLS
-            IF ( DELT_CONC( I_CELL, I_RXT ) <  -CONMIN ) THEN
-               DO J = 1, N_PROCESSES
-                  I_PROD = PROD_MAP( I, J )
-                  IF ( I_PROD < 1 ) CYCLE    !  No specified product
-                  DELT_CONC( I_CELL, I_PROD ) = -LOSS_RATE( I_CELL, J )
-     &                                        *  NET_LIFE ( I_CELL )
-     &                                        *  RATE_YIELD( I, J )
+         LOOP_PROD: DO J = 1, N_PROCESSES
+            I_PROD = PROD_MAP( I, J )
+            IF ( I_PROD < 1 ) CYCLE    !  No specified product
+            DO I_CELL = 1, NUM_CELLS
+              IF ( DELT_CONC( I_CELL, I_RXT ) >=  -CONMIN ) THEN
+                  DELT_CONC( I_CELL, I_PROD ) = -(LOSS_RATE( I_CELL, J ) * NET_LIFE ( I_CELL ))
      &                                        *  DELT_CONC( I_CELL, I_RXT )
-               ENDDO
-            ENDIF
+              ELSE
+	          DELT_CONC( I_CELL, I_PROD ) = 0.0D0
+              ENDIF
+            ENDDO
          ENDDO LOOP_PROD
 
       ENDDO LOOP_REACT
@@ -213,12 +225,26 @@ C..update previous concentrations
 
 C..update current concentrations
 
-      DO J = 1, NSPCSD
+      LOOP_UPDATE1: DO I = 1, N_REACT
+      
+         I_RXT = RXTANT_MAP( I )
+         IF( I_RXT < 0 )CYCLE LOOP_UPDATE1
          DO I_CELL = 1, NUM_CELLS
-            CURR_CONC( I_CELL, J ) = PREV_CONC( I_CELL, J )
-     &                             + DELT_CONC( I_CELL, J )
+            IF ( DELT_CONC( I_CELL, I_RXT ) >= -CONMIN .OR. CURR_CONC( I_CELL, I_RXT ) <= CONMIN ) CYCLE
+            CURR_CONC( I_CELL, I_RXT  ) = PREV_CONC( I_CELL, I_RXT  )
+     &                                  + DELT_CONC( I_CELL, I_RXT  )
          ENDDO
-      ENDDO
+
+         LOOP_UPDATE2: DO J = 1, N_PROCESSES
+            I_PROD = PROD_MAP( I, J )
+            IF ( I_PROD < 1 ) CYCLE ! no specified product
+            DO I_CELL = 1, NUM_CELLS
+                 CURR_CONC( I_CELL, I_PROD ) = CURR_CONC( I_CELL, I_PROD )
+     &                                       + RATE_YIELD( I, J ) * DELT_CONC( I_CELL, I_PROD )
+            ENDDO
+         ENDDO LOOP_UPDATE2
+
+      ENDDO LOOP_UPDATE1
 
       RETURN
       END

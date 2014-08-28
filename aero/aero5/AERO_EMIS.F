@@ -177,6 +177,7 @@ C   09 Sep 08 P.Bhave:  backward compatibility with AE4 mechanisms
 C   20 Feb 10 J.Young:  move ssemis out to its own F90 module
 C   25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C   04 Apr 11 S.Howard: Reorganized SS_MAP as a 2-D array
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
@@ -192,13 +193,13 @@ C                   doi:10.1029/2001JD001409, 2003
 C-----------------------------------------------------------------------
 
          USE GRID_CONF           ! horizontal & vertical domain configuration
+         USE RXNS_DATA           ! chemical mechanism data
          USE CGRID_SPCS          ! CGRID mechanism species
          USE SSEMIS              ! sea-salt emissions
          USE AERO_DATA
          USE PRECURSOR_DATA
          USE UTILIO_DEFN
 
-         INCLUDE SUBST_RXCMMN    ! to get mech name
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
 

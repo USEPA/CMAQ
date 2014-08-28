@@ -57,8 +57,11 @@ C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                    with UTILIO_DEFN
 C                    22 Aug 11 J.Young: fixed bug: initialize CC2( NCELL,0 )
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module
 C***********************************************************************
 
+      USE RXNS_DATA
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
       USE GRVARS                ! inherits GRID_CONF
@@ -95,13 +98,14 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER NONDIAG1       ! Pointer to start of diagonal entries
       INTEGER IOS            ! Allocate status
       
-      REAL( 8 ) :: CR2             ! Temporary product for 3 reactant rxns
-      REAL( 8 ) :: FRACN           ! Stoichiometric coeff. times b*h
-      REAL( 8 ) :: EXPLIC( BLKSIZE, 3 )     ! Reaction partial derivative terms
+      REAL( 8 ) :: CR2                   ! Temporary product for 3 reactant rxns
+      REAL( 8 ) :: FRACN                 ! Stoichiometric coeff. times b*h
+      REAL( 8 ) :: EXPLIC( BLKSIZE, 3 )  ! Reaction partial derivative terms
+      
       REAL( 8 ), ALLOCATABLE, SAVE :: CEFF( :, : ) ! Effective species concentrations
-                                        ! (i.e., zeroed if below ZBOUND)
+                                                   ! (i.e., zeroed if below ZBOUND)
 
-      LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
+      LOGICAL, SAVE    :: LFIRST = .TRUE.    ! Flag for first call to this subroutine
       CHARACTER(  16 ) :: PNAME = 'GRPDERIV' ! Procedure name
       CHARACTER( 144 ) :: MSG                ! Message text
 
@@ -109,7 +113,7 @@ C***********************************************************************
 
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
-         ALLOCATE ( CEFF( BLKSIZE, N_GC_SPC ), STAT = IOS )
+         ALLOCATE ( CEFF( BLKSIZE, NUMB_MECH_SPC ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation error for CEFF'
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )

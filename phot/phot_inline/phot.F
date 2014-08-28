@@ -92,17 +92,22 @@ C     March 29, 2011 S.Roselle
 C       - Replaced I/O API include files with UTILIO_DEFN
 C     Apr. 11, 2013 David Wong
 C       - obtain LAND_SCHEME information from LSM_MOD for the twoway model
+C     07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C----------------------------------------------------------------------
 
 C...modules
 
 !     USE GRID_CONF            ! horizontal & vertical domain specifications
+      USE RXNS_DATA            ! chemistry varaibles and data
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
       USE LSM_MOD, ONLY: LAND_SCHEME
-
-      USE SUBST_MODULES        ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
       USE AERO_DATA            ! describes aerosol distribution
       USE PHOT_MOD             ! photolysis in-line module
 
@@ -112,7 +117,6 @@ C...include files
 
       INCLUDE SUBST_FILES_ID   ! file name parameters
 !     INCLUDE SUBST_CONST      ! physical constants--moved to PHOT_MOD.
-      INCLUDE SUBST_RXCMMN     ! chemical mechanism reactions COMMON
 
 C...arguments
 
@@ -301,6 +305,7 @@ C FSB new arrays for new on-line cloud version
      &                              BLK_AE_VOL, BLK_AE_LSG, BLK_AE_DGN,
      &                              BLK_AE_NR, BLK_AE_NI )
 
+            USE RXNS_DATA           ! chemical mechanism data
             USE CGRID_SPCS          ! CGRID mechanism species
             USE UTILIO_DEFN
             USE AERO_DATA           ! aero variable data
@@ -308,13 +313,10 @@ C FSB new arrays for new on-line cloud version
             USE AEROMET_DATA        ! constants and met data
 
             IMPLICIT NONE
-C Includes:
-            INCLUDE SUBST_RXCMMN    ! to get mech name
 C Arguments
             INTEGER, INTENT( IN )       :: COL     ! specified column index
             INTEGER, INTENT( IN )       :: ROW     ! specified row index
             INTEGER, INTENT( IN )       :: NLAYS   ! # of vertical layers
-!     REAL, POINTER, INTENT( INOUT ) :: CGRID( :,:,:,: )
             REAL, POINTER               :: CGRID( :,:,:,: )
             REAL, INTENT(OUT) :: BLK_AE_NR ( :, : )     ! aerosol real part of refractive index
             REAL, INTENT(OUT) :: BLK_AE_NI ( :, : )     ! aerosol imaginary part of refractive index

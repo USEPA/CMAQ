@@ -101,9 +101,11 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_GLOBAL_MAX_MODULE    ! stenex
-!     USE SUBST_UTIL_MODULE          ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_GLOBAL_MAX_MODULE, SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_MAX_MODULE, NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
 
@@ -193,7 +195,11 @@ C environment variable max horizontal divergence for adv step adjustment
       INTERFACE
         SUBROUTINE HVELOC( FDATE, FTIME, FSTEP, UWIND, VWIND, HDIV )
             USE GRID_CONF
-            USE SUBST_MODULES
+#ifdef parallel
+            USE SE_MODULES
+#else
+            USE NOOP_MODULES
+#endif
             USE UTILIO_DEFN
             IMPLICIT NONE
             INTEGER, INTENT( IN )  :: FDATE, FTIME, FSTEP

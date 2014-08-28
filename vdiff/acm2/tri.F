@@ -21,14 +21,11 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/tri.F,v 1.4 2011/10/21 16:11:46 yoj Exp $
 
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)tridiag.F	1.1 /project/mod3/CMAQ/src/vdiff/eddy/SCCS/s.tridiag.F 03 Jun 1997 11:45:09
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE TRI ( L, D, U, B, X )
 
 C-----------------------------------------------------------------------
-C  FUNCTION:
+C Function:
 C    Solves tridiagonal system by Thomas algorithm.  Algorithm fails
 C    ( M3ERR ) if first pivot is zero.  In that case, rewrite the
 C    equation as a set of order KMAX-1, with X(2) trivially eliminated.
@@ -39,23 +36,22 @@ C   U : super-diagonal
 C   B : right hand side function
 C   X : return solution from tridiagonal solver
 
-C     [ D(1) U(1) 0    0    0 ...       0     ]
-C     [ L(2) D(2) U(2) 0    0 ...       .     ]
-C     [ 0    L(3) D(3) U(3) 0 ...       .     ]
-C     [ .       .     .     .           .     ] X(i) = B(i)
-C     [ .             .     .     .     0     ]
-C     [ .                   .     .     .     ]
-C     [ 0                           L(n) D(n) ]
+C   [ D(1) U(1) 0    0    0 ...       0     ]
+C   [ L(2) D(2) U(2) 0    0 ...       .     ]
+C   [ 0    L(3) D(3) U(3) 0 ...       .     ]
+C   [ .       .     .     .           .     ] X(i) = B(i)
+C   [ .             .     .     .     0     ]
+C   [ .                   .     .     .     ]
+C   [ 0                           L(n) D(n) ]
 
 C   where n = NLAYS
 
-C  PRECONDITIONS REQUIRED:
-C    Dimensionality set up in terms of NLAYS from SUBST_VGRD_ID
+C Preconditions:
 
-C  SUBROUTINES AND FUNCTIONS CALLED:
+C Subroutines and Functions Called:
 
-C  REVISION HISTORY:
-C    NO.   DATE      WHO     WHAT
+C Revision History:
+C    No.   Date      Who     What
 C    __    ____      ___     ____
 C    6     Jun 10    yoj  convert for Namelist redesign
 C    5     Apr 06    JEP  adapted tridiag for use with ACM2
@@ -99,14 +95,14 @@ C-----------------------------------------------------------------------
 C Decomposition and forward substitution:
       BET = 1.0 / D( 1 )
       DO V = 1, N_SPC_DIFF
-         X( V,1 ) = BET * B(V,1 )
+         X( V,1 ) = BET * B( V,1 )
       END DO
 
       DO K = 2, NLAYS
          GAM( K ) = BET * U( K-1 )
          BET = 1.0 / ( D( K ) - L( K ) * GAM( K ) )
          DO V = 1, N_SPC_DIFF
-            X( V, K ) = BET * ( B( V,K ) - L( K ) * X( V,K-1 ) )
+            X( V,K ) = BET * ( B( V,K ) - L( K ) * X( V,K-1 ) )
          END DO
       END DO
 

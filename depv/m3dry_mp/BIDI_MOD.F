@@ -479,7 +479,6 @@ C--------------------------------------------------------------------------
          SUBROUTINE WRASX_MEDIA( MDATE, MTIME, ABFLUX )
 
          USE GRID_CONF           ! horizontal grid specifications
-         USE SUBST_MODULES       ! stenex
          USE UTILIO_DEFN
 
          IMPLICIT NONE

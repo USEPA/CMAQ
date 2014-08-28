@@ -28,6 +28,7 @@ c CGRID gas chem, aerosol, non-reactive, and tracer species definitions
 c based on Fortran include file specifications
 c Revision History: Jeff Young 31 Aug 09: created
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 c-----------------------------------------------------------------------
 
       implicit none
@@ -94,10 +95,10 @@ c init routine to set the CGRID species locations
 
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
+            use RXNS_DATA           ! chemical mechanism data
+	    
             implicit none
 
-            include SUBST_RXCMMN      ! gas chemistry definitions and commons
-            include SUBST_RXDATA      ! gas chemistry data arrays
 
 #ifdef Verbose
             integer, save :: logdev

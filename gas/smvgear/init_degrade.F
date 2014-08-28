@@ -41,18 +41,18 @@ C                                is less than zero
 C
 C**********************************************************************
 
+      USE RXNS_DATA
       USE DEGRADE_SETUP_TOX   ! inherits CGRID_SPCS
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
 
 C.....ARGUMENTS:
 
-      REAL( 8 ), INTENT( IN ) :: CBLK ( BLKSIZE, NSPCSD )           !  species concentration in cell
-      REAL( 8 ), INTENT( IN ) :: TCELL( BLKSIZE )                    !  cell temperature  [ k ]
-      REAL( 8 ), INTENT( IN ) :: DCELL( BLKSIZE )                   !  cell air density  [ kg/m^3 ]
-      REAL,      INTENT( IN ) :: PHOTO_CELL( BLKSIZE, N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
+      REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )           !  species concentration in cell
+      REAL( 8 ), INTENT( IN ) :: TCELL( : )              !  cell temperature  [ k ]
+      REAL( 8 ), INTENT( IN ) :: DCELL( : )              !  cell air density  [ kg/m^3 ]
+      REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : )     !  Photolysis table for cell [1/s]
 
       INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
       INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
@@ -65,10 +65,9 @@ C.....LOCAL VARIABLES:
       CHARACTER( 144 )        :: XMSG       ! Message text
       CHARACTER( 16  ), SAVE  :: PNAME = 'INIT_DEGRADE' ! Routine name
 
-      REAL(8), SAVE ::  CONV_M2N      ! factor to convert ppm times mass density in [kg/m^3]
-                                      ! into number density in [molecules/cm^3]
-      REAL(8)       ::  CONV_FACT     ! conversion factor from ppm to molecules/cm^3
-      REAL(8)       ::  INV_TEMP      ! reciprocal of temperature, [K^-1]
+      REAL(8), SAVE ::  CONV_M2N       ! factor to convert ppm times mass density in [kg/m^3]
+                                       ! into number density in [molecules/cm^3]
+      REAL(8), SAVE :: MASS_TO_NUMBER  ! air mass density to number density [ (# per moles)/Kg ]
 
       INTEGER       :: I, J, K, I_CELL   ! loop counters
 
@@ -79,12 +78,18 @@ C**********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize constants and allocate arrays
 
-         CONV_M2N = 1.0D-9 * AVO / MWAIR       ! AVO and MWAIR defined in CONST.EXT
+         CONV_M2N       = 1.0D-9 * REAL( (AVO / MWAIR), 8 )       ! AVO and MWAIR defined in CONST.EXT 
+
+         MASS_TO_NUMBER = REAL( 1.0E-3*AVO / MWAIR, 8 )
 
          ALLOCATE( PREV_CONC( BLKSIZE, NSPCSD ) )
          ALLOCATE( CURR_CONC( BLKSIZE, NSPCSD ) )
          ALLOCATE( DELT_CONC( BLKSIZE, NSPCSD ) )
          ALLOCATE( NUMB_DENS( BLKSIZE ) )
+
+         ALLOCATE(      TEMP( BLKSIZE ),
+     &              INV_TEMP( BLKSIZE ),
+     &             CONV_FACT( BLKSIZE ))
 
          FIRSTCALL = .FALSE.
 
@@ -95,73 +100,64 @@ C**********************************************************************
       PREV_CONC  = 0.0D0
       CURR_CONC  = 0.0D0
       RATE_CONST = 0.0D0
-
-      LOOP_BLOCK: DO I_CELL = 1, NUMCELLS
+      DELT_CONC  = 0.0D0
 
 C.. initialize concentrations and their changes
 
-C         DO J = 1, NSPCSD
-C            PREV_CONC( I_CELL, J ) = CBLK( I_CELL, J )
-C            CURR_CONC( I_CELL, J ) = CBLK( I_CELL, J )
-C            DELT_CONC( I_CELL, J ) = 0.0D0
-C         ENDDO
+          DO J = 1, NSPCSD
+             DO I_CELL = 1, NUMCELLS
+                PREV_CONC( I_CELL, J ) = MAX( CBLK( I_CELL, J ), 0.0D0)
+                CURR_CONC( I_CELL, J ) = PREV_CONC( I_CELL, J )
+             END DO
+         ENDDO
 
-         PREV_CONC( I_CELL, 1:NSPCSD ) = CBLK( I_CELL, 1:NSPCSD )
-         CURR_CONC( I_CELL, 1:NSPCSD ) = CBLK( I_CELL, 1:NSPCSD )
-         DELT_CONC( I_CELL, 1:NSPCSD ) = 0.0D0
+         DO I_CELL = 1, NUMCELLS
+            NUMB_DENS( I_CELL ) = MASS_TO_NUMBER * DCELL( I_CELL )
+            TEMP( I_CELL )      = REAL( TCELL( I_CELL ) )
+            INV_TEMP( I_CELL )  = 1.0D0 / TCELL( I_CELL )
+            CONV_FACT( I_CELL ) = CONV_M2N * DCELL( I_CELL )
+         END DO
 
-         NUMB_DENS( I_CELL ) = 1.0E-3 * REAL( DCELL( I_CELL ) ) / MWAIR
-         TEMP = REAL( TCELL( I_CELL ) )
-
-         CONV_FACT = CONV_M2N * DBLE( DCELL( I_CELL ) )
-         INV_TEMP = 1.0D0 / TEMP
 
          LOOP_REACT: DO I = 1, N_REACT ! calculated rate constants
 
             IF( RXTANT_MAP( I ) < 0 )CYCLE LOOP_REACT
 
+
             LOOP_UNIRATE: DO J = 1, N_UNI_LOSS
-
-                RATE_CONST( I_CELL, I, J ) = UNIRATE( I, J )
-     &                                     * TEMP**UNI_TEXP( I, J )
-     &                                     * EXP( -UNI_ACT( I, J )
-     &                                     * INV_TEMP )
-
+               DO I_CELL = 1, NUMCELLS
+                RATE_CONST( I_CELL, I, J ) = UNIRATE( I, J ) 
+     &                                     * TCELL( I_CELL )**UNI_TEXP( I, J )
+     &                                     * DEXP( -UNI_ACT( I, J )*INV_TEMP( I_CELL ) )
+               END DO
             ENDDO LOOP_UNIRATE
 
             LOOP_BIRATE: DO J = 1, N_BI_LOSS
-
-               RATE_CONST( I_CELL, I, J+UNI_STOP ) = BIRATE( I, J )
-     &                                             * CONV_FACT
-     &                                             * TEMP**BI_TEXP( I, J )
-     &                                             * EXP( -BI_ACT( I, J )
-     &                                             * INV_TEMP )
-
+               DO I_CELL = 1, NUMCELLS
+                 RATE_CONST( I_CELL, I, (J+UNI_STOP) ) = CONV_FACT( I_CELL ) * BIRATE( I, J ) 
+     &                                                 * TCELL( I_CELL )**BI_TEXP( I, J )
+     &                                                 * DEXP( -BI_ACT( I, J )*INV_TEMP( I_CELL ) )
+ 
+              END DO
             ENDDO LOOP_BIRATE
 
             LOOP_TRIRATE: DO J = 1, N_TRI_LOSS
-
-               RATE_CONST( I_CELL, I, J+BI_STOP ) = TRIRATE( I, J )
-     &                                            * CONV_FACT
-     &                                            * CONV_FACT
-     &                                            * TEMP**TRI_TEXP( I, J )
-     &                                            * EXP( -TRI_ACT( I, J )
-     &                                            * INV_TEMP )
-
+              DO I_CELL = 1, NUMCELLS 
+               RATE_CONST( I_CELL, I, (J+BI_STOP) ) = CONV_FACT( I_CELL ) * CONV_FACT( I_CELL )
+     &                                              * TRIRATE( I, J ) * TCELL( I_CELL )**TRI_TEXP( I, J )
+     &                                              * DEXP( -TRI_ACT( I, J )*INV_TEMP( I_CELL ) )
+              END DO
             ENDDO LOOP_TRIRATE
 
             LOOP_PHOTORATE: DO J = 1, N_PHOTO_LOSS
-
+              DO I_CELL = 1, NUMCELLS
                 K = PHOTO_MAP( I, J )
                 IF ( K < 1 ) CYCLE
-                RATE_CONST( I_CELL, I, J+TRI_STOP ) = A_PHOTO( I, J )
-     &                                              * PHOTO_CELL( I_CELL, K )
-
+                RATE_CONST( I_CELL, I, (J+TRI_STOP) ) = A_PHOTO( I, J ) * PHOTO_CELL( I_CELL, K )
+              END DO
             ENDDO LOOP_PHOTORATE
 
          ENDDO LOOP_REACT
-
-      ENDDO LOOP_BLOCK
 
       RETURN
 

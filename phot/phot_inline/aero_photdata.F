@@ -49,6 +49,7 @@ C     01/10/11 B.Hutzell - initial version created based on AERO_DESC module
 C                          in version 4.7 and aero_depv for version 5.0
 C     03/29/11 S.Roselle - Replaced I/O API include files with UTILIO_DEFN
 C     06/08/12 J.Young   - remove full character blank padding for GNU Fortran (GCC) 4.1.2
+C     07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -62,6 +63,7 @@ C
 C-----------------------------------------------------------------------
 
 !     USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE RXNS_DATA           ! chemical mechanism data
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
 
@@ -73,7 +75,6 @@ C-----------------------------------------------------------------------
 
 C Includes:
 
-      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 C Arguments:
 

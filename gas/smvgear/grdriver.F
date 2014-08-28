@@ -72,18 +72,29 @@ C                    with UTILIO_DEFN
 C                    31 Aug 11 B.Hutzell revised method that determines calling
 C                              degrade routine
 C                    29 Sep 11 D.Wong: incorporated twoway model implementation
+C                    15 Jul 14 B.Hutzell: 1) replaced mechanism include files with 
+C                    RXNS_DATA module, 2) replaced call to CALCLK with CALC_RCONST
+C                    in RXNS_FUNCTION module, 3) enabled reactions between all 
+C                    species type by using unit conversion factors and 4) updated
+C                    the explicit interace SMVGEAR, 5) added using heteorogeneous 
+C                    rate constants by calling subroutine in AEROSOL_CHEMISTRY module,
+C                    and 6) revised usage for INIT_DEGRADE and FINAL_DEGRADE routines
 C**********************************************************************
 
+      USE RXNS_DATA
+      USE RXNS_FUNCTION
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
+      USE AEROSOL_CHEMISTRY
+      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+
 
       IMPLICIT NONE 
 
 C..INCLUDES:
       INCLUDE SUBST_FILES_ID  ! CMAQ files
       INCLUDE SUBST_CONST     ! CMAQ constants
-      INCLUDE SUBST_EMISPRM   ! Emissions processing control parameters
       INCLUDE SUBST_PACTL_ID  ! Process analysis control parameters
 
 C..ARGUMENTS:
@@ -97,7 +108,7 @@ C..PARAMETERS:
 C Integer zero
       INTEGER, PARAMETER :: IZERO = 0
 
-C Conc. of M = 1E+06 ppm
+C Conc. of M = 1E+06 ppm 
       REAL, PARAMETER :: CONCOFM = 1.0E+06
 
 C Pascal to atm conversion factor
@@ -110,6 +121,8 @@ C..EXTERNAL FUNCTIONS:
 
 C..SAVED LOCAL VARIABLES:
       LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
+      LOGICAL, SAVE :: EMISVD = .TRUE. ! emission rates in vertical diffusion 
+
       INTEGER, SAVE :: IRUNC     ! Counter of calls to this subroutine
       INTEGER, SAVE :: LOGDEV    ! Unit number of output log
       INTEGER, SAVE :: NOXYZ     ! Total number of grid cells
@@ -177,12 +190,8 @@ C..SCRATCH LOCAL VARIABLES:
       REAL TA     ( NCOLS, NROWS, NLAYS )   ! Cell temperature (K)
       REAL DENS   ( NCOLS, NROWS, NLAYS )   ! Cell density (Kg/m^3)
 
-      REAL RJBLK( BLKSIZE, NPHOTAB )        ! J-values for each cell in 
-                                            ! a block
-
       REAL RJ( NCOLS, NROWS, NLAYS, NPHOTAB )  ! J-values for each cell      
 
-      REAL( 8 ) BLKDENS( BLKSIZE )          ! Cell density (Kg/m^3) in block
 
 !     REAL CHEMIS( NC_CH, NR_CH, NL_CH, NS_CH )  ! Emissions in each cell
       REAL, ALLOCATABLE, SAVE :: CHEMIS( :, :, :, : )  ! Emissions in each cell
@@ -227,15 +236,18 @@ C for INTERPX
          END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
-            USE GRID_CONF
+            USE RXNS_DATA
+            USE CGRID_SPCS         
             USE UTILIO_DEFN
-            USE GRVARS
+            USE GRVARS              
             IMPLICIT NONE
-            INTEGER, INTENT( IN )   :: IRUN, JDATE, JTIME
-            REAL, INTENT( IN )      :: CHEMSTEP
-            LOGICAL, INTENT( IN )   :: LIRRFLAG
-            INTEGER, INTENT( IN )   :: NIRRCLS
-            INTEGER, INTENT( IN )   :: IRRCELL( BLKSIZE )
+            INTEGER, INTENT( IN ) :: IRUN               ! Counter of calls to calling subroutine
+            INTEGER, INTENT( IN ) :: JDATE              ! Date at start of integration
+            INTEGER, INTENT( IN ) :: JTIME              ! Time at start of integration
+            INTEGER, INTENT( IN ) :: NIRRCLS            ! No. of cells in block for IRR
+            INTEGER, INTENT( IN ) :: IRRCELL( BLKSIZE ) ! Cell No. of an IRR cell
+            LOGICAL, INTENT( IN ) :: LIRRFLAG           ! Flag for IRR calculations
+            REAL,    INTENT( IN ) :: CHEMSTEP           ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
            USE DEGRADE_SETUP_TOX
@@ -247,13 +259,13 @@ C for INTERPX
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
      &                         JDATE, JTIME, LOGDEV, BLKID )
+           USE RXNS_DATA
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           INCLUDE SUBST_RXCMMN   
-           REAL( 8 ), INTENT( IN ) :: CBLK ( BLKSIZE, NSPCSD )           !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( BLKSIZE )                   !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( BLKSIZE )                   !  cell air density  [ kg/m^3 ]
-           REAL,      INTENT( IN ) :: PHOTO_CELL( BLKSIZE, N_PHOTO_TAB ) !  Photolysis table for cell [1/s]
+           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
+           REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
+           REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
@@ -263,7 +275,7 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           REAL( 8 ), INTENT( INOUT ) :: CBLK( BLKSIZE, NSPCSD ) ! species conc in cell
+           REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
          END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 
@@ -272,7 +284,7 @@ C for INTERPX
 
 C**********************************************************************
 
-      IF ( N_GC_SPC .EQ. 0 ) RETURN
+      IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for Gear solver and 
@@ -288,98 +300,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL JSPARSE
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
          MAOMV =  MWAIR / MWWAT
-
-C..Set-up for emissions processing if necessary
-#ifdef emis_chem
-         EMISVD = .FALSE.
-#else
-         EMISVD = .TRUE.
-#endif
-
-         IF ( .NOT. EMISVD ) THEN
-
-C...........set cell widths
-            IF( GDTYP_GD .EQ. LATGRD3 ) THEN
-               DX = DG2M * XCELL_GD         ! in m.
-               DY = DG2M * YCELL_GD *
-     &              COS( PI180 *( YORIG_GD + YCELL_GD * 
-     &              FLOAT( NROWS ) ) )
-            ELSE
-               DX = XCELL_GD                ! in m
-               DY = YCELL_GD                ! in m
-            ENDIF 
-
-C...........set molecular weight conversion factors for each species
-            CONVFC = 1.0E+06 * MWAIR   
-            AIRFC = CONVFC
-
-C...........open the emissions file and check units
-            IF( .NOT. OPEN3( EMIS_1, FSREAD3, PNAME ) ) THEN
-               MSG = 'Could not open '// EMIS_1 // ' file'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-            ENDIF
-
-            IF( .NOT. DESC3( EMIS_1 ) ) THEN
-               MSG = 'Could not get '// EMIS_1 // ' file description'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-            ENDIF
-
-            UNITSCK = UNITS3D( 1 )
-            CALL UPCASE( UNITSCK )
-            DO SPC = 1, N_GC_EMIS
-
-               VAR = INDEX1( GC_EMIS( SPC ), NVARS3D, VNAME3D )
- 
-               IF ( VAR .NE. 0 ) THEN
-                  UC_UNITS = UNITS3D( VAR )
-                  CALL UPCASE( UC_UNITS )
-                  IF( UC_UNITS .NE. UNITSCK ) THEN
-                     MSG = 'Units not uniform on ' // EMIS_1
-                     CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-                  ENDIF
-               ELSE
-                  MSG = 'Emissions species ' // GC_EMIS( SPC )
-     &                   // ' not found on ' // EMIS_1
-                  CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-               ENDIF
-
-            ENDDO
- 
-            IF( UNITSCK .EQ. 'MOLES/S' ) THEN
-               CONVEM = 1.0E-03 * 60.0  ! (Kg/min)/(g/s)
-            ELSE
-               MSG = 'Units incorrect on ' // EMIS_1
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-            ENDIF
-
-            EMISLYRS = NLAYS3D
-
-C...........Combine conversion factors and layer thicknesses:
-            CONVFC = CONVEM / ( DX * DY )
-            DO LEV = 1, NLAYS
-               CONV( LEV ) = CONVFC
-     &                     / ABS ( X3FACE_GD( LEV ) - X3FACE_GD( LEV-1 ) ) 
-            END DO
-
-            WRITE( LOGDEV, 92000 ) EMISLYRS, NLAYS
-
-            CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF,
-     &                      STRTCOLEM1, ENDCOLEM1, STRTROWEM1, ENDROWEM1 )
-
-            ALLOCATE ( CHEMIS( NCOLS, NROWS, NLAYS, N_GC_EMIS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               MSG = 'Failure allocating CHEMIS'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-            END IF
-
-         ENDIF   ! End if doing emissions
-
+         
 C...Initialize and report data
-         DO NCELL = 1, BLKSIZE
-            DO ISP = 1, N_GC_SPC
-               EMBLK( NCELL, ISP ) = 0.0
-            ENDDO
-         ENDDO
+         EMBLK = 0.0
 
          WRITE( LOGDEV, 92020 ) NOXYZ, BLKSIZE, NBLKS, BLKLEN( 1 ), 
      &                          BLKLEN( NBLKS )
@@ -407,7 +330,6 @@ C:WTH Determine whether DEGRADE rountines are needed.
             WRITE( LOGDEV, * ) 'Mechanism contains NO degraded species'
 #endif            
          ENDIF
-
 C:WTH set up degradation array
 
          ALLOCATE( Y_DEGRADE( BLKSIZE, NSPCSD ) )
@@ -480,33 +402,9 @@ C.. Get pressure in Pascals
  
 C.. Get photolysis rates in /min
 
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )                    
-
-C...Process emissions and air density if necessary 
-      IF ( .NOT. EMISVD ) THEN  
-
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                       MIDDATE, MIDTIME, DENSA_J ) ) THEN
-            MSG = 'Could not read DENSA_J from MET_CRO_3D'
-            CALL M3EXIT ( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-         ENDIF
-
-         DO ESP = 1, N_GC_EMIS
-
-            IF ( .NOT. INTERPX( EMIS_1, GC_EMIS( ESP ), PNAME,
-     &                 STRTCOLEM1,ENDCOLEM1, STRTROWEM1,ENDROWEM1, 1,EMISLYRS,
-     &                          MIDDATE, MIDTIME, CHEMIS( 1,1,1,ESP ) ) ) THEN
-               MSG = 'Could not read  ' // GC_EMIS( ESP ) // ' from '
-     &               // EMIS_1
-               CALL M3EXIT( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-            ENDIF
-
-         ENDDO
-
-      ENDIF         ! .NOT. EMISVD
-
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )          
+      CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
+      
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set flag for reordering of cells and put cells in sequential  
 c  order initially
@@ -551,71 +449,48 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                           CCOL, CROW, CLEV, NORDCELL, NIRRCLS,
      &                           IRRCELL )
              CALL PA_IRR_BLKSTRT( NUMCELLS )
-!            if ( bingo1 ) then
-!               bingo1 = .false.
-!               bingo2 = .true.
-!               write( *,* ) 'grdriver-mype,BLK,LIRRBLK: ', mype, blk, lirrblk
-!            end if
          ENDIF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
 C  pressure to atmospheres, water vapor to ppm, emissions to ppm/min 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         IF ( .NOT. EMISVD ) THEN
-            DO NCELL = 1, NUMCELLS
-               DO ISP = 1, ISCHANG( NCS )
-                   EMBLK( NCELL, ISP ) = 0.0
-               ENDDO
-            ENDDO
-         ENDIF
+         IF ( .NOT. EMISVD )EMBLK = 0.0
 
          DO NCELL = 1, NUMCELLS
             CELLNUM = NORDCELL( OFFSET + NCELL )
             COL = CCOL( CELLNUM )
             ROW = CROW( CELLNUM )
             LEV = CLEV( CELLNUM )
-            BLKTEMP( NCELL )  = TA( COL, ROW, LEV )
-            BLKDENS( NCELL )  = DENS( COL, ROW, LEV )
-            BLKPRES( NCELL )  = PA2ATM * PRES( COL, ROW, LEV )
-            BLKCH2O( NCELL )  = MAX ( QV( COL, ROW, LEV ) * MAOMV * 
-     &                          1.0E+06, 0.0 )
-
-            IF ( .NOT. EMISVD ) THEN 
-               IF ( LEV .LE. EMISLYRS ) THEN
-                  DO ESP = 1, N_GC_EMIS
-                     ISPNEW = IOLD2NEW( GC_EMIS_MAP( ESP ), NCS )
-                     EMBLK( NCELL, ISPNEW ) = CHEMIS( COL, ROW, LEV, ESP )
-     &                                      * GC_EMIS_FAC( ESP )                
-     &                                      * AIRFC * CONV( LEV ) 
-     &                                      / DENSA_J( COL, ROW, LEV )
-                  ENDDO
-               ENDIF
-            ENDIF
-          
+            BLKTEMP( NCELL ) = REAL( TA( COL,ROW,LEV ), 8 )
+            BLKDENS( NCELL ) = REAL( DENS( COL,ROW,LEV ), 8 )
+            BLKSVOL( NCELL ) = REAL( 1.0 / BLKDENS( NCELL ), 8 )
+            BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
+            BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
          ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell concentrations in the block arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO ISP = 1, ISCHANG( NCS )
+            SPC    = CGRID_INDEX( ISP )
             ISPNEW = IOLD2NEW( ISP, NCS )
             DO NCELL = 1, NUMCELLS
                CELLNUM = NORDCELL( OFFSET + NCELL )
                COL = CCOL( CELLNUM )
                ROW = CROW( CELLNUM )
                LEV = CLEV( CELLNUM )
-               IF ( CONC( COL, ROW, LEV, ISP ) .GE. 1.1 * CONCMIN ) THEN
-                  BLKCONC( NCELL, ISP ) = CONC( COL, ROW, LEV, ISP )
-                  CNEW( NCELL, ISPNEW ) = BLKCONC( NCELL, ISP )
-               ELSE   
-                  BLKCONC( NCELL, ISP ) = ZBOUND
-                  CNEW( NCELL, ISPNEW ) = ZBOUND
-               ENDIF
+               IF( CONVERT_CONC( ISP ) )THEN 
+                   CNEW( NCELL,ISPNEW )  = REAL( MAX( FORWARD_CONV( ISP ) * BLKSVOL( NCELL )
+     &                                   *       CONC( COL,ROW,LEV,SPC ), CONCMIN), 8 )
+               ELSE
+                   CNEW( NCELL,ISPNEW ) = REAL( MAX( CONC( COL,ROW,LEV,SPC ), CONCMIN), 8 )
+               END IF
+               BLKCONC( NCELL, ISP ) = CNEW( NCELL,ISPNEW )
             ENDDO                 
          ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C   Get photolytic and thermal rate constants
+C   Get heterogeneous, photolytic and thermal rate constants
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LSUNLIGHT = .FALSE.
 
@@ -625,12 +500,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ROW = CROW( CELLNUM )
             LEV = CLEV( CELLNUM )
             DO NPH = 1, NPHOTAB
-               RJBLK( NCELL, NPH ) = RJ( COL, ROW, LEV, NPH )
+               RJBLK( NCELL, NPH ) = REAL( RJ( COL, ROW, LEV, NPH ), 8 )
                IF ( RJBLK( NCELL, NPH ) .GT. 0.0 ) LSUNLIGHT = .TRUE.
             ENDDO                         
+            DO NPH = 1, NHETERO
+               BLKHET( NCELL, NPH ) =  KHETERO( NPH, COL, ROW, LEV )
+            END DO
          ENDDO
          
-         CALL CALCKS( NPHOTAB, RJBLK )
+!        CALL CALCKS( NPHOTAB, RJBLK )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, RK, NUMCELLS )
+
+!         DO NCELL = 1, NUMCELLS
+!            CELLNUM = NORDCELL( OFFSET + NCELL )
+!            COL = CCOL( CELLNUM )   ! wrong order
+!            ROW = CROW( CELLNUM )
+!            LEV = CLEV( CELLNUM )
+!            IF( LEV .EQ. INT(NLAYS/2)+1.AND. ROW .EQ. INT(MY_NROWS/2)+1 .AND. COL .EQ. INT(MY_NCOLS/2)+1 )THEN
+!                WRITE(LOGDEV,'(A,ES12.4)')'TEMP = ',BLKTEMP( NCELL ) 
+!                WRITE(LOGDEV,'(A,ES12.4)')'PRES = ',BLKPRES( NCELL ) 
+!                WRITE(LOGDEV,'(A,ES12.4)')'VH2O = ',BLKCH2O( NCELL )
+!                DO NPH = 1, NRXNS
+!                   WRITE(LOGDEV,'(A4,A16,A3,ES12.4)')'RXN:',RXLABEL(NPH),' = ',RK(NCELL, NPH)
+!                END DO
+!             END IF
+!         END DO
 
          IF ( LSUNLIGHT ) THEN
             HMAX = HMAXDAY( NCS )
@@ -650,14 +544,14 @@ C..WTH: Put concentrations into degradation array
                   COL = CCOL( CELLNUM )
                   ROW = CROW( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  Y_DEGRADE( NCELL, ISP ) = DBLE( CONC( COL, ROW, LEV, ISP ) )
+                  Y_DEGRADE( NCELL,ISP ) = REAL(MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN), 8 )
                ENDDO                 
             ENDDO
 
 C..initialize degradation routines
               
             CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK, 
-     &                         NUMCELLS,   JDATE,   JTIME, LOGDEV, BLKID )
+     &                         NUMCELLS, JDATE, JTIME, LOGDEV, BLKID )
   
          ENDIF
 
@@ -690,22 +584,20 @@ C..Output a concentrations for a single cell
             ENDIF
                
 C..Output IC for a block                                    
-            IF ( LDUMPBLK .AND. IRUNC .EQ. IRUNBLK .AND. 
-     &           BLKID .EQ. IBLKBLK ) THEN
+            IF ( LDUMPBLK .AND. IRUNC .EQ. IRUNBLK .AND. BLKID .EQ. IBLKBLK ) THEN
                WRITE( IUNBIC ) NUMCELLS, CHEMSTEP
                WRITE( IUNBIC ) ( BLKTEMP( NCELL ),  NCELL = 1, NUMCELLS )
                WRITE( IUNBIC ) ( BLKPRES( NCELL ),  NCELL = 1, NUMCELLS )
                WRITE( IUNBIC ) ( BLKCH2O( NCELL ),  NCELL = 1, NUMCELLS )
 
                DO ISP = 1, ISCHANG( NCS )
-                  WRITE( IUNBIC ) GC_SPC( ISP ), ( BLKCONC( NCELL, ISP ),
+                  WRITE( IUNBIC ) CHEMISTRY_SPC( ISP ), ( BLKCONC( NCELL, ISP ),
      &                            NCELL = 1, NUMCELLS )
                ENDDO
 
                DO NPH = 1, NMPHOT
                   IRXN = IPH( NPH, 1 )
-                  WRITE( IUNBIC ) ( RK( NCELL, IRXN ), 
-     &                              NCELL = 1, NUMCELLS )
+                  WRITE( IUNBIC ) ( RK( NCELL, IRXN ), NCELL = 1, NUMCELLS )
                ENDDO
 
                MSG = 'Stopping in CHEM after dumping block IC'
@@ -713,12 +605,11 @@ C..Output IC for a block
             ENDIF
             
 C..Output IC for a cell            
-            IF ( LDUMPCELL .AND. IRUNC .EQ. IRUNCELL .AND.
-     &            BLKID .EQ. IBLKCELL ) THEN 
+            IF ( LDUMPCELL .AND. IRUNC .EQ. IRUNCELL .AND. BLKID .EQ. IBLKCELL ) THEN 
                WRITE( IUNCIC, 93000 )
 
                DO ISP = 1, ISCHANG( NCS )
-                  WRITE( IUNCIC, 93020 ) GC_SPC( ISP ),
+                  WRITE( IUNCIC, 93020 ) CHEMISTRY_SPC( ISP ),
      &                                BLKCONC( INUMCELL, ISP )
                ENDDO
 
@@ -744,8 +635,7 @@ C..debug output
                   COL = CCOL( CELLNUM )
                   ROW = CROW( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  IF( COL .EQ. DBGCOL .AND. ROW .EQ. DBGROW .AND.
-     &               LEV .EQ. DBGLEV ) THEN
+                  IF( COL .EQ. DBGCOL .AND. ROW .EQ. DBGROW .AND. LEV .EQ. DBGLEV ) THEN
                      IBLKBUG = BLK
                      ICPR = NCELL
                      WRITE( IUNDBG, 93120 ) IRUNC, BLKID
@@ -761,7 +651,7 @@ C..debug output
                
                      DO ISP = 1, ISCHANG( NCS )
                         ISPOLD = INEW2OLD( ISP,NCS )
-                        WRITE( IUNDBG, 93380 ) ISP, GC_SPC( ISPOLD ),
+                        WRITE( IUNDBG, 93380 ) ISP, CHEMISTRY_SPC( ISPOLD ),
      &                                   CNEW( 1,ISP ), CNEW( NMID,ISP ),
      &                                   CNEW( NUMCELLS, ISP )
                      ENDDO
@@ -795,23 +685,17 @@ C..debug output
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   Call Gear solver for the integration interval
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         CALL SMVGEAR( IRUNC, JDATE, JTIME, CHEMSTEP, LIRRBLK, NIRRCLS,
-     &                 IRRCELL )
+         CALL SMVGEAR( IRUNC, JDATE, JTIME, CHEMSTEP, LIRRBLK, NIRRCLS, IRRCELL )
 
 #ifdef sunws
          ERRSTAT = DTIME ( TARRAY )
          SOLVER_TIME = SOLVER_TIME + TARRAY( 1 )
 #endif
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  If not ordering cells, save performance statistics, do debug output
 C  if requested, and store updated concentrations.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. LORDERING ) THEN
-!           write( *,* ) 'finished irun = ', IRUNC, ' block ', BLKID,
-!    &               ' nsteps= ', NSTEPS, MXORDUSED, NUMNEWT, NSUBFUN,
-!    &               NPDERIV, NCFAIL, NEFAIL, IRSTART, NUMBKUPS,
-!    &               LIRRBLK, NIRRCLS
             IF ( LPERFSMRY ) THEN
                NSTPERF(    BLK ) = NSTEPS
                MXORDPERF(  BLK ) = MXORDUSED
@@ -823,13 +707,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IRSPERF(    BLK ) = IRSTART
                NBKUPS(     BLK ) = NUMBKUPS
             ENDIF
+
+
 C..debug output
-            IF ( LDEBUG .AND. IRUNC .EQ. IRUNBUG .AND.
-     &              BLK .EQ. IBLKBUG ) THEN
+            IF ( LDEBUG .AND. IRUNC .EQ. IRUNBUG .AND. BLK .EQ. IBLKBUG ) THEN
                WRITE( IUNDBG, 93320 ) IRUNC, ICPR
                DO ISP = 1, ISCHANG( NCS )
                   ISPNEW = IOLD2NEW( ISP, NCS )
-                  WRITE( IUNDBG, 93340 ) ISP, GC_SPC( ISP ),
+                  WRITE( IUNDBG, 93340 ) ISP, CHEMISTRY_SPC( ISP ),
      &                                   CNEW( ICPR, ISPNEW )
                ENDDO
 
@@ -838,7 +723,7 @@ C..debug output
                WRITE( IUNDBG, 93360 ) NMID, NUMCELLS
                DO ISP = 1, ISCHANG( NCS )
                   ISPOLD  = INEW2OLD( ISP, NCS )
-                  WRITE( IUNDBG, 93380 ) ISP, GC_SPC( ISPOLD ),
+                  WRITE( IUNDBG, 93380 ) ISP, CHEMISTRY_SPC( ISPOLD ),
      &                                   CNEW( 1,ISP ), 
      &                                   CNEW( NMID, ISP ),
      &                                   CNEW( NUMCELLS, ISP )
@@ -848,45 +733,56 @@ C..debug output
 C..Update concentrations
            DO ISP = 1, ISCHANG( NCS )
                ISPOLD = INEW2OLD( ISP, NCS )
+               SPC    = CGRID_INDEX( ISPOLD )
                DO NCELL = 1, NUMCELLS
                   CELLNUM = NORDCELL( OFFSET + NCELL )
                   ROW = CROW( CELLNUM )
                   COL = CCOL( CELLNUM )
                   LEV = CLEV( CELLNUM )
-                  CONC( COL, ROW, LEV, ISPOLD ) = CNEW( NCELL, ISP ) 
+                  IF( CONVERT_CONC( ISPOLD ) )THEN 
+                     CONC( COL,ROW,LEV,SPC ) = REAL( REVERSE_CONV( ISPOLD ) 
+     &                                       *       BLKDENS( NCELL ) * CNEW( NCELL,ISP ), 4)
+
+                  ELSE
+                     CONC( COL,ROW,LEV,SPC ) = REAL( CNEW( NCELL,ISP ), 4)
+                  ENDIF
                ENDDO
             ENDDO
 
+
             IF ( CALL_DEG ) THEN
 
-C  Update concentrations
+C  Update degradation array with species treated by Rosenbach solver
+C
+C               DO ISP = 1, ISCHANG( NCS )
+C                  ISPOLD  = INEW2OLD( ISP, NCS )
+C                  DO NCELL = 1, NUMCELLS
+C                     Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,ISP )
+C                  END DO
+C               END DO
 
-               DO ISP = 1, ISCHANG( NCS )
-                  ISPOLD  = INEW2OLD( ISP, NCS )
-                  DO NCELL = 1, NUMCELLS
-                     Y_DEGRADE( NCELL, ISPOLD ) = CNEW( NCELL, ISP )
-                  ENDDO
-               ENDDO
 
 C  Update CGRID based on the degradation routines
-
                CALL FINAL_DEGRADE( Y_DEGRADE )
-               DO ISP = NR_STRT, ( TR_STRT - 1 )
+               UPDATE_DEGRADED: DO ISP = 1, N_REACT
+                  VAR = RXTANT_MAP( ISP )
+                  IF( VAR .LE. 0 )CYCLE UPDATE_DEGRADED
+                  DO SPC = 1, NUMB_MECH_SPC
+                     IF( VAR .EQ. CGRID_INDEX( SPC ) )CYCLE UPDATE_DEGRADED
+                  END DO
                   DO NCELL = 1, NUMCELLS
                      CELLNUM = NORDCELL( OFFSET + NCELL )
-                     ROW = CROW( CELLNUM )
                      COL = CCOL( CELLNUM )
+                     ROW = CROW( CELLNUM )
                      LEV = CLEV( CELLNUM )
-                    CONC( COL, ROW, LEV, ISP ) = Y_DEGRADE( NCELL, ISP )
-                  ENDDO
-               ENDDO
-            ENDIF
-
-            IF ( LIRRBLK ) CALL PA_IRR_BLKENDC ( OFFSET, CCOL, CROW, CLEV,
-     &                                          NORDCELL, NIRRCLS, IRRCELL )
-
+                     CONC( COL,ROW,LEV,VAR ) = REAL( Y_DEGRADE( NCELL,VAR ), 4)
+                  END DO
+               END DO UPDATE_DEGRADED
+             ENDIF
+             
+             IF ( LIRRBLK ) CALL PA_IRR_BLKENDC ( OFFSET, CCOL, CROW, CLEV,
+     &                                            NORDCELL, NIRRCLS, IRRCELL )
          ENDIF
-
 500   CONTINUE
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -26,14 +26,14 @@ C %W% %P% %G% %U%
 C routines for aerosol formation and transformation processes
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER, GAMMA_N2O5 )
+      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER )
 
 C-----------------------------------------------------------------------
 C  SUBROUTINE AEROPROC advances the number, second moment, and mass
 C   concentrations for each mode over the time interval DT.
 
 C  KEY SUBROUTINES CALLED:
-C     GETPAR, ORGAER5, HETCHEM, GETCOAGS, INTERCOAG_GH, INTRACOAG_GH,
+C     GETPAR, ORGAER5, GETCOAGS, INTERCOAG_GH, INTRACOAG_GH,
 C     VOLINORG
 
 C  KEY FUNCTIONS CALLED:  ERF, ERFC, GETAF
@@ -175,6 +175,16 @@ C HS  03/10/11 Added call to POAAGE between ORGAER and HETCHEM
 
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 
+C BH  09/30/13 Removed Call to HETCHEM and GAMMA_N2O5 argument
+C              because of merging of gas and heterogeneous 
+C              chemistry
+
+C JB  02/07/14 Added Jai Xing's mass balance fix when there is excessive
+C              condensation or evaporation under cold conditions
+
+C BH  07/21/14 Removed call to POAAGE because reaction represented in
+C              chemical mechanism
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -204,7 +214,6 @@ C *** arguments:
       INTEGER, INTENT( IN ) :: COL         ! Column of cell
       INTEGER, INTENT( IN ) :: ROW         ! Row of cell
       INTEGER, INTENT( IN ) :: LAYER       ! Layer of cell
-      REAL,    INTENT( OUT ) :: GAMMA_N2O5 ! N2O5 heterogeneous reaction probability [ ]
 
 C *** Parameters
       REAL, PARAMETER :: DIFFSULF = 9.36E-06  ! molecular diffusiviity for sulfuric acid
@@ -326,15 +335,6 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
-
-C *** POA Aging
-C     Increase primary NCOM concentration due to oxidative aging of POA.
-      CALL POAAGE ( DT )
-
-C *** Heterogeneous Chemistry
-C     Update the N2O5 and HNO3 concentrations to account for
-C     heterogenous nitrate formation.
-      CALL HETCHEM ( GAMMA_N2O5, DT )
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle
@@ -937,9 +937,9 @@ C-----------------------------------------------------------------------
 
          COFCBAR_SO4 = SQRT( 8.0 * RGASUNIV / ( PI * MWH2SO4 * 1.0E-3 ) )
          H2SO4RATM1 = AEROSPC_MW( ASO4_IDX ) / MWH2SO4
-         SO4FAC  = 1.0D-9 * F6DPI / AEROSPC( ASO4_IDX )%DENSITY
-         SOILFAC = 1.0D-9 * F6DPI / AEROSPC( ASOIL_IDX )%DENSITY
-         ANTHFAC = 1.0D-9 * F6DPI / AEROSPC( ACORS_IDX )%DENSITY
+         SO4FAC  = 1.0D-9 * F6DPI / REAL( AEROSPC( ASO4_IDX )%DENSITY, 8 )
+         SOILFAC = 1.0D-9 * F6DPI / REAL( AEROSPC( ASOIL_IDX )%DENSITY, 8 )
+         ANTHFAC = 1.0D-9 * F6DPI / REAL( AEROSPC( ACORS_IDX )%DENSITY, 8 )
 
 !        DF( KNH4 ) = 1.0D6 * AEROSPC_MW( ANH4_IDX )
 !        DF( KNO3 ) = 1.0D6 * AEROSPC_MW( ANO3_IDX )
@@ -1491,6 +1491,46 @@ C *** Initialize excess evaporated mass array
          CINORG( KK,  IMODE ) = AEROSPC_CONC( AK_IDX,   IMODE )
          CINORG( KMG, IMODE ) = AEROSPC_CONC( AMG_IDX,  IMODE )
 
+!** Jai Xing's VOLINORG fix
+         DO ISP = 1, NVOLINORG
+
+            CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
+     &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
+     &                          * DF( ISP )
+
+            IF ( IMODE .EQ. 1 ) THEN
+
+               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
+                  DMASS( ISP ) = CFINAL( ISP,IMODE )
+                  CFINAL( ISP,IMODE ) = 0.0D0
+               END IF
+
+            ELSE   ! IMODE = 2
+
+               CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
+
+               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
+                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE )
+                  CFINAL( ISP,IMODE ) = 0.0D0
+
+                  IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
+                     IF ( ABS( CFINAL( ISP,1 ) ) .LT. 1.0D-15 ) THEN
+                        CFINAL( ISP,1 ) = 0.0D0
+                     ELSE
+                        WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
+                        CFINAL( ISP,1 ) = 0.0D0
+                     END IF
+                  END IF
+               END IF
+
+            END IF  ! IMODE = 1
+
+         END DO ! ISP
+
+      END DO    ! IMODE
+      
+      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
+
          WETM3 = MOMENT3_CONC( IMODE )
          WETM2 = MOMENT2_CONC( IMODE )
 
@@ -1525,42 +1565,6 @@ C *** Initialize excess evaporated mass array
 
          DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
          DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
-
-         DO ISP = 1, NVOLINORG
-         
-            CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
-     &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
-     &                          * DF( ISP )
-
-            IF ( IMODE .EQ. 1 ) THEN
-
-               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  DMASS( ISP ) = CFINAL( ISP,IMODE )
-                  CFINAL( ISP,IMODE ) = 0.0D0
-               END IF
-
-            ELSE   ! IMODE = 2
-
-               CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
-
-               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE ) 
-                  CFINAL( ISP,IMODE ) = 0.0D0
-
-                  IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
-                     IF ( ABS( CFINAL( ISP,1 ) ) .LT. 1.0D-15 ) THEN
-                        CFINAL( ISP,1 ) = 0.0D0
-                     ELSE
-                        WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
-                        CFINAL( ISP,1 ) = 0.0D0
-!                       STOP
-                     END IF
-                  END IF 
-               END IF
-
-            END IF   ! IMODE = 1
-            
-         END DO 
                         
          SO4 = CINORG( KSO4,IMODE ) + RATE * CONVFAC
 
@@ -1573,13 +1577,6 @@ C *** Double precision vars for CALC_H2O
          WI( 6 ) = CINORG( KCA, IMODE ) * CFAC_ACA
          WI( 7 ) = CINORG( KK,  IMODE ) * CFAC_AK
          WI( 8 ) = CINORG( KMG, IMODE ) * CFAC_AMG
-
-#ifdef verbose_aero
-!        write( logdev,'(a, 8e13.3)' ) "VOLINORG,WI's:",
-!    &                                  wi( 1 ), wi( 2 ), wi( 3 ), wi( 4 ),
-!    &                                  wi( 5 ), wi( 6 ), wi( 7 ), wi( 8 )
-!        write( logdev,* ) "VOLINORG,RH,T:", rhi, tempi
-#endif
 
          CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW ) 
             

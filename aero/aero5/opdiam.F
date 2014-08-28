@@ -85,7 +85,7 @@ C diagnostic file
          TSTEP3D = TSTEP
          CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         NVARS3D = 23 
+         NVARS3D = 26 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D = NLAYS
@@ -113,17 +113,17 @@ C diagnostic file
 
          VTYPE3D( 1 ) = M3REAL
          VNAME3D( 1 ) = 'STDEVATKN'
-         UNITS3D( 1 ) = ' '
+         UNITS3D( 1 ) = '----'
          VDESC3D( 1 ) = 'Aitken mode standard deviation (dry and wet)'
 
          VTYPE3D( 2 ) = M3REAL
          VNAME3D( 2 ) = 'STDEVACC'
-         UNITS3D( 2 ) = ' '
+         UNITS3D( 2 ) = '----'
          VDESC3D( 2 ) = 'Accumulation mode standard deviation (dry and wet)'
 
          VTYPE3D( 3 ) = M3REAL
          VNAME3D( 3 ) = 'STDEVCOR'
-         UNITS3D( 3 ) = ' '
+         UNITS3D( 3 ) = '----'
          VDESC3D( 3 ) = 'Coarse mode standard deviation (dry and wet)'
             
          VTYPE3D( 4 ) = M3REAL
@@ -203,30 +203,45 @@ C diagnostic file
 
          VTYPE3D( 19 ) = M3REAL
          VNAME3D( 19 ) = 'RH'
-         UNITS3D( 19 ) = ' '
+         UNITS3D( 19 ) = '----'
          VDESC3D( 19 ) = 'Relative humidity'
 
          VTYPE3D( 20 ) = M3REAL
          VNAME3D( 20 ) = 'PM25AT'
-         UNITS3D( 20 ) = ' '
+         UNITS3D( 20 ) = '----'
          VDESC3D( 20 ) = 'Fine fraction of Aitken mode'
 
          VTYPE3D( 21 ) = M3REAL
          VNAME3D( 21 ) = 'PM25AC'
-         UNITS3D( 21 ) = ' '
+         UNITS3D( 21 ) = '----'
          VDESC3D( 21 ) = 'Fine fraction of accumulation mode'
 
          VTYPE3D( 22 ) = M3REAL
          VNAME3D( 22 ) = 'PM25CO'
-         UNITS3D( 22 ) = ' '
+         UNITS3D( 22 ) = '----'
          VDESC3D( 22 ) = 'Fine fraction of coarse mode'
 
          VTYPE3D( 23 ) = M3REAL
          VNAME3D( 23 ) = 'GAMMA_N2O5'
          UNITS3D( 23 ) = ' '
-         VDESC3D( 23 ) = 'N2O5 Heterogeneous reaction probability'
+         VDESC3D( 23 ) = 'Fine Mode N2O5 Heterogeneous reaction probability'
 
-         FDESC3D( 1 ) = 'aerosol distribution parameters'
+         VTYPE3D( 24 ) = M3REAL
+         VNAME3D( 24 ) = 'GAMMA_N2O5K'
+         UNITS3D( 24 ) = ' '
+         VDESC3D( 24 ) = 'Coarse Mode N2O5 Heterogeneous reaction probability'
+
+         VTYPE3D( 25 ) = M3REAL
+         VNAME3D( 25 ) = 'YIELD_CLNO2'
+         UNITS3D( 25 ) = ' '
+         VDESC3D( 25 ) = 'Fine Mode CLNO2 Heterogeneous reaction yield'
+
+         VTYPE3D( 26 ) = M3REAL
+         VNAME3D( 26 ) = 'YIELD_CLNO2K'
+         UNITS3D( 26 ) = ' '
+         VDESC3D( 26 ) = 'Coarse Mode CLNO2 Heterogeneous reaction yield'
+
+         FDESC3D( 1 ) = 'aerosol distribution and chemistry parameters'
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
             END DO

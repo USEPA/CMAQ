@@ -52,8 +52,12 @@ C                                       if MECHNAME contains 'TX' substring.
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module, updated explicit interfaces and revised
+C                    block for FPP flag redebug is set in compilation
 C**********************************************************************
       USE GRID_CONF               ! horizontal & vertical domain specifications
+      USE RXNS_DATA
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -61,9 +65,6 @@ C**********************************************************************
       IMPLICIT NONE 
 
 C..Includes:
-!      INCLUDE SUBST_IODECL        ! I/O API declarations
-!      INCLUDE SUBST_IOPARMS       ! I/O API parameters
-       INCLUDE SUBST_RXCMMN 
 
 C..Arguments:
       INTEGER, INTENT( IN ) :: LOGDEV        ! Unit number of output log
@@ -163,12 +164,13 @@ c.....ROS3 intermediate variables
       REAL( 8 ), ALLOCATABLE, SAVE :: K4( :,: )
       REAL( 8 ), ALLOCATABLE, SAVE :: YP( :,: )     ! Predicted conc
 
+
 #ifdef rbdebug
 
-      INTEGER COL                          ! Column for debug output 
-      INTEGER ROW                          ! Row for debug output
-      INTEGER LEV                          ! Level for debug output
-      INTEGER DBGOUT                       ! Output unit for debug output
+      INTEGER COL, CD                       ! Column for debug output 
+      INTEGER ROW, RD                       ! Row for debug output
+      INTEGER LEV, LD                       ! Level for debug output
+      INTEGER DBGOUT                        ! Output unit for debug output
 
       LOGICAL LDEBUG                       ! Debug output flag
       LOGICAL, SAVE :: LOPEN = .FALSE.     ! Flag for debug file opened
@@ -178,9 +180,9 @@ c.....ROS3 intermediate variables
       INTERFACE
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
             USE GRID_CONF
+            USE RXNS_DATA
             USE CGRID_SPCS
             IMPLICIT NONE
-            INCLUDE SUBST_RXCMMN
             LOGICAL LSTART, LCHGVL
             REAL    :: RK( BLKSIZE,NRXNS )
             REAL    :: CONC( :,: )
@@ -188,14 +190,42 @@ c.....ROS3 intermediate variables
             INTEGER NUMCELLS
             INTEGER :: ICLND( BLKSIZE )
          END SUBROUTINE PA_IRR
+         SUBROUTINE RBFEVAL( NCSP, YIN, YDOT )
+            USE RXNS_DATA
+            USE RXNS_FUNCTION
+            USE RBDATA          ! ROS3 solver data
+            IMPLICIT NONE
+            INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
+            REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
+            REAL( 8 ), INTENT(   OUT ) :: YDOT( :, : )  ! Species rates of change, ppm/min
+         END SUBROUTINE RBFEVAL
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
+           USE RXNS_DATA
            USE DEGRADE_SETUP_TOX
            IMPLICIT NONE
-           REAL( 8 ), INTENT( IN ) :: CBLK( BLKSIZE,  NSPCSD ) ! array holding species concentrations
-           REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
-           INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
+           REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
+           REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
+           INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
+         END SUBROUTINE DEGRADE
+         SUBROUTINE RBSOLVE( NCSP, RHS )
+           USE RBDATA                       ! ROS3 solver data
+           IMPLICIT NONE
+           INTEGER,   INTENT( IN )    ::  NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
+           REAL( 8 ), INTENT( INOUT ) ::  RHS( :,: )  ! Right hand side = {b}
+         END SUBROUTINE RBSOLVE
+         SUBROUTINE RBJACOB( NCSP, YIN )
+           USE RXNS_DATA
+           USE RBDATA                ! ROS3 solver data
+           IMPLICIT NONE
+           INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use; 1=gas/day, 2=gas/night
+           REAL( 8 ), INTENT( IN ) :: YIN( :,: )  ! Species concs, ppm
+         END SUBROUTINE RBJACOB
+         SUBROUTINE RBDECOMP( NCSP )
+           USE RBDATA              ! ROS3 solver data
+           IMPLICIT NONE
+           INTEGER, INTENT( IN ) :: NCSP  ! Index of chem mech to use: 1=gas/day, 2=gas/night
          END SUBROUTINE
       END INTERFACE
 
@@ -263,38 +293,45 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef rbdebug 
 
-      COL = 0
-      ROW = 0
-      LEV = 0
-      IF ( C .EQ. COL .AND. R .EQ. ROW .AND. L .EQ. LEV ) THEN
-!     IF ( JTIME .EQ. 160000 ) THEN
-         LDEBUG = .TRUE.
-      ELSE
-         LDEBUG = .FALSE.
-      END IF
+! CD, RD, LD set by modifying code
+      CD = 0
+      RD = 0
+      LD = 0
+      DO NCELL = 1, NUMCELLS
+         COL = CCOL( NCELL )
+         ROW = CROW( NCELL )
+         LEV = CLEV( NCELL )
+         IF ( CD .EQ. COL .AND. RD .EQ. ROW .AND. LD .EQ. LEV ) THEN
+!        IF ( JTIME .EQ. 160000 ) THEN
+              LDEBUG = .TRUE.
+              EXIT
+         ELSE
+              LDEBUG = .FALSE.
+         END IF
+       END DO
 
-      IF ( LDEBUG ) THEN
-           IF ( .NOT. LOPEN ) THEN
-              DBGOUT = JUNIT()
-              OPEN( UNIT = DBGOUT, FILE = 'debug.out' )
-              LOPEN = .TRUE.
-           END IF
+         IF ( LDEBUG ) THEN
+              IF ( .NOT. LOPEN ) THEN
+                 DBGOUT = JUNIT()
+                 OPEN( UNIT = DBGOUT, FILE = 'debug.out' )
+                 LOPEN = .TRUE.
+              END IF
 
-           WRITE( DBGOUT, '( A, 2I4, I3, 1X, I7, 1X, I6 ) ' )
-     &             'Debug output for col/row/lev/date/time:', 
-     &              C, R, L, JDATE, JTIME
-           WRITE( DBGOUT, '( A, F7.2) ' )
-     &             'CHEMTMSTEP = ', CHEMSTEP
-           WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
-           DO N = 1, N_SPEC
-             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
-     &                     'SP ',N, GC_SPC( N ), Y( N )
-           END DO
-           DO N = 1, N_RXNS
-             WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
-     &                     'RKI ', N, RKI( N )
-           END DO
-      END IF
+              WRITE( DBGOUT, '( A, 2I4, I3, 1X, I7, 1X, I6 ) ' )
+     &              'Debug output for col/row/lev/date/time:', 
+     &               C, R, L, JDATE, JTIME
+              WRITE( DBGOUT, '( A, F7.2) ' )
+     &              'CHEMTMSTEP = ', CHEMSTEP
+              WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
+              DO N = 1, N_SPEC
+                 WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
+     &                           'SP ',N, CHEMISTRY_SPC( N ), Y( NCELL, N )
+              END DO
+              DO N = 1, N_RXNS
+                 WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+     &                          'RKI ', N, RKI( NCELL, N )
+              END DO
+        END IF
 
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
@@ -458,7 +495,7 @@ c..Estimate error
          NSTEPS = NSTEPS + 1
 #endif
 
-         DO N = 1, N_GC_SPC
+         DO N = 1, NUMB_MECH_SPC
             DO NCELL = 1, NUMCELLS
                Y( NCELL,N ) = MAX( YP( NCELL,N ), CONMIN )
             END DO
@@ -484,8 +521,9 @@ c..Estimate error
 
             DO I = 1, ISCHAN
                ISPOLD = INEW2OLD( I,NCS )
+               N      = CGRID_INDEX( ISPOLD )
                DO NCELL = 1, NUMCELLS
-                  Y_DEGRADE( NCELL,ISPOLD ) = Y( NCELL,I )
+                  Y_DEGRADE( NCELL,N ) = Y( NCELL,I )
                END DO
             END DO
 
@@ -525,7 +563,7 @@ c..Estimate error
             WRITE( LOGDEV, 92110 ) JDATE, JTIME,
      &      ( COL_ERR + STARTCOLCO ), ( ROW_ERR + STARTROWCO ), LAY_ERR
 
-            WRITE( LOGDEV, 92113) N_SPEC, N_GC_SPC
+            WRITE( LOGDEV, 92113) N_SPEC, NUMB_MECH_SPC
             WRITE( LOGDEV, 92216) MAXERR, SQRT( ERR( CELL_MAXERR ) * RNSPEC )
      
             DO N = 1, N_SPEC
@@ -537,7 +575,7 @@ c..Estimate error
      &                      / ERR( CELL_MAXERR )
      
                 ISPOLD = INEW2OLD( N, NCS )
-                WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( GC_SPC( ISPOLD ) ),
+                WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( CHEMISTRY_SPC( ISPOLD ) ),
      &          MAX_SPC_ERR, Y( CELL_MAXERR,N ), YP( CELL_MAXERR,N )
      
             END DO
@@ -593,7 +631,7 @@ c..write photolysis rates used in cell
 92113 FORMAT( 'Number of Species solved = ', I4, ' out of ',
      &         I4, ' Total GC Species ')
 
-92114 FORMAT('GC_SPC( ', I4, ' ) = ', A16,' Error Contribution =', 
+92114 FORMAT('CHEMISTRY_SPC( ', I4, ' ) = ', A16,' Error Contribution =', 
      &        ES12.4, ' Initial Conc = ', ES12.4 , 
      &        ' Predicted Conc = ', ES12.4 )
      

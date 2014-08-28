@@ -81,8 +81,11 @@ C**********************************************************************
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE AERO_EMIS
       USE UTILIO_DEFN
-      USE SUBST_MODULES              ! stenex
-!     USE SUBST_DATA_COPY_MODULE     ! stenex
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE, NOOP_DATA_COPY_MODULE)
+#endif
 
       IMPLICIT NONE 
 

@@ -62,14 +62,18 @@ C                         applications (issue reported by Erick Sperandio)
 C    23 Feb 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C    06 Apr 11 B.Hutzell: added code that opens and writes photolysis rates
 C                         to an optional diagnostic file
+C    07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C
 C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
+      USE RXNS_DATA           ! chemical mechanism data
       USE UTILIO_DEFN
-
-      USE SUBST_MODULES
-!     USE SUBST_UTIL_MODULE
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
 
@@ -77,7 +81,6 @@ C include files:
 
       INCLUDE SUBST_FILES_ID   ! file name parameters
       INCLUDE SUBST_CONST      ! physical constants
-      INCLUDE SUBST_RXCMMN     ! chemical mechamism reactions COMMON
 
 C arguments:
 

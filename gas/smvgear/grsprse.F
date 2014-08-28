@@ -55,8 +55,12 @@ C                    30 Jun 10 J.Young: convert for Namelist redesign; move all
 C                    local include file variables into GRVARS module
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files 
 C                    with UTILIO_DEFN
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module and supplement error message when array
+C                    bounds exceed maximum values
 C***********************************************************************
 
+      USE RXNS_DATA
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
@@ -169,11 +173,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( ISAPORL ( N_GC_SPC ),
-     &              ISPARDER( N_GC_SPC, N_GC_SPC ),
-     &              LZERO   ( N_GC_SPC, N_GC_SPC ),
-     &              IZILCH  ( N_GC_SPC, NCS2 ),
-     &              JZILCH  ( N_GC_SPC, NCS2 ), STAT = IOS )
+         ALLOCATE ( ISAPORL ( NUMB_MECH_SPC ),
+     &              ISPARDER( NUMB_MECH_SPC, NUMB_MECH_SPC ),
+     &              LZERO   ( NUMB_MECH_SPC, NUMB_MECH_SPC ),
+     &              IZILCH  ( NUMB_MECH_SPC, NCS2 ),
+     &              JZILCH  ( NUMB_MECH_SPC, NCS2 ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failure for '
      &          // 'ISAPORL, ISPARDER, IZILCH, JZILCH, or LZERO'
@@ -181,7 +185,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          DO JSP = 1, NCS2
-            DO ISP = 1, N_GC_SPC
+            DO ISP = 1, NUMB_MECH_SPC
                IZILCH( ISP, JSP ) = 0
                JZILCH( ISP, JSP ) = 0
                JHIZ1 ( ISP, JSP ) = 0
@@ -210,7 +214,7 @@ c Initialize Prod/loss and PD tabulator arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCS12 = NCS
 
-      NSPECT( NCS ) = N_GC_SPC
+      NSPECT( NCS ) = NUMB_MECH_SPC
       DO ISP = 1, NSPECT( NCS )
          ISAPORL( ISP ) = 0
       ENDDO
@@ -329,8 +333,8 @@ c  put ones on the diagonal and zeroes everywhere else.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 700 IFSUN = 1, 2
          NCS12 = IFSUN
-         DO I = 1, N_GC_SPC
-            DO J = 1, N_GC_SPC
+         DO I = 1, NUMB_MECH_SPC
+            DO J = 1, NUMB_MECH_SPC
                LZERO( J, I ) = 0
             ENDDO
             LZERO( I, I ) = 1
@@ -580,9 +584,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94060 ) MXARRAY, IARRAY2 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94080 ) MXARRAY, ICCOUNT 
+            WRITE( MSG, 94080 ) MXCOUNT2, ICCOUNT 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT 
+            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT, MAXGL3 
             CALL M3MESG( MSG )
             EXITSTAT = 2
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', EXITSTAT )
@@ -703,8 +707,10 @@ C********************** FORMAT STATEMENTS ******************************
 94020 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICNT    = ',I6)  
 94040 FORMAT( 1X,'DIMENSION: MXCOUNT1 = ',I6,' VARIABLE: JCNT    = ',I6)  
 94060 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: IARRAY2 = ',I6)  
-94080 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: ICCOUNT = ',I6)  
-94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6)
+94080 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICCOUNT = ',I6)  
+94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6
+     &     / 1X, 'NOTE:      MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3',
+     &     / 1X, 'WHERE:     MAXGL3   = ',I6 )
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)
       END

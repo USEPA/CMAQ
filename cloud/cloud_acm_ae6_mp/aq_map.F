@@ -50,6 +50,7 @@ C       7 07/01/01 gs   calculate zenith angle to determine daytime and nightime
 C                       needed for sulfur oxidation via metal catalysis
 C       8 09/10/11 wth  adapted for multiple pollutant model, i.e., Gas phase mercury 
 C                       PM mercury and tracer species
+C       07 Jul 14  wth: replaced mechanism include file(s) with fortran module
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -150,12 +151,12 @@ C External Functions:
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
+           USE RXNS_DATA           ! chemical mechanism data
            USE AQ_DATA
            USE HG_AQCHEM_DATA
            USE UTILIO_DEFN
            IMPLICIT NONE
            INCLUDE SUBST_CONST          ! constants
-           INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
            REAL,      INTENT( IN )  :: AIRM      ! total air mass in cloudy layers (mol/m2)
