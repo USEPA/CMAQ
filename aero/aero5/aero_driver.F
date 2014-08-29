@@ -91,23 +91,28 @@ C   S.Roselle- Mar 11 - replaced I/O API include files with UTILIO_DEFN
 C   David Wong - Aug 11 - put in twoway model implementation
 C   David Wong - Oct 11 - extended the twoway implementation to handle finer
 C                         time resolution
+C
+C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
+C                            diagnostic outputs on reaction gamma and yield 
+C                            values 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
+      USE RXNS_DATA
       USE AERO_DATA           ! aero variable data
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
       USE UTILIO_DEFN
       USE CGRID_SPCS
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K
 
       IMPLICIT NONE
 
 C *** Includes:
 
-      INCLUDE SUBST_RXCMMN    ! to get mech name
       INCLUDE SUBST_FILES_ID  ! file name parameters (req IOPARMS)
       INCLUDE SUBST_PACTL_ID  ! process analysis
 
@@ -168,14 +173,11 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,23 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,26 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
       REAL AMU             ! atmospheric dynamic viscosity [ kg/m s ]
-
-C *** N2O5 heterogeneous reaction probability [ ]
-      REAL GAMMA_N2O5      ! computed in SUBROUTINE EQL3
 
 C *** mass fraction of each mode less than 2.5um aerodynamic diameter
       REAL PM25( N_MODE )  ! fine fractions
@@ -308,8 +310,7 @@ C     units of (1/km) and is for layer 1 only.
          IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( AERDIAG .AND. MYPE .EQ. 0 )
-     &      CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( AERDIAG .AND. MYPE .EQ. 0 ) CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -421,7 +422,7 @@ C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
 
 C *** Aerosol process routines
-               CALL AEROPROC( DT, C, R, L, GAMMA_N2O5 )
+               CALL AEROPROC( DT, C, R, L )
 
 C *** Update aerosol variables conc back into CGRID (set minimum)
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )
@@ -455,19 +456,23 @@ C     diagnostic array (lowest vertical layer only)
 C *** Write wet diameters, 2nd, and 3rd moments to aerosol diagnostic array
 C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                IF ( WRITETIME .AND. AERDIAG ) THEN
+!                  DIAM_SPC( C,R,L, : ) = 0.0
                   DIAM_SPC( C,R,L, 7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
                   DIAM_SPC( C,R,L, 8 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! wet j-mode diam.
                   DIAM_SPC( C,R,L, 9 ) = AEROMODE_DIAM( 3 ) * 1.0E6  ! wet k-mode diam.
-                  DIAM_SPC( C,R,L,10 ) = MOMENT2_CONC( 1 )    ! wet i-mode 2nd moment
-                  DIAM_SPC( C,R,L,11 ) = MOMENT2_CONC( 2 )    ! wet j-mode 2nd moment
-                  DIAM_SPC( C,R,L,12 ) = MOMENT2_CONC( 3 )    ! wet k-mode 2nd moment
-                  DIAM_SPC( C,R,L,16 ) = MOMENT3_CONC( 1 )    ! wet i-mode 3rd moment
-                  DIAM_SPC( C,R,L,17 ) = MOMENT3_CONC( 2 )    ! wet j-mode 3rd moment
-                  DIAM_SPC( C,R,L,18 ) = MOMENT3_CONC( 3 )    ! wet k-mode 3rd moment
-                  DIAM_SPC( C,R,L,20 ) = PM25( 1 )            ! i-mode fine fraction
-                  DIAM_SPC( C,R,L,21 ) = PM25( 2 )            ! j-mode fine fraction
-                  DIAM_SPC( C,R,L,22 ) = PM25( 3 )            ! coarse-mode fine fraction
-                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5           ! N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,10 ) = MOMENT2_CONC( 1 )     ! wet i-mode 2nd moment
+                  DIAM_SPC( C,R,L,11 ) = MOMENT2_CONC( 2 )     ! wet j-mode 2nd moment
+                  DIAM_SPC( C,R,L,12 ) = MOMENT2_CONC( 3 )     ! wet k-mode 2nd moment
+                  DIAM_SPC( C,R,L,16 ) = MOMENT3_CONC( 1 )     ! wet i-mode 3rd moment
+                  DIAM_SPC( C,R,L,17 ) = MOMENT3_CONC( 2 )     ! wet j-mode 3rd moment
+                  DIAM_SPC( C,R,L,18 ) = MOMENT3_CONC( 3 )     ! wet k-mode 3rd moment
+                  DIAM_SPC( C,R,L,20 ) = PM25( 1 )             ! i-mode fine fraction
+                  DIAM_SPC( C,R,L,21 ) = PM25( 2 )             ! j-mode fine fraction
+                  DIAM_SPC( C,R,L,22 ) = PM25( 3 )             ! coarse-mode fine fraction
+                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
@@ -583,6 +588,8 @@ C *** Write data to the aerosol diagnostic file.
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_DIAM_1,
      &                     'for date and time', MDATE, MTIME
+     
+            DIAM_SPC = 0.0
 
          END IF
 

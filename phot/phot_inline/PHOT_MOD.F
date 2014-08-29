@@ -57,6 +57,7 @@ C  GAM2 equal to zero in the Toon et al. (1989) solution to the two stream
 C  of the radiative transfer equation based on how the NCAR TUV model 
 C  implements the approximation
 C
+C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -234,10 +235,10 @@ C-----------------------------------------------------------------------
 
 
       USE UTILIO_DEFN
+      USE RXNS_DATA           ! chemical mechanism data
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN      ! provides photolysis reaction list
 
 C***arguments
 
@@ -863,13 +864,14 @@ C           -landuse type data for surface alebdo
 C
 C  Revision History:
 C   29 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE RXNS_DATA           ! chemical mechanism data
 
       IMPLICIT NONE
 
-      INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
 
 C***arguments
 

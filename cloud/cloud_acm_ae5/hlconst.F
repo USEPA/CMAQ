@@ -69,11 +69,20 @@ C  W.Hutzell  01/30/13  updated PHENOL, and add values for CATECHOL and
 C                       XYLENOL
 C  H.Pye      02/05/13  added Henry's Law 133-134 for IEPOX and IMAE
 C  G.Sarwar   12/18/13  added Henry's Law constants for 135 to 140
+C  W.Hutzell  07/11/14  correct error in DATA from last revision
+C  
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
 
       IMPLICIT NONE
+
+C...........ARGUMENTS and their descriptions
+
+      CHARACTER*(*), INTENT ( IN ) :: CNAME      ! name of substance
+      REAL,          INTENT ( IN ) :: TEMP       ! temperature (K)
+      LOGICAL,       INTENT ( IN ) :: EFFECTIVE  ! true=compute the effective henry's law constant
+      REAL,          INTENT ( IN ) :: HPLUS      ! hydrogen ion concentration (mol/l)
 
 C...........INCLUDES and their descriptions
 
@@ -103,12 +112,6 @@ C...pointers for the dissociation constants (array B and D)
       INTEGER, PARAMETER :: LHCL       = 16  ! HCL
       INTEGER, PARAMETER :: LHYDRAZINE = 17  ! Hydrazine
 
-C...........ARGUMENTS and their descriptions
-
-      CHARACTER*(*) CNAME               ! name of substance
-      REAL          TEMP                ! temperature (K)
-      LOGICAL       EFFECTIVE           ! true=compute the effective henry's law constant
-      REAL          HPLUS               ! hydrogen ion concentration (mol/l)
 
 C...........SCRATCH LOCAL VARIABLES and their descriptions:
 
@@ -117,6 +120,7 @@ C...........SCRATCH LOCAL VARIABLES and their descriptions:
 
       CHARACTER( 120 ) :: XMSG = ' '    ! exit status message string
 
+      INTEGER       S                   ! loop index
       INTEGER       SPC                 ! species index
 
       REAL          HPLUSI              ! 1 / HPLUS
@@ -278,7 +282,6 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
       DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
       DATA SUBNAME(132), A(132), E(132) / 'CATECHOL        ', 3.16E+05, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
-
       DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
       DATA SUBNAME(134), A(134), E(134) / 'IMAE            ', 1.2E+05,  0.00E+00 /  ! Pye et al. ES&T (2013)
 
@@ -288,6 +291,8 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(138), A(138), E(138) / 'HYDROXY-ACETONE ', 2.00E+04, 0.0E+00 /   ! MATSUNAGA ET AL., 41, 790-796, AE, (2007)            
       DATA SUBNAME(139), A(139), E(139) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
       DATA SUBNAME(140), A(140), E(140) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
+
+
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
@@ -318,7 +323,13 @@ C...........EXTERNAL FUNCTIONS and their descriptions:
 C-----------------------------------------------------------------------
 C  begin body of subroutine HLCONST
 
-      SPC = INDEX1( CNAME, MXSPCS, SUBNAME )
+      SPC = 0
+      DO S = 1, MXSPCS
+        IF( TRIM( CNAME ) .EQ. TRIM( SUBNAME( S ) ) )THEN
+            SPC = S
+            EXIT
+        END IF
+      END DO
 
 C...error if species not found in table
 

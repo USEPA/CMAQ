@@ -348,9 +348,31 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
                SDATE3D = LDATE
                STIME3D = LTIME
                TSTEP3D = TSTEP
-               NLAYS3D = EMLAYS
-               NVARS3D = 1
 
+               FTYPE3D = GRDDED3
+               NCOLS3D = GL_NCOLS
+               NROWS3D = GL_NROWS
+               NTHIK3D = 1
+               GDTYP3D = GDTYP_GD
+               P_ALP3D = P_ALP_GD
+               P_BET3D = P_BET_GD
+               P_GAM3D = P_GAM_GD
+               XORIG3D = XORIG_GD
+               YORIG3D = YORIG_GD
+               XCENT3D = XCENT_GD
+               YCENT3D = YCENT_GD
+               XCELL3D = XCELL_GD
+               YCELL3D = YCELL_GD
+               VGTYP3D = VGTYP_GD
+               VGTOP3D = VGTOP_GD
+               GDNAM3D = GRID_NAME  ! from HGRD_DEFN
+
+               NLAYS3D = EMLAYS
+               DO L = 1, NLAYS3D + 1
+                  VGLVS3D( L ) = VGLVS_GD( L )
+               END DO
+
+               NVARS3D = 1
                VNAME3D( 1 ) = LTSPC
                VDESC3D( 1 ) = 'hourly average NO produced from lightning'
                VTYPE3D( 1 ) = M3REAL

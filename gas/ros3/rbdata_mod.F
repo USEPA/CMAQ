@@ -41,6 +41,8 @@ C                    Get BLKSIZE from module GRID_CONF
 C                    29 Jul 05 WTH: added variable used by degrade routines.
 C                    10 Aug 11 J.Young: Replaced I/O API include files
 C                                       with UTILIO_DEFN
+C                   15 Jul 14 B.Hutzell: 1) added variable to variable to converted
+C                   species concentration unit based on species type
 C*************************************************************************
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -53,7 +55,6 @@ C*************************************************************************
       INTEGER N_BAD_STARTS      ! No. of failures at int start for stats
 #endif
 
-
 c..Miscellaneous variables
       INTEGER, PARAMETER :: NCS  = 1        ! no. of chemical mechanisms
       INTEGER, PARAMETER :: NCS2 = 2 * NCS  ! accounts for day/night 
@@ -64,7 +65,6 @@ c..Sparse Matrix maximum dimensions
       INTEGER, PARAMETER :: MAXGL   = 150   ! Max # of P/L terms per species
       INTEGER, PARAMETER :: MAXGL2  = 70    ! Dimension (smaller than maxgl)
       INTEGER, PARAMETER :: MAXGL3  = 100   ! Dimension (smaller than maxgl)
-cdjl      INTEGER, PARAMETER :: MXARRAY = 4200  ! Max # of terms in I-hJ matrix
       INTEGER, PARAMETER :: MXARRAY = 4400  ! Max # of terms in I-hJ matrix
 
 c..Mechanism specific variables
@@ -83,11 +83,13 @@ c..Global tolerances
       REAL,    SAVE :: GLBL_RTOL                      ! Global relative tolerances
 
 c...Allocatable arrays
-      REAL( 8 ), ALLOCATABLE, SAVE :: RKI( :,: )       ! Rate constants 
-      REAL( 8 ), ALLOCATABLE, SAVE :: ATOL( : )        ! Species absolute tolerances 
-      REAL( 8 ), ALLOCATABLE, SAVE :: RTOL( : )        ! Species relative tolerances 
-      REAL( 8 ), ALLOCATABLE, SAVE :: Y( :,: )         ! Species concentrations
-      REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE( :,: ) ! Concentration for degradation
+      REAL( 8 ), ALLOCATABLE, SAVE :: RKI( :,: )         ! Rate constants 
+      REAL( 8 ), ALLOCATABLE, SAVE :: ATOL( : )          ! Species absolute tolerances 
+      REAL( 8 ), ALLOCATABLE, SAVE :: RTOL( : )          ! Species relative tolerances 
+      REAL( 8 ), ALLOCATABLE, SAVE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
+      REAL( 8 ), ALLOCATABLE, SAVE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
+      REAL( 8 ), ALLOCATABLE, SAVE :: Y( :,: )           ! Species concentrations
+      REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE( :,: )   ! Concentration for degradation
 
 c..Block variables
       INTEGER, SAVE :: BLKID                           ! Block ID
@@ -172,11 +174,16 @@ C Domain decomposition info from CONC file
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKPRES( : )      ! Cell press, Pa
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCH2O( : )      ! Cell water conc, ppm
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
 
       INTEGER, SAVE :: NJPHOT                       ! Number of J-values set in PHOT
-      REAL,      ALLOCATABLE, SAVE :: RJBLK( :,: )  ! J-values for each cell in block
+      REAL( 8 ),  ALLOCATABLE, SAVE :: RJBLK( :,: )  ! J-values for each cell in block
 
       LOGICAL, SAVE :: CALL_DEG = .FALSE.          ! SWITCH for calling DEGRADE routine
+      
+      LOGICAL       :: PRINT_CELL
+
+      Integer, Save     :: ros3_log
 
       CONTAINS
          FUNCTION CELLVAR_ALLOC() RESULT ( SUCCESS )
