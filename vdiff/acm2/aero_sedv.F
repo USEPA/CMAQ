@@ -38,8 +38,6 @@ C-----------------------------------------------------------------------
       implicit none
 
 C Includes:
-      include SUBST_RXCMMN    ! to get mech name
-      include SUBST_FILES_ID  ! file name parameters
 
 C Arguments
       integer, intent( in )  :: col, row
