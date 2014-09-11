@@ -21,6 +21,8 @@ C  REVISION  HISTORY:
 C       prototype 09/02 by David Wong
 C       Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with M3UTILIO
+C       Modified 09/10/2014 by David Wong
+C          -- Removed redundant INCLUDE NETCDF.EXT statement
 C***********************************************************************
 
       USE M3UTILIO              ! i/o api
@@ -30,7 +32,7 @@ C***********************************************************************
 C...........   INCLUDES:
 
         INCLUDE 'STATE3.EXT'
-        INCLUDE 'NETCDF.EXT'
+!       INCLUDE 'NETCDF.EXT'
         INCLUDE 'PIOVARS.EXT'
         INCLUDE "mpif.h"
 
