@@ -34,6 +34,8 @@ C             -- Replaced I/O API include files with M3UTILIO; removed
 C                deprecated TRIMLEN
 C             08/11 by David Wong
 C             -- extended to handle window met_cro_3d file
+C             09/14 by David Wong
+C             -- Removed redundant INCLUDE NETCDF.EXT statement
 C-----------------------------------------------------------------------
 
       USE PIOMAPS_MODULE
@@ -44,7 +46,7 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE 'STATE3.EXT'
-      INCLUDE 'NETCDF.EXT'
+!     INCLUDE 'NETCDF.EXT'
 
       INCLUDE 'PIOVARS.EXT'      ! Parameters for parallel implementation.
       INCLUDE 'PIOGRID.EXT'      ! Parallel grid dimensions.
