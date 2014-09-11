@@ -32,6 +32,7 @@ C             -- collect all subdomain data and call WRITE3 once
 C   12 May 06 J.Young: rank 4 F90 pointer capablity for BUFFER
 C   23 Feb 11 S.Roselle: replaced I/O API include files with M3UTILIO; removed
 C                        deprecated TRIMLEN
+C   10 Sep 14 D. Wong: Removed redundant INCLUDE NETCDF.EXT statement
 C-----------------------------------------------------------------------
 
       USE M3UTILIO              ! i/o api
@@ -43,7 +44,7 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE 'STATE3.EXT'
-      INCLUDE 'NETCDF.EXT'
+!     INCLUDE 'NETCDF.EXT'
 
       INCLUDE 'PIOVARS.EXT'      ! Parameters for parallel implementation.
       INCLUDE 'PIOGRID.EXT'      ! Parallel grid dimensions.
