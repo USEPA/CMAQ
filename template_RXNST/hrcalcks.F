@@ -128,7 +128,7 @@ c..otherwise do all absolute rates first and then relative rates
             IF( IPH( NRT, 3 ) .EQ. 0 ) THEN
                IRXN = IPH( NRT, 1 )
                KNUM = IPH( NRT, 2 )
-               RK( NCELL, IRXN ) = RTDAT( 1,IRXN ) * RK( KNUM )
+               RK( NCELL, IRXN ) = RTDAT( 1,IRXN ) * RK( NCELL, KNUM )
             END IF
          END DO
       END IF 
