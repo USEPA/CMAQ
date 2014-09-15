@@ -200,7 +200,7 @@ c..write the ae and aq species
 
 93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
-93040 FORMAT( 6X, 'REAL, ALLOCATABLE ::  PNEG( :,  : )     ',
+93040 FORMAT( 6X, 'REAL( 8 ), ALLOCATABLE ::  PNEG( :,  : )     ',
      &            '! Negative production rates' )
 93050 FORMAT( 'c..Species indices' )
 93060 FORMAT( 'c..Gas species indices' )
