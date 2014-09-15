@@ -5,7 +5,7 @@ FC = ifort
 FPP = $(FC)
  
 ioapi_path   = $(WDX_LIB)/ioapi_3.1/Linux2_x86_64ifort
-netcdf_path  = $(WDX_LIB)/intel_netcdf/lib
+netcdf_path  = $(WDX_LIB)/$(netcdf)/lib
 
 F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I $(ioapi_path)  -I.
 F90_FLAGS  = -free -O3 -fno-alias -mp1   -I $(ioapi_path)  -I.

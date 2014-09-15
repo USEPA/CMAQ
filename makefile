@@ -7,7 +7,8 @@ FPP = $(FC)
 #ioapi_path   = /home/wdx/$(WDX_LIB)/x86_64/ifc/ioapi_3.1/Linux2_x86_64ifort
 #netcdf_path  = /home/wdx/$(WDX_LIB)/x86_64/ifc/netcdf/lib
 ioapi_path   = $(WDX_LIB)/ioapi_3.1/Linux2_x86_64ifort
-netcdf_path  = $(WDX_LIB)/intel_netcdf/lib
+netcdf_path  = $(WDX_LIB)/$(netcdf)/lib
+
 
 
 F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I $(ioapi_path)  -I.
@@ -24,7 +25,7 @@ LINK_FLAGS = -i-static
 IOAPI_INC =  /home/wdx/lib/src/ioapi_3.1/ioapi/fixed_src
 IOAPI_INC =  $(WDX_SRC)/ioapi_3.1/ioapi/fixed_src
  
-LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -l -l$(NETCDF)
+LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -l$(NETCDF)
 #
 #
 
