@@ -212,7 +212,7 @@ C                   doi:10.1029/2001JD001409, 2003
 C-----------------------------------------------------------------------
 
          USE GRID_CONF           ! horizontal & vertical domain configuration
-	 USE RXNS_DATA           ! chemical mechanism data
+         USE RXNS_DATA           ! chemical mechanism data
          USE CGRID_SPCS          ! CGRID mechanism species
          USE SSEMIS              ! sea-salt emissions
          USE DUST_EMIS           ! wind-blown dust emissions
@@ -245,7 +245,7 @@ C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
 C         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
          REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 1.7, 2.2 /)  !KF 05/06/14
-	 
+ 
 C Variables for calculating the volume of each grid cell
          REAL  DX1, DX2                            ! grid-cell width and length [m]
          REAL  CELLAREA                            ! grid-cell area [m2]

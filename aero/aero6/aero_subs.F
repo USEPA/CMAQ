@@ -1045,7 +1045,7 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
 
          XH2SO4 = SO4RATE / TMP
          XH2SO4 = MAX( XH2SO4, CONMIN )
-         PRECURSOR_CONC( SULF_IDX ) = XH2SO4 	 
+         PRECURSOR_CONC( SULF_IDX ) = XH2SO4  
 
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
