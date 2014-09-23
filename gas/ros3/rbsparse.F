@@ -40,9 +40,12 @@ C                      M. Jacobson, (Atm. Env., Vol 28, No 2, 1994)
 C                    28 Jun 10 J.Young: convert for Namelist redesign
 C                    29 Mar 11 S.Roselle: Replaced I/O API include files
 C                               with UTILIO_DEFN
- 
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module and supplement error message when array
+C                    bounds exceed maximum values
 C***********************************************************************
 
+      USE RXNS_DATA
       USE RBDATA                       ! ROS3 solver data
       USE CGRID_SPCS                   ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -50,7 +53,6 @@ C***********************************************************************
       IMPLICIT NONE
       
 C..Includes:
-      INCLUDE SUBST_RXCMMN             ! Mechanism reaction common block
       
 C..Arguments:
       INTEGER LOGDEV                   ! Logical unit number for log file
@@ -67,7 +69,7 @@ C..Local Variables:
       INTEGER, SAVE :: NDLMAX  = 0     ! Max # of PD loss terms in any reaction
       INTEGER, SAVE :: NDPMAX  = 0     ! Max # of PD prod terms in any reaction
 
-      CHARACTER( 16 ) :: PNAME = 'GRSPRSE'     ! Procedure name
+      CHARACTER( 16 ) :: PNAME = 'RBSPRSE'     ! Procedure name
       CHARACTER( 80 ) :: MSG                   ! Mesaage text for output log
 
       INTEGER I,J,K,I1,J1,I2       ! Matrix loop indices
@@ -154,18 +156,18 @@ c  Initialize some variables on first call
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN
 
-         ALLOCATE( ISAPORL ( N_GC_SPC ),
-     &             ISPARDER( N_GC_SPC,N_GC_SPC ),
-     &             LZERO   ( N_GC_SPC,N_GC_SPC ),
-     &             IZILCH  ( N_GC_SPC,NCS2 ),
-     &             JZILCH  ( N_GC_SPC,NCS2 ), STAT = IOS )
+         ALLOCATE( ISAPORL ( NUMB_MECH_SPC ),
+     &             ISPARDER( NUMB_MECH_SPC,NUMB_MECH_SPC ),
+     &             LZERO   ( NUMB_MECH_SPC,NUMB_MECH_SPC ),
+     &             IZILCH  ( NUMB_MECH_SPC,NCS2 ),
+     &             JZILCH  ( NUMB_MECH_SPC,NCS2 ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failed'
             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
          DO NCSP = 1, NCS2
-            DO ISP = 1, N_GC_SPC
+            DO ISP = 1, NUMB_MECH_SPC
                IZILCH( ISP,NCSP ) = 0
                JZILCH( ISP,NCSP ) = 0
                JHIZ1 ( ISP,NCSP ) = 0
@@ -204,7 +206,7 @@ c Initialize Prod/loss and PD tabulator arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCSP = NCS
 
-      NSPECT( NCS ) = N_GC_SPC
+      NSPECT( NCS ) = NUMB_MECH_SPC
       DO ISP = 1, NSPECT( NCS )
          ISAPORL( ISP ) = 0
       END DO
@@ -323,8 +325,8 @@ c  put ones on the diagonal and zeroes everywhere else.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 700 IFSUN = 1, 2
          NCSP = IFSUN
-         DO I = 1, N_GC_SPC
-            DO J = 1, N_GC_SPC
+         DO I = 1, NUMB_MECH_SPC
+            DO J = 1, NUMB_MECH_SPC
                LZERO( J,I ) = 0
             END DO
             LZERO( I,I ) = 1
@@ -354,11 +356,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c        iglg = 0
 c        write( logdev,8200 ) 
 c8200    format(//1x,'jacobian ')
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(1:1),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(1:1),j=1,n_spec)
 c8211    format( 9x, 40( 2x,A1 ) )
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(2:2),j=1,n_spec)
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(3:3),j=1,n_spec)
-c        write( logdev,8211 ) (gc_spc(inew2old(j,ncs))(4:4),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(2:2),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(3:3),j=1,n_spec)
+c        write( logdev,8211 ) (chemistry_spc(inew2old(j,ncs))(4:4),j=1,n_spec)
 c        write( logdev,8210 ) (i,i=1,ischang(ncs))
 c8210    format( /9x, 40I3 )
 c        DO 585 i = 1, ischang( ncs )
@@ -371,7 +373,7 @@ c              else
 c                 ichrout( j ) = ' '
 c              end if
 c584         continue
-c            write( logdev,8220 ) gc_spc( k ), i, (ichrout( j ), j=1,n_spec)
+c            write( logdev,8220 ) chemistry_spc( k ), i, (ichrout( j ), j=1,n_spec)
 c8220        format( 1x, A4, 1x, I2, 1x, 40( 2x,A1 ) )
 c585     continue
 c        write( logdev,8230 ) iglg
@@ -604,9 +606,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94060 ) MXARRAY, IARRAY2 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94080 ) MXARRAY, ICCOUNT 
+            WRITE( MSG, 94080 ) MXCOUNT2, ICCOUNT 
             CALL M3MESG( MSG )
-            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT 
+            WRITE( MSG, 94100 ) MXARRAY, JCCOUNT, MAXGL3
             CALL M3MESG( MSG )
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', XSTAT1 )
          END IF           
@@ -667,8 +669,10 @@ C********************** FORMAT STATEMENTS ******************************
 94020 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICNT    = ',I6)  
 94040 FORMAT( 1X,'DIMENSION: MXCOUNT1 = ',I6,' VARIABLE: JCNT    = ',I6)  
 94060 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: IARRAY2 = ',I6)  
-94080 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: ICCOUNT = ',I6)  
-94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6)
+94080 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICCOUNT = ',I6)  
+94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6
+     &     / 1X, 'NOTE:      MXCOUNT[1,2] = NUMB_MECH_SPC * MAXGL3 * 3',
+     &     / 1X, 'WHERE:     MAXGL3   = ',I6 )
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)
       END

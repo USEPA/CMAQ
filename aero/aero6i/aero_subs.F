@@ -26,7 +26,7 @@ C %W% %P% %G% %U%
 C routines for aerosol formation and transformation processes
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER, GAMMA_N2O5, 
+      SUBROUTINE AEROPROC( DT, COL, ROW, LAYER,  
      &                     EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C-----------------------------------------------------------------------
@@ -183,6 +183,15 @@ C      -Add hetchem after volinorg for organic het chem
 C        (uses isorropia info)
 C      -Pass information to AERODIAM diagnostic file
 
+C BH  07/08/14 Added Jai Xing's mass balance fix when there is excessive
+C              condensation or evaporation under cold conditions
+
+C BH  07/08/14 Removed Call to first call to HETCHEM that conduct inorganic
+C              chemistry and GAMMA_N2O5 argument
+C              as a first step to placing  the heterogeneous chemistry
+C              in mechanism definitions file
+C BH  07/21/14 Removed call to POAAGE based on the same reason
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -211,7 +220,6 @@ C *** arguments:
       INTEGER, INTENT( IN ) :: COL         ! Column of cell
       INTEGER, INTENT( IN ) :: ROW         ! Row of cell
       INTEGER, INTENT( IN ) :: LAYER       ! Layer of cell
-      REAL,    INTENT( OUT )   :: GAMMA_N2O5  ! N2O5 heterogeneous reaction probability [ ]
       REAL( 8 ), INTENT( OUT ) :: EQLBHJ      ! H+ concentration from isoropia, J-mode [ug/m**3]
       REAL( 8 ), INTENT( OUT ) :: KPARTIEPOX  ! IEPOX particle phase rxn rate [1/s]
       REAL( 8 ), INTENT( OUT ) :: GAMMA_IEPOX ! IEPOX heterogeneous reaction prob 
@@ -339,18 +347,6 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
-
-C *** POA Aging
-C     Increase primary NCOM concentration due to oxidative aging of POA.
-      CALL POAAGE ( DT )
-
-C *** Heterogeneous Chemistry
-C     Update the N2O5 and HNO3 concentrations to account for
-C     heterogenous nitrate formation.
-      INORG = .TRUE.
-      EQLBHJ = 0d0 ! initialize, not used on this call (INORG = T)
-      CALL HETCHEM ( INORG, GAMMA_N2O5, DT, 
-     &               EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle
@@ -1527,6 +1523,45 @@ C *** Initialize excess evaporated mass array
          CINORG( KCA, IMODE ) = AEROSPC_CONC( ACA_IDX,  IMODE )
          CINORG( KK,  IMODE ) = AEROSPC_CONC( AK_IDX,   IMODE )
          CINORG( KMG, IMODE ) = AEROSPC_CONC( AMG_IDX,  IMODE )
+!** Jai Xing's VOLINORG fix
+         DO ISP = 1, NVOLINORG
+
+            CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
+     &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
+     &                          * DF( ISP )
+
+            IF ( IMODE .EQ. 1 ) THEN
+
+               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
+                  DMASS( ISP ) = CFINAL( ISP,IMODE )
+                  CFINAL( ISP,IMODE ) = 0.0D0
+               END IF
+
+            ELSE   ! IMODE = 2
+
+               CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
+
+               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
+                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE )
+                  CFINAL( ISP,IMODE ) = 0.0D0
+
+                  IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
+                     IF ( ABS( CFINAL( ISP,1 ) ) .LT. 1.0D-15 ) THEN
+                        CFINAL( ISP,1 ) = 0.0D0
+                     ELSE
+                        WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
+                        CFINAL( ISP,1 ) = 0.0D0
+                     END IF
+                  END IF
+               END IF
+
+            END IF  ! IMODE = 1
+
+         END DO ! ISP
+
+      END DO    ! IMODE
+      
+      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
 
          WETM3 = MOMENT3_CONC( IMODE )
          WETM2 = MOMENT2_CONC( IMODE )
@@ -1560,42 +1595,6 @@ C *** Initialize excess evaporated mass array
 
          DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
          DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
-
-         DO ISP = 1, NVOLINORG
-         
-            CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
-     &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
-     &                          * DF( ISP )
-
-            IF ( IMODE .EQ. 1 ) THEN
-
-               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  DMASS( ISP ) = CFINAL( ISP,IMODE )
-                  CFINAL( ISP,IMODE ) = 0.0D0
-               END IF
-
-            ELSE   ! IMODE = 2
-
-               CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
-
-               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE ) 
-                  CFINAL( ISP,IMODE ) = 0.0D0
-
-                  IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
-                     IF ( ABS( CFINAL( ISP,1 ) ) .LT. 1.0D-15 ) THEN
-                        CFINAL( ISP,1 ) = 0.0D0
-                     ELSE
-                        WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
-                        CFINAL( ISP,1 ) = 0.0D0
-!                       STOP
-                     END IF
-                  END IF 
-               END IF
-
-            END IF   ! IMODE = 1
-            
-         END DO 
                         
          SO4 = CINORG( KSO4,IMODE ) + RATE * CONVFAC
 

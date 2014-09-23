@@ -30,6 +30,7 @@ c Revision History:
 c Jeff Young 31 Aug 09: created
 c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 c-----------------------------------------------------------------------
 
       implicit none
@@ -127,10 +128,10 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
+            use RXNS_DATA           ! chemical mechanism data
+	    
             implicit none
 
-            include SUBST_RXCMMN      ! gas chemistry definitions and commons
-            include SUBST_RXDATA      ! gas chemistry data arrays
 
             integer, save :: logdev
             
@@ -397,42 +398,6 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             n_gc_wdep = k3
             n_gc_conc = k4
 
-c check Namelist gc_spc names and order against mech.def (in RXDT)
-            do i = 1, n_gas_chem_spc
-               i1 = index1( gas_chem_spc( i ), n_gc_spc, gc_spc )
-               if ( i1 .lt. 1 ) then
-                  if ( found ) then
-                     found = .false.
-                     xmsg = '*** Fatal error(s) found in GC species namelist -'
-     &                    // ' missing:'
-                     write( logdev,'( /5x, a )' ) trim( xmsg )
-                  end if
-                  xmsg = trim( gas_chem_spc( i ) )
-                  write( logdev,'( 9x, i4, 2x, a )' ) i, trim( xmsg )
-               end if
-            end do
-            do i = 1, n_gas_chem_spc
-               i1 = index1( gas_chem_spc( i ), n_gc_spc, gc_spc )
-               if ( i1 .ne. i .and. i1 .gt. 0 ) then
-                  if ( order ) then
-                     order = .false.
-                     xmsg = '*** Fatal error(s) found in GC species namelist -'
-     &                    // ' out of order:'
-                     write( logdev,'( /5x, a )' ) trim( xmsg )
-                  end if
-                  xmsg = trim( gas_chem_spc( i ) ) // ' found in'
-                  write( logdev,'( 9x, i4, 2x, a, i6 )' ) i, trim( xmsg ), i1
-               end if
-            end do
-            success = ( found .and. order )
-            if ( .not. success ) then
-               xmsg = 'Required species order in GC_SPC:'
-               write( logdev,'( /5x, a )' ) trim( xmsg )
-               do i = 1, n_gas_chem_spc
-                  write( logdev,'( 9x, i4, 2x, a )' ) i, trim( gas_chem_spc( i ) )
-               end do
-               return
-            end if
                  
             gc_fini = gc_strt + n_gc_spc - 1
             n_gc_spcd = gc_fini + 1

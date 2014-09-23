@@ -49,17 +49,18 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   19 Aug 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE RXNS_DATA           ! chemical mechanism data
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
 C..Includes:
-      INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
       INCLUDE SUBST_PACMN_ID    ! PA control parameters
       
 C..Arguments: 

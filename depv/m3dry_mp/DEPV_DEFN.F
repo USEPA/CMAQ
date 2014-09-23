@@ -48,6 +48,7 @@ C   11 Oct 2011 J.Young: PUBLIC/PRIVATE sections, re-do WTIME computation
 C                        and WTIME computation for MOSAIC
 C   13 Dec 2011 J.Young: removed separate SOA variables - no longer used
 C   11 May 2013 J.Young: invoke INIT_LSM regardless of MOSAIC or ABFLUX option
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 
 C-----------------------------------------------------------------------
 
@@ -137,6 +138,7 @@ C-----------------------------------------------------------------------
          FUNCTION DEPV_INIT( JDATE, JTIME, TSTEP, CGRID ) RESULT ( SUCCESS )
 
          USE HGRD_DEFN
+         USE RXNS_DATA           ! chemical mechanism data
          USE CGRID_SPCS          ! CGRID mechanism species
          USE DEPVVARS
          USE UTILIO_DEFN
@@ -147,7 +149,6 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
 C Includes:
-         INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block (for MECHNAME)
          INCLUDE SUBST_CONST     ! constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
@@ -753,7 +754,11 @@ C Local variables:
                USE DEPVVARS
                USE VGRD_DEFN
                USE UTILIO_DEFN   
-               USE SUBST_MODULES
+#ifdef parallel
+               USE SE_MODULES
+#else
+               USE NOOP_MODULES
+#endif
                Use ABFlux_Mod  ! bidi NH3 exchange routines
                Use LSM_Mod     ! land surface model variables needed for mosaic and bidi
                Use Mosaic_Mod      ! contains mosaic routines

@@ -461,7 +461,7 @@ C...define output descriptor for precitating cloud fraction
               VAR = VAR + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'PR_CLDFRAC'
-              UNITS3D( VAR ) = ' '
+              UNITS3D( VAR ) = '----'
               VDESC3D( VAR ) = 'PR cloud fraction'
 
 C...define output descriptor for non-precipitating cloud fraction
@@ -469,7 +469,7 @@ C...define output descriptor for non-precipitating cloud fraction
               VAR = VAR + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'NP_CLDFRAC'
-              UNITS3D( VAR ) = ' '
+              UNITS3D( VAR ) = '----'
               VDESC3D( VAR ) = 'NP cloud fraction'
 
 C...define output descriptor for precipitating cloud transmissivity
@@ -477,7 +477,7 @@ C...define output descriptor for precipitating cloud transmissivity
               VAR = VAR + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'PR_TRANS'
-              UNITS3D( VAR ) = ' '
+              UNITS3D( VAR ) = '----'
               VDESC3D( VAR ) = 'PR cloud transmissivity'
 
 C...define output descriptor for non-precipitating cloud transmissivity
@@ -485,7 +485,7 @@ C...define output descriptor for non-precipitating cloud transmissivity
               VAR = VAR + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'NP_TRANS'
-              UNITS3D( VAR ) = ' '
+              UNITS3D( VAR ) = '----'
               VDESC3D( VAR ) = 'NP cloud transmissivity'
 
 C...define output descriptor for resolved cloud transmissivity
@@ -493,7 +493,7 @@ C...define output descriptor for resolved cloud transmissivity
               VAR = VAR + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'RES_TRANS'
-              UNITS3D( VAR ) = ' '
+              UNITS3D( VAR ) = '----'
               VDESC3D( VAR ) = 'Resolved cloud transmissivity'
 
 C...define output descriptor for overall cloud transmissivity
@@ -501,7 +501,7 @@ C...define output descriptor for overall cloud transmissivity
               VAR = VAR + 1
               VTYPE3D( VAR ) = M3REAL
               VNAME3D( VAR ) = 'CLD_TRANS'
-              UNITS3D( VAR ) = ' '
+              UNITS3D( VAR ) = '----'
               VDESC3D( VAR ) = 'Total cloud transmissivity'
 
 C...initialize the file descriptors

@@ -94,11 +94,14 @@ C Buffer for writing IRR results
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE M3UTILIO            ! i/o-api
-         USE SUBST_MODULES       ! stenex
-!        USE SUBST_UTIL_MODULE   ! stenex
+#ifdef parallel
+         USE SE_MODULES          ! stenex (using SE_UTIL_MODULE)
+#else
+         USE NOOP_MODULES        ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
-         INCLUDE SUBST_PACTL_ID    ! PA control parameters
-         INCLUDE SUBST_PACMN_ID    ! PA common block definitions
+         INCLUDE SUBST_PACTL_ID  ! PA control parameters
+         INCLUDE SUBST_PACMN_ID  ! PA common block definitions
 
          INTEGER, INTENT( IN ) :: NPROCS  ! total worker processors
          INTEGER, INTENT( IN ) :: RANK

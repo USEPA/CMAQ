@@ -59,8 +59,9 @@ C                   to open the diagnostic file. Eliminate the BARRIER
 C                   and the CLOSE3 and OPEN3.
 C  02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C  05/11: D.Wong-incorporated twoway model implementation
-C  05/13: D.Wong-replaced M3EXIT with M3WARN when CHKGRID is called in the twoway model
-
+C  07/14: J.Bash-Added meteorological variables needed for leaf temperature
+C                calculations.
+C  08/14: J.Bash-Added backwards compatibility for earlier versions of MCIP
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -109,6 +110,12 @@ C Gridded meteorology data:
       REAL,    ALLOCATABLE, SAVE :: SSOLAR( :,: )     ! Surface radiation [W/m**2]
       REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )     ! cosine of zenith angle
       REAL,    ALLOCATABLE, SAVE :: PRES  ( :,: )     ! surface pressure [Pa]
+      REAL,    ALLOCATABLE, SAVE :: LAI   ( :,: )     ! WRF modeled lai m^2/m^2
+      REAL,    ALLOCATABLE, SAVE :: USTAR ( :,: )     ! Sufrace friction velocity m/s
+      REAL,    ALLOCATABLE, SAVE :: RSTOM ( :,: )     ! Stomatal Resistance s/m
+      REAL,    ALLOCATABLE, SAVE :: RATM  ( :,: )     ! Atmospheric Resistance s/m      
+      REAL,    ALLOCATABLE, SAVE :: Q2    ( :,: )     ! Water vapor mixing ratio kg/kg 
+      REAL,    ALLOCATABLE, SAVE :: TEMPG ( :,: )     ! Soil temperature K
       INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
 
 C Gridded beis emissions
@@ -231,11 +238,7 @@ C Check grid definition
             IF ( .NOT. CHKGRID( BNAME ) ) THEN
                MESG = 'Grid in file "' // TRIM( BNAME ) //
      &                '" does not match previously set grid.'
-#ifdef twoway
-               CALL M3WARN( PNAME, 0, 0, MESG )
-#else
                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-#endif
             END IF
 
 C Get domain decomp info for the bioseasons switch file
@@ -269,11 +272,7 @@ C Check that grid description matches BGRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
      &           // '" does not match previously set grid.'
-#ifdef twoway
-            CALL M3WARN( PNAME, 0, 0, MESG )
-#else
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-#endif
          END IF
 
 C Get domain decomp info for the met file
@@ -354,11 +353,7 @@ C Check grid description against BGRD File
          IF ( .NOT. CHKGRID( GNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( GNAME ) //
      &             '" does not match previously set grid.'
-#ifdef twoway
-            CALL M3WARN( PNAME, 0, 0, MESG )
-#else
             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-#endif
          END IF
 
 C Get domain decomp info from the normalized emissions file (assume met files have
@@ -433,6 +428,26 @@ C Allocate memory for arrays
 
          ALLOCATE( PRES( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'PRES', PNAME )
+
+! New variables to calculate leaf temperature
+         ALLOCATE( LAI( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'LAI', PNAME ) 
+
+         ALLOCATE( USTAR( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'USTAR', PNAME )
+
+         ALLOCATE( RSTOM( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RSTOM', PNAME )
+
+         ALLOCATE( RATM( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RATM', PNAME )
+
+         ALLOCATE( Q2( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'Q2', PNAME )
+
+         ALLOCATE( TEMPG( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'TEMPG', PNAME )
+! End of new variables 
 
          IF ( BEMIS_DIAG ) THEN
             ALLOCATE( EMISS( NCOLS,NROWS,N_SPC_BIOG ), STAT=IOS )
@@ -519,6 +534,13 @@ C If new date, read season switch
       WRITE( MESG,94030 ) HHMMSS( JTIME )
       CALL M3MSG2( MESG )
 
+C repopulate the met_cro_2d variable attributes
+      IF ( .NOT. DESC3( MNAME ) ) THEN
+         MESG = 'Could not get description of file "'
+     &           // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
 C Read temperature data
 !     IF ( .NOT. INTERPX( MNAME, 'TEMP10', PNAME,
       IF ( .NOT. INTERPX( MNAME, 'TEMP2', PNAME,
@@ -547,10 +569,96 @@ C Read surface pressure data
      &           '" from file "' // TRIM( MNAME ) // '"'
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
+! New variables to calculate leaf temperature
+! Read WRF PX LAI
+      IF ( .NOT. INTERPX( MNAME, 'LAI', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, LAI ) ) THEN
+         MESG = 'Could not read "' // 'LAI' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+! Read surface friction velocity 
+      IF ( .NOT. INTERPX( MNAME, 'USTAR', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, USTAR ) ) THEN
+         MESG = 'Could not read "' // 'USTAR' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+! Read stomatal resistance 
+      IF ( INDEX1( 'RS', NVARS3D, VNAME3D ) .GT. 0 ) THEN
+         IF ( .NOT. INTERPX( MNAME, 'RS', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RSTOM ) ) THEN
+            MESG = 'Could not read "' // 'RS' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      ELSE 
+         IF ( .NOT. INTERPX( MNAME, 'RSTOMI', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RSTOM ) ) THEN
+            MESG = 'Could not read "' // 'RSTOMI' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               RSTOM( C,R ) = 1.0/MAX( RSTOM( C,R ), 1.0e-30 )
+            END DO
+         END DO
+      END IF
+
+! Read aerodynamic resistance 
+      IF ( INDEX1( 'RA', NVARS3D, VNAME3D ) .GT. 0 ) THEN
+         IF ( .NOT. INTERPX( MNAME, 'RA', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RATM ) ) THEN
+            MESG = 'Could not read "' // 'RA' // 
+     &              '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      ELSE 
+         IF ( .NOT. INTERPX( MNAME, 'RADYNI', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, RATM ) ) THEN
+            MESG = 'Could not read "' // 'RADYNI' // 
+     &              '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               RATM( C,R ) = 1.0/MAX( RATM( C,R ), 1.0e-30 )
+            END DO
+         END DO
+      END IF
+
+! Read surface layer water vapor mixing ratio
+      IF ( .NOT. INTERPX( MNAME, 'Q2', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, Q2 ) ) THEN
+         MESG = 'Could not read "' // 'Q2' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+! Read soil temperature 
+      IF ( .NOT. INTERPX( MNAME, 'SOIT1', PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    JDATE, JTIME, TEMPG ) ) THEN
+         MESG = 'Could not read "' // 'SOIT1' // 
+     &           '" from file "' // TRIM( MNAME ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+! End of new variables 
 
 C Calculate temporal non-speciated beis emissions
       CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, COSZEN, SEMIS,
-     &            SLAI, TASFC, SSOLAR, PRES, EMPOL )
+     &            SLAI, TASFC, SSOLAR, PRES, LAI, USTAR, RSTOM, RATM, Q2, 
+     &            TEMPG, EMPOL )
 
 C Calculate temporal non-speciated soil NO emissions
       CALL HRNO( JDATE, JTIME, TSTEP, TASFC, EMPOL )

@@ -93,23 +93,25 @@ C   David Wong - Oct 11 - extended the twoway implementation to handle finer
 C                         time resolution
 C   HOT Pye - Jan 13 - Additional information for IEPOX and IMAE aerosol 
 C                      written to AERODIAG file
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
 
+      USE RXNS_DATA           ! chemical mechanism data
       USE AERO_DATA           ! aero variable data
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
       USE UTILIO_DEFN
       USE CGRID_SPCS
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K
 
       IMPLICIT NONE
 
 C *** Includes:
 
-      INCLUDE SUBST_RXCMMN    ! to get mech name
       INCLUDE SUBST_FILES_ID  ! file name parameters (req IOPARMS)
       INCLUDE SUBST_PACTL_ID  ! process analysis
 
@@ -170,7 +172,7 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,27 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,30 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
@@ -427,7 +429,7 @@ C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
 
 C *** Aerosol process routines
-               CALL AEROPROC( DT, C, R, L, GAMMA_N2O5,
+               CALL AEROPROC( DT, C, R, L,
      &                     EQLBHJ, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE )
 
 C *** Update aerosol variables conc back into CGRID (set minimum)
@@ -462,6 +464,7 @@ C     diagnostic array (lowest vertical layer only)
 C *** Write wet diameters, 2nd, and 3rd moments to aerosol diagnostic array
 C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                IF ( WRITETIME .AND. AERDIAG ) THEN
+!                  DIAM_SPC( C,R,L, : ) = 0.0
                   DIAM_SPC( C,R,L, 7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
                   DIAM_SPC( C,R,L, 8 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! wet j-mode diam.
                   DIAM_SPC( C,R,L, 9 ) = AEROMODE_DIAM( 3 ) * 1.0E6  ! wet k-mode diam.
@@ -474,11 +477,14 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,20 ) = PM25( 1 )            ! i-mode fine fraction
                   DIAM_SPC( C,R,L,21 ) = PM25( 2 )            ! j-mode fine fraction
                   DIAM_SPC( C,R,L,22 ) = PM25( 3 )            ! coarse-mode fine fraction
-                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5           ! N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,24 ) = SNGL( EQLBHJ      )  ! H+ from equilibrium (isoropia)
-                  DIAM_SPC( C,R,L,25 ) = SNGL( KPARTIEPOX  )  ! IEPOX particle phase rxn rate
-                  DIAM_SPC( C,R,L,26 ) = SNGL( GAMMA_IEPOX )  ! IEPOX het rxn prob
-                  DIAM_SPC( C,R,L,27 ) = SNGL( GAMMA_IMAE  )  ! IMAE het rxn prob
+                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,24 ) = SNGL( EQLBHJ      )   ! H+ from equilibrium (isoropia)
+                  DIAM_SPC( C,R,L,25 ) = SNGL( KPARTIEPOX  )   ! IEPOX particle phase rxn rate
+                  DIAM_SPC( C,R,L,26 ) = SNGL( GAMMA_IEPOX )   ! IEPOX het rxn prob
+                  DIAM_SPC( C,R,L,27 ) = SNGL( GAMMA_IMAE  )   ! IMAE het rxn prob
+                  DIAM_SPC( C,R,L,28 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,29 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,30 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution

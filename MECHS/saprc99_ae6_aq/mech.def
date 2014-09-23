@@ -37,7 +37,7 @@
 !  Removed SULAER, CRESAER, OLE2AER, ALK5AER, ARO1AER, ARO2AER, TRP1AER; 
 !  Added SULRXN, ALK5RXN, ISOPRXN, TRPRXN - counter species for aerosol from ALK5, ISOPRENE, TERPENE  
 !  Added one reaction for BENZENE with OH
-!  Rate constant for ARO1 + OH is not changed since benzene doesn't make a significant contribution to ARO1 
+!  Rate constant for ARO1 + HO is not changed since benzene doesn't make a significant contribution to ARO1 
 !  Added ARO1RO2, ARO2RO2, BENZRO2
 !  Added two reactions for ARO1RO2 (AR1N and AR1H), added TOLNRXN, TOLHRXN - counter species for aerosol from ARO1
 !  Added two reactions for ARO2RO2 (AR2N and AR2H), added XYLNRXN, XYLHRXN - counter species for aerosol from ARO2
@@ -46,6 +46,9 @@
 
 ! B.Hutzell 07/22/11
 ! Set product cofficients for BENZRO2, ARO1RO2 and ARO2RO2
+! B.Hutzell 07/15/14
+! added inorganic heterogeneous reactions for N2O5 and NO2, oligomerization reactions for 
+! SOA species and aging reactions for primary organic carbon and non-carbon aerosol species
 
 SAPRC99_AE6_AQ
 
@@ -340,6 +343,34 @@ REACTIONS[CM] =
 <SSO3> SESQ + O3  = O3  + SESQRXN # 1.16E-14;
 <SSOH> SESQ + HO  = HO  + SESQRXN # 1.97E-10;
 <SSN3> SESQ + NO3 = NO3 + SESQRXN # 1.90E-11;
+
+! iorganic heteorogeneous reactions from hetchem version 5.0.2
+
+<HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;
+
+<HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
+
+! oligomerization reaction for secondary organic aerosols
+
+<OLIG_ALKENE>     AALKJ  = 1.1428*AOLGAJ  # 9.48816E-6;
+<OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
+<OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
+<OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
+<OLIG_TOLUENE2>   ATOL2J = 1.0000*AOLGAJ  # 9.48816E-6;
+<OLIG_BENZENE1>   ABNZ1J = 0.85714*AOLGAJ # 9.48816E-6;
+<OLIG_BENZENE2>   ABNZ2J = 0.85714*AOLGAJ # 9.48816E-6;
+<OLIG_TERPENE1>   ATRP1J = 1.0000*AOLGBJ  # 9.48816E-6;
+<OLIG_TERPENE2>   ATRP2J = 1.0000*AOLGBJ  # 9.48816E-6;
+<OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ    # 9.48816E-6;
+<OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ    # 9.48816E-6;
+<OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ    # 9.48816E-6;
+
+!aging reactions for primary organic carbon
+
+<RPOAGEPI> APOCI   + HO = 1.25*APNCOMI + APOCI + HO # 2.5E-12;
+<RPOAGELI> APNCOMI + HO = HO                        # 1.0~<HETERO_PNCOMLI>;
+<RPOAGEPJ> APOCJ   + HO = 1.25*APNCOMJ + APOCJ + HO # 2.5E-12;
+<RPOAGELJ> APNCOMJ + HO = HO                        # 1.0~<HETERO_PNCOMLJ>;
 
 endmech
 

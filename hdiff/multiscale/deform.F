@@ -69,24 +69,22 @@ C    28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                          buffered file has only two time steps data
 C-----------------------------------------------------------------------
       
-      USE GRID_CONF             ! horizontal & vertical domain specifications
+      USE GRID_CONF            ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_GLOBAL_MAX_MODULE    ! stenex
-!     USE SUBST_COMM_MODULE     ! stenex
-
 #ifdef parallel
+      USE SE_MODULES           ! stenex (using SE_GLOBAL_MAX_MODULE, SE_COMM_MODULE)
       USE SWAP_SANDIA
+#else
+      USE NOOP_MODULES         ! stenex (using NOOP_GLOBAL_MAX_MODULE, NOOP_COMM_MODULE)
 #endif
 
       IMPLICIT NONE
 
 C Includes:
 
-      INCLUDE SUBST_FILES_ID    ! file name parameters
-      INCLUDE SUBST_CONST       ! constants
-      INCLUDE SUBST_PE_COMM     ! PE communication displacement and direction
+      INCLUDE SUBST_FILES_ID   ! file name parameters
+      INCLUDE SUBST_CONST      ! constants
+      INCLUDE SUBST_PE_COMM    ! PE communication displacement and direction
  
 C Parameters:
 
