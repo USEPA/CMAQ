@@ -49,7 +49,7 @@ C              made MG, K, CA, SEACAT required species;
 C JY  04/21/11 Added optional log messages (verbose)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
-C KF  05/06/14 Changed emitted modal PM mass fractions according to  
+C KF  09/17/14 Changed emitted modal PM mass fractions according to  
 C              Elleman and Covert (2010)
 C----------------------------------------------------------------------
 

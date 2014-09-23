@@ -188,10 +188,10 @@ C   09 Sep 08 P.Bhave:  backward compatibility with AE4 mechanisms
 C   20 Feb 10 J.Young:  move ssemis out to its own F90 module
 C   24 Feb 11 J.Young:  add windblown dust emissions option
 C   25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
-C   06 May 14 K.Fahey:  Changed geometric mean diameter and geometric
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   17 Sep 14 K.Fahey:  Changed geometric mean diameter and geometric
 C                       standard deviation of emitted particles according to 
 C                       Elleman and Covert (2010)
-C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
  
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
