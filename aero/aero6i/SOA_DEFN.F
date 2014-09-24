@@ -44,6 +44,9 @@ C HOTP 01/16/13 Remove acid enhanced isoprene and isoprene oligomers
 C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
+C                      optional because process represented in chemical mechanism
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -154,6 +157,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
+      Use rxns_data       ! chemical mechanism data
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
@@ -162,7 +166,6 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Includes:
-      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 C Arguments:
       Real, Intent( In ) :: conc( : )
@@ -209,6 +212,12 @@ C define orgprod parent names based on mechanism dependence
                orgprod( 3 )%parent = 'MXYL'
                orgprod( 4 )%parent = 'TOLUENE'
                orgprod( 5 )%parent = 'TOLUENE'
+            Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
+               orgprod( 2 )%parent = 'XYM'
+               orgprod( 3 )%parent = 'XYM'
+               orgprod( 4 )%parent = 'TOL'
+               orgprod( 5 )%parent = 'TOL'
             Else
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -819,6 +828,9 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
+#ifdef Oligo_aero
+C Oligomerization
+!      WRITE(6,*)'SOA Oligomerization'
 C Oligomerization
 
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
@@ -857,11 +869,11 @@ C Only decrease aerosol concentrations for species that participate in oligomeri
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
 
+#endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
-
       totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
       Do i = 1, n_aerospc
          If ( aerospc( i )%nonVol_soa ) Then

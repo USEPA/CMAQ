@@ -111,6 +111,7 @@ C                       value for FE and MN was set. Also the washout rate was
 C                       removed from the calculation of the estimate for doubling
 C                       the time step based on sulfur oxidized < 5%.
 C   28 Nov 12 G.Sarwar: Sulfate inhibition effect is implemented in the metal catalysis pathway
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -146,13 +147,13 @@ C  AEROSOL(naer,nmodes) real input&output   Concentration for species i=1,51
 C  AERWDEP(naer,nmodes) real     output     wet deposition for species
 C-----------------------------------------------------------------------
 
+      USE RXNS_DATA           ! chemical mechanism data
       USE AQ_DATA
       USE UTILIO_DEFN
 
       IMPLICIT NONE
 
       INCLUDE SUBST_CONST          ! constants
-      INCLUDE SUBST_RXCMMN         ! Mechanism reaction common block
 
       CHARACTER( 120 ) :: XMSG = ' '  ! Exit status message
 

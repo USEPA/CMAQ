@@ -144,7 +144,11 @@ C-------------------------------------------------------------------------------
       USE DEPVVARS
       USE VGRD_DEFN      ! to get VGTYP_GD
       USE UTILIO_DEFN   
-      USE SUBST_MODULES  ! stenex
+#ifdef parallel
+      USE SE_MODULES     ! stenex (using SE_COMM_MODULE)
+#else
+      USE NOOP_MODULES   ! stenex (using NOOP_COMM_MODULE)
+#endif
       Use ABFlux_Mod     ! bidi NH3 exchange routines
       Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
       Use Mosaic_Mod     ! contains mosaic routines

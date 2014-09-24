@@ -40,6 +40,15 @@ C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 
 C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction counters
 C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
+C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
+C               Values in Table 6 of Ng et al. (previously used) are incorrect.
+C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2 
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran
+C                      module
+C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
+C                      optional because process represented in chemical
+C                      mechanism
 C-----------------------------------------------------------------------
       Implicit None
 
@@ -115,9 +124,9 @@ C                       Name     Parent     Aerospc  AlphaH
 C                    ----------  ---------  ---------  --------
      & orgprod_type( 'ALK5RXN', 'ALK5RXN', '      ', 0.000 ),
      & orgprod_type( 'XYLNRXN', 'XYL    ', '      ', 0.000 ),
-     & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.300 ),
+     & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.360 ),
      & orgprod_type( 'TOLNRXN', 'TOL    ', '      ', 0.000 ),
-     & orgprod_type( 'TOLHRXN', 'TOL    ', 'ATOL3J', 0.360 ),
+     & orgprod_type( 'TOLHRXN', 'TOL    ', 'ATOL3J', 0.300 ),
      & orgprod_type( 'BNZNRXN', 'BENZENE', '      ', 0.000 ),
      & orgprod_type( 'BNZHRXN', 'BENZENE', 'ABNZ3J', 0.370 ),
      & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
@@ -152,6 +161,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
+      Use rxns_data
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
@@ -160,7 +170,6 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Includes:
-      INCLUDE SUBST_RXCMMN    ! to get mech name
 
 C Arguments:
       Real, Intent( In ) :: conc( : )
@@ -201,17 +210,23 @@ C define orgprod parent names based on mechanism dependence
              orgprod( 3)%parent = 'ARO2'
              orgprod( 4)%parent = 'ARO1'
              orgprod( 5)%parent = 'ARO1'
-           elseif( INDEX(MECHNAME, 'SAPRC07T') .GT. 0) then
+           Else If( INDEX(MECHNAME, 'SAPRC07T') .GT. 0) then
              alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
              orgprod( 2)%parent = 'MXYL'
              orgprod( 3)%parent = 'MXYL'
              orgprod( 4)%parent = 'TOLUENE'
              orgprod( 5)%parent = 'TOLUENE'
-           else
-             xmsg =  'Mechanism ' // MECHNAME
-     &            // ' is not supported in this version of the model'
-             Call m3exit( pname, 0, 0, xmsg, xstat3 )
-           End If
+           Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
+               orgprod( 2 )%parent = 'XYM'
+               orgprod( 3 )%parent = 'XYM'
+               orgprod( 4 )%parent = 'TOL'
+               orgprod( 5 )%parent = 'TOL'
+            Else
+               xmsg =  'Mechanism ' // MECHNAME
+     &              // ' is not supported in this version of the model'
+               Call m3exit( pname, 0, 0, xmsg, xstat3 )
+            End If
 
          End If  ! non CB05 condition
 
@@ -826,8 +841,9 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
          End If
       End Do
 
+#ifdef Oligo_aero
 C Oligomerization
-
+!     WRITE(6,*)'Oligomerization'
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
 C process that conserves carbon mass.
 
@@ -854,7 +870,9 @@ C process that conserves carbon mass.
      &                            + 12.0 * nsvpa * ( 1.0 - expdt ) * olgrat
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
-
+#else
+!     WRITE(6,*)'No Oligomerization'
+#endif
 C Compute molar concentrations of non-volatile organic material and total
 C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid

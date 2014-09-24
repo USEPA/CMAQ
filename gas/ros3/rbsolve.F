@@ -44,7 +44,7 @@ C
 C                    31 Jan 05 J.Young: get BLKSIZE from dyn alloc horizontal
 C                    & vertical domain specifications module (GRID_CONF)
 C                    28 Jun 10 J.Young: remove unnecessary modules and include files
-C
+C                    14 Jul 14 B.Hutzell: added intent declaration to arguments
 C***********************************************************************
 
       USE RBDATA                       ! ROS3 solver data
@@ -54,8 +54,8 @@ C***********************************************************************
 C..Includes: None
       
 C..Arguments:
-      INTEGER      NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
-      REAL( 8 ) :: RHS( BLKSIZE,* )   ! Right hand side = {b}
+      INTEGER,   INTENT( IN )    ::  NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
+      REAL( 8 ), INTENT( INOUT ) ::  RHS( :,: )  ! Right hand side = {b}
 
 C..Parameters: None
 

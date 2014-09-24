@@ -41,22 +41,24 @@ C                    M. Jacobson, (Atm. Env., Vol 28, No 2, 1994).
 C                    31 Jan 05 J.Young: get BLKSIZE from dyn alloc horizontal
 C                    & vertical domain specifications module (GRID_CONF)
 C                    28 Jun 10 J.Young: remove unnecessary modules and includes
-C
+C                    15 Jul 14 B.Hutzell: replaced mechanism include files with 
+C                    RXNS_DATA module, replaced call to CALC_SPECIAL with 
+C                    SPECIAL_RATES in RXNS_FUNCTION module and added intent
+C                    declarations to arguments
 C***********************************************************************
 
+      USE RXNS_DATA
+      USE RXNS_FUNCTION
       USE RBDATA               ! ROS3 solver data
 
       IMPLICIT NONE
 
 C..Includes:
-      INCLUDE SUBST_RXCMMN     ! Mechanism reaction common block
 
 C..Arguments:
-      INTEGER NCSP                       ! Index of chem mech to use
-                                         ! 1=gas/day, 2=gas/night
-
-      REAL( 8 ) :: YIN(  BLKSIZE,* )     ! Species concs, ppm
-      REAL( 8 ) :: YDOT( BLKSIZE,* )     ! Species rates of change, ppm/min
+      INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
+      REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
+      REAL( 8 ), INTENT(   OUT ) :: YDOT( :, : )  ! Species rates of change, ppm/min
 
 C..Parameters: None
 
@@ -75,7 +77,7 @@ C..Local Variables:
 
 C***********************************************************************      
 
-      IF ( NSPECIAL_RXN .GT. 0 ) CALL RBCALC_SPECIAL( YIN )   ! calculate special rate coefficients
+      IF ( NSPECIAL_RXN .GT. 0 ) CALL SPECIAL_RATES( NUMCELLS, IOLD2NEW, NCS, YIN, RKI )   ! calculate special rate coefficients
 
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

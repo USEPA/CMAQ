@@ -53,16 +53,17 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   16 May 11 J.Young: remove references to AERO3 and AERO4
 C   09 Dec 11 J.Young: remove unused Flag for SGTOT species
+C   07 Jul 14 B.Hutzell: replace mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
+      USE RXNS_DATA           ! chemical mechanism data
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
 
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
-      INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block (for MECHNAME)
 
 C Arguments:
 

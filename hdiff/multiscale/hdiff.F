@@ -80,12 +80,11 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE SUBST_MODULES         ! stenex
-!     USE SUBST_UTIL_MODULE     ! stenex
-!     USE SUBST_COMM_MODULE     ! stenex
-
 #ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
       USE SWAP_SANDIA
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
 
       IMPLICIT NONE
@@ -181,7 +180,12 @@ C Local Variables:
          SUBROUTINE HCDIFF3D ( JDATE, JTIME, K11BAR, K22BAR, DT )
             USE GRID_CONF
             USE UTILIO_DEFN
-            USE SUBST_MODULES
+#ifdef parallel
+            USE SE_MODULES
+            USE SWAP_SANDIA
+#else
+            USE NOOP_MODULES
+#endif
             IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME
             REAL,    INTENT( OUT ) :: K11BAR( :,:,: ), K22BAR( :,:,: )
