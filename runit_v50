@@ -110,17 +110,20 @@ set day = ` date "+%b-%d-%Y" `
  set is_terra = `uname -n | grep sol | wc -l`
 
 if ($is_sol) then
-    setenv WDX_LIB "/home/wdx/lib_sol"
+    setenv WDX_LIB "/home/wdx/lib_sol/x86_64/ifc"
     setenv WDX_SRC "/home/wdx/lib/src"
     setenv NETCDF  "netcdff"
+    setenv netcdf  "netcdf"
 else if($is_terra)then
-   setenv WDX_LIB "/home/wdx/lib"
+   setenv WDX_LIB "/home/wdx/lib/x86_64/ifc"
    setenv WDX_SRC "/home/wdx/lib/src"
    setenv NETCDF  "netcdf"
+    setenv netcdf  "netcdf"
 else
     setenv WDX_LIB "/home/${USER}/tools"
     setenv WDX_SRC "/home/${USER}/tools/wdx_lib_src"
     setenv NETCDF  "netcdf"
+    setenv netcdf  "intel_netcdf"
 endif
 
 
