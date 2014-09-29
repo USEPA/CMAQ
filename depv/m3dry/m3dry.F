@@ -21,8 +21,8 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, cgridl1, depvel_gas, 
-     &                   pvd, cmp )
+      SUBROUTINE m3dry ( jdate, jtime, dt, abflux, sfc_hono, mosaic, fst, chlora_file, cgridl1,  
+     &                   depvel_gas, pvd, cmp )
 
 C-------------------------------------------------------------------------------
 C Name:     Models-3 Dry Deposition
@@ -138,6 +138,9 @@ C           7 Jun 2012  Allow read of C-staggered (UWINDC and VWINDC) wind and B
 C                       (UWIND and VWIND) from MET_DOT_3D to maintain compatibility with
 C                       current and previous versions of MCIP (J. Bash)
 C          12 Sep 2012  Added code for NLCD40 land use classification (D. Schwede)
+C          20 May 2013  Added code for increased ozone deposition to oceans due to iodide (D. Schwede)
+C          30 Jul 2013  Added new species (NTR and NTRM) for explicit deposition due to differences in Henry's Law
+C          14 Nov 2013  Added MPAN as an explicit species, separating it from PANX
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
@@ -169,7 +172,7 @@ C Arguments:
       INTEGER,     INTENT( IN )  :: jdate
       INTEGER,     INTENT( IN )  :: jtime
       INTEGER,     INTENT( IN )  :: dt( 3 )      ! model time step 
-      LOGICAL,     INTENT( IN )  :: abflux, sfc_hono, mosaic, fst
+      LOGICAL,     INTENT( IN )  :: abflux, sfc_hono, mosaic, fst, chlora_file
       REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
       REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
       REAL,        INTENT( OUT ) :: pvd( :,:,: )
@@ -192,8 +195,12 @@ C Local Variables:
       INTEGER                    :: elapsedsec
       INTEGER, SAVE              :: endcol
       INTEGER, SAVE              :: endrow
-      INTEGER                    :: endcol_g
-      INTEGER                    :: endrow_g
+      INTEGER, SAVE              :: endcol_c
+      INTEGER, SAVE              :: endrow_c
+      INTEGER, SAVE              :: endcol_g
+      INTEGER, SAVE              :: endrow_g
+      INTEGER, SAVE              :: endcol_o
+      INTEGER, SAVE              :: endrow_o
       REAL                       :: es_air
       REAL                       :: es_grnd
       LOGICAL, SAVE              :: first_call = .TRUE.
@@ -255,8 +262,12 @@ C Local Variables:
       REAL                       :: scw_pr_23            ! (scw/pr)**2/3
       INTEGER, SAVE              :: strtcol
       INTEGER, SAVE              :: strtrow
-      INTEGER                    :: strtcol_g
-      INTEGER                    :: strtrow_g
+      INTEGER, SAVE              :: strtcol_c
+      INTEGER, SAVE              :: strtrow_c
+      INTEGER, SAVE              :: strtcol_g
+      INTEGER, SAVE              :: strtrow_g
+      INTEGER, SAVE              :: strtcol_o
+      INTEGER, SAVE              :: strtrow_o
       REAL,            PARAMETER :: svp2       = 17.67   ! from MM5 and WRF
       REAL,            PARAMETER :: svp3       = 29.65   ! from MM5 and WRF
       REAL,            PARAMETER :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
@@ -277,6 +288,9 @@ C Local Variables:
 !     REAL,    SAVE, ALLOCATABLE :: dluse     ( :,: )
       REAL,    SAVE, ALLOCATABLE :: lon       ( :,: )
 !     REAL,    SAVE, ALLOCATABLE :: lwmask    ( :,: ) moved to LSM_MOD
+      REAL,    SAVE, ALLOCATABLE :: oceanmask ( :,: )
+      REAL,    SAVE, ALLOCATABLE :: surfmask  ( :,: )
+      REAL                       :: chlora    ( ncols,nrows ) ! chlorophyll-a concentration [mg/m3]
       REAL                       :: lai       ( ncols,nrows ) ! leaf area index [area/area]
       REAL                       :: prsfc     ( ncols,nrows ) ! surface pressure [Pa]
       REAL                       :: q2        ( ncols,nrows ) ! 2-m water vapor mix rat [kg/kg]
@@ -307,6 +321,14 @@ C Local Variables:
       CHARACTER( 16 )            :: subname  ( ltotg )        ! for subroutine HLCONST
 
       INTEGER :: SPC
+
+C-------------------------------------------------------------------------------
+C For ozone exchange over the ocean
+
+      REAL                       :: pchang      ! p value used in equation (12) in Chang et al( 2004)
+      REAL                       :: kwchang     ! kw value used in Chang et al (2004)
+      REAL                       :: ciodide     ! iodide concentration (umol/L)
+      REAL                       :: qiodide     ! q in Chang et al (2004)
 
 C-------------------------------------------------------------------------------
 C For heterogenous hono on surfaces
@@ -518,6 +540,16 @@ C-------------------------------------------------------------------------------
       DATA subname(50), dif0(50), ar(50), meso(50), lebas(50) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  70.0/
       DATA subname(51), dif0(51), ar(51), meso(51), lebas(51) / '24-TOLUENE_DIIS ', 0.0610,   10.0,      0.0, 154.0/
       DATA subname(52), dif0(52), ar(52), meso(52), lebas(52) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 154.0/
+      DATA subname(53), dif0(53), ar(53), meso(53), lebas(53) / 'ORG_NTR         ', 0.0607,   16.0,      0.1, 160.0/  ! assumes 58.2% C5H11O4N and 41.8% C5H11O3N
+      DATA subname(54), dif0(54), ar(54), meso(54), lebas(54) / 'HYDROXY_NITRATES', 0.0609,   16.0,      0.1, 156.1/
+      DATA subname(55), dif0(55), ar(55), meso(55), lebas(55) / 'MPAN            ', 0.0580,   16.0,      0.1, 133.0/
+      DATA subname(56), dif0(56), ar(56), meso(56), lebas(56) / 'PPN             ', 0.0631,   16.0,      0.1, 118.2/
+      DATA subname(57), dif0(57), ar(57), meso(57), lebas(57) / 'MVK             ', 0.0810,    8.0,      1.0,  88.8/
+      DATA subname(58), dif0(58), ar(58), meso(58), lebas(58) / 'DINTR           ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(59), dif0(59), ar(59), meso(59), lebas(59) / 'NTR_ALK         ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(60), dif0(60), ar(60), meso(60), lebas(60) / 'NTR_OH          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'NTR_PX          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0810,    8.0,      0.0,  88.8/
 
       IF ( first_call ) THEN
          first_call = .FALSE.
@@ -588,7 +620,19 @@ C-------------------------------------------------------------------------------
          CALL subhfile ( grid_cro_2d, gxoff, gyoff, strtcol_g, endcol_g, strtrow_g, endrow_g )
 
          CALL subhfile ( met_cro_2d, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
-         
+
+         CALL subhfile ( ocean_1, gxoff, gyoff, strtcol_o, endcol_o, strtrow_o, endrow_o )
+ 
+        IF (chlora_file) THEN
+           CALL subhfile ( chlorophyll, gxoff, gyoff, strtcol_c, endcol_c, strtrow_c, endrow_c )
+         END IF
+
+c         write(logdev,*) 'grid: ',strtcol_g, endcol_g, strtrow_g, endrow_g
+c         write(logdev,*) 'met: ',strtcol, endcol, strtrow, endrow
+c         write(logdev,*) 'ocean: ',strtcol_o, endcol_o, strtrow_o, endrow_o
+c         write(logdev,*) 'chlor: ',strtcol_c, endcol_c, strtrow_c, endrow_c
+
+
 !        Write( logdev,* ) 'n_lufrac: ', n_lufrac
          IF ( abflux .OR. mosaic ) THEN                                 
             IF ( .NOT. ALLOCATED ( lufrac ) ) THEN
@@ -674,7 +718,29 @@ C-------------------------------------------------------------------------------
                WRITE( xmsg,9001 ) vname, grid_cro_2d
                GO TO 1001
             END IF
-         END IF   ! src_hono                  
+         END IF   ! src_hono      
+
+C-------------------------------------------------------------------------------
+C Read fields from ocean file.
+C-------------------------------------------------------------------------------
+         IF ( .NOT. ALLOCATED ( oceanmask ) ) THEN
+            ALLOCATE ( oceanmask( my_ncols,my_nrows ) )
+         END IF
+         vname = 'OPEN'
+         IF ( .NOT. interpx (ocean_1, vname, pname, strtcol_o, endcol_o,
+     &                strtrow_o, endrow_o, 1, 1, jdate, jtime, oceanmask) ) THEN
+            WRITE( xmsg,9001 ) vname, ocean_1
+            GO TO 1001
+         END IF
+         IF ( .NOT. ALLOCATED ( surfmask ) ) THEN
+            ALLOCATE ( surfmask( my_ncols,my_nrows ) )
+         END IF
+         vname = 'SURF'
+         IF ( .NOT. interpx (ocean_1, vname, pname, strtcol_o, endcol_o,
+     &                strtrow_o, endrow_o, 1, 1, jdate, jtime, surfmask) ) THEN
+            WRITE( xmsg,9001 ) vname, ocean_1
+            GO TO 1001
+         END IF
 
       END IF   ! first_call
 
@@ -934,7 +1000,20 @@ C-------------------------------------------------------------------------------
             END IF
          END IF      
       END IF
-      
+
+C-------------------------------------------------------------------------------
+C Read fields from chlorophyll file.
+C-------------------------------------------------------------------------------
+      IF (chlora_file) THEN
+        vname = 'CHLO'
+c        write(logdev,*) 'limits: ',strtcol_c,  endcol_c, strtrow_c, endrow_c
+        IF ( .NOT. interpx (chlorophyll, vname, pname, strtcol_c,  endcol_c,
+     &                      strtrow_c, endrow_c, 1, 1, jdate, jtime, chlora) ) THEN
+           WRITE( xmsg,9001 ) vname, chlorophyll
+           GO TO 1001
+        END IF
+      END IF
+
 C-------------------------------------------------------------------------------
 C Loop over grid cells and calculate dry deposition.
 C-------------------------------------------------------------------------------
@@ -959,7 +1038,7 @@ C-------------------------------------------------------------------------------
       END IF
 
       jday = jdate - 1000 * ( jdate/1000 )
-            
+
       DO r = 1, my_nrows
       DO c = 1, my_ncols
 
@@ -1254,8 +1333,40 @@ C-------------------------------------------------------------------------------
                   kvisw = 0.017 * EXP( -0.025 * ( tw - stdtemp ) )
                   dw    = dw25 * ( tw * rt25inK ) * ( 0.009025 / kvisw )
                   scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
-                  rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
+
+                  IF ( TRIM( depspc( l ) ) .EQ. 'O3' ) THEN   !implement Chang et al(2004)
+c        pChang is a/H or alpha/H which would be 1/H in current model
+c        note that in Chang et al (2004) and Garland et al (1980) their H is Cair/Cwater with is
+c        the inverse of heff
+                     pChang = 1.75
+                     kwChang = (d3*ustarcr)/scw_pr_23
+
+
+c        If a file of chlorophyll concentrations is provided, Iodide concentration are estimated from
+c        a fit to the Rebello et al 1990 data. The slope and correlation are given in the paper 
+c        but not the intercept, so the data in Tables 3 & 4 were fit to get the relationship below.  
+c        The regression gives the concentration in umol/L and is converted to mol/L for use in Chang et al eq.  
+c        The slope and correlation are a slightly different than in Table 5.
+c        If chlorophyll concs are not available, a constant value for [I-] of 100e-9 mol/l is used
+c        Use ocean file variables to determine if the water cell is ocean or lake; method is only for ocean cells
+
+                     IF ((oceanmask(c,r) + surfmask(c,r)) .GT. 0) THEN
+                       IF ( chlora_file  ) THEN
+                         ciodide = 1.0e-6*( 0.2329 * chlora(c,r) * 0.001 + 0.0791 )
+                       ELSE
+                         ciodide = 1.0e-7
+                       END IF
+                       qiodide = ( ( 2.0e9 * ciodide * dw * 1e-4 ) ** 0.5 ) * heff
+                       rgw = 1.0 / ( pChang * kwchang + qiodide )
+                     ELSE                  ! O3 over land
+                       rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
+                     END IF
+                  ELSE                     ! other chems                    
+                    rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
+                  END IF
+
                   rsurf = rgw                  
+
 !                 Write(logdev,*) 'Before call rsurfj'
                   IF ( mosaic ) THEN
                      DO j = 1, n_lufrac
@@ -1275,7 +1386,7 @@ C-------------------------------------------------------------------------------
 
          ! Make Henry's Law constant non-dimensional.
 
-                  heff  = heff * 0.08205 * temp2p0cr                  
+                  heff  = heff * 0.08205 * temp2p0cr              
 
          ! Wet surface resistance.  (Note DELTA = CWC in ADOM lingo.)
          ! This now applies to cuticle and ground.

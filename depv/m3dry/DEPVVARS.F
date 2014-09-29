@@ -39,7 +39,7 @@ C           04 Jan 2012 J.Young: Initialize char variables with blank padding
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 52
+      INTEGER, PARAMETER :: LTOTG = 62
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -129,6 +129,16 @@ C-------------------------------------------------------------------------------
          DEPSPC( 50 ) = 'MAL_ANHYDRIDE   '
          DEPSPC( 51 ) = 'TOLUENE_DIIS    '
          DEPSPC( 52 ) = 'TRIETHYLAMINE   '
+         DEPSPC( 53 ) = 'NTR             '
+         DEPSPC( 54 ) = 'NTRM            '
+         DEPSPC( 55 ) = 'MPAN            '
+         DEPSPC( 56 ) = 'PPN             '
+         DEPSPC( 57 ) = 'ISPD            '
+         DEPSPC( 58 ) = 'NTRDN           '
+         DEPSPC( 59 ) = 'NTRALK          '
+         DEPSPC( 60 ) = 'NTROH           '
+         DEPSPC( 61 ) = 'NTRPX           '
+         DEPSPC( 62 ) = 'PROPNN          '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

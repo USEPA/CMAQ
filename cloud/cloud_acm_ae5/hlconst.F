@@ -70,6 +70,7 @@ C                       XYLENOL
 C  H.Pye      02/05/13  added Henry's Law 133-134 for IEPOX and IMAE
 C  G.Sarwar   12/18/13  added Henry's Law constants for 135 to 140
 C  W.Hutzell  07/11/14  correct error in DATA from last revision
+C  D.Luecken  07/11/14  added 141 through 144 for nitrates
 C  
 C-----------------------------------------------------------------------
 
@@ -89,7 +90,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 140     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 144     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -291,6 +292,11 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(138), A(138), E(138) / 'HYDROXY-ACETONE ', 2.00E+04, 0.0E+00 /   ! MATSUNAGA ET AL., 41, 790-796, AE, (2007)            
       DATA SUBNAME(139), A(139), E(139) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
       DATA SUBNAME(140), A(140), E(140) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
+      DATA SUBNAME(141), A(141), E(141) / 'NTR_ALK         ', 0.65, 5400 /  !2-butylnitrate, from Sander
+      DATA SUBNAME(142), A(142), E(142) / 'NTR_OH         ', 6500, 9500 /  !3-nitrooxy-butanol, from Sander
+      DATA SUBNAME(143), A(143), E(143) / 'DINTR         ', 18, 0   / !2,3-pentanedinitrate
+      DATA SUBNAME(144), A(144), E(144) / 'NTR_PX         ', 340, 6000.  /   !ethylhydroperoxide 
+
 
 
 
