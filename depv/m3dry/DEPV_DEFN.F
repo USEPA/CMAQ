@@ -48,7 +48,7 @@ C   11 Oct 2011 J.Young: PUBLIC/PRIVATE sections, re-do WTIME computation
 C                        and WTIME computation for MOSAIC
 C   13 Dec 2011 J.Young: removed separate SOA variables - no longer used
 C   18 Sep 2012 D. Wong: invoke INIT_LSM regardless of MOSAIC or ABFLUX option
-C   31 May 2013 D. Schwede: added option to read chlorophyll file
+C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -87,11 +87,8 @@ C flag for mosaic - luc specific deposition - within in-lining depv
 C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
       LOGICAL, SAVE :: FST = .FALSE.      
 
-C flag for reading chlorophyll file
-      LOGICAL, SAVE :: CHLORA_FILE = .FALSE.
-
       PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, CHLORA_FILE,
+     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST,
      &             DEPV_INIT, GET_DEPV
       PRIVATE
 
@@ -140,10 +137,10 @@ C-----------------------------------------------------------------------
          FUNCTION DEPV_INIT( JDATE, JTIME, TSTEP, CGRID ) RESULT ( SUCCESS )
 
          USE HGRD_DEFN
+         USE RXNS_DATA           ! chemical mechanism data
          USE CGRID_SPCS          ! CGRID mechanism species
          USE DEPVVARS
          USE UTILIO_DEFN
-         USE RXNS_DATA             ! chemical mechanism arrays and data
          USE MOSAIC_MOD, Only: Init_Mosaic
          USE LSM_MOD, Only: Init_LSM, n_lufrac
          USE BIDI_MOD, Only: Init_Bidi
@@ -186,9 +183,6 @@ C environment variable for mosaic - luc specific deposition velocities
 
 C environment variable for mosaic - luc specific stomatal flux
          CHARACTER( 16 )  :: CTM_FST = 'CTM_FST         '         
-
-C environment variable for using chlorophyll file
-         CHARACTER( 16 )  :: CTM_CHLORA_FILE = 'CTM_CHLORA_FILE    '         
 
 C variables for deposition velocities diagnostic file
          INTEGER          :: STATUS      ! ENV... status
@@ -455,23 +449,6 @@ C Allocate additional arrays needed for mosaic and initialize land use parameter
                END IF
 
             END IF   ! mosaic                        
-
-C Option to read spatially varying chlorophyll-a concentrations for enhancing O3 deposition to oceans
-            CHLORA_FILE = .FALSE.
-            VARDESC = 'Flag for use of chlorphyll-a file'
-            CHLORA_FILE = ENVYN( CTM_CHLORA_FILE, VARDESC, CHLORA_FILE, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG = 'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-            END IF
 
          END IF   ! in-line depv
 
@@ -751,7 +728,6 @@ C Local variables:
          INTERFACE
             SUBROUTINE RDDEPV ( JDATE, JTIME, DEPV )
                USE HGRD_DEFN
-               USE RXNS_DATA
                USE CGRID_SPCS
                USE UTILIO_DEFN
                IMPLICIT NONE
@@ -769,7 +745,7 @@ C Local variables:
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
             SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST, 
-     &                         CHLORA_FILE, CGRIDL1, DEPVEL_GAS, PVD, CMP )
+     &                         CGRIDL1, DEPVEL_GAS, PVD, CMP )
                USE HGRD_DEFN
                USE DEPVVARS
                USE VGRD_DEFN
@@ -785,7 +761,7 @@ C Local variables:
                Use Bidi_Mod, Only: lufrac
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
-               LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO, MOSAIC, FST, CHLORA_FILE
+               LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO, MOSAIC, FST
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
                REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ), CMP( :,:,: )
             END SUBROUTINE M3DRY
@@ -819,7 +795,7 @@ C-----------------------------------------------------------------------
 !    &                                size ( depvel_gas ), size ( pvd ), size ( cmp )
 
             CALL M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST,             
-     &                   CHLORA_FILE, CGRIDL1, DEPVEL_GAS, PVD, CMP )
+     &                   CGRIDL1, DEPVEL_GAS, PVD, CMP )
 #ifdef Verbose
             cw = my_ncols/2; rw = my_nrows/2
 !           cw = 17; rw = 43
