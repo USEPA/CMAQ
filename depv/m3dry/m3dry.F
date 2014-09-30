@@ -141,17 +141,18 @@ C          12 Sep 2012  Added code for NLCD40 land use classification (D. Schwed
 C          20 May 2013  Added code for increased ozone deposition to oceans due to iodide (D. Schwede)
 C          30 Jul 2013  Added new species (NTR and NTRM) for explicit deposition due to differences in Henry's Law
 C          14 Nov 2013  Added MPAN as an explicit species, separating it from PANX
+C          28 Aug 2014  G. Sarwar: added deposition data for CLNO2 
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
       USE DEPVVARS
       USE VGRD_DEFN      ! to get VGTYP_GD
-      USE UTILIO_DEFN   
+      USE UTILIO_DEFN         
 #ifdef parallel
       USE SE_MODULES     ! stenex (using SE_COMM_MODULE)
 #else
       USE NOOP_MODULES   ! stenex (using NOOP_COMM_MODULE)
-#endif
+#endif     
       Use ABFlux_Mod     ! bidi NH3 exchange routines
       Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
       Use Mosaic_Mod     ! contains mosaic routines
@@ -550,6 +551,7 @@ C-------------------------------------------------------------------------------
       DATA subname(60), dif0(60), ar(60), meso(60), lebas(60) / 'NTR_OH          ', 0.0810,    8.0,      0.0,  88.8/
       DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'NTR_PX          ', 0.0810,    8.0,      0.0,  88.8/
       DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(63), dif0(63), ar(63), meso(63), lebas(63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
 
       IF ( first_call ) THEN
          first_call = .FALSE.

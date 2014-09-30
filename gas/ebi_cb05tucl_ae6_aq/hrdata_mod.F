@@ -33,15 +33,14 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Sept. 10, 2014
 C
-C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
 
 c..EBI solver fixed parameters
-      INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
-      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
-      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
+      INTEGER, PARAMETER    ::  NEBITER       = 1000  ! No. of iterations for EBI
+      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1
+      REAL( 8 ), PARAMETER  ::  DELTAT = 2.5D+00     ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -160,33 +159,39 @@ c..Species indices
       INTEGER, PARAMETER :: CLO              =   68
       INTEGER, PARAMETER :: FMCL             =   69
       INTEGER, PARAMETER :: HCL              =   70
-      INTEGER, PARAMETER :: TOLNRXN          =   71
-      INTEGER, PARAMETER :: TOLHRXN          =   72
-      INTEGER, PARAMETER :: XYLNRXN          =   73
-      INTEGER, PARAMETER :: XYLHRXN          =   74
-      INTEGER, PARAMETER :: BENZENE          =   75
-      INTEGER, PARAMETER :: BENZRO2          =   76
-      INTEGER, PARAMETER :: BNZNRXN          =   77
-      INTEGER, PARAMETER :: BNZHRXN          =   78
-      INTEGER, PARAMETER :: SESQ             =   79
-      INTEGER, PARAMETER :: SESQRXN          =   80
-      INTEGER, PARAMETER :: AALKJ            =   81
-      INTEGER, PARAMETER :: AOLGAJ           =   82
-      INTEGER, PARAMETER :: AXYL1J           =   83
-      INTEGER, PARAMETER :: AXYL2J           =   84
-      INTEGER, PARAMETER :: ATOL1J           =   85
-      INTEGER, PARAMETER :: ATOL2J           =   86
-      INTEGER, PARAMETER :: ABNZ1J           =   87
-      INTEGER, PARAMETER :: ABNZ2J           =   88
-      INTEGER, PARAMETER :: ATRP1J           =   89
-      INTEGER, PARAMETER :: AOLGBJ           =   90
-      INTEGER, PARAMETER :: ATRP2J           =   91
-      INTEGER, PARAMETER :: AISO1J           =   92
-      INTEGER, PARAMETER :: AISO2J           =   93
-      INTEGER, PARAMETER :: ASQTJ            =   94
-      INTEGER, PARAMETER :: APOCI            =   95
-      INTEGER, PARAMETER :: APNCOMI          =   96
-      INTEGER, PARAMETER :: APOCJ            =   97
-      INTEGER, PARAMETER :: APNCOMJ          =   98
+      INTEGER, PARAMETER :: CLNO2            =   71
+      INTEGER, PARAMETER :: TOLNRXN          =   72
+      INTEGER, PARAMETER :: TOLHRXN          =   73
+      INTEGER, PARAMETER :: XYLNRXN          =   74
+      INTEGER, PARAMETER :: XYLHRXN          =   75
+      INTEGER, PARAMETER :: BENZENE          =   76
+      INTEGER, PARAMETER :: BENZRO2          =   77
+      INTEGER, PARAMETER :: BNZNRXN          =   78
+      INTEGER, PARAMETER :: BNZHRXN          =   79
+      INTEGER, PARAMETER :: SESQ             =   80
+      INTEGER, PARAMETER :: SESQRXN          =   81
+      INTEGER, PARAMETER :: H2NO3PIJ         =   82
+      INTEGER, PARAMETER :: H2NO3PK          =   83
+      INTEGER, PARAMETER :: ACLI             =   84
+      INTEGER, PARAMETER :: ACLJ             =   85
+      INTEGER, PARAMETER :: ACLK             =   86
+      INTEGER, PARAMETER :: AALKJ            =   87
+      INTEGER, PARAMETER :: AOLGAJ           =   88
+      INTEGER, PARAMETER :: AXYL1J           =   89
+      INTEGER, PARAMETER :: AXYL2J           =   90
+      INTEGER, PARAMETER :: ATOL1J           =   91
+      INTEGER, PARAMETER :: ATOL2J           =   92
+      INTEGER, PARAMETER :: ABNZ1J           =   93
+      INTEGER, PARAMETER :: ABNZ2J           =   94
+      INTEGER, PARAMETER :: ATRP1J           =   95
+      INTEGER, PARAMETER :: AOLGBJ           =   96
+      INTEGER, PARAMETER :: ATRP2J           =   97
+      INTEGER, PARAMETER :: AISO1J           =   98
+      INTEGER, PARAMETER :: AISO2J           =   99
+      INTEGER, PARAMETER :: ASQTJ            =  100
+      INTEGER, PARAMETER :: APOCI            =  101
+      INTEGER, PARAMETER :: APNCOMI          =  102
+      INTEGER, PARAMETER :: APOCJ            =  103
+      INTEGER, PARAMETER :: APNCOMJ          =  104
 
       END MODULE HRDATA

@@ -69,6 +69,7 @@ HOCL,52.5,,,VD_HOCL,1,,,HOCL,1,,,Yes,Yes,Yes,Yes
 CLO,51.5,,,,,,,,,,,,,,Yes
 FMCL,64.5,,,VD_FMCL,1,,,FMCL,1,,,Yes,Yes,Yes,Yes
 HCL,36.5,HCL,1,VD_HCL,1,,,HCL,1,HCL,HCL,Yes,Yes,Yes,Yes
+CLNO2,81.5,,,VD_CLNO2,1,,,NITRYL_CHLORIDE,1,,,Yes,,Yes,Yes
 TOLNRXN,141,,,,,,,,,TOLNRXN,,,,,
 TOLHRXN,141,,,,,,,,,TOLHRXN,,,,,
 XYLNRXN,155,,,,,,,,,XYLNRXN,,,,,
@@ -79,3 +80,5 @@ BNZNRXN,127,,,,,,,,,BNZNRXN,,,,,
 BNZHRXN,127,,,,,,,,,BNZHRXN,,,,,
 SESQ,204,SESQ,1,,,,,PINENE,1,,,Yes,,,Yes
 SESQRXN,204,,,,,,,,,SESQRXN,,,,,
+H2NO3PIJ,64,,,,,,,,,,,,,,Yes
+H2NO3PK,64,,,,,,,,,,,,,,Yes
