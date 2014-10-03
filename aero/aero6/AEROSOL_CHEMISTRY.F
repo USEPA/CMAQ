@@ -103,6 +103,13 @@ c            in aero6 module of CMAQ version 5.01. The adaptation includes
 C            heterogeneous nitryl chloride production used for Sarwar et al.
 c            (2012).
 c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
+C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+C            Compilation and evaluation of gas-phase diffusion coefficients 
+C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+C            Phys. Discuss., 14, 15645–15682, 2014. 
+C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+
 c
 c
 c  REFERENCES:
@@ -171,9 +178,7 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
 
-      REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.1D-4  ! molecular diffusivity
-                                                      ! of N2O5 at 101325 Pa
-                                                      ! and 273.15 K [m2/sec]
+      REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
       REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff

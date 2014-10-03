@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 10, 2014
+C  REVISION HISTORY: Created by EBI solver program, Oct. 2, 2014
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -49,7 +49,13 @@ C                       Hertel et al.
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   27 Sep 11 B.Hutzell: revised method for defining CALL_DEG variable
-C
+C   18 Jul 14 B.Hutzell: revised: 1) to use the RXNS_DATA and RXNS_FUNCTION
+C                        modules instead of include files, 2) to enable
+C                        reactions between species types, 3) to calculate
+C                        heterogeneous rate constants via AEROSOL_CHEMISTRY
+C                        module, 4) to replace call to HRCALCKS with
+C                        subroutine in RXNS_FUNCTION module and 5) to change
+C                        how degrade routines are used, if present
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -122,7 +128,7 @@ C..Scratch Local Variables:
 
 
       REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
-      REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
+!      REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
       REAL( 8 ) H2O     ( MAX_CELLS_EBI )           ! Cell H2O mixing ratio (ppmV)
       REAL( 8 ) TEMP    ( MAX_CELLS_EBI )           ! Cell Temperature
       REAL( 8 ) HET     ( MAX_CELLS_EBI, NHETERO )  ! cell heterogeneous reaction rates
@@ -139,18 +145,15 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
-!        SUBROUTINE HRCALCKS( NJPHOT, LSUNLIGHT, RJIN, TEMP, PRES, H2O, NCELL, RK )
-!          USE RXNS_DATA                    ! mechanism data and specifications
-!          IMPLICIT NONE
-!          INTEGER NJPHOT                   ! Number of J-values set in PHOT
-!          LOGICAL LSUNLIGHT                ! Flag for daytime
-!          REAL, INTENT( IN )    ::  H2O                         ! Cell H2O mixing ratio (ppmV)
-!          REAL, INTENT( IN )    ::  TEMP                        ! Cell temperature (deg K)
-!          REAL, INTENT( IN )    ::  PRES                        ! Cell pressure (atm)
-!          REAL, INTENT( IN )    ::  RJIN( : )                   ! J-values for each cell
-!          INTEGER, INTENT( IN ) ::  NCELL
-!          REAL( 8 ), INTENT( INOUT ) ::   RK( :, : )
-!       END SUBROUTINE HRCALCKS
+        SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
+           USE UTILIO_DEFN
+           USE RXNS_DATA
+           USE HRDATA
+           IMPLICIT NONE
+           INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
+           INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
+           INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
+        END SUBROUTINE HRSOLVER
       END INTERFACE
 
 C**********************************************************************
@@ -322,35 +325,31 @@ c..Load ICs
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN
-                      YC( NCELL, SPC ) = REAL( MAX( CONCMIN, INV_DENS
-     &                                 * FORWARD_CONV( SPC )*CGRID( C,R,L,S )), 8 )
+                      YC( SPC ) = REAL( MAX( CONCMIN,
+     &                            INV_DENS*FORWARD_CONV( SPC )*CGRID( C,R,L,S )), 8 )
                   ELSE
-                      YC( NCELL, SPC ) = REAL( MAX( CGRID( C,R,L,S ), CONCMIN), 8 )
+                      YC( SPC ) = REAL( MAX( CGRID( C,R,L,S ), CONCMIN), 8 )
                   END IF
                END DO
 
 
 c..Set physical quantities
                 TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
-                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
-                ATMPRES( NCELL )  = PA2ATM * PRESCELL( NCELL )
+!                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
+                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                 H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
-               DO NPH = 1, NPHOTAB
-                  RJIN( NCELL,NPH ) = REAL( RJ( C,R,L,NPH ), 8)
-                  IF( RJ( C,R,L,NPH ) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
-               END DO
+               FORALL( NPH = 1:NPHOTAB ) RJIN( NCELL,NPH ) = REAL( RJ( C,R,L,NPH ), 8)
+               IF( MAXVAL(RJ( C,R,L,:)) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
 
-               DO NPH = 1, NHETERO
-                  HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
-               END DO
+               FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
+
 
                NCELL = 1
-               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, RKI, NCELL )
-!              CALL HRCALCKS( NPHOTAB, LSUNLIGHT, RJIN, TEMP, ATMPRES, H2O, NCELL, RKI )
-
+               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, RKI_SAV, NCELL )
+               FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
 c..Call EBI solver
                N_EBI_IT = 0
@@ -369,9 +368,9 @@ c..Update concentration array
                   S = CGRID_INDEX( SPC )
                   IF( CONVERT_CONC( SPC ) )THEN
                       CGRID( C,R,L,S ) = MAX( REVERSE_CONV( SPC ) * DENS( C,R,L )
-     &                                 * REAL( YC( NCELL, SPC ), 4), CONCMIN)
+     &                                 * REAL( YC( SPC ), 4), CONCMIN)
                   ELSE
-                      CGRID( C,R,L,S ) = MAX( REAL( YC( NCELL, SPC ), 4), CONCMIN)
+                      CGRID( C,R,L,S ) = MAX( REAL( YC( SPC ), 4), CONCMIN)
                   END IF
                END DO
 
