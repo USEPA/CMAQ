@@ -189,10 +189,18 @@ C   20 Feb 10 J.Young:  move ssemis out to its own F90 module
 C   24 Feb 11 J.Young:  add windblown dust emissions option
 C   25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   17 Sep 14 K.Fahey:  Changed geometric mean diameter and geometric
+C                       standard deviation of emitted particles according to 
+C                       Elleman and Covert (2010)
  
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
 C                   CRC Press, 1995
+C    Elleman & Covert Aerosol size distribution modeling with the Community
+C                   Multiscale Air Quality modeling system in the Pacific
+C                   Northwest: 3. Size distribution of particles emitted
+C                   into a mesoscale model. J. Geophys. Res., Vol 115,
+C                   No D3, doi:10.1029/2009JD012401, 2010
 C    Hobbs, P.V.   "Basic Physical Chemistry for the Atmospheric Sciences",
 C                   Cambridge Univ. Press, 206 pp, 1995.
 C    Snyder, J.P.  "Map Projections-A Working Manual", U.S. Geological Survey
@@ -230,12 +238,14 @@ C Local Variables:
 
 C Geometric mean diameter by volume (or mass) of emitted particles in 
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
+C         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
+         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /) !KF 05/06/14
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
-         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
-
+C         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
+         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 1.7, 2.2 /)  !KF 05/06/14
+ 
 C Variables for calculating the volume of each grid cell
          REAL  DX1, DX2                            ! grid-cell width and length [m]
          REAL  CELLAREA                            ! grid-cell area [m2]
