@@ -1,6 +1,6 @@
        MODULE AEROSOL_CHEMISTRY
 !------------------------------------------------------------------------!
-!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !!
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !

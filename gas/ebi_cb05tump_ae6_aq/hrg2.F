@@ -1,11 +1,10 @@
-
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !
 !  including research institutions.  These groups give the Government    !
-!  permission to use, prepare derivative works of, and distribute copies !
+!  permission to use, prepare derivative works of, and distribute copies !!
 !  of their work in the CMAQ system to the public and to permit others   !
 !  to do so.  The United States Environmental Protection Agency          !
 !  therefore grants similar permission to use the CMAQ system software,  !
