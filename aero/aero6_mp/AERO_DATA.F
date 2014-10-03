@@ -50,6 +50,8 @@ C JY  04/21/11 Added optional log messages (verbose_aero)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C BH  08/31/11 Adapted for mercury and HAP mechanisms
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C KF  09/23/14 Changed emitted modal PM mass fractions according to  
+C              Elleman and Covert (2010)
 C----------------------------------------------------------------------
 
       Implicit None
@@ -72,7 +74,7 @@ C Default minimum concentration
       Real,    Parameter :: cm_cor( n_mode ) = (/ conmin, conmin, 1.889544E-05 /)
 
 C Emissions splits
-      Real,    Parameter :: es_fin( n_mode ) = (/ 0.001, 0.999, 0.0   /)
+      Real,    Parameter :: es_fin( n_mode ) = (/ 0.1  , 0.9  , 0.0   /)
       Real,    Parameter :: es_acc( n_mode ) = (/ 0.0  , 1.0  , 0.0   /)
       Real,    Parameter :: es_cor( n_mode ) = (/ 0.0  , 0.0  , 1.0   /)
       Real,    Parameter :: es_0  ( n_mode ) = (/ 0.0  , 0.0  , 0.0   /)
@@ -124,11 +126,11 @@ C                                                                            |  
 C                    ------------Name--------------                  NoM2Wet |Tracer|       OptSurr               Emissions Sea Salt
 C                    Aitken      Accum       Coarse     Min_Concs Density |  |  |   | Visidx   |      Emis          Splits  factors
 C                   ---------   ---------   ---------     ------  ------  +  +  +   +  ----  ------   -------------  ------ ------
-     & spcs_type((/'ASO4I    ','ASO4J    ','ASO4K    '/), cm_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE','PSO4         ',es_acc,ss_so4),
-     & spcs_type((/'ANO3I    ','ANO3J    ','ANO3K    '/), cm_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE','PNO3         ',es_acc,  ss_0),
-     & spcs_type((/'ACLI     ','ACLJ     ','ACLK     '/), cm_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE','PCL          ',es_acc, ss_cl),
-     & spcs_type((/'ANH4I    ','ANH4J    ','ANH4K    '/), cm_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE','PNH4         ',es_acc,  ss_0),
-     & spcs_type((/'ANAI     ','ANAJ     ','         '/), cm_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE','PNA          ',es_acc, ss_na),
+     & spcs_type((/'ASO4I    ','ASO4J    ','ASO4K    '/), cm_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE','PSO4         ',es_fin,ss_so4),
+     & spcs_type((/'ANO3I    ','ANO3J    ','ANO3K    '/), cm_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE','PNO3         ',es_fin,  ss_0),
+     & spcs_type((/'ACLI     ','ACLJ     ','ACLK     '/), cm_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE','PCL          ',es_fin, ss_cl),
+     & spcs_type((/'ANH4I    ','ANH4J    ','ANH4K    '/), cm_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE','PNH4         ',es_fin,  ss_0),
+     & spcs_type((/'ANAI     ','ANAJ     ','         '/), cm_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE','PNA          ',es_fin, ss_na),
      & spcs_type((/'         ','AMGJ     ','         '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PMG          ',es_acc, ss_mg),
      & spcs_type((/'         ','AKJ      ','         '/), cm_set, 2200.0, F, F, F,  1,  1.0,'DUST  ','PK           ',es_acc,  ss_k),
      & spcs_type((/'         ','ACAJ     ','         '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PCA          ',es_acc, ss_ca),
@@ -140,8 +142,8 @@ C                   ---------   ---------   ---------     ------  ------  +  +  
      & spcs_type((/'         ','ASIJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PSI          ',es_acc,  ss_0),
      & spcs_type((/'         ','ATIJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PTI          ',es_acc,  ss_0),
      & spcs_type((/'         ','AMNJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMN          ',es_acc,  ss_0),
-     & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O         ',es_acc,  ss_0),
-     & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR       ',es_acc,  ss_0),
+     & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O         ',es_fin,  ss_0),
+     & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR       ',es_fin,  ss_0),
      & spcs_type((/'         ','AALKJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
