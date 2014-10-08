@@ -195,7 +195,7 @@ C                   ---------   ---------   ---------     ------- ------  +  +  
      & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','PHGI         ',es_fin,  ss_0),
      & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'AASI     ','AASJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_F    ',es_fin,  ss_0),
-     & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_C    ',es_0,    ss_0)
+     & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_C    ',es_cor,  ss_0)
      & /)                                                                                                                          
                                                                                                                       
 C Sea-Salt Speciation factors
