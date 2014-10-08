@@ -16,6 +16,11 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
+!
+! Revision history
+!
+! 26 Sep 14 H. Pye: Heterogeneous uptake of IEPOX added 
+!
 
        IMPLICIT NONE
        
@@ -24,6 +29,7 @@
                                                                        ! units: (ppm**(RXN Order-1)*min)**-1
        REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_N2O5IJ( :, : , :  ) ! Fine modes N2O5 reaction effic.
        REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_N2O5K(  :, : , :  ) ! Coarse mode N2O5 reaction effic.
+       REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_IEPOX(  :, : , :  ) ! IEPOX uptake coeff
        REAL,      PUBLIC, ALLOCATABLE     :: YCLNO2IJ   (  :, : , :  ) ! Yield CLNO2 in Fine modes 
        REAL,      PUBLIC, ALLOCATABLE     :: YCLNO2K    (  :, : , :  ) ! Yield CLNO2 in coarse mode 
        
@@ -31,7 +37,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 17
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 18
        
        CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
@@ -42,7 +48,7 @@
      &                       'HETERO_H2NO3PBI  ', 'HETERO_H2NO3PAJ  ',
      &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
      &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
-     &                       'HETERO_PNCOMLJ   ' /)
+     &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ' /)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -61,6 +67,7 @@
        INTEGER, PARAMETER  :: IA_N2O5J          =   15
        INTEGER, PARAMETER  :: IA_PNCOMLI        =   16
        INTEGER, PARAMETER  :: IA_PNCOMLJ        =   17
+       INTEGER, PARAMETER  :: IA_IEPOX          =   18
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -71,7 +78,7 @@
      &                       IA_H2NO3PBI , IA_H2NO3PAJ ,
      &                       IA_H2NO3PBJ , IA_N2O5I    , 
      &                       IA_N2O5J    , IA_PNCOMLI  ,
-     &                       IA_PNCOMLJ   /)
+     &                       IA_PNCOMLJ  , IA_IEPOX    /)
 
              
        INTEGER               :: SELECTED_AERO_RATES
@@ -84,7 +91,7 @@
 
       SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
 
-c Calculates the heterogeneous reactions for N2O5, NO2 and CLNO2. 
+c Calculates the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
 c
 c Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
 c                         N2O5_GAMMA
@@ -93,6 +100,8 @@ c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
 c            in aero6 module of CMAQ version 5.01. The adaptation includes
 C            heterogeneous nitryl chloride production used for Sarwar et al.
 c            (2012).
+c 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol
+c            added following Pye et al. (2013).
 c
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
@@ -124,6 +133,10 @@ c
 c   6. Sarwar, G., H. Simon2, P. Bhave1, and G. Yarwood. Examining the impact of 
 C      heterogeneous nitryl chloride production on air quality across the United
 C      States. Atmos. Chem. Phys., 12, 6455-6473, 2012.
+c
+c   7. Pye et al., Epoxide pathways improve model predictions of isoprene
+c      markers and reveal key role of acidity in aerosol formation,
+c      Environ. Sci. Technol., doi: 10.1021/es402106h, 2013.
 c
 C-----------------------------------------------------------------------
 
@@ -180,8 +193,10 @@ C *** Local Variables
 !      REAL( 8 ) :: AIRQV            ! water vapor mass mixing ratio [g/g]
       REAL( 8 ) :: GAMMA            ! fine mode N2O5->NO3 rxn probability
       REAL( 8 ) :: GAMMAK           ! coarse mode N2O5->NO3 rxn probability
+      REAL( 8 ) :: GAMMAIEPOX       ! IEPOX uptake coefficient
       REAL( 8 ) :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
       REAL( 8 ) :: KNO2             ! pseudo-first order rate constant, sec-1
+      REAL( 8 ) :: KIEPOX           ! pseudo-first order rate constant, sec-1
 
       REAL( 8 )   :: CBAR_COEFF       ! cell coefficient for mean molecular speed
       REAL( 8 )   :: ADJUST_DIFF      ! Cell temp and press correction to diffusivity
@@ -208,8 +223,10 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
       REAL( 8 )       :: TOTSURFA ! aerosol surface area (m**2/m**3)
       REAL( 8 )       :: FACTOR   ! scratch multiplicative factor
       REAL( 8 )       :: RFACTOR  ! factor converting rate constant from cm3/molec/sec to 1/ppm/min
+      REAL( 8 )       :: RADIUS   ! effective particle radius [m]
       
-      REAL( 8 )       :: CBAR             ! molecular velocity (m/s)
+      REAL( 8 )       :: CBAR             ! molecular velocity of N2O5 (m/s)
+      REAL( 8 )       :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
 
 
       LOGICAL         :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
@@ -332,6 +349,7 @@ C *** Get aerosol diagnostic file flag.
        IF( AERDIAG )THEN
            ALLOCATE( GAMMA_N2O5IJ( MY_NCOLS, MY_NROWS, NLAYS ) )
            ALLOCATE(  GAMMA_N2O5K( MY_NCOLS, MY_NROWS, NLAYS ) )
+           ALLOCATE(  GAMMA_IEPOX( MY_NCOLS, MY_NROWS, NLAYS ) )
            ALLOCATE(     YCLNO2IJ( MY_NCOLS, MY_NROWS, NLAYS ) )
            ALLOCATE(      YCLNO2K( MY_NCOLS, MY_NROWS, NLAYS ) )
        END IF
@@ -359,6 +377,7 @@ C           MWCLCLNO2 = aerospc_mw( ACL_IDX) / SPECIES_MOLWT( CLNO2_IDX ) ?? fix
           GAMMA_N2O5K  = 0.0
           YCLNO2IJ     = 0.0
           YCLNO2K      = 0.0
+          GAMMA_IEPOX  = 0.0
       END IF
      
 
@@ -505,7 +524,7 @@ C *** calculate aerosol surface area
 
              LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
              
-        
+ 
                SELECT CASE( WHICH_AERO_RATE( IRATE ) )
                  CASE( IA_N2O5IJ )  
 
@@ -628,6 +647,19 @@ C     by 60 to convert it into 1/sec
                      KNO2 = MAX ( 0.0D0, 5.0D-5 * TOTSURFA )
 
                      KHETERO( IRATE, C, R, L )  = 60.0D0 * KNO2 ! convert to min-1
+
+                 CASE( IA_IEPOX )
+
+                     ! IEPOX uptake on accumulation mode particles
+                     N            = 2                  ! mode index
+                     RADIUS       = DE_WET( N ) /2.0d0 ! particle size
+                     CBARIEPOX    = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
+     &                              / ( PI * precursor_mw( IEPOX_IDX ) ) )
+                     GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS )
+                     IF( AERDIAG ) GAMMA_IEPOX( C, R, L ) = REAL( GAMMAIEPOX, 4 )
+                     KIEPOX       = WET_M2( N ) * PI / ( RADIUS * INV_DIFFUSIVITY +
+     &                              4.0 / ( CBARIEPOX * GAMMAIEPOX) )
+                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KIEPOX
                            
                END SELECT
 
@@ -677,6 +709,7 @@ C     by 60 to convert it into 1/sec
                   WRITE(LOGDEV,'(A,ES12.4)')'XXF_AT      = ',XXF( 1 )
                   WRITE(LOGDEV,'(A,ES12.4)')'XXF_AC      = ',XXF( 2 )
                   WRITE(LOGDEV,'(A,ES12.4)')'XXF_COR     = ',XXF( 3 )
+                  WRITE(LOGDEV,'(A,ES12.4)')'GAMMAIEPOX  = ',GAMMAIEPOX
                   WRITE(LOGDEV,9500)'KN2O5IJ = ',60.0D0*(KN2O5(1)+KN2O5(2)),' 1/min'
                   WRITE(LOGDEV,9500)'KN2O5K= ',60.0D0*KN2O5(3),' 1/min'
                   WRITE(LOGDEV,9500)'KNO2  = ', 60.0D0*KNO2,' 1/min'
@@ -699,6 +732,7 @@ C     by 60 to convert it into 1/sec
       RETURN
 
       END SUBROUTINE HETCHEM_RATES
+
       REAL( 8 ) FUNCTION PNCOM_LOSS( POC, PNCOM )
 !C Calculates rate constant in cm3 molec-1 sec-1 for PNCOM loss by reacting 
 !  with OH, derived from the reactions in the below POA aging scheme 
@@ -1513,5 +1547,213 @@ C *** Compute IRH using Goff-Gratch equations as given by List (1984)
       RETURN
 
       END FUNCTION FREEZES
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      REAL(8) FUNCTION GAMMAIEPOXJ( RADIUS )  
+
+C  Calculates the uptake coefficient (gamma) for IEPOX      
+C  based on particle phase H+ (EQLBH) and other particle constituents.
+
+C  Key Subroutines Called: none
+
+C  Key Functions Called: none
+
+C  Revision History: 
+C  HOTP 1/18/13 First coding
+C  HOTP 9/26/14 Reduced form considering only IEPOX uptake with no
+C               speciation developed for CB05
+
+C  References
+C  1. Chan, M. N., et al. "Characterization and quantification of isoprene-
+C     derived expoxydiols in ambient aerosol in the Southeastern United States,"
+C     Environ. Sci. Technol., 2010, 44, 4590-4596.
+C  2. Eddingsaas, N. C., VanderVelde, D. G., Wennberg, P. O. "Kinetics 
+C     and products of the acid-catalyzed ring-opening of atmospherically
+C     relevant butyl epoxy alcohols," J. Phys. Chem A., 2010, 114, 8106-8113.
+C  3. Gharagheizi, F., et al. "Representation and prediction of molecular diffusivity
+C     of nonelectrolyte organic compounds in water at infinite dilution using the
+C     artificial neural network-group contribution method," J. Chemical & Engineering
+C     Data, 2011, 46, 1741-1750.
+C  4. Hanson, D. R., Ravishankara, A. R., Solomon, S. "Heterogeneous reactions in
+C     sulfuric acid aerosols: A framework for model calculations," J. Geophys. Res.,
+C     1994, 99, 3615-3629.
+C  5. McNeill, V. F., et al. "Aqueous-phase secondary organic aerosol and organosulfate 
+C     formation in atmospheric aerosols: A modeling study," Environ Sci Technol., 2012,
+C     46, 8075-8081.
+C  6. Pye et al., Epoxide pathways improve model predictions of isoprene
+C     markers and reveal key role of acidity in aerosol formation,
+C     Envion. Sci. Technol, 2013, doi: 10.1021/es402106h. 
+C-----------------------------------------------------------------------
+
+      Use aero_data
+      Use precursor_data
+      Use aeromet_data   ! Includes CONST.EXT (pi) and airtemp
+      Use utilio_defn    ! error message and abort
+
+      Implicit None
+
+C *** Arguments
+      Real( 8 ), Intent( IN )  :: RADIUS ! Particle radius [m]
+
+C *** Parameters
+C     For gamma calculation
+      Real( 8 ), Parameter :: alpha        = 0.02d0 ! accomodation coefficient from McNeill et al. 2012 []
+      Real( 8 ), Parameter :: diffusivity  = 1.0d-9 ! liquid phase diffusivity, based on C4-C5 epoxides 
+                                                    ! and diols at infinite dilution in water (Gharagheizi et al. 2011) [m2/s]
+      Real( 8 ), Parameter :: RgasLatmmolK = 0.08206d0 ! Universal gas constant [L atm/mol K]
+      Real( 8 ), Parameter :: small        = 1d-8   ! small number to prevent calculations that may have precision issues
+      Real( 8 ), Parameter :: smaller      = 1d-20  ! smaller number to prevent division by zero
+
+C     Acid related
+      Integer, Parameter   :: n_acids      = 2 ! number of acids: H+ and HSO4-
+      Integer, Parameter   :: hacid_idx    = 1 ! H+ acid index
+      Integer, Parameter   :: hso4acid_idx = 2 ! HSO4 acid index
+
+C     Henry's law coeff for IEPOX (HenryWin v 3.2)
+      Real( 8 ) :: Heff  
+
+C     Diagnostic
+      Character (16 ), Parameter :: pname = 'AEROSOL_CHEMISTRY'
+
+C *** Local Variables
+      Integer   :: i, acid_idx         ! counter and temporary indices
+      Real( 8 ) :: EQLBH               ! Particle Phase H+ from isoropia [mol/m**3]
+      Real( 8 ) :: q, fq, denom        ! quantities in Hanson et al. 1994 equation for gamma []
+      Real( 8 ) :: nu                  ! molecular speed [m/s], note this is the same as CBAR but we want to avoid excessive passing
+      Real( 8 ) :: acidmolconc( n_acids ) ! concentration of acid in mol/m3
+      Real( 8 ) :: acid                ! temporary concentration of acid in mol/m3
+      Real( 8 ) :: nuc                 ! nucleophile concentration in mol/m3
+      Real( 8 ) :: charge              ! temporary for charge balance calculation [umol/m3]
+      Real( 8 ) :: volume              ! particle volume [L/m3 air]
+      Real( 8 ) :: kchem, kparticle    ! particle phase rxn rates [1/s] 
+      Character ( 80 ) :: xmsg         ! error message
+
+C *** External functions
+      INTERFACE
+         REAL FUNCTION HLCONST ( CNAME, TEMP, EFFECTIVE, HPLUS )
+           USE UTILIO_DEFN
+           IMPLICIT NONE
+           CHARACTER*(*), INTENT ( IN ) :: CNAME
+           REAL,          INTENT ( IN ) :: TEMP
+           LOGICAL,       INTENT ( IN ) :: EFFECTIVE
+           REAL,          INTENT ( IN ) :: HPLUS
+        END FUNCTION HLCONST
+      END INTERFACE
+
+C-----------------------------------------------------------------------
+
+C *** Determine H+ acid concentration of j mode [mol/m3]
+      eqlbh                  = aerospc_conc( ah3op_idx, 2 ) / 
+     &                         aerospc_mw( ah3op_idx ) * 1.0d-6
+      acidmolconc(hacid_idx) = max( eqlbh, 0.0d0 ) 
+
+C *** Calculate HSO4 by charge balance
+C     Note: if isorropia has returned a negative H+ concentration
+C     we effectively treat all H+ like HSO4 (slightly less effective
+C     in catalyzing the ring-opening)
+      charge = 0.0  ! umol/m3
+      Do i = 1, n_aerospc
+         charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
+     &         / aerospc_mw( i )
+      End Do
+      acidmolconc(hso4acid_idx) = max( ( charge*1d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
+
+C *** J-mode particle volume [L/m**3 air]
+      volume = 0.0d0
+      Do i = 1, n_aerospc 
+         volume = volume + aerospc_conc( i, 2 ) / aerospc(i)%density * 1.0d-6
+      End Do
+
+C *** Loop over nucleophile/acid pairs defined in acid_nuc_pairs in AERO_DATA
+C     and calculate rate of particle phase reaction
+      kchem     = 0.0d0   ! intermediate value
+      kparticle = 0.0d0   ! accumulating IEPOX value
+
+      Do i = 1, n_nucpairs
+
+C        Find J-mode nucleophile concentration in ug/m3 and convert to mol/m3
+         nuc = aerospc_conc( acid_nucmap_idx(i), 2 ) / 
+     &         aerospc_mw( acid_nucmap_idx(i) ) * 1.0d-6
+
+C        Find acid concentration in mol/m3
+         if (    acid_nuc_pairs(i)%acid == 'HPLUS' ) then
+            acid_idx = 1
+         elseif( acid_nuc_pairs(i)%acid == 'HSO4' ) then
+            acid_idx = 2
+         else 
+             xmsg = 'Acid species ' // Trim( acid_nuc_pairs(i)%acid) // 
+     &              ' Not recognized in AEROSOL_CHEMISTRY'
+             Call m3exit( pname, 0, 0, xmsg, xstat3 )
+         endif
+         acid = acidmolconc( acid_idx ) ! mol/m3
+
+C        Correct sulfate for presence of bisulfate
+         if( acid_nuc_pairs(i)%nuc == 'ASO4J' ) then
+            nuc = max( nuc - acidmolconc( hso4acid_idx ), 0.0d0 )
+         endif
+
+C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
+         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume**2
+
+C        Update sum
+         kparticle  = kparticle + kchem
+
+      End Do
+
+!       do i=1,n_nucpairs
+!        print*,'pair ',acid_nuc_pairs(i)%acid, acid_nuc_pairs(i)%nuc
+!        print*,'nucs ', aerospc_conc( acid_nucmap_idx(i), 2)
+!       enddo
+!     print*,'eqlbh',eqlbh
+!      print*, 'aerospc_conc', aerospc_conc
+!      print*,'volume',volume
+!      print*,'acids', acidmolconc
+!      print*,'kparticle', kparticle
+!      print*,'kchemos',kchemos
+!      print*,'kchemon',kchemon
+!      print*,'kchemtet',kchemtet
+
+      
+
+C *** Calculate gamma following Pye et al. 2013 ES&T
+C     (see also Hanson et al. 1994 JGR Eqn (2) for details)
+
+C     Henry's Law coefficient
+      Heff = REAL(HLCONST( 'IEPOX', airtemp, .False., 0.0 ), 8)
+
+C     Note that if the rate of particle phase reaction is very slow, there may not
+C     be enough digits of precision to properly calculate fq which can result in
+C     erroneously high gamma values. Only calculate gamma if particle phase reaction
+C     is faster than 1e-8 1/s
+      if ( kparticle .gt. small ) then
+
+         ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
+         q = dble(radius) * sqrt ( kparticle/ diffusivity ) 
+
+         ! Perform exp in double precision (dexp), also prevent negatives arising 
+         ! from difference in numbers of similar size, fq should always be positive
+         fq = max( ( ( dexp(2*q) + 1 ) / ( dexp(2*q) - 1 ) - 1/q ), smaller )
+
+         ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
+         nu = sqrt( 8 * Rgasuniv * airtemp /( dpi * precursor_mw( IEPOX_idx ) * 1d-3 ) )
+
+         ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
+         denom =  1/alpha + nu/ ( 4 * Heff * RgasLatmmolK * airtemp 
+     &                * sqrt ( diffusivity * kparticle ) * fq ) 
+
+         gammaiepoxj = 1/denom
+
+C     No/slow reaction
+      else
+
+         gammaiepoxj = 0d0
+
+      endif
+
+
+      RETURN
+ 
+      END FUNCTION GAMMAIEPOXJ
+
       
       END MODULE AEROSOL_CHEMISTRY

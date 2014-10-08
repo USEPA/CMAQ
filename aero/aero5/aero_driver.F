@@ -95,6 +95,8 @@ C
 C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
 C                            diagnostic outputs on reaction gamma and yield 
 C                            values 
+C   HOT Pye - Jan 13 - Additional information for IEPOX aerosol 
+C                      written to AERODIAG file
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -107,7 +109,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
       USE UTILIO_DEFN
       USE CGRID_SPCS
-      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX
 
       IMPLICIT NONE
 
@@ -173,7 +175,7 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,26 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,27 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
@@ -473,6 +475,7 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
                   DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
                   DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,27 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution

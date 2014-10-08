@@ -49,23 +49,44 @@ C              made MG, K, CA, SEACAT required species;
 C JY  04/21/11 Added optional log messages (verbose)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C HOTP 01/16/13 Removed isoprene acid enhanced aerosol and added new isoprene aerosol
+C HOTP 01/18/13 Added information for particle phase reaction of isoprene products
+C               based on Eddingsaas et al. 2010
+C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow
+C               Chan et al.
+C
+C References:
+C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and 
+C    products of the acid-catalyzed ring-opening of atmospherically relevant
+C    butyl epoxy alcohols," J. Phys. Chem. A., 2010, 114, 8106-8113.
+C 2. Chan et al., Secondary organic aerosol formation from photooxidation
+C    of naphthalene and alkylnaphthalenes: implications for oxidation of
+C    intermediate volatility organic compounds (IVOCs), Atmos. Chem. Phys., 
+C    2009, 9, 3049-3060.
 C----------------------------------------------------------------------
 
       Implicit None
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 40      ! number of aero species
+      Integer, Parameter :: n_aerospc = 45      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
                                                 ! 3 = coarse 
+      Integer, Parameter :: n_nucpairs = 6      ! number of acid/nucleophile pairs 
 
 C Default minimum concentration
       Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
       Real,    Parameter :: conmin_set( n_mode )  = (/conmin, conmin, conmin/)
       Real,    Parameter :: conmin_so4( n_mode )  = (/1.0E-12,1.0E-6, conmin/)
       Real,    Parameter :: conmin_cor( n_mode )  = (/conmin, conmin, 1.889544E-05/)
+
+C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
+      Real ( 8 ), Parameter :: k_H_water    = 9.0d-4
+      Real ( 8 ), Parameter :: k_H_nuc      = 2.0d-4
+      Real ( 8 ), Parameter :: k_HSO4_water = 1.31d-5
+      Real ( 8 ), Parameter :: k_HSO4_nuc   = 2.92d-6
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -117,8 +138,10 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','ATIJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PTI   ',(/0.000,1.000,0.000/)),
      & spcs_type((/'       ','AMNJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMN   ',(/0.000,1.000,0.000/)),
      & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), conmin_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O  ',(/0.000,1.000,0.000/)),
+     & spcs_type((/'AH3OPI ','AH3OPJ ','AH3OPK '/), conmin_set, 1000.0, T, F, T,  0,  0.0,'WATER ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR',(/0.000,1.000,0.000/)),
-     & spcs_type((/'       ','AALKJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AALK1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AALK2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AXYL1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AXYL2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AXYL3J ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
@@ -134,6 +157,9 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','AISO2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO3J ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ASQTJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','APAH1J ','       '/), conmin_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','APAH2J ','       '/), conmin_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','APAH3J ','       '/), conmin_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGAJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AORGCJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
@@ -162,8 +188,10 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! ATI
      &       0.0,     0.0,     0.0,         ! AMN
      &       0.0,     0.0,     0.0,         ! AH2O
+     &       0.0,     0.0,     0.0,         ! AH3OP
      &       0.0,     0.0,     0.0,         ! AOTHR
-     &       0.0,     0.0,     0.0,         ! AALK
+     &       0.0,     0.0,     0.0,         ! AALK1
+     &       0.0,     0.0,     0.0,         ! AALK2
      &       0.0,     0.0,     0.0,         ! AXYL1
      &       0.0,     0.0,     0.0,         ! AXYL2
      &       0.0,     0.0,     0.0,         ! AXYL3
@@ -179,6 +207,9 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AISO2
      &       0.0,     0.0,     0.0,         ! AISO3
      &       0.0,     0.0,     0.0,         ! ASQT
+     &       0.0,     0.0,     0.0,         ! APAH1
+     &       0.0,     0.0,     0.0,         ! APAH2
+     &       0.0,     0.0,     0.0,         ! APAH3
      &       0.0,     0.0,     0.0,         ! AOLGA
      &       0.0,     0.0,     0.0,         ! AOLGB
      &       0.0,     0.0,     0.0,         ! AORGC
@@ -186,6 +217,32 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! ACORS
      &       0.0,     0.0,     0.3686 /),   ! ASEACAT
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
+
+C Acid catalyzed particle phase reactions
+      Type acid_cat
+           Character( 16 ) :: parent ! gas-phase parent species
+           Character( 16 ) :: nuc    ! aerosol-phase nucleophile that adds to epoxide ring
+           Character( 16 ) :: acid   ! acid that catalyzes epoxide ring opening
+           Real( 8 )       :: kchem  ! particle phase rate constant [1/(M^2 s)]
+           Character( 16 ) :: prod   ! product of nucleophile+parent
+      End Type acid_cat
+
+
+C IEPOX uptake based on Eddingsaas et al. 2010 parameters
+      Type( acid_cat ), Parameter :: acid_nuc_pairs( n_nucpairs ) = (/
+C                  Parent   Nucleophile     Acid     Rate Constant  Product
+C                 (parent)    (nuc)        (acid)      (kchem)      (prod)
+C                 --------  -----------  ----------  ------------- --------
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ', k_H_water,    'AISO3J' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ', k_H_nuc,      'AISO3J'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ', k_H_nuc,      'AISO3J'  ),
+     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ', k_HSO4_water, 'AISO3J' ),
+     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ', k_HSO4_nuc,   'AISO3J'  ),
+     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ', k_HSO4_nuc,   'AISO3J'  )/)
+
+C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
+      Integer :: acid_prodmap_idx( n_nucpairs )
+      Integer :: acid_nucmap_idx(  n_nucpairs )
 
 C Required species
       Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'  
@@ -198,6 +255,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
       Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
       Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'  
+      Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'  
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
@@ -214,6 +272,7 @@ C Indices of required species
       Integer :: aca_idx
       Integer :: apoc_idx
       Integer :: ah2o_idx 
+      Integer :: ah3op_idx 
       Integer :: asoil_idx
       Integer :: acors_idx
       Integer :: apncom_idx
@@ -381,10 +440,19 @@ C Find indices of required species
       aca_idx     = findAero( req_ca,     .True. )
       apoc_idx    = findAero( req_poc,    .True. )
       ah2o_idx    = findAero( req_h2o,    .True. )
+      ah3op_idx   = findAero( req_h3op,   .True. )
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
+
+C Find indices for acid catalyzed species
+      acid_prodmap_idx = 0
+      acid_nucmap_idx  = 0
+      Do n = 1, n_nucpairs
+        acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
+        acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
+      End Do
 
 #ifdef verbose
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -398,10 +466,15 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah2op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
+      Do n = 1, n_nucpairs
+        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
+        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
+      End D
 #endif
  
 C Compute common factors
