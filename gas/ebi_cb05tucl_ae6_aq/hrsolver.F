@@ -35,15 +35,12 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Sept. 10, 2014
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
 C                             not change results
 C   21 Jun 10 J.Young: convert for Namelist redesign
-C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
-C                        modules instead of include files and 2) to use
-C                        real(8) variables
 C**********************************************************************
 
       USE UTILIO_DEFN
@@ -56,9 +53,9 @@ C..INCLUDES:
 
 
 C..ARGUMENTS:
-      INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
-      INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
+      INTEGER JDATE           ! Current date (YYYYDDD)
+      INTEGER JTIME           ! Current time (HHMMSS)
+      INTEGER C, R, L         ! Cell col, row, lev
 
 C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
@@ -72,9 +69,9 @@ C..EXTERNAL FUNCTIONS:
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ),      SAVE :: PNAME  = 'HRSOLVER' ! Program name
-      LOGICAL,              SAVE :: LFIRST = .TRUE.     ! Flag for first call
-      LOGICAL, ALLOCATABLE, SAVE :: LEBISPFL( : )       ! Flag for EBI species
+      CHARACTER( 16 ),      SAVE :: PNAME = 'HRSOLVER' ! Program name
+      LOGICAL,              SAVE :: LFIRST = .TRUE.    ! Flag for first call
+      LOGICAL, ALLOCATABLE, SAVE :: LEBISPFL( : )      ! Flag for EBI species
 
 
 C..SCRATCH LOCAL VARIABLES:
@@ -96,8 +93,8 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL MXFL                  ! hit MAXPRED flag
 
       REAL( 8 ) DTC              ! Time step to take
-      REAL( 8 ) FXDLOSS          ! Total loss due to negative stoichiometry
-      REAL( 8 ) VARLOSS          ! Loss excluding negative stoichiometry
+      REAL FXDLOSS          ! Total loss due to negative stoichiometry
+      REAL VARLOSS          ! Loss excluding negative stoichiometry
 
 
 #ifdef hrdebug
@@ -236,14 +233,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                END DO
 
 c..Special treatment of PAR because of negative product stoichiometry
-               IF( PNEG( NCELL, PAR ) .GT. 0.0D0 ) THEN
+               IF( PNEG( NCELL, PAR ) .GT. 0.0 ) THEN
                   FXDLOSS = PNEG( NCELL, PAR ) * DTC
                   IF( FXDLOSS .GE. YC0( NCELL, PAR ) + PROD( NCELL, PAR ) * DTC ) THEN
-                     YCP( NCELL, PAR ) = 0.0D0
+                     YCP( NCELL, PAR ) = 0.0
                   ELSE
                      VARLOSS = MAX( LOSS( NCELL, PAR ) - PNEG( NCELL, PAR ) , ZERO )
                      YCP( NCELL, PAR ) = ( YC0( NCELL, PAR ) + PROD( NCELL, PAR ) * DTC  - 
-     &                   FXDLOSS ) / ( 1.0D0 + VARLOSS * DTC / YC( NCELL, PAR ) )
+     &                   FXDLOSS ) / ( 1.0 + VARLOSS * DTC / YC( NCELL, PAR ) )
                   END IF
                END IF
 
@@ -254,7 +251,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                MXFL = .FALSE.
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
-                  YCP( NCELL, S ) = MAX( ZERO, YCP( NCELL, S ) )
+                  YCP( NCELL, S ) = MAX( EPSLON, YCP( NCELL, S ) )
                   IF( ABS( YC( NCELL, S ) - YCP( NCELL, S ) ) .GT. RTOL( S ) *
      &               ( YC( NCELL, S ) + YCP( NCELL, S ) ) ) THEN
                      LEBI_CONV = .FALSE.
