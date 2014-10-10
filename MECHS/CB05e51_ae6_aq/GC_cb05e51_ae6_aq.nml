@@ -87,6 +87,7 @@ TYPE_MATRIX =
 'CLO:51.5::::::::::::::Yes',
 'FMCL:64.5:::VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:HCL:1:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
+'CLNO2:81.5:::VD_CLNO2:1.0:::NITRYL_CHLORIDE:1.0:::Yes::Yes:Yes',
 'TOLNRXN:141:::::::::TOLNRXN:::::',
 'TOLHRXN:141:::::::::TOLHRXN:::::',
 'XYLNRXN:155:::::::::XYLNRXN:::::',
@@ -107,4 +108,6 @@ TYPE_MATRIX =
 'NTRMO2:106::::::::::::::Yes',
 'NTRI:149.1:::VD_NTRM:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
 'NTRIO2:106::::::::::::::Yes',
+'H2NO3PIJ:64.0::::::::::::::Yes',
+'H2NO3PK:64.0::::::::::::::Yes'
 /
