@@ -58,6 +58,7 @@ C  of the radiative transfer equation based on how the NCAR TUV model
 C  implements the approximation
 C
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C  10/10/14 - DJL added references to IUPAC10 to NO2 and O3 photo rates
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -490,11 +491,11 @@ C***  is referenced in other sections of the code.  if so, then set
 C***  the appropriate pointers for later processing
 
             SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
-               CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06' )
+               CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06', 'O3_O3P_IUPAC10')
                      LO3O3P = IPHOT
-               CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2' )
+               CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2', 'NO2_IUPAC10')
                      LNO2 = IPHOT
-               CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06' )
+               CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06', 'O3_O1D_IUPAC10')
                      LO3O1D = IPHOT
                CASE( 'KETONE', 'KET_RACM2' )
                      LKETONE   = IPHOT
