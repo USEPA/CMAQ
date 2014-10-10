@@ -76,7 +76,7 @@ TYPE_MATRIX =
 'ISOPRXN:68:::::::::ISOPRXN:::::',
 'NTRM:147:::VD_NTRM:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
 'MACO3:102::::::::::::::Yes',
-'NTRCNOH:149:::VD_NTROH:1:::NTR_OH:1:::Yes:Yes:Yes:Yes',
+'NTRI:149.1:::VD_NTRM:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
 'TERP:136:TERP:1:::::PINENE:1:::Yes:::Yes',
 'TRPRXN:136:::::::::TRPRXN:::::',
 'SO2:64:SO2:1:VD_SO2:1:::SO2:1::SO2:Yes:Yes:Yes:Yes',
@@ -90,6 +90,7 @@ TYPE_MATRIX =
 'CLO:51.5::::::::::::::Yes',
 'FMCL:64.5:::VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:HCL:1:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
+'CLNO2:81.5:::VD_CLNO2:1.0:::NITRYL_CHLORIDE:1.0:::Yes::Yes:Yes',
 'TOLNRXN:141:::::::::TOLNRXN:::::',
 'TOLHRXN:141:::::::::TOLHRXN:::::',
 'XYLNRXN:155:::::::::XYLNRXN:::::',
@@ -107,11 +108,13 @@ TYPE_MATRIX =
 'MAPAN:148:::VD_PAN:1:::MPAN:1:::Yes:Yes:Yes:Yes',
 'NALKO2:106::::::::::::::Yes',
 'NTRCN:147:::VD_PROPNN:1:::PROPNN:1:::Yes:Yes:Yes:Yes',
+'NTRCNOH:149:::VD_NTROH:1:::NTR_OH:1:::Yes:Yes:Yes:Yes',
 'NTRPX:151:::VD_NTRM:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
 'NOHO2:106::::::::::::::Yes',
 'NCNO2:106::::::::::::::Yes',
 'NCNOHO2:106::::::::::::::Yes',
 'NTRMO2:106::::::::::::::Yes',
-'NTRI:149.1:::VD_NTRM:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
-'NTRIO2:106::::::::::::::Yes'
+'NTRIO2:106::::::::::::::Yes',
+'H2NO3PIJ:64.0::::::::::::::Yes',
+'H2NO3PK:64.0::::::::::::::Yes'
 /
