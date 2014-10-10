@@ -106,7 +106,7 @@
 !    NHETERO   = Number of unique heteorogenous rate constants
 !    IHETERO   = Reactions list pointer to heteorogenous reactions and tables
 
-      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'CB05e51_AE6_AQ'
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'CB05E51_AE6_AQ'
 
       INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 104
       INTEGER, PARAMETER :: NUMB_MECH_SPC  = 126

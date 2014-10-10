@@ -230,7 +230,7 @@ C if they differ from above declarations (needs updating)
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
-            Else If( INDEX( MECHNAME, 'CB05' ) .NE. 0 ) then
+            Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
