@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Sept. 10, 2014
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -49,13 +49,7 @@ C                       Hertel et al.
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   27 Sep 11 B.Hutzell: revised method for defining CALL_DEG variable
-C   18 Jul 14 B.Hutzell: revised: 1) to use the RXNS_DATA and RXNS_FUNCTION
-C                        modules instead of include files, 2) to enable
-C                        reactions between species types, 3) to calculate
-C                        heterogeneous rate constants via AEROSOL_CHEMISTRY
-C                        module, 4) to replace call to HRCALCKS with
-C                        subroutine in RXNS_FUNCTION module and 5) to change
-C                        how degrade routines are used, if present
+C
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -145,15 +139,18 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
-        SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
-           USE UTILIO_DEFN
-           USE RXNS_DATA
-           USE HRDATA
-           IMPLICIT NONE
-           INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
-           INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
-           INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
-        END SUBROUTINE HRSOLVER
+!        SUBROUTINE HRCALCKS( NJPHOT, LSUNLIGHT, RJIN, TEMP, PRES, H2O, NCELL, RK )
+!          USE RXNS_DATA                    ! mechanism data and specifications
+!          IMPLICIT NONE
+!          INTEGER NJPHOT                   ! Number of J-values set in PHOT
+!          LOGICAL LSUNLIGHT                ! Flag for daytime
+!          REAL, INTENT( IN )    ::  H2O                         ! Cell H2O mixing ratio (ppmV)
+!          REAL, INTENT( IN )    ::  TEMP                        ! Cell temperature (deg K)
+!          REAL, INTENT( IN )    ::  PRES                        ! Cell pressure (atm)
+!          REAL, INTENT( IN )    ::  RJIN( : )                   ! J-values for each cell
+!          INTEGER, INTENT( IN ) ::  NCELL
+!          REAL( 8 ), INTENT( INOUT ) ::   RK( :, : )
+!       END SUBROUTINE HRCALCKS
       END INTERFACE
 
 C**********************************************************************
@@ -352,6 +349,7 @@ c..Get rate constants
 
                NCELL = 1
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, RKI, NCELL )
+!              CALL HRCALCKS( NPHOTAB, LSUNLIGHT, RJIN, TEMP, ATMPRES, H2O, NCELL, RKI )
 
 
 c..Call EBI solver
