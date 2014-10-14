@@ -16,16 +16,8 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
-
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/convcld_acm.F,v 1.10 2012/01/19 13:54:20 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+       SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
 
 C-----------------------------------------------------------------------
@@ -102,12 +94,15 @@ C             uses a convective cloud parameterization (removed minimum
 C             horizontal grid resolution restriction)
 C       02Aug12 S.Roselle:  instrumented to calculate and return
 C                           transmissivity for convective clouds
+C       04Apr14 B.Hutzell:  Added routine call to capture cloud fractions,
+C                           water, and ice mixing ratios
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE AQ_DATA
+      USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
 
       IMPLICIT NONE
 
@@ -538,6 +533,9 @@ C...  a convective parameterization
           XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+
+!clear arrays that capture ACM cloud results
+        IF( USE_ACM_CLOUD )CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
 
 C...in coordination with MCIPv4.0, negative values will be loaded into the RC
 C...  field if a convective parameterization was not used in the WRF simulation
@@ -1253,6 +1251,7 @@ C...Now compute fractional coverage for either CNP or PFW:
             ELSE
               FRAC = FRACMAX * ( ( RLHSRC - RCRIT1 ) / ( RCRIT2 - RCRIT1 ) )
             END IF
+            
             IF(FRAC.LT.0.01) GO TO 299
 
             CONV_DEP( COL, ROW, N_SPC_WDEP + 5 ) = FLOAT( CLTOP ) ! store NP cloud top
@@ -1605,6 +1604,7 @@ C...excess water is all rain
 
             QXS = QXS + QWAT( LAY ) * RHOAIR * DZZL( LAY )
 
+            
           END DO
 
 C...Final calc of storm rainfall rate and frac area (RAINING CLDS)
@@ -1618,6 +1618,11 @@ C...Final calc of storm rainfall rate and frac area (RAINING CLDS)
             FRAC = PRATE / PRATE1
           END IF
           IF(FRAC.LT.0.01) GO TO 299
+          
+          IF( USE_ACM_CLOUD )THEN
+              CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, CLBASE, CLTOP, FRAC, QLQD, QICE )
+          END IF
+
           CONV_DEP( COL, ROW, N_SPC_WDEP + 7 ) = FRAC
 
 7000      CONTINUE                        ! target of cloudtype split
@@ -1902,7 +1907,7 @@ C...Now do changes in cloudy layers :
         DO VAR = 1, N_SPC_WDEP+8
           CONV_DEP( COL,ROW,VAR ) = 0.0
         END DO
-          
+
 301     CONTINUE        !  end loop on columns COL
 311   CONTINUE        !  end loop on rows    ROW
 
