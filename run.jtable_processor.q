@@ -33,7 +33,7 @@ set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 #create executable
  cd BLD ; make clean; make -f dumb.makefile; cd ..
 
- set OUTDIR = ${BASE}/output/csqy_table_${APPL}
+ set OUTDIR = ${BASE}/output/csqy_table_${APPL}-v3
 #set OUTDIR = ${GC_INC}
 if( ! ( -d $OUTDIR ) )mkdir -p $OUTDIR
 

@@ -779,25 +779,20 @@ C other channels assumed negligible (less than 10%).
 C Total quantum yield  = 0.38 at 760 Torr. but Carter
 C adjusts to 0.175 based on chamber tests and sets the values in
 C mechanism definition file.
-C NOTE: SAPRC07T includes this quantum yield in the mechanism definition
-C       file as factor times the photolysis rates where the quantum yield is 
-C       set one.
-
 ! temperature/density correction to quantum yield
 
 C Stern-Volmer form given:  1/phi = 0.96 + 2.22e-3*P(torr)
 C     compute local pressure in torr
          DO IW = 1, NW
             DO I = 1, NZ
-
-               PRESSURE = (1.03547E-19*DENS(I)*TLEV(I)) ! units TORR 
-   
-               IF( PRESSURE  .LE. 181.0 )THEN 
-                 FACTOR = ( 2.645 / (0.96 + 2.22E-3*181.0 ) )
-     &                  / ( 2.645 / (0.96 + 2.22E-3*760.0 ) )
+               IF( QY(I, IW) .GE. 1.0 )THEN
+                   FACTOR = 1.0
+C NOTE: Case for  SAPRC07T where quantum yield is one and adjusts the photolysis rates
+C       by a multiplication factor in the mechanism definition file
                ELSE
-                 FACTOR = ( 2.645 / (0.96 + 2.22E-3*PRESSURE ) )
-     &                  / ( 2.645 / (0.96 + 2.22E-3*760.0 ) )
+                 PRESSURE = (1.03547E-19*DENS(I)*TLEV(I)) ! units TORR 
+                 FACTOR   = (0.96 + 2.22E-3*760.0 )
+     &                    / (0.96 + 2.22E-3*PRESSURE ) 
                ENDIF
 
                QY(I, IW) = FACTOR * QY(I, IW)
@@ -847,25 +842,30 @@ C     compute local pressure in torr
 ! temperature/density correction to quantum yield
 
          DO IW = 1, NW
-
+        
             DO I = 1, NZ
 
 C               QY(I,IW) = MIN( QY(I,IW), 1.0)
 C               QY(I,IW) = MAX( QY(I,IW), 0.0)
 
-C  Pressure dependence based on Koch and Moortgat (1998), 
-C  J. Phys. Chem. A, vol 102, pages 9142. The application contradicts
-C  NASA (2006) & IUPAC (2005) and is used based recommendations for
-C  SAPRC07T photolysis rates by William Carter (2009)
-
+! Recommendation in NASA JPL (2011).  Computed pressures are differences 
+! between layer pressures and pressure of interpolated values. Pressure units are Torrs.
                PRESSURE  = (1.03547E-19*DENS(I)*TLEV(I)) ! TORR 
                PRESSURE  = MIN(472.0, PRESSURE)
 
                IF(WC(IW) .LT. 500.0 .AND. WC(IW) .GT. 240.0)THEN
-                 IF( QY(I,IW) .GT. 0.001 .AND. QY(I,IW) .LT. 0.999 )THEN
-                    CHI = ( 1.36E+8*472.0 )/( 1.0/QY(I,IW) - 1.0 )
-!!!!!!!!!!!!!!!!!!!! SIG = CHI /( CHI+ 1.36E+8*PRESSURE )
-                    FACTOR = ( CHI+ 1.36E+8*PRESSURE )/(CHI + 1.36E+8*472.0 )                    
+                 IF( WC( IW ) .LE. 370.0 )THEN                        
+                    PRESSURE = MAX( 400.0, 1.03547E-19 * DENS(I) * TLEV(I)  )
+     &                       - 2.5524 * TLEV(I)
+                 ELSE
+                    PRESSURE = ( 1.03547E-19 * DENS(I) - 2.5524 ) * TLEV(I)
+                 END IF
+                 IF( QY(I,IW) .GT. 0.0001 .AND. QY(I,IW) .LT. 0.9999 )THEN
+                    CHI = QY(I,IW) 
+                    SIG = 1.0 
+     &                  /( 1.0 / QY( I, IW ) + 1.93E4 * EXP( -5639.0 / WC(IW) ) * PRESSURE )
+
+                    FACTOR = SIG / CHI 
                  ELSE
                     FACTOR = 1.0
                  ENDIF
@@ -987,7 +987,36 @@ C  Gardner et. al may support this conclusion.
 
                XC(I, IW) = FACTOR * XC(I, IW)
 
-               QY(I, IW) = ADJ_HCHO_QUANTM(IW,I) * QY(I, IW)
+!               QY(I, IW) = ADJ_HCHO_QUANTM(IW,I) * QY(I, IW)
+               IF(WC(IW) .GE. 330.0 .AND. HCHO_QUANTM_STP(IW) .GT. 0.0)THEN
+
+                  QDUM = 1.0/HCHO_QUANTM_STP(IW)        ! need to subst actual value in QY 
+                  BETA = 1.0/(1.0-HCHO_QUANTR_STP(IW))  ! need to subst actual value in QY 
+
+                  IF( TLEV(I) .LT. 300.0 .AND. TLEV(I) .GT. 220.0)THEN
+                      PRESSURE = 1.36312E-22*DENS(I)*TLEV(I)
+                      ALPHA = (QDUM - BETA)
+     &                      * (1.+0.05*(WC(IW)-329.0)*((TLEV(I)-80.0)/80.0))                   
+                  ELSEIF( TLEV(I) .LE. 220.0)THEN
+                      PRESSURE = 3.0E-20*DENS(I)
+                      ALPHA = (QDUM - BETA) 
+     &                      * (1.+0.0875*(WC(IW)-329.0))
+                  ELSEIF( TLEV(I) .GE. 300.)THEN
+                      PRESSURE = 4.09E-20*DENS(I)
+                      ALPHA = (QDUM - BETA)
+     &                      * (1.+0.1375*(WC(IW)-329.0))
+                  ENDIF
+                  
+! reduce wavelength dependence
+                  FACTOR      = (BETA + 3.3601E-3 * 298.0 *ALPHA)
+     &                        / (BETA + PRESSURE*ALPHA)
+
+               ELSE
+
+                  FACTOR = 1.0
+               ENDIF
+
+               QY(I, IW) = FACTOR * QY(I, IW)
                QY(I, IW) = MIN(1.0, QY(I, IW))
                QY(I, IW) = MAX(0.0, QY(I, IW))
 
@@ -1015,6 +1044,7 @@ C  Gardner et. al may support this conclusion.
 
                IF( .NOT. COMPUTED_O3O3P .AND. .NOT. COMPUTED_O3O1D )THEN
                   FACTOR     = MAX( ADJ_O3O1D_QUANT(IW,I), 0.0)
+                  FACTOR     = 1.0
                   QY(I, IW)  = FACTOR * QY(I, IW)
                   QY(I, IW)  = MIN( QY(I, IW), 1.0)
                   O3O1D_YIELD( I, IW ) = QY(I, IW)
