@@ -102,7 +102,7 @@ endif
  spectral_reflect.o \
  wvbin_average-b.o \
  wvbin_average.o \
- xc_qy_td_effect.o \
+ xc_qy_td_effect_v3.o \
  convert_case.o \
  nameval.o
  
