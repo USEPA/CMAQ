@@ -1745,7 +1745,7 @@ C     First guess: solution at upperb
 C     Counter of iterations to prevent infinite loops
       iter = 0
 
-C     Iterate until the number of moles changes by less than 0.0001% or 1e-10 umol/m3
+C     Iterate until the number of moles changes by less than fractol (percent) or abstol (absolute) amount
       Do
         iter    = iter + 1
         oldn    = nguess                        ! store last guess
@@ -1754,16 +1754,19 @@ C     Iterate until the number of moles changes by less than 0.0001% or 1e-10 um
         If ( nguess .ne. 0.0 ) then             ! safe division
            ea   = ABS( nguess - oldn )/nguess   ! fractional diff b/w 2 guesses
         Else
-           ea   = 1.0e-2                        ! default value
+           Call m3exit( pname, 0, 0, 'Error: number of organic aerosol 
+                        moles going to zero in soa bisection', xstat3) 
         End If
         test = fnguess * flower
         If ( test .lt. 0.0 ) then               ! if function changes sign b/w guess and lower, guess becomes upper
            upper  = nguess
-        Else If ( test .gt. 0.0 ) THEn          ! if function does not change sign, guess becomes lowerbound
+        Else If ( test .gt. 0.0 ) then          ! if function does not change sign, guess becomes lowerbound
            lower  = nguess
            flower = fnguess
-        Else
-           ea=0
+        Else If ( flower .eq. 0.0 ) then        ! if the lower bound is the root
+           ea      = 0.0
+           nguess  = lower
+           fnguess = flower
         End If
 
         ! solution found if error is less than ABSTOL/100 % or N bounded by values less than 1e-10
@@ -1775,7 +1778,7 @@ C     Iterate until the number of moles changes by less than 0.0001% or 1e-10 um
         If ( iter .gt. 1000000 ) then ! stop infinite loops
            !print*,'current lower, upper, and N: ',lower, upper, nguess
            Call m3exit( pname, 0, 0, 'Error: too many iterations in soa
-     &                   bicestion', xstat3) 
+     &                   bisection', xstat3) 
         End If
       End Do
 
