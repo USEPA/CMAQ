@@ -87,6 +87,9 @@
        LOGICAL              :: DUMP_CELL
        INTEGER              :: LOGDEV
 
+C *** Molecular weight
+      REAL( 8 ), SAVE        :: MWTIEPOX    ! molecular weight of IEPOX [g/mol]
+
 C *** 2nd and 3rd moments before equilibration (without H2O)
       REAL( 8 ), ALLOCATABLE :: OLD_M3( : ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
       REAL( 8 ), ALLOCATABLE :: OLD_M2( : ) ! OLD_M2_I, OLD_M2_J, OLD_M2_K
@@ -251,6 +254,7 @@ C *** variables for parameterization by Bertram and Thornton
       INTEGER              :: NCELL, IRATE        ! loop counter
       INTEGER              :: INDX               ! found array index
       INTEGER, SAVE        :: CLNO2_IDX
+      INTEGER, SAVE        :: IEPOX_IDX
 
       INTEGER              :: C
       INTEGER              :: R
@@ -373,7 +377,9 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
        ELSE
             MWCLCLNO2 = 0.0
        END IF
-       
+
+       IEPOX_IDX = INDEX1( 'IEPOX', NUMB_MECH_SPC, CHEMISTRY_SPC )
+       MWTIEPOX  = REAL( SPECIES_MOLWT( IEPOX_IDX ), 8 )
        
       END IF   ! first time condition
 
@@ -661,7 +667,7 @@ C     by 60 to convert it into 1/sec
                      N            = 2                  ! mode index
                      RADIUS       = DE_WET( N ) /2.0d0 ! particle size
                      CBARIEPOX    = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
-     &                              / ( PI * precursor_mw( IEPOX_IDX ) ) )
+     &                              / ( PI * MWTIEPOX ) )
                      GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS )
                      IF( AERDIAG ) GAMMA_IEPOX( C, R, L ) = REAL( GAMMAIEPOX, 4 )
                      KIEPOX       = WET_M2( N ) * PI / ( RADIUS * INV_DIFFUSIVITY +
@@ -1679,7 +1685,7 @@ C     is faster than 1e-8 1/s
          fq = max( ( ( dexp(2*q) + 1 ) / ( dexp(2*q) - 1 ) - 1/q ), smaller )
 
          ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
-         nu = sqrt( 8 * Rgasuniv * airtemp /( dpi * precursor_mw( IEPOX_idx ) * 1d-3 ) )
+         nu = sqrt( 8 * Rgasuniv * airtemp /( dpi * mwtiepox * 1d-3 ) )
 
          ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
          denom =  1/alpha + nu/ ( 4 * Heff * RgasLatmmolK * airtemp 

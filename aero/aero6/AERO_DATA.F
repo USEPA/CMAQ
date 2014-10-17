@@ -474,7 +474,7 @@ C Find indices for acid catalyzed species
       Do n = 1, n_nucpairs
         Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
         Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
-      End D
+      End
 #endif
  
 C Compute common factors

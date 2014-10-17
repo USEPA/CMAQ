@@ -49,7 +49,8 @@ C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
 C                      optional because process represented in chemical
 C                      mechanism
 C 26 Sep 14 H. Pye: Added isoprene + NO3 SOA (see mech.def, no changes
-C                   here). Replaced preivous acid enhanced isoprene SOA
+C                   here). When IEPOX uptake present in gas phase for
+C                   cb05e51, replace preivous acid enhanced isoprene SOA
 C                   with IEPOX uptake SOA now handled as a heterogeneous
 C                   rxn.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
@@ -153,6 +154,7 @@ C mapping variables used for loading and unloading to CGRID array
       Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
       Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
       Logical, Private, Save :: mapped = .False.
+      Logical, Private, Save :: iepoxuptake = .False. ! perform IEPOX uptake?
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
@@ -211,7 +213,8 @@ C Build mapping to CGRID for each vapor species
          End Do
 
 C define orgprod parent names based on mechanism dependence
-C if they differ from above declarations (needs updating)
+C if they differ from above declarations and
+C determine if gas-phase IEPOX uptake occurs for the mechanism
             If ( INDEX( MECHNAME, 'SAPRC99' ) .GT. 0 ) then
                orgprod( 2 )%parent = 'ARO2'
                orgprod( 3 )%parent = 'ARO2'
@@ -230,6 +233,7 @@ C if they differ from above declarations (needs updating)
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
+               iepoxuptake         = .True.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -771,12 +775,12 @@ C Variables used in oligomerization calculations
       Real nsvpa         ! particle-phase anthropogenic SVOC [ umolC/m3 ]
       Real nsvpb         ! particle-phase biogenic SVOC [ umolC/m3 ]
 
-!C Variables used in acid-enhanced isoprene SOA calculations
-!      Real hplus         ! accumulation-mode H+ conc [ nmol/m3 ]
-!      Real aiso12        ! particle-phase isoprene SVOC [ ug/m3 ]
-!      Real vviso         ! vapor-phase isoprene SVOC [ ug/m3 ]
-!      Real xiso3         ! newly produced AISO3J [ ug/m3 ]
-!      Real isofrac       ! ratio for depletion of vapor-phase products
+C Variables used in acid-enhanced isoprene SOA calculations
+      Real hplus         ! accumulation-mode H+ conc [ nmol/m3 ]
+      Real aiso12        ! particle-phase isoprene SVOC [ ug/m3 ]
+      Real vviso         ! vapor-phase isoprene SVOC [ ug/m3 ]
+      Real xiso3         ! newly produced AISO3J [ ug/m3 ]
+      Real isofrac       ! ratio for depletion of vapor-phase products
 
 C Variables used in equilibrium partitioning calculations
       Real drog( n_orgprod ) ! change in precursor conc [ ug/m3 ]
@@ -1018,45 +1022,48 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
          vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
 
-!C Acid-induced Isoprene SOA
-!
-!C Particle-phase acidity is parameterized by the air concentration of hydrogen
-!C ion in the particle phase (hplus).  This is computed by electroneutrality,
-!C and is bounded so that it cannot fall below zero (acid-neutral) nor above the
-!C range of experimental conditions (530 nmol/m3) tested by Surratt et al.
-!C (2007).  In future code updates, molecular weights of inorganic ions should
-!C be inherited from include or namelist files to avoid hard-coded values.
-!
-!      hplus = 0.0
-!      Do i = 1, n_aerospc
-!         hplus = hplus - 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
-!     &         / aerospc_mw( i )
-!      End Do
-!      hplus = Min( 530.0, Max ( 0.0, hplus ) ) ! restrict extrapolation
-!
-!C Compute amount of acid-enhanced isoprene SOA that is produced during the current
-!C time step (xiso3) using the normalized expression derived from Surratt et al. (2007)
-!
-!      aiso12 = aerospc_conc( aiso1_idx, 2 ) + aerospc_conc( aiso2_idx, 2 )
-!      xiso3  = kacid * hplus * aiso12 - aerospc_conc( aiso3_idx,2 )
-!
-!C Update CBLK(VISO3J) while conserving the total concentration of low-volatility
-!C isoprene-derived products.  Since the acid-enhanced product is assumed to be
-!C non-volatile, only positive values of xiso3 are considered below.  Also, xiso3
-!C is not allowed to exceed the vapor-phase concentration of isoprene SVOC.  We assume
-!C the xiso3 mass is depleted from the 2 vapor-phase isoprene products in quantities
-!C proportional to their equilibrium concentrations.  The factor of 2.7/1.6 accounts
-!C for the enhancement in the OM/OC ratio when isoprene SOA is formed in the presence
-!C of SO2, based on the lab experiments of Kleindienst et al. (2007)
-!
-!      If ( xiso3 .Gt. 0.0 ) Then
-!         vviso = vapor_conc( iso1_idx ) + vapor_conc( iso2_idx )
-!         xiso3  = Min( xiso3, vviso )
-!         aerospc_conc( aiso3_idx,2 ) = aerospc_conc( aiso3_idx,2 ) + xiso3 * ( 2.7 / 1.6 )
-!         isofrac = vapor_conc( iso1_idx ) / vviso
-!         vapor_conc( iso1_idx ) = vapor_conc( iso1_idx ) - isofrac * xiso3
-!         vapor_conc( iso2_idx ) = vapor_conc( iso2_idx ) - ( 1.0 - isofrac ) * xiso3
-!      End If
+C Acid-induced Isoprene SOA if IEPOX uptake is not considered
+      IF( iepoxuptake == .false. ) then
+
+C Particle-phase acidity is parameterized by the air concentration of hydrogen
+C ion in the particle phase (hplus).  This is computed by electroneutrality,
+C and is bounded so that it cannot fall below zero (acid-neutral) nor above the
+C range of experimental conditions (530 nmol/m3) tested by Surratt et al.
+C (2007).  In future code updates, molecular weights of inorganic ions should
+C be inherited from include or namelist files to avoid hard-coded values.
+
+      hplus = 0.0
+      Do i = 1, n_aerospc
+         hplus = hplus - 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
+     &         / aerospc_mw( i )
+      End Do
+      hplus = Min( 530.0, Max ( 0.0, hplus ) ) ! restrict extrapolation
+
+C Compute amount of acid-enhanced isoprene SOA that is produced during the current
+C time step (xiso3) using the normalized expression derived from Surratt et al. (2007)
+
+      aiso12 = aerospc_conc( aiso1_idx, 2 ) + aerospc_conc( aiso2_idx, 2 )
+      xiso3  = kacid * hplus * aiso12 - aerospc_conc( aiso3_idx,2 )
+
+C Update CBLK(VISO3J) while conserving the total concentration of low-volatility
+C isoprene-derived products.  Since the acid-enhanced product is assumed to be
+C non-volatile, only positive values of xiso3 are considered below.  Also, xiso3
+C is not allowed to exceed the vapor-phase concentration of isoprene SVOC.  We assume
+C the xiso3 mass is depleted from the 2 vapor-phase isoprene products in quantities
+C proportional to their equilibrium concentrations.  The factor of 2.7/1.6 accounts
+C for the enhancement in the OM/OC ratio when isoprene SOA is formed in the presence
+C of SO2, based on the lab experiments of Kleindienst et al. (2007)
+
+      If ( xiso3 .Gt. 0.0 ) Then
+         vviso = vapor_conc( iso1_idx ) + vapor_conc( iso2_idx )
+         xiso3  = Min( xiso3, vviso )
+         aerospc_conc( aiso3_idx,2 ) = aerospc_conc( aiso3_idx,2 ) + xiso3 * ( 2.7 / 1.6 )
+         isofrac = vapor_conc( iso1_idx ) / vviso
+         vapor_conc( iso1_idx ) = vapor_conc( iso1_idx ) - isofrac * xiso3
+         vapor_conc( iso2_idx ) = vapor_conc( iso2_idx ) - ( 1.0 - isofrac ) * xiso3
+      End If
+
+      End If ! IEPOX not present for uptake
 
 C Update 3rd moment, 2nd moment, and Dg in CBLK array by assuming that SOA
 C condensation/evaporation does not affect the geometric standard deviation.
