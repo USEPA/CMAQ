@@ -472,6 +472,7 @@ C***  variables for calculating modal averaged properties per layer and lambda
       INTEGER SPC                   ! species loop counter
       INTEGER MODE                  ! aerosol mode loop counter
       LOGICAL SUCCESS
+      LOGICAL TROUBLE
       
  
 #ifdef verbose_phot
@@ -678,6 +679,7 @@ C***loop over mode again for mean modal extinction and scattering properties
             
 
             OPTICS_LOOP: DO MODE = 1, N_MODE
+               TROUBLE       = .FALSE.
             
                DGN_CORE  = AE_DGN_CORE(  MODE, L )
                DGN_SHELL = AE_DGN_SHELL( MODE, L )
@@ -761,23 +763,70 @@ C***  and contribution to the overall asymmetry factor
                       VFAC  = 1.0 ! correction factor 
                    ELSE 
 ! use old fast optics method
-!                      IF( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE, L, V ),  
-!     &                                       AE_NI_SHELL( MODE, L, V ), 
-!     &                                       WAVELENGTH( V ), DGN_SHELL, XXLSG, 
-!     &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
-!                       VFAC  = VOL * INV_LAMBDA
-! use old fast optics method
-                      MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
-     &                              * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
-
-                      IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
+                      IF( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE, L, V ),  
      &                                       AE_NI_SHELL( MODE, L, V ), 
-     &                                       MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
+     &                                       WAVELENGTH( V ), DGN_SHELL, XXLSG, 
      &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
                        VFAC  = VOL * INV_LAMBDA
+! updated fast optics method; has problems from eposidically infinite values of aerosol optical depth
+!                      MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
+!     &                              * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
+
+!                      IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
+!     &                                       AE_NI_SHELL( MODE, L, V ), 
+!     &                                       MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
+!     &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
+!                       VFAC  = VOL * INV_LAMBDA
                    END IF
                    
+                   if(   BEXT_MODE .lt. 0.0 .or. BEXT_MODE .lt. BSCAT_MODE .or. BSCAT_MODE .lt. 0.0 )then
+                     TROUBLE = .TRUE.
+                  endif
+
+                   if(   BEXT_MODE .ne. BEXT_MODE .or. BSCAT_MODE .ne. BSCAT_MODE )then
+                     TROUBLE = .TRUE.
+                  endif
+
+                   if(   GBAR_MODE .ne. GBAR_MODE .or. ABS( GBAR_MODE ) .gt. 0.9999999 )then
+                     TROUBLE = .TRUE.
+                  endif
+
+9402           format('layer = ',i2,' lambda  = ',es12.4,' dgn_core = ',es12.4,' dgn_shell = ',
+     &                 es12.4,' ae_bext = ',es12.4,' ae_bscat = ',es12.4,' ae_gbar = ',es12.4,
+     &                 ' refract_shell(nr,ni) = ', 2(es12.4,1x),' refract_core = ', 2(es12.4,1x))
+
+                   IF( TROUBLE )THEN
+
+               write(logdev, 9402)l, wavelength( V ), dgn_core, dgn_shell, bext_mode, 
+     &         bscat_mode, gbar_mode, ae_nr_shell( mode, l, v ), ae_ni_shell( mode, l, v ),
+     &         ae_nr_core( mode, l, v ), ae_ni_core( mode, l, v )
+               write(6, 9402)l, wavelength( V ), dgn_core, dgn_shell, bext_mode, 
+     &         bscat_mode, gbar_mode, ae_nr_shell( mode, l, v ), ae_ni_shell( mode, l, v ),
+     &         ae_nr_core( mode, l, v ), ae_ni_core( mode, l, v )
+                
+                        WRITE(6, 9504)L, MODE, WAVELENGTH( V ), 
+     &                  AE_DGN_SHELL( MODE, L ),     AE_NR_SHELL( MODE, L, V ),
+     &                  AE_NI_SHELL( MODE, L, V ), BLK_AE_VOL( MODE, L ),
+     &                  BLK_AE_LSG( MODE, L )
+     
+                        WRITE(LOGDEV, 9504)L, MODE, WAVELENGTH( V ), 
+     &                  AE_DGN_SHELL( MODE, L ),     AE_NR_SHELL( MODE, L, V ),
+     &                  AE_NI_SHELL( MODE, L, V ), BLK_AE_VOL( MODE, L ),
+     &                  BLK_AE_LSG( MODE, L )
+     
+                        XMSG =  'FAILURE IN AERO_OPTICAL2: shell only case '
+                        CALL M3WARN( PNAME, 0, 0, XMSG )
+                     
+                   END IF
+
                    IF( .NOT. SUCCESS )THEN
+
+               write(logdev, 9402)l, wavelength( V ), dgn_core, dgn_shell, bext_mode, 
+     &         bscat_mode, gbar_mode, ae_nr_shell( mode, l, v ), ae_ni_shell( mode, l, v ),
+     &         ae_nr_core( mode, l, v ), ae_ni_core( mode, l, v )
+               write(6, 9402)l, wavelength( V ), dgn_core, dgn_shell, bext_mode, 
+     &         bscat_mode, gbar_mode, ae_nr_shell( mode, l, v ), ae_ni_shell( mode, l, v ),
+     &         ae_nr_core( mode, l, v ), ae_ni_core( mode, l, v )
                 
                         WRITE(6, 9504)L, MODE, WAVELENGTH( V ), 
      &                  AE_DGN_SHELL( MODE, L ),     AE_NR_SHELL( MODE, L, V ),
@@ -1143,22 +1192,22 @@ C*** factor for aerosols.
                       VFAC  = 1.0 ! correction factor 
                    ELSE 
 ! use old fast optics method
-!                      XXLSG = EXP( BLK_AE_LSG( MODE, L ) )
-!                      IF( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE, L, V ),  
-!     &                                       AE_NI_SHELL( MODE, L, V ), 
-!     &                                       WAVELENGTH( V ), DGN_SHELL, XXLSG, 
-!     &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
-!                       VFAC  = VOL * INV_LAMBDA
-! use old fast optics method
-                      MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
-     &                              * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
-
-                      IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
+                      IF( SUCCESS ) CALL FAST_OPTICS( AE_NR_SHELL( MODE, L, V ),  
      &                                       AE_NI_SHELL( MODE, L, V ), 
-     &                                       MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
+     &                                       WAVELENGTH( V ), DGN_SHELL, XXLSG, 
      &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
                        VFAC  = VOL * INV_LAMBDA
+! updated fast optics method; has problems from eposidically infinite values of aerosol optical depth
+!                      MIE_PARAMETER = PI * DGN_SHELL * INV_LAMBDA
+!     &                              * EXP( 3.0 * BLK_AE_LSG( MODE, L ) * BLK_AE_LSG( MODE, L ) )
+
+!                      IF( SUCCESS ) CALL FASTER_OPTICS( AE_NR_SHELL( MODE, L, V ),  
+!     &                                       AE_NI_SHELL( MODE, L, V ), 
+!     &                                       MIE_PARAMETER, BLK_AE_LSG( MODE, L ), 
+!     &                                       BEXT_MODE, BSCAT_MODE, GBAR_MODE )
+!                       VFAC  = VOL * INV_LAMBDA
                    END IF
+
                    
                    IF( .NOT. SUCCESS )THEN
                 
@@ -1184,6 +1233,7 @@ C***  and contribution to the overall asymmetry factor
                    BSC   = VFAC * BSCAT_MODE
                    BSCAT = BSCAT + BSC
                    G_BAR = G_BAR + BSC * GBAR_MODE
+
 
                END IF       
 
@@ -1279,6 +1329,9 @@ C
 C     The asymmetry factor is calculated by a new algorithm FSB - 04/04/2008
 C     Sept 2014: J.Young-change arguments and usage of Mie Paramater attempting
 C                to optimize runtimes or efficiency
+C     Oct  2014: B.Hutzell-Added mininum values for scatttering efficiency for small
+C                highly absorbing particles such as Aitken particle that
+C                are mostly composed of elemental carbon
 C
 C  References:
 C
@@ -1611,6 +1664,12 @@ C *** Adjust beta_ext for small particle absorption:
 
          END IF ! test for   XALPHA < 0.13
 
+! small highly absorbing  particles such as a Tyndall scatterers such as
+! described in Jacobson (1999) in Fundmentals of Atmospheric Modeling. This
+! is approximately consistent with Penndorf (1962).
+
+        BETA_SCAT = MAX( 0.001 * BETA_EXT, BETA_SCAT )
+
       END IF  ! test for NI > 0.0
 
 C *** Calculate large sphere limits(Irvine, 1965)
@@ -1745,6 +1804,10 @@ C
 C     Results are consistent with those of Willeke and Brockmann (1977).
 C
 C     The asymmetry factor is calculated by a new algorithm FSB - 04/04/2008
+C
+C     Oct  2014: B.Hutzell-Added mininum values for scatttering efficiency for small
+C                highly absorbing particles such as Aitken particle that
+C                are mostly composed of elemental carbon
 C
 C  References:
 C
@@ -2080,7 +2143,13 @@ C *** Adjust beta_ext for small particle absorption:
      &                 ( BETA_SCAT * FAC1 + ( 1.0 - FAC1 ) * PENN2 ) )
 
         END IF ! test for   XALPHA < 0.13
+        
+! small highly absorbing  particles such as a Tyndall scatterers such as
+! described in Jacobson (1999) in Fundmentals of Atmospheric Modeling. This
+! is approximately consistent with Penndorf (1962).
 
+        BETA_SCAT = MAX( 0.001 * BETA_EXT, BETA_SCAT )
+          
       END IF  ! test for 0.0  < NI
 C *** Calculate large sphere limits(Irvine, 1965)
 
