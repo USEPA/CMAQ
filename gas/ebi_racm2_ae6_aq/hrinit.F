@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -74,16 +74,17 @@ C***********************************************************************
       N_SPEC = NUMB_MECH_SPC
       N_RXNS = NRXNS
       N_SPCL_RKS =   0
-      ALLOCATE( RKI( MAX_CELLS_EBI,  NRXNS ),
+      ALLOCATE( RKI( NRXNS ),
+     &          RKI_SAV( MAX_CELLS_EBI, NRXNS ),
      &          FORWARD_CONV( N_SPEC),
      &          REVERSE_CONV( N_SPEC),
-     &          RXRAT( MAX_CELLS_EBI, NRXNS ),
+     &          RXRAT( NRXNS ),
      &          RTOL( N_SPEC),
-     &          YC(   MAX_CELLS_EBI, N_SPEC),
-     &          YC0(  MAX_CELLS_EBI, N_SPEC),
-     &          YCP(  MAX_CELLS_EBI, N_SPEC),
-     &          PROD( MAX_CELLS_EBI, N_SPEC),
-     &          LOSS( MAX_CELLS_EBI, N_SPEC),
+     &          YC(   N_SPEC),
+     &          YC0(  N_SPEC),
+     &          YCP(  N_SPEC),
+     &          PROD( N_SPEC),
+     &          LOSS( N_SPEC),
      &          STAT = IOS )
 
        IF ( IOS .NE. 0 ) THEN
@@ -93,6 +94,11 @@ C***********************************************************************
        END IF
 
       IF( NSPECIAL .GT. 0 )THEN
+          ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+               MSG = 'Error allocating SYC'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          END IF
           ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
@@ -109,8 +115,8 @@ C***********************************************************************
       END IF
 
       DO N = 1, NUMB_MECH_SPC
-         FORWARD_CONV( N ) = REAL(1.0E-3 * MWAIR / SPECIES_MOLWT( N ), 8)
-         REVERSE_CONV( N ) = REAL(1.0E+3 / MWAIR * SPECIES_MOLWT( N ), 8)
+         FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
+         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
       END DO
 
 

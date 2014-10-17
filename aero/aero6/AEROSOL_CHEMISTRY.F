@@ -1,6 +1,6 @@
        MODULE AEROSOL_CHEMISTRY
 !------------------------------------------------------------------------!
-!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !!
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !
@@ -79,7 +79,16 @@
        
        LOGICAL              :: DUMP_CELL
        INTEGER              :: LOGDEV
- 
+
+C *** 2nd and 3rd moments before equilibration (without H2O)
+      REAL( 8 ), ALLOCATABLE :: OLD_M3( : ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
+      REAL( 8 ), ALLOCATABLE :: OLD_M2( : ) ! OLD_M2_I, OLD_M2_J, OLD_M2_K
+
+      REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 before equilibration w.H2O
+      REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 before equilibration w.H2O
+      REAL( 8 ), ALLOCATABLE :: DG_WET( : ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
+      REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
+
       CONTAINS
 
       SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
@@ -93,6 +102,15 @@ c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
 c            in aero6 module of CMAQ version 5.01. The adaptation includes
 C            heterogeneous nitryl chloride production used for Sarwar et al.
 c            (2012).
+c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
+C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+C            Compilation and evaluation of gas-phase diffusion coefficients 
+C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+C            Phys. Discuss., 14, 15645–15682, 2014. 
+C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+
+c
 c
 c  REFERENCES:
 c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
@@ -160,9 +178,7 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
 
-      REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.1D-4  ! molecular diffusivity
-                                                      ! of N2O5 at 101325 Pa
-                                                      ! and 273.15 K [m2/sec]
+      REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
       REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
@@ -186,15 +202,6 @@ C *** Local Variables
       REAL( 8 )   :: CBAR_COEFF       ! cell coefficient for mean molecular speed
       REAL( 8 )   :: ADJUST_DIFF      ! Cell temp and press correction to diffusivity
       REAL( 8 )   :: INV_DIFFUSIVITY  ! reciprocal molecular diffusivity [m2/sec] 
-
-C *** 2nd and 3rd moments before equilibration (without H2O)
-      REAL( 8 )   :: OLD_M3( N_MODE ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
-      REAL( 8 )   :: OLD_M2( N_MODE ) ! OLD_M2_I, OLD_M2_J, OLD_M2_K
-
-      REAL( 8 )   :: WET_M3( N_MODE ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 before equilibration w.H2O
-      REAL( 8 )   :: WET_M2( N_MODE ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 before equilibration w.H2O
-      REAL( 8 )   :: DG_WET( N_MODE ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
-      REAL( 8 )   :: DE_WET( N_MODE ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
 
       REAL( 8 )   :: XXF( N_MODE )         ! XXF_AT,    XXF_AC,    XXF_CO    ! modal factors to calculate KN2O5
       REAL( 8 )   :: CL_PPM( N_MODE )      ! aerosol chlorine in ppm
@@ -313,6 +320,14 @@ C *** Get aerosol diagnostic file flag.
 
         ALLOCATE( WHICH_AERO_RATE( NHETERO ) )
         
+C *** 2nd and 3rd moments before equilibration (without H2O)
+        ALLOCATE(  OLD_M3( N_MODE ), 
+     &             OLD_M2( N_MODE ), 
+     &             WET_M3( N_MODE ), 
+     &             WET_M2( N_MODE ), 
+     &             DG_WET( N_MODE ), 
+     &             DE_WET( N_MODE ))
+        
         WHICH_AERO_RATE = -1
         
         DO IRATE = 1, NHETERO
@@ -342,9 +357,7 @@ C *** Get aerosol diagnostic file flag.
        CLNO2_IDX = INDEX1( 'CLNO2', NUMB_MECH_SPC, CHEMISTRY_SPC )
        
        IF( CLNO2_IDX .GT. 0 )THEN
-C           MWCLCLNO2 = aerospc_mw( ACL_IDX) / SPECIES_MOLWT( CLNO2_IDX ) ?? fix later, Sarwar
-            MWCLCLNO2 = 0.4355
-
+           MWCLCLNO2 = aerospc_mw( ACL_IDX) / SPECIES_MOLWT( CLNO2_IDX )
        ELSE
             MWCLCLNO2 = 0.0
        END IF
@@ -482,7 +495,7 @@ c *** get fine aerosol H2O and chlorine concentrations in
                  CL_PPM( N ) = PPM_FACTOR * ( ACL * INV_MWCL )
 
 C *** If only a small amount of water is present on aerosol, keep YIELD_CLNO2 zero
-                IF( AH2O .GT. 1.0D-1 .AND. ACL .GT. 2.0D-5 )THEN
+                IF( AH2O .GT. 5.0D-1 .AND. ACL .GT. 1.0D-4 )THEN
                     IF( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
                       YIELD_CLNO2( N ) = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
                     END IF
@@ -493,7 +506,7 @@ C *** If only a small amount of water is present on aerosol, keep YIELD_CLNO2 ze
 c *** compute yield from lumped Aitken and Accumulations concentrations
               AH2O = REAL( aerospc_conc( AH2O_IDX,1 )+ aerospc_conc( AH2O_IDX,2 ), 8 )
               ACL  = REAL( aerospc_conc( ACL_IDX,1 ) + aerospc_conc( ACL_IDX,2 ) , 8 )
-              IF( AH2O .GT. 1.0D-1 .AND. ACL .GT. 2.0D-5 )THEN
+              IF( AH2O .GT. 5.0D-1 .AND. ACL .GT. 1.0D-4 )THEN
                  IF( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
                     YIELDIJ = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
                  END IF
@@ -866,7 +879,7 @@ C               CBLK array and AERO_INFO module
 C
 C  SH  03/10/11 Renamed met_data to aeromet_data
 
-C  GS  13/03/14 Added an opiton for N2O5 heterogeneous reaction probability
+C  GS  09/12/14 Added an opiton for N2O5 heterogeneous reaction probability
 C               based on Bertram and Thornton (2009) (fine and coarse mode)
  
 C References:
@@ -956,8 +969,7 @@ C *** variables for default parameterization of N2O5_GAMMA
       REAL      T293,T291 ! temperature threshold variables
       REAL      RH46      ! RH threshold variable
 
-C *** variables for parameterization based on Bertram and Thornton (2009), added by Golam Sarwar
-C *** variables for parameterization by Bertram and Thornton, Golam Sarwar
+C *** variables for parameterization based on Bertram and Thornton (2009)
 
       REAL      ACLF      ! I & J mode chloride, ug/m3 
       REAL      AH2OF     ! I & J mode water, ug/m3    
@@ -967,24 +979,22 @@ C *** variables for parameterization by Bertram and Thornton, Golam Sarwar
       REAL      AH2OK     ! k mode water, ug/m3    
       REAL      ANO3K     ! k mode nitrate, ug/m3  
 
-      REAL      ACLM      ! k mode chloride (l), [moles / liter of particles] 
-      REAL      AH2OM     ! k mode water    (l), [moles / liter of particles] 
-      REAL      ANO3M     ! k mode nitrate  (l), [moles / liter of particles] 
+      REAL      ACLM      ! chloride, [moles / liter of particles] 
+      REAL      AH2OM     ! water,    [moles / liter of particles] 
+      REAL      ANO3M     ! nitrate,  [moles / liter of particles] 
    
       REAL DEN1           ! local varible
       REAL DEN2           ! local varible
       REAL DEN            ! local varible
-
+      REAL INV_VOL        ! local variable 
+      
       REAL, PARAMETER :: A = 3.2E-08       ! Unit [s] - Table 2       
       REAL, PARAMETER :: BETA_BT = 1.15E06 ! Unit [1/s] - Table 2  
       REAL, PARAMETER :: DELTA = 1.3E-01   ! Unit [1/M] - Table 2  
       REAL, PARAMETER :: K3OK2B = 6.0E-02  ! Unit [ ] - Table 2  
       REAL, PARAMETER :: K4OK2B = 29.0     ! Unit [ ] - Table 2  
-      REAL K2FP                            ! varible in eqn 10  
-      REAL PMASSAT                         ! Aitken mode mass concentration [ug/m**3]
-      REAL PMASSAC                         ! accumulation mode mass conc [ug/m**3]
-      REAL PMASSC                          ! coarse mode mass concentration [ug/m**3]        
-
+      REAL K2FP                            ! varible in eqn 10
+                 
       INTEGER      SPC                     ! loop counter
 
 C *** statement function for inverting the logit transformation given
@@ -995,12 +1005,12 @@ C     in Eq 7 by Davis et al (2008)
 
 C-----------------------------------------------------------------------
 
-C *** retrieve particle-phase ammonium, nitrate, and sulfate [ug/m3]
+C *** retrieve fine-mode particle-phase ammonium, nitrate, and sulfate [ug/m3]
       ANH4 = aerospc_conc( ANH4_IDX,1 ) + aerospc_conc( ANH4_IDX,2 )
       ANO3 = aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 )
       ASO4 = aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 )
 
-c *** Retrieve fine-mode particle-phase liquid water, chloride, nitrate [ug/m3], Golam Sarwar
+c *** Retrieve fine-mode particle-phase liquid water, chloride, nitrate [ug/m3]
       AH2OF  = aerospc_conc( AH2O_IDX,1 ) + aerospc_conc( AH2O_IDX,2 ) 
       ACLF   = aerospc_conc( ACL_IDX,1 )  + aerospc_conc( ACL_IDX,2 ) 
       ANO3F  = aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 )
@@ -1074,55 +1084,14 @@ C        sign of BETA has been switched in this code.
 
          CASE ( 4 )
 
-C *** User Option: GPARAM = 4 
-C     It calculates N2O5_GAMMA based on the work of Bertran and Thornton, 2009
-C     Added by Golam Sarwar for CLNO2 chemistry and facilitate sensitivity
+C *** User Option: GPARAM = 4  (fine-mode particles)
+C *** It calculates N2O5_GAMMA based on Bertran and Thornton, 2009
   
-C *** Calculate Aitken-mode mass concentration [ ug/m**3 ]
-     
-         PMASSAT = 0.0
-
-         DO SPC = 1, N_AEROSPC        
-
-          IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' .OR. 
-     &         AEROSPC( SPC )%NAME( 1 ) .EQ. 'ASO4GASI' .OR. 
-     &         AEROSPC( SPC )%NAME( 1 ) .EQ. 'ASO4EMISI' .OR. 
-     &         AEROSPC( SPC )%NAME( 1 ) .EQ. 'ASO4ICBCI' ) CYCLE                     
-
-          PMASSAT = PMASSAT + AEROSPC_CONC( SPC,1 )            
-
-         END DO       
-
-        PMASSAT = MAX( CONMIN, PMASSAT )
-
-C *** Calculate Accumulation-mode mass concentration [ ug/m**3 ]
-
-         PMASSAC  = 0.0
-         
-         DO SPC = 1, N_AEROSPC
-
-          IF ( AEROSPC( SPC )%NAME( 2 ) .EQ. ' ' .OR.
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQH2O2J' .OR.           
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQO3J' .OR.  
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQFEMNJ' .OR.  
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQMHPJ' .OR.  
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4AQPAAJ' .OR.                  
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4GASJ' .OR. 
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4EMISJ' .OR. 
-     &         AEROSPC( SPC )%NAME( 2 ) .EQ. 'ASO4ICBCJ' ) CYCLE 
-
-          PMASSAC = PMASSAC + AEROSPC_CONC( SPC,2 )            
-
-         END DO       
-
-        PMASSAC = MAX( CONMIN, PMASSAC )
-
-C*** Calculate N2O5PROB 
-C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
+         INV_VOL = 1.0E-9 * f6pi / ( WET_M3( 1 ) + WET_M3( 2 ) )   
         
-         AH2OM = ( AH2OF * 1000.0 ) / (aerospc_mw( AH2O_IDX) * ( PMASSAT + PMASSAC ))
-         ACLM  = ( ACLF  * 1000.0 ) / (aerospc_mw( ACL_IDX)  * ( PMASSAT + PMASSAC )) 
-         ANO3M = ( ANO3F * 1000.0 ) / (aerospc_mw( ANO3_IDX) * ( PMASSAT + PMASSAC )) 
+         AH2OM = AH2OF * INV_VOL / aerospc_mw( AH2O_IDX)                   
+         ACLM  = ACLF  * INV_VOL / aerospc_mw( ACL_IDX)   
+         ANO3M = ANO3F * INV_VOL / aerospc_mw( ANO3_IDX)            
             
          K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM)
           
@@ -1139,32 +1108,13 @@ C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
          CASE ( 5 )
    
 C *** User Option: GPARAM = 5 (coarse-mode particles)
-C     It calculates N2O5_GAMMA based on the work of Bertran and Thornton, 2009
-C     Added by Golam Sarwar for CLNO2 chemistry 
+C     It calculates N2O5_GAMMA based on Bertran and Thornton, 2009
 
-C *** Calculate coarse-mode mass concentration [ ug/m**3 ]
-   
-         PMASSC  = 0.0
-
-         DO SPC = 1, N_AEROSPC
-
-          IF ( AEROSPC( SPC )%NAME( 3 ) .EQ. ' ' .OR.
-     &         AEROSPC( SPC )%NAME( 3 ) .EQ. 'ASO4GASK' .OR. 
-     &         AEROSPC( SPC )%NAME( 3 ) .EQ. 'ASO4EMISK' .OR. 
-     &         AEROSPC( SPC )%NAME( 3 ) .EQ. 'ASO4ICBCK' ) CYCLE 
-
-          PMASSC = PMASSC + AEROSPC_CONC( SPC,3 )            
-
-         END DO       
-
-        PMASSC = MAX( CONMIN, PMASSC )
-
-C *** Calculate N2O5PROB 
-C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
+         INV_VOL = 1.0E-9 * f6pi /  WET_M3( 3 )    
         
-         AH2OM = ( AH2OK * 1000.0 ) / (aerospc_mw( AH2O_IDX) * PMASSC )
-         ACLM  = ( ACLK  * 1000.0 ) / (aerospc_mw( ACL_IDX)  * PMASSC ) 
-         ANO3M = ( ANO3K * 1000.0 ) / (aerospc_mw( ANO3_IDX) * PMASSC ) 
+         AH2OM = AH2OK * INV_VOL / aerospc_mw( AH2O_IDX)                   
+         ACLM  = ACLK  * INV_VOL / aerospc_mw( ACL_IDX)   
+         ANO3M = ANO3K * INV_VOL / aerospc_mw( ANO3_IDX)      
             
          K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM)
           
@@ -1175,7 +1125,7 @@ C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
          DEN  = DEN1 + 1.0 + DEN2      
 
          N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8)
-                   
+                                                         
          RETURN
     
 !             IF( DUMP_CELL )THEN
@@ -1189,7 +1139,7 @@ C *** Note H2O[l] is in moles of water/liter of particles in eqn 10
 !                WRITE(*,*)'GAMMAK = ',A * K2FP * (1.0 - 1.0 / DEN)
 !             END IF
                                 
-             RETURN
+!           RETURN
              
          CASE DEFAULT
       

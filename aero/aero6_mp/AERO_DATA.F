@@ -1,4 +1,4 @@
-
+!
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -59,7 +59,7 @@ C----------------------------------------------------------------------
 C Number of aerosol species and modes
 
 !     Integer, Parameter :: n_aerospc = 40      ! number of aero species
-      Integer, Parameter :: n_aerolist = 62     ! number of aero species
+      Integer, Parameter :: n_aerolist = 64     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -193,7 +193,9 @@ C                   ---------   ---------   ---------     ------- ------  +  +  
      & spcs_type((/'AMN_HAPSI','AMN_HAPSJ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','MANGANESE_F  ',es_fin,  ss_0),
      & spcs_type((/'         ','         ','AMN_HAPSK'/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','MANGANESE_C  ',es_cor,  ss_0),
      & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','PHGI         ',es_fin,  ss_0),
-     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','             ',es_0,    ss_0)
+     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'AASI     ','AASJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_F    ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_C    ',es_cor,  ss_0)
      & /)                                                                                                                          
                                                                                                                       
 C Sea-Salt Speciation factors
