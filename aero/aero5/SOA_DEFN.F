@@ -1755,7 +1755,7 @@ C     Iterate until the number of moles changes by less than fractol (percent) o
            ea   = ABS( nguess - oldn )/nguess   ! fractional diff b/w 2 guesses
         Else
            Call m3exit( pname, 0, 0, 'Error: number of organic aerosol 
-                        moles going to zero in soa bisection', xstat3) 
+     &                  moles going to zero in soa bisection', xstat3) 
         End If
         test = fnguess * flower
         If ( test .lt. 0.0 ) then               ! if function changes sign b/w guess and lower, guess becomes upper
