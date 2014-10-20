@@ -317,6 +317,8 @@ C                   --------   -------   ------  ------  ------
       Real, Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real, Parameter :: def_diam( n_mode ) = (/ 1.0E-8, 7.0E-8, 1.0E-6 /)  ! default background mean diameter for each mode
 
+      Logical, Save :: No_iepox = .True. ! perform IEPOX uptake?
+
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
       Real ( 8 ), Parameter :: k_H_water    = 9.0d-4
       Real ( 8 ), Parameter :: k_H_nuc      = 2.0d-4
@@ -403,6 +405,7 @@ C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
 C-----------------------------------------------------------------------
 
+      Use rxns_data       ! chemical mechanism data
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
@@ -587,13 +590,16 @@ C Find indices of required species
       aseacat_idx = findAero( req_seacat, .True. )
       aphgj_idx   = findAero( req_phgj,  .False. )
 
+      If( INDEX(MECHNAME, 'CB05E51') .GT. 0)Then
+          No_iepox = .False.
 C Find indices for acid catalyzed species
-      acid_prodmap_idx = 0
-      acid_nucmap_idx  = 0
-      Do n = 1, n_nucpairs
-        acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
-        acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
-      End Do
+          acid_prodmap_idx = 0
+          acid_nucmap_idx  = 0
+          Do n = 1, n_nucpairs
+            acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
+            acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
+          End Do
+      End If
 
 #ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -617,11 +623,15 @@ C Find indices for acid catalyzed species
       else
           Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx:  ', aphgj_idx
       End If
-      Do n = 1, n_nucpairs
-        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
-        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
-      End Do
-#endif
+      If( .Not. No_iepox )Then
+C Find indices for acid catalyzed species
+          acid_prodmap_idx = 0
+          acid_nucmap_idx  = 0
+          Do n = 1, n_nucpairs
+            acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
+            acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
+          End Do
+      End If
  
 C Compute common factors
       h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )

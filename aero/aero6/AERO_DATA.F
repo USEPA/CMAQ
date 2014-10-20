@@ -218,6 +218,8 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.3686 /),   ! ASEACAT
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
+      Logical, Save :: No_iepox = .True. ! perform IEPOX uptake?
+
 C Acid catalyzed particle phase reactions
       Type acid_cat
            Character( 16 ) :: parent ! gas-phase parent species
@@ -446,13 +448,15 @@ C Find indices of required species
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
 
+      If( .Not. No_iepox )Then
 C Find indices for acid catalyzed species
-      acid_prodmap_idx = 0
-      acid_nucmap_idx  = 0
-      Do n = 1, n_nucpairs
-        acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
-        acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
-      End Do
+          acid_prodmap_idx = 0
+          acid_nucmap_idx  = 0
+          Do n = 1, n_nucpairs
+            acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
+            acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
+          End Do
+      End If
 
 #ifdef verbose
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -471,10 +475,12 @@ C Find indices for acid catalyzed species
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      Do n = 1, n_nucpairs
-        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
-        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
-      End
+      If( .Not. No_iepox )Then
+         Do n = 1, n_nucpairs
+           Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
+           Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
+         End Do
+      End If
 #endif
  
 C Compute common factors

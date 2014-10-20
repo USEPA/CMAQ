@@ -152,7 +152,6 @@ C mapping variables used for loading and unloading to CGRID array
       Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
 
       Logical, Private, Save :: mapped   = .False.
-      Logical, Private, Save :: No_iepox = .True. ! perform IEPOX uptake?
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
@@ -231,7 +230,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
-               NO_iepox            = .False.
+!               NO_iepox            = .False.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
