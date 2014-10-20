@@ -361,6 +361,7 @@ C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
 C-----------------------------------------------------------------------
 
+      Use rxns_data
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
@@ -448,7 +449,8 @@ C Find indices of required species
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
 
-      If( .Not. No_iepox )Then
+      If( INDEX(MECHNAME, 'CB05E51') .GT. 0)Then
+          No_iepox = .False.
 C Find indices for acid catalyzed species
           acid_prodmap_idx = 0
           acid_nucmap_idx  = 0
