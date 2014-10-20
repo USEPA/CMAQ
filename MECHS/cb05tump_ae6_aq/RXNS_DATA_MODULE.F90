@@ -228,7 +228,7 @@
       LOGICAL, PARAMETER, PRIVATE :: T = .TRUE.
 
 
-      LOGICAL   :: MAPPED_TO_CGRID = .TRUE. 
+      LOGICAL   :: MAPPED_TO_CGRID = .FALSE. 
 
       DATA CHEMISTRY_SPC(   1 ), CGRID_INDEX(   1 ), SPECIES_TYPE(   1 ), SPECIES_MOLWT(   1 ), CONVERT_CONC(   1 ) / 'NO2             ',    1, 'GC',   46.00, F /
       DATA CHEMISTRY_SPC(   2 ), CGRID_INDEX(   2 ), SPECIES_TYPE(   2 ), SPECIES_MOLWT(   2 ), CONVERT_CONC(   2 ) / 'NO              ',    2, 'GC',   30.00, F /
