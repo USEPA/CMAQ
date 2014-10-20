@@ -668,7 +668,7 @@ C     by 60 to convert it into 1/sec
                      RADIUS       = DE_WET( N ) /2.0d0 ! particle size
                      CBARIEPOX    = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
      &                              / ( PI * MWTIEPOX ) )
-                     GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS )
+                     GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS, AIRTEMP )
                      IF( AERDIAG ) GAMMA_IEPOX( C, R, L ) = REAL( GAMMAIEPOX, 4 )
                      KIEPOX       = WET_M2( N ) * PI / ( RADIUS * INV_DIFFUSIVITY +
      &                              4.0 / ( CBARIEPOX * GAMMAIEPOX) )
@@ -1499,7 +1499,7 @@ C *** Compute IRH using Goff-Gratch equations as given by List (1984)
       END FUNCTION FREEZES
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      REAL(8) FUNCTION GAMMAIEPOXJ( RADIUS )  
+      REAL(8) FUNCTION GAMMAIEPOXJ( RADIUS, TEMPERATURE )  
 
 C  Calculates the uptake coefficient (gamma) for IEPOX      
 C  based on particle phase H+ (EQLBH) and other particle constituents.
@@ -1543,16 +1543,17 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C *** Arguments
-      Real( 8 ), Intent( IN )  :: RADIUS ! Particle radius [m]
+      Real( 8 ), Intent( IN )  :: RADIUS       ! Particle radius [m]
+      Real( 8 ), Intent( IN )  :: TERMPERATURE ! Particle radius [m]
 
 C *** Parameters
 C     For gamma calculation
-      Real( 8 ), Parameter :: alpha        = 0.02d0 ! accomodation coefficient from McNeill et al. 2012 []
-      Real( 8 ), Parameter :: diffusivity  = 1.0d-9 ! liquid phase diffusivity, based on C4-C5 epoxides 
-                                                    ! and diols at infinite dilution in water (Gharagheizi et al. 2011) [m2/s]
+      Real( 8 ), Parameter :: inv_alpha    = 1.0d0/0.02d0 ! reciproaccomodation coefficient from McNeill et al. 2012 []
+      Real( 8 ), Parameter :: diffusivity  = 1.0d-9    ! liquid phase diffusivity, based on C4-C5 epoxides 
+                                                       ! and diols at infinite dilution in water (Gharagheizi et al. 2011) [m2/s]
       Real( 8 ), Parameter :: RgasLatmmolK = 0.08206d0 ! Universal gas constant [L atm/mol K]
-      Real( 8 ), Parameter :: small        = 1d-8   ! small number to prevent calculations that may have precision issues
-      Real( 8 ), Parameter :: smaller      = 1d-20  ! smaller number to prevent division by zero
+      Real( 8 ), Parameter :: small        = 1.0d-8   ! small number to prevent calculations that may have precision issues
+      Real( 8 ), Parameter :: smaller      = 1.0d-20  ! smaller number to prevent division by zero
 
 C     Acid related
       Integer, Parameter   :: n_acids      = 2 ! number of acids: H+ and HSO4-
@@ -1603,8 +1604,9 @@ C     we effectively treat all H+ like HSO4 (slightly less effective
 C     in catalyzing the ring-opening)
       charge = 0.0  ! umol/m3
       Do i = 1, n_aerospc
+         if(  aerospc( i )%tracer )cycle
          charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
-     &         / aerospc_mw( i )
+     &          / aerospc_mw( i )
       End Do
       acidmolconc(hso4acid_idx) = max( ( charge*1d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
 
@@ -1622,8 +1624,8 @@ C     and calculate rate of particle phase reaction
       Do i = 1, n_nucpairs
 
 C        Find J-mode nucleophile concentration in ug/m3 and convert to mol/m3
-         nuc = aerospc_conc( acid_nucmap_idx(i), 2 ) / 
-     &         aerospc_mw( acid_nucmap_idx(i) ) * 1.0d-6
+         nuc = aerospc_conc( acid_nucmap_idx(i), 2 ) 
+     &       /  aerospc_mw( acid_nucmap_idx(i) ) * 1.0d-6
 
 C        Find acid concentration in mol/m3
          if (    acid_nuc_pairs(i)%acid == 'HPLUS' ) then
@@ -1643,7 +1645,9 @@ C        Correct sulfate for presence of bisulfate
          endif
 
 C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
-         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume**2
+         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume * acid_nuc_pairs(i)%kchem*nuc*acid/volume
+!         inv_vol = 1.0E-9 * f6pi /  wet_m3( 2 )   
+!         kchem = acid_nuc_pairs(i)%kchem*nuc*acid*in_vol * acid_nuc_pairs(i)%kchem*nuc*acid*inv_vol
 
 C        Update sum
          kparticle  = kparticle + kchem
@@ -1669,7 +1673,7 @@ C *** Calculate gamma following Pye et al. 2013 ES&T
 C     (see also Hanson et al. 1994 JGR Eqn (2) for details)
 
 C     Henry's Law coefficient
-      Heff = REAL(HLCONST( 'IEPOX', airtemp, .False., 0.0 ), 8)
+      Heff = REAL(HLCONST( 'IEPOX', Real(temperature), .False., 0.0 ), 8)
 
 C     Note that if the rate of particle phase reaction is very slow, there may not
 C     be enough digits of precision to properly calculate fq which can result in
@@ -1678,25 +1682,25 @@ C     is faster than 1e-8 1/s
       if ( kparticle .gt. small ) then
 
          ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
-         q = dble(radius) * sqrt ( kparticle/ diffusivity ) 
+         q = REAL(radius, 8) * sqrt ( kparticle/ diffusivity ) 
 
          ! Perform exp in double precision (dexp), also prevent negatives arising 
          ! from difference in numbers of similar size, fq should always be positive
-         fq = max( ( ( dexp(2*q) + 1 ) / ( dexp(2*q) - 1 ) - 1/q ), smaller )
+         fq = max( ( ( dexp(2.0d0*q) + 1.0d0 ) / ( dexp(2.0d0*q) - 1.0d0 ) - 1.0d0/q ), smaller )
 
          ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
-         nu = sqrt( 8 * Rgasuniv * airtemp /( dpi * mwtiepox * 1d-3 ) )
+         nu = sqrt( 8.0d0 * Real( Rgasuniv, 8 ) * temperature /( dpi * mwtiepox * 1.0d-3 ) )
 
          ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
-         denom =  1/alpha + nu/ ( 4 * Heff * RgasLatmmolK * airtemp 
-     &                * sqrt ( diffusivity * kparticle ) * fq ) 
+         denom =  ( 4.d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
+               /  (inv_alpha + nu )
 
-         gammaiepoxj = 1/denom
+         gammaiepoxj = denom
 
 C     No/slow reaction
       else
 
-         gammaiepoxj = 0d0
+         gammaiepoxj = 0.0d0
 
       endif
 

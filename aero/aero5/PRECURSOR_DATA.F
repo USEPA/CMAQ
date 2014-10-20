@@ -49,7 +49,7 @@ C-----------------------------------------------------------------------
 
       Implicit None
 
-      Integer, Parameter :: n_precursor = 21   ! # of precursors
+      Integer, Parameter :: n_precursor = 22   ! # of precursors
 
       Type precursor_type
          Character( 16 ) :: name               ! species name
@@ -71,6 +71,7 @@ C                       -------   ----------  ------
      & precursor_type( 'SULPRD ', .True.  , .True.  ),
      & precursor_type( 'HCL    ', .False. , .True.  ),
      & precursor_type( 'ALKRXN ', .True.  , .True.  ),
+     & precursor_type( 'ALK5RXN', .True.  , .True.  ),
      & precursor_type( 'TOLNRXN', .True.  , .True.  ),
      & precursor_type( 'TOLHRXN', .True.  , .True.  ),
      & precursor_type( 'XYLNRXN', .True.  , .True.  ),

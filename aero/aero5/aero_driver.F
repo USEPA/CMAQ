@@ -592,7 +592,7 @@ C *** Write data to the aerosol diagnostic file.
      &                     'Timestep written to', CTM_DIAM_1,
      &                     'for date and time', MDATE, MTIME
      
-            DIAM_SPC = 0.0
+!            DIAM_SPC = 0.0
 
          END IF
 

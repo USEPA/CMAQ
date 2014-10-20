@@ -16,10 +16,6 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/SOA_DEFN.F,v 1.9 2012/01/19 13:10:56 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module soa_defn
 
@@ -153,8 +149,9 @@ C                     -------    -------    ------   ------
 C mapping variables used for loading and unloading to CGRID array
       Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
       Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
-      Logical, Private, Save :: mapped = .False.
-      Logical, Private, Save :: iepoxuptake = .False. ! perform IEPOX uptake?
+
+      Logical, Private, Save :: mapped   = .False.
+      Logical, Private, Save :: No_iepox = .True. ! perform IEPOX uptake?
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
@@ -233,7 +230,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
-               iepoxuptake         = .True.
+               NO_iepox            = .False.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -492,7 +489,7 @@ C           benzene, high-NOx pathway (2 products)
 C           monoterpenes (2 products)
 C           isoprene (2 products)
 C           sesquiterpenes (1 product)
-C           PAs/naphthalene, high-NOx pathway (2 products)
+C           PAHs/naphthalene, high-NOx pathway (2 products)
 
 C Equilibrium partitioning calculations are based on the absorptive
 C partitioning model of Pankow (1994) that was extended by Odum et
@@ -763,6 +760,8 @@ C Parameters & variables for adjusting cstar to ambient conditions
       Real, Parameter :: kolig  = 0.69314718 / 72000.0  ! 20h half-life of oligomerization rate [ 1/s ]
       Real, Parameter :: olgrat = 2.1            ! SOA/SOC ratio for oligomers
       Real, Parameter :: kacid  = 0.00361        ! acid-induced enhancement factor
+      Real, Parameter :: threshmin = 1.0E-19     ! small positive number
+      Real, Parameter :: ctolmin = 1.0E-06
       Real, Parameter :: orgfac = 1.0E-9 * f6dpi / 2.0E3
       Real, Parameter :: convfac_298 = 101325.0 * rgas1 * trefm1  ! P/RT at 1 atm and 298 K [ mole/m**3 ]
 
@@ -793,8 +792,7 @@ C Variables used in equilibrium partitioning calculations
       Real totorgsw          ! POA + non-volatile SOA [ umole/m3 ]
       Real totorg            ! SOA + POA before time step [ umole/m3 ]
       Real threshold         ! criterion for establishing gas/part equil.
-      Real, Parameter :: threshmin = 1.0E-19  ! small positive number
-      Real, Parameter :: ctolmin = 1.0E-06
+
       Logical check          ! flag to indicate if NEWT subroutine
                              ! converged to a spurious root
 
@@ -805,8 +803,8 @@ C Variables for updating 2nd and 3rd moments
       Real new_m2  ! final 2nd moment with updated SOA [ mom/m3 ]
 
 C Added for new SOA bisection (hotp 7/6/11)
-      Real lowb, upb, orgmoles ! lower bound, upper bound, total aerosol moles
-      Logical newtpartition    ! true to use original method, false to use new bisection
+      Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
+      Logical, Parameter :: newtpartition = .True.   ! true to use original method, false to use new bisection
 
 C-----------------------------------------------------------------------
 
@@ -827,9 +825,6 @@ C Set unit conversion and inverse mw constants
          mwpoa = aerospc_mw( apoc_idx )
 
       End If ! first_time
-
-C     Use standard partitioning routines
-      newtpartition = .true.
 
 C Compute 3rd moment, 2nd moment, and Dg without nonvolatile SOA. Cloud-produced
 C SOA (i.e., orgcj) is not subtracted here because it is unchanged in this subroutine
@@ -971,12 +966,11 @@ C Try again with initial guess of 50/50 gas/aerosol split.
             End If
          End If
 
+        Else
 C METHOD2
 C      Calculate new SOA by partitioning. 
 C      Method uses bisection method to solve for total number of moles
 C      of orgaic aerosol. Caer is then calculated based on that number.
-        Else
-
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw ! lower: moles of nonvolatile
          upb       = totorg   ! upper: all moles (semi and nonvolatile)
@@ -1023,7 +1017,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
       End Do
 
 C Acid-induced Isoprene SOA if IEPOX uptake is not considered
-      IF( iepoxuptake == .false. ) then
+      IF( No_iepox ) then
 
 C Particle-phase acidity is parameterized by the air concentration of hydrogen
 C ion in the particle phase (hplus).  This is computed by electroneutrality,
@@ -1034,6 +1028,7 @@ C be inherited from include or namelist files to avoid hard-coded values.
 
       hplus = 0.0
       Do i = 1, n_aerospc
+         if(  aerospc( i )%tracer )cycle
          hplus = hplus - 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
      &         / aerospc_mw( i )
       End Do
@@ -1071,7 +1066,7 @@ C condensation/evaporation does not affect the geometric standard deviation.
       new_m3 = old_m3
 
       Do i = 1, n_aerospc
-         if(  aerospc( i )%tracer )cycle
+         If(  aerospc( i )%tracer )cycle
          If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
             new_m3 = new_m3 + orgfac * aerospc_conc( i,2 )
          End If
