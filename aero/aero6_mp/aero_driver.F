@@ -307,7 +307,7 @@ C *** Open the met files.
 C *** Set up file structure for visibility file. It has two variables,
 C     visual range in deciview units (dimensionless) and extinction in
 C     units of (1/km) and is for layer 1 only.
-!        IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
         IF ( AERDIAG .AND. MYPE .EQ. 0 )CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
