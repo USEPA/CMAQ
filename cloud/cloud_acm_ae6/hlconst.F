@@ -292,10 +292,10 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(138), A(138), E(138) / 'HYDROXY-ACETONE ', 2.00E+04, 0.0E+00 /   ! MATSUNAGA ET AL., 41, 790-796, AE, (2007)            
       DATA SUBNAME(139), A(139), E(139) / '2NITRO_1BUTNL   ', 6.30E+03, 9.6E+03 /   ! Shepson et al., 1992 
       DATA SUBNAME(140), A(140), E(140) / 'PYROCATECHOL    ', 4.60E+03, 0.0E+00 /   ! Mackay et al., 1995            
-      DATA SUBNAME(141), A(141), E(141) / 'NTR_ALK         ', 0.65, 5400 /  !2-butylnitrate, from Sander
-      DATA SUBNAME(142), A(142), E(142) / 'NTR_OH         ', 6500, 9500 /  !3-nitrooxy-butanol, from Sander
-      DATA SUBNAME(143), A(143), E(143) / 'DINTR         ', 18, 0   / !2,3-pentanedinitrate
-      DATA SUBNAME(144), A(144), E(144) / 'NTR_PX         ', 340, 6000.  /   !ethylhydroperoxide 
+      DATA SUBNAME(141), A(141), E(141) / 'NTR_ALK         ', 6.50E-01, 5.4E+03 /   ! 2-butylnitrate, from Sander
+      DATA SUBNAME(142), A(142), E(142) / 'NTR_OH          ', 6.50E+03, 9.5E+03 /   ! 3-nitrooxy-butanol, from Sander
+      DATA SUBNAME(143), A(143), E(143) / 'DINTR           ', 1.80E+01, 0.0E+00 /   ! 2,3-pentanedinitrate
+      DATA SUBNAME(144), A(144), E(144) / 'NTR_PX          ', 3.40E+02, 6.0E+03 /   ! ethylhydroperoxide 
 
 
 

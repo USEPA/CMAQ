@@ -218,7 +218,7 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.3686 /),   ! ASEACAT
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
-      Logical, Save :: No_iepox = .True. ! perform IEPOX uptake?
+      Logical, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
 
 C Acid catalyzed particle phase reactions
       Type acid_cat
@@ -361,7 +361,7 @@ C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
 C-----------------------------------------------------------------------
 
-      Use rxns_data
+      Use rxns_data, Only: MECHNAME
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
@@ -449,8 +449,8 @@ C Find indices of required species
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
 
-      If( INDEX(MECHNAME, 'CB05E51') .GT. 0)Then
-          No_iepox = .False.
+      If( Index(MECHNAME, 'CB05E51') .GT. 0)Then
+          IEPOX_SOA_mechanism = .True.
 C Find indices for acid catalyzed species
           acid_prodmap_idx = 0
           acid_nucmap_idx  = 0
@@ -477,7 +477,7 @@ C Find indices for acid catalyzed species
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      If( .Not. No_iepox )Then
+      If( IEPOX_SOA_mechanism )Then
          Do n = 1, n_nucpairs
            Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
            Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)

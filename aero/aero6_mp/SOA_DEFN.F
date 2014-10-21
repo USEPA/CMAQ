@@ -230,7 +230,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
-!               NO_iepox            = .False.
+!               IEPOX_SOA_mechanism            = .True.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -1017,8 +1017,8 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
          vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
 
-C Acid-induced Isoprene SOA if IEPOX uptake is not considered
-      IF( No_iepox ) then
+C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
+      IF( .Not. IEPOX_SOA_mechanism ) then
 
 C Particle-phase acidity is parameterized by the air concentration of hydrogen
 C ion in the particle phase (hplus).  This is computed by electroneutrality,

@@ -317,7 +317,7 @@ C                   --------   -------   ------  ------  ------
       Real, Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real, Parameter :: def_diam( n_mode ) = (/ 1.0E-8, 7.0E-8, 1.0E-6 /)  ! default background mean diameter for each mode
 
-      Logical, Save :: No_iepox = .True. ! perform IEPOX uptake?
+      Logical, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
 
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
       Real ( 8 ), Parameter :: k_H_water    = 9.0d-4
@@ -405,8 +405,8 @@ C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
 C-----------------------------------------------------------------------
 
-      Use rxns_data       ! chemical mechanism data
-      Use cgrid_spcs            ! CGRID mechanism species
+      Use rxns_data, Only: MECHNAME ! chemical mechanism data
+      Use cgrid_spcs                ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
 
@@ -591,7 +591,7 @@ C Find indices of required species
       aphgj_idx   = findAero( req_phgj,  .False. )
 
       If( INDEX(MECHNAME, 'CB05E51') .GT. 0)Then
-          No_iepox = .False.
+          IEPOX_SOA_mechanism = .True.
 C Find indices for acid catalyzed species
           acid_prodmap_idx = 0
           acid_nucmap_idx  = 0
@@ -623,7 +623,7 @@ C Find indices for acid catalyzed species
       else
           Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx:  ', aphgj_idx
       End If
-      If( .Not. No_iepox )Then
+      If( IEPOX_SOA_mechanism )Then
 C Find indices for acid catalyzed species
           acid_prodmap_idx = 0
           acid_nucmap_idx  = 0

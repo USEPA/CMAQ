@@ -35,7 +35,9 @@ C               indexing, density, variable names
 C     Mar 2011: Shawn Roselle, replaced I/O API include files with UTILIO_DEFN
 C     Sep 2011: B.Hutzell: adapted for mercury and HAP mechanisms
 C     Jun 2012: J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
-C
+C     Oct 2014: B.Hutzell:forcing to skip mapping if aerosol species
+C     index equals the values for H3OP species as for aerosol water
+C     species 
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerolist, n_aerospc, conmin
 
@@ -462,8 +464,8 @@ C...Add missing optional aerosol surrogate species
          spc = nadd_tx + var
          srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
-         ! Skip H2O and SOIL species
-         If ( var .Eq. ah2o_idx )Then
+         ! Skip H2O, H2OP, and SOIL species
+         If ( spc .Eq. ah2o_idx .Or. spc .Eq. ah3op_idx ) Cycle
               write(xmsg,'(4(A,1x))')'Skipping AQ surrogate for AEROSPC ',
      &                               aerospc( var )%name( 1:n_mode )
               Call m3warn( 'aq_data_init', 0, 0, xmsg )
