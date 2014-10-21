@@ -97,7 +97,11 @@ C...         Function sets up arrays and data needed to calculate surface albedo
 C            use in radiative transfer calculation for actinic fluxes
   
              USE UTILIO_DEFN       ! IOAPI declaratiion and utilities
-             USE SUBST_MODULES     ! stenex
+#ifdef parallel
+             USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+             USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
              USE PHOT_MOD          ! photolysis in-line module
              USE PCGRID_DEFN       ! get cgrid
 
@@ -603,8 +607,12 @@ C... Subroutine calculates diffuse and direct surface albedo versus wavelenght o
 C    latitude and longitudes
 
              USE UTILIO_DEFN       ! IOAPI declaratiion and utilities
-             USE SUBST_MODULES     ! stenex
              USE PHOT_MOD          ! photolysis in-line module
+#ifdef parallel
+             USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+             USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
              USE PCGRID_DEFN       ! get cgrid
              
              IMPLICIT NONE
