@@ -157,7 +157,7 @@ c conc_map - from cgrid to ae_trns species
 
       end if   !  if firstime
 
-      dtccr = 0   ! array assignment
+!     if ( vdiffdiag )dtccr = 0   ! array assignment
       do 345 r = 1, my_nrows
       do 344 c = 1, my_ncols
 
