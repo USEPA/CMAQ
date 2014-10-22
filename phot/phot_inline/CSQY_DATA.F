@@ -605,7 +605,6 @@ C...begin read
        
        MECHANISM_RATES = NPHOTAB
 
-       WRITE(6,'(i4,1x,a)')(IPHOT,PHOTAB( IPHOT ),IPHOT=1,NPHOTAB)
        
        DO IPHOT = 1, NPHOTAB
           IP_MAP = INDEXR( PHOTAB( IPHOT ), NPHOT_MAP, PNAME_MAP )
