@@ -449,10 +449,15 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
           END DO
           
           IF( .NOT. SUCCESS )THEN
+            WRITE( NEW_OPTICS_LOG, 99999)
             PHOT_MOD_MSG = 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI.DAT' 
+     &                  // 'Read the above dianostic information.'
             CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, PHOT_MOD_MSG, XSTAT1 )
           END IF
-          
+99999     FORMAT( 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI Data'
+     &          / 'Potential causes include boundary condition and meteorological input files. '
+     &          / 'Check them for unrealistic concentrations for species to ozone and it precursors')           
+
           STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
 !          TOTAL_O3_COLUMN = REAL( STRAT_O3_COLUMN + CONC_TO_DU * TROPO_O3_COLUMN, 4 )
 !          TOTAL_O3_COLUMN = CONC_TO_DU * TROPO_O3_COLUMN

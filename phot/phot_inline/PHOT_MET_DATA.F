@@ -662,6 +662,7 @@ C grid offsets for INTERPX to MET_CRO_3D, METCRO_CRO_2D files
         END DO
 
 ! compute averages for resolved cloud                
+!       CFRAC_2D = 0.0
         DO ROW = 1, MY_NROWS
            DO COL = 1, MY_NCOLS
                 SUM_WEIGTHS = 0.0

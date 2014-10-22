@@ -390,8 +390,8 @@
                   if (dge(layer) .ge. mini_diameter_ice .and. dge(layer) .le. maxi_diameter_ice) then
                      factor = freq_diameter_ice * (dge(layer) - mini_diameter_ice)
                      index = int(factor)
-                     if (index .eq. ndiameter_ice) index = ndiameter_ice - 1
                      fint = factor - float(index)
+                     index = min(  ndiameter_ice - 1, max( 1, index ) )
                      cloud_ice_ext(layer, iwl) =  ice_extinct(index,iwl) 
      &                                         +  fint * (ice_extinct(index+1,iwl) - ice_extinct(index,iwl))
                      cloud_ice_ssa(layer, iwl) =  1.0 - ice_coalbedo(index,iwl) 
@@ -757,12 +757,16 @@
               end select
               do lay = 1, nlayers
 !                 lamda = (1.0e+3*pi*rho_hydro*n0/q(lay))**0.25
+                 if( q(lay) .le.  cldmin )then
+                     reff(lay) = min_dge
+                     cycle
+                 endif
+                 lamda = chi*(1.0D0/real( q(lay), 8))**0.25D0
                  sum1 = 0.0D0
                  sum2 = 0.0D0
-                 lamda = chi*(1.0D0/q(lay))**0.25D0
 !original method used thirty-two nodes
                  do nk = 1, 32
-                    psd  = n0*exp(lamda*xk(nk))
+                    psd  = n0*dexp(lamda*xk(nk))
                     comp = newtotalw(nk) * psd
                     sum2 = sum2 + comp 
                     sum1 = sum1 + xk(nk)*comp
@@ -897,8 +901,8 @@
                  do iwl = 1, nwl_ref                 
                     factor = freq_diameter_ice * (deff_snow(layer) - mini_diameter_ice)
                     index = int(factor)
-                    if (index .eq. ndiameter_ice) index = ndiameter_ice - 1
                     fint = factor - float(index)
+                    index = min(  ndiameter_ice - 1, max( 1, index ) )
                     snow_ext  =  ice_extinct(index,iwl) 
      &                        +  fint * (ice_extinct(index+1,iwl) - ice_extinct(index,iwl))
                     snow_ssa  =  1.0 - ice_coalbedo(index,iwl) 
@@ -1006,8 +1010,8 @@
                   do iwl = 1, nwl_ref
                      factor = freq_diameter_ice * (deff_graupel(layer) - mini_diameter_ice)
                      index = int(factor)
-                     if (index .eq. ndiameter_ice) index = ndiameter_ice - 1
                      fint = factor - float(index)
+                     index = min(  ndiameter_ice - 1, max( 1, index ) )
                      graupel_ext  =  ice_extinct(index,iwl) 
      &                            +  fint * (ice_extinct(index+1,iwl) - ice_extinct(index,iwl))
                      graupel_ssa  =  1.0 - ice_coalbedo(index,iwl) 

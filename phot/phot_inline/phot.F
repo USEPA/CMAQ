@@ -478,8 +478,6 @@ C...modules
 
 !...Get Met data
 
-      CFRAC_2D = 0.0
-      
       CALL GET_PHOT_MET(JDATE, JTIME, MDATE, MTIME )
 
 !...Get cosine of solar parameters and compute NDARK

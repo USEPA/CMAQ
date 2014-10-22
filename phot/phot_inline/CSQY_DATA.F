@@ -1812,8 +1812,8 @@ C-----------------------------------------------------------------------
                         CSQY_ADJUST( IPHOT ) = METHYL_ETHYL_KETONE
                      CASE ( 'MGLY_06' , 'BACL_07', 'MGLY_IUPAC04', 'MGLY_IUPAC10' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_IUPAC04
-                        ALLOCATE( KMGLY( NWL_REF ) )
-                        FORALL( IWL = 1:NWL_REF )KMGLY( IWL ) = 1.93E4 * EXP( -5639 / WAVELENGTH( IWL ) )
+                        IF( .NOT. ALLOCATED( KMGLY ) ) ALLOCATE( KMGLY( NWL_REF ) )
+                        FORALL( IWL = 1:NWL_REF )KMGLY( IWL ) = 1.93E4 * EXP( -5639.0 / WAVELENGTH( IWL ) )
                      CASE (  'ACRO_09' )
                         CSQY_ADJUST( IPHOT ) = ACROLEIN
                      CASE ( 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10' )  ! 'CH2O -> H2 + CO'
