@@ -57,7 +57,7 @@ C----------------------------------------------------------------------
 C Number of aerosol species and modes
 
 !     Integer, Parameter :: n_aerospc = 40      ! number of aero species
-      Integer, Parameter :: n_aerolist = 69     ! number of aero species
+      Integer, Parameter :: n_aerolist = 70     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -143,6 +143,7 @@ C                   ---------   ---------   ---------     ------  ------  +  +  
      & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O         ',es_acc,  ss_0),
      & spcs_type((/'AH3OPI   ','AH3OPJ   ','AH3OPK   '/), cm_set, 1000.0, T, F, T,  0,  0.0,'WATER ','             ',es_0,    ss_0),
      & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR       ',es_acc,  ss_0),
+     & spcs_type((/'         ','AALKJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AALK1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AALK2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),

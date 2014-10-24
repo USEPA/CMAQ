@@ -55,8 +55,8 @@ C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 15   ! # of partitioning SVOCs
-      Integer, Parameter :: n_orgprod = 12   ! # of ROG rxn counter species
+      Integer, Parameter :: n_vapor   = 16   ! # of partitioning SVOCs
+      Integer, Parameter :: n_orgprod = 13   ! # of ROG rxn counter species
 
       Type vapor_type
          Character( 16 ) :: name
@@ -73,8 +73,9 @@ C-----------------------------------------------------------------------
 C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
 C                                                          Name   Origin        Name
 C                  -------    -------  --------  -------  ------    --  ----   -------
-     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN'),
-     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN'),
+     & vapor_type('SV_ALK ',  0.0718,   0.0200,  40.0E3, 'AALKJ ', 'A',  8.0, 'ALK5RXN'),
+     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN' ),
+     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN' ),
      & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J', 'A',  8.0, 'XYLNRXN'),
      & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J', 'A',  8.0, 'XYLNRXN'),
      & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J', 'A',  7.0, 'TOLNRXN'),
@@ -128,6 +129,7 @@ C
       Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
 C                      Name      Parent     Aerospc  AlphaH
 C                     -------    -------    ------   ------ 
+     & orgprod_type( 'ALK5RXN', 'ALK5RXN', '      ', 0.000 ),
      & orgprod_type( 'ALKRXN',  'SOAALK ', '      ', 0.000 ),
      & orgprod_type( 'XYLNRXN', 'XYL    ', '      ', 0.000 ),
      & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.360 ),
@@ -191,6 +193,8 @@ C Local Variables:
       Integer         :: n
       Integer         :: spc
 
+      Real, Save :: alk_factor = 1.00
+
       If ( .Not. mapped ) Then
 
          vapor_mw = 0.0
@@ -213,21 +217,25 @@ C define orgprod parent names based on mechanism dependence
 C if they differ from above declarations and
 C determine if gas-phase IEPOX uptake occurs for the mechanism
             If ( INDEX( MECHNAME, 'SAPRC99' ) .GT. 0 ) then
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
                orgprod( 2 )%parent = 'ARO2'
                orgprod( 3 )%parent = 'ARO2'
                orgprod( 4 )%parent = 'ARO1'
                orgprod( 5 )%parent = 'ARO1'
             Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
                orgprod( 2 )%parent = 'MXYL'
                orgprod( 3 )%parent = 'MXYL'
                orgprod( 4 )%parent = 'TOLUENE'
                orgprod( 5 )%parent = 'TOLUENE'
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
+               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
                orgprod( 2 )%parent = 'XYM'
                orgprod( 3 )%parent = 'XYM'
                orgprod( 4 )%parent = 'TOL'
                orgprod( 5 )%parent = 'TOL'
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
+               alk_factor = 1.0    ! fraction of SOAALK that can produce SOA
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
 !               IEPOX_SOA_mechanism            = .True.
@@ -315,6 +323,9 @@ C Copy grid cell concentrations of ORGPROD species
             orgprod_conc( spc ) = Max( conc( n ), min_gasconc )
          End If
       End Do
+
+C Adjust ALK orgprod for fraction that produces SOA
+      orgprod_conc( 1 ) = alk_factor * orgprod_conc( 1 )
 
       Return
       End Subroutine extract_soa
