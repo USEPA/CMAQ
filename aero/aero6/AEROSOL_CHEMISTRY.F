@@ -1692,11 +1692,13 @@ C     is faster than 1e-8 1/s
          nu = sqrt( 8.0d0 * Real( Rgasuniv, 8 ) * temperature /( dpi * mwtiepox * 1.0d-3 ) )
 
          ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
-         denom =  ( 4.0d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
-     &         /  (inv_alpha + nu )
+!         denom =  ( 4.0d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
+!     &         /  (inv_alpha + nu )
 
-         gammaiepoxj = denom
+!         gammaiepoxj = denom
 
+          gammaiepoxj = ( 4.0d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
+     &                / (inv_alpha + nu )
 C     No/slow reaction
       else
 
