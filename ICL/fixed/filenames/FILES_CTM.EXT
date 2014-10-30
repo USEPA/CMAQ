@@ -26,7 +26,7 @@
 !   14 Aug 14 J.Young: added vdiff and grav. settling diagnostic files
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 71
+      INTEGER, PARAMETER :: N_FILES = 72
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -102,6 +102,9 @@
       CHARACTER( 16 ) :: CTM_SD_TS
       CHARACTER( 16 ) :: CTM_VDIFF_DIAG
       CHARACTER( 16 ) :: CTM_VSED_DIAG
+      CHARACTER( 16 ) :: CHLOROPHYLL
+
+
 
       DATA GRID_DOT_2D      / 'GRID_DOT_2D     ' /
       DATA GRID_CRO_2D      / 'GRID_CRO_2D     ' /
@@ -174,6 +177,7 @@
       DATA CTM_SD_TS        / 'CTM_SD_TS       ' /
       DATA CTM_VDIFF_DIAG   / 'CTM_VDIFF_DIAG  ' /
       DATA CTM_VSED_DIAG    / 'CTM_VSED_DIAG   ' /
+      DATA CHLOROPHYLL      / 'CHLOROPHYLL     ' /
 
       DATA LGCL_NAME(  1 ), IN_MODE(  1 )    / 'GRID_DOT_2D     ', .TRUE. /
       DATA LGCL_NAME(  2 ), IN_MODE(  2 )    / 'GRID_CRO_2D     ', .TRUE. /
@@ -246,5 +250,6 @@
       DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'CTM_SD_TS       ', .FALSE. /
       DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
       DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_VSED_DIAG   ', .FALSE. /
+      DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CHLOROPHYLL     ', .FALSE. /
 
 !................   end   FILES3_CTM.EXT   .............................

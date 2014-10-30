@@ -100,15 +100,15 @@ c                         N2O5_GAMMA
 c
 c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
 c            in aero6 module of CMAQ version 5.01. The adaptation includes
-C            heterogeneous nitryl chloride production used for Sarwar et al.
+c            heterogeneous nitryl chloride production used for Sarwar et al.
 c            (2012).
 c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
-C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
-C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
-C            Compilation and evaluation of gas-phase diffusion coefficients 
-C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
-C            Phys. Discuss., 14, 15645–15682, 2014. 
-C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+c 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+c            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+c            Compilation and evaluation of gas-phase diffusion coefficients 
+c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+c            Phys. Discuss., 14, 15645–15682, 2014. 
+c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
 
 c
 c
@@ -285,7 +285,6 @@ C                            pp 601-609, April, 1996.
         END SUBROUTINE GETPAR
       END INTERFACE 
   
-
 C-----------------------------------------------------------------------
 
       IF( NHETERO .LT. 1 )RETURN

@@ -105,7 +105,7 @@ C            use in radiative transfer calculation for actinic fluxes
              USE PHOT_MOD          ! photolysis in-line module
              USE PCGRID_DEFN       ! get cgrid
 
-             USE LSM_MOD, ONLY: LSM_SCHEME => LAND_SCHEME
+             USE LSM_MOD, ONLY: N_LUFRAC, LSM_SCHEME => LAND_SCHEME
              
              IMPLICIT NONE
 
@@ -184,43 +184,21 @@ C...Get met file offsets
                 XMSG = 'Could not find ' // VARNM // 'in ' // MET_CRO_2D
                  WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
              END IF
-             
-#ifdef twoway
-             LAND_SCHEME = LSM_SCHEME
-#else             
-             LAND_SCHEME = 'UNKNOWN'
-             IF ( .NOT. DESC3( GRID_CRO_2D ) ) THEN
-                 XMSG = 'COULD NOT GET GRID_CRO_2D FILE DESCRIPTION '
-                  WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-                  SUCCESS = .FALSE.
-                  RETURN
-             END IF
-             
-             DO V = 1, NVARS3D ! determine land character
-
-                IF ( VNAME3D( V ) .EQ. 'DLUSE' ) THEN
-                  IF ( INDEX( VDESC3D( V ), 'USGS24' ) .NE. 0 ) LAND_SCHEME = 'USGS24'
-                  IF ( INDEX( VDESC3D( V ), ' MODIS' ) .NE. 0 ) LAND_SCHEME = 'MODIS'
-
-C...overwrite if NLCD-MODIS scheme
-
-                  IF ( INDEX( VDESC3D( V ), 'NLCD-MODIS' ) .NE. 0 ) LAND_SCHEME = 'NLCD50'
-                  IF ( INDEX( VDESC3D( V ),     'NLCD50' ) .NE. 0 ) LAND_SCHEME = 'NLCD50'
-                  IF ( INDEX( VDESC3D( V ),     'NLCD40' ) .NE. 0 ) LAND_SCHEME = 'NLCD40'
-              END IF
-
-            END DO
-#endif
-         
-            SELECT CASE( LAND_SCHEME )
-              CASE( 'USGS24' )
+                      
+             SELECT CASE( LSM_SCHEME )
+               CASE( 'USGS24' )
                  NUMB_LANDUSE = NUMB_LANDUSE_USGS  ! 24
-              CASE( 'MODIS' )
+                 LAND_SCHEME  = LSM_SCHEME
+               CASE( 'MODIS' )
                  NUMB_LANDUSE = NUMB_LANDUSE_MODIS ! 33
-              CASE( 'NLCD50' )
+                 LAND_SCHEME  = LSM_SCHEME
+               CASE( 'NLCD50' )
                  NUMB_LANDUSE = NUMB_LANDUSE_NLCD50  ! 50
-              CASE( 'NLCD40' )
+                 LAND_SCHEME  = LSM_SCHEME
+                 IF( NUMB_LANDUSE .NE. N_LUFRAC )THEN
+               CASE( 'NLCD40' )
                  NUMB_LANDUSE = NUMB_LANDUSE_NLCD40  ! 40
+                 LAND_SCHEME  = LSM_SCHEME
                  IF( NO_NLCD40 )THEN
                      XMSG =  'GRID_CRO_2D uses NLCD40 landuse scheme but '
      &                    // 'CSQY_FILE does not albedo factors for the '
@@ -229,10 +207,24 @@ C...overwrite if NLCD-MODIS scheme
                   SUCCESS = .FALSE.
                   RETURN
                  END IF
-              CASE DEFAULT
+               CASE DEFAULT
+                 LAND_SCHEME = 'UNKNOWN'
                  NUMB_LANDUSE = 2 ! simple land-water suface albedo
-            END SELECT
+             END SELECT
          
+            IF( NUMB_LANDUSE .NE. 2 )THEN ! test N_LUFRAC
+               IF( NUMB_LANDUSE .NE. N_LUFRAC )THEN
+                  XMSG =  TRIM( LAND_SCHEME ) ' Landuse Scheme from (LSM) does '
+     &                 // 'not match number of classes expected in PHOT_OPTICS_DATA '
+     &                 // 'file'
+                  WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
+                  WRITE(LOGDEV,'( 2(A,I4) )')'PHOT_OPTICS_DATA Value: ',NUMB_LANDUSE,
+     &            ' Value from Land Surface Module (LSM): ', N_LUFRAC
+                  SUCCESS = .FALSE.
+                  RETURN
+               END IF
+            END IF
+
             ALLOCATE ( ALBMAP_TO_REF( NUMB_LANDUSE ), ALBFAC_TO_REF( NUMB_LANDUSE ),
      &                 STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
