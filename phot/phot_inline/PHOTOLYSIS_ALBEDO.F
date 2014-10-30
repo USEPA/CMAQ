@@ -195,7 +195,6 @@ C...Get met file offsets
                CASE( 'NLCD50' )
                  NUMB_LANDUSE = NUMB_LANDUSE_NLCD50  ! 50
                  LAND_SCHEME  = LSM_SCHEME
-                 IF( NUMB_LANDUSE .NE. N_LUFRAC )THEN
                CASE( 'NLCD40' )
                  NUMB_LANDUSE = NUMB_LANDUSE_NLCD40  ! 40
                  LAND_SCHEME  = LSM_SCHEME
@@ -214,7 +213,7 @@ C...Get met file offsets
          
             IF( NUMB_LANDUSE .NE. 2 )THEN ! test N_LUFRAC
                IF( NUMB_LANDUSE .NE. N_LUFRAC )THEN
-                  XMSG =  TRIM( LAND_SCHEME ) ' Landuse Scheme from (LSM) does '
+                  XMSG =  TRIM( LAND_SCHEME ) // ' Landuse Scheme from (LSM) does '
      &                 // 'not match number of classes expected in PHOT_OPTICS_DATA '
      &                 // 'file'
                   WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
