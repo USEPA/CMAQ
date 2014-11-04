@@ -192,6 +192,7 @@ c intialize the ctrl table
             character( 16 ), allocatable     :: nml_spc  ( : )
             character(  2 ), allocatable     :: nml_type ( : )
             integer,         allocatable     :: nml_index( : )
+            logical,         allocatable     :: nml_convert( : )
             real,            allocatable     :: nml_molwt( : )
 
 c species table structures
@@ -1013,7 +1014,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             allocate ( cgrid_spc( nspcsd - 1 ), nml_spc( nspcsd - 1 ), 
      &                 nml_index( nspcsd - 1 ), nml_type( nspcsd - 1 ), 
      &                 nml_molwt( nspcsd - 1 ), type_index( nspcsd - 1 ),
-     &                  stat = ios )
+     &                 nml_convert( nspcsd - 1 ), stat = ios )
            
             allocate ( species_molwt( nspcsd - 1 ), convert_conc( nspcsd - 1 ), stat = ios )
 
@@ -1024,7 +1025,7 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             type_index = -1
             nml_type   = '??'
             nml_molwt  = -1.0
-	    convert_conc = .False.
+            convert_conc = .False.
             
             do i = 1, n_gc_spc ! load GC names and indices 
                j = j + 1
@@ -1042,7 +1043,8 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                nml_type( j )     = 'AE'
                type_index( j )   = i
                nml_molwt( j )    = ae_molwt( i )
-               convert_conc( j ) = .True.
+               nml_convert( j )  = .True.
+!              convert_conc( j ) = .True.
             end do  
 
             do i = 1, n_nr_spc ! load NR names and indices 
@@ -1077,6 +1079,14 @@ C determine if mechanism species are in cgrid species
                   cgrid_index( i )   = nml_index( i1 )
                   species_type( i )  = nml_type ( i1 )
                   species_molwt( i ) = nml_molwt( i1 )
+                  convert_conc( i )  = nml_convert( i1 )
+!                 if(   Trim( species_type( i ) ) .eq. 'AE' )then
+!                       convert_conc( i ) = .True.
+!                 else
+!                       convert_conc( i ) = .False.
+!                 end if
+!                 print*,' i, mechanism_spc( i ),species_type( i ),convert_conc( i ): ',i,mechanism_spc( i ),
+!    &            species_type( i ),convert_conc( i )
                end if
                if( index( mechanism_spc( i ), 'SRF') .gt. 0 )then
                    found = .false.

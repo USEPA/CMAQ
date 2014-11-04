@@ -799,7 +799,7 @@ C Set CGRID mechanism
 
         N_GAS_CHEM_SPC = 0 
         DO ISPC = 1, NUMB_MECH_SPCS
-           IF( SPECIES_TYPE( ISPC ) .NE. 'GC' )CYCLE
+           IF( SPECIES_TYPE( ISPC ) .EQ. 'AE' )CYCLE
            N_GAS_CHEM_SPC =  N_GAS_CHEM_SPC + 1
        END DO
 

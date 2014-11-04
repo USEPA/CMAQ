@@ -395,7 +395,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       
       N_GAS_CHEM_SPC = 0 
       DO ISPC = 1, NUMB_MECH_SPCS
-         IF( SPECIES_TYPE( ISPC ) .NE. 'GC' )CYCLE
+         IF( SPECIES_TYPE( ISPC ) .EQ. 'AE' )CYCLE
           N_GAS_CHEM_SPC =  N_GAS_CHEM_SPC + 1
       END DO
 
@@ -429,9 +429,11 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
      &       /, '! the GC_SPC array for the gas phase chemistry to work correctly. ',
      &       /, '! If present, the CHEMISTRY_SPC names and species type should agree with the CGRID_SPCS module' /)
 
+      IRX = 0
       DO ISPC = 1, NS 
-         IF( SPECIES_TYPE( ISPC ) .NE. 'GC' )CYCLE
-         WRITE( WRUNIT, 2059 ) ISPC, SPCLIS( ISPC )
+         IF( SPECIES_TYPE( ISPC ) .EQ. 'AE' )CYCLE
+         IRX = IRX + 1
+         WRITE( WRUNIT, 2059 ) IRX, SPCLIS( ISPC )
 2059     FORMAT( 6X, 'DATA', 1X, 'GAS_CHEM_SPC(', I4, ' ) / ''', A16, ''' /')
       END DO
 
@@ -444,7 +446,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       
       WRITE( WRUNIT, 2064 )      
       IF( USE_SPCS_NAMELISTS )THEN
-          WRITE( WRUNIT, 2062 ) 
+          WRITE( WRUNIT, 2063 ) 
           DO ISPC = 1, NS + N_SS_SPC
              WRITE( WRUNIT, 2061 ) ISPC, ISPC, ISPC, ISPC,  ISPC, MECHANISM_SPC( ISPC ), CGRID_INDEX( ISPC ), 
      &       SPECIES_TYPE( ISPC ), SPECIES_MOLWT( ISPC ), CONVERT_CONC( ISPC )

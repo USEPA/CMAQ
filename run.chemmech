@@ -18,28 +18,28 @@
 
 # mechanism input file ........................................................
 
-#set MECH_ARCHIVE = /home/${USER}/CCTM_git_repository/MECHS
+ set MECH_ARCHIVE = /home/${USER}/CCTM_git_repository/MECHS
 
 #set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq cb05tucl_ae6_aq )
 #set mechanisms = ( cb05cltx_ae5_aq )
  
 # set mechanisms = saprc07tb_ae6_aq
-#  set mechanisms = cb05tucl_ae6_aq
+   set mechanisms = cb05tucl_ae6_aq
 #set mechanisms = racm2_ae6_aq
- set mechanisms = cb05e6_ae6_aq
+#set mechanisms = cb05e6_ae6_aq
 #set mechanisms = ( cb05tucl_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq racm2_ae6_aq )
 
 foreach Mechanism ( $mechanisms )
 
-  set  Mpath = ${BASE}/input/${Mechanism}-hetchem_POAAGING
-  set  Mpath = ${BASE}/input/${Mechanism}_POAAGING
-# set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
+# set  Mpath = ${BASE}/input/${Mechanism}-hetchem_POAAGING
+# set  Mpath = ${BASE}/input/${Mechanism}_POAAGING
+  set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
 #set  Mpath = ${BASE}/input/cb05e6cl
 # set  Mpath = ${BASE}/input/cb05tucl_update
 # set  Mpath = ${BASE}/input/cb05tucl_clno2_b3
 #set MCFL =  mech-${Mechanism}.def
-#  set MCFL =  mech.def
-  set MCFL =   mech_CB05e6.def
+   set MCFL =  mech.def
+# set MCFL =   mech_CB05e6.def
 # set MCFL =   mech_revision_B3.def
 
  if( !( -e $Mpath/$MCFL ) )then
@@ -85,8 +85,8 @@ setenv tr_matrix_nml $TR_NML
  setenv RXNSDATX    $Opath/RXDT.EXT
  setenv RXNSCOMX    $Opath/RXCM.EXT
 
- setenv RXNS_DATA_MODULE $Opath/RXNS_DATA_MODULE.F90
- setenv RXNS_FUNC_MODULE $Opath/RXNS_FUNC_MODULE.F90
+ setenv RXNS_DATA_MODULE $Mpath/RXNS_DATA_MODULE.F90
+ setenv RXNS_FUNC_MODULE $Mpath/RXNS_FUNC_MODULE.F90
  setenv OUTDIR           $Opath
 
  set KPP_Out_Path = ${Opath}
