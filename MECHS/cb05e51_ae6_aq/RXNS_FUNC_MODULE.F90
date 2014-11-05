@@ -201,7 +201,7 @@
 !  Arguements: None 
 
         REAL( 8 ), INTENT( IN  ) :: BLKTEMP( : )      ! temperature, deg K 
-        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm 
+        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm
         REAL( 8 ), INTENT( IN  ) :: BLKH2O ( : )      ! water mixing ratio, ppm 
         REAL( 8 ), INTENT( IN  ) :: RJBLK  ( :, : )   ! photolysis rates, 1/min 
         REAL( 8 ), INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
@@ -293,7 +293,7 @@
 !  Reaction Label R158f           
                 RKI( NCELL,  162) =  RJBLK( NCELL, IJ_MEPX_IUPAC10 )
 !  Reaction Label R164            
-                RKI( NCELL,  169) =   3.6000D-03 * RJBLK( NCELL, IJ_ACROLEIN_SAPRC99 )
+                RKI( NCELL,  169) =   3.6000D-03 * RJBLK( NCELL, IJ_ACRO_09 )
 !  Reaction Label CL1             
                 RKI( NCELL,  178) =  RJBLK( NCELL, IJ_CL2_IUPAC04 )
 !  Reaction Label CL2             
@@ -955,12 +955,12 @@
             LOGICAL,         ALLOCATABLE     :: NML_CONVERT( : )
             REAL,            ALLOCATABLE     :: NML_MOLWT  ( : )
             REAL                             :: DELTA            ! fractional difference
-	
-	    LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
-	    IF( INITIALIZED )RETURN
-	
-	    INITIALIZED = .TRUE.
+            LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+            IF( INITIALIZED )RETURN
+
+            INITIALIZED = .TRUE.
             LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
@@ -975,7 +975,7 @@
 
 
             J = 0
-	
+
 
             NML_INDEX     = -1
             TYPE_INDEX    = -1

@@ -4,7 +4,7 @@
        IMPLICIT NONE
 
 
-!
+
 ! Name of Mechanism CB05TUMP_AE6_AQ
 
        PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES
@@ -201,7 +201,7 @@
 !  Arguements: None 
 
         REAL( 8 ), INTENT( IN  ) :: BLKTEMP( : )      ! temperature, deg K 
-        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm 
+        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm
         REAL( 8 ), INTENT( IN  ) :: BLKH2O ( : )      ! water mixing ratio, ppm 
         REAL( 8 ), INTENT( IN  ) :: RJBLK  ( :, : )   ! photolysis rates, 1/min 
         REAL( 8 ), INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
@@ -965,12 +965,12 @@
             LOGICAL,         ALLOCATABLE     :: NML_CONVERT( : )
             REAL,            ALLOCATABLE     :: NML_MOLWT  ( : )
             REAL                             :: DELTA            ! fractional difference
-	
-	    LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
-	    IF( INITIALIZED )RETURN
-	
-	    INITIALIZED = .TRUE.
+            LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+            IF( INITIALIZED )RETURN
+
+            INITIALIZED = .TRUE.
             LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
@@ -985,7 +985,7 @@
 
 
             J = 0
-	
+
 
             NML_INDEX     = -1
             TYPE_INDEX    = -1

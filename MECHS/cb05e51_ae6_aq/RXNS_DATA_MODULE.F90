@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /work/MOD3DEV/ixk/CB05/CB05e51v2/mech_CB05e51.def
+! Source file: /home/hwo/CCTM_git_repository/MECHS/cb05e51_ae6_aq/mech_CB05e51.def
 ! for Mechanism Name: CB05e51_AE6_AQ                  
 
 ! This file is used to create mechanism data and functions
@@ -1847,7 +1847,7 @@
      &   'N2O5_IUPAC10    ', 'MEPX_IUPAC10    ', 'FORM_R_IUPAC10  ', & 
      &   'FORM_M_IUPAC10  ', 'ALD2_R_IUPAC10  ', 'PAN_IUPAC10     ', & 
      &   'PACD_CB05       ', 'ALDX_R_IUPAC10  ', 'MGLY_IUPAC10    ', & 
-     &   'ACROLEIN_SAPRC99', 'CL2_IUPAC04     ', 'HOCL_IUPAC04    ', & 
+     &   'ACRO_09         ', 'CL2_IUPAC04     ', 'HOCL_IUPAC04    ', & 
      &   'FMCL_IUPAC04    ', 'CLNO2           ', 'NTR_IUPAC10     ', & 
      &   'NOA_14          ', 'NBO_14          '/
 
@@ -2033,7 +2033,7 @@
        INTEGER, PARAMETER  :: IJ_PACD_CB05        =  16
        INTEGER, PARAMETER  :: IJ_ALDX_R_IUPAC10   =  17
        INTEGER, PARAMETER  :: IJ_MGLY_IUPAC10     =  18
-       INTEGER, PARAMETER  :: IJ_ACROLEIN_SAPRC99 =  19
+       INTEGER, PARAMETER  :: IJ_ACRO_09          =  19
        INTEGER, PARAMETER  :: IJ_CL2_IUPAC04      =  20
        INTEGER, PARAMETER  :: IJ_HOCL_IUPAC04     =  21
        INTEGER, PARAMETER  :: IJ_FMCL_IUPAC04     =  22

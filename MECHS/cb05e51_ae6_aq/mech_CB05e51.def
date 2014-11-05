@@ -174,6 +174,9 @@ CB05e51_AE6_AQ
 ! Golam Sarwar 09/05/11
 !  Fixed type errors in reaction R137 and R138 (CRON changed to CRNO in both reactions)   
 !
+! B.Hutzell 11/04/2014
+!  -Replaced photolysis rate ARCROLEIN_SAPRC99 with ACRO_09 which is a up to
+!   date value
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
 
@@ -656,7 +659,7 @@ REACTIONS[CM] =
                              + 0.700*XO2
                              + 1.033*HO2   
                              + 0.700*MACO3   
-                             + 0.267*C2O3           # 0.0036/<ACROLEIN_SAPRC99>;
+                             + 0.267*C2O3           # 0.0036/<ACRO_09>;
 <65>  TERP + O           = 0.150*ALDX  
                              + 5.12*PAR + TRPRXN    # 3.6E-11;
 <R166>  TERP + OH          = 0.750*HO2   

@@ -490,7 +490,7 @@
             end if
 #endif
             
-99950      format(a,pe12.4,a,i3)
+99950      format(a,es12.4,a,i3)
 99951      format(a,i5,a,i5)
 99962      format(a,1x,10(es12.4,1x),a,10(es12.4,1x))
 
@@ -675,7 +675,7 @@
               end if
 #endif
             
-99950         format(a,pe12.4,a,i3)
+99950         format(a,es12.4,a,i3)
 99951         format(a,i5,a,i5)
            end subroutine get_droplet_optics
         subroutine aggreg_size_effective(hydro_type, q, reff, nlayers)
@@ -1121,7 +1121,7 @@
             end if
 #endif            
 
-99960      format(a,pe12.4,a,i3)
+99960      format(a,es12.4,a,i3)
 99961      format(a,i5,a,i5)
 99962      format(a,1x,10(es12.4,1x),a,10(es12.4,1x))
 99964      format(a,2(1x,i3),1x,10(es12.4,1x),a,10(es12.4,1x))
