@@ -308,12 +308,28 @@ contains
        real, intent(out)    :: qextalf, qscatalf, gscatalfg
        complex, intent(in)  :: CREFIN
        logical, intent(out) :: success
+!local        
+       real( 8 ), parameter  :: one_third = 1.0d0 / 3.0d0
+       integer              :: NXX
+       integer              :: nstop, modulus
 
        real :: QEXT, QSCA, QBACK, G_MIE, xx1
-
+       
+       real( 8 )    :: x
+       complex( 8 ) :: refractive_index
+       
+       x = real( XX, 8 )
+       refractive_index = dcmplx( real( CREFIN ), imag( CREFIN ) )
+       
+       modulus = int( abs( x * refractive_index ) )      
+       nstop = int( x + 4.0d0 * x**one_third + 2.0d0 )
+       
+       nxx = max( modulus, nstop ) + 15
+       
        xx1 = 1.0 / XX
-
-       CALL BHMIE (XX,CREFIN,QEXT,QSCA,QBACK,G_MIE, SUCCESS)
+       
+!       CALL BHMIE (XX,CREFIN,QEXT,QSCA,QBACK,G_MIE, SUCCESS)
+        CALL BHMIE_FLEXI (XX, NXX, NSTOP, CREFIN,QEXT,QSCA,QBACK,G_MIE, SUCCESS)
 
        qextalf   = QEXT * xx1
        qscatalf  = QSCA * xx1
@@ -365,7 +381,7 @@ contains
 ! Note: important that MXNANG be consistent with dimension of S1 and S2
 !       in calling routine!
 
-       integer, parameter :: MXNANG=10, NMXX=150000   ! FSB new limits
+       integer, parameter :: MXNANG=10, NMXX=600000   ! FSB new limits
        real*8, parameter  :: PII = 3.1415916536
        real*8, parameter  :: ONE = 1.0D0, TWO = 2.0D0
 
@@ -2286,5 +2302,249 @@ contains
 
 
        end subroutine ghintBH_CS_Odd        
-     
+    
+
+! ------------------------------------------------------------------
+       SUBROUTINE BHMIE_FLEXI (X, NMX, NSTOP, REFREL, QQEXT, QQSCA, QBACK, GSCA, SUCCESS)
+
+! FSB Changed the call vector to return only QEXT, QSCAT QBACK GSCA
+!     and ignore NANG, S1 and S2 and all calculations for them
+
+       implicit none 
+
+! Arguments:
+       real,    intent(in) :: X        ! X = pi*particle_diameter / Wavelength
+       integer, intent(in) :: NMX      ! maximum number of terms in Mie series 
+       integer, intent(in) :: NSTOP    ! minumum number of terms in Mie series 
+       complex, intent(in) :: REFREL   ! refractive index
+
+!    REFREL = (complex refr. index of sphere)/(real index of medium)
+!    in the current use the index of refraction of the the medium
+!    i taken at 1.0 real.
+!
+!    Output
+
+       real,    intent(out) :: QQEXT, QQSCA, QBACK, GSCA
+       logical, intent(out) :: SUCCESS
+
+!     QQEXT   Efficiency factor for extinction
+!     QQSCA   Efficiency factor for scattering
+!     QQBACK  Efficiency factor for back scatter
+!     GSCA    asymmetry factor <cos>
+!     SUCCESS flag for successful calculation
+! REFERENCE: 
+!  Bohren, Craig F. and Donald R. Huffman, Absorption and 
+!    Scattering of Light by Small Particles, Wiley-Interscience
+!    copyright 1983. Paperback Published 1998.
+! FSB
+!    This code was originally listed in Appendix A. pp 477-482.
+!    As noted below, the original code was subsequently 
+!    modified by Prof. Bruce T. Drain of Princetion University.
+!    The code was further modified for a specific application
+!    in a large three-dimensional code requiring as much 
+!    computational efficiency as possible. 
+!    Prof. Francis S. Binkowski of The University of North
+!    Carolina at Chapel Hill. 
+
+! Declare parameters:
+! Note: important that MXNANG be consistent with dimension of S1 and S2
+!       in calling routine!
+
+       integer, parameter    :: MXNANG=10, NMXX=150000   ! FSB new limits
+       integer, parameter    :: NANG  = 2
+       real*8, parameter     :: PII = 3.1415916536D0
+       real*8, parameter     :: ONE = 1.0D0, TWO = 2.0D0
+       complex*16, parameter :: COMPLEX_DZERO = (0.0D0,0.0D0)
+       complex,    parameter :: COMPLEX_ZERO  = (0.0,0.0)
+
+! Local variables:
+       integer    :: N, NN
+       real*8     :: QSCA, QEXT, DX1, DXX1      
+       real*8     :: CHI,CHI0,CHI1,DX,EN,P,PSI,PSI0,PSI1,XSTOP,YMOD               
+       real*8     :: TWO_N_M_ONE, TWO_N_P_ONE, EN1, FACTOR
+       complex*16 :: AN,AN1,BN,BN1,DREFRL,XI,XI1,Y, Y1, DREFRL1
+       complex*16 :: D(NMX)
+       complex*16 :: FAC1, FAC2
+       complex    :: XBACK
+
+!***********************************************************************
+! Subroutine BHMIE is the Bohren-Huffman Mie scattering subroutine
+!    to calculate scattering and absorption by a homogenous isotropic
+!    sphere.
+! Given:
+!    X = 2*pi*a/lambda
+!    REFREL = (complex refr. index of sphere)/(real index of medium)
+!    real refractive index of medium taken as 1.0 
+! Returns:
+!    QEXT  = efficiency factor for extinction
+!    QSCA  = efficiency factor for scattering
+!    QBACK = efficiency factor for backscatter
+!            see Bohren & Huffman 1983 p. 122
+!    GSCA = <cos> asymmetry for scattering
+!
+! Original program taken from Bohren and Huffman (1983), Appendix A
+! Modified by Prof. Bruce T.Draine, Princeton Univ. Obs., 90/10/26
+! in order to compute <cos(theta)>
+! 91/05/07 (BTD): Modified to allow NANG=1
+! 91/08/15 (BTD): Corrected error (failure to initialize P)
+! 91/08/15 (BTD): Modified to enhance vectorizability.
+! 91/08/15 (BTD): Modified to make NANG=2 if called with NANG=1
+! 91/08/15 (BTD): Changed definition of QBACK.
+! 92/01/08 (BTD): Converted to full double precision and double complex
+!                 eliminated 2 unneed lines of code
+!                 eliminated redundant variables (e.g. APSI,APSI0)
+!                 renamed RN -> EN = double precision N
+!                 Note that DOUBLE COMPLEX and DCMPLX are not part
+!                 of f77 standard, so this version may not be fully
+!                 portable.  In event that portable version is
+!                 needed, use src/bhmie_f77.f
+! 93/06/01 (BTD): Changed AMAX1 to generic function MAX
+! FSB April 09,2012 This code was modified by: 
+! Prof.  Francis S. Binkowski University of North Carolina at
+! Chapel Hill, Institue for the Environment.
+!
+! The modifications were made to enhance computation speed 
+! for use in a three-dimensional code. This was done by
+! removing code that calculated angular scattering. The method
+! of calculating QEXT, QBACK was also changed. 
+ 
+!***********************************************************************
+!*** Safety checks
+
+       SUCCESS = .TRUE.
+!       NANG = 2 ! FSB only this value 
+! IF(NANG.GT.MXNANG)STOP'***Error: NANG > MXNANG in bhmie'
+!      IF (NANG .LT. 2) NANG = 2
+
+       DX = REAL( X, 8 )
+! FSB Define reciprocals so that divisions can be replaced by multiplications.      
+       DX1  = ONE / DX
+       DXX1 = DX1 * DX1
+       DREFRL = DCMPLX( REAL( REFREL ), IMAG( REFREL ) )
+       DREFRL1 = ONE / DREFRL
+       Y = DX * DREFRL
+       Y1 = ONE / Y
+!       YMOD = ABS(Y)
+ 
+!*** Series expansion terminated after NSTOP terms
+!    Logarithmic derivatives calculated from NMX on down
+!       XSTOP = X + 4.0 * X**0.3333 + 2.0
+!       NMX  = MAX(XSTOP,YMOD) + 15
+
+! BTD experiment 91/1/15: add one more term to series and compare results
+!      NMX=AMAX1(XSTOP,YMOD)+16
+! test: compute 7001 wavelengths between .0001 and 1000 micron
+! for a=1.0micron SiC grain.  When NMX increased by 1, only a single
+! computed number changed (out of 4*7001) and it only changed by 1/8387
+! conclusion: we are indeed retaining enough terms in series!
+
+       FACTOR = 1.0D0
+ 
+!       IF (NMX .GT. NMXX) THEN
+!          WRITE(6,*)'Error: NMX > NMXX=',NMXX,' for |m|x=',YMOD
+!          SUCCESS = .FALSE.
+!          RETURN
+!       END IF
+
+! FSB all code relating to scattering angles is removed out for
+!     reasons of efficiency when running in a three-dimensional 
+!     code. We only need QQSCA, QQEXT, GSCA AND QBACK
+
+ 
+!*** Logarithmic derivative D(J) calculated by downward recurrence
+!    beginning with initial value (0.,0.) 
+ 
+       D(NMX) = COMPLEX_DZERO
+       NN = NMX - 1
+       DO N = 1,NN
+          EN  = NMX - N + 1
+! FSB In the following division by Y has been replaced by 
+!     multiplication by Y1, the reciprocal of Y.          
+          D(NMX-N) = ( EN * Y1 ) - (ONE / ( D(NMX-N+1) + EN * Y1)) 
+       END DO
+ 
+!*** Riccati-Bessel functions with real argument X
+!    calculated by upward recurrence
+ 
+       PSI0 =  COS(DX)
+       PSI1 =  SIN(DX)
+       CHI0 = -SIN(DX)
+       CHI1 =  PSI0
+       XI1  =  DCMPLX(PSI1,-CHI1)
+       QSCA =  0.0D0
+       GSCA =  0.0D0
+       QEXT =  0.0D0
+       P    = -ONE
+       XBACK = COMPLEX_ZERO
+
+! FSB Start main loop       
+       DO N = 1,NSTOP
+          EN        = N
+          EN1       = ONE / EN
+          TWO_N_M_ONE = TWO * EN - ONE
+! for given N, PSI  = psi_n        CHI  = chi_n
+!              PSI1 = psi_{n-1}    CHI1 = chi_{n-1}
+!              PSI0 = psi_{n-2}    CHI0 = chi_{n-2}
+! Calculate psi_n and chi_n
+          PSI = TWO_N_M_ONE * PSI1 * DX1 - PSI0
+          CHI = TWO_N_M_ONE * CHI1 * DX1 - CHI0
+          XI  = DCMPLX(PSI,-CHI)
+ 
+!*** Compute AN and BN:
+! FSB Rearrange to get common terms
+          FAC1 = D(N) * DREFRL1 + EN * DX1 
+          AN   = (FAC1) * PSI - PSI1
+          AN   = AN / ( (FAC1 )* XI - XI1 )
+          FAC2 = ( DREFRL * D(N) + EN * DX1)
+          BN   = ( FAC2) * PSI -PSI1
+          BN   = BN / ((FAC2) * XI - XI1 )
+
+! FSB calculate sum for QEXT as done by Wiscombe
+!     get common factor
+          TWO_N_P_ONE = (TWO * EN + ONE)
+          QEXT = QEXT + (TWO_N_P_ONE) * (REAL(AN) + REAL(BN) ) 
+          QSCA = QSCA + (TWO_N_P_ONE) * ( ABS(AN)**2 + ABS(BN)**2 )
+          
+! FSB calculate XBACK from B & H Page 122          
+          FACTOR = -1.0 * FACTOR  ! calculate (-1.0 ** N)
+          XBACK = XBACK + (TWO_N_P_ONE) * factor * (AN - BN)
+          
+! FSB calculate asymmetry factor   
+       
+          GSCA = GSCA + ((TWO_N_P_ONE)/(EN * (EN + ONE))) *     &
+                 (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN))
+
+          IF (N .GT. 1)THEN
+             GSCA = GSCA + (EN - EN1) *                         &
+                    (REAL(AN1)*REAL(AN) + IMAG(AN1)*IMAG(AN) +  &
+                     REAL(BN1)*REAL(BN) + IMAG(BN1)*IMAG(BN))
+          ENDIF
+
+!*** Store previous values of AN and BN for use in computation of g=<cos(theta)>
+          AN1 = AN
+          BN1 = BN
+
+! FSB set up for next iteration
+          PSI0 = PSI1
+          PSI1 = PSI
+          CHI0 = CHI1
+          CHI1 = CHI
+          XI1  = DCMPLX(PSI1,-CHI1)
+
+       END DO   ! main  loop on n
+ 
+!*** Have summed sufficient terms.
+
+!    Now compute QQSCA,QQEXT,QBACK,and GSCA
+       GSCA  = TWO * GSCA / QSCA  
+
+! FSB in the following, divisions by DX * DX has been replaced by
+!      multiplication by DXX1 the reciprocal of 1.0 / (DX *DX)           
+       QQSCA = TWO * QSCA * DXX1
+       QQEXT = TWO * QEXT * DXX1 
+       QBACK = REAL ( 0.5 * XBACK * CONJG(XBACK) ) * DXX1  ! B&H Page 122
+
+       END subroutine BHMIE_FLEXI
+
+
 END MODULE rrtmg_aero_optical_util_module
