@@ -33,8 +33,9 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 10, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C
+C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
       USE HRDATA
 
@@ -57,62 +58,62 @@ C..SAVED LOCAL VARIABLES:
 
 
 C..SCRATCH LOCAL VARIABLES:
-      REAL   A, B, C, Q   ! Quadratic equation terms
-      REAL   CMN          ! Temp scalar
-      REAL   L8           ! Loss of CCO_O2
-      REAL   L9           ! Loss of PAN
-      REAL   P8           ! Production of CCO_O2
+      REAL( 8 ) ::   A, B, C, Q   ! Quadratic equation terms
+      REAL( 8 ) ::   CMN          ! Temp scalar
+      REAL( 8 ) ::   L8           ! Loss of CCO_O2
+      REAL( 8 ) ::   L9           ! Loss of PAN
+      REAL( 8 ) ::   P8           ! Production of CCO_O2
 
-      REAL   K8_8         ! Kc2o3+c2o3 * delta t
-      REAL   R8_9         ! Kpan-->c2o3 * delta t
-      REAL   R9_8         ! Kc2o3+no2-->pan * [NO2] * delta t
+      REAL( 8 ) ::   K8_8         ! Kc2o3+c2o3 * delta t
+      REAL( 8 ) ::   R8_9         ! Kpan-->c2o3 * delta t
+      REAL( 8 ) ::   R9_8         ! Kc2o3+no2-->pan * [NO2] * delta t
 
 C**********************************************************************
 
 
 c..Production of C2O3 (except from PAN )
-      P8 =           RXRAT( NCELL,  83 )      ! ALD2+O=C2O3+OH
-     &   +           RXRAT( NCELL,  84 )      ! ALD2+OH=C2O3
-     &   +           RXRAT( NCELL,  85 )      ! ALD2+NO3=C2O3+HNO3
-     &   +           RXRAT( NCELL,  95 )      ! PACD+OH=C2O3
-     &   +           RXRAT( NCELL, 155 )      ! OH+MGLY=C2O3+XO2
-     &   +           RXRAT( NCELL, 156 )      ! MGLY=C2O3+HO2+CO
-     &   +   0.210 * RXRAT( NCELL, 161 )      ! OH+ISPD=0.21*C2O3+...
-     &   +   0.114 * RXRAT( NCELL, 162 )      ! O3+ISPD=0.114*C2O3+...
-     &   +   0.967 * RXRAT( NCELL, 164 )      ! ISPD=0.967*C2O3+0.067*ALD2+...
-     &   +           RXRAT( NCELL, 189 )      ! CL+ALD2=C2O3+HCL
+      P8 =                 RXRAT(  83 )      ! ALD2+O=C2O3+OH
+     &   +                 RXRAT(  84 )      ! ALD2+OH=C2O3
+     &   +                 RXRAT(  85 )      ! ALD2+NO3=C2O3+HNO3
+     &   +                 RXRAT(  95 )      ! PACD+OH=C2O3
+     &   +                 RXRAT( 155 )      ! OH+MGLY=C2O3+XO2
+     &   +                 RXRAT( 156 )      ! MGLY=C2O3+HO2+CO
+     &   +    2.1000D-01 * RXRAT( 161 )      ! OH+ISPD=0.2100D+00*C2O3+...
+     &   +    1.1400D-01 * RXRAT( 162 )      ! O3+ISPD=0.1140D+00*C2O3+...
+     &   +    9.6700D-01 * RXRAT( 164 )      ! ISPD=0.9670D+00*C2O3+...
+     &   +                 RXRAT( 189 )      ! CL+ALD2=C2O3+HCL
 
 c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
-      L8 =           RKI( NCELL,  87 ) * YC( NCELL, NO       )   ! C2O3+NO=MEO2+NO2
-     &   +           RKI( NCELL,  88 ) * YC( NCELL, NO2      )   ! C2O3+NO2=PAN
-     &   +           RKI( NCELL,  91 ) * YC( NCELL, HO2      )   ! C2O3+HO2=...
-     &   +           RKI( NCELL,  92 ) * YC( NCELL, MEO2     )   ! C2O3+MEO2=...
-     &   +           RKI( NCELL,  93 ) * YC( NCELL, XO2      )   ! C2O3+XO2=...
-     &   +           RKI( NCELL, 111 ) * YC( NCELL, CXO3     )   ! C2O3+CXO3=MEO2+...
+      L8 =                 RKI(  87 ) * YC( NO       )   ! C2O3+NO=MEO2+NO2
+     &   +                 RKI(  88 ) * YC( NO2      )   ! C2O3+NO2=PAN
+     &   +                 RKI(  91 ) * YC( HO2      )   ! C2O3+HO2=0.8000D+...
+     &   +                 RKI(  92 ) * YC( MEO2     )   ! C2O3+MEO2=...
+     &   +                 RKI(  93 ) * YC( XO2      )   ! C2O3+XO2=0.9000D+...
+     &   +                 RKI( 111 ) * YC( CXO3     )   ! C2O3+CXO3=MEO2+...
 
 c..Loss frequency of PAN
-      L9 =           RKI( NCELL,  89 )                    ! PAN=C2O3+NO2
-     &   +           RKI( NCELL,  90 )                    ! PAN=C2O3+NO2
+      L9 =                 RKI(  89 )                    ! PAN=C2O3+NO2
+     &   +                 RKI(  90 )                    ! PAN=C2O3+NO2
 
 c..K8_8, R8_9, and R9_8 terms
-      K8_8  = RKI( NCELL,  94 ) * DTC
+      K8_8  = RKI(  94 ) * DTC
 
-      R8_9  = ( RKI( NCELL,  89 )
-     &      +   RKI( NCELL,  90 ) ) * DTC 
+      R8_9  = ( RKI(  89 )
+     &      +   RKI(  90 ) ) * DTC 
 
-      R9_8  = ( RKI( NCELL,  88 ) * YC( NCELL, NO2 ) ) * DTC 
+      R9_8  = ( RKI(  88 ) * YC( NO2 ) ) * DTC 
 
 c..Solution of quadratic equation to get C2O3 & PAN
       CMN = 1.0 + L9 * DTC
-      A = 2.0 * K8_8 * CMN
-      B = CMN * ( 1.0 + L8 * DTC ) - R8_9 * R9_8
-      C = CMN * ( YC0( NCELL, C2O3 ) + P8 * DTC ) +  R8_9 * YC0( NCELL, PAN )
+      A = 2.0D0 * K8_8 * CMN
+      B = CMN * ( 1.0D0 + L8 * DTC ) - R8_9 * R9_8
+      C = CMN * ( YC0( C2O3 ) + P8 * DTC ) +  R8_9 * YC0( PAN )
 
-      Q = -0.5 * ( B + SIGN( 1.0, B ) * SQRT( B * B + 4.0 * A * C ) )
+      Q = -0.5D0 * ( B + SIGN( 1.0D0, B ) * SQRT( B * B + 4.0D0 * A * C ) )
 
-      YCP( NCELL, C2O3 ) = MAX( Q / A , -C / Q  )
+      YCP( C2O3 ) = MAX( Q / A , -C / Q  )
 
-      YCP( NCELL, PAN ) = ( YC0( NCELL, PAN ) +  R9_8 * YCP( NCELL, C2O3 ) ) / CMN
+      YCP( PAN ) = ( YC0( PAN ) +  R9_8 * YCP( C2O3 ) ) / CMN
 
       RETURN
 

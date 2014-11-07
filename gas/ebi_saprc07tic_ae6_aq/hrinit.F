@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -74,16 +74,17 @@ C***********************************************************************
       N_SPEC = NUMB_MECH_SPC
       N_RXNS = NRXNS
       N_SPCL_RKS =   0
-      ALLOCATE( RKI( MAX_CELLS_EBI,  NRXNS ),
+      ALLOCATE( RKI( NRXNS ),
+     &          RKI_SAV( MAX_CELLS_EBI, NRXNS ),
      &          FORWARD_CONV( N_SPEC),
      &          REVERSE_CONV( N_SPEC),
-     &          RXRAT( MAX_CELLS_EBI, NRXNS ),
+     &          RXRAT( NRXNS ),
      &          RTOL( N_SPEC),
-     &          YC(   MAX_CELLS_EBI, N_SPEC),
-     &          YC0(  MAX_CELLS_EBI, N_SPEC),
-     &          YCP(  MAX_CELLS_EBI, N_SPEC),
-     &          PROD( MAX_CELLS_EBI, N_SPEC),
-     &          LOSS( MAX_CELLS_EBI, N_SPEC),
+     &          YC(   N_SPEC),
+     &          YC0(  N_SPEC),
+     &          YCP(  N_SPEC),
+     &          PROD( N_SPEC),
+     &          LOSS( N_SPEC),
      &          STAT = IOS )
 
        IF ( IOS .NE. 0 ) THEN
@@ -93,6 +94,11 @@ C***********************************************************************
        END IF
 
       IF( NSPECIAL .GT. 0 )THEN
+          ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+               MSG = 'Error allocating SYC'
+               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          END IF
           ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
@@ -109,8 +115,8 @@ C***********************************************************************
       END IF
 
       DO N = 1, NUMB_MECH_SPC
-         FORWARD_CONV( N ) = REAL(1.0E-3 * MWAIR / SPECIES_MOLWT( N ), 8)
-         REVERSE_CONV( N ) = REAL(1.0E+3 / MWAIR * SPECIES_MOLWT( N ), 8)
+         FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
+         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
       END DO
 
 
@@ -121,7 +127,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 189
+      N_EBISP  = 192
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -299,24 +305,27 @@ c..Allocate and define ebi species
       EBISP( 169 ) = IMAPAN
       EBISP( 170 ) = IMAE
       EBISP( 171 ) = IHMML
-      EBISP( 172 ) = AALKJ
+      EBISP( 172 ) = AXYL1J
       EBISP( 173 ) = AOLGAJ
-      EBISP( 174 ) = AXYL1J
-      EBISP( 175 ) = AXYL2J
-      EBISP( 176 ) = ATOL1J
-      EBISP( 177 ) = ATOL2J
-      EBISP( 178 ) = ABNZ1J
-      EBISP( 179 ) = ABNZ2J
-      EBISP( 180 ) = ATRP1J
-      EBISP( 181 ) = AOLGBJ
-      EBISP( 182 ) = ATRP2J
-      EBISP( 183 ) = AISO1J
-      EBISP( 184 ) = AISO2J
-      EBISP( 185 ) = ASQTJ
-      EBISP( 186 ) = APOCI
-      EBISP( 187 ) = APNCOMI
-      EBISP( 188 ) = APOCJ
-      EBISP( 189 ) = APNCOMJ
+      EBISP( 174 ) = AXYL2J
+      EBISP( 175 ) = ATOL1J
+      EBISP( 176 ) = ATOL2J
+      EBISP( 177 ) = ABNZ1J
+      EBISP( 178 ) = ABNZ2J
+      EBISP( 179 ) = ATRP1J
+      EBISP( 180 ) = AOLGBJ
+      EBISP( 181 ) = ATRP2J
+      EBISP( 182 ) = AISO1J
+      EBISP( 183 ) = AISO2J
+      EBISP( 184 ) = ASQTJ
+      EBISP( 185 ) = APAH1J
+      EBISP( 186 ) = APAH2J
+      EBISP( 187 ) = AALK1J
+      EBISP( 188 ) = AALK2J
+      EBISP( 189 ) = APOCI
+      EBISP( 190 ) = APNCOMI
+      EBISP( 191 ) = APOCJ
+      EBISP( 192 ) = APNCOMJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -506,9 +515,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( IMAPAN           ) = 1.0D-03
       RTOL( IMAE             ) = 1.0D-03
       RTOL( IHMML            ) = 1.0D-03
-      RTOL( AALKJ            ) = 1.0D-03
-      RTOL( AOLGAJ           ) = 1.0D-03
       RTOL( AXYL1J           ) = 1.0D-03
+      RTOL( AOLGAJ           ) = 1.0D-03
       RTOL( AXYL2J           ) = 1.0D-03
       RTOL( ATOL1J           ) = 1.0D-03
       RTOL( ATOL2J           ) = 1.0D-03
@@ -520,6 +528,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AISO1J           ) = 1.0D-03
       RTOL( AISO2J           ) = 1.0D-03
       RTOL( ASQTJ            ) = 1.0D-03
+      RTOL( APAH1J           ) = 1.0D-03
+      RTOL( APAH2J           ) = 1.0D-03
+      RTOL( AALK1J           ) = 1.0D-03
+      RTOL( AALK2J           ) = 1.0D-03
       RTOL( APOCI            ) = 1.0D-03
       RTOL( APNCOMI          ) = 1.0D-03
       RTOL( APOCJ            ) = 1.0D-03
