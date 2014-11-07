@@ -57,7 +57,7 @@ C----------------------------------------------------------------------
 C Number of aerosol species and modes
 
 !     Integer, Parameter :: n_aerospc = 40      ! number of aero species
-      Integer, Parameter :: n_aerolist = 70     ! number of aero species
+      Integer, Parameter :: n_aerolist = 69     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -143,7 +143,6 @@ C                   ---------   ---------   ---------     ------  ------  +  +  
      & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O         ',es_acc,  ss_0),
      & spcs_type((/'AH3OPI   ','AH3OPJ   ','AH3OPK   '/), cm_set, 1000.0, T, F, T,  0,  0.0,'WATER ','             ',es_0,    ss_0),
      & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR       ',es_acc,  ss_0),
-     & spcs_type((/'         ','AALKJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AALK1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AALK2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
@@ -161,9 +160,9 @@ C                   ---------   ---------   ---------     ------  ------  +  +  
      & spcs_type((/'         ','AISO2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AISO3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','ASQTJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
-     & spcs_type((/'         ','APAH1J  ','          '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
-     & spcs_type((/'         ','APAH2J  ','          '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
-     & spcs_type((/'         ','APAH3J  ','          '/), cm_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','APAH1J   ','         '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','APAH2J   ','         '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','APAH3J   ','         '/), cm_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AOLGAJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AOLGBJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AORGCJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
@@ -269,22 +268,22 @@ C Required species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
     
 C Indices of required species
-      Integer, Save  :: aso4_idx
-      Integer, Save  :: ano3_idx
-      Integer, Save  :: acl_idx
-      Integer, Save  :: anh4_idx
-      Integer, Save  :: ana_idx
-      Integer, Save  :: amg_idx
-      Integer, Save  :: ak_idx
-      Integer, Save  :: aca_idx
-      Integer, Save  :: apoc_idx
-      Integer, Save  :: ah2o_idx 
-      Integer, Save  :: ah3op_idx 
-      Integer, Save  :: asoil_idx
-      Integer, Save  :: acors_idx
-      Integer, Save  :: apncom_idx
-      Integer, Save  :: aseacat_idx
-      Integer, Save  :: aphgj_idx
+      Integer  :: aso4_idx
+      Integer  :: ano3_idx
+      Integer  :: acl_idx
+      Integer  :: anh4_idx
+      Integer  :: ana_idx
+      Integer  :: amg_idx
+      Integer  :: ak_idx
+      Integer  :: aca_idx
+      Integer  :: apoc_idx
+      Integer  :: ah2o_idx 
+      Integer  :: ah3op_idx 
+      Integer  :: asoil_idx
+      Integer  :: acors_idx
+      Integer  :: apncom_idx
+      Integer  :: aseacat_idx
+      Integer  :: aphgj_idx
 
 !     Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
 !     Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -317,40 +316,6 @@ C                   --------   -------   ------  ------  ------
       Real, Parameter :: max_sigma_g = 2.50
       Real, Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)       ! default background sigma-g for each mode
       Real, Parameter :: def_diam( n_mode ) = (/ 1.0E-8, 7.0E-8, 1.0E-6 /)  ! default background mean diameter for each mode
-
-      Logical, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
-
-C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
-      Real ( 8 ), Parameter :: k_H_water    = 9.0d-4
-      Real ( 8 ), Parameter :: k_H_nuc      = 2.0d-4
-      Real ( 8 ), Parameter :: k_HSO4_water = 1.31d-5
-      Real ( 8 ), Parameter :: k_HSO4_nuc   = 2.92d-6
-
-C Acid catalyzed particle phase reactions
-      Type acid_cat
-           Character( 16 ) :: parent ! gas-phase parent species
-           Character( 16 ) :: nuc    ! aerosol-phase nucleophile that adds to epoxide ring
-           Character( 16 ) :: acid   ! acid that catalyzes epoxide ring opening
-           Real( 8 )       :: kchem  ! particle phase rate constant [1/(M^2 s)]
-           Character( 16 ) :: prod   ! product of nucleophile+parent
-      End Type acid_cat
-
-
-C IEPOX uptake based on Eddingsaas et al. 2010 parameters
-      Type( acid_cat ), Parameter :: acid_nuc_pairs( n_nucpairs ) = (/
-C                  Parent   Nucleophile     Acid     Rate Constant  Product
-C                 (parent)    (nuc)        (acid)      (kchem)      (prod)
-C                 --------  -----------  ----------  ------------- --------
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HPLUS   ', k_H_water,    'AISO3J' ),
-     &   acid_cat('IEPOX',  'ASO4J    ', 'HPLUS   ', k_H_nuc,      'AISO3J'  ),
-     &   acid_cat('IEPOX',  'ANO3J    ', 'HPLUS   ', k_H_nuc,      'AISO3J'  ),
-     &   acid_cat('IEPOX',  'AH2OJ    ', 'HSO4    ', k_HSO4_water, 'AISO3J' ),
-     &   acid_cat('IEPOX',  'ASO4J    ', 'HSO4    ', k_HSO4_nuc,   'AISO3J'  ),
-     &   acid_cat('IEPOX',  'ANO3J    ', 'HSO4    ', k_HSO4_nuc,   'AISO3J'  )/)
-
-C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
-      Integer :: acid_prodmap_idx( n_nucpairs )
-      Integer :: acid_nucmap_idx(  n_nucpairs )
 
       Real            :: moment0_conc( n_mode )     ! 0th moment concentration
       Real            :: moment2_conc( n_mode )     ! 2nd moment concentration
@@ -386,6 +351,8 @@ C Emissions mapping
       Integer, Allocatable :: pmem_map( : )           ! mapping to aerospc array for PM emissions
       Character( 16 )      :: pmem_units              ! units for PM emissions for all species
 
+      Logical, Save :: V51_SOA_mechanism   = .False. !
+
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
@@ -406,8 +373,8 @@ C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
 C-----------------------------------------------------------------------
 
-      Use rxns_data, Only: MECHNAME ! chemical mechanism data
-      Use cgrid_spcs                ! CGRID mechanism species
+      Use rxns_data             ! chemical mechanism data
+      Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
 
@@ -430,6 +397,10 @@ C Local Variables:
       mole_weight = 0.0
 
       if ( mapped ) Return
+
+      If ( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
+           V51_SOA_mechanism   = .True.
+      End If
 
 !         aerospc_mw = 0.0
 !         aerospc_map = 0
@@ -549,6 +520,7 @@ C build mapping to CGRID for each aero spc
 #endif             
          End do
 
+
 C Build mapping to CGRID for aero # and surf area variables
       aeronum_map = 0
       aerosrf_map = 0
@@ -591,16 +563,6 @@ C Find indices of required species
       aseacat_idx = findAero( req_seacat, .True. )
       aphgj_idx   = findAero( req_phgj,  .False. )
 
-      If( INDEX(MECHNAME, 'CB05E51') .GT. 0)Then
-          IEPOX_SOA_mechanism = .True.
-C Find indices for acid catalyzed species
-          acid_prodmap_idx = 0
-          acid_nucmap_idx  = 0
-          Do n = 1, n_nucpairs
-            acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
-            acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
-          End Do
-      End If
 
 #ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -614,7 +576,7 @@ C Find indices for acid catalyzed species
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah2op_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah3op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
@@ -624,15 +586,7 @@ C Find indices for acid catalyzed species
       else
           Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx:  ', aphgj_idx
       End If
-      If( IEPOX_SOA_mechanism )Then
-C Find indices for acid catalyzed species
-          acid_prodmap_idx = 0
-          acid_nucmap_idx  = 0
-          Do n = 1, n_nucpairs
-            acid_prodmap_idx(n) = findAero( acid_nuc_pairs(n)%prod, .True. )
-            acid_nucmap_idx(n)  = findAero( acid_nuc_pairs(n)%nuc,  .True. )
-          End Do
-      End If
+#endif
  
 C Compute common factors
       h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )

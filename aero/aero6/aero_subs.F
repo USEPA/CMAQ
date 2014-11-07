@@ -2959,6 +2959,7 @@ C     treated as though it were fine mass soil.
 
       !  sum from soa species
       DO N = 1, N_VAPOR  
+         IF( SOA_AEROMAP( N ) .LT. 1 )CYCLE
          EXT2 = EXT2 + 4.0 * AEROSPC_CONC( SOA_AEROMAP( N ),2 )
       END DO
 

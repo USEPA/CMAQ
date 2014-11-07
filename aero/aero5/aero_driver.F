@@ -499,6 +499,7 @@ C     accumulation mode
                M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,2 )
                DO SPC = 1, N_VAPOR
+                  IF( SOA_AEROMAP( SPC ) .LT. 1 )CYCLE
                   M3SUBT = M3SUBT
      &                   + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
      &                   * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
@@ -592,7 +593,6 @@ C *** Write data to the aerosol diagnostic file.
      &                     'Timestep written to', CTM_DIAM_1,
      &                     'for date and time', MDATE, MTIME
      
-!            DIAM_SPC = 0.0
 
          END IF
 

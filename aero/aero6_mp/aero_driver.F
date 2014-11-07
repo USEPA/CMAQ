@@ -95,6 +95,8 @@ C                         time resolution
 C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
 C                            diagnostic outputs on reaction gamma and yield 
 C                            values 
+C   HOT Pye - Jan 13 - Additional information for IEPOX aerosol 
+C                      written to AERODIAG file
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -489,7 +491,7 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
 
 C     Aitken mode
                M3_WET = MOMENT3_CONC( 1 )
-               M3SUBT = ( 1.0E-9 * f6pi / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,1 )
                M3_DRY = M3_WET - M3SUBT
                M2_WET = MOMENT2_CONC( 1 )
@@ -501,11 +503,12 @@ C     Aitken mode
 C     accumulation mode
                M3_WET = MOMENT3_CONC( 2 )
 
-               M3SUBT = ( 1.0E-9 * f6pi / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,2 )
                DO SPC = 1, N_VAPOR
+                  IF( SOA_AEROMAP( SPC ) .LT. 1 )CYCLE
                   M3SUBT = M3SUBT
-     &                   + ( 1.0E-9 * f6pi / AEROSPC( APOC_IDX )%DENSITY )
+     &                   + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
      &                   * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
                END DO
 
@@ -518,7 +521,7 @@ C     accumulation mode
 
 C     coarse mode
                M3_WET = MOMENT3_CONC(3)
-               M3SUBT = ( 1.0E-9 * f6pi / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,3 )
                M3_DRY = M3_WET - M3SUBT
                M2_WET = MOMENT2_CONC( 3 )

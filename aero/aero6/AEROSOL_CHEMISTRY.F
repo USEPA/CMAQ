@@ -80,7 +80,7 @@
      &                       IA_N2O5J    , IA_PNCOMLI  ,
      &                       IA_PNCOMLJ  , IA_IEPOX    /)
 
-             
+ 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
        
@@ -88,7 +88,9 @@
        INTEGER              :: LOGDEV
 
 C *** Molecular weight
-      REAL( 8 ), SAVE        :: MWTIEPOX    ! molecular weight of IEPOX [g/mol]
+      REAL( 8 ), SAVE        :: MWTIEPOX      ! molecular weight of IEPOX [g/mol]
+      REAL( 8 ), SAVE        :: INV_MWTIEPOX  ! reciprocal of molecular weight for IEPOX [mol/g]
+      REAL( 8 ), SAVE        :: CFACTOR_IEPOX ! factor used for the mean molecular speed of IEPOX [m/(s^1*(deg K)^0.5)]
 
 C *** 2nd and 3rd moments before equilibration (without H2O)
       REAL( 8 ), ALLOCATABLE :: OLD_M3( : ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
@@ -98,6 +100,42 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
       REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 before equilibration w.H2O
       REAL( 8 ), ALLOCATABLE :: DG_WET( : ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
       REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
+
+
+C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
+      REAL ( 8 ), PARAMETER :: K_H_WATER    = 9.0D-4
+      REAL ( 8 ), PARAMETER :: K_H_NUC      = 2.0D-4
+      REAL ( 8 ), PARAMETER :: K_HSO4_WATER = 1.31D-5
+      REAL ( 8 ), PARAMETER :: K_HSO4_NUC   = 2.92D-6
+
+C Acid catalyzed particle phase reactions
+      TYPE ACID_CAT
+           CHARACTER( 16 ) :: PARENT     ! gas-phase parent species
+           CHARACTER( 16 ) :: NUC        ! aerosol-phase nucleophile that adds to epoxide ring
+           CHARACTER( 16 ) :: ACID       ! acid that catalyzes epoxide ring opening
+           INTEGER         :: IDX_ACID   ! array index for acid concentration
+           INTEGER         :: IDX_REMOVE ! array index denoting whether to correct nucleophile for acid
+           REAL( 8 )       :: KCHEM      ! particle phase rate constant [1/(M^2 s)]
+           CHARACTER( 16 ) :: PROD       ! product of nucleophile+parent
+      END TYPE ACID_CAT
+
+      INTEGER, PARAMETER :: N_NUCPAIRS = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
+
+C IEPOX uptake based on Eddingsaas et al. 2010 parameters
+      TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS( N_NUCPAIRS ) = (/
+C                  Parent   Nucleophile     Acid     Acid    Remove   Rate Constant  Product
+C                 (parent)    (nuc)        (acid)    Index   Index       (kchem)      (prod)
+C                 --------  -----------  ----------  -----   ------   -------------  --------
+     &   ACID_CAT('IEPOX',  'AH2OJ    ', 'HPLUS   ',   1,     0,       K_H_WATER,    'AISO3J' ),
+     &   ACID_CAT('IEPOX',  'ASO4J    ', 'HPLUS   ',   1,     2,       K_H_NUC,      'AISO3J'  ),
+     &   ACID_CAT('IEPOX',  'ANO3J    ', 'HPLUS   ',   1,     0,       K_H_NUC,      'AISO3J'  ),
+     &   ACID_CAT('IEPOX',  'AH2OJ    ', 'HSO4    ',   2,     0,       K_HSO4_WATER, 'AISO3J' ),
+     &   ACID_CAT('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_HSO4_NUC,   'AISO3J'  ),
+     &   ACID_CAT('IEPOX',  'ANO3J    ', 'HSO4    ',   2,     0,       K_HSO4_NUC,   'AISO3J'  )/)
+
+C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
+      INTEGER :: ACID_PRODMAP_IDX( N_NUCPAIRS )
+      INTEGER :: ACID_NUCMAP_IDX(  N_NUCPAIRS )
 
       CONTAINS
 
@@ -157,6 +195,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE AERO_DATA
+      USE AEROMET_DATA, ONLY: f6dpi
       USE PRECURSOR_DATA
       USE SOA_DEFN
 
@@ -207,6 +246,7 @@ C *** Local Variables
       REAL( 8 ) :: GAMMA            ! fine mode N2O5->NO3 rxn probability
       REAL( 8 ) :: GAMMAK           ! coarse mode N2O5->NO3 rxn probability
       REAL( 8 ) :: GAMMAIEPOX       ! IEPOX uptake coefficient
+      REAL( 8 ) :: GAMMAIEPOX_PYE   ! HPYE original IEPOX uptake coefficient
       REAL( 8 ) :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
       REAL( 8 ) :: KNO2             ! pseudo-first order rate constant, sec-1
       REAL( 8 ) :: KIEPOX           ! pseudo-first order rate constant, sec-1
@@ -356,6 +396,20 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
            WHICH_AERO_RATE( SELECTED_AERO_RATES ) = INDEX_AERO_RATES( INDX )
        END DO
  
+
+       INDX =  INDEX1( NAMES_AERO_RATES( IA_IEPOX ), NHETERO, HETERO )   
+       IF( INDX .GT. 0 )THEN ! Find indices for acid catalyzed species in IEPOX reaction
+          ACID_PRODMAP_IDX = 0
+          ACID_NUCMAP_IDX  = 0
+          DO N = 1, N_NUCPAIRS
+            ACID_PRODMAP_IDX(N) = FINDAERO( ACID_NUC_PAIRS(N)%PROD, .TRUE. )
+            ACID_NUCMAP_IDX(N)  = FINDAERO( ACID_NUC_PAIRS(N)%NUC,  .TRUE. )
+#ifdef verbose_hetchem        
+            Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
+            Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
+#endif
+          END DO
+       END IF
         
        ALLOCATE( KHETERO( SELECTED_AERO_RATES, MY_NCOLS, MY_NROWS, NLAYS ) )
        
@@ -379,8 +433,13 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
        END IF
 
        IEPOX_IDX = INDEX1( 'IEPOX', NUMB_MECH_SPC, CHEMISTRY_SPC )
-       MWTIEPOX  = REAL( SPECIES_MOLWT( IEPOX_IDX ), 8 )
-       
+       IF( IEPOX_IDX .GT. 0 )THEN
+           MWTIEPOX  = REAL( SPECIES_MOLWT( IEPOX_IDX ), 8 ) 
+       ELSE
+           MWTIEPOX  = 118.1D0
+       END IF
+       CFACTOR_IEPOX = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTIEPOX * DPI ) )    
+
       END IF   ! first time condition
 
       KHETERO      = 0.0D0
@@ -664,14 +723,16 @@ C     by 60 to convert it into 1/sec
                  CASE( IA_IEPOX )
 
                      ! IEPOX uptake on accumulation mode particles
-                     N            = 2                  ! mode index
-                     RADIUS       = DE_WET( N ) /2.0d0 ! particle size
-                     CBARIEPOX    = SQRT( 8.0 * RGASUNIV * AIRTEMP * GPKG
-     &                              / ( PI * MWTIEPOX ) )
+!                     N            = 2                   ! mode index
+                     RADIUS       = 0.5D0 * DE_WET( 2 ) ! particle size
+!                     CBARIEPOX    = DSQRT( 1.3333D3 * F6DPI * REAL( RGASUNIV, 8 ) * AIRTEMP * INV_MWTIEPOX  )
+                     CBARIEPOX    = CFACTOR_IEPOX * DSQRT( AIRTEMP )
                      GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS, AIRTEMP )
+!                     GAMMAIEPOX_PYE   = GAMMAIEPOXJ_PYE( RADIUS, AIRTEMP )
+!                     WRITE(6,'(a,2(1x,es12.4))')'GAMMAIEPOXJ, GAMMAIEPOXJ_PYE:', GAMMAIEPOX, GAMMAIEPOX_PYE 
                      IF( AERDIAG ) GAMMA_IEPOX( C, R, L ) = REAL( GAMMAIEPOX, 4 )
-                     KIEPOX       = WET_M2( N ) * PI / ( RADIUS * INV_DIFFUSIVITY +
-     &                              4.0 / ( CBARIEPOX * GAMMAIEPOX) )
+                     KIEPOX       = WET_M2( 2 ) * DPI
+     &                           / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
                      KHETERO( IRATE, C, R, L ) = 60.0D0 * KIEPOX
                            
                END SELECT
@@ -1544,7 +1605,7 @@ C-----------------------------------------------------------------------
 
 C *** Arguments
       Real( 8 ), Intent( IN )  :: RADIUS       ! Particle radius [m]
-      Real( 8 ), Intent( IN )  :: TERMPERATURE ! Particle radius [m]
+      Real( 8 ), Intent( IN )  :: TEMPERATURE  ! air temperature [deg K]
 
 C *** Parameters
 C     For gamma calculation
@@ -1575,8 +1636,10 @@ C *** Local Variables
       Real( 8 ) :: acid                ! temporary concentration of acid in mol/m3
       Real( 8 ) :: nuc                 ! nucleophile concentration in mol/m3
       Real( 8 ) :: charge              ! temporary for charge balance calculation [umol/m3]
-      Real( 8 ) :: volume              ! particle volume [L/m3 air]
+      Real( 8 ) :: inv_volume          ! reciprocal of particle volume [m3 air/Liters particles]
       Real( 8 ) :: kchem, kparticle    ! particle phase rxn rates [1/s] 
+      Real( 8 ) :: exp_2q              ! exponential term in Hanson et al. 1994 equation for gamma 
+      Real( 4 ) :: temp                ! air temperature [deg K]
       Character ( 80 ) :: xmsg         ! error message
 
 C *** External functions
@@ -1604,17 +1667,24 @@ C     we effectively treat all H+ like HSO4 (slightly less effective
 C     in catalyzing the ring-opening)
       charge = 0.0  ! umol/m3
       Do i = 1, n_aerospc
-         if(  aerospc( i )%tracer )cycle
+         If(  aerospc( i )%tracer )Cycle
+         If ( aerospc( i )%name( 2 ) .eq. ' ' ) Cycle
          charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
      &          / aerospc_mw( i )
       End Do
-      acidmolconc(hso4acid_idx) = max( ( charge*1d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
+      acidmolconc(hso4acid_idx) = max( ( charge*1.0d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
 
 C *** J-mode particle volume [L/m**3 air]
-      volume = 0.0d0
+      inv_volume = 0.0d0
       Do i = 1, n_aerospc 
-         volume = volume + aerospc_conc( i, 2 ) / aerospc(i)%density * 1.0d-6
+         If(  aerospc( i )%tracer )Cycle
+         If ( aerospc( i )%name( 2 ) .eq. ' ' ) Cycle
+!         If ( aerospc( i )%no_M2Wet )Cycle
+!         inv_volume = inv_volume + aerospc_conc( i, 2 ) / aerospc(i)%density * 1.0d-6
+         inv_volume = inv_volume +  real( aerospc_conc( i, 2 ) / aerospc(i)%density, 8 ) !  * 1.0d-6
       End Do
+      inv_volume = 1.0d6 / inv_volume
+!     inv_volume = 1.0d-3 * f6dpi / wet_m3( 2 )
 
 C *** Loop over nucleophile/acid pairs defined in acid_nuc_pairs in AERO_DATA
 C     and calculate rate of particle phase reaction
@@ -1626,6 +1696,230 @@ C     and calculate rate of particle phase reaction
 C        Find J-mode nucleophile concentration in ug/m3 and convert to mol/m3
          nuc = aerospc_conc( acid_nucmap_idx(i), 2 ) 
      &       /  aerospc_mw( acid_nucmap_idx(i) ) * 1.0d-6
+
+C        Find acid concentration in mol/m3
+!         if (    acid_nuc_pairs(i)%acid == 'HPLUS' ) then
+!            acid_idx = 1
+!         elseif( acid_nuc_pairs(i)%acid == 'HSO4' ) then
+!            acid_idx = 2
+!         else 
+!             xmsg = 'Acid species ' // Trim( acid_nuc_pairs(i)%acid) // 
+!     &              ' Not recognized in AEROSOL_CHEMISTRY'
+!             Call m3exit( pname, 0, 0, xmsg, xstat3 )
+!         endif
+         acid = acidmolconc( acid_nuc_pairs(i)%idx_acid ) ! mol/m3
+
+C        Correct sulfate for presence of bisulfate
+!         if( acid_nuc_pairs(i)%nuc == 'ASO4J' ) then
+!            nuc = max( nuc - acidmolconc( hso4acid_idx ), 0.0d0 )
+!         endif
+         if( acid_nuc_pairs(i)%idx_remove >= 1 ) then
+            nuc = max( nuc - acidmolconc( acid_nuc_pairs(i)%idx_remove ), 0.0d0 )
+         endif
+
+C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
+!         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume * acid_nuc_pairs(i)%kchem*nuc*acid/volume
+         kchem = acid_nuc_pairs(i)%kchem* nuc * acid * ( inv_volume*inv_volume )
+         
+!         write(6,'(2(a,1x),8(1x,es12.4))')acid_nuc_pairs(i)%acid // acid_nuc_pairs(i)%nuc // ', rates '
+!     &   // ', nuc, acid, inv_volume, kchem',': ',acid_nuc_pairs(i)%kchem,nuc,acid,inv_volume,kchem
+
+C        Update sum
+         kparticle  = kparticle + kchem
+
+      End Do
+
+!       do i=1,n_nucpairs
+!        print*,'pair ',acid_nuc_pairs(i)%acid, acid_nuc_pairs(i)%nuc
+!        print*,'nucs ', aerospc_conc( acid_nucmap_idx(i), 2)
+!       enddo
+!       print*,'eqlbh',eqlbh
+!       print*, 'aerospc_conc', aerospc_conc
+!       print*,'volume',volume
+!       print*,'acids', acidmolconc
+!       print*,'kparticle', kparticle
+!       print*,'kchemos',kchemos
+!       print*,'kchemon',kchemon
+!       print*,'kchemtet',kchemtet
+
+      
+
+C *** Calculate gamma following Pye et al. 2013 ES&T
+C     (see also Hanson et al. 1994 JGR Eqn (2) for details)
+
+
+C     Note that if the rate of particle phase reaction is very slow, there may not
+C     be enough digits of precision to properly calculate fq which can result in
+C     erroneously high gamma values. Only calculate gamma if particle phase reaction
+C     is faster than 1e-8 1/s
+      if ( kparticle .gt. smaller ) then
+
+         temp = real( TEMPERATURE, 4)
+         Heff = REAL(HLCONST( 'IEPOX', temp , .False., 0.0 ), 8)
+
+         ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
+         q = radius * dsqrt ( kparticle/ diffusivity ) 
+
+         ! Perform exp in double precision (dexp), also prevent negatives arising 
+         ! from difference in numbers of similar size, fq should always be positive
+         exp_2q = dexp( 2.0d0*q )
+         fq = max( ( ( exp_2q + 1.0d0 ) / ( exp_2q - 1.0d0 ) - 1.0d0/q ), smaller )
+
+         ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
+!         nu = sqrt( 8.0d0 * Real( Rgasuniv, 8 ) * temperature /( dpi * mwtiepox * 1.0d-3 ) )
+!         nu = dsqrt( 1.25d3 * f6dpi * Real( Rgasuniv, 8 ) * temperature * inv_mwtiepox )
+         nu = cfactor_iepox * dsqrt( temperature )
+
+         ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
+!         denom =  ( 4.0d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
+!     &         /  (inv_alpha + nu )
+
+          gammaiepoxj = (inv_alpha + nu/( 4.0d0 * Heff * RgasLatmmolK * temperature * dsqrt ( diffusivity * kparticle ) * fq ) )
+!         print*,"temp, q, fq, nu, Heff, inv_gamma: ",temp, q, fq,nu,Heff, gammaiepoxj
+
+          gammaiepoxj = 1.0d0 / gammaiepoxj
+
+C     No/slow reaction
+      else
+
+         gammaiepoxj = 0.0d0
+
+      endif
+
+
+      RETURN
+ 
+      END FUNCTION GAMMAIEPOXJ
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      REAL(8) FUNCTION GAMMAIEPOXJ_PYE( RADIUS, TEMPERATURE )  
+
+C  Calculates the uptake coefficient (gamma) for IEPOX      
+C  based on particle phase H+ (EQLBH) and other particle constituents.
+
+C  Key Subroutines Called: none
+
+C  Key Functions Called: none
+
+C  Revision History: 
+C  HOTP 1/18/13 First coding
+C  HOTP 9/26/14 Reduced form considering only IEPOX uptake with no
+C               speciation developed for CB05
+
+C  References
+C  1. Chan, M. N., et al. "Characterization and quantification of isoprene-
+C     derived expoxydiols in ambient aerosol in the Southeastern United States,"
+C     Environ. Sci. Technol., 2010, 44, 4590-4596.
+C  2. Eddingsaas, N. C., VanderVelde, D. G., Wennberg, P. O. "Kinetics 
+C     and products of the acid-catalyzed ring-opening of atmospherically
+C     relevant butyl epoxy alcohols," J. Phys. Chem A., 2010, 114, 8106-8113.
+C  3. Gharagheizi, F., et al. "Representation and prediction of molecular diffusivity
+C     of nonelectrolyte organic compounds in water at infinite dilution using the
+C     artificial neural network-group contribution method," J. Chemical & Engineering
+C     Data, 2011, 46, 1741-1750.
+C  4. Hanson, D. R., Ravishankara, A. R., Solomon, S. "Heterogeneous reactions in
+C     sulfuric acid aerosols: A framework for model calculations," J. Geophys. Res.,
+C     1994, 99, 3615-3629.
+C  5. McNeill, V. F., et al. "Aqueous-phase secondary organic aerosol and organosulfate 
+C     formation in atmospheric aerosols: A modeling study," Environ Sci Technol., 2012,
+C     46, 8075-8081.
+C  6. Pye et al., Epoxide pathways improve model predictions of isoprene
+C     markers and reveal key role of acidity in aerosol formation,
+C     Envion. Sci. Technol, 2013, doi: 10.1021/es402106h. 
+C-----------------------------------------------------------------------
+
+      Use aero_data
+      Use precursor_data
+      Use aeromet_data   ! Includes CONST.EXT (pi) and airtemp
+      Use utilio_defn    ! error message and abort
+
+      Implicit None
+
+C *** Arguments
+      Real( 8 ), Intent( IN )  :: RADIUS       ! Particle radius [m]
+      Real( 8 ), Intent( IN )  :: TEMPERATURE  ! air temperature [deg K]
+
+C *** Parameters
+C     For gamma calculation
+      Real( 8 ), Parameter :: alpha        = 0.02d0 ! accomodation coefficient from McNeill et al. 2012 []
+      Real( 8 ), Parameter :: diffusivity  = 1.0d-9 ! liquid phase diffusivity, based on C4-C5 epoxides 
+                                                    ! and diols at infinite dilution in water (Gharagheizi et al. 2011) [m2/s]
+      Real( 8 ), Parameter :: RgasLatmmolK = 0.08206d0 ! Universal gas constant [L atm/mol K]
+      Real( 8 ), Parameter :: small        = 1d-8   ! small number to prevent calculations that may have precision issues
+      Real( 8 ), Parameter :: smaller      = 1d-20  ! smaller number to prevent division by zero
+
+C     Acid related
+      Integer, Parameter   :: n_acids      = 2 ! number of acids: H+ and HSO4-
+      Integer, Parameter   :: hacid_idx    = 1 ! H+ acid index
+      Integer, Parameter   :: hso4acid_idx = 2 ! HSO4 acid index
+
+C     Henry's law coeff for IEPOX (HenryWin v 3.2)
+      Real( 8 ) :: Heff  
+
+C     Diagnostic
+      Character (16 ), Parameter :: pname = 'AEROSOL_CHEMISTRY'
+
+C *** Local Variables
+      Integer   :: i, acid_idx         ! counter and temporary indices
+      Real( 8 ) :: EQLBH               ! Particle Phase H+ from isoropia [mol/m**3]
+      Real( 8 ) :: q, fq, denom        ! quantities in Hanson et al. 1994 equation for gamma []
+      Real( 8 ) :: nu                  ! molecular speed [m/s], note this is the same as CBAR but we want to avoid excessive passing
+      Real( 8 ) :: acidmolconc( n_acids ) ! concentration of acid in mol/m3
+      Real( 8 ) :: acid                ! temporary concentration of acid in mol/m3
+      Real( 8 ) :: nuc                 ! nucleophile concentration in mol/m3
+      Real( 8 ) :: charge              ! temporary for charge balance calculation [umol/m3]
+      Real( 8 ) :: volume              ! particle volume [L/m3 air]
+      Real( 8 ) :: kchem, kparticle    ! particle phase rxn rates [1/s] 
+      Real( 4 ) :: temp                ! air temperature [deg K]
+      Character ( 80 ) :: xmsg         ! error message
+
+C *** External functions
+      INTERFACE
+         REAL FUNCTION HLCONST ( CNAME, TEMP, EFFECTIVE, HPLUS )
+           USE UTILIO_DEFN
+           IMPLICIT NONE
+           CHARACTER*(*), INTENT ( IN ) :: CNAME
+           REAL,          INTENT ( IN ) :: TEMP
+           LOGICAL,       INTENT ( IN ) :: EFFECTIVE
+           REAL,          INTENT ( IN ) :: HPLUS
+        END FUNCTION HLCONST
+      END INTERFACE
+
+C-----------------------------------------------------------------------
+
+C *** Determine H+ acid concentration of j mode [mol/m3]
+      eqlbh                  = aerospc_conc( ah3op_idx, 2 ) / 
+     &                         aerospc_mw( ah3op_idx ) * 1.0d-6
+      acidmolconc(hacid_idx) = max( eqlbh, 0.0d0 ) 
+
+C *** Calculate HSO4 by charge balance
+C     Note: if isorropia has returned a negative H+ concentration
+C     we effectively treat all H+ like HSO4 (slightly less effective
+C     in catalyzing the ring-opening)
+      charge = 0.0  ! umol/m3
+      Do i = 1, n_aerospc
+         charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
+     &         / aerospc_mw( i )
+      End Do
+      acidmolconc(hso4acid_idx) = max( ( charge*1d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
+
+C *** J-mode particle volume [L/m**3 air]
+      volume = 0.0d0
+      Do i = 1, n_aerospc 
+         if(  aerospc( i )%tracer )cycle
+         volume = volume + aerospc_conc( i, 2 ) / aerospc(i)%density * 1.0d-6
+      End Do
+
+C *** Loop over nucleophile/acid pairs defined in acid_nuc_pairs in AERO_DATA
+C     and calculate rate of particle phase reaction
+      kchem     = 0.0d0   ! intermediate value
+      kparticle = 0.0d0   ! accumulating IEPOX value
+
+      Do i = 1, n_nucpairs
+
+C        Find J-mode nucleophile concentration in ug/m3 and convert to mol/m3
+         nuc = aerospc_conc( acid_nucmap_idx(i), 2 ) / 
+     &         aerospc_mw( acid_nucmap_idx(i) ) * 1.0d-6
 
 C        Find acid concentration in mol/m3
          if (    acid_nuc_pairs(i)%acid == 'HPLUS' ) then
@@ -1645,9 +1939,10 @@ C        Correct sulfate for presence of bisulfate
          endif
 
 C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
-         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume * acid_nuc_pairs(i)%kchem*nuc*acid/volume
-!         inv_vol = 1.0E-9 * f6pi /  wet_m3( 2 )   
-!         kchem = acid_nuc_pairs(i)%kchem*nuc*acid*in_vol * acid_nuc_pairs(i)%kchem*nuc*acid*inv_vol
+         kchem = acid_nuc_pairs(i)%kchem*nuc*acid/volume**2
+
+!         write(6,'(2(a,1x),8(1x,es12.4))')acid_nuc_pairs(i)%acid // acid_nuc_pairs(i)%nuc // ', rates '
+!     &   // ', nuc, acid, inv_volume, kchem',': ',acid_nuc_pairs(i)%kchem,nuc,acid,1.0/volume,kchem
 
 C        Update sum
          kparticle  = kparticle + kchem
@@ -1658,14 +1953,14 @@ C        Update sum
 !        print*,'pair ',acid_nuc_pairs(i)%acid, acid_nuc_pairs(i)%nuc
 !        print*,'nucs ', aerospc_conc( acid_nucmap_idx(i), 2)
 !       enddo
-!     print*,'eqlbh',eqlbh
-!      print*, 'aerospc_conc', aerospc_conc
-!      print*,'volume',volume
-!      print*,'acids', acidmolconc
-!      print*,'kparticle', kparticle
-!      print*,'kchemos',kchemos
-!      print*,'kchemon',kchemon
-!      print*,'kchemtet',kchemtet
+!       print*,'eqlbh',eqlbh
+!       print*, 'aerospc_conc', aerospc_conc
+!       print*,'volume',volume
+!       print*,'acids', acidmolconc
+!       print*,'kparticle', kparticle
+!       print*,'kchemos',kchemos
+!       print*,'kchemon',kchemon
+!       print*,'kchemtet',kchemtet
 
       
 
@@ -1673,43 +1968,43 @@ C *** Calculate gamma following Pye et al. 2013 ES&T
 C     (see also Hanson et al. 1994 JGR Eqn (2) for details)
 
 C     Henry's Law coefficient
-      Heff = REAL(HLCONST( 'IEPOX', Real(temperature), .False., 0.0 ), 8)
+      temp = real( TEMPERATURE, 4)
+      Heff = REAL(HLCONST( 'IEPOX', temp , .False., 0.0 ), 8)
 
 C     Note that if the rate of particle phase reaction is very slow, there may not
 C     be enough digits of precision to properly calculate fq which can result in
 C     erroneously high gamma values. Only calculate gamma if particle phase reaction
 C     is faster than 1e-8 1/s
-      if ( kparticle .gt. small ) then
+      if ( kparticle .gt. smaller ) then
 
          ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
-         q = REAL(radius, 8) * sqrt ( kparticle/ diffusivity ) 
+         q = dble(radius) * sqrt ( kparticle/ diffusivity ) 
 
          ! Perform exp in double precision (dexp), also prevent negatives arising 
          ! from difference in numbers of similar size, fq should always be positive
-         fq = max( ( ( dexp(2.0d0*q) + 1.0d0 ) / ( dexp(2.0d0*q) - 1.0d0 ) - 1.0d0/q ), smaller )
+         fq = max( ( ( dexp(2*q) + 1 ) / ( dexp(2*q) - 1 ) - 1/q ), smaller )
 
          ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
-         nu = sqrt( 8.0d0 * Real( Rgasuniv, 8 ) * temperature /( dpi * mwtiepox * 1.0d-3 ) )
+         nu = sqrt( 8 * Rgasuniv * TEMPERATURE /( dpi * mwtiepox * 1d-3 ) )
 
          ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
-!         denom =  ( 4.0d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
-!     &         /  (inv_alpha + nu )
+         denom =  1/alpha + nu/ ( 4 * Heff * RgasLatmmolK * TEMPERATURE * sqrt ( diffusivity * kparticle ) * fq ) 
 
-!         gammaiepoxj = denom
+!         print*,"temp, q, fq, nu, Heff,denom : ",temp, q, fq,nu,Heff, denom
 
-          gammaiepoxj = ( 4.0d0 * Heff * RgasLatmmolK * temperature * sqrt ( diffusivity * kparticle ) * fq )
-     &                / (inv_alpha + nu )
+         gammaiepoxj_pye = 1/denom
+
 C     No/slow reaction
       else
 
-         gammaiepoxj = 0.0d0
+         gammaiepoxj_pye = 0d0
 
       endif
 
 
       RETURN
  
-      END FUNCTION GAMMAIEPOXJ
+      END FUNCTION GAMMAIEPOXJ_PYE
 
-      
+    
       END MODULE AEROSOL_CHEMISTRY

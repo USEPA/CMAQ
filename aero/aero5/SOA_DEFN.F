@@ -54,8 +54,8 @@ C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 16   ! # of partitioning SVOCs
-      Integer, Parameter :: n_orgprod = 13   ! # of ROG rxn counter species
+      Integer, Parameter :: n_vapor   = 15   ! # of partitioning SVOCs
+      Integer, Parameter :: n_orgprod = 12   ! # of ROG rxn counter species
 
       Type vapor_type
          Character( 16 ) :: name
@@ -68,13 +68,12 @@ C-----------------------------------------------------------------------
          Character( 16 ) :: drog_name   ! Precursor name
       End Type vapor_type
 
-      Type( vapor_type ), Parameter :: vaporspc( n_vapor ) = (/
+      Type( vapor_type ), Save :: vaporspc( n_vapor ) = (/
 C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
 C                                                          Name   Origin        Name
 C                  -------    -------  --------  -------  ------    --  ----   -------
-     & vapor_type('SV_ALK ',  0.0718,   0.0200,  40.0E3, 'AALKJ ', 'A',  8.0, 'ALK5RXN'),
-     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN'),
-     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN'),
+     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN' ),
+     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN' ),
      & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J', 'A',  8.0, 'XYLNRXN'),
      & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J', 'A',  8.0, 'XYLNRXN'),
      & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J', 'A',  7.0, 'TOLNRXN'),
@@ -128,7 +127,6 @@ C
       Type( orgprod_type ), Save      :: orgprod( n_orgprod ) = (/
 C                      Name      Parent     Aerospc  AlphaH
 C                     -------    -------    ------   ------ 
-     & orgprod_type( 'ALK5RXN', 'ALK5RXN', '      ', 0.000 ),
      & orgprod_type( 'ALKRXN',  'SOAALK ', '      ', 0.000 ),
      & orgprod_type( 'XYLNRXN', 'XYL    ', '      ', 0.000 ),
      & orgprod_type( 'XYLHRXN', 'XYL    ', 'AXYL3J', 0.360 ),
@@ -152,7 +150,9 @@ C mapping variables used for loading and unloading to CGRID array
       Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
       Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
 
-      Logical, Private, Save :: mapped   = .False.
+      Logical, Private, Save :: mapped              = .False.
+      Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
+
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
@@ -186,7 +186,7 @@ C Arguments:
       Real, Intent( In ) :: conc( : )
 
 C Local Variables:
-      Character( 80 ) :: xmsg
+      Character( 132 ) :: xmsg
       Real            :: gasconv
       Real            :: vtmp
       Integer         :: n
@@ -216,33 +216,54 @@ C define orgprod parent names based on mechanism dependence
 C if they differ from above declarations and
 C determine if gas-phase IEPOX uptake occurs for the mechanism
             If ( INDEX( MECHNAME, 'SAPRC99' ) .GT. 0 ) then
-               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
-               orgprod( 2 )%parent = 'ARO2'
-               orgprod( 3 )%parent = 'ARO2'
-               orgprod( 4 )%parent = 'ARO1'
-               orgprod( 5 )%parent = 'ARO1'
+!               alk_factor = 0.47    ! fraction of ALK5 that can produce SOA
+               vaporspc( 1 )%drog_name = 'ALK5RXN'
+               vaporspc( 2 )%drog_name = 'ALK5RXN'
+               orgprod( 1 )%name       = 'ALK5RXN'
+               orgprod( 1 )%parent     = 'ALK5RXN'
+               orgprod( 2 )%parent     = 'ARO2'
+               orgprod( 3 )%parent     = 'ARO2'
+               orgprod( 4 )%parent     = 'ARO1'
+               orgprod( 5 )%parent     = 'ARO1'
             Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
-               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
-               orgprod( 2 )%parent = 'MXYL'
-               orgprod( 3 )%parent = 'MXYL'
-               orgprod( 4 )%parent = 'TOLUENE'
-               orgprod( 5 )%parent = 'TOLUENE'
+!               alk_factor = 0.47    ! fraction of ALK5 that can produce SOA
+               vaporspc( 1 )%drog_name = 'ALK5RXN'
+               vaporspc( 2 )%drog_name = 'ALK5RXN'
+               orgprod( 1 )%name       = 'ALK5RXN'
+               orgprod( 1 )%parent     = 'ALK5RXN'
+               orgprod( 2 )%parent     = 'MXYL'
+               orgprod( 3 )%parent     = 'MXYL'
+               orgprod( 4 )%parent     = 'TOLUENE'
+               orgprod( 5 )%parent     = 'TOLUENE'
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
-               alk_factor = 0.57    ! fraction of ALK5 that can produce SOA
-               orgprod( 2 )%parent = 'XYM'
-               orgprod( 3 )%parent = 'XYM'
-               orgprod( 4 )%parent = 'TOL'
-               orgprod( 5 )%parent = 'TOL'
+!               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
+! the factor with RACM2 should be different because the HC8 + OH rate is higher
+! but endothermic 
+               vaporspc( 1 )%drog_name = 'ALK5RXN'
+               vaporspc( 2 )%drog_name = 'ALK5RXN'
+               orgprod( 1 )%name       = 'ALK5RXN'
+               orgprod( 1 )%parent     = 'ALK5RXN'
+               orgprod( 2 )%parent     = 'XYM'
+               orgprod( 3 )%parent     = 'XYM'
+               orgprod( 4 )%parent     = 'TOL'
+               orgprod( 5 )%parent     = 'TOL'
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
-!               IEPOX_SOA_mechanism    = .True.
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
+
+            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
+                  xmsg =  'Using AERO6 option and the Mechanism, '  
+     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
+                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
+            End If
+	    
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
          orgprod_map = 0
@@ -256,6 +277,7 @@ C Build mapping to CGRID for each ORGPROD species and find MW of parent
                Else
                   xmsg = 'Species ' // orgprod( spc )%parent
      &                 // ' in ORGPROD parent name is not in gas species table'
+     &                 // ' of '// TRIM ( MECHNAME )
                   Call m3exit( pname, 0, 0, xmsg, xstat3 )
                End If
             End If
@@ -322,7 +344,7 @@ C Copy grid cell concentrations of ORGPROD species
       End Do
 
 C Adjust ALK orgprod for fraction that produces SOA
-      orgprod_conc( 1 ) = alk_factor * orgprod_conc( 1 )
+!      orgprod_conc( 1 ) = alk_factor * orgprod_conc( 1 )
 
       Return
       End Subroutine extract_soa
@@ -813,7 +835,7 @@ C Variables for updating 2nd and 3rd moments
 
 C Added for new SOA bisection (hotp 7/6/11)
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
-      Logical, Parameter :: newtpartition = .True.   ! true to use original method, false to use new bisection
+      Logical, Parameter :: newtpartition = .False.   ! true to use original method, false to use new bisection
 
 C-----------------------------------------------------------------------
 
@@ -882,6 +904,7 @@ C process that conserves carbon mass.
       nsvpb = 0.0
 
       Do i = 1, n_vapor
+         If( soa_aeroMap( i ) .lt. 1 )Cycle
          If ( vaporspc( i )%soa_origin .Eq. 'A' )
      &      nsvpa = nsvpa + aerospc_conc( soa_aeroMap( i ),2 )
      &            * mw_vap_m1( i ) * vaporspc( i )%soa_decay
@@ -893,6 +916,7 @@ C process that conserves carbon mass.
       expdt = exp( - kolig * dt )
 
       Do i = 1, n_vapor
+         If( soa_aeroMap( i ) .lt. 1 )Cycle
          aerospc_conc( soa_aeroMap( i ),2 ) =
      &   aerospc_conc( soa_aeroMap( i ),2 ) * expdt
       End Do
@@ -918,12 +942,14 @@ C hard-coded values.
 
       totorg = totorgsw
       Do i = 1, n_vapor
+         If( soa_aeroMap( i ) .lt. 1 )Cycle
          totorg = totorg + aerospc_conc( soa_aeroMap( i ),2 ) * mw_vap_m1( i )
       End Do
 
 C Initialize ctoti as sum of vapor-phase and particle-phase SVOCs
 C Note: all of these CBLK species are in [ug/m**3]
       Do i = 1, n_vapor
+         If( soa_aeroMap( i ) .lt. 1 )Cycle
          ctoti( i ) = vapor_conc( i ) + aerospc_conc( soa_aeroMap( i ),2 )
       End Do
 
@@ -937,6 +963,8 @@ C    caer * (1 + c0/MW / totorg) = ctotf
 C    caer = ctotf / ( 1 + c0/MW / totorg )
 
       threshold = 0.0
+      upb = 0.0 ! upper bound for bisection method
+      
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
          c0( i )    = vaporspc( i )%cstar * tempcorr
@@ -945,6 +973,7 @@ C    caer = ctotf / ( 1 + c0/MW / totorg )
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
+         upb        = upb + ctotf( i) * mw_vap_m1( i )      ! upper: all moles (semi and nonvolatile)
       End Do
 
 C Check If gas/particle equilibrium can be established
@@ -975,14 +1004,15 @@ C Try again with initial guess of 50/50 gas/aerosol split.
             End If
          End If
 
-        Else
 C METHOD2
 C      Calculate new SOA by partitioning. 
 C      Method uses bisection method to solve for total number of moles
 C      of orgaic aerosol. Caer is then calculated based on that number.
+        Else
+
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
-         lowb      = totorgsw ! lower: moles of nonvolatile
-         upb       = totorg   ! upper: all moles (semi and nonvolatile)
+         lowb      = totorgsw   ! lower: moles of nonvolatile
+         upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
          orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
@@ -1021,6 +1051,7 @@ C Constrain caer to values between conmin and ctotf
 
 C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
       Do i = 1, n_vapor
+         If( soa_aeroMap( i ) .lt. 1 )Cycle
          aerospc_conc( soa_aeroMap( i ),2 ) = caer( i )
          vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
@@ -1082,6 +1113,7 @@ C condensation/evaporation does not affect the geometric standard deviation.
       End Do
 
       Do i = 1, n_vapor
+         If( soa_aeroMap( i ) .lt. 1 )Cycle
          new_m3 = new_m3 + orgfac * aerospc_conc( soa_aeroMap( i ),2 )
       End Do
 
@@ -1701,6 +1733,7 @@ C    all dimensions now depend upon N only
       RETURN
       END SUBROUTINE LUDCMP
 
+
       Function soabisect(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt) RESULT ( nroot )
 
 C     Determines the root of an equation, nroot, that is located
@@ -1734,7 +1767,8 @@ C     Result
 C     Local variables
       Real             :: nguess              ! current guess for total moles organic aerosol
       Real             :: oldn, lower, upper, flower, fnguess ! intermediate values
-      Real             :: ea                  ! difference b/w old and new guesses (ug/m3)
+      Real             :: fupper              ! function evaluated at upper bound
+      Real             :: ea                  ! difference b/w old and new guesses (umol/m3)
       Real             :: test                ! to detect sign change
       Integer          :: iter                ! counter to prevent infinite loops
 
@@ -1742,6 +1776,7 @@ C     Store current lower and upper bound, evaluate at lower bound
       lower      = lowerb
       upper      = upperb
       flower     = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, lowerb )
+      fupper     = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, upperb )
 
 C     First guess: solution at upperb
       nguess    = upperb
@@ -1751,6 +1786,13 @@ C     Counter of iterations to prevent infinite loops
 
 C     Iterate until the number of moles changes by less than fractol (percent) or abstol (absolute) amount
       Do
+
+        if ( flower * fupper .gt. 0.0 ) then
+           ! function does not change sign between bounds
+           Call m3exit( pname, 0, 0, 'Error: no solution between bounds
+     &                                in soa bisection', xstat3) 
+        endif
+
         iter    = iter + 1
         oldn    = nguess                        ! store last guess
         nguess  = ( lower + upper )/ 2.0e0      ! new guess is halfway b/w old lower and upper
@@ -1764,6 +1806,7 @@ C     Iterate until the number of moles changes by less than fractol (percent) o
         test = fnguess * flower
         If ( test .lt. 0.0 ) then               ! if function changes sign b/w guess and lower, guess becomes upper
            upper  = nguess
+           fupper = fnguess
         Else If ( test .gt. 0.0 ) then          ! if function does not change sign, guess becomes lowerbound
            lower  = nguess
            flower = fnguess
@@ -1771,11 +1814,21 @@ C     Iterate until the number of moles changes by less than fractol (percent) o
            ea      = 0.0
            nguess  = lower
            fnguess = flower
+        Else If ( fnguess .eq. 0.0 ) then       ! guess is the root
+           ea      = 0.0
         End If
 
         ! solution found if error is less than ABSTOL/100 % or N bounded by values less than 1e-10
-        If ( ea .lt. FRACTOL .or. ( ( upper + lower ) .lt. ABSTOL ) ) then
+        If ( ( ea .lt. FRACTOL ) .or. ( ( upper + lower ) .lt. ABSTOL ) ) then
            nroot = nguess
+
+           ! double check that the function is approximately zero
+           fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+           If ( abs(fnguess) .gt. 1d-3 ) then
+           Call m3exit( pname, 0, 0, 'Error: possible false convergence
+     &                               in soa bisection', xstat3) 
+           End If
+
            return
         End If
 
@@ -1823,6 +1876,5 @@ C     Compute function value for current value of N
 
       End function
 C-----------------------------------------------------------------------
-
 
       End Module soa_defn

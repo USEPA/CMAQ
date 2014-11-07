@@ -824,38 +824,44 @@
              RKI( NCELL,  254) =  BLKHET(  NCELL, IK_HETERO_N2O5IJ )
 !  Reaction Label HET_N02         
              RKI( NCELL,  255) =  BLKHET(  NCELL, IK_HETERO_NO2 )
-!  Reaction Label OLIG_ALKENE     
-             RKI( NCELL,  256) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_XYLENE1    
-             RKI( NCELL,  257) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  256) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_XYLENE2    
-             RKI( NCELL,  258) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  257) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TOLUENE1   
-             RKI( NCELL,  259) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  258) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TOLUENE2   
-             RKI( NCELL,  260) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  259) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_BENZENE1   
-             RKI( NCELL,  261) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  260) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_BENZENE2   
-             RKI( NCELL,  262) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  261) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TERPENE1   
-             RKI( NCELL,  263) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  262) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TERPENE2   
-             RKI( NCELL,  264) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  263) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ISOPRENE1  
-             RKI( NCELL,  265) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  264) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ISOPRENE2  
-             RKI( NCELL,  266) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  265) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_SESQT1     
+             RKI( NCELL,  266) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_PAH1       
              RKI( NCELL,  267) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_PAH2       
+             RKI( NCELL,  268) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK1       
+             RKI( NCELL,  269) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK2       
+             RKI( NCELL,  270) =   9.4882D-06 * SFACT 
 !  Reaction Label RPOAGEPI        
-             RKI( NCELL,  268) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  271) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELI        
-             RKI( NCELL,  269) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
+             RKI( NCELL,  272) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
 !  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  270) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  273) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
-             RKI( NCELL,  271) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+             RKI( NCELL,  274) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -946,12 +952,12 @@
             LOGICAL,         ALLOCATABLE     :: NML_CONVERT( : )
             REAL,            ALLOCATABLE     :: NML_MOLWT  ( : )
             REAL                             :: DELTA            ! fractional difference
-	
-	    LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
-	    IF( INITIALIZED )RETURN
-	
-	    INITIALIZED = .TRUE.
+            LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+            IF( INITIALIZED )RETURN
+
+            INITIALIZED = .TRUE.
             LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
@@ -966,7 +972,7 @@
 
 
             J = 0
-	
+
 
             NML_INDEX     = -1
             TYPE_INDEX    = -1

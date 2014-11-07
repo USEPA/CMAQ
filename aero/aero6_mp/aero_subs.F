@@ -866,7 +866,7 @@ C     mass partitioning between the modes
       REAL( 8 ) :: DRYM3, WETM3           ! scratch vars for 3rd moment calc [m**3/m**3]
       REAL( 8 ) :: DRYM2, WETM2           ! scratch vars for 2nd moment calc [m**2/m**3]
       REAL( 8 ) :: LOSS                   ! rate of loss of second moment [1/s] 
-      REAL( 8 ) :: EQLBHJ                 ! H+ concentration from isoropia for I plus J-modes [ug/m**3]
+      REAL( 8 ) :: EQLBHIJ                ! H+ concentration from isoropia for I plus J-modes [ug/m**3]
 
       REAL( 8 ) :: TMP
       INTEGER I, N                        ! loop and array indices
@@ -1436,7 +1436,7 @@ C *** Set flags to account for mass conservation violations in ISRP3F
 
 C *** Save H+ concentration information in microgram/m3 for consistency
 C     Assume J mode dominates I+J H+ concentration
-      EQLBHJ = AERLIQ(1) * 1.0D6  
+      EQLBHIJ = AERLIQ(1) * 1.0D6 * REAL( PRECURSOR_MW( ah3op_idx), 8 ) 
 
 C *** Update gas-phase concentrations
       PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
@@ -1447,7 +1447,7 @@ C *** Update gas-phase concentrations
       gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
       gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
 
-      EQLBHJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
+      EQLBHIJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
 
 #endif
 
@@ -1653,7 +1653,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
       IF(  H2O .GT. CONMIN )THEN
           H2O = 1.0 / H2O
           DO IMODE = 1, 2 
-             AEROSPC_CONC( AH3OP_IDX, IMODE ) = EQLBHJ * AEROSPC_CONC( AH2O_IDX, IMODE ) * H2O
+             AEROSPC_CONC( AH3OP_IDX, IMODE ) = EQLBHIJ * AEROSPC_CONC( AH2O_IDX, IMODE ) * H2O
           END DO
       ELSE
           AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
@@ -2965,6 +2965,7 @@ C     treated as though it were fine mass soil.
 
       !  sum from soa species
       DO N = 1, N_VAPOR  
+         IF( SOA_AEROMAP( N ) .LT. 1 )CYCLE
          EXT2 = EXT2 + 4.0 * AEROSPC_CONC( SOA_AEROMAP( N ),2 )
       END DO
 
