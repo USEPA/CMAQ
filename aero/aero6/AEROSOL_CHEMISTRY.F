@@ -329,6 +329,7 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
         
         WHICH_AERO_RATE = -1
         
+        SELECTED_AERO_RATES = 0
         DO IRATE = 1, NHETERO
            INDX = INDEX1( HETERO( IRATE ), NUMB_AERO_RATES, NAMES_AERO_RATES )
            IF( INDX .LT. 1 )THEN
