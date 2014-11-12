@@ -43,7 +43,7 @@ C     11 May 2011 D.Wong: incorporated twoway model implementation
 C      5 Jun 2012 J.Bash: Added support for NH3 bidirectional exchange. Fertilizer
 C                         sector emissions are subtracted from the total NH3 emissions
 C                         if the CTM_ABFLUX flag is set
-
+C     07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -310,8 +310,7 @@ C combined gas emssions conversion factor
          END FUNCTION EMIS_INIT
 
 C-----------------------------------------------------------------------
-         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CONVPA,
-     &                         RDX3F, RRHOJ, RJACM )
+         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CONVPA )
 
 C NEW APPROACH:
 C Apply NML factors to all *input* emissions and inline plume rise, aero emis
@@ -327,6 +326,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE LTNG_DEFN           ! lightning NO emissions
          USE UTILIO_DEFN
          USE DEPV_DEFN, ONLY: ABFLUX ! ammonia bidi flag
+         USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
 
          IMPLICIT NONE
 
@@ -339,9 +339,9 @@ C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
-         REAL,    INTENT( IN ) :: RDX3F( NLAYS )             ! reciprocal layer thickness
-         REAL,    INTENT( IN ) :: RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
-         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
+!         REAL,    INTENT( IN ) :: RDX3F( NLAYS )             ! reciprocal layer thickness
+!         REAL,    INTENT( IN ) :: RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
+!         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
 
 C Local Variables:
 
@@ -398,7 +398,7 @@ C  loads."
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLYRS
-                     CNVTC = CNVTI * RDX3F( L ) * RRHOJ( C,R,L )
+                     CNVTC = CNVTI * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
                      VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
      &                                 + CNVTC * BUFF( C,R,L )
                   END DO
@@ -429,10 +429,10 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
             end do
 #endif
             L = 1
-            CNVTI = CONVPA * CNVTE * RDX3F( L )  ! per sec
+            CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  CNVTC = CNVTI * RRHOJ( C,R,L )
+                  CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
                   N = 0
                   DO S = 1, MSPCS
                      V = BEIS_MAP( S )
@@ -454,8 +454,8 @@ C lightning NO
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
-                     CNVTI = CONVPA * CNVTE * RDX3F( L )  ! per sec
-                     CNVTC = CNVTI * RRHOJ( C,R,L )
+                     CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec
+                     CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
                      V = LTNG_MAP
                      VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
      &                                 + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_LT( C,R,L )
@@ -477,7 +477,7 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLAYS
-                     CNVTC = CNVTP * RDX3F( L ) * RRHOJ( C,R,L )
+                     CNVTC = CNVTP * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
                      DO S = 1, N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
                         V = SPC_PTEM_MAP( S ) ! <- pointer to non-PM (non-aerosol) species
                         N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
@@ -495,7 +495,7 @@ C aerosol emissions - all units conversions done in GET_AERO_EMIS for aerosols
 C GET_AERO_EMIS in f90 module AERO_EMIS
 
          IF ( N_AE_SPC .GT. 0 ) THEN
-            CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, RJACM, VDEMIS )
+            CALL GET_AERO_EMIS ( JDATE, JTIME, TSTEP, VDEMIS )
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
@@ -552,7 +552,7 @@ C                                       vvvvvvv - emis surrogate names
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
                   DO L = 1, EMLYRS
-                     CNVTC = CNVTI * RDX3F( L ) * RRHOJ( C,R,L )
+                     CNVTC = CNVTI * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
                      VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
      &                                 + CNVTC * BUFF( C,R,L )
                   END DO
@@ -586,7 +586,7 @@ C                                               vvvvvvv - emis surrogate names
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      DO L = 1, EMLYRS
-                        CNVTC = CNVTI * RDX3F( L ) * RRHOJ( C,R,L )
+                        CNVTC = CNVTI * Grid_Data%RDX3F( L ) * Met_Data%RRHOJ( C,R,L )
                         VDEMIS( V,L,C,R ) = CNVTC * BUFF( C,R,L )
                      END DO
                   END DO

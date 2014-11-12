@@ -65,7 +65,7 @@ C      15 01 Jul 11 G. Sarwar: calculate zenith angle to determine daytime and
 C                    nightime needed for sulfur oxidation via metal catalysis
 C      16 02Aug12 S.Roselle:  instrumented to calculate and return
 C                             transmissivity for resolved clouds
- 
+C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared data module.  
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -181,8 +181,6 @@ C for INTERPX
 
 C Gridded meteorology data:
 C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 2011 
-      REAL, ALLOCATABLE, SAVE :: LAT( :, : )        ! grid lat (deg) -90 <= LAT <= 90
-      REAL, ALLOCATABLE, SAVE :: LON( :, : )        ! grid lon (deg) -180 <= LON <= 180 
       REAL          COSZEN( NCOLS, NROWS )          ! cosine of zenith angle
       REAL          COSZ                            ! local cosine of zenith angle
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
@@ -327,40 +325,6 @@ C...  the met timestep in hours
           XMSG = 'Failure allocating CEND, POLC or REMOV'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-C...  Get LAT, Golam Sarwar * July 1, 2011 
-
-         ALLOCATE ( LAT( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LAT'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         XMSG = 'Could not read LAT from ' // GRID_CRO_2D
-         
-         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LAT', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, 0, 0, LAT ) ) THEN
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C...  Get LON 
-
-         ALLOCATE ( LON( MY_NCOLS, MY_NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LON'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         XMSG = 'Could not read LON from ' // GRID_CRO_2D
-
-         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, JDATE, JTIME, LON ) ) THEN
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C  **** Golam Sarwar * July 1, 2011
 
       END IF  ! FIRSTIME
 
@@ -541,7 +505,7 @@ C...Get air density (kg/m3)
 
 C.. Compute zenith angle; Golam Sarwar, July 1, 2011 
 
-      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
+      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
  
 C...compute layer thicknesses (m)
 

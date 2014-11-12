@@ -77,6 +77,7 @@ C 27 Sep 11 David Wong: replaced all run time dynamic arrays with allocatable
 C                       arrays to avoid run time memory issue  
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -86,9 +87,9 @@ C-----------------------------------------------------------------------
       USE AERO_DATA           ! aero variable data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! Includes CONST.EXT
-      USE Mosaic_Mod, Only: ADEPVJ, USTARJ, RAJ  ! Shared mosaic variables
+      USE Mosaic_Mod, Only: ADEPVJ  ! Shared mosaic variables
       Use LSM_Mod, Only: N_LUFRAC
-      Use DEPV_DEFN, Only: ABFLUX
+      USE ASX_DATA_MOD, Only: Met_Data
 
       IMPLICIT NONE
 
@@ -101,15 +102,11 @@ C Arguments
       INTEGER, INTENT( IN )  :: JDATE               ! current model date , coded YYYYDDD
       INTEGER, INTENT( IN )  :: JTIME               ! current model time , coded HHMMSS
       INTEGER, INTENT( IN )  :: TSTEP               ! model time step, coded HHMMSS
-!      REAL,    INTENT( IN )  :: USTARJ( :,:,: )     ! friction velocity [m/s ] for each land use category
-!      REAL,    INTENT( IN )  :: RAJ   ( :,:,: )     ! aerodynamic resistance [ s/m ] for each land use category
       LOGICAL, INTENT( IN )  :: MOSAIC              ! use mosaic option
       REAL,    INTENT( OUT ) :: VDEP_AE( :,:,: )    ! surrogate deposition velocities [ m s**-1 ]
-!      REAL,    INTENT( OUT ) :: VDEPJ_AE( :,:,:,: ) ! surrogate deposition velocities [ m s**-1 ] for each land use category
 
 C Parameters
       REAL,    PARAMETER :: T0 = 288.15      ! [ K ] ! starting standard surface temp.
-      REAL,    PARAMETER :: P0 = 101325.0    ! standard surface pressure [ Pa ]
       REAL,    PARAMETER :: TWO3 = 2.0 / 3.0
       INTEGER, PARAMETER :: N_AE_DEP_SPC = 9 ! no. of surrogates for aerosol dry dep velocities
 
@@ -140,21 +137,6 @@ C Local variables:
       INTEGER, ALLOCATABLE, SAVE :: DEPV_SUR( : )   ! pointer to surrogate
 
 C Meteorological variables
-!     REAL PRES    ( NCOLS,NROWS )        ! Atmospheric pressure [ Pa ]
-!     REAL TA      ( NCOLS,NROWS )        ! Air temperature [ K ]
-!     REAL DENS    ( NCOLS,NROWS )        ! Air density [ kg/m**3 ]
-!     REAL RA      ( NCOLS,NROWS )        ! aerodynamic resistance [ s/m ]
-!     REAL USTAR   ( NCOLS,NROWS )        ! friction velocity [m/s ]
-!     REAL WSTAR   ( NCOLS,NROWS )        ! convective velocity scale [m/s ]
-!     REAL HEATFLUX( NCOLS,NROWS )        ! surface heat flux [W/m**2]
-
-      REAL, ALLOCATABLE, SAVE :: PRES    ( :,: )        ! Atmospheric pressure [ Pa ]
-      REAL, ALLOCATABLE, SAVE :: TA      ( :,: )        ! Air temperature [ K ]
-      REAL, ALLOCATABLE, SAVE :: DENS    ( :,: )        ! Air density [ kg/m**3 ]
-      REAL, ALLOCATABLE, SAVE :: RA      ( :,: )        ! aerodynamic resistance [ s/m ]
-      REAL, ALLOCATABLE, SAVE :: USTAR   ( :,: )        ! friction velocity [m/s ]
-      REAL, ALLOCATABLE, SAVE :: WSTAR   ( :,: )        ! convective velocity scale [m/s ]
-      REAL, ALLOCATABLE, SAVE :: HEATFLUX( :,: )        ! surface heat flux [W/m**2]
 
       CHARACTER( 16 ), SAVE :: AE_VRSN ! Aerosol version name
 
@@ -187,31 +169,17 @@ C Meteorological variables
       CHARACTER( 16 ) :: VNAME            ! varable name
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER  MDATE, MTIME, MSTEP   ! julian date, time and timestep in sec
       INTEGER  C, R, V, N, J         ! loop counters
       INTEGER  SPC, S                ! species loop counter
       INTEGER  ALLOCSTAT
 
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTERFACE
-        SUBROUTINE GETDEP_V ( BLKTA, BLKDENS,
-     &                        XLM, AMU,
-     &                        BLKWSTAR, BLKUSTAR, BLKRA,
-     &                        DGATK, DGACC, DGCOR,
+        SUBROUTINE GETDEP_V ( XLM, AMU, DGATK, DGACC, DGCOR,
      &                        XXLSGAT, XXLSGAC, XXLSGCO,
      &                        PDENSAT, PDENSAC, PDENSCO,
-     &                        VDEP, VDEPJ,
-     &                        MOSAIC, BLKUSTARJ, BLKRAJ )
-          REAL, INTENT( IN ) :: BLKTA  ( :,: )  ! air temperature [ K ]
-          REAL, INTENT( IN ) :: BLKDENS( :,: )  ! air density  [ kg/m**3 ]
+     &                        VDEP, VDEPJ, MOSAIC )
           REAL, INTENT( IN ) :: XLM( :,: )      ! atmospheric mean free path [ m ]
           REAL, INTENT( IN ) :: AMU( :,: )      ! atmospheric dynamic viscosity [ kg/(m s) ]
-          REAL, INTENT( IN ) :: BLKWSTAR( :,: ) ! convective velocity scale [ m/s ]
-          REAL, INTENT( IN ) :: BLKUSTAR( :,: ) ! friction velocity [ m/s ]
-          REAL, INTENT( IN ) :: BLKRA   ( :,: ) ! aerodynamic resistance [ s/m ]
           REAL, INTENT( IN ) :: DGATK( :,: )    ! nuclei mode geometric mean diameter  [ m ]
           REAL, INTENT( IN ) :: DGACC( :,: )    ! accumulation geometric mean diameter [ m ]
           REAL, INTENT( IN ) :: DGCOR( :,: )    ! coarse mode geometric mean diameter  [ m ]
@@ -224,8 +192,6 @@ C Meteorological variables
           REAL, INTENT( OUT ) :: VDEP( :,:,: ) ! deposition  velocity [ m/s ]
           REAL, INTENT( OUT ) :: VDEPJ( :,:,:,: ) ! deposition  velocity [ m/s ] for each land use category
           LOGICAL, INTENT( IN ) :: MOSAIC
-          REAL, OPTIONAL, INTENT( IN ) :: BLKUSTARJ( :,:,: ) ! friction velocity [ m/s ]
-          REAL, OPTIONAL, INTENT( IN ) :: BLKRAJ   ( :,:,: ) ! aerodynamic resistance [ s/m ]
         END SUBROUTINE GETDEP_V
       END INTERFACE
 
@@ -276,19 +242,6 @@ C  Allocate arrays
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( PRES    ( NCOLS,NROWS ),
-     &              TA      ( NCOLS,NROWS ),
-     &              DENS    ( NCOLS,NROWS ),
-     &              RA      ( NCOLS,NROWS ),
-     &              USTAR   ( NCOLS,NROWS ),
-     &              WSTAR   ( NCOLS,NROWS ),
-     &              HEATFLUX( NCOLS,NROWS ),
-     &              STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating arrays'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
 !           ALLOCATE ( VDEPJ( N_LUFRAC,NCELLS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
             ALLOCATE ( VDEPJ( N_LUFRAC,NCOLS,NROWS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -309,22 +262,6 @@ C  Allocate arrays
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C Open the met files
-         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open  MET_CRO_3D  file '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open  MET_CRO_2D file '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
-            XMSG = 'Could not get  MET_CRO_2D  file description '
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
 C Set the dep vel surrogate pointers
          DO V = 1, N_AE_DEPV
             N = INDEX1( AE_DEPV( V ), N_AE_DEP_SPC, VDAE_NAME )
@@ -338,95 +275,9 @@ C Set the dep vel surrogate pointers
             END IF
          END DO
 
-C *** get file horizontal grid offsets
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
       END IF    ! FIRSTIME      
 
       IF ( N_AE_SPC .LE. 0 ) RETURN
-
-C begin interpolation of  meteorological variables
-
-      MDATE  = JDATE
-      MTIME  = JTIME
-
-C Interpolate time dependent one-layer and layered input variables
-
-ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
-      VNAME = 'RADYNI'
-      IF (       INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, RA ) ) THEN
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-               RA( C,R ) = 1.0 / MAX( RA( C,R ), CONMIN )
-            END DO
-         END DO
-      ELSE
-         VNAME = 'RA'
-         IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       MDATE, MTIME, RA ) ) THEN
-            XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_2D '
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
-      END IF
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-      VNAME = 'USTAR'
-      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, USTAR ) ) THEN
-         XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_2D '
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
-
-      VNAME = 'WSTAR'
-      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, WSTAR ) ) THEN
-         XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_2D '
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
-
-      VNAME = 'HFX'
-      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, HEATFLUX ) ) THEN
-         XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_2D '
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
-
-C Layered variables TA, PRES, DENS:
-
-      VNAME = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                    MDATE, MTIME, PRES ) ) THEN
-         XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
-         CALL M3EXIT (PNAME, MDATE, MTIME, XMSG, XSTAT1)
-      END IF
-
-      VNAME = 'TA'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                    MDATE, MTIME, TA ) ) THEN
-         XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
-
-      VNAME = 'DENS'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                    MDATE, MTIME, DENS ) ) THEN
-         XMSG = 'Could not interpolate '// VNAME // ' from MET_CRO_3D '
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
-
-C ----------End interpolation of meteorological variables -------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays
@@ -436,9 +287,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO C = 1, MY_NCOLS
 
 C ***    Set meteorological data for the grid cell.
-         AIRDENS = DENS( C,R )
-         AIRTEMP = TA( C,R )
-         AIRPRES = PRES( C,R )
+         AIRDENS = Met_Data%DENS1( C,R )
+         AIRTEMP = Met_Data%TEMP2( C,R )
+         AIRPRES = Met_Data%PRSFC( C,R )
 
 C ***    extract grid cell concentrations of aero species from CGRID
 C        into aerospc_conc in aero_data module
@@ -516,7 +367,7 @@ C        Save getpar values to arrays
          PDENSCO( C,R ) = AEROMODE_DENS( 3 )
  
 C        Calculate mean free path [ m ]:
-         XLM( C,R ) = 6.6328E-8 * P0 * AIRTEMP / ( T0 * AIRPRES )
+         XLM( C,R ) = 6.6328E-8 * STDATMPA * AIRTEMP / ( T0 * AIRPRES )
 
 C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
          AMU( C,R ) = 1.458E-6 * AIRTEMP * SQRT( AIRTEMP )
@@ -528,24 +379,10 @@ C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
 C *** get dry deposition velocities:
 
 !     CALL GETDEP_V ( NCELLS, N_AE_DEP_SPC,
-      IF ( MOSAIC .OR. ABFLUX ) THEN
-         CALL GETDEP_V ( TA, DENS,
-     &                   XLM, AMU,
-     &                   WSTAR, USTAR, RA,
-     &                   DGATK, DGACC, DGCOR,
-     &                   XXLSGAT, XXLSGAC, XXLSGCO,
-     &                   PDENSAT, PDENSAC, PDENSCO,
-     &                   VDEP, VDEPJ,
-     &                   MOSAIC, USTARJ, RAJ )
-      ELSE
-         CALL GETDEP_V ( TA, DENS,
-     &                   XLM, AMU,
-     &                   WSTAR, USTAR, RA,
-     &                   DGATK, DGACC, DGCOR,
-     &                   XXLSGAT, XXLSGAC, XXLSGCO,
-     &                   PDENSAT, PDENSAC, PDENSCO,
-     &                   VDEP, VDEPJ, MOSAIC )
-      END IF
+      CALL GETDEP_V ( XLM, AMU, DGATK, DGACC, DGCOR,
+     &                XXLSGAT, XXLSGAC, XXLSGCO,
+     &                PDENSAT, PDENSAC, PDENSCO,
+     &                VDEP, VDEPJ, MOSAIC )
 
 C Return dry deposition velocities for aerosols (first layer only).
 
@@ -588,14 +425,10 @@ C Return dry deposition velocities for aerosols (first layer only).
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !     SUBROUTINE GETDEP_V ( NUMCELLS, N_AE_DEP_SPC,
-      SUBROUTINE GETDEP_V ( BLKTA, BLKDENS,
-     &                      XLM, AMU,
-     &                      BLKWSTAR, BLKUSTAR, BLKRA,
-     &                      DGATK, DGACC, DGCOR,
+      SUBROUTINE GETDEP_V ( XLM, AMU, DGATK, DGACC, DGCOR,
      &                      XXLSGAT, XXLSGAC, XXLSGCO,
      &                      PDENSAT, PDENSAC, PDENSCO,
-     &                      VDEP, VDEPJ,
-     &                      MOSAIC, BLKUSTARJ, BLKRAJ )
+     &                      VDEP, VDEPJ, MOSAIC )
 
 C *** Calculate deposition velocity for Aitken, accumulation, and
 C     coarse modes.
@@ -618,23 +451,15 @@ C-----------------------------------------------------------------------
 
       USE LSM_MOD, Only: n_lufrac      ! to get n_lufrac
       USE AEROMET_DATA   ! Includes CONST.EXT
+      USE ASX_DATA_MOD, Only: Met_Data, Mosaic_Data, Grid_Data
 
       IMPLICIT NONE
 
 C *** input arguments
 
-C     meteorological information in blocked arays:
-      REAL, INTENT( IN ) :: BLKTA  ( :,: )  ! air temperature [ K ]
-      REAL, INTENT( IN ) :: BLKDENS( :,: )  ! air density  [ kg/m**3 ]
-
 C     atmospheric properties
       REAL, INTENT( IN ) :: XLM( :,: )      ! atmospheric mean free path [ m ]
       REAL, INTENT( IN ) :: AMU( :,: )      ! atmospheric dynamic viscosity [ kg/(m s) ]
-
-C     Planetary boundary laryer (PBL) variables
-      REAL, INTENT( IN ) :: BLKWSTAR( :,: ) ! convective velocity scale [ m/s ]
-      REAL, INTENT( IN ) :: BLKUSTAR( :,: ) ! friction velocity [ m/s ]
-      REAL, INTENT( IN ) :: BLKRA   ( :,: ) ! aerodynamic resistance [ s/m ]
 
 C     aerosol properties:
 
@@ -654,8 +479,6 @@ C     average modal particle densities  [ kg/m**3 ]
       REAL, INTENT( IN ) :: PDENSCO( :,: )  ! average particle density in coarse mode
 
 C     Mosaic variables
-      REAL, OPTIONAL, INTENT( IN ) :: BLKUSTARJ( :,:,: ) ! friction velocity [ m/s ]
-      REAL, OPTIONAL, INTENT( IN ) :: BLKRAJ   ( :,:,: ) ! aerodynamic resistance [ s/m ]
       LOGICAL, INTENT( IN ) :: MOSAIC
 
 C *** output arguments
@@ -791,8 +614,8 @@ C-----------------------------------------------------------------------
          VDEPJ = 0.0   ! array assignment
       END IF
 
-      DO R = 1, SIZE( BLKTA, 2 )
-         DO C = 1, SIZE( BLKTA, 1 )
+      DO R = 1, SIZE( Met_Data%TEMP2, 2 )
+         DO C = 1, SIZE( Met_Data%TEMP2, 1 )
 
 C *** Calculate Knudsen numbers
 
@@ -877,7 +700,7 @@ C *** calculate inverses:
             ESACM32 = 1.0 / ESAC32
             ESCOM32 = 1.0 / ESCO32
 
-            DCONST1  = BOLTZMANN * BLKTA( C,R ) / ( THREEPI * AMU( C,R ) )
+            DCONST1  = BOLTZMANN * Met_Data%TEMP2( C,R ) / ( THREEPI * AMU( C,R ) )
             DCONST1N = DCONST1 / DGATK( C,R )
             DCONST1A = DCONST1 / DGACC( C,R )
             DCONST1C = DCONST1 / DGCOR( C,R )
@@ -912,14 +735,14 @@ C coarse mode
 
 C now calculate the deposition velocities
 
-            NU = AMU( C,R ) / BLKDENS( C,R )
-            USTFAC = BLKUSTAR( C,R ) * BLKUSTAR( C,R ) / ( GRAV * NU )
+            NU = AMU( C,R ) / Met_Data%DENS1( C,R )
+            USTFAC = Met_Data%USTAR( C,R ) ** 2 / ( GRAV * NU )
             STOKEN = DCONST3N * USTFAC
             STOKEA = DCONST3A * USTFAC
             STOKEC = DCONST3C * USTFAC
-            UTSCALE = BLKUSTAR( C,R )
-     &              + 0.24 * BLKWSTAR( C,R ) * BLKWSTAR( C,R )
-     &              /        BLKUSTAR( C,R )
+            UTSCALE = Met_Data%USTAR( C,R )
+     &              + 0.24 * Met_Data%WSTAR( C,R )**2
+     &              /        Met_Data%USTAR( C,R )
 
 C first do 0th moment for the deposition of number
 
@@ -930,7 +753,7 @@ C  Aitken mode
             RD0N = 1.0 / ( UTSCALE * ( SC0N ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDNATK ) = VGHAT0N
-     &             / ( 1.0 - EXP( -VGHAT0N * ( BLKRA( C,R ) + RD0N ) ) )
+     &             / ( 1.0 - EXP( -VGHAT0N * ( Met_Data%RA( C,R ) + RD0N ) ) )
 
 C accumulation mode
             SC0A = NU / DCHAT0A
@@ -939,7 +762,7 @@ C accumulation mode
             RD0A = 1.0 / ( UTSCALE * ( SC0A ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDNACC ) = VGHAT0A
-     &             / ( 1.0 - EXP( -VGHAT0A * ( BLKRA( C,R ) + RD0A ) ) )
+     &             / ( 1.0 - EXP( -VGHAT0A * ( Met_Data%RA( C,R ) + RD0A ) ) )
 
 C coarse mode
             SC0C = NU / DCHAT0C
@@ -948,7 +771,7 @@ C coarse mode
             RD0C = 1.0 / ( UTSCALE * ( SC0C ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDNCOR ) = VGHAT0C
-     &             / ( 1.0 - EXP( -VGHAT0C * ( BLKRA( C,R ) + RD0C ) ) )
+     &             / ( 1.0 - EXP( -VGHAT0C * ( Met_Data%RA( C,R ) + RD0C ) ) )
 
 C now do 2nd moment for the deposition of surface area
 
@@ -959,7 +782,7 @@ C  Aitken mode
             RD2N = 1.0 / ( UTSCALE * ( SC2N ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDSATK ) = VGHAT2N
-     &             / ( 1.0 - EXP( -VGHAT2N * ( BLKRA( C,R ) + RD2N ) ) )
+     &             / ( 1.0 - EXP( -VGHAT2N * ( Met_Data%RA( C,R ) + RD2N ) ) )
 
 C accumulation mode
             SC2A = NU / DCHAT2A
@@ -968,7 +791,7 @@ C accumulation mode
             RD2A = 1.0 / ( UTSCALE * ( SC2A ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDSACC ) = VGHAT2A
-     &             / ( 1.0 - EXP( -VGHAT2A * ( BLKRA( C,R ) + RD2A ) ) )
+     &             / ( 1.0 - EXP( -VGHAT2A * ( Met_Data%RA( C,R ) + RD2A ) ) )
 
 C coarse mode
             SC2C = NU / DCHAT2C
@@ -977,7 +800,7 @@ C coarse mode
             RD2C = 1.0 / ( UTSCALE * ( SC2C ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDSCOR ) = VGHAT2C
-     &             / ( 1.0 - EXP( -VGHAT2C * ( BLKRA( C,R ) + RD2C ) ) )
+     &             / ( 1.0 - EXP( -VGHAT2C * ( Met_Data%RA( C,R ) + RD2C ) ) )
 
 C now do 3rd moment for the deposition of mass
 
@@ -988,7 +811,7 @@ C  Aitken mode
             RD3N = 1.0 / ( UTSCALE * ( SC3N ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDMATK ) = VGHAT3N
-     &             / ( 1.0 - EXP( -VGHAT3N * ( BLKRA( C,R ) + RD3N ) ) )
+     &             / ( 1.0 - EXP( -VGHAT3N * ( Met_Data%RA( C,R ) + RD3N ) ) )
 
 C accumulation mode
             SC3A = NU / DCHAT3A
@@ -997,7 +820,7 @@ C accumulation mode
             RD3A = 1.0 / ( UTSCALE * ( SC3A ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDMACC ) = VGHAT3A
-     &             / ( 1.0 - EXP( -VGHAT3A * ( BLKRA( C,R ) + RD3A ) ) )
+     &             / ( 1.0 - EXP( -VGHAT3A * ( Met_Data%RA( C,R ) + RD3A ) ) )
 
 C coarse mode
             SC3C = NU / DCHAT3C
@@ -1006,24 +829,24 @@ C coarse mode
             RD3C = 1.0 / ( UTSCALE * ( SC3C ** ( -TWO3 ) + EIM ) )
 
             VDEP( C,R,VDMCOR ) = VGHAT3C
-     &             / ( 1.0 - EXP( -VGHAT3C * ( BLKRA( C,R ) + RD3C ) ) )
+     &             / ( 1.0 - EXP( -VGHAT3C * ( Met_Data%RA( C,R ) + RD3C ) ) )
 
 C Do mosaic calculations - essentially a repeat of the above, using the mosaic vars
             IF ( MOSAIC ) THEN
 
                DO J = 1, N_LUFRAC
-                  IF ( BLKRAJ( J,C,R ) .GT. 0.0 ) THEN
+                  IF ( Mosaic_Data%RA( C,R,J ) .GT. 0.0 .And. Grid_Data%LUFRAC( C,R,J ) .GT. 0.0 ) THEN
 
 C now calculate the deposition velocities
 
-                     NU = AMU( C,R ) / BLKDENS( C,R )
-                     USTFAC = BLKUSTARJ( J,C,R ) * BLKUSTARJ( J,C,R ) / ( GRAV * NU )
+                     NU = AMU( C,R ) / Met_Data%DENS1( C,R )
+                     USTFAC = Mosaic_Data%USTAR( C,R,J )**2 / ( GRAV * NU )
                      STOKEN = DCONST3N * USTFAC
                      STOKEA = DCONST3A * USTFAC
                      STOKEC = DCONST3C * USTFAC
-                     UTSCALE = BLKUSTARJ( J,C,R )
-     &                       + 0.24 * BLKWSTAR( C,R ) * BLKWSTAR( C,R )
-     &                       /        BLKUSTARJ( J,C,R )
+                     UTSCALE = Mosaic_Data%USTAR( C,R,J )
+     &                       + 0.24 * Met_Data%WSTAR( C,R )**2
+     &                       /        Mosaic_Data%USTAR( C,R,J )
 
 C first do 0th moment for the deposition of number
 
@@ -1035,7 +858,7 @@ C  Aitken mode
                      RD0N = 1.0 / ( UTSCALE * ( SC0N ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDNATK ) = VGHAT0N
-     &                       / ( 1.0 - EXP(-VGHAT0N * ( BLKRAJ( J,C,R ) + RD0N ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT0N * ( Mosaic_Data%RA( C,R,J ) + RD0N ) ) )
 
 C accumulation mode
 
@@ -1045,7 +868,7 @@ C accumulation mode
                      RD0A = 1.0 / ( UTSCALE * ( SC0A ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDNACC ) = VGHAT0A
-     &                       / ( 1.0 - EXP(-VGHAT0A * ( BLKRAJ( J,C,R ) + RD0A ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT0A * ( Mosaic_Data%RA( C,R,J ) + RD0A ) ) )
 
 C coarse mode
 
@@ -1055,7 +878,7 @@ C coarse mode
                      RD0C = 1.0 / ( UTSCALE * ( SC0C ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDNCOR ) = VGHAT0C
-     &                       / ( 1.0 - EXP(-VGHAT0C * ( BLKRAJ( J,C,R ) + RD0C ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT0C * ( Mosaic_Data%RA( C,R,J ) + RD0C ) ) )
 
 C now do 2nd moment for the deposition of surface area
 
@@ -1067,7 +890,7 @@ C  Aitken mode
                      RD2N = 1.0 / ( UTSCALE * ( SC2N ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDSATK ) = VGHAT2N
-     &                     / ( 1.0 - EXP(-VGHAT2N * ( BLKRAJ( J,C,R ) + RD2N ) ) )
+     &                     / ( 1.0 - EXP(-VGHAT2N * ( Mosaic_Data%RA( C,R,J ) + RD2N ) ) )
 
 C accumulation mode
 
@@ -1077,7 +900,7 @@ C accumulation mode
                      RD2A = 1.0 / ( UTSCALE * ( SC2A ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDSACC ) = VGHAT2A
-     &                       / ( 1.0 - EXP(-VGHAT2A * ( BLKRAJ( J,C,R ) + RD2A ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT2A * ( Mosaic_Data%RA( C,R,J ) + RD2A ) ) )
 
 C coarse mode
 
@@ -1087,7 +910,7 @@ C coarse mode
                      RD2C = 1.0 / ( UTSCALE * ( SC2C ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDSCOR ) = VGHAT2C
-     &                       / ( 1.0 - EXP(-VGHAT2C * ( BLKRAJ( J,C,R ) + RD2C ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT2C * ( Mosaic_Data%RA( C,R,J ) + RD2C ) ) )
 
 C now do 3rd moment for the deposition of mass
 
@@ -1099,7 +922,7 @@ C  Aitken mode
                      RD3N = 1.0 / ( UTSCALE * ( SC3N ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDMATK ) = VGHAT3N
-     &                       / ( 1.0 - EXP(-VGHAT3N * ( BLKRAJ( J,C,R ) + RD3N ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT3N * ( Mosaic_Data%RA( C,R,J ) + RD3N ) ) )
 
 C accumulation mode
 
@@ -1109,7 +932,7 @@ C accumulation mode
                      RD3A = 1.0 / ( UTSCALE * ( SC3A ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDMACC ) = VGHAT3A
-     &                       / ( 1.0 - EXP(-VGHAT3A * ( BLKRAJ( J,C,R ) + RD3A ) ) )
+     &                       / ( 1.0 - EXP(-VGHAT3A * ( Mosaic_Data%RA( C,R,J ) + RD3A ) ) )
 
 C coarse mode
 
@@ -1119,9 +942,9 @@ C coarse mode
                      RD3C = 1.0 / ( UTSCALE * ( SC3C ** ( -TWO3 ) + EIM ) )
 
                      VDEPJ( J,C,R,VDMCOR ) = VGHAT3C
-     &                     / ( 1.0 - EXP(-VGHAT3C * ( BLKRAJ( J,C,R ) + RD3C ) ) )
+     &                     / ( 1.0 - EXP(-VGHAT3C * ( Mosaic_Data%RA( C,R,J ) + RD3C ) ) )
 
-                  END IF ! RAJ > 0
+                  END IF ! RA > 0
 
                END DO ! n_lufrac
 
