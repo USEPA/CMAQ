@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -127,7 +127,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  =  93
+      N_EBISP  =  96
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -209,24 +209,27 @@ c..Allocate and define ebi species
       EBISP(  73 ) = OLE2
       EBISP(  74 ) = SESQ
       EBISP(  75 ) = SESQRXN
-      EBISP(  76 ) = AALKJ
+      EBISP(  76 ) = AXYL1J
       EBISP(  77 ) = AOLGAJ
-      EBISP(  78 ) = AXYL1J
-      EBISP(  79 ) = AXYL2J
-      EBISP(  80 ) = ATOL1J
-      EBISP(  81 ) = ATOL2J
-      EBISP(  82 ) = ABNZ1J
-      EBISP(  83 ) = ABNZ2J
-      EBISP(  84 ) = ATRP1J
-      EBISP(  85 ) = AOLGBJ
-      EBISP(  86 ) = ATRP2J
-      EBISP(  87 ) = AISO1J
-      EBISP(  88 ) = AISO2J
-      EBISP(  89 ) = ASQTJ
-      EBISP(  90 ) = APOCI
-      EBISP(  91 ) = APNCOMI
-      EBISP(  92 ) = APOCJ
-      EBISP(  93 ) = APNCOMJ
+      EBISP(  78 ) = AXYL2J
+      EBISP(  79 ) = ATOL1J
+      EBISP(  80 ) = ATOL2J
+      EBISP(  81 ) = ABNZ1J
+      EBISP(  82 ) = ABNZ2J
+      EBISP(  83 ) = ATRP1J
+      EBISP(  84 ) = AOLGBJ
+      EBISP(  85 ) = ATRP2J
+      EBISP(  86 ) = AISO1J
+      EBISP(  87 ) = AISO2J
+      EBISP(  88 ) = ASQTJ
+      EBISP(  89 ) = APAH1J
+      EBISP(  90 ) = APAH2J
+      EBISP(  91 ) = AALK1J
+      EBISP(  92 ) = AALK2J
+      EBISP(  93 ) = APOCI
+      EBISP(  94 ) = APNCOMI
+      EBISP(  95 ) = APOCJ
+      EBISP(  96 ) = APNCOMJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -320,9 +323,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( OLE2     ) = 1.0D-03
       RTOL( SESQ     ) = 1.0D-03
       RTOL( SESQRXN  ) = 1.0D+00
-      RTOL( AALKJ    ) = 1.0D-03
-      RTOL( AOLGAJ   ) = 1.0D-03
       RTOL( AXYL1J   ) = 1.0D-03
+      RTOL( AOLGAJ   ) = 1.0D-03
       RTOL( AXYL2J   ) = 1.0D-03
       RTOL( ATOL1J   ) = 1.0D-03
       RTOL( ATOL2J   ) = 1.0D-03
@@ -334,6 +336,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AISO1J   ) = 1.0D-03
       RTOL( AISO2J   ) = 1.0D-03
       RTOL( ASQTJ    ) = 1.0D-03
+      RTOL( APAH1J   ) = 1.0D-03
+      RTOL( APAH2J   ) = 1.0D-03
+      RTOL( AALK1J   ) = 1.0D-03
+      RTOL( AALK2J   ) = 1.0D-03
       RTOL( APOCI    ) = 1.0D-03
       RTOL( APNCOMI  ) = 1.0D-03
       RTOL( APOCJ    ) = 1.0D-03

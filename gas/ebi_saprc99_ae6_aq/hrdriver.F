@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC99 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -246,7 +246,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
 
 C.. Compute number of time step loops and step size for EBI solver
-      DELT_SEC = DELTAT * 60.0 + 0.1
+      DELT_SEC = INT( DELTAT * 60.0 + 0.1 )
       IF( DELT_SEC .GE. ITMSTEP ) THEN
          N_EBI_STEPS = 1
          EBI_TMSTEP = FLOAT( ITMSTEP ) / 60.0
