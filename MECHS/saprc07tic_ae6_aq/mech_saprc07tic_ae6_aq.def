@@ -30,6 +30,11 @@
 ! 07/11/14    B.Hutzell Added inorganic heterogeneous reactions for N2O5 and NO2, 
 !             oligomerization reactions for SOA species and aging reactions for primary 
 !             organic carbon and non-carbon aerosol species
+! B.Hutzell 11/3/14
+!  -changed ALK5RXN yield in reaction <BL05> from 1.0 to 0.47 based on SOA updates
+!  suggested by H.Pye's for cb05e51_ae6_aq
+!  -Modified by splitting oligomerization into two reactions: one for each
+!   Alkene SOA species. The new species were introduced in cb05e51_ae6_aq
 
 
   SAPRC07TIC_AE6_AQ
@@ -715,7 +720,7 @@ REACTIONS [CM] =
          0.119*XC # 3.75e-12@-44;
 <BL05> ALK5 + OH = 0.647*xHO2 + 1.605*RO2C + 0.353*RO2XC + 0.353*zRNO3 +
          0.04*xHCHO + 0.106*xCCHO + 0.209*xRCHO + 0.071*xACETONE + 0.086*xMEK +
-         0.407*xPROD2 + yR6OOH + ALK5RXN + 2.004*XC # 2.70e-12@-374;
+         0.407*xPROD2 + yR6OOH + 0.47*ALK5RXN + 2.004*XC # 2.70e-12@-374;
 <BL06> OLE1 + OH = 0.871*xHO2 + 0.001*xMEO2 + 1.202*RO2C + 0.128*RO2XC +
          0.128*zRNO3 + 0.582*xHCHO + 0.01*xCCHO + 0.007*xHOCCHO + 0.666*xRCHO +
          0.007*xACETONE + 0.036*xACROLEIN + 0.001*xMACR + 0.012*xMVK +
@@ -1468,7 +1473,6 @@ REACTIONS [CM] =
 
 ! oligomerization reaction for secondary organic aerosols
 
-<OLIG_ALKENE>     AALKJ  = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
@@ -1480,6 +1484,10 @@ REACTIONS [CM] =
 <OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ    # 9.48816E-6;
 <OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ    # 9.48816E-6;
 <OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ    # 9.48816E-6;
+<OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
+<OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
+<OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ  # 9.48816E-6;
+<OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
 !aging reactions for primary organic carbon
 
