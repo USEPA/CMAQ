@@ -93,6 +93,7 @@ C       - Replaced I/O API include files with UTILIO_DEFN
 C     Apr. 11, 2013 David Wong
 C       - obtain LAND_SCHEME information from LSM_MOD for the twoway model
 C     07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C     20 Oct 14 J. Bash: Harmonized two way and base model land use data
 C----------------------------------------------------------------------
 
 C...modules
@@ -102,7 +103,7 @@ C...modules
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
-      USE LSM_MOD, ONLY: LAND_SCHEME
+      USE LSM_MOD, ONLY: LAND_SCHEME, N_LUFRAC
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -402,49 +403,8 @@ C...Get latitudes
              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
           END IF
 
-#ifdef twoway
          LOC_LAND_SCHEME = LAND_SCHEME
-#else
-         LOC_LAND_SCHEME = 'UNKNOWN'
-         IF ( .NOT. DESC3( GRID_CRO_2D ) ) THEN
-            XMSG = 'COULD NOT GET GRID_CRO_2D FILE DESCRIPTION '
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
-         DO V = 1, NVARS3D ! determine land character
-
-            IF ( VNAME3D( V ) .EQ. 'DLUSE' ) THEN
-               IF ( INDEX( VDESC3D( V ), 'USGS24' ) .NE. 0 ) LOC_LAND_SCHEME = 'USGS24'
-               IF ( INDEX( VDESC3D( V ), ' MODIS' ) .NE. 0 ) LOC_LAND_SCHEME = 'MODIS'
-
-C...overwrite if NLCD-MODIS scheme
-
-               IF ( INDEX( VDESC3D( V ), 'NLCD-MODIS' ) .NE. 0 ) LOC_LAND_SCHEME = 'NLCD50'
-               IF ( INDEX( VDESC3D( V ),     'NLCD50' ) .NE. 0 ) LOC_LAND_SCHEME = 'NLCD50'
-               IF ( INDEX( VDESC3D( V ),     'NLCD40' ) .NE. 0 ) LOC_LAND_SCHEME = 'NLCD40'
-            END IF
-
-         END DO
-#endif
-
-         SELECT CASE( LOC_LAND_SCHEME )
-           CASE( 'USGS24' )
-              NUMB_LANDUSE = NUMB_LANDUSE_USGS  ! 24
-           CASE( 'MODIS' )
-              NUMB_LANDUSE = NUMB_LANDUSE_MODIS ! 33
-           CASE( 'NLCD50' )
-              NUMB_LANDUSE = NUMB_LANDUSE_NLCD50  ! 50
-           CASE( 'NLCD40' )
-              NUMB_LANDUSE = NUMB_LANDUSE_NLCD40  ! 40
-              IF( NO_NLCD40 )THEN
-                  XMSG =  'GRID_CRO_2D uses NLCD40 landuse scheme but '
-     &                 // 'CSQY_FILE does not albedo factors for the '
-     &                 // 'NLCD40'
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-              END IF
-           CASE DEFAULT
-              NUMB_LANDUSE = 2 ! simple land-water suface albedo
-         END SELECT
+         NUMB_LANDUSE    = N_LUFRAC
 
          ALLOCATE ( ALBMAP_TO_REF( NUMB_LANDUSE ), ALBFAC_TO_REF( NUMB_LANDUSE ),
      &              STAT = ALLOCSTAT )
@@ -468,49 +428,25 @@ C...overwrite if NLCD-MODIS scheme
 
          FRACTION_LANDUSE  = 0.0
 
-         IF ( LOC_LAND_SCHEME .NE. 'UNKNOWN' ) THEN
-            XMSG = ': Identified ' // TRIM( LOC_LAND_SCHEME )
-     &           // ' land use scheme for surface albedo used by inline'
-     &           // ' photolysis calculation.'
-            DO V = 1, NUMB_LANDUSE
-               WRITE(LU_INDEX, '(I2.2)') V
-               VARNM = 'LUFRAC_' // LU_INDEX
-               IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                             STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                             1,1, JDATE, JTIME, BUFFER ) ) THEN
-                  XMSG =  'Could not read ' // TRIM( VARNM )
-     &                 // ' from ' // GRID_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-               DO COL = 1, MY_NCOLS
-                  DO ROW = 1, MY_NROWS
-                     FRACTION_LANDUSE( V, COL, ROW ) = BUFFER( COL, ROW )
-                  END DO
-               END DO
-            END DO
-         ELSE
-            XMSG = ': Undentified ' // TRIM( LOC_LAND_SCHEME )
-     &           // ' land use scheme for inline photolysis calculation.'
-     &           // ' Using default land-water albedo for inline photolysis'
-     &           // ' calculation.'
-            VARNM = 'LWMASK'
+         XMSG = ': Identified ' // TRIM( LOC_LAND_SCHEME )
+     &        // ' land use scheme for surface albedo used by inline'
+     &        // ' photolysis calculation.'
+         DO V = 1, NUMB_LANDUSE
+            WRITE(LU_INDEX, '(I2.2)') V
+            VARNM = 'LUFRAC_' // LU_INDEX
             IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
      &                          STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
      &                          1,1, JDATE, JTIME, BUFFER ) ) THEN
-               XMSG  = 'Could not read ' // TRIM( VARNM )
-     &               // ' from ' // GRID_CRO_2D
+               XMSG =  'Could not read ' // TRIM( VARNM )
+     &              // ' from ' // GRID_CRO_2D
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             DO COL = 1, MY_NCOLS
                DO ROW = 1, MY_NROWS
-                  IF ( BUFFER( COL, ROW ) .LT. 0.5 ) THEN
-                     FRACTION_LANDUSE( 2, COL, ROW ) = 1.0
-                  ELSE
-                     FRACTION_LANDUSE( 1, COL, ROW ) = 1.0
-                  END IF
+                  FRACTION_LANDUSE( V, COL, ROW ) = BUFFER( COL, ROW )
                END DO
             END DO
-         END IF
+         END DO
 
          XMSG = TRIM( PNAME ) // XMSG
          CALL M3MESG ( XMSG )
