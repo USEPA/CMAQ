@@ -95,6 +95,8 @@ C                         time resolution
 C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
 C                            diagnostic outputs on reaction gamma and yield 
 C                            values 
+C   HOT Pye - Jan 13 - Additional information for IEPOX aerosol 
+C                      written to AERODIAG file
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -107,7 +109,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
       USE UTILIO_DEFN
       USE CGRID_SPCS
-      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX
 
       IMPLICIT NONE
 
@@ -173,7 +175,7 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,26 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,27 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
@@ -307,7 +309,7 @@ C *** Open the met files.
 C *** Set up file structure for visibility file. It has two variables,
 C     visual range in deciview units (dimensionless) and extinction in
 C     units of (1/km) and is for layer 1 only.
-         IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+        IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
         IF ( AERDIAG .AND. MYPE .EQ. 0 )CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
@@ -480,6 +482,7 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
                   DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
                   DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,27 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
@@ -488,7 +491,7 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
 
 C     Aitken mode
                M3_WET = MOMENT3_CONC( 1 )
-               M3SUBT = ( 1.0E-9 * f6pi / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,1 )
                M3_DRY = M3_WET - M3SUBT
                M2_WET = MOMENT2_CONC( 1 )
@@ -500,11 +503,12 @@ C     Aitken mode
 C     accumulation mode
                M3_WET = MOMENT3_CONC( 2 )
 
-               M3SUBT = ( 1.0E-9 * f6pi / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,2 )
                DO SPC = 1, N_VAPOR
+                  IF( SOA_AEROMAP( SPC ) .LT. 1 )CYCLE
                   M3SUBT = M3SUBT
-     &                   + ( 1.0E-9 * f6pi / AEROSPC( APOC_IDX )%DENSITY )
+     &                   + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
      &                   * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
                END DO
 
@@ -517,7 +521,7 @@ C     accumulation mode
 
 C     coarse mode
                M3_WET = MOMENT3_CONC(3)
-               M3SUBT = ( 1.0E-9 * f6pi / AEROSPC( AH2O_IDX )%DENSITY )
+               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
      &                * AEROSPC_CONC( AH2O_IDX,3 )
                M3_DRY = M3_WET - M3SUBT
                M2_WET = MOMENT2_CONC( 3 )

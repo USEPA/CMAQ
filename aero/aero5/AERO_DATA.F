@@ -179,6 +179,7 @@ C Indexes of required species
       Integer :: ana_idx
       Integer :: acl_idx
       Integer :: ah2o_idx
+      Integer :: ah3op_idx 
       Integer :: asoil_idx
       Integer :: acors_idx
 
@@ -214,6 +215,7 @@ C                  ----------  -------  -------- -------  ------
       Real, Parameter :: max_sigma_g = 2.50
       Real, Parameter :: def_sigma_g( n_mode ) = (/ 1.70, 2.0, 2.2 /)  ! background sigma-G for each mode
       Real, Parameter :: def_diam( n_mode ) = (/ 1.0E-8, 7.0E-8, 1.0E-6 /)  ! background mean diameter for each mode
+
 
       Real            :: moment0_conc( n_mode )     ! 0th moment concentration
       Real            :: moment2_conc( n_mode )     ! 2nd moment concentration

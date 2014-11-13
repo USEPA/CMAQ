@@ -57,6 +57,7 @@ C  GAM2 equal to zero in the Toon et al. (1989) solution to the two stream
 C  of the radiative transfer equation based on how the NCAR TUV model 
 C  implements the approximation
 C
+<<<<<<< .merge_file_ugkEue
 C  Bill Hutzell(May 2013) modified optical depth agruments to give vetical
 C  profile rather than surface values. Note that TAU_TOT now includes 
 C  stratospheric values.
@@ -66,6 +67,10 @@ C  stratospheric values.
 ! FORTRAN modules that contain the layer level of the optical properties.
 ! Moved cross-section and yield arrays to CSQY_DATA module
 
+=======
+C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C  10/10/14 - DJL added references to IUPAC10 to NO2 and O3 photo rates
+>>>>>>> .merge_file_qOMze9
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -456,7 +461,8 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
           END IF
 99999     FORMAT( 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI Data'
      &          / 'Potential causes include boundary condition and meteorological input files. '
-     &          / 'Check them for unrealistic concentrations for species to ozone and it precursors')           
+     &          / 'Check the former for unrealistic concentrations for species to ozone and its precursors.'
+     &          / 'Check the latter for unrealistic advection and diffusion parameters.')           
 
           STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
 !          TOTAL_O3_COLUMN = REAL( STRAT_O3_COLUMN + CONC_TO_DU * TROPO_O3_COLUMN, 4 )
@@ -1033,224 +1039,6 @@ C-----------------------------------------------------------------------
 
       RETURN
       END SUBROUTINE O3AMT
-
-C///////////////////////////////////////////////////////////////////////
-
-      SUBROUTINE SOLEFM3 ( YEAR, DAY, EQT, SINDEC, COSDEC, SOLDIST )
-C-----------------------------------------------------------------------
-C  FSB Coded September 9, 2004 by Dr. Francis S. Binkowski
-C     Environmental Modeling for Policy Development group,
-C     The Carolina Environmental Program
-C     The University of North Carolina-Chapel Hill
-C     Email: frank_binkowski@unc.edu
-C
-C  REFERENCE:The code is a modification of that  from
-C     J.J. Michalsky, The Astronomical Almanac's algorithm for
-C     approximate solar position (1950-2050)
-C     Solar Energy vol. 40, No. 3, pp 227-235, 1988.
-C     who based it upon
-C
-C     The Astronomical Almanac, U.S. Gov't. Printing Office,
-C     Washington DC. Page c24 has the algorithm
-C
-C  The stated accuracy is 0.01 degree for the epoch ( 1950 - 2050).
-C
-C  This subroutine calculates the sine and cosine of the solar
-C     declination and the equation of time, and solar distance
-C     using an approximation to equations used to generate the
-C     tables in  The Astronomical Almanac.
-C
-C  input:
-C     year = year (e.g. 1998)
-C     day  = day of the year (e.g. Feb. 2 is 33)
-C     lat  = latitude in degrees (north is positive)
-C     long = longitude in degrees (east is positive)
-C
-C  output:
-C     EQT    = Equation of Time
-C     sindec = sine of the solar declination
-C     cosdec = cosine of the solar declination
-C     soldist = distance of sun in astronomical units
-C-----------------------------------------------------------------------
-
-      IMPLICIT NONE
-
-!***arugments
-
-      REAL, INTENT(IN)  :: YEAR, DAY
-      REAL, INTENT(OUT) :: EQT, SINDEC, COSDEC, SOLDIST
-
-!***parameters
-
-!!!from above      REAL, PARAMETER :: PI = 3.1415927
-      REAL, PARAMETER :: TWOPI = 2.0 * PI
-!!!from above      REAL, PARAMETER :: RAD   = PI / 180.0
-      REAL, PARAMETER :: RAD   = PI180
-      REAL, PARAMETER :: RADM1 = 1.0 / RAD
-
-!***FSB inline documentation defines the variables.
-
-      REAL DELTA, LEAP, JD, TIME, L, G, LAMDA, EPSILON
-      REAL ALPHA
-      REAL SING, SIN2G, COSG, COS2G
-      REAL(8) NUM, DEN
-
-!***start code
-!***get current julian date, jd
-!***  the offset year of 1949 is for convenience of having all
-!***  positive numbers for the epoch (1950 - 2050)
-
-      DELTA = YEAR - 1949.0
-      LEAP  = AINT( DELTA / 4.0 )
-
-!***jd = 32916.5 + 365.0 * delta + leap + hour / 24.0
-!***set hour = 12.0 and 12.0 / 24.0 -> 0.5
-
-      JD = 2432916.5 + 365.0 * DELTA + LEAP + DAY + 0.5
-
-!***first number is jd for midnight 0 Jan 1949
-!***  leap is leap days since 1949.
-
-!***  calculate ecliptic conditions:
-
-      TIME = JD - 2451545.0     ! 51545.0 is noon Jan 1, 2000
-
-!***calculate mean solar longitude (L)
-
-      L = 280.460 + 0.985674 * TIME ! mean solar longitude
-
-!***now force L to be between 0.0 and 360. degrees
-
-      L = MODULO( L, 360.0 )
-      IF ( L .lt. 0.0 ) L = L + 360.0
-
-!***calculate mean anomaly (g) in radians between 0 and twopi
-
-      G = 357.528 + 0.9856003 * TIME
-      G = MODULO( G, 360.0 )
-      IF ( G .LT. 0.0 ) G = G + 360.0
-
-      G = RAD * G    ! in radians now
-
-!***calculate trig functions of g using identities
-!***  this speeds up the calculations
-
-      SING = SIN( G )
-      COSG = COS( G )
-      SIN2G = 2.0 * SING * COSG
-      COS2G = COSG * COSG - SING * SING
-
-!***calculate ecliptic longitude ( Lamda) and
-!***  obliquity (epsilon) of ecliptic in radians
-
-      LAMDA = L +  1.915 * SING  + 0.020 * SIN2G
-      LAMDA = MODULO( LAMDA, 360.0 )
-      IF ( LAMDA .LT. 0.0 ) LAMDA = LAMDA + 360.0
-
-!***calculate obliquity (epsilon)
-
-      EPSILON = 23.429 - 4.0E-7 * TIME
-      LAMDA   = RAD * LAMDA    ! in radians
-      EPSILON = RAD * EPSILON  ! in radians
-
-!***now calculate right ascension (Alpha) Use this method to get the
-!***  correct quadrant.
-
-      NUM = COS( EPSILON ) * SIN( LAMDA ) ! numerator
-      DEN = COS( LAMDA )          ! denominator
-      ALPHA = ATAN( NUM / DEN )
-
-!***force right ascension to be between 0 and twopi
-
-      IF ( DEN .LT. 0.0D0 ) THEN
-         ALPHA = ALPHA + PI
-      ELSE IF ( NUM .LT. 0.0D0 ) THEN
-         ALPHA = ALPHA + TWOPI
-      END IF
-
-!***Alpha = atan2(num,den)
-!***  Alpha = MOD(Alpha, 360.0)
-!***  IF ( Alpha .lt. 0.0)  Alpha = Alpha + 360.0
-
-      ALPHA = RADM1 * ALPHA     ! Alpha now in degrees
-
-!***calculate the sine of the declination
-!***  (sindec) cosine of the declination (cosdec)
-
-      SINDEC = SIN( EPSILON ) * SIN( LAMDA )
-      COSDEC = SQRT( 1.0 - SINDEC * SINDEC )
-
-!***calculate the Equation of Time( EQT) in degrees.
-
-      EQT = L - ALPHA
-      IF ( EQT .GT. 350.0 ) EQT = EQT - 360.0 ! catch a problem
-
-!***calculate solar distance
-
-      SOLDIST = 1.00014 - 0.01671 * COSG - 0.00014 * COS2G
-
-      RETURN
-      END SUBROUTINE SOLEFM3
-
-C///////////////////////////////////////////////////////////////////////
-
-      SUBROUTINE GETZEN2 ( TIME, SINLAT, COSLAT, SINDEC, COSDEC, EQT,
-     &                     COSZEN )
-C-----------------------------------------------------------------------
-C  calculate the zenith angle information at the present time step
-C
-C  input:
-C     time    = LST in decimal hours <<NOTE: LST
-C     sinlat  = sine of the latitude
-C     coslat  = cosine of the latitude
-C     sindec  = sine of the solar declination
-C     cosdec  = cosine of the solar declination
-C     EQT     = equation of time in degrees
-C
-C  Output:
-C     coszen  = cosine of the zenith angle
-C
-C  Revision history:
-C     FSB Coded September 10, 2004 by Dr. Francis S. Binkowski
-C     FSB modified February 15, 2005 to increase efficiency
-C     Environmental Modeling for Policy Development group,
-C     The Carolina Environmental Program
-C     The University of North Carolina-Chapel Hill
-C     Email: frank_binkowski@unc.edu
-C
-C  Note: because this routine will be called frequently
-C     during a simulation, the sines and cosines of the
-C     latitude should be calculated once at the beginning of
-C     simulation.
-C-----------------------------------------------------------------------
-
-      IMPLICIT NONE
-
-!***arguments
-
-      REAL, INTENT(IN)  :: TIME, SINLAT, COSLAT
-      REAL, INTENT(IN)  :: SINDEC, COSDEC, EQT
-      REAL, INTENT(OUT) :: COSZEN
-
-!***internal variables
-
-      REAL HANGLE          ! local hour angle in degrees
-
-!!!from above      REAL, PARAMETER :: PI = 3.1415927
-!!!from above      REAL, PARAMETER :: RAD = PI / 180.0
-      REAL, PARAMETER :: RAD = PI180
-
-!***start code.
-
-      HANGLE = 15.0 * ( TIME - 12.0 )  + EQT
-      COSZEN = SINDEC * SINLAT + COSLAT * COSDEC * COS( RAD * HANGLE )
-
-!***do not allow zenith angle to be lower than 1 degree (COSZEN = 0.999998)
-!***when COSZEN is 1.0, gas-phase chemistry solver does not work properly 
-      IF (COSZEN .GT. 0.999998) COSZEN = 0.999998
-
-      RETURN
-      END SUBROUTINE GETZEN2
 
 C///////////////////////////////////////////////////////////////////////
 
