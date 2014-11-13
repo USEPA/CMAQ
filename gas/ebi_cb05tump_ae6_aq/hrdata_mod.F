@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 13, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -76,22 +76,23 @@ c...Allocatable arrays
       INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
       INTEGER, ALLOCATABLE :: IOLD2NEW( :,: )    ! YC species map, used if NSPECIAL > 0
 
-      REAL( 8 ), ALLOCATABLE ::  RKI(   :,  : )     ! Rate constants
+      REAL( 8 ), ALLOCATABLE ::  RKI(  : )     ! Rate constants
       REAL( 8 ), ALLOCATABLE ::  RKI_SAV(  :,  : )  ! Saved values of RKI for SS species calcs
 
-      REAL( 8 ), ALLOCATABLE ::  YC (   :, : )      ! Species concentrations
-      REAL( 8 ), ALLOCATABLE ::  YC0(   :, : )      ! Species concentrations
-      REAL( 8 ), ALLOCATABLE ::  YCP(   :, : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC (  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC0(  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YCP(  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  SYC(  :, : )   ! Species concentrations
 
-      REAL, ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor
-      REAL, ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
+      REAL, ALLOCATABLE      :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor
+      REAL, ALLOCATABLE      :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
 
-      REAL( 8 ), ALLOCATABLE ::  RXRAT( :, : )     ! Reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
       REAL( 8 ), ALLOCATABLE ::  YCCELL( : )       ! ALL Species in cgrid
-      REAL( 8 ), ALLOCATABLE ::  PROD(  :, : )     ! Prod of species
-      REAL( 8 ), ALLOCATABLE ::  LOSS(  :, : )     ! Loss of species
-      REAL( 8 ), ALLOCATABLE ::  PNEG( :,  : )     ! Negative production rates
+      REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
+      REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
+      REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
 
 
 c..Species indices
@@ -165,47 +166,56 @@ c..Species indices
       INTEGER, PARAMETER :: CLO              =   68
       INTEGER, PARAMETER :: FMCL             =   69
       INTEGER, PARAMETER :: HCL              =   70
-      INTEGER, PARAMETER :: TOLNRXN          =   71
-      INTEGER, PARAMETER :: TOLHRXN          =   72
-      INTEGER, PARAMETER :: XYLNRXN          =   73
-      INTEGER, PARAMETER :: XYLHRXN          =   74
-      INTEGER, PARAMETER :: BENZENE          =   75
-      INTEGER, PARAMETER :: BENZRO2          =   76
-      INTEGER, PARAMETER :: BNZNRXN          =   77
-      INTEGER, PARAMETER :: BNZHRXN          =   78
-      INTEGER, PARAMETER :: SESQ             =   79
-      INTEGER, PARAMETER :: SESQRXN          =   80
-      INTEGER, PARAMETER :: FORM_PRIMARY     =   81
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =   82
-      INTEGER, PARAMETER :: BUTADIENE13      =   83
-      INTEGER, PARAMETER :: ACROLEIN         =   84
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =   85
-      INTEGER, PARAMETER :: TOLU             =   86
-      INTEGER, PARAMETER :: MXYL             =   87
-      INTEGER, PARAMETER :: OXYL             =   88
-      INTEGER, PARAMETER :: PXYL             =   89
-      INTEGER, PARAMETER :: APIN             =   90
-      INTEGER, PARAMETER :: BPIN             =   91
-      INTEGER, PARAMETER :: HG               =   92
-      INTEGER, PARAMETER :: HGIIAER          =   93
-      INTEGER, PARAMETER :: HGIIGAS          =   94
-      INTEGER, PARAMETER :: AALKJ            =   95
-      INTEGER, PARAMETER :: AOLGAJ           =   96
-      INTEGER, PARAMETER :: AXYL1J           =   97
-      INTEGER, PARAMETER :: AXYL2J           =   98
-      INTEGER, PARAMETER :: ATOL1J           =   99
-      INTEGER, PARAMETER :: ATOL2J           =  100
-      INTEGER, PARAMETER :: ABNZ1J           =  101
-      INTEGER, PARAMETER :: ABNZ2J           =  102
-      INTEGER, PARAMETER :: ATRP1J           =  103
-      INTEGER, PARAMETER :: AOLGBJ           =  104
-      INTEGER, PARAMETER :: ATRP2J           =  105
-      INTEGER, PARAMETER :: AISO1J           =  106
-      INTEGER, PARAMETER :: AISO2J           =  107
-      INTEGER, PARAMETER :: ASQTJ            =  108
-      INTEGER, PARAMETER :: APOCI            =  109
-      INTEGER, PARAMETER :: APNCOMI          =  110
-      INTEGER, PARAMETER :: APOCJ            =  111
-      INTEGER, PARAMETER :: APNCOMJ          =  112
+      INTEGER, PARAMETER :: CLNO2            =   71
+      INTEGER, PARAMETER :: TOLNRXN          =   72
+      INTEGER, PARAMETER :: TOLHRXN          =   73
+      INTEGER, PARAMETER :: XYLNRXN          =   74
+      INTEGER, PARAMETER :: XYLHRXN          =   75
+      INTEGER, PARAMETER :: BENZENE          =   76
+      INTEGER, PARAMETER :: BENZRO2          =   77
+      INTEGER, PARAMETER :: BNZNRXN          =   78
+      INTEGER, PARAMETER :: BNZHRXN          =   79
+      INTEGER, PARAMETER :: SESQ             =   80
+      INTEGER, PARAMETER :: SESQRXN          =   81
+      INTEGER, PARAMETER :: H2NO3PIJ         =   82
+      INTEGER, PARAMETER :: H2NO3PK          =   83
+      INTEGER, PARAMETER :: ACLI             =   84
+      INTEGER, PARAMETER :: ACLJ             =   85
+      INTEGER, PARAMETER :: ACLK             =   86
+      INTEGER, PARAMETER :: AXYL1J           =   87
+      INTEGER, PARAMETER :: AOLGAJ           =   88
+      INTEGER, PARAMETER :: AXYL2J           =   89
+      INTEGER, PARAMETER :: ATOL1J           =   90
+      INTEGER, PARAMETER :: ATOL2J           =   91
+      INTEGER, PARAMETER :: ABNZ1J           =   92
+      INTEGER, PARAMETER :: ABNZ2J           =   93
+      INTEGER, PARAMETER :: ATRP1J           =   94
+      INTEGER, PARAMETER :: AOLGBJ           =   95
+      INTEGER, PARAMETER :: ATRP2J           =   96
+      INTEGER, PARAMETER :: AISO1J           =   97
+      INTEGER, PARAMETER :: AISO2J           =   98
+      INTEGER, PARAMETER :: ASQTJ            =   99
+      INTEGER, PARAMETER :: APAH1J           =  100
+      INTEGER, PARAMETER :: APAH2J           =  101
+      INTEGER, PARAMETER :: AALK1J           =  102
+      INTEGER, PARAMETER :: AALK2J           =  103
+      INTEGER, PARAMETER :: APOCI            =  104
+      INTEGER, PARAMETER :: APNCOMI          =  105
+      INTEGER, PARAMETER :: APOCJ            =  106
+      INTEGER, PARAMETER :: APNCOMJ          =  107
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  108
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  109
+      INTEGER, PARAMETER :: BUTADIENE13      =  110
+      INTEGER, PARAMETER :: ACROLEIN         =  111
+      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  112
+      INTEGER, PARAMETER :: TOLU             =  113
+      INTEGER, PARAMETER :: MXYL             =  114
+      INTEGER, PARAMETER :: OXYL             =  115
+      INTEGER, PARAMETER :: PXYL             =  116
+      INTEGER, PARAMETER :: APIN             =  117
+      INTEGER, PARAMETER :: BPIN             =  118
+      INTEGER, PARAMETER :: HG               =  119
+      INTEGER, PARAMETER :: HGIIAER          =  120
+      INTEGER, PARAMETER :: HGIIGAS          =  121
 
       END MODULE HRDATA
