@@ -668,7 +668,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
          ! Dry cuticle resistance.
 
-               IF ( l_NH3 .Ne. 'NH3' ) THEN
+               IF ( l_NH3 .Eq. l ) THEN
                   rcut = rcut0 * a0 / ar( l )
                ELSE
                   rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
