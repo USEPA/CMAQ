@@ -57,20 +57,14 @@ C  GAM2 equal to zero in the Toon et al. (1989) solution to the two stream
 C  of the radiative transfer equation based on how the NCAR TUV model 
 C  implements the approximation
 C
-<<<<<<< .merge_file_ugkEue
 C  Bill Hutzell(May 2013) modified optical depth agruments to give vetical
 C  profile rather than surface values. Note that TAU_TOT now includes 
 C  stratospheric values.
-!
 ! Bill Hutzell(Mar 2014) modified calculation of aerosol and cloud optical
 ! properites as well as their calculated optical depths. The changes employ
 ! FORTRAN modules that contain the layer level of the optical properties.
-! Moved cross-section and yield arrays to CSQY_DATA module
-
-=======
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C  10/10/14 - DJL added references to IUPAC10 to NO2 and O3 photo rates
->>>>>>> .merge_file_qOMze9
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -461,7 +455,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
           END IF
 99999     FORMAT( 'ERROR: predicted O3 tropospheric Column EXCEEDS VALUE based on OMI Data'
      &          / 'Potential causes include boundary condition and meteorological input files. '
-     &          / 'Check the former for unrealistic concentrations for species to ozone and its precursors.'
+     &          / 'Check the former for unrealistic concentrations of ozone and its precursors.'
      &          / 'Check the latter for unrealistic advection and diffusion parameters.')           
 
           STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLUMN
@@ -1740,103 +1734,6 @@ C-----------------------------------------------------------------------
       RETURN
 
       END SUBROUTINE TRIDIAGONAL
-
-!///////////////////////////////////////////////////////////////////////
-
-      REAL FUNCTION QY_ACETONE( TEMP, DENS_NUMB, LAMBDA )
-
-C-----------------------------------------------------------------------
-C Computes acetone quantum yields according to:
-C IUPAC (2005) recommendation based on
-C Blitz, M. A., D. E. Heard, M. J. Pilling, S. R. Arnold, and M. P. Chipperfield
-C       (2004), Pressure and temperature-dependent quantum yields for the
-C       photodissociation of acetone between 279 and 327.5 nm, Geophys.
-C       Res. Lett., 31, L06111, doi:10.1029/2003GL018793.
-C-----------------------------------------------------------------------
-
-      IMPLICIT NONE
-
-!***arguments
-
-      REAL, INTENT(IN) :: TEMP        ! air temperature, K
-      REAL, INTENT(IN) :: DENS_NUMB   ! air number density, 1/cm^3
-      REAL, INTENT(IN) :: LAMBDA      ! wavelength, nm
-
-!***local
-
-      REAL A0           ! 1st coef for qy
-      REAL A1           ! 2nd coef for qy
-      REAL A2           ! 3rd coef for qy
-      REAL A3           ! 4th coef for qy
-      REAL A4           ! 5th coef for qy
-      REAL A5           ! 6th coef for qy
-      REAL A6           ! 7th coef for qy
-
-      REAL PHI_CO       ! CO branch of IUPAC (2005) acetone QYZ
-      REAL PHI_CH3CO    ! CH3CO branch of IUPAC (2005) acetone QYZ
-      REAL AA           ! scratch variable for IUPAC (2005) acetone QYZ
-      REAL BB           ! scratch variable for IUPAC (2005) acetone QYZ
-      REAL CC           ! scratch variable for IUPAC (2005) acetone QYZ
-
-      IF ( LAMBDA .GE. 248.0 .AND. LAMBDA .LE. 349.0 ) THEN
-
-         AA = 0.350 * ( TEMP / 295.0 )**(-1.28)
-         BB = 0.068 * ( TEMP / 295.0 )**(-2.65)
-         A0 = ( AA / ( 1.0 - AA ) ) * EXP( BB * ( LAMBDA - 248.0 ) )
-         PHI_CO = 1.0 / ( 1.0 + A0 )
-
-         IF ( LAMBDA .LE. 302.0 ) THEN
-
-!***wavelengths 248-302 nm
-
-            AA = 1.600 * 1.0E-19 * ( TEMP / 295.0 )**(-2.38)
-            BB =  0.55 * 1.0E-03 * ( TEMP / 295.0 )**(-3.19)
-            A1 = AA * EXP( -BB * ( ( 1.0E+07 / LAMBDA ) - 33113.0 ) )
-            PHI_CH3CO = ( 1.0 - PHI_CO ) / ( 1.0 + A1*DENS_NUMB )
-
-!***wavelengths 302-349 nm
-
-         ELSE
-
-            AA = 1.62 * 1.0E-17 * ( TEMP / 295.0 )**(-10.03)
-            BB = 1.79 * 1.0E-3  * ( TEMP / 295.0 )**(-1.364)
-            A2 = AA * EXP( -BB * ( ( 1.0E+07 / LAMBDA ) - 30488.0 ) )
-
-            AA = 26.29 * ( TEMP / 295.0 )**(-6.59)
-            BB = 5.72 * 1.0E-7 * ( TEMP / 295.0 )**(-2.93)
-            CC = ( 30006.0 )   * ( TEMP / 295.0 )**(-0.064)
-            A3 = AA * EXP( -BB * ( ( 1.0E+07 / LAMBDA ) - CC )**2.0 )
-
-            AA = 1.67 * 1.0E-15 * ( TEMP / 295.0 )**(-7.25)
-            BB = 2.08 * 1.0E-3  * ( TEMP / 295.0 )**(-1.16)
-            A4 = AA * EXP( -BB * ( ( 1.0E+07 / LAMBDA ) - 30488.0 ) )
-
-            PHI_CH3CO = ( 1.0 - PHI_CO )
-     &                * ( 1.0 + A4 * DENS_NUMB + A3 )
-     &                / ( ( 1.0 + A2 * DENS_NUMB + A3 )
-     &                *   ( 1.0 + A4 * DENS_NUMB ) )
-         END IF
-
-         QY_ACETONE = PHI_CO + PHI_CH3CO
-
-      ELSE IF ( LAMBDA .LT. 248.0 .AND. LAMBDA .GT. 0.0 ) THEN ! set QY to 1.0
-
-!***based on IUPAC (2005) data sheet
-
-         PHI_CO    = 0.05
-         PHI_CH3CO = 0.95
-         QY_ACETONE = PHI_CO + PHI_CH3CO
-
-      ELSE IF ( LAMBDA .GT. 349.0 ) THEN
-
-         QY_ACETONE = 0.0
-
-      END IF
-
-      QY_ACETONE = MAX( 0.0, MIN( 1.0, QY_ACETONE ) )
-
-      RETURN
-      END FUNCTION QY_ACETONE
 
 C///////////////////////////////////////////////////////////////////////
 
