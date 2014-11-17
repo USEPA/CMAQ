@@ -90,7 +90,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INCLUDE SUBST_PACTL_ID  ! PA control parameters
-!      INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
       CHARACTER( 120 ) :: XMSG = ' '

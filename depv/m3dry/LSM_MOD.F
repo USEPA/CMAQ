@@ -57,16 +57,16 @@ C------------------------------------------------------------------------------
       REAL,   SAVE               :: wfc  (11)
       REAL,   SAVE               :: rhob (11)
       REAL,   SAVE, ALLOCATABLE  :: RSMIN     ( : )
-      REAL,   SAVE, ALLOCATABLE  :: Z00       ( : )                        
-      REAL,   SAVE, ALLOCATABLE  :: VEG0      ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: VEGMN0    ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: LAI0      ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: LAIMN0    ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: SNUP0     ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: ALBF      ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: LUF_FAC   ( : )            
-      REAL,   SAVE, ALLOCATABLE  :: HGLU_FAC  ( : )            
-      INTEGER, SAVE              :: n_lufrac      
+      REAL,   SAVE, ALLOCATABLE  :: Z00       ( : )
+      REAL,   SAVE, ALLOCATABLE  :: VEG0      ( : )
+      REAL,   SAVE, ALLOCATABLE  :: VEGMN0    ( : )
+      REAL,   SAVE, ALLOCATABLE  :: LAI0      ( : )
+      REAL,   SAVE, ALLOCATABLE  :: LAIMN0    ( : )
+      REAL,   SAVE, ALLOCATABLE  :: SNUP0     ( : )
+      REAL,   SAVE, ALLOCATABLE  :: ALBF      ( : )
+      REAL,   SAVE, ALLOCATABLE  :: LUF_FAC   ( : )
+      REAL,   SAVE, ALLOCATABLE  :: HGLU_FAC  ( : )
+      INTEGER, SAVE              :: n_lufrac
       CHARACTER( 80 ), SAVE      :: LAND_SCHEME
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: cat_lu( : )
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: name_lu( : )
@@ -137,7 +137,7 @@ C-------------------------------------------------------------------------------
 ! MODIS-ONLY (1XX)/MODIS (2XX) LU characterization ... reclassified by NCEP
 !-------------------------------------------------------------------------------
       
-      TYPE( lu_type ),PRIVATE, PARAMETER :: MODIS( n_modis ) =  (/      
+      TYPE( lu_type ),PRIVATE, PARAMETER :: MODIS( n_modis ) =  (/
 !                                                       VEGMN0     LAIMN0             LUF_FAC
 !               -name-    -LU cat -  RSMIN   Z00   VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC     Cat Desc.
      & lu_type('NCEP_1 ', 'EVEFOR ', 175.0, 100.0, 90.0, 80.0, 4.0, 3.0, 0.08,  12.0, 246.0,  40.0),  ! 1 Evergreen Needleleaf Forest
@@ -166,7 +166,7 @@ C-------------------------------------------------------------------------------
 ! 50 CLASS NLCD (US only, cats 1-30)/MODIS (Outside US, cats 31-50) LU characterization
 !---------------------------------------------------------------------------------------
 
-      TYPE( lu_type ),PRIVATE, PARAMETER :: NLCD50( n_nlcd50 ) =  (/      
+      TYPE( lu_type ),PRIVATE, PARAMETER :: NLCD50( n_nlcd50 ) =  (/
 !                                                           VEGMN0     LAIMN0             LUF_FAC
 !               -Name-      -LU cat -   RSMIN    Z00   VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC    Cat Desc.
      & lu_type('NLCD_11  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 1 Open water
@@ -225,7 +225,7 @@ C-------------------------------------------------------------------------------
 ! 40 CLASS MODIS (Outside US, cats 1-20)/NLCD (US only, cats 21-40) LU characterization
 !-------------------------------------------------------------------------------
 
-       TYPE( lu_type ),PRIVATE, PARAMETER :: NLCD40( n_nlcd40 ) =  (/      
+       TYPE( lu_type ),PRIVATE, PARAMETER :: NLCD40( n_nlcd40 ) =  (/
 !                                                        VEGMN0     LAIMN0             LUF_FAC
 !               -Name-      -LU cat -  RSMIN   Z00   VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC       Cat Desc.
      & lu_type('MODIS_1  ', 'EVEFOR ', 175.0, 100.0,  90.0, 80.0, 4.0, 3.0, 0.08,  12.0, 246.0,  40.0),  ! 1 Evergreen Needleleaf Forest
@@ -275,7 +275,7 @@ C-------------------------------------------------------------------------------
 !                                classification system.  This was done to maintain compatibility with MM5.               
 !-----------------------------------------------------------------------------                   
 
-      TYPE( lu_type ), PRIVATE, PARAMETER :: USGS24( n_usgs ) =  (/      
+      TYPE( lu_type ), PRIVATE, PARAMETER :: USGS24( n_usgs ) =  (/
 !                                                          VEGMN0     LAIMN0             LUF_FAC
 !               ---Name---   -LU cat -   RSMIN    Z00  VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC     Cat Desc.
      & lu_type('USGS_Urban', 'BUILT   ', 150.0,  50.0, 40.0, 20.0, 2.0,  0.5, 0.04,  15.0, 338.0, 190.0),  ! 1 Urban or Built-up Land
@@ -361,20 +361,20 @@ C-------------------------------------------------------------------------------
                n_lufrac    = n_usgs
                If ( .Not. Allocated ( cat_lu ) ) Then
                   Allocate ( cat_lu   ( n_lufrac ),
-     &                       name_lu  ( n_lufrac ), 
-     &                       RSMIN    ( n_lufrac ), 
-     &                       LAI0     ( n_lufrac ), 
-     &                       LAIMN0   ( n_lufrac ), 
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
      &                       VEG0     ( n_lufrac ),
      &                       VEGMN0   ( n_lufrac ),
      &                       Z00      ( n_lufrac ),
-     &                       LUF_FAC  ( n_lufrac ), 
+     &                       LUF_FAC  ( n_lufrac ),
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF 
-               End If               
+                  END IF
+               End If
                cat_lu   = USGS24%lu_cat
                name_lu  = USGS24%name
                RSMIN    = USGS24%RSMIN
@@ -389,20 +389,20 @@ C-------------------------------------------------------------------------------
                n_lufrac    = n_modis 
                If ( .Not. Allocated ( cat_lu ) ) Then
                   Allocate ( cat_lu   ( n_lufrac ),
-     &                       name_lu  ( n_lufrac ), 
-     &                       RSMIN    ( n_lufrac ), 
-     &                       LAI0     ( n_lufrac ), 
-     &                       LAIMN0   ( n_lufrac ), 
-     &                       VEG0     ( n_lufrac ), 
-     &                       VEGMN0   ( n_lufrac ),  
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ), 
      &                       Z00      ( n_lufrac ),
-     &                       LUF_FAC  ( n_lufrac ), 
+     &                       LUF_FAC  ( n_lufrac ),
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF 
-               End If            
+                  END IF
+               End If
                cat_lu   = MODIS%lu_cat
                name_lu  = MODIS%name
                RSMIN    = MODIS%RSMIN
@@ -417,20 +417,20 @@ C-------------------------------------------------------------------------------
                n_lufrac    = n_nlcd50  
                If ( .Not. Allocated ( cat_lu ) ) Then
                   Allocate ( cat_lu   ( n_lufrac ),
-     &                       name_lu  ( n_lufrac ), 
-     &                       RSMIN    ( n_lufrac ), 
-     &                       LAI0     ( n_lufrac ), 
-     &                       LAIMN0   ( n_lufrac ), 
-     &                       VEG0     ( n_lufrac ), 
-     &                       VEGMN0   ( n_lufrac ),  
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ), 
      &                       Z00      ( n_lufrac ),
-     &                       LUF_FAC  ( n_lufrac ), 
+     &                       LUF_FAC  ( n_lufrac ),
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF 
-               End If                         
+                  END IF
+               End If
                cat_lu   = NLCD50%lu_cat
                name_lu  = NLCD50%name
                RSMIN    = NLCD50%RSMIN
@@ -445,20 +445,20 @@ C-------------------------------------------------------------------------------
                n_lufrac    = n_nlcd40   
                If ( .Not. Allocated ( cat_lu ) ) Then
                   Allocate ( cat_lu   ( n_lufrac ),
-     &                       name_lu  ( n_lufrac ), 
-     &                       RSMIN    ( n_lufrac ), 
-     &                       LAI0     ( n_lufrac ), 
-     &                       LAIMN0   ( n_lufrac ), 
-     &                       VEG0     ( n_lufrac ), 
-     &                       VEGMN0   ( n_lufrac ),  
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ), 
      &                       Z00      ( n_lufrac ),
-     &                       LUF_FAC  ( n_lufrac ), 
+     &                       LUF_FAC  ( n_lufrac ),
      &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
                   IF ( ALLOCSTAT .NE. 0 ) THEN
                      XMSG = 'Failure allocating land use data'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF 
-               End If            
+                  END IF
+               End If
                cat_lu   = NLCD40%lu_cat
                name_lu  = NLCD40%name
                RSMIN    = NLCD40%RSMIN

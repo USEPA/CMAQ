@@ -564,7 +564,7 @@ C           40, 588-590 (2006)
 C    Zhang, K.M., E.M. Knipping, A.S. Wexler, P.V. Bhave, G.S. Tonnesen, "Reply
 C           to comment on "Size distribution of sea-salt emissions as a funciton 
 C           of relative humidity", Atmospheric Environment, 40, 591-592 (2006)
-C    Clarke, A.D., S.R. Owens, and J. Zhou "An ultrafine sea-salt flux fromls
+C    Clarke, A.D., S.R. Owens, and J. Zhou "An ultrafine sea-salt flux from
 C          breaking waves: Implications for cloud condensation nuclei in the
 C          remote marine atmosphere" J. Geophys. Res. (2006)
 C    Gong, S. L., A parameterization of sea-salt aerosol source function
@@ -590,7 +590,6 @@ C-----------------------------------------------------------------------
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( IN ) :: CELLVOL               ! grid-cell volume [m2*sigma]
-!            REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS )  ! reciprocal Jacobian [1/m]
             REAL,    INTENT( IN ) :: CELLHGT               ! grid-cell height [sigma]
 
 C Includes:
@@ -729,7 +728,7 @@ C Initialize sea-salt output buffer
 
 C Calculate fractional relative humidity in the grid cell
 C Follow the same methodology as in other portions of the code just for the 10m RH
-                  If(BLKTA .Lt. stdtemp ) Then
+                  If ( BLKTA .Lt. stdtemp ) Then
                      ESAT = vp0 *Exp( 22.514 - ( 6.15e3 / BLKTA ) )
                   Else
                      ESAT = vp0 *Exp( svp2 * ( BLKTA -stdtemp ) / ( BLKTA -svp3 ) ) 
@@ -745,8 +744,8 @@ C 45-99% RH range.  Store powers of RH for polynomial calculations.
                   DRH = REAL( RH, 8 )
 
 C Calculate size-correction factors from Equation 3 of Lewis & Schwartz 2006 and Zhang et al 2006 equation 2. 
-                  C0  = 3.70D0*((1.0D0-DRH)/(2.0D0-DRH))**(1.0D0/3.0D0)
-		  C80 = 1.82D0*((1.0D0-DRH)/(2.0D0-DRH))**(1.0D0/3.0D0)
+                  C0  = 3.70D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
+                  C80 = 1.82D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
 
 C Calculate solute mass fraction using Equation 1 of Zhang et al.
                   XSW =         X_COEFF( 1 )

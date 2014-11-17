@@ -339,9 +339,6 @@ C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
-!         REAL,    INTENT( IN ) :: RDX3F( NLAYS )             ! reciprocal layer thickness
-!         REAL,    INTENT( IN ) :: RRHOJ( NCOLS,NROWS,NLAYS ) ! reciprocal density X Jacobian
-!         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! reciprocal mid-layer Jacobian
 
 C Local Variables:
 

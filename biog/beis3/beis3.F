@@ -66,12 +66,11 @@ C Last updated: $Date: 2011/10/21 16:10:17 $
 C-----------------------------------------------------------------------
 
       USE BIOG_EMIS, ONLY: NSEF, NLAI, LAITYPES
-      Use ASX_DATA_MOD
+      USE ASX_DATA_MOD
 
       IMPLICIT NONE
-C Includes:
 
-!      INCLUDE SUBST_CONST     ! constants
+C Includes:
 
 C Arguments:
       INTEGER, INTENT( IN ) :: JDATE   ! current simulation date (YYYYDDD)
@@ -264,7 +263,7 @@ C Calculate temperature correction term
                   CT_SHADE = EXP( 37.711 - 0.398570815 * DT_SHADE ) /
      &                          ( 1.0 + EXP( 91.301 - DT_SHADE ) )     
                   EMPOL( C,R,I ) = SEMIS( C,R,I )*( FRACSUN   * CT_SUN   * CSUBL_SUN + 
-     &                                              FRACSHADE * CT_SHADE * CSUBL_SHADE )                   		  
+     &                                              FRACSHADE * CT_SHADE * CSUBL_SHADE )
                END IF
 
             END DO ! end ISOP and MBO calculations loop
@@ -285,7 +284,7 @@ C Limit temerature to 315 K for monoterpenes and other VOCs
             CFOVOC  = FRACSUN   * EXP( 0.09 * ( TLEAF_SUN   - 303.0 ) ) + 
      &                FRACSHADE * EXP( 0.09 * ( TLEAF_SHADE - 303.0 ) ) 
             CFSESQT = FRACSUN   * EXP( 0.17 * ( TLEAF_SUN   - 303.0 ) ) + 
-     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )  	    
+     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )
 
             DO I = NLAI + 1, NSEF - 2
                EMPOL( C,R,I ) = SEMIS( C,R,I ) * CFOVOC
@@ -382,7 +381,7 @@ C note that we use the incoming (not absorbed) PAR
                PARSUN     = KBE * PARDB + PARSHADE
                LAISUN     = ( 1.0 - EXP( -1.0 * KBE * TLAI ) ) / KBE
                LAISHADE   = MAX( TLAI - LAISUN, 0.0 )
-               FRACSUN    = LAISUN / TLAI             
+               FRACSUN    = LAISUN / TLAI
                FRACSHADE  = 1.0 - FRACSUN
 
 C cguen is Guenther's eqn for computing light correction as a function of
@@ -446,7 +445,7 @@ C Function arguments:
 
 C Parameters:
          REAL ALPHA
-         REAL CL 
+         REAL CL
 
 C-----------------------------------------------------------------------
          ALPHA = 0.001 + 0.00085 * LAI

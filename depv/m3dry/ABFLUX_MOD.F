@@ -321,7 +321,7 @@ C                          '12345678901234567890'
                      If( pHs1( c,r,l ) .Gt. 0.0 ) Then
                         pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
                         pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
-                     Else 
+                     Else
                         pHfac1 = 0.0
                         pHfac2 = 0.0
                      End If
@@ -497,7 +497,7 @@ C-------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point
 !------------------------------------------------------------------------------          
          Subroutine Get_Flux( cNH3, rwetsfc, rgw, r, c, l, pvd, lnh3,
-     &                        f_stom, f_cut, f_soil, f_emis,f_dep, f_ag, f_nag, 
+     &                        f_stom, f_cut, f_soil, f_emis,f_dep, f_ag, f_nag,
      &                        f_wat, dt, jtime )
          
          Use UTILIO_DEFN
@@ -509,7 +509,7 @@ C-------------------------------------------------------------------------------
          Implicit None
          
          Include SUBST_FILES_ID  ! file name parameters
-                  
+
          Real,    Intent( IN )  :: cNH3
          Real,    Intent( IN )  :: rwetsfc        
          Real,    Intent( IN )  :: rgw
@@ -584,7 +584,7 @@ C-------------------------------------------------------------------------------
             ustg = max( MOSAIC_DATA%USTAR( c,r,j ) * EXP( -MOSAIC_DATA%LAI( c,r,j ) ), 0.001 )         
             del0 = 1.0E-4 * kvis / ( karman * ustg )
             rbgj( j ) = ( scn - LOG( 10.0 * del0 ) ) / ( karman * ustg )
-         End Do                        
+         End Do
          
          If ( frac_ir( c,r ) .Gt. 0.0 .And. MET_DATA%SOIM1( c,r ) .LT. 0.75 * GRID_DATA%WFC( c,r ) ) Then            
             wg_ir = ( 1.0 - frac_ir( c,r ) ) * MET_DATA%SOIM1( c,r ) + frac_ir( c,r ) * 0.75 * GRID_DATA%WFC( c,r )
@@ -594,7 +594,7 @@ C-------------------------------------------------------------------------------
  
          wg_ir = Min( wg_ir,GRID_DATA%WSAT( c,r ) )
          wg_ir = Max( wg_ir,GRID_DATA%WSAT( c,r ) )
-      
+
          ldry= d1 * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          
          dp  = dif0( l ) * 1.0E-4 * GRID_DATA%WSAT( c,r )**2
@@ -614,7 +614,7 @@ C-------------------------------------------------------------------------------
          rsoil2 = ldry / dp
          
          agfrac  = 0.0
-         watfrac = 0.0                 
+         watfrac = 0.0
          pvd     = 0.0
          lnh3    = 0.0
          f_emis  = 0.0
@@ -651,7 +651,7 @@ C-------------------------------------------------------------------------------
                Select Case( cat_lu( j ) )
                   Case( 'WATER','SNOWICE' ) ! water, ice or snow
                      cnh3g1 = 0.0
-                     cnh3g2 = 0.0     
+                     cnh3g2 = 0.0
                      watfrac = watfrac + GRID_DATA%LUFRAC( c,r,j )
                   Case( 'AG' ) ! Ag
                      cnh3g1 = Min( Max( gamma1( c,r ) / wg_ir, C_gam / wg_ir ),
@@ -829,7 +829,7 @@ C-------------------------------------------------------------------------------
 ! nitrification, leaching, and run off
 ! Soil ammonium, pH, leaching, and run off are defined in the module
 !------------------------------------------------------------------------------
-         Subroutine Calc_Nitrif ( wg, CNH3c, gg, gam, dt, MHp, C, R, ds )  
+         Subroutine Calc_Nitrif ( wg, CNH3c, gg, gam, dt, MHp, C, R, ds )
          
          Use UTILIO_DEFN
          Use ASX_DATA_MOD

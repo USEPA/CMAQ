@@ -344,7 +344,7 @@ C-----------------------------------------------------------------
 C        Species maps
 C-----------------------------------------------------------------
          l_HONO = 0
-         n_HONO = 0  
+         n_HONO = 0
          l_NO2 = 0
          n_NO2 = 0
          l_O3  = 0
@@ -359,7 +359,7 @@ C-----------------------------------------------------------------
             If ( TRIM( depspc( l ) ) .EQ. 'NO2' ) THEN
                l_NO2 = l
                n_NO2 = n
-            End If 
+            End If
             If ( TRIM( depspc( l ) ) .EQ. 'HONO' ) THEN
                l_HONO = l
                n_HONO = n
@@ -371,7 +371,7 @@ C-----------------------------------------------------------------
             If ( TRIM( depspc( l ) ) .EQ. 'NH3' ) THEN
                l_NH3 = l
                n_NH3 = n
-            End If    
+            End If
          END DO maploop
 
       END IF   ! first_call
@@ -398,36 +398,36 @@ C-------------------------------------------------------------------------------
 
       IF ( abflux .OR. mosaic ) THEN
 C------------------------------------------------------------------------------
-C Calculate LAI and Z0 for vegetated surfaces 
+C Calculate LAI and Z0 for vegetated surfaces
 C------------------------------------------------------------------------------
          CALL Calc_Lai( jday, jtime, logdev )
 C------------------------------------------------------------------------------
 C Calculate u* for all surfaces and Z0 for water surfaces
 C------------------------------------------------------------------------------
-         Do j = 1, n_lufrac         
+         Do j = 1, n_lufrac
             Where( GRID_DATA%LUFRAC( :,:,j ) .EQ. 1.0 )
                 MOSAIC_DATA%USTAR( :,:,j ) = MET_DATA%USTAR
                 MOSAIC_DATA%Z0( :,:,j )    = MET_DATA%Z0
             Elsewhere
                 MOSAIC_DATA%USTAR( :,:,j ) = MET_DATA%USTAR * SQRT( LOG( MET_DATA%ZH( :,:,1 ) / MET_DATA%Z0 )
-     &                                                      / LOG( MET_DATA%ZH( :,:,1 ) / MOSAIC_DATA%Z0( :,:,j ) ) ) 
+     &                                                      / LOG( MET_DATA%ZH( :,:,1 ) / MOSAIC_DATA%Z0( :,:,j ) ) )
             End Where
 C------------------------------------------------------------------------------
 C Calculate in-canopy resistance
 C------------------------------------------------------------------------------
             Where( MOSAIC_DATA%Veg( :,:,j ) .Gt. 0.0 .And. GRID_DATA%LUFRAC( :,:,j ) .GT. 0.0 )
-               MOSAIC_DATA%RINC( :,:,j ) = 14.0 * MOSAIC_DATA%LAI( :,:,j ) * MOSAIC_DATA%Z0( :,:,j ) * 10.0 / 
-     &                                      MOSAIC_DATA%USTAR( :,:,j )        
+               MOSAIC_DATA%RINC( :,:,j ) = 14.0 * MOSAIC_DATA%LAI( :,:,j ) * MOSAIC_DATA%Z0( :,:,j ) * 10.0 /
+     &                                      MOSAIC_DATA%USTAR( :,:,j )
             Elsewhere
                MOSAIC_DATA%RINC( :,:,j ) = 1.0e30
             End Where
 C------------------------------------------------------------------------------
 C Calculate quasi-laminar boundary layer resistance
-C------------------------------------------------------------------------------     
-            DO l = 1, n_spc_m3dry
+C------------------------------------------------------------------------------
+            Do l = 1, n_spc_m3dry
                ChemMos_Data%Rb( :,:,j,l ) = 5.0 / Mosaic_data%Ustar( :,:,j ) * scc_pr_23( l )
-            END DO
-         End Do    
+            End Do
+         End Do
 C------------------------------------------------------------------------------
 C Calculate aerodynamic resistance
 C------------------------------------------------------------------------------
@@ -439,7 +439,7 @@ C------------------------------------------------------------------------------
             CASE DEFAULT
                xmsg = 'met file format not recognized for mosaic'
                CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         END SELECT  
+         END SELECT
       End If
 
       DO r = 1, my_nrows
@@ -457,13 +457,13 @@ C------------------------------------------------------------------------------
          IF ( abflux .OR. mosaic ) THEN
             DO j = 1, n_lufrac
                lufraccr( j ) = GRID_DATA%LUFRAC( c,r,j )
-            END DO            
+            END DO
          END IF ! mosaic loop
 
 ! Calculate the relative humidity of air and ground.
-         
+
          rh_grnd  = 100.0 * q2p0cr / MET_DATA%QSS_GRND( c,r )
-         rh_grnd  = MIN( 100.0, rh_grnd )            
+         rh_grnd  = MIN( 100.0, rh_grnd )
 
          IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 
@@ -571,7 +571,7 @@ C------------------------------------------------------------------------------
 
             IF ( .NOT. use_depspc( l ) ) CYCLE ddloop
 
-            n = n + 1            
+            n = n + 1
 
             IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
 
@@ -679,12 +679,12 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                hcan  = MET_DATA%Z0( c,r ) * 10.0
                rinc  = 14.0 * laicr * hcan / ustarcr
                rgnd  = rg0 * a0 / ar( l )
-               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) / 
+               rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) /
      &                 rgnd + delta( c,r ) / rgw ) + rinc          ! Add in-canopy part
                IF ( mosaic .OR. abflux ) THEN
                   DO j = 1, n_lufrac
-                     IF (lufraccr( j ) .GT. 0.0 ) THEN 
-                        MOSAIC_DATA%RINC( c,r,j )  = 14.0 * MOSAIC_DATA%LAI( c,r,j ) * 
+                     IF (lufraccr( j ) .GT. 0.0 ) THEN
+                        MOSAIC_DATA%RINC( c,r,j )  = 14.0 * MOSAIC_DATA%LAI( c,r,j ) *
      &                                    MOSAIC_DATA%Z0( c,r,j ) * 10.0 / MOSAIC_DATA%USTAR( c,r,j )
                         ChemMos_Data%Rgc( c,r,j,l ) = 1.0 / ( ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) /
      &                                    rgnd + MOSAIC_DATA%DELTA( c,r,j ) / rgw ) +
@@ -814,7 +814,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
             rbc = 5.0 / ustarcr * scc_pr_23( l )
             rac = MET_DATA%RA( c,r ) + rbc
 
-            depvel_gas( n,c,r ) = 1.0 / ( rsurf + rac )           
+            depvel_gas( n,c,r ) = 1.0 / ( rsurf + rac )
 
             IF ( mosaic ) THEN
                DO j = 1, n_lufrac
@@ -937,7 +937,7 @@ C depositional loss.
 
 C Calculate production (pvd) for HONO; unit = ppm * m/s
 
-               IF ( l .EQ. l_HONO) 
+               IF ( l .EQ. l_HONO)
      &            pvd( n,c,r ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
             END IF
 C--------------------------------------------------------------------------

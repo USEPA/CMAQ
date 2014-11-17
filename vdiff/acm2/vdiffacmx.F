@@ -61,7 +61,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INCLUDE SUBST_PACTL_ID  ! PA control parameters
-!      INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
       CHARACTER( 120 ) :: XMSG = ' '
@@ -82,9 +81,6 @@ C explicit, THETA = 0, implicit, THETA = 1     ! Crank-Nicholson: THETA = 0.5
       REAL, PARAMETER :: THETA = 0.5,
      &                   THBAR = 1.0 - THETA
 
-C ACM parameters
-
-!      REAL, PARAMETER :: KARMAN = 0.4
       REAL, PARAMETER :: EPS = 1.0E-06
 
 C External Functions: None

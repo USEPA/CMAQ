@@ -608,10 +608,9 @@ C Arguments:
          INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
                                              ! TSTEP(2) = sciproc sync. step (chem)
-                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                             !            step and wrf/cmaq call frequency
-!         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! recip of mid-layer
-                                                             ! Jacobian [1/m]
+                                             ! TSTEP(3) = twoway model time step w.r.t.
+                                             ! wrf time step and wrf/cmaq call frequency
+
          REAL,    INTENT( INOUT ) :: VDEMIS( :,:,:,: ) ! gas emissions [ppmv/s]
 
 C Geometric Constants

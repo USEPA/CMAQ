@@ -25,7 +25,7 @@ C Get accum. and coarse mode grav. settling vel
 C used Binkowski`s aerosol dry deposition routine as a guide
 C 08 Feb 13 J.Young: initial
 C 20 Jun 14 J.Young: restructure
-C 22 Oct 14 J.Bash:  Placed P0 with STDATMPA from CONST.EXT and shared 
+C 22 Oct 14 J.Bash:  replaced P0 with STDATMPA from CONST.EXT and shared 
 C                    variables in the asx_data_mod
 C-----------------------------------------------------------------------
 

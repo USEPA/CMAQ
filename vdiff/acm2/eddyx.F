@@ -56,7 +56,6 @@ C--------------------------------------------------------------------------
       IMPLICIT NONE
 
 C Includes:
-C      INCLUDE SUBST_CONST       ! constants
 
 C Arguments:
       REAL,   INTENT( OUT ) :: EDDYV ( :,:,: ) ! eddy diffusivity (m**2/s)
@@ -65,9 +64,6 @@ C Parameters:
 
       REAL, PARAMETER :: RLAM   = 80.0 ! asymptotic mixing length (m)
       REAL, PARAMETER :: RIC    = 0.25 ! critical Richardson #
-!      REAL, PARAMETER :: GAMH   = 16.0 !15.0 ! Holtslag and Boville (1993)
-!      REAL, PARAMETER :: BETAH  = 5.0  ! Holtslag and Boville (1993) now in asx_data_mod
-!      REAL, PARAMETER :: KARMAN = 0.4
       REAL, PARAMETER :: QUARTER = 0.25
       REAL, PARAMETER :: SIXTEENTH = QUARTER * QUARTER  ! 1/16
 

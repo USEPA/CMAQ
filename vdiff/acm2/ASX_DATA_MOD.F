@@ -16,14 +16,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/UDTYPES.F,v 1.2 2011/10/21 16:10:47 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      MODULE ASX_DATA_MOD
+      Module ASX_DATA_MOD
 
 C-----------------------------------------------------------------------
 C Function: User-defined types
@@ -129,15 +123,15 @@ C Allocatable surface 3-D meteorological fields:
          Real,    Allocatable :: DZF      ( :,:,: )  ! layer surface thickness
          Real,    Allocatable :: DENS     ( :,:,: )  ! air density
          Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
-         REAL,    ALLOCATABLE :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian	
+         Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
          Real,    Allocatable :: RRHOJ    ( :,:,: )  ! reciprocal density X Jacobian
       End Type MET_Type
       
       Type :: GRID_Type
 C Allocatable grid infomation:
 C Vertical information
-         Real,    Allocatable :: DX3F   ( : )     ! sigma layer surface thickness	! vdiffacmx.F
-         Real,    Allocatable :: RDX3F  ( : )     ! reciprocal sigma layer thickness	! EMIS_DEFN.F, sedi.F, vdiffacmx.F, vdiffproc.F
+         Real,    Allocatable :: DX3F   ( : )     ! sigma layer surface thickness ! vdiffacmx.F
+         Real,    Allocatable :: RDX3F  ( : )     ! reciprocal sigma layer thickness ! EMIS_DEFN.F, sedi.F, vdiffacmx.F, vdiffproc.F
          Real,    Allocatable :: RDX3M  ( : )     ! reciprocal sigma midlayer thickness ! vdiffproc.F
 C Horizontal Information:
          Real,    Allocatable :: RMSFX4 ( :,: )  ! inverse map scale factor ** 4
@@ -241,25 +235,24 @@ C M3 asx constants
 
       Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
       Logical, Save :: MINKZ     
-      LOGICAL, SAVE :: CSTAGUV            ! Winds are available with C stagger?
-      Logical, Save :: ifwr     = .FALSE.
+      Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
+      Logical, Save :: ifwr     = .false.
 
-      Logical, PRIVATE, Save :: ifsst    = .FALSE.
-      Logical, PRIVATE, Save :: FIRSTIME = .True.
-      Logical, PRIVATE, Save :: ifq2     = .FALSE.
-      Logical, PRIVATE, Save :: rinv     = .True.
+      Logical, Private, Save :: ifsst    = .false.
+      Logical, Private, Save :: ifq2     = .false.
+      Logical, Private, Save :: rinv     = .True.
       
-      Integer,         PRIVATE :: C, R, L, S               ! loop induction variables
-      Integer,         PRIVATE :: SPC      
-      Character( 16 ), PRIVATE, Save :: vname_rc, vname_rn, vname_uc, vname_vc
-      Real,            PRIVATE, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
+      Integer,         Private :: C, R, L, S               ! loop induction variables
+      Integer,         Private :: SPC
+      Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
+      Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
 
-      Integer, PRIVATE, Save :: LOGDEV
-      Integer, PRIVATE, Save :: GXOFF, GYOFF              ! global origin offset from file
-      Integer, PRIVATE, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
-      Integer, PRIVATE, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
-      Integer, PRIVATE, Save :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 ! MET_CRO_2D
-      Integer, PRIVATE, Save :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 ! OCEAN_1
+      Integer, Private, Save :: LOGDEV
+      Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
+      Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
+      Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
+      Integer, Private, Save :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 ! MET_CRO_2D
+      Integer, Private, Save :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 ! OCEAN_1
 
       Real, Pointer, Private :: BUFF1D( : )     ! 1D temp var number of layers
       Real, Pointer, Private :: BUFF2D( :,: )   ! 2D temp var
@@ -466,7 +459,7 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu 
 
-         If( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. MOSAIC ) Then
             ALLOCATE( Met_Data%SOIM2    ( MY_NCOLS,MY_NROWS ),   
      &                Met_Data%SOIT2    ( MY_NCOLS,MY_NROWS ),
      &                STAT = ALLOCSTAT )
@@ -665,7 +658,7 @@ C Open the met files
          CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
      &                   STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 )
 C Get sigma coordinate variables
-         X3M => Buff1D
+         X3M => BUFF1D
          Do L = 1, NLAYS
             Grid_Data%DX3F( L )  = X3FACE_GD( L ) - X3FACE_GD( L-1 )
             Grid_Data%RDX3F( L ) = 1.0 / Grid_Data%DX3F( L )
@@ -676,11 +669,11 @@ C Get sigma coordinate variables
          End Do
          Grid_Data%RDX3M( NLAYS ) = 0.0
 C nullify pointer
-         Nullify(X3M)
+         Nullify( X3M )
 
 C reciprical of msfx2**2
 C assign MSFX2
-         MSFX2 => Buff2D
+         MSFX2 => BUFF2D
          VNAME = 'MSFX2'
          If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
      &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
@@ -691,7 +684,7 @@ C assign MSFX2
 
          Grid_Data%RMSFX4 = 1.0 / ( MSFX2**2 )
 C nullify pointer
-         Nullify(MSFX2)
+         Nullify( MSFX2 )
 
          VNAME = 'LON'
          If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -725,7 +718,7 @@ C nullify pointer
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         SOILCAT => Buff2D
+         SOILCAT => BUFF2D
          VNAME = 'SLTYP'
          If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -737,7 +730,7 @@ C nullify pointer
          Grid_Data%SLTYP = NINT( SOILCAT )
          Nullify( SOILCAT )
 
-         If( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. MOSAIC ) Then
             Do l = 1, n_lufrac
                Write( vname,'( "LUFRAC_",I2.2 )' ) l
                If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -808,7 +801,7 @@ C-----------------------------------------------------------------------
          Implicit None
  
          Include SUBST_FILES_ID  ! file name parameters
-         INCLUDE SUBST_PE_COMM   ! PE communication displacement and direction
+         Include SUBST_PE_COMM   ! PE communication displacement and direction
 
 C Arguments:
 
@@ -885,7 +878,7 @@ C-------------------------------- MET_CRO_3D --------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         Met_Data%RJACM   = 1.0 / Met_Data%RJACM
+         Met_Data%RJACM = 1.0 / Met_Data%RJACM
 
          VNAME = 'JACOBF'
          If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
@@ -895,7 +888,7 @@ C-------------------------------- MET_CRO_3D --------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         Met_Data%RJACF   = 1.0 / Met_Data%RJACF
+         Met_Data%RJACF = 1.0 / Met_Data%RJACF
 
          VNAME = 'DENSA_J'
          If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
@@ -905,7 +898,7 @@ C-------------------------------- MET_CRO_3D --------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         Met_Data%RRHOJ   = 1.0 / Met_Data%RRHOJ
+         Met_Data%RRHOJ = 1.0 / Met_Data%RRHOJ
 
          VNAME = 'TA'
          IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
@@ -966,7 +959,7 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         If( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. MOSAIC ) Then
             VNAME = 'SOIM2'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -1108,7 +1101,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If         
 
-         If( ifwr ) Then
+         If ( ifwr ) Then
             VNAME = 'WR'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -1118,7 +1111,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
             End If
          End If
 
-         If( ifsst ) Then
+         If ( ifsst ) Then
          VNAME = 'TSEASFC'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -1130,7 +1123,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
             Met_Data%TSEASFC = Met_Data%TEMPG
          End If
 
-         If( rinv ) Then
+         If ( rinv ) Then
             VNAME = 'RADYNI'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -1191,7 +1184,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
             Met_Data%Q2 = Met_Data%QV( :,:,1 )
          End If
          
-         Es_Grnd => Buff2D
+         Es_Grnd => BUFF2D
          Where(Met_Data%TEMPG .Lt. stdtemp )
             Es_Grnd = vp0 *Exp( 22.514 - ( 6.15e3 / Met_Data%TEMPG ) )
          Elsewhere
@@ -1200,7 +1193,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          Met_Data%QSS_GRND = Es_Grnd * 0.622 / ( Met_Data%PRSFC - Es_Grnd )
          Nullify( Es_Grnd )
 
-          Es_Air => Buff2D
+          Es_Air => BUFF2D
          Where(Met_Data%TEMP2 .Lt. stdtemp )
             Es_Air = vp0 *Exp( 22.514 - ( 6.15e3 / Met_Data%TEMP2 ) )
          Elsewhere
@@ -1249,7 +1242,7 @@ C-------------------------------- Calculated Variables -------------------------
             Met_Data%KZMIN = KZ0UT
          END IF
          
-         TV => Buff3D
+         TV => BUFF3D
          TV = Met_Data%TA * ( 1.0 + 0.608 * Met_Data%QV )
          Met_Data%THETAV = TV * ( P0 / Met_Data%PRES ) ** 0.286
          Nullify( TV )
@@ -1267,7 +1260,7 @@ C-------------------------------- Calculated Variables -------------------------
                END DO
 
                Met_Data%LPBL( C,R ) = LP
-               If( LP .Eq. 1 ) Then
+               If ( LP .Eq. 1 ) Then
                   FINT = ( Met_Data%PBL( C,R ) )
      &                 / ( Met_Data%ZF( C,R,LP ) )
                   Met_Data%XPBL( C,R ) = FINT * ( X3FACE_GD( LP ) - X3FACE_GD( LP-1 ) )
@@ -1288,4 +1281,4 @@ C-------------------------------- Calculated Variables -------------------------
          RETURN
          End Subroutine GET_MET 
 
-      End MODULE ASX_DATA_MOD
+      End Module ASX_DATA_MOD

@@ -158,15 +158,15 @@ C...include files
 
          If ( .Not. ALLOCATED ( RICH ) ) Then
             ALLOCATE ( RICH( my_ncols,my_nrows ) )
-         End If         
+         End If
 
          If ( .Not. ALLOCATED ( rcanj ) ) Then
             ALLOCATE ( rcanj( n_lufrac,ltotg,my_ncols,my_nrows ) )
-         End If        
+         End If
          
          If ( .Not. ALLOCATED ( rsurfj ) ) Then
             ALLOCATE ( rsurfj( n_lufrac,ltotg,my_ncols,my_nrows ) )
-         End If                                         
+         End If
 
          If ( .Not. ALLOCATED ( depvel_gasj ) ) THEN
             Allocate ( depvel_gasj( n_lufrac,ltotg,my_ncols,my_nrows ) )
@@ -185,7 +185,7 @@ C...include files
 C***********************************************************************
 C  Function:
 C     Calculate the lai for each LUC in the gridcell
-C  Preconditions:  none 
+C  Preconditions:  none
 C  Subroutines and Functions Called:  none
 C  Revision History:
 C***********************************************************************
@@ -204,7 +204,7 @@ C Local variables:
          Integer :: c,r,j
          Real    :: lai_err
 
-C Local volatile variables 
+C Local volatile variables:
          Real, Pointer :: argw        ( :,: )
          Real, Pointer :: correction  ( :,: )
          Real, Pointer :: d_past_emer ( :,: )
@@ -220,7 +220,7 @@ C initialize
          sum_mos_lai     = 0.0
          sum_crop_frac   = 0.0
          sum_mos_frac    = 0.0
-         total_frac      = 0.0       
+         total_frac      = 0.0
          znotc           = 0.0
          Buff2D_1        = 0.0
 
@@ -233,17 +233,17 @@ C calculate fseas based on deep soil temperature
             fseas = 0.0
          End where
 C get individual LAIs for LUCs for this date 
-         Do j = 1, n_lufrac         
+         Do j = 1, n_lufrac
             total_frac = total_frac + GRID_DATA%LUFRAC( :,:,j )
          End Do
 
          argw => Buff2D_1
          argw =  0.0
-         Do j = 1, n_lufrac 
-            Where( GRID_DATA%LUFRAC( :,:,j ) .Gt. 0.0 )        
+         Do j = 1, n_lufrac
+            Where( GRID_DATA%LUFRAC( :,:,j ) .Gt. 0.0 )
                MOSAIC_DATA%VEG( :,:,j ) = ( ( 1.0 - fseas ) * VEGMN0( j ) + fseas * VEG0( j ) )/100.
             End Where
-            If ( cat_lu( j ) .NE. 'AG' .And. cat_lu( j ) .NE. 'AGMOSW' 
+            If ( cat_lu( j ) .NE. 'AG' .And. cat_lu( j ) .NE. 'AGMOSW'
      &                       .And. cat_lu( j ) .NE. 'AGMOS' ) Then
                Where( GRID_DATA%LUFRAC( :,:,j ) .Gt. 0.0 .And. MET_DATA%LAI .Gt. 0.0 )
                   MOSAIC_DATA%LAI( :,:,j ) = LAIMN0( j ) + fseas * ( LAI0( j ) - LAIMN0( j ) )
@@ -267,7 +267,7 @@ C get individual LAIs for LUCs for this date
             End If
          End Do
 
-C total frac needs to be non-water         
+C total frac needs to be non-water
          Where( argw .GT. 0.10 )
             total_frac = total_frac - argw
          Elsewhere
@@ -275,7 +275,7 @@ C total frac needs to be non-water
          End Where
          Nullify( argw )
 
-         Where( sum_crop_frac + 0.5 * sum_mos_frac .Gt. 0.0 .And. 
+         Where( sum_crop_frac + 0.5 * sum_mos_frac .Gt. 0.0 .And.
      &          total_frac * MET_DATA%LAI .Gt. sum_nat_lai ) ! only estimate crop lai for ag
             lai_crop = ( total_frac * MET_DATA%LAI - sum_nat_lai ) / ( sum_crop_frac + 0.5 * sum_mos_frac )
          Elsewhere( sum_crop_frac + sum_mos_frac .Gt. 0.0 ) ! small crop or mosaic fraction can lead to rounding errors
@@ -293,7 +293,7 @@ C total frac needs to be non-water
             Write(Logdev,*) 'Total frac    Max:', Maxval(total_frac, Mask = lai_crop .Eq. Maxval(lai_crop)), 
      &                                    'Min:', Minval(total_frac, Mask = lai_crop .Eq. Minval(lai_crop, 
      &                                            Mask = sum_mos_frac + sum_crop_frac .gt. 0.0))
-            Write(Logdev,*) 'lai_crop      Max:', Maxval(lai_crop), 
+            Write(Logdev,*) 'lai_crop      Max:', Maxval(lai_crop),
      &                                    'Min:', Minval(lai_crop, Mask = sum_mos_frac + sum_crop_frac .gt. 0.0)
             Write(Logdev,*) 'sum_mos_lai   Max:', Maxval(sum_mos_lai, Mask = lai_crop .Eq. Maxval(lai_crop)), 
      &                                    'Min:', Minval(sum_mos_lai, Mask = lai_crop .Eq. Minval(lai_crop, 
@@ -343,11 +343,11 @@ C check to see if correction needed
 
             Forall( j = 1:n_lufrac, (cat_lu(j) .NE. 'AG' .AND. cat_lu(j) .NE. 'AGMOS' .AND. cat_lu(j) .NE. 'AGMOSW') )
                MOSAIC_DATA%LAI( :,:,j ) = MOSAIC_DATA%LAI( :,:,j ) * correction
-            End Forall  
-         End If   ! correction needed 
+            End Forall
+         End If   ! correction needed
          Nullify(correction)
 
-C find z0_crop by finding days past emergence     
+C find z0_crop by finding days past emergence
          d_past_emer => Buff2D_1
          d_past_emer =  0.0
          d_past_emer = ( ( lai_crop ) ** ( 1.0 / 1.923 ) ) / 2.273
@@ -355,7 +355,7 @@ C find z0_crop by finding days past emergence
          d_past_emer = ( 0.0184 - SQRT( d_past_emer ) ) / ( 2.0 * 1.057E-4 )
          If ( jday .Gt. 288 ) Then
             znotc = 0.05
-         Else 
+         Else
             Where ( d_past_emer .Le. 0.0 )
                znotc = 0.05
             Elsewhere ( d_past_emer .Gt. 87.0 )
@@ -382,7 +382,7 @@ c estimate vseas
             MOSAIC_DATA%Z0 ( :,:,j ) = znotc
             MOSAIC_DATA%VEG( :,:,j ) = (( 1.0 - vseas ) * VEGMN0(j) + vseas * VEG0(j) ) / 100.0
          End Forall
-         
+
          Forall(j = 1:n_lufrac, cat_lu(j) .Eq. 'AGMOS' .OR. cat_lu(j) .Eq. 'AGMOSW'  .And. 
      &                          Maxval( GRID_DATA%LUFRAC( :,:,j )) .Gt. 0.0 )
             MOSAIC_DATA%LAI( :,:,j ) = 0.5 * ( LAIMN0(j) + fseas * ( LAI0(j) - LAIMN0(j) ) ) + 0.5 * lai_crop
@@ -402,7 +402,7 @@ c estimate vseas
             Write( logdev,* ) 'Error in total LAI'
             Write( logdev,* ) 'LAI grid = ', MaxVal(MET_DATA%LAI, 
      &         Mask = lai_err .Eq. mos_lai - MET_DATA%LAI ) / MET_DATA%LAI ), 
-     &       ' LAI mosaic = ', MaxVal(mos_lai,      
+     &       ' LAI mosaic = ', MaxVal(mos_lai,
      &         Mask = lai_err .Eq. mos_lai - MET_DATA%LAI ) / MET_DATA%LAI )
             Write( logdev,* ) ' '
          End If
@@ -416,7 +416,7 @@ c estimate vseas
 C*********************************************************************************************
 C                    RA_MM5
 C*********************************************************************************************
-        
+
          Subroutine RA_MM5
 
          Use LSM_Mod
@@ -427,7 +427,7 @@ C*******************************************************************************
          Real BETAH_MM5, BH, RICRIT, ROVCP, EP1, ROVG
          Real RICRITI
          Integer c,r,j
-C Volatile variables 
+C Volatile variables
          Real, Pointer :: BETAP  ( :,: )
          Real, Pointer :: HU     ( :,: )
          Real, Pointer :: QFC    ( :,: )
@@ -478,12 +478,12 @@ C*     SATURATED FOR WATER SURFACE AND SNOW (ISNOW=1)
          QFC =  HU * MET_DATA%QSS_GRND 
 
          Nullify( HU )
-         CVIRT => Buff2D_2 
+         CVIRT => Buff2D_2
 C.......... compute the thetav at ground
-         CVIRT = ( 1.0 + EP1 * QFC )  
+         CVIRT = ( 1.0 + EP1 * QFC )
          Nullify( QFC )
-         TV0 => Buff2D_1 
-         TV0 = MET_DATA%TEMPG * CVIRT 
+         TV0 => Buff2D_1
+         TV0 = MET_DATA%TEMPG * CVIRT
          Nullify( CVIRT )
          TH0 => Buff2D_2
          TH0 = TV0 * ( 1000.0 / MET_DATA%PRSFC/100 )**ROVCP
@@ -509,7 +509,7 @@ C
          Nullify( VCONV )
          Where( WSPD2 .Lt. 1.0 )
             WSPD2 = 1.0
-         End Where 
+         End Where
 
          Do j = 1,n_lufrac
             RICH  = GRAV / MET_DATA%THETAV( :,:,1 ) / ( 1.0 + 0.61 * Met_Data%QV( :,:,1 ) ) *
@@ -520,7 +520,7 @@ C
 C------------------------------------------------------------------
 C-- NOTE THAT THE REGIMES USED IN HIRPBL HAVE BEEN CHANGED:
 C-- USE PLEIM(2006) TO CALCULATE PSI
-            PSIH => Buff2D_1            
+            PSIH => Buff2D_1
             Where ( RICH .Ge. RICUT  )
 C-----CLASS 1; VERY STABLE CONDITIONS:     Z/L > 1
                PSIH = RICH*LOG( MET_DATA%ZH( :,:,1 ) / MOSAIC_DATA%Z0( :,:,j ) )/(1-RICRITI* RICUT ) ! ZOL
@@ -541,9 +541,9 @@ C           CLASS 4 IS FOR ACM NON-LOCAL CONVECTION (H/L < -3)
                MOSAIC_DATA%RA( :,:,j ) = MET_DATA%RA
             Elsewhere( GRID_DATA%LUFRAC( :,:,j ) .Gt. 0.0 )
                MOSAIC_DATA%RA( :,:,j ) = PR0*(LOG( MET_DATA%ZH( :,:,1 ) / MOSAIC_DATA%Z0( :,:,j ))-PSIH)/
-     &                           (KARMAN*MOSAIC_DATA%USTAR( :,:,j ))               
-            End Where     
-            Nullify(PSIH)       
+     &                           (KARMAN*MOSAIC_DATA%USTAR( :,:,j ))
+            End Where
+            Nullify(PSIH)
          End Do
          Nullify( DTHVDZ )
 
@@ -573,7 +573,7 @@ C local volatile variable
      &                              ( Sqrt( 1.0 - gamah * MOSAIC_DATA%Z0( :,:,j ) * MET_DATA%MOLI ) + 1.0 ) )
             Else Where ( ( MET_DATA%ZH( :,:,1 ) - MOSAIC_DATA%Z0( :,:,j ) ) * MET_DATA%MOLI .Le. 1.0 )
                PSIH = -betah * ( MET_DATA%ZH( :,:,1 ) - MOSAIC_DATA%Z0( :,:,j ) ) * MET_DATA%MOLI
-            Else Where 
+            Else Where
                PSIH = 1.0 - betah - ( MET_DATA%ZH( :,:,1 ) - MOSAIC_DATA%Z0( :,:,j ) ) * MET_DATA%MOLI
             End Where
             Where ( ( ( NINT(GRID_DATA%LWMASK) .Eq. 0 ) .AND. ( MET_DATA%VEG .Eq. 0.0 ) ) .Or. GRID_DATA%LUFRAC( :,:,j ) .Eq. 1.0 ) 

@@ -235,14 +235,12 @@ C  Allocate arrays
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-!        ALLOCATE ( VDEP( NCELLS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
          ALLOCATE ( VDEP( NCOLS,NROWS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VDEP'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-!           ALLOCATE ( VDEPJ( N_LUFRAC,NCELLS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
             ALLOCATE ( VDEPJ( N_LUFRAC,NCOLS,NROWS,N_AE_DEP_SPC ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating VDEPJ'
@@ -378,7 +376,6 @@ C ***    Calcualte dynamic viscosity [ kg m**-1 s**-1 ]:
 
 C *** get dry deposition velocities:
 
-!     CALL GETDEP_V ( NCELLS, N_AE_DEP_SPC,
       CALL GETDEP_V ( XLM, AMU, DGATK, DGACC, DGCOR,
      &                XXLSGAT, XXLSGAC, XXLSGCO,
      &                PDENSAT, PDENSAC, PDENSCO,
@@ -386,13 +383,10 @@ C *** get dry deposition velocities:
 
 C Return dry deposition velocities for aerosols (first layer only).
 
-!     N = 0
       DO R = 1, NROWS
          DO C = 1, NCOLS
-!           N = N + 1
             DO V = 1, N_AE_DEPV
                IF ( DEPV_SUR( V ) .GT. 0 ) THEN
-!                 VDEP_AE( V,C,R ) = VDEP( N,DEPV_SUR( V ) )
                   VDEP_AE( V,C,R ) = VDEP( C,R,DEPV_SUR( V ) )
                ELSE
                   VDEP_AE( V,C,R ) = 0.0
@@ -401,16 +395,12 @@ C Return dry deposition velocities for aerosols (first layer only).
          END DO
       END DO
 
-!     N = 0
       IF ( MOSAIC ) THEN
         DO R = 1, NROWS
            DO C = 1, NCOLS
-!             N = N + 1
               DO V = 1, N_AE_DEPV
                 DO J = 1, N_LUFRAC
                   IF ( DEPV_SUR( V ) .GT. 0 ) THEN
-!                    ADEPVJ( J,V,C,R ) = VDEPJ( J,N,DEPV_SUR( V ) )
-                     ADEPVJ( J,V,C,R ) = VDEPJ( J,C,R,DEPV_SUR( V ) )
                   ELSE
                      ADEPVJ( J,V,C,R ) = 0.0
                   END IF
@@ -424,7 +414,6 @@ C Return dry deposition velocities for aerosols (first layer only).
       END SUBROUTINE AERO_DEPV
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-!     SUBROUTINE GETDEP_V ( NUMCELLS, N_AE_DEP_SPC,
       SUBROUTINE GETDEP_V ( XLM, AMU, DGATK, DGACC, DGCOR,
      &                      XXLSGAT, XXLSGAC, XXLSGCO,
      &                      PDENSAT, PDENSAC, PDENSCO,
@@ -526,7 +515,7 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
       REAL UTSCALE              ! scratch function of USTAR and WSTAR
       REAL NU                   ! kinematic viscosity [ m**2 s**-1 ]
       REAL USTFAC               ! scratch function of USTAR, NU, and GRAV
-      REAL TWOXLM
+      REAL TWOXLM               ! 2 X atmospheric mean free path
 
       REAL, PARAMETER :: BHAT    = 1.246 ! Constant from Cunningham slip correction
       REAL, PARAMETER :: THREEPI = 3.0 * PI
