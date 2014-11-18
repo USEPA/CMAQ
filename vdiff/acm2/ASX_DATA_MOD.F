@@ -1,0 +1,1284 @@
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Module ASX_DATA_MOD
+
+C-----------------------------------------------------------------------
+C Function: User-defined types
+
+C Revision History:
+C     19 Aug 2014 J.Bash: initial implementation
+C
+C---------Notes
+C  * Updates based on literature review 7/96 JEP
+C  # Diff and H based on Wesely (1988) same as RADM
+C  + Estimated by JEP 2/97
+C  @ Updated by JEP 9/01
+C  ~ Added by YW 1/02.  Dif0 based on Massman (1998).  Henry's Law constant
+C    is defined here as: h=cg/ca, where cg is the concentration of a species
+C    in gas-phase, and ca is its aqueous-phase concentration.  The smaller h,
+C    the larger solubility.  Henry's Law constant in another definition (KH):
+C    KH = ca/pg [M/atm], KH = KH0 * exp(-DKH/R(1/T-1/T0)), where KH0 and -DKH
+C    values are from Rolf Sander (1999).  h=1/(KH*R*T).
+C ** Update by DBS based on estimates by JEP 1/03
+C ^^ From Bill Massman, personal communication 4/03
+C ## Diffusivity calculated by SPARC, reactivity = other aldehydes
+C ++ Dif0 in Massman is diffusivity at temperature 0C and 1 atm (101.325kPa), so
+C    chemicals that were not in Massman's paper need to be adjusted.  We assume
+C    JEP's original values were for 25C and 1 atm.
+C  % Added by G. Sarwar (10/04)
+C  $ Added by R. Bullock (02/05) HG diffusivity is from Massman (1999).
+C    HGIIGAS diffusivity calculated from the HG value and a mol. wt. scaling
+C    factor of MW**(-2/3) from EPA/600/3-87/015. ORD, Athens, GA.  HGIIGAS
+C    mol.wt. used is that of HgCl2.  Reactivity of HG is 1/20th of NO and NO2
+C    values based on general atmospheric lifetimes of each species.  Reactivity
+C    of HGIIGAS is based on HNO3 surrogate.
+C @@ Mesophyll resistances for NO, NO2, and CO added by J. Pleim (07/07) based
+C    on values in Pleim, Venkatram, and Yamartino, 1984:  ADOM/TADAP Model
+C    Development Program, Volume 4, The Dry Deposition Module.  ERT, Inc.,
+C    Concord, MA (peer reviewed).
+C ~~ Reactivity for PAN changed from 4.0 to 16.0 by J. Pleim (07/07) based on
+C    comparisons with Turnipseed et al., JGR, 2006.
+C %% Species ICL1 and ICL2 are removed, not used in CB05.  G. Sarwar (07/07)
+C <> Hazardous Air Pollutants that are believed to undergo significant dry
+C    deposition. Hydrazine and triethylamine reactivities are based on analogies
+C    to NH3. Maleic anhydride reactivity is assumed similar to aldehydes.
+C    Toluene diisocyanate and hexamethylene diisocyanate reactivities are
+C    assumed to be similar to SO2. Diffusivities are calculated with standard
+C    formulas.  W. Hutzell (04/08)
+C-------------------------------------------------------------------------------
+
+      Use GRID_CONF           ! horizontal & vertical domain specifications
+      Use LSM_MOD             ! Land surface data
+      Use DEPVVARS, Only: ltotg
+
+      Implicit None
+
+      Include SUBST_CONST     ! constants
+
+      Type :: MET_Type
+C Allocatable surface 2-D meteorological fields:
+         Real,    Allocatable :: RDEPVHT  ( :,: )  ! air dens / dep vel ht
+         Real,    Allocatable :: DENS1    ( :,: )  ! air density
+         Real,    Allocatable :: PRSFC    ( :,: )  ! surface pressure [Pa]
+         Real,    Allocatable :: Q2       ( :,: )  ! 2 meter water vapor mixing ratio [kg/kg]
+         Real,    Allocatable :: QSS_GRND ( :,: )  ! ground saturation water vapor mixing ratio [kg/kg]
+         Real,    Allocatable :: RH       ( :,: )  ! relative humidity [ratio]
+         Real,    Allocatable :: RA       ( :,: )  ! aerodynamic resistnace [s/m]
+         Real,    Allocatable :: RS       ( :,: )  ! stomatal resistnace [s/m]
+         Real,    Allocatable :: RC       ( :,: )  ! convective precipitation [cm]
+         Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [mc]
+         Real,    Allocatable :: RGRND    ( :,: )  ! Solar radiation at the ground [W/m**2]
+         Real,    Allocatable :: HFX      ( :,: )  ! Sensible heat flux [W/m**2]
+         Real,    Allocatable :: SNOCOV   ( :,: )  ! Snow cover [1=yes, 0=no]
+         Real,    Allocatable :: TEMP2    ( :,: )  ! two meter temperature [K]
+         Real,    Allocatable :: TEMPG    ( :,: )  ! skin temperature [K]
+         Real,    Allocatable :: TSEASFC  ( :,: )  ! SST [K]
+         Real,    Allocatable :: USTAR    ( :,: )  ! surface friction velocity [m/s]
+         Real,    Allocatable :: VEG      ( :,: )  ! fractional vegetation coverage [ratio]
+         Real,    Allocatable :: LAI      ( :,: )  ! grid cell leaf area index [m**2/m**2]
+         Real,    Allocatable :: WR       ( :,: )  ! precip intercepted by canopy [m]
+         Real,    Allocatable :: WSPD10   ( :,: )  ! 10-m wind speed [m/s]
+         Real,    Allocatable :: WSTAR    ( :,: )  ! convective velocity scale [m/s]
+         Real,    Allocatable :: Z0       ( :,: )  ! roughness length [m]
+         Real,    Allocatable :: SOIM1    ( :,: )  ! 1 cm soil moisture [m**3/m**3]
+         Real,    Allocatable :: SOIM2    ( :,: )  ! 1 m soil moisture  [m**3/m**3]
+         Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
+         Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
+         Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
+         Real,    Allocatable :: MOLI     ( :,: )  ! inverse of Monin-Obukhov length [m]
+         Real,    Allocatable :: HOL      ( :,: )  ! PBL over Obukhov length
+         Real,    Allocatable :: XPBL     ( :,: )  ! PBL sigma height
+         Integer, Allocatable :: LPBL     ( :,: )  ! PBL layer
+         Logical, Allocatable :: CONVCT   ( :,: )  ! convection flag
+         Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
+C Allocatable surface U and V wind components on the cross grid points
+         Real,    Allocatable :: UWIND    ( :,:,: )  ! inverse of Monin-Obukhov length [m]
+         Real,    Allocatable :: VWIND    ( :,:,: )  ! inverse of Monin-Obukhov length [m]                    
+C Allocatable surface 3-D meteorological fields:
+         Real,    Allocatable :: KZMIN    ( :,:,: )  ! minimum Kz [m**2/s]
+         Real,    Allocatable :: PRES     ( :,:,: )  ! layer 1 pressure [Pa]
+         Real,    Allocatable :: QV       ( :,:,: )  ! water vapor mixing ratio
+         Real,    Allocatable :: QC       ( :,:,: )  ! cloud water mixing ratio
+         Real,    Allocatable :: THETAV   ( :,:,: )  ! potential temp
+         Real,    Allocatable :: TA       ( :,:,: )  ! temperature (K)
+         Real,    Allocatable :: ZH       ( :,:,: )  ! mid-layer height above ground [m]
+         Real,    Allocatable :: ZF       ( :,:,: )  ! layer height [m]
+         Real,    Allocatable :: DZF      ( :,:,: )  ! layer surface thickness
+         Real,    Allocatable :: DENS     ( :,:,: )  ! air density
+         Real,    Allocatable :: RJACM    ( :,:,: )  ! reciprocal mid-layer Jacobian
+         Real,    Allocatable :: RJACF    ( :,:,: )  ! reciprocal full-layer Jacobian
+         Real,    Allocatable :: RRHOJ    ( :,:,: )  ! reciprocal density X Jacobian
+      End Type MET_Type
+      
+      Type :: GRID_Type
+C Allocatable grid infomation:
+C Vertical information
+         Real,    Allocatable :: DX3F   ( : )     ! sigma layer surface thickness ! vdiffacmx.F
+         Real,    Allocatable :: RDX3F  ( : )     ! reciprocal sigma layer thickness ! EMIS_DEFN.F, sedi.F, vdiffacmx.F, vdiffproc.F
+         Real,    Allocatable :: RDX3M  ( : )     ! reciprocal sigma midlayer thickness ! vdiffproc.F
+C Horizontal Information:
+         Real,    Allocatable :: RMSFX4 ( :,: )  ! inverse map scale factor ** 4
+         Real,    Allocatable :: LON    ( :,: )  ! longitude
+         Real,    Allocatable :: LAT    ( :,: )  ! latitude
+         Real,    Allocatable :: LWMASK ( :,: )  ! land water mask
+         Real,    Allocatable :: OCEAN  ( :,: )  ! Open ocean
+         Real,    Allocatable :: SZONE  ( :,: )  ! Surf zone
+         Real,    Allocatable :: PURB   ( :,: )  ! percent urban [%]
+         Integer, Allocatable :: SLTYP  ( :,: )  ! soil type [category]
+         Real,    Allocatable :: WSAT   ( :,: )  ! soil wilting point
+         Real,    Allocatable :: WWLT   ( :,: )  ! soil wilting point
+         Real,    Allocatable :: BSLP   ( :,: )  ! B Slope 
+         Real,    Allocatable :: WRES   ( :,: )  ! Soil residual moisture point
+         Real,    Allocatable :: WFC    ( :,: )  ! soil field capacity 
+         Real,    Allocatable :: RHOB   ( :,: )  ! soil bulk density
+C Land use information:
+         Character( 10 ), Allocatable   :: NAME    ( : )     ! LU name
+         Character( 10 ), Allocatable   :: LU_Type ( : )     ! general land use type e.g. water, forest, etc.
+         Real, Allocatable :: LUFRAC  ( :,:,: ) ! land use fraction (col,row,lu_type)[ratio]
+      End Type GRID_Type
+
+      Type :: MOSAIC_Type                 ! (col,row,lu)
+         Character( 10 ), Allocatable :: NAME    ( : ) ! LU name
+         Character( 10 ), Allocatable :: LU_Type ( : ) ! general land use type e.g. water, forest, etc.
+C Allocatable sub grid cell meteorological variables:
+         Real, Allocatable :: USTAR ( :,:,: )   ! surface friction velocity [m/s]
+         Real, Allocatable :: LAI   ( :,:,: )   ! leaf area index [m**2/m**2]
+         Real, Allocatable :: VEG   ( :,:,: )   ! vegetation fraction [ratio]
+         Real, Allocatable :: Z0    ( :,:,: )   ! vegetation fraction [ratio]
+         Real, Allocatable :: DELTA ( :,:,: )   ! Surface wetness [ratio]
+C Allocatable sub grid cell resistances
+         Real, Allocatable :: RA    ( :,:,: )    ! aerodynamic resistance [s/m]
+         Real, Allocatable :: RSTW  ( :,:,: )    ! Stomatal Resistance of water [s/m]
+         Real, Allocatable :: RINC  ( :,:,: )    ! In-canopy resistance [s/m]
+      End Type MOSAIC_Type
+
+      Type :: ChemMos_Type                 ! (col,row,lu,spc)
+         Character( 10 ), Allocatable :: NAME    ( : )  ! LU name
+         Character( 10 ), Allocatable :: Lu_Type ( : )  ! general land use type e.g. water, forest, etc.     
+         Character( 16 ), Allocatable :: SubName ( : )  ! Deposition species name    
+C Allocatable sub grid cell chemically dependent resistances
+         Real, Allocatable :: Rb   ( :,:,:,: ) ! quasi-laminar boundary layer resistance [s/m]
+         Real, Allocatable :: Rst  ( :,:,:,: ) ! stomatal resistance [s/m]
+         Real, Allocatable :: Rgc  ( :,:,:,: ) ! Canopy covered soil resistance [s/m]
+         Real, Allocatable :: Rgb  ( :,:,:,: ) ! Barron soil resistance [s/m]
+         Real, Allocatable :: Rcut ( :,:,:,: ) ! soil resistance [s/m]
+         Real, Allocatable :: Rwat ( :,:,:,: ) ! surface water resistance [s/m]
+C Allocatable sub grid cell compensation point
+         Real, Allocatable :: Catm ( :,:,:,: ) ! Atmospheric [ppm]
+         Real, Allocatable :: CZ0  ( :,:,:,: ) ! compensation point at Z0 [ppm]
+         Real, Allocatable :: Cleaf( :,:,:,: ) ! Leaf compensation point [ppm]
+         Real, Allocatable :: Cstom( :,:,:,: ) ! Stomatal compensation point [ppm]
+         Real, Allocatable :: Ccut ( :,:,:,: ) ! Cuticular compensation point [ppm]
+         Real, Allocatable :: Csoil( :,:,:,: ) ! Soil compensation point [ppm]
+      End Type ChemMos_Type
+
+      Type( MET_Type ),     Save :: Met_Data 
+      Type( GRID_Type ),    Save :: Grid_Data 
+      Type( MOSAIC_Type ),  Save :: Mosaic_Data
+      Type( ChemMos_Type ), Save :: ChemMos_Data
+
+      Integer, Save   :: n_spc_m3dry = ltotg       ! from DEPVVARS module
+C M3 asx constants
+      Real, Parameter :: a0         = 8.0        ! [dim'less]
+      Real, Parameter :: d3         = 1.38564e-2 ! [dim'less]
+      Real, Parameter :: dwat       = 0.2178     ! [cm^2/s] at 273.15K
+      Real, Parameter :: hplus_ap   = 1.0e-6     ! pH=6.0 leaf apoplast solution Ph (Massad et al 2008)      
+      Real, Parameter :: hplus_def  = 1.0e-5     ! pH=5.0
+      Real, Parameter :: hplus_east = 1.0e-5     ! pH=5.0
+      Real, Parameter :: hplus_h2o  = 7.94328e-9 ! 10.0**(-8.1)
+      Real, Parameter :: hplus_west = 3.16228e-6 ! 10.0**(-5.5)
+      Real, Parameter :: kvis       = 0.132      ! [cm^2 / s] at 273.15K
+      Real, Parameter :: pr         = 0.709      ! [dim'less]
+      Real, Parameter :: rcut0      = 3000.0     ! [s/m]
+      Real, Parameter :: rcw0       = 125000.0   ! acc'd'g to Padro and
+      Real, Parameter :: resist_max = 1.0e30     ! maximum resistance
+      Real, Parameter :: rg0        = 1000.0     ! [s/m]
+      Real, Parameter :: rgwet0     = 25000.0    ! [s/m]
+      Real, Parameter :: rsndiff    = 10.0       ! snow diffusivity fac
+      Real, Parameter :: rsnow0     = 1000.0
+      Real, Parameter :: svp2       = 17.67      ! from MM5 and WRF
+      Real, Parameter :: svp3       = 29.65      ! from MM5 and WRF
+      Real, Parameter :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
+      Real, Parameter :: twothirds  = 2.0 / 3.0
+      Real, Parameter :: betah      = 5.0       ! WRF 3.6 px uses Dyer
+      Real, Parameter :: gamah      = 16.0
+      Real, Parameter :: pr0        = 0.95
+      Real, Parameter :: karman     = 0.40
+      Real, Parameter :: f3min      = 0.25
+      Real, Parameter :: ftmin      = 0.0000001  ! m/s
+      Real, Parameter :: nscat      = 16.0
+      Real, Parameter :: rsmax      = 5000.0     ! s/m
+      Real            :: ar       ( ltotg )        ! reactivity relative to HNO3
+      Real            :: dif0     ( ltotg )        ! molecular diffusivity [cm2/s]
+      Real            :: lebas    ( ltotg )        ! Le Bas molar volume [cm3/mol ]
+      Real            :: meso     ( ltotg )        ! Exception for species that 
+                                                   ! react with cell walls. fo in 
+                                                   ! Wesely 1989 eq 6.
+      Character( 16 ) :: subname  ( ltotg )        ! for subroutine HLCONST
+
+      Real,    Save :: CONVPA             ! Pressure conversion factor file units to Pa
+      Logical, Save :: MINKZ     
+      Logical, Save :: CSTAGUV            ! Winds are available with C stagger?
+      Logical, Save :: ifwr     = .false.
+
+      Logical, Private, Save :: ifsst    = .false.
+      Logical, Private, Save :: ifq2     = .false.
+      Logical, Private, Save :: rinv     = .True.
+      
+      Integer,         Private :: C, R, L, S               ! loop induction variables
+      Integer,         Private :: SPC
+      Character( 16 ), Private, Save :: vname_rc, vname_rn, vname_uc, vname_vc
+      Real,            Private, Save :: P0    ! reference pressure (100000.0 Pa) for Potential Temperature, note that in meteorology they do not use the SI 1 ATM.  
+
+      Integer, Private, Save :: LOGDEV
+      Integer, Private, Save :: GXOFF, GYOFF              ! global origin offset from file
+      Integer, Private, Save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ! MET_CRO_3D
+      Integer, Private, Save :: STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 ! MET_DOT_3D
+      Integer, Private, Save :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 ! MET_CRO_2D
+      Integer, Private, Save :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 ! OCEAN_1
+
+      Real, Pointer, Private :: BUFF1D( : )     ! 1D temp var number of layers
+      Real, Pointer, Private :: BUFF2D( :,: )   ! 2D temp var
+      Real, Pointer, Private :: BUFF3D( :,:,: ) ! 3D temp var
+
+      DATA subname( 1), dif0( 1), ar( 1), meso( 1), lebas( 1) / 'SO2             ', 0.1089,   10.0,      0.0,  35.0/
+      DATA subname( 2), dif0( 2), ar( 2), meso( 2), lebas( 2) / 'H2SO4           ', 0.1091, 8000.0,      0.0,  49.0/
+      DATA subname( 3), dif0( 3), ar( 3), meso( 3), lebas( 3) / 'NO2             ', 0.1361,    2.0,      0.1,  21.0/
+      DATA subname( 4), dif0( 4), ar( 4), meso( 4), lebas( 4) / 'NO              ', 0.1802,    2.0,      0.0,  14.0/
+      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,    8.0,      1.0,  21.0/
+      DATA subname( 6), dif0( 6), ar( 6), meso( 6), lebas( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,  35.0/
+      DATA subname( 7), dif0( 7), ar( 7), meso( 7), lebas( 7) / 'H2O2            ', 0.1300,   30.0,      1.0,  28.0/
+      DATA subname( 8), dif0( 8), ar( 8), meso( 8), lebas( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,  56.0/
+      DATA subname( 9), dif0( 9), ar( 9), meso( 9), lebas( 9) / 'FORMALDEHYDE    ', 0.1554,   10.0,      0.0,  35.0/
+      DATA subname(10), dif0(10), ar(10), meso(10), lebas(10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.1,  49.0/
+      DATA subname(11), dif0(11), ar(11), meso(11), lebas(11) / 'PEROXYACETIC_ACI', 0.0868,   20.0,      0.1,  70.0/
+      DATA subname(12), dif0(12), ar(12), meso(12), lebas(12) / 'ACETIC_ACID     ', 0.0944,   20.0,      0.0,  63.0/
+      DATA subname(13), dif0(13), ar(13), meso(13), lebas(13) / 'NH3             ', 0.1978,   20.0,      0.0,  28.0/
+      DATA subname(14), dif0(14), ar(14), meso(14), lebas(14) / 'PAN             ', 0.0687,   16.0,      0.1,  91.0/
+      DATA subname(15), dif0(15), ar(15), meso(15), lebas(15) / 'HNO2            ', 0.1349,   20.0,      0.1,  28.0/
+      DATA subname(16), dif0(16), ar(16), meso(16), lebas(16) / 'CO              ', 0.1807,    5.0,      0.0,  14.0/
+      DATA subname(17), dif0(17), ar(17), meso(17), lebas(17) / 'METHANOL        ', 0.1329,    2.0,      0.0,  42.0/
+      DATA subname(18), dif0(18), ar(18), meso(18), lebas(18) / 'N2O5            ', 0.0808, 5000.0,      0.0,  49.0/
+      DATA subname(19), dif0(19), ar(19), meso(19), lebas(19) / 'NO3             ', 0.1153, 5000.0,      0.0,  28.0/
+      DATA subname(20), dif0(20), ar(20), meso(20), lebas(20) / 'GENERIC_ALDEHYDE', 0.0916,   10.0,      0.0,  56.0/
+      DATA subname(21), dif0(21), ar(21), meso(21), lebas(21) / 'CL2             ', 0.1080,   10.0,      0.0,  49.0/
+      DATA subname(22), dif0(22), ar(22), meso(22), lebas(22) / 'HOCL            ', 0.1300,   10.0,      0.0,  38.5/
+      DATA subname(23), dif0(23), ar(23), meso(23), lebas(23) / 'HCL             ', 0.1510, 8000.0,      0.0,  31.5/
+      DATA subname(24), dif0(24), ar(24), meso(24), lebas(24) / 'FMCL            ', 0.1094,   10.0,      0.0,  45.5/
+      DATA subname(25), dif0(25), ar(25), meso(25), lebas(25) / 'HG              ', 0.1194,    0.1,      0.0,  14.8/   ! lebas not used
+      DATA subname(26), dif0(26), ar(26), meso(26), lebas(26) / 'HGIIGAS         ', 0.0976, 8000.0,      0.0,  95.0/   ! estimation from back calculating to get dw25 = 1.04e-5 (Garland et al, 1965)
+      DATA subname(27), dif0(27), ar(27), meso(27), lebas(27) / 'TECDD_2378      ', 0.0525,    2.0,      0.0, 217.0/
+      DATA subname(28), dif0(28), ar(28), meso(28), lebas(28) / 'PECDD_12378     ', 0.0508,    2.0,      0.0, 234.5/
+      DATA subname(29), dif0(29), ar(29), meso(29), lebas(29) / 'HXCDD_123478    ', 0.0494,    2.0,      0.0, 252.0/
+      DATA subname(30), dif0(30), ar(30), meso(30), lebas(30) / 'HXCDD_123678    ', 0.0494,    2.0,      0.0, 252.0/
+      DATA subname(31), dif0(31), ar(31), meso(31), lebas(31) / 'HXCDD_123478    ', 0.0494,    2.0,      0.0, 252.0/
+      DATA subname(32), dif0(32), ar(32), meso(32), lebas(32) / 'HPCDD_1234678   ', 0.0480,    2.0,      0.0, 269.5/
+      DATA subname(33), dif0(33), ar(33), meso(33), lebas(33) / 'OTCDD           ', 0.0474,    2.0,      0.0, 287.0/
+      DATA subname(34), dif0(34), ar(34), meso(34), lebas(34) / 'TECDF_2378      ', 0.0534,    2.0,      0.0, 210.0/
+      DATA subname(35), dif0(35), ar(35), meso(35), lebas(35) / 'PECDF_12378     ', 0.0517,    2.0,      0.0, 227.5/
+      DATA subname(36), dif0(36), ar(36), meso(36), lebas(36) / 'PECDF_23478     ', 0.0517,    2.0,      0.0, 227.5/
+      DATA subname(37), dif0(37), ar(37), meso(37), lebas(37) / 'HXCDF_123478    ', 0.0512,    2.0,      0.0, 245.0/
+      DATA subname(38), dif0(38), ar(38), meso(38), lebas(38) / 'HXCDF_123678    ', 0.0512,    2.0,      0.0, 245.0/
+      DATA subname(39), dif0(39), ar(39), meso(39), lebas(39) / 'HXCDF_234678    ', 0.0512,    2.0,      0.0, 245.0/
+      DATA subname(40), dif0(40), ar(40), meso(40), lebas(40) / 'HXCDF_123789    ', 0.0512,    2.0,      0.0, 245.0/
+      DATA subname(41), dif0(41), ar(41), meso(41), lebas(41) / 'HPCDF_1234678   ', 0.0487,    2.0,      0.0, 262.5/
+      DATA subname(42), dif0(42), ar(42), meso(42), lebas(42) / 'HPCDF_1234789   ', 0.0487,    2.0,      0.0, 262.5/
+      DATA subname(43), dif0(43), ar(43), meso(43), lebas(43) / 'OTCDF           ', 0.0474,    2.0,      0.0, 280.0/
+      DATA subname(44), dif0(44), ar(44), meso(44), lebas(44) / 'NAPHTHALENE     ', 0.0778,    4.0,      0.0, 119.0/
+      DATA subname(45), dif0(45), ar(45), meso(45), lebas(45) / '1NITRONAPHTHALEN', 0.0692,    4.0,      0.0, 133.0/
+      DATA subname(46), dif0(46), ar(46), meso(46), lebas(46) / '2NITRONAPHTHALEN', 0.0692,    4.0,      0.0, 133.0/
+      DATA subname(47), dif0(47), ar(47), meso(47), lebas(47) / '14NAPHTHOQUINONE', 0.0780,    4.0,      0.0, 119.0/
+      DATA subname(48), dif0(48), ar(48), meso(48), lebas(48) / 'HEXAMETHYLE_DIIS', 0.0380,   10.0,      0.0, 196.0/
+      DATA subname(49), dif0(49), ar(49), meso(49), lebas(49) / 'HYDRAZINE       ', 0.4164,   20.0,      0.0,  42.0/
+      DATA subname(50), dif0(50), ar(50), meso(50), lebas(50) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  70.0/
+      DATA subname(51), dif0(51), ar(51), meso(51), lebas(51) / '24-TOLUENE_DIIS ', 0.0610,   10.0,      0.0, 154.0/
+      DATA subname(52), dif0(52), ar(52), meso(52), lebas(52) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 154.0/
+      DATA subname(53), dif0(53), ar(53), meso(53), lebas(53) / 'ORG_NTR         ', 0.0607,   16.0,      0.1, 160.0/  ! assumes 58.2% C5H11O4N and 41.8% C5H11O3N
+      DATA subname(54), dif0(54), ar(54), meso(54), lebas(54) / 'HYDROXY_NITRATES', 0.0609,   16.0,      0.1, 156.1/
+      DATA subname(55), dif0(55), ar(55), meso(55), lebas(55) / 'MPAN            ', 0.0580,   16.0,      0.1, 133.0/
+      DATA subname(56), dif0(56), ar(56), meso(56), lebas(56) / 'PPN             ', 0.0631,   16.0,      0.1, 118.2/
+      DATA subname(57), dif0(57), ar(57), meso(57), lebas(57) / 'MVK             ', 0.0810,    8.0,      1.0,  88.8/
+      DATA subname(58), dif0(58), ar(58), meso(58), lebas(58) / 'DINTR           ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(59), dif0(59), ar(59), meso(59), lebas(59) / 'NTR_ALK         ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(60), dif0(60), ar(60), meso(60), lebas(60) / 'NTR_OH          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'NTR_PX          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(63), dif0(63), ar(63), meso(63), lebas(63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
+
+      CONTAINS
+
+         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX )
+
+C-----------------------------------------------------------------------
+C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
+C                      allocatable RDEPVHT, RJACM, RRHOJ
+C   14 Nov 03 J.Young: add reciprocal vertical Jacobian product for full and
+C                      mid-layer
+C   Tanya took JACOBF out of METCRO3D! Improvise
+C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
+C                      domain specifications in one module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C-----------------------------------------------------------------------
+
+         Use UTILIO_DEFN
+
+         Implicit None
+ 
+         Include SUBST_FILES_ID  ! file name parameters
+         Include SUBST_CONST     ! constants
+
+C Arguments:
+         Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
+         Logical, Intent( IN ) :: MOSAIC
+         Logical, Intent( IN ) :: ABFLUX
+
+C File variables:
+         Real, Pointer    :: MSFX2   ( :,: )
+         Real, Pointer    :: SOILCAT ( :,: )
+         Real, Pointer    :: X3M     ( : )
+
+C Local variables:
+         Character( 16 ) :: PNAME = 'INIT_MET'
+         Character( 16 ) :: VNAME
+         CHARACTER( 16 ) :: UNITSCK
+         CHARACTER( 30 ) :: MSG1 = ' Error interpolating variable '
+         Character( 96 ) :: XMSG = ' '
+
+C for INTERPX
+         Integer STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
+         Integer V
+         Integer ALLOCSTAT
+
+C-----------------------------------------------------------------------
+
+         LOGDEV = INIT3()
+
+! Allocate buffers
+         ALLOCATE ( BUFF1D( NLAYS ),
+     &              BUFF2D( NCOLS,NROWS ), 
+     &              BUFF3D( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+         If ( ALLOCSTAT .Ne. 0 ) Then
+            XMSG = 'Failure allocating Buffers'
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         BUFF1D = 0.0
+         BUFF2D = 0.0
+         BUFF3D = 0.0
+
+! Allocate shared arrays
+! Met_Data
+         ALLOCATE( Met_Data%RDEPVHT  ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%DENS1    ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%PRSFC    ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%Q2       ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%QSS_GRND ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%RH       ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%RA       ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%RS       ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%RC       ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%RN       ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%RGRND    ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%HFX      ( MY_NCOLS,MY_NROWS ),    
+     &             Met_Data%SNOCOV   ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%TEMP2    ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%TEMPG    ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%TSEASFC  ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%USTAR    ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%VEG      ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%LAI      ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%WR       ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%WSPD10   ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%WSTAR    ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%Z0       ( MY_NCOLS,MY_NROWS ), 
+     &             Met_Data%SOIM1    ( MY_NCOLS,MY_NROWS ),
+     &             Met_Data%SOIT1    ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%SEAICE   ( MY_NCOLS,MY_NROWS ),    
+     &             Met_Data%MOLI     ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%HOL      ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%XPBL     ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%LPBL     ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%CONVCT   ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%PBL      ( MY_NCOLS,MY_NROWS ),  
+     &             Met_Data%UWIND    ( MY_NCOLS + 1,MY_NROWS + 1,NLAYS ), 
+     &             Met_Data%VWIND    ( MY_NCOLS + 1,MY_NROWS + 1,NLAYS ), 
+     &             Met_Data%RJACM    ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%RJACF    ( MY_NCOLS,MY_NROWS,NLAYS ),  
+     &             Met_Data%RRHOJ    ( MY_NCOLS,MY_NROWS,NLAYS ),  
+     &             Met_Data%ZF       ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%ZH       ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%KZMIN    ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%PRES     ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%QV       ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%QC       ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%THETAV   ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%TA       ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%DZF      ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             Met_Data%DENS     ( MY_NCOLS,MY_NROWS,NLAYS ),
+     &             STAT = ALLOCSTAT )
+         If ( ALLOCSTAT .Ne. 0 ) Then
+            XMSG = 'Failure allocating met vars'
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         ALLOCATE( Grid_Data%DX3F   ( NLAYS ),
+     &             Grid_Data%RDX3F  ( NLAYS ),
+     &             Grid_Data%RDX3M  ( NLAYS ),
+     &             Grid_Data%RMSFX4 ( MY_NCOLS,MY_NROWS ), 
+     &             Grid_Data%LON    ( MY_NCOLS,MY_NROWS ),
+     &             Grid_Data%LAT    ( MY_NCOLS,MY_NROWS ),
+     &             Grid_Data%LWMASK ( MY_NCOLS,MY_NROWS ),
+     &             Grid_Data%OCEAN  ( MY_NCOLS,MY_NROWS ),
+     &             Grid_Data%SZONE  ( MY_NCOLS,MY_NROWS ),
+     &             Grid_Data%PURB   ( MY_NCOLS,MY_NROWS ),
+     &             Grid_Data%SLTYP  ( MY_NCOLS,MY_NROWS ), 
+     &             Grid_Data%NAME    ( n_lufrac ),
+     &             Grid_Data%LU_Type ( n_lufrac ),
+     &             STAT = ALLOCSTAT )
+         If ( ALLOCSTAT .Ne. 0 ) Then
+            XMSG = 'Failure allocating grid vars'
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+         Grid_Data%NAME    = name_lu
+         Grid_Data%LU_Type = cat_lu 
+
+         If ( ABFLUX .Or. MOSAIC ) Then
+            ALLOCATE( Met_Data%SOIM2    ( MY_NCOLS,MY_NROWS ),   
+     &                Met_Data%SOIT2    ( MY_NCOLS,MY_NROWS ),
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating mosaic met vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If 
+
+            ALLOCATE( Grid_Data%WSAT   ( MY_NCOLS,MY_NROWS ),
+     &                Grid_Data%WWLT   ( MY_NCOLS,MY_NROWS ),
+     &                Grid_Data%WFC    ( MY_NCOLS,MY_NROWS ),
+     &                Grid_Data%WRES   ( MY_NCOLS,MY_NROWS ),
+     &                Grid_Data%BSLP   ( MY_NCOLS,MY_NROWS ),
+     &                Grid_Data%LUFRAC ( MY_NCOLS,MY_NROWS,n_lufrac ),    
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating mosaic grid vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            Grid_Data%WSAT    = 0.0
+            Grid_Data%WWLT    = 0.0
+            Grid_Data%WFC     = 0.0
+            Grid_Data%WRES    = 0.0
+            Grid_Data%BSLP    = 0.0
+
+            ALLOCATE( Mosaic_Data%USTAR   ( MY_NCOLS,MY_NROWS,n_lufrac ), 
+     &                Mosaic_Data%LAI     ( MY_NCOLS,MY_NROWS,n_lufrac ),
+     &                Mosaic_Data%DELTA   ( MY_NCOLS,MY_NROWS,n_lufrac ),
+     &                Mosaic_Data%VEG     ( MY_NCOLS,MY_NROWS,n_lufrac ),
+     &                Mosaic_Data%Z0      ( MY_NCOLS,MY_NROWS,n_lufrac ),
+     &                Mosaic_Data%RA      ( MY_NCOLS,MY_NROWS,n_lufrac ),
+     &                Mosaic_Data%RSTW    ( MY_NCOLS,MY_NROWS,n_lufrac ),
+     &                Mosaic_Data%RINC    ( MY_NCOLS,MY_NROWS,n_lufrac ),                                
+     &                Mosaic_Data%NAME    ( n_lufrac ),
+     &                Mosaic_Data%LU_Type ( n_lufrac ),                                                                
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating mosaic vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            Mosaic_Data%USTAR   = 0.0
+            Mosaic_Data%LAI     = 0.0
+            Mosaic_Data%DELTA   = 0.0
+            Mosaic_Data%VEG     = 0.0
+            Mosaic_Data%Z0      = 0.000001
+            Mosaic_Data%RSTW    = 0.0
+            Mosaic_Data%RINC    = 0.0
+            Mosaic_Data%NAME    = name_lu
+            Mosaic_Data%LU_Type = cat_lu 
+
+            ALLOCATE( ChemMos_Data%Rb   ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
+     &                ChemMos_Data%Rst  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
+     &                ChemMos_Data%Rcut ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
+     &                ChemMos_Data%Rgc  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rgb  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rwat ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),  
+     &                ChemMos_Data%CZ0  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Cleaf( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
+     &                ChemMos_Data%Cstom( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
+     &                ChemMos_Data%Ccut ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
+     &                ChemMos_Data%Csoil( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),  
+     &                ChemMos_Data%NAME  ( n_lufrac ),                                
+     &                STAT = ALLOCSTAT )
+            If ( ALLOCSTAT .Ne. 0 ) Then
+               XMSG = 'Failure allocating chemistry dependent mosaic vars'
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+            ChemMos_Data%Rb    = resist_max
+            ChemMos_Data%Rst   = resist_max
+            ChemMos_Data%Rcut  = resist_max
+            ChemMos_Data%Rgc   = resist_max
+            ChemMos_Data%Rgb   = resist_max
+            ChemMos_Data%Rwat  = resist_max
+            ChemMos_Data%CZ0   = 0.0
+            ChemMos_Data%Cleaf = 0.0
+            ChemMos_Data%Cstom = 0.0
+            ChemMos_Data%Ccut  = 0.0
+            ChemMos_Data%Csoil = 0.0
+            ChemMos_Data%NAME    = name_lu
+            ChemMos_Data%LU_Type = cat_lu                  
+            ChemMos_Data%SubName = subname                        
+         End If
+
+! ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
+
+         If ( .Not. desc3( met_cro_2d ) ) Then
+            xmsg = 'Could not get ' // MET_CRO_2D // ' file description'
+            Call m3exit( pname, JDATE, JTIME, xmsg, xstat2 )
+         End If                          
+
+         SPC = INDEX1( 'RA', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) rinv = .FALSE. ! Ra and Rst are in units s/m
+
+         SPC = INDEX1( 'WR', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) ifwr = .True. ! canopy wetness is in METCRO2D
+
+         SPC = INDEX1( 'Q2', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) ifq2 = .True. ! two meter mixing ratio in METCRO2D
+
+         SPC = INDEX1( 'TSEASFC', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) ifsst = .True. ! two meter SST in METCRO2D
+
+         SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) Then
+            vname_rc = 'RCA'
+         Else
+            vname_rc = 'RC'
+         End If
+
+         SPC = INDEX1( 'RNA', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) Then
+            vname_rn = 'RNA'
+         Else
+            vname_rn = 'RN'
+         End If
+
+         If ( .Not. desc3( met_dot_3d ) ) Then
+            xmsg = 'Could not get ' // MET_DOT_3D // ' file description'
+            Call m3exit( pname, JDATE, JTIME, xmsg, xstat2 )
+         End If                          
+
+         SPC = INDEX1( 'UWINDC', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) Then
+            vname_uc = 'UWINDC'
+            CSTAGUV  = .TRUE.
+         Else
+            vname_uc = 'UWIND'
+            CSTAGUV  = .FALSE.
+         End If
+
+         SPC = INDEX1( 'VWINDC', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) Then
+            vname_vc = 'VWINDC'
+         Else
+            vname_vc = 'VWIND'
+         End If
+
+         If ( .Not. desc3( met_cro_3d ) ) Then
+            xmsg = 'Could not get ' // MET_CRO_3D // ' file description'
+            Call m3exit( pname, JDATE, JTIME, xmsg, xstat2 )
+         End If
+
+         V = INDEX1( 'PRES', NVARS3D, VNAME3D )
+         If ( V .Ne. 0 ) Then
+            UNITSCK = UNITS3D( V )
+         Else
+            XMSG = 'Could not get variable PRES from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         Select Case (UNITSCK)
+            Case ( 'PASCAL','pascal','Pascal','PA','pa','Pa' )
+               CONVPA = 1.0
+               P0     = 100000.0
+            Case ( 'MILLIBAR','millibar','Millibar','MB','mb','Mb' )
+               CONVPA = 1.0E-02
+               P0     = 100000.0 * CONVPA
+            Case ( 'CENTIBAR','centibar','Centibar','CB','cb','Cb' )
+               CONVPA = 1.0E-03
+               P0     = 100000.0 * CONVPA
+            Case Default
+               XMSG = 'Units incorrect on ' // MET_CRO_3D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End Select
+
+         MINKZ = .True.   ! default
+         MINKZ = ENVYN( 'KZMIN', 'Kz min on flag', MINKZ, ALLOCSTAT )
+         If ( ALLOCSTAT .Ne. 0 ) Write( LOGDEV,'(5X, A)' ) 'Kz min on flag'
+         Select Case( ALLOCSTAT )
+            Case (  1 ) 
+               XMSG = 'Environment variable improperly formatted'
+               Call M3WARN( PNAME, JDATE, JTIME, XMSG )
+            Case ( -1 )
+               XMSG = 'Environment variable set, but empty ... Using default:'
+               Write( LOGDEV,'(5X, A)' ) XMSG
+            Case ( -2 )
+               XMSG = 'Environment variable not set ... Using default:'
+               Write( LOGDEV,'(5X, A)' ) XMSG
+         End Select
+
+         If ( .Not. MINKZ ) Then
+            XMSG = 'This run uses Kz0UT, *NOT* KZMIN in subroutine edyintb.'
+            Write( LOGDEV,'(/5X, A, /)' ) XMSG
+         End If
+
+C Open the met files
+        
+         Call SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
+     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
+         Call SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
+     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+         Call SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+         Call SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
+     &                   STRTCOLMD3, ENDCOLMD3, STRTROWMD3, ENDROWMD3 )
+         CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
+     &                   STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 )
+C Get sigma coordinate variables
+         X3M => BUFF1D
+         Do L = 1, NLAYS
+            Grid_Data%DX3F( L )  = X3FACE_GD( L ) - X3FACE_GD( L-1 )
+            Grid_Data%RDX3F( L ) = 1.0 / Grid_Data%DX3F( L )
+            X3M( L ) = 0.5 * ( X3FACE_GD( L ) + X3FACE_GD( L-1 ) )
+         End Do
+         Do L = 1, NLAYS - 1
+            Grid_Data%RDX3M( L ) = 1.0 / ( X3M( L+1 ) - X3M( L ) )
+         End Do
+         Grid_Data%RDX3M( NLAYS ) = 0.0
+C nullify pointer
+         Nullify( X3M )
+
+C reciprical of msfx2**2
+C assign MSFX2
+         MSFX2 => BUFF2D
+         VNAME = 'MSFX2'
+         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                       JDATE, JTIME, MSFX2 ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         Grid_Data%RMSFX4 = 1.0 / ( MSFX2**2 )
+C nullify pointer
+         Nullify( MSFX2 )
+
+         VNAME = 'LON'
+         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                       JDATE, JTIME, Grid_Data%LON ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'LAT'
+         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                       JDATE, JTIME, Grid_Data%LAT ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'LWMASK'
+         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                       JDATE, JTIME, Grid_Data%LWMASK ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'PURB'
+         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                       JDATE, JTIME, Grid_Data%PURB ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         SOILCAT => BUFF2D
+         VNAME = 'SLTYP'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, SOILCAT ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         Grid_Data%SLTYP = NINT( SOILCAT )
+         Nullify( SOILCAT )
+
+         If ( ABFLUX .Or. MOSAIC ) Then
+            Do l = 1, n_lufrac
+               Write( vname,'( "LUFRAC_",I2.2 )' ) l
+               If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                             STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                             JDATE, JTIME, Grid_Data%LUFRAC( :,:,l ) ) ) Then
+                  XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+                  Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               End If
+            End Do
+
+            Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+               Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
+               Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
+            End Forall  
+        End If
+
+C Read fractional seawater and surf-zone coverage from the OCEAN file.
+C Store results in the OCEAN and SZONE arrays.
+         IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
+            XMSG = 'Open failure for ' // OCEAN_1
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         VNAME = 'OPEN'
+         If ( .Not. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
+     &                       1,1,JDATE, JTIME, Grid_Data%OCEAN ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // OCEAN_1
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'SURF'
+         If ( .Not. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
+     &                       1,1,JDATE, JTIME, Grid_Data%SZONE ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // OCEAN_1
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+         
+         Return
+         End Subroutine INIT_MET 
+
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX )
+
+C-----------------------------------------------------------------------
+C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
+C                      allocatable RDEPVHT, RJACM, RRHOJ
+C   14 Nov 03 J.Young: add reciprocal vertical Jacobian product for full and
+C                      mid-layer
+C   Tanya took JACOBF out of METCRO3D! Improvise
+C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
+C                      domain specifications in one module
+C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C-----------------------------------------------------------------------
+
+         USE GRID_CONF       ! horizontal & vertical domain specifications
+         Use UTILIO_DEFN
+#ifdef parallel
+         USE SE_MODULES      ! stenex (using SE_COMM_MODULE)
+#else
+         USE NOOP_MODULES    ! stenex (using NOOP_COMM_MODULE)
+#endif
+
+         Implicit None
+ 
+         Include SUBST_FILES_ID  ! file name parameters
+         Include SUBST_PE_COMM   ! PE communication displacement and direction
+
+C Arguments:
+
+         Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
+         Logical, Intent( IN ) :: MOSAIC
+         Logical, Intent( IN ) :: ABFLUX
+
+C Parameters:
+         Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
+         REAL, PARAMETER :: KZMAXL = 500.0    ! upper limit for min Kz [m]
+         REAL, PARAMETER :: KZ0UT  = 1.0      ! minimum eddy diffusivity [m**2/sec] KZ0
+         REAL, PARAMETER :: KZL    = 0.01     ! lowest KZ
+         REAL, PARAMETER :: KZU    = 1.0      ! 2.0  ! highest KZ
+         REAL, PARAMETER :: EPS    = 1.0E-08  ! small number for temperature difference
+
+C Local variables:
+         REAL    FINT
+         Real, Pointer    :: Es_Grnd ( :,: )
+         Real, Pointer    :: Es_Air  ( :,: )
+         Real, Pointer    :: TV      ( :,:,: )
+         INTEGER LP
+         INTEGER C, R, L         ! loop induction variables
+
+         Character( 16 ) :: PNAME = 'GET_MET'
+         Character( 16 ) :: VNAME
+         CHARACTER( 30 ) :: MSG1 = ' Error interpolating variable '
+         Character( 96 ) :: XMSG = ' '
+
+         Logical, Save :: rinv     = .True.
+
+C-----------------------------------------------------------------------
+C Interpolate file input variables and format for output
+C-------------------------------- MET_CRO_3D --------------------------------
+      
+         VNAME = 'ZH'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%ZH ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'PRES'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%PRES ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If 
+
+         VNAME = 'ZF'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%ZF ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If            
+
+         VNAME = 'DENS'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%DENS ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT 1 )
+         End If
+
+         Met_Data%DENS1 = Met_Data%DENS( :,:,1 )
+     
+         VNAME = 'JACOBM'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%RJACM ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         Met_Data%RJACM = 1.0 / Met_Data%RJACM
+
+         VNAME = 'JACOBF'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%RJACF ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         Met_Data%RJACF = 1.0 / Met_Data%RJACF
+
+         VNAME = 'DENSA_J'
+         If ( .Not. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%RRHOJ ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         Met_Data%RRHOJ = 1.0 / Met_Data%RRHOJ
+
+         VNAME = 'TA'
+         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%TA ) ) THEN
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         VNAME = 'QV'
+         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%QV ) ) THEN
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         VNAME = 'QC'
+         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%QC ) ) THEN
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C-------------------------------- MET_CRO_2D --------------------------------
+C Vegetation and surface vars
+         VNAME = 'LAI'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%LAI ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'VEG'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%VEG ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'ZRUF'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%Z0 ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+C Soil vars
+         VNAME = 'SOIM1'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%SOIM1 ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         If ( ABFLUX .Or. MOSAIC ) Then
+            VNAME = 'SOIM2'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%SOIM2 ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+
+            VNAME = 'SOIT2'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%SOIT2 ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         End If
+
+         VNAME = 'SOIT1'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%SOIT1 ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'SEAICE'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%SEAICE ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+C met vars
+         VNAME = 'MOLI'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%MOLI ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'PRSFC'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%PRSFC ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'RGRND'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%RGRND ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'SNOCOV'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%SNOCOV ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+         Where( Met_Data%SNOCOV .Lt. 0.0 )
+            Met_Data%SNOCOV = 0.0
+         End Where
+
+         VNAME = 'TEMP2'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%TEMP2 ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'TEMPG'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%TEMPG ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'USTAR'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%USTAR ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'WSPD10'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%WSPD10 ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'WSTAR'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%WSTAR ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'HFX'
+         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%HFX ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         VNAME = 'PBL'
+         IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%PBL ) ) THEN
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
+
+         If ( .Not. INTERPX( MET_CRO_2D, vname_rn, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%RN ) ) Then
+            XMSG = MSG1 // TRIM( vname_rn ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         If ( .Not. INTERPX( MET_CRO_2D, vname_rc, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%RC ) ) Then
+            XMSG = MSG1 // TRIM( vname_rc ) // ' from ' // MET_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If         
+
+         If ( ifwr ) Then
+            VNAME = 'WR'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%WR ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         End If
+
+         If ( ifsst ) Then
+         VNAME = 'TSEASFC'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%TSEASFC ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         Else
+            Met_Data%TSEASFC = Met_Data%TEMPG
+         End If
+
+         If ( rinv ) Then
+            VNAME = 'RADYNI'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%RA ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+
+            Where(Met_Data%RA .Gt. cond_min) 
+               Met_Data%RA = 1.0/Met_Data%RA
+            Elsewhere
+               Met_Data%RA = resist_max
+            End Where
+
+            VNAME = 'RSTOMI'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%RS ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+
+            Where(Met_Data%RS .Gt. cond_min) 
+               Met_Data%RS = 1.0 / Met_Data%RS
+            Elsewhere 
+               Met_Data%RS = resist_max
+            End Where
+
+         Else 
+
+            VNAME = 'RA'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%RA ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+
+            VNAME = 'RS'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%RS ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+
+         End If
+
+         If ( ifq2 ) Then  ! Q2 in METCRO2D
+            VNAME = 'Q2'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%Q2 ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         Else
+            Met_Data%Q2 = Met_Data%QV( :,:,1 )
+         End If
+         
+         Es_Grnd => BUFF2D
+         Where(Met_Data%TEMPG .Lt. stdtemp )
+            Es_Grnd = vp0 *Exp( 22.514 - ( 6.15e3 / Met_Data%TEMPG ) )
+         Elsewhere
+            Es_Grnd = vp0 *Exp( svp2 * ( Met_Data%TEMPG -stdtemp ) / ( Met_Data%TEMPG -svp3 ) ) 
+         End Where
+         Met_Data%QSS_GRND = Es_Grnd * 0.622 / ( Met_Data%PRSFC - Es_Grnd )
+         Nullify( Es_Grnd )
+
+          Es_Air => BUFF2D
+         Where(Met_Data%TEMP2 .Lt. stdtemp )
+            Es_Air = vp0 *Exp( 22.514 - ( 6.15e3 / Met_Data%TEMP2 ) )
+         Elsewhere
+            Es_Air = vp0 *Exp( svp2 * ( Met_Data%TEMP2 -stdtemp ) / ( Met_Data%TEMP2 -svp3 ) ) 
+         End Where
+         Met_Data%RH = Met_Data%Q2 / ( Es_Air * 0.622 / ( Met_Data%PRSFC - Es_Air ) ) * 100.0
+         Where( Met_Data%RH .Gt. 100.0 )
+            Met_Data%RH = 100.0
+         Elsewhere( Met_Data%RH .lt. 0.0 )
+            Met_Data%RH = 0.0
+         End Where
+         Nullify( Es_Air )
+
+C-------------------------------- MET_DOT_3D --------------------------------
+         If ( .Not. INTERPX( MET_DOT_3D, vname_uc, PNAME,
+     &                       STRTCOLMD3,ENDCOLMD3, STRTROWMD3,ENDROWMD3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%UWIND ) ) Then
+            XMSG = MSG1 // TRIM( vname_uc ) // ' from ' // MET_DOT_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT 1 )
+         End If
+
+         If ( .Not. INTERPX( MET_DOT_3D, vname_vc, PNAME,
+     &                       STRTCOLMD3,ENDCOLMD3, STRTROWMD3,ENDROWMD3, 1,NLAYS,
+     &                       JDATE, JTIME, Met_Data%VWIND ) ) Then
+            XMSG = MSG1 // TRIM( vname_vc ) // ' from ' // MET_DOT_3D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT 1 )
+         End If
+
+C get ghost values for wind fields in case of free trop.
+         CALL SUBST_COMM ( Met_Data%UWIND, DSPL_N0_E1_S0_W0, DRCN_E )
+         CALL SUBST_COMM ( Met_Data%VWIND, DSPL_N1_E0_S0_W0, DRCN_N )
+
+C-------------------------------- Calculated Variables --------------------------------
+         Met_Data%DZF = Met_Data%ZF - EOSHIFT(Met_Data%ZF, Shift = -1, Boundary = 0.0, Dim = 3)
+
+         Met_Data%RDEPVHT = 1.0 / Met_Data%ZF( :,:,1 )
+
+         IF ( MINKZ ) THEN
+            Met_Data%KZMIN = KZL
+            DO L = 1, NLAYS
+               Where( Met_Data%ZF( :,:,L ) .LE. KZMAXL )
+                  Met_Data%KZMIN( :,:,L ) = KZL + ( KZU - KZL ) * 0.01 * Grid_data%PURB
+               End Where
+            End Do               
+         ELSE
+            Met_Data%KZMIN = KZ0UT
+         END IF
+         
+         TV => BUFF3D
+         TV = Met_Data%TA * ( 1.0 + 0.608 * Met_Data%QV )
+         Met_Data%THETAV = TV * ( P0 / Met_Data%PRES ) ** 0.286
+         Nullify( TV )
+
+         Met_Data%HOL = Met_Data%PBL * Met_Data%MOLI
+
+         Met_Data%CONVCT = .FALSE.      
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+               DO L = 1, NLAYS
+                  IF ( Met_Data%PBL( C,R ) .LT. Met_Data%ZF( C,R,L ) ) THEN
+                     LP = L
+                     EXIT
+                  END IF
+               END DO
+
+               Met_Data%LPBL( C,R ) = LP
+               If ( LP .Eq. 1 ) Then
+                  FINT = ( Met_Data%PBL( C,R ) )
+     &                 / ( Met_Data%ZF( C,R,LP ) )
+                  Met_Data%XPBL( C,R ) = FINT * ( X3FACE_GD( LP ) - X3FACE_GD( LP-1 ) )
+     &                        + X3FACE_GD( LP-1 )
+               Else 
+                  FINT = ( Met_Data%PBL( C,R )   - Met_Data%ZF( C,R,LP-1 ) )
+     &                 / ( Met_Data%ZF( C,R,LP ) - Met_Data%ZF( C,R,LP-1 ) )
+                  Met_Data%XPBL( C,R ) = FINT * ( X3FACE_GD( LP ) - X3FACE_GD( LP-1 ) )
+     &                        + X3FACE_GD( LP-1 )
+               End If
+            END DO
+         END DO
+         Where( Met_Data%THETAV( :,:,1 ) - Met_Data%THETAV( :,:,2 ) .Gt. EPS .And. 
+     &          Met_Data%HOL .Lt. -0.1 .And. Met_Data%LPBL .Gt. 3 )
+            Met_Data%Convct = .True.
+         End Where
+
+         RETURN
+         End Subroutine GET_MET 
+
+      End Module ASX_DATA_MOD

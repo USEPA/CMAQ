@@ -31,6 +31,9 @@ C OPASX_MEDIA - Opens the output file for NH4+ and H+ in the soil water solution
 C               
 C Revision History: J. Bash Mar 15 11: Created
 C                   J. Bash May 11 11: Updated for CMAQ 5.0
+C                   J. Bash Nov  7 14: Modified for the restructuring of vidff. Moved constants and data to 
+C                       ASX_DATA_MOD.
+C------------------------------------------------------------------------------------------
 
       Implicit None
 ! Private variables
@@ -50,7 +53,6 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Real, Save, Allocatable :: MHp1  ( :,: ) ! molar H+
       Real, Save, Allocatable :: MHp2  ( :,: ) ! molar H+  
       Real, Save, Allocatable :: CMEDIA( :,:,: ) ! surface layer concs 
-      Real, Save, Allocatable :: lufrac( :,:,: )
 
       Contains
          SUBROUTINE INIT_BIDI( abflux )

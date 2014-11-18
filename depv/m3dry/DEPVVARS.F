@@ -37,6 +37,7 @@ C                        UTILIO_DEFN
 C           11 May 2011 J.Bash: Updated for NH3 bidirectional exchange
 C           04 Jan 2012 J.Young: Initialize char variables with blank padding
 C           28 Aug 2014  G. Sarwar: added deposition for CLNO2 
+C           07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
