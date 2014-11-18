@@ -103,6 +103,8 @@ C             horizontal grid resolution restriction)
 C       9/11 D.Wong: incorporated twoway model implementation
 C       02Aug12 S.Roselle:  instrumented to calculate and return
 C                           transmissivity for convective clouds
+C       14Oct14 B.Hutzell:  Added routine call to capture cloud fractions,
+C                           water, and ice mixing ratios
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -110,6 +112,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE AQ_DATA
       USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
+      USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
       
       IMPLICIT NONE
 
@@ -540,6 +543,9 @@ C...  a convective parameterization
           XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+
+!clear arrays that capture ACM cloud results
+        IF( USE_ACM_CLOUD )CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
 
 C...in coordination with MCIPv4.0, negative values will be loaded into the RC
 C...  field if a convective parameterization was not used in the WRF simulation
@@ -1620,6 +1626,11 @@ C...Final calc of storm rainfall rate and frac area (RAINING CLDS)
             FRAC = PRATE / PRATE1
           END IF
           IF(FRAC.LT.0.01) GO TO 299
+
+          IF( USE_ACM_CLOUD )THEN
+              CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, CLBASE, CLTOP, FRAC, QLQD, QICE )
+          END IF
+
           CONV_DEP( COL, ROW, N_SPC_WDEP + 7 ) = FRAC
 
 7000      CONTINUE                        ! target of cloudtype split

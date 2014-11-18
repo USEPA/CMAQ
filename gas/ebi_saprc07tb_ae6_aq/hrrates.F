@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C
 C***********************************************************************
       USE HRDATA
@@ -475,22 +475,25 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  413 ) = RKI( 413 ) * YC(  ACROLEIN_PRIMARY ) * YC(  CL )
       RXRAT(  414 ) = RKI( 414 ) * YC(  N2O5 )
       RXRAT(  415 ) = RKI( 415 ) * YC(  NO2 )
-      RXRAT(  416 ) = RKI( 416 ) * YC(  AALKJ )
-      RXRAT(  417 ) = RKI( 417 ) * YC(  AXYL1J )
-      RXRAT(  418 ) = RKI( 418 ) * YC(  AXYL2J )
-      RXRAT(  419 ) = RKI( 419 ) * YC(  ATOL1J )
-      RXRAT(  420 ) = RKI( 420 ) * YC(  ATOL2J )
-      RXRAT(  421 ) = RKI( 421 ) * YC(  ABNZ1J )
-      RXRAT(  422 ) = RKI( 422 ) * YC(  ABNZ2J )
-      RXRAT(  423 ) = RKI( 423 ) * YC(  ATRP1J )
-      RXRAT(  424 ) = RKI( 424 ) * YC(  ATRP2J )
-      RXRAT(  425 ) = RKI( 425 ) * YC(  AISO1J )
-      RXRAT(  426 ) = RKI( 426 ) * YC(  AISO2J )
-      RXRAT(  427 ) = RKI( 427 ) * YC(  ASQTJ )
-      RXRAT(  428 ) = RKI( 428 ) * YC(  APOCI ) * YC(  OH )
-      RXRAT(  429 ) = RKI( 429 ) * YC(  APNCOMI ) * YC(  OH )
-      RXRAT(  430 ) = RKI( 430 ) * YC(  APOCJ ) * YC(  OH )
-      RXRAT(  431 ) = RKI( 431 ) * YC(  APNCOMJ ) * YC(  OH )
+      RXRAT(  416 ) = RKI( 416 ) * YC(  AXYL1J )
+      RXRAT(  417 ) = RKI( 417 ) * YC(  AXYL2J )
+      RXRAT(  418 ) = RKI( 418 ) * YC(  ATOL1J )
+      RXRAT(  419 ) = RKI( 419 ) * YC(  ATOL2J )
+      RXRAT(  420 ) = RKI( 420 ) * YC(  ABNZ1J )
+      RXRAT(  421 ) = RKI( 421 ) * YC(  ABNZ2J )
+      RXRAT(  422 ) = RKI( 422 ) * YC(  ATRP1J )
+      RXRAT(  423 ) = RKI( 423 ) * YC(  ATRP2J )
+      RXRAT(  424 ) = RKI( 424 ) * YC(  AISO1J )
+      RXRAT(  425 ) = RKI( 425 ) * YC(  AISO2J )
+      RXRAT(  426 ) = RKI( 426 ) * YC(  ASQTJ )
+      RXRAT(  427 ) = RKI( 427 ) * YC(  APAH1J )
+      RXRAT(  428 ) = RKI( 428 ) * YC(  APAH2J )
+      RXRAT(  429 ) = RKI( 429 ) * YC(  AALK1J )
+      RXRAT(  430 ) = RKI( 430 ) * YC(  AALK2J )
+      RXRAT(  431 ) = RKI( 431 ) * YC(  APOCI ) * YC(  OH )
+      RXRAT(  432 ) = RKI( 432 ) * YC(  APNCOMI ) * YC(  OH )
+      RXRAT(  433 ) = RKI( 433 ) * YC(  APOCJ ) * YC(  OH )
+      RXRAT(  434 ) = RKI( 434 ) * YC(  APNCOMJ ) * YC(  OH )
 
 
       RETURN

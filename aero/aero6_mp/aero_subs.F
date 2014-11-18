@@ -868,6 +868,7 @@ C     mass partitioning between the modes
       REAL( 8 ) :: DRYM3, WETM3           ! scratch vars for 3rd moment calc [m**3/m**3]
       REAL( 8 ) :: DRYM2, WETM2           ! scratch vars for 2nd moment calc [m**2/m**3]
       REAL( 8 ) :: LOSS                   ! rate of loss of second moment [1/s] 
+      REAL( 8 ) :: EQLBHIJ                ! H+ concentration from isoropia for I plus J-modes [ug/m**3]
 
       REAL( 8 ) :: TMP
       INTEGER I, N                        ! loop and array indices
@@ -1435,6 +1436,10 @@ C *** Set flags to account for mass conservation violations in ISRP3F
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
 
+C *** Save H+ concentration information in microgram/m3 for consistency
+C     Assume J mode dominates I+J H+ concentration
+      EQLBHIJ = AERLIQ(1) * 1.0D6 * REAL( PRECURSOR_MW( ah3op_idx), 8 ) 
+
 C *** Update gas-phase concentrations
       PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
       PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
@@ -1443,6 +1448,9 @@ C *** Update gas-phase concentrations
       gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * 1.0d-6 / real( precursor_mw( nh3_idx ), 8 )
       gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
       gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
+
+      EQLBHIJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
+
 #endif
 
 C *** Change in volatile inorganic PM concentration to achieve
@@ -1551,7 +1559,8 @@ C *** Initialize excess evaporated mass array
             ! Skip thermodynamically-active inorganic species
             IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR. 
      &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR. 
-     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
+     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX .OR.
+     &           I .EQ. AH3OP_IDX ) CYCLE 
 
             IF ( AEROSPC( I )%NO_M2WET ) THEN
                M3SOA = M3SOA 
@@ -1641,6 +1650,17 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
          END DO
 
       END DO    ! end fine mode mass transfer calculations
+
+      H2O = AEROSPC_CONC( AH2O_IDX, 1 ) + AEROSPC_CONC( AH2O_IDX, 2 )
+      IF(  H2O .GT. CONMIN )THEN
+          H2O = 1.0 / H2O
+          DO IMODE = 1, 2 
+             AEROSPC_CONC( AH3OP_IDX, IMODE ) = EQLBHIJ * AEROSPC_CONC( AH2O_IDX, IMODE ) * H2O
+          END DO
+      ELSE
+          AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
+      END IF
+      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
@@ -2954,6 +2974,7 @@ C     treated as though it were fine mass soil.
 
       !  sum from soa species
       DO N = 1, N_VAPOR  
+         IF( SOA_AEROMAP( N ) .LT. 1 )CYCLE
          EXT2 = EXT2 + 4.0 * AEROSPC_CONC( SOA_AEROMAP( N ),2 )
       END DO
 

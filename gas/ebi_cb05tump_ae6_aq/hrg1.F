@@ -1,4 +1,4 @@
-!
+
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 13, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

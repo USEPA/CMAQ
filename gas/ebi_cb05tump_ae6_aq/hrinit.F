@@ -1,4 +1,4 @@
-!
+
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 13, 2014
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -133,7 +133,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 105
+      N_EBISP  = 108
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -213,38 +213,41 @@ c..Allocate and define ebi species
       EBISP(  71 ) = ACLI
       EBISP(  72 ) = ACLJ
       EBISP(  73 ) = ACLK
-      EBISP(  74 ) = AALKJ
+      EBISP(  74 ) = AXYL1J
       EBISP(  75 ) = AOLGAJ
-      EBISP(  76 ) = AXYL1J
-      EBISP(  77 ) = AXYL2J
-      EBISP(  78 ) = ATOL1J
-      EBISP(  79 ) = ATOL2J
-      EBISP(  80 ) = ABNZ1J
-      EBISP(  81 ) = ABNZ2J
-      EBISP(  82 ) = ATRP1J
-      EBISP(  83 ) = AOLGBJ
-      EBISP(  84 ) = ATRP2J
-      EBISP(  85 ) = AISO1J
-      EBISP(  86 ) = AISO2J
-      EBISP(  87 ) = ASQTJ
-      EBISP(  88 ) = APOCI
-      EBISP(  89 ) = APNCOMI
-      EBISP(  90 ) = APOCJ
-      EBISP(  91 ) = APNCOMJ
-      EBISP(  92 ) = FORM_PRIMARY
-      EBISP(  93 ) = ALD2_PRIMARY
-      EBISP(  94 ) = BUTADIENE13
-      EBISP(  95 ) = ACROLEIN
-      EBISP(  96 ) = ACROLEIN_PRIMARY
-      EBISP(  97 ) = TOLU
-      EBISP(  98 ) = MXYL
-      EBISP(  99 ) = OXYL
-      EBISP( 100 ) = PXYL
-      EBISP( 101 ) = APIN
-      EBISP( 102 ) = BPIN
-      EBISP( 103 ) = HG
-      EBISP( 104 ) = HGIIAER
-      EBISP( 105 ) = HGIIGAS
+      EBISP(  76 ) = AXYL2J
+      EBISP(  77 ) = ATOL1J
+      EBISP(  78 ) = ATOL2J
+      EBISP(  79 ) = ABNZ1J
+      EBISP(  80 ) = ABNZ2J
+      EBISP(  81 ) = ATRP1J
+      EBISP(  82 ) = AOLGBJ
+      EBISP(  83 ) = ATRP2J
+      EBISP(  84 ) = AISO1J
+      EBISP(  85 ) = AISO2J
+      EBISP(  86 ) = ASQTJ
+      EBISP(  87 ) = APAH1J
+      EBISP(  88 ) = APAH2J
+      EBISP(  89 ) = AALK1J
+      EBISP(  90 ) = AALK2J
+      EBISP(  91 ) = APOCI
+      EBISP(  92 ) = APNCOMI
+      EBISP(  93 ) = APOCJ
+      EBISP(  94 ) = APNCOMJ
+      EBISP(  95 ) = FORM_PRIMARY
+      EBISP(  96 ) = ALD2_PRIMARY
+      EBISP(  97 ) = BUTADIENE13
+      EBISP(  98 ) = ACROLEIN
+      EBISP(  99 ) = ACROLEIN_PRIMARY
+      EBISP( 100 ) = TOLU
+      EBISP( 101 ) = MXYL
+      EBISP( 102 ) = OXYL
+      EBISP( 103 ) = PXYL
+      EBISP( 104 ) = APIN
+      EBISP( 105 ) = BPIN
+      EBISP( 106 ) = HG
+      EBISP( 107 ) = HGIIAER
+      EBISP( 108 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -336,9 +339,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ACLI             ) = 1.0D-03
       RTOL( ACLJ             ) = 1.0D-03
       RTOL( ACLK             ) = 1.0D-03
-      RTOL( AALKJ            ) = 1.0D-03
-      RTOL( AOLGAJ           ) = 1.0D-03
       RTOL( AXYL1J           ) = 1.0D-03
+      RTOL( AOLGAJ           ) = 1.0D-03
       RTOL( AXYL2J           ) = 1.0D-03
       RTOL( ATOL1J           ) = 1.0D-03
       RTOL( ATOL2J           ) = 1.0D-03
@@ -350,6 +352,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AISO1J           ) = 1.0D-03
       RTOL( AISO2J           ) = 1.0D-03
       RTOL( ASQTJ            ) = 1.0D-03
+      RTOL( APAH1J           ) = 1.0D-03
+      RTOL( APAH2J           ) = 1.0D-03
+      RTOL( AALK1J           ) = 1.0D-03
+      RTOL( AALK2J           ) = 1.0D-03
       RTOL( APOCI            ) = 1.0D-03
       RTOL( APNCOMI          ) = 1.0D-03
       RTOL( APOCJ            ) = 1.0D-03

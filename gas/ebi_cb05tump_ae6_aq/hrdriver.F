@@ -1,4 +1,4 @@
-!
+
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -34,7 +34,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 13, 2014
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -288,7 +288,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
 
 C.. Compute number of time step loops and step size for EBI solver
-      DELT_SEC = DELTAT * 60.0 + 0.1
+      DELT_SEC = INT( DELTAT * 60.0 + 0.1 )
       IF( DELT_SEC .GE. ITMSTEP ) THEN
          N_EBI_STEPS = 1
          EBI_TMSTEP = FLOAT( ITMSTEP ) / 60.0
