@@ -461,7 +461,7 @@ C------------------------------------------------------------------------------
          END IF ! mosaic loop
 
 ! Calculate the relative humidity of air and ground.
-
+         
          rh_grnd  = 100.0 * q2p0cr / MET_DATA%QSS_GRND( c,r )
          rh_grnd  = MIN( 100.0, rh_grnd )
 
@@ -668,7 +668,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
          ! Dry cuticle resistance.
 
-               IF ( l_NH3 .Ne. 'NH3' ) THEN
+               IF ( l_NH3 .Ne. l ) THEN
                   rcut = rcut0 * a0 / ar( l )
                ELSE
                   rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )

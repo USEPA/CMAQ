@@ -778,7 +778,7 @@ C Local variables:
                USE AERO_DATA
                USE SOA_DEFN
                USE AEROMET_DATA
-               Use Mosaic_Mod, Only: ADEPVJ, USTARJ, RAJ ! contains mosaic routines
+               Use Mosaic_Mod, Only: ADEPVJ ! contains mosaic routines
                Use LSM_MOD, Only: N_LUFRAC
 
                IMPLICIT NONE

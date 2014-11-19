@@ -163,7 +163,7 @@ C...include files
          If ( .Not. ALLOCATED ( rcanj ) ) Then
             ALLOCATE ( rcanj( n_lufrac,ltotg,my_ncols,my_nrows ) )
          End If
-         
+
          If ( .Not. ALLOCATED ( rsurfj ) ) Then
             ALLOCATE ( rsurfj( n_lufrac,ltotg,my_ncols,my_nrows ) )
          End If
