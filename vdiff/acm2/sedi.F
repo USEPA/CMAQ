@@ -226,7 +226,6 @@ C subset all the layers and species in cgrid for this grid cell
      &                        - dtsvsed( v,l )   * conc( v,l )
                end do
             end do
-dx
             l = nlays
             do v = 1, n_sedi_map
                conc( v,l ) = conc( v,l )

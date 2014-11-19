@@ -401,6 +401,7 @@ C Return dry deposition velocities for aerosols (first layer only).
               DO V = 1, N_AE_DEPV
                 DO J = 1, N_LUFRAC
                   IF ( DEPV_SUR( V ) .GT. 0 ) THEN
+                     ADEPVJ( J,V,C,R ) = VDEPJ( J,C,R,DEPV_SUR( V ) )
                   ELSE
                      ADEPVJ( J,V,C,R ) = 0.0
                   END IF
