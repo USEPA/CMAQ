@@ -33,12 +33,12 @@ foreach Mechanism ( $mechanisms )
 
 # set  Mpath = ${BASE}/input/${Mechanism}-hetchem_POAAGING
 # set  Mpath = ${BASE}/input/${Mechanism}_POAAGING
-  set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
+# set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
 #set  Mpath = ${BASE}/input/cb05e6cl
-# set  Mpath = ${BASE}/input/cb05tucl_update
+  set  Mpath = ${BASE}/input/cb05tucl_HALO3
 # set  Mpath = ${BASE}/input/cb05tucl_clno2_b3
 #set MCFL =  mech-${Mechanism}.def
-   set MCFL =  mech.def
+   set MCFL =  `cd ${Mpath} ; \ls mech*def; cd ${BASE} `
 # set MCFL =   mech_CB05e6.def
 # set MCFL =   mech_revision_B3.def
 
@@ -85,8 +85,8 @@ setenv tr_matrix_nml $TR_NML
  setenv RXNSDATX    $Opath/RXDT.EXT
  setenv RXNSCOMX    $Opath/RXCM.EXT
 
- setenv RXNS_DATA_MODULE $Mpath/RXNS_DATA_MODULE.F90
- setenv RXNS_FUNC_MODULE $Mpath/RXNS_FUNC_MODULE.F90
+ setenv RXNS_DATA_MODULE $Opath/RXNS_DATA_MODULE.F90
+ setenv RXNS_FUNC_MODULE $Opath/RXNS_FUNC_MODULE.F90
  setenv OUTDIR           $Opath
 
  set KPP_Out_Path = ${Opath}

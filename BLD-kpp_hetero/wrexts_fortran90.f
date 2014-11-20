@@ -444,6 +444,12 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
       WRITE( WRUNIT,'( 2/ )')
       
+      IF( HALOGEN_PARAMETER )THEN
+         WRITE( WRUNIT, 3060 )
+      ELSE
+         WRITE( WRUNIT, 3061 )
+      END IF
+      
       WRITE( WRUNIT, 2064 )      
       IF( USE_SPCS_NAMELISTS )THEN
           WRITE( WRUNIT, 2063 ) 
@@ -463,8 +469,10 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
      &       ' ), SPECIES_MOLWT(', I4,' ), CONVERT_CONC(', I4,' ) / ''', A16, ''', ', I4,', ''', A2, ''', ', 
      &       F7.2,', ', L1,' /')
 
-2062  FORMAT( /6X,'LOGICAL   :: MAPPED_TO_CGRID = .TRUE. '  /)
-2063  FORMAT( /6X,'LOGICAL   :: MAPPED_TO_CGRID = .FALSE. ' /)
+3060  FORMAT( /6X,'LOGICAL   :: HALOGEN_PARAMETER = .TRUE. '  /)
+3061  FORMAT( /6X,'LOGICAL   :: HALOGEN_PARMAETER = .FALSE. ' /)
+2062  FORMAT( /6X,'LOGICAL   :: MAPPED_TO_CGRID   = .TRUE. '  /)
+2063  FORMAT( /6X,'LOGICAL   :: MAPPED_TO_CGRID   = .FALSE. ' /)
 2064  FORMAT(/'! MAPPED_TO_CGRID declares whether CMAQ namelists were used to determine ',
      &       /'! the below values of CGRID_INDEX, SPECIES_TYPE, SPECIES_MOLWT, and CONVERT_CONC' 
      &       /6X, 'LOGICAL, PARAMETER, PRIVATE :: F = .FALSE.' 

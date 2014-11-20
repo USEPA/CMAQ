@@ -22,7 +22,8 @@
      &           KTN7, KRX7  ( MAXRXNUM ),
 !    &           KCNV, KRXCNV( MAXRXNUM ),
      &           NFALLOFF, 
-     &           IRRFALL( MAXFALLOFF )
+     &           IRRFALL( MAXFALLOFF ),
+     &           HAL_PHOTAB( MAXRXNUM )
 
          INTEGER NWM,   NRXWM  ( MAX3BODIES )
          INTEGER NWW,   NRXWW  ( MAX3BODIES )
@@ -116,7 +117,8 @@ c.. Variables for steady-state species
          REAL,               ALLOCATABLE ::  SPECIES_MOLWT( : )
          CHARACTER( 16),     ALLOCATABLE ::  CGRID_SPC    ( : )
          CHARACTER(LEN = 2), ALLOCATABLE ::  SPECIES_TYPE ( : )
-         
+
+         LOGICAL                      ::  HALOGEN_PARAMETER = .FALSE.          
          INTEGER                      ::  N_GAS_CHEM_SPC
          INTEGER                      ::  NUMB_MECH_SPCS
          INTEGER ,        ALLOCATABLE ::  MECHANISM_INDEX( : )
@@ -241,8 +243,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                KRX6( IRX ) = 0
                KRX7( IRX ) = 0
 101         CONTINUE
-
-            NFALLOFF = 0
+            HAL_PHOTAB = 0
+            NFALLOFF   = 0
 
             DO 103 IRX = 1, MAXFALLOFF
                IRRFALL( IRX ) = 0   

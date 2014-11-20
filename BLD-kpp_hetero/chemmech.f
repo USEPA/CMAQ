@@ -632,9 +632,24 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Resolve all reactions label references
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( LUNOUT, * ) ' '
+!      IPR = 0 
       DO 501 IRX = 1, NR
          IF ( LABEL( IRX,2 ) .NE. '>>>>>>>>>>>>>>>>' ) THEN
 C search all rx's for LABEL(,1) match ...
+         IF ( TRIM( LABEL( IRX,2 ) ) .EQ. TRIM( LABEL( IRX,1 ) ) )THEN
+              WRITE( LUNOUT, 2024 ) IRX, LABEL(IRX,1)
+              STOP ' *** CHEMMECH ERROR ***'
+         END IF            
+!         IF ( KTYPE( IRX ) .EQ. 12 ) THEN
+!              NXX = INDEX1 ( LABEL(IRX,2), NPHOTAB, PHOTAB )
+!              IF( NXX .LE. 0 )THEN
+!                 WRITE( LUNOUT, 2023 ) IRX, LABEL(IRX,1),LABEL(IRX,2)
+!                 STOP ' *** CHEMMECH ERROR ***'
+!              END IF
+!              IPR = IPR + 1
+!              HAL_PHOTAB( IRX ) = NXX
+!	      CYCLE
+!          END IF
             DO NXX = 1, NR
                IF ( LABEL( NXX,1 ) .EQ. LABEL( IRX,2 ) ) THEN
 Could be a linear dependency photolysis reaction ...
@@ -676,7 +691,7 @@ Could a linear dependency reaction ...
                END IF  ! LABEL(NXX,1) .EQ. LABEL( IRX,2)
             END DO
 C if we get here, LABEL(,1) match not found
-            WRITE( LUNOUT, 2021 ) IRX
+            WRITE( LUNOUT, 2021 ) IRX, LABEL(IRX,1), LABEL( IRX,2)
             STOP ' *** CHEMMECH ERROR ***'
          END IF  ! LABEL .NE.  ...
 501   CONTINUE
@@ -863,8 +878,12 @@ C Set CGRID mechanism
      &        / 5X, 'Processing for reaction number:', I6 )
 2019  FORMAT( / 5X, '*** ERROR: Reaction label refers to undefined reaction type'
      &        / 5X, 'Processing for reaction number:', I6, 1X, A )
+2023  FORMAT( / 5X, '*** ERROR: KTYPE 12 reaction: Number, Label: ', I6, 1X, A,
+     &        / 5X, 'points to nonexistant photolysis rate: ', A )
 2021  FORMAT( / 5X, '*** ERROR: Label points to currently undefined reaction'
-     &        / 5X, 'Processing for reaction number:', I6 )
+     &        / 5X, 'Processing for reaction #:', I6,' Label: ', A16,' references label:', A16)
+2024  FORMAT( / 5X, '*** ERROR: Reaction label refers to reference itself for rate constant '
+     &        / 5X, 'Processing for reaction number:', I6, 1X, A )
 2031  FORMAT( / 5X, '*** ERROR: Special Rate Coefficient ', A16,
      &              ' uses the unlisted reaction label ', A16 )
 2032  FORMAT( / 5X, '*** ERROR: Special Rate Coefficient ', A16,

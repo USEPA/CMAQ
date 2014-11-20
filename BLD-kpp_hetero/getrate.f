@@ -365,7 +365,6 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                   GO TO 901
                END IF
             END IF     ! CHR .NE. '#'
-
          ELSE IF ( CHR .EQ. '2' ) THEN    ! treated as falloff
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
             IF ( CHR .NE. '#' ) THEN
@@ -416,6 +415,7 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
             NOT_POWER  = .TRUE.
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
             IF ( CHR .NE. '#' ) THEN
+               WRITE( *,'(A,1X,A)')'CHR is ',CHR
                WRITE( *,2023 ) NXX, INBUF
                STOP
             ELSE
@@ -478,7 +478,60 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
                 END IF
             END IF     ! CHR .NE. '#'
 
+         ELSE IF ( CHR .EQ. 'H' .OR. CHR .EQ. 'h' )THEN
+            CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+            KTYPE( NXX )        = 12
+            NFALLOFF            = NFALLOFF + 1
+            IRRFALL( NFALLOFF ) = NXX
+            HALOGEN_PARAMETER   = .TRUE.
+            NUMREALS     = 1
+            IF ( CHR .NE. '#' ) THEN
+               WRITE( *,'(A,1X,A)')'CHR is ',CHR
+               WRITE( *,2023 ) NXX, INBUF(LPOINT:IEOL)
+               STOP
+            END IF
+            CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+            CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+            RTDAT( NUMREALS,NXX ) = NUMBER
+            IF( CHR .EQ. '@' )THEN
+                CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+                CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+                RFDAT( NUMREALS,NFALLOFF ) = -NUMBER
+            END IF
+            IF( CHR .EQ. '&' )THEN
+	       NUMREALS     = 2
+               CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+               CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+               RTDAT( NUMREALS,NXX ) = NUMBER
+               IF( CHR .EQ. '@' )THEN
+                   CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+                   CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+                   RFDAT( NUMREALS,NFALLOFF ) = -NUMBER
+               END IF
+            END IF
+!            IF( CHR .NE. '/' )THEN
+!               WRITE( *,2043 ) NXX, INBUF(LPOINT:IEOL)
+!               STOP
+!            ELSE
+!               CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+!               IF ( CHR .EQ. '<' ) THEN
+!                  CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL( NXX,2 ) )
+!               ELSE
+!                  WRITE( *,2007 ) NXX, INBUF
+!                  STOP
+!               END IF
+!           END IF
+!            write(*,'(A16,1X,4(ES12.4,1X),A16)')LABEL(NXX,1),RTDAT(1,NXX),RFDAT(1,NFALLOFF),
+!     &      RTDAT(2,NXX),RFDAT(2,NFALLOFF),LABEL(NXX,2)
+            IF ( CHR .NE. ';' ) THEN
+               WRITE( *,2017 ) NXX, INBUF
+               STOP
+            ELSE
+               GO TO 901
+            END IF
+
          ELSE
+            WRITE( *,'(A,1X,A)')'CHR is ',CHR
             WRITE( *,2031 ) NXX, INBUF
             STOP
 
@@ -582,7 +635,11 @@ C           reverse equil. rx and 1st order: must undo forward rx conversion
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
 2023  FORMAT( / 5X, '*** ERROR: ',
-     &              '# must follow 1 or 2 0r 3 in % reactions'
+     &              '# must follow 1 or 2 0r 3 Or H in % reactions'
+     &        / 5X, 'Processing for reaction number:', I6
+     &        / 5X, 'Last line read was:' / A81 )
+2043  FORMAT( / 5X, '*** ERROR: ',
+     &              '/ must follow exponent in %H reactions'
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
 2025  FORMAT( / 5X, '*** ERROR: ',
