@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C
 C***********************************************************************
       USE HRDATA
@@ -434,22 +434,25 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  372 ) = RKI( 372 ) * YC(  SESQ ) * YC(  NO3 )
       RXRAT(  373 ) = RKI( 373 ) * YC(  N2O5 )
       RXRAT(  374 ) = RKI( 374 ) * YC(  NO2 )
-      RXRAT(  375 ) = RKI( 375 ) * YC(  AALKJ )
-      RXRAT(  376 ) = RKI( 376 ) * YC(  AXYL1J )
-      RXRAT(  377 ) = RKI( 377 ) * YC(  AXYL2J )
-      RXRAT(  378 ) = RKI( 378 ) * YC(  ATOL1J )
-      RXRAT(  379 ) = RKI( 379 ) * YC(  ATOL2J )
-      RXRAT(  380 ) = RKI( 380 ) * YC(  ABNZ1J )
-      RXRAT(  381 ) = RKI( 381 ) * YC(  ABNZ2J )
-      RXRAT(  382 ) = RKI( 382 ) * YC(  ATRP1J )
-      RXRAT(  383 ) = RKI( 383 ) * YC(  ATRP2J )
-      RXRAT(  384 ) = RKI( 384 ) * YC(  AISO1J )
-      RXRAT(  385 ) = RKI( 385 ) * YC(  AISO2J )
-      RXRAT(  386 ) = RKI( 386 ) * YC(  ASQTJ )
-      RXRAT(  387 ) = RKI( 387 ) * YC(  APOCI ) * YC(  HO )
-      RXRAT(  388 ) = RKI( 388 ) * YC(  APNCOMI ) * YC(  HO )
-      RXRAT(  389 ) = RKI( 389 ) * YC(  APOCJ ) * YC(  HO )
-      RXRAT(  390 ) = RKI( 390 ) * YC(  APNCOMJ ) * YC(  HO )
+      RXRAT(  375 ) = RKI( 375 ) * YC(  AXYL1J )
+      RXRAT(  376 ) = RKI( 376 ) * YC(  AXYL2J )
+      RXRAT(  377 ) = RKI( 377 ) * YC(  ATOL1J )
+      RXRAT(  378 ) = RKI( 378 ) * YC(  ATOL2J )
+      RXRAT(  379 ) = RKI( 379 ) * YC(  ABNZ1J )
+      RXRAT(  380 ) = RKI( 380 ) * YC(  ABNZ2J )
+      RXRAT(  381 ) = RKI( 381 ) * YC(  ATRP1J )
+      RXRAT(  382 ) = RKI( 382 ) * YC(  ATRP2J )
+      RXRAT(  383 ) = RKI( 383 ) * YC(  AISO1J )
+      RXRAT(  384 ) = RKI( 384 ) * YC(  AISO2J )
+      RXRAT(  385 ) = RKI( 385 ) * YC(  ASQTJ )
+      RXRAT(  386 ) = RKI( 386 ) * YC(  APAH1J )
+      RXRAT(  387 ) = RKI( 387 ) * YC(  APAH2J )
+      RXRAT(  388 ) = RKI( 388 ) * YC(  AALK1J )
+      RXRAT(  389 ) = RKI( 389 ) * YC(  AALK2J )
+      RXRAT(  390 ) = RKI( 390 ) * YC(  APOCI ) * YC(  HO )
+      RXRAT(  391 ) = RKI( 391 ) * YC(  APNCOMI ) * YC(  HO )
+      RXRAT(  392 ) = RKI( 392 ) * YC(  APOCJ ) * YC(  HO )
+      RXRAT(  393 ) = RKI( 393 ) * YC(  APNCOMJ ) * YC(  HO )
 
 
       RETURN

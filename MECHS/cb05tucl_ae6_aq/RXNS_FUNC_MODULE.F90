@@ -201,7 +201,7 @@
 !  Arguements: None 
 
         REAL( 8 ), INTENT( IN  ) :: BLKTEMP( : )      ! temperature, deg K 
-        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm 
+        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm
         REAL( 8 ), INTENT( IN  ) :: BLKH2O ( : )      ! water mixing ratio, ppm 
         REAL( 8 ), INTENT( IN  ) :: RJBLK  ( :, : )   ! photolysis rates, 1/min 
         REAL( 8 ), INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
@@ -747,38 +747,44 @@
              RKI( NCELL,  214) =  BLKHET(  NCELL, IK_HETERO_H2NO3PBK )
 !  Reaction Label HET_N02         
              RKI( NCELL,  215) =  BLKHET(  NCELL, IK_HETERO_NO2 )
-!  Reaction Label OLIG_ALKENE     
-             RKI( NCELL,  216) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_XYLENE1    
-             RKI( NCELL,  217) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  216) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_XYLENE2    
-             RKI( NCELL,  218) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  217) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TOLUENE1   
-             RKI( NCELL,  219) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  218) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TOLUENE2   
-             RKI( NCELL,  220) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  219) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_BENZENE1   
-             RKI( NCELL,  221) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  220) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_BENZENE2   
-             RKI( NCELL,  222) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  221) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TERPENE1   
-             RKI( NCELL,  223) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  222) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_TERPENE2   
-             RKI( NCELL,  224) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  223) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ISOPRENE1  
-             RKI( NCELL,  225) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  224) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ISOPRENE2  
-             RKI( NCELL,  226) =   9.4882D-06 * SFACT 
+             RKI( NCELL,  225) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_SESQT1     
+             RKI( NCELL,  226) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_PAH1       
              RKI( NCELL,  227) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_PAH2       
+             RKI( NCELL,  228) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK1       
+             RKI( NCELL,  229) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK2       
+             RKI( NCELL,  230) =   9.4882D-06 * SFACT 
 !  Reaction Label RPOAGEPI        
-             RKI( NCELL,  228) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  231) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELI        
-             RKI( NCELL,  229) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
+             RKI( NCELL,  232) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
 !  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  230) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  233) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
-             RKI( NCELL,  231) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+             RKI( NCELL,  234) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -875,7 +881,7 @@
             IF( INITIALIZED )RETURN
 
             INITIALIZED = .TRUE.
-            LOGDEV      = JUNIT()
+            LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
 
@@ -951,21 +957,21 @@
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' cgrid index does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                         WRITE( XMSG,'(A,I3,1X,I3)')'CGRID Indices: Mechanism Requires, NML Value = ',    &
+                         WRITE( XMSG,'(A,I3,1X,I3)')'CGRID Indices: Mechanism and NML Values are ',    &
     &                    CGRID_INDEX( I ),NML_INDEX( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                       IF(CONVERT_CONC( I ) .NEQV. NML_CONVERT( I1 ))THEN
                          SUCCESS = .FALSE.
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' species unit conversion flag does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                         WRITE( XMSG,'(A,1X,L21X,L2)')'CONVERSION FLAGS: Mechanism Requires, NML Value = ', &
+                         WRITE( XMSG,'(A,1X,L21X,L2)')'CONVERSION FLAGS: Mechanism and NML Values are ', &
     &                    CONVERT_CONC( I ),NML_CONVERT( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
-                         WRITE( XMSG,'(A,1X,A3,1X,A3)')'SPECIES TYPE: Mechanism Requires, NML Value = ',    &
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
+                         WRITE( XMSG,'(A,1X,A3,1X,A3)')'SPECIES TYPE: Mechanism and NML Values are ',    &
     &                    SPECIES_TYPE( I ),NML_TYPE( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                       DELTA = ( SPECIES_MOLWT( I ) - NML_MOLWT( I1 ) )/MAX(NML_MOLWT( I1 ),1.0E-20)
                       IF( ABS( DELTA ) .GE. 0.05 )THEN
@@ -973,32 +979,32 @@
                          XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
     &                        // ' species molecular weight does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                         WRITE( XMSG,'(A,2(ES12.4,1X))')'Molecular Weight: Mechanism Value, NML Value = ', &
+                         WRITE( XMSG,'(A,2(ES12.4,1X))')'Molecular Weight: Mechanism and NML Values are ', &
     &                    SPECIES_MOLWT( I ), NML_MOLWT( I1 )
-                         WRITE( LOGDEV,'( /5X, A )' )XMSG
+                         WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                  END IF
               END IF
               IF( INDEX( CHEMISTRY_SPC( I ), 'SRF') .GT. 0 )THEN
-                  FOUND = .FALSE.
+                  SUCCESS = .FALSE.
                   XMSG = '*** reactions cannot use modal aerosol surface area as species'
                   WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                   XMSG = TRIM( CHEMISTRY_SPC( I ) )
-                  WRITE( LOGDEV,'( 9X, I4, 2X, A )' ) I, TRIM( XMSG )
+                  WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
               END IF
               IF( INDEX( CHEMISTRY_SPC( I ), 'NUM') .GT. 0 )THEN
-                  FOUND = .FALSE.
+                  SUCCESS = .FALSE.
                   XMSG = '*** reactions cannot use modal aerosol number density as species'
                   WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                   XMSG = TRIM( CHEMISTRY_SPC( I ) )
-                  WRITE( LOGDEV,'( 9X, I4, 2X, A )' ) I, TRIM( XMSG )
+                  WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
               END IF
-              IF ( .NOT. FOUND .OR. .NOT. SUCCESS ) THEN
+              IF ( .NOT. FOUND ) THEN
                  XMSG = 'Fatal error: Mechanism Species found not in species namelist:'
                  WRITE( LOGDEV,'( /5X, A )', ADVANCE = 'NO' ) TRIM( XMSG )
                  XMSG = TRIM( CHEMISTRY_SPC( I ) )
-                 WRITE( LOGDEV,'( 9X, I4, 2X, A )' ) I, TRIM( XMSG )
-                 SUCCESS = FOUND
+                 WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
+                 SUCCESS = .FALSE.
               END IF
             END DO
 

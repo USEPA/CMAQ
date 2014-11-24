@@ -65,7 +65,7 @@ C   11 May 11 D.Wong: incorporated twoway model implementation
 C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
 C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
 C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4"
-
+C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -572,7 +572,7 @@ C *** Get domain window info from input files
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE GET_AERO_EMIS ( JDATE, JTIME, TSTEP, RJACM, VDEMIS )
+         SUBROUTINE GET_AERO_EMIS ( JDATE, JTIME, TSTEP, VDEMIS )
 
 C  GET_AERO_EMIS reads PM emissions from gridded input file and
 C  optionally from plume rise calculated point source emissions (via VDEMIS
@@ -596,6 +596,7 @@ C ----------------------------------------------------------------------
          USE SSEMIS                               ! sea-salt emissions
          USE UTILIO_DEFN
          USE DUST_EMIS                            ! windblown dust emissions
+         USE ASX_DATA_MOD, ONLY: MET_DATA
 
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -607,10 +608,9 @@ C Arguments:
          INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
                                              ! TSTEP(2) = sciproc sync. step (chem)
-                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                             !            step and wrf/cmaq call frequency
-         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! recip of mid-layer
-                                                             ! Jacobian [1/m]
+                                             ! TSTEP(3) = twoway model time step w.r.t.
+                                             ! wrf time step and wrf/cmaq call frequency
+
          REAL,    INTENT( INOUT ) :: VDEMIS( :,:,:,: ) ! gas emissions [ppmv/s]
 
 C Geometric Constants
@@ -713,13 +713,11 @@ C     in DENS, PRES, TA, QV, and WSPD10 arrays.
          END IF
 
 C *** Get sea salt emissions
-         CALL GET_SSEMIS ( JDATE, JTIME, TSTEP,
-     &                     CELLVOL( 1 ), RJACM( :,:,1 ), CELLHGT( 1 ) )
+         CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
 
          IF ( WB_DUST ) THEN
 C *** Get dust emissions
-            CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP,
-     &                           RJACM( :,:,1 ), CELLHGT( 1 ) )
+            CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
          END IF
 
 C *** Loop over each grid cell in layer 1
@@ -762,7 +760,7 @@ C     Convert units of DUSTOUTM from [g//m3/s] to [ug/m3/s]
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-               GSFAC = CONVEM_PM( L ) * RJACM( C,R,L )
+               GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L )
                CONVM = MWAIR / GPKG / DENS( C,R,L )   ! [m3/mol]
                CONVN = CONVM * RAVO * 1.0E+06         ! 10^6 * [m3]
                CONVS = CONVM                          ! [m3/mol]
@@ -898,7 +896,7 @@ C *** Store aerosol emission rates for this grid cell in a 1D array
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-                  GSFAC = CONVEM_PM( L ) * RJACM( C,R,L )
+                  GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L )
                   CONVM = MWAIR / GPKG / DENS( C,R,L )   ! [m3/mol]
                   CONVN = CONVM * RAVO * 1.0E+06         ! 10^6 * [m3]
                   CONVS = CONVM                          ! [m3/mol]

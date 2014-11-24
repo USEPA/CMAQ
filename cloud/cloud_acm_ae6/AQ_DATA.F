@@ -348,8 +348,8 @@ C...Map aero species
       Do spc = 1, n_aerospc
          srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
-         ! Skip H2O and SOIL species
-         If ( spc .Eq. ah2o_idx ) Cycle
+         ! Skip H2O, H2OP, and SOIL species
+         If ( spc .Eq. ah2o_idx .Or. spc .Eq. ah3op_idx ) Cycle
 !        If ( spc .Eq. asoil_idx ) Cycle ! SLN 16March2011
 
          Do mode = 1, n_mode

@@ -44,12 +44,12 @@ C    -changed precursor_conc to Real(8)
 
 C H.Pye 05/22/11: added ALK5RXN to precursor list for SAPRC mechanisms
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
- 
+C H. Pye 09/2014: added alkane and PAH SOA precursor
 C-----------------------------------------------------------------------
 
       Implicit None
 
-      Integer, Parameter :: n_precursor = 19   ! # of precursors
+      Integer, Parameter :: n_precursor = 22   ! # of precursors
 
       Type precursor_type
          Character( 16 ) :: name               ! species name
@@ -71,6 +71,7 @@ C                       -------   ----------  ------
      & precursor_type( 'SULPRD ', .True.  , .True.  ),
      & precursor_type( 'HCL    ', .False. , .True.  ),
      & precursor_type( 'ALK5RXN', .True.  , .True.  ),
+     & precursor_type( 'ALKRXN ', .True.  , .True.  ),
      & precursor_type( 'TOLNRXN', .True.  , .True.  ),
      & precursor_type( 'TOLHRXN', .True.  , .True.  ),
      & precursor_type( 'XYLNRXN', .True.  , .True.  ),
@@ -78,8 +79,10 @@ C                       -------   ----------  ------
      & precursor_type( 'BNZNRXN', .True.  , .True.  ),
      & precursor_type( 'BNZHRXN', .True.  , .True.  ),
      & precursor_type( 'SESQRXN', .True.  , .True.  ),
+     & precursor_type( 'PAHNRXN', .True.  , .True.  ),
+     & precursor_type( 'PAHHRXN', .True.  , .True.  ),
      & precursor_type( 'NH3    ', .False. , .True.  ),
-     & precursor_type( 'OH     ', .False. , .False. ) /)
+     & precursor_type( 'OH     ', .False. , .False. )/)
 
 
 C Required species

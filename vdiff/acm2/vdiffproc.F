@@ -68,13 +68,14 @@ C           convective PBL, with the ACM1 matrix solver followed by the tridiago
 C           matrix solver
 C 30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C 31 Jul 14 J.Young: incorporate gravitational settling for J-,K-mode aerosols
+C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
       USE EMIS_DEFN          
       USE DEPV_DEFN
-      USE VDIFF_MET
+      USE ASX_DATA_MOD
       USE VDIFF_MAP
       USE UTILIO_DEFN
       USE BIDI_MOD
@@ -89,7 +90,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INCLUDE SUBST_PACTL_ID  ! PA control parameters
-      INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
       CHARACTER( 120 ) :: XMSG = ' '
@@ -180,7 +180,7 @@ C Local Variables
          END SUBROUTINE REV_CGRID
          SUBROUTINE EDDYX ( EDDYV )
             USE GRID_CONF
-            USE VDIFF_MET
+            USE ASX_DATA_MOD
             USE UTILIO_DEFN
 #ifdef parallel
             USE SE_MODULES
@@ -195,7 +195,7 @@ C Local Variables
             USE GRID_CONF
             USE EMIS_DEFN
             USE DEPV_DEFN
-            USE VDIFF_MET
+            USE ASX_DATA_MOD
             USE VDIFF_MAP
             USE UTILIO_DEFN
             USE BIDI_MOD
@@ -212,7 +212,7 @@ C Local Variables
          SUBROUTINE SEDI( DTSEC, SEDVEL, CGRID, CNGRD )
             USE CGRID_SPCS
             USE GRID_CONF
-            USE VDIFF_MET
+            USE ASX_DATA_MOD
             USE VDIFF_MAP
             USE UTILIO_DEFN
             IMPLICIT NONE
@@ -243,10 +243,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         IF ( .NOT. VDIFF_MET_INIT( JDATE, JTIME ) ) THEN
-            XMSG = 'Failure initializing met module'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         Call Init_Met( JDATE, JTIME, MOSAIC, ABFLUX )
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
@@ -356,11 +353,11 @@ C Open vdiff diagnostics file (ioapi header from cgrd)
 C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
-C read & interpolate deposition velocities
-      CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )
-      
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP )
+      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX )
+
+C read & interpolate deposition velocities
+      CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
 
       IF ( GRAV_SETL ) THEN
 C Get gravitational settling velocity for the vsed aero species:
@@ -370,7 +367,7 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
-      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, RDX3F, RRHOJ, RJACM )
+      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA )
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_EMIS+1
@@ -390,16 +387,16 @@ C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
 C EDDYV returned = Kz, where Kz is in m**2/sec
 
       DO L = 1, NLAYS
-         LRDX3M = RDX3M( L )
+         LRDX3M = Grid_Data%RDX3M( L )
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
-               FCJACMF( C,R,L ) = LRDX3M * RJACM( C,R,L ) * RJACF( C,R,L )
+               FCJACMF( C,R,L ) = LRDX3M * Met_Data%RJACM( C,R,L ) * Met_Data%RJACF( C,R,L )
             END DO
          END DO
       END DO
       DO R = 1, MY_NROWS
          DO C = 1, MY_NCOLS
-            FCMSF = RMSFX4( C,R )
+            FCMSF = Grid_Data%RMSFX4( C,R )
             DO L = 1, NLAYS
                SEDDY( L,C,R ) = FCMSF * FCJACMF( C,R,L ) * EDDYV( C,R,L )
             END DO
@@ -558,7 +555,7 @@ C Write other diagnostics
             CNVCT = 0.0   ! array assignment
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  IF ( CONVCT( C,R ) ) CNVCT( C,R ) = 1.0
+                  IF ( Met_Data%CONVCT( C,R ) ) CNVCT( C,R ) = 1.0
                END DO
             END DO
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'CONVCT',
@@ -568,7 +565,7 @@ C Write other diagnostics
             END IF
 
             IF ( .NOT. WRITE3( CTM_VDIFF_DIAG, 'LPBL',
-     &                         MDATE, MTIME, REAL( LPBL ) ) ) THEN
+     &                         MDATE, MTIME, REAL( Met_Data%LPBL ) ) ) THEN
                XMSG = 'Could not write ' //  'lpbl to ' // CTM_VDIFF_DIAG
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
@@ -588,7 +585,7 @@ C Write other diagnostics
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
                      DO J = 1, N_LUFRAC
-                        WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * LUFRAC( J,C,R )
+                        WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
                         WRDDJ( C,R,J ) = DDEPJ( J,S,C,R )
                      END DO
                      WRDDJ( C,R,N_LUFRAC+1 ) = WRDD( C,R )  ! last array element is total across all land use categories
@@ -615,7 +612,7 @@ C Write other diagnostics
                   DO R = 1, MY_NROWS
                      DO C = 1, MY_NCOLS
                         DO J = 1, N_LUFRAC
-                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * LUFRAC( J,C,R )
+                           WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
                            WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
                            IF ( DDEPJ_FST( J,S,C,R ) .GT. DDEPJ( J,S,C,R ) ) THEN
                               WRITE( LOGDEV,* ) 'FST too big !!!'

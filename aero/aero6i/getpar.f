@@ -1,1 +1,1 @@
-../aero5/getpar.f
+../aero6/getpar.f

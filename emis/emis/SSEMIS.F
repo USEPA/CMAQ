@@ -33,6 +33,7 @@ C Revision History:
 C   04 Apr 11 S.Howard: generalization to accomodate different sea-salt speciation
 C                       in aero5 and aero6
 C   07 Apr 11 J.Young: additional mods
+C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
@@ -55,8 +56,6 @@ C Position of H2O in sea-salt emission arrays
       INTEGER :: KH2O
 
 C Variables for handling sea-salt emissions
-      REAL,    ALLOCATABLE, SAVE :: OCEAN( :,: )   ! fractional sea water cover
-      REAL,    ALLOCATABLE, SAVE :: SZONE( :,: )   ! fractional surf-zone cover
       INTEGER, ALLOCATABLE       :: SSSPC_MAP( : ) ! map to aerospc array
 
 C Variables for the sea-salt diagnostic file
@@ -70,13 +69,6 @@ C Variables for the sea-salt diagnostic file
 
 C Species names in the speciated sea-salt-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRSS_SPC( : )  ! species names
-
-C Variables interpolated from the meteorological input files
-      REAL,    ALLOCATABLE, SAVE :: PRES( :,: )    ! atmospheric pressure [Pa]
-      REAL,    ALLOCATABLE, SAVE :: TA  ( :,: )    ! air temperature [K]
-      REAL,    ALLOCATABLE, SAVE :: QV  ( :,: )    ! H2O mass mixing ratio [kg/kg]
-      REAL,    ALLOCATABLE, SAVE :: WSPD10( :,: )  ! wind speed at 10m [m/s]
-      REAL,    ALLOCATABLE, SAVE :: TSEASFC( :,: )  ! sea surface temp [K]
 
 C Lognormal parameters fit to the open-ocean flux function
       REAL,    SAVE :: DGNJ( 136 )     ! geom mean diam of accum-mode [um]
@@ -262,11 +254,6 @@ C Polynomial coefficients from Zhang et al. (2005)
       DATA C0_COEFF / 28.376D0, -205.44D0, 653.37D0, -1031.7D0, 803.18D0, -247.08D0 /
       DATA X_COEFF  / 3.1657D0, -19.079D0,  55.72D0, -83.998D0, 63.436D0, -19.248D0 /
 
-C Domain decomposition info from emission and meteorology files
-      INTEGER, SAVE :: GXOFF, GYOFF             ! origin offset
-      INTEGER, SAVE :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTEGER, SAVE :: LOGDEV
 
       CONTAINS
@@ -353,41 +340,6 @@ C Allocate SS arrays using NSSSPC value
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
-
-            ALLOCATE ( OCEAN( NCOLS,NROWS ),
-     &                 SZONE( NCOLS,NROWS ),
-     &                 PRES ( NCOLS,NROWS ), 
-     &                 TA   ( NCOLS,NROWS ), 
-     &                 QV   ( NCOLS,NROWS ), 
-     &                 WSPD10( NCOLS,NROWS ), 
-     &                 TSEASFC( NCOLS,NROWS ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** OCEAN, SZONE, PRES, TA, QV, WSPD10, or TSEASFC memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-C Open the ocean file, which contains the ocean and surf-zone fractions
-
-            IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // OCEAN_1
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
-     &                      STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 )
-
-C Open the 3D cross-point met file
-
-            IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // MET_CRO_3D
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                      STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
 C Get sea-salt-emission diagnostic output file flag.
 
@@ -571,7 +523,7 @@ C Open sea-salt emissions diagnostic file
          END SUBROUTINE OPSSEMIS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL, RJACM, CELLHGT )
+         SUBROUTINE GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL, CELLHGT )
 
 C GET_SSEMIS calculates the sea-salt emission rates in a grid cell
 C given the fractional grid-cell area covered by open ocean and surf zone
@@ -606,6 +558,12 @@ C          air pollution to climate change"  John Wiley & Sons, Inc. (1998).
 C    Zhang, K.M., E.M. Knipping, A.S. Wexler, P.V. Bhave, G.S. Tonnesen
 C          "Size distribution of sea-salt emissions as a function of relative
 C          humidity"  Atmospheric Environment, 39, 3373-3379 (2005).
+C    Lewis, E.R. and Schwartz, S.E. "Comment on "Size distribution of sea-salt
+C           emissions as a funciton of relative humidity", Atmospheric Environment,
+C           40, 588-590 (2006)
+C    Zhang, K.M., E.M. Knipping, A.S. Wexler, P.V. Bhave, G.S. Tonnesen, "Reply
+C           to comment on "Size distribution of sea-salt emissions as a funciton 
+C           of relative humidity", Atmospheric Environment, 40, 591-592 (2006)
 C    Clarke, A.D., S.R. Owens, and J. Zhou "An ultrafine sea-salt flux from
 C          breaking waves: Implications for cloud condensation nuclei in the
 C          remote marine atmosphere" J. Geophys. Res. (2006)
@@ -625,13 +583,13 @@ C-----------------------------------------------------------------------
             USE UTILIO_DEFN
             USE AERO_DATA
             USE AEROMET_DATA   ! Includes CONST.EXT
+            USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA, svp2, svp3
 
             IMPLICIT NONE
 
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( IN ) :: CELLVOL               ! grid-cell volume [m2*sigma]
-            REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS )  ! reciprocal Jacobian [1/m]
             REAL,    INTENT( IN ) :: CELLHGT               ! grid-cell height [sigma]
 
 C Includes:
@@ -743,87 +701,20 @@ C Mathematical constants; statement function for ERF approximation
 
 C----------------------------- Begin calc ------------------------------
 
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'PRES', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, PRES ) ) THEN
-               XMSG = 'Could not interpolate PRES from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'TA', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, TA ) ) THEN
-               XMSG = 'Could not interpolate TA from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'QV', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, QV ) ) THEN
-               XMSG = 'Could not interpolate QV from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_2D, 'WSPD10', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, WSPD10 ) ) THEN
-               XMSG = 'Could not find WSPD10 in ' // MET_CRO_2D //
-     &                ' search for WIND10.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               IF ( .NOT. INTERPX( MET_CRO_2D, 'WIND10', PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                             1,1, JDATE, JTIME, WSPD10 ) ) THEN
-                  XMSG = 'Could not find WIND10 or WSPD10 in ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_2D, 'TSEASFC', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, TSEASFC ) ) THEN
-               XMSG = 'Could not find TSEASFC in ' // MET_CRO_2D //
-     &                ' search for TEMPG.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-
-               IF ( .NOT. INTERPX( MET_CRO_2D, 'TEMPG', PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                             1,1, JDATE, JTIME, TSEASFC ) ) THEN
-                  XMSG = 'Could not find TEMPG or TSEASFC in ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
-
-C Read fractional seawater and surf-zone coverage from the OCEAN file.
-C Store results in the OCEAN and SZONE arrays.
-            IF ( .NOT. INTERPX( OCEAN_1, 'OPEN', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, OCEAN ) ) THEN
-               XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( OCEAN_1, 'SURF', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, SZONE ) ) THEN
-               XMSG = 'Could not interpolate SURF from ' // OCEAN_1 //
-     &                '.  Surf-zone emissions set to zero.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            END IF
-
 C Initialize sea-salt output buffer
             IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  IF ( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 ) THEN
-                     OFRAC   = OCEAN ( C,R )
-                     SFRAC   = SZONE ( C,R )
-                     BLKPRS  = PRES  ( C,R )
-                     BLKTA   = TA    ( C,R )
-                     BLKQV   = QV    ( C,R )
-                     U10     = WSPD10( C,R )
-                     SST     = max(TSEASFC( C,R ) - 273.15, 0.0 )
-                     RLAY1HT = RJACM ( C,R ) / CELLHGT
+                  IF ( Grid_Data%OCEAN( C,R ) + Grid_Data%SZONE( C,R ) .GT. 0.0 ) THEN
+                     OFRAC   = Grid_Data%OCEAN     ( C,R )
+                     SFRAC   = Grid_Data%SZONE     ( C,R )
+                     BLKPRS  = Met_Data%PRES       ( C,R,1 )
+                     BLKTA   = Met_Data%TA         ( C,R,1 )
+                     BLKQV   = Met_Data%QV         ( C,R,1 )
+                     U10     = Met_Data%WSPD10     ( C,R )
+                     SST     = max(Met_Data%TSEASFC( C,R ) - 273.15, 0.0 )
+                     RLAY1HT = Met_Data%RJACM ( C,R,1 ) / CELLHGT
                   ELSE
                      DO N = 1, N_MODE
                         DO S = 1, NSSSPC
@@ -836,7 +727,12 @@ C Initialize sea-salt output buffer
                   END IF
 
 C Calculate fractional relative humidity in the grid cell
-                  ESAT  = AA * EXP( BB * ( BLKTA - 273.15 ) / ( BLKTA - 273.15 + CC ) )
+C Follow the same methodology as in other portions of the code just for the 10m RH
+                  If ( BLKTA .Lt. stdtemp ) Then
+                     ESAT = vp0 *Exp( 22.514 - ( 6.15e3 / BLKTA ) )
+                  Else
+                     ESAT = vp0 *Exp( svp2 * ( BLKTA -stdtemp ) / ( BLKTA -svp3 ) ) 
+                  End If
                   BLKRH = BLKPRS * BLKQV / ( ( EPSWATER + BLKQV ) *  ESAT )       
                   BLKRH = MIN( 0.99, MAX( 0.005, BLKRH ) )
 
@@ -847,14 +743,9 @@ C 45-99% RH range.  Store powers of RH for polynomial calculations.
                   RH = MAX( 0.45, MIN( 0.99, RH ) )
                   DRH = REAL( RH, 8 )
 
-C Calculate size-correction factors from Equations 8 & 9 of Zhang et al.
-                  C0 =         C0_COEFF( 1 )
-     &               + DRH * ( C0_COEFF( 2 )
-     &               + DRH * ( C0_COEFF( 3 )
-     &               + DRH * ( C0_COEFF( 4 )
-     &               + DRH * ( C0_COEFF( 5 )
-     &               + DRH * ( C0_COEFF( 6 ) ) ) ) ) )
-                  C80 = C0 / 1.97D0
+C Calculate size-correction factors from Equation 3 of Lewis & Schwartz 2006 and Zhang et al 2006 equation 2. 
+                  C0  = 3.70D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
+                  C80 = 1.82D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
 
 C Calculate solute mass fraction using Equation 1 of Zhang et al.
                   XSW =         X_COEFF( 1 )
@@ -1031,7 +922,7 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                         SSOUTD( V ) = SSOUTS( N,C,R )
                      END DO
 
-                     AIRVOL = CELLVOL / RJACM( C,R )
+                     AIRVOL = CELLVOL / Met_Data%RJACM( C,R,1 )
 
                      DO S = 1, NSSDIAG
                         SSBF( S,C,R ) = SSBF( S,C,R ) + SSOUTD( S ) * AIRVOL

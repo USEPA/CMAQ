@@ -1,5 +1,5 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/air5/sjr/CMAQv5.0.1/models/mechs/MECHS/src/cb05tucl_ae6_aq/NR_cb05tucl_ae6_aq.nml,v 1.1.1.1 2012/04/19 19:39:41 sjr Exp $
+! $Header: /project/yoj/arc/MECHS/src/cb05tucl_ae6_aq/NR_cb05tucl_ae6_aq.nml,v 1.1 2011/04/06 16:57:21 sjr Exp $
 
 &NR_nml
  
@@ -11,7 +11,8 @@ TYPE_HEADER =
 'SPC:MOLWT:EMIS_SUR:EMIS_FAC:DEPV_SUR:DEPV_FAC:ICBC_SUR:ICBC_FAC:SCAV_SUR:SCAV_FAC:N2AE_SUR:N2AQ_SUR:TRNS:DDEP:WDEP:CONC',
 TYPE_MATRIX =
 'NH3: 17.0:NH3:1.0:VD_NH3:1.0:::NH3:1.0:NH3:NH3:Yes:Yes:Yes:Yes',
-'SV_ALK:150.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ALK::Yes:::Yes',
+'SV_ALK1:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ALK1::Yes:::Yes',
+'SV_ALK2:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ALK2::Yes:::Yes',
 'SV_XYL1:192.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_XYL1::Yes:::Yes',
 'SV_XYL2:192.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_XYL2::Yes:::Yes',
 'SV_TOL1:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_TOL1::Yes:::Yes',
@@ -22,5 +23,7 @@ TYPE_MATRIX =
 'SV_TRP2:168.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_TRP2::Yes:::Yes',
 'SV_ISO1: 96.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ISO1::Yes:::Yes',
 'SV_ISO2: 96.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_ISO2::Yes:::Yes',
-'SV_SQT:378.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_SQT::Yes:::Yes'
+'SV_SQT:378.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_SQT::Yes:::Yes',
+'SV_PAH1:243.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_PAH1::Yes:::Yes',
+'SV_PAH2:243.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:SV_PAH2::Yes:::Yes'
 /

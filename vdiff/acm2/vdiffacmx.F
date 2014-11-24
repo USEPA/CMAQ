@@ -44,13 +44,14 @@ C  2 May 14 J.Pleim, J.Young: replace the banded tridiagonal matrix solver for t
 C           convective PBL, with the ACM1 matrix solver followed by the tridiagonal
 C           matrix solver
 C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
+C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
       USE EMIS_DEFN          
       USE DEPV_DEFN
-      USE VDIFF_MET
+      USE ASX_DATA_MOD
       USE VDIFF_MAP
       USE UTILIO_DEFN
       USE BIDI_MOD
@@ -60,7 +61,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INCLUDE SUBST_PACTL_ID  ! PA control parameters
-      INCLUDE SUBST_CONST     ! constants
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
       CHARACTER( 120 ) :: XMSG = ' '
@@ -81,9 +81,6 @@ C explicit, THETA = 0, implicit, THETA = 1     ! Crank-Nicholson: THETA = 0.5
       REAL, PARAMETER :: THETA = 0.5,
      &                   THBAR = 1.0 - THETA
 
-C ACM parameters
-
-      REAL, PARAMETER :: KARMAN = 0.4
       REAL, PARAMETER :: EPS = 1.0E-06
 
 C External Functions: None
@@ -257,7 +254,7 @@ C for ACM time step
 
 C dt = .75 dzf*dzh / Kz
          DO L = 1, NLAYS - 1
-            DTLIM = MIN( DTLIM, 0.75 / ( SEDDY( L,C,R ) * RDX3F( L ) ) )
+            DTLIM = MIN( DTLIM, 0.75 / ( SEDDY( L,C,R ) * Grid_Data%RDX3F( L ) ) )
          END DO
          MBARKS = 0.0   ! array assignment
          MDWN = 0.0     ! array assignment
@@ -267,35 +264,35 @@ C conjoin ACM & EDDY ---------------------------------------------------
          MBAR = 0.0
          FNL = 0.0
 
-         IF ( CONVCT( C,R ) ) THEN   ! Do ACM for this column
-            LCBL = LPBL( C,R )
-            MEDDY = SEDDY( 1,C,R ) / ( XPBL( C,R ) - X3FACE_GD( 1 ) )
-            FNL = 1.0 / ( 1.0 + ( ( KARMAN / ( -HOL( C,R ) ) ) ** 0.3333 )
+         IF ( Met_Data%CONVCT( C,R ) ) THEN   ! Do ACM for this column
+            LCBL = Met_Data%LPBL( C,R )
+            MEDDY = SEDDY( 1,C,R ) / ( Met_Data%XPBL( C,R ) - X3FACE_GD( 1 ) )
+            FNL = 1.0 / ( 1.0 + ( ( KARMAN / ( -Met_Data%HOL( C,R ) ) ) ** 0.3333 )
      &                / ( 0.72 * KARMAN ) )
             MBAR = MEDDY * FNL
             IF ( MBAR .LT. EPS ) THEN
                WRITE( LOGDEV,* ) ' SEDDY, MBAR, FNL, HOL = ',
-     &                             SEDDY( 1,C,R ), MBAR, FNL, HOL( C,R )
+     &                             SEDDY( 1,C,R ), MBAR, FNL, Met_Data%HOL( C,R )
                XMSG = '*** ACM fails ***'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
             END IF
 
             IF ( ( FNL .LE. 0.0 ) .OR.            ! never gonna happen for CONVCT
      &           ( LCBL .GE. NLAYS-1 ) .OR.       ! .GT. never gonna happen
-     &           ( HOL( C,R ) .GT. -0.00001 ) )   ! never gonna happen
-     &         WRITE( LOGDEV,1015 ) LCBL, MBAR, FNL, SEDDY( 1,C,R ), HOL( C,R )
+     &           ( Met_Data%HOL( C,R ) .GT. -0.00001 ) )   ! never gonna happen
+     &         WRITE( LOGDEV,1015 ) LCBL, MBAR, FNL, SEDDY( 1,C,R ), Met_Data%HOL( C,R )
 1015           FORMAT( ' LCBL, MBAR, FNL, SEDDY1, HOL:', I3, 1X, 4(1PE13.5) )
 
             DO L = 1, LCBL - 1
                SEDDY( L,C,R ) = ( 1.0 - FNL ) * SEDDY( L,C,R  )
                MBARKS( L ) = MBAR
-               MDWN( L ) = MBAR * ( XPBL( C,R ) - X3FACE_GD( L-1 ) ) * RDX3F( L )
+               MDWN( L ) = MBAR * ( Met_Data%XPBL( C,R ) - X3FACE_GD( L-1 ) ) * Grid_Data%RDX3F( L )
             END DO
-            MBARKS( LCBL ) = MBAR * ( XPBL( C,R ) - X3FACE_GD( LCBL-1 ) ) * RDX3F( LCBL )
+            MBARKS( LCBL ) = MBAR * ( Met_Data%XPBL( C,R ) - X3FACE_GD( LCBL-1 ) ) * Grid_Data%RDX3F( LCBL )
             MDWN( LCBL ) = MBARKS( LCBL )
 
 C Modify Timestep for ACM
-            RZ     = ( X3FACE_GD( LCBL ) - X3FACE_GD( 1 ) ) * RDX3F( 1 )
+            RZ     = ( X3FACE_GD( LCBL ) - X3FACE_GD( 1 ) ) * Grid_Data%RDX3F( 1 )
             DTACM  = 1.0 / ( MBAR * RZ )
             DTLIM  = MIN( 0.75 * DTACM, DTLIM )
          ELSE
@@ -307,13 +304,13 @@ C-----------------------------------------------------------------------
          NLP = INT( DTSEC / DTLIM + 0.99 )
          IF ( VDIFFDIAG ) NLPCR( C,R ) = REAL( NLP )
          DTS = DTSEC / REAL( NLP )
-         DTDENS1 = DTS * DENS1( C,R )
+         DTDENS1 = DTS * Met_Data%DENS1( C,R )
          DFACP = THETA * DTS
          DFACQ = THBAR * DTS
 
 #ifdef Verbose_Vdiff
         IF ( R .EQ. MY_NROWS / 2 .AND. C .EQ. MY_NCOLS / 2 )
-     &      WRITE( LOGDEV,1021 ) CONVCT( C,R ), DTS, EDDYV( C,R,1 ), MBAR, FNL
+     &      WRITE( LOGDEV,1021 ) Met_Data%CONVCT( C,R ), DTS, EDDYV( C,R,1 ), MBAR, FNL
 1021  FORMAT( ' CONVCT, DTS, EDDYV, MBAR, FNL: ', L3, 1X, 4(1PE13.5) )
 #endif
 
@@ -331,13 +328,13 @@ C-----------------------------------------------------------------------
          END DO
 
          DO L = 1, NLAYS
-            DFSP( L ) = DFACP * RDX3F( L )
-            DFSQ( L ) = DFACQ * RDX3F( L )
+            DFSP( L ) = DFACP * Grid_Data%RDX3F( L )
+            DFSQ( L ) = DFACQ * Grid_Data%RDX3F( L )
             EDDY( L ) = SEDDY( L,C,R )
          END DO
 
-         RP = DFACP * RDEPVHT( C,R )
-         RQ = DFACQ * RDEPVHT( C,R )
+         RP = DFACP * Met_Data%RDEPVHT( C,R )
+         RQ = DFACQ * Met_Data%RDEPVHT( C,R )
          DO V = 1, N_SPC_DEPV
             DDBF( V )   = DDEP( V,C,R )
             DEPVCR( V ) = DEPV( V,C,R )
@@ -362,17 +359,17 @@ C These don`t change in the NLP sub-time step loop:---------------------
             EE2( L ) = 0.0
             BB2( L ) = 0.0
          END DO
-         IF ( CONVCT( C,R ) ) THEN
+         IF ( Met_Data%CONVCT( C,R ) ) THEN
             L = 1
-            DELP = XPBL( C,R ) - X3FACE_GD( L )
+            DELP = Met_Data%XPBL( C,R ) - X3FACE_GD( L )
             BB1( L ) = 1.0 + DELP * DFSP( L ) * MBARKS( L )
             LFAC1( L ) = DFSQ( L ) * DELP * MBARKS( L )
-            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * DX3F( L+1 )
+            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * Grid_Data%DX3F( L+1 )
             DO L = 2, LCBL
                AA ( L ) = -DFACP * MBARKS( L )
                BB1( L ) = 1.0 + DFACP * MDWN( L )
-               EE1( L ) = -DFSP( L-1 ) * DX3F( L ) * MDWN( L )
-               MFAC( L ) = DX3F( L+1 ) * RDX3F( L ) * MDWN( L+1 )
+               EE1( L ) = -DFSP( L-1 ) * Grid_Data%DX3F( L ) * MDWN( L )
+               MFAC( L ) = Grid_Data%DX3F( L+1 ) * Grid_Data%RDX3F( L ) * MDWN( L+1 )
             END DO
          END IF
 
@@ -508,7 +505,7 @@ C --------------- END of HET HONO RX ----------
 C Compute tendency of CBL concentrations - semi-implicit solution
 C Set MATRIX1 elements A (col 1), B (diag.), E (superdiag.) and D (RHS)
 
-            IF ( CONVCT( C,R ) ) THEN
+            IF ( Met_Data%CONVCT( C,R ) ) THEN
 
                L = 1
                DO V = 1, N_SPC_DIFF

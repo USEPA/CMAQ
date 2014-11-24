@@ -1,10 +1,11 @@
+
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !
 !  including research institutions.  These groups give the Government    !
-!  permission to use, prepare derivative works of, and distribute copies !!
+!  permission to use, prepare derivative works of, and distribute copies !
 !  of their work in the CMAQ system to the public and to permit others   !
 !  to do so.  The United States Environmental Protection Agency          !
 !  therefore grants similar permission to use the CMAQ system software,  !
@@ -32,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 13, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

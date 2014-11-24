@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -127,7 +127,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 155
+      N_EBISP  = 158
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -271,24 +271,27 @@ c..Allocate and define ebi species
       EBISP( 135 ) = HCHO_PRIMARY
       EBISP( 136 ) = CCHO_PRIMARY
       EBISP( 137 ) = ACROLEIN_PRIMARY
-      EBISP( 138 ) = AALKJ
+      EBISP( 138 ) = AXYL1J
       EBISP( 139 ) = AOLGAJ
-      EBISP( 140 ) = AXYL1J
-      EBISP( 141 ) = AXYL2J
-      EBISP( 142 ) = ATOL1J
-      EBISP( 143 ) = ATOL2J
-      EBISP( 144 ) = ABNZ1J
-      EBISP( 145 ) = ABNZ2J
-      EBISP( 146 ) = ATRP1J
-      EBISP( 147 ) = AOLGBJ
-      EBISP( 148 ) = ATRP2J
-      EBISP( 149 ) = AISO1J
-      EBISP( 150 ) = AISO2J
-      EBISP( 151 ) = ASQTJ
-      EBISP( 152 ) = APOCI
-      EBISP( 153 ) = APNCOMI
-      EBISP( 154 ) = APOCJ
-      EBISP( 155 ) = APNCOMJ
+      EBISP( 140 ) = AXYL2J
+      EBISP( 141 ) = ATOL1J
+      EBISP( 142 ) = ATOL2J
+      EBISP( 143 ) = ABNZ1J
+      EBISP( 144 ) = ABNZ2J
+      EBISP( 145 ) = ATRP1J
+      EBISP( 146 ) = AOLGBJ
+      EBISP( 147 ) = ATRP2J
+      EBISP( 148 ) = AISO1J
+      EBISP( 149 ) = AISO2J
+      EBISP( 150 ) = ASQTJ
+      EBISP( 151 ) = APAH1J
+      EBISP( 152 ) = APAH2J
+      EBISP( 153 ) = AALK1J
+      EBISP( 154 ) = AALK2J
+      EBISP( 155 ) = APOCI
+      EBISP( 156 ) = APNCOMI
+      EBISP( 157 ) = APOCJ
+      EBISP( 158 ) = APNCOMJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -444,9 +447,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( HCHO_PRIMARY     ) = 1.0D-03
       RTOL( CCHO_PRIMARY     ) = 1.0D-03
       RTOL( ACROLEIN_PRIMARY ) = 1.0D-03
-      RTOL( AALKJ            ) = 1.0D-03
-      RTOL( AOLGAJ           ) = 1.0D-03
       RTOL( AXYL1J           ) = 1.0D-03
+      RTOL( AOLGAJ           ) = 1.0D-03
       RTOL( AXYL2J           ) = 1.0D-03
       RTOL( ATOL1J           ) = 1.0D-03
       RTOL( ATOL2J           ) = 1.0D-03
@@ -458,6 +460,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AISO1J           ) = 1.0D-03
       RTOL( AISO2J           ) = 1.0D-03
       RTOL( ASQTJ            ) = 1.0D-03
+      RTOL( APAH1J           ) = 1.0D-03
+      RTOL( APAH2J           ) = 1.0D-03
+      RTOL( AALK1J           ) = 1.0D-03
+      RTOL( AALK2J           ) = 1.0D-03
       RTOL( APOCI            ) = 1.0D-03
       RTOL( APNCOMI          ) = 1.0D-03
       RTOL( APOCJ            ) = 1.0D-03

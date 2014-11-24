@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC99 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
 C
 C***********************************************************************
       USE HRDATA
@@ -286,22 +286,25 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  224 ) = RKI( 224 ) * YC(  SESQ ) * YC(  NO3 )
       RXRAT(  225 ) = RKI( 225 ) * YC(  N2O5 )
       RXRAT(  226 ) = RKI( 226 ) * YC(  NO2 )
-      RXRAT(  227 ) = RKI( 227 ) * YC(  AALKJ )
-      RXRAT(  228 ) = RKI( 228 ) * YC(  AXYL1J )
-      RXRAT(  229 ) = RKI( 229 ) * YC(  AXYL2J )
-      RXRAT(  230 ) = RKI( 230 ) * YC(  ATOL1J )
-      RXRAT(  231 ) = RKI( 231 ) * YC(  ATOL2J )
-      RXRAT(  232 ) = RKI( 232 ) * YC(  ABNZ1J )
-      RXRAT(  233 ) = RKI( 233 ) * YC(  ABNZ2J )
-      RXRAT(  234 ) = RKI( 234 ) * YC(  ATRP1J )
-      RXRAT(  235 ) = RKI( 235 ) * YC(  ATRP2J )
-      RXRAT(  236 ) = RKI( 236 ) * YC(  AISO1J )
-      RXRAT(  237 ) = RKI( 237 ) * YC(  AISO2J )
-      RXRAT(  238 ) = RKI( 238 ) * YC(  ASQTJ )
-      RXRAT(  239 ) = RKI( 239 ) * YC(  APOCI ) * YC(  HO )
-      RXRAT(  240 ) = RKI( 240 ) * YC(  APNCOMI ) * YC(  HO )
-      RXRAT(  241 ) = RKI( 241 ) * YC(  APOCJ ) * YC(  HO )
-      RXRAT(  242 ) = RKI( 242 ) * YC(  APNCOMJ ) * YC(  HO )
+      RXRAT(  227 ) = RKI( 227 ) * YC(  AXYL1J )
+      RXRAT(  228 ) = RKI( 228 ) * YC(  AXYL2J )
+      RXRAT(  229 ) = RKI( 229 ) * YC(  ATOL1J )
+      RXRAT(  230 ) = RKI( 230 ) * YC(  ATOL2J )
+      RXRAT(  231 ) = RKI( 231 ) * YC(  ABNZ1J )
+      RXRAT(  232 ) = RKI( 232 ) * YC(  ABNZ2J )
+      RXRAT(  233 ) = RKI( 233 ) * YC(  ATRP1J )
+      RXRAT(  234 ) = RKI( 234 ) * YC(  ATRP2J )
+      RXRAT(  235 ) = RKI( 235 ) * YC(  AISO1J )
+      RXRAT(  236 ) = RKI( 236 ) * YC(  AISO2J )
+      RXRAT(  237 ) = RKI( 237 ) * YC(  ASQTJ )
+      RXRAT(  238 ) = RKI( 238 ) * YC(  APAH1J )
+      RXRAT(  239 ) = RKI( 239 ) * YC(  APAH2J )
+      RXRAT(  240 ) = RKI( 240 ) * YC(  AALK1J )
+      RXRAT(  241 ) = RKI( 241 ) * YC(  AALK2J )
+      RXRAT(  242 ) = RKI( 242 ) * YC(  APOCI ) * YC(  HO )
+      RXRAT(  243 ) = RKI( 243 ) * YC(  APNCOMI ) * YC(  HO )
+      RXRAT(  244 ) = RKI( 244 ) * YC(  APOCJ ) * YC(  HO )
+      RXRAT(  245 ) = RKI( 245 ) * YC(  APNCOMJ ) * YC(  HO )
 
 
       RETURN
