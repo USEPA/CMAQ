@@ -485,11 +485,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ! start writing the subroutine for rate constants 
 
-!      IF( HALOGEN_PARAMETER )THEN
+      IF( HALOGEN_PARAMETER )THEN
           WRITE(MODULE_UNIT,99870)
-!      ELSE
-!          WRITE(MODULE_UNIT,99880)
-!      END IF
+      ELSE
+          WRITE(MODULE_UNIT,99880)
+      END IF
       
       IF( KUNITS .EQ. 2 )THEN
           WRITE(MODULE_UNIT,'(3A)')'! All rate constants converted from  molec/cm3 to ppm'
@@ -525,7 +525,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              END IF
          END DO
 	 IF( HALOGEN_PARAMETER )THEN
-!	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. PRESENT( LAND ) )CYCLE'
+	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. PRESENT( LAND ) )CYCLE'
 	     WRITE(MODULE_UNIT,'(2/ 16X, A)')'IF( .NOT. LAND( NCELL ) )THEN'
              DO NXX = 1, NR
 	        IF( KTYPE( NXX ) .NE. 12 )CYCLE
@@ -1238,7 +1238,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 95071 FORMAT('RKI( NCELL,',I4,' ) ')
 
 
-99870 FORMAT(7X,'SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, LAND, RKI, NUMCELLS )' //
+99870 FORMAT(7X,'SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, RKI, NUMCELLS, LAND )' //
      & '!**********************************************************************' //
      & '!  Function: To compute thermal and photolytic reaction rate' /
      & '!            coefficients for each reaction.' //
@@ -1260,8 +1260,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      & '        LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? ' /
      & '        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
      & '        REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min '/
-!     & '        LOGICAL,   OPTIONAL, INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
-     & '        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
+     & '        LOGICAL,   OPTIONAL, INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
+!     & '        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? ' /
      & '!..Parameters: ' //
      & '        REAL( 8 ), PARAMETER :: COEF1  = 7.33981D+15     ! Molec/cc to ppm conv factor ' /
      & '        REAL( 8 ), PARAMETER :: CONSTC = 0.6D+0          ! Constant for reaction type 7' /
