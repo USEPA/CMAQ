@@ -66,11 +66,12 @@ C Last updated: $Date: 2011/10/21 16:10:17 $
 C-----------------------------------------------------------------------
 
       USE BIOG_EMIS, ONLY: NSEF, NLAI, LAITYPES
-      USE ASX_DATA_MOD
+      Use ASX_DATA_MOD
 
       IMPLICIT NONE
-
 C Includes:
+
+!      INCLUDE SUBST_CONST     ! constants
 
 C Arguments:
       INTEGER, INTENT( IN ) :: JDATE   ! current simulation date (YYYYDDD)
@@ -263,7 +264,7 @@ C Calculate temperature correction term
                   CT_SHADE = EXP( 37.711 - 0.398570815 * DT_SHADE ) /
      &                          ( 1.0 + EXP( 91.301 - DT_SHADE ) )     
                   EMPOL( C,R,I ) = SEMIS( C,R,I )*( FRACSUN   * CT_SUN   * CSUBL_SUN + 
-     &                                              FRACSHADE * CT_SHADE * CSUBL_SHADE )
+     &                                              FRACSHADE * CT_SHADE * CSUBL_SHADE )                   		  
                END IF
 
             END DO ! end ISOP and MBO calculations loop
@@ -284,7 +285,7 @@ C Limit temerature to 315 K for monoterpenes and other VOCs
             CFOVOC  = FRACSUN   * EXP( 0.09 * ( TLEAF_SUN   - 303.0 ) ) + 
      &                FRACSHADE * EXP( 0.09 * ( TLEAF_SHADE - 303.0 ) ) 
             CFSESQT = FRACSUN   * EXP( 0.17 * ( TLEAF_SUN   - 303.0 ) ) + 
-     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )
+     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )  	    
 
             DO I = NLAI + 1, NSEF - 2
                EMPOL( C,R,I ) = SEMIS( C,R,I ) * CFOVOC
@@ -339,6 +340,7 @@ C Parameters:
 C Local variables:
          REAL, SAVE :: SQALPHA ! square root of alpha
          REAL KBE              ! extinction coefficient for direct beam
+         REAL KDD              ! Effective extinction coefficient 
          REAL CANPARSCAT       ! exponentially wtd scattered PAR (umol/m2-s)
          REAL CANPARDIF        ! exponentially wtd diffuse PAR (umol/m2-s)
          REAL PARSHADE         ! PAR on shaded leaves (umol/m2-s)
@@ -356,16 +358,17 @@ C-----------------------------------------------------------------------
             FIRSTIME = .FALSE.
             SQALPHA = SQRT( ALPHA )
          END IF
-         IF ( TLAI .GT. 0.1 ) THEN
-            IF ( PARDB + PARDIF .GT. 0.0 ) THEN
 C CN98 - eqn 15.4, assume x=1 (can use a table or atributes to change this)
 C Set a ceiling for KBE to prevent a blow up at high zenith angles. This has
 C little impact on the results because direct PAR is low under these conditions
-               IF( ZEN .GE. 1.55 ) THEN
-                  KBE = 24.0
-               ELSE
-                  KBE = 0.5 * SQRT( 1.0 + TAN( ZEN )**2 )
-               END IF
+         IF( ZEN .GE. 1.55 ) THEN
+            KBE = 24.0
+         ELSE
+            KBE = 0.5 * SQRT( 1.0 + TAN( ZEN )**2 )
+         END IF
+         IF ( TLAI .GT. 0.1 ) THEN
+            IF ( PARDB + PARDIF .GT. 0.0 ) THEN
+
 
 C CN98 - p. 261 (this is usually small)
                CANPARSCAT = 0.5 * PARDB * ( EXP( -1.0 * SQALPHA * KBE * TLAI )
@@ -381,7 +384,7 @@ C note that we use the incoming (not absorbed) PAR
                PARSUN     = KBE * PARDB + PARSHADE
                LAISUN     = ( 1.0 - EXP( -1.0 * KBE * TLAI ) ) / KBE
                LAISHADE   = MAX( TLAI - LAISUN, 0.0 )
-               FRACSUN    = LAISUN / TLAI
+               FRACSUN    = LAISUN / TLAI             
                FRACSHADE  = 1.0 - FRACSUN
 
 C cguen is Guenther's eqn for computing light correction as a function of
@@ -389,8 +392,9 @@ C PAR...fracSun should probably be higher since sunlit leaves tend to be
 C thicker than shaded leaves. But since we need to make crude assumptions
 C regarding leaf orientation (x=1), we will not attempt to fix at the moment.
 
-               CSUBL_SUN   =  CGUEN( PARSUN, LAISUN )
-               CSUBL_SHADE =  CGUEN( PARSHADE, LAISHADE )
+               KDD     =  -Log( PARSUN / ( PARDB + PARDIF ) )/TLAI
+               CSUBL_SUN   =  CGUEN( PARDB + PARDIF, 0.0, LAISUN, KBE )
+               CSUBL_SHADE =  CGUEN( PARDB + PARDIF, LAISUN, LAISHADE, KBE )
      
 C calculate the leaf temperature following Campbel and Norman 1998 eq 14.6 
 C with the addition of incomming atmospheric long wave irradiation resulting 
@@ -419,7 +423,7 @@ C in the cacelation of the long wave radiation budget
             END IF       
     
          ELSE 
-            CSUBL_SUN   = CGUEN( PARDB + PARDIF, TLAI )
+            CSUBL_SUN   = CGUEN( PARDB + PARDIF, 0.0, TLAI, KBE )
             CSUBL_SHADE = 0.0
             FRACSUN     = 1.0
             FRACSHADE   = 0.0
@@ -434,27 +438,32 @@ C in the cacelation of the long wave radiation budget
 C-----------------------------------------------------------------------
 
 C Function to calculate Guenther's equation for computing light correction
-         REAL FUNCTION CGUEN( PAR, LAI )
-C 11/14 J. Bash - Corrected the missing LAI component. Now this is consistent with Guenther et al. 2006. 
+         REAL FUNCTION CGUEN( PAR, LAI1, LAI2, KBE )
+
+C 11/14 J. Bash - Updated to Niinemets et al. 2010 doi:10.1029/2010JG001436 
+C                 Big leaf model which updates Guenther et al. 1993 doi:10.1029/93JD00527 for 
+C                 in-canopy gradients
 
          IMPLICIT NONE
 
 C Function arguments:
          REAL, INTENT( IN ) :: PAR
-         REAL, INTENT( IN ) :: LAI
+         REAL, INTENT( IN ) :: LAI1 ! top of the layer LAI
+         REAL, INTENT( IN ) :: LAI2 ! bottom of the layer LAI
+         REAL, INTENT( IN ) :: KBE  ! light extenction coefficient
 
 C Parameters:
-         REAL ALPHA
-         REAL CL
+         REAL, PARAMETER :: ALPHA = 0.0027 ! Guenther et al. 1993
+         REAL, PARAMETER :: CL    = 1.066  ! Guenther et al. 1993
 
 C-----------------------------------------------------------------------
-         ALPHA = 0.001 + 0.00085 * LAI
-         CL    = 1.42 * EXP( -0.3 * LAI )
          IF ( PAR .LE. 0.01 ) THEN
             CGUEN = 0.0
          ELSE
-            CGUEN = ( ALPHA * CL * PAR )
-     &            / SQRT( 1.0 + ALPHA**2 * PAR**2 )
+C Niinemets et al. 2010 equation A9 integrated from LAI1 to LAI2
+            CGUEN = CL * ( SQRT(1+ALPHA**2 * PAR**2 * EXP(-2*LAI1*KBE)) -
+     &                     SQRT(1+ALPHA**2 * PAR**2 * EXP(-2*LAI2*KBE)) ) /
+     &                   ( ALPHA * KBE * PAR )
          END IF
 
          RETURN
