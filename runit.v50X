@@ -9,21 +9,22 @@
  set EXEC            = cr_ebi_solver 
 
 #Define the gas, aerosol and aqueous components in MECHNAME
- setenv GC_NAME       CB05TUCL
-#setenv GC_NAME       SAPRC07TB
+#setenv GC_NAME       CB05TUCL
+#setenv GC_NAME       SAPRC99
+#setenv GC_NAME       SAPRC07TIC
+setenv GC_NAME       CB05TUMP
 setenv AE_NAME       AE6
 setenv AQ_NAME       AQ
 
 #setenv GC_NAME       SAPRC07TC
-#setenv GC_NAME       RACM2
 #setenv GC_NAME       SAPRC07TIC
 # setenv GC_NAME       CB05e6
 # setenv AE_NAME       AE6
 # setenv AQ_NAME       AQ
 
 #path for mechanism RXCM.EXT and RXDT.EXT files
-#set REP              = /home/${USER}/CCTM_git_repository/MECHS
- set REP              = /home/${USER}/tools/mech_processor/output
+ set REP              = /home/${USER}/CCTM_git_repository/MECHS
+#set REP              = /home/${USER}/tools/mech_processor/output
 #set REP              = /home/${USER}/tools/create_ebi_cmaq_v50
 #set MECH             = cb05tucl_clno2_hetchem
 #set MECH               = cb05e6_ae6_aq
@@ -44,7 +45,7 @@ setenv AQ_NAME       AQ
 #set MECH             = saprc07tb_ae6_aq
 
 set MECH = ` echo ${GC_NAME}_${AE_NAME}_${AQ_NAME} |  tr 'a-zA-Z' 'A-Za-z' `
-set MECH = cb05tucl_ae6_aq-poaage
+#et MECH = cb05tucl_ae6_aq-poaage
 
 #uses CMAQ version 5.0 of these include files for gas phase
 #chemistry
@@ -75,7 +76,8 @@ set echo
 #setenv TMPLDIR         ${STEM}/template_Aug_30_2011
 #setenv TMPLDIR         ${STEM}/template_June_01_2012-ncell
 #setenv TMPLDIR         ${STEM}/template_RXNSSS
- setenv TMPLDIR         ${STEM}/template_RXNST
+#setenv TMPLDIR         ${STEM}/template_RXNST
+ setenv TMPLDIR         ${STEM}/template_RXNSU
  setenv DEGRADE_CODES   ${STEM}/degrade_codes_serial-RXNST
 
 #creation program source code uses IOAPI 3.1 modules if src_ioapi equals 31
@@ -84,7 +86,8 @@ set echo
 if( ${src_ioapi_31} == "T" )then
 #setenv SRCDIR          ${STEM}/src_May_17_2011-ncell
 #setenv SRCDIR          ${STEM}/src_RXNS
- setenv SRCDIR          ${STEM}/src_RXNST
+#setenv SRCDIR          ${STEM}/src_RXNST
+ setenv SRCDIR          ${STEM}/src_RXNSU
 else
  setenv SRCDIR          ${STEM}/src_Oct_19_2010
 endif
@@ -93,13 +96,13 @@ endif
 set day = ` date "+%b-%d-%Y" `
 #set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
  setenv OUTDIR        ${BASE}/output/ebi_${MECH}-${day}
-
+ 
  setenv COPYRT_FLAG      N
  setenv CVS_HDR_FLAG     N
 
  setenv ALL_MECHS       F    # obsolete option 
  setenv PAR_NEG_FLAG    T    # True for CB4 and CB05 but false for SAPRC99/07T
- setenv DEGRADE_SUBS    F    # include calls for HAPs degrade routines
+ setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines
 # below option is a possible solution based on work by Golam Sawar if the 
 # mechanism includes excited NO2.  The user employs it at their own risk 
 # and should check the EBI solver's accuracy against the Gear or Rosenbrock solver
@@ -108,6 +111,7 @@ set day = ` date "+%b-%d-%Y" `
  if( $DEGRADE_SUBS == 'T' )then
      setenv OUTDIR        ${BASE}/output/EBI_DEG_NCELL-${MECH}_${day}
  endif
+ setenv OUTDIR        /home/hwo/CCTM_git_repository/gas/ebi_${MECH}
  
 
 #Set the below compound names within the mechanism
