@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -245,6 +245,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 311 ) * YC( TERP             )   ! O3+TERP=0.7800D-...
      &   +                 RKI( 315 ) * YC( SESQ             )   ! O3+SESQ=0.7800D-...
      &   +                 RKI( 327 ) * YC( CL               )   ! O3+CL=CLO
+     &   +                 RKI( 416 )                            ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

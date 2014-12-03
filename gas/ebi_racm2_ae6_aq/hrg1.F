@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -309,6 +309,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 138 ) * YC( DCB3    )   ! O3+DCB3=0.5000D-...
      &   +                 RKI( 139 ) * YC( EPX     )   ! O3+EPX=0.5000D-...
      &   +                 RKI( 140 ) * YC( MCTO    )   ! O3+MCTO=MCTP
+     &   +                 RKI( 375 )                   ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 
