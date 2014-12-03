@@ -57,6 +57,9 @@ C                        heterogeneous rate constants via AEROSOL_CHEMISTRY
 C                        module, 4) to replace call to HRCALCKS with
 C                        subroutine in RXNS_FUNCTION module and 5) to change
 C                        how degrade routines are used, if present
+C   02 Dec 14 B.Hutzell: 1) added terrestrial data to conduct surface
+C                        dependent reactions and 2) modified the call CALC_RCONST 
+C                        routine
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -286,8 +289,6 @@ c..If emissions processing requested stop
          OPEN( UNIT=ISTFL, FILE='iterstat.dat' )
          WRITE( ISTFL, 94020 )
 #endif
-
-         ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
 
 C.. Get fractional seawater coverage from the OCEAN file.
 
