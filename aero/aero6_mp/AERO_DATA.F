@@ -400,9 +400,6 @@ C Local Variables:
 
       if ( mapped ) Return
 
-      If ( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
-           V51_SOA_mechanism   = .True.
-      End If
 
 !         aerospc_mw = 0.0
 !         aerospc_map = 0
