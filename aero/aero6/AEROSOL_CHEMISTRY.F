@@ -708,8 +708,6 @@ C *** calculate aerosol surface area
                                      
                       IF(  YIELD_CLNO2( 3 ) .GT. 0.0D0 )THEN
                           KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
-     &                                              *  YIELD_CLNO2( 3 ) * KN2O5( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                              *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
                           IF( AERDIAG ) YCLNO2K( C, R, L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
                       ELSE
