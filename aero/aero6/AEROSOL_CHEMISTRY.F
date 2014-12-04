@@ -252,7 +252,6 @@ C *** Local Variables
       REAL( 8 ) :: GAMMA            ! fine mode N2O5->NO3 rxn probability
       REAL( 8 ) :: GAMMAK           ! coarse mode N2O5->NO3 rxn probability
       REAL( 8 ) :: GAMMAIEPOX       ! IEPOX uptake coefficient
-      REAL( 8 ) :: GAMMAIEPOX_PYE   ! HPYE original IEPOX uptake coefficient
       REAL( 8 ) :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
       REAL( 8 ) :: KNO2             ! pseudo-first order rate constant, sec-1
       REAL( 8 ) :: KIEPOX           ! pseudo-first order rate constant, sec-1
@@ -1720,7 +1719,7 @@ C     Note that if the rate of particle phase reaction is very slow, there may n
 C     be enough digits of precision to properly calculate fq which can result in
 C     erroneously high gamma values. Only calculate gamma if particle phase reaction
 C     is faster than 1e-8 1/s
-      if ( kparticle .gt. smaller ) then
+      if ( kparticle .gt. small ) then
 
          temp = real( TEMPERATURE, 4)
          Heff = REAL(HLCONST( 'IEPOX', temp , .False., 0.0 ), 8)
