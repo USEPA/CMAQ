@@ -342,7 +342,8 @@ C Local variables:
          REAL KBE              ! extinction coefficient for direct beam
          REAL KDD              ! Effective extinction coefficient 
          REAL CANPARSCAT       ! exponentially wtd scattered PAR (umol/m2-s)
-         REAL CANPARDIF        ! exponentially wtd diffuse PAR (umol/m2-s)
+         REAL CANPARDIF_SUN    ! exponentially wtd diffuse PAR at the top of the canopy (umol/m2-s)
+         REAL CANPARDIF_SHADE  ! exponentially wtd diffuse PAR in the shaded part of the canopy (umol/m2-s)
          REAL PARSHADE         ! PAR on shaded leaves (umol/m2-s)
          REAL PARSUN           ! PAR on sunlit leaves (umol/m2-s)
          REAL SOLSUN           ! RS transmitted to sunlit leaves W/m**2
@@ -369,32 +370,28 @@ C little impact on the results because direct PAR is low under these conditions
          IF ( TLAI .GT. 0.1 ) THEN
             IF ( PARDB + PARDIF .GT. 0.0 ) THEN
 
+C CN98 p-259 Sun and shaded areas of the canopy
+               LAISUN     = ( 1.0 - EXP( -1.0 * KBE * TLAI ) ) / KBE
+               LAISHADE   = MAX( TLAI - LAISUN, 0.0 )
+               FRACSUN    = LAISUN / TLAI             
+               FRACSHADE  = 1.0 - FRACSUN
 
 C CN98 - p. 261 (this is usually small)
                CANPARSCAT = 0.5 * PARDB * ( EXP( -1.0 * SQALPHA * KBE * TLAI )
      &                    - EXP( -1.0 * KBE * TLAI ) )
 
 C CN98 - p. 261 (assume exponentially wtd avg)
-               CANPARDIF  = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * TLAI ) )
-     &                  / ( SQALPHA * KD * TLAI )
+               CANPARDIF_SUN    = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * LAISUN ) )
+     &                                   / ( SQALPHA * KD * LAISUN )
+
+               CANPARDIF_SHADE  = PARDIF * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) - 
+     &                                       EXP( -1.0 * SQALPHA * KD * TLAI ) )
+     &                                   / ( SQALPHA * KD * (TLAI - LAISUN) )
 
 C CN98 - p. 261 (for next 3 eqns)
 C note that we use the incoming (not absorbed) PAR
-               PARSHADE   = CANPARDIF + CANPARSCAT
-               PARSUN     = KBE * PARDB + PARSHADE
-               LAISUN     = ( 1.0 - EXP( -1.0 * KBE * TLAI ) ) / KBE
-               LAISHADE   = MAX( TLAI - LAISUN, 0.0 )
-               FRACSUN    = LAISUN / TLAI             
-               FRACSHADE  = 1.0 - FRACSUN
-
-C cguen is Guenther's eqn for computing light correction as a function of
-C PAR...fracSun should probably be higher since sunlit leaves tend to be
-C thicker than shaded leaves. But since we need to make crude assumptions
-C regarding leaf orientation (x=1), we will not attempt to fix at the moment.
-
-               KDD     =  -Log( PARSUN / ( PARDB + PARDIF ) )/TLAI
-               CSUBL_SUN   =  CGUEN( PARDB + PARDIF, 0.0, LAISUN, KBE )
-               CSUBL_SHADE =  CGUEN( PARDB + PARDIF, LAISUN, LAISHADE, KBE )
+               PARSHADE   = CANPARDIF_SHADE + CANPARSCAT
+               PARSUN     = KBE * PARDB + CANPARDIF_SUN + CANPARSCAT
      
 C calculate the leaf temperature following Campbel and Norman 1998 eq 14.6 
 C with the addition of incomming atmospheric long wave irradiation resulting 
@@ -408,6 +405,15 @@ C in the cacelation of the long wave radiation budget
                DTLSUN    = MAX(DTLSUN, -10.0) 
                DTLSHADE  = MIN(DTLSHADE,  10.0) 
                DTLSHADE  = MAX(DTLSHADE, -10.0) 
+
+C cguen is Guenther's eqn for computing light correction as a function of
+C PAR...fracSun should probably be higher since sunlit leaves tend to be
+C thicker than shaded leaves. But since we need to make crude assumptions
+C regarding leaf orientation (x=1), we will not attempt to fix at the moment.
+
+               KDD     =  PARDB / ( PARDIF + PARDB ) * KBE + PARDIF / ( PARDIF + PARDB ) * KD
+               CSUBL_SUN   =  CGUEN( PARDB + PARDIF, 0.0, LAISUN, KDD )
+               CSUBL_SHADE =  CGUEN( PARDB + PARDIF, LAISUN, TLAI, KDD )
             
             ELSE ! to prevent divide by 0 when there is no solar rad
                CSUBL_SUN   = 0.0

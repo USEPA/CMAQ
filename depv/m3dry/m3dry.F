@@ -281,7 +281,6 @@ C For Ammonia bi-directional flux
 C-------------------------------------------------------------------------------
 C For Mosaic with Ammonia bi-directional flux
       REAL                      :: rsj
-      REAL                      :: soit2cr
       REAL                      :: radl
       REAL                      :: radf
       REAL                      :: f1
@@ -451,7 +450,6 @@ C------------------------------------------------------------------------------
          tempgcr   = MET_DATA%TEMPG ( c,r )
          ustarcr   = MET_DATA%USTAR ( c,r )
          vegcr     = MET_DATA%VEG   ( c,r )
-         soit2cr   = MET_DATA%SOIT2 ( c,r )
          ifsnow    = MAX( 0, NINT( MET_DATA%SNOCOV( c,r ) ) )
 
          IF ( abflux .OR. mosaic ) THEN
