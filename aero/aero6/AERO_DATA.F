@@ -186,7 +186,6 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AH2O
      &       0.0,     0.0,     0.0,         ! AH3OP
      &       0.0,     0.0,     0.0,         ! AOTHR
-     &       0.0,     0.0,     0.0,         ! AALK
      &       0.0,     0.0,     0.0,         ! AALK1
      &       0.0,     0.0,     0.0,         ! AALK2
      &       0.0,     0.0,     0.0,         ! AXYL1
@@ -311,8 +310,6 @@ C Emissions mapping
       Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
       Character( 16 ) :: pmem_units              ! units for PM emissions for all species
 
-      Logical, Save :: V51_SOA_mechanism   = .False. !
-
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
@@ -349,14 +346,6 @@ C Local Variables:
       logdev = setup_logdev()
 
       if ( mapped ) Return
-
-C define orgprod parent names based on mechanism dependence
-C if they differ from above declarations and
-C determine if gas-phase IEPOX uptake occurs for the mechanism
-      If ( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
-           V51_SOA_mechanism   = .True.
-      End If
-
 
       aerospc_mw = 0.0
       aerospc_map = 0
