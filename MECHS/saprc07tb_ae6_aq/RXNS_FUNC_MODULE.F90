@@ -145,6 +145,16 @@
          FALLOFF_T11 = K1 + K2 * CAIR + K3
          RETURN
        END FUNCTION FALLOFF_T11
+       REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
+         REAL( 8 ), INTENT( IN ) :: PRESS
+         REAL( 8 ), INTENT( IN ) :: A1
+         REAL( 8 ), INTENT( IN ) :: B1
+         REAL( 8 ), INTENT( IN ) :: A2
+         REAL( 8 ), INTENT( IN ) :: B2
+         INTRINSIC DEXP
+         HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
+         RETURN
+       END FUNCTION HALOGEN_FALLOFF
 
        SUBROUTINE SPECIAL_RATES( NUMCELLS, IOLD2NEW, NCS, Y, RKI )
 ! Purpose: calculate special rate operators and update
@@ -289,7 +299,7 @@
        RETURN
        END SUBROUTINE SPECIAL_RATES
  
-       SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, RKI, NUMCELLS )
+       SUBROUTINE CALC_RCONST( BLKTEMP, BLKPRES, BLKH2O, RJBLK, BLKHET, LSUNLIGHT, LAND, RKI, NUMCELLS )
 
 !**********************************************************************
 
@@ -300,7 +310,7 @@
 !                 been calculated and stored in RJPHOT. Expects
 !                 temperature in deg K, pressure in atm., water
 !                 vapor in ppmV, and J-values in /min.
-!  Key Subroutines/Functions Called: POWER_02, ARRHRENUIS_T0*, FALLOFF_T* 
+!  Key Subroutines/Functions Called: POWER_02, ARRHRENUIS_T0*, FALLOFF_T*, HALOGEN_FALLOFF 
 !***********************************************************************
 
 
@@ -312,14 +322,15 @@
 
 !  Arguements: None 
 
-        REAL( 8 ), INTENT( IN  ) :: BLKTEMP( : )      ! temperature, deg K 
-        REAL( 8 ), INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm
-        REAL( 8 ), INTENT( IN  ) :: BLKH2O ( : )      ! water mixing ratio, ppm 
-        REAL( 8 ), INTENT( IN  ) :: RJBLK  ( :, : )   ! photolysis rates, 1/min 
-        REAL( 8 ), INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
-        INTEGER,   INTENT( IN  ) :: NUMCELLS          ! Number of cells in block 
-        LOGICAL,   INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? 
-        REAL( 8 ), INTENT( OUT ) :: RKI ( :, : )   ! reaction rate constant, ppm/min 
+        REAL( 8 ),           INTENT( IN  ) :: BLKTEMP( : )      ! temperature, deg K 
+        REAL( 8 ),           INTENT( IN  ) :: BLKPRES( : )      ! pressure, Atm
+        REAL( 8 ),           INTENT( IN  ) :: BLKH2O ( : )      ! water mixing ratio, ppm 
+        REAL( 8 ),           INTENT( IN  ) :: RJBLK  ( :, : )   ! photolysis rates, 1/min 
+        REAL( 8 ),           INTENT( IN  ) :: BLKHET ( :, : )   ! heterogeneous rate constants, ???/min
+        INTEGER,             INTENT( IN  ) :: NUMCELLS          ! Number of cells in block 
+        LOGICAL,             INTENT( IN  ) :: LSUNLIGHT         ! Is there sunlight? 
+        LOGICAL,             INTENT( IN  ) :: LAND( : )         ! Is the surface totally land? 
+        REAL( 8 ),           INTENT( OUT ) :: RKI ( :, : )      ! reaction rate constant, ppm/min 
 !..Parameters: 
 
         REAL( 8 ), PARAMETER :: COEF1  = 7.33981D+15     ! Molec/cc to ppm conv factor 
@@ -350,7 +361,7 @@
         REAL( 8 ) :: RFACT         ! cm^3/(molec*min) to 1/(ppm*min)
         REAL      :: H2O           ! Cell H2O mixing ratio (ppmV)
 
-        RKI = 0.0 
+        RKI = 0.0D0 
 
 ! All rate constants converted from  molec/cm3 to ppm
 ! and 1/sec to 1/min
@@ -468,6 +479,13 @@
                 RKI( NCELL,  405) =  RJBLK( NCELL, IJ_CCHO_R )
 !  Reaction Label TR15            
                 RKI( NCELL,  412) =  RJBLK( NCELL, IJ_ACRO_09 )
+
+                IF( .NOT. LAND( NCELL ) )THEN
+!  Reaction Label HAL_Ozone       
+                   RKI( NCELL,  416) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   8.3300D-47,   9.3220D+01,  & 
+     &                                                           1.4500D-08,         3.8400D+00 )
+                END IF
+
             END DO 
         END IF 
 
@@ -1281,43 +1299,43 @@
 !  Reaction Label HET_N02         
              RKI( NCELL,  415) =  BLKHET(  NCELL, IK_HETERO_NO2 )
 !  Reaction Label OLIG_XYLENE1    
-             RKI( NCELL,  416) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_XYLENE2    
              RKI( NCELL,  417) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE1   
+!  Reaction Label OLIG_XYLENE2    
              RKI( NCELL,  418) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TOLUENE2   
+!  Reaction Label OLIG_TOLUENE1   
              RKI( NCELL,  419) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE1   
+!  Reaction Label OLIG_TOLUENE2   
              RKI( NCELL,  420) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_BENZENE2   
+!  Reaction Label OLIG_BENZENE1   
              RKI( NCELL,  421) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE1   
+!  Reaction Label OLIG_BENZENE2   
              RKI( NCELL,  422) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_TERPENE2   
+!  Reaction Label OLIG_TERPENE1   
              RKI( NCELL,  423) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE1  
+!  Reaction Label OLIG_TERPENE2   
              RKI( NCELL,  424) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ISOPRENE2  
+!  Reaction Label OLIG_ISOPRENE1  
              RKI( NCELL,  425) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_SESQT1     
+!  Reaction Label OLIG_ISOPRENE2  
              RKI( NCELL,  426) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH1       
+!  Reaction Label OLIG_SESQT1     
              RKI( NCELL,  427) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_PAH2       
+!  Reaction Label OLIG_PAH1       
              RKI( NCELL,  428) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK1       
+!  Reaction Label OLIG_PAH2       
              RKI( NCELL,  429) =   9.4882D-06 * SFACT 
-!  Reaction Label OLIG_ALK2       
+!  Reaction Label OLIG_ALK1       
              RKI( NCELL,  430) =   9.4882D-06 * SFACT 
+!  Reaction Label OLIG_ALK2       
+             RKI( NCELL,  431) =   9.4882D-06 * SFACT 
 !  Reaction Label RPOAGEPI        
-             RKI( NCELL,  431) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  432) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELI        
-             RKI( NCELL,  432) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
+             RKI( NCELL,  433) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
 !  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  433) =   2.5000D-12 * CFACT 
+             RKI( NCELL,  434) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
-             RKI( NCELL,  434) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+             RKI( NCELL,  435) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

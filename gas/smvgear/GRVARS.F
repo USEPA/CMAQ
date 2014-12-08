@@ -307,6 +307,8 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE, SAVE :: RJBLK( :,: )      ! J-values for each cell in block
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block
 
+      LOGICAL,  ALLOCATABLE, SAVE  :: BLKLAND( : )       ! Is the surface totally land?
+
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCONC( :, : ) ! Species conc. for cells in block
                                                       ! in original species order (ppm) 
@@ -464,15 +466,18 @@ C-----------------------------------------------------------------------
             END IF
 
 c..cell & solver data
-            ALLOCATE( BLKTEMP( BLKSIZE ),
-     &                BLKPRES( BLKSIZE ),
-     &                BLKCH2O( BLKSIZE ),
-     &                BLKDENS( BLKSIZE ),
-     &                BLKSVOL( BLKSIZE ), STAT = IOS )
+           ALLOCATE( BLKTEMP( BLKSIZE ),
+     &               BLKPRES( BLKSIZE ),
+     &               BLKCH2O( BLKSIZE ),
+     &               BLKDENS( BLKSIZE ),
+     &               BLKSVOL( BLKSIZE ), 
+     &               BLKLAND( BLKSIZE ), STAT = IOS )
            IF ( IOS .NE. 0 ) THEN
-                MSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKSVOL or BLKDENS'
-                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+              MSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
+     &            // 'BLKSVOL, BLKLAND '
+              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
            END IF
+
 
            ALLOCATE( RJBLK( BLKSIZE,NPHOTAB ),
      &               BLKHET( BLKSIZE, NHETERO ), STAT = IOS )    
