@@ -1,1 +1,1 @@
-../cloud_acm_ae6/getalpha.F
+../acm_ae6/getalpha.F
