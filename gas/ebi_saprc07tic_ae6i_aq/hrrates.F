@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Dec. 3, 2014
 C
 C***********************************************************************
       USE HRDATA
@@ -904,20 +904,21 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  842 ) = RKI( 842 ) * YC(  IMPAA ) * YC(  OH )
       RXRAT(  843 ) = RKI( 843 ) * YC(  N2O5 )
       RXRAT(  844 ) = RKI( 844 ) * YC(  NO2 )
-      RXRAT(  845 ) = RKI( 845 ) * YC(  AALKJ )
-      RXRAT(  846 ) = RKI( 846 ) * YC(  AXYL1J )
-      RXRAT(  847 ) = RKI( 847 ) * YC(  AXYL2J )
-      RXRAT(  848 ) = RKI( 848 ) * YC(  ATOL1J )
-      RXRAT(  849 ) = RKI( 849 ) * YC(  ATOL2J )
-      RXRAT(  850 ) = RKI( 850 ) * YC(  ABNZ1J )
-      RXRAT(  851 ) = RKI( 851 ) * YC(  ABNZ2J )
-      RXRAT(  852 ) = RKI( 852 ) * YC(  ATRP1J )
-      RXRAT(  853 ) = RKI( 853 ) * YC(  ATRP2J )
-      RXRAT(  854 ) = RKI( 854 ) * YC(  ASQTJ )
-      RXRAT(  855 ) = RKI( 855 ) * YC(  APOCI ) * YC(  OH )
-      RXRAT(  856 ) = RKI( 856 ) * YC(  APNCOMI ) * YC(  OH )
-      RXRAT(  857 ) = RKI( 857 ) * YC(  APOCJ ) * YC(  OH )
-      RXRAT(  858 ) = RKI( 858 ) * YC(  APNCOMJ ) * YC(  OH )
+!     RXRAT(  845 ) = RKI( 845 ) * YC(  O3 )
+      RXRAT(  846 ) = RKI( 846 ) * YC(  AALKJ )
+      RXRAT(  847 ) = RKI( 847 ) * YC(  AXYL1J )
+      RXRAT(  848 ) = RKI( 848 ) * YC(  AXYL2J )
+      RXRAT(  849 ) = RKI( 849 ) * YC(  ATOL1J )
+      RXRAT(  850 ) = RKI( 850 ) * YC(  ATOL2J )
+      RXRAT(  851 ) = RKI( 851 ) * YC(  ABNZ1J )
+      RXRAT(  852 ) = RKI( 852 ) * YC(  ABNZ2J )
+      RXRAT(  853 ) = RKI( 853 ) * YC(  ATRP1J )
+      RXRAT(  854 ) = RKI( 854 ) * YC(  ATRP2J )
+      RXRAT(  855 ) = RKI( 855 ) * YC(  ASQTJ )
+      RXRAT(  856 ) = RKI( 856 ) * YC(  APOCI ) * YC(  OH )
+      RXRAT(  857 ) = RKI( 857 ) * YC(  APNCOMI ) * YC(  OH )
+      RXRAT(  858 ) = RKI( 858 ) * YC(  APOCJ ) * YC(  OH )
+      RXRAT(  859 ) = RKI( 859 ) * YC(  APNCOMJ ) * YC(  OH )
 
 
       RETURN

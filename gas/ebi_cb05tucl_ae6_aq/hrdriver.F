@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -133,6 +133,7 @@ C..Scratch Local Variables:
       REAL( 8 ) TEMP    ( MAX_CELLS_EBI )           ! Cell Temperature
       REAL( 8 ) HET     ( MAX_CELLS_EBI, NHETERO )  ! cell heterogeneous reaction rates
       REAL( 8 ) RJIN    ( MAX_CELLS_EBI, NPHOTAB )  ! J-values for a cell
+      LOGICAL  LAND     ( MAX_CELLS_EBI )           ! land_zone value for specific cell
 
       REAL DENS( NCOLS, NROWS, NLAYS )          ! mass density (Kg/m^3)
       REAL PRES( NCOLS, NROWS, NLAYS )          ! pressure (Pa)
@@ -140,8 +141,15 @@ C..Scratch Local Variables:
       REAL TA  ( NCOLS, NROWS, NLAYS )          ! temperature (K)
       REAL RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ) ! J-values
 
+      REAL SEAICE (NCOLS, NROWS)                ! fractional seaice cover, [-]
+
+      REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
+      REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
+      LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+
       INTEGER     GXOFF, GYOFF            ! global origin offset from file
 C for INTERPX
+      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
@@ -227,6 +235,48 @@ c..If emissions processing requested stop
          WRITE( ISTFL, 94020 )
 #endif
 
+C.. Get fractional seawater coverage from the OCEAN file.
+
+         ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
+
+         CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
+     &                   STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3 )
+
+         VNAME = 'OPEN'
+         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                       JDATE, JTIME, OPEN_ZONE ) ) THEN
+            MSG = 'Could not read OPEN from ' // OCEAN_1
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+C.. Get fractional surf-zone coverage from the OCEAN file.
+
+         VNAME = 'SURF'
+         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                       JDATE, JTIME, SURF_ZONE ) ) THEN
+            MSG = 'Could not read SURF from ' // OCEAN_1
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
+               IF( OPEN_ZONE( C,R ) + SURF_ZONE( C,R ) .GT. 0.0 )THEN
+                   LAND_ZONE( C,R ) = .FALSE.
+               ELSE
+                   LAND_ZONE( C,R ) = .TRUE.
+               END IF
+             END DO
+         END DO
+
+         DEALLOCATE( OPEN_ZONE, SURF_ZONE )
+
+
+         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
@@ -263,6 +313,16 @@ C.. Compute number of time step loops and step size for EBI solver
 
 
 C.. Get ambient temperature in K
+
+C.. Get fractional seaice coverage from the METCRO2D file.
+
+      VNAME = 'SEAICE'
+      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                    MIDDATE, MIDTIME, SEAICE ) ) THEN
+         MSG = 'Could not read SEAICE from MET_CRO_2D'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+      END IF
 
       VNAME = 'TA'
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
@@ -334,10 +394,16 @@ c..Load ICs
 
 
 c..Set physical quantities
-                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
+               TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
-                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
-                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
+               ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
+               H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
+
+               IF( LAND_ZONE( C,R ) .OR. SEAICE (C,R) .GT. 0.0 )THEN
+                   LAND (NCELL) = .TRUE.
+               ELSE
+                   LAND (NCELL) = .FALSE.
+               END IF
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
@@ -346,9 +412,7 @@ c..Get rate constants
 
                FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
 
-
-               NCELL = 1
-               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, RKI_SAV, NCELL )
+               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
 c..Call EBI solver

@@ -348,10 +348,6 @@ C Local Variables:
 
       if ( mapped ) Return
 
-C define orgprod parent names based on mechanism dependence
-C if they differ from above declarations and
-C determine if gas-phase IEPOX uptake occurs for the mechanism
-
 
       aerospc_mw = 0.0
       aerospc_map = 0

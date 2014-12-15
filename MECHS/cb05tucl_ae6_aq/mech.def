@@ -111,6 +111,8 @@ CB05TUCL_AE6_AQ
 ! B.Hutzell 11/3/14
 !  -Modified by splitting oligomerization into two reactions: one for each
 !   Alkene SOA species. The new species were introduced in cb05e51_ae6_aq
+! Golam Sarwar 12/02/14
+!  -Added a simple halogen chemistry over sea-water
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
 
@@ -657,6 +659,11 @@ REACTIONS[CM] =
 <HET_H2NO3PKB>  H2NO3PK  + ACLK = CLNO2 # 1.0~<HETERO_H2NO3PBK>;
 
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
+
+! Simplified ozone loss from oceanic halogens excluding chlorine
+
+<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
+
 
 ! oligomerization reaction for secondary organic aerosols
 

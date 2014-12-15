@@ -213,9 +213,11 @@ c..cell & solver data
      &          BLKPRES( BLKSIZE ),
      &          BLKCH2O( BLKSIZE ),
      &          BLKDENS( BLKSIZE ),
-     &          BLKSVOL( BLKSIZE ), STAT = STATUS )
+     &          BLKSVOL( BLKSIZE ), 
+     &          BLKLAND( BLKSIZE ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, or BLKDENS'
+         XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
+     &       // 'BLKSVOL, BLKLAND '
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 

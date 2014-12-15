@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Oct. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Dec. 3, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -316,6 +316,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 703 ) * YC( ISOPND           )   ! O3+ISOPND=...
      &   +                 RKI( 710 ) * YC( ISOPNB           )   ! O3+ISOPNB=...
      &   +                 RKI( 725 ) * YC( NIT1             )   ! O3+NIT1=0.3000D+...
+     &   +                 RKI( 845 )                            ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

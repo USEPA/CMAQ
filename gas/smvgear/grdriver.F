@@ -79,6 +79,8 @@ C                    species type by using unit conversion factors and 4) update
 C                    the explicit interace SMVGEAR, 5) added using heteorogeneous 
 C                    rate constants by calling subroutine in AEROSOL_CHEMISTRY module,
 C                    and 6) revised usage for INIT_DEGRADE and FINAL_DEGRADE routines
+C                    02 Dec 14 B.Hutzell 1) added terrestrial data to conduct surface
+C                    dependent reactions and 2) modified the call CALC_RCONST routine
 C**********************************************************************
 
       USE RXNS_DATA
@@ -184,6 +186,8 @@ C..SCRATCH LOCAL VARIABLES:
       REAL DY                 ! Cell  y-dimension
       REAL VALLOW             ! Value holder for sort routine
       
+      REAL SEAICE ( NCOLS, NROWS )          ! fractional seaice cover, [-] 
+
       REAL DENSA_J( NCOLS, NROWS, NLAYS )   ! Cell density (Kg/m**3)
       REAL PRES   ( NCOLS, NROWS, NLAYS )   ! Cell pressure (Pa)
       REAL QV     ( NCOLS, NROWS, NLAYS )   ! Cell water vapor (Kg/Kg air)
@@ -192,6 +196,10 @@ C..SCRATCH LOCAL VARIABLES:
 
       REAL RJ( NCOLS, NROWS, NLAYS, NPHOTAB )  ! J-values for each cell      
 
+      REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
+      REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
+      LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+
 
 !     REAL CHEMIS( NC_CH, NR_CH, NL_CH, NS_CH )  ! Emissions in each cell
       REAL, ALLOCATABLE, SAVE :: CHEMIS( :, :, :, : )  ! Emissions in each cell
@@ -199,6 +207,7 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLEM1, ENDCOLEM1, STRTROWEM1, ENDROWEM1
 
       REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE ( : , : ) ! concentration array used
@@ -309,6 +318,48 @@ C...Initialize and report data
 
          WRITE( LOGDEV, 92040 ) ERRMAX( 1 ), YLOW( 1 )
 
+C.. Get fractional seawater coverage from the OCEAN file.
+
+         ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
+
+         CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
+     &                   STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3 )
+
+         VNAME = 'OPEN'
+         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                       JDATE, JTIME, OPEN_ZONE ) ) THEN
+            MSG = 'Could not read OPEN from ' // OCEAN_1
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+C.. Get fractional surf-zone coverage from the OCEAN file.
+
+         VNAME = 'SURF'
+         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                       JDATE, JTIME, SURF_ZONE ) ) THEN
+            MSG = 'Could not read SURF from ' // OCEAN_1
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
+               IF( OPEN_ZONE( COL,ROW ) + SURF_ZONE( COL,ROW ) .GT. 0.0 )THEN
+                   LAND_ZONE( COL,ROW ) = .FALSE.
+               ELSE
+                   LAND_ZONE( COL,ROW ) = .TRUE.
+               END IF
+             END DO
+         END DO
+
+         DEALLOCATE( OPEN_ZONE, SURF_ZONE )
+
+         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
+     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
@@ -359,6 +410,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ITMSTEP = TIME2SEC( TSTEP( 2 ) )
       CHEMSTEP = FLOAT( ITMSTEP ) / 60.0
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
+
+C.. Get fractional seaice coverage from the METCRO2D file.
+
+      VNAME = 'SEAICE'
+      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    MIDDATE, MIDTIME, SEAICE ) ) THEN
+         MSG = 'Could not read SEAICE from MET_CRO_2D'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+      END IF
  
 C.. Get ambient temperature in K
 
@@ -452,7 +513,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDIF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Put the grid cell physical data in the block arrays, converting
-C  pressure to atmospheres, water vapor to ppm, emissions to ppm/min 
+C  pressure to atmospheres, water vapor to ppm, emissions to ppm/min,
+C  setting to land if seaice coverage is nonzero  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. EMISVD )EMBLK = 0.0
 
@@ -466,6 +528,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKSVOL( NCELL ) = REAL( 1.0 / BLKDENS( NCELL ), 8 )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
+            IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
+                BLKLAND (NCELL) = .TRUE.
+            ELSE
+                BLKLAND (NCELL) = .FALSE.
+            END IF            
          ENDDO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -509,7 +576,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
          
 !        CALL CALCKS( NPHOTAB, RJBLK )
-         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, RK, NUMCELLS )
+         CALL CALC_RCONST( BLKTEMP, BLKPRES, BLKCH2O, RJBLK, BLKHET, LSUNLIGHT, BLKLAND, RK, NUMCELLS )
 
 !         DO NCELL = 1, NUMCELLS
 !            CELLNUM = NORDCELL( OFFSET + NCELL )
@@ -589,6 +656,7 @@ C..Output IC for a block
                WRITE( IUNBIC ) ( BLKTEMP( NCELL ),  NCELL = 1, NUMCELLS )
                WRITE( IUNBIC ) ( BLKPRES( NCELL ),  NCELL = 1, NUMCELLS )
                WRITE( IUNBIC ) ( BLKCH2O( NCELL ),  NCELL = 1, NUMCELLS )
+               WRITE( IUNBIC ) ( BLKLAND( NCELL ),  NCELL = 1, NUMCELLS )
 
                DO ISP = 1, ISCHANG( NCS )
                   WRITE( IUNBIC ) CHEMISTRY_SPC( ISP ), ( BLKCONC( NCELL, ISP ),
@@ -616,6 +684,7 @@ C..Output IC for a cell
                WRITE( IUNCIC,93040 ) BLKTEMP( INUMCELL ) 
                WRITE( IUNCIC,93060 ) BLKCH2O( INUMCELL )
                WRITE( IUNCIC,93080 ) BLKPRES( INUMCELL )
+               WRITE( IUNCIC,93085 ) BLKLAND( INUMCELL )
 
                DO NPH = 1, NMPHOT
                   IRXN = IPH( NPH, 1 )
@@ -665,6 +734,8 @@ C..debug output
      &                                      BLKTEMP( NUMCELLS )
                      WRITE( IUNDBG, 93300 ) BLKPRES( 1 ), BLKPRES( NMID ),
      &                                      BLKPRES( NUMCELLS ) 
+                     WRITE( IUNDBG, 93305 ) BLKLAND( 1 ), BLKLAND( NMID ),
+     &                                      BLKLAND( NUMCELLS ) 
                   ENDIF
                ENDDO
             ENDIF
@@ -893,6 +964,7 @@ C*********************** FORMAT STATEMENTS ****************************
 93040 FORMAT(   'TEMP', 1X, 1PE15.6 )
 93060 FORMAT(   'H2O ', 1X, 1PE15.6 )
 93080 FORMAT(   'PRES', 1X, 1PE15.6 )
+93085 FORMAT(   'LAND', 1X, L15 )
 93100 FORMAT(   I3, 1X, 1PE15.6 )
 93120 FORMAT(   1X, 'Rate constants at start of irun=', I4, 
      &              ' block=', I4 )
@@ -904,8 +976,9 @@ C*********************** FORMAT STATEMENTS ****************************
 93220 FORMAT(   1X, 'C(0)= ', I3, 2X, 'O2  ', 2X, 1PE20.10 ) 
 93240 FORMAT(   1X, 'C(0)= ', I3, 2X, 'N2  ', 2X, 1PE20.10 ) 
 93260 FORMAT(   1X, 'C(0)= ', I3, 2X, 'H2O ', 2X, 3( 1PE20.10 ) )
-93280 FORMAT(   1X, 'TEMP (K)   =   ', 3( 1PE20.10 ) )
-93300 FORMAT(   1X, 'PRESS(ATM) =   ', 3( 1PE20.10 ) )
+93280 FORMAT(   1X, 'TEMP (K)         =   ', 3( 1PE20.10 ) )
+93300 FORMAT(   1X, 'PRESS(ATM)       =   ', 3( 1PE20.10 ) )
+93305 FORMAT(   1X, 'LAND(True/False) =   ', 3( L20 ) )
 93320 FORMAT(  /1X, 'Species concentrations at end of irun=', I4,
      &              ' Cell=', I5 )
 93340 FORMAT(   1x, 'C(end)= ', I3, 2x, A4, 2x, 1PE20.8)

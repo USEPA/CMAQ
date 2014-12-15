@@ -1,1 +1,0 @@
-../ebi_cb05tump_ae6_aq/DEGRADE_SETUP_TOX.F
