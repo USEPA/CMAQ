@@ -18,19 +18,21 @@
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
-
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C Revision History:
+C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       subroutine sedi ( dtsec, sedvel, cgrid, cngrd )
 
       use cgrid_spcs          ! CGRID mechanism species
       use grid_conf
-      use vdiff_met
+      use asx_data_mod
       use vdiff_map
       use utilio_defn
       use vdiff_diag, dtccr => dtccr_mean
       implicit none
 
-      include SUBST_CONST     ! constants: mwair, avo
+!      include SUBST_CONST     ! constants: mwair, avo
 
 C Arguments:
       real, intent( in )    :: dtsec                ! model time step in seconds
@@ -80,7 +82,7 @@ C Local Variables:
          use grid_conf
          use cgrid_spcs
          use utilio_defn
-         use vdiff_met
+         use asx_data_mod
          use aero_data
          use soa_defn
          use aeromet_data
@@ -157,7 +159,7 @@ c conc_map - from cgrid to ae_trns species
 
       end if   !  if firstime
 
-      dtccr = 0   ! array assignment
+!     if ( vdiffdiag )dtccr = 0   ! array assignment
       do 345 r = 1, my_nrows
       do 344 c = 1, my_ncols
 
@@ -195,7 +197,7 @@ C subset all the layers and species in cgrid for this grid cell
 
             rdts = 1.0 / dtsec
             do l = 1, nlays
-               rdl = alpha / dzf( c,r,l )
+               rdl = alpha / Met_Data%DZF( c,r,l )
                do v = 1, n_sedi_map
                   fs = rdl * vsed( v,l )
                   if ( rdts .lt. fs ) rdts = fs
@@ -207,7 +209,7 @@ C subset all the layers and species in cgrid for this grid cell
 
             do l = 1, nlays
                do v = 1, n_sedi_map
-                  dtsvsed( v,l ) = dts * rdx3f( l ) * vsed( v,l ) * rjacf( c,r,l )
+                  dtsvsed( v,l ) = dts * Grid_Data%rdx3f( l ) * vsed( v,l ) * Met_Data%rjacf( c,r,l )
                end do
             end do
 
@@ -224,7 +226,6 @@ C subset all the layers and species in cgrid for this grid cell
      &                        - dtsvsed( v,l )   * conc( v,l )
                end do
             end do
-
             l = nlays
             do v = 1, n_sedi_map
                conc( v,l ) = conc( v,l )

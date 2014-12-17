@@ -99,12 +99,20 @@ CB05TUCL_AE6_AQ
 !  Set product cofficients for BENZRO2, TOLRO2 and XYLRO2
 !
 ! Golam Sarwar 09/05/11
-!  Fixed type errors in reaction R137 and R138 (CRON changed to CRNO in both reactions)
+!  Fixed type errors in reaction R137 and R138 (CRON changed to CRNO in both reactions)   
 !
 ! B.Hutzell 07/10/14
 ! added inorganic heterogeneous reactions for N2O5 and NO2, oligomerization reactions for 
 ! SOA species and aging reactions for primary organic carbon and non-carbon aerosol species
 !
+! Golam Sarwar 09/10/14
+!  Added CLNO2 chemistry
+!
+! B.Hutzell 11/3/14
+!  -Modified by splitting oligomerization into two reactions: one for each
+!   Alkene SOA species. The new species were introduced in cb05e51_ae6_aq
+! Golam Sarwar 12/02/14
+!  -Added a simple halogen chemistry over sea-water
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
 
@@ -623,6 +631,10 @@ REACTIONS[CM] =
                              + 0.84*XO2 
                              + 0.84*HO2
                              + 0.16*XO2N              # 1.2E-10;                             
+<CL24>  CL   + NO2         = CLNO2                    # 1.80E-31^-2.00&
+                                                        1.00E-10^-1.00&
+                                          							0.60&1.0;
+<CL25>  CLNO2              = CL  + NO2                # 1.0/<CLNO2>;
 <SA01>  TOLRO2  + NO      = NO  + TOLNRXN             # 2.70e-12@-360;
 <SA02>  TOLRO2  + HO2     = HO2 + TOLHRXN             # 1.90e-13@-1300;
 <SA03>  XYLRO2  + NO      = NO  + XYLNRXN             # 2.70e-12@-360;
@@ -634,15 +646,27 @@ REACTIONS[CM] =
 <SA09>  SESQ + OH         = OH  + SESQRXN             # 1.97E-10;
 <SA10>  SESQ + NO3        = NO3 + SESQRXN             # 1.90E-11;
 
-! iorganic heteorogeneous reactions from hetchem version 5.0.2
+! inorganic heteorogeneous reactions from hetchem version 5.0.2
 
-<HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;
+<HET_N2O5IJ>    N2O5 = HNO3 + H2NO3PIJ  # 1.0~<HETERO_N2O5IJ>;
+<HET_N2O5K>     N2O5 = HNO3 + H2NO3PK   # 1.0~<HETERO_N2O5K>;
+
+<HET_H2NO3PIJA> H2NO3PIJ = HNO3         # 1.0~<HETERO_H2NO3PAIJ>;
+<HET_H2NO3PKA>  H2NO3PK  = HNO3         # 1.0~<HETERO_H2NO3PAK>;
+
+<HET_H2NO3PIB>  H2NO3PIJ + ACLI = CLNO2 # 1.0~<HETERO_H2NO3PBIJ>;
+<HET_H2NO3PJB>  H2NO3PIJ + ACLJ = CLNO2 # 1.0~<HETERO_H2NO3PBIJ>;
+<HET_H2NO3PKB>  H2NO3PK  + ACLK = CLNO2 # 1.0~<HETERO_H2NO3PBK>;
 
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
+! Simplified ozone loss from oceanic halogens excluding chlorine
+
+<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
+
+
 ! oligomerization reaction for secondary organic aerosols
 
-<OLIG_ALKENE>     AALKJ  = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
@@ -654,6 +678,10 @@ REACTIONS[CM] =
 <OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ    # 9.48816E-6;
 <OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ    # 9.48816E-6;
 <OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ    # 9.48816E-6;
+<OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
+<OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
+<OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ  # 9.48816E-6;
+<OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
 !aging reactions for primary organic carbon
 
@@ -661,7 +689,6 @@ REACTIONS[CM] =
 <RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
 <RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
 <RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
-
 
 END MECH
 

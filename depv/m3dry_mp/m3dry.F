@@ -1,4 +1,4 @@
-
+!
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -139,6 +139,7 @@ C           7 Jun 2012  Allow read of C-staggered (UWINDC and VWINDC) wind and B
 C                       (UWIND and VWIND) from MET_DOT_3D to maintain compatibility with
 C                       current and previous versions of MCIP (J. Bash)
 C          12 Sep 2012  Added code for NLCD40 land use classification
+C          28 Aug 2014  G. Sarwar: added deposition data for CLNO2 
 C-------------------------------------------------------------------------------
 
       USE HGRD_DEFN      ! horizontal grid specifications
@@ -531,6 +532,7 @@ C-------------------------------------------------------------------------------
       DATA subname(50), dif0(50), ar(50), meso(50), lebas(50) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  70.0/
       DATA subname(51), dif0(51), ar(51), meso(51), lebas(51) / '24-TOLUENE_DIIS ', 0.0610,   10.0,      0.0, 154.0/
       DATA subname(52), dif0(52), ar(52), meso(52), lebas(52) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 154.0/
+      DATA subname(53), dif0(53), ar(53), meso(53), lebas(53) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
 
       IF ( first_call ) THEN
          first_call = .FALSE.

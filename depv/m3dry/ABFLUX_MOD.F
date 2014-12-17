@@ -56,7 +56,8 @@
 !                   D. Schwede Sept 12 12:  Added code for NLCD40 land use classification
 !                   J. Bash    Apr   4 13:  Brought in new water, agriculture and snow land use 
 !                                           classification in LSM_MOD to simplify the case structures
-!---------------------------------------------------------------------------------------------
+C                   J. Bash:   Nov   7 14:  Modified for the restructuring of vidff.
+C-------------------------------------------------------------------------------
 
       Implicit None
 ! shared variables
@@ -317,8 +318,13 @@ C                          '12345678901234567890'
                Do c = 1, my_ncols
                   Tot_Ag = 0.0                   
                   Do l = 1, e2c_cats
-                     pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
-                     pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
+                     If( pHs1( c,r,l ) .Gt. 0.0 ) Then
+                        pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
+                        pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
+                     Else
+                        pHfac1 = 0.0
+                        pHfac2 = 0.0
+                     End If
 ! convert units from kg/ha N to mol/l
                      If ( pHs1( c,r,l )   .Gt. 4.0       .And.
      &                    pHs2( c,r,l )   .Gt. 4.0       .And.
@@ -490,33 +496,27 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point
 !------------------------------------------------------------------------------          
-         Subroutine Get_Flux( tempg, rh_air, cNH3, rwetsfc, rgw, wg, w2, Sltype, dif, 
-     &                        row, col, sp, pvd, lnh3, f_stom, f_cut, f_soil, f_emis,
-     &                        f_dep, f_ag, f_nag, f_wat, dt, jtime )
+         Subroutine Get_Flux( cNH3, rwetsfc, rgw, r, c, l, pvd, lnh3,
+     &                        f_stom, f_cut, f_soil, f_emis,f_dep, f_ag, f_nag,
+     &                        f_wat, dt, jtime )
          
          Use UTILIO_DEFN
-         Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2, lufrac
+         Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
+         Use ASX_DATA_MOD
          Use Mosaic_Mod
          Use LSM_MOD
          
          Implicit None
          
-         Include SUBST_CONST     ! constants
          Include SUBST_FILES_ID  ! file name parameters
-         
-         Real,    Intent( IN )  :: tempg        
-         Real,    Intent( IN )  :: rh_air         
+
          Real,    Intent( IN )  :: cNH3
          Real,    Intent( IN )  :: rwetsfc        
          Real,    Intent( IN )  :: rgw
-         Real,    Intent( IN )  :: wg
-         Real,    Intent( IN )  :: w2
-         Real,    Intent( IN )  :: Sltype                
-         Real,    Intent( IN )  :: dif        
 
-         Integer, Intent( IN )  :: row
-         Integer, Intent( IN )  :: col
-         Integer, Intent( IN )  :: sp ! species index
+         Integer, Intent( IN )  :: r
+         Integer, Intent( IN )  :: c
+         Integer, Intent( IN )  :: l ! species index
          
          Real,    Intent( OUT ) :: pvd
          Real,    Intent( OUT ) :: lnh3
@@ -532,7 +532,6 @@ C-------------------------------------------------------------------------------
          Integer, Intent( IN )  :: dt
          Integer, Intent( IN )  :: jtime
          
-         Real,        Parameter :: kvis = 0.132   ! [cm**2/s] at 273.15K
          Real( 8 )              :: aq           ! Quadradic equation variable
          Real( 8 )              :: bq           ! Quadradic equation variable
          Real                   :: cnh3c        ! In canopy NH3 concentration [ppm]
@@ -547,7 +546,6 @@ C-------------------------------------------------------------------------------
          Real( 8 )              :: gg2( n_lufrac ) ! Gg = 1/(Rgnd(nh3)+Rinc) [m/s]
          Real( 8 )              :: gsb          ! Gsb = 1/(Rstom(nh3)+Rb(nh3)) [m/s]
          Real( 8 )              :: gt
-         Real,        Parameter :: karman = 0.4 ! von Karman constant
          Real( 8 )              :: qq           ! intermediate variable
          Real                   :: rbgj( n_lufrac )
 !        Real,        Parameter :: rwm = 35.0   ! Minimum NH3 cuticle resistance [s/m]
@@ -577,94 +575,62 @@ C-------------------------------------------------------------------------------
          Real                   :: xxx          ! lumped variable
          Real,        Parameter :: f_emis_lim = -1.0e-07 ! limit to report to log: if below, probably due to numerical precision error
          Integer                :: k,j
-         Integer                :: ist
 
          logdev = init3()
 !> Compute quasi-laminar boundary layer resistance at the soil surface
 
-         scn  = kvis / dif
+         scn  = kvis / dif0( l )
          Do j = 1, n_lufrac
-            ustg = max( ustarj( j,col,row ) * EXP( -laij( j,col,row ) ), 0.001 )         
+            ustg = max( MOSAIC_DATA%USTAR( c,r,j ) * EXP( -MOSAIC_DATA%LAI( c,r,j ) ), 0.001 )         
             del0 = 1.0E-4 * kvis / ( karman * ustg )
             rbgj( j ) = ( scn - LOG( 10.0 * del0 ) ) / ( karman * ustg )
          End Do
-                        
-!> Compute soil resistance
-                     
-         ist = nint( Sltype )
          
-         If ( ist .lt. 1 .or. ist .gt. 11 ) Then
-            ist = 4
-         End If
-         
-         If ( frac_ir( col,row ) .Gt. 0.0 .And. wg .LT. 0.75 * wfc( ist ) ) Then            
-            wg_ir = ( 1.0 - frac_ir( col,row ) ) * wg + frac_ir( col,row ) * 0.75 * wfc( ist )
+         If ( frac_ir( c,r ) .Gt. 0.0 .And. MET_DATA%SOIM1( c,r ) .LT. 0.75 * GRID_DATA%WFC( c,r ) ) Then            
+            wg_ir = ( 1.0 - frac_ir( c,r ) ) * MET_DATA%SOIM1( c,r ) + frac_ir( c,r ) * 0.75 * GRID_DATA%WFC( c,r )
          Else
-            wg_ir = wg
+            wg_ir = MET_DATA%SOIM1( c,r )
          End If
  
-         wg_ir = Min( wg_ir,wsat( ist ) )
-         wg_ir = Max( wg_ir,wres( ist ) )
+         wg_ir = Min( wg_ir,GRID_DATA%WSAT( c,r ) )
+         wg_ir = Max( wg_ir,GRID_DATA%WSAT( c,r ) )
+
+         ldry= d1 * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          
-         ldry= d1 * ( Exp( ( 1.0 - wg_ir / wsat( ist ) ) ** 5 ) - 1.0 ) / 1.718
-         
-         dp  = dif * 1.0E-4 * wsat( ist ) * wsat( ist )
-     &       * ( 1.0 - wres( ist ) / wsat( ist ) ) ** ( 2.0 + 3.0 / bslp( ist ) )
+         dp  = dif0( l ) * 1.0E-4 * GRID_DATA%WSAT( c,r )**2
+     &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )
          
          rsoil1=ldry/dp
          
-         w5cm = 0.2 * wg_ir + 0.8 * w2
-         w5cm = Min( w5cm, wsat( ist ) )
-         w5cm = Max( w5cm, wres( ist ) )
+         w5cm = 0.2 * wg_ir + 0.8 * MET_DATA%SOIM2( c,r )
+         w5cm = Min( w5cm, GRID_DATA%WSAT( c,r ) )
+         w5cm = Max( w5cm, GRID_DATA%WRES( c,r ) )
          
-         If ( frac_ir( col,row ) .Gt. 0.0 .And. w5cm .LT. 0.75 * wfc( ist ) ) Then
-            w5cm = ( 1.0 - frac_ir( col,row ) ) * w5cm + frac_ir( col,row ) * 0.75 * wfc( ist )
+         If ( frac_ir( c,r ) .Gt. 0.0 .And. w5cm .LT. 0.75 * GRID_DATA%WFC( c,r ) ) Then
+            w5cm = ( 1.0 - frac_ir( c,r ) ) * w5cm + frac_ir( c,r ) * 0.75 * GRID_DATA%WFC( c,r )
          End If
          
-         ldry = d2 * ( Exp( ( 1.0 - w5cm / wsat( ist ) ) ** 5 ) - 1.0 ) / 1.718
+         ldry = d2 * ( Exp( ( 1.0 - w5cm / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          rsoil2 = ldry / dp
          
-         If ( Land_Scheme .Eq. 'USGS24' ) Then
-            agfrac  = lufrac(  2,col,row ) +      lufrac(  3,col,row )
-     &              + lufrac(  4,col,row ) +
-     &                twothree * lufrac(  5,col,row ) + twothree * lufrac(  6,col,row )
-            watfrac = lufrac( 16,col,row )  
-         End If
-         
-         If ( Land_Scheme .Eq. 'NLCD50' ) Then
-            agfrac  = lufrac( 19,col,row ) +            lufrac( 20,col,row )
-     &              + lufrac( 43,col,row ) + twothree * lufrac( 45,col,row )
-            watfrac = lufrac(  1,col,row ) +            lufrac( 31,col,row )
-     &              + lufrac( 48,col,row )         
-         End If
-
-         If ( Land_Scheme .Eq. 'NLCD40' ) Then
-            agfrac  = lufrac( 12,col,row ) +            lufrac( 37,col,row )
-     &              + lufrac( 38,col,row ) + twothree * lufrac( 14,col,row )
-            watfrac = lufrac( 17,col,row ) +            lufrac( 21,col,row )
-         End If
-         
-         If ( Land_Scheme .Eq. 'MODIS' ) Then
-            agfrac  = lufrac( 12,col,row ) + twothree * lufrac( 14,col,row )
-            watfrac = lufrac( 17,col,row )  
-         End If
-         
-         pvd    = 0.0
-         lnh3   = 0.0
-         f_emis = 0.0
-         f_dep  = 0.0
-         f_stom = 0.0
-         f_cut  = 0.0
-         f_soil = 0.0
-         f_ag   = 0.0
-         f_nag  = 0.0
-         f_wat  = 0.0
+         agfrac  = 0.0
+         watfrac = 0.0
+         pvd     = 0.0
+         lnh3    = 0.0
+         f_emis  = 0.0
+         f_dep   = 0.0
+         f_stom  = 0.0
+         f_cut   = 0.0
+         f_soil  = 0.0
+         f_ag    = 0.0
+         f_nag   = 0.0
+         f_wat   = 0.0
          
          Do j = 1, n_lufrac
-            If ( lufrac( j,col,row ) .Gt. 0.0 ) Then
+            If ( GRID_DATA%LUFRAC( c,r,j ) .Gt. 0.0 ) Then
 
 !> If the soil is frozen assume not evasive flux and skip calculation of comp. points         
-               If ( Tempg .Le. 273.15 ) Then
+               If ( MET_DATA%Tempg( c,r ) .Le. 273.15 ) Then
                   cnh3s  = 0.0
                   cnh3g1 = 0.0
                   cnh3g2 = 0.0
@@ -673,9 +639,9 @@ C-------------------------------------------------------------------------------
 
 !> Compute compensation point. gamma is specified according to the amount of 
 !> cultivated vegetation               
-               gammas = luf_fac_p( j )
-               a1    = 161512.0d0 / real( tempg, 8 )
-     &               * 10.0d0 ** ( -4507.11d0 / real( tempg, 8 ) )
+               gammas = luf_fac( j )
+               a1    = 161512.0d0 / real( MET_DATA%tempg( c,r ), 8 )
+     &               * 10.0d0 ** ( -4507.11d0 / real( MET_DATA%tempg( c,r ), 8 ) )
                a1    = a1 * 24.5d0 * 1.0d6  ! ppm
                cnh3s = a1 * gammas       
          
@@ -683,65 +649,51 @@ C-------------------------------------------------------------------------------
 !> model any [NH4] in excess of this ratio is assumed to partition into the solid
 !> phase. Canada soil gamma taken from Zhang et al 2010 JGR Table 5
                Select Case( cat_lu( j ) )
-
                   Case( 'WATER','SNOWICE' ) ! water, ice or snow
-
                      cnh3g1 = 0.0
-
                      cnh3g2 = 0.0
-     
+                     watfrac = watfrac + GRID_DATA%LUFRAC( c,r,j )
                   Case( 'AG' ) ! Ag
-
-                     cnh3g1 = Min( Max( gamma1( col,row ) / wg_ir, C_gam / wg_ir ),
+                     cnh3g1 = Min( Max( gamma1( c,r ) / wg_ir, C_gam / wg_ir ),
      &                                  maxgam)
-
-                     cnh3g2 = Min( Max( gamma2( col,row ) / w5cm, C_gam / w5cm), 
+                     cnh3g2 = Min( Max( gamma2( c,r ) / w5cm, C_gam / w5cm), 
      &                                  maxgam )
-
-                     cnh3s  = Max( cnh3s, a1 *( Max(gamma2(col,row),C_gam) * 1.0e-7
+                     cnh3s  = Max( cnh3s, a1 *( Max(gamma2(c,r),C_gam) * 1.0e-7
      &                                          * w5cm * MolN * d2 * 1.0e4 * 12.3 + 20.3 ) )
-
+                     agfrac  = agfrac  + GRID_DATA%LUFRAC( c,r,j )
                   Case( 'AGMOS' ) ! Ag mosaic 67% ag 33% mosaic 
-
-                     cnh3g1 = Min( Max( gamma1( col,row ) / wg_ir, C_gam / wg_ir)
+                     cnh3g1 = Min( Max( gamma1( c,r ) / wg_ir, C_gam / wg_ir)
      &                                  * twothree + onethree * natgam / wg_ir, maxgam )
-
-                     cnh3g2 = Min( Max( gamma2( col,row ) / w5cm, C_gam / w5cm )
+                     cnh3g2 = Min( Max( gamma2( c,r ) / w5cm, C_gam / w5cm )
      &                                  * twothree + onethree * natgam / w5cm, maxgam )
-
-                     cnh3s  = Max( cnh3s, a1 * ( Max(gamma2(col,row),C_gam) * 1.0e-7
-     &                                       * w5cm * MolN * d2 *1.0e4 * 12.3 + 20.3 ) )
-     &                      * twothree + onethree * cnh3s
-
+                     cnh3s  = Max( cnh3s, a1 * ( Max(gamma2(c,r),C_gam) * 1.0e-7
+     &                                  * w5cm * MolN * d2 *1.0e4 * 12.3 + 20.3 ) )
+     &                                  * twothree + onethree * cnh3s
+                     agfrac  = agfrac  + twothree * GRID_DATA%LUFRAC( c,r,j )
                   Case Default ! not ag
-
                      cnh3g1 = Min( natgam / wg_ir, maxgam )
-
                      cnh3g2 = Min( natgam / w5cm, maxgam )
-
                End Select
-
                cnh3g1 = a1 * Max( cnh3g1, 0.01 )
                cnh3g2 = a1 * Max( cnh3g2, 0.01 )
-
 101            Continue
 
 !> Cuticle resistance : rw = rwx * cnh3c + rwm
-               If ( laij( j,col,row ) .Gt. 0.0 ) Then
+               If ( MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
 
-                  rwx   = rwetsfc * MolNH3 * 1000.0 / 24.5  ! in ppb/ cso2c 
-                  rwmb  = rwm * Max( 1.0, 0.5 * ( 100.0-rh_air ) ) + rbcj( j )
-                  ga    = 1.0 / ( raj( j,col,row ) + 0.5 * rincj( j,col,row ) )
-                  gsb   = 1.0 / ( rstomj( j,sp,col,row ) + rbcj( j ) )
-                  gg1( j )= 1.0 / ( rbgj( j ) + 0.5 * rincj( j,col,row ) + rsoil1 )
-                  gg2( j )= 1.0 / ( rbgj( j ) + 0.5 * rincj( j,col,row ) + rsoil2 )
-                  gcw   = laij( j,col,row ) / ( rbcj( j ) + rwetsfc )
-                  gt    = gsb + gg1( j ) + gg2( j ) + ga + deltaj( j,col,row ) * gcw
+                  rwx   = rwetsfc * MolNH3 * 1000.0 / 24.5  ! in ppb 
+                  rwmb  = rwm * Max( 1.0, 0.5 * ( 100.0-MET_DATA%RH( c,r ) ) ) + ChemMos_Data%Rb( c,r,j,l )
+                  ga    = 1.0 / ( MOSAIC_DATA%RA( c,r,j ) + 0.5 * MOSAIC_DATA%RINC( c,r,j ) )
+                  gsb   = 1.0 / ( ChemMos_Data%RST( c,r,j,l ) + ChemMos_Data%Rb( c,r,j,l ) )
+                  gg1( j )= 1.0 / ( rbgj( j ) + 0.5 * MOSAIC_DATA%RINC( c,r,j ) + rsoil1 )
+                  gg2( j )= 1.0 / ( rbgj( j ) + 0.5 * MOSAIC_DATA%RINC( c,r,j ) + rsoil2 )
+                  gcw   = MOSAIC_DATA%LAI( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )
+                  gt    = gsb + gg1( j ) + gg2( j ) + ga + MOSAIC_DATA%DELTA( c,r,j ) * gcw
                   qq    = ga * cnh3 + gsb * cnh3s + gg1( j ) * cnh3g1 + gg2( j ) * cnh3g2
                   aq    = rwx * gt
-                  bq    = rwmb * gt + laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) ) - rwx * qq
+                  bq    = rwmb * gt + MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) - rwx * qq
                   cq    = -rwmb * qq
-                  sqrr = -0.5d0 * ( bq + sign( 1.0d0,bq ) * sqrt( bq * bq - 4.0d0 * aq * cq ) )
+                  sqrr = -0.5d0 * ( bq + sign( 1.0d0,bq ) * sqrt( bq**2 - 4.0d0 * aq * cq ) )
 !> find the positive root
                   If ( sqrr .Ge. 0.0 ) Then
                      cnh3c = sqrr / aq
@@ -751,54 +703,60 @@ C-------------------------------------------------------------------------------
 ! if the compensation point less than zero reset it to zero
                   cnh3c = max( cnh3c, 0.0 )
 
-                  ddd = ( 1.0 - deltaj( j,col,row ) ) / rgndcj( j,col,row )
-     &                + deltaj( j,col,row ) / rgw
+                  ddd = ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ChemMos_Data%Rgc( c,r,j,l )
+     &                + MOSAIC_DATA%DELTA( c,r,j ) / rgw
 
-                  vdg = 1.0 / ( raj( j,col,row ) + rbcj( j ) + 1.0 / ddd )
-               End If  ! laij > 0.0
+                  vdg = 1.0 / ( MOSAIC_DATA%RA( c,r,j ) + ChemMos_Data%Rb( c,r,j,l ) + 1.0 / ddd )
+               End If  ! lai > 0.0
 
 !> Integrate over the land uses        
                Select Case( cat_lu( j ) )
                   Case( 'WATER','SNOWICE' ) ! no vegetation
-                     lnh3 = lnh3 + lufrac( j,col,row ) / ( rsurfj( j,sp,col,row )
-     &                                                     + raj( j,col,row ) )
+                     lnh3 = lnh3 + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )
+     &                                                     + MOSAIC_DATA%RA( c,r,j ) )
                   Case Default     ! vegetation
-                     pvd  = pvd + lufrac( j,col,row ) * cnh3c * ga * vegj( j,col,row )
-                     lnh3 = lnh3 + lufrac( j,col,row ) * ( ( 1.0 - vegj( j,col,row ) )
-     &                    * vdg + vegj( j,col,row ) * ga )
+                     pvd  = pvd + GRID_DATA%LUFRAC( c,r,j ) * cnh3c * ga * MOSAIC_DATA%VEG( c,r,j )
+                     lnh3 = lnh3 + GRID_DATA%LUFRAC( c,r,j ) * ( ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) )
+     &                    * vdg + MOSAIC_DATA%VEG( c,r,j ) * ga )
                End Select
 
 !> -------Compute Fluxes  and integrate over LU for output JOB -------------------
                Select Case( cat_lu( j ) )
                   Case( 'WATER' ) ! water
-                     f_dep = f_dep + lufrac( j,col,row ) / ( rsurfj( j,sp,col,row )+raj( j,col,row ) ) * cnh3
-                     f_wat = f_wat + lufrac( j,col,row ) / ( rsurfj( j,sp,col,row )+raj( j,col,row ) ) * cnh3 
+                     If(watfrac .Gt. 0.0 ) Then
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
+                        f_wat = f_wat + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3 
      &                     / watfrac
+                     End If
                   Case( 'SNOWICE' ) ! no veg
 !> Zero out the compensation points for deposition
-                     xxx = rwx * ga * cnh3 - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
-                     f_dep = f_dep + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga
-     &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
-     &                     / ( 2.0 * aq ) ) + ( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 )
+                     If(MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
+                        xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
+                     Else 
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
+                     End If
                   Case( 'AG','AGMOS' ) ! agriculture
 !> Zero out the atmospheric NH3 concentration for emissions
-                     xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
-                     f_emis = f_emis + lufrac( j,col,row ) * vegj( j,col,row ) * ga * ( xxx
+                     xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                     f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga * ( xxx
      &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
-                     xxx = rwx * ga * cnh3 - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
-                     f_dep = f_dep + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga
+                     xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                     f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
-     &                     / ( 2.0 * aq ) ) + ( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 )
+     &                     / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_stom = f_stom + lufrac( j,col,row ) * vegj( j,col,row ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
-                     f_cut = f_cut + lufrac( j,col,row ) * ( - cnh3c * vegj( j,col,row ) * laij( j,col,row )
-     &                     * ( deltaj( j,col,row ) / ( rbcj( j ) + rwetsfc )    ! wet cuticle
-     &                     + ( 1.0 - deltaj( j,col,row ) ) / ( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
-                     f_soil = f_soil + lufrac( j,col,row ) * ( vegj( j,col,row ) * ( (cnh3g1 - cnh3c) * gg1( j )  ! soil layer 1
+                     f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
+                     f_cut = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j ) * MOSAIC_DATA%LAI( c,r,j )
+     &                     * ( MOSAIC_DATA%DELTA( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )    ! wet cuticle
+     &                     + ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
+                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ( (cnh3g1 - cnh3c) * gg1( j )  ! soil layer 1
      &                      + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2
-                     f_ag = f_ag + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga * ( cnh3c - cnh3 )
-     &                    -( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 ) / agfrac
+                     f_ag = f_ag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c - cnh3 )
+     &                    -( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / agfrac
                      If ( f_emis .lt. f_emis_lim ) Then
                         Write(logdev,*) 'ag f_emis: ', f_emis
                         Write(logdev,*) 'ag f_ag  : ', f_ag
@@ -806,31 +764,35 @@ C-------------------------------------------------------------------------------
                         Write(logdev,*) 'ag f_stom: ', f_stom
                         Write(logdev,*) 'ag f_cut : ', f_cut
                         Write(logdev,*) 'ag f_soil: ', f_soil
-                        Write(logdev,*) 'ag lufrac: ', lufrac( j,col,row )
-                        Write(logdev,*) 'ag vegj  : ', vegj( j,col,row )
+                        Write(logdev,*) 'ag lufrac: ', GRID_DATA%LUFRAC( c,r,j )
+                        Write(logdev,*) 'ag vegj  : ', MOSAIC_DATA%VEG( c,r,j )
                         Write(logdev,*) 'ag ga    : ', ga
                         Write(logdev,*) 'ag vdg   : ', vdg
                         Write(logdev,*) 'ag agfrac: ', agfrac
                      End If
                   Case Default ! natural
 !> Zero out the atmospheric NH3 concentration for emissions
-                     xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
-                     f_emis = f_emis + lufrac( j,col,row ) * vegj( j,col,row ) * ga * ( xxx
-     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
+                     If(MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
+                        xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga * ( xxx
+     &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
-                     xxx = rwx * ga * cnh3 - rwmb * gt - laij( j,col,row ) * ( 1.0 - deltaj( j,col,row ) )
-                     f_dep = f_dep + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga
-     &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
-     &                     / ( 2.0 * aq ) ) + ( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 )
+                        xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
+     &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
+     &                        / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
+                        f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j ) * MOSAIC_DATA%LAI( c,r,j )
+     &                         * ( MOSAIC_DATA%DELTA( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )    ! wet cuticle
+     &                         + ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ( rwmb + rwx * cnh3c ) ) ) ! dry cuticle
+                     Else 
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
+                     End If
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_stom = f_stom + lufrac( j,col,row ) * vegj( j,col,row ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
-                     f_cut  = f_cut + lufrac( j,col,row ) * ( - cnh3c * vegj( j,col,row ) * laij( j,col,row )
-     &                      * ( deltaj( j,col,row ) / ( rbcj( j ) + rwetsfc )    ! wet cuticle
-     &                      + ( 1.0 - deltaj( j,col,row ) ) / ( rwmb + rwx * cnh3c ) ) ) ! dry cuticle
-                     f_soil = f_soil + lufrac( j,col,row ) * ( vegj( j,col,row ) * ( ( cnh3g1 - cnh3c ) * gg1( j ) +  ! soil layer 1
+                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ( ( cnh3g1 - cnh3c ) * gg1( j ) +  ! soil layer 1
      &                        ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2
-                     f_nag = f_nag + lufrac( j,col,row ) * ( vegj( j,col,row ) * ga * ( cnh3c- cnh3 )
-     &                     - ( 1.0 - vegj( j,col,row ) ) * vdg * cnh3 ) / ( 1.0 - agfrac - watfrac )
+                     f_nag = f_nag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c- cnh3 )
+     &                     - ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / ( 1.0 - agfrac - watfrac )
                      If ( f_emis .lt. f_emis_lim ) Then
                         Write(logdev,*) 'f_emis: ', f_emis
                         Write(logdev,*) 'f_nag : ', f_nag
@@ -838,8 +800,8 @@ C-------------------------------------------------------------------------------
                         Write(logdev,*) 'f_stom: ', f_stom
                         Write(logdev,*) 'f_cut : ', f_cut
                         Write(logdev,*) 'f_soil: ', f_soil
-                        Write(logdev,*) 'lufrac: ', lufrac( j,col,row )
-                        Write(logdev,*) 'vegj  : ', vegj( j,col,row )
+                        Write(logdev,*) 'lufrac: ', GRID_DATA%LUFRAC( c,r,j )
+                        Write(logdev,*) 'vegj  : ', MOSAIC_DATA%VEG( c,r,j )
                         Write(logdev,*) 'ga    : ', ga
                         Write(logdev,*) 'vdg   : ', vdg
                         Write(logdev,*) 'agfrac: ', agfrac
@@ -849,15 +811,15 @@ C-------------------------------------------------------------------------------
          End Do ! n_lufrac
  
 !> -----Compute nitrification rates for agricultural areas only where there is NHx and H+ 
-         If ( gamma1( col,row ) .Gt. 0.0 .And. MHp1( col,row ) .Gt. 1.0e-9 .And.
-     &        MHp1( col,row ) .Lt. 1.0e-5 ) Then
-            Call Calc_Nitrif ( Tempg, wg_ir, Cnh3c, gg1, gamma1( col,row ), ist, dt,
-     &                         MHp1( col,row ), col, row, d1 )
+         If ( gamma1( c,r ) .Gt. 0.0 .And. MHp1( c,r ) .Gt. 1.0e-9 .And.
+     &        MHp1( c,r ) .Lt. 1.0e-5 ) Then
+            Call Calc_Nitrif ( wg_ir, Cnh3c, gg1, gamma1( c,r ), dt,
+     &                         MHp1( c,r ), c, r, d1 )
          End If
-         If ( gamma2( col,row ) .Gt. 0.0 .And. MHp2( col,row ) .Gt. 1.0e-9 .And.
-     &        MHp2( col,row ) .Lt. 1.0e-5 ) Then  
-            Call Calc_Nitrif ( Tempg, w5cm, Cnh3c, gg2, gamma2( col,row ), ist, dt,
-     &                         MHp2( col,row ), col, row, d2 )
+         If ( gamma2( c,r ) .Gt. 0.0 .And. MHp2( c,r ) .Gt. 1.0e-9 .And.
+     &        MHp2( c,r ) .Lt. 1.0e-5 ) Then  
+            Call Calc_Nitrif ( w5cm, Cnh3c, gg2, gamma2( c,r ), dt,
+     &                         MHp2( c,r ), c, r, d2 )
          End If
 
          Return         
@@ -867,25 +829,23 @@ C-------------------------------------------------------------------------------
 ! nitrification, leaching, and run off
 ! Soil ammonium, pH, leaching, and run off are defined in the module
 !------------------------------------------------------------------------------
-         Subroutine Calc_Nitrif ( Tempg, wg, CNH3c, gg, gam, ist, dt, MHp, C, R, ds )  
+         Subroutine Calc_Nitrif ( wg, CNH3c, gg, gam, dt, MHp, C, R, ds )
          
          Use UTILIO_DEFN
-         Use Bidi_Mod, Only: lufrac
+         Use ASX_DATA_MOD
          Use LSM_MOD
          
          Implicit None                
          
-         Real,      Intent( IN )    :: Tempg     ! Soil Temperature
          Real,      Intent( IN )    :: wg        ! Soil Moisture
          Real,      Intent( IN )    :: CNH3c     ! Canopy compensation point
          Real,      Intent( IN )    :: MHp       ! molar H concentration
          Real( 8 ), Intent( IN )    :: gg(n_lufrac) ! soil-air conductance
          Real,      Intent( IN )    :: ds          ! soil depth in m
          Real,      Intent( INOUT ) :: gam        ! updated gamma
-         Integer,   Intent( IN )    :: ist    ! Soil Type
          Integer,   Intent( IN )    :: dt     ! time step in s
          Integer,   Intent( IN )    :: C      ! Column
-         Integer,   Intent( IN )    :: R      ! Row
+         Integer,   Intent( IN )    :: R      ! r
 
          Real    :: fTg    ! nitrification temperature factor
          Real    :: fSWg   ! nitrification Soil Water factor
@@ -913,20 +873,20 @@ C-------------------------------------------------------------------------------
 
 ! Estimate the soil nitrification rate following Reddy et al 1979 starting with
 ! the temperature parameter
-         fTg = max( 0.041 * ( Tempg - 278.15 ), 0.0 )
+         fTg = max( 0.041 * ( MET_DATA%Tempg( C,R ) - 278.15 ), 0.0 )
  
 ! Estimate the soil water parameter
-         wg25 = wwlt( ist ) + 0.25 * ( wfc( ist ) - wwlt( ist ) )
-         If ( wg .Le. wwlt( ist ) ) fSWg = 0.1
-         If ( wg .Lt. wg25 .And. wg .Gt. wwlt( ist ) ) Then
-            fSWg = max( 0.1, 0.1 + 0.9 * Sqrt( ( wg - wwlt( ist ) ) /
-     &                ( wfc( ist ) - wwlt( ist ) ) ), ( wg - wwlt( ist ) ) /
-     &                ( 0.25 * ( wfc( ist ) - wwlt( ist ) ) ) )
+         wg25 = GRID_DATA%WWLT( c,r ) + 0.25 * ( GRID_DATA%WFC( c,r ) - GRID_DATA%WWLT( c,r ) )
+         If ( wg .Le. GRID_DATA%WWLT( c,r ) ) fSWg = 0.1
+         If ( wg .Lt. wg25 .And. wg .Gt. GRID_DATA%WWLT( c,r ) ) Then
+            fSWg = max( 0.1, 0.1 + 0.9 * Sqrt( ( wg - GRID_DATA%WWLT( c,r ) ) /
+     &                ( GRID_DATA%WFC( c,r ) - GRID_DATA%WWLT( c,r ) ) ), ( wg - GRID_DATA%WWLT( c,r ) ) /
+     &                ( 0.25 * ( GRID_DATA%WFC( c,r ) - GRID_DATA%WWLT( c,r ) ) ) )
          End If
-         If ( wg .Ge. wg25 .And. wg .Lt. wfc( ist ) ) fSWg = 1.0
+         If ( wg .Ge. wg25 .And. wg .Lt. GRID_DATA%WFC( c,r ) ) fSWg = 1.0
 
-         If ( wg .Ge. wfc( ist ) ) Then
-            fSWg = max( 0.1, 1.0 - ( wg - wfc( ist ) ) / ( wsat( ist )-wfc( ist ) ) )
+         If ( wg .Ge. GRID_DATA%WFC( c,r ) ) Then
+            fSWg = max( 0.1, 1.0 - ( wg - GRID_DATA%WFC( c,r ) ) / ( GRID_DATA%WSAT( c,r )-GRID_DATA%WFC( c,r ) ) )
          End If
 ! Estimate the pH factor
          If ( pHsl .Lt. 7.0 ) fpHg = 0.307 * pHsl - 1.269
@@ -939,14 +899,14 @@ C-------------------------------------------------------------------------------
          Kvs    = 0.0
          ag_tot = 0.0
          Do i = 1, n_lufrac
-            If ( lufrac(i,c,r) .Gt. 0.0 ) Then
+            If ( GRID_DATA%LUFRAC( c,r,i ) .Gt. 0.0 ) Then
                Select Case( cat_lu( i ) )
                   Case('AG','AGMOS' )
-                     kvg = kvg + gg( i ) / ( wg * real( ds, 8 ) ) * lufrac( i,c,r )
-                     Kvs = Kvs + ( 161512.0d0 / real( tempg, 8 )
-     &                         * 10.0d0**( -4507.11d0 / real( tempg, 8 ) ) )
-     &                         * gg( i ) / ( wg * real( ds, 8 ) ) / mhp * lufrac( i,c,r )
-                     ag_tot = ag_tot + lufrac( i,c,r )
+                     kvg = kvg + gg( i ) / ( wg * real( ds, 8 ) ) * GRID_DATA%LUFRAC( c,r,i )
+                     Kvs = Kvs + ( 161512.0d0 / real( MET_DATA%Tempg( C,R ), 8 )
+     &                         * 10.0d0**( -4507.11d0 / real( MET_DATA%Tempg( C,R ), 8 ) ) )
+     &                         * gg( i ) / ( wg * real( ds, 8 ) ) / mhp * GRID_DATA%LUFRAC( c,r,i )
+                     ag_tot = ag_tot + GRID_DATA%LUFRAC( c,r,i )
                End Select
             End If
          End Do

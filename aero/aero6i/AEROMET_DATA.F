@@ -1,1 +1,1 @@
-../aero5/AEROMET_DATA.F
+../aero6/AEROMET_DATA.F
