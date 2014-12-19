@@ -65,6 +65,13 @@
 ! B.Hutzell 07/10/14
 ! added inorganic heterogeneous reactions for N2O5 and NO2, oligomerization reactions for
 ! SOA species and aging reactions for primary organic carbon and non-carbon aerosol species
+! B.Hutzell 11/3/14
+!  -changed ALK5RXN yield in reaction <R075> from 1.0 to 0.47 based on SOA updates
+!  suggested by H.Pye's for cb05e51_ae6_aq
+!  -Modified by splitting oligomerization into two reactions: one for each
+!   Alkene SOA species. The new species were introduced in cb05e51_ae6_aq
+! Golam Sarwar 12/02/14
+!  -Added a simple halogen chemistry over sea-water
 !------------------------------------------------------------------------------ 
 RACM2_AE6_AQ
 
@@ -197,7 +204,7 @@ REACTIONS[CM] =
 <R075>  HC8  + HO          = 0.049*HO2 + 0.951*HC8P
                                        + 0.025*ALD
                                        + 0.024*HKET
-                                       + ALK5RXN      # 2.82E-11 @ 273.;
+                                       + 0.47*ALK5RXN      # 2.82E-11 @ 273.;
 <R076>  ETE  + HO          = ETEP                     # 1.0E-28 ^ -4.5 &
                                                         8.8E-12 ^ -0.85;
 <R077>  OLT  + HO          = OLTP                     # 5.72E-12 @ -500.;
@@ -1160,9 +1167,12 @@ REACTIONS[CM] =
 
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
+! Simplified ozone loss from oceanic halogens excluding chlorine
+
+<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
+
 ! oligomerization reaction for secondary organic aerosols
 
-<OLIG_ALKENE>     AALKJ  = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
@@ -1174,6 +1184,10 @@ REACTIONS[CM] =
 <OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ    # 9.48816E-6;
 <OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ    # 9.48816E-6;
 <OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ    # 9.48816E-6;
+<OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
+<OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
+<OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ  # 9.48816E-6;
+<OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
 !aging reactions for primary organic carbon
 

@@ -1,5 +1,5 @@
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/cb05tump_ae6_aq/GC_cb05tump_ae6_aq.nml,v 1.1 2011/09/20 17:54:52 sjr Exp $
+!! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/work/rep/arc/mechs/MECHS/src/cb05tucl_ae6_aq/GC_cb05tucl_ae6_aq.nml,v 1.1.1.1 2011/04/06 16:57:21 sjr Exp $
 
 &GC_nml
  
@@ -80,6 +80,7 @@ TYPE_MATRIX =
 'CLO:51.5::::::::::::::Yes',
 'FMCL:64.5:::VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:HCL:1:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
+'CLNO2:81.5:::VD_CLNO2:1.0:::NITRYL_CHLORIDE:1.0:::Yes::Yes:Yes',
 'TOLNRXN:141:::::::::TOLNRXN:::::',
 'TOLHRXN:141:::::::::TOLHRXN:::::',
 'XYLNRXN:155:::::::::XYLNRXN:::::',
@@ -90,6 +91,8 @@ TYPE_MATRIX =
 'BNZHRXN:127:::::::::BNZHRXN:::::',
 'SESQ:204:SESQ:1:::::PINENE:1:::Yes:::Yes',
 'SESQRXN:204:::::::::SESQRXN:::::',
+'H2NO3PIJ:64.0::::::::::::::Yes',
+'H2NO3PK:64.0::::::::::::::Yes',
 'FORM_PRIMARY: 30.0:FORM_PRIMARY:1.0:VD_HCHO:1.0:::FORMALDEHYDE:1.0:::Yes:Yes:Yes:Yes',
 'ALD2_PRIMARY: 44.0:ALD2_PRIMARY:1.0:VD_ALD:1.0:::ACETALDEHYDE:1.0:::Yes:Yes:Yes:Yes',
 'BUTADIENE13: 54.0:BUTADIENE13:1.0:::::13-BUTADIENE:1.0:::Yes:::Yes',

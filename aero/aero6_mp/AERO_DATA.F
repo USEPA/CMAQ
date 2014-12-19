@@ -1,4 +1,4 @@
-
+!
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -50,6 +50,8 @@ C JY  04/21/11 Added optional log messages (verbose_aero)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C BH  08/31/11 Adapted for mercury and HAP mechanisms
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C KF  09/23/14 Changed emitted modal PM mass fractions according to  
+C              Elleman and Covert (2010)
 C----------------------------------------------------------------------
 
       Implicit None
@@ -57,7 +59,7 @@ C----------------------------------------------------------------------
 C Number of aerosol species and modes
 
 !     Integer, Parameter :: n_aerospc = 40      ! number of aero species
-      Integer, Parameter :: n_aerolist = 62     ! number of aero species
+      Integer, Parameter :: n_aerolist = 69     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -72,7 +74,7 @@ C Default minimum concentration
       Real,    Parameter :: cm_cor( n_mode ) = (/ conmin, conmin, 1.889544E-05 /)
 
 C Emissions splits
-      Real,    Parameter :: es_fin( n_mode ) = (/ 0.001, 0.999, 0.0   /)
+      Real,    Parameter :: es_fin( n_mode ) = (/ 0.1  , 0.9  , 0.0   /)
       Real,    Parameter :: es_acc( n_mode ) = (/ 0.0  , 1.0  , 0.0   /)
       Real,    Parameter :: es_cor( n_mode ) = (/ 0.0  , 0.0  , 1.0   /)
       Real,    Parameter :: es_0  ( n_mode ) = (/ 0.0  , 0.0  , 0.0   /)
@@ -124,11 +126,11 @@ C                                                                            |  
 C                    ------------Name--------------                  NoM2Wet |Tracer|       OptSurr               Emissions Sea Salt
 C                    Aitken      Accum       Coarse     Min_Concs Density |  |  |   | Visidx   |      Emis          Splits  factors
 C                   ---------   ---------   ---------     ------  ------  +  +  +   +  ----  ------   -------------  ------ ------
-     & spcs_type((/'ASO4I    ','ASO4J    ','ASO4K    '/), cm_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE','PSO4         ',es_acc,ss_so4),
-     & spcs_type((/'ANO3I    ','ANO3J    ','ANO3K    '/), cm_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE','PNO3         ',es_acc,  ss_0),
-     & spcs_type((/'ACLI     ','ACLJ     ','ACLK     '/), cm_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE','PCL          ',es_acc, ss_cl),
-     & spcs_type((/'ANH4I    ','ANH4J    ','ANH4K    '/), cm_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE','PNH4         ',es_acc,  ss_0),
-     & spcs_type((/'ANAI     ','ANAJ     ','         '/), cm_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE','PNA          ',es_acc, ss_na),
+     & spcs_type((/'ASO4I    ','ASO4J    ','ASO4K    '/), cm_so4, 1800.0, F, F, F, -2,  3.0,'SOLUTE','PSO4         ',es_fin,ss_so4),
+     & spcs_type((/'ANO3I    ','ANO3J    ','ANO3K    '/), cm_set, 1800.0, F, F, F, -1,  3.0,'SOLUTE','PNO3         ',es_fin,  ss_0),
+     & spcs_type((/'ACLI     ','ACLJ     ','ACLK     '/), cm_set, 2200.0, F, F, F, -1,  0.0,'SOLUTE','PCL          ',es_fin, ss_cl),
+     & spcs_type((/'ANH4I    ','ANH4J    ','ANH4K    '/), cm_set, 1800.0, F, F, F,  1,  3.0,'SOLUTE','PNH4         ',es_fin,  ss_0),
+     & spcs_type((/'ANAI     ','ANAJ     ','         '/), cm_set, 2200.0, F, F, F,  1,  0.0,'SOLUTE','PNA          ',es_fin, ss_na),
      & spcs_type((/'         ','AMGJ     ','         '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PMG          ',es_acc, ss_mg),
      & spcs_type((/'         ','AKJ      ','         '/), cm_set, 2200.0, F, F, F,  1,  1.0,'DUST  ','PK           ',es_acc,  ss_k),
      & spcs_type((/'         ','ACAJ     ','         '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PCA          ',es_acc, ss_ca),
@@ -141,8 +143,10 @@ C                   ---------   ---------   ---------     ------  ------  +  +  
      & spcs_type((/'         ','ATIJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PTI          ',es_acc,  ss_0),
      & spcs_type((/'         ','AMNJ     ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMN          ',es_acc,  ss_0),
      & spcs_type((/'AH2OI    ','AH2OJ    ','AH2OK    '/), cm_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O         ',es_acc,  ss_0),
+     & spcs_type((/'AH3OPI   ','AH3OPJ   ','AH3OPK   '/), cm_set, 1000.0, T, F, T,  0,  0.0,'WATER ','             ',es_0,    ss_0),
      & spcs_type((/'AOTHRI   ','AOTHRJ   ','         '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR       ',es_acc,  ss_0),
-     & spcs_type((/'         ','AALKJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AALK1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','AALK2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL1J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AXYL3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
@@ -158,6 +162,9 @@ C                   ---------   ---------   ---------     ------  ------  +  +  
      & spcs_type((/'         ','AISO2J   ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AISO3J   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','ASQTJ    ','         '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','APAH1J   ','         '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','APAH2J   ','         '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'         ','APAH3J   ','         '/), cm_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AOLGAJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AOLGBJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
      & spcs_type((/'         ','AORGCJ   ','         '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','             ',es_0,    ss_0),
@@ -191,7 +198,9 @@ C                   ---------   ---------   ---------     ------- ------  +  +  
      & spcs_type((/'AMN_HAPSI','AMN_HAPSJ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','MANGANESE_F  ',es_fin,  ss_0),
      & spcs_type((/'         ','         ','AMN_HAPSK'/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','MANGANESE_C  ',es_cor,  ss_0),
      & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','PHGI         ',es_fin,  ss_0),
-     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','             ',es_0,    ss_0)
+     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','             ',es_0,    ss_0),
+     & spcs_type((/'AASI     ','AASJ     ','         '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_F    ',es_fin,  ss_0),
+     & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F, T, T,  0,  0.0,'DUST  ','ARSENIC_C    ',es_cor,  ss_0)
      & /)                                                                                                                          
                                                                                                                       
 C Sea-Salt Speciation factors
@@ -216,6 +225,7 @@ C           -------  -------  -------
 !     &       0.0,     0.0,     0.0,         ! ATI
 !     &       0.0,     0.0,     0.0,         ! AMN
 !     &       0.0,     0.0,     0.0,         ! AH2O
+!     &       0.0,     0.0,     0.0,         ! AH3OP
 !     &       0.0,     0.0,     0.0,         ! AOTHR
 !     &       0.0,     0.0,     0.0,         ! AALK
 !     &       0.0,     0.0,     0.0,         ! AXYL1
@@ -252,6 +262,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
       Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
       Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'  
+      Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'  
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
@@ -259,21 +270,22 @@ C Required species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
     
 C Indices of required species
-      Integer, Save  :: aso4_idx
-      Integer, Save  :: ano3_idx
-      Integer, Save  :: acl_idx
-      Integer, Save  :: anh4_idx
-      Integer, Save  :: ana_idx
-      Integer, Save  :: amg_idx
-      Integer, Save  :: ak_idx
-      Integer, Save  :: aca_idx
-      Integer, Save  :: apoc_idx
-      Integer, Save  :: ah2o_idx 
-      Integer, Save  :: asoil_idx
-      Integer, Save  :: acors_idx
-      Integer, Save  :: apncom_idx
-      Integer, Save  :: aseacat_idx
-      Integer, Save  :: aphgj_idx
+      Integer  :: aso4_idx
+      Integer  :: ano3_idx
+      Integer  :: acl_idx
+      Integer  :: anh4_idx
+      Integer  :: ana_idx
+      Integer  :: amg_idx
+      Integer  :: ak_idx
+      Integer  :: aca_idx
+      Integer  :: apoc_idx
+      Integer  :: ah2o_idx 
+      Integer  :: ah3op_idx 
+      Integer  :: asoil_idx
+      Integer  :: acors_idx
+      Integer  :: apncom_idx
+      Integer  :: aseacat_idx
+      Integer  :: aphgj_idx
 
 !     Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
 !     Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -341,6 +353,8 @@ C Emissions mapping
       Integer, Allocatable :: pmem_map( : )           ! mapping to aerospc array for PM emissions
       Character( 16 )      :: pmem_units              ! units for PM emissions for all species
 
+      Logical, Save :: V51_SOA_mechanism   = .False. !
+
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
@@ -361,6 +375,7 @@ C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
 C-----------------------------------------------------------------------
 
+      Use rxns_data             ! chemical mechanism data
       Use cgrid_spcs            ! CGRID mechanism species
       Use aeromet_data
       Use utilio_defn
@@ -384,6 +399,10 @@ C Local Variables:
       mole_weight = 0.0
 
       if ( mapped ) Return
+
+      If ( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
+           V51_SOA_mechanism   = .True.
+      End If
 
 !         aerospc_mw = 0.0
 !         aerospc_map = 0
@@ -503,6 +522,7 @@ C build mapping to CGRID for each aero spc
 #endif             
          End do
 
+
 C Build mapping to CGRID for aero # and surf area variables
       aeronum_map = 0
       aerosrf_map = 0
@@ -538,11 +558,13 @@ C Find indices of required species
       aca_idx     = findAero( req_ca,     .True. )
       apoc_idx    = findAero( req_poc,    .True. )
       ah2o_idx    = findAero( req_h2o,    .True. )
+      ah3op_idx   = findAero( req_h3op,   .True. )
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
       aphgj_idx   = findAero( req_phgj,  .False. )
+
 
 #ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -556,6 +578,7 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah3op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx

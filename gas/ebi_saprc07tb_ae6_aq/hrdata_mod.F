@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -72,20 +72,21 @@ c...Allocatable arrays
       INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
       INTEGER, ALLOCATABLE :: IOLD2NEW( :,: )    ! YC species map, used if NSPECIAL > 0
 
-      REAL( 8 ), ALLOCATABLE ::  RKI(   :,  : )     ! Rate constants
+      REAL( 8 ), ALLOCATABLE ::  RKI(  : )     ! Rate constants
       REAL( 8 ), ALLOCATABLE ::  RKI_SAV(  :,  : )  ! Saved values of RKI for SS species calcs
 
-      REAL( 8 ), ALLOCATABLE ::  YC (   :, : )      ! Species concentrations
-      REAL( 8 ), ALLOCATABLE ::  YC0(   :, : )      ! Species concentrations
-      REAL( 8 ), ALLOCATABLE ::  YCP(   :, : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC (  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC0(  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YCP(  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  SYC(  :, : )   ! Species concentrations
 
-      REAL, ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor
-      REAL, ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
+      REAL, ALLOCATABLE      :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor
+      REAL, ALLOCATABLE      :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
 
-      REAL( 8 ), ALLOCATABLE ::  RXRAT( :, : )     ! Reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
-      REAL( 8 ), ALLOCATABLE ::  PROD(  :, : )     ! Prod of species
-      REAL( 8 ), ALLOCATABLE ::  LOSS(  :, : )     ! Loss of species
+      REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
+      REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
 
 
 c..Species indices
@@ -239,23 +240,26 @@ c..Species indices
       INTEGER, PARAMETER :: HCHO_PRIMARY     =  148
       INTEGER, PARAMETER :: CCHO_PRIMARY     =  149
       INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  150
-      INTEGER, PARAMETER :: AALKJ            =  151
+      INTEGER, PARAMETER :: AXYL1J           =  151
       INTEGER, PARAMETER :: AOLGAJ           =  152
-      INTEGER, PARAMETER :: AXYL1J           =  153
-      INTEGER, PARAMETER :: AXYL2J           =  154
-      INTEGER, PARAMETER :: ATOL1J           =  155
-      INTEGER, PARAMETER :: ATOL2J           =  156
-      INTEGER, PARAMETER :: ABNZ1J           =  157
-      INTEGER, PARAMETER :: ABNZ2J           =  158
-      INTEGER, PARAMETER :: ATRP1J           =  159
-      INTEGER, PARAMETER :: AOLGBJ           =  160
-      INTEGER, PARAMETER :: ATRP2J           =  161
-      INTEGER, PARAMETER :: AISO1J           =  162
-      INTEGER, PARAMETER :: AISO2J           =  163
-      INTEGER, PARAMETER :: ASQTJ            =  164
-      INTEGER, PARAMETER :: APOCI            =  165
-      INTEGER, PARAMETER :: APNCOMI          =  166
-      INTEGER, PARAMETER :: APOCJ            =  167
-      INTEGER, PARAMETER :: APNCOMJ          =  168
+      INTEGER, PARAMETER :: AXYL2J           =  153
+      INTEGER, PARAMETER :: ATOL1J           =  154
+      INTEGER, PARAMETER :: ATOL2J           =  155
+      INTEGER, PARAMETER :: ABNZ1J           =  156
+      INTEGER, PARAMETER :: ABNZ2J           =  157
+      INTEGER, PARAMETER :: ATRP1J           =  158
+      INTEGER, PARAMETER :: AOLGBJ           =  159
+      INTEGER, PARAMETER :: ATRP2J           =  160
+      INTEGER, PARAMETER :: AISO1J           =  161
+      INTEGER, PARAMETER :: AISO2J           =  162
+      INTEGER, PARAMETER :: ASQTJ            =  163
+      INTEGER, PARAMETER :: APAH1J           =  164
+      INTEGER, PARAMETER :: APAH2J           =  165
+      INTEGER, PARAMETER :: AALK1J           =  166
+      INTEGER, PARAMETER :: AALK2J           =  167
+      INTEGER, PARAMETER :: APOCI            =  168
+      INTEGER, PARAMETER :: APNCOMI          =  169
+      INTEGER, PARAMETER :: APOCJ            =  170
+      INTEGER, PARAMETER :: APNCOMJ          =  171
 
       END MODULE HRDATA

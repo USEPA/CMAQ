@@ -45,6 +45,7 @@ C      Apr  4  13 J. Bash      Added general water, forest, shrub, grass, snow/i
 C                              agricultural land use classification in a land use type 
 C                              to simplify how bidirecitonal NH3 code handles different 
 C                              land use data sets. 
+C      Aug  22 14 J. Bash      Moved all the data to defined data types for easier updates and data access. 
 C------------------------------------------------------------------------------
        
       Implicit None
@@ -55,20 +56,41 @@ C------------------------------------------------------------------------------
       REAL,   SAVE               :: wres (11)
       REAL,   SAVE               :: wfc  (11)
       REAL,   SAVE               :: rhob (11)
-      REAL,   SAVE, ALLOCATABLE  :: lwmask    ( :,: )
-      REAL,   SAVE, ALLOCATABLE  :: seaice    ( :,: )      
-      INTEGER, SAVE              :: n_lufrac      
+      REAL,   SAVE, ALLOCATABLE  :: RSMIN     ( : )
+      REAL,   SAVE, ALLOCATABLE  :: Z00       ( : )
+      REAL,   SAVE, ALLOCATABLE  :: VEG0      ( : )
+      REAL,   SAVE, ALLOCATABLE  :: VEGMN0    ( : )
+      REAL,   SAVE, ALLOCATABLE  :: LAI0      ( : )
+      REAL,   SAVE, ALLOCATABLE  :: LAIMN0    ( : )
+      REAL,   SAVE, ALLOCATABLE  :: SNUP0     ( : )
+      REAL,   SAVE, ALLOCATABLE  :: ALBF      ( : )
+      REAL,   SAVE, ALLOCATABLE  :: LUF_FAC   ( : )
+      REAL,   SAVE, ALLOCATABLE  :: HGLU_FAC  ( : )
+      INTEGER, SAVE              :: n_lufrac
       CHARACTER( 80 ), SAVE      :: LAND_SCHEME
-      CHARACTER( 5 ),  SAVE, ALLOCATABLE :: cat_lu( : )
+      CHARACTER( 16 ), SAVE, ALLOCATABLE :: cat_lu( : )
+      CHARACTER( 16 ), SAVE, ALLOCATABLE :: name_lu( : )
 
-      INTEGER, PARAMETER :: n_modis   = 20
-      INTEGER, PARAMETER :: n_nlcd50  = 50
-      INTEGER, PARAMETER :: n_nlcd40  = 40
-      INTEGER, PARAMETER :: n_usgs    = 24
+
+      INTEGER, PRIVATE, PARAMETER :: n_modis   = 20
+      INTEGER, PRIVATE, PARAMETER :: n_nlcd50  = 50
+      INTEGER, PRIVATE, PARAMETER :: n_nlcd40  = 40
+      INTEGER, PRIVATE, PARAMETER :: n_usgs    = 24
+      INTEGER, PRIVATE            :: ALLOCSTAT
       
       TYPE lu_type
-         CHARACTER( 30 ) :: name
+         CHARACTER( 16 ) :: name
          CHARACTER( 16 ) :: lu_cat
+         REAL            :: RSMIN
+         REAL            :: Z00
+         REAL            :: VEG0
+         REAL            :: VEGMN0
+         REAL            :: LAI0
+         REAL            :: LAIMN0
+         REAL            :: SNUP0
+         REAL            :: ALBF
+         REAL            :: LUF_FAC ! NH3 bidi stomatal gamma
+         REAL            :: HGLU_FAC ! Hg bidi soil conc
       END TYPE lu_type
 
 
@@ -112,703 +134,175 @@ C-------------------------------------------------------------------------------
 
 !*****************************************************************************
 !*****************************************************************************
-! MODIS-ONLY (1XX)/MODIS (2XX) LU characterization ... 
+! MODIS-ONLY (1XX)/MODIS (2XX) LU characterization ... reclassified by NCEP
 !-------------------------------------------------------------------------------
-!Index Rstmin  Zo    Mxfr MnFr  MxLA MnLA SNUP  ALB LUF   HGLU Cat. Description
-!  1    175.  100.    90.  80.  4.0  3.0  0.08  12. 246.0   40 Evergreen Needleleaf Forest
-!  2    120.   90.    95.  85.  5.0  4.0  0.08  12. 247.0  130 Evergreen Broadleaf Forest
-!  3    175.  100.    95.  50.  5.0  1.0  0.08  14. 267.0   81 Deciduous Needleleaf Forest
-!  4    200.  100.    95.  50.  5.0  1.0  0.08  16. 268.0   81 Deciduous Broadleaf Forest'
-!  5    200.  100.    95.  60.  5.0  2.0  0.08  13. 252.0  139 Mixed Forest
-!  6    200.   15.    90.  50.  3.0  1.0  0.03  22. 246.0  125 Closed Shrublands
-!  7    200.   15.    75.  50.  2.5  1.0  0.035 20. 246.0  125 Open Shrublands
-!  8    150.   25.    80.  60.  2.5  1.0  0.03  22. 246.0  125 Woody Savanna
-!  9    120.   15.    70.  50   2.0  1.0  0.04  20. 246.0  125 Savanna
-!---------------------------------------------------------------------------------
-! 10    100.    7.    85.  60.  2.5  1.0  0.04  19. 247.0   20 Grasslands
-! 11    160    20.    75.  45.  3.0  1.0  0.015 14. 260.0  125 Perminent Wetlands
-! 12     70.   10.    95.  10.  3.0  0.5  0.04  18. 340.0   81 Croplands
-! 13    150.   80.    40.  20.  3.0  1.0  0.04  11. 338.0  190 Urban andBuilt-up'
-! 14    100.   30.    95.  40.  3.0  1.0  0.04  18. 298.0   50 Cropland/Natural Vegetation Mosaic
-! 15   9999.    1.2    5.  02.  0.1  0.1  0.02  60.   0.0    0 Snow and Ice
-! 16    100.    5.    20.   5.  1.0  0.5  0.02  25. 246.0  125 Barren or Sparsely Vegetated
-! 17   9999.    0.1   00.  00.  0.0  0.0  0.01   8.   0.0    0 IGBP water
-! 18    175.   30.    70.  50.  3.4  2.0  0.80  15. 246.0   62 Wooded Tundra
-! 19    120.   15.    40.  20.  2.4  1.0  0.40  15. 246.0   62 Mixed Tundra
-! 20    100.   10.    20.   5.  1.4  0.1  0.015 25. 246.0   18 Barren Tundra
-!------------------------------------------------------------------------------------
       
-      TYPE( lu_type ), PARAMETER :: MODIS( n_modis ) =  (/      
-!               ------ Description --------    --LU cat --
-     & lu_type('Evergreen Needleleaf Forest ', 'FOREST  '),  ! 1
-     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 2 
-     & lu_type('Deciduous Needleleaf Forest ', 'FOREST  '),  ! 3
-     & lu_type('Deciduous Broadleaf Forest  ', 'FOREST  '),  ! 4
-     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 5
-     & lu_type('Closed Shrublands           ', 'SHRUB   '),  ! 6
-     & lu_type('Open Shrublands             ', 'SHRUB   '),  ! 7
-     & lu_type('Woody Savanna               ', 'FOREST  '),  ! 8
-     & lu_type('Savanna                     ', 'FOREST  '),  ! 9     
-     & lu_type('Grasslands                  ', 'GRASS   '),  ! 10     
-     & lu_type('Perminent Wetlands          ', 'WETLAND '),  ! 11    
-     & lu_type('Croplands                   ', 'AG      '),  ! 12    
-     & lu_type('Urban and Built-up          ', 'BUILT   '),  ! 13     
-     & lu_type('Crop/Natural Mosaic         ', 'AGMOS   '),  ! 14
-     & lu_type('Snow and Ice                ', 'SNOWICE '),  ! 15    
-     & lu_type('Sparsely Vegetated          ', 'BARREN  '),  ! 16
-     & lu_type('IGBP water                  ', 'WATER   '),  ! 17
-     & lu_type('Wooded Tundra               ', 'FOREST  '),  ! 18    
-     & lu_type('Mixed Tundra                ', 'SHRUB   '),  ! 19
-     & lu_type('Barren Tundra               ', 'GRASS   ')/) ! 20
-!------------------------------------------------------------------------------------
-
-      
-      REAL, DIMENSION(n_modis), TARGET :: RSMIN_MODIS, Z00_MODIS,     
-     &                                    VEG0_MODIS, VEGMN0_MODIS,   
-     &                                    LAI0_MODIS, LAIMN0_MODIS,   
-     &                                    SNUP0_MODIS, ALBF_MODIS, 
-     &                                    LUF_FAC_MODIS, HGLU_FAC_MODIS          
-     
-      DATA RSMIN_MODIS                                       
-     &        / 175.0,   120.0,   175.0,   200.0,    200.0,   
-     &          200.0,   200.0,   150.0,   120.0,    100.0,   
-     &          160.0,    70.0,   150.0,   100.0,   9999.0,   
-     &          100.0,  9999.0,   175.0,   120.0,    100.0  /
-
-      DATA Z00_MODIS                                         
-     &        / 100.0,    90.0,   100.0,   100.0,   100.0,    
-     &           15.0,    15.0,    25.0,    15.0,     7.0,    
-     &           20.0,    10.0,    80.0,    30.0,     1.2,    
-     &            5.0,     0.1,    30.0,    15.0,    10.0  /
-                    
-      DATA VEG0_MODIS                                        
-     &        /  90.0,    95.0,    95.0,    95.0,    95.0,    
-     &           90.0,    75.0,    80.0,    70.0,    85.0,    
-     &           75.0,    95.0,    40.0,    95.0,     5.0,    
-     &           20.0,     0.0,    70.0,    40.0,    20.0  /
-                   
-      DATA VEGMN0_MODIS                                      
-     &        /  80.0,    85.0,    50.0,    50.0,    60.0,    
-     &           50.0,    50.0,    60.0,    50.0,    60.0,    
-     &           45.0,    10.0,    20.0,    40.0,     2.0,    
-     &            5.0,     0.0,    50.0,    20.0,     5.0 /
-                     
-      DATA LAI0_MODIS                                        
-     &        /   4.0,     5.0,     5.0,     5.0,     5.0,    
-     &            3.0,     2.5,     2.5,     2.0,     2.5,    
-     &            3.0,     3.0,     3.0,     3.0,     0.1,    
-     &            1.0,     0.0,     3.4,     2.4,     1.4  /
-                    
-      DATA LAIMN0_MODIS                                      
-     &        /   3.0,     4.0,     1.0,     1.0,     2.0,    
-     &            1.0,     1.0,     1.0,     1.0,     1.0,    
-     &            1.0,     0.5,     1.0,     1.0,     0.1,    
-     &            0.5,     0.0,     2.0,     1.0,     0.1  /
-     
-      DATA SNUP0_MODIS                                       
-     &        /   0.08,    0.08,    0.08,    0.08,    0.08,   
-     &            0.03,    0.035,   0.03,    0.04,    0.04,   
-     &           0.015,    0.04,    0.04,    0.04,    0.02,   
-     &            0.02,    0.01,    0.80,    0.40,    0.015 /
-     
-      DATA ALBF_MODIS                                        
-     &        /  12.0,    12.0,    14.0,    16.0,    13.0,    
-     &           22.0,    20.0,    22.0,    20.0,    19.0,    
-     &           14.0,    18.0,    11.0,    18.0,    60.0,    
-     &           25.0,     8.0,    15.0,    15.0,    25.0 /
-     
-      DATA LUF_FAC_MODIS
-     &        / 246.0,  247.0,  267.0,  268.0,  252.0,
-     &          246.0,  246.0,  246.0,  246.0,  247.0,
-     &          260.0,  340.0,  338.0,  298.0,    0.0,
-     &          246.0,    0.0,  246.0,  246.0,  246.0 /  
-     
-      DATA HGLU_FAC_MODIS
-     &        /  40.0,  130.0,   81.0,   81.0,  139.0,
-     &          125.0,  125.0,  125.0,  125.0,   20.0,
-     &          125.0,   80.0,  190.0,   50.0,    0.0,
-     &          125.0,    0.0,   62.0,   62.0,   18.0 /  
+      TYPE( lu_type ),PRIVATE, PARAMETER :: MODIS( n_modis ) =  (/
+!                                                       VEGMN0     LAIMN0             LUF_FAC
+!               -name-    -LU cat -  RSMIN   Z00   VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC     Cat Desc.
+     & lu_type('NCEP_1 ', 'EVEFOR ', 175.0, 100.0, 90.0, 80.0, 4.0, 3.0, 0.08,  12.0, 246.0,  40.0),  ! 1 Evergreen Needleleaf Forest
+     & lu_type('NCEP_2 ', 'EVEFOR ', 120.0,  90.0, 95.0, 85.0, 5.0, 4.0, 0.08,  12.0, 247.0, 130.0),  ! 2 Evergreen Broadleaf Forest
+     & lu_type('NCEP_3 ', 'DECFOR ', 175.0, 100.0, 95.0, 50.0, 5.0, 1.0, 0.08,  14.0, 267.0,  81.0),  ! 3 Deciduous Needleleaf Forest
+     & lu_type('NCEP_4 ', 'DECFOR ', 200.0, 100.0, 95.0, 50.0, 5.0, 1.0, 0.08,  16.0, 268.0,  81.0),  ! 4 Deciduous Broadleaf Forest  
+     & lu_type('NCEP_5 ', 'MIXFOR ', 200.0, 100.0, 95.0, 60.0, 5.0, 2.0, 0.08,  13.0, 252.0, 139.0),  ! 5 Mixed Forest
+     & lu_type('NCEP_6 ', 'SHRUB  ', 200.0,  15.0, 90.0, 50.0, 3.0, 1.0, 0.03,  22.0, 246.0, 125.0),  ! 6 Closed Shrublands
+     & lu_type('NCEP_7 ', 'SHRUB  ', 200.0,  15.0, 75.0, 50.0, 2.5, 1.0, 0.035, 20.0, 246.0, 125.0),  ! 7 Open Shrublands
+     & lu_type('NCEP_8 ', 'MIXFOR ', 150.0,  25.0, 80.0, 60.0, 2.5, 1.0, 0.03,  22.0, 246.0, 125.0),  ! 8 Woody Savanna
+     & lu_type('NCEP_9 ', 'MIXFOR ', 120.0,  15.0, 70.0, 50.0, 2.0, 1.0, 0.04,  20.0, 246.0, 125.0),  ! 9 Savanna
+     & lu_type('NCEP_10', 'GRASS  ', 100.0,   7.0, 85.0, 60.0, 2.5, 1.0, 0.04,  19.0, 247.0,  20.0),  ! 10 Grasslands
+     & lu_type('NCEP_11', 'WETLAND', 160.0,  20.0, 75.0, 45.0, 3.0, 1.0, 0.015, 14.0, 260.0, 125.0),  ! 11 Perminent Wetlands
+     & lu_type('NCEP_12', 'AG     ',  70.0,  10.0, 95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  81.0),  ! 12 Croplands  
+     & lu_type('NCEP_13', 'BUILT  ', 150.0,  80.0, 40.0, 20.0, 3.0, 1.0, 0.04,  11.0, 338.0, 190.0),  ! 13 Urban and Built-up    
+     & lu_type('NCEP_14', 'AGMOS  ', 100.0,  30.0, 95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 14 Crop/Natural Mosaic
+     & lu_type('NCEP_15', 'SNOWICE',9999.0,   1.2,  5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 15 Snow and Ice   
+     & lu_type('NCEP_16', 'BARREN ', 100.0,   5.0, 20.0,  5.0, 1.0, 0.5, 0.02,  25.0, 246.0, 125.0),  ! 16 Sparsely Vegetated
+     & lu_type('NCEP_17', 'WATER  ',9999.0,   0.1,  0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 17 IGBP water
+     & lu_type('NCEP_18', 'EVEFOR ', 175.0,  30.0, 70.0, 50.0, 3.4, 2.0, 0.80,  15.0, 246.0,  62.0),  ! 18 Wooded Tundra   
+     & lu_type('NCEP_19', 'SHRUB  ', 120.0,  15.0, 40.0, 20.0, 2.4, 1.0, 0.40,  15.0, 246.0,  62.0),  ! 19 Mixed Tundra
+     & lu_type('NCEP_20', 'GRASS  ', 100.0,  10.0, 20.0,  5.0, 1.4, 0.1, 0.015, 25.0, 246.0,  18.0)/) ! 20 Barren Tundra
 
 !****************************************************************************************
 !****************************************************************************************
 ! 50 CLASS NLCD (US only, cats 1-30)/MODIS (Outside US, cats 31-50) LU characterization
 !---------------------------------------------------------------------------------------
-!Index Rstmin  Zo    Mxfr MnFr  MxLA MnLA  SNUP   ALB  LUF   HGLU  Cat Desc.
-! 1    9999.   0.1    00.  00.  0.0  0.0   0.01    8    0.0     0  Open water
-! 2    9999.   1.2     5.  02.  0.1  0.1   0.02   60    0.0     0  Perennial Ice/snow
-! 3     120.   30.    90.  80.  3.0  1.0   0.04   12  312.0   130  Developed, Open space
-! 4     120.   40.    70   60.  3.0  1.0   0.04   11  305.0   150  Developed, Low Intensity
-! 5     140.   60.    40.  30.  3.0  1.0   0.04   10  331.0   170  Developed, Medium Intensity
-! 6     160.   100.   15.   5.  3.0  1.0   0.04   10  402.0   190  Developed, High Intensity
-! 7     100.    5.    20.   5.  1.0  0.5   0.02   20  246.0   125  Barren land
-! 8     100.    5.    15.   5.  0.5  0.2   0.02   35  248.0     0  Unconsolidated Shore
-! 9     200.   100.   95.  50.  5.0  1.0   0.08   15  274.0    81  Deciduous Forest
-! 10    175.   100.   90.  80.  4.0  3.0   0.08   10  246.0    81  Evergreen Forest
-!------------------------------------------------------------------------------
-! 11    200.   100.   95.  60.  5.0  2.0   0.08   13  254.0   139  Mixed Forest
-! 12    200.   10.    50.  20.  2.0  1.0   0.04   20  246.0    73  Dwarf Scrub
-! 13    200.   15.    75.  50.  2.5  1.0   0.04   20  246.0   125  Shrub/Scrub
-! 14    100.    7.    85.  60.  2.5  1.0   0.04   19  247.0    20  Grassland/Herbaceous
-! 15    100.    7.    80.  20.  2.0  1.0   0.01   23  246.0   125  Sedge/Herbaceous
-! 16    100.    5.    80.  20.  1.0  1.0   0.01   20    0.0    18  Lichens
-! 17    100.    5.    80.  20.  1.0  1.0   0.01   20    0.0    18  Moss
-! 18    100.    5.    50.  20.  1.0  1.0   0.02   15  246.0    62  Tundra
-! 19     80.    7.    95.  80.  3.0  1.0   0.04   18  344.0    50  Pasture/Hay'
-! 20     70.   10.    95.  10.  3.0  0.5   0.04   18  340.0    80  Cultivated Crops
-!------------------------------------------------------------------------------
-! 21    200.   55.    90.  80.  5.0  2.0   0.08   15  271.0   125  Woody Wetland
-! 22    200.   80.    90.  80.  5.0  2.0   0.08   15  267.0   125  Palustrine Forested Wetland
-! 23    164.   30.    90.  80.  3.0  1.0   0.04   15  254.0   125  Palustrine Scrub/Shrub Wetland
-! 24    200.   60.    90.  80.  5.0  2.0   0.08   15  267.0   125  Estuarine Forested Wetland
-! 25    164.   30.    90.  80.  3.0  1.0   0.04   15  267.0   125  Estuarine Scrub/Shrub Wetland
-! 26    120.   11.    60.  40.  2.0  1.0   0.04   18  248.0   125  Emergent Herbaceous Wetland
-! 27    120.   11.    80.  40.  2.0  1.0   0.06   18  269.0   125  Palustrine Emergent Wetland
-! 28    120.   11.    80.  40.  2.0  1.0   0.06   18  262.0   125  Estuarine Emergent Wetland
-! 29    100.    5.    60.  20.  1.0  0.5   0.02   10  277.0   125  Palustrine Aquatic Bed
-! 30    100.    5.    60.  20.  1.0  0.5   0.02   10  247.0   125  Estuarine Aquatic Bed
-!------------------------------------------------------------------------------
-! 31   9999.   0.1    00.  00.  0.0  0.0   0.08    8    0.0     0  Open water (mapped to 1)
-! 32    175.   100.   90.  80.  4.0  3.0   0.08   12  246.0    40  Evergreen Needleleaf Forest
-! 33    120.   90.    95.  85.  5.0  4.0   0.08   12  247.0   130  Evergreen Broadleaf Forest
-! 34    175.   100.   95.  50.  5.0  1.0   0.08   14  246.0    81  Deciduous Needleleaf Forest
-! 35    200.   100.   95.  50.  5.0  1.0   0.08   16  251.0    81  Deciduous Broadleaf Forest'
-! 36    200.   100.   95.  60.  5.0  2.0   0.08   13  246.0   139  Mixed Forest
-! 37    200.   15.    90.  50.  3.0  1.0   0.03   22  246.0   125  Closed Shrublands
-! 38    200.   15.    75.  50.  2.5  1.0   0.035  20  246.0   125  Open Shrublands
-! 39    150.   25.    80.  60.  2.5  1.0   0.03   22  246.0   125  Woody Savanna
-! 40    120.   15.    70.  50   2.0  1.0   0.04   20  246.0   125  Savanna
-!------------------------------------------------------------------------------
-! 41    100.    7.    85.  60.  2.5  1.0   0.04   19  246.0    20  Grasslands
-! 42    160.   20.    75.  45.  3.0  1.0   0.015  14  246.0   125  Perminent Wetlands
-! 43     70.   10.    95.  10.  3.0  0.5   0.04   18  323.0    81  Croplands
-! 44    150.   80.    40.  20.  3.0  1.0   0.04   11  281.0   190  Urban andBuilt-up'
-! 45    100.   30.    95.  40.  3.0  1.0   0.04   18  298.0    50  Cropland/Natural Vegetation Mosaic
-! 46   9999.   1.2     5.  02.  0.1  0.1   0.02   60    0.0     0  Snow and Ice
-! 47    100.    5.    20.   5.  1.0  0.5   0.02   25  246.0   125  Barren or Sparsely Vegetated
-! 48   9999.   0.1    00.  00.  0.0  0.0   0.01    8    0.0     0  IGBP water
-! 49   9999.   0.1    00.  00.  0.0  0.0   0.01    8    0.0     0  unclassified
-! 50   9999.   0.1    00.  00.  0.0  0.0   0.01    8    0.0     0  fill value (normally ocean water)
-!------------------------------------------------------------------------------------
-                                                 
-      TYPE( lu_type ), PARAMETER :: NLCD50( n_nlcd50 ) =  (/      
-!               ------ Description --------    --LU cat --
-     & lu_type('Open water                  ', 'WATER   '),  ! 1
-     & lu_type('Perennial Ice/snow          ', 'SNOWICE '),  ! 2
-     & lu_type('Developed, Open space       ', 'BUILT   '),  ! 3
-     & lu_type('Developed, Low Intensity    ', 'BUILT   '),  ! 4
-     & lu_type('Developed, Medium Intensity ', 'BUILT   '),  ! 5
-     & lu_type('Developed, High Intensity   ', 'BUILT   '),  ! 6
-     & lu_type('Barren land                 ', 'BARREN  '),  ! 7
-     & lu_type('Unconsolidated Shore        ', 'BARREN  '),  ! 8
-     & lu_type('Deciduous Forest            ', 'FOREST  '),  ! 9
-     & lu_type('Evergreen Forest            ', 'FOREST  '),  ! 10
-     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 11
-     & lu_type('Dwarf Scrub                 ', 'SHRUB   '),  ! 12
-     & lu_type('Shrub/Scrub                 ', 'SHRUB   '),  ! 13
-     & lu_type('Grassland/Herbaceous        ', 'GRASS   '),  ! 14
-     & lu_type('Sedge/Herbaceous            ', 'GRASS   '),  ! 15
-     & lu_type('Lichens                     ', 'BARREN  '),  ! 16
-     & lu_type('Moss                        ', 'BARREN  '),  ! 17
-     & lu_type('Tundra                      ', 'BARREN  '),  ! 18
-     & lu_type('Pasture/Hay                 ', 'AG      '),  ! 19
-     & lu_type('Cultivated Crops            ', 'AG      '),  ! 20    
-     & lu_type('Woody Wetland               ', 'WETLAND '),  ! 21
-     & lu_type('Palustrine Forested Wetland ', 'WETLAND '),  ! 22    
-     & lu_type('Palustrine Shrub Wetland    ', 'WETLAND '),  ! 23    
-     & lu_type('Estuarine Forested Wetland  ', 'WETLAND '),  ! 24    
-     & lu_type('Estuarine Shrub Wetland     ', 'WETLAND '),  ! 25    
-     & lu_type('Emergent Herbaceous Wetland ', 'WETLAND '),  ! 26    
-     & lu_type('Palustrine Emergent Wetland ', 'WETLAND '),  ! 27    
-     & lu_type('Estuarine Emergent Wetland  ', 'WETLAND '),  ! 28    
-     & lu_type('Palustrine Aquatic Bed      ', 'WETLAND '),  ! 29    
-     & lu_type('Estuarine Aquatic Bed       ', 'WETLAND '),  ! 30    
-     & lu_type('Open water (mapped to 1)    ', 'WATER   '),  ! 31
-     & lu_type('Evergreen Needleleaf Forest ', 'FOREST  '),  ! 32
-     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 33 
-     & lu_type('Deciduous Needleleaf Forest ', 'FOREST  '),  ! 34
-     & lu_type('Deciduous Broadleaf Forest  ', 'FOREST  '),  ! 35
-     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 36
-     & lu_type('Closed Shrublands           ', 'SHRUB   '),  ! 37
-     & lu_type('Open Shrublands             ', 'SHRUB   '),  ! 38
-     & lu_type('Woody Savanna               ', 'FOREST  '),  ! 39
-     & lu_type('Savanna                     ', 'FOREST  '),  ! 40     
-     & lu_type('Grasslands                  ', 'GRASS   '),  ! 41     
-     & lu_type('Perminent Wetlands          ', 'WETLAND '),  ! 42    
-     & lu_type('Croplands                   ', 'AG      '),  ! 43    
-     & lu_type('Urban and Built-up          ', 'BUILT   '),  ! 44     
-     & lu_type('Crop/Natural Mosaic         ', 'AGMOS   '),  ! 45
-     & lu_type('Snow and Ice                ', 'SNOWICE '),  ! 46    
-     & lu_type('Sparsely Vegetated          ', 'BARREN  '),  ! 47
-     & lu_type('IGBP water                  ', 'WATER   '),  ! 48
-     & lu_type('unclassified                ', 'SNOWICE '),  ! 49    
-     & lu_type('fill (normally ocean water) ', 'WATER   ')/) ! 50
 
-!------------------------------------------------------------------------------------
-      
-      REAL, DIMENSION(n_nlcd50), TARGET :: RSMIN_NLCD50, Z00_NLCD50,      
-     &                                   VEG0_NLCD50, VEGMN0_NLCD50,    
-     &                                   LAI0_NLCD50, LAIMN0_NLCD50,    
-     &                                   SNUP0_NLCD50, ALBF_NLCD50, 
-     &                                   LUF_FAC_NLCD50, HGLU_FAC_NLCD50                                           
-
-      DATA RSMIN_NLCD50
-     &        / 9999.0,  9999.0,   120.0,   120.0,   140.0,   
-     &           160.0,   100.0,   100.0,   200.0,   175.0,   
-     &           200.0,   200.0,   200.0,   100.0,   100.0,   
-     &           100.0,   100.0,   100.0,    80.0,    70.0,   
-     &           200.0,   200.0,   164.0,   200.0,   164.0,   
-     &           120.0,   120.0,   120.0,   100.0,   100.0,   
-     &          9999.0,   175.0,   120.0,   175.0,   200.0,   
-     &           200.0,   200.0,   200.0,   150.0,   120.0,   
-     &           100.0,   160.0,    70.0,   150.0,   100.0,   
-     &          9999.0,   100.0,  9999.0,  9999.0,  9999.0  /
-                                                
-      DATA Z00_NLCD50                                        
-     &        /   0.10,    1.20,   30.0,    40.0,    60.0,    
-     &          100.0,     5.0,     5.0,   100.0,   100.0,    
-     &          100.0,    10.0,    15.0,     7.0,     7.0,    
-     &            5.0,     5.0,     5.0,     7.0,    10.0,    
-     &           55.0,    80.0,    30.0,    60.0,    30.0,    
-     &           11.0,    11.0,    11.0,     5.0,     5.0,    
-     &            0.1,   100.0,    90.0,   100.0,   100.0,    
-     &          100.0,    15.0,    15.0,    25.0,    15.0,    
-     &            7.0,    20.0,    10.0,    80.0,    30.0,    
-     &            1.2,     5.0,     0.1,     0.1,     0.1   /
-                                                
-      DATA VEG0_NLCD50                                       
-     &        /   0.0,     5.0,    90.0,    70.0,    40.0,    
-     &           15.0,    20.0,    15.0,    95.0,    90.0,    
-     &           95.0,    50.0,    75.0,    85.0,    80.0,    
-     &           80.0,    80.0,    50.0,    95.0,    95.0,    
-     &           90.0,    90.0,    90.0,    90.0,    90.0,    
-     &           60.0,    80.0,    80.0,    60.0,    60.0,    
-     &            0.0,    90.0,    95.0,    95.0,    95.0,    
-     &           95.0,    90.0,    75.0,    80.0,    70.0,    
-     &           85.0,    75.0,    95.0,    40.0,    95.0,    
-     &            5.0,    20.0,     0.0,     0.0,     0.0   /
-                                                
-      DATA VEGMN0_NLCD50                                     
-     &        /   0.0,     2.0,    80.0,    60.0,    30.0,    
-     &            5.0,     5.0,     5.0,    50.0,    80.0,    
-     &           60.0,    20.0,    50.0,    60.0,    20.0,    
-     &           20.0,    20.0,    20.0,    80.0,    10.0,    
-     &           80.0,    80.0,    80.0,    80.0,    80.0,    
-     &           40.0,    40.0,    40.0,    20.0,    20.0,    
-     &            0.0,    80.0,    85.0,    50.0,    50.0,    
-     &           60.0,    50.0,    50.0,    60.0,    50.0,    
-     &           60.0,    45.0,    10.0,    20.0,    40.0,    
-     &            2.0,     5.0,     0.0,     0.0,     0.0   /
-                                                
-      DATA LAI0_NLCD50                                       
-     &        /   0.0,     0.1,     3.0,     3.0,     3.0,    
-     &            3.0,     1.0,     0.5,     5.0,     4.0,    
-     &            5.0,     2.0,     2.5,     2.5,     2.0,    
-     &            1.0,     1.0,     1.0,     3.0,     3.0,    
-     &            5.0,     5.0,     3.0,     5.0,     3.0,    
-     &            2.0,     2.0,     2.0,     1.0,     1.0,    
-     &            0.0,     4.0,     5.0,     5.0,     5.0,    
-     &            5.0,     3.0,     2.5,     2.5,     2.0,    
-     &            2.5,     3.0,     3.0,     3.0,     3.0,    
-     &            0.1,     1.0,     0.0,     0.0,     0.0   /
-                                                
-      DATA LAIMN0_NLCD50                                     
-     &        /   0.0,     0.1,     1.0,     1.0,     1.0,    
-     &            1.0,     0.5,     0.2,     1.0,     3.0,    
-     &            2.0,     1.0,     1.0,     1.0,     1.0,    
-     &            1.0,     1.0,     1.0,     1.0,     0.5,    
-     &            2.0,     2.0,     1.0,     2.0,     1.0,    
-     &            1.0,     1.0,     1.0,     0.5,     0.5,    
-     &            0.0,     3.0,     4.0,     1.0,     1.0,    
-     &            2.0,     1.0,     1.0,     1.0,     1.0,    
-     &            1.0,     1.0,     0.5,     1.0,     1.0,    
-     &            0.1,     0.5,     0.0,     0.0,     0.0   /
-                                                
-      DATA SNUP0_NLCD50                                      
-     &        /   0.01,    0.02,    0.04,    0.04,    0.04,   
-     &            0.04,    0.02,    0.02,    0.08,    0.08,   
-     &            0.08,    0.04,    0.04,    0.04,    0.01,   
-     &            0.01,    0.01,    0.02,    0.04,    0.04,   
-     &            0.08,    0.08,    0.04,    0.08,    0.04,   
-     &            0.04,    0.06,    0.06,    0.02,    0.02,   
-     &            0.08,    0.08,    0.08,    0.08,    0.08,   
-     &            0.08,    0.03,    0.035,   0.03,    0.04,   
-     &            0.04,   0.015,    0.04,    0.04,    0.04,   
-     &            0.02,    0.02,    0.01,    0.01,    0.01  /
-                                                
-      DATA ALBF_NLCD50                                       
-     &        /   8.0,    60.0,    12.0,    11.0,    10.0,    
-     &           10.0,    20.0,    35.0,    15.0,    10.0,    
-     &           13.0,    20.0,    20.0,    19.0,    23.0,    
-     &           20.0,    20.0,    15.0,    18.0,    18.0,    
-     &           15.0,    15.0,    15.0,    15.0,    15.0,    
-     &           18.0,    18.0,    18.0,    10.0,    10.0,    
-     &            8.0,    12.0,    12.0,    14.0,    16.0,    
-     &           13.0,    22.0,    20.0,    22.0,    20.0,    
-     &           19.0,    14.0,    18.0,    11.0,    18.0,    
-     &           60.0,    25.0,     8.0,     8.0,     8.0   /
-                                                
-      DATA LUF_FAC_NLCD50
-     &       /    0.0,    0.0,   312.0,   305.0,   331.0, 
-     &          402.0,  246.0,   248.0,   274.0,   246.0, 
-     &          254.0,  246.0,   246.0,   247.0,   246.0, 
-     &            0.0,    0.0,   246.0,   344.0,   340.0,
-     &          271.0,  267.0,   254.0,   267.0,   267.0, 
-     &          248.0,  269.0,   262.0,   277.0,   247.0, 
-     &            0.0,  246.0,   247.0,   246.0,   251.0, 
-     &          246.0,  246.0,   246.0,   246.0,   246.0, 
-     &          246.0,  246.0,   323.0,   281.0,   298.0, 
-     &            0.0,  246.0,     0.0,     0.0,     0.0 /
-                                                
-      DATA HGLU_FAC_NLCD50                     
-     &       /    0.0,    0.0,   130.0,   150.0,   170.0,     
-     &          190.0,  125.0,     0.0,    81.0,    81.0,     
-     &          139.0,   73.0,   125.0,    20.0,   125.0,     
-     &           18.0,   18.0,    62.0,    50.0,    80.0,     
-     &          125.0,  125.0,   125.0,   125.0,   125.0,     
-     &          125.0,  125.0,   125.0,   125.0,   125.0,     
-     &            0.0,   40.0,   130.0,    81.0,    81.0,     
-     &          139.0,  125.0,   125.0,   125.0,   125.0,     
-     &           20.0,  125.0,    81.0,   190.0,    50.0,     
-     &            0.0,  125.0,     0.0,     0.0,     0.0 /    
-                                               
+      TYPE( lu_type ),PRIVATE, PARAMETER :: NLCD50( n_nlcd50 ) =  (/
+!                                                           VEGMN0     LAIMN0             LUF_FAC
+!               -Name-      -LU cat -   RSMIN    Z00   VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC    Cat Desc.
+     & lu_type('NLCD_11  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 1 Open water
+     & lu_type('NLCD_12  ', 'SNOWICE',9999.0,   1.2,   5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 2 Perennial Ice/snow
+     & lu_type('NLCD_21  ', 'BUILT  ', 120.0,  30.0,  90.0, 80.0, 3.0, 1.0, 0.04,  12.0, 312.0, 130.0),  ! 3 Developed, Open space
+     & lu_type('NLCD_22  ', 'BUILT  ', 120.0,  40.0,  70.0, 60.0, 3.0, 1.0, 0.04,  11.0, 305.0, 150.0),  ! 4 Developed, Low Intensity
+     & lu_type('NLCD_23  ', 'BUILT  ', 140.0,  60.0,  40.0, 30.0, 3.0, 1.0, 0.04,  10.0, 331.0, 170.0),  ! 5 Developed, Medium Intensity
+     & lu_type('NLCD_24  ', 'BUILT  ', 160.0, 100.0,  15.0,  5.0, 3.0, 1.0, 0.04,  10.0, 402.0, 190.0),  ! 6 Developed, High Intensity
+     & lu_type('NLCD_31  ', 'BARREN ', 100.0,   5.0,  20.0,  5.0, 1.0, 0.5, 0.02,  20.0, 246.0, 125.0),  ! 7 Barren land
+     & lu_type('NLCD_32  ', 'BARREN ', 100.0,   5.0,  15.0,  5.0, 0.5, 0.2, 0.02,  35.0, 248.0,   0.0),  ! 8 Unconsolidated Shore
+     & lu_type('NLCD_41  ', 'DECFOR ', 200.0, 100.0,  95.0, 50.0, 5.0, 1.0, 0.08,  15.0, 274.0,  81.0),  ! 9 Deciduous Forest
+     & lu_type('NLCD_42  ', 'EVEFOR ', 175.0, 100.0,  90.0, 80.0, 4.0, 3.0, 0.08,  10.0, 246.0,  81.0),  ! 10 Evergreen Forest
+     & lu_type('NLCD_43  ', 'MIXFOR ', 200.0, 100.0,  95.0, 60.0, 5.0, 2.0, 0.08,  13.0, 254.0, 139.0),  ! 11 Mixed Forest
+     & lu_type('NLCD_51  ', 'SHRUB  ', 200.0,  10.0,  50.0, 20.0, 2.0, 1.0, 0.04,  20.0, 246.0,  73.0),  ! 12 Dwarf Scrub
+     & lu_type('NLCD_52  ', 'SHRUB  ', 200.0,  15.0,  75.0, 50.0, 2.5, 1.0, 0.04,  20.0, 246.0, 125.0),  ! 13 Shrub/Scrub
+     & lu_type('NLCD_71  ', 'GRASS  ', 100.0,   7.0,  85.0, 60.0, 2.5, 1.0, 0.04,  19.0, 247.0,  20.0),  ! 14 Grassland/Herbaceous
+     & lu_type('NLCD_72  ', 'GRASS  ', 100.0,   7.0,  80.0, 20.0, 2.0, 1.0, 0.01,  23.0, 246.0, 125.0),  ! 15 Sedge/Herbaceous
+     & lu_type('NLCD_73  ', 'BARREN ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 16 Lichens
+     & lu_type('NLCD_74  ', 'BARREN ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 17 Moss
+     & lu_type('NLCD_75  ', 'BARREN ', 100.0,   5.0,  50.0, 20.0, 1.0, 1.0, 0.02,  15.0, 246.0,  62.0),  ! 18 Tundra
+     & lu_type('NLCD_81  ', 'HAY    ',  80.0,   7.0,  95.0, 80.0, 3.0, 1.0, 0.04,  18.0, 344.0,  50.0),  ! 19 Pasture/Hay
+     & lu_type('NLCD_82  ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  80.0),  ! 20 Cultivated Crops   
+     & lu_type('NLCD_90  ', 'WETLAND', 200.0,  55.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 271.0, 125.0),  ! 21 Woody Wetland
+     & lu_type('NLCD_91  ', 'WETLAND', 200.0,  80.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 267.0, 125.0),  ! 22 Palustrine Forested Wetland   
+     & lu_type('NLCD_92  ', 'WETLAND', 164.0,  30.0,  90.0, 80.0, 3.0, 1.0, 0.04,  15.0, 254.0, 125.0),  ! 23 Palustrine Shrub Wetland   
+     & lu_type('NLCD_93  ', 'WETLAND', 200.0,  60.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 267.0, 125.0),  ! 24 Estuarine Forested Wetland   
+     & lu_type('NLCD_94  ', 'WETLAND', 164.0,  30.0,  90.0, 80.0, 3.0, 1.0, 0.04,  15.0, 267.0, 125.0),  ! 25 Estuarine Shrub Wetland   
+     & lu_type('NLCD_95  ', 'WETLAND', 120.0,  11.0,  60.0, 40.0, 2.0, 1.0, 0.04,  18.0, 248.0, 125.0),  ! 26 Emergent Herbaceous Wetland   
+     & lu_type('NLCD_96  ', 'WETLAND', 120.0,  11.0,  80.0, 40.0, 2.0, 1.0, 0.06,  18.0, 269.0, 125.0),  ! 27 Palustrine Emergent Wetland   
+     & lu_type('NLCD_97  ', 'WETLAND', 120.0,  11.0,  80.0, 40.0, 2.0, 1.0, 0.06,  18.0, 262.0, 125.0),  ! 28 Estuarine Emergent Wetland   
+     & lu_type('NLCD_98  ', 'WETLAND', 100.0,   5.0,  60.0, 20.0, 1.0, 0.5, 0.02,  10.0, 277.0, 125.0),  ! 29 Palustrine Aquatic Bed
+     & lu_type('NLCD_99  ', 'WETLAND', 100.0,   5.0,  60.0, 20.0, 1.0, 0.5, 0.02,  10.0, 247.0, 125.0),  ! 30 Estuarine Aquatic Bed   
+     & lu_type('MODIS_0  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.08,   8.0,   0.0,   0.0),  ! 31 Open water (mapped to 1)
+     & lu_type('MODIS_1  ', 'EVEFOR ', 175.0, 100.0,  90.0, 80.0, 4.0, 3.0, 0.08,  12.0, 246.0,  40.0),  ! 32 Evergreen Needleleaf Forest
+     & lu_type('MODIS_2  ', 'EVEFOR ', 120.0,  90.0,  95.0, 85.0, 5.0, 4.0, 0.08,  12.0, 247.0, 130.0),  ! 33 Evergreen Broadleaf Forest
+     & lu_type('MODIS_3  ', 'DECFOR ', 175.0, 100.0,  95.0, 50.0, 5.0, 1.0, 0.08,  14.0, 267.0,  81.0),  ! 34 Deciduous Needleleaf Forest
+     & lu_type('MODIS_4  ', 'DECFOR ', 200.0, 100.0,  95.0, 50.0, 5.0, 1.0, 0.08,  16.0, 268.0,  81.0),  ! 35 Deciduous Broadleaf Forest  
+     & lu_type('MODIS_5  ', 'MIXFOR ', 200.0, 100.0,  95.0, 60.0, 5.0, 2.0, 0.08,  13.0, 252.0, 139.0),  ! 36 Mixed Forest
+     & lu_type('MODIS_6  ', 'SHRUB  ', 200.0,  15.0,  90.0, 50.0, 3.0, 1.0, 0.03,  22.0, 246.0, 125.0),  ! 37 Closed Shrublands
+     & lu_type('MODIS_7  ', 'SHRUB  ', 200.0,  15.0,  75.0, 50.0, 2.5, 1.0, 0.035, 20.0, 246.0, 125.0),  ! 38 Open Shrublands
+     & lu_type('MODIS_8  ', 'MIXFOR ', 150.0,  25.0,  80.0, 60.0, 2.5, 1.0, 0.03,  22.0, 246.0, 125.0),  ! 39 Woody Savanna
+     & lu_type('MODIS_9  ', 'MIXFOR ', 120.0,  15.0,  70.0, 50.0, 2.0, 1.0, 0.04,  20.0, 246.0, 125.0),  ! 40 Savanna
+     & lu_type('MODIS_10 ', 'GRASS  ', 100.0,   7.0,  85.0, 60.0, 2.5, 1.0, 0.04,  19.0, 247.0,  20.0),  ! 41 Grasslands
+     & lu_type('MODIS_11 ', 'WETLAND', 160.0,  20.0,  75.0, 45.0, 3.0, 1.0, 0.015, 14.0, 260.0, 125.0),  ! 42 Perminent Wetlands
+     & lu_type('MODIS_12 ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  81.0),  ! 43 Croplands  
+     & lu_type('MODIS_13 ', 'BUILT  ', 150.0,  80.0,  40.0, 20.0, 3.0, 1.0, 0.04,  11.0, 338.0, 190.0),  ! 44 Urban and Built-up    
+     & lu_type('MODIS_14 ', 'AGMOS  ', 100.0,  30.0,  95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 45 Crop/Natural Mosaic
+     & lu_type('MODIS_15 ', 'SNOWICE',9999.0,   1.2,   5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 46 Snow and Ice   
+     & lu_type('MODIS_16 ', 'BARREN ', 100.0,   5.0,  20.0,  5.0, 1.0, 0.5, 0.02,  25.0, 246.0, 125.0),  ! 47 Sparsely Vegetated
+     & lu_type('MODIS_0  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 48 IGBP water
+     & lu_type('MODIS_255', 'SNOWICE',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 49 unclassified   
+     & lu_type('MODIS_255', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0)/) ! 50 fill (normally ocean water)                                               
                                                
 !****************************************************************************************
 !****************************************************************************************
 ! 40 CLASS MODIS (Outside US, cats 1-20)/NLCD (US only, cats 21-40) LU characterization
 !-------------------------------------------------------------------------------
-!Index Rstmin  Zo    Mxfr MnFr  MxLA MnLA SNUP  ALB   LUF HGLU Cat Desc.
-!  1    175.   100.   90.  80.  4.0  3.0  0.08  12. 246.0   40 Evergreen Needleleaf Forest
-!  2    120.   90.    95.  85.  5.0  4.0  0.08  12. 247.0  130 Evergreen Broadleaf Forest
-!  3    175.   100.   95.  50.  5.0  1.0  0.08  14. 246.0   81 Deciduous Needleleaf Forest
-!  4    200.   100.   95.  50.  5.0  1.0  0.08  16. 251.0   81 Deciduous Broadleaf Forest'
-!  5    200.   100.   95.  60.  5.0  2.0  0.08  13. 246.0  139 Mixed Forest
-!  6    200.   15.    90.  50.  3.0  1.0  0.03  22. 246.0  125 Closed Shrublands
-!  7    200.   15.    75.  50.  2.5  1.0  0.035 20. 246.0  125 Open Shrublands
-!  8    150.   25.    80.  60.  2.5  1.0  0.03  22. 246.0  125 Woody Savanna
-!  9    120.   15.    70.  50   2.0  1.0  0.04  20. 246.0  125 Savanna
-!---------------------------------------------------  --------------------------
-! 10    100.    7.    85.  60.  2.5  1.0  0.04  19. 246.0   20 Grasslands
-! 11    160    20.    75.  45.  3.0  1.0  0.015 14. 246.0  125 Perminent Wetlands
-! 12     70.   10.    95.  10.  3.0  0.5  0.04  18. 323.0   81 Croplands
-! 13    150.   80.    40.  20.  3.0  1.0  0.04  11. 281.0  190 Urban andBuilt-up'
-! 14    100.   30.    95.  40.  3.0  1.0  0.04  18. 298.0   50 Cropland/Natural Vegetation Mosaic
-! 15   9999.   1.2     5.  02.  0.1  0.1  0.02  60.   0.0    0 Snow and Ice
-! 16    100.    5.    20.   5.  1.0  0.5  0.02  25. 246.0  125 Barren or Sparsely Vegetated
-! 17   9999.   0.1    00.  00.  0.0  0.0  0.01  8.0   0.0    0 IGBP water
-! 18   9999.   0.1    00.  00.  0.0  0.0  0.01  8.0   0.0    0 unclassified
-! 19   9999.   0.1    00.  00.  0.0  0.0  0.01  8.0   0.0    0 fill value (normally ocean water)
-! 20   9999.   0.1    00.  00.  0.0  0.0  0.01  8.0   0.0    0 unclassified
-! 21   9999.   0.1    00.  00.  0.0  0.0  0.01  8.0   0.0    0 Open water
-! 22   9999.   1.2     5.  02.  0.1  0.1  0.02  60.   0.0    0 Perennial Ice/snow
-! 23    120.   30.    90.  80.  3.0  1.0  0.04  12. 312.0  130 Developed, Open space
-! 24    120.   40.    70   60.  3.0  1.0  0.04  11. 305.0  150 Developed, Low Intensity
-! 25    140.   60.    40.  30.  3.0  1.0  0.04  10. 331.0  170 Developed, Medium Intensity
-! 26    160.   100.   15.   5.  3.0  1.0  0.04  10. 402.0  190 Developed, High Intensity
-! 27    100.    5.    20.   5.  1.0  0.5  0.02  20. 246.0  125 Barren land
-! 28    200.   100.   95.  50.  5.0  1.0  0.08  15. 274.0   81 Deciduous Forest
-! 29    175.   100.   90.  80.  4.0  3.0  0.08  12. 246.0   81 Evergreen Forest
-!---------------------------------------------------  --------------------------
-! 30    200.   100.   95.  60.  5.0  2.0  0.08  13. 254.0  139 Mixed Forest
-! 31    200.   10.    50.  20.  2.0  1.0  0.04  20. 246.0   73 Dwarf Scrub
-! 32    200.   15.    75.  50.  2.5  1.0  0.04  20. 246.0  125 Shrub/Scrub
-! 33    100.    7.    85.  60.  2.5  1.0  0.04  19. 247.0   20 Grassland/Herbaceous
-! 34    100.    7.    80.  20.  2.0  1.0  0.01  23. 246.0  125 Sedge/Herbaceous
-! 35    100.    5.    80.  20.  1.0  1.0  0.01  20.   0.0   18 Lichens
-! 36    100.    5.    80.  20.  1.0  1.0  0.01  20.   0.0   18 Moss
-! 37     80.    7.    95.  80.  3.0  1.0  0.04  18. 344.0   50 Pasture/Hay'
-! 38     70.   10.    95.  10.  3.0  0.5  0.04  18. 340.0   80 Cultivated Crops
-!---------------------------------------------------  --------------------------
-! 39    200.   55.    90.  80.  5.0  2.0  0.08  15. 271.0  125 Woody Wetland
-! 40    120.   11.    60.  40.  2.0  1.0  0.04  18. 248.0  125 Emergent Herbaceous Wetland
-!------------------------------------------------------------------------------------
- 
-       TYPE( lu_type ), PARAMETER :: NLCD40( n_nlcd40 ) =  (/      
-!               ------ Description --------    --LU cat --
-     & lu_type('Evergreen Needleleaf Forest ', 'FOREST  '),  ! 1
-     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 2 
-     & lu_type('Deciduous Needleleaf Forest ', 'FOREST  '),  ! 3
-     & lu_type('Deciduous Broadleaf Forest  ', 'FOREST  '),  ! 4
-     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 5
-     & lu_type('Closed Shrublands           ', 'SHRUB   '),  ! 6
-     & lu_type('Open Shrublands             ', 'SHRUB   '),  ! 7
-     & lu_type('Woody Savanna               ', 'FOREST  '),  ! 8
-     & lu_type('Savanna                     ', 'FOREST  '),  ! 9     
-     & lu_type('Grasslands                  ', 'GRASS   '),  ! 10     
-     & lu_type('Perminent Wetlands          ', 'WETLAND '),  ! 11    
-     & lu_type('Croplands                   ', 'AG      '),  ! 12    
-     & lu_type('Urban and Built-up          ', 'BUILT   '),  ! 13     
-     & lu_type('Crop/Natural Mosaic         ', 'AGMOS   '),  ! 14
-     & lu_type('Snow and Ice                ', 'SNOWICE '),  ! 15    
-     & lu_type('Sparsely Vegetated          ', 'BARREN  '),  ! 16
-     & lu_type('IGBP water                  ', 'WATER   '),  ! 17
-     & lu_type('unclassified MODIS          ', 'SNOWICE '),  ! 18    
-     & lu_type('fill (normally ocean water) ', 'WATER   '),  ! 19
-     & lu_type('unclassified NLCD           ', 'SNOWICE '),  ! 20  
-     & lu_type('Open water                  ', 'WATER   '),  ! 21
-     & lu_type('Perennial Ice/snow          ', 'SNOWICE '),  ! 22 
-     & lu_type('Developed, Open space       ', 'BUILT   '),  ! 23
-     & lu_type('Developed, Low Intensity    ', 'BUILT   '),  ! 24
-     & lu_type('Developed, Medium Intensity ', 'BUILT   '),  ! 25
-     & lu_type('Developed, High Intensity   ', 'BUILT   '),  ! 26
-     & lu_type('Barren land                 ', 'BARREN  '),  ! 27
-     & lu_type('Deciduous Forest            ', 'FOREST  '),  ! 28
-     & lu_type('Evergreen Forest            ', 'FOREST  '),  ! 29
-     & lu_type('Mixed Forest                ', 'FOREST  '),  ! 30
-     & lu_type('Dwarf Scrub                 ', 'SHRUB   '),  ! 31
-     & lu_type('Shrub/Scrub                 ', 'SHRUB   '),  ! 32
-     & lu_type('Grassland/Herbaceous        ', 'GRASS   '),  ! 33
-     & lu_type('Sedge/Herbaceous            ', 'GRASS   '),  ! 34
-     & lu_type('Lichens                     ', 'BARREN  '),  ! 35
-     & lu_type('Moss                        ', 'BARREN  '),  ! 36
-     & lu_type('Pasture/Hay                 ', 'AG      '),  ! 37
-     & lu_type('Cultivated Crops            ', 'AG      '),  ! 38    
-     & lu_type('Woody Wetland               ', 'WETLAND '),  ! 39 
-     & lu_type('Emergent Herbaceous Wetland ', 'WETLAND ')/) ! 40 
-!------------------------------------------------------------------------------------
-!------------------------------------------------------------------------------------
-                                               
-      REAL, DIMENSION(n_nlcd40), TARGET  :: RSMIN_NLCD40, Z00_NLCD40,  
-     &                                 VEG0_NLCD40, VEGMN0_NLCD40,    
-     &                                 LAI0_NLCD40, LAIMN0_NLCD40,    
-     &                                SNUP0_NLCD40, ALBF_NLCD40,      
-     &                              LUF_FAC_NLCD40, HGLU_FAC_NLCD40
-                                                     
-      DATA RSMIN_NLCD40                                      
-     &        / 175.0,   120.0,   175.0,   200.0,    200.0,   
-     &          200.0,   200.0,   150.0,   120.0,    100.0,   
-     &          160.0,    70.0,   150.0,   100.0,   9999.0,   
-     &          100.0,  9999.0,  9999.0,  9999.0,   9999.0,   
-     &         9999.0,  9999.0,   120.0,   120.0,    140.0,   
-     &          160.0,   100.0,   200.0,   175.0,    200.0,   
-     &          200.0,   200.0,   100.0,   100.0,    100.0,   
-     &          100.0,    80.0,    70.0,   200.0,    120.0  /
-                                                
-      DATA Z00_NLCD40                                        
-     &        / 100.0,    90.0,   100.0,   100.0,   100.0,    
-     &           15.0,    15.0,    25.0,    15.0,     7.0,    
-     &           20.0,    10.0,    80.0,    30.0,     1.2,    
-     &            5.0,     0.1,     0.1,     0.1,     0.1,    
-     &           0.10,    1.20,    30.0,    40.0,    60.0,    
-     &          100.0,     5.0,   100.0,   100.0,   100.0,    
-     &           10.0,    15.0,     7.0,     7.0,     5.0,    
-     &            5.0,     7.0,    10.0,    55.0,    11.0   /
-                                                
-      DATA VEG0_NLCD40                                       
-     &        /  90.0,    95.0,    95.0,    95.0,    95.0,    
-     &           90.0,    75.0,    80.0,    70.0,    85.0,    
-     &           75.0,    95.0,    40.0,    95.0,     5.0,    
-     &           20.0,     0.0,     0.0,     0.0,     0.0,    
-     &            0.0,     5.0,    90.0,    70.0,    40.0,    
-     &           15.0,    20.0,    95.0,    90.0,    95.0,    
-     &           50.0,    75.0,    85.0,    80.0,    80.0,    
-     &           80.0,    95.0,    95.0,    90.0,    60.0   /
-                                                
-      DATA VEGMN0_NLCD40                                     
-     &        /  80.0,    85.0,    50.0,    50.0,    60.0,    
-     &           50.0,    50.0,    60.0,    50.0,    60.0,    
-     &           45.0,    10.0,    20.0,    40.0,     2.0,    
-     &            5.0,     0.0,     0.0,     0.0,     0.0,    
-     &            0.0,     2.0,    80.0,    60.0,    30.0,    
-     &           05.0,    05.0,    50.0,    80.0,    60.0,    
-     &           20.0,    50.0,    60.0,    20.0,    20.0,    
-     &           20.0,    80.0,    10.0,    80.0,    40.0   /
-                                                
-      DATA LAI0_NLCD40                                       
-     &        /   4.0,     5.0,     5.0,     5.0,     5.0,    
-     &            3.0,     2.5,     2.5,     2.0,     2.5,    
-     &            3.0,     3.0,     3.0,     3.0,     0.1,    
-     &            1.0,     0.0,     0.0,     0.0,     0.0,    
-     &            0.0,     0.1,     3.0,     3.0,     3.0,    
-     &            3.0,     1.0,     5.0,     4.0,     5.0,    
-     &            2.0,     2.5,     2.5,     2.0,     1.0,    
-     &            1.0,     3.0,     3.0,     5.0,     2.0   /
-                                                
-      DATA LAIMN0_NLCD40                                     
-     &        /   3.0,     4.0,     1.0,     1.0,     2.0,    
-     &            1.0,     1.0,     1.0,     1.0,     1.0,    
-     &            1.0,     0.5,     1.0,     1.0,     0.1,    
-     &            0.5,     0.0,     0.0,     0.0,     0.0,    
-     &            0.0,     0.1,     1.0,     1.0,     1.0,    
-     &            1.0,     0.5,     1.0,     3.0,     2.0,    
-     &            1.0,     1.0,     1.0,     1.0,     1.0,    
-     &            1.0,     1.0,     0.5,     2.0,     1.0   /
-                                                
-      DATA SNUP0_NLCD40                                      
-     &        /   0.08,    0.08,    0.08,    0.08,    0.08,   
-     &            0.03,    0.035,   0.03,    0.04,    0.04,   
-     &           0.015,    0.04,    0.04,    0.04,    0.02,   
-     &            0.02,    0.01,    0.01,    0.01,    0.01,   
-     &            0.01,    0.02,    0.04,    0.04,    0.04,   
-     &            0.04,    0.02,    0.08,    0.08,    0.08,   
-     &            0.04,    0.04,    0.04,    0.01,    0.01,   
-     &            0.01,    0.04,    0.04,    0.08,    0.04  /
-                                                
-      DATA ALBF_NLCD40                                       
-     &        /  12.0,    12.0,    14.0,    16.0,    13.0,    
-     &           22.0,    20.0,    22.0,    20.0,    19.0,    
-     &           14.0,    18.0,    11.0,    18.0,    60.0,    
-     &           25.0,     8.0,     8.0,     8.0,     8.0,    
-     &            8.0,    60.0,    12.0,    11.0,    10.0,    
-     &           10.0,    20.0,    15.0,    12.0,    13.0,    
-     &           20.0,    20.0,    19.0,    23.0,    20.0,    
-     &           20.0,    18.0,    18.0,    15.0,    18.0   /
-                                                
-      DATA LUF_FAC_NLCD40                            
-     &        / 246.0,   247.0,   246.0,   251.0,   246.0, 
-     &          246.0,   246.0,   246.0,   246.0,   246.0, 
-     &          246.0,   323.0,   281.0,   298.0,     0.0, 
-     &          246.0,     0.0,     0.0,     0.0,     0.0,
-     &            0.0,     0.0,   312.0,   305.0,   331.0,
-     &          402.0,   246.0,   274.0,   246.0,   254.0,
-     &          246.0,   246.0,   247.0,   246.0,     0.0,
-     &            0.0,   344.0,   340.0,   271.0,   248.0   /       
-                                     
-      DATA HGLU_FAC_NLCD40                     
-     &        /  40.0,   130.0,    81.0,    81.0,   139.0,    
-     &          125.0,   125.0,   125.0,   125.0,    20.0,    
-     &          125.0,    81.0,   190.0,    50.0,     0.0,    
-     &          125.0,     0.0,     0.0,     0.0,     0.0,    
-     &            0.0,     0.0,   130.0,   150.0,   170.0,    
-     &          190.0,   125.0,    81.0,    81.0,   139.0,    
-     &           73.0,   125.0,    20.0,   125.0,    18.0,    
-     &           18.0,    50.0,    80.0,   125.0,   125.0   /
-                                               
+
+       TYPE( lu_type ),PRIVATE, PARAMETER :: NLCD40( n_nlcd40 ) =  (/
+!                                                        VEGMN0     LAIMN0             LUF_FAC
+!               -Name-      -LU cat -  RSMIN   Z00   VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC       Cat Desc.
+     & lu_type('MODIS_1  ', 'EVEFOR ', 175.0, 100.0,  90.0, 80.0, 4.0, 3.0, 0.08,  12.0, 246.0,  40.0),  ! 1 Evergreen Needleleaf Forest
+     & lu_type('MODIS_2  ', 'EVEFOR ', 120.0,  90.0,  95.0, 85.0, 5.0, 4.0, 0.08,  12.0, 247.0, 130.0),  ! 2 Evergreen Broadleaf Forest
+     & lu_type('MODIS_3  ', 'DECFOR ', 175.0, 100.0,  95.0, 50.0, 5.0, 1.0, 0.08,  14.0, 267.0,  81.0),  ! 3 Deciduous Needleleaf Forest
+     & lu_type('MODIS_4  ', 'DECFOR ', 200.0, 100.0,  95.0, 50.0, 5.0, 1.0, 0.08,  16.0, 268.0,  81.0),  ! 4 Deciduous Broadleaf Forest  
+     & lu_type('MODIS_5  ', 'MIXFOR ', 200.0, 100.0,  95.0, 60.0, 5.0, 2.0, 0.08,  13.0, 252.0, 139.0),  ! 5 Mixed Forest
+     & lu_type('MODIS_6  ', 'SHRUB  ', 200.0,  15.0,  90.0, 50.0, 3.0, 1.0, 0.03,  22.0, 246.0, 125.0),  ! 6 Closed Shrublands
+     & lu_type('MODIS_7  ', 'SHRUB  ', 200.0,  15.0,  75.0, 50.0, 2.5, 1.0, 0.035, 20.0, 246.0, 125.0),  ! 7 Open Shrublands
+     & lu_type('MODIS_8  ', 'MIXFOR ', 150.0,  25.0,  80.0, 60.0, 2.5, 1.0, 0.03,  22.0, 246.0, 125.0),  ! 8 Woody Savanna
+     & lu_type('MODIS_9  ', 'MIXFOR ', 120.0,  15.0,  70.0, 50.0, 2.0, 1.0, 0.04,  20.0, 246.0, 125.0),  ! 9 Savanna
+     & lu_type('MODIS_10 ', 'GRASS  ', 100.0,   7.0,  85.0, 60.0, 2.5, 1.0, 0.04,  19.0, 247.0,  20.0),  ! 10 Grasslands
+     & lu_type('MODIS_11 ', 'WETLAND', 160.0,  20.0,  75.0, 45.0, 3.0, 1.0, 0.015, 14.0, 260.0, 125.0),  ! 11 Perminent Wetlands
+     & lu_type('MODIS_12 ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  81.0),  ! 12 Croplands  
+     & lu_type('MODIS_13 ', 'BUILT  ', 150.0,  80.0,  40.0, 20.0, 3.0, 1.0, 0.04,  11.0, 338.0, 190.0),  ! 13 Urban and Built-up    
+     & lu_type('MODIS_14 ', 'AGMOS  ', 100.0,  30.0,  95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 14 Crop/Natural Mosaic
+     & lu_type('MODIS_15 ', 'SNOWICE',9999.0,   1.2,   5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 15 Snow and Ice   
+     & lu_type('MODIS_16 ', 'BARREN ', 100.0,   5.0,  20.0,  5.0, 1.0, 0.5, 0.02,  25.0, 246.0, 125.0),  ! 16 Sparsely Vegetated
+     & lu_type('MODIS_0  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 17 IGBP water
+     & lu_type('MODIS_255', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 18 unclassified   
+     & lu_type('MODIS_255', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 19 fill (normally ocean water)
+     & lu_type('MODIS_255', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 20 unclassified   
+     & lu_type('NLCD_11  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 21 Open water
+     & lu_type('NLCD_12  ', 'SNOWICE',9999.0,   1.2,   5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 22 Perennial Ice/snow
+     & lu_type('NLCD_21  ', 'BUILT  ', 120.0,  30.0,  90.0, 80.0, 3.0, 1.0, 0.04,  12.0, 312.0, 130.0),  ! 23 Developed, Open space
+     & lu_type('NLCD_22  ', 'BUILT  ', 120.0,  40.0,  70.0, 60.0, 3.0, 1.0, 0.04,  11.0, 305.0, 150.0),  ! 24 Developed, Low Intensity
+     & lu_type('NLCD_23  ', 'BUILT  ', 140.0,  60.0,  40.0, 30.0, 3.0, 1.0, 0.04,  10.0, 331.0, 170.0),  ! 25 Developed, Medium Intensity
+     & lu_type('NLCD_24  ', 'BUILT  ', 160.0, 100.0,  15.0,  5.0, 3.0, 1.0, 0.04,  10.0, 402.0, 190.0),  ! 26 Developed, High Intensity
+     & lu_type('NLCD_31  ', 'BARREN ', 100.0,   5.0,  20.0,  5.0, 1.0, 0.5, 0.02,  20.0, 246.0, 125.0),  ! 27 Barren land
+     & lu_type('NLCD_41  ', 'DECFOR ', 200.0, 100.0,  95.0, 50.0, 5.0, 1.0, 0.08,  15.0, 274.0,  81.0),  ! 28 Deciduous Forest
+     & lu_type('NLCD_42  ', 'EVEFOR ', 175.0, 100.0,  90.0, 80.0, 4.0, 3.0, 0.08,  10.0, 246.0,  81.0),  ! 29 Evergreen Forest
+     & lu_type('NLCD_43  ', 'MIXFOR ', 200.0, 100.0,  95.0, 60.0, 5.0, 2.0, 0.08,  13.0, 254.0, 139.0),  ! 30 Mixed Forest
+     & lu_type('NLCD_51  ', 'SHRUB  ', 200.0,  10.0,  50.0, 20.0, 2.0, 1.0, 0.04,  20.0, 246.0,  73.0),  ! 31 Dwarf Scrub
+     & lu_type('NLCD_52  ', 'SHRUB  ', 200.0,  15.0,  75.0, 50.0, 2.5, 1.0, 0.04,  20.0, 246.0, 125.0),  ! 32 Shrub/Scrub
+     & lu_type('NLCD_71  ', 'GRASS  ', 100.0,   7.0,  85.0, 60.0, 2.5, 1.0, 0.04,  19.0, 247.0,  20.0),  ! 33 Grassland/Herbaceous
+     & lu_type('NLCD_72  ', 'GRASS  ', 100.0,   7.0,  80.0, 20.0, 2.0, 1.0, 0.01,  23.0, 246.0, 125.0),  ! 34 Sedge/Herbaceous
+     & lu_type('NLCD_73  ', 'BARREN ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 35 Lichens
+     & lu_type('NLCD_74  ', 'BARREN ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 36 Moss
+     & lu_type('NLCD_81  ', 'HAY    ',  80.0,   7.0,  95.0, 80.0, 3.0, 1.0, 0.04,  18.0, 344.0,  50.0),  ! 37 Pasture/Hay
+     & lu_type('NLCD_82  ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  80.0), ! 38 Cultivated Crops   
+     & lu_type('NLCD_90  ', 'WETLAND', 200.0,  55.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 271.0, 125.0),  ! 39 Woody Wetland 
+     & lu_type('NLCD_95  ', 'WETLAND', 120.0,  11.0,  60.0, 40.0, 2.0, 1.0, 0.04,  18.0, 248.0, 125.0)/) ! 40 Emergent Herbaceous Wetland
 
 !*****************************************************************************
 !*****************************************************************************
 !  USGS LU characterization  --  note below may not match those for the same category in a diff
 !                                classification system.  This was done to maintain compatibility with MM5.               
 !-----------------------------------------------------------------------------                   
-!     Name  Rstmin  Zo  Mxfr MnFr  MxLA MnLA SNUP    ALB  LUF     HGLU  Cat Desc.  
-! 1   Urban  150.   50.  40.  20.  2.0  0.5  0.04   15.0  338.0  190.0  Urban or Built-up Land
-! 2   DrCrp   70.   10.  95.  15.  3.0  0.5  0.04   17.0  340.0   80.0  Dryland Cropland and Pasture
-! 3   IrCrp   60.   10.  95.  10.  3.0  0.5  0.04   18.0  340.0   32.0  Irrigated Cropland and Pasture
-! 4   MixCp   70.   10.  95.  15.  3.0  0.5  0.04   18.0  340.0   56.0  Mixed Dry/Irr Crop and Past
-! 5   CrGrM   80.   10.  95.  35.  2.5  1.0  0.04   18.0  298.0   50.0  Grassland/Cropland Mosaic
-! 6   CrWdM  180.   40.  95.  40.  4.0  1.5  0.04   16.0  298.0   26.0  Woodland/Cropland Mosaic
-! 7   GrsLd  100.    7.  95.  70.  2.5  1.0  0.04   19.0  247.0   20.0  Grassland
-! 8   ShrLd  200.   20.  70.  50.  3.0  1.0  0.03   22.0  246.0  125.0  Shrubland
-! 9   ShrGr  150.   20.  85.  60.  3.0  1.0  0.035  20.0  246.0   73.0  Mixed Shrubland/Grassland
-! 10  Savan  120.   20.  80.  60.  2.0  1.0  0.04   20.0  246.0   51.0  Savanna
-! 11  DBFst  200.   50.  95.  50.  5.0  1.0  0.08   16.0  268.0   81.0  Broadleaf Deciduous Forest
-! 12  DNFst  175.   50.  95.  50.  5.0  1.0  0.08   14.0  267.0   81.0  Deciduous Coniferous Forest
-! 13  EBFst  120.   40.  95.  85.  5.0  4.0  0.08   12.0  247.0  130.0  Evergreen Broadleaf Forest (Palm?)
-! 14  ENFst  175.   50.  90.  80.  4.0  3.0  0.08   12.0  246.0   40.0  Evergreen Coniferous Forest
-! 15  MxFst  200.   50.  95.  60.  5.0  2.0  0.08   13.0  252.0  139.0  Mixed forest
-! 16  Water 9999.   0.1  00.  00.  0.0  0.0  0.01    8.0    0.0    0.0  Water
-! 17  HWtld  164.   15.  60.  40.  2.0  1.0  0.01   14.0  248.0  125.0  Herbaceous Wetland (none in east)
-! 18  WWtld  200.   45.  90.  80.  5.0  3.0  0.01   14.0  260.0  125.0  Forested Wetlands (e.g. Everglades)
-! 19  BarSp  100.    5.  10.  05.  0.5  0.2  0.02   25.0  246.0   26.0  Barren or Sparsely Vegetated
-! 20  HrTun  150.   10.  20.  10.  1.0  0.5  0.02   15.0  246.0   62.0  Herbaceous Tundra
-! 21  WdTun  200.   10.  30.  10.  1.0  0.5  0.025  15.0  246.0   62.0  Shrub and Brush Tundra
-! 22  MxTun  150.    5.  20.  05.  1.0  0.5  0.025  15.0  246.0   62.0  Mixed Tundra
-! 23  BGTun  100.    5.   5.  02.  0.1  0.1  0.025  25.0  246.0   18.0  Bare Ground Tundra
-! 24  SnwIc  300.    5.   5.  02.  0.1  0.1  0.02   55.0    0.0    0.0  Perennial Snowfields or Glaciers
-!-----------------------------------------------------------------------------
 
-      TYPE( lu_type ), PARAMETER :: USGS24( n_usgs ) =  (/      
-!               ------ Description --------    --LU cat --
-     & lu_type('Urban or Built-up Land      ', 'BUILT   '),  ! 1
-     & lu_type('Dryland Crop and Pasture    ', 'AG      '),  ! 2
-     & lu_type('Irr. Cropland and Pasture   ', 'AG      '),  ! 3
-     & lu_type('Mixed Dry/Irr Crop and Past ', 'AG      '),  ! 4
-     & lu_type('Grassland/Cropland Mosaic   ', 'AGMOS   '),  ! 5
-     & lu_type('Woodland/Cropland Mosaic    ', 'AGMOS   '),  ! 6
-     & lu_type('Grassland                   ', 'GRASS   '),  ! 7
-     & lu_type('Shrubland                   ', 'SHRUB   '),  ! 8
-     & lu_type('Mixed Shrubland/Grassland   ', 'SHRUB   '),  ! 9
-     & lu_type('Savanna                     ', 'SHRUB   '),  ! 10
-     & lu_type('Broadleaf Deciduous Forest  ', 'FOREST  '),  ! 11
-     & lu_type('Deciduous Coniferous Forest ', 'FOREST  '),  ! 12
-     & lu_type('Evergreen Broadleaf Forest  ', 'FOREST  '),  ! 13
-     & lu_type('Evergreen Coniferous Forest ', 'FOREST  '),  ! 14
-     & lu_type('Mixed forest                ', 'FOREST  '),  ! 15
-     & lu_type('Water                       ', 'WATER   '),  ! 16
-     & lu_type('Herbaceous Wetland          ', 'WETLAND '),  ! 17
-     & lu_type('Forested Wetlands           ', 'WETLAND '),  ! 18
-     & lu_type('Barren or Sparsely Vegetated', 'BARREN  '),  ! 19     
-     & lu_type('Herbaceous Tundra           ', 'SHRUB   '),  ! 20
-     & lu_type('Shrub and Brush Tundra      ', 'SHRUB   '),  ! 21
-     & lu_type('Mixed Tundra                ', 'SHRUB   '),  ! 22
-     & lu_type('Bare Ground Tundra          ', 'BARREN  '),  ! 23
-     & lu_type('Snowfields or Glaciers      ', 'SNOWICE ')/) ! 24
-!-----------------------------------------------------------------------------
-                                               
-      REAL, DIMENSION(n_usgs), TARGET :: RSMIN_USGS, Z00_USGS,   
-     &                                   VEG0_USGS, VEGMN0_USGS, 
-     &                                   LAI0_USGS, LAIMN0_USGS, 
-     &                                   SNUP0_USGS, ALBF_USGS, 
-     &                                   LUF_FAC_USGS, HGLU_FAC_USGS                                          
+      TYPE( lu_type ), PRIVATE, PARAMETER :: USGS24( n_usgs ) =  (/
+!                                                          VEGMN0     LAIMN0             LUF_FAC
+!               ---Name---   -LU cat -   RSMIN    Z00  VEG0   |   LAI0   |  SNUP0   ALBF    |   HGLU_FAC     Cat Desc.
+     & lu_type('USGS_Urban', 'BUILT   ', 150.0,  50.0, 40.0, 20.0, 2.0,  0.5, 0.04,  15.0, 338.0, 190.0),  ! 1 Urban or Built-up Land
+     & lu_type('USGS_DrCrp', 'AG      ',  70.0,  10.0, 95.0, 15.0, 3.16,  0.5, 0.04,  17.0, 340.0,  80.0),  ! 2 Dryland Crop and Pasture
+     & lu_type('USGS_IrCrp', 'AG      ',  60.0,  10.0, 95.0, 10.0, 3.16,  0.5, 0.04,  18.0, 340.0,  32.0),  ! 3 Irr. Cropland and Pasture
+     & lu_type('USGS_MixCp', 'AG      ',  70.0,  10.0, 95.0, 15.0, 3.16,  0.5, 0.04,  18.0, 340.0,  56.0),  ! 4 Mixed Dry/Irr Crop and Past
+     & lu_type('USGS_CrGrM', 'AGMOS   ',  80.0,  10.0, 95.0, 35.0, 2.5,  1.0, 0.04,  18.0, 298.0,  50.0),  ! 5 Grassland/Cropland Mosaic
+     & lu_type('USGS_CrWdM', 'AGMOSW  ', 180.0,  40.0, 95.0, 40.0, 4.0,  1.5, 0.04,  16.0, 298.0,  26.0),  ! 6 Woodland/Cropland Mosaic
+     & lu_type('USGS_GrsLd', 'GRASS   ', 100.0,   7.0, 95.0, 70.0, 2.5,  1.0, 0.04,  19.0, 247.0,  20.0),  ! 7 Grassland
+     & lu_type('USGS_ShrLd', 'SHRUB   ', 200.0,  20.0, 70.0, 50.0, 3.0,  1.0, 0.03,  22.0, 246.0, 125.0),  ! 8 Shrubland
+     & lu_type('USGS_ShrGr', 'SHRUB   ', 150.0,  20.0, 85.0, 60.0, 3.0,  1.0, 0.035, 20.0, 246.0,  73.0),  ! 9 Mixed Shrubland/Grassland
+     & lu_type('USGS_Savan', 'MIXFOR  ', 120.0,  20.0, 80.0, 60.0, 2.0,  1.0, 0.04,  20.0, 246.0,  51.0),  ! 10 Savanna
+     & lu_type('USGS_DBFst', 'DECFOR  ', 200.0,  50.0, 95.0, 50.0, 5.0,  1.0, 0.08,  16.0, 268.0,  81.0),  ! 11 Broadleaf Deciduous Forest
+     & lu_type('USGS_DNFst', 'DECFOR  ', 175.0,  50.0, 95.0, 50.0, 5.0,  1.0, 0.08,  14.0, 267.0,  81.0),  ! 12 Deciduous Coniferous Forest
+     & lu_type('USGS_EBFst', 'EVEFOR  ', 120.0,  40.0, 95.0, 85.0, 5.0,  4.0, 0.08,  12.0, 247.0, 130.0),  ! 13 Evergreen Broadleaf Forest
+     & lu_type('USGS_ENFst', 'EVEFOR  ', 175.0,  50.0, 90.0, 80.0, 4.0,  3.0, 0.08,  12.0, 246.0,  40.0),  ! 14 Evergreen Coniferous Forest
+     & lu_type('USGS_MxFst', 'MIXFOR  ', 200.0,  50.0, 95.0, 60.0, 5.0,  2.0, 0.08,  13.0, 252.0, 139.0),  ! 15 Mixed forest
+     & lu_type('USGS_Water', 'WATER   ',9999.0,   0.1,  0.0,  0.0, 0.0,  0.0, 0.01,   8.0,   0.0,   0.0),  ! 16 Water
+     & lu_type('USGS_HWtld', 'WETLAND ', 164.0,  15.0, 60.0, 40.0, 2.0,  1.0, 0.01,  14.0, 248.0, 125.0),  ! 17 Herbaceous Wetland
+     & lu_type('USGS_WWtld', 'WETLAND ', 200.0,  45.0, 90.0, 80.0, 5.0,  3.0, 0.01,  14.0, 260.0, 125.0),  ! 18 Forested Wetlands
+     & lu_type('USGS_BarSp', 'BARREN  ', 100.0,   5.0, 10.0,  5.0, 0.5,  0.2, 0.02,  25.0, 246.0,  26.0),  ! 19 Barren or Sparsely Vegetated
+     & lu_type('USGS_HrTun', 'GRASS   ', 150.0,  10.0, 20.0, 10.0, 1.0,  0.5, 0.02,  15.0, 246.0,  62.0),  ! 20 Herbaceous Tundra
+     & lu_type('USGS_WdTun', 'SHRUB   ', 200.0,  10.0, 30.0, 10.0, 1.0,  0.5, 0.025, 15.0, 246.0,  62.0),  ! 21 Shrub and Brush Tundra
+     & lu_type('USGS_MxTun', 'SHRUB   ', 150.0,   5.0, 20.0,  5.0, 1.0,  0.5, 0.025, 15.0, 246.0,  62.0),  ! 22 Mixed Tundra
+     & lu_type('USGS_BGTun', 'BARREN  ', 100.0,   5.0,  5.0,  2.0, 0.1,  0.1, 0.025, 25.0, 246.0,  18.0),  ! 23 Bare Ground Tundra
+     & lu_type('USGS_SnwIc', 'SNOWICE ', 300.0,   5.0,  5.0,  2.0, 0.1,  0.1, 0.02,  55.0,   0.0,   0.0)/) ! 24 Snowfields or Glaciers
 
-      DATA RSMIN_USGS                                         
-     &       /  150.0,    70.0,    60.0,    70.0,    80.0,   
-     &          180.0,   100.0,   200.0,   150.0,   120.0,   
-     &          200.0,   175.0,   120.0,   175.0,   200.0,   
-     &         9999.0,   164.0,   200.0,   100.0,   150.0,   
-     &          200.0,   150.0,   100.0,   300.0           /
-
-      DATA Z00_USGS                                           
-     &       /   50.0,    10.0,    10.0,    10.0,    10.0,   
-     &           40.0,     7.0,    20.0,    20.0,    20.0,   
-     &           50.0,    50.0,    40.0,    50.0,    50.0,   
-     &            0.1,    15.0,    45.0,     5.0,    10.0,   
-     &           10.0,     5.0,     5.0,     5.0           /
-
-      DATA VEG0_USGS                                          
-     &       /   40.0,    95.0,    95.0,    95.0,    95.0,   
-     &           95.0,    95.0,    70.0,    85.0,    80.0,   
-     &           95.0,    95.0,    95.0,    90.0,    95.0,   
-     &            0.00,   60.0,    90.0,    10.0,    20.0,   
-     &           30.0,    20.0,     5.0,     5.0           /
-                                               
-      DATA VEGMN0_USGS                                        
-     &       /   20.0,    15.0,    10.0,    15.0,    35.0,   
-     &           40.0,    70.0,    50.0,    60.0,    60.0,   
-     &           50.0,    50.0,    85.0,    80.0,    60.0,   
-     &            0.0,    40.0,    80.0,     5.0,    10.0,   
-     &           10.0,     5.0,     2.0,     2.0           /
-                                               
-      DATA LAI0_USGS                                          
-     &       /    2.0,     3.0,     3.0,     3.0,     2.5,   
-     &            4.0,     2.5,     3.0,     3.0,     2.0,   
-     &            5.0,     5.0,     5.0,     4.0,     5.0,   
-     &            0.0,     2.0,     5.0,     0.50,    1.0,   
-     &            1.0,     1.0,     0.1,     0.1           /
-                                               
-      DATA LAIMN0_USGS                                        
-     &       /    0.50,    0.50,    0.50,    0.50,    1.0,   
-     &            1.5,     1.0,     1.0,     1.0,     1.0,   
-     &            1.0,     1.0,     4.0,     3.0,     2.0,   
-     &            0.0,     1.0,     3.0,     0.20,    0.50,  
-     &            0.50,    0.50,    0.10,    0.10          /
-                                               
-      DATA SNUP0_USGS                                         
-     &       /    0.04,    0.04,    0.04,    0.04,    0.04,  
-     &            0.04,    0.04,    0.03,    0.035,   0.04,  
-     &            0.08,    0.08,    0.08,    0.08,    0.08,  
-     &            0.01,    0.01,    0.01,    0.02,    0.02,  
-     &            0.025,   0.025,   0.025,   0.02          /
-                                               
-      DATA ALBF_USGS                                          
-     &       /    15.0,   17.0,    18.0,    18.0,    18.0,   
-     &            16.0,   19.0,    22.0,    20.0,    20.0,   
-     &            16.0,   14.0,    12.0,    12.0,    13.0,   
-     &             8.0,   14.0,    14.0,    25.0,    15.0,   
-     &            15.0,   15.0,    25.0,    55.0           /
-                                               
-      DATA LUF_FAC_USGS
-     &       /  338.0,  340.0,   340.0,   340.0,   298.0, 
-     &          298.0,  247.0,   246.0,   246.0,   246.0, 
-     &          268.0,  267.0,   247.0,   246.0,   252.0, 
-     &            0.0,  248.0,   260.0,   246.0,   246.0,
-     &          246.0,  246.0,   246.0,     0.0            /
-                                               
-      DATA HGLU_FAC_USGS                       
-     &       /  190.0,   80.0,    32.0,    56.0,    50.0, 
-     &           26.0,   20.0,   125.0,    73.0,    51.0, 
-     &           81.0,   81.0,   130.0,    40.0,   139.0, 
-     &            0.0,  125.0,   125.0,    26.0,    62.0,
-     &           62.0,   62.0,    18.0,     0.0            /
       CONTAINS                                 
          SUBROUTINE INIT_LSM( JDate, JTime )   
                                                
@@ -866,27 +360,115 @@ C-------------------------------------------------------------------------------
             CASE( 'USGS24' )                   
                n_lufrac    = n_usgs
                If ( .Not. Allocated ( cat_lu ) ) Then
-                  Allocate ( cat_lu ( n_lufrac ) )
+                  Allocate ( cat_lu   ( n_lufrac ),
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ),
+     &                       Z00      ( n_lufrac ),
+     &                       LUF_FAC  ( n_lufrac ),
+     &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
+                  IF ( ALLOCSTAT .NE. 0 ) THEN
+                     XMSG = 'Failure allocating land use data'
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
                End If
-               cat_lu = USGS24%lu_cat
+               cat_lu   = USGS24%lu_cat
+               name_lu  = USGS24%name
+               RSMIN    = USGS24%RSMIN
+               LAI0     = USGS24%LAI0
+               LAIMN0   = USGS24%LAIMN0
+               VEG0     = USGS24%VEG0
+               VEGMN0   = USGS24%VEGMN0
+               Z00      = USGS24%Z00/100.0
+               LUF_FAC  = USGS24%LUF_FAC
+               HGLU_FAC = USGS24%HGLU_FAC
             CASE( 'MODIS' )                    
                n_lufrac    = n_modis 
                If ( .Not. Allocated ( cat_lu ) ) Then
-                  Allocate ( cat_lu ( n_lufrac ) )
-               End If             
-               cat_lu = MODIS%lu_cat
+                  Allocate ( cat_lu   ( n_lufrac ),
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ), 
+     &                       Z00      ( n_lufrac ),
+     &                       LUF_FAC  ( n_lufrac ),
+     &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
+                  IF ( ALLOCSTAT .NE. 0 ) THEN
+                     XMSG = 'Failure allocating land use data'
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               End If
+               cat_lu   = MODIS%lu_cat
+               name_lu  = MODIS%name
+               RSMIN    = MODIS%RSMIN
+               LAI0     = MODIS%LAI0
+               LAIMN0   = MODIS%LAIMN0
+               VEG0     = MODIS%VEG0
+               VEGMN0   = MODIS%VEGMN0
+               Z00      = MODIS%Z00/100.0
+               LUF_FAC  = MODIS%LUF_FAC
+               HGLU_FAC = MODIS%HGLU_FAC
             CASE( 'NLCD50' )               
                n_lufrac    = n_nlcd50  
-              If ( .Not. Allocated ( cat_lu ) ) Then
-                  Allocate ( cat_lu ( n_lufrac ) )
-               End If             
-               cat_lu = NLCD50%lu_cat
+               If ( .Not. Allocated ( cat_lu ) ) Then
+                  Allocate ( cat_lu   ( n_lufrac ),
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ), 
+     &                       Z00      ( n_lufrac ),
+     &                       LUF_FAC  ( n_lufrac ),
+     &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
+                  IF ( ALLOCSTAT .NE. 0 ) THEN
+                     XMSG = 'Failure allocating land use data'
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               End If
+               cat_lu   = NLCD50%lu_cat
+               name_lu  = NLCD50%name
+               RSMIN    = NLCD50%RSMIN
+               LAI0     = NLCD50%LAI0
+               LAIMN0   = NLCD50%LAIMN0
+               VEG0     = NLCD50%VEG0
+               VEGMN0   = NLCD50%VEGMN0
+               Z00      = NLCD50%Z00/100.0
+               LUF_FAC  = NLCD50%LUF_FAC
+               HGLU_FAC = NLCD50%HGLU_FAC
             CASE( 'NLCD40' )               
                n_lufrac    = n_nlcd40   
                If ( .Not. Allocated ( cat_lu ) ) Then
-                  Allocate ( cat_lu ( n_lufrac ) )
-               End If            
-               cat_lu = NLCD40%lu_cat
+                  Allocate ( cat_lu   ( n_lufrac ),
+     &                       name_lu  ( n_lufrac ),
+     &                       RSMIN    ( n_lufrac ),
+     &                       LAI0     ( n_lufrac ),
+     &                       LAIMN0   ( n_lufrac ),
+     &                       VEG0     ( n_lufrac ),
+     &                       VEGMN0   ( n_lufrac ), 
+     &                       Z00      ( n_lufrac ),
+     &                       LUF_FAC  ( n_lufrac ),
+     &                       HGLU_FAC ( n_lufrac ), STAT = ALLOCSTAT )
+                  IF ( ALLOCSTAT .NE. 0 ) THEN
+                     XMSG = 'Failure allocating land use data'
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               End If
+               cat_lu   = NLCD40%lu_cat
+               name_lu  = NLCD40%name
+               RSMIN    = NLCD40%RSMIN
+               LAI0     = NLCD40%LAI0
+               LAIMN0   = NLCD40%LAIMN0
+               VEG0     = NLCD40%VEG0
+               VEGMN0   = NLCD40%VEGMN0
+               Z00      = NLCD40%Z00/100.0
+               LUF_FAC  = NLCD40%LUF_FAC
+               HGLU_FAC = NLCD40%HGLU_FAC
             CASE DEFAULT                       
                xmsg = 'Land use scheme not supported'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )

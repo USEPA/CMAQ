@@ -581,7 +581,7 @@ c..Estimate error
             END DO
 
             WRITE( LOGDEV, 92215 ) BLKTEMP( CELL_MAXERR ), BLKPRES( CELL_MAXERR ),
-     &      BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR )
+     &      BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKLAND( CELL_MAXERR ) 
 
             WRITE( LOGDEV, 92115 )
 
@@ -650,7 +650,8 @@ c..write photolysis rates used in cell
      &       / 'Temp = ', ES12.4, ' K '
      &       / 'Press = ', ES12.4,' Pa '
      &       / 'Dens = ', ES12.4, ' Kg/m3 ' 
-     &       / 'H2O Vapor = ', ES12.4, ' ppm ')
+     &       / 'H2O Vapor = ', ES12.4, ' ppm '
+     &       / 'LAND(True/False) = ', L7 )
       
       END
 

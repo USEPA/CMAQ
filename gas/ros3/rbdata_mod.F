@@ -173,16 +173,17 @@ C Domain decomposition info from CONC file
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKTEMP( : )      ! Cell temp, deg K
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKPRES( : )      ! Cell press, Pa
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCH2O( : )      ! Cell water conc, ppm
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air density, kg/m^3
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
 
-      INTEGER, SAVE :: NJPHOT                       ! Number of J-values set in PHOT
-      REAL( 8 ),  ALLOCATABLE, SAVE :: RJBLK( :,: )  ! J-values for each cell in block
+      INTEGER, SAVE :: NJPHOT                           ! Number of J-values set in PHOT
+      REAL( 8 ),  ALLOCATABLE, SAVE :: RJBLK( :,: )     ! J-values for each cell in block
 
-      LOGICAL, SAVE :: CALL_DEG = .FALSE.          ! SWITCH for calling DEGRADE routine
+      LOGICAL, SAVE :: CALL_DEG = .FALSE.               ! SWITCH for calling DEGRADE routine
       
-      LOGICAL       :: PRINT_CELL
-
+      LOGICAL                     :: PRINT_CELL
+      LOGICAL,  ALLOCATABLE, SAVE :: BLKLAND( : )       ! Is the surface totally land?
+      
       Integer, Save     :: ros3_log
 
       CONTAINS

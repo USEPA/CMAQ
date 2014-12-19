@@ -65,7 +65,7 @@ C   11 May 11 D.Wong: incorporated twoway model implementation
 C   18 Aug 11 David Wong: In the merge inline point source PM species calculation,
 C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
 C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4"
-
+C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -189,10 +189,18 @@ C   20 Feb 10 J.Young:  move ssemis out to its own F90 module
 C   24 Feb 11 J.Young:  add windblown dust emissions option
 C   25 Mar 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   17 Sep 14 K.Fahey:  Changed geometric mean diameter and geometric
+C                       standard deviation of emitted particles according to 
+C                       Elleman and Covert (2010)
  
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
 C                   CRC Press, 1995
+C    Elleman & Covert Aerosol size distribution modeling with the Community
+C                   Multiscale Air Quality modeling system in the Pacific
+C                   Northwest: 3. Size distribution of particles emitted
+C                   into a mesoscale model. J. Geophys. Res., Vol 115,
+C                   No D3, doi:10.1029/2009JD012401, 2010
 C    Hobbs, P.V.   "Basic Physical Chemistry for the Atmospheric Sciences",
 C                   Cambridge Univ. Press, 206 pp, 1995.
 C    Snyder, J.P.  "Map Projections-A Working Manual", U.S. Geological Survey
@@ -230,12 +238,14 @@ C Local Variables:
 
 C Geometric mean diameter by volume (or mass) of emitted particles in 
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
+C         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
+         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /) !KF 05/06/14
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
-         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
-
+C         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
+         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 1.7, 2.2 /)  !KF 05/06/14
+ 
 C Variables for calculating the volume of each grid cell
          REAL  DX1, DX2                            ! grid-cell width and length [m]
          REAL  CELLAREA                            ! grid-cell area [m2]
@@ -562,7 +572,7 @@ C *** Get domain window info from input files
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE GET_AERO_EMIS ( JDATE, JTIME, TSTEP, RJACM, VDEMIS )
+         SUBROUTINE GET_AERO_EMIS ( JDATE, JTIME, TSTEP, VDEMIS )
 
 C  GET_AERO_EMIS reads PM emissions from gridded input file and
 C  optionally from plume rise calculated point source emissions (via VDEMIS
@@ -586,6 +596,7 @@ C ----------------------------------------------------------------------
          USE SSEMIS                               ! sea-salt emissions
          USE UTILIO_DEFN
          USE DUST_EMIS                            ! windblown dust emissions
+         USE ASX_DATA_MOD, ONLY: MET_DATA
 
          INCLUDE SUBST_CONST     ! physical and mathematical constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -597,10 +608,9 @@ C Arguments:
          INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
                                              ! TSTEP(1) = local output step
                                              ! TSTEP(2) = sciproc sync. step (chem)
-                                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                             !            step and wrf/cmaq call frequency
-         REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS,NLAYS ) ! recip of mid-layer
-                                                             ! Jacobian [1/m]
+                                             ! TSTEP(3) = twoway model time step w.r.t.
+                                             ! wrf time step and wrf/cmaq call frequency
+
          REAL,    INTENT( INOUT ) :: VDEMIS( :,:,:,: ) ! gas emissions [ppmv/s]
 
 C Geometric Constants
@@ -703,13 +713,11 @@ C     in DENS, PRES, TA, QV, and WSPD10 arrays.
          END IF
 
 C *** Get sea salt emissions
-         CALL GET_SSEMIS ( JDATE, JTIME, TSTEP,
-     &                     CELLVOL( 1 ), RJACM( :,:,1 ), CELLHGT( 1 ) )
+         CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
 
          IF ( WB_DUST ) THEN
 C *** Get dust emissions
-            CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP,
-     &                           RJACM( :,:,1 ), CELLHGT( 1 ) )
+            CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
          END IF
 
 C *** Loop over each grid cell in layer 1
@@ -752,7 +760,7 @@ C     Convert units of DUSTOUTM from [g//m3/s] to [ug/m3/s]
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-               GSFAC = CONVEM_PM( L ) * RJACM( C,R,L )
+               GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L )
                CONVM = MWAIR / GPKG / DENS( C,R,L )   ! [m3/mol]
                CONVN = CONVM * RAVO * 1.0E+06         ! 10^6 * [m3]
                CONVS = CONVM                          ! [m3/mol]
@@ -888,7 +896,7 @@ C *** Store aerosol emission rates for this grid cell in a 1D array
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-                  GSFAC = CONVEM_PM( L ) * RJACM( C,R,L )
+                  GSFAC = CONVEM_PM( L ) * Met_Data%RJACM( C,R,L )
                   CONVM = MWAIR / GPKG / DENS( C,R,L )   ! [m3/mol]
                   CONVN = CONVM * RAVO * 1.0E+06         ! 10^6 * [m3]
                   CONVS = CONVM                          ! [m3/mol]
