@@ -294,6 +294,7 @@ C Indices of required species
       Integer :: aca_idx
       Integer :: apoc_idx
       Integer :: ah2o_idx 
+      Integer :: ah3op_idx 
       Integer :: asoil_idx
       Integer :: acors_idx
       Integer :: apncom_idx
