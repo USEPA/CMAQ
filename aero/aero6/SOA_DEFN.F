@@ -221,18 +221,7 @@ C Build mapping to CGRID for each vapor species
 C define orgprod parent names based on mechanism dependence
 C if they differ from above declarations and
 C determine if gas-phase IEPOX uptake occurs for the mechanism
-            If ( INDEX( MECHNAME, 'SAPRC99' ) .GT. 0 ) then
-!               alk_factor = 0.47    ! fraction of ALK5 that can produce SOA
-               vaporspc( 1 )%drog_name = 'ALK5RXN'
-               vaporspc( 2 )%drog_name = 'ALK5RXN'
-               orgprod( 1 )%name       = 'ALK5RXN'
-               orgprod( 1 )%parent     = 'ALK5'
-               orgprod( 2 )%parent     = 'ARO2'
-               orgprod( 3 )%parent     = 'ARO2'
-               orgprod( 4 )%parent     = 'ARO1'
-               orgprod( 5 )%parent     = 'ARO1'
-            Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
-!               alk_factor = 0.47    ! fraction of ALK5 that can produce SOA
+            If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
                vaporspc( 1 )%drog_name = 'ALK5RXN'
                vaporspc( 2 )%drog_name = 'ALK5RXN'
                orgprod( 1 )%name       = 'ALK5RXN'
