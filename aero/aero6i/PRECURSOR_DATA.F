@@ -44,7 +44,7 @@ C    -changed precursor_conc to Real(8)
 
 C H.Pye 05/22/11: added ALK5RXN to precursor list for SAPRC mechanisms
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
-C H. Pye 08/2012: added IEPOX, IMAE, IHMML isoprene derived products 
+C H. Pye 09/2014: added alkane and PAH SOA precursor
 C-----------------------------------------------------------------------
 
       Implicit None
@@ -71,6 +71,7 @@ C                       -------   ----------  ------
      & precursor_type( 'SULPRD ', .True.  , .True.  ),
      & precursor_type( 'HCL    ', .False. , .True.  ),
      & precursor_type( 'ALK5RXN', .True.  , .True.  ),
+     & precursor_type( 'ALKRXN ', .True.  , .True.  ),
      & precursor_type( 'TOLNRXN', .True.  , .True.  ),
      & precursor_type( 'TOLHRXN', .True.  , .True.  ),
      & precursor_type( 'XYLNRXN', .True.  , .True.  ),
@@ -78,11 +79,10 @@ C                       -------   ----------  ------
      & precursor_type( 'BNZNRXN', .True.  , .True.  ),
      & precursor_type( 'BNZHRXN', .True.  , .True.  ),
      & precursor_type( 'SESQRXN', .True.  , .True.  ),
+     & precursor_type( 'PAHNRXN', .True.  , .True.  ),
+     & precursor_type( 'PAHHRXN', .True.  , .True.  ),
      & precursor_type( 'NH3    ', .False. , .True.  ),
-     & precursor_type( 'OH     ', .False. , .False. ),
-     & precursor_type( 'IEPOX  ', .False. , .True.  ),
-     & precursor_type( 'IMAE   ', .False. , .True.  ),
-     & precursor_type( 'IHMML  ', .False. , .True.  )/)
+     & precursor_type( 'OH     ', .False. , .False. )/)
 
 
 C Required species
@@ -95,9 +95,6 @@ C Required species
       Character( 16 ), Private, Parameter :: req_HCL    = 'HCL'
       Character( 16 ), Private, Parameter :: req_NH3    = 'NH3'
       Character( 16 ), Private, Parameter :: req_OH     = 'OH'
-      Character( 16 ), Private, Parameter :: req_IEPOX  = 'IEPOX'
-      Character( 16 ), Private, Parameter :: req_IMAE   = 'IMAE'
-      Character( 16 ), Private, Parameter :: req_IHMML  = 'IHMML'
 
 C Indices of required species
       Integer :: NO2_idx
@@ -109,9 +106,6 @@ C Indices of required species
       Integer :: HCL_idx
       Integer :: NH3_idx
       Integer :: OH_idx
-      Integer :: IEPOX_idx
-      Integer :: IMAE_idx
-      Integer :: IHMML_idx
 
       Real    :: precursor_mw( n_precursor )   ! mol wt from cgrid_spcs [g/mol]
 
@@ -187,9 +181,6 @@ C Find indices of required species
       HCL_idx    = findPrecursor( req_HCL )
       NH3_idx    = findPrecursor( req_NH3 )
       OH_idx     = findPrecursor( req_OH )
-      IEPOX_idx  = findPrecursor( req_IEPOX )
-      IMAE_idx   = findPrecursor( req_IMAE )
-      IHMML_idx  = findPrecursor( req_IHMML )
 
 #ifdef verbose
       Write( logdev,'( /5x, a )' ) 'map_precursor required species'
@@ -202,9 +193,6 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'HCL_idx:    ', HCL_idx
       Write( logdev,'( 5x, a, i4 )' ) 'NH3_idx:    ', NH3_idx
       Write( logdev,'( 5x, a, i4 )' ) 'OH_idx:     ', OH_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'IEPOX_idx:  ', IEPOX_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'IMAE_idx:   ', IMAE_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'IHMML_idx:  ', IHMML_idx
 #endif
 
       mapped = .True.

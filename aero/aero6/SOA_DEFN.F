@@ -48,7 +48,13 @@ C 26 Sep 14 H. Pye: Added isoprene + NO3 SOA (see mech.def, no changes
 C                   here). When IEPOX uptake present in gas phase for
 C                   cb05e51, replace preivous acid enhanced isoprene SOA
 C                   with IEPOX uptake SOA now handled as a heterogeneous
-C                   rxn.
+C                   rxn. For saprc07tic_ae6i, perform more detailed 
+C                   IEPOX and MAE uptake and do not do Carlton et al. 2010 
+C                   acid enhancement. Note that saprc07tic_ae6i is a research
+C                   version and it is unclear how duplicative AISO1+AISO2+their oligomers
+C                   are with  IEPOX+MAE uptake and their oligomers. 
+C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
+C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
 C
 C-----------------------------------------------------------------------
@@ -181,7 +187,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Includes:
- 
+
 C Arguments:
       Real, Intent( In ) :: conc( : )
 
@@ -235,6 +241,10 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 3 )%parent     = 'MXYL'
                orgprod( 4 )%parent     = 'TOLUENE'
                orgprod( 5 )%parent     = 'TOLUENE'
+               ! Check for saprc07tic_ae6i epoxide uptake
+               If ( INDEX( MECHNAME, '_AE6I_' ) .GT. 0 ) then
+                  IEPOX_SOA_mechanism = .True.
+               Endif
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
 !               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
 ! the factor with RACM2 should be different because the HC8 + OH rate is higher
