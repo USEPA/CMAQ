@@ -271,6 +271,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
       Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
       Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'  
+      Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
@@ -294,7 +295,7 @@ C Indices of required species
       Integer :: aca_idx
       Integer :: apoc_idx
       Integer :: ah2o_idx 
-      Integer :: ah3op_idx 
+      Integer :: ah3op_idx
       Integer :: asoil_idx
       Integer :: acors_idx
       Integer :: apncom_idx
@@ -470,6 +471,8 @@ C Find indices of required species
       aca_idx     = findAero( req_ca,     .True. )
       apoc_idx    = findAero( req_poc,    .True. )
       ah2o_idx    = findAero( req_h2o,    .True. )
+!     ah3op_idx   = findAero( req_h3op,   .True. )
+      ah3op_idx    = 0
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
@@ -502,6 +505,7 @@ C Find indices for acid catalyzed species
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
+!     Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah2op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
