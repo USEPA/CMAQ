@@ -221,7 +221,14 @@ C Build mapping to CGRID for each vapor species
 C define orgprod parent names based on mechanism dependence
 C if they differ from above declarations and
 C determine if gas-phase IEPOX uptake occurs for the mechanism
-            If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
+            If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
+               orgprod( 1 )%parent = 'ALK5'
+               orgprod( 2 )%parent = 'MXYL'
+               orgprod( 3 )%parent = 'MXYL'
+               orgprod( 4 )%parent = 'TOLUENE'
+               orgprod( 5 )%parent = 'TOLUENE'
+               IEPOX_SOA_mechanism = .True.
+            Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
                vaporspc( 1 )%drog_name = 'ALK5RXN'
                vaporspc( 2 )%drog_name = 'ALK5RXN'
                orgprod( 1 )%name       = 'ALK5RXN'
@@ -230,10 +237,6 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 3 )%parent     = 'MXYL'
                orgprod( 4 )%parent     = 'TOLUENE'
                orgprod( 5 )%parent     = 'TOLUENE'
-               ! Check for saprc07tic_ae6i epoxide uptake
-               If ( INDEX( MECHNAME, '_AE6I_' ) .GT. 0 ) then
-                  IEPOX_SOA_mechanism = .True.
-               Endif
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
 !               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
 ! the factor with RACM2 should be different because the HC8 + OH rate is higher
