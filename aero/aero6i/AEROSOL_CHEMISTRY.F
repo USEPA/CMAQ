@@ -1777,6 +1777,7 @@ C *** Local Variables
       Real( 8 ) :: exp_2q              ! exponential term in Hanson et al. 1994 equation for gamma 
       Real( 8 ) :: gammaisop(2)        ! temporary value for IEPOX (1) and IMAE (2) gammas
       Real( 8 ) :: cfactor_isop(2)     ! cfactor for IEPOX(1) and MAE(2)
+      Real( 4 ) :: temp                ! air temperature [deg K]
       Character ( 80 ) :: xmsg         ! error message
 
 C *** External functions
@@ -1899,6 +1900,7 @@ C     (see also Hanson et al. 1994 JGR Eqn (2) for details)
 C *** Calculate gammas for IEPOX and IMAE
 
 C *** Henry's Law coefficients
+      temp = real( TEMPERATURE, 4)
       Heff( 1 ) = REAL(HLCONST( 'IEPOX', temp, .False., 0.0 ), 8)
       Heff( 2 ) = REAL(HLCONST( 'IMAE',  temp, .False., 0.0 ), 8)
 

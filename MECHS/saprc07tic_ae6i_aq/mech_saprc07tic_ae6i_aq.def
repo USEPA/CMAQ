@@ -1475,16 +1475,16 @@ REACTIONS [CM] =
 
 <HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
 
-! Isoprene epoxide uptake reactions
+! Isoprene epoxide uptake reactions, uptake followed by speciation
 <HET_IEPOX>   IEPOX  = IEPOXP            # 1.0~<HETERO_IEPOX>;
+<HET_IMAE>    IMAE   = IMAEP             # 1.0~<HETERO_IMAE>;
+<HET_IHMML>   IHMML  = IHMMLP            # 1.0~<HETERO_IMAE>;
 <HET_TETROL>  IEPOXP = AIETETJ           # 1.0~<HETERO_TETROL>;
 <HET_IEPOXOS> IEPOXP = AIEOSJ            # 1.0~<HETERO_IEPOXOS>;
 <HET_DIM1>    IEPOXP + AIETETJ = AIDIMJ  # 1.0~<HETERO_TETROLDIM>;
 <HET_DIM2>    IEPOXP + AIEOSJ  = AIDIMJ  # 1.0~<HETERO_IEPOXOSDIM>;
-<HET_IMAE>    IMAE   = IMAEP             # 1.0~<HETERO_IMAE>;
 <HET_2MG1>    IMAEP  = AIMGAJ            # 1.0~<HETERO_2MG>;
 <HET_IMAEOS1> IMAEP  = AIMOSJ            # 1.0~<HETERO_IMAEOS>;
-<HET_IHMML>   IHMML  = IHMMLP            # 1.0~<HETERO_IMAE>;
 <HET_2MG2>    IHMMLP = AIMGAJ            # 1.0~<HETERO_2MG>;
 <HET_IMAEOS2> IHMMLP = AIMOSJ            # 1.0~<HETERO_IMAEOS>;
 
