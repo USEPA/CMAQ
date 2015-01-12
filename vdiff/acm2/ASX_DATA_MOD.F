@@ -521,9 +521,7 @@ C-----------------------------------------------------------------------
      &                ChemMos_Data%Cstom( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
      &                ChemMos_Data%Ccut ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
      &                ChemMos_Data%Csoil( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),  
-     &                ChemMos_Data%NAME   ( n_lufrac ),                                
-     &                ChemMos_Data%LU_Type( n_lufrac ),                                
-     &                ChemMos_Data%Subname( n_lufrac ),                                
+     &                ChemMos_Data%NAME  ( n_lufrac ),                                
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating chemistry dependent mosaic vars'
@@ -542,7 +540,7 @@ C-----------------------------------------------------------------------
             ChemMos_Data%Csoil = 0.0
             ChemMos_Data%NAME    = name_lu
             ChemMos_Data%LU_Type = cat_lu                  
-            ChemMos_Data%Subname = subname                        
+            ChemMos_Data%SubName = subname                        
          End If
 
 ! ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc

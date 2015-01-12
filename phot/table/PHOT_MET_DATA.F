@@ -67,14 +67,10 @@
            PUBLIC GET_PHOT_MET, UPDATE_SUN, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
            
            PRIVATE
-<<<<<<< .merge_file_QBZhWz
 !...........Private Parameters:
 
           REAL, PARAMETER      :: CLDMIN   = 1.e-20      ! minimum value for cloud quantities
          
-=======
-        
->>>>>>> .merge_file_Wqibcd
 !...........Private Variables:
 
           LOGICAL       :: FIRSTIME = .TRUE.   ! flag for first pass thru
