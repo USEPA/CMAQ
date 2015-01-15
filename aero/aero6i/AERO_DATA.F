@@ -457,20 +457,16 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah2op_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah3op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      Do n = 1, n_nucpairs
-        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
-        Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
-      End Do
-      Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx:  ', aietet_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:   ', aieos_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:    ', adim_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:   ', aimga_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:   ', aimos_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
 #endif
  
 C Compute common factors

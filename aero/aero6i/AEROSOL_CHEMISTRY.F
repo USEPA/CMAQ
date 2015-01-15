@@ -898,6 +898,11 @@ C ***            Isoprene epoxide uptake
                   WRITE(LOGDEV,'(A,ES12.4)')'XXF_AT      = ',XXF( 1 )
                   WRITE(LOGDEV,'(A,ES12.4)')'XXF_AC      = ',XXF( 2 )
                   WRITE(LOGDEV,'(A,ES12.4)')'XXF_COR     = ',XXF( 3 )
+                  Write( logdev,'( a )' ) 'Product/Nucleophile mapping for epox uptake:'
+                  Do n = 1, n_nucpairs
+                      Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
+                      Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc, acid_nucmap_idx(n)
+                  End Do
                   WRITE(LOGDEV,'(A,ES12.4)')'GAMMAIEPOX  = ',GAMMAIEPOX
                   WRITE(LOGDEV,'(A,ES12.4)')'GAMMAIMAE   = ',GAMMAIMAE
                   WRITE(LOGDEV,'(A,ES12.4)')'k_particle_iepox =       ',KPIEPOX
@@ -908,7 +913,8 @@ C ***            Isoprene epoxide uptake
                   WRITE(LOGDEV,'(A,ES12.4)')'Fraction 2-MG =          ',FH2O(2)
                   WRITE(LOGDEV,'(A,ES12.4)')'Fraction mae-os =        ',FOS(2)
                   WRITE(LOGDEV,'(A,ES12.4)')'Fraction mae dimers = 0  ',FDIM1(2)+FDIM2(2)
-                  WRITE(LOGDEV,'(A,ES12.4)')'k_particle_iepox =       ',KPIEPOX
+                  WRITE(LOGDEV,'(A,ES12.4)')'TETROL_PPM =             ',TETROL_PPM
+                  WRITE(LOGDEV,'(A,ES12.4)')'IEPOXOS_PPM =            ',IEPOXOS_PPM
                   WRITE(LOGDEV,9500)'KN2O5IJ = ',60.0D0*(KN2O5(1)+KN2O5(2)),' 1/min'
                   WRITE(LOGDEV,9500)'KN2O5K= ',60.0D0*KN2O5(3),' 1/min'
                   WRITE(LOGDEV,9500)'KNO2  = ', 60.0D0*KNO2,' 1/min'
