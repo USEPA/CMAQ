@@ -41,20 +41,20 @@
 
        INTEGER, PARAMETER :: NUMB_AERO_RATES = 25
        
-       CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
-     &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
-     &                       'HETERO_N2O5IJY   ', 'HETERO_N2O5KY    ', 
-     &                       'HETERO_NO2       ', 'HETERO_H2NO3PAIJ ',
-     &                       'HETERO_H2NO3PBIJ ', 'HETERO_H2NO3PAK  ',
-     &                       'HETERO_H2NO3PBK  ', 'HETERO_H2NO3PAI  ',
-     &                       'HETERO_H2NO3PBI  ', 'HETERO_H2NO3PAJ  ',
-     &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
-     &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
-     &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
-     &                       'HETERO_TETROL    ', 'HETERO_IEPOXOS   ',
-     &                       'HETERO_TETROLDIM ', 'HETERO_IEPOXOSDIM',
-     &                       'HETERO_IMAE      ', 'HETERO_2MG       ',
-     &                       'HETERO_IMAEOS    ' /)
+       CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) =
+     &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ',
+     &                       'HETERO_N2O5IJY  ', 'HETERO_N2O5KY   ',
+     &                       'HETERO_NO2      ', 'HETERO_H2NO3PAIJ',
+     &                       'HETERO_H2NO3PBIJ', 'HETERO_H2NO3PAK ',
+     &                       'HETERO_H2NO3PBK ', 'HETERO_H2NO3PAI ',
+     &                       'HETERO_H2NO3PBI ', 'HETERO_H2NO3PAJ ',
+     &                       'HETERO_H2NO3PBJ ', 'HETERO_N2O5I    ',
+     &                       'HETERO_N2O5J    ', 'HETERO_PNCOMLI  ',
+     &                       'HETERO_PNCOMLJ  ', 'HETERO_IEPOX    ',
+     &                       'HETERO_TETROL   ', 'HETERO_IEPOXOS  ',
+     &                       'HETERO_TETROLDIM', 'HETERO_IEPOXOSDI',
+     &                       'HETERO_IMAE     ', 'HETERO_2MG      ',
+     &                       'HETERO_IMAEOS   ' /)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -77,7 +77,7 @@
        INTEGER, PARAMETER  :: IA_TETROL         =   19
        INTEGER, PARAMETER  :: IA_IEPOXOS        =   20
        INTEGER, PARAMETER  :: IA_TETROLDIM      =   21
-       INTEGER, PARAMETER  :: IA_IEPOXOSDIM     =   22
+       INTEGER, PARAMETER  :: IA_IEPOXOSDI      =   22
        INTEGER, PARAMETER  :: IA_IMAE           =   23
        INTEGER, PARAMETER  :: IA_2MG            =   24
        INTEGER, PARAMETER  :: IA_IMAEOS         =   25
@@ -93,7 +93,7 @@
      &                       IA_N2O5J    , IA_PNCOMLI  ,
      &                       IA_PNCOMLJ  , IA_IEPOX    ,
      &                       IA_TETROL   , IA_IEPOXOS  ,
-     &                       IA_TETROLDIM, IA_IEPOXOSDIM,
+     &                       IA_TETROLDIM, IA_IEPOXOSDI,
      &                       IA_IMAE     , IA_2MG      ,
      &                       IA_IMAEOS    /)
 
@@ -829,7 +829,7 @@ C ***            Isoprene epoxide uptake
                         KHETERO( IRATE, C, R, L ) = 0.0D0
                      ENDIF
 
-                 CASE( IA_IEPOXOSDIM )
+                 CASE( IA_IEPOXOSDI )
 
                      IF( IEPOXOS_PPM .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
@@ -1853,10 +1853,10 @@ C        Store information with speciation for IEPOX
             kparticle(1)  = kparticle(1) + kchem
             if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then
               kchemos(1)  = kchemos(1)   + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'AIDIMJ')
+            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
      &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then
               kchemdim1(1) = kchemdim1(1)  + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'AIDIMJ')
+            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
      &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then
               kchemdim2(1) = kchemdim2(1)  + kchem
             elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then

@@ -104,7 +104,7 @@ TYPE_MATRIX =
 'xACROLEIN:56.06::::::::::::::',
 'ETHENE:28.05:ETHE:1.0:::::ETHENE:1.0:::Yes::Yes:Yes',
 'PROPENE:42.08:PRPE:1.0:::::PROPENE:1.0:::Yes::Yes:Yes',
-'BUTADIENE13:54.09:13BDE:1.0:::::13-BUTADIENE:1.0:::Yes::Yes:Yes',
+'BUTADIENE13:54.09:BDE13:1.0:::::13-BUTADIENE:1.0:::Yes::Yes:Yes',
 'ISOPRENE:68.12:ISOP:1.0:::::ISOPRENE:1.0:::Yes::Yes:Yes',
 'APIN:136.23:APIN:1.0:::::PINENE:1.0:::Yes::Yes:Yes',
 'TRPRXN:136:::::::::TRPRXN:::::',

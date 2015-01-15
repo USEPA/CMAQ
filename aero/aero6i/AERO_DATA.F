@@ -71,7 +71,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 52      ! number of aero species
+      Integer, Parameter :: n_aerospc = 50      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -164,11 +164,9 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','       ','ASEACAT'/), conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','AIETETJ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AIEOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AIEONJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ADIMJ  ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AIMGAJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AIMOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AIMONJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
+     & spcs_type((/'       ','AIMOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
 
 C Sea-Salt Speciation factors
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
@@ -221,11 +219,9 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.3686,      ! ASEACAT
      &       0.0,     0.0,     0.0,         ! AIETET
      &       0.0,     0.0,     0.0,         ! AIEOS
-     &       0.0,     0.0,     0.0,         ! AIEON
      &       0.0,     0.0,     0.0,         ! ADIM
      &       0.0,     0.0,     0.0,         ! AIMGA
-     &       0.0,     0.0,     0.0,         ! AIMOS
-     &       0.0,     0.0,     0.0 /),      ! AIMON
+     &       0.0,     0.0,     0.0 /),      ! AIMOS
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 
@@ -247,11 +243,9 @@ C Required species
       Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT'
       Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
       Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
-      Character( 16 ), Private, Parameter :: req_ieon   = 'AIEON'
       Character( 16 ), Private, Parameter :: req_dim    = 'ADIM'
       Character( 16 ), Private, Parameter :: req_imga   = 'AIMGA'
       Character( 16 ), Private, Parameter :: req_imos   = 'AIMOS'
-      Character( 16 ), Private, Parameter :: req_imon   = 'AIMON'
      
 C Indices of required species
       Integer :: aso4_idx
@@ -271,11 +265,9 @@ C Indices of required species
       Integer :: aseacat_idx
       Integer :: aietet_idx
       Integer :: aieos_idx
-      Integer :: aieon_idx
       Integer :: adim_idx
       Integer :: aimga_idx
       Integer :: aimos_idx
-      Integer :: aimon_idx
 
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -448,11 +440,9 @@ C Find indices of required species
       aseacat_idx = findAero( req_seacat, .True. )
       aietet_idx  = findAero( req_ietet,  .True. )
       aieos_idx   = findAero( req_ieos,   .True. )
-      aieon_idx   = findAero( req_ieon,   .True. )
       adim_idx    = findAero( req_dim,    .True. )
       aimga_idx   = findAero( req_imga,   .True. )
       aimos_idx   = findAero( req_imos,   .True. )
-      aimon_idx   = findAero( req_imon,   .True. )
 
 
 #ifdef verbose
@@ -478,11 +468,9 @@ C Find indices of required species
       End Do
       Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx:  ', aietet_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:   ', aieos_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aieon_idx:   ', aieon_idx
       Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:    ', adim_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:   ', aimga_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:   ', aimos_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aimon_idx:   ', aimon_idx
 #endif
  
 C Compute common factors

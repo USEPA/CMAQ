@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 6, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jan. 13, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -282,7 +282,7 @@ c..Species indices
       INTEGER, PARAMETER :: IHMMLP           =  190
       INTEGER, PARAMETER :: AIETETJ          =  191
       INTEGER, PARAMETER :: AIEOSJ           =  192
-      INTEGER, PARAMETER :: AIDIMJ           =  193
+      INTEGER, PARAMETER :: ADIMJ            =  193
       INTEGER, PARAMETER :: AIMGAJ           =  194
       INTEGER, PARAMETER :: AIMOSJ           =  195
       INTEGER, PARAMETER :: AALK1J           =  196

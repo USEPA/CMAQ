@@ -227,6 +227,8 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 3 )%parent = 'MXYL'
                orgprod( 4 )%parent = 'TOLUENE'
                orgprod( 5 )%parent = 'TOLUENE'
+               orgprod( 8 )%parent = 'ARO2'
+               orgprod( 9 )%parent = 'ARO2'
                IEPOX_SOA_mechanism = .True.
             Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
                vaporspc( 1 )%drog_name = 'ALK5RXN'
@@ -259,13 +261,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
-
-            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
+! This SOA_DEFN works for AE6 and AE6i versions of aero
+            If( INDEX( MECHNAME, '_AE6' ) .EQ. 0 ) then
                   xmsg =  'Using AERO6 option and the Mechanism, '  
      &                // Trim( MECHNAME ) // ', is not based on AERO6 '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
-	    
+
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
          orgprod_map = 0

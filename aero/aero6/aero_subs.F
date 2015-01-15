@@ -714,6 +714,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C GS  04/26/11 Replaced existing ISORROPIA with ISORROPIA 2.1
 C              Updated coarse-mode aerosol speciation and H+ calculation  
+C HP  01/15/15 Added array for HCOND3 output to avoid array temporary warnings
 
 C *** References
 C 1. Pilinis C, Capaldo KP, Nenes A, Pandis SN (2000) MADM - A new
@@ -776,6 +777,7 @@ C *** Inputs to subroutine HCOND3
 C *** Outputs from HCOND3: size-dependent term in the condensational-growth 
 C     expressions defined in Equations A13-A14 of [Binkowski & Shankar,1995]
       REAL( 8 ) :: FCONC_SO4( N_MODE,2 )  ! All sizes 2nd and 3rd moments
+      REAL( 8 ) :: FCONC_OUT( 2 )         ! Output for HCOND3, 2nd and 3rd moments
       REAL( 8 ) :: FCONCM1_SO4       ! reciprocals of total SO4 cond rates
 
 C *** Modal partition factors [ dimensionless ]
@@ -1006,7 +1008,8 @@ C     Equations A13-A14 of Binkowski & Shankar (1995).
        
       DO I = 1, N_MODE
          CALL HCOND3( AM0( I ), AM1( I ), AM2( I ),
-     &                DV_SO4, ALPHSULF, CBAR_SO4, FCONC_SO4( I,: ) )
+     &                DV_SO4, ALPHSULF, CBAR_SO4, FCONC_OUT )
+         FCONC_SO4( I, : ) = FCONC_OUT( : )
       END DO 
 
       IF ( .NOT. HYBRID ) THEN
@@ -1126,7 +1129,8 @@ C *** Calculate the size-dependent terms in the condensational-
 C     growth factor expressions for sulfate using 
 C     Equations A13-A14 of Binkowski & Shankar (1995). 
                CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
-     &                      CBAR_SO4, FCONC_SO4( 3,: ) )  ! adapted from Eq A14
+     &                      CBAR_SO4, FCONC_OUT )  ! adapted from Eq A14
+               FCONC_SO4( 3, : ) = FCONC_OUT( : )
 
                GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
                GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 

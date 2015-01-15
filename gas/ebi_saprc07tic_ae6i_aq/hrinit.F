@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 6, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jan. 13, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -313,7 +313,7 @@ c..Allocate and define ebi species
       EBISP( 177 ) = IHMMLP
       EBISP( 178 ) = AIETETJ
       EBISP( 179 ) = AIEOSJ
-      EBISP( 180 ) = AIDIMJ
+      EBISP( 180 ) = ADIMJ
       EBISP( 181 ) = AIMGAJ
       EBISP( 182 ) = AIMOSJ
       EBISP( 183 ) = AALK1J
@@ -530,7 +530,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( IHMMLP           ) = 1.0D-03
       RTOL( AIETETJ          ) = 1.0D-03
       RTOL( AIEOSJ           ) = 1.0D-03
-      RTOL( AIDIMJ           ) = 1.0D-03
+      RTOL( ADIMJ            ) = 1.0D-03
       RTOL( AIMGAJ           ) = 1.0D-03
       RTOL( AIMOSJ           ) = 1.0D-03
       RTOL( AALK1J           ) = 1.0D-03
