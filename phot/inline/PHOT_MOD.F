@@ -665,7 +665,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 
             IF( OM( L ) .GT. 1.0 .OR. OM( L ) .LE. 0.0 .OR.  OM( L ) .NE.  OM( L ))THEN
                 WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO')'OM( L ) = ', OM( L ),' resetting to '
-                OM( L ) = MIN( 0.9999, MAX( OM( L ), 0.0))
+                OM( L ) = MIN( 0.9999, MAX( OM( L ), 0.0001))
 #ifdef phot_debug
                 WRITE( NEW_OPTICS_LOG,'(ES12.4)')OM( L )
                 WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT, DTABS, ( DTSCAT + DTABS ) = ', DTSCAT, DTABS, (DTSCAT + DTABS)
@@ -676,7 +676,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 #endifqsm
             ELSE
 #ifdef phot_debug
-                IF( OM( L ) .GE. 1.0 ) THEN
+                IF( OM( L ) .EQ. 1.0 ) THEN
                    WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT, DTABS, ( DTSCAT + DTABS ) = ', DTSCAT, DTABS, (DTSCAT + DTABS)
                    WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ', DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
                    WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DDTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )  = ',
