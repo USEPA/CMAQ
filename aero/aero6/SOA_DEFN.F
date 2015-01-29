@@ -1826,12 +1826,13 @@ C     Iterate until the number of moles changes by less than fractol (percent) o
         If ( ( ea .lt. FRACTOL ) .or. ( ( upper + lower ) .lt. ABSTOL ) ) then
            nroot = nguess
 
-           ! double check that the function is approximately zero
-           fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
-           If ( abs(fnguess) .gt. 1d-3 ) then
-           Call m3exit( pname, 0, 0, 'Error: possible false convergence
-     &                               in soa bisection', xstat3) 
-           End If
+! Check no longer necessary
+!           ! double check that the function is approximately zero
+!           fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+!           If ( abs(fnguess) .gt. 1d-3 ) then
+!           Call m3exit( pname, 0, 0, 'Error: possible false convergence
+!     &                               in soa bisection', xstat3) 
+!           End If
 
            return
         End If

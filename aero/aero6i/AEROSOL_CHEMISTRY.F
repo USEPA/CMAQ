@@ -668,10 +668,21 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
              ! Rate constants and concentrations
              CALL CALCISOPGAMMAS( RADIUS, AIRTEMP, GAMMAIEPOX,
      &             GAMMAIMAE, KPIEPOX, FH2O, FOS, FDIM1, FDIM2)
-             KIEPOX       = WET_M2( 2 ) * DPI
-     &                     / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
-             KIMAE        = WET_M2( 2 ) * DPI
-     &                     / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIMAE * GAMMAIMAE) )
+
+             IF( GAMMAIEPOX .gt. 0.0d0 ) THEN
+                KIEPOX       = WET_M2( 2 ) * DPI
+     &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
+             ELSE
+                KIEPOX = 0.0d0
+             ENDIF
+
+             IF( GAMMAIMAE .gt. 0.0d0 ) THEN
+                KIMAE        = WET_M2( 2 ) * DPI
+     &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIMAE * GAMMAIMAE) )
+             ELSE
+                KIMAE = 0.0d0
+             ENDIF
+
              TETROL_PPM  = PPM_FACTOR
      &                     * REAL( aerospc_conc( AIETET_IDX, 2 ), 8 )  * INV_MWIETET
              IEPOXOS_PPM = PPM_FACTOR
