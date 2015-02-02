@@ -34,6 +34,15 @@
 ! organic carbon and non-carbon aerosol species
 ! Golam Sarwar 12/02/14
 !  -Added a simple halogen chemistry over sea-water
+! 01/29/2015  H. Pye
+!             1) updated isoprene nitrate reaction rates with OH, NO, O3 following
+!                Lee et al. J. Phys. Chem. A (2014) dx.doi.org/10.1021/jp4107603.
+!             2) Added isomerization of MACR+OH peroxy radical (addition channel) following
+!                Crounse et al. J. Phys. Chem. A. (2012) http://pubs.acs.org/doi/abs/10.1021/jp211560u.
+!             3) Minor update to MACR+OH peroxy radical product yields following Crounse et al.
+!                -MACROO (product from addition channel): ~43-48% of MACR oxidation is addition
+!                   to external olefinic carbon, ~0-9% is addition to internal olefinic carbon
+!                -IMACO3 (product from abstraction channel leading to MPAN): ~45-50% of MACR oxidation
 
   SAPRC07TIC_AE6I_AQ
 
@@ -1091,11 +1100,11 @@ REACTIONS [CM] =
 
 !ISOPN formed from OH oxidation
 
-<IS25> ISOPND + OH = ISOPNOOD # 2.40e-11@-410;
+<IS25> ISOPND + OH = ISOPNOOD # 1.20e-11@-652;
 
 <IS26> ISOPNOOD + NO = 0.34*PRD2 + 0.15*PROPNN + 0.44*HACET + 0.07*MVKN + 
          0.13*ETHLN + 0.31*HCOOH + 0.31*NO3 + 0.72*HCHO + 0.15*HOCCHO + 
-         1.34*NO2 + 0.35*HO2 - 0.68*XC # 2.60e-12@-380;
+         1.34*NO2 + 0.35*HO2 - 0.68*XC # 2.40e-12@-360;
 
 <IS141> ISOPNOOD + HO2 = RNO3I - XC # 2.06e-13@-1300;
 
@@ -1115,13 +1124,13 @@ REACTIONS [CM] =
 
 <IS27> ISOPND + O3 = 0.36*ETHLN + 0.29*PROPNN + 0.70*MGLY + 0.12*RCOOH  
          + 0.39*HO2 + 0.038*HCHO + 0.029*CO + 0.73*OH + 0.017*CO2 + 0.36*NO2
-         + 0.16*HACET + 0.34*HOCCHO - 0.26*XC  # 8.70e-15@1520; 
+         + 0.16*HACET + 0.34*HOCCHO - 0.26*XC  # 2.90e-17;
 
 
-<IS28> ISOPNB + OH = ISOPNOOB # 3.28e-12@-410;
+<IS28> ISOPNB + OH = ISOPNOOB # 2.4e-12@-745;
 
 <IS29> ISOPNOOB + NO = 0.6*HOCCHO + 0.6*HACET + 0.4*HCHO + 0.4*HO2 + 0.26*MACRN 
-         + 0.14*MVKN + 1.6*NO2 # 2.60e-12@-380;
+         + 0.14*MVKN + 1.6*NO2 # 2.40e-12@-360;
 
 <IS145> ISOPNOOB + HO2 = RNO3I - XC # 2.06e-13@-1300;
 
@@ -1138,7 +1147,7 @@ REACTIONS [CM] =
 
 <IS30> ISOPNB + O3 = 0.12*MVKN + 0.32*MACRN + 0.34*OH + 0.08*HO2 + 0.26*CO + 
          0.07*CO2 + 0.16*HCOOH + 0.56*HCHO + 0.28*RNO3I + 0.04*HACET 
-         + 0.28*NO2 + 0.24*BACL - 0.57*XC # 2.13e-14@1520;   
+         + 0.28*NO2 + 0.24*BACL - 0.57*XC # 3.7e-19;
 
 
 
@@ -1387,7 +1396,7 @@ REACTIONS [CM] =
 
 !******* end of new isoprene mechanism******         
 ! make IMACO3 instead of MACO3
-<IS00> MACR + OH = 0.47*MACROO + 0.53*IMACO3 # 8.00e-12@-380;
+<IS00> MACR + OH = 0.53*MACROO + 0.47*IMACO3 # 8.00e-12@-380;
 <BP56> MACR + NO3 = 0.5*IMACO3 + 0.5*RO2C + 0.5*HNO3 + 0.5*xHO2 + 0.5*xCO +
          0.5*yROOH + 1.5*XC + 0.5*XN # 1.50e-12@1815;
 <BP58> MACR = 0.33*OH + 0.67*HO2 + 0.34*MECO3 + 0.33*IMACO3 + 0.33*RO2C +
@@ -1409,6 +1418,9 @@ REACTIONS [CM] =
 <IA77> IMACO3 + BZCO3 = CO + CO2 + HCHO + MEO2 + BZO + RO2C + CO2 # 1.0*K<BR27>;
 <IA78> IMACO3 + MACO3 = 2*CO + 2*CO2 + 2*HCHO + 2*MEO2 # 1.0*K<BR27>;
 <IA79> IMACO3 + IMACO3 = 2*CO + 2*CO2 + 2*HCHO + 2*MEO2 # 1.0*K<BR27>;
+
+! Add isomerization of MACR+OH-H addition --> MACROO
+<IA80> MACROO = HACET + CO + OH #2.9e7@5297;
 
 <IA51> IMACO3 + NO2 = IMAPAN # 1.0*K<BR28>;
 <IA52> IMAPAN = IMACO3 + NO2 # 1.60e+16@13486;
