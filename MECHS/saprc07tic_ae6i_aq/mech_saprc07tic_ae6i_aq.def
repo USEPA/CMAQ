@@ -33,7 +33,26 @@
 ! SOA species, excluding species derived from isoprene and 3) aging reactions for primary 
 ! organic carbon and non-carbon aerosol species
 ! Golam Sarwar 12/02/14
-!  -Added a simple halogen chemistry over sea-water
+!  -Added ozone loss representing a simplification halogen reactions chemistry over sea-water
+! B.Hutzell 01/27/15
+!  1) implemented the nonaromatic changes found in the supplementary material for the paper:
+!     Carter and Gookyoung (2013), Development of revised SAPRC aromatics mechanisms, Atm. Env., 
+!     vol. 77, pp 404-414, http://dx.doi.org/10.1016/j.atmosenv.2013.05.021.
+!     (http://www.sciencedirect.com/science/article/pii/S1352231013003646)
+!     a)  modified reaction BR22, BR32, BR43, and IS70, the MECO3, RCO3, BZCO3, and MACO3 reactions
+!         with HO2 based on IUPAC (2009) recommendations for HO2 + acyl radical reactions:
+!         http://iupac.pole-ether.fr/htdocs/datasheets/pdf/HOx_VOC54_HO2_CH3CO3.pdf (last accessed Jan. 2015).
+!     b)  corrected reaction BE10, ACETYLENE + NO3, by setting the temperature power for k0 to zero
+!         and setting temperature for kinf to -2
+!     c)  corrected reaction BE04, ETHENE + NO3, by setting the temperature power to zero
+!     d)  revised GLY reactions with OH and NO3 based IUPAC (2008) recomendation that introduces a new
+!         peroxy radical species HCOCO3:
+!         http://iupac.pole-ether.fr/htdocs/datasheets/pdf/HOx_VOC16_HO_(CHO)2.pdf (last accessed Jan. 2015).
+!  2) revised N2O5 + H2O heterogeneous reaction to yield HNO3 and CLNO2 mechanism based on Sarwar et al. (2014)
+!     Importance of tropospheric ClNO2 chemistry across the Northern Hemisphere, GRL. vol. 41, pp. 4050-4058.
+!  3) changed the OH + NO2 reaction based on the recommendation of the IUPAC datasheet:
+!     http://iupac.pole-ether.fr/htdocs/datasheets/pdf/NOx13_HO_NO2.pdf (last accessed Jan. 2015).
+!  4) removed species NO2EX, excited NO2, and its reactions
 ! 01/29/2015  H. Pye
 !             1) updated isoprene nitrate reaction rates with OH, NO, O3 following
 !                Lee et al. J. Phys. Chem. A (2014) dx.doi.org/10.1021/jp4107603.
@@ -77,7 +96,7 @@ REACTIONS [CM] =
 <22> OH + NO = HONO # 7.00e-31^-2.60&3.60e-11^-0.10&0.60&1.0;
 <23> HONO = OH + NO # 1.0/<HONO_06>;
 <24> OH + HONO = NO2 # 2.50e-12@-260;
-<25> OH + NO2 = HNO3 # 1.48e-30^-3.00&2.58e-11&0.60&1.0;
+<25> OH + NO2 = HNO3 # 3.2e-30^-4.50&3.0e-11&0.41&1.24;
 <26> OH + NO3 = HO2 + NO2 # 2.00e-11;
 <27> OH + HNO3 = NO3 %2 # 2.40e-14@-460&2.70e-17@-2199&6.50e-34@-1335;
 <28> HNO3 = OH + NO2 # 1.0/<HNO3>;
@@ -98,11 +117,6 @@ REACTIONS [CM] =
 <43> OH + HO2 =  # 4.80e-11@-250;
 <44> OH + SO2 = HO2 + SULF + SULRXN # 3.30e-31^-4.30&1.60e-12&0.60&1.0;
 <45> OH + H2 = HO2 # 7.70e-12@2100;
-<EX1> NO2 = NO2EX # 0.0/<NO2EX>;
-<EX2> NO2EX + M = NO2 # 2.76e-11;
-<EX3> NO2EX + H2O = NO2 # 1.70e-10;
-<EXOH> NO2EX + H2O = OH + HONO # 0.0E+00;
-!<EXOH> NO2EX + H2O = OH + HONO # 1.7E-13;
 <BR01> MEO2 + NO = NO2 + HCHO + HO2 # 2.30e-12@-360;
 <BR02> MEO2 + HO2 = COOH # 3.46e-13^0.36@-780;
 <BR03> MEO2 + HO2 = HCHO # 3.34e-14^-3.53@-780;
@@ -124,7 +138,9 @@ REACTIONS [CM] =
 <BR19> PAN = MECO3 + NO2 # 4.90e-03@12100&4.00e+16@13600&0.30&1.41;
 <BR20> PAN = 0.6*MECO3 + 0.6*NO2 + 0.4*MEO2 + 0.4*CO2 + 0.4*NO3 # 1.0/<PAN>;
 <BR21> MECO3 + NO = MEO2 + CO2 + NO2 # 7.50e-12@-290;
-<BR22> MECO3 + HO2 = 0.7*CCOOOH + 0.3*CCOOH + 0.3*O3 # 5.20e-13@-980;
+!revised acyl peroxy reaction with HO2 but splitting organic acid into two parts
+<BR22> MECO3 + HO2 = 0.105*CCOOOH + 0.045*CCOOH + 0.15*O3 
+             + 0.44*OH + 0.44*MEO2 + 0.44*CO2 # 5.20e-13@-980;
 <BR23> MECO3 + NO3 = MEO2 + CO2 + NO2 # 1.0*K<BR09>;
 <BR24> MECO3 + MEO2 = 0.1*CCOOH + 0.1*HCHO + 0.9*HCHO + 0.9*HO2 + 0.9*MEO2 +
          0.9*CO2 # 2.00e-12@-500;
@@ -136,7 +152,10 @@ REACTIONS [CM] =
 <BR30> PAN2 = 0.6*RCO3 + 0.6*NO2 + 0.4*RO2C + 0.4*xHO2 + 0.4*yROOH + 0.4*xCCHO +
          0.4*CO2 + 0.4*NO3 # 1.0/<PAN>;
 <BR31> RCO3 + NO = NO2 + RO2C + xHO2 + yROOH + xCCHO + CO2 # 6.70e-12@-340;
-<BR32> RCO3 + HO2 = 0.75*RCOOOH + 0.25*RCOOH + 0.25*O3 # 1.0*K<BR22>;
+!revised acyl peroxy reaction with HO2 but splitting organic acid into two parts
+<BR32> RCO3 + HO2 = 0.3075*RCOOOH + .1025*RCOOH + 0.15*O3 
+            + 0.44*OH  + 0.44*xHO2 + 0.44*RO2C + 0.44*CO2 + 0.44*xCCHO 
+            + 0.44*yROOH # 1.0*K<BR22>;
 <BR33> RCO3 + NO3 = NO2 + RO2C + xHO2 + yROOH + xCCHO + CO2 # 1.0*K<BR09>;
 <BR34> RCO3 + MEO2 = HCHO + HO2 + RO2C + xHO2 + xCCHO + yROOH + CO2
         # 1.0*K<BR24>;
@@ -149,7 +168,9 @@ REACTIONS [CM] =
 <BR41> PBZN = 0.6*BZCO3 + 0.6*NO2 + 0.4*CO2 + 0.4*BZO + 0.4*RO2C + 0.4*NO3
         # 1.0/<PAN>;
 <BR42> BZCO3 + NO = NO2 + CO2 + BZO + RO2C # 1.0*K<BR31>;
-<BR43> BZCO3 + HO2 = 0.75*RCOOOH + 0.25*RCOOH + 0.25*O3 + 4*XC # 1.0*K<BR22>;
+!revised acyl peroxy reaction with HO2 but splitting organic acid into two parts
+<BR43> BZCO3 + HO2 = .3075*RCOOOH + 0.1025*RCOOH + 0.15*O3 
+             + 0.44*OH + 0.44*BZO + 0.44*RO2C + 0.44*CO2 # 1.0*K<BR22>;
 <BR44> BZCO3 + NO3 = NO2 + CO2 + BZO + RO2C # 1.0*K<BR09>;
 <BR45> BZCO3 + MEO2 = HCHO + HO2 + RO2C + BZO + CO2 # 1.0*K<BR24>;
 <BR46> BZCO3 + RO2C = RO2C + BZO + CO2 # 1.0*K<BR25>;
@@ -302,9 +323,10 @@ REACTIONS [CM] =
         # 1.0/<COOH>;
 <BP30> GLY = 2*CO + 2*HO2 # 1.0/<GLY_07R>;
 <BP31> GLY = HCHO + CO # 1.0/<GLY_07M>;
-<BP32> GLY + OH = 0.63*HO2 + 1.26*CO + 0.37*RCO3 - 0.37*XC # 1.10e-11;
-<BP33> GLY + NO3 = HNO3 + 0.63*HO2 + 1.26*CO + 0.37*RCO3 - 0.37*XC
-        # 2.80e-12@2376;
+! changed GLY reactions with OH and NO3
+<BP32> GLY + OH = 0.70*HO2 + 1.40*CO + 0.3*HCOCO3 # 3.10e-12@-342.2;
+<BP33> GLY + NO3 = HNO3 + 0.70*HO2 + 1.40*CO + 0.3*HCOCO3
+        # 2.80e-12@2390;
 <BP34> MGLY = HO2 + CO + MECO3 # 1.0/<MGLY_06>;
 <BP35> MGLY + OH = CO + MECO3 # 1.50e-11;
 <BP36> MGLY + NO3 = HNO3 + CO + MECO3 # 1.40e-12@1895;
@@ -404,6 +426,13 @@ REACTIONS [CM] =
 <BP82> RCOOOH + OH = 0.806*RCO3 + 0.194*RO2C + 0.194*yROOH + 0.11*CO2 +
          0.11*xOH + 0.11*xCCHO + 0.084*xHO2 + 0.084*xRCHO # 6.42e-12;
 <BP83> RCOOOH = xHO2 + xCCHO + yROOH + CO2 + OH # 1.0/<PAA>;
+!added reactions for HCOCO3, the Peroxy radical from H-abstraction of glyoxal, GLY
+
+<BP84> HCOCO3 + NO  = HO2 + CO + CO2 + NO2 # 1.0*K<BR31>;
+<BP85> HCOCO3 + NO2 = HO2 + CO + CO2 + NO3 # 1.0*K<BR28>; 
+<BP86> HCOCO3 + HO2 = 0.44*OH + 0.44*HO2 + 0.44*CO + 0.44*CO2 + 0.56*GLY 
+              + 0.15*O3 # 1.0*K<BR22>; 
+
 <P001> xHCHO + NO = NO + HCHO # 1.0*K<BR07>;
 <P002> xHCHO + HO2 = HO2 + XC # 1.0*K<BR08>;
 <P003> xHCHO + NO3 = NO3 + HCHO # 1.0*K<BR09>;
@@ -639,8 +668,9 @@ REACTIONS [CM] =
         # 1.00e-28^-4.50&8.80e-12^-0.85&0.60&1.0;
 <BE03> ETHENE + O3 = 0.16*HO2 + 0.16*OH + 0.51*CO + 0.12*CO2 + HCHO + 0.37*HCOOH
         # 9.14e-15@2580;
+!corrected temperature power
 <BE04> ETHENE + NO3 = xHO2 + RO2C + xRCHO + yROOH + XN - 1*XC
-        # 3.30e-12^2.00@2880;
+        # 3.30e-12@2880;
 <BE05> ETHENE + O3P = 0.8*HO2 + 0.29*xHO2 + 0.51*MEO2 + 0.29*RO2C + 0.51*CO +
          0.278*xCO + 0.278*xHCHO + 0.1*CCHO + 0.012*xGLY + 0.29*yROOH + 0.2*XC
         # 1.07e-11@800;
@@ -653,7 +683,7 @@ REACTIONS [CM] =
          yROOH + XN + 2.694*XC # 4.59e-13@1156;
 <BT04> PROPENE + O3P = 0.45*RCHO + 0.55*MEK - 0.55*XC # 1.02e-11@280;
 <BT05> BUTADIENE13 + OH = 0.951*xHO2 + 1.189*RO2C + 0.049*RO2XC + 0.049*zRNO3 +
-         0.708*xHCHO + 0.48*xACROLEIN + 0.471*xIPRD + yROOH - 0.797*XC
+         0.708*xHCHO + 0.58*xACROLEIN + 0.471*xIPRD + yROOH - 0.797*XC
         # 1.48e-11@-448;
 <BT06> BUTADIENE13 + O3 = 0.08*HO2 + 0.08*OH + 0.255*CO + 0.185*CO2 + 0.5*HCHO
        + 0.185*HCOOH + 0.5*ACROLEIN + 0.375*MVK + 0.125*PRD2 - 0.875*XC
@@ -685,8 +715,9 @@ REACTIONS [CM] =
          0.069*xACETONE + 0.002*xMGLY + 0.056*xRNO3 + yR6OOH + TRPRXN + 0.301*XN
          + 5.608*XC # 1.19e-12@-490;
 <BT12> APIN + O3P = PRD2 + TRPRXN + 4*XC # 3.20e-11;
+! correct the below B10 rate constant so infinity rate has temperature depedence
 <BE10> ACETYLENE + OH = 0.3*HO2 + 0.7*OH + 0.3*CO + 0.3*HCOOH + 0.7*GLY
-        # 5.50e-30^-2.00&8.30e-13&0.60&1.0;
+        # 5.50e-30&8.30e-13^-2.00&0.60&1.0;
 <BE11> ACETYLENE + O3 = 1.5*HO2 + 0.5*OH + 1.5*CO + 0.5*CO2 # 1.00e-14@4100;
 <BE12> BENZENE + OH = 0.57*HO2 + 0.29*xHO2 + 0.116*OH + 0.29*RO2C + 0.024*RO2XC
          + 0.024*zRNO3 + 0.29*xGLY + 0.57*CRES + 0.029*xAFG1 + 0.261*xAFG2 +
@@ -723,11 +754,12 @@ REACTIONS [CM] =
          0.046*XC # 1.51e-12@-126;
 <BL04> ALK4 + OH = 0.83*xHO2 + 0.01*xMEO2 + 0.011*xMECO3 + 1.763*RO2C +
          0.149*RO2XC + 0.149*zRNO3 + 0.002*xCO + 0.029*xHCHO + 0.438*xCCHO +
-         0.236*xRCHO + 0.426*xACETONE + 0.106*xMEK + 0.146*xPROD2 + yR6OOH +
-         0.11*ALKRXN - 0.119*XC # 3.75e-12@-44;
+         0.236*xRCHO + 0.426*xACETONE + 0.106*xMEK + 0.146*xPROD2 + yR6OOH - 
+         0.119*XC # 3.75e-12@-44;
 <BL05> ALK5 + OH = 0.647*xHO2 + 1.605*RO2C + 0.353*RO2XC + 0.353*zRNO3 +
          0.04*xHCHO + 0.106*xCCHO + 0.209*xRCHO + 0.071*xACETONE + 0.086*xMEK +
-         0.407*xPROD2 + yR6OOH + 0.67*ALKRXN + 2.004*XC # 2.70e-12@-374;
+         0.407*xPROD2 + yR6OOH + 2.004*XC # 2.70e-12@-374;
+<AALK> SOAALK + OH = OH + ALKRXN # 2.70e-12@-374;
 <BL06> OLE1 + OH = 0.871*xHO2 + 0.001*xMEO2 + 1.202*RO2C + 0.128*RO2XC +
          0.128*zRNO3 + 0.582*xHCHO + 0.01*xCCHO + 0.007*xHOCCHO + 0.666*xRCHO +
          0.007*xACETONE + 0.036*xACROLEIN + 0.001*xMACR + 0.012*xMVK +
@@ -762,10 +794,15 @@ REACTIONS [CM] =
          0.11*zRNO3 + 0.158*xGLY + 0.1*xMGLY + 0.123*CRES + 0.072*xAFG1 +
          0.185*xAFG2 + 0.202*AFG3 + 0.309*xPROD2 + 0.369*yR6OOH + TOLRO2 +
          0.31*XC # 7.84e-12;
-<BL15> ARO2 + OH = 0.077*HO2 + 0.617*xHO2 + 0.178*OH + 0.617*RO2C +
+<BL15a> ARO2MN + OH = 0.077*HO2 + 0.617*xHO2 + 0.178*OH + 0.617*RO2C +
          0.128*RO2XC + 0.128*zRNO3 + 0.088*xGLY + 0.312*xMGLY + 0.134*xBACL +
          0.077*CRES + 0.026*xBALD + 0.221*xAFG1 + 0.247*xAFG2 + 0.178*AFG3 +
-         0.068*xAFG3 + 0.057*xPROD2 + 0.101*yR6OOH + 0.9*XYLRO2 + 0.1*PAHRO2 +
+         0.068*xAFG3 + 0.057*xPROD2 + 0.101*yR6OOH + 0.9*XYLRO2 +
+         1.459*XC # 3.09e-11;
+<BL15b> NAPHTHAL + OH = 0.077*HO2 + 0.617*xHO2 + 0.178*OH + 0.617*RO2C +
+         0.128*RO2XC + 0.128*zRNO3 + 0.088*xGLY + 0.312*xMGLY + 0.134*xBACL +
+         0.077*CRES + 0.026*xBALD + 0.221*xAFG1 + 0.247*xAFG2 + 0.178*AFG3 +
+         0.068*xAFG3 + 0.057*xPROD2 + 0.101*yR6OOH + 0.9*XYLRO2 + PAHRO2 +
          1.459*XC # 3.09e-11;
 <BL16> TERP + OH = 0.734*xHO2 + 0.064*xRCO3 + 1.211*RO2C + 0.201*RO2XC +
          0.201*zRNO3 + 0.001*xCO + 0.411*xHCHO + 0.385*xRCHO + 0.037*xACETONE +
@@ -951,7 +988,9 @@ REACTIONS [CM] =
          0.681*yR6OOH + 0.294*XC # 3.77e-10;
 <BC08> ARO1 + CL = 0.84*xHO2 + 0.84*RO2C + 0.16*RO2XC + 0.16*zRNO3 +
          0.84*xPROD2 + XC # 2.16e-10;
-<BC09> ARO2 + CL = 0.828*xHO2 + 0.828*RO2C + 0.172*RO2XC + 0.172*zRNO3 +
+<BC09a> ARO2MN + CL = 0.828*xHO2 + 0.828*RO2C + 0.172*RO2XC + 0.172*zRNO3 +
+         0.469*xBALD + 0.359*xPROD2 + 2.531*XC # 2.66e-10;
+<BC09b> NAPHTHAL + CL = 0.828*xHO2 + 0.828*RO2C + 0.172*RO2XC + 0.172*zRNO3 +
          0.469*xBALD + 0.359*xPROD2 + 2.531*XC # 2.66e-10;
 <BC10> TERP + CL = 0.548*HCL + 0.252*xHO2 + 0.068*xCL + 0.034*xMECO3 +
          0.05*xRCO3 + 0.016*xMACO3 + 2.258*RO2C + 0.582*RO2XC + 0.582*zRNO3 +
@@ -1007,7 +1046,7 @@ REACTIONS [CM] =
 <IS1> ISOPRENE + OH = ISOPO2 + ISOPRXN # 2.54e-11@-410;
 
 <IS2> ISOPO2 + NO = 0.40*MVK + 0.26*MACR + 0.883*NO2 + 0.07*ISOPND +
-         0.047*ISOPNB + 0.66*HCHO + 0.10*HC5 + 0.043*ARO2 + 0.08*DIBOO +
+         0.047*ISOPNB + 0.66*HCHO + 0.10*HC5 + 0.043*ARO2MN + 0.08*DIBOO +
          0.803*HO2 # 2.60e-12@-380;
 
 
@@ -1015,18 +1054,18 @@ REACTIONS [CM] =
           0.120*HO2 + 0.120*HCHO # 2.06e-13@-1300;  
 
 <IS4> ISOPO2 + MEO2 = 0.45*HO2 + 0.37*HCHO + 0.23*MVK + 0.15*MACR + 0.05*DIBOO
-         + 0.06*HC5 + 0.02*ARO2 + 0.5*PRD2 + 0.5*HCHO + 0.5*HO2 + 0.25*HCHO +
+         + 0.06*HC5 + 0.02*ARO2MN + 0.5*PRD2 + 0.5*HCHO + 0.5*HO2 + 0.25*HCHO +
          0.25*MEOH - 0.62*XC # 1.80e-12;
 
 <IS5> ISOPO2 + RO2C = 0.45*HO2 + 0.37*HCHO + 0.23*MVK + 0.15*MACR + 0.05*DIBOO
-         + 0.06*HC5 + 0.02*ARO2 + 0.5*PRD2 - 0.62*XC # 6.80e-13;
+         + 0.06*HC5 + 0.02*ARO2MN + 0.5*PRD2 - 0.62*XC # 6.80e-13;
 
 <IS6> ISOPO2 + ISOPO2 = 0.91*HO2 + 0.75*HCHO + 0.45*MVK + 0.29*MACR +
-         0.09*DIBOO + 0.11*HC5 + 0.05*ARO2 + PRD2 - 1.24*XC # 2.30e-12;
+         0.09*DIBOO + 0.11*HC5 + 0.05*ARO2MN + PRD2 - 1.24*XC # 2.30e-12;
 
 
 <IS7> ISOPO2 + MECO3 = MEO2 + CO2 + 0.91*HO2 + 0.75*HCHO + 0.45*MVK +
-         0.29*MACR + 0.09*DIBOO + 0.11*HC5 + 0.05*ARO2 -
+         0.29*MACR + 0.09*DIBOO + 0.11*HC5 + 0.05*ARO2MN -
          0.16*XC # 4.40e-13@-1070;
 
 
@@ -1041,7 +1080,7 @@ REACTIONS [CM] =
 
 ! ISOPRENE + NO3 reactions        
 
-<IS9> ISOPRENE + NO3 = NISOPO2 # 3.03e-12@448; 
+<IS9> ISOPRENE + NO3 = NISOPO2 + ISOPRXN # 3.03e-12@448; 
 
 <IS10> NISOPO2 + NO3 = 0.70*NIT1 + 0.035*MVK + 0.035*MACR + 1.3*NO2 + 0.80*HO2 
          + 0.070*HCHO + 0.23*HC5 # 2.30e-12; 
@@ -1277,7 +1316,9 @@ REACTIONS [CM] =
 
 <IS69> MACO3 + NO = NO2 + CO + CO2 + HCHO + MEO2 # 6.70e-12@-340;   
 
-<IS70> MACO3 + HO2 = 0.75*RCOOOH + 0.25*RCOOH + 0.25*O3 + XC # 1.0*K<BR22>;
+!revised acyl peroxy reaction with HO2 but splitting organic acid into two parts
+<IS70> MACO3 + HO2 = 0.3075*RCOOOH + 0.1025*RCOOH + 0.15*O3 
+             + 0.44*OH + 0.44*HCHO + 0.44*MECO3 + 0.44*CO2 # 1.0*K<BR22>;
 
 <IS71> MACO3 + NO3 = NO2 + CO + CO2 + HCHO + MEO2 # 4.00e-12;
 <IS72> MACO3 + MEO2 = HCHO + HO2 + CO + CO2 + HCHO + MEO2 # 1.0*K<BR24>;
@@ -1375,7 +1416,7 @@ REACTIONS [CM] =
 
 
 <IS92> ISOPOOH = OH + 0.91*HO2 + 0.75*HCHO + 0.45*MVK +                      
-         0.29*MACR + 0.09*DIBOO + 0.11*HC5 + 0.05*ARO2 -
+         0.29*MACR + 0.09*DIBOO + 0.11*HC5 + 0.05*ARO2MN -
          0.16*XC #  1.0/<COOH>;
 
 
@@ -1482,6 +1523,18 @@ REACTIONS [CM] =
 <HET_N2O5> N2O5 = 2.0*HNO3 # 1.0~<HETERO_N2O5IJ>;
 
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
+
+! version 5.1 heterogenous N2O5 reactions leading to HNO3 and CLNO2
+
+<HET_N2O5IJ>    N2O5 = HNO3 + H2NO3PIJ  # 1.0~<HETERO_N2O5IJ>;
+<HET_N2O5K>     N2O5 = HNO3 + H2NO3PK   # 1.0~<HETERO_N2O5K>;
+
+<HET_H2NO3PIJA> H2NO3PIJ = HNO3         # 1.0~<HETERO_H2NO3PAIJ>;
+<HET_H2NO3PKA>  H2NO3PK  = HNO3         # 1.0~<HETERO_H2NO3PAK>;
+
+<HET_H2NO3PIB>  H2NO3PIJ + ACLI = CLNO2 # 1.0~<HETERO_H2NO3PBIJ>;
+<HET_H2NO3PJB>  H2NO3PIJ + ACLJ = CLNO2 # 1.0~<HETERO_H2NO3PBIJ>;
+<HET_H2NO3PKB>  H2NO3PK  + ACLK = CLNO2 # 1.0~<HETERO_H2NO3PBK>;
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
