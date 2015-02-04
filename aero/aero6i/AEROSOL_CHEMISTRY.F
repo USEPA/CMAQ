@@ -121,7 +121,6 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
       REAL( 8 ), ALLOCATABLE :: DG_WET( : ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
       REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
 
-
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
       REAL ( 8 ), PARAMETER :: K_H_WATER    = 9.0D-4
       REAL ( 8 ), PARAMETER :: K_H_NUC      = 2.0D-4
@@ -191,6 +190,16 @@ c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
 c            Phys. Discuss., 14, 15645–15682, 2014. 
 c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
 c 01/02/15 - H. Pye - Heterogeneous uptake of MAE added to saprc07tic_ae6i version
+C            heterogeneous nitryl chloride production used for Sarwar et al.
+c            (2012).
+c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
+C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+C            Compilation and evaluation of gas-phase diffusion coefficients 
+C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+C            Phys. Discuss., 14, 15645–15682, 2014. 
+C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+
 c
 c
 c  REFERENCES:
@@ -389,6 +398,7 @@ C                            pp 601-609, April, 1996.
         END SUBROUTINE GETPAR
       END INTERFACE 
   
+
 C-----------------------------------------------------------------------
 
       IF( NHETERO .LT. 1 )RETURN
@@ -503,6 +513,8 @@ C ***  Determine molecular weights
        INV_MWIETET = REAL( 1.0/ aerospc_mw( AIETET_IDX ), 8 )
        INV_MWIEOS  = REAL( 1.0/ aerospc_mw( AIEOS_IDX  ), 8 )
 
+       
+       
       END IF   ! first time condition
 
       KHETERO      = 0.0D0
@@ -948,7 +960,6 @@ C ***            Isoprene epoxide uptake
       RETURN
 
       END SUBROUTINE HETCHEM_RATES
-
       REAL( 8 ) FUNCTION PNCOM_LOSS( POC, PNCOM )
 !C Calculates rate constant in cm3 molec-1 sec-1 for PNCOM loss by reacting 
 !  with OH, derived from the reactions in the below POA aging scheme 

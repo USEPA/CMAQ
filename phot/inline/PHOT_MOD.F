@@ -1,4 +1,5 @@
 
+
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -615,7 +616,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                    IF( G_CLOUD .GE. 1.0 .OR. G_CLOUD .LE. -1.0 .OR. G_CLOUD .NE. G_CLOUD )THEN
                         WRITE( NEW_OPTICS_LOG,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO')
      &                  'G_CLOUD( L = ', L, ' ) = ', G_CLOUD,' resetting to '
-                        G_CLOUD = MAX( 0.9999, MIN( G_CLOUD, -0.9999))
+                        G_CLOUD = MIN( 0.9999, MAX( G_CLOUD, -0.9999))
                         WRITE( NEW_OPTICS_LOG,'(ES12.4)')G_CLOUD
                         WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'LIQUID_ASY, LIQUID_SCAT = ',
      &                  CLOUD_LIQUID_ASY( II, IWL ), CLOUD_LIQUID_SCAT( II, IWL )
@@ -656,16 +657,34 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 
             IF( G( L ) .GE. 1.0 .OR. G( L ) .LE. -1.0 .OR.  G( L ) .NE.  G( L ))THEN
                 WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO')'G( L ) = ', G( L ),' resetting to '
-                G( L ) = MAX( 0.9999, MIN( G( L ), -0.9999))
+                G( L ) = MIN( 0.9999, MAX( G( L ), -0.9999))
                 WRITE( NEW_OPTICS_LOG,'(ES12.4)')G( L )
                 WRITE( NEW_OPTICS_LOG,'(A,10(1X,ES12.4))')'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD, G_BAR, G_CLOUD = ',
      &          DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD, G_BAR, G_CLOUD
             END IF
 
-            IF( OM( L ) .GE. 1.0 .OR. OM( L ) .LE. 0.0 .OR.  OM( L ) .NE.  OM( L ))THEN
+            IF( OM( L ) .GT. 1.0 .OR. OM( L ) .LE. 0.0 .OR.  OM( L ) .NE.  OM( L ))THEN
                 WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO')'OM( L ) = ', OM( L ),' resetting to '
-                OM( L ) = MAX( 0.9999, MIN( OM( L ), 0.0))
+                OM( L ) = MIN( 0.9999, MAX( OM( L ), 0.0001))
+#ifdef phot_debug
                 WRITE( NEW_OPTICS_LOG,'(ES12.4)')OM( L )
+                WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT, DTABS, ( DTSCAT + DTABS ) = ', DTSCAT, DTABS, (DTSCAT + DTABS)
+                WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ', DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
+                WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DDTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )  = ',
+     &          DTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )
+                WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'AO3, ANO2,AERO_BEXT, AERO_BSCAT = ',AO3, ANO2,BEXT, BSCAT
+#endif
+            ELSE
+#ifdef phot_debug
+                IF( OM( L ) .EQ. 1.0 ) THEN
+                   WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT, DTABS, ( DTSCAT + DTABS ) = ', DTSCAT, DTABS, (DTSCAT + DTABS)
+                   WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ', DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
+                   WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'DDTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )  = ',
+     &             DTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )
+                   WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))')'AO3, ANO2,AERO_BEXT, AERO_BSCAT = ',AO3, ANO2,BEXT, BSCAT
+                END IF
+#endif
+                OM( L ) = MIN( 0.9999,  OM( L ) )
             END IF
 
             DSDH_TD( L ) = DSDH( L - 1 )
@@ -732,7 +751,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          INSOLATION   = INSOLATION   + SOLAR_FLUX 
          REFLECTION   = REFLECTION   + SOLAR_FLUX * EUP( 1 )
          TRANSMISSION = TRANSMISSION + SOLAR_FLUX * EDN( NLEVEL )
-         TRANS_DIRECT = SOLAR_FLUX * EDIR( NLEVEL ) 
+         TRANS_DIRECT = TRANS_DIRECT + SOLAR_FLUX * EDIR( NLEVEL ) 
 
          IF( ONLY_SOLVE_RAD )CYCLE
 

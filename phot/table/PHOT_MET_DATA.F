@@ -67,7 +67,10 @@
            PUBLIC GET_PHOT_MET, UPDATE_SUN, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
            
            PRIVATE
-        
+!...........Private Parameters:
+
+          REAL, PARAMETER      :: CLDMIN   = 1.e-20      ! minimum value for cloud quantities
+         
 !...........Private Variables:
 
           LOGICAL       :: FIRSTIME = .TRUE.   ! flag for first pass thru
@@ -92,6 +95,7 @@ C grid offsets for INTERPX to MET_CRO_3D, METCRO_CRO_2D files
           INTEGER              :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
           INTEGER              :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
           
+
           REAL, ALLOCATABLE    :: SINLATS( :,: ) ! sine of latitude
           REAL, ALLOCATABLE    :: COSLATS( :,: ) ! cosine of latitude
           REAL                 :: STRTHR         ! starting GMT hour

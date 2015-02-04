@@ -758,7 +758,7 @@ C...modules
                 RJ( COL, ROW, :, : ) = 0.0
 
                 IF ( PHOTDIAG ) THEN
-!                  TOC( COL, ROW )             = 0.0                            
+                   TOC( COL, ROW )             = 0.0                            
                    ETOT_SFC_WL ( COL, ROW, : ) = 0.0
                    TAUO3_TOP_WL( COL, ROW, : ) = 0.0
                    TAU_AERO_WL ( COL, ROW, : ) = 0.0
