@@ -735,7 +735,7 @@ C     by 60 to convert it into 1/sec
      &                               / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
                      ELSE
                         KIEPOX = 0.0D0
-                     ENDIF
+                     END IF
                      KHETERO( IRATE, C, R, L ) = 60.0D0 * KIEPOX
                            
                END SELECT
