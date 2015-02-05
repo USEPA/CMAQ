@@ -1364,7 +1364,7 @@ C-----------------------------------------------------------------------
                  SET_ACM_ARRAYS = .FALSE.
              END IF
 
-             IF( JDATE .NE. ACM_DATE .AND. JTIME .NE. ACM_TIME )THEN
+             IF( JDATE .NE. ACM_DATE .OR. JTIME .NE. ACM_TIME )THEN
                   ACM_CFRAC = 0.0
                   ACM_QC    = 0.0
                   ACM_QI    = 0.0
