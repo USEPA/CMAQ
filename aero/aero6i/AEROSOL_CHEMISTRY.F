@@ -199,6 +199,8 @@ C            Compilation and evaluation of gas-phase diffusion coefficients
 C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
 C            Phys. Discuss., 14, 15645–15682, 2014. 
 C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+C 02/09/15 - B.Hutzell - corrected NO2 rate by a factor of two based consulting the stoiciometery for 
+C            reaction published in Sarwar et al. (2008) and its analytical solution
 
 c
 c
@@ -823,10 +825,10 @@ C *** Place rate constant information into array for use
                                
                  CASE( IA_NO2 )
       
-C *** calculate pseudo-first order rate constant using Eq 1 of Vogel
+C *** calculate pseudo-first order rate constant for NO2 loss using Eq 1 of Vogel
 C     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
 C     by 60 to convert it into 1/sec
-                     KNO2 = MAX ( 0.0D0, 5.0D-5 * TOTSURFA )
+                     KNO2 = MAX ( 0.0D0, 1.0D-4 * TOTSURFA )
 
                      KHETERO( IRATE, C, R, L )  = 60.0D0 * KNO2 ! convert to min-1
 
