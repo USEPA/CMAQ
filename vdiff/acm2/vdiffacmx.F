@@ -21,6 +21,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+!     SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, CNGRD, DDEPJ, DDEPJ_FST )
       SUBROUTINE VDIFFACMX ( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
 
 C-----------------------------------------------------------------------
@@ -71,8 +72,8 @@ C--- SEDDY is strictly an input, but it gets modified here
       REAL, INTENT( INOUT ) :: SEDDY    ( :,:,: )   ! flipped EDDYV
       REAL, INTENT( INOUT ) :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, INTENT( INOUT ) :: ICMP     ( :,:,: )   ! component flux accumlator 
-      REAL, INTENT( INOUT ) :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
-      REAL, INTENT( INOUT ) :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
+      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
+      REAL, INTENT( INOUT ), OPTIONAL :: DDEPJ_FST( :,:,:,: ) ! ddep for stomtal/cuticular pathway
       REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: ) ! cgrid replacement
 
 C Parameters:
@@ -146,6 +147,8 @@ C ACM Local Variables
       INTEGER     C, R, L, S, V, I, J           ! loop induction variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
 
+      LOGICAL, SAVE :: XMOSAIC = .FALSE., XFST = .FALSE.
+
       INTERFACE
          SUBROUTINE MATRIX1 ( KL, A, B, E, D, X )
             IMPLICIT NONE
@@ -184,7 +187,10 @@ C set auxiliary depv arrays
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
 
-         IF ( MOSAIC ) THEN
+         IF ( PRESENT ( DDEPJ ) ) XMOSAIC = .TRUE.
+         IF ( PRESENT ( DDEPJ_FST ) ) XFST = .TRUE.
+
+         IF ( XMOSAIC ) THEN
             ALLOCATE ( DD_FACJ( N_LUFRAC,N_SPC_DEPV ),
      &                 DDBFJ  ( N_LUFRAC,N_SPC_DEPV ),
      &                 DEPVJCR( N_LUFRAC,N_SPC_DEPV ) )
@@ -192,7 +198,7 @@ C set auxiliary depv arrays
                XMSG = 'Failure allocating DD_FACJ, DDBFJ or DEPVJCR'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-            IF ( FST ) THEN
+            IF ( XFST ) THEN
                ALLOCATE ( DD_FACJ_FST( N_LUFRAC,N_SPC_DEPV ),
      &                    DDBFJ_FST  ( N_LUFRAC,N_SPC_DEPV ),
      &                    DEPVJCR_FST( N_LUFRAC,N_SPC_DEPV ) )
@@ -386,7 +392,7 @@ C These don`t change in the NLP sub-time step loop:---------------------
          END DO
 C ----------------------------------------------------------------------
 
-         IF ( MOSAIC ) THEN
+         IF ( XMOSAIC ) THEN
             DO V = 1, N_SPC_DEPV
                DO J = 1, N_LUFRAC
                   DDBFJ( J,V )   = DDEPJ( J,V,C,R )
@@ -394,7 +400,7 @@ C ----------------------------------------------------------------------
                   DD_FACJ( J,V ) = DTDENS1 * DD_CONV( V ) * DEPVJCR( J,V )
                END DO
             END DO
-            IF ( FST ) THEN
+            IF ( XFST ) THEN
                DO V = 1, N_SPC_DEPV
                   DO J = 1, N_LUFRAC
                      DDBFJ_FST( J,V )   = DDEPJ_FST( J,V,C,R )
@@ -453,7 +459,7 @@ C --------- END of HET HONO RX ----------
 
             END DO
     
-            IF ( MOSAIC ) THEN
+            IF ( XMOSAIC ) THEN
                DO V = 1, N_SPC_DEPV
 C --------------- HET HONO RX -----------------
                   IF ( V .EQ. HNO3_HIT ) THEN
@@ -473,7 +479,7 @@ C --------------- END of HET HONO RX ----------
                      END DO
                   END IF
                END DO
-               IF ( FST ) THEN
+               IF ( XFST ) THEN
                   DO V = 1, N_SPC_DEPV
                      IF ( V .EQ. HNO3_HIT ) THEN
                         S = HNO3_MAP
@@ -604,7 +610,7 @@ C --------- END of HET HONO RX ----------
 
             END DO
     
-            IF ( MOSAIC ) THEN
+            IF ( XMOSAIC ) THEN
                DO V = 1, N_SPC_DEPV
                   IF ( V .EQ. HNO3_HIT ) THEN
                      S = HNO3_MAP
@@ -620,7 +626,7 @@ C --------- END of HET HONO RX ----------
                      END DO
                   END IF
                END DO
-               IF ( FST ) THEN
+               IF ( XFST ) THEN
                   DO V = 1, N_SPC_DEPV
                      IF ( V .EQ. HNO3_HIT ) THEN
                         S = HNO3_MAP
@@ -659,13 +665,13 @@ C --------- END of HET HONO RX ----------
             END DO
          END IF
  
-         IF ( MOSAIC ) THEN
+         IF ( XMOSAIC ) THEN
             DO V = 1, N_SPC_DEPV
                DO J = 1, N_LUFRAC
                   DDEPJ( J,V,C,R ) = DDBFJ( J,V )
                END DO
             END DO
-            IF ( FST ) THEN
+            IF ( XFST ) THEN
                DO V = 1, N_SPC_DEPV
                   DO J = 1, N_LUFRAC
                      DDEPJ_FST( J,V,C,R ) = DDBFJ_FST( J,V )

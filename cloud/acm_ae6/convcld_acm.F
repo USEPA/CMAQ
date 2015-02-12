@@ -96,6 +96,8 @@ C       02Aug12 S.Roselle:  instrumented to calculate and return
 C                           transmissivity for convective clouds
 C       04Apr14 B.Hutzell:  Added routine call to capture cloud fractions,
 C                           water, and ice mixing ratios
+C       11Feb15 J.Young: Updated call to czangle.F which uses the ASX_DATA_MOD shared
+C                        data module (Implemented by J.Bash on 07 Nov 14)
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -827,7 +829,7 @@ C...Get PBL height (m)
 
 C.. Compute zenith angle, Golam Sarwar, July 1, 2011 
 
-      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
+      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
  
 C...advance the MDATE and MTIME to the next time on the met file
 C...  to get ready to read the precipitation amounts.

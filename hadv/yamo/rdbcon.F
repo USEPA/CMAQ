@@ -65,12 +65,12 @@ C Includes:
       INCLUDE SUBST_FILES_ID   ! file name parameters
 
 C Arguments:
-      INTEGER      JDATE       ! current model date, coded YYYYDDD
-      INTEGER      JTIME       ! current model time, coded HHMMSS
-      INTEGER      TSTEP       ! timestep
-      INTEGER      LVL         ! layer
-!     REAL         BCON( NBNDY,NLAYS,* )  ! boundary concentrations
-      REAL      :: BCON( :,: ) ! boundary concentrations
+      INTEGER, INTENT( IN ) :: JDATE       ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME       ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP       ! timestep
+      INTEGER, INTENT( IN ) :: LVL         ! layer
+!     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
+      REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -128,14 +128,14 @@ C for INTERPX
             USE CGRID_SPCS
             USE UTILIO_DEFN
             IMPLICIT NONE
-            CHARACTER( 16 ), INTENT( IN )    :: CONCMIN
-            CHARACTER( 16 ), INTENT( INOUT ) :: BCNAME( : )
-            REAL,            INTENT( INOUT ) :: BCFAC ( : )
+            CHARACTER( 16 ), INTENT( IN )  :: CONCMIN
+            CHARACTER( 16 ), INTENT( OUT ) :: BCNAME( : )
+            REAL,            INTENT( OUT ) :: BCFAC ( : )
          END SUBROUTINE ADVBC_MAP
       END INTERFACE
 
       integer, save :: logdev
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       real sumbc
       integer s
 #endif
@@ -150,7 +150,7 @@ C-----------------------------------------------------------------------
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
 
-C currently not implemented: case where only one origin component matches file's
+C currently not implemented: case where only one origin component matches file`s
          IF ( GXOFF .NE. 0 .AND. GYOFF .NE. 0 ) THEN
             WINDOW = .TRUE.       ! windowing from file
             STRTCOL = STRTCOLMC - 1
@@ -182,7 +182,7 @@ C currently not implemented: case where only one origin component matches file's
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C create advected species map to bc's
+C create advected species map to bc`s
  
          CALL ADVBC_MAP ( CONCMIN, BCNAME, BCFAC )
 
@@ -341,7 +341,7 @@ C Read & interpolate boundary concentrations
          END IF
 141   CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          write( logdev,'(/"@@@b ", i8, i7.6)') jdate, jtime
          do var = strt, fini
@@ -394,7 +394,7 @@ C Read & interpolate boundary concentrations
          END IF
 151   CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          do var = strt, fini
             sumbc = 0.0
@@ -434,7 +434,7 @@ C Read & interpolate boundary concentrations
             END IF
 161      CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          do var = strt, fini
             sumbc = 0.0
@@ -473,7 +473,7 @@ C Read & interpolate boundary concentrations
          END IF
 171   CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          do var = strt, fini
             sumbc = 0.0
