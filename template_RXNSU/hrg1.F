@@ -57,15 +57,15 @@ C..EXTERNAL FUNCTIONS: NONE
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ), SAVE  :: PNAME = 'HRG1'   ! Prgram Name
+!     CHARACTER( 16 ), SAVE  :: PNAME = 'HRG1'   ! Prgram Name
 
       
 C..SCRATCH LOCAL VARIABLES:
       REAL( 8 ) :: O1D_S               ! sum of O1D loss frequencies
       REAL( 8 ) :: O3P_S               ! stoich coeff for O3P from O1D
 
-      REAL( 8 ) :: EXN_S               ! sum of NO2EX loss frequencies
-      REAL( 8 ) :: NO2_S               ! stoich coeff for NO2 from NO2EX
+RE      REAL( 8 ) :: EXN_S               ! sum of NO2EX loss frequencies
+RE      REAL( 8 ) :: NO2_S               ! stoich coeff for NO2 from NO2EX
 
 
       REAL( 8 ) :: R1_2                ! production term for NO from NO2

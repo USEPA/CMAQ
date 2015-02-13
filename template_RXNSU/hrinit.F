@@ -55,9 +55,6 @@ C.....ARGUMENTS: NONE
 C.....PARAMETERS: NONE
 
 
-C.....EXTERNAL FUNCTIONS:
-      INTEGER  FINDEX         ! Finds location of a number in a list
-
 C.....SAVED VARIABLES:
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
@@ -65,7 +62,6 @@ C.....SAVED VARIABLES:
 C.....LOCAL VARIABLES: 
       CHARACTER( 132 ) ::  MSG       ! Log message
 
-      INTEGER IND             ! Species index
       INTEGER N               ! Loop index
       INTEGER IOS             ! Allocate error status
 

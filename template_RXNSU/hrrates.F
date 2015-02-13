@@ -53,7 +53,7 @@ C.....EXTERNAL FUNCTIONS: NONE
 
 
 C.....SAVED VARIABLES: NONE
-      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRRATES'   ! Program name
+!     CHARACTER( 16 ), SAVE  ::  PNAME = 'HRRATES'   ! Program name
 
 
 C.....LOCAL VARIABLES: None

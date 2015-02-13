@@ -122,14 +122,11 @@ C..Scratch Local Variables:
       INTEGER NDARK           ! Number of layer 1 cells in darkness
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER SPC             ! Species loop index
-      INTEGER STATUS          ! Status code
-      INTEGER VAR             ! Variable number on I/O API file
   
       LOGICAL LSUNLIGHT       ! Flag for sunlight
 
       REAL INV_DENS           ! reciprocal of air mass density, m3/Kg
       REAL CHEMSTEP           ! Chemistry integration interval (min)
-      REAL SUMEBI             ! Sum of EBI iterations
 
 
       REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
@@ -263,7 +260,7 @@ R5         END IF
          CALL HRINIT
 
          ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-         CHEMSTEP = FLOAT( ITMSTEP ) / 60.0
+         CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D+0
          WRITE( LOGDEV, 92000 ) CHEMSTEP, DELTAT
 
          WRITE( LOGDEV, 92020 )

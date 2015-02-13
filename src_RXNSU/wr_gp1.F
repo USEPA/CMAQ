@@ -145,7 +145,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( IOUT, 93020 ) CR_DATE( 1 : LEN_TRIM( CR_DATE ) )
 
          GO TO 100
-            
+         
+      ELSEIF( LINEIN( 1 : 2 ) .EQ. 'RE' ) THEN
+
+         IF( LNO2EX_CYCLE ) WRITE( IOUT, 92000 ) LINEIN( 3 : LEN_TRIM( LINEIN ) )
+
+         GO TO 100            
 
       ELSEIF( LINEIN( 1 : 2 ) .EQ. 'S1' ) THEN
 

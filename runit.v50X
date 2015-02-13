@@ -14,7 +14,9 @@
  setenv GC_NAME       SAPRC07TIC
 #setenv GC_NAME       RACM2
 #setenv GC_NAME       CB05E51
-setenv AE_NAME       AE6I
+#setenv GC_NAME       CB05MP51
+#setenv AE_NAME       AE6
+ setenv AE_NAME       AE6I
 setenv AQ_NAME       AQ
 
 set MECH = ` echo ${GC_NAME}_${AE_NAME}_${AQ_NAME} |  tr 'a-zA-Z' 'A-Za-z' `
@@ -89,7 +91,7 @@ endif
 set day = ` date "+%b-%d-%Y" `
 #set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
 #setenv OUTDIR        ${BASE}/output/ebi_${MECH}-${day}
- setenv OUTDIR         /home/${USER}/CCTM_git_repository/gas/ebi_${MECH}
+ setenv OUTDIR         /home/${USER}/CCTM_git_repository/gas/ebi_${MECH}-test
  
  setenv COPYRT_FLAG      N
  setenv CVS_HDR_FLAG     N

@@ -58,12 +58,11 @@ C.....EXTERNAL FUNCTIONS: NONE
 
 
 C.....SAVED VARIABLES: NONE
-      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRPRODLOSS'   ! Program name
+!     CHARACTER( 16 ), SAVE  ::  PNAME = 'HRPRODLOSS'   ! Program name
 
 
 C.....LOCAL VARIABLES: 
 
-      INTEGER ESP
 
 C***********************************************************************
 

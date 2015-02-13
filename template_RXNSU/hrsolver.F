@@ -83,12 +83,14 @@ C..SCRATCH LOCAL VARIABLES:
 
       CHARACTER( 132 ) :: MSG           ! Message text
 
-      INTEGER CELLNO          ! Cell no. fo debug output
       INTEGER ITER            ! Loop index for Backward Euler iterations
       INTEGER S               ! Loop index for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps 
+#ifdef hrdebug
       INTEGER N               ! Loop index
+#endif
+R5     INTEGER M              ! species index
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag
@@ -298,8 +300,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 R5
 R5                   DTG = 60.0D0 * DTC
 R5                   DO S = 1, NUMB_MECH_SPC
-R5                      N = CGRID_INDEX( S )
-R5                      YCCELL( N ) = YC( S )
+R5                      M = CGRID_INDEX( S )
+R5                      YCCELL( M ) = YC( S )
 R5                   END DO
 R5                   IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
 R5
