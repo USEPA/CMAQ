@@ -559,86 +559,72 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         IF ( CFRAC_3D_AVAIL ) THEN  ! read from file
-            VARNM = 'CFRAC_3D'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, CFRAC_3D ) ) THEN
-              XMSG = 'Could not read CFRAC_3D from ' // MET_CRO_3D
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         ELSE  ! diagnose CFRAC_3D from available data
 
 !...Get resolved cloud water mixing ratio (kg H2O / kg air)
-            VARNM = 'QC'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QC ) ) THEN
-               XMSG = 'Could not read QC from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+         VARNM = 'QC'
+         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       MDATE, MTIME, QC ) ) THEN
+            XMSG = 'Could not read QC from ' // MET_CRO_3D
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
 !...Get resolved rain water mixing ratio (kg H2O / kg air)
-            VARNM = 'QR'
+         VARNM = 'QR'
+         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                       MDATE, MTIME, QR ) ) THEN
+            XMSG = 'Could not read QR from ' // MET_CRO_3D
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         IF ( QG_AVAIL ) THEN
+!...read resolved graupel and the other hydrometeor mixing ratios (kg H2O / kg air)
+!...from the met file if available
+            VARNM = 'QG'
             IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QR ) ) THEN
-               XMSG = 'Could not read QR from ' // MET_CRO_3D
+     &                          MDATE, MTIME, QG ) ) THEN
+               XMSG = 'Could not read QG from ' // MET_CRO_3D
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            IF ( QG_AVAIL ) THEN
-!...read resolved graupel and the other hydrometeor mixing ratios (kg H2O / kg air)
-!...from the met file if available
-               VARNM = 'QG'
-               IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                             MDATE, MTIME, QG ) ) THEN
-                  XMSG = 'Could not read QG from ' // MET_CRO_3D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
 !...read resolved ice and snow mixing ratios (kg H2O / kg air)
-               VARNM = 'QI'
-               IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                             MDATE, MTIME, QI ) ) THEN
-                  XMSG = 'Could not read QI from ' // MET_CRO_3D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
-               VARNM = 'QS'
-               IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                             MDATE, MTIME, QS ) ) THEN
-                  XMSG = 'Could not read QS from ' // MET_CRO_3D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
-            ELSE IF ( QI_AVAIL ) THEN
-!...read resolved ice and snow mixing ratios (kg H2O / kg air) from the met
-!...from the met file if available
-               VARNM = 'QI'
-               IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                             MDATE, MTIME, QI ) ) THEN
-                  XMSG = 'Could not read QI from ' // MET_CRO_3D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
-
-               VARNM = 'QS'
-               IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                             MDATE, MTIME, QS ) ) THEN
-                  XMSG = 'Could not read QS from ' // MET_CRO_3D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
+            VARNM = 'QI'
+            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                          MDATE, MTIME, QI ) ) THEN
+               XMSG = 'Could not read QI from ' // MET_CRO_3D
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            CALL CAL_CFRAC_3D()
+            VARNM = 'QS'
+            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                          MDATE, MTIME, QS ) ) THEN
+               XMSG = 'Could not read QS from ' // MET_CRO_3D
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
+         ELSE IF ( QI_AVAIL ) THEN
+!...read resolved ice and snow mixing ratios (kg H2O / kg air) from the met
+!...from the met file if available
+            VARNM = 'QI'
+            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                          MDATE, MTIME, QI ) ) THEN
+               XMSG = 'Could not read QI from ' // MET_CRO_3D
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
+
+            VARNM = 'QS'
+            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                          MDATE, MTIME, QS ) ) THEN
+               XMSG = 'Could not read QS from ' // MET_CRO_3D
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
 
          END IF
          
@@ -686,6 +672,21 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                END FORALL
             END DO
          END DO
+
+         IF ( CFRAC_3D_AVAIL ) THEN  ! read from file
+            VARNM = 'CFRAC_3D'
+            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
+     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
+     &                          MDATE, MTIME, CFRAC_3D ) ) THEN
+              XMSG = 'Could not read CFRAC_3D from ' // MET_CRO_3D
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
+         ELSE  ! diagnose CFRAC_3D from available data
+
+            CALL CAL_CFRAC_3D()
+
+         END IF
 
 ! compute averages for resolved cloud                
 !       CFRAC_2D = 0.0
@@ -790,7 +791,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          IF ( FIRSTIME ) CALL INIT_PHOT_MET( JDATE, JTIME )
 
-         IF ( PDATE .NE. JDATE .AND. PTIME .NE. JTIME ) RETURN
+         IF ( PDATE .EQ. JDATE .AND. PTIME .EQ. JTIME ) RETURN
         
          PDATE = JDATE
          PTIME = JTIME
@@ -1216,33 +1217,30 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                END DO
             END DO
          ELSE          
-            DO K = 1, NLAYS
-               DO J = 1, MY_NROWS
-                  DO I = 1, MY_NCOLS
-                     CFRAC_3D(I,J,K) = 0.0
-                  END DO
-               END DO
-            END DO
+            RETURN
          END IF !  IF ( QG_AVAIL )
 
          DO K = 1, NLAYS
             DO J = 1, MY_NROWS
                DO I = 1, MY_NCOLS
-                  TC   = TA(I,J,K) - SVPT0
-                  ESW  = SVP1 * EXP( SVP2  * TC / ( TA(I,J,K) - SVP3  ) )
-                  ESI  = SVP1 * EXP( SVPI2 * TC / ( TA(I,J,K) - SVPI3 ) )
-                  QVSW = EP_2 * ESW / ( PRES(I,J,K) - ESW )
-                  QVSI = EP_2 * ESI / ( PRES(I,J,K) - ESI )
-                  WHT = WEIGHT(I,J,K)
-!                 QVS_WEIGHT = ( 1.0 - WHT ) * QVSW + WHT * QVSI
-                  QVS_WEIGHT = QVSW + WHT * ( QVSI - QVSW )
-                  RHUM = QV(I,J,K) / QVS_WEIGHT   !--- Relative Humidity
 !--- Determine cloud fraction (modified from original algorithm)
                   IF ( QCLD(I,J,K) .LT. QCLDMIN ) THEN
 !--- Assume zero cloud fraction if there is no cloud mixing ratio
                      CFRAC_3D(I,J,K) = 0.0
                      CYCLE
-                  ELSE IF ( RHUM .GE. RHGRID ) THEN
+                  END IF
+                  
+                  TC   = TA(I,J,K) - SVPT0
+                  ESW  = SVP1 * EXP( SVP2  * TC / ( TA(I,J,K) - SVP3  ) )
+                  ESI  = SVP1 * EXP( SVPI2 * TC / ( TA(I,J,K) - SVPI3 ) )
+                  QVSW = EP_2 * ESW / ( PRES(I,J,K) - ESW )
+                  QVSI = EP_2 * ESI / ( PRES(I,J,K) - ESI )
+                  WHT  = WEIGHT(I,J,K)
+!                 QVS_WEIGHT = ( 1.0 - WHT ) * QVSW + WHT * QVSI
+                  QVS_WEIGHT = QVSW + WHT * ( QVSI - QVSW )
+                  RHUM = QV(I,J,K) / QVS_WEIGHT   !--- Relative Humidity                  
+                  
+                  IF ( RHUM .GE. RHGRID ) THEN
 !--- Assume cloud fraction of unity if near saturation and the cloud
 !    mixing ratio is at or above the minimum threshold
                      CFRAC_3D(I,J,K) = 1.0
