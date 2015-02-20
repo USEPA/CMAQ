@@ -387,6 +387,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: XL              ! conversion factor (liter-atm/mol)
       REAL( 8 ) :: ONE_OVER_XL     ! 1.0 / XL
       REAL( 8 ) :: PRES_ATM_OVER_XL ! PRES_ATM / XL
+      REAL( 8 ) :: SCAVENGED       ! aitken scavenging factor by cloud water
       REAL( 8 ) :: XLCO2           !
       REAL( 8 ) :: XLH2O2          !
       REAL( 8 ) :: XLHCL           ! const in calc of HCL final partial pres
@@ -774,9 +775,9 @@ C...loop If kinetic calculations are made, return to this point
 
 C...set aitken-mode aerosol loading (mol/liter)
 
+        SCAVENGED = PRES_ATM_OVER_XL - PRES_ATM_OVER_XL * EXP( MAX( -REAL( ALFA3, 8 ) * TIMEW, 1.0D-8 ) )
         DO ISPC = 1, NAER
-          LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * PRES_ATM_OVER_XL
-     &                         * ( 1.0D0 - EXP( -ALFA3 * TIMEW ) )
+          LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * SCAVENGED
         END DO
 
 C...Initial gas phase partial pressures (atm)
