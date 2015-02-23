@@ -315,11 +315,11 @@ C M3 asx constants
       DATA subname(55), dif0(55), ar(55), meso(55), lebas(55) / 'MPAN            ', 0.0580,   16.0,      0.1, 133.0/
       DATA subname(56), dif0(56), ar(56), meso(56), lebas(56) / 'PPN             ', 0.0631,   16.0,      0.1, 118.2/
       DATA subname(57), dif0(57), ar(57), meso(57), lebas(57) / 'MVK             ', 0.0810,    8.0,      1.0,  88.8/
-      DATA subname(58), dif0(58), ar(58), meso(58), lebas(58) / 'DINTR           ', 0.0810,    8.0,      0.0,  88.8/
-      DATA subname(59), dif0(59), ar(59), meso(59), lebas(59) / 'NTR_ALK         ', 0.0810,    8.0,      0.0,  88.8/
-      DATA subname(60), dif0(60), ar(60), meso(60), lebas(60) / 'NTR_OH          ', 0.0810,    8.0,      0.0,  88.8/
-      DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'NTR_PX          ', 0.0810,    8.0,      0.0,  88.8/
-      DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0810,    8.0,      0.0,  88.8/
+      DATA subname(58), dif0(58), ar(58), meso(58), lebas(58) / 'DINTR           ', 0.0617,   16.0,      0.1, 169.8/
+      DATA subname(59), dif0(59), ar(59), meso(59), lebas(59) / 'NTR_ALK         ', 0.0688,   16.0,      0.1, 133.0/
+      DATA subname(60), dif0(60), ar(60), meso(60), lebas(60) / 'NTR_OH          ', 0.0665,   16.0,      0.1, 140.4/
+      DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.1, 147.8/
+      DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0677,   16.0,      0.1, 133.0/
       DATA subname(63), dif0(63), ar(63), meso(63), lebas(63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
 
       CONTAINS
@@ -521,7 +521,9 @@ C-----------------------------------------------------------------------
      &                ChemMos_Data%Cstom( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
      &                ChemMos_Data%Ccut ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
      &                ChemMos_Data%Csoil( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),  
-     &                ChemMos_Data%NAME  ( n_lufrac ),                                
+     &                ChemMos_Data%NAME   ( n_lufrac ),                                
+     &                ChemMos_Data%LU_Type( n_lufrac ),                                
+     &                ChemMos_Data%Subname( n_lufrac ),                                
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating chemistry dependent mosaic vars'
@@ -540,7 +542,7 @@ C-----------------------------------------------------------------------
             ChemMos_Data%Csoil = 0.0
             ChemMos_Data%NAME    = name_lu
             ChemMos_Data%LU_Type = cat_lu                  
-            ChemMos_Data%SubName = subname                        
+            ChemMos_Data%Subname = subname                        
          End If
 
 ! ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
