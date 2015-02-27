@@ -383,8 +383,8 @@ C CN98 - p. 261 (assume exponentially wtd avg)
                CANPARDIF_SUN    = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * LAISUN ) )
      &                                   / ( SQALPHA * KD * LAISUN )
 
-               CANPARDIF_SHADE  = CANPARDIF_SUN * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) - 
-     &                                              EXP( -1.0 * SQALPHA * KD * TLAI ) )
+               CANPARDIF_SHADE  = CANPARDIF_SUN * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) 
+     &                                            - EXP( -1.0 * SQALPHA * KD * TLAI ) )
      &                                   / ( SQALPHA * KD * (TLAI - LAISUN) )
 
 C CN98 - p. 261 (for next 3 eqns)

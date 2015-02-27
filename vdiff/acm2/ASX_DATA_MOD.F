@@ -372,7 +372,7 @@ C-----------------------------------------------------------------------
 
 ! Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
-     &              BUFF2D( NCOLS,NROWS ), 
+     &              BUFF2D( NCOLS,NROWS ),
      &              BUFF3D( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating Buffers'
@@ -385,70 +385,70 @@ C-----------------------------------------------------------------------
 
 ! Allocate shared arrays
 ! Met_Data
-         ALLOCATE( Met_Data%RDEPVHT  ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%DENS1    ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%PRSFC    ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%Q2       ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%QSS_GRND ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%RH       ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%RA       ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%RS       ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%RC       ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%RN       ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%RGRND    ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%HFX      ( MY_NCOLS,MY_NROWS ),    
-     &             Met_Data%SNOCOV   ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%TEMP2    ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%TEMPG    ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%TSEASFC  ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%USTAR    ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%VEG      ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%LAI      ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%WR       ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%WSPD10   ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%WSTAR    ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%Z0       ( MY_NCOLS,MY_NROWS ), 
-     &             Met_Data%SOIM1    ( MY_NCOLS,MY_NROWS ),
-     &             Met_Data%SOIT1    ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%SEAICE   ( MY_NCOLS,MY_NROWS ),    
-     &             Met_Data%MOLI     ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%HOL      ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%XPBL     ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%LPBL     ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%CONVCT   ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%PBL      ( MY_NCOLS,MY_NROWS ),  
-     &             Met_Data%UWIND    ( MY_NCOLS + 1,MY_NROWS + 1,NLAYS ), 
-     &             Met_Data%VWIND    ( MY_NCOLS + 1,MY_NROWS + 1,NLAYS ), 
-     &             Met_Data%RJACM    ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%RJACF    ( MY_NCOLS,MY_NROWS,NLAYS ),  
-     &             Met_Data%RRHOJ    ( MY_NCOLS,MY_NROWS,NLAYS ),  
-     &             Met_Data%ZF       ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%ZH       ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%KZMIN    ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%PRES     ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%QV       ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%QC       ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%THETAV   ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%TA       ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%DZF      ( MY_NCOLS,MY_NROWS,NLAYS ),
-     &             Met_Data%DENS     ( MY_NCOLS,MY_NROWS,NLAYS ),
+         ALLOCATE( Met_Data%RDEPVHT  ( NCOLS,NROWS ),
+     &             Met_Data%DENS1    ( NCOLS,NROWS ),
+     &             Met_Data%PRSFC    ( NCOLS,NROWS ),
+     &             Met_Data%Q2       ( NCOLS,NROWS ),
+     &             Met_Data%QSS_GRND ( NCOLS,NROWS ),
+     &             Met_Data%RH       ( NCOLS,NROWS ),
+     &             Met_Data%RA       ( NCOLS,NROWS ),
+     &             Met_Data%RS       ( NCOLS,NROWS ),
+     &             Met_Data%RC       ( NCOLS,NROWS ),
+     &             Met_Data%RN       ( NCOLS,NROWS ),
+     &             Met_Data%RGRND    ( NCOLS,NROWS ),
+     &             Met_Data%HFX      ( NCOLS,NROWS ),
+     &             Met_Data%SNOCOV   ( NCOLS,NROWS ),
+     &             Met_Data%TEMP2    ( NCOLS,NROWS ),
+     &             Met_Data%TEMPG    ( NCOLS,NROWS ),
+     &             Met_Data%TSEASFC  ( NCOLS,NROWS ),
+     &             Met_Data%USTAR    ( NCOLS,NROWS ),
+     &             Met_Data%VEG      ( NCOLS,NROWS ),
+     &             Met_Data%LAI      ( NCOLS,NROWS ),
+     &             Met_Data%WR       ( NCOLS,NROWS ),
+     &             Met_Data%WSPD10   ( NCOLS,NROWS ),
+     &             Met_Data%WSTAR    ( NCOLS,NROWS ),
+     &             Met_Data%Z0       ( NCOLS,NROWS ),
+     &             Met_Data%SOIM1    ( NCOLS,NROWS ),
+     &             Met_Data%SOIT1    ( NCOLS,NROWS ),
+     &             Met_Data%SEAICE   ( NCOLS,NROWS ),
+     &             Met_Data%MOLI     ( NCOLS,NROWS ),
+     &             Met_Data%HOL      ( NCOLS,NROWS ),
+     &             Met_Data%XPBL     ( NCOLS,NROWS ),
+     &             Met_Data%LPBL     ( NCOLS,NROWS ),
+     &             Met_Data%CONVCT   ( NCOLS,NROWS ),
+     &             Met_Data%PBL      ( NCOLS,NROWS ),
+     &             Met_Data%UWIND    ( NCOLS + 1,NROWS + 1,NLAYS ),
+     &             Met_Data%VWIND    ( NCOLS + 1,NROWS + 1,NLAYS ),
+     &             Met_Data%RJACM    ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%RJACF    ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%RRHOJ    ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%ZF       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%ZH       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%PRES     ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%QV       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%QC       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%THETAV   ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%TA       ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%DZF      ( NCOLS,NROWS,NLAYS ),
+     &             Met_Data%DENS     ( NCOLS,NROWS,NLAYS ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating met vars'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         ALLOCATE( Grid_Data%DX3F   ( NLAYS ),
-     &             Grid_Data%RDX3F  ( NLAYS ),
-     &             Grid_Data%RDX3M  ( NLAYS ),
-     &             Grid_Data%RMSFX4 ( MY_NCOLS,MY_NROWS ), 
-     &             Grid_Data%LON    ( MY_NCOLS,MY_NROWS ),
-     &             Grid_Data%LAT    ( MY_NCOLS,MY_NROWS ),
-     &             Grid_Data%LWMASK ( MY_NCOLS,MY_NROWS ),
-     &             Grid_Data%OCEAN  ( MY_NCOLS,MY_NROWS ),
-     &             Grid_Data%SZONE  ( MY_NCOLS,MY_NROWS ),
-     &             Grid_Data%PURB   ( MY_NCOLS,MY_NROWS ),
-     &             Grid_Data%SLTYP  ( MY_NCOLS,MY_NROWS ), 
+         ALLOCATE( Grid_Data%DX3F    ( NLAYS ),
+     &             Grid_Data%RDX3F   ( NLAYS ),
+     &             Grid_Data%RDX3M   ( NLAYS ),
+     &             Grid_Data%RMSFX4  ( NCOLS,NROWS ),
+     &             Grid_Data%LON     ( NCOLS,NROWS ),
+     &             Grid_Data%LAT     ( NCOLS,NROWS ),
+     &             Grid_Data%LWMASK  ( NCOLS,NROWS ),
+     &             Grid_Data%OCEAN   ( NCOLS,NROWS ),
+     &             Grid_Data%SZONE   ( NCOLS,NROWS ),
+     &             Grid_Data%PURB    ( NCOLS,NROWS ),
+     &             Grid_Data%SLTYP   ( NCOLS,NROWS ),
      &             Grid_Data%NAME    ( n_lufrac ),
      &             Grid_Data%LU_Type ( n_lufrac ),
      &             STAT = ALLOCSTAT )
@@ -457,23 +457,23 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          Grid_Data%NAME    = name_lu
-         Grid_Data%LU_Type = cat_lu 
+         Grid_Data%LU_Type = cat_lu
 
          If ( ABFLUX .Or. MOSAIC ) Then
-            ALLOCATE( Met_Data%SOIM2    ( MY_NCOLS,MY_NROWS ),   
-     &                Met_Data%SOIT2    ( MY_NCOLS,MY_NROWS ),
+            ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
+     &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating mosaic met vars'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If 
+            End If
 
-            ALLOCATE( Grid_Data%WSAT   ( MY_NCOLS,MY_NROWS ),
-     &                Grid_Data%WWLT   ( MY_NCOLS,MY_NROWS ),
-     &                Grid_Data%WFC    ( MY_NCOLS,MY_NROWS ),
-     &                Grid_Data%WRES   ( MY_NCOLS,MY_NROWS ),
-     &                Grid_Data%BSLP   ( MY_NCOLS,MY_NROWS ),
-     &                Grid_Data%LUFRAC ( MY_NCOLS,MY_NROWS,n_lufrac ),    
+            ALLOCATE( Grid_Data%WSAT   ( NCOLS,NROWS ),
+     &                Grid_Data%WWLT   ( NCOLS,NROWS ),
+     &                Grid_Data%WFC    ( NCOLS,NROWS ),
+     &                Grid_Data%WRES   ( NCOLS,NROWS ),
+     &                Grid_Data%BSLP   ( NCOLS,NROWS ),
+     &                Grid_Data%LUFRAC ( NCOLS,NROWS,n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating mosaic grid vars'
@@ -485,16 +485,16 @@ C-----------------------------------------------------------------------
             Grid_Data%WRES    = 0.0
             Grid_Data%BSLP    = 0.0
 
-            ALLOCATE( Mosaic_Data%USTAR   ( MY_NCOLS,MY_NROWS,n_lufrac ), 
-     &                Mosaic_Data%LAI     ( MY_NCOLS,MY_NROWS,n_lufrac ),
-     &                Mosaic_Data%DELTA   ( MY_NCOLS,MY_NROWS,n_lufrac ),
-     &                Mosaic_Data%VEG     ( MY_NCOLS,MY_NROWS,n_lufrac ),
-     &                Mosaic_Data%Z0      ( MY_NCOLS,MY_NROWS,n_lufrac ),
-     &                Mosaic_Data%RA      ( MY_NCOLS,MY_NROWS,n_lufrac ),
-     &                Mosaic_Data%RSTW    ( MY_NCOLS,MY_NROWS,n_lufrac ),
-     &                Mosaic_Data%RINC    ( MY_NCOLS,MY_NROWS,n_lufrac ),                                
+            ALLOCATE( Mosaic_Data%USTAR   ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%LAI     ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%DELTA   ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%VEG     ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%Z0      ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%RA      ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%RSTW    ( NCOLS,NROWS,n_lufrac ),
+     &                Mosaic_Data%RINC    ( NCOLS,NROWS,n_lufrac ),
      &                Mosaic_Data%NAME    ( n_lufrac ),
-     &                Mosaic_Data%LU_Type ( n_lufrac ),                                                                
+     &                Mosaic_Data%LU_Type ( n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating mosaic vars'
@@ -508,20 +508,22 @@ C-----------------------------------------------------------------------
             Mosaic_Data%RSTW    = 0.0
             Mosaic_Data%RINC    = 0.0
             Mosaic_Data%NAME    = name_lu
-            Mosaic_Data%LU_Type = cat_lu 
+            Mosaic_Data%LU_Type = cat_lu
 
-            ALLOCATE( ChemMos_Data%Rb   ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
-     &                ChemMos_Data%Rst  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
-     &                ChemMos_Data%Rcut ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
-     &                ChemMos_Data%Rgc  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rgb  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Rwat ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),  
-     &                ChemMos_Data%CZ0  ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),
-     &                ChemMos_Data%Cleaf( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
-     &                ChemMos_Data%Cstom( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
-     &                ChemMos_Data%Ccut ( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ), 
-     &                ChemMos_Data%Csoil( MY_NCOLS,MY_NROWS,n_lufrac,ltotg ),  
-     &                ChemMos_Data%NAME  ( n_lufrac ),                                
+            ALLOCATE( ChemMos_Data%Rb      ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rst     ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rcut    ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rgc     ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rgb     ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Rwat    ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%CZ0     ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Cleaf   ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Cstom   ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Ccut    ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%Csoil   ( NCOLS,NROWS,n_lufrac,ltotg ),
+     &                ChemMos_Data%NAME    ( n_lufrac ),
+     &                ChemMos_Data%LU_Type ( n_lufrac ),
+     &                ChemMos_Data%Subname ( n_lufrac ),
      &                STAT = ALLOCSTAT )
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating chemistry dependent mosaic vars'
@@ -539,8 +541,8 @@ C-----------------------------------------------------------------------
             ChemMos_Data%Ccut  = 0.0
             ChemMos_Data%Csoil = 0.0
             ChemMos_Data%NAME    = name_lu
-            ChemMos_Data%LU_Type = cat_lu                  
-            ChemMos_Data%SubName = subname                        
+            ChemMos_Data%LU_Type = cat_lu
+            ChemMos_Data%SubName = subname
          End If
 
 ! ccccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
@@ -747,7 +749,7 @@ C nullify pointer
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WRES( C,R ) = WRES( Grid_Data%SLTYP( C,R ) )
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
-            End Forall  
+            End Forall
         End If
 
 C Read fractional seawater and surf-zone coverage from the OCEAN file.
@@ -775,7 +777,7 @@ C Store results in the OCEAN and SZONE arrays.
          End If
          
          Return
-         End Subroutine INIT_MET 
+         End Subroutine INIT_MET
 
          Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX )
 
@@ -1237,11 +1239,11 @@ C-------------------------------- Calculated Variables -------------------------
                Where( Met_Data%ZF( :,:,L ) .LE. KZMAXL )
                   Met_Data%KZMIN( :,:,L ) = KZL + ( KZU - KZL ) * 0.01 * Grid_data%PURB
                End Where
-            End Do               
+            End Do
          ELSE
             Met_Data%KZMIN = KZ0UT
          END IF
-         
+
          TV => BUFF3D
          TV = Met_Data%TA * ( 1.0 + 0.608 * Met_Data%QV )
          Met_Data%THETAV = TV * ( P0 / Met_Data%PRES ) ** 0.286
@@ -1249,7 +1251,7 @@ C-------------------------------- Calculated Variables -------------------------
 
          Met_Data%HOL = Met_Data%PBL * Met_Data%MOLI
 
-         Met_Data%CONVCT = .FALSE.      
+         Met_Data%CONVCT = .FALSE.
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
                DO L = 1, NLAYS
@@ -1265,7 +1267,7 @@ C-------------------------------- Calculated Variables -------------------------
      &                 / ( Met_Data%ZF( C,R,LP ) )
                   Met_Data%XPBL( C,R ) = FINT * ( X3FACE_GD( LP ) - X3FACE_GD( LP-1 ) )
      &                        + X3FACE_GD( LP-1 )
-               Else 
+               Else
                   FINT = ( Met_Data%PBL( C,R )   - Met_Data%ZF( C,R,LP-1 ) )
      &                 / ( Met_Data%ZF( C,R,LP ) - Met_Data%ZF( C,R,LP-1 ) )
                   Met_Data%XPBL( C,R ) = FINT * ( X3FACE_GD( LP ) - X3FACE_GD( LP-1 ) )
@@ -1273,12 +1275,12 @@ C-------------------------------- Calculated Variables -------------------------
                End If
             END DO
          END DO
-         Where( Met_Data%THETAV( :,:,1 ) - Met_Data%THETAV( :,:,2 ) .Gt. EPS .And. 
+         Where( Met_Data%THETAV( :,:,1 ) - Met_Data%THETAV( :,:,2 ) .Gt. EPS .And.
      &          Met_Data%HOL .Lt. -0.1 .And. Met_Data%LPBL .Gt. 3 )
             Met_Data%Convct = .True.
          End Where
 
          RETURN
-         End Subroutine GET_MET 
+         End Subroutine GET_MET
 
       End Module ASX_DATA_MOD

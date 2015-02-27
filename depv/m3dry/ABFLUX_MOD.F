@@ -313,12 +313,12 @@ C                          '12345678901234567890'
                Go To 1001
             End If
 
-         ! parameters            
+         ! parameters
             Do r = 1, my_nrows
                Do c = 1, my_ncols
                   Tot_Ag = 0.0                   
                   Do l = 1, e2c_cats
-                     If( .Not. IsNaN( pHs1( c,r,l ) )   .And. 
+                     If( .Not. IsNaN( pHs1( c,r,l ) )   .And.
      &                   .Not. IsNaN( pHs2( c,r,l ) )   .And.
      &                   .Not. IsNaN( NH4ps1( c,r,l ) ) .And.
      &                   .Not. IsNaN( NH4ps2( c,r,l ) ) .And.
@@ -338,8 +338,9 @@ C                          '12345678901234567890'
      &                       NH4ps1( c,r,l ) .Gt. 0.0       .And.
      &                       NH4ps2( c,r,l ) .Gt. 0.0     ) Then
                            If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
-                              frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                           End If                    
+                              frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )              
+                           End If
+
                            Tot_Ag        = Tot_Ag + Beld_ag( c,r,l )
                            gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
      &                                   / pHfac1 * Beld_ag( c,r,l )
@@ -347,12 +348,14 @@ C                          '12345678901234567890'
                            gamma2( c,r ) = gamma2( c,r ) + convl2 * NH4ps2( c,r,l )
      &                                   / pHfac2 * Beld_ag( c,r,l )
                            MHp2( c,r )   = MHp2( c,r ) + Beld_ag( c,r,l ) * pHfac2
-                           If ( .Not. IsNaN( F_rate1( c,r,l ) ) .And. 
+
+                           If ( .Not. IsNaN( F_rate1( c,r,l ) ) .And.
      &                                       F_rate1( c,r,l ) .Gt. 0.0 ) Then
-! Surface applied fertlizer                                        
+! Surface applied fertlizer
                               fagam1( c,r ) = fagam1( c,r ) + F_rate1( c,r,l ) * Beld_ag( c,r,l )
      &                                      * convl1 / pHfac1
-                           End If                                                                 
+                           End If
+
                            If ( .Not. IsNaN( F_rate2( c,r,l ) ) .And.
      &                                       F_rate2( c,r,l ) .Gt. 0.0 ) Then
 ! Injected fertilizer
@@ -362,42 +365,42 @@ C                          '12345678901234567890'
                            If ( IsNaN( fagam1( c,r ) ) .Or. IsNaN( fagam2( c,r ) ) ) Then
                                xmsg = 'NaN in fagam Calculation'
                                Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                           End If     
-                        End If    
-                     End If                            
+                           End If
+                        End If
+                     End If
                   End Do ! e2c_cats
                   If ( Tot_Ag .ge. 1.0e-6 .And. ! ~ 1.5 ha per grid cell
      &                 MHp1( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
-     &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And. 
+     &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And.
      &                 MHp2( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
      &                 MHp2( c,r ) / Tot_Ag .Lt. 1.0e-4 ) Then
-! get the agricultrual only relevant number                                 
+! get the agricultrual only relevant number
                      MHp1( c,r ) = MHp1( c,r ) / Tot_Ag
-                     MHp2( c,r ) = MHp2( c,r ) / Tot_Ag         
+                     MHp2( c,r ) = MHp2( c,r ) / Tot_Ag
                      gamma1( c,r ) = ( gamma1( c,r ) + fagam1( c,r ) ) / Tot_Ag
-                     gamma2( c,r ) = ( gamma2( c,r ) + fagam2( c,r ) ) / Tot_Ag  
-! Set a minimum Gamma for Ag based off of Zhang et al. 2010                                             
+                     gamma2( c,r ) = ( gamma2( c,r ) + fagam2( c,r ) ) / Tot_Ag
+! Set a minimum Gamma for Ag based off of Zhang et al. 2010
                      gamma1( c,r ) = max( gamma1( c,r ), 630.0 )
-                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 ) 
-                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or. 
+                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 )
+                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
      &                    IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
                         xmsg = 'NaN in grid cell Gamma Calculation'
                         Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
                      End If
-                  Else 
+                  Else
                      MHp1( c,r ) = 0.0
                      MHp2( c,r ) = 0.0
                      gamma1( c,r ) = 0.0
                      gamma2( c,r ) = 0.0
-                  End If        
+                  End If
                End Do ! c
             End Do ! r
 !           xmsg = 'NaN in fagam Calculation' ! JOB debugging
 !           Call M3exit( pname, jdate, jtime, xmsg, xstat1) ! JOB debuggin
 
-         Else ! read          
+         Else ! read
 ! for whatever reason the jdate and jtime get messed up by the e2c files
-            Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'         
+            Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'
 
             vname = 'Gamma1'
             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow, endrow,

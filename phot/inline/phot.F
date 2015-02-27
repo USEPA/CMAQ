@@ -25,7 +25,7 @@
 ! %W% %P% %G% %U%
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, NDARK, RJ )
+      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
 
 !-----------------------------------------------------------------------
 !
@@ -113,7 +113,6 @@
 
 C...modules
 
-!     USE GRID_CONF            ! horizontal & vertical domain specifications
       USE RXNS_DATA            ! chemistry varaibles and data
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
@@ -140,15 +139,13 @@ C...modules
 
 !...arguments
 
-      INTEGER MDATE            ! "centered" Julian date (YYYYDDD)
-      INTEGER MTIME            ! "centered" time (HHMMSS)
-      INTEGER JDATE            ! current Julian date (YYYYDDD)
-      INTEGER JTIME            ! current time (HHMMSS)
-!     INTEGER TSTEP            ! current timestep
-      INTEGER NDARK            ! Number of level 1 cells in darkness
+      INTEGER, INTENT( IN ) :: MDATE          ! "centered" Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: MTIME          ! "centered" time (HHMMSS)
+      INTEGER, INTENT( IN ) :: JDATE          ! current Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: JTIME          ! current time (HHMMSS)
 
-      REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
-!     REAL RJ(:,:,:,:)         ! gridded J-values  (1/min units)
+!     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
+      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)   ! gridded J-values  (1/min units)
 
 !     REAL CGRID( NCOLS,NROWS,NLAYS, * )  ! Conc array
       REAL, SAVE, POINTER :: CGRID( :,:,:,: ) ! species concentrations
@@ -194,6 +191,7 @@ C...modules
       INTEGER ESTAT              ! status from environment var check
       INTEGER JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER IPHOT              ! photolysis rate loop index
+      INTEGER NDARK              ! Number of level 1 cells in darkness
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -270,8 +268,8 @@ C...modules
       REAL BLKRJ_RES( NLAYS,NPHOTAB ) ! photolysis rates
       REAL BLKRJ_ACM( NLAYS,NPHOTAB ) ! photolysis rates
       
-      LOGICAL CLOUDS( NLAYS )          ! does layer have clouds?
-      LOGICAL NEW_PROFILE              ! Has atmospheric temperature and densiity profile has changed?
+      LOGICAL CLOUDS( NLAYS ) ! Does layer have clouds?
+      LOGICAL NEW_PROFILE     ! Has atmospheric temperature and densiity profile changed?
       
 !...Variables for diagnostic outputs
 
@@ -471,7 +469,7 @@ C...modules
 
 !...Get Met data
 
-      CALL GET_PHOT_MET(JDATE, JTIME, MDATE, MTIME )
+      CALL GET_PHOT_MET( JDATE, JTIME, MDATE, MTIME )
 
 !...Get cosine of solar parameters and compute NDARK
 
@@ -487,7 +485,7 @@ C...modules
 
 !...set surface albedos
 
-      CALL GET_ALBEDO(MDATE, MTIME, LOGDEV, COSINE_ZENITH, LAT, LON)
+      CALL GET_ALBEDO( MDATE, MTIME, LOGDEV, COSINE_ZENITH, LAT, LON )
 
 !...SA  Write COSINE_ZENITH array at the end of each hour
 
@@ -603,7 +601,6 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-
             IF ( USE_ACM_CLOUD ) THEN
                 VARNM = 'SUBGRID_CFRAC'
                 IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, ACM_CLOUDS ) ) THEN
@@ -663,7 +660,7 @@ C...modules
 
                VARNM = 'ALBEDO_W' // WLTXT( IWL )
                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, SURFACE_ALBEDO( IWL,:,: ) ) ) THEN
-!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
+!!!!!!!!!!! >>> gcc Fortran runtime warning: An array temporary was created
 
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -745,7 +742,7 @@ C...modules
             COSZEN = COSINE_ZENITH( COL,ROW ) ! local cosine of solar zenith angle
 
             IF ( COSZEN .LE. 0.0 ) THEN
-!...the column is dark so set variables to dark values and cycle LOOP_COLS
+!...the cell is dark: set variables to zero and cycle
                 RJ( COL,ROW, :, : ) = 0.0
 
                 IF ( PHOTDIAG ) THEN
@@ -790,7 +787,7 @@ C...modules
             ZSFC   = HT( COL,ROW ) ! surface height [m]
             SINZEN = SQRT( 1.0 - COSZEN * COSZEN ) ! sine of zenith angle
 
-!...fetch local latitude an dlongitude
+!...local latitude and longitude
 
 !            LATCR = LAT( COL,ROW )
 !            LONCR = LON( COL,ROW )
@@ -799,11 +796,12 @@ C...modules
             CALL O3TOTCOL ( LAT( COL,ROW ), LON( COL,ROW ), JDATE, TOTAL_O3_COLUMN )
             
             IF ( USE_ACM_CLOUD .OR. CLDATT ) THEN
-                OWATER_FRAC = MAX( ( 1.0 - SEAICE( COL,ROW ) ), 0.0 ) * WATER_FRACTION ( COL,ROW )
-                SEAICE_FRAC = SEAICE( COL,ROW ) * WATER_FRACTION ( COL,ROW )
-                SNOW_FRAC   = SNOCOV( COL,ROW )
-                COL_CLOUD   = COL 
-                ROW_CLOUD   = ROW
+               OWATER_FRAC = MAX( ( 1.0 - SEAICE( COL,ROW ) ), 0.0 )
+     &                     * WATER_FRACTION( COL,ROW )
+               SEAICE_FRAC = SEAICE( COL,ROW ) * WATER_FRACTION( COL,ROW )
+               SNOW_FRAC   = SNOCOV( COL,ROW )
+               COL_CLOUD   = COL 
+               ROW_CLOUD   = ROW
             END IF
 
 !...loop over vertical layers ambient air conditions and gas concentration
@@ -833,52 +831,52 @@ C...modules
             IF ( CLDATT .AND. CFRAC_2D( COL,ROW ) .GT. 0.0 ) THEN
                DO L = 1, NLAYS
                  
-                 IF ( CFRAC_3D( COL,ROW,L ) .GT. 0.0 ) THEN
-                       CLOUDS ( L )        = .TRUE.
-                       CLOUD_LAYERING( L ) = .TRUE.
-                       CLDFRAC( L )        = CFRAC_3D( COL,ROW,L )
-!..now set hydrometeor concentrations for resolved cloud
-                       MSCALE   = 1.0E+3 * DENS ( COL,ROW,L )
-                       IWC( L ) = MSCALE * QI( COL,ROW,L )
-                       GWC( L ) = MSCALE * QG( COL,ROW,L )
-                       SWC( L ) = MSCALE * QS( COL,ROW,L )    
-                       LWC( L ) = MSCALE * QC( COL,ROW,L )
-                       RWC( L ) = MSCALE * QR( COL,ROW,L )
-                 ELSE
-                       CLOUDS ( L )        = .FALSE.
-                       CLOUD_LAYERING( L ) = .FALSE.
-                       CLDFRAC( L )        = 0.0
-                       IWC( L ) = 0.0
-                       GWC( L ) = 0.0
-                       SWC( L ) = 0.0    
-                       LWC( L ) = 0.0
-                       RWC( L ) = 0.0
-                 END IF
-              END DO ! loop on layers clouds
+                  IF ( CFRAC_3D( COL,ROW,L ) .GT. 0.0 ) THEN
+                     CLOUDS ( L )        = .TRUE.
+                     CLOUD_LAYERING( L ) = .TRUE.
+                     CLDFRAC( L )        = CFRAC_3D( COL,ROW,L )
+!... set hydrometeor concentrations for resolved cloud
+                     MSCALE   = 1.0E+3 * DENS ( COL,ROW,L )
+                     IWC( L ) = MSCALE * QI( COL,ROW,L )
+                     GWC( L ) = MSCALE * QG( COL,ROW,L )
+                     SWC( L ) = MSCALE * QS( COL,ROW,L )    
+                     LWC( L ) = MSCALE * QC( COL,ROW,L )
+                     RWC( L ) = MSCALE * QR( COL,ROW,L )
+                  ELSE
+                     CLOUDS ( L )        = .FALSE.
+                     CLOUD_LAYERING( L ) = .FALSE.
+                     CLDFRAC( L )        = 0.0
+                     IWC( L ) = 0.0
+                     GWC( L ) = 0.0
+                     SWC( L ) = 0.0    
+                     LWC( L ) = 0.0
+                     RWC( L ) = 0.0
+                  END IF
+               END DO ! loop on layers clouds
 ! get optical properties of resolved cloud hydrometeors
-              CALL GET_DROPLET_OPTICS( NLAYS, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )     
-              CALL GET_ICE_OPTICS( NLAYS, BLKTA, IWC )
-              CALL GET_AGGREGATE_OPTICS( NLAYS, RWC, SWC, GWC )     
+               CALL GET_DROPLET_OPTICS( NLAYS, BLKTA, OWATER_FRAC, SEAICE_FRAC, SNOW_FRAC, LWC )     
+               CALL GET_ICE_OPTICS( NLAYS, BLKTA, IWC )
+               CALL GET_AGGREGATE_OPTICS( NLAYS, RWC, SWC, GWC )     
             ELSE
-              CLOUDS         = .FALSE.
-              CLOUD_LAYERING = .FALSE.
-              CLDFRAC        = 0.0
+               CLOUDS         = .FALSE.
+               CLOUD_LAYERING = .FALSE.
+               CLDFRAC        = 0.0
 !  hydrometeor concentrations
-              LWC = 0.0
-              IWC = 0.0
-              RWC = 0.0
-              SWC = 0.0
-              RWC = 0.0
-              CALL CLEAR_HYDROMETEOR_OPTICS()
+               LWC = 0.0
+               IWC = 0.0
+               RWC = 0.0
+               SWC = 0.0
+               RWC = 0.0
+               CALL CLEAR_HYDROMETEOR_OPTICS()
             END IF
             
 !..calculate needed aerosol properties in column
 
-!            IF ( CORE_SHELL ) THEN
-                CALL GET_AERO_DATA ( COL,ROW, NLAYS, CGRID )
-!            ELSE
-!                CALL AERO_OPTICS_INTERNAL( COL,ROW, NLAYS, CGRID )
-!            END IF
+!           IF ( CORE_SHELL ) THEN
+               CALL GET_AERO_DATA ( COL,ROW, NLAYS, CGRID )
+!           ELSE
+!              CALL AERO_OPTICS_INTERNAL( COL,ROW, NLAYS, CGRID )
+!           END IF
 
 ! set surface albedo
 
@@ -973,7 +971,7 @@ C...modules
                         RWC( L )     = 0.0
                         GWC( L )     = 0.0
                      END IF
-                      CLOUD_LAYERING( L ) = .FALSE.
+                     CLOUD_LAYERING( L ) = .FALSE.
                   END DO
 !                 write(logdev,*)'ACM cloud present fraction, cloud lwc(lev),iwc(lev),rwc(1),gwc(1) = ',
 !     &           ACM_CLOUDS( COL,ROW ),lwc(lev),iwc(lev),rwc(1),gwc(1)
@@ -986,18 +984,18 @@ C...modules
 !...calculate the acm-cloud photolysis rates for all layers:
                   NEW_PROFILE = .FALSE.   
                   CALL NEW_OPTICS ( JDATE, JTIME, NLAYS, 
-     &                           BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
-     &                           BLKO3, BLKNO2,
-     &                           ZSFC, COSZEN, SINZEN, RSQD,
-     &                           NEW_PROFILE, CLOUDS, CLDFRAC,
-     &                           BLKRJ_ACM, TAUC_AERO, TAU_TOT, TAUO3_TOP,
-     &                           TAU_RAY, SSA, TAU_CLOUD, TOTAL_O3_COLUMN)
+     &                              BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
+     &                              BLKO3, BLKNO2,
+     &                              ZSFC, COSZEN, SINZEN, RSQD,
+     &                              NEW_PROFILE, CLOUDS, CLDFRAC,
+     &                              BLKRJ_ACM, TAUC_AERO, TAU_TOT, TAUO3_TOP,
+     &                              TAU_RAY, SSA, TAU_CLOUD, TOTAL_O3_COLUMN )
 
 !...load diagnostic file arrays
 !...compute a cloud-fraction weighted average of ETOT_SFC and TAU_TOT
 !...  note that both TAUC_AERO and TAUO3_TOP are the same for clear and
 !...  cloudy regions
-                  MSCALE = MAX( 1.0 - ACM_CLOUDS( COL,ROW ), 0.0)
+                  MSCALE = MAX( 1.0 - ACM_CLOUDS( COL,ROW ), 0.0 )
                   
                   IF ( PHOTDIAG ) THEN
 
@@ -1041,8 +1039,9 @@ C...modules
                   END FORALL  ! Loop on layers and PHOT
                END IF 
             END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
+
 #ifdef phot_research
-! Not ready, the correct calculation requires further research
+! Not ready. The correct calculation requires further research.
 ! Also, significantly increases runtime because of the additional call to NEW_OPTICS
             IF ( PHOTDIAG ) THEN ! compute cloud reflectiion and transmission coefficients
                IF ( ANY( CLOUDS ) ) THEN
@@ -1054,7 +1053,7 @@ C...modules
      &                                 BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                                 BLKO3, BLKNO2,
      &                                 ZSFC, COSZEN, SINZEN, RSQD,
-     &                                 LATCR, LONCR, NEW_PROFILE, CLOUDS, CLDFRAC,
+     &                                 NEW_PROFILE, CLOUDS, CLDFRAC,
      &                                 BLKRJ_RES, TAUC_AERO, TAU_TOT, TAUO3_TOP,
      &                                 TAU_RAY, SSA, TAU_CLOUD, TOTAL_O3_COLUMN)
                      CLD_REFLECTION  ( COL,ROW ) = REFLECT_COEFF( COL,ROW ) - REFLECTION
@@ -1091,7 +1090,7 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         
+
          VARNM = 'REFLECTION'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, REFLECT_COEFF ) ) THEN
             XMSG = 'Error writing variable ' // VARNM

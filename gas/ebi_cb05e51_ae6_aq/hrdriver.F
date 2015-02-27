@@ -59,6 +59,7 @@ C                        how degrade routines are used, if present
 C   02 Dec 14 B.Hutzell: 1) added terrestrial data to conduct surface
 C                        dependent reactions and 2) modified the call CALC_RCONST
 C                        routine
+C   27 Feb 15 J.Young: remove unused NDARK (in PHOT); make RJ assumed shape
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -117,7 +118,6 @@ C..Scratch Local Variables:
       INTEGER MIDTIME         ! Time at time step midpoint
       INTEGER MNEBI           ! Min no. of EBI iterations
       INTEGER MXEBI           ! Max no. of EBI iterations
-      INTEGER NDARK           ! Number of layer 1 cells in darkness
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER SPC             ! Species loop index
       INTEGER STATUS          ! Status code
@@ -131,7 +131,7 @@ C..Scratch Local Variables:
 
 
       REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
-!      REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
+!     REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
       REAL( 8 ) H2O     ( MAX_CELLS_EBI )           ! Cell H2O mixing ratio (ppmV)
       REAL( 8 ) TEMP    ( MAX_CELLS_EBI )           ! Cell Temperature
       REAL( 8 ) HET     ( MAX_CELLS_EBI, NHETERO )  ! cell heterogeneous reaction rates
@@ -156,6 +156,29 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
+        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+           USE RXNS_DATA            ! chemistry varaibles and data
+           USE CGRID_SPCS           ! CGRID species number and offsets
+           USE PCGRID_DEFN          ! get cgrid
+           USE UTILIO_DEFN
+#ifdef parallel
+           USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+           USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+           USE AERO_DATA            ! describes aerosol distribution
+           USE PHOT_MOD             ! photolysis in-line module
+           USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indices
+           USE PHOTOLYSIS_ALBEDO    ! surface albedo data and routines
+           USE PHOT_MET_DATA        ! Met and Grid data
+           USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
+           IMPLICIT NONE
+           INTEGER, INTENT( IN ) :: MDATE    !"centered" Julian date (YYYYDDD) 
+           INTEGER, INTENT( IN ) :: MTIME    !"centered" time (HHMMSS)
+           INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
+           INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
+           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+        END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            USE UTILIO_DEFN
            USE RXNS_DATA
@@ -169,7 +192,7 @@ C for INTERPX
 
 C**********************************************************************
 
-      IF( NUMB_MECH_SPC .EQ. 0 ) RETURN
+      IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
@@ -230,7 +253,6 @@ c..If emissions processing requested stop
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 
          END IF   ! End if doing emissions
-
 
 #ifdef hrstats
          ISTFL = JUNIT()
@@ -314,7 +336,6 @@ C.. Compute number of time step loops and step size for EBI solver
 
       N_INR_STEPS = 1
 
-
 C.. Get ambient temperature in K
 
 C.. Get fractional seaice coverage from the METCRO2D file.
@@ -363,7 +384,8 @@ C.. Get pressure in Pascals
       END IF
 
 C.. Get photolysis rates in /min
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, RJ )
+
 C.. Get Heteorogeneous rats
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
@@ -394,7 +416,6 @@ c..Load ICs
                       YC( SPC ) = REAL( MAX( CGRID( C,R,L,S ), CONCMIN), 8 )
                   END IF
                END DO
-
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
@@ -429,7 +450,6 @@ c..Call EBI solver
                SUMEBI = SUMEBI + FLOAT( N_EBI_IT )
 #endif
 
-
 c..Update concentration array
                DO SPC = 1, NUMB_MECH_SPC
                   S = CGRID_INDEX( SPC )
@@ -445,9 +465,6 @@ c..Update concentration array
             END DO
          END DO
       END DO
-
-
-
 
 #ifdef hrstats
       AVGEBI = SUMEBI / FLOAT( NCOLS * NROWS * NLAYS )
