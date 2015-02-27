@@ -340,7 +340,6 @@ C Parameters:
 C Local variables:
          REAL, SAVE :: SQALPHA ! square root of alpha
          REAL KBE              ! extinction coefficient for direct beam
-         REAL KDD              ! Effective extinction coefficient 
          REAL CANPARSCAT       ! exponentially wtd scattered PAR (umol/m2-s)
          REAL CANPARDIF_SUN    ! exponentially wtd diffuse PAR at the top of the canopy (umol/m2-s)
          REAL CANPARDIF_SHADE  ! exponentially wtd diffuse PAR in the shaded part of the canopy (umol/m2-s)
@@ -362,8 +361,8 @@ C-----------------------------------------------------------------------
 C CN98 - eqn 15.4, assume x=1 (can use a table or atributes to change this)
 C Set a ceiling for KBE to prevent a blow up at high zenith angles. This has
 C little impact on the results because direct PAR is low under these conditions
-         IF( ZEN .GE. 1.55 ) THEN
-            KBE = 24.0
+         IF( ZEN .GE. 1.57 ) THEN
+            KBE = 627.9
          ELSE
             KBE = 0.5 * SQRT( 1.0 + TAN( ZEN )**2 )
          END IF
@@ -384,8 +383,8 @@ C CN98 - p. 261 (assume exponentially wtd avg)
                CANPARDIF_SUN    = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * LAISUN ) )
      &                                   / ( SQALPHA * KD * LAISUN )
 
-               CANPARDIF_SHADE  = PARDIF * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) - 
-     &                                       EXP( -1.0 * SQALPHA * KD * TLAI ) )
+               CANPARDIF_SHADE  = CANPARDIF_SUN * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) - 
+     &                                              EXP( -1.0 * SQALPHA * KD * TLAI ) )
      &                                   / ( SQALPHA * KD * (TLAI - LAISUN) )
 
 C CN98 - p. 261 (for next 3 eqns)
@@ -411,9 +410,8 @@ C PAR...fracSun should probably be higher since sunlit leaves tend to be
 C thicker than shaded leaves. But since we need to make crude assumptions
 C regarding leaf orientation (x=1), we will not attempt to fix at the moment.
 
-               KDD     =  PARDB / ( PARDIF + PARDB ) * KBE + PARDIF / ( PARDIF + PARDB ) * KD
-               CSUBL_SUN   =  CGUEN( PARDB + PARDIF, 0.0, LAISUN, KDD )
-               CSUBL_SHADE =  CGUEN( PARDB + PARDIF, LAISUN, TLAI, KDD )
+               CSUBL_SUN   = CGUEN( PARDB + PARDIF, 0.0, LAISUN, KBE )
+               CSUBL_SHADE = CGUEN( PARDB + PARDIF, LAISUN, TLAI, KBE )
             
             ELSE ! to prevent divide by 0 when there is no solar rad
                CSUBL_SUN   = 0.0
