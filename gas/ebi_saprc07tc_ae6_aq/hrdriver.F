@@ -117,7 +117,6 @@ C..Scratch Local Variables:
       INTEGER MIDTIME         ! Time at time step midpoint
       INTEGER MNEBI           ! Min no. of EBI iterations
       INTEGER MXEBI           ! Max no. of EBI iterations
-      INTEGER NDARK           ! Number of layer 1 cells in darkness
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER SPC             ! Species loop index
       INTEGER STATUS          ! Status code
@@ -156,6 +155,30 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
+        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+           IMPLICIT NONE
+           USE RXNS_DATA            ! chemistry varaibles and data
+           USE CGRID_SPCS           ! CGRID species number and offsets
+           USE PCGRID_DEFN          ! get cgrid
+           USE UTILIO_DEFN
+#ifdef parallel
+           USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+           USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+           USE AERO_DATA            ! describes aerosol distribution
+           USE PHOT_MOD             ! photolysis in-line module
+           USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indices
+           USE PHOTOLYSIS_ALBEDO    ! surface albedo data and routines
+           USE PHOT_MET_DATA        ! Met and Grid data
+           USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
+           IMPLICIT NONE
+           INTEGER, INTENT( IN ) :: MDATE    !"centered" Julian date (YYYYDDD) 
+           INTEGER, INTENT( IN ) :: MTIME    !"centered" time (HHMMSS)
+           INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
+           INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
+           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+        END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            USE UTILIO_DEFN
            USE RXNS_DATA
@@ -363,7 +386,7 @@ C.. Get pressure in Pascals
       END IF
 
 C.. Get photolysis rates in /min
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, RJ )
 C.. Get Heteorogeneous rats
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 

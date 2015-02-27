@@ -29,11 +29,11 @@ C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, Feb. 13, 2015
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -119,14 +119,11 @@ C..Scratch Local Variables:
       INTEGER MXEBI           ! Max no. of EBI iterations
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER SPC             ! Species loop index
-      INTEGER STATUS          ! Status code
-      INTEGER VAR             ! Variable number on I/O API file
 
       LOGICAL LSUNLIGHT       ! Flag for sunlight
 
       REAL INV_DENS           ! reciprocal of air mass density, m3/Kg
       REAL CHEMSTEP           ! Chemistry integration interval (min)
-      REAL SUMEBI             ! Sum of EBI iterations
 
 
       REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
@@ -183,7 +180,6 @@ C for INTERPX
            USE UTILIO_DEFN
            USE RXNS_DATA
            USE HRDATA
-           USE RXNS_FUNCTION, ONLY : SPECIAL_RATES
            IMPLICIT NONE
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
@@ -202,9 +198,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          LOGDEV = INIT3( )
 
-         IF( MECHNAME .NE. 'SAPRC07TB_AE6_AQ' ) THEN
+         IF( MECHNAME .NE. 'SAPRC07TIC_AE6I_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
-     &            // ' the SAPRC07TB_AE6_AQ chemical mechanism'
+     &            // ' the SAPRC07TIC_AE6I_AQ chemical mechanism'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
@@ -235,7 +231,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL HRINIT
 
          ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-         CHEMSTEP = FLOAT( ITMSTEP ) / 60.0
+         CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D+0
          WRITE( LOGDEV, 92000 ) CHEMSTEP, DELTAT
 
          WRITE( LOGDEV, 92020 )

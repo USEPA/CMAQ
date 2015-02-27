@@ -157,6 +157,7 @@ C for INTERPX
 
       INTERFACE
         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+           IMPLICIT NONE
            USE RXNS_DATA            ! chemistry varaibles and data
            USE CGRID_SPCS           ! CGRID species number and offsets
            USE PCGRID_DEFN          ! get cgrid
