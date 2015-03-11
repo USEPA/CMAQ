@@ -525,6 +525,7 @@ C Store current time step rainfall totals
             ELSE
                INITIAL_DAY = .FALSE.
             END IF
+            RNTOT = 0.0   ! array assignment
          ELSE   ! store accumulated rain in RNTOT array
             RNTOT = 0.0   ! array assignment
             DO I = 1, MXRHRS
