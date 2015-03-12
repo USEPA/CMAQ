@@ -124,8 +124,8 @@ C..Scratch Local Variables:
   
       LOGICAL LSUNLIGHT       ! Flag for sunlight
 
-      REAL INV_DENS           ! reciprocal of air mass density, m3/Kg
-      REAL CHEMSTEP           ! Chemistry integration interval (min)
+      REAL       INV_DENS           ! reciprocal of air mass density, m3/Kg
+      REAL( 8 )  CHEMSTEP           ! Chemistry integration interval (min)
 
 
       INTEGER     GXOFF, GYOFF            ! global origin offset from file
@@ -261,8 +261,8 @@ R5         END IF
 
          CALL HRINIT
 
-         ITMSTEP  = TIME2SEC( TSTEP( 2 ) )
-         CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D+0
+         ITMSTEP = TIME2SEC( TSTEP( 2 ) )
+         CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
          WRITE( LOGDEV, 92000 ) CHEMSTEP, DELTAT
 
          WRITE( LOGDEV, 92020 )
