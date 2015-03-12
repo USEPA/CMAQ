@@ -117,14 +117,20 @@ C..Scratch Local Variables:
       INTEGER LEV             ! Layer index
       INTEGER MIDDATE         ! Date at time step midpoint
       INTEGER MIDTIME         ! Time at time step midpoint
-      INTEGER MNEBI           ! Min no. of EBI iterations
-      INTEGER MXEBI           ! Max no. of EBI iterations
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER SPC             ! Species loop index
+#ifdef hrstats 
+      INTEGER MNEBI           ! Min no. of EBI iterations
+      INTEGER MXEBI           ! Max no. of EBI iterations
+#endif
   
       LOGICAL LSUNLIGHT       ! Flag for sunlight
 
       REAL       INV_DENS     ! reciprocal of air mass density, m3/Kg
+#ifdef hrstats 
+      REAL       SUMEBI       ! Sum of EBI iterations
+#endif
+
       REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
 
@@ -489,7 +495,7 @@ c..Call EBI solver
 #ifdef hrstats 
                MXEBI  = MAX( MXEBI, N_EBI_IT )
                MNEBI  = MIN( MNEBI, N_EBI_IT )
-               SUMEBI = SUMEBI + FLOAT( N_EBI_IT )
+               SUMEBI = SUMEBI + REAL( N_EBI_IT )
 #endif
              
 
@@ -524,7 +530,7 @@ R5               END IF
 
 
 #ifdef hrstats 
-      AVGEBI = SUMEBI / FLOAT( NCOLS * NROWS * NLAYS )
+      AVGEBI = SUMEBI / REAL( NCOLS * NROWS * NLAYS )
       WRITE( ISTFL, 94040 ) JDATE, JTIME, MNEBI, AVGEBI, MXEBI
 #endif
 
