@@ -124,8 +124,8 @@ C..Scratch Local Variables:
   
       LOGICAL LSUNLIGHT       ! Flag for sunlight
 
-      REAL       INV_DENS           ! reciprocal of air mass density, m3/Kg
-      REAL( 8 )  CHEMSTEP           ! Chemistry integration interval (min)
+      REAL       INV_DENS     ! reciprocal of air mass density, m3/Kg
+      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
 
       INTEGER     GXOFF, GYOFF            ! global origin offset from file
