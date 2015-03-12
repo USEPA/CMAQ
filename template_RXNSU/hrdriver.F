@@ -349,7 +349,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
       ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-      CHEMSTEP = FLOAT( ITMSTEP ) / 60.0D0
+      CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
 
 C.. Compute number of time step loops and step size for EBI solver
@@ -363,7 +363,7 @@ C.. Compute number of time step loops and step size for EBI solver
          ELSE
             N_EBI_STEPS = ITMSTEP / DELT_SEC + 1
          END IF
-         EBI_TMSTEP =  CHEMSTEP / REAL( N_EBI_STEPS, 8) 
+         EBI_TMSTEP =  CHEMSTEP / REAL( N_EBI_STEPS, 8 ) 
       END IF
 
       N_INR_STEPS = 1
