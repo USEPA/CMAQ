@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05MP51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 13, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -68,7 +68,7 @@ c..Miscellaneous variables
   
       INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
-      REAL    EBI_TMSTEP   ! Time step for EBI loops (min)
+      REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
@@ -94,6 +94,25 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
       REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
 
+      REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
+      REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
+      REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
+      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
+
+      REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
+      REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
+
+      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
+      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
+      LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+
+      REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
+!      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
+      REAL( 8 ), ALLOCATABLE ::  H2O     ( : )     ! Cell H2O mixing ratio (ppmV)
+      REAL( 8 ), ALLOCATABLE ::  TEMP    ( : )     ! Cell Temperature
+      REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
+      LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
 
 c..Species indices
       INTEGER, PARAMETER :: NO2              =    1
@@ -165,82 +184,83 @@ c..Species indices
       INTEGER, PARAMETER :: NTRI             =   67
       INTEGER, PARAMETER :: TERP             =   68
       INTEGER, PARAMETER :: TRPRXN           =   69
-      INTEGER, PARAMETER :: SO2              =   70
-      INTEGER, PARAMETER :: SULF             =   71
-      INTEGER, PARAMETER :: SULRXN           =   72
-      INTEGER, PARAMETER :: ETOH             =   73
-      INTEGER, PARAMETER :: ETHA             =   74
-      INTEGER, PARAMETER :: CL2              =   75
-      INTEGER, PARAMETER :: CL               =   76
-      INTEGER, PARAMETER :: HOCL             =   77
-      INTEGER, PARAMETER :: CLO              =   78
-      INTEGER, PARAMETER :: FMCL             =   79
-      INTEGER, PARAMETER :: HCL              =   80
-      INTEGER, PARAMETER :: CLNO2            =   81
-      INTEGER, PARAMETER :: TOLNRXN          =   82
-      INTEGER, PARAMETER :: TOLHRXN          =   83
-      INTEGER, PARAMETER :: XYLNRXN          =   84
-      INTEGER, PARAMETER :: XYLHRXN          =   85
-      INTEGER, PARAMETER :: BENZENE          =   86
-      INTEGER, PARAMETER :: BENZRO2          =   87
-      INTEGER, PARAMETER :: BNZNRXN          =   88
-      INTEGER, PARAMETER :: BNZHRXN          =   89
-      INTEGER, PARAMETER :: SESQ             =   90
-      INTEGER, PARAMETER :: SESQRXN          =   91
-      INTEGER, PARAMETER :: PAHNRXN          =   92
-      INTEGER, PARAMETER :: PAHHRXN          =   93
-      INTEGER, PARAMETER :: SOAALK           =   94
-      INTEGER, PARAMETER :: ALKRXN           =   95
-      INTEGER, PARAMETER :: MAPAN            =   96
-      INTEGER, PARAMETER :: NALKO2           =   97
-      INTEGER, PARAMETER :: NTRCN            =   98
-      INTEGER, PARAMETER :: NTRCNOH          =   99
-      INTEGER, PARAMETER :: NTRPX            =  100
-      INTEGER, PARAMETER :: NOHO2            =  101
-      INTEGER, PARAMETER :: NCNO2            =  102
-      INTEGER, PARAMETER :: NCNOHO2          =  103
-      INTEGER, PARAMETER :: NTRMO2           =  104
-      INTEGER, PARAMETER :: NTRIO2           =  105
-      INTEGER, PARAMETER :: H2NO3PIJ         =  106
-      INTEGER, PARAMETER :: H2NO3PK          =  107
-      INTEGER, PARAMETER :: ACLI             =  108
-      INTEGER, PARAMETER :: ACLJ             =  109
-      INTEGER, PARAMETER :: ACLK             =  110
-      INTEGER, PARAMETER :: AISO3J           =  111
-      INTEGER, PARAMETER :: AXYL1J           =  112
-      INTEGER, PARAMETER :: AOLGAJ           =  113
-      INTEGER, PARAMETER :: AXYL2J           =  114
-      INTEGER, PARAMETER :: ATOL1J           =  115
-      INTEGER, PARAMETER :: ATOL2J           =  116
-      INTEGER, PARAMETER :: ABNZ1J           =  117
-      INTEGER, PARAMETER :: ABNZ2J           =  118
-      INTEGER, PARAMETER :: ATRP1J           =  119
-      INTEGER, PARAMETER :: AOLGBJ           =  120
-      INTEGER, PARAMETER :: ATRP2J           =  121
-      INTEGER, PARAMETER :: AISO1J           =  122
-      INTEGER, PARAMETER :: AISO2J           =  123
-      INTEGER, PARAMETER :: ASQTJ            =  124
-      INTEGER, PARAMETER :: APAH1J           =  125
-      INTEGER, PARAMETER :: APAH2J           =  126
-      INTEGER, PARAMETER :: AALK1J           =  127
-      INTEGER, PARAMETER :: AALK2J           =  128
-      INTEGER, PARAMETER :: APOCI            =  129
-      INTEGER, PARAMETER :: APNCOMI          =  130
-      INTEGER, PARAMETER :: APOCJ            =  131
-      INTEGER, PARAMETER :: APNCOMJ          =  132
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  133
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  134
-      INTEGER, PARAMETER :: BUTADIENE13      =  135
-      INTEGER, PARAMETER :: ACROLEIN         =  136
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  137
-      INTEGER, PARAMETER :: TOLU             =  138
-      INTEGER, PARAMETER :: MXYL             =  139
-      INTEGER, PARAMETER :: OXYL             =  140
-      INTEGER, PARAMETER :: PXYL             =  141
-      INTEGER, PARAMETER :: APIN             =  142
-      INTEGER, PARAMETER :: BPIN             =  143
-      INTEGER, PARAMETER :: HG               =  144
-      INTEGER, PARAMETER :: HGIIAER          =  145
-      INTEGER, PARAMETER :: HGIIGAS          =  146
+      INTEGER, PARAMETER :: XO2T             =   70
+      INTEGER, PARAMETER :: SO2              =   71
+      INTEGER, PARAMETER :: SULF             =   72
+      INTEGER, PARAMETER :: SULRXN           =   73
+      INTEGER, PARAMETER :: ETOH             =   74
+      INTEGER, PARAMETER :: ETHA             =   75
+      INTEGER, PARAMETER :: CL2              =   76
+      INTEGER, PARAMETER :: CL               =   77
+      INTEGER, PARAMETER :: HOCL             =   78
+      INTEGER, PARAMETER :: CLO              =   79
+      INTEGER, PARAMETER :: FMCL             =   80
+      INTEGER, PARAMETER :: HCL              =   81
+      INTEGER, PARAMETER :: CLNO2            =   82
+      INTEGER, PARAMETER :: TOLNRXN          =   83
+      INTEGER, PARAMETER :: TOLHRXN          =   84
+      INTEGER, PARAMETER :: XYLNRXN          =   85
+      INTEGER, PARAMETER :: XYLHRXN          =   86
+      INTEGER, PARAMETER :: BENZENE          =   87
+      INTEGER, PARAMETER :: BENZRO2          =   88
+      INTEGER, PARAMETER :: BNZNRXN          =   89
+      INTEGER, PARAMETER :: BNZHRXN          =   90
+      INTEGER, PARAMETER :: SESQ             =   91
+      INTEGER, PARAMETER :: SESQRXN          =   92
+      INTEGER, PARAMETER :: PAHNRXN          =   93
+      INTEGER, PARAMETER :: PAHHRXN          =   94
+      INTEGER, PARAMETER :: SOAALK           =   95
+      INTEGER, PARAMETER :: ALKRXN           =   96
+      INTEGER, PARAMETER :: MAPAN            =   97
+      INTEGER, PARAMETER :: NALKO2           =   98
+      INTEGER, PARAMETER :: NTRCN            =   99
+      INTEGER, PARAMETER :: NTRCNOH          =  100
+      INTEGER, PARAMETER :: NTRPX            =  101
+      INTEGER, PARAMETER :: NOHO2            =  102
+      INTEGER, PARAMETER :: NCNO2            =  103
+      INTEGER, PARAMETER :: NCNOHO2          =  104
+      INTEGER, PARAMETER :: NTRMO2           =  105
+      INTEGER, PARAMETER :: NTRIO2           =  106
+      INTEGER, PARAMETER :: H2NO3PIJ         =  107
+      INTEGER, PARAMETER :: H2NO3PK          =  108
+      INTEGER, PARAMETER :: ACLI             =  109
+      INTEGER, PARAMETER :: ACLJ             =  110
+      INTEGER, PARAMETER :: ACLK             =  111
+      INTEGER, PARAMETER :: AISO3J           =  112
+      INTEGER, PARAMETER :: AXYL1J           =  113
+      INTEGER, PARAMETER :: AOLGAJ           =  114
+      INTEGER, PARAMETER :: AXYL2J           =  115
+      INTEGER, PARAMETER :: ATOL1J           =  116
+      INTEGER, PARAMETER :: ATOL2J           =  117
+      INTEGER, PARAMETER :: ABNZ1J           =  118
+      INTEGER, PARAMETER :: ABNZ2J           =  119
+      INTEGER, PARAMETER :: ATRP1J           =  120
+      INTEGER, PARAMETER :: AOLGBJ           =  121
+      INTEGER, PARAMETER :: ATRP2J           =  122
+      INTEGER, PARAMETER :: AISO1J           =  123
+      INTEGER, PARAMETER :: AISO2J           =  124
+      INTEGER, PARAMETER :: ASQTJ            =  125
+      INTEGER, PARAMETER :: APAH1J           =  126
+      INTEGER, PARAMETER :: APAH2J           =  127
+      INTEGER, PARAMETER :: AALK1J           =  128
+      INTEGER, PARAMETER :: AALK2J           =  129
+      INTEGER, PARAMETER :: APOCI            =  130
+      INTEGER, PARAMETER :: APNCOMI          =  131
+      INTEGER, PARAMETER :: APOCJ            =  132
+      INTEGER, PARAMETER :: APNCOMJ          =  133
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  134
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  135
+      INTEGER, PARAMETER :: BUTADIENE13      =  136
+      INTEGER, PARAMETER :: ACROLEIN         =  137
+      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  138
+      INTEGER, PARAMETER :: TOLU             =  139
+      INTEGER, PARAMETER :: MXYL             =  140
+      INTEGER, PARAMETER :: OXYL             =  141
+      INTEGER, PARAMETER :: PXYL             =  142
+      INTEGER, PARAMETER :: APIN             =  143
+      INTEGER, PARAMETER :: BPIN             =  144
+      INTEGER, PARAMETER :: HG               =  145
+      INTEGER, PARAMETER :: HGIIAER          =  146
+      INTEGER, PARAMETER :: HGIIGAS          =  147
 
       END MODULE HRDATA

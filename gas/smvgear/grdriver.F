@@ -131,7 +131,6 @@ C..SAVED LOCAL VARIABLES:
       LOGICAL, SAVE :: LIRRBLK   ! Flag to indicate IRR to be done for block
       REAL,    SAVE :: AIRFC     ! Factor to convert gms air to ppm
       REAL,    SAVE :: MAOMV     ! Mol Wt of air over Mol Wt of water
-      REAL, ALLOCATABLE, SAVE :: CONV( : )
       INTEGER, SAVE :: EMISLYRS  ! number of emission layers from file
       
 C..SCRATCH LOCAL VARIABLES:
@@ -166,34 +165,38 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER ROW             ! Row index
       INTEGER SPC             ! Species loop index
       INTEGER VAR             ! Variable number on I/O API file
-      INTEGER IRRCELL(   BLKSIZE ) ! Cell No. of an IRR cell
-      INTEGER, ALLOCATABLE :: IRSPERF   ( : ) ! Number of restarts at beginning
-      INTEGER, ALLOCATABLE :: MXORDPERF ( : ) ! Maximum order used
-      INTEGER, ALLOCATABLE :: NBKUPS    ( : ) ! Number of backups
-      INTEGER, ALLOCATABLE :: NCFAILPERF( : ) ! Number of convergence failures
-      INTEGER, ALLOCATABLE :: NEFAILPERF( : ) ! Number of error test failures
-      INTEGER, ALLOCATABLE :: NITERPERF ( : ) ! Number of iterations
-      INTEGER, ALLOCATABLE :: NSTPERF   ( : ) ! Number of steps used
-      INTEGER, ALLOCATABLE :: NPDPERF   ( : ) ! Number of Jacobian updates
-      INTEGER, ALLOCATABLE :: NSUBPERF  ( : ) ! Number of RHS evaluations
-      INTEGER ALLOCSTAT
+      INTEGER ALLOCSTAT       ! test for array allocation status
+
+      INTEGER, ALLOCATABLE, SAVE :: IRRCELL   ( : ) ! Cell No. of an IRR cell
+      INTEGER, ALLOCATABLE       :: IRSPERF   ( : ) ! Number of restarts at beginning
+      INTEGER, ALLOCATABLE       :: MXORDPERF ( : ) ! Maximum order used
+      INTEGER, ALLOCATABLE       :: NBKUPS    ( : ) ! Number of backups
+      INTEGER, ALLOCATABLE       :: NCFAILPERF( : ) ! Number of convergence failures
+      INTEGER, ALLOCATABLE       :: NEFAILPERF( : ) ! Number of error test failures
+      INTEGER, ALLOCATABLE       :: NITERPERF ( : ) ! Number of iterations
+      INTEGER, ALLOCATABLE       :: NSTPERF   ( : ) ! Number of steps used
+      INTEGER, ALLOCATABLE       :: NPDPERF   ( : ) ! Number of Jacobian updates
+      INTEGER, ALLOCATABLE       :: NSUBPERF  ( : ) ! Number of RHS evaluations
   
-      REAL CHEMSTEP           ! Chemistry integration interval (min)
+      REAL( 8 ) CHEMSTEP      ! Chemistry integration interval (min)
+      REAL( 8 ) VALLOW        ! Value holder for sort routine
+
       REAL CONVEM             ! Emissions conversion factor
       REAL CONVFC             ! Emissions conversion factor
       REAL DX                 ! Cell x-dimension
       REAL DY                 ! Cell  y-dimension
-      REAL VALLOW             ! Value holder for sort routine
       
-      REAL SEAICE ( NCOLS, NROWS )          ! fractional seaice cover, [-] 
+!     REAL, ALLOCATABLE, SAVE :: CONV   ( : )
+      REAL, ALLOCATABLE, SAVE :: SEAICE ( :, : )          ! fractional seaice cover, [-] 
 
-      REAL DENSA_J( NCOLS, NROWS, NLAYS )   ! Cell density (Kg/m**3)
-      REAL PRES   ( NCOLS, NROWS, NLAYS )   ! Cell pressure (Pa)
-      REAL QV     ( NCOLS, NROWS, NLAYS )   ! Cell water vapor (Kg/Kg air)
-      REAL TA     ( NCOLS, NROWS, NLAYS )   ! Cell temperature (K)
-      REAL DENS   ( NCOLS, NROWS, NLAYS )   ! Cell density (Kg/m^3)
+!      REAL, ALLOCATABLE, SAVE :: DENSA_J( :, :, : )      ! Cell density (Kg/m**3)
+      REAL, ALLOCATABLE, SAVE :: DENS   ( :, :, : )      ! Cell density (Kg/m**3)
+      REAL, ALLOCATABLE, SAVE :: PRES   ( :, :, : )      ! Cell pressure (Pa)
+      REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
+      REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      REAL RJ( NCOLS, NROWS, NLAYS, NPHOTAB )  ! J-values for each cell      
+!      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
+      REAL,      ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
       REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
@@ -272,13 +275,13 @@ C for INTERPX
             USE UTILIO_DEFN
             USE GRVARS              
             IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: IRUN               ! Counter of calls to calling subroutine
-            INTEGER, INTENT( IN ) :: JDATE              ! Date at start of integration
-            INTEGER, INTENT( IN ) :: JTIME              ! Time at start of integration
-            INTEGER, INTENT( IN ) :: NIRRCLS            ! No. of cells in block for IRR
-            INTEGER, INTENT( IN ) :: IRRCELL( BLKSIZE ) ! Cell No. of an IRR cell
-            LOGICAL, INTENT( IN ) :: LIRRFLAG           ! Flag for IRR calculations
-            REAL,    INTENT( IN ) :: CHEMSTEP           ! Chemistry integration interval (min) 
+            INTEGER,   INTENT( IN ) :: IRUN         ! Counter of calls to calling subroutine
+            INTEGER,   INTENT( IN ) :: JDATE        ! Date at start of integration
+            INTEGER,   INTENT( IN ) :: JTIME        ! Time at start of integration
+            INTEGER,   INTENT( IN ) :: NIRRCLS      ! No. of cells in block for IRR
+            INTEGER,   INTENT( IN ) :: IRRCELL( : ) ! Cell No. of an IRR cell
+            LOGICAL,   INTENT( IN ) :: LIRRFLAG     ! Flag for IRR calculations
+            REAL( 8 ), INTENT( IN ) :: CHEMSTEP     ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
            USE DEGRADE_SETUP_TOX
@@ -385,11 +388,19 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-         ALLOCATE ( CONV( NLAYS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            MSG = 'Failure allocating CONV'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
+!        ALLOCATE ( CONV( NLAYS ), STAT = ALLOCSTAT )
+!        IF ( ALLOCSTAT .NE. 0 ) THEN
+!           MSG = 'Failure allocating CONV'
+!           CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+!        END IF
+
+         ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
+     &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
+     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &             SEAICE( NCOLS, NROWS ) )
+
+         ALLOCATE( IRRCELL( BLKSIZE ) )
+         IRRCELL = 0
 
 C:WTH Determine whether DEGRADE rountines are needed.
 
@@ -430,7 +441,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
       ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-      CHEMSTEP = FLOAT( ITMSTEP ) / 60.0
+      CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
 
 C.. Get fractional seaice coverage from the METCRO2D file.
@@ -521,6 +532,8 @@ C  Top of loop over blocks. This loop will be done once if
 C  no reordering, twice if reordering is required
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 100   CONTINUE
+
+      ERRMX2 = 0.0D0
 
       DO 500 BLK = 1, NBLKS
          BLKID = BLK
