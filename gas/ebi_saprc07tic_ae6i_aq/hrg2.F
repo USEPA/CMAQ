@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec. 3, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -55,14 +55,13 @@ C..EXTERNAL FUNCTIONS: NONE
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ), SAVE :: PNAME = 'HRG2'             ! Program name
+!     CHARACTER( 16 ), SAVE :: PNAME = 'HRG2'             ! Program name
 
 
 C..SCRATCH LOCAL VARIABLES:
       REAL( 8 ) ::    O1D_S                 ! sum of O1D loss frequencies
       REAL( 8 ) ::    OH_S                  ! stoich coeff for OH from O1D+H2O or H2
       REAL( 8 ) ::    HO2_S                 ! stoich coeff for HO2 from O1D+H2 rxn
-      REAL( 8 ) ::    EXN_S                 ! sum of NO2EX loss frequencies
       REAL( 8 ) ::    XOH_S                 ! stoich coeff for OH & HONO from NO2EX loss rxn
       REAL( 8 ) ::    R4_19                 ! production of OH from HONO
       REAL( 8 ) ::    R19_4                 ! production of HONO from OH
