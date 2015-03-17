@@ -396,11 +396,10 @@ C for INTERPX
 
 C Gridded meteorology data: Golam Sarwar, July 1, 2011 
 C Latitude and longitude for zenith angle calculation:     
-      REAL, ALLOCATABLE, SAVE :: LAT( :, : )    ! grid lat (deg) -90 <= LAT <= 90
-      REAL, ALLOCATABLE, SAVE :: LON( :, : )    ! grid lon (deg) -180 <= LON <= 180 
-      REAL          COSZEN( NCOLS, NROWS )      ! cosine of zenith angle
-      REAL          COSZ                        ! local cosine of zenith angle
-      LOGICAL       DARK                        ! DARK = TRUE is night,  DARK = FALSE is day
+!     REAL          COSZEN( NCOLS, NROWS )      ! cosine of zenith angle
+      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )   ! cosine of zenith angle
+      REAL          COSZ                            ! local cosine of zenith angle
+      LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
 C...........External Functions
 
@@ -445,6 +444,16 @@ C...........Statement Functions
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
+      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+         USE UTILIO_DEFN
+         USE ASX_DATA_MOD, Only: Grid_Data
+         IMPLICIT NONE
+         INTEGER, INTENT( IN )  :: JDATE
+         INTEGER, INTENT( IN )  :: JTIME
+         INTEGER, INTENT( IN )  :: NX
+         INTEGER, INTENT( IN )  :: NY
+         REAL,    INTENT( OUT ) :: COSZEN( :,: )
+      END SUBROUTINE CZANGLE
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -625,37 +634,11 @@ C...allocate saved arrays
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-C...  Get LAT, Golam Sarwar, July 1, 2011 
-
-         ALLOCATE ( LAT( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LAT'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         XMSG = 'Could not read LAT from ' // GRID_CRO_2D
-         
-         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LAT', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, 0, 0, LAT ) ) THEN
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C...  Get LON 
-
-         ALLOCATE ( LON( MY_NCOLS, MY_NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LON'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         XMSG = 'Could not read LON from ' // GRID_CRO_2D
-
-         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, JDATE, JTIME, LON ) ) THEN
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+        ALLOCATE ( COSZEN ( NCOLS,NROWS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating COSZEN'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 
       END IF   ! Firstime
 
