@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec. 3, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -55,9 +55,6 @@ C.....ARGUMENTS: NONE
 C.....PARAMETERS: NONE
 
 
-C.....EXTERNAL FUNCTIONS:
-      INTEGER  FINDEX         ! Finds location of a number in a list
-
 C.....SAVED VARIABLES:
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
@@ -65,7 +62,6 @@ C.....SAVED VARIABLES:
 C.....LOCAL VARIABLES:
       CHARACTER( 132 ) ::  MSG       ! Log message
 
-      INTEGER IND             ! Species index
       INTEGER N               ! Loop index
       INTEGER IOS             ! Allocate error status
 
@@ -85,6 +81,7 @@ C***********************************************************************
      &          YCP(  N_SPEC),
      &          PROD( N_SPEC),
      &          LOSS( N_SPEC),
+     &          PNEG( N_SPEC),
      &          STAT = IOS )
 
        IF ( IOS .NE. 0 ) THEN
@@ -93,7 +90,20 @@ C***********************************************************************
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
-      IF( NSPECIAL .GT. 0 )THEN
+       ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
+     &           H2O    ( MAX_CELLS_EBI ),
+     &           TEMP   ( MAX_CELLS_EBI ),
+     &           HET    ( MAX_CELLS_EBI, NHETERO ),
+     &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
+     &           LAND   ( MAX_CELLS_EBI ) ,
+     &           STAT = IOS )
+
+       IF ( IOS .NE. 0 ) THEN
+          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, LAND '
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+       END IF
+
+       IF( NSPECIAL .GT. 0 )THEN
           ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
@@ -109,19 +119,27 @@ C***********************************************************************
           END DO
        END IF
 
-      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
-         MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
+       IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+          MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+       END IF
 
-      DO N = 1, NUMB_MECH_SPC
-         FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
-         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
-      END DO
+       DO N = 1, NUMB_MECH_SPC
+          FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
+          REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
+       END DO
 
+! initialize all reaction rates to zero so unused array elements are defined
 
-      NING1 = 4
-      NING2 = 4
+       RXRAT = 0.0D0
+
+! initialize all production and loss rates to zero so unused array elements are defined
+
+       PROD  = 0.0D0
+       LOSS  = 0.0D0
+
+       NING1 = 4
+       NING2 = 4
 
 
 

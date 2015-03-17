@@ -94,12 +94,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     DO IAR = 1, NONDIAG
       DO IAR = 0, NONDIAG
          DO NCELL = 1, NUMCELLS
-            CC2( NCELL,IAR ) = 0.0
+            CC2( NCELL,IAR ) = 0.0D0
          END DO
       END DO
       DO IAR = NONDIAG1, IARRY
          DO NCELL = 1, NUMCELLS
-            CC2( NCELL,IAR ) = 0.0
+            CC2( NCELL,IAR ) = 0.0D0
          END DO
       END DO
 

@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec. 2, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 13, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -55,9 +55,6 @@ C.....ARGUMENTS: NONE
 C.....PARAMETERS: NONE
 
 
-C.....EXTERNAL FUNCTIONS:
-      INTEGER  FINDEX         ! Finds location of a number in a list
-
 C.....SAVED VARIABLES:
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
@@ -65,7 +62,6 @@ C.....SAVED VARIABLES:
 C.....LOCAL VARIABLES:
       CHARACTER( 132 ) ::  MSG       ! Log message
 
-      INTEGER IND             ! Species index
       INTEGER N               ! Loop index
       INTEGER IOS             ! Allocate error status
 
@@ -94,7 +90,20 @@ C***********************************************************************
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
-      IF( NSPECIAL .GT. 0 )THEN
+       ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
+     &           H2O    ( MAX_CELLS_EBI ),
+     &           TEMP   ( MAX_CELLS_EBI ),
+     &           HET    ( MAX_CELLS_EBI, NHETERO ),
+     &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
+     &           LAND   ( MAX_CELLS_EBI ) ,
+     &           STAT = IOS )
+
+       IF ( IOS .NE. 0 ) THEN
+          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, LAND '
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+       END IF
+
+       IF( NSPECIAL .GT. 0 )THEN
           ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
@@ -110,25 +119,33 @@ C***********************************************************************
           END DO
        END IF
 
-      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
-         MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
+       IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+          MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+       END IF
 
-      DO N = 1, NUMB_MECH_SPC
-         FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
-         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
-      END DO
+       DO N = 1, NUMB_MECH_SPC
+          FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
+          REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
+       END DO
 
+! initialize all reaction rates to zero so unused array elements are defined
 
-      NING1 = 4
-      NING2 = 4
+       RXRAT = 0.0D0
+
+! initialize all production and loss rates to zero so unused array elements are defined
+
+       PROD  = 0.0D0
+       LOSS  = 0.0D0
+
+       NING1 = 4
+       NING2 = 4
 
 
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 133
+      N_EBISP  = 134
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -191,83 +208,84 @@ c..Allocate and define ebi species
       EBISP(  54 ) = NTRI
       EBISP(  55 ) = TERP
       EBISP(  56 ) = TRPRXN
-      EBISP(  57 ) = SO2
-      EBISP(  58 ) = SULF
-      EBISP(  59 ) = SULRXN
-      EBISP(  60 ) = ETOH
-      EBISP(  61 ) = ETHA
-      EBISP(  62 ) = CL2
-      EBISP(  63 ) = CL
-      EBISP(  64 ) = HOCL
-      EBISP(  65 ) = CLO
-      EBISP(  66 ) = FMCL
-      EBISP(  67 ) = HCL
-      EBISP(  68 ) = CLNO2
-      EBISP(  69 ) = TOLNRXN
-      EBISP(  70 ) = TOLHRXN
-      EBISP(  71 ) = XYLNRXN
-      EBISP(  72 ) = XYLHRXN
-      EBISP(  73 ) = BENZENE
-      EBISP(  74 ) = BENZRO2
-      EBISP(  75 ) = BNZNRXN
-      EBISP(  76 ) = BNZHRXN
-      EBISP(  77 ) = SESQ
-      EBISP(  78 ) = SESQRXN
-      EBISP(  79 ) = PAHNRXN
-      EBISP(  80 ) = PAHHRXN
-      EBISP(  81 ) = SOAALK
-      EBISP(  82 ) = ALKRXN
-      EBISP(  83 ) = MAPAN
-      EBISP(  84 ) = NALKO2
-      EBISP(  85 ) = NTRCN
-      EBISP(  86 ) = NTRCNOH
-      EBISP(  87 ) = NTRPX
-      EBISP(  88 ) = NOHO2
-      EBISP(  89 ) = NCNO2
-      EBISP(  90 ) = NCNOHO2
-      EBISP(  91 ) = NTRMO2
-      EBISP(  92 ) = NTRIO2
-      EBISP(  93 ) = H2NO3PIJ
-      EBISP(  94 ) = H2NO3PK
-      EBISP(  95 ) = ACLI
-      EBISP(  96 ) = ACLJ
-      EBISP(  97 ) = ACLK
-      EBISP(  98 ) = AISO3J
-      EBISP(  99 ) = AXYL1J
-      EBISP( 100 ) = AOLGAJ
-      EBISP( 101 ) = AXYL2J
-      EBISP( 102 ) = ATOL1J
-      EBISP( 103 ) = ATOL2J
-      EBISP( 104 ) = ABNZ1J
-      EBISP( 105 ) = ABNZ2J
-      EBISP( 106 ) = ATRP1J
-      EBISP( 107 ) = AOLGBJ
-      EBISP( 108 ) = ATRP2J
-      EBISP( 109 ) = AISO1J
-      EBISP( 110 ) = AISO2J
-      EBISP( 111 ) = ASQTJ
-      EBISP( 112 ) = APAH1J
-      EBISP( 113 ) = APAH2J
-      EBISP( 114 ) = AALK1J
-      EBISP( 115 ) = AALK2J
-      EBISP( 116 ) = APOCI
-      EBISP( 117 ) = APNCOMI
-      EBISP( 118 ) = APOCJ
-      EBISP( 119 ) = APNCOMJ
-      EBISP( 120 ) = FORM_PRIMARY
-      EBISP( 121 ) = ALD2_PRIMARY
-      EBISP( 122 ) = BUTADIENE13
-      EBISP( 123 ) = ACROLEIN
-      EBISP( 124 ) = ACROLEIN_PRIMARY
-      EBISP( 125 ) = TOLU
-      EBISP( 126 ) = MXYL
-      EBISP( 127 ) = OXYL
-      EBISP( 128 ) = PXYL
-      EBISP( 129 ) = APIN
-      EBISP( 130 ) = BPIN
-      EBISP( 131 ) = HG
-      EBISP( 132 ) = HGIIAER
-      EBISP( 133 ) = HGIIGAS
+      EBISP(  57 ) = XO2T
+      EBISP(  58 ) = SO2
+      EBISP(  59 ) = SULF
+      EBISP(  60 ) = SULRXN
+      EBISP(  61 ) = ETOH
+      EBISP(  62 ) = ETHA
+      EBISP(  63 ) = CL2
+      EBISP(  64 ) = CL
+      EBISP(  65 ) = HOCL
+      EBISP(  66 ) = CLO
+      EBISP(  67 ) = FMCL
+      EBISP(  68 ) = HCL
+      EBISP(  69 ) = CLNO2
+      EBISP(  70 ) = TOLNRXN
+      EBISP(  71 ) = TOLHRXN
+      EBISP(  72 ) = XYLNRXN
+      EBISP(  73 ) = XYLHRXN
+      EBISP(  74 ) = BENZENE
+      EBISP(  75 ) = BENZRO2
+      EBISP(  76 ) = BNZNRXN
+      EBISP(  77 ) = BNZHRXN
+      EBISP(  78 ) = SESQ
+      EBISP(  79 ) = SESQRXN
+      EBISP(  80 ) = PAHNRXN
+      EBISP(  81 ) = PAHHRXN
+      EBISP(  82 ) = SOAALK
+      EBISP(  83 ) = ALKRXN
+      EBISP(  84 ) = MAPAN
+      EBISP(  85 ) = NALKO2
+      EBISP(  86 ) = NTRCN
+      EBISP(  87 ) = NTRCNOH
+      EBISP(  88 ) = NTRPX
+      EBISP(  89 ) = NOHO2
+      EBISP(  90 ) = NCNO2
+      EBISP(  91 ) = NCNOHO2
+      EBISP(  92 ) = NTRMO2
+      EBISP(  93 ) = NTRIO2
+      EBISP(  94 ) = H2NO3PIJ
+      EBISP(  95 ) = H2NO3PK
+      EBISP(  96 ) = ACLI
+      EBISP(  97 ) = ACLJ
+      EBISP(  98 ) = ACLK
+      EBISP(  99 ) = AISO3J
+      EBISP( 100 ) = AXYL1J
+      EBISP( 101 ) = AOLGAJ
+      EBISP( 102 ) = AXYL2J
+      EBISP( 103 ) = ATOL1J
+      EBISP( 104 ) = ATOL2J
+      EBISP( 105 ) = ABNZ1J
+      EBISP( 106 ) = ABNZ2J
+      EBISP( 107 ) = ATRP1J
+      EBISP( 108 ) = AOLGBJ
+      EBISP( 109 ) = ATRP2J
+      EBISP( 110 ) = AISO1J
+      EBISP( 111 ) = AISO2J
+      EBISP( 112 ) = ASQTJ
+      EBISP( 113 ) = APAH1J
+      EBISP( 114 ) = APAH2J
+      EBISP( 115 ) = AALK1J
+      EBISP( 116 ) = AALK2J
+      EBISP( 117 ) = APOCI
+      EBISP( 118 ) = APNCOMI
+      EBISP( 119 ) = APOCJ
+      EBISP( 120 ) = APNCOMJ
+      EBISP( 121 ) = FORM_PRIMARY
+      EBISP( 122 ) = ALD2_PRIMARY
+      EBISP( 123 ) = BUTADIENE13
+      EBISP( 124 ) = ACROLEIN
+      EBISP( 125 ) = ACROLEIN_PRIMARY
+      EBISP( 126 ) = TOLU
+      EBISP( 127 ) = MXYL
+      EBISP( 128 ) = OXYL
+      EBISP( 129 ) = PXYL
+      EBISP( 130 ) = APIN
+      EBISP( 131 ) = BPIN
+      EBISP( 132 ) = HG
+      EBISP( 133 ) = HGIIAER
+      EBISP( 134 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -342,6 +360,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( NTRI             ) = 1.0D-03
       RTOL( TERP             ) = 1.0D-03
       RTOL( TRPRXN           ) = 1.0D+00
+      RTOL( XO2T             ) = 1.0D-03
       RTOL( SO2              ) = 1.0D-03
       RTOL( SULF             ) = 1.0D+00
       RTOL( SULRXN           ) = 1.0D+00

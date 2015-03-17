@@ -238,12 +238,12 @@ C Local Variables:
 
 C Geometric mean diameter by volume (or mass) of emitted particles in 
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-C         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
+!        REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
          REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /) !KF 05/06/14
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
-C         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
+!        REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
          REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 1.7, 2.2 /)  !KF 05/06/14
  
 C Variables for calculating the volume of each grid cell
@@ -378,9 +378,9 @@ C *** Map indices of emission species
      &                 AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
                      EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
       write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_map( s,n )
-                     if ( em_map( s,n ) .eq. 0 ) then
-                        write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
-                     end if
+!                    if ( em_map( s,n ) .eq. 0 ) then
+!                       write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
+!                    end if
                   END IF
                END DO
             END IF

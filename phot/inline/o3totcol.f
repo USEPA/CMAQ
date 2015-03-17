@@ -45,9 +45,9 @@
 
       integer, intent(in) :: jdate      ! Julian day of the year (yyyyddd)
 
-      real(4), intent(in) :: latitude   ! latitude of point on earth's surface
-      real(4), intent(in) :: longitude  ! longitude of point on earth's surface
-      real(4), intent(out) :: ozone     ! total column ozone [DU]
+      real(4), intent(in)    :: latitude   ! latitude of point on earth's surface
+      real(4), intent(in)    :: longitude  ! longitude of point on earth's surface
+      real(4), intent(inout) :: ozone     ! total column ozone [DU]
 
 ! parameters
 

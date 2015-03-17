@@ -192,9 +192,9 @@ C variables for deposition velocities diagnostic file
          CHARACTER( 80 )  :: VARDESC     ! environment variable description
 
 C environment variable for diagnostic DEPV file
-         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE    '
+         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
          
-         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT       '
+         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER          AE_OFFSET            ! Offset to AE start in CGRID
@@ -1150,26 +1150,27 @@ C-----------------------------------------------------------------------
 
 !             write LAI for each LUC to file
                DBUFF3( C,R,J ) = 0.0
-               FORALL(R = 1:MY_NROWS, C = 1:MY_NCOLS, J = 1:N_LUFRAC, GRID_DATA%LUFRAC( C,R,J ) .GT. 0.0 )
+               FORALL( R = 1:MY_NROWS, C = 1:MY_NCOLS,
+     &                 J = 1:N_LUFRAC, GRID_DATA%LUFRAC( C,R,J ) .GT. 0.0 )
                   DBUFF3( C,R,J ) = Mosaic_Data%LAI( C,R,J )
                END FORALL
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LAIJ',
-     &                            WDATE, WTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, DBUFF3 ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write RA for each LUC to file
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RAJ',
-     &                            WDATE, WTIME, MOSAIC_DATA%RA) ) THEN
+     &                            WDATE, WTIME, MOSAIC_DATA%RA ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write USTAR for each LUC to file
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'USTARJ',
-     &                            WDATE, WTIME, MOSAIC_DATA%USTAR) ) THEN
+     &                            WDATE, WTIME, MOSAIC_DATA%USTAR ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
