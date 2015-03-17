@@ -103,10 +103,11 @@ C..Parameters:
 
       INTEGER, PARAMETER :: IZERO = 0                ! Integer zero
 
-      REAL,    PARAMETER :: CONCMIN = 1.0E-30        ! Minimum conc
-      REAL,    PARAMETER :: CONCOFM = 1.0E+06        ! conc. of M = 1E+06 ppm
-      REAL,    PARAMETER :: PA2ATM  = 1.0 / STDATMPA ! Pascal to atm conv fac
-
+      REAL,    PARAMETER :: CONCMIN   = 1.0E-30         ! Minimum conc
+      REAL,    PARAMETER :: CONCOFM   = 1.0E+06         ! conc. of M = 1E+06 ppm
+      REAL,    PARAMETER :: PA2ATM    = 1.0 / STDATMPA  ! Pascal to atm conv fac
+      REAL,    PARAMETER :: MAOMV     = MWAIR / MWWAT   ! Mol Wt of air over Mol Wt of water
+      REAL,    PARAMETER :: QV_TO_PPM = CONCOFM * MAOMV ! factor to convert water wapor into ppm
 C..External Functions:
 
 C..Local Variables:
@@ -119,8 +120,10 @@ C..Local Variables:
       INTEGER, SAVE :: NOXYZ           ! Total number of grid cells
 
       REAL,    SAVE :: AIRFC           ! Factor to convert gms air to ppm
-      REAL,    SAVE :: MAOMV           ! Mol Wt of air over Mol Wt of water
 !     REAL,    SAVE :: CONV( NLAYS )   ! Volumetric emis conv facs
+
+      REAL( 8 )     :: CHEMSTEP   ! Chem integration interval (min)
+      REAL( 8 )     :: VALLOW     ! Value holder for sort routine
 
       CHARACTER(  16 ) :: PNAME = 'RBDRIVER' ! Procedure name
       CHARACTER(  16 ) :: VNAME              ! Name of I/O API data variable
@@ -147,7 +150,6 @@ C..Local Variables:
       INTEGER MIDDATE         ! Date at time step midpoint
       INTEGER MIDTIME         ! Time at time step midpoint
       INTEGER NCELL           ! Index for number of cells
-      INTEGER NDARK           ! Number of layer 1 cells in darkness
       INTEGER NIRRCLS         ! No. of cells in block for IRR
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER NRX             ! Index for number of reactions
@@ -155,34 +157,32 @@ C..Local Variables:
       INTEGER SPC             ! Species loop index
       INTEGER VAR             ! Variable number on I/O API file
 
-      INTEGER :: IRRCELL( BLKSIZE )   ! Cell No. of an IRR cell
+      INTEGER, ALLOCATABLE, SAVE :: IRRCELL( : )   ! Cell No. of an IRR cell
 
-C for INTERPX
-      INTEGER     GXOFF, GYOFF                 ! global origin offset from file
+C for interpolating meteorological inputs
+ 
+      INTEGER       :: GXOFF, GYOFF     ! global origin offset from file
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLEM1, ENDCOLEM1, STRTROWEM1, ENDROWEM1
- 
-      REAL CHEMSTEP                            ! Chem integration interval (min)
-      REAL VALLOW                              ! Value holder for sort routine
-      
-      REAL :: SEAICE ( NCOLS, NROWS )          ! fractional seaice cover, [-] 
+       
+      REAL, ALLOCATABLE, SAVE :: SEAICE ( :, : )          ! fractional seaice cover, [-] 
 
-      REAL :: DENSA_J( NCOLS,NROWS,NLAYS )      ! Cell density (Kg/m**3)
-      REAL :: DENS   ( NCOLS,NROWS,NLAYS )      ! Cell density (Kg/m**3)
-      REAL :: PRES   ( NCOLS,NROWS,NLAYS )      ! Cell pressure (Pa)
-      REAL :: QV     ( NCOLS,NROWS,NLAYS )      ! Cell water vapor (Kg/Kg air)
-      REAL :: TA     ( NCOLS,NROWS,NLAYS )      ! Cell temperature (K)
+!      REAL, ALLOCATABLE, SAVE :: DENSA_J( :, :, : )      ! Cell density (Kg/m**3)
+      REAL, ALLOCATABLE, SAVE :: DENS   ( :, :, : )      ! Cell density (Kg/m**3)
+      REAL, ALLOCATABLE, SAVE :: PRES   ( :, :, : )      ! Cell pressure (Pa)
+      REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
+      REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
       REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
       REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
 
 !     REAL :: RJBLK( BLKSIZE,NPHOTAB )           ! J-values for each cell in 
-                                               ! a block
+                                                 ! a block
 
-      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
-!     REAL, ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
+!      REAL :: RJ( NCOLS,NROWS,NLAYS,NPHOTAB )  ! J-values for each cell      
+      REAL,      ALLOCATABLE, SAVE :: RJ( :,:,:,: )  ! J-values for each cell      
 
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )
 #ifdef rbstats
@@ -212,6 +212,29 @@ C for INTERPX
 !?          INTEGER :: CCOL( : ), CROW( : ), CLEV( : )
 !?       END SUBROUTINE PA_IRR_SETUP
 
+         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+            USE RXNS_DATA            ! chemistry varaibles and data
+            USE CGRID_SPCS           ! CGRID species number and offsets
+            USE PCGRID_DEFN          ! get cgrid
+            USE UTILIO_DEFN
+#ifdef parallel
+            USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+            USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+            USE AERO_DATA            ! describes aerosol distribution
+            USE PHOT_MOD             ! photolysis in-line module
+            USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indices
+            USE PHOTOLYSIS_ALBEDO    ! surface albedo data and routines
+            USE PHOT_MET_DATA        ! Met and Grid data
+            USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
+            IMPLICIT NONE
+            INTEGER, INTENT( IN ) :: MDATE    !"centered" Julian date (YYYYDDD) 
+            INTEGER, INTENT( IN ) :: MTIME    !"centered" time (HHMMSS)
+            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
+            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
+            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+         END SUBROUTINE PHOT
          SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET,
      &                             CCOL, CROW, CLEV, NORDCELL,
      &                             NIRRCLS, IRRCELL )
@@ -241,12 +264,12 @@ C for INTERPX
             USE CGRID_SPCS
             USE UTILIO_DEFN
             IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: LOGDEV, JDATE, JTIME
-            REAL,    INTENT( IN ) :: CHEMSTEP
-            INTEGER, INTENT( IN ) :: NCSP
-            LOGICAL, INTENT( IN ) :: LIRRFLAG
-            INTEGER, INTENT( INOUT ) :: NIRRCLS
-            INTEGER, INTENT( IN ) :: IRRCELL( : )
+            INTEGER,   INTENT( IN ) :: LOGDEV, JDATE, JTIME
+            REAL( 8 ), INTENT( IN ) :: CHEMSTEP
+            INTEGER,   INTENT( IN ) :: NCSP
+            LOGICAL,   INTENT( IN ) :: LIRRFLAG
+            INTEGER,   INTENT( INOUT ) :: NIRRCLS
+            INTEGER,   INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
            USE DEGRADE_SETUP_TOX
@@ -303,7 +326,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL RBINIT
          CALL RBSPARSE( LOGDEV )
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
-         MAOMV =  MWAIR / MWWAT
 
 C...Initialize and report data
 
@@ -360,6 +382,14 @@ C.. Get fractional surf-zone coverage from the OCEAN file.
          ENDCOLCO   = COLSX_PE( 2, MYPE + 1 )
          STARTROWCO = ROWSX_PE( 1, MYPE + 1 )
          ENDROWCO   = ROWSX_PE( 2, MYPE + 1 )
+
+         ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
+     &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
+     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &             SEAICE( NCOLS, NROWS ) )
+
+         ALLOCATE( IRRCELL( BLKSIZE ) )
+         IRRCELL = 0
 
 c..Open file for solver stats if requested
 #ifdef rbstats
@@ -452,7 +482,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
       ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-      CHEMSTEP = FLOAT( ITMSTEP ) / 60.0
+      CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
  
 C.. Get fractional seaice coverage from the METCRO2D file.
@@ -507,7 +537,7 @@ C.. Get density in Kg/m^3
 
 C.. Get photolysis rates in /min
 
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )                    
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, RJ )                    
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -527,6 +557,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 100   CONTINUE
 
 !     write( logdev,* ) 'driver-lordering,lreorder: ', lordering, lreorder
+
+      ERRMX2 = 0.0D0
 
       DO 500 BLK = 1, NBLKS
          BLKID = BLK
@@ -554,7 +586,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             BLKDENS( NCELL ) = REAL( DENS( COL,ROW,LEV ), 8 )
             BLKSVOL( NCELL ) = REAL( 1.0 / BLKDENS( NCELL ), 8 )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
-            BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
+            BLKCH2O( NCELL ) = REAL( MAX( QV_TO_PPM * QV( COL,ROW,LEV ), 0.0 ), 8)
             IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
                 BLKLAND (NCELL) = .TRUE.
             ELSE

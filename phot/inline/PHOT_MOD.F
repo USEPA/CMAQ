@@ -143,7 +143,6 @@ C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
       USE RXNS_DATA            ! chemical mechanism data
-!!!!! USE AEROMET_DATA         ! parameters for aerosol calculations
       USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
 
       USE AERO_PHOTDATA
@@ -155,31 +154,31 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT(IN) :: JTIME   ! TIME HHMMSS
       INTEGER, INTENT(IN) :: NLAYS   ! # of vertical layers
       
-      REAL, INTENT(IN) :: BLKPRS ( NLAYS )    ! Air pressure in [ atm ]
-      REAL, INTENT(IN) :: BLKTA  ( NLAYS )    ! Air temperature [ K ]
-      REAL, INTENT(IN) :: BLKDENS( NLAYS )    ! Air density  [ molecules / cm**3 ]
-      REAL, INTENT(IN) :: BLKZH  ( NLAYS )    ! layer half-height [ m ]
-      REAL, INTENT(IN) :: BLKZF  ( NLAYS+1 )  ! layer full height[ m ]
-      REAL, INTENT(IN) :: BLKO3  ( NLAYS )    ! O3 concentration [ molecules / cm**3 ]
-      REAL, INTENT(IN) :: BLKNO2 ( NLAYS )    ! NO2 concentration [ molecules / cm**3 ]
-      REAL, INTENT(IN) :: ZSFC                ! surface height (msl) [ m ]
-      REAL, INTENT(IN) :: COSZEN, SINZEN      ! sine and cosine of the zenith angle
-      REAL, INTENT(IN) :: RSQD                ! square of  solar distance [ au**2 ]
+      REAL,    INTENT(IN) :: BLKPRS ( : )       ! Air pressure in [ atm ]
+      REAL,    INTENT(IN) :: BLKTA  ( : )       ! Air temperature [ K ]
+      REAL,    INTENT(IN) :: BLKDENS( : )       ! Air density  [ molecules / cm**3 ]
+      REAL,    INTENT(IN) :: BLKZH  ( : )       ! layer half-height [ m ]
+      REAL,    INTENT(IN) :: BLKZF  ( : )       ! layer full height[ m ]
+      REAL,    INTENT(IN) :: BLKO3  ( : )       ! O3 concentration [ molecules / cm**3 ]
+      REAL,    INTENT(IN) :: BLKNO2 ( : )       ! NO2 concentration [ molecules / cm**3 ]
+      REAL,    INTENT(IN) :: ZSFC               ! surface height (msl) [ m ]
+      REAL,    INTENT(IN) :: COSZEN, SINZEN     ! sine and cosine of the zenith angle
+      REAL,    INTENT(IN) :: RSQD               ! square of  solar distance [ au**2 ]
 
-      LOGICAL, INTENT(IN) :: NEW_PROFILE      ! Has the atmospheric profile changed since last call?
-      LOGICAL, INTENT(IN) :: CLOUDS( NLAYS )  ! Does layer have clouds
-      REAL,    INTENT(IN) :: CLDFRC( NLAYS )  ! fraction of gridcell covered by cloud
+      LOGICAL, INTENT(IN) :: NEW_PROFILE     ! Has the atmospheric profile changed since last call?
+      LOGICAL, INTENT(IN) :: CLOUDS( : )  ! Does layer have clouds
+      REAL,    INTENT(IN) :: CLDFRC( : )  ! fraction of gridcell covered by cloud
       
 
-      REAL, INTENT(OUT) :: BLKRJ ( NLAYS, NPHOTAB ) ! photolysis rates [ 1 / sec ]
+      REAL,    INTENT(OUT) :: BLKRJ( :,: )  ! photolysis rates [ 1 / sec ]
 
-      REAL, INTENT(OUT) :: TAUC_AERO( :,: )   ! aerosol optical depth, bottom of layer
-      REAL, INTENT(OUT) :: TAU_TOT  ( :,: )   ! total optical depth, bottom of layer
-      REAL, INTENT(OUT) :: TAU_CLOUD( :,: )   ! cloud optical depth, bottom of layer
+      REAL,    INTENT(OUT) :: TAUC_AERO( :,: )  ! aerosol optical depth, bottom of layer
+      REAL,    INTENT(OUT) :: TAU_TOT  ( :,: )  ! total optical depth, bottom of layer
+      REAL,    INTENT(OUT) :: TAU_CLOUD( :,: )  ! cloud optical depth, bottom of layer
 
-      REAL, INTENT(INOUT)   :: TAUO3_TOP( : )  ! optical depth of ozone above model domain
-      REAL, INTENT(INOUT)   :: TAU_RAY  ( : )  ! Rayleigh optical depth above model domain
-      REAL, INTENT(OUT)     :: SSA_AERO ( : )  ! single scatering albedo for aerosol column
+      REAL,    INTENT(INOUT) :: TAUO3_TOP( : )  ! optical depth of ozone above model domain
+      REAL,    INTENT(INOUT) :: TAU_RAY  ( : )  ! Rayleigh optical depth above model domain
+      REAL,    INTENT(OUT)   :: SSA_AERO ( : )  ! single scatering albedo for aerosol column
       
       REAL( 4 ), INTENT(INOUT) :: TOTAL_O3_COLUMN  ! total ozone colum density [ DU ]
 
@@ -878,8 +877,8 @@ C-----------------------------------------------------------------------
 !***arguments
 
       INTEGER, INTENT( IN )  :: NWL           ! number of wavelength bins
-      REAL,    INTENT( IN )  :: LAMDA( NWL )  ! wavelengths  [nm]
-      REAL,    INTENT( OUT ) :: SRAYL( NWL )  ! molecular scattering cross sections [cm**2]
+      REAL,    INTENT( IN )  :: LAMDA( : )  ! wavelengths  [nm]
+      REAL,    INTENT( OUT ) :: SRAYL( : )  ! molecular scattering cross sections [cm**2]
 
 !***Internal variables
 
@@ -1101,9 +1100,12 @@ C-----------------------------------------------------------------------
 
       INTEGER, INTENT( IN )  :: NLAYS
 
-      REAL,    INTENT( IN )  :: Z( NLAYS + 1 ), ZSFC, REARTH, SINZEN
-      REAL,    INTENT( OUT ) :: DZ  ( NLAYS )  ! layer thicknesses counting from surface upward
-      REAL,    INTENT( OUT ) :: DSDH( NLAYS )
+      REAL,    INTENT( IN )  :: Z   ( : )
+      REAL,    INTENT( IN )  :: ZSFC
+      REAL,    INTENT( IN )  :: REARTH
+      REAL,    INTENT( IN )  :: SINZEN
+      REAL,    INTENT( OUT ) :: DZ  ( : )  ! layer thicknesses counting from surface upward
+      REAL,    INTENT( OUT ) :: DSDH( : )
 
 !***Internal
 
@@ -1250,19 +1252,23 @@ C-----------------------------------------------------------------------
 
 !***arguments
 
-      REAL, INTENT(IN)  :: ZTOM, ZTOA, ZSFC, REARTH,  SINZEN
+      REAL, INTENT(IN)  :: ZTOM
+      REAL, INTENT(IN)  :: ZTOA
+      REAL, INTENT(IN)  :: ZSFC
+      REAL, INTENT(IN)  :: REARTH
+      REAL, INTENT(IN)  :: SINZEN
       REAL, INTENT(OUT) :: DSDHTOP
 
 !***Internal
 
-      INTEGER I, J, K           ! loop indices
-      REAL RE
-      REAL DSJ                  ! slant path length [m]
-      REAL DHJ                  ! layer thickness [m]
+      INTEGER :: I, J, K  ! loop indices
+      REAL    :: RE
+      REAL    :: DSJ      ! slant path length [m]
+      REAL    :: DHJ      ! layer thickness [m]
       REAL(8) :: RJ, RJP1
-      REAL(8) :: RPSINZ         ! rpsinz = (re + zd(i)) * sinzen
-      REAL(8) :: RPSINZ2        ! rpsinz * rpsinz
-      REAL(8) :: GA, GB         ! see usage
+      REAL(8) :: RPSINZ   ! rpsinz = (re + zd(i)) * sinzen
+      REAL(8) :: RPSINZ2  ! rpsinz * rpsinz
+      REAL(8) :: GA, GB   ! see usage
 
 C-----------------------------------------------------------------------
 
@@ -1380,11 +1386,18 @@ C-----------------------------------------------------------------------
 
       INTEGER, INTENT( IN ) :: NLEVEL
 
-      REAL,    INTENT(IN )  :: MU, RSFC
-      REAL,    INTENT(IN )  :: TAUU( NLEVEL ), OMU( NLEVEL ), GU ( NLEVEL )
-      REAL,    INTENT(IN )  :: DSDH( NLEVEL )
-      REAL,    INTENT(OUT ) :: FUP ( NLEVEL ), FDN( NLEVEL ), FDR( NLEVEL )
-      REAL,    INTENT(OUT ) :: EUP ( NLEVEL ), EDN( NLEVEL ), EDR( NLEVEL )
+      REAL,    INTENT(IN )  :: MU
+      REAL,    INTENT(IN )  :: RSFC
+      REAL,    INTENT(IN )  :: TAUU( : )
+      REAL,    INTENT(IN )  :: OMU ( : )
+      REAL,    INTENT(IN )  :: GU  ( : )
+      REAL,    INTENT(IN )  :: DSDH( : )
+      REAL,    INTENT(OUT ) :: FUP ( : )
+      REAL,    INTENT(OUT ) :: FDN ( : )
+      REAL,    INTENT(OUT ) :: FDR ( : )
+      REAL,    INTENT(OUT ) :: EUP ( : )
+      REAL,    INTENT(OUT ) :: EDN ( : )
+      REAL,    INTENT(OUT ) :: EDR ( : )
 
 !***local:
 
@@ -1718,11 +1731,11 @@ C-----------------------------------------------------------------------
 !***ARGUMENTS and their descriptions:
 
       INTEGER, INTENT(IN) :: N        ! number of rows in matrix
-      REAL,    INTENT(IN) :: A( N )   ! subdiagonal
-      REAL,    INTENT(IN) :: B( N )   ! diagonal
-      REAL,    INTENT(IN) :: D( N )   ! superdiagonal
-      REAL,    INTENT(IN) :: E( N )   ! R.H. side
-      REAL,   INTENT(OUT) :: Y( N )   ! solution
+      REAL,    INTENT(IN) :: A( : )   ! subdiagonal
+      REAL,    INTENT(IN) :: B( : )   ! diagonal
+      REAL,    INTENT(IN) :: D( : )   ! superdiagonal
+      REAL,    INTENT(IN) :: E( : )   ! R.H. side
+      REAL,   INTENT(OUT) :: Y( : )   ! solution
 
 !***SCRATCH LOCAL VARIABLES and their descriptions:
 
