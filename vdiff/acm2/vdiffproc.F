@@ -81,11 +81,6 @@ C-----------------------------------------------------------------------
       USE BIDI_MOD
       USE LSM_MOD, ONLY: n_lufrac
       USE VDIFF_DIAG
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
-#endif
 
       IMPLICIT NONE
 
@@ -182,11 +177,6 @@ C Local Variables
             USE GRID_CONF
             USE ASX_DATA_MOD
             USE UTILIO_DEFN
-#ifdef parallel
-            USE SE_MODULES
-#else
-            USE NOOP_MODULES
-#endif
             IMPLICIT NONE
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
@@ -243,7 +233,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         Call Init_Met( JDATE, JTIME, MOSAIC, ABFLUX )
+         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX )
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
