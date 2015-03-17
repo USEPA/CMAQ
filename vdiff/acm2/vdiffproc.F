@@ -81,11 +81,6 @@ C-----------------------------------------------------------------------
       USE BIDI_MOD
       USE LSM_MOD, ONLY: n_lufrac
       USE VDIFF_DIAG
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
-#endif
 
       IMPLICIT NONE
 
@@ -182,15 +177,10 @@ C Local Variables
             USE GRID_CONF
             USE ASX_DATA_MOD
             USE UTILIO_DEFN
-#ifdef parallel
-            USE SE_MODULES
-#else
-            USE NOOP_MODULES
-#endif
             IMPLICIT NONE
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
             USE CGRID_SPCS
             USE GRID_CONF
             USE EMIS_DEFN
@@ -201,13 +191,13 @@ C Local Variables
             USE BIDI_MOD
             USE LSM_MOD, ONLY: n_lufrac
             IMPLICIT NONE
-            REAL, INTENT( IN )    :: DTSEC
-            REAL, INTENT( INOUT ) :: SEDDY    ( :,:,: )
-            REAL, INTENT( INOUT ) :: DDEP     ( :,:,: )
-            REAL, INTENT( INOUT ) :: ICMP     ( :,:,: )
-            REAL, INTENT( INOUT ) :: DDEPJ    ( :,:,:,: )
-            REAL, INTENT( INOUT ) :: DDEPJ_FST( :,:,:,: )
-            REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: )
+            REAL, INTENT( IN )    :: dtsec
+            REAL, INTENT( INOUT ) :: seddy( :,:,: )
+            REAL, INTENT( INOUT ) :: ddep ( :,:,: )
+            REAL, INTENT( INOUT ) :: icmp ( :,:,: )
+            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
+            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
+            REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
          SUBROUTINE SEDI( DTSEC, SEDVEL, CGRID, CNGRD )
             USE CGRID_SPCS
@@ -217,9 +207,9 @@ C Local Variables
             USE UTILIO_DEFN
             IMPLICIT NONE
             REAL, INTENT( IN )    :: DTSEC
-            REAL, INTENT( OUT )   :: SEDVEL   ( :,:,:,: )
-            REAL, POINTER         :: CGRID    ( :,:,:,: )
-            REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: )
+            REAL, INTENT( OUT )   :: SEDVEL( :,:,:,: )
+            REAL, POINTER         :: CGRID ( :,:,:,: )
+            REAL, INTENT( INOUT ) :: CNGRD ( :,:,:,: )
          END SUBROUTINE SEDI
 
       END INTERFACE
@@ -243,7 +233,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         Call Init_Met( JDATE, JTIME, MOSAIC, ABFLUX )
+         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX )
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
@@ -413,7 +403,19 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       END IF
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
-      CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
+      IF ( .NOT. MOSAIC ) THEN
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                   cngrd = CNGRD )
+      ELSE
+         IF ( .NOT. FST ) THEN
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                      ddepj = DDEPJ, cngrd = CNGRD )
+         ELSE
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                      ddepj = DDEPJ, ddepj_fst = DDEPJ_FST, cngrd = CNGRD )
+         END IF 
+      END IF 
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1

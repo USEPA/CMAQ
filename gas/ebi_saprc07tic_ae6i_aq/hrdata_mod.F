@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec. 3, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -64,7 +64,7 @@ c..Miscellaneous variables
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
 
-      REAL    EBI_TMSTEP   ! Time step for EBI loops (min)
+      REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
@@ -87,7 +87,27 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
+      REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
 
+      REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
+      REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
+      REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
+      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
+
+      REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
+      REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
+
+      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
+      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
+      LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+
+      REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
+!      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
+      REAL( 8 ), ALLOCATABLE ::  H2O     ( : )     ! Cell H2O mixing ratio (ppmV)
+      REAL( 8 ), ALLOCATABLE ::  TEMP    ( : )     ! Cell Temperature
+      REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
+      LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
 
 c..Species indices
       INTEGER, PARAMETER :: NO2              =    1

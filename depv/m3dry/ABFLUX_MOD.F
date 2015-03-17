@@ -313,90 +313,91 @@ C                          '12345678901234567890'
                Go To 1001
             End If
 
-         ! parameters            
+         ! parameters
             Do r = 1, my_nrows
                Do c = 1, my_ncols
                   Tot_Ag = 0.0                   
                   Do l = 1, e2c_cats
-                     If( pHs1( c,r,l ) .Gt. 0.0 ) Then
-                        pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
-                        pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
-                     Else
-                        pHfac1 = 0.0
-                        pHfac2 = 0.0
-                     End If
-! convert units from kg/ha N to mol/l
-                     If ( pHs1( c,r,l )   .Gt. 4.0       .And.
-     &                    pHs2( c,r,l )   .Gt. 4.0       .And.
-     &                    pHs1( c,r,l )   .Lt. 9.0       .And.
-     &                    pHs2( c,r,l )   .Lt. 9.0       .And.
-     &                    NH4ps1( c,r,l ) .Gt. 0.0       .And.
-     &                    NH4ps2( c,r,l ) .Gt. 0.0       .And.
-     &                    .Not. IsNaN( pHs1( c,r,l ) )   .And. 
-     &                    .Not. IsNaN( pHs2( c,r,l ) )   .And.
-     &                    .Not. IsNaN( NH4ps1( c,r,l ) ) .And.
-     &                    .Not. IsNaN( NH4ps2( c,r,l ) ) .And.
+                     If( .Not. IsNaN( pHs1( c,r,l ) )   .And.
+     &                   .Not. IsNaN( pHs2( c,r,l ) )   .And.
+     &                   .Not. IsNaN( NH4ps1( c,r,l ) ) .And.
+     &                   .Not. IsNaN( NH4ps2( c,r,l ) ) .And.
      &                    Beld_ag( c,r,l ) .Gt. 0.0 ) Then
-                        If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
-                           frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                        End If                    
-                        Tot_Ag        = Tot_Ag + Beld_ag( c,r,l )
-                        gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
-     &                                / pHfac1 * Beld_ag( c,r,l )
-                        MHp1( c,r )   = MHp1( c,r ) + Beld_ag( c,r,l ) * pHfac1
-                        gamma2( c,r ) = gamma2( c,r ) + convl2 * NH4ps2( c,r,l )
-     &                                / pHfac2 * Beld_ag( c,r,l )
-                        MHp2( c,r )   = MHp2( c,r ) + Beld_ag( c,r,l ) * pHfac2
-                        If ( .Not. IsNaN( F_rate1( c,r,l ) ) .And. 
-     &                                    F_rate1( c,r,l ) .Gt. 0.0 ) Then
-! Surface applied fertlizer                                        
-                           fagam1( c,r ) = fagam1( c,r ) + F_rate1( c,r,l ) * Beld_ag( c,r,l )
-     &                                   * convl1 / pHfac1
-                        End If                                                                 
-                        If ( .Not. IsNaN( F_rate2( c,r,l ) ) .And.
-     &                                    F_rate2( c,r,l ) .Gt. 0.0 ) Then
-! Injected fertilizer
-                           fagam2( c,r ) = fagam2( c,r ) + F_rate2( c,r,l ) * Beld_ag( c,r,l )
-     &                                   * convl2 / pHfac2
+                        If( pHs1( c,r,l ) .Gt. 0.0 ) Then
+                           pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
+                           pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
+                        Else
+                           pHfac1 = 0.0
+                           pHfac2 = 0.0
                         End If
-                        If ( IsNaN( fagam1( c,r ) ) .Or. IsNaN( fagam2( c,r ) ) ) Then
-                            xmsg = 'NaN in fagam Calculation'
-                            Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                        End If     
-                     End If                                
+! convert units from kg/ha N to mol/l
+                        If ( pHs1( c,r,l )   .Gt. 4.0       .And.
+     &                       pHs2( c,r,l )   .Gt. 4.0       .And.
+     &                       pHs1( c,r,l )   .Lt. 9.0       .And.
+     &                       pHs2( c,r,l )   .Lt. 9.0       .And.
+     &                       NH4ps1( c,r,l ) .Gt. 0.0       .And.
+     &                       NH4ps2( c,r,l ) .Gt. 0.0     ) Then
+                           If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
+                              frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
+                           End If
+                           Tot_Ag        = Tot_Ag + Beld_ag( c,r,l )
+                           gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
+     &                                   / pHfac1 * Beld_ag( c,r,l )
+                           MHp1( c,r )   = MHp1( c,r ) + Beld_ag( c,r,l ) * pHfac1
+                           gamma2( c,r ) = gamma2( c,r ) + convl2 * NH4ps2( c,r,l )
+     &                                   / pHfac2 * Beld_ag( c,r,l )
+                           MHp2( c,r )   = MHp2( c,r ) + Beld_ag( c,r,l ) * pHfac2
+                           If ( .Not. IsNaN( F_rate1( c,r,l ) ) .And.
+     &                                       F_rate1( c,r,l ) .Gt. 0.0 ) Then
+! Surface applied fertlizer
+                              fagam1( c,r ) = fagam1( c,r ) + F_rate1( c,r,l ) * Beld_ag( c,r,l )
+     &                                      * convl1 / pHfac1
+                           End If
+                           If ( .Not. IsNaN( F_rate2( c,r,l ) ) .And.
+     &                                       F_rate2( c,r,l ) .Gt. 0.0 ) Then
+! Injected fertilizer
+                              fagam2( c,r ) = fagam2( c,r ) + F_rate2( c,r,l ) * Beld_ag( c,r,l )
+     &                                      * convl2 / pHfac2
+                           End If
+                           If ( IsNaN( fagam1( c,r ) ) .Or. IsNaN( fagam2( c,r ) ) ) Then
+                               xmsg = 'NaN in fagam Calculation'
+                               Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
+                           End If
+                        End If
+                     End If
                   End Do ! e2c_cats
                   If ( Tot_Ag .ge. 1.0e-6 .And. ! ~ 1.5 ha per grid cell
      &                 MHp1( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
-     &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And. 
+     &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And.
      &                 MHp2( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
      &                 MHp2( c,r ) / Tot_Ag .Lt. 1.0e-4 ) Then
-! get the agricultrual only relevant number                                 
+! get the agricultrual only relevant number
                      MHp1( c,r ) = MHp1( c,r ) / Tot_Ag
-                     MHp2( c,r ) = MHp2( c,r ) / Tot_Ag         
+                     MHp2( c,r ) = MHp2( c,r ) / Tot_Ag
                      gamma1( c,r ) = ( gamma1( c,r ) + fagam1( c,r ) ) / Tot_Ag
-                     gamma2( c,r ) = ( gamma2( c,r ) + fagam2( c,r ) ) / Tot_Ag  
-! Set a minimum Gamma for Ag based off of Zhang et al. 2010                                             
+                     gamma2( c,r ) = ( gamma2( c,r ) + fagam2( c,r ) ) / Tot_Ag
+! Set a minimum Gamma for Ag based off of Zhang et al. 2010
                      gamma1( c,r ) = max( gamma1( c,r ), 630.0 )
-                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 ) 
-                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or. 
+                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 )
+                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
      &                    IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
                         xmsg = 'NaN in grid cell Gamma Calculation'
                         Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
                      End If
-                  Else 
+                  Else
                      MHp1( c,r ) = 0.0
                      MHp2( c,r ) = 0.0
                      gamma1( c,r ) = 0.0
                      gamma2( c,r ) = 0.0
-                  End If        
+                  End If
                End Do ! c
             End Do ! r
 !           xmsg = 'NaN in fagam Calculation' ! JOB debugging
 !           Call M3exit( pname, jdate, jtime, xmsg, xstat1) ! JOB debuggin
 
-         Else ! read          
+         Else ! read
 ! for whatever reason the jdate and jtime get messed up by the e2c files
-            Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'         
+            Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'
 
             vname = 'Gamma1'
             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow, endrow,
@@ -600,7 +601,7 @@ C-------------------------------------------------------------------------------
          dp  = dif0( l ) * 1.0E-4 * GRID_DATA%WSAT( c,r )**2
      &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )
          
-         rsoil1=ldry/dp
+         rsoil1 = ldry / dp
          
          w5cm = 0.2 * wg_ir + 0.8 * MET_DATA%SOIM2( c,r )
          w5cm = Min( w5cm, GRID_DATA%WSAT( c,r ) )
@@ -731,32 +732,40 @@ C-------------------------------------------------------------------------------
                   Case( 'SNOWICE' ) ! no veg
 !> Zero out the compensation points for deposition
                      If(MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
-                        xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
+     &                      * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                        / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
                      Else 
-                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j )
+     &                        / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
                      End If
                   Case( 'AG','AGMOS' ) ! agriculture
 !> Zero out the atmospheric NH3 concentration for emissions
-                     xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
-                     f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga * ( xxx
-     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
+                     xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
+     &                   * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                     f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga
+     &                      * ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
                      xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
                      f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                     / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
-                     f_cut = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j ) * MOSAIC_DATA%LAI( c,r,j )
+                     f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c )
+     &                      * gsb ! component 1 stomatal
+                     f_cut = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j )
+     &                     * MOSAIC_DATA%LAI( c,r,j )
      &                     * ( MOSAIC_DATA%DELTA( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )    ! wet cuticle
      &                     + ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
-                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ( (cnh3g1 - cnh3c) * gg1( j )  ! soil layer 1
-     &                      + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2
-                     f_ag = f_ag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c - cnh3 )
-     &                    -( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / agfrac
+                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j )
+     &                      * ( ( cnh3g1 - cnh3c ) * gg1( j )  ! soil layer 1
+     &                        + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2
+                     If( agfrac .Gt. 0.0 ) Then
+                        f_ag = f_ag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c - cnh3 )
+     &                       -( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / agfrac
+                     End If
                      If ( f_emis .lt. f_emis_lim ) Then
                         Write(logdev,*) 'ag f_emis: ', f_emis
                         Write(logdev,*) 'ag f_ag  : ', f_ag
@@ -773,24 +782,29 @@ C-------------------------------------------------------------------------------
                   Case Default ! natural
 !> Zero out the atmospheric NH3 concentration for emissions
                      If(MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
-                        xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
-                        f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga * ( xxx
+                        xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
+     &                      * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga
+     &                      * ( xxx
      &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
                         xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                        / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
-                        f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
-                        f_cut  = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j ) * MOSAIC_DATA%LAI( c,r,j )
+                        f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j )
+     &                         * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j )
+     &                         * MOSAIC_DATA%LAI( c,r,j )
      &                         * ( MOSAIC_DATA%DELTA( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )    ! wet cuticle
      &                         + ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ( rwmb + rwx * cnh3c ) ) ) ! dry cuticle
                      Else 
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
                      End If
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ( ( cnh3g1 - cnh3c ) * gg1( j ) +  ! soil layer 1
-     &                        ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2
+                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j )
+     &                      * ( ( cnh3g1 - cnh3c ) * gg1( j )     ! soil layer 1
+     &                        + ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2
                      f_nag = f_nag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c- cnh3 )
      &                     - ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / ( 1.0 - agfrac - watfrac )
                      If ( f_emis .lt. f_emis_lim ) Then

@@ -1007,6 +1007,7 @@ C     Equations A13-A14 of Binkowski & Shankar (1995).
       DO I = 1, N_MODE
          CALL HCOND3( AM0( I ), AM1( I ), AM2( I ),
      &                DV_SO4, ALPHSULF, CBAR_SO4, FCONC_SO4( I,: ) )
+!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
       END DO 
 
       IF ( .NOT. HYBRID ) THEN
@@ -1127,6 +1128,7 @@ C     growth factor expressions for sulfate using
 C     Equations A13-A14 of Binkowski & Shankar (1995). 
                CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
      &                      CBAR_SO4, FCONC_SO4( 3,: ) )  ! adapted from Eq A14
+!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
 
                GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
                GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 

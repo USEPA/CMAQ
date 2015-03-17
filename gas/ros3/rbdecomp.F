@@ -104,7 +104,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c...vdiag = 1 / current diagonal term of the decomposed matrix
          IAR = JARRAYPT( J, J, NCSP )
          DO NCELL = 1, NUMCELLS
-            VDIAG( NCELL,J )  = 1.0 / CC2( NCELL,IAR )
+            VDIAG( NCELL,J )  = 1.0D0 / CC2( NCELL,IAR )
          END DO
    
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

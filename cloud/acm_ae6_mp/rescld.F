@@ -66,6 +66,8 @@ C      15 10 Sep 11 B.Hutzell: adapted to define data used in HG_AQCHEM_DATA mod
 C      16 29 Sep 11 D.Wong: incorporated twoway model implementation
 C      16 02Aug12 S.Roselle:  instrumented to calculate and return
 C                             transmissivity for resolved clouds
+C       11Feb15 J.Young: Updated call to czangle.F which uses the ASX_DATA_MOD shared
+C                        data module (Implemented by J.Bash on 07 Nov 14)
  
 C  Called by:  CLDPROC
  
@@ -544,7 +546,7 @@ C...Get air density (kg/m3)
 
 C.. Compute zenith angle; Golam Sarwar, July 1, 2011 
 
-      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
+      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
  
 C...compute layer thicknesses (m)
 

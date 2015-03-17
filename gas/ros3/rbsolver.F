@@ -67,15 +67,15 @@ C**********************************************************************
 C..Includes:
 
 C..Arguments:
-      INTEGER, INTENT( IN ) :: LOGDEV        ! Unit number of output log
-      INTEGER, INTENT( IN ) :: JDATE         ! Current date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: JTIME         ! Current time (HHMMSS)
-      REAL,    INTENT( IN ) :: CHEMSTEP      ! Chem integration interval (min)
-      INTEGER, INTENT( IN ) :: NCSP          ! Index of chem mech to use
+      INTEGER,   INTENT( IN ) :: LOGDEV        ! Unit number of output log
+      INTEGER,   INTENT( IN ) :: JDATE         ! Current date (YYYYDDD)
+      INTEGER,   INTENT( IN ) :: JTIME         ! Current time (HHMMSS)
+      REAL( 8 ), INTENT( IN ) :: CHEMSTEP      ! Chem integration interval (min)
+      INTEGER,   INTENT( IN ) :: NCSP          ! Index of chem mech to use
                                                      ! 1=gas/day, 2=gas/night
-      LOGICAL, INTENT( IN ) :: LIRRFLAG      ! Flag for IRR calculations
-      INTEGER, INTENT( INOUT ) :: NIRRCLS       ! No. of cells in block for IRR
-      INTEGER, INTENT( IN ) :: IRRCELL( : )  ! Cell No. of an IRR cell
+      LOGICAL,   INTENT( IN ) :: LIRRFLAG      ! Flag for IRR calculations
+      INTEGER,   INTENT( INOUT ) :: NIRRCLS    ! No. of cells in block for IRR
+      INTEGER,   INTENT( IN ) :: IRRCELL( : )  ! Cell No. of an IRR cell
 
 C..Parameters:
 
@@ -97,6 +97,7 @@ c..ROS3 solver parameters - from KPP
       REAL( 8 ), PARAMETER :: G2  =  0.24291996454816804366592249683314D+00
       REAL( 8 ), PARAMETER :: G3  =  0.21851380027664058511513169485832D+01
       REAL( 8 ), PARAMETER :: GROW = 1.0D+00 / 3.00D+00
+      REAL( 8 ), PARAMETER :: RGAM = 1.0D+00 / GAM
 
       REAL( 8 ), PARAMETER :: DTSTART = 0.5D-01  ! Starting time step (min)
       REAL( 8 ), PARAMETER :: DTMIN   = 1.0D-08  ! Min time step
@@ -120,7 +121,6 @@ C..Local Variables:
       INTEGER IDIAGBEG            ! Index of diagonal start in Jac array 
       INTEGER OFFSET              ! Cell offset for blcock
       INTEGER NCELL               ! Cell loop index
-      INTEGER :: DUMMY( BLKSIZE ) ! Dummy array for IRR call
       INTEGER NRX                 ! Loop index for reactions
       INTEGER ISPOLD              ! Species index for old array order
       INTEGER NCALL_DEGRADE       ! WTH
@@ -128,9 +128,10 @@ C..Local Variables:
 
       LOGICAL LPASS               ! Flag for convergence achieved
 
-      REAL :: DTCELL( BLKSIZE )             ! Time step for each cell for IRR
-      REAL, ALLOCATABLE, SAVE :: CIRR ( :,: )   ! Species concs for IRR analysis
-      REAL, ALLOCATABLE, SAVE :: RKIRR( :,: )    ! Rate constants for IRR analysis
+      REAL,    ALLOCATABLE, SAVE :: DTCELL( : )    ! Time step for each cell for IRR
+      REAL,    ALLOCATABLE, SAVE :: CIRR (  :,: )  ! Species concs for IRR analysis
+      REAL,    ALLOCATABLE, SAVE :: RKIRR(  :,: )  ! Rate constants for IRR analysis
+      INTEGER, ALLOCATABLE, SAVE :: DUMMY(  : )    ! Dummy array for IRR call
 
       REAL( 8 ) :: D
       REAL( 8 ) :: DT             ! Time step
@@ -273,8 +274,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          END IF
 
 !        IF ( LIRRFLAG ) THEN   !*** This works only if in irr subdomain window
-            ALLOCATE ( CIRR ( BLKSIZE,N_SPEC ),
-     &                 RKIRR( BLKSIZE,N_RXNS ), STAT = IOS )
+            ALLOCATE ( DTCELL( BLKSIZE ),
+     &                 CIRR  ( BLKSIZE,N_SPEC ),
+     &                 RKIRR ( BLKSIZE,N_RXNS ), 
+     &                 DUMMY ( BLKSIZE ),         STAT = IOS )
             IF ( IOS .NE. 0 ) THEN
                XMSG = '*** Memory Allocation Error'
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -365,7 +368,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          DO I = 1, ISCHAN
             ISPOLD = INEW2OLD( I, NCS )
             DO NCELL = 1, NIRRCLS
-               CIRR( NCELL, ISPOLD ) = Y( IRRCELL( NCELL ),I )
+               CIRR( NCELL, ISPOLD ) = REAL( Y( IRRCELL( NCELL ),I ), 4 )
             END DO
          END DO
          CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, NIRRCLS, DUMMY )
@@ -373,251 +376,249 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       END IF
 
 
-100   CONTINUE
+      DO 100 WHILE ( TNOW .LT. CHEMSTEP )
 
-      CALL RBFEVAL( NCSP, Y, YDOT )
+         CALL RBFEVAL( NCSP, Y, YDOT )
 
-      IF ( LORDERING ) THEN
+         IF ( LORDERING ) THEN
 
-         DO JSPC = 1, ISCHAN  
-            YLOWEPS = ATOL( JSPC ) / ( MIN( RTOL( JSPC ), 0.003D+00 ) )
+            DO JSPC = 1, ISCHAN  
+               YLOWEPS = ATOL( JSPC ) / ( MIN( RTOL( JSPC ), 0.003D+00 ) )
+               DO NCELL = 1, NUMCELLS
+                  ERRYMAX  = YDOT( NCELL,JSPC )
+     &                    / ( Y( NCELL,JSPC ) + YLOWEPS )
+                  ERRMX2( OFFSET + NCELL ) = ERRMX2( OFFSET + NCELL )
+     &                                    + ERRYMAX * ERRYMAX
+               END DO
+            END DO
+
+            RETURN
+   
+         END IF
+
+         TEND = TNOW + DT 
+
+         IF ( TEND .GT. CHEMSTEP ) THEN
+            DT = CHEMSTEP - TNOW
+            TEND = CHEMSTEP
+         END IF    
+
+         DTINV = 1.0D+00 / DT
+
+         GDTINV = DTINV * RGAM
+      
+         CALL RBJACOB( NCSP, Y )
+
+         DO J = IDIAGBEG, IARRAY( NCSP )
             DO NCELL = 1, NUMCELLS
-               ERRYMAX  = YDOT( NCELL,JSPC )
-     &                  / ( Y( NCELL,JSPC ) + YLOWEPS )
-               ERRMX2( OFFSET + NCELL ) = ERRMX2( OFFSET + NCELL )
-     &                                  + ERRYMAX * ERRYMAX
+               CC2( NCELL,J ) = CC2( NCELL,J ) - GDTINV
             END DO
          END DO
 
-         RETURN
-
-      END IF
-
-      TEND = TNOW + DT 
-
-      IF ( TEND .GT. CHEMSTEP ) THEN
-         DT = CHEMSTEP - TNOW
-         TEND = CHEMSTEP
-      END IF    
-
-      DTINV = 1.0D+00 / DT
-
-      GDTINV = DTINV / GAM
-      
-      CALL RBJACOB( NCSP, Y )
-
-      DO J = IDIAGBEG, IARRAY( NCSP )
-         DO NCELL = 1, NUMCELLS
-            CC2( NCELL,J ) = CC2( NCELL,J ) - GDTINV
-         END DO
-      END DO
-
-      CALL RBDECOMP( NCSP )
+         CALL RBDECOMP( NCSP )
 
 c..stage 1
-      DO N = 1, N_SPEC
-         DO NCELL = 1, NUMCELLS
-            K1( NCELL,N ) = -YDOT( NCELL,N )
-         END DO
-      END DO      
+         DO N = 1, N_SPEC
+            DO NCELL = 1, NUMCELLS
+               K1( NCELL,N ) = -YDOT( NCELL,N )
+            END DO
+         END DO      
 
-      CALL RBSOLVE( NCSP, K1 )
+         CALL RBSOLVE( NCSP, K1 )
 
 c..stage 2
-      DO N = 1, N_SPEC
-         DO NCELL = 1, NUMCELLS
-            YP( NCELL,N ) = Y( NCELL,N ) + K1( NCELL,N )
-         END DO
-      END DO      
+         DO N = 1, N_SPEC
+            DO NCELL = 1, NUMCELLS
+               YP( NCELL,N ) = Y( NCELL,N ) + K1( NCELL,N )
+            END DO
+         END DO      
 
-      CALL RBFEVAL( NCSP, YP, YDOT )
+         CALL RBFEVAL( NCSP, YP, YDOT )
 
-      X1 = C21 * DTINV
-      DO N = 1, N_SPEC
-         DO NCELL = 1, NUMCELLS
-            K2( NCELL,N ) = -YDOT( NCELL,N ) - X1 * K1( NCELL,N )
-         END DO
-      END DO      
+         X1 = C21 * DTINV
+         DO N = 1, N_SPEC
+            DO NCELL = 1, NUMCELLS
+               K2( NCELL,N ) = -YDOT( NCELL,N ) - X1 * K1( NCELL,N )
+            END DO
+         END DO      
 
-      CALL RBSOLVE( NCSP, K2 )
+         CALL RBSOLVE( NCSP, K2 )
 
 c..stage 3
-      X1 = C31 * DTINV
-      X2 = C32 * DTINV
-      DO N = 1, N_SPEC
-         DO NCELL = 1, NUMCELLS
-            K3( NCELL,N ) = -YDOT( NCELL,N ) - X1 * K1( NCELL,N )
-     &                    - X2 * K2( NCELL, N )
+         X1 = C31 * DTINV
+         X2 = C32 * DTINV
+         DO N = 1, N_SPEC
+            DO NCELL = 1, NUMCELLS
+               K3( NCELL,N ) = -YDOT( NCELL,N ) - X1 * K1( NCELL,N )
+     &                       - X2 * K2( NCELL, N )
+            END DO
          END DO
-      END DO
 
-      CALL RBSOLVE( NCSP, K3 )
+         CALL RBSOLVE( NCSP, K3 )
 
 c..final solution
-      DO N = 1, N_SPEC
-         DO NCELL = 1, NUMCELLS
-            YP( NCELL,N ) = Y( NCELL,N ) + B1 * K1( NCELL,N )
-     &                     + B2 * K2( NCELL,N ) + B3 * K3( NCELL,N )
+         DO N = 1, N_SPEC
+            DO NCELL = 1, NUMCELLS
+               YP( NCELL,N ) = Y( NCELL,N ) + B1 * K1( NCELL,N )
+     &                      + B2 * K2( NCELL,N ) + B3 * K3( NCELL,N )
+            END DO
          END DO
-      END DO
 
 c..Estimate error
-      ERR = 0.0D+00
-      DO N = 1, N_SPEC
-         DO NCELL = 1, NUMCELLS
-            YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( NCELL,N ) )
-            ERR( NCELL ) = ERR( NCELL )
-     &                   + ( ( D1 * K1( NCELL,N ) + D2 * K2( NCELL,N )
-     &                       + D3 * K3( NCELL,N ) ) / YTOL ) ** 2
-        END DO
-      END DO
-
-      MAXERR      = 0.0D+00
-      OLDERR      = MAXERR
-      MAX_SPC_ERR = 0.0D+00
-      
-      DO NCELL = 1, NUMCELLS
-         MAXERR = MAX( MAXERR, UROUND, SQRT( ERR( NCELL ) * RNSPEC ) )
-         IF ( OLDERR .NE. MAXERR )THEN
-            OLDERR  =  MAXERR
-            COL_ERR = CCOL( NCELL )
-            ROW_ERR = CROW( NCELL )
-            LAY_ERR = CLEV( NCELL )
-            CELL_MAXERR = NCELL 
-         END IF
-      END DO
-
-      DTFAC = 0.9D+00 / MAXERR ** GROW
-
-      IF ( MAXERR .LE. 1.0D+00 ) THEN
-
-#ifdef rbstats
-         NSTEPS = NSTEPS + 1
-#endif
-
-         DO N = 1, NUMB_MECH_SPC
+         ERR = 0.0D+00
+         DO N = 1, N_SPEC
             DO NCELL = 1, NUMCELLS
-               Y( NCELL,N ) = MAX( YP( NCELL,N ), CONMIN )
-            END DO
+               YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( NCELL,N ) )
+               ERR( NCELL ) = ERR( NCELL )
+     &                      + ( ( D1 * K1( NCELL,N ) + D2 * K2( NCELL,N )
+     &                      + D3 * K3( NCELL,N ) ) / YTOL ) ** 2
+           END DO
          END DO
 
-         IF ( LIRRFLAG ) THEN
-            DO NCELL = 1, NUMCELLS
-               DTCELL( NCELL ) = DT
-            END DO
-            DO I = 1, ISCHAN
-               ISPOLD = INEW2OLD( I, NCS )
-               DO NCELL = 1, NIRRCLS
-                  CIRR( NCELL,ISPOLD ) = Y( IRRCELL( NCELL ), I )
-               END DO
-            END DO
-            CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
-     &                    NIRRCLS, DUMMY )
-         END IF
+         MAXERR      = 0.0D+00
+         OLDERR      = MAXERR
+         MAX_SPC_ERR = 0.0D+00
+      
+         DO NCELL = 1, NUMCELLS
+            MAXERR = MAX( MAXERR, UROUND, SQRT( ERR( NCELL ) * RNSPEC ) )
+            IF ( OLDERR .NE. MAXERR )THEN
+               OLDERR  =  MAXERR
+               COL_ERR = CCOL( NCELL )
+               ROW_ERR = CROW( NCELL )
+               LAY_ERR = CLEV( NCELL )
+               CELL_MAXERR = NCELL 
+            END IF
+         END DO
 
-         IF ( CALL_DEG ) THEN  !:WTH applying degradation algorithm
+         DTFAC = 0.9D+00 / MAXERR ** GROW
 
-            DT_DEGRADE = 60.0D0 * ( TEND - TNOW )
-
-            DO I = 1, ISCHAN
-               ISPOLD = INEW2OLD( I,NCS )
-               N      = CGRID_INDEX( ISPOLD )
-               DO NCELL = 1, NUMCELLS
-                  Y_DEGRADE( NCELL,N ) = Y( NCELL,I )
-               END DO
-            END DO
-
-            NCALL_DEGRADE = NCALL_DEGRADE + 1
-
-            CALL DEGRADE( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
-
-         END IF            !:WTH
-
-         TNOW = TEND
-
-         IF ( LPASS ) THEN
-            DTFAC = MAX( FACMIN, MIN( DTFAC, FACMAX ) )
-         ELSE
-            DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
-         END IF 
-
-         DT = MIN( DTMAX, MAX( DTMIN, DTFAC * DT ) )
-
-         LPASS = .TRUE.
-
-      ELSE
+         IF ( MAXERR .LE. 1.0D+00 ) THEN
 
 #ifdef rbstats
-         IF ( NFAILS .EQ. 0 .AND. TNOW .EQ. 0.0 ) N_BAD_STARTS = N_BAD_STARTS + 1
-         NFAILS = NFAILS + 1
+            NSTEPS = NSTEPS + 1
 #endif
 
-!        DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
-
-         DT = FACMIN * DT  
-
-         LPASS = .FALSE.
-
-         IF ( DT .LT. DTMIN ) THEN
-
-            WRITE( LOGDEV, 92110 ) JDATE, JTIME,
-     &      ( COL_ERR + STARTCOLCO ), ( ROW_ERR + STARTROWCO ), LAY_ERR
-
-            WRITE( LOGDEV, 92113) N_SPEC, NUMB_MECH_SPC
-            WRITE( LOGDEV, 92216) MAXERR, SQRT( ERR( CELL_MAXERR ) * RNSPEC )
-     
-            DO N = 1, N_SPEC
-                YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( CELL_MAXERR, N ) )
-                MAX_SPC_ERR = ( ( D1 * K1( CELL_MAXERR,N ) 
-     &                      +     D2 * K2( CELL_MAXERR,N ) 
-     &                      +     D3 * K3( CELL_MAXERR,N ) ) 
-     &                      / YTOL ) ** 2
-     &                      / ERR( CELL_MAXERR )
-     
-                ISPOLD = INEW2OLD( N, NCS )
-                WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( CHEMISTRY_SPC( ISPOLD ) ),
-     &          MAX_SPC_ERR, Y( CELL_MAXERR,N ), YP( CELL_MAXERR,N )
-     
+            DO N = 1, NUMB_MECH_SPC
+               DO NCELL = 1, NUMCELLS
+                  Y( NCELL,N ) = MAX( YP( NCELL,N ), CONMIN )
+               END DO
             END DO
 
-            WRITE( LOGDEV, 92215 ) BLKTEMP( CELL_MAXERR ), BLKPRES( CELL_MAXERR ),
-     &      BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKLAND( CELL_MAXERR ) 
+            IF ( LIRRFLAG ) THEN
+               DO NCELL = 1, NUMCELLS
+                  DTCELL( NCELL ) = REAL( DT, 4 )
+               END DO
+               DO I = 1, ISCHAN
+                  ISPOLD = INEW2OLD( I, NCS )
+                  DO NCELL = 1, NIRRCLS
+                     CIRR( NCELL,ISPOLD ) = REAL( Y( IRRCELL( NCELL ), I ), 4 )
+                  END DO
+               END DO
+               CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
+     &                       NIRRCLS, DUMMY )
+            END IF
 
-            WRITE( LOGDEV, 92115 )
+            IF ( CALL_DEG ) THEN  !:WTH applying degradation algorithm
 
-            DO N = 1, NJPHOT
-               WRITE( LOGDEV, 92214 ) N, PHOTAB( N ), RJBLK( CELL_MAXERR,N )
-            END DO
+               DT_DEGRADE = 60.0D0 * ( TEND - TNOW )
+
+               DO I = 1, ISCHAN
+                  ISPOLD = INEW2OLD( I,NCS )
+                  N      = CGRID_INDEX( ISPOLD )
+                  DO NCELL = 1, NUMCELLS
+                     Y_DEGRADE( NCELL,N ) = Y( NCELL,I )
+                  END DO
+               END DO
+
+               NCALL_DEGRADE = NCALL_DEGRADE + 1
+
+               CALL DEGRADE( Y_DEGRADE, DT_DEGRADE, JDATE, JTIME, BLKID )
+
+            END IF            !:WTH
+
+            TNOW = TEND
+
+            IF ( LPASS ) THEN
+               DTFAC = MAX( FACMIN, MIN( DTFAC, FACMAX ) )
+            ELSE
+               DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
+            END IF 
+
+            DT = MIN( DTMAX, MAX( DTMIN, DTFAC * DT ) )
+
+            LPASS = .TRUE.
+
+         ELSE
+
+#ifdef rbstats
+            IF ( NFAILS .EQ. 0 .AND. TNOW .EQ. 0.0 ) N_BAD_STARTS = N_BAD_STARTS + 1
+            NFAILS = NFAILS + 1
+#endif
+
+!           DTFAC = MAX( FACMIN, MIN( DTFAC, FACONE ) )
+
+            DT = FACMIN * DT  
+
+            LPASS = .FALSE.
+
+            IF ( DT .LT. DTMIN ) THEN
+
+               WRITE( LOGDEV, 92110 ) JDATE, JTIME,
+     &        (COL_ERR + STARTCOLCO ), ( ROW_ERR + STARTROWCO ), LAY_ERR
+
+               WRITE( LOGDEV, 92113) N_SPEC, NUMB_MECH_SPC
+               WRITE( LOGDEV, 92216) MAXERR, SQRT( ERR( CELL_MAXERR ) * RNSPEC )
+     
+               DO N = 1, N_SPEC
+                  YTOL = ATOL( N ) + RTOL( N ) * ABS( YP( CELL_MAXERR, N ) )
+                  MAX_SPC_ERR = ( ( D1 * K1( CELL_MAXERR,N ) 
+     &                        +     D2 * K2( CELL_MAXERR,N ) 
+     &                        +     D3 * K3( CELL_MAXERR,N ) ) / YTOL ) ** 2.0D0
+     &                        / ERR( CELL_MAXERR )
+     
+                  ISPOLD = INEW2OLD( N, NCS )
+                  WRITE( LOGDEV, 92114 ) ISPOLD, TRIM( CHEMISTRY_SPC( ISPOLD ) ),
+     &            MAX_SPC_ERR, Y( CELL_MAXERR,N ), YP( CELL_MAXERR,N )
+     
+               END DO
+
+               WRITE( LOGDEV, 92215 ) BLKTEMP( CELL_MAXERR ), BLKPRES( CELL_MAXERR ),
+     &         BLKDENS( CELL_MAXERR ), BLKCH2O( CELL_MAXERR ), BLKLAND( CELL_MAXERR ) 
+
+               WRITE( LOGDEV, 92115 )
+
+               DO N = 1, NJPHOT
+                  WRITE( LOGDEV, 92214 ) N, PHOTAB( N ), RJBLK( CELL_MAXERR,N )
+               END DO
 
 c..write photolysis rates used in cell
-            DO N = 1, NMPHOT
-               IF ( IPH( N,3 ) .NE. 0 ) THEN
-                  I = IPH( N,1 )
-                  J = IPH( N,2 )
-                  IF ( RTDAT( 1, I ) .GT. 0.0D+00 )THEN
-                     WRITE( LOGDEV, 92116 ) TRIM( RXLABEL( I ) ),
-     &               TRIM( PHOTAB( J ) ), RKI( CELL_MAXERR,I ) / RTDAT( 1,I )
+               DO N = 1, NMPHOT
+                  IF ( IPH( N,3 ) .NE. 0 ) THEN
+                     I = IPH( N,1 )
+                     J = IPH( N,2 )
+                     IF ( RTDAT( 1, I ) .GT. 0.0D+00 )THEN
+                        WRITE( LOGDEV, 92116 ) TRIM( RXLABEL( I ) ),
+     &                  TRIM( PHOTAB( J ) ), RKI( CELL_MAXERR,I ) / RTDAT( 1,I )
+                     END IF
                   END IF
-               END IF
-            END DO
+               END DO
           
-            DO N = 1, NMPHOT
-               IF ( IPH( N,3 ) .EQ. 0 ) THEN
-                  I = IPH( N,1 )
-                  J = IPH( N,2 )
-                  WRITE( LOGDEV, 92117 ) TRIM( RXLABEL( I ) ),
-     &            TRIM( RXLABEL( J ) ), RKI( CELL_MAXERR, J )
-               END IF
-            END DO
+               DO N = 1, NMPHOT
+                  IF ( IPH( N,3 ) .EQ. 0 ) THEN
+                     I = IPH( N,1 )
+                     J = IPH( N,2 )
+                     WRITE( LOGDEV, 92117 ) TRIM( RXLABEL( I ) ),
+     &               TRIM( RXLABEL( J ) ), RKI( CELL_MAXERR, J )
+                  END IF
+               END DO
  
-!           CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT2 )
-            STOP
+               CALL M3EXIT( PNAME, JDATE, JTIME, ' ', XSTAT2 )
+
+            END IF
 
          END IF
 
-      END IF
-
-      IF ( TNOW .LT. CHEMSTEP ) GO TO 100
+100   END DO  ! end time integration loop
 
       RETURN
 
