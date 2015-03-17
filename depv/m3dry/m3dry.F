@@ -414,9 +414,11 @@ C------------------------------------------------------------------------------
 C------------------------------------------------------------------------------
 C Calculate in-canopy resistance
 C------------------------------------------------------------------------------
-            Where( MOSAIC_DATA%Veg( :,:,j ) .Gt. 0.0 .And. GRID_DATA%LUFRAC( :,:,j ) .GT. 0.0 )
-               MOSAIC_DATA%RINC( :,:,j ) = 14.0 * MOSAIC_DATA%LAI( :,:,j ) * MOSAIC_DATA%Z0( :,:,j ) * 10.0 /
-     &                                      MOSAIC_DATA%USTAR( :,:,j )
+            Where( MOSAIC_DATA%Veg( :,:,j ) .Gt. 0.0 .And.
+     &             GRID_DATA%LUFRAC( :,:,j ) .GT. 0.0 )
+               MOSAIC_DATA%RINC( :,:,j ) = 14.0 * MOSAIC_DATA%LAI( :,:,j )
+     &                                   * MOSAIC_DATA%Z0( :,:,j ) * 10.0
+     &                                   / MOSAIC_DATA%USTAR( :,:,j )
             Elsewhere
                MOSAIC_DATA%RINC( :,:,j ) = 1.0e30
             End Where
@@ -424,7 +426,8 @@ C------------------------------------------------------------------------------
 C Calculate quasi-laminar boundary layer resistance
 C------------------------------------------------------------------------------
             Do l = 1, n_spc_m3dry
-               ChemMos_Data%Rb( :,:,j,l ) = 5.0 / Mosaic_data%Ustar( :,:,j ) * scc_pr_23( l )
+               ChemMos_Data%Rb( :,:,j,l ) = 5.0 / Mosaic_data%Ustar( :,:,j )
+     &                                    * scc_pr_23( l )
             End Do
          End Do
 C------------------------------------------------------------------------------
