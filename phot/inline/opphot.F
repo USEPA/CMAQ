@@ -145,7 +145,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          N = N + 1
          VNAME3D( N ) = 'RESOLVED_WBAR'
          UNITS3D( N ) = 'G/M**3'
-         VDESC3D( N ) = 'Resolved Cloud Hydrometer Content averaged over cloudy layers'
+         VDESC3D( N ) = 'Resolved Cloud Hydrometeor Content averaged over cloudy layers'
          VTYPE3D( N ) = M3REAL
          
          IF( USE_ACM_CLOUD )THEN
@@ -158,7 +158,7 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
              N = N + 1
              VNAME3D( N ) = 'SUBGRID_WBAR'
              UNITS3D( N ) = 'G/M**3'
-             VDESC3D( N ) = 'Subgrid Cloud Hydrometer Content averaged over cloudy layers'
+             VDESC3D( N ) = 'Subgrid Cloud Hydrometeor Content averaged over cloudy layers'
              VTYPE3D( N ) = M3REAL
          END IF             
 

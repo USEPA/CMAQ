@@ -60,17 +60,17 @@ C Includes:
       INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
-      CHARACTER( 16 ), INTENT( IN )    :: CONCMIN     ! min value allowed for BCs
-      CHARACTER( 16 ), INTENT( INOUT ) :: BCNAME( : ) ! BC name for adv species
-      REAL,            INTENT( INOUT ) :: BCFAC ( : ) ! Scale factor for BCs
+      CHARACTER( 16 ), INTENT( IN )  :: CONCMIN     ! min value allowed for BCs
+      CHARACTER( 16 ), INTENT( OUT ) :: BCNAME( : ) ! BC name for adv species
+      REAL,            INTENT( OUT ) :: BCFAC ( : ) ! Scale factor for BCs
 
 C External Functions:
       INTEGER, EXTERNAL :: FINDEX
 
 C Local variables:
       CHARACTER( 16 ) :: PNAME = 'ADVBC_MAP'
-!     CHARACTER( 16 ) :: BLNK = ' '
-      CHARACTER( 16 ) :: BLNK = '                '
+      CHARACTER( 16 ) :: BLNK = ' '
+!     CHARACTER( 16 ) :: BLNK = '                '
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: WRVAR( : )
 
@@ -145,13 +145,14 @@ C is the (main) species name on the BC file?
                END IF
             END IF
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
             write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
 
          END DO
+
          IF ( WRCNT .GT. 0 ) THEN
             WRITE( LOGDEV,1019 ) TRIM( BNDY_GASC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
@@ -206,13 +207,14 @@ C is the (main) species name on the BC file?
                END IF
             END IF
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
             write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
 
          END DO
+
          IF ( WRCNT .GT. 0 ) THEN
             WRITE( LOGDEV,1019 ) TRIM( BNDY_AERO_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
@@ -267,13 +269,14 @@ C is the (main) species name on the BC file?
                END IF
             END IF
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
             write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
 
          END DO
+
          IF ( WRCNT .GT. 0 ) THEN
             WRITE( LOGDEV,1019 ) TRIM( BNDY_NONR_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
@@ -328,13 +331,14 @@ C is the (main) species name on the BC file?
                END IF
             END IF
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
             write( logdev,* ) '=b=spc,name: ', spc, bcname( spc ),
      &                        '   bcfac:', bcfac( spc )
             write( logdev,* ) ' '
 #endif
 
          END DO
+
          IF ( WRCNT .GT. 0 ) THEN
             WRITE( LOGDEV,1019 ) TRIM( BNDY_TRAC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT

@@ -269,8 +269,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
       DO N = 1, NUMB_MECH_SPC
-         ATOL( N ) = GLBL_ATOL
-         RTOL( N ) = GLBL_RTOL
+         ATOL( N ) = REAL( GLBL_ATOL, 8 )
+         RTOL( N ) = REAL( GLBL_RTOL, 8 )
          FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
          REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
       END DO
