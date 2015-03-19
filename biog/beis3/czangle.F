@@ -77,7 +77,8 @@ C Arguments:
       INTEGER, INTENT( IN )  :: NX      ! no. columns
       INTEGER, INTENT( IN )  :: NY      ! no. rows
 
-      REAL,    INTENT( OUT ) :: COSZEN( NX,NY ) !  cos of zenith angle
+!     REAL,    INTENT( OUT ) :: COSZEN( NX,NY ) !  cosine of zenith angle
+      REAL,    INTENT( OUT ) :: COSZEN( :,: )   !  cosine of zenith angle
 
 C Parameters:
  
@@ -99,10 +100,10 @@ C Local variables:
      &           DESIN, DECOS, DESIN2, DECOS2, SIG, DECSIN, DECCOS,
      &           EQT, TST, HRANGL
                      
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
       REAL, ALLOCATABLE, SAVE :: SINLAT( :,: )
       REAL, ALLOCATABLE, SAVE :: COSLAT( :,: )  
 
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 16 ) :: PNAME = 'CZANGLE'   !  procedure name
 
 C----------------------------------------------------------------------

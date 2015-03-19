@@ -47,11 +47,6 @@ C--------------------------------------------------------------------------
       USE GRID_CONF             ! horizontal domain specifications
       USE ASX_DATA_MOD          ! Includes CONST
       USE UTILIO_DEFN
-#ifdef parallel
-      USE SE_MODULES            ! stenex
-#else
-      USE NOOP_MODULES          ! stenex
-#endif
 
       IMPLICIT NONE
 

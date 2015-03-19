@@ -24,7 +24,7 @@ C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.4 2011/10/21 16:
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
 
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, NDARK, RJ )
+      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
 C----------------------------------------------------------------------
 C Function:
 C    PHOT, adapted from RADM, calculates the photolysis rate constants
@@ -84,14 +84,13 @@ C include files:
 
 C arguments:
 
-      INTEGER      MDATE             ! "centered" Julian date (YYYYDDD)
-      INTEGER      MTIME             ! "centered" time (HHMMSS)
-      INTEGER      JDATE             ! current Julian date (YYYYDDD)
-      INTEGER      JTIME             ! current time (HHMMSS)
-      INTEGER      NDARK             ! Number of level 1 cells in darkness
+      INTEGER, INTENT( IN ) :: MDATE          ! "centered" Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: MTIME          ! "centered" time (HHMMSS)
+      INTEGER, INTENT( IN ) :: JDATE          ! current Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: JTIME          ! current time (HHMMSS)
 
-      REAL         RJ( NCOLS, NROWS, NLAYS, NPHOTAB )
-                                     ! gridded J-values  (/min units)
+!     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
+      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)   ! gridded J-values  (1/min units)
 
 C local parameters:
 
@@ -144,6 +143,7 @@ C scratch local variables:
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file
       INTEGER   :: CLDATT = 1         ! flag for cloud attenuation; 1=on,0=off
+      INTEGER      NDARK              ! Number of layer 1 cells in darkness
       INTEGER      NDAYS              ! local day angle
       INTEGER      NT                 ! time loop index
       INTEGER      NHT                ! height loop index

@@ -132,12 +132,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     DO IAR = 1, NONDIAG
       DO IAR = 0, NONDIAG
          DO NCELL = 1, NUMCELLS
-            CC2( NCELL, IAR ) = 0.0
+            CC2( NCELL, IAR ) = 0.0D0
          END DO
       END DO
       DO IAR = NONDIAG1, IARRY
          DO NCELL = 1, NUMCELLS
-            CC2( NCELL, IAR ) = 1.0
+            CC2( NCELL, IAR ) = 1.0D0
          END DO
       END DO
   
@@ -147,7 +147,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO ISPC=1,ISCHAN
          DO NCELL=1,NUMCELLS
             IF( CNEW( NCELL, ISPC ) .LE. ZBOUND ) THEN
-               CEFF( NCELL, ISPC ) = 0.0
+               CEFF( NCELL, ISPC ) = 0.0D0
             ELSE
                CEFF( NCELL, ISPC ) = CNEW( NCELL, ISPC )
             ENDIF
@@ -199,8 +199,8 @@ c...loss terms
             IARP = JARRL( NRK, NL, NCSP )
             IALP = JLIAL( NRK, NL, NCSP )
             DO NCELL = 1, NUMCELLS
-               CC2( NCELL, IARP ) = CC2( NCELL, IARP ) - R1DELT * 
-     &                              EXPLIC( NCELL, IALP ) 
+               CC2( NCELL, IARP ) = CC2( NCELL, IARP )
+     &                           - R1DELT * EXPLIC( NCELL, IALP ) 
             END DO
          END DO
   
@@ -211,15 +211,15 @@ c...production terms with stoichiomteric coeff EQ 1.0 and NE 1.0
             IALP = JPIAL( NRK, NP, NCSP )
             IF( ICOEFF( NRK, NP, NCSP ) .EQ. 0 ) THEN
                DO NCELL = 1, NUMCELLS
-                  CC2( NCELL, IARP ) = CC2( NCELL, IARP ) + R1DELT
-     &                               * EXPLIC( NCELL, IALP ) 
+                  CC2( NCELL, IARP ) = CC2( NCELL, IARP ) 
+     &                              + R1DELT * EXPLIC( NCELL, IALP ) 
                END DO
             ELSE
                ISCP = ICOEFF( NRK, NP, NCSP )
                FRACN = SC( NRK, ISCP ) * R1DELT 
                DO NCELL = 1, NUMCELLS
-                  CC2( NCELL, IARP ) = CC2( NCELL, IARP ) + FRACN
-     &                               * EXPLIC( NCELL, IALP ) 
+                  CC2( NCELL, IARP ) = CC2( NCELL, IARP ) 
+     &                               + FRACN * EXPLIC( NCELL, IALP ) 
                END DO 
             ENDIF
          END DO 

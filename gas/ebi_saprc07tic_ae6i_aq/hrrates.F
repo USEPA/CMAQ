@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb. 3, 2015
+C  REVISION HISTORY: Created by EBI solver program, March 19, 2015
 C
 C***********************************************************************
       USE HRDATA
@@ -53,7 +53,7 @@ C.....EXTERNAL FUNCTIONS: NONE
 
 
 C.....SAVED VARIABLES: NONE
-      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRRATES'   ! Program name
+!     CHARACTER( 16 ), SAVE  ::  PNAME = 'HRRATES'   ! Program name
 
 
 C.....LOCAL VARIABLES: None

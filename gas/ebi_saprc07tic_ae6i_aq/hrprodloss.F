@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb. 3, 2015
+C  REVISION HISTORY: Created by EBI solver program, March 19, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -58,12 +58,11 @@ C.....EXTERNAL FUNCTIONS: NONE
 
 
 C.....SAVED VARIABLES: NONE
-      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRPRODLOSS'   ! Program name
+!     CHARACTER( 16 ), SAVE  ::  PNAME = 'HRPRODLOSS'   ! Program name
 
 
 C.....LOCAL VARIABLES:
 
-      INTEGER ESP
 
 C***********************************************************************
 
