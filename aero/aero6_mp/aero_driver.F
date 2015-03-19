@@ -569,6 +569,13 @@ C     used in transport routines.  Put aeroSrf values back to CGRID
          END DO ! loop on MY_ROWS
       END DO ! loop on NLAYS
 
+C *** From AEROPROC call to ORGAER...
+!     If ( pfc .gt. 0 ) Then
+!        Write( xmsg,'(a,i8)' ) 'possible false convergences in soa bisection:', pfc
+!        Call m3warn( pname, 0, 0, xmsg )
+!        pfc = 0
+!     End If
+
 C *** If last call this hour, write visibility information.
       IF ( WRITETIME ) THEN
          MDATE = JDATE
