@@ -35,7 +35,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb. 3, 2015
+C  REVISION HISTORY: Created by EBI solver program, March 23, 2015
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -62,11 +62,11 @@ C..ARGUMENTS:
 
 C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
-      INTEGER, PARAMETER :: STAT = 1     ! Status code
+      INTEGER, PARAMETER :: STAT    = 1  ! Status code
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 0.0D0      ! zero
+      REAL( 8 ), PARAMETER :: ZERO    = 0.0D+00    ! zero
 
 C..EXTERNAL FUNCTIONS:
 
@@ -81,12 +81,13 @@ C..SCRATCH LOCAL VARIABLES:
 
       CHARACTER( 132 ) :: MSG           ! Message text
 
-      INTEGER CELLNO          ! Cell no. fo debug output
       INTEGER ITER            ! Loop index for Backward Euler iterations
       INTEGER S               ! Loop index for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps
+#ifdef hrdebug
       INTEGER N               ! Loop index
+#endif
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag
@@ -168,13 +169,13 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
       N_EBI_IT = 0
-      DTC = REAL( EBI_TMSTEP, 8 )
+      DTC      = EBI_TMSTEP
 
 
-      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-tep loop
+      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
 
-          NBKUPS = 0
-         N_INR_STEPS = 1
+          NBKUPS      = 0
+          N_INR_STEPS = 1
 
 100      CONTINUE                        !  Restart location
 
@@ -190,9 +191,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
                IF( LDEBUG ) THEN
-                  WRITE( DBGOUT, '( A, I5 )' ) 'ITER NO ', ITER
-                  WRITE( DBGOUT, '( A, F12.5 )' )
-     &               ' DTC=', DTC
+                  WRITE( DBGOUT, '( A, I5 )' )   'ITER NO ', ITER
+                  WRITE( DBGOUT, '( A, F12.5 )' )' DTC=', DTC
 
                   IF( ITER .EQ. 1 ) THEN
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
@@ -226,11 +226,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
-
                   YCP( S ) =  YC( S )*( ( YC0( S ) + PROD( S ) * DTC )
      &                     / ( YC( S ) + LOSS( S ) * DTC ) )
-
-
                END DO
 
 
@@ -244,13 +241,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
-                  IF( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
-     &               ( YC( S ) + YCP( S ) ) ) THEN
-                     LEBI_CONV = .FALSE.
+                  IF(ABS(YC(S)-YCP(S)) .GT. RTOL(S)*(YC(S)+YCP(S)))THEN
+                     LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
 c..if predictions growing too large, treat as a convergence failure
-                  IF( YCP( S ) .GT. MAXPRED ) then
+                  IF( YCP( S ) .GT. MAXPRED ) THEN
                      MXFL = .TRUE.
                      GO TO 1010
                   END IF
