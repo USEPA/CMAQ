@@ -1946,29 +1946,40 @@ C     Note that if the rate of particle phase reaction is very slow, there may n
 C     be enough digits of precision to properly calculate fq which can result in
 C     erroneously high gamma values. Only calculate gamma if particle phase reaction
 C     is faster than 1e-8 1/s
-      if ( kparticle(i) .gt. small ) then
+!      if ( kparticle(i) .gt. small ) then
 
-         ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
-         q = radius * dsqrt ( kparticle(i)/ diffusivity )
+      ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
+      q = radius * dsqrt ( kparticle(i)/ diffusivity )
+
+      If( q/Tanh( q ) .Gt. 1.0d0 ) Then
 
          ! Perform exp in double precision (dexp), also prevent negatives arising 
          ! from difference in numbers of similar size, fq should always be positive
-         exp_2q = dexp( 2.0d0*q )
-         fq = max( ( ( exp_2q + 1.0d0 ) / ( exp_2q - 1.0d0 ) - 1.0d0/q ), smaller )
+!         exp_2q = dexp( 2.0d0*q )
+!         fq = max( ( ( exp_2q + 1.0d0 ) / ( exp_2q - 1.0d0 ) - 1.0d0/q ), smaller )
 
          ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
          nu = cfactor_isop(i) * dsqrt( temperature )
 
          ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
 
-          denom = (inv_alpha + nu/( 4.0d0 * Heff(i)* RgasLatmmolK * temperature * dsqrt ( diffusivity * kparticle(i) ) * fq ) )
+          denom = ( inv_alpha + nu * radius /( 4.0d0 * Heff(i)* RgasLatmmolK * temperature * diffusivity * 
+     &            ( q / Tanh( q ) -1.0d0 ) ) ) 
 
           gammaisop(i) = 1.0d0 / denom
 
+          ftet(i) = kchemtet(i)/kparticle(i)
+          fos(i)  = kchemos(i)/kparticle(i)
+          fdim1(i) = kchemdim1(i)/kparticle(i)
+          fdim2(i) = kchemdim2(i)/kparticle(i)
 C     No/slow reaction
       else
 
          gammaisop(i) = 0.0d0
+         ftet(i)  = 0d0
+         fos(i)   = 0d0
+         fdim1(i) = 0d0
+         fdim2(i) = 0d0
 
       endif
 
@@ -1978,20 +1989,6 @@ C *** Calculate final values to return
       gammaiepox = gammaisop(1)
       gammaimae  = gammaisop(2) 
       kpiepox    = kparticle(1)
-
-      Do i = 1, 2 ! IEPOX (1), MAE (2)
-         if ( kparticle(i) .gt. small ) then
-            ftet(i) = kchemtet(i)/kparticle(i)
-            fos(i)  = kchemos(i)/kparticle(i)
-            fdim1(i) = kchemdim1(i)/kparticle(i)
-            fdim2(i) = kchemdim2(i)/kparticle(i)
-         else
-           ftet(i)  = 0d0
-           fos(i)   = 0d0
-           fdim1(i) = 0d0
-           fdim2(i) = 0d0
-         endif
-      End Do
 
       RETURN
  
