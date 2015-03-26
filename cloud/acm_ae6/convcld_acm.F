@@ -121,7 +121,7 @@ C...........Arguments
       INTEGER, INTENT( IN )  :: TSTEP( 3 )
       INTEGER, INTENT( IN )  :: N_SPC_WDEP
       INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-      REAL,    INTENT( OUT ) :: DEP( :,:,: )
+      REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
       REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
 
 
