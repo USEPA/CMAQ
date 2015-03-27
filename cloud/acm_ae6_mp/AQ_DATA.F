@@ -465,13 +465,13 @@ C...Add missing optional aerosol surrogate species
          srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
          ! Skip H2O, H2OP, and SOIL species
-         If ( spc .Eq. ah2o_idx .Or. spc .Eq. ah3op_idx ) Cycle
+         If ( var .Eq. ah2o_idx .Or. var .Eq. ah3op_idx ) Then
               write(xmsg,'(4(A,1x))')'Skipping AQ surrogate for AEROSPC ',
-     &                               aerospc( var )%name( 1:n_mode )
+     &                               aerospc( spc )%name( 1:n_mode )
               Call m3warn( 'aq_data_init', 0, 0, xmsg )
               Cycle
          Endif
-!        If ( spc .Eq. asoil_idx ) Cycle ! SLN 16March2011
+!        If ( var .Eq. asoil_idx ) Cycle ! SLN 16March2011
 
          Do mode = 1, n_mode
 
@@ -784,9 +784,9 @@ C Local Variables:
 
       Do spc = 1, naer
          Do n = 1, nmodes
+               Write( *,'(a,i5)' ) vname, spc
             If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
                idx = spc
-               ! Write( *,'(a,i5)' ) vname, idx
                Return
             End If
          End Do

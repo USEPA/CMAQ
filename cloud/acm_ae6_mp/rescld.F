@@ -87,6 +87,17 @@ C...........Includes:
       INCLUDE SUBST_CONST                ! constants
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
+C...........Arguments:
+      REAL,     POINTER     :: CGRID( :,:,:,: )    ! concentrations
+      INTEGER, INTENT( IN ) :: JDATE               ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME               ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP( 3 )          ! model time step, coded H*MMSS
+      INTEGER, INTENT( IN ) :: N_SPC_WDEP          ! # of wet deposition species
+      INTEGER, INTENT( IN ) :: WDEP_MAP( : )       ! wet deposition map to CGRID
+      REAL,    INTENT( OUT ) :: DEP  ( :,:,: )      ! depositions (etc.)
+      REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+      
+
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
 C...........Parameters:
@@ -97,19 +108,6 @@ C...........Parameters:
 C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
 
-C...........Arguments:
-!     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  !  concentrations
-!     REAL       :: CGRID( :,:,:,: )    ! concentrations
-      REAL, POINTER :: CGRID( :,:,:,: )    ! concentrations
-      INTEGER       JDATE               ! current model date, coded YYYYDDD
-      INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
-      INTEGER       N_SPC_WDEP          ! # of wet deposition species
-!     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
-      INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
-!     REAL          DEP  ( NCOLS,NROWS,* )  ! depositions (etc.)
-      REAL       :: DEP  ( :,:,: )      ! depositions (etc.)
-      REAL       :: RESTRANS( :,: )
 
 C...........Local Variables:
 
@@ -220,6 +218,16 @@ C...........External Functions:
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK                                 !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
+        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+           USE UTILIO_DEFN
+           USE ASX_DATA_MOD, Only: Grid_Data
+           IMPLICIT NONE
+           INTEGER, INTENT( IN )  :: JDATE
+           INTEGER, INTENT( IN )  :: JTIME
+           INTEGER, INTENT( IN )  :: NX
+           INTEGER, INTENT( IN )  :: NY
+           REAL,    INTENT( OUT ) :: COSZEN( :,: )
+        END SUBROUTINE CZANGLE
       END INTERFACE
 C-----------------------------------------------------------------------
 
