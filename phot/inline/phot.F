@@ -532,7 +532,7 @@ C...modules
       
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
-      IF ( MINVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
+      IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
          NDARK = MY_NROWS * MY_NCOLS
       ELSE
          NDARK = 0
