@@ -65,12 +65,12 @@ C Includes:
       INCLUDE SUBST_FILES_ID   ! file name parameters
 
 C Arguments:
-      INTEGER      JDATE       ! current model date, coded YYYYDDD
-      INTEGER      JTIME       ! current model time, coded HHMMSS
-      INTEGER      TSTEP       ! timestep
-      INTEGER      LVL         ! layer
-!     REAL         BCON( NBNDY,NLAYS,* )  ! boundary concentrations
-      REAL      :: BCON( :,: ) ! boundary concentrations
+      INTEGER, INTENT( IN ) :: JDATE       ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME       ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP       ! timestep
+      INTEGER, INTENT( IN ) :: LVL         ! layer
+!     REAL           BCON( NBNDY,NLAYS,* )  ! boundary concentrations
+      REAL,    INTENT( OUT ) :: BCON( :,: ) ! boundary concentrations
 
 C Parameters:
       REAL, PARAMETER :: KGPMG = 1.0E-09  ! Kg / micro-gram
@@ -128,14 +128,14 @@ C for INTERPX
             USE CGRID_SPCS
             USE UTILIO_DEFN
             IMPLICIT NONE
-            CHARACTER( 16 ), INTENT( IN )    :: CONCMIN
-            CHARACTER( 16 ), INTENT( INOUT ) :: BCNAME( : )
-            REAL,            INTENT( INOUT ) :: BCFAC ( : )
+            CHARACTER( 16 ), INTENT( IN )  :: CONCMIN
+            CHARACTER( 16 ), INTENT( OUT ) :: BCNAME( : )
+            REAL,            INTENT( OUT ) :: BCFAC ( : )
          END SUBROUTINE ADVBC_MAP
       END INTERFACE
 
+#ifdef verbose_rdbcon
       integer, save :: logdev
-#ifdef Verbose3
       real sumbc
       integer s
 #endif
@@ -143,14 +143,16 @@ C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
+#ifdef verbose_rdbcon
          logdev = init3()
+#endif
 
          WRITE( CONCMIN,'(1PE8.2)' ) CMIN
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
 
-C currently not implemented: case where only one origin component matches file's
+C currently not implemented: case where only one origin component matches file`s
          IF ( GXOFF .NE. 0 .AND. GYOFF .NE. 0 ) THEN
             WINDOW = .TRUE.       ! windowing from file
             STRTCOL = STRTCOLMC - 1
@@ -173,7 +175,7 @@ C currently not implemented: case where only one origin component matches file's
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
 
-!        write ( logdev,* ) '=0= window,n_spc_adv: ', window, n_spc_adv
+ !       write ( logdev,* ) '=0= window,n_spc_adv: ', window, n_spc_adv
 
          ALLOCATE ( BCNAME( N_SPC_ADV ),
      &              BCFAC( N_SPC_ADV ), STAT = ALLOCSTAT )
@@ -182,7 +184,7 @@ C currently not implemented: case where only one origin component matches file's
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C create advected species map to bc's
+C create advected species map to bc`s
  
          CALL ADVBC_MAP ( CONCMIN, BCNAME, BCFAC )
 
@@ -277,8 +279,8 @@ C Fill in DENSJ array for boundaries
 
       ELSE
 
-!        write ( logdev,* ) '=0= mdate,mtime,nbndy,nlays: ',
-!    &                           mdate,mtime,nbndy,nlays
+ !       write ( logdev,* ) '=0= mdate,mtime,nbndy,nlays: ',
+ !   &                           mdate,mtime,nbndy,nlays
 
          VNAME = 'JACOBM'
          IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
@@ -341,7 +343,7 @@ C Read & interpolate boundary concentrations
          END IF
 141   CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          write( logdev,'(/"@@@b ", i8, i7.6)') jdate, jtime
          do var = strt, fini
@@ -371,22 +373,44 @@ C Read & interpolate boundary concentrations
             ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
                       ! on file; convert
                IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
+ !    if ( lvl .eq. 1 )
+ !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
                   DO BND = 1, NBNDY
+ !    if ( lvl .eq. 1 ) then
+ !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
+ !   &                      '=b= bnd,bcfac,bbuf,jacobm_bnd: ',
+ !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), jacobm_bnd( bnd,lvl )
+ !    end if
                      BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                               * JACOBM_BND( BND,LVL )
                   END DO
                ELSE IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'SRF' ) THEN
+ !    if ( lvl .eq. 1 )
+ !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
                   DO BND = 1, NBNDY
+ !    if ( lvl .eq. 1 ) then
+ !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
+ !   &                      '=b= bnd,bcfac,bbuf,jacobm_bnd: ',
+ !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), jacobm_bnd( bnd,lvl )
+ !    end if
                      BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                               * JACOBM_BND( BND,LVL )
                   END DO
                ELSE
+ !    if ( lvl .eq. 1 )
+ !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
                   DO BND = 1, NBNDY
+ !    if ( lvl .eq. 1 ) then
+ !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
+ !   &                      '=b= bnd,bcfac,bbuf,jacobm_bnd: ',
+ !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), jacobm_bnd( bnd,lvl )
+ !    end if
                      BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL ) * KGPMG
      &                               * JACOBM_BND( BND,LVL )
                   END DO
                END IF
             END IF
+
          ELSE
             DO BND = 1, NBNDY
                BCON( BND,VAR ) = CMIN
@@ -394,7 +418,7 @@ C Read & interpolate boundary concentrations
          END IF
 151   CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          do var = strt, fini
             sumbc = 0.0
@@ -411,7 +435,7 @@ C Read & interpolate boundary concentrations
       DO 161 VAR = STRT, FINI
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
-!           write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
+ !          write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
  !          IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), 'DBG',
@@ -422,7 +446,17 @@ C Read & interpolate boundary concentrations
 
                ELSE   ! found bc's (PPM) on file; convert
 
+ !    if ( lvl .eq. 1 )
+ !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
+
                DO BND = 1, NBNDY
+
+ !    if ( lvl .eq. 1 ) then
+ !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
+ !   &                      '=b= bnd,bcfac,bbuf,rhoj_bnd: ',
+ !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), rhoj_bnd( bnd,lvl )
+ !    end if
+
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                   END DO
@@ -434,7 +468,7 @@ C Read & interpolate boundary concentrations
             END IF
 161      CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          do var = strt, fini
             sumbc = 0.0
@@ -451,7 +485,7 @@ C Read & interpolate boundary concentrations
       DO 171 VAR = STRT, FINI
          IF ( BCNAME( VAR ) .NE. BLNK ) THEN
 
-!           write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
+ !          write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
 
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
@@ -473,7 +507,7 @@ C Read & interpolate boundary concentrations
          END IF
 171   CONTINUE
 
-#ifdef Verbose3
+#ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
          do var = strt, fini
             sumbc = 0.0

@@ -111,6 +111,8 @@ C the local grid, those with G refer to the global grid.
 
 C Construct SOUTH boundary
 
+      LARRAY = 0.0   ! array assignment
+
       IF ( SOUTH_PE .EQ. -1 ) THEN
          DO IL = 1, NLAYS
             DO IB = LS_START, LS_END

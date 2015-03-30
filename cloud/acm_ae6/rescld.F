@@ -82,6 +82,16 @@ C...........Includes:
       INCLUDE SUBST_CONST                ! constants
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
+C...........Arguments:
+      REAL, POINTER          :: CGRID( :,:,:,: )
+      INTEGER, INTENT( IN )  :: JDATE
+      INTEGER, INTENT( IN )  :: JTIME
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )
+      INTEGER, INTENT( IN )  :: N_SPC_WDEP
+      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
+      REAL,    INTENT( OUT ) :: DEP( :,:,: )
+      REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
 C...........Parameters:
@@ -92,19 +102,6 @@ C...........Parameters:
 C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
 
-C...........Arguments:
-!     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  !  concentrations
-!     REAL       :: CGRID( :,:,:,: )    ! concentrations
-      REAL, POINTER :: CGRID( :,:,:,: )    ! concentrations
-      INTEGER       JDATE               ! current model date, coded YYYYDDD
-      INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
-      INTEGER       N_SPC_WDEP          ! # of wet deposition species
-!     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
-      INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
-!     REAL          DEP  ( NCOLS,NROWS,* )  ! depositions (etc.)
-      REAL       :: DEP  ( :,:,: )      ! depositions (etc.)
-      REAL       :: RESTRANS( :,: )
 
 C...........Local Variables:
 
@@ -181,7 +178,8 @@ C for INTERPX
 
 C Gridded meteorology data:
 C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 2011 
-      REAL          COSZEN( NCOLS, NROWS )          ! cosine of zenith angle
+!     REAL          COSZEN( NCOLS, NROWS )          ! cosine of zenith angle
+      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )   ! cosine of zenith angle
       REAL          COSZ                            ! local cosine of zenith angle
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
@@ -211,8 +209,18 @@ C...........External Functions:
            REAL,    INTENT( INOUT ) :: REMOVAC
            REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
-           LOGICAL, INTENT( IN )    :: DARK                                 !Golam Sarwar, July 1, 2011
+           LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
+      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+         USE UTILIO_DEFN
+         USE ASX_DATA_MOD, Only: Grid_Data
+         IMPLICIT NONE
+         INTEGER, INTENT( IN )  :: JDATE
+         INTEGER, INTENT( IN )  :: JTIME
+         INTEGER, INTENT( IN )  :: NX
+         INTEGER, INTENT( IN )  :: NY
+         REAL,    INTENT( OUT ) :: COSZEN( :,: )
+      END SUBROUTINE CZANGLE
       END INTERFACE
 C-----------------------------------------------------------------------
 
@@ -326,6 +334,11 @@ C...  the met timestep in hours
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+        ALLOCATE ( COSZEN ( NCOLS,NROWS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating COSZEN'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
       END IF  ! FIRSTIME
 
       MDATE = JDATE

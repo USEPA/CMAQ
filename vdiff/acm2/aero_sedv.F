@@ -335,7 +335,6 @@ C modal sedimentation velocities for 0th (number), 2nd (srf area), and 3rd (mass
 
  !    real, parameter :: bhat    = 1.246 ! Constant from Cunningham slip correction
       real, parameter :: bhat    = 2.492 ! 2 X Constant from Cunningham slip correction
-      real, parameter :: two3    = 2.0 / 3.0
 
 C Scalar variables for VARIABLE standard deviations.
 

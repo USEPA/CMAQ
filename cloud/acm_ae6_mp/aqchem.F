@@ -387,6 +387,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: XL              ! conversion factor (liter-atm/mol)
       REAL( 8 ) :: ONE_OVER_XL     ! 1.0 / XL
       REAL( 8 ) :: PRES_ATM_OVER_XL ! PRES_ATM / XL
+      REAL( 8 ) :: SCAVENGED       ! aitken scavenging factor by cloud water
       REAL( 8 ) :: XLCO2           !
       REAL( 8 ) :: XLH2O2          !
       REAL( 8 ) :: XLHCL           ! const in calc of HCL final partial pres
@@ -503,10 +504,8 @@ C...........External Functions:
      &                 - C_HINTCL2 * TEMPC
      &                 + D_HINTCL2
 
-#ifdef verbose_cloud
-      integer, save :: logdev
-      integer, external :: setup_logdev
-#endif
+      INTEGER, SAVE :: LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C*********************************************************************
 
@@ -516,9 +515,7 @@ C...Initialization
 
         FIRSTIME = .FALSE.
 
-#ifdef verbose_cloud
-      logdev = setup_logdev()
-#endif
+        LOGDEV = SETUP_LOGDEV()
 
 C...Make sure an AE6 version of the mechanism is being used
 
@@ -774,9 +771,9 @@ C...loop If kinetic calculations are made, return to this point
 
 C...set aitken-mode aerosol loading (mol/liter)
 
+        SCAVENGED = PRES_ATM_OVER_XL - PRES_ATM_OVER_XL * EXP( MAX( -REAL( ALFA3, 8 ) * TIMEW, 1.0D-8 ) )
         DO ISPC = 1, NAER
-          LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * PRES_ATM_OVER_XL
-     &                         * ( 1.0D0 - EXP( -ALFA3 * TIMEW ) )
+          LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * SCAVENGED
         END DO
 
 C...Initial gas phase partial pressures (atm)
@@ -1598,7 +1595,7 @@ C...Calculate a minimum time step required
 C...check for large time step
 
         IF ( DTW( 0 ) .GT. 8.0D+37 ) THEN
-          WRITE(6,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
+          WRITE(LOGDEV,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
         ELSE
 
 C...CALCULATE IN-CLOUD SOA PRODUCTION
