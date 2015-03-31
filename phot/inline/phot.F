@@ -413,6 +413,12 @@ C...modules
 
          ALLOCATE( TOC      ( NCOLS,NROWS ) )
 
+         DTIME = 000000
+         ODATE = JDATE
+         OTIME = JTIME
+         LDATE = ODATE
+         LTIME = OTIME
+
          IF ( PHOTDIAG ) THEN
             ALLOCATE( TRANSMIS_DIFFUSE( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIRECT ( NCOLS,NROWS ) )
@@ -500,12 +506,6 @@ C...modules
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
          
-         DTIME = 000000
-         ODATE = JDATE
-         OTIME = JTIME
-         LDATE = ODATE
-         LTIME = OTIME
-
 
       ELSE
 
