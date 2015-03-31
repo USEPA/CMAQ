@@ -117,12 +117,6 @@ C...modules
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
-
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
-#endif
       USE AERO_DATA            ! describes aerosol distribution
       USE PHOT_MOD             ! photolysis in-line module
       USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indices
@@ -190,7 +184,6 @@ C...modules
       INTEGER ESTAT              ! status from environment var check
       INTEGER JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER IPHOT              ! photolysis rate loop index
-      INTEGER NDARK              ! Number of level 1 cells in darkness
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -276,6 +269,7 @@ C...modules
       
       LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
       LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
+      LOGICAL                    :: NDARK          ! Is the processor domain in darkness
       
 !...Variables for diagnostic outputs
 
@@ -534,9 +528,9 @@ C...modules
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
       IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
-         NDARK = MY_NROWS * MY_NCOLS
+         NDARK = .TRUE.
       ELSE
-         NDARK = 0
+         NDARK = .FALSE.
       END IF
 
 !...set surface albedos
@@ -565,14 +559,14 @@ C...modules
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
-      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+      IF ( NDARK ) THEN
 
          RJ = 0.0
 
 !...write to the log file, CTM_RJ_1 file and return
 
-         WRITE( LOGDEV, 1003 ) JDATE, JTIME
-1003     FORMAT( 8X, 'In darkness at ', I8.7, ':', I6.6,
+         WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
+1003     FORMAT( 8X, 'Processor ', I4.4,' is in darkness at ', I8.7, ':', I6.6,
      &           1X, 'GMT - no photolysis')
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
