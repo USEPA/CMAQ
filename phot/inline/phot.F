@@ -484,6 +484,10 @@ C...modules
                WRITE( WLTXT( IWL ),'(I3.3)') INT( WAVELENGTH( IWL ) )
             END DO
 
+!...open the photolysis rate diagnostic files
+
+            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
+
          END IF  ! photdiag
 
 !...set pointers to species O3 and NO2 in CGRID
@@ -508,9 +512,6 @@ C...modules
          LDATE = ODATE
          LTIME = OTIME
 
-!...open the photolysis rate diagnostic files
-
-         IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
 
       ELSE
 
