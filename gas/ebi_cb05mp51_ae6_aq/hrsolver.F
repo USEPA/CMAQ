@@ -89,7 +89,7 @@ C..SCRATCH LOCAL VARIABLES:
 #ifdef hrdebug
       INTEGER N               ! Loop index
 #endif
-     INTEGER M              ! species index
+      INTEGER M              ! species index
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag

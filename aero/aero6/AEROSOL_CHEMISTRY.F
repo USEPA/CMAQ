@@ -712,7 +712,7 @@ C     by 60 to convert it into 1/sec
                      CBARIEPOX    = CFACTOR_IEPOX * DSQRT( AIRTEMP )
                      GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS, AIRTEMP )
                      IF ( AERDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX, 4 )
-                     IF ( GAMMAIEPOX .gt. 0.0D0 ) THEN
+                     IF ( GAMMAIEPOX .GT. 0.0D0 ) THEN
                         KIEPOX = WET_M2( 2 ) * DPI
      &                         / ( RADIUS * INV_DIFFUSIVITY
      &                             + 4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
@@ -720,7 +720,7 @@ C     by 60 to convert it into 1/sec
                         KIEPOX = 0.0D0
                      END IF
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * KIEPOX
-                           
+
                END SELECT
 
             END DO LOOP_RATES

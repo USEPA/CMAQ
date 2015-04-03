@@ -1,4 +1,5 @@
 
+
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -602,19 +603,16 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                   IF ( G_CLOUD .GE. 1.0 .OR. G_CLOUD .LE. -1.0 .OR. G_CLOUD .NE. G_CLOUD ) THEN
                      WRITE( NEW_OPTICS_LOG,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO' )
      &                  'G_CLOUD( L = ', L, ' ) = ', G_CLOUD,' resetting to '
-                        G_CLOUD = MIN( 0.9999, MAX( G_CLOUD, -0.9999) )
-                     WRITE( NEW_OPTICS_LOG,'(ES12.4)') G_CLOUD
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
-     &                  'LIQUID_ASY, LIQUID_SCAT = ',
-     &                  CLOUD_LIQUID_ASY( II,IWL ), CLOUD_LIQUID_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
-     &                  'ICE_ASY, ICE_SCAT = ',
-     &                  CLOUD_ICE_ASY( II,IWL ), CLOUD_ICE_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
-     &                  'AGGREG_ASY, AGGREG_SCAT = ',
-     &                  CLOUD_AGGREG_ASY( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
-                     CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
-                  END IF
+                        G_CLOUD = MIN( 0.9999, MAX( G_CLOUD, -0.9999))
+                        WRITE( NEW_OPTICS_LOG,'(ES12.4)')G_CLOUD
+                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'LIQUID_ASY, LIQUID_SCAT = ',
+     &                  CLOUD_LIQUID_ASY( II, IWL ), CLOUD_LIQUID_SCAT( II, IWL )
+                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'ICE_ASY, ICE_SCAT = ',
+     &                  CLOUD_ICE_ASY( II, IWL ), CLOUD_ICE_SCAT( II, IWL )
+                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'AGGREG_ASY, AGGREG_SCAT = ',
+     &                  CLOUD_AGGREG_ASY( II, IWL ), CLOUD_AGGREG_SCAT( II, IWL )
+                        CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
+                   END IF
                ELSE
                   G_CLOUD = 0.0
                END IF            
