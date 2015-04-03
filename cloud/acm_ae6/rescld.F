@@ -82,6 +82,16 @@ C...........Includes:
       INCLUDE SUBST_CONST                ! constants
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
+C...........Arguments:
+      REAL, POINTER          :: CGRID( :,:,:,: )
+      INTEGER, INTENT( IN )  :: JDATE
+      INTEGER, INTENT( IN )  :: JTIME
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )
+      INTEGER, INTENT( IN )  :: N_SPC_WDEP
+      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
+      REAL,    INTENT( OUT ) :: DEP( :,:,: )
+      REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
 C...........Parameters:
@@ -92,19 +102,6 @@ C...........Parameters:
 C Number of species in CGRID
       INTEGER, SAVE :: MXSPCS
 
-C...........Arguments:
-!     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  !  concentrations
-!     REAL       :: CGRID( :,:,:,: )    ! concentrations
-      REAL, POINTER :: CGRID( :,:,:,: )    ! concentrations
-      INTEGER       JDATE               ! current model date, coded YYYYDDD
-      INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
-      INTEGER       N_SPC_WDEP          ! # of wet deposition species
-!     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
-      INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
-!     REAL          DEP  ( NCOLS,NROWS,* )  ! depositions (etc.)
-      REAL       :: DEP  ( :,:,: )      ! depositions (etc.)
-      REAL       :: RESTRANS( :,: )
 
 C...........Local Variables:
 

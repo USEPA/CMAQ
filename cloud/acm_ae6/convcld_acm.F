@@ -113,7 +113,17 @@ C...........INCLUDES
       INCLUDE SUBST_CONST               ! constants
       INCLUDE SUBST_FILES_ID            ! file name parameters
 
-      CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
+C...........Arguments
+
+      REAL, POINTER          :: CGRID( :,:,:,: )
+      INTEGER, INTENT( IN )  :: JDATE
+      INTEGER, INTENT( IN )  :: JTIME
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )
+      INTEGER, INTENT( IN )  :: N_SPC_WDEP
+      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
+      REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
+      REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+
 
 C...........Parameters
 
@@ -182,21 +192,8 @@ C   SYNCCLD=.TRUE.  : every synchronization timestep
 C   SYNCCLD=.FALSE. : every hour on the half hour
       LOGICAL, PARAMETER :: SYNCCLD = .TRUE. ! default to sync timestep
 
-C...........Arguments
 
-!     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  ! concentrations
-!     REAL       :: CGRID( :,:,:,: )              ! concentrations
-      REAL, POINTER :: CGRID( :,:,:,: )           ! concentrations
-      INTEGER       JDATE               ! current model date, coded YYYYDDD
-      INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
       INTEGER       ICLDTYPE            ! 1: raining, 2: either CNP or PFW
-      INTEGER       N_SPC_WDEP          ! # of wet deposition species
-!     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
-      INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
-!     REAL          CONV_DEP( NCOLS, NROWS, * )  ! depositions (etc.)
-      REAL       :: CONV_DEP( :,:,: )   ! depositions (etc.)
-      REAL       :: SUBTRANS( :,:,: )
 
 C...........Local Variables
 
@@ -400,6 +397,8 @@ C Latitude and longitude for zenith angle calculation:
       REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )   ! cosine of zenith angle
       REAL          COSZ                            ! local cosine of zenith angle
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
+
+      CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
 C...........External Functions
 

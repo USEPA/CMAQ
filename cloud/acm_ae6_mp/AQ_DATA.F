@@ -53,7 +53,7 @@ C-----------------------------------------------------------------------
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
       Integer, Parameter :: nliqs = 72  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
-      Integer, Parameter :: mxsrg = 20  ! maximum number of species for surrogate
+      Integer, Parameter :: mxsrg = 30  ! maximum number of species for surrogate
 
       integer, parameter :: akn = 1     ! number for Aitken mode
       Integer, Parameter :: acc = 2     ! number for Accumulation mode
@@ -465,13 +465,13 @@ C...Add missing optional aerosol surrogate species
          srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
          ! Skip H2O, H2OP, and SOIL species
-         If ( spc .Eq. ah2o_idx .Or. spc .Eq. ah3op_idx ) Then
+         If ( var .Eq. ah2o_idx .Or. var .Eq. ah3op_idx ) Then
               write(xmsg,'(4(A,1x))')'Skipping AQ surrogate for AEROSPC ',
-     &                               aerospc( var )%name( 1:n_mode )
+     &                               aerospc( spc )%name( 1:n_mode )
               Call m3warn( 'aq_data_init', 0, 0, xmsg )
               Cycle
          Endif
-!        If ( spc .Eq. asoil_idx ) Cycle ! SLN 16March2011
+!        If ( var .Eq. asoil_idx ) Cycle ! SLN 16March2011
 
          Do mode = 1, n_mode
 
@@ -505,14 +505,14 @@ C...Add additional aerosol surrogate species
 
 #ifdef verbose_cloud
 C...write out SRGGAS and SRGAER to verify
-      Write(logdev, 1005)ngas
+      Write( logdev, 1005 )ngas
       Do spc = 1, ngas
-         Write(logdev, 1007)srggas( spc )%name, srggas( spc )%backgnd
+         Write( logdev,1007 ) srggas( spc )%name, srggas( spc )%backgnd
       End Do
-      Write(logdev, 1009)naer
+      Write( logdev,1009 ) naer
       Do spc = 1, naer
-         Write(logdev, 1111)srgaer( spc )%name, srgaer( spc )%density,
-     &                      srgaer( spc )%molwt, srgaer( spc )%backgnd
+         Write( logdev,1111 ) srgaer( spc )%name, srgaer( spc )%density,
+     &                        srgaer( spc )%molwt, srgaer( spc )%backgnd
       End Do
 #endif      
 
@@ -566,8 +566,8 @@ C...Create the pointers from CGRID to the gaseous species needed by AQCHEM
             Do isrg = 1, nsrggas( igas )
                lsrggas( igas,isrg ) = lsrg( isrg )
 #ifdef verbose_cloud
-               write(logdev,1113)cgrid2aq_name( lsrggas( igas,isrg ) ),
-     &         cgrid2aq_map(lsrggas( igas,isrg )), srggas( igas )%name,
+               write( logdev,1113 ) cgrid2aq_name( lsrggas( igas,isrg ) ),
+     &         cgrid2aq_map( lsrggas( igas,isrg ) ), srggas( igas )%name,
      &         igas,lsrggas( igas,isrg )
 #endif                  
             End Do
@@ -592,9 +592,9 @@ C...Create the pointers from CGRID to the aerosol species needed by AQCHEM
                   Do isrg = 1, nsrgaer( iaer,n )
                      lsrgaer( iaer,n,isrg ) = lsrg( isrg )
 #ifdef verbose_cloud
-                     write(logdev,1113)cgrid2aq_name( lsrgaer( iaer, n, isrg ) ),
-     &               cgrid2aq_map(lsrgaer( iaer, n, isrg )), srgaer( iaer )%name( n ),
-     &               iaer,lsrgaer( iaer, n, isrg )
+                     write( logdev,1113 ) cgrid2aq_name( lsrgaer( iaer,n,isrg ) ),
+     &               cgrid2aq_map( lsrgaer( iaer,n,isrg ) ), srgaer( iaer )%name( n ),
+     &               iaer, lsrgaer( iaer,n,isrg )
 #endif                  
                   End Do
                End If
@@ -784,9 +784,9 @@ C Local Variables:
 
       Do spc = 1, naer
          Do n = 1, nmodes
+            ! Write( *,'(a,i5)' ) vname, spc
             If ( srgaer( spc )%name( n ) .Eq. Trim( vname ) ) Then
                idx = spc
-               ! Write( *,'(a,i5)' ) vname, idx
                Return
             End If
          End Do

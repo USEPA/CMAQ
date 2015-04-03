@@ -419,6 +419,12 @@ C...modules
 
          ALLOCATE( TOC      ( NCOLS,NROWS ) )
 
+         DTIME = 000000
+         ODATE = JDATE
+         OTIME = JTIME
+         LDATE = ODATE
+         LTIME = OTIME
+
          IF ( PHOTDIAG ) THEN
             ALLOCATE( TRANSMIS_DIFFUSE( NCOLS,NROWS ) )
             ALLOCATE( TRANSMIS_DIRECT ( NCOLS,NROWS ) )
@@ -484,6 +490,10 @@ C...modules
                WRITE( WLTXT( IWL ),'(I3.3)') INT( WAVELENGTH( IWL ) )
             END DO
 
+!...open the photolysis rate diagnostic files
+
+            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
+
          END IF  ! photdiag
 
 !...set pointers to species O3 and NO2 in CGRID
@@ -502,15 +512,6 @@ C...modules
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
          
-         DTIME = 000000
-         ODATE = JDATE
-         OTIME = JTIME
-         LDATE = ODATE
-         LTIME = OTIME
-
-!...open the photolysis rate diagnostic files
-
-         IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
 
       ELSE
 
@@ -532,7 +533,7 @@ C...modules
       
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
-      IF ( MINVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
+      IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
          NDARK = MY_NROWS * MY_NCOLS
       ELSE
          NDARK = 0
