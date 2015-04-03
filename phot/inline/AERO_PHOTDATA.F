@@ -311,7 +311,7 @@ C ***    Create map for refactive index for each species
                         END DO
                      END IF
 #ifdef verbose_phot
-                     if ( aerospc( spc )%name( n )(1:1) .eq. ' ' ) cycle
+                     if ( aero_missing(spc,n) ) cycle
                      write( logdev, 5002)trim( aerospc( spc )%name( n ) ), 
      &               trim( refractive_index( m )%name ),is_core_spcs( spc,n ),
      &               (refractive_index( m )%real_part( n,v ), 
@@ -323,7 +323,7 @@ C ***    Create map for refactive index for each species
             END DO
             IF ( REFRACT_INDX_MAP( SPC ) .LT. 1 ) THEN
                DO M = 1, N_MODE
-                  IF ( AEROSPC( SPC )%NAME( M )(1:1) .EQ. ' ' ) CYCLE
+                  IF ( aero_missing(spc,n) ) CYCLE
                   XMSG = 'Species ' // TRIM( AEROSPC( SPC )%NAME( M ) )
      &                 // ' does not use defined refractive index.'
                   CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT3 )

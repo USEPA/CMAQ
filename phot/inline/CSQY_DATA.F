@@ -204,7 +204,8 @@
 ! and/or quantum yield values            
             INTEGER, ALLOCATABLE :: CSQY_ADJUST( : ) 
             
-            REAL,    ALLOCATABLE :: KMGLY( : )         ! Quenching Coefficient for Methyl Glyoxal Quantum Yields
+            REAL,    ALLOCATABLE :: IPHI0_MGLY( : ) ! Reciprocal Methyl Glyoxal Quantum Yields at zero pressure
+            REAL,    ALLOCATABLE :: KMGLY    ( : )  ! Quenching Coefficient for Methyl Glyoxal Quantum Yields
              
              
 
@@ -1464,8 +1465,8 @@ C-----------------------------------------------------------------------
 !***Arguments
 
 
-      REAL, INTENT(IN)  :: TEMP( : )    ! air temperature [K]
-      REAL, INTENT(IN)  :: DENS( : )    ! air density [molecules/cm**2]
+      REAL, INTENT(IN)  :: TEMP( : )      ! air temperature [K]
+      REAL, INTENT(IN)  :: DENS( : )      ! air density [molecules/cm**3]
       REAL, INTENT(OUT) :: CSZ( :, :, : ) ! abs cross sections
       REAL, INTENT(OUT) :: QYZ( :, :, : ) ! quantum yields
 
@@ -1483,7 +1484,7 @@ C-----------------------------------------------------------------------
       REAL, PARAMETER :: DTTX = TTX2 - TTX1
 
       REAL            :: PRESSURE       ! units vary
-      REAL            :: QDUM           ! scratch variable for yield
+      REAL            :: FACTOR         ! scratch variable for yield
       REAL            :: ALPHA, BETA    ! scratch variables
 
       LOGICAL, SAVE   :: FIRSTCALL = .TRUE.
@@ -1640,7 +1641,7 @@ C-----------------------------------------------------------------------
                DO IWL = 1, NWL_REF
                    IF( WAVELENGTH( IWL ) .GE. 500.0 .OR. WAVELENGTH( IWL ) .LE. 240.0 )CYCLE
                    DO LAYS = 1, NLAYS
-                        IF( QYZ( LAYS, IWL, IPHOT ) .LE. 0.0 .OR. QYZ( LAYS, IWL, IPHOT ) .GE. 1.0 )CYCLE
+                        IF( QYZ( LAYS, IWL, IPHOT ) .LE. 0.0 )CYCLE
 ! Replaced the following method used in CMAQ 5.01                   
 !***  Pressure dependence based on Koch and Moortgat (1998),
 !***  J. Phys. Chem. A, vol 102, pages 9142. The application contradicts
@@ -1652,17 +1653,17 @@ C-----------------------------------------------------------------------
 !     &                                         / ( 1.0 / QYZ( LAYS, IWL, IPHOT ) - 1.0 )
 !                       QYZ( LAYS, IWL, IPHOT ) = QYZ( LAYS, IWL, IPHOT )
 !     &                                         / ( QYZ( LAYS, IWL, IPHOT ) + 1.36E8 * PRESSURE )
-! with recommendation in NASA JPL (2011).  Note that linearily interpolated values are assumed to be 
-! at air number density equal to 2.465E19 molecules/cm3. Also that computed pressures are differences 
-! between layer pressures and pressure of interpolated values. Pressure units are Torrs.
-                       IF( WAVELENGTH( IWL ) .LE. 370.0 )THEN                        
-                           PRESSURE = MAX( 400.0, 1.03547E-19 * DENS( LAYS ) * TEMP( LAYS )  )
-     &                              - 2.5524 * TEMP( LAYS )
-                       ELSE
-                           PRESSURE = 1.03547E-19 * TEMP( LAYS ) * ( DENS( LAYS ) - 2.465E19 )
+! by using the relative correction recommended in NASA JPL (2011).  Note that linearily interpolated 
+! values are assumed to be at air number density equal to 2.465E19 molecules/cm3. Pressure units are Torrs.
+                       PRESSURE = 1.03547E-19 * TEMP( LAYS ) * DENS( LAYS )
+                       FACTOR   = 2.5524 * TEMP( LAYS ) ! pressure for dens at 2.465e19 molec/cm3
+                       IF( WAVELENGTH( IWL ) .LE. 370.0 )THEN 
+                           PRESSURE = MAX( 400.0, PRESSURE )
+                           FACTOR   = MAX( 400.0, FACTOR   )
                        END IF
-                       QYZ( LAYS, IWL, IPHOT ) = 1.0 
-     &                                         /( 1.0 / QYZ( LAYS, IWL, IPHOT ) + KMGLY( IWL ) * PRESSURE )
+                       QYZ( LAYS, IWL, IPHOT ) =  QYZ( LAYS, IWL, IPHOT )
+     &                                         * ( IPHI0_MGLY( IWL ) + KMGLY( IWL ) * FACTOR ) 
+     &                                         / ( IPHI0_MGLY( IWL ) + KMGLY( IWL ) * PRESSURE ) 
                        QYZ( LAYS, IWL, IPHOT ) = MAX( 0.0, MIN( 1.0, QYZ( LAYS, IWL, IPHOT ) ) )
                    END DO
                END DO
@@ -1812,7 +1813,13 @@ C-----------------------------------------------------------------------
                      CASE ( 'MGLY_06' , 'BACL_07', 'MGLY_IUPAC04', 'MGLY_IUPAC10' )
                         CSQY_ADJUST( IPHOT ) = METHYL_GLYOXAL_IUPAC04
                         IF( .NOT. ALLOCATED( KMGLY ) ) ALLOCATE( KMGLY( NWL_REF ) )
+                        IF( .NOT. ALLOCATED( IPHI0_MGLY ) ) ALLOCATE( IPHI0_MGLY( NWL_REF ) )
                         FORALL( IWL = 1:NWL_REF )KMGLY( IWL ) = 1.93E4 * EXP( -5639.0 / WAVELENGTH( IWL ) )
+                        WHERE( WAVELENGTH .LT. 380.0 )
+                            IPHI0_MGLY = 1.0
+                        ELSE WHERE
+                            IPHI0_MGLY = MAX( 3.65E-7 * EXP( 5639.0 / WAVELENGTH ), 1.0 )
+                        END WHERE
                      CASE (  'ACRO_09' )
                         CSQY_ADJUST( IPHOT ) = ACROLEIN
                      CASE ( 'HCHOM_06', 'HCHO_M_SAPRC99', 'HCHO_MOL_RACM2', 'FORM_R_IUPAC10' )  ! 'CH2O -> H2 + CO'

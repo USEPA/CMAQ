@@ -151,22 +151,37 @@ C...........EXTERNAL FUNCTIONS
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
+            USE GRID_CONF
+            USE CGRID_SPCS
+            USE UTILIO_DEFN
+            USE AQ_DATA 
+            USE HG_AQCHEM_DATA
             IMPLICIT NONE
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
+            REAL,     POINTER     :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN ) :: JDATE
+            INTEGER, INTENT( IN ) :: JTIME
+            INTEGER, INTENT( IN ) :: TSTEP( 3 )
+            INTEGER, INTENT( IN ) :: N_SPC_WDEP
+            INTEGER, INTENT( IN ) :: WDEP_MAP( : )
             REAL,    INTENT( OUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT ) :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
+     &                             N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+            USE GRID_CONF
+            USE CGRID_SPCS
+            USE UTILIO_DEFN
+            USE AQ_DATA
+            USE HG_AQCHEM_DATA
+            USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
             IMPLICIT NONE
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
+            REAL,     POINTER     :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN ) :: JDATE
+            INTEGER, INTENT( IN ) :: JTIME
+            INTEGER, INTENT( IN ) :: TSTEP( 3 )
+            INTEGER, INTENT( IN ) :: N_SPC_WDEP
+            INTEGER, INTENT( IN ) :: WDEP_MAP( : )
+            REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
             REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE

@@ -139,13 +139,13 @@ C...modules
 
 !...arguments
 
-      INTEGER, INTENT( IN ) :: MDATE          ! "centered" Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: MTIME          ! "centered" time (HHMMSS)
-      INTEGER, INTENT( IN ) :: JDATE          ! current Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: JTIME          ! current time (HHMMSS)
+      INTEGER, INTENT( IN ) :: MDATE         ! "centered" Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: MTIME         ! "centered" time (HHMMSS)
+      INTEGER, INTENT( IN ) :: JDATE         ! current Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: JTIME         ! current time (HHMMSS)
 
 !     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
-      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)   ! gridded J-values  (1/min units)
+      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)  ! gridded J-values  (1/min units)
 
 !     REAL CGRID( NCOLS,NROWS,NLAYS, * )  ! Conc array
       REAL, SAVE, POINTER :: CGRID( :,:,:,: ) ! species concentrations
@@ -172,8 +172,8 @@ C...modules
       LOGICAL, SAVE :: CALL_INIT_ALBEDO = .TRUE.
       LOGICAL, SAVE :: CALL_GET_ALBEDO  = .TRUE.
       
-      
       LOGICAL       :: ZERO_ICE
+      LOGICAL       :: DARK              ! day night flag
 
       CHARACTER(   3 ), ALLOCATABLE, SAVE :: WLTXT( : )
       CHARACTER(  16 )                    :: VARNM
@@ -191,7 +191,6 @@ C...modules
       INTEGER ESTAT              ! status from environment var check
       INTEGER JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER IPHOT              ! photolysis rate loop index
-      INTEGER NDARK              ! Number of level 1 cells in darkness
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -199,6 +198,9 @@ C...modules
       INTEGER IWL
       INTEGER L
       INTEGER V, N, MODE
+      INTEGER DTIME         ! difference between date and times
+      INTEGER ODATE         ! output date
+      INTEGER OTIME         ! output time 
       INTEGER ALLOCSTAT
 
       INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
@@ -206,6 +208,9 @@ C...modules
       INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
       INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+
+      INTEGER, SAVE :: LDATE         ! date at previous diagnostic output
+      INTEGER, SAVE :: LTIME         ! time at previous diagnostic output
 
       REAL CURRHR          ! current GMT hour
       REAL JULIAN_DAY      ! time of year [days]
@@ -252,31 +257,32 @@ C...modules
 
 ! FSB new arrays for new on-line cloud version
 
-      REAL LWC    ( NLAYS )   ! cloud liquid water content [ g / m**3 ]
-      REAL RWC    ( NLAYS )   ! rain water content [ g / m**3 ]
-      REAL IWC    ( NLAYS )   ! ice liquid water content [ g / m**3 ]
-      REAL SWC    ( NLAYS )   ! snow content [ g / m**3 ]
-      REAL GWC    ( NLAYS )   ! graupel content [ g / m**3 ]
-      REAL CLDFRAC( NLAYS )   ! fractional cloud cover
-      REAL BLKPRS ( NLAYS )   ! Air pressure in [ Pa ]
-      REAL BLKTA  ( NLAYS )   ! Air temperature [ K ]
-      REAL BLKDENS( NLAYS )   ! Air density  [ molecules / m**3 ]
-      REAL BLKZH  ( NLAYS )   ! layer half-height [ m ]
-      REAL BLKO3  ( NLAYS )   ! O3 concentration [ molecules / cm**3 ]
-      REAL BLKNO2 ( NLAYS )   ! NO2 concentration [ molecules / cm**3 ]
-      REAL BLKZF  ( NLAYS+1 ) ! layer full-height [ m ]
-      REAL BLKRJ_RES( NLAYS,NPHOTAB ) ! photolysis rates
-      REAL BLKRJ_ACM( NLAYS,NPHOTAB ) ! photolysis rates
+      REAL, ALLOCATABLE, SAVE :: LWC    ( : )      ! cloud liquid water content [ g/m**3 ]
+      REAL, ALLOCATABLE, SAVE :: RWC    ( : )      ! rain water content [ g/m**3 ]
+      REAL, ALLOCATABLE, SAVE :: IWC    ( : )      ! ice liquid water content [ g/m**3 ]
+      REAL, ALLOCATABLE, SAVE :: SWC    ( : )      ! snow content [ g/m**3 ]
+      REAL, ALLOCATABLE, SAVE :: GWC    ( : )      ! graupel content [ g/m**3 ]
+      REAL, ALLOCATABLE, SAVE :: CLDFRAC( : )      ! fractional cloud cover
+      REAL, ALLOCATABLE, SAVE :: BLKPRS ( : )      ! Air pressure in [ Pa ]
+      REAL, ALLOCATABLE, SAVE :: BLKTA  ( : )      ! Air temperature [ K ]
+      REAL, ALLOCATABLE, SAVE :: BLKDENS( : )      ! Air density  [ molecules / m**3 ]
+      REAL, ALLOCATABLE, SAVE :: BLKZH  ( : )      ! layer half-height [ m ]
+      REAL, ALLOCATABLE, SAVE :: BLKO3  ( : )      ! O3 concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE, SAVE :: BLKNO2 ( : )      ! NO2 concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE, SAVE :: BLKZF  ( : )      ! layer full-height [ m ]
+
+      REAL, ALLOCATABLE, SAVE :: BLKRJ_RES( :, : ) ! photolysis rates
+      REAL, ALLOCATABLE, SAVE :: BLKRJ_ACM( :, : ) ! photolysis rates
       
-      LOGICAL CLOUDS( NLAYS ) ! Does layer have clouds?
-      LOGICAL NEW_PROFILE     ! Has atmospheric temperature and densiity profile changed?
+      LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
+      LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
       
 !...Variables for diagnostic outputs
 
       REAL, ALLOCATABLE, SAVE :: TOC( :,: )              ! total ozone column
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIFFUSE( :,: ) ! diffuse transmission coefficient at surface
       REAL, ALLOCATABLE, SAVE :: TRANSMIS_DIRECT( :,: )  ! direct transmission coefficient at surface
-      REAL, ALLOCATABLE, SAVE :: REFLECT_COEFF ( :,: )   ! reflection coefficient at top of atmosphere
+      REAL, ALLOCATABLE, SAVE :: REFLECT_COEFF( :,: )    ! reflection coefficient at top of atmosphere
       REAL, ALLOCATABLE, SAVE :: ETOT_SFC_WL ( :,:,: )   ! total downward irradiance at sfc [ Watts / m**2  ]
       REAL, ALLOCATABLE, SAVE :: TAU_AERO_WL ( :,:,: )   ! total aerosol optical depth
       REAL, ALLOCATABLE, SAVE :: TAU_CLOUD_WL( :,:,: )   ! total cloud optical depth
@@ -302,10 +308,10 @@ C...modules
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, OZONE )
             USE UTILIO_DEFN
             IMPLICIT NONE
-            INTEGER, INTENT(IN)    :: JDATE      ! Julian day of the year (yyyyddd)
-            REAL,    INTENT(IN)    :: LATITUDE   ! latitude of point on earth's surface
-            REAL,    INTENT(IN)    :: LONGITUDE  ! longitude of point on earth's surface
-            REAL,    INTENT(INOUT) :: OZONE      ! total column ozone [DU]
+            INTEGER,   INTENT(IN)    :: JDATE      ! Julian day of the year (yyyyddd)
+            REAL( 4 ), INTENT(IN)    :: LATITUDE   ! latitude of point on earth's surface
+            REAL( 4 ), INTENT(IN)    :: LONGITUDE  ! longitude of point on earth's surface
+            REAL( 4 ), INTENT(INOUT)   :: OZONE      ! total column ozone [DU]
          END SUBROUTINE O3TOTCOL
       END INTERFACE
 
@@ -320,7 +326,22 @@ C...modules
          STRTHR = FLOAT( JTIME / 10000 )
          JDSTRT = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000 )   !   Check this more carefully
+
          TSTEP  = 010000  ! output timestep for photolysis diagnostic files
+         VARDESC = 'Output timestep (HHMMSS) for photolysis diagnostics'  
+         TSTEP = ENVINT( 'CTM_TSTEP', VARDESC, TSTEP, ESTAT )
+         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+         IF ( ESTAT .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         ELSE IF ( ESTAT .EQ. -1 ) THEN
+            XMSG =
+     &          'Environment variable set, but empty ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         ELSE IF ( ESTAT .EQ. -2 ) THEN
+            XMSG = 'Environment variable not set ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         END IF
 
          CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )
 
@@ -369,6 +390,25 @@ C...modules
          END IF
 
          ALLOCATE( ETOT_SFC ( NWL ) )
+
+         ALLOCATE( LWC    ( NLAYS ) ) 
+         ALLOCATE( RWC    ( NLAYS ) ) 
+         ALLOCATE( IWC    ( NLAYS ) ) 
+         ALLOCATE( SWC    ( NLAYS ) ) 
+         ALLOCATE( GWC    ( NLAYS ) ) 
+         ALLOCATE( BLKPRS ( NLAYS ) ) 
+         ALLOCATE( BLKTA  ( NLAYS ) ) 
+         ALLOCATE( BLKDENS( NLAYS ) ) 
+         ALLOCATE( BLKZH  ( NLAYS ) ) 
+         ALLOCATE( BLKO3  ( NLAYS ) ) 
+         ALLOCATE( BLKNO2 ( NLAYS ) ) 
+         ALLOCATE( BLKZF  ( NLAYS+1 ) )
+         ALLOCATE( CLOUDS ( NLAYS ) ) 
+         ALLOCATE( CLDFRAC( NLAYS ) ) 
+
+         ALLOCATE( BLKRJ_RES( NLAYS,NPHOTAB ) )
+         ALLOCATE( BLKRJ_ACM( NLAYS,NPHOTAB ) )
+
          ALLOCATE( TAUO3_TOP( NWL ) )
          ALLOCATE( TAU_RAY  ( NWL ) )
          ALLOCATE( SSA      ( NWL ) )
@@ -376,7 +416,14 @@ C...modules
          ALLOCATE( TAU_CLOUD( NLAYS,NWL ) )
          ALLOCATE( TAUC_AERO( NLAYS,NWL ) )
          ALLOCATE( TAU_TOT  ( NLAYS,NWL ) )
-         ALLOCATE( TOC( NCOLS,NROWS ) )
+
+         ALLOCATE( TOC      ( NCOLS,NROWS ) )
+
+         DTIME = 000000
+         ODATE = JDATE
+         OTIME = JTIME
+         LDATE = ODATE
+         LTIME = OTIME
 
          IF ( PHOTDIAG ) THEN
             ALLOCATE( TRANSMIS_DIFFUSE( NCOLS,NROWS ) )
@@ -435,10 +482,6 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-!...open the photolysis rate diagnostic files
-
-            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( JDATE, JTIME, TSTEP )
-
 !...write wavelength data to a character array
 
             ALLOCATE ( WLTXT( NWL ) )
@@ -446,6 +489,10 @@ C...modules
             DO IWL = 1, NWL
                WRITE( WLTXT( IWL ),'(I3.3)') INT( WAVELENGTH( IWL ) )
             END DO
+
+!...open the photolysis rate diagnostic files
+
+            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
 
          END IF  ! photdiag
 
@@ -464,8 +511,17 @@ C...modules
             XMSG = 'Could not find ' // VARNM // 'in species table'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
+         
 
+      ELSE
+
+         DTIME = SEC2TIME( 2 * SECSDIFF( JDATE, JTIME, MDATE, MTIME ) )
+         ODATE = JDATE
+         OTIME = JTIME
+         CALL NEXTIME( ODATE, OTIME, DTIME )
+         
       END IF  ! firstime
+
 
 !...Get Met data
 
@@ -477,10 +533,10 @@ C...modules
       
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
-      IF ( MINVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
-         NDARK = MY_NROWS * MY_NCOLS
+      IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
+         DARK = .TRUE.
       ELSE
-         NDARK = 0
+         DARK = .FALSE.
       END IF
 
 !...set surface albedos
@@ -489,12 +545,16 @@ C...modules
 
 !...SA  Write COSINE_ZENITH array at the end of each hour
 
-      JTIME_CHK = MOD( JTIME, 10000 )
+      DTIME = SEC2TIME( SECSDIFF( LDATE, LTIME, ODATE, OTIME ) )
+      JTIME_CHK = MOD( DTIME, TSTEP )
 
       IF ( PHOTDIAG .AND. JTIME_CHK .EQ. 0 ) THEN
 
+         LDATE = ODATE
+         LTIME = OTIME
+
          VARNM = 'COSZENS'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME,
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME,
      &                      COSINE_ZENITH ) ) THEN
              XMSG = 'Error writing variable ' // VARNM
              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -505,7 +565,8 @@ C...modules
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
-      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+!      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+      IF ( DARK ) THEN
 
          RJ = 0.0
 
@@ -542,73 +603,73 @@ C...modules
             BUFFER = 0.0
 
             VARNM = 'OZONE_COLUMN'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, TOC ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TOC ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'TRANS_DIFFUSE'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, TRANSMIS_DIFFUSE ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TRANSMIS_DIFFUSE ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'TRANS_DIRECT'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, TRANSMIS_DIRECT ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TRANSMIS_DIRECT ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             
             VARNM = 'REFLECTION'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, REFLECT_COEFF ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, REFLECT_COEFF ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 #ifdef phot_research            
             VARNM = 'CLD_TRANSMISS'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, CLD_TRANSMISSION ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CLD_TRANSMISSION ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'CLD_REFLECTION'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, CLD_REFLECTION ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CLD_REFLECTION ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 #endif
             VARNM = 'JNO2'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'JO3O1D'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'RESOLVED_CFRAC'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, CFRAC_2D ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CFRAC_2D ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'RESOLVED_WBAR'
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, AVE_HYDROMETEORS ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, AVE_HYDROMETEORS ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             IF ( USE_ACM_CLOUD ) THEN
                 VARNM = 'SUBGRID_CFRAC'
-                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, ACM_CLOUDS ) ) THEN
+                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, ACM_CLOUDS ) ) THEN
                    XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                 END IF
                 VARNM = 'SUBGRID_WBAR'
-                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, ACM_AVE_H2O ) ) THEN
+                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, ACM_AVE_H2O ) ) THEN
                    XMSG = 'Error writing variable ' // VARNM
                    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                 END IF
@@ -617,49 +678,49 @@ C...modules
             DO IWL = 1, NWL
 
                VARNM = 'ETOT_SFC_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'TAU_AERO_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'TAU_CLOUD_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 #ifdef phot_debug
                VARNM = 'SSA_CLOUD_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'ASY_CLOUD_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 #endif
                VARNM = 'TAU_TOT_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'TAUO3_TOP_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'ALBEDO_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, SURFACE_ALBEDO( IWL,:,: ) ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, SURFACE_ALBEDO( IWL,:,: ) ) ) THEN
 !!!!!!!!!!! >>> gcc Fortran runtime warning: An array temporary was created
 
                   XMSG = 'Error writing variable ' // VARNM
@@ -670,10 +731,10 @@ C...modules
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &             'RJ Values written to', CTM_RJ_1,
-     &             'for date and time', JDATE, JTIME
+     &             'for date and time', ODATE, OTIME
 
             DO IPHOT = 1, NPHOTAB
-               IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( IPHOT ), JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( IPHOT ), ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -681,14 +742,14 @@ C...modules
 
             DO IWL = 1, NWL
                VARNM = 'ACTINIC_FX_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
             END DO
 
             VARNM = 'CFRAC_3D'
-            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, CFRAC_3D ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, CFRAC_3D ) ) THEN
                 XMSG = 'Could not write ' // TRIM( VARNM ) // ' to ' // CTM_RJ_2 // ' file'
                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -698,25 +759,25 @@ C...modules
                IWL = DIAG_WVL( L )
 
                VARNM = 'AERO_SSA_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'AERO_ASYM_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'TAU_AERO_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
                VARNM = 'TAU_W' // WLTXT( IWL )
-               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+               IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -725,7 +786,7 @@ C...modules
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &             'RJ and Optical Data written to', CTM_RJ_2,
-     &             'for date and time', JDATE, JTIME
+     &             'for date and time', ODATE, OTIME
 
          END IF ! if photdiag .and. jtime_chk .eq. 0
 
@@ -1080,61 +1141,61 @@ C...modules
       IF ( PHOTDIAG .AND. JTIME_CHK .EQ. 0 ) THEN
 
          VARNM = 'OZONE_COLUMN'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, TOC ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TOC ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'TRANS_DIFFUSE'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, TRANSMIS_DIFFUSE ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TRANSMIS_DIFFUSE ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'REFLECTION'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, REFLECT_COEFF ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, REFLECT_COEFF ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'TRANS_DIRECT'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, TRANSMIS_DIRECT ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, TRANSMIS_DIRECT ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 #ifdef phot_research         
          VARNM = 'CLD_TRANSMISS'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, CLD_TRANSMISSION ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CLD_TRANSMISSION ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'CLD_REFLECTION'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, CLD_REFLECTION ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CLD_REFLECTION ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 #endif
          VARNM = 'JNO2'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, RJ( :,:,1, LNO2 ) ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, RJ( :,:,1, LNO2 ) ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'JO3O1D'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, RJ( :,:,1,LO3O1D ) ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, RJ( :,:,1,LO3O1D ) ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'RESOLVED_CFRAC'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, CFRAC_2D ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, CFRAC_2D ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          VARNM = 'RESOLVED_WBAR'
-         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, AVE_HYDROMETEORS ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, AVE_HYDROMETEORS ) ) THEN
              XMSG = 'Error writing variable ' // VARNM
              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -1143,12 +1204,12 @@ C...modules
 
          IF ( USE_ACM_CLOUD ) THEN
              VARNM = 'SUBGRID_CFRAC'
-             IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, ACM_CLOUDS ) ) THEN
+             IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, ACM_CLOUDS ) ) THEN
                 XMSG = 'Error writing variable ' // VARNM
                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
              END IF
              VARNM = 'SUBGRID_WBAR'
-             IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME, ACM_AVE_H2O ) ) THEN
+             IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, ACM_AVE_H2O ) ) THEN
                 XMSG = 'Error writing variable ' // VARNM
                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
              END IF
@@ -1157,58 +1218,58 @@ C...modules
          DO IWL = 1, NWL
 
             VARNM = 'ETOT_SFC_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, ETOT_SFC_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, ETOT_SFC_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               CALL M3EXIT ( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'TAU_AERO_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, TAU_AERO_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, TAU_AERO_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'TAU_CLOUD_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, TAU_CLOUD_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, TAU_CLOUD_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
 #ifdef phot_debug
             VARNM = 'SSA_CLOUD_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, SSA_CLOUD_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, SSA_CLOUD_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'ASY_CLOUD_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, ASY_CLOUD_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, ASY_CLOUD_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 #endif
 
             VARNM = 'TAU_TOT_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, TAU_TOT_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, TAU_TOT_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'TAUO3_TOP_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE,
-     &                         JTIME, TAUO3_TOP_WL( :,:,IWL ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE,
+     &                         OTIME, TAUO3_TOP_WL( :,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             VARNM = 'ALBEDO_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, JDATE, JTIME,
+            IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME,
      &                         SURFACE_ALBEDO( IWL,:,: ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -1218,18 +1279,18 @@ C...modules
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'RJ Values written to', CTM_RJ_1,
-     &          'for date and time', JDATE, JTIME
+     &          'for date and time', ODATE, OTIME
 
          DO IPHOT = 1, NPHOTAB
-            IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( IPHOT ), JDATE,
-     &                         JTIME, RJ( :,:,:,IPHOT ) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( IPHOT ), ODATE,
+     &                         OTIME, RJ( :,:,:,IPHOT ) ) ) THEN
                XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END DO
 
          VARNM = 'CFRAC_3D'
-         IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, CFRAC_3D ) ) THEN
+         IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, CFRAC_3D ) ) THEN
               XMSG = 'Could not write ' // TRIM( VARNM ) // ' to ' // CTM_RJ_2 // ' file'
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -1239,7 +1300,7 @@ C...modules
                 BUFFER( COL,ROW,LEV ) =  ACTINIC_FX( COL,ROW,LEV,IWL )
             END FORALL 
             VARNM = 'ACTINIC_FX_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -1253,7 +1314,7 @@ C...modules
             END FORALL 
 
             VARNM = 'AERO_SSA_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -1263,7 +1324,7 @@ C...modules
             END FORALL 
 
             VARNM = 'AERO_ASYM_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -1273,7 +1334,7 @@ C...modules
             END FORALL 
 
             VARNM = 'TAU_AERO_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -1283,7 +1344,7 @@ C...modules
             END FORALL 
 
             VARNM = 'TAU_W' // WLTXT( IWL )
-            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, JDATE, JTIME, BUFFER ) ) THEN
+            IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, BUFFER ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -1291,7 +1352,7 @@ C...modules
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'RJ and Optical Data written to', CTM_RJ_2,
-     &          'for date and time', JDATE, JTIME
+     &          'for date and time', ODATE, OTIME
 
       END IF   ! if photdiag .and. jtime_chk .eq. 0
 

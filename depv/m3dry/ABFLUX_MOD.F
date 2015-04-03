@@ -604,7 +604,7 @@ C-------------------------------------------------------------------------------
          dp  = dif0( l ) * 1.0E-4 * GRID_DATA%WSAT( c,r )**2
      &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )
          
-         rsoil1=ldry/dp
+         rsoil1 = ldry / dp
          
          w5cm = 0.2 * wg_ir + 0.8 * MET_DATA%SOIM2( c,r )
          w5cm = Min( w5cm, GRID_DATA%WSAT( c,r ) )
@@ -735,30 +735,36 @@ C-------------------------------------------------------------------------------
                   Case( 'SNOWICE' ) ! no veg
 !> Zero out the compensation points for deposition
                      If(MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
-                        xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
+     &                      * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                        / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
                      Else 
-                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
+                        f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j )
+     &                        / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
                      End If
                   Case( 'AG','AGMOS' ) ! agriculture
 !> Zero out the atmospheric NH3 concentration for emissions
-                     xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
-                     f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga * ( xxx
-     &                      + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
+                     xxx = rwx * ( qq - ga*cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
+     &                   * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                     f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga
+     &                      * ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
                      xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
                      f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                     * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                     / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
-                     f_cut = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j ) * MOSAIC_DATA%LAI( c,r,j )
+                     f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c )
+     &                      * gsb ! component 1 stomatal
+                     f_cut = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j )
+     &                     * MOSAIC_DATA%LAI( c,r,j )
      &                     * ( MOSAIC_DATA%DELTA( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )    ! wet cuticle
      &                     + ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ( rwmb + rwx*cnh3c ) ) )  ! dry cuticle
-                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ( (cnh3g1 - cnh3c) * gg1( j )  ! soil layer 1
-     &                      + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2
+                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j )
+     &                      * ( ( cnh3g1 - cnh3c ) * gg1( j )  ! soil layer 1
+     &                        + ( cnh3g2 - cnh3c ) * gg2( j ) ) )    ! soil layer 2
                      If( agfrac .Gt. 0.0 ) Then
                         f_ag = f_ag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c - cnh3 )
      &                       -( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / agfrac
@@ -779,24 +785,29 @@ C-------------------------------------------------------------------------------
                   Case Default ! natural
 !> Zero out the atmospheric NH3 concentration for emissions
                      If(MOSAIC_DATA%LAI( c,r,j ) .Gt. 0.0 ) Then
-                        xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
-                        f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga * ( xxx
+                        xxx = rwx * ( qq - ga * cnh3 ) - rwmb * gt - MOSAIC_DATA%LAI( c,r,j )
+     &                      * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
+                        f_emis = f_emis + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ga
+     &                      * ( xxx
      &                         + Sqrt( xxx**2 + 4.0 * aq * rwmb * ( qq - ga * cnh3 ) ) ) / ( 2.0 * aq )
 !> Zero out the compensation points for deposition
                         xxx = rwx * ga * cnh3 - rwmb * gt - MOSAIC_DATA%LAI( c,r,j ) * ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) )
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga
      &                        * ( cnh3 - ( xxx + Sqrt( xxx**2 + 4.0 * aq * rwmb * ga * cnh3 ) )
      &                        / ( 2.0 * aq ) ) + ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 )
-                        f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j ) * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
-                        f_cut  = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j ) * MOSAIC_DATA%LAI( c,r,j )
+                        f_stom = f_stom + GRID_DATA%LUFRAC( c,r,j ) * MOSAIC_DATA%VEG( c,r,j )
+     &                         * ( cnh3s - cnh3c ) * gsb ! component 1 stomatal
+                        f_cut  = f_cut + GRID_DATA%LUFRAC( c,r,j ) * ( - cnh3c * MOSAIC_DATA%VEG( c,r,j )
+     &                         * MOSAIC_DATA%LAI( c,r,j )
      &                         * ( MOSAIC_DATA%DELTA( c,r,j ) / ( ChemMos_Data%Rb( c,r,j,l ) + rwetsfc )    ! wet cuticle
      &                         + ( 1.0 - MOSAIC_DATA%DELTA( c,r,j ) ) / ( rwmb + rwx * cnh3c ) ) ) ! dry cuticle
                      Else 
                         f_dep = f_dep + GRID_DATA%LUFRAC( c,r,j ) / ( rsurfj( j,l,c,r )+MOSAIC_DATA%RA( c,r,j ) ) * cnh3
                      End If
 !> Components of the flux for stomatal, cuticular and soil surfaces
-                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ( ( cnh3g1 - cnh3c ) * gg1( j ) +  ! soil layer 1
-     &                        ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2
+                     f_soil = f_soil + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j )
+     &                      * ( ( cnh3g1 - cnh3c ) * gg1( j )     ! soil layer 1
+     &                        + ( cnh3g2 - cnh3c ) * gg2( j )) )  ! soil layer 2
                      f_nag = f_nag + GRID_DATA%LUFRAC( c,r,j ) * ( MOSAIC_DATA%VEG( c,r,j ) * ga * ( cnh3c- cnh3 )
      &                     - ( 1.0 - MOSAIC_DATA%VEG( c,r,j ) ) * vdg * cnh3 ) / ( 1.0 - agfrac - watfrac )
                      If ( f_emis .lt. f_emis_lim ) Then

@@ -201,67 +201,121 @@ C Get CGRID offsets
 
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
 
-      DO 301 LVL = 1, NLAYS
+      DO LVL = 1, NLAYS
 
          STEP = TIME2SEC ( ASTEP( LVL ) )
          DSTEP = STEP
+         SUBSTEPS = SYNCSTEP / STEP
          FDATE = JDATE
          FTIME = JTIME
          XYFIRST = .TRUE.
 
-101      CONTINUE
+!101      CONTINUE
+! IF substeps is one or even unrole the loop to save some time. 
+         IF( SUBSTEPS .EQ. 1 ) THEN
+            CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 
-         CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+            FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
+               YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
+            END FORALL
 
-!        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
-
-         IF ( XYFIRST ) THEN
-
-            XYFIRST = .FALSE.
-
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-               END DO
-            END DO
             CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
-
-!     write( logdev,* ) ' x_ppm/y_yamo - lvl, fdate, ftime: ', lvl, fdate, ftime
 
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
 
             CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
 !           CALL LCKSUMMER ( 'Y_YAMO', CGRID, FDATE, FTIME, LVL )
+            DSTEP = DSTEP + STEP
 
-         ELSE
+            CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
 
-            XYFIRST = .TRUE.
+         ELSE IF( MOD( SUBSTEPS, 2 ) .EQ. 0 ) THEN 
+            DO NSTEP = 1, SUBSTEPS/2 
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+               CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+
+               FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
+                  YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
+               END FORALL
+
+               CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
+
+
+               CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+!           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
+
+               CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
+!           CALL LCKSUMMER ( 'Y_YAMO', CGRID, FDATE, FTIME, LVL )
+               DSTEP = DSTEP + STEP
+
+               CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+
+               CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+
+               FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
                   XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-               END DO
-            END DO
-            CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
+               END FORALL
 
-!     write( logdev,* ) ' y_ppm/x_yamo - lvl, fdate, ftime: ', lvl, fdate, ftime
+               CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
 
-            CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+               CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
 
-            CALL X_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, XTRHOJ )
+               CALL X_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, XTRHOJ )
 !           CALL LCKSUMMER ( 'X_YAMO', CGRID, FDATE, FTIME, LVL )
 
-         END IF
+               DSTEP = DSTEP + STEP
 
-         DSTEP = DSTEP + STEP
-         IF ( DSTEP .LE. SYNCSTEP ) THEN
-            CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
-            GO TO 101
-         END IF
+               CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+            END DO
 
-301   CONTINUE
+         ELSE 
+
+            DO NSTEP = 1, SUBSTEPS 
+
+               CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+
+               IF ( XYFIRST ) THEN
+
+                  XYFIRST = .FALSE.
+
+                  FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
+                     YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
+                  END FORALL
+
+                  CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
+
+                  CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+!           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
+
+                  CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
+!           CALL LCKSUMMER ( 'Y_YAMO', CGRID, FDATE, FTIME, LVL )
+
+               ELSE
+
+                  XYFIRST = .TRUE.
+
+                  FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
+                     XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
+                  END FORALL
+
+                  CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
+
+                  CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+!           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
+
+                  CALL X_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, XTRHOJ )
+!           CALL LCKSUMMER ( 'X_YAMO', CGRID, FDATE, FTIME, LVL )
+
+               END IF
+  
+               DSTEP = DSTEP + STEP
+
+               CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+            END DO
+         END IF
+      END DO
 
       RETURN
       END

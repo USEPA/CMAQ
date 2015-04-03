@@ -1423,5 +1423,4 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             RETURN
 
          END SUBROUTINE CLEAR_ACM_CLOUD
-
       END MODULE PHOT_MET_DATA
