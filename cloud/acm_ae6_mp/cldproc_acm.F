@@ -151,41 +151,37 @@ C...........EXTERNAL FUNCTIONS
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
-            USE GRID_CONF           ! horizontal & vertical domain specifications
-            USE CGRID_SPCS          ! CGRID mechanism species
+            USE GRID_CONF
+            USE CGRID_SPCS
             USE UTILIO_DEFN
             USE AQ_DATA 
-            USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
+            USE HG_AQCHEM_DATA
             IMPLICIT NONE
-!            INCLUDE SUBST_CONST               ! constants
-!            INCLUDE SUBST_FILES_ID            ! file name parameters
-            REAL,     POINTER     :: CGRID( :,:,:,: )    ! concentrations
-            INTEGER, INTENT( IN ) :: JDATE               ! current model date, coded YYYYDDD
-            INTEGER, INTENT( IN ) :: JTIME               ! current model time, coded HHMMSS
-            INTEGER, INTENT( IN ) :: TSTEP( 3 )          ! model time step, coded H*MMSS
-            INTEGER, INTENT( IN ) :: N_SPC_WDEP          ! # of wet deposition species
-            INTEGER, INTENT( IN ) :: WDEP_MAP( : )       ! wet deposition map to CGRID
-            REAL,    INTENT( OUT ) :: DEP  ( :,:,: )      ! depositions (etc.)
+            REAL,     POINTER     :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN ) :: JDATE
+            INTEGER, INTENT( IN ) :: JTIME
+            INTEGER, INTENT( IN ) :: TSTEP( 3 )
+            INTEGER, INTENT( IN ) :: N_SPC_WDEP
+            INTEGER, INTENT( IN ) :: WDEP_MAP( : )
+            REAL,    INTENT( OUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT ) :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                             N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
-            USE GRID_CONF           ! horizontal & vertical domain specifications
-            USE CGRID_SPCS          ! CGRID mechanism species
+            USE GRID_CONF
+            USE CGRID_SPCS
             USE UTILIO_DEFN
             USE AQ_DATA
-            USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
+            USE HG_AQCHEM_DATA
             USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
             IMPLICIT NONE
-!            INCLUDE SUBST_CONST               ! constants
-!            INCLUDE SUBST_FILES_ID            ! file name parameters
-            REAL,     POINTER     :: CGRID( :,:,:,: )     ! concentrations
-            INTEGER, INTENT( IN ) :: JDATE                ! current model date, coded YYYYDDD
-            INTEGER, INTENT( IN ) :: JTIME                ! current model time, coded HHMMSS
-            INTEGER, INTENT( IN ) :: TSTEP( 3 )           ! model time step, coded H*MMSS
-            INTEGER, INTENT( IN ) :: N_SPC_WDEP           ! # of wet deposition species
-            INTEGER, INTENT( IN ) :: WDEP_MAP( : )        ! wet deposition map to CGRID
-            REAL,    INTENT( OUT ) :: CONV_DEP  ( :,:,: ) ! depositions (etc.)
+            REAL,     POINTER     :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN ) :: JDATE
+            INTEGER, INTENT( IN ) :: JTIME
+            INTEGER, INTENT( IN ) :: TSTEP( 3 )
+            INTEGER, INTENT( IN ) :: N_SPC_WDEP
+            INTEGER, INTENT( IN ) :: WDEP_MAP( : )
+            REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
             REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
