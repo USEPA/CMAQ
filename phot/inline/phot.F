@@ -486,7 +486,7 @@ C...modules
 
 !...open the photolysis rate diagnostic files
 
-             IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
+            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, TSTEP )
 
          END IF  ! photdiag
 
