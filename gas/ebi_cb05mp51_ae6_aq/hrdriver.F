@@ -145,11 +145,6 @@ C for INTERPX
            USE CGRID_SPCS           ! CGRID species number and offsets
            USE PCGRID_DEFN          ! get cgrid
            USE UTILIO_DEFN
-#ifdef parallel
-           USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
-#else
-           USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
-#endif
            USE AERO_DATA            ! describes aerosol distribution
            USE PHOT_MOD             ! photolysis in-line module
            USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indi

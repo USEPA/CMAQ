@@ -68,12 +68,7 @@ C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE RXNS_DATA           ! chemical mechanism data
-      USE UTILIO_DEFN
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
-#endif
+      USE UTILIO_DEFN         ! IO and other utility routines
 
       IMPLICIT NONE
 
@@ -138,12 +133,13 @@ C scratch local variables:
       CHARACTER( 80 ) :: VARDESC      ! env var description
       CHARACTER( 120 ) :: XMSG = ' '
 
+      LOGICAL       :: NDARK          ! Are all cells in darkness?
       LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
 
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file
       INTEGER   :: CLDATT = 1         ! flag for cloud attenuation; 1=on,0=off
-      INTEGER      NDARK              ! Number of layer 1 cells in darkness
+!      INTEGER      NDARK              ! Number of layer 1 cells in darkness
       INTEGER      NDAYS              ! local day angle
       INTEGER      NT                 ! time loop index
       INTEGER      NHT                ! height loop index
@@ -516,21 +512,20 @@ C...  correct for current *positive* West longitude convention
       CURRHR = STRTHR
      &       + FLOAT ( SECSDIFF ( STDATE, STTIME, JDATE, JTIME ) )
      &       / 3600.0
-      NDARK = 0
+      NDARK = .TRUE.
       DO ROW = 1, MY_NROWS
         DO COL = 1, MY_NCOLS
           XLHA( COL, ROW ) = CURRHR + LON( COL, ROW ) / 15.0 - 12.0
           NDAYS = NINT ( XLHA( COL, ROW ) / 24.0 )
           XLHA( COL, ROW ) = ABS ( XLHA( COL, ROW ) - NDAYS * 24.0 )
-          IF ( XLHA( COL, ROW ) .GT.
-     &         XHAJV( JVTMAX ) ) NDARK = NDARK + 1
+          IF ( XLHA( COL, ROW ) .LE. XHAJV( JVTMAX ) ) NDARK = .FALSE.
         END DO
       END DO
 
 C...If sun below horizon at all cells, zero photolysis rates & exit
 C...  (assumes sun below horizon at *all* levels!)
 
-      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+      IF ( NDARK ) THEN
         DO JP = 1, NPHOTAB
           DO LEV = 1, NLAYS
             DO ROW = 1, MY_NROWS
