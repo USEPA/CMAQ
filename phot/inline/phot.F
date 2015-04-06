@@ -527,7 +527,7 @@ C...modules
 
       CALL GET_PHOT_MET( JDATE, JTIME, MDATE, MTIME )
 
-!...Get cosine of solar parameters and compute NDARK
+!...Get cosine of solar parameters and set DARK
 
       CALL UPDATE_SUN( JDATE, JTIME, MDATE, MTIME )
       
@@ -565,7 +565,6 @@ C...modules
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
-!      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
       IF ( DARK ) THEN
 
          RJ = 0.0
@@ -721,8 +720,6 @@ C...modules
 
                VARNM = 'ALBEDO_W' // WLTXT( IWL )
                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, SURFACE_ALBEDO( IWL,:,: ) ) ) THEN
-!!!!!!!!!!! >>> gcc Fortran runtime warning: An array temporary was created
-
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF

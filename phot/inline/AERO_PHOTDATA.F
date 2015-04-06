@@ -522,23 +522,23 @@ C *** Calculate geometric mean diameters and standard deviations of "dry" size d
                BLK_AE_CONC( SPC,MODE,L ) = AEROSPC_CONC( SPC,MODE )
 
                MOMENT3_PORTION  = REAL( M3_FACTOR( SPC ) * AEROSPC_CONC( SPC,MODE ), 8)
-               IF( IS_CORE_SPCS( SPC,MODE ) )THEN  
-                   CORE_MOMENT3( MODE,L )  = CORE_MOMENT3( MODE,L )  + MOMENT3_PORTION
+               IF( IS_CORE_SPCS( SPC,MODE ) ) THEN  
+                  CORE_MOMENT3( MODE,L )  = CORE_MOMENT3( MODE,L )  + MOMENT3_PORTION
 #ifdef verbose_phot
-                   if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
-                      write(logdev,5007)aerospc( spc )%name( mode ),moment3_portion,
-     &                core_moment3( mode, l )
-5007                  format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_core = ',es12.4)
-                   end if
+                  if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
+                     write(logdev,5007)aerospc( spc )%name( mode ),moment3_portion,
+     &               core_moment3( mode, l )
+5007                 format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_core = ',es12.4)
+                  end if
 #endif 
                ELSE 
-                   SHELL_MOMENT3( MODE,L ) = SHELL_MOMENT3( MODE,L ) + MOMENT3_PORTION
+                  SHELL_MOMENT3( MODE,L ) = SHELL_MOMENT3( MODE,L ) + MOMENT3_PORTION
 #ifdef verbose_phot
-                   if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
-                      write(logdev,5008)aerospc( spc )%name( mode ),moment3_portion,
-     &                shell_moment3( mode, l )
-5008                  format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_shell = ',es12.4)
-                   end if
+                  if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
+                     write(logdev,5008)aerospc( spc )%name( mode ),moment3_portion,
+     &               shell_moment3( mode, l )
+5008                 format(a16,1x,'moment3_portion = ',es12.4,1x,'moment3_shell = ',es12.4)
+                  end if
 #endif 
                END IF 
             END DO SPC_LOOP1
@@ -550,14 +550,14 @@ C *** Calculate geometric mean diameters and standard deviations of "dry" size d
             AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
 
             IF ( FRACTION_CORE .LT. NEGLECT_FRAC ) THEN
-                AE_DGN_CORE( MODE,L ) = 0.0
+               AE_DGN_CORE( MODE,L ) = 0.0
             ELSE
-                FACTOR = FRACTION_CORE ** ONE_THIRD
-                AE_DGN_CORE( MODE,L ) = REAL( FACTOR * AEROMODE_DIAM( MODE ) )
+               FACTOR = FRACTION_CORE ** ONE_THIRD
+               AE_DGN_CORE( MODE,L ) = REAL( FACTOR * AEROMODE_DIAM( MODE ) )
             END IF
 
             IF ( MOMENT3_CONC( MODE ) .GT. AEROMODE( MODE )%MIN_M3CONC ) THEN
-                BLK_AE_VOL( MODE,L ) = PI6 * MOMENT3_CONC( MODE )
+               BLK_AE_VOL( MODE,L ) = PI6 * MOMENT3_CONC( MODE )
             END IF
 
 #ifdef verbose_phot

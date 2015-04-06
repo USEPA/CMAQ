@@ -82,7 +82,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 132 ) :: MSG           ! Message text
 
       INTEGER ITER            ! Loop index for Backward Euler iterations
-      INTEGER S               ! Loop index for species
+      INTEGER S, SP           ! Loop indices for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps
 #ifdef hrdebug
@@ -247,16 +247,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
-                  IF( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
-     &               ( YC( S ) + YCP( S ) ) ) THEN
+                  IF( ABS( YC( S ) - YCP( S ) ) .GT.
+     &                RTOL( S ) * ( YC( S ) + YCP( S ) ) ) THEN
                      LEBI_CONV = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
 c..if predictions growing too large, treat as a convergence failure
                   IF( YCP( S ) .GT. MAXPRED ) then
                      NBKUPS = NBKUPS + 1
-c...Convergence failure section; cut the inner time step in half &
-c.....start inner loop over unless max backups exceeded
+c...Convergence failure section; cut the inner time step in half and
+c.....start the inner loop over unless max backups exceeded
                      IF( NBKUPS .LE. MXBKUPS ) THEN
 
                         WRITE( LOGDEV, 92010 ) C, R, L, TRIM( CHEMISTRY_SPC( S ) ), NBKUPS
