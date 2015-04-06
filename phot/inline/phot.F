@@ -173,6 +173,7 @@ C...modules
       LOGICAL, SAVE :: CALL_GET_ALBEDO  = .TRUE.
       
       LOGICAL       :: ZERO_ICE
+      LOGICAL       :: DARK              ! day night flag
 
       CHARACTER(   3 ), ALLOCATABLE, SAVE :: WLTXT( : )
       CHARACTER(  16 )                    :: VARNM
@@ -190,7 +191,6 @@ C...modules
       INTEGER ESTAT              ! status from environment var check
       INTEGER JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER IPHOT              ! photolysis rate loop index
-      INTEGER NDARK              ! Number of level 1 cells in darkness
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -534,9 +534,9 @@ C...modules
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
       IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
-         NDARK = MY_NROWS * MY_NCOLS
+         DARK = .TRUE.
       ELSE
-         NDARK = 0
+         DARK = .FALSE.
       END IF
 
 !...set surface albedos
@@ -565,7 +565,8 @@ C...modules
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
-      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+!      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+      IF ( DARK ) THEN
 
          RJ = 0.0
 
