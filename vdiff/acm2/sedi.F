@@ -20,7 +20,9 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/vdiff/acm2/vdiffacm2.F,v 1.13 2012/01/19 14:37:47 yoj Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Revision History:
+C           J.Young, J.Pleim: inital
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C 05 Mar 15 J.Pleim: correct layer thickness index off by 1
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       subroutine sedi ( dtsec, sedvel, cgrid, cngrd )
 
@@ -31,8 +33,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       use utilio_defn
       use vdiff_diag, dtccr => dtccr_mean
       implicit none
-
-!      include SUBST_CONST     ! constants: mwair, avo
 
 C Arguments:
       real, intent( in )    :: dtsec                ! model time step in seconds
@@ -47,10 +47,6 @@ c Parameters:
       real, parameter :: alpha = 1.1
 !     real, parameter :: alpha = 2.0
       real, parameter :: gpkg = 1.0e+03        ! g/Kg
-      real, parameter :: maogpkg = mwair / gpkg
-      real, parameter :: gpkgoma = 1.0 / maogpkg
-      real, parameter :: maoavo1000 = 1.0e+03 * mwair / avo
-      real, parameter :: avooma_001 = 1.0 / maoavo1000
 
 c External Functions:
 
@@ -159,15 +155,12 @@ c conc_map - from cgrid to ae_trns species
 
       end if   !  if firstime
 
-!     if ( vdiffdiag )dtccr = 0   ! array assignment
       do 345 r = 1, my_nrows
       do 344 c = 1, my_ncols
 
-!        do v = 1, n_sedi_map
 C subset all the layers and species in cgrid for this grid cell
          do v = 1, size( cgrid,4 )
             do l = 1, nlays
-!              cgrd( l,v ) = cgrid( c,r,l, conc_map( v ) )
                cgrd( l,v ) = cgrid( c,r,l,v )
             end do
          end do
@@ -209,27 +202,27 @@ C subset all the layers and species in cgrid for this grid cell
 
             do l = 1, nlays
                do v = 1, n_sedi_map
-                  dtsvsed( v,l ) = dts * Grid_Data%rdx3f( l ) * vsed( v,l ) * Met_Data%rjacf( c,r,l )
+                  dtsvsed( v,l ) = dts * vsed( v,l ) * Met_Data%rjacf( c,r,l )
                end do
             end do
 
             l = 1
             do v = 1, n_sedi_map
                conc( v,l ) = conc( v,l )
-     &                     + dtsvsed( v,l+1 ) * conc( v,l+1 )
+     &                     + dtsvsed( v,l+1 ) * conc( v,l+1 ) * Grid_Data%rdx3f( l )
             end do
 
             do l = 2, nlays-1
                do v = 1, n_sedi_map
                   conc( v,l ) = conc( v,l )
-     &                        + dtsvsed( v,l+1 ) * conc( v,l+1 )
-     &                        - dtsvsed( v,l )   * conc( v,l )
+     &                        + ( dtsvsed( v,l+1 ) * conc( v,l+1 )
+     &                        -   dtsvsed( v,l )   * conc( v,l ) ) * Grid_Data%rdx3f( l )
                end do
             end do
             l = nlays
             do v = 1, n_sedi_map
                conc( v,l ) = conc( v,l )
-     &                     - dtsvsed( v,l ) * conc( v,l )
+     &                     - dtsvsed( v,l ) * conc( v,l ) * Grid_Data%rdx3f( l )
             end do
 
          end do   ! while

@@ -195,14 +195,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENDIF
 
       LREORDER       = .TRUE.
-      HMAXDAY( NCS ) = 15.0
-      HMAXNIT        = 5.0
-      HMIN           = 1.0E-10
-      YLOW   ( NCS ) = ATOL
-      ERRMAX ( NCS ) = RTOL
-      FRACDEC        = 0.25
-      CONCMIN        = 1.0E-30
-      ZBOUND         = 1.0E-30
+      HMAXDAY( NCS ) = 15.0D0
+      HMAXNIT        = 5.0D0
+      HMIN           = 1.0D-10
+      YLOW   ( NCS ) = REAL( ATOL, 8 )
+      ERRMAX ( NCS ) = REAL( RTOL, 8 )
+      FRACDEC        = 0.25D0
+      CONCMIN        = 1.0D-30
+      ZBOUND         = 1.0D-30
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get number of cells in grid and store i,j,k indices of cells in

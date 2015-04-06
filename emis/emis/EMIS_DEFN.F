@@ -51,7 +51,7 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       REAL,    ALLOCATABLE, SAVE :: VDEMIS( :,:,:,: ) ! total emissions array
-#ifdef Verbose2
+#ifdef verbose_emis_defn
       real,    allocatable, save :: semis( :,:,: )
 #endif
 
@@ -61,7 +61,7 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: EMLYRS     ! no. of layers on base emis input file -
 
       PUBLIC VDEMIS, N_SPC_EMIS, EMLAYS, EMLYRS, EMIS_INIT, GET_EMIS
-#ifdef Verbose2
+#ifdef verbose_emis_defn
       public semis
 #endif
       PRIVATE
@@ -81,7 +81,7 @@ C-----------------------------------------------------------------------
       INTEGER       :: LDATE, LTIME  ! step start date/time (beis)
       INTEGER, SAVE :: NDATE, NTIME  ! step next date/time (beis)
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
       character( 16 ), allocatable, save :: emis_spc( : ) ! global emis surrogates
       integer,         allocatable, save :: emis_map( : )  ! name map to CGRID
 #endif
@@ -103,20 +103,16 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
 C Includes:
-
          INCLUDE SUBST_CONST     ! constants
 
 C Arguments:
-
          INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP   ! TSTEP is output time step (HHMMSS)
          LOGICAL :: SUCCESS
 
 C Parameters:
-
          REAL, PARAMETER :: CMLMR = 1.0E+06       ! ppmV/Molar Mixing Ratio
 
 C Local Variables:
-
          REAL    CONVEM          ! conversion for emissions rates to Kg/s
          REAL    DX1, DX2        ! CX x1- and x2-cell widths
 
@@ -126,7 +122,7 @@ C Local Variables:
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
          INTEGER V, LOGDEV, STATUS
-#ifdef Verbose2
+#ifdef verbose_emis_defn
          integer s
 #endif
 
@@ -146,18 +142,15 @@ C-----------------------------------------------------------------------
          END IF
 
 C In-line biogenic emissions?
-
          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Open Emissions files
-
          CALL OPEMIS ( JDATE, JTIME, N_GC_EMIS, EM_TRAC, CONVEM, EMLAYS )
 
 C Get number of emissions layers
-
          IF ( EMLAYS .LE. 1 ) THEN   ! better be inline plume rise run
             EMLAYS = NLAYS   ! env var default
             VARDESC = 'Number of emission layers'
@@ -182,7 +175,6 @@ C Get number of emissions layers
      &           / 10X, 'out of total Number of Model Layers:', I3 )
 
 C lightning NO emissions?
-
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP, EMLAYS ) ) THEN
             XMSG = 'Failure initializing lightning emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -209,7 +201,7 @@ C lightning NO emissions?
      &              + N_NR_EMIS
      &              + N_TR_EMIS
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
          allocate ( emis_spc ( n_spc_emis+1 ),
      &              emis_map ( n_spc_emis+1 ), stat = status )
          if ( status .ne. 0 ) then
@@ -253,8 +245,8 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( VDEMIS( N_SPC_EMIS+1,EMLAYS,MY_NCOLS,MY_NROWS ),
-#ifdef Verbose2
+         ALLOCATE ( VDEMIS( N_SPC_EMIS+1,EMLAYS,NCOLS,NROWS ),
+#ifdef verbose_emis_defn
      &              semis( emlays,my_ncols,my_nrows ),
 #endif
      &              STAT = STATUS )
@@ -331,17 +323,14 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          IMPLICIT NONE
 
 C Includes:
-
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
-
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
 
 C Local Variables:
-
          REAL             CNVTC         ! combined conversion factor
          REAL             CNVTI         ! intermediate combined conv. factor
          REAL,    SAVE :: CNVTP         ! intermediate combined conv. factor
@@ -350,7 +339,7 @@ C Local Variables:
 
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ) :: XMSG = ' '
-#ifdef Verbose2
+#ifdef verbose_emis_defn
          integer, save :: logdev
          real sumem
 #endif
@@ -362,7 +351,7 @@ C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-#ifdef Verbose2
+#ifdef verbose_emis_defn
             logdev = init3()
 #endif
 C Get domain decomp info from the emissions file
@@ -402,7 +391,7 @@ C  loads."
                END DO
             END DO
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
             write( logdev,* ) '  GC EMIS: ', s, '  ', gc_emis( s )
 #endif
 
@@ -417,7 +406,7 @@ C beis
 C tmpbeis312 is based on hourly input - need to interpolate return value
 C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
             do s = 1, mspcs
                v = beis_map( s )
                if ( v .gt. 0 ) then
@@ -445,6 +434,7 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
          END IF
 
 C lightning NO
+
          IF ( LTNG_NO ) THEN
             CALL GET_LTNG ( JDATE, JTIME, TSTEP )
 
@@ -556,7 +546,7 @@ C                                       vvvvvvv - emis surrogate names
                END DO
             END DO
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
             write( logdev,* ) '  NR EMIS: ', s, '  ', nr_emis( s )
 #endif
 
@@ -589,7 +579,7 @@ C                                               vvvvvvv - emis surrogate names
                   END DO
                END DO
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
                write( logdev,* ) '  TR EMIS: ', s, '  ', tr_emis( s )
 #endif
 
@@ -602,7 +592,7 @@ C accounts for emissions species names as a subset of the vert. diffused species
 
          VDEMIS( N_SPC_EMIS+1,:,:,: ) = 0.0
 
-#ifdef Verbose2
+#ifdef verbose_emis_defn
 !        v = index1 ( 'NO', n_gc_emis, gc_emis )
 !        semis = vdemis( v,:,:,: )   ! all layers
 !        write( logdev,* ) '  sumVDEMIS( NO ): ', sum( semis )

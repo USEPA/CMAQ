@@ -78,27 +78,29 @@ C**********************************************************************
 C..INCLUDES: None
       
 C..ARGUMENTS:
-      INTEGER, INTENT( IN ) :: IRUN               ! Counter of calls to calling subroutine
-      INTEGER, INTENT( IN ) :: JDATE              ! Date at start of integration
-      INTEGER, INTENT( IN ) :: JTIME              ! Time at start of integration
-      INTEGER, INTENT( IN ) :: NIRRCLS            ! No. of cells in block for IRR
-      INTEGER, INTENT( IN ) :: IRRCELL( : )       ! Cell No. of an IRR cell
-      LOGICAL, INTENT( IN ) :: LIRRFLAG           ! Flag for IRR calculations
-      REAL,    INTENT( IN ) :: CHSTEP             ! Chemistry integration interval (min) 
+      INTEGER,   INTENT( IN ) :: IRUN               ! Counter of calls to calling subroutine
+      INTEGER,   INTENT( IN ) :: JDATE              ! Date at start of integration
+      INTEGER,   INTENT( IN ) :: JTIME              ! Time at start of integration
+      INTEGER,   INTENT( IN ) :: NIRRCLS            ! No. of cells in block for IRR
+      INTEGER,   INTENT( IN ) :: IRRCELL( : )       ! Cell No. of an IRR cell
+      LOGICAL,   INTENT( IN ) :: LIRRFLAG           ! Flag for IRR calculations
+      REAL( 8 ), INTENT( IN ) :: CHSTEP             ! Chemistry integration interval (min) 
 
 C..PARAMETERS:
-      INTEGER, PARAMETER :: NZERO = 0 ! Integer  zero
-      INTEGER, PARAMETER :: N999 = 999 ! Integer 999
+      INTEGER, PARAMETER :: NZERO = 0      ! Integer  zero
+      INTEGER, PARAMETER :: N999 = 999     ! Integer 999
+!     INTEGER, PARAMETER :: MXLOWRED = 10  ! Max number of times min time step lowered
+      INTEGER, PARAMETER :: MXLOWRED = 20  ! Max number of times min time step lowered
        
-      REAL( 8 ), PARAMETER :: CONCOFM = 1000000.0 ! Concentration of M
-      REAL( 8 ), PARAMETER ::     ONE = 1.0
-      REAL( 8 ), PARAMETER ::    ZERO = 0.0
-      REAL( 8 ), PARAMETER ::     PT2 = 0.2
-      REAL( 8 ), PARAMETER ::   PT003 = 0.003
-      REAL( 8 ), PARAMETER ::    OMIC = 0.000001
-      REAL( 8 ), PARAMETER :: OPT2MIC = 0.0000012
-      REAL( 8 ), PARAMETER :: OPT3MIC = 0.0000013
-      REAL( 8 ), PARAMETER :: OPT4MIC = 0.0000014
+      REAL( 8 ), PARAMETER :: CONCOFM = 1000000.0D0 ! Concentration of M
+      REAL( 8 ), PARAMETER ::     ONE = 1.0D0
+      REAL( 8 ), PARAMETER ::    ZERO = 0.0D0
+      REAL( 8 ), PARAMETER ::     PT2 = 0.2D0
+      REAL( 8 ), PARAMETER ::   PT003 = 0.003D0
+      REAL( 8 ), PARAMETER ::    OMIC = 0.000001D0
+      REAL( 8 ), PARAMETER :: OPT2MIC = 0.0000012D0
+      REAL( 8 ), PARAMETER :: OPT3MIC = 0.0000013D0
+      REAL( 8 ), PARAMETER :: OPT4MIC = 0.0000014D0
       REAL( 8 ), PARAMETER :: DTMIN_DEGRADE = 90.0D0  ! WTH: Minimum degradation time step (sec) 
 
 C..EXTERNAL FUNCTIONS: None
@@ -107,9 +109,9 @@ C..SAVED LOCAL VARIABLES: None
       LOGICAL, SAVE :: LFIRST = .TRUE. ! Flag for first call to this subroutine
 
 C..LOCAL VARIABLES:
-      CHARACTER( 16 ) :: PNAME = 'SMVGEAR' ! Procedure name
+      CHARACTER( 16 )  :: PNAME = 'SMVGEAR' ! Procedure name
       CHARACTER( 132 ) :: MSG = ' '        ! Message text
-      CHARACTER( 12 ) :: REAL_CLOCK( 3 )
+      CHARACTER( 12 )  :: REAL_CLOCK( 3 )
       
       LOGICAL LDBOUT         ! Flag for debug output
       
@@ -151,13 +153,13 @@ C..LOCAL VARIABLES:
       INTEGER NTRSUB         ! RHS evaluation count for trace output
       INTEGER NUMCELL        ! Number of cell as currently ordered
       INTEGER NYLOWRED       ! Number of times min time step lowered
-!     INTEGER, PARAMETER :: MXLOWRED = 10  ! Max number of times min time step lowered
-      INTEGER, PARAMETER :: MXLOWRED = 20  ! Max number of times min time step lowered
       INTEGER ROW            ! Row number of cell
-      INTEGER, SAVE :: S_DATE_TIME( 8 ), F_DATE_TIME( 8 )
-      INTEGER, SAVE :: NSPCS1 ! # of species plus 1
       INTEGER  SPC           ! species index
       INTEGER IOS            ! Allocate status
+
+      INTEGER, SAVE :: S_DATE_TIME( 8 )
+      INTEGER, SAVE :: F_DATE_TIME( 8 )
+      INTEGER, SAVE :: NSPCS1           ! # of species plus 1
 
       INTEGER, ALLOCATABLE, SAVE :: DUMMY( : )    ! Dummy array for IRR call
       REAL,    ALLOCATABLE, SAVE :: DTCELL( : )   ! Time step for each cell for IRR
@@ -199,7 +201,7 @@ C..LOCAL VARIABLES:
       REAL( 8 ) :: RDELTDN           ! Time step at current order - 1
       REAL( 8 ) :: RDELTSM           ! Time step at current order 
       REAL( 8 ) :: RDELTUP           ! Time step at current order + 1 
-      REAL( 8 ) :: RMSERR = 0.0      ! Max RMS error for convergence test
+      REAL( 8 ) :: RMSERR = 0.0D0    ! Max RMS error for convergence test
       REAL( 8 ) :: RMSERRP           ! Previous max RMS error for
       REAL( 8 ) :: RMSRAT            ! Convergence rate
       REAL( 8 ) :: RMSTOP            ! Max sum of squares of error estimates
@@ -272,6 +274,7 @@ C**********************************************************************
      &             // 'CIRR, DUMMY, DTCELL, or RKIRR'
                CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )             
             END IF
+            
 !        END IF
 
       END IF
@@ -305,18 +308,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NYLOWRED  = 0
       YLOWA     = YLOW( NCS ) 
       EPS       = ERRMAX( NCS ) 
-      EPS1      = 1.0 / EPS
+      EPS1      = 1.0D0 / EPS
       ISCHAN    = ISCHANG( NCS )
       ISCHAN1   = ISCHAN - 1
-      ORDER     = DFLOAT( ISCHAN )
+      ORDER     = REAL( ISCHAN, 8 )
       JFAIL     = 0
       IF( LSUNLIGHT ) THEN
-         H0FAC = 0.0625
+         H0FAC = 0.0625D0
       ELSE
-         H0FAC = 1.0
+         H0FAC = 1.0D0
       ENDIF
       CHEMSTEP = CHSTEP
-      ABST2 = 1.0 / ( CHEMSTEP * CHEMSTEP )
+      ABST2 = 1.0D0 / ( CHEMSTEP * CHEMSTEP )
 
       IF( LIRRFLAG ) THEN
          DO NRX = 1, NRXNS
@@ -332,15 +335,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   100 CONTINUE
       IFSUCCESS = 1
       IDOUB     = 2
-      XELAPS    = 0.0 
+      XELAPS    = 0.0D0 
       TOLD      = XELAPS
 !     RDELMAX   = 1.E4
-      RDELMAX   = 10000.0
+      RDELMAX   = 10000.0D0
       NSLP      = MBETWEEN
       JRESTAR   = 0 
-      HRMAX     = 0.3
-      HRATIO    = 0.0
-      ASN1      = 1.0
+      HRMAX     = 0.3D0
+      HRATIO    = 0.0D0
+      ASN1      = 1.0D0
       YLOWEPS1  = YLOWA * EPS1 
       TIMREMAIN = CHEMSTEP
 C:WTH
@@ -389,7 +392,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       EPSLOW = MIN( EPS, PT003 )
       YLOWEPS = YLOWA / EPSLOW 
       DO NCELL = 1, NUMCELLS
-        DELY( NCELL ) = 0.0
+        DELY( NCELL ) = 0.0D0
       ENDDO        
 
 c...compute sum of squares of dcdt/conc
@@ -440,7 +443,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CONC( NCELL, JS1 )  = DELT * GLOSS( NCELL, JSPC ) 
   280 CONTINUE
       NQQOLD = 0
-      RDELT  = 1.0 
+      RDELT  = 1.0D0 
       JEVAL  = 1
       IF( LTRCOUT ) THEN
          HUSED  = DELT
@@ -454,7 +457,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
          DO I = 1, ISCHAN
             DO NCELL = 1, NIRRCLS
-               CIRR( NCELL, I ) = BLKCONC( IRRCELL( NCELL ), I )
+               CIRR( NCELL, I ) = REAL( BLKCONC( IRRCELL( NCELL ), I ), 4 )
             ENDDO
          ENDDO
          CALL PA_IRR ( .TRUE., .FALSE., RKIRR, CIRR, DTCELL, 
@@ -644,7 +647,7 @@ c.....Increment counter, initialize cnew, and zero the correction array
       DO 460 I = 1, ISCHAN
       DO 460 NCELL = 1, NUMCELLS
          CNEW(  NCELL, I ) = CONC( NCELL, I )
-         DTLOS( NCELL, I ) = 0.0
+         DTLOS( NCELL, I ) = 0.0D0
   460 CONTINUE
   
 c.....If JEVAL = 1, re-evaluate predictor matrix before starting the
@@ -675,9 +678,9 @@ c.....JEVAL = -1 to prevent recalling PDERIV until necessary
          
          CALL DECOMP
          JEVAL    = -1 
-         HRATIO   = 1.0
+         HRATIO   = 1.0D0
          NSLP     = NSTEPS + MBETWEEN
-         DRATE    = 0.70
+         DRATE    = 0.70D0
       ENDIF
       
 c.....evaluate the first derivative using latest cnew and do debug
@@ -759,7 +762,7 @@ c.....error, and begin to calculate the rmsnorm of the error relative
 c.....to chold. If a negative conc occurs, treat it like a 
 c.....convergence failure.
       DO NCELL = 1, NUMCELLS
-         DELY( NCELL ) = 0.0
+         DELY( NCELL ) = 0.0D0
       ENDDO         
 
       NEGFLAG = + 1
@@ -777,13 +780,13 @@ c           IF( CNEW( NCELL, ISPC ).LT. 0.0 ) GO TO 740
 
 c....Save the previous rms error and calculate the new rms error.
       RMSERRP   = RMSERR
-      DER2MAX   = 0.0
+      DER2MAX   = 0.0D0
       DO NCELL = 1, NUMCELLS
          IF( DELY( NCELL ).GT.DER2MAX ) DER2MAX = DELY( NCELL )   
       ENDDO
       RMSERR   = SQRT( DER2MAX / ORDER )
       L3       = L3 + 1
-      RMSRAT   = 0.0
+      RMSRAT   = 0.0D0
       IF( L3.GT.1 ) THEN
          RMSRAT   =  RMSERR / RMSERRP
          DRATE    =  MAX( 0.2 * DRATE, RMSRAT )
@@ -865,14 +868,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       IF( L3 .GT. 1 ) THEN
          DO NCELL  = 1, NUMCELLS
-            DELY( NCELL )  = 0.
+            DELY( NCELL )  = 0.0D0
          ENDDO
          DO 840 JSPC   = 1, ISCHAN     
             DO 840 NCELL = 1, NUMCELLS 
                ERRYMAX  = DTLOS( NCELL, JSPC ) * CHOLD( NCELL, JSPC )
                DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
   840    CONTINUE
-         DER2MAX  = 0.0
+         DER2MAX  = 0.0D0
          DO NCELL  = 1, NUMCELLS
             IF( DELY( NCELL ) .GT. DER2MAX ) DER2MAX = DELY( NCELL )   
          ENDDO
@@ -909,11 +912,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO 880 NCELL   = 1, NUMCELLS
                   CONC( NCELL, I ) = CONC( NCELL, I ) - CONC( NCELL, J )
  880     CONTINUE
-         RDELMAX          = 2.0
+         RDELMAX          = 2.0D0
          
          IF( JFAIL .LE. 6 ) THEN
             IFSUCCESS       = 0 
-            RDELTUP         = 0.0
+            RDELTUP         = 0.0D0
             GO TO 1060
          ELSEIF( JFAIL .LE. 20 ) THEN
             IFSUCCESS       = 0 
@@ -921,8 +924,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             GO TO 300 
          ELSE
             IFSUCCESS       = 1  
-            DELT            = DELT * 0.1
-            RDELT           = 1.0
+            DELT            = DELT * 0.1D0
+            RDELT           = 1.0D0
             JFAIL           = 0 
             JRESTAR         = JRESTAR + 1
             IDOUB           = 5
@@ -973,22 +976,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IF( CONC( NCELL, I ) .LE. CONCMIN ) THEN
                    CONC( NCELL, I ) = ZBOUND
                    CNEW( NCELL, I ) = ZBOUND
-                   CONC( NCELL, I +     ISCHAN ) = 0.0
-                   CONC( NCELL, I + 2 * ISCHAN ) = 0.0
-                   CONC( NCELL, I + 3 * ISCHAN ) = 0.0
-                   CONC( NCELL, I + 4 * ISCHAN ) = 0.0
-                   CONC( NCELL, I + 5 * ISCHAN ) = 0.0
+                   CONC( NCELL, I +     ISCHAN ) = 0.0D0
+                   CONC( NCELL, I + 2 * ISCHAN ) = 0.0D0
+                   CONC( NCELL, I + 3 * ISCHAN ) = 0.0D0
+                   CONC( NCELL, I + 4 * ISCHAN ) = 0.0D0
+                   CONC( NCELL, I + 5 * ISCHAN ) = 0.0D0
                ENDIF
   940    CONTINUE 
     
          IF( LIRRFLAG ) THEN
             DO NCELL = 1, NUMCELLS
-               DTCELL( NCELL ) = DELT
+               DTCELL( NCELL ) = REAL( DELT, 4 )
             ENDDO
             DO I = 1, ISCHAN
                ISPOLD = INEW2OLD( I, NCS )
                DO NCELL = 1, NIRRCLS
-                  CIRR( NCELL, ISPOLD ) = CONC( IRRCELL( NCELL ), I )
+                  CIRR( NCELL, ISPOLD ) = REAL( CONC( IRRCELL( NCELL ), I ), 4 )
                ENDDO
             ENDDO
             CALL PA_IRR ( .FALSE., .FALSE., RKIRR, CIRR, DTCELL, 
@@ -1084,7 +1087,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c.....estimate the time-step ratio at one order higher
       IF( NQQ .LT. MAXORD ) THEN  
          DO NCELL = 1, NUMCELLS
-            DELY( NCELL ) = 0.0
+            DELY( NCELL ) = 0.0D0
          ENDDO
          DO 1020 JSPC = 1, ISCHAN     
             DO 1020 NCELL = 1, NUMCELLS 
@@ -1092,26 +1095,26 @@ c.....estimate the time-step ratio at one order higher
      &                     CEST( NCELL, JSPC ) ) * CHOLD( NCELL, JSPC )
                DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
  1020    CONTINUE
-         DER3MAX = 0.0
+         DER3MAX = 0.0D0
          DO NCELL = 1, NUMCELLS
             IF( DELY( NCELL ) .GT. DER3MAX ) DER3MAX = DELY( NCELL )   
          ENDDO       
          PR3  = 1.4 * ( DER3MAX / EUP ) ** ENQQ3( NQQ )
 !        RDELTUP  = 1.0 / ( PR3 + 1.4E-6 )
-         RDELTUP  = 1.0 / ( PR3 + OPT4MIC )
+         RDELTUP  = 1.0D0 / ( PR3 + OPT4MIC )
       ELSE
-         RDELTUP  = 0.0
+         RDELTUP  = 0.0D0
       ENDIF
 
 c.....estimate the time-step ratio at the current order
- 1060 PR2       = 1.2 * ( DER2MAX / ENQQ ) ** ENQQ2( NQQ )
+ 1060 PR2       = 1.2D0 * ( DER2MAX / ENQQ ) ** ENQQ2( NQQ )
 !     RDELTSM   = 1.0 / ( PR2 + 1.2E-6 )
-      RDELTSM   = 1.0 / ( PR2 + OPT2MIC )
+      RDELTSM   = 1.0D0 / ( PR2 + OPT2MIC )
       
 c.....estimate the time-step ratio at one order lower
       IF( NQQ .GT. 1 ) THEN
          DO NCELL = 1, NUMCELLS
-            DELY( NCELL ) = 0.0
+            DELY( NCELL ) = 0.0D0
          ENDDO
          DO 1100 JSPC = 1, ISCHAN     
             I = JSPC + ( KSTEP - 1 ) * ISCHAN
@@ -1119,15 +1122,15 @@ c.....estimate the time-step ratio at one order lower
                 ERRYMAX       = CONC( NCELL, I ) * CHOLD( NCELL, JSPC )
                 DELY( NCELL ) = DELY( NCELL ) + ERRYMAX * ERRYMAX
  1100    CONTINUE
-         DER1MAX       = 0.0
+         DER1MAX       = 0.0D0
          DO NCELL = 1, NUMCELLS
             IF( DELY( NCELL ) .GT. DER1MAX ) DER1MAX = DELY( NCELL )   
          ENDDO        
-         PR1      = 1.3 * ( DER1MAX / EDWN ) ** ENQQ1( NQQ )
+         PR1      = 1.3D0 * ( DER1MAX / EDWN ) ** ENQQ1( NQQ )
 !        RDELTDN  = 1.0 / ( PR1 + 1.3E-6 )
-         RDELTDN  = 1.0 / ( PR1 + OPT3MIC )
+         RDELTDN  = 1.0D0 / ( PR1 + OPT3MIC )
       ELSE
-         RDELTDN  = 0.0
+         RDELTDN  = 0.0D0
       ENDIF
 
 c.....choose the largest of the predicted time-steps ratios 
@@ -1162,7 +1165,7 @@ c.....make sure the next step-size is no larger than the current size
 c.....If the maximum time-step ratio is that of one order higher than
 c.....the current order, increase the order and add a derivative term
 c.....for the higher order.
-         CONSMULT   = ASET( NQQ, KSTEP ) / DFLOAT( KSTEP )
+         CONSMULT   = ASET( NQQ, KSTEP ) / REAL( KSTEP, 8 )
          NQQ        = KSTEP
          NQISC      = NQQ * ISCHAN
          DO 1140 JSPC = 1, ISCHAN

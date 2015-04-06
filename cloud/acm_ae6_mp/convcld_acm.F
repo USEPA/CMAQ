@@ -105,6 +105,8 @@ C       02Aug12 S.Roselle:  instrumented to calculate and return
 C                           transmissivity for convective clouds
 C       14Oct14 B.Hutzell:  Added routine call to capture cloud fractions,
 C                           water, and ice mixing ratios
+C       11Feb15 J.Young: Updated call to czangle.F which uses the ASX_DATA_MOD shared
+C                        data module (Implemented by J.Bash on 07 Nov 14)
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -121,7 +123,17 @@ C...........INCLUDES
       INCLUDE SUBST_CONST               ! constants
       INCLUDE SUBST_FILES_ID            ! file name parameters
 
-      CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
+C...........Arguments:
+      REAL,     POINTER     :: CGRID( :,:,:,: )    ! concentrations
+      INTEGER, INTENT( IN ) :: JDATE               ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME               ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP( 3 )          ! model time step, coded H*MMSS
+      INTEGER, INTENT( IN ) :: N_SPC_WDEP          ! # of wet deposition species
+      INTEGER, INTENT( IN ) :: WDEP_MAP( : )       ! wet deposition map to CGRID
+      REAL,    INTENT( OUT ) :: CONV_DEP  ( :,:,: )      ! depositions (etc.)
+      REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+
+      CHARACTER( 120 )       :: XMSG = ' '    ! Exit status message
 
 C...........Parameters
 
@@ -190,28 +202,14 @@ C   SYNCCLD=.TRUE.  : every synchronization timestep
 C   SYNCCLD=.FALSE. : every hour on the half hour
       LOGICAL, PARAMETER :: SYNCCLD = .TRUE. ! default to sync timestep
 
-C...........Arguments
-
-!     REAL          CGRID( NCOLS,NROWS,NLAYS,* )  ! concentrations
-!     REAL       :: CGRID( :,:,:,: )              ! concentrations
-      REAL, POINTER :: CGRID( :,:,:,: )           ! concentrations
-      INTEGER       JDATE               ! current model date, coded YYYYDDD
-      INTEGER       JTIME               ! current model time, coded HHMMSS
-      INTEGER       TSTEP( 3 )          ! model time step, coded H*MMSS
-      INTEGER       ICLDTYPE            ! 1: raining, 2: either CNP or PFW
-      INTEGER       N_SPC_WDEP          ! # of wet deposition species
-!     INTEGER       WDEP_MAP( * )       ! wet deposition map to CGRID
-      INTEGER       WDEP_MAP( : )       ! wet deposition map to CGRID
-!     REAL          CONV_DEP( NCOLS, NROWS, * )  ! depositions (etc.)
-      REAL       :: CONV_DEP( :,:,: )   ! depositions (etc.)
-      REAL       :: SUBTRANS( :,:,: )
-
 C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
       REAL, ALLOCATABLE, SAVE ::  SIGF( : )
       REAL, ALLOCATABLE, SAVE :: CCR( :,: ), CONC( :,: ), CBELOW( : )
 C-------------------------------------------
+
+      INTEGER       :: ICLDTYPE            ! 1: raining, 2: either CNP or PFW
       INTEGER, SAVE :: LOGDEV
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.   ! flag for first pass thru
@@ -453,6 +451,16 @@ C...........Statement Functions
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
+        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+           USE UTILIO_DEFN
+           USE ASX_DATA_MOD, Only: Grid_Data
+           IMPLICIT NONE
+           INTEGER, INTENT( IN )  :: JDATE
+           INTEGER, INTENT( IN )  :: JTIME
+           INTEGER, INTENT( IN )  :: NX
+           INTEGER, INTENT( IN )  :: NY
+           REAL,    INTENT( OUT ) :: COSZEN( :,: )
+        END SUBROUTINE CZANGLE
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -837,7 +845,7 @@ C...Get PBL height (m)
 
 C.. Compute zenith angle, Golam Sarwar, July 1, 2011 
 
-      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
+      CALL CZANGLE ( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
  
 C...advance the MDATE and MTIME to the next time on the met file
 C...  to get ready to read the precipitation amounts.
