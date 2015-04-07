@@ -310,7 +310,6 @@ C Emissions mapping
       Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
       Character( 16 ) :: pmem_units              ! units for PM emissions for all species
 
-
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
       Character( 16 ), Private, Save :: pname = 'Aero_Data'
@@ -347,7 +346,6 @@ C Local Variables:
       logdev = setup_logdev()
 
       if ( mapped ) Return
-
 
       aerospc_mw = 0.0
       aerospc_map = 0
