@@ -432,7 +432,7 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah2op_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah3op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx

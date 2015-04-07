@@ -1820,7 +1820,7 @@ C     abstol (absolute) amount
 #else
           xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
 #endif
-          Call m3warn( pname, 0, 0, xmsg )
+          Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
 
         test = fnguess * flower
