@@ -67,7 +67,7 @@ C..PARAMETERS:
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 0.0D+00    ! zero
+      REAL( 8 ), PARAMETER :: ZERO    = 0.0D-40    ! effective zero
 
 C..EXTERNAL FUNCTIONS:
 
