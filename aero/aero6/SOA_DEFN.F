@@ -176,7 +176,11 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
-C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA
+C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA.
+C              Conversion of reacted alkane to dodecane equivalent
+C              is handled in mech.def. A factor of 0.47 is in use and
+C              reflects the fact that alkane SOA precursor
+C              emissions are dominated by compounds smaller than dodecane.
 C-----------------------------------------------------------------------
 
       Use rxns_data       ! chemical mechanism data
