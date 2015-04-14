@@ -472,7 +472,7 @@ C Find indices of required species
       apoc_idx    = findAero( req_poc,    .True. )
       ah2o_idx    = findAero( req_h2o,    .True. )
 !     ah3op_idx   = findAero( req_h3op,   .True. )
-      ah3op_idx    = 0
+      ah3op_idx   = 0
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )

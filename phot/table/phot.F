@@ -24,7 +24,7 @@ C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.4 2011/10/21 16:
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
 
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
 C----------------------------------------------------------------------
 C Function:
 C    PHOT, adapted from RADM, calculates the photolysis rate constants
@@ -69,11 +69,7 @@ C----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE RXNS_DATA           ! chemical mechanism data
       USE UTILIO_DEFN
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
-#endif
+      USE PHOT_MET_DATA        ! Met and Grid data
 
       IMPLICIT NONE
 
@@ -88,8 +84,7 @@ C arguments:
       INTEGER, INTENT( IN ) :: MTIME          ! "centered" time (HHMMSS)
       INTEGER, INTENT( IN ) :: JDATE          ! current Julian date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME          ! current time (HHMMSS)
-
-!     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
+      INTEGER, INTENT( IN ) :: DTSTEP( : )    ! time step vector (HHMMSS)
       REAL,    INTENT( OUT ) :: RJ(:,:,:,:)   ! gridded J-values  (1/min units)
 
 C local parameters:
@@ -110,6 +105,8 @@ C saved local variables:
       INTEGER, SAVE :: JVHT               ! number of vertical levels
       INTEGER, SAVE :: JVTMAX             ! number of hour angles
       INTEGER, SAVE :: JVLAT              ! number of latitudes
+      INTEGER, SAVE :: LOGDEV
+
       INTEGER, ALLOCATABLE, SAVE :: PHID( : )     ! index of phot tab name in file list
 
       REAL, SAVE    :: STRTHR             ! starting GMT hour
@@ -117,33 +114,36 @@ C saved local variables:
 !     REAL, SAVE    :: LAT ( NCOLS, NROWS ) ! north lat in deg (cross pt.)
 !     REAL, SAVE    :: LON ( NCOLS, NROWS ) ! west long in deg (cross pt.)
 !     REAL, SAVE    :: HT  ( NCOLS, NROWS ) ! ground elevation msl (meters)
-      REAL, ALLOCATABLE, SAVE :: LAT( :,: ) ! north lat in deg (cross pt.)
-      REAL, ALLOCATABLE, SAVE :: LON( :,: ) ! west long in deg (cross pt.)
-      REAL, ALLOCATABLE, SAVE :: HT( :,: ) ! ground elevation msl (meters)
+!      REAL, ALLOCATABLE, SAVE :: LAT( :,: ) ! north lat in deg (cross pt.)
+!      REAL, ALLOCATABLE, SAVE :: LON( :,: ) ! west long in deg (cross pt.)
+!      REAL, ALLOCATABLE, SAVE :: HT( :,: ) ! ground elevation msl (meters)
       REAL, ALLOCATABLE, SAVE :: XJVAL( :,:,:,: ) ! file jvalues
       REAL, ALLOCATABLE, SAVE :: XHAJV ( : ) ! hours from noon
       REAL, ALLOCATABLE, SAVE :: XLATJV( : ) ! latitudes of file photolytic rates
       REAL, ALLOCATABLE, SAVE :: XZJV  ( : ) ! vertical heights of file photolytic
       REAL, ALLOCATABLE, SAVE :: ACLD  ( : ) ! ??????????
 
-      INTEGER, SAVE :: LOGDEV
+
+      CHARACTER( 16 ), SAVE :: PNAME = 'PHOT'
+      CHARACTER( 16 ), SAVE :: CTM_PHOTDIAG  = 'CTM_PHOTDIAG' ! PHOTDIAG env var
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
+
+
+      LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
 
 C scratch local variables:
 
-      CHARACTER( 16 ) :: J2FILE = 'XJ_DATA'
-      CHARACTER( 16 ) :: VARNM
-      CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
-      CHARACTER( 16 ) :: PNAME = 'PHOT'
-      CHARACTER( 16 ), SAVE :: CTM_PHOTDIAG  = 'CTM_PHOTDIAG' ! PHOTDIAG env var
-      CHARACTER( 80 ) :: VARDESC      ! env var description
-      CHARACTER( 120 ) :: XMSG = ' '
+      CHARACTER(  16 ) :: J2FILE  = 'XJ_DATA'
+      CHARACTER(  16 ) :: VARNM
+      CHARACTER(  80 ) :: VARDESC      ! env var description
+      CHARACTER( 120 ) :: XMSG    = ' '
 
-      LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
+
+      LOGICAL       :: NDARK          ! Are the processors cells in darkness
 
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file
       INTEGER   :: CLDATT = 1         ! flag for cloud attenuation; 1=on,0=off
-      INTEGER      NDARK              ! Number of layer 1 cells in darkness
       INTEGER      NDAYS              ! local day angle
       INTEGER      NT                 ! time loop index
       INTEGER      NHT                ! height loop index
@@ -195,7 +195,7 @@ C scratch local variables:
       REAL         CLDT ( NCOLS, NROWS ) ! cloud top, as K index
       REAL         CLDB ( NCOLS, NROWS ) ! cloud bottom, as K index
       REAL         CFRAC( NCOLS, NROWS ) ! total fractional cloud coverage
-      REAL         ZM   ( NCOLS, NROWS, NLAYS ) ! Mid-layer ht. agl (m)
+!      REAL         ZM   ( NCOLS, NROWS, NLAYS ) ! Mid-layer ht. agl (m)
       REAL         DUMP                  ! dump unwanted data read
 
       INTEGER      GXOFF, GYOFF            ! global origin offset from file
@@ -222,7 +222,7 @@ C----------------------------------------------------------------------
         STTIME = JTIME
         STRTHR = FLOAT ( JTIME / 10000 )
         JDSTRT = FLOAT ( MOD ( JDATE, 1000 ) )
-        TSTEP  = 010000  ! output timestep for photolysis diagnostic files
+        TSTEP  = DTSTEP( 1 )  ! output timestep for photolysis diagnostic files
 
         JVUNIT = GETEFILE( J2FILE, .TRUE., .TRUE., PNAME )
 
@@ -483,6 +483,13 @@ C...get height
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+        ALLOCATE ( ZM( MY_NCOLS,MY_NROWS, NLAYS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating LAT'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+
 C...Get photolysis rate diagnostic file flag
 
         PHOTDIAG = .FALSE.         ! default
@@ -516,21 +523,20 @@ C...  correct for current *positive* West longitude convention
       CURRHR = STRTHR
      &       + FLOAT ( SECSDIFF ( STDATE, STTIME, JDATE, JTIME ) )
      &       / 3600.0
-      NDARK = 0
+      NDARK = .TRUE.
       DO ROW = 1, MY_NROWS
         DO COL = 1, MY_NCOLS
           XLHA( COL, ROW ) = CURRHR + LON( COL, ROW ) / 15.0 - 12.0
           NDAYS = NINT ( XLHA( COL, ROW ) / 24.0 )
           XLHA( COL, ROW ) = ABS ( XLHA( COL, ROW ) - NDAYS * 24.0 )
-          IF ( XLHA( COL, ROW ) .GT.
-     &         XHAJV( JVTMAX ) ) NDARK = NDARK + 1
+          IF ( XLHA( COL, ROW ) .LE. XHAJV( JVTMAX ) ) NDARK = .FALSE.
         END DO
       END DO
 
 C...If sun below horizon at all cells, zero photolysis rates & exit
 C...  (assumes sun below horizon at *all* levels!)
 
-      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+      IF ( NDARK ) THEN
         DO JP = 1, NPHOTAB
           DO LEV = 1, NLAYS
             DO ROW = 1, MY_NROWS
