@@ -140,8 +140,6 @@ C scratch local variables:
       CHARACTER( 120 ) :: XMSG    = ' '
 
 
-      LOGICAL       :: NDARK          ! Are the processors cells in darkness
-
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file
       INTEGER   :: CLDATT = 1         ! flag for cloud attenuation; 1=on,0=off
