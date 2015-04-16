@@ -138,27 +138,13 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
-        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
-           USE RXNS_DATA            ! chemistry varaibles and data
-           USE CGRID_SPCS           ! CGRID species number and offsets
-           USE PCGRID_DEFN          ! get cgrid
-           USE UTILIO_DEFN
-#ifdef parallel
-           USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
-#else
-           USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
-#endif
-           USE AERO_DATA            ! describes aerosol distribution
-           USE PHOT_MOD             ! photolysis in-line module
-           USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indi
-           USE PHOTOLYSIS_ALBEDO    ! surface albedo data and routines
-           USE PHOT_MET_DATA        ! Met and Grid data
-           USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
+        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
            IMPLICIT NONE
-           INTEGER, INTENT( IN ) :: MDATE    !"centered" Julian date (YYYYDDD)
-           INTEGER, INTENT( IN ) :: MTIME    !"centered" time (HHMMSS)
-           INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
-           INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
+           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+           INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+           INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
@@ -371,7 +357,7 @@ C.. Get pressure in Pascals
       END IF
 
 C.. Get photolysis rates in /min
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, RJ )
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
 C.. Get Heteorogeneous rats
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
