@@ -224,22 +224,13 @@ C for INTERPX
 #endif
 
       INTERFACE
-         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
-            USE RXNS_DATA            ! chemistry varaibles and data
-            USE CGRID_SPCS           ! CGRID species number and offsets
-            USE PCGRID_DEFN          ! get cgrid
-            USE UTILIO_DEFN
-            USE AERO_DATA            ! describes aerosol distribution
-            USE PHOT_MOD             ! photolysis in-line module
-            USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indices
-            USE PHOTOLYSIS_ALBEDO    ! surface albedo data and routines
-            USE PHOT_MET_DATA        ! Met and Grid data
-            USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
+         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
             IMPLICIT NONE
-            INTEGER, INTENT( IN ) :: MDATE    !"centered" Julian date (YYYYDDD) 
-            INTEGER, INTENT( IN ) :: MTIME    !"centered" time (HHMMSS)
-            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
-            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
+            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
             REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
          END SUBROUTINE PHOT
          SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
@@ -491,7 +482,7 @@ C.. Get pressure in Pascals
  
 C.. Get photolysis rates in /min
 
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, RJ )          
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

@@ -17,6 +17,11 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header$
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
 
       SUBROUTINE HRINIT
 C***********************************************************************
@@ -29,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 23, 2015
+C  REVISION HISTORY: Created by EBI solver program, April 13, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -475,13 +480,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ALK4             ) = 1.0D-03
       RTOL( ALK5             ) = 1.0D-03
       RTOL( SOAALK           ) = 1.0D-03
-      RTOL( ALKRXN           ) = 1.0D-03
+      RTOL( ALKRXN           ) = 1.0D+00
       RTOL( OLE1             ) = 1.0D-03
       RTOL( OLE2             ) = 1.0D-03
       RTOL( ARO1             ) = 1.0D-03
       RTOL( ARO2MN           ) = 1.0D-03
       RTOL( NAPHTHAL         ) = 1.0D-03
-      RTOL( PAHRO2           ) = 1.0D-03
+      RTOL( PAHRO2           ) = 1.0D+00
       RTOL( TERP             ) = 1.0D-03
       RTOL( SESQ             ) = 1.0D-03
       RTOL( SESQRXN          ) = 1.0D+00
@@ -506,8 +511,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( XYLHRXN          ) = 1.0D+00
       RTOL( TOLNRXN          ) = 1.0D+00
       RTOL( TOLHRXN          ) = 1.0D+00
-      RTOL( PAHNRXN          ) = 1.0D-03
-      RTOL( PAHHRXN          ) = 1.0D-03
+      RTOL( PAHNRXN          ) = 1.0D+00
+      RTOL( PAHHRXN          ) = 1.0D+00
       RTOL( HCHO_PRIMARY     ) = 1.0D-03
       RTOL( CCHO_PRIMARY     ) = 1.0D-03
       RTOL( ACROLEIN_PRIMARY ) = 1.0D-03

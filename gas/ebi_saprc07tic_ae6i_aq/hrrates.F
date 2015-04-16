@@ -20,6 +20,8 @@
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header$
 
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
 
       SUBROUTINE HRRATES
 
@@ -31,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 23, 2015
+C  REVISION HISTORY: Created by EBI solver program, April 13, 2015
 C
 C***********************************************************************
       USE HRDATA

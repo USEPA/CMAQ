@@ -25,7 +25,7 @@
 ! %W% %P% %G% %U%
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
 
 !-----------------------------------------------------------------------
 !
@@ -137,6 +137,7 @@ C...modules
       INTEGER, INTENT( IN ) :: MTIME         ! "centered" time (HHMMSS)
       INTEGER, INTENT( IN ) :: JDATE         ! current Julian date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME         ! current time (HHMMSS)
+      INTEGER, INTENT( IN ) :: DTSTEP( : )   ! time step vector (HHMMSS)
 
 !     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
       REAL,    INTENT( OUT ) :: RJ(:,:,:,:)  ! gridded J-values  (1/min units)
@@ -269,7 +270,7 @@ C...modules
       
       LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
       LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
-      LOGICAL                    :: NDARK          ! Are all cells in darkness?
+      LOGICAL                    :: NDARK          ! Are the processors cells in darkness?
       
 !...Variables for diagnostic outputs
 
@@ -321,21 +322,7 @@ C...modules
          JDSTRT = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000 )   !   Check this more carefully
 
-         TSTEP  = 010000  ! output timestep for photolysis diagnostic files
-         VARDESC = 'Output timestep (HHMMSS) for photolysis diagnostics'  
-         TSTEP = ENVINT( 'CTM_TSTEP', VARDESC, TSTEP, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
+         TSTEP  = DTSTEP( 1 ) ! output timestep for photolysis diagnostic files
 
          CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )
 
@@ -509,10 +496,9 @@ C...modules
 
       ELSE
 
-         DTIME = SEC2TIME( 2 * SECSDIFF( JDATE, JTIME, MDATE, MTIME ) )
          ODATE = JDATE
          OTIME = JTIME
-         CALL NEXTIME( ODATE, OTIME, DTIME )
+         CALL NEXTIME( ODATE, OTIME, DTSTEP( 2 ) )
          
       END IF  ! firstime
 

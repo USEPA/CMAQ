@@ -17,6 +17,11 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header$
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
 
       SUBROUTINE HRPRODLOSS
 
@@ -30,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 23, 2015
+C  REVISION HISTORY: Created by EBI solver program, April 13, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -2921,9 +2926,9 @@ C***********************************************************************
      &                          +                 RXRAT( 645 )      ! ALK5+CL=HCL+0.6470D+...
 
       PROD(  SOAALK           ) =   0.0D0
-      LOSS(  SOAALK           ) =                 RXRAT( 534 )      ! SOAALK+OH=OH+ALKRXN
+      LOSS(  SOAALK           ) =                 RXRAT( 534 )      ! SOAALK+OH=OH+0.4700D+00*ALKRXN
 
-      PROD(  ALKRXN           ) =                 RXRAT( 534 )      ! SOAALK+OH=ALKRXN+OH
+      PROD(  ALKRXN           ) =    4.7000D-01 * RXRAT( 534 )      ! SOAALK+OH=0.4700D+00*ALKRXN+OH
       LOSS(  ALKRXN           ) =   0.0D0
 
       PROD(  OLE1             ) =   0.0D0
