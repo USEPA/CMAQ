@@ -146,6 +146,7 @@
          RETURN
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
+         IMPLICIT NONE
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
