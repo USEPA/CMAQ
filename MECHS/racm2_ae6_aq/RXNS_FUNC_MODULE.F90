@@ -75,7 +75,7 @@
        END FUNCTION FALLOFF_T08
        REAL( 8 ) FUNCTION FALLOFF_T09(INV_TEMP,CAIR,A1,C1,A2,C2)
 ! rate constant for CMAQ fall off reaction type 9
-         IMPLICIT NONE
+         IMPLICIT NONE 
 ! Arguements:
          REAL( 8 ), INTENT( IN ) :: INV_TEMP
          REAL( 8 ), INTENT( IN ) :: CAIR
@@ -146,6 +146,7 @@
          RETURN
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
+         IMPLICIT NONE
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
