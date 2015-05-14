@@ -68,7 +68,7 @@ c..Miscellaneous variables
 R5
 R5    INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
-      REAL    EBI_TMSTEP   ! Time step for EBI loops (min)
+      REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
@@ -94,4 +94,23 @@ R5    REAL( 8 ), ALLOCATABLE ::  YCCELL( : )       ! ALL Species in cgrid
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species 
 R3      REAL( 8 ), ALLOCATABLE ::  PNEG( : )   ! Negative production rates
 
+      REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
+      REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
+      REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
+      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
+
+      REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
+      REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
+
+      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
+      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
+      LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+
+      REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
+!      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
+      REAL( 8 ), ALLOCATABLE ::  H2O     ( : )     ! Cell H2O mixing ratio (ppmV)
+      REAL( 8 ), ALLOCATABLE ::  TEMP    ( : )     ! Cell Temperature
+      REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
+      LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
 

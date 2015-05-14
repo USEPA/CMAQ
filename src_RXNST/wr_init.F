@@ -154,17 +154,17 @@ C  Write first section for one mech
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IF( .NOT. L_ALL_MECHS ) THEN 
 
-         WRITE( IOUT, 92000 ) CLINE
-         WRITE( IOUT, 93100 )
-         WRITE( IOUT, 92000 ) CLINE
+!         WRITE( IOUT, 92000 ) CLINE
+!         WRITE( IOUT, 93100 )
+!         WRITE( IOUT, 92000 ) CLINE
 
 c..create indices for all mechanism species
-         DO N = 1, N_SPECIES
-            SPOUT = '                '         
-            EPOS = LEN_TRIM( SPECIES( N ) )
-            SPOUT( 1 : EPOS ) = SPECIES( N )( 1 : EPOS ) 
-            WRITE( IOUT, 93120 ) SPOUT( 1 : CL ), N
-         END DO
+!         DO N = 1, N_SPECIES
+!            SPOUT = '                '         
+!            EPOS = LEN_TRIM( SPECIES( N ) )
+!            SPOUT( 1 : EPOS ) = SPECIES( N )( 1 : EPOS ) 
+!            WRITE( IOUT, 93120 ) SPOUT( 1 : CL ), N
+!         END DO
 
 
          IF( N_SS_SPC .EQ. 0 ) THEN    !  no ss species in mech
@@ -258,7 +258,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
                SPOUT = '                '         
                EPOS = LEN_TRIM( SPEC )
                SPOUT( 1 : EPOS ) = SPEC( 1 : EPOS ) 
-               WRITE( IOUT, 94180 ) SPOUT( 1 : CL ), N
+ !              WRITE( IOUT, 94180 ) SPOUT( 1 : CL ), N
 
             END DO
 

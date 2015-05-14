@@ -29,7 +29,7 @@ C..ARGUMENTS: None
 C..PARAMETERS:
       INTEGER, PARAMETER :: MAX_GRP_SPC = 20    ! Max no. species in group list
 C     INTEGER, PARAMETER :: N_LOW_TOL_SPC = 14  ! No. species w/ low tols
-      INTEGER, PARAMETER :: N_LOW_TOL_SPC = 24  ! No. species w/ low tols, revised by Golam Sarwar
+      INTEGER, PARAMETER :: N_LOW_TOL_SPC = 28  ! No. species w/ low tols, revised by Golam Sarwar
 
 C..EXTERNAL FUNCTIONS:
 !      INTEGER    INDEX1            !
@@ -62,7 +62,8 @@ C     &                   'O3P'   , 'O1D'     , 'SULF'  /           !radm2
      &                   'BNZNRXN', 'BNZHRXN ' , 'SESQRXN', 'SULRXN' , !cb05
      &                   'HCO3'   ,                                    !cb05     
      &                   'O3P'    , 'O1D2'     , 'BZ_O'   , 'TBU_O'  , !saprc99
-     &                   'BZNO2_O', 'HOCOO'    , 'ALK5RXN'/            !saprc99    
+     &                   'BZNO2_O', 'HOCOO'    , 'ALK5RXN',
+     &                   'ALKRXN' , 'PAHRO2'   , 'PAHHRXN', 'PAHNRXN' / !  version 5.1 SOA production
 
 C set up SPECIES array
 

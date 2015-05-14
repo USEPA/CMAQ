@@ -64,11 +64,11 @@ C..ARGUMENTS:
 
 C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
-      INTEGER, PARAMETER :: STAT = 1     ! Status code
+      INTEGER, PARAMETER :: STAT    = 1  ! Status code
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 0.0D0      ! zero 
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40    ! effective zero 
 
 C..EXTERNAL FUNCTIONS:
 
@@ -83,12 +83,14 @@ C..SCRATCH LOCAL VARIABLES:
 
       CHARACTER( 132 ) :: MSG           ! Message text
 
-      INTEGER CELLNO          ! Cell no. fo debug output
       INTEGER ITER            ! Loop index for Backward Euler iterations
       INTEGER S               ! Loop index for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps 
+#ifdef hrdebug
       INTEGER N               ! Loop index
+#endif
+R5      INTEGER M               ! species index
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag
@@ -169,11 +171,11 @@ c      IF( JTIME .EQ. 160000 ) THEN
      &             'EBI_TMSTEP = ', EBI_TMSTEP
            WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
            DO N = 1, N_SPEC
-             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
+             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PD13.5 )' )
      &                     'SP ',N, CHEMISTRY_SPC( N ), YC( N )
            END DO
            DO N = 1, N_RXNS
-             WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+             WRITE( DBGOUT, '( A, I3, 1X, 1PD13.5 )' )
      &                     'RKI ', N, RKI(  N )
            END DO
       END IF
@@ -183,13 +185,13 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       
 
       N_EBI_IT = 0
-      DTC = REAL( EBI_TMSTEP, 8 )
+      DTC      = EBI_TMSTEP
 
 
-      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-tep loop
+      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
 
-          NBKUPS = 0
-         N_INR_STEPS = 1
+          NBKUPS      = 0
+          N_INR_STEPS = 1
 
 100      CONTINUE                        !  Restart location
 
@@ -206,14 +208,13 @@ R3
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug 
                IF( LDEBUG ) THEN
-                  WRITE( DBGOUT, '( A, I5 )' ) 'ITER NO ', ITER
-                  WRITE( DBGOUT, '( A, F12.5 )' )
-     &               ' DTC=', DTC 
+                  WRITE( DBGOUT, '( A, I5 )' )   'ITER NO ', ITER
+                  WRITE( DBGOUT, '( A, F12.5 )' )' DTC=', DTC 
 
                   IF( ITER .EQ. 1 ) THEN 
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
                      DO N = 1, N_RXNS
-                        WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+                        WRITE( DBGOUT, '( A, I3, 1X, 1PD13.5 )' )
      &                        'RXRAT ', N, RXRAT( NCELL, N )
                      END DO
                   END IF
@@ -242,11 +243,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
-
                   YCP( S ) =  YC( S )*( ( YC0( S ) + PROD( S ) * DTC )
      &                     / ( YC( S ) + LOSS( S ) * DTC ) )
-
-
                END DO
 
 R4
@@ -259,13 +257,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
-                  IF( ABS( YC( S ) - YCP( S ) ) .GT. RTOL( S ) *
-     &               ( YC( S ) + YCP( S ) ) ) THEN
-                     LEBI_CONV = .FALSE.
+                  IF(ABS(YC(S)-YCP(S)) .GT. RTOL(S)*(YC(S)+YCP(S)))THEN
+                     LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
 c..if predictions growing too large, treat as a convergence failure
-                  IF( YCP( S ) .GT. MAXPRED ) then
+                  IF( YCP( S ) .GT. MAXPRED ) THEN
                      MXFL = .TRUE.
                      GO TO 1010
                   END IF
@@ -284,7 +281,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                         NOTE = '         '
                      END IF
 
-                     WRITE( DBGOUT, '( I3, 1X, A, 1PE13.5, 1X, A )' )
+                     WRITE( DBGOUT, '( I3, 1X, A, 1PD13.5, 1X, A )' )
      &                            S, CHEMISTRY_SPC( S ), YC( S ), NOTE
                   END DO
                   IF( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
@@ -298,8 +295,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 R5
 R5                   DTG = 60.0D0 * DTC
 R5                   DO S = 1, NUMB_MECH_SPC
-R5                      N = CGRID_INDEX( S )
-R5                      YCCELL( N ) = YC( S )
+R5                      M = CGRID_INDEX( S )
+R5                      YCCELL( M ) = YC( S )
 R5                   END DO
 R5                   IF(CALL_DEG)CALL DEGRADE(YCCELL, DTG, JDATE, JTIME, LOGDEV) ! :WTH Call degradation routine
 R5

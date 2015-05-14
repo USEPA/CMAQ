@@ -177,7 +177,7 @@ R5         END SUBROUTINE INIT_DEGRADE
 R5         SUBROUTINE FINAL_DEGRADE( CBLK )
 R5           USE DEGRADE_SETUP_TOX
 R5           IMPLICIT NONE
-R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( NSPCSD )    !  species concentration in cell
+R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 R5         END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 

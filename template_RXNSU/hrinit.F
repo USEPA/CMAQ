@@ -55,9 +55,6 @@ C.....ARGUMENTS: NONE
 C.....PARAMETERS: NONE
 
 
-C.....EXTERNAL FUNCTIONS:
-      INTEGER  FINDEX         ! Finds location of a number in a list
-
 C.....SAVED VARIABLES:
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
@@ -65,7 +62,6 @@ C.....SAVED VARIABLES:
 C.....LOCAL VARIABLES: 
       CHARACTER( 132 ) ::  MSG       ! Log message
 
-      INTEGER IND             ! Species index
       INTEGER N               ! Loop index
       INTEGER IOS             ! Allocate error status
 
@@ -94,7 +90,20 @@ R4   &          PNEG( N_SPEC),
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
-      IF( NSPECIAL .GT. 0 )THEN
+       ALLOCATE( ATMPRES( MAX_CELLS_EBI ), 
+     &           H2O    ( MAX_CELLS_EBI ),
+     &           TEMP   ( MAX_CELLS_EBI ),
+     &           HET    ( MAX_CELLS_EBI, NHETERO ), 
+     &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ), 
+     &           LAND   ( MAX_CELLS_EBI ) ,
+     &           STAT = IOS )
+
+       IF ( IOS .NE. 0 ) THEN
+          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, LAND '
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+       END IF
+
+       IF( NSPECIAL .GT. 0 )THEN
           ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
@@ -110,23 +119,31 @@ R4   &          PNEG( N_SPEC),
           END DO
        END IF
 
-      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
-         MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
+       IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+          MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+       END IF
 
-      DO N = 1, NUMB_MECH_SPC
-         FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
-         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
-      END DO
+       DO N = 1, NUMB_MECH_SPC
+          FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
+          REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
+       END DO
 
+! initialize all reaction rates to zero so unused array elements are defined
 
-      NING1 = 4
-      NING2 = 4
+       RXRAT = 0.0D0
 
-R5    ALLOCATE( YCCELL( MODEL_SPECIES), STAT = IOS )  ! array for degradation routines
-R5    IF ( IOS .NE. 0 ) THEN
-R5       MSG = 'Error allocating YCCELL '
-R5       CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-R5    END IF
+! initialize all production and loss rates to zero so unused array elements are defined
+     
+       PROD  = 0.0D0
+       LOSS  = 0.0D0
+
+       NING1 = 4
+       NING2 = 4
+
+R5     ALLOCATE( YCCELL( MODEL_SPECIES), STAT = IOS )  ! array for degradation routines
+R5     IF ( IOS .NE. 0 ) THEN
+R5        MSG = 'Error allocating YCCELL '
+R5        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+R5     END IF
 

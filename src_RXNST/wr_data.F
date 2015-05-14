@@ -138,9 +138,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          DO N = 1, N_SPECIES
 
-            EPOS = LEN_TRIM( SPECIES( N ) )
-
-            WRITE( IOUT, 93080 ) SPECIES( N ) ( 1 : EPOS )
+            EPOS = 16 ! LEN_TRIM( SPECIES( N ) )
+           
+            WRITE( IOUT, 93081 ) SPECIES( N ) ( 1 : EPOS ), N
 
          END DO
 
@@ -152,9 +152,9 @@ c..write gas species indices (names)
 
          DO N = 1, N_GC_ONLY_SPC
 
-            EPOS = LEN_TRIM( GC_ONLY_SPC( N ) )
+            EPOS = 16 ! LEN_TRIM( GC_ONLY_SPC( N ) )
 
-            WRITE( IOUT, 93080 ) GC_ONLY_SPC( N ) ( 1 : EPOS )
+            WRITE( IOUT, 93081 ) GC_ONLY_SPC( N ) ( 1 : EPOS ), N
   
          END DO
 
@@ -200,11 +200,12 @@ c..write the ae and aq species
 
 93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
-93040 FORMAT( 6X, 'REAL, ALLOCATABLE ::  PNEG( :,  : )     ',
+93040 FORMAT( 6X, 'REAL( 8 ), ALLOCATABLE ::  PNEG( :,  : )     ',
      &            '! Negative production rates' )
 93050 FORMAT( 'c..Species indices' )
 93060 FORMAT( 'c..Gas species indices' )
-93080 FORMAT( 6X, 'INTEGER   ', A )
+93080 FORMAT( 6X, 'INTEGER  :: ', A16,' = ',I4 )
+93081 FORMAT( 6X, 'INTEGER, PARAMETER :: ', A16,' = ',I4 )
 93100 FORMAT( /'c..Aerosol species indices' )
 93120 FORMAT( /'c..AQ chemistry species indices' )
 93140 FORMAT( /6X, 'END MODULE HRDATA' )

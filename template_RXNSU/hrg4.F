@@ -56,7 +56,7 @@ C..EXTERNAL FUNCTIONS: NONE
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ), SAVE   ::  PNAME = 'HRG4'    ! Program name
+!     CHARACTER( 16 ), SAVE   ::  PNAME = 'HRG4'    ! Program name
 
       
 C..SCRATCH LOCAL VARIABLES:

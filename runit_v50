@@ -15,7 +15,8 @@
 
 #setenv GC_NAME       SAPRC07TC
 #setenv GC_NAME       SAPRC07TIC
- setenv GC_NAME       CB05TUCL
+#setenv GC_NAME       CB05TUCL
+ setenv GC_NAME       RACM2
  setenv AE_NAME       AE6
  setenv AQ_NAME       AQ
 
@@ -25,12 +26,13 @@
 #set REP              = /home/hwo/tools/csv_to_nml-file
 #set MECH             = saprc07tc_xya_isoprene_v4_v50
 #set REP              = /home/hwo/cmaq-v5.0/mechanisms
- set REP              = /home/hwo/CCTM_git_repository/MECHS
+ set REP              = /home/${USER}/CCTM_git_repository/MECHS
 #set REP              = /home/hwo/tools/mech_processor
 #set MECH             = saprc07tc_ae6_aq
 #set MECH             = saprc07tc_xya_isoprene_v5-zero_NO2EX
 #set MECH             = saprc07tc_xya_isoprene_v5_v50
- set MECH             = cb05tucl_ae6_aq
+#set MECH             = cb05tucl_ae6_aq
+ set MECH             = racm2_ae6_aq
 #set MECH             = saprc07tb_ae6_aq
 
 #uses CMAQ version 5.0 of these include files for gas phase
@@ -66,14 +68,14 @@ endif
 
 # output directory
 set day = ` date "+%b-%d-%Y" `
- set OUTDIR   =     ${BASE}/EBI-${MECH}_${day}
- setenv OUTDIR        ${BASE}/EBI-${MECH}_${day}
+ set OUTDIR   =     ${BASE}/output/EBI_V501-${MECH}_${day}
+ setenv OUTDIR        ${BASE}/output/EBI_V501-${MECH}_${day}
 
  setenv COPYRT_FLAG      N
  setenv CVS_HDR_FLAG     N
 
  setenv ALL_MECHS       F    # obsolete option 
- setenv PAR_NEG_FLAG    T    # True for CB4 and CB05 but false for SAPRC99/07T
+ setenv PAR_NEG_FLAG    F    # True for CB4 and CB05 but false for SAPRC99/07T
  setenv DEGRADE_SUBS    F    # include calls for HAPs degrade routines
 # below option is a possible solution based on work by Golam Sawar if the 
 # mechanism includes excited NO2.  The user employs it at their own risk 
@@ -83,18 +85,19 @@ set day = ` date "+%b-%d-%Y" `
 #Set the below compound names within the mechanism
 # Mechanism                  SAPRC99         CB4
 #                         #   or SAPRC07  #  CB05    #
+                          #  or RACM2     #
  setenv MECH_NO    NO     #  NO           # NO       # Mechanism name for nitric oxide
  setenv MECH_NO2   NO2    #  NO2          # NO2      # Mechanism name for nitrogen dioxide
  setenv MECH_NO2EX NO2EX  #  NO2EX        # NO2S     # Mechanism name for excited nitrogen dioxide
  setenv MECH_O3    O3     #  O3           # O3       # Mechanism name for ozone
- setenv MECH_O3P   O      #  O3P          # O        # Mechanism name for ground state oxygen atom
+ setenv MECH_O3P   O3P    #  O3P          # O        # Mechanism name for ground state oxygen atom
  setenv MECH_O1D   O1D    #  O1D2 or O1D  # O1D      # Mechanism name for excited state oxygen atom
- setenv MECH_OH    OH     #  HO or OH     # OH       # Mechanism name for hydroxyl radical
+ setenv MECH_OH    HO     #  HO or OH  or HO   # OH       # Mechanism name for hydroxyl radical
  setenv MECH_HO2   HO2    #  HO2          # HO2      # Mechanism name for hydroperoxy radical
  setenv MECH_HONO  HONO   #  HONO         # HONO     # Mechanism name for nitrous acid
- setenv MECH_HNO4  PNA    #  HNO4         # PNA      # Mechanism name for peroxynitric acid
+ setenv MECH_HNO4  HNO4    #  HNO4         # PNA      # Mechanism name for peroxynitric acid
  setenv MECH_PAN   PAN    #  PAN          # PAN      # Mechanism name for peroxy acetyl nitrate
- setenv MECH_C2O3  C2O3   #CCO_O2 or MECO3 # C2O3    # Mechanism name for peroxy acetyl radical
+ setenv MECH_C2O3  ACO3   #CCO_O2 or MECO3 or ACO3 # C2O3    # Mechanism name for peroxy acetyl radical
  setenv MECH_NO3   NO3    #   NO3         # NO3      # Mechanism name for nitrate radical
  setenv MECH_N2O5  N2O5   #   N2O5        # N2O5     # Mechanism name for dinitrogen pentoxide
  
@@ -103,15 +106,26 @@ set day = ` date "+%b-%d-%Y" `
 #########################################################
  unalias rm
 
- set is_sol = `uname -n | grep sol | wc -l`
+ set is_sol   = `uname -n | grep sol | wc -l`
+ set is_terra = `uname -n | grep sol | wc -l`
 
 if ($is_sol) then
-    setenv WDX_LIB "lib_sol"
+    setenv WDX_LIB "/home/wdx/lib_sol/x86_64/ifc"
+    setenv WDX_SRC "/home/wdx/lib/src"
     setenv NETCDF  "netcdff"
+    setenv netcdf  "netcdf"
+else if($is_terra)then
+   setenv WDX_LIB "/home/wdx/lib/x86_64/ifc"
+   setenv WDX_SRC "/home/wdx/lib/src"
+   setenv NETCDF  "netcdf"
+    setenv netcdf  "netcdf"
 else
-    setenv WDX_LIB "lib"
+    setenv WDX_LIB "/home/${USER}/tools"
+    setenv WDX_SRC "/home/${USER}/tools/wdx_lib_src"
     setenv NETCDF  "netcdf"
-endif    
+    setenv netcdf  "intel_netcdf"
+endif
+
 
  if( -e ./BLD ) then
     echo "Removing old BLD directory"
