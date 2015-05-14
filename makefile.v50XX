@@ -20,7 +20,7 @@ CPP_FLAGS  =
  
 C_FLAGS    = -O2  -DFLDMN
 LINK_FLAGS = -i-static 
-IOAPI_INC =  /home/wdx/$(WDX_LIB)/src/ioapi_3.1/ioapi/fixed_src
+#IOAPI_INC =  $(WDX_LIB)/src/ioapi_3.1/ioapi/fixed_src
  
 LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -l$(NETCDF)
 #
