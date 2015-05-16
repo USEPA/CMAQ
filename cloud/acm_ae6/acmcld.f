@@ -44,22 +44,23 @@ C      Date   Who             What
 C    -------- ---             -----------------------------------------
 C     06/2005 J.Pleim         Initial version
 C     07/2005 J.Young         Clean up for CMAQ-F
+C     04/2015 J.Young         Replace run time dynamical arrays with allocatable ones
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
 C Arguments
 
-      INTEGER NSP                ! no. of species
-      INTEGER NLAYS              ! no. of model layers
-      REAL    F( NLAYS )         ! entrainment fraction
-      REAL    C( NSP, NLAYS )    ! species concentration
-      REAL    SIGMAF( 0:NLAYS )  ! full layer sigma (mono decr)
-      REAL    CBELOW( NSP )      ! spec conc in layer below cld base
-      INTEGER CLBASE, CLTOP
-      REAL    FRAC               ! grid cell fractional cloud cover
-      REAL    TCLIFE             ! cloud lifetime (s)
-      REAL    DTCLD              ! cloud integration time step
+      INTEGER, INTENT(IN)    :: NSP            ! no. of species
+      INTEGER, INTENT(IN)    :: NLAYS          ! no. of model layers
+      REAL,    INTENT(IN)    :: F( : )         ! entrainment fraction
+      REAL,    INTENT(INOUT) :: C( :, : )      ! species concentration
+      REAL,    INTENT(INOUT) :: SIGMAF( 0: )   ! full layer sigma (mono decr)
+      REAL,    INTENT(INOUT) :: CBELOW( : )    ! spec conc in layer below cld base
+      INTEGER, INTENT(IN)    :: CLBASE, CLTOP
+      REAL,    INTENT(IN)    :: FRAC           ! grid cell fractional cloud cover
+      REAL,    INTENT(IN)    :: TCLIFE         ! cloud lifetime (s)
+      REAL,    INTENT(IN)    :: DTCLD          ! cloud integration time step
 
 C Parameters
 
@@ -74,14 +75,27 @@ C Local variables
       REAL DTLIM, F1
       REAL TOT1, TOT2
       REAL DTS, DELC, M1UP
-      REAL( 8 ) :: AI( NLAYS ), BI( NLAYS ), EI( NLAYS )
-      REAL( 8 ) :: DI( NLAYS ), UI( NLAYS )
+      REAL( 8 ), ALLOCATABLE :: AI( : ), BI( : ), EI( : )
+      REAL( 8 ), ALLOCATABLE :: DI( : ), UI( : )
       REAL( 8 ) :: ALPHA, BETA, GAMA
-      REAL VCI( NLAYS,NSP )
-      REAL MBARKS( NLAYS ), MDWN( NLAYS )
-      REAL DSIGH( NLAYS ), DSIGHI( NLAYS )
+      REAL, ALLOCATABLE :: VCI( :,: )
+      REAL, ALLOCATABLE :: MBARKS( : ), MDWN( : )
+      REAL, ALLOCATABLE :: DSIGH( : ), DSIGHI( : )
+      INTEGER :: STAT
 
 C-----------------------------------------------------------------------
+
+      ALLOCATE (AI( NLAYS ),
+     &          BI( NLAYS ),
+     &          EI( NLAYS ),
+     &          DI( NLAYS ),
+     &          UI( NLAYS ),
+     &          VCI( NLAYS,NSP ),
+     &          MBARKS( NLAYS ),
+     &          MDWN( NLAYS ),
+     &          DSIGH( NLAYS ),
+     &          DSIGHI( NLAYS ),
+     &          STAT=STAT)
 
       DTLIM = DTCLD
       MDWN ( CLTOP + 1 ) = 0.0
@@ -89,7 +103,7 @@ C-----------------------------------------------------------------------
       SIGMAF( 0 ) = 1
       M1UP = 0.0
       KB  = CLBASE - 1
-      CLBASE = CLBASE
+!     CLBASE = CLBASE
       DSIGH ( KB ) = SIGMAF( KB ) - 1.0
       DSIGHI( KB ) = 1.0 / DSIGH( KB )
 
@@ -185,5 +199,6 @@ C Update concentrations
 
       END DO
 
-      RETURN
-      END
+      DEALLOCATE (AI, BI, EI, DI, UI, VCI, MBARKS, MDWN, DSIGH, DSIGHI)
+
+      END SUBROUTINE ACMCLD

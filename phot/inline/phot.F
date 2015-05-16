@@ -270,7 +270,7 @@ C...modules
       
       LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
       LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
-      LOGICAL                    :: DARK           ! Are the processors cells in darkness?
+      LOGICAL                    :: DARK           ! Are this processor's cells in darkness?
       
 !...Variables for diagnostic outputs
 

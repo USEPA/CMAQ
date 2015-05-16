@@ -98,6 +98,10 @@ C       04Apr14 B.Hutzell:  Added routine call to capture cloud fractions,
 C                           water, and ice mixing ratios
 C       11Feb15 J.Young: Updated call to czangle.F which uses the ASX_DATA_MOD shared
 C                        data module (Implemented by J.Bash on 07 Nov 14)
+C       09/04/15 D.Wong: - Made variable declaration method consistent in the caller 
+C                          and calling routines
+C                        - Used a variable rather than an array in calculation to
+C                          reduce memory footprint and to increase code efficiency
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -115,15 +119,14 @@ C...........INCLUDES
 
 C...........Arguments
 
-      REAL, POINTER          :: CGRID( :,:,:,: )
-      INTEGER, INTENT( IN )  :: JDATE
-      INTEGER, INTENT( IN )  :: JTIME
-      INTEGER, INTENT( IN )  :: TSTEP( 3 )
-      INTEGER, INTENT( IN )  :: N_SPC_WDEP
-      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-      REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
-      REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
-
+      REAL, POINTER          :: CGRID( :,:,:,: )   ! concentrations
+      INTEGER, INTENT( IN )  :: JDATE              ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME              ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )         ! model time steps, coded HHMMSS
+      INTEGER, INTENT( IN )  :: N_SPC_WDEP         ! # of wet deposition species
+      INTEGER, INTENT( IN )  :: WDEP_MAP( : )      ! wet deposition species map to CGRID
+      REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )  ! depositions (etc.)
+      REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )  ! subgrid cloud transmissivity
 
 C...........Parameters
 
@@ -154,7 +157,7 @@ C 1 hectare = 1.0e4 m**2
 C subgrid scale temp perturb (deg K)
       REAL, PARAMETER :: PERT = 1.5
 
-C " wvp mix ratio perturb (dimensionless)
+C wvp mix ratio perturb (dimensionless)
       REAL, PARAMETER :: PERQ = 1.5E-3
 
 C rainfall threshold in mm/hr (mm/hr)
@@ -192,13 +195,10 @@ C   SYNCCLD=.TRUE.  : every synchronization timestep
 C   SYNCCLD=.FALSE. : every hour on the half hour
       LOGICAL, PARAMETER :: SYNCCLD = .TRUE. ! default to sync timestep
 
-
-      INTEGER       ICLDTYPE            ! 1: raining, 2: either CNP or PFW
-
 C...........Local Variables
 
 C-------for ACM version - jp 2/05        REAL DPB
-      REAL, ALLOCATABLE, SAVE ::  SIGF( : )
+      REAL, ALLOCATABLE, SAVE :: SIGF( : )
       REAL, ALLOCATABLE, SAVE :: CCR( :,: ), CONC( :,: ), CBELOW( : )
 C-------------------------------------------
       INTEGER, SAVE :: LOGDEV
@@ -211,6 +211,7 @@ C-------------------------------------------
 
       CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and new is RCA
 
+      INTEGER       ICLDTYPE            ! 1: raining, 2: either CNP or PFW
       INTEGER       ATIME               ! time diff from half-hour
       INTEGER       CLTOP               ! model LAY containing cloud top
       INTEGER       COL                 ! column loop counter
@@ -229,24 +230,9 @@ C-------------------------------------------
       INTEGER, SAVE :: STIME            ! met file start time
       INTEGER       VAR                 ! variable loop counter
 
-!     INTEGER       CLBASE    ( NCOLS, NROWS ) ! cld base layer
-!     SAVE          CLBASE
-!     INTEGER       CLTOPUSTBL( NCOLS, NROWS ) ! unstable cld top layer
-!     SAVE          CLTOPUSTBL
-!     INTEGER       IRNFLAG   ( NCOLS, NROWS ) ! 0: no raining cld 1: raining cloud
-!     SAVE          IRNFLAG
-!     INTEGER       ISOUND    ( NCOLS, NROWS ) ! flag for sounding stability
-!     SAVE          ISOUND
-!     INTEGER       SRCLAY    ( NCOLS, NROWS ) ! cloud source level vert index
-!     SAVE          SRCLAY
-!     INTEGER, ALLOCATABLE, SAVE :: CLBASE    ( :,: ) ! cld base layer
-      INTEGER       CLBASE                            ! cld base layer
-!     INTEGER, ALLOCATABLE, SAVE :: CLTOPUSTBL( :,: ) ! unstable cld top layer
-      INTEGER       CLTOPUSTBL                        ! unstable cld top layer
-!     INTEGER, ALLOCATABLE, SAVE :: IRNFLAG   ( :,: ) ! 0: no raining cld 1: raining cloud
-!     INTEGER, ALLOCATABLE, SAVE :: ISOUND    ( :,: ) ! flag for sounding stability
+      INTEGER       CLBASE              ! cld base layer
+      INTEGER       CLTOPUSTBL          ! unstable cld top layer
       INTEGER       ISOUND              ! flag for sounding stability
-!     INTEGER, ALLOCATABLE, SAVE :: SRCLAY    ( :,: ) ! cloud source level vert index
       INTEGER       SRCLAY              ! cloud source level vert index
 
       REAL          AIRM                ! total air mass (moles/m2) in cloudy air
@@ -317,50 +303,37 @@ C-------------------------------------------
       REAL          X1                  ! intermediate vbles in lapse rate calculation X1 also reused as scratch vble in mixing
       REAL          XXXX                ! scratch vbl used in entrainment solver
       REAL          CLOD, LWP
+      REAL          STRNS               ! intermediate to set subgrid cld transmissivity
       REAL, ALLOCATABLE, SAVE :: AECONCMIN( : ) ! array of minimum concentrations
       REAL, ALLOCATABLE, SAVE :: BMOL   ( : )   ! moles/m2 species below cloud
       REAL, ALLOCATABLE, SAVE :: CBASE0 ( : )   ! initial ave trace gas mix rat below cld
-      REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (moles/mole)
-      REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (moles/mole)
+      REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (mol/mol)
+      REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: POLC   ( : )   ! ave vert conc incloud moles sp/m2 and moles sp/ mole air
       REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! moles/m2 or mm*mol/lit scavenged
       REAL          DENSL( NLAYS )      ! air density (kg/m3)
-      REAL          F    ( NLAYS )      ! cloud entrainment fraction to be solved for
+!     REAL          F    ( NLAYS )      ! cloud entrainment fraction to be solved for
+      REAL, ALLOCATABLE :: F( : )       ! cloud entrainment fraction to be solved for
       REAL          FSIDE( NLAYS )      ! sidewall entrainment vertical profile
       REAL          LWC  ( NLAYS )      ! liq wat cont of cloud in kg H2O/m3 air
-      REAL          QICE ( NLAYS )      ! ice mixing ratio in cloud
-      REAL          QLQD ( NLAYS )      ! actual liq. wat. mix ratio in cloud
+!     REAL          QICE ( NLAYS )      ! ice mixing ratio in cloud
+      REAL, ALLOCATABLE :: QICE ( : )   ! ice mixing ratio in cloud
+!     REAL          QLQD ( NLAYS )      ! actual liq. wat. mix ratio in cloud
+      REAL, ALLOCATABLE :: QLQD ( : )   ! actual liq. wat. mix ratio in cloud
       REAL          QVC  ( NLAYS )      ! saturation wat vap mix ratio at T1
       REAL          QWAT ( NLAYS )      ! liq wat mix rat, taken as total condensed water (ice + liq) profile (Eq.4, W&T)
       REAL          RHOM2( NLAYS )      ! moles/m2 air
       REAL          TCLD ( NLAYS )      ! temp of cloudy air parcel
 
-!     REAL          ACTRNMA( NCOLS, NROWS ) ! actual fraction of below cld layer mass convected into raining cloud
-!     SAVE          ACTRNMA
-!     REAL          FRACMAX( NCOLS, NROWS ) !  max frac cov for NP cld
-!     SAVE          FRACMAX
-!     REAL          FWXFRAC( NCOLS, NROWS ) ! storage array for actual NP cld frac
-!     SAVE          FWXFRAC
-!     REAL          PLCL   ( NCOLS, NROWS ) ! pressure at LCL
-!     SAVE          PLCL
-!     REAL          QMAX   ( NCOLS, NROWS ) ! pertbd w.. mix rat of parcel
-!     SAVE          QMAX
-!     REAL          TOTFRAC( NCOLS, NROWS ) !  total frac cloud cover
-!     SAVE          TOTFRAC
-!     REAL, ALLOCATABLE, SAVE :: ACTRNMA( :,: ) ! actual fraction of below cld layer mass convected into raining cloud
-!     REAL, ALLOCATABLE, SAVE :: FRACMAX( :,: ) !  max frac cov for NP cld
-      REAL          FRACMAX                     !  max frac cov for NP cld
-!     REAL, ALLOCATABLE, SAVE :: PLCL   ( :,: ) ! pressure at LCL
-      REAL          PLCL                        ! pressure at LCL
-!     REAL, ALLOCATABLE, SAVE :: QMAX   ( :,: ) ! pertbd w.. mix rat of parcel
-      REAL          QMAX                        ! pertbd w.. mix rat of parcel
-!     REAL, ALLOCATABLE, SAVE :: TOTFRAC( :,: ) !  total frac cloud cover
+      REAL          FRACMAX             !  max frac cov for NP cld
+      REAL          PLCL                ! pressure at LCL
+      REAL          QMAX                ! pertbd w.. mix rat of parcel
       REAL          RAIN   ( NCOLS, NROWS ) !  this timestep rainfall (mm/hr)
-      REAL, ALLOCATABLE, SAVE :: BCLDWT  ( :,: ) ! below cloud weighting function
+      REAL :: BCLDWT  ! below cloud weighting function
       REAL, ALLOCATABLE, SAVE :: CONCMINL( :,: ) ! minimum concentrations for each species and layer
-      REAL, ALLOCATABLE, SAVE :: INCLOUD ( :,: ) ! fin. in cloud conc. after mix and chem moles/mole
-      REAL, ALLOCATABLE, SAVE :: OUTCLOUD( :,: ) ! fin. outside cld conc. "   "   "   " moles/mole
-      REAL, ALLOCATABLE, SAVE :: PCLD    ( :,: ) ! moles sp/mole air in cloud
+      REAL :: INCLOUD                   ! fin. in cloud conc. after mix & chem (mol/mol)
+      REAL :: OUTCLOUD                  ! fin. outside cld conc. "   "  "   " (mol/mol)
+      REAL, ALLOCATABLE, SAVE :: PCLD( :,: )     ! moles sp/mole air in cloud
 
       REAL          RC   ( NCOLS, NROWS ) ! hourly convective rainfall (cm)
       REAL          PBL  ( NCOLS, NROWS ) ! PBL height (m)
@@ -368,17 +341,11 @@ C-------------------------------------------
       REAL          DZZL ( NLAYS )                ! grid cell delta Z
       REAL          PRES ( NCOLS, NROWS, NLAYS )  ! file gridded vble
       REAL          PRESL( NLAYS )                ! grid cell pressure
-!     REAL          QAD  ( NCOLS, NROWS, NLAYS )  ! moist adiab. sat. mix ratio
-!     SAVE          QAD
-!     REAL, ALLOCATABLE, SAVE :: QAD  ( :,:,: )  ! moist adiab. sat. mix ratio
       REAL          QAD  ( NLAYS )                ! moist adiab. sat. mix ratio
       REAL          QV   ( NCOLS, NROWS, NLAYS )  ! input gridded vble
       REAL          QVL  ( NLAYS )                ! grid cell sp. hum.
       REAL          TA   ( NCOLS, NROWS, NLAYS )  ! input gridded vble
       REAL          TAL  ( NLAYS )                ! grid cell temp
-!     REAL          TSAT ( NCOLS, NROWS, NLAYS )  ! parcel temp along moist adiabat @ half levels
-!     SAVE          TSAT
-!     REAL, ALLOCATABLE, SAVE :: TSAT ( :,:,: )  ! parcel temp along moist adiabat @ half levels
       REAL          TSAT ( NLAYS )               ! parcel temp along moist adiabat @ half levels
       REAL          ZH   ( NCOLS, NROWS, NLAYS )  ! mid-layer height (m)
       REAL          ZF   ( NCOLS, NROWS, NLAYS )  ! level/layer-face height (m)
@@ -393,10 +360,9 @@ C for INTERPX
 
 C Gridded meteorology data: Golam Sarwar, July 1, 2011 
 C Latitude and longitude for zenith angle calculation:     
-!     REAL          COSZEN( NCOLS, NROWS )      ! cosine of zenith angle
-      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )   ! cosine of zenith angle
-      REAL          COSZ                            ! local cosine of zenith angle
-      LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
+!     REAL          COSZEN( NCOLS, NROWS )         ! cosine of zenith angle
+      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )  ! cosine of zenith angle
+      LOGICAL       DARK                           ! TRUE = night, FALSE = day
 
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
@@ -443,20 +409,43 @@ C...........Statement Functions
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
-      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-         USE UTILIO_DEFN
-         USE ASX_DATA_MOD, Only: Grid_Data
-         IMPLICIT NONE
-         INTEGER, INTENT( IN )  :: JDATE
-         INTEGER, INTENT( IN )  :: JTIME
-         INTEGER, INTENT( IN )  :: NX
-         INTEGER, INTENT( IN )  :: NY
-         REAL,    INTENT( OUT ) :: COSZEN( :,: )
-      END SUBROUTINE CZANGLE
+        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+           USE UTILIO_DEFN
+           USE ASX_DATA_MOD, Only: Grid_Data
+           IMPLICIT NONE
+           INTEGER, INTENT( IN )  :: JDATE
+           INTEGER, INTENT( IN )  :: JTIME
+           INTEGER, INTENT( IN )  :: NX
+           INTEGER, INTENT( IN )  :: NY
+           REAL,    INTENT( OUT ) :: COSZEN( :,: )
+        END SUBROUTINE CZANGLE
+        SUBROUTINE ACMCLD ( F, C, SIGMAF, CBELOW, CLBASE, CLTOP, FRAC,
+     &                      NSP, NLAYS, TCLIFE, DTCLD )
+           INTEGER, INTENT( IN )    :: NSP
+           INTEGER, INTENT( IN )    :: NLAYS
+           REAL,    INTENT( IN )    :: F( : )
+           REAL,    INTENT( INOUT ) :: C( :, : )
+           REAL,    INTENT( INOUT ) :: SIGMAF( 0: )
+           REAL,    INTENT( INOUT ) :: CBELOW( : )
+           INTEGER, INTENT( IN )    :: CLBASE, CLTOP
+           REAL,    INTENT( IN )    :: FRAC
+           REAL,    INTENT( IN )    :: TCLIFE
+           REAL,    INTENT( IN )    :: DTCLD
+        END SUBROUTINE ACMCLD
+
       END INTERFACE
 
 C-----------------------------------------------------------------------
 C  begin body of subroutine CONVCLD_ACM
+
+      ALLOCATE ( F( NLAYS ), 
+     &           QICE( NLAYS ),
+     &           QLQD( NLAYS ),
+     &           STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating QICE'
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF
 
 C...INITIALIZATION for the CONVCLD_ACM module:
 C...  event-statistics variables.
@@ -526,26 +515,15 @@ C...get horizontal domain window from met data
 C...check convective precipitation on met files to determine if WRF used
 C...  a convective parameterization
 
-!       ALLOCATE ( RC( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       IF ( ALLOCSTAT .NE. 0 ) THEN
-!          XMSG = 'Failure allocating RC'
-!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!       END IF
-
-!       VARNM = 'RC'
-!       IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
-!    &                    RC ) ) THEN
-!       IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
         IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
      &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                      SDATE, STIME, RC ) ) THEN
-!         XMSG = 'Could not read RC from ' // MET_CRO_2D
           XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-!clear arrays that capture ACM cloud results
-        IF( USE_ACM_CLOUD )CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
+C.. clear arrays that capture ACM cloud results
+        IF ( USE_ACM_CLOUD ) CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
 
 C...in coordination with MCIPv4.0, negative values will be loaded into the RC
 C...  field if a convective parameterization was not used in the WRF simulation
@@ -557,39 +535,11 @@ C...  field if a convective parameterization was not used in the WRF simulation
           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
           XMSG = 'Processing will continue without subgrid clouds'
           CALL M3MESG ( XMSG )
-          RETURN
+!         RETURN
+          GO TO 999
         END IF
 
 C...allocate saved arrays
-
-!       ALLOCATE ( FRACMAX   ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( TOTFRAC   ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( IRNFLAG   ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       IF ( ALLOCSTAT .NE. 0 ) THEN
-!          XMSG = 'Failure allocating FRACMAX or TOTFRAC or IRNFLAG'
-!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!       END IF
-!       ALLOCATE ( ACTRNMA   ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( CLBASE    ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( CLTOPUSTBL( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       IF ( ALLOCSTAT .NE. 0 ) THEN
-!          XMSG = 'Failure allocating ACTRNMA or CLBASE or CLTOPUSTBL'
-!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!       END IF
-!       ALLOCATE ( QMAX      ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( PLCL      ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( SRCLAY    ( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       IF ( ALLOCSTAT .NE. 0 ) THEN
-!          XMSG = 'Failure allocating QMAX or PLCL or SRCLAY'
-!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!       END IF
-!       ALLOCATE ( ISOUND( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( QAD   ( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!       ALLOCATE ( TSAT  ( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!       IF ( ALLOCSTAT .NE. 0 ) THEN
-!          XMSG = 'Failure allocating ISOUND or QAD or TSAT'
-!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!       END IF
 
         ALLOCATE ( SIGF( 0:NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -612,28 +562,25 @@ C...allocate saved arrays
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE ( BMOL   ( MXSPCS ),
-     &             CBASE0 ( MXSPCS ),
-     &             CBASEF ( MXSPCS ),
-     &             CEND   ( MXSPCS ),
-     &             POLC   ( MXSPCS ),
-     &             REMOV  ( MXSPCS ), STAT = ALLOCSTAT )
+        ALLOCATE ( BMOL  ( MXSPCS ),
+     &             CBASE0( MXSPCS ),
+     &             CBASEF( MXSPCS ),
+     &             CEND  ( MXSPCS ),
+     &             POLC  ( MXSPCS ),
+     &             REMOV ( MXSPCS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC or REMOV'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE ( BCLDWT  ( MXSPCS,NLAYS ),
-     &             CONCMINL( MXSPCS,NLAYS ),
-     &             INCLOUD ( MXSPCS,NLAYS ),
-     &             OUTCLOUD( MXSPCS,NLAYS ),
+        ALLOCATE ( CONCMINL( MXSPCS,NLAYS ),
      &             PCLD    ( MXSPCS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating BCLDWT, CONCMINL, INCLOUD, OUTCLOUD or PCLD'
+          XMSG = 'Failure allocating CONCMINL, or PCLD'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE ( COSZEN ( NCOLS,NROWS ), STAT = ALLOCSTAT )
+        ALLOCATE ( COSZEN( NCOLS,NROWS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating COSZEN'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -641,7 +588,8 @@ C...allocate saved arrays
 
       END IF   ! Firstime
 
-      IF ( .NOT. CONVCLD ) RETURN
+!     IF ( .NOT. CONVCLD ) RETURN
+      IF ( .NOT. CONVCLD ) GO TO 999
 
 C...check option for processing clouds on the synchronization timestep
 
@@ -678,7 +626,8 @@ C...  set mdate:mtime to one-half step before the half-hour
 
         ATIME = SECSDIFF( MDATE, MTIME, JDATE, JTIME )
 
-        IF ( ( ATIME .LT. 0 ) .OR. ( ATIME .GE. STEP ) ) RETURN
+!       IF ( ( ATIME .LT. 0 ) .OR. ( ATIME .GE. STEP ) ) RETURN
+        IF ( ( ATIME .LT. 0 ) .OR. ( ATIME .GE. STEP ) ) GO TO 999
 
 C...the current timestep overlaps the half hour point
 C...  set the time to the half hour for data interpolation
@@ -693,15 +642,7 @@ C...  (reading those variables for which it is necessary)
 
 C...  Get ambient temperature (K)
 
-!     ALLOCATE ( TA( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating TA'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       VARNM = 'TA'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, TA ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, TA ) ) THEN
@@ -711,15 +652,7 @@ C...  Get ambient temperature (K)
 
 C...Get specific humidity (kg H2O / kg air)
 
-!     ALLOCATE ( QV( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating QV'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       VARNM = 'QV'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, QV ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, QV ) ) THEN
@@ -729,15 +662,7 @@ C...Get specific humidity (kg H2O / kg air)
 
 C...Get level heights / layer faces (m)
 
-!     ALLOCATE ( ZF( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating ZF'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       VARNM = 'ZF'
-!     IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                     NCOLS * NROWS * NLAYS, ZF ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, ZF ) ) THEN
@@ -747,15 +672,7 @@ C...Get level heights / layer faces (m)
 
 C...Get mid-layer heights (m)
 
-!     ALLOCATE ( ZH( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating ZH'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       VARNM = 'ZH'
-!     IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                     NCOLS * NROWS * NLAYS, ZH ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, ZH ) ) THEN
@@ -765,15 +682,7 @@ C...Get mid-layer heights (m)
 
 C...Get pressure (Pa)
 
-!     ALLOCATE ( PRES( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating PRES'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
       VARNM = 'PRES'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, PRES ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, PRES ) ) THEN
@@ -782,12 +691,6 @@ C...Get pressure (Pa)
       END IF
 
 C...compute layer thicknesses (m)
-
-!     ALLOCATE ( DZZ( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating DZZ'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
 
       DO ROW = 1, MY_NROWS
         DO COL = 1, MY_NCOLS
@@ -828,20 +731,9 @@ C...  on the input file are amounts within the metfiles timestep.
 
 C...Get convective precipitation amount (cm)
 
-!     ALLOCATE ( RC( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!     IF ( ALLOCSTAT .NE. 0 ) THEN
-!        XMSG = 'Failure allocating RC'
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
-!     VARNM = 'RC'
-!     IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
-!    &                  RC ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
       IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
      &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                    MDATE, MTIME, RC ) ) THEN
-!       XMSG = 'Could not read RC from ' // MET_CRO_2D
         XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
@@ -850,46 +742,29 @@ C...Convert the rainfall rate into mm/hr, then set a flag noting the
 C...  presence of raining clouds if the rainfall is above the specified
 C...  threshold
 
-!      IF ( ICLDTYPE .EQ. 1 ) THEN
+      DO ROW = 1, MY_NROWS
+        DO COL = 1, MY_NCOLS
 
-!       ALLOCATE ( RAIN( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-!       IF ( ALLOCSTAT .NE. 0 ) THEN
-!          XMSG = 'Failure allocating RAIN'
-!          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!       END IF
+          RAIN( COL, ROW ) = 10.0 * RC( COL, ROW ) / METSTEP
 
-        DO ROW = 1, MY_NROWS
-          DO COL = 1, MY_NCOLS
+          IF ( RAIN( COL, ROW ) .LT. 0.0 ) THEN
+            XMSG = 'NEGATIVE RAIN...PROBABLE BAD MET DATA...'
+     &           // MET_CRO_2D
+            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+          END IF
 
-            RAIN( COL, ROW ) = 10.0 * RC( COL, ROW ) / METSTEP
+          IF ( RAIN( COL, ROW ) .GE. RTHRESH ) THEN
+            CONV_DEP( COL, ROW, N_SPC_WDEP + 6 ) = 1.0
+          END IF
 
-            IF ( RAIN( COL, ROW ) .LT. 0.0 ) THEN
-              XMSG = 'NEGATIVE RAIN...PROBABLE BAD MET DATA...'
-     &                // MET_CRO_2D
-              CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( RAIN( COL, ROW ) .GE. RTHRESH ) THEN
-              CONV_DEP( COL, ROW, N_SPC_WDEP + 6 ) = 1.0
-            END IF
-
-          END DO
         END DO
-
-!      END IF
+      END DO
 
 C...Loop through all grid cells
 
       DO 311 ROW = 1, MY_NROWS
         DO 301 COL = 1, MY_NCOLS
 
-!d        TOTFRAC( COL, ROW ) = 0.0
-!d        ACTRNMA( COL, ROW ) = 0.0
-!         CLBASE ( COL, ROW ) = NLAYS
-!         CLTOPUSTBL( COL, ROW ) = NLAYS
-!         QMAX  ( COL, ROW ) = 0.0
-!         PLCL  ( COL, ROW ) = 0.0
-!         SRCLAY( COL, ROW ) = NLAYS
           CLBASE = NLAYS
           CLTOPUSTBL = NLAYS
           QMAX  = 0.0
@@ -897,21 +772,19 @@ C...Loop through all grid cells
           SRCLAY = NLAYS
 
           DO LAY = 1, NLAYS
-!           QAD( COL, ROW, LAY ) = 0.0
             QAD( LAY ) = 0.0
             PRESL( LAY ) = PRES( COL,ROW,LAY )
             TAL( LAY ) = TA( COL,ROW,LAY )
             QVL( LAY ) = QV( COL,ROW,LAY )
             DZZL( LAY ) = DZZ( COL,ROW,LAY )
-            DENSL( LAY ) = PRESL( LAY )
-     &                   / ( RDGAS * TAL( LAY ) )
+            DENSL( LAY ) = PRESL( LAY ) / ( RDGAS * TAL( LAY ) )
           END DO
 
 C...load aerosol minimum concentrations into the "CONCMINL" array
 C...  initialize all species to CMIN
 
 !         CONCMINL = CMIN
-          CONCMINL =  1.0E-25
+          CONCMINL = 1.0E-25
 
 C...  set minimum for aerosol species
 
@@ -927,9 +800,8 @@ C...  set minimum for aerosol species
 
           DO LAY = 1, NLAYS
             DO SPC = 1, NSPCSD
-!              CONC( SPC,LAY ) = CGRID( COL,ROW,LAY,SPC )
-              CONC( SPC,LAY ) = MAX(CGRID( COL,ROW,LAY,SPC ),
-     &                                  CONCMINL( SPC, LAY ))
+              CONC( SPC,LAY ) = MAX( CGRID( COL,ROW,LAY,SPC ),
+     &                               CONCMINL( SPC, LAY ) )
             END DO
           END DO
 
@@ -948,14 +820,10 @@ C...  routine is called again for non-precipitating clouds...then
 C...  skip to the next grid cell.
 
             PRATE  = RAIN( COL, ROW )
-!           FRACMAX( COL, ROW ) = 0.0
-!d          IRNFLAG( COL, ROW ) = 1
             FRACMAX = 0.0
 
           ELSE
 
-!           FRACMAX( COL, ROW ) = 0.5
-!d          IRNFLAG( COL, ROW ) = 0
             FRACMAX = 0.5
 
           END IF              ! end of cld type test
@@ -972,22 +840,19 @@ C...   potential temperature is cloud source layer.
           PMAX  = PRESL( 1 )
           THMAX = TMAX * ( 100000.0 / PMAX ) ** ROVCP
           EQTHM = THMAX * EXP( LVOCP * QMAX / TMAX )
-!         EQTHM = THMAX + ( LVOCP * QMAX * THMAX / TMAX )
-!         WRITE( LOGDEV,* ) ' THMAX,EQTHM=',THMAX,EQTHM
+!         write( logdev,* ) ' thmax,eqthm=',thmax,eqthm
 
           DO 222 LAY = 2, NLAYS
 
             PP = PRESL( LAY )
 
-!           IF ( PP .LT. 65000.0 ) GO TO 223  !  loop exit
-            IF ( ZH( COL,ROW,LAY).GT.3000.) GO TO 223
+            IF ( ZH( COL,ROW,LAY ) .GT. 3000.0 ) GO TO 223   ! exit loop
 
             TP = TAL( LAY ) + PERT
             QP = QVL( LAY ) + PERQ
-            THMAX = TP * ( 100000.0 / PP )**ROVCP
+            THMAX = TP * ( 100000.0 / PP ) ** ROVCP
             EQTH = THMAX * EXP( LVOCP * QP / TP )
-!           EQTH = THMAX + ( LVOCP * QP *THMAX/ TP )
-!           WRITE( LOGDEV,* ) ' PP,TP,QP,THMAX,EQTH=',PP,TP,QP,THMAX,EQTH
+!           write( logdev,* ) ' pp,tp,qp,thmax,eqth=',pp,tp,qp,thmax,eqth
 
             IF ( EQTH .GT. EQTHM ) THEN
 
@@ -1014,10 +879,10 @@ C...   see Walcek and Taylor, 1986.
           TDMAX = C302 / ( C303 - ALOG( EMAX * VPINV ) )            !??????
           TDMAX = MIN( TDMAX, TMAX )
           DPLR  = ( GRAV * TDMAX * TDMAX ) / ( MVOMA * LV0 * TMAX )
-!         WRITE( LOGDEV,* ) ' SLAY,EQTHM,TDMAX,DPLR=',
-!    &                  SRCLAY, EQTHM, TDMAX, DPLR
+!         write( logdev,* ) ' slay,eqthm,tdmax,dplr=',
+!    &                  srclay, eqthm, tdmax, dplr
 
-C...Compute difference between dry adiabatic and dew point lapse
+c...Compute difference between dry adiabatic and dew point lapse
 C...   rate, height increment above source level to reach LCL,
 C...   then calculate value of pressure at LCL.  Save result
 C...   in DEP( *,*,N_SPC_WDEP+2 ).
@@ -1045,7 +910,7 @@ C...walcek formula
 
           END IF
 
-!         WRITE( LOGDEV,* ) ' SRCLAY=', SRCLAY
+!         write( logdev,* ) ' srclay=', srclay
 
           CONV_DEP( COL, ROW, N_SPC_WDEP + 2 ) = PLCL
 
@@ -1132,12 +997,6 @@ C...  (unstable).
 255       CONTINUE            !  end loop following moist adiabat
 
           CLTOP = NLAYS - 1   !  if you get to here:  cloud stable or no top
-!         IF( ICLDTYPE .EQ. 1 ) THEN 
-!             WRITE( XMSG, 91010 )
-!    &             'Stable Precipitating cloud at COL= ',
-!    &             COL, ' ROW= ',  ROW, ' ICLDTYPE= ', ICLDTYPE
-!             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-!           END IF
 
 256       CONTINUE
 
@@ -1146,18 +1005,18 @@ C...  "stable" cloud. In this case, we find cloud top by relative
 C...   humidity criterion, or, not let cloud top go above 600mb.
 
           IF ( ISOUND .EQ. 0 ) THEN
-          IF ( ICLDTYPE.NE.1 ) GO TO 299
+          IF ( ICLDTYPE .NE. 1 ) GO TO 299
 
             DO 265 LAY = CLBASE + 1, NLAYS
               IF ( PRESL( LAY ) .LE. 60000.0 ) THEN
                 CLTOP = LAY - 1
-                GO TO 267        !  loop exit
+                GO TO 267        !  exit loop
               END IF
               RLH = QVL( LAY )
      &            / QSAT( ESAT( TAL( LAY ) ), PRESL( LAY ) )
               IF ( RLH .LT. 0.65 ) THEN
                 CLTOP = LAY - 1
-                GO TO 267        !  to loop exit
+                GO TO 267        !  exit loop
               END IF
 265         CONTINUE
 
@@ -1169,7 +1028,7 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
           END IF
 
-267         CONTINUE    !  loop exit target
+267         CONTINUE    ! loop exit
 
           CONV_DEP( COL, ROW, N_SPC_WDEP + 3 ) = FLOAT( CLBASE )
 
@@ -1184,49 +1043,39 @@ C...compute relative humidity at the cloud source level
             RLHSRC = QVL( SRCLAY )
      &             / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
 
-!           IF ( RLHSRC .LE. RCRIT1 ) GO TO 299
-
 C...If all tests pass, then a CNP or PFW cloud exists
 C...  Proceed to find CLTOP for CNP or PFW; don't allow
 C...  cloud top to exceed 500mb, or, when RH falls below
 C...  65%, cloud top found
-
-!            DO LAY = CLBASE + 1, NLAYS
-!              CLTOP = LAY - 1
-!              RLH = QVL( LAY )
-!     &            / QSAT( ESAT( TAL( LAY ) ), PRESL( LAY ) )
-!              IF ( RLH .LT. 0.65 ) GO TO 285
-!              IF ( PRESL( LAY ) .LE. 50000.0 ) GO TO 285
-!            END DO
-
-!285         CONTINUE   ! loop exit target, INITIAL cloud top found
 
 C...Distiguish between CNP and PFW by whether rain is falling
 C...  in the cell; if PFW, limit depth and find new CLTOP,
 C...  else leave CLTOP alone
 
             IF ( CLTOP .EQ. CLBASE ) THEN
-              GO TO 322
+
+              GO TO 322   ! exit loop
+
             ELSE                   ! confine PFW to 1500 meters
+
               CTOP = CLTOP
 
               DO LAY = CTOP, CLBASE, -1
-                IF (ZH(COL,ROW, LAY)-ZH(COL,ROW,CLBASE).LE. 3000.0)THEN
+                IF ( ZH( COL,ROW,LAY ) - ZH( COL,ROW,CLBASE ) .LE. 3000.0 ) THEN
                   CLTOP = LAY
-                  GO TO 322
+                  GO TO 322   ! exit loop
                 END IF
               END DO
 
             END IF
 
-322         CONTINUE     ! exit target for PFW cloud
+322         CONTINUE     ! loop exit for PFW cloud
 
 C...If unstable CNP or PFW, limit CLTOP to CLTOPUSTBL so that
 C...  QAD profile is known through cloud depth for entrainment
 C...  solver
 
-            IF ( ISOUND .EQ. 1 )
-     &        CLTOP = MIN( CLTOP, CLTOPUSTBL )
+            IF ( ISOUND .EQ. 1 ) CLTOP = MIN( CLTOP, CLTOPUSTBL )
 
 C...Now compute fractional coverage for either CNP or PFW:
 
@@ -1236,13 +1085,13 @@ C...Now compute fractional coverage for either CNP or PFW:
               FRAC = FRACMAX * ( ( RLHSRC - RCRIT1 ) / ( RCRIT2 - RCRIT1 ) )
             END IF
             
-            IF(FRAC.LT.0.01) GO TO 299
+            IF ( FRAC .LT. 0.01 ) GO TO 299
 
             CONV_DEP( COL, ROW, N_SPC_WDEP + 5 ) = FLOAT( CLTOP ) ! store NP cloud top
             CONV_DEP( COL, ROW, N_SPC_WDEP + 8 ) = FRAC
 
-          END IF  !! end of existence, depth and frac cov calc for
-                  !! either PFW or CNP clouds
+          END IF  ! end of existence, depth and frac cov calc for
+                  ! either PFW or CNP clouds
 
 C...Now cloud existence is established, initialize various
 C...  variables needed for rest of computations
@@ -1251,8 +1100,7 @@ C...First, get moles air/m2 at each layer, initialize FSIDE
 
           DO LAY = 1, NLAYS
             RHOM2( LAY ) = PRESL( LAY ) * DZZL( LAY )
-     &                   * 1.0E3
-     &                   / ( RDGAS * MWAIR * TAL( LAY ) )
+     &                   * 1.0E3 / ( RDGAS * MWAIR * TAL( LAY ) )
             FSIDE( LAY ) = 0.0
           END DO
 
@@ -1263,7 +1111,6 @@ C...First, get moles air/m2 at each layer, initialize FSIDE
             POLC    ( SPC ) = 0.0  ! moles/m2 species in cloud
 
             DO LAY = 1, NLAYS
-              BCLDWT( SPC, LAY ) = 0.0 ! below cloud weighting function
               PCLD  ( SPC, LAY ) = 0.0  ! moles sp/mole air in cloud
             END DO
 
@@ -1287,8 +1134,7 @@ C...below cloud base
 C...   determine no. of moles/m2 of trace gas
 
             DO SPC = 1, NSPCSD
-              BMOL( SPC ) = BMOL( SPC )
-     &                    + CONC( SPC,LAY ) * RHOM2( LAY )
+              BMOL( SPC ) = BMOL( SPC ) + CONC( SPC,LAY ) * RHOM2( LAY )
             END DO
 
           END DO
@@ -1321,8 +1167,6 @@ C...  only for PFW and CNP clouds
             ELSE
 
               DO LAY = CLBASE, CLTOP
-!               FSIDE( LAY ) = SIDEFAC * ( CLTOP - LAY )
-!     &                      / ( CLTOP - CLBASE )
                 FSIDE( LAY ) = 1.0
               END DO
 
@@ -1395,7 +1239,7 @@ C...test for convergence, then cut the interval in half
 599         CONTINUE
 
             HTST = TEMPB - TEMPA
-            IF ( HTST .LT. TST ) GO TO 595
+            IF ( HTST .LT. TST ) GO TO 595   ! convergence
             I599C = I599C + 1
 
             IF ( I599C .GT. 1000 ) THEN
@@ -1436,13 +1280,6 @@ C...test for convergence, then cut the interval in half
 C...if fa*fb < 0 then zero lies between ta & tc
 C...  if fa*fb > 0 then zero lies between tc & tb
 
-!           IF ( FTST ) 590, 590, 591
-!590           TEMPB = TEMPC
-!             GO TO 599
-!591           TEMPA = TEMPC
-!             FA = FB
-!             GO TO 599
-
             IF ( FTST .LE. 0.0 ) THEN
               TEMPB = TEMPC
               GO TO 599
@@ -1464,8 +1301,7 @@ C...ice load in cloud is a function of temperature below freezing
 
             QICE( LAY ) = 0.0
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
-              QICE( LAY ) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 )
-     &                    / 18.0
+              QICE( LAY ) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
               IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
             END IF
 
@@ -1547,13 +1383,13 @@ C...  of water occupies a 1mm thick layer of water in a square meter
 C...  of ground (accounts for density of water = 1000kg/m3)
 
           PRATE1 = STORME * QXS * 3600.0 / TCLIFE
-          IF ( PRATE1 .LE. 1.001*PRATE ) THEN
+          IF ( PRATE1 .LE. 1.001 * PRATE ) THEN
             FRAC = 0.999                ! Changed back to .999 - jp 6/05
             PRATE1 = PRATE / FRAC
           ELSE
             FRAC = PRATE / PRATE1
           END IF
-          IF(FRAC.LT.0.01) GO TO 299
+          IF ( FRAC .LT. 0.01 ) GO TO 299
 
 C...for raining cloud, compute water properties of interest
 C...  below cloud base. First, parameterize total water content
@@ -1570,14 +1406,13 @@ C...again partition into ice and liquid
             QICE( LAY ) = 0.0
 
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
-              QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 )
-     &                   / 18.0
+              QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
               IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
             END IF
 
             QLQD( LAY ) = QWAT( LAY ) - QICE( LAY )
             LWC ( LAY ) = QLQD( LAY ) * RHOAIR
-            LWC ( LAY ) = MAX( 0.000005, LWC( LAY ) )         ! lower limit
+            LWC ( LAY ) = MAX( 5.0E-06, LWC( LAY ) )         ! lower limit
             PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
             TBARC = TBARC + TCLD( LAY ) * DZZL( LAY ) * LWC( LAY )
             WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
@@ -1588,23 +1423,23 @@ C...excess water is all rain
 
             QXS = QXS + QWAT( LAY ) * RHOAIR * DZZL( LAY )
 
-            
           END DO
 
 C...Final calc of storm rainfall rate and frac area (RAINING CLDS)
 
           PRATE1 = STORME * QXS * 3600.0 / TCLIFE
 
-          IF ( PRATE1 .LE. 1.001*PRATE ) THEN
+          IF ( PRATE1 .LE. 1.001 * PRATE ) THEN
             FRAC = 0.999        ! Changed back to .999 - jp 6/05
             PRATE1 = PRATE / FRAC
           ELSE
             FRAC = PRATE / PRATE1
           END IF
-          IF(FRAC.LT.0.01) GO TO 299
+          IF ( FRAC .LT. 0.01 ) GO TO 299
           
-          IF( USE_ACM_CLOUD )THEN
-              CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, CLBASE, CLTOP, FRAC, QLQD, QICE )
+          IF ( USE_ACM_CLOUD ) THEN
+              CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, CLBASE, CLTOP,
+     &                                FRAC, QLQD, QICE )
           END IF
 
           CONV_DEP( COL, ROW, N_SPC_WDEP + 7 ) = FRAC
@@ -1623,26 +1458,26 @@ C...  using direct exchange mixing mechanism by McHenry.
             CBELOW( SPC ) = CBASE0( SPC )
           END DO
 
-!         IF ( ROW .EQ. 46 .AND. COL .EQ. 62 ) THEN
-!           WRITE( LOGDEV, * ) ' BASE,TOP=',CLBASE,CLTOP,
-!    &                         ' frac=',FRAC
-!           WRITE( LOGDEV, * ) ' CB=',CBELOW(9),' PRATE,PRATE1=',PRATE,PRATE1
-!           DO LAY = NLAYS, 1, -1
-!             WRITE( LOGDEV, * ) LAY, TAL( LAY ),
-!    &                           QVL( LAY ), PRESL( LAY ),
-!    &                           ZH(COL, ROW, LAY ), ZF(COL, ROW, LAY ), CCR( 9, LAY )
-!           END DO
-!         END IF
+!         if ( row .eq. 46 .and. col .eq. 62 ) then
+!           write( logdev, * ) ' base,top=',clbase,cltop,
+!    &                         ' frac=',frac
+!           write( logdev, * ) ' cb=',cbelow(9),' prate,prate1=',prate,prate1
+!           do lay = nlays, 1, -1
+!             write( logdev, * ) lay, tal( lay ),
+!    &                           qvl( lay ), presl( lay ),
+!    &                           zh(col, row, lay ), zf(col, row, lay ), ccr( 9, lay )
+!           end do
+!         end if
 
           CALL ACMCLD ( F, CCR, SIGF, CBELOW, CLBASE, CLTOP,
      &                  FRAC, NSPCSD, NLAYS, TCLIFE, DTCLD )
 
-!         IF ( ROW .EQ. 46 .AND. COL .EQ. 62 ) THEN
-!           WRITE( LOGDEV, * ) ' CBELOW=',CBELOW( 9 )
-!           DO LAY = NLAYS, 1, -1
-!             WRITE( LOGDEV, * ) ' Lay,c=',LAY, CCR( 9,LAY )
-!           END DO
-!         END IF
+!         if ( row .eq. 46 .and. col .eq. 62 ) then
+!           write( logdev, * ) ' cbelow=',cbelow( 9 )
+!           do lay = nlays, 1, -1
+!             write( logdev, * ) ' lay,c=',lay, ccr( 9,lay )
+!           end do
+!         end if
 
           DO SPC = 1, MXSPCS
             CBASEF( SPC ) =  CBELOW( SPC ) 
@@ -1665,27 +1500,24 @@ C...POLC in moles sp/m2
 C...Now compute for raining region below cloud which is also considered
 C...  to be part of the aqueous reaction chamber
 
-            DO LAY = 1, CLBASE - 1
-              AIRM = AIRM + RHOM2( LAY )
+          DO LAY = 1, CLBASE - 1
+            AIRM = AIRM + RHOM2( LAY )
 
-              DO SPC = 1, NSPCSD
-                IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
-                  BCLDWT( SPC, LAY ) = 1.0 / CLBASE
-                ELSE
-                  BCLDWT( SPC, LAY ) = CONC( SPC, LAY )
-     &                               / MAX( CBASE0( SPC ), 1.0E-30 )
-                END IF
-                PCLD( SPC, LAY ) = CBASEF( SPC ) * BCLDWT( SPC, LAY )
+            DO SPC = 1, NSPCSD
+              IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
+                BCLDWT = 1.0 / CLBASE
+              ELSE
+                BCLDWT = CONC( SPC, LAY ) / MAX( CBASE0( SPC ), 1.0E-30 )
+              END IF
          
 C...Necessary because CBASEF and CBASE0 are the ending vertical averages
 C...  below cloud concentrations in moles sp/mole air
 
-                IF ( ICLDTYPE .EQ. 1 ) THEN
-                  POLC( SPC ) = POLC( SPC )
-     &                        + PCLD( SPC, LAY ) * RHOM2( LAY )
-                END IF
-              END DO
+              IF ( ICLDTYPE .EQ. 1 ) THEN
+                POLC( SPC ) = POLC( SPC ) + PCLD( SPC, LAY ) * RHOM2( LAY )
+              END IF
             END DO
+          END DO
 
 C...Compute cloud mean quantities
 
@@ -1710,9 +1542,9 @@ C...  Stephens (1978), JAS(35), pp2111-2132.
 C...  only calculate the cloud optical depth when the liquid water
 C...  path is >= 10 g/m2
 
-          LWP = WTBAR * CTHK * 1000.0  ! converts to g/m2
+          LWP = WTBAR * CTHK * 1000.0  ! convert to g/m2
           IF ( LWP .GE. 10.0 ) THEN
-             CLOD = 10.0**( 0.2633 + 1.7095 * LOG( LOG10( LWP ) ) )
+             CLOD = 10.0 ** ( 0.2633 + 1.7095 * LOG( LOG10( LWP ) ) )
           ELSE
              CLOD = 0.0
           END IF
@@ -1722,10 +1554,13 @@ C...  (i.e. don't do anything)
 
           IF ( CLOD .GE. 5.0 ) THEN
 
-             IF ( ICLDTYPE .EQ. 1 ) THEN  ! precipitating cloud
-                SUBTRANS( COL, ROW, 1 ) = 1.0 + FRAC * ( ( 5.0 - EXP ( -CLOD ) ) / ( 4.0 + 0.42 * CLOD ) - 1.0 )
+             STRNS = 1.0 + FRAC * ( ( 5.0 - EXP ( -CLOD ) )
+     &                              / ( 4.0 + 0.42 * CLOD ) - 1.0 )
+
+             IF ( ICLDTYPE .EQ. 1 ) THEN    ! precipitating cloud
+                SUBTRANS( COL, ROW, 1 ) = STRNS
              ELSE
-                SUBTRANS( COL, ROW, 2 ) = 1.0 + FRAC * ( ( 5.0 - EXP ( -CLOD ) ) / ( 4.0 + 0.42 * CLOD ) - 1.0 )
+                SUBTRANS( COL, ROW, 2 ) = STRNS
              END IF
               
           END IF
@@ -1734,7 +1569,6 @@ C...Finally, get in cloud pollutant concentrations in moles sp
 C...  per mole air
 
           DO SPC = 1, NSPCSD
-!           POLC ( SPC ) = MAX( POLC( SPC ) / AIRM, 1.0E-30 )
             POLC ( SPC ) = POLC( SPC ) / AIRM
             CEND ( SPC ) = POLC( SPC )
             REMOV( SPC ) = 0.0
@@ -1756,13 +1590,11 @@ C...  then perform the aqueous chemistry within the cloud and
 C...  re-adjust the ending and removed amounts for those species
 C...  that participated in cloud chemistry
 
-          IF ( WCBAR .GT. 0.00001 ) THEN
+          IF ( WCBAR .GT. 1.0E-05 ) THEN
  
-C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
+C...  determine day or night from cosine of zenith angle for the cell; Golam Sarwar 
 
-            COSZ = COSZEN( COL, ROW )
-
-            IF ( COSZ .LE. 0.0 ) THEN
+            IF ( COSZEN( COL, ROW ) .LE. 0.0 ) THEN
               DARK = .TRUE.   ! night
             ELSE
               DARK = .FALSE.  ! day
@@ -1854,13 +1686,11 @@ C...   include raining region below cld base
           DO LAY = 1, CLBASE - 1
             DO SPC = 1, NSPCSD
               IF ( ICLDTYPE .EQ. 1 ) THEN ! raining cloud:
-                INCLOUD ( SPC, LAY ) = PCLD( SPC, LAY ) * CEND( SPC )
-     &                               / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
-                OUTCLOUD( SPC, LAY ) = PCLD( SPC, LAY )
                 IF ( SPC .NE. N_GC_SPCD ) THEN
-                  CGRID( COL, ROW, LAY, SPC ) =
-     &                                    INCLOUD ( SPC, LAY ) * FRAC
-     &                                  + OUTCLOUD( SPC, LAY ) * ( 1.0 - FRAC )
+                   INCLOUD = PCLD( SPC, LAY ) * CEND( SPC )
+     &                     / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
+                   CGRID( COL, ROW, LAY, SPC ) = INCLOUD * FRAC
+     &                                         + PCLD( SPC, LAY ) * ( 1.0 - FRAC )
                 END IF
               ELSE
                 CGRID( COL, ROW, LAY, SPC ) = PCLD( SPC, LAY )
@@ -1868,19 +1698,18 @@ C...   include raining region below cld base
             END DO
           END DO
 
-C...Now do changes in cloudy layers :
+C...Now do changes in cloudy layers:
 
           DO LAY = CLBASE, CLTOP
             DO SPC = 1, NSPCSD
-              INCLOUD( SPC, LAY ) = PCLD( SPC, LAY ) * CEND( SPC )
-     &                            / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
-              OUTCLOUD( SPC, LAY ) = ( CCR( SPC, LAY ) - PCLD( SPC,LAY ) * FRAC )
-     &                             / ( 1.0 - FRAC )
-              OUTCLOUD( SPC, LAY ) = MAX( OUTCLOUD( SPC,LAY ), CONCMINL( SPC, LAY ) )
               IF ( SPC .NE. N_GC_SPCD ) THEN
-                CGRID( COL, ROW, LAY, SPC ) =
-     &                                    INCLOUD ( SPC, LAY ) * FRAC
-     &                                  + OUTCLOUD( SPC, LAY ) * ( 1.0 - FRAC )
+                 INCLOUD = PCLD( SPC, LAY ) * CEND( SPC )
+     &                   / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
+                 OUTCLOUD = ( CCR( SPC, LAY ) - PCLD( SPC,LAY ) * FRAC )
+     &                    / ( 1.0 - FRAC )
+                 OUTCLOUD = MAX( OUTCLOUD, CONCMINL( SPC, LAY ) )
+                 CGRID( COL, ROW, LAY, SPC ) = INCLOUD * FRAC
+     &                                       + OUTCLOUD * ( 1.0 - FRAC )
               END IF
             END DO
           END DO
@@ -1888,21 +1717,16 @@ C...Now do changes in cloudy layers :
 
 299     CONTINUE
         
-        DO VAR = 1, N_SPC_WDEP+8
+        DO VAR = 1, N_SPC_WDEP + 8
           CONV_DEP( COL,ROW,VAR ) = 0.0
         END DO
 
-301     CONTINUE        !  end loop on columns COL
-311   CONTINUE        !  end loop on rows    ROW
+301     CONTINUE        !  end columns loop
+311   CONTINUE        !  end rows loop
 
-!     DEALLOCATE ( TA )
-!     DEALLOCATE ( QV )
-!     DEALLOCATE ( ZF )
-!     DEALLOCATE ( ZH )
-!     DEALLOCATE ( PRES )
-!     DEALLOCATE ( DZZ )
-!     DEALLOCATE ( RC )
-!     IF ( ALLOCATED ( RAIN ) ) DEALLOCATE ( RAIN )
+999   CONTINUE
+
+      DEALLOCATE ( F, QICE, QLQD )
 
       RETURN          !  from main routine CLDPROC
 
