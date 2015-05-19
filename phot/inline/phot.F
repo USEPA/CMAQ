@@ -574,6 +574,7 @@ C...modules
             TAUO3_TOP_WL      = 0.0
             ACTINIC_FX        = 0.0
             TRANSMIS_DIFFUSE  = 0.0
+            TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
 #ifdef phot_research
             CLD_TRANSMISSION  = 0.0
