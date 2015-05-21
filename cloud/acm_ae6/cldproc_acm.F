@@ -161,7 +161,7 @@ C...........EXTERNAL FUNCTIONS
             REAL,    INTENT( OUT ) :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
+     &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
             USE GRID_CONF
             USE CGRID_SPCS
             USE UTILIO_DEFN
@@ -174,7 +174,7 @@ C...........EXTERNAL FUNCTIONS
             INTEGER, INTENT( IN )  :: TSTEP( 3 )
             INTEGER, INTENT( IN )  :: N_SPC_WDEP
             INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
             REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
@@ -572,8 +572,7 @@ C...initialize the deposition array before processing clouds
           XMSG = 'Failure allocating TOT_DEP'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        TOT_DEP = 0.0
+        TOT_DEP = 0.0   ! array assignment
 
         ALLOCATE ( CONV_DEP( NCOLS,NROWS,N_SPC_WDEP+8+4 ),
      &             STAT = ALLOCSTAT )
@@ -581,24 +580,21 @@ C...initialize the deposition array before processing clouds
           XMSG = 'Failure allocating CONV_DEP'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        CONV_DEP = 0.0
+        CONV_DEP = 0.0   ! array assignment
 
         ALLOCATE ( RESTRANS ( NCOLS,NROWS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating RESTRANS'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        RESTRANS = 1.0
+        RESTRANS = 1.0   ! array assignment
 
         ALLOCATE ( SUBTRANS ( NCOLS,NROWS,2 ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SUBTRANS'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-
-        SUBTRANS = 1.0
+        SUBTRANS = 1.0   ! array assignment
 
         ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
