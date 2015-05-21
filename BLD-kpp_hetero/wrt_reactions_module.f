@@ -561,7 +561,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           CASE( -1 )
 !             IF( KUNITS .EQ. 2 )CALL WRITE_RATE_CONVERT_TIME(MODULE_UNIT, IORDER(NXX))
              WRITE(MODULE_UNIT, 1501, ADVANCE= 'NO')LABEL(NXX,1), NXX
-             DO IPR = 1, NHETERO
+             DO IPR = 1, MHETERO
                 IF ( IHETERO( IPR,1 ) .EQ. NXX )EXIT
              END DO
              IDX = IHETERO( IPR, 2 )
@@ -1070,6 +1070,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION FALLOFF_T11' 
      &      / 7X,'REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)'
+     &      / 9X,'IMPLICIT NONE'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: PRESS'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B1'

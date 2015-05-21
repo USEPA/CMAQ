@@ -657,6 +657,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              ELSE
                 WRITE(KPPEQN_UNIT,5012, ADVANCE = 'NO')TRIM( SPECIAL( IRX ) )
              END IF
+           CASE( 12 )
+             DO IDX = 1, NFALLOFF
+                IF( IRRFALL( IDX ) .EQ. NXX )EXIT
+             END DO
+             CALL WRITE_RATE_CONVERT(KPPEQN_UNIT, IORDER(NXX))
+             WRITE(KPPEQN_UNIT,5020, ADVANCE = 'NO')RTDAT(1, NXX ),RFDAT(1, IDX),RTDAT(2, NXX ),
+     &       RFDAT(2, IDX)
           END SELECT
          WRITE(KPPEQN_UNIT,'(A)')' ;'
       END DO
@@ -725,6 +732,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / '  KEND = 1.0_dp / KEND'
      &      / '  FALL_OFF = ( K0 / ( 1.0_dp + K0/K1 ) ) * CF ** KEND'
      &      / 'END FUNCTION FALL_OFF'
+     &      / 'REAL( kind=dp ) FUNCTION HALOGEN_FALLOFF(A1,B1,A2,B2)'
+     &      / '   IMPLICIT NONE'
+     &      / '   REAL( kind=dp ), INTENT( IN ) :: A1'
+     &      / '   REAL( kind=dp ), INTENT( IN ) :: B1'
+     &      / '   REAL( kind=dp ), INTENT( IN ) :: A2'
+     &      / '   REAL( kind=dp ), INTENT( IN ) :: B2'
+     &      / '   INTRINSIC DEXP'
+     &      / '   IF( OPEN_WATER )THEN'
+     &      / '       HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )'
+     &      / '   ELSE'
+     &      / '       HALOGEN_FALLOFF = 0.0_dp'
+     &      / '   END IF'
+     &      / '   RETURN'
+     &      / 'END FUNCTION HALOGEN_FALLOFF' 
      &      / '#ENDINLINE' )
     
 4501   FORMAT( '! Name of Mechanism '
@@ -741,6 +762,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &        / 'INTEGER, PARAMETER  :: NPHOTAB  = ', I3,'     ! number of photolysis rates '
      &        / 'CHARACTER(16), SAVE :: PHOTAB( NPHOTAB )  ! Names of  photolysis '
      &        / 'REAL(dp)            :: RJCELL( NPHOTAB )  ! grid cell photolysis rates ,[min-1]'
+     &        / 'LOGICAL             :: OPEN_WATER         ! Is land category ice free open water?'
      &        / 'LOGICAL             :: CALC_RCONST        ! compute temp and dens dependent rate constants')
 4502   FORMAT(  '! pointers and names to specific photolysis rates' )
 4503   FORMAT(  'INTEGER, PARAMETER  :: IJ_',A16,' = ', I3 )
@@ -787,6 +809,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5012   FORMAT(A)
 5014   FORMAT('ARRD( ',1PD12.4,', 0.0000D+0,', 1PD12.4,' )  * PRESS ')             
 5019   FORMAT('EP4D( ', 7(1PD12.4,', '), 1PD12.4,' )')
+5020   FORMAT('HALOGEN_FALLOFF( ', 3(1PD12.4,', '), 1PD12.4,' )')
 5027   FORMAT(1PD12.4,' * KHETERO( IK_',A,' )')
 5028   FORMAT(  'KHETERO( IK_',A, ' )' )
 5023   FORMAT(

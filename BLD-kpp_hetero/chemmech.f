@@ -175,19 +175,14 @@ c..Variables for species to be dropped from mechanism
            INTEGER,         INTENT( IN )    :: NXX
            CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( MAXRXNUM,2 )
         END SUBROUTINE GETRATE
-        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX, NR,
-     &                      IP,  NAMCONSTS, CVAL, SS1RX  ) 
+        SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX, SS1RX ) 
           USE MECHANISM_DATA
           IMPLICIT NONE
           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
           CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
           INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
           CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: NR
           INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: IP
-          CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( MAXCONSTS )
-          REAL( 8 ),        INTENT ( IN ) :: CVAL( MAXCONSTS )
           INTEGER,          INTENT ( IN ) :: SS1RX( MAXNLIST )
         END SUBROUTINE WREXTS
         SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
@@ -283,12 +278,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL NAMEVAL ( SPCS_KPP_FILE, SPC_MECH_KPP )
       OPEN ( UNIT = KPPEQN_UNIT, FILE = EQN_MECH_KPP, STATUS = 'UNKNOWN' )
       EXUNIT_SPCS = JUNIT()
-      EXUNIT_RXDT = JUNIT()
-      EXUNIT_RXCM = JUNIT()
+!      EXUNIT_RXDT = JUNIT()
+!      EXUNIT_RXCM = JUNIT()
 c symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (NAMEVAL):
       CALL NAMEVAL ( EXFLNM_SPCS, EQNAME_SPCS )
-      CALL NAMEVAL ( EXFLNM_RXDT, EQNAME_RXDT )
-      CALL NAMEVAL ( EXFLNM_RXCM, EQNAME_RXCM )
+!      CALL NAMEVAL ( EXFLNM_RXDT, EQNAME_RXDT )
+!      CALL NAMEVAL ( EXFLNM_RXCM, EQNAME_RXCM )
       CALL NAMEVAL ( RXNS_MODULE, FNAME_MODULE )
 
       CALL NAMEVAL ( RXNS_DATA_MODULE, FNAME_DATA_MODULE )
@@ -296,8 +291,8 @@ c symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (NAMEVAL):
       CALL NAMEVAL ( OUT_DIR, OUTDIR )
 
       OPEN ( UNIT = EXUNIT_SPCS, FILE = EQNAME_SPCS, STATUS = 'UNKNOWN' )
-      OPEN ( UNIT = EXUNIT_RXDT, FILE = EQNAME_RXDT, STATUS = 'UNKNOWN' )
-      OPEN ( UNIT = EXUNIT_RXCM, FILE = EQNAME_RXCM, STATUS = 'UNKNOWN' )
+!      OPEN ( UNIT = EXUNIT_RXDT, FILE = EQNAME_RXDT, STATUS = 'UNKNOWN' )
+!      OPEN ( UNIT = EXUNIT_RXCM, FILE = EQNAME_RXCM, STATUS = 'UNKNOWN' )
 
       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
@@ -820,22 +815,16 @@ C Set CGRID mechanism
 
       NRXNS = NR
       
-      CALL WREXTS ( EQNAME_MECH,
-     &              DESCRP_MECH,
-     &              NS, SPCLIS, SPC1RX,
-     &              NR,
-     &              IP,
-     &              NAMCONSTS,
-     &              CVAL, SS1RX ) 
+      CALL WREXTS ( EQNAME_MECH, DESCRP_MECH,
+     &              NS, SPCLIS, SPC1RX, SS1RX ) 
      
-      
 
-      CALL WRSPECIAL_EXT( )
+!      CALL WRSPECIAL_EXT( )
 
       IF( N_SS_SPC .GT. 0 ) CALL GET_SS_DATA( LUNOUT, NR ) 
 
 
-      CALL WRSS_EXT( NR ) 
+!      CALL WRSS_EXT( NR ) 
 
       CLOSE( KPPEQN_UNIT )
       
@@ -844,8 +833,8 @@ C Set CGRID mechanism
       CALL WRT_RATE_CONSTANT( NR, IP, LABEL, NS, SPCLIS  )
       
       CLOSE( EXUNIT_SPCS )
-      CLOSE( EXUNIT_RXDT )
-      CLOSE( EXUNIT_RXCM )
+!      CLOSE( EXUNIT_RXDT )
+!      CLOSE( EXUNIT_RXCM )
 
 
       CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
