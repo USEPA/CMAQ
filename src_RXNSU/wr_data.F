@@ -14,7 +14,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
 
       IMPLICIT NONE
 
@@ -27,7 +27,7 @@ C..ARGUMENTS: None
 C..PARAMETERS: None
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
+       INTEGER   JUNIT      ! gets unit no.
 !      INTEGER   INDEX1     ! find position of string in list
 
 C..SAVED LOCAL VARIABLES: None
@@ -42,7 +42,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: IND          ! array index
       INTEGER  :: IIN          ! Unit no. of input file
       INTEGER  :: IOUT         ! Unit no. of output file
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
       INTEGER  :: N            ! Loop index
 
       LOGICAL  :: LOUT1 = .FALSE.  ! Flag for line 1 output processed
@@ -57,7 +56,6 @@ C**********************************************************************
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       EPOS = LEN_TRIM( OUTPATH )
 
@@ -194,7 +192,8 @@ c..write the ae and aq species
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
        
 92000 FORMAT( A )
 

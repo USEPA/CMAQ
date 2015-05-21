@@ -14,7 +14,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO    ! IOAPI parameters and declarations
+!      USE M3UTILIO    ! IOAPI parameters and declarations
       USE RXNS_DATA   ! mechanism data and specifications
 
 
@@ -30,6 +30,7 @@ C..PARAMETERS:
       INTEGER, PARAMETER   ::  IZERO = 0    ! Integer zero
 
 C..EXTERNAL FUNCTIONS:
+!      INTEGER    NAME_INDEX            !
 
 
 C..SAVED LOCAL VARIABLES: None
@@ -42,7 +43,6 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 256 )         ::    MSG                    ! Message text
 
       INTEGER         ::  E1, E2
-      INTEGER         ::  LOGDEV
       INTEGER         ::  N
       INTEGER         ::  NPOS
       INTEGER         ::  IND
@@ -53,7 +53,6 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL         ::  LFOUND
 
 C**********************************************************************
-      LOGDEV = INIT3()
 
       LERROR = .FALSE.
 
@@ -125,7 +124,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( NO3 .EQ. 0 ) THEN
         MSG = 'ERROR: Group 3 species NO3 not found in species list'
         WRITE( LOGDEV, 92020 ) MSG( 1 : LEN_TRIM( MSG ) )
-        CALL M3MESG( MSG )
         LERROR = .TRUE.
       END IF
 
@@ -169,8 +167,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
       IF( LERROR ) THEN
-        MSG = 'Stopping because of group species error'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+        MSG = TRIM( PNAME ) // ': Stopping because of group species error'
+        WRITE(LOGDEV,'(a)')TRIM(MSG)
+        STOP
       END IF
 
 
@@ -436,7 +435,7 @@ c..check to make sure no group 1-4 species are also steady-state species
 
          DO N = 1, N_SS_SPC
 
-            IND = INDEX1( SS_SPC( N ), N_SPECIES, SPECIES )
+            IND = NAME_INDEX( SS_SPC( N ), N_SPECIES, SPECIES )
 
             IF( IND .EQ. NO    .OR.  IND .EQ. NO2   .OR.
      &          IND .EQ. O3    .OR.  IND .EQ. O3P   .OR.
@@ -460,8 +459,10 @@ c..check to make sure no group 1-4 species are also steady-state species
  
 
       IF( LERROR ) THEN
-        MSG = 'Stopping because mechanism requirements for EBI solver not met'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+        MSG = TRIM( PNAME )
+     &     // ': Stopping because mechanism requirements for EBI solver not met'
+        WRITE(LOGDEV,'(a)')TRIM(MSG)
+        STOP
       ELSE
         WRITE( LOGDEV, 94020 )
       END IF

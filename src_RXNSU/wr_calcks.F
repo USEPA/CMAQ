@@ -13,7 +13,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO    ! IOAPI parameters and declarations
+      !!USE M3UTILIO    ! IOAPI parameters and declarations
       USE RXNS_DATA   ! mechanism data and specifications
 
       IMPLICIT NONE
@@ -28,7 +28,7 @@ C..ARGUMENTS: None
 C..PARAMETERS: None
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT          ! gets unit no.
+      INTEGER   JUNIT          ! gets unit no.
 
 C..SAVED LOCAL VARIABLES: None
  
@@ -41,7 +41,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: EPOS         ! end pos of string
       INTEGER  :: IIN          ! Unit no. of input file
       INTEGER  :: IOUT         ! Unit no. of output file
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
 
       LOGICAL  :: LOUT1 = .FALSE.  ! Flag for group 1 output processed
       LOGICAL  :: LOUT2 = .FALSE.  ! Flag for group 2 output processed
@@ -52,7 +51,6 @@ C**********************************************************************
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       EPOS = LEN_TRIM( OUTPATH )
 
@@ -124,7 +122,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
        
 92000 FORMAT( A )
 

@@ -12,7 +12,7 @@ C  REVISION HISTORY: Created by Jerry Gipson, February, 2004
 C
 C**********************************************************************
       USE ENV_VARS
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
 
       IMPLICIT NONE
 
@@ -25,7 +25,7 @@ C..PARAMETERS:
       INTEGER, PARAMETER ::  MXLINES = 50        ! Max no of copyright lines
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT          ! gets unit no.
+       INTEGER   JUNIT          ! gets unit no.
 
 C..SAVED LOCAL VARIABLES:
       CHARACTER( 100 ), SAVE    :: COPYRT( MXLINES )   ! Copyright text
@@ -73,7 +73,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF( NLIN .GE. MXLINES ) THEN
             MSG = 'ERROR: Max no. of copyright lines exceeded;' //
      &            ' it will not be written'
-            CALL M3MESG( MSG )
+            WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
             NLIN = 0
             GO TO 9000
          END IF

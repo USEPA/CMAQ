@@ -13,7 +13,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -26,8 +26,8 @@ C..PARAMETERS:
       INTEGER, PARAMETER   ::  GRPNO = 3
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
-!      INTEGER   INDEX1     ! find position of string in list
+       INTEGER   JUNIT      ! gets unit no.
+       INTEGER   INDEX1     ! find position of string in list
 
 C..SAVED LOCAL VARIABLES: None
  
@@ -51,7 +51,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: IND          ! array index
       INTEGER  :: IIN          ! Unit no. of input file
       INTEGER  :: IOUT         ! Unit no. of output file
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
       INTEGER  :: N, S, P, R   ! Loop indices
       INTEGER  :: NR           ! No. of reactants
       INTEGER  :: NPOS         ! Reaction index
@@ -84,7 +83,6 @@ C**********************************************************************
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       E1 = LEN_TRIM( OUTPATH )
 
@@ -454,7 +452,8 @@ c..finish reading skipped section of template (i.e., code between S1 markers)
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
        
 92000 FORMAT( A )
 92020 FORMAT( / )

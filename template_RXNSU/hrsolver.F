@@ -185,13 +185,16 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
       
 
       N_EBI_IT = 0
-      DTC      = EBI_TMSTEP
+      NBKUPS   = -1
 
 
       DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
-
-          NBKUPS      = 0
-          N_INR_STEPS = 1
+! test if initialized or if backups occurred in previous EBI time-step
+          IF( NBKUPS .NE. 0 )THEN 
+              NBKUPS      = 0
+              N_INR_STEPS = 1
+              DTC         = EBI_TMSTEP
+          END IF
 
 100      CONTINUE                        !  Restart location
 

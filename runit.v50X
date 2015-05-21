@@ -147,7 +147,11 @@ else if($is_terra)then
    setenv NETCDF  "netcdf"
    setenv netcdf  "netcdf"
 else
-    setenv WDX_LIB "lib"
+#   setenv WDX_LIB "lib"
+#else
+    setenv WDX_LIB "/home/${USER}/tools"
+#    setenv NETCDF  "netcdf"
+
     setenv NETCDF  "netcdf"
     setenv netcdf  "intel_netcdf"
 endif    

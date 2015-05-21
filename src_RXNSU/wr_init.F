@@ -13,7 +13,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -26,8 +26,8 @@ C..ARGUMENTS: None
 C..PARAMETERS:
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
-!      INTEGER   INDEX1     ! find position of string in list
+       INTEGER   JUNIT      ! gets unit no.
+!       INTEGER   NAME_INDEX     ! find position of string in list
 
 C..SAVED LOCAL VARIABLES: None
  
@@ -49,7 +49,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: IND          ! array index
       INTEGER  :: IIN          ! Unit no. of input file
       INTEGER  :: IOUT         ! Unit no. of output file
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
       INTEGER  :: N, S         ! Loop indices
       INTEGER  :: NSPEC        ! 
 
@@ -71,7 +70,6 @@ C**********************************************************************
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       EPOS = LEN_TRIM( OUTPATH )
 
@@ -187,7 +185,7 @@ c..form ebi species array ( no SS species, no group species )
             WRITE( IOUT, 93140 ) ( N_GC_EBI - N_SS_SPC )
             IND = 0
             DO N = 1, N_SPECIES
-               IF( INDEX1( SPECIES( N ), N_SS_SPC, SS_SPC) .EQ. 0 .AND.
+               IF( NAME_INDEX( SPECIES( N ), N_SS_SPC, SS_SPC) .EQ. 0 .AND.
      &             L_GC_EBI( N ) ) THEN  
                    IND = IND + 1
                    WRITE( IOUT, 93160 ) IND, SPECIES( N )
@@ -208,7 +206,7 @@ c..form active species array ( all species except SS species )
             WRITE( IOUT, 93220 ) N_SPECIES - N_SS_SPC
             IND = 0
             DO N = 1, N_SPECIES
-               IF( INDEX1( SPECIES( N ), N_SS_SPC, SS_SPC ) .EQ. 0 ) THEN  
+               IF( NAME_INDEX( SPECIES( N ), N_SS_SPC, SS_SPC ) .EQ. 0 ) THEN  
                    IND = IND + 1
                    WRITE( IOUT, 93240 ) IND, 
      &                    SPECIES( N )( 1 : LEN_TRIM( SPECIES( N ) ) )
@@ -226,7 +224,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
          IF( N_SS_SPC .NE. 0 ) THEN
             MSG = 'ERROR: Cannot do all mechanisms with SS species'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+            WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+            STOP
          END IF
 
          DO S = 1, 4
@@ -364,7 +363,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
        
 92000 FORMAT( A )
 92020 FORMAT( / )

@@ -15,7 +15,7 @@ C                      Modified Nov 2009 by JG to add SS rxn flag
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+     !! USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
 
@@ -32,7 +32,7 @@ C     INTEGER, PARAMETER :: N_LOW_TOL_SPC = 14  ! No. species w/ low tols
       INTEGER, PARAMETER :: N_LOW_TOL_SPC = 28  ! No. species w/ low tols, revised by Golam Sarwar
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER    INDEX1            !
+!      INTEGER    NAME_INDEX            !
 
 C..SAVED LOCAL VARIABLES: None
  
@@ -81,7 +81,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       N = 0
 
 c..NO
-      NO  = INDEX1( MECH_NO, N_SPECIES, SPECIES )
+      NO  = NAME_INDEX( MECH_NO, N_SPECIES, SPECIES )
       IF( NO .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_NO
@@ -89,12 +89,12 @@ c..NO
          EOS = LEN_TRIM( MECH_NO )
          MSG = 'ERROR: MECH_NO Group species ' // MECH_NO( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..NO2
-      NO2 = INDEX1( MECH_NO2, N_SPECIES, SPECIES )
+      NO2 = NAME_INDEX( MECH_NO2, N_SPECIES, SPECIES )
       IF( NO2 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_NO2
@@ -102,12 +102,12 @@ c..NO2
         EOS = LEN_TRIM( MECH_NO2 )
         MSG = 'ERROR: MECH_NO2 Group species ' // MECH_NO2( 1 : EOS ) //
      &        ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..O3
-      O3  = INDEX1( MECH_O3,  N_SPECIES, SPECIES )
+      O3  = NAME_INDEX( MECH_O3,  N_SPECIES, SPECIES )
       IF( NO2 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_O3
@@ -115,12 +115,12 @@ c..O3
          EOS = LEN_TRIM( MECH_O3 )
          MSG = 'ERROR: MECH_O3 Group species ' // MECH_O3( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..O3P
-      O3P = INDEX1( MECH_O3P, N_SPECIES, SPECIES )
+      O3P = NAME_INDEX( MECH_O3P, N_SPECIES, SPECIES )
       IF( O3P .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_O3P
@@ -128,12 +128,12 @@ c..O3P
          EOS = LEN_TRIM( MECH_O3P )
          MSG = 'ERROR: ECH_O3P Group species ' // MECH_O3P( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..O1D
-      O1D = INDEX1( MECH_O1D, N_SPECIES, SPECIES )
+      O1D = NAME_INDEX( MECH_O1D, N_SPECIES, SPECIES )
       IF( O1D .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_O1D
@@ -141,12 +141,12 @@ c..O1D
          EOS = LEN_TRIM( MECH_O1D )
          MSG = 'ERROR: MECH_O1D Group species value: ' // MECH_O1D( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..OH
-      OH = INDEX1( MECH_OH,  N_SPECIES, SPECIES )
+      OH = NAME_INDEX( MECH_OH,  N_SPECIES, SPECIES )
       IF( OH .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_OH
@@ -154,12 +154,12 @@ c..OH
          EOS = LEN_TRIM( MECH_OH )
          MSG = 'ERROR: MECH_OH Group species ' // MECH_OH( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..HO2
-      HO2   = INDEX1( MECH_HO2 , N_SPECIES, SPECIES )
+      HO2   = NAME_INDEX( MECH_HO2 , N_SPECIES, SPECIES )
       IF( HO2 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_HO2
@@ -171,7 +171,7 @@ c..HO2
       END IF
 
 c..HONO
-      HONO  = INDEX1( MECH_HONO, N_SPECIES, SPECIES )
+      HONO  = NAME_INDEX( MECH_HONO, N_SPECIES, SPECIES )
       IF( HO2 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_HONO
@@ -179,12 +179,12 @@ c..HONO
          EOS = LEN_TRIM( MECH_HONO )
          MSG = 'ERROR: MECH_HONO Group species ' // MECH_HONO( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..HNO4
-      HNO4  = INDEX1( MECH_HNO4, N_SPECIES, SPECIES )
+      HNO4  = NAME_INDEX( MECH_HNO4, N_SPECIES, SPECIES )
       IF( HNO4 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_HNO4
@@ -192,12 +192,12 @@ c..HNO4
          EOS = LEN_TRIM( MECH_HNO4 )
          MSG = 'ERROR: MECH_HNO4 Group species ' // MECH_HNO4( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 C..C2O3
-      C2O3  = INDEX1( MECH_C2O3, N_SPECIES, SPECIES )
+      C2O3  = NAME_INDEX( MECH_C2O3, N_SPECIES, SPECIES )
       IF( C2O3 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_C2O3
@@ -205,12 +205,12 @@ C..C2O3
          EOS = LEN_TRIM( MECH_C2O3 )
          MSG = 'ERROR: MECH_C2O3 Group species ' // MECH_C2O3( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 C..PAN
-      PAN   = INDEX1( MECH_PAN,  N_SPECIES, SPECIES )
+      PAN   = NAME_INDEX( MECH_PAN,  N_SPECIES, SPECIES )
       IF( PAN .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_PAN
@@ -218,12 +218,12 @@ C..PAN
          EOS = LEN_TRIM( MECH_PAN )
          MSG = 'ERROR: MECH_PAN Group species ' // MECH_PAN( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..NO3
-      NO3   = INDEX1( MECH_NO3,  N_SPECIES, SPECIES )
+      NO3   = NAME_INDEX( MECH_NO3,  N_SPECIES, SPECIES )
       IF( NO3 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_NO3
@@ -234,7 +234,7 @@ c..NO3
          LERROR = .TRUE.
       END IF
 c..N2O5
-      N2O5  = INDEX1( MECH_N2O5, N_SPECIES, SPECIES )
+      N2O5  = NAME_INDEX( MECH_N2O5, N_SPECIES, SPECIES )
       IF( N2O5 .NE. 0 ) THEN
          N = N +1
          GRP_SPC( N ) = MECH_N2O5
@@ -242,13 +242,13 @@ c..N2O5
          EOS = LEN_TRIM( MECH_N2O5 )
          MSG = 'ERROR: MECH_N2O5 Group species ' // MECH_N2O5( 1 : EOS ) //
      &         ' not found in mechanism' 
-         CALL M3MESG( MSG )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
          LERROR = .TRUE.
       END IF
 
 c..NO2EX
       IF( LNO2EX_CYCLE ) THEN
-         NO2EX  = INDEX1( MECH_NO2EX, N_SPECIES, SPECIES )
+         NO2EX  = NAME_INDEX( MECH_NO2EX, N_SPECIES, SPECIES )
          IF( NO2EX .NE. 0 ) THEN
             N = N +1
             GRP_SPC( N ) = MECH_NO2EX
@@ -256,7 +256,7 @@ c..NO2EX
             EOS = LEN_TRIM( MECH_NO2EX )
             MSG = 'ERROR: MECH_NO2EXGroup species ' // MECH_NO2EX( 1 : EOS ) //
      &         ' not found in mechanism' 
-            CALL M3MESG( MSG )
+            WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
             LERROR = .TRUE.
          END IF
       END IF
@@ -264,7 +264,8 @@ c..NO2EX
       N_GRP_SPC = N
       IF( LERROR ) THEN
         MSG = 'Stopping because of undefined group species name(s)'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+        WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+        STOP
       END IF
 
 
@@ -284,7 +285,7 @@ c..Get a list of the species that are only in the AE mechanism
 
          DO N = 1, N_GC_AE_SPC 
 
-           IF( INDEX1( GC_AE_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) .EQ. 0 ) 
+           IF( NAME_INDEX( GC_AE_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) .EQ. 0 ) 
      &        N_AE_SPC = N_AE_SPC + 1 
            
          END DO
@@ -294,7 +295,7 @@ c..Get a list of the species that are only in the AE mechanism
          IND = 0
          DO N = 1, N_GC_AE_SPC 
 
-           IF( INDEX1( GC_AE_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) 
+           IF( NAME_INDEX( GC_AE_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) 
      &         .EQ. 0 )THEN 
               IND = IND + 1
               AE_SPC( IND ) = GC_AE_SPC( N )
@@ -305,7 +306,7 @@ c..Get a list of the species that are only in the AE mechanism
 c..Get a list of the species that are only in the AQ mechanism
          DO N = 1, N_GC_AQ_SPC 
 
-           IF( INDEX1( GC_AQ_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) .EQ. 0 ) 
+           IF( NAME_INDEX( GC_AQ_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) .EQ. 0 ) 
      &        N_AQ_SPC = N_AQ_SPC + 1
            
          END DO
@@ -315,7 +316,7 @@ c..Get a list of the species that are only in the AQ mechanism
          IND = 0
          DO N = 1, N_GC_AQ_SPC 
 
-           IF( INDEX1( GC_AQ_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC )
+           IF( NAME_INDEX( GC_AQ_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC )
      &         .EQ. 0 ) THEN 
               IND = IND + 1
               AQ_SPC( IND ) = GC_AQ_SPC( N )
@@ -329,8 +330,8 @@ c..Flag species in SPECIES as gas-phase only or not ( i.e. AE or AQ)
       ALLOCATE( L_GC_ONLY_SPC( N_SPECIES ) )
       DO N = 1, N_SPECIES
          L_GC_ONLY_SPC( N ) = .TRUE.
-         IF( INDEX1( SPECIES( N ), N_AE_SPC, AE_SPC ) .NE. 0 .OR.
-     &       INDEX1( SPECIES( N ), N_AQ_SPC, AQ_SPC ) .NE. 0 )
+         IF( NAME_INDEX( SPECIES( N ), N_AE_SPC, AE_SPC ) .NE. 0 .OR.
+     &       NAME_INDEX( SPECIES( N ), N_AQ_SPC, AQ_SPC ) .NE. 0 )
      &      L_GC_ONLY_SPC( N ) = .FALSE.
       END DO
  
@@ -367,7 +368,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       L_GC_EBI = .FALSE.
 
       DO N = 1, N_SPECIES
-         IF( INDEX1( SPECIES( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
+         IF( NAME_INDEX( SPECIES( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
              N_GC_EBI = N_GC_EBI + 1
              L_GC_EBI( N ) = .TRUE.
          END IF
@@ -384,21 +385,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          L_GC_ONLY_EBI = .FALSE.
          
          DO N = 1, N_GC_AE_SPC
-            IF( INDEX1( GC_AE_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
+            IF( NAME_INDEX( GC_AE_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
                 N_GC_AE_EBI = N_GC_AE_EBI + 1
                 L_GC_AE_EBI( N ) = .TRUE.
             END IF
          END DO
 
          DO N = 1, N_GC_AQ_SPC
-            IF( INDEX1( GC_AQ_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
+            IF( NAME_INDEX( GC_AQ_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
                 N_GC_AQ_EBI = N_GC_AQ_EBI + 1
                 L_GC_AQ_EBI( N ) = .TRUE.
             END IF
          END DO
 
          DO N = 1, N_GC_ONLY_SPC
-            IF( INDEX1( GC_ONLY_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
+            IF( NAME_INDEX( GC_ONLY_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
                 N_GC_ONLY_EBI = N_GC_ONLY_EBI + 1
                 L_GC_ONLY_EBI( N ) = .TRUE.
             END IF
@@ -417,7 +418,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          L_LOW_TOL_SPC = .FALSE.
 
          DO N = 1, N_GC_ONLY_SPC
-            IF( INDEX1( GC_ONLY_SPC( N ), N_LOW_TOL_SPC, LOW_TOL_SPC )
+            IF( NAME_INDEX( GC_ONLY_SPC( N ), N_LOW_TOL_SPC, LOW_TOL_SPC )
      &          .NE. 0 ) THEN
                 L_LOW_TOL_SPC( N ) = .TRUE.
             END IF
@@ -431,7 +432,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          L_HII_TOL_SPC = .FALSE.
 
          DO N = 1, N_SPECIES
-            IF( INDEX1( SPECIES( N ), N_LOW_TOL_SPC, LOW_TOL_SPC )
+            IF( NAME_INDEX( SPECIES( N ), N_LOW_TOL_SPC, LOW_TOL_SPC )
      &          .NE. 0 ) THEN
                 L_LOW_TOL_SPC( N ) = .TRUE.
             END IF
@@ -607,3 +608,4 @@ C**********************************************************************
       RETURN
 
       END
+

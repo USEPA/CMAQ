@@ -15,7 +15,7 @@ C**********************************************************************
 
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -28,8 +28,8 @@ C..PARAMETERS:
       INTEGER, PARAMETER   ::  GRPNO = 5
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
-!      INTEGER   INDEX1     ! find position of string in list
+       INTEGER   JUNIT      ! gets unit no.
+!       INTEGER   NAME_INDEX     ! find position of string in list
 
 
 C..SAVED LOCAL VARIABLES:
@@ -55,7 +55,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: EPOS          ! end pos of string
       INTEGER  :: IIN           ! Unit no. of input file
       INTEGER  :: IOUT          ! Unit no. of output file
-      INTEGER  :: LOGDEV        ! Unit no. of logdev
 
       INTEGER  :: E1            ! End pos. of string
       INTEGER  :: E2            ! End pos. of string
@@ -101,7 +100,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      LOGDEV = INIT3()
 
       E1 = LEN_TRIM( OUTPATH )
 
@@ -188,7 +186,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          WRITE( IOUT, 92100 ) CLINE, SPOUT, CLINE
 
-         SPNUM = INDEX1( SPOUT, N_SPECIES, SPECIES )
+         SPNUM = NAME_INDEX( SPOUT, N_SPECIES, SPECIES )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Loop over all reactions to get all SS production terms
@@ -386,7 +384,8 @@ c..This section writes code to update rate constants
 
       IF( LERROR ) THEN
          MSG = 'STOPPING because of errors in processing steady-state species'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+         STOP
       END IF
 
       CLOSE( IIN )
@@ -404,7 +403,8 @@ c..This section writes code to update rate constants
 
       MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
 
 
        

@@ -13,7 +13,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO    ! IOAPI parameters and declarations
+!      !!USE M3UTILIO    ! IOAPI parameters and declarations
       USE RXNS_DATA   ! mechanism data and specifications
 
       IMPLICIT NONE
@@ -71,7 +71,8 @@ C**********************************************************************
 
          MSG = 'ERROR: Invalid code for SUM_COEFF - must be R or P '
 
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+         STOP
 
       END IF
 
@@ -92,7 +93,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA   ! mechanism data and specifications
 
 
@@ -174,7 +175,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!!!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA   ! mechanism data and specifications
 
 
@@ -433,7 +434,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA   ! mechanism data and specifications
 
 
@@ -491,7 +492,6 @@ cglg  CHARACTER*( 16 )  ::    FILLR
 C..SAVED LOCAL VARIABLES
       CHARACTER( 1 ), SAVE  :: GROUP               ! Group no (character)
 
-      INTEGER, SAVE         ::  LOGDEV             ! Log unit no
 
       INTEGER, SAVE         ::  KO3_O1D = 0 
       INTEGER, SAVE         ::  KNO2_NO2EX = 0  
@@ -505,7 +505,6 @@ C**********************************************************************
 
       IF( LFIRST ) THEN
 
-         LOGDEV = INIT3()
          LFIRST = .FALSE.
 
 c..Find some special reactions and save their reaction number
@@ -558,13 +557,13 @@ c..This section is necessary to properly do rxns of type NO+NO=
 
          IF( NR .GT. 1 ) THEN                    
             MSG = ' '
-            CALL M3MESG( MSG )
+            WRITE(LOGDEV,'(a)')TRIM( MSG )
             MSG = 'ERROR: More than 1 reactant for ' // VOUT // ' term' //
      &       ' ( Reaction No. ' // RNUM( 1 : LEN_TRIM( RNUM ) ) // ' )'
-            CALL M3MESG( MSG )
+            WRITE(LOGDEV,'(a)')TRIM( MSG )
             MSG = '       ' // PLSPEC( 1 : LEN_TRIM( PLSPEC ) ) //
      &            ' section must be corrected in hrg' // GROUP // '.F'
-            CALL M3MESG( MSG )
+            WRITE(LOGDEV,'(a)')TRIM( MSG )
          END IF
 
                            

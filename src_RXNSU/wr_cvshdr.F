@@ -12,7 +12,7 @@ C  REVISION HISTORY: Created by Jerry Gipson, February, 2004
 C
 C**********************************************************************
       USE ENV_VARS
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
 
       IMPLICIT NONE
 
@@ -27,7 +27,7 @@ C..PARAMETERS:
       INTEGER, PARAMETER ::  MXLINES = 10       ! Max no of copyright lines
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT          ! gets unit no.
+       INTEGER   JUNIT          ! gets unit no.
 
 C..SAVED LOCAL VARIABLES:
       CHARACTER( 100 ), SAVE    :: CVSHDR( MXLINES )   ! Copyright text
@@ -76,7 +76,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF( NLIN .GE. MXLINES ) THEN
             MSG = 'ERROR: Max no. of CVS header lines exceeded;' //
      &            ' it will not be written'
-            CALL M3MESG( MSG )
+            WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+            STOP
             NLIN = 0
             GO TO 9000
          END IF
@@ -111,7 +112,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
 
 92000 FORMAT( A )
 

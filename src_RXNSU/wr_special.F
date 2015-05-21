@@ -14,7 +14,7 @@ C**********************************************************************
 
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -25,7 +25,7 @@ C..INCLUDES:
 C..PARAMETERS: None
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
+       INTEGER   JUNIT      ! gets unit no.
 
 C..SAVED LOCAL VARIABLES:
       CHARACTER(  16 ), SAVE  ::    PNAME = 'WR_SPECIAL' ! Program name
@@ -47,7 +47,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: E1            ! end pos of string
       INTEGER  :: IIN           ! Unit no. of input file
       INTEGER  :: IOUT          ! Unit no. of output file
-      INTEGER  :: LOGDEV        ! Unit no. of logdev
 
       INTEGER  :: N             ! Loop index
       INTEGER  :: T1            ! Loop index
@@ -112,7 +111,6 @@ c..get length of the longest rxn label that is set equal to an operator value
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       E1 = LEN_TRIM( OUTPATH )
 
@@ -296,7 +294,8 @@ c..stop if any errors encountered
 
       IF( LERROR ) THEN
          MSG = 'Stopping because of special rate constant errors'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+         STOP
       END IF
 
 
@@ -342,7 +341,8 @@ c..Set rate constants of individual reactions
 
       MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
 
 
 91000 FORMAT( 'ERROR: No terms found for special rate constant named: ', A )

@@ -16,7 +16,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+!      USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -35,13 +35,11 @@ C..LOCAL VARIABLES:
       CHARACTER( 16 )  ::    PNAME = 'CR_EBI_SOLVER'
       CHARACTER( 80 )  ::    MSG
 
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
       INTEGER  :: N            ! Loop index
 
 
 C**********************************************************************
 
-      LOGDEV = INIT3()
 
       CALL GET_ENVS
 
@@ -72,10 +70,12 @@ C**********************************************************************
 !     IF( NSPECIAL .GT. 0 ) CALL WR_SPECIAL
 
       IF( N_SS_SPC .GT. 0 ) THEN
-          MSG = 'ERROR: Mechanism uses steady state or equilibrium '
+          MSG = TRIM( PNAME )
+     & 	     // ': ERROR: Mechanism uses steady state or equilibrium '
      &       // 'solution for specific species. The utility is '
      &       // 'disabled in the version of the EBI code generator.' 
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          WRITE(LOGDEV,'(a)')TRIM(MSG)
+          STOP
 !         CALL WR_SSA
       END IF
 
@@ -94,9 +94,8 @@ c..all references to rxrat are properly accounted for
       MSG = 'Program ' // PNAME( 1 : LEN_TRIM( PNAME ) ) // 
      &      ' completed successfully'
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, 0 )
-
-      STOP 
+      WRITE(LOGDEV,'(a)')TRIM(MSG)
+      STOP
 
 90000 FORMAT( /'The following ', I2, ' output files were created:' )
 90020 FORMAT( 5X, A )

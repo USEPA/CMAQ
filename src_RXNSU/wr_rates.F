@@ -16,7 +16,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -28,8 +28,8 @@ C..ARGUMENTS: None
 C..PARAMETERS:
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
-!      INTEGER   INDEX1     ! find position of string in list
+       INTEGER   JUNIT      ! gets unit no.
+!       INTEGER   NAME_INDEX     ! find position of string in list
 
 C..SAVED LOCAL VARIABLES: None
  
@@ -53,7 +53,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: IND3         ! array index
       INTEGER  :: IIN          ! Unit no. of input file
       INTEGER  :: IOUT         ! Unit no. of output file
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
       INTEGER  :: N, S         ! Loop indices
       INTEGER  :: NPOS         ! Reaction index
       INTEGER  :: RPOS1        !
@@ -76,7 +75,6 @@ C**********************************************************************
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       E1 = LEN_TRIM( OUTPATH )
 
@@ -148,16 +146,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IND3 = 0
 
          IF( IRR( N, 1 ) .NE. 0 )
-     &      IND1 = MAX( INDEX1( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
-     &                  INDEX1( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
+     &      IND1 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
+     &                  NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
 
          IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = MAX( INDEX1( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
-     &                  INDEX1( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
+     &      IND2 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
+     &                  NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
 
          IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = MAX( INDEX1( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
-     &                  INDEX1( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
+     &      IND2 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
+     &                  NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
 
 
 
@@ -203,13 +201,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IND3 = 0
 
          IF( IRR( N, 1 ) .NE. 0 )
-     &      IND1 = INDEX1( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
+     &      IND1 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
 
          IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = INDEX1( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
+     &      IND2 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
 
          IF( IRR( N, 3 ) .NE. 0 )
-     &      IND3 = INDEX1( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
+     &      IND3 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
 
 
 
@@ -265,13 +263,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IND3 = 0
 
          IF( IRR( N, 1 ) .NE. 0 )
-     &      IND1 = INDEX1( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
+     &      IND1 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
 
          IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = INDEX1( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
+     &      IND2 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
 
          IF( IRR( N, 3 ) .NE. 0 )
-     &      IND3 = INDEX1( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
+     &      IND3 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
 
 
 
@@ -330,7 +328,8 @@ c..do rxn if any reactant is a AE or AQ species
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
        
 92000 FORMAT( A )
 92020 FORMAT( / )

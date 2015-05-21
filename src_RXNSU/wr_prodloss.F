@@ -13,7 +13,7 @@ C
 C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
-      USE M3UTILIO ! IOAPI parameters and declarations
+      !!USE M3UTILIO ! IOAPI parameters and declarations
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -26,8 +26,8 @@ C..PARAMETERS:
       INTEGER, PARAMETER   ::  GRPNO = 5
 
 C..EXTERNAL FUNCTIONS:
-!      INTEGER   JUNIT      ! gets unit no.
-!      INTEGER   INDEX1     ! find position of string in list
+       INTEGER   JUNIT      ! gets unit no.
+!       INTEGER   NAME_INDEX     ! find position of string in list
 
 C..SAVED LOCAL VARIABLES: None
  
@@ -48,7 +48,6 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER  :: IND          ! array index
       INTEGER  :: IIN          ! Unit no. of input file
       INTEGER  :: IOUT         ! Unit no. of output file
-      INTEGER  :: LOGDEV       ! Unit no. of logdev
       INTEGER  :: N, S         ! Loop indices
       INTEGER  :: NPOS         ! Reaction index
       INTEGER  :: RPOS1        !
@@ -71,7 +70,6 @@ C**********************************************************************
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Open ouput file and code template 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LOGDEV = INIT3()
 
       E1 = LEN_TRIM( OUTPATH )
 
@@ -142,7 +140,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
        
          IF( N_SS_SPC .GT. 0 ) THEN             ! Skip SS species
-            IF( INDEX1( SPECIES( S ), N_SS_SPC, SS_SPC ) .NE. 0 ) CYCLE
+            IF( NAME_INDEX( SPECIES( S ), N_SS_SPC, SS_SPC ) .NE. 0 ) CYCLE
          END IF
 
          WRITE( IOUT, 92000 )
@@ -244,7 +242,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          
          DO S = 1, N_AE_SPC
 
-            IND = INDEX1( AE_SPC( S ) , N_SPECIES, SPECIES )
+            IND = NAME_INDEX( AE_SPC( S ) , N_SPECIES, SPECIES )
 
             WRITE( IOUT, 92000 )
 
@@ -353,7 +351,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          
          DO S = 1, N_AQ_SPC
 
-            IND = INDEX1( AQ_SPC( S ) , N_SPECIES, SPECIES )
+            IND = NAME_INDEX( AQ_SPC( S ) , N_SPECIES, SPECIES )
 
             WRITE( IOUT, 92000 )
 
@@ -457,7 +455,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          WRITE( IOUT, 92000 )
 
-         S = INDEX1( 'PAR', N_SPECIES, SPECIES )
+         S = NAME_INDEX( 'PAR', N_SPECIES, SPECIES )
 
          VNAME = 'PNEG( PAR )'
 
@@ -515,7 +513,8 @@ c..production terms
 
  9000 MSG = 'ERROR: Could not open ' // FNAME( 1 : LEN_TRIM( FNAME ) )
 
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
+      STOP
        
 92000 FORMAT( A )
 92020 FORMAT( / )
