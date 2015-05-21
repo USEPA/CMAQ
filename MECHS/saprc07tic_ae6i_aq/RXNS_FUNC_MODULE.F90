@@ -2087,7 +2087,7 @@
 !  Reaction Label HET_IMAEOS1     
              RKI( NCELL,  866) =  BLKHET(  NCELL, IK_HETERO_IMAEOS )
 !  Reaction Label HET_2MG2        
-             RKI( NCELL,  867) =  BLKHET(  NCELL, IK_HETERO_IMAEOS )
+             RKI( NCELL,  867) =  BLKHET(  NCELL, IK_HETERO_2MG )
 !  Reaction Label HET_IMAEOS2     
              RKI( NCELL,  868) =  BLKHET(  NCELL, IK_HETERO_IMAEOS )
 !  Reaction Label OLIG_XYLENE1    
@@ -2123,11 +2123,11 @@
 !  Reaction Label RPOAGEPI        
              RKI( NCELL,  884) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELI        
-             RKI( NCELL,  885) =  BLKHET(  NCELL, IK_HETERO_IMAEOS )
+             RKI( NCELL,  885) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
 !  Reaction Label RPOAGEPJ        
              RKI( NCELL,  886) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
-             RKI( NCELL,  887) =  BLKHET(  NCELL, IK_HETERO_IMAEOS )
+             RKI( NCELL,  887) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
