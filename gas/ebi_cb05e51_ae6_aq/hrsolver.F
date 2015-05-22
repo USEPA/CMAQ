@@ -82,7 +82,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 132 ) :: MSG           ! Message text
 
       INTEGER ITER            ! Loop index for Backward Euler iterations
-      INTEGER S               ! Loop index for species
+      INTEGER S, SP           ! Loop indices for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps
 #ifdef hrdebug
@@ -94,7 +94,6 @@ C..SCRATCH LOCAL VARIABLES:
 
 
       LOGICAL LEBI_CONV             ! Flag for EBI convergence
-      LOGICAL MXFL                  ! hit MAXPRED flag
 
       REAL( 8 ) DTC              ! Time step to take
       REAL( 8 ) FXDLOSS          ! Total loss due to negative stoichiometry
@@ -170,20 +169,15 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
       N_EBI_IT = 0
       DTC      = EBI_TMSTEP
+      NBKUPS = 0
+      N_INR_STEPS = 1
 
+      outer_EBI: DO NEBI = 1, N_EBI_STEPS    ! outer EBI time-tep loop
+         backup_ts: DO NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
 
-      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
+            YC0 = YC   ! Set ICs for EBI iterations
 
-          NBKUPS      = 0
-          N_INR_STEPS = 1
-
-100      CONTINUE                        !  Restart location
-
-         DO 2000 NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
-
-            FORALL( S = 1:N_SPEC )YC0( S ) = YC( S )   ! Set ICs for EBI iterations
-
-            DO 1000 ITER = 1, NEBITER    ! EBI iteration loop
+            EBI_iter: DO ITER = 1, NEBITER    ! EBI iteration loop
 
                N_EBI_IT = N_EBI_IT + 1
                CALL HRRATES
@@ -191,8 +185,9 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
                IF( LDEBUG ) THEN
-                  WRITE( DBGOUT, '( A, I5 )' )   'ITER NO ', ITER
-                  WRITE( DBGOUT, '( A, F12.5 )' )' DTC=', DTC
+                  WRITE( DBGOUT, '( A, I5 )' ) 'ITER NO ', ITER
+                  WRITE( DBGOUT, '( A, F12.5 )' )
+     &               ' DTC=', DTC
 
                   IF( ITER .EQ. 1 ) THEN
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
@@ -226,8 +221,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
+
                   YCP( S ) =  YC( S )*( ( YC0( S ) + PROD( S ) * DTC )
      &                     / ( YC( S ) + LOSS( S ) * DTC ) )
+
+
                END DO
 
 c..Special treatment of PAR because of negative product stoichiometry
@@ -246,18 +244,44 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Check for convergence
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                LEBI_CONV = .TRUE.
-               MXFL = .FALSE.
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
-                  IF(ABS(YC(S)-YCP(S)) .GT. RTOL(S)*(YC(S)+YCP(S)))THEN
-                     LEBI_CONV     = .FALSE.
+                  IF( ABS( YC( S ) - YCP( S ) ) .GT.
+     &                RTOL( S ) * ( YC( S ) + YCP( S ) ) ) THEN
+                     LEBI_CONV = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
 c..if predictions growing too large, treat as a convergence failure
-                  IF( YCP( S ) .GT. MAXPRED ) THEN
-                     MXFL = .TRUE.
-                     GO TO 1010
+                  IF( YCP( S ) .GT. MAXPRED ) then
+                     NBKUPS = NBKUPS + 1
+c...Convergence failure section; cut the inner time step in half and
+c.....start the inner loop over unless max backups exceeded
+                     IF( NBKUPS .LE. MXBKUPS ) THEN
+
+                        WRITE( LOGDEV, 92010 ) C, R, L, TRIM( CHEMISTRY_SPC( S ) ), NBKUPS
+     
+                        YC = YC0
+
+                        DTC = 0.5D0 * DTC
+
+                        N_INR_STEPS = 2 ** NBKUPS
+
+                        EXIT outer_EBI ! To restart EBI iteration loop
+
+                     ELSE
+
+                        WRITE( LOGDEV, 92040 ) C, R, L
+
+                        WRITE( LOGDEV, 92060 )
+                        DO SP = 1, N_SPEC
+                           IF( LEBISPFL( SP ) ) WRITE( LOGDEV, 92080 ) CHEMISTRY_SPC( SP )
+                        END DO
+
+                        MSG = 'ERROR: Stopping because of EBI convergence failures'
+                       CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+
+                     END IF
                   END IF
                   YC( S ) = YCP( S )
                END DO
@@ -283,55 +307,15 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
-
-                IF( LEBI_CONV )THEN
-                   GO TO 2000
-                END IF
-
-1000        CONTINUE
-
-c...Convergence failure section; cut the inner time step in half &
-c.....start inner loop over unless max backups exceeded
-
-1010        CONTINUE
-
-            NBKUPS = NBKUPS + 1
-
-            IF( NBKUPS .LE. MXBKUPS ) THEN
-
-               IF ( MXFL ) THEN
-                  WRITE( LOGDEV, 92010 ) C, R, L, TRIM( CHEMISTRY_SPC( S ) ), NBKUPS
-               ELSE
-                  WRITE( LOGDEV, 92000 ) C, R, L, NBKUPS
+               IF( LEBI_CONV ) THEN
+! Reset NBKUPS and N_INR_STEPS and cycle EBI iteration loop
+                  NBKUPS = 0
+                  N_INR_STEPS = 1
+                  CYCLE outer_EBI
                END IF
-
-               DO S = 1, N_SPEC
-                  YC( S ) = YC0( s )
-               END DO
-
-               DTC = 0.5D0 * DTC
-
-               N_INR_STEPS = 2 ** NBKUPS
-
-               GO TO 100
-
-            ELSE
-
-               WRITE( LOGDEV, 92040 ) C, R, L
-
-               WRITE( LOGDEV, 92060 )
-               DO S = 1, N_SPEC
-                  IF( LEBISPFL( S ) ) WRITE( LOGDEV, 92080 ) CHEMISTRY_SPC( S )
-               END DO
-
-               MSG = 'ERROR: Stopping because of EBI convergence failures'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
-
-            END IF
-
-2000     CONTINUE
-
-3000  CONTINUE
+            END DO EBI_iter
+         END DO backup_ts
+      END DO outer_EBI
 
       RETURN
 

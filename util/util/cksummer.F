@@ -53,6 +53,7 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   10 Aug 11 David Wong: reset output format 1PEw.d to meet the standard
 C                         w-d > 6
+C    9 Apr 15 J.Bash: Use F90 MINVAL to speed up execution
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -132,155 +133,163 @@ C-----------------------------------------------------------------------
 
       END IF
 
-      EXFLG = .TRUE.
+      IF ( MINVAL( CGRID ) .LT. CMIN ) THEN
 
-      DBL_CKSUM = 0.0
-      IF ( N_GC_SPC .GT. 0 ) THEN
+         EXFLG = .TRUE.
 
-         V = 0
-         DO S = GC_STRT, GC_STRT - 1 + N_GC_SPC
-            V = V + 1
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
-                     IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
-                        IF ( EXFLG ) THEN
-                           EXFLG = .FALSE.
-                           IF ( OPFLG ) THEN   ! open output ASCII file
-                              OPFLG = .FALSE.
-                              OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+         DBL_CKSUM = 0.0
+         IF ( N_GC_SPC .GT. 0 ) THEN
+
+            V = 0
+            DO S = GC_STRT, GC_STRT - 1 + N_GC_SPC
+               V = V + 1
+               DO L = 1, NLAYS
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
+                        IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
+                           IF ( EXFLG ) THEN
+                              EXFLG = .FALSE.
+                              IF ( OPFLG ) THEN   ! open output ASCII file
+                                 OPFLG = .FALSE.
+                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                              END IF
+                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+     &                                          GC_SPC( V ), CGRID( C,R,L,S )
+                           CGRID( C,R,L,S ) = CMIN
                         END IF
-                        WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
-     &                                       GC_SPC( V ), CGRID( C,R,L,S )
-                        CGRID( C,R,L,S ) = CMIN
-                     END IF
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
 
-         GC_CKSUM = DBL_CKSUM
+            GC_CKSUM = DBL_CKSUM
  
-!        WRITE( LOGDEV,1005 ) 'Gas chemistry', SCIPROC, CKSUM
+!           WRITE( LOGDEV,1005 ) 'Gas chemistry', SCIPROC, CKSUM
 
-      ELSE
+         ELSE
 
-         GC_CKSUM = 0.0
+            GC_CKSUM = 0.0
  
-      END IF
+         END IF
      
-      DBL_CKSUM = 0.0
-      IF ( N_AE_SPC .GT. 0 ) THEN
+         DBL_CKSUM = 0.0
+         IF ( N_AE_SPC .GT. 0 ) THEN
 
-         V = 0
-         DO S = AE_STRT, AE_STRT - 1 + N_AE_SPC
-            V = V + 1
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
-                     IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
-                        IF ( EXFLG ) THEN
-                           EXFLG = .FALSE.
-                           IF ( OPFLG ) THEN   ! open output ASCII file
-                              OPFLG = .FALSE.
-                              OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+            V = 0
+            DO S = AE_STRT, AE_STRT - 1 + N_AE_SPC
+               V = V + 1
+               DO L = 1, NLAYS
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
+                        IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
+                           IF ( EXFLG ) THEN
+                              EXFLG = .FALSE.
+                              IF ( OPFLG ) THEN   ! open output ASCII file
+                                 OPFLG = .FALSE.
+                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                              END IF
+                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+     &                                          AE_SPC( V ), CGRID( C,R,L,S )
+                           CGRID( C,R,L,S ) = CMIN
                         END IF
-                        WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
-     &                                       AE_SPC( V ), CGRID( C,R,L,S )
-                        CGRID( C,R,L,S ) = CMIN
-                     END IF
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
 
-         AE_CKSUM = DBL_CKSUM
+            AE_CKSUM = DBL_CKSUM
   
-!        WRITE( LOGDEV,1005 ) '      Aerosol', SCIPROC, CKSUM
+!           WRITE( LOGDEV,1005 ) '      Aerosol', SCIPROC, CKSUM
 
-      ELSE
+         ELSE
 
-         AE_CKSUM = 0.0
+            AE_CKSUM = 0.0
  
-      END IF
+         END IF
 
-      DBL_CKSUM = 0.0
-      IF ( N_NR_SPC .GT. 0 ) THEN
+         DBL_CKSUM = 0.0
+         IF ( N_NR_SPC .GT. 0 ) THEN
  
-         V = 0
-         DO S = NR_STRT, NR_STRT - 1 + N_NR_SPC
-            V = V + 1
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
-                     IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
-                        IF ( EXFLG ) THEN
-                           EXFLG = .FALSE.
-                           IF ( OPFLG ) THEN   ! open output ASCII file
-                              OPFLG = .FALSE.
-                              OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+            V = 0
+            DO S = NR_STRT, NR_STRT - 1 + N_NR_SPC
+               V = V + 1
+               DO L = 1, NLAYS
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
+                        IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
+                           IF ( EXFLG ) THEN
+                              EXFLG = .FALSE.
+                              IF ( OPFLG ) THEN   ! open output ASCII file
+                                 OPFLG = .FALSE.
+                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                              END IF
+                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+     &                                          NR_SPC( V ), CGRID( C,R,L,S )
+                           CGRID( C,R,L,S ) = CMIN
                         END IF
-                        WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
-     &                                       NR_SPC( V ), CGRID( C,R,L,S )
-                        CGRID( C,R,L,S ) = CMIN
-                     END IF
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
 
-         NR_CKSUM = DBL_CKSUM
+            NR_CKSUM = DBL_CKSUM
   
-!        WRITE( LOGDEV,1005 ) ' Non-reactive', SCIPROC, CKSUM
+!           WRITE( LOGDEV,1005 ) ' Non-reactive', SCIPROC, CKSUM
 
-      ELSE
+         ELSE
 
-         NR_CKSUM = 0.0
+            NR_CKSUM = 0.0
  
-      END IF
+         END IF
      
-      DBL_CKSUM = 0.0
-      IF ( N_TR_SPC .GT. 0 ) THEN
+         DBL_CKSUM = 0.0
+         IF ( N_TR_SPC .GT. 0 ) THEN
  
-         V = 0
-         DO S = TR_STRT, TR_STRT - 1 + N_TR_SPC
-            V = V + 1
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
-                     IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
-                        IF ( EXFLG ) THEN
-                           EXFLG = .FALSE.
-                           IF ( OPFLG ) THEN   ! open output ASCII file
-                              OPFLG = .FALSE.
-                              OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+            V = 0
+            DO S = TR_STRT, TR_STRT - 1 + N_TR_SPC
+               V = V + 1
+               DO L = 1, NLAYS
+                  DO R = 1, MY_NROWS
+                     DO C = 1, MY_NCOLS
+                        DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
+                        IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
+                           IF ( EXFLG ) THEN
+                              EXFLG = .FALSE.
+                              IF ( OPFLG ) THEN   ! open output ASCII file
+                                 OPFLG = .FALSE.
+                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                              END IF
+                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+     &                                          TR_SPC( V ), CGRID( C,R,L,S )
+                           CGRID( C,R,L,S ) = CMIN
                         END IF
-                        WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
-     &                                       TR_SPC( V ), CGRID( C,R,L,S )
-                        CGRID( C,R,L,S ) = CMIN
-                     END IF
+                     END DO
                   END DO
                END DO
             END DO
-         END DO
 
-         TR_CKSUM = DBL_CKSUM
+            TR_CKSUM = DBL_CKSUM
   
-!        WRITE( LOGDEV,1005 ) '       Tracer', SCIPROC, CKSUM
+!           WRITE( LOGDEV,1005 ) '       Tracer', SCIPROC, CKSUM
  
+         END IF
+
       END IF
+
+      GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) )
+      AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) )
+      NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) )
      
       IF ( N_TR_SPC .EQ. 0 ) THEN
          WRITE( LOGDEV,1005 ) SCIPROC,
@@ -291,6 +300,7 @@ C-----------------------------------------------------------------------
      &                        AE_CKSUM / LCELLS,
      &                        NR_CKSUM / LCELLS
       ELSE
+         TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) )
          WRITE( LOGDEV,1007 ) SCIPROC,
 !    &                        SUBST_GLOBAL_SUM( GC_CKSUM ) / GCELLS,
 !    &                        SUBST_GLOBAL_SUM( AE_CKSUM ) / GCELLS,
