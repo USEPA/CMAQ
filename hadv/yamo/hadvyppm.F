@@ -50,7 +50,7 @@ C                            them as declared in X_YAMO and Y_YAMO
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
-C   06 Apr 15 J.Bash: speedup code      
+      
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -72,15 +72,15 @@ C Includes:
 C Arguments:
       
       REAL, POINTER :: CGRID( :,:,:,: )
-      INTEGER, INTENT( IN ) :: JDATE         ! current model date, coded YYYYDDD
-      INTEGER, INTENT( IN ) :: JTIME         ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
-                                             ! TSTEP(1) = local output step
-                                             ! TSTEP(2) = sciproc sync. step (chem)
-                                             ! TSTEP(3) = twoway model time step w.r.t.
-                                             ! wrf timestep and wrf/cmaq call frequency
+      INTEGER     JDATE         ! current model date, coded YYYYDDD
+      INTEGER     JTIME         ! current model time, coded HHMMSS
+      INTEGER     TSTEP( 3 )    ! time step vector (HHMMSS)
+                                ! TSTEP(1) = local output step
+                                ! TSTEP(2) = sciproc sync. step (chem)
+                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                !            step and wrf/cmaq call frequency
 
-      INTEGER, INTENT( IN ) :: ASTEP( : )    ! layer advection time step
+      INTEGER     ASTEP( : )    ! layer advection time step
 
 C External Functions: None
       
@@ -93,6 +93,7 @@ C Advected species dimension
 C File Variables:
 
       REAL, ALLOCATABLE, SAVE :: BCON( :,: )    ! boundary concentrations
+      REAL         RHOJ( NCOLS,NROWS )          ! RhoJ
 
 C Local Variables:
 
@@ -117,8 +118,6 @@ C Local Variables:
       INTEGER      FDATE                        ! interpolation date
       INTEGER      FTIME                        ! interpolation time
       INTEGER      SYNCSTEP
-      INTEGER      SUBSTEPS
-      INTEGER      NSTEP
 
       INTEGER      COL, ROW, LVL                ! loop counters
 
@@ -135,6 +134,7 @@ C Required interface for allocatable array dummy arguments
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
+!           REAL,    INTENT( IN )  :: BCON( NBNDY,* )
             REAL,    INTENT( IN )  :: BCON( :,: )
          END SUBROUTINE X_PPM
          SUBROUTINE X_YAMO ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON, MTRHOJ )
@@ -142,14 +142,17 @@ C Required interface for allocatable array dummy arguments
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
+!           REAL,    INTENT( IN )  :: BCON( NBNDY,* )
             REAL,    INTENT( IN )  :: BCON( :,: )
             REAL,    INTENT( IN )  :: MTRHOJ( 0:,1: )
+!           REAL,    INTENT( IN )  :: MTRHOJ( :,: )
          END SUBROUTINE X_YAMO
          SUBROUTINE Y_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
             USE HGRD_DEFN
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
+!           REAL,    INTENT( IN )  :: BCON( NBNDY,: )
             REAL,    INTENT( IN )  :: BCON( :,: )
          END SUBROUTINE Y_PPM
          SUBROUTINE Y_YAMO ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON, MTRHOJ )
@@ -157,9 +160,17 @@ C Required interface for allocatable array dummy arguments
             IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
+!           REAL,    INTENT( IN )  :: BCON( NBNDY,1: )
             REAL,    INTENT( IN )  :: BCON( :,: )
             REAL,    INTENT( IN )  :: MTRHOJ( 1:,0: )
+!           REAL,    INTENT( IN )  :: MTRHOJ( :,: )
          END SUBROUTINE Y_YAMO
+!        SUBROUTINE LCKSUMMER ( PNAME, CGRID, JDATE, JTIME, LVL )
+!           IMPLICIT NONE
+!           CHARACTER( * ), INTENT( IN ) :: PNAME
+!           REAL, POINTER                :: CGRID( :,:,:,: )
+!           INTEGER, INTENT( IN )        :: JDATE, JTIME, LVL
+!        END SUBROUTINE LCKSUMMER
       END INTERFACE
 C-----------------------------------------------------------------------
 
@@ -190,79 +201,67 @@ C Get CGRID offsets
 
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
 
-      DO LVL = 1, NLAYS
+      DO 301 LVL = 1, NLAYS
 
          STEP = TIME2SEC ( ASTEP( LVL ) )
          DSTEP = STEP
-         SUBSTEPS = SYNCSTEP / STEP
          FDATE = JDATE
          FTIME = JTIME
          XYFIRST = .TRUE.
 
-! If substeps is one or even unroll the loop to save some time.
-         IF ( SUBSTEPS .EQ. 1 ) THEN
+101      CONTINUE
 
-            CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-            FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
-               YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-            END FORALL
-            CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
-            CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-            CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
-            DSTEP = DSTEP + STEP
-            CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+         CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 
-         ELSE IF ( MOD( SUBSTEPS, 2 ) .EQ. 0 ) THEN
+!        write( logdev,* ) ' lvl, fdate, ftime: ', lvl, fdate, ftime
 
-            DO NSTEP = 1, SUBSTEPS / 2
-               CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-               FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
+         IF ( XYFIRST ) THEN
+
+            XYFIRST = .FALSE.
+
+            DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
                   YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-               END FORALL
-               CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
-               CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-               CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
-               DSTEP = DSTEP + STEP
-               CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
-
-               CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-               FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
-                  XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-               END FORALL
-               CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
-               CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-               CALL X_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, XTRHOJ )
-               DSTEP = DSTEP + STEP
-               CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+               END DO
             END DO
+            CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
+
+!     write( logdev,* ) ' x_ppm/y_yamo - lvl, fdate, ftime: ', lvl, fdate, ftime
+
+            CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+!           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
+
+            CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
+!           CALL LCKSUMMER ( 'Y_YAMO', CGRID, FDATE, FTIME, LVL )
 
          ELSE
 
-            DO NSTEP = 1, SUBSTEPS
-               CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-               IF ( XYFIRST ) THEN
-                  XYFIRST = .FALSE.
-                  FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
-                     YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-                  END FORALL
-                  CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
-                  CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-                  CALL Y_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, YTRHOJ )
-               ELSE
-                  XYFIRST = .TRUE.
-                  FORALL( ROW = 1:MY_NROWS, COL = 1:MY_NCOLS )
-                     XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-                  END FORALL
-                  CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
-                  CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
-                  CALL X_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, XTRHOJ )
-               END IF
-               DSTEP = DSTEP + STEP
-               CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+            XYFIRST = .TRUE.
+
+            DO ROW = 1, MY_NROWS
+               DO COL = 1, MY_NCOLS
+                  XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
+               END DO
             END DO
+            CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
+
+!     write( logdev,* ) ' y_ppm/x_yamo - lvl, fdate, ftime: ', lvl, fdate, ftime
+
+            CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
+!           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
+
+            CALL X_YAMO ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON, XTRHOJ )
+!           CALL LCKSUMMER ( 'X_YAMO', CGRID, FDATE, FTIME, LVL )
 
          END IF
-      END DO
+
+         DSTEP = DSTEP + STEP
+         IF ( DSTEP .LE. SYNCSTEP ) THEN
+            CALL NEXTIME( FDATE, FTIME, SEC2TIME( STEP ) )
+            GO TO 101
+         END IF
+
+301   CONTINUE
 
       RETURN
       END

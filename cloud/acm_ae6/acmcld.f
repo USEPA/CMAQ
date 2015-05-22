@@ -25,8 +25,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE ACMCLD ( F, C, SIGMAF, CBELOW, CLBASE, CLTOP, FRAC,
-     &                    NSP, NLAYS, TCLIFE, DTCLD )
+      SUBROUTINE ACMCLD ( NSP, NLAYS, F, C, SIGMAF, CBELOW, CLBASE, CLTOP,
+     &                    FRAC, TCLIFE, DTCLD )
 C-----------------------------------------------------------------------
 C
 C  FUNCTION:  Subroutine to compute convective mixing in the CBL
@@ -44,6 +44,7 @@ C      Date   Who             What
 C    -------- ---             -----------------------------------------
 C     06/2005 J.Pleim         Initial version
 C     07/2005 J.Young         Clean up for CMAQ-F
+C     05/2015 J.Young         Clean up for CMAQv5.1
 C-----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -56,7 +57,8 @@ C Arguments
       REAL    C( NSP, NLAYS )    ! species concentration
       REAL    SIGMAF( 0:NLAYS )  ! full layer sigma (mono decr)
       REAL    CBELOW( NSP )      ! spec conc in layer below cld base
-      INTEGER CLBASE, CLTOP
+      INTEGER CLBASE
+      INTEGER CLTOP
       REAL    FRAC               ! grid cell fractional cloud cover
       REAL    TCLIFE             ! cloud lifetime (s)
       REAL    DTCLD              ! cloud integration time step
@@ -72,7 +74,7 @@ C Local variables
       INTEGER KB
 
       REAL DTLIM, F1
-      REAL TOT1, TOT2
+!     REAL TOT
       REAL DTS, DELC, M1UP
       REAL( 8 ) :: AI( NLAYS ), BI( NLAYS ), EI( NLAYS )
       REAL( 8 ) :: DI( NLAYS ), UI( NLAYS )
@@ -89,7 +91,6 @@ C-----------------------------------------------------------------------
       SIGMAF( 0 ) = 1
       M1UP = 0.0
       KB  = CLBASE - 1
-      CLBASE = CLBASE
       DSIGH ( KB ) = SIGMAF( KB ) - 1.0
       DSIGHI( KB ) = 1.0 / DSIGH( KB )
 
@@ -99,8 +100,7 @@ C Compute ACM mixing rate
         DSIGH ( K ) = SIGMAF( K ) - SIGMAF( K - 1 )
         DSIGHI( K ) = 1.0 / DSIGH( K )
         MBARKS( K ) = ( 1.0 - F( K ) ) * FRAC / TCLIFE
-        MDWN  ( K ) = MBARKS( K )
-     &              + MDWN( K + 1 ) * DSIGH( K + 1 ) * DSIGHI( K )
+        MDWN  ( K ) = MBARKS( K ) + MDWN( K + 1 ) * DSIGH( K + 1 ) * DSIGHI( K )
         M1UP  = M1UP + MBARKS( K ) * DSIGH( K )
         DTLIM = MIN( HALF / ( M1UP * DSIGHI( K ) ), DTLIM )
       END DO
@@ -170,12 +170,11 @@ C Update concentrations
 2000  CONTINUE               ! end timestep loop
 
       DO S = 1, NSP
-        TOT1 = 0.0
-        TOT2 = 0.0
 
-        DO K = 1, CLTOP
-          TOT1 = TOT1 + C( S,K ) * ( SIGMAF( K-1 ) - SIGMAF( K ) )
-        END DO
+!       TOT = 0.0
+!       DO K = 1, CLTOP
+!         TOT = TOT + C( S,K ) * ( SIGMAF( K-1 ) - SIGMAF( K ) )
+!       END DO
 
         CBELOW( S ) = VCI( KB,S )
 

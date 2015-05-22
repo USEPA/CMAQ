@@ -140,7 +140,7 @@ C...modules
       INTEGER, INTENT( IN ) :: DTSTEP( : )   ! time step vector (HHMMSS)
 
 !     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
-      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)  ! gridded J-values  (1/min units)
+      REAL,    INTENT( OUT ) :: RJ( :,:,:,: )  ! gridded J-values  (1/min units)
 
 !     REAL CGRID( NCOLS,NROWS,NLAYS, * )  ! Conc array
       REAL, SAVE, POINTER :: CGRID( :,:,:,: ) ! species concentrations
@@ -270,7 +270,7 @@ C...modules
       
       LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
       LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
-      LOGICAL                    :: DARK           ! Are the processors cells in darkness?
+      LOGICAL                    :: DARK           ! Are this processor's cells in darkness?
       
 !...Variables for diagnostic outputs
 
@@ -427,37 +427,37 @@ C...modules
             DIAG_WVL( 1 ) = 1
             DIAG_WVL( N_DIAG_WVL ) = NWL
 
-            ALLOCATE ( AERO_ASYM ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_ASYM( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_ASYM'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( AERO_SSA ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_SSA( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_SSA'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( TAU_AERO ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( TAU_AERO( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TAU_AERO'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( BUFFER  ( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+            ALLOCATE ( BUFFER( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating IO BUFFER'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( TAU     ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( TAU( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TAU'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( ACTINIC_FX ( NCOLS,NROWS,NLAYS,NWL ), STAT = ALLOCSTAT )
+            ALLOCATE ( ACTINIC_FX( NCOLS,NROWS,NLAYS,NWL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACTINIC_FX'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -574,6 +574,7 @@ C...modules
             TAUO3_TOP_WL      = 0.0
             ACTINIC_FX        = 0.0
             TRANSMIS_DIFFUSE  = 0.0
+            TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
 #ifdef phot_research
             CLD_TRANSMISSION  = 0.0
@@ -781,35 +782,35 @@ C...modules
 
             IF ( COSZEN .LE. 0.0 ) THEN
 !...the cell is dark: set variables to zero and cycle
-                RJ( COL,ROW, :, : ) = 0.0
+               RJ( COL,ROW, :,: ) = 0.0
 
-                IF ( PHOTDIAG ) THEN
-                   TOC( COL,ROW )             = 0.0                            
-                   ETOT_SFC_WL ( COL,ROW, : ) = 0.0
-                   TAUO3_TOP_WL( COL,ROW, : ) = 0.0
-                   TAU_AERO_WL ( COL,ROW, : ) = 0.0
-                   TAU_CLOUD_WL( COL,ROW, : ) = 0.0
+               IF ( PHOTDIAG ) THEN
+                  TOC( COL,ROW )             = 0.0                            
+                  ETOT_SFC_WL ( COL,ROW, : ) = 0.0
+                  TAUO3_TOP_WL( COL,ROW, : ) = 0.0
+                  TAU_AERO_WL ( COL,ROW, : ) = 0.0
+                  TAU_CLOUD_WL( COL,ROW, : ) = 0.0
 #ifdef phot_debug                   
-                   SSA_CLOUD_WL( COL,ROW, : ) = 0.0
-                   ASY_CLOUD_WL( COL,ROW, : ) = 0.0
+                  SSA_CLOUD_WL( COL,ROW, : ) = 0.0
+                  ASY_CLOUD_WL( COL,ROW, : ) = 0.0
 #endif                   
-                   TAU_TOT_WL  ( COL,ROW, : ) = 0.0
-                   TAU      ( COL,ROW, :, : ) = 0.0
-                   TAU_AERO ( COL,ROW, :, : ) = 0.0
-                   AERO_SSA ( COL,ROW, :, : ) = 0.0
-                   AERO_ASYM( COL,ROW, :, : ) = 0.0
-                   ACTINIC_FX(COL,ROW, :, : ) = 0.0
+                  TAU_TOT_WL( COL,ROW, : )   = 0.0
+                  TAU       ( COL,ROW, :,: ) = 0.0
+                  TAU_AERO  ( COL,ROW, :,: ) = 0.0
+                  AERO_SSA  ( COL,ROW, :,: ) = 0.0
+                  AERO_ASYM ( COL,ROW, :,: ) = 0.0
+                  ACTINIC_FX( COL,ROW, :,: ) = 0.0
                    
-                   TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
-                   TRANSMIS_DIRECT ( COL,ROW ) = 0.0
-                   REFLECT_COEFF   ( COL,ROW ) = 0.0
+                  TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
+                  TRANSMIS_DIRECT ( COL,ROW ) = 0.0
+                  REFLECT_COEFF   ( COL,ROW ) = 0.0
 #ifdef phot_research                   
-                   CLD_TRANSMISSION( COL,ROW ) = 0.0
-                   CLD_REFLECTION  ( COL,ROW ) = 0.0 
+                  CLD_TRANSMISSION( COL,ROW ) = 0.0
+                  CLD_REFLECTION  ( COL,ROW ) = 0.0 
 #endif
-                END IF
+               END IF
 
-                CYCLE LOOP_COLS
+               CYCLE LOOP_COLS
 
             END IF
 
@@ -941,7 +942,7 @@ C...modules
                TOC( COL,ROW ) = REAL( TOTAL_O3_COLUMN )
                TRANSMIS_DIFFUSE( COL,ROW ) = TRANSMISSION
                TRANSMIS_DIRECT( COL,ROW )  = TRANS_DIRECT
-               REFLECT_COEFF ( COL,ROW )   = REFLECTION
+               REFLECT_COEFF( COL,ROW )    = REFLECTION
                FORALL( IWL = 1:NWL )
                   ETOT_SFC_WL ( COL,ROW,IWL ) = IRRADIANCE( 1,IWL )
                   TAUO3_TOP_WL( COL,ROW,IWL ) = TAUO3_TOP( IWL )
@@ -949,12 +950,12 @@ C...modules
                   TAU_TOT_WL  ( COL,ROW,IWL ) = TAU_TOT  ( 1,IWL )
                   TAU_CLOUD_WL( COL,ROW,IWL ) = TAU_CLOUD( 1,IWL )
 #ifdef phot_debug                      
-                  SSA_CLOUD_WL( COL,ROW,IWL )  = AVE_SSA_CLD  ( IWL )
-                  ASY_CLOUD_WL( COL,ROW,IWL )  = AVE_ASYMM_CLD( IWL )
+                  SSA_CLOUD_WL( COL,ROW,IWL ) = AVE_SSA_CLD  ( IWL )
+                  ASY_CLOUD_WL( COL,ROW,IWL ) = AVE_ASYMM_CLD( IWL )
 #endif                      
                END FORALL
                FORALL ( LEV = 1:NLAYS, IWL = 1:NWL  )
-                     ACTINIC_FX( COL,ROW,LEV,IWL ) = ACTINIC_FLUX( LEV,IWL )
+                  ACTINIC_FX( COL,ROW,LEV,IWL ) = ACTINIC_FLUX( LEV,IWL )
                END FORALL
                   
                DO L = 1, N_DIAG_WVL
@@ -964,13 +965,13 @@ C...modules
                      TAU_AERO( COL,ROW,LEV,L ) = TAUC_AERO( LEV,IWL )
                   END FORALL
                   FORALL ( LEV = 1:NLAYS, AERO_EXTI_COEF( LEV,IWL ) .GT. EPSLON )
-                      AERO_SSA ( COL,ROW,LEV,L ) = AERO_SCAT_COEF( LEV,IWL )
-     &                                           / AERO_EXTI_COEF( LEV,IWL )
-                      AERO_ASYM( COL,ROW,LEV,L ) = AERO_ASYM_FAC( LEV,IWL )
+                     AERO_SSA ( COL,ROW,LEV,L ) = AERO_SCAT_COEF( LEV,IWL )
+     &                                          / AERO_EXTI_COEF( LEV,IWL )
+                     AERO_ASYM( COL,ROW,LEV,L ) = AERO_ASYM_FAC( LEV,IWL )
                   END FORALL
                   FORALL ( LEV = 1:NLAYS, AERO_EXTI_COEF( LEV,IWL ) .LE. EPSLON )
-                      AERO_SSA ( COL,ROW,LEV,L ) = 1.0
-                      AERO_ASYM( COL,ROW,LEV,L ) = 0.0
+                     AERO_SSA ( COL,ROW,LEV,L ) = 1.0
+                     AERO_ASYM( COL,ROW,LEV,L ) = 0.0
                   END FORALL
                END DO
             END IF

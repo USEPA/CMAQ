@@ -407,7 +407,6 @@ C Main processing loop:
 #endif
 
 C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
-         CALL SUBST_BARRIER()
          CALL ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
 
 #ifdef twoway
