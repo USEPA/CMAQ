@@ -599,7 +599,7 @@ C *** Transfer mass from Aitken to accumulation mode, resulting from
 C     intermodal coagulation.
 
       DO SPC = 1, N_AEROSPC
-         IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
+         IF ( AERO_MISSING(N,1) ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
          AEROSPC_CONC( SPC,1 ) = MAX( AEROSPC( SPC )%MIN_CONC( 1 ),
@@ -679,7 +679,7 @@ C     Equations 11d - 11f of Binkowski and Roselle (2003).
 C *** Rename masses of each species from Aitken mode to acumulation mode
 C     using Equation 11b of Binkowski and Roselle (2003).
          DO SPC = 1, N_AEROSPC
-            IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
+            IF ( AERO_MISSING(SPC,1) ) CYCLE
 
             AEROSPC_CONC( SPC,2 ) = AEROSPC_CONC( SPC,2 ) + AEROSPC_CONC( SPC,1 ) * FM3
             AEROSPC_CONC( SPC,1 ) = AEROSPC_CONC( SPC,1 ) * PHM3
@@ -980,7 +980,8 @@ C *** Determine if Hybrid
       hybrid = .false.
 #else
       DO I = 1, N_AEROSPC
-         IF ( AEROSPC( I )%CHARGE .NE. 0 ) TMP = TMP + AEROSPC_CONC( I,N_MODE )
+        IF(  AEROSPC( I )%tracer )CYCLE
+        IF ( AEROSPC( I )%CHARGE .NE. 0 ) TMP = TMP + AEROSPC_CONC( I,N_MODE )
       END DO
       HYBRID = ( TMP .GE. CUTOFF ) .AND. ( AIRRH .GE. 0.18 )
 #endif
@@ -999,6 +1000,7 @@ C     H+ concentration
       HPLUS = 0.0
       DO I = 1, N_MODE
          DO N = 1, N_AEROSPC
+            IF(  AEROSPC( N )%tracer )CYCLE
             HPLUS( I ) = HPLUS( I )
      &                 - AEROSPC( N )%CHARGE * AEROSPC_CONC( N,I ) / AEROSPC_MW( N )
          END DO
@@ -1578,6 +1580,8 @@ C *** Initialize excess evaporated mass array
          M3SOA = 0.0
          DO I = 1, N_AEROSPC
 
+            IF(  AEROSPC( I )%tracer )CYCLE
+
             ! Skip thermodynamically-active inorganic species
             IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR. 
      &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR. 
@@ -1672,6 +1676,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
 
          HPLUS( IMODE ) = 0.0
          DO I = 1, N_AEROSPC
+           IF(  AEROSPC( I )%tracer )CYCLE
            HPLUS( IMODE ) = HPLUS( IMODE )
      &                    - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,IMODE ) / AEROSPC_MW( I )
          END DO
@@ -2969,23 +2974,24 @@ C     treated as though it were fine mass soil.
       
       !  sum from aerospc species
       DO N = 1, N_AEROSPC
+         IF(  AEROSPC( N )%tracer )CYCLE
          IF ( N .EQ. ASO4_IDX .OR. N .EQ. ANO3_IDX .OR. N .EQ. ANH4_IDX ) THEN
-            IF ( AEROSPC( N )%NAME( 1 ) .NE. ' ' ) THEN
+            IF ( .NOT. AERO_MISSING(N,1) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
             END IF
-            IF ( AEROSPC(N )%NAME( 2 ) .NE. ' ' ) THEN
+            IF ( .NOT. AERO_MISSING(N,2) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
             END IF
             CYCLE
          END IF
 
-         IF ( AEROSPC( N )%NAME( 1 ) .NE. ' ' ) THEN
+         IF ( .NOT. AERO_MISSING(N,1) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
          END IF
-         IF ( AEROSPC( N )%NAME( 2 ) .NE. ' ' ) THEN
+         IF ( .NOT. AERO_MISSING(N,2) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
          END IF
-      END DO
+       END DO
 
       !  sum from soa species
       DO N = 1, N_VAPOR  

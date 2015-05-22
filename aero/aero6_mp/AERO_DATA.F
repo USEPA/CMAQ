@@ -347,6 +347,9 @@ C Mapping for loading from and unloading to CGRID array
       Integer :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
       Integer :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
 
+C Missing aerosol species map
+      Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
+
 C Emissions mapping
       Integer              :: n_emis_pm               ! number of aerospc with emissions
 !     Integer              :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
@@ -497,7 +500,18 @@ C build mapping to CGRID for each aero spc
          Allocate( aerospc_map( n_aerospc, n_mode ) )
          Allocate( aerospc_conc( n_aerospc, n_mode ) )
          Allocate( aerospc_ssf( n_mode, n_aerospc ) )
-
+         Allocate( aero_missing(n_aerospc, n_mode ) )
+         
+         Do m = 1, n_mode
+            Do spc = 1, n_aerospc
+               If ( aerospc( spc )%name( m ) .Ne. ' ' ) Then
+                  aero_missing(spc,m) = .False.
+               Else
+                  aero_missing(spc,m) = .True.
+               End If
+            End Do
+         End Do
+         
 #ifdef verbose_aero         
          write(logdev,9998)"SPC", "TOT", "LST", "  AITKEN  ", "  ACUMM   ", "   COAR   ",
      &   "  MW  ", "MAP", "ESPLIT", "SSFACT"
