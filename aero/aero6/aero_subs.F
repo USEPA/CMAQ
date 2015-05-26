@@ -2949,19 +2949,19 @@ C     treated as though it were fine mass soil.
       DO N = 1, N_AEROSPC
          IF(  AEROSPC( N )%tracer )CYCLE
          IF ( N .EQ. ASO4_IDX .OR. N .EQ. ANO3_IDX .OR. N .EQ. ANH4_IDX ) THEN
-            IF ( .NOT. AERO_MISSING( SPC, 1 ) ) THEN
+            IF ( .NOT. AERO_MISSING( N, 1 ) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
             END IF
-            IF ( .NOT. AERO_MISSING( SPC, 2 ) ) THEN
+            IF ( .NOT. AERO_MISSING( N, 2 ) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
             END IF
             CYCLE
          END IF
 
-         IF ( .NOT. AERO_MISSING( SPC, 1 ) ) THEN
+         IF ( .NOT. AERO_MISSING( N, 1 ) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
          END IF
-         IF ( .NOT. AERO_MISSING( SPC, 2 ) ) THEN
+         IF ( .NOT. AERO_MISSING( N, 2 ) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
          END IF
       END DO
