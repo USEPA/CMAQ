@@ -1656,7 +1656,7 @@ C     in catalyzing the ring-opening)
       charge = 0.0d0  ! umol/m3
       Do i = 1, n_aerospc
          If ( aerospc( i )%tracer ) Cycle
-         If ( aerospc( i )%name( 2 ) .Eq. ' ' ) Cycle
+         If ( aero_missing(i,2) ) Cycle
          charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
      &          / aerospc_mw( i )
       End Do
@@ -1666,7 +1666,7 @@ C *** J-mode particle volume [L/m**3 air]
       inv_volume = 0.0d0
       Do i = 1, n_aerospc 
          If ( aerospc( i )%tracer ) Cycle
-         If ( aerospc( i )%name( 2 ) .Eq. ' ' ) Cycle
+         If ( aero_missing(i,2) ) Cycle
 !        If ( aerospc( i )%no_M2Wet ) Cycle
          inv_volume = inv_volume + Real( aerospc_conc( i, 2 ) / aerospc(i)%density, 8 ) !  * 1.0d-6
       End Do
