@@ -35,7 +35,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
+C  REVISION HISTORY: Created by EBI solver program, March 19, 2015
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -66,7 +66,7 @@ C..PARAMETERS:
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 0.0D+00    ! zero
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40     ! effective zero
 
 C..EXTERNAL FUNCTIONS:
 
@@ -230,17 +230,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                     / ( YC( S ) + LOSS( S ) * DTC ) )
                END DO
 
-c..Special treatment of PAR because of negative product stoichiometry
-               IF( PNEG( PAR ) .GT. 0.0D0 ) THEN
-                  FXDLOSS = PNEG( PAR ) * DTC
-                  IF( FXDLOSS .GE. YC0( PAR ) + PROD( PAR ) * DTC ) THEN
-                     YCP( PAR ) = 0.0D0
-                  ELSE
-                     VARLOSS = MAX( LOSS( PAR ) - PNEG( PAR ) , ZERO )
-                     YCP( PAR ) = ( YC0( PAR ) + PROD( PAR ) * DTC  - 
-     &             FXDLOSS ) / ( 1.0D0 + VARLOSS * DTC / YC( PAR ) )
-                  END IF
-               END IF
+
+
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Check for convergence

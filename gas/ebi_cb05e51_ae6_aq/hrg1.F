@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the CB05E51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 13, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -257,6 +257,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 170 ) * YC( ISPD             )   ! O3+ISPD=0.1140D+...
      &   +                 RKI( 179 ) * YC( TERP             )   ! O3+TERP=0.5700D+...
      &   +                 RKI( 187 ) * YC( CL               )   ! O3+CL=CLO
+     &   +                 RKI( 268 )                            ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

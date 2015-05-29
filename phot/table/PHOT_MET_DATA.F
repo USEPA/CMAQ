@@ -1287,8 +1287,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          SUBROUTINE CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, BOTTOM, TOP,
      &                                 FRACTION, WATER, ICE )
 
-            USE CLOUD_OPTICS, ONLY : CLDMIN
-         
             IMPLICIT NONE
 ! Purpose:
 !   Save properties determined by ACM subgrid cloud at vertical column into
