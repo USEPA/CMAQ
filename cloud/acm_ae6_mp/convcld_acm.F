@@ -408,7 +408,7 @@ C...........Statement Functions
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
-      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, Only: Grid_Data
          IMPLICIT NONE
@@ -1529,8 +1529,6 @@ C...  determine day or night from cosine of zenith angle for the cell; Golam Sar
 
 C...  update variables used in hg_aqchem_data modules
 
-            AQCHEM_LAT    = LAT( COL, ROW )
-            AQCHEM_LON    = LON( COL, ROW )
             COSINE_ZENITH = REAL( COSZ, 8 )
 
 C *** Golam Sarwar 

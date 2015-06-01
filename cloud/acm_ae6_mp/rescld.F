@@ -648,8 +648,6 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
 
                   COSZ = COSZEN( COL, ROW )
 C...  update variables used in hg_aqchem_data modules
-                  AQCHEM_LAT    = LAT( COL, ROW )
-                  AQCHEM_LON    = LON( COL, ROW )
                   COSINE_ZENITH = REAL(COSZ, 8)
 
                   IF ( COSZ .LE. 0.0 ) THEN
