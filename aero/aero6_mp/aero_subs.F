@@ -580,10 +580,10 @@ C *** Transfer mass from Aitken to accumulation mode, resulting from
 C     intermodal coagulation.
 
       DO SPC = 1, N_AEROSPC
-         IF ( AERO_MISSING(N,1) ) CYCLE
+         IF ( AERO_MISSING(SPC,1) ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
-         IF( TRIM(AEROSPC( SPC )%NAME( 2 )) .EQ. 'APHGJ' )THEN 
+         IF( SPC .EQ. APHGJ_IDX  )THEN 
 ! assumes all production adsorb onto accumulation mode
              TMASS = TMASS + PHG_RATE * DT
          END IF
