@@ -25,10 +25,10 @@ ifeq ($(COMPILER),INTEL)
 #CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
 FC = ifort
 CC = icc
-F_FLAGS = -fixed -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f_FLAGS = -fixed -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-F90_FLAGS = -free -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
-f90_FLAGS = -free -132 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+F_FLAGS = -fixed -132 -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+f_FLAGS = -fixed -132 -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+F90_FLAGS = -free -132 -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
+f90_FLAGS = -free -132 -fpe0 -O3 -override-limits -check uninit -warn nounused -check bounds -check format -g -traceback -override-limits -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
 LINK_FLAGS = -i-static
@@ -40,8 +40,8 @@ else
  CC = pgcc
  
 # compiler options for subroutines
- F_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
- f_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
+ F_FLAGS = -Mfixed -Mextend -Mbounds -O3 -traceback  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp  -I . -g
+ f_FLAGS = -Mfixed -Mextend -Mbounds -O3  -traceback -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -I . -g
  C_FLAGS =  -O2  -DFLDMN=1
  LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
@@ -50,13 +50,13 @@ else
  # CC    = /usr/bin/gcc
     FC    = gfortran
     CC    = gcc
-   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -I. -fcheck=all
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all
    F_FLAGS       = $(f_FLAGS)
-   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32 -I. -fcheck=all
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -funroll-loops -O3 -ffpe-trap=invalid,zero -g -finit-character=32 -I. -fcheck=all
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
-   LINK_FLAGS    = -static
+   LINK_FLAGS    = 
  endif
 
 endif
