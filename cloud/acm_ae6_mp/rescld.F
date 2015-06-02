@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/rescld.F,v 1.3 2011/10/21 16:10:27 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/rescld.F,v 1.7 2011/10/21 16:10:24 yoj Exp $
 
 C what( 1 ) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -60,15 +60,12 @@ C                    namelists and merge Shawn Roselle's, Sergey Napelenok's
 C                    and Steve Howard's aerosol reengineering
 C      13 01 Mar 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                    removed deprecated TRIMLEN
-C      14 01 Jul 11 G. Sarwar: calculate zenith angle to determine daytime and  
+C      14 11 May D.Wong: incorporated twoway model implementation
+C      15 01 Jul 11 G. Sarwar: calculate zenith angle to determine daytime and  
 C                    nightime needed for sulfur oxidation via metal catalysis
-C      15 10 Sep 11 B.Hutzell: adapted to define data used in HG_AQCHEM_DATA module
-C      16 29 Sep 11 D.Wong: incorporated twoway model implementation
 C      16 02Aug12 S.Roselle:  instrumented to calculate and return
 C                             transmissivity for resolved clouds
-C       11Feb15 J.Young: Updated call to czangle.F which uses the ASX_DATA_MOD shared
-C                        data module (Implemented by J.Bash on 07 Nov 14)
- 
+C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared data module.  
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -88,15 +85,14 @@ C...........Includes:
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
 C...........Arguments:
-      REAL,     POINTER     :: CGRID( :,:,:,: )    ! concentrations
-      INTEGER, INTENT( IN ) :: JDATE               ! current model date, coded YYYYDDD
-      INTEGER, INTENT( IN ) :: JTIME               ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN ) :: TSTEP( 3 )          ! model time step, coded H*MMSS
-      INTEGER, INTENT( IN ) :: N_SPC_WDEP          ! # of wet deposition species
-      INTEGER, INTENT( IN ) :: WDEP_MAP( : )       ! wet deposition map to CGRID
-      REAL,    INTENT( OUT ) :: DEP  ( :,:,: )      ! depositions (etc.)
-      REAL,    INTENT( OUT ) :: RESTRANS( :,: )
-      
+      REAL, POINTER          :: CGRID( :,:,:,: ) ! concentrations
+      INTEGER, INTENT( IN )  :: JDATE            ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME            ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )       ! model time steps, coded HHMMSS
+      INTEGER, INTENT( IN )  :: N_SPC_WDEP       ! # of wet deposition species
+      INTEGER, INTENT( IN )  :: WDEP_MAP( : )    ! wet deposition species map to CGRID
+      REAL,    INTENT( OUT ) :: DEP( :,:,: )     ! wet deposition
+      REAL,    INTENT( OUT ) :: RESTRANS( :,: )  ! resolved cloud transmissivity
 
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
@@ -156,7 +152,7 @@ C...........Local Variables:
       REAL          WCBAR               ! liq water content of cloud (kg/m3)
       REAL          WPBAR               ! precipitation water content (kg/m3)
       REAL          WTBAR               ! total water content of cloud (kg/m3)
-      REAL          LWP, CLOD     
+      REAL          LWP, CLOD
 
       REAL, ALLOCATABLE, SAVE :: POLC ( : )   ! incloud conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: CEND ( : )   ! ending conc (mol/mol)
@@ -184,9 +180,8 @@ C for INTERPX
 
 C Gridded meteorology data:
 C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 2011 
-      REAL, ALLOCATABLE, SAVE :: LAT( :, : )        ! grid lat (deg) -90 <= LAT <= 90
-      REAL, ALLOCATABLE, SAVE :: LON( :, : )        ! grid lon (deg) -180 <= LON <= 180 
-      REAL          COSZEN( NCOLS, NROWS )          ! cosine of zenith angle
+!     REAL          COSZEN( NCOLS, NROWS )          ! cosine of zenith angle
+      REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )   ! cosine of zenith angle
       REAL          COSZ                            ! local cosine of zenith angle
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
@@ -216,18 +211,18 @@ C...........External Functions:
            REAL,    INTENT( INOUT ) :: REMOVAC
            REAL,    INTENT( INOUT ) :: CEND( : ), REMOV( : )
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
-           LOGICAL, INTENT( IN )    :: DARK                                 !Golam Sarwar, July 1, 2011
+           LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
-        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-           USE UTILIO_DEFN
-           USE ASX_DATA_MOD, Only: Grid_Data
-           IMPLICIT NONE
-           INTEGER, INTENT( IN )  :: JDATE
-           INTEGER, INTENT( IN )  :: JTIME
-           INTEGER, INTENT( IN )  :: NX
-           INTEGER, INTENT( IN )  :: NY
-           REAL,    INTENT( OUT ) :: COSZEN( :,: )
-        END SUBROUTINE CZANGLE
+      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+         USE UTILIO_DEFN
+         USE ASX_DATA_MOD, Only: Grid_Data
+         IMPLICIT NONE
+         INTEGER, INTENT( IN )  :: JDATE
+         INTEGER, INTENT( IN )  :: JTIME
+         INTEGER, INTENT( IN )  :: NX
+         INTEGER, INTENT( IN )  :: NY
+         REAL,    INTENT( OUT ) :: COSZEN( :,: )
+      END SUBROUTINE CZANGLE
       END INTERFACE
 C-----------------------------------------------------------------------
 
@@ -341,40 +336,11 @@ C...  the met timestep in hours
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-C...  Get LAT, Golam Sarwar * July 1, 2011 
-
-         ALLOCATE ( LAT( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LAT'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         XMSG = 'Could not read LAT from ' // GRID_CRO_2D
-         
-         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LAT', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, 0, 0, LAT ) ) THEN
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C...  Get LON 
-
-         ALLOCATE ( LON( MY_NCOLS, MY_NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LON'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         XMSG = 'Could not read LON from ' // GRID_CRO_2D
-
-         IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, JDATE, JTIME, LON ) ) THEN
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C  **** Golam Sarwar * July 1, 2011
-
+        ALLOCATE ( COSZEN ( NCOLS,NROWS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating COSZEN'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
       END IF  ! FIRSTIME
 
       MDATE = JDATE
@@ -396,8 +362,6 @@ C...  (reading those variables for which it is necessary)
 C...  Get ambient temperature (K)
 
       VARNM = 'TA'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, TA ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, TA ) ) THEN
@@ -408,8 +372,6 @@ C...  Get ambient temperature (K)
 C...Get resolved cloud water mixing ratio (kg H2O / kg air)
 
       VARNM = 'QC'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, QC ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, QC ) ) THEN
@@ -420,8 +382,6 @@ C...Get resolved cloud water mixing ratio (kg H2O / kg air)
 C...Get resolved rain water mixing ratio (kg H2O / kg air)
 
       VARNM = 'QR'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, QR ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, QR ) ) THEN
@@ -435,8 +395,6 @@ C...  file if it is available
       IF ( QI_AVAIL ) THEN
 
         VARNM = 'QI'
-!       IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                      NCOLS * NROWS * NLAYS, QI ) ) THEN
           XMSG = 'Could not read QI from ' // MET_CRO_3D
         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
@@ -456,8 +414,6 @@ C...  file if it is available
       IF ( QS_AVAIL ) THEN
 
         VARNM = 'QS'
-!       IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                      NCOLS * NROWS * NLAYS, QS ) ) THEN
         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                      MDATE, MTIME, QS ) ) THEN
@@ -477,8 +433,6 @@ C...  file if it is available
       IF ( QG_AVAIL ) THEN
 
         VARNM = 'QG'
-!       IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                      NCOLS * NROWS * NLAYS, QG ) ) THEN
           XMSG = 'Could not read QG from ' // MET_CRO_3D
         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
@@ -492,23 +446,9 @@ C...  file if it is available
 
       END IF
 
-!C...Get specific humidity (kg H2O / kg air)
- 
-!     VARNM = 'QV'
-!!    IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!!   &                    NCOLS * NROWS * NLAYS, QV ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-!    &                    MDATE, MTIME, QV ) ) THEN
-!       XMSG = 'Could not read QV from ' // MET_CRO_3D
-!       CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
- 
 C...Get level heights / layer faces (m)
 
       VARNM = 'ZF'
-!     IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                     NCOLS * NROWS * NLAYS, ZF ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, ZF ) ) THEN
@@ -516,23 +456,9 @@ C...Get level heights / layer faces (m)
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
-!C...Get mid-layer heights (m)
-!
-!     VARNM = 'ZH'
-!!    IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!!   &                     NCOLS * NROWS * NLAYS, ZH ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-!    &                    MDATE, MTIME, ZH ) ) THEN
-!       XMSG = 'Could not read ZH from ' // MET_CRO_3D
-!       CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
- 
 C...Get pressure (Pa)
 
       VARNM = 'PRES'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, PRES ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, PRES ) ) THEN
@@ -543,8 +469,6 @@ C...Get pressure (Pa)
 C...Get air density (kg/m3)
 
       VARNM = 'DENS'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, DENS ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, DENS ) ) THEN
@@ -583,14 +507,9 @@ C...  on the input file are amounts within the metfiles timestep.
 
 C...Get nonconvective precipitation amount (cm)
 
-!     VARNM = 'RN'
-!     IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
-!    &                  RN ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
       IF ( .NOT. INTERPX( MET_CRO_2D, VNAME_RN, PNAME,
      &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                    MDATE, MTIME, RN ) ) THEN
-!       XMSG = 'Could not read RN from ' // MET_CRO_2D
         XMSG = 'Could not read ' // TRIM( VNAME_RN ) // ' from ' // MET_CRO_2D
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
@@ -727,10 +646,8 @@ C...  that participated in cloud chemistry
 
 C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
 
-                  COSZ       = COSZEN( COL, ROW )
+                  COSZ = COSZEN( COL, ROW )
 C...  update variables used in hg_aqchem_data modules
-                  AQCHEM_LAT    = LAT( COL, ROW )
-                  AQCHEM_LON    = LON( COL, ROW )
                   COSINE_ZENITH = REAL(COSZ, 8)
 
                   IF ( COSZ .LE. 0.0 ) THEN

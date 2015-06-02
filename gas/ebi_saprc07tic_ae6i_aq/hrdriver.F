@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, April 13, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 19, 2015
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -138,14 +138,14 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
-        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-           IMPLICIT NONE
-           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-           INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
+          IMPLICIT NONE
+          INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+          INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+          INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+          INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+          INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
+          REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            USE UTILIO_DEFN

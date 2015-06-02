@@ -35,7 +35,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, March 13, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -66,7 +66,7 @@ C..PARAMETERS:
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40     ! effective zero
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40    ! effective zero
 
 C..EXTERNAL FUNCTIONS:
 
@@ -155,11 +155,11 @@ c      IF( JTIME .EQ. 160000 ) THEN
      &             'EBI_TMSTEP = ', EBI_TMSTEP
            WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
            DO N = 1, N_SPEC
-             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
+             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PD13.5 )' )
      &                     'SP ',N, CHEMISTRY_SPC( N ), YC( N )
            END DO
            DO N = 1, N_RXNS
-             WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+             WRITE( DBGOUT, '( A, I3, 1X, 1PD13.5 )' )
      &                     'RKI ', N, RKI(  N )
            END DO
       END IF
@@ -197,7 +197,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                   IF( ITER .EQ. 1 ) THEN
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
                      DO N = 1, N_RXNS
-                        WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+                        WRITE( DBGOUT, '( A, I3, 1X, 1PD13.5 )' )
      &                        'RXRAT ', N, RXRAT( NCELL, N )
                      END DO
                   END IF
@@ -274,7 +274,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                         NOTE = '         '
                      END IF
 
-                     WRITE( DBGOUT, '( I3, 1X, A, 1PE13.5, 1X, A )' )
+                     WRITE( DBGOUT, '( I3, 1X, A, 1PD13.5, 1X, A )' )
      &                            S, CHEMISTRY_SPC( S ), YC( S ), NOTE
                   END DO
                   IF( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
