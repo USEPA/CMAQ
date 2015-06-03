@@ -7,11 +7,14 @@ set echo
 setenv COMPILER INTEL
 
 #define path to mechanism include or module data files
- set mech_archive = /home/hutzellb/CCTM_git_repository/MECHS
-
+ set mech_archive = /home/${USER}/CCTM_git_repository/MECHS
+ set mechanism    = cb05e51_ae6_aq
  setenv suffix ikx
- setenv APPL cb05e6cl_ae6_aq
- setenv GC_INC /home/hutzellb/tools/mech_processor/output/cb05e6cl_ae6_aq
+ setenv APPL ${mechanism}
+#setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
+#setenv GC_INC ${mech_archive}/cb05tucl_ae6_aq
+ setenv GC_INC ${mech_archive}/${mechanism}
+
 #use RXNS_DATA_MODULE, comment out if not use
  setenv USE_RXNS_MODULES T
  
@@ -25,8 +28,8 @@ setenv SPLIT_OUTPUT F
 #setenv APPL   ${APPL}_${suffix}
  setenv APPL   ${APPL}
 
-set BASE  = /home/hutzellb/tools/CSQY_table_processor
-set XBASE = /home/hutzellb/tools/CSQY_table_processor
+set BASE  = /home/${USER}/tools/CSQY_table_processor
+set XBASE = /home/${USER}/tools/CSQY_table_processor
 set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 
 
@@ -86,5 +89,6 @@ endif
  
  cd $BASE
 
+\ls ${OUTDIR}
 
 exit()
