@@ -4,12 +4,13 @@ set echo
 #scom command defines compiler and libraries
 #source ~/scom -d -c ifc
 
-setenv COMPILER INTEL
+#setenv COMPILER INTEL
+#setenv COMPILER GFORT
+ setenv COMPILER PGF90
 
 #define path to mechanism include or module data files
  set mech_archive = /home/${USER}/CCTM_git_repository/MECHS
  set mechanism    = cb05e51_ae6_aq
- setenv suffix ikx
  setenv APPL ${mechanism}
 #setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
 #setenv GC_INC ${mech_archive}/cb05tucl_ae6_aq
@@ -19,10 +20,11 @@ setenv COMPILER INTEL
  setenv USE_RXNS_MODULES T
  
 #Whether to include spectral values of refractive indices for aerosol species [T|Y|F|N]
-setenv WVL_AE_REFRAC F
+setenv WVL_AE_REFRAC T
 
 #whether optical and CSQY data written to two separate file
-setenv SPLIT_OUTPUT F
+# set F if CMAQ v5.02 and T if CMAQ v5.1
+setenv SPLIT_OUTPUT T
 
 #Variables used to name executable, i.e., CSQY_TABLE_PROCESSOR_mechanism
 #setenv APPL   ${APPL}_${suffix}
@@ -36,7 +38,7 @@ set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 #create executable
  cd BLD ; make clean; make -f dumb.makefile; cd ..
 
- set OUTDIR = ${BASE}/output/csqy_table_${APPL}-v3
+ set OUTDIR = ${BASE}/output/csqy_table_${APPL}-test
 #set OUTDIR = ${GC_INC}
 if( ! ( -d $OUTDIR ) )mkdir -p $OUTDIR
 

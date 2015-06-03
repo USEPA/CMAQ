@@ -202,8 +202,8 @@
          NO2_XCROSS_298K(IW )  =  NO2_XCROSS_294K(IW)
          NO2_QUANT_298K( IW )  =  NO2_QUANT_298K(IW)
          
-         QY_NO3_NO_298K( IW )  = NO3NO_QUANT_298K( IW )
-         QY_NO3_NO2_298K( IW ) = NO3NO2_QUANT_298K( IW )
+         QY_NO3_NO_298K( IW )  = 1.0E-3*NO3NO_QUANT_298K( IW )
+         QY_NO3_NO2_298K( IW ) = 1.0E-3*NO3NO2_QUANT_298K( IW )
 
 
          HCHO_XCROSS_298K( IW ) = HCHO_XCROSS_300K(IW) + HCHO_XCROSS_A(IW)*(T298K-300.0)
@@ -283,12 +283,14 @@
             
            IF( QY_NO3_NO_298K( IW ) .GT. 0.0 )THEN
                ADJ_QY_NO3_NO(IW,I) = QYNO3_NO(IW,I) / QY_NO3_NO_298K(IW )
+               print*,'QYNO3_NO(IW,I), QY_NO3_NO_298K(IW ) = ',QYNO3_NO(IW,I), QY_NO3_NO_298K(IW )
            ELSE
                ADJ_QY_NO3_NO(IW,I) = 1.0
            END IF
 
            IF( QY_NO3_NO2_298K( IW ) .GT. 0.0 )THEN
-               ADJ_QY_NO3_NO2(IW,I) = QYNO3_NO2(IW,I) / QY_NO3_NO_298K(IW )
+               ADJ_QY_NO3_NO2(IW,I) = QYNO3_NO2(IW,I) / QY_NO3_NO2_298K(IW )
+               print*,'QYNO3_NO2(IW,I), QY_NO3_NO2_298K(IW ) = ',QYNO3_NO2(IW,I), QY_NO3_NO2_298K(IW )
            ELSE
                ADJ_QY_NO3_NO2(IW,I) = 1.0
            END IF
