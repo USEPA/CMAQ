@@ -36,10 +36,10 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-      LOGICAL,                       SAVE :: BIOGEMIS   ! flag to in-line beis
-      INTEGER,                       SAVE :: N_SPC_BIOG ! biogenics emissions species
-      REAL,             ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
-      INTEGER,          ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
+      LOGICAL,              SAVE :: BIOGEMIS   ! flag to in-line beis
+      INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
+      INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
 
       CONTAINS
 
@@ -176,6 +176,9 @@ C=======================================================================
 
          INTERFACE
             SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, BEMIS )
+               USE HGRD_DEFN
+               USE UTILIO_DEFN
+               USE BIOG_EMIS
                IMPLICIT NONE
                INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
                INTEGER, INTENT(  IN ) :: N_SPC_BIOG

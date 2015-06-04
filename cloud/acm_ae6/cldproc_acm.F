@@ -103,7 +103,6 @@ C...........Local Variables
 
       INTEGER       COL              ! column subscript indices
       INTEGER       FINI             ! ending position
-      INTEGER       ICLDTYPE         ! 1: raining, 2: either CNP or PFW
       INTEGER       L                ! loop counter
       INTEGER       LAY              ! layer subscript indices
       INTEGER       MDATE            ! middle of this time step
@@ -133,8 +132,8 @@ C...........Local Variables
       REAL, ALLOCATABLE, SAVE :: DENS    ( :,:,: ) ! air density (kg/m3)
       REAL, ALLOCATABLE, SAVE :: CONV_DEP( :,:,: ) ! convective wdep only
       REAL, ALLOCATABLE, SAVE :: TOT_DEP ( :,:,: ) ! total wdep
-      REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )
-      REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )   ! resolved cloud transmissivity
+      REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: ) ! subgrid cloud transmissivity
 
       REAL FAC                       ! temp conversion factor
       REAL CCMIN
@@ -162,7 +161,7 @@ C...........EXTERNAL FUNCTIONS
             REAL,    INTENT( OUT ) :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
+     &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
             USE GRID_CONF
             USE CGRID_SPCS
             USE UTILIO_DEFN
@@ -175,7 +174,7 @@ C...........EXTERNAL FUNCTIONS
             INTEGER, INTENT( IN )  :: TSTEP( 3 )
             INTEGER, INTENT( IN )  :: N_SPC_WDEP
             INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
             REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
@@ -567,43 +566,37 @@ C...  # / m**3 (number density), and m**2 / m**3 (surface area) units
 
 C...initialize the deposition array before processing clouds
 
-        ALLOCATE ( TOT_DEP ( MY_NCOLS,MY_NROWS,N_SPC_WDEP+1 ),
+        ALLOCATE ( TOT_DEP ( NCOLS,NROWS,N_SPC_WDEP+1 ),
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating TOT_DEP'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+        TOT_DEP = 0.0   ! array assignment
 
-        TOT_DEP = 0.0
-
-        ALLOCATE ( CONV_DEP( MY_NCOLS,MY_NROWS,N_SPC_WDEP+8+4 ),
+        ALLOCATE ( CONV_DEP( NCOLS,NROWS,N_SPC_WDEP+8+4 ),
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating CONV_DEP'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+        CONV_DEP = 0.0   ! array assignment
 
-        CONV_DEP = 0.0
-
-        ALLOCATE ( RESTRANS ( MY_NCOLS,MY_NROWS ),
-     &             STAT = ALLOCSTAT )
+        ALLOCATE ( RESTRANS ( NCOLS,NROWS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating RESTRANS'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+        RESTRANS = 1.0   ! array assignment
 
-        RESTRANS = 1.0
-
-        ALLOCATE ( SUBTRANS ( MY_NCOLS,MY_NROWS,2 ),
-     &             STAT = ALLOCSTAT )
+        ALLOCATE ( SUBTRANS ( NCOLS,NROWS,2 ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SUBTRANS'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+        SUBTRANS = 1.0   ! array assignment
 
-        SUBTRANS = 1.0
-
-        ALLOCATE ( DENS( MY_NCOLS,MY_NROWS,NLAYS ), STAT = ALLOCSTAT )
+        ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating DENS'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -619,8 +612,6 @@ C...initialize the deposition array before processing clouds
 
       VNAME = 'DENS'
 
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VNAME, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, DENS ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, DENS ) ) THEN
@@ -637,7 +628,7 @@ C...  determine no. of moles of gas per moles of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-              CGRID( COL, ROW, LAY, SPC ) = MAX(CGRID( COL, ROW, LAY, SPC )
+              CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6,  1.0E-30)
             END DO
           END DO
@@ -655,7 +646,7 @@ C...  convert to moles of aerosol per mole of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( SPC - AE_STRT + 1 )
-              CCMIN = MAX(CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC)
+              CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
             END DO
           END DO
@@ -672,11 +663,8 @@ C...    convert to # per mole of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-!             CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
-!    &                                    * MWAIR / ( 1000.0
-!    &                                    * DENS( COL, ROW, LAY ) )
               FAC = CNV3 / DENS( COL, ROW, LAY )
-              CCMIN = MAX(CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC)
+              CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
             END DO
           END DO
@@ -694,7 +682,7 @@ C...    convert to m2 per mole of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               FAC = CNV2 / DENS( COL, ROW, LAY )
-              CCMIN = MAX(CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC)
+              CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
             END DO
           END DO
@@ -709,8 +697,8 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-              CGRID( COL, ROW, LAY, SPC ) = MAX(CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30)
+              CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
+     &                                    * 1.0E-6, 1.0E-30 )
             END DO
           END DO
         END DO
@@ -724,8 +712,8 @@ C...determine no. of moles of tracer gas per moles of air by volume
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-              CGRID( COL, ROW, LAY, SPC ) = MAX(CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30)
+              CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
+     &                                    * 1.0E-6, 1.0E-30 )
             END DO
           END DO
         END DO
@@ -854,9 +842,6 @@ C...convert to #/m3 of aerosol number
         DO LAY = 1, NLAYS
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
-!             CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
-!    &                                    * DENS( COL, ROW, LAY )
-!    &                                    * 1000.0 / MWAIR
               FAC = CNV3I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
             END DO

@@ -364,6 +364,9 @@ C Mapping for loading from and unloading to CGRID array
       Integer :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
       Integer :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
 
+C Missing aerosol species map
+      Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
+
 C Emissions mapping
       Integer         :: n_emis_pm               ! number of aerospc with emissions
       Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
@@ -409,6 +412,8 @@ C Local Variables:
       aerospc_mw = 0.0
       aerospc_map = 0
 
+      Allocate( aero_missing(n_aerospc, n_mode) )
+
 C build mapping to CGRID for each aero spc
       Do m = 1, n_mode
          Do spc = 1, n_aerospc
@@ -417,6 +422,7 @@ C build mapping to CGRID for each aero spc
 !           write( logdev,* ) '==2 ', trim( aerospc( spc )%name( m ) ), ' ', ae_spc( 1 ), ' ', ae_spc( 15 )
 
             If ( aerospc( spc )%name( m ) .Ne. ' ' ) Then
+               aero_missing(spc,m) = .False.
                n = index1( aerospc( spc )%name( m ), n_ae_spc, ae_spc )
                If ( n .Eq. 0 ) Then
                   xmsg = 'Species '// aerospc(spc)%name( m )
@@ -432,6 +438,8 @@ C build mapping to CGRID for each aero spc
      &                 // ' in the same or another mode.'
                   Call m3exit( pname, 0, 0, xmsg, xstat3 )
                End If
+            Else
+               aero_missing(spc,m) = .True.
             End If
          End Do
       End Do

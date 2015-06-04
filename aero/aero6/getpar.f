@@ -94,15 +94,13 @@ C-----------------------------------------------------------------------
 
 C *** Set bounds for ln(Sg)**2
 
-      Do n = 1 , n_mode
-         If ( limit_sg ) Then
-            minl2sg( n ) = aeromode_sdev( n ) ** 2
-            maxl2sg( n ) = aeromode_sdev( n ) ** 2
-         Else
-            minl2sg( n ) = Log( min_sigma_g ) ** 2
-            maxl2sg( n ) = Log( max_sigma_g ) ** 2
-         End If
-      End Do
+      If ( limit_sg ) Then
+         minl2sg = aeromode_sdev ** 2
+         maxl2sg = aeromode_sdev ** 2
+      Else
+         minl2sg = Log( min_sigma_g ) ** 2
+         maxl2sg = Log( max_sigma_g ) ** 2
+      End If
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
@@ -111,26 +109,24 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
          sumMass = 0.0
 
          Do spc = 1, n_aerospc
-            If ( aerospc( spc )%tracer ) Cycle
-            If ( aerospc( spc )%name( n ) .eq. ' ' ) Cycle
+            If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or. 
+     &         ( aerospc( spc )%no_M2Wet .AND. .Not. m3_wet_flag ) ) Cycle
 
-            If ( .Not. aerospc( spc )%no_M2Wet .Or. m3_wet_flag ) Then
-               factor = 1.0E-9 * f6pi / aerospc( spc )%density
-               sumM3  = sumM3 + factor * aerospc_conc( spc,n )
-               sumMass = sumMass + aerospc_conc( spc,n )
-            End If
+            factor = 1.0E-9 * f6pi / aerospc( spc )%density
+            sumM3  = sumM3 + factor * aerospc_conc( spc,n )
+            sumMass = sumMass + aerospc_conc( spc,n )
          End Do
 
          moment3_conc( n )  = Max (sumM3, Real( aeromode( n )%min_m3conc, 8 ) )
          aeromode_mass( n ) = sumMass
       End Do
 
-C *** Calculate modal average particle densities [ kg/m**3 ]
 
-      Do n = 1, n_mode
-        aeromode_dens( n ) = Max( densmin,
-     &                            1.0E-9 * f6pi * aeromode_mass( n ) / moment3_conc( n ) )
-      End Do
+C *** Calculate modal average particle densities [ kg/m**3 ]
+      aeromode_dens = 1.0E-9 * f6pi * aeromode_mass / moment3_conc
+      Where( aeromode_dens .Lt. densmin )
+         aeromode_dens = densmin
+      End Where
 
 C *** Calculate geometric standard deviations as follows:
 c        ln^2(Sg) = 1/3*ln(M0) + 2/3*ln(M3) - ln(M2)

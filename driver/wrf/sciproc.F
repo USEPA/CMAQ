@@ -60,6 +60,11 @@ C    11 May 11 D.Wong: incorporated twoway model implementation
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE   
 
@@ -211,6 +216,7 @@ C couple CGRID for advection and horizontal diffusion
       CALL COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE_WRF', CGRID, JDATE, JTIME )
 
+      CALL SUBST_BARRIER()
       CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 !     IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )
