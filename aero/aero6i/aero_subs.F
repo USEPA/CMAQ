@@ -599,7 +599,7 @@ C *** Transfer mass from Aitken to accumulation mode, resulting from
 C     intermodal coagulation.
 
       DO SPC = 1, N_AEROSPC
-         IF ( AERO_MISSING(N,1) ) CYCLE
+         IF ( AERO_MISSING( SPC,1) ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
          AEROSPC_CONC( SPC,1 ) = MAX( AEROSPC( SPC )%MIN_CONC( 1 ),
