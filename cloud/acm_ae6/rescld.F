@@ -83,14 +83,14 @@ C...........Includes:
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
 C...........Arguments:
-      REAL, POINTER          :: CGRID( :,:,:,: )
-      INTEGER, INTENT( IN )  :: JDATE
-      INTEGER, INTENT( IN )  :: JTIME
-      INTEGER, INTENT( IN )  :: TSTEP( 3 )
-      INTEGER, INTENT( IN )  :: N_SPC_WDEP
-      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-      REAL,    INTENT( OUT ) :: DEP( :,:,: )
-      REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+      REAL, POINTER          :: CGRID( :,:,:,: ) ! concentrations
+      INTEGER, INTENT( IN )  :: JDATE            ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )  :: JTIME            ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )       ! model time steps, coded HHMMSS
+      INTEGER, INTENT( IN )  :: N_SPC_WDEP       ! # of wet deposition species
+      INTEGER, INTENT( IN )  :: WDEP_MAP( : )    ! wet deposition species map to CGRID
+      REAL,    INTENT( OUT ) :: DEP( :,:,: )     ! wet deposition
+      REAL,    INTENT( OUT ) :: RESTRANS( :,: )  ! resolved cloud transmissivity
 
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
@@ -360,8 +360,6 @@ C...  (reading those variables for which it is necessary)
 C...  Get ambient temperature (K)
 
       VARNM = 'TA'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, TA ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, TA ) ) THEN
@@ -372,8 +370,6 @@ C...  Get ambient temperature (K)
 C...Get resolved cloud water mixing ratio (kg H2O / kg air)
 
       VARNM = 'QC'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, QC ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, QC ) ) THEN
@@ -384,8 +380,6 @@ C...Get resolved cloud water mixing ratio (kg H2O / kg air)
 C...Get resolved rain water mixing ratio (kg H2O / kg air)
 
       VARNM = 'QR'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, QR ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, QR ) ) THEN
@@ -399,8 +393,6 @@ C...  file if it is available
       IF ( QI_AVAIL ) THEN
 
         VARNM = 'QI'
-!       IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                      NCOLS * NROWS * NLAYS, QI ) ) THEN
           XMSG = 'Could not read QI from ' // MET_CRO_3D
         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
@@ -420,8 +412,6 @@ C...  file if it is available
       IF ( QS_AVAIL ) THEN
 
         VARNM = 'QS'
-!       IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                      NCOLS * NROWS * NLAYS, QS ) ) THEN
         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                      MDATE, MTIME, QS ) ) THEN
@@ -441,8 +431,6 @@ C...  file if it is available
       IF ( QG_AVAIL ) THEN
 
         VARNM = 'QG'
-!       IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                      NCOLS * NROWS * NLAYS, QG ) ) THEN
           XMSG = 'Could not read QG from ' // MET_CRO_3D
         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
@@ -456,23 +444,9 @@ C...  file if it is available
 
       END IF
 
-!C...Get specific humidity (kg H2O / kg air)
- 
-!     VARNM = 'QV'
-!!    IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!!   &                    NCOLS * NROWS * NLAYS, QV ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-!    &                    MDATE, MTIME, QV ) ) THEN
-!       XMSG = 'Could not read QV from ' // MET_CRO_3D
-!       CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
- 
 C...Get level heights / layer faces (m)
 
       VARNM = 'ZF'
-!     IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                     NCOLS * NROWS * NLAYS, ZF ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, ZF ) ) THEN
@@ -480,23 +454,9 @@ C...Get level heights / layer faces (m)
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
-!C...Get mid-layer heights (m)
-!
-!     VARNM = 'ZH'
-!!    IF ( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!!   &                     NCOLS * NROWS * NLAYS, ZH ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-!    &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-!    &                    MDATE, MTIME, ZH ) ) THEN
-!       XMSG = 'Could not read ZH from ' // MET_CRO_3D
-!       CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
- 
 C...Get pressure (Pa)
 
       VARNM = 'PRES'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, PRES ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, PRES ) ) THEN
@@ -507,8 +467,6 @@ C...Get pressure (Pa)
 C...Get air density (kg/m3)
 
       VARNM = 'DENS'
-!     IF ( .NOT. INTERP3( MET_CRO_3D, VARNM, PNAME, MDATE, MTIME,
-!    &                    NCOLS * NROWS * NLAYS, DENS ) ) THEN
       IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
      &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
      &                    MDATE, MTIME, DENS ) ) THEN
@@ -547,14 +505,9 @@ C...  on the input file are amounts within the metfiles timestep.
 
 C...Get nonconvective precipitation amount (cm)
 
-!     VARNM = 'RN'
-!     IF ( .NOT. READ3( MET_CRO_2D, VARNM, ALLAYS3, MDATE, MTIME,
-!    &                  RN ) ) THEN
-!     IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
       IF ( .NOT. INTERPX( MET_CRO_2D, VNAME_RN, PNAME,
      &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                    MDATE, MTIME, RN ) ) THEN
-!       XMSG = 'Could not read RN from ' // MET_CRO_2D
         XMSG = 'Could not read ' // TRIM( VNAME_RN ) // ' from ' // MET_CRO_2D
         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
