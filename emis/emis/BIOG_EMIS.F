@@ -36,7 +36,9 @@ C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 
 C-----------------------------------------------------------------------
 
-      INTEGER                               MSPCS      ! no. of emitted species
+      IMPLICIT NONE
+
+      INTEGER, SAVE                      :: MSPCS      ! no. of emitted species
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: EMSPC( : ) ! emitted species names
 
 C Mole and mass factors:
@@ -56,8 +58,8 @@ C dimensioning parameters for BEIS v3.12
 C Names for BEIS species, emitted model species
 C DO NOT CHANGE THE ORDER OF THESE ARRAYS
 
-      CHARACTER( 5 ) :: BIOTYPES( NSEF )
-      DATA              BIOTYPES / 'ISOP ', 'MBO  ', 'METH ', 
+      CHARACTER( 5 ) :: BIOTYPES( NSEF ) =
+     &                          (/ 'ISOP ', 'MBO  ', 'METH ', 
      &                             'APIN ', 'BPIN ', 'D3CAR', 'DLIM ',
      &                             'CAMPH', 'MYRC ', 'ATERP', 'BPHE ', 
      &                             'SABI ', 'PCYM ', 'OCIM ', 'ATHU ',
@@ -66,13 +68,13 @@ C DO NOT CHANGE THE ORDER OF THESE ARRAYS
      &                             'HEXY ', 'FORM ', 'ACTAL', 'BUTE ',
      &                             'ETHA ', 'FORAC', 'ACTAC', 'BUTO ',
      &                             'CO   ', 'ORVOC', 'SESQT',
-     &                             'NO   ' /
+     &                             'NO   ' /)
 
-      CHARACTER( 5 ) :: LAITYPES( NLAI ) 
-      DATA              LAITYPES / 'ISOP ', 'MBO  ', 'METH ' /
+      CHARACTER( 5 ) :: LAITYPES( NLAI ) =
+     &                          (/ 'ISOP ', 'MBO  ', 'METH ' /)
 
-      CHARACTER( 1 ) :: SEASON( NSEASONS )
-      DATA              SEASON / 'S', 'W' /
+      CHARACTER( 1 ) :: SEASON( NSEASONS ) =
+     &                          (/ 'S', 'W' /)
 
 C-----------------------------------------------------------------------
 
