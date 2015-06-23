@@ -116,6 +116,10 @@ C                       the time step based on sulfur oxidized < 5%.
 C
 C   28 Nov 12 G.Sarwar: Sulfate inhibition effect is implemented in the metal catalysis pathway
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   12 Feb 15 B.Hutzell: reduced number of exp(...) calculations for scavenging aitken
+C                        aerosols to improve efficiency
+C   15 Jun 15 J.Young:  Fixed bug found by Martin Otte in calculations for scavenging
+C                       aitken aerosols
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -771,7 +775,7 @@ C...loop If kinetic calculations are made, return to this point
 
 C...set aitken-mode aerosol loading (mol/liter)
 
-        SCAVENGED = PRES_ATM_OVER_XL - PRES_ATM_OVER_XL * EXP( MAX( -REAL( ALFA3, 8 ) * TIMEW, 1.0D-8 ) )
+        SCAVENGED = PRES_ATM_OVER_XL * ( 1.0D0 - EXP( -REAL( ALFA3, 8 ) * TIMEW ) )
         DO ISPC = 1, NAER
           LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * SCAVENGED
         END DO
