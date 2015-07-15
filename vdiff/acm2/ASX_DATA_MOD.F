@@ -833,8 +833,6 @@ C Local variables:
          CHARACTER( 30 ) :: MSG1 = ' Error interpolating variable '
          Character( 96 ) :: XMSG = ' '
 
-         Logical, Save :: rinv     = .True.
-
 C-----------------------------------------------------------------------
 C Interpolate file input variables and format for output
 C-------------------------------- MET_CRO_3D --------------------------------

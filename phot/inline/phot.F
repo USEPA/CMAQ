@@ -25,7 +25,7 @@
 ! %W% %P% %G% %U%
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, RJ )
+      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
 
 !-----------------------------------------------------------------------
 !
@@ -117,12 +117,6 @@ C...modules
       USE CGRID_SPCS           ! CGRID species number and offsets
       USE PCGRID_DEFN          ! get cgrid
       USE UTILIO_DEFN
-
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
-#endif
       USE AERO_DATA            ! describes aerosol distribution
       USE PHOT_MOD             ! photolysis in-line module
       USE AERO_PHOTDATA        ! arrays and routines for aerosol dimensions and refractive indices
@@ -143,9 +137,10 @@ C...modules
       INTEGER, INTENT( IN ) :: MTIME         ! "centered" time (HHMMSS)
       INTEGER, INTENT( IN ) :: JDATE         ! current Julian date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME         ! current time (HHMMSS)
+      INTEGER, INTENT( IN ) :: DTSTEP( : )   ! time step vector (HHMMSS)
 
 !     REAL RJ( NCOLS,NROWS,NLAYS, NPHOTAB )
-      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)  ! gridded J-values  (1/min units)
+      REAL,    INTENT( OUT ) :: RJ( :,:,:,: )  ! gridded J-values  (1/min units)
 
 !     REAL CGRID( NCOLS,NROWS,NLAYS, * )  ! Conc array
       REAL, SAVE, POINTER :: CGRID( :,:,:,: ) ! species concentrations
@@ -190,7 +185,6 @@ C...modules
       INTEGER ESTAT              ! status from environment var check
       INTEGER JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER IPHOT              ! photolysis rate loop index
-      INTEGER NDARK              ! Number of level 1 cells in darkness
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -276,6 +270,7 @@ C...modules
       
       LOGICAL, ALLOCATABLE, SAVE :: CLOUDS( : )    ! Does layer have clouds?
       LOGICAL                    :: NEW_PROFILE    ! Has atmospheric temperature and density profile changed?
+      LOGICAL                    :: DARK           ! Are this processor's cells in darkness?
       
 !...Variables for diagnostic outputs
 
@@ -327,21 +322,7 @@ C...modules
          JDSTRT = FLOAT( MOD( JDATE, 1000 ) )
          JYEAR  = FLOAT( JDATE / 1000 )   !   Check this more carefully
 
-         TSTEP  = 010000  ! output timestep for photolysis diagnostic files
-         VARDESC = 'Output timestep (HHMMSS) for photolysis diagnostics'  
-         TSTEP = ENVINT( 'CTM_TSTEP', VARDESC, TSTEP, ESTAT )
-         IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-         IF ( ESTAT .EQ. 1 ) THEN
-            XMSG = 'Environment variable improperly formatted'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         ELSE IF ( ESTAT .EQ. -1 ) THEN
-            XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         ELSE IF ( ESTAT .EQ. -2 ) THEN
-            XMSG = 'Environment variable not set ... Using default:'
-            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-         END IF
+         TSTEP  = DTSTEP( 1 ) ! output timestep for photolysis diagnostic files
 
          CGRID => PCGRID( 1:MY_NCOLS,1:MY_NROWS,:,: )
 
@@ -446,37 +427,37 @@ C...modules
             DIAG_WVL( 1 ) = 1
             DIAG_WVL( N_DIAG_WVL ) = NWL
 
-            ALLOCATE ( AERO_ASYM ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_ASYM( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_ASYM'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( AERO_SSA ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_SSA( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_SSA'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( TAU_AERO ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( TAU_AERO( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TAU_AERO'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( BUFFER  ( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+            ALLOCATE ( BUFFER( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating IO BUFFER'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( TAU     ( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
+            ALLOCATE ( TAU( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TAU'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( ACTINIC_FX ( NCOLS,NROWS,NLAYS,NWL ), STAT = ALLOCSTAT )
+            ALLOCATE ( ACTINIC_FX( NCOLS,NROWS,NLAYS,NWL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ACTINIC_FX'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -515,10 +496,9 @@ C...modules
 
       ELSE
 
-         DTIME = SEC2TIME( 2 * SECSDIFF( JDATE, JTIME, MDATE, MTIME ) )
          ODATE = JDATE
          OTIME = JTIME
-         CALL NEXTIME( ODATE, OTIME, DTIME )
+         CALL NEXTIME( ODATE, OTIME, DTSTEP( 2 ) )
          
       END IF  ! firstime
 
@@ -527,16 +507,16 @@ C...modules
 
       CALL GET_PHOT_MET( JDATE, JTIME, MDATE, MTIME )
 
-!...Get cosine of solar parameters and compute NDARK
+!...Get cosine of solar parameters and set DARK
 
       CALL UPDATE_SUN( JDATE, JTIME, MDATE, MTIME )
       
       RSQD = DIST_TO_SUN * DIST_TO_SUN
 
       IF ( MAXVAL( COSINE_ZENITH ) .LE. 0.0 ) THEN
-         NDARK = MY_NROWS * MY_NCOLS
+         DARK = .TRUE.
       ELSE
-         NDARK = 0
+         DARK = .FALSE.
       END IF
 
 !...set surface albedos
@@ -565,14 +545,14 @@ C...modules
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
 
-      IF ( SUBST_SUM_CHK( NDARK, 'EQ', GL_NCOLS * GL_NROWS ) ) THEN
+      IF ( DARK ) THEN
 
          RJ = 0.0
 
 !...write to the log file, CTM_RJ_1 file and return
 
-         WRITE( LOGDEV, 1003 ) JDATE, JTIME
-1003     FORMAT( 8X, 'In darkness at ', I8.7, ':', I6.6,
+         WRITE( LOGDEV, 1003 ) MYPE, JDATE, JTIME
+1003     FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
      &           1X, 'GMT - no photolysis')
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
@@ -594,6 +574,7 @@ C...modules
             TAUO3_TOP_WL      = 0.0
             ACTINIC_FX        = 0.0
             TRANSMIS_DIFFUSE  = 0.0
+            TRANSMIS_DIRECT   = 0.0
             REFLECT_COEFF     = 0.0
 #ifdef phot_research
             CLD_TRANSMISSION  = 0.0
@@ -720,8 +701,6 @@ C...modules
 
                VARNM = 'ALBEDO_W' // WLTXT( IWL )
                IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, SURFACE_ALBEDO( IWL,:,: ) ) ) THEN
-!!!!!!!!!!! >>> gcc Fortran runtime warning: An array temporary was created
-
                   XMSG = 'Error writing variable ' // VARNM
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
@@ -803,35 +782,35 @@ C...modules
 
             IF ( COSZEN .LE. 0.0 ) THEN
 !...the cell is dark: set variables to zero and cycle
-                RJ( COL,ROW, :, : ) = 0.0
+               RJ( COL,ROW, :,: ) = 0.0
 
-                IF ( PHOTDIAG ) THEN
-                   TOC( COL,ROW )             = 0.0                            
-                   ETOT_SFC_WL ( COL,ROW, : ) = 0.0
-                   TAUO3_TOP_WL( COL,ROW, : ) = 0.0
-                   TAU_AERO_WL ( COL,ROW, : ) = 0.0
-                   TAU_CLOUD_WL( COL,ROW, : ) = 0.0
+               IF ( PHOTDIAG ) THEN
+                  TOC( COL,ROW )             = 0.0                            
+                  ETOT_SFC_WL ( COL,ROW, : ) = 0.0
+                  TAUO3_TOP_WL( COL,ROW, : ) = 0.0
+                  TAU_AERO_WL ( COL,ROW, : ) = 0.0
+                  TAU_CLOUD_WL( COL,ROW, : ) = 0.0
 #ifdef phot_debug                   
-                   SSA_CLOUD_WL( COL,ROW, : ) = 0.0
-                   ASY_CLOUD_WL( COL,ROW, : ) = 0.0
+                  SSA_CLOUD_WL( COL,ROW, : ) = 0.0
+                  ASY_CLOUD_WL( COL,ROW, : ) = 0.0
 #endif                   
-                   TAU_TOT_WL  ( COL,ROW, : ) = 0.0
-                   TAU      ( COL,ROW, :, : ) = 0.0
-                   TAU_AERO ( COL,ROW, :, : ) = 0.0
-                   AERO_SSA ( COL,ROW, :, : ) = 0.0
-                   AERO_ASYM( COL,ROW, :, : ) = 0.0
-                   ACTINIC_FX(COL,ROW, :, : ) = 0.0
+                  TAU_TOT_WL( COL,ROW, : )   = 0.0
+                  TAU       ( COL,ROW, :,: ) = 0.0
+                  TAU_AERO  ( COL,ROW, :,: ) = 0.0
+                  AERO_SSA  ( COL,ROW, :,: ) = 0.0
+                  AERO_ASYM ( COL,ROW, :,: ) = 0.0
+                  ACTINIC_FX( COL,ROW, :,: ) = 0.0
                    
-                   TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
-                   TRANSMIS_DIRECT ( COL,ROW ) = 0.0
-                   REFLECT_COEFF   ( COL,ROW ) = 0.0
+                  TRANSMIS_DIFFUSE( COL,ROW ) = 0.0
+                  TRANSMIS_DIRECT ( COL,ROW ) = 0.0
+                  REFLECT_COEFF   ( COL,ROW ) = 0.0
 #ifdef phot_research                   
-                   CLD_TRANSMISSION( COL,ROW ) = 0.0
-                   CLD_REFLECTION  ( COL,ROW ) = 0.0 
+                  CLD_TRANSMISSION( COL,ROW ) = 0.0
+                  CLD_REFLECTION  ( COL,ROW ) = 0.0 
 #endif
-                END IF
+               END IF
 
-                CYCLE LOOP_COLS
+               CYCLE LOOP_COLS
 
             END IF
 
@@ -963,7 +942,7 @@ C...modules
                TOC( COL,ROW ) = REAL( TOTAL_O3_COLUMN )
                TRANSMIS_DIFFUSE( COL,ROW ) = TRANSMISSION
                TRANSMIS_DIRECT( COL,ROW )  = TRANS_DIRECT
-               REFLECT_COEFF ( COL,ROW )   = REFLECTION
+               REFLECT_COEFF( COL,ROW )    = REFLECTION
                FORALL( IWL = 1:NWL )
                   ETOT_SFC_WL ( COL,ROW,IWL ) = IRRADIANCE( 1,IWL )
                   TAUO3_TOP_WL( COL,ROW,IWL ) = TAUO3_TOP( IWL )
@@ -971,12 +950,12 @@ C...modules
                   TAU_TOT_WL  ( COL,ROW,IWL ) = TAU_TOT  ( 1,IWL )
                   TAU_CLOUD_WL( COL,ROW,IWL ) = TAU_CLOUD( 1,IWL )
 #ifdef phot_debug                      
-                  SSA_CLOUD_WL( COL,ROW,IWL )  = AVE_SSA_CLD  ( IWL )
-                  ASY_CLOUD_WL( COL,ROW,IWL )  = AVE_ASYMM_CLD( IWL )
+                  SSA_CLOUD_WL( COL,ROW,IWL ) = AVE_SSA_CLD  ( IWL )
+                  ASY_CLOUD_WL( COL,ROW,IWL ) = AVE_ASYMM_CLD( IWL )
 #endif                      
                END FORALL
                FORALL ( LEV = 1:NLAYS, IWL = 1:NWL  )
-                     ACTINIC_FX( COL,ROW,LEV,IWL ) = ACTINIC_FLUX( LEV,IWL )
+                  ACTINIC_FX( COL,ROW,LEV,IWL ) = ACTINIC_FLUX( LEV,IWL )
                END FORALL
                   
                DO L = 1, N_DIAG_WVL
@@ -986,13 +965,13 @@ C...modules
                      TAU_AERO( COL,ROW,LEV,L ) = TAUC_AERO( LEV,IWL )
                   END FORALL
                   FORALL ( LEV = 1:NLAYS, AERO_EXTI_COEF( LEV,IWL ) .GT. EPSLON )
-                      AERO_SSA ( COL,ROW,LEV,L ) = AERO_SCAT_COEF( LEV,IWL )
-     &                                           / AERO_EXTI_COEF( LEV,IWL )
-                      AERO_ASYM( COL,ROW,LEV,L ) = AERO_ASYM_FAC( LEV,IWL )
+                     AERO_SSA ( COL,ROW,LEV,L ) = AERO_SCAT_COEF( LEV,IWL )
+     &                                          / AERO_EXTI_COEF( LEV,IWL )
+                     AERO_ASYM( COL,ROW,LEV,L ) = AERO_ASYM_FAC( LEV,IWL )
                   END FORALL
                   FORALL ( LEV = 1:NLAYS, AERO_EXTI_COEF( LEV,IWL ) .LE. EPSLON )
-                      AERO_SSA ( COL,ROW,LEV,L ) = 1.0
-                      AERO_ASYM( COL,ROW,LEV,L ) = 0.0
+                     AERO_SSA ( COL,ROW,LEV,L ) = 1.0
+                     AERO_ASYM( COL,ROW,LEV,L ) = 0.0
                   END FORALL
                END DO
             END IF

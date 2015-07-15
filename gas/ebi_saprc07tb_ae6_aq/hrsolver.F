@@ -67,7 +67,7 @@ C..PARAMETERS:
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 0.0D+00    ! zero
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40     ! effective zero
 
 C..EXTERNAL FUNCTIONS:
 
@@ -170,12 +170,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
       N_EBI_IT = 0
-      DTC      = EBI_TMSTEP
 
 
       DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
 
           NBKUPS      = 0
+          DTC         = EBI_TMSTEP
           N_INR_STEPS = 1
 
 100      CONTINUE                        !  Restart location

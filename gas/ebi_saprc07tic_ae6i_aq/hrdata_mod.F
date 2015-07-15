@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, April 13, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 19, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -311,22 +311,26 @@ c..Species indices
       INTEGER, PARAMETER :: ADIMJ            =  200
       INTEGER, PARAMETER :: AIMGAJ           =  201
       INTEGER, PARAMETER :: AIMOSJ           =  202
-      INTEGER, PARAMETER :: AALK1J           =  203
+      INTEGER, PARAMETER :: AXYL1J           =  203
       INTEGER, PARAMETER :: AOLGAJ           =  204
-      INTEGER, PARAMETER :: AALK2J           =  205
-      INTEGER, PARAMETER :: AXYL1J           =  206
-      INTEGER, PARAMETER :: AXYL2J           =  207
-      INTEGER, PARAMETER :: ATOL1J           =  208
-      INTEGER, PARAMETER :: ATOL2J           =  209
-      INTEGER, PARAMETER :: ABNZ1J           =  210
-      INTEGER, PARAMETER :: ABNZ2J           =  211
-      INTEGER, PARAMETER :: ATRP1J           =  212
-      INTEGER, PARAMETER :: AOLGBJ           =  213
-      INTEGER, PARAMETER :: ATRP2J           =  214
+      INTEGER, PARAMETER :: AXYL2J           =  205
+      INTEGER, PARAMETER :: ATOL1J           =  206
+      INTEGER, PARAMETER :: ATOL2J           =  207
+      INTEGER, PARAMETER :: ABNZ1J           =  208
+      INTEGER, PARAMETER :: ABNZ2J           =  209
+      INTEGER, PARAMETER :: ATRP1J           =  210
+      INTEGER, PARAMETER :: AOLGBJ           =  211
+      INTEGER, PARAMETER :: ATRP2J           =  212
+      INTEGER, PARAMETER :: AISO1J           =  213
+      INTEGER, PARAMETER :: AISO2J           =  214
       INTEGER, PARAMETER :: ASQTJ            =  215
-      INTEGER, PARAMETER :: APOCI            =  216
-      INTEGER, PARAMETER :: APNCOMI          =  217
-      INTEGER, PARAMETER :: APOCJ            =  218
-      INTEGER, PARAMETER :: APNCOMJ          =  219
+      INTEGER, PARAMETER :: APAH1J           =  216
+      INTEGER, PARAMETER :: APAH2J           =  217
+      INTEGER, PARAMETER :: AALK1J           =  218
+      INTEGER, PARAMETER :: AALK2J           =  219
+      INTEGER, PARAMETER :: APOCI            =  220
+      INTEGER, PARAMETER :: APNCOMI          =  221
+      INTEGER, PARAMETER :: APOCJ            =  222
+      INTEGER, PARAMETER :: APNCOMJ          =  223
 
       END MODULE HRDATA
