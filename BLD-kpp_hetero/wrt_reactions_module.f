@@ -1071,6 +1071,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 7X,'END FUNCTION FALLOFF_T11' 
      &      / 7X,'REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)'
      &      / 9X,'IMPLICIT NONE'
+     &      / 9X,'REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: PRESS'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A1'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B1'
@@ -1078,6 +1079,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B2'
      &      / 9X,'INTRINSIC DEXP'
      &      / 9X 'HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )'
+     &      / 9X 'HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )'
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION HALOGEN_FALLOFF' 
      &      /    )
@@ -1191,7 +1193,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 5007   FORMAT(1PD12.4,' *( 1.0D0 + 0.6D0 * PRESS )')             
 5011   FORMAT(1PD12.4,' * ',A)             
 5012   FORMAT(A)
-5027   FORMAT(1PD12.4,' * KHETERO( NCELL, IK_',A,' )')
+5027   FORMAT(1PD12.4,' * BLKHET( NCELL, IK_',A,' )')
 5028   FORMAT( 1X, 'KHETERO( NCELL, IK_',A, ' )' )
 5128   FORMAT( 1X, 'BLKHET(  NCELL, IK_',A, ' )' )
 5023   FORMAT(

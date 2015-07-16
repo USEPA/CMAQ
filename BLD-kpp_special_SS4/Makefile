@@ -11,6 +11,8 @@
 
 FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
 CC = /usr/local/intel/ictce/3.2.2.013/cc/bin/intel64/icc
+FC = ifort
+CC = icc
 F_FLAGS = -fixed -132 -O3 -override-limits -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
@@ -18,6 +20,8 @@ LINK_FLAGS = -i-static
 
 FC = /usr/local/pgi/linux86-64/10.5/bin/pgf90
 CC    = /usr/local/pgi/linux86-64/10.5/bin/pgcc
+FC = pgf90
+CC    = pgcc
 
 F_FLAGS = -Mfixed -Mextend -O3 -I . -g -C
 C_FLAGS =  -O2  -DFLDMN=1
