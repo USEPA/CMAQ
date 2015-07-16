@@ -56,11 +56,14 @@ C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
+C 21 Apr 15 H. Pye: Added explicit monoterpene (MTNO3) and isoprene
+C                   (ISOPNN) aerosol. Parameters (C*) determined from Fry et al. 2009 ACP
+C                   and Rollins et al. 2009 ACP
 C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 15   ! # of partitioning SVOCs
+      Integer, Parameter :: n_vapor   = 17   ! # of partitioning SVOCs
       Integer, Parameter :: n_orgprod = 12   ! # of ROG rxn counter species
 
       Type vapor_type
@@ -90,8 +93,10 @@ C                  -------    -------  --------  -------  ------    --  ----   -
      & vapor_type('SV_PAH2',  1.0700, 264.6675,  18.0E3, 'APAH2J', 'A', 10.0, 'PAHNRXN'),
      & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J', 'B', 10.0, 'TRPRXN '),
      & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J', 'B', 10.0, 'TRPRXN '),
+     & vapor_type('MTNO3',       0.0,     12.0,  40.0E3, 'AMTNO3J','B', 10.0, ' '      ),
      & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
      & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('ISOPNN',      0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0, ' '      ),
      & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN')/)
 
 C Required species
@@ -103,6 +108,10 @@ C Required species
       Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
       Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
+      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
+      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
+      Character( 16 ), Private, Parameter :: req_amtno3   = 'AMTNO3'
+      Character( 16 ), Private, Parameter :: req_aisopnn  = 'AISOPNN'
 
 C Indices of required species
       Integer :: iso1_idx
@@ -113,6 +122,10 @@ C Indices of required species
       Integer :: aolga_idx
       Integer :: aolgb_idx
       Integer :: aorgc_idx
+      Integer :: mtno3_idx
+      Integer :: isopnn_idx
+      Integer :: amtno3_idx
+      Integer :: aisopnn_idx
 
       Real    :: vapor_mw  ( n_vapor )   ! Molecular weights
       Real    :: vapor_conc( n_vapor )   ! vapor concentration
@@ -211,17 +224,40 @@ C Local Variables:
          vapor_map = 0
 
 C Build mapping to CGRID for each vapor species
+C Add option to have species in GC.nml (for real semivolatiles)
          Do spc = 1, n_vapor
-            n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
-            If ( n .Ne. 0 ) Then
-               vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
-               vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
-            Else
-               xmsg = 'Species ' // Trim( vaporspc( spc )%name )
-     &              // ' in vapor name is not in non-reactives table'
-               Call m3exit( pname, 0, 0, xmsg, xstat3 )
+            If( vaporspc( spc )%alpha .gt. 0.0 ) Then
+               n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
+               If ( n .Ne. 0 ) Then
+                  vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
+                  vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
+               Else
+                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
+     &                 // ' in vapor name is not in non-reactives table'
+                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
+               End If
+            Else ! vaporspc is a real species in GC (alpha=0 )
+               n = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
+               If ( n .Ne. 0 ) Then
+                  vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( n )
+                  !vapor_mw( spc ) = gc_molwt( n )
+                  vapor_mw( spc ) = gc_molwt( gc_g2ae_map( n ) )
+               Else
+                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
+     &                 // ' in vapor name is not in gas spc table'
+     &                 // ' of '// TRIM ( MECHNAME )
+                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
+               End If
             End If
          End Do
+
+#ifdef verbose_soa
+
+         Do spc = 1, n_vapor
+          print*, vaporspc( spc ), vapor_map, vapor_mw
+         End Do
+
+#endif
 
 C define orgprod parent names based on mechanism dependence
 C if they differ from above declarations and
@@ -298,6 +334,10 @@ C Find indices of required species
          aolga_idx  = findAero( req_aeolga, .True. )
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
+         mtno3_idx  = findVapor( req_mtno3  )
+         isopnn_idx = findVapor( req_isopnn )
+         amtno3_idx  = findAero( req_amtno3, .True. )
+         aisopnn_idx = findAero( req_aisopnn, .True. )
 
 C Build mapping array to aero species
          soa_aeroMap = 0
@@ -887,8 +927,11 @@ C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       end Do
 
 C Assignment of drog to totrog
+      totrog = 0.0
       Do i = 1, n_vapor
-         totrog( i ) = drog( drog_map( i ) )
+         If ( vaporspc( i )%alpha .Gt. 0.0 ) Then
+            totrog( i ) = drog( drog_map( i ) )
+         endif
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)

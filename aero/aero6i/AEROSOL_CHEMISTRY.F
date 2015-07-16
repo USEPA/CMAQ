@@ -41,7 +41,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 25
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 28
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) =
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ',
@@ -56,7 +56,8 @@
      &                       'HETERO_TETROL   ', 'HETERO_IEPOXOS  ',
      &                       'HETERO_TETROLDIM', 'HETERO_IEPOXOSDI',
      &                       'HETERO_IMAE     ', 'HETERO_2MG      ',
-     &                       'HETERO_IMAEOS   ' /)
+     &                       'HETERO_IMAEOS   ', 'HETERO_NO3'      ,
+     &                       'HETERO_GLY      ', 'HETERO_MGLY'      /)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ    =  1
        INTEGER, PARAMETER  :: IA_N2O5K     =  2
@@ -83,6 +84,9 @@
        INTEGER, PARAMETER  :: IA_IMAE      = 23
        INTEGER, PARAMETER  :: IA_2MG       = 24
        INTEGER, PARAMETER  :: IA_IMAEOS    = 25
+       INTEGER, PARAMETER  :: IA_NO3       = 26
+       INTEGER, PARAMETER  :: IA_GLY       = 27
+       INTEGER, PARAMETER  :: IA_MGLY      = 28
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -97,7 +101,8 @@
      &                       IA_TETROL   , IA_IEPOXOS  ,
      &                       IA_TETROLDIM, IA_IEPOXOSDI,
      &                       IA_IMAE     , IA_2MG      ,
-     &                       IA_IMAEOS    /)
+     &                       IA_IMAEOS   , IA_NO3      ,
+     &                       IA_GLY      , IA_MGLY  /)
 
  
        INTEGER               :: SELECTED_AERO_RATES
@@ -111,6 +116,12 @@ C *** Molecular weight
       REAL( 8 ), SAVE        :: CFACTOR_IEPOX ! factor used for the mean molecular speed of IEPOX [m/(s^1*(deg K)^0.5)]
       REAL( 8 ), SAVE        :: MWTIMAE       ! molecular weight of IMAE [g/mol]
       REAL( 8 ), SAVE        :: CFACTOR_IMAE  ! factor used for the mean molecular speed of IMAE [m/(s^1*(deg K)^0.5)]
+      REAL( 8 ), SAVE        :: MWTNO3        ! molecular weight of NO3 [g/mol]
+      REAL( 8 ), SAVE        :: CFACTOR_NO3   ! factor used for the mean molecular speed of NO3 [m/(s^1*(deg K)^0.5)]
+      REAL( 8 ), SAVE        :: MWTGLY        ! molecular weight of GLY [g/mol]
+      REAL( 8 ), SAVE        :: CFACTOR_GLY   ! factor used for the mean molecular speed of GLY [m/(s^1*(deg K)^0.5)]
+      REAL( 8 ), SAVE        :: MWTMGLY       ! molecular weight of MGLY [g/mol]
+      REAL( 8 ), SAVE        :: CFACTOR_MGLY  ! factor used for the mean molecular speed of MGLY [m/(s^1*(deg K)^0.5)]
 
 C *** 2nd and 3rd moments before equilibration (without H2O)
       REAL( 8 ), ALLOCATABLE :: OLD_M3( : ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
@@ -201,6 +212,9 @@ C            Phys. Discuss., 14, 15645–15682, 2014.
 C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
 C 02/09/15 - B.Hutzell - corrected NO2 rate by a factor of two based consulting the stoiciometery for 
 C            reaction published in Sarwar et al. (2008) and its analytical solution
+C 05/06/2015 H Pye - Added NO3 heterogeneous reaction using low end of
+C            range from Mao et al 2013 
+C 06/2015    H Pye - Added SOA from GLY and MGLY uptake onto particles
 
 c
 c
@@ -238,6 +252,10 @@ C
 C   7. Pye et al., Epoxide pathways improve model predictions of isoprene
 C      markers and reveal key role of acidity in aerosol formation,
 C      Environ. Sci. Technol., doi: 10.1021/es402106h, 2013.
+C  
+C   8. Mao et al. Ozone and organic nitrates over the eastern United
+C      States: Sensitivity to isoprene chemistry, J. Geophys. Res. doi:
+C      10.1002/jgrd.50817, 2013.
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -269,6 +287,8 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
+      REAL( 8 ), PARAMETER :: GAMMA_NO3       = 1.0D-4 ! Mao et al. 2013
+      REAL( 8 ), PARAMETER :: GAMMA_GLY       = 2.9D-3 ! Liggio et al. 2005
 
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
@@ -290,6 +310,9 @@ C *** Local Variables
       REAL( 8 )    :: GAMMAIMAE        ! IMAE uptake coefficient
       REAL( 8 )    :: KPIEPOX          ! IEPOX particle-phase reaction rate const (pseudo 1st order, sec-1)
       REAL( 8 )    :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: KNO3(  N_MODE  ) ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: KGLY(  N_MODE  ) ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: KMGLY( N_MODE  ) ! pseudo-first order rate constant, sec-1
       REAL( 8 )    :: KNO2             ! pseudo-first order rate constant, sec-1
       REAL( 8 )    :: KIEPOX           ! pseudo-first order rate constant for IEPOX uptake, sec-1
       REAL( 8 )    :: KIMAE            ! pseudo-first order rate constant for MAE uptake, sec-1
@@ -313,6 +336,9 @@ C *** Local Variables
       REAL( 8 )       :: CBAR             ! molecular velocity of N2O5 (m/s)
       REAL( 8 )       :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
       REAL( 8 )       :: CBARIMAE         ! molecular velocity of IMAE (m/s)
+      REAL( 8 )       :: CBARNO3          ! molecular velocity of NO3 (m/s)
+      REAL( 8 )       :: CBARGLY          ! molecular velocity of GLY (m/s)
+      REAL( 8 )       :: CBARMGLY         ! molecular velocity of MGLY (m/s)
       REAL( 8 )       :: TETROL_PPM       ! accumulation mode aerosol tetrol in ppm
       REAL( 8 )       :: IEPOXOS_PPM      ! accumulation mode iepox organosulfate in ppm
       REAL( 8 )       :: FH2O(2)          ! fraction of epoxide aerosol from  hydrolysis, index: IEPOX(1) and MAE(2)
@@ -323,6 +349,9 @@ C *** Local Variables
 
       INTEGER, SAVE   :: IMAE_IDX
       INTEGER, SAVE   :: IHMML_IDX
+      INTEGER, SAVE   :: NO3_IDX
+      INTEGER, SAVE   :: GLY_IDX
+      INTEGER, SAVE   :: MGLY_IDX
 
       LOGICAL         :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
       LOGICAL         :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
@@ -500,6 +529,31 @@ C ***  Determine molecular weights
        INV_MWIETET = REAL( 1.0/ aerospc_mw( AIETET_IDX ), 8 )
        INV_MWIEOS  = REAL( 1.0/ aerospc_mw( AIEOS_IDX  ), 8 )
 
+       NO3_IDX = INDEX1( 'NO3', NUMB_MECH_SPC, CHEMISTRY_SPC )
+       IF( NO3_IDX .GT. 0 )THEN
+           MWTNO3  = REAL( SPECIES_MOLWT( NO3_IDX ), 8 )
+       ELSE
+           MWTNO3  = 0.0
+       END IF
+       CFACTOR_NO3 = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTNO3 * DPI ) )
+
+       GLY_IDX = INDEX1( 'GLY', NUMB_MECH_SPC, CHEMISTRY_SPC )
+       IF( GLY_IDX .GT. 0 )THEN
+           MWTGLY  = REAL( SPECIES_MOLWT( GLY_IDX ), 8 )
+       ELSE
+           MWTGLY  = 0.0
+       END IF
+       CFACTOR_GLY = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTGLY * DPI ) )
+
+       MGLY_IDX = INDEX1( 'MGLY', NUMB_MECH_SPC, CHEMISTRY_SPC )
+       IF( MGLY_IDX .GT. 0 )THEN
+           MWTMGLY  = REAL( SPECIES_MOLWT( MGLY_IDX ), 8 )
+       ELSE
+           MWTMGLY  = 0.0
+       END IF
+       CFACTOR_MGLY = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTMGLY * DPI ) )
+
+
       END IF   ! first time condition
 
       KHETERO      = 0.0D0
@@ -599,9 +653,12 @@ C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
      &                      * REAL( EXP( 1.5 * ( LOG( EXP( aeromode_sdev( N ) ) ) ** 2.0 ) ), 8)
                END DO
 
-C *** calculate N2O5 molecular speed (m/s) using Eq 4 of Pleim et al (1995)
+C *** calculate N2O5 and NO3 molecular speed (m/s) using Eq 4 of Pleim et al (1995)
 
                CBAR = CBAR_COEFF * INV_SQRT_MWN2O5 
+               CBARNO3 = CFACTOR_NO3 * DSQRT( AIRTEMP )
+               CBARGLY  = CFACTOR_GLY  * DSQRT( AIRTEMP )
+               CBARMGLY = CFACTOR_MGLY * DSQRT( AIRTEMP )
 
 C *** correct N2O5 molecular diffusivity for ambient conditions
 
@@ -626,7 +683,28 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
      &                    / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA * CBAR * INV_DIFFUSIVITY )
      
                   KN2O5( N ) = GAMMA * XXF( N )
-                 
+
+                  IF( GAMMA_NO3 .gt. 0.0d0) THEN
+                     KNO3( N ) = GAMMA_NO3 * WET_M2( N ) 
+     &                          / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA_NO3 
+     &                          * CBARNO3 * INV_DIFFUSIVITY ) * CBARNO3 * DPI
+                  ELSE
+                     KNO3( N ) = 0.0d0
+                  ENDIF
+
+                  IF( GAMMA_GLY .gt. 0.0d0) THEN
+                     KGLY( N ) = GAMMA_GLY * WET_M2( N ) 
+     &                          / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA_GLY 
+     &                          * CBARGLY * INV_DIFFUSIVITY ) * CBARGLY * DPI
+                     KMGLY( N ) = GAMMA_GLY * WET_M2( N ) 
+     &                          / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA_GLY 
+     &                          * CBARMGLY * INV_DIFFUSIVITY ) * CBARMGLY * DPI
+                  ELSE
+                     KGLY( N ) = 0.0d0
+                     KMGLY( N ) = 0.0d0
+                  ENDIF
+
+
 c *** get fine aerosol H2O and chlorine concentrations in
                  AH2O = REAL( aerospc_conc( AH2O_IDX,N ), 8 )
                  ACL  = REAL( aerospc_conc( ACL_IDX, N ), 8 )
@@ -652,6 +730,8 @@ c *** compute yield from lumped Aitken and Accumulations concentrations
               END IF  
               
              KN2O5 = CBAR * DPI * KN2O5
+
+
 C *** calculate aerosol surface area
              TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
 
@@ -856,6 +936,18 @@ C ***            Isoprene epoxide uptake
 
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FOS(2)
 
+                 CASE( IA_NO3 )
+
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * ( KNO3( 1 ) + KNO3( 2 ) ) ! min-1
+
+                 CASE( IA_GLY )
+
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * (  KGLY( 2 ) ) ! min-1
+
+                 CASE( IA_MGLY )
+
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * (  KMGLY( 2 ) ) ! min-1
+
                END SELECT
 
              END DO LOOP_RATES
@@ -928,6 +1020,13 @@ C ***            Isoprene epoxide uptake
                   WRITE(LOGDEV,9500)'YIELDJ = ', YIELD_CLNO2(2),' '
                   WRITE(LOGDEV,9500)'YIELDIJ = ', YIELDIJ,' '
                   WRITE(LOGDEV,9500)'YIELDK= ', YIELD_CLNO2(3),' '
+                  WRITE(LOGDEV,9500)'GAMMA_NO3= ', GAMMA_NO3,' '
+                  WRITE(LOGDEV,9500)'GAMMA_GLY= ', GAMMA_GLY,' '
+                  WRITE(LOGDEV,9500)'KNO3(1)= ', KNO3(1),' '
+                  WRITE(LOGDEV,9500)'KNO3(2)= ', KNO3(2),' '
+                  WRITE(LOGDEV,9500)'KNO3(3)= ', KNO3(3),' '
+                  WRITE(LOGDEV,9500)'KGLY(2)= ', KGLY(2),' '
+                  WRITE(LOGDEV,9500)'KMGLY(2)= ', KMGLY(2),' '
                   DO N = 1, NHETERO
                     WRITE(LOGDEV,9500)HETERO( N ) // ' = ', KHETERO( N, C, R, L ),' '
                   END DO
