@@ -391,8 +391,8 @@
 
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  893) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   8.3300D-47,   9.3220D+01,  & 
-     &                                                           1.4500D-08,         3.8400D+00 )
+                   RKI( NCELL,  893) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   1.0000D-40,   7.8426D+01,  & 
+     &                                                           4.0582D-09,         5.8212D+00 )
                 END IF
 
             END DO 
