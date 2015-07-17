@@ -1,57 +1,65 @@
  
-#FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-#FPP = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+ifndef COMPILER
+  COMPILER = INTEL
+# COMPILER = PGF90
+# COMPILER = GFORT
+endif
+ 
+ifeq ($(COMPILER),INTEL)
+
 FC = ifort
 FPP = $(FC)
- 
-#ioapi_path   = $(WDX_LIB)/ioapi_3.1/Linux2_x86_64ifort
-#netcdf_path  = $(WDX_LIB)/$(netcdf)/lib
-#ioapi_path   = /home/wdx/$(WDX_LIB)/x86_64/ifc/ioapi_3.1/Linux2_x86_64ifort
-#netcdf_path  = /home/wdx/$(WDX_LIB)/x86_64/ifc/netcdf/lib
-
-F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I $(ioapi_path)  -I.
-F90_FLAGS  = -free -O3 -fno-alias -mp1   -I $(ioapi_path)  -I.
+F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I.  -g -CB -CU -traceback
+F90_FLAGS  = -free -O3 -fno-alias -mp1  -I.  -g -CB -CU -traceback
  
 CC = icc
-#CPP  = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
 CPP = $(FPP)
  
 CPP_FLAGS  =  
  
 C_FLAGS    = -O2  -DFLDMN
 LINK_FLAGS = -i-static 
-#IOAPI_INC =  $(WDX_LIB)/src/ioapi_3.1/ioapi/fixed_src
- 
-LIBS = -L$(ioapi_path) -lioapi -L$(netcdf_path) -l$(NETCDF)
-#
-#
-
-#ioapi_path   = $(WDX_LIB)/ioapi_3.1/Linux2_x86_64ifort
-#netcdf_path  = $(WDX_LIB)/intel_netcdf/lib
-
-F_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1   -I $(ioapi_path)  -I.
-F90_FLAGS  = -free -O3 -fno-alias -mp1   -I $(ioapi_path)  -I.
-
-CC = icc
-#CPP  = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
-CPP = $(FPP)
-
-CPP_FLAGS  =
-
 C_FLAGS    = -O2  -DFLDMN
 LINK_FLAGS = -i-static
+
+endif
+
+ifeq ($(COMPILER),PGF90)
+ FC = pgf90
+ CC = pgcc
+ 
+# compiler options for subroutines
+  F_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
+  F90_FLAGS = -Mfree -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
+   f_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
+    C_FLAGS =  -O2  -DFLDMN=1
+     LINK_FLAGS = -Bstatic  -Bstatic_pgi
+endif
+
+ifeq ($(COMPILER),GFORT)
+   FC    = gfortran
+#  FC    = /usr/local/gcc-4.6/bin/gfortran
+   CC    = gcc
+   f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -I. -fbounds-check
+   F_FLAGS       = $(f_FLAGS)
+   f90_FLAGS     = -cpp -ffree-form -ffree-line-length-none -O3 -funroll-loops -I. -fbounds-check
+   F90_FLAGS     = $(f90_FLAGS)
+   C_FLAGS       = -O2 -DFLDMN 
+   LINKER        = $(FC)
+   LINK_FLAGS    = 
+endif
 
 LIBS = 
 #
 ##
 
- LOAD     = $(FC) $(F_FLAGS) -I -g -CB -CU -traceback
- LOAD_F90 = $(FC) $(F90_FLAGS) -I -g -CB -CU -traceback
+ LOAD     = $(FC) $(F_FLAGS) 
+ LOAD_F90 = $(FC) $(F90_FLAGS) 
  LDFLAGS = $(LINK_FLAGS)
 #ICL_DIR = $(IOAPI_INC)
 
- LOAD     = $(FC) $(F_FLAGS) -I -g -CB -CU -traceback
- LOAD_F90 = $(FC) $(F90_FLAGS) -I -g -CB -CU -traceback
+ LOAD     = $(FC) $(F_FLAGS) 
+ LOAD_F90 = $(FC) $(F90_FLAGS) 
  LDFLAGS = $(LINK_FLAGS)
  ICL_DIR = $(IOAPI_INC)
 

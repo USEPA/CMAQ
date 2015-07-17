@@ -476,7 +476,7 @@ c         LERROR = .FALSE.
          END FUNCTION GET_ENV_FLAG
          SUBROUTINE GET_DDMONYY(DATE)
 
-	    IMPLICIT NONE
+            IMPLICIT NONE
             CHARACTER(*), INTENT(INOUT) :: DATE
 
             CHARACTER( 2 ) :: DD
@@ -496,7 +496,7 @@ c         LERROR = .FALSE.
           PRINT*,MONS(VALUES(2)) // DD // YYYY(1:4) 
 !	  print*,VALUES(:)
           DATE = MONS(VALUES(2)) // ' ' // DD // ', ' // YYYY(1:4)
-	   
+
         END SUBROUTINE GET_DDMONYY
         INTEGER FUNCTION NAME_INDEX( NAME, N_NAMES, NAMES )
            IMPLICIT NONE
@@ -505,12 +505,14 @@ c         LERROR = .FALSE.
            CHARACTER(*), INTENT( IN ) :: NAMES( : )
            INTEGER,      INTENT( IN ) :: N_NAMES
 
-           INTEGER :: N
+           INTEGER :: N,M
 
            NAME_INDEX = 0
-	 
-           DO N = 1, SIZE( NAMES )
-!	    print*,name,N,NAMES( N )
+
+           M =  SIZE( NAMES )
+           IF( M .LT. 1 )RETURN
+
+           DO N = 1, M
               IF( NAME .EQ. NAMES( N ) )THEN
                   NAME_INDEX = N
                   RETURN
