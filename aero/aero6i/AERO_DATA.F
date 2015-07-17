@@ -71,7 +71,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 50      ! number of aero species
+      Integer, Parameter :: n_aerospc = 54      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -149,15 +149,18 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','ABNZ3J ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ATRP1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ATRP2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AMTNO3J','       '/), conmin_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO3J ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AISOPNNJ','      '/), conmin_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ASQTJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','APAH1J ','       '/), conmin_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','APAH2J ','       '/), conmin_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','APAH3J ','       '/), conmin_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGAJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AMTHYDJ','       '/), conmin_set, 1400.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AORGCJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','       ','ASOIL  '/), conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ACORS  '/), conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/)),
@@ -166,7 +169,8 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','AIEOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ADIMJ  ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AIMGAJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AIMOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
+     & spcs_type((/'       ','AIMOSJ ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','AGLYJ  ','       '/), conmin_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/))/)
 
 C Sea-Salt Speciation factors
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
@@ -204,15 +208,18 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! ABNZ3
      &       0.0,     0.0,     0.0,         ! ATRP1
      &       0.0,     0.0,     0.0,         ! ATRP2
+     &       0.0,     0.0,     0.0,         ! AMTNO3
      &       0.0,     0.0,     0.0,         ! AISO1
      &       0.0,     0.0,     0.0,         ! AISO2
      &       0.0,     0.0,     0.0,         ! AISO3
+     &       0.0,     0.0,     0.0,         ! AISOPNN
      &       0.0,     0.0,     0.0,         ! ASQT
      &       0.0,     0.0,     0.0,         ! APAH1
      &       0.0,     0.0,     0.0,         ! APAH2
      &       0.0,     0.0,     0.0,         ! APAH3
      &       0.0,     0.0,     0.0,         ! AOLGA
      &       0.0,     0.0,     0.0,         ! AOLGB
+     &       0.0,     0.0,     0.0,         ! AMTHYD
      &       0.0,     0.0,     0.0,         ! AORGC
      &       0.0,     0.0,     0.0,         ! ASOIL
      &       0.0,     0.0,     0.0,         ! ACORS
@@ -221,7 +228,8 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AIEOS
      &       0.0,     0.0,     0.0,         ! ADIM
      &       0.0,     0.0,     0.0,         ! AIMGA
-     &       0.0,     0.0,     0.0 /),      ! AIMOS
+     &       0.0,     0.0,     0.0,         ! AIMOS
+     &       0.0,     0.0,     0.0 /),      ! AGLY
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
 
