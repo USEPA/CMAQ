@@ -150,7 +150,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ISP1 = IRM2( NRK, NP + 3, NCS )
             DO NCELL = 1, NUMCELLS
              GLOSS( NCELL, ISP1 ) = GLOSS( NCELL, ISP1 )
-     &                            + SC( NRK, NP ) * RXRAT( NCELL, NRK )
+     &                            + REAL( SC( NRK, NP ), 8 ) * RXRAT( NCELL, NRK )
             ENDDO
          ENDDO
 
@@ -163,8 +163,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO ISP = 1, ISCHAN
          DO NCELL = 1, NUMCELLS
             IF( CNEW( NCELL, ISP ) .LE. ZBOUND .AND. 
-     &         GLOSS( NCELL, ISP ) .LT. 0.0 ) THEN
-               GLOSS( NCELL, ISP ) = 0.0
+     &         GLOSS( NCELL, ISP ) .LT. 0.0D0 ) THEN
+               GLOSS( NCELL, ISP ) = 0.0D0
             ENDIF
          ENDDO
       ENDDO
