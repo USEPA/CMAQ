@@ -34,7 +34,8 @@
 !   Alkene SOA species. The new species were introduced in cb05e51_ae6_aq
 ! Golam Sarwar 12/02/14
 !  -Added a simple halogen chemistry over sea-water
-
+! Golam Sarwar 6/25/15
+!  -Revised the simple halogen chemistry over sea-water using results of two-way CMAQ model and detailed halogen chemistry
 
 
 SAPRC07TB_AE6_AQ
@@ -759,7 +760,7 @@ REACTIONS [CM] =
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
-<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
+<HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
 
 ! oligomerization reaction for secondary organic aerosols
 

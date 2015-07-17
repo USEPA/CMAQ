@@ -147,6 +147,7 @@
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
          IMPLICIT NONE
+         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
@@ -154,6 +155,7 @@
          REAL( 8 ), INTENT( IN ) :: B2
          INTRINSIC DEXP
          HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
+         HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )
          RETURN
        END FUNCTION HALOGEN_FALLOFF
 
@@ -2300,12 +2302,12 @@
             LOGICAL,         ALLOCATABLE     :: NML_CONVERT( : )
             REAL,            ALLOCATABLE     :: NML_MOLWT  ( : )
             REAL                             :: DELTA            ! fractional difference
-	
-	    LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
-	    IF( INITIALIZED )RETURN
-	
-	    INITIALIZED = .TRUE.
+            LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+            IF( INITIALIZED )RETURN
+
+            INITIALIZED = .TRUE.
             LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
@@ -2320,7 +2322,7 @@
 
 
             J = 0
-	
+
 
             NML_INDEX     = -1
             TYPE_INDEX    = -1
