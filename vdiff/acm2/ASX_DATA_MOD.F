@@ -322,6 +322,9 @@ C Land use information:
       DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.1, 147.8/
       DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0677,   16.0,      0.1, 133.0/
       DATA subname(63), dif0(63), ar(63), meso(63), lebas(63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
+      DATA subname(64), dif0(64), ar(64), meso(64), lebas(64) / 'ISOPNN          ',0.0457,    8.0,      0.0,  206.8/  
+      DATA subname(65), dif0(65), ar(65), meso(65), lebas(65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/  
+
 
       CONTAINS
 
