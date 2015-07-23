@@ -397,8 +397,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             XMSG = 'Variable CFRAC_3D (cloud fraction) not found in ' // MET_CRO_3D
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             WRITE( LOGDEV, '( 5(/10X,A) )' )
-     &           'Model will diagnose layer cloud fraction using Randall (1995) and ',
-     &           'Hong (1998), based on mixing ratios of water vapor and its ',
+     &           'Model will diagnose layer cloud fraction using Xu and Randall (1996)',
+     &           'and Hong (1998), based on mixing ratios of water vapor and its ',
      &           'condensed states.',
      &           'You may want to reprocess the meteorological data to obtain layer ',
      &           'cloud fractions if possible.'
@@ -1079,11 +1079,14 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! this routine.
 !
 ! References:
-! 1) Randall, D. A., 1995: Parameterizing fractional cloudiness produced
+! 1) Randall, D. A. (1995), Parameterizing fractional cloudiness produced
 !    by cumulus entrainment. Preprints, Workshop on Cloud Microphysics
 !    Parameterizations in Global Atmospheric Circulation
 !    Models, Kananaskis, AB, Canada, WMO, 1–16.
-! 2) Hong et al. (1998). Implementation of Prognostic Cloud Scheme for a
+! 2) Xu, K. And D.A. Randall (1996), A semiempircal cloudiness 
+!    parameterization for use in climate models, J. Atm. Sci., vol 53(21),
+!    pp 3084-3102.
+! 3) Hong et al. (1998). Implementation of Prognostic Cloud Scheme for a
 !    Regional Spectral Model. Monhtly Weather Review, vol. 126, pp 2621-
 !    2639.
 ! Routine copied from module_radiation_driver.F in WRF 3.5 and modified for
@@ -1289,6 +1292,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! Purpose:
 !   Save properties determined by ACM subgrid cloud at vertical column into
 !   for radiation transfer calculations
+!  REVISION  HISTORY:
+!  12Jun15: BHutzell: comment out call to CLEAR_ACM_CLOUD because CONVCLD_ACM routine
+!                     calls CLEAR_ACM_CLOUD at every synchronization time if acm 
+!                     convection algorithm engaged, i.e., CONVCLD = .TRUE.
 ! Arguments:
             INTEGER, INTENT( IN )  :: JDATE      
             INTEGER, INTENT( IN )  :: JTIME                 
@@ -1304,7 +1311,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! Local variables:
             INTEGER                :: LAY           ! loop index
 
-            CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
+!           CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
   
             DO LAY = BOTTOM, TOP
                IF ( WATER( LAY ) + ICE( LAY ) .LT. CLDMIN ) CYCLE
@@ -1386,6 +1393,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             ACM_CLOUDS  = 0.0
             ACM_CFRAC   = 0.0
             ACM_AVE_H2O = 0.0
+            ACM_QC      = 0.0
+            ACM_QI      = 0.0
+            ACM_QR      = 0.0
+            ACM_QG      = 0.0
              
             RETURN
 

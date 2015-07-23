@@ -63,6 +63,8 @@ C  stratospheric values.
 ! FORTRAN modules that contain the layer level of the optical properties.
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C  10/10/14 - DJL added references to IUPAC10 to NO2 and O3 photo rates
+C  23Jun15   B.Hutzell: made TWOSTREAM and TRIDIAGONAL routine use REAL(8)
+C            variables
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -98,7 +100,7 @@ C-----------------------------------------------------------------------
       REAL               :: REFLECTION             ! broad band reflection coefficient (diffuse) at model top 
       REAL               :: TRANSMISSION           ! broad band transmission coefficient (diffuse) at surface
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
-      
+  
       LOGICAL            :: ONLY_SOLVE_RAD   ! only compute fluxes     
            
       CHARACTER( 133 )   :: PHOT_MOD_MSG
@@ -345,13 +347,13 @@ C-----------------------------------------------------------------------
 
 !***initialize BLKRJ and other layer variables
 
-      BLKRJ        = 0.0
-      ACTINIC_FLUX = 0.0
-      IRRADIANCE   = 0.0
-      REFLECTION   = 0.0
-      TRANSMISSION = 0.0
-      TRANS_DIRECT = 0.0
-      INSOLATION   = 0.0
+      BLKRJ         = 0.0
+      ACTINIC_FLUX  = 0.0
+      IRRADIANCE    = 0.0
+      REFLECTION    = 0.0
+      TRANSMISSION  = 0.0
+      TRANS_DIRECT  = 0.0
+      INSOLATION    = 0.0
 
 !***Initialize sums or set default values for outputs: 
 !   TAUC_AERO, TAU_TOT, TAUO3_TOP, TAU_RAY, SSA_AERO, etc.
@@ -749,10 +751,10 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          END DO                 ! loop over layers
 
 ! add diffusion and direct components for calculating reflectivity and transmissivity
-         INSOLATION   = INSOLATION   + SOLAR_FLUX 
-         REFLECTION   = REFLECTION   + SOLAR_FLUX * EUP( 1 )
-         TRANSMISSION = TRANSMISSION + SOLAR_FLUX * EDN( NLEVEL )
-         TRANS_DIRECT = TRANS_DIRECT + SOLAR_FLUX * EDIR( NLEVEL ) 
+         INSOLATION    = INSOLATION    + SOLAR_FLUX 
+         REFLECTION    = REFLECTION    + SOLAR_FLUX * EUP( 1 )
+         TRANSMISSION  = TRANSMISSION  + SOLAR_FLUX * EDN( NLEVEL )
+         TRANS_DIRECT  = TRANS_DIRECT  + SOLAR_FLUX * EDIR( NLEVEL ) 
 
          IF ( ONLY_SOLVE_RAD ) CYCLE
 
@@ -813,10 +815,10 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
       END DO    ! loop over wavelengths
 
 ! normalize reflection and transmission coefficients 
-      INSOLATION   = 1.0 /( COSZEN * INSOLATION )     
-      TRANS_DIRECT = TRANS_DIRECT * INSOLATION
-      REFLECTION   = ONE_OVER_PI * REFLECTION * INSOLATION 
-      TRANSMISSION = ONE_OVER_PI * TRANSMISSION * INSOLATION
+      INSOLATION    = 1.0 /( COSZEN * INSOLATION )
+      TRANS_DIRECT  = TRANS_DIRECT * INSOLATION
+      REFLECTION    = ONE_OVER_PI * REFLECTION * INSOLATION 
+      TRANSMISSION  = ONE_OVER_PI * TRANSMISSION * INSOLATION
 
       IF ( ONLY_SOLVE_RAD ) RETURN 
                
@@ -1401,55 +1403,56 @@ C-----------------------------------------------------------------------
 
 !***local:
 
-      REAL :: TAUC  ( 0:KZ )        ! optical depth variable
-      REAL :: TAUSLA( 0:KZ )        ! slant path optical depth
-      REAL :: MU2   ( 0:KZ )        ! replaces mu1 for slant path
+      REAL( 8 ) :: TAUC  ( 0:KZ )        ! optical depth variable
+      REAL( 8 ) :: TAUSLA( 0:KZ )        ! slant path optical depth
+      REAL( 8 ) :: MU2   ( 0:KZ )        ! replaces mu1 for slant path
 
 !***internal coefficients and matrix
 
-      INTEGER ROW
-      REAL :: LAM(KZ), TAUN(KZ), BGAM(KZ)
-      REAL :: E1(KZ), E2(KZ), E3(KZ), E4(KZ)
-      REAL :: CUP(KZ), CDN(KZ), CUPTN(KZ), CDNTN(KZ)
-      REAL :: MU1                  ! constant for delta_Eddington method
-      REAL :: A(NROWS), B(NROWS), D(NROWS), E(NROWS), Y(NROWS)
+      REAL( 8 ) :: LAM(KZ), TAUN(KZ), BGAM(KZ)
+      REAL( 8 ) :: E1(KZ), E2(KZ), E3(KZ), E4(KZ)
+      REAL( 8 ) :: CUP(KZ), CDN(KZ), CUPTN(KZ), CDNTN(KZ)
+      REAL( 8 ) :: A(NROWS), B(NROWS), D(NROWS), E(NROWS), Y(NROWS)
 
 !***other:
 
-      REAL :: GI(KZ), OMI(KZ), TEMPG
-      REAL PIFS, FDN0
-      REAL F, G, OM
-      REAL GAM1, GAM2, GAM3, GAM4
+      REAL( 8 ) :: GI(KZ), OMI(KZ), TEMPG
+      REAL( 8 ) :: PIFS, FDN0
+      REAL( 8 ) :: F, G, OM
+      REAL( 8 ) :: GAM1, GAM2, GAM3, GAM4
 
-      REAL EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
-      REAL SSFC
-      INTEGER NLAYER, MROWS, LEV
+      REAL( 8 ) :: EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
+      REAL( 8 ) :: SSFC
 
-      INTEGER I, J
+      REAL      :: MU1  ! reciprocal of constant from delta_Eddington method
+
+      INTEGER   :: ROW
+      INTEGER   :: I, J
+      INTEGER   :: NLAYER, MROWS, LEV
 
 !***Some additional program constants:
 
 !!!!from above      REAL, PARAMETER :: PI          = 3.1415926535898  ! pi
-      REAL, PARAMETER :: LARGEST     = 1.0E+36 ! largest machine number
-      REAL, PARAMETER :: SMALLEST    = 1.0E-36 ! largest machine number
-      REAL, PARAMETER :: SQRTLRGST   = 1.0E+18 ! sqrt(largest)
-      REAL, PARAMETER :: SQRTLRGSTM1 = 1.0E-18 ! 1/sqrt(largest)
-      REAL, PARAMETER :: EPS         = 1.0E-3
-      REAL, PARAMETER :: PRECIS      = 1.0E-7
+      REAL( 8 ), PARAMETER :: LARGEST     = 1.0D+36 ! largest machine number
+      REAL( 8 ), PARAMETER :: SMALLEST    = 1.0D-36 ! largest machine number
+      REAL( 8 ), PARAMETER :: SQRTLRGST   = 1.0D+18 ! sqrt(largest)
+      REAL( 8 ), PARAMETER :: SQRTLRGSTM1 = 1.0D-18 ! 1/sqrt(largest)
+      REAL( 8 ), PARAMETER :: EPS         = 1.0D-3
+      REAL( 8 ), PARAMETER :: PRECIS      = (1.0D0-1.0D-7)
 
 C-----------------------------------------------------------------------
 
 !***boundary conditions:
 
-      PIFS = 1.0                ! solar flux is set to unity here.
-      FDN0 = 0.0                ! no downward diffuse flux
+      PIFS = 1.0D0                ! solar flux is set to unity here.
+      FDN0 = 0.0D0                ! no downward diffuse flux
 
       NLAYER = NLEVEL - 1
 
       DO J = 0, KZ
-         TAUC  ( J ) = 0.0
-         TAUSLA( J ) = 0.0
-         MU2   ( J ) = SQRTLRGSTM1
+         TAUC  ( J ) = 0.0D0
+         TAUSLA( J ) = 0.0D0
+         MU2   ( J ) = SQRTLRGST
       END DO
 
 !***scaling for delta-Eddington approximation
@@ -1457,16 +1460,18 @@ C-----------------------------------------------------------------------
 !***start diagnostic prinout
 
       DO I = 1, NLAYER
-         F = GU(I) * GU(I)
-         GI  (I) = ( GU(I) - F ) / ( 1.0 - F )
-         OMI (I) = ( 1.0 - F ) * OMU(I) / ( 1.0 - OMU(I) * F )
-         TAUN(I) = ( 1.0 - OMU( I ) * F ) * TAUU(I)
+         F = REAL( GU(I) * GU(I), 8 )
+         GI  (I) = ( GU(I) - F ) / ( 1.0D0 - F )
+         OMI (I) = ( 1.0D0 - F ) * REAL( OMU(I), 8 ) 
+     &           / ( 1.0D0 - REAL( OMU(I), 8 )  * F )
+         TAUN(I) = ( 1.0D0 - REAL( OMU( I ), 8 ) * F ) 
+     *           *  REAL( TAUU(I), 8)
       END DO
 
 !***set  tausla to be slant optical path contribution for each layer.
 
       DO I = 1, NLAYER
-         TAUSLA(I) = TAUN(I) * DSDH(I)
+         TAUSLA(I) = TAUN(I) * REAL( DSDH(I), 8 )
       END DO
 
       TAUC(1)   = TAUN(1)
@@ -1483,11 +1488,20 @@ C-----------------------------------------------------------------------
 !***  This has been simplified from TUV ps2str because only
 !***  zenith angles < or = 90 degrees are considered.
 
+!         IF ( TAUSLA(I) .EQ. TAUSLA(I-1) ) THEN
+!            MU2(I) = SQRTLRGST
+!         ELSE
+!            MU2(I) = (TAUC(I) - TAUC(I-1)) / (TAUSLA(I) - TAUSLA(I-1))
+!            MU2(I) = SIGN( MAX( ABS( MU2(I)), SQRTLRGSTM1 ), MU2(I) )
+!         END IF
+!         MU2(I) = 1.0D0 / MU2(I)
+!      END DO
+
          IF ( TAUSLA(I) .EQ. TAUSLA(I-1) ) THEN
-            MU2(I) = SQRTLRGST
+            MU2(I) = SQRTLRGSTM1
          ELSE
-            MU2(I) = (TAUC(I) - TAUC(I-1)) / (TAUSLA(I) - TAUSLA(I-1))
-            MU2(I) = SIGN( MAX( ABS( MU2(I)), SQRTLRGSTM1 ), MU2(I) )
+            MU2(I) =  (TAUSLA(I) - TAUSLA(I-1)) / (TAUC(I) - TAUC(I-1)) 
+            MU2(I) = SIGN( MIN( ABS( MU2(I)), SQRTLRGST ), MU2(I) )
          END IF
       END DO
 
@@ -1506,17 +1520,19 @@ C-----------------------------------------------------------------------
 
 !***stay away from 1 by precision.  For g, also stay away from -1
 
-         TEMPG = MIN( ABS( G ), 1.0 - PRECIS )
+!        TEMPG = MIN( ABS( G ), 1.0D0 - PRECIS )
+         TEMPG = MIN( ABS( G ), PRECIS )
          G = SIGN( TEMPG, G )
-         OM = MIN( OM, 1.0 - PRECIS )
+!        OM = MIN( OM, 1.0D0 - PRECIS )
+         OM = MIN( OM, PRECIS )
 
 !***calculate the gamma values from line 1 Table 1, page 16,289
 
-         GAM1 =  ( 7.0 - OM * ( 4.0 + 3.0 * G ) ) * 0.25
-         GAM2 = -( 1.0 - OM * ( 4.0 - 3.0 * G ) ) * 0.25
-         GAM3 =  ( 2.0 - 3.0 * G * MU ) * 0.25
-         GAM4 =  1.0 - GAM3
-         MU1  =  0.5
+         GAM1 =  ( 7.0D0 - OM * ( 4.0D0 + 3.0D0 * G ) ) * 0.25D0
+         GAM2 = -( 1.0D0 - OM * ( 4.0D0 - 3.0D0 * G ) ) * 0.25D0
+         GAM3 =  ( 2.0D0 - 3.0D0 * G * MU ) * 0.25D0
+         GAM4 =  1.0D0 - GAM3
+         MU1  =  2.0D0
 
 !***lambda = pg 16,290 equation 21
 !***big gamma = pg 16,290 equation 22
@@ -1526,7 +1542,7 @@ C-----------------------------------------------------------------------
             WRITE( NEW_OPTICS_LOG, 2610)
          END IF
 
-         IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0 ) THEN
+         IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0D0 ) THEN
             WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
             WRITE( NEW_OPTICS_LOG, 2611)
          END IF
@@ -1536,7 +1552,7 @@ C-----------------------------------------------------------------------
 
          IF ( ABS( GAM2 ) .LE. SMALLEST ) THEN 
 !***adjustment based on NCAR TUV model
-            BGAM(I) = 0.0
+            BGAM(I) = 0.0D0
          ELSE
             BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
          END IF
@@ -1545,8 +1561,8 @@ C-----------------------------------------------------------------------
 
 !***e1 - e4 = pg 16,292 equation 44
 
-         E1(I) = 1.0 + BGAM(I) * EXPON
-         E2(I) = 1.0 - BGAM(I) * EXPON
+         E1(I) = 1.0D0 + BGAM(I) * EXPON
+         E2(I) = 1.0D0 - BGAM(I) * EXPON
          E3(I) = BGAM(I) + EXPON
          E4(I) = BGAM(I) - EXPON
 
@@ -1559,15 +1575,15 @@ C-----------------------------------------------------------------------
          EXPON0 = EXP( -TAUSLA(I-1) )
          EXPON1 = EXP( -TAUSLA(I) )
 
-         DIVISR = LAM(I) * LAM(I) - 1.0 / ( MU2(I) * MU2(I) )
+         DIVISR = LAM(I) * LAM(I) - MU2(I) * MU2(I)
          TEMP = MAX( EPS, ABS( DIVISR ) )
          DIVISR = SIGN( TEMP , DIVISR )
 
          UP = OM * PIFS *
-     &        ( ( GAM1 - 1.0 / MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
+     &        ( ( GAM1 - MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
 
          DN = OM * PIFS *
-     &        ( ( GAM1 + 1.0 / MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
+     &        ( ( GAM1 + MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
 
 !***cup and cdn are when tau is equal to zero
 !***cuptn and cdntn are when tau is equal to taun
@@ -1582,7 +1598,7 @@ C-----------------------------------------------------------------------
 !***set up matrix
 !*** ssfc = pg 16,292 equation 37  where pi Fs is one (unity).
 
-      SSFC = RSFC * MU * EXP( -TAUSLA( NLAYER ) ) * PIFS
+      SSFC = REAL( RSFC * MU, 8 ) * EXP( -TAUSLA( NLAYER ) ) * PIFS
 
 !***MROWS = the number of rows in the matrix
 
@@ -1592,7 +1608,7 @@ C-----------------------------------------------------------------------
 !*** set up first row of matrix:
 
       I = 1
-      A(1) = 0.0
+      A(1) = 0.0D0
       B(1) = E1(I)
       D(1) = -E2(I)
       E(1) = FDN0 - CDN(I)
@@ -1630,8 +1646,8 @@ C-----------------------------------------------------------------------
 
       A(ROW) = E1(I) - RSFC * E3(I)
       B(ROW) = E2(I) - RSFC * E4(I)
-      D(ROW) = 0.0
-      E(ROW) = SSFC - CUPTN(I) + RSFC * CDNTN(I)
+      D(ROW) = 0.0D0
+      E(ROW) = SSFC - CUPTN(I) + REAL( RSFC, 8 ) * CDNTN(I)
 
 !***solve tri-diagonal matrix:
 
@@ -1646,19 +1662,19 @@ C-----------------------------------------------------------------------
 !***the following equations are from pg 16,291  equations 31 & 32
 
       FDR(LEV) = 1.0    ! this the downward flux at the top of the model
-      EDR(LEV) = MU * FDR(LEV)
-      EDN(LEV) = FDN0
-      EUP(LEV) =  Y(ROW) * E3(J) - Y(ROW + 1) * E4(J) + CUP(J)
-      FDN(LEV) = EDN(LEV) / MU1
-      FUP(LEV) = EUP(LEV) / MU1
+      EDR(LEV) = MU * REAL( FDR(LEV) )
+      EDN(LEV) = REAL( FDN0 )
+      EUP(LEV) = REAL( Y(ROW) * E3(J) - Y(ROW + 1) * E4(J) + CUP(J) )
+      FDN(LEV) = EDN(LEV) * MU1
+      FUP(LEV) = EUP(LEV) * MU1
 
       DO 60, LEV = 2, NLAYER + 1
-         FDR(LEV) = EXP( -TAUSLA(LEV-1) )
-         EDR(LEV) =  MU * FDR(LEV)
-         EDN(LEV) =  Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J)
-         EUP(LEV) =  Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J)
-         FDN(LEV) = EDN(LEV) / MU1
-         FUP(LEV) = EUP(LEV) / MU1
+         FDR(LEV) = REAL( EXP( -TAUSLA(LEV-1) ) )
+         EDR(LEV) = MU * FDR(LEV)
+         EDN(LEV) = REAL( Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J) )
+         EUP(LEV) = REAL( Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J) )
+         FDN(LEV) = EDN(LEV) * MU1 
+         FUP(LEV) = EUP(LEV) * MU1
 
          ROW = ROW + 2
          J = J + 1
@@ -1730,29 +1746,29 @@ C-----------------------------------------------------------------------
 
 !***ARGUMENTS and their descriptions:
 
-      INTEGER, INTENT(IN) :: N        ! number of rows in matrix
-      REAL,    INTENT(IN) :: A( : )   ! subdiagonal
-      REAL,    INTENT(IN) :: B( : )   ! diagonal
-      REAL,    INTENT(IN) :: D( : )   ! superdiagonal
-      REAL,    INTENT(IN) :: E( : )   ! R.H. side
-      REAL,   INTENT(OUT) :: Y( : )   ! solution
+      INTEGER,      INTENT(IN) :: N        ! number of rows in matrix
+      REAL( 8 ),    INTENT(IN) :: A( : )   ! subdiagonal
+      REAL( 8 ),    INTENT(IN) :: B( : )   ! diagonal
+      REAL( 8 ),    INTENT(IN) :: D( : )   ! superdiagonal
+      REAL( 8 ),    INTENT(IN) :: E( : )   ! R.H. side
+      REAL( 8 ),   INTENT(OUT) :: Y( : )   ! solution
 
 !***SCRATCH LOCAL VARIABLES and their descriptions:
 
       INTEGER     J             ! loop index
 
-      REAL        BET           !
-      REAL        GAM( N )      !
+      REAL( 8 )        BET           !
+      REAL( 8 )        GAM( N )      !
 
 !***begin body of subroutine  TRIDIAGONAL
 !***  Decomposition and forward substitution:
 
-      BET = 1.0 / B( 1 )
+      BET = 1.0D0 / B( 1 )
       Y( 1 ) = BET * E( 1 )
 
       DO J = 2, N
          GAM( J ) = BET * D( J - 1 )
-         BET = 1.0 / ( B( J ) - A( J ) * GAM( J ) )
+         BET = 1.0D0 / ( B( J ) - A( J ) * GAM( J ) )
          Y( J ) = BET * ( E( J ) - A( J ) * Y( J - 1) )
       END DO
 

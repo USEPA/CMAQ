@@ -98,6 +98,8 @@ C       04Apr14 B.Hutzell:  Added routine call to capture cloud fractions,
 C                           water, and ice mixing ratios
 C       11Feb15 J.Young: Updated call to czangle.F which uses the ASX_DATA_MOD shared
 C                        data module (Implemented by J.Bash on 07 Nov 14)
+C       12Jun15 B.Hutzell: Moved call to CLEAR_ACM_CLOUD to after FIRSTIME block to
+C                          insure results from previous time step are removed
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -497,9 +499,6 @@ C...  a convective parameterization
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-!clear arrays that capture ACM cloud results
-        IF( USE_ACM_CLOUD )CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
-
 C...in coordination with MCIPv4.0, negative values will be loaded into the RC
 C...  field if a convective parameterization was not used in the WRF simulation
 
@@ -607,6 +606,9 @@ C...  set the time to the half hour for data interpolation
         MTIME = 10000 * ( JTIME / 10000 ) + 3000
       
       END IF
+
+!clear arrays that capture ACM cloud results
+      IF( USE_ACM_CLOUD )CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
 
 C...ACTUAL SCIENCE PROCESS (loop on internal process time steps):
 C...  Interpolate time dependent layered input variables
