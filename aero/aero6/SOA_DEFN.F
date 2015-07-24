@@ -56,6 +56,7 @@ C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
+C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -245,14 +246,16 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
 !               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
 ! the factor with RACM2 should be different because the HC8 + OH rate is higher
 ! but endothermic 
-               vaporspc( 1 )%drog_name = 'ALK5RXN'
-               vaporspc( 2 )%drog_name = 'ALK5RXN'
-               orgprod( 1 )%name       = 'ALK5RXN'
-               orgprod( 1 )%parent     = 'HC8'
+! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
+!              vaporspc( 1 )%drog_name = 'ALK5RXN'
+!              vaporspc( 2 )%drog_name = 'ALK5RXN'
+!              orgprod( 1 )%name       = 'ALK5RXN'
+!              orgprod( 1 )%parent     = 'HC8'
                orgprod( 2 )%parent     = 'XYM'
                orgprod( 3 )%parent     = 'XYM'
                orgprod( 4 )%parent     = 'TOL'
-               orgprod( 5 )%parent     = 'TOL'
+               orgprod( 5 )%parent     = 'TOL'               
+               IEPOX_SOA_mechanism = .True.               
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
