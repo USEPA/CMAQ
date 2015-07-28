@@ -74,7 +74,6 @@ C Local variables
       INTEGER KB
 
       REAL DTLIM, F1
-!     REAL TOT
       REAL DTS, DELC, M1UP
       REAL( 8 ) :: AI( NLAYS ), BI( NLAYS ), EI( NLAYS )
       REAL( 8 ) :: DI( NLAYS ), UI( NLAYS )
@@ -166,15 +165,10 @@ C Update concentrations
             VCI( K,S ) = UI( K )
           END DO
 
-1000    CONTINUE                 ! end loop for species
-2000  CONTINUE               ! end timestep loop
+1000    CONTINUE   ! end loop for species
+2000  CONTINUE   ! end timestep loop
 
       DO S = 1, NSP
-
-!       TOT = 0.0
-!       DO K = 1, CLTOP
-!         TOT = TOT + C( S,K ) * ( SIGMAF( K-1 ) - SIGMAF( K ) )
-!       END DO
 
         CBELOW( S ) = VCI( KB,S )
 
