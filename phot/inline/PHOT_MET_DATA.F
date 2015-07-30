@@ -689,7 +689,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          END IF
 
 ! compute averages for resolved cloud                
-!       CFRAC_2D = 0.0
+
          DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
                SUM_WEIGHTS = 0.0
@@ -730,7 +730,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !                 ACM_CLOUDS( COL,ROW )  = 0.0
                   ACM_AVE_H2O( COL,ROW ) = 0.0
                   DO LAY = 1, NLAYS
-                     IF ( ACM_CFRAC( LAY,COL,ROW ) .LE. 0.0 )CYCLE
+                     IF ( ACM_CFRAC( LAY,COL,ROW ) .LE. 0.0 ) CYCLE
                      WEIGHT      = DELTA_Z( COL,ROW,LAY ) 
                      SUM_WEIGHTS = SUM_WEIGHTS + WEIGHT
 ! acm clouds do not contain snow
@@ -1283,7 +1283,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          END SUBROUTINE CAL_CFRAC_3D
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, BOTTOM, TOP,
+         SUBROUTINE CAPTURE_ACM_CLOUD( JDATE, JTIME, COL, ROW, BOTTOM, TOP,
      &                                 FRACTION, WATER, ICE )
 
             USE CLOUD_OPTICS, ONLY : CLDMIN
@@ -1296,23 +1296,24 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !  12Jun15: BHutzell: comment out call to CLEAR_ACM_CLOUD because CONVCLD_ACM routine
 !                     calls CLEAR_ACM_CLOUD at every synchronization time if acm 
 !                     convection algorithm engaged, i.e., CONVCLD = .TRUE.
+
 ! Arguments:
             INTEGER, INTENT( IN )  :: JDATE      
             INTEGER, INTENT( IN )  :: JTIME                 
-            INTEGER, INTENT( IN )  :: ROW           ! array row index
             INTEGER, INTENT( IN )  :: COL           ! array column index
+            INTEGER, INTENT( IN )  :: ROW           ! array row index
             INTEGER, INTENT( IN )  :: TOP           ! vertical layer index
             INTEGER, INTENT( IN )  :: BOTTOM        ! vertical layer index
             REAL,    INTENT( IN )  :: FRACTION      ! cloud fraction of ACM cloud
             REAL,    INTENT( IN )  :: WATER( : )    ! liquid water droplet mixing ratio
             REAL,    INTENT( IN )  :: ICE( : )      ! ice partical mixing ratio
+
 ! Parameters:
 !           None
+
 ! Local variables:
             INTEGER                :: LAY           ! loop index
 
-!           CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
-  
             DO LAY = BOTTOM, TOP
                IF ( WATER( LAY ) + ICE( LAY ) .LT. CLDMIN ) CYCLE
                ACM_CFRAC( LAY,COL,ROW ) = FRACTION
