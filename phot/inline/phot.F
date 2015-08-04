@@ -180,12 +180,12 @@ C...modules
       CHARACTER( 240 ) :: XMSG = ' '
 
       INTEGER,    SAVE :: LOGDEV
-      INTEGER,    SAVE :: LGC_O3    ! pointer to O3 in CGRID
-      INTEGER,    SAVE :: LGC_NO2   ! pointer to NO2 in CGRID
-      INTEGER,    SAVE :: TSTEP     ! output timestep in sec
+      INTEGER,    SAVE :: LGC_O3   ! pointer to O3 in CGRID
+      INTEGER,    SAVE :: LGC_NO2  ! pointer to NO2 in CGRID
+      INTEGER,    SAVE :: TSTEP    ! output timestep in sec
 
-      INTEGER ESTAT              ! status from environment var check
-      INTEGER IPHOT              ! photolysis rate loop index
+      INTEGER ESTAT                ! status from environment var check
+      INTEGER IPHOT                ! photolysis rate loop index
       INTEGER ROW
       INTEGER COL
       INTEGER LEV
@@ -193,9 +193,9 @@ C...modules
       INTEGER IWL
       INTEGER L
       INTEGER V, N, MODE
-      LOGICAL JTIME_CHK          ! To check for JTIME to write RJ values
-      INTEGER ODATE         ! output date
-      INTEGER OTIME         ! output time 
+      LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
+      INTEGER ODATE                ! output date
+      INTEGER OTIME                ! output time 
       INTEGER ALLOCSTAT
 
       INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
@@ -296,8 +296,7 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: AERO_ASYM ( :,:,:,: ) ! aerosol asymmetry factor
       REAL, ALLOCATABLE, SAVE :: TAU       ( :,:,:,: ) ! optical depth
       REAL, ALLOCATABLE, SAVE :: TAU_AERO  ( :,:,:,: ) ! aerosol optical depth
-      REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [ Watts / m**2  ]
-!      REAL, ALLOCATABLE, SAVE :: BUFFER    ( :,:,: )   ! IO buffer
+      REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [watts/m**2]
 
       INTERFACE
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, OZONE )
@@ -438,12 +437,6 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-!            ALLOCATE ( BUFFER( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-!            IF ( ALLOCSTAT .NE. 0 ) THEN
-!               XMSG = 'Failure allocating IO BUFFER'
-!               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!            END IF
-
             ALLOCATE ( TAU( NCOLS,NROWS,NLAYS,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TAU'
@@ -521,14 +514,14 @@ C...modules
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
-      IF ( PHOTDIAG )THEN
+      IF ( PHOTDIAG ) THEN
 #ifndef phot_extra_tstep
-          ODATE = JDATE; OTIME = JTIME
-          CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
+         ODATE = JDATE; OTIME = JTIME
+         CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
 #endif
-          JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
+         JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
       ELSE     
-          JTIME_CHK = .FALSE.
+         JTIME_CHK = .FALSE.
       END IF 
 
 !...If sun below horizon at all cells, zero photolysis rates & exit
@@ -552,29 +545,29 @@ C...modules
 
          IF ( JTIME_CHK ) THEN
 
-                  ETOT_SFC_WL  = 0.0
-                  TAUO3_TOP_WL = 0.0
-                  TAU_AERO_WL  = 0.0
-                  TAU_CLOUD_WL = 0.0
+            ETOT_SFC_WL  = 0.0
+            TAUO3_TOP_WL = 0.0
+            TAU_AERO_WL  = 0.0
+            TAU_CLOUD_WL = 0.0
 #ifdef phot_debug                   
-                  SSA_CLOUD_WL = 0.0
-                  ASY_CLOUD_WL = 0.0
+            SSA_CLOUD_WL = 0.0
+            ASY_CLOUD_WL = 0.0
 #endif                   
-                  TAU_TOT_WL   = 0.0
-                  TAU          = 0.0
-                  TAU_AERO     = 0.0
-                  AERO_SSA     = 0.0
-                  AERO_ASYM    = 0.0
-                  ACTINIC_FX   = 0.0
+            TAU_TOT_WL   = 0.0
+            TAU          = 0.0
+            TAU_AERO     = 0.0
+            AERO_SSA     = 0.0
+            AERO_ASYM    = 0.0
+            ACTINIC_FX   = 0.0
                    
-                  TRANSMIS_DIFFUSE  = 0.0
-                  TRANSMIS_DIRECT   = 0.0
-                  REFLECT_COEFF     = 0.0
-                  CLR_TRANSMISSION  = 0.0
-                  CLR_TRANS_DIRECT  = 0.0
-                  CLR_REFLECTION    = 0.0 
+            TRANSMIS_DIFFUSE  = 0.0
+            TRANSMIS_DIRECT   = 0.0
+            REFLECT_COEFF     = 0.0
+            CLR_TRANSMISSION  = 0.0
+            CLR_TRANS_DIRECT  = 0.0
+            CLR_REFLECTION    = 0.0 
 
-         END IF ! if JTIME_CHK .AND. PHOTDIAG
+         END IF  ! if JTIME_CHK
 
       ELSE  ! all cells not dark
 
@@ -795,7 +788,7 @@ C...modules
                      RES_SKY_TRANSD  = TRANS_DIRECT
 !...find the highest layer of the sub-grid (convective) cloud
                      DO LEV = NLAYS, 1, -1
-                        IF ( ACM_CFRAC( LEV, COL,ROW ) .GT. 0.0 )EXIT
+                        IF ( ACM_CFRAC( LEV, COL,ROW ) .GT. 0.0 ) EXIT
                      END DO
 !...replace the lower layers with sub-grid cloud properties
                      DO L = 1, LEV
@@ -828,7 +821,7 @@ C...modules
 
 !...calculate the acm-cloud photolysis rates for all layers:
                      NEW_PROFILE = .FALSE.   
-                     CALL NEW_OPTICS ( JDATE, JTIME, NLAYS, 
+                     CALL NEW_OPTICS ( JDATE, JTIME, NLAYS,
      &                                 BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                                 BLKO3, BLKNO2,
      &                                 ZSFC, COSZEN, SINZEN, RSQD,
@@ -841,7 +834,7 @@ C...modules
 !...  note that both TAUC_AERO and TAUO3_TOP are the same for clear and
 !...  cloudy regions
                      MSCALE = MAX( 1.0 - ACM_CLOUDS( COL,ROW ), 0.0 )
-                  
+
                      IF ( JTIME_CHK ) THEN
 
                         TRANSMIS_DIRECT( COL,ROW )  = MSCALE * TRANSMIS_DIRECT( COL,ROW )
@@ -857,18 +850,18 @@ C...modules
      &                                                 + ACM_CLOUDS( COL,ROW ) * TAU_TOT( 1,IWL )
                            TAU_CLOUD_WL( COL,ROW,IWL ) = MSCALE * TAU_CLOUD_WL( COL,ROW,IWL )
      &                                                 + ACM_CLOUDS( COL,ROW ) * TAU_CLOUD( 1,IWL )
-#ifdef phot_debug     
+#ifdef phot_debug
                            SSA_CLOUD_WL( COL,ROW,IWL ) = MSCALE * SSA_CLOUD_WL( COL,ROW,IWL )
      &                                                 + ACM_CLOUDS( COL,ROW ) * AVE_SSA_CLD ( IWL )
                            ASY_CLOUD_WL( COL,ROW,IWL ) = MSCALE * ASY_CLOUD_WL( COL,ROW,IWL )
      &                                                 + ACM_CLOUDS( COL,ROW ) * AVE_ASYMM_CLD( IWL )
-#endif     
+#endif
                         END FORALL   ! iwl
                         FORALL ( LEV = 1:NLAYS, IWL = 1:NWL )
                            ACTINIC_FX( COL,ROW,LEV,IWL ) = MSCALE * ACTINIC_FX( COL,ROW,LEV,IWL )
      &                                                   + ACM_CLOUDS( COL,ROW ) * ACTINIC_FLUX( LEV,IWL )
                         END FORALL ! lev and iwl
-                  
+
                         DO L = 1, N_DIAG_WVL
                            IWL = DIAG_WVL( L )
                            FORALL ( LEV = 1:NLAYS)
@@ -879,10 +872,10 @@ C...modules
                      END IF  ! photdiag
 !Photolysis rates become a weighted average of the values from resolved and ACM skies
                      FORALL ( L = 1:NLAYS, IPHOT = 1:NPHOTAB )
-                         RJ( COL,ROW, L, IPHOT ) = 60.0 * ACM_CLOUDS( COL,ROW ) * BLKRJ_ACM( L,IPHOT ) 
+                         RJ( COL,ROW, L, IPHOT ) = 60.0 * ACM_CLOUDS( COL,ROW ) * BLKRJ_ACM( L,IPHOT )
      &                                           + MSCALE * RJ( COL,ROW,L,IPHOT )
                      END FORALL  ! Loop on layers and PHOT
-                  END IF 
+                  END IF
                END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
 
                IF ( JTIME_CHK ) THEN ! compute clear sky reflection and transmission coefficients
@@ -890,7 +883,7 @@ C...modules
                      IF ( CFRAC_2D( COL,ROW ) .GT. 0.0 ) THEN ! resolved and subgrid clouds exist
                         CLOUDS         = .FALSE.
                         NEW_PROFILE    = .FALSE.
-                        ONLY_SOLVE_RAD = .TRUE.  
+                        ONLY_SOLVE_RAD = .TRUE.
                         CALL NEW_OPTICS ( JDATE, JTIME, NLAYS, 
      &                                    BLKTA, BLKPRS, BLKDENS, BLKZH, BLKZF,
      &                                    BLKO3, BLKNO2,
@@ -899,16 +892,16 @@ C...modules
      &                                    BLKRJ_RES, TAUC_AERO, TAU_TOT, TAUO3_TOP,
      &                                    TAU_RAY, SSA, TAU_CLOUD, TOTAL_O3_COLUMN)
                         CLR_REFLECTION  ( COL,ROW ) = REFLECTION
-                        CLR_TRANSMISSION( COL,ROW ) = TRANSMISSION 
+                        CLR_TRANSMISSION( COL,ROW ) = TRANSMISSION
                         CLR_TRANS_DIRECT( COL,ROW ) = TRANS_DIRECT
                      ELSE ! only subgrid clouds exist
-                        CLR_REFLECTION  ( COL,ROW ) = RES_SKY_REFLECT 
-                        CLR_TRANSMISSION( COL,ROW ) = RES_SKY_TRANS  
+                        CLR_REFLECTION  ( COL,ROW ) = RES_SKY_REFLECT
+                        CLR_TRANSMISSION( COL,ROW ) = RES_SKY_TRANS
                         CLR_TRANS_DIRECT( COL,ROW ) = RES_SKY_TRANSD
                      END IF
                   ELSE ! no cloud in vertical column
-                     CLR_REFLECTION  ( COL,ROW ) = REFLECTION                             
-                     CLR_TRANSMISSION( COL,ROW ) = TRANSMISSION                             
+                     CLR_REFLECTION  ( COL,ROW ) = REFLECTION
+                     CLR_TRANSMISSION( COL,ROW ) = TRANSMISSION
                      CLR_TRANS_DIRECT( COL,ROW ) = TRANS_DIRECT
                   END IF
                END IF
@@ -1088,7 +1081,7 @@ C...modules
               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
-         DO IWL =  1, NWL
+         DO IWL = 1, NWL
             VARNM = 'ACTINIC_FX_W' // WLTXT( IWL )
             IF ( .NOT. WRITE3( CTM_RJ_2, VARNM, ODATE, OTIME, ACTINIC_FX( :,:,:,IWL ) ) ) THEN
                XMSG = 'Error writing variable ' // VARNM
