@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine aero_sedv ( col, row, conc, vsed_ae )
+      subroutine aero_sedv ( col, row, cgrd, vsed_ae )
 
 C-----------------------------------------------------------------------
 C Get accum. and coarse mode grav. settling vel
@@ -43,7 +43,7 @@ C Includes:
 
 C Arguments
       integer, intent( in )  :: col, row
-      real,    intent( in )  :: conc( :,: )     ! cgrid subsection (layers,species)
+      real,    intent( in )  :: cgrd( :,: )     ! cgrid subsection (layers,species)
       real,    intent( out ) :: vsed_ae( :,: )  ! settling velocities [ m/s ]
 
 C Parameters
@@ -93,8 +93,8 @@ C follow the Namelist dep vel surrogate name table
       character( 16 ) :: vname                  ! variable name
       character( 96 ) :: xmsg = ' '
 
-      integer  c, r, l, v, n, j      ! loop counters
-      integer  spc, s                ! species loop counter
+      integer  l, v, n, j      ! loop counters
+      integer  spc, s          ! species loop counter
       integer  astat
 
       integer :: jdate = 0, jtime = 0
@@ -188,15 +188,15 @@ C Set meteorological data for the grid cell.
 
 C extract grid cell concentrations of aero species from CGRID
 C into aerospc_conc in aero_data module
-         call extract_aero( conc( l,: ), .true. )  ! set minimum floor
+         call extract_aero( cgrd( l,: ), .true. )  ! set minimum floor
 
 c extract soa concentrations from cgrid
-         call extract_soa( conc( l,: ) )
+         call extract_soa( cgrd( l,: ) )
 
 C Calculate aerosol surface area to 2nd moment. 
          do s = 2, n_mode
             n = aerosrf_map( s )
-            moment2_conc( s ) = conc( l,n ) / pi
+            moment2_conc( s ) = cgrd( l,n ) / pi
          end do
 
 C Get the geometric mean diameters and standard deviations of the

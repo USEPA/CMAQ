@@ -235,8 +235,16 @@ C...Get met file offsets
                   WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
                   WRITE(LOGDEV,'( 2(A,I4) )')'PHOT_OPTICS_DATA Value: ',NUMB_LANDUSE,
      &            ' Value from Land Surface Module (LSM): ', N_LUFRAC
-                  SUCCESS = .FALSE.
-                  RETURN
+                  IF( TRIM( LAND_SCHEME ) .EQ. 'MODIS' .AND. N_LUFRAC .EQ. 20 )THEN
+                      NUMB_LANDUSE = 20
+                      XMSG = 'Special Case MODIS landuse: MET data has only first 20 classes'
+                      WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
+                      XMSG = 'Albedo calculations use only these classes'
+                      WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
+                  ELSE
+                      SUCCESS = .FALSE.
+                      RETURN
+                  END IF
                END IF
             END IF
 
