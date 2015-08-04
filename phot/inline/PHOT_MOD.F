@@ -63,8 +63,8 @@ C  stratospheric values.
 ! FORTRAN modules that contain the layer level of the optical properties.
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C  10/10/14 - DJL added references to IUPAC10 to NO2 and O3 photo rates
-C  23Jun15   B.Hutzell: made TWOSTREAM and TRIDIAGONAL routine use REAL(8)
-C            variables
+C  23Jun15   B.Hutzell: made TWOSTREAM and TRIDIAGONAL routine use REAL(8) variables
+C  30Jul15  J.Young: REAL(4) -> REAL for code portability
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -90,7 +90,6 @@ C-----------------------------------------------------------------------
 !***LOGDEV for NEW_OPTICS and supporting routines
       
       INTEGER, SAVE :: NEW_OPTICS_LOG
- 
 
       INTEGER, PARAMETER :: N_DIAG_WVL = 2         ! number of dianostic wavelengths
       INTEGER, SAVE      :: DIAG_WVL( N_DIAG_WVL ) ! pointers to diagnostic wavelengths
@@ -105,8 +104,8 @@ C-----------------------------------------------------------------------
            
       CHARACTER( 133 )   :: PHOT_MOD_MSG
       
-      INTEGER            :: PHOT_ROW   ! cell row of routine calling module routine
       INTEGER            :: PHOT_COL   ! cell column of routine calling module routine
+      INTEGER            :: PHOT_ROW   ! cell row of routine calling module routine
 
       CONTAINS
 
@@ -182,7 +181,7 @@ C-----------------------------------------------------------------------
       REAL,    INTENT(INOUT) :: TAU_RAY  ( : )  ! Rayleigh optical depth above model domain
       REAL,    INTENT(OUT)   :: SSA_AERO ( : )  ! single scatering albedo for aerosol column
       
-      REAL( 4 ), INTENT(INOUT) :: TOTAL_O3_COLUMN  ! total ozone colum density [ DU ]
+      REAL, INTENT(INOUT) :: TOTAL_O3_COLUMN  ! total ozone colum density [ DU ]
 
 !***internal
       REAL, PARAMETER :: ONE_OVER_PI = 1.0 / PI 
@@ -233,36 +232,36 @@ C-----------------------------------------------------------------------
 
 !***Increment of optical depth
 
-      REAL DTAU    ( NLAYS+1 )    ! total depeth at level
-      REAL DT_AERO ( NLAYS+1 )    ! aerosol contribution at level
-      REAL DT_CLOUD( NLAYS+1 )    ! cloud contribution  at level
+      REAL, ALLOCATABLE, SAVE :: DTAU    ( : )   ! total depth at level
+      REAL, ALLOCATABLE, SAVE :: DT_AERO ( : )   ! aerosol contribution at level
+      REAL, ALLOCATABLE, SAVE :: DT_CLOUD( : )   ! cloud contribution at level
 
 !***single scattering albedo for layer
 
-      REAL OM( NLAYS+1 )
+      REAL, ALLOCATABLE, SAVE :: OM( : )
 
 !***asymmetry factor
 
-      REAL G( NLAYS+1 )
+      REAL, ALLOCATABLE, SAVE :: G( : )
 
 !***arrays for fluxes and irradiances used in
 
 !***delta-Eddington code
 
-      REAL FDIR( NLAYS+1 )        ! direct actinic flux
-      REAL FUP ( NLAYS+1 )        ! diffuse upward actinic flux
-      REAL FDN ( NLAYS+1 )        ! diffuse downward flux
-      REAL EDIR( NLAYS+1 )        ! direct irradiance
-      REAL EUP ( NLAYS+1 )        ! diffuse upward irradiance
-      REAL EDN ( NLAYS+1 )        ! diffuse downward irradiance
+      REAL, ALLOCATABLE, SAVE :: FDIR( : )   ! direct actinic flux
+      REAL, ALLOCATABLE, SAVE :: FUP ( : )   ! diffuse upward actinic flux
+      REAL, ALLOCATABLE, SAVE :: FDN ( : )   ! diffuse downward flux
+      REAL, ALLOCATABLE, SAVE :: EDIR( : )   ! direct irradiance
+      REAL, ALLOCATABLE, SAVE :: EUP ( : )   ! diffuse upward irradiance
+      REAL, ALLOCATABLE, SAVE :: EDN ( : )   ! diffuse downward irradiance
 
 !***surface albedo
 
       REAL RSFC
 
       REAL FX
-      REAL ESUM( NLAYS )          ! total downward irradiance
-      REAL FSUM( NLAYS )          ! total actinic flux
+      REAL, ALLOCATABLE, SAVE :: ESUM( : )   ! total downward irradiance
+      REAL, ALLOCATABLE, SAVE :: FSUM( : )   ! total actinic flux
 
 !***needed for stratospheric Raleigh optical depth
       REAL, PARAMETER :: R_G = 100.0 * RDGAS / GRAV  ! dry air gas constant
@@ -290,7 +289,7 @@ C-----------------------------------------------------------------------
       REAL DTSCAT_CLOUD         ! level increment in cloud scattering optical
       REAL TAU_SCAT_CLD         ! total scattering optical depth of cloud
       REAL LAYERING_FACTOR      ! correction factor for cloud layering
-      REAL(4)  STOZONE
+      REAL STOZONE
 
       LOGICAL, SAVE :: FIRST = .TRUE.  ! Flag for first call
       LOGICAL       :: SUCCESS
@@ -320,9 +319,22 @@ C-----------------------------------------------------------------------
          ALLOCATE( ACTINIC_FLUX( NLAYS,NWL ) )
          ALLOCATE( IRRADIANCE  ( NLAYS,NWL ) )
          
-         ALLOCATE( DSDH_TD( NLAYS+1 ) )
-         ALLOCATE( BLKDZ( NLAYS ) )
-         ALLOCATE( DSDH( NLAYS ) )
+         ALLOCATE( DSDH_TD ( NLAYS+1 ),
+     &             BLKDZ   ( NLAYS ),
+     &             DSDH    ( NLAYS ),
+     &             DTAU    ( NLAYS+1 ),
+     &             DT_AERO ( NLAYS+1 ),
+     &             DT_CLOUD( NLAYS+1 ),
+     &             OM      ( NLAYS+1 ),
+     &             G       ( NLAYS+1 ),
+     &             FDIR    ( NLAYS+1 ),
+     &             FUP     ( NLAYS+1 ),
+     &             FDN     ( NLAYS+1 ),
+     &             EDIR    ( NLAYS+1 ),
+     &             EUP     ( NLAYS+1 ),
+     &             EDN     ( NLAYS+1 ),
+     &             ESUM    ( NLAYS ),
+     &             FSUM    ( NLAYS ) )
 
 !***FSB Set up conversion factor for
 !***  [photons / ( cm**2 s) ] to [Watts / m**2 ]
@@ -347,13 +359,13 @@ C-----------------------------------------------------------------------
 
 !***initialize BLKRJ and other layer variables
 
-      BLKRJ         = 0.0
-      ACTINIC_FLUX  = 0.0
-      IRRADIANCE    = 0.0
-      REFLECTION    = 0.0
-      TRANSMISSION  = 0.0
-      TRANS_DIRECT  = 0.0
-      INSOLATION    = 0.0
+      BLKRJ        = 0.0
+      ACTINIC_FLUX = 0.0
+      IRRADIANCE   = 0.0
+      REFLECTION   = 0.0
+      TRANSMISSION = 0.0
+      TRANS_DIRECT = 0.0
+      INSOLATION   = 0.0
 
 !***Initialize sums or set default values for outputs: 
 !   TAUC_AERO, TAU_TOT, TAUO3_TOP, TAU_RAY, SSA_AERO, etc.
@@ -751,10 +763,10 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          END DO                 ! loop over layers
 
 ! add diffusion and direct components for calculating reflectivity and transmissivity
-         INSOLATION    = INSOLATION    + SOLAR_FLUX 
-         REFLECTION    = REFLECTION    + SOLAR_FLUX * EUP( 1 )
-         TRANSMISSION  = TRANSMISSION  + SOLAR_FLUX * EDN( NLEVEL )
-         TRANS_DIRECT  = TRANS_DIRECT  + SOLAR_FLUX * EDIR( NLEVEL ) 
+         INSOLATION   = INSOLATION   + SOLAR_FLUX 
+         REFLECTION   = REFLECTION   + SOLAR_FLUX * EUP( 1 )
+         TRANSMISSION = TRANSMISSION + SOLAR_FLUX * EDN( NLEVEL )
+         TRANS_DIRECT = TRANS_DIRECT + SOLAR_FLUX * EDIR( NLEVEL ) 
 
          IF ( ONLY_SOLVE_RAD ) CYCLE
 
@@ -815,10 +827,10 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
       END DO    ! loop over wavelengths
 
 ! normalize reflection and transmission coefficients 
-      INSOLATION    = 1.0 /( COSZEN * INSOLATION )
-      TRANS_DIRECT  = TRANS_DIRECT * INSOLATION
-      REFLECTION    = ONE_OVER_PI * REFLECTION * INSOLATION 
-      TRANSMISSION  = ONE_OVER_PI * TRANSMISSION * INSOLATION
+      INSOLATION   = 1.0 / ( COSZEN * INSOLATION )
+      TRANS_DIRECT = TRANS_DIRECT * INSOLATION
+      REFLECTION   = ONE_OVER_PI * REFLECTION * INSOLATION 
+      TRANSMISSION = ONE_OVER_PI * TRANSMISSION * INSOLATION
 
       IF ( ONLY_SOLVE_RAD ) RETURN 
                
@@ -1409,14 +1421,14 @@ C-----------------------------------------------------------------------
 
 !***internal coefficients and matrix
 
-      REAL( 8 ) :: LAM(KZ), TAUN(KZ), BGAM(KZ)
-      REAL( 8 ) :: E1(KZ), E2(KZ), E3(KZ), E4(KZ)
-      REAL( 8 ) :: CUP(KZ), CDN(KZ), CUPTN(KZ), CDNTN(KZ)
-      REAL( 8 ) :: A(NROWS), B(NROWS), D(NROWS), E(NROWS), Y(NROWS)
+      REAL( 8 ) :: LAM( KZ ), TAUN( KZ ), BGAM( KZ )
+      REAL( 8 ) :: E1( KZ ), E2( KZ ), E3( KZ ), E4( KZ )
+      REAL( 8 ) :: CUP( KZ ), CDN( KZ ), CUPTN( KZ ), CDNTN( KZ )
+      REAL( 8 ) :: A( NROWS ), B( NROWS ), D( NROWS ), E( NROWS ), Y( NROWS )
 
 !***other:
 
-      REAL( 8 ) :: GI(KZ), OMI(KZ), TEMPG
+      REAL( 8 ) :: GI( KZ ), OMI( KZ ), TEMPG
       REAL( 8 ) :: PIFS, FDN0
       REAL( 8 ) :: F, G, OM
       REAL( 8 ) :: GAM1, GAM2, GAM3, GAM4
@@ -1434,11 +1446,11 @@ C-----------------------------------------------------------------------
 
 !!!!from above      REAL, PARAMETER :: PI          = 3.1415926535898  ! pi
       REAL( 8 ), PARAMETER :: LARGEST     = 1.0D+36 ! largest machine number
-      REAL( 8 ), PARAMETER :: SMALLEST    = 1.0D-36 ! largest machine number
+      REAL( 8 ), PARAMETER :: SMALLEST    = 1.0D-36 ! smallest machine number
       REAL( 8 ), PARAMETER :: SQRTLRGST   = 1.0D+18 ! sqrt(largest)
       REAL( 8 ), PARAMETER :: SQRTLRGSTM1 = 1.0D-18 ! 1/sqrt(largest)
-      REAL( 8 ), PARAMETER :: EPS         = 1.0D-3
-      REAL( 8 ), PARAMETER :: PRECIS      = (1.0D0-1.0D-7)
+      REAL( 8 ), PARAMETER :: EPS         = 1.0D-03
+      REAL( 8 ), PARAMETER :: PRECIS      = ( 1.0D0 - 1.0D-07 )
 
 C-----------------------------------------------------------------------
 
@@ -1538,12 +1550,12 @@ C-----------------------------------------------------------------------
 !***big gamma = pg 16,290 equation 22
 
          IF ( ABS( GAM2 ) .LE. SMALLEST ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
             WRITE( NEW_OPTICS_LOG, 2610)
          END IF
 
          IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0D0 ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
             WRITE( NEW_OPTICS_LOG, 2611)
          END IF
  
@@ -1681,15 +1693,15 @@ C-----------------------------------------------------------------------
  60   CONTINUE
 
 2609  FORMAT(/ 'PHOT_MOD: Instability in Two Stream RadTran Subroutine'
-     &       / 'Layer: I = ',I3
-     &       / 'Asymmetry Factor: GI = ',ES12.4
+     &       / 'Layer: I = ', I3
+     &       / 'Asymmetry Factor: GI = ', ES12.4
      &       / 'Single Scattering Albedo: OMI = ', ES12.4
      &       / 'SIGN( MIN( ABS( GI ), 1.0 - 1.0E-7), GI ): G = ', ES12.4
      &       / 'MIN( OMI, 1.0 - 1.0E-7 ): OM = ', ES12.4
      &       / '0.25*( 7.0 - OM * ( 4.0 + 3.0 * G ) ): GAM1 = ', ES12.4
      &       / '0.25*( OM * ( 4.0 + 3.0 * G ) - 1.0 ): GAM2 = ', ES12.4  /)
 
-2610  FORMAT(/ 'SETTING (GAM1 - SQRT( GAM1**2 - GAM2**2 ))/GAM2 to zero' /)
+2610  FORMAT(/ 'Setting (GAM1 - SQRT(GAM1**2 - GAM2**2))/GAM2 to zero' /)
 
 2611  FORMAT(/ ' ( GAM1**2 - GAM2**2 ) < 0: NaNs introduced into solution ' /)
 
@@ -1701,12 +1713,12 @@ C///////////////////////////////////////////////////////////////////////
       SUBROUTINE TRIDIAGONAL ( A, B, D, E, Y, N )
 C-----------------------------------------------------------------------
 C  This version has the same variable names as in twostream_s, that
-C     is D is the superdiagonal and E is the right hand side, and Y is
-C     the  solution. The size of A,B,D,E and Y is now N, the
-C     number of rows in the matrix.
+C  is D is the superdiagonal and E is the right hand side, and Y is
+C  the  solution. The size of A,B,D,E and Y is now N, the
+C  number of rows in the matrix.
 C-----------------------------------------------------------------------
 C
-C  FUNCTION:
+C  Function:
 C     Solves tridiagonal system by Thomas algorithm.  Algorithm fails
 C     if first pivot is zero.  In that case, rewrite the
 C     equation as a set of order N-1, with U(2) trivially eliminated.
@@ -1725,11 +1737,11 @@ C     [ .             .     .     .     0     ]
 C     [ .                   .     .     .     ]
 C     [ 0                           A(N) B(N) ]
 C
-C  PRECONDITIONS REQUIRED:
+C  Preconditions:
 C
-C  SUBROUTINES AND FUNCTIONS CALLED:
+C  Subroutines and Functions Called:
 C
-C  REVISION HISTORY:
+C  Revision History:
 C     NO.   DATE     WHO      WHAT
 C     __    ____     ___      ____
 C     5     11/09/04  FSB  Changed symbols to match twostream_s
@@ -1744,24 +1756,23 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-!***ARGUMENTS and their descriptions:
+!***Arguments:
 
-      INTEGER,      INTENT(IN) :: N        ! number of rows in matrix
-      REAL( 8 ),    INTENT(IN) :: A( : )   ! subdiagonal
-      REAL( 8 ),    INTENT(IN) :: B( : )   ! diagonal
-      REAL( 8 ),    INTENT(IN) :: D( : )   ! superdiagonal
-      REAL( 8 ),    INTENT(IN) :: E( : )   ! R.H. side
-      REAL( 8 ),   INTENT(OUT) :: Y( : )   ! solution
+      INTEGER,   INTENT( IN )  :: N        ! number of rows in matrix
+      REAL( 8 ), INTENT( IN )  :: A( : )   ! subdiagonal
+      REAL( 8 ), INTENT( IN )  :: B( : )   ! diagonal
+      REAL( 8 ), INTENT( IN )  :: D( : )   ! superdiagonal
+      REAL( 8 ), INTENT( IN )  :: E( : )   ! R.H. side
+      REAL( 8 ), INTENT( OUT ) :: Y( : )   ! solution
 
-!***SCRATCH LOCAL VARIABLES and their descriptions:
+!***Local Variables:
 
-      INTEGER     J             ! loop index
+      INTEGER J   ! loop index
 
-      REAL( 8 )        BET           !
-      REAL( 8 )        GAM( N )      !
+      REAL( 8 ) :: BET        !
+      REAL( 8 ) :: GAM( N )   !
 
-!***begin body of subroutine  TRIDIAGONAL
-!***  Decomposition and forward substitution:
+!***Decomposition and forward substitution:
 
       BET = 1.0D0 / B( 1 )
       Y( 1 ) = BET * E( 1 )
@@ -1787,27 +1798,27 @@ C///////////////////////////////////////////////////////////////////////
       INTEGER FUNCTION INDEXR0 ( NAME1, N, NAME2 )
 C-----------------------------------------------------------------------
 C
-C  FUNCTION:
+C  Function:
 C     This routine searches for NAME1 in list NAME2
 C
-C  REVISION HISTORY:
+C  Revision History:
 C     5/88   Modified for ROMNET
 C     July 29, 2005 by FSB
 C     Changed name to avoid conflict FSB
 C     copied from CMAQ routine INDEX2 to allow internal use
 C
-C  ARGUMENT LIST DESCRIPTION:
+C  Argument List Description:
 C
-C  Input arguments:
+C  Input Arguments:
 C     NAME1       Character string being searched for
 C     N           Length of array to be searched
 C     NAME2       Character array to be searched
 C
-C  Output arguments:
+C  Output Arguments:
 C     INDEX1      The position within the NAME2 array that NAME1
-C                 found.  If string was not found, INDEX1 = 0
+C                 found. If string was not found, INDEX1 = 0
 C
-C  LOCAL VARIABLE DESCRIPTION:
+C  Local Variable Description:
 C     None
 C
 C-----------------------------------------------------------------------

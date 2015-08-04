@@ -69,6 +69,7 @@ C           matrix solver
 C 30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C 31 Jul 14 J.Young: incorporate gravitational settling for J-,K-mode aerosols
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C 03 Jul 15 J.Young: put sedi stuff into a module
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -80,6 +81,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIDI_MOD
       USE LSM_MOD, ONLY: n_lufrac
+      USE SEDIMENTATION
       USE VDIFF_DIAG
 
       IMPLICIT NONE
@@ -117,7 +119,7 @@ C Local Variables:
       REAL             LRDX3M                        ! loop local RDX3M( L )
       REAL             FCMSF                         ! loop local RMSFX4( C,R )
 
-      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )     ! cgrid replacement
+      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
       REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
@@ -199,19 +201,6 @@ C Local Variables
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
-         SUBROUTINE SEDI( DTSEC, SEDVEL, CGRID, CNGRD )
-            USE CGRID_SPCS
-            USE GRID_CONF
-            USE ASX_DATA_MOD
-            USE VDIFF_MAP
-            USE UTILIO_DEFN
-            IMPLICIT NONE
-            REAL, INTENT( IN )    :: DTSEC
-            REAL, INTENT( OUT )   :: SEDVEL( :,:,:,: )
-            REAL, POINTER         :: CGRID ( :,:,:,: )
-            REAL, INTENT( INOUT ) :: CNGRD ( :,:,:,: )
-         END SUBROUTINE SEDI
-
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -353,7 +342,7 @@ C read & interpolate deposition velocities
 C Get gravitational settling velocity for the vsed aero species:
 C AERO_SEDV assumes that every aero species is dry deposited and is diffused (trns)
 C Calculate the changes in the layer J-,K-mode aerosol concentrations
-         CALL SEDI( DTSEC, VSED_AE, CGRID, CNGRD )
+         CALL SEDI( MDATE, MTIME, DTSEC, VSED_AE, CGRID, CNGRD )
       END IF
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
