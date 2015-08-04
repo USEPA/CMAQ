@@ -44,7 +44,6 @@ C-----------------------------------------------------------------------
 C Includes:
 
       INCLUDE 'STATE3.EXT'
-!     INCLUDE 'NETCDF.EXT'
 
       INCLUDE 'PIOVARS.EXT'      ! Parameters for parallel implementation.
       INCLUDE 'PIOGRID.EXT'      ! Parallel grid dimensions.

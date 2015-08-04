@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE  CZANGLE( JDATE, JTIME, NX, NY, LAT, LON, COSZEN )
+      SUBROUTINE  CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
 
 C----------------------------------------------------------------------
 C Description:
@@ -42,7 +42,9 @@ C   11/99: by Jeff Vukovich taken from v4.2 SMOKE prototype
 C   10/06: yoj
 C   02/11: Shawn Roselle: Replaced I/O API include files with UTILIO_DEFN
 C   03/12: J. Bash: Bound COSZEN against numerical rounding errors
-
+C   11/14: J. Bash: Lat and Lon now stored in ASX_DATA_MOD to reduce redundent
+C             memory allocation and reads from file.
+C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C----------------------------------------------------------------------
 C Modified from:
 
@@ -60,6 +62,7 @@ C Last updated: $Date: 2012/03/28 16:05:37 $
 C----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE ASX_DATA_MOD, Only: Grid_Data
 
       IMPLICIT NONE
 
@@ -74,10 +77,8 @@ C Arguments:
       INTEGER, INTENT( IN )  :: NX      ! no. columns
       INTEGER, INTENT( IN )  :: NY      ! no. rows
 
-      REAL,    INTENT( IN )  :: LAT( NX,NY )  ! lat (deg) -90 <= LAT <= 90
-      REAL,    INTENT( IN )  :: LON( NX,NY )  ! lon (deg) -180 <= LON <= 180
-
-      REAL,    INTENT( OUT ) :: COSZEN( NX,NY ) !  cos of zenith angle
+!     REAL,    INTENT( OUT ) :: COSZEN( NX,NY ) !  cosine of zenith angle
+      REAL,    INTENT( OUT ) :: COSZEN( :,: )   !  cosine of zenith angle
 
 C Parameters:
  
@@ -99,10 +100,10 @@ C Local variables:
      &           DESIN, DECOS, DESIN2, DECOS2, SIG, DECSIN, DECCOS,
      &           EQT, TST, HRANGL
                      
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
       REAL, ALLOCATABLE, SAVE :: SINLAT( :,: )
       REAL, ALLOCATABLE, SAVE :: COSLAT( :,: )  
 
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 16 ) :: PNAME = 'CZANGLE'   !  procedure name
 
 C----------------------------------------------------------------------
@@ -121,7 +122,7 @@ C compute sine of lat and lon first time through
 
          DO R = 1, NY
             DO C = 1, NX
-               SLA = PI180 * LAT( C,R )
+               SLA = PI180 * Grid_Data%LAT( C,R )
                SINLAT( C,R ) = SIN( SLA )
                COSLAT( C,R ) = COS( SLA )
             END DO
@@ -161,8 +162,8 @@ C The equation of time adjustment
       DO R = 1, NY
          DO C = 1, NX
 
-            TK     =  GMT + LON( C,R ) * D15   !  Distance in hours from LON=0
-            TST    =  TK - EQT                 !  true solar time
+            TK     =  GMT + Grid_Data%LON( C,R ) * D15 !  Distance in hours from LON=0
+            TST    =  TK - EQT                         !  true solar time
             HRANGL =  PI180 * 15.0 * ABS( TST - 12.0 ) !  hour angle
                    
 C Compute the cosine of zenith angle (sine of the solar elevation)

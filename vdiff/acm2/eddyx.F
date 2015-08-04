@@ -40,21 +40,18 @@ C                    will be properly used.  Removed map-scale factor
 C                    from wind shear calculation.
 C  SJR       02/11 - replaced I/O API include files with UTILIO_DEFN
 C  YOJ       05/13 - access met data from VDIFF_MET module
+C  JOB       11/14 - Updated for the ASX_DATA_MOD shared data module which 
+C                    included variables in the VDIFF_MET module.
+C  HF        07/15 - Included pleim5 formulation. 
 C--------------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal domain specifications
-      USE VDIFF_MET
+      USE ASX_DATA_MOD          ! Includes CONST
       USE UTILIO_DEFN
-#ifdef parallel
-      USE SE_MODULES            ! stenex
-#else
-      USE NOOP_MODULES          ! stenex
-#endif
 
       IMPLICIT NONE
 
 C Includes:
-      INCLUDE SUBST_CONST       ! constants
 
 C Arguments:
       REAL,   INTENT( OUT ) :: EDDYV ( :,:,: ) ! eddy diffusivity (m**2/s)
@@ -63,9 +60,6 @@ C Parameters:
 
       REAL, PARAMETER :: RLAM   = 80.0 ! asymptotic mixing length (m)
       REAL, PARAMETER :: RIC    = 0.25 ! critical Richardson #
-      REAL, PARAMETER :: GAMH   = 16.0 !15.0 ! Holtslag and Boville (1993)
-      REAL, PARAMETER :: BETAH  = 5.0  ! Holtslag and Boville (1993)
-      REAL, PARAMETER :: KARMAN = 0.4
       REAL, PARAMETER :: QUARTER = 0.25
       REAL, PARAMETER :: SIXTEENTH = QUARTER * QUARTER  ! 1/16
 
@@ -86,7 +80,6 @@ C Local variables:
       REAL    ZFUNC, HPBL 
       REAL    EDDV                    ! local EDDYV
       REAL    FH
-      REAL    FRAT
 
       INTEGER MCOL                   ! these don't need to be initialized
       INTEGER MROW
@@ -125,25 +118,25 @@ C-----------------------------------------------------------------------
       DO 233 L = 1, NLAYS-1
       DO 222 R = 1, MY_NROWS
       DO 211 C = 1, MY_NCOLS
-         HPBL = MAX( PBL( C,R ), 20.0 )
-         ZFL = ZF( C,R,L )
-         KZM = KZMIN( C,R,L )
+         HPBL = MAX( Met_Data%PBL( C,R ), 20.0 )
+         ZFL = Met_Data%ZF( C,R,L )
+         KZM = Met_Data%KZMIN( C,R,L )
 
-         ZOL = ZFL * MOLI( C,R )
+         ZOL = ZFL * Met_Data%MOLI( C,R )
          IF ( ZFL .LT. HPBL ) THEN
             IF ( ZOL .LT. 0.0 ) THEN
                IF ( ZFL .LT. 0.1 * HPBL ) THEN
-                  PHIH = 1.0 / SQRT( 1.0 - GAMH * ZOL )
+                  PHIH = 1.0 / SQRT( 1.0 - GAMAH * ZOL )
                ELSE
-                  ZSOL = 0.1 * HOL( C,R )
-                  PHIH = 1.0 / SQRT( 1.0 - GAMH * ZSOL )
+                  ZSOL = 0.1 * HPBL * Met_Data%MOLI( C,R )
+                  PHIH = 1.0 / SQRT( 1.0 - GAMAH * ZSOL )
                END IF
             ELSE IF ( ZOL .LT. 1.0 ) THEN
                PHIH = 1.0 + BETAH * ZOL
             ELSE
                PHIH = BETAH + ZOL
             END IF
-            WT = USTAR( C,R ) / PHIH
+            WT = Met_Data%USTAR( C,R ) / PHIH
             ZFUNC = 1.0 - ZFL / HPBL
             ZFUNC = ZFL * ZFUNC * ZFUNC
             EDYZ = KARMAN * WT * ZFUNC
@@ -154,37 +147,37 @@ C-----------------------------------------------------------------------
 
          IF ( CSTAGUV ) THEN  ! u- and v-component winds on C-stagger
            WW2 = QUARTER                  ! component-wise wind shear
-     &         * ( ( UWIND( C+1,R,  L+1 ) - UWIND( C+1,R  ,L  )
-     &             + UWIND( C,  R,  L+1 ) - UWIND( C,  R  ,L  ) ) ** 2
-     &         +   ( VWIND( C,  R+1,L+1 ) - VWIND( C,  R+1,L )
-     &             + VWIND( C,  R,  L+1 ) - VWIND( C,  R,  L  ) ) ** 2 )
+     &         * ( ( Met_Data%UWIND( C+1,R,  L+1 ) - Met_Data%UWIND( C+1,R  ,L  )
+     &             + Met_Data%UWIND( C,  R,  L+1 ) - Met_Data%UWIND( C,  R  ,L  ) ) ** 2
+     &         +   ( Met_Data%VWIND( C,  R+1,L+1 ) - Met_Data%VWIND( C,  R+1,L )
+     &             + Met_Data%VWIND( C,  R,  L+1 ) - Met_Data%VWIND( C,  R,  L  ) ) ** 2 )
          ELSE  ! u- and v-component winds on B-stagger
            WW2 = SIXTEENTH                ! component-wise wind shear
-     &         * ( ( UWIND( C,  R,  L+1 ) - UWIND( C,  R  ,L  )
-     &             + UWIND( C+1,R,  L+1 ) - UWIND( C+1,R  ,L  )
-     &             + UWIND( C,  R+1,L+1 ) - UWIND( C,  R+1,L  )
-     &             + UWIND( C+1,R+1,L+1 ) - UWIND( C+1,R+1,L  ) ) ** 2
-     &          +  ( VWIND( C,  R,  L+1 ) - VWIND( C,  R  ,L  )
-     &             + VWIND( C+1,R,  L+1 ) - VWIND( C+1,R  ,L  )
-     &             + VWIND( C,  R+1,L+1 ) - VWIND( C,  R+1,L  )
-     &             + VWIND( C+1,R+1,L+1 ) - VWIND( C+1,R+1,L  ) ) ** 2 )
+     &         * ( ( Met_Data%UWIND( C,  R,  L+1 ) - Met_Data%UWIND( C,  R  ,L  )
+     &             + Met_Data%UWIND( C+1,R,  L+1 ) - Met_Data%UWIND( C+1,R  ,L  )
+     &             + Met_Data%UWIND( C,  R+1,L+1 ) - Met_Data%UWIND( C,  R+1,L  )
+     &             + Met_Data%UWIND( C+1,R+1,L+1 ) - Met_Data%UWIND( C+1,R+1,L  ) ) ** 2
+     &          +  ( Met_Data%VWIND( C,  R,  L+1 ) - Met_Data%VWIND( C,  R  ,L  )
+     &             + Met_Data%VWIND( C+1,R,  L+1 ) - Met_Data%VWIND( C+1,R  ,L  )
+     &             + Met_Data%VWIND( C,  R+1,L+1 ) - Met_Data%VWIND( C,  R+1,L  )
+     &             + Met_Data%VWIND( C+1,R+1,L+1 ) - Met_Data%VWIND( C+1,R+1,L  ) ) ** 2 )
          END IF
 
-         DZL = ZH( C,R,L+1 ) - ZH( C,R,L )
+         DZL = Met_Data%ZH( C,R,L+1 ) - Met_Data%ZH( C,R,L )
          WS2 = WW2 / ( DZL * DZL ) + 1.0E-9
 
-         RIB = 2.0 * GRAV * ( THETAV( C,R,L+1 ) - THETAV( C,R,L ) )
-     &       / ( DZL * WS2 * ( THETAV( C,R,L+1 ) + THETAV( C,R,L ) ) )
+         RIB = 2.0 * GRAV * ( Met_Data%THETAV( C,R,L+1 ) - Met_Data%THETAV( C,R,L ) )
+     &      / ( DZL * WS2 * ( Met_Data%THETAV( C,R,L+1 ) + Met_Data%THETAV( C,R,L ) ) )
 
 C-- Adjustment to vert diff in Moist air from HIRPBL
 
-         IF ( ( QC( C,R,L ) .GT. 0.01E-3 ) .AND.
-     &        ( QC( C,R,L+1 ) .GT. 0.01E-3 ) ) THEN
-            QMEAN = 0.5 * ( QV( C,R,L ) + QV( C,R,L+1 ) )
-            TMEAN = 0.5 * ( TA( C,R,L ) + TA( C,R,L+1 ) )
+         IF ( ( Met_Data%QC( C,R,L ) .GT. 0.01E-3 ) .OR.
+     &        ( Met_Data%QC( C,R,L+1 ) .GT. 0.01E-3 ) ) THEN
+            QMEAN = 0.5 * ( Met_Data%QV( C,R,L ) + Met_Data%QV( C,R,L+1 ) )
+            TMEAN = 0.5 * ( Met_Data%TA( C,R,L ) + Met_Data%TA( C,R,L+1 ) )
             XLV = ( 2.501 - 0.00237 * ( TMEAN - 273.15 ) ) * 1.0E6
             ALPH = XLV * QMEAN / RDGAS / TMEAN
-            CPAIR = 1004.67 * ( 1.0 + 0.84 * QV( C,R,L ) )   ! J/(K KG)
+            CPAIR = 1004.67 * ( 1.0 + 0.84 * Met_Data%QV( C,R,L ) )   ! J/(K KG)
             CHI = XLV * XLV * QMEAN / ( CPAIR * RWVAP * TMEAN * TMEAN )
             RIB = ( 1.0 + ALPH )
      &          * ( RIB - GRAV * GRAV / ( WS2 * TMEAN * CPAIR )
@@ -196,14 +189,11 @@ C-- Adjustment to vert diff in Moist air from HIRPBL
          SQL = SQL * SQL
 
          IF ( RIB .GE. 0.0 ) THEN
-            IF ( ZFL .LT. HPBL .AND. ZOL .GT. 0.0 ) THEN
-               FRAT = 1.0 - ZFL / HPBL
-               FH = MAX( FRAT * FRAT, 0.01 ) / ( PHIH * PHIH )
-               SQL = ZK * ZK
-            ELSE
-               FRAT =  MAX( 1.0 - RIB / RIC, 0.01 )
-               FH = FRAT * FRAT
-            END IF
+!           FH = 1.0   ! pleim5
+!    &         / ( 1.0 + 10.0 * RIB + 50.0 * RIB ** 2 + 5000.0 * RIB ** 4 ) + 0.0012
+            FH =  1.0 + RIB * ( 10.0 + RIB * ( 50.0 + 5000.0 * RIB * RIB ) )
+            FH = 0.0012 + 1.0 / FH  ! pleim5
+
             EDDV = KZM + SQRT( WS2 ) * FH * SQL
          ELSE
             EDDV = KZM + SQRT( WS2 * ( 1.0 - 25.0 * RIB ) ) * SQL
@@ -220,8 +210,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
             MROW = R
             MLVL = L
             MEDDYV = EDDV
-            MTH1 = THETAV( C,R,L )
-            MTH2 = THETAV( C,R,L+1 )
+            MTH1 = Met_Data%THETAV( C,R,L )
+            MTH2 = Met_Data%THETAV( C,R,L+1 )
             MRIB = RIB
             MWS  = SQRT ( WS2 )
          END IF

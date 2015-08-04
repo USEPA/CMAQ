@@ -32,7 +32,6 @@ C***********************************************************************
 C...........   INCLUDES:
 
         INCLUDE 'STATE3.EXT'
-!       INCLUDE 'NETCDF.EXT'
         INCLUDE 'PIOVARS.EXT'
         INCLUDE "mpif.h"
 
@@ -44,7 +43,6 @@ C...........   SCRATCH LOCAL VARIABLES and their descriptions:
         INTEGER         ERROR           !  MPI error status return
 
 C***********************************************************************
-C   begin body of function  PSHUT3
 
         PSHUT3 = .TRUE.
         IF (.NOT. FINIT3) THEN

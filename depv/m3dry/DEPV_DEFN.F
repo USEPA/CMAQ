@@ -49,7 +49,10 @@ C                        and WTIME computation for MOSAIC
 C   13 Dec 2011 J.Young: removed separate SOA variables - no longer used
 C   18 Sep 2012 D. Wong: invoke INIT_LSM regardless of MOSAIC or ABFLUX option
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
-C-----------------------------------------------------------------------
+C   7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved constants and data to 
+C                       ASX_DATA_MOD.
+C-------------------------------------------------------------------------------
+
 
       IMPLICIT NONE
 
@@ -189,9 +192,9 @@ C variables for deposition velocities diagnostic file
          CHARACTER( 80 )  :: VARDESC     ! environment variable description
 
 C environment variable for diagnostic DEPV file
-         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE    '
+         CHARACTER( 16 )  :: CTM_DEPV_FILE = 'CTM_DEPV_FILE'
          
-         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT       '
+         CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
          CHARACTER( 120 ) :: XMSG = ' '
 
          INTEGER          AE_OFFSET            ! Offset to AE start in CGRID
@@ -682,8 +685,8 @@ C-----------------------------------------------------------------------
          USE DEPVVARS
          USE UTILIO_DEFN
          USE Mosaic_Mod
-         USE BIDI_Mod, Only: lufrac
          USE LSM_Mod,  Only: n_lufrac
+         USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
 
          IMPLICIT NONE
 
@@ -746,19 +749,22 @@ C Local variables:
             END SUBROUTINE CGRID_DEPV
             SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, ABFLUX, SFC_HONO, MOSAIC, FST, 
      &                         CGRIDL1, DEPVEL_GAS, PVD, CMP )
-               USE HGRD_DEFN
+               USE HGRD_DEFN      ! horizontal grid specifications
                USE DEPVVARS
-               USE VGRD_DEFN
-               USE UTILIO_DEFN   
+               USE VGRD_DEFN      ! to get VGTYP_GD
+               USE UTILIO_DEFN
 #ifdef parallel
-               USE SE_MODULES
+               USE SE_MODULES     ! stenex (using SE_COMM_MODULE)
 #else
-               USE NOOP_MODULES
+               USE NOOP_MODULES   ! stenex (using NOOP_COMM_MODULE)
 #endif
-               Use ABFlux_Mod  ! bidi NH3 exchange routines
-               Use LSM_Mod     ! land surface model variables needed for mosaic and bidi
-               Use Mosaic_Mod      ! contains mosaic routines
-               Use Bidi_Mod, Only: lufrac
+               Use ABFlux_Mod     ! bidi NH3 exchange routines
+               Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
+               Use Mosaic_Mod     ! contains mosaic routines
+               Use ASX_DATA_MOD   ! contains CONSTANTS include
+#ifdef twoway
+               USE twoway_data_module, only : num_land_cat
+#endif
                IMPLICIT NONE
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
                LOGICAL, INTENT( IN )  :: ABFLUX, SFC_HONO, MOSAIC, FST
@@ -772,8 +778,9 @@ C Local variables:
                USE AERO_DATA
                USE SOA_DEFN
                USE AEROMET_DATA
-               Use Mosaic_Mod, Only: ADEPVJ, USTARJ, RAJ ! contains mosaic routines
+               Use Mosaic_Mod, Only: ADEPVJ ! contains mosaic routines
                Use LSM_MOD, Only: N_LUFRAC
+
                IMPLICIT NONE
                REAL, POINTER          :: CGRID( :,:,:,: )
                INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP
@@ -1142,65 +1149,35 @@ C-----------------------------------------------------------------------
                END DO
 
 !             write LAI for each LUC to file
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO J = 1, N_LUFRAC
-                        IF ( LUFRAC( J,C,R ) .GT. 0.0 ) THEN
-                           DBUFF3( C,R,J ) = LAIJ( J,C,R )
-                        ELSE
-                           DBUFF3( C,R,J ) = 0.0  ! only output values where there is that plant type
-                        END IF
-                     END DO
-                  END DO
-               END DO
+               DBUFF3( C,R,J ) = 0.0
+               FORALL( R = 1:MY_NROWS, C = 1:MY_NCOLS,
+     &                 J = 1:N_LUFRAC, GRID_DATA%LUFRAC( C,R,J ) .GT. 0.0 )
+                  DBUFF3( C,R,J ) = Mosaic_Data%LAI( C,R,J )
+               END FORALL
 
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'LAIJ',
-     &                            WDATE, WTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, DBUFF3 ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write RA for each LUC to file
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO J = 1, N_LUFRAC
-                          DBUFF3( C,R,J ) = RAJ( J,C,R )
-                     END DO
-                  END DO
-               END DO
-
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'RAJ',
-     &                            WDATE, WTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, MOSAIC_DATA%RA ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write USTAR for each LUC to file
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO J = 1, N_LUFRAC
-                          DBUFF3( C,R,J ) = USTARJ( J,C,R )
-                     END DO
-                  END DO
-               END DO
-
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'USTARJ',
-     &                            WDATE, WTIME, DBUFF3) ) THEN
+     &                            WDATE, WTIME, MOSAIC_DATA%USTAR ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF
 
 !             write Z0 for each LUC to file
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     DO J = 1, N_LUFRAC
-                          DBUFF3( C,R,J ) = Z0J( J,C,R )
-                     END DO
-                  END DO
-               END DO
-
                IF ( .NOT. WRITE3( CTM_DEPV_MOS, 'Z0J',
-     &                            WDATE, WTIME, DBUFF3 ) ) THEN
+     &                            WDATE, WTIME, MOSAIC_DATA%Z0 ) ) THEN
                    XMSG = 'Could not write ' // CTM_DEPV_DIAG // ' file'
                    CALL M3EXIT ( PNAME, WDATE, WTIME, XMSG, XSTAT1 )
                END IF

@@ -178,12 +178,13 @@ C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C JB  02/07/14 Added Jai Xing's mass balance fix when there is excessive
 C              condensation or evaporation under cold conditions
 
+C GS  05/09/14 Updated nucleation scheme with Vehkamaki et al. (2002)
+
 C BH  06/11/14 Removed Call to HETCHEM and GAMMA_N2O5 argument
 C              because of merging of gas and heterogeneous 
 C              chemistry
 
 C BH  07/08/14 Removed call to POAAGE
-
 
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
@@ -334,7 +335,6 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
       CALL ORGAER( DT, LAYER )
- 
 
 C *** Secondary Inorganics
 C     The VOLINORG subroutine includes the treatment of new particle
@@ -578,7 +578,7 @@ C *** Transfer mass from Aitken to accumulation mode, resulting from
 C     intermodal coagulation.
 
       DO SPC = 1, N_AEROSPC
-         IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
+         IF ( AERO_MISSING(N,1) ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
          AEROSPC_CONC( SPC,1 ) = MAX( AEROSPC( SPC )%MIN_CONC( 1 ),
@@ -658,7 +658,7 @@ C     Equations 11d - 11f of Binkowski and Roselle (2003).
 C *** Rename masses of each species from Aitken mode to acumulation mode
 C     using Equation 11b of Binkowski and Roselle (2003).
          DO SPC = 1, N_AEROSPC
-            IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
+            IF ( AERO_MISSING(SPC,1) ) CYCLE
 
             AEROSPC_CONC( SPC,2 ) = AEROSPC_CONC( SPC,2 ) + AEROSPC_CONC( SPC,1 ) * FM3
             AEROSPC_CONC( SPC,1 ) = AEROSPC_CONC( SPC,1 ) * PHM3
@@ -785,7 +785,7 @@ C     defined in Equations A17-A18 of [Binkowski & Shankar,1995]
       REAL( 8 ) :: OMEGA( 2 )    ! partitioning coefficient for equilibrium PM mass
 
 C *** Variables for new particle formation:
-      REAL XH2SO4            ! steady state H2SO4 concentration
+      REAL XH2SO4            ! steady state H2SO4 concentration      
       REAL( 8 ) :: DMDT_SO4  ! particle mass production rate [ ug/m**3 s ]
       REAL( 8 ) :: DNDT      ! particle number production rate [ # / m**3 s ]
       REAL( 8 ) :: DM2DT     ! second moment production rate [ m**2 / m**3 s]
@@ -861,6 +861,7 @@ C     mass partitioning between the modes
       REAL( 8 ) :: DRYM3, WETM3           ! scratch vars for 3rd moment calc [m**3/m**3]
       REAL( 8 ) :: DRYM2, WETM2           ! scratch vars for 2nd moment calc [m**2/m**3]
       REAL( 8 ) :: LOSS                   ! rate of loss of second moment [1/s] 
+      REAL( 8 ) :: EQLBHIJ                ! H+ concentration from isoropia for I plus J-modes [ug/m**3]
 
       REAL( 8 ) :: TMP
       INTEGER I, N                        ! loop and array indices
@@ -956,6 +957,7 @@ C *** Determine if Hybrid
       hybrid = .false.
 #else
       DO I = 1, N_AEROSPC
+         IF(  AEROSPC( I )%tracer )CYCLE
          IF ( AEROSPC( I )%CHARGE .NE. 0 ) TMP = TMP + AEROSPC_CONC( I,N_MODE )
       END DO
       HYBRID = ( TMP .GE. CUTOFF ) .AND. ( AIRRH .GE. 0.18 )
@@ -975,6 +977,7 @@ C     H+ concentration
       HPLUS = 0.0
       DO I = 1, N_MODE
          DO N = 1, N_AEROSPC
+            IF(  AEROSPC( N )%tracer )CYCLE
             HPLUS( I ) = HPLUS( I )
      &                 - AEROSPC( N )%CHARGE * AEROSPC_CONC( N,I ) / AEROSPC_MW( N )
          END DO
@@ -1004,6 +1007,7 @@ C     Equations A13-A14 of Binkowski & Shankar (1995).
       DO I = 1, N_MODE
          CALL HCOND3( AM0( I ), AM1( I ), AM2( I ),
      &                DV_SO4, ALPHSULF, CBAR_SO4, FCONC_SO4( I,: ) )
+!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
       END DO 
 
       IF ( .NOT. HYBRID ) THEN
@@ -1045,7 +1049,7 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
 
          XH2SO4 = SO4RATE / TMP
          XH2SO4 = MAX( XH2SO4, CONMIN )
-         PRECURSOR_CONC( SULF_IDX ) = XH2SO4
+         PRECURSOR_CONC( SULF_IDX ) = XH2SO4  
 
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
@@ -1124,6 +1128,7 @@ C     growth factor expressions for sulfate using
 C     Equations A13-A14 of Binkowski & Shankar (1995). 
                CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
      &                      CBAR_SO4, FCONC_SO4( 3,: ) )  ! adapted from Eq A14
+!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
 
                GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
                GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 
@@ -1426,6 +1431,10 @@ C *** Set flags to account for mass conservation violations in ISRP3F
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
 
+C *** Save H+ concentration information in microgram/m3 for consistency
+      EQLBHIJ = AERLIQ(1) * 1.0D6 * REAL( PRECURSOR_MW( ah3op_idx), 8 ) 
+
+
 C *** Update gas-phase concentrations
       PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
       PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
@@ -1434,6 +1443,8 @@ C *** Update gas-phase concentrations
       gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * 1.0d-6 / real( precursor_mw( nh3_idx ), 8 )
       gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
       gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
+
+      EQLBHIJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
 #endif
 
 C *** Change in volatile inorganic PM concentration to achieve
@@ -1537,10 +1548,13 @@ C *** Initialize excess evaporated mass array
          M3SOA = 0.0
          DO I = 1, N_AEROSPC
 
+            IF(  AEROSPC( I )%tracer )CYCLE
+
             ! Skip thermodynamically-active inorganic species
             IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR.
      &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR.
-     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX ) CYCLE
+     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX  .OR.
+     &           I .EQ. AH3OP_IDX ) CYCLE
 
             IF ( AEROSPC( I )%NO_M2WET ) THEN
                M3SOA = M3SOA
@@ -1624,11 +1638,23 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
 
          HPLUS( IMODE ) = 0.0
          DO I = 1, N_AEROSPC
+           IF(  AEROSPC( I )%tracer )CYCLE
            HPLUS( IMODE ) = HPLUS( IMODE )
      &                    - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,IMODE ) / AEROSPC_MW( I )
          END DO
 
       END DO    ! end fine mode mass transfer calculations
+
+      H2O = AEROSPC_CONC( AH2O_IDX, 1 ) + AEROSPC_CONC( AH2O_IDX, 2 )
+      IF(  H2O .GT. CONMIN )THEN
+          H2O = 1.0 / H2O
+          DO IMODE = 1, 2 
+             AEROSPC_CONC( AH3OP_IDX, IMODE ) = EQLBHIJ * AEROSPC_CONC( AH2O_IDX, IMODE ) * H2O
+          END DO
+      ELSE
+          AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
+      END IF
+      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
@@ -1716,184 +1742,191 @@ C     equation 7a of B&S (1995).
       END SUBROUTINE HCOND3
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE NEWPART3 ( RH, Temp, XH2SO4, SO4RATE,
-     &                      DNDT, DMDT_so4, DM2DT )
-C    calculates the new particle production rate due to binary nucleation
-C    of H2SO4 and H2O vapor.  The nucleation rate is a parameterized function
-C    of temperature, relative humidity, and the vapor-phase H2SO4 concentration,
-C    following the work of Kulmala et al (1998).  This rate is then used to
-C    determine the production rates of aerosol number, 2nd moment, and aerosol
-C    sulfate, following the description in Section 1.2 of Binkowski &
-C    Roselle (2003), except the new particles are assumed to be of 2.0
-C    nm diameter instead of 3.5 nm.
- 
-C  Key Subroutines/Functions called: none
- 
-C  REVISION HISTORY:
-C FSB 11/29/99 Extracted code from PARTPROD_VA subroutine of RPM
-C SJR ??/??/?? New call vector and limited the mass production rate
-C FSB 04/11/02 Decreased the diameter of new particles from 3.5 nm to
-C     2 nm.  New particles are monodispersed.
-C PVB 09/21/04 Changed MWH2SO4 from 98.07354 to 98.0 g/mol for
-C     consistency with the mechanism files.  Added in-line documentation
-C     with input from FSB.
- 
-C  References:
-C   1. Kulmala, M., A. Laaksonen, and L. Pirjola, Parameterizations for
-C      sulfuric acid/water nucleation rates.  J. Geophys. Res., Vol 103,
-C      No D7, 8301-8307, 1998.
-C   2. Binkowski, F.S. and S.J. Roselle, Models-3 Community
-C      Multiscale Air Quality (CMAQ) model aerosol component 1:
-C      Model Description.  J. Geophys. Res., Vol 108, No D6, 4183
-C      doi:10.1029/2001JD001409, 2003.
+      SUBROUTINE NEWPART3 ( RH, T, XH2SO4, SO4RATE, DNDT, DMDT_so4, DM2DT )
 
       USE AERO_DATA
       USE AEROMET_DATA   ! Includes CONST.EXT
-      USE PRECURSOR_DATA, ONLY: PRECURSOR_MW, SULF_IDX 
-
+      USE PRECURSOR_DATA, ONLY: PRECURSOR_MW, SULF_IDX, NH3_IDX 
+      USE UTILIO_DEFN
+      
       IMPLICIT NONE
 
-C *** Arguments:
+C   REVISION HISTORY:
+C     Replacement of Kulmala et al., 1998 nucleation scheme with scheme 
+C     of Vehkamaki et al. (2002) by G. Sarwar and K. Fahey - 03/2014
 
-      REAL, INTENT( IN ) :: RH         ! fractional relative humidity
-      REAL, INTENT( IN ) :: Temp       ! ambient temperature [ K ]
-      REAL, INTENT( IN ) :: XH2SO4     ! sulfuric acid concentration [ ug/m**3 ]
-      REAL, INTENT( IN ) :: SO4RATE    ! gas-phase H2SO4 production rate [ ug/m**3 s ]
+C.. References:
+C     Vehkamaki, H., Kulmala, M, Napari, I., Lehtinen, K.E.J., Timmreck, C.,
+C     Noppel, M., and A. Laaksonen. (2002) An improved parameterization for 
+C     sulfuric acid-water nucleation rates for tropospheric and stratospheric
+C     conditions.  JGR, v107(D22).    
+   
+C..Inputs: 
+      REAL, INTENT(IN ) :: RH              ! fractional relative humidity      
+      REAL, INTENT(IN)  :: T               ! Ambient temperature [ K ]
+      REAL, INTENT(IN)  :: XH2SO4          ! sulfuric acid concentration [ ug/m**3 ]
+      REAL, INTENT(IN)  :: SO4RATE         ! gas-phase H2SO4 production rate [ ug/m**3 s ]
 
+C.. Outputs:
       REAL( 8 ), INTENT( OUT ) :: DNDT     ! particle number production rate [ m^-3/s ]
       REAL( 8 ), INTENT( OUT ) :: DMDT_so4 ! SO4 mass production rate [ ug/m**3 s ]
       REAL( 8 ), INTENT( OUT ) :: DM2DT    ! second moment production rate [ m**2/m**3 s ]
 
-C *** Parameters
-      CHARACTER( 16 ), PARAMETER :: PNAME = 'NEWPART'
+C.. Parameters
+      CHARACTER( 16 ), PARAMETER :: PNAME = 'NEWPART'                 
 
-C *** Particle size parameters:
-      REAL, PARAMETER :: d20 = 2.0E-07            ! diameter of a new particle [cm]
-      REAL, PARAMETER :: d20sq = d20 * d20        ! new-particle diameter squared [cm**2]
-      REAL, PARAMETER :: m2_20 = 1.0E-4 * d20sq   ! new-particle diameter squared [m**2]
-      REAL, PARAMETER :: v20 = PI6 * d20 * d20sq  ! volume of a new particle [cm**3]
+C.. Particle size parameters:
+      REAL, PARAMETER :: d20 = 2.0E-07                ! diameter of a new particle [cm]
+      REAL, PARAMETER :: d20sq = d20 * d20            ! new-particle diameter squared [cm**2]
+      REAL, PARAMETER :: m2_20 = 1.0E-4 * d20sq       ! new-particle diameter squared [m**2]
+      REAL, PARAMETER :: v20 = PI * d20 * d20sq /6.0  ! volume of a new particle [cm**3]
+      
+      REAL( 8 )       :: sulfmass                     ! mass of a new particle [ug]
+      REAL( 8 )       :: sulfmass1                    ! inverse of sulfmass [ug**-1]
 
-      REAL( 8 ) :: sulfmass                       ! mass of a new particle [ug]
-      REAL( 8 ) :: sulfmass1                      ! inverse of sulfmass [ug**-1]
+C.. Set constants and local variables for Vehkamaki et al. (2002) scheme
+      REAL, PARAMETER :: C1 = 0.740997
+      REAL, PARAMETER :: C2 = -0.00266379
+      REAL, PARAMETER :: C3 = -0.00349998
+      REAL, PARAMETER :: C4 = 0.0000504022
+      REAL, PARAMETER :: C5 = 0.00201048
+      REAL, PARAMETER :: C6 = -0.000183289
+      REAL, PARAMETER :: C7 = 0.00157407
+      REAL, PARAMETER :: C8 = -0.0000179059
+      REAL, PARAMETER :: C9 = 0.000184403
+      REAL, PARAMETER :: C10 = -1.50345E-6
 
-C *** Local Variables used to determine nucleation rate
+      REAL :: XSTAR           ! mole fraction of sulfuric acid in the critical cluster
+      REAL :: NA              ! total gas phase concentration of H2SO4  [ #/cm**3 ]
+      REAL :: TEMP            ! ambient temperature
+      REAL :: LNRH, LNNA      ! LN(RH), LN(Na)
+      REAL :: LNRH2, LNNA2    ! LN(RH)**2, LN(Na)**2
+      REAL :: LNRH3, LNNA3    ! LN(RH)**3, LN(Na)**3  
+      REAL :: TEMP2, TEMP3    ! TEMP**2, TEMP**3
+      REAL( 8 ) :: XFAC       ! exponential term for the nucleation rate  
+      REAL( 8 ) :: Jnuc       ! nucleation rate [ #/cm**3 s ]
+      
+      REAL :: A, B, C, D, E, F, G, H, I, J
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      REAL :: MW_H2SO4        ! MW of H2SO4 in [ g / mole ]        
+      REAL :: DENSITY_H2SO4   ! DENSITY of H2SO4 in [ kg / m**3 ]
 
-      REAL, SAVE :: ugm3_ncm3   ! micrograms/m**3 to number/cm**3
-      REAL          Nwv         ! water vapor concentration [ 1/cm**3 ]
-      REAL          Nav0        ! saturation vapor conc of H2SO4 [ 1/cm**3 ]
-      REAL          Nav         ! H2SO4 vapor concentration [ 1/cm**3 ]
-      REAL          Nac         ! critical H2SO4 vapor concentration [ 1/cm**3 ]
-      REAL          RA          ! fractional relative acidity
-      REAL          delta       ! temperature-correction term
-      REAL          Xal         ! H2SO4 mole fraction in the critical nucleus
-      REAL          Nsulf       ! see usage
-      REAL( 8 )  :: chi         ! factor to calculate Jnuc
-      REAL( 8 )  :: JnucK       ! nucleation rate [ cm ** -3  s ** -1 ]
-                                ! (Kulmala et al.)
-      REAL          tt          ! dummy variable for statement functions
+      REAL, PARAMETER :: SCALEFAC = 1.0E-06           ! for [ 1 / m**3 ] ->  [ 1 / cm**3 ]
+      REAL, PARAMETER :: MUG2G = 1.0E-6               ! [ ug  ] -> [ g ]                 
 
-C *** Statement Functions
-      REAL ph2so4, ph2o ! arithmetic statement functions for saturation
-                        ! vapor pressures of h2so4 and h2o [Pa] taken
-                        ! from Appendix of Kulmala et al. (1998), p8306
-
-      ph2so4( tt ) = EXP( 27.78492066 - 10156.0 / tt )
-
-      ph2o( tt )   = EXP( 77.34491296 -7235.424651 / tt
-     &                   - 8.2 * LOG( tt ) + tt * 5.7113E-03 )
-
-C-----------------------------------------------------------------------
-
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-         ugm3_ncm3 = ( AVO / PRECURSOR_MW( SULF_IDX ) ) * 1.0e-12 ! micrograms/m**3 to number/cm**3
-      END IF
-
-C *** Initialize variables
+C.. Initialize variables
       DNDT     = 0.0D0
       DMDT_so4 = 0.0D0
       DM2DT    = 0.0D0
 
-      sulfmass = 1.0D+3 * aerospc( ASO4_IDX )%density * v20
-      sulfmass1 = 1.0D0 / sulfmass
+C.. Calculate molecular weight of H2SO4 [ g / mole ] 
+      MW_H2SO4 = PRECURSOR_MW( SULF_IDX )  
+         
+C.. Calculate density of sulfuric acid [ kg / m**3 ] 
+      DENSITY_H2SO4 = AEROSPC( ASO4_IDX )%DENSITY           
 
-C *** Nucleation Rate
-C     Calculate the sulfuric acid/water nucleation rate.  This code
-C     implements Section 3 of Kulmala et al. (1998).  Note that all
-C     variables in the Kulmala parameterization are in cgs units.
+C.. Calculate mass of a new particle [ug]
+      sulfmass = 1.0D+3 * DENSITY_H2SO4 * v20
 
-C *** Calculate water vapor concentration [1/cm**3] using ambient RH
-C     and the formula in Appendix of Kulmala et al. (1998), p8306.
-      Nwv = RH * ph2o( Temp ) / ( RGASUNIV * Temp ) * AVO * 1.0E-6
+C.. Calculate inverse of sulfmass [ug**-1]      
+      sulfmass1 = 1.0D0 / sulfmass   
+     
+C.. Calculate sulfuric acid concentration in molecules/cm3 
+      NA = XH2SO4 * MUG2G * AVO * SCALEFAC / MW_H2SO4     
 
-C *** Calculate saturation vapor concentration of H2SO4 [1/cm**3]
-C       using formula in the Appendix of Kulmala et al. (1998), p8306.
-      Nav0 = ph2so4( Temp ) / ( RGASUNIV * Temp ) * AVO * 1.0E-6
+C.. The parameterization is valid at sulfuric acid concentrations of 1.0E4 - 1.0E11 molecules cm-3
+      NA  = MAX (NA, 1.0E4)
+      NA  = MIN (1.0E11, NA)
 
-C *** Convert ambient H2SO4 vapor concentration into [1/cm**3] units
-      Nav = ugm3_ncm3 * XH2SO4
+C.. The parameterization is valid at temperatures of 190.00-305.15 K
+      TEMP = MAX (T, 190.00)
+      TEMP = MIN (305.15, TEMP)
 
-C *** Calculate critical concentration of H2SO4 vapor needed to produce
-C     1 particle/(cm**3 s) using Equation 18 of Kulmala et al (1998)
-      Nac = EXP( - 14.5125 + 0.1335 * Temp
-     &           - 10.5462 * RH + 1958.4 * RH  / Temp )
+C.. The parameterization is valid at RH of 0.0001-1.0
+C   aero_driver.f limits RH to 0.005-0.99; thus no additional constraint is needed
 
-C *** Calculate relative acidity, defined as the ambient concentration
-C     divided by the saturation concentration of H2SO4 vapor
-      RA = Nav / Nav0
+C.. Define convenient constants
+      TEMP2 = TEMP * TEMP
+      TEMP3 = TEMP * TEMP2
+      
+      LNRH = LOG( RH )  
+      LNNA = LOG( NA )
+      LNRH2 = LNRH * LNRH
+      LNRH3 = LNRH * LNRH2
+      LNNA2 = LNNA * LNNA
+      LNNA3 = LNNA * LNNA2
 
-C *** Calculate temperature correction factor using Equation 22 of
-C      Kulmala et al (1998)
-      delta = 1.0 + ( Temp - 273.15 ) / 273.15
+C.. Calculate mole fraction of sulfuric acid in the critical cluster
+      XSTAR = C1 + C2 * TEMP + C3 * LNNA + C4 * TEMP * LNNA + 
+     &      C5 * LNRH + C6 * TEMP * LNRH +
+     &      C7 * LNRH2 + C8 * TEMP * LNRH2 + C9 * LNRH3 + 
+     &      C10 * TEMP * LNRH3
 
-C *** Calculate mole fraction of H2SO4 in the critical nucleus using
-C     Equation 17 of Kulmala et al (1998)
-      Xal = 1.2233 - 0.0154 * RA / ( RA + RH ) + 0.0102 * log( Nav )
-     &    - 0.0415 * LOG( Nwv ) + 0.0016 * Temp
+C.. Calculate coefficients needed for the nucleation rate [Eq-12 - Vehkamaki et al., 2002]           
+      A = 0.14309 + 2.21956 * TEMP - 0.0273911 * TEMP2 + 
+     &      0.0000722811 * TEMP3 + 5.91822 / XSTAR
+     
+      B = 0.117489 + 0.462532 * TEMP - 0.0118059 * TEMP2 + 
+     &      0.0000404196 * TEMP3 + 15.7963 / XSTAR
+     
+      C = -0.215554 - 0.0810269 * TEMP + 0.00143581 * TEMP2 - 
+     &      4.7758E-6 * TEMP3 - 2.91297 / XSTAR
+     
+      D = -3.58856 + 0.049508 * TEMP - 0.00021382 * TEMP2 + 
+     &      3.10801E-7 * TEMP3 - 0.0293333 / XSTAR
+     
+      E = 1.14598 - 0.600796 * TEMP + 0.00864245 * TEMP2 - 
+     &      0.0000228947 * TEMP3 - 8.44985 / XSTAR
+     
+      F = 2.15855 + 0.0808121 * TEMP - 0.000407382 * TEMP2 - 
+     &      4.01957E-7 * TEMP3 + 0.721326 / XSTAR
 
-C *** Calculate Nsulf as defined in Equation 21 of Kulmala et al (1998)
-      Nsulf = LOG( Nav / Nac )
+      G = 1.6241 - 0.0160106 * TEMP + 0.0000377124 * TEMP2 + 
+     &      3.21794E-8 * TEMP3 - 0.0113255 / XSTAR
+      
+      H = 9.71682 - 0.115048 * TEMP + 0.000157098 * TEMP2 + 
+     &      4.00914E-7 * TEMP3 + 0.71186 / XSTAR
+     
+      I = -1.05611 + 0.00903378 * TEMP - 0.0000198417 * TEMP2 +
+     &      2.46048E-8 * TEMP3 - 0.0579087 / XSTAR
 
-C *** Calculate natural log of nucleation rate using Equation 20 of
-C     Kulmala et al (1998)
-      chi = 25.1289 * Nsulf - 4890.8 * Nsulf / Temp
-     &    - 1743.3 / Temp - 2.2479 * delta * Nsulf * RH
-     &    + 7643.4 * Xal / Temp
-     &    - 1.9712 * Xal * delta / RH
+      J = -0.148712 + 0.00283508 * TEMP - 9.24619E-6 * TEMP2 + 
+     &      5.00427E-9 * TEMP3 - 0.0127081 / XSTAR
 
-C *** Calculate nucleation rate using Eq 19 of Kulmala et al (1998)
-      JnucK = Exp( chi )   ! [ #/cm**3 s ]
+C.. Calculate the exponential term for the nucleation rate [Eq-12 - Vehkamaki et al., 2002] 
+      XFAC = A + B * LNRH + C * LNRH2 + D * LNRH3 + 
+     &      E * LNNA + F * LNRH * LNNA + G * LNRH2 * LNNA +     
+     &      H * LNNA2 + I * LNRH * LNNA2 + J * LNNA3
 
-C *** Moment Production Rates
-C     Calculate the production rate of number, sulfate mass, and 2nd
-C     moment, due to the H2SO4/H2O nucleation assuming that each critical
-C     nucleus grows instantaneously to 2.0 nm.  This code follows Section
-C     1.2 of Binkowski & Roselle (2003), except the assumed particle
-C     diameter has been changed from 3.5 to 2.0 nm.
+C.. Calculate particle nucleation rate: unit [ 1 / cm**3 s] [Eq-12 - Vehkamaki et al., 2002] 
+      Jnuc = EXP(XFAC)  
+      
+C.. The parameterization is valid for nucleation rates of 1.0E-7-1.0E10 [ 1 / cm**3 s]
+      Jnuc = MAX (Jnuc, 1.0E-7)
+      Jnuc = MIN (1.0E10, Jnuc)
 
-C *** Convert production rate of number to [ #/m**3 s]
-      DNDT = 1.0E06 * JnucK
+C.. Convert the unit of particle nucleation rate into [ 1 / m**3 s] by multiplying it by 1.0E6  
+       DNDT = Jnuc * 1.0E06  ! (1/(m**3 s))
 
-C *** Calculate mass production rate [ ug / (m**3 s) ] analogous to
-C     Equation 6a of Binkowski & Roselle (2003).  Set the upper limit
-C     of the mass production rate as the gas-phase production rate of
-C     H2SO4, and adjust the number production rate accordingly.
-      DMDT_so4 = sulfmass * DNDT
+C.. Calculate mass production rate [ ug / (m**3 s) ] analogous to
+C   Equation 6a of Binkowski & Roselle (2003). Set the upper limit
+C   of the mass production rate as the gas-phase production rate of
+C   H2SO4, and adjust the number production rate accordingly.
+      DMDT_so4 = sulfmass * DNDT 
+
       IF ( DMDT_so4 .GT. SO4RATE ) THEN
          DMDT_so4 = SO4RATE
          DNDT = DMDT_SO4 * sulfmass1
       END IF
 
-C *** Calculate the production rate of 2nd moment [ m**2 / (m**3 s) ]
-C     This is similar to Equation 6c of Binkowski & Roselle (2003),
-C     except the factor of PI is removed and the assumed particle
-C     diameter is different.
+C.. Calculate the production rate of 2nd moment [ m**2 / (m**3 s) ]
+C   This is similar to Equation 6c of Binkowski & Roselle (2003),
+C   except the factor of PI is removed and the assumed particle
+C   diameter is different.
       DM2DT = DNDT * m2_20
 
-      RETURN
-      END SUBROUTINE NEWPART3
+      RETURN    
+      END SUBROUTINE NEWPART3 
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE Compute_Flux ( nvolinorg, GNH3R8, GNO3R8, GCLR8, KNH4,
@@ -2914,26 +2947,28 @@ C     treated as though it were fine mass soil.
       
       !  sum from aerospc species
       DO N = 1, N_AEROSPC
+         IF(  AEROSPC( N )%tracer )CYCLE
          IF ( N .EQ. ASO4_IDX .OR. N .EQ. ANO3_IDX .OR. N .EQ. ANH4_IDX ) THEN
-            IF ( AEROSPC( N )%NAME( 1 ) .NE. ' ' ) THEN
+            IF ( .NOT. AERO_MISSING(N,1) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
             END IF
-            IF ( AEROSPC(N )%NAME( 2 ) .NE. ' ' ) THEN
+            IF ( .NOT. AERO_MISSING(N,2) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
             END IF
             CYCLE
          END IF
 
-         IF ( AEROSPC( N )%NAME( 1 ) .NE. ' ' ) THEN
+         IF ( .NOT. AERO_MISSING(N,1) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
          END IF
-         IF ( AEROSPC( N )%NAME( 2 ) .NE. ' ' ) THEN
+         IF ( .NOT. AERO_MISSING(N,2) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
          END IF
       END DO
 
       !  sum from soa species
       DO N = 1, N_VAPOR  
+         IF( SOA_AEROMAP( N ) .LT. 1 )CYCLE
          EXT2 = EXT2 + 4.0 * AEROSPC_CONC( SOA_AEROMAP( N ),2 )
       END DO
 

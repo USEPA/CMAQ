@@ -35,7 +35,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -62,11 +62,11 @@ C..ARGUMENTS:
 
 C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
-      INTEGER, PARAMETER :: STAT = 1     ! Status code
+      INTEGER, PARAMETER :: STAT    = 1  ! Status code
 
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 0.0D0      ! zero
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40     ! effective zero
 
 C..EXTERNAL FUNCTIONS:
 
@@ -81,12 +81,13 @@ C..SCRATCH LOCAL VARIABLES:
 
       CHARACTER( 132 ) :: MSG           ! Message text
 
-      INTEGER CELLNO          ! Cell no. fo debug output
       INTEGER ITER            ! Loop index for Backward Euler iterations
       INTEGER S               ! Loop index for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps
+#ifdef hrdebug
       INTEGER N               ! Loop index
+#endif
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag
@@ -155,11 +156,11 @@ c      IF( JTIME .EQ. 160000 ) THEN
            WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
            DO N = 1, N_SPEC
              WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
-     &                     'SP ',N, CHEMISTRY_SPC( N ), YC( NCELL, N )
+     &                     'SP ',N, CHEMISTRY_SPC( N ), YC( N )
            END DO
            DO N = 1, N_RXNS
              WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
-     &                     'RKI ', N, RKI( NCELL,  N )
+     &                     'RKI ', N, RKI(  N )
            END DO
       END IF
 #endif
@@ -168,21 +169,19 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
       N_EBI_IT = 0
-      DTC = REAL( EBI_TMSTEP, 8 )
 
 
-      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-tep loop
+      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
 
-          NBKUPS = 0
-         N_INR_STEPS = 1
+          NBKUPS      = 0
+          DTC         = EBI_TMSTEP
+          N_INR_STEPS = 1
 
 100      CONTINUE                        !  Restart location
 
          DO 2000 NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
 
-            DO S = 1, N_SPEC             ! Set ICs for EBI iterations
-               YC0( NCELL, S ) = YC( NCELL, S )
-            END DO
+            FORALL( S = 1:N_SPEC )YC0( S ) = YC( S )   ! Set ICs for EBI iterations
 
             DO 1000 ITER = 1, NEBITER    ! EBI iteration loop
 
@@ -192,9 +191,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
                IF( LDEBUG ) THEN
-                  WRITE( DBGOUT, '( A, I5 )' ) 'ITER NO ', ITER
-                  WRITE( DBGOUT, '( A, F12.5 )' )
-     &               ' DTC=', DTC
+                  WRITE( DBGOUT, '( A, I5 )' )   'ITER NO ', ITER
+                  WRITE( DBGOUT, '( A, F12.5 )' )' DTC=', DTC
 
                   IF( ITER .EQ. 1 ) THEN
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
@@ -228,22 +226,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
                DO EBI = 1, N_EBISP
                   S = EBISP( EBI )
-
-                  YCP( NCELL, S ) =  YC( NCELL, S )*( ( YC0( NCELL, S ) + PROD( NCELL, S ) * DTC )
-     &                            / ( YC( NCELL, S ) + LOSS( NCELL, S ) * DTC ) )
-
-
+                  YCP( S ) =  YC( S )*( ( YC0( S ) + PROD( S ) * DTC )
+     &                     / ( YC( S ) + LOSS( S ) * DTC ) )
                END DO
 
 c..Special treatment of PAR because of negative product stoichiometry
-               IF( PNEG( NCELL, PAR ) .GT. 0.0D0 ) THEN
-                  FXDLOSS = PNEG( NCELL, PAR ) * DTC
-                  IF( FXDLOSS .GE. YC0( NCELL, PAR ) + PROD( NCELL, PAR ) * DTC ) THEN
-                     YCP( NCELL, PAR ) = 0.0D0
+               IF( PNEG( PAR ) .GT. 0.0D0 ) THEN
+                  FXDLOSS = PNEG( PAR ) * DTC
+                  IF( FXDLOSS .GE. YC0( PAR ) + PROD( PAR ) * DTC ) THEN
+                     YCP( PAR ) = 0.0D0
                   ELSE
-                     VARLOSS = MAX( LOSS( NCELL, PAR ) - PNEG( NCELL, PAR ) , ZERO )
-                     YCP( NCELL, PAR ) = ( YC0( NCELL, PAR ) + PROD( NCELL, PAR ) * DTC  - 
-     &                   FXDLOSS ) / ( 1.0D0 + VARLOSS * DTC / YC( NCELL, PAR ) )
+                     VARLOSS = MAX( LOSS( PAR ) - PNEG( PAR ) , ZERO )
+                     YCP( PAR ) = ( YC0( PAR ) + PROD( PAR ) * DTC  - 
+     &             FXDLOSS ) / ( 1.0D0 + VARLOSS * DTC / YC( PAR ) )
                   END IF
                END IF
 
@@ -254,18 +249,17 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                MXFL = .FALSE.
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
-                  YCP( NCELL, S ) = MAX( ZERO, YCP( NCELL, S ) )
-                  IF( ABS( YC( NCELL, S ) - YCP( NCELL, S ) ) .GT. RTOL( S ) *
-     &               ( YC( NCELL, S ) + YCP( NCELL, S ) ) ) THEN
-                     LEBI_CONV = .FALSE.
+                  YCP( S ) = MAX( ZERO, YCP( S ) )
+                  IF(ABS(YC(S)-YCP(S)) .GT. RTOL(S)*(YC(S)+YCP(S)))THEN
+                     LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
 c..if predictions growing too large, treat as a convergence failure
-                  IF( YCP( NCELL, S ) .GT. MAXPRED ) then
+                  IF( YCP( S ) .GT. MAXPRED ) THEN
                      MXFL = .TRUE.
                      GO TO 1010
                   END IF
-                  YC( NCELL, S ) = YCP( NCELL, S )
+                  YC( S ) = YCP( S )
                END DO
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
@@ -281,7 +275,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                      END IF
 
                      WRITE( DBGOUT, '( I3, 1X, A, 1PE13.5, 1X, A )' )
-     &                            S, CHEMISTRY_SPC( S ), YC( NCELL, S ), NOTE
+     &                            S, CHEMISTRY_SPC( S ), YC( S ), NOTE
                   END DO
                   IF( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
      &                 '****Convergence achieved'
@@ -312,7 +306,7 @@ c.....start inner loop over unless max backups exceeded
                END IF
 
                DO S = 1, N_SPEC
-                  YC( NCELL, S ) = YC0( NCELL, s )
+                  YC( S ) = YC0( s )
                END DO
 
                DTC = 0.5D0 * DTC

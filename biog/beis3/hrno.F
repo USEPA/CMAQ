@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, TA, EMPOL )
+      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -119,7 +119,7 @@ C    09/13: D.Wong  - made the code more robust by
 C                     * allowing simulation start time at any hour rather than 0
 C                     * allowing finer met data time step and maintaining an hourly
 C                       rainfall bucket
- 
+C    07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -138,6 +138,7 @@ C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
       USE BIOG_EMIS, ONLY: NSEF ! beis
+      USE ASX_DATA_MOD
       USE UTILIO_DEFN
 
       IMPLICIT NONE
@@ -145,11 +146,10 @@ C-----------------------------------------------------------------------
 C Includes:
 
 C Arguments:
-      INTEGER, INTENT( IN )  :: JDATE             ! current simulation date (YYYYDDD)
-      INTEGER, INTENT( IN )  :: JTIME             ! current simulation time (HHMMSS)
-      INTEGER, INTENT( IN )  :: TSTEP( 3 )        ! time step vector (HHMMSS)
-      REAL,    INTENT( IN )  :: TA   ( NCOLS,NROWS )      ! air temperature [K]
-      REAL,    INTENT( OUT ) :: EMPOL( NCOLS,NROWS,NSEF ) ! output NO emissions
+      INTEGER, INTENT( IN )  :: JDATE         ! current simulation date (YYYYDDD)
+      INTEGER, INTENT( IN )  :: JTIME         ! current simulation time (HHMMSS)
+      INTEGER, INTENT( IN )  :: TSTEP( 3 )    ! time step vector (HHMMSS)
+      REAL,    INTENT( OUT ) :: NOPOL( :,: )  ! output NO emissions
 
 C External Functions
       LOGICAL,         EXTERNAL :: CHKGRID
@@ -157,17 +157,16 @@ C External Functions
 C Parameters:
       INTEGER, PARAMETER :: MXRHRS = 24     ! no. of rainfall hours for YL95 algorithm
       INTEGER, PARAMETER :: MAXSTYPES = 11
-!                 IF ( SOILCAT .LE. 14 ) THEN  <<< NEW PX METCRO2D ??? 14 = water
       REAL,    PARAMETER :: CFNODRYFC = ( 1.0 / 3.0 ) * ( 1.0 / 30.0 )
         
 C Saturation values for 11 soil types from pxpbl.F  (MCIP PX version)
 C Pleim-Xiu Land-Surface and PBL Model (PX-LSM)
 C See Jacquemin B. and Noilhan J. (1990), Bound.-Layer Meteorol., 52, 93-134.
 
-      REAL :: SATURATION( MAXSTYPES ) =
-     &                  (/ 0.395, 0.410, 0.435, 0.485,
-     &                     0.451, 0.420, 0.477, 0.476,
-     &                     0.426, 0.482, 0.482 /)
+      REAL, SAVE :: SATURATION( MAXSTYPES ) =
+     &                        (/ 0.395, 0.410, 0.435, 0.485,
+     &                           0.451, 0.420, 0.477, 0.476,
+     &                           0.426, 0.482, 0.482 /)
 
 C Local Variables:
 
@@ -176,22 +175,17 @@ C Local Variables:
       CHARACTER( 16 ), SAVE :: SOILINP ! logical name for input NO soil data
       CHARACTER( 16 ), SAVE :: SOILOUT = 'SOILOUT' ! logical name for output NO soil data
       CHARACTER( 16 ), SAVE, ALLOCATABLE :: DDTTM( : ) ! description date and time
-      CHARACTER( 33 ), SAVE         !123456789012345678901234567890123
-     &                 :: DESCSTR = 'hrly cnv. & non-cnv. rainfall for'
+      CHARACTER( 33 ), SAVE :: DESCSTR = 'hrly cnv. & non-cnv. rainfall for'
+                                         !123456789012345678901234567890123
 
       CHARACTER( 16 ) :: VAR        ! variable name
 
       INTEGER, SAVE :: IHR       ! current simulation hour
       INTEGER          NDX       ! RAINFALL array timestep index
 
-      REAL,    ALLOCATABLE, SAVE :: SOILM    ( :,: )  ! soil moisture [m3/m3] (PX)
-      REAL,    ALLOCATABLE, SAVE :: SOILT    ( :,: )  ! soil temperature [K] (PX)
-      REAL,    ALLOCATABLE, SAVE :: ISLTYP   ( :,: )  ! soil type (PX)
       REAL,    ALLOCATABLE, SAVE :: GROWAGNO ( :,: )  ! growing season ag norm NO emis
       REAL,    ALLOCATABLE, SAVE :: NGROWAGNO( :,: )  ! non growing season ag norm NO emis
       REAL,    ALLOCATABLE, SAVE :: NONAGNO  ( :,: )  ! non agriculture norm NO emis
-      REAL,    ALLOCATABLE, SAVE :: RN       ( :,: )  ! nonconvective rainfall
-      REAL,    ALLOCATABLE, SAVE :: RC       ( :,: )  ! convective rainfall
       REAL,    ALLOCATABLE, SAVE :: RAINFALL ( :,:,: ) ! rainfall for 24 hours
       REAL,    ALLOCATABLE, SAVE :: C_RAINFALL ( :,: ) ! rainfall for current hour
       REAL,    ALLOCATABLE, SAVE :: RNTOT    ( :,: )  ! RN + RC
@@ -244,12 +238,11 @@ C Local Variables:
 C for INTERPX
       INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
       INTEGER       :: STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN  ! SOILINP
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2  ! MET_CRO_2D
 
       CHARACTER( 16 ), SAVE :: VNAME_RC, VNAME_RN
       INTEGER :: SPC
 
-#ifdef Verbose
+#ifdef verbose_hrno
       integer mxptype, ncfno0
       real    mxrntot, mxfac1, avgfac2, mxfac3, mxfac4
       real    mxtair, mxcfno
@@ -273,50 +266,7 @@ C Check if using PX version of MCIP
          PX_VERSION = ENVYN( 'PX_VERSION', 'MCIP is PX version?',
      &                       .TRUE., IOS )
 
-C Open met file
-         MNAME = PROMPTMFILE(
-     &           'Enter name for gridded met input file',
-     &           FSREAD3, 'MET_CRO_2D', PNAME )
-
-C Get description of met file
-         IF ( .NOT. DESC3( MNAME ) ) THEN
-            MESG = 'Could not get description of file "'
-     &           // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-
-         METSTEP = TSTEP3D
-
-C Check that grid description matches BGRD file
-         IF ( .NOT. CHKGRID( MNAME ) ) THEN
-            MESG = 'Grid in file "' // TRIM( MNAME )
-     &           // '" does not match previously set grid.'
-#ifdef twoway
-            CALL M3WARN( PNAME, 0, 0, MESG )
-#else
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-#endif
-         END IF
-
-         SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
-         IF ( SPC .GT. 0 ) THEN
-            VNAME_RC = 'RCA'
-         ELSE
-            VNAME_RC = 'RC'
-         END IF
-
-         SPC = INDEX1( 'RNA', NVARS3D, VNAME3D )
-         IF ( SPC .GT. 0 ) THEN
-            VNAME_RN = 'RNA'
-         ELSE
-            VNAME_RN = 'RN'
-         END IF
-
-C Get domain decomp info for the met file
-         CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-
-C Get normalized emissions file, BGRD
+C Get normalized emissions file, B3GRD
          NNAME = PROMPTMFILE(
      &           'Enter name for Normalized Emissions input file',
      &           FSREAD3, 'B3GRD', PNAME )
@@ -331,9 +281,34 @@ C Read description of normalized emissions file
 C Initialize grid definition
          OK = CHKGRID( NNAME )
 
-C Get domain decomp info for the normalized emissions file
+C Get windowing info for the normalized emissions file
          CALL SUBHFILE ( NNAME, GXOFF, GYOFF,
      &                   STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3 )
+
+C Open met file
+         MNAME = PROMPTMFILE(
+     &           'Enter name for gridded met input file',
+     &           FSREAD3, 'MET_CRO_2D', PNAME )
+
+C Get description of met file
+         IF ( .NOT. DESC3( MNAME ) ) THEN
+            MESG = 'Could not get description of file "'
+     &           // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+         METSTEP = TSTEP3D
+
+C Check that grid description matches B3GRD file
+         IF ( .NOT. CHKGRID( MNAME ) ) THEN
+            MESG = 'Grid in file "' // TRIM( MNAME )
+     &           // '" does not match previously set grid.'
+#ifdef twoway
+            CALL M3WARN( PNAME, 0, 0, MESG )
+#else
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+#endif
+         END IF
 
 C Allocate memory for data and read
          ALLOCATE( GROWAGNO( NCOLS,NROWS ), STAT=IOS )
@@ -372,26 +347,8 @@ C Allocate memory for data and read
             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
          END IF
 
-         IF ( PX_VERSION ) THEN
-            ALLOCATE( SOILM( NCOLS,NROWS ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'SOILM', PNAME )
-
-            ALLOCATE( SOILT( NCOLS,NROWS ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'SOILT', PNAME )
-
-            ALLOCATE( ISLTYP( NCOLS,NROWS ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'ISLTYP', PNAME )
-         END IF
-
-         ALLOCATE( RN( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'RN', PNAME )
-
-         ALLOCATE( RC( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'RC', PNAME )
-
          ALLOCATE( RNTOT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RNTOT', PNAME )
-!        RNTOT = 0.0   ! array assignment
 
          ALLOCATE( PTYPE( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'PTYPE', PNAME )
@@ -522,37 +479,6 @@ C Close input file
 
       IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .LE. TIME2SEC( TSTEP( 2 ) ) ) GO TO 9999
 
-      IF ( PX_VERSION ) THEN
-
-C Read soil moisture data
-         IF ( .NOT. INTERPX( MNAME, 'SOIM1', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, SOILM ) ) THEN
-            MESG = 'Could not read "' // 'SOIM1' //
-     &             '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-
-C Read soil temperature data
-         IF ( .NOT. INTERPX( MNAME, 'SOIT1', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, SOILT ) ) THEN
-            MESG = 'Could not read "' // 'SOIT1' //
-     &                '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-
-C Read soil type data
-         IF ( .NOT. INTERPX( MNAME, 'SLTYP', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, ISLTYP ) ) THEN
-            MESG = 'Could not read "' // 'SLTYP' //
-     &             '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-
-      END IF   ! PX_VERSION
-
 C Non-convective (RN) and convective (RC) rain is the total amount for the met
 C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
 C make much sense to time-interpolate these values, since rain generally does not
@@ -563,38 +489,24 @@ C fall at a constant rate for an output timestep.
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT3 )
       END IF
 
-      IF ( .NOT. XTRACT3( MNAME, VNAME_RN,
-     &                    1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
-     &                    RDATE, RTIME, RN ) ) THEN
-         MESG = 'Could not read "' //  VNAME_RN //
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
-      IF ( .NOT. XTRACT3( MNAME, VNAME_RC,
-     &                    1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
-     &                    RDATE, RTIME, RC ) ) THEN
-         MESG = 'Could not read "' //  VNAME_RC //
-     &          '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
 C Store current time step rainfall totals
       IF ( NDATE .EQ. RDATE .AND. NTIME .EQ. RTIME ) THEN   ! on the METSTEP
 
-         IF (FIRSTIME) THEN
+         IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            IHR = MOD(RTIME / 10000 + 23, 24)   ! previous hour bin, to accommodate non-zero start hour
+            IHR = MOD( RTIME / 10000 + 23, 24 )  ! previous hour bin,
+                                                 ! to accommodate non-zero start hour
          END IF
 
-! for the viery first hour, use previous 24 hour data to compute precip adjustment
+! for the first hour of the simulation day, use the previous 24 hour
+! data to compute precip adjustment
 
          NDX = 1 + MOD( IHR, MXRHRS )
 !        RAINFALL( :,:,NDX ) = RN + RC
-         C_RAINFALL = C_RAINFALL + RN + RC
+         C_RAINFALL = C_RAINFALL + MET_DATA%RN + MET_DATA%RC
          WRITE( DDTTM( NDX ),'(I8,":",I6.6)' ) RDATE, RTIME
 
-         IF (MOD(NTIME, 10000) == 0) THEN    ! at the hourly mark
+         IF ( MOD( NTIME, 10000 ) .EQ. 0 ) THEN    ! at the hourly mark
             RAINFALL( :,:,NDX ) = C_RAINFALL
             C_RAINFALL = 0.0
             IHR = IHR + 1
@@ -603,6 +515,7 @@ C Store current time step rainfall totals
 !        CALL NEXTIME( RDATE, RTIME, TSTEP( 1 ) )
          CALL NEXTIME( RDATE, RTIME, METSTEP )
 
+         RNTOT = 0.0   ! array assignment
          IF ( INITIAL_RUN ) THEN
             IF ( IHR .LT. MXRHRS ) THEN
                INITIAL_DAY = .TRUE.
@@ -610,13 +523,12 @@ C Store current time step rainfall totals
                INITIAL_DAY = .FALSE.
             END IF
          ELSE   ! store accumulated rain in RNTOT array
-            RNTOT = 0.0   ! array assignment
             DO I = 1, MXRHRS
                RNTOT = RNTOT + RAINFALL( :,:,I )
             END DO
          END IF
 
-#ifdef Verbose
+#ifdef verbose_hrno
          write( logdev,* ) 'hrno - INITIAL_DAY, IHR: ', initial_day, ihr
 #endif
 
@@ -628,7 +540,7 @@ C Calculate temporal non-speciated soil NO emissions
  
       IF ( GROWSEASON( JDATE ) .EQ. 0 ) THEN   ! not growing season
 
-#ifdef Verbose
+#ifdef verbose_hrno
          write( logdev,* ) ' not growing season'
          mxtair = 0.0; mxcfno = 0.0; ncfno0 = 0
 #endif
@@ -636,9 +548,13 @@ C Calculate temporal non-speciated soil NO emissions
          DO R = 1, NROWS
             DO C = 1, NCOLS
             
-               TAIR = TA( C,R )   ! unit in degree K
+               TAIR = MET_DATA%TEMP2( C,R )   ! unit in degree K
 
 C Check min bounds for temperature and limit to 303 deg K
+               Write(MESG,94010) 'Max TAIR: ', Maxval(MET_DATA%TEMP2),
+     &            'at (C,R)', Maxloc(MET_DATA%TEMP2)
+               Write(MESG,94010) 'Min TAIR: ', Minval(MET_DATA%TEMP2),
+     &            'at (C,R)', Minloc(MET_DATA%TEMP2)
                IF ( TAIR .LT. 200.0 ) THEN
                   WRITE( MESG, 94010 ) 'TAIR=', TAIR,
      &                 'out of range at (C,R)=', C, R
@@ -650,30 +566,30 @@ C Check min bounds for temperature and limit to 303 deg K
                   CFNO = EXP( 0.04686 * TAIR - 14.30579 ) ! grass (from BEIS2)
                ELSE
                   CFNO = 0.0
-#ifdef Verbose
+#ifdef verbose_hrno
                   ncfno0 = ncfno0 + 1
 #endif
                END IF
 
-#ifdef Verbose
+#ifdef verbose_hrno
                mxtair = max( mxtair, tair )
                mxcfno = max( mxcfno, cfno )
 #endif
 
-               EMPOL( C,R,NSEF ) = CFNO * ( NGROWAGNO( C,R )  ! agriculture
-     &                                  +   NONAGNO( C,R ) )  ! non-agriculture
+               NOPOL( C,R ) = CFNO * ( NGROWAGNO( C,R )  ! agriculture
+     &                             +   NONAGNO( C,R ) )  ! non-agriculture
 
             END DO  ! columns
          END DO  ! rows
 
-#ifdef Verbose
+#ifdef verbose_hrno
       write( logdev,2009 ) ncfno0, mxtair, mxcfno
 2009  format( 'hrno - NCFNO0, MAX TAIR,CFNO: ', i7, 2f10.5 )
 #endif
 
       ELSE   ! growing season
 
-#ifdef Verbose
+#ifdef verbose_hrno
          mxptype = 0; mxrntot = 0.0
          mxfac1 = 0.0; avgfac2 = 0.0; mxfac3 = 0.0; mxfac4 = 0.0
 #endif
@@ -681,7 +597,7 @@ C Check min bounds for temperature and limit to 303 deg K
          DO R = 1, NROWS
             DO C = 1, NCOLS
             
-               TAIR = TA( C,R )   ! unit in degree K
+               TAIR = MET_DATA%TEMP2( C,R )   ! unit in degree K
 
 C Check min bounds for temperature and limit to 303 deg K
                IF ( TAIR .LT. 200.0 ) THEN
@@ -722,11 +638,11 @@ C Calculate NO emissions by going thru temperature cases
                ELSE   ! using PX version of MCIP    
 
 C Calculate NO emissions by going thru temperature cases
-                  SOILCAT = INT( ISLTYP( C,R ) )
+                  SOILCAT = GRID_DATA%SLTYP( C,R )
                   IF ( SOILCAT .LE. MAXSTYPES ) THEN
-                     RATIO = SOILM( C,R ) / SATURATION( SOILCAT )
+                     RATIO = MET_DATA%SOIM1( C,R ) / SATURATION( SOILCAT )
                      IF ( USE_SOILT ) THEN
-                        TSOI = SOILT( C,R )
+                        TSOI = MET_DATA%SOIT1( C,R )
                      ELSE
                         TSOI = 0.72 * TAIR + 82.28
                      END IF
@@ -754,9 +670,9 @@ C Calculate NO emissions by going thru temperature cases
                      PULSETIME( C,R ) = 0
                   ELSE
                      FAC2 = PRECIP_ADJ_PX( JDATE, JTIME, RNTOT( C,R ),
-     &                                     SOILM( C,R ), ISLTYP( C,R ),
-     &                                     PTYPE( C,R ), PULSEDATE( C,R ),
-     &                                     PULSETIME( C,R ) )
+     &                                     MET_DATA%SOIM1( C,R ),
+     &                                     GRID_DATA%SLTYP( C,R ), PTYPE( C,R ), 
+     &                                     PULSEDATE( C,R ), PULSETIME( C,R ) )
                   END IF
 
                END IF  ! PX version check
@@ -770,7 +686,7 @@ C Calculate NO emissions by going thru temperature cases
                   FAC4 = 0.0
                END IF
 
-#ifdef Verbose
+#ifdef verbose_hrno
                mxptype = max( mxptype, ptype( c,r ) )
                mxrntot = max( mxrntot, rntot( c,r ) )
                mxfac1 = max( mxfac1, fac1 )
@@ -779,12 +695,12 @@ C Calculate NO emissions by going thru temperature cases
                mxfac4 = max( mxfac4, fac4 )
 #endif
 
-               EMPOL( C,R,NSEF ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
+               NOPOL( C,R ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
 
             END DO  ! columns
          END DO  ! rows
 
-#ifdef Verbose
+#ifdef verbose_hrno
       write( logdev,2011 ) mxptype, mxrntot, avgfac2/(ncols*nrows), mxfac1, mxfac3, mxfac4
 2011  format( 'hrno MAX PTYPE,RNTOT,AVGFAC2,FAC1,3,4: ', I2, 2f8.3 , 3f10.3 )
 #endif
@@ -939,7 +855,7 @@ C Function arguments:
          INTEGER, INTENT( IN )    :: JDATE, JTIME
          REAL,    INTENT( IN )    :: RAIN
          REAL,    INTENT( IN )    :: SOILM     ! only avilable if PX version
-         REAL,    INTENT( IN )    :: ISLTYP    ! only available if PX version
+         INTEGER, INTENT( IN )    :: ISLTYP    ! only available if PX version
          INTEGER, INTENT( INOUT ) :: PTYPE     ! pulse type
          INTEGER, INTENT( INOUT ) :: PULSEDATE ! date of pulse start
          INTEGER, INTENT( INOUT ) :: PULSETIME ! date of pulse end
@@ -964,7 +880,7 @@ C        start a new NO emission pulse,
 C        otherwise continue present NO pulse
 C   4. override adjustment for saturated soils 
 
-         SOILCAT = INT( ISLTYP )
+         SOILCAT = ISLTYP
 
          IF ( SOILCAT .LE. MAXSTYPES ) THEN   ! not water
             IF ( SOILM .GE. SAT_THRES * SATURATION( SOILCAT ) ) THEN

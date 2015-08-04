@@ -86,7 +86,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       DO ISP = 1, ISCHAN
          DO NCELL = 1, NUMCELLS
-            YDOT( NCELL,ISP ) = 0.0
+            YDOT( NCELL,ISP ) = 0.0D0
          END DO
       END DO
    

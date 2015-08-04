@@ -36,10 +36,12 @@ C           16 Feb 2011 S.Roselle: replaced I/O API include files with
 C                        UTILIO_DEFN
 C           11 May 2011 J.Bash: Updated for NH3 bidirectional exchange
 C           04 Jan 2012 J.Young: Initialize char variables with blank padding
+C           28 Aug 2014  G. Sarwar: added deposition for CLNO2 
+C           07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 52
+      INTEGER, PARAMETER :: LTOTG = 63
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -129,6 +131,17 @@ C-------------------------------------------------------------------------------
          DEPSPC( 50 ) = 'MAL_ANHYDRIDE   '
          DEPSPC( 51 ) = 'TOLUENE_DIIS    '
          DEPSPC( 52 ) = 'TRIETHYLAMINE   '
+         DEPSPC( 53 ) = 'NTR             '
+         DEPSPC( 54 ) = 'NTRM            '
+         DEPSPC( 55 ) = 'MPAN            '
+         DEPSPC( 56 ) = 'PPN             '
+         DEPSPC( 57 ) = 'ISPD            '
+         DEPSPC( 58 ) = 'NTRDN           '
+         DEPSPC( 59 ) = 'NTRALK          '
+         DEPSPC( 60 ) = 'NTROH           '
+         DEPSPC( 61 ) = 'NTRPX           '
+         DEPSPC( 62 ) = 'PROPNN          '
+         DEPSPC( 63 ) = 'CLNO2           '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

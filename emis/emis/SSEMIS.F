@@ -33,6 +33,7 @@ C Revision History:
 C   04 Apr 11 S.Howard: generalization to accomodate different sea-salt speciation
 C                       in aero5 and aero6
 C   07 Apr 11 J.Young: additional mods
+C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
@@ -55,8 +56,6 @@ C Position of H2O in sea-salt emission arrays
       INTEGER :: KH2O
 
 C Variables for handling sea-salt emissions
-      REAL,    ALLOCATABLE, SAVE :: OCEAN( :,: )   ! fractional sea water cover
-      REAL,    ALLOCATABLE, SAVE :: SZONE( :,: )   ! fractional surf-zone cover
       INTEGER, ALLOCATABLE       :: SSSPC_MAP( : ) ! map to aerospc array
 
 C Variables for the sea-salt diagnostic file
@@ -70,12 +69,6 @@ C Variables for the sea-salt diagnostic file
 
 C Species names in the speciated sea-salt-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRSS_SPC( : )  ! species names
-
-C Variables interpolated from the meteorological input files
-      REAL,    ALLOCATABLE, SAVE :: PRES( :,: )    ! atmospheric pressure [Pa]
-      REAL,    ALLOCATABLE, SAVE :: TA  ( :,: )    ! air temperature [K]
-      REAL,    ALLOCATABLE, SAVE :: QV  ( :,: )    ! H2O mass mixing ratio [kg/kg]
-      REAL,    ALLOCATABLE, SAVE :: WSPD10( :,: )  ! wind speed at 10m [m/s]
 
 C Lognormal parameters fit to the open-ocean flux function
       REAL,    SAVE :: DGNJ( 136 )     ! geom mean diam of accum-mode [um]
@@ -96,167 +89,170 @@ C Polycoeffs from Zhang et al. (2005)
 
 C-------------------------- Data Statements ----------------------------
 
-C RH-dependent values calculated using MATLAB
+C RH-dependent values calculated using MATLAB for THETA = 8 from Gong (2003)
 
 C Geometric mean diameter of accumulation mode [um]
       DATA ( DGNJ( I ), I = 1, 136 ) /
-     &      0.2651, 0.2677, 0.2696, 0.2713, 0.2736, 0.2752, 0.2768, 0.2784, 
-     &      0.2806, 0.2823, 0.2840, 0.2858, 0.2883, 0.2903, 0.2924, 0.2951, 
-     &      0.2974, 0.2998, 0.3028, 0.3054, 0.3080, 0.3113, 0.3140, 0.3174, 
-     &      0.3203, 0.3232, 0.3267, 0.3297, 0.3332, 0.3363, 0.3394, 0.3430, 
-     &      0.3462, 0.3499, 0.3533, 0.3573, 0.3611, 0.3652, 0.3700, 0.3752, 
-     &      0.3806, 0.3871, 0.3945, 0.4030, 0.4129, 0.4246, 0.4259, 0.4271, 
-     &      0.4284, 0.4298, 0.4311, 0.4328, 0.4342, 0.4356, 0.4371, 0.4385, 
-     &      0.4401, 0.4416, 0.4434, 0.4451, 0.4467, 0.4484, 0.4501, 0.4518, 
-     &      0.4538, 0.4556, 0.4575, 0.4594, 0.4613, 0.4633, 0.4655, 0.4676, 
-     &      0.4697, 0.4718, 0.4740, 0.4764, 0.4787, 0.4811, 0.4835, 0.4859, 
-     &      0.4886, 0.4912, 0.4938, 0.4965, 0.4994, 0.5022, 0.5051, 0.5081, 
-     &      0.5112, 0.5143, 0.5175, 0.5208, 0.5242, 0.5276, 0.5312, 0.5348, 
-     &      0.5386, 0.5424, 0.5463, 0.5503, 0.5544, 0.5587, 0.5631, 0.5675, 
-     &      0.5722, 0.5769, 0.5818, 0.5867, 0.5919, 0.5972, 0.6026, 0.6083, 
-     &      0.6140, 0.6201, 0.6263, 0.6325, 0.6392, 0.6458, 0.6529, 0.6600, 
-     &      0.6676, 0.6751, 0.6833, 0.6914, 0.7001, 0.7088, 0.7177, 0.7276, 
-     &      0.7372, 0.7478, 0.7582, 0.7690, 0.7810, 0.7928, 0.8050, 0.8187 / 
+     &      0.0913, 0.0917, 0.0921, 0.0925, 0.0929, 0.0933, 0.0938, 0.0942,
+     &      0.0946, 0.0951, 0.0956, 0.0961, 0.0967, 0.0972, 0.0977, 0.0984,
+     &      0.0990, 0.0996, 0.1002, 0.1010, 0.1017, 0.1024, 0.1032, 0.1040,
+     &      0.1048, 0.1058, 0.1067, 0.1077, 0.1087, 0.1098, 0.1110, 0.1123,
+     &      0.1136, 0.1150, 0.1165, 0.1181, 0.1198, 0.1217, 0.1237, 0.1259,
+     &      0.1283, 0.1309, 0.1338, 0.1371, 0.1407, 0.1448, 0.1453, 0.1457,
+     &      0.1462, 0.1466, 0.1471, 0.1476, 0.1481, 0.1486, 0.1491, 0.1496,
+     &      0.1501, 0.1506, 0.1511, 0.1517, 0.1522, 0.1528, 0.1533, 0.1539,
+     &      0.1545, 0.1551, 0.1557, 0.1563, 0.1570, 0.1576, 0.1582, 0.1589,
+     &      0.1596, 0.1603, 0.1610, 0.1617, 0.1624, 0.1631, 0.1639, 0.1647,
+     &      0.1655, 0.1663, 0.1671, 0.1679, 0.1688, 0.1697, 0.1706, 0.1715,
+     &      0.1724, 0.1734, 0.1744, 0.1754, 0.1764, 0.1775, 0.1786, 0.1797,
+     &      0.1809, 0.1821, 0.1833, 0.1845, 0.1858, 0.1872, 0.1885, 0.1899,
+     &      0.1914, 0.1929, 0.1945, 0.1961, 0.1978, 0.1995, 0.2013, 0.2032,
+     &      0.2052, 0.2072, 0.2093, 0.2115, 0.2138, 0.2162, 0.2188, 0.2214,
+     &      0.2243, 0.2272, 0.2304, 0.2336, 0.2371, 0.2409, 0.2449, 0.2492,
+     &      0.2538, 0.2587, 0.2641, 0.2702, 0.2765, 0.2837, 0.2918, 0.3009 /
 
 C Geometric mean diameter of coarse mode [um]
       DATA ( DGNK( I ), I = 1, 136 ) /
-     &      1.7618, 1.8130, 1.8257, 1.8375, 1.8861, 1.8973, 1.9084, 1.9194, 
-     &      1.9678, 1.9796, 1.9919, 2.0046, 2.0548, 2.0690, 2.0840, 2.1359, 
-     &      2.1525, 2.1698, 2.2236, 2.2423, 2.2617, 2.3171, 2.3378, 2.3936, 
-     &      2.4154, 2.4376, 2.4940, 2.5169, 2.5732, 2.5969, 2.6209, 2.6776, 
-     &      2.7027, 2.7599, 2.7868, 2.8453, 2.8754, 2.9076, 2.9723, 3.0398, 
-     &      3.0835, 3.1604, 3.2439, 3.3357, 3.4386, 3.5555, 3.5660, 3.5767, 
-     &      3.5876, 3.5986, 3.6099, 3.6421, 3.6539, 3.6659, 3.6782, 3.6906, 
-     &      3.7034, 3.7163, 3.7487, 3.7623, 3.7761, 3.7903, 3.8047, 3.8194, 
-     &      3.8519, 3.8673, 3.8830, 3.8990, 3.9154, 3.9321, 3.9651, 3.9826, 
-     &      4.0005, 4.0188, 4.0374, 4.0710, 4.0906, 4.1106, 4.1311, 4.1520, 
-     &      4.1860, 4.2080, 4.2305, 4.2535, 4.2878, 4.3120, 4.3367, 4.3621, 
-     &      4.3969, 4.4236, 4.4510, 4.4790, 4.5146, 4.5442, 4.5745, 4.6104, 
-     &      4.6424, 4.6752, 4.7089, 4.7463, 4.7816, 4.8182, 4.8565, 4.8952, 
-     &      4.9350, 4.9746, 5.0169, 5.0563, 5.1010, 5.1470, 5.1884, 5.2369, 
-     &      5.2789, 5.3308, 5.3844, 5.4289, 5.4856, 5.5313, 5.5922, 5.6394, 
-     &      5.7042, 5.7532, 5.8228, 5.8741, 5.9486, 6.0022, 6.0564, 6.1392, 
-     &      6.1968, 6.2860, 6.3476, 6.4099, 6.5098, 6.5772, 6.6466, 6.7590 /
+     &      1.7786, 1.8180, 1.8254, 1.8330, 1.8408, 1.8489, 1.8891, 1.8979,
+     &      1.9069, 1.9163, 1.9259, 1.9673, 1.9778, 1.9887, 2.0000, 2.0425,
+     &      2.0549, 2.0677, 2.0812, 2.1252, 2.1400, 2.1554, 2.2009, 2.2180,
+     &      2.2359, 2.2833, 2.3034, 2.3244, 2.3746, 2.3983, 2.4504, 2.4773,
+     &      2.5319, 2.5627, 2.6207, 2.6563, 2.7187, 2.7831, 2.8286, 2.9000,
+     &      2.9750, 3.0545, 3.1395, 3.2312, 3.3313, 3.4419, 3.4524, 3.4631,
+     &      3.4855, 3.4965, 3.5077, 3.5190, 3.5305, 3.5422, 3.5540, 3.5760,
+     &      3.5882, 3.6007, 3.6133, 3.6262, 3.6392, 3.6607, 3.6742, 3.6879,
+     &      3.7019, 3.7161, 3.7306, 3.7517, 3.7667, 3.7820, 3.7976, 3.8134,
+     &      3.8296, 3.8506, 3.8674, 3.8845, 3.9019, 3.9197, 3.9405, 3.9591,
+     &      3.9781, 3.9974, 4.0172, 4.0380, 4.0587, 4.0798, 4.1015, 4.1221,
+     &      4.1448, 4.1680, 4.1918, 4.2126, 4.2375, 4.2632, 4.2895, 4.3108,
+     &      4.3385, 4.3671, 4.3964, 4.4185, 4.4495, 4.4816, 4.5040, 4.5381,
+     &      4.5732, 4.5965, 4.6340, 4.6728, 4.6974, 4.7390, 4.7640, 4.8087,
+     &      4.8552, 4.8827, 4.9330, 4.9618, 5.0166, 5.0472, 5.1071, 5.1403,
+     &      5.2062, 5.2426, 5.3158, 5.3566, 5.3985, 5.4852, 5.5338, 5.5844,
+     &      5.6378, 5.6944, 5.7547, 5.8867, 5.8898, 5.9665, 6.0510, 6.1446 /
 
 C Geometric standard deviation of accumulation mode
       DATA ( SIGJ( I ), I = 1, 136 ) /
-     &      1.7572, 1.7612, 1.7612, 1.7612, 1.7651, 1.7651, 1.7651, 1.7651, 
-     &      1.7689, 1.7689, 1.7689, 1.7689, 1.7727, 1.7727, 1.7727, 1.7764, 
-     &      1.7764, 1.7764, 1.7801, 1.7801, 1.7801, 1.7837, 1.7837, 1.7873, 
-     &      1.7873, 1.7873, 1.7907, 1.7907, 1.7941, 1.7941, 1.7941, 1.7974, 
-     &      1.7974, 1.8006, 1.8006, 1.8037, 1.8037, 1.8037, 1.8066, 1.8095, 
-     &      1.8095, 1.8122, 1.8147, 1.8172, 1.8195, 1.8217, 1.8217, 1.8217, 
-     &      1.8217, 1.8217, 1.8217, 1.8237, 1.8237, 1.8237, 1.8237, 1.8237, 
-     &      1.8237, 1.8237, 1.8255, 1.8255, 1.8255, 1.8255, 1.8255, 1.8255, 
-     &      1.8272, 1.8272, 1.8272, 1.8272, 1.8272, 1.8272, 1.8287, 1.8287, 
-     &      1.8287, 1.8287, 1.8287, 1.8300, 1.8300, 1.8300, 1.8300, 1.8300, 
-     &      1.8312, 1.8312, 1.8312, 1.8312, 1.8322, 1.8322, 1.8322, 1.8322, 
-     &      1.8330, 1.8330, 1.8330, 1.8330, 1.8336, 1.8336, 1.8336, 1.8340, 
-     &      1.8340, 1.8340, 1.8340, 1.8342, 1.8342, 1.8342, 1.8343, 1.8343, 
-     &      1.8343, 1.8342, 1.8342, 1.8339, 1.8339, 1.8339, 1.8334, 1.8334, 
-     &      1.8327, 1.8327, 1.8327, 1.8318, 1.8318, 1.8307, 1.8307, 1.8295, 
-     &      1.8295, 1.8281, 1.8281, 1.8266, 1.8266, 1.8248, 1.8229, 1.8230, 
-     &      1.8209, 1.8209, 1.8188, 1.8164, 1.8164, 1.8140, 1.8115, 1.8115 /
-              
+     &      2.1420, 2.1442, 2.1442, 2.1442, 2.1442, 2.1442, 2.1464, 2.1464,
+     &      2.1464, 2.1464, 2.1464, 2.1485, 2.1485, 2.1485, 2.1485, 2.1506,
+     &      2.1506, 2.1506, 2.1506, 2.1526, 2.1526, 2.1526, 2.1545, 2.1545,
+     &      2.1545, 2.1564, 2.1564, 2.1564, 2.1582, 2.1582, 2.1599, 2.1599,
+     &      2.1616, 2.1616, 2.1632, 2.1632, 2.1647, 2.1661, 2.1661, 2.1674,
+     &      2.1687, 2.1698, 2.1709, 2.1719, 2.1727, 2.1735, 2.1735, 2.1735,
+     &      2.1742, 2.1742, 2.1742, 2.1742, 2.1742, 2.1742, 2.1742, 2.1747,
+     &      2.1747, 2.1747, 2.1747, 2.1747, 2.1747, 2.1752, 2.1752, 2.1752,
+     &      2.1752, 2.1752, 2.1752, 2.1756, 2.1756, 2.1756, 2.1756, 2.1756,
+     &      2.1756, 2.1758, 2.1758, 2.1758, 2.1758, 2.1758, 2.1760, 2.1760,
+     &      2.1760, 2.1760, 2.1760, 2.1760, 2.1760, 2.1760, 2.1760, 2.1759,
+     &      2.1759, 2.1759, 2.1759, 2.1757, 2.1757, 2.1757, 2.1757, 2.1754,
+     &      2.1754, 2.1754, 2.1754, 2.1750, 2.1750, 2.1750, 2.1745, 2.1745,
+     &      2.1745, 2.1739, 2.1739, 2.1739, 2.1731, 2.1731, 2.1723, 2.1723,
+     &      2.1723, 2.1713, 2.1713, 2.1703, 2.1703, 2.1691, 2.1691, 2.1679,
+     &      2.1679, 2.1665, 2.1665, 2.1651, 2.1636, 2.1636, 2.1619, 2.1602,
+     &      2.1584, 2.1566, 2.1546, 2.1546, 2.1506, 2.1484, 2.1462, 2.1440 /
+
 C Geometric standard deviation of coarse mode
       DATA ( SIGK( I ), I = 1, 136 ) /
-     &      2.1039, 2.0834, 2.0834, 2.0834, 2.0639, 2.0639, 2.0639, 2.0639, 
-     &      2.0452, 2.0452, 2.0452, 2.0452, 2.0273, 2.0273, 2.0273, 2.0101, 
-     &      2.0101, 2.0101, 1.9937, 1.9937, 1.9937, 1.9780, 1.9780, 1.9631, 
-     &      1.9631, 1.9631, 1.9488, 1.9488, 1.9351, 1.9351, 1.9351, 1.9222, 
-     &      1.9222, 1.9098, 1.9098, 1.8981, 1.8981, 1.8981, 1.8870, 1.8765, 
-     &      1.8765, 1.8666, 1.8573, 1.8486, 1.8405, 1.8329, 1.8329, 1.8329, 
-     &      1.8329, 1.8329, 1.8329, 1.8259, 1.8259, 1.8259, 1.8259, 1.8259, 
-     &      1.8259, 1.8259, 1.8195, 1.8195, 1.8195, 1.8195, 1.8195, 1.8195, 
-     &      1.8137, 1.8137, 1.8137, 1.8137, 1.8137, 1.8137, 1.8085, 1.8085, 
-     &      1.8085, 1.8085, 1.8085, 1.8038, 1.8038, 1.8038, 1.8038, 1.8038, 
-     &      1.7997, 1.7997, 1.7997, 1.7997, 1.7963, 1.7963, 1.7963, 1.7963, 
-     &      1.7934, 1.7934, 1.7934, 1.7934, 1.7913, 1.7913, 1.7913, 1.7897, 
-     &      1.7897, 1.7897, 1.7897, 1.7888, 1.7889, 1.7889, 1.7886, 1.7886, 
-     &      1.7886, 1.7891, 1.7891, 1.7904, 1.7903, 1.7903, 1.7923, 1.7924, 
-     &      1.7952, 1.7952, 1.7952, 1.7988, 1.7989, 1.8034, 1.8034, 1.8089, 
-     &      1.8090, 1.8155, 1.8154, 1.8230, 1.8230, 1.8318, 1.8417, 1.8417, 
-     &      1.8529, 1.8529, 1.8656, 1.8799, 1.8799, 1.8960, 1.9138, 1.9138 /
-              
+     &      2.1083, 2.0900, 2.0900, 2.0900, 2.0900, 2.0900, 2.0725, 2.0725,
+     &      2.0725, 2.0725, 2.0725, 2.0558, 2.0558, 2.0558, 2.0558, 2.0399,
+     &      2.0399, 2.0399, 2.0399, 2.0248, 2.0248, 2.0248, 2.0103, 2.0103,
+     &      2.0103, 1.9967, 1.9967, 1.9967, 1.9836, 1.9836, 1.9713, 1.9713,
+     &      1.9597, 1.9597, 1.9487, 1.9487, 1.9384, 1.9288, 1.9288, 1.9198,
+     &      1.9114, 1.9036, 1.8965, 1.8901, 1.8843, 1.8791, 1.8791, 1.8791,
+     &      1.8746, 1.8746, 1.8746, 1.8746, 1.8746, 1.8746, 1.8746, 1.8708,
+     &      1.8708, 1.8708, 1.8708, 1.8708, 1.8708, 1.8676, 1.8676, 1.8676,
+     &      1.8676, 1.8676, 1.8676, 1.8652, 1.8652, 1.8652, 1.8652, 1.8652,
+     &      1.8652, 1.8635, 1.8635, 1.8635, 1.8635, 1.8635, 1.8625, 1.8625,
+     &      1.8625, 1.8625, 1.8625, 1.8622, 1.8622, 1.8622, 1.8622, 1.8628,
+     &      1.8628, 1.8628, 1.8628, 1.8642, 1.8642, 1.8642, 1.8642, 1.8664,
+     &      1.8664, 1.8664, 1.8664, 1.8696, 1.8696, 1.8696, 1.8737, 1.8737,
+     &      1.8737, 1.8788, 1.8788, 1.8788, 1.8850, 1.8850, 1.8923, 1.8923,
+     &      1.8923, 1.9009, 1.9009, 1.9108, 1.9108, 1.9221, 1.9221, 1.9351,
+     &      1.9351, 1.9497, 1.9497, 1.9662, 1.9849, 1.9849, 2.0058, 2.0295,
+     &      2.0560, 2.0859, 2.1197, 2.1197, 2.2014, 2.2510, 2.3080, 2.3740 /
+
 C Number flux in accumulation mode at 1 m/s [1/m2/s]
             DATA ( FNJ( I ), I = 1, 136 ) /
-     &      89.326, 89.524, 89.524, 89.524, 89.709, 89.709, 89.709, 89.709, 
-     &      89.881, 89.881, 89.881, 89.881, 90.040, 90.040, 90.040, 90.188, 
-     &      90.188, 90.188, 90.325, 90.324, 90.324, 90.451, 90.451, 90.569, 
-     &      90.569, 90.569, 90.678, 90.678, 90.779, 90.779, 90.779, 90.873, 
-     &      90.873, 90.959, 90.959, 91.039, 91.039, 91.039, 91.113, 91.181, 
-     &      91.181, 91.243, 91.301, 91.353, 91.401, 91.445, 91.445, 91.445, 
-     &      91.445, 91.445, 91.445, 91.484, 91.484, 91.484, 91.484, 91.484, 
-     &      91.484, 91.484, 91.520, 91.520, 91.520, 91.520, 91.520, 91.520, 
-     &      91.551, 91.551, 91.551, 91.551, 91.551, 91.551, 91.579, 91.579, 
-     &      91.579, 91.579, 91.579, 91.604, 91.604, 91.604, 91.604, 91.604, 
-     &      91.625, 91.625, 91.625, 91.625, 91.642, 91.642, 91.642, 91.642, 
-     &      91.656, 91.656, 91.656, 91.656, 91.667, 91.667, 91.667, 91.675, 
-     &      91.675, 91.675, 91.675, 91.679, 91.679, 91.679, 91.680, 91.680, 
-     &      91.680, 91.678, 91.678, 91.672, 91.672, 91.672, 91.663, 91.663, 
-     &      91.650, 91.650, 91.650, 91.633, 91.633, 91.612, 91.612, 91.587, 
-     &      91.587, 91.558, 91.558, 91.524, 91.524, 91.485, 91.441, 91.441, 
-     &      91.392, 91.392, 91.337, 91.274, 91.274, 91.205, 91.129, 91.129 /
-              
+     &      1249.0821, 1248.2831, 1248.2831, 1248.2831, 1248.2831, 1248.2831,
+     &      1247.4863, 1247.4863, 1247.4863, 1247.4863, 1247.4863, 1246.6948,
+     &      1246.6948, 1246.6948, 1246.6948, 1245.9114, 1245.9114, 1245.9114,
+     &      1245.9114, 1245.1389, 1245.1389, 1245.1389, 1244.3799, 1244.3799,
+     &      1244.3799, 1243.6370, 1243.6370, 1243.6370, 1242.9115, 1242.9115,
+     &      1242.2081, 1242.2081, 1241.5281, 1241.5281, 1240.8739, 1240.8739,
+     &      1240.2476, 1239.6513, 1239.6513, 1239.0872, 1238.5571, 1238.0628,
+     &      1237.6062, 1237.1869, 1236.8099, 1236.4749, 1236.4749, 1236.4749,
+     &      1236.1833, 1236.1833, 1236.1833, 1236.1833, 1236.1833, 1236.1833,
+     &      1236.1833, 1235.9361, 1235.9361, 1235.9361, 1235.9361, 1235.9361,
+     &      1235.9361, 1235.7343, 1235.7343, 1235.7343, 1235.7343, 1235.7343,
+     &      1235.7343, 1235.5787, 1235.5787, 1235.5786, 1235.5786, 1235.5786,
+     &      1235.5786, 1235.4698, 1235.4698, 1235.4698, 1235.4698, 1235.4698,
+     &      1235.4082, 1235.4082, 1235.4082, 1235.4082, 1235.4082, 1235.3941,
+     &      1235.3941, 1235.3941, 1235.3941, 1235.4277, 1235.4277, 1235.4277,
+     &      1235.4277, 1235.5087, 1235.5087, 1235.5087, 1235.5087, 1235.6351,
+     &      1235.6351, 1235.6351, 1235.6351, 1235.8099, 1235.8099, 1235.8099,
+     &      1236.0306, 1236.0306, 1236.0306, 1236.2963, 1236.2963, 1236.2963,
+     &      1236.6058, 1236.6058, 1236.9575, 1236.9575, 1236.9575, 1237.3498,
+     &      1237.3498, 1237.7807, 1237.7807, 1238.2480, 1238.2480, 1238.7491,
+     &      1238.7491, 1239.2812, 1239.2812, 1239.8412, 1240.4256, 1240.4256,
+     &      1241.0307, 1241.6543, 1242.2878, 1242.9282, 1243.5702, 1243.5702,
+     &      1244.8344, 1245.4428, 1246.0247, 1246.5734 /
+
 C Number flux in coarse mode at 1 m/s [1/m2/s]
       DATA ( FNK( I ), I = 1, 136 ) /
-     &      11.315, 11.110, 11.110, 11.109, 10.919, 10.919, 10.919, 10.919, 
-     &      10.740, 10.740, 10.740, 10.740, 10.573, 10.573, 10.573, 10.417, 
-     &      10.417, 10.417, 10.270, 10.271, 10.271, 10.134, 10.134, 10.006, 
-     &      10.006, 10.006, 9.886, 9.886, 9.774, 9.774, 9.774, 9.669, 
-     &      9.669, 9.571, 9.571, 9.480, 9.480, 9.480, 9.395, 9.315, 
-     &      9.315, 9.243, 9.174, 9.111, 9.053, 8.999, 8.999, 8.999, 
-     &      9.000, 9.000, 9.000, 8.951, 8.951, 8.951, 8.951, 8.951, 
-     &      8.951, 8.951, 8.907, 8.907, 8.907, 8.907, 8.907, 8.907, 
-     &      8.867, 8.867, 8.867, 8.867, 8.867, 8.867, 8.832, 8.832, 
-     &      8.832, 8.832, 8.832, 8.800, 8.800, 8.800, 8.800, 8.800, 
-     &      8.773, 8.773, 8.773, 8.773, 8.751, 8.751, 8.751, 8.751, 
-     &      8.732, 8.732, 8.732, 8.732, 8.718, 8.718, 8.718, 8.708, 
-     &      8.708, 8.708, 8.708, 8.702, 8.703, 8.703, 8.701, 8.701, 
-     &      8.701, 8.704, 8.704, 8.712, 8.712, 8.711, 8.724, 8.725, 
-     &      8.742, 8.742, 8.742, 8.765, 8.765, 8.794, 8.794, 8.828, 
-     &      8.828, 8.869, 8.869, 8.915, 8.915, 8.970, 9.031, 9.031, 
-     &      9.101, 9.101, 9.179, 9.268, 9.268, 9.366, 9.476, 9.476 /
-              
+     &      11.2976, 11.1324, 11.1324, 11.1324, 11.1324, 11.1324, 10.9787,
+     &      10.9787, 10.9787, 10.9787, 10.9787, 10.8356, 10.8356, 10.8356,
+     &      10.8356, 10.7024, 10.7024, 10.7024, 10.7024, 10.5785, 10.5785,
+     &      10.5785, 10.4632, 10.4632, 10.4632, 10.3561, 10.3561, 10.3561,
+     &      10.2565, 10.2565, 10.1641, 10.1641, 10.0786, 10.0786, 9.9994,
+     &      9.9994, 9.9263, 9.8591, 9.8591, 9.7973, 9.7408, 9.6894, 9.6430,
+     &      9.6011, 9.5640, 9.5315, 9.5315, 9.5315, 9.5034, 9.5034, 9.5034,
+     &      9.5034, 9.5034, 9.5034, 9.5034, 9.4797, 9.4797, 9.4797, 9.4797,
+     &      9.4797, 9.4797, 9.4604, 9.4604, 9.4604, 9.4604, 9.4604, 9.4604,
+     &      9.4455, 9.4455, 9.4455, 9.4455, 9.4455, 9.4455, 9.4351, 9.4351,
+     &      9.4351, 9.4351, 9.4351, 9.4291, 9.4291, 9.4291, 9.4291, 9.4291,
+     &      9.4278, 9.4278, 9.4278, 9.4278, 9.4311, 9.4311, 9.4311, 9.4311,
+     &      9.4393, 9.4393, 9.4393, 9.4393, 9.4523, 9.4523, 9.4523, 9.4523,
+     &      9.4708, 9.4708, 9.4708, 9.4948, 9.4948, 9.4948, 9.5247, 9.5247,
+     &      9.5247, 9.5608, 9.5608, 9.6036, 9.6036, 9.6036, 9.6536, 9.6536,
+     &      9.7112, 9.7112, 9.7773, 9.7773, 9.8524, 9.8524, 9.9376, 9.9376,
+     &      10.0336, 10.1418, 10.1418, 10.2634, 10.4001, 10.5533, 10.7252,
+     &      10.9184, 10.9184, 11.3807, 11.6576, 11.9718, 12.3303 /
+
 C Volume flux at 1 m/s numerically integrated over full size range [m3/m2/s]
       DATA ( VFLUX( I ), I = 1, 136 ) /
-     &      3.3799E-16, 3.4012E-16, 3.4728E-16, 3.5407E-16, 3.5489E-16,  
-     &      3.6124E-16, 3.6758E-16, 3.7402E-16, 3.7473E-16, 3.8152E-16,  
-     &      3.8864E-16, 3.9617E-16, 3.9799E-16, 4.0632E-16, 4.1518E-16,  
-     &      4.1825E-16, 4.2807E-16, 4.3846E-16, 4.4284E-16, 4.5420E-16,  
-     &      4.6612E-16, 4.7169E-16, 4.8449E-16, 4.9073E-16, 5.0429E-16,  
-     &      5.1829E-16, 5.2529E-16, 5.3992E-16, 5.4734E-16, 5.6260E-16,  
-     &      5.7831E-16, 5.8648E-16, 6.0311E-16, 6.1215E-16, 6.3024E-16,  
-     &      6.4087E-16, 6.6140E-16, 6.8386E-16, 6.9948E-16, 7.1775E-16,  
-     &      7.4926E-16, 7.7574E-16, 8.0807E-16, 8.4803E-16, 8.9805E-16,  
-     &      9.6150E-16, 9.7003E-16, 9.7878E-16, 9.8774E-16, 9.9692E-16,  
-     &      1.0063E-15, 1.0026E-15, 1.0124E-15, 1.0224E-15, 1.0327E-15,  
-     &      1.0432E-15, 1.0541E-15, 1.0652E-15, 1.0624E-15, 1.0739E-15,  
-     &      1.0858E-15, 1.0980E-15, 1.1106E-15, 1.1235E-15, 1.1216E-15,  
-     &      1.1351E-15, 1.1490E-15, 1.1633E-15, 1.1780E-15, 1.1931E-15,  
-     &      1.1924E-15, 1.2083E-15, 1.2246E-15, 1.2415E-15, 1.2588E-15,  
-     &      1.2593E-15, 1.2776E-15, 1.2964E-15, 1.3159E-15, 1.3360E-15,  
-     &      1.3380E-15, 1.3592E-15, 1.3811E-15, 1.4038E-15, 1.4071E-15,  
-     &      1.4311E-15, 1.4559E-15, 1.4816E-15, 1.4867E-15, 1.5139E-15,  
-     &      1.5422E-15, 1.5715E-15, 1.5786E-15, 1.6098E-15, 1.6422E-15,  
-     &      1.6509E-15, 1.6855E-15, 1.7215E-15, 1.7590E-15, 1.7706E-15,  
-     &      1.8107E-15, 1.8526E-15, 1.8666E-15, 1.9115E-15, 1.9585E-15,  
-     &      1.9754E-15, 2.0260E-15, 2.0447E-15, 2.0993E-15, 2.1565E-15,  
-     &      2.1790E-15, 2.2411E-15, 2.2660E-15, 2.3335E-15, 2.4045E-15, 
-     &      2.4346E-15, 2.5121E-15, 2.5456E-15, 2.6304E-15, 2.6678E-15, 
-     &      2.7610E-15, 2.8028E-15, 2.9056E-15, 2.9525E-15, 3.0662E-15, 
-     &      3.1191E-15, 3.1734E-15, 3.3053E-15, 3.3669E-15, 3.5144E-15, 
-     &      3.5847E-15, 3.6572E-15, 3.8310E-15, 3.9146E-15, 4.0012E-15, 
-     &      4.2082E-15 /                                                  
+     &      3.5750e-16, 3.5600e-16, 3.6036e-16, 3.6489e-16, 3.6960e-16,
+     &      3.7449e-16, 3.7367e-16, 3.7889e-16, 3.8434e-16, 3.9002e-16,
+     &      3.9596e-16, 3.9603e-16, 4.0243e-16, 4.0913e-16, 4.1615e-16,
+     &      4.1720e-16, 4.2484e-16, 4.3289e-16, 4.4136e-16, 4.4371e-16,
+     &      4.5303e-16, 4.6290e-16, 4.6656e-16, 4.7752e-16, 4.8919e-16,
+     &      4.9453e-16, 5.0765e-16, 5.2171e-16, 5.2932e-16, 5.4535e-16,
+     &      5.5493e-16, 5.7342e-16, 5.8547e-16, 6.0711e-16, 6.2234e-16,
+     &      6.4805e-16, 6.6748e-16, 6.8942e-16, 7.2379e-16, 7.5245e-16,
+     &      7.8530e-16, 8.2321e-16, 8.6731e-16, 9.1914e-16, 9.8076e-16,
+     &      1.0551e-15, 1.0648e-15, 1.0746e-15, 1.0704e-15, 1.0806e-15,
+     &      1.0909e-15, 1.1015e-15, 1.1124e-15, 1.1234e-15, 1.1347e-15,
+     &      1.1310e-15, 1.1427e-15, 1.1546e-15, 1.1668e-15, 1.1793e-15,
+     &      1.1921e-15, 1.1889e-15, 1.2021e-15, 1.2157e-15, 1.2295e-15,
+     &      1.2437e-15, 1.2583e-15, 1.2559e-15, 1.2711e-15, 1.2866e-15,
+     &      1.3025e-15, 1.3189e-15, 1.3357e-15, 1.3343e-15, 1.3518e-15,
+     &      1.3699e-15, 1.3884e-15, 1.4075e-15, 1.4072e-15, 1.4272e-15,
+     &      1.4477e-15, 1.4690e-15, 1.4909e-15, 1.4919e-15, 1.5149e-15,
+     &      1.5387e-15, 1.5633e-15, 1.5657e-15, 1.5916e-15, 1.6185e-15,
+     &      1.6464e-15, 1.6504e-15, 1.6799e-15, 1.7106e-15, 1.7425e-15,
+     &      1.7487e-15, 1.7827e-15, 1.8181e-15, 1.8550e-15, 1.8640e-15,
+     &      1.9036e-15, 1.9450e-15, 1.9566e-15, 2.0013e-15, 2.0481e-15,
+     &      2.0629e-15, 2.1138e-15, 2.1673e-15, 2.1862e-15, 2.2448e-15,
+     &      2.2666e-15, 2.3310e-15, 2.3993e-15, 2.4276e-15, 2.5035e-15,
+     &      2.5366e-15, 2.6216e-15, 2.6607e-15, 2.7566e-15, 2.8033e-15,
+     &      2.9126e-15, 2.9689e-15, 3.0950e-15, 3.1640e-15, 3.2387e-15,
+     &      3.3973e-15, 3.4912e-15, 3.5945e-15, 3.7089e-15, 3.8366e-15,
+     &      3.9802e-15, 4.2603e-15, 4.3308e-15, 4.5485e-15, 4.8050e-15,
+     &      5.1124e-15 /
+
 
 C Polynomial coefficients from Zhang et al. (2005)         
       DATA C0_COEFF / 28.376D0, -205.44D0, 653.37D0, -1031.7D0, 803.18D0, -247.08D0 /
       DATA X_COEFF  / 3.1657D0, -19.079D0,  55.72D0, -83.998D0, 63.436D0, -19.248D0 /
-
-C Domain decomposition info from emission and meteorology files
-      INTEGER, SAVE :: GXOFF, GYOFF             ! origin offset
-      INTEGER, SAVE :: STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTEGER, SAVE :: LOGDEV
 
@@ -344,40 +340,6 @@ C Allocate SS arrays using NSSSPC value
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
-
-            ALLOCATE ( OCEAN( NCOLS,NROWS ),
-     &                 SZONE( NCOLS,NROWS ),
-     &                 PRES ( NCOLS,NROWS ), 
-     &                 TA   ( NCOLS,NROWS ), 
-     &                 QV   ( NCOLS,NROWS ), 
-     &                 WSPD10( NCOLS,NROWS ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-               XMSG = '*** OCEAN, SZONE, PRES, TA, QV, or WSPD10 memory allocation failed'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-C Open the ocean file, which contains the ocean and surf-zone fractions
-
-            IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // OCEAN_1
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
-     &                      STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 )
-
-C Open the 3D cross-point met file
-
-            IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // MET_CRO_3D
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                      STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
 C Get sea-salt-emission diagnostic output file flag.
 
@@ -561,7 +523,7 @@ C Open sea-salt emissions diagnostic file
          END SUBROUTINE OPSSEMIS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL, RJACM, CELLHGT )
+         SUBROUTINE GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL, CELLHGT )
 
 C GET_SSEMIS calculates the sea-salt emission rates in a grid cell
 C given the fractional grid-cell area covered by open ocean and surf zone
@@ -579,6 +541,10 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   04 Apr 11 S.Howard: moved speciation to AERO_DATA and generalized species
 C                       and modal references and density calculation
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   08 Aug 14 B.Gantt: added code for (1) increased accumulation mode
+C                      emissions, (2) sea surface temperature dependence
+C                      of emissions, and (3) reduction of surf zone
+C                      emisions
  
 C References:
 C    Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -592,21 +558,38 @@ C          air pollution to climate change"  John Wiley & Sons, Inc. (1998).
 C    Zhang, K.M., E.M. Knipping, A.S. Wexler, P.V. Bhave, G.S. Tonnesen
 C          "Size distribution of sea-salt emissions as a function of relative
 C          humidity"  Atmospheric Environment, 39, 3373-3379 (2005).
+C    Lewis, E.R. and Schwartz, S.E. "Comment on "Size distribution of sea-salt
+C           emissions as a funciton of relative humidity", Atmospheric Environment,
+C           40, 588-590 (2006)
+C    Zhang, K.M., E.M. Knipping, A.S. Wexler, P.V. Bhave, G.S. Tonnesen, "Reply
+C           to comment on "Size distribution of sea-salt emissions as a funciton 
+C           of relative humidity", Atmospheric Environment, 40, 591-592 (2006)
 C    Clarke, A.D., S.R. Owens, and J. Zhou "An ultrafine sea-salt flux from
 C          breaking waves: Implications for cloud condensation nuclei in the
 C          remote marine atmosphere" J. Geophys. Res. (2006)
+C    Gong, S. L., A parameterization of sea-salt aerosol source function
+C          for sub- and super-micron particles, Global Biogeochem. Cycles, 17,
+C          1097, (2003).
+C    Jaeglé, L., P. K. Quinn, T. S. Bates, B. Alexander, and J. T. Lin, Global 
+C          distribution of sea salt aerosols: New constraints from in situ and
+C          remote sensing observations, Atmos. Chem. Phys., 11, 3137–3157,
+C          (2011).
+C    Ovadnevaite, J., Manders, A., de Leeuw, G., Ceburnis, D., Monahan, C., 
+C          Partanen, A.-I., Korhonen, H., and O'Dowd, C. D.: A sea spray 
+C          aerosol flux parameterization encapsulating wave state, Atmos. 
+C          Chem. Phys., 14, 1837-1852, (2014).
 C-----------------------------------------------------------------------
 
             USE UTILIO_DEFN
             USE AERO_DATA
             USE AEROMET_DATA   ! Includes CONST.EXT
+            USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA, svp2, svp3
 
             IMPLICIT NONE
 
 C Arguments
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( IN ) :: CELLVOL               ! grid-cell volume [m2*sigma]
-            REAL,    INTENT( IN ) :: RJACM( NCOLS,NROWS )  ! reciprocal Jacobian [1/m]
             REAL,    INTENT( IN ) :: CELLHGT               ! grid-cell height [sigma]
 
 C Includes:
@@ -621,6 +604,7 @@ C Local Variables:
             REAL    :: U10                ! wind speed at 10m [m/s]
             REAL    :: RLAY1HT            ! reciprocal of layer-1 height [1/m]
             REAL    :: AIRVOL             ! grid-cell volume [m3]
+            REAL    :: SST                ! sea surface temperature[C]
 
             CHARACTER( 16 ), SAVE :: PNAME = 'GET_SSEMIS'
             CHARACTER( 96 ) :: XMSG = ' '
@@ -654,6 +638,9 @@ C Maximum and minimum diameters for emission-flux integrations [m]
    
 C Wind-speed-dependent scaling factors for emissions flux functions
             REAL      :: WDSCALO          ! Gong-Monahan open-ocean flux
+
+C SST-dependent scaling factor for emissions flux functions
+            REAL      :: SSTSCALO          ! Jaegle flux
 
 C Fraction of whitecap coverage
             REAL      :: WCAP
@@ -714,71 +701,20 @@ C Mathematical constants; statement function for ERF approximation
 
 C----------------------------- Begin calc ------------------------------
 
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'PRES', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, PRES ) ) THEN
-               XMSG = 'Could not interpolate PRES from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'TA', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, TA ) ) THEN
-               XMSG = 'Could not interpolate TA from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, 'QV', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, QV ) ) THEN
-               XMSG = 'Could not interpolate QV from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_2D, 'WSPD10', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, WSPD10 ) ) THEN
-               XMSG = 'Could not find WSPD10 in ' // MET_CRO_2D //
-     &                ' search for WIND10.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               IF ( .NOT. INTERPX( MET_CRO_2D, 'WIND10', PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                             1,1, JDATE, JTIME, WSPD10 ) ) THEN
-                  XMSG = 'Could not find WIND10 or WSPD10 in ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
-
-C Read fractional seawater and surf-zone coverage from the OCEAN file.
-C Store results in the OCEAN and SZONE arrays.
-            IF ( .NOT. INTERPX( OCEAN_1, 'OPEN', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, OCEAN ) ) THEN
-               XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            IF ( .NOT. INTERPX( OCEAN_1, 'SURF', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, SZONE ) ) THEN
-               XMSG = 'Could not interpolate SURF from ' // OCEAN_1 //
-     &                '.  Surf-zone emissions set to zero.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            END IF
-
 C Initialize sea-salt output buffer
             IF ( SSEMDIAG .AND. WSTEP .EQ. 0 ) SSBF = 0.0
 
             DO R = 1, MY_NROWS
                DO C = 1, MY_NCOLS
-                  IF ( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 ) THEN
-                     OFRAC   = OCEAN ( C,R )
-                     SFRAC   = SZONE ( C,R )
-                     BLKPRS  = PRES  ( C,R )
-                     BLKTA   = TA    ( C,R )
-                     BLKQV   = QV    ( C,R )
-                     U10     = WSPD10( C,R )
-                     RLAY1HT = RJACM ( C,R ) / CELLHGT
+                  IF ( Grid_Data%OCEAN( C,R ) + Grid_Data%SZONE( C,R ) .GT. 0.0 ) THEN
+                     OFRAC   = Grid_Data%OCEAN     ( C,R )
+                     SFRAC   = Grid_Data%SZONE     ( C,R )
+                     BLKPRS  = Met_Data%PRES       ( C,R,1 )
+                     BLKTA   = Met_Data%TA         ( C,R,1 )
+                     BLKQV   = Met_Data%QV         ( C,R,1 )
+                     U10     = Met_Data%WSPD10     ( C,R )
+                     SST     = max(Met_Data%TSEASFC( C,R ) - 273.15, 0.0 )
+                     RLAY1HT = Met_Data%RJACM ( C,R,1 ) / CELLHGT
                   ELSE
                      DO N = 1, N_MODE
                         DO S = 1, NSSSPC
@@ -791,7 +727,12 @@ C Initialize sea-salt output buffer
                   END IF
 
 C Calculate fractional relative humidity in the grid cell
-                  ESAT  = AA * EXP( BB * ( BLKTA - 273.15 ) / ( BLKTA - 273.15 + CC ) )
+C Follow the same methodology as in other portions of the code just for the 10m RH
+                  If ( BLKTA .Lt. stdtemp ) Then
+                     ESAT = vp0 *Exp( 22.514 - ( 6.15e3 / BLKTA ) )
+                  Else
+                     ESAT = vp0 *Exp( svp2 * ( BLKTA -stdtemp ) / ( BLKTA -svp3 ) ) 
+                  End If
                   BLKRH = BLKPRS * BLKQV / ( ( EPSWATER + BLKQV ) *  ESAT )       
                   BLKRH = MIN( 0.99, MAX( 0.005, BLKRH ) )
 
@@ -802,14 +743,9 @@ C 45-99% RH range.  Store powers of RH for polynomial calculations.
                   RH = MAX( 0.45, MIN( 0.99, RH ) )
                   DRH = REAL( RH, 8 )
 
-C Calculate size-correction factors from Equations 8 & 9 of Zhang et al.
-                  C0 =         C0_COEFF( 1 )
-     &               + DRH * ( C0_COEFF( 2 )
-     &               + DRH * ( C0_COEFF( 3 )
-     &               + DRH * ( C0_COEFF( 4 )
-     &               + DRH * ( C0_COEFF( 5 )
-     &               + DRH * ( C0_COEFF( 6 ) ) ) ) ) )
-                  C80 = C0 / 1.97D0
+C Calculate size-correction factors from Equation 3 of Lewis & Schwartz 2006 and Zhang et al 2006 equation 2. 
+                  C0  = 3.70D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
+                  C80 = 1.82D0 * ( (1.0D0-DRH) / (2.0D0-DRH) ) ** (1.0D0/3.0D0)
 
 C Calculate solute mass fraction using Equation 1 of Zhang et al.
                   XSW =         X_COEFF( 1 )
@@ -838,10 +774,11 @@ C volume additivity of dry salt plus water
 C Set minimum and maximum diameters for integration using the size-
 C correction factors of Zhang et al. (2005)
 
-C Gong-Monahan flux function is valid from 0.03-5.0 um dry radius;
+C Gong-Monahan flux function is valid from 0.005-5.0 um dry radius;
 C multiply by 4 to get wet diameter at 80% RH
-                  DPMINO = 1.2E-7 / REAL( C80, 4 )
-                  DPMAXO = MIN( DPMAX, DPMAX / REAL( C80, 4 ) ) 
+                  DPMINO = 2.0E-8 / REAL( C80, 4 )
+                  DPMAXO = MIN( DPMAX, DPMAX / REAL( C80, 4 ) )
+
 
 C deLeeuw flux function is valid from 1.6-20 um diameter at formation
 !                 DPMINS = 1.6E-6 / C0 
@@ -851,6 +788,10 @@ C Calculate scaling factors to correct the tabulated fluxes for the 10m
 C wind speed in this cell.  Note: tabulated values are based on 1 m/s.
                   WDSCALO = MIN( U10, 20.0 ) ** 3.41        ! Gong-Monahan flux function
 !                 WDSCALS = EXP( 0.23 * MIN( U10, 9.0 ) )   ! deLeeuw flux function
+
+C SST scaling factor based on Jaegle et al. (2011)
+C linearized by Ovadnevaite et al. (2014)
+                  SSTSCALO = 0.38 + 0.054 * SST
 
 C Calculate whitecap coverage fraction 
                   WCAP = 3.84E-6 * WDSCALO ! Eq. 5, Clarke et al. (2006) JGR
@@ -873,7 +814,8 @@ C grid cell and set the appropriate data values
                   SIGKRH = SIGK ( IPOS ) 
                   FNJRH  = FNJ  ( IPOS )
                   FNKRH  = FNK  ( IPOS )
-                  VFLXRH = VFLUX( IPOS ) * ( OFRAC + SFRAC / WCAP )
+                  VFLXRH = VFLUX( IPOS ) * ( OFRAC * SSTSCALO
+     &            + (SFRAC * 0.5) / WCAP )
 
 C Save certain functions of the geometric standard deviations for later use
                   LNSGJ  = LOG( SIGJRH )
@@ -907,6 +849,7 @@ C by particle density.  Multiply by chemical speciation factors to
 C obtain speciated mass emissions.
 
                   ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
+
                   ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW, 4 )
 
                   DO S = 1, NSSSPC
@@ -979,7 +922,7 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                         SSOUTD( V ) = SSOUTS( N,C,R )
                      END DO
 
-                     AIRVOL = CELLVOL / RJACM( C,R )
+                     AIRVOL = CELLVOL / Met_Data%RJACM( C,R,1 )
 
                      DO S = 1, NSSDIAG
                         SSBF( S,C,R ) = SSBF( S,C,R ) + SSOUTD( S ) * AIRVOL

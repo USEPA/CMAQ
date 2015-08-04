@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -64,7 +64,7 @@ c..Miscellaneous variables
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
 
-      REAL    EBI_TMSTEP   ! Time step for EBI loops (min)
+      REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
@@ -72,21 +72,41 @@ c...Allocatable arrays
       INTEGER, ALLOCATABLE :: ACTSP( : )         ! Index of active species
       INTEGER, ALLOCATABLE :: IOLD2NEW( :,: )    ! YC species map, used if NSPECIAL > 0
 
-      REAL( 8 ), ALLOCATABLE ::  RKI(   :,  : )     ! Rate constants
+      REAL( 8 ), ALLOCATABLE ::  RKI(  : )     ! Rate constants
       REAL( 8 ), ALLOCATABLE ::  RKI_SAV(  :,  : )  ! Saved values of RKI for SS species calcs
 
-      REAL( 8 ), ALLOCATABLE ::  YC (   :, : )      ! Species concentrations
-      REAL( 8 ), ALLOCATABLE ::  YC0(   :, : )      ! Species concentrations
-      REAL( 8 ), ALLOCATABLE ::  YCP(   :, : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC (  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YC0(  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  YCP(  : )      ! Species concentrations
+      REAL( 8 ), ALLOCATABLE ::  SYC(  :, : )   ! Species concentrations
 
-      REAL, ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor
-      REAL, ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
+      REAL, ALLOCATABLE      :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor
+      REAL, ALLOCATABLE      :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
 
-      REAL( 8 ), ALLOCATABLE ::  RXRAT( :, : )     ! Reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
-      REAL( 8 ), ALLOCATABLE ::  PROD(  :, : )     ! Prod of species
-      REAL( 8 ), ALLOCATABLE ::  LOSS(  :, : )     ! Loss of species
+      REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
+      REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
 
+      REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
+      REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
+      REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
+      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
+
+      REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
+      REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
+
+      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
+      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
+      LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+
+      REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
+!      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
+      REAL( 8 ), ALLOCATABLE ::  H2O     ( : )     ! Cell H2O mixing ratio (ppmV)
+      REAL( 8 ), ALLOCATABLE ::  TEMP    ( : )     ! Cell Temperature
+      REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
+      REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
+      LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
 
 c..Species indices
       INTEGER, PARAMETER :: O3               =    1
@@ -217,23 +237,26 @@ c..Species indices
       INTEGER, PARAMETER :: BNZHRXN          =  126
       INTEGER, PARAMETER :: SESQ             =  127
       INTEGER, PARAMETER :: SESQRXN          =  128
-      INTEGER, PARAMETER :: AALKJ            =  129
+      INTEGER, PARAMETER :: AXYL1J           =  129
       INTEGER, PARAMETER :: AOLGAJ           =  130
-      INTEGER, PARAMETER :: AXYL1J           =  131
-      INTEGER, PARAMETER :: AXYL2J           =  132
-      INTEGER, PARAMETER :: ATOL1J           =  133
-      INTEGER, PARAMETER :: ATOL2J           =  134
-      INTEGER, PARAMETER :: ABNZ1J           =  135
-      INTEGER, PARAMETER :: ABNZ2J           =  136
-      INTEGER, PARAMETER :: ATRP1J           =  137
-      INTEGER, PARAMETER :: AOLGBJ           =  138
-      INTEGER, PARAMETER :: ATRP2J           =  139
-      INTEGER, PARAMETER :: AISO1J           =  140
-      INTEGER, PARAMETER :: AISO2J           =  141
-      INTEGER, PARAMETER :: ASQTJ            =  142
-      INTEGER, PARAMETER :: APOCI            =  143
-      INTEGER, PARAMETER :: APNCOMI          =  144
-      INTEGER, PARAMETER :: APOCJ            =  145
-      INTEGER, PARAMETER :: APNCOMJ          =  146
+      INTEGER, PARAMETER :: AXYL2J           =  131
+      INTEGER, PARAMETER :: ATOL1J           =  132
+      INTEGER, PARAMETER :: ATOL2J           =  133
+      INTEGER, PARAMETER :: ABNZ1J           =  134
+      INTEGER, PARAMETER :: ABNZ2J           =  135
+      INTEGER, PARAMETER :: ATRP1J           =  136
+      INTEGER, PARAMETER :: AOLGBJ           =  137
+      INTEGER, PARAMETER :: ATRP2J           =  138
+      INTEGER, PARAMETER :: AISO1J           =  139
+      INTEGER, PARAMETER :: AISO2J           =  140
+      INTEGER, PARAMETER :: ASQTJ            =  141
+      INTEGER, PARAMETER :: APAH1J           =  142
+      INTEGER, PARAMETER :: APAH2J           =  143
+      INTEGER, PARAMETER :: AALK1J           =  144
+      INTEGER, PARAMETER :: AALK2J           =  145
+      INTEGER, PARAMETER :: APOCI            =  146
+      INTEGER, PARAMETER :: APNCOMI          =  147
+      INTEGER, PARAMETER :: APOCJ            =  148
+      INTEGER, PARAMETER :: APNCOMJ          =  149
 
       END MODULE HRDATA

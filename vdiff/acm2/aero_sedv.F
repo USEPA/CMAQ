@@ -18,19 +18,21 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine aero_sedv ( col, row, conc, vsed_ae )
+      subroutine aero_sedv ( col, row, cgrd, vsed_ae )
 
 C-----------------------------------------------------------------------
 C Get accum. and coarse mode grav. settling vel
 C used Binkowski`s aerosol dry deposition routine as a guide
 C 08 Feb 13 J.Young: initial
 C 20 Jun 14 J.Young: restructure
+C 22 Oct 14 J.Bash:  replaced P0 with STDATMPA from CONST.EXT and shared 
+C                    variables in the asx_data_mod
 C-----------------------------------------------------------------------
 
       use grid_conf           ! horizontal & vertical domain specifications
       use cgrid_spcs          ! CGRID mechanism species
       use utilio_defn      
-      use vdiff_met
+      use asx_data_mod, Only: Met_Data
       use aero_data           ! aero variable data
       use soa_defn            ! gas soa data
       use aeromet_data        ! Includes CONST.EXT
@@ -41,12 +43,11 @@ C Includes:
 
 C Arguments
       integer, intent( in )  :: col, row
-      real,    intent( in )  :: conc( :,: )     ! cgrid subsection (layers,species)
+      real,    intent( in )  :: cgrd( :,: )     ! cgrid subsection (layers,species)
       real,    intent( out ) :: vsed_ae( :,: )  ! settling velocities [ m/s ]
 
 C Parameters
       real,    parameter :: t0 = 288.15      ! [ K ] ! starting standard surface temp.
-      real,    parameter :: p0 = 101325.0    ! standard surface pressure [ Pa ]
       real,    parameter :: two3 = 2.0 / 3.0
       integer, parameter :: n_ae_sed_spc = 6 ! no. of surrogates for aero settling velocities
 
@@ -92,8 +93,8 @@ C follow the Namelist dep vel surrogate name table
       character( 16 ) :: vname                  ! variable name
       character( 96 ) :: xmsg = ' '
 
-      integer  c, r, l, v, n, j      ! loop counters
-      integer  spc, s                ! species loop counter
+      integer  l, v, n, j      ! loop counters
+      integer  spc, s          ! species loop counter
       integer  astat
 
       integer :: jdate = 0, jtime = 0
@@ -104,7 +105,7 @@ C follow the Namelist dep vel surrogate name table
      &                        xxlsgac, xxlsgco,
      &                        pdensac, pdensco,
      &                        vsed )
-          use vdiff_met
+          use asx_data_mod, Only: Met_Data
           use aeromet_data
           implicit none
           real, intent( in ) :: xlm    ( : )  ! atmos mean free path [ m ]
@@ -182,20 +183,20 @@ C Set the settling vel surrogate pointers according to the depv table
       do l = 1, nlays
 
 C Set meteorological data for the grid cell.
-         airtemp = ta  ( col,row,l )
-         airpres = pres( col,row,l )
+         airtemp = Met_Data%ta  ( col,row,l )
+         airpres = Met_Data%pres( col,row,l )
 
 C extract grid cell concentrations of aero species from CGRID
 C into aerospc_conc in aero_data module
-         call extract_aero( conc( l,: ), .true. )  ! set minimum floor
+         call extract_aero( cgrd( l,: ), .true. )  ! set minimum floor
 
 c extract soa concentrations from cgrid
-         call extract_soa( conc( l,: ) )
+         call extract_soa( cgrd( l,: ) )
 
 C Calculate aerosol surface area to 2nd moment. 
          do s = 2, n_mode
             n = aerosrf_map( s )
-            moment2_conc( s ) = conc( l,n ) / pi
+            moment2_conc( s ) = cgrd( l,n ) / pi
          end do
 
 C Get the geometric mean diameters and standard deviations of the
@@ -250,7 +251,7 @@ C Save getpar values to arrays
          pdensco( l ) = aeromode_dens( 3 )
  
 C Calculate mean free path [ m ]:
-         xlm( l ) = 6.6328e-8 * p0 * airtemp / ( t0 * airpres )
+         xlm( l ) = 6.6328e-8 * STDATMPA * airtemp / ( t0 * airpres )
 
 C Calculate dynamic viscosity [ kg/m/s ]:
          amu( l ) = 1.458e-6 * airtemp * sqrt( airtemp ) / ( airtemp + 110.4 )
@@ -293,7 +294,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Calculate settling velocity for Aitken, accumulation, and coarse modes.
 C-----------------------------------------------------------------------
 
-      use vdiff_met
+      use asx_data_mod, Only: Met_Data
       use aeromet_data   ! Includes CONST.EXT
 
       implicit none
@@ -334,7 +335,6 @@ C modal sedimentation velocities for 0th (number), 2nd (srf area), and 3rd (mass
 
  !    real, parameter :: bhat    = 1.246 ! Constant from Cunningham slip correction
       real, parameter :: bhat    = 2.492 ! 2 X Constant from Cunningham slip correction
-      real, parameter :: two3    = 2.0 / 3.0
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -363,7 +363,7 @@ C Scalar variables for VARIABLE standard deviations.
 
 C-----------------------------------------------------------------------
 
-      do l = 1, size( ta, 3 )
+      do l = 1, size( met_data%ta, 3 )
 
 C Calculate Knudsen numbers * bhat
          bxlm = bhat * xlm( l )

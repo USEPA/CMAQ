@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 18, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -57,15 +57,13 @@ C..EXTERNAL FUNCTIONS: NONE
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ), SAVE  :: PNAME = 'HRG1'   ! Prgram Name
+!     CHARACTER( 16 ), SAVE  :: PNAME = 'HRG1'   ! Prgram Name
 
 
 C..SCRATCH LOCAL VARIABLES:
       REAL( 8 ) :: O1D_S               ! sum of O1D loss frequencies
       REAL( 8 ) :: O3P_S               ! stoich coeff for O3P from O1D
 
-      REAL( 8 ) :: EXN_S               ! sum of NO2EX loss frequencies
-      REAL( 8 ) :: NO2_S               ! stoich coeff for NO2 from NO2EX
 
 
       REAL( 8 ) :: R1_2                ! production term for NO from NO2
@@ -92,10 +90,10 @@ c  O1D Section
 c    1) sum of the rate constants for all O1D loss reactions
 c    2) get fractional yield of O3P from O1D loss
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      O1D_S =                 RKI( NCELL,  20 )                            ! O1D=0.2000D+01*OH
-     &      +                 RKI( NCELL,  21 )                            ! O1D=O3P
+      O1D_S =                 RKI(  20 )                            ! O1D=0.2000D+01*OH
+     &      +                 RKI(  21 )                            ! O1D=O3P
 
-      O3P_S =                 RKI( NCELL,  21 )                            ! O1D=O3P
+      O3P_S =                 RKI(  21 )                            ! O1D=O3P
 
       O3P_S  = O3P_S / O1D_S
 
@@ -107,21 +105,21 @@ c           except NO2+NO3=NO+NO2 (it is treated as if it were NO3=NO )
 c    P1 =   remaining NO production terms
 c    L1 =   loss of NO (except rxns producing NO2 - they are in R2_1)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      R1_2 =                 RKI( NCELL,   1 )                            ! NO2=NO+O3P
-     &     +                 RKI( NCELL,   5 ) * YC( NCELL, O3P              )   ! NO2+O3P=NO
+      R1_2 =                 RKI(   1 )                            ! NO2=NO+O3P
+     &     +                 RKI(   5 ) * YC( O3P              )   ! NO2+O3P=NO
       R1_2  = R1_2 * DTC
 
 
-      P1 =                 RXRAT( NCELL,  15 )      ! NO2+NO3=NO+NO2
-     &   +                 RXRAT( NCELL,  16 )      ! NO3=NO
-     &   +                 RXRAT( NCELL,  23 )      ! HONO=NO+OH
-     &   +                 RXRAT( NCELL, 572 )      ! CLNO=NO+CL
-      P1    = YC0( NCELL, NO ) + P1 * DTC
+      P1 =                 RXRAT(  15 )      ! NO2+NO3=NO+NO2
+     &   +                 RXRAT(  16 )      ! NO3=NO
+     &   +                 RXRAT(  23 )      ! HONO=NO+OH
+     &   +                 RXRAT( 572 )      ! CLNO=NO+CL
+      P1    = YC0( NO ) + P1 * DTC
 
 
-      L1 =                 RKI( NCELL,  22 ) * YC( NCELL, OH               )   ! NO+OH=HONO
-     &   +                 RKI( NCELL,  61 ) * YC( NCELL, RO2XC            )   ! NO+RO2XC=
-     &   +                 RKI( NCELL, 571 ) * YC( NCELL, CL               )   ! NO+CL=CLNO
+      L1 =                 RKI(  22 ) * YC( OH               )   ! NO+OH=HONO
+     &   +                 RKI(  61 ) * YC( RO2XC            )   ! NO+RO2XC=
+     &   +                 RKI( 571 ) * YC( CL               )   ! NO+CL=CLNO
       L1    = 1.0D0 + L1 * DTC
 
 
@@ -136,84 +134,84 @@ c            a)  NO+O3=NO2 not included
 c            b)  NO+NO3=2NO2 (1/2 of NO2 formation rate included )
 c    L2 = loss of NO2 (except rxns producing NO2 - they are in R1_2)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      R2_1 =                 RKI( NCELL,   4 ) * YC( NCELL, O3P              )   ! NO+O3P=NO2
-     &     +                 RKI( NCELL,   9 ) * YC( NCELL, NO3              )   ! NO+NO3=0.2000D+...
-     &     +    2.0000D+00 * RKI( NCELL,  10 ) * YC( NCELL, NO               )   ! NO+NO=0.2000D+01*NO2
-     &     +                 RKI( NCELL,  31 ) * YC( NCELL, HO2              )   ! NO+HO2=NO2+OH
-     &     +                 RKI( NCELL,  50 ) * YC( NCELL, MEO2             )   ! NO+MEO2=NO2+HCHO+HO2
-     &     +                 RKI( NCELL,  56 ) * YC( NCELL, RO2C             )   ! NO+RO2C=NO2
-     &     +                 RKI( NCELL,  70 ) * YC( NCELL, MECO3            )   ! NO+MECO3=NO2+CO2+...
-     &     +                 RKI( NCELL,  80 ) * YC( NCELL, RCO3             )   ! NO+RCO3=NO2+RO2C+...
-     &     +                 RKI( NCELL,  91 ) * YC( NCELL, BZCO3            )   ! NO+BZCO3=NO2+CO2+...
-     &     +                 RKI( NCELL, 103 ) * YC( NCELL, MACO3            )   ! NO+MACO3=NO2+CO2+...
-     &     +                 RKI( NCELL, 581 ) * YC( NCELL, CLO              )   ! NO+CLO=NO2+CL
+      R2_1 =                 RKI(   4 ) * YC( O3P              )   ! NO+O3P=NO2
+     &     +                 RKI(   9 ) * YC( NO3              )   ! NO+NO3=0.2000D+...
+     &     +    2.0000D+00 * RKI(  10 ) * YC( NO               )   ! NO+NO=0.2000D+01*NO2
+     &     +                 RKI(  31 ) * YC( HO2              )   ! NO+HO2=NO2+OH
+     &     +                 RKI(  50 ) * YC( MEO2             )   ! NO+MEO2=NO2+HCHO+HO2
+     &     +                 RKI(  56 ) * YC( RO2C             )   ! NO+RO2C=NO2
+     &     +                 RKI(  70 ) * YC( MECO3            )   ! NO+MECO3=NO2+CO2+...
+     &     +                 RKI(  80 ) * YC( RCO3             )   ! NO+RCO3=NO2+RO2C+...
+     &     +                 RKI(  91 ) * YC( BZCO3            )   ! NO+BZCO3=NO2+CO2+...
+     &     +                 RKI( 103 ) * YC( MACO3            )   ! NO+MACO3=NO2+CO2+...
+     &     +                 RKI( 581 ) * YC( CLO              )   ! NO+CLO=NO2+CL
       R2_1  = R2_1 * DTC
 
 
-      P2 =                 RXRAT( NCELL,   9 )      ! NO+NO3=0.2000D+01*NO2
-     &   +                 RXRAT( NCELL,  12 )      ! N2O5=NO2+NO3
-     &   +                 RXRAT( NCELL,  17 )      ! NO3=NO2+O3P
-     &   +                 RXRAT( NCELL,  24 )      ! OH+HONO=NO2
-     &   +                 RXRAT( NCELL,  26 )      ! OH+NO3=NO2+HO2
-     &   +                 RXRAT( NCELL,  28 )      ! HNO3=NO2+OH
-     &   +                 RXRAT( NCELL,  33 )      ! HNO4=NO2+HO2
-     &   +    6.1000D-01 * RXRAT( NCELL,  34 )      ! HNO4=0.6100D+00*NO2+...
-     &   +                 RXRAT( NCELL,  35 )      ! HNO4+OH=NO2
-     &   +    8.0000D-01 * RXRAT( NCELL,  39 )      ! NO3+HO2=0.8000D+...
-     &   +    2.0000D+00 * RXRAT( NCELL,  40 )      ! NO3+NO3=0.2000D+01*NO2
-     &   +                 RXRAT( NCELL,  47 )      ! NO2EX=NO2
-     &   +                 RXRAT( NCELL,  48 )      ! NO2EX=NO2
-     &   +                 RXRAT( NCELL,  53 )      ! MEO2+NO3=NO2+HO2+HCHO
-     &   +                 RXRAT( NCELL,  58 )      ! RO2C+NO3=NO2
-     &   +                 RXRAT( NCELL,  63 )      ! RO2XC+NO3=NO2
-     &   +                 RXRAT( NCELL,  68 )      ! PAN=NO2+MECO3
-     &   +    6.0000D-01 * RXRAT( NCELL,  69 )      ! PAN=0.6000D+00*NO2+...
-     &   +                 RXRAT( NCELL,  72 )      ! MECO3+NO3=NO2+CO2+MEO2
-     &   +                 RXRAT( NCELL,  78 )      ! PAN2=NO2+RCO3
-     &   +    6.0000D-01 * RXRAT( NCELL,  79 )      ! PAN2=0.6000D+00*NO2+...
-     &   +                 RXRAT( NCELL,  82 )      ! RCO3+NO3=NO2+RO2C+...
-     &   +                 RXRAT( NCELL,  89 )      ! PBZN=NO2+BZCO3
-     &   +    6.0000D-01 * RXRAT( NCELL,  90 )      ! PBZN=0.6000D+00*NO2+...
-     &   +                 RXRAT( NCELL,  93 )      ! BZCO3+NO3=NO2+CO2+BZO+...
-     &   +                 RXRAT( NCELL, 101 )      ! MAPAN=NO2+MACO3
-     &   +    6.0000D-01 * RXRAT( NCELL, 102 )      ! MAPAN=0.6000D+00*NO2+...
-     &   +                 RXRAT( NCELL, 105 )      ! MACO3+NO3=NO2+CO2+...
-     &   +                 RXRAT( NCELL, 138 )      ! NO+xNO2=NO2+NO
-     &   +                 RXRAT( NCELL, 140 )      ! xNO2+NO3=NO2+NO3
-     &   +    5.0000D-01 * RXRAT( NCELL, 141 )      ! xNO2+MEO2=0.5000D+...
-     &   +    5.0000D-01 * RXRAT( NCELL, 142 )      ! xNO2+RO2C=0.5000D+...
-     &   +    5.0000D-01 * RXRAT( NCELL, 143 )      ! xNO2+RO2XC=0.5000D+...
-     &   +                 RXRAT( NCELL, 144 )      ! xNO2+MECO3=NO2+MECO3
-     &   +                 RXRAT( NCELL, 145 )      ! xNO2+RCO3=NO2+RCO3
-     &   +                 RXRAT( NCELL, 146 )      ! xNO2+BZCO3=NO2+BZCO3
-     &   +                 RXRAT( NCELL, 147 )      ! xNO2+MACO3=NO2+MACO3
-     &   +    1.9000D-02 * RXRAT( NCELL, 273 )      ! RNO3+OH=0.1900D-...
-     &   +                 RXRAT( NCELL, 274 )      ! RNO3=NO2+0.5540D+...
-     &   +                 RXRAT( NCELL, 575 )      ! CLONO=NO2+CL
-     &   +                 RXRAT( NCELL, 576 )      ! CLNO2=NO2+CL
-     &   +                 RXRAT( NCELL, 580 )      ! CL+NO3=NO2+CLO
-     &   +                 RXRAT( NCELL, 583 )      ! CLONO2=NO2+CLO
-     &   +                 RXRAT( NCELL, 585 )      ! CLONO2=NO2+CLO
-     &   +    3.8000D-02 * RXRAT( NCELL, 598 )      ! RNO3+CL=0.3800D-...
-      P2 = YC0( NCELL, NO2 ) + P2 * DTC
+      P2 =                 RXRAT(   9 )      ! NO+NO3=0.2000D+01*NO2
+     &   +                 RXRAT(  12 )      ! N2O5=NO2+NO3
+     &   +                 RXRAT(  17 )      ! NO3=NO2+O3P
+     &   +                 RXRAT(  24 )      ! OH+HONO=NO2
+     &   +                 RXRAT(  26 )      ! OH+NO3=NO2+HO2
+     &   +                 RXRAT(  28 )      ! HNO3=NO2+OH
+     &   +                 RXRAT(  33 )      ! HNO4=NO2+HO2
+     &   +    6.1000D-01 * RXRAT(  34 )      ! HNO4=0.6100D+00*NO2+...
+     &   +                 RXRAT(  35 )      ! HNO4+OH=NO2
+     &   +    8.0000D-01 * RXRAT(  39 )      ! NO3+HO2=0.8000D+...
+     &   +    2.0000D+00 * RXRAT(  40 )      ! NO3+NO3=0.2000D+01*NO2
+     &   +                 RXRAT(  47 )      ! NO2EX=NO2
+     &   +                 RXRAT(  48 )      ! NO2EX=NO2
+     &   +                 RXRAT(  53 )      ! MEO2+NO3=NO2+HO2+HCHO
+     &   +                 RXRAT(  58 )      ! RO2C+NO3=NO2
+     &   +                 RXRAT(  63 )      ! RO2XC+NO3=NO2
+     &   +                 RXRAT(  68 )      ! PAN=NO2+MECO3
+     &   +    6.0000D-01 * RXRAT(  69 )      ! PAN=0.6000D+00*NO2+...
+     &   +                 RXRAT(  72 )      ! MECO3+NO3=NO2+CO2+MEO2
+     &   +                 RXRAT(  78 )      ! PAN2=NO2+RCO3
+     &   +    6.0000D-01 * RXRAT(  79 )      ! PAN2=0.6000D+00*NO2+...
+     &   +                 RXRAT(  82 )      ! RCO3+NO3=NO2+RO2C+...
+     &   +                 RXRAT(  89 )      ! PBZN=NO2+BZCO3
+     &   +    6.0000D-01 * RXRAT(  90 )      ! PBZN=0.6000D+00*NO2+...
+     &   +                 RXRAT(  93 )      ! BZCO3+NO3=NO2+CO2+BZO+...
+     &   +                 RXRAT( 101 )      ! MAPAN=NO2+MACO3
+     &   +    6.0000D-01 * RXRAT( 102 )      ! MAPAN=0.6000D+00*NO2+...
+     &   +                 RXRAT( 105 )      ! MACO3+NO3=NO2+CO2+...
+     &   +                 RXRAT( 138 )      ! NO+xNO2=NO2+NO
+     &   +                 RXRAT( 140 )      ! xNO2+NO3=NO2+NO3
+     &   +    5.0000D-01 * RXRAT( 141 )      ! xNO2+MEO2=0.5000D+...
+     &   +    5.0000D-01 * RXRAT( 142 )      ! xNO2+RO2C=0.5000D+...
+     &   +    5.0000D-01 * RXRAT( 143 )      ! xNO2+RO2XC=0.5000D+...
+     &   +                 RXRAT( 144 )      ! xNO2+MECO3=NO2+MECO3
+     &   +                 RXRAT( 145 )      ! xNO2+RCO3=NO2+RCO3
+     &   +                 RXRAT( 146 )      ! xNO2+BZCO3=NO2+BZCO3
+     &   +                 RXRAT( 147 )      ! xNO2+MACO3=NO2+MACO3
+     &   +    1.9000D-02 * RXRAT( 273 )      ! RNO3+OH=0.1900D-...
+     &   +                 RXRAT( 274 )      ! RNO3=NO2+0.5540D+...
+     &   +                 RXRAT( 575 )      ! CLONO=NO2+CL
+     &   +                 RXRAT( 576 )      ! CLNO2=NO2+CL
+     &   +                 RXRAT( 580 )      ! CL+NO3=NO2+CLO
+     &   +                 RXRAT( 583 )      ! CLONO2=NO2+CLO
+     &   +                 RXRAT( 585 )      ! CLONO2=NO2+CLO
+     &   +    3.8000D-02 * RXRAT( 598 )      ! RNO3+CL=0.3800D-...
+      P2 = YC0( NO2 ) + P2 * DTC
 
 
-      L2 =                 RKI( NCELL,   6 ) * YC( NCELL, O3P              )   ! NO2+O3P=NO3
-     &   +                 RKI( NCELL,   8 ) * YC( NCELL, O3               )   ! NO2+O3=NO3
-     &   +                 RKI( NCELL,  11 ) * YC( NCELL, NO3              )   ! NO2+NO3=N2O5
-     &   +                 RKI( NCELL,  25 ) * YC( NCELL, OH               )   ! NO2+OH=HNO3
-     &   +                 RKI( NCELL,  32 ) * YC( NCELL, HO2              )   ! NO2+HO2=HNO4
-     &   +                 RKI( NCELL,  46 )                            ! NO2=NO2EX
-     &   +                 RKI( NCELL,  67 ) * YC( NCELL, MECO3            )   ! NO2+MECO3=PAN
-     &   +                 RKI( NCELL,  77 ) * YC( NCELL, RCO3             )   ! NO2+RCO3=PAN2
-     &   +                 RKI( NCELL,  88 ) * YC( NCELL, BZCO3            )   ! NO2+BZCO3=PBZN
-     &   +                 RKI( NCELL, 100 ) * YC( NCELL, MACO3            )   ! NO2+MACO3=MAPAN
-     &   +                 RKI( NCELL, 113 ) * YC( NCELL, TBUO             )   ! NO2+TBUO=RNO3
-     &   +                 RKI( NCELL, 115 ) * YC( NCELL, BZO              )   ! NO2+BZO=NPHE
-     &   +                 RKI( NCELL, 573 ) * YC( NCELL, CL               )   ! NO2+CL=CLONO
-     &   +                 RKI( NCELL, 574 ) * YC( NCELL, CL               )   ! NO2+CL=CLNO2
-     &   +                 RKI( NCELL, 582 ) * YC( NCELL, CLO              )   ! NO2+CLO=CLONO2
-     &   +                 RKI( NCELL, 691 )                            ! NO2=0.5000D+...
+      L2 =                 RKI(   6 ) * YC( O3P              )   ! NO2+O3P=NO3
+     &   +                 RKI(   8 ) * YC( O3               )   ! NO2+O3=NO3
+     &   +                 RKI(  11 ) * YC( NO3              )   ! NO2+NO3=N2O5
+     &   +                 RKI(  25 ) * YC( OH               )   ! NO2+OH=HNO3
+     &   +                 RKI(  32 ) * YC( HO2              )   ! NO2+HO2=HNO4
+     &   +                 RKI(  46 )                            ! NO2=NO2EX
+     &   +                 RKI(  67 ) * YC( MECO3            )   ! NO2+MECO3=PAN
+     &   +                 RKI(  77 ) * YC( RCO3             )   ! NO2+RCO3=PAN2
+     &   +                 RKI(  88 ) * YC( BZCO3            )   ! NO2+BZCO3=PBZN
+     &   +                 RKI( 100 ) * YC( MACO3            )   ! NO2+MACO3=MAPAN
+     &   +                 RKI( 113 ) * YC( TBUO             )   ! NO2+TBUO=RNO3
+     &   +                 RKI( 115 ) * YC( BZO              )   ! NO2+BZO=NPHE
+     &   +                 RKI( 573 ) * YC( CL               )   ! NO2+CL=CLONO
+     &   +                 RKI( 574 ) * YC( CL               )   ! NO2+CL=CLNO2
+     &   +                 RKI( 582 ) * YC( CLO              )   ! NO2+CLO=CLONO2
+     &   +                 RKI( 691 )                            ! NO2=0.5000D+...
       L2     = 1.0D0 + L2 * DTC
 
 
@@ -222,37 +220,38 @@ c  O3 Section
 c    P3 = production of O3 except O+O2=O3
 c    L3 =   loss terms for O3 except NO+O3=NO2
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      P3 =    3.0000D-01 * RXRAT( NCELL,  71 )      ! MECO3+HO2=0.3000D+...
-     &   +    2.5000D-01 * RXRAT( NCELL,  81 )      ! RCO3+HO2=0.2500D+...
-     &   +    2.5000D-01 * RXRAT( NCELL,  92 )      ! BZCO3+HO2=0.2500D+...
-     &   +    2.5000D-01 * RXRAT( NCELL, 104 )      ! MACO3+HO2=0.2500D+...
-      P3 = YC0( NCELL, O3 ) + P3 * DTC
+      P3 =    3.0000D-01 * RXRAT(  71 )      ! MECO3+HO2=0.3000D+...
+     &   +    2.5000D-01 * RXRAT(  81 )      ! RCO3+HO2=0.2500D+...
+     &   +    2.5000D-01 * RXRAT(  92 )      ! BZCO3+HO2=0.2500D+...
+     &   +    2.5000D-01 * RXRAT( 104 )      ! MACO3+HO2=0.2500D+...
+      P3 = YC0( O3 ) + P3 * DTC
 
 
-      L3 =                 RKI( NCELL,   3 ) * YC( NCELL, O3P              )   ! O3+O3P=
-     &   +                 RKI( NCELL,   8 ) * YC( NCELL, NO2              )   ! O3+NO2=NO3
-     &   +                 RKI( NCELL,  18 )                            ! O3=O1D
-     &   +                 RKI( NCELL,  19 )                            ! O3=O3P
-     &   +                 RKI( NCELL,  30 ) * YC( NCELL, OH               )   ! O3+OH=HO2
-     &   +                 RKI( NCELL,  36 ) * YC( NCELL, HO2              )   ! O3+HO2=OH
-     &   +                 RKI( NCELL, 251 ) * YC( NCELL, AFG1             )   ! O3+AFG1=0.8260D+...
-     &   +                 RKI( NCELL, 254 ) * YC( NCELL, AFG2             )   ! O3+AFG2=0.8260D+...
-     &   +                 RKI( NCELL, 257 ) * YC( NCELL, AFG3             )   ! O3+AFG3=0.4710D+...
-     &   +                 RKI( NCELL, 259 ) * YC( NCELL, MACR             )   ! O3+MACR=0.2080D+...
-     &   +                 RKI( NCELL, 264 ) * YC( NCELL, MVK              )   ! O3+MVK=0.1640D+...
-     &   +                 RKI( NCELL, 268 ) * YC( NCELL, IPRD             )   ! O3+IPRD=0.2850D+...
-     &   +                 RKI( NCELL, 279 ) * YC( NCELL, ACROLEIN         )   ! O3+ACROLEIN=...
-     &   +                 RKI( NCELL, 519 ) * YC( NCELL, ETHENE           )   ! O3+ETHENE=...
-     &   +                 RKI( NCELL, 523 ) * YC( NCELL, PROPENE          )   ! O3+PROPENE=...
-     &   +                 RKI( NCELL, 527 ) * YC( NCELL, BUTADIENE13      )   ! O3+BUTADIENE13=...
-     &   +                 RKI( NCELL, 531 ) * YC( NCELL, ISOPRENE         )   ! O3+ISOPRENE=...
-     &   +                 RKI( NCELL, 535 ) * YC( NCELL, APIN             )   ! O3+APIN=0.9000D-...
-     &   +                 RKI( NCELL, 539 ) * YC( NCELL, ACETYLENE        )   ! O3+ACETYLENE=...
-     &   +                 RKI( NCELL, 553 ) * YC( NCELL, OLE1             )   ! O3+OLE1=0.9500D-...
-     &   +                 RKI( NCELL, 557 ) * YC( NCELL, OLE2             )   ! O3+OLE2=0.9400D-...
-     &   +                 RKI( NCELL, 563 ) * YC( NCELL, TERP             )   ! O3+TERP=0.7800D-...
-     &   +                 RKI( NCELL, 567 ) * YC( NCELL, SESQ             )   ! O3+SESQ=0.7800D-...
-     &   +                 RKI( NCELL, 579 ) * YC( NCELL, CL               )   ! O3+CL=CLO
+      L3 =                 RKI(   3 ) * YC( O3P              )   ! O3+O3P=
+     &   +                 RKI(   8 ) * YC( NO2              )   ! O3+NO2=NO3
+     &   +                 RKI(  18 )                            ! O3=O1D
+     &   +                 RKI(  19 )                            ! O3=O3P
+     &   +                 RKI(  30 ) * YC( OH               )   ! O3+OH=HO2
+     &   +                 RKI(  36 ) * YC( HO2              )   ! O3+HO2=OH
+     &   +                 RKI( 251 ) * YC( AFG1             )   ! O3+AFG1=0.8260D+...
+     &   +                 RKI( 254 ) * YC( AFG2             )   ! O3+AFG2=0.8260D+...
+     &   +                 RKI( 257 ) * YC( AFG3             )   ! O3+AFG3=0.4710D+...
+     &   +                 RKI( 259 ) * YC( MACR             )   ! O3+MACR=0.2080D+...
+     &   +                 RKI( 264 ) * YC( MVK              )   ! O3+MVK=0.1640D+...
+     &   +                 RKI( 268 ) * YC( IPRD             )   ! O3+IPRD=0.2850D+...
+     &   +                 RKI( 279 ) * YC( ACROLEIN         )   ! O3+ACROLEIN=...
+     &   +                 RKI( 519 ) * YC( ETHENE           )   ! O3+ETHENE=...
+     &   +                 RKI( 523 ) * YC( PROPENE          )   ! O3+PROPENE=...
+     &   +                 RKI( 527 ) * YC( BUTADIENE13      )   ! O3+BUTADIENE13=...
+     &   +                 RKI( 531 ) * YC( ISOPRENE         )   ! O3+ISOPRENE=...
+     &   +                 RKI( 535 ) * YC( APIN             )   ! O3+APIN=0.9000D-...
+     &   +                 RKI( 539 ) * YC( ACETYLENE        )   ! O3+ACETYLENE=...
+     &   +                 RKI( 553 ) * YC( OLE1             )   ! O3+OLE1=0.9500D-...
+     &   +                 RKI( 557 ) * YC( OLE2             )   ! O3+OLE2=0.9400D-...
+     &   +                 RKI( 563 ) * YC( TERP             )   ! O3+TERP=0.7800D-...
+     &   +                 RKI( 567 ) * YC( SESQ             )   ! O3+SESQ=0.7800D-...
+     &   +                 RKI( 579 ) * YC( CL               )   ! O3+CL=CLO
+     &   +                 RKI( 692 )                            ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 
@@ -261,29 +260,29 @@ c  O3P Section
 c    P12 = production of O3P except NO2+hv=O3P (J1)
 c    L12 = loss terms
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      P12 =                 RXRAT( NCELL,  17 )      ! NO3=O3P+NO2
-     &    +   O3P_S *       RXRAT( NCELL,  18 )      ! O3=O1D
-     &    +                 RXRAT( NCELL,  19 )      ! O3=O3P
-      P12 = YC0( NCELL, O3P ) + P12 * DTC
+      P12 =                 RXRAT(  17 )      ! NO3=O3P+NO2
+     &    +   O3P_S *       RXRAT(  18 )      ! O3=O1D
+     &    +                 RXRAT(  19 )      ! O3=O3P
+      P12 = YC0( O3P ) + P12 * DTC
 
 
-      L12 =                 RKI( NCELL,   2 )                            ! O3P=O3
-     &    +                 RKI( NCELL,   3 ) * YC( NCELL, O3               )   ! O3P+O3=
-     &    +                 RKI( NCELL,   4 ) * YC( NCELL, NO               )   ! O3P+NO=NO2
-     &    +                 RKI( NCELL,   5 ) * YC( NCELL, NO2              )   ! O3P+NO2=NO
-     &    +                 RKI( NCELL,   6 ) * YC( NCELL, NO2              )   ! O3P+NO2=NO3
-     &    +                 RKI( NCELL, 261 ) * YC( NCELL, MACR             )   ! O3P+MACR=RCHO
-     &    +                 RKI( NCELL, 265 ) * YC( NCELL, MVK              )   ! O3P+MVK=0.4500D+...
-     &    +                 RKI( NCELL, 281 ) * YC( NCELL, ACROLEIN         )   ! O3P+ACROLEIN=RCHO
-     &    +                 RKI( NCELL, 521 ) * YC( NCELL, ETHENE           )   ! O3P+ETHENE=0.8000D+...
-     &    +                 RKI( NCELL, 525 ) * YC( NCELL, PROPENE          )   ! O3P+PROPENE=0.4500D+...
-     &    +                 RKI( NCELL, 529 ) * YC( NCELL, BUTADIENE13      )   ! O3P+BUTADIENE13=...
-     &    +                 RKI( NCELL, 533 ) * YC( NCELL, ISOPRENE         )   ! O3P+ISOPRENE=0.2500D+...
-     &    +                 RKI( NCELL, 537 ) * YC( NCELL, APIN             )   ! O3P+APIN=PRD2+TRPRXN
-     &    +                 RKI( NCELL, 555 ) * YC( NCELL, OLE1             )   ! O3P+OLE1=0.4500D+...
-     &    +                 RKI( NCELL, 559 ) * YC( NCELL, OLE2             )   ! O3P+OLE2=0.7900D-...
-     &    +                 RKI( NCELL, 565 ) * YC( NCELL, TERP             )   ! O3P+TERP=0.2370D+...
-     &    +                 RKI( NCELL, 569 ) * YC( NCELL, SESQ             )   ! O3P+SESQ=0.2370D+...
+      L12 =                 RKI(   2 )                            ! O3P=O3
+     &    +                 RKI(   3 ) * YC( O3               )   ! O3P+O3=
+     &    +                 RKI(   4 ) * YC( NO               )   ! O3P+NO=NO2
+     &    +                 RKI(   5 ) * YC( NO2              )   ! O3P+NO2=NO
+     &    +                 RKI(   6 ) * YC( NO2              )   ! O3P+NO2=NO3
+     &    +                 RKI( 261 ) * YC( MACR             )   ! O3P+MACR=RCHO
+     &    +                 RKI( 265 ) * YC( MVK              )   ! O3P+MVK=0.4500D+...
+     &    +                 RKI( 281 ) * YC( ACROLEIN         )   ! O3P+ACROLEIN=RCHO
+     &    +                 RKI( 521 ) * YC( ETHENE           )   ! O3P+ETHENE=0.8000D+...
+     &    +                 RKI( 525 ) * YC( PROPENE          )   ! O3P+PROPENE=0.4500D+...
+     &    +                 RKI( 529 ) * YC( BUTADIENE13      )   ! O3P+BUTADIENE13=...
+     &    +                 RKI( 533 ) * YC( ISOPRENE         )   ! O3P+ISOPRENE=0.2500D+...
+     &    +                 RKI( 537 ) * YC( APIN             )   ! O3P+APIN=PRD2+TRPRXN
+     &    +                 RKI( 555 ) * YC( OLE1             )   ! O3P+OLE1=0.4500D+...
+     &    +                 RKI( 559 ) * YC( OLE2             )   ! O3P+OLE2=0.7900D-...
+     &    +                 RKI( 565 ) * YC( TERP             )   ! O3P+TERP=0.2370D+...
+     &    +                 RKI( 569 ) * YC( SESQ             )   ! O3P+SESQ=0.2370D+...
       L12   = 1.0D0 + L12 * DTC
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -297,9 +296,9 @@ c..compute reciprocal of loss terms
       L12_INV = 1.0D0 / L12
 
 c..compute specific k*delta t terms
-      RK1 = RKI( NCELL,   1 ) * DTC            ! J1    (NO2+hv=NO+O3P)
-      RK2 = RKI( NCELL,   2 ) * DTC            ! J2    (O3P+O2=O3)
-      RK3 = RKI( NCELL,   7 ) * DTC            ! k1_3  (NO+O3=NO2)
+      RK1 = RKI(   1 ) * DTC            ! J1    (NO2+hv=NO+O3P)
+      RK2 = RKI(   2 ) * DTC            ! J2    (O3P+O2=O3)
+      RK3 = RKI(   7 ) * DTC            ! k1_3  (NO+O3=NO2)
 
 c..compute terms that are used to calulate a,b & c
       T1 = RK1  * L2_INV                ! J1   / ( 1.0 + Lno2 * dt )
@@ -334,19 +333,19 @@ c       [O3 ]  = ( P3 + Ko3p->O3 ) / (1 + K1,3 * [NO] + L3 )
 c       [O3P]  = ( P12 + J1 * [NO2] ) / ( 1 + L12 )
 c       [O1D2] = ( Ko3->o1d * [O3] ) / ( O1D_DNM )
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      YCP( NCELL, NO ) = MAX( 0.0D0, ( P1 + XX ) * L1_INV )
+      YCP( NO ) = MAX( 0.0D0, ( P1 + XX ) * L1_INV )
 
-      YCP( NCELL, NO2 ) = MAX( 0.0D0, ( P2 - XX ) * L2_INV )
+      YCP( NO2 ) = MAX( 0.0D0, ( P2 - XX ) * L2_INV )
 
-      S1 = P12 + RK1 * YCP( NCELL, NO2 )
+      S1 = P12 + RK1 * YCP( NO2 )
 
       S2 = T4 * S1
 
-      YCP( NCELL, O3 ) = ( P3 + S2 ) / ( L3 + RK3 * YCP( NCELL, NO ) )
+      YCP( O3 ) = ( P3 + S2 ) / ( L3 + RK3 * YCP( NO ) )
 
-      YCP( NCELL, O3P ) = S1 * L12_INV
+      YCP( O3P ) = S1 * L12_INV
 
-      YCP( NCELL, O1D ) = RKI( NCELL, 18 ) * YCP( NCELL, O3 ) / O1D_S
+      YCP( O1D ) = RKI( 18 ) * YCP( O3 ) / O1D_S
 
       RETURN
 

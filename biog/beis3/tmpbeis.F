@@ -62,6 +62,7 @@ C  05/11: D.Wong-incorporated twoway model implementation
 C  07/14: J.Bash-Added meteorological variables needed for leaf temperature
 C                calculations.
 C  08/14: J.Bash-Added backwards compatibility for earlier versions of MCIP
+C  07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -101,21 +102,8 @@ C External Functions
 C Parameters:
       REAL,    PARAMETER :: HR2SEC = 1.0 / 3600.0
 
-C Latitude and longitude for zenith angle calculation:
-      REAL,    ALLOCATABLE, SAVE :: LAT( :,: ) ! grid lat (deg) -90 <= LAT <= 90
-      REAL,    ALLOCATABLE, SAVE :: LON( :,: ) ! grid lon (deg) -180 <= LON <= 180 
-
 C Gridded meteorology data:
-      REAL,    ALLOCATABLE, SAVE :: TASFC ( :,: )     ! level-1 air temperature (K)
-      REAL,    ALLOCATABLE, SAVE :: SSOLAR( :,: )     ! Surface radiation [W/m**2]
       REAL,    ALLOCATABLE, SAVE :: COSZEN( :,: )     ! cosine of zenith angle
-      REAL,    ALLOCATABLE, SAVE :: PRES  ( :,: )     ! surface pressure [Pa]
-      REAL,    ALLOCATABLE, SAVE :: LAI   ( :,: )     ! WRF modeled lai m^2/m^2
-      REAL,    ALLOCATABLE, SAVE :: USTAR ( :,: )     ! Sufrace friction velocity m/s
-      REAL,    ALLOCATABLE, SAVE :: RSTOM ( :,: )     ! Stomatal Resistance s/m
-      REAL,    ALLOCATABLE, SAVE :: RATM  ( :,: )     ! Atmospheric Resistance s/m      
-      REAL,    ALLOCATABLE, SAVE :: Q2    ( :,: )     ! Water vapor mixing ratio kg/kg 
-      REAL,    ALLOCATABLE, SAVE :: TEMPG ( :,: )     ! Soil temperature K
       INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
 
 C Gridded beis emissions
@@ -133,9 +121,12 @@ C Diagnostic file avg factor
       REAL DIVFAC
 
 C BEIS3 internal, output species:
-      REAL,    ALLOCATABLE, SAVE :: EMPOL( :,:,: )    ! emissions of biogenic categories
-C EMPOL( :,:,1:NSEF-1 ) = beis3 emissions
-C EMPOL( :,:,NSEF )     = hrno  emissions
+      REAL,    ALLOCATABLE, SAVE :: EMPOL( :,:,: )  ! emissions of biogenic categories
+      REAL,    ALLOCATABLE, SAVE :: BIPOL( :,:,: )  ! emissions of biogenic categories
+      REAL,    ALLOCATABLE, SAVE :: NOPOL( :,: )    ! emissions of NO
+C EMPOL( :,:,NSEF )     = biog  emissions
+C BIPOL( :,:,1:NSEF-1 ) = beis3 emissions
+C NOPOL( :,: )          = hrno  emissions
       REAL,    ALLOCATABLE, SAVE :: EMISS( :,:,: )    ! emissions in g/s
 
 C Logical names and unit numbers:
@@ -173,16 +164,55 @@ C Other variables:
       CHARACTER(  16 ) :: PNAME = 'TMPBEIS312'   ! prodedure name
 
       INTEGER      GXOFF, GYOFF           ! global origin offset from file
-C for INTERPX
+C for XTRACT3
       INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2  ! GRID_DRO_2D
       INTEGER, SAVE :: STRTCOLBS,  ENDCOLBS,  STRTROWBS,  ENDROWBS   ! BIOSEASON
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2  ! MET_CRO_2D
 
-#ifdef Verbose
+#ifdef verbose_tmpbeis
       REAL,    ALLOCATABLE, SAVE :: EMISX( : )
       INTEGER, ALLOCATABLE, SAVE :: CX( : ), RX( : )
 #endif
+
+      INTERFACE
+
+      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+         USE UTILIO_DEFN
+         USE ASX_DATA_MOD, Only: Grid_Data
+         IMPLICIT NONE
+         INTEGER, INTENT( IN )  :: JDATE
+         INTEGER, INTENT( IN )  :: JTIME
+         INTEGER, INTENT( IN )  :: NX
+         INTEGER, INTENT( IN )  :: NY
+         REAL,    INTENT( OUT ) :: COSZEN( :,: )
+      END SUBROUTINE CZANGLE
+      SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
+     &                  SLAI, BIPOL )
+         USE BIOG_EMIS, ONLY: NSEF, NLAI, LAITYPES
+         Use ASX_DATA_MOD
+         IMPLICIT NONE
+         INTEGER, INTENT( IN ) :: JDATE
+         INTEGER, INTENT( IN ) :: JTIME
+         INTEGER, INTENT( IN ) :: NX
+         INTEGER, INTENT( IN ) :: NY
+         INTEGER, INTENT( IN ) :: MSPCS
+         REAL,    INTENT( IN ) :: COSZEN( :,: )
+         REAL,    INTENT( IN ) :: SEMIS ( :,:,: )
+         REAL,    INTENT( IN ) :: SLAI  ( :,:,: )
+         REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
+      END SUBROUTINE BEIS3
+      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
+         USE HGRD_DEFN
+         USE BIOG_EMIS, ONLY: NSEF
+         USE ASX_DATA_MOD
+         USE UTILIO_DEFN
+         IMPLICIT NONE
+         INTEGER, INTENT( IN )  :: JDATE
+         INTEGER, INTENT( IN )  :: JTIME
+         INTEGER, INTENT( IN )  :: TSTEP( 3 )
+         REAL,    INTENT( OUT ) :: NOPOL( :,: )
+      END SUBROUTINE HRNO
+
+      END INTERFACE
 
 C-----------------------------------------------------------------------
 
@@ -216,7 +246,7 @@ C Read description of normalized emissions file
 C Initialize grid definition 
          OK = CHKGRID( NNAME )
 
-C Get domain decomp info for the normalized emissions file
+C Get windowing info for the normalized emissions file
          CALL SUBHFILE ( NNAME, GXOFF, GYOFF,
      &                   STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3 )
 
@@ -256,7 +286,7 @@ C Get domain decomp info for the bioseasons switch file
 
          END IF
 
-C Open met file
+C Ensure met data time and grid for this run match beis emissions data files
          MNAME = PROMPTMFILE( 
      &           'Enter name for gridded met input file',
      &           FSREAD3, 'MET_CRO_2D', PNAME )
@@ -274,10 +304,6 @@ C Check that grid description matches BGRD file
      &           // '" does not match previously set grid.'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
-
-C Get domain decomp info for the met file
-         CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
 C Write emissions diagnostic file?
          BEMIS_DIAG = ENVYN( 'B3GTS_DIAG', 'Write emissions diagnostic file?',
@@ -338,54 +364,9 @@ C Build name table for variables in normalized emissions file
          AVGEMIS = 0.0 ! array
          AVGLAI  = 0.0 ! array
 
-C Open 2-D grid parameters file to get LAT and LON
-         GNAME = PROMPTMFILE( 
-     &           'Enter name for 2D GRID PARAMETERS input file',
-     &           FSREAD3, 'GRID_CRO_2D', PNAME )
-
-         IF ( .NOT. DESC3( GNAME ) ) THEN
-            MESG = 'Could not get description of file "' //
-     &             TRIM( GNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-C Check grid description against BGRD File 
-         IF ( .NOT. CHKGRID( GNAME ) ) THEN
-            MESG = 'Grid in file "' // TRIM( GNAME ) //
-     &             '" does not match previously set grid.'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-C Get domain decomp info from the normalized emissions file (assume met files have
-C same grid dimensions)
-         CALL SUBHFILE ( GNAME, GXOFF, GYOFF,
-     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
 C Allocate memory for data and read
-         ALLOCATE( LAT( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'LAT', PNAME )
-
-         ALLOCATE( LON( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'LON', PNAME )
-
          ALLOCATE( COSZEN( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'COSZEN', PNAME )
-
-         IF ( .NOT. INTERPX( GNAME, 'LAT', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                       0, 0, LAT ) ) THEN
-            MESG = 'Could not read LAT from file "' //
-     &              TRIM( GNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-         IF ( .NOT. INTERPX( GNAME, 'LON', PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                       0, 0, LON ) ) THEN
-            MESG = 'Could not read LON from file "' //
-     &              TRIM( GNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
 
 C Read the various categories of normalized emissions
          DO I = 1, NSEASONS 
@@ -417,37 +398,15 @@ C Read the various categories of normalized emissions
          END DO   ! end loop over seasons
 
 C Allocate memory for arrays
-         ALLOCATE( TASFC( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'TASFC', PNAME )
          
-         ALLOCATE( SSOLAR( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'SSOLAR', PNAME )
-
          ALLOCATE( EMPOL( NCOLS,NROWS,NSEF ), STAT=IOS )
          CALL CHECKMEM( IOS, 'EMPOL', PNAME )
 
-         ALLOCATE( PRES( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'PRES', PNAME )
+         ALLOCATE( BIPOL( NCOLS,NROWS,NSEF-1 ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'BIPOL', PNAME )
 
-! New variables to calculate leaf temperature
-         ALLOCATE( LAI( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'LAI', PNAME ) 
-
-         ALLOCATE( USTAR( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'USTAR', PNAME )
-
-         ALLOCATE( RSTOM( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'RSTOM', PNAME )
-
-         ALLOCATE( RATM( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'RATM', PNAME )
-
-         ALLOCATE( Q2( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'Q2', PNAME )
-
-         ALLOCATE( TEMPG( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'TEMPG', PNAME )
-! End of new variables 
+         ALLOCATE( NOPOL( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'NOPOL', PNAME )
 
          IF ( BEMIS_DIAG ) THEN
             ALLOCATE( EMISS( NCOLS,NROWS,N_SPC_BIOG ), STAT=IOS )
@@ -462,16 +421,16 @@ C Allocate memory for arrays
 
 C Initialize normalized emissons to be used 
          IF ( ASSUME_SUMMER ) THEN
-            SEMIS = AVGEMIS( 1:MY_NCOLS,1:MY_NROWS,1:NSEF-1,NSUMMER )
-            SLAI  = AVGLAI ( 1:MY_NCOLS,1:MY_NROWS,1:NLAI,  NSUMMER )
+            SEMIS = AVGEMIS( 1:MY_NCOLS,1:MY_NROWS,:,NSUMMER )
+            SLAI  = AVGLAI ( 1:MY_NCOLS,1:MY_NROWS,:,NSUMMER )
          ELSE
-            SEMIS = AVGEMIS( 1:MY_NCOLS,1:MY_NROWS,1:NSEF-1,NWINTER )
-            SLAI  = AVGLAI ( 1:MY_NCOLS,1:MY_NROWS,1:NLAI,  NWINTER )
+            SEMIS = AVGEMIS( 1:MY_NCOLS,1:MY_NROWS,:,NWINTER )
+            SLAI  = AVGLAI ( 1:MY_NCOLS,1:MY_NROWS,:,NWINTER )
          END IF
 
          LDATE = 0
 
-#ifdef Verbose
+#ifdef verbose_tmpbeis
          ALLOCATE( EMISX( MSPCS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'EMISX', PNAME )
          ALLOCATE( CX( MSPCS ), STAT=IOS )
@@ -488,12 +447,12 @@ C Loop thru the number of time steps (hourly)
 
       EMISL = 0.0   ! array
       EMPOL = 0.0   ! array
-#ifdef Verbose
+#ifdef verbose_tmpbeis
       EMISX = 0.0   ! array
 #endif
 
 C Compute zenith angle
-      CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS, LAT, LON, COSZEN ) 
+      CALL CZANGLE( JDATE, JTIME, MY_NCOLS, MY_NROWS, COSZEN ) 
 
       IF ( JDATE .NE. LDATE ) THEN
 
@@ -507,8 +466,7 @@ C If new date, read season switch
             IF ( .NOT. XTRACT3( BNAME, 'SEASON',
      &                          1,1, STRTROWBS,ENDROWBS, STRTCOLBS,ENDCOLBS,
      &                          JDATE, 0, SWITCH ) ) THEN
-               MESG = 'Could not read SEASON from file "' //
-     &                TRIM( BNAME ) // '"'
+               MESG = 'Could not read SEASON from file "' // TRIM( BNAME ) // '"'
                CALL M3EXIT( PNAME, JDATE, 0, MESG, XSTAT2 )
             END IF
 
@@ -541,131 +499,18 @@ C repopulate the met_cro_2d variable attributes
          CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
       END IF
 
-C Read temperature data
-!     IF ( .NOT. INTERPX( MNAME, 'TEMP10', PNAME,
-      IF ( .NOT. INTERPX( MNAME, 'TEMP2', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, TASFC ) ) THEN
-!        MESG = 'Could not read "' // 'TEMP10' // 
-         MESG = 'Could not read "' // 'TEMP2' // 
-     &          '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
-C Read surface radiation data
-      IF ( .NOT. INTERPX( MNAME, 'RGRND', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, SSOLAR ) ) THEN
-         MESG = 'Could not read "' // 'RGRND' // 
-     &          '" from file "' // TRIM( MNAME ) // '"' 
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
-C Read surface pressure data 
-      IF ( .NOT. INTERPX( MNAME, 'PRSFC', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, PRES ) ) THEN
-         MESG = 'Could not read "' // 'PRSFC' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-! New variables to calculate leaf temperature
-! Read WRF PX LAI
-      IF ( .NOT. INTERPX( MNAME, 'LAI', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, LAI ) ) THEN
-         MESG = 'Could not read "' // 'LAI' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
-! Read surface friction velocity 
-      IF ( .NOT. INTERPX( MNAME, 'USTAR', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, USTAR ) ) THEN
-         MESG = 'Could not read "' // 'USTAR' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
-! Read stomatal resistance 
-      IF ( INDEX1( 'RS', NVARS3D, VNAME3D ) .GT. 0 ) THEN
-         IF ( .NOT. INTERPX( MNAME, 'RS', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, RSTOM ) ) THEN
-            MESG = 'Could not read "' // 'RS' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-      ELSE 
-         IF ( .NOT. INTERPX( MNAME, 'RSTOMI', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, RSTOM ) ) THEN
-            MESG = 'Could not read "' // 'RSTOMI' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-               RSTOM( C,R ) = 1.0/MAX( RSTOM( C,R ), 1.0e-30 )
-            END DO
-         END DO
-      END IF
-
-! Read aerodynamic resistance 
-      IF ( INDEX1( 'RA', NVARS3D, VNAME3D ) .GT. 0 ) THEN
-         IF ( .NOT. INTERPX( MNAME, 'RA', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, RATM ) ) THEN
-            MESG = 'Could not read "' // 'RA' // 
-     &              '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-      ELSE 
-         IF ( .NOT. INTERPX( MNAME, 'RADYNI', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, RATM ) ) THEN
-            MESG = 'Could not read "' // 'RADYNI' // 
-     &              '" from file "' // TRIM( MNAME ) // '"'
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-         END IF
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
-               RATM( C,R ) = 1.0/MAX( RATM( C,R ), 1.0e-30 )
-            END DO
-         END DO
-      END IF
-
-! Read surface layer water vapor mixing ratio
-      IF ( .NOT. INTERPX( MNAME, 'Q2', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, Q2 ) ) THEN
-         MESG = 'Could not read "' // 'Q2' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-
-! Read soil temperature 
-      IF ( .NOT. INTERPX( MNAME, 'SOIT1', PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    JDATE, JTIME, TEMPG ) ) THEN
-         MESG = 'Could not read "' // 'SOIT1' // 
-     &           '" from file "' // TRIM( MNAME ) // '"'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-      END IF
-! End of new variables 
-
 C Calculate temporal non-speciated beis emissions
-      CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, COSZEN, SEMIS,
-     &            SLAI, TASFC, SSOLAR, PRES, LAI, USTAR, RSTOM, RATM, Q2, 
-     &            TEMPG, EMPOL )
+      CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, COSZEN, SEMIS, SLAI, BIPOL )
 
 C Calculate temporal non-speciated soil NO emissions
-      CALL HRNO( JDATE, JTIME, TSTEP, TASFC, EMPOL )
+      CALL HRNO( JDATE, JTIME, TSTEP, NOPOL )
+
+      EMPOL( :,:,1:NSEF-1 ) = BIPOL
+      EMPOL( :,:,NSEF )     = NOPOL
 
 C Speciate emissions
 
-#ifdef Verbose
+#ifdef verbose_tmpbeis
       EMISX = 0.0; CX = 0; RX = 0    ! arrays
 #endif
       DO K = 1, NSEF
@@ -679,7 +524,7 @@ C Speciate emissions
                      I = I + 1
                      MLFC = MLFAC( S,K )
                      EMISL( I,C,R ) = EMISL( I,C,R ) + EMPL * MLFC
-#ifdef Verbose
+#ifdef verbose_tmpbeis
                      IF ( EMISL( I,C,R ) .GT. EMISX( I ) ) THEN
                          EMISX( I ) = EMISL( I,C,R )
                          CX( I ) = C
@@ -692,7 +537,7 @@ C Speciate emissions
          END DO
       END DO
 
-#ifdef Verbose
+#ifdef verbose_tmpbeis
       WRITE( LOGDEV,* ) ' '
       WRITE( LOGDEV,* ) '       from TMPBEIS312'
       WRITE( LOGDEV,* ) '    Spc   EMISL  MaxC MaxR'
