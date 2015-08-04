@@ -75,7 +75,7 @@
        END FUNCTION FALLOFF_T08
        REAL( 8 ) FUNCTION FALLOFF_T09(INV_TEMP,CAIR,A1,C1,A2,C2)
 ! rate constant for CMAQ fall off reaction type 9
-         IMPLICIT NONE 
+         IMPLICIT NONE
 ! Arguements:
          REAL( 8 ), INTENT( IN ) :: INV_TEMP
          REAL( 8 ), INTENT( IN ) :: CAIR
@@ -147,6 +147,7 @@
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
          IMPLICIT NONE
+         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
@@ -154,6 +155,7 @@
          REAL( 8 ), INTENT( IN ) :: B2
          INTRINSIC DEXP
          HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
+         HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )
          RETURN
        END FUNCTION HALOGEN_FALLOFF
 
@@ -327,8 +329,8 @@
 
                 IF( .NOT. LAND( NCELL ) )THEN
 !  Reaction Label HAL_Ozone       
-                   RKI( NCELL,  375) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   8.3300D-47,   9.3220D+01,  & 
-     &                                                           1.4500D-08,         3.8400D+00 )
+                   RKI( NCELL,  375) =  SFACT * HALOGEN_FALLOFF( BLKPRES( NCELL ),   1.0000D-40,   7.8426D+01,  & 
+     &                                                           4.0582D-09,         5.8212D+00 )
                 END IF
 
             END DO 

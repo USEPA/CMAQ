@@ -521,7 +521,7 @@ C If you get here: could not determine satisfactory advection time step.
 
       IF ( ADJFLG ) THEN
          WRITE( LOGDEV,92019 ) MINSECS, TSTEP( 2 ), NREPS
-         ELSE
+      ELSE
          WRITE( LOGDEV,92021 ) TSTEP( 2 ), NREPS
       END IF
 
