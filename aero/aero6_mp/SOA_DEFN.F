@@ -57,6 +57,7 @@ C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
+C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -178,6 +179,10 @@ C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA
+C              Conversion of reacted alkane to dodecane equivalent
+C              is handled in mech.def. A factor of 0.47 is in use and
+C              reflects the fact that alkane SOA precursor
+C              emissions are dominated by compounds smaller than dodecane.
 C-----------------------------------------------------------------------
 
       Use rxns_data
@@ -242,14 +247,12 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
 !               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
 ! the factor with RACM2 should be different because the HC8 + OH rate is higher
 ! but endothermic 
-               vaporspc( 1 )%drog_name = 'ALK5RXN'
-               vaporspc( 2 )%drog_name = 'ALK5RXN'
-               orgprod( 1 )%name       = 'ALK5RXN'
-               orgprod( 1 )%parent     = 'HC8'
+! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
                orgprod( 2 )%parent     = 'XYM'
                orgprod( 3 )%parent     = 'XYM'
                orgprod( 4 )%parent     = 'TOL'
-               orgprod( 5 )%parent     = 'TOL'
+               orgprod( 5 )%parent     = 'TOL'               
+               IEPOX_SOA_mechanism = .True.               
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
@@ -1016,7 +1019,12 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         if( abs(upb-lowb) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = (lowb + upb)/2.0d0 
+         else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         end if
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1736,8 +1744,8 @@ C    all dimensions now depend upon N only
       RETURN
       END SUBROUTINE LUDCMP
 
-      Function soabisect(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt) RESULT ( nroot )
-
+      Function soabisect( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
+     &                    mlwt) RESULT ( nroot )
 C     Determines the root of an equation, nroot, that is located
 C     between the lowerb and upperb. The equation of interest is defined
 C     in the function soaequation. Before calling soabisect, the threshold 
@@ -1819,7 +1827,7 @@ C     abstol (absolute) amount
 #else
           xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
 #endif
-          Call m3warn( pname, 0, 0, xmsg )
+          Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
 
         test = fnguess * flower

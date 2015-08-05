@@ -266,8 +266,8 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
-! This SOA_DEFN works for AE6 and AE6i versions of aero
-            If( INDEX( MECHNAME, '_AE6' ) .EQ. 0 ) then
+
+            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
                   xmsg =  'Using AERO6 option and the Mechanism, '  
      &                // Trim( MECHNAME ) // ', is not based on AERO6 '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
@@ -937,7 +937,7 @@ C process that conserves carbon mass.
 
 #endif
 C Compute molar concentrations of non-volatile organic material and total
-C organic material; in future code updates, molecularpartit weights of non-volatile
+C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
@@ -1022,7 +1022,12 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         if( abs(upb-lowb) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = (lowb + upb)/2.0d0 
+         else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         end if
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1860,7 +1865,7 @@ C     abstol (absolute) amount
      &      'Warning: possible false convergence in soa bisection:', fnguess, nroot
             Call m3warn( pname, 0, 0, xmsg )
 #else
-            xmsg = 'Warning: possible false convergence in soa bisection'
+!           xmsg = 'Warning: possible false convergence in soa bisection'
 #endif
 !           Call m3warn( pname, 0, 0, xmsg )
           End If
