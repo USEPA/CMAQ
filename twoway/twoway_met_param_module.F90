@@ -13,7 +13,7 @@
     INTEGER, PARAMETER :: n_griddot2d_var = 1
     INTEGER, PARAMETER :: n_metcro3d_var  = 14
     INTEGER, PARAMETER :: n_metdot3d_var  = 4
-    INTEGER, PARAMETER :: n_metcro2d_var  = 31
+    INTEGER, PARAMETER :: n_metcro2d_var  = 32
 
     CHARACTER (LEN = 16), PARAMETER :: gridcro2d_vlist(n_gridcro2d_var) = &
       (/ 'LAT             ', 'LON             ',            &
@@ -75,8 +75,7 @@
          'SLTYP           ', 'Q2              ',            &
          'SEAICE          ', 'SOIM1           ',            &
          'SOIM2           ', 'SOIT1           ',            &
-         'SOIT2           '                                 & 
-                                                 /)
+         'SOIT2           ', 'LH              ' /)
 
     CHARACTER (LEN = 16), PARAMETER :: metcro2d_units(n_metcro2d_var) = &
       (/ 'Pascal          ', 'M/S             ',            &
@@ -94,7 +93,6 @@
          '-               ', 'KG/KG           ',            &
          'FRACTION        ', 'M**3/M**3       ',            &
          'M**3/M**3       ', 'K               ',            &
-         'K               '                                 &
-                                                 /)
+         'K               ', 'WATTS/M**2      ' /)
 
   end module twoway_met_param_module

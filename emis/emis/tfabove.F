@@ -19,10 +19,10 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/tfabove.F,v 1.3 2011/10/21 16:10:48 yoj Exp $
+C $Header: /project/work/rep/arc/CCTM/src/emis/emis/tfabove.F,v 1.3 2011/10/21 16:10:48 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine tfabove ( ustar, swind, uland, tfa )
+      subroutine tfabove ( tfa )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -38,6 +38,8 @@ C  Jun 2011 J. Young: add reshape to vd initialization for pgf90 compiler
 C-----------------------------------------------------------------------
 
       use hgrd_defn             ! horizontal domain specifications
+      use asx_data_mod          ! meteorology data
+      use lus_defn, only: uland ! uland in %
 
       implicit none
  
@@ -45,10 +47,6 @@ C Includes:
 
 C Arguments:
 
-      real, intent( in )  :: ustar( :,: )   ! friction velocity [m/s]
-      real, intent( in )  :: swind( :,: )   ! surface wind [m/s] SWIND
-      real, intent( in )  :: uland( :,:,: ) ! fraction of 4 landtypes
-                                            ! for dust removal 0~100
       real, intent( out ) :: tfa  ( :,: )   ! above canopy transport factor
 
 C Parameters:
@@ -87,15 +85,15 @@ C ----------------------------------------------------------------------
       do r = 1, my_nrows
       do c = 1, my_ncols
          tfa( c,r ) = 0.0
-         if ( swind( c,r ) .le. 2.0 ) then        ! surface wind [0-2] range
+         if ( Met_Data%wspd10( c,r ) .le. 2.0 ) then        ! surface wind [0-2] range
             indx = 3
-         else if ( swind( c,r ) .lt. 7.0 ) then   ! surface wind (2-7) range
+         else if ( Met_Data%wspd10( c,r ) .lt. 7.0 ) then   ! surface wind (2-7) range
             indx = 2
          else                                     ! surface wind [7-^) range
             indx = 1
          end if
          ul = uland( c,r,: )   ! array asignment
-         ku = 0.08 * ustar( c,r )
+         ku = 0.08 * Met_Data%ustar( c,r )
          do i = 1, 4                              ! landuse loop
             omeg = 0.0
             if ( ul( i ) .gt. 0.0 ) then          ! non-zero landuse
