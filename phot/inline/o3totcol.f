@@ -34,7 +34,7 @@
 !     Aug 11 J.Streicher: initial version
 !     Dec 2013 S.Roselle: time-records adjusted to input file provided;
 !                         improved logfile reporting
-!
+!     Jun 2015 J.Young: maintain code stnds
 !----------------------------------------------------------------------
 
       use utilio_defn
@@ -43,11 +43,11 @@
 
 ! arguments
 
-      integer, intent(in) :: jdate      ! Julian day of the year (yyyyddd)
+      integer, intent( in ) :: jdate      ! Julian day of the year (yyyyddd)
 
-      real(4), intent(in)    :: latitude   ! latitude of point on earth's surface
-      real(4), intent(in)    :: longitude  ! longitude of point on earth's surface
-      real(4), intent(inout) :: ozone     ! total column ozone [DU]
+      real, intent( in )    :: latitude   ! latitude of point on earth's surface
+      real, intent( in )    :: longitude  ! longitude of point on earth's surface
+      real, intent( inout ) :: ozone      ! total column ozone [DU]
 
 ! parameters
 
@@ -78,21 +78,21 @@
       integer, save :: jdate_prev = 0
       integer, save :: jstdate, jenddate, jtdate_temp
 
-      real( 4 ), save :: lat( nlat )
-      real( 4 ), save :: lon( nlon )
-!     real( 4 ), save :: t( nt )
-      real( 4 ), allocatable, save :: t( : )
-      real( 4 ), save :: oz( nlat, nlon, 2 ) ! two timestep for interpolation
-      real( 4 ) :: flag( 8 )
-      real( 4 ), save :: x1
-      real( 4 ) :: x2
-      real( 4 ) :: x3
-      real( 4 ) :: np_oz
-      real( 4 ) :: sp_oz
-      real( 4 ) :: total
-      real( 4 ) :: latitudem
-      real( 4 ) :: tdate_temp, tdate
-      real( 4 ) :: stdate, enddate
+      real, save :: lat( nlat )
+      real, save :: lon( nlon )
+!     real, save :: t( nt )
+      real, allocatable, save :: t( : )
+      real, save :: oz( nlat, nlon, 2 ) ! two timesteps for interpolation
+      real :: flag( 8 )
+      real, save :: x1
+      real :: x2
+      real :: x3
+      real :: np_oz
+      real :: sp_oz
+      real :: total
+      real :: latitudem
+      real :: tdate_temp, tdate
+      real :: stdate, enddate
 
 !----------------------------------------------------------------------
 
@@ -118,7 +118,7 @@
         read( tmunit, * ) ! skip header record
         do
           read( tmunit, *, iostat=ios )
-          if ( ios /= 0 ) exit
+          if ( ios .ne. 0 ) exit
           nrecs = nrecs + 1
         end do
         if ( nrecs .gt. 0 ) nt = nrecs / nlat
@@ -419,7 +419,7 @@
         end do
 
         if ( icount .eq. 0 ) then
-          goto 899
+          go to 899
         end if
 
         np_oz = np_oz / real( icount )
@@ -441,7 +441,7 @@
         end do
 
         if ( icount .eq. 0 ) then
-          goto 899
+          go to 899
         end if
 
         sp_oz = sp_oz / real( icount )
@@ -476,4 +476,4 @@
 
       return
 
-      end subroutine O3TOTCOL
+      end subroutine o3totcol
