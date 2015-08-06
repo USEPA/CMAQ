@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05MP51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug. 5, 2015
+C  REVISION HISTORY: Created by EBI solver program, Aug. 6, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -80,7 +80,7 @@ c..Production of NO3 (except from N2O5 )
      &    +    3.9000D-01 * RXRAT(  51 )      ! PNA=0.3900D+00*NO3+0.6100D+...
      &    +    4.0000D-01 * RXRAT(  88 )      ! PAN=0.4000D+00*NO3+0.6000D+...
      &    +    4.0000D-01 * RXRAT( 103 )      ! PANX=0.4000D+00*NO3+...
-     &    +                 RXRAT( 226 )      ! OPAN+OH=NO3+0.2000D+01*CO+...
+     &    +                 RXRAT( 230 )      ! OPAN+OH=NO3+0.2000D+01*CO+...
 
 c..Loss frequency of NO3 ( except NO3 + NO3 if present )
       L15 =                 RKI(  14 )                            ! NO3=NO2+O
@@ -102,17 +102,17 @@ c..Loss frequency of NO3 ( except NO3 + NO3 if present )
      &    +                 RKI( 134 ) * YC( CRON             )   ! NO3+CRON=CRNO+HNO3
      &    +                 RKI( 144 ) * YC( OPEN             )   ! NO3+OPEN=OPO3+HNO3
      &    +                 RKI( 146 ) * YC( CAT1             )   ! NO3+CAT1=CRO+HNO3
-     &    +                 RKI( 169 ) * YC( ISOP             )   ! NO3+ISOP=0.2000D+...
-     &    +                 RKI( 172 ) * YC( ISPD             )   ! NO3+ISPD=0.3570D+...
-     &    +                 RKI( 182 ) * YC( TERP             )   ! NO3+TERP=0.4700D+...
+     &    +                 RKI( 173 ) * YC( ISOP             )   ! NO3+ISOP=0.2000D+...
+     &    +                 RKI( 176 ) * YC( ISPD             )   ! NO3+ISPD=0.3570D+...
+     &    +                 RKI( 186 ) * YC( TERP             )   ! NO3+TERP=0.4700D+...
 
 c..Loss frequency of N2O5
       L16 =                 RKI(  19 )                            ! N2O5=0.2000D+01*HNO3
      &    +                 RKI(  20 )                            ! N2O5=0.2000D+01*HNO3
      &    +                 RKI(  21 )                            ! N2O5=NO3+NO2
      &    +                 RKI(  53 )                            ! N2O5=NO2+NO3
-     &    +                 RKI( 255 )                            ! N2O5=HNO3+H2NO3PIJ
-     &    +                 RKI( 256 )                            ! N2O5=HNO3+H2NO3PK
+     &    +                 RKI( 259 )                            ! N2O5=HNO3+H2NO3PIJ
+     &    +                 RKI( 260 )                            ! N2O5=HNO3+H2NO3PK
 
 c..K15_15, R15_16, and R16_15 terms
       K15_15  = RKI(  50 ) * DTC
