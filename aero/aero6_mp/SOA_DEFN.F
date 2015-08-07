@@ -754,6 +754,7 @@ C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -1012,7 +1013,13 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+!        orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         If ( abs( upb - lowb ) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1020,7 +1027,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
@@ -1732,7 +1739,9 @@ C    all dimensions now depend upon N only
       RETURN
       END SUBROUTINE LUDCMP
 
-      Function soabisect(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt) RESULT ( nroot )
+C-----------------------------------------------------------------------
+      Function soabisect(lowerb, upperb, nonvolmol, cstaratt, totsemivol,
+     &                    mlwt) RESULT ( nroot )
 
 C     Determines the root of an equation, nroot, that is located
 C     between the lowerb and upperb. The equation of interest is defined
@@ -1822,12 +1831,12 @@ C     Iterate until the number of moles changes by less than fractol (percent) o
 
            ! double check that the function is approximately zero
            fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
-           If ( abs(fnguess) .gt. 1d-3 ) then
+           If ( Abs( fnguess ) .gt. 1.0D-03 ) then
            Call m3exit( pname, 0, 0, 'Error: possible false convergence
      &                               in soa bisection', xstat3) 
            End If
 
-           return
+           Return
         End If
 
         If ( iter .gt. 1000000 ) then ! stop infinite loops
