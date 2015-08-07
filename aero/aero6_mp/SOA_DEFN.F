@@ -264,7 +264,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
             End If
 
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
-            If( INDEX( MECHNAME, '_AE6' ) .EQ. 0 ) then
+            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
                   xmsg =  'Using AERO6 option and the Mechanism, '  
      &                // Trim( MECHNAME ) // ', is not based on AERO6 '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
@@ -761,6 +761,7 @@ C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -1019,12 +1020,13 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         if( abs(upb-lowb) .lt. threshmin ) then
+!        orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         If ( abs( upb - lowb ) .lt. threshmin ) then
             ! no SOA to partition
-            orgmoles = (lowb + upb)/2.0d0 
-         else
-            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
-         end if
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1032,7 +1034,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
