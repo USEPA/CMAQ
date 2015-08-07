@@ -1827,8 +1827,9 @@ C     abstol (absolute) amount
      &       'Warning: number of organic aerosol moles going to zero in soa bisection:',
      &        nroot
 #else
-          xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
+          xmsg = 'Error: number of organic aerosol moles going to zero in soa bisection'
 #endif
+!         Call m3warn( pname, 0, 0, xmsg )
           Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
 
@@ -1862,7 +1863,7 @@ C     abstol (absolute) amount
      &      'Warning: possible false convergence in soa bisection:', fnguess, nroot
             Call m3warn( pname, 0, 0, xmsg )
 #else
-            xmsg = 'Warning: possible false convergence in soa bisection'
+!           xmsg = 'Warning: possible false convergence in soa bisection'
 #endif
 !           Call m3warn( pname, 0, 0, xmsg )
           End If
