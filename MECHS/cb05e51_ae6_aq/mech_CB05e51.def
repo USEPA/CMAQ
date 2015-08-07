@@ -528,9 +528,13 @@ REACTIONS[CM] =
 <I009> ISOPX + OH = 0.86*IEPOX + 0.86*OH + 0.04*ISOPX  + 0.10*ISPD + 0.027*ALDX
                  + 0.03*FORM                            # 9.6E-11;
 ! reaction rate from Jacbos et al., products from Table 1, "with NO"
-!  GLY=PAR+FORM, assign unknown to acetic acid 
+!  GLY=PAR+FORM, Hydroxyacetone = 2 PAR, assign unknown to acetic acid
 <I010> IEPOX + OH = 0.25*FORM + 0.14*ALD2 + 0.65*XO2 + 0.87*HO2 +  0.14*MGLY 
-                  + .48*ALDX + .13*AACD +2.83*PAR               # 3.6E-11; 
+                  + .48*ALDX + .13*AACD +2.83*PAR +0.65*yOH         # 3.6E-11; 
+<I010a> yOH + HO2 = OH                                        # 7.5E-13 @ -700;
+<I010b> yOH + NO = NO                                        # 2.6E-12 @ -365;
+<I010c> yOH + MEO2 = MEO2                                    # 2.3E-13;
+<I010d> yOH + C2O3 = C2O3                                    # 4.4E-13 @ -1070;
 <R159>  O3   + ISOP        = 0.650*ISPD  
                              + 0.600*FORM 
                              + 0.200*XO2   
