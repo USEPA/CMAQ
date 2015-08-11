@@ -36,7 +36,7 @@ C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2015
 C                     Revised hrsolver.F by Golam Sarwar, December, 2007
 C                             rearranged a statement suggested by CARB
 C                             to reduce the chance of code crash; it does
@@ -184,13 +184,16 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
       N_EBI_IT = 0
+      NBKUPS   = -1
 
 
       DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
-
-          NBKUPS      = 0
-          DTC         = EBI_TMSTEP
-          N_INR_STEPS = 1
+! test if initialized or if backups occurred in previous EBI time-step
+          IF( NBKUPS .NE. 0 )THEN
+              NBKUPS      = 0
+              N_INR_STEPS = 1
+              DTC         = EBI_TMSTEP
+          END IF
 
 100      CONTINUE                        !  Restart location
 
