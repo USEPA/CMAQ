@@ -68,122 +68,123 @@ c..Sparse Matrix maximum dimensions
       INTEGER, PARAMETER :: MXARRAY = 4400  ! Max # of terms in I-hJ matrix
 
 c..Mechanism specific variables
-      INTEGER, SAVE :: N_SPEC               ! No. of species in mech
-      INTEGER, SAVE :: N_RXNS               ! No. of reactions in mech
+      INTEGER :: N_SPEC               ! No. of species in mech
+      INTEGER :: N_RXNS               ! No. of reactions in mech
 
-      INTEGER, SAVE :: MXCOUNT1, MXCOUNT2   ! Sparse matrx pntr dimensions
-      INTEGER, SAVE :: MXRR, MXRP           ! Max # of PD terms
+      INTEGER :: MXCOUNT1, MXCOUNT2   ! Sparse matrx pntr dimensions
+      INTEGER :: MXRR, MXRP           ! Max # of PD terms
 
-      LOGICAL, SAVE :: LREORDER             ! Flag to reorder or not
-      LOGICAL, SAVE :: LORDERING            ! Flag for reordering
-      LOGICAL, SAVE :: LSUNLIGHT            ! Flag for sun
+      LOGICAL :: LREORDER             ! Flag to reorder or not
+      LOGICAL :: LORDERING            ! Flag for reordering
+      LOGICAL :: LSUNLIGHT            ! Flag for sun
 
 c..Global tolerances
-      REAL,    SAVE :: GLBL_ATOL                      ! Global absolute tolerances
-      REAL,    SAVE :: GLBL_RTOL                      ! Global relative tolerances
+      REAL :: GLBL_ATOL                ! Global absolute tolerances
+      REAL :: GLBL_RTOL                ! Global relative tolerances
 
 c...Allocatable arrays
-      REAL( 8 ), ALLOCATABLE, SAVE :: RKI( :,: )         ! Rate constants 
-      REAL( 8 ), ALLOCATABLE, SAVE :: ATOL( : )          ! Species absolute tolerances 
-      REAL( 8 ), ALLOCATABLE, SAVE :: RTOL( : )          ! Species relative tolerances 
-      REAL( 8 ), ALLOCATABLE, SAVE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
-      REAL( 8 ), ALLOCATABLE, SAVE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
-      REAL( 8 ), ALLOCATABLE, SAVE :: Y( :,: )           ! Species concentrations
-      REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE( :,: )   ! Concentration for degradation
+      REAL( 8 ), ALLOCATABLE :: RKI( :,: )         ! Rate constants 
+      REAL( 8 ), ALLOCATABLE :: ATOL( : )          ! Species absolute tolerances 
+      REAL( 8 ), ALLOCATABLE :: RTOL( : )          ! Species relative tolerances 
+      REAL( 8 ), ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
+      REAL( 8 ), ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
+      REAL( 8 ), ALLOCATABLE :: Y( :,: )           ! Species concentrations
+      REAL( 8 ), ALLOCATABLE :: Y_DEGRADE( :,: )   ! Concentration for degradation
 
 c..Block variables
-      INTEGER, SAVE :: BLKID                           ! Block ID
-      INTEGER, SAVE :: NBLKS                           ! No. of blocks in domain
-      INTEGER, SAVE :: NUMCELLS                        ! No. of cells in a block
+      INTEGER :: BLKID                           ! Block ID
+      INTEGER :: NBLKS                           ! No. of blocks in domain
+      INTEGER :: NUMCELLS                        ! No. of cells in a block
 
 c..Sparse Matrix variables 
-      INTEGER, SAVE :: ISCHAN          ! No. of reacting species in current mech
-      INTEGER, SAVE :: ISCHANG( NCS  ) ! No. of reacting species in day & nite
-      INTEGER, SAVE :: NUSERAT( NCS2 ) ! No. of active rxns in day & nite
-      INTEGER, SAVE :: IARRAY(  NCS2 ) ! No. of PD terms in I-hJ matrix
+      INTEGER :: ISCHAN          ! No. of reacting species in current mech
+      INTEGER :: ISCHANG( NCS  ) ! No. of reacting species in day & nite
+      INTEGER :: NUSERAT( NCS2 ) ! No. of active rxns in day & nite
+      INTEGER :: IARRAY(  NCS2 ) ! No. of PD terms in I-hJ matrix
 
 C Most of the following are allocated in RBINIT
-      INTEGER, ALLOCATABLE, SAVE :: NKUSERAT( :,: )     ! Rxn nos of active rxns
-      INTEGER, ALLOCATABLE, SAVE :: IRM2  ( :,:,: )     ! Species rxn array
-      INTEGER, ALLOCATABLE, SAVE :: ICOEFF( :,:,: )     ! stoich coeff indx
+      INTEGER, ALLOCATABLE :: NKUSERAT( :,: )     ! Rxn nos of active rxns
+      INTEGER, ALLOCATABLE :: IRM2  ( :,:,: )     ! Species rxn array
+      INTEGER, ALLOCATABLE :: ICOEFF( :,:,: )     ! stoich coeff indx
 
-      INTEGER, ALLOCATABLE, SAVE :: JARRAYPT( :,:,: )   ! A-Matrix index
-      INTEGER, ALLOCATABLE, SAVE :: JARRL( :,:,: )      ! Pntr to PD Loss term
-      INTEGER, ALLOCATABLE, SAVE :: JARRP( :,:,: )      ! Pntr to PD Prod term
-      INTEGER, ALLOCATABLE, SAVE :: JLIAL( :,:,: )      ! Spec # for PD loss term
-      INTEGER, ALLOCATABLE, SAVE :: JPIAL( :,:,: )      ! Spec # for PD prod term 
+      INTEGER, ALLOCATABLE :: JARRAYPT( :,:,: )   ! A-Matrix index
+      INTEGER, ALLOCATABLE :: JARRL( :,:,: )      ! Pntr to PD Loss term
+      INTEGER, ALLOCATABLE :: JARRP( :,:,: )      ! Pntr to PD Prod term
+      INTEGER, ALLOCATABLE :: JLIAL( :,:,: )      ! Spec # for PD loss term
+      INTEGER, ALLOCATABLE :: JPIAL( :,:,: )      ! Spec # for PD prod term 
 
-      INTEGER, ALLOCATABLE, SAVE :: INEW2OLD( :,: )     ! Spec index xref
-      INTEGER, ALLOCATABLE, SAVE :: IOLD2NEW( :,: )     ! Spec index xref
+      INTEGER, ALLOCATABLE :: INEW2OLD( :,: )     ! Spec index xref
+      INTEGER, ALLOCATABLE :: IOLD2NEW( :,: )     ! Spec index xref
 
-      INTEGER, ALLOCATABLE, SAVE :: NDERIVL( :,: )      ! # of PD loss terms
-      INTEGER, ALLOCATABLE, SAVE :: NDERIVP( :,: )      ! # of PD prod terms
+      INTEGER, ALLOCATABLE :: NDERIVL( :,: )      ! # of PD loss terms
+      INTEGER, ALLOCATABLE :: NDERIVP( :,: )      ! # of PD prod terms
 
 
 c..indices for decomposition
-      INTEGER, ALLOCATABLE, SAVE :: JZLO( : )           ! # of ops in decmp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: IDEC1LO( :,: )      ! decomp loop 1 bound
-      INTEGER, ALLOCATABLE, SAVE :: IDEC1HI( :,: )      ! decomp loop 1 bound
+      INTEGER, ALLOCATABLE :: JZLO( : )           ! # of ops in decmp loop 1
+      INTEGER, ALLOCATABLE :: IDEC1LO( :,: )      ! decomp loop 1 bound
+      INTEGER, ALLOCATABLE :: IDEC1HI( :,: )      ! decomp loop 1 bound
 
-      INTEGER, ALLOCATABLE, SAVE :: IJDECA( : ) ! Pntr for ij term 1 in decomp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: IJDECB( : ) ! Pntr for ij term 2 in decomp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: IKDECA( : ) ! Pntr for ik term 1 in decomp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: IKDECB( : ) ! Pntr for ik term 2 in decomp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: KJDECA( : ) ! Pntr for kj term 1 in decomp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: KJDECB( : ) ! Pntr for kj term 2 in decomp loop 1
-      INTEGER, ALLOCATABLE, SAVE :: JZEROA( : ) ! Pntr for j term 1 in decomp loop 2
-      INTEGER, ALLOCATABLE, SAVE :: JZEROB( : ) ! Pntr for j term 2 in decomp loop 2
+      INTEGER, ALLOCATABLE :: IJDECA( : ) ! Pntr for ij term 1 in decomp loop 1
+      INTEGER, ALLOCATABLE :: IJDECB( : ) ! Pntr for ij term 2 in decomp loop 1
+      INTEGER, ALLOCATABLE :: IKDECA( : ) ! Pntr for ik term 1 in decomp loop 1
+      INTEGER, ALLOCATABLE :: IKDECB( : ) ! Pntr for ik term 2 in decomp loop 1
+      INTEGER, ALLOCATABLE :: KJDECA( : ) ! Pntr for kj term 1 in decomp loop 1
+      INTEGER, ALLOCATABLE :: KJDECB( : ) ! Pntr for kj term 2 in decomp loop 1
+      INTEGER, ALLOCATABLE :: JZEROA( : ) ! Pntr for j term 1 in decomp loop 2
+      INTEGER, ALLOCATABLE :: JZEROB( : ) ! Pntr for j term 2 in decomp loop 2
 
-      INTEGER, ALLOCATABLE, SAVE :: JHIZ1( :,: )  ! # of 2-term groups in dcmp loop 2
-      INTEGER, ALLOCATABLE, SAVE :: JHIZ2( :,: )  ! # of 1-term groups in dcmp loop 2
+      INTEGER, ALLOCATABLE :: JHIZ1( :,: )  ! # of 2-term groups in dcmp loop 2
+      INTEGER, ALLOCATABLE :: JHIZ2( :,: )  ! # of 1-term groups in dcmp loop 2
 
 
-      INTEGER, ALLOCATABLE, SAVE :: KZLO1( :,: )  ! Start indx for 2-term bksb loop 1
-      INTEGER, ALLOCATABLE, SAVE :: KZLO2( :,: )  ! Start indx for 1-term bksb loop 1
-      INTEGER, ALLOCATABLE, SAVE :: KZHI0( :,: )  ! End index for 5-term bksub loop 1
-      INTEGER, ALLOCATABLE, SAVE :: KZHI1( :,: )  ! End index for 2-term bksub loop 1
-      INTEGER, ALLOCATABLE, SAVE :: KZERO( :,: )  ! Pointer to bksub j index
+      INTEGER, ALLOCATABLE :: KZLO1( :,: )  ! Start indx for 2-term bksb loop 1
+      INTEGER, ALLOCATABLE :: KZLO2( :,: )  ! Start indx for 1-term bksb loop 1
+      INTEGER, ALLOCATABLE :: KZHI0( :,: )  ! End index for 5-term bksub loop 1
+      INTEGER, ALLOCATABLE :: KZHI1( :,: )  ! End index for 2-term bksub loop 1
+      INTEGER, ALLOCATABLE :: KZERO( :,: )  ! Pointer to bksub j index
 
-      INTEGER, ALLOCATABLE, SAVE :: MZHI0 ( :,: ) ! End index for 5-term bksub loop 2
-      INTEGER, ALLOCATABLE, SAVE :: MZHI1 ( :,: ) ! End index for 2-term bksub loop 2
-      INTEGER, ALLOCATABLE, SAVE :: MZILCH( :,: ) ! # of calcs in bksub loop 2 (U)
-      INTEGER, ALLOCATABLE, SAVE :: MZLO1 ( :,: ) ! Start indx for 2-term bksb loop 2
-      INTEGER, ALLOCATABLE, SAVE :: MZLO2 ( :,: ) ! Start indx for 1-term bksb loop 2
-      INTEGER, ALLOCATABLE, SAVE :: KZILCH( :,: ) ! # of calcs in bksub loop 1 (L)
+      INTEGER, ALLOCATABLE :: MZHI0 ( :,: ) ! End index for 5-term bksub loop 2
+      INTEGER, ALLOCATABLE :: MZHI1 ( :,: ) ! End index for 2-term bksub loop 2
+      INTEGER, ALLOCATABLE :: MZILCH( :,: ) ! # of calcs in bksub loop 2 (U)
+      INTEGER, ALLOCATABLE :: MZLO1 ( :,: ) ! Start indx for 2-term bksb loop 2
+      INTEGER, ALLOCATABLE :: MZLO2 ( :,: ) ! Start indx for 1-term bksb loop 2
+      INTEGER, ALLOCATABLE :: KZILCH( :,: ) ! # of calcs in bksub loop 1 (L)
 
 C Allocated here
-      INTEGER, ALLOCATABLE, SAVE :: CCOL( : )      ! Column indx of ordered cells
-      INTEGER, ALLOCATABLE, SAVE :: CROW( : )      ! Row indx for ordered cells
-      INTEGER, ALLOCATABLE, SAVE :: CLEV( : )      ! Layer indx of ordered cells
-      INTEGER, ALLOCATABLE, SAVE :: BLKCNO( : )    ! Cell offset for each block
-      INTEGER, ALLOCATABLE, SAVE :: BLKLEN( : )    ! # of cells in each block
-      INTEGER, ALLOCATABLE, SAVE :: NORDCELL( : )  ! Ordered cell's original cell # 
+      INTEGER, ALLOCATABLE :: CCOL( : )      ! Column indx of ordered cells
+      INTEGER, ALLOCATABLE :: CROW( : )      ! Row indx for ordered cells
+      INTEGER, ALLOCATABLE :: CLEV( : )      ! Layer indx of ordered cells
+      INTEGER, ALLOCATABLE :: BLKCNO( : )    ! Cell offset for each block
+      INTEGER, ALLOCATABLE :: BLKLEN( : )    ! # of cells in each block
+      INTEGER, ALLOCATABLE :: NORDCELL( : )  ! Ordered cell's original cell # 
 
 C Domain decomposition info from CONC file
-      INTEGER, SAVE :: STARTCOLCO
-      INTEGER, SAVE :: ENDCOLCO
-      INTEGER, SAVE :: STARTROWCO
-      INTEGER, SAVE :: ENDROWCO
+      INTEGER :: STARTCOLCO
+      INTEGER :: ENDCOLCO
+      INTEGER :: STARTROWCO
+      INTEGER :: ENDROWCO
 
-      REAL( 8 ), ALLOCATABLE, SAVE :: VDIAG( :,: )    ! LU-Matrix diagonal terms
-      REAL( 8 ), ALLOCATABLE, SAVE :: CC2( :,: )      ! Array holding LU-Matrix
+      REAL( 8 ), ALLOCATABLE :: VDIAG( :,: )    ! LU-Matrix diagonal terms
+      REAL( 8 ), ALLOCATABLE :: CC2( :,: )      ! Array holding LU-Matrix
 
 
-      REAL( 8 ), ALLOCATABLE, SAVE :: ERRMX2( : )       ! Estimated stiffness of each cell
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKTEMP( : )      ! Cell temp, deg K
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKPRES( : )      ! Cell press, Pa
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKCH2O( : )      ! Cell water conc, ppm
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
+      REAL( 8 ), ALLOCATABLE :: ERRMX2( : )       ! Estimated stiffness of each cell
+      REAL( 8 ), ALLOCATABLE :: BLKTEMP( : )      ! Cell temp, deg K
+      REAL( 8 ), ALLOCATABLE :: BLKPRES( : )      ! Cell press, Pa
+      REAL( 8 ), ALLOCATABLE :: BLKCH2O( : )      ! Cell water conc, ppm
+      REAL( 8 ), ALLOCATABLE :: BLKDENS( : )      ! Cell air density, kg/m^3
+      REAL( 8 ), ALLOCATABLE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
 
-      INTEGER, SAVE :: NJPHOT                       ! Number of J-values set in PHOT
-      REAL( 8 ),  ALLOCATABLE, SAVE :: RJBLK( :,: )  ! J-values for each cell in block
+      INTEGER :: NJPHOT                           ! Number of J-values set in PHOT
+      REAL( 8 ),  ALLOCATABLE :: RJBLK( :,: )     ! J-values for each cell in block
 
-      LOGICAL, SAVE :: CALL_DEG = .FALSE.          ! SWITCH for calling DEGRADE routine
+      LOGICAL :: CALL_DEG = .FALSE.               ! SWITCH for calling DEGRADE routine
       
-      LOGICAL       :: PRINT_CELL
-
-      Integer, Save     :: ros3_log
+      LOGICAL,  ALLOCATABLE :: BLKLAND( : )       ! Is the surface totally land?
+      
+      LOGICAL :: PRINT_CELL
+      INTEGER :: ROS3_LOG
 
       CONTAINS
          FUNCTION CELLVAR_ALLOC() RESULT ( SUCCESS )
@@ -208,12 +209,16 @@ C This function is expected to be called only once - at startup
                SUCCESS = .FALSE.; RETURN
             END IF
 
+            CCOL = 0
+
             ALLOCATE ( CROW( MXCELLS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
                XMSG = '*** CROW Memory allocation failed'
                CALL M3WARN ( 'CELLVAR_ALLOC', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
+
+            CROW = 0
 
             ALLOCATE ( CLEV( MXCELLS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
@@ -222,12 +227,16 @@ C This function is expected to be called only once - at startup
                SUCCESS = .FALSE.; RETURN
             END IF
 
+            CLEV = 0
+
             ALLOCATE ( BLKCNO( MXBLKS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
                XMSG = '*** BLKCNO Memory allocation failed'
                CALL M3WARN ( 'CELLVAR_ALLOC', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
+                 
+            BLKCNO = 0
 
             ALLOCATE ( BLKLEN( MXBLKS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
@@ -236,6 +245,8 @@ C This function is expected to be called only once - at startup
                SUCCESS = .FALSE.; RETURN
             END IF
 
+            BLKLEN = 0
+
             ALLOCATE ( NORDCELL( MXCELLS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
                XMSG = '*** NORDCELL Memory allocation failed'
@@ -243,12 +254,16 @@ C This function is expected to be called only once - at startup
                SUCCESS = .FALSE.; RETURN
             END IF
 
+            NORDCELL = 0
+
             ALLOCATE ( ERRMX2( MXCELLS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
                XMSG = '*** ERRMX2 Memory allocation failed'
                CALL M3WARN ( 'CELLVAR_ALLOC', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
+
+            ERRMX2 = 0
 
          ELSE   ! called more than once
 

@@ -133,9 +133,9 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','ASIJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PSI   ',(/0.000,1.000,0.000/)),
      & spcs_type((/'       ','ATIJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PTI   ',(/0.000,1.000,0.000/)),
      & spcs_type((/'       ','AMNJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMN   ',(/0.000,1.000,0.000/)),
-     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), conmin_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O  ',(/0.000,1.000,0.000/)),
+     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), conmin_set, 1000.0, T, F, F,  0,  0.0,'WATER ','PH2O  ',(/0.100,0.900,0.000/)),
      & spcs_type((/'AH3OPI ','AH3OPJ ','AH3OPK '/), conmin_set, 1000.0, T, F, T,  0,  0.0,'WATER ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR',(/0.000,1.000,0.000/)),
+     & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PMOTHR',(/0.100,0.900,0.000/)),
      & spcs_type((/'       ','AALK1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AALK2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AXYL1J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
@@ -305,12 +305,13 @@ C Mapping for loading from and unloading to CGRID array
       Integer :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
       Integer :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
 
+C Missing aerosol species map
+      Logical :: aero_missing( n_aerospc,n_mode )  ! indices of aero species to CGRID
+
 C Emissions mapping
       Integer         :: n_emis_pm               ! number of aerospc with emissions
       Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
       Character( 16 ) :: pmem_units              ! units for PM emissions for all species
-
-      Logical, Save :: V51_SOA_mechanism   = .False. !
 
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.
@@ -349,14 +350,6 @@ C Local Variables:
 
       if ( mapped ) Return
 
-C define orgprod parent names based on mechanism dependence
-C if they differ from above declarations and
-C determine if gas-phase IEPOX uptake occurs for the mechanism
-      If ( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
-           V51_SOA_mechanism   = .True.
-      End If
-
-
       aerospc_mw = 0.0
       aerospc_map = 0
 
@@ -368,6 +361,7 @@ C build mapping to CGRID for each aero spc
 !           write( logdev,* ) '==2 ', trim( aerospc( spc )%name( m ) ), ' ', ae_spc( 1 ), ' ', ae_spc( 15 )
 
             If ( aerospc( spc )%name( m ) .Ne. ' ' ) Then
+               aero_missing( spc,m ) = .False.
                n = index1( aerospc( spc )%name( m ), n_ae_spc, ae_spc )
                If ( n .Eq. 0 ) Then
                   xmsg = 'Species '// aerospc(spc)%name( m )
@@ -383,6 +377,8 @@ C build mapping to CGRID for each aero spc
      &                 // ' in the same or another mode.'
                   Call m3exit( pname, 0, 0, xmsg, xstat3 )
                End If
+            Else
+               aero_missing( spc,m ) = .True.
             End If
          End Do
       End Do

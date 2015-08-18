@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -55,9 +55,6 @@ C.....ARGUMENTS: NONE
 C.....PARAMETERS: NONE
 
 
-C.....EXTERNAL FUNCTIONS:
-      INTEGER  FINDEX         ! Finds location of a number in a list
-
 C.....SAVED VARIABLES:
       CHARACTER( 16 ), SAVE  ::  PNAME = 'HRINIT'   ! Program name
 
@@ -65,7 +62,6 @@ C.....SAVED VARIABLES:
 C.....LOCAL VARIABLES:
       CHARACTER( 132 ) ::  MSG       ! Log message
 
-      INTEGER IND             ! Species index
       INTEGER N               ! Loop index
       INTEGER IOS             ! Allocate error status
 
@@ -94,7 +90,20 @@ C***********************************************************************
           CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
        END IF
 
-      IF( NSPECIAL .GT. 0 )THEN
+       ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
+     &           H2O    ( MAX_CELLS_EBI ),
+     &           TEMP   ( MAX_CELLS_EBI ),
+     &           HET    ( MAX_CELLS_EBI, NHETERO ),
+     &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
+     &           LAND   ( MAX_CELLS_EBI ) ,
+     &           STAT = IOS )
+
+       IF ( IOS .NE. 0 ) THEN
+          MSG = 'Error allocating ATMPRES, H2O, TEMP, HET, RJIN, LAND '
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+       END IF
+
+       IF( NSPECIAL .GT. 0 )THEN
           ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
@@ -110,25 +119,33 @@ C***********************************************************************
           END DO
        END IF
 
-      IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
-         MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF
+       IF( .NOT. MAP_CHEMISTRY_SPECIES() )THEN
+          MSG = 'Detected above error(s) when mapping Chemistry species from CGRID species'
+          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+       END IF
 
-      DO N = 1, NUMB_MECH_SPC
-         FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
-         REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
-      END DO
+       DO N = 1, NUMB_MECH_SPC
+          FORWARD_CONV( N ) = 1.0E-3 * MWAIR / SPECIES_MOLWT( N )
+          REVERSE_CONV( N ) = 1.0E+3 / MWAIR * SPECIES_MOLWT( N )
+       END DO
 
+! initialize all reaction rates to zero so unused array elements are defined
 
-      NING1 = 4
-      NING2 = 4
+       RXRAT = 0.0D0
+
+! initialize all production and loss rates to zero so unused array elements are defined
+
+       PROD  = 0.0D0
+       LOSS  = 0.0D0
+
+       NING1 = 4
+       NING2 = 4
 
 
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 133
+      N_EBISP  = 129
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -144,130 +161,126 @@ c..Allocate and define ebi species
       EBISP(   7 ) = ROOH
       EBISP(   8 ) = ALD2
       EBISP(   9 ) = ALDX
-      EBISP(  10 ) = ISOPX
-      EBISP(  11 ) = IEPOX
-      EBISP(  12 ) = ISOPO2
-      EBISP(  13 ) = IOLE
-      EBISP(  14 ) = IEPXO2
-      EBISP(  15 ) = MGLY
-      EBISP(  16 ) = FORM
-      EBISP(  17 ) = FACD
-      EBISP(  18 ) = CO
-      EBISP(  19 ) = PAR
-      EBISP(  20 ) = MEO2
-      EBISP(  21 ) = AACD
-      EBISP(  22 ) = MEPX
-      EBISP(  23 ) = MEOH
-      EBISP(  24 ) = HCO3
-      EBISP(  25 ) = PACD
-      EBISP(  26 ) = CXO3
-      EBISP(  27 ) = PANX
-      EBISP(  28 ) = ROR
-      EBISP(  29 ) = OLE
-      EBISP(  30 ) = ETH
-      EBISP(  31 ) = TOL
-      EBISP(  32 ) = CRES
-      EBISP(  33 ) = TO2
-      EBISP(  34 ) = TOLRO2
-      EBISP(  35 ) = OPEN
-      EBISP(  36 ) = CRO
-      EBISP(  37 ) = CAT1
-      EBISP(  38 ) = CRON
-      EBISP(  39 ) = CRNO
-      EBISP(  40 ) = CRN2
-      EBISP(  41 ) = CRPX
-      EBISP(  42 ) = OPO3
-      EBISP(  43 ) = CAO2
-      EBISP(  44 ) = OPAN
-      EBISP(  45 ) = XYLMN
-      EBISP(  46 ) = XYLRO2
-      EBISP(  47 ) = NAPH
-      EBISP(  48 ) = PAHRO2
-      EBISP(  49 ) = ISOP
-      EBISP(  50 ) = ISPD
-      EBISP(  51 ) = ISOPRXN
-      EBISP(  52 ) = NTRM
-      EBISP(  53 ) = MACO3
-      EBISP(  54 ) = NTRI
+      EBISP(  10 ) = CO
+      EBISP(  11 ) = MEO2
+      EBISP(  12 ) = FORM
+      EBISP(  13 ) = MEPX
+      EBISP(  14 ) = MEOH
+      EBISP(  15 ) = HCO3
+      EBISP(  16 ) = FACD
+      EBISP(  17 ) = PACD
+      EBISP(  18 ) = AACD
+      EBISP(  19 ) = CXO3
+      EBISP(  20 ) = PANX
+      EBISP(  21 ) = PAR
+      EBISP(  22 ) = ROR
+      EBISP(  23 ) = OLE
+      EBISP(  24 ) = ETH
+      EBISP(  25 ) = IOLE
+      EBISP(  26 ) = TOL
+      EBISP(  27 ) = CRES
+      EBISP(  28 ) = TO2
+      EBISP(  29 ) = TOLRO2
+      EBISP(  30 ) = OPEN
+      EBISP(  31 ) = MGLY
+      EBISP(  32 ) = CRO
+      EBISP(  33 ) = CAT1
+      EBISP(  34 ) = CRON
+      EBISP(  35 ) = CRNO
+      EBISP(  36 ) = CRN2
+      EBISP(  37 ) = CRPX
+      EBISP(  38 ) = OPO3
+      EBISP(  39 ) = CAO2
+      EBISP(  40 ) = OPAN
+      EBISP(  41 ) = XYLMN
+      EBISP(  42 ) = XYLRO2
+      EBISP(  43 ) = NAPH
+      EBISP(  44 ) = PAHRO2
+      EBISP(  45 ) = ISOP
+      EBISP(  46 ) = ISPD
+      EBISP(  47 ) = IXO2
+      EBISP(  48 ) = IXO2N
+      EBISP(  49 ) = ISOPRXN
+      EBISP(  50 ) = NTRI1
+      EBISP(  51 ) = ISOPX
+      EBISP(  52 ) = IEPOX
+      EBISP(  53 ) = yOH
+      EBISP(  54 ) = NTRI2
       EBISP(  55 ) = TERP
       EBISP(  56 ) = TRPRXN
-      EBISP(  57 ) = SO2
-      EBISP(  58 ) = SULF
-      EBISP(  59 ) = SULRXN
-      EBISP(  60 ) = ETOH
-      EBISP(  61 ) = ETHA
-      EBISP(  62 ) = CL2
-      EBISP(  63 ) = CL
-      EBISP(  64 ) = HOCL
-      EBISP(  65 ) = CLO
-      EBISP(  66 ) = FMCL
-      EBISP(  67 ) = HCL
-      EBISP(  68 ) = CLNO2
-      EBISP(  69 ) = TOLNRXN
-      EBISP(  70 ) = TOLHRXN
-      EBISP(  71 ) = XYLNRXN
-      EBISP(  72 ) = XYLHRXN
-      EBISP(  73 ) = BENZENE
-      EBISP(  74 ) = BENZRO2
-      EBISP(  75 ) = BNZNRXN
-      EBISP(  76 ) = BNZHRXN
-      EBISP(  77 ) = SESQ
-      EBISP(  78 ) = SESQRXN
-      EBISP(  79 ) = PAHNRXN
-      EBISP(  80 ) = PAHHRXN
-      EBISP(  81 ) = SOAALK
-      EBISP(  82 ) = ALKRXN
-      EBISP(  83 ) = MAPAN
-      EBISP(  84 ) = NALKO2
-      EBISP(  85 ) = NTRCN
-      EBISP(  86 ) = NTRCNOH
-      EBISP(  87 ) = NTRPX
-      EBISP(  88 ) = NOHO2
-      EBISP(  89 ) = NCNO2
-      EBISP(  90 ) = NCNOHO2
-      EBISP(  91 ) = NTRMO2
-      EBISP(  92 ) = NTRIO2
-      EBISP(  93 ) = H2NO3PIJ
-      EBISP(  94 ) = H2NO3PK
-      EBISP(  95 ) = ACLI
-      EBISP(  96 ) = ACLJ
-      EBISP(  97 ) = ACLK
-      EBISP(  98 ) = AISO3J
-      EBISP(  99 ) = AXYL1J
-      EBISP( 100 ) = AOLGAJ
-      EBISP( 101 ) = AXYL2J
-      EBISP( 102 ) = ATOL1J
-      EBISP( 103 ) = ATOL2J
-      EBISP( 104 ) = ABNZ1J
-      EBISP( 105 ) = ABNZ2J
-      EBISP( 106 ) = ATRP1J
-      EBISP( 107 ) = AOLGBJ
-      EBISP( 108 ) = ATRP2J
-      EBISP( 109 ) = AISO1J
-      EBISP( 110 ) = AISO2J
-      EBISP( 111 ) = ASQTJ
-      EBISP( 112 ) = APAH1J
-      EBISP( 113 ) = APAH2J
-      EBISP( 114 ) = AALK1J
-      EBISP( 115 ) = AALK2J
-      EBISP( 116 ) = APOCI
-      EBISP( 117 ) = APNCOMI
-      EBISP( 118 ) = APOCJ
-      EBISP( 119 ) = APNCOMJ
-      EBISP( 120 ) = FORM_PRIMARY
-      EBISP( 121 ) = ALD2_PRIMARY
-      EBISP( 122 ) = BUTADIENE13
-      EBISP( 123 ) = ACROLEIN
-      EBISP( 124 ) = ACROLEIN_PRIMARY
-      EBISP( 125 ) = TOLU
-      EBISP( 126 ) = MXYL
-      EBISP( 127 ) = OXYL
-      EBISP( 128 ) = PXYL
-      EBISP( 129 ) = APIN
-      EBISP( 130 ) = BPIN
-      EBISP( 131 ) = HG
-      EBISP( 132 ) = HGIIAER
-      EBISP( 133 ) = HGIIGAS
+      EBISP(  57 ) = XO2T
+      EBISP(  58 ) = SO2
+      EBISP(  59 ) = SULF
+      EBISP(  60 ) = SULRXN
+      EBISP(  61 ) = ETOH
+      EBISP(  62 ) = ETHA
+      EBISP(  63 ) = CL2
+      EBISP(  64 ) = CL
+      EBISP(  65 ) = HOCL
+      EBISP(  66 ) = CLO
+      EBISP(  67 ) = FMCL
+      EBISP(  68 ) = HCL
+      EBISP(  69 ) = CLNO2
+      EBISP(  70 ) = TOLNRXN
+      EBISP(  71 ) = TOLHRXN
+      EBISP(  72 ) = XYLNRXN
+      EBISP(  73 ) = XYLHRXN
+      EBISP(  74 ) = BENZENE
+      EBISP(  75 ) = BENZRO2
+      EBISP(  76 ) = BNZNRXN
+      EBISP(  77 ) = BNZHRXN
+      EBISP(  78 ) = SESQ
+      EBISP(  79 ) = SESQRXN
+      EBISP(  80 ) = PAHNRXN
+      EBISP(  81 ) = PAHHRXN
+      EBISP(  82 ) = SOAALK
+      EBISP(  83 ) = ALKRXN
+      EBISP(  84 ) = NTRC1
+      EBISP(  85 ) = NTRC2
+      EBISP(  86 ) = NXO2N
+      EBISP(  87 ) = NTRI1O2
+      EBISP(  88 ) = NTRI2O2
+      EBISP(  89 ) = H2NO3PIJ
+      EBISP(  90 ) = H2NO3PK
+      EBISP(  91 ) = ACLI
+      EBISP(  92 ) = ACLJ
+      EBISP(  93 ) = ACLK
+      EBISP(  94 ) = AISO3J
+      EBISP(  95 ) = AXYL1J
+      EBISP(  96 ) = AOLGAJ
+      EBISP(  97 ) = AXYL2J
+      EBISP(  98 ) = ATOL1J
+      EBISP(  99 ) = ATOL2J
+      EBISP( 100 ) = ABNZ1J
+      EBISP( 101 ) = ABNZ2J
+      EBISP( 102 ) = ATRP1J
+      EBISP( 103 ) = AOLGBJ
+      EBISP( 104 ) = ATRP2J
+      EBISP( 105 ) = AISO1J
+      EBISP( 106 ) = AISO2J
+      EBISP( 107 ) = ASQTJ
+      EBISP( 108 ) = APAH1J
+      EBISP( 109 ) = APAH2J
+      EBISP( 110 ) = AALK1J
+      EBISP( 111 ) = AALK2J
+      EBISP( 112 ) = APOCI
+      EBISP( 113 ) = APNCOMI
+      EBISP( 114 ) = APOCJ
+      EBISP( 115 ) = APNCOMJ
+      EBISP( 116 ) = FORM_PRIMARY
+      EBISP( 117 ) = ALD2_PRIMARY
+      EBISP( 118 ) = BUTADIENE13
+      EBISP( 119 ) = ACROLEIN
+      EBISP( 120 ) = ACROLEIN_PRIMARY
+      EBISP( 121 ) = TOLU
+      EBISP( 122 ) = MXYL
+      EBISP( 123 ) = OXYL
+      EBISP( 124 ) = PXYL
+      EBISP( 125 ) = APIN
+      EBISP( 126 ) = BPIN
+      EBISP( 127 ) = HG
+      EBISP( 128 ) = HGIIAER
+      EBISP( 129 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -293,34 +306,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ROOH             ) = 1.0D-03
       RTOL( ALD2             ) = 1.0D-03
       RTOL( ALDX             ) = 1.0D-03
-      RTOL( ISOPX            ) = 1.0D-03
-      RTOL( IEPOX            ) = 1.0D-03
-      RTOL( ISOPO2           ) = 1.0D-03
-      RTOL( IOLE             ) = 1.0D-03
-      RTOL( IEPXO2           ) = 1.0D-03
-      RTOL( MGLY             ) = 1.0D-03
-      RTOL( FORM             ) = 1.0D-03
-      RTOL( FACD             ) = 1.0D-03
       RTOL( CO               ) = 1.0D-03
-      RTOL( PAR              ) = 1.0D-03
-      RTOL( C2O3             ) = 1.0D-03
       RTOL( MEO2             ) = 1.0D-03
-      RTOL( AACD             ) = 1.0D-03
+      RTOL( FORM             ) = 1.0D-03
       RTOL( MEPX             ) = 1.0D-03
       RTOL( MEOH             ) = 1.0D-03
       RTOL( HCO3             ) = 1.0D+00
+      RTOL( FACD             ) = 1.0D-03
+      RTOL( C2O3             ) = 1.0D-03
       RTOL( PAN              ) = 1.0D-03
       RTOL( PACD             ) = 1.0D-03
+      RTOL( AACD             ) = 1.0D-03
       RTOL( CXO3             ) = 1.0D-03
       RTOL( PANX             ) = 1.0D-03
+      RTOL( PAR              ) = 1.0D-03
       RTOL( ROR              ) = 1.0D-03
       RTOL( OLE              ) = 1.0D-03
       RTOL( ETH              ) = 1.0D-03
+      RTOL( IOLE             ) = 1.0D-03
       RTOL( TOL              ) = 1.0D-03
       RTOL( CRES             ) = 1.0D-03
       RTOL( TO2              ) = 1.0D-03
       RTOL( TOLRO2           ) = 1.0D-03
       RTOL( OPEN             ) = 1.0D-03
+      RTOL( MGLY             ) = 1.0D-03
       RTOL( CRO              ) = 1.0D-03
       RTOL( CAT1             ) = 1.0D-03
       RTOL( CRON             ) = 1.0D-03
@@ -333,15 +342,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( XYLMN            ) = 1.0D-03
       RTOL( XYLRO2           ) = 1.0D-03
       RTOL( NAPH             ) = 1.0D-03
-      RTOL( PAHRO2           ) = 1.0D-03
+      RTOL( PAHRO2           ) = 1.0D+00
       RTOL( ISOP             ) = 1.0D-03
       RTOL( ISPD             ) = 1.0D-03
+      RTOL( IXO2             ) = 1.0D-03
+      RTOL( IXO2N            ) = 1.0D-03
       RTOL( ISOPRXN          ) = 1.0D+00
-      RTOL( NTRM             ) = 1.0D-03
-      RTOL( MACO3            ) = 1.0D-03
-      RTOL( NTRI             ) = 1.0D-03
+      RTOL( NTRI1            ) = 1.0D-03
+      RTOL( ISOPX            ) = 1.0D-03
+      RTOL( IEPOX            ) = 1.0D-03
+      RTOL( yOH              ) = 1.0D-03
+      RTOL( NTRI2            ) = 1.0D-03
       RTOL( TERP             ) = 1.0D-03
       RTOL( TRPRXN           ) = 1.0D+00
+      RTOL( XO2T             ) = 1.0D-03
       RTOL( SO2              ) = 1.0D-03
       RTOL( SULF             ) = 1.0D+00
       RTOL( SULRXN           ) = 1.0D+00
@@ -364,20 +378,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( BNZHRXN          ) = 1.0D+00
       RTOL( SESQ             ) = 1.0D-03
       RTOL( SESQRXN          ) = 1.0D+00
-      RTOL( PAHNRXN          ) = 1.0D-03
-      RTOL( PAHHRXN          ) = 1.0D-03
+      RTOL( PAHNRXN          ) = 1.0D+00
+      RTOL( PAHHRXN          ) = 1.0D+00
       RTOL( SOAALK           ) = 1.0D-03
-      RTOL( ALKRXN           ) = 1.0D-03
-      RTOL( MAPAN            ) = 1.0D-03
-      RTOL( NALKO2           ) = 1.0D-03
-      RTOL( NTRCN            ) = 1.0D-03
-      RTOL( NTRCNOH          ) = 1.0D-03
-      RTOL( NTRPX            ) = 1.0D-03
-      RTOL( NOHO2            ) = 1.0D-03
-      RTOL( NCNO2            ) = 1.0D-03
-      RTOL( NCNOHO2          ) = 1.0D-03
-      RTOL( NTRMO2           ) = 1.0D-03
-      RTOL( NTRIO2           ) = 1.0D-03
+      RTOL( ALKRXN           ) = 1.0D+00
+      RTOL( NTRC1            ) = 1.0D-03
+      RTOL( NTRC2            ) = 1.0D-03
+      RTOL( NXO2N            ) = 1.0D-03
+      RTOL( NTRI1O2          ) = 1.0D-03
+      RTOL( NTRI2O2          ) = 1.0D-03
       RTOL( H2NO3PIJ         ) = 1.0D-03
       RTOL( H2NO3PK          ) = 1.0D-03
       RTOL( ACLI             ) = 1.0D-03

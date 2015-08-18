@@ -1,4 +1,3 @@
-       MODULE AEROSOL_CHEMISTRY
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !!
 !  continuous development by various groups and is based on information  !
@@ -16,58 +15,61 @@
 !  General Public License or the GNU Lesser General Public License is    !
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
-!
+
+       MODULE AEROSOL_CHEMISTRY
+!-----------------------------------------------------------------------
 ! Revision history
 !
 ! 26 Sep 14 H. Pye: Heterogeneous uptake of IEPOX added 
-!
+! 27 Feb 15 J. Bash:
+!-----------------------------------------------------------------------
 
        IMPLICIT NONE
        
+       REAL( 8 ), ALLOCATABLE :: KHETERO( :,:,:,: ) ! heterogeneous rx rates, 
+                                                    ! [ppm**(RXN Order-1)*min]**-1
+       REAL,      ALLOCATABLE :: GAMMA_N2O5IJ( :,:,:  ) ! Fine modes N2O5 rx effic.
+       REAL,      ALLOCATABLE :: GAMMA_N2O5K(  :,:,:  ) ! Coarse mode N2O5 rx effic.
+       REAL,      ALLOCATABLE :: GAMMA_IEPOX(  :,:,:  ) ! IEPOX uptake coeff
+       REAL,      ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
+       REAL,      ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
        
-       REAL( 8 ), PUBLIC, ALLOCATABLE     :: KHETERO(   :, :, : , :  ) ! heterogeneous reaction rates, 
-                                                                       ! units: (ppm**(RXN Order-1)*min)**-1
-       REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_N2O5IJ( :, : , :  ) ! Fine modes N2O5 reaction effic.
-       REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_N2O5K(  :, : , :  ) ! Coarse mode N2O5 reaction effic.
-       REAL,      PUBLIC, ALLOCATABLE     :: GAMMA_IEPOX(  :, : , :  ) ! IEPOX uptake coeff
-       REAL,      PUBLIC, ALLOCATABLE     :: YCLNO2IJ   (  :, : , :  ) ! Yield CLNO2 in Fine modes 
-       REAL,      PUBLIC, ALLOCATABLE     :: YCLNO2K    (  :, : , :  ) ! Yield CLNO2 in coarse mode 
-       
-       PUBLIC HETCHEM_RATES
+       PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, GAMMA_IEPOX,
+     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES
        
        PRIVATE 
 
        INTEGER, PARAMETER :: NUMB_AERO_RATES = 18
        
-       CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
-     &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
-     &                       'HETERO_N2O5IJY   ', 'HETERO_N2O5KY    ', 
-     &                       'HETERO_NO2       ', 'HETERO_H2NO3PAIJ ',
-     &                       'HETERO_H2NO3PBIJ ', 'HETERO_H2NO3PAK  ',
-     &                       'HETERO_H2NO3PBK  ', 'HETERO_H2NO3PAI  ',
-     &                       'HETERO_H2NO3PBI  ', 'HETERO_H2NO3PAJ  ',
-     &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
-     &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
-     &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ' /)
+       CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
+     &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
+     &                       'HETERO_N2O5IJY  ', 'HETERO_N2O5KY   ', 
+     &                       'HETERO_NO2      ', 'HETERO_H2NO3PAIJ',
+     &                       'HETERO_H2NO3PBIJ', 'HETERO_H2NO3PAK ',
+     &                       'HETERO_H2NO3PBK ', 'HETERO_H2NO3PAI ',
+     &                       'HETERO_H2NO3PBI ', 'HETERO_H2NO3PAJ ',
+     &                       'HETERO_H2NO3PBJ ', 'HETERO_N2O5I    ', 
+     &                       'HETERO_N2O5J    ', 'HETERO_PNCOMLI  ',
+     &                       'HETERO_PNCOMLJ  ', 'HETERO_IEPOX    ' /)
 
-       INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
-       INTEGER, PARAMETER  :: IA_N2O5K          =   2
-       INTEGER, PARAMETER  :: IA_N2O5IJY        =   3
-       INTEGER, PARAMETER  :: IA_N2O5KY         =   4
-       INTEGER, PARAMETER  :: IA_NO2            =   5
-       INTEGER, PARAMETER  :: IA_H2NO3PAIJ      =   6
-       INTEGER, PARAMETER  :: IA_H2NO3PBIJ      =   7
-       INTEGER, PARAMETER  :: IA_H2NO3PAK       =   8
-       INTEGER, PARAMETER  :: IA_H2NO3PBK       =   9
-       INTEGER, PARAMETER  :: IA_H2NO3PAI       =   10
-       INTEGER, PARAMETER  :: IA_H2NO3PBI       =   11
-       INTEGER, PARAMETER  :: IA_H2NO3PAJ       =   12
-       INTEGER, PARAMETER  :: IA_H2NO3PBJ       =   13
-       INTEGER, PARAMETER  :: IA_N2O5I          =   14
-       INTEGER, PARAMETER  :: IA_N2O5J          =   15
-       INTEGER, PARAMETER  :: IA_PNCOMLI        =   16
-       INTEGER, PARAMETER  :: IA_PNCOMLJ        =   17
-       INTEGER, PARAMETER  :: IA_IEPOX          =   18
+       INTEGER, PARAMETER :: IA_N2O5IJ    =  1
+       INTEGER, PARAMETER :: IA_N2O5K     =  2
+       INTEGER, PARAMETER :: IA_N2O5IJY   =  3
+       INTEGER, PARAMETER :: IA_N2O5KY    =  4
+       INTEGER, PARAMETER :: IA_NO2       =  5
+       INTEGER, PARAMETER :: IA_H2NO3PAIJ =  6
+       INTEGER, PARAMETER :: IA_H2NO3PBIJ =  7
+       INTEGER, PARAMETER :: IA_H2NO3PAK  =  8
+       INTEGER, PARAMETER :: IA_H2NO3PBK  =  9
+       INTEGER, PARAMETER :: IA_H2NO3PAI  = 10
+       INTEGER, PARAMETER :: IA_H2NO3PBI  = 11
+       INTEGER, PARAMETER :: IA_H2NO3PAJ  = 12
+       INTEGER, PARAMETER :: IA_H2NO3PBJ  = 13
+       INTEGER, PARAMETER :: IA_N2O5I     = 14
+       INTEGER, PARAMETER :: IA_N2O5J     = 15
+       INTEGER, PARAMETER :: IA_PNCOMLI   = 16
+       INTEGER, PARAMETER :: IA_PNCOMLJ   = 17
+       INTEGER, PARAMETER :: IA_IEPOX     = 18
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -79,17 +81,14 @@
      &                       IA_H2NO3PBJ , IA_N2O5I    , 
      &                       IA_N2O5J    , IA_PNCOMLI  ,
      &                       IA_PNCOMLJ  , IA_IEPOX    /)
-
  
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
        
-       LOGICAL              :: DUMP_CELL
        INTEGER              :: LOGDEV
 
 C *** Molecular weight
       REAL( 8 ), SAVE        :: MWTIEPOX      ! molecular weight of IEPOX [g/mol]
-      REAL( 8 ), SAVE        :: INV_MWTIEPOX  ! reciprocal of molecular weight for IEPOX [mol/g]
       REAL( 8 ), SAVE        :: CFACTOR_IEPOX ! factor used for the mean molecular speed of IEPOX [m/(s^1*(deg K)^0.5)]
 
 C *** 2nd and 3rd moments before equilibration (without H2O)
@@ -110,13 +109,13 @@ C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^
 
 C Acid catalyzed particle phase reactions
       TYPE ACID_CAT
-           CHARACTER( 16 ) :: PARENT     ! gas-phase parent species
-           CHARACTER( 16 ) :: NUC        ! aerosol-phase nucleophile that adds to epoxide ring
-           CHARACTER( 16 ) :: ACID       ! acid that catalyzes epoxide ring opening
-           INTEGER         :: IDX_ACID   ! array index for acid concentration
-           INTEGER         :: IDX_REMOVE ! array index denoting whether to correct nucleophile for acid
-           REAL( 8 )       :: KCHEM      ! particle phase rate constant [1/(M^2 s)]
-           CHARACTER( 16 ) :: PROD       ! product of nucleophile+parent
+         CHARACTER( 16 ) :: PARENT     ! gas-phase parent species
+         CHARACTER( 16 ) :: NUC        ! aerosol-phase nucleophile that adds to epoxide ring
+         CHARACTER( 16 ) :: ACID       ! acid that catalyzes epoxide ring opening
+         INTEGER         :: IDX_ACID   ! array index for acid concentration
+         INTEGER         :: IDX_REMOVE ! array index denoting whether to correct nucleophile for acid
+         REAL( 8 )       :: KCHEM      ! particle phase rate constant [1/(M^2 s)]
+         CHARACTER( 16 ) :: PROD       ! product of nucleophile+parent
       END TYPE ACID_CAT
 
       INTEGER, PARAMETER :: N_NUCPAIRS = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
@@ -141,62 +140,59 @@ C Mapping array for location of acid enhanced products and nucleophiles in aeros
 
       SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
 
-c Calculates the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
-c
-c Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
-c                         N2O5_GAMMA
-c
-c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
-c            in aero6 module of CMAQ version 5.01. The adaptation includes
-c            heterogeneous nitryl chloride production used for Sarwar et al.
-c            (2012).
-c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
-c 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol added
-c            following Pye et al. (2013).
-c 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
-c            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
-c            Compilation and evaluation of gas-phase diffusion coefficients 
-c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
-c            Phys. Discuss., 14, 15645–15682, 2014. 
-c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
-
-c
-c
-c  REFERENCES:
-c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
-c      Gallani, An improved representation of the reaction of N2O5 on
-c      aerosols for mesoscale air quality models.  In "Regional
-c      Photochemical Measurement and Modeling Studies, Vol 2 - Results
-c      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
-c      904-913, 1995.
-c
-c   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
-c      reaction probabilities on the surface of particles containing
-c      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
-c      press.
-c
-c   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
-c      simulated vertical profiles of nitrous acid - Part II. Model
-c      simulations and indications for a photolytic source, Atmospheric
-c      Environment, 37, 2957-2966, 2003.
-c
-c   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
-c      B. Vogel, A comparison of CMAQ HONO predictions with observations
-c      from the Northeast Oxidant and Particle Study, Atmospheric
-c      Environment, 2008, in press.
+C Calculate the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
 C
-c   5. Bertram, T. H. and J.A. Thornton, Toward a general parameterization
-c      of N2O5 reactivity on aqueous particles: the competing effects of 
-c      particle liquid water, nitrate, and chloride, ACP, 9, 8351-8363, 2009 
-c
-c   6. Sarwar, G., H. Simon2, P. Bhave1, and G. Yarwood. Examining the impact of 
+C Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
+C                         N2O5_GAMMA
+C
+C 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
+C            in aero6 module of CMAQ version 5.01. The adaptation includes
+C            heterogeneous nitryl chloride production used for Sarwar et al.
+C            (2012).
+C 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
+C 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol added
+C            following Pye et al. (2013).
+C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+C            Compilation and evaluation of gas-phase diffusion coefficients 
+C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+C            Phys. Discuss., 14, 15645–15682, 2014. 
+C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+
+C  REFERENCES:
+C   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
+C      Gallani, An improved representation of the reaction of N2O5 on
+C      aerosols for mesoscale air quality models.  In "Regional
+C      Photochemical Measurement and Modeling Studies, Vol 2 - Results
+C      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
+C      904-913, 1995.
+C
+C   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
+C      reaction probabilities on the surface of particles containing
+C      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
+C      press.
+C
+C   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
+C      simulated vertical profiles of nitrous acid - Part II. Model
+C      simulations and indications for a photolytic source, Atmospheric
+C      Environment, 37, 2957-2966, 2003.
+C
+C   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
+C      B. Vogel, A comparison of CMAQ HONO predictions with observations
+C      from the Northeast Oxidant and Particle Study, Atmospheric
+C      Environment, 2008, in press.
+C
+C   5. Bertram, T. H. and J.A. Thornton, Toward a general parameterization
+C      of N2O5 reactivity on aqueous particles: the competing effects of 
+C      particle liquid water, nitrate, and chloride, ACP, 9, 8351-8363, 2009 
+C
+C   6. Sarwar, G., H. Simon2, P. Bhave1, and G. Yarwood. Examining the impact of 
 C      heterogeneous nitryl chloride production on air quality across the United
 C      States. Atmos. Chem. Phys., 12, 6455-6473, 2012.
-c
-c   7. Pye et al., Epoxide pathways improve model predictions of isoprene
-c      markers and reveal key role of acidity in aerosol formation,
-c      Environ. Sci. Technol., doi: 10.1021/es402106h, 2013.
-c
+C
+C   7. Pye et al., Epoxide pathways improve model predictions of isoprene
+C      markers and reveal key role of acidity in aerosol formation,
+C      Environ. Sci. Technol., doi: 10.1021/es402106h, 2013.
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -212,18 +208,14 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST       ! CMAQ constants
 
 C *** Arguments
-      REAL,            POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
-      REAL,            INTENT( IN )  :: TEMP  ( :,:,: )    ! temperature [K]
-      REAL,            INTENT( IN )  :: PRESS ( :,:,: )    ! pressure [Pa]
-      REAL,            INTENT( IN )  :: WVAPOR( :,:,: )    ! water vapor mass mixing ratio(Kg/Kg air)
+      REAL,           POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
+      REAL,           INTENT( IN )  :: TEMP  ( :,:,: )    ! temperature [K]
+      REAL,           INTENT( IN )  :: PRESS ( :,:,: )    ! pressure [Pa]
+      REAL,           INTENT( IN )  :: WVAPOR( :,:,: )    ! water vapor mass mixing ratio(Kg/Kg air)
       REAL, OPTIONAL, INTENT( IN )  :: DENS ( :,:,: )     ! air density(Kg/m3 air)
 
       CHARACTER(16), SAVE ::  PNAME = 'HETCHEM_RATES'
       
-      INTEGER              ::  OFFSET          ! Starting cell number of a block
-      INTEGER              ::  CELLNUM         ! Cell number 
-
-
 C *** Parameters
       REAL( 8 ), PARAMETER :: AQUEOUS_FREQUENCY = 1.0D+9
       REAL( 8 ), PARAMETER :: INV_SQRT_MWNO2  = 1.47425932467825D-1
@@ -246,47 +238,43 @@ C *** Parameters
 
 
 C *** Local Variables
-      REAL( 8 ) :: AIRTEMP          ! air temperature [K}
-!      REAL( 8 ) :: AIRPRES          ! air pressure [Pa]
-!      REAL( 8 ) :: AIRQV            ! water vapor mass mixing ratio [g/g]
-      REAL( 8 ) :: GAMMA            ! fine mode N2O5->NO3 rxn probability
-      REAL( 8 ) :: GAMMAK           ! coarse mode N2O5->NO3 rxn probability
-      REAL( 8 ) :: GAMMAIEPOX       ! IEPOX uptake coefficient
-      REAL( 8 ) :: GAMMAIEPOX_PYE   ! HPYE original IEPOX uptake coefficient
-      REAL( 8 ) :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
-      REAL( 8 ) :: KNO2             ! pseudo-first order rate constant, sec-1
-      REAL( 8 ) :: KIEPOX           ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: AIRTEMP          ! air temperature [K}
+!     REAL( 8 )    :: AIRPRES          ! air pressure [Pa]
+!     REAL( 8 )    :: AIRQV            ! water vapor mass mixing ratio [g/g]
+      REAL( 8 )    :: GAMMA            ! fine mode N2O5->NO3 rxn probability
+      REAL( 8 )    :: GAMMAIEPOX       ! IEPOX uptake coefficient
+      REAL( 8 )    :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: KNO2             ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: KIEPOX           ! pseudo-first order rate constant, sec-1
 
-      REAL( 8 )   :: CBAR_COEFF       ! cell coefficient for mean molecular speed
-      REAL( 8 )   :: ADJUST_DIFF      ! Cell temp and press correction to diffusivity
-      REAL( 8 )   :: INV_DIFFUSIVITY  ! reciprocal molecular diffusivity [m2/sec] 
+      REAL( 8 )    :: CBAR_COEFF       ! cell coefficient for mean molecular speed
+      REAL( 8 )    :: ADJUST_DIFF      ! Cell temp and press correction to diffusivity
+      REAL( 8 )    :: INV_DIFFUSIVITY  ! reciprocal molecular diffusivity [m2/sec] 
 
-      REAL( 8 )   :: XXF( N_MODE )         ! XXF_AT,    XXF_AC,    XXF_CO    ! modal factors to calculate KN2O5
-      REAL( 8 )   :: CL_PPM( N_MODE )      ! aerosol chlorine in ppm
-      REAL( 8 )   :: YIELD_CLNO2( N_MODE ) ! model reactions yields of CLNO2
+      REAL( 8 )    :: XXF( N_MODE )         ! XXF_AT,    XXF_AC,    XXF_CO    ! modal factors to calculate KN2O5
+      REAL( 8 )    :: CL_PPM( N_MODE )      ! aerosol chlorine in ppm
+      REAL( 8 )    :: YIELD_CLNO2( N_MODE ) ! model reactions yields of CLNO2
       
-      REAL( 8 )       :: H2OSATVP ! saturation vapor pressure    [Atm]
-      REAL( 8 )       :: H2OVP    ! ambient water vapor pressure [Atm]
-      REAL( 8 )       :: AIRRH    ! Relative Humidity            [Fractional]
-      REAL( 8 )       :: YIELDIJ  ! fine mode reaction yield, dimensionaless
-      REAL( 8 )       :: YIELDK   ! coarse mode reaction yield, dimensionaless
-      REAL( 8 )       :: TOTSURFA ! aerosol surface area (m**2/m**3)
-      REAL( 8 )       :: FACTOR   ! scratch multiplicative factor
-      REAL( 8 )       :: RFACTOR  ! factor converting rate constant from cm3/molec/sec to 1/ppm/min
-      REAL( 8 )       :: RADIUS   ! effective particle radius [m]
+      REAL( 8 )    :: H2OVP    ! ambient water vapor pressure [Atm]
+      REAL( 8 )    :: AIRRH    ! Relative Humidity            [Fractional]
+      REAL( 8 )    :: YIELDIJ  ! fine mode reaction yield, dimensionaless
+      REAL( 8 )    :: TOTSURFA ! aerosol surface area (m**2/m**3)
+      REAL( 8 )    :: FACTOR   ! scratch multiplicative factor
+      REAL( 8 )    :: RFACTOR  ! factor converting rate constant from cm3/molec/sec to 1/ppm/min
+      REAL( 8 )    :: RADIUS   ! effective particle radius [m]
       
-      REAL( 8 )       :: CBAR             ! molecular velocity of N2O5 (m/s)
-      REAL( 8 )       :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
+      REAL( 8 )    :: CBAR             ! molecular velocity of N2O5 (m/s)
+      REAL( 8 )    :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
 
 
-      LOGICAL         :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
-      LOGICAL         :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
+      LOGICAL      :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
+      LOGICAL      :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
 
 C *** variables for parameterization by Bertram and Thornton 
-      REAL            :: ACL           ! i+j or k mode chloride, ug/m3 
-      REAL            :: AH2O          ! i+j or k mode water, ug/m3          
-      REAL            :: POC           ! i or j mode primary organic carbon, ug/m3 
-      REAL            :: PNCOM         ! i or j mode primary noncarbon organic matter, ug/m3          
+      REAL         :: ACL           ! i+j or k mode chloride, ug/m3 
+      REAL         :: AH2O          ! i+j or k mode water, ug/m3          
+      REAL         :: POC           ! i or j mode primary organic carbon, ug/m3 
+      REAL         :: PNCOM         ! i or j mode primary noncarbon organic matter, ug/m3          
       REAL,      SAVE :: MWCLH2O       ! ratio of MWCL/MWH2O 
       REAL,      SAVE :: MWH2OCL       ! ratio of MWH20/MWCL 
       REAL,      SAVE :: MWCLCLNO2     ! ratio of MWCL/MWCLNO2
@@ -294,37 +282,36 @@ C *** variables for parameterization by Bertram and Thornton
       REAL( 8 )       :: PPM_FACTOR    ! conversion factor to umoles/m3 to ppm
       
       
-      LOGICAL, SAVE        :: FIRSTIME = .TRUE.
-      INTEGER, EXTERNAL    :: SETUP_LOGDEV
+      LOGICAL, SAVE     :: FIRSTIME = .TRUE.
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
-      INTEGER              :: NCELL, IRATE        ! loop counter
-      INTEGER              :: INDX               ! found array index
-      INTEGER, SAVE        :: CLNO2_IDX
-      INTEGER, SAVE        :: IEPOX_IDX
+      INTEGER           :: IRATE        ! loop counter
+      INTEGER           :: INDX         ! found array index
+      INTEGER, SAVE     :: CLNO2_IDX
+      INTEGER, SAVE     :: IEPOX_IDX
 
-      INTEGER              :: C
-      INTEGER              :: R
-      INTEGER              :: L
-      INTEGER              :: N
+      INTEGER           :: C
+      INTEGER           :: R
+      INTEGER           :: L
+      INTEGER           :: N
       
 C *** variables for getting aerosol diagnostic file flag
-      INTEGER          :: STATUS                      ! ENV... status
-      CHARACTER( 80 )  :: VARDESC                     ! environment variable description
-      CHARACTER( 16 )  :: CTM_AERDIAG = 'CTM_AERDIAG' ! environment variable for AERDIAG file
-      LOGICAL, SAVE    :: AERDIAG                     ! flag for AERDIAG file [F], default
+      INTEGER           :: STATUS                      ! ENV... status
+      CHARACTER( 80 )   :: VARDESC                     ! environment variable description
+      CHARACTER( 16 )   :: CTM_AERDIAG = 'CTM_AERDIAG' ! environment variable for AERDIAG file
+      LOGICAL, SAVE     :: AERDIAG                     ! flag for AERDIAG file [F], default
       
-      CHARACTER( 132 ) :: XMSG
+      CHARACTER( 132 )  :: XMSG
       
 C *** Statement Function **************
-      REAL( 8 )            :: ESATL      ! arithmetic statement function for vapor pressure [Pa]
       REAL( 8 )            :: INV_ESATL ! arithmetic statement function for reciporcal vapor pressure [Pa]
       REAL( 8 )            :: TT
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
-!      REAL( 8 ), PARAMETER :: AL = 610.94D0 / STDATMPA
+!     REAL( 8 ), PARAMETER :: AL = 610.94D0 / STDATMPA
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
       REAL( 8 ), PARAMETER :: BL = 17.625D0
       REAL( 8 ), PARAMETER :: CL = 243.04D0
-      REAL( 8 ), PARAMETER :: DL = 1.0D0 / 610.94D0 
+      REAL( 8 ), PARAMETER :: DL = 1.0D0 / AL
 
 C *** values of AL, BL, and CL are from:
 C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
@@ -332,23 +319,21 @@ C                            Saturation Vapor Pressure,"
 C                            Jour. of Applied Meteorology, vol. 35,
 C                            pp 601-609, April, 1996.
 
-      ESATL( TT )     = AL * DEXP( BL * ( TT - 273.15D0 ) / ( TT - 273.15D0 + CL ) )
       INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
-
       
       INTERFACE
-        SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
-          USE AERO_DATA
-          USE AEROMET_DATA 
-          IMPLICIT NONE
-          LOGICAL, INTENT( IN ) :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
-          LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
-        END SUBROUTINE GETPAR
+         SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
+           USE AERO_DATA
+           USE AEROMET_DATA 
+           IMPLICIT NONE
+           LOGICAL, INTENT( IN ) :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
+           LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
+         END SUBROUTINE GETPAR
       END INTERFACE 
   
 C-----------------------------------------------------------------------
 
-      IF( NHETERO .LT. 1 )RETURN
+      IF ( NHETERO .LT. 1 )RETURN
 
 C *** compute only on first pass
 
@@ -393,7 +378,7 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
         SELECTED_AERO_RATES = 0
         DO IRATE = 1, NHETERO
            INDX = INDEX1( HETERO( IRATE ), NUMB_AERO_RATES, NAMES_AERO_RATES )
-           IF( INDX .LT. 1 )THEN
+           IF ( INDX .LT. 1 ) THEN
                XMSG = 'Heterogeneous Reaction Label '// TRIM ( HETERO( IRATE ) )
      &             // ' is not in list of available Reaction Rates.'
                CALL M3EXIT( 'HETCHEM_RATES', 0, 0, XMSG, XSTAT3 )
@@ -401,30 +386,29 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
            SELECTED_AERO_RATES = SELECTED_AERO_RATES + 1
            WHICH_AERO_RATE( SELECTED_AERO_RATES ) = INDEX_AERO_RATES( INDX )
        END DO
- 
 
        INDX =  INDEX1( NAMES_AERO_RATES( IA_IEPOX ), NHETERO, HETERO )   
-       IF( INDX .GT. 0 )THEN ! Find indices for acid catalyzed species in IEPOX reaction
+       IF ( INDX .GT. 0 ) THEN ! Find indices for acid catalyzed species in IEPOX reaction
           ACID_PRODMAP_IDX = 0
           ACID_NUCMAP_IDX  = 0
           DO N = 1, N_NUCPAIRS
             ACID_PRODMAP_IDX(N) = FINDAERO( ACID_NUC_PAIRS(N)%PROD, .TRUE. )
             ACID_NUCMAP_IDX(N)  = FINDAERO( ACID_NUC_PAIRS(N)%NUC,  .TRUE. )
-#ifdef verbose_hetchem        
+#ifdef verbose_aerosol_chemistry        
             Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%prod, acid_prodmap_idx(n)
             Write( logdev,'( 5x, a, i4 )' ) acid_nuc_pairs(n)%nuc,  acid_nucmap_idx(n)
 #endif
           END DO
        END IF
         
-       ALLOCATE( KHETERO( SELECTED_AERO_RATES, MY_NCOLS, MY_NROWS, NLAYS ) )
+       ALLOCATE( KHETERO( SELECTED_AERO_RATES, NCOLS,NROWS,NLAYS ) )
        
-       IF( AERDIAG )THEN
-           ALLOCATE( GAMMA_N2O5IJ( MY_NCOLS, MY_NROWS, NLAYS ) )
-           ALLOCATE(  GAMMA_N2O5K( MY_NCOLS, MY_NROWS, NLAYS ) )
-           ALLOCATE(  GAMMA_IEPOX( MY_NCOLS, MY_NROWS, NLAYS ) )
-           ALLOCATE(     YCLNO2IJ( MY_NCOLS, MY_NROWS, NLAYS ) )
-           ALLOCATE(      YCLNO2K( MY_NCOLS, MY_NROWS, NLAYS ) )
+       IF ( AERDIAG ) THEN
+          ALLOCATE( GAMMA_N2O5IJ( NCOLS,NROWS,NLAYS ) )
+          ALLOCATE(  GAMMA_N2O5K( NCOLS,NROWS,NLAYS ) )
+          ALLOCATE(  GAMMA_IEPOX( NCOLS,NROWS,NLAYS ) )
+          ALLOCATE(     YCLNO2IJ( NCOLS,NROWS,NLAYS ) )
+          ALLOCATE(      YCLNO2K( NCOLS,NROWS,NLAYS ) )
        END IF
 
        INV_MWCL  = REAL( 1.0 / aerospc_mw( ACL_IDX ), 8 )
@@ -432,17 +416,17 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
        MWH2OCL   = 1.0 / MWCLH2O
        CLNO2_IDX = INDEX1( 'CLNO2', NUMB_MECH_SPC, CHEMISTRY_SPC )
        
-       IF( CLNO2_IDX .GT. 0 )THEN
-           MWCLCLNO2 = aerospc_mw( ACL_IDX) / SPECIES_MOLWT( CLNO2_IDX )
+       IF ( CLNO2_IDX .GT. 0 ) THEN
+          MWCLCLNO2 = aerospc_mw( ACL_IDX) / SPECIES_MOLWT( CLNO2_IDX )
        ELSE
-            MWCLCLNO2 = 0.0
+          MWCLCLNO2 = 0.0
        END IF
 
        IEPOX_IDX = INDEX1( 'IEPOX', NUMB_MECH_SPC, CHEMISTRY_SPC )
-       IF( IEPOX_IDX .GT. 0 )THEN
-           MWTIEPOX  = REAL( SPECIES_MOLWT( IEPOX_IDX ), 8 ) 
+       IF ( IEPOX_IDX .GT. 0 ) THEN
+          MWTIEPOX  = REAL( SPECIES_MOLWT( IEPOX_IDX ), 8 ) 
        ELSE
-           MWTIEPOX  = 118.1D0
+          MWTIEPOX  = 118.1D0
        END IF
        CFACTOR_IEPOX = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTIEPOX * DPI ) )    
 
@@ -450,21 +434,21 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
 
       KHETERO      = 0.0D0
       
-      IF( AERDIAG )THEN
-          GAMMA_N2O5IJ = 0.0
-          GAMMA_N2O5K  = 0.0
-          YCLNO2IJ     = 0.0
-          YCLNO2K      = 0.0
-          GAMMA_IEPOX  = 0.0
+      IF ( AERDIAG ) THEN
+         GAMMA_N2O5IJ = 0.0
+         GAMMA_N2O5K  = 0.0
+         YCLNO2IJ     = 0.0
+         YCLNO2K      = 0.0
+         GAMMA_IEPOX  = 0.0
       END IF
-     
 
       LOOP_LAY: DO L = 1, NLAYS
          LOOP_ROW: DO R = 1, MY_NROWS
             LOOP_COL: DO C = 1, MY_NCOLS
      
-#ifdef verbose_hetchem        
-               IF( L .EQ. 1 .AND. R .EQ. INT(MY_NROWS/2)+1 .AND. C .EQ. INT(MY_NCOLS/2)+1 )THEN
+#ifdef verbose_aerosol_chemistry        
+               IF ( L .EQ. 1 .AND. R .EQ. INT(MY_NROWS/2)+1 .AND.
+     &              C .EQ. INT(MY_NCOLS/2)+1 ) THEN
                   DUMP_CELL = .TRUE.
                ELSE
                   DUMP_CELL = .FALSE.
@@ -473,37 +457,37 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
       
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
-               CALL EXTRACT_AERO ( CGRID( C, R, L, : ), .TRUE. )
+               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
-               CALL EXTRACT_SOA ( CGRID( C, R, L,: ) )
+               CALL EXTRACT_SOA ( CGRID( C,R,L,: ) )
 
 C *** extract in inorganic aerosol processors
 
-               CALL EXTRACT_PRECURSOR( CGRID( C, R, L, : ) ) 
+               CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) ) 
                
-               AIRTEMP = REAL(   TEMP( C, R, L ), 8 )
-!               AIRPRES = REAL(  PRESS( C, R, L ), 8 )
-!               AIRQV   = REAL( WVAPOR( C, R, L ), 8 )
+               AIRTEMP = REAL(   TEMP( C,R,L ), 8 )
+!              AIRPRES = REAL(  PRESS( C,R,L ), 8 )
+!              AIRQV   = REAL( WVAPOR( C,R,L ), 8 )
 
 C *** to compute RH & molecular kinetic factors
 
-               H2OVP    = REAL(  PRESS( C, R, L )*WVAPOR( C, R, L )
-     &                 /        (EPSWATER  + WVAPOR( C, R, L )), 8 )    
+               H2OVP    = REAL( PRESS( C,R,L )*WVAPOR( C,R,L )
+     &                         / ( EPSWATER  + WVAPOR( C,R,L ) ), 8 )    
      
                AIRRH    = MAX( 0.005D0, MIN( 0.99D0, H2OVP * INV_ESATL( AIRTEMP ) ) )
 
-               CBAR_COEFF  = REAL( SQRT( CFACTOR * TEMP( C, R, L ) ), 8) 
+               CBAR_COEFF  = REAL( SQRT( CFACTOR * TEMP( C,R,L ) ), 8) 
                
-               ADJUST_DIFF = REAL((TEMP( C, R, L )*INV_STDTEMP)**1.75 * (STDATMPA/PRESS( C, R, L )), 8)
+               ADJUST_DIFF = REAL((TEMP( C,R,L )*INV_STDTEMP)**1.75 * (STDATMPA/PRESS( C,R,L )), 8)
 
-              IF( PRESENT( DENS ) )THEN
-                  PPM_FACTOR  = 1.0E-3 * MWAIR / DENS(C, R, L )
-              ELSE
-                  PPM_FACTOR  = UGM3_CONV_FAC * REAL( TEMP( C, R, L ) / PRESS( C, R, L ), 8 )
-              END IF
+               IF ( PRESENT( DENS ) ) THEN
+                  PPM_FACTOR  = 1.0E-3 * MWAIR / DENS(C,R,L )
+               ELSE
+                  PPM_FACTOR  = UGM3_CONV_FAC * REAL( TEMP( C,R,L ) / PRESS( C,R,L ), 8 )
+               END IF
               
-              RFACTOR     = 60.0D0 * COEF1 * REAL( PRESS( C, R, L ) / TEMP( C, R, L ), 8 )
+               RFACTOR     = 60.0D0 * COEF1 * REAL( PRESS( C,R,L ) / TEMP( C,R,L ), 8 )
 
 C *** Update the third moments, geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
@@ -528,277 +512,284 @@ C *** capture values of "dry" 2nd and 3rd moments before equilibration
 C     the folowing code assumes that GETPAR has been called with
 C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
 C     been adjusted for the new SOA.
-                 OLD_M2( N ) = REAL( MOMENT2_CONC( N ), 8)
-                 OLD_M3( N ) = REAL( MOMENT3_CONC( N ), 8)
+                  OLD_M2( N ) = REAL( MOMENT2_CONC( N ), 8)
+                  OLD_M3( N ) = REAL( MOMENT3_CONC( N ), 8)
 C *** estimate the "wet third moments" by adding aerosol water
 C      Note: this is the H2O concentration from previous time step
-                WET_M3( N ) = OLD_M3( N ) + H2OFAC * REAL(aerospc_conc( AH2O_IDX,N ), 8)
+                  WET_M3( N ) = OLD_M3( N ) + H2OFAC * REAL(aerospc_conc( AH2O_IDX,N ), 8)
 C *** calculate "wet second moment" assuming that H2O does not
 C     affect the geometric standard deviation
-                WET_M2( N ) = OLD_M2( N ) * ( WET_M3( N ) / OLD_M3( N ) ) ** ( 2.0D0 / 3.0D0 )
+                  WET_M2( N ) = OLD_M2( N ) * ( WET_M3( N ) / OLD_M3( N ) ) ** ( 2.0D0 / 3.0D0 )
 C *** calculate "wet" geometric mean (same as median) diameters
-                DG_WET( N ) = REAL( aeromode_diam( N ), 8) * DSQRT( WET_M2( N ) / OLD_M2( N ))
+                  DG_WET( N ) = REAL( aeromode_diam( N ), 8) * DSQRT( WET_M2( N ) / OLD_M2( N ))
 C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
-                DE_WET( N ) = DG_WET( N ) 
+                  DE_WET( N ) = DG_WET( N ) 
      &                      * REAL( EXP( 1.5 * ( LOG( EXP( aeromode_sdev( N ) ) ) ** 2.0 ) ), 8)
-             END DO
+               END DO
 
 C *** calculate N2O5 molecular speed (m/s) using Eq 4 of Pleim et al (1995)
 
-             CBAR = CBAR_COEFF * INV_SQRT_MWN2O5 
+               CBAR = CBAR_COEFF * INV_SQRT_MWN2O5 
 
 C *** correct N2O5 molecular diffusivity for ambient conditions
 
-             INV_DIFFUSIVITY  = 1.0D0 / ( STD_DIFF_N2O5 * ADJUST_DIFF )
+               INV_DIFFUSIVITY  = 1.0D0 / ( STD_DIFF_N2O5 * ADJUST_DIFF )
 
 C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
-              YIELD_CLNO2 = 0.0D0
-              YIELDIJ     = 0.0D0
-              DO N = 1, N_MODE          
+               YIELD_CLNO2 = 0.0D0
+               YIELDIJ     = 0.0D0
+               DO N = 1, N_MODE          
 
-                 IF( N .LE. 2 )THEN
-                    GAMMA        = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
-                    IF( AERDIAG ) GAMMA_N2O5IJ( C, R, L ) = REAL( GAMMA, 4 )
-                 ELSE IF( N .EQ. 3 )THEN
-                    GAMMA        = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
-                    IF( AERDIAG ) GAMMA_N2O5K( C, R, L ) = REAL( GAMMA, 4 )
-                 ELSE
-                    GAMMA = 0.0D0
-                 END IF
-
+                  IF ( N .LE. 2 ) THEN
+                     GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
+                     IF ( AERDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
+                  ELSE IF ( N .EQ. 3 ) THEN
+                     GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
+                     IF ( AERDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
+                  ELSE
+                     GAMMA = 0.0D0
+                  END IF
                                      
-                 XXF( N ) = WET_M2( N )
-     &                   / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA * CBAR * INV_DIFFUSIVITY )
+                  XXF( N ) = WET_M2( N )
+     &                    / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA * CBAR * INV_DIFFUSIVITY )
      
-                 KN2O5( N ) = GAMMA * XXF( N )
+                  KN2O5( N ) = GAMMA * XXF( N )
                  
 c *** get fine aerosol H2O and chlorine concentrations in
-                 AH2O = REAL( aerospc_conc( AH2O_IDX,N ), 8 )
-                 ACL  = REAL( aerospc_conc( ACL_IDX, N ), 8 )
+                  AH2O = aerospc_conc( AH2O_IDX,N )
+                  ACL  = aerospc_conc( ACL_IDX, N )
 
-                 CL_PPM( N ) = PPM_FACTOR * ( ACL * INV_MWCL )
+                  CL_PPM( N ) = PPM_FACTOR * ( ACL * INV_MWCL )
 
 C *** If only a small amount of water is present on aerosol, keep YIELD_CLNO2 zero
-                IF( AH2O .GT. 5.0D-1 .AND. ACL .GT. 1.0D-4 )THEN
-                    IF( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
-                      YIELD_CLNO2( N ) = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
-                    END IF
-                END IF
+                 IF ( AH2O .GT. 5.0E-01 .AND. ACL .GT. 1.0E-04 ) THEN
+                     IF ( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
+                        YIELD_CLNO2( N ) = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
+                     END IF
+                  END IF
  
-              END DO
+               END DO
 
 c *** compute yield from lumped Aitken and Accumulations concentrations
-              AH2O = REAL( aerospc_conc( AH2O_IDX,1 )+ aerospc_conc( AH2O_IDX,2 ), 8 )
-              ACL  = REAL( aerospc_conc( ACL_IDX,1 ) + aerospc_conc( ACL_IDX,2 ) , 8 )
-              IF( AH2O .GT. 5.0D-1 .AND. ACL .GT. 1.0D-4 )THEN
-                 IF( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
-                    YIELDIJ = 1.0D0 / (1.0D0 + (1.0D0/483.0D0)*(AH2O/ACL)*MWCLH2O)
-                 END IF
-              END IF  
+               AH2O = aerospc_conc( AH2O_IDX,1 ) + aerospc_conc( AH2O_IDX,2 )
+               ACL  = aerospc_conc( ACL_IDX,1 )  + aerospc_conc( ACL_IDX,2 )
+               IF ( AH2O .GT. 5.0E-01 .AND. ACL .GT. 1.0E-04 ) THEN
+                  IF ( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
+                     YIELDIJ = 1.0D0 / ( 1.0D0 + (1.0D0/483.0D0 )
+     &                       * REAL( (AH2O/ACL), 8 ) * MWCLH2O )
+                  END IF
+               END IF  
               
-             KN2O5 = CBAR * DPI * KN2O5
+               KN2O5 = CBAR * DPI * KN2O5
 C *** calculate aerosol surface area
-             TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
+               TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
 
-             LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
+               LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
              
  
                SELECT CASE( WHICH_AERO_RATE( IRATE ) )
-                 CASE( IA_N2O5IJ )  
+                  CASE( IA_N2O5IJ )  
 
-                    KHETERO( IRATE, C, R, L ) = 60.0D0 * ( KN2O5( 1 ) + KN2O5( 2 ) )! convert to min-1
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * ( KN2O5( 1 ) + KN2O5( 2 ) )! convert to min-1
                           
-                 CASE( IA_N2O5K )  
+                  CASE( IA_N2O5K )  
 
-                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KN2O5 (3) ! convert to min-1
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * KN2O5 (3) ! convert to min-1
                      
-                 CASE( IA_N2O5J )  
+                  CASE( IA_N2O5J )  
 
-                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KN2O5 (2) ! convert to min-1
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * KN2O5 (2) ! convert to min-1
                      
-                 CASE( IA_N2O5I )  
+                  CASE( IA_N2O5I )  
 
-                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KN2O5 (1) ! convert to min-1
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * KN2O5 (1) ! convert to min-1
                      
-                 CASE( IA_N2O5IJY )  
+                  CASE( IA_N2O5IJY )  
                  
-                     KHETERO( IRATE, C, R, L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1                    
-                     IF( AERDIAG ) YCLNO2IJ( C, R, L ) = REAL( YIELDIJ, 4 )
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1                    
+                     IF ( AERDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
-                 CASE( IA_N2O5KY )  
+                  CASE( IA_N2O5KY )  
                  
-                     KHETERO( IRATE, C, R, L )  = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
-                     IF( AERDIAG ) YCLNO2K( C, R, L ) = REAL( YIELD_CLNO2( 3 ), 4 )
+                     KHETERO( IRATE, C,R,L )  = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
+                     IF ( AERDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
 
-                 CASE( IA_H2NO3PAIJ )  
+                  CASE( IA_H2NO3PAIJ )  
                 
-                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                          *  MAX((1.0D0 - YIELDIJ), 0.0D0) 
-                      IF( AERDIAG ) YCLNO2IJ( C, R, L ) = REAL( YIELDIJ, 4 )
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                       *  MAX((1.0D0 - YIELDIJ), 0.0D0) 
+                     IF ( AERDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
-                 CASE( IA_H2NO3PBIJ )  
+                  CASE( IA_H2NO3PBIJ )  
                  
-                      IF( YIELDIJ .GT. 0.0D0 )THEN
-
-                         KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY * YIELDIJ 
-     &                                             / (CL_PPM( 1 ) + CL_PPM( 2 ))   ! 1/(min*ppm)
-                      ELSE
-                         KHETERO( IRATE, C, R, L ) = 0.0D0
-                      END IF
+                     IF ( YIELDIJ .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * YIELDIJ 
+     &                                          / (CL_PPM( 1 ) + CL_PPM( 2 ))   ! 1/(min*ppm)
+                     ELSE
+                        KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF
                      
-                 CASE( IA_H2NO3PAI )
+                  CASE( IA_H2NO3PAI )
 
-                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                          * MAX((1.0D0 - YIELD_CLNO2( 1 )), 0.0D0) 
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                       * MAX( (1.0D0 - YIELD_CLNO2( 1 ) ), 0.0D0) 
 
-                 CASE( IA_H2NO3PBI )
+                  CASE( IA_H2NO3PBI )
 
-                      IF( YIELD_CLNO2( 1 ) .GT. 0.0D0 )THEN
-
-                          KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                              *  YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
-                          IF( AERDIAG ) THEN
-                              FACTOR = CL_PPM( 1 )/(CL_PPM( 1 )+ CL_PPM( 2 ))
-                              YCLNO2IJ( C, R, L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
-     &                                             + YCLNO2IJ( C, R, L )
-                          END IF
-                       ELSE
-                               KHETERO( IRATE, C, R, L ) = 0.0D0
-                       END IF 
+                     IF ( YIELD_CLNO2( 1 ) .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                          *  YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
+                        IF ( AERDIAG ) THEN
+                           FACTOR = CL_PPM( 1 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
+                           YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
+     &                                       + YCLNO2IJ( C,R,L )
+                        END IF
+                     ELSE
+                        KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF 
                               
-                 CASE( IA_H2NO3PAJ )
+                  CASE( IA_H2NO3PAJ )
                                      
-                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                          * MAX((1.0D0 -  YIELD_CLNO2( 2 )), 0.0D0) 
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                       * MAX( (1.0D0 - YIELD_CLNO2( 2 ) ), 0.0D0) 
                                
-                 CASE( IA_H2NO3PBJ )
+                  CASE( IA_H2NO3PBJ )
                                      
-                      IF(  YIELD_CLNO2( 2 ) .GT. 0.0D0 )THEN
-
-                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
-     &                                              *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
-                          IF( AERDIAG ) THEN
-                              FACTOR = CL_PPM( 2 )/(CL_PPM( 1 )+ CL_PPM( 2 ))
-                              YCLNO2IJ( C, R, L ) = REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
-     &                                            + YCLNO2IJ( C, R, L )
-                          END IF                               
-                      ELSE
-                          KHETERO( IRATE, C, R, L ) = 0.0D0
-                      END IF 
+                     IF (  YIELD_CLNO2( 2 ) .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
+     &                                          *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
+                        IF ( AERDIAG ) THEN
+                           FACTOR = CL_PPM( 2 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
+                           YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
+     &                                       + YCLNO2IJ( C,R,L )
+                        END IF                               
+                     ELSE
+                          KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF 
                                 
-                 CASE( IA_PNCOMLI )
+                  CASE( IA_PNCOMLI )
                                      
-                      POC   = REAL( aerospc_conc( APOC_IDX,1 ), 8 )
-                      PNCOM = REAL( aerospc_conc( APNCOM_IDX,1 ), 8 )
+                     POC   = aerospc_conc( APOC_IDX,1 )
+                     PNCOM = aerospc_conc( APNCOM_IDX,1 )
                       
-                      KHETERO( IRATE, C, R, L ) =  RFACTOR * PNCOM_LOSS( POC, PNCOM )
+                     KHETERO( IRATE, C,R,L ) = RFACTOR * PNCOM_LOSS( POC, PNCOM )
                       
-                 CASE( IA_PNCOMLJ )
+                  CASE( IA_PNCOMLJ )
                                      
-                      POC   = REAL( aerospc_conc( APOC_IDX,2 ), 8 )
-                      PNCOM = REAL( aerospc_conc( APNCOM_IDX,2 ), 8 )
+                     POC   = aerospc_conc( APOC_IDX,2 )
+                     PNCOM = aerospc_conc( APNCOM_IDX,2 )
                       
-                      KHETERO( IRATE, C, R, L ) =  RFACTOR * PNCOM_LOSS( POC, PNCOM )
+                     KHETERO( IRATE, C,R,L ) = RFACTOR * PNCOM_LOSS( POC, PNCOM )
 
-                 CASE( IA_H2NO3PAK )
+                  CASE( IA_H2NO3PAK )
                                      
-                      KHETERO( IRATE, C, R, L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                          *  MAX((1.0D0 -  YIELD_CLNO2( 3 )), 0.0D0) ! * KN2O5( 3 )
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
+     &                                       *  MAX((1.0D0 -  YIELD_CLNO2( 3 )), 0.0D0) ! * KN2O5( 3 )
                                
-                 CASE( IA_H2NO3PBK )
+                  CASE( IA_H2NO3PBK )
                                      
-                      IF(  YIELD_CLNO2( 3 ) .GT. 0.0D0 )THEN
-                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
-     &                                              *  YIELD_CLNO2( 3 ) * KN2O5( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                          KHETERO( IRATE, C, R, L ) =  60.0D0 * AQUEOUS_FREQUENCY
-     &                                              *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                          IF( AERDIAG ) YCLNO2K( C, R, L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
-                      ELSE
-                          KHETERO( IRATE, C, R, L ) = 0.0D0
-                      END IF 
+                     IF ( YIELD_CLNO2( 3 ) .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
+     &                                          *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
+                        IF ( AERDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
+                     ELSE
+                        KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF 
                                
-                 CASE( IA_NO2 )
+                  CASE( IA_NO2 )
       
 C *** calculate pseudo-first order rate constant using Eq 1 of Vogel
 C     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
 C     by 60 to convert it into 1/sec
-                     KNO2 = MAX ( 0.0D0, 5.0D-5 * TOTSURFA )
+                     KNO2 = MAX ( 0.0D0, 1.0D-04 * TOTSURFA )
 
-                     KHETERO( IRATE, C, R, L )  = 60.0D0 * KNO2 ! convert to min-1
+                     KHETERO( IRATE, C,R,L )  = 60.0D0 * KNO2 ! convert to min-1
 
-                 CASE( IA_IEPOX )
+                  CASE( IA_IEPOX )
 
                      ! IEPOX uptake on accumulation mode particles
                      RADIUS       = 0.5D0 * DE_WET( 2 ) ! particle size
                      CBARIEPOX    = CFACTOR_IEPOX * DSQRT( AIRTEMP )
                      GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS, AIRTEMP )
-                     IF( AERDIAG ) GAMMA_IEPOX( C, R, L ) = REAL( GAMMAIEPOX, 4 )
-                     KIEPOX       = WET_M2( 2 ) * DPI
-     &                           / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
-                     KHETERO( IRATE, C, R, L ) = 60.0D0 * KIEPOX
-                           
+                     IF ( AERDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX, 4 )
+                     IF ( GAMMAIEPOX .GT. 0.0D0 ) THEN
+                        KIEPOX = WET_M2( 2 ) * DPI
+     &                         / ( RADIUS * INV_DIFFUSIVITY
+     &                             + 4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
+                     ELSE
+                        KIEPOX = 0.0D0
+                     END IF
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * KIEPOX
+
                END SELECT
 
-             END DO LOOP_RATES
+            END DO LOOP_RATES
 
-#ifdef verbose_hetchem
-             IF( DUMP_CELL )THEN
+#ifdef verbose_aerosol_chemistry
+            IF ( DUMP_CELL ) THEN
 
-                  WRITE(LOGDEV,*)'In GAS HETCHEM for MYPE = ', MYPE
-                  WRITE(LOGDEV, 9499)C, R, L
-                  WRITE(LOGDEV,'(A,ES12.4)')'TEMP        = ',AIRTEMP
-                  WRITE(LOGDEV,'(A,ES12.4)')'AIRRH       = ',AIRRH
-                  WRITE(LOGDEV,'(A,ES12.4)')'DIFFUSIVITY = ',1.0 / INV_DIFFUSIVITY
-                  WRITE(LOGDEV,'(A,ES12.4)')'INV_SQRT_MWN2O5 = ',INV_SQRT_MWN2O5
-                  WRITE(LOGDEV,'(A,ES12.4)')'CBAR_COEFF      = ',CBAR_COEFF
-                  WRITE(LOGDEV,'(A,ES12.4)')'CBAR        = ',CBAR
-                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTORA = ',UGM3_CONV_FAC * REAL( TEMP( C, R, L ) / PRESS( C, R, L ), 8 )
-                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTOR = ',PPM_FACTOR
-                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTOR*INV_MWCL = ',PPM_FACTOR*INV_MWCL
-                  WRITE(LOGDEV,'(A,ES12.4)')'PPM_FACTORA*INV_MWCL = ',
-     &            UGM3_CONV_FAC * REAL( TEMP( C, R, L ) / PRESS( C, R, L ), 8 )*INV_MWCL
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLI_PPM  = ',CL_PPM(1)
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLJ_PPM  = ',CL_PPM(2)
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLK_PPM  = ',CL_PPM(3)
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4I = ',(aerospc_conc( ANH4_IDX,1 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3I = ',(aerospc_conc( ANO3_IDX,1 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4I = ',(aerospc_conc( ASO4_IDX,1 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLI  = ',(aerospc_conc( ACL_IDX,1 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OI = ',(aerospc_conc( AH2O_IDX,1 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4J = ',(aerospc_conc( ANH4_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3J = ',(aerospc_conc( ANO3_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4J = ',(aerospc_conc( ASO4_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLJ  = ',(aerospc_conc( ACL_IDX,2))
-                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OJ = ',(aerospc_conc( AH2O_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4IJ = ',(aerospc_conc( ANH4_IDX,1 )+aerospc_conc( ANH4_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3IJ = ',(aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4IJ = ',(aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLIJ  = ',(aerospc_conc( ACL_IDX,1 ) + aerospc_conc( ACL_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OIJ = ',(aerospc_conc( AH2O_IDX,1 ) + aerospc_conc( AH2O_IDX,2 ))
-                  WRITE(LOGDEV,'(A,ES12.4)')'GAMMA       = ',N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANH4K= ',(aerospc_conc( ANH4_IDX,3))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ANO3K= ',(aerospc_conc( ANO3_IDX,3))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ASO4K= ',(aerospc_conc( ASO4_IDX,3))
-                  WRITE(LOGDEV,'(A,ES12.4)')'ACLK = ',(aerospc_conc( ACL_IDX, 3))
-                  WRITE(LOGDEV,'(A,ES12.4)')'AH2OK= ',(aerospc_conc( AH2O_IDX,3))
-                  WRITE(LOGDEV,'(A,ES12.4)')'GAMMAK      = ',N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
-                  WRITE(LOGDEV,'(A,ES12.4)')'XXF_AT      = ',XXF( 1 )
-                  WRITE(LOGDEV,'(A,ES12.4)')'XXF_AC      = ',XXF( 2 )
-                  WRITE(LOGDEV,'(A,ES12.4)')'XXF_COR     = ',XXF( 3 )
-                  WRITE(LOGDEV,'(A,ES12.4)')'GAMMAIEPOX  = ',GAMMAIEPOX
-                  WRITE(LOGDEV,9500)'KN2O5IJ = ',60.0D0*(KN2O5(1)+KN2O5(2)),' 1/min'
-                  WRITE(LOGDEV,9500)'KN2O5K= ',60.0D0*KN2O5(3),' 1/min'
-                  WRITE(LOGDEV,9500)'KNO2  = ', 60.0D0*KNO2,' 1/min'
-                  WRITE(LOGDEV,9500)'YIELDI = ', YIELD_CLNO2(1),' '
-                  WRITE(LOGDEV,9500)'YIELDJ = ', YIELD_CLNO2(2),' '
-                  WRITE(LOGDEV,9500)'YIELDIJ = ', YIELDIJ,' '
-                  WRITE(LOGDEV,9500)'YIELDK= ', YIELD_CLNO2(3),' '
-                  DO N = 1, NHETERO
-                    WRITE(LOGDEV,9500)HETERO( N ) // ' = ', KHETERO( N, C, R, L ),' '
-                  END DO
-9499              FORMAT('At COL = ',I3,' ROW = ',I3,' LAY = ',I3)
-9500              FORMAT(A,ES12.4,A)          
+               WRITE(LOGDEV,*)'In GAS HETCHEM for MYPE = ', MYPE
+               WRITE(LOGDEV, 9499) C,R,L
+               WRITE(LOGDEV,'(A,ES12.4)') 'TEMP        = ',AIRTEMP
+               WRITE(LOGDEV,'(A,ES12.4)') 'AIRRH       = ',AIRRH
+               WRITE(LOGDEV,'(A,ES12.4)') 'DIFFUSIVITY = ',1.0 / INV_DIFFUSIVITY
+               WRITE(LOGDEV,'(A,ES12.4)') 'INV_SQRT_MWN2O5 = ',INV_SQRT_MWN2O5
+               WRITE(LOGDEV,'(A,ES12.4)') 'CBAR_COEFF      = ',CBAR_COEFF
+               WRITE(LOGDEV,'(A,ES12.4)') 'CBAR        = ',CBAR
+               WRITE(LOGDEV,'(A,ES12.4)') 'PPM_FACTORA = ',
+     &            UGM3_CONV_FAC * REAL( TEMP( C,R,L ) / PRESS( C,R,L ), 8 )
+               WRITE(LOGDEV,'(A,ES12.4)') 'PPM_FACTOR = ', PPM_FACTOR
+               WRITE(LOGDEV,'(A,ES12.4)') 'PPM_FACTOR*INV_MWCL = ',PPM_FACTOR*INV_MWCL
+               WRITE(LOGDEV,'(A,ES12.4)') 'PPM_FACTORA*INV_MWCL = ',
+     &            UGM3_CONV_FAC * REAL( TEMP( C,R,L ) / PRESS( C,R,L ), 8 )*INV_MWCL
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLI_PPM  = ',CL_PPM(1)
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLJ_PPM  = ',CL_PPM(2)
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLK_PPM  = ',CL_PPM(3)
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANH4I = ',(aerospc_conc( ANH4_IDX,1 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANO3I = ',(aerospc_conc( ANO3_IDX,1 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ASO4I = ',(aerospc_conc( ASO4_IDX,1 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLI  = ',(aerospc_conc( ACL_IDX,1 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'AH2OI = ',(aerospc_conc( AH2O_IDX,1 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANH4J = ',(aerospc_conc( ANH4_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANO3J = ',(aerospc_conc( ANO3_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ASO4J = ',(aerospc_conc( ASO4_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLJ  = ',(aerospc_conc( ACL_IDX,2))
+               WRITE(LOGDEV,'(A,ES12.4)') 'AH2OJ = ',(aerospc_conc( AH2O_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANH4IJ = ',
+     &            (aerospc_conc( ANH4_IDX,1 )+aerospc_conc( ANH4_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANO3IJ = ',
+     &            (aerospc_conc( ANO3_IDX,1 ) + aerospc_conc( ANO3_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ASO4IJ = ',
+     &            (aerospc_conc( ASO4_IDX,1 ) + aerospc_conc( ASO4_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLIJ  = ',
+     &            (aerospc_conc( ACL_IDX,1 ) + aerospc_conc( ACL_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'AH2OIJ = ',
+     &            (aerospc_conc( AH2O_IDX,1 ) + aerospc_conc( AH2O_IDX,2 ))
+               WRITE(LOGDEV,'(A,ES12.4)') 'GAMMA = ',
+     &            N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANH4K = ',(aerospc_conc( ANH4_IDX,3))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ANO3K = ',(aerospc_conc( ANO3_IDX,3))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ASO4K = ',(aerospc_conc( ASO4_IDX,3))
+               WRITE(LOGDEV,'(A,ES12.4)') 'ACLK  = ',(aerospc_conc( ACL_IDX, 3))
+               WRITE(LOGDEV,'(A,ES12.4)') 'AH2OK = ',(aerospc_conc( AH2O_IDX,3))
+               WRITE(LOGDEV,'(A,ES12.4)') 'GAMMAK     = ',N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
+               WRITE(LOGDEV,'(A,ES12.4)') 'XXF_AT     = ',XXF( 1 )
+               WRITE(LOGDEV,'(A,ES12.4)') 'XXF_AC     = ',XXF( 2 )
+               WRITE(LOGDEV,'(A,ES12.4)') 'XXF_COR    = ',XXF( 3 )
+               WRITE(LOGDEV,'(A,ES12.4)') 'GAMMAIEPOX = ',GAMMAIEPOX
+               WRITE(LOGDEV,9500) 'KN2O5IJ = ', 60.0D0*(KN2O5(1)+KN2O5(2)),' 1/min'
+               WRITE(LOGDEV,9500) 'KN2O5K =  ', 60.0D0*KN2O5(3),' 1/min'
+               WRITE(LOGDEV,9500) 'KNO2  =   ', 60.0D0*KNO2,' 1/min'
+               WRITE(LOGDEV,9500) 'YIELDI =  ', YIELD_CLNO2(1),' '
+               WRITE(LOGDEV,9500) 'YIELDJ =  ', YIELD_CLNO2(2),' '
+               WRITE(LOGDEV,9500) 'YIELDIJ = ', YIELDIJ,' '
+               WRITE(LOGDEV,9500) 'YIELDK =  ', YIELD_CLNO2(3),' '
+               DO N = 1, NHETERO
+                  WRITE(LOGDEV,9500) HETERO( N ) // ' = ', KHETERO( N, C,R,L ),' '
+               END DO
             END IF          
+9499        FORMAT( 'At COL = ',I3,' ROW = ',I3,' LAY = ',I3 )
+9500        FORMAT( A, ES12.4, A )          
 #endif
         
             END DO LOOP_COL
@@ -900,24 +891,23 @@ C     by 60 to convert it into 1/sec
        REAL, INTENT( IN ) :: POC    ! concentration of primary organic carbon
        REAL, INTENT( IN ) :: PNCOM  ! concentration of primart noncarbon organic matter
 !Parameter:
-       REAL( 8 ), PARAMETER :: KOHEFF      =       2.5D-12  ! POC + OH rate constant, cm3 molec-1 sec-1
-       REAL,      PARAMETER :: LOWER_LIMIT =   7.0D0/6.0D0
-       REAL,      PARAMETER :: UPPER_LIMIT =  11.0D0/3.0D0
+       REAL( 8 ), PARAMETER :: KOHEFF      =  2.5D-12  ! POC + OH rate constant, cm3 molec-1 sec-1
+       REAL,      PARAMETER :: LOWER_LIMIT =  7.0/6.0
+       REAL,      PARAMETER :: UPPER_LIMIT = 11.0/3.0
        REAL( 8 ), PARAMETER :: MAX_RATE    = 15.0D0/16.0D0 * KOHEFF ! max rate constant for PNCOM loss
 !Local    
        REAL( 8 )            :: RATIO   ! the hydrogen to oxygen ratio in organic matter
        
-        
         PNCOM_LOSS = 0.0D0
 
-        IF(  POC .LE. 1.0D-30 )RETURN
+        IF (  POC .LE. 1.0D-30 ) RETURN
               
-        RATIO = REAL(( POC + PNCOM )/ POC, 8)
+        RATIO = REAL( ( POC + PNCOM ) / POC, 8 )
 
-        IF( RATIO .GT. LOWER_LIMIT .AND. RATIO .LT. UPPER_LIMIT )THEN
-           PNCOM_LOSS = 15.0D0*KOHEFF
-     &                /(16.0D0+(UPPER_LIMIT-RATIO)/(RATIO-LOWER_LIMIT))
-        ELSE IF( RATIO .GE. UPPER_LIMIT )THEN 
+        IF ( RATIO .GT. LOWER_LIMIT .AND. RATIO .LT. UPPER_LIMIT ) THEN
+           PNCOM_LOSS = 15.0D0 * KOHEFF
+     &                / ( 16.0D0 + (UPPER_LIMIT - RATIO) / (RATIO - LOWER_LIMIT) )
+        ELSE IF ( RATIO .GE. UPPER_LIMIT ) THEN 
            PNCOM_LOSS = MAX_RATE
         END IF
         
@@ -1019,7 +1009,6 @@ C *** Arguments
       REAL( 8 ),    INTENT( IN ) :: TEMP     ! Air temperature [ K ]
       REAL( 8 ),    INTENT( IN ) :: RH       ! Fractional relative humidity
       INTEGER,      INTENT( IN ) :: GPARAM   ! switch to select among
-                                             !  parameterizations
 
 C *** Parameters
 
@@ -1092,8 +1081,6 @@ C *** variables for parameterization based on Bertram and Thornton (2009)
       REAL, PARAMETER :: K4OK2B = 29.0     ! Unit [ ] - Table 2  
       REAL K2FP                            ! varible in eqn 10
                  
-      INTEGER      SPC                     ! loop counter
-
 C *** statement function for inverting the logit transformation given
 C     in Eq 7 by Davis et al (2008)
       REAL      LOGITINV  ! statement function
@@ -1131,7 +1118,7 @@ C     studies by CMAQ model users.
             N2O5_GAMMA = 0.1D0
             RETURN
             
-          CASE( 2, 3 )
+         CASE( 2, 3 )
 C *** User Options: GPARAM = 2 and 3
 C     These options both employ Eqs 2 and 3 by Riemer et al (2003), in
 C     which N2O5_GAMMA varies according to the particle-phase sulfate and
@@ -1147,24 +1134,25 @@ C        ver4.6.  After that release, a typographical error was found
 C        in the published equation of Evans & Jacob (2005) so this code
 C        has been corrected accordingly.
 
-            IF( GPARAM .EQ. 2 )THEN
+            IF ( GPARAM .EQ. 2 ) THEN
             
-                GAMMA1 = 0.02D0
+                GAMMA1 = 0.02
 
             ELSE 
 C        In this function, RH is in fractional units whereas the
 C        published equation by Evans&Jacob refers to RH as a percentage.
 
-               ALPHA = 2.79D-4 + RH * ( 1.3D-2 + RH * ( -3.43D-2 + 7.52D-2 * RH ) )
+               ALPHA = 2.79E-04
+     &               + REAL( RH * ( 1.3D-02 + RH * ( -3.43D-02 + 7.52D-02 * RH ) ), 4 )
 
 C        To fix the typographical error by Evans & Jacob (2005), the
 C        sign of BETA has been switched in this code.
 
                IF ( TEMP .LT. 282.0D0 ) THEN
-                  GAMMA1 = 3.0199517D0 * ALPHA   ! (10.0 ** 0.48) * ALPHA
+                  GAMMA1 = 3.0199517 * ALPHA   ! (10.0 ** 0.48) * ALPHA
                ELSE
-                  BETA  = 0.04D0 * ( 294.0D0 - TEMP )
-                  GAMMA1 = ALPHA * ( 10.0D0 ** BETA )
+                  BETA  = 0.04 * ( 294.0 - REAL( TEMP,4 ) )
+                  GAMMA1 = ALPHA * ( 10.0 ** BETA )
                END IF
             END IF
 
@@ -1174,8 +1162,8 @@ C        sign of BETA has been switched in this code.
                FRACSO4 = 1.0
             END IF
 
-            GAMMA2 = 0.1D0 * GAMMA1
-            N2O5_GAMMA = GAMMA2 + REAL( FRACSO4, 8 ) * ( GAMMA1 - GAMMA2 )
+            GAMMA2 = 0.1 * GAMMA1
+            N2O5_GAMMA = REAL( ( GAMMA2 + FRACSO4 * ( GAMMA1 - GAMMA2 ) ), 8 )
    
             RETURN
 
@@ -1184,57 +1172,57 @@ C        sign of BETA has been switched in this code.
 C *** User Option: GPARAM = 4  (fine-mode particles)
 C *** It calculates N2O5_GAMMA based on Bertran and Thornton, 2009
   
-         INV_VOL = 1.0E-9 * f6pi / ( WET_M3( 1 ) + WET_M3( 2 ) )   
+            INV_VOL = 1.0E-9 * f6pi / REAL( ( WET_M3( 1 ) + WET_M3( 2 ) ), 4 )
         
-         AH2OM = AH2OF * INV_VOL / aerospc_mw( AH2O_IDX)                   
-         ACLM  = ACLF  * INV_VOL / aerospc_mw( ACL_IDX)   
-         ANO3M = ANO3F * INV_VOL / aerospc_mw( ANO3_IDX)            
+            AH2OM = AH2OF * INV_VOL / aerospc_mw( AH2O_IDX )
+            ACLM  = ACLF  * INV_VOL / aerospc_mw( ACL_IDX )
+            ANO3M = ANO3F * INV_VOL / aerospc_mw( ANO3_IDX )
             
-         K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM)
+            K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM )
           
-         DEN1 = K3OK2B * ( AH2OM / ANO3M )
+            DEN1 = K3OK2B * ( AH2OM / ANO3M )
 
-         DEN2 = K4OK2B * ( ACLM  / ANO3M  )
+            DEN2 = K4OK2B * ( ACLM  / ANO3M  )
 
-         DEN  = DEN1 + 1.0 + DEN2
+            DEN  = DEN1 + 1.0 + DEN2
          
-         N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8)
+            N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8 )
                    
-         RETURN
+            RETURN
 
          CASE ( 5 )
    
 C *** User Option: GPARAM = 5 (coarse-mode particles)
 C     It calculates N2O5_GAMMA based on Bertran and Thornton, 2009
 
-         INV_VOL = 1.0E-9 * f6pi /  WET_M3( 3 )    
+            INV_VOL = 1.0E-9 * f6pi / REAL( WET_M3( 3 ), 4 )
         
-         AH2OM = AH2OK * INV_VOL / aerospc_mw( AH2O_IDX)                   
-         ACLM  = ACLK  * INV_VOL / aerospc_mw( ACL_IDX)   
-         ANO3M = ANO3K * INV_VOL / aerospc_mw( ANO3_IDX)      
+            AH2OM = AH2OK * INV_VOL / aerospc_mw( AH2O_IDX )
+            ACLM  = ACLK  * INV_VOL / aerospc_mw( ACL_IDX )
+            ANO3M = ANO3K * INV_VOL / aerospc_mw( ANO3_IDX )
             
-         K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM)
+            K2FP =  BETA_BT - BETA_BT * EXP( -DELTA * AH2OM )
           
-         DEN1 = K3OK2B * ( AH2OM / ANO3M )
+            DEN1 = K3OK2B * ( AH2OM / ANO3M )
 
-         DEN2 = K4OK2B * ( ACLM  / ANO3M  )
+            DEN2 = K4OK2B * ( ACLM  / ANO3M )
 
-         DEN  = DEN1 + 1.0 + DEN2      
+            DEN  = DEN1 + 1.0 + DEN2      
 
-         N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8)
+            N2O5_GAMMA = REAL( A * K2FP * (1.0 - 1.0 / DEN), 8)
                                                          
-         RETURN
+            RETURN
     
-!             IF( DUMP_CELL )THEN
-!                WRITE(*,*)'AH2OM = ',AH2OM
-!                WRITE(*,*)'ACLM  = ',ACLM
-!                WRITE(*,*)'ANO3M = ',ANO3M
-!                WRITE(*,*)'DEN   = ',DEN
-!                WRITE(*,*)'DEN1  = ',DEN1
-!                WRITE(*,*)'DEN2  = ',DEN2
-!                WRITE(*,*)'K2FP  = ',K2FP
-!                WRITE(*,*)'GAMMAK = ',A * K2FP * (1.0 - 1.0 / DEN)
-!             END IF
+!           IF ( DUMP_CELL ) THEN
+!              WRITE(*,*)'AH2OM = ',AH2OM
+!              WRITE(*,*)'ACLM  = ',ACLM
+!              WRITE(*,*)'ANO3M = ',ANO3M
+!              WRITE(*,*)'DEN   = ',DEN
+!              WRITE(*,*)'DEN1  = ',DEN1
+!              WRITE(*,*)'DEN2  = ',DEN2
+!              WRITE(*,*)'K2FP  = ',K2FP
+!              WRITE(*,*)'GAMMAK = ',A * K2FP * (1.0 - 1.0 / DEN)
+!           END IF
                                 
 !           RETURN
              
@@ -1274,17 +1262,17 @@ C     Davis et al (2008).
 
 C *** Compute N2O5_GAMMA on pure NH4NO3 particles using Eqs 6 and 8 by
 C     Davis et al (2008).
-               LAM3 = -8.10774 + 4.902 * RH                  ! Eq 6
-               GAM3 = MIN( LOGITINV( LAM3 ), 0.0154 )        ! Eq 8
+               LAM3 = -8.10774 + 4.902 * REAL( RH, 4 )            ! Eq 6
+               GAM3 = MIN( LOGITINV( LAM3 ), 0.0154 )             ! Eq 8
 
 C *** Compute N2O5_GAMMA on dry particles using Eqs 9, 10, and 13 by
 C     Davis et al (2008).
                IF ( CRYSTAL ) THEN
                   T293     = MAX( 0.0, REAL( TEMP ) - 293.0 )
-                  LAMD     = -6.13376 + 3.592 * RH                    ! Eq 9
+                  LAMD     = -6.13376 + 3.592 * REAL( RH, 4 )     ! Eq 9
      &                     - 0.19688 * T293
-                  GAMD     = MIN( LOGITINV( LAMD ), 0.0124 )          ! Eq 10
-                  N2O5_GAMMA = REAL( ( X1 + X2 ) * GAMD              ! Eq 13
+                  GAMD     = MIN( LOGITINV( LAMD ), 0.0124 )      ! Eq 10
+                  N2O5_GAMMA = REAL( ( X1 + X2 ) * GAMD           ! Eq 13
      &                       +         X3 * MIN( GAMD, GAM3 ), 8)
 
 C *** Compute N2O5_GAMMA on aqeuous particles using Eqs A1, A2, 8, and 12
@@ -1296,28 +1284,28 @@ C     Davis et al. (2008) for a discussion of these options.
                   T291 = MAX( 0.0, REAL( TEMP ) - 291.0 )
                   IF ( APNDX ) THEN
                      RH46  = MIN( 0.0, REAL( RH )- 0.46 )
-                     LAM2  = -3.64849 + 9.553 * RH46         ! Eq A2
-                     LAM1  = LAM2 + 0.97579                  ! Eqs A1 & A2
+                     LAM2  = -3.64849 + 9.553 * RH46          ! Eq A2
+                     LAM1  = LAM2 + 0.97579                   ! Eqs A1 & A2
      &                     - 0.20427 * T291
                   ELSE
-                     LAM1  = -4.10612 + 2.386 * RH           ! Eq 4
+                     LAM1  = -4.10612 + 2.386 * REAL( RH )    ! Eq 4
      &                     - 0.23771 * T291
-                     LAM2  = LAM1 - 0.80570                  ! Eqs 4 & 5
+                     LAM2  = LAM1 - 0.80570                   ! Eqs 4 & 5
      &                     + 0.10225 * T291
                   END IF
 
-                  GAM1     = MIN( LOGITINV( LAM1 ), 0.08585 )! Eq 8
-                  GAM2     = MIN( LOGITINV( LAM2 ), 0.053 )  ! Eq 9
-                  N2O5_GAMMA = REAL( ( X1 * GAM1 )                   ! Eq 12
+                  GAM1     = MIN( LOGITINV( LAM1 ), 0.08585 ) ! Eq 8
+                  GAM2     = MIN( LOGITINV( LAM2 ), 0.053 )   ! Eq 9
+                  N2O5_GAMMA = REAL( ( X1 * GAM1 )            ! Eq 12
      &                       +       ( X2 * GAM2 )
-     &                       +       ( X3 * GAM3 ), 8)
+     &                       +       ( X3 * GAM3 ), 8 )
 
                END IF
             END IF
 
       END SELECT WHAT_OPTION
 
-!         print*,' N2O5_GAMMA = ',N2O5_GAMMA
+!        print*,' N2O5_GAMMA = ',N2O5_GAMMA
 
       RETURN
 
@@ -1351,7 +1339,7 @@ C    SH  12/08/09 Use aero_data module in lieu of CBLK array
 
 C-----------------------------------------------------------------------
 
-      USE aero_data
+      USE AERO_DATA
 
       IMPLICIT NONE
 
@@ -1415,7 +1403,7 @@ C *** Experimental data of Martin et al. (2003) show no crystal
 C     formation when X < 0.50 or Y < 0.22.  For these particle
 C     compositions, the full CRH calculation can be avoided.
 C
-C     Note: Martin's equation for initial crystal formation returns
+C     Note: Martin`s equation for initial crystal formation returns
 C     very large CRH values when X and Y approach zero.  However,
 C     those values were verified to be erroneous by personal
 C     communication with Dr. Scot Martin on Aug. 30, 2007.
@@ -1478,8 +1466,8 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
 C *** Arguments
-      REAL( 8 ), INTENT( IN ) ::  TEMP        ! Air temperature [ K ]
-      REAL( 8 ), INTENT( IN ) ::  RH          ! Fractional relative humidity
+      REAL( 8 ), INTENT( IN ) :: TEMP        ! Air temperature [ K ]
+      REAL( 8 ), INTENT( IN ) :: RH          ! Fractional relative humidity
 
 C *** Parameters
 
@@ -1536,12 +1524,12 @@ C *** Compute IRH using Goff-Gratch equations as given by List (1984)
             T0DT  = T0 / TEMP
             TDT0  = TEMP / T0
             LOGPW = -7.90298D0 * ( TSDT - 1.0D0 )
-     &            + 5.02808D0 * DLOG10( TSDT )
+     &            + 5.02808D0 * LOG10( TSDT )
      &            - 1.3816D-7 * ( 10.0D0 ** ( 11.344D0 *  (1.0D0 - TDTS) ) - 1.0D0 )
      &            + 8.1328D-3 * ( 10.0D0 ** ( -3.49149D0 * (TSDT - 1.0D0) ) - 1.0D0 )
      &            + LOGPST
             LOGPI = -9.09718D0 * (T0DT - 1.0D0)
-     &            - 3.56654D0 * DLOG10( T0DT )
+     &            - 3.56654D0 * LOG10( T0DT )
      &            + .876793D0 * (1.0D0 - TDT0)
      &            + LOGP0
             IRH   = 10.0D0 ** ( LOGPI - LOGPW )
@@ -1562,9 +1550,9 @@ C *** Compute IRH using Goff-Gratch equations as given by List (1984)
       END FUNCTION FREEZES
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      REAL(8) FUNCTION GAMMAIEPOXJ( RADIUS, TEMPERATURE )  
+      Real(8) Function gammaiepoxj( radius, temperature )  
 
-C  Calculates the uptake coefficient (gamma) for IEPOX      
+c  Calculates the uptake coefficient (gamma) for IEPOX      
 C  based on particle phase H+ (EQLBH) and other particle constituents.
 
 C  Key Subroutines Called: none
@@ -1606,8 +1594,8 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C *** Arguments
-      Real( 8 ), Intent( IN )  :: RADIUS       ! Particle radius [m]
-      Real( 8 ), Intent( IN )  :: TEMPERATURE  ! air temperature [deg K]
+      Real( 8 ), Intent( IN )  :: radius       ! Particle radius [m]
+      Real( 8 ), Intent( IN )  :: temperature  ! air temperature [deg K]
 
 C *** Parameters
 C     For gamma calculation
@@ -1616,52 +1604,45 @@ C     For gamma calculation
                                                        ! and diols at infinite dilution in water (Gharagheizi et al. 2011) [m2/s]
       Real( 8 ), Parameter :: RgasLatmmolK = 0.08206d0 ! Universal gas constant [L atm/mol K]
       Real( 8 ), Parameter :: small        = 1.0d-8   ! small number to prevent calculations that may have precision issues
-      Real( 8 ), Parameter :: smaller      = 1.0d-20  ! smaller number to prevent division by zero
 
 C     Acid related
       Integer, Parameter   :: n_acids      = 2 ! number of acids: H+ and HSO4-
       Integer, Parameter   :: hacid_idx    = 1 ! H+ acid index
       Integer, Parameter   :: hso4acid_idx = 2 ! HSO4 acid index
 
-C     Henry's law coeff for IEPOX (HenryWin v 3.2)
+C     Henry`s law coeff for IEPOX (HenryWin v 3.2)
       Real( 8 ) :: Heff  
 
-C     Diagnostic
-      Character (16 ), Parameter :: pname = 'AEROSOL_CHEMISTRY'
-
 C *** Local Variables
-      Integer   :: i, acid_idx         ! counter and temporary indices
-      Real( 8 ) :: EQLBH               ! Particle Phase H+ from isoropia [mol/m**3]
-      Real( 8 ) :: q, fq, denom        ! quantities in Hanson et al. 1994 equation for gamma []
-      Real( 8 ) :: nu                  ! molecular speed [m/s], note this is the same as CBAR but we want to avoid excessive passing
+      Integer   :: i                ! counter
+      Real( 8 ) :: eqlbh            ! Particle Phase H+ from isoropia [mol/m**3]
+      Real( 8 ) :: q                ! quantities in Hanson et al. 1994 equation for gamma []
+      Real( 8 ) :: nu               ! molecular speed [m/s], note this is the same as CBAR but we want to avoid excessive passing
       Real( 8 ) :: acidmolconc( n_acids ) ! concentration of acid in mol/m3
-      Real( 8 ) :: acid                ! temporary concentration of acid in mol/m3
-      Real( 8 ) :: nuc                 ! nucleophile concentration in mol/m3
-      Real( 8 ) :: charge              ! temporary for charge balance calculation [umol/m3]
-      Real( 8 ) :: inv_volume          ! reciprocal of particle volume [m3 air/Liters particles]
-      Real( 8 ) :: kchem, kparticle    ! particle phase rxn rates [1/s] 
-      Real( 8 ) :: exp_2q              ! exponential term in Hanson et al. 1994 equation for gamma 
-      Real( 4 ) :: temp                ! air temperature [deg K]
-      Character ( 80 ) :: xmsg         ! error message
+      Real( 8 ) :: acid             ! temporary concentration of acid in mol/m3
+      Real( 8 ) :: nuc              ! nucleophile concentration in mol/m3
+      Real( 8 ) :: charge           ! temporary for charge balance calculation [umol/m3]
+      Real( 8 ) :: inv_volume       ! reciprocal of particle volume [m3 air/Liters particles]
+      Real( 8 ) :: kchem, kparticle ! particle phase rxn rates [1/s] 
+      Real( 4 ) :: temp             ! air temperature [deg K]
 
 C *** External functions
-      INTERFACE
-         REAL FUNCTION HLCONST ( CNAME, TEMP, EFFECTIVE, HPLUS )
-           USE UTILIO_DEFN
-           IMPLICIT NONE
-           CHARACTER*(*), INTENT ( IN ) :: CNAME
-           REAL,          INTENT ( IN ) :: TEMP
-           LOGICAL,       INTENT ( IN ) :: EFFECTIVE
-           REAL,          INTENT ( IN ) :: HPLUS
-        END FUNCTION HLCONST
-      END INTERFACE
+      Interface
+         Real Function hlconst ( cname, temp, effective, hplus )
+           Use utilio_defn
+           Implicit None
+           Character*(*), Intent ( In ) :: cname
+           Real,          Intent ( In ) :: temp
+           Logical,       Intent ( In ) :: effective
+           Real,          Intent ( In ) :: hplus
+        End Function hlconst
+      End Interface
 
 C-----------------------------------------------------------------------
 
 C *** Determine H+ acid concentration of j mode [mol/m3]
-      eqlbh                  = aerospc_conc( ah3op_idx, 2 ) / 
-     &                         aerospc_mw( ah3op_idx ) * 1.0d-6
-      acidmolconc(hacid_idx) = max( eqlbh, 0.0d0 ) 
+      eqlbh = aerospc_conc( ah3op_idx, 2 ) / aerospc_mw( ah3op_idx ) * 1.0d-6
+      acidmolconc( hacid_idx ) = Max( eqlbh, 0.0d0 ) 
 
 C *** Calculate HSO4 by charge balance
 C     Note: if isorropia has returned a negative H+ concentration
@@ -1669,20 +1650,20 @@ C     we effectively treat all H+ like HSO4 (slightly less effective
 C     in catalyzing the ring-opening)
       charge = 0.0d0  ! umol/m3
       Do i = 1, n_aerospc
-         If(  aerospc( i )%tracer )Cycle
-         If ( aerospc( i )%name( 2 ) .eq. ' ' ) Cycle
+         If ( aerospc( i )%tracer ) Cycle
+         If ( aero_missing(i,2) ) Cycle
          charge = charge - aerospc( i )%charge * aerospc_conc( i,2 )
      &          / aerospc_mw( i )
       End Do
-      acidmolconc(hso4acid_idx) = max( ( charge*1.0d-6 - acidmolconc(hacid_idx)), 0.0d0 ) 
+      acidmolconc( hso4acid_idx ) = Max( ( charge*1.0d-6 - acidmolconc( hacid_idx ) ), 0.0d0 ) 
 
 C *** J-mode particle volume [L/m**3 air]
       inv_volume = 0.0d0
       Do i = 1, n_aerospc 
-         If(  aerospc( i )%tracer )Cycle
-         If ( aerospc( i )%name( 2 ) .eq. ' ' ) Cycle
-!         If ( aerospc( i )%no_M2Wet )Cycle
-         inv_volume = inv_volume +  real( aerospc_conc( i, 2 ) / aerospc(i)%density, 8 ) !  * 1.0d-6
+         If ( aerospc( i )%tracer ) Cycle
+         If ( aero_missing(i,2) ) Cycle
+!        If ( aerospc( i )%no_M2Wet ) Cycle
+         inv_volume = inv_volume + Real( aerospc_conc( i, 2 ) / aerospc(i)%density, 8 ) !  * 1.0d-6
       End Do
       inv_volume = 1.0d6 / inv_volume
 
@@ -1700,9 +1681,9 @@ C        Find J-mode nucleophile concentration in ug/m3 and convert to mol/m3
          acid = acidmolconc( acid_nuc_pairs(i)%idx_acid ) ! mol/m3
 
 C        Correct sulfate for presence of bisulfate
-         if( acid_nuc_pairs(i)%idx_remove >= 1 ) then
-            nuc = max( nuc - acidmolconc( acid_nuc_pairs(i)%idx_remove ), 0.0d0 )
-         endif
+         If ( acid_nuc_pairs(i)%idx_remove .Ge. 1 ) Then
+            nuc = Max( nuc - acidmolconc( acid_nuc_pairs(i)%idx_remove ), 0.0d0 )
+         End If
 
 C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al.)
          kchem = acid_nuc_pairs(i)%kchem* nuc * acid * ( inv_volume*inv_volume )
@@ -1715,43 +1696,36 @@ C        Update sum
 C *** Calculate gamma following Pye et al. 2013 ES&T
 C     (see also Hanson et al. 1994 JGR Eqn (2) for details)
 
-
 C     Note that if the rate of particle phase reaction is very slow, there may not
-C     be enough digits of precision to properly calculate fq which can result in
+C     be enough digits of precision to properly calculate q which can result in
 C     erroneously high gamma values. Only calculate gamma if particle phase reaction
 C     is faster than 1e-8 1/s
-      if ( kparticle .gt. smaller ) then
 
-         temp = real( TEMPERATURE, 4)
-         Heff = REAL(HLCONST( 'IEPOX', temp , .False., 0.0 ), 8)
+C Diffuso reactive parameter [ m * sqrt ( 1/s s/m^2 ) = dim`less ]
+      q = radius * Sqrt ( kparticle/ diffusivity ) 
 
-         ! Diffuso reactive parameter [ m * sqrt ( 1/s s/m2 ) = dim'less ]
-         q = radius * dsqrt ( kparticle/ diffusivity ) 
+C Gamma [ denom: m/s / ( mol/L/atm * L atm /mol/K * K * sqrt ( m2/s * 1/s )) = dim`less ]
+      If ( q / Tanh( q ) .Gt. 1.0d0 ) Then
+         ! Molecular speed [ sqrt ( J/mol K * K/g * mol * g/kg ) = sqrt (J/kg) = m/s ]
 
-         ! Perform exp in double precision (dexp), also prevent negatives arising 
-         ! from difference in numbers of similar size, fq should always be positive
-         exp_2q = dexp( 2.0d0*q )
-         fq = max( ( ( exp_2q + 1.0d0 ) / ( exp_2q - 1.0d0 ) - 1.0d0/q ), smaller )
+         temp = Real( temperature, 4 )
+         Heff = Real( hlconst( 'IEPOX', temp, .False., 0.0 ), 8 )
+         nu = cfactor_iepox * Sqrt( temperature )
 
-         ! Molecular speed [ sqrt ( J/mol K * K / g * mol * g/ kg ) = sqrt (J/kg) = m/s ]
-         nu = cfactor_iepox * dsqrt( temperature )
+         gammaiepoxj = ( inv_alpha + nu * radius
+     &                 / ( 4.0d0 * Heff * RgasLatmmolK * temperature * diffusivity
+     &                   * ( q / Tanh( q ) - 1.0d0 ) ) )
 
-         ! Gamma [ denom:  m/s / ( mol/L/atm * L atm /mol/ K * K * sqrt ( m2/s * 1/s )) = dim'less ]
+         gammaiepoxj = 1.0d0 / gammaiepoxj
 
-          gammaiepoxj = (inv_alpha + nu/( 4.0d0 * Heff * RgasLatmmolK * temperature * dsqrt ( diffusivity * kparticle ) * fq ) )
-
-          gammaiepoxj = 1.0d0 / gammaiepoxj
-
-C     No/slow reaction
-      else
+      Else !  No/slow reaction
 
          gammaiepoxj = 0.0d0
 
-      endif
+      End If
 
-
-      RETURN
+      Return
  
-      END FUNCTION GAMMAIEPOXJ
+      End Function gammaiepoxj
 
       END MODULE AEROSOL_CHEMISTRY

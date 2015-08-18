@@ -1,10 +1,3 @@
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/ICL/src/procan/pa/PA_CMN.EXT,v 1.1 2010/07/23 15:12:35 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)PA_CMN.EXT	1.2 /project/mod3/ICL/src/procan/pa/SCCS/s.PA_CMN.EXT 07 Jul 1997 11:44:52
-
 C.......................................................................
 C    INCLUDE FILE   PA_CMN.EXT                                                
 C
@@ -13,7 +6,7 @@ C
 C    DEPENDENT UPON: Mechanism Input file                                     
 C
 C    CREATED BY: Process Analysis Control Program                             
-C                11:36:11 EDT July 7, 1997                                    
+C                13:44:36 EST March 21, 2000                                  
 C
 C.......................................................................
 
@@ -38,59 +31,59 @@ c    IRROWSD = Column dimension parameter for IRR outputs
 c    IRLEVSD = Column dimension parameter for IRR outputs
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER BEGCOL
-      PARAMETER ( BEGCOL =   1 )
+!     INTEGER BEGCOL
+!     PARAMETER ( BEGCOL =   1 )
 
-      INTEGER ENDCOL
-      PARAMETER ( ENDCOL =  21 )
+!     INTEGER ENDCOL
+!     PARAMETER ( ENDCOL =  21 )
 
-      INTEGER BEGROW
-      PARAMETER ( BEGROW =   1 )
+!     INTEGER BEGROW
+!     PARAMETER ( BEGROW =   1 )
 
-      INTEGER ENDROW
-      PARAMETER ( ENDROW =  21 )
+!     INTEGER ENDROW
+!     PARAMETER ( ENDROW =  21 )
 
-      INTEGER BEGLEV
-      PARAMETER ( BEGLEV =   1 )
+!     INTEGER BEGLEV
+!     PARAMETER ( BEGLEV =   1 )
 
-      INTEGER ENDLEV
-      PARAMETER ( ENDLEV =   2 )
+!     INTEGER ENDLEV
+!     PARAMETER ( ENDLEV =   5 )
 
-      INTEGER PACOLS
-      PARAMETER ( PACOLS =  21 )
+!     INTEGER PACOLS
+!     PARAMETER ( PACOLS =  21 )
 
-      INTEGER PAROWS
-      PARAMETER ( PAROWS =  21 )
+!     INTEGER PAROWS
+!     PARAMETER ( PAROWS =  21 )
 
-      INTEGER PALEVS
-      PARAMETER ( PALEVS =   2 )
-
-
-
-      INTEGER     X1F0
-      PARAMETER ( X1F0 =  (NCOLS / GL_NCOLS) * (NROWS / GL_NROWS) )
+!     INTEGER PALEVS
+!     PARAMETER ( PALEVS =   5 )
 
 
-      INTEGER PACOLSD
-      PARAMETER ( PACOLSD = X1F0 * PACOLS + (1 - X1F0) * NCOLS )
-
-      INTEGER PAROWSD
-      PARAMETER ( PAROWSD = X1F0 * PAROWS + (1 - X1F0) * NROWS )
 
 
-      INTEGER PALEVSD
-      PARAMETER ( PALEVSD = PALEVS )
+!     INTEGER     X1F0
+!     PARAMETER ( X1F0 =  (NCOLS / GL_NCOLS) * (NROWS / GL_NROWS) )
 
 
-      INTEGER IRCOLSD
-      PARAMETER ( IRCOLSD = X1F0 * PACOLS + (1 - X1F0) * NCOLS )
+!     INTEGER PACOLSD
+!     PARAMETER ( PACOLSD = X1F0 * PACOLS + (1 - X1F0) * NCOLS )
 
-      INTEGER IRROWSD
-      PARAMETER ( IRROWSD = X1F0 * PAROWS + (1 - X1F0) * NROWS )
+!     INTEGER PAROWSD
+!     PARAMETER ( PAROWSD = X1F0 * PAROWS + (1 - X1F0) * NROWS )
+
+!     INTEGER PALEVSD
+!     PARAMETER ( PALEVSD = PALEVS  )
 
 
-      INTEGER IRLEVSD
-      PARAMETER ( IRLEVSD = PALEVS )
+
+!     INTEGER IRCOLSD
+!     PARAMETER ( IRCOLSD = X1F0 * PACOLS + (1 - X1F0) * NCOLS )
+
+!     INTEGER IRROWSD
+!     PARAMETER ( IRROWSD = X1F0 * PAROWS + (1 - X1F0) * NROWS )
+
+!     INTEGER IRLEVSD
+!     PARAMETER ( IRLEVSD = PALEVS  )
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -107,17 +100,17 @@ c     IRRDESC   = Extended name of IRR output variable
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       INTEGER NIPRVAR
-      PARAMETER ( NIPRVAR =  63 )
+      PARAMETER ( NIPRVAR =  85 )
 
       INTEGER NIRRVAR
-      PARAMETER ( NIRRVAR =  37 )
+      PARAMETER ( NIRRVAR =  31 )
 
 
       INTEGER NIPRVARD
-      PARAMETER ( NIPRVARD =  63 )
+      PARAMETER ( NIPRVARD =  85 )
 
       INTEGER NIRRVARD
-      PARAMETER ( NIRRVARD =  37 )
+      PARAMETER ( NIRRVARD =  31 )
 
       CHARACTER*16 IPRNAME( NIPRVARD )
       CHARACTER*60 IPRDESC( NIPRVARD )
@@ -130,7 +123,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The following variables are used in the integrated process rate 
 c  computations.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c    NPROCS     = No. of science processes that can be  monitored
+c    NPRCS     = No. of science processes that can be  monitored
 c    N_IPR_SPC  = Number of families for IPR
 c    NCSAVE     = Number of CTM species concs to save for IPR
 c    MXCGRID    = Max number of CTM species in an IPR family
@@ -145,41 +138,41 @@ c    SV2GRD     = Array of CTM indicies for saved concs
 c    SPCOEF     = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER NPROCS
-      PARAMETER ( NPROCS =  12 )
+      INTEGER NPRCS
+      PARAMETER ( NPRCS =  12 )
 
       INTEGER N_IPR_SPC
-      PARAMETER ( N_IPR_SPC =   7 )
+      PARAMETER ( N_IPR_SPC =  10 )
 
       INTEGER NCSAVE
-      PARAMETER ( NCSAVE =  31 )
+      PARAMETER ( NCSAVE =  27 )
 
       INTEGER MXCGRID
-      PARAMETER ( MXCGRID =  18 )
+      PARAMETER ( MXCGRID =  12 )
 
       INTEGER N_IPR_SPCD
-      PARAMETER ( N_IPR_SPCD =   7 )
+      PARAMETER ( N_IPR_SPCD =  10 )
 
       INTEGER NCSAVED
-      PARAMETER ( NCSAVED =  31 )
+      PARAMETER ( NCSAVED =  27 )
 
       INTEGER MXCGRIDD
-      PARAMETER ( MXCGRIDD =  18 )
+      PARAMETER ( MXCGRIDD =  12 )
 
 
-      CHARACTER*16 PROCNAMES( NPROCS )
+      CHARACTER*16 PROCNAME(  NPRCS  )
 
       INTEGER NCGRID( N_IPR_SPCD )
       INTEGER SV2GRD( NCSAVED )
-      INTEGER IPROUT( N_IPR_SPCD,NPROCS )
-      INTEGER IPR2GRD( N_IPR_SPCD,MXCGRIDD )
-      INTEGER IPR2SAV( N_IPR_SPCD,MXCGRIDD )
+      INTEGER IPROUT( N_IPR_SPCD ,  NPRCS )
+      INTEGER IPR2GRD( N_IPR_SPCD ,  MXCGRIDD )
+      INTEGER IPR2SAV ( N_IPR_SPCD ,  MXCGRIDD )
 
-      LOGICAL LPROCOUT( NPROCS )
+      LOGICAL LPROCOUT(  NPRCS  )
 
-      REAL SPCOEF( N_IPR_SPCD,MXCGRIDD )
-      REAL DELC( PACOLSD,PAROWSD,PALEVSD,NIPRVARD )
-      REAL CSAV( PACOLSD,PAROWSD,PALEVSD,NCSAVED )
+      REAL SPCOEF( N_IPR_SPCD ,  MXCGRIDD )
+!     REAL DELC( PACOLSD ,  PAROWSD ,  PALEVSD ,  NIPRVARD )
+!     REAL CSAV( PACOLSD ,  PAROWSD ,  PALEVSD ,  NCSAVED )
 
 
 
@@ -228,40 +221,40 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PARAMETER ( LPARTIRR = .TRUE. )
 
       INTEGER NUMTEMPS
-      PARAMETER ( NUMTEMPS =  20 )
+      PARAMETER ( NUMTEMPS =  13 )
 
       INTEGER NUMOUTPOS
-      PARAMETER ( NUMOUTPOS =  28 )
+      PARAMETER ( NUMOUTPOS =  11 )
 
       INTEGER NUMOUTNEG
-      PARAMETER ( NUMOUTNEG =  19 )
+      PARAMETER ( NUMOUTNEG =  14 )
 
       INTEGER NUMOUTIND
-      PARAMETER ( NUMOUTIND =  12 )
+      PARAMETER ( NUMOUTIND =   7 )
 
       INTEGER MXNIRRRXNS
-      PARAMETER ( MXNIRRRXNS =  57 )
+      PARAMETER ( MXNIRRRXNS =  90 )
 
       INTEGER MXTEMPTRMS
-      PARAMETER ( MXTEMPTRMS =  15 )
+      PARAMETER ( MXTEMPTRMS =  19 )
 
       INTEGER NUMTEMPSD
-      PARAMETER ( NUMTEMPSD =  20 )
+      PARAMETER ( NUMTEMPSD =  13 )
 
       INTEGER NUMOUTPOSD
-      PARAMETER ( NUMOUTPOSD =  28 )
+      PARAMETER ( NUMOUTPOSD =  11 )
 
       INTEGER NUMOUTNEGD
-      PARAMETER ( NUMOUTNEGD =  19 )
+      PARAMETER ( NUMOUTNEGD =  14 )
 
       INTEGER NUMOUTINDD
-      PARAMETER ( NUMOUTINDD =  12 )
+      PARAMETER ( NUMOUTINDD =   7 )
 
       INTEGER MXNIRRRXNSD
-      PARAMETER ( MXNIRRRXNSD =  57 )
+      PARAMETER ( MXNIRRRXNSD =  90 )
 
       INTEGER MXTEMPTRMSD
-      PARAMETER ( MXTEMPTRMSD =  15 )
+      PARAMETER ( MXTEMPTRMSD =  19 )
 
       INTEGER BLKSIZED
       PARAMETER ( BLKSIZED = BLKSIZE )
@@ -276,87 +269,88 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER INDXOUTNEG( NUMOUTNEGD )
       INTEGER TEMPOUTIND( NUMOUTINDD )
       INTEGER INDXOUTIND( NUMOUTINDD )
-      INTEGER IRRRXN( NIRRVARD,MXNIRRRXNSD )
-      INTEGER TEMPRXN( NUMTEMPSD,MXTEMPTRMSD )
+      INTEGER IRRRXN( NIRRVARD,  MXNIRRRXNSD )
+      INTEGER TEMPRXN( NUMTEMPSD,  MXTEMPTRMSD )
 
       REAL COEFOUTPOS( NUMOUTPOSD )
       REAL COEFOUTNEG( NUMOUTNEGD )
       REAL COEFOUTIND( NUMOUTINDD )
-      REAL TEMPCOEF( NUMTEMPSD,MXTEMPTRMSD )
-      REAL IRRCOEF( NIRRVARD,MXNIRRRXNSD )
-      REAL IRRSTEP( BLKSIZED,NIRRVARD )
-      REAL IRRBLK( BLKSIZED,NIRRVARD )
-      REAL IRROUT( IRCOLSD,IRROWSD,IRLEVSD,NIRRVARD )
+      REAL TEMPCOEF( NUMTEMPSD ,  MXTEMPTRMSD )
+      REAL IRRCOEF( NIRRVARD ,  MXNIRRRXNSD )
+      REAL IRRSTEP( BLKSIZED,  NIRRVARD )
+      REAL IRRBLK( BLKSIZED,  NIRRVARD )
+!     REAL IRROUT(  IRCOLSD ,  IRROWSD ,  IRLEVSD ,  NIRRVARD )
 
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Common Blocks:
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      COMMON /PACHAR/ IPRNAME,
-     &                IPRDESC,
-     &                IRRNAME,
-     &                IRRDESC,
-     &                PROCNAMES
+      COMMON /PACHAR/ IPRNAME, 
+     &                IPRDESC, 
+     &                IRRNAME, 
+     &                IRRDESC, 
+     &                PROCNAME
 
 
       COMMON /PALGCL/ LPROCOUT
 
 
-      COMMON /PAINTG/ NCGRID,
-     &                SV2GRD,
-     &                IPROUT,
-     &                IPR2GRD,
-     &                IPR2SAV ,
-     &                NIRRRXNS,
-     &                TEMPTERMS,
-     &                TEMPOUTPOS,
-     &                TEMPOUTNEG,
-     &                TEMPOUTIND,
-     &                INDXOUTPOS,
-     &                INDXOUTNEG,
-     &                INDXOUTIND,
-     &                TEMPRXN,
+      COMMON /PAINTG/ NCGRID, 
+     &                SV2GRD, 
+     &                IPROUT, 
+     &                IPR2GRD, 
+     &                IPR2SAV , 
+     &                NIRRRXNS, 
+     &                TEMPTERMS, 
+     &                TEMPOUTPOS, 
+     &                TEMPOUTNEG, 
+     &                TEMPOUTIND, 
+     &                INDXOUTPOS, 
+     &                INDXOUTNEG, 
+     &                INDXOUTIND, 
+     &                TEMPRXN, 
      &                IRRRXN
 
 
-      COMMON /PAREAL/ SPCOEF,
-     &                DELC,
-     &                CSAV,
-     &                COEFOUTPOS,
-     &                COEFOUTNEG,
-     &                COEFOUTIND,
-     &                TEMPCOEF,
-     &                IRRCOEF,
-     &                IRRSTEP,
-     &                IRRBLK,
-     &                IRROUT
+      COMMON /PAREAL/ SPCOEF, 
+!    &                DELC, 
+!    &                CSAV, 
+     &                COEFOUTPOS, 
+     &                COEFOUTNEG, 
+     &                COEFOUTIND, 
+     &                TEMPCOEF, 
+     &                IRRCOEF, 
+     &                IRRSTEP, 
+     &                IRRBLK
+!    &                IRROUT
+
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The following variables define the PA subdomain in each processor
 c  for a parallel CCTM application.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      INTEGER MY_BEGROW    ! Starting row of local PA grid in a processor
-      INTEGER MY_ENDROW    ! Ending row of local PA grid in a processor
-      INTEGER MY_BEGCOL    ! Starting column of local PA grid in a processor
-      INTEGER MY_ENDCOL    ! Ending column of local PA grid in a processor
-      INTEGER MY_BEGLEV    ! Starting level of local PA grid in a processor
-      INTEGER MY_ENDLEV    ! Ending level of local PA grid in a processor
-      INTEGER MY_PAROWS    ! Number of rows of local PA grid a processor has
-      INTEGER MY_PACOLS    ! Number of columns of local PA grid a processor has
-      INTEGER MY_IRR_BEGROW  ! Starting row of local IRR grid in a processor
-      INTEGER MY_IRR_ENDROW  ! Ending row of local IRR grid in a processor
-      INTEGER MY_IRR_BEGCOL  ! Starting column of local IRR grid in a processor
-      INTEGER MY_IRR_ENDCOL  ! Ending column of local IRR grid in a processor
-      INTEGER MY_IRR_BEGLEV  ! Starting level of local IRR grid in a processor
-      INTEGER MY_IRR_ENDLEV  ! Ending level of local IRR grid in a processor
+!     INTEGER MY_BEGROW    ! Starting row of local PA grid in a processor
+!     INTEGER MY_ENDROW    ! Ending row of local PA grid in a processor
+!     INTEGER MY_BEGCOL    ! Starting column of local PA grid in a processor
+!     INTEGER MY_ENDCOL    ! Ending column of local PA grid in a processor
+!     INTEGER MY_BEGLEV    ! Starting level of local PA grid in a processor
+!     INTEGER MY_ENDLEV    ! Ending level of local PA grid in a processor
+!     INTEGER MY_PAROWS    ! Number of rows of local PA grid a processor has
+!     INTEGER MY_PACOLS    ! Number of columns of local PA grid a processor has
+!     INTEGER MY_IRR_BEGROW  ! Starting row of local IRR grid in a processor
+!     INTEGER MY_IRR_ENDROW  ! Ending row of local IRR grid in a processor
+!     INTEGER MY_IRR_BEGCOL  ! Starting column of local IRR grid in a processor
+!     INTEGER MY_IRR_ENDCOL  ! Ending column of local IRR grid in a processor
+!     INTEGER MY_IRR_BEGLEV  ! Starting level of local IRR grid in a processor
+!     INTEGER MY_IRR_ENDLEV  ! Ending level of local IRR grid in a processor
 
 
-      COMMON / PA_GRID / MY_BEGROW, MY_ENDROW, MY_BEGCOL, MY_ENDCOL,
-     &                   MY_BEGLEV, MY_ENDLEV, MY_PAROWS, MY_PACOLS,
-     &                   MY_IRR_BEGROW, MY_IRR_ENDROW, MY_IRR_BEGCOL,
-     &                   MY_IRR_ENDCOL, MY_IRR_BEGLEV, MY_IRR_ENDLEV
+!     COMMON / PA_GRID / MY_BEGROW, MY_ENDROW, MY_BEGCOL, MY_ENDCOL,
+!    &                   MY_BEGLEV, MY_ENDLEV, MY_PAROWS, MY_PACOLS,
+!    &                   MY_IRR_BEGROW, MY_IRR_ENDROW, MY_IRR_BEGCOL,
+!    &                   MY_IRR_ENDCOL, MY_IRR_BEGLEV, MY_IRR_ENDLEV
 
 
 C............ End of Process Analysis COMMON Include File ....................

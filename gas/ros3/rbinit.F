@@ -213,9 +213,11 @@ c..cell & solver data
      &          BLKPRES( BLKSIZE ),
      &          BLKCH2O( BLKSIZE ),
      &          BLKDENS( BLKSIZE ),
-     &          BLKSVOL( BLKSIZE ), STAT = STATUS )
+     &          BLKSVOL( BLKSIZE ), 
+     &          BLKLAND( BLKSIZE ), STAT = STATUS )
       IF ( STATUS .NE. 0 ) THEN
-         XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, or BLKDENS'
+         XMSG = 'ERROR allocating BLKTEMP, BLKPRES, BLKCH2O, BLKDENS, '
+     &       // 'BLKSVOL, BLKLAND '
          CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
       END IF
 
@@ -267,8 +269,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
       DO N = 1, NUMB_MECH_SPC
-         ATOL( N ) = GLBL_ATOL
-         RTOL( N ) = GLBL_RTOL
+         ATOL( N ) = REAL( GLBL_ATOL, 8 )
+         RTOL( N ) = REAL( GLBL_RTOL, 8 )
          FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
          REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
       END DO

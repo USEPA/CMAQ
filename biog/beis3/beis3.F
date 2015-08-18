@@ -25,7 +25,7 @@ C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
-     &                  SLAI, EMPOL )
+     &                  SLAI, BIPOL )
 
 C-----------------------------------------------------------------------
 C Description:
@@ -71,8 +71,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 C Includes:
 
-!      INCLUDE SUBST_CONST     ! constants
-
 C Arguments:
       INTEGER, INTENT( IN ) :: JDATE   ! current simulation date (YYYYDDD)
       INTEGER, INTENT( IN ) :: JTIME   ! current simulation time (HHMMSS)
@@ -80,11 +78,15 @@ C Arguments:
       INTEGER, INTENT( IN ) :: NY      ! no. rows
       INTEGER, INTENT( IN ) :: MSPCS   ! no. of output species
 
-      REAL,    INTENT( IN ) :: COSZEN( NX,NY )        ! cosine of zenith angle
-      REAL,    INTENT( IN ) :: SEMIS ( NX,NY,NSEF-1 ) ! normalized emissions
-      REAL,    INTENT( IN ) :: SLAI  ( NX,NY,NLAI )   ! leaf area indices
+!     REAL,    INTENT( IN ) :: COSZEN( NX,NY )        ! cosine of zenith angle
+!     REAL,    INTENT( IN ) :: SEMIS ( NX,NY,NSEF-1 ) ! normalized emissions
+!     REAL,    INTENT( IN ) :: SLAI  ( NX,NY,NLAI )   ! leaf area indices
+!     REAL,    INTENT( OUT ) :: BIPOL( NX,NY,NSEF-1 ) ! output emissions
 
-      REAL,    INTENT( OUT ) :: EMPOL( NX,NY,NSEF )   ! output emissions
+      REAL,    INTENT( IN ) :: COSZEN( :,: )        ! cosine of zenith angle
+      REAL,    INTENT( IN ) :: SEMIS ( :,:,: ) ! normalized emissions
+      REAL,    INTENT( IN ) :: SLAI  ( :,:,: )   ! leaf area indices
+      REAL,    INTENT( OUT ) :: BIPOL( :,:,: ) ! output emissions
 
 C Local Variables:
       INTEGER        R, C, L, I   ! counters
@@ -132,15 +134,15 @@ C Local Variables:
       REAL           PARDIF       ! PAR diffuse
       REAL           COSZ         ! local cosine of zenith angle
       
-      REAL, PARAMETER :: CV         = 8.0e-6  ! Resistance to soil heat conductance under vegetation [s/m]
-      REAL, PARAMETER :: RRAD       = 230.0   ! Atmospheric radiative resistance Monteith 1973 [s/m]
-      REAL, PARAMETER :: SCW        = KVIS/DWAT ! schmidt number for water vapor
-      REAL, PARAMETER :: REFLDV     = 0.057 ! visible light reflection coefficient from MEGAN 2.10 
+      REAL, PARAMETER :: CV     = 8.0e-6  ! Resistance to soil heat conductance under vegetation [s/m]
+      REAL, PARAMETER :: RRAD   = 230.0   ! Atmospheric radiative resistance Monteith 1973 [s/m]
+      REAL, PARAMETER :: SCW    = KVIS / DWAT ! schmidt number for water vapor
+      REAL, PARAMETER :: REFLDV = 0.057 ! visible light reflection coefficient from MEGAN 2.10 
 
       CHARACTER( 5 )   :: BTMP    ! temporary variable name
       CHARACTER( 256 ) :: MESG    ! message buffer
 
-      CHARACTER( 16 )  :: PROGNAME = 'BEIS3'   ! procedure name
+      CHARACTER( 16 )  :: PROCNAME = 'BEIS3'   ! procedure name
 
 C-----------------------------------------------------------------------
       
@@ -156,7 +158,7 @@ C Note we no longer cap temperature for isoprene
             IF ( TAIR .LT. 200.0 ) THEN
                WRITE( MESG, 94010 ) 'TAIR=', TAIR,
      &              'out of range at (C,R)=', C, R
-               CALL M3EXIT( PROGNAME, JDATE, JTIME, MESG, 2 )
+               CALL M3EXIT( PROCNAME, JDATE, JTIME, MESG, 2 )
             END IF
 
             SOLRAD = MET_DATA%RGRND( C,R )
@@ -220,7 +222,6 @@ C Check max/min bounds of PAR and calculate biogenic ISOP
      &              'ZEN    = ', ZEN
     
                 CALL M3MSG2( MESG )
-!               CALL M3EXIT( PROGNAME, JDATE, JTIME, MESG, 2 )
             END IF
 
 C Compute ISOP and MBO and METH emissions first
@@ -239,7 +240,7 @@ C Adjust methanol based on T. Pierce recommendation (1-16-03)
                IF ( TLAI .GT. 10.0 ) THEN
                   WRITE( MESG, 94010 ) 'LAI=', TLAI,
      &              'out of range at (C,R)=', C, R
-                  CALL M3EXIT( PROGNAME, JDATE, JTIME, MESG, 2 )
+                  CALL M3EXIT( PROCNAME, JDATE, JTIME, MESG, 2 )
                END IF
 
 C Initialize csubl
@@ -247,7 +248,7 @@ C Initialize csubl
                CSUBL_SHADE = 0.0       
 
                IF ( PARDB + PARDIF .EQ. 0.0 ) THEN
-                  EMPOL( C,R,I ) = 0.0
+                  BIPOL( C,R,I ) = 0.0
                ELSE
                   CALL CLNEW_SUB( ZEN, PARDB, PARDIF, TLAI, LHSH_DIV,
      &                            LHSH_COMP, DTLEAF_SUN, DTLEAF_SHADE, 
@@ -263,8 +264,8 @@ C Calculate temperature correction term
      &                          ( 1.0 + EXP( 91.301 - DT_SUN ) )
                   CT_SHADE = EXP( 37.711 - 0.398570815 * DT_SHADE ) /
      &                          ( 1.0 + EXP( 91.301 - DT_SHADE ) )     
-                  EMPOL( C,R,I ) = SEMIS( C,R,I )*( FRACSUN   * CT_SUN   * CSUBL_SUN + 
-     &                                              FRACSHADE * CT_SHADE * CSUBL_SHADE )                   		  
+                  BIPOL( C,R,I ) = SEMIS( C,R,I )*( FRACSUN   * CT_SUN   * CSUBL_SUN + 
+     &                                              FRACSHADE * CT_SHADE * CSUBL_SHADE )
                END IF
 
             END DO ! end ISOP and MBO calculations loop
@@ -285,14 +286,14 @@ C Limit temerature to 315 K for monoterpenes and other VOCs
             CFOVOC  = FRACSUN   * EXP( 0.09 * ( TLEAF_SUN   - 303.0 ) ) + 
      &                FRACSHADE * EXP( 0.09 * ( TLEAF_SHADE - 303.0 ) ) 
             CFSESQT = FRACSUN   * EXP( 0.17 * ( TLEAF_SUN   - 303.0 ) ) + 
-     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )  	    
+     &                FRACSHADE * EXP( 0.17 * ( TLEAF_SHADE - 303.0 ) )
 
             DO I = NLAI + 1, NSEF - 2
-               EMPOL( C,R,I ) = SEMIS( C,R,I ) * CFOVOC
+               BIPOL( C,R,I ) = SEMIS( C,R,I ) * CFOVOC
             END DO
 
             I = NSEF - 1
-            EMPOL( C,R,I ) = SEMIS( C,R,I ) * CFSESQT
+            BIPOL( C,R,I ) = SEMIS( C,R,I ) * CFSESQT
 
          END DO ! end loop over columns
       END DO ! end loop over rows
@@ -383,8 +384,8 @@ C CN98 - p. 261 (assume exponentially wtd avg)
                CANPARDIF_SUN    = PARDIF * ( 1.0 - EXP( -1.0 * SQALPHA * KD * LAISUN ) )
      &                                   / ( SQALPHA * KD * LAISUN )
 
-               CANPARDIF_SHADE  = CANPARDIF_SUN * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) - 
-     &                                              EXP( -1.0 * SQALPHA * KD * TLAI ) )
+               CANPARDIF_SHADE  = CANPARDIF_SUN * ( EXP( -1.0 * SQALPHA * KD * LAISUN ) 
+     &                                            - EXP( -1.0 * SQALPHA * KD * TLAI ) )
      &                                   / ( SQALPHA * KD * (TLAI - LAISUN) )
 
 C CN98 - p. 261 (for next 3 eqns)

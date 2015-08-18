@@ -153,6 +153,7 @@ C mapping variables used for loading and unloading to CGRID array
       Logical, Private, Save :: mapped              = .False.
       Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
 
+!     Integer, Save :: pfc = 0   ! possible false soabisect convergence counter
 
       Character( 16 ), Private, Save :: pname = 'Soa_Defn        '
 
@@ -263,7 +264,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
      &                // Trim( MECHNAME ) // ', is not based on AERO6 '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
-	    
+
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
          orgprod_map = 0
@@ -753,6 +754,7 @@ C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -1013,7 +1015,13 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+!        orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         If ( abs( upb - lowb ) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1021,7 +1029,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
@@ -1270,7 +1278,7 @@ C-----------------------------------------------------------------------
             CHECK = .FALSE.
             RETURN
          END IF
-         IF (CHECK) THEN        !Check for gradient of F zero,
+         IF ( CHECK ) THEN        !Check for gradient of F zero,
             TEST = 0.           !i.e., spurious convergence.
             DEN = MAX( F, 0.5 * N )
             DO I = 1, N
@@ -1733,8 +1741,9 @@ C    all dimensions now depend upon N only
       RETURN
       END SUBROUTINE LUDCMP
 
-
-      Function soabisect(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt) RESULT ( nroot )
+C-----------------------------------------------------------------------
+      Function soabisect( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
+     &                    mlwt) RESULT ( nroot )
 
 C     Determines the root of an equation, nroot, that is located
 C     between the lowerb and upperb. The equation of interest is defined
@@ -1759,7 +1768,8 @@ C     Function arguments
 
 C     Parameters for solution convergenc
       Real             :: FRACTOL = 1.0e-6    ! Solution converged if abs(old-new)/new < FRACTOL
-      Real             :: ABSTOL  = 1.0e-10   ! Solution converged if there are less than ABSTOL umol/m3 in aerosol
+!     Real             :: ABSTOL  = 1.0e-10   ! Solution converged if there are less than ABSTOL umol/m3 in aerosol
+      Real             :: ABSTOL  = 1.0e-08   ! Solution converged if there are less than ABSTOL umol/m3 in aerosol
 
 C     Result
       Real             :: nroot               ! solution (final nguess)
@@ -1771,78 +1781,108 @@ C     Local variables
       Real             :: ea                  ! difference b/w old and new guesses (umol/m3)
       Real             :: test                ! to detect sign change
       Integer          :: iter                ! counter to prevent infinite loops
+      Character( 120 ) :: xmsg
 
 C     Store current lower and upper bound, evaluate at lower bound 
-      lower      = lowerb
-      upper      = upperb
-      flower     = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, lowerb )
-      fupper     = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, upperb )
+      lower  = lowerb
+      upper  = upperb
+      flower = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, lowerb )
+      fupper = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, upperb )
 
 C     First guess: solution at upperb
-      nguess    = upperb
+      nguess = upperb
 
 C     Counter of iterations to prevent infinite loops
       iter = 0
 
-C     Iterate until the number of moles changes by less than fractol (percent) or abstol (absolute) amount
+C     Iterate until the number of moles changes by less than fractol (percent) or
+C     abstol (absolute) amount
       Do
 
-        if ( flower * fupper .gt. 0.0 ) then
+        If ( flower * fupper .gt. 0.0 ) Then
            ! function does not change sign between bounds
-           Call m3exit( pname, 0, 0, 'Error: no solution between bounds
-     &                                in soa bisection', xstat3) 
-        endif
+#ifdef verbose_soa
+           nroot = soabisect_debug(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt)
+           Write( xmsg,'(a,2(1pe15.5))' )
+     &           'Error: no solution between bounds in soa bisection:', flower, fupper
+#else
+           xmsg = 'Error: no solution between bounds in soa bisection'
+#endif
+           Call m3exit( pname, 0, 0, xmsg, xstat3)
+        End If
 
-        iter    = iter + 1
-        oldn    = nguess                        ! store last guess
-        nguess  = ( lower + upper )/ 2.0e0      ! new guess is halfway b/w old lower and upper
+        iter   = iter + 1
+        oldn   = nguess                     ! store last guess
+        nguess = ( lower + upper ) / 2.0e0  ! new guess is halfway b/w old lower and upper
         fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
-        If ( nguess .ne. 0.0 ) then             ! safe division
-           ea   = ABS( nguess - oldn )/nguess   ! fractional diff b/w 2 guesses
+        If ( nguess .ne. 0.0 ) Then            ! safe division
+           ea = Abs( nguess - oldn ) / nguess  ! fractional diff b/w 2 guesses
         Else
-           Call m3exit( pname, 0, 0, 'Error: number of organic aerosol 
-     &                  moles going to zero in soa bisection', xstat3) 
+#ifdef verbose_soa
+          nroot = soabisect_debug(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt)
+          Write( xmsg,'(a,1pe15.5)' )
+     &       'Warning: number of organic aerosol moles going to zero in soa bisection:',
+     &        nroot
+#else
+          xmsg = 'Error: number of organic aerosol moles going to zero in soa bisection'
+#endif
+!         Call m3warn( pname, 0, 0, xmsg )
+          Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
+
         test = fnguess * flower
-        If ( test .lt. 0.0 ) then               ! if function changes sign b/w guess and lower, guess becomes upper
-           upper  = nguess
-           fupper = fnguess
-        Else If ( test .gt. 0.0 ) then          ! if function does not change sign, guess becomes lowerbound
-           lower  = nguess
-           flower = fnguess
-        Else If ( flower .eq. 0.0 ) then        ! if the lower bound is the root
-           ea      = 0.0
-           nguess  = lower
-           fnguess = flower
-        Else If ( fnguess .eq. 0.0 ) then       ! guess is the root
-           ea      = 0.0
+        If ( test .lt. 0.0 ) Then         ! if function changes sign b/w guess and lower, guess becomes upper
+          upper  = nguess
+          fupper = fnguess
+        Else If ( test .gt. 0.0 ) Then    ! if function does not change sign, guess becomes lowerbound
+          lower  = nguess
+          flower = fnguess
+        Else If ( flower .eq. 0.0 ) Then  ! if the lower bound is the root
+          ea      = 0.0
+          nguess  = lower
+          fnguess = flower
+        Else If ( fnguess .eq. 0.0 ) Then ! guess is the root
+          ea      = 0.0
         End If
 
-        ! solution found if error is less than ABSTOL/100 % or N bounded by values less than 1e-10
-        If ( ( ea .lt. FRACTOL ) .or. ( ( upper + lower ) .lt. ABSTOL ) ) then
-           nroot = nguess
+        ! solution found if error is less than ABSTOL/100 % or N bounded by values less than ABSTOL
+        If ( ( ea .lt. FRACTOL ) .or. ( ( upper + lower ) .lt. ABSTOL ) ) Then
+          nroot = nguess
+          ! double check that the function is approximately zero
+          fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+          If ( Abs( fnguess ) .gt. 1.0e-03 ) Then
+!           pfc = pfc + 1
+#ifdef verbose_soa
+            nroot = soabisect_debug(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt)
+!           Write( xmsg,'(a,2(1pe15.5,i8))' )
+!    &      'Warning: possible false convergence in soa bisection:', fnguess, nroot, pfc
+            Write( xmsg,'(a,2(1pe15.5))' )
+     &      'Warning: possible false convergence in soa bisection:', fnguess, nroot
+            Call m3warn( pname, 0, 0, xmsg )
+#else
+!           xmsg = 'Warning: possible false convergence in soa bisection'
+#endif
+!           Call m3warn( pname, 0, 0, xmsg )
+          End If
 
-           ! double check that the function is approximately zero
-           fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
-           If ( abs(fnguess) .gt. 1d-3 ) then
-           Call m3exit( pname, 0, 0, 'Error: possible false convergence
-     &                               in soa bisection', xstat3) 
-           End If
-
-           return
+          Return
         End If
 
-        If ( iter .gt. 1000000 ) then ! stop infinite loops
-           !print*,'current lower, upper, and N: ',lower, upper, nguess
-           Call m3exit( pname, 0, 0, 'Error: too many iterations in soa
-     &                   bisection', xstat3) 
+        If ( iter .gt. 1000000 ) Then ! stop infinite loop
+#ifdef verbose_soa
+          nroot = soabisect_debug(lowerb, upperb, nonvolmol, cstaratt, totsemivol, mlwt)
+          Write( xmsg,'(a,i9,1pe15.5)' )
+     &      'Error: too many iterations in soa bisection', iter, nroot
+#else
+          xmsg = 'Error: too many iterations in soa bisection'
+#endif
+          Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
       End Do
 
-      End function
+      End Function soabisect
 
 C-----------------------------------------------------------------------
-
       Function soaequation( nonvmol, cstar, semivol, mlwt, currentN ) Result ( eqnerror )
 
 C     Evaluates the following function of total aerosol moles, N
@@ -1868,13 +1908,134 @@ C     Local variables
       Integer          :: i                                ! counter
 
 C     Compute function value for current value of N 
-      temptot = 0e0
+      temptot = 0.0e0
       Do i = 1, n_vapor
          temptot = temptot + semivol(i) / ( cstar(i) + mlwt(i) * currentN )
       End Do
       eqnerror = temptot + nonvmol / currentN - 1.0e0
 
-      End function
+      End function soaequation
+
 C-----------------------------------------------------------------------
+      Function soabisect_debug( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
+     &                          mlwt) RESULT ( nroot )
+
+      Use utilio_defn
+
+      Implicit None
+
+C     Function arguments
+      Real, Intent(IN) :: lowerb, upperb      ! lower bound, upper bound
+      Real, Intent(IN) :: nonvolmol           ! nonvolatile aerosol in moles = POA + non-voltile SOA
+      Real, Intent(IN) :: cstaratt(:)   ! Cstars at T of interest
+      Real, Intent(IN) :: totsemivol(:) ! total semivolatile to partition in ug/m3 (gas+aer+newlyformed)
+      Real, Intent(IN) :: mlwt(:)       ! molecular weight of semivolatiles
+
+C     Parameters for solution convergenc
+      Real             :: FRACTOL = 1.0e-6    ! Solution converged if abs(old-new)/new < FRACTOL
+      Real             :: ABSTOL  = 1.0e-10   ! Solution converged if there are less than ABSTOL umol/m3 in aerosol
+
+C     Result
+      Real             :: nroot               ! solution (final nguess)
+
+C External functions:
+      Integer, External :: setup_logdev
+
+C     Local variables
+      Logical, Save    :: first_time = .True.
+      Integer, Save    :: logdev
+
+      Real             :: nguess              ! current guess for total moles organic aerosol
+      Real             :: oldn, lower, upper, flower, fnguess !intermediate values
+      Real             :: fupper              ! function evaluated at upper bound
+      Real             :: ea                  ! difference b/w old and new guesses (umol/m3)
+      Real             :: test                ! to detect sign change
+      Integer          :: iter                ! counter to preventinfinite loops
+      Character( 120 ) :: xmsg
+
+      If ( first_time )  Then
+        first_time = .False.
+        logdev = setup_logdev()
+      End If
+
+C     Store current lower and upper bound, evaluate at lower bound
+      lower  = lowerb
+      upper  = upperb
+      flower = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, lowerb )
+      fupper = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, upperb )
+
+C     First guess: solution at upperb
+      nguess = upperb
+
+C     Counter of iterations to prevent infinite loops
+      iter = 0
+
+C     Iterate until the number of moles changes by less than fractol
+C     (percent) or abstol (absolute) amount
+      Do
+
+        If ( flower * fupper .gt. 0.0 ) Then
+          ! function does not change sign between bounds
+          xmsg = 'Error: no solution between bounds in soa bisection'
+          Write( logdev,* ) xmsg
+        End If
+
+        iter    = iter + 1
+        oldn    = nguess                    ! store last guess
+        nguess  = ( lower + upper ) / 2.0e0 ! new guess is halfway b/w old lower and upper
+        fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+
+        Write( logdev,* ), 'iter   ', iter
+        Write( logdev,* ), 'Lower= ', lower, flower
+        Write( logdev,* ), 'Upper= ', upper, fupper
+        Write( logdev,* ), 'Guess= ', nguess, fnguess
+
+        If ( nguess .ne. 0.0 ) Then           ! safe division
+          ea = ABS( nguess - oldn )/nguess   ! fractional diff b/w 2guesses
+        Else
+          xmsg = 'Error: number of organic aerosol moles going to zero in soa bisection'
+          Write( logdev,* ) xmsg
+        End If
+
+        Write( logdev,* ) 'error', ea
+        test = fnguess * flower
+        If ( test .lt. 0.0 ) Then           ! if function changes sign b/w guess and lower, guess becomes upper
+          upper  = nguess
+          fupper = fnguess
+        Else If ( test .gt. 0.0 ) Then      ! if function does not change sign, guess becomes lowerbound
+          lower  = nguess
+          flower = fnguess
+        Else If ( flower .eq. 0.0 ) Then    ! if the lower bound is the root
+          ea      = 0.0
+          nguess  = lower
+          fnguess = flower
+        Else If ( fnguess .eq. 0.0 ) Then   ! guess is the root
+          ea      = 0.0
+        End If
+
+        ! solution found if error is less than ABSTOL/100 % or N bounded
+        ! by values less than 1e-08
+        If ( ( ea .lt. FRACTOL ) .or. ( ( upper + lower ) .lt. ABSTOL ) ) then
+          nroot = nguess
+          ! double check that the function is approximately zero
+          fnguess = soaequation( nonvolmol, cstaratt, totsemivol, mlwt, nguess ) ! function evaluated at new guess
+          If ( Abs( fnguess ) .gt. 1.0e-03 ) Then
+             xmsg = 'Warning: possible false convergence in soa bisection'
+             Write( logdev,* ) xmsg
+          End If
+
+          Return
+        End If
+
+        If ( iter .gt. 1000000 ) Then ! stop infinite loops
+          !print*,'current lower, upper, and N: ',lower, upper, nguess
+          xmsg = 'Error: too many iterations in soa bisection'
+          Write( logdev,* ) xmsg
+        End If
+      End Do
+
+      End Function soabisect_debug
+
+!-----------------------------------------------
 
       End Module soa_defn

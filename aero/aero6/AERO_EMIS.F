@@ -238,12 +238,12 @@ C Local Variables:
 
 C Geometric mean diameter by volume (or mass) of emitted particles in 
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-C         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
+!        REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
          REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /) !KF 05/06/14
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
-C         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
+!        REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
          REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 1.7, 2.2 /)  !KF 05/06/14
  
 C Variables for calculating the volume of each grid cell
@@ -374,13 +374,13 @@ C *** Map indices of emission species
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
                ! Verify that aerospc( S )%emis is a pm emis
                DO N = 1, N_MODE
-                  IF ( AEROSPC( S )%NAME( N ) .NE. ' ' .AND.
+                  IF ( .NOT. AERO_MISSING(S,N) .AND.
      &                 AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
                      EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
       write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_map( s,n )
-                     if ( em_map( s,n ) .eq. 0 ) then
-                        write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
-                     end if
+!                    if ( em_map( s,n ) .eq. 0 ) then
+!                       write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
+!                    end if
                   END IF
                END DO
             END IF
@@ -393,7 +393,7 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
          DO S = 1, N_AEROSPC
             IF ( AEROSPC( S )%EMIS .NE. ' ' ) THEN
                DO N = 1, N_MODE
-                  IF ( AEROSPC( S )%NAME( N ) .NE. ' ' ) THEN
+                  IF ( .NOT. AERO_MISSING(S,N) ) THEN
                      L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
                      IF ( L .GT. 0 ) THEN
                         EM_FAC( S,N ) = AE_EMIS_FAC( L )
@@ -465,7 +465,7 @@ C *** Map sea salt emission species
             write( logdev,* ) 'ssspc_map: ', s, idx, ssspc_map( s )
 #endif
             DO N = 2, N_MODE   ! add SEASALT indices to EM_MAP
-               IF ( AEROSPC( IDX )%NAME( N ) .NE. ' ' ) THEN
+               IF ( .NOT. AERO_MISSING(IDX,N) ) THEN
                   EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
                   SS_MAP( IDX,N ) = S
 #ifdef Verbose1

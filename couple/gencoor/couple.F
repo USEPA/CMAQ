@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/couple/gencoor/couple.F,v 1.6 2011/10/21 16:10:29 yoj Exp $ 
+C $Header: /project/yoj/arc/CCTM/src/couple/gencoor_wrf/couple.F,v 1.4 2011/10/21 16:10:30 yoj Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)couple.F	1.1 /project/mod3/CMAQ/src/convert/couple/SCCS/s.couple.F 03 Jun 1997 11:41:33
@@ -49,6 +49,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   11 Oct 11 J.Young: eliminate ppmv_msmr
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -74,6 +75,9 @@ C Arguments:
                                           !            step and wrf/cmaq call frequency
 
 C Parameters:
+      REAL, PARAMETER :: GPKG = 1.0E+03   ! g/kg
+      REAL, PARAMETER :: MGPG = 1.0E+06   ! micro-g/g
+      REAL, PARAMETER :: CONV = GPKG * MGPG
 
 C External Functions:
 
@@ -98,32 +102,14 @@ C Local Variables:
       INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m**3 species
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m**2/m**3 species
 
-!     REAL        SGRID( NCOLS,NROWS,NLAYS,N_AE_SPCD ) ! aerosol subsets
-      REAL, ALLOCATABLE :: SGRID( :,:,:,: ) ! aerosol subsets
-
       INTEGER     ALLOCSTAT
       INTEGER     GXOFF, GYOFF          ! global origin offset from file
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER     NSPCS            ! number of species for subroutine calls
       INTEGER     OFF              ! loop offset to CGRID species
-      INTEGER     C, R, L, SPC     ! loop counters
+      INTEGER     C, R, L, SPC, V  ! loop counters
 
-      INTERFACE
-         SUBROUTINE MGPM3_KGPM3 ( NSPCS, NLVLS, SGRID )
-            USE GRID_CONF
-            IMPLICIT NONE
-            INTEGER, INTENT( IN )  :: NSPCS, NLVLS
-            REAL, INTENT( INOUT )  :: SGRID( :,:,:,: )
-         END SUBROUTINE MGPM3_KGPM3
-         SUBROUTINE KGPM3_MGPM3 ( NSPCS, NLVLS, SGRID )
-            USE GRID_CONF
-            IMPLICIT NONE
-            INTEGER, INTENT( IN )  :: NSPCS, NLVLS
-            REAL, INTENT( INOUT )  :: SGRID( :,:,:,: )
-         END SUBROUTINE KGPM3_MGPM3
-      END INTERFACE
 C-----------------------------------------------------------------------
 
 C If ISPCA .ne. 0, then air is advected and concs. are adjusted
@@ -146,7 +132,8 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
             NQAE = 0       ! no. of micro-grams/m**3 species
             NNAE = 0       ! no. of #/m**3 species
             NSAE = 0       ! no. of m**2/m**3 species
-            OFF = AE_STRT - 1
+!           OFF = AE_STRT - 1
+            OFF = 0
             DO SPC = 1, N_AE_SPC
                IF ( AE_SPC( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
                   NNAE = NNAE + 1
@@ -160,12 +147,25 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
                END IF
             END DO
 
-         END if
+!           write( logdev,* ) 'Couple'
+!           do v = 1, nqae
+!              write( logdev,2009 ) v, qae( v ) + ae_strt -1, ae_spc( qae( v ) )
+!           end do
+!           do v = 1, nnae
+!              write( logdev,2009 ) v, nae( v ) + ae_strt -1, ae_spc( nae( v ) )
+!           end do
+!           do v = 1, nsae
+!              write( logdev,2009 ) v, sae( v ) + ae_strt -1, ae_spc( sae( v ) )
+!           end do
+
+2009        format( 5x, 2i4, 2x, a )
+
+         END IF
 
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
-         END IF       ! if firstime
+      END IF       ! if firstime
 
 C Read Jacobian X Air Density (Jacobian =  sq. root det. metric tensor)
 
@@ -188,112 +188,90 @@ C Read Jacobian X Air Density (Jacobian =  sq. root det. metric tensor)
       END IF
 
 C couple for advection - use density times the square root of the determinant
-C of the metric tensor = RHOJ
+C of the metric tensor (the JAcobian) = RHOJ
  
-C (air density X "total" jacobian) X mixing ratio [ppmV]
-      NSPCS = N_GC_SPC
-      IF ( NSPCS .GT. 0 ) THEN
+C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing ratio [ppmV]
+      IF ( N_GC_SPC .GT. 0 ) THEN
          OFF = GC_STRT - 1
-         DO SPC = 1, NSPCS
+         DO V = 1, N_GC_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,OFF+SPC ) = CGRID( C,R,L,OFF+SPC )
-     &                                      * RHOJ( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * RHOJ( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
  
-C micro-grams/m**3 -> Kg/m**3
-      NSPCS = NQAE
-      IF ( NSPCS .GT. 0 ) THEN
-         ALLOCATE ( SGRID( MY_NCOLS,MY_NROWS,NLAYS,NSPCS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SGRID'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-         DO SPC = 1, NSPCS
+      OFF = AE_STRT - 1
+C CGRID in ug/m**3 -> ("total" Jacobian [m]) X [Kg/m**3]
+      IF ( NQAE .GT. 0 ) THEN
+         DO V = 1, NQAE
+            SPC = OFF + QAE( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     SGRID( C,R,L,SPC ) = CGRID( C,R,L,QAE( SPC ) )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * JACOBM( C,R,L ) / CONV
                   END DO
                END DO
             END DO
          END DO
-         CALL MGPM3_KGPM3 ( NSPCS, NLAYS, SGRID )
-C ("total" jacobian) X [Kg/m**3]
-         DO SPC = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,QAE( SPC ) ) = SGRID( C,R,L,SPC )
-     &                                         * JACOBM( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-         DEALLOCATE ( SGRID )
       END IF
 
-C CGRID in #/m**3 -> ("total" jacobian) X [#/m**3]
-      NSPCS = NNAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO SPC = 1, NSPCS
+C CGRID in #/m**3 -> ("total" Jacobian [m]) X [#/m**3]
+      IF ( NNAE .GT. 0 ) THEN
+         DO V = 1, NNAE
+            SPC = OFF + NAE( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,NAE( SPC ) ) = CGRID( C,R,L,NAE( SPC ) )
-     &                                         * JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * JACOBM( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
  
-C CGRID in m**2/m**3 -> ("total" jacobian) X [m**2/m**3]
-      NSPCS = NSAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO SPC = 1, NSPCS
+C CGRID in m**2/m**3 -> ("total" Jacobian [m]) X [m**2/m**3]
+      IF ( NSAE .GT. 0 ) THEN
+         DO V = 1, NSAE
+            SPC = OFF + SAE( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,SAE( SPC ) ) = CGRID( C,R,L,SAE( SPC ) )
-     &                                         * JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * JACOBM( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
 
-C (air density X "total" jacobian) X mixing ratio [ppmV]
-      NSPCS = N_NR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
+C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing ratio [ppmV]
+      IF ( N_NR_SPC .GT. 0 ) THEN
          OFF = NR_STRT - 1
-         DO SPC = 1, NSPCS
+         DO V = 1, N_NR_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,OFF+SPC ) = CGRID( C,R,L,OFF+SPC )
-     &                                      * RHOJ( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * RHOJ( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
  
-C (air density X "total" jacobian) X mixing ratio [ppmV]
-      NSPCS = N_TR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
+C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing ratio [ppmV]
+      IF ( N_TR_SPC .GT. 0 ) THEN
          OFF = TR_STRT - 1
-         DO SPC = 1, NSPCS
+         DO V = 1, N_TR_SPC 
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,OFF+SPC ) = CGRID( C,R,L,OFF+SPC )
-     &                                      * RHOJ( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * RHOJ( C,R,L )
                   END DO
                END DO
             END DO
@@ -306,6 +284,57 @@ C............................................................................
 C entry DECOUPLE
  
       ENTRY DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
+
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+         LOGDEV = INIT3()
+
+         IF ( N_AE_SPC .GT. 0 ) THEN
+C create aerosol species pointers to distinguish micro-grams/m**3,
+C #/m**3 (number density), and m**2/m**3 (surface area) species
+ 
+            ALLOCATE ( QAE( N_AE_SPC ),
+     &                 NAE( N_AE_SPC ),
+     &                 SAE( N_AE_SPC ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating QAE, NAE, or SAE'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+            NQAE = 0       ! no. of micro-grams/m**3 species
+            NNAE = 0       ! no. of #/m**3 species
+            NSAE = 0       ! no. of m**2/m**3 species
+!           OFF = AE_STRT - 1
+            OFF = 0
+            DO SPC = 1, N_AE_SPC
+               IF ( AE_SPC( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
+                  NNAE = NNAE + 1
+                  NAE( NNAE ) = OFF + SPC
+               ELSE IF ( AE_SPC( SPC )( 1:3 ) .EQ. 'SRF' ) THEN
+                  NSAE = NSAE + 1
+                  SAE( NSAE ) = OFF + SPC
+               ELSE
+                  NQAE = NQAE + 1
+                  QAE( NQAE ) = OFF + SPC
+               END IF
+            END DO
+
+!           write( logdev,* ) 'Decouple'
+!           do v = 1, nqae
+!              write( logdev,2009 ) v, qae( v ) + ae_strt -1, ae_spc( qae( v ) )
+!           end do
+!           do v = 1, nnae
+!              write( logdev,2009 ) v, nae( v ) + ae_strt -1, ae_spc( nae( v ) )
+!           end do
+!           do v = 1, nsae
+!              write( logdev,2009 ) v, sae( v ) + ae_strt -1, ae_spc( sae( v ) )
+!           end do
+
+         END IF
+
+         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+         END IF       ! if firstime
 
       VNAME = 'DENSA_J'
       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
@@ -327,110 +356,88 @@ C entry DECOUPLE
  
 C decouple for chemistry and diffusion
  
-C mixing ratio [ppmV] / (air density X "total" jacobian) 
-      NSPCS = N_GC_SPC
-      IF ( NSPCS .GT. 0 ) THEN
+C CGRID in mixing ratio [ppmV] X (air density X "total" Jacobian) -> mixing ratio [ppmV]
+      IF ( N_GC_SPC .GT. 0 ) THEN
          OFF = GC_STRT - 1
-         DO SPC = 1, NSPCS
+         DO V = 1, N_GC_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,OFF+SPC ) = CGRID( C,R,L,OFF+SPC )
-     &                                      / RHOJ( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / RHOJ( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
  
-C {J}Kg/m**3 -> {J}micro-grams/m**3
-      NSPCS = NQAE
-      IF ( NSPCS .GT. 0 ) THEN
-         ALLOCATE ( SGRID( MY_NCOLS,MY_NROWS,NLAYS,NSPCS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SGRID'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-         DO SPC = 1, NSPCS
+      OFF = AE_STRT - 1
+C CGRID in Jacobian [m] X [Kg/m**3] -> [ug/m**3]
+      IF ( NQAE .GT. 0 ) THEN
+         DO V = 1, NQAE
+            SPC = OFF + QAE( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     SGRID( C,R,L,SPC ) = CGRID( C,R,L,QAE( SPC ) )
+                     CGRID( C,R,L,SPC ) = CONV * CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
             END DO
          END DO
-         CALL KGPM3_MGPM3 ( NSPCS, NLAYS, SGRID )
-C [micro-grams/m**3] / ("total" jacobian)
-         DO SPC = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,QAE( SPC ) ) = SGRID( C,R,L,SPC )
-     &                                         / JACOBM( C,R,L )
-                  END DO
-               END DO
-            END DO
-         END DO
-         DEALLOCATE ( SGRID )
       END IF
 
-C CGRID in {J}[#/m**3] -> #/m**3
-      NSPCS = NNAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO SPC = 1, NSPCS
+C CGRID in Jacobian [m] X [#/m**3] -> #/m**3
+      IF ( NNAE .GT. 0 ) THEN
+         DO V = 1, NNAE
+            SPC = OFF + NAE( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,NAE( SPC ) ) = CGRID( C,R,L,NAE( SPC ) )
-     &                                         / JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
  
-C CGRID in {J}[m**2/m**3] -> m**2/m**3
-      NSPCS = NSAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO SPC = 1, NSPCS
+C CGRID in Jacobian [m] X [m**2/m**3] -> m**2/m**3
+      IF ( NSAE .GT. 0 ) THEN
+         DO V = 1, NSAE
+            SPC = OFF + SAE( V )
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,SAE( SPC ) ) = CGRID( C,R,L,SAE( SPC ) )
-     &                                         / JACOBM( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
 
-C mixing ratio [ppmV] / (air density X "total" jacobian) 
-      NSPCS = N_NR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
+C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing ratio [ppmV]
+      IF ( N_NR_SPC .GT. 0 ) THEN
          OFF = NR_STRT - 1
-         DO SPC = 1, NSPCS
+         DO V = 1, N_NR_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,OFF+SPC ) = CGRID( C,R,L,OFF+SPC )
-     &                                      / RHOJ( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / RHOJ( C,R,L )
                   END DO
                END DO
             END DO
          END DO
       END IF
  
-C mixing ratio [ppmV] / (air density X "total" jacobian) 
-      NSPCS = N_TR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
+C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing ratio [ppmV]
+      IF ( N_TR_SPC .GT. 0 ) THEN
          OFF = TR_STRT - 1
-         DO SPC = 1, NSPCS
+         DO V = 1, N_TR_SPC
+            SPC = OFF + V
             DO L = 1, NLAYS
                DO R = 1, MY_NROWS
                   DO C = 1, MY_NCOLS
-                     CGRID( C,R,L,OFF+SPC ) = CGRID( C,R,L,OFF+SPC )
-     &                                      / RHOJ( C,R,L )
+                     CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / RHOJ( C,R,L )
                   END DO
                END DO
             END DO

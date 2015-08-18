@@ -578,7 +578,7 @@ C *** Transfer mass from Aitken to accumulation mode, resulting from
 C     intermodal coagulation.
 
       DO SPC = 1, N_AEROSPC
-         IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
+         IF ( AERO_MISSING(N,1) ) CYCLE
  
          TMASS = AEROSPC_CONC( SPC,1 ) + AEROSPC_CONC( SPC,2 )
          AEROSPC_CONC( SPC,1 ) = MAX( AEROSPC( SPC )%MIN_CONC( 1 ),
@@ -658,7 +658,7 @@ C     Equations 11d - 11f of Binkowski and Roselle (2003).
 C *** Rename masses of each species from Aitken mode to acumulation mode
 C     using Equation 11b of Binkowski and Roselle (2003).
          DO SPC = 1, N_AEROSPC
-            IF ( AEROSPC( SPC )%NAME( 1 ) .EQ. ' ' ) CYCLE
+            IF ( AERO_MISSING(SPC,1) ) CYCLE
 
             AEROSPC_CONC( SPC,2 ) = AEROSPC_CONC( SPC,2 ) + AEROSPC_CONC( SPC,1 ) * FM3
             AEROSPC_CONC( SPC,1 ) = AEROSPC_CONC( SPC,1 ) * PHM3
@@ -1007,6 +1007,7 @@ C     Equations A13-A14 of Binkowski & Shankar (1995).
       DO I = 1, N_MODE
          CALL HCOND3( AM0( I ), AM1( I ), AM2( I ),
      &                DV_SO4, ALPHSULF, CBAR_SO4, FCONC_SO4( I,: ) )
+!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
       END DO 
 
       IF ( .NOT. HYBRID ) THEN
@@ -1127,6 +1128,7 @@ C     growth factor expressions for sulfate using
 C     Equations A13-A14 of Binkowski & Shankar (1995). 
                CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
      &                      CBAR_SO4, FCONC_SO4( 3,: ) )  ! adapted from Eq A14
+!!!!!!!!!!! >>> Fortran runtime warning: An array temporary was created
 
                GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
                GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 
@@ -2947,19 +2949,19 @@ C     treated as though it were fine mass soil.
       DO N = 1, N_AEROSPC
          IF(  AEROSPC( N )%tracer )CYCLE
          IF ( N .EQ. ASO4_IDX .OR. N .EQ. ANO3_IDX .OR. N .EQ. ANH4_IDX ) THEN
-            IF ( AEROSPC( N )%NAME( 1 ) .NE. ' ' ) THEN
+            IF ( .NOT. AERO_MISSING(N,1) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
             END IF
-            IF ( AEROSPC(N )%NAME( 2 ) .NE. ' ' ) THEN
+            IF ( .NOT. AERO_MISSING(N,2) ) THEN
                EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
             END IF
             CYCLE
          END IF
 
-         IF ( AEROSPC( N )%NAME( 1 ) .NE. ' ' ) THEN
+         IF ( .NOT. AERO_MISSING(N,1) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
          END IF
-         IF ( AEROSPC( N )%NAME( 2 ) .NE. ' ' ) THEN
+         IF ( .NOT. AERO_MISSING(N,2) ) THEN
             EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
          END IF
       END DO

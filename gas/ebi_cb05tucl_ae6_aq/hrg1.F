@@ -34,7 +34,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -57,15 +57,13 @@ C..EXTERNAL FUNCTIONS: NONE
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ), SAVE  :: PNAME = 'HRG1'   ! Prgram Name
+!     CHARACTER( 16 ), SAVE  :: PNAME = 'HRG1'   ! Prgram Name
 
 
 C..SCRATCH LOCAL VARIABLES:
       REAL( 8 ) :: O1D_S               ! sum of O1D loss frequencies
       REAL( 8 ) :: O3P_S               ! stoich coeff for O3P from O1D
 
-      REAL( 8 ) :: EXN_S               ! sum of NO2EX loss frequencies
-      REAL( 8 ) :: NO2_S               ! stoich coeff for NO2 from NO2EX
 
 
       REAL( 8 ) :: R1_2                ! production term for NO from NO2
@@ -230,6 +228,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI( 162 ) * YC( ISPD     )   ! O3+ISPD=0.1140D+...
      &   +                 RKI( 167 ) * YC( TERP     )   ! O3+TERP=0.5700D+...
      &   +                 RKI( 175 ) * YC( CL       )   ! O3+CL=CLO
+     &   +                 RKI( 216 )                    ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

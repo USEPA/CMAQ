@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -54,7 +54,7 @@ C..EXTERNAL FUNCTIONS: NONE
 
 
 C..SAVED LOCAL VARIABLES:
-      CHARACTER( 16 ), SAVE  :: PNAME = 'HRG3'      ! Program name
+!     CHARACTER( 16 ), SAVE  :: PNAME = 'HRG3'      ! Program name
 
 
 C..SCRATCH LOCAL VARIABLES:

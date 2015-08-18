@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05E51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 7, 2014
+C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2015
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -56,6 +56,9 @@ C                        heterogeneous rate constants via AEROSOL_CHEMISTRY
 C                        module, 4) to replace call to HRCALCKS with
 C                        subroutine in RXNS_FUNCTION module and 5) to change
 C                        how degrade routines are used, if present
+C   02 Dec 14 B.Hutzell: 1) added terrestrial data to conduct surface
+C                        dependent reactions and 2) modified the call CALC_RCONST
+C                        routine
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -83,7 +86,8 @@ C..Arguments:
       INTEGER TSTEP( 3 )      ! Time step vector (HHMMSS)
 
 C..Parameters:
-      REAL, PARAMETER :: CONCMIN = 1.0E-30           ! minimum species concentration allowed
+      REAL, PARAMETER :: CONCMIN = 1.0E-30               ! minimum species concentration allowed
+      REAL, PARAMETER :: MAOMV   = 1.0E6 * MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water times
 
 C..External Functions:
 
@@ -95,7 +99,6 @@ C..Saved Local Variables:
       INTEGER, SAVE :: ISTFL            ! Unit no. of iteration stat output file
       LOGICAL, SAVE :: LFIRST = .TRUE.  ! Flag for first call to this subroutine
 
-      REAL,      SAVE :: MAOMV    ! Mol Wt of air over Mol Wt of water times 1.0E6
       REAL( 8 ), SAVE :: PA2ATM   ! Pascal to atm conv fac
 
 C..Scratch Local Variables:
@@ -112,39 +115,38 @@ C..Scratch Local Variables:
       INTEGER LEV             ! Layer index
       INTEGER MIDDATE         ! Date at time step midpoint
       INTEGER MIDTIME         ! Time at time step midpoint
-      INTEGER MNEBI           ! Min no. of EBI iterations
-      INTEGER MXEBI           ! Max no. of EBI iterations
-      INTEGER NDARK           ! Number of layer 1 cells in darkness
       INTEGER NPH             ! Index for number of phot. rxns in PHOT
       INTEGER SPC             ! Species loop index
-      INTEGER STATUS          ! Status code
-      INTEGER VAR             ! Variable number on I/O API file
+#ifdef hrstats
+      INTEGER MNEBI           ! Min no. of EBI iterations
+      INTEGER MXEBI           ! Max no. of EBI iterations
+#endif
 
       LOGICAL LSUNLIGHT       ! Flag for sunlight
 
-      REAL INV_DENS           ! reciprocal of air mass density, m3/Kg
-      REAL CHEMSTEP           ! Chemistry integration interval (min)
-      REAL SUMEBI             ! Sum of EBI iterations
+      REAL       INV_DENS     ! reciprocal of air mass density, m3/Kg
+#ifdef hrstats
+      REAL       SUMEBI       ! Sum of EBI iterations
+#endif
 
+      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
-      REAL( 8 ) ATMPRES ( MAX_CELLS_EBI )           ! Cell pressure, Atm
-!      REAL( 8 ) PRESCELL( MAX_CELLS_EBI )           ! Cell pressure, Pa
-      REAL( 8 ) H2O     ( MAX_CELLS_EBI )           ! Cell H2O mixing ratio (ppmV)
-      REAL( 8 ) TEMP    ( MAX_CELLS_EBI )           ! Cell Temperature
-      REAL( 8 ) HET     ( MAX_CELLS_EBI, NHETERO )  ! cell heterogeneous reaction rates
-      REAL( 8 ) RJIN    ( MAX_CELLS_EBI, NPHOTAB )  ! J-values for a cell
-
-      REAL DENS( NCOLS, NROWS, NLAYS )          ! mass density (Kg/m^3)
-      REAL PRES( NCOLS, NROWS, NLAYS )          ! pressure (Pa)
-      REAL QV  ( NCOLS, NROWS, NLAYS )          ! water vapor (Kg/Kg air)
-      REAL TA  ( NCOLS, NROWS, NLAYS )          ! temperature (K)
-      REAL RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ) ! J-values
 
       INTEGER     GXOFF, GYOFF            ! global origin offset from file
 C for INTERPX
+      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
+         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
+          IMPLICIT NONE
+          INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+          INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+          INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+          INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+          INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
+          REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+        END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            USE UTILIO_DEFN
            USE RXNS_DATA
@@ -200,7 +202,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL HRINIT
 
          ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-         CHEMSTEP = FLOAT( ITMSTEP ) / 60.0
+         CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
          WRITE( LOGDEV, 92000 ) CHEMSTEP, DELTAT
 
          WRITE( LOGDEV, 92020 )
@@ -208,7 +210,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             WRITE( LOGDEV, 92040 ) CHEMISTRY_SPC( SPC ), RTOL( SPC )
          END DO
 
-         MAOMV  =  1.0E6 * MWAIR / MWWAT
          PA2ATM =  REAL( 1.0 / STDATMPA, 8)
 
 c..If emissions processing requested stop
@@ -227,9 +228,55 @@ c..If emissions processing requested stop
          WRITE( ISTFL, 94020 )
 #endif
 
+C.. Get fractional seawater coverage from the OCEAN file.
+
+         ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
+
+         CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
+     &                   STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3 )
+
+         VNAME = 'OPEN'
+         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                       JDATE, JTIME, OPEN_ZONE ) ) THEN
+            MSG = 'Could not read OPEN from ' // OCEAN_1
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+C.. Get fractional surf-zone coverage from the OCEAN file.
+
+         VNAME = 'SURF'
+         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
+     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
+     &                       JDATE, JTIME, SURF_ZONE ) ) THEN
+            MSG = 'Could not read SURF from ' // OCEAN_1
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+         END IF
+
+         ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
+               IF( OPEN_ZONE( C,R ) + SURF_ZONE( C,R ) .GT. 0.0 )THEN
+                   LAND_ZONE( C,R ) = .FALSE.
+               ELSE
+                   LAND_ZONE( C,R ) = .TRUE.
+               END IF
+             END DO
+         END DO
+
+         DEALLOCATE( OPEN_ZONE, SURF_ZONE )
+
+
+         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
+     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
+         ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
+     &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
+     &             RJ  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &             SEAICE( NCOLS, NROWS ) )
 
          LFIRST = .FALSE.
 
@@ -242,25 +289,35 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
       ITMSTEP = TIME2SEC( TSTEP( 2 ) )
-      CHEMSTEP = FLOAT( ITMSTEP ) / 60.0D+00
+      CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
 
 C.. Compute number of time step loops and step size for EBI solver
-      DELT_SEC = INT( DELTAT * 60.0 + 0.1 )
+      DELT_SEC = INT( DELTAT * 60.0D0 + 0.1D0 )
       IF( DELT_SEC .GE. ITMSTEP ) THEN
          N_EBI_STEPS = 1
-         EBI_TMSTEP = FLOAT( ITMSTEP ) / 60.0
+         EBI_TMSTEP  = CHEMSTEP
       ELSE
          IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
             N_EBI_STEPS = ITMSTEP / DELT_SEC
          ELSE
             N_EBI_STEPS = ITMSTEP / DELT_SEC + 1
          END IF
-         EBI_TMSTEP =  FLOAT( ITMSTEP ) / FLOAT( N_EBI_STEPS ) / 60.0
+         EBI_TMSTEP =  CHEMSTEP / REAL( N_EBI_STEPS, 8 )
       END IF
 
       N_INR_STEPS = 1
 
+
+C.. Get fractional seaice coverage from the METCRO2D file.
+
+      VNAME = 'SEAICE'
+      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                    MIDDATE, MIDTIME, SEAICE ) ) THEN
+         MSG = 'Could not read SEAICE from MET_CRO_2D'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+      END IF
 
 C.. Get ambient temperature in K
 
@@ -300,7 +357,7 @@ C.. Get pressure in Pascals
       END IF
 
 C.. Get photolysis rates in /min
-      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, NDARK, RJ )
+      CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
 C.. Get Heteorogeneous rats
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
@@ -334,21 +391,25 @@ c..Load ICs
 
 
 c..Set physical quantities
-                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
+               TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
-                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
-                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
+               ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
+               H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)
+
+               IF( LAND_ZONE( C,R ) .OR. SEAICE ( C,R ) .GT. 0.0 )THEN
+                   LAND (NCELL) = .TRUE.
+               ELSE
+                   LAND (NCELL) = .FALSE.
+               END IF
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
                FORALL( NPH = 1:NPHOTAB ) RJIN( NCELL,NPH ) = REAL( RJ( C,R,L,NPH ), 8)
-               IF( MAXVAL(RJ( C,R,L,:)) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
+               IF( MAXVAL(RJIN) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
 
                FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
 
-
-               NCELL = 1
-               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, RKI_SAV, NCELL )
+               CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
 c..Call EBI solver
@@ -359,7 +420,7 @@ c..Call EBI solver
 #ifdef hrstats
                MXEBI  = MAX( MXEBI, N_EBI_IT )
                MNEBI  = MIN( MNEBI, N_EBI_IT )
-               SUMEBI = SUMEBI + FLOAT( N_EBI_IT )
+               SUMEBI = SUMEBI + REAL( N_EBI_IT )
 #endif
 
 
@@ -383,7 +444,7 @@ c..Update concentration array
 
 
 #ifdef hrstats
-      AVGEBI = SUMEBI / FLOAT( NCOLS * NROWS * NLAYS )
+      AVGEBI = SUMEBI / REAL( NCOLS * NROWS * NLAYS )
       WRITE( ISTFL, 94040 ) JDATE, JTIME, MNEBI, AVGEBI, MXEBI
 #endif
 

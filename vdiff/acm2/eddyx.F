@@ -41,17 +41,13 @@ C                    from wind shear calculation.
 C  SJR       02/11 - replaced I/O API include files with UTILIO_DEFN
 C  YOJ       05/13 - access met data from VDIFF_MET module
 C  JOB       11/14 - Updated for the ASX_DATA_MOD shared data module which 
-c                    included variables in the VDIFF_MET module. 
+C                    included variables in the VDIFF_MET module.
+C  HF        07/15 - Included pleim5 formulation. 
 C--------------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal domain specifications
       USE ASX_DATA_MOD          ! Includes CONST
       USE UTILIO_DEFN
-#ifdef parallel
-      USE SE_MODULES            ! stenex
-#else
-      USE NOOP_MODULES          ! stenex
-#endif
 
       IMPLICIT NONE
 
@@ -84,7 +80,6 @@ C Local variables:
       REAL    ZFUNC, HPBL 
       REAL    EDDV                    ! local EDDYV
       REAL    FH
-      REAL    FRAT
 
       INTEGER MCOL                   ! these don't need to be initialized
       INTEGER MROW
@@ -133,7 +128,7 @@ C-----------------------------------------------------------------------
                IF ( ZFL .LT. 0.1 * HPBL ) THEN
                   PHIH = 1.0 / SQRT( 1.0 - GAMAH * ZOL )
                ELSE
-                  ZSOL = 0.1 * Met_Data%HOL( C,R )
+                  ZSOL = 0.1 * HPBL * Met_Data%MOLI( C,R )
                   PHIH = 1.0 / SQRT( 1.0 - GAMAH * ZSOL )
                END IF
             ELSE IF ( ZOL .LT. 1.0 ) THEN
@@ -176,7 +171,7 @@ C-----------------------------------------------------------------------
 
 C-- Adjustment to vert diff in Moist air from HIRPBL
 
-         IF ( ( Met_Data%QC( C,R,L ) .GT. 0.01E-3 ) .AND.
+         IF ( ( Met_Data%QC( C,R,L ) .GT. 0.01E-3 ) .OR.
      &        ( Met_Data%QC( C,R,L+1 ) .GT. 0.01E-3 ) ) THEN
             QMEAN = 0.5 * ( Met_Data%QV( C,R,L ) + Met_Data%QV( C,R,L+1 ) )
             TMEAN = 0.5 * ( Met_Data%TA( C,R,L ) + Met_Data%TA( C,R,L+1 ) )
@@ -194,14 +189,11 @@ C-- Adjustment to vert diff in Moist air from HIRPBL
          SQL = SQL * SQL
 
          IF ( RIB .GE. 0.0 ) THEN
-            IF ( ZFL .LT. HPBL .AND. ZOL .GT. 0.0 ) THEN
-               FRAT = 1.0 - ZFL / HPBL
-               FH = MAX( FRAT * FRAT, 0.01 ) / ( PHIH * PHIH )
-               SQL = ZK * ZK
-            ELSE
-               FRAT =  MAX( 1.0 - RIB / RIC, 0.01 )
-               FH = FRAT * FRAT
-            END IF
+!           FH = 1.0   ! pleim5
+!    &         / ( 1.0 + 10.0 * RIB + 50.0 * RIB ** 2 + 5000.0 * RIB ** 4 ) + 0.0012
+            FH =  1.0 + RIB * ( 10.0 + RIB * ( 50.0 + 5000.0 * RIB * RIB ) )
+            FH = 0.0012 + 1.0 / FH  ! pleim5
+
             EDDV = KZM + SQRT( WS2 ) * FH * SQL
          ELSE
             EDDV = KZM + SQRT( WS2 * ( 1.0 - 25.0 * RIB ) ) * SQL

@@ -69,6 +69,8 @@ C           matrix solver
 C 30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C 31 Jul 14 J.Young: incorporate gravitational settling for J-,K-mode aerosols
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C 03 Jul 15 J.Young: put sedi stuff into a module
+C 13 Aug 15 J.Bash: updated for MP model
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -80,12 +82,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIDI_MOD
       USE LSM_MOD, ONLY: n_lufrac
+      USE SEDIMENTATION
       USE VDIFF_DIAG
-#ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
-#else
-      USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
-#endif
 
       IMPLICIT NONE
 
@@ -122,7 +120,7 @@ C Local Variables:
       REAL             LRDX3M                        ! loop local RDX3M( L )
       REAL             FCMSF                         ! loop local RMSFX4( C,R )
 
-      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )     ! cgrid replacement
+      REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
       REAL, ALLOCATABLE, SAVE :: DDEP     ( :,:,: )   ! ddep accumulator
       REAL, ALLOCATABLE, SAVE :: ICMP     ( :,:,: )   ! component flux accumlator 
       REAL, ALLOCATABLE, SAVE :: DDEPJ    ( :,:,:,: ) ! ddep for mosaic
@@ -182,15 +180,10 @@ C Local Variables
             USE GRID_CONF
             USE ASX_DATA_MOD
             USE UTILIO_DEFN
-#ifdef parallel
-            USE SE_MODULES
-#else
-            USE NOOP_MODULES
-#endif
             IMPLICIT NONE
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
-         SUBROUTINE VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+         SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
             USE CGRID_SPCS
             USE GRID_CONF
             USE EMIS_DEFN
@@ -201,27 +194,14 @@ C Local Variables
             USE BIDI_MOD
             USE LSM_MOD, ONLY: n_lufrac
             IMPLICIT NONE
-            REAL, INTENT( IN )    :: DTSEC
-            REAL, INTENT( INOUT ) :: SEDDY    ( :,:,: )
-            REAL, INTENT( INOUT ) :: DDEP     ( :,:,: )
-            REAL, INTENT( INOUT ) :: ICMP     ( :,:,: )
-            REAL, INTENT( INOUT ) :: DDEPJ    ( :,:,:,: )
-            REAL, INTENT( INOUT ) :: DDEPJ_FST( :,:,:,: )
-            REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: )
+            REAL, INTENT( IN )    :: dtsec
+            REAL, INTENT( INOUT ) :: seddy( :,:,: )
+            REAL, INTENT( INOUT ) :: ddep ( :,:,: )
+            REAL, INTENT( INOUT ) :: icmp ( :,:,: )
+            REAL, INTENT( INOUT ), OPTIONAL :: ddepj    ( :,:,:,: )
+            REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
+            REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
-         SUBROUTINE SEDI( DTSEC, SEDVEL, CGRID, CNGRD )
-            USE CGRID_SPCS
-            USE GRID_CONF
-            USE ASX_DATA_MOD
-            USE VDIFF_MAP
-            USE UTILIO_DEFN
-            IMPLICIT NONE
-            REAL, INTENT( IN )    :: DTSEC
-            REAL, INTENT( OUT )   :: SEDVEL   ( :,:,:,: )
-            REAL, POINTER         :: CGRID    ( :,:,:,: )
-            REAL, INTENT( INOUT ) :: CNGRD    ( :,:,:,: )
-         END SUBROUTINE SEDI
-
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -243,7 +223,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         Call Init_Met( JDATE, JTIME, MOSAIC, ABFLUX )
+         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
@@ -260,7 +240,7 @@ C Get diagnostic files flag.
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( MYPE .EQ. 0 ) CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
          
-         IF ( ABFLUX .AND. MYPE .EQ. 0 ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( ( ABFLUX .OR. HGBIDI ) .AND. MYPE .EQ. 0 ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
 
 C Allocate and initialize dry deposition array
 
@@ -354,7 +334,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX )
+      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX, HGBIDI )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
@@ -363,7 +343,7 @@ C read & interpolate deposition velocities
 C Get gravitational settling velocity for the vsed aero species:
 C AERO_SEDV assumes that every aero species is dry deposited and is diffused (trns)
 C Calculate the changes in the layer J-,K-mode aerosol concentrations
-         CALL SEDI( DTSEC, VSED_AE, CGRID, CNGRD )
+         CALL SEDI( MDATE, MTIME, DTSEC, VSED_AE, CGRID, CNGRD )
       END IF
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
@@ -413,7 +393,19 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       END IF
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
-      CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, DDEPJ, DDEPJ_FST, CNGRD )
+C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
+      IF ( .NOT. MOSAIC ) THEN
+         CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                   cngrd = CNGRD )
+      ELSE
+         IF ( .NOT. FST ) THEN
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                      ddepj = DDEPJ, cngrd = CNGRD )
+         ELSE
+            CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP,
+     &                      ddepj = DDEPJ, ddepj_fst = DDEPJ_FST, cngrd = CNGRD )
+         END IF 
+      END IF 
 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
@@ -642,8 +634,8 @@ C Write other diagnostics
 
          END IF   ! MOSAIC
 
-         IF ( ABFLUX ) THEN    
-            CALL WRASX_MEDIA( MDATE, MTIME )
+         IF ( ABFLUX .OR. HGBIDI ) THEN    
+            CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
          END IF 
  
          IF ( LIPR ) THEN
