@@ -154,8 +154,6 @@ C...derivatives, differential, and timesteps
       REAL( 8 )         :: DTWHG( NRXN )   ! timesteps for mercury chemistry
 
 C...data used for using chemistry diagnositic file
-      REAL,      SAVE   :: WRITE_LAT
-      REAL,      SAVE   :: WRITE_LON
       INTEGER,   SAVE   :: HG_AQCHEM_LOG
       
 
@@ -171,7 +169,7 @@ c these vars based on jproc method of zenith calculation
 
       SUBROUTINE INIT_AQCHEM_HG(TEMP, WCAVG, JULIAN_DATE, ITIME, DARK)
 
-      USE AQ_DATA,    ONLY : AQCHEM_LAT, AQCHEM_LON
+!     USE AQ_DATA,    ONLY : AQCHEM_LAT, AQCHEM_LON
       USE UTILIO_DEFN
 
       IMPLICIT NONE
@@ -204,9 +202,6 @@ C.. EXTERNAL FUNCTIONS and their descriptions:
 
       IF( FIRSTCALL )THEN
       
-          WRITE_LAT = AQCHEM_LAT
-          WRITE_LON = AQCHEM_LON
-        
           FIRSTCALL = .FALSE.
           
       END IF

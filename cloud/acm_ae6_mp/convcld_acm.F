@@ -318,7 +318,7 @@ C-------------------------------------------
       REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (mol/mol)
       REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (mol/mol)
       REAL, ALLOCATABLE, SAVE :: POLC   ( : )   ! ave vert conc incloud moles sp/m2 and moles sp/ mole air
-      REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! mol/m2 or mm*mol/lit scavenged
+      REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! moles/m2 or mm*mol/lit scavenged
       REAL          :: DENSL( NLAYS )      ! air density (kg/m3)
       REAL          :: F    ( NLAYS )      ! cloud entrainment fraction to be solved for
       REAL          :: FSIDE( NLAYS )      ! sidewall entrainment vertical profile
@@ -1046,10 +1046,10 @@ C...First, get moles air/m2 at each layer, initialize FSIDE
           END DO
 
           DO SPC = 1, NSPCSD
-            REMOV( SPC ) = 0.0  ! mol/m2 or mm*mol/lit scavenged
-            CEND ( SPC ) = 0.0  ! ending equiv gas phase conc (mol/mol)
-            BMOL ( SPC ) = 0.0  ! mol/m2 species below cloud
-            POLC ( SPC ) = 0.0  ! mol/m2 species in cloud
+            REMOV( SPC ) = 0.0  ! moles/m2 or mm*mol/lit scavenged
+            CEND ( SPC ) = 0.0  ! ending equiv gas phase conc (moles/mole)
+            BMOL ( SPC ) = 0.0  ! moles/m2 species below cloud
+            POLC ( SPC ) = 0.0  ! moles/m2 species in cloud
 
             DO LAY = 1, NLAYS
               PCLD( SPC,LAY ) = 0.0  ! moles sp/mole air in cloud
