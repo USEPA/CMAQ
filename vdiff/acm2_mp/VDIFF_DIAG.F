@@ -1,1 +1,0 @@
-../acm2/VDIFF_DIAG.F

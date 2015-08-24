@@ -146,7 +146,7 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN
          USE MOSAIC_MOD, Only: Init_Mosaic
          USE LSM_MOD, Only: Init_LSM, n_lufrac
-         USE BIDI_MOD, Only: Init_Bidi
+         USE BIDI_MOD, Only: Init_Bidi, HgBidi
 
          IMPLICIT NONE
 
@@ -685,6 +685,7 @@ C-----------------------------------------------------------------------
          USE DEPVVARS
          USE UTILIO_DEFN
          USE Mosaic_Mod
+         USE Bidi_Mod, Only: HgBidi
          USE LSM_Mod,  Only: n_lufrac
          USE ASX_DATA_MOD, Only: GRID_DATA, MOSAIC_DATA
 
@@ -761,6 +762,8 @@ C Local variables:
                Use ABFlux_Mod     ! bidi NH3 exchange routines
                Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
                Use Mosaic_Mod     ! contains mosaic routines
+               Use HGSIM
+               Use Bidi_Mod, Only: HgBidi
                Use ASX_DATA_MOD   ! contains CONSTANTS include
 #ifdef twoway
                USE twoway_data_module, only : num_land_cat

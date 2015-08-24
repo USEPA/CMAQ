@@ -333,7 +333,7 @@ C Land use information:
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX )
+         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -357,6 +357,7 @@ C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -470,7 +471,7 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
@@ -794,7 +795,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -826,6 +827,7 @@ C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
@@ -977,7 +979,7 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
             VNAME = 'SOIM2'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
