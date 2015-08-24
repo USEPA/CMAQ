@@ -213,16 +213,16 @@ C...........External Functions:
            REAL,    INTENT( IN )    :: ALFA0, ALFA2, ALFA3
            LOGICAL, INTENT( IN )    :: DARK                  !Golam Sarwar, July 1, 2011
         END SUBROUTINE AQ_MAP
-      SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-         USE UTILIO_DEFN
-         USE ASX_DATA_MOD, Only: Grid_Data
-         IMPLICIT NONE
-         INTEGER, INTENT( IN )  :: JDATE
-         INTEGER, INTENT( IN )  :: JTIME
-         INTEGER, INTENT( IN )  :: NX
-         INTEGER, INTENT( IN )  :: NY
-         REAL,    INTENT( OUT ) :: COSZEN( :,: )
-      END SUBROUTINE CZANGLE
+        SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
+           USE UTILIO_DEFN
+           USE ASX_DATA_MOD, Only: Grid_Data
+           IMPLICIT NONE
+           INTEGER, INTENT( IN )  :: JDATE
+           INTEGER, INTENT( IN )  :: JTIME
+           INTEGER, INTENT( IN )  :: NX
+           INTEGER, INTENT( IN )  :: NY
+           REAL,    INTENT( OUT ) :: COSZEN( :,: )
+        END SUBROUTINE CZANGLE
       END INTERFACE
 C-----------------------------------------------------------------------
 
