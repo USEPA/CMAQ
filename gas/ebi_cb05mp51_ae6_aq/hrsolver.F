@@ -98,6 +98,7 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL MXFL               ! hit MAXPRED flag
 
       REAL( 8 ) DTC              ! Time step to take
+      REAL( 8 ) DTG              ! Time step in degrade routines, sec
       REAL( 8 ) FXDLOSS          ! Total loss due to negative stoichiometry
       REAL( 8 ) VARLOSS          ! Loss excluding negative stoichiometry
 
