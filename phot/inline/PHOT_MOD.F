@@ -374,7 +374,7 @@ C-----------------------------------------------------------------------
       TAU_TOT   = 0.0
       TAU_CLOUD = 0.0
       TAU_SCAT  = 0.0
-      SSA_AERO  = 1.0
+      SSA_AERO  = 0.0
       TOTAL_TAU_CLD = 0.0
 #ifdef phot_debug      
       AVE_SSA_CLD   = 0.0
