@@ -150,7 +150,7 @@ C...  Atmospheric Chemistry and Physics, 1997
 
       DATA SUBNAME(  1), A(  1), E(  1) / 'O3              ', 1.14E-02, 2.3E+03 / ! Kosak 1983
       DATA SUBNAME(  2), A(  2), E(  2) / 'HO2             ', 4.0E+03, 5.9E+03 /  ! Hanson et al. 1992
-      DATA SUBNAME(  3), A(  3), E(  3) / 'H2O2            ', 8.3E+04, 7.4E+03 /  ! O'Sullivan et al. 1996
+      DATA SUBNAME(  3), A(  3), E(  3) / 'H2O2            ', 1.1E+05, 7.4E+03 /  ! E: O'Sullivan et al. 1996, A: Sander 1999 as used in Nguyen et al. 2015 PNAS
       DATA SUBNAME(  4), A(  4), E(  4) / 'NH3             ', 6.1E+01, 4.2E+03 /  ! Clegg and Brimblecombe 1989
       DATA SUBNAME(  5), A(  5), E(  5) / 'NO              ', 1.9E-03, 1.4E+03 /  ! Lide and Frederikse 1995
       DATA SUBNAME(  6), A(  6), E(  6) / 'NO2             ', 1.2E-02, 2.5E+03 /  ! Chameides 1984
@@ -279,7 +279,7 @@ C...  Atmospheric Chemistry and Physics, 1997
 
       DATA SUBNAME(126), A(126), E(126) / 'HYDROXY_NITRATES', 1.70E+04, 9.20E+03 /  ! Shepson et al. (1996), Treves et al. (2000)
       DATA SUBNAME(127), A(127), E(127) / 'HYDROXY_PEROXIDE', 8.30E+04, 7.40E+03 /  ! using value for H2O2
-      DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.00E+03, 0.00E+00 /  ! Kames and Schurath (1992)
+      DATA SUBNAME(128), A(128), E(128) / 'PROPNN          ', 1.00E+04, 0.00E+00 /  ! Nguyen et al. (2015) PNAS using Shepson (1996)
       DATA SUBNAME(129), A(129), E(129) / 'HACET           ', 2.93E+03, 0.00E+00 /  ! Spaulding et al. (2002)
       DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
       DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
