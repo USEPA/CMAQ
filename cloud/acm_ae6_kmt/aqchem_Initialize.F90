@@ -358,7 +358,7 @@ CONTAINS
          CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, XSTAT2 )    
       END IF
 
-! Limit initial pH to between 0.1 and 10 
+! Limit initial pH to between 0 and 10 
 
       IF( -DLOG10( VAR( ind_L_HPLUS ) ) .GT. 10.0D0 ) THEN
            XMSG = 'Initial pH > 10.  Set to 10.'
