@@ -332,7 +332,7 @@ CONTAINS
 !
 !  Sum of positive ions + H+ = Sum of negative ions + OH-
 !
-!  [H+] * [OH-] = Kw = 1.00E-14 * EXP( -6.71E+03 * ((1.D0 / TEMP_KPP) - (1.D0 / 298.D0)) )     ! Smith and Martell (1976)
+!  [H+] * [OH-] = Kw 
 !  [H+] = Kw / [OH-]
 !
 !  SUMPOS + Kw / [OH-] = SUMNEG + [OH-] -->  [OH-]**2 - (SUMPOS - SUMNEG)*[OH-] - Kw
