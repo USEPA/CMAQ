@@ -357,22 +357,6 @@ CONTAINS
          XMSG = 'ERROR IN INITIAL PH CALC -- [OH-] <= 0.'
          CALL M3EXIT ( PNAME, JDATEKPP, JTIMEKPP, XMSG, XSTAT2 )    
       END IF
-
-! Limit initial pH to between 0 and 10 
-
-      IF( -DLOG10( VAR( ind_L_HPLUS ) ) .GT. 10.0D0 ) THEN
-           XMSG = 'Initial pH > 10.  Set to 10.'
-           CALL M3WARN ( PNAME, JDATEKPP, JTIMEKPP, XMSG )  
-           VAR( ind_L_HPLUS ) = 1.d-10
-           VAR( ind_L_OHMIN ) = Kw / VAR( ind_L_HPLUS ) 
-      END IF
-      
-      IF( -DLOG10( VAR( ind_L_HPLUS ) ) .LT. 0.D0 ) THEN
-           XMSG = 'Initial pH < 0.  Set to 0.'
-           CALL M3WARN ( PNAME, JDATEKPP, JTIMEKPP, XMSG )  
-           VAR( ind_L_HPLUS ) = 1.d0
-           VAR( ind_L_OHMIN ) = Kw / VAR( ind_L_HPLUS ) 
-      END IF 
           
       VAR( ind_L_OHMIN ) = VAR( ind_L_OHMIN ) * INVPHI2   ! convert to molec/cm3
       VAR( ind_L_HPLUS ) = VAR( ind_L_HPLUS ) * INVPHI2   ! convert to molec/cm3
