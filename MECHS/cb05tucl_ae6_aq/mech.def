@@ -636,17 +636,19 @@ REACTIONS[CM] =
 <CL24>  CL   + NO2         = CLNO2                    # 1.80E-31^-2.00&
                                                         1.00E-10^-1.00&
                                           							0.60&1.0;
-<CL25>  CLNO2              = CL  + NO2                # 1.0/<CLNO2>;
+<CL25>  CLNO2             = CL  + NO2                 # 1.0/<CLNO2>;
 <SA01>  TOLRO2  + NO      = NO  + TOLNRXN             # 2.70e-12@-360;
 <SA02>  TOLRO2  + HO2     = HO2 + TOLHRXN             # 1.90e-13@-1300;
 <SA03>  XYLRO2  + NO      = NO  + XYLNRXN             # 2.70e-12@-360;
 <SA04>  XYLRO2  + HO2     = HO2 + XYLHRXN             # 1.90e-13@-1300; 
-<SA05>  BENZENE + OH      = OH + 1.0*BENZRO2          # 2.47e-12@206;
+<SA05>  BENZENE + OH      = OH  + 1.0*BENZRO2         # 2.47e-12@206;
 <SA06>  BENZRO2 + NO      = NO  + BNZNRXN             # 2.70e-12@-360;
 <SA07>  BENZRO2 + HO2     = HO2 + BNZHRXN             # 1.90e-13@-1300;
 <SA08>  SESQ + O3         = O3  + SESQRXN             # 1.16E-14;
 <SA09>  SESQ + OH         = OH  + SESQRXN             # 1.97E-10;
 <SA10>  SESQ + NO3        = NO3 + SESQRXN             # 1.90E-11;
+
+<SIMP>  VOCSMP + OH       = OH  + SMPRXN              # 1.5E-11;
 
 ! inorganic heteorogeneous reactions from hetchem version 5.0.2
 

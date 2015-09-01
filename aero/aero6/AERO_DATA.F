@@ -71,7 +71,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 45      ! number of aero species
+      Integer, Parameter :: n_aerospc = 46      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -153,6 +153,7 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','AISO2J ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AISO3J ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','ASQTJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ASMPJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','APAH1J ','       '/), conmin_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','APAH2J ','       '/), conmin_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','APAH3J ','       '/), conmin_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
@@ -203,6 +204,7 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AISO2
      &       0.0,     0.0,     0.0,         ! AISO3
      &       0.0,     0.0,     0.0,         ! ASQT
+     &       0.0,     0.0,     0.0,         ! ASMP !Simple OM
      &       0.0,     0.0,     0.0,         ! APAH1
      &       0.0,     0.0,     0.0,         ! APAH2
      &       0.0,     0.0,     0.0,         ! APAH3

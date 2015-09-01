@@ -60,8 +60,8 @@ C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 15   ! # of partitioning SVOCs
-      Integer, Parameter :: n_orgprod = 12   ! # of ROG rxn counter species
+      Integer, Parameter :: n_vapor   = 16   ! # of partitioning SVOCs
+      Integer, Parameter :: n_orgprod = 13   ! # of ROG rxn counter species
 
       Type vapor_type
          Character( 16 ) :: name
@@ -92,7 +92,8 @@ C                  -------    -------  --------  -------  ------    --  ----   -
      & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J', 'B', 10.0, 'TRPRXN '),
      & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
      & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN')/)
+     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN'),
+     & vapor_type('LV_SMP ',  1.0   ,   1.0e-5,  40.0E3, 'ASMPJ ', 'A', 10.0, 'SMPRXN' )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
@@ -144,7 +145,8 @@ C                     -------    -------    ------   ------
      & orgprod_type( 'PAHHRXN', 'NAPH   ', 'APAH3J', 0.730 ),
      & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
      & orgprod_type( 'ISOPRXN', 'ISOPRXN', '      ', 0.000 ),
-     & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ) /)
+     & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ),
+     & orgprod_type( 'SMPRXN ', 'VOCSMP ', '      ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
