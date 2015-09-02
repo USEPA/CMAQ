@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  =  94
+      N_EBISP  =  96
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -246,6 +246,8 @@ c..Allocate and define ebi species
       EBISP(  92 ) = APNCOMI
       EBISP(  93 ) = APOCJ
       EBISP(  94 ) = APNCOMJ
+      EBISP(  95 ) = VOCSMP
+      EBISP(  96 ) = SMPRXN
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -358,6 +360,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APNCOMI  ) = 1.0D-03
       RTOL( APOCJ    ) = 1.0D-03
       RTOL( APNCOMJ  ) = 1.0D-03
+      RTOL( VOCSMP   ) = 1.0D-03
+      RTOL( SMPRXN   ) = 1.0D-03
 
 
       RETURN

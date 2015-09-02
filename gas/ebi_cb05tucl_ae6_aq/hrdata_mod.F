@@ -217,5 +217,7 @@ c..Species indices
       INTEGER, PARAMETER :: APNCOMI          =  105
       INTEGER, PARAMETER :: APOCJ            =  106
       INTEGER, PARAMETER :: APNCOMJ          =  107
+      INTEGER, PARAMETER :: VOCSMP           =  108
+      INTEGER, PARAMETER :: SMPRXN           =  109
 
       END MODULE HRDATA

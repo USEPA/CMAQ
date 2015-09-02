@@ -295,6 +295,7 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  233 ) = RKI( 233 ) * YC(  APNCOMI ) * YC(  OH )
       RXRAT(  234 ) = RKI( 234 ) * YC(  APOCJ ) * YC(  OH )
       RXRAT(  235 ) = RKI( 235 ) * YC(  APNCOMJ ) * YC(  OH )
+      RXRAT(  236 ) = RKI( 236 ) * YC(  VOCSMP ) * YC(  OH )
 
 
       RETURN
