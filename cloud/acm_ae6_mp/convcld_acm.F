@@ -315,10 +315,10 @@ C-------------------------------------------
       REAL, ALLOCATABLE, SAVE :: AECONCMIN( : ) ! array of minimum concentrations
       REAL, ALLOCATABLE, SAVE :: BMOL   ( : )   ! moles/m2 species below cloud
       REAL, ALLOCATABLE, SAVE :: CBASE0 ( : )   ! initial ave trace gas mix rat below cld
-      REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (mol/mol)
-      REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (mol/mol)
+      REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (moles/moles)
+      REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (moles/moles)
       REAL, ALLOCATABLE, SAVE :: POLC   ( : )   ! ave vert conc incloud moles sp/m2 and moles sp/ mole air
-      REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! moles/m2 or mm*mol/lit scavenged
+      REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! moles/m2 or mm*moles/lit scavenged
       REAL          :: DENSL( NLAYS )      ! air density (kg/m3)
       REAL          :: F    ( NLAYS )      ! cloud entrainment fraction to be solved for
       REAL          :: FSIDE( NLAYS )      ! sidewall entrainment vertical profile
@@ -1047,8 +1047,8 @@ C...First, get moles air/m2 at each layer, initialize FSIDE
           END DO
 
           DO SPC = 1, NSPCSD
-            REMOV( SPC ) = 0.0  ! moles/m2 or mm*mol/lit scavenged
-            CEND ( SPC ) = 0.0  ! ending equiv gas phase conc (moles/mole)
+            REMOV( SPC ) = 0.0  ! moles/m2 or mm*moles/lit scavenged
+            CEND ( SPC ) = 0.0  ! ending equiv gas phase conc (moles/moles)
             BMOL ( SPC ) = 0.0  ! moles/m2 species below cloud
             POLC ( SPC ) = 0.0  ! moles/m2 species in cloud
 
@@ -1366,14 +1366,14 @@ C...Final calc of storm rainfall rate and frac area (raining clds)
           END IF
           IF ( FRAC .LT. 0.01 ) GO TO 299
           
+          CONV_DEP( COL,ROW, N_SPC_WDEP + 7 ) = FRAC
+
+7000      CONTINUE                        ! target of cloudtype split
+
           IF ( USE_ACM_CLOUD ) THEN
             CALL CAPTURE_ACM_CLOUD( JDATE, JTIME, COL, ROW, CLBASE, CLTOP,
      &                              FRAC, QLQD, QICE )
           END IF
-
-          CONV_DEP( COL,ROW, N_SPC_WDEP + 7 ) = FRAC
-
-7000      CONTINUE                        ! target of cloudtype split
 
 C...Begin mixing section, perform first for raining clouds using
 C...  modified form of original Walcek mixing for RADM: mixing
