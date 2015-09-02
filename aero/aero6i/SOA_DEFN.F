@@ -364,7 +364,7 @@ C Build mapping array to orgprod species
       End If     ! mapping condition
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = airdens * inv_mwair
 
 C Copy grid cell concentrations of vapor species
       vapor_conc = 0.0
@@ -426,7 +426,7 @@ C Local Variables:
       End If
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = airdens * inv_mwair
 
 C Copy vapor_conc back to grid cell concentrations
       Do spc = 1, n_vapor
