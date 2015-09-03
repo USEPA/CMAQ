@@ -427,7 +427,7 @@ C Mosaic method to get land-use specific stomatal flux
             END IF
             
             CALL INIT_LSM( JDATE, JTIME )
-            IF ( ABFLUX ) CALL INIT_BIDI( ABFLUX )
+            CALL INIT_BIDI( ABFLUX )
             IF ( MOSAIC .OR. ABFLUX ) THEN
                CALL INIT_MOSAIC( JDATE, JTIME, LTOTG, MOSAIC, ABFLUX )
             END IF

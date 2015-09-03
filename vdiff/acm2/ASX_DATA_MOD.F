@@ -267,7 +267,7 @@ C Land use information:
       DATA subname( 2), dif0( 2), ar( 2), meso( 2), lebas( 2) / 'H2SO4           ', 0.1091, 8000.0,      0.0,  49.0/
       DATA subname( 3), dif0( 3), ar( 3), meso( 3), lebas( 3) / 'NO2             ', 0.1361,    2.0,      0.1,  21.0/
       DATA subname( 4), dif0( 4), ar( 4), meso( 4), lebas( 4) / 'NO              ', 0.1802,    2.0,      0.0,  14.0/
-      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,    8.0,      1.0,  21.0/
+      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,   12.0,      1.0,  21.0/
       DATA subname( 6), dif0( 6), ar( 6), meso( 6), lebas( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,  35.0/
       DATA subname( 7), dif0( 7), ar( 7), meso( 7), lebas( 7) / 'H2O2            ', 0.1300,   30.0,      1.0,  28.0/
       DATA subname( 8), dif0( 8), ar( 8), meso( 8), lebas( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,  56.0/
