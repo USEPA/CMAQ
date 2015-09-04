@@ -228,6 +228,7 @@ C Local Variables:
       REAL,    SAVE              :: xcent
       REAL,    SAVE              :: ycent
       REAL                       :: xm                   ! liquid water mass frac
+      REAL                       :: rh_func              ! Simple RH function for the development of a water film on leaf cuticles 
 
       REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
 
@@ -690,7 +691,10 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   rwet = rcw0 / heff      ! wet cuticle
                ELSE
                   ! Set RCW/LAI = 200 s/m on basis of Keysburg exp for O3
-                  rwet = 1250.0    ! s/m
+!                  rwet = 1250.0    ! s/m
+!                  rwet = MAX( 200.0, 200.0 * laicr ) ! s/m
+! Average of 2002 and 2003 from Table 1. Altimir et al 2006 doi:10.5194/bg-3-209-2006
+                  rwet = 385.0 ! s/m
                END IF
 
                rgw  = rgwet0 / heff    ! wet ground
@@ -709,9 +713,12 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
          ! Dry cuticle resistance.
 
-               IF ( l_NH3 .Ne. l ) THEN
+               IF ( l .Ne. l_NH3 ) THEN
                   rcut = rcut0 * a0 / ar( l )
-               ELSE
+               ELSE IF( l .Eq. l_O3 ) THEN
+                  rh_func = max( 0.0,( MET_DATA%RH( c,r ) - 70.0 )/30.0 )
+                  rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
+               ELSE 
                   rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
                END IF
 
