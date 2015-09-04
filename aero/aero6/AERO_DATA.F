@@ -46,7 +46,7 @@ C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C SH  04/04/11 Added sea-salt speciation factors
 C GS  04/09/11 Updated sea-salt speciation; replaced ANAK with ASEACAT;
 C              made MG, K, CA, SEACAT required species;
-C JY  04/21/11 Added optional log messages (verbose)
+C JY  04/21/11 Added optional log messages (verbose_aero)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
 C HOTP 01/16/13 Removed isoprene acid enhanced aerosol and added new isoprene aerosol
@@ -231,6 +231,8 @@ C Required species
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
       Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT' 
+C Optional Species
+      Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
      
 C Indices of required species
       Integer :: aso4_idx
@@ -248,6 +250,8 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: apncom_idx
       Integer :: aseacat_idx
+C Indices of Optional species
+      Integer :: aphgj_idx
 
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
@@ -424,9 +428,11 @@ C Find indices of required species
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
+      aphgj_idx   = findAero( req_phgj,  .False. )
 
 
-#ifdef verbose
+
+#ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
       Write( logdev,'( 5x, a, i4 )' ) 'aso4_idx:   ', aso4_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ano3_idx:   ', ano3_idx
@@ -443,6 +449,11 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
+      If( aphgj_idx .Gt. 0 )Then
+          Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
+      else
+          Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx:  ', aphgj_idx
+      End If
 #endif
  
 C Compute common factors
@@ -567,7 +578,7 @@ C Check that all emissions units match
          Call m3exit( pname, 0, 0, Trim( xmsg2 ), xstat2 )
       End If
 
-#ifdef verbose
+#ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'pmem_map to aerospc' 
          Do v = 1, n_emis_pm
          Write( logdev,'( 5x, a, 2i4, 2x, a )' ) 'pmem_map:', v, pmem_map( v ), aerospc( pmem_map( v ) )%emis
@@ -759,7 +770,7 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         idx = 0
+         idx = -1
          Return
       End If
 
