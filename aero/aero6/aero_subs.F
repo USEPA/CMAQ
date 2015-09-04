@@ -954,9 +954,9 @@ C-----------------------------------------------------------------------
          DFH2OR8    = 1.0D6 * MWWAT      ! aerospc_mw(AH2O_IDX) (18.0 != 18.0153)
 
          ! Mol. wt ratios NH3/NH4, HNO3/NO3, HCL/CL
-         NH3RAT  = PRECURSOR_MW( NH3_IDX )  / AEROSPC_MW( ANH4_IDX )
-         HNO3RAT = PRECURSOR_MW( HNO3_IDX ) / AEROSPC_MW( ANO3_IDX )
-         HCLRAT  = PRECURSOR_MW( HCL_IDX )  / AEROSPC_MW( ACL_IDX )
+         NH3RAT  = PRECURSOR_MW( NH3_IDX )  / REAL( AEROSPC_MW( ANH4_IDX ), 8 )
+         HNO3RAT = PRECURSOR_MW( HNO3_IDX ) / REAL( AEROSPC_MW( ANO3_IDX ), 8 )
+         HCLRAT  = PRECURSOR_MW( HCL_IDX )  / REAL( AEROSPC_MW( ACL_IDX ), 8 )
       END IF
 
 C *** Determine if Hybrid
@@ -1057,7 +1057,7 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
 
          XH2SO4 = SO4RATE / TMP
          XH2SO4 = MAX( XH2SO4, CONMIN )
-         PRECURSOR_CONC( SULF_IDX ) = XH2SO4
+         PRECURSOR_CONC( SULF_IDX ) = REAL( XH2SO4, 8 )
 
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
@@ -1397,15 +1397,15 @@ C     modes; add in H2SO4 nucleated in model timestep
 
       WI( 2 ) = SO4 * 1.0D-6 / REAL( AEROSPC_MW( ASO4_IDX ), 8 )
 
-      WI( 3 ) = PRECURSOR_CONC( NH3_IDX ) * 1.0D-6 / REAL( PRECURSOR_MW( NH3_IDX ), 8 )
+      WI( 3 ) = PRECURSOR_CONC( NH3_IDX ) * 1.0D-6 / PRECURSOR_MW( NH3_IDX )
      &        + ( AEROSPC_CONC( ANH4_IDX,1 ) + AEROSPC_CONC( ANH4_IDX,2 ) )
      &        * 1.0D-6 / REAL( AEROSPC_MW( ANH4_IDX ), 8 )
 
-      WI( 4 ) = PRECURSOR_CONC( HNO3_IDX ) * 1.0D-6 / REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
+      WI( 4 ) = PRECURSOR_CONC( HNO3_IDX ) * 1.0D-6 / PRECURSOR_MW( HNO3_IDX )
      &        + ( AEROSPC_CONC( ANO3_IDX,1 ) + AEROSPC_CONC( ANO3_IDX,2 ) )
      &        * 1.0D-6 / REAL( AEROSPC_MW( ANO3_IDX ), 8 )
 
-      WI( 5 ) = PRECURSOR_CONC( HCL_IDX ) * 1.0D-6 / REAL( PRECURSOR_MW( HCL_IDX ), 8 ) 
+      WI( 5 ) = PRECURSOR_CONC( HCL_IDX ) * 1.0D-6 / PRECURSOR_MW( HCL_IDX )
      &        + ( AEROSPC_CONC( ACL_IDX,1 ) + AEROSPC_CONC( ACL_IDX,2 ) )
      &        * 1.0D-6 / REAL( AEROSPC_MW( ACL_IDX ), 8 )
      
@@ -1441,16 +1441,16 @@ C *** Set flags to account for mass conservation violations in ISRP3F
 
 C *** Save H+ concentration information in microgram/m3 for consistency
 C     Assume J mode dominates I+J H+ concentration
-      EQLBHIJ = AERLIQ(1) * 1.0D6 * REAL( PRECURSOR_MW( ah3op_idx), 8 ) 
+      EQLBHIJ = AERLIQ(1) * 1.0D6 * PRECURSOR_MW( ah3op_idx) 
 
 C *** Update gas-phase concentrations
-      PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * REAL( PRECURSOR_MW( NH3_IDX ), 8 )
-      PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
-      PRECURSOR_CONC( HCL_IDX )  = GAS( 3 ) * 1.0D6 * REAL( PRECURSOR_MW( HCL_IDX ), 8 )
+      PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * PRECURSOR_MW( NH3_IDX )
+      PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * PRECURSOR_MW( HNO3_IDX )
+      PRECURSOR_CONC( HCL_IDX )  = GAS( 3 ) * 1.0D6 * PRECURSOR_MW( HCL_IDX )
 #else
-      gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * 1.0d-6 / real( precursor_mw( nh3_idx ), 8 )
-      gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
-      gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
+      gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * 1.0d-6 / precursor_mw( nh3_idx )
+      gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / precursor_mw( hno3_idx )
+      gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / precursor_mw( hcl_idx )
 
       EQLBHIJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
 
@@ -1460,11 +1460,11 @@ C *** Change in volatile inorganic PM concentration to achieve
 C     equilibrium, calculated as initial-gas-phase concentration minus 
 C     equilibrium gas-phase concentration.  DVOLINORG is positive for
 C     condensation and negative for evaporation.
-      DVOLINORG( KNH4 ) = GNH3R8 * 1.0D-6 / REAL( PRECURSOR_MW( NH3_IDX ), 8 )  - GAS( 1 )
-      DVOLINORG( KNO3 ) = GNO3R8 * 1.0D-6 / REAL( PRECURSOR_MW( HNO3_IDX ), 8 ) - GAS( 2 )
+      DVOLINORG( KNH4 ) = GNH3R8 * 1.0D-6 / PRECURSOR_MW( NH3_IDX )  - GAS( 1 )
+      DVOLINORG( KNO3 ) = GNO3R8 * 1.0D-6 / PRECURSOR_MW( HNO3_IDX ) - GAS( 2 )
 
       IF ( TRUSTCL ) THEN  
-         DVOLINORG( KCL ) = GCLR8  * 1.0D-6 / REAL( PRECURSOR_MW( HCL_IDX ), 8 ) - GAS( 3 ) 
+         DVOLINORG( KCL ) = GCLR8  * 1.0D-6 / PRECURSOR_MW( HCL_IDX ) - GAS( 3 ) 
       ELSE
          DVOLINORG( KCL ) = 0.0D0
       END IF
@@ -2002,9 +2002,9 @@ C     Local Variables:
 C-----------------------------------------------------------------------
 
 C     Convert gas concentration from ug/m3 to mol/m3
-      Cinf( KNH4 ) = GNH3R8 * 1.0D-6 / REAL( PRECURSOR_MW( NH3_IDX ), 8 )
-      Cinf( KNO3 ) = GNO3R8 * 1.0D-6 / REAL( PRECURSOR_MW( HNO3_IDX ), 8 )
-      Cinf( KCL )  = GCLR8  * 1.0D-6 / REAL( PRECURSOR_MW( HCL_IDX ), 8 )
+      Cinf( KNH4 ) = GNH3R8 * 1.0D-6 / PRECURSOR_MW( NH3_IDX )
+      Cinf( KNO3 ) = GNO3R8 * 1.0D-6 / PRECURSOR_MW( HNO3_IDX )
+      Cinf( KCL )  = GCLR8  * 1.0D-6 / PRECURSOR_MW( HCL_IDX )
 
 C     Calculate cond/evap fluxes (no H+ limiting)
       DO isp = 1, nvolinorg
@@ -2012,7 +2012,7 @@ C     Calculate cond/evap fluxes (no H+ limiting)
       END DO
 
 C     Convert rate to mol/m3/s and get effective Cinf for H2SO4(g)
-      JH2SO4  = rate * 1.0D-6 / REAL( PRECURSOR_MW( SULPRD_IDX ), 8 )
+      JH2SO4  = rate * 1.0D-6 / PRECURSOR_MW( SULPRD_IDX )
       CH2SO4  = JH2SO4 / CondRate
 
 C     Limit H+ flux (Pilinis et al., 2000, AS&T). Note: J is flux

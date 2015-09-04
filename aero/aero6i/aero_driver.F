@@ -419,7 +419,7 @@ C     into precursr_conc in precursor_data
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
 
 C *** Calculate SO4RATE stored in module
-               SO4RATE = PRECURSOR_CONC( SULPRD_IDX ) / DT
+               SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
 
 C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )

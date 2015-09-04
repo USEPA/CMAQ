@@ -418,11 +418,11 @@ C     into precursr_conc in precursor_data
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
 
 C *** Calculate SO4RATE stored in module
-               SO4RATE = PRECURSOR_CONC( SULPRD_IDX ) / DT
+               SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
 
                IF( PHGRXN_IDX .GT. 0 )THEN
 C *** Calculate PHG_RATE stored in module            
-                   PHG_RATE = PRECURSOR_CONC( PHGRXN_IDX ) / DT
+                   PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
                ELSE
                    PHG_RATE = 0.0
                END IF
