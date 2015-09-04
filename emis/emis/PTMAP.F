@@ -478,12 +478,11 @@ C point source emissions to PM species map
 !        WRITE( LOGDEV,1007 )
 
          NM = 0; L = 0
-         DO N = 1, NPTGRPS
+         DO N = 1, NPTGRPS  !Loop through Point Source Files
            
             I = 0
             LOOP_PM: DO J = 1, N_EMIS_PM
-               K = PMEM_MAP( J )
-               VNAME = AEROSPC( K )%EMIS
+               VNAME = PMEM_MAP_NAME( J )
                IDX = INDEX1( VNAME, NVARS_EMIS( N ), STKSPC( N )%ARRY )
                IF ( IDX .GT. 0 ) THEN
 !WTH skip if emission species used multiple times for current point group
@@ -496,14 +495,15 @@ C point source emissions to PM species map
 !WTH
                   I = I + 1
                   L = L + 1
-                  PMAP( L ) = J
-                  PLST( I,N ) = IDX
-                  PVNM( L ) = VNAME
+                  PMAP( L ) = J      !Map Global Pt Spcs Index -> AERODATA Index
+                  PLST( I,N ) = IDX  !Map Local Pt Spcs Binary -> Index in File List
+                  PVNM( L ) = VNAME  !Populate global Pt Src Spcs List Names
 #ifdef Verbose
                   WRITE( LOGDEV,1009 ) N, J, I, L, PLST( I,N ), PMAP( L ),
      &                                 TRIM( PVNM( L ) ) 
 #endif
                END IF
+
             END DO LOOP_PM
 
             NM = NM + I

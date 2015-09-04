@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  =  94
+      N_EBISP  =  95
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -242,10 +242,15 @@ c..Allocate and define ebi species
       EBISP(  88 ) = APAH2J
       EBISP(  89 ) = AALK1J
       EBISP(  90 ) = AALK2J
-      EBISP(  91 ) = APOCI
-      EBISP(  92 ) = APNCOMI
-      EBISP(  93 ) = APOCJ
-      EBISP(  94 ) = APNCOMJ
+      !EBISP(  91 ) = APOCI
+      !EBISP(  92 ) = APNCOMI
+      !EBISP(  93 ) = APOCJ
+      !EBISP(  94 ) = APNCOMJ
+      EBISP(  91 ) = VLVPO1
+      EBISP(  92 ) = VSVPO1
+      EBISP(  93 ) = VSVPO2
+      EBISP(  94 ) = VSVPO3
+      EBISP(  95 ) = VIVPO1
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -354,10 +359,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J   ) = 1.0D-03
       RTOL( AALK1J   ) = 1.0D-03
       RTOL( AALK2J   ) = 1.0D-03
-      RTOL( APOCI    ) = 1.0D-03
-      RTOL( APNCOMI  ) = 1.0D-03
-      RTOL( APOCJ    ) = 1.0D-03
-      RTOL( APNCOMJ  ) = 1.0D-03
+      !RTOL( APOCI    ) = 1.0D-03
+      !RTOL( APNCOMI  ) = 1.0D-03
+      !RTOL( APOCJ    ) = 1.0D-03
+      !RTOL( APNCOMJ  ) = 1.0D-03
+      RTOL( VLVPO1   ) = 1.0D-03
+      RTOL( VSVPO1   ) = 1.0D-03
+      RTOL( VSVPO2   ) = 1.0D-03
+      RTOL( VSVPO3   ) = 1.0D-03
+      RTOL( VIVPO1   ) = 1.0D-03
 
 
       RETURN

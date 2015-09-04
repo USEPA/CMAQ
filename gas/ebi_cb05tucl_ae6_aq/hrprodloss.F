@@ -777,17 +777,32 @@ C***********************************************************************
       PROD(  AALK2J   ) =   0.0D0
       LOSS(  AALK2J   ) =                 RXRAT( 231 )      ! AALK2J=0.1714D+01*AOLGAJ
 
-      PROD(  APOCI    ) =   0.0D0
-      LOSS(  APOCI    ) =   0.0D0
+      !PROD(  APOCI    ) =   0.0D0
+      !LOSS(  APOCI    ) =   0.0D0
 
-      PROD(  APNCOMI  ) =    1.2500D+00 * RXRAT( 232 )      ! APOCI+OH=0.1250D+...
-      LOSS(  APNCOMI  ) =                 RXRAT( 233 )      ! APNCOMI+OH=OH
+      !PROD(  APNCOMI  ) =    1.2500D+00 * RXRAT( 232 )      ! APOCI+OH=0.1250D+...
+      !LOSS(  APNCOMI  ) =                 RXRAT( 233 )      ! APNCOMI+OH=OH
 
-      PROD(  APOCJ    ) =   0.0D0
-      LOSS(  APOCJ    ) =   0.0D0
+      !PROD(  APOCJ    ) =   0.0D0
+      !LOSS(  APOCJ    ) =   0.0D0
 
-      PROD(  APNCOMJ  ) =    1.2500D+00 * RXRAT( 234 )      ! APOCJ+OH=0.1250D+...
-      LOSS(  APNCOMJ  ) =                 RXRAT( 235 )      ! APNCOMJ+OH=OH
+      !PROD(  APNCOMJ  ) =    1.2500D+00 * RXRAT( 234 )      ! APOCJ+OH=0.1250D+...
+      !LOSS(  APNCOMJ  ) =                 RXRAT( 235 )      ! APNCOMJ+OH=OH
+
+      PROD(  VLVPO1   ) =    1.0750D-00 * RXRAT( 232 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+     &                  +    1.0750D-00 * RXRAT( 233 )       !ASVPO1+OH = 1.075*ALVPO1+OH
+      LOSS(  VLVPO1   ) =                 RXRAT( 232 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+
+      PROD(  VSVPO1   ) =    1.0750D-00 * RXRAT( 234 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+      LOSS(  VSVPO1   ) =                 RXRAT( 233 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+
+      PROD(  VSVPO2   ) =    1.0750D-00 * RXRAT( 235 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+      LOSS(  VSVPO2   ) =                 RXRAT( 234 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+
+      PROD(  VSVPO3   ) =    1.0750D-00 * RXRAT( 236 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+      LOSS(  VSVPO3   ) =                 RXRAT( 235 )       !ALVPO1+OH = 1.075*ALVPO1+OH
+
+      LOSS(  VIVPO1   ) =                 RXRAT( 236 )       !ALVPO1+OH = 1.075*ALVPO1+OH
 
       PNEG( PAR ) =    6.6000D-01 * RXRAT(  61 )      ! NTR+OH=-0.6600D+00*PAR+HO2+...
      &            +    6.6000D-01 * RXRAT(  62 )      ! NTR=-0.6600D+00*PAR+HO2+...
