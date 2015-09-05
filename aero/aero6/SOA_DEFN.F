@@ -754,6 +754,7 @@ C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -1014,7 +1015,13 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+!        orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         If ( abs( upb - lowb ) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1022,7 +1029,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
@@ -1817,9 +1824,10 @@ C     abstol (absolute) amount
      &       'Warning: number of organic aerosol moles going to zero in soa bisection:',
      &        nroot
 #else
-          xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
+          xmsg = 'Error: number of organic aerosol moles going to zero in soa bisection'
 #endif
-          Call m3warn( pname, 0, 0, xmsg )
+!         Call m3warn( pname, 0, 0, xmsg )
+          Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
 
         test = fnguess * flower

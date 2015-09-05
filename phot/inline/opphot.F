@@ -179,20 +179,25 @@ C...CSA Variables, Units and Descriptions for RJ_FILE
          UNITS3D( N ) = 'NONE'
          VDESC3D( N ) = 'broad band reflection coefficient at top of atmosphere'
          VTYPE3D( N ) = M3REAL
-#ifdef phot_research
-!Not ready but maybe worthwhile in furture versions
+
          N = N + 1
-         VNAME3D( N ) = 'CLD_TRANSMISS'
+         VNAME3D( N ) = 'CLR_TRANS_DIF'
          UNITS3D( N ) = 'NONE'
-         VDESC3D( N ) = 'broad band light transmission by clouds'
+         VDESC3D( N ) = 'broad band diffuse transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
-       
+
          N = N + 1
-         VNAME3D( N ) = 'CLD_REFLECTION'
+         VNAME3D( N ) = 'CLR_TRANS_DIR'
          UNITS3D( N ) = 'NONE'
-         VDESC3D( N ) = 'broad band light reflection by clouds'
+         VDESC3D( N ) = 'broad band direct transmission for clear sky at surface'
          VTYPE3D( N ) = M3REAL
-#endif
+              
+         N = N + 1
+         VNAME3D( N ) = 'CLR_REFLECTION'
+         UNITS3D( N ) = 'NONE'
+         VDESC3D( N ) = 'broad band reflection for clear sky at top of atmosphere'
+         VTYPE3D( N ) = M3REAL
+
          DO JWL = 1, NWL
 
 C...assumes that lamba in nanometers is on order of 100 or less

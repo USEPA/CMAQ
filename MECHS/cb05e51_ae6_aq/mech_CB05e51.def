@@ -1,4 +1,3 @@
-
 ! RCS file, release, date & time of last delta, author, state, [and locker]
 ! $Header: /project/yoj/arc/MECHS/src/cb05tucl_ae6_aq/mech.def,v 1.3 2011/09/14 15:26:31 sjr Exp $ 
 
@@ -8,17 +7,18 @@ CB05E51_AE6_AQ
 !  Changes to CB05TUCL as released in CMAQv5.02:
 !
 ! 1.  added homogeneous and heterogeneous CLNO2 production (Sarwar)
+!     (modified 7-28-15)
 !
 ! 2.  added a marine ozone depletion reaction, parameterized from a detailed
 !      chemistry of halogens (Sarwar, 12-2-14)
 !     -Added a simple halogen chemistry over sea-water (<HAL_OZONE>)
-
+!
 ! 3.  added heterogeneous reactions to mech.def file (Hutzell), including:
 !       - inorganic heterogeneous reactions for N2O5 and NO2, 
 !       - oligomerization reactions for SOA species and 
 !       - aging reactions for primary organic carbon and non-carbon aerosol 
 !         species
-
+!
 ! 4.  updated photochemical cross section and quantum yields (Hutzell, Luecken)
 !      - updated all reactions to IUPAC 2010 where information is available
 !          In most cases, the CS and QYs are identical to previous values
@@ -45,66 +45,72 @@ CB05E51_AE6_AQ
 !       alkenes and aromatics
 !     - products of NTRALK and NTROH reaction with OH are based on products
 !       of the top 5 alkanes and alkenes, reactivity weighted in the NEI. Both 
-!       can produce NTRCN (keto or aldehdye along with nitrate)
-!                   NTRCNOH (has both OH and keto or aldehyde
-!                   NTRPX  (hydroperoxide from RO2+HO2 reaction)
-!     -  added HO2 pathways for reactions of nitrates
-!       NTRO2 + NO reaction rate =2.7e-12@-360 from KRO2NO in MCM
-!       NTRO2 + HO2 reaction rate = 2.05e-13@-1300 from RRO2HO2*.706 in MCM
-!       NTRO2 + HO2 makes NTRPX or NTRI with solubility of HYDROXY_NITRATES
-!     - NTR from ISOP+ OH is now represented by NTRM (5c) with same yield (8.8%)
-!         as in CB05tucl. While Xie found that 6% yield fit data better, they
-!         were only looking at gas phase species and the other organic nitrate
+!       can produce NTRC1 (keto or aldehdye along with nitrate)
+!                   NTRC2 (has both OH and keto or aldehyde)
+!       NXO2N+NO reaction rate =2.6e-12@-365 from R55 (XO2N+NO)
+!       NXO2N+HO2 reaction rate = 7.5e-13@-700 from R57 (XO2N+HO2)
+!       NXO2N+MEO2 reaction rate = 2.5e-13 from MCM (standard secondary RO2+RO2)
+!       NXO2N+C2O3 reaction rate = 4.4e-13@-1070 from R93 (XO2+C2O3)
+!       NXO2N+XO2 reaction rate = 6.8e-14 from R60 (XO2+XO2N)
+!     - Biogenic nitrates
+!        1.)  Nitrate from ISOP+OH is represented by NTRI1(5c) with same yield 
+!        (8.8%) as in CB05tucl. While Xie found that 6% yield fit data better, 
+!         they were only looking at gas phase species and other organic nitrate
 !         was likely overpredicted in gas phase.
-!     -  NTR from NO3+ISOP is represented as NTRM
-!     -  NTR from TERPENE reactions is treated as NTRM also, by including a 
-!        new operator (XO2T) which makes NTRM when it reacts with NO. Reaction
+!        2.) NTR from NO3+ISOP is represented as NTRI1
+!        3.) NTR from TERPENE reactions is treated as NTRI1, by including a 
+!          new operator (XO2T) which makes NTRM when it reacts with NO. Reaction
 !        rates of XO2T are the same as XO2N 
-!     -  TERP + NO3 direct formation of nitrates is represented as NTRM. 
-!     -  made NTRI the product from NTRM reactions - an explicit tracer of
-!        biogenic activity, and also allowing the NO2 vs. retention of nitrate
-!        functionality to be modified separately
-
-! 5.  included more chemistry of isoprene products (Luecken, Pye)
-!     -  represent CXO3 in O3+ISOP and IPSPD reactions as MACO3.  Includes
-!        separation of the C2O3 in ISPD photolysis to C2O3 and CXO3 as in
-!        original condensed mechanism (Atmos. Env.,30 (4): 4275-4290, 1996.
-!        This did not get changed in the transition from CB4 to CB05
-!        MACO3 makes MAPAN
-!     -  separated out initial reaction of ISOP+OH to produce peroxy radical
-!        (explicitly represented isoprene peroxy radicals (ISOPO2). 
-!        ISOPO2  can then react with NO, HO2 and C2O3
-!     -  added ISOPO2+C2O3 and ISOPO2+ NO from CB6r2 
-!          XO2_CB05=(XO2+XO2H)CB6  HO2_CB05=(HO2+XO2H)CB6
-!          GLY=PAR+FORM  GLYD=ALD2
-!     - added ISOPO2+OH forminng 100% yield of ISOPX (isoprene hydroperoxide)
-!     - ISOPX + OH forms IEPOX (isoprene epoxydiol) plus OH with yield of 90%, 
-!       with rate and products from CB6r2 (where it was adapted from Paulot)
-!     - IEPOX +OH  forms IEPOXO2, which reacts with rate and products from CB6r2
-!     -  changed products of OH+ISPD reaction
-! 6. minor changes to peroxyacetylnitrates:
-!    - added MEO2+NO3 products to PAN photolysis
-!    - added ALD2+XO2+HO2+NO3 products to PAN photolysis
-!    - corrected PAN thermal formation and degradation N values (add N=1.41)
-!    - PANX formation rate corrected, as it is set equal to PAN.  PANX decay 
-!        rate set equal to PPN (as in IUPAC)
-!     - PANX photolysis products include additional products, based on CB6. 
-!        Production of ALD2 assumes reaction with NO dominates
-!     - made methacrloyl PAN (MAPAN) from MACO3.
-!     -  reacted MAPAN with OH based on IUPAC
+!        4.) TERP + NO3 direct formation of nitrates is represented as NTRI1. 
+!        5.)  NTRI1+OH reaction rate is calculated from the yield-weighted avg 
+!          of isoprene nitrates in MCM
+!         isopANO3=.148 (yield=.1), isopBNO3=.444 (y=.066), isopCNO3=.102(y=.1),
+!         isopDNO3=.306 (yield=.134)
+!         yields of products are weighted values of species from Lee et al,
+!          (J. Phys. Chem. A, 2014, 118 (9), pp 1622–1637)
+!          translated to CB05 species, lumping all product nitrates into NTRI2
+!          (secondary isoprene nitrate, 1c) assumed to be 
+!           based on ETHLN, MACRN, and MVKN 
+!        6.) NTRI2+OH reaction rate of 2.32e-12 is from 2.83e-12 is from 
+!           weighted yield of ETHLN, MVKN, MACRN, and PROPNN.   
+!           Products assume 60% retains nitrate group and 40% recycles NO2 
+!          (Jenkin et al., ACPD, 15, 9709-9766, 2015
+!
+! 7.  included more chemistry of isoprene products under high HOx (Luecken, Pye)
+!      1.) ISOPX + OH forms IEPOX (isoprene epoxydiol) plus OH with yield of 86%
+!          with rate and products from weighted distribution of isoprene hydro
+!          peroxides in MCM
+!      2.) IEPOX +OH  reacts to decay IEPOX - but products are unclear.  Until
+!          more information is available, this uses the products and reaction 
+!          rate from Jacobs et al., ES&T, 47, 12868-12876, 2013.  
+!
+! 8.   minor changes to peroxyacetylnitrates (Luecken):
+!      1.) added MEO2+NO3 products to PAN photolysis
+!      2.) added ALD2+XO2+HO2+NO3 products to PAN photolysis
+!      3.) corrected PAN thermal formation and degradation N values (add N=1.41)
+!      4.) PANX formation rate corrected, as it is set equal to PAN.  PANX 
+!          decay rate set equal to PPN (as in IUPAC)
+!      5.) PANX photolysis products include additional products, based on CB6. 
+!          Production of ALD2 assumes reaction with NO dominates
+!      6.) OPAN updates:
+!           -  added OPO3 from isoprene reactions
+!              Represent CXO3 in O3+ISOP and IPSPD reactions as OPO3(MACO3).  
+!              Includes separation of the C2O3 in ISPD photolysis to C2O3 and 
+!              CXO3 as in original condensed mechanism (Atm.Env.,30(4):4275-
+!              4290, 1996.  (Did not get changed in the transition from CB4 to 
+!              CB05
+!           -  added reactions for OPAN with OH based on IUPAC for MAPAN
 !       http://iupac.pole-ether.fr/htdocs/datasheets/pdf/HOx_VOC48_HO_CH2C%28CH3%29C%28O%29OONO2%28MPAN%29.pdf
-!     -  thermal decomposition of MAPAN on IUPAC
-!       http://iupac.pole-ether.fr/htdocs/datasheets/pdf/ROO_18_CH2C%28CH3%29CO3NO2_M.pdf
-
-!     
-! 6. other minor updates to be consistent with IUPAC
-!    - updated ethanol chemistry, using yield from IUPAC
+!          -  added OPO3 competing reactions with HO2, MEO2, C2O3
+! 9. other minor updates to be consistent with IUPAC
+!      1.) updated ethanol chemistry, using yield from IUPAC
 !      http://iupac.pole-ether.fr/htdocs/datasheets/pdf/HOx_VOC24_HO_C2H5OH.pdf) 
 !        k1 --> converts NO to NO2, and 80%(2HCHO+HO2)20% (hydroxyacetald+HO2)
 !        k2--> ALD2+HO2, k3--> ALD2+HO2 (100% reaction with O2)
-!    - included 44% yield of OH from C2O3+HO2 and CXO3+HO2 consistent with IUPAC
+!      2.) included 44% yield of OH from C2O3+HO2 and CXO3+HO2 consistent with 
+!          IUPAC
 !      (http://iupac.pole-ether.fr/htdocs/datasheets/pdf/HOx_VOC54_HO2_CH3CO3.pdf)
-!    - updated OH+NO2: implemented new Troe equation for HNO3 product from IUPAC
+!      3.) updated OH+NO2: implemented new Troe equation for HNO3 product 
 !      (http://iupac.pole-ether.fr/htdocs/datasheets/pdf/NOx13_HO_NO2.pdf)
 !       and Troe publication (
 !
@@ -173,10 +179,13 @@ REACTIONS[CM] =
                                                         -2199 & 6.5E-34 @
                                                         -1335;
 < R30>  HO2  + NO          = OH        + NO2          # 3.5E-12 @ -250;
-<R30a>  NO   + HO2         = HNO3                  %3 # 6.095e-14^-1.0@-270.0&
-                                                        6.857e-34^1.0@-270.0&
-                                                       -5.968e-14@-270.0;
-
+! Okumura found no evidence of HNO3 formation except from secondary reactions
+!  in chamber so delete this for now
+ 
+!<R30a>  NO   + HO2         = HNO3                  %3 # 6.095e-14^-1.0@-270.0&
+!                                                        6.857e-34^1.0@-270.0&
+!                                                       -5.968e-14@-270.0;
+!
 < R31>  HO2  + NO2         = PNA                      # 1.8E-31 ^ -3.2 &
                                                         4.7E-12 & 0.6;        
 < R32>  PNA                = HO2       + NO2          # 4.1E-5 @ 10650 &
@@ -225,18 +234,6 @@ REACTIONS[CM] =
                              + HO2      
                              + 0.500*ALD2  
                              + 0.500*ALDX             # 1.0/<MEPX_IUPAC10>;                                                                                                                                                              
-!
-! include reactions for ISOPX and IEPOX from CB6r2
-!  GLYD = ALD2, GLY=PAR+FORM
-<R64a> ISOPX + OH = 0.904*IEPOX + 0.933*OH + 0.067*ISOPO2  + 0.029*IOLE
-                  + 0.029*ALDX                        # 2.23E-11@-372;
-<R64b> IEPOX + OH = IEPXO2                            # 5.78E-11@400;
-<R64c> IEPXO2 + HO2 = 0.275*ALD2 +  0.275*MGLY + 1.125*OH + 0.825*HO2
-              + 0.650*FORM + 0.074*FACD + 0.251*CO + 2.45*PAR  # 7.43E-13@-700;
-<R64d> IEPXO2 + NO = 0.275*ALD2 +  0.275*MGLY + 0.125*OH + 0.825*HO2
-                     + 0.65*FORM + NO2 + 0.251*CO + 2.45*PAR  # 2.39E-12@-365;
-<R64e> IEPXO2 + C2O3 = 0.22*ALD2 + 0.22*MGLY + 0.1*OH + 0.66*HO2
-      + 0.52*FORM + 0.2*CO +1.96*PAR + 0.8*MEO2 + 0.2*AACD  # 8.90E-13@-800;
 < R65>  OH   + CO          = HO2                   %3 # 1.44E-13 @ 0.0 & 
                                                         3.43E-33 @ 0.0; 
 < R66>  OH   + CH4         = MEO2                     # 2.45E-12 @ 1775;
@@ -511,28 +508,46 @@ REACTIONS[CM] =
                              + 0.250*HO2  
                              + 0.250*CXO3  
                              + 0.250*PAR              # 3.6E-11;
-! XO2 from isoprene is explicitly represented as ISOPO2 and ISOPN
-<R158> ISOP + OH = ISOPO2 + ISOPRXN # 2.70E-11@-390;
-! reactions 158a through 158b added based on CB6r2
-<R158a> ISOPO2 + NO = 0.1*NTRM + 0.9*NO2 + 0.673*FORM + 0.9*ISPD + 0.9*HO2
-                # 2.39E-12@-365;
-<R158b> ISOPO2 + C2O3 = 0.598*FORM + 1.0*ISPD + 0.8*HO2 + 0.8*MEO2
-                     + 0.2*AACD  # 1.00E+0*K<R58>;
-! assume 100% formation of hydroperoxide as per MCM
-<R158c> ISOPO2 + HO2 = 1.00*ISOPX                     # 7.43E-13@-700;
+! XO2 from isoprene is explicitly represented as IXO2 and IXO2N
+! because we want to get a concentration for ISOPX to make IEPOX
+<R158>  OH   + ISOP        = 0.912*ISPD
+                             + 0.629*FORM
+                             + 0.991*IXO2
+                             + 0.912*HO2
+                             + 0.088*IXO2N
+                             + ISOPRXN                # 2.54E-11 @ -407.6;
+<I001>  IXO2  + NO          = NO2                      # 2.6E-12 @ -365;
+<I002>  IXO2N + NO          = NTRI1                      # 2.6E-12 @ -365;
+<I003>  IXO2  + HO2         = ISOPX                     # 7.5E-13 @ -700;
+<I004>  IXO2N + HO2         = ISOPX                     # 7.5E-13 @ -700;
+<I005>  IXO2  + XO2         =                          # 6.8E-14;
+<I006>  IXO2N + XO2N        =                          # 6.8E-14;
+<I007>  IXO2  + XO2N        =                          # 6.8E-14;
+<I008>  C2O3 + IXO2         = 0.900*MEO2  
+                             + 0.100*AACD             # 4.4E-13 @ -1070 ;
+<I009> ISOPX + OH = 0.86*IEPOX + 0.86*OH + 0.04*ISOPX  + 0.10*ISPD + 0.027*ALDX
+                 + 0.03*FORM                            # 9.6E-11;
+! reaction rate from Jacbos et al., products from Table 1, "with NO"
+!  GLY=PAR+FORM, Hydroxyacetone = 2 PAR, assign unknown to acetic acid
+<I010> IEPOX + OH = 0.25*FORM + 0.14*ALD2 + 0.65*XO2 + 0.87*HO2 +  0.14*MGLY 
+                  + .48*ALDX + .13*AACD +2.83*PAR +0.65*yOH         # 3.6E-11; 
+<I010a> yOH + HO2 = OH                                        # 7.5E-13 @ -700;
+<I010b> yOH + NO = NO                                        # 2.6E-12 @ -365;
+<I010c> yOH + MEO2 = MEO2                                    # 2.3E-13;
+<I010d> yOH + C2O3 = C2O3                                    # 4.4E-13 @ -1070;
 <R159>  O3   + ISOP        = 0.650*ISPD  
                              + 0.600*FORM 
                              + 0.200*XO2   
                              + 0.066*HO2  
                              + 0.266*OH    
-                             + 0.200*MACO3 
+                             + 0.200*OPO3 
                              + 0.150*ALDX  
                              + 0.350*PAR  
                              + 0.066*CO               # 7.86E-15 @ 1912;
-! change NTR to NTRM to represent multifunctional nitrates
+! change NTR to NTRI1 to represent multifunctional nitrates
 ! Carter shows reaction rate similar to beta isomer
 <R160>  NO3  + ISOP        = 0.200*ISPD  
-                             + 0.800*NTRM
+                             + 0.800*NTRI1
                              + XO2       
                              + 0.800*HO2  
                              + 0.200*NO2   
@@ -549,7 +564,7 @@ REACTIONS[CM] =
                              + 0.168*MGLY 
                              + 0.252*ALD2  
                              + 0.330*C2O3 
-                             + 0.130*MACO3  
+                             + 0.130*OPO3  
                              + 0.120*ALDX             # 3.36E-11;                             
 <R162>  O3   + ISPD        = 0.114*C2O3  
                              + 0.150*FORM 
@@ -562,14 +577,14 @@ REACTIONS[CM] =
                              + 0.225*CO               # 7.1E-18;
 ! assume all CXO3 is MACO3, from the MACR and the IPRD components
 ! assume the NTR is MACRN and MVKN which have OH, ketone and NO2, and are
-! represented by NTRI
+! represented by NTRI2 (no double bond)
 <R163>  NO3  + ISPD        = 0.357*ALDX  
                              + 0.282*FORM 
                              + 1.282*PAR   
                              + 0.925*HO2  
                              + 0.643*CO    
-                             + 0.850*NTRI  
-                             + 0.075*MACO3  
+                             + 0.850*NTRI2  
+                             + 0.075*OPO3  
                              + 0.075*XO2  
                              + 0.150*HNO3             # 1.0E-15;
 ! assume that CBO5 should make .267 C2O3 and .7 CXO3 in CB05 (error in CB05?), 
@@ -580,7 +595,7 @@ REACTIONS[CM] =
                              + 0.832*PAR  
                              + 0.700*XO2
                              + 1.033*HO2   
-                             + 0.700*MACO3   
+                             + 0.700*OPO3   
                              + 0.267*C2O3           # 0.0036/<ACRO_09>;
 <R165>  TERP + O           = 0.150*ALDX  
                              + 5.12*PAR + TRPRXN    # 3.6E-11;
@@ -595,10 +610,12 @@ REACTIONS[CM] =
                              + 1.66* PAR 
                              + 0.470*ALDX 
                              + TRPRXN               # 1.5E-11 @ -449.;
-< R166a>  XO2T + NO          = NTRM                 # 2.6E-12 @ -365;
-< R166b>  XO2T + HO2         = ROOH                     # 7.5E-13 @ -700;
-< R166c>  XO2T + XO2T        =                          # 6.8E-14;
-< R166d>  XO2  + XO2T        =                          # 6.8E-14;
+<I014>  XO2T + NO          = NTRI1                 # 2.6E-12 @ -365;
+<I015>  XO2T + HO2         = ROOH                     # 7.5E-13 @ -700;
+<I016>  XO2T + XO2T        =                          # 6.8E-14;
+<I017>  XO2  + XO2T        =                          # 6.8E-14;
+<I018>  C2O3 + XO2T         = 0.900*MEO2  
+                             + 0.100*AACD             # 4.4E-13 @ -1070 ;
 ! replace XO2N with XO2T
 <R167>  TERP + O3          = 0.570*OH    
                              + 0.070*HO2  
@@ -617,7 +634,7 @@ REACTIONS[CM] =
                              + 1.030*XO2  
                              + 0.250*XO2T 
                              + 0.470*ALDX  
-                             + 0.530*NTRM
+                             + 0.530*NTRI1
                              + TRPRXN               # 3.7E-12 @ -175.;
 <R169>  SO2  + OH          = SULF + HO2 + SULRXN    # 3.3E-31 ^-4.3 &
                                                       1.6E-12 ^ 0.0;
@@ -728,137 +745,115 @@ REACTIONS[CM] =
 <SA13>  SOAALK  + OH      = OH  + 0.47*ALKRXN         # 2.70e-12@-374;
 
 
-! Rates and products from SAPRC07tic                             
-<R63M>  MACO3 + NO          = FORM  + NO2 + MEO2      # 6.7E-12 @ -340; 
-<R64M>  MACO3 + NO2         = MAPAN                     # 1.21E-11 ^ -1.07@0;
-!  rate from IUPAC
-<R65M>  MAPAN               = MACO3    + NO2            # 1.6E+16 @ 13486;
-<R66M>  MAPAN               = 0.6*MACO3    + 0.6*NO2  +0.4*NO3          
-                       + 0.4*FORM + 0.4*C2O3          # 1.0/<PAN_IUPAC10>;
-!  rate from IUPAC
-<R67M> MAPAN + OH = ALD2 + CO + NO2                    # 2.90e-11;
+!  rate from IUPAC for MPAN
+<N001> OPAN + OH = 2.0*PAR + 2.0*CO + NO3                    # 2.90e-11;
 ! rates equal to CXO3 reactions, products from MCM - accounting for OH 
 ! production from acylperoxy radical - 44% peroxy radical+OH (which forms C2O3,
 !  HCHO, MEO2, CO), 15% carboxylic acid+O3, 41% peroxycarboxylic acid
-<R68M>  MACO3 + HO2         = 0.15*C2O3 +0.44*FORM + 0.29*MEO2 +0.29*CO 
-                  +0.44*OH +0.15*AACD +0.15*O3 +0.41*PACD    # 5.2E-13 @ -980;
-
+<N002>  OPO3 + HO2         = 0.15*C2O3 +0.44*FORM + 0.29*MEO2 +0.29*CO 
+                  +0.44*OH +0.15*AACD +0.15*O3 +0.41*PACD    # 4.3E-13 @ -1040;
 !  use 90% chain propogating (makes two alkoxy radicals which make FORM, HO2, 
 !   C2O3 and MEO2) and  10% chain terminating (carboxylic acid, FORM and O2).
 !   rate from IUPAC
-<R69M>  MACO3 + MEO2       = 1.9*FORM + 0.9*HO2 + 0.3*C2O3 + 0.6*MEO2 
+<N003>  OPO3 + MEO2       = 1.9*FORM + 0.9*HO2 + 0.3*C2O3 + 0.6*MEO2 
                        + 0.1*AACD                     # 2.0E-12 @ -500; 
-<R70M>  MACO3 + XO2      = ALD2 + 0.3*C2O3 + 0.9*FORM + 0.6*MEO2 + 0.6*CO 
-                       + 0.1*AACD                   # 4.4E-13 @ -1070.;
 ! Only chain propogating channels available
-<R71M>  MACO3 + CXO3  = ALD2 +XO2 +HO2 +FORM +0.35*C2O3 +0.65*CO # 2.9E-12@-500; 
-<R72M>  MACO3 + C2O3   = 1.65*MEO2  + FORM +0.35*C2O3 +0.65*CO   # 2.9E-12@-500; 
+<N004>  OPO3 + C2O3   = 1.65*MEO2  + FORM +0.35*C2O3 +0.65*CO   # 2.9E-12@-500; 
+!
 ! new nitrate species
 !  NO2 recycling and nitrate product speciation of secondary nitrates based
 !  on weighted yields of carbonylnitrates and hydroxycarbonylnitrates from 
 !  nitrates from the top 5 emitted alkanes (NTRALK)and alkenes (NTROH)
-! reaction rates based on weighted reaction rates of top 5 alkanes and alkenes 
-! peroxy+NO and peroxy+HO2 reaction rates from KRO2NO in MCM
-<N08> NTRALK  + OH           = NALKO2                 # 1.29e-12;
-<N08b> NALKO2 + NO           = 1.25*NO2
-                             + 0.12*NTRCN
-                             + 0.63*NTRCNOH          #2.7e-12@-360;
-<N08c> NALKO2 + HO2           = NTRPX                #2.05e-13@-1300;
-<N09> NTROH  + OH          = NOHO2                 # 7.26E-12;
-<N09b> NOHO2  + NO          = 1.17*NO2
-                             + 0.60*NTRCN
-                             + 0.22*NTRCNOH         #2.7e-12@-360;
-<N09c> NOHO2 + HO2           = NTRPX                #2.05e-13@-1300;
+! reaction rates based on Koh-weighted reaction rates 
+<N005> NTRALK  + OH         = 1.39*XO2 + 0.31*NO2 + 0.15*NTRC1 + 0.41*NTRC2 + 
+                             0.13*NXO2N +0.31*PAR                 # 1.29e-12;
 
-! carbonylnitrate (NTRCN) can be an aldehyde or ketone. Assumes that 40% has
-!  nitrate function on alpha carbon (releases NO2), 20% is an aldehyde,
-!  (makes another NTRCN) and the rest is a ketone, which reacts like NTRALK 
-!  (extracts carbon; recycles 25% NO2, produces 75% NTRCN and NTRCNOH).    
-! reaction rate with OH is that of butanone
-<N10> NTRCN  + OH          = NCNO2                  # 1.1e-12;
-<N10b> NCNO2  + NO          = 1.5*NO2
-                             + 0.24*NTRCN
-                             + 0.26*NTRCNOH         #2.7e-12@-360;
-<N10c> NCNO2 + HO2           = NTRPX                #2.05e-13@-1300;
-
-! hydroxycarbonylnitrate (NTRCN) can be an aldehyde or ketone. Assumes that 30% 
-!  nitrate function on alpha carbon (releases NO2), 40% is an aldehyde,
-! (makes another NTRCN) and 30% is a ketone, which reacts like NTROH (primarily
-! (reacts at C-OH; recycles 17% NO2; produces 83% NTRCN and NTRCNOH).    
-!  reaction rate with OH is that of butanal 
-<N11> NTRCNOH  + OH          = NCNOHO2              # 5.7e-12;
-<N11b> NCNOHO2  + NO          = 1.25*NO2
-                             + 0.54*NTRCN
-                             + 0.20*NTRCNOH         #2.7e-12@-360;
-<N11c> NCNOHO2 + HO2           = NTRPX                #2.05e-13@-1300;
-!  NTRPX is a hydroperoxide, use it to track low-NO reactions of nitrates
-! reaction rate is that of ethylhyroperoxide
-<N14> NTRPX  + OH            = NTRCN + OH           # 6.0E-12;
-
+<N006> NTROH  + OH          = 0.45*XO2 + 0.22*NO2 + 0.53*NTRC1 + 0.24*NTRC2  +
+                             0.01*NXO2N +0.22*PAR                 # 7.26E-12;
+! preserve the nitrogen
+<N007>  NXO2N + NO          = 2.0*NTRC2 -1.0*PAR             # 2.6E-12 @ -365;
+<N008>  NXO2N + HO2         = 1.0*NTRC2                      # 7.5E-13 @ -700;
+<N009>  NXO2N + XO2N        =                                # 6.8E-14;
+<R010>  C2O3 + NXO2N    = 1.0*NTRC2 + 0.90*MEO2  + 0.10*AACD # 4.4E-13 @ -1070 ;
+<N011>  NXO2N + MEO2    = 1.0*NTRC2 + 0.8*FORM +0.2*MEOH     # 2.5E-13;
+! secondary nitrates have properties of carbonylnitrate (NTRC1) or 
+! hydroxycarbonylnitrate (NTRC2), and  can be an aldehyde or ketone. Assumes 
+! that 40% has nitrate on a-carbon to aldehyde (releases 100% NO2), 20% 
+!  is an aldehyde(makes another NTRCx) and the rest is a ketone, which reacts 
+!  like NTRALK.    
+! reaction rate of NTRC1 with OH is that of butanone
+!  reaction rate of NTRC2 with OH is that of butanal 
+<N012> NTRC1  + OH          = 1.12*XO2 + 0.82*NO2 + 0.08*NTRC1 + 0.08*NTRC2
+                             + 0.02*NXO2N                       # 1.1e-12;
+<N013> NTRC2  + OH          = 1.25*XO2 + 0.40*NO2 + 0.14*NTRC1 + 0.46*NTRC2 
+                             +0.004*NXO2N                       # 5.7e-12;
 ! use reaction rate from yield-weighted average of isoprene nitrates in MCM
-!  isopANO3=.148 (yield=.1), isopBNO3=.444 (y=.066), isopCNO3=.102 (y=.1),
-!  isopDNO3=.306 (yield=.134)
-!  yields of products are weighted values of species from Lee et al paper,
-!   (J. Phys. Chem. A, 2014, 118 (9), pp 1622–1637)
-!  translated to CB05 species and assuming all nitrates form NTRI
+! general products from Lee et al.  (J. PhysChemA, 2014, 118 (9), pp 1622–1637)
 
-<N15> NTRM + OH          = NTRMO2                    # 3.3e-11;
-<N15b> NTRMO2 + NO          = 0.87*NO2
-                             + 1.15*NTRI
+<N014> NTRI1 + OH          = NTRI1O2                    # 3.3e-11;
+<N015> NTRI1O2 + NO          = 0.85*NO2
+                             + 1.15*NTRI2
                              + 0.68*HO2
                              + 0.55*FORM
                              + 0.15*ALD2
-                             + 0.43*PAR         #2.7e-12@-360;
-<N15c> NTRMO2 + HO2           = NTRI            #2.05e-13@-1300;
-! biogenic, based on ETHLN, MACRN, and MVKN, assuming that ETHLN and MACRN 
-!  recycle NO2 100% and produce CO2, while MVKN retains the nitrate.
-!  assumes MVKN is 35% of the total based on weighted yields of all three 
-!  (26%*yield from delta isopn and 74%*yield from beta isopn)
+                             + 0.02*XO2
+                             + 3.00*PAR         #2.7e-12@-360;
+! alkoxy radical reactions: use 60% alkoxy (with alkoxy radical fate from Lee
+! et al Figures 5 and 6), 20% alcohol (makes NTRI2), 20% carbonyl (makes NTRI2)
+<N016> NTRI1O2 + HO2       = NTRI2           #2.05e-13@-1300;
+<N017> NTRI1O2 + MEO2      = 0.08*NO2 + 0.92*NTRI2 + 0.52*HO2 + 0.05*ALD2
+                        + 1.25*FORM + 0.2*MEOH + 0.11*FACD + 1.81*PAR  #2.5E-13;
+<N018> NTRI1O2 + C2O3      = 0.08*NO2 + 0.92*NTRI2 + 0.52*HO2 + 0.05*ALD2
+                        + 1.05*FORM + 0.4*AACD + 0.11*FACD + 1.81*PAR  #5.0E-12;
 !
-<N16> NTRI  + OH          = NTRIO2                     #2.32e-12;
-<N16b> NTRIO2  + NO          = 1.65*NO2
-                             + 0.35*NTRI            #2.7e-12@-360;
-<N16c> NTRIO2 + HO2           = NTRI            #2.05e-13@-1300;
+! assumes 60% retains nitrate group and 40% recycles NO2 (Jenkin et al., ACPD,
+!  15, 9709-9766, 2015
+!
+<N019> NTRI2  + OH          = NTRI2O2                     #2.83e-12;
+<N020> NTRI2O2  + NO          = 1.40*NO2
+                             + 0.60*NTRI2            #2.7e-12@-360;
+<N021> NTRI2O2 + HO2       = NTRI2            #2.05e-13@-1300;
+
+! assume 60% of alkoxy radicals retain nitrate group and 40% releases NO2
+<N022> NTRI2O2 + MEO2      = 0.76*NTRI2 +0.24*NO2 +0.8*FORM +0.2*MEOH #2.5E-13;
+<N023> NTRI2O2 + C2O3      = 0.76*NTRI2 +0.24*NO2 +0.6*FORM +0.4*AACD #5.0E-12;
 
 ! photolysis
-<N17>  NTRM               = NO2
+<N024>  NTRI1               = NO2
                              + HO2
                              + 1.0*ALD2
                              + 1.0*IOLE           # 1.0/<NTR_IUPAC10>;
 
-<N18b>  NTRI                 = NO2
+<N025>  NTRI2                 = NO2
                              + HO2
                              + 0.330*FORM
                              + 0.330*ALD2
                              + 0.330*ALDX
                              - 0.660*PAR              # 1.0/<NOA_14>;                             
-<N19>  NTRALK               = NO2
+<N026>  NTRALK               = NO2
                              + HO2
                              + 0.330*FORM
                              + 0.330*ALD2
                              + 0.330*ALDX
                              - 0.660*PAR            # 1.0/<NTR_IUPAC10>;
-<N20>  NTROH                = NO2
+<N027>  NTROH                = NO2
                              + HO2
                              + 0.330*FORM
                              + 0.330*ALD2
                              + 0.330*ALDX
                              - 0.660*PAR            # 1.0/<NTR_IUPAC10>;                             
-<N21>  NTRCN                = NO2
+<N028>  NTRC1                = NO2
                              + HO2
                              + 0.330*FORM
                              + 0.330*ALD2
                              + 0.330*ALDX
                              - 0.660*PAR              # 1.0/<NBO_14>;  
-<N22>  NTRCNOH              = NO2
+<N029>  NTRC2              = NO2
                              + HO2
                              + 0.330*FORM
                              + 0.330*ALD2
                              + 0.330*ALDX
                              - 0.660*PAR              # 1.0/<NBO_14>;           
-<N25>  NTRPX                = NO2
-                             + HO2
-                             + 1.0*ROOH             # 2.0/<NTR_IUPAC10>;                 
 ! iorganic heteorogeneous reactions from hetchem version 5.0.2
 
 <HET_N2O5IJ>    N2O5 = HNO3 + H2NO3PIJ  # 1.0~<HETERO_N2O5IJ>;
@@ -874,8 +869,9 @@ REACTIONS[CM] =
 <HET_N02> NO2 = 0.5*HONO + 0.5*HNO3 # 1.0~<HETERO_NO2>;
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
-
-<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
+! modified 6/25
+!<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
+<HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
 
 
 ! organic heterogeneous reactions 

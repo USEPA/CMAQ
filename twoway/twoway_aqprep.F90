@@ -1204,6 +1204,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,30) =  grid%tslb  (sc:ec, 1, sr:er)        ! SOIT1
   metcro2d_data_wrf (:,:,31) =  grid%tslb  (sc:ec, 2, sr:er)        ! SOIT2
 
+  metcro2d_data_wrf (:,:,32) =  grid%lh   (sc:ec, sr:er)   ! lh (qfx)
+
   where (metcro2d_data_wrf (:,:,13) .lt. 0.0)
     metcro2d_data_wrf (:,:,13) = 0.0
   end where

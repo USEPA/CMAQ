@@ -184,12 +184,12 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
       N_EBI_IT = 0
-      DTC      = EBI_TMSTEP
 
 
       DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
 
           NBKUPS      = 0
+          DTC         = EBI_TMSTEP
           N_INR_STEPS = 1
 
 100      CONTINUE                        !  Restart location
