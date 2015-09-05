@@ -70,10 +70,11 @@ C     read files: DUST_LU_1 & DUST_LU_2
      &              0.25,    ! shrubgrass
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_beld3( n_dlcat_beld3 ) = ! land use type desert map to BELD3
+      integer :: dmap_beld3( n_dlcat_beld3+1 ) = ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              2,       ! shrubgrass
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_beld3 = 20   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_beld3( n_lucat_beld3 ) = (/
@@ -118,13 +119,14 @@ C     read file: BELD4_LU
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_beld4( n_dlcat_beld4 ) = ! land use type desert map to BELD3
+      integer :: dmap_beld4( n_dlcat_beld4+1 ) = ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              1,       ! shrubland
      &              1,       ! shrubland
      &              2,       ! shrubgrass
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_beld4 = 50  ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_beld4( n_lucat_beld4 ) = (/
@@ -197,11 +199,12 @@ C     read file: GRID_CRO_2D
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_usgs24( n_dlcat_usgs24 ) =   ! land use type desert map to BELD3
+      integer :: dmap_usgs24( n_dlcat_usgs24+1 ) =   ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              3,       ! barrenland
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_usgs24 = 24   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_usgs24( n_lucat_usgs24 ) = (/
@@ -237,7 +240,7 @@ C     read file: GRID_CRO_2D
       type( lus_type ), parameter :: vnmld_modis( n_dlcat_modis ) = (/
      & lus_type( 'nada', 'nada' ) /)
       real :: dmsk_modis( n_dlcat_modis ) = 0.0  ! land use type desert fraction
-      integer :: dmap_modis( n_dlcat_modis ) = 0 ! land use type desert map to BELD3
+      integer :: dmap_modis( n_dlcat_modis+1 ) = 0 ! land use type desert map to BELD3
       integer, parameter :: n_lucat_modis = 1   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_modis( n_lucat_modis ) = (/
      & lus_type( 'nada', 'nada' ) /)
@@ -279,11 +282,12 @@ C     read file: GRID_CRO_2D
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_modis_noah( n_dlcat_modis_noah ) =  ! land use type desert map to BELD3
+      integer :: dmap_modis_noah( n_dlcat_modis_noah+1 ) =  ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              1,       ! shrubland
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_modis_noah = 20   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_modis_noah( n_lucat_modis_noah ) = (/
@@ -326,12 +330,13 @@ C     read file: GRID_CRO_2D
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_nlcd_modis( n_dlcat_nlcd_modis ) = ! land use type desert map to BELD3
+      integer :: dmap_nlcd_modis( n_dlcat_nlcd_modis+1 ) = ! land use type desert map to BELD3
      &           (/ 3,       ! barrenland
      &              3,       ! barrenland
      &              3,       ! barrenland
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_nlcd_modis = 50   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_nlcd_modis( n_lucat_nlcd_modis ) = (/
@@ -515,7 +520,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -532,7 +537,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -549,7 +554,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -566,7 +571,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -583,7 +588,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -600,7 +605,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
