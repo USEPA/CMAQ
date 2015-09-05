@@ -313,6 +313,7 @@ C...modules
 
       IF ( FIRSTIME ) THEN
 
+
          FIRSTIME = .FALSE.
          LOGDEV   = INIT3()
 
@@ -347,9 +348,8 @@ C...modules
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
  
-
-         PECOL_OFFSET = COLSD_PE( 1, MYPE ) - 1
-         PEROW_OFFSET = ROWSD_PE( 1, MYPE ) - 1
+         PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
+         PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
          CALL LOAD_CSQY_DATA( )
 
