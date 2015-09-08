@@ -38,7 +38,7 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 
 C HS = Heather Simon; GS = Golam Sarwar; SH = Steve Howard; SR = Shawn Roselle;
-C JY = Jeff Young; HOTP = Havala Pye; KF = Kristen Foley
+C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey
 
 C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C GS  03/02/11 Revised parameters for Mg, K, and Ca
