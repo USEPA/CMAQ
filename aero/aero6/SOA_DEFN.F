@@ -60,7 +60,7 @@ C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 16   ! # of partitioning SVOCs
+      Integer, Parameter :: n_vapor   = 21   ! # of partitioning SVOCs
       Integer, Parameter :: n_orgprod = 13   ! # of ROG rxn counter species
 
       Type vapor_type
@@ -75,25 +75,31 @@ C-----------------------------------------------------------------------
       End Type vapor_type
 
       Type( vapor_type ), Save :: vaporspc( n_vapor ) = (/
+C
 C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
 C                                                          Name   Origin        Name
-C                  -------    -------  --------  -------  ------    --  ----   -------
-     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN' ),
-     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN' ),
-     & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J', 'A',  8.0, 'XYLNRXN'),
-     & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J', 'A',  8.0, 'XYLNRXN'),
-     & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J', 'A',  7.0, 'TOLNRXN'),
-     & vapor_type('SV_TOL2',  0.1130,  21.2770,  18.0E3, 'ATOL2J', 'A',  7.0, 'TOLNRXN'),
-     & vapor_type('SV_BNZ1',  0.0720,   0.3020,  18.0E3, 'ABNZ1J', 'A',  6.0, 'BNZNRXN'),
-     & vapor_type('SV_BNZ2',  0.8880, 111.1100,  18.0E3, 'ABNZ2J', 'A',  6.0, 'BNZNRXN'),
-     & vapor_type('SV_PAH1',  0.2100,   1.6598,  18.0E3, 'APAH1J', 'A', 10.0, 'PAHNRXN'),
-     & vapor_type('SV_PAH2',  1.0700, 264.6675,  18.0E3, 'APAH2J', 'A', 10.0, 'PAHNRXN'),
-     & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J', 'B', 10.0, 'TRPRXN '),
-     & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J', 'B', 10.0, 'TRPRXN '),
-     & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN'),
-     & vapor_type('LV_SMP ',  1.0   ,   1.0e-5,  40.0E3, 'ASMPJ ', 'A', 10.0, 'SMPRXN' )/)
+C                  -------    -------  --------  -------  ------    --   ----   -------
+     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN' ),
+     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN' ),
+     & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN'),
+     & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN'),
+     & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN'),
+     & vapor_type('SV_TOL2',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN'),
+     & vapor_type('SV_BNZ1',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN'),
+     & vapor_type('SV_BNZ2',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN'),
+     & vapor_type('SV_PAH1',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN'),
+     & vapor_type('SV_PAH2',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN'),
+     & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN '),
+     & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN '),
+     & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN'),
+     & vapor_type('LV_SMP ',  1.0   ,   1.0e-5,  40.0E3, 'ASMPJ  ', 'A', 10.0, 'SMPRXN' ),
+     & vapor_type('VLVPO1 ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J', 'A',  0.0, ''       ),
+     & vapor_type('VSVPO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, ''       ),
+     & vapor_type('VSVPO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, ''       ),
+     & vapor_type('VSVPO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J', 'A',  0.0, ''       ),
+     & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J', 'A',  0.0, ''       )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
@@ -202,7 +208,7 @@ C Local Variables:
       Character( 132 ) :: xmsg
       Real            :: gasconv
       Real            :: vtmp
-      Integer         :: n
+      Integer         :: n, g
       Integer         :: spc
 
       Real, Save :: alk_factor = 1.00
@@ -212,15 +218,27 @@ C Local Variables:
          vapor_mw = 0.0
          vapor_map = 0
 
-C Build mapping to CGRID for each vapor species
+C Build mapping to CGRID for each vapor species. It was originally
+C assumed that all semivolatile vapors were in the nonreactive tracer
+C namelist. B. Murphy is relaxing this assumption and allowing them to
+C be in the reactive gas namelist as well.
          Do spc = 1, n_vapor
             n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
-            If ( n .Ne. 0 ) Then
+            g = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
+            If ( n .NE. 0 ) Then
+	       !The Semivolatile Vapor Corresponds to a NonReactive
+	       !Tracer in the Master Grid
                vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
                vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
+	    Else If ( g .NE. 0 ) Then  
+	       !The Semivolatile Vapor Corresponds to a Reactive Gas
+	       !Tracer in the Master Grid
+               vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( g )
+               vapor_mw( spc ) = gc_molwt( gc_g2ae_map( g ) )
             Else
                xmsg = 'Species ' // Trim( vaporspc( spc )%name )
      &              // ' in vapor name is not in non-reactives table'
+     &              // ' or the reactive gases table.'
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
          End Do
@@ -301,7 +319,8 @@ C Find indices of required species
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
-C Build mapping array to aero species
+C Build mapping array of Semivolatile Vapors (vaporspc) to the Aerosol
+C Species they correspond to (aerospc is used inside findAero)
          soa_aeroMap = 0
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%soa_name .Ne. ' ' ) Then
@@ -309,6 +328,9 @@ C Build mapping array to aero species
             End If
          End Do
 
+C Build Mapping array of Reactive variables that track production rates
+C of condensable gases (orgprod) to any nonvolatile species they yield
+C (aerospc is used inside findAero)
          orgprod_aeroMap = 0
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
@@ -316,7 +338,8 @@ C Build mapping array to aero species
             End If
          End Do
 
-C Build mapping array to orgprod species
+C Build mapping array of sources of Semivolatile Vapors (vaporspc) to the 
+C Reactive variables that store their production rates (orgprod)
          drog_map = 0
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%drog_name .Ne. ' ' ) Then
@@ -940,7 +963,8 @@ C organic material; in future code updates, molecularpartit weights of non-volat
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
-      totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
+      !totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
+      totorgsw = 0.0  !There is no Nonvolaitle POA
       Do i = 1, n_aerospc
          If(  aerospc( i )%tracer )cycle
          If ( aerospc( i )%nonVol_soa ) Then

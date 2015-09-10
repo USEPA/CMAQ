@@ -92,6 +92,7 @@ C Variables for the thickness and volume of each grid cell
  
 C Emission rate of all aerosol species interpolated to current time
       REAL,    ALLOCATABLE, SAVE :: EMBUFF  ( :,:,:,: ) ! in all grid cells
+      REAL,    ALLOCATABLE, SAVE :: EMTMP   ( :,:,:,: ) ! in all grid cells
       REAL,    ALLOCATABLE, SAVE :: PM_EM   ( : )       ! in one grid cell
       REAL,    ALLOCATABLE, SAVE :: EM_RATE ( : )       !
       REAL,    ALLOCATABLE, SAVE :: EM_PART ( :,: )     !
@@ -105,6 +106,7 @@ C Emission rate of all aerosol species interpolated to current time
       INTEGER, ALLOCATABLE, SAVE :: DUST_MAP( :,: )     !
 
 C EMBUFF     mass emission rate input global array
+C EMTMP      temporary array for reading and summing emissions into EMBUFF
 C PM_EM      mass emission rate input localized to one grid cell
 C EM_RATE    scaled PM_EM
 C EM_PART    particulate mass emission rate in one grid cell
@@ -336,6 +338,13 @@ C *** Allocate memory for PM_EM, EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
             XMSG = '*** EMBUFF memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+	 
+	 ALLOCATE ( EMTMP( NCOLS,NROWS,PM_EMLYRS,1 ),
+     &              STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = '*** EMTMP memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 
          ALLOCATE ( CONVEM_PM( PM_EMLYRS ),
      &              CELLHGT( PM_EMLYRS ),
@@ -377,7 +386,7 @@ C *** Map indices of emission species
                   IF ( .NOT. AERO_MISSING(S,N) .AND.
      &                 AEROSPC( S )%EMIS_SPLIT( N ) .NE. 0.0 ) THEN
                      EM_MAP( S,N ) = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
-      write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_map( s,n )
+                     write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_map( s,n )
 !                    if ( em_map( s,n ) .eq. 0 ) then
 !                       write( logdev,* ) '*** aerospc em_map: ', s, n, em_map( s,n )
 !                    end if
@@ -649,7 +658,7 @@ C Surface area emission rates [m2/m3/s]
 
 C Miscellaneous variables
          CHARACTER( 16 ), SAVE :: PNAME = 'GET_AERO_EMIS'
-         INTEGER C, R, L, N, V, S         ! Loop indices
+         INTEGER C, R, L, N, V, S, ISPC       ! Loop indices
 #ifdef Verbose2
          real sumem
 #endif
@@ -662,14 +671,15 @@ C     time.  Store result in EMBUFF array.
          IF ( PT3DEMIS ) THEN   ! in-line plume rise
 
             EMBUFF = 0.0   ! array assignment
+	    EMTMP  = 0.0
 
             DO S = 1, N_EMIS_PM   ! read 2d file
                IDX = PMEM_MAP( S )
-               IF ( .NOT. INTERPX( EMIS_1, AEROSPC( IDX )%EMIS, PNAME,
-     &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,1,
-     &                             JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
+  	       IF ( .NOT. INTERPX( EMIS_1, PMEM_MAP_NAME( S ), PNAME,
+     &                           STARTCOL,ENDCOL, STARTROW,ENDROW, 1,1,
+     &                           JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
                   XMSG = 'Could not read '
-     &                 // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
+     &               // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
                END IF
             END DO
@@ -690,12 +700,12 @@ C     time.  Store result in EMBUFF array.
 
             DO S = 1, N_EMIS_PM
                IDX = PMEM_MAP( S )
-               IF ( .NOT. INTERPX( EMIS_1, AEROSPC( IDX )%EMIS, PNAME,
-     &                             STARTCOL,ENDCOL, STARTROW,ENDROW, 1,PM_EMLYRS,
-     &                             JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
-                  XMSG = 'Could not read '
-     &                 // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
+               IF ( .NOT. INTERPX( EMIS_1, PMEM_MAP_NAME( S ), PNAME,
+     &                           STARTCOL,ENDCOL, STARTROW,ENDROW, 1,PM_EMLYRS,
+     &                           JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
+                 XMSG = 'Could not read '
+     &             // TRIM( AEROSPC( IDX )%EMIS ) // ' from ' // EMIS_1
+                 CALL M3WARN ( PNAME, JDATE, JTIME, XMSG  )
                END IF
             END DO
 
@@ -728,7 +738,7 @@ C *** Loop over each grid cell in layer 1
 
 C *** Store aerosol emission rates for this grid cell in a 1D array
                DO S = 1, N_EMIS_PM
-                  PM_EM( S ) = EMBUFF( C,R,L,S )
+		  PM_EM( S ) = EMBUFF( C,R,L,S )
                END DO
 
 C *** Get grid cell values for sea salt emission rates
@@ -790,13 +800,37 @@ C     Binkowski & Roselle (2003).
                DO S = 1, N_EMIS_PM
                   IDX = PMEM_MAP( S )
                   DO N = 1, N_MODE - 1
-                     EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N )
-     &                                * EM_RATE( S )
+                     EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
+     &                        AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
                      IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
-                        EMISM3( N ) = EMISM3( N ) + EM_PART( IDX,N )
+                        EMISM3( N ) = EMISM3( N ) + 
+     &                        AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
      &                              * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
                      END IF
                   END DO
+
+                  !In order to implement semivolatile POA, the total
+		  !mass of POC and PNCOM must be distributed out to
+		  !the semivolatile surrogates representing the distribution.
+		  !If this is the aerosol species linked to POC then
+		  !also do all of the aerosol species linked to POA.
+                  IF ( IDX .EQ. APOC_IDX ) THEN
+		    DO ISPC = 1, N_AEROSPC
+		      IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
+		         DO N = 1, N_MODE - 1
+                            EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
+     &                          AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+                           IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
+                             EMISM3( N ) = EMISM3( N ) + 
+     &                        AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+     &                          * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
+                           END IF
+                         END DO
+                      END IF
+                    END DO
+                  END IF
+
+                  !Apply Emissions to Coarse Aerosol Mode
                   N = N_MODE
                   IF ( IDX .EQ. ASO4_IDX ) THEN
                      EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
@@ -918,15 +952,39 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                   EMISM3 = 0.0    ! array assignment
                   DO S = 1, N_EMIS_PM
                      IDX = PMEM_MAP( S )
-                     DO N = 1, N_MODE - 1
-                        EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N )
-     &                                   * EM_RATE( S )
+		     DO N = 1, N_MODE - 1
+                        EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
+     &                      AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
                         IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
-                           EMISM3( N ) = EMISM3( N ) + EM_PART( IDX,N )
-     &                                 * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
+                           EMISM3( N ) = EMISM3( N ) + 
+     &                     AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
+     &                        * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
                         END IF
                      END DO
-                     N = N_MODE
+
+                     !In order to implement semivolatile POA, the total
+		     !mass of POC and PNCOM must be distributed out to
+		     !the semivolatile surrogates representing the distribution.
+		     !If this is the aerosol species linked to POC then
+		     !also do all of the aerosol species linked to POA.
+                     IF ( IDX .EQ. APOC_IDX ) THEN
+		       DO ISPC = 1, N_AEROSPC
+  		         IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
+		           DO N = 1, N_MODE - 1
+                              EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
+     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+                              IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
+                                 EMISM3( N ) = EMISM3( N ) + 
+     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+     &                              * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
+                              END IF
+                           END DO
+                         END IF
+                       END DO
+                     END IF
+                     
+		     !Compute Coarse Mode Properties
+		     N = N_MODE
                      IF ( IDX .EQ. ASO4_IDX ) THEN
                         EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
                      ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
