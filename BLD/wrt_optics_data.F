@@ -112,7 +112,7 @@
         EQNAME = 'OUT_DIR'
 
         ODATA_NAME = EQNAME( 1:LEN_TRIM( EQNAME ) )
-     &            // '/'  // 'PHOT_OPTICS_DATA'
+     &            // '/'  // 'PHOT_OPTICS.dat'
      
         OPEN(ODATA_UNIT,  FILE = ODATA_NAME, STATUS = 'UNKNOWN')
           
