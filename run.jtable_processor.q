@@ -4,9 +4,9 @@ set echo
 #scom command defines compiler and libraries
 #source ~/scom -d -c ifc
 
-#setenv COMPILER INTEL
+ setenv COMPILER INTEL
 #setenv COMPILER GFORT
- setenv COMPILER PGF90
+#setenv COMPILER PGF90
 
 #define path to mechanism include or module data files
  set mech_archive = /home/${USER}/CCTM_git_repository/MECHS

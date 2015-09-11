@@ -1132,8 +1132,14 @@ C  Gardner et. al may support this conclusion.
 
 ! temperature/density correction to quantum yield
 
-              FACTOR = QY_ACETONE(TLEV(I),DENS(I),WC(IW))
-     &               / QY_ACETONE(T298K, DENS0, WC(IW))
+              IF( QY_ACETONE(T298K, DENS0, WC(IW)) .GT. 1.0E-5)THEN
+
+                  FACTOR = QY_ACETONE(TLEV(I),DENS(I),WC(IW))
+     &                   / QY_ACETONE(T298K, DENS0, WC(IW))
+
+              ELSE
+                  FACTOR = 0.0
+              END IF
 
               QY(I, IW) = MAX(FACTOR, 0.0) * QY(I, IW)
               QY(I, IW) = MIN(1.0, QY(I, IW))
