@@ -140,47 +140,51 @@ C Mapping array for location of acid enhanced products and nucleophiles in aeros
 
       SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
 
-C Calculate the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
-C
-C Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
-C                         N2O5_GAMMA
-C
-C 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
-C            in aero6 module of CMAQ version 5.01. The adaptation includes
-C            heterogeneous nitryl chloride production used for Sarwar et al.
-C            (2012).
-C 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
-C 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol added
-C            following Pye et al. (2013).
-C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
-C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
-C            Compilation and evaluation of gas-phase diffusion coefficients 
-C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
-C            Phys. Discuss., 14, 15645–15682, 2014. 
-C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+c Calculates the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
+c
+c Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
+c                         N2O5_GAMMA
+c
+c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
+c            in aero6 module of CMAQ version 5.01. The adaptation includes
+c            heterogeneous nitryl chloride production used for Sarwar et al.
+c            (2012).
+c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
+c 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol added
+c            following Pye et al. (2013).
+c 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+c            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+c            Compilation and evaluation of gas-phase diffusion coefficients 
+c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+c            Phys. Discuss., 14, 15645–15682, 2014. 
+c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+C 02/09/15 - B.Hutzell - corrected NO2 rate by a factor of two based consulting the stoiciometery for 
+C            reaction published in Sarwar et al. (2008) and its analytical solution
 
-C  REFERENCES:
-C   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
-C      Gallani, An improved representation of the reaction of N2O5 on
-C      aerosols for mesoscale air quality models.  In "Regional
-C      Photochemical Measurement and Modeling Studies, Vol 2 - Results
-C      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
-C      904-913, 1995.
-C
-C   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
-C      reaction probabilities on the surface of particles containing
-C      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
-C      press.
-C
-C   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
-C      simulated vertical profiles of nitrous acid - Part II. Model
-C      simulations and indications for a photolytic source, Atmospheric
-C      Environment, 37, 2957-2966, 2003.
-C
-C   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
-C      B. Vogel, A comparison of CMAQ HONO predictions with observations
-C      from the Northeast Oxidant and Particle Study, Atmospheric
-C      Environment, 2008, in press.
+c
+c
+c  REFERENCES:
+c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
+c      Gallani, An improved representation of the reaction of N2O5 on
+c      aerosols for mesoscale air quality models.  In "Regional
+c      Photochemical Measurement and Modeling Studies, Vol 2 - Results
+c      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
+c      904-913, 1995.
+c
+c   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
+c      reaction probabilities on the surface of particles containing
+c      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
+c      press.
+c
+c   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
+c      simulated vertical profiles of nitrous acid - Part II. Model
+c      simulations and indications for a photolytic source, Atmospheric
+c      Environment, 37, 2957-2966, 2003.
+c
+c   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
+c      B. Vogel, A comparison of CMAQ HONO predictions with observations
+c      from the Northeast Oxidant and Particle Study, Atmospheric
+c      Environment, 2008, in press.
 C
 C   5. Bertram, T. H. and J.A. Thornton, Toward a general parameterization
 C      of N2O5 reactivity on aqueous particles: the competing effects of 
@@ -698,9 +702,10 @@ C *** calculate aerosol surface area
                                
                   CASE( IA_NO2 )
       
-C *** calculate pseudo-first order rate constant using Eq 1 of Vogel
+C *** calculate pseudo-first order rate constant for NO2 loss using Eq 1 of Vogel
 C     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
 C     by 60 to convert it into 1/sec
+
                      KNO2 = MAX ( 0.0D0, 1.0D-04 * TOTSURFA )
 
                      KHETERO( IRATE, C,R,L )  = 60.0D0 * KNO2 ! convert to min-1

@@ -216,7 +216,7 @@ c...production terms with stoichiomteric coeff EQ 1.0 and NE 1.0
                END DO
             ELSE
                ISCP = ICOEFF( NRK, NP, NCSP )
-               FRACN = SC( NRK, ISCP ) * R1DELT 
+               FRACN = REAL( SC( NRK, ISCP ), 8 ) * R1DELT 
                DO NCELL = 1, NUMCELLS
                   CC2( NCELL, IARP ) = CC2( NCELL, IARP ) 
      &                               + FRACN * EXPLIC( NCELL, IALP ) 

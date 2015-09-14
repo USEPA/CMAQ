@@ -138,6 +138,7 @@ C input/output parameters
 
          USE HGRD_DEFN           ! horizontal grid specifications
          USE UTILIO_DEFN
+         USE ASX_DATA_MOD
          USE LSM_MOD
          USE Bidi_Mod
 
@@ -175,47 +176,54 @@ C--------------------------------------------------------------------------
             fevgrn( :,: ) = 0.0
          END IF
 
-         SELECT CASE( LAND_SCHEME )
-            CASE( 'USGS24' )
-               ALLOCATE (  Hglu_fac( n_lufrac ) )
-               Hglu_fac = HGLU_FAC_USGS
-               DO C = 1, MY_NCOLS
-                  DO R = 1, MY_NROWS
-                     fevgrn(c,r) = lufrac(13,c,r)+lufrac(14,c,r)+0.5*lufrac(15,c,r)
-                  END DO
+!         SELECT CASE( LAND_SCHEME )
+!            CASE( 'USGS24' )
+!               ALLOCATE (  Hglu_fac( n_lufrac ) )
+!               Hglu_fac = HGLU_FAC_USGS            
+         DO C = 1, MY_NCOLS
+            DO R = 1, MY_NROWS
+               DO L = 1, N_LUFRAC
+                  IF(CAT_LU(L) .EQ. 'EVEFOR') THEN
+                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(l,c,r)
+                  End IF
+                  IF(CAT_LU(L) .EQ. 'MIXFOR') THEN
+                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(l,c,r)
+                  End IF                                    
                END DO
-            CASE( 'MODIS' )
-               ALLOCATE (  Hglu_fac( n_lufrac ) )
-               Hglu_fac = HGLU_FAC_MODIS
-               DO C = 1, MY_NCOLS
-                   DO R = 1, MY_NROWS
-                     fevgrn(c,r) = lufrac(1,c,r)+lufrac(2,c,r)+0.5*lufrac(5,c,r)
-                  END DO
-               END DO
-             CASE( 'NLCD40' )
-               ALLOCATE (  Hglu_fac( n_lufrac ) )
-               Hglu_fac = HGLU_FAC_NLCD40
-               DO C = 1, MY_NCOLS
-                   DO R = 1, MY_NROWS
-                      fevgrn(c,r) = lufrac(1,c,r) + lufrac(2,c,r) +
-     &                              0.5*lufrac(5,c,r) + lufrac(29,c,r) +
-     &                              0.5*lufrac(30,c,r)
-                  END DO
-               END DO
-             CASE( 'NLCD50' )
-               ALLOCATE (  Hglu_fac( n_lufrac ) )
-               Hglu_fac = HGLU_FAC_NLCD50
-               DO C = 1, MY_NCOLS
-                   DO R = 1, MY_NROWS
-                      fevgrn(c,r) = lufrac(10,c,r) + 0.5*lufrac(11,c,r) +
-     &                              lufrac(32,c,r) + lufrac(32,c,r) + 
-     &                              0.5*lufrac(36,c,r)
-                  END DO
-               END DO
-            CASE DEFAULT
-               xmsg = 'Land use scheme not supported'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END SELECT
+            END DO
+         END DO
+!            CASE( 'MODIS' )
+!               ALLOCATE (  Hglu_fac( n_lufrac ) )
+!               Hglu_fac = HGLU_FAC_MODIS
+!               DO C = 1, MY_NCOLS
+!                   DO R = 1, MY_NROWS
+!                     fevgrn(c,r) = lufrac(1,c,r)+lufrac(2,c,r)+0.5*lufrac(5,c,r)
+!                  END DO
+!               END DO
+!             CASE( 'NLCD40' )
+!               ALLOCATE (  Hglu_fac( n_lufrac ) )
+!               Hglu_fac = HGLU_FAC_NLCD40
+!               DO C = 1, MY_NCOLS
+!                   DO R = 1, MY_NROWS
+!                      fevgrn(c,r) = lufrac(1,c,r) + lufrac(2,c,r) +
+!     &                              0.5*lufrac(5,c,r) + lufrac(29,c,r) +
+!     &                              0.5*lufrac(30,c,r)
+!                  END DO
+!               END DO
+!             CASE( 'NLCD50' )
+!               ALLOCATE (  Hglu_fac( n_lufrac ) )
+!               Hglu_fac = HGLU_FAC_NLCD50
+!               DO C = 1, MY_NCOLS
+!                   DO R = 1, MY_NROWS
+!                      fevgrn(c,r) = lufrac(10,c,r) + 0.5*lufrac(11,c,r) +
+!     &                              lufrac(32,c,r) + lufrac(32,c,r) + 
+!     &                              0.5*lufrac(36,c,r)
+!                  END DO
+!               END DO
+!            CASE DEFAULT
+!               xmsg = 'Land use scheme not supported'
+!               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+!         END SELECT
 
 C **** Read in saved surface layer concentrations
          IF ( .NOT. OPEN3( INIT_MEDC_1, FSREAD3, PNAME ) ) THEN
@@ -271,9 +279,8 @@ C-------------------------------------------------------------------------------
 
          END SUBROUTINE INIT_HGSIM
 
-         SUBROUTINE ATX (diff, ra, rbc, rstom, rcut, rwetsfc, rinc, rsnow, rsndiff,
-     &                   rgw, ifsnow, xm, dvel, HG, H, LAI, dpvd, del, TS1CM,
-     &                   wg, tstep, c, r, veg, sltype, jdate, jtime, ustar )
+         SUBROUTINE ATX (rbc, rcut, rwetsfc, rinc, rsnow, rgw, ifsnow, xm, 
+     &                   dvel, HG, H, dpvd, del, tstep, c, r, l, jdate, jtime )
 
 ! test program to find and return eigenvalues and eigenvectors for a coupled
 ! land - surface echange model using Intels math kernel library (MKL) linear
@@ -284,40 +291,32 @@ C-------------------------------------------------------------------------------
          USE LSM_MOD
          USE UTILIO_DEFN
          USE BIDI_MOD
+         USE ASX_DATA_MOD
 
 C Includes:
 
-         INCLUDE SUBST_CONST     ! constants
+!         INCLUDE SUBST_CONST     ! constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments passed to and from m3dry
 
-         REAL, INTENT( IN )   :: diff    ! Elemental Hg diffusivity
-         REAL, INTENT( IN )   :: ra      ! Aerodynamic resistance
          REAL, INTENT( IN )   :: rbc     ! laminar boundary layer resistance
-         REAL, INTENT( IN )   :: rstom   ! stomatal resistance
          REAL, INTENT( IN )   :: rcut    ! cuticle resistance
          REAL, INTENT( IN )   :: rwetsfc ! wet surface resistance
          REAL, INTENT( IN )   :: rinc    ! in canopy resistance
          REAL, INTENT( IN )   :: rsnow
-         REAL, INTENT( IN )   :: rsndiff ! diffusivity through snow pack
          REAL, INTENT( IN )   :: rgw     ! wet soil resistance
          REAL, INTENT( IN )   :: xm
          REAL, INTENT( IN )   :: HG
          REAL, INTENT( IN )   :: H
          REAL, INTENT( IN )   :: del
-         REAL, INTENT( IN )   :: LAI
-         REAL, INTENT( IN )   :: wg ! 1 cm soil moisture
-         REAL, INTENT( IN )   :: TS1CM
-         REAL, INTENT( IN )   :: veg
-         REAL, INTENT( IN )   :: sltype
-         REAL, INTENT( IN )   :: ustar
 
          REAL, INTENT( OUT )  :: dpvd     ! evasion
          REAL, INTENT( OUT )  :: dvel     ! deposition velocity
 
          INTEGER, INTENT( IN ) :: c
          INTEGER, INTENT( IN ) :: r
+         INTEGER, INTENT( IN ) :: l
          INTEGER, INTENT( IN ) :: jdate
          INTEGER, INTENT( IN ) :: jtime
          INTEGER, INTENT( IN ) :: tstep
@@ -362,15 +361,14 @@ C Arguments passed to and from m3dry
          REAL, SAVE :: Hgc
          REAL, SAVE :: Hgs
 !******** soil properties ***********************************************
-         REAL(8), PARAMETER :: kvis   = 0.132D0 ! [cm^2 / s] at 273.15K
-         REAL,    PARAMETER :: karman = 0.4   ! von Karman constant
+         REAL(8), PARAMETER :: kvis_d = REAL(kvis,8) ! [cm^2 / s] at 273.15K
          REAL(8)            :: wg_min         ! minimum soil moisture content
          REAL(8)            :: ldry           ! diffusion length
          Real(8)            :: rbg            ! soil boundary layer resistance
          REAL(8)            :: scn            ! for Rbg
          REAL(8)            :: ustg           ! for Rbg
          REAL(8)            :: del0           ! for Rbg
-         Real(8)            :: dp                    ! for Rsoil
+         Real(8)            :: dp             ! for Rsoil
          INTEGER            :: ist            ! soil type
 !********* Unit conversions *********************
          REAL(8) :: M3MOLVOL ! molar volume of air at stp m3/mol
@@ -380,7 +378,7 @@ C Arguments passed to and from m3dry
          M3MOLVOL = MOLVOL/1.0D3
          
          IF( INIT_LAI ) THEN
-            MLAI( c,r ) = lai
+            MLAI( c,r ) = Met_Data%LAI(c,r)
             flai = 1.0D0
          END IF         
          IF( INIT_ATX ) THEN
@@ -396,10 +394,10 @@ C Arguments passed to and from m3dry
             IF( MLAI(c,r) .EQ. 0.0 ) THEN
                flai = 1.0D0
             ELSE
-               flai = max(lai/MLAI( c,r ),1.0D0) ! bio dilution
+               flai = max(Met_Data%LAI(c,r)/MLAI( c,r ),1.0D0) ! bio dilution
             END IF
             IF(flai .GT. 3.0) WRITE(Logdev,*) 'LAI factor: ', flai
-            MLAI( c,r ) = lai
+            MLAI( c,r ) = Met_Data%LAI(c,r)
             Cm     = CMEDIA( c,r,5 )/flai  ! ng/g bulk leaf concentration
             Cc     = CMEDIA( c,r,6 )/flai  ! ng/g bulk leaf concentration
             CgHg   = CMEDIA( c,r,3 )  ! ng/g bulk soil concentration
@@ -409,8 +407,8 @@ C Arguments passed to and from m3dry
 
 ! Model layer depths
 
-         ZC     = 7.1D1*LAI ! g/m**2 based off of leaf litter fall
-         ZM     = 7.1D1*LAI ! measurements at UCONN's experimental
+         ZC     = 7.1D1* REAL(Met_Data%LAI(c,r),8) ! g/m**2 based off of leaf litter fall
+         ZM     = 7.1D1* REAL(Met_Data%LAI(c,r),8) ! measurements at UCONN's experimental
 ! forest Bash and Miller 2009 Atmos. Environ.
 
 !***************** canopy parameters *********************************
@@ -427,22 +425,22 @@ C Arguments passed to and from m3dry
          kam = Kpwm*H            ! g/mol apoplast solution
 !**************** soil parameters ************************************
 ! Compute quasi-laminar boundary layer resistance at the soil surface
-         scn  = kvis / diff
-         ustg = max(ustar * EXP(-lai), 1.0D-3)
+         scn  = kvis / dif0(l)
+         ustg = max(Met_Data%Ustar(c,r) * EXP(-REAL(Met_Data%LAI(c,r),8)), 1.0D-3)
          del0 = 1.0D-4 * kvis / ( karman * ustg )
          rbg  = ( scn - LOG( 1.0D1 * del0 ) ) / ( karman * ustg )
 ! Compute soil resistance
-         ist = nint(Sltype)
-         IF (ist.lt.1.or.ist.gt.11) THEN
-            WRITE(logdev,*) ' ist=',ist
-            ist = 4
-         END IF
-         wg_min = MAX(wg,wres(ist))
-         ldry= MAX(ZG*(EXP((1.0D0-wg_min/wsat(ist))**5)-1.0D0)/1.718D0,1.0D-12)
-         dp  = diff*1.D-4 * wsat(ist)**2 
-     &       *(1.0D0-wres(ist)/wsat(ist))**(2.0D0+3.0D0/bslp(ist))
+         ist = Grid_Data%SLTYP(c,r)
+!         IF (ist.lt.1.or.ist.gt.11) THEN
+!            WRITE(logdev,*) ' ist=',ist
+!            ist = 4
+!         END IF
+         wg_min = REAL(MAX(Met_Data%SOIM1(c,r),Grid_Data%Wres(c,r)),8)
+         ldry= MAX(ZG*(EXP((1.0D0-wg_min/Grid_Data%Wsat(c,r))**5)-1.0D0)/1.718D0,1.0D-12)
+         dp  = dif0(l)*1.D-4 * Grid_Data%Wsat(c,r)**2 
+     &       *(1.0D0-Grid_Data%Wres(c,r)/Grid_Data%Wsat(c,r))**(2.0D0+3.0D0/Grid_Data%Bslp(c,r))
 ! Soil divalent mercury reduction rate following Scholz et al 2003
-         IF(TS1CM .GT. 273.15) THEN
+         IF(Met_Data%SOIT1(c,r) .GT. 273.15) THEN
             kr     = 8.0D-11
             rgnd   = ldry/dp
          ELSE ! if the soil is frozen limit diffusion and reduction
@@ -453,31 +451,31 @@ C Arguments passed to and from m3dry
          cgHgII0 = 0.0D0
 
          DO i = 1, n_lufrac
-            cgHgII0 = cgHgII0+hglu_fac(i)*lufrac(i,c,r)
+            cgHgII0 = cgHgII0+hglu_fac(i)*Grid_data%lufrac(i,c,r)
          END DO
 C Set floor to smallest terrestrial value
          cgHgII0 = MAX( cgHgII0, 1.8D1 )          
 
 C diffusion through soil from Scholtz et al. 2003
-         vdHg   = 1/(ra+5.0D-1*rinc)
-         vdHgst = 1.0D0/( rbc + rstom )
-         vdHgct = lai*(( 1.0D0 - del  )/( rbc + rcut )
+         vdHg   = 1/(REAL(Met_Data%RA(c,r),8)+5.0D-1*rinc)
+         vdHgst = 1.0D0/( rbc + REAL(Met_Data%RS(c,r),8) )
+         vdHgct = REAL(Met_Data%LAI(c,r),8)*(( 1.0D0 - del  )/( rbc + rcut )
      &            + ( del )/(rbc + rwetsfc ))
-         vdHgsl = veg/( rbg + rgnd + 5.0D-1*rinc)
-     &            + ((1-ifsnow) *( 1.0D0 - veg )*( 1.0D0-del ))/(rbg + rgnd )
+         vdHgsl = REAL(Met_Data%VEG(c,r),8)/( rbg + rgnd + 5.0D-1*rinc)
+     &            + ((1-ifsnow) *( 1.0D0 - REAL(Met_Data%VEG(c,r),8) )*( 1.0D0-del ))/(rbg + rgnd )
      &            + (del * (1.0D0-ifsnow))/(rbg + rgw )
      &            + (ifsnow*(1.0D0 - xm))/( rbg + rsnow )
      &            + (xm*ifsnow)/(rbc + rsndiff + rgw)
-         pdHgsl = 1.0D0/(ra + 1.0D0/vdHgsl )     ! production term with no canopy
+         pdHgsl = 1.0D0/(REAL(Met_Data%RA(c,r),8) + 1.0D0/vdHgsl )     ! production term with no canopy
 
          vdHgt = vdHg + vdHgst + vdHgct + vdHgsl
 
          CHgzo = (vdHg*Hg+vdHgst/kam*Cm+vdHgct/kac*Cc+vdHgsl/H*cgHg)
      &                    /vdHgt
 
-         dpvd = veg * vdHg * CHgzo + (1.0D0-veg) * pdHgsl/H * CgHg
+         dpvd = Met_Data%veg(c,r) * vdHg * CHgzo + (1.0D0-REAL(Met_Data%VEG(c,r),8)) * pdHgsl/H * CgHg
 
-         dvel = pdHgsl + veg *(vdhg-pdHgsl)
+         dvel = pdHgsl + REAL(Met_Data%VEG(c,r),8) *(vdhg-pdHgsl)
 
 ! Load array A
          NC = 3
@@ -722,17 +720,18 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C::::::: Air surface water exchange subroutine :::::::::::::::::::::::::::
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-         SUBROUTINE ASWX( Hg, HgIIgas, vdHg, vdHgII, awhg, rgrnd,
+         SUBROUTINE ASWX( Hg, HgIIgas, vdHg, vdHgII, awhg,
      &                    dpvd, c, r, JDATE, JTIME, TSTEP )
 
          USE HGRD_DEFN           ! horizontal grid specifications
          USE DEPVVARS
          USE UTILIO_DEFN
          USE BIDI_MOD
+         USE ASX_DATA_MOD
 
 C Includes:
 
-         INCLUDE SUBST_CONST     ! constants
+!         INCLUDE SUBST_CONST     ! constants
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
          INTEGER, INTENT( IN )   :: JDATE
@@ -743,7 +742,6 @@ C Includes:
          REAL,    INTENT( IN )   :: vdHg
          REAL,    INTENT( IN )   :: vdHgII
          REAL,    INTENT( IN )   :: awhg
-         REAL,    INTENT( IN )   :: rgrnd
          REAL,    INTENT( OUT )  :: dpvd
          INTEGER, INTENT( IN )   :: c
          INTEGER, INTENT( IN )   :: r
@@ -777,7 +775,7 @@ C********* Intermediate concentration variables *********************
 
          dpvd = cDGM * vdHg/awhg
 
-         IF ( rgrnd .LT. 1e-3 ) THEN
+         IF ( Met_Data%RGRND(c,r) .LT. 1e-3 ) THEN
 C the aqueous elemental and divalent Hg pools become decoupled and the
 C matrices become singular warrenting an alternative solution
 
@@ -801,10 +799,10 @@ C attenuation at 1 m = 1/K (1-exp(-K Z)) = 0.758 using a K of 0.58
 
 
             KO( 1,1 )   = -vdhg / ( ZSURF * awhg )
-     &                    -kox * satten *rgrnd/rref
-            KO( 1,2 )   = kphot * satten*rgrnd/rref
-            KO( 2,1 )   = kox * satten * rgrnd/rref
-            KO( 2,2 )   = -kphot * satten * rgrnd/rref
+     &                    -kox *   satten * Met_Data%RGRND(c,r)/rref
+            KO( 1,2 )   =  kphot * satten * Met_Data%RGRND(c,r)/rref
+            KO( 2,1 )   =  kox *   satten * Met_Data%RGRND(c,r)/rref
+            KO( 2,2 )   = -kphot * satten * Met_Data%RGRND(c,r)/rref
 
             ALLOCATE( NHS(NC))
 
@@ -920,7 +918,7 @@ C------------------------------------------------------------------------------
 
          SUBROUTINE GET_WDEP( CSE, WDEP, C, R )
 
-         Use LSM_MOD, Only: lwmask
+         Use ASX_DATA_MOD, Only: Grid_Data
          USE BIDI_MOD, Only: CMedia
 
          IMPLICIT NONE
@@ -938,7 +936,7 @@ C------------------------------------------------------------------------------
          REAL  WDEP_LOAD   ! loading due to wet deposition
 
 
-         IF ( NINT( lwmask( c,r ) ) .EQ. 0 ) THEN ! water
+         IF ( NINT( Grid_Data%lwmask( c,r ) ) .EQ. 0 ) THEN ! water
 
          ! convert to umol/m2 pulse input
             WDEP_LOAD = WDEP*HAOM2*UGOKG/MWHG

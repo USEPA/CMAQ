@@ -19,7 +19,7 @@
 
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/aero_driver.F,v 1.11 2012/01/19 13:12:57 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/aero_driver.F,v 1.5 2012/01/26 18:44:38 sjr Exp $
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -88,10 +88,10 @@ C   - added LIMIT_Sg flag for call to GETPAR
 C   Jeff Young - Aug 10 - convert for Namelist redesign (replace include files)
 C   Steve Howard - Mar 11 - Renamed met_data to aeromet_data
 C   S.Roselle- Mar 11 - replaced I/O API include files with UTILIO_DEFN
+C   B.Hutzell- Aug 11 - Adapted for mercury and HAP mechanisms
 C   David Wong - Aug 11 - put in twoway model implementation
 C   David Wong - Oct 11 - extended the twoway implementation to handle finer
 C                         time resolution
-C
 C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
 C                            diagnostic outputs on reaction gamma and yield 
 C                            values 
@@ -309,10 +309,10 @@ C *** Open the met files.
 C *** Set up file structure for visibility file. It has two variables,
 C     visual range in deciview units (dimensionless) and extinction in
 C     units of (1/km) and is for layer 1 only.
-         IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+        IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( AERDIAG .AND. MYPE .EQ. 0 ) CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+        IF ( AERDIAG .AND. MYPE .EQ. 0 )CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -418,7 +418,14 @@ C     into precursr_conc in precursor_data
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
 
 C *** Calculate SO4RATE stored in module
-               SO4RATE = PRECURSOR_CONC( SULPRD_IDX ) / DT
+               SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
+
+               IF( PHGRXN_IDX .GT. 0 )THEN
+C *** Calculate PHG_RATE stored in module            
+                   PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
+               ELSE
+                   PHG_RATE = 0.0
+               END IF
 
 C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
@@ -462,15 +469,15 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L, 7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
                   DIAM_SPC( C,R,L, 8 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! wet j-mode diam.
                   DIAM_SPC( C,R,L, 9 ) = AEROMODE_DIAM( 3 ) * 1.0E6  ! wet k-mode diam.
-                  DIAM_SPC( C,R,L,10 ) = MOMENT2_CONC( 1 )     ! wet i-mode 2nd moment
-                  DIAM_SPC( C,R,L,11 ) = MOMENT2_CONC( 2 )     ! wet j-mode 2nd moment
-                  DIAM_SPC( C,R,L,12 ) = MOMENT2_CONC( 3 )     ! wet k-mode 2nd moment
-                  DIAM_SPC( C,R,L,16 ) = MOMENT3_CONC( 1 )     ! wet i-mode 3rd moment
-                  DIAM_SPC( C,R,L,17 ) = MOMENT3_CONC( 2 )     ! wet j-mode 3rd moment
-                  DIAM_SPC( C,R,L,18 ) = MOMENT3_CONC( 3 )     ! wet k-mode 3rd moment
-                  DIAM_SPC( C,R,L,20 ) = PM25( 1 )             ! i-mode fine fraction
-                  DIAM_SPC( C,R,L,21 ) = PM25( 2 )             ! j-mode fine fraction
-                  DIAM_SPC( C,R,L,22 ) = PM25( 3 )             ! coarse-mode fine fraction
+                  DIAM_SPC( C,R,L,10 ) = MOMENT2_CONC( 1 )    ! wet i-mode 2nd moment
+                  DIAM_SPC( C,R,L,11 ) = MOMENT2_CONC( 2 )    ! wet j-mode 2nd moment
+                  DIAM_SPC( C,R,L,12 ) = MOMENT2_CONC( 3 )    ! wet k-mode 2nd moment
+                  DIAM_SPC( C,R,L,16 ) = MOMENT3_CONC( 1 )    ! wet i-mode 3rd moment
+                  DIAM_SPC( C,R,L,17 ) = MOMENT3_CONC( 2 )    ! wet j-mode 3rd moment
+                  DIAM_SPC( C,R,L,18 ) = MOMENT3_CONC( 3 )    ! wet k-mode 3rd moment
+                  DIAM_SPC( C,R,L,20 ) = PM25( 1 )            ! i-mode fine fraction
+                  DIAM_SPC( C,R,L,21 ) = PM25( 2 )            ! j-mode fine fraction
+                  DIAM_SPC( C,R,L,22 ) = PM25( 3 )            ! coarse-mode fine fraction
                   DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
                   DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
                   DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
@@ -599,7 +606,6 @@ C *** Write data to the aerosol diagnostic file.
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_DIAM_1,
      &                     'for date and time', MDATE, MTIME
-     
 
          END IF
 
