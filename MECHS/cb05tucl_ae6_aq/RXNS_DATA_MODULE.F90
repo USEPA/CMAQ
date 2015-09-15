@@ -207,13 +207,13 @@
       DATA GAS_CHEM_SPC(  81 ) / 'SESQRXN         ' /
       DATA GAS_CHEM_SPC(  82 ) / 'H2NO3PIJ        ' /
       DATA GAS_CHEM_SPC(  83 ) / 'H2NO3PK         ' /
-      DATA GAS_CHEM_SPC(  84 ) / 'VLVPO1          ' /
-      DATA GAS_CHEM_SPC(  85 ) / 'VSVPO1          ' /
-      DATA GAS_CHEM_SPC(  86 ) / 'VSVPO2          ' /
-      DATA GAS_CHEM_SPC(  87 ) / 'VSVPO3          ' /
-      DATA GAS_CHEM_SPC(  88 ) / 'VIVPO1          ' /
-      DATA GAS_CHEM_SPC(  89 ) / 'VOCSMP          ' /
-      DATA GAS_CHEM_SPC(  90 ) / 'SMPRXN          ' /
+      DATA GAS_CHEM_SPC(  84 ) / 'VOCSMP          ' /
+      DATA GAS_CHEM_SPC(  85 ) / 'SMPRXN          ' /
+      DATA GAS_CHEM_SPC(  86 ) / 'VLVPO1          ' /
+      DATA GAS_CHEM_SPC(  87 ) / 'VSVPO1          ' /
+      DATA GAS_CHEM_SPC(  88 ) / 'VSVPO2          ' /
+      DATA GAS_CHEM_SPC(  89 ) / 'VSVPO3          ' /
+      DATA GAS_CHEM_SPC(  90 ) / 'VIVPO1          ' /
 
 
 
@@ -332,13 +332,13 @@
       DATA CHEMISTRY_SPC( 101 ), CGRID_INDEX( 101 ), SPECIES_TYPE( 101 ), SPECIES_MOLWT( 101 ), CONVERT_CONC( 101 ) / 'APAH2J          ',  110, 'AE',  243.00, T /
       DATA CHEMISTRY_SPC( 102 ), CGRID_INDEX( 102 ), SPECIES_TYPE( 102 ), SPECIES_MOLWT( 102 ), CONVERT_CONC( 102 ) / 'AALK1J          ',   98, 'AE',  168.00, T /
       DATA CHEMISTRY_SPC( 103 ), CGRID_INDEX( 103 ), SPECIES_TYPE( 103 ), SPECIES_MOLWT( 103 ), CONVERT_CONC( 103 ) / 'AALK2J          ',   99, 'AE',  168.00, T /
-      DATA CHEMISTRY_SPC( 104 ), CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), SPECIES_MOLWT( 104 ), CONVERT_CONC( 104 ) / 'VLVPO1          ',   86, 'GC',  278.00, F /
-      DATA CHEMISTRY_SPC( 105 ), CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), SPECIES_MOLWT( 105 ), CONVERT_CONC( 105 ) / 'VSVPO1          ',   87, 'GC',  275.00, F /
-      DATA CHEMISTRY_SPC( 106 ), CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), SPECIES_MOLWT( 106 ), CONVERT_CONC( 106 ) / 'VSVPO2          ',   88, 'GC',  272.00, F /
-      DATA CHEMISTRY_SPC( 107 ), CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), SPECIES_MOLWT( 107 ), CONVERT_CONC( 107 ) / 'VSVPO3          ',   89, 'GC',  268.00, F /
-      DATA CHEMISTRY_SPC( 108 ), CGRID_INDEX( 108 ), SPECIES_TYPE( 108 ), SPECIES_MOLWT( 108 ), CONVERT_CONC( 108 ) / 'VIVPO1          ',   90, 'GC',  266.00, F /
-      DATA CHEMISTRY_SPC( 109 ), CGRID_INDEX( 109 ), SPECIES_TYPE( 109 ), SPECIES_MOLWT( 109 ), CONVERT_CONC( 109 ) / 'VOCSMP          ',   72, 'GC',  170.00, F /
-      DATA CHEMISTRY_SPC( 110 ), CGRID_INDEX( 110 ), SPECIES_TYPE( 110 ), SPECIES_MOLWT( 110 ), CONVERT_CONC( 110 ) / 'SMPRXN          ',   73, 'GC',  170.00, F /
+      DATA CHEMISTRY_SPC( 104 ), CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), SPECIES_MOLWT( 104 ), CONVERT_CONC( 104 ) / 'VOCSMP          ',   72, 'GC',  170.00, F /
+      DATA CHEMISTRY_SPC( 105 ), CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), SPECIES_MOLWT( 105 ), CONVERT_CONC( 105 ) / 'SMPRXN          ',   73, 'GC',  170.00, F /
+      DATA CHEMISTRY_SPC( 106 ), CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), SPECIES_MOLWT( 106 ), CONVERT_CONC( 106 ) / 'VLVPO1          ',   86, 'GC',  278.00, F /
+      DATA CHEMISTRY_SPC( 107 ), CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), SPECIES_MOLWT( 107 ), CONVERT_CONC( 107 ) / 'VSVPO1          ',   87, 'GC',  275.00, F /
+      DATA CHEMISTRY_SPC( 108 ), CGRID_INDEX( 108 ), SPECIES_TYPE( 108 ), SPECIES_MOLWT( 108 ), CONVERT_CONC( 108 ) / 'VSVPO2          ',   88, 'GC',  272.00, F /
+      DATA CHEMISTRY_SPC( 109 ), CGRID_INDEX( 109 ), SPECIES_TYPE( 109 ), SPECIES_MOLWT( 109 ), CONVERT_CONC( 109 ) / 'VSVPO3          ',   89, 'GC',  268.00, F /
+      DATA CHEMISTRY_SPC( 110 ), CGRID_INDEX( 110 ), SPECIES_TYPE( 110 ), SPECIES_MOLWT( 110 ), CONVERT_CONC( 110 ) / 'VIVPO1          ',   90, 'GC',  266.00, F /
 
       INTEGER, PARAMETER :: N_ACT_SP = 110
 
@@ -562,7 +562,7 @@
      &     54,   76,   77,   77,   80,   80,   80,    9,    9,   82, & ! O   
      &     83,   82,   82,   83,    1,    4,   87,   89,   90,   91, & ! 1   
      &     92,   93,   94,   96,   97,   98,   99,  100,  101,  102, & ! 2   
-     &    103,  104,  105,  106,  107,  108,  109/     !  3   
+     &    103,  104,  106,  107,  108,  109,  110/     !  3   
 
       DATA ( IRR( IRXXN,  2 ), IRXXN = 1, NRXNS ) / & 
      &      0,    0,    2,    1,    1,    2,    4,    0,    0,    0, & ! O   
@@ -640,7 +640,7 @@
      &      8,    7,    2,    8,    4,    7,    5,   10,   10,   10, & ! O   
      &     10,   71,   71,   71,   11,    0,   88,   88,   88,   88, & ! 1   
      &     88,   88,   95,   95,   95,   95,   95,   88,   88,   88, & ! 2   
-     &     88,  104,  104,  105,  106,  107,    7/     !  3   
+     &     88,    7,  106,  106,  107,  108,  109/     !  3   
 
       DATA ( IRR( IRXXN,  5 ), IRXXN = 1, NRXNS ) / & 
      &      3,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
@@ -666,7 +666,7 @@
      &     75,   77,   78,   79,   81,   81,   81,   82,   83,    0, & ! O   
      &      0,    0,    0,    0,   10,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
-     &      0,    7,    7,    7,    7,    7,  110/     !  3   
+     &      0,  105,    7,    7,    7,    7,    7/     !  3   
 
       DATA ( IRR( IRXXN,  6 ), IRXXN = 1, NRXNS ) / & 
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
@@ -923,8 +923,8 @@
      &     1.0000D-40, 9.4882D-06, 9.4882D-06, 9.4882D-06, 9.4882D-06, & ! +   
      &     9.4882D-06, 9.4882D-06, 9.4882D-06, 9.4882D-06, 9.4882D-06, & ! 2   
      &     9.4882D-06, 9.4882D-06, 9.4882D-06, 9.4882D-06, 9.4882D-06, & ! +   
-     &     9.4882D-06, 4.0000D-11, 4.0000D-11, 4.0000D-11, 4.0000D-11, & ! 3   
-     &     4.0000D-11, 1.5000D-11/           !        +   
+     &     9.4882D-06, 1.5000D-11, 4.0000D-11, 4.0000D-11, 4.0000D-11, & ! 3   
+     &     4.0000D-11, 4.0000D-11/           !        +   
 
       DATA ( RTDAT( 2,IRXXN ), IRXXN = 1, NRXNS ) / & 
      &     0.0000D+00,-2.4000D+00, 0.0000D+00, 0.0000D+00,-1.8000D+00, & ! O   
@@ -1116,8 +1116,8 @@
      &        0.00000,    1.14280,    1.14280,    1.00000,    1.00000, & ! +   
      &        0.85714,    0.85714,    1.00000,    1.00000,    0.50000, & ! 2   
      &        0.50000,    1.50000,    1.42860,    1.42860,    1.71430, & ! +   
-     &        1.71430,    1.07500,    1.07500,    1.07500,    1.07500, & ! 3   
-     &        1.07500,    1.00000/           !         &  
+     &        1.71430,    1.00000,    1.07500,    1.07500,    1.07500, & ! 3   
+     &        1.07500,    1.07500/           !         &  
 
       DATA ( SC( IRXXN,  2 ), IRXXN = 1, NRXNS ) / & 
      &        1.00000,    1.00000,    0.00000,    0.00000,    0.00000, & ! O   
@@ -1752,8 +1752,8 @@
      &    'OLIG_TERPENE1   ', 'OLIG_TERPENE2   ', 'OLIG_ISOPRENE1  ', & ! 4   
      &    'OLIG_ISOPRENE2  ', 'OLIG_SESQT1     ', 'OLIG_PAH1       ', & ! 5   
      &    'OLIG_PAH2       ', 'OLIG_ALK1       ', 'OLIG_ALK2       ', & ! 6   
-     &    'POA_AGE         ', 'POA_AGE         ', 'POA_AGE         ', & ! 7   
-     &    'POA_AGE         ', 'POA_AGE         ', 'SIMP            '/! 8  
+     &    'SIMP            ', 'POA_AGE1        ', 'POA_AGE2        ', & ! 7   
+     &    'POA_AGE3        ', 'POA_AGE4        ', 'POA_AGE5        '/! 8  
 
 !    NSPECIAL     = Number of special rate coefficients
 !    SPECIAL      = Names of special rate coefficients
