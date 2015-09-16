@@ -672,7 +672,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
