@@ -107,7 +107,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
-      USE AOD_DEFN            ! 
+      USE AOD_DEFN            ! IMPROVE reconstructed method AOD
       USE UTILIO_DEFN
       USE CGRID_SPCS
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX
@@ -443,7 +443,14 @@ C     into precursr_conc in precursor_data
                CALL EXTRACT_PRECURSOR( CGRID( C,R,L,: ) )
 
 C *** Calculate SO4RATE stored in module
-               SO4RATE = PRECURSOR_CONC( SULPRD_IDX ) / DT
+               SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
+ 
+               IF ( PHGRXN_IDX .GT. 0 ) THEN
+C *** Calculate PHG_RATE stored in module
+                  PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
+               ELSE
+                  PHG_RATE = 0.0
+               END IF
 
 C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
