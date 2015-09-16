@@ -110,7 +110,7 @@ TYPE_MATRIX =
 'MAPAN:148:::VD_MPAN:1:::MPAN:1:::Yes:Yes:Yes:Yes',
 'NTRCN:147:::VD_PROPNN:1:::PROPNN:1:::Yes:Yes:Yes:Yes',
 'NTRCNOH:149:::VD_NTRM:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
-'NTRPX:151:::VD_NTPX:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
+'NTRPX:151:::VD_NTRPX:1:::HYDROXY_NITRATES:1:::Yes:Yes:Yes:Yes',
 'NOHO2:106::::::::::::::Yes',
 'NCNO2:106::::::::::::::Yes',
 'NCNOHO2:106::::::::::::::Yes',
