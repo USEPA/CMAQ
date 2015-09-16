@@ -279,6 +279,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent     = 'TOLUENE'
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
 ! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
                orgprod( 2 )%parent     = 'XYM'
