@@ -28,13 +28,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the RACM2 family of mechanisms
+C  PRECONDITIONS: For the racm2 family of mechanisms
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jul  2, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -144,7 +144,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 136
+      N_EBISP  = 143
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -188,58 +188,58 @@ c..Allocate and define ebi species
       EBISP(  35 ) = HC5P
       EBISP(  36 ) = HC8
       EBISP(  37 ) = HC8P
-      EBISP(  38 ) = ALK5RXN
-      EBISP(  39 ) = ETE
-      EBISP(  40 ) = ETEP
-      EBISP(  41 ) = OLT
-      EBISP(  42 ) = OLTP
-      EBISP(  43 ) = OLI
-      EBISP(  44 ) = OLIP
-      EBISP(  45 ) = DIEN
-      EBISP(  46 ) = ACE
-      EBISP(  47 ) = ORA1
-      EBISP(  48 ) = BENZENE
-      EBISP(  49 ) = BENP
-      EBISP(  50 ) = EPX
-      EBISP(  51 ) = PHEN
-      EBISP(  52 ) = BENZRO2
-      EBISP(  53 ) = TOL
-      EBISP(  54 ) = TR2
-      EBISP(  55 ) = TLP1
-      EBISP(  56 ) = CSL
-      EBISP(  57 ) = TOLRO2
-      EBISP(  58 ) = XYM
-      EBISP(  59 ) = XY2
-      EBISP(  60 ) = XYL1
-      EBISP(  61 ) = XYLRO2
-      EBISP(  62 ) = XYP
-      EBISP(  63 ) = XYO
-      EBISP(  64 ) = XYO2
-      EBISP(  65 ) = ISO
-      EBISP(  66 ) = ISOP
-      EBISP(  67 ) = ISOPRXN
-      EBISP(  68 ) = API
-      EBISP(  69 ) = APIP
-      EBISP(  70 ) = TRPRXN
-      EBISP(  71 ) = LIM
-      EBISP(  72 ) = LIMP
-      EBISP(  73 ) = RCO3
-      EBISP(  74 ) = ACTP
-      EBISP(  75 ) = MEKP
-      EBISP(  76 ) = KETP
-      EBISP(  77 ) = MCP
-      EBISP(  78 ) = MVKP
-      EBISP(  79 ) = UALP
-      EBISP(  80 ) = DCB3
-      EBISP(  81 ) = BALP
-      EBISP(  82 ) = ADDC
-      EBISP(  83 ) = MCT
-      EBISP(  84 ) = MCTO
-      EBISP(  85 ) = MOH
-      EBISP(  86 ) = EOH
-      EBISP(  87 ) = ROH
-      EBISP(  88 ) = ETEG
-      EBISP(  89 ) = ISHP
+      EBISP(  38 ) = ETE
+      EBISP(  39 ) = ETEP
+      EBISP(  40 ) = OLT
+      EBISP(  41 ) = OLTP
+      EBISP(  42 ) = OLI
+      EBISP(  43 ) = OLIP
+      EBISP(  44 ) = DIEN
+      EBISP(  45 ) = ACE
+      EBISP(  46 ) = ORA1
+      EBISP(  47 ) = BENZENE
+      EBISP(  48 ) = BENP
+      EBISP(  49 ) = EPX
+      EBISP(  50 ) = PHEN
+      EBISP(  51 ) = BENZRO2
+      EBISP(  52 ) = TOL
+      EBISP(  53 ) = TR2
+      EBISP(  54 ) = TLP1
+      EBISP(  55 ) = CSL
+      EBISP(  56 ) = TOLRO2
+      EBISP(  57 ) = XYM
+      EBISP(  58 ) = XY2
+      EBISP(  59 ) = XYL1
+      EBISP(  60 ) = XYLRO2
+      EBISP(  61 ) = XYP
+      EBISP(  62 ) = XYO
+      EBISP(  63 ) = XYO2
+      EBISP(  64 ) = ISO
+      EBISP(  65 ) = ISOP
+      EBISP(  66 ) = ISOPRXN
+      EBISP(  67 ) = API
+      EBISP(  68 ) = APIP
+      EBISP(  69 ) = TRPRXN
+      EBISP(  70 ) = LIM
+      EBISP(  71 ) = LIMP
+      EBISP(  72 ) = RCO3
+      EBISP(  73 ) = ACTP
+      EBISP(  74 ) = MEKP
+      EBISP(  75 ) = KETP
+      EBISP(  76 ) = MCP
+      EBISP(  77 ) = MVKP
+      EBISP(  78 ) = UALP
+      EBISP(  79 ) = DCB3
+      EBISP(  80 ) = BALP
+      EBISP(  81 ) = ADDC
+      EBISP(  82 ) = MCT
+      EBISP(  83 ) = MCTO
+      EBISP(  84 ) = MOH
+      EBISP(  85 ) = EOH
+      EBISP(  86 ) = ROH
+      EBISP(  87 ) = ETEG
+      EBISP(  88 ) = ISHP
+      EBISP(  89 ) = IEPOX
       EBISP(  90 ) = MAHP
       EBISP(  91 ) = ORA2
       EBISP(  92 ) = ORAP
@@ -266,27 +266,34 @@ c..Allocate and define ebi species
       EBISP( 113 ) = BNZHRXN
       EBISP( 114 ) = SESQ
       EBISP( 115 ) = SESQRXN
-      EBISP( 116 ) = AXYL1J
-      EBISP( 117 ) = AOLGAJ
-      EBISP( 118 ) = AXYL2J
-      EBISP( 119 ) = ATOL1J
-      EBISP( 120 ) = ATOL2J
-      EBISP( 121 ) = ABNZ1J
-      EBISP( 122 ) = ABNZ2J
-      EBISP( 123 ) = ATRP1J
-      EBISP( 124 ) = AOLGBJ
-      EBISP( 125 ) = ATRP2J
-      EBISP( 126 ) = AISO1J
-      EBISP( 127 ) = AISO2J
-      EBISP( 128 ) = ASQTJ
-      EBISP( 129 ) = APAH1J
-      EBISP( 130 ) = APAH2J
-      EBISP( 131 ) = AALK1J
-      EBISP( 132 ) = AALK2J
-      EBISP( 133 ) = APOCI
-      EBISP( 134 ) = APNCOMI
-      EBISP( 135 ) = APOCJ
-      EBISP( 136 ) = APNCOMJ
+      EBISP( 116 ) = NAPH
+      EBISP( 117 ) = PAHRO2
+      EBISP( 118 ) = PAHNRXN
+      EBISP( 119 ) = PAHHRXN
+      EBISP( 120 ) = SOAALK
+      EBISP( 121 ) = ALKRXN
+      EBISP( 122 ) = AISO3J
+      EBISP( 123 ) = AXYL1J
+      EBISP( 124 ) = AOLGAJ
+      EBISP( 125 ) = AXYL2J
+      EBISP( 126 ) = ATOL1J
+      EBISP( 127 ) = ATOL2J
+      EBISP( 128 ) = ABNZ1J
+      EBISP( 129 ) = ABNZ2J
+      EBISP( 130 ) = ATRP1J
+      EBISP( 131 ) = AOLGBJ
+      EBISP( 132 ) = ATRP2J
+      EBISP( 133 ) = AISO1J
+      EBISP( 134 ) = AISO2J
+      EBISP( 135 ) = ASQTJ
+      EBISP( 136 ) = APAH1J
+      EBISP( 137 ) = APAH2J
+      EBISP( 138 ) = AALK1J
+      EBISP( 139 ) = AALK2J
+      EBISP( 140 ) = APOCI
+      EBISP( 141 ) = APNCOMI
+      EBISP( 142 ) = APOCJ
+      EBISP( 143 ) = APNCOMJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -342,7 +349,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( HC5P    ) = 1.0D-03
       RTOL( HC8     ) = 1.0D-03
       RTOL( HC8P    ) = 1.0D-03
-      RTOL( ALK5RXN ) = 1.0D+00
       RTOL( ETE     ) = 1.0D-03
       RTOL( ETEP    ) = 1.0D-03
       RTOL( OLT     ) = 1.0D-03
@@ -394,6 +400,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ROH     ) = 1.0D-03
       RTOL( ETEG    ) = 1.0D-03
       RTOL( ISHP    ) = 1.0D-03
+      RTOL( IEPOX   ) = 1.0D-03
       RTOL( MAHP    ) = 1.0D-03
       RTOL( ORA2    ) = 1.0D-03
       RTOL( ORAP    ) = 1.0D-03
@@ -420,6 +427,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( BNZHRXN ) = 1.0D+00
       RTOL( SESQ    ) = 1.0D-03
       RTOL( SESQRXN ) = 1.0D+00
+      RTOL( NAPH    ) = 1.0D-03
+      RTOL( PAHRO2  ) = 1.0D+00
+      RTOL( PAHNRXN ) = 1.0D+00
+      RTOL( PAHHRXN ) = 1.0D+00
+      RTOL( SOAALK  ) = 1.0D-03
+      RTOL( ALKRXN  ) = 1.0D+00
+      RTOL( AISO3J  ) = 1.0D-03
       RTOL( AXYL1J  ) = 1.0D-03
       RTOL( AOLGAJ  ) = 1.0D-03
       RTOL( AXYL2J  ) = 1.0D-03

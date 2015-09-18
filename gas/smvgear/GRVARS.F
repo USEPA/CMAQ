@@ -52,7 +52,7 @@ C 2 * # of chemical mechanisms
       INTEGER, PARAMETER :: MXRCT = 3       ! max no. of reactants
 
 C Maximum # of terms in [P]=[I]-bh[J]
-      INTEGER, PARAMETER :: MXARRAY = 4400
+      INTEGER, PARAMETER :: MXARRAY = 5400
 
 C Maximum # prod/loss terms for a species
       INTEGER, PARAMETER :: MAXGL = 150
@@ -251,9 +251,9 @@ C......................................................................
 C........................... end GRVARS2.EXT ..........................
 
       DATA PERTST /   ! (7,3)
-     &  2.0,  4.5,  7.333, 10.42,  13.7,     17.15,     1.0,
-     &  3.0,  6.0,  9.167, 12.5,   15.98,     1.0,      1.0,
-     &  1.0,  1.0,  0.5,    0.1667, 0.04133,  0.008267, 1.0 /
+     &  2.0D0,  4.5D0,  7.333D0, 10.42D0,  13.7D0,     17.15D0,     1.0D0,
+     &  3.0D0,  6.0D0,  9.167D0, 12.5D0,   15.98D0,     1.0D0,      1.0D0,
+     &  1.0D0,  1.0D0,  0.5D0,    0.1667D0, 0.04133D0,  0.008267D0, 1.0D0 /
 
 C......................................................................
 C  INCLUDE FILE: GRVARS3.EXT

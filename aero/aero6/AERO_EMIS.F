@@ -773,7 +773,7 @@ C *** Calculate speciated mass emission rates for fine aerosol [ug/m3/s]
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
                EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                          * PRECURSOR_MW( SULF_IDX ) / CONVM
+     &                          * REAL( PRECURSOR_MW( SULF_IDX ), 4 ) / CONVM
                VDEMIS( VSULF,L,C,R ) = 0.0
 
 C *** Assign fine-particle emission rates to the fine modes.
@@ -909,7 +909,7 @@ C *** Calculate speciated mass emission rates for fine aerosol [ug/m3/s]
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
                   EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                             * PRECURSOR_MW( SULF_IDX ) / CONVM
+     &                             * REAL( PRECURSOR_MW( SULF_IDX ), 4 ) / CONVM
                   VDEMIS( VSULF,L,C,R ) = 0.0
 
 C *** Calculate emissions rate for third moments [m3/m3/s] of each mode 

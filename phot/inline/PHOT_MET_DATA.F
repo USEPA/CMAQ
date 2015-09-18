@@ -1296,7 +1296,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !  12Jun15: BHutzell: comment out call to CLEAR_ACM_CLOUD because CONVCLD_ACM routine
 !                     calls CLEAR_ACM_CLOUD at every synchronization time if acm 
 !                     convection algorithm engaged, i.e., CONVCLD = .TRUE.
-
 ! Arguments:
             INTEGER, INTENT( IN )  :: JDATE      
             INTEGER, INTENT( IN )  :: JTIME                 

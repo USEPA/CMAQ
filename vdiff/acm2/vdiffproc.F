@@ -70,6 +70,7 @@ C 30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C 31 Jul 14 J.Young: incorporate gravitational settling for J-,K-mode aerosols
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C 03 Jul 15 J.Young: put sedi stuff into a module
+C 13 Aug 15 J.Bash: updated for MP model
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -222,7 +223,7 @@ C create global maps
          END IF
 
 C Initialize the met data
-         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX )
+         CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default
@@ -239,7 +240,7 @@ C Get diagnostic files flag.
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( MYPE .EQ. 0 ) CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
          
-         IF ( ABFLUX .AND. MYPE .EQ. 0 ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( ( ABFLUX .OR. HGBIDI ) .AND. MYPE .EQ. 0 ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
 
 C Allocate and initialize dry deposition array
 
@@ -333,7 +334,7 @@ C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
 
 C read & interpolate met data
-      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX )
+      CALL GET_MET ( MDATE, MTIME, MSTEP, MOSAIC, ABFLUX, HGBIDI )
 
 C read & interpolate deposition velocities
       CALL GET_DEPV ( MDATE, MTIME, TSTEP, CGRID )      
@@ -633,8 +634,8 @@ C Write other diagnostics
 
          END IF   ! MOSAIC
 
-         IF ( ABFLUX ) THEN    
-            CALL WRASX_MEDIA( MDATE, MTIME )
+         IF ( ABFLUX .OR. HGBIDI ) THEN    
+            CALL WRASX_MEDIA( MDATE, MTIME, ABFLUX )
          END IF 
  
          IF ( LIPR ) THEN

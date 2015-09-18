@@ -68,8 +68,8 @@ C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE RXNS_DATA           ! chemical mechanism data
-      USE UTILIO_DEFN
-      USE PHOT_MET_DATA        ! Met and Grid data
+      USE UTILIO_DEFN         ! IO and other utility routines
+      USE PHOT_MET_DATA       ! Met and Grid data
 
       IMPLICIT NONE
 
@@ -129,6 +129,7 @@ C saved local variables:
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
 
 
+      LOGICAL       :: NDARK          ! Are all cells in darkness?
       LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
 
 C scratch local variables:
@@ -138,8 +139,6 @@ C scratch local variables:
       CHARACTER(  80 ) :: VARDESC      ! env var description
       CHARACTER( 120 ) :: XMSG    = ' '
 
-
-      LOGICAL       :: NDARK          ! Are the processors cells in darkness
 
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file

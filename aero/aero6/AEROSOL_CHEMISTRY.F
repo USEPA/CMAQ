@@ -39,37 +39,40 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 18
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 19
        
-       CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
-     &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
-     &                       'HETERO_N2O5IJY  ', 'HETERO_N2O5KY   ', 
-     &                       'HETERO_NO2      ', 'HETERO_H2NO3PAIJ',
-     &                       'HETERO_H2NO3PBIJ', 'HETERO_H2NO3PAK ',
-     &                       'HETERO_H2NO3PBK ', 'HETERO_H2NO3PAI ',
-     &                       'HETERO_H2NO3PBI ', 'HETERO_H2NO3PAJ ',
-     &                       'HETERO_H2NO3PBJ ', 'HETERO_N2O5I    ', 
-     &                       'HETERO_N2O5J    ', 'HETERO_PNCOMLI  ',
-     &                       'HETERO_PNCOMLJ  ', 'HETERO_IEPOX    ' /)
+       CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
+     &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
+     &                       'HETERO_N2O5IJY   ', 'HETERO_N2O5KY    ', 
+     &                       'HETERO_NO2       ', 'HETERO_H2NO3PAIJ ',
+     &                       'HETERO_H2NO3PBIJ ', 'HETERO_H2NO3PAK  ',
+     &                       'HETERO_H2NO3PBK  ', 'HETERO_H2NO3PAI  ',
+     &                       'HETERO_H2NO3PBI  ', 'HETERO_H2NO3PAJ  ',
+     &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
+     &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
+     &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
+     &                       'HETERO_NTR2  ' /)
 
-       INTEGER, PARAMETER :: IA_N2O5IJ    =  1
-       INTEGER, PARAMETER :: IA_N2O5K     =  2
-       INTEGER, PARAMETER :: IA_N2O5IJY   =  3
-       INTEGER, PARAMETER :: IA_N2O5KY    =  4
-       INTEGER, PARAMETER :: IA_NO2       =  5
-       INTEGER, PARAMETER :: IA_H2NO3PAIJ =  6
-       INTEGER, PARAMETER :: IA_H2NO3PBIJ =  7
-       INTEGER, PARAMETER :: IA_H2NO3PAK  =  8
-       INTEGER, PARAMETER :: IA_H2NO3PBK  =  9
-       INTEGER, PARAMETER :: IA_H2NO3PAI  = 10
-       INTEGER, PARAMETER :: IA_H2NO3PBI  = 11
-       INTEGER, PARAMETER :: IA_H2NO3PAJ  = 12
-       INTEGER, PARAMETER :: IA_H2NO3PBJ  = 13
-       INTEGER, PARAMETER :: IA_N2O5I     = 14
-       INTEGER, PARAMETER :: IA_N2O5J     = 15
-       INTEGER, PARAMETER :: IA_PNCOMLI   = 16
-       INTEGER, PARAMETER :: IA_PNCOMLJ   = 17
-       INTEGER, PARAMETER :: IA_IEPOX     = 18
+       INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
+       INTEGER, PARAMETER  :: IA_N2O5K          =   2
+       INTEGER, PARAMETER  :: IA_N2O5IJY        =   3
+       INTEGER, PARAMETER  :: IA_N2O5KY         =   4
+       INTEGER, PARAMETER  :: IA_NO2            =   5
+       INTEGER, PARAMETER  :: IA_H2NO3PAIJ      =   6
+       INTEGER, PARAMETER  :: IA_H2NO3PBIJ      =   7
+       INTEGER, PARAMETER  :: IA_H2NO3PAK       =   8
+       INTEGER, PARAMETER  :: IA_H2NO3PBK       =   9
+       INTEGER, PARAMETER  :: IA_H2NO3PAI       =   10
+       INTEGER, PARAMETER  :: IA_H2NO3PBI       =   11
+       INTEGER, PARAMETER  :: IA_H2NO3PAJ       =   12
+       INTEGER, PARAMETER  :: IA_H2NO3PBJ       =   13
+       INTEGER, PARAMETER  :: IA_N2O5I          =   14
+       INTEGER, PARAMETER  :: IA_N2O5J          =   15
+       INTEGER, PARAMETER  :: IA_PNCOMLI        =   16
+       INTEGER, PARAMETER  :: IA_PNCOMLJ        =   17
+       INTEGER, PARAMETER  :: IA_IEPOX          =   18
+       INTEGER, PARAMETER  :: IA_NTR2           =   19
+
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -80,7 +83,8 @@
      &                       IA_H2NO3PBI , IA_H2NO3PAJ ,
      &                       IA_H2NO3PBJ , IA_N2O5I    , 
      &                       IA_N2O5J    , IA_PNCOMLI  ,
-     &                       IA_PNCOMLJ  , IA_IEPOX    /)
+     &                       IA_PNCOMLJ  , IA_IEPOX    ,
+     &                       IA_NTR2    /)
  
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -140,47 +144,51 @@ C Mapping array for location of acid enhanced products and nucleophiles in aeros
 
       SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
 
-C Calculate the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
-C
-C Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
-C                         N2O5_GAMMA
-C
-C 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
-C            in aero6 module of CMAQ version 5.01. The adaptation includes
-C            heterogeneous nitryl chloride production used for Sarwar et al.
-C            (2012).
-C 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
-C 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol added
-C            following Pye et al. (2013).
-C 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
-C            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
-C            Compilation and evaluation of gas-phase diffusion coefficients 
-C            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
-C            Phys. Discuss., 14, 15645–15682, 2014. 
-C            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+c Calculates the heterogeneous reactions for N2O5, NO2, CLNO2, and IEPOX. 
+c
+c Key Subroutines Called: EXTRACT_AERO, EXTRACT_SOA, PATPAR
+c                         N2O5_GAMMA
+c
+c 09/18/13 - B.Hutzell - initial version adapted from the hetchem.F file
+c            in aero6 module of CMAQ version 5.01. The adaptation includes
+c            heterogeneous nitryl chloride production used for Sarwar et al.
+c            (2012).
+c 09/12/14 - G. Sarwar - revised the heterogeneous nitryl chloride production
+c 09/26/14 - H. Pye - Heterogeneous uptake of IEPOX on acidic aerosol added
+c            following Pye et al. (2013).
+c 10/01/14 - B.Hutzell - change STP value for N205 diffusivity based on
+c            review paper: 1)   M. J. Tang, R. A. Cox, and M. Kalberer.
+c            Compilation and evaluation of gas-phase diffusion coefficients 
+c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
+c            Phys. Discuss., 14, 15645–15682, 2014. 
+c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
+C 02/09/15 - B.Hutzell - corrected NO2 rate by a factor of two based consulting the stoiciometery for 
+C            reaction published in Sarwar et al. (2008) and its analytical solution
 
-C  REFERENCES:
-C   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
-C      Gallani, An improved representation of the reaction of N2O5 on
-C      aerosols for mesoscale air quality models.  In "Regional
-C      Photochemical Measurement and Modeling Studies, Vol 2 - Results
-C      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
-C      904-913, 1995.
-C
-C   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
-C      reaction probabilities on the surface of particles containing
-C      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
-C      press.
-C
-C   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
-C      simulated vertical profiles of nitrous acid - Part II. Model
-C      simulations and indications for a photolytic source, Atmospheric
-C      Environment, 37, 2957-2966, 2003.
-C
-C   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
-C      B. Vogel, A comparison of CMAQ HONO predictions with observations
-C      from the Northeast Oxidant and Particle Study, Atmospheric
-C      Environment, 2008, in press.
+c
+c
+c  REFERENCES:
+c   1. Pleim, J.E., F.S. Binkowski, J.K.S. Ching, R.L. Dennis, and N.V.
+c      Gallani, An improved representation of the reaction of N2O5 on
+c      aerosols for mesoscale air quality models.  In "Regional
+c      Photochemical Measurement and Modeling Studies, Vol 2 - Results
+c      and Status of Modeling," Eds A.J. Ranzieri and P.A. Solomon, pp
+c      904-913, 1995.
+c
+c   2. Davis, J.M., P.V. Bhave, and K.M. Foley, Parameterization of N2O5
+c      reaction probabilities on the surface of particles containing
+c      ammonium, sulfate, and nitrate.  Atmos. Chem. Phys., 2008, in
+c      press.
+c
+c   3. Vogel, B., H. Vogel, J. Kleffman, and R. Kurtenbach, Measured and
+c      simulated vertical profiles of nitrous acid - Part II. Model
+c      simulations and indications for a photolytic source, Atmospheric
+c      Environment, 37, 2957-2966, 2003.
+c
+c   4. Sarwar, G., S.J. Roselle, R. Mathur, W. Appel, R.L. Dennis, and
+c      B. Vogel, A comparison of CMAQ HONO predictions with observations
+c      from the Northeast Oxidant and Particle Study, Atmospheric
+c      Environment, 2008, in press.
 C
 C   5. Bertram, T. H. and J.A. Thornton, Toward a general parameterization
 C      of N2O5 reactivity on aqueous particles: the competing effects of 
@@ -235,6 +243,15 @@ C *** Parameters
       REAL,      PARAMETER :: CONCOFM     = 1.0E+06        ! conc. of M = 1E+06 ppm
       REAL,      PARAMETER :: INV_STDTEMP = 1.0 / STDTEMP
       REAL,      PARAMETER :: EPSWATER    = MWWAT / MWAIR
+C *** parameters for heterogeneous hydrolysis of NTR2
+      REAL,      PARAMETER :: ON_ALPHA1   = 0.34,     ! Organic nitrate (ON) partitioning parameters
+     &                        ON_ALPHA2   = 0.66,     ! based on Rollins et al., 2013
+     &                        ON_CSTAR1   = 0.73,
+     &                        ON_CSTAR2   = 1000.0
+      REAL,      PARAMETER :: F_NTR2_ON   = 1.4084    ! reciprocal of (NTR2 over total ON, equals 0.71)
+
+      REAL,      PARAMETER :: MIN_TOA     = 0.0001       ! Min. conc. of total OA for partitioning to occur [ug/m3]
+      REAL,      PARAMETER :: KHON        = 2.7778E-03   ! heterogeneous ON hydrolysis rate [1/min] ~ 4/day
 
 
 C *** Local Variables
@@ -280,6 +297,9 @@ C *** variables for parameterization by Bertram and Thornton
       REAL,      SAVE :: MWCLCLNO2     ! ratio of MWCL/MWCLNO2
       REAL( 8 ), SAVE :: INV_MWCL      ! ratio of 1.0D0/MWCL 
       REAL( 8 )       :: PPM_FACTOR    ! conversion factor to umoles/m3 to ppm
+C *** variables for heterogeneous hydrolysis of NTR2
+      REAL            :: CON_TOA       ! Conc. of total OA [ug/m3]
+      REAL            :: F_PART_NTR2   ! NTR2 fraction in the particle phase
       
       
       LOGICAL, SAVE     :: FIRSTIME = .TRUE.
@@ -294,6 +314,7 @@ C *** variables for parameterization by Bertram and Thornton
       INTEGER           :: R
       INTEGER           :: L
       INTEGER           :: N
+      INTEGER           :: I
       
 C *** variables for getting aerosol diagnostic file flag
       INTEGER           :: STATUS                      ! ENV... status
@@ -313,6 +334,10 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
       REAL( 8 ), PARAMETER :: CL = 243.04D0
       REAL( 8 ), PARAMETER :: DL = 1.0D0 / AL
 
+#ifdef verbose_aerosol_chemistry
+       LOGICAL              :: DUMP_CELL
+#endif
+
 C *** values of AL, BL, and CL are from:
 C     Alduchov and Eskridge, "Improved Magnus Form Approximations of
 C                            Saturation Vapor Pressure,"
@@ -320,6 +345,7 @@ C                            Jour. of Applied Meteorology, vol. 35,
 C                            pp 601-609, April, 1996.
 
       INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
+
       
       INTERFACE
          SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
@@ -698,9 +724,10 @@ C *** calculate aerosol surface area
                                
                   CASE( IA_NO2 )
       
-C *** calculate pseudo-first order rate constant using Eq 1 of Vogel
+C *** calculate pseudo-first order rate constant for NO2 loss using Eq 1 of Vogel
 C     et al. (2003). Units of KNO2 is in 1/min in the paper; divide it
 C     by 60 to convert it into 1/sec
+
                      KNO2 = MAX ( 0.0D0, 1.0D-04 * TOTSURFA )
 
                      KHETERO( IRATE, C,R,L )  = 60.0D0 * KNO2 ! convert to min-1
@@ -720,6 +747,38 @@ C     by 60 to convert it into 1/sec
                         KIEPOX = 0.0D0
                      END IF
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * KIEPOX
+
+                 CASE( IA_NTR2 )
+C *** calculate gas-particle partitioning of NTR2
+                    CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
+     &                      + aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )
+
+                    Do i = 1, n_aerospc
+                       If ( aerospc( i )%nonVol_soa ) Then
+                           CON_TOA = CON_TOA + aerospc_conc( i,2 )
+                       End If
+                    End Do
+                    Do i = 1, n_vapor
+                      CON_TOA = CON_TOA + aerospc_conc( soa_aeroMap( i ),2 )
+                    End Do
+
+                    F_PART_NTR2 = 0.0
+                    If ( CON_TOA .GE. MIN_TOA ) Then
+                       F_PART_NTR2 = ON_ALPHA1 / (1.0 + ON_CSTAR1/CON_TOA)
+     &                             + ON_ALPHA2 / (1.0 + ON_CSTAR2/CON_TOA)
+                       F_PART_NTR2 = F_PART_NTR2 * F_NTR2_ON
+                    End If
+
+C *** calculate pseudo-first order rate constant for heterogeneous NTR2
+C hydrolysis
+                     IF ( AIRRH .LE. 0.2D0 .OR. F_PART_NTR2 .LE. 0.0 ) THEN
+                        KHETERO( IRATE, C, R, L ) = 0.0D0
+                     ELSE IF ( AIRRH .GE. 0.4D0 ) THEN
+                        KHETERO( IRATE, C, R, L ) = REAL( F_PART_NTR2 * KHON, 8 ) ! [1/min]
+                     ELSE
+                        KHETERO( IRATE, C, R, L ) = REAL( F_PART_NTR2 * KHON, 8 ) ! [1/min]
+     &                                            * ( 5.0D0 * AIRRH - 1.0D0 )
+                     END IF
 
                END SELECT
 
@@ -784,6 +843,7 @@ C     by 60 to convert it into 1/sec
                WRITE(LOGDEV,9500) 'YIELDJ =  ', YIELD_CLNO2(2),' '
                WRITE(LOGDEV,9500) 'YIELDIJ = ', YIELDIJ,' '
                WRITE(LOGDEV,9500) 'YIELDK =  ', YIELD_CLNO2(3),' '
+               WRITE(LOGDEV,9500) 'F_PART_NTR2 =  ', F_PART_NTR2,' '
                DO N = 1, NHETERO
                   WRITE(LOGDEV,9500) HETERO( N ) // ' = ', KHETERO( N, C,R,L ),' '
                END DO

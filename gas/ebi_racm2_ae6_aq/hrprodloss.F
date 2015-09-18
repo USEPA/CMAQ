@@ -29,13 +29,13 @@ C***********************************************************************
 C
 C  FUNCTION: To compute the production and loss rates for EBI species
 C
-C  PRECONDITIONS: For the RACM2 family of mechanisms
+C  PRECONDITIONS: For the racm2 family of mechanisms
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jul  2, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -92,8 +92,8 @@ C***********************************************************************
      &                 +    5.0000D-01 * RXRAT( 156 )      ! CSL+NO3=0.5000D+00*HNO3+...
      &                 +    5.0000D-01 * RXRAT( 157 )      ! EPX+NO3=0.5000D+00*HNO3+...
      &                 +                 RXRAT( 158 )      ! MCT+NO3=HNO3+MCTO
-     &                 +    2.0000D+00 * RXRAT( 373 )      ! N2O5=0.2000D+01*HNO3
-     &                 +    5.0000D-01 * RXRAT( 374 )      ! NO2=0.5000D+00*HNO3+...
+     &                 +    2.0000D+00 * RXRAT( 378 )      ! N2O5=0.2000D+01*HNO3
+     &                 +    5.0000D-01 * RXRAT( 379 )      ! NO2=0.5000D+00*HNO3+...
       LOSS(  HNO3    ) =                 RXRAT(   8 )      ! HNO3=HO+NO2
      &                 +                 RXRAT(  57 )      ! HNO3+HO=NO3
 
@@ -568,7 +568,7 @@ C***********************************************************************
       LOSS(  HKET    ) =                 RXRAT(  18 )      ! HKET=HO2+ACO3+HCHO
      &                 +                 RXRAT(  95 )      ! HKET+HO=HO2+MGLY
 
-      PROD(  MACR    ) =                 RXRAT( 115 )      ! ISHP+HO=MACR+HO
+      PROD(  MACR    ) =                 RXRAT( 115 )      ! ISHP+HO=MACR+HO+0.9040D+...
      &                 +    3.9000D-01 * RXRAT( 129 )      ! DIEN+O3=0.3900D+00*MACR+...
      &                 +    4.6100D-01 * RXRAT( 130 )      ! ISO+O3=0.4610D+00*MACR+...
      &                 +    7.9000D-01 * RXRAT( 132 )      ! LIM+O3=0.7900D+00*MACR+...
@@ -940,9 +940,6 @@ C***********************************************************************
      &                 +                 RXRAT( 288 )      ! HC8P+ACO3=0.3030D+00*HO2+...
      &                 +                 RXRAT( 326 )      ! HC8P+NO3=0.8200D+00*HO2+...
 
-      PROD(  ALK5RXN ) =    4.7000D-01 * RXRAT(  75 )      ! HC8+HO=0.4700D+00*ALK5RXN+...
-      LOSS(  ALK5RXN ) =   0.0D0
-
       PROD(  ETE     ) =   0.0D0
       LOSS(  ETE     ) =                 RXRAT(  76 )      ! ETE+HO=ETEP
      &                 +                 RXRAT( 126 )      ! ETE+O3=0.8000D-01*HO+...
@@ -1080,7 +1077,7 @@ C***********************************************************************
      &                 +                 RXRAT( 296 )      ! XYL1+ACO3=MO2+BALD
      &                 +                 RXRAT( 334 )      ! XYL1+NO3=NO2+BALD
 
-      PROD(  XYLRO2  ) =                 RXRAT(  83 )      ! XYM+HO=XYLRO2+0.7630D+...
+      PROD(  XYLRO2  ) =    9.8000D-01 * RXRAT(  83 )      ! XYM+HO=0.9800D+00*XYLRO2+...
      &                 +                 RXRAT(  84 )      ! XYP+HO=XYLRO2+0.7630D+...
      &                 +                 RXRAT(  85 )      ! XYO+HO=XYLRO2+0.7630D+...
       LOSS(  XYLRO2  ) =                 RXRAT( 366 )      ! XYLRO2+NO=NO+XYLNRXN
@@ -1098,7 +1095,7 @@ C***********************************************************************
       PROD(  ISO     ) =   0.0D0
       LOSS(  ISO     ) =                 RXRAT(  86 )      ! ISO+HO=ISOP+ISOPRXN
      &                 +                 RXRAT( 130 )      ! ISO+O3=0.2500D+00*HO+...
-     &                 +                 RXRAT( 145 )      ! ISO+NO3=ISON
+     &                 +                 RXRAT( 145 )      ! ISO+NO3=ISON+ISOPRXN
 
       PROD(  ISOP    ) =                 RXRAT(  86 )      ! ISO+HO=ISOP+ISOPRXN
       LOSS(  ISOP    ) =                 RXRAT( 188 )      ! ISOP+NO=0.8800D+00*HO2+...
@@ -1108,6 +1105,7 @@ C***********************************************************************
      &                 +                 RXRAT( 338 )      ! ISOP+NO3=HO2+NO2+0.7500D+...
 
       PROD(  ISOPRXN ) =                 RXRAT(  86 )      ! ISO+HO=ISOPRXN+ISOP
+     &                 +                 RXRAT( 145 )      ! ISO+NO3=ISOPRXN+ISON
       LOSS(  ISOPRXN ) =   0.0D0
 
       PROD(  API     ) =   0.0D0
@@ -1296,7 +1294,11 @@ C***********************************************************************
       LOSS(  ETEG    ) =                 RXRAT( 112 )      ! ETEG+HO=HO2+ALD
 
       PROD(  ISHP    ) =                 RXRAT( 228 )      ! ISOP+HO2=ISHP
-      LOSS(  ISHP    ) =                 RXRAT( 115 )      ! ISHP+HO=HO+MACR
+      LOSS(  ISHP    ) =                 RXRAT( 115 )      ! ISHP+HO=HO+MACR+0.9040D+...
+
+      PROD(  IEPOX   ) =    9.0400D-01 * RXRAT( 115 )      ! ISHP+HO=0.9040D+00*IEPOX+...
+      LOSS(  IEPOX   ) =                 RXRAT( 377 )      ! IEPOX+HO=HO
+     &                 +                 RXRAT( 381 )      ! IEPOX=AISO3J
 
       PROD(  MAHP    ) =                 RXRAT( 236 )      ! MACP+HO2=MAHP
      &                 +                 RXRAT( 237 )      ! MCP+HO2=MAHP
@@ -1353,7 +1355,7 @@ C***********************************************************************
       PROD(  NALD    ) =                 RXRAT( 125 )      ! ISON+HO=NALD+0.7000D-...
       LOSS(  NALD    ) =                 RXRAT( 124 )      ! NALD+HO=NO2+XO2+HKET
 
-      PROD(  ISON    ) =                 RXRAT( 145 )      ! ISO+NO3=ISON
+      PROD(  ISON    ) =                 RXRAT( 145 )      ! ISO+NO3=ISON+ISOPRXN
      &                 +    1.2000D-01 * RXRAT( 188 )      ! ISOP+NO=0.1200D+00*ISON+...
       LOSS(  ISON    ) =                 RXRAT( 125 )      ! ISON+HO=NALD+0.7000D-...
 
@@ -1485,81 +1487,103 @@ C***********************************************************************
      &                 +                 RXRAT( 372 )      ! SESQ+NO3=SESQRXN+NO3
       LOSS(  SESQRXN ) =   0.0D0
 
-      PROD(  AXYL1J  ) =   0.0D0
-      LOSS(  AXYL1J  ) =                 RXRAT( 376 )      ! AXYL1J=0.1143D+01*AOLGAJ
+      PROD(  NAPH    ) =   0.0D0
+      LOSS(  NAPH    ) =                 RXRAT( 373 )      ! NAPH+HO=HO+PAHRO2
 
-      PROD(  AOLGAJ  ) =    1.1428D+00 * RXRAT( 376 )      ! AXYL1J=0.1143D+01*AOLGAJ
-     &                 +    1.1428D+00 * RXRAT( 377 )      ! AXYL2J=0.1143D+01*AOLGAJ
-     &                 +                 RXRAT( 378 )      ! ATOL1J=AOLGAJ
-     &                 +                 RXRAT( 379 )      ! ATOL2J=AOLGAJ
-     &                 +    8.5714D-01 * RXRAT( 380 )      ! ABNZ1J=0.8571D+00*AOLGAJ
-     &                 +    8.5714D-01 * RXRAT( 381 )      ! ABNZ2J=0.8571D+00*AOLGAJ
-     &                 +    1.4286D+00 * RXRAT( 387 )      ! APAH1J=0.1429D+01*AOLGAJ
-     &                 +    1.4286D+00 * RXRAT( 388 )      ! APAH2J=0.1429D+01*AOLGAJ
-     &                 +    1.7143D+00 * RXRAT( 389 )      ! AALK1J=0.1714D+01*AOLGAJ
-     &                 +    1.7143D+00 * RXRAT( 390 )      ! AALK2J=0.1714D+01*AOLGAJ
+      PROD(  PAHRO2  ) =                 RXRAT( 373 )      ! NAPH+HO=PAHRO2+HO
+      LOSS(  PAHRO2  ) =                 RXRAT( 374 )      ! PAHRO2+NO=NO+PAHNRXN
+     &                 +                 RXRAT( 375 )      ! PAHRO2+HO2=HO2+PAHHRXN
+
+      PROD(  PAHNRXN ) =                 RXRAT( 374 )      ! PAHRO2+NO=PAHNRXN+NO
+      LOSS(  PAHNRXN ) =   0.0D0
+
+      PROD(  PAHHRXN ) =                 RXRAT( 375 )      ! PAHRO2+HO2=PAHHRXN+HO2
+      LOSS(  PAHHRXN ) =   0.0D0
+
+      PROD(  SOAALK  ) =   0.0D0
+      LOSS(  SOAALK  ) =                 RXRAT( 376 )      ! SOAALK+HO=HO+0.4700D+00*ALKRXN
+
+      PROD(  ALKRXN  ) =    4.7000D-01 * RXRAT( 376 )      ! SOAALK+HO=0.4700D+00*ALKRXN+HO
+      LOSS(  ALKRXN  ) =   0.0D0
+
+      PROD(  AISO3J  ) =                 RXRAT( 381 )      ! IEPOX=AISO3J
+      LOSS(  AISO3J  ) =   0.0D0
+
+      PROD(  AXYL1J  ) =   0.0D0
+      LOSS(  AXYL1J  ) =                 RXRAT( 382 )      ! AXYL1J=0.1143D+01*AOLGAJ
+
+      PROD(  AOLGAJ  ) =    1.1428D+00 * RXRAT( 382 )      ! AXYL1J=0.1143D+01*AOLGAJ
+     &                 +    1.1428D+00 * RXRAT( 383 )      ! AXYL2J=0.1143D+01*AOLGAJ
+     &                 +                 RXRAT( 384 )      ! ATOL1J=AOLGAJ
+     &                 +                 RXRAT( 385 )      ! ATOL2J=AOLGAJ
+     &                 +    8.5714D-01 * RXRAT( 386 )      ! ABNZ1J=0.8571D+00*AOLGAJ
+     &                 +    8.5714D-01 * RXRAT( 387 )      ! ABNZ2J=0.8571D+00*AOLGAJ
+     &                 +    1.4286D+00 * RXRAT( 393 )      ! APAH1J=0.1429D+01*AOLGAJ
+     &                 +    1.4286D+00 * RXRAT( 394 )      ! APAH2J=0.1429D+01*AOLGAJ
+     &                 +    1.7143D+00 * RXRAT( 395 )      ! AALK1J=0.1714D+01*AOLGAJ
+     &                 +    1.7143D+00 * RXRAT( 396 )      ! AALK2J=0.1714D+01*AOLGAJ
       LOSS(  AOLGAJ  ) =   0.0D0
 
       PROD(  AXYL2J  ) =   0.0D0
-      LOSS(  AXYL2J  ) =                 RXRAT( 377 )      ! AXYL2J=0.1143D+01*AOLGAJ
+      LOSS(  AXYL2J  ) =                 RXRAT( 383 )      ! AXYL2J=0.1143D+01*AOLGAJ
 
       PROD(  ATOL1J  ) =   0.0D0
-      LOSS(  ATOL1J  ) =                 RXRAT( 378 )      ! ATOL1J=AOLGAJ
+      LOSS(  ATOL1J  ) =                 RXRAT( 384 )      ! ATOL1J=AOLGAJ
 
       PROD(  ATOL2J  ) =   0.0D0
-      LOSS(  ATOL2J  ) =                 RXRAT( 379 )      ! ATOL2J=AOLGAJ
+      LOSS(  ATOL2J  ) =                 RXRAT( 385 )      ! ATOL2J=AOLGAJ
 
       PROD(  ABNZ1J  ) =   0.0D0
-      LOSS(  ABNZ1J  ) =                 RXRAT( 380 )      ! ABNZ1J=0.8571D+00*AOLGAJ
+      LOSS(  ABNZ1J  ) =                 RXRAT( 386 )      ! ABNZ1J=0.8571D+00*AOLGAJ
 
       PROD(  ABNZ2J  ) =   0.0D0
-      LOSS(  ABNZ2J  ) =                 RXRAT( 381 )      ! ABNZ2J=0.8571D+00*AOLGAJ
+      LOSS(  ABNZ2J  ) =                 RXRAT( 387 )      ! ABNZ2J=0.8571D+00*AOLGAJ
 
       PROD(  ATRP1J  ) =   0.0D0
-      LOSS(  ATRP1J  ) =                 RXRAT( 382 )      ! ATRP1J=AOLGBJ
+      LOSS(  ATRP1J  ) =                 RXRAT( 388 )      ! ATRP1J=AOLGBJ
 
-      PROD(  AOLGBJ  ) =                 RXRAT( 382 )      ! ATRP1J=AOLGBJ
-     &                 +                 RXRAT( 383 )      ! ATRP2J=AOLGBJ
-     &                 +    5.0000D-01 * RXRAT( 384 )      ! AISO1J=0.5000D+00*AOLGBJ
-     &                 +    5.0000D-01 * RXRAT( 385 )      ! AISO2J=0.5000D+00*AOLGBJ
-     &                 +    1.5000D+00 * RXRAT( 386 )      ! ASQTJ=0.1500D+01*AOLGBJ
+      PROD(  AOLGBJ  ) =                 RXRAT( 388 )      ! ATRP1J=AOLGBJ
+     &                 +                 RXRAT( 389 )      ! ATRP2J=AOLGBJ
+     &                 +    5.0000D-01 * RXRAT( 390 )      ! AISO1J=0.5000D+00*AOLGBJ
+     &                 +    5.0000D-01 * RXRAT( 391 )      ! AISO2J=0.5000D+00*AOLGBJ
+     &                 +    1.5000D+00 * RXRAT( 392 )      ! ASQTJ=0.1500D+01*AOLGBJ
       LOSS(  AOLGBJ  ) =   0.0D0
 
       PROD(  ATRP2J  ) =   0.0D0
-      LOSS(  ATRP2J  ) =                 RXRAT( 383 )      ! ATRP2J=AOLGBJ
+      LOSS(  ATRP2J  ) =                 RXRAT( 389 )      ! ATRP2J=AOLGBJ
 
       PROD(  AISO1J  ) =   0.0D0
-      LOSS(  AISO1J  ) =                 RXRAT( 384 )      ! AISO1J=0.5000D+00*AOLGBJ
+      LOSS(  AISO1J  ) =                 RXRAT( 390 )      ! AISO1J=0.5000D+00*AOLGBJ
 
       PROD(  AISO2J  ) =   0.0D0
-      LOSS(  AISO2J  ) =                 RXRAT( 385 )      ! AISO2J=0.5000D+00*AOLGBJ
+      LOSS(  AISO2J  ) =                 RXRAT( 391 )      ! AISO2J=0.5000D+00*AOLGBJ
 
       PROD(  ASQTJ   ) =   0.0D0
-      LOSS(  ASQTJ   ) =                 RXRAT( 386 )      ! ASQTJ=0.1500D+01*AOLGBJ
+      LOSS(  ASQTJ   ) =                 RXRAT( 392 )      ! ASQTJ=0.1500D+01*AOLGBJ
 
       PROD(  APAH1J  ) =   0.0D0
-      LOSS(  APAH1J  ) =                 RXRAT( 387 )      ! APAH1J=0.1429D+01*AOLGAJ
+      LOSS(  APAH1J  ) =                 RXRAT( 393 )      ! APAH1J=0.1429D+01*AOLGAJ
 
       PROD(  APAH2J  ) =   0.0D0
-      LOSS(  APAH2J  ) =                 RXRAT( 388 )      ! APAH2J=0.1429D+01*AOLGAJ
+      LOSS(  APAH2J  ) =                 RXRAT( 394 )      ! APAH2J=0.1429D+01*AOLGAJ
 
       PROD(  AALK1J  ) =   0.0D0
-      LOSS(  AALK1J  ) =                 RXRAT( 389 )      ! AALK1J=0.1714D+01*AOLGAJ
+      LOSS(  AALK1J  ) =                 RXRAT( 395 )      ! AALK1J=0.1714D+01*AOLGAJ
 
       PROD(  AALK2J  ) =   0.0D0
-      LOSS(  AALK2J  ) =                 RXRAT( 390 )      ! AALK2J=0.1714D+01*AOLGAJ
+      LOSS(  AALK2J  ) =                 RXRAT( 396 )      ! AALK2J=0.1714D+01*AOLGAJ
 
       PROD(  APOCI   ) =   0.0D0
       LOSS(  APOCI   ) =   0.0D0
 
-      PROD(  APNCOMI ) =    1.2500D+00 * RXRAT( 391 )      ! APOCI+HO=0.1250D+...
-      LOSS(  APNCOMI ) =                 RXRAT( 392 )      ! APNCOMI+HO=HO
+      PROD(  APNCOMI ) =    1.2500D+00 * RXRAT( 397 )      ! APOCI+HO=0.1250D+...
+      LOSS(  APNCOMI ) =                 RXRAT( 398 )      ! APNCOMI+HO=HO
 
       PROD(  APOCJ   ) =   0.0D0
       LOSS(  APOCJ   ) =   0.0D0
 
-      PROD(  APNCOMJ ) =    1.2500D+00 * RXRAT( 393 )      ! APOCJ+HO=0.1250D+...
-      LOSS(  APNCOMJ ) =                 RXRAT( 394 )      ! APNCOMJ+HO=HO
+      PROD(  APNCOMJ ) =    1.2500D+00 * RXRAT( 399 )      ! APOCJ+HO=0.1250D+...
+      LOSS(  APNCOMJ ) =                 RXRAT( 400 )      ! APNCOMJ+HO=HO
 
       RETURN
 

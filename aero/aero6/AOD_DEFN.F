@@ -1,5 +1,34 @@
+<<<<<<< HEAD
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       module aod_defn 
+=======
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      module aod_defn 
+C Calculates the aerosol optical thickness using reconstructed extinction
+C values from the IMPROVE monitoring network updated from Malm and Hand,
+C (Atmos. Env. 41, 3407-3427, 2007) See comments in AERO_DATA.F
+
+C Revision History:
+C 10 Sep 15 J.Young: inital
+>>>>>>> master_RR/master
 
       implicit none
 
@@ -112,9 +141,15 @@ c Open the diagnostic file
 !-----------------------------------------------------------------------
       subroutine get_aod ( cgrid )
 
+<<<<<<< HEAD
 C compute extinction and aod from conc files using getvisby.f as an example
          use aero_data        ! includes SUBST_CONST
          use asx_data_mod     ! meteorology data
+=======
+C compute extinction and aod from conc files similar to getvisby.f as a template
+         use aero_data          
+         use asx_data_mod     ! meteorology data, includes SUBST_CONST
+>>>>>>> master_RR/master
          use utilio_defn
 
          implicit none

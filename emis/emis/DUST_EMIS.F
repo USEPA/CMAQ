@@ -568,6 +568,8 @@ C erodibility potential of soil component
 
          kvh = 100.0 * kvh   ! 1/cm -> 1/m
 
+         write( logdev,'( 2x, a, i8.6, f12.5 )' ) 'max wmax:', jtime, maxval( wmax )
+
  !       WRITE( LOGDEV,'( 2X, A, I8.6, I6 )' ) 'KVHC:', JTIME, KVHC
 
          l2sgj = log( sigj ) * log( sigj )
@@ -736,7 +738,7 @@ C Parameters:
          real, parameter :: fdsa = 1.0     ! factor of dust source area 1/.1/.01
          real, parameter :: gmad = 0.78    ! Factor to convert geometric to aerodynamic diameter
          real, parameter :: cfac = amen * radg * fdsa * gmad  ! combined factor for qam
-                               ! = 3066.8352, 250.13874 w/ amen = 2.61
+                               ! = 3066.8352,250.13874,95.8386 w/ amen=32.0,2.61,1.0 resp.
 
          real, parameter :: f6dpi = 6.0 / pi
          real, parameter :: gpkg = 1.0e03     ! g/kg
@@ -751,6 +753,7 @@ C Parameters:
          integer         :: mdate, mtime   ! diagnostic file write date&time
 
                        ! automatic arrays
+         real       :: fruf  ( ncols,nrows )
          real       :: fmoit ( ncols,nrows )      ! factor of soil moisture on u*t
          real       :: ustr  ( ncols,nrows )      ! friction velocity [m/s]
          real       :: soimt ( ncols,nrows )      ! gravimetric soil moisture (Kg/Kg)
@@ -828,6 +831,39 @@ C convert to gravimetric [kg/kg]
      &              0.357,     ! Silty Clay
      &              0.344,     ! Clay
      &              0.363 /)   ! Other
+
+!! FROM NCAR LSM Group 17 Apr 2007   "volumetric"
+!! ALSO in Spyrou, et al. JGR 2010
+!        real :: soilml1( nsltyp ) =
+!    &           (/ 0.339,     ! Sand
+!    &              0.421,     ! Loamy Sand
+!    &              0.434,     ! Sandy Loam
+!    &              0.476,     ! Silt Loam
+!    &              0.476,     ! Silt
+!    &              0.439,     ! Loam
+!    &              0.404,     ! Sandy Clay Loam
+!    &              0.464,     ! Silty Clay Loam
+!    &              0.465,     ! Clay Loam
+!    &              0.406,     ! Sandy Clay
+!    &              0.468,     ! Silty Clay
+!    &              0.468,     ! Clay
+!    &              0.482 /)   ! Other
+
+C convert to gravimetric [kg/kg]
+!        real :: soilml1( nsltyp ) =
+!    &           (/ 0.208,     ! Sand
+!    &              0.264,     ! Loamy Sand
+!    &              0.286,     ! Sandy Loam
+!    &              0.344,     ! Silt Loam
+!    &              0.350,     ! Silt
+!    &              0.299,     ! Loam
+!    &              0.266,     ! Sandy Clay Loam
+!    &              0.341,     ! Silty Clay Loam
+!    &              0.324,     ! Clay Loam
+!    &              0.271,     ! Sandy Clay
+!    &              0.347,     ! Silty Clay
+!    &              0.334,     ! Clay
+!    &              0.363 /)   ! Other
 
 C Threshold Friction Velocity [m/s] for 13 soil types and 3 land use types, which are:
 C    1 -shrubland,
@@ -928,14 +964,35 @@ C-----------------------------------------------------------------------
 C Convert layer-average U* into surface local U*
 C    -> U*t has to be surface values from measurements.
 
-         do r = 1, my_nrows
-         do c = 1, my_ncols
-!           zi = sc * zruf( c,r )
-!           ustar( c,r ) = ustar( c,r ) * log( zi / zruf( c,r ) ) / log( zi / z0s )
-            ustr( c,r ) = Met_Data%ustar( c,r )
-     &                  * 3.465736 / log( 32.0e+05 * Met_Data%z0( c,r ) )
-         end do
-         end do
+!         do r = 1, my_nrows
+!         do c = 1, my_ncols
+!!           zi = sc * zruf( c,r )
+!!           ustar( c,r ) = ustar( c,r ) * log( zi / zruf( c,r ) ) / log( zi / z0s )
+!            ustr( c,r ) = Met_Data%ustar( c,r )
+!     &                  * 3.465736 / log( 32.0e+05 * Met_Data%z0( c,r ) )
+!         end do
+!         end do
+
+C ***
+C        recalculating U* using the similarity theory and the aeolian
+C        roughness (cf. the aerodynamic roughness which is used in WRF).
+C        The constant value of z0 = 1e-5 m is used here following 
+C        Prigent et al., JGR 2005 for now.          
+C
+         ustr = 0.4 * Met_Data%WSPD10 / LOG ( 10.0 / 0.00001 )
+                                      ! 13.8155106
+C         
+C         Later, I should test this (following a discussion with J. Bash):
+C          do r = 1, my_nrows
+C          do c = 1, my_ncols
+C          IF ( Met_Data%LAI( C,R ) .ge.  1.0 ) THEN
+C                ustr( c,r ) = Met_Data%ustar( c,r ) * exp( -Met_Data%LAI( c,r ) )
+C          ELSE 
+C                ustr( c,r ) = 0.4 * Met_Data%WSPD10( c,r ) / LOG( 10.0 / 0.00001 )
+C          ENDIF
+C          end do
+C          end do
+C ***
 
 C calculate transport factor above the canopy
          call tfabove ( tfa )
@@ -983,6 +1040,7 @@ C Initialize windblown dust diagnostics output buffer
             soimt( c,r ) = 0.0
 !           fmoit( c,r ) = 999.9
             fmoit( c,r ) = 0.0   ! for diagnostic output visualization
+            fruf ( c,r ) = 0.0
             do m = 1, n_dlcat+1
 !              utstar( c,r,m ) = 999.9
                utstar( c,r,m ) = 0.0   ! for diagnostic output visualization
@@ -1021,7 +1079,16 @@ C soil moisture effect on U*t
 !              else
 !                 fmoit( c,r ) = ?  not used
                end if
-
+C
+C roughness effect on effect on U*t            
+C fruf( c,r ) = 1.0 - ((LOG(0.00001/0.00000333))/(LOG(0.7*(0.1/0.00000333)**0.8)))
+               fruf( c,r ) = 1.0   ! roughness factor = 1.0 (for now)             
+!              if ( fruf( c,r ) .le. 0.0 .or. fruf( c,r ) .gt. 1.0 ) then
+!                 xmsg = 'ERROR: fruf out of bound'
+!                 call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+!              end if
+!              fruf( c,r ) = 1.0 / fruf( c,r ) 
+C
 C Dust occurs where erodible land exists, soil moisture is less than saturation,
 C and U* > U*t
 
@@ -1049,7 +1116,7 @@ C Adjust U*t based on soil moisture ---
 !                       utstar( c,r,m ) = 0.5 * uthfv( j,3 ) * fmoit( c,r ) ! testing
 !                       n = dmap( m )   ! map to BELD3 for uthfv
 !                       utstar( c,r,m ) = uthfv( j,n ) * fmoit( c,r )
-                        utstar( c,r,m ) = uthfv( j,3 ) * fmoit( c,r )
+                        utstar( c,r,m ) = uthfv( j,3 ) * fmoit( c,r ) * fruf( c,r )
                         if ( ustr( c,r ) .gt. utstar( c,r,m ) ) then
                            ! wind erosion occurs only when U* > Ut*
 !                          utem( c,r,m ) = ustr( c,r )
