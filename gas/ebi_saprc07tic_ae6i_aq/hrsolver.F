@@ -35,11 +35,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, March 19, 2015
-C                     Revised hrsolver.F by Golam Sarwar, December, 2007
-C                             rearranged a statement suggested by CARB
-C                             to reduce the chance of code crash; it does
-C                             not change results
+C  REVISION HISTORY: Created by EBI solver program, Aug. 4, 2015
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -62,11 +58,12 @@ C..ARGUMENTS:
 
 C..PARAMETERS:
       INTEGER, PARAMETER :: MXBKUPS = 5  ! Max no. of back-ups allowed
-      INTEGER, PARAMETER :: STAT    = 1  ! Status code
+      INTEGER, PARAMETER :: STAT = 1     ! Status code
 
+      REAL( 8 ), PARAMETER :: DTMIN   = 1.0D-05    ! Smallest time step allowed, min
       REAL( 8 ), PARAMETER :: EPSLON  = 1.0D-30    ! Small number
       REAL( 8 ), PARAMETER :: MAXPRED = 1.0D+03    ! Upper limit on predicted conc
-      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40     ! effective zero
+      REAL( 8 ), PARAMETER :: ZERO    = 1.0D-40    ! effective zero
 
 C..EXTERNAL FUNCTIONS:
 
@@ -81,8 +78,10 @@ C..SCRATCH LOCAL VARIABLES:
 
       CHARACTER( 132 ) :: MSG           ! Message text
 
+      INTEGER CELLNO          ! Cell no. fo debug output
       INTEGER ITER            ! Loop index for Backward Euler iterations
       INTEGER S               ! Loop index for species
+      INTEGER SP              ! Imbedded loop index for species
       INTEGER NEBI            ! Loop index for time steps
       INTEGER NINR            ! No. of inner time steps
 #ifdef hrdebug
@@ -93,8 +92,8 @@ C..SCRATCH LOCAL VARIABLES:
       INTEGER ERR             ! Allocate error flag
 
 
-      LOGICAL LEBI_CONV             ! Flag for EBI convergence
-      LOGICAL MXFL                  ! hit MAXPRED flag
+      LOGICAL LEBI_CONV          ! Flag for EBI convergence
+      LOGICAL MXFL               ! hit MAXPRED flag
 
       REAL( 8 ) DTC              ! Time step to take
       REAL( 8 ) FXDLOSS          ! Total loss due to negative stoichiometry
@@ -155,11 +154,11 @@ c      IF( JTIME .EQ. 160000 ) THEN
      &             'EBI_TMSTEP = ', EBI_TMSTEP
            WRITE( DBGOUT, '( A )' ) 'Starting concs and rate constants'
            DO N = 1, N_SPEC
-             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PE13.5 )' )
+             WRITE( DBGOUT,  '( A, I3, 1X, A, 1X, 1PD13.5 )' )
      &                     'SP ',N, CHEMISTRY_SPC( N ), YC( N )
            END DO
            DO N = 1, N_RXNS
-             WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+             WRITE( DBGOUT, '( A, I3, 1X, 1PD13.5 )' )
      &                     'RKI ', N, RKI(  N )
            END DO
       END IF
@@ -168,22 +167,21 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
 
 
-      N_EBI_IT = 0
+      DTC         = EBI_TMSTEP
 
+      N_EBI_IT    = 0
+      NBKUPS      = 0
+      N_INR_STEPS = 1
+      NEBI        = 1
 
-      DO 3000 NEBI = 1, N_EBI_STEPS    ! outer EBI time-step loop
+      TSTEP_EBI: DO    ! EBI time-step loop
 
-          NBKUPS      = 0
-          DTC         = EBI_TMSTEP
-          N_INR_STEPS = 1
-
-100      CONTINUE                        !  Restart location
-
-         DO 2000 NINR = 1, N_INR_STEPS   ! No. of time steps for back-up
+         SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop
+!  first attempt is sub time-step equals EBI time-step
 
             FORALL( S = 1:N_SPEC )YC0( S ) = YC( S )   ! Set ICs for EBI iterations
 
-            DO 1000 ITER = 1, NEBITER    ! EBI iteration loop
+            ITER_SUBSTEP: DO ITER = 1, NEBITER  ! iteration loop solving for sub time-step
 
                N_EBI_IT = N_EBI_IT + 1
                CALL HRRATES
@@ -191,13 +189,14 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
                IF( LDEBUG ) THEN
-                  WRITE( DBGOUT, '( A, I5 )' )   'ITER NO ', ITER
-                  WRITE( DBGOUT, '( A, F12.5 )' )' DTC=', DTC
+                  WRITE( DBGOUT, '( A, I5 )' ) 'ITER NO ', ITER
+                  WRITE( DBGOUT, '( A, F12.5 )' )
+     &               ' DTC=', DTC
 
                   IF( ITER .EQ. 1 ) THEN
                      WRITE( DBGOUT, '( A )' ) 'Starting reaction rates'
                      DO N = 1, N_RXNS
-                        WRITE( DBGOUT, '( A, I3, 1X, 1PE13.5 )' )
+                        WRITE( DBGOUT, '( A, I3, 1X, 1PD13.5 )' )
      &                        'RXRAT ', N, RXRAT( NCELL, N )
                      END DO
                   END IF
@@ -237,7 +236,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Check for convergence
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                LEBI_CONV = .TRUE.
-               MXFL = .FALSE.
+               MXFL      = .FALSE.
+
                DO S = 1, N_SPEC
                   LEBISPFL( S ) = .FALSE.
                   YCP( S ) = MAX( ZERO, YCP( S ) )
@@ -245,13 +245,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
-c..if predictions growing too large, treat as a convergence failure
+c..test if predictions growing too large
                   IF( YCP( S ) .GT. MAXPRED ) THEN
-                     MXFL = .TRUE.
-                     GO TO 1010
+                     MXFL          = .TRUE.
+                     LEBI_CONV     = .FALSE.
+                     LEBISPFL( S ) = .TRUE.
                   END IF
                   YC( S ) = YCP( S )
                END DO
+c..test if predictions growing too large, abort interation loop
+               IF( MXFL ) EXIT ITER_SUBSTEP
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
@@ -265,7 +268,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                         NOTE = '         '
                      END IF
 
-                     WRITE( DBGOUT, '( I3, 1X, A, 1PE13.5, 1X, A )' )
+                     WRITE( DBGOUT, '( I3, 1X, A, 1PD13.5, 1X, A )' )
      &                            S, CHEMISTRY_SPC( S ), YC( S ), NOTE
                   END DO
                   IF( LEBI_CONV ) WRITE( DBGOUT, '( A )' )
@@ -274,37 +277,30 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #endif
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
+               IF( LEBI_CONV ) THEN
+                 CYCLE SUBSTEP_EBI ! solve for next sub time-step
+               END IF
 
-                IF( LEBI_CONV )THEN
-                   GO TO 2000
-                END IF
-
-1000        CONTINUE
-
-c...Convergence failure section; cut the inner time step in half &
-c.....start inner loop over unless max backups exceeded
-
-1010        CONTINUE
-
+            END DO ITER_SUBSTEP
+! interating for substep failed, attempt to increase number of sub time-steps
             NBKUPS = NBKUPS + 1
 
-            IF( NBKUPS .LE. MXBKUPS ) THEN
-
+!            IF( NBKUPS .LE. MXBKUPS ) THEN
+            IF ( DTC .GT. DTMIN ) THEN
+! reset YC and cut sub time-step in half
                IF ( MXFL ) THEN
                   WRITE( LOGDEV, 92010 ) C, R, L, TRIM( CHEMISTRY_SPC( S ) ), NBKUPS
                ELSE
                   WRITE( LOGDEV, 92000 ) C, R, L, NBKUPS
                END IF
 
-               DO S = 1, N_SPEC
-                  YC( S ) = YC0( s )
-               END DO
+               FORALL( S = 1:N_SPEC )YC( S ) = YC0( S )   ! Set ICs for EBI time-step
 
                DTC = 0.5D0 * DTC
 
                N_INR_STEPS = 2 ** NBKUPS
 
-               GO TO 100
+               EXIT SUBSTEP_EBI
 
             ELSE
 
@@ -320,9 +316,21 @@ c.....start inner loop over unless max backups exceeded
 
             END IF
 
-2000     CONTINUE
+         END DO SUBSTEP_EBI
 
-3000  CONTINUE
+         IF( LEBI_CONV )THEN
+             NEBI        = 1 + NEBI
+! test for completing final EBI time-step
+             IF( NEBI .GT. N_EBI_STEPS )RETURN
+! test whether backups were done
+             IF( NBKUPS .EQ. 0 )CYCLE TSTEP_EBI
+! Reset NBKUPS, N_INR_STEPS and sub-time step
+             NBKUPS      = 0
+             N_INR_STEPS = 1
+             DTC         = EBI_TMSTEP
+         END IF
+
+      END DO TSTEP_EBI
 
       RETURN
 

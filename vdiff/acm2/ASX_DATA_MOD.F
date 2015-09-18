@@ -267,7 +267,7 @@ C Land use information:
       DATA subname( 2), dif0( 2), ar( 2), meso( 2), lebas( 2) / 'H2SO4           ', 0.1091, 8000.0,      0.0,  49.0/
       DATA subname( 3), dif0( 3), ar( 3), meso( 3), lebas( 3) / 'NO2             ', 0.1361,    2.0,      0.1,  21.0/
       DATA subname( 4), dif0( 4), ar( 4), meso( 4), lebas( 4) / 'NO              ', 0.1802,    2.0,      0.0,  14.0/
-      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,    8.0,      1.0,  21.0/
+      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,   12.0,      1.0,  21.0/
       DATA subname( 6), dif0( 6), ar( 6), meso( 6), lebas( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,  35.0/
       DATA subname( 7), dif0( 7), ar( 7), meso( 7), lebas( 7) / 'H2O2            ', 0.1300,   30.0,      1.0,  28.0/
       DATA subname( 8), dif0( 8), ar( 8), meso( 8), lebas( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,  56.0/
@@ -326,11 +326,14 @@ C Land use information:
       DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.1, 147.8/
       DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0677,   16.0,      0.1, 133.0/
       DATA subname(63), dif0(63), ar(63), meso(63), lebas(63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
+      DATA subname(64), dif0(64), ar(64), meso(64), lebas(64) / 'ISOPNN          ',0.0457,    8.0,      0.0,  206.8/  
+      DATA subname(65), dif0(65), ar(65), meso(65), lebas(65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/  
+
 
       CONTAINS
 
 C=======================================================================
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX )
+         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -354,6 +357,7 @@ C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -467,7 +471,7 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
@@ -791,7 +795,7 @@ C-----------------------------------------------------------------------
          End Subroutine INIT_MET
 
 C=======================================================================
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX )
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -823,6 +827,7 @@ C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
@@ -974,7 +979,7 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
             VNAME = 'SOIM2'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,

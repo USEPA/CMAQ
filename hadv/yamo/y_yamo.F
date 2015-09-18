@@ -48,6 +48,7 @@ C   11 May 2009: Jeff Young: Simplify - assume constant cell widths, DS( i )
 C   11 May 2010: Jeff Young: New hppm fix for PGI compiler by David Wong
 C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
+C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -109,7 +110,7 @@ C Local Variables:
 
       integer, save :: logdev
 
-      REAL,    SAVE :: DX2                      ! dx1 (meters)
+      REAL,    SAVE :: DX2                      ! dx2 (meters)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
       REAL          ADJFAC                      ! Yamo's adjustment - jp 11/02
       REAL          ADJFAC_L
@@ -131,6 +132,10 @@ C Local Variables:
 !     INTEGER, SAVE :: STARTROW, ENDROW, STARTROW2, ENDROW2, ENDROW2_LIM
       INTEGER, SAVE :: STARTROW2, ENDROW2, ENDROW2_LIM
       LOGICAL, SAVE :: BNDY_PE_LOY, BNDY_PE_HIY
+
+C Yamo CFL correction 
+      REAL    DTCFL
+      INTEGER ITER, NITER
 
 #ifdef parallel
       INTEGER NORTH_ROW, M
@@ -332,6 +337,8 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             IF ( VELY( 1 ) .LT. 0.0 ) VELY( 1 ) = VELY( 1 ) * ADJFAC
          END IF
 
+         DTCFL = DT
+
          DO ROW = STARTROW2, ENDROW2
 
             IF ( ROW .EQ. STARTROW2 ) THEN
@@ -340,14 +347,16 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
                ADJFAC_L = ADJFAC
             END IF
 
-            IF ( ROW .LT. ENDROW2_LIM ) ADJFAC = YTRHOJ( COL,ROW )
-     &                                         / TRRHOJ( ROW )
+            IF ( ROW .LT. ENDROW2_LIM ) ADJFAC = YTRHOJ( COL,ROW ) / TRRHOJ( ROW )
 
             IF ( VELY( ROW ) .LT. 0.0 ) THEN
                VELY( ROW ) = VELY( ROW ) * ADJFAC
-            ELSE IF ( VELY( ROW ) .GT. 0.0 ) THEN
+            ELSE
                VELY( ROW ) = VELY( ROW ) * ADJFAC_L
             END IF
+
+C check adjusted velocities for Courant limited max timestep
+            DTCFL = MIN ( DTCFL, 0.9 * DX2 / ABS( VELY( ROW ) ) )
 
 !           if ( vely( row ) .lt. 0.0 ) then
 !              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then
@@ -363,7 +372,7 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
 2011           format(  '#y_yamo> col, row, lvl, adjfac_l, vely: ',
      &                3i3, 1x, 2f7.2 )
 
-         END DO
+         END DO   ! ROW
 
 #ifdef parallel
          CALL SWAP1D( VELY( 1 ), VELY( MY_NROWS+1 ), 1, NORTH )
@@ -407,7 +416,7 @@ C North boundary
                END IF
             END IF
 
-         END DO
+         END DO   ! SPC
 
 !        if ( lvl .eq. 1 .and. col .eq. 22 ) then
 !           write( logdev,* ) '@@ y_yamo# time, row, vely'
@@ -421,8 +430,14 @@ C North boundary
 2017  format( '@@', 5x, i7.6, i4, 1pe12.3 )
 
 C PPM scheme
-
-         CALL HPPM ( MY_NROWS, MY_NCOLS, CONY, VELY, DT, DX2, 'R' )
+         IF ( DTCFL .LT. DT ) THEN
+            NITER = INT( DT / DTCFL ) + 1
+            DO ITER = 1, NITER
+               CALL HPPM ( MY_NROWS, MY_NCOLS, CONY, VELY, DTCFL, DX2, 'R' )
+            END DO
+         ELSE
+            CALL HPPM ( MY_NROWS, MY_NCOLS, CONY, VELY, DT, DX2, 'R' )
+         ENDIF
 
          DO SPC = 1, N_SPC_ADV
             A2C = ADV_MAP( SPC )

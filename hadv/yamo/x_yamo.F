@@ -48,6 +48,7 @@ C   11 May 2009: Jeff Young: Simplify - assume constant cell widths, DS( i )
 C   11 May 2010: Jeff Young: New hppm fix for PGI compiler by David Wong
 C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
+C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -131,6 +132,10 @@ C Local Variables:
 !     INTEGER, SAVE :: STARTCOL, ENDCOL, STARTCOL2, ENDCOL2, ENDCOL2_LIM
       INTEGER, SAVE :: STARTCOL2, ENDCOL2, ENDCOL2_LIM
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
+
+C Yamo CFL correction 
+      REAL    DTCFL
+      INTEGER ITER, NITER
 
 #ifdef parallel
       INTEGER EAST_COL, M
@@ -339,6 +344,8 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             IF ( VELX( 1 ) .LT. 0.0 ) VELX( 1 ) = VELX( 1 ) * ADJFAC
          END IF
 
+         DTCFL = DT
+
          DO COL = STARTCOL2, ENDCOL2
 
             IF ( COL .EQ. STARTCOL2 ) THEN
@@ -347,14 +354,16 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
                ADJFAC_L = ADJFAC
             END IF
 
-            IF ( COL .LT. ENDCOL2_LIM ) ADJFAC = XTRHOJ( COL,ROW )
-     &                                         / TRRHOJ( COL )
+            IF ( COL .LT. ENDCOL2_LIM ) ADJFAC = XTRHOJ( COL,ROW ) / TRRHOJ( COL )
 
             IF ( VELX( COL ) .LT. 0.0 ) THEN
                VELX( COL ) = VELX( COL ) * ADJFAC
-            ELSE IF ( VELX( COL ) .GT. 0.0 ) THEN
+            ELSE
                VELX( COL ) = VELX( COL ) * ADJFAC_L
             END IF
+
+C check adjusted velocities for Courant limited max timestep
+            DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
 
 !           if ( velx( col ) .lt. 0.0 ) then
 !              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then
@@ -370,7 +379,7 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
 2011        format(  '#x_yamo> col, row, lvl, adjfac_l, velx: ',
      &                3i3, 1x, 2f7.2 )
 
-         END DO
+         END DO   ! COL
 
 #ifdef parallel
          CALL SWAP1D( VELX( 1 ), VELX( MY_NCOLS+1 ), 1, EAST )
@@ -414,7 +423,7 @@ C East boundary
                END IF
             END IF
 
-         END DO
+         END DO   ! SPC
 
 !        if ( lvl .eq. 1 .and. row .eq. 14 ) then
 !           write( logdev,* ) '@@ x_yamo# time, col, velx'
@@ -425,8 +434,14 @@ C East boundary
 2017  format( '@@', 5x, i7.6, i4, 1pe12.3 )
 
 C PPM scheme
-
-         CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DT, DX1, 'C' )
+         IF ( DTCFL .LT. DT ) THEN
+            NITER = INT( DT / DTCFL ) + 1
+            DO ITER = 1, NITER
+               CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DTCFL, DX1, 'C' )
+            END DO
+         ELSE
+            CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DT, DX1, 'C' )
+         END IF
 
          DO SPC = 1, N_SPC_ADV
             A2C = ADV_MAP( SPC )

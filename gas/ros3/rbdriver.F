@@ -212,13 +212,13 @@ C for interpolating meteorological inputs
 !?          INTEGER :: CCOL( : ), CROW( : ), CLEV( : )
 !?       END SUBROUTINE PA_IRR_SETUP
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-           IMPLICIT NONE
-           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-           INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+            IMPLICIT NONE
+            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
+            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
          END SUBROUTINE PHOT
          SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET,
      &                             CCOL, CROW, CLEV, NORDCELL,

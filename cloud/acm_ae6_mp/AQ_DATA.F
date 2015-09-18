@@ -853,7 +853,7 @@ C..Local Variables:
       ! compute minimums for aerosol species
       Do m = 1, n_mode
          Do n = 1, n_aerospc
-            If ( aerospc( n )%name( m ) .Ne. ' ' ) Then
+            If ( .NOT. aero_missing(n,m) ) Then
                spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
                If ( spc .Ne. 0 ) Then
                   aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )

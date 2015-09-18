@@ -2171,7 +2171,8 @@ C     Very large sphere limit from fit to Irvine (1965).
          G = 1.124484 - 1.153869E-1 * NR
 
       END IF
-
+C Simple and gross fix if appromation exceed realistic bounds
+      G = MAX( -0.9999, MIN( G, 0.9999))
       RETURN
       END SUBROUTINE FAST_OPTICS
 

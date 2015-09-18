@@ -159,6 +159,8 @@ C-------------------------------------------------------------------------------
       Use LSM_Mod        ! land surface model variables needed for mosaic and bidi
       Use Mosaic_Mod     ! contains mosaic routines
       Use ASX_DATA_MOD   ! contains CONSTANTS include
+      Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
+      Use HGSIM
 #ifdef twoway
       USE twoway_data_module, only : num_land_cat
 #endif
@@ -226,6 +228,7 @@ C Local Variables:
       REAL,    SAVE              :: xcent
       REAL,    SAVE              :: ycent
       REAL                       :: xm                   ! liquid water mass frac
+      REAL                       :: rh_func              ! Simple RH function for the development of a water film on leaf cuticles 
 
       REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
 
@@ -249,6 +252,10 @@ C gas phase species indexes
       Integer, Save              :: l_O3
       Integer, Save              :: n_NH3          ! CGRID map
       Integer, Save              :: l_NH3
+      Integer, Save              :: n_HG          ! CGRID map
+      Integer, Save              :: l_HG
+      Integer, Save              :: n_HGII          ! CGRID map
+      Integer, Save              :: l_HGII
 C-------------------------------------------------------------------------------
 C For ozone exchange over the ocean
 
@@ -278,6 +285,17 @@ C For Ammonia bi-directional flux
       REAL                       :: f_wat        ! direct flux to surface water
       REAL                       :: lnh3         ! loss part of ammonia flux
                                                  ! Note that lnh3 is stored in DEPVEL_GAS(nh3) for use in vdiff
+
+C-------------------------------------------------------------------------------
+C For Mercury bidirectional flux
+      REAL                       :: chg            ! gem layer one concentration
+      REAL                       :: awhg           ! GEM Oswald solubility coeff
+      REAL                       :: chgIIgas       ! rgm layer one concentration
+      REAL                       :: vdHgII         ! divalent mercury deposition velocity
+      REAL                       :: vdHg           ! elemental mercury deposition velocity
+      REAL                       :: dpvd           ! dummy pvd variable passed to the hgasx subroutine
+      REAL                       :: dvel           ! dummy depvel_gas returned from ATX
+
 C-------------------------------------------------------------------------------
 C For Mosaic with Ammonia bi-directional flux
       REAL                      :: rsj
@@ -344,12 +362,16 @@ C        Species maps
 C-----------------------------------------------------------------
          l_HONO = 0
          n_HONO = 0
-         l_NO2 = 0
-         n_NO2 = 0
-         l_O3  = 0
-         n_O3  = 0
+         l_NO2  = 0
+         n_NO2  = 0
+         l_O3   = 0
+         n_O3   = 0
          l_NH3  = 0
          n_NH3  = 0
+         l_HG   = 0
+         n_HG   = 0
+         l_HGII = 0
+         n_HGII = 0
          n = 0
          maploop: DO l = 1, n_spc_m3dry
             IF ( .NOT. use_depspc( l ) ) CYCLE maploop
@@ -370,6 +392,14 @@ C-----------------------------------------------------------------
             If ( TRIM( depspc( l ) ) .EQ. 'NH3' ) THEN
                l_NH3 = l
                n_NH3 = n
+            End If
+            If ( TRIM( depspc( l ) ) .EQ. 'HG' ) THEN
+               l_HG = l
+               n_HG = n
+            End If
+            If ( TRIM( depspc( l ) ) .EQ. 'HGIIGAS' ) THEN
+               l_HGII = l
+               n_HGII = n
             End If
          END DO maploop
 
@@ -576,29 +606,39 @@ C------------------------------------------------------------------------------
 
             IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .EQ. 0 ) .OR. ( vegcr .EQ. 0.0 ) ) THEN  ! water
 
+               IF ( l .EQ. l_HG ) THEN  ! elemental mercury gas
+! calculate and save Henry's constant for use in HGSIM
+
+                  IF( HGBIDI ) THEN 
+                     awhg = hlconst( subname( l ), tw, effective, hplus_h2o )* 0.08205 * tw
+                  ELSE
+                     rsurf = 1.0e30
+                  END IF
+               ELSE   ! any species other than elemental mercury gas
+
          ! Use CMAQ function for calculating the effective Henry's Law
          ! constant.  Note that original M3DRY wants inverse, non-
          ! dimensional Henry's Law (caq/cg).   Water pH is different
          ! than rain, and we need to use the water temperature.
 
-               heff  = hlconst( subname( l ), tw, effective, hplus_h2o )
+                  heff  = hlconst( subname( l ), tw, effective, hplus_h2o )
 
          ! Make Henry's Law constant non-dimensional.
 
-               heff  = heff * 0.08205 * tw
+                  heff  = heff * 0.08205 * tw
 
          ! from Hayduk and Laudie
-               dw25 = 13.26e-5 / ( 0.8904**1.14 * lebas( l )**0.589 )
-               kvisw = 0.017 * EXP( -0.025 * ( tw - stdtemp ) )
-               dw    = dw25 * ( tw * rt25inK ) * ( 0.009025 / kvisw )
-               scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
+                  dw25 = 13.26e-5 / ( 0.8904**1.14 * lebas( l )**0.589 )
+                  kvisw = 0.017 * EXP( -0.025 * ( tw - stdtemp ) )
+                  dw    = dw25 * ( tw * rt25inK ) * ( 0.009025 / kvisw )
+                  scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
 
-               IF ( l .EQ. l_O3 ) THEN   !implement Chang et al(2004)
+                  IF ( l .EQ. l_O3 ) THEN   !implement Chang et al(2004)
 c        pChang is a/H or alpha/H which would be 1/H in current model
 c        note that in Chang et al (2004) and Garland et al (1980) their H is Cair/Cwater with is
 c        the inverse of heff
-                  pChang = 1.75
-                  kwChang = (d3*ustarcr)/scw_pr_23
+                     pChang = 1.75
+                     kwChang = (d3*ustarcr)/scw_pr_23
 
 
 c        If a file of chlorophyll concentrations is provided, Iodide concentration are estimated from
@@ -609,27 +649,28 @@ c        The slope and correlation are a slightly different than in Table 5.
 c        If chlorophyll concs are not available, a constant value for [I-] of 100e-9 mol/l is used
 c        Use ocean file variables to determine if the water cell is ocean or lake; method is only for ocean cells
 
-                  IF (((GRID_DATA%OCEAN(c,r) + GRID_DATA%SZONE(c,r)) .GT. 0) .AND. (MET_DATA%SEAICE(c,r) .LE. 0)) THEN
+                     IF (((GRID_DATA%OCEAN(c,r) + GRID_DATA%SZONE(c,r)) .GT. 0) .AND. (MET_DATA%SEAICE(c,r) .LE. 0)) THEN
 c        Iodide in sea-water based on SST  (mol /dm-3)
-                    ciodide = 1.46E6 * EXP( -9134.0 / tempgcr)
-                    qiodide = ( ( 2.0e9 * ciodide * dw * 1e-4 ) ** 0.5 ) * heff
-                    rgw = 1.0 / ( pChang * kwchang + qiodide )
-                  ELSE                  ! O3 over land
-                    rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
-                  END IF
-               ELSE                     ! other chems
-                  rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
-               END IF
-
-               rsurf = rgw
-
-               IF ( mosaic ) THEN
-                  DO j = 1, n_lufrac
-                     IF ( lufraccr( j ) .GT. 0.0 ) THEN
-                        rsurfj( j,l,c,r ) = rsurf
+                       ciodide = 1.46E6 * EXP( -9134.0 / tempgcr)
+                       qiodide = ( ( 2.0e9 * ciodide * dw * 1e-4 ) ** 0.5 ) * heff
+                       rgw = 1.0 / ( pChang * kwchang + qiodide )
+                     ELSE                  ! O3 over land
+                       rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
                      END IF
-                  END DO
-               END IF ! mosaic
+                  ELSE                     ! other chems
+                     rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
+                  END IF
+
+                  rsurf = rgw
+
+                  IF ( mosaic ) THEN
+                     DO j = 1, n_lufrac
+                        IF ( lufraccr( j ) .GT. 0.0 ) THEN
+                           rsurfj( j,l,c,r ) = rsurf
+                        END IF
+                     END DO
+                  END IF ! mosaic
+               END IF ! Hg
 
             ELSE   ! land
 
@@ -650,7 +691,10 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   rwet = rcw0 / heff      ! wet cuticle
                ELSE
                   ! Set RCW/LAI = 200 s/m on basis of Keysburg exp for O3
-                  rwet = 1250.0    ! s/m
+!                  rwet = 1250.0    ! s/m
+!                  rwet = MAX( 200.0, 200.0 * laicr ) ! s/m
+! Average of 2002 and 2003 from Table 1. Altimir et al 2006 doi:10.5194/bg-3-209-2006
+                  rwet = 385.0 ! s/m
                END IF
 
                rgw  = rgwet0 / heff    ! wet ground
@@ -669,9 +713,12 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
          ! Dry cuticle resistance.
 
-               IF ( l_NH3 .Ne. l ) THEN
+               IF ( l .Ne. l_NH3 ) THEN
                   rcut = rcut0 * a0 / ar( l )
-               ELSE
+               ELSE IF( l .Eq. l_O3 ) THEN
+                  rh_func = max( 0.0,( MET_DATA%RH( c,r ) - 70.0 )/30.0 )
+                  rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
+               ELSE 
                   rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
                END IF
 
@@ -942,13 +989,53 @@ C Calculate production (pvd) for HONO; unit = ppm * m/s
      &            pvd( n,c,r ) = kno2 * conc_no2 * MET_DATA%ZF( c,r,1 )
             END IF
 C--------------------------------------------------------------------------
+C Bidirectional mercury flux section
+C--------------------------------------------------------------------------
+
+            IF ( HGBIDI .AND.  l .EQ. l_HG ) THEN
+
+               chg  = cgridl1( n_HG,c,r )
+
+               IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .EQ. 0  .AND. ( vegcr .EQ. 0.0 )) THEN ! water
+
+                  depvel_gas( n_Hg,c,r ) = 1.0 / ( rsurf + rac )
+                  vdhg = depvel_gas( n_Hg,c,r )
+                  pvd( n_Hg,c,r )  = 0.0 ! in the nether regions of LU/LC
+
+               ELSE ! terrestrial
+
+                  awhg  = hlconst( subname( l ), temp2p0cr, effective, hplus )* 0.08205 * temp2p0cr
+
+C************* Call the Hg air surface exchange subroutine *************************************************
+                  CALL ATX(rbc, rcut, rwetsfc, rinc,rsnow, rgw, ifsnow, xm, dvel, chg, awhg,
+     &                    dpvd, delta( c,r ),dt(2), c, r, l_HG, jdate, jtime )
+
+                  pvd( n_HG,c,r ) = dpvd
+
+                  depvel_gas( n_HG,c,r ) = dvel
+
+               END IF ! water
+
+            END IF ! 'HG'
 
                ! Check for negative values or NaN's
 
             IF ( depvel_gas( n,c,r ) .LT. 0.0 .OR.
-     &           depvel_gas( n,c,r ) .NE. depvel_gas( n,c,r ) ) GO TO 999
+     &           depvel_gas( n,c,r ) .NE. depvel_gas( n,c,r ) ) GO TO 999            
 
          END DO ddloop  ! (l = 1, n_spc_m3dry)
+
+         IF ( HGBIDI .AND. NINT( GRID_DATA%LWMASK( c,r ) ) .EQ. 0 .AND. ( vegcr .EQ. 0.0 )) THEN ! water
+
+            chgIIgas = cgridl1( n_HGII,c,r )
+            vdhgII   = depvel_gas( n_HGII,c,r )
+
+            CALL ASWX( chg, chgIIgas, vdhg, vdhgII, awhg,
+     &                 dpvd, c, r, jdate, jtime, dt(2) )
+
+            pvd( n_Hg,c,r ) = dpvd
+
+         END IF ! water
 
       END DO   ! c
       END DO   ! r

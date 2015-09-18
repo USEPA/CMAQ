@@ -87,7 +87,7 @@ C diagnostic file
          TSTEP3D = TSTEP
          CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         NVARS3D = 30 
+         NVARS3D = 29 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D = NLAYS
@@ -226,45 +226,39 @@ C diagnostic file
          VTYPE3D( 23 ) = M3REAL
          VNAME3D( 23 ) = 'GAMMA_N2O5'
          UNITS3D( 23 ) = 'na'
-         VDESC3D( 23 ) = 'N2O5 Heterogeneous reaction probability'
+         VDESC3D( 23 ) = 'Fine Mode N2O5 Heterogeneous reaction probability'
 
          VTYPE3D( 24 ) = M3REAL
-         VNAME3D( 24 ) = 'EQLBHJ'
-         UNITS3D( 24 ) = 'ug/m**3'
-         VDESC3D( 24 ) = 'H+ concentration from equilbrium (isor)'
+         VNAME3D( 24 ) = 'GAMMA_N2O5K'
+         UNITS3D( 24 ) = 'na'
+         VDESC3D( 24 ) = 'Coarse Mode N2O5 Heterogeneous reaction probability'
 
          VTYPE3D( 25 ) = M3REAL
-         VNAME3D( 25 ) = 'k_prtcl_iepox'
-         UNITS3D( 25 ) = '1/s'
-         VDESC3D( 25 ) = 'IEPOX particle phase reaction rate'
+         VNAME3D( 25 ) = 'YIELD_CLNO2'
+         UNITS3D( 25 ) = 'na'
+         VDESC3D( 25 ) = 'Fine Mode CLNO2 Heterogeneous reaction yield'
 
          VTYPE3D( 26 ) = M3REAL
-         VNAME3D( 26 ) = 'GAMMA_IEPOX'
+         VNAME3D( 26 ) = 'YIELD_CLNO2K'
          UNITS3D( 26 ) = 'na'
-         VDESC3D( 26 ) = 'IEPOX Heterogeneous reaction probability'
+         VDESC3D( 26 ) = 'Coarse Mode CLNO2 Heterogeneous reaction yield'
 
          VTYPE3D( 27 ) = M3REAL
-         VNAME3D( 27 ) = 'GAMMA_IMAE'
+         VNAME3D( 27 ) = 'GAMMA_IEPOX'
          UNITS3D( 27 ) = 'na'
-         VDESC3D( 27 ) = 'IMAE Heterogeneous reaction probability'
+         VDESC3D( 27 ) = 'IEPOX heterogeneous uptake coefficient'
 
          VTYPE3D( 28 ) = M3REAL
-         VNAME3D( 28 ) = 'GAMMA_N2O5K'
-         UNITS3D( 28 ) = ' '
-         VDESC3D( 28 ) = 'Coarse Mode N2O5 Heterogeneous reaction probability'
+         VNAME3D( 28 ) = 'k_prtcl_iepox'
+         UNITS3D( 28 ) = '1/s'
+         VDESC3D( 28 ) = 'IEPOX pseudo particle phase reaction rate const'
 
          VTYPE3D( 29 ) = M3REAL
-         VNAME3D( 29 ) = 'YIELD_CLNO2'
-         UNITS3D( 29 ) = ' '
-         VDESC3D( 29 ) = 'Fine Mode CLNO2 Heterogeneous reaction yield'
-
-         VTYPE3D( 30 ) = M3REAL
-         VNAME3D( 30 ) = 'YIELD_CLNO2K'
-         UNITS3D( 30 ) = ' '
-         VDESC3D( 30 ) = 'Coarse Mode CLNO2 Heterogeneous reaction yield'
+         VNAME3D( 29 ) = 'GAMMA_IMAE'
+         UNITS3D( 29 ) = 'na'
+         VDESC3D( 29 ) = 'IMAE heterogeneous uptake coefficient'
 
          FDESC3D( 1 ) = 'aerosol distribution and chemistry parameters'
-
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
             END DO
