@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 20, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sep 18, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -2504,6 +2504,7 @@ C***********************************************************************
 
       PROD(  IEPOX        ) =                 RXRAT( 543 )      ! ISOPOOH+OH=IEPOX+OH
       LOSS(  IEPOX        ) =                 RXRAT( 546 )      ! IEPOX+OH=IEPOXOO
+     &                      +                 RXRAT( 741 )      ! IEPOX=AISO3J
 
       PROD(  ARO2MN       ) =    2.0000D-02 * RXRAT( 544 )      ! ISOPOOH+OH=0.2000D-...
      &                      +    5.0000D-02 * RXRAT( 545 )      ! ISOPOOH=0.5000D-01*ARO2MN+...
@@ -3023,6 +3024,9 @@ C***********************************************************************
 
       PROD(  APNCOMJ      ) =    1.2500D+00 * RXRAT( 739 )      ! APOCJ+OH=0.1250D+...
       LOSS(  APNCOMJ      ) =                 RXRAT( 740 )      ! APNCOMJ+OH=OH
+
+      PROD(  AISO3J       ) =                 RXRAT( 741 )      ! IEPOX=AISO3J
+      LOSS(  AISO3J       ) =   0.0D0
 
       RETURN
 
