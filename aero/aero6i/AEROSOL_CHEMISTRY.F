@@ -985,6 +985,7 @@ C *** calculate gas-particle partitioning of NTR2
 
                     Do i = 1, n_aerospc
                        If ( aerospc( i )%nonVol_soa ) Then
+                           If( aerospc( i )%tracer )Cycle
                            CON_TOA = CON_TOA + aerospc_conc( i,2 )
                        End If
                     End Do
