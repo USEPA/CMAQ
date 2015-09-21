@@ -468,6 +468,8 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
        END IF
        CFACTOR_IEPOX = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTIEPOX * DPI ) )    
 
+       F_PART_NTR2 = 0.0
+
       END IF   ! first time condition
 
       KHETERO      = 0.0D0
@@ -767,11 +769,14 @@ C *** calculate gas-particle partitioning of NTR2
 
                     Do i = 1, n_aerospc
                        If ( aerospc( i )%nonVol_soa ) Then
+                           If( aerospc( i )%tracer )Cycle
                            CON_TOA = CON_TOA + aerospc_conc( i,2 )
                        End If
                     End Do
                     Do i = 1, n_vapor
-                      CON_TOA = CON_TOA + aerospc_conc( soa_aeroMap( i ),2 )
+                      n = soa_aeroMap( i )
+                      If( aerospc( n )%tracer )Cycle
+                      CON_TOA = CON_TOA + aerospc_conc( n,2 )
                     End Do
 
                     F_PART_NTR2 = 0.0
