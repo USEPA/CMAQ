@@ -22,6 +22,7 @@
 !
 ! 26 Sep 14 H. Pye: Heterogeneous uptake of IEPOX added 
 ! 31 Mar 15 H. Pye: formatting and cleanup (copied from aero6/AEROSOL_CHEMISTRY)
+! 
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -41,7 +42,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 28
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 29
        
        CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) =
      &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ',
@@ -56,8 +57,9 @@
      &                       'HETERO_TETROL   ', 'HETERO_IEPOXOS  ',
      &                       'HETERO_TETROLDIM', 'HETERO_IEPOXOSDI',
      &                       'HETERO_IMAE     ', 'HETERO_2MG      ',
-     &                       'HETERO_IMAEOS   ', 'HETERO_NO3'      ,
-     &                       'HETERO_GLY      ', 'HETERO_MGLY'      /)
+     &                       'HETERO_IMAEOS   ', 'HETERO_NO3      ',
+     &                       'HETERO_GLY      ', 'HETERO_MGLY     ',
+     &                       'HETERO_NTR2  ' /)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ    =  1
        INTEGER, PARAMETER  :: IA_N2O5K     =  2
@@ -87,6 +89,7 @@
        INTEGER, PARAMETER  :: IA_NO3       = 26
        INTEGER, PARAMETER  :: IA_GLY       = 27
        INTEGER, PARAMETER  :: IA_MGLY      = 28
+       INTEGER, PARAMETER  :: IA_NTR2      = 29
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ IA_N2O5IJ   , IA_N2O5K    , 
@@ -102,8 +105,8 @@
      &                       IA_TETROLDIM, IA_IEPOXOSDI,
      &                       IA_IMAE     , IA_2MG      ,
      &                       IA_IMAEOS   , IA_NO3      ,
-     &                       IA_GLY      , IA_MGLY  /)
-
+     &                       IA_GLY      , IA_MGLY     ,
+     &                       IA_NTR2    /)
  
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -215,6 +218,10 @@ C            reaction published in Sarwar et al. (2008) and its analytical solut
 C 05/06/2015 H Pye - Added NO3 heterogeneous reaction using low end of
 C            range from Mao et al 2013 
 C 06/2015    H Pye - Added SOA from GLY and MGLY uptake onto particles
+C 09/2015    B.Hutzell - Added data and varaibles to calculate pseudo-first order rate constant 
+C            for heterogeneous hydrolysis that converts organic nitrate to nitric acid. Both are
+C            assumed gas phase species. The reaction comes the CB6r3 chemical mechanism used by 
+C            the Environ CAMX model consult references 9 and 10.
 
 c
 c
@@ -256,6 +263,15 @@ C
 C   8. Mao et al. Ozone and organic nitrates over the eastern United
 C      States: Sensitivity to isoprene chemistry, J. Geophys. Res. doi:
 C      10.1002/jgrd.50817, 2013.
+C
+C   9. Rollins, A.W., S. Pusede, P.Wooldridge, K.-E.Min, D.R. Gentner, A.H. 
+C      Goldstein, S. Liu, D.A. Day, L.M. Russell, C.L. Rubitschun, J.D. Surratt,
+C      and R.C. Cohen, Gas/particle partitioning of total alkyl nitrates 
+C      observed with TD-LIF in Bakersfield.J.Geophys.Res., 118, 6651-6662, 2013.
+C
+C  10. Liu, S., J.E. Shilling, C. Song, N. Hiranuma, R.A. Zaveri, L.M. Russell,
+C      Hydrolysis of Organonitrate Functional Groups in Aerosol Particles.
+C      Aerosol Sci. Technol., 46, 1359-1369, 2012.
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -300,6 +316,15 @@ C *** Parameters
       REAL,      PARAMETER :: CONCOFM     = 1.0E+06        ! conc. of M = 1E+06 ppm
       REAL,      PARAMETER :: INV_STDTEMP = 1.0 / STDTEMP
       REAL,      PARAMETER :: EPSWATER    = MWWAT / MWAIR
+C *** parameters for heterogeneous hydrolysis of NTR2
+      REAL,      PARAMETER :: ON_ALPHA1   = 0.34,     ! Organic nitrate (ON) partitioning parameters
+     &                        ON_ALPHA2   = 0.66,     ! based on Rollins et al., 2013
+     &                        ON_CSTAR1   = 0.73,
+     &                        ON_CSTAR2   = 1000.0
+      REAL,      PARAMETER :: F_NTR2_ON   = 1.4084    ! reciprocal of (NTR2 over total ON, equals 0.71)
+
+      REAL,      PARAMETER :: MIN_TOA     = 0.0001       ! Min. conc. of total OA for partitioning to occur [ug/m3]
+      REAL,      PARAMETER :: KHON        = 2.7778E-03   ! heterogeneous ON hydrolysis rate [1/min] ~ 4/day
 
 
 C *** Local Variables
@@ -366,6 +391,9 @@ C *** variables for parameterization by Bertram and Thornton
       REAL,      SAVE :: MWCLCLNO2     ! ratio of MWCL/MWCLNO2
       REAL( 8 ), SAVE :: INV_MWCL      ! ratio of 1.0D0/MWCL 
       REAL( 8 )       :: PPM_FACTOR    ! conversion factor to umoles/m3 to ppm
+C *** variables for heterogeneous hydrolysis of NTR2
+      REAL            :: CON_TOA       ! Conc. of total OA [ug/m3]
+      REAL            :: F_PART_NTR2   ! NTR2 fraction in the particle phase
       
       
       LOGICAL, SAVE     :: FIRSTIME = .TRUE.
@@ -380,6 +408,7 @@ C *** variables for parameterization by Bertram and Thornton
       INTEGER           :: R
       INTEGER           :: L
       INTEGER           :: N
+      INTEGER           :: I
       
 C *** variables for getting aerosol diagnostic file flag
       INTEGER           :: STATUS                      ! ENV... status
@@ -553,6 +582,7 @@ C ***  Determine molecular weights
        END IF
        CFACTOR_MGLY = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTMGLY * DPI ) )
 
+       F_PART_NTR2 =  0.0
 
       END IF   ! first time condition
 
@@ -948,6 +978,41 @@ C ***            Isoprene epoxide uptake
 
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * (  KMGLY( 2 ) ) ! min-1
 
+                 CASE( IA_NTR2 )
+C *** calculate gas-particle partitioning of NTR2
+                    CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
+     &                      + aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )
+
+                    Do i = 1, n_aerospc
+                       If ( aerospc( i )%nonVol_soa ) Then
+                           If( aerospc( i )%tracer )Cycle
+                           CON_TOA = CON_TOA + aerospc_conc( i,2 )
+                       End If
+                    End Do
+                    Do i = 1, n_vapor
+                      n = soa_aeroMap( i )
+                      If( aerospc( n )%tracer )Cycle
+                      CON_TOA = CON_TOA + aerospc_conc( n,2 )
+                    End Do
+
+                    F_PART_NTR2 = 0.0
+                    If ( CON_TOA .GE. MIN_TOA ) Then
+                       F_PART_NTR2 = ON_ALPHA1 / (1.0 + ON_CSTAR1/CON_TOA)
+     &                             + ON_ALPHA2 / (1.0 + ON_CSTAR2/CON_TOA)
+                       F_PART_NTR2 = F_PART_NTR2 * F_NTR2_ON
+                    End If
+
+C *** calculate pseudo-first order rate constant for heterogeneous NTR2
+C hydrolysis
+                     IF ( AIRRH .LE. 0.2D0 .OR. F_PART_NTR2 .LE. 0.0 ) THEN
+                        KHETERO( IRATE, C, R, L ) = 0.0D0
+                     ELSE IF ( AIRRH .GE. 0.4D0 ) THEN
+                        KHETERO( IRATE, C, R, L ) = REAL( F_PART_NTR2 * KHON, 8 ) ! [1/min]
+                     ELSE
+                        KHETERO( IRATE, C, R, L ) = REAL( F_PART_NTR2 * KHON, 8 ) ! [1/min]
+     &                                            * ( 5.0D0 * AIRRH - 1.0D0 )
+                     END IF
+
                END SELECT
 
              END DO LOOP_RATES
@@ -1027,6 +1092,7 @@ C ***            Isoprene epoxide uptake
                   WRITE(LOGDEV,9500)'KNO3(3)= ', KNO3(3),' '
                   WRITE(LOGDEV,9500)'KGLY(2)= ', KGLY(2),' '
                   WRITE(LOGDEV,9500)'KMGLY(2)= ', KMGLY(2),' '
+                  WRITE(LOGDEV,9500) 'F_PART_NTR2 =  ', F_PART_NTR2,' '
                   DO N = 1, NHETERO
                     WRITE(LOGDEV,9500)HETERO( N ) // ' = ', KHETERO( N, C, R, L ),' '
                   END DO

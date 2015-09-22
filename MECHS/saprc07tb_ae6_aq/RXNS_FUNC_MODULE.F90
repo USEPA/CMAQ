@@ -147,7 +147,6 @@
        END FUNCTION FALLOFF_T11
        REAL( 8 ) FUNCTION HALOGEN_FALLOFF(PRESS,A1,B1,A2,B2)
          IMPLICIT NONE
-         REAL( 8 ), PARAMETER    :: MAX_RATE = 2.4D-06  ! Maximum loss rate (1/sec)
          REAL( 8 ), INTENT( IN ) :: PRESS
          REAL( 8 ), INTENT( IN ) :: A1
          REAL( 8 ), INTENT( IN ) :: B1
@@ -155,7 +154,6 @@
          REAL( 8 ), INTENT( IN ) :: B2
          INTRINSIC DEXP
          HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )
-         HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )
          RETURN
        END FUNCTION HALOGEN_FALLOFF
 
@@ -1383,6 +1381,8 @@
              RKI( NCELL,  455) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
              RKI( NCELL,  456) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+!  Reaction Label HET_IEPOX       
+             RKI( NCELL,  457) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
