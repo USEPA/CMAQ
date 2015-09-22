@@ -321,7 +321,7 @@ C *** parameters for heterogeneous hydrolysis of NTR2
      &                        ON_ALPHA2   = 0.66,     ! based on Rollins et al., 2013
      &                        ON_CSTAR1   = 0.73,
      &                        ON_CSTAR2   = 1000.0
-      REAL,      PARAMETER :: F_NTR2_ON   = 1.4084    ! reciprocal of (NTR2 over total ON, equals 0.71)
+      REAL,      PARAMETER :: F_NTR2_ON   = 1.000     ! reciprocal of NTR2 over total ON (between 0.71 and 1.0)
 
       REAL,      PARAMETER :: MIN_TOA     = 0.0001       ! Min. conc. of total OA for partitioning to occur [ug/m3]
       REAL,      PARAMETER :: KHON        = 2.7778E-03   ! heterogeneous ON hydrolysis rate [1/min] ~ 4/day
@@ -999,7 +999,8 @@ C *** calculate gas-particle partitioning of NTR2
                     If ( CON_TOA .GE. MIN_TOA ) Then
                        F_PART_NTR2 = ON_ALPHA1 / (1.0 + ON_CSTAR1/CON_TOA)
      &                             + ON_ALPHA2 / (1.0 + ON_CSTAR2/CON_TOA)
-                       F_PART_NTR2 = F_PART_NTR2 * F_NTR2_ON
+C *** commenting out based on uncertainity in adjustment
+C                       F_PART_NTR2 = F_PART_NTR2 * F_NTR2_ON
                     End If
 
 C *** calculate pseudo-first order rate constant for heterogeneous NTR2
