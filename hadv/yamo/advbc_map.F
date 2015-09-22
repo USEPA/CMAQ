@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
  
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE ADVBC_MAP ( CONCMIN, BCNAME, BCFAC )
+      SUBROUTINE ADVBC_MAP ( CONCMIN, BCNAME, BCFAC, ONFILE )
  
 C-----------------------------------------------------------------------
 C Function:
@@ -63,13 +63,14 @@ C Arguments:
       CHARACTER( 16 ), INTENT( IN )  :: CONCMIN     ! min value allowed for BCs
       CHARACTER( 16 ), INTENT( OUT ) :: BCNAME( : ) ! BC name for adv species
       REAL,            INTENT( OUT ) :: BCFAC ( : ) ! Scale factor for BCs
+      LOGICAL,         INTENT( OUT ) :: ONFILE( : ) ! BCs exist on file for this name
 
 C External Functions:
       INTEGER, EXTERNAL :: FINDEX
 
 C Local variables:
       CHARACTER( 16 ) :: PNAME = 'ADVBC_MAP'
-      CHARACTER( 16 ) :: BLNK = ' '
+!     CHARACTER( 16 ) :: BLNK = ' '
 !     CHARACTER( 16 ) :: BLNK = '                '
       CHARACTER( 96 ) :: XMSG = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: WRVAR( : )
@@ -116,6 +117,7 @@ C Map advected reactive gas species to bc`s
          WRCNT = 0
          DO VAR = 1, N_GC_TRNS
             SPC = SPC + 1
+            ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
             ISUR = FINDEX( GC_TRNS_MAP( VAR ), N_GC_ICBC, GC_ICBC_MAP )
@@ -127,7 +129,8 @@ C is it on the BC file?
 C if there`s a surrogate name, CGRID_SPCS will handle setting GC_ICBC_FAC
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE   ! not on the BC file
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = GC_TRNS( VAR )
                END IF
@@ -139,7 +142,8 @@ C is the (main) species name on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = GC_TRNS( VAR )
                END IF
@@ -179,6 +183,7 @@ C Map advected aerosol species to bc`s
          WRCNT = 0
          DO VAR = 1, N_AE_TRNS
             SPC = SPC + 1
+            ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
             ISUR = FINDEX( AE_TRNS_MAP( VAR ), N_AE_ICBC, AE_ICBC_MAP )
@@ -189,7 +194,8 @@ C is it on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE   ! not on the BC file
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = AE_TRNS( VAR )
                END IF
@@ -201,7 +207,8 @@ C is the (main) species name on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = AE_TRNS( VAR )
                END IF
@@ -241,6 +248,7 @@ C Map advected non-reactive species to bc`s
          WRCNT = 0
          DO VAR = 1, N_NR_TRNS
             SPC = SPC + 1
+            ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
             ISUR = FINDEX( NR_TRNS_MAP( VAR ), N_NR_ICBC, NR_ICBC_MAP )
@@ -251,7 +259,8 @@ C is it on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE   ! not on the BC file
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = NR_TRNS( VAR )
                END IF
@@ -263,7 +272,8 @@ C is the (main) species name on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = NR_TRNS( VAR )
                END IF
@@ -303,6 +313,7 @@ C Map advected tracer species to bc`s
          WRCNT = 0
          DO VAR = 1, N_TR_ADV
             SPC = SPC + 1
+            ONFILE( SPC ) = .TRUE.
             BCFAC( SPC ) = 1.0
 C is there a surrogate name?
             ISUR = FINDEX( TR_ADV_MAP( VAR ), N_TR_ICBC, TR_ICBC_MAP )
@@ -313,7 +324,8 @@ C is it on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE   ! not on the BC file
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = TR_ADV( VAR )
                END IF
@@ -325,7 +337,8 @@ C is the (main) species name on the BC file?
                IF ( INDX .NE. 0 ) THEN
                   BCNAME( SPC ) = VNAME3D( INDX )
                ELSE
-                  BCNAME( SPC ) = BLNK
+!                 BCNAME( SPC ) = BLNK
+                  ONFILE( SPC ) = .FALSE.
                   WRCNT = WRCNT + 1
                   WRVAR( WRCNT ) = TR_ADV( VAR )
                END IF

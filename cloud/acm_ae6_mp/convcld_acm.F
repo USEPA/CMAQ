@@ -243,9 +243,9 @@ C-------------------------------------------
       INTEGER          ISOUND           ! flag for sounding stability
       INTEGER          SRCLAY           ! cloud source level vert index
 
-      REAL             AIRM             ! total air mass (moles/m2) in cloudy air
-      REAL             AIRMB0           ! moles/m2 air below cloud
-      REAL             AIRMBI           ! inverse moles/m2 air below cloud
+      REAL             AIRM             ! total air mass (mol/m2) in cloudy air
+      REAL             AIRMB0           ! mol/m2 air below cloud
+      REAL             AIRMBI           ! inverse mol/m2 air below cloud
       REAL             ALFA0            ! aitken mode number scavenging coef
       REAL             ALFA2            ! aitken mode sfc area scavenging coef
       REAL             ALFA3            ! aitken mode mass scavenging coef
@@ -313,12 +313,12 @@ C-------------------------------------------
       REAL             LWP
       REAL             STRNS            ! intermediate to set subgrid cld transmissivity
       REAL, ALLOCATABLE, SAVE :: AECONCMIN( : ) ! array of minimum concentrations
-      REAL, ALLOCATABLE, SAVE :: BMOL   ( : )   ! moles/m2 species below cloud
+      REAL, ALLOCATABLE, SAVE :: BMOL   ( : )   ! mol/m2 species below cloud
       REAL, ALLOCATABLE, SAVE :: CBASE0 ( : )   ! initial ave trace gas mix rat below cld
-      REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (moles/moles)
-      REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (moles/moles)
-      REAL, ALLOCATABLE, SAVE :: POLC   ( : )   ! ave vert conc incloud moles sp/m2 and moles sp/ mole air
-      REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! moles/m2 or mm*moles/lit scavenged
+      REAL, ALLOCATABLE, SAVE :: CBASEF ( : )   ! final ave trac gas mix rat blw cld (mol/mol)
+      REAL, ALLOCATABLE, SAVE :: CEND   ( : )   ! ending equiv gas phase conc (mol/mol)
+      REAL, ALLOCATABLE, SAVE :: POLC   ( : )   ! ave vert conc incloud mol sp/m2 and mol sp/ mol air
+      REAL, ALLOCATABLE, SAVE :: REMOV  ( : )   ! mol/m2 or mm*mol/lit scavenged
       REAL          :: DENSL( NLAYS )      ! air density (kg/m3)
       REAL          :: F    ( NLAYS )      ! cloud entrainment fraction to be solved for
       REAL          :: FSIDE( NLAYS )      ! sidewall entrainment vertical profile
@@ -327,7 +327,7 @@ C-------------------------------------------
       REAL          :: QLQD ( NLAYS )      ! actual liq. wat. mix ratio in cloud
       REAL          :: QVC  ( NLAYS )      ! saturation wat vap mix ratio at T1
       REAL          :: QWAT ( NLAYS )      ! liq wat mix rat, taken as total condensed water (ice + liq) profile (Eq.4, W&T)
-      REAL          :: RHOM2( NLAYS )      ! moles/m2 air
+      REAL          :: RHOM2( NLAYS )      ! mol/m2 air
       REAL          :: TCLD ( NLAYS )      ! temp of cloudy air parcel
 
       REAL             FRACMAX             ! max frac cov for NP cld
@@ -338,7 +338,7 @@ C-------------------------------------------
       REAL, ALLOCATABLE, SAVE :: CONCMINL( :,: ) ! minimum concentrations for each species and layer
       REAL             INCLOUD        ! final conc in cloud after mix and chem [mol/mol]
       REAL             OUTCLOUD       ! final conc outside    "    "   "   "     "
-      REAL, ALLOCATABLE, SAVE :: PCLD    ( :,: ) ! moles sp/mole air in cloud
+      REAL, ALLOCATABLE, SAVE :: PCLD    ( :,: ) ! mol sp/mol air in cloud
 
       REAL          :: RC   ( NCOLS,NROWS )        ! hourly convective rainfall (cm)
       REAL          :: PBL  ( NCOLS,NROWS )        ! PBL height (m)
@@ -1038,7 +1038,7 @@ C...Now compute fractional coverage for either CNP or PFW:
 C...Now cloud existence is established, initialize various
 C...  variables needed for rest of computations
 
-C...First, get moles air/m2 at each layer, initialize FSIDE
+C...First, get mol air/m2 at each layer, initialize FSIDE
 
           DO LAY = 1, NLAYS
             RHOM2( LAY ) = PRESL( LAY ) * DZZL( LAY )
@@ -1047,13 +1047,13 @@ C...First, get moles air/m2 at each layer, initialize FSIDE
           END DO
 
           DO SPC = 1, NSPCSD
-            REMOV( SPC ) = 0.0  ! moles/m2 or mm*moles/lit scavenged
-            CEND ( SPC ) = 0.0  ! ending equiv gas phase conc (moles/moles)
-            BMOL ( SPC ) = 0.0  ! moles/m2 species below cloud
-            POLC ( SPC ) = 0.0  ! moles/m2 species in cloud
+            REMOV( SPC ) = 0.0  ! mol/m2 or mm*mol/lit scavenged
+            CEND ( SPC ) = 0.0  ! ending equiv gas phase conc (mol/mol)
+            BMOL ( SPC ) = 0.0  ! mol/m2 species below cloud
+            POLC ( SPC ) = 0.0  ! mol/m2 species in cloud
 
             DO LAY = 1, NLAYS
-              PCLD( SPC,LAY ) = 0.0  ! moles sp/mole air in cloud
+              PCLD( SPC,LAY ) = 0.0  ! mol sp/mol air in cloud
             END DO
 
           END DO
@@ -1073,7 +1073,7 @@ C...below cloud base
 
           DO LAY = 1, CLBASE - 1
 
-C...   determine no. of moles/m2 of trace gas
+C...   determine no. of mol/m2 of trace gas
 
             DO SPC = 1, NSPCSD
               BMOL( SPC ) = BMOL( SPC ) + CONC( SPC,LAY ) * RHOM2( LAY )
@@ -1401,7 +1401,7 @@ C...  using direct exchange mixing mechanism by McHenry.
      &                        + ( 1.0 - F( LAY ) ) * CBASE0( SPC )
               PCLD( SPC,LAY ) = MIN( PCLD( SPC,LAY ), CCR( SPC,LAY ) / FRAC )
 
-C...POLC in moles sp/m2
+C...POLC in mol sp/m2
 
               POLC( SPC ) = POLC( SPC )
      &                    + PCLD( SPC,LAY ) * RHOM2( LAY )
@@ -1423,7 +1423,7 @@ C...  to be part of the aqueous reaction chamber
                 PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
          
 C...Necessary because CBASEF and CBASE0 are the ending vertical averages
-C...  below cloud concentrations in moles sp/mole air
+C...  below cloud concentrations in mol sp/mol air
 
                 IF ( ICLDTYPE .EQ. 1 ) THEN
                   POLC( SPC ) = POLC( SPC ) + PCLD( SPC, LAY ) * RHOM2( LAY )
@@ -1476,8 +1476,7 @@ C...  (i.e. don't do anything)
               
           END IF
 
-C...Finally, get in cloud pollutant concentrations in moles sp
-C...  per mole air
+C...Finally, get in cloud pollutant concentrations in mol sp per mol air
 
           DO SPC = 1, NSPCSD
             POLC ( SPC ) = POLC( SPC ) / AIRM
@@ -1531,7 +1530,7 @@ C *** Golam Sarwar
           END DO
 
 C...weight the removed amount by the cloud fraction and convert
-C...  from moles/m**2 to kg/m**2 and kg/m**2 to kg/hectare
+C...  from mol/m2 to kg/m2 and kg/m2 to kg/hectare
 
 C...  for gases
 
