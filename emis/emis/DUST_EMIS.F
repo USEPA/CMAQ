@@ -303,7 +303,7 @@ C Local variables:
          character( 80 ) :: vardesc
          character( 120 ) :: xmsg = ' '
 
-         logical :: erode_agland = .true. ! default
+         logical :: erode_agland    ! default .true.
          integer status
          integer c, r, i, j, k, l, n
 
@@ -487,7 +487,7 @@ C Get soil type data   <== move to ASX_DATA_MOD ?
 !        end if
 
 C Get env var for erodible agriculture land fraction
-         erode_agland = .false.         ! default
+         erode_agland = .true.   ! default
          vardesc = 'Flag for calculating erodible agriculture land fraction'
          erode_agland = envyn( ctm_erode_agland, vardesc, erode_agland, status )
          if ( status .ne. 0 ) write( logdev,'( 5x, a )' ) vardesc
@@ -725,11 +725,12 @@ C External Functions:
                
 C Parameters:
          real zi                           ! Height of Internal Boundary Layer [m]
-         real, parameter :: sc  = 32.0     ! SENSIT-based scaling parameter
-         real, parameter :: z0s = 1.0e-05  ! Surface roughness for dust [m],
+!        real, parameter :: sc  = 32.0     ! SENSIT-based scaling parameter
+!        real, parameter :: z0s = 1.0e-05  ! Surface roughness for dust [m],
                                            ! Ref. Marticorena et al. JGR 1997
 
 !        real, parameter :: amen = 2.8     ! values are from 0 to 3.5, mean 2.8
+!        real, parameter :: amen = 2.61    ! Marticorena and Bergametti, 1995
          real, parameter :: amen = 1.0     ! Marticorena and Bergametti, 1997
 !        real, parameter :: amen = 32.0    ! values adjusted based on Dale's MNORT measurements
          real, parameter :: radg = 122.87  ! rho_air/grav [g s^2/m^4] 122.87->120.8
@@ -873,7 +874,7 @@ C   Ref. Gillette et al., JGR, 1980 for desert soils (J=2).
 C   Ref. Gillette, JGR, 1988 for Loose Agr. Soils (J=3).
 C The following soil types were not measured for desert land (we chose to use
 C agr. data): Sandy Clay Loam, Clay Loam, Sandy Clay, and Silty Clay.
-C Modified values compatiable with both MM5 & NAM.
+C Modified values compatible with both MM5 & NAM.
 C There is no measurement of this value for Silt. The values for Silt are chosen from
 C Silty Loam since the soil composition is close.
 C Other includes all types higher than 12. The values of Other are too high to allow
@@ -1114,6 +1115,7 @@ C Adjust U*t based on soil moisture ---
 !                       utstar( c,r,m ) = 0.1 * uthfv( j,n ) * fmoit( c,r ) ! testing
 !                       utstar( c,r,m ) = 0.5 * uthfv( j,3 ) * fmoit( c,r ) ! testing
 !                       n = dmap( m )   ! map to BELD3 for uthfv
+!                       utstar( c,r,m ) = uthfv( j,n ) * fmoit( c,r )
                         utstar( c,r,m ) = uthfv( j,3 ) * fmoit( c,r ) * fruf( c,r )
                         if ( ustr( c,r ) .gt. utstar( c,r,m ) ) then
                            ! wind erosion occurs only when U* > Ut*
