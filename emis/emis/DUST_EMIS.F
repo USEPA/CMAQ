@@ -487,8 +487,8 @@ C Get soil type data   <== move to ASX_DATA_MOD ?
 !        end if
 
 C Get env var for erodible agriculture land fraction
-         vardesc = 'Flag for calculating erodible agriculture land fraction'
          erode_agland = .true.   ! default
+         vardesc = 'Flag for calculating erodible agriculture land fraction'
          erode_agland = envyn( ctm_erode_agland, vardesc, erode_agland, status )
          if ( status .ne. 0 ) write( logdev,'( 5x, a )' ) vardesc
          if ( status .eq. 1 ) then

@@ -396,7 +396,7 @@ C build mapping to CGRID for each aero spc
 !           write( logdev,* ) '==2 ', trim( aerospc( spc )%name( m ) ), ' ', ae_spc( 1 ), ' ', ae_spc( 15 )
 
             If ( aerospc( spc )%name( m ) .Ne. ' ' ) Then
-               aero_missing(spc,m) = .False.
+               aero_missing( spc,m ) = .False.
                n = index1( aerospc( spc )%name( m ), n_ae_spc, ae_spc )
                If ( n .Eq. 0 ) Then
                   xmsg = 'Species '// aerospc(spc)%name( m )
@@ -413,7 +413,7 @@ C build mapping to CGRID for each aero spc
                   Call m3exit( pname, 0, 0, xmsg, xstat3 )
                End If
             Else
-               aero_missing(spc,m) = .True.
+               aero_missing( spc,m ) = .True.
             End If
          End Do
       End Do

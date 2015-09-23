@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      module aod_defn 
-=======
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -28,7 +24,6 @@ C (Atmos. Env. 41, 3407-3427, 2007) See comments in AERO_DATA.F
 
 C Revision History:
 C 10 Sep 15 J.Young: inital
->>>>>>> master_RR/master
 
       implicit none
 
@@ -141,15 +136,9 @@ c Open the diagnostic file
 !-----------------------------------------------------------------------
       subroutine get_aod ( cgrid )
 
-<<<<<<< HEAD
-C compute extinction and aod from conc files using getvisby.f as an example
-         use aero_data        ! includes SUBST_CONST
-         use asx_data_mod     ! meteorology data
-=======
 C compute extinction and aod from conc files similar to getvisby.f as a template
          use aero_data          
          use asx_data_mod     ! meteorology data, includes SUBST_CONST
->>>>>>> master_RR/master
          use utilio_defn
 
          implicit none
