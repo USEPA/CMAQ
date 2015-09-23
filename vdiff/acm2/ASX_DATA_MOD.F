@@ -1291,11 +1291,16 @@ C------  Updating MOL, then WSTAR, MOLI, HOL
                END IF
                Met_Data%MOL( C,R ) = Met_Data%THETAV( C,R,1 )
      &                             * Met_Data%USTAR( C,R ) ** 2 / ( karman * GRAV * TSTV )
+               IF ( Met_Data%MOL( C,R ) .LT. 0.0 ) THEN
+                  Met_Data%WSTAR( C,R ) = Met_Data%USTAR( C,R ) * ( Met_Data%PBL( C,R )
+     &                                  / ( karman * ABS( Met_Data%MOL( C,R ) ) ) ) ** 0.333333
+               ELSE
+                  Met_Data%WSTAR( C,R ) = 0.0
+               END IF
+
             END DO
          END DO
    
-         Met_Data%WSTAR = Met_Data%USTAR
-     &                  * ( Met_Data%PBL / ( karman * ABS( Met_Data%MOL ) ) ) ** 0.333333
          Met_Data%MOLI  = 1.0 / Met_Data%MOL 
          Met_Data%HOL   = Met_Data%PBL / Met_Data%MOL
 C------
@@ -1324,7 +1329,7 @@ C------
             END DO
          END DO
          Where( Met_Data%THETAV( :,:,1 ) - Met_Data%THETAV( :,:,2 ) .Gt. EPS .And.
-     &          Met_Data%HOL .Lt. -0.1 .And. Met_Data%LPBL .Gt. 3 )
+     &          Met_Data%HOL .Lt. -0.02 .And. Met_Data%LPBL .Gt. 3 )
             Met_Data%CONVCT = .True.
          End Where
 
