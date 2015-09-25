@@ -48,6 +48,7 @@ C-----------------------------------------------------------------------
 C Species names from input file used for point source non-PM emissions mapping
       INTEGER,          ALLOCATABLE, SAVE :: PTEM_MAP( : )
       INTEGER,          ALLOCATABLE, SAVE :: SPC_PTEM_MAP( : )
+      REAL,             ALLOCATABLE, SAVE :: SPC_PTEM_FAC( : )
       CHARACTER( 16 ),  ALLOCATABLE, SAVE :: STKEM_NAME( : ) ! diagnostic file
 
 C Species names from input file used for point source PM emissions mapping
@@ -334,6 +335,9 @@ C Cull ...
          ALLOCATE ( SPC_PTEM_MAP( N_GAS_EMIS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'SPC_PTEM_MAP', PNAME )
 
+         ALLOCATE ( SPC_PTEM_FAC( N_GAS_EMIS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'SPC_PTEM_FAC', PNAME )
+
          ALLOCATE ( STKEM_NAME( N_SPC_PTEM ), STAT=IOS )
          CALL CHECKMEM( IOS, 'STKEM_NAME', PNAME )
 
@@ -372,6 +376,7 @@ C>> WTH
                GSPC( J ) = GC_SPC( GC_EMIS_MAP( J ) )
                SPC_PTEM_MAP( L ) = J
                PTEM_MAP( L ) = IDX
+	       SPC_PTEM_FAC( L ) = GC_EMIS_FAC( J )
 #ifdef Verbose
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
@@ -390,6 +395,7 @@ C>> WTH
                GSPC( J ) = NR_SPC( NR_EMIS_MAP( J ) )
                SPC_PTEM_MAP( L ) = J + NSPC2
                PTEM_MAP( L ) = IDX
+	       SPC_PTEM_FAC( L ) = NR_EMIS_FAC( J )
 #ifdef Verbose
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
@@ -408,6 +414,7 @@ C>> WTH
                GSPC( J ) = TR_SPC( TR_EMIS_MAP( J ) )
                SPC_PTEM_MAP( L ) = J + NSPC3
                PTEM_MAP( L ) = IDX
+	       SPC_PTEM_FAC( L ) = TR_EMIS_FAC( J )
 #ifdef Verbose
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )

@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, March 12, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sept. 24, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -789,8 +789,11 @@ C***********************************************************************
       PROD(  APNCOMJ  ) =    1.2500D+00 * RXRAT( 234 )      ! APOCJ+OH=0.1250D+...
       LOSS(  APNCOMJ  ) =                 RXRAT( 235 )      ! APNCOMJ+OH=OH
 
-      LOSS(  VOCSMP   ) =                 RXRAT( 236 )      !VOCSMP+OH=OH+SMPRXN
-      PROD(  SMPRXN   ) =                 RXRAT( 236 )      !VOCSMP+OH=OH+SMPRXN
+      PROD(  VOCSMP   ) =   0.0D0
+      LOSS(  VOCSMP   ) =                 RXRAT( 236 )      ! VOCSMP+OH=OH+SMPRXN
+
+      PROD(  SMPRXN   ) =                 RXRAT( 236 )      ! VOCSMP+OH=SMPRXN+OH
+      LOSS(  SMPRXN   ) =   0.0D0
 
       PNEG( PAR ) =    6.6000D-01 * RXRAT(  61 )      ! NTR+OH=-0.6600D+00*PAR+HO2+...
      &            +    6.6000D-01 * RXRAT(  62 )      ! NTR=-0.6600D+00*PAR+HO2+...
