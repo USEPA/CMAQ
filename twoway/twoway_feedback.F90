@@ -354,6 +354,8 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 !           to WRF
 !
 ! Revised:  April 2007  Original version.  David Wong
+!           25 Sep 2015  (David Wong)
+!             -- replace SUBST_MODULES with SE_MODULES
 !===============================================================================
 
   USE module_domain           ! WRF module
@@ -362,7 +364,7 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
   USE twoway_data_module
   USE twoway_met_param_module
   USE twoway_cgrid_aerosol_spc_map_module
-  USE SUBST_MODULES
+  USE SE_MODULES
   USE HGRD_DEFN
 
   use utilio_defn
