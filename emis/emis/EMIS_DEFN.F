@@ -357,6 +357,7 @@ C-----------------------------------------------------------------------
 C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
+
          END IF
 
 C read & interpolate emissions (create VDEMIS in the species class order)
@@ -470,7 +471,7 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
                         N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
                         IF ( V .LT. 1 ) CYCLE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * VDEMIS_PT( C,R,L,N )
+     &                                    + CNVTC * SPC_PTEM_FAC( S ) * VDEMIS_PT( C,R,L,N )
                      END DO
                   END DO
                END DO
