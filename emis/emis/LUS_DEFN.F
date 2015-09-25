@@ -70,10 +70,11 @@ C     read files: DUST_LU_1 & DUST_LU_2
      &              0.25,    ! shrubgrass
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_beld3( n_dlcat_beld3 ) = ! land use type desert map to BELD3
+      integer :: dmap_beld3( n_dlcat_beld3+1 ) = ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              2,       ! shrubgrass
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_beld3 = 20   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_beld3( n_lucat_beld3 ) = (/
@@ -118,13 +119,14 @@ C     read file: BELD4_LU
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_beld4( n_dlcat_beld4 ) = ! land use type desert map to BELD3
+      integer :: dmap_beld4( n_dlcat_beld4+1 ) = ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              1,       ! shrubland
      &              1,       ! shrubland
      &              2,       ! shrubgrass
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_beld4 = 50  ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_beld4( n_lucat_beld4 ) = (/
@@ -197,11 +199,12 @@ C     read file: GRID_CRO_2D
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_usgs24( n_dlcat_usgs24 ) =   ! land use type desert map to BELD3
+      integer :: dmap_usgs24( n_dlcat_usgs24+1 ) =   ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              3,       ! barrenland
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_usgs24 = 24   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_usgs24( n_lucat_usgs24 ) = (/
@@ -237,7 +240,7 @@ C     read file: GRID_CRO_2D
       type( lus_type ), parameter :: vnmld_modis( n_dlcat_modis ) = (/
      & lus_type( 'nada', 'nada' ) /)
       real :: dmsk_modis( n_dlcat_modis ) = 0.0  ! land use type desert fraction
-      integer :: dmap_modis( n_dlcat_modis ) = 0 ! land use type desert map to BELD3
+      integer :: dmap_modis( n_dlcat_modis+1 ) = 0 ! land use type desert map to BELD3
       integer, parameter :: n_lucat_modis = 1   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_modis( n_lucat_modis ) = (/
      & lus_type( 'nada', 'nada' ) /)
@@ -279,11 +282,12 @@ C     read file: GRID_CRO_2D
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_modis_noah( n_dlcat_modis_noah ) =  ! land use type desert map to BELD3
+      integer :: dmap_modis_noah( n_dlcat_modis_noah+1 ) =  ! land use type desert map to BELD3
      &           (/ 1,       ! shrubland
      &              1,       ! shrubland
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_modis_noah = 20   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_modis_noah( n_lucat_modis_noah ) = (/
@@ -308,11 +312,13 @@ C     read file: GRID_CRO_2D
      & lus_type( 'LUFRAC_19', 'Mixed Tundra                      ' ),
      & lus_type( 'LUFRAC_20', 'Barren Tundra                     ' ) /)
 
-C NLCD_MODIS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C NLCD_MODIS or NLCD50 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C     read file: GRID_CRO_2D
-
-      integer, parameter :: n_dlcat_nlcd_modis = 5   ! number of desert land types
+C includes both nlcd and MODIS versions of shrublands
+      integer, parameter :: n_dlcat_nlcd_modis = 7   ! number of desert land types
       type( lus_type ), parameter :: vnmld_nlcd_modis( n_dlcat_nlcd_modis ) = (/
+     & lus_type( 'LUFRAC_37', 'Closed Shrublands           ' ),
+     & lus_type( 'LUFRAC_38', 'Open Shrublands             ' ),
      & lus_type( 'LUFRAC_07', 'Barren Land (Rock-Sand-Clay)' ),
      & lus_type( 'LUFRAC_12', 'Dwarf Scrub                 ' ),
      & lus_type( 'LUFRAC_13', 'Shrub-Scrub                 ' ),
@@ -320,18 +326,23 @@ C     read file: GRID_CRO_2D
      & lus_type( 'LUFRAC_47', 'Barren or Sparsely Vegetated' ) /)
 
       real :: dmsk_nlcd_modis( n_dlcat_nlcd_modis ) =   ! land use type desert fraction
-     &           (/ 0.75,    ! barrenland
+     &           (/ 0.50,    ! shrubland
+     &              0.50,    ! shrubland
+     &              0.75,    ! barrenland
      &              0.75,    ! barrenland
      &              0.75,    ! barrenland
      &              0.75,    ! barrenland
      &              0.75 /)  ! barrenland
 
-      integer :: dmap_nlcd_modis( n_dlcat_nlcd_modis ) = ! land use type desert map to BELD3
-     &           (/ 3,       ! barrenland
+      integer :: dmap_nlcd_modis( n_dlcat_nlcd_modis+1 ) = ! land use type desert map to BELD3
+     &           (/ 1,       ! shrubland
+     &              1,       ! shrubland
      &              3,       ! barrenland
      &              3,       ! barrenland
      &              3,       ! barrenland
-     &              3 /)     ! barrenland
+     &              3,       ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
 
       integer, parameter :: n_lucat_nlcd_modis = 50   ! number of landuse categories
       type( lus_type ), parameter :: vnmlu_nlcd_modis( n_lucat_nlcd_modis ) = (/
@@ -385,6 +396,78 @@ C     read file: GRID_CRO_2D
      & lus_type( 'LUFRAC_48', 'IGBP Water                        ' ),
      & lus_type( 'LUFRAC_49', 'unclassified                      ' ),  ! ?
      & lus_type( 'LUFRAC_50', 'fill value                        ' ) /)  ! ?
+
+C NLCD40 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C     read file: GRID_CRO_2D
+C includes both nlcd and MODIS versions of shrublands
+      integer, parameter :: n_dlcat_nlcd40 = 6   ! number of desert land types
+      type( lus_type ), parameter :: vnmld_nlcd40( n_dlcat_nlcd40 ) = (/
+     & lus_type( 'LUFRAC_06', 'Closed Shrublands           ' ),
+     & lus_type( 'LUFRAC_07', 'Open Shrublands             ' ),
+     & lus_type( 'LUFRAC_27', 'Barren Land (Rock-Sand-Clay)' ),
+     & lus_type( 'LUFRAC_31', 'Dwarf Scrub                 ' ),
+     & lus_type( 'LUFRAC_32', 'Shrub-Scrub                 ' ),
+     & lus_type( 'LUFRAC_16', 'Barren or Sparsely Vegetated' ) /)
+
+      real :: dmsk_nlcd40( n_dlcat_nlcd40 ) =   ! land use type desert fraction
+     &           (/ 0.50,    ! shrubland
+     &              0.50,    ! shrubland
+     &              0.75,    ! barrenland
+     &              0.75,    ! barrenland
+     &              0.75,    ! barrenland
+     &              0.75 /)  ! barrenland
+
+      integer :: dmap_nlcd40( n_dlcat_nlcd40+1 ) = ! land use type desert map to BELD3
+     &           (/ 1,       ! shrubland
+     &              1,       ! shrubland
+     &              3,       ! barrenland
+     &              3,       ! barrenland
+     &              3,       ! barrenland
+     &              3,       ! barrenland
+     &              3 /)     ! ag landuse surrogate
+
+      integer, parameter :: n_lucat_nlcd40 = 40   ! number of landuse categories
+      type( lus_type ), parameter :: vnmlu_nlcd40( n_lucat_nlcd40 ) = (/
+     & lus_type( 'LUFRAC_01', 'Evergreen Needleleaf Forest       ' ),
+     & lus_type( 'LUFRAC_02', 'Evergreen Broadleaf Forest        ' ),
+     & lus_type( 'LUFRAC_03', 'Deciduous Needleleaf Forest       ' ),
+     & lus_type( 'LUFRAC_04', 'Deciduous Broadleaf Forest        ' ),
+     & lus_type( 'LUFRAC_05', 'Mixed Forests                     ' ),
+     & lus_type( 'LUFRAC_06', 'Closed Shrublands                 ' ),
+     & lus_type( 'LUFRAC_07', 'Open Shrublands                   ' ),
+     & lus_type( 'LUFRAC_08', 'Woody Savannas                    ' ),
+     & lus_type( 'LUFRAC_09', 'Savannas                          ' ),
+     & lus_type( 'LUFRAC_10', 'Grasslands                        ' ),
+     & lus_type( 'LUFRAC_11', 'Permanent Wetlands                ' ),
+     & lus_type( 'LUFRAC_12', 'Croplands                         ' ),
+     & lus_type( 'LUFRAC_13', 'Urban and Built Up                ' ),
+     & lus_type( 'LUFRAC_14', 'Cropland-Natural Vegetation Mosaic' ),
+     & lus_type( 'LUFRAC_15', 'Permanent Snow and Ice            ' ),
+     & lus_type( 'LUFRAC_16', 'Barren or Sparsely Vegetated      ' ),
+     & lus_type( 'LUFRAC_17', 'IGBP Water                        ' ),
+     & lus_type( 'LUFRAC_18', 'unclassified                      ' ),  ! ?
+     & lus_type( 'LUFRAC_19', 'fill value                        ' ),
+     & lus_type( 'LUFRAC_20', 'unclassified                      ' ),  ! ?
+     & lus_type( 'LUFRAC_21', 'Open Water                        ' ),
+     & lus_type( 'LUFRAC_22', 'Perennial Ice-Snow                ' ),
+     & lus_type( 'LUFRAC_23', 'Developed Open Space              ' ),  ! ?
+     & lus_type( 'LUFRAC_24', 'Developed Low Intensity           ' ),
+     & lus_type( 'LUFRAC_25', 'Developed Medium Intensity        ' ),
+     & lus_type( 'LUFRAC_26', 'Developed High Intensity          ' ),
+     & lus_type( 'LUFRAC_27', 'Barren Land (Rock-Sand-Clay)      ' ),
+     & lus_type( 'LUFRAC_28', 'Deciduous Forest                  ' ),
+     & lus_type( 'LUFRAC_29', 'Evergreen Forest                  ' ),
+     & lus_type( 'LUFRAC_30', 'Mixed Forest                      ' ),
+     & lus_type( 'LUFRAC_31', 'Dwarf Scrub                       ' ),
+     & lus_type( 'LUFRAC_32', 'Shrub-Scrub                       ' ),
+     & lus_type( 'LUFRAC_33', 'Grassland-Herbaceous              ' ),
+     & lus_type( 'LUFRAC_34', 'Sedge-Herbaceous                  ' ),
+     & lus_type( 'LUFRAC_35', 'Lichens                           ' ),
+     & lus_type( 'LUFRAC_36', 'Moss                              ' ),
+     & lus_type( 'LUFRAC_37', 'Pasture-Hay                       ' ),
+     & lus_type( 'LUFRAC_38', 'Cultivated Crops                  ' ),
+     & lus_type( 'LUFRAC_39', 'Woody Wetlands                    ' ),
+     & lus_type( 'LUFRAC_40', 'Emergent Herbaceous Wetlands      ' )  /)  ! ?
 
       contains
 
@@ -484,6 +567,8 @@ C Includes:
                land_scheme = 'USGS24'
             else if ( num_land_cat .eq. 20 ) then
                land_scheme = 'MODIS'
+            else if ( num_land_cat .eq. 40 ) then
+               land_scheme = 'NLCD40'
             else if ( num_land_cat .eq. 50 ) then
                land_scheme = 'NLCD-MODIS'
             end if
@@ -492,6 +577,10 @@ C Includes:
                if ( vname3d( i ) .eq. 'DLUSE' ) then
                   if ( index( vdesc3d( i ), 'USGS24' ) .ne. 0 ) then
                      land_scheme = 'USGS24'; exit l_s
+                  else if ( index( vdesc3d( i ), 'NLCD40' ) .ne. 0 ) then
+                     land_scheme = 'NLCD40'; exit l_s
+                  else if ( index( vdesc3d( i ), 'NLCD50' ) .ne. 0 ) then
+                     land_scheme = 'NLCD50'; exit l_s
                   else if ( index( vdesc3d( i ), 'MODIS' ) .ne. 0 ) then
                      if ( index( vdesc3d( i ), 'NLCD-MODIS' ) .ne. 0 ) then
                         land_scheme = 'NLCD-MODIS'; exit l_s
@@ -515,7 +604,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -532,7 +621,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -549,7 +638,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -566,7 +655,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -577,13 +666,30 @@ C Includes:
                dmsk = dmsk_modis     ! array assignment
                dmap = dmap_modis     ! array assignment
 
-            case( 'NLCD-MODIS' )
+            case( 'NLCD40' )
+               n_lucat = n_lucat_nlcd40
+               n_dlcat = n_dlcat_nlcd40
+               allocate( vnmlu( n_lucat ),
+     &                   vnmld( n_dlcat ),
+     &                   dmsk( n_dlcat ),
+     &                   dmap( n_dlcat+1 ), stat = err )
+               if ( err .ne. 0 ) then
+                  xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
+                  call m3warn( pname, jdate, jtime, xmsg )
+                  success = .false.; return
+               end if
+               vnmlu = vnmlu_nlcd40   ! array assignment
+               vnmld = vnmld_nlcd40   ! array assignment
+               dmsk = dmsk_nlcd40     ! array assignment
+               dmap = dmap_nlcd40     ! array assignment
+
+            case( 'NLCD-MODIS', 'NLCD50' )
                n_lucat = n_lucat_nlcd_modis
                n_dlcat = n_dlcat_nlcd_modis
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -600,7 +706,7 @@ C Includes:
                allocate( vnmlu( n_lucat ),
      &                   vnmld( n_dlcat ),
      &                   dmsk( n_dlcat ),
-     &                   dmap( n_dlcat ), stat = err )
+     &                   dmap( n_dlcat+1 ), stat = err )
                if ( err .ne. 0 ) then
                   xmsg = '*** Error allocating vnmlu, vnmld, dmsk or dmap'
                   call m3warn( pname, jdate, jtime, xmsg )
@@ -833,7 +939,56 @@ C           forest surrounding
 !           end do
 !           end do
 
-            case( 'NLCD-MODIS' )
+            case( 'NLCD40' )
+            do r = 1, my_nrows
+            do c = 1, my_ncols
+C           water & barren surrounding
+               uland( c,r,1 ) = lut( c,r,21 )   ! Open Water
+     &                        + lut( c,r,22 )   ! Perennial Ice-Snow
+     &                        + lut( c,r,27 )   ! Barren Land (Rock-Sand-Clay)
+     &                        + lut( c,r,31 )   ! Dwarf Scrub
+     &                        + lut( c,r,32 )   ! Shrub-Scrub
+     &                        + lut( c,r,15 )   ! Permanent Snow and Ice
+     &                        + lut( c,r,16 )   ! Barren or Sparsely Vegetated
+     &                        + lut( c,r,17 )   ! IGBP Water
+
+C           grass & crop surrounding
+               uland( c,r,2 ) = lut( c,r,33 )  ! Grassland-Herbaceous
+     &                        + lut( c,r,34 )  ! Sedge-Herbaceous
+     &                        + lut( c,r,35 )  ! Lichens
+     &                        + lut( c,r,36 )  ! Moss
+     &                        + lut( c,r,37 )  ! Pasture-Hay
+     &                        + lut( c,r,38 )  ! Cultivated Crops
+     &                        + lut( c,r,6  )  ! Closed Shrublands
+     &                        + lut( c,r,7  )  ! Open Shrublands
+     &                        + lut( c,r,9  )  ! Savannas
+     &                        + lut( c,r,10 )  ! Grasslands
+     &                        + lut( c,r,12 )  ! Croplands
+     &                        + lut( c,r,14 )  ! Cropland-Natural Vegetation Mosaic
+
+C           building surrounding
+               uland( c,r,3 ) = lut( c,r,24 )   ! Developed Low Intensity
+     &                        + lut( c,r,25 )   ! Developed Medium Intensity
+     &                        + lut( c,r,26 )   ! Developed High Intensity
+     &                        + lut( c,r,13 )   ! Urban and Built Up
+
+C           forest surrounding
+               uland( c,r,4 ) = lut( c,r,28 )  ! Deciduous Forest
+     &                        + lut( c,r,29 )  ! Evergreen Forest
+     &                        + lut( c,r,30 )  ! Mixed Forest
+     &                        + lut( c,r,39 )  ! Woody Wetlands
+     &                        + lut( c,r,40 )  ! Emergent Herbaceous Wetlands
+     &                        + lut( c,r,1  )  ! Evergreen Needleleaf Forest
+     &                        + lut( c,r,2  )  ! Evergreen Broadleaf Forest
+     &                        + lut( c,r,3  )  ! Deciduous Needleleaf Forest
+     &                        + lut( c,r,4  )  ! Deciduous Broadleaf Forest
+     &                        + lut( c,r,5  )  ! Mixed Forests
+     &                        + lut( c,r,8  )  ! Woody Savannas
+     &                        + lut( c,r,11 )  ! Permanent Wetlands
+            end do
+            end do
+
+            case( 'NLCD-MODIS', 'NLCD50' )
             do r = 1, my_nrows
             do c = 1, my_ncols
 C           water & barren surrounding
@@ -940,6 +1095,8 @@ C           forest surrounding
 
          end do
          end do
+
+         deallocate( lut )
 
          return
          end function lus_init

@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, March 19, 2015
+C  REVISION HISTORY: Created by EBI solver program, Aug. 4, 2015
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -138,14 +138,14 @@ C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTERFACE
-        SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-           IMPLICIT NONE
-           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-           INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+         SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
+          IMPLICIT NONE
+          INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+          INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+          INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+          INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+          INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
+          REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            USE UTILIO_DEFN
@@ -295,8 +295,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C.. Compute number of time step loops and step size for EBI solver
       DELT_SEC = INT( DELTAT * 60.0D0 + 0.1D0 )
       IF( DELT_SEC .GE. ITMSTEP ) THEN
-         N_EBI_STEPS = 1
-         EBI_TMSTEP  = CHEMSTEP
+         N_EBI_STEPS = 2
+         EBI_TMSTEP  = 0.5D0 * CHEMSTEP
       ELSE
          IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
             N_EBI_STEPS = ITMSTEP / DELT_SEC

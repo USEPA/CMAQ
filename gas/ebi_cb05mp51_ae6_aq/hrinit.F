@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sep 15, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -356,7 +356,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( XYLMN            ) = 1.0D-03
       RTOL( XYLRO2           ) = 1.0D-03
       RTOL( NAPH             ) = 1.0D-03
-      RTOL( PAHRO2           ) = 1.0D-03
+      RTOL( PAHRO2           ) = 1.0D+00
       RTOL( ISOP             ) = 1.0D-03
       RTOL( ISPD             ) = 1.0D-03
       RTOL( ISOPRXN          ) = 1.0D+00
@@ -388,10 +388,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( BNZHRXN          ) = 1.0D+00
       RTOL( SESQ             ) = 1.0D-03
       RTOL( SESQRXN          ) = 1.0D+00
-      RTOL( PAHNRXN          ) = 1.0D-03
-      RTOL( PAHHRXN          ) = 1.0D-03
+      RTOL( PAHNRXN          ) = 1.0D+00
+      RTOL( PAHHRXN          ) = 1.0D+00
       RTOL( SOAALK           ) = 1.0D-03
-      RTOL( ALKRXN           ) = 1.0D-03
+      RTOL( ALKRXN           ) = 1.0D+00
       RTOL( MAPAN            ) = 1.0D-03
       RTOL( NALKO2           ) = 1.0D-03
       RTOL( NTRCN            ) = 1.0D-03

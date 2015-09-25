@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05MP51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sep 15, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -256,7 +256,7 @@ c..Production of HONO from OH (r19,4 terms )
 
 c..Remaining HONO production terms
       P19 =    2.0000D+00 * RXRAT(  23 )      ! NO+NO2=0.2000D+01*HONO
-     &    +    5.0000D-01 * RXRAT( 267 )      ! NO2=0.5000D+00*HONO+...
+     &    +    5.0000D-01 * RXRAT( 274 )      ! NO2=0.5000D+00*HONO+...
 
       P19 = YC0( HONO ) + P19 * DTC
 

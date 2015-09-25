@@ -339,7 +339,7 @@ C                          '12345678901234567890'
      &                       NH4ps2( c,r,l ) .Gt. 0.0     ) Then
                            If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                               frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                           End If
+                           End If                    
                            Tot_Ag        = Tot_Ag + Beld_ag( c,r,l )
                            gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
      &                                   / pHfac1 * Beld_ag( c,r,l )

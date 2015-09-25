@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05MP51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sep 15, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -111,8 +111,8 @@ c..Loss frequency of N2O5
      &    +                 RKI(  20 )                            ! N2O5=0.2000D+01*HNO3
      &    +                 RKI(  21 )                            ! N2O5=NO3+NO2
      &    +                 RKI(  54 )                            ! N2O5=NO2+NO3
-     &    +                 RKI( 260 )                            ! N2O5=HNO3+H2NO3PIJ
-     &    +                 RKI( 261 )                            ! N2O5=HNO3+H2NO3PK
+     &    +                 RKI( 267 )                            ! N2O5=HNO3+H2NO3PIJ
+     &    +                 RKI( 268 )                            ! N2O5=HNO3+H2NO3PK
 
 c..K15_15, R15_16, and R16_15 terms
       K15_15  = RKI(  51 ) * DTC

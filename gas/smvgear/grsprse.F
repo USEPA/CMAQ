@@ -588,6 +588,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3MESG( MSG )
             WRITE( MSG, 94100 ) MXARRAY, JCCOUNT, MAXGL3 
             CALL M3MESG( MSG )
+            WRITE( MSG,94110 )
+            CALL M3MESG( MSG )
             EXITSTAT = 2
             CALL M3EXIT( PNAME, IZERO, IZERO, ' ', EXITSTAT )
          ENDIF           
@@ -668,30 +670,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ENDDO
 
          DO I2 = 1, 6 
-            ASET( I2, 2 ) = 1.0E+00
-            ASET( I2, 8 ) = 0.0
+            ASET( I2, 2 ) = 1.0D+00
+            ASET( I2, 8 ) = 0.0D0
          ENDDO
-         ASET( 1, 1 ) =   1.0
-         ASET( 2, 1 ) =   2.0 /    3.0
-         ASET( 2, 3 ) =   1.0 /    3.0
-         ASET( 3, 1 ) =   6.0 /   11.0
-         ASET( 3, 3 ) =   6.0 /   11.0
-         ASET( 3, 4 ) =   1.0 /   11.0
-         ASET( 4, 1 ) =  12.0 /   25.0
-         ASET( 4, 3 ) =   0.70
-         ASET( 4, 4 ) =   0.20
-         ASET( 4, 5 ) =   0.02
-         ASET( 5, 1 ) =  60.0 /  137.0
-         ASET( 5, 3 ) = 225.0 /  274.0
-         ASET( 5, 4 ) =  85.0 /  274.0
-         ASET( 5, 5 ) =  15.0 /  274.0
-         ASET( 5, 6 ) =   1.0 /  274.0
-         ASET( 6, 1 ) = 180.0 /  441.0
-         ASET( 6, 3 ) = 406.0 /  441.0
-         ASET( 6, 4 ) = 735.0 / 1764.0
-         ASET( 6, 5 ) = 175.0 / 1764.0
-         ASET( 6, 6 ) =  21.0 / 1764.0
-         ASET( 6, 7 ) =   1.0 / 1764.0
+         ASET( 1, 1 ) =   1.0D0
+         ASET( 2, 1 ) =   2.0D0 /    3.0D0
+         ASET( 2, 3 ) =   1.0D0 /    3.0D0
+         ASET( 3, 1 ) =   6.0D0 /   11.0D0
+         ASET( 3, 3 ) =   6.0D0 /   11.0D0
+         ASET( 3, 4 ) =   1.0D0 /   11.0D0
+         ASET( 4, 1 ) =  12.0D0 /   25.0D0
+         ASET( 4, 3 ) =   0.70D0
+         ASET( 4, 4 ) =   0.20D0
+         ASET( 4, 5 ) =   0.02D0
+         ASET( 5, 1 ) =  60.0D0 /  137.0D0
+         ASET( 5, 3 ) = 225.0D0 /  274.0D0
+         ASET( 5, 4 ) =  85.0D0 /  274.0D0
+         ASET( 5, 5 ) =  15.0D0 /  274.0D0
+         ASET( 5, 6 ) =   1.0D0 /  274.0D0
+         ASET( 6, 1 ) = 180.0D0 /  441.0D0
+         ASET( 6, 3 ) = 406.0D0 /  441.0D0
+         ASET( 6, 4 ) = 735.0D0 / 1764.0D0
+         ASET( 6, 5 ) = 175.0D0 / 1764.0D0
+         ASET( 6, 6 ) =  21.0D0 / 1764.0D0
+         ASET( 6, 7 ) =   1.0D0 / 1764.0D0
       ENDIF
       RETURN
       
@@ -708,9 +710,8 @@ C********************** FORMAT STATEMENTS ******************************
 94040 FORMAT( 1X,'DIMENSION: MXCOUNT1 = ',I6,' VARIABLE: JCNT    = ',I6)  
 94060 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: IARRAY2 = ',I6)  
 94080 FORMAT( 1X,'DIMENSION: MXCOUNT2 = ',I6,' VARIABLE: ICCOUNT = ',I6)  
-94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6
-     &     / 1X, 'NOTE:      MXCOUNT2 = NUMB_MECH_SPC * MAXGL3 * 3',
-     &     / 1X, 'WHERE:     MAXGL3   = ',I6 )
+94100 FORMAT( 1X,'DIMENSION: MXARRAY  = ',I6,' VARIABLE: JCCOUNT = ',I6,' MAXGL3   = ',I6 )
+94110 FORMAT( 1X,'NOTE:      MXCOUNT[1,2] = NUMB_MECH_SPC * MAXGL3 * 3' )
 94200 FORMAT( 1X,'DIMENSION: MXRP     = ',I6,' VARIABLE: NDPMAX  = ',I6)
 94220 FORMAT( 1X,'DIMENSION: MXRR     = ',I6,' VARIABLE: NDLMAX  = ',I6)
       END
