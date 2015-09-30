@@ -34,6 +34,7 @@ C   04 Apr 11 S.Howard: generalization to accomodate different sea-salt speciati
 C                       in aero5 and aero6
 C   07 Apr 11 J.Young: additional mods
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
+
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
@@ -267,6 +268,7 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   04 Apr 11 S.Howard: dynamic allocation and generalization of indices for
 C                       SSOUTD, WRSS_SPC, and SSSPC_MAP
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   12 Aug 15 D.Wong: added code to handle parallel I/O implementation
 
             USE UTILIO_DEFN
             USE AERO_DATA
@@ -411,7 +413,7 @@ C Open the sea-salt emission dignostic file
                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
 
-               IF ( MYPE .EQ. 0 ) CALL OPSSEMIS ( SDATE, STIME, TSTEP, NSSDIAG, WRSS_SPC )
+               IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( SDATE, STIME, TSTEP, NSSDIAG, WRSS_SPC )
 
                ALLOCATE ( SSBF( NSSDIAG,MY_NCOLS,MY_NROWS ),
      &                    WRSS( NCOLS,NROWS ), STAT = STATUS )
@@ -692,6 +694,8 @@ C Variables for calculating dry surface-area emission rate for accum mode
             INTEGER, SAVE     :: WSTEP  = 0    ! local write counter
             INTEGER           :: MDATE, MTIME  ! SSEMIS write date&time
 
+            LOGICAL, SAVE :: FIRSTIME = .TRUE.
+
 C Mathematical constants; statement function for ERF approximation
             REAL, PARAMETER :: ONE3 = 1.0 / 3.0
             REAL, PARAMETER :: TWO3 = 2.0 / 3.0
@@ -939,6 +943,18 @@ C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
 C If last call this hour, write out the total sea-salt emissions [g/s].
 C Then reset the sea-salt emissions array and local write counter.
             IF ( SSEMDIAG ) THEN
+
+#ifdef parallel_io
+               IF ( FIRSTIME ) THEN
+                  FIRSTIME = .FALSE.
+                  IF ( .not. IO_PE_INCLUSIVE ) THEN
+                     IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+                        XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     END IF
+                  END IF
+               END IF
+#endif
 
                WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 

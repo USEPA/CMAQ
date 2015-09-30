@@ -55,6 +55,10 @@ C sedi sub-timestep counter
       contains
 
          function vdiff_diag_init( jdate, jtime, tstep1, grvsetl ) result ( success )
+
+! Revision History.
+!     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+
          implicit none
          include SUBST_FILES_ID  ! file name parameters
          logical success
@@ -140,84 +144,83 @@ C open CONC file
 
          if ( grvsetl ) then
 
-            nvars3d = n_vsed
-            fdesc3d = ' '   ! array
-            fdesc3d( 1 ) = 'representative coarse aerosol gravitational settling velocities'
-            do v = 1, n_vsed
-               vtype3d( v ) = m3real
-               units3d( v ) = 'm/s'
-               vname3d( v ) = vsed_name( v )
-               vdesc3d( v ) = 'gravitational settling velocity'
-            end do
+            if ( io_pe_inclusive ) then
 
-            if ( mype .eq. 0 ) then
+               nvars3d = n_vsed
+               fdesc3d = ' '   ! array
+               fdesc3d( 1 ) = 'representative coarse aerosol gravitational settling velocities'
+               do v = 1, n_vsed
+                  vtype3d( v ) = m3real
+                  units3d( v ) = 'm/s'
+                  vname3d( v ) = vsed_name( v )
+                  vdesc3d( v ) = 'gravitational settling velocity'
+               end do
+
                ok = open3( ctm_vsed_diag, fsnew3, pname )
                if ( .not. ok ) then
                   xmsg = 'could not create '// trim( ctm_vsed_diag ) // ' file'
                   call m3warn( 'vdiff_diag', jdate, jtime, xmsg )
                   success = .false.; return
                end if
+
             end if
 
-         end if
-
-         nvars3d = n_vdiff
-         nlays3d = 1
-         fdesc3d = ' '   ! array
-         fdesc3d( 1 ) = 'vdiff diagnostic variables'
-         v = 1
+            nvars3d = n_vdiff
+            nlays3d = 1
+            fdesc3d = ' '   ! array
+            fdesc3d( 1 ) = 'vdiff diagnostic variables'
+            v = 1
             vtype3d( v ) = m3real
             units3d( v ) = ' '
             vname3d( v ) = 'NLP_MEAN'
             vdesc3d( v ) = 'mean sub-timestep iteration count'
-         v = v + 1
+            v = v + 1
             vtype3d( v ) = m3real
             units3d( v ) = ' '
             vname3d( v ) = 'NLP_MAX'
             vdesc3d( v ) = 'max sub-timestep iteration count'
-         v = v + 1
+            v = v + 1
             vtype3d( v ) = m3real
             units3d( v ) = ' '
             vname3d( v ) = 'NLP_MIN'
             vdesc3d( v ) = 'min sub-timestep iteration count'
 
-         if ( grvsetl ) then
-            v = v + 1
+            if ( grvsetl ) then
+               v = v + 1
                vtype3d( v ) = m3real
                units3d( v ) = ' '
                vname3d( v ) = 'SEDI_DTC_MEAN'
                vdesc3d( v ) = 'mean grav. settling velocity sub-timestep iteration count'
-            v = v + 1
+               v = v + 1
                vtype3d( v ) = m3real
                units3d( v ) = ' '
                vname3d( v ) = 'SEDI_DTC_MAX'
                vdesc3d( v ) = 'max grav. settling velocity sub-timestep iteration count'
-            v = v + 1
+               v = v + 1
                vtype3d( v ) = m3real
                units3d( v ) = ' '
                vname3d( v ) = 'SEDI_DTC_MIN'
                vdesc3d( v ) = 'min grav. settling velocity sub-timestep iteration count'
-         end if
+            end if
 
-         v = v + 1
+            v = v + 1
             vtype3d( v ) = m3real
             units3d( v ) = ' '
             vname3d( v ) = 'CONVCT'
             vdesc3d( v ) = 'Convective cell (for ACM2)'
-         v = v + 1
+            v = v + 1
             vtype3d( v ) = m3real
             units3d( v ) = ' '
             vname3d( v ) = 'LPBL'
             vdesc3d( v ) = 'PBL top sigma layer'
 
-         if ( mype .eq. 0 ) then
             ok = open3( ctm_vdiff_diag, fsnew3, pname )
             if ( .not. ok ) then
                xmsg = 'could not create '// trim( ctm_vdiff_diag ) // ' file'
                call m3warn( pname, jdate, jtime, xmsg )
                success = .false.; return
             end if
-         end if
+         end if  ! io_pe_inclusive
 
          allocate ( nlpcr_max( ncols,nrows ),
      &              nlpcr_min( ncols,nrows ),

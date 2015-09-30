@@ -88,6 +88,8 @@ C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
 C                      indicated in TSTEP(1) for twoway model
 C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   Aug 2015 D.Wong:   Replaced MYPE with IO_PE_INCLUSIVE for parallel
+C                        I/O implementation
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -122,7 +124,8 @@ C Include Files:
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 #ifdef parallel
-      INCLUDE SUBST_MPI         ! MPI definitions and parameters
+!     INCLUDE SUBST_MPI         ! MPI definitions and parameters
+      include 'mpif.h'
 #endif
 
 
@@ -304,6 +307,16 @@ C Initialize stencil exchange
          write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
 #endif
 #endif
+
+#ifdef parallel_io
+         IF (MOD(MYPE, NPCOL) == 0) THEN
+#else
+         IF (MYPE == 0) THEN
+#endif
+            IO_PE_INCLUSIVE = .TRUE.
+         ELSE
+            IO_PE_INCLUSIVE = .FALSE.
+         END IF
 
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
