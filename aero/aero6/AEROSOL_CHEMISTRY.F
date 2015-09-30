@@ -22,6 +22,9 @@
 !
 ! 26 Sep 14 H. Pye: Heterogeneous uptake of IEPOX added 
 ! 27 Feb 15 J. Bash:
+! 17 March 15 D. Luecken:  Added NTR heterogeneous hydrolysis as per
+!    the CB6r3 chemical mechanism used by the Environ CAMX model consult 
+!    references 8 and 9.
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -51,7 +54,7 @@
      &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
      &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
      &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
-     &                       'HETERO_NTR2  ' /)
+     &                       'HETERO_NTR2      ' /)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -201,6 +204,15 @@ C
 C   7. Pye et al., Epoxide pathways improve model predictions of isoprene
 C      markers and reveal key role of acidity in aerosol formation,
 C      Environ. Sci. Technol., doi: 10.1021/es402106h, 2013.
+C
+C   8. Rollins, A.W., S. Pusede, P.Wooldridge, K.-E.Min, D.R. Gentner, A.H. 
+C      Goldstein, S. Liu, D.A. Day, L.M. Russell, C.L. Rubitschun, J.D. Surratt,
+C      and R.C. Cohen, Gas/particle partitioning of total alkyl nitrates 
+C      observed with TD-LIF in Bakersfield.J.Geophys.Res., 118, 6651-6662, 2013.
+C
+C   9. Liu, S., J.E. Shilling, C. Song, N. Hiranuma, R.A. Zaveri, L.M. Russell,
+C      Hydrolysis of Organonitrate Functional Groups in Aerosol Particles.
+C      Aerosol Sci. Technol., 46, 1359-1369, 2012.
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -455,6 +467,8 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
           MWTIEPOX  = 118.1D0
        END IF
        CFACTOR_IEPOX = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTIEPOX * DPI ) )    
+
+       F_PART_NTR2 = 0.0
 
       END IF   ! first time condition
 
@@ -755,11 +769,14 @@ C *** calculate gas-particle partitioning of NTR2
 
                     Do i = 1, n_aerospc
                        If ( aerospc( i )%nonVol_soa ) Then
+                           If( aerospc( i )%tracer )Cycle
                            CON_TOA = CON_TOA + aerospc_conc( i,2 )
                        End If
                     End Do
                     Do i = 1, n_vapor
-                      CON_TOA = CON_TOA + aerospc_conc( soa_aeroMap( i ),2 )
+                      n = soa_aeroMap( i )
+                      If( aerospc( n )%tracer )Cycle
+                      CON_TOA = CON_TOA + aerospc_conc( n,2 )
                     End Do
 
                     F_PART_NTR2 = 0.0

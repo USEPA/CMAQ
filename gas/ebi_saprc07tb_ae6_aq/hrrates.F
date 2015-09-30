@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 10, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sep 22, 2015
 C
 C***********************************************************************
       USE HRDATA
@@ -516,6 +516,7 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  454 ) = RKI( 454 ) * YC(  APNCOMI ) * YC(  OH )
       RXRAT(  455 ) = RKI( 455 ) * YC(  APOCJ ) * YC(  OH )
       RXRAT(  456 ) = RKI( 456 ) * YC(  APNCOMJ ) * YC(  OH )
+      RXRAT(  457 ) = RKI( 457 ) * YC(  IEPOX )
 
 
       RETURN

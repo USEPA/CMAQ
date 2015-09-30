@@ -95,8 +95,10 @@ C
 C   Bill Hutzell - Sept 13 - inserted module for AEROSOL_CHEMISTRY to support
 C                            diagnostic outputs on reaction gamma and yield 
 C                            values 
-C   HOT Pye - Jan 13 - Additional information for IEPOX aerosol 
-C                      written to AERODIAG file
+C   HOT Pye      - Jan 13 -  Additional information for IEPOX aerosol 
+C                            written to AERODIAG file
+C   B.Hutzell    - Sept 15 - module, routine calls and line for writing out
+C                            IMPROVE network Aerosol Optical Depth (AOD) file
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -107,6 +109,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PRECURSOR_DATA      ! gas phase aero precursor data
       USE SOA_DEFN            ! gas soa data
       USE AEROMET_DATA        ! air properties data, eg., T, P, RH includes CONST.EXT
+      USE AOD_DEFN            ! IMPROVE reconstructed method AOD
       USE UTILIO_DEFN
       USE CGRID_SPCS
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
@@ -296,6 +299,22 @@ C *** Get aerosol diagnostic file flag.
             WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
          END IF
 
+C *** Get AOD diagnostic file flag.
+         AOD = .FALSE.         ! default
+         VARDESC = 'Flag for writing the IMPROVE network AOD diagnostic file'
+         AOD = ENVYN( CTM_AOD, VARDESC, AOD, STATUS )
+         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+         IF ( STATUS .EQ. 1 ) THEN
+            XMSG = 'Environment variable improperly formatted'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         ELSE IF ( STATUS .EQ. -1 ) THEN
+            XMSG = 'Environment variable set, but empty ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         ELSE IF ( STATUS .EQ. -2 ) THEN
+            XMSG = 'Environment variable not set ... Using default:'
+            WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+         END IF
+
 C *** Open the met files.
          IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open  MET_CRO_3D  file '
@@ -314,6 +333,14 @@ C     units of (1/km) and is for layer 1 only.
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
          IF ( AERDIAG .AND. MYPE .EQ. 0 ) CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+
+         IF ( AOD ) THEN
+C *** Set up for AOD processing
+            IF ( .NOT. AOD_INIT( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+               XMSG = 'Failure initializing dust emission processing'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+         END IF
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -420,6 +447,13 @@ C     into precursr_conc in precursor_data
 
 C *** Calculate SO4RATE stored in module
                SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
+
+               IF ( PHGRXN_IDX .GT. 0 ) THEN
+C *** Calculate PHG_RATE stored in module
+                  PHG_RATE = REAL( PRECURSOR_CONC( PHGRXN_IDX ), 4 ) / DT
+               ELSE
+                  PHG_RATE = 0.0
+               END IF
 
 C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
@@ -565,6 +599,10 @@ C     used in transport routines.  Put aeroSrf values back to CGRID
          END DO ! loop on MY_ROWS
       END DO ! loop on NLAYS
 
+      IF ( WRITETIME .AND. AOD ) THEN
+         CALL GET_AOD( CGRID )
+      END IF
+
 C *** If last call this hour, write visibility information.
       IF ( WRITETIME ) THEN
          MDATE = JDATE
@@ -594,6 +632,21 @@ C *** Write data to the aerosol diagnostic file.
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_DIAM_1,
+     &                     'for date and time', MDATE, MTIME
+
+         END IF
+
+C *** Write data to the IMPROVE network AOD diagnostic file.
+         IF ( AOD ) THEN
+
+            IF ( .NOT. WRITE3( CTM_AOD_1, ALLVAR3,
+     &                         MDATE, MTIME, AOD_DATA ) ) THEN
+               XMSG = 'Could not write ' // CTM_AOD_1 // ' file'
+               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+
+            WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &                     'Timestep written to', CTM_AOD_1,
      &                     'for date and time', MDATE, MTIME
 
          END IF
