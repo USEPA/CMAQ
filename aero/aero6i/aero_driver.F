@@ -97,6 +97,10 @@ C                            diagnostic outputs on reaction gamma and yield
 C                            values 
 C   HOT Pye - Jan 13 - Additional information for IEPOX aerosol 
 C                      written to AERODIAG file
+C   David Wong - Aug 15 - Used IO_PE_INCLUSIVE rather than MYPE to
+C                           facilitate parallel I/O implementation
+C                       - Used a new logical variable, FIRST_CTM_VIS_1 to
+C                           determine when to open CTM_VIS_1 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -221,6 +225,7 @@ C *** flag for AERDIAG file [F], default
 
 C *** first pass flag
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: FIRST_CTM_VIS_1 = .TRUE.
 
 C *** ratio of molecular weights of water vapor to dry air = 0.622015
       REAL, PARAMETER :: EPSWATER = MWWAT / MWAIR
@@ -310,10 +315,10 @@ C *** Open the met files.
 C *** Set up file structure for visibility file. It has two variables,
 C     visual range in deciview units (dimensionless) and extinction in
 C     units of (1/km) and is for layer 1 only.
-         IF ( MYPE .EQ. 0 ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( IO_PE_INCLUSIVE ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( AERDIAG .AND. MYPE .EQ. 0 ) CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( AERDIAG .AND. IO_PE_INCLUSIVE ) CALL OPDIAM ( JDATE, JTIME, TSTEP( 1 ) )
 
 C *** Get domain decomp info from the MET_CRO_3D file
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -420,7 +425,7 @@ C     into precursr_conc in precursor_data
 
 C *** Calculate SO4RATE stored in module
                SO4RATE = REAL( PRECURSOR_CONC( SULPRD_IDX ), 4 ) / DT
-
+ 
 C *** Extract soa concentrations from CGRID
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
 
@@ -459,7 +464,7 @@ C     diagnostic array (lowest vertical layer only)
 C *** Write wet diameters, 2nd, and 3rd moments to aerosol diagnostic array
 C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                IF ( WRITETIME .AND. AERDIAG ) THEN
-!                  DIAM_SPC( C,R,L, : ) = 0.0
+!                 DIAM_SPC( C,R,L, : ) = 0.0
                   DIAM_SPC( C,R,L, 7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
                   DIAM_SPC( C,R,L, 8 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! wet j-mode diam.
                   DIAM_SPC( C,R,L, 9 ) = AEROMODE_DIAM( 3 ) * 1.0E6  ! wet k-mode diam.
@@ -573,6 +578,26 @@ C *** If last call this hour, write visibility information.
          WSTEP = 0
          WRITETIME = .FALSE.
 
+#ifdef parallel_io
+         IF (FIRST_CTM_VIS_1) THEN
+            FIRST_CTM_VIS_1 = .FALSE.
+            IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( CTM_VIS_1, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_VIS_1)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+            END IF
+            IF ( AERDIAG ) THEN
+               IF ( .not. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_DIAM_1, FSNONIO, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM(CTM_DIAM_1)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               END IF
+            END IF
+         END IF
+#endif
+
          IF ( .NOT. WRITE3( CTM_VIS_1, ALLVAR3,
      &                      MDATE, MTIME, VIS_SPC ) ) THEN
             XMSG = 'Could not write ' // CTM_VIS_1 // ' file'
@@ -597,7 +622,7 @@ C *** Write data to the aerosol diagnostic file.
      &                     'for date and time', MDATE, MTIME
 
          END IF
-
+     
       END IF
 
       RETURN

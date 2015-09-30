@@ -56,6 +56,10 @@ C   11 Jun 08 J.Young: clean up
 C   30 Mar 10 David Wong: removed unnecessary barrier
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
+C   Aug 15 D.Wong:     Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
+C                        implementation
+C                      Added a block of code to let non I/O processor to open
+C                        CTM_CONC_1 file
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -220,14 +224,23 @@ C Set output file characteristics based on COORD.EXT and open it
 
 C create header
 
-      IF ( MYPE .EQ. 0 ) THEN   ! open new
+      IF ( IO_PE_INCLUSIVE ) THEN   ! open new
          IF ( .NOT. OPEN3( CTM_CONC_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF
 
-!     CALL SUBST_BARRIER
+#ifdef parallel_io
+      CALL SUBST_BARRIER
+
+      IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. OPEN3( CTM_CONC_1, FSNONIO, PNAME ) ) THEN
+            XMSG = 'Could not open ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+#endif
 
 C write the initial concentrations as step 0 on the conc file
 C (inital data assumed to be in correct output units)

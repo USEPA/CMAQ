@@ -111,6 +111,8 @@
 !                          7) Several miscellaneous changes attempting to improve efficiency
 !     June 10 15 J.Young: Modified diagnostic output timestamp to fix for other than one
 !                         hour time steps.
+!     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+
 !----------------------------------------------------------------------
 
 C...modules
@@ -313,7 +315,6 @@ C...modules
 
       IF ( FIRSTIME ) THEN
 
-
          FIRSTIME = .FALSE.
          LOGDEV   = INIT3()
 
@@ -463,7 +464,7 @@ C...modules
 #ifndef phot_extra_tstep
             CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
 #endif
-            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+            IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
 
          END IF  ! photdiag
 
@@ -520,6 +521,18 @@ C...modules
          CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
 #endif
          JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
+#ifdef parallel_io
+         IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. OPEN3( CTM_RJ_1, FSNONIO, PNAME ) ) THEN
+               XMSG = 'Could not open ' // TRIM(CTM_RJ_1)
+               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. OPEN3( CTM_RJ_2, FSNONIO, PNAME ) ) THEN
+               XMSG = 'Could not open ' // TRIM(CTM_RJ_2)
+               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+#endif
       ELSE     
          JTIME_CHK = .FALSE.
       END IF 

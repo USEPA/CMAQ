@@ -275,6 +275,9 @@ C emissions.
 C=======================================================================
          function dust_emis_init( jdate, jtime, tstep ) result( success )
 
+! Revision History.
+!     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+
          use hgrd_defn        ! horizontal domain specifications
          use aero_data        ! aerosol species definitions
          use asx_data_mod     ! meteorology data
@@ -474,7 +477,7 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
             sdate = envint( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, status )
             stime = envint( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, status )
 
-            if ( mype .eq. 0 )
+            if ( io_pe_inclusive )
      &         call opdust_emis ( sdate, stime, tstep, ndust_diag, diagnm )
 
          end if   ! dustem_diag
@@ -709,6 +712,7 @@ C=======================================================================
 
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
+C       8/12/15 D.Wong: added code to handle parallel I/O implementation
 
 C Arguments:
          integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
@@ -959,6 +963,16 @@ C-----------------------------------------------------------------------
                xmsg = '*** QAD memory allocation failed'
                call m3exit( pname, jdate, jtime, xmsg, xstat1 )
             end if
+
+#ifdef parallel_io
+            if ( .not. io_pe_inclusive ) then
+               if ( .not. open3( ctm_dust_emis_1, fsnonio, pname ) ) then
+                  xmsg = 'Could not open ' // trim(ctm_dust_emis_1)
+                  call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+               end if
+            end if
+#endif
+
          end if
 
 C Convert layer-average U* into surface local U*

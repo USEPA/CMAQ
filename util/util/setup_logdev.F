@@ -40,13 +40,14 @@ C   11 Jun 02 J.Young - minor mods
 C   23 Feb 11 J.Young - SETENVVAR is a function, not a subroutine
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
+C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       USE UTILIO_DEFN
 
       IMPLICIT NONE
 
 #ifdef parallel      
-      INCLUDE SUBST_MPI
+      include 'mpif.h'
 #endif
 
       CHARACTER( 48 ) :: EQNAME

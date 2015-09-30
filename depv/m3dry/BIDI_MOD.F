@@ -477,6 +477,9 @@ C--------------------------------------------------------------------------
 
          SUBROUTINE WRASX_MEDIA( MDATE, MTIME, ABFLUX )
 
+! Revision History.
+!     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
+
          USE GRID_CONF           ! horizontal grid specifications
          USE UTILIO_DEFN
 
@@ -487,6 +490,8 @@ C--------------------------------------------------------------------------
          INTEGER, INTENT( IN )    :: MDATE
          INTEGER, INTENT( IN )    :: MTIME
          LOGICAL, INTENT( IN )    :: ABFLUX
+
+         LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
          REAL          WRMC( My_NCols,My_NRows )         ! media write buffer
          INTEGER V, R, C
@@ -512,6 +517,18 @@ C--------------------------------------------------------------------------
                End Do
             End Do
          End If
+
+#ifdef parallel_io
+         IF ( FIRSTIME ) THEN
+            FIRSTIME = .FALSE.
+            IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( MEDIA_CONC, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(MEDIA_CONC)
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+            END IF
+         END IF
+#endif
          
          DO V = 1, N_TOT ! species/media loop
             DO R = 1, My_NRows ! row loop

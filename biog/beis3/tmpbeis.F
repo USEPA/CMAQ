@@ -63,6 +63,7 @@ C  07/14: J.Bash-Added meteorological variables needed for leaf temperature
 C                calculations.
 C  08/14: J.Bash-Added backwards compatibility for earlier versions of MCIP
 C  07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C  12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -345,7 +346,7 @@ C (all but variables-table and horizontal domain in description is borrowed from
 C Open mass output file (tons/hour)
 
             SNAME = 'B3GTS_S'
-            IF ( MYPE .EQ. 0 ) THEN
+            IF ( IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( SNAME, FSNEW3, PNAME ) ) THEN
                   MESG = 'Could not open "' // TRIM( SNAME ) // '" file'
                   CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
@@ -439,7 +440,17 @@ C Initialize normalized emissons to be used
          CALL CHECKMEM( IOS, 'RX', PNAME )
 #endif
 
-         IF ( BEMIS_DIAG ) EMISS = 0.0   ! array
+         IF ( BEMIS_DIAG ) THEN
+            EMISS = 0.0   ! array
+#ifdef parallel_io
+            IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( SNAME, FSNONIO, PNAME ) ) THEN
+                  MESG = 'Could not open ' // TRIM(SNAME)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+               END IF
+            END IF
+#endif
+         END IF
 
       END IF   ! FIRSTIME
 

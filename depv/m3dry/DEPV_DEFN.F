@@ -51,6 +51,10 @@ C   18 Sep 2012 D. Wong: invoke INIT_LSM regardless of MOSAIC or ABFLUX option
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C   7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved constants and data to 
 C                       ASX_DATA_MOD.
+C   Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE to facilitate
+C                          parallel I/O implementation
+C                        Added a block of code to let non I/O processors to
+C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C-------------------------------------------------------------------------------
 
 
@@ -636,7 +640,7 @@ C Get diagnostic file flag.
                   SUCCESS = .FALSE.; RETURN
                END IF
 
-               IF ( MYPE .EQ. 0 ) THEN
+               IF ( IO_PE_INCLUSIVE ) THEN
                   CALL OPDEPV_DIAG ( JDATE, JTIME, TSTEP( 1 ),
      &                               N_UNIQUE_GDEPV, UNIQUE_GDEPV,
      &                               N_UNIQUE_ADEPV, UNIQUE_ADEPV )
@@ -653,7 +657,7 @@ C Get diagnostic file flag.
                   SUCCESS = .FALSE.; RETURN
                END IF
 
-               IF ( MYPE .EQ. 0 ) THEN
+               IF ( IO_PE_INCLUSIVE ) THEN
                   CALL OPDEPV_MOS ( JDATE, JTIME, TSTEP( 1 ),
      &                              N_UNIQUE_GDEPV, UNIQUE_GDEPV,
      &                              N_UNIQUE_ADEPV, UNIQUE_ADEPV )
@@ -661,7 +665,7 @@ C Get diagnostic file flag.
 
                IF ( FST ) THEN
                          
-                  IF ( MYPE .EQ. 0 ) THEN
+                  IF ( IO_PE_INCLUSIVE ) THEN
                      CALL OPDEPV_FST ( JDATE, JTIME, TSTEP( 1 ),
      &                                 N_UNIQUE_GDEPV, UNIQUE_GDEPV,
      &                                 N_UNIQUE_ADEPV, UNIQUE_ADEPV )
@@ -724,6 +728,8 @@ C Local variables:
 
          INTEGER C, R, N, V, NDX, J
          INTEGER, SAVE :: LOGDEV
+
+         LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 #ifdef Verbose
          integer cw, rw
@@ -952,6 +958,37 @@ C-----------------------------------------------------------------------
             END IF
 
             IF ( WRITE_TIME ) THEN
+
+#ifdef parallel_io
+               IF (FIRSTIME) THEN
+                  FIRSTIME = .FALSE.
+                  IF ( DEPV_DIAG ) THEN
+                     IF ( .not. IO_PE_INCLUSIVE ) THEN
+                        IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNONIO, PNAME ) ) THEN
+                           XMSG = 'Could not open ' // TRIM(CTM_DEPV_DIAG)
+                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                        END IF
+                     END IF
+                  END IF
+
+                  IF ( MOSAIC ) THEN
+                     IF ( .not. IO_PE_INCLUSIVE ) THEN
+                        IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSNONIO, PNAME ) ) THEN
+                           XMSG = 'Could not open ' // TRIM(CTM_DEPV_MOS)
+                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                        END IF
+                     END IF
+                     IF ( FST ) THEN
+                        IF ( .not. IO_PE_INCLUSIVE ) THEN
+                           IF ( .NOT. OPEN3( CTM_DEPV_FST, FSNONIO, PNAME ) ) THEN
+                              XMSG = 'Could not open ' // TRIM(CTM_DEPV_FST)
+                              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                           END IF
+                        END IF
+                     END IF
+                  END IF
+               END IF
+#endif
 
                N = 0
                DO V = 1, N_GC_DEPV
