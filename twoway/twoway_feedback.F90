@@ -354,6 +354,9 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 !           to WRF
 !
 ! Revised:  April 2007  Original version.  David Wong
+!           25 Sep 2015  (David Wong)
+!             -- replace SUBST_MODULES with SE_MODULES
+!             -- removed ae_mass access
 !===============================================================================
 
   USE module_domain           ! WRF module
@@ -362,7 +365,7 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
   USE twoway_data_module
   USE twoway_met_param_module
   USE twoway_cgrid_aerosol_spc_map_module
-  USE SUBST_MODULES
+  USE SE_MODULES
   USE HGRD_DEFN
 
   use utilio_defn
@@ -503,14 +506,14 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
            grid%sig_k(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,21)
            grid%ozone(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,22)
 ! begin: this is for indirect effect only, temporary blocked
-           if (indirect_effect) then
-              s = 0
-              do d = 23, N_FEEDBACK_VAR-3
-                 s = s + 1
-                 grid%ae_mass(c, l, r, s) = feedback_data_wrf(c-sc+1,r-sr+1,l,d)
-              end do
-              grid%ae_num(c, l, r, 1:3) = feedback_data_wrf(c-sc+1,r-sr+1,l,N_FEEDBACK_VAR-2:N_FEEDBACK_VAR)
-           end if
+!          if (indirect_effect) then
+!             s = 0
+!             do d = 23, N_FEEDBACK_VAR-3
+!                s = s + 1
+!                grid%ae_mass(c, l, r, s) = feedback_data_wrf(c-sc+1,r-sr+1,l,d)
+!             end do
+!             grid%ae_num(c, l, r, 1:3) = feedback_data_wrf(c-sc+1,r-sr+1,l,N_FEEDBACK_VAR-2:N_FEEDBACK_VAR)
+!          end if
 ! end: this is for indirect effect only, temporary blocked
         end do
      end do
@@ -539,10 +542,10 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
   grid%sig_k(:,nlays3d+1,:) = grid%sig_k(:,nlays3d,:)
 
 ! begin: this is for indirect effect only, temporary blocked
-  if (indirect_effect) then
-     grid%ae_mass(:,nlays3d+1,:,:) = grid%ae_mass(:,nlays3d,:,:)
-     grid%ae_num(:,nlays3d+1,:,:)  = grid%ae_num(:,nlays3d,:,:)
-  end if
+! if (indirect_effect) then
+!    grid%ae_mass(:,nlays3d+1,:,:) = grid%ae_mass(:,nlays3d,:,:)
+!    grid%ae_num(:,nlays3d+1,:,:)  = grid%ae_num(:,nlays3d,:,:)
+! end if
 ! end: this is for indirect effect only, temporary blocked
 
 END SUBROUTINE feedback_read
