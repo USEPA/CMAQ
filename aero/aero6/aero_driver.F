@@ -303,7 +303,7 @@ C *** Get aerosol diagnostic file flag.
 
 C *** Get AOD diagnostic file flag.
          AOD = .FALSE.         ! default
-         VARDESC = 'Flag for writing the AOD diagnostic file'
+         VARDESC = 'Flag for writing the IMPROVE network AOD diagnostic file'
          AOD = ENVYN( CTM_AOD, VARDESC, AOD, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
          IF ( STATUS .EQ. 1 ) THEN

@@ -1383,6 +1383,8 @@
              RKI( NCELL,  455) =   2.5000D-12 * CFACT 
 !  Reaction Label RPOAGELJ        
              RKI( NCELL,  456) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+!  Reaction Label HET_IEPOX       
+             RKI( NCELL,  457) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
