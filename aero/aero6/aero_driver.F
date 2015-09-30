@@ -635,6 +635,14 @@ C *** If last call this hour, write visibility information.
                   END IF
                END IF
             END IF
+            IF ( AOD ) THEN
+               IF ( .not. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_AOD_1, FSNONIO, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM(CTM_AOD_1)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               END IF
+            END IF
          END IF
 #endif
 
