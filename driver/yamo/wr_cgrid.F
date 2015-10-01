@@ -38,6 +38,8 @@ C      Feb 08 J.Young: fix VDESC3D bug
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
+C   12 Aug 15 D.Wong:  Replaced MYPE with IO_PE_INCLUSIVE and added code
+C                        to handle parallel I/O implementation
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -80,6 +82,8 @@ C Local variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
 
+      LOGICAL, EXTERNAL :: FLUSH3
+
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
@@ -89,7 +93,7 @@ C-----------------------------------------------------------------------
 
 C Try to open existing file for update
 
-         CALL SUBST_BARRIER
+         CALL SE_BARRIER
 
          OK = OPEN3( S_CGRID, FSRDWR3, PNAME )
          CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
@@ -99,7 +103,7 @@ C Try to open existing file for update
      &           // ' file for update - try to open new'
             CALL M3MESG( XMSG )
 
-            IF ( MYPE .EQ. 0 ) THEN
+            IF ( IO_PE_INCLUSIVE ) THEN
 
 C Get default file header attibutes from CONC file (assumes file already open)
 
@@ -202,7 +206,7 @@ C pick up transported RHOJ
 C File exists. Check header data with CONC file as reference. Currently only
 C proc 0 has CTM_CONC_1 open
 
-            IF ( MYPE .EQ. 0 ) THEN
+            IF ( IO_PE_INCLUSIVE ) THEN
 
                IF ( .NOT. DESC3( CTM_CONC_1 ) ) THEN
                   XMSG = 'Could not get '
@@ -277,9 +281,28 @@ C proc 0 has CTM_CONC_1 open
 
          END IF   ! .NOT. OPEN S_CGRID
 
-         CALL SUBST_BARRIER
-
       END IF   ! FIRSTIME
+
+#ifdef parallel_io
+      IF ( IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. FLUSH3 ( S_CGRID ) ) THEN
+            XMSG = 'Could not flush ' // TRIM(S_CGRID)
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+      CALL SE_BARRIER
+      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. OPEN3( S_CGRID, FSNONIO, PNAME ) ) THEN
+            XMSG = 'Could not open ' // TRIM(S_CGRID)
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+
+      IF ( .NOT. WRITE3( S_CGRID, ALLVAR3, JDATE, JTIME, CGRID ) ) THEN
+         XMSG = 'Could not write S_CGRID'
+         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+      END IF
+#else
 
 #ifdef parallel
       IF ( .NOT. PTRWRITE3( S_CGRID, ALLVAR3, JDATE, JTIME, CGRID ) ) THEN
@@ -291,6 +314,8 @@ C proc 0 has CTM_CONC_1 open
          XMSG = 'Could not write S_CGRID'
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
+#endif
+
 #endif
 
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )

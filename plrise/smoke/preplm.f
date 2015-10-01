@@ -44,6 +44,10 @@ C Revision History:
 C    Copied from preplm.f v 1.2 in DAQM-V2 Emissions Preprocessor by
 C        M. Houyoux 3/99
 C    16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C     Aug 2015, D. Wong: - Used assumed shape array declaration and adjusted
+C                            array accessing index accordingly
+C                        - Replaced run time dynamical array with allocatable 
+C                            array
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -82,20 +86,20 @@ C (Note: All met parms are per-source)
       REAL,    INTENT( IN )  :: HTS             ! stack height
       REAL,    INTENT( IN )  :: PSFC            ! surface pressure
       REAL,    INTENT( IN )  :: TS              ! surface temperature
-      REAL,    INTENT( IN )  :: DDZF( EMLAYS )  ! 1/( zf(l) - zf(l-1) )
-      REAL,    INTENT( IN )  :: QV  ( EMLAYS )  ! mixing ratio
-      REAL,    INTENT( IN )  :: TA  ( EMLAYS )  ! absolute temperature
-      REAL,    INTENT( IN )  :: UW  ( EMLAYS )  ! x-direction winds
-      REAL,    INTENT( IN )  :: VW  ( EMLAYS )  ! y-direction winds
-      REAL,    INTENT( IN )  :: ZH  ( EMLAYS )  ! layer center  height [m]
-      REAL,    INTENT( IN )  :: ZF  ( EMLAYS )  ! layer surface height [m]
-      REAL,    INTENT( IN )  :: PRES( EMLAYS+1 ) ! pres at full layer hts (mod by YOJ)
+      REAL,    INTENT( IN )  :: DDZF( : )       ! 1/( zf(l) - zf(l-1) )
+      REAL,    INTENT( IN )  :: QV  ( : )       ! mixing ratio
+      REAL,    INTENT( IN )  :: TA  ( : )       ! absolute temperature
+      REAL,    INTENT( IN )  :: UW  ( : )       ! x-direction winds
+      REAL,    INTENT( IN )  :: VW  ( : )       ! y-direction winds
+      REAL,    INTENT( IN )  :: ZH  ( : )       ! layer center  height [m]
+      REAL,    INTENT( IN )  :: ZF  ( : )       ! layer surface height [m]
+      REAL,    INTENT( IN )  :: PRES( 0: )      ! pres at full layer hts (mod by YOJ)
       INTEGER, INTENT( OUT ) :: LSTK            ! first L: ZF(L) > STKHT
       INTEGER, INTENT( OUT ) :: LPBL            ! first L: ZF(L) > mixing layer
       REAL,    INTENT( OUT ) :: TSTK            ! temperature @ top of stack [K]
       REAL,    INTENT( OUT ) :: WSTK            ! wind speed @ top of stack [m/s]
-      REAL,    INTENT( OUT ) :: DTHDZ( EMLAYS ) ! potential temp. grad. 
-      REAL,    INTENT( OUT ) :: WSPD ( EMLAYS ) ! wind speed [m/s]
+      REAL,    INTENT( OUT ) :: DTHDZ( : )      ! potential temp. grad. 
+      REAL,    INTENT( OUT ) :: WSPD ( : )      ! wind speed [m/s]
 
 C Local Variables:
       INTEGER      L, M
@@ -105,13 +109,25 @@ C Local Variables:
       REAL         THETG
       REAL         THV1
       REAL         THVK
-      REAL         TV( EMLAYS )   ! Virtual temperature
-      REAL         TF( EMLAYS )   ! Full-layer height temperatures
+!     REAL         TV( EMLAYS )   ! Virtual temperature
+!     REAL         TF( EMLAYS )   ! Full-layer height temperatures
+      REAL, ALLOCATABLE :: TV( : )   ! Virtual temperature
+      REAL, ALLOCATABLE :: TF( : )   ! Full-layer height temperatures
       REAL         P, Q
       REAL         DZZ
       REAL         DELZ
 
+      CHARACTER( 240 ) :: XMSG = ' '
+      INTEGER :: STAT
+
 C-----------------------------------------------------------------------
+
+      ALLOCATE (TV(EMLAYS), TF(EMLAYS), STAT=STAT)
+      IF (STAT .NE. 0) THEN
+         WRITE( XMSG, *) ' Cannot allocate TV and TF in PREPLM'
+         CALL M3MSG2( XMSG )
+         STOP
+      END IF
 
 C Convert pressure to millibars from pascals, compute wind speed,
 C and virtual temperature
@@ -140,6 +156,7 @@ C Interpolate the virtual temperatures at the full-layer face heights (at ZFs)
       TF( L ) = TV( L ) + ( TV( L ) - TV( L-1 ) ) * ( ZF( L ) - ZH( L ) ) / DELZ
 
       THV1  = TF( 1 ) * ( 1000.0 / PRES( 2 ) ) ** 0.286
+
 !     DTHDZ( 1 ) = ( THV1 - THETG ) / ZF( 1 )
 
       DO L = 2, EMLAYS
@@ -160,13 +177,13 @@ C overrides the layer 1 gradient determined above
       IF ( .NOT. FIREFLG ) THEN
 C Interpolate ambient temp. and windspeed to top of stack using DEG deg. polynomial
          M    = MAX( 1, LSTK - DEG - 1 )
-         TSTK =      POLY( HTS, ZH( M ), TA( M ), DEG )
-         WSTK = MAX( POLY( HTS, ZH( M ), WSPD( M ), DEG ), 0.1 )
+         TSTK =      POLY( HTS, ZH( M:EMLAYS ), TA( M:EMLAYS ), DEG )
+         WSTK = MAX( POLY( HTS, ZH( M:EMLAYS ), WSPD( M:EMLAYS ), DEG ), 0.1 )
       ELSE
          TSTK = TS
          WSTK = WSPD( 1 )
       END IF
 
-      RETURN
+      DEALLOCATE (TV, TF)
 
       END SUBROUTINE PREPLM

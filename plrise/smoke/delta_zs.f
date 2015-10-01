@@ -31,6 +31,7 @@ C Function: Compute ZSTK and DDZF
 
 C Revision History:
 C     20 Nov 2007 J.Young: initial implementation
+C     Aug 2015 D. Wong:    Used assumed shape array declaration
 
 C-----------------------------------------------------------------------
 
@@ -40,9 +41,9 @@ C-----------------------------------------------------------------------
       INTEGER, INTENT( IN )  :: MY_NSRC
       INTEGER, INTENT( IN )  :: SRC_MAP( : )
       REAL,    INTENT( IN )  :: STKHT( : )
-      REAL,    INTENT( IN )  :: ZF  ( EMLAYS,MY_NSRC )
-      REAL,    INTENT( OUT ) :: ZSTK( EMLAYS,MY_NSRC )
-      REAL,    INTENT( OUT ) :: DDZF( EMLAYS,MY_NSRC )
+      REAL,    INTENT( IN )  :: ZF  ( :,: )
+      REAL,    INTENT( OUT ) :: ZSTK( :,: )
+      REAL,    INTENT( OUT ) :: DDZF( :,: )
 
       REAL    ZF0, ZF1
       INTEGER L, S, SRC

@@ -68,6 +68,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -343,6 +344,9 @@ C Test opening existing conc file for update
          CALL SUBST_BARRIER
          CALL OPCONC ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
       END IF
+
+      CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
+      CALL OPWDEP  ( STDATE, STTIME, TSTEP( 1 ) )
 
 !     IF ( MYPE .EQ. 0 ) THEN
 !        IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN

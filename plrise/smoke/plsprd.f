@@ -38,6 +38,7 @@ C Subroutines and Functions Called:
  
 C Revision History:
 C   Initially provided by J. Godowitch ( EPA, 9/03 )
+C   Aug 2015, D. Wong: Used assumed shape array declaration
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -61,8 +62,8 @@ C-----------------------------------------------------------------------
        
 C Arguments:
 
-       REAL,    INTENT ( IN ) :: DTHDZ( KZ ) ! potential temperature lapse rate (K/m)
-       REAL,    INTENT ( IN ) :: ZF( 0:KZ )  ! full-layer heights (m)
+       REAL,    INTENT ( IN ) :: DTHDZ( : )  ! potential temperature lapse rate (K/m)
+       REAL,    INTENT ( IN ) :: ZF( 0:  )   ! full-layer heights (m)
        INTEGER, INTENT ( IN ) :: KZ          ! number of emissions layers
        REAL,    INTENT ( IN ) :: CEFSTK      ! effective stack height (m)
 !      REAL,    INTENT ( IN ) :: HTMIX       ! mixing height (m)

@@ -33,10 +33,13 @@ C 2010-Jan-29 - removed unneccesary CLOSE3 statement for CTM_DEPV_DIAG file
 C               to eliminate potential MPI race condition (D.Wong)
 C 2011-Feb-16 - replaced I/O API include files with UTILIO_DEFN (S.Roselle)
 C 2011-May-20 - modified diagnostic file header creation (D.Schwede)
+C 2015-Aug    - added a conditional statement to allow only I/O
+C                 processors to open CTM_DEPV_DIAG file (D. Wong)
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE DEPVVARS
       USE UTILIO_DEFN
+!     USE pio_module
 
       IMPLICIT NONE
  
@@ -74,70 +77,72 @@ C-----------------------------------------------------------------------
 
 C Try to open existing file for update
 
-      IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSRDWR3, PNAME ) ) THEN
+      IF ( IO_PE_INCLUSIVE ) THEN   ! open new
 
-         XMSG = 'Could not open ' // CTM_DEPV_DIAG // ' file for update - '
-     &        // 'try to open new'
-         CALL M3MESG( XMSG )
+         IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSRDWR3, PNAME ) ) THEN
+
+            XMSG = 'Could not open ' // CTM_DEPV_DIAG // ' file for update - '
+     &           // 'try to open new'
+            CALL M3MESG( XMSG )
 
 C Set output file characteristics based on GRIDDESC and open the dep velocity dignostic file
 
-         SDATE3D = JDATE
-         STIME3D = JTIME
-         TSTEP3D = TSTEP
-         CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
+            SDATE3D = JDATE
+            STIME3D = JTIME
+            TSTEP3D = TSTEP
+            CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         FTYPE3D = GRDDED3
-!        NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES
-         NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES
-         NCOLS3D = GL_NCOLS
-         NROWS3D = GL_NROWS
-         NLAYS3D =     1
-         NTHIK3D =     1
-         GDTYP3D = GDTYP_GD
-         P_ALP3D = P_ALP_GD
-         P_BET3D = P_BET_GD 
-         P_GAM3D = P_GAM_GD
-         XORIG3D = XORIG_GD
-         YORIG3D = YORIG_GD
-         XCENT3D = XCENT_GD
-         YCENT3D = YCENT_GD
-         XCELL3D = XCELL_GD
-         YCELL3D = YCELL_GD
-         VGTYP3D = VGTYP_GD
-         VGTOP3D = VGTOP_GD
-         DO L = 1, NLAYS3D + 1
-            VGLVS3D( L ) = VGLVS_GD( L )
+            FTYPE3D = GRDDED3
+!           NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES + N_SDEPV_NAMES
+            NVARS3D = N_GDEPV_NAMES + N_ADEPV_NAMES
+            NCOLS3D = GL_NCOLS
+            NROWS3D = GL_NROWS
+            NLAYS3D =     1
+            NTHIK3D =     1
+            GDTYP3D = GDTYP_GD
+            P_ALP3D = P_ALP_GD
+            P_BET3D = P_BET_GD 
+            P_GAM3D = P_GAM_GD
+            XORIG3D = XORIG_GD
+            YORIG3D = YORIG_GD
+            XCENT3D = XCENT_GD
+            YCENT3D = YCENT_GD
+            XCELL3D = XCELL_GD
+            YCELL3D = YCELL_GD
+            VGTYP3D = VGTYP_GD
+            VGTOP3D = VGTOP_GD
+            DO L = 1, NLAYS3D + 1
+               VGLVS3D( L ) = VGLVS_GD( L )
             END DO
-         GDNAM3D = GRID_NAME  ! from HGRD_DEFN
+            GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
-         FDESC3D = ' '   ! array
+            FDESC3D = ' '   ! array
 
-         L = LEN_TRIM( DEPV_METHOD )
-         FDESC3D( 1 ) = 'Instanteous values of dry deposition velocities:'
-     &               // ' the gas phase velocities are' 
-         FDESC3D( 2 ) = 'estimated by the '
-     &               //  DEPV_METHOD( 1:L ) // ' algorithm.'
+            L = LEN_TRIM( DEPV_METHOD )
+            FDESC3D( 1 ) = 'Instanteous values of dry deposition velocities:'
+     &                  // ' the gas phase velocities are' 
+            FDESC3D( 2 ) = 'estimated by the '
+     &                  //  DEPV_METHOD( 1:L ) // ' algorithm.'
 
-         N = 0
+            N = 0
 
-         DO V = 1, N_GDEPV_NAMES
-            N = N + 1
-            VTYPE3D( V ) = M3REAL
-            VNAME3D( V ) = GDEPV_NAMES( V )
-            UNITS3D( V ) = 'cm/sec'
-            VDESC3D( V ) = 'gas phase dry deposition velocity'
-         END DO
+            DO V = 1, N_GDEPV_NAMES
+               N = N + 1
+               VTYPE3D( V ) = M3REAL
+               VNAME3D( V ) = GDEPV_NAMES( V )
+               UNITS3D( V ) = 'cm/sec'
+               VDESC3D( V ) = 'gas phase dry deposition velocity'
+            END DO
 
-         N = N_GDEPV_NAMES
+            N = N_GDEPV_NAMES
 
-         DO V = 1, N_ADEPV_NAMES
-            N = N + 1
-            VTYPE3D( N ) = M3REAL
-            VNAME3D( N ) = ADEPV_NAMES( V )
-            UNITS3D( N ) = 'cm/sec'
-            VDESC3D( N ) = 'aerosol phase dry deposition velocity'
-         END DO
+            DO V = 1, N_ADEPV_NAMES
+               N = N + 1
+               VTYPE3D( N ) = M3REAL
+               VNAME3D( N ) = ADEPV_NAMES( V )
+               UNITS3D( N ) = 'cm/sec'
+               VDESC3D( N ) = 'aerosol phase dry deposition velocity'
+            END DO
 
 !        N = N_GDEPV_NAMES + N_ADEPV_NAMES
 
@@ -152,12 +157,13 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
 
 C Open diagnostic file, then close it for subsequent open by all processors
 
-         IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNEW3, PNAME ) ) THEN
-            XMSG = 'Could not create '// TRIM( CTM_DEPV_DIAG ) // ' file'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+            IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNEW3, PNAME ) ) THEN
+               XMSG = 'Could not create '// TRIM( CTM_DEPV_DIAG ) // ' file'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
 
-      END IF
+         END IF
+      END IF   ! END OF IO_PE_INCLUSIVE
 
       RETURN
       END

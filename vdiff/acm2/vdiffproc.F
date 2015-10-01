@@ -71,6 +71,11 @@ C 31 Jul 14 J.Young: incorporate gravitational settling for J-,K-mode aerosols
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C 03 Jul 15 J.Young: put sedi stuff into a module
 C 13 Aug 15 J.Bash: updated for MP model
+C 15 Aug 15 D.Wong: - Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O 
+C                     implementation
+C                   - Added a block of code to allow non I/O processors
+C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
+C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -113,6 +118,7 @@ C Local Variables:
       CHARACTER( 80 ) :: VARDESC                ! env variable description
       LOGICAL, SAVE :: GRAV_SETL
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      LOGICAL, SAVE :: WRITE_FIRSTIME = .TRUE.
       INTEGER, SAVE :: WSTEP  = 0               ! local write counter
       INTEGER  STATUS                           ! ENV... status
 
@@ -238,9 +244,17 @@ C Get diagnostic files flag.
          IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
  
 C Set output file characteristics based on COORD.EXT and open the dry dep file
-         IF ( MYPE .EQ. 0 ) CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
+         IF ( IO_PE_INCLUSIVE ) CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
          
-         IF ( ( ABFLUX .OR. HGBIDI ) .AND. MYPE .EQ. 0 ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+         IF ( ( ABFLUX .OR. HGBIDI ) .AND. IO_PE_INCLUSIVE ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+
+C Open vdiff diagnostics file (ioapi header from cgrd)
+         IF ( VDIFFDIAG ) THEN
+            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
+               XMSG = 'Failure initializing vdiff diagnostics module'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
 
 C Allocate and initialize dry deposition array
 
@@ -286,14 +300,6 @@ C Set up for grav. settling
             END IF
          END IF
 
-C Open vdiff diagnostics file (ioapi header from cgrd)
-         IF ( VDIFFDIAG ) THEN
-            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
-               XMSG = 'Failure initializing vdiff diagnostics module'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-         END IF
-
          N_SPC_CGRID = SIZE ( CGRID,4 )
 
          ALLOCATE ( CNGRD( N_SPC_CGRID,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
@@ -310,7 +316,7 @@ C Open vdiff diagnostics file (ioapi header from cgrd)
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             DDEPJ = 0.0   ! array assignment
-            IF ( MYPE .EQ. 0 ) CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+            IF ( IO_PE_INCLUSIVE ) CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             IF ( FST ) THEN
                ALLOCATE ( DDEPJ_FST( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
                IF ( ASTAT .NE. 0 ) THEN
@@ -318,7 +324,7 @@ C Open vdiff diagnostics file (ioapi header from cgrd)
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
                DDEPJ_FST = 0.0   ! array assignment
-               IF ( MYPE .EQ. 0 ) CALL OPDDEP_FST ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+               IF ( IO_PE_INCLUSIVE ) CALL OPDDEP_FST ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             END IF   ! if Fst
          END IF   ! if Mosaic
 
@@ -438,6 +444,31 @@ C If last call this hour:  write accumulated depositions:
          MTIME = JTIME
          CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) )
          WSTEP = 0
+
+#ifdef parallel_io
+         IF ( WRITE_FIRSTIME ) THEN
+            WRITE_FIRSTIME = .FALSE.
+
+            IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+               IF ( MOSAIC ) THEN
+                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSNONIO, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_MOS)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+                  IF ( FST ) THEN
+                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSNONIO, PNAME ) ) THEN
+                        XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_FST)
+                        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                     END IF
+                  END IF
+               END IF
+            END IF
+         END IF
+#endif
 
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
