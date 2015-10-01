@@ -197,6 +197,7 @@ CONTAINS
      
       RTOL( ind_L_H2O2 ) = 1.0d-3
       RTOL( ind_L_MGLY ) = 1.0d-3
+      RTOL( ind_L_GLY )  = 1.0d-3
 
       DDIAM = 1.6D-5 ! Droplet diameter (meters)
 

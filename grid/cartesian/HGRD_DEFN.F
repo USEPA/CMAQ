@@ -40,6 +40,8 @@ C                   J Young    22 Dec 05: move proc. anayl. stuff to PAGRD_DEFN
 C                   S. Roselle 29 Mar 11: Replaced I/O API include files
 C                                         with UTILIO_DEFN
 C                   D. Wong    11 May 11: incorporated twoway model implementation
+C                   D. Wong    Aug 15:    Added a new logical variable, IO_PE_INCLUSIVE
+C                                           to facilitate parallel I/O implementation
 C.......................................................................
 
       IMPLICIT NONE
@@ -107,6 +109,8 @@ C maximum stencil displacement in the north, east, south, and west direction
       INTEGER, PARAMETER :: MEDIS = 2
       INTEGER, PARAMETER :: MSDIS = 2
       INTEGER, PARAMETER :: MWDIS = 2
+
+      LOGICAL :: IO_PE_INCLUSIVE
 
 C BLKPRM
 

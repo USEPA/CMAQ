@@ -35,6 +35,9 @@ C     13 Apr 2010 D. Wong: parallel bug fix - in subroutine ungridb2
 C                          calculations use the lower left corner of the
 C                          original domain
 C     27 Jul 2011 David Wong: - fixed the description of XBND
+C     12 Aug 2015 David Wong: - Based on the condition of MY_NSRC ( > 0
+C                               or not) to determine execution of certain 
+C                               section of code or not
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: BILIN_TYPE
@@ -187,28 +190,30 @@ C Allocate read buffers for gridded, layered cross- and dot-point met data
             BILIN_DATA( N )%LEN1 = 4
             BILIN_DATA( N )%LEN2 = MSRC
 
+            IF (MY_NSRC( N ) > 0) THEN
 C Allocate ungridding arrays
-            ALLOCATE( BILIN_DATA( N )%NX( 4,MSRC ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'NX', PNAME )
-            ALLOCATE( BILIN_DATA( N )%ND( 4,MSRC ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'ND', PNAME )
-            ALLOCATE( BILIN_DATA( N )%CX( 4,MSRC ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'CX', PNAME )
-            ALLOCATE( BILIN_DATA( N )%CD( 4,MSRC ), STAT=IOS )
-            CALL CHECKMEM( IOS, 'CD', PNAME )
+               ALLOCATE( BILIN_DATA( N )%NX( 4,MSRC ), STAT=IOS )
+               CALL CHECKMEM( IOS, 'NX', PNAME )
+               ALLOCATE( BILIN_DATA( N )%ND( 4,MSRC ), STAT=IOS )
+               CALL CHECKMEM( IOS, 'ND', PNAME )
+               ALLOCATE( BILIN_DATA( N )%CX( 4,MSRC ), STAT=IOS )
+               CALL CHECKMEM( IOS, 'CX', PNAME )
+               ALLOCATE( BILIN_DATA( N )%CD( 4,MSRC ), STAT=IOS )
+               CALL CHECKMEM( IOS, 'CD', PNAME )
 
 C Compute un-gridding matrices for cross- and dot-point met data
-            CALL UNGRIDB2( 'X', MY_CCOLS, MY_CROWS, MY_CXORIG, MY_CYORIG,
-     &                     XCELLCG, YCELLCG, MSRC,
-     &                     MY_XLOCA( N )%ARRY, MY_YLOCA( N )%ARRY,
-     &                     BILIN_DATA( N )%NX,
-     &                     BILIN_DATA( N )%CX, I )
-            CALL UNGRIDB2( 'D', MY_DCOLS, MY_DROWS, MY_DXORIG, MY_DYORIG,
-     &                     XCELLDG, YCELLDG, MSRC,
-     &                     MY_XLOCA( N )%ARRY, MY_YLOCA( N )%ARRY,
-     &                     BILIN_DATA( N )%ND,
-     &                     BILIN_DATA( N )%CD, J )
-            WRITE( LOGDEV,94030 ) I, J
+               CALL UNGRIDB2( 'X', MY_CCOLS, MY_CROWS, MY_CXORIG, MY_CYORIG,
+     &                        XCELLCG, YCELLCG, MSRC,
+     &                        MY_XLOCA( N )%ARRY, MY_YLOCA( N )%ARRY,
+     &                        BILIN_DATA( N )%NX,
+     &                        BILIN_DATA( N )%CX, I )
+               CALL UNGRIDB2( 'D', MY_DCOLS, MY_DROWS, MY_DXORIG, MY_DYORIG,
+     &                        XCELLDG, YCELLDG, MSRC,
+     &                        MY_XLOCA( N )%ARRY, MY_YLOCA( N )%ARRY,
+     &                        BILIN_DATA( N )%ND,
+     &                        BILIN_DATA( N )%CD, J )
+               WRITE( LOGDEV,94030 ) I, J
+            END IF ! MY_NSRC( N ) > 0
 
          END DO
 

@@ -53,6 +53,12 @@ C     3/01/11 S.Roselle       replaced I/O API include files with UTILIO_DEFN
 C     5/11/11 D.Wong:         incorporated twoway model implementation
 C     02Aug12 S.Roselle:      instrumented to output transmissivity for 
 C                             convective and resolved clouds
+C     Aug 2015 D. Wong        Extracted section of code that deals with creating
+C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in
+C                             opwdep.F
+C                             Added a section of code to let non I/O processors
+C                             top open CTM_WET_DEP_1 and CTM_WET_DEP_2 for
+C                             parallel I/O implementation
 
 C-----------------------------------------------------------------------
 
@@ -137,9 +143,10 @@ C...........Local Variables
       REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )   ! resolved cloud transmissivity
       REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: ) ! subgrid cloud transmissivity
 
+      REAL ACCM_WDEP                 ! accumulated wet dep for Hg bidi
+
       REAL FAC                       ! temp conversion factor
       REAL CCMIN
-      REAL ACCM_WDEP                 ! accumulated wet dep for Hg bidi
 
       INTEGER      GXOFF, GYOFF              ! global origin offset from file
 C for INTERPX
@@ -266,279 +273,6 @@ C...check to see if user wants to output extra diagnostic files
           WDEP_MAP( VAR ) = TR_STRT - 1 + TR_WDEP_MAP( SPC )
         END DO
 
-C Try to open existing wet deposition file for update
-
-        IF ( MYPE .EQ. 0 ) THEN
-
-          IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSRDWR3, PNAME ) ) THEN
-
-            XMSG = 'Could not open ' // CTM_WET_DEP_1 // ' file for update - '
-     &           // 'try to open new'
-            CALL M3MESG( XMSG )
-
-C...Create wet deposition file:
-C...   copy most of header description from
-C...   MET_CRO_2D and initialize depositions to zero.
-
-C...open MET_CRO_2D
-
-            IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
-              XMSG = 'Could not open '// MET_CRO_2D // ' file'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-C...get description from the met file
-
-            IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
-              XMSG = 'Could not get ' // MET_CRO_2D //' file description'
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            NCOLS3D = GL_NCOLS
-            NROWS3D = GL_NROWS
-
-            XORIG3D = XORIG_GD
-            YORIG3D = YORIG_GD
-
-C...advance to time variable for the output file to the next hour
-
-            SDATE3D = JDATE
-            STIME3D = 10000 * ( JTIME / 10000 )     !  clear MMSS fields
-            TSTEP3D = 010000   ! 1-hour timesteps (hhmmss)
-            CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  on the next hour
-
-            NVARS3D = N_SPC_WDEP + 1
-
-C...define wet deposition output descriptors for gaseous species
-
-            SPC = 0
-            STRT = 1
-            FINI = N_GC_WDEP
-            DO VAR = STRT, FINI
-              SPC = SPC + 1
-              VTYPE3D ( VAR ) = M3REAL
-              VNAME3D ( VAR ) = GC_WDEP( SPC )
-              UNITS3D ( VAR ) = 'kg/hectare'
-              VDESC3D ( VAR ) = 'hourly wet deposition values'
-            END DO
-
-C...define wet deposition output descriptors for aerosol species
-
-            SPC = 0
-            STRT = N_GC_WDEP + 1
-            FINI = N_GC_WDEP + N_AE_WDEP
-            DO VAR = STRT, FINI
-              SPC = SPC + 1
-              VTYPE3D ( VAR ) = M3REAL
-              VNAME3D ( VAR ) = AE_WDEP( SPC )
-              IF ( INDEX( AE_WDEP( SPC ), 'NUM' ) .GT. 0 ) THEN
-                UNITS3D ( VAR ) = 'number/hectare'
-              ELSE IF ( INDEX( AE_WDEP( SPC ), 'SRF' ) .GT. 0 ) THEN
-                UNITS3D ( VAR ) = 'm2/hectare'
-              ELSE
-                UNITS3D ( VAR ) = 'kg/hectare'
-              END IF
-              VDESC3D ( VAR ) = 'hourly wet deposition values'
-            END DO
-
-C...define wet deposition output descriptors for non-reactive species
-
-            SPC = 0
-            STRT = N_GC_WDEP + N_AE_WDEP + 1
-            FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP
-            DO VAR = STRT, FINI
-              SPC = SPC + 1
-              VTYPE3D ( VAR ) = M3REAL
-              VNAME3D ( VAR ) = NR_WDEP( SPC )
-              UNITS3D ( VAR ) = 'kg/hectare'
-              VDESC3D ( VAR ) = 'hourly wet deposition values'
-            END DO
-
-C...define wet deposition output descriptors for tracer species
-
-            SPC = 0
-            STRT = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + 1
-            FINI = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
-            DO VAR = STRT, FINI
-              SPC = SPC + 1
-              VTYPE3D ( VAR ) = M3REAL
-              VNAME3D ( VAR ) = TR_WDEP( SPC )
-              UNITS3D ( VAR ) = 'kg/hectare'
-              VDESC3D ( VAR ) = 'hourly wet deposition values'
-            END DO
-
-C...define output descriptor for hydrogen concentration
-
-            VAR = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP + 1
-            VTYPE3D( VAR ) = M3REAL
-            VNAME3D( VAR ) = 'HPLUS'
-            UNITS3D( VAR ) = 'kg/hectare'
-            VDESC3D( VAR ) = 'hourly wet deposition values'
-
-C...initialize the file descriptors
-
-            FDESC3D( 1 ) = 'hourly 1-layer cross-point wet deposition '
-     &                       // 'from all cloud types'
-            DO L = 2 , MXDESC3
-              FDESC3D( L ) = ' '
-            END DO
-
-            GDNAM3D = GRID_NAME  ! from HGRD_DEFN
-
-C...try to open the output file new
-
-            IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSNEW3, PNAME ) ) THEN
-              XMSG = 'Could not create '// CTM_WET_DEP_1 // ' file'
-              CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-            END IF
-
-          END IF   ! open CTM_WET_DEP_1 read/write
-
-C...open the diagnostic file if user asked for it
-
-          IF ( CLD_DIAG ) THEN
-
-C...Try to open existing file for update
-
-            IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSRDWR3, PNAME ) ) THEN
-
-              XMSG = 'Could not open ' // CTM_WET_DEP_2 // ' file for update - '
-     &             // 'try to open new'
-              CALL M3MESG( XMSG )
-
-C...copy most of header description from
-C...CTM_WET_DEP_1 and initialize depositions to zero.
-
-C...get description from the other wet dep file
-
-              IF ( .NOT. DESC3( CTM_WET_DEP_1 ) ) THEN
-                XMSG = 'Could not get ' // CTM_WET_DEP_1 //' file description'
-                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-              END IF
-
-C...advance to time variable for the output file to the next hour
-
-              SDATE3D = JDATE
-              STIME3D = 10000 * ( JTIME / 10000 )     !  clear MMSS fields
-              TSTEP3D = 010000   ! 1-hour timesteps (hhmmss)
-              CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  on the next hour
-
-              NVARS3D = N_SPC_WDEP + 8 + 4
-
-C...define output descriptor for pressure at the lifting condensation
-C...level (LCL)
-
-              VAR = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP + 2
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'PLCL'
-              UNITS3D( VAR ) = 'Pa'
-              VDESC3D( VAR ) = 'pressure at lifting condensation level, '
-     &                         // 'or MISSING = -9999.9'
-
-C...define output descriptor for cloud bottom layer number
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'CLOUD_BOTTOM'
-              UNITS3D( VAR ) = 'layer-number'
-              VDESC3D( VAR ) =
-     &              'layer containing bottom of cloud, or MISSING = -9999.9'
-
-C...define output descriptor for precipitating cloud top layer number
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'PR_CLOUDTOP'
-              UNITS3D( VAR ) = 'layer-number'
-              VDESC3D( VAR ) =
-     &              'layer containing top of PR cloud, or MISSING = -9999.9'
-
-C...define output descriptor for non-precipitating cloud top layer number
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'NP_CLOUDTOP'
-              UNITS3D( VAR ) = 'layer-number'
-              VDESC3D( VAR ) =
-     &              'layer containing top of NP cloud, or MISSING = -9999.9'
-
-C...define output descriptor for rain event flag
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'RAIN_FLAG'
-              UNITS3D( VAR ) = '1 or 0'
-              VDESC3D( VAR ) = 'Rain-event flag'
- 
-C...define output descriptor for precitating cloud fraction
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'PR_CLDFRAC'
-              UNITS3D( VAR ) = '----'
-              VDESC3D( VAR ) = 'PR cloud fraction'
-
-C...define output descriptor for non-precipitating cloud fraction
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'NP_CLDFRAC'
-              UNITS3D( VAR ) = '----'
-              VDESC3D( VAR ) = 'NP cloud fraction'
-
-C...define output descriptor for precipitating cloud transmissivity
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'PR_TRANS'
-              UNITS3D( VAR ) = '----'
-              VDESC3D( VAR ) = 'PR cloud transmissivity'
-
-C...define output descriptor for non-precipitating cloud transmissivity
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'NP_TRANS'
-              UNITS3D( VAR ) = '----'
-              VDESC3D( VAR ) = 'NP cloud transmissivity'
-
-C...define output descriptor for resolved cloud transmissivity
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'RES_TRANS'
-              UNITS3D( VAR ) = '----'
-              VDESC3D( VAR ) = 'Resolved cloud transmissivity'
-
-C...define output descriptor for overall cloud transmissivity
-
-              VAR = VAR + 1
-              VTYPE3D( VAR ) = M3REAL
-              VNAME3D( VAR ) = 'CLD_TRANS'
-              UNITS3D( VAR ) = '----'
-              VDESC3D( VAR ) = 'Total cloud transmissivity'
-
-C...initialize the file descriptors
-
-              FDESC3D( 1 ) = 'hourly 1-layer cross-point wet deposition '
-     &                           // 'from sub-grid clouds and cloud data'
-              DO L = 2 , MXDESC3
-                FDESC3D( L ) = ' '
-              END DO
-
-C...try to open the diagnostic output file
-
-              IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSNEW3, PNAME ) ) THEN
-                XMSG = 'Could not create '// CTM_WET_DEP_2 // ' file'
-                CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-              END IF
-
-            END IF   ! open CTM_WET_DEP_2 read/write
-
-          END IF   ! CLD_DIAG
-
-        END IF   ! MYPE = 0
-
         IF ( N_AE_SPC .GT. 0 ) THEN
 C...create aerosol species pointers to distinguish micro-grams / m**3
 C...  # / m**3 (number density), and m**2 / m**3 (surface area) units
@@ -610,6 +344,23 @@ C...initialize the deposition array before processing clouds
 
         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+#ifdef parallel_io
+         IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSNONIO, PNAME ) ) THEN
+               XMSG = 'Could not open ' // TRIM(CTM_WET_DEP_1)
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+         IF (CLD_DIAG) THEN
+            IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_WET_DEP_2)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+            END IF
+         END IF
+#endif
 
       END IF   ! FIRSTIME
 
@@ -759,7 +510,7 @@ C...share wet deposition with bidirectional surface exchange algorithms
            END IF
         END DO
       END IF
-      
+
 C...now check to see if it's time to write the deposition file
 
       CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) ) ! set mdate:mtime to next tstep

@@ -33,6 +33,8 @@ C      Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with UTILIO_DEFN
 C      Modified 08/10/2011 by David Wong
 C          -- Called MPI_INIT if it is a regular CMAQ run
+C      Modified 08/2011 by David Wong
+C          -- Replaced SUBST_MPI with mpif.h
  
 C Argument List Description:
 C  In:
@@ -57,7 +59,8 @@ C........................................................................
 
 C Include Files
 
-      INCLUDE SUBST_MPI         ! MPI definitions and parameters
+!     INCLUDE SUBST_MPI         ! MPI definitions and parameters
+      include 'mpif.h'
 
 C Arguments
 

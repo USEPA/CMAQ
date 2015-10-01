@@ -46,6 +46,10 @@ C                         in case ALLVAR3 cannot deal with large CONC size
 C   14 Sep 10 J.Young: fix ALLVAR3 bug in writing W_VEL
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: - let non I/O PEs open CTM_CONC_1 for read only
+C   12 Aug 15 D.Wong: - Replaced MYPE with IO_PE_INCLUSIVE for parallel
+C                       I/O implementation
+C                     - Added code to allow non IO processor to open
+C                       CTM_CONC_1
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -126,8 +130,12 @@ C-----------------------------------------------------------------------
 
 C open conc file for update
 
-         IF ( MYPE .NE. 0 ) THEN
+         IF ( .not. IO_PE_INCLUSIVE ) THEN
+#ifdef parallel_io
+            IF ( .NOT. OPEN3( CTM_CONC_1, FSNONIO, PNAME ) ) THEN
+#else
             IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
+#endif
                XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF

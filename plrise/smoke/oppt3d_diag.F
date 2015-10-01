@@ -44,6 +44,8 @@ C     29 Jan 2010 D. Wong: Eliminate potential race condition at the MYPE = 0
 C                          to open the diagnostic file. Eliminate the BARRIER
 C                          and the CLOSE3 and OPEN3.
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C     Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
+C                            implementation
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -159,7 +161,7 @@ C Set output file characteristics based on GRID_CONF module and open the 3D emis
 
 C create header
 
-      IF ( MYPE .EQ. 0 ) THEN   ! open new
+      IF ( IO_PE_INCLUSIVE ) THEN   ! open new
          IF ( .NOT. OPEN3( PT3DNAME, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( PT3DNAME )
             CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT1 )
