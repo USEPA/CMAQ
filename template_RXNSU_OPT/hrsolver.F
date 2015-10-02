@@ -118,9 +118,6 @@ R5      REAL( 8 ) DTG         ! Time step in degrade routines, sec
 
 R5      INTERFACE ! for degrade algorithm
 R5        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
-R5          USE RXNS_DATA
-R5          USE DEGRADE_SETUP_TOX
-R5          IMPLICIT NONE
 R5          REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
 R5          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
 R5          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
