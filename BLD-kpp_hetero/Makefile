@@ -33,8 +33,8 @@ LINK_FLAGS = -i-static
 else
  FC = /usr/local/pgi/linux86-64/10.5/bin/pgf90
  CC    = /usr/local/pgi/linux86-64/10.5/bin/pgcc
-#FC = pgf90
-#CC = pgcc
+ FC = pgf90
+ CC = pgcc
 
 # compiler options for subroutines
  F_FLAGS = -Mfixed -Mextend -Mbounds  -Mchkfpstk -Mchkptr -Mchkstk -traceback -Ktrap=fp -O3 -I . -g
@@ -44,9 +44,9 @@ else
 
  ifeq ($(COMPILER),GFORT)
 #  FC    = /usr/local/gcc-4.6/bin/gfortran
-   CC    = /usr/bin/gcc
+#  CC    = /usr/bin/gcc
    FC    = gfortran
-#  CC    = gcc
+   CC    = gcc
    f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -fcheck=all -I. 
    f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 -I. 
    F_FLAGS       = $(f_FLAGS)

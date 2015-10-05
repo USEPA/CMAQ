@@ -1078,8 +1078,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: A2'
      &      / 9X,'REAL( 8 ), INTENT( IN ) :: B2'
      &      / 9X,'INTRINSIC DEXP'
-     &      / 9X 'HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )'
-     &      / 9X 'HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )'
+     &      / 9X,'HALOGEN_FALLOFF = A1 * DEXP( B1 * PRESS ) + A2 * DEXP( B2 * PRESS )'
+     &      / 9X,'HALOGEN_FALLOFF = DMIN1 (MAX_RATE, HALOGEN_FALLOFF )'
      &      / 9X,'RETURN'
      &      / 7X,'END FUNCTION HALOGEN_FALLOFF' 
      &      /    )
