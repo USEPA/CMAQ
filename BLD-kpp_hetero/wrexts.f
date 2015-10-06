@@ -43,9 +43,9 @@ C Argument variables
       CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
       CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
       INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-      CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
-      INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
-      INTEGER,          INTENT ( IN ) :: SS1RX( MAXNLIST )
+      CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( : ) ! species list from mechanism table
+      INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
+      INTEGER,          INTENT ( IN ) :: SS1RX( : )
 
 C Local Variables
 

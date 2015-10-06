@@ -31,19 +31,17 @@ C LOCAL
 
       CHARACTER( 20 ) :: BUFF20( MAXRXNUM )
 
-
       INTEGER LUNOUT
+      INTEGER, SAVE :: IBUFF( MAXSPECRXNS ) = 0
       INTEGER I, ISPC, IRX, IRXXN, IFLD0, IFLD1, IFLD2
 
 
       INTERFACE
         SUBROUTINE WRBF6 ( WRUNIT, AWPL, NEL, IVAR )
-          USE MECHANISM_PARMS
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
          INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
          INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
          END SUBROUTINE WRBF6 
       END INTERFACE
 
@@ -83,11 +81,15 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( EXUNIT_RXDT, 2705 ) '1'
 2705     FORMAT( /6X, 'DATA ( ISPECIAL( IRXXN,', A, ' ), IRXXN = 1, NSPECIAL_RXN ) /' )
 
-         CALL WRBF6 ( EXUNIT_RXDT, 10, NSPECIAL_RXN, ISPECIAL( 1,1 ) )
+         IBUFF(1:MAXSPECRXNS) = ISPECIAL( 1:MAXSPECRXNS,1 )
+
+         CALL WRBF6 ( EXUNIT_RXDT, 10, NSPECIAL_RXN, IBUFF )
 
          WRITE( EXUNIT_RXDT, 2705 ) '2'
 
-         CALL WRBF6 ( EXUNIT_RXDT, 10, NSPECIAL_RXN, ISPECIAL( 1,2 ) )
+         IBUFF(1:MAXSPECRXNS) = ISPECIAL( 1:MAXSPECRXNS,2 )
+
+         CALL WRBF6 ( EXUNIT_RXDT, 10, NSPECIAL_RXN, IBUFF )
 
 
       ELSE

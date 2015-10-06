@@ -52,12 +52,10 @@ C LOCAL VARIABLES
 
       INTERFACE
         SUBROUTINE WRBF6 ( WRUNIT, AWPL, NEL, IVAR )
-          USE MECHANISM_PARMS
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
          INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
          INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
          END SUBROUTINE WRBF6 
       END INTERFACE
 

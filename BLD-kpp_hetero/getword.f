@@ -49,14 +49,14 @@ C==============================================================================
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
 
       CHARACTER(  1 ) :: CHR
       CHARACTER( 81 ) :: INBUF, WRDBUF
-      INTEGER IMECH, IEOL, LPOINT
+      INTEGER         :: IMECH, IEOL, LPOINT
       CHARACTER( 16 ) :: WORD
-      INTEGER START, LENWRD
-      LOGICAL VALWRDCHR
+!local:      
+      INTEGER         :: START, LENWRD
+      LOGICAL         :: VALWRDCHR
 
       LENWRD = 0
       START = LPOINT

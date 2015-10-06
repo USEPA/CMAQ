@@ -52,13 +52,13 @@ C Argument variables
       CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
       CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
       INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-      CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
+      CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( : ) ! species list from mechanism table
       INTEGER,          INTENT ( IN ) :: NR                ! number of reaction
-      INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
+      INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
       INTEGER,          INTENT ( IN ) :: IP                ! number of photolysis reactions
-      CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( MAXCONSTS )
-      REAL( 8 ),        INTENT ( IN ) :: CVAL( MAXCONSTS )
-      INTEGER,          INTENT ( IN ) :: SS1RX( MAXNLIST )
+      CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
+      REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
+      INTEGER,          INTENT ( IN ) :: SS1RX( : )
       LOGICAL,          INTENT ( IN ) :: LITE               ! option to omitted specific write statements
       
 C Local Variables
@@ -86,33 +86,25 @@ C Local Variables
       
       INTERFACE
         SUBROUTINE WRBF6( WRUNIT, AWPL, NEL, IVAR )
-          USE MECHANISM_PARMS
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
          INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
          INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
          END SUBROUTINE WRBF6
         SUBROUTINE WRBF6_FORTRAN90( WRUNIT, AWPL, NEL, IVAR )
-          USE MECHANISM_PARMS
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
          INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
          INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
         END SUBROUTINE WRBF6_FORTRAN90      
         SUBROUTINE WRBF12S ( WRUNIT, AWPL, NEL, VAR, AFMT )
-           USE MECHANISM_PARMS
-           IMPLICIT NONE
            INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
            INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
            INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
-           REAL,    INTENT( IN )         :: VAR( NEL )   ! real variable to write
+           REAL,    INTENT( IN )         :: VAR( : )   ! real variable to write
            CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
         END SUBROUTINE WRBF12S
         SUBROUTINE WRBF12S_FORTRAN90 ( WRUNIT, AWPL, NEL, VAR, AFMT )
-           USE MECHANISM_PARMS
-           IMPLICIT NONE
            INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
            INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
            INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
@@ -120,20 +112,16 @@ C Local Variables
            CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
         END SUBROUTINE WRBF12S_FORTRAN90
         SUBROUTINE WRBF16C_FORTRAN90 ( WRUNIT, AWPL, NEL, VAR )
-          USE MECHANISM_PARMS
-          IMPLICIT NONE
           INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
           INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
           INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-          CHARACTER( 16 ), INTENT( IN ) :: VAR( NEL )  ! character variable to write
+          CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
         END SUBROUTINE WRBF16C_FORTRAN90 
         SUBROUTINE WRBF16C ( WRUNIT, AWPL, NEL, VAR )
-          USE MECHANISM_PARMS
-          IMPLICIT NONE
           INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
           INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
           INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-          CHARACTER( 16 ), INTENT( IN ) :: VAR( NEL )  ! character variable to write
+          CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
         END SUBROUTINE WRBF16C
       END INTERFACE
 
@@ -433,7 +421,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       DO ISPC = 1, NS 
          IF( SPECIES_TYPE( ISPC ) .EQ. 'AE' )CYCLE
          IRX = IRX + 1
-         WRITE( WRUNIT, 2059 ) IRX, SPCLIS( ISPC )
+!         WRITE( WRUNIT, 2059 ) IRX, SPCLIS( ISPC )
 2059     FORMAT( 6X, 'DATA', 1X, 'GAS_CHEM_SPC(', I4, ' ) / ''', A16, ''' /')
       END DO
 
@@ -818,7 +806,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       WRITE( WRUNIT, 1405 ) ISPC
 1405  FORMAT( /6X, 'DATA ( IRR( IRXXN,', I3, ' ), IRXXN = 1, NRXNS ) / & ' )
 
-      CALL WRBF6_FORTRAN90( WRUNIT, 10, NR, IRR( 1,ISPC ) )
+      CALL WRBF6_FORTRAN90( WRUNIT, 10, NR, IRR( :,ISPC ) )
 
 701   CONTINUE
 
@@ -960,15 +948,15 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 1705 ) '1'
 1705     FORMAT( /6X, 'DATA ( IPH( IRXXN,', A, ' ), IRXXN = 1, NMPHOT ) / & ' )
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( 1,1 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( :,1 ) )
 
          WRITE( WRUNIT, 1705 ) '2'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( 1,2 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( :,2 ) )
 
          WRITE( WRUNIT, 1705 ) '3'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( 1,3 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( :,3 ) )
 
       ELSE
 
@@ -996,11 +984,11 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 1725 ) '1'
 1725     FORMAT( /6X, 'DATA ( IHETERO( IRXXN,', A, ' ), IRXXN = 1, MHETERO ) / & ' )
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( 1,1 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( :,1 ) )
 
          WRITE( WRUNIT, 1725 ) '2'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( 1,2 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( :,2 ) )
 
  
       ELSE

@@ -49,13 +49,13 @@ C Argument variables
       CHARACTER(   8 ) :: DESCRP_MECH
 
       INTEGER             NS                ! no. of species found in mechanism table
-      CHARACTER(  16 ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
+      CHARACTER(  16 ) :: SPCLIS( : ) ! species list from mechanism table
 
       INTEGER             NADSPC            ! no. of advected species
-      CHARACTER(  16 ) :: ADNAME( MAXSPEC ) ! advected species name table
-      INTEGER             ADNMAP( MAXSPEC ) ! advected species pointers to full list
+      CHARACTER(  16 ) :: ADNAME( : ) ! advected species name table
+      INTEGER             ADNMAP( : ) ! advected species pointers to full list
 
-      REAL                MOLWT( MAXSPEC )  ! molecular weights from mechanism table
+      REAL                MOLWT( : )  ! molecular weights from mechanism table
 
 C Local Variables
 

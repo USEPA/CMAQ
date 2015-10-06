@@ -39,16 +39,16 @@ C than 3 elements per line (due to FORMAT restrictions), then dump to file
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
  
-      INTEGER WRUNIT                 ! logical write unit no.
-      INTEGER AWPL, WPL              ! words per line (max at 5)
-      INTEGER NEL                    ! number of list elements
-      CHARACTER( 16 ) :: VAR( NEL )  ! character variable to write
-      INTEGER IRX, LINE, IRX1, IRX2, IRXF, IOS, CNN
+      INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
+      INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
+      INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
+      CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
+!local:      
+      INTEGER            :: IRX, LINE, IRX1, IRX2, IRXF, IOS, CNN, WPL
       INTEGER, PARAMETER :: LOGDEV = 6
-      CHARACTER(  1 ) :: CONCHAR
-      CHARACTER( 20 ) :: BUFF20( NEL )
+      CHARACTER(  1 )    :: CONCHAR
+      CHARACTER( 20 )    :: BUFF20( NEL )
  
 C----------------------------------------------------------------------
 

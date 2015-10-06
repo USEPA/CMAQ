@@ -41,17 +41,18 @@ C 5 elements per line (due to FORMAT restrictions), then dump to file
       IMPLICIT NONE
 !      INCLUDE 'PARMS.e'
  
-      INTEGER WRUNIT     ! logical write unit no.
-      INTEGER AWPL, WPL  ! words per line (max at 5)
-      INTEGER NEL        ! number of list elements
-      REAL      :: VAR( NEL )   ! real variable to write
-      CHARACTER(  1 ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
+      INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
+      INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
+      INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
+      REAL,    INTENT( IN )         :: VAR( : )   ! real variable to write
+      CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
+!local:      
       CHARACTER( 14 ) :: FMT1, FMT2
       CHARACTER( 14 ) :: EFMT1 = '(1PE11.4, '','')'
       CHARACTER( 14 ) :: EFMT2 = '(1PE11.4, ''/'')'
       CHARACTER( 14 ) :: FFMT1 = '(F11.5, '','')  '
       CHARACTER( 14 ) :: FFMT2 = '(F11.5, ''/'')  '
-      INTEGER IRX, IRX0, IRX1, IRX2, IRXF, IOS, CNN
+      INTEGER IRX, IRX0, IRX1, IRX2, IRXF, IOS, CNN, WPL
       INTEGER, PARAMETER :: LOGDEV = 6
       CHARACTER(  1 ) :: CONCHAR
       CHARACTER( 12 ) :: BUFF12( NEL )

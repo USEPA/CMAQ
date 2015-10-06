@@ -44,7 +44,7 @@ C arguments:
       INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
       INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
       INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-      CHARACTER( 16 ), INTENT( IN ) :: VAR( NEL )  ! character variable to write
+      CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
 
 C parameters:
       INTEGER, PARAMETER :: LOGDEV = 6

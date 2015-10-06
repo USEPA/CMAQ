@@ -30,33 +30,25 @@ C LOCAL
 
       INTERFACE
         SUBROUTINE WRBF6( WRUNIT, AWPL, NEL, IVAR )
-          USE MECHANISM_PARMS
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
          INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
          INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
          END SUBROUTINE WRBF6
         SUBROUTINE WRBF6_FORTRAN90( WRUNIT, AWPL, NEL, IVAR )
-          USE MECHANISM_PARMS
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
          INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
          INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-         INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+         INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
         END SUBROUTINE WRBF6_FORTRAN90      
         SUBROUTINE WRBF12S ( WRUNIT, AWPL, NEL, VAR, AFMT )
-           USE MECHANISM_PARMS
-           IMPLICIT NONE
            INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
            INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
            INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
-           REAL,    INTENT( IN )         :: VAR( NEL )   ! real variable to write
+           REAL,    INTENT( IN )         :: VAR( : )   ! real variable to write
            CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
         END SUBROUTINE WRBF12S
         SUBROUTINE WRBF12S_FORTRAN90 ( WRUNIT, AWPL, NEL, VAR, AFMT )
-           USE MECHANISM_PARMS
-           IMPLICIT NONE
            INTEGER, INTENT( IN )         :: WRUNIT   ! logical write unit no.
            INTEGER, INTENT( IN )         :: AWPL     ! words per line (max at 5)
            INTEGER, INTENT( IN )         :: NEL                       ! number of list elements
@@ -64,20 +56,16 @@ C LOCAL
            CHARACTER(  1 ), INTENT( IN ) :: AFMT   ! write format: E -> 1PE11.4, F -> F11.5
         END SUBROUTINE WRBF12S_FORTRAN90
         SUBROUTINE WRBF16C_FORTRAN90 ( WRUNIT, AWPL, NEL, VAR )
-          USE MECHANISM_PARMS
-          IMPLICIT NONE
           INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
           INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
           INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-          CHARACTER( 16 ), INTENT( IN ) :: VAR( NEL )  ! character variable to write
+          CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
         END SUBROUTINE WRBF16C_FORTRAN90 
         SUBROUTINE WRBF16C ( WRUNIT, AWPL, NEL, VAR )
-          USE MECHANISM_PARMS
-          IMPLICIT NONE
           INTEGER,         INTENT( IN ) :: WRUNIT      ! logical write unit no.
           INTEGER,         INTENT( IN ) :: AWPL        ! words per line (max at 5)
           INTEGER,         INTENT( IN ) :: NEL         ! number of list elements
-          CHARACTER( 16 ), INTENT( IN ) :: VAR( NEL )  ! character variable to write
+          CHARACTER( 16 ), INTENT( IN ) :: VAR( : )  ! character variable to write
         END SUBROUTINE WRBF16C
       END INTERFACE
 
@@ -118,11 +106,11 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 2705 ) '1'
 2705     FORMAT( /6X, 'DATA ( ISPECIAL( IRXXN,', A, ' ), IRXXN = 1, NSPECIAL_RXN ) / & ' )
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, NSPECIAL_RXN, ISPECIAL( 1,1 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, NSPECIAL_RXN, ISPECIAL( :,1 ) )
 
          WRITE( WRUNIT, 2705 ) '2'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, NSPECIAL_RXN, ISPECIAL( 1,2 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, NSPECIAL_RXN, ISPECIAL( :,2 ) )
 
 
       ELSE

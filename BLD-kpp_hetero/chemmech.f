@@ -125,9 +125,6 @@ c..Variables for species to be dropped from mechanism
        SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
      &                      NXX, NS, SPCLIS, SPC1RX,
      &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
-         USE KPP_DATA
-         USE MECHANISM_DATA
-         IMPLICIT NONE
          INTEGER,         INTENT(   IN  ) :: IMECH
          CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
          INTEGER,         INTENT( INOUT ) :: LPOINT
@@ -136,18 +133,16 @@ c..Variables for species to be dropped from mechanism
          CHARACTER( 16 ), INTENT( INOUT ) :: WORD
          INTEGER,         INTENT(   IN  ) :: NXX
          INTEGER,         INTENT( INOUT ) :: NS
-         CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( MAXSPEC )
-         INTEGER,         INTENT( INOUT ) :: SPC1RX( MAXSPEC )
+         CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( : )
+         INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
          INTEGER,         INTENT( INOUT ) :: ICOL
-         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( MAXRXNUM, 2 )
+         CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
          INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( MAXNLIST )
+         CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
         END SUBROUTINE GETRCTNT
         SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
      &                      NXX, NS, SPCLIS, SPC1RX,
      &                      ICOL, N_DROP_SPC, DROP_SPC )
-          USE MECHANISM_DATA
-          IMPLICIT NONE
           INTEGER,         INTENT(   IN  ) :: IMECH
           CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
           INTEGER,         INTENT( INOUT ) :: LPOINT
@@ -156,16 +151,14 @@ c..Variables for species to be dropped from mechanism
           CHARACTER( 16 ), INTENT( INOUT ) :: WORD
           INTEGER,         INTENT(   IN  ) :: NXX
           INTEGER,         INTENT( INOUT ) :: NS
-          CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( MAXSPEC )
-          INTEGER,         INTENT( INOUT ) :: SPC1RX( MAXSPEC )
+          CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( : )
+          INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
           INTEGER,         INTENT( INOUT ) :: ICOL
           INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( MAXNLIST )
+          CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
          END SUBROUTINE GETPRDCT
          SUBROUTINE GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
      &                         NXX, LABEL, IP )
-           USE MECHANISM_DATA
-           IMPLICIT NONE
            CHARACTER(  1 ), INTENT( INOUT ) :: CHR
            CHARACTER( 81 ), INTENT( INOUT ) :: INBUF
            INTEGER,         INTENT( IN )    :: IMECH
@@ -173,49 +166,60 @@ c..Variables for species to be dropped from mechanism
            INTEGER,         INTENT( INOUT ) :: IEOL
            INTEGER,         INTENT( INOUT ) :: IP
            INTEGER,         INTENT( IN )    :: NXX
-           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( MAXRXNUM,2 )
+           CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
         END SUBROUTINE GETRATE
         SUBROUTINE WREXTS (EQNAME_MECH, DESCRP_MECH, NS, SPCLIS, SPC1RX, SS1RX ) 
-          USE MECHANISM_DATA
-          IMPLICIT NONE
           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
           CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
           INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
-          CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( MAXSPEC ) ! species list from mechanism table
-          INTEGER,          INTENT ( IN ) :: SPC1RX( MAXSPEC ) ! rx index of 1st occurence of species in mechanism table
-          INTEGER,          INTENT ( IN ) :: SS1RX( MAXNLIST )
+          CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( : ) ! species list from mechanism table
+          INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
+          INTEGER,          INTENT ( IN ) :: SS1RX( : )
         END SUBROUTINE WREXTS
         SUBROUTINE GET_SS_DATA ( LUNOUT, NR ) 
-          USE MECHANISM_DATA
-          IMPLICIT NONE
           INTEGER, INTENT ( IN )         :: LUNOUT   ! Output unit number
           INTEGER, INTENT ( IN )         :: NR       ! No. of reactions
         END SUBROUTINE GET_SS_DATA
         SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPCLIS, NR, LABEL, SS1RX )
-         USE MECHANISM_DATA
-         IMPLICIT NONE
          INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
          INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-         CHARACTER( 16 ), INTENT ( IN ) ::  SPCLIS( MAXSPEC )   ! List of mechanism species
+         CHARACTER( 16 ), INTENT ( IN ) ::  SPCLIS( : )   ! List of mechanism species
          INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( MAXRXNUM,2 ) ! Reaction labels
-         INTEGER, INTENT ( INOUT )      ::  SS1RX( MAXNLIST )
+         CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( :,: ) ! Reaction labels
+         INTEGER, INTENT ( INOUT )      ::  SS1RX( : )
        END SUBROUTINE CHECK_SS_SPC
        SUBROUTINE WRSS_EXT( NR ) 
-         USE MECHANISM_DATA
-         IMPLICIT NONE
          INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
        END SUBROUTINE WRSS_EXT
        SUBROUTINE WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
-         USE KPP_DATA
-         USE MECHANISM_DATA
-         IMPLICIT NONE
          INTEGER,         INTENT( IN ) :: NR ! number of reactions
          INTEGER,         INTENT( IN ) :: IP ! number of photolysis reaction
-         CHARACTER( 16 ), INTENT( IN ) :: LABEL( MAXRXNUM,2 ) ! LABEL(NXX,1) 1st label found in rx NXX
+         CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
          INTEGER,         INTENT( IN ) :: NS ! number of species
-         CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( MAXSPEC )
+         CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( : )
        END SUBROUTINE WRT_KPP_INPUTS
+       SUBROUTINE WREXTS_FORTRAN90 ( WRUNIT,
+     &                              EQNAME_MECH,
+     &                              DESCRP_MECH,
+     &                              NS, SPCLIS, SPC1RX,
+     &                              NR,
+     &                              IP, 
+     &                              NAMCONSTS,
+     &                              CVAL, SS1RX,
+     &                              LITE ) 
+           INTEGER,           INTENT( IN ) ::  WRUNIT     ! logical write unit no.
+           CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
+           CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
+           INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
+           CHARACTER(  16 ), INTENT ( IN ) :: SPCLIS( : ) ! species list from mechanism table
+           INTEGER,          INTENT ( IN ) :: NR                ! number of reaction
+           INTEGER,          INTENT ( IN ) :: SPC1RX( : ) ! rx index of 1st occurence of species in mechanism table
+           INTEGER,          INTENT ( IN ) :: IP                ! number of photolysis reactions
+           CHARACTER( 16 ),  INTENT ( IN ) :: NAMCONSTS( : )
+           REAL( 8 ),        INTENT ( IN ) :: CVAL( : )
+           INTEGER,          INTENT ( IN ) :: SS1RX( : )
+           LOGICAL,          INTENT ( IN ) :: LITE               ! option to omitted specific write statements
+       END SUBROUTINE WREXTS_FORTRAN90 
       END INTERFACE 
   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

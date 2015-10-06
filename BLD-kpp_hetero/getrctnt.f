@@ -74,19 +74,14 @@ c...arguments
       CHARACTER( 16 ), INTENT( INOUT ) :: WORD
       INTEGER,         INTENT(   IN  ) :: NXX
       INTEGER,         INTENT( INOUT ) :: NS
-      CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( MAXSPEC )
-      INTEGER,         INTENT( INOUT ) :: SPC1RX( MAXSPEC )
+      CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( : )
+      INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
       INTEGER,         INTENT( INOUT ) :: ICOL
 
-      CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( MAXRXNUM, 2 )
+      CHARACTER( 16 ), INTENT(   IN  ) :: LABEL( :, : )
 
       INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-      CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( MAXNLIST )
-!      INTEGER,         INTENT(   IN  ) :: N_SS_SPC
-!      CHARACTER( 16 ), INTENT(   IN  ) :: SS_SPC( MAXNLIST )
-!      INTEGER,         INTENT( INOUT ) :: SS_RCT_COEF( MAXNLIST, MAXRXNUM )
-!      INTEGER,         INTENT( INOUT ) :: IRR( MAXRXNUM,MAXPRODS+3 )
-!      REAL,            INTENT( INOUT ) :: SC ( MAXRXNUM,MAXPRODS )
+      CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
 
 
 c..local

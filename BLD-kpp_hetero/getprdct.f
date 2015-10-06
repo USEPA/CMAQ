@@ -60,11 +60,11 @@ c...arguments
       CHARACTER( 16 ), INTENT( INOUT ) :: WORD
       INTEGER,         INTENT(   IN  ) :: NXX
       INTEGER,         INTENT( INOUT ) :: NS
-      CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( MAXSPEC )
-      INTEGER,         INTENT( INOUT ) :: SPC1RX( MAXSPEC )
+      CHARACTER( 16 ), INTENT( INOUT ) :: SPCLIS( : )
+      INTEGER,         INTENT( INOUT ) :: SPC1RX( : )
       INTEGER,         INTENT( INOUT ) :: ICOL
       INTEGER,         INTENT(   IN  ) :: N_DROP_SPC
-      CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( MAXNLIST )
+      CHARACTER( 16 ), INTENT(   IN  ) :: DROP_SPC( : )
 !      INTEGER,         INTENT(   IN  ) :: N_SS_SPC
 !      CHARACTER( 16 ), INTENT(   IN  ) :: SS_SPC( MAXNLIST )
 !      REAL,            INTENT( INOUT ) :: SS_PRD_COEF( MAXNLIST, MAXRXNUM )

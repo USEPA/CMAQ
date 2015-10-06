@@ -39,19 +39,17 @@ C (due to FORMAT restrictions), then dump to file
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
  
       INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
       INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
       INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-      INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
-
-      INTEGER IRX, IRX0, IRX1, IRX2, IOS, CNN
-      INTEGER             ::  WPL       ! words per line (max at 10)
+      INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
+!local:
+      INTEGER            :: IRX, IRX0, IRX1, IRX2, IOS, CNN
+      INTEGER            :: WPL       ! words per line (max at 10)
       INTEGER, PARAMETER :: LOGDEV = 6
-      CHARACTER( 1 ) :: CONCHAR
-!     CHARACTER( 6 ) :: BUFF6( NEL )
-      CHARACTER( 6 ) :: BUFF6( MAXRXNUM )
+      CHARACTER( 1 )     :: CONCHAR
+      CHARACTER( 6 )     :: BUFF6( MAXRXNUM )
  
       WPL = MIN ( AWPL, 10 )
 

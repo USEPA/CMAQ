@@ -74,10 +74,7 @@ C=======================================================================
       INTEGER,         INTENT( INOUT ) :: IEOL
       INTEGER,         INTENT( INOUT ) :: IP
       INTEGER,         INTENT( IN )    :: NXX
-!      INTEGER,         INTENT( INOUT ) :: IPH( MAXPHOTRXNS,3 )
-!      INTEGER,         INTENT( INOUT ) :: NPHOTAB
-!      CHARACTER( 16 ), INTENT( INOUT ) :: PHOTAB( MAXPHOTRXNS ) ! photolysis table label
-      CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( MAXRXNUM,2 )
+      CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
 
 C...local variable
 

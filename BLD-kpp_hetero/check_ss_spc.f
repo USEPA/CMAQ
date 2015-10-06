@@ -1,8 +1,5 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CHECK_SS_SPC ( LUNOUT, NS, SPCLIS, NR, LABEL, SS1RX )
-!      SUBROUTINE CHECK_SS_SPC ( LUNOUT, N_SS_SPC, SS_SPC, NS, SPCLIS, 
-!     &                          NR, LABEL, SS_RCT_COEF, SS_PRD_COEF,
-!     &                          SS1RX )
 
 C=======================================================================
 C Checks to make sure all species selected to be in steady state do not
@@ -24,17 +21,12 @@ C=======================================================================
       IMPLICIT NONE
 
 C..Input Arguments
-      INTEGER, INTENT ( IN )         :: LUNOUT               ! Output unit number
-!      INTEGER, INTENT ( IN )         ::  N_SS_SPC            ! No. of input steady-state species
-!      CHARACTER( 16 ), INTENT ( INOUT ) :: SS_SPC( MAXNLIST )    ! List of input steady-state species
-      INTEGER, INTENT ( IN )         ::  NS                  ! No. of species in mechanism
-      CHARACTER( 16 ), INTENT ( IN ) ::  SPCLIS( MAXSPEC )   ! List of mechanism species
-      INTEGER, INTENT ( IN )         ::  NR                  ! No. of reactions
-      CHARACTER( 16 ), INTENT ( IN ) ::  LABEL( MAXRXNUM,2 ) ! Reaction labels
-
-!      INTEGER, INTENT ( INOUT )      ::  SS_RCT_COEF( MAXNLIST, MAXRXNUM )
-!     REAL,    INTENT ( INOUT )      ::  SS_PRD_COEF( MAXNLIST, MAXRXNUM )
-      INTEGER, INTENT ( INOUT )      ::  SS1RX( MAXNLIST )
+      INTEGER,         INTENT ( IN )    :: LUNOUT               ! Output unit number
+      INTEGER,         INTENT ( IN )    ::  NS                  ! No. of species in mechanism
+      CHARACTER( 16 ), INTENT ( IN )    ::  SPCLIS( : )   ! List of mechanism species
+      INTEGER,         INTENT ( IN )    ::  NR                  ! No. of reactions
+      CHARACTER( 16 ), INTENT ( IN )    ::  LABEL( :,: ) ! Reaction labels
+      INTEGER,        INTENT ( INOUT )  ::  SS1RX( : )
 
 
 
