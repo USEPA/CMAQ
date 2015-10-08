@@ -127,9 +127,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE ADVBC_MAP( CONCMIN, BCNAME, BCFAC, ONFILE )
-            USE CGRID_SPCS
-            USE UTILIO_DEFN
-            IMPLICIT NONE
             CHARACTER( 16 ), INTENT( IN )  :: CONCMIN
             CHARACTER( 16 ), INTENT( OUT ) :: BCNAME( : )
             REAL,            INTENT( OUT ) :: BCFAC ( : )

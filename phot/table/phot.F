@@ -514,7 +514,7 @@ C...open the photolysis rate diagnostic files
         END IF  ! photdiag
 
 #ifdef parallel_io
-         IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_2, FSNONIO, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM(CTM_RJ_2)
                CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )

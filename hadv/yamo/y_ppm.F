@@ -150,13 +150,11 @@ C Required interface for allocatable array dummy arguments
 
       INTERFACE
          SUBROUTINE HCONTVEL ( FDATE, FTIME, TSTEP, LVL, UORV, UHAT )
-            IMPLICIT NONE
             INTEGER,         INTENT( IN )     :: FDATE, FTIME, TSTEP, LVL
             CHARACTER( 16 ), INTENT( IN )     :: UORV
             REAL,            INTENT( OUT )    :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
          SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
-            IMPLICIT NONE
 #ifdef parallel
             INTEGER, PARAMETER                :: SWP = 3
 #else

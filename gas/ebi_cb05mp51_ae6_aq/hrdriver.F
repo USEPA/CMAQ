@@ -141,7 +141,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-          IMPLICIT NONE
           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
@@ -150,27 +149,17 @@ C for INTERPX
           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
-           USE UTILIO_DEFN
-           USE RXNS_DATA
-           USE HRDATA
-           IMPLICIT NONE
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
-           USE RXNS_DATA
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
-
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
@@ -180,8 +169,6 @@ C for INTERPX
            INTEGER,   INTENT( IN ) :: LOGDEV ! unit number for the log
          END SUBROUTINE INIT_DEGRADE
          SUBROUTINE FINAL_DEGRADE( CBLK )
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
       END INTERFACE

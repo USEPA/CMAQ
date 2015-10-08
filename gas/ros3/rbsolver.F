@@ -180,10 +180,6 @@ c.....ROS3 intermediate variables
 
       INTERFACE
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
-            USE GRID_CONF
-            USE RXNS_DATA
-            USE CGRID_SPCS
-            IMPLICIT NONE
             LOGICAL LSTART, LCHGVL
             REAL    :: RK( BLKSIZE,NRXNS )
             REAL    :: CONC( :,: )
@@ -192,18 +188,11 @@ c.....ROS3 intermediate variables
             INTEGER :: ICLND( BLKSIZE )
          END SUBROUTINE PA_IRR
          SUBROUTINE RBFEVAL( NCSP, YIN, YDOT )
-            USE RXNS_DATA
-            USE RXNS_FUNCTION
-            USE RBDATA          ! ROS3 solver data
-            IMPLICIT NONE
             INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
             REAL( 8 ), INTENT( INOUT ) :: YIN(  :, : )  ! Species concs, ppm
             REAL( 8 ), INTENT(   OUT ) :: YDOT( :, : )  ! Species rates of change, ppm/min
          END SUBROUTINE RBFEVAL
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
-           USE RXNS_DATA
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
            REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
            INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
@@ -211,21 +200,14 @@ c.....ROS3 intermediate variables
            INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
          END SUBROUTINE DEGRADE
          SUBROUTINE RBSOLVE( NCSP, RHS )
-           USE RBDATA                       ! ROS3 solver data
-           IMPLICIT NONE
            INTEGER,   INTENT( IN )    ::  NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
            REAL( 8 ), INTENT( INOUT ) ::  RHS( :,: )  ! Right hand side = {b}
          END SUBROUTINE RBSOLVE
          SUBROUTINE RBJACOB( NCSP, YIN )
-           USE RXNS_DATA
-           USE RBDATA                ! ROS3 solver data
-           IMPLICIT NONE
            INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use; 1=gas/day, 2=gas/night
            REAL( 8 ), INTENT( IN ) :: YIN( :,: )  ! Species concs, ppm
          END SUBROUTINE RBJACOB
          SUBROUTINE RBDECOMP( NCSP )
-           USE RBDATA              ! ROS3 solver data
-           IMPLICIT NONE
            INTEGER, INTENT( IN ) :: NCSP  ! Index of chem mech to use: 1=gas/day, 2=gas/night
          END SUBROUTINE
       END INTERFACE

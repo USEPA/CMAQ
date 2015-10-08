@@ -121,7 +121,7 @@ C                     * allowing finer met data time step and maintaining an hou
 C                       rainfall bucket
 C    07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O 
-C                        implementation and added code to handle parallel I/O
+C                      implementation and added code to handle parallel I/O
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -783,14 +783,14 @@ C Open NO rain data save file
 #ifdef parallel_io
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. FLUSH3 ( SOILOUT ) ) THEN
-            MESG = 'Could not flush ' // TRIM(SOILOUT)
+            MESG = 'Could not sync to disk ' // TRIM( SOILOUT )
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END IF
       CALL SE_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( SOILOUT, FSNONIO, PNAME ) ) THEN
-            MESG = 'Could not open ' // TRIM(SOILOUT)
+            MESG = 'Could not open ' // TRIM( SOILOUT )
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
       END IF

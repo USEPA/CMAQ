@@ -393,7 +393,6 @@ C...........Statement Functions
         SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                        CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                        REMOV, REMOVAC, ALFA0, ALFA2, ALFA3 )
-          IMPLICIT NONE
           INTEGER, INTENT( IN )  :: JDATE, JTIME
           REAL,    INTENT( IN )  :: WTBAR, WCBAR, TBARC, PBARC,
      &                              CTHK1, AIRM, PRATE1, TAUCLD
@@ -405,7 +404,6 @@ C...........Statement Functions
         SUBROUTINE AQ_MAP( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                     CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
      &                     REMOV, REMOVAC, ALFA0, ALFA2, ALFA3, DARK )
-          IMPLICIT NONE
           INTEGER, INTENT( IN )    :: JDATE, JTIME
           REAL,    INTENT( IN )    :: WTBAR, WCBAR, TBARC, PBARC,
      &                                CTHK1, AIRM, PRATE1, TAUCLD
@@ -416,9 +414,6 @@ C...........Statement Functions
           LOGICAL, INTENT( IN )    :: DARK            
         END SUBROUTINE AQ_MAP
         SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-          USE UTILIO_DEFN
-          USE ASX_DATA_MOD, Only: Grid_Data
-          IMPLICIT NONE
           INTEGER, INTENT( IN )  :: JDATE, JTIME
           INTEGER, INTENT( IN )  :: NX, NY
           REAL,    INTENT( OUT ) :: COSZEN( :,: )

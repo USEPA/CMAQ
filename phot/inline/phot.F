@@ -302,12 +302,10 @@ C...modules
 
       INTERFACE
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, OZONE )
-            USE UTILIO_DEFN
-            IMPLICIT NONE
-            INTEGER,   INTENT(IN)    :: JDATE      ! Julian day of the year (yyyyddd)
-            REAL,      INTENT(IN)    :: LATITUDE   ! latitude of point on earth's surface
-            REAL,      INTENT(IN)    :: LONGITUDE  ! longitude of point on earth's surface
-            REAL,      INTENT(INOUT)   :: OZONE      ! total column ozone [DU]
+            INTEGER, INTENT( IN )    :: JDATE      ! Julian day of the year (yyyyddd)
+            REAL,    INTENT( IN )    :: LATITUDE   ! latitude of point on earth's surface
+            REAL,    INTENT( IN )    :: LONGITUDE  ! longitude of point on earth's surface
+            REAL,    INTENT( INOUT ) :: OZONE      ! total column ozone [DU]
          END SUBROUTINE O3TOTCOL
       END INTERFACE
 
@@ -521,7 +519,7 @@ C...modules
 #endif
          JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
 #ifdef parallel_io
-         IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_1, FSNONIO, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM(CTM_RJ_1)
                CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )

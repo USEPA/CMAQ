@@ -73,7 +73,7 @@ C..Arguments:
 !     INTEGER CCOL   ( MXCELLS )  ! Column pointer for cell
 !     INTEGER CLEV   ( MXCELLS )  ! Level pointer for cell
 !     INTEGER CROW   ( MXCELLS )  ! Row pointer for cell
-                                                  ! block
+
       LOGICAL, INTENT( OUT ) :: LIRRBLK( : )     ! Flag for doing IRR
       INTEGER, INTENT(  IN ) :: BLKLEN ( : )     ! Number of cells in each
       INTEGER, INTENT(  IN ) :: LCELL  ( : )     ! Offset to 1st cell in each
@@ -84,12 +84,12 @@ C..Arguments:
 C..Additional or other Arguments for ENTRY's
       INTEGER, INTENT(  IN ) :: NUMCELLS         ! Number of cells in one block
       INTEGER, INTENT(  IN ) :: OFFSET           ! Offset to 1st cell in a block
-      LOGICAL, INTENT( OUT ) :: LIRRFLAG        ! Flag for doing IRR for one block
+      LOGICAL, INTENT( OUT ) :: LIRRFLAG         ! Flag for doing IRR for one block
 !     INTEGER                   NORDCELL( MXCELLS )
       INTEGER, INTENT(  IN ) :: NORDCELL( : )    ! Cell number of ordered cells in a block
-      INTEGER, INTENT( INOUT ) :: NIRRCLS          ! No. of cells in block for IRR cells
+      INTEGER, INTENT( INOUT ) :: NIRRCLS        ! No. of cells in block for IRR cells
 !     INTEGER                  IRRCELL( BLKSIZE )
-      INTEGER, INTENT( INOUT ) :: IRRCELL( : )    ! Cell No. of an IRR cell
+      INTEGER, INTENT( INOUT ) :: IRRCELL( : )   ! Cell No. of an IRR cell
 
 C..Parameters: None
 

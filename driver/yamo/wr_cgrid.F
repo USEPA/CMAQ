@@ -199,7 +199,7 @@ C pick up transported RHOJ
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
 
-            END IF   ! MYPE = 0
+            END IF   ! IO_PE_INCLUSIVE
 
          ELSE
 
@@ -277,7 +277,7 @@ C proc 0 has CTM_CONC_1 open
                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
 
-            END IF   ! MYPE = 0
+            END IF   ! IO_PE_INCLUSIVE
 
          END IF   ! .NOT. OPEN S_CGRID
 
@@ -286,14 +286,14 @@ C proc 0 has CTM_CONC_1 open
 #ifdef parallel_io
       IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. FLUSH3 ( S_CGRID ) ) THEN
-            XMSG = 'Could not flush ' // TRIM(S_CGRID)
+            XMSG = 'Could not sync to disk ' // TRIM( S_CGRID )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF
       CALL SE_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( S_CGRID, FSNONIO, PNAME ) ) THEN
-            XMSG = 'Could not open ' // TRIM(S_CGRID)
+            XMSG = 'Could not open ' // TRIM( S_CGRID )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF

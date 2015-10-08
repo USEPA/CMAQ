@@ -185,47 +185,39 @@ C Local variables:
 
       INTERFACE
          SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( OUT )   :: STDATE, STTIME, TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: NSTEPS
          END SUBROUTINE INITSCEN
          SUBROUTINE ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )    :: JDATE, JTIME
             INTEGER, INTENT( INOUT ) :: TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: ASTEP( : )
             INTEGER, INTENT( OUT )   :: NREPS
          END SUBROUTINE ADVSTEP
          SUBROUTINE CKSUMMER ( PRNAME, CGRID, JDATE, JTIME )
-            IMPLICIT NONE
             CHARACTER( * ), INTENT( IN ) :: PRNAME
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE CKSUMMER
          SUBROUTINE PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
          END SUBROUTINE PA_INIT
          SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( INOUT ) :: JDATE, JTIME
             INTEGER, INTENT( IN )    :: TSTEP( 3 ), ASTEP( : )
          END SUBROUTINE SCIPROC
          SUBROUTINE WR_ACONC ( AGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL,    INTENT( IN )    :: AGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
          END SUBROUTINE WR_ACONC
          SUBROUTINE WR_CGRID ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
          END SUBROUTINE WR_CGRID
          SUBROUTINE PA_OUTPUT ( CGRID, JDATE, JTIME )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE PA_OUTPUT
@@ -309,9 +301,9 @@ C Initialize stencil exchange
 #endif
 
 #ifdef parallel_io
-         IF (MOD(MYPE, NPCOL) == 0) THEN
+         IF ( MOD( MYPE, NPCOL ) .EQ. 0 ) THEN
 #else
-         IF (MYPE == 0) THEN
+         IF ( MYPE .EQ. 0 ) THEN
 #endif
             IO_PE_INCLUSIVE = .TRUE.
          ELSE

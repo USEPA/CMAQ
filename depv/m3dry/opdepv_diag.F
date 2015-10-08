@@ -163,7 +163,7 @@ C Open diagnostic file, then close it for subsequent open by all processors
             END IF
 
          END IF
-      END IF   ! END OF IO_PE_INCLUSIVE
+      END IF   ! IO_PE_INCLUSIVE
 
       RETURN
       END
