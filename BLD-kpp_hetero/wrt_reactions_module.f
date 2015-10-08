@@ -30,7 +30,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C @(#)CHEMMECH.F 1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.CHEMMECH.F 02 Jan 1997 15:26:41
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE WRT_RATE_CONSTANT( NR, IP, LABEL, NS, SPCLIS  )
+      SUBROUTINE WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
 
 
       USE MECHANISM_DATA
@@ -40,10 +40,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       INTEGER,         INTENT( IN ) :: NR ! number of reactions
       INTEGER,         INTENT( IN ) :: IP ! number of photolysis reaction
-      CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
-                                                            ! LABEL(NXX,2) 2nd label found in rx NXX
       INTEGER,         INTENT( IN ) :: NS ! number of species
       CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( : )
+      CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
 
 c..local Variables for steady-state species
 
@@ -455,12 +454,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 75006 FORMAT(2X, "&")      
       WRITE(MODULE_UNIT,95701)
 95701 FORMAT(/ '! define rate constants in terms of special rate operators ' /)
+      print*,size(label,1),size(label,2)
       DO NXX = 1, NSPECIAL_RXN
          IDX = ISPECIAL( NXX,1 )
          IF( RTDAT( 1, IDX ) .NE. 1.0 )THEN
               WRITE(MODULE_UNIT, 95068 )IDX,REAL(RTDAT( 1, IDX ), 8),
      &        SPECIAL( ISPECIAL( NXX,2 ) ),TRIM( LABEL( IDX,1 ) )
          ELSE
+!              WRITE(*,*)IDX,SPECIAL( ISPECIAL( NXX,2 ) ) !,LABEL( IDX,1 )
               WRITE(MODULE_UNIT,95070)IDX,SPECIAL( ISPECIAL( NXX,2 ) ),
      &        TRIM( LABEL( IDX,1 ) )
          END IF

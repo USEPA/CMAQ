@@ -51,7 +51,7 @@ C=======================================================================
       REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
 !Local:
       LOGICAL         :: LDECIMAL, LEXP, LZERO
-      CHARACTER( 15 ) :: NUMSTRING 
+      CHARACTER( 17 ) :: NUMSTRING 
       INTEGER         :: START, LENGTH, NUMSIGNS
       REAL            :: LOCAL_NUMBER
 
@@ -111,6 +111,7 @@ c end of the numeric string
          NUMSTRING = NUMSTRING( 1:LENGTH ) // '.'
          LENGTH = LENGTH + 1
       END IF
+      NUMSTRING = NUMSTRING( 1:LENGTH ) // 'D0'
        READ ( NUMSTRING( 1:LENGTH ),'(D15.4)' ) NUMBER
 !      READ( NUMSTRING( 1:LENGTH ), * )LOCAL_NUMBER
       IF( LZERO )THEN

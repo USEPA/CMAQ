@@ -220,6 +220,13 @@ c..Variables for species to be dropped from mechanism
            INTEGER,          INTENT ( IN ) :: SS1RX( : )
            LOGICAL,          INTENT ( IN ) :: LITE               ! option to omitted specific write statements
        END SUBROUTINE WREXTS_FORTRAN90 
+       SUBROUTINE WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
+           INTEGER,         INTENT( IN ) :: NR ! number of reactions
+           INTEGER,         INTENT( IN ) :: IP ! number of photolysis reaction
+           INTEGER,         INTENT( IN ) :: NS ! number of species
+           CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( : )
+           CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
+       END SUBROUTINE WRT_RATE_CONSTANT
       END INTERFACE 
   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -834,7 +841,7 @@ C Set CGRID mechanism
       
       EQUATIONS_MECHFILE = EQNAME_MECH
       
-      CALL WRT_RATE_CONSTANT( NR, IP, LABEL, NS, SPCLIS  )
+      CALL WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
       
       CLOSE( EXUNIT_SPCS )
 !      CLOSE( EXUNIT_RXDT )

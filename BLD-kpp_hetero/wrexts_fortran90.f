@@ -48,7 +48,7 @@ C @(#)WREXTS.F	1.1 /project/mod3/MECH/src/driver/mech/SCCS/s.WREXTS.F 02 Jan 199
  
 C Argument variables
 
-      INTEGER,           INTENT( IN ) ::  WRUNIT     ! logical write unit no.
+      INTEGER,           INTENT( IN ) :: WRUNIT     ! logical write unit no.
       CHARACTER( 120 ), INTENT ( IN ) :: EQNAME_MECH
       CHARACTER(  32 ), INTENT ( IN ) :: DESCRP_MECH
       INTEGER,          INTENT ( IN ) :: NS                ! no. of species found in mechanism table
@@ -421,7 +421,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       DO ISPC = 1, NS 
          IF( SPECIES_TYPE( ISPC ) .EQ. 'AE' )CYCLE
          IRX = IRX + 1
-!         WRITE( WRUNIT, 2059 ) IRX, SPCLIS( ISPC )
+         WRITE( WRUNIT, 2059 ) IRX, SPCLIS( ISPC )
 2059     FORMAT( 6X, 'DATA', 1X, 'GAS_CHEM_SPC(', I4, ' ) / ''', A16, ''' /')
       END DO
 
@@ -806,7 +806,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       WRITE( WRUNIT, 1405 ) ISPC
 1405  FORMAT( /6X, 'DATA ( IRR( IRXXN,', I3, ' ), IRXXN = 1, NRXNS ) / & ' )
 
-      CALL WRBF6_FORTRAN90( WRUNIT, 10, NR, IRR( :,ISPC ) )
+      CALL WRBF6_FORTRAN90( WRUNIT, 10, NR, IRR( 1:NR,ISPC ) )
 
 701   CONTINUE
 
@@ -948,15 +948,15 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 1705 ) '1'
 1705     FORMAT( /6X, 'DATA ( IPH( IRXXN,', A, ' ), IRXXN = 1, NMPHOT ) / & ' )
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( :,1 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( 1:IP,1 ) )
 
          WRITE( WRUNIT, 1705 ) '2'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( :,2 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( 1:IP,2 ) )
 
          WRITE( WRUNIT, 1705 ) '3'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( :,3 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, IP, IPH( 1:IP,3 ) )
 
       ELSE
 
@@ -984,11 +984,11 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 1725 ) '1'
 1725     FORMAT( /6X, 'DATA ( IHETERO( IRXXN,', A, ' ), IRXXN = 1, MHETERO ) / & ' )
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( :,1 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( 1:MHETERO,1 ) )
 
          WRITE( WRUNIT, 1725 ) '2'
 
-         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( :,2 ) )
+         CALL WRBF6_FORTRAN90( WRUNIT, 10, MHETERO, IHETERO( 1:MHETERO,2 ) )
 
  
       ELSE

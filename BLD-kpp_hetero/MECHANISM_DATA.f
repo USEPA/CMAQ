@@ -222,6 +222,8 @@ c..indices for decomposition
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Initialize mechanism array variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+            CONST = 0.0D0
+
             DO 101 IRX = 1, MAXRXNUM
                DO ISPC = 1, MAXPRODS+3
                   IRR( IRX,ISPC ) = 0
@@ -230,7 +232,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   SC( IRX,ISPC ) = 0.0
                END DO
                DO ISPC = 1, 3
-                   RTDAT( ISPC,IRX ) = 0.0
+                   RTDAT( ISPC,IRX ) = 0.0D0
                END DO
                KTYPE( IRX ) = 0
                IORDER( IRX )  = 0
@@ -249,7 +251,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             DO 103 IRX = 1, MAXFALLOFF
                IRRFALL( IRX ) = 0   
                DO ISPC = 1, 5
-                  RFDAT( ISPC,IRX ) = 0.0
+                  RFDAT( ISPC,IRX ) = 0.0D0
                END DO
 103         CONTINUE
 

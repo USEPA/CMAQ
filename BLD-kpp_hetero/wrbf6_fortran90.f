@@ -43,7 +43,7 @@ C (due to FORMAT restrictions), then dump to file
       INTEGER, INTENT( IN ) ::  WRUNIT     ! logical write unit no.
       INTEGER, INTENT( IN ) ::  AWPL       ! words per line (max at 10)
       INTEGER, INTENT( IN ) ::  NEL        ! number of list elements
-      INTEGER, INTENT( IN ) ::  IVAR( NEL )  ! integer variable to write
+      INTEGER, INTENT( IN ) ::  IVAR( : )  ! integer variable to write
 
       INTEGER IRX, IRX0, IRX1, IRX2, IOS, CNN
       INTEGER             ::  WPL       ! words per line (max at 10)
