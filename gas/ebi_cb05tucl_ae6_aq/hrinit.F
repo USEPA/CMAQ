@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 24, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sept. 28, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -242,10 +242,6 @@ c..Allocate and define ebi species
       EBISP(  88 ) = APAH2J
       EBISP(  89 ) = AALK1J
       EBISP(  90 ) = AALK2J
-      !EBISP(  91 ) = APOCI
-      !EBISP(  92 ) = APNCOMI
-      !EBISP(  93 ) = APOCJ
-      !EBISP(  94 ) = APNCOMJ
       EBISP(  91 ) = VOCSMP
       EBISP(  92 ) = SMPRXN
       EBISP(  93 ) = VLVPO1
@@ -361,10 +357,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J   ) = 1.0D-03
       RTOL( AALK1J   ) = 1.0D-03
       RTOL( AALK2J   ) = 1.0D-03
-      !RTOL( APOCI    ) = 1.0D-03
-      !RTOL( APNCOMI  ) = 1.0D-03
-      !RTOL( APOCJ    ) = 1.0D-03
-      !RTOL( APNCOMJ  ) = 1.0D-03
       RTOL( VOCSMP   ) = 1.0D-03
       RTOL( SMPRXN   ) = 1.0D-03
       RTOL( VLVPO1   ) = 1.0D-03

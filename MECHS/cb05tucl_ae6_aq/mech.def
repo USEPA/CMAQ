@@ -686,7 +686,7 @@ REACTIONS[CM] =
 <OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
 !Formation of Simple OM
-<SIMP>  VOCSMP + OH       = OH  + SMPRXN              # 1.5E-11;
+<SIMP>  VOCSMP + OH       = OH  + SMPRXN              # 1.0E-11;
 
 !aging reactions for primary organic carbon
 

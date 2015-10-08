@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 24, 2015
+C  REVISION HISTORY: Created by EBI solver program, Sept. 28, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -777,38 +777,27 @@ C***********************************************************************
       PROD(  AALK2J   ) =   0.0D0
       LOSS(  AALK2J   ) =                 RXRAT( 231 )      ! AALK2J=0.1714D+01*AOLGAJ
 
-      !PROD(  APOCI    ) =   0.0D0
-      !LOSS(  APOCI    ) =   0.0D0
-
-      !PROD(  APNCOMI  ) =    1.2500D+00 * RXRAT( 232 )      ! APOCI+OH=0.1250D+...
-      !LOSS(  APNCOMI  ) =                 RXRAT( 233 )      ! APNCOMI+OH=OH
-
-      !PROD(  APOCJ    ) =   0.0D0
-      !LOSS(  APOCJ    ) =   0.0D0
-
-      !PROD(  APNCOMJ  ) =    1.2500D+00 * RXRAT( 234 )      ! APOCJ+OH=0.1250D+...
-      !LOSS(  APNCOMJ  ) =                 RXRAT( 235 )      ! APNCOMJ+OH=OH
-
-      PROD(  VLVPO1   ) =    1.0750D-00 * RXRAT( 232 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-     &                  +    1.0750D-00 * RXRAT( 233 )       !ASVPO1+OH = 1.075*ALVPO1+OH
-      LOSS(  VLVPO1   ) =                 RXRAT( 232 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-
-      PROD(  VSVPO1   ) =    1.0750D-00 * RXRAT( 234 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-      LOSS(  VSVPO1   ) =                 RXRAT( 233 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-
-      PROD(  VSVPO2   ) =    1.0750D-00 * RXRAT( 235 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-      LOSS(  VSVPO2   ) =                 RXRAT( 234 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-
-      PROD(  VSVPO3   ) =    1.0750D-00 * RXRAT( 236 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-      LOSS(  VSVPO3   ) =                 RXRAT( 235 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-
-      LOSS(  VIVPO1   ) =                 RXRAT( 236 )       !ALVPO1+OH = 1.075*ALVPO1+OH
-
       PROD(  VOCSMP   ) =   0.0D0
-      LOSS(  VOCSMP   ) =                 RXRAT( 236 )      ! VOCSMP+OH=OH+SMPRXN
+      LOSS(  VOCSMP   ) =                 RXRAT( 232 )      ! VOCSMP+OH=OH+SMPRXN
 
-      PROD(  SMPRXN   ) =                 RXRAT( 236 )      ! VOCSMP+OH=SMPRXN+OH
+      PROD(  SMPRXN   ) =                 RXRAT( 232 )      ! VOCSMP+OH=SMPRXN+OH
       LOSS(  SMPRXN   ) =   0.0D0
+
+      PROD(  VLVPO1   ) =    7.5000D-02 * RXRAT( 233 )      ! VLVPO1+OH=0.1075D+01*VLVPO1+OH
+     &                  +    1.0750D+00 * RXRAT( 234 )      ! VSVPO1+OH=0.1075D+01*VLVPO1+OH
+      LOSS(  VLVPO1   ) =   0.0D0
+
+      PROD(  VSVPO1   ) =    1.0750D+00 * RXRAT( 235 )      ! VSVPO2+OH=0.1075D+01*VSVPO1+OH
+      LOSS(  VSVPO1   ) =                 RXRAT( 234 )      ! VSVPO1+OH=0.1075D+01*VLVPO1+OH
+
+      PROD(  VSVPO2   ) =    1.0750D+00 * RXRAT( 236 )      ! VSVPO3+OH=0.1075D+01*VSVPO2+OH
+      LOSS(  VSVPO2   ) =                 RXRAT( 235 )      ! VSVPO2+OH=0.1075D+01*VSVPO1+OH
+
+      PROD(  VSVPO3   ) =    1.0750D+00 * RXRAT( 237 )      ! VIVPO1+OH=0.1075D+01*VSVPO3+OH
+      LOSS(  VSVPO3   ) =                 RXRAT( 236 )      ! VSVPO3+OH=0.1075D+01*VSVPO2+OH
+
+      PROD(  VIVPO1   ) =   0.0D0
+      LOSS(  VIVPO1   ) =                 RXRAT( 237 )      ! VIVPO1+OH=0.1075D+01*VSVPO3+OH
 
       PNEG( PAR ) =    6.6000D-01 * RXRAT(  61 )      ! NTR+OH=-0.6600D+00*PAR+HO2+...
      &            +    6.6000D-01 * RXRAT(  62 )      ! NTR=-0.6600D+00*PAR+HO2+...
