@@ -334,8 +334,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C.. Compute number of time step loops and step size for EBI solver
       DELT_SEC = INT( DELTAT * 60.0D0 + 0.1D0 )
       IF( DELT_SEC .GE. ITMSTEP ) THEN
-         N_EBI_STEPS = 1
-         EBI_TMSTEP  = CHEMSTEP
+         N_EBI_STEPS = 2
+         EBI_TMSTEP  = 0.5D0 * CHEMSTEP
       ELSE
          IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
             N_EBI_STEPS = ITMSTEP / DELT_SEC

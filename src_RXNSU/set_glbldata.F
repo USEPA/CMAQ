@@ -324,17 +324,23 @@ c..Get a list of the species that are only in the AQ mechanism
            
          END DO
 
+      ELSE
+          N_AE_SPC = 0
+          N_AQ_SPC = 0
       END IF
 
 c..Flag species in SPECIES as gas-phase only or not ( i.e. AE or AQ)
       ALLOCATE( L_GC_ONLY_SPC( N_SPECIES ) )
-      DO N = 1, N_SPECIES
-         L_GC_ONLY_SPC( N ) = .TRUE.
-         IF( NAME_INDEX( SPECIES( N ), N_AE_SPC, AE_SPC ) .NE. 0 .OR.
-     &       NAME_INDEX( SPECIES( N ), N_AQ_SPC, AQ_SPC ) .NE. 0 )
-     &      L_GC_ONLY_SPC( N ) = .FALSE.
-      END DO
- 
+      IF( ALLOCATED( AE_SPC ) .OR. ALLOCATED( AQ_SPC ) )THEN
+          DO N = 1, N_SPECIES
+             L_GC_ONLY_SPC( N ) = .TRUE.
+             IF( NAME_INDEX( SPECIES( N ), N_AE_SPC, AE_SPC ) .NE. 0 .OR.
+     &           NAME_INDEX( SPECIES( N ), N_AQ_SPC, AQ_SPC ) .NE. 0 )
+     &           L_GC_ONLY_SPC( N ) = .FALSE.
+          END DO
+      ELSE
+         L_GC_ONLY_SPC  = .TRUE.
+      END IF
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Find the max char lengths

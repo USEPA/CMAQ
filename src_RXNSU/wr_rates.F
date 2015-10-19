@@ -145,19 +145,19 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IND2 = 0
          IND3 = 0
 
-         IF( IRR( N, 1 ) .NE. 0 )
+         IF( N_AE_SPC .GT. 0 .AND. N_AQ_SPC .GT. 0 )THEN
+            IF( IRR( N, 1 ) .NE. 0 )
      &      IND1 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
      &                  NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
 
-         IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
-     &                  NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
+            IF( IRR( N, 2 ) .NE. 0 )
+     &         IND2 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
+     &                     NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
 
-         IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
-     &                  NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
-
-
+            IF( IRR( N, 2 ) .NE. 0 )
+     &          IND2 = MAX( NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC ),
+     &                      NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC ) )
+         END IF
 
 c..skip rxn if any reactant is a AE or AQ species
          IF( IND1 .NE. 0 .OR. IND2 .NE. 0 .OR. IND3 .NE. 0 ) CYCLE 
@@ -200,16 +200,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IND2 = 0
          IND3 = 0
 
-         IF( IRR( N, 1 ) .NE. 0 )
-     &      IND1 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
+         IF( N_AE_SPC .GT. 0 )THEN
+           IF( IRR( N, 1 ) .NE. 0 )
+     &         IND1 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
 
-         IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
+            IF( IRR( N, 2 ) .NE. 0 )
+     &         IND2 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
 
-         IF( IRR( N, 3 ) .NE. 0 )
-     &      IND3 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
-
-
+            IF( IRR( N, 3 ) .NE. 0 )
+     &          IND3 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AE_SPC, AE_SPC )
+         END IF
 
 
 c..do rxn if any reactant is a AE or AQ species
@@ -262,15 +262,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IND2 = 0
          IND3 = 0
 
-         IF( IRR( N, 1 ) .NE. 0 )
-     &      IND1 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
+         IF( N_AQ_SPC .GT. 0 )THEN
+             IF( IRR( N, 1 ) .NE. 0 )
+     &       IND1 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
 
-         IF( IRR( N, 2 ) .NE. 0 )
-     &      IND2 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
+             IF( IRR( N, 2 ) .NE. 0 )
+     &        IND2 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
 
-         IF( IRR( N, 3 ) .NE. 0 )
-     &      IND3 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
-
+              IF( IRR( N, 3 ) .NE. 0 )
+     &        IND3 = NAME_INDEX( SPECIES( IRR( N, 1 ) ), N_AQ_SPC, AQ_SPC )
+        END IF
 
 
 
