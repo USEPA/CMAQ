@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/has/gitrepos/2015isoprene/CCTM/MECHS/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.def
+! Source file: /home/hutzellb/CCTM_git_repository/MECHS/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.def
 ! for Mechanism Name: SAPRC07TIC_AE6I_AQ              
 
 ! This file is used to create mechanism data and functions
@@ -238,7 +238,7 @@
       DATA GAS_CHEM_SPC( 112 ) / 'XYLRO2          ' /
       DATA GAS_CHEM_SPC( 113 ) / 'OXYL            ' /
       DATA GAS_CHEM_SPC( 114 ) / 'PXYL            ' /
-      DATA GAS_CHEM_SPC( 115 ) / 'TRIMETH_BENZ124 ' /
+      DATA GAS_CHEM_SPC( 115 ) / 'TMBENZ124       ' /
       DATA GAS_CHEM_SPC( 116 ) / 'ETOH            ' /
       DATA GAS_CHEM_SPC( 117 ) / 'ALK1            ' /
       DATA GAS_CHEM_SPC( 118 ) / 'ALK2            ' /
@@ -282,7 +282,7 @@
       DATA GAS_CHEM_SPC( 156 ) / 'PAHHRXN         ' /
       DATA GAS_CHEM_SPC( 157 ) / 'HCHO_PRIMARY    ' /
       DATA GAS_CHEM_SPC( 158 ) / 'CCHO_PRIMARY    ' /
-      DATA GAS_CHEM_SPC( 159 ) / 'ACROLEIN_PRIMARY' /
+      DATA GAS_CHEM_SPC( 159 ) / 'ACRO_PRIMARY    ' /
       DATA GAS_CHEM_SPC( 160 ) / 'ISOPO2          ' /
       DATA GAS_CHEM_SPC( 161 ) / 'ISOPRXN         ' /
       DATA GAS_CHEM_SPC( 162 ) / 'ISOPND          ' /
@@ -451,7 +451,7 @@
       DATA CHEMISTRY_SPC( 112 ), CGRID_INDEX( 112 ), SPECIES_TYPE( 112 ), SPECIES_MOLWT( 112 ), CONVERT_CONC( 112 ) / 'XYLRO2          ',  111, 'GC',  187.17, F /
       DATA CHEMISTRY_SPC( 113 ), CGRID_INDEX( 113 ), SPECIES_TYPE( 113 ), SPECIES_MOLWT( 113 ), CONVERT_CONC( 113 ) / 'OXYL            ',  112, 'GC',  106.17, F /
       DATA CHEMISTRY_SPC( 114 ), CGRID_INDEX( 114 ), SPECIES_TYPE( 114 ), SPECIES_MOLWT( 114 ), CONVERT_CONC( 114 ) / 'PXYL            ',  113, 'GC',  106.17, F /
-      DATA CHEMISTRY_SPC( 115 ), CGRID_INDEX( 115 ), SPECIES_TYPE( 115 ), SPECIES_MOLWT( 115 ), CONVERT_CONC( 115 ) / 'TRIMETH_BENZ124 ',  114, 'GC',  120.19, F /
+      DATA CHEMISTRY_SPC( 115 ), CGRID_INDEX( 115 ), SPECIES_TYPE( 115 ), SPECIES_MOLWT( 115 ), CONVERT_CONC( 115 ) / 'TMBENZ124       ',  114, 'GC',  120.19, F /
       DATA CHEMISTRY_SPC( 116 ), CGRID_INDEX( 116 ), SPECIES_TYPE( 116 ), SPECIES_MOLWT( 116 ), CONVERT_CONC( 116 ) / 'ETOH            ',  115, 'GC',   46.07, F /
       DATA CHEMISTRY_SPC( 117 ), CGRID_INDEX( 117 ), SPECIES_TYPE( 117 ), SPECIES_MOLWT( 117 ), CONVERT_CONC( 117 ) / 'ALK1            ',  116, 'GC',   30.07, F /
       DATA CHEMISTRY_SPC( 118 ), CGRID_INDEX( 118 ), SPECIES_TYPE( 118 ), SPECIES_MOLWT( 118 ), CONVERT_CONC( 118 ) / 'ALK2            ',  117, 'GC',   36.73, F /
@@ -495,7 +495,7 @@
       DATA CHEMISTRY_SPC( 156 ), CGRID_INDEX( 156 ), SPECIES_TYPE( 156 ), SPECIES_MOLWT( 156 ), CONVERT_CONC( 156 ) / 'PAHHRXN         ',  155, 'GC',  187.20, F /
       DATA CHEMISTRY_SPC( 157 ), CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), SPECIES_MOLWT( 157 ), CONVERT_CONC( 157 ) / 'HCHO_PRIMARY    ',  156, 'GC',   30.03, F /
       DATA CHEMISTRY_SPC( 158 ), CGRID_INDEX( 158 ), SPECIES_TYPE( 158 ), SPECIES_MOLWT( 158 ), CONVERT_CONC( 158 ) / 'CCHO_PRIMARY    ',  157, 'GC',   44.05, F /
-      DATA CHEMISTRY_SPC( 159 ), CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), SPECIES_MOLWT( 159 ), CONVERT_CONC( 159 ) / 'ACROLEIN_PRIMARY',  158, 'GC',   56.06, F /
+      DATA CHEMISTRY_SPC( 159 ), CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), SPECIES_MOLWT( 159 ), CONVERT_CONC( 159 ) / 'ACRO_PRIMARY    ',  158, 'GC',   56.06, F /
       DATA CHEMISTRY_SPC( 160 ), CGRID_INDEX( 160 ), SPECIES_TYPE( 160 ), SPECIES_MOLWT( 160 ), CONVERT_CONC( 160 ) / 'ISOPO2          ',  159, 'GC',  117.10, F /
       DATA CHEMISTRY_SPC( 161 ), CGRID_INDEX( 161 ), SPECIES_TYPE( 161 ), SPECIES_MOLWT( 161 ), CONVERT_CONC( 161 ) / 'ISOPRXN         ',  160, 'GC',   68.00, F /
       DATA CHEMISTRY_SPC( 162 ), CGRID_INDEX( 162 ), SPECIES_TYPE( 162 ), SPECIES_MOLWT( 162 ), CONVERT_CONC( 162 ) / 'ISOPND          ',  161, 'GC',  147.10, F /

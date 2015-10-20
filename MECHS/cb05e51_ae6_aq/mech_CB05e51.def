@@ -129,6 +129,8 @@ CB05E51_AE6_AQ
 ! As documented in CMAQv5.02, this version includes other changes to standard 
 !  CB05TU for CMAQ use:
 !  - Added fixed concentrations for CH4, H2, N2, O2, and AIR for CMAQ use
+! 10/19/15    B.Hutzell: Renamed ACROLEIN_PRIMARY to ACRO_PRIMARY for 
+!             DDM compliance
 !
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
@@ -865,13 +867,13 @@ REACTIONS[CM] =
                              + HO2
                              + 1.0*ROOH             # 2.0/<NTR_IUPAC10>;                 
 ! iorganic heteorogeneous reactions from hetchem version 5.0.2
-<HET_NT1> NTRALK = HNO3                # 0.2~<HETERO_NTR2>;
-<HET_NT2> NTROH = HNO3                 # 0.2~<HETERO_NTR2>;
-<HET_NT3> NTRCN = HNO3                 # 0.2~<HETERO_NTR2>;
-<HET_NT4> NTRCNOH = HNO3               # 0.2~<HETERO_NTR2>;
-<HET_NT5> NTRPX = HNO3                 # 0.2~<HETERO_NTR2>;
-<HET_NT6> NTRM = HNO3                  # 0.5~<HETERO_NTR2>;
-<HET_NT7> NTRI = HNO3                  # 0.5~<HETERO_NTR2>;
+<HET_NT1> NTRALK = HNO3                # 1.0~<HETERO_NTR2>;
+<HET_NT2> NTROH = HNO3                 # 1.0~<HETERO_NTR2>;
+<HET_NT3> NTRCN = HNO3                 # 1.0~<HETERO_NTR2>;
+<HET_NT4> NTRCNOH = HNO3               # 1.0~<HETERO_NTR2>;
+<HET_NT5> NTRPX = HNO3                 # 1.0~<HETERO_NTR2>;
+<HET_NT6> NTRM = HNO3                  # 1.0~<HETERO_NTR2>;
+<HET_NT7> NTRI = HNO3                  # 1.0~<HETERO_NTR2>;
 
 <HET_N2O5IJ>    N2O5 = HNO3 + H2NO3PIJ  # 1.0~<HETERO_N2O5IJ>;
 <HET_N2O5K>     N2O5 = HNO3 + H2NO3PK   # 1.0~<HETERO_N2O5K>;
@@ -936,11 +938,11 @@ REACTIONS[CM] =
 < T11>  BUTADIENE13 + O3       = O3  + 0.52*ACROLEIN  # 8.2E-15 @ 2070.;
 < T12>  BUTADIENE13 + NO3      = NO3 + 0.045*ACROLEIN  # 1.79E-13;
 <TCL3>  BUTADIENE13 + CL       = CL  + 0.58*ACROLEIN  # 2.51E-10;
-< T14>  ACROLEIN_PRIMARY + OH  = OH                   # 2.0E-11;
-< T15>  ACROLEIN_PRIMARY + O3  = O3                   # 2.61E-19;
-< T16>  ACROLEIN_PRIMARY + NO3 = NO3                  # 1.7E-11 @ 3131.;
-< T17>  ACROLEIN_PRIMARY       =                      # 1.0/<ACRO_09>;
-<TCL4>  ACROLEIN_PRIMARY + CL  = CL                   # 2.37E-10;
+< T14>  ACRO_PRIMARY + OH  = OH                   # 2.0E-11;
+< T15>  ACRO_PRIMARY + O3  = O3                   # 2.61E-19;
+< T16>  ACRO_PRIMARY + NO3 = NO3                  # 1.7E-11 @ 3131.;
+< T17>  ACRO_PRIMARY       =                      # 1.0/<ACRO_09>;
+<TCL4>  ACRO_PRIMARY + CL  = CL                   # 2.37E-10;
 < T18>  ACROLEIN + OH          = OH                   # 2.0E-11;
 < T19>  ACROLEIN + O3          = O3                   # 2.61E-19;
 < T20>  ACROLEIN + NO3         = NO3                  # 1.7E-11 @ 3131.;

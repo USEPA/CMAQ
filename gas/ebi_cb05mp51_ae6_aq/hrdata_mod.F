@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05MP51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 15, 2015
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -252,7 +252,7 @@ c..Species indices
       INTEGER, PARAMETER :: ALD2_PRIMARY     =  135
       INTEGER, PARAMETER :: BUTADIENE13      =  136
       INTEGER, PARAMETER :: ACROLEIN         =  137
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  138
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  138
       INTEGER, PARAMETER :: TOLU             =  139
       INTEGER, PARAMETER :: MXYL             =  140
       INTEGER, PARAMETER :: OXYL             =  141

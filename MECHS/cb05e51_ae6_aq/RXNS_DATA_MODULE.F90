@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/ixk/cctm/BLD_CB05_t4a/t4h/mech_CB05e51.def
+! Source file: /home/hutzellb/CCTM_git_repository/MECHS/cb05e51_ae6_aq/mech_CB05e51.def
 ! for Mechanism Name: CB05E51_AE6_AQ                  
 
 ! This file is used to create mechanism data and functions
@@ -236,7 +236,7 @@
       DATA GAS_CHEM_SPC( 110 ) / 'ALD2_PRIMARY    ' /
       DATA GAS_CHEM_SPC( 111 ) / 'BUTADIENE13     ' /
       DATA GAS_CHEM_SPC( 112 ) / 'ACROLEIN        ' /
-      DATA GAS_CHEM_SPC( 113 ) / 'ACROLEIN_PRIMARY' /
+      DATA GAS_CHEM_SPC( 113 ) / 'ACRO_PRIMARY    ' /
       DATA GAS_CHEM_SPC( 114 ) / 'TOLU            ' /
       DATA GAS_CHEM_SPC( 115 ) / 'MXYL            ' /
       DATA GAS_CHEM_SPC( 116 ) / 'OXYL            ' /
@@ -398,7 +398,7 @@
       DATA CHEMISTRY_SPC( 135 ), CGRID_INDEX( 135 ), SPECIES_TYPE( 135 ), SPECIES_MOLWT( 135 ), CONVERT_CONC( 135 ) / 'ALD2_PRIMARY    ',  110, 'GC',   44.00, F /
       DATA CHEMISTRY_SPC( 136 ), CGRID_INDEX( 136 ), SPECIES_TYPE( 136 ), SPECIES_MOLWT( 136 ), CONVERT_CONC( 136 ) / 'BUTADIENE13     ',  111, 'GC',   54.00, F /
       DATA CHEMISTRY_SPC( 137 ), CGRID_INDEX( 137 ), SPECIES_TYPE( 137 ), SPECIES_MOLWT( 137 ), CONVERT_CONC( 137 ) / 'ACROLEIN        ',  112, 'GC',   56.10, F /
-      DATA CHEMISTRY_SPC( 138 ), CGRID_INDEX( 138 ), SPECIES_TYPE( 138 ), SPECIES_MOLWT( 138 ), CONVERT_CONC( 138 ) / 'ACROLEIN_PRIMARY',  113, 'GC',   56.10, F /
+      DATA CHEMISTRY_SPC( 138 ), CGRID_INDEX( 138 ), SPECIES_TYPE( 138 ), SPECIES_MOLWT( 138 ), CONVERT_CONC( 138 ) / 'ACRO_PRIMARY    ',  113, 'GC',   56.10, F /
       DATA CHEMISTRY_SPC( 139 ), CGRID_INDEX( 139 ), SPECIES_TYPE( 139 ), SPECIES_MOLWT( 139 ), CONVERT_CONC( 139 ) / 'TOLU            ',  114, 'GC',   92.00, F /
       DATA CHEMISTRY_SPC( 140 ), CGRID_INDEX( 140 ), SPECIES_TYPE( 140 ), SPECIES_MOLWT( 140 ), CONVERT_CONC( 140 ) / 'MXYL            ',  115, 'GC',  106.20, F /
       DATA CHEMISTRY_SPC( 141 ), CGRID_INDEX( 141 ), SPECIES_TYPE( 141 ), SPECIES_MOLWT( 141 ), CONVERT_CONC( 141 ) / 'OXYL            ',  116, 'GC',  106.20, F /
