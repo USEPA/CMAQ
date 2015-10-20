@@ -33,11 +33,9 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug. 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
-C   21 Aug 15 B.Hutzell: reduced DELTAT by one half based on results from
-C                        Rosenbrock Solver
 C*************************************************************************
 
 c..EBI solver fixed parameters
@@ -225,7 +223,7 @@ c..Species indices
       INTEGER, PARAMETER :: XYLRO2           =  112
       INTEGER, PARAMETER :: OXYL             =  113
       INTEGER, PARAMETER :: PXYL             =  114
-      INTEGER, PARAMETER :: TRIMETH_BENZ124  =  115
+      INTEGER, PARAMETER :: TMBENZ124        =  115
       INTEGER, PARAMETER :: ETOH             =  116
       INTEGER, PARAMETER :: ALK1             =  117
       INTEGER, PARAMETER :: ALK2             =  118
@@ -269,7 +267,7 @@ c..Species indices
       INTEGER, PARAMETER :: PAHHRXN          =  156
       INTEGER, PARAMETER :: HCHO_PRIMARY     =  157
       INTEGER, PARAMETER :: CCHO_PRIMARY     =  158
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  159
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  159
       INTEGER, PARAMETER :: ISOPO2           =  160
       INTEGER, PARAMETER :: ISOPRXN          =  161
       INTEGER, PARAMETER :: ISOPND           =  162
