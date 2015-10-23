@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/hutzellb/CCTM_git_repository/MECHS/saprc07tb_ae6_aq/mech.def
+! Source file: /home/hwo/CCTM_git_repository/MECHS/saprc07tb_ae6_aq/mech.def
 ! for Mechanism Name: SAPRC07TB_AE6_AQ                
 
 ! This file is used to create mechanism data and functions

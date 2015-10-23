@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05E51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 31, 2015
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -83,32 +83,32 @@ C**********************************************************************
 
 
 c..stoichiometric coefficient for production of HOX from O3 via O1D
-      O1D_S =                 RKI(  10 )                            ! O1D=O
-     &      +                 RKI(  11 )                            ! O1D=0.2000D+01*OH
-     &      +                 RKI(  39 )                            ! O1D=OH+HO2
+      O1D_S =                 RKI(  10 )                        ! O1D=O
+     &      +                 RKI(  11 )                        ! O1D=0.2000D+01*OH
+     &      +                 RKI(  39 )                        ! O1D=OH+HO2
 
-      OH_S =    2.0000D+00 * RKI(  11 )                            ! O1D=0.2000D+01*OH
-     &     +                 RKI(  39 )                            ! O1D=OH+HO2
+      OH_S =    2.0000D+00 * RKI(  11 )                        ! O1D=0.2000D+01*OH
+     &     +                 RKI(  39 )                        ! O1D=OH+HO2
 
       OH_S  = OH_S / O1D_S
 
-      HO2_S =                 RKI(  39 )                            ! O1D=HO2+OH
+      HO2_S =                 RKI(  39 )                        ! O1D=HO2+OH
 
       HO2_S  = HO2_S / O1D_S
 
 c..Production of HO from HO2 (r4,5 terms )
-      R4_5 =                 RKI(  13 ) * YC( O3               )   ! HO2+O3=OH
-     &     +                 RKI(  30 ) * YC( NO               )   ! HO2+NO=OH+NO2
-     &     +                 RKI(  45 ) * YC( O                )   ! HO2+O=OH
-     &     +    1.7500D-01 * RKI(  66 ) * YC( IEPXO2           )   ! HO2+IEPXO2=...
-     &     +    4.4000D-01 * RKI(  95 ) * YC( C2O3             )   ! HO2+C2O3=0.4400D+...
-     &     +    4.4000D-01 * RKI( 111 ) * YC( CXO3             )   ! HO2+CXO3=0.4400D+...
-     &     +    4.4000D-01 * RKI( 229 ) * YC( MACO3            )   ! HO2+MACO3=...
+      R4_5 =                 RKI(  13 ) * YC( O3           )   ! HO2+O3=OH
+     &     +                 RKI(  30 ) * YC( NO           )   ! HO2+NO=OH+NO2
+     &     +                 RKI(  45 ) * YC( O            )   ! HO2+O=OH
+     &     +    1.7500D-01 * RKI(  66 ) * YC( IEPXO2       )   ! HO2+IEPXO2=...
+     &     +    4.4000D-01 * RKI(  95 ) * YC( C2O3         )   ! HO2+C2O3=0.4400D+...
+     &     +    4.4000D-01 * RKI( 111 ) * YC( CXO3         )   ! HO2+CXO3=0.4400D+...
+     &     +    4.4000D-01 * RKI( 229 ) * YC( MACO3        )   ! HO2+MACO3=...
 
       R4_5  = R4_5 * DTC
 
 c..Production of HO from HONO (r4,19 terms )
-      R4_19 =                 RKI(  25 )                            ! HONO=OH+NO
+      R4_19 =                 RKI(  25 )                        ! HONO=OH+NO
 
       R4_19 = R4_19 * DTC
 
@@ -142,35 +142,35 @@ c..Remaining HO production
       P4 = YC0( OH ) + P4 * DTC
 
 c..Production of HO2 from OH ( r5,4 terms )
-      R5_4 =                 RKI(  12 ) * YC( O3               )   ! OH+O3=HO2
-     &     +                 RKI(  38 ) * YC( H2O2             )   ! OH+H2O2=HO2
-     &     +                 RKI(  40 )                            ! OH=HO2
-     &     +                 RKI(  41 ) * YC( O                )   ! OH+O=HO2
-     &     +                 RKI(  48 ) * YC( NO3              )   ! OH+NO3=HO2+NO2
-     &     +                 RKI(  69 ) * YC( CO               )   ! OH+CO=HO2
-     &     +    3.0000D-01 * RKI(  74 ) * YC( MEPX             )   ! OH+MEPX=0.3000D+...
-     &     +                 RKI(  76 ) * YC( MEOH             )   ! OH+MEOH=HO2+FORM
-     &     +                 RKI(  77 ) * YC( FORM             )   ! OH+FORM=HO2+CO
-     &     +                 RKI(  86 ) * YC( FACD             )   ! OH+FACD=HO2
-     &     +    1.1000D-01 * RKI( 116 ) * YC( PAR              )   ! OH+PAR=0.1100D+...
-     &     +    9.5000D-01 * RKI( 121 ) * YC( OLE              )   ! OH+OLE=0.9500D+...
-     &     +                 RKI( 125 ) * YC( ETH              )   ! OH+ETH=HO2+...
-     &     +                 RKI( 129 ) * YC( IOLE             )   ! OH+IOLE=HO2+...
-     &     +    2.8000D-01 * RKI( 132 ) * YC( TOL              )   ! OH+TOL=0.2800D+...
-     &     +                 RKI( 135 ) * YC( CRES             )   ! OH+CRES=0.1120D+...
-     &     +    7.0000D-01 * RKI( 158 ) * YC( XYLMN            )   ! OH+XYLMN=0.7000D+...
-     &     +    7.0000D-01 * RKI( 159 ) * YC( NAPH             )   ! OH+NAPH=0.7000D+...
-     &     +    5.0300D-01 * RKI( 169 ) * YC( ISPD             )   ! OH+ISPD=0.5030D+...
-     &     +    7.5000D-01 * RKI( 174 ) * YC( TERP             )   ! OH+TERP=0.7500D+...
-     &     +                 RKI( 181 ) * YC( SO2              )   ! OH+SO2=HO2+SULF+...
-     &     +                 RKI( 182 ) * YC( ETOH             )   ! OH+ETOH=HO2+...
-     &     +                 RKI( 183 ) * YC( ETHA             )   ! OH+ETHA=HO2+...
+      R5_4 =                 RKI(  12 ) * YC( O3           )   ! OH+O3=HO2
+     &     +                 RKI(  38 ) * YC( H2O2         )   ! OH+H2O2=HO2
+     &     +                 RKI(  40 )                        ! OH=HO2
+     &     +                 RKI(  41 ) * YC( O            )   ! OH+O=HO2
+     &     +                 RKI(  48 ) * YC( NO3          )   ! OH+NO3=HO2+NO2
+     &     +                 RKI(  69 ) * YC( CO           )   ! OH+CO=HO2
+     &     +    3.0000D-01 * RKI(  74 ) * YC( MEPX         )   ! OH+MEPX=0.3000D+...
+     &     +                 RKI(  76 ) * YC( MEOH         )   ! OH+MEOH=HO2+FORM
+     &     +                 RKI(  77 ) * YC( FORM         )   ! OH+FORM=HO2+CO
+     &     +                 RKI(  86 ) * YC( FACD         )   ! OH+FACD=HO2
+     &     +    1.1000D-01 * RKI( 116 ) * YC( PAR          )   ! OH+PAR=0.1100D+...
+     &     +    9.5000D-01 * RKI( 121 ) * YC( OLE          )   ! OH+OLE=0.9500D+...
+     &     +                 RKI( 125 ) * YC( ETH          )   ! OH+ETH=HO2+...
+     &     +                 RKI( 129 ) * YC( IOLE         )   ! OH+IOLE=HO2+...
+     &     +    2.8000D-01 * RKI( 132 ) * YC( TOL          )   ! OH+TOL=0.2800D+...
+     &     +                 RKI( 135 ) * YC( CRES         )   ! OH+CRES=0.1120D+...
+     &     +    7.0000D-01 * RKI( 158 ) * YC( XYLMN        )   ! OH+XYLMN=0.7000D+...
+     &     +    7.0000D-01 * RKI( 159 ) * YC( NAPH         )   ! OH+NAPH=0.7000D+...
+     &     +    5.0300D-01 * RKI( 169 ) * YC( ISPD         )   ! OH+ISPD=0.5030D+...
+     &     +    7.5000D-01 * RKI( 174 ) * YC( TERP         )   ! OH+TERP=0.7500D+...
+     &     +                 RKI( 181 ) * YC( SO2          )   ! OH+SO2=HO2+SULF+...
+     &     +                 RKI( 182 ) * YC( ETOH         )   ! OH+ETOH=HO2+...
+     &     +                 RKI( 183 ) * YC( ETHA         )   ! OH+ETHA=HO2+...
 
       R5_4  = R5_4 * DTC
 
 c..Production of HO2 from HNO4 (r5,21 term )
-      R5_21 =                 RKI(  33 )                            ! PNA=HO2+NO2
-     &      +    6.1000D-01 * RKI(  52 )                            ! PNA=0.6100D+...
+      R5_21 =                 RKI(  33 )                        ! PNA=HO2+NO2
+     &      +    6.1000D-01 * RKI(  52 )                        ! PNA=0.6100D+...
 
       R5_21 = R5_21 * DTC
 
@@ -252,7 +252,7 @@ c..Remaining HO2 production terms
 
 c..Production of HONO from OH (r19,4 terms )
 
-      R19_4 =   RKI(  24 ) * YC( NO               ) * DTC      ! OH+NO=HONO
+      R19_4 =   RKI(  24 ) * YC( NO           ) * DTC      ! OH+NO=HONO
 
 c..Remaining HONO production terms
       P19 =    2.0000D+00 * RXRAT(  23 )      ! NO+NO2=0.2000D+01*HONO
@@ -262,91 +262,91 @@ c..Remaining HONO production terms
 
 c..Production of PNA from HO2 (r21,5 term )
 
-      R21_5 =   RKI(  32 ) * YC( NO2              ) * DTC      ! HO2+NO2=HNO4
+      R21_5 =   RKI(  32 ) * YC( NO2          ) * DTC      ! HO2+NO2=HNO4
 
 c..Remaining PNA production terms
       P21   =   YC0( PNA )
 
 c..OH loss terms not in R5_4 & R19_4
-      L4 =                 RKI(  26 ) * YC( HONO             )   ! OH+HONO=NO2
-     &   +                 RKI(  28 ) * YC( NO2              )   ! OH+NO2=HNO3
-     &   +                 RKI(  29 ) * YC( HNO3             )   ! OH+HNO3=NO3
-     &   +                 RKI(  34 ) * YC( PNA              )   ! OH+PNA=NO2
-     &   +    2.0000D+00 * RKI(  42 ) * YC( OH               )   ! OH+OH=O
-     &   +    2.0000D+00 * RKI(  43 ) * YC( OH               )   ! OH+OH=H2O2
-     &   +                 RKI(  44 ) * YC( HO2              )   ! OH+HO2=
-     &   +                 RKI(  62 ) * YC( ROOH             )   ! OH+ROOH=XO2+...
-     &   +    6.7000D-02 * RKI(  64 ) * YC( ISOPX            )   ! OH+ISOPX=0.9040D+...
-     &   +                 RKI(  65 ) * YC( IEPOX            )   ! OH+IEPOX=IEPXO2
-     &   +                 RKI(  70 )                            ! OH=MEO2
-     &   +    7.0000D-01 * RKI(  74 ) * YC( MEPX             )   ! OH+MEPX=0.3000D+...
-     &   +                 RKI(  88 ) * YC( ALD2             )   ! OH+ALD2=C2O3
-     &   +                 RKI(  99 ) * YC( PACD             )   ! OH+PACD=C2O3
-     &   +                 RKI( 101 ) * YC( AACD             )   ! OH+AACD=MEO2
-     &   +                 RKI( 103 ) * YC( ALDX             )   ! OH+ALDX=CXO3
-     &   +                 RKI( 110 ) * YC( PANX             )   ! OH+PANX=ALD2+NO2
-     &   +    8.9000D-01 * RKI( 116 ) * YC( PAR              )   ! OH+PAR=0.1100D+...
-     &   +    5.0000D-02 * RKI( 121 ) * YC( OLE              )   ! OH+OLE=0.9500D+...
-     &   +    6.4800D-01 * RKI( 132 ) * YC( TOL              )   ! OH+TOL=0.2800D+...
-     &   +                 RKI( 139 ) * YC( CRON             )   ! OH+CRON=CRNO
-     &   +                 RKI( 146 ) * YC( CRPX             )   ! OH+CRPX=CRN2
-     &   +                 RKI( 148 ) * YC( OPEN             )   ! OH+OPEN=0.6000D+...
-     &   +                 RKI( 151 ) * YC( CAT1             )   ! OH+CAT1=CAO2
-     &   +    3.0000D-01 * RKI( 158 ) * YC( XYLMN            )   ! OH+XYLMN=0.7000D+...
-     &   +    3.0000D-01 * RKI( 159 ) * YC( NAPH             )   ! OH+NAPH=0.7000D+...
-     &   +                 RKI( 160 ) * YC( MGLY             )   ! OH+MGLY=XO2+C2O3
-     &   +                 RKI( 163 ) * YC( ISOP             )   ! OH+ISOP=ISOPO2+...
-     &   +    4.9700D-01 * RKI( 169 ) * YC( ISPD             )   ! OH+ISPD=0.5030D+...
-     &   +    2.5000D-01 * RKI( 174 ) * YC( TERP             )   ! OH+TERP=0.7500D+...
-     &   +                 RKI( 191 ) * YC( FMCL             )   ! OH+FMCL=CL+CO
-     &   +                 RKI( 205 ) * YC( HCL              )   ! OH+HCL=CL
-     &   +                 RKI( 228 ) * YC( MAPAN            )   ! OH+MAPAN=ALD2+CO+NO2
-     &   +                 RKI( 234 ) * YC( NTRALK           )   ! OH+NTRALK=NALKO2
-     &   +                 RKI( 237 ) * YC( NTROH            )   ! OH+NTROH=NOHO2
-     &   +                 RKI( 240 ) * YC( NTRCN            )   ! OH+NTRCN=NCNO2
-     &   +                 RKI( 243 ) * YC( NTRCNOH          )   ! OH+NTRCNOH=NCNOHO2
-     &   +                 RKI( 247 ) * YC( NTRM             )   ! OH+NTRM=NTRMO2
-     &   +                 RKI( 250 ) * YC( NTRI             )   ! OH+NTRI=NTRIO2
+      L4 =                 RKI(  26 ) * YC( HONO         )   ! OH+HONO=NO2
+     &   +                 RKI(  28 ) * YC( NO2          )   ! OH+NO2=HNO3
+     &   +                 RKI(  29 ) * YC( HNO3         )   ! OH+HNO3=NO3
+     &   +                 RKI(  34 ) * YC( PNA          )   ! OH+PNA=NO2
+     &   +    2.0000D+00 * RKI(  42 ) * YC( OH           )   ! OH+OH=O
+     &   +    2.0000D+00 * RKI(  43 ) * YC( OH           )   ! OH+OH=H2O2
+     &   +                 RKI(  44 ) * YC( HO2          )   ! OH+HO2=
+     &   +                 RKI(  62 ) * YC( ROOH         )   ! OH+ROOH=XO2+...
+     &   +    6.7000D-02 * RKI(  64 ) * YC( ISOPX        )   ! OH+ISOPX=0.9040D+...
+     &   +                 RKI(  65 ) * YC( IEPOX        )   ! OH+IEPOX=IEPXO2
+     &   +                 RKI(  70 )                        ! OH=MEO2
+     &   +    7.0000D-01 * RKI(  74 ) * YC( MEPX         )   ! OH+MEPX=0.3000D+...
+     &   +                 RKI(  88 ) * YC( ALD2         )   ! OH+ALD2=C2O3
+     &   +                 RKI(  99 ) * YC( PACD         )   ! OH+PACD=C2O3
+     &   +                 RKI( 101 ) * YC( AACD         )   ! OH+AACD=MEO2
+     &   +                 RKI( 103 ) * YC( ALDX         )   ! OH+ALDX=CXO3
+     &   +                 RKI( 110 ) * YC( PANX         )   ! OH+PANX=ALD2+NO2
+     &   +    8.9000D-01 * RKI( 116 ) * YC( PAR          )   ! OH+PAR=0.1100D+...
+     &   +    5.0000D-02 * RKI( 121 ) * YC( OLE          )   ! OH+OLE=0.9500D+...
+     &   +    6.4800D-01 * RKI( 132 ) * YC( TOL          )   ! OH+TOL=0.2800D+...
+     &   +                 RKI( 139 ) * YC( CRON         )   ! OH+CRON=CRNO
+     &   +                 RKI( 146 ) * YC( CRPX         )   ! OH+CRPX=CRN2
+     &   +                 RKI( 148 ) * YC( OPEN         )   ! OH+OPEN=0.6000D+...
+     &   +                 RKI( 151 ) * YC( CAT1         )   ! OH+CAT1=CAO2
+     &   +    3.0000D-01 * RKI( 158 ) * YC( XYLMN        )   ! OH+XYLMN=0.7000D+...
+     &   +    3.0000D-01 * RKI( 159 ) * YC( NAPH         )   ! OH+NAPH=0.7000D+...
+     &   +                 RKI( 160 ) * YC( MGLY         )   ! OH+MGLY=XO2+C2O3
+     &   +                 RKI( 163 ) * YC( ISOP         )   ! OH+ISOP=ISOPO2+...
+     &   +    4.9700D-01 * RKI( 169 ) * YC( ISPD         )   ! OH+ISPD=0.5030D+...
+     &   +    2.5000D-01 * RKI( 174 ) * YC( TERP         )   ! OH+TERP=0.7500D+...
+     &   +                 RKI( 191 ) * YC( FMCL         )   ! OH+FMCL=CL+CO
+     &   +                 RKI( 205 ) * YC( HCL          )   ! OH+HCL=CL
+     &   +                 RKI( 228 ) * YC( MAPAN        )   ! OH+MAPAN=ALD2+CO+NO2
+     &   +                 RKI( 234 ) * YC( NTRALK       )   ! OH+NTRALK=NALKO2
+     &   +                 RKI( 237 ) * YC( NTROH        )   ! OH+NTROH=NOHO2
+     &   +                 RKI( 240 ) * YC( NTRCN        )   ! OH+NTRCN=NCNO2
+     &   +                 RKI( 243 ) * YC( NTRCNOH      )   ! OH+NTRCNOH=NCNOHO2
+     &   +                 RKI( 247 ) * YC( NTRM         )   ! OH+NTRM=NTRMO2
+     &   +                 RKI( 250 ) * YC( NTRI         )   ! OH+NTRI=NTRIO2
 
       L4    = 1.0D0 + L4 * DTC + R5_4 + R19_4
 
 c..HO2 loss terms not included in R4_5 & R21_5 (except for HO2+HO2 )
-      L5 =                 RKI(  31 ) * YC( NO               )   ! HO2+NO=HNO3
-     &   +                 RKI(  44 ) * YC( OH               )   ! HO2+OH=
-     &   +                 RKI(  49 ) * YC( NO3              )   ! HO2+NO3=HNO3
-     &   +                 RKI(  57 ) * YC( XO2              )   ! HO2+XO2=ROOH
-     &   +                 RKI(  58 ) * YC( XO2N             )   ! HO2+XO2N=ROOH
-     &   +                 RKI(  72 ) * YC( MEO2             )   ! HO2+MEO2=MEPX
-     &   +                 RKI(  82 ) * YC( FORM             )   ! HO2+FORM=HCO3
-     &   +                 RKI(  85 ) * YC( HCO3             )   ! HO2+HCO3=MEPX
-     &   +    5.6000D-01 * RKI(  95 ) * YC( C2O3             )   ! HO2+C2O3=0.4400D+...
-     &   +    5.6000D-01 * RKI( 111 ) * YC( CXO3             )   ! HO2+CXO3=0.4400D+...
-     &   +                 RKI( 134 ) * YC( TO2              )   ! HO2+TO2=
-     &   +                 RKI( 138 ) * YC( CRO              )   ! HO2+CRO=CRES
-     &   +                 RKI( 144 ) * YC( CRN2             )   ! HO2+CRN2=CRPX
-     &   +                 RKI( 154 ) * YC( CAO2             )   ! HO2+CAO2=
-     &   +                 RKI( 166 ) * YC( ISOPO2           )   ! HO2+ISOPO2=ISOPX
-     &   +                 RKI( 176 ) * YC( XO2T             )   ! HO2+XO2T=ROOH
-     &   +                 RKI( 190 ) * YC( CLO              )   ! HO2+CLO=HOCL
-     &   +    5.6000D-01 * RKI( 229 ) * YC( MACO3            )   ! HO2+MACO3=...
-     &   +                 RKI( 236 ) * YC( NALKO2           )   ! HO2+NALKO2=NTRPX
-     &   +                 RKI( 239 ) * YC( NOHO2            )   ! HO2+NOHO2=NTRPX
-     &   +                 RKI( 242 ) * YC( NCNO2            )   ! HO2+NCNO2=NTRPX
-     &   +                 RKI( 245 ) * YC( NCNOHO2          )   ! HO2+NCNOHO2=NTRPX
-     &   +                 RKI( 249 ) * YC( NTRMO2           )   ! HO2+NTRMO2=NTRI
-     &   +                 RKI( 252 ) * YC( NTRIO2           )   ! HO2+NTRIO2=NTRI
+      L5 =                 RKI(  31 ) * YC( NO           )   ! HO2+NO=HNO3
+     &   +                 RKI(  44 ) * YC( OH           )   ! HO2+OH=
+     &   +                 RKI(  49 ) * YC( NO3          )   ! HO2+NO3=HNO3
+     &   +                 RKI(  57 ) * YC( XO2          )   ! HO2+XO2=ROOH
+     &   +                 RKI(  58 ) * YC( XO2N         )   ! HO2+XO2N=ROOH
+     &   +                 RKI(  72 ) * YC( MEO2         )   ! HO2+MEO2=MEPX
+     &   +                 RKI(  82 ) * YC( FORM         )   ! HO2+FORM=HCO3
+     &   +                 RKI(  85 ) * YC( HCO3         )   ! HO2+HCO3=MEPX
+     &   +    5.6000D-01 * RKI(  95 ) * YC( C2O3         )   ! HO2+C2O3=0.4400D+...
+     &   +    5.6000D-01 * RKI( 111 ) * YC( CXO3         )   ! HO2+CXO3=0.4400D+...
+     &   +                 RKI( 134 ) * YC( TO2          )   ! HO2+TO2=
+     &   +                 RKI( 138 ) * YC( CRO          )   ! HO2+CRO=CRES
+     &   +                 RKI( 144 ) * YC( CRN2         )   ! HO2+CRN2=CRPX
+     &   +                 RKI( 154 ) * YC( CAO2         )   ! HO2+CAO2=
+     &   +                 RKI( 166 ) * YC( ISOPO2       )   ! HO2+ISOPO2=ISOPX
+     &   +                 RKI( 176 ) * YC( XO2T         )   ! HO2+XO2T=ROOH
+     &   +                 RKI( 190 ) * YC( CLO          )   ! HO2+CLO=HOCL
+     &   +    5.6000D-01 * RKI( 229 ) * YC( MACO3        )   ! HO2+MACO3=...
+     &   +                 RKI( 236 ) * YC( NALKO2       )   ! HO2+NALKO2=NTRPX
+     &   +                 RKI( 239 ) * YC( NOHO2        )   ! HO2+NOHO2=NTRPX
+     &   +                 RKI( 242 ) * YC( NCNO2        )   ! HO2+NCNO2=NTRPX
+     &   +                 RKI( 245 ) * YC( NCNOHO2      )   ! HO2+NCNOHO2=NTRPX
+     &   +                 RKI( 249 ) * YC( NTRMO2       )   ! HO2+NTRMO2=NTRI
+     &   +                 RKI( 252 ) * YC( NTRIO2       )   ! HO2+NTRIO2=NTRI
 
       L5    = 1.0D0 + L5 * DTC + R4_5 + R21_5
 
 c..HONO loss terms not included in R4_19
-      L19 =                 RKI(  26 ) * YC( OH               )   ! HONO+OH=NO2
-     &    +    2.0000D+00 * RKI(  27 ) * YC( HONO             )   ! HONO+HONO=NO+NO2
+      L19 =                 RKI(  26 ) * YC( OH           )   ! HONO+OH=NO2
+     &    +    2.0000D+00 * RKI(  27 ) * YC( HONO         )   ! HONO+HONO=NO+NO2
 
       L19   = 1.0D0 + L19 * DTC + R4_19
 
 c..PNA loss terms not inluded in R5_21
-      L21 =                 RKI(  34 ) * YC( OH               )   ! PNA+OH=NO2
-     &    +    3.9000D-01 * RKI(  52 )                            ! PNA=0.6100D+...
+      L21 =                 RKI(  34 ) * YC( OH           )   ! PNA+OH=NO2
+     &    +    3.9000D-01 * RKI(  52 )                        ! PNA=0.6100D+...
 
       L21   = 1.0D0 + L21 * DTC + R5_21
 

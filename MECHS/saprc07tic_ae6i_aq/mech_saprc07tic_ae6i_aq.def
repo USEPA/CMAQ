@@ -80,6 +80,8 @@
 ! 07/2015     H. Pye Corrected NO2, XC, and XN in MTNO3 forming reactions. See Pye et al. 2015 in prep.
 ! 07/2015     H. Pye All updates for saprc07tic-ae6i v5.1 documented 
 !                    in Pye et al. in prep for ES&T 2015
+! 10/19/15    B.Hutzell: Renamed ACROLEIN_PRIMARY and TRIMETH_BENZ124 to ACRO_PRIMARY and TMBENZ124 for 
+!             DDM compliance
 
 
   SAPRC07TIC_AE6I_AQ
@@ -779,7 +781,7 @@ REACTIONS [CM] =
          0.076*RO2XC + 0.076*zRNO3 + 0.286*xGLY + 0.112*xMGLY + 0.159*CRES +
          0.088*xBALD + 0.045*xAFG1 + 0.067*xAFG2 + 0.278*AFG3 + 0.286*xAFG3 +
          0.102*yR6OOH + 0.461*yRAOOH + XYLRO2 + 0.399*XC # 1.43e-11;
-<BT17> TRIMETH_BENZ124 + OH = 0.022*HO2 + 0.627*xHO2 + 0.23*OH + 0.627*RO2C +
+<BT17> TMBENZ124 + OH = 0.022*HO2 + 0.627*xHO2 + 0.23*OH + 0.627*RO2C +
          0.121*RO2XC + 0.121*zRNO3 + 0.074*xGLY + 0.405*xMGLY + 0.112*xBACL +
          0.022*CRES + 0.036*xBALD + 0.088*xAFG1 + 0.352*xAFG2 + 0.23*AFG3 +
          0.151*xAFG3 + 0.043*yR6OOH + 0.705*yRAOOH + XYLRO2 + 
@@ -1041,7 +1043,7 @@ REACTIONS [CM] =
          0.864*xBALD + 1.136*XC # 1.40e-10;
 <TE07> PXYL + CL = 0.864*xHO2 + 0.864*RO2C + 0.136*RO2XC + 0.136*zRNO3 +
          0.864*xBALD + 1.136*XC # 1.44e-10;
-<TE08> TRIMETH_BENZ124 + CL = 0.838*xHO2 + 0.838*RO2C + 0.162*RO2XC +
+<TE08> TMBENZ124 + CL = 0.838*xHO2 + 0.838*RO2C + 0.162*RO2XC +
          0.162*zRNO3 + 0.838*xBALD + 2.162*XC # 2.42e-10;
 <TE09> ETOH + CL = HCL + 0.688*HO2 + 0.312*xHO2 + 0.312*RO2C + 0.503*xHCHO +
          0.688*CCHO + 0.061*xHOCCHO + 0.312*yROOH - 0.001*XC # 8.60e-11@-45;
@@ -1111,12 +1113,12 @@ REACTIONS [CM] =
 <TR09> CCHO_PRIMARY + NO3 = NO3  # 1.40e-12@1860;
 <TR10> CCHO_PRIMARY + CL  = CL  # 8.00e-11;
 
-<TR11> ACROLEIN_PRIMARY + OH  = OH  # 1.99e-11;
-<TR12> ACROLEIN_PRIMARY + O3  = O3  # 1.40e-15@2528;
-<TR13> ACROLEIN_PRIMARY + NO3 = NO3 # 1.18e-15;
-<TR14> ACROLEIN_PRIMARY + O3P = O3P # 2.37e-12;
-<TR15> ACROLEIN_PRIMARY       =     # 1.0/<ACRO_09>;
-<TR16> ACROLEIN_PRIMARY + CL  = CL  # 2.94e-10;
+<TR11> ACRO_PRIMARY + OH  = OH  # 1.99e-11;
+<TR12> ACRO_PRIMARY + O3  = O3  # 1.40e-15@2528;
+<TR13> ACRO_PRIMARY + NO3 = NO3 # 1.18e-15;
+<TR14> ACRO_PRIMARY + O3P = O3P # 2.37e-12;
+<TR15> ACRO_PRIMARY       =     # 1.0/<ACRO_09>;
+<TR16> ACRO_PRIMARY + CL  = CL  # 2.94e-10;
 
 
 

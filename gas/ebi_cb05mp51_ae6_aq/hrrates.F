@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05MP51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 15, 2015
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2015
 C
 C***********************************************************************
       USE HRDATA
@@ -370,11 +370,11 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  308 ) = RKI( 308 ) * YC(  BUTADIENE13 ) * YC(  O3 )
       RXRAT(  309 ) = RKI( 309 ) * YC(  BUTADIENE13 ) * YC(  NO3 )
       RXRAT(  310 ) = RKI( 310 ) * YC(  BUTADIENE13 ) * YC(  CL )
-      RXRAT(  311 ) = RKI( 311 ) * YC(  ACROLEIN_PRIMARY ) * YC(  OH )
-      RXRAT(  312 ) = RKI( 312 ) * YC(  ACROLEIN_PRIMARY ) * YC(  O3 )
-      RXRAT(  313 ) = RKI( 313 ) * YC(  ACROLEIN_PRIMARY ) * YC(  NO3 )
-      RXRAT(  314 ) = RKI( 314 ) * YC(  ACROLEIN_PRIMARY )
-      RXRAT(  315 ) = RKI( 315 ) * YC(  ACROLEIN_PRIMARY ) * YC(  CL )
+      RXRAT(  311 ) = RKI( 311 ) * YC(  ACRO_PRIMARY ) * YC(  OH )
+      RXRAT(  312 ) = RKI( 312 ) * YC(  ACRO_PRIMARY ) * YC(  O3 )
+      RXRAT(  313 ) = RKI( 313 ) * YC(  ACRO_PRIMARY ) * YC(  NO3 )
+      RXRAT(  314 ) = RKI( 314 ) * YC(  ACRO_PRIMARY )
+      RXRAT(  315 ) = RKI( 315 ) * YC(  ACRO_PRIMARY ) * YC(  CL )
       RXRAT(  316 ) = RKI( 316 ) * YC(  ACROLEIN ) * YC(  OH )
       RXRAT(  317 ) = RKI( 317 ) * YC(  ACROLEIN ) * YC(  O3 )
       RXRAT(  318 ) = RKI( 318 ) * YC(  ACROLEIN ) * YC(  NO3 )
