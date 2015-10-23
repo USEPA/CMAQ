@@ -81,7 +81,7 @@ C Arguments:
       REAL,    INTENT( IN )  :: DTHDZ( : )      ! gradient of THETV
       REAL,    INTENT( IN )  :: TA   ( : )      ! temperature [deg K]
       REAL,    INTENT( IN )  :: WSPD ( : )      ! wind speed [m/s]
-      REAL,    INTENT( IN )  :: ZF ( 0:  )      ! layer surface height [m]
+      REAL,    INTENT( IN )  :: ZF  ( 0: )      ! layer surface height [m]
       REAL,    INTENT( INOUT ) :: WSTK          ! wind speed @ top of fire [m/s]
                                                 ! OUT for reporting, only
       REAL,    INTENT( OUT ) :: ZPLM            ! initially, plume top height above fire,

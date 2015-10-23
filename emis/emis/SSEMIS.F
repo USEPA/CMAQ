@@ -947,7 +947,7 @@ C Then reset the sea-salt emissions array and local write counter.
 #ifdef parallel_io
                IF ( FIRSTIME ) THEN
                   FIRSTIME = .FALSE.
-                  IF ( .not. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                      IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
                         XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

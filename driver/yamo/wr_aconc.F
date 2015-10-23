@@ -102,7 +102,7 @@ C Override default beginning time timestamp for ACONC?
             WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
          END IF
 
-         IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
 #ifdef parallel_io
             IF ( .NOT. OPEN3( A_CONC_1, FSNONIO, PNAME ) ) THEN
 #else

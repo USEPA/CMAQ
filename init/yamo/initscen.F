@@ -136,7 +136,6 @@ C  environment variable description
 
       INTERFACE
          SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
-            IMPLICIT NONE
             CHARACTER( 16 ), INTENT( IN ) :: FNAME
             INTEGER, INTENT( IN )         :: STDATE, STTIME
             CHARACTER(  2 ), INTENT( IN ) :: SPC_CAT
@@ -144,7 +143,6 @@ C  environment variable description
             REAL, POINTER                 :: CGRID( :,:,:,: )
          END SUBROUTINE LOAD_CGRID
          SUBROUTINE OPCONC ( CGRID, STDATE, STTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER                 :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )         :: STDATE, STTIME, TSTEP
          END SUBROUTINE OPCONC

@@ -361,9 +361,6 @@ C                            pp 601-609, April, 1996.
       
       INTERFACE
          SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
-           USE AERO_DATA
-           USE AEROMET_DATA 
-           IMPLICIT NONE
            LOGICAL, INTENT( IN ) :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
            LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
          END SUBROUTINE GETPAR

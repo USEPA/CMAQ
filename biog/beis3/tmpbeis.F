@@ -177,9 +177,6 @@ C for XTRACT3
       INTERFACE
 
       SUBROUTINE CZANGLE( JDATE, JTIME, NX, NY, COSZEN )
-         USE UTILIO_DEFN
-         USE ASX_DATA_MOD, Only: Grid_Data
-         IMPLICIT NONE
          INTEGER, INTENT( IN )  :: JDATE
          INTEGER, INTENT( IN )  :: JTIME
          INTEGER, INTENT( IN )  :: NX
@@ -188,9 +185,6 @@ C for XTRACT3
       END SUBROUTINE CZANGLE
       SUBROUTINE BEIS3( JDATE, JTIME, NX, NY, MSPCS, COSZEN, SEMIS,
      &                  SLAI, BIPOL )
-         USE BIOG_EMIS, ONLY: NSEF, NLAI, LAITYPES
-         Use ASX_DATA_MOD
-         IMPLICIT NONE
          INTEGER, INTENT( IN ) :: JDATE
          INTEGER, INTENT( IN ) :: JTIME
          INTEGER, INTENT( IN ) :: NX
@@ -202,11 +196,6 @@ C for XTRACT3
          REAL,    INTENT( OUT ) :: BIPOL( :,:,: )
       END SUBROUTINE BEIS3
       SUBROUTINE HRNO( JDATE, JTIME, TSTEP, NOPOL )
-         USE HGRD_DEFN
-         USE BIOG_EMIS, ONLY: NSEF
-         USE ASX_DATA_MOD
-         USE UTILIO_DEFN
-         IMPLICIT NONE
          INTEGER, INTENT( IN )  :: JDATE
          INTEGER, INTENT( IN )  :: JTIME
          INTEGER, INTENT( IN )  :: TSTEP( 3 )
@@ -443,7 +432,7 @@ C Initialize normalized emissons to be used
          IF ( BEMIS_DIAG ) THEN
             EMISS = 0.0   ! array
 #ifdef parallel_io
-            IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( SNAME, FSNONIO, PNAME ) ) THEN
                   MESG = 'Could not open ' // TRIM(SNAME)
                   CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )

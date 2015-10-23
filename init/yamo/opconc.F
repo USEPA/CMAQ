@@ -234,7 +234,7 @@ C create header
 #ifdef parallel_io
       CALL SUBST_BARRIER
 
-      IF ( .not. IO_PE_INCLUSIVE ) THEN
+      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( CTM_CONC_1, FSNONIO, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

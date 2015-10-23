@@ -54,11 +54,10 @@ C     5/11/11 D.Wong:         incorporated twoway model implementation
 C     02Aug12 S.Roselle:      instrumented to output transmissivity for 
 C                             convective and resolved clouds
 C     Aug 2015 D. Wong        Extracted section of code that deals with creating
-C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in
-C                             opwdep.F
+C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in opwdep.F
 C                             Added a section of code to let non I/O processors
-C                             top open CTM_WET_DEP_1 and CTM_WET_DEP_2 for
-C                             parallel I/O implementation
+C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel I/O
+C                             implementation
 
 C-----------------------------------------------------------------------
 
@@ -153,10 +152,6 @@ C...........EXTERNAL FUNCTIONS
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
-            USE GRID_CONF
-            USE CGRID_SPCS
-            USE UTILIO_DEFN
-            IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: JDATE
             INTEGER, INTENT( IN )  :: JTIME
@@ -168,12 +163,6 @@ C...........EXTERNAL FUNCTIONS
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
-            USE GRID_CONF
-            USE CGRID_SPCS
-            USE UTILIO_DEFN
-            USE AQ_DATA
-            USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
-            IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: JDATE
             INTEGER, INTENT( IN )  :: JTIME
@@ -339,16 +328,16 @@ C...initialize the deposition array before processing clouds
      &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
 #ifdef parallel_io
-         IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSNONIO, PNAME ) ) THEN
-               XMSG = 'Could not open ' // TRIM(CTM_WET_DEP_1)
+               XMSG = 'Could not open ' // TRIM( CTM_WET_DEP_1 )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
-         IF (CLD_DIAG) THEN
-            IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( CLD_DIAG ) THEN
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSNONIO, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM(CTM_WET_DEP_2)
+                  XMSG = 'Could not open ' // TRIM( CTM_WET_DEP_2 )
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
             END IF

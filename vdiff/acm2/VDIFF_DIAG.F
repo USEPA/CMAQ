@@ -129,22 +129,22 @@ C Create the vsed_map (find the 1st vsed_ae species for each of the 6 surrogate 
             end do
          end if
 
-C open CONC file
-         ok = open3( ctm_conc_1, fsread3, pname )
-         ok = desc3( ctm_conc_1 )
-         if ( .not. ok ) then
-            xmsg = 'could not read '// trim( ctm_conc_1 )
-            call m3warn( pname, jdate, jtime, xmsg )
-            success = .false.; return
-         end if
+         if ( io_pe_inclusive ) then
 
-         sdate3d = jdate
-         stime3d = jtime
-         call nextime ( sdate3d, stime3d, tstep1 ) 
+C get CONC file header description
+            ok = open3( ctm_conc_1, fsread3, pname )
+            ok = desc3( ctm_conc_1 )
+            if ( .not. ok ) then
+               xmsg = 'could not read '// trim( ctm_conc_1 )
+               call m3warn( pname, jdate, jtime, xmsg )
+               success = .false.; return
+            end if
 
-         if ( grvsetl ) then
+            sdate3d = jdate
+            stime3d = jtime
+            call nextime ( sdate3d, stime3d, tstep1 ) 
 
-            if ( io_pe_inclusive ) then
+            if ( grvsetl ) then
 
                nvars3d = n_vsed
                fdesc3d = ' '   ! array
@@ -186,6 +186,7 @@ C open CONC file
             vdesc3d( v ) = 'min sub-timestep iteration count'
 
             if ( grvsetl ) then
+
                v = v + 1
                vtype3d( v ) = m3real
                units3d( v ) = ' '
@@ -220,6 +221,7 @@ C open CONC file
                call m3warn( pname, jdate, jtime, xmsg )
                success = .false.; return
             end if
+
          end if  ! io_pe_inclusive
 
          allocate ( nlpcr_max( ncols,nrows ),

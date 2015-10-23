@@ -130,14 +130,6 @@ C Local Variables:
 
       interface   ! for external procedures
          subroutine aero_sedv ( col, row, cgrd, vsed_ae )
-            use grid_conf
-            use cgrid_spcs
-            use utilio_defn
-            use asx_data_mod
-            use aero_data
-            use soa_defn
-            use aeromet_data
-            implicit none
             integer, intent( in )  :: col, row
             real,    intent( in )  :: cgrd( :,: )
             real,    intent( out ) :: vsed_ae( :,: )

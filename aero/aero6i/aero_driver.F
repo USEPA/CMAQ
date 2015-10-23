@@ -99,8 +99,8 @@ C   HOT Pye      - Jan 13 -  Additional information for IEPOX aerosol
 C                            written to AERODIAG file
 C   B.Hutzell    - Sept 15 - module, routine calls and line for writing out
 C                            IMPROVE network Aerosol Optical Depth (AOD) file
-C   David Wong   - Aug 15 - Used IO_PE_INCLUSIVE rather than MYPE to
-C                           facilitate parallel I/O implementation
+C   David Wong   - Aug 15 - Used IO_PE_INCLUSIVE rather than MYPE to facilitate
+C                           parallel I/O implementation
 C                         - Used a new logical variable, FIRST_CTM_VIS_1 to
 C                           determine when to open CTM_VIS_1 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -617,26 +617,26 @@ C *** If last call this hour, write visibility information.
          WRITETIME = .FALSE.
 
 #ifdef parallel_io
-         IF (FIRST_CTM_VIS_1) THEN
+         IF ( FIRST_CTM_VIS_1 ) THEN
             FIRST_CTM_VIS_1 = .FALSE.
-            IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( CTM_VIS_1, FSNONIO, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM(CTM_VIS_1)
+                  XMSG = 'Could not open ' // TRIM( CTM_VIS_1 )
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
             END IF
             IF ( AERDIAG ) THEN
-               IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_DIAM_1, FSNONIO, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM(CTM_DIAM_1)
+                     XMSG = 'Could not open ' // TRIM( CTM_DIAM_1 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                END IF
             END IF
             IF ( AOD ) THEN
-               IF ( .not. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_AOD_1, FSNONIO, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM(CTM_AOD_1)
+                     XMSG = 'Could not open ' // TRIM( CTM_AOD_1 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                END IF

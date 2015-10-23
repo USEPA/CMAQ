@@ -1,13 +1,32 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
         MODULE BMATVEC_MODULE
 
-!***********************************************************************
+!=======================================================================
 ! Version "@(#)$Header$"
 ! EDSS/Models-3 I/O API.
 ! Copyright (C) 1992-2002 MCNC and Carlie J. Coats, Jr., and
 ! (C) 2003-2010 Baron Advanced Meteorological Systems
 ! Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
 ! See file "LGPL.txt" for conditions of use.
-!.........................................................................
+!.......................................................................
 !  subroutine body starts at line  76
 !
 !  FUNCTION:  apply a 4-band sparse matrix to an array ("layered vector")
@@ -74,12 +93,12 @@ C...........   ARGUMENTS and their descriptions:
         REAL   , INTENT(  OUT) :: C( : )        ! P-layered output vector
 
 
-C...........   SCRATCH LOCAL VARIABLES and their descriptions:
+C...........   LOCAL VARIABLES and their descriptions:
         
         INTEGER         S, L, J1, J2, J3, J4
 
 !***********************************************************************
-!   begin body of subroutine  BMATVEC
+!   begin body of subroutine  BMATVEC1
 
         DO  S = 1, N
             
@@ -115,7 +134,7 @@ C...........   SCRATCH LOCAL VARIABLES and their descriptions:
         REAL   , INTENT(  OUT) :: C( :,: )        ! P-layered output vector
 
 
-!...........   SCRATCH LOCAL VARIABLES and their descriptions:
+!...........   LOCAL VARIABLES and their descriptions:
         
         INTEGER         S, L, J1, J2, J3, J4
 

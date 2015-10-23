@@ -117,9 +117,6 @@ C..SCRATCH LOCAL VARIABLES:
 
       INTERFACE ! for degrade algorithm
         SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, LOGDEV )
-          USE RXNS_DATA
-          USE DEGRADE_SETUP_TOX
-          IMPLICIT NONE
           REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
           REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
           INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD

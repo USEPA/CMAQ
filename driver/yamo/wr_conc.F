@@ -130,7 +130,7 @@ C-----------------------------------------------------------------------
 
 C open conc file for update
 
-         IF ( .not. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
 #ifdef parallel_io
             IF ( .NOT. OPEN3( CTM_CONC_1, FSNONIO, PNAME ) ) THEN
 #else

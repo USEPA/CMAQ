@@ -41,13 +41,15 @@ C Subroutines and Functions Called:
 C    I/O API 
  
 C Revision History:
-C    Copied from preplm.f v 1.2 in DAQM-V2 Emissions Preprocessor by
-C        M. Houyoux 3/99
-C    16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-C     Aug 2015, D. Wong: - Used assumed shape array declaration and adjusted
-C                            array accessing index accordingly
-C                        - Replaced run time dynamical array with allocatable 
-C                            array
+C  Copied from preplm.f v 1.2 in DAQM-V2 Emissions Preprocessor by
+C  M. Houyoux 3/99
+C  16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  Aug 2015, D. Wong: - Used assumed shape array declaration and adjusted
+C                       array accessing index accordingly
+C                     - Replaced run time dynamical array with allocatable 
+C                     - Fixed temp. and windsp. polynomial interpolation to
+C                       stack top
+C  12 Oct 2015 J.Young: fix how PRES is used: defined at layer top surface
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -122,8 +124,8 @@ C Local Variables:
 
 C-----------------------------------------------------------------------
 
-      ALLOCATE (TV(EMLAYS), TF(EMLAYS), STAT=STAT)
-      IF (STAT .NE. 0) THEN
+      ALLOCATE ( TV( EMLAYS ), TF( EMLAYS ), STAT=STAT )
+      IF ( STAT .NE. 0 ) THEN
          WRITE( XMSG, *) ' Cannot allocate TV and TF in PREPLM'
          CALL M3MSG2( XMSG )
          STOP
@@ -155,7 +157,8 @@ C Interpolate the virtual temperatures at the full-layer face heights (at ZFs)
       DELZ = ZH( L ) - ZH( L-1 )
       TF( L ) = TV( L ) + ( TV( L ) - TV( L-1 ) ) * ( ZF( L ) - ZH( L ) ) / DELZ
 
-      THV1  = TF( 1 ) * ( 1000.0 / PRES( 2 ) ) ** 0.286
+!     THV1  = TF( 1 ) * ( 1000.0 / PRES( 2 ) ) ** 0.286
+      THV1  = TF( 1 ) * ( 1000.0 / PRES( 1 ) ) ** 0.286
 
 !     DTHDZ( 1 ) = ( THV1 - THETG ) / ZF( 1 )
 
@@ -164,7 +167,8 @@ C Interpolate the virtual temperatures at the full-layer face heights (at ZFs)
          IF ( HMIX .GT. ZF( L-1 ) ) LPBL = L
          IF ( HTS .GT. ZF( L-1 ) ) LSTK = L
  
-         THVK = TF( L ) * ( 1000.0 / PRES( L+1 ) ) ** 0.286
+!        THVK = TF( L ) * ( 1000.0 / PRES( L+1 ) ) ** 0.286
+         THVK = TF( L ) * ( 1000.0 / PRES( L ) ) ** 0.286
          DTHDZ( L ) = DDZF( L ) * ( THVK - THV1 )
          THV1 = THVK
  
@@ -184,6 +188,6 @@ C Interpolate ambient temp. and windspeed to top of stack using DEG deg. polynom
          WSTK = WSPD( 1 )
       END IF
 
-      DEALLOCATE (TV, TF)
+      DEALLOCATE ( TV, TF )
 
       END SUBROUTINE PREPLM

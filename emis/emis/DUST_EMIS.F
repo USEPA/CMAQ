@@ -314,18 +314,12 @@ C Local variables:
 
          interface
             subroutine cropcal ( jdate, jtime, agland )
-            use hgrd_defn
-            use utilio_defn
-            implicit none
-            integer, intent( in )  :: jdate, jtime
-            real,    intent( out ) :: agland( :,: )
+               integer, intent( in )  :: jdate, jtime
+               real,    intent( out ) :: agland( :,: )
             end subroutine cropcal
             subroutine tfbelow ( jdate, jtime, tfb )
-            use hgrd_defn
-            use utilio_defn
-            implicit none
-            integer, intent( in )  :: jdate, jtime
-            real,    intent( out ) :: tfb( :,: )
+               integer, intent( in )  :: jdate, jtime
+               real,    intent( out ) :: tfb( :,: )
             end subroutine tfbelow
          end interface
 
@@ -920,11 +914,7 @@ C D.Tong change:
 
          interface
             subroutine tfabove ( tfa )
-            use hgrd_defn
-            use asx_data_mod
-            use lus_defn, only: uland
-            implicit none
-            real,    intent( out ) :: tfa( :,: )
+               real,    intent( out ) :: tfa( :,: )
             end subroutine tfabove
          end interface
 
