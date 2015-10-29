@@ -157,49 +157,31 @@ C Local Variables
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             CHARACTER( * ), INTENT( IN )  :: PNAME
             REAL,           INTENT( IN )  :: VDEMIS( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             INTEGER,        INTENT( IN )  :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE_EMIS
          SUBROUTINE PA_UPDATE_DDEP ( PNAME, DDEP, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             CHARACTER( * ), INTENT( IN )  :: PNAME
             REAL,           INTENT( IN )  :: DDEP( :,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             INTEGER,        INTENT( IN )  :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE_DDEP
          SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
-            IMPLICIT NONE
             REAL, POINTER :: CGRID( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             REAL,           INTENT( INOUT ) :: CNGRD( :,:,:,: )
          END SUBROUTINE CONV_CGRID
          SUBROUTINE REV_CGRID ( CNGRD, JDATE, JTIME, CGRID )
-            IMPLICIT NONE
             REAL,           INTENT( INOUT ) :: CNGRD( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
             REAL, POINTER :: CGRID( :,:,:,: )
          END SUBROUTINE REV_CGRID
          SUBROUTINE EDDYX ( EDDYV )
-            USE GRID_CONF
-            USE ASX_DATA_MOD
-            USE UTILIO_DEFN
-            IMPLICIT NONE
             REAL,           INTENT( OUT ) :: EDDYV( :,:,: )
          END SUBROUTINE EDDYX
          SUBROUTINE VDIFFACMX( dtsec, seddy, ddep, icmp, ddepj, ddepj_fst, cngrd )
-            USE CGRID_SPCS
-            USE GRID_CONF
-            USE EMIS_DEFN
-            USE DEPV_DEFN
-            USE ASX_DATA_MOD
-            USE VDIFF_MAP
-            USE UTILIO_DEFN
-            USE BIDI_MOD
-            USE LSM_MOD, ONLY: n_lufrac
-            IMPLICIT NONE
             REAL, INTENT( IN )    :: dtsec
             REAL, INTENT( INOUT ) :: seddy( :,:,: )
             REAL, INTENT( INOUT ) :: ddep ( :,:,: )
@@ -244,9 +226,10 @@ C Get diagnostic files flag.
          IF ( STATUS .EQ. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
  
 C Set output file characteristics based on COORD.EXT and open the dry dep file
-         IF ( IO_PE_INCLUSIVE ) CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
-         
-         IF ( ( ABFLUX .OR. HGBIDI ) .AND. IO_PE_INCLUSIVE ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+         IF ( IO_PE_INCLUSIVE ) THEN
+            CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP, ABFLUX )
+            IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ), ABFLUX )
+         END IF
 
 C Open vdiff diagnostics file (ioapi header from cgrd)
          IF ( VDIFFDIAG ) THEN
@@ -316,7 +299,8 @@ C Set up for grav. settling
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
             DDEPJ = 0.0   ! array assignment
-            IF ( IO_PE_INCLUSIVE ) CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+            IF ( IO_PE_INCLUSIVE )
+     &         CALL OPDDEP_MOS ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             IF ( FST ) THEN
                ALLOCATE ( DDEPJ_FST( N_LUFRAC,N_SPC_DEPV,NCOLS,NROWS ), STAT = ASTAT )
                IF ( ASTAT .NE. 0 ) THEN
@@ -324,7 +308,8 @@ C Set up for grav. settling
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
                DDEPJ_FST = 0.0   ! array assignment
-               IF ( IO_PE_INCLUSIVE ) CALL OPDDEP_FST ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+               IF ( IO_PE_INCLUSIVE )
+     &            CALL OPDDEP_FST ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             END IF   ! if Fst
          END IF   ! if Mosaic
 
@@ -449,7 +434,7 @@ C If last call this hour:  write accumulated depositions:
          IF ( WRITE_FIRSTIME ) THEN
             WRITE_FIRSTIME = .FALSE.
 
-            IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -466,7 +451,7 @@ C If last call this hour:  write accumulated depositions:
                      END IF
                   END IF
                END IF
-            END IF
+            END IF   ! .NOT. IO_PE_INCLUSIVE
          END IF
 #endif
 

@@ -151,14 +151,12 @@ C ACM Local Variables
 
       INTERFACE
          SUBROUTINE MATRIX1 ( KL, A, B, E, D, X )
-            IMPLICIT NONE
             INTEGER,        INTENT( IN )  :: KL
             REAL,           INTENT( IN )  :: A( : ), B( : ), E( : )
             REAL,           INTENT( IN )  :: D( :,: )
             REAL,           INTENT( OUT ) :: X( :,: )
          END SUBROUTINE MATRIX1
          SUBROUTINE TRI ( L, D, U, B, X )
-            IMPLICIT NONE
             REAL,           INTENT( IN )  :: L( : ), D( : ), U( : )
             REAL,           INTENT( IN )  :: B( :,: )
             REAL,           INTENT( OUT ) :: X( :,: )

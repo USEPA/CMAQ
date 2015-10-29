@@ -223,7 +223,7 @@ C--------------------------------------------------------------------------
          
          If ( ABFLUX .AND. .NOT. HGBIDI) Then
 
-            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
+            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN
 
                XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
      &             // 'try to open new'
@@ -364,7 +364,7 @@ C--------------------------------------------------------------------------
             
          Else If ( ABFLUX .AND. HGBIDI ) Then         
             
-            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
+            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN
 
                XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
      &             // 'try to open new'
@@ -521,9 +521,9 @@ C--------------------------------------------------------------------------
 #ifdef parallel_io
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( MEDIA_CONC, FSNONIO, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM(MEDIA_CONC)
+                  XMSG = 'Could not open ' // TRIM( MEDIA_CONC )
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF
             END IF

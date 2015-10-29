@@ -29,9 +29,9 @@
 
 !-----------------------------------------------------------------------
 !
-!  FUNCTION:  RADM/ACM and Resolved cloud process driver
+!  FUNCTION:  Open wet dep file(s)
 !
-!  PRECONDITIONS REQUIRED:
+!  PRECONDITIONS:
 !       Dates and times represented YYYYDDD:HHMMSS.
 !
 !  REVISION  HISTORY:
@@ -68,7 +68,7 @@
 
       LOGICAL, SAVE :: CLD_DIAG          ! flag to output cloud diagnostic files
 
-      CHARACTER( 16 ), SAVE :: PNAME = 'CLDPROC' ! driver program name
+      CHARACTER( 16 ), SAVE :: PNAME = 'OPWDEP' ! driver program name
 
       INTEGER       FINI             ! ending position
       INTEGER       L                ! loop counter
@@ -80,7 +80,6 @@
       INTEGER, SAVE :: LOGDEV           ! output log unit number
 
 !-----------------------------------------------------------------------
-!   begin body of subroutine  CLDPROC
 
 !...Initialization
 

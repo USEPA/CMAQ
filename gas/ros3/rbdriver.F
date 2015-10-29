@@ -199,31 +199,17 @@ C for interpolating meteorological inputs
 #endif
 
       INTERFACE
-
-!?       SUBROUTINE PA_IRR_SETUP( NBLKS, LIRRBLK, LCELL, BLKLEN,
-!?   &                            CCOL, CROW, CLEV )
-!?          USE GRID_CONF
-!?          USE CGRID_SPCS
-!?          USE PAGRD_DEFN
-!?          IMPLICIT NONE
-!?          INTEGER NBLKS
-!?          LOGICAL :: LIRRBLK( : )
-!?          INTEGER :: LCELL( : ), BLKLEN( : )
-!?          INTEGER :: CCOL( : ), CROW( : ), CLEV( : )
-!?       END SUBROUTINE PA_IRR_SETUP
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
             INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
             INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
             INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
             INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+            REAL,    INTENT( OUT ) :: RJ( :,:,:,: ) ! gridded J-values  (1/min units)
          END SUBROUTINE PHOT
          SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRFLAG, OFFSET,
      &                             CCOL, CROW, CLEV, NORDCELL,
      &                             NIRRCLS, IRRCELL )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: NUMCELLS, OFFSET
             LOGICAL, INTENT( OUT ) :: LIRRFLAG
             INTEGER, INTENT( IN )  :: CCOL( : ), CROW( : ), CLEV( : )
@@ -234,7 +220,6 @@ C for interpolating meteorological inputs
          SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
      &                               CCOL, CROW, CLEV, NORDCELL,
      &                               NIRRCLS, IRRCELL )
-            IMPLICIT NONE
             INTEGER, INTENT( IN ) :: OFFSET
             INTEGER, INTENT( IN ) :: CCOL( : ), CROW( : ), CLEV( : )
             INTEGER, INTENT( IN ) :: NORDCELL( : )
@@ -243,12 +228,6 @@ C for interpolating meteorological inputs
          END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE RBSOLVER ( LOGDEV, JDATE, JTIME, CHEMSTEP, NCSP,
      &                         LIRRFLAG, NIRRCLS, IRRCELL )
-            USE GRID_CONF
-            USE RXNS_DATA
-            USE RBDATA
-            USE CGRID_SPCS
-            USE UTILIO_DEFN
-            IMPLICIT NONE
             INTEGER,   INTENT( IN ) :: LOGDEV, JDATE, JTIME
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP
             INTEGER,   INTENT( IN ) :: NCSP
@@ -257,8 +236,6 @@ C for interpolating meteorological inputs
             INTEGER,   INTENT( IN ) :: IRRCELL( : )
          END SUBROUTINE RBSOLVER
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
@@ -266,13 +243,10 @@ C for interpolating meteorological inputs
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
      &                         JDATE, JTIME, LOGDEV, BLKID )
-           USE RXNS_DATA
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
-           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
-           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) ! Photolysis table for cell [1/s]
+           REAL( 8 ), INTENT( IN ) :: CBLK ( :,: )      !  species concentration in cell
+           REAL( 8 ), INTENT( IN ) :: TCELL( : )        !  cell temperature  [ k ]
+           REAL( 8 ), INTENT( IN ) :: DCELL( : )        !  cell air density  [ kg/m^3 ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: ) ! Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
            INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
@@ -280,9 +254,7 @@ C for interpolating meteorological inputs
            INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
-           REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
+           REAL( 8 ), INTENT( INOUT ) :: CBLK( :,: ) ! species conc in cell
          END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 

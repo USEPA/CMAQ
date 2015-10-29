@@ -222,26 +222,20 @@ C..LOCAL VARIABLES:
 !     logical, save :: bingo2
       INTERFACE
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
-            USE GRID_CONF
-            USE RXNS_DATA
-            USE CGRID_SPCS
-            IMPLICIT NONE
-            LOGICAL LSTART, LCHGVL
-            REAL    :: RK( BLKSIZE,NRXNS )
-            REAL    :: CONC( :,: )
-            REAL    :: DELT( BLKSIZE )
-            INTEGER NUMCELLS
-            INTEGER :: ICLND( BLKSIZE )
+            LOGICAL, INTENT( IN ) :: LSTART
+            LOGICAL, INTENT( IN ) :: LCHGVL
+            REAL,    INTENT( IN ) :: RK( BLKSIZE,NRXNS )
+            REAL,    INTENT( IN ) :: CONC( :,: )
+            REAL,    INTENT( IN ) :: DELT( BLKSIZE )
+            INTEGER, INTENT( IN ) :: NUMCELLS
+            INTEGER, INTENT( IN ) :: ICLND( BLKSIZE )
          END SUBROUTINE PA_IRR
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
-          USE RXNS_DATA
-          USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations
-           REAL( 8 ), INTENT( IN ) :: DT                       ! time step for integrations [sec]
-           INTEGER,   INTENT( IN ) :: JDATE                    ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME                    ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID                    ! ID number for the BLK
+           REAL( 8 ), INTENT( IN ) :: DT            ! time step for integrations [sec]
+           INTEGER,   INTENT( IN ) :: JDATE         ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME         ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
          END SUBROUTINE
       END INTERFACE
 

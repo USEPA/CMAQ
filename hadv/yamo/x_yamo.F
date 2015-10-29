@@ -49,6 +49,7 @@ C   11 May 2010: Jeff Young: New hppm fix for PGI compiler by David Wong
 C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
+C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -147,30 +148,18 @@ C Yamo CFL correction
       REAL, ALLOCATABLE, SAVE :: BUF_EW( : )
 #endif
       
-C Statement functions:
-
       INTEGER, SAVE :: EFX    ! fixed parameter for eastern boundary
       INTEGER, SAVE :: WFX    ! fixed parameter for western boundary
-
-      REAL    BCCN            ! boundary concentrations stmt fn
-
-      INTEGER BFX             ! dummy positional parameter
-      INTEGER CR              ! row or column index
-      INTEGER SS              ! species index
-
-      BCCN ( BFX, CR, SS ) = BCON( BFX + CR, SS )
 
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
          SUBROUTINE HCONTVEL ( FDATE, FTIME, TSTEP, LVL, UORV, UHAT )
-            IMPLICIT NONE
             INTEGER,         INTENT( IN )     :: FDATE, FTIME, TSTEP, LVL
             CHARACTER( 16 ), INTENT( IN )     :: UORV
             REAL,            INTENT( OUT )    :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
          SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
-            IMPLICIT NONE
 #ifdef parallel
             INTEGER, PARAMETER                :: SWP = 3
 #else
@@ -407,7 +396,7 @@ C West boundary
      &               ZFDBC ( CONX( 1,SPC ), CONX( 2,SPC ),
      &                       VELX( 1 ),     VELX( 2 ) )
                ELSE    ! inflow
-                  CONX( 1-SWP:0,SPC ) = BCCN( WFX,ROW,SPC )
+                  CONX( 1-SWP:0,SPC ) = BCON( WFX+ROW,SPC )
                END IF
             END IF
 
@@ -419,7 +408,7 @@ C East boundary
      &               ZFDBC ( CONX( MY_NCOLS,SPC ), CONX( MY_NCOLS-1,SPC ),
      &                       VELX( MY_NCOLS+1 ),   VELX( MY_NCOLS ) )
                ELSE    ! inflow
-                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCCN( EFX,ROW,SPC )
+                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCON( EFX+ROW,SPC )
                END IF
             END IF
 

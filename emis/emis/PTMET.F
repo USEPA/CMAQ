@@ -114,7 +114,7 @@ C-----------------------------------------------------------------------
             MSRC = MY_NSRC( N )
             PTMET_DATA(N)%LEN1 = EMLAYS; PTMET_DATA(N)%LEN2 = MSRC
 
-            IF (MY_NSRC( N ) > 0) THEN
+            IF ( MY_NSRC( N ) .GT. 0 ) THEN
 C Allocate per-source arrays
                ALLOCATE( PTMET_DATA( N )%HFX  ( MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'HFX', PNAME )
@@ -128,8 +128,6 @@ C Allocate per-source arrays
                CALL CHECKMEM( IOS, 'PRSFC', PNAME )
 
 C Allocate per-source and per-layer arrays
-!           ALLOCATE( PTMET_DATA( N )%DDZH ( EMLAYS,MSRC ), STAT=IOS )
-!           CALL CHECKMEM( IOS, 'DDZH', PNAME )
                ALLOCATE( PTMET_DATA( N )%DDZF ( EMLAYS,MSRC ), STAT=IOS )
                CALL CHECKMEM( IOS, 'DDZF', PNAME )
                ALLOCATE( PTMET_DATA( N )%PRES ( EMLAYS,MSRC ), STAT=IOS )
@@ -188,7 +186,6 @@ C-----------------------------------------------------------------------
 
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
-               IMPLICIT NONE
                INTEGER, INTENT( IN )  :: EMLAYS, MY_NSRC
                INTEGER, INTENT( IN )  :: SRC_MAP( : )
                REAL,    INTENT( IN )  :: STKHT( : )
@@ -196,7 +193,6 @@ C-----------------------------------------------------------------------
                REAL,    INTENT( OUT ) :: ZSTK( :,: )
                REAL,    INTENT( OUT ) :: DDZF( :,: )
             END SUBROUTINE DELTA_ZS
-
          END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -205,7 +201,7 @@ C-----------------------------------------------------------------------
 
             MSRC = MY_NSRC( N )
 
-            IF (MY_NSRC( N ) > 0) THEN
+            IF ( MY_NSRC( N ) .GT. 0 ) THEN
                IF ( .NOT. ZSTATIC ) THEN
 
                   CALL READMC3 ( 'ZH', JDATE, JTIME, XBUF )
@@ -487,7 +483,7 @@ C for INTERPX
      &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
      &                             JDATE, JTIME, DBUF ) ) THEN
                ELSE
-                  XMSG = 'Could not read ' // trim(VNAME) //
+                  XMSG = 'Could not read ' // TRIM( VNAME ) //
      &                   ' from file MET_DOT_3D'
                   LOC_VNAME = TRIM( VNAME ) // 'C'
                   IF ( .NOT. INTERPX( MET_DOT_3D, LOC_VNAME, PNAME,

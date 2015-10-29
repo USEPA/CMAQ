@@ -139,7 +139,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-          IMPLICIT NONE
           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
@@ -148,11 +147,6 @@ C for INTERPX
           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
-           USE UTILIO_DEFN
-           USE RXNS_DATA
-           USE HRDATA
-           USE RXNS_FUNCTION, ONLY : SPECIAL_RATES
-           IMPLICIT NONE
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev

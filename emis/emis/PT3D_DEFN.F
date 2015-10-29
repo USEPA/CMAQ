@@ -209,7 +209,6 @@ C Local Variables:
 
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
-               IMPLICIT NONE
                INTEGER, INTENT( IN )  :: EMLYRS, MY_NSRC
                INTEGER, INTENT( IN )  :: SRC_MAP( : )
                REAL,    INTENT( IN )  :: STKHT( : )
@@ -583,7 +582,7 @@ C Open diagnostic layer fractions file?
 
 C Allocate and set stack parameters
 
-            IF (MY_NSRC( N ) > 0) THEN
+            IF ( MY_NSRC( N ) .GT. 0 ) THEN
                ALLOCATE( STK_DM( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
                CALL CHECKMEM( IOS, 'STK_DM', PNAME )
                STK_DM( N )%ARRY = 0.0   ! 1D array
@@ -645,7 +644,7 @@ C If wildfire, allocate and fire parameters (assumes only one file group)
 
 C Compute per-source heights
 
-               IF (MY_NSRC( N ) > 0) THEN
+               IF ( MY_NSRC( N ) .GT. 0 ) THEN
 C Get un-gridding matrices for cross and dot point met data
                   CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
                   CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
@@ -830,7 +829,7 @@ C Local variables:
              REAL,    INTENT( IN )  :: DTHDZ( : )
              REAL,    INTENT( IN )  :: TA   ( : )
              REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF ( 0:  )
+             REAL,    INTENT( IN )  :: ZF   ( 0: )
              REAL,    INTENT( IN )  :: ZH   ( : )
              REAL,    INTENT( IN )  :: ZSTK ( : )
              REAL,    INTENT( INOUT ) :: WSTK
@@ -850,14 +849,14 @@ C Local variables:
              REAL,    INTENT( IN )  :: DTHDZ( : )
              REAL,    INTENT( IN )  :: TA   ( : )
              REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF ( 0:  )
+             REAL,    INTENT( IN )  :: ZF   ( 0: )
              REAL,    INTENT( INOUT ) :: WSTK
              REAL,    INTENT( OUT ) :: ZPLM
            END SUBROUTINE FIRE_PLMRIS
 
            SUBROUTINE PLSPRD( DTHDZ, ZF, KZ, CEFSTK, PLTOP, PLBOT )
              REAL,    INTENT ( IN ) :: DTHDZ( : )
-             REAL,    INTENT ( IN ) :: ZF( 0:  )
+             REAL,    INTENT ( IN ) :: ZF   ( 0: )
              INTEGER, INTENT ( IN ) :: KZ
              REAL,    INTENT ( IN ) :: CEFSTK
              REAL,    INTENT( OUT ) :: PLTOP
@@ -878,7 +877,7 @@ C-----------------------------------------------------------------------
             PRE_JDATE = JDATE
 
 #ifdef parallel_io
-            IF ( .not. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSNONIO, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
@@ -948,19 +947,7 @@ C Convert pt source met data to bi-linear interpolated data
                ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
             END IF
 
-!           IF ( MY_NSRC( N ) .LE. 0 ) THEN
-!              IF ( ALLOCATED( STKEM ) ) DEALLOCATE( STKEM )
-!              IF ( PT3DFRAC ) THEN
-!                 IF ( ALLOCATED( LFRAC ) ) DEALLOCATE( LFRAC )
-!                 IF ( ALLOCATED( ZPLUM ) ) DEALLOCATE( ZPLUM )
-!              END IF
-!              CYCLE
-!           END IF
-
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-!           IF ( SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME ) .NE. SYNCOFF( N ) ) THEN
-!              STKDATE( N ) = SEC2TIME( TIME2SEC( JDATE ) + SYNCOFF( N ) )
-!           END IF
 
             IF ( PRE_JDATE .NE. JDATE ) THEN
                LOC_STKDATE = STKDATE( N ) + 1
