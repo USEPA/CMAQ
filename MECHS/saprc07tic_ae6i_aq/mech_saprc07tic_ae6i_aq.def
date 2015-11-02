@@ -79,7 +79,9 @@
 ! 06/2015     H. Pye Added uptake of GLY and MGLY to particles to form SOA
 ! 07/2015     H. Pye All updates for saprc07tic-ae6i v5.1 documented 
 !                    in Pye et al. in prep for ES&T 2015
-
+! 10/2015     B.Murphy Added organic reactions for representing SIMPLE SOA formation and semivolatile POA
+!                      aging. These changes are consistent with the lumped POA approach of Koo et al., 2014
+!                      and will be further documented in Murphy et al., 2016
 
   SAPRC07TIC_AE6I_AQ
 
@@ -1685,13 +1687,22 @@ REACTIONS [CM] =
 <OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
 <OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
 
+! Formation of Simple OM
+<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 1.0E-11;
 
-!aging reactions for primary organic carbon
+! Aging reactions for primary organic carbon
 
-<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
-<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
-<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
-<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
+!<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
+!<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
+!<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
+!<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
+
+<POA_AGE1> VLVPO1 + OH = 1.075 * VLVPO1 + OH  #4.0e-11;
+<POA_AGE2> VSVPO1 + OH = 1.075 * VLVPO1 + OH  #4.0e-11;
+<POA_AGE3> VSVPO2 + OH = 1.075 * VSVPO1 + OH  #4.0e-11;
+<POA_AGE4> VSVPO3 + OH = 1.075 * VSVPO2 + OH  #4.0e-11;
+<POA_AGE5> VIVPO1 + OH = 1.075 * VSVPO3 + OH  #4.0e-11;
+
 
 ! Hydrolysis of particle-phase nitrates
 

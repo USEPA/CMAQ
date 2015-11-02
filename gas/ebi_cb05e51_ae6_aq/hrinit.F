@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Nov. 2, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 134
+      N_EBISP  = 137
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -268,24 +268,27 @@ c..Allocate and define ebi species
       EBISP( 114 ) = APAH2J
       EBISP( 115 ) = AALK1J
       EBISP( 116 ) = AALK2J
-      EBISP( 117 ) = APOCI
-      EBISP( 118 ) = APNCOMI
-      EBISP( 119 ) = APOCJ
-      EBISP( 120 ) = APNCOMJ
-      EBISP( 121 ) = FORM_PRIMARY
-      EBISP( 122 ) = ALD2_PRIMARY
-      EBISP( 123 ) = BUTADIENE13
-      EBISP( 124 ) = ACROLEIN
-      EBISP( 125 ) = ACROLEIN_PRIMARY
-      EBISP( 126 ) = TOLU
-      EBISP( 127 ) = MXYL
-      EBISP( 128 ) = OXYL
-      EBISP( 129 ) = PXYL
-      EBISP( 130 ) = APIN
-      EBISP( 131 ) = BPIN
-      EBISP( 132 ) = HG
-      EBISP( 133 ) = HGIIAER
-      EBISP( 134 ) = HGIIGAS
+      EBISP( 117 ) = VOCSMP
+      EBISP( 118 ) = SMPRXN
+      EBISP( 119 ) = VLVPO1
+      EBISP( 120 ) = VSVPO1
+      EBISP( 121 ) = VSVPO2
+      EBISP( 122 ) = VSVPO3
+      EBISP( 123 ) = VIVPO1
+      EBISP( 124 ) = FORM_PRIMARY
+      EBISP( 125 ) = ALD2_PRIMARY
+      EBISP( 126 ) = BUTADIENE13
+      EBISP( 127 ) = ACROLEIN
+      EBISP( 128 ) = ACROLEIN_PRIMARY
+      EBISP( 129 ) = TOLU
+      EBISP( 130 ) = MXYL
+      EBISP( 131 ) = OXYL
+      EBISP( 132 ) = PXYL
+      EBISP( 133 ) = APIN
+      EBISP( 134 ) = BPIN
+      EBISP( 135 ) = HG
+      EBISP( 136 ) = HGIIAER
+      EBISP( 137 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -351,7 +354,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( XYLMN            ) = 1.0D-03
       RTOL( XYLRO2           ) = 1.0D-03
       RTOL( NAPH             ) = 1.0D-03
-      RTOL( PAHRO2           ) = 1.0D-03
+      RTOL( PAHRO2           ) = 1.0D+00
       RTOL( ISOP             ) = 1.0D-03
       RTOL( ISPD             ) = 1.0D-03
       RTOL( ISOPRXN          ) = 1.0D+00
@@ -383,10 +386,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( BNZHRXN          ) = 1.0D+00
       RTOL( SESQ             ) = 1.0D-03
       RTOL( SESQRXN          ) = 1.0D+00
-      RTOL( PAHNRXN          ) = 1.0D-03
-      RTOL( PAHHRXN          ) = 1.0D-03
+      RTOL( PAHNRXN          ) = 1.0D+00
+      RTOL( PAHHRXN          ) = 1.0D+00
       RTOL( SOAALK           ) = 1.0D-03
-      RTOL( ALKRXN           ) = 1.0D-03
+      RTOL( ALKRXN           ) = 1.0D+00
       RTOL( MAPAN            ) = 1.0D-03
       RTOL( NALKO2           ) = 1.0D-03
       RTOL( NTRCN            ) = 1.0D-03
@@ -420,10 +423,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J           ) = 1.0D-03
       RTOL( AALK1J           ) = 1.0D-03
       RTOL( AALK2J           ) = 1.0D-03
-      RTOL( APOCI            ) = 1.0D-03
-      RTOL( APNCOMI          ) = 1.0D-03
-      RTOL( APOCJ            ) = 1.0D-03
-      RTOL( APNCOMJ          ) = 1.0D-03
+      RTOL( VOCSMP           ) = 1.0D-03
+      RTOL( SMPRXN           ) = 1.0D-03
+      RTOL( VLVPO1           ) = 1.0D-03
+      RTOL( VSVPO1           ) = 1.0D-03
+      RTOL( VSVPO2           ) = 1.0D-03
+      RTOL( VSVPO3           ) = 1.0D-03
+      RTOL( VIVPO1           ) = 1.0D-03
       RTOL( FORM_PRIMARY     ) = 1.0D-03
       RTOL( ALD2_PRIMARY     ) = 1.0D-03
       RTOL( BUTADIENE13      ) = 1.0D-03

@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05E51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 4, 2015
+C  REVISION HISTORY: Created by EBI solver program, Nov. 2, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -239,23 +239,26 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  127
       INTEGER, PARAMETER :: AALK1J           =  128
       INTEGER, PARAMETER :: AALK2J           =  129
-      INTEGER, PARAMETER :: APOCI            =  130
-      INTEGER, PARAMETER :: APNCOMI          =  131
-      INTEGER, PARAMETER :: APOCJ            =  132
-      INTEGER, PARAMETER :: APNCOMJ          =  133
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  134
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  135
-      INTEGER, PARAMETER :: BUTADIENE13      =  136
-      INTEGER, PARAMETER :: ACROLEIN         =  137
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  138
-      INTEGER, PARAMETER :: TOLU             =  139
-      INTEGER, PARAMETER :: MXYL             =  140
-      INTEGER, PARAMETER :: OXYL             =  141
-      INTEGER, PARAMETER :: PXYL             =  142
-      INTEGER, PARAMETER :: APIN             =  143
-      INTEGER, PARAMETER :: BPIN             =  144
-      INTEGER, PARAMETER :: HG               =  145
-      INTEGER, PARAMETER :: HGIIAER          =  146
-      INTEGER, PARAMETER :: HGIIGAS          =  147
+      INTEGER, PARAMETER :: VOCSMP           =  130
+      INTEGER, PARAMETER :: SMPRXN           =  131
+      INTEGER, PARAMETER :: VLVPO1           =  132
+      INTEGER, PARAMETER :: VSVPO1           =  133
+      INTEGER, PARAMETER :: VSVPO2           =  134
+      INTEGER, PARAMETER :: VSVPO3           =  135
+      INTEGER, PARAMETER :: VIVPO1           =  136
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  137
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  138
+      INTEGER, PARAMETER :: BUTADIENE13      =  139
+      INTEGER, PARAMETER :: ACROLEIN         =  140
+      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  141
+      INTEGER, PARAMETER :: TOLU             =  142
+      INTEGER, PARAMETER :: MXYL             =  143
+      INTEGER, PARAMETER :: OXYL             =  144
+      INTEGER, PARAMETER :: PXYL             =  145
+      INTEGER, PARAMETER :: APIN             =  146
+      INTEGER, PARAMETER :: BPIN             =  147
+      INTEGER, PARAMETER :: HG               =  148
+      INTEGER, PARAMETER :: HGIIAER          =  149
+      INTEGER, PARAMETER :: HGIIGAS          =  150
 
       END MODULE HRDATA

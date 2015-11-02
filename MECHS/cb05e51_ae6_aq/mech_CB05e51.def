@@ -901,12 +901,22 @@ REACTIONS[CM] =
 <OLIG_ALK1>       AALK1J = 1.7143*AOLGAJ  # 9.48816E-6;
 <OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
-!aging reactions for primary organic carbon
+! Formation of Simple OM
+<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 1.0E-11;
 
-<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
-<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
-<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
-<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
+! Aging reactions for primary organic carbon
+
+!<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
+!<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
+!<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
+!<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
+
+<POA_AGE1> VLVPO1 + OH = 1.075 * VLVPO1 + OH  #4.0e-11;
+<POA_AGE2> VSVPO1 + OH = 1.075 * VLVPO1 + OH  #4.0e-11;
+<POA_AGE3> VSVPO2 + OH = 1.075 * VSVPO1 + OH  #4.0e-11;
+<POA_AGE4> VSVPO3 + OH = 1.075 * VSVPO2 + OH  #4.0e-11;
+<POA_AGE5> VIVPO1 + OH = 1.075 * VSVPO3 + OH  #4.0e-11;
+
 
 < T01>  FORM_PRIMARY + OH      = OH                   # 9.0E-12;
 < T02>  FORM_PRIMARY + NO3     = NO3                  # 5.8E-16;
