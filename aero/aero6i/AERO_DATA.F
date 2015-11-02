@@ -71,7 +71,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 54      ! number of aero species
+      Integer, Parameter :: n_aerospc = 58      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -125,8 +125,8 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','AMGJ   ','       '/), conmin_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PMG   ',(/0.000,1.000,0.000/)),
      & spcs_type((/'       ','AKJ    ','       '/), conmin_set, 2200.0, F, F, F,  1,  1.0,'DUST  ','PK    ',(/0.000,1.000,0.000/)),
      & spcs_type((/'       ','ACAJ   ','       '/), conmin_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PCA   ',(/0.000,1.000,0.000/)),
-     & spcs_type((/'APOCI  ','APOCJ  ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC   ',(/0.100,0.900,0.000/)),
-     & spcs_type((/'APNCOMI','APNCOMJ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','PNCOM ',(/0.100,0.900,0.000/)),
+    ! & spcs_type((/'APOCI  ','APOCJ  ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC   ',(/0.100,0.900,0.000/)),
+    ! & spcs_type((/'APNCOMI','APNCOMJ','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','PNCOM ',(/0.100,0.900,0.000/)),
      & spcs_type((/'AECI   ','AECJ   ','       '/), conmin_set, 2200.0, F, F, F,  0, 10.0,'SOOT  ','PEC   ',(/0.100,0.900,0.000/)),
      & spcs_type((/'       ','AFEJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PFE   ',(/0.000,1.000,0.000/)),
      & spcs_type((/'       ','AALJ   ','       '/), conmin_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PAL   ',(/0.000,1.000,0.000/)),
@@ -162,6 +162,12 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AMTHYDJ','       '/), conmin_set, 1400.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AORGCJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'       ','ASMPJ  ','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
+     & spcs_type((/'ALVPO1I','ALVPO1J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC   ',(/0.009,0.081,0.000/)),
+     & spcs_type((/'ASVPO1I','ASVPO1J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.009,0.081,0.000/)),
+     & spcs_type((/'ASVPO2I','ASVPO2J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.014,0.126,0.000/)),
+     & spcs_type((/'       ','ASVPO3J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.000,0.180,0.000/)),
+     & spcs_type((/'       ','AIVPO1J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.000,0.500,0.000/)),
      & spcs_type((/'       ','       ','ASOIL  '/), conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ACORS  '/), conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ASEACAT'/), conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,1.000/)),
@@ -184,8 +190,8 @@ C           -------  -------  -------
      &       0.0,     0.0368,  0.0,         ! AMG
      &       0.0,     0.0114,  0.0,         ! AK
      &       0.0,     0.0118,  0.0,         ! ACA
-     &       0.0,     0.0,     0.0,         ! APOC
-     &       0.0,     0.0,     0.0,         ! APNCOM
+   !  &       0.0,     0.0,     0.0,         ! APOC
+   !  &       0.0,     0.0,     0.0,         ! APNCOM
      &       0.0,     0.0,     0.0,         ! AEC
      &       0.0,     0.0,     0.0,         ! AFE
      &       0.0,     0.0,     0.0,         ! AAL
@@ -221,6 +227,12 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AOLGB
      &       0.0,     0.0,     0.0,         ! AMTHYD
      &       0.0,     0.0,     0.0,         ! AORGC
+     &       0.0,     0.0,     0.0,         ! ASMP !Simple OM
+     &       0.0,     0.0,     0.0,         ! ALVPO1
+     &       0.0,     0.0,     0.0,         ! ASVPO1
+     &       0.0,     0.0,     0.0,         ! ASVPO2
+     &       0.0,     0.0,     0.0,         ! ASVPO3
+     &       0.0,     0.0,     0.0,         ! AIVPO1
      &       0.0,     0.0,     0.0,         ! ASOIL
      &       0.0,     0.0,     0.0,         ! ACORS
      &       0.0,     0.0,     0.3686,      ! ASEACAT
@@ -242,7 +254,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_mg     = 'AMG'         
       Character( 16 ), Private, Parameter :: req_k      = 'AK' 
       Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
-      Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
+      Character( 16 ), Private, Parameter :: req_poc    = 'ALVPO1'  
       Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'  
       Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'  
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
@@ -339,6 +351,7 @@ C Missing aerosol species map
 C Emissions mapping
       Integer         :: n_emis_pm               ! number of aerospc with emissions
       Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
+      Character( 06 ) :: pmem_map_name( n_aerospc ) ! mapping to aerospc array for PM emissions
       Character( 16 ) :: pmem_units              ! units for PM emissions for all species
 
 C Private variables for loading from and unloading to CGRID array
@@ -452,7 +465,7 @@ C Find indices of required species
       ah3op_idx   = findAero( req_h3op,   .True. )
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
-      apncom_idx  = findAero( req_ncom,   .True. )
+      !apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
       aietet_idx  = findAero( req_ietet,  .True. )
       aieos_idx   = findAero( req_ieos,   .True. )
@@ -476,7 +489,7 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah3op_idx
       Write( logdev,'( 5x, a, i4 )' ) 'asoil_idx:  ', asoil_idx
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
+      !Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
@@ -581,6 +594,22 @@ C are the same and set pmem_units
 
             n_emis_pm = n_emis_pm + 1
             pmem_map( n_emis_pm ) = v
+            pmem_map_name (n_emis_pm ) = aerospc( v )%emis
+
+            !Add Non-Carbon Primary Organic Emissions Surrogate and Map
+	    !it to the Carbon Primary Organic Emissions Surrogate
+            If ( aerospc( v )%emis == 'POC' ) Then
+              indx = index1( 'PNCOM', nvars3d, vname3d )
+              If ( indx .Le. 0 ) Then
+                 xmsg1 = Trim( xmsg1 ) // crlf() // blank10
+     &               // Trim( aerospc( v )%emis )
+                 found = .False.
+                 Cycle
+              End If
+              n_emis_pm = n_emis_pm + 1
+              pmem_map( n_emis_pm ) = v
+              pmem_map_name (n_emis_pm ) = 'PNCOM'
+            END IF  
 
 C Change UNITS to upper case
             units = units3d( indx )
@@ -610,7 +639,7 @@ C Check that all emissions units match
 #ifdef verbose
       Write( logdev,'( /5x, a )' ) 'pmem_map to aerospc' 
          Do v = 1, n_emis_pm
-         Write( logdev,'( 5x, a, 2i4, 2x, a )' ) 'pmem_map:', v, pmem_map( v ), aerospc( pmem_map( v ) )%emis
+         Write( logdev,'( 5x, a, 2i4, 2x, a )' ) 'pmem_map:', v, pmem_map( v ), pmem_map_name( v ) 
       End Do
 #endif
 

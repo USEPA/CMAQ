@@ -63,8 +63,8 @@ C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor   = 17   ! # of partitioning SVOCs
-      Integer, Parameter :: n_orgprod = 12   ! # of ROG rxn counter species
+      Integer, Parameter :: n_vapor   = 23   ! # of partitioning SVOCs
+      Integer, Parameter :: n_orgprod = 13   ! # of ROG rxn counter species
 
       Type vapor_type
          Character( 16 ) :: name
@@ -97,7 +97,13 @@ C                  -------    -------  --------  -------  ------    --  ----   -
      & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
      & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
      & vapor_type('ISOPNN',      0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0, ' '      ),
-     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN')/)
+     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN'),
+     & vapor_type('LV_SMP ',  1.0   ,   1.0e-5,  40.0E3, 'ASMPJ  ','A', 10.0, 'SMPRXN' ),
+     & vapor_type('VLVPO1 ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J','A',  0.0, ''       ),
+     & vapor_type('VSVPO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J','A',  0.0, ''       ),
+     & vapor_type('VSVPO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J','A',  0.0, ''       ),
+     & vapor_type('VSVPO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J','A',  0.0, ''       ),
+     & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J','A',  0.0, ''       )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
@@ -157,7 +163,8 @@ C                     -------    -------    ------   ------
      & orgprod_type( 'PAHHRXN', 'NAPH   ', 'APAH3J', 0.730 ),
      & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
      & orgprod_type( 'ISOPRXN', 'ISOPRXN', '      ', 0.000 ),
-     & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ) /)
+     & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ),
+     & orgprod_type( 'SMPRXN ', 'VOCSMP ', '      ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
@@ -213,7 +220,7 @@ C Local Variables:
       Character( 132 ) :: xmsg
       Real            :: gasconv
       Real            :: vtmp
-      Integer         :: n
+      Integer         :: n, g
       Integer         :: spc
 
       Real, Save :: alk_factor = 1.00
@@ -223,40 +230,36 @@ C Local Variables:
          vapor_mw = 0.0
          vapor_map = 0
 
-C Build mapping to CGRID for each vapor species
-C Add option to have species in GC.nml (for real semivolatiles)
+C Build mapping to CGRID for each vapor species. It was originally
+C assumed that all semivolatile vapors were in the nonreactive tracer
+C namelist. B. Murphy is relaxing this assumption and allowing them to
+C be in the reactive gas namelist as well. H. Pye added option to have
+C real gas species from GC namelist.
          Do spc = 1, n_vapor
-            If( vaporspc( spc )%alpha .gt. 0.0 ) Then
-               n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
-               If ( n .Ne. 0 ) Then
-                  vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
-                  vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
-               Else
-                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
-     &                 // ' in vapor name is not in non-reactives table'
-                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
-               End If
-            Else ! vaporspc is a real species in GC (alpha=0 )
-               n = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
-               If ( n .Ne. 0 ) Then
-                  vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( n )
-                  !vapor_mw( spc ) = gc_molwt( n )
-                  vapor_mw( spc ) = gc_molwt( gc_g2ae_map( n ) )
-               Else
-                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
-     &                 // ' in vapor name is not in gas spc table'
-     &                 // ' of '// TRIM ( MECHNAME )
-                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
-               End If
+            n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
+            g = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
+            If ( n .NE. 0 ) Then
+	       !The Semivolatile Vapor Corresponds to a NonReactive
+	       !Tracer in the Master Grid
+               vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
+               vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
+	    Else If ( g .NE. 0 ) Then  
+	       !The Semivolatile Vapor Corresponds to a Reactive Gas
+	       !Tracer in the Master Grid
+               vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( g )
+               vapor_mw( spc ) = gc_molwt( gc_g2ae_map( g ) )
+            Else
+               xmsg = 'Species ' // Trim( vaporspc( spc )%name )
+     &              // ' in vapor name is not in non-reactives table'
+     &              // ' or the reactive gases table.'
+               Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
          End Do
 
 #ifdef verbose_soa
-
          Do spc = 1, n_vapor
           print*, vaporspc( spc ), vapor_map, vapor_mw
          End Do
-
 #endif
 
 C define orgprod parent names based on mechanism dependence
@@ -981,7 +984,8 @@ C organic material; in future code updates, molecularpartit weights of non-volat
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
-      totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
+      !totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
+      totorgsw = 0.0 !There is no Nonvolatile POA
       Do i = 1, n_aerospc
          If(  aerospc( i )%tracer )cycle
          If ( aerospc( i )%nonVol_soa ) Then
