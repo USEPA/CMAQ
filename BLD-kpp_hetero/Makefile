@@ -28,7 +28,7 @@ CC = icc
 F_FLAGS = -fixed -132 -O3 -override-limits -check uninit -check bounds -check format -g -traceback -warn nounused -override-limits -fno-alias -mp1  -I . -g
 C_FLAGS =  -O2  -DFLDMN=1
 #  LINK_FLAGS = $(myLINK_FLAG)
-LINK_FLAGS = -i-static
+LINK_FLAGS = -Bstatic
 
 else
  FC = /usr/local/pgi/linux86-64/10.5/bin/pgf90
@@ -55,7 +55,7 @@ else
    F90_FLAGS     = $(f90_FLAGS)
    C_FLAGS       = -O2 -DFLDMN -I /home/wdx/lib/x86_64/gcc/mpich/include
    LINKER        = $(FC)
-   LINK_FLAGS    = 
+   LINK_FLAGS    = -static-libgfortran
  endif
 
 endif
