@@ -2196,22 +2196,26 @@
              RKI( NCELL,  919) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_PAH2       
              RKI( NCELL,  920) =   9.4882D-06 * SFACT 
-!  Reaction Label RPOAGEPI        
-             RKI( NCELL,  921) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELI        
-             RKI( NCELL,  922) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
-!  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  923) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELJ        
-             RKI( NCELL,  924) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+!  Reaction Label SIMP            
+             RKI( NCELL,  921) =   1.0000D-11 * CFACT 
+!  Reaction Label POA_AGE1        
+             RKI( NCELL,  922) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE2        
+             RKI( NCELL,  923) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE3        
+             RKI( NCELL,  924) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE4        
+             RKI( NCELL,  925) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE5        
+             RKI( NCELL,  926) =   4.0000D-11 * CFACT 
 !  Reaction Label HYD_MT          
-             RKI( NCELL,  925) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  927) =   9.2590D-05 * SFACT 
 !  Reaction Label HYD_ISOP        
-             RKI( NCELL,  926) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  928) =   9.2590D-05 * SFACT 
 !  Reaction Label HET_GLY         
-             RKI( NCELL,  927) =  BLKHET(  NCELL, IK_HETERO_GLY )
+             RKI( NCELL,  929) =  BLKHET(  NCELL, IK_HETERO_GLY )
 !  Reaction Label HET_MGLY        
-             RKI( NCELL,  928) =  BLKHET(  NCELL, IK_HETERO_MGLY )
+             RKI( NCELL,  930) =  BLKHET(  NCELL, IK_HETERO_MGLY )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 16, 2015
+C  REVISION HISTORY: Created by EBI solver program, Nov. 2, 2015
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -90,8 +90,8 @@ C***********************************************************************
      &                          +                 RXRAT( 888 )      ! H2NO3PIJ=HNO3
      &                          +                 RXRAT( 889 )      ! H2NO3PK=HNO3
      &                          +                 RXRAT( 905 )      ! NO3=HNO3
-     &                          +                 RXRAT( 925 )      ! AMTNO3J=HNO3+AMTHYDJ
-     &                          +    2.0000D+00 * RXRAT( 926 )      ! AISOPNNJ=0.2000D+01*HNO3+...
+     &                          +                 RXRAT( 927 )      ! AMTNO3J=HNO3+AMTHYDJ
+     &                          +    2.0000D+00 * RXRAT( 928 )      ! AISOPNNJ=0.2000D+01*HNO3+...
       LOSS(  HNO3             ) =                 RXRAT(  27 )      ! HNO3+OH=NO3
      &                          +                 RXRAT(  28 )      ! HNO3=OH+NO2
 
@@ -2271,7 +2271,7 @@ C***********************************************************************
      &                          +                 RXRAT( 225 )      ! MGLY+OH=CO+MECO3
      &                          +                 RXRAT( 226 )      ! MGLY+NO3=HNO3+CO+MECO3
      &                          +                 RXRAT( 618 )      ! MGLY+CL=HCL+CO+MECO3
-     &                          +                 RXRAT( 928 )      ! MGLY=AGLYJ
+     &                          +                 RXRAT( 930 )      ! MGLY=AGLYJ
 
       PROD(  IPRD             ) =    1.3900D-01 * RXRAT( 218 )      ! RAOOH+OH=0.1390D+00*IPRD+...
      &                          +    3.0000D-03 * RXRAT( 243 )      ! AFG3+O3=0.3000D-02*IPRD+...
@@ -2483,7 +2483,7 @@ C***********************************************************************
      &                          +                 RXRAT( 222 )      ! GLY+OH=0.7000D+00*HO2+...
      &                          +                 RXRAT( 223 )      ! GLY+NO3=HNO3+0.7000D+...
      &                          +                 RXRAT( 617 )      ! GLY+CL=HCL+0.6300D+00*HO2+...
-     &                          +                 RXRAT( 927 )      ! GLY=AGLYJ
+     &                          +                 RXRAT( 929 )      ! GLY=AGLYJ
 
       PROD(  AFG1             ) =    5.0000D-01 * RXRAT( 219 )      ! RAOOH=0.5000D+00*AFG1+HO2+...
      &                          +    3.5000D-01 * RXRAT( 243 )      ! AFG3+O3=0.3500D+00*AFG1+...
@@ -3926,30 +3926,40 @@ C***********************************************************************
       PROD(  APAH2J           ) =   0.0D0
       LOSS(  APAH2J           ) =                 RXRAT( 920 )      ! APAH2J=0.1429D+01*AOLGAJ
 
-      PROD(  APOCI            ) =   0.0D0
-      LOSS(  APOCI            ) =   0.0D0
+      PROD(  VOCSMP           ) =   0.0D0
+      LOSS(  VOCSMP           ) =                 RXRAT( 921 )      ! VOCSMP+OH=OH+SMPRXN
 
-      PROD(  APNCOMI          ) =    1.2500D+00 * RXRAT( 921 )      ! APOCI+OH=0.1250D+...
-      LOSS(  APNCOMI          ) =                 RXRAT( 922 )      ! APNCOMI+OH=OH
+      PROD(  SMPRXN           ) =                 RXRAT( 921 )      ! VOCSMP+OH=SMPRXN+OH
+      LOSS(  SMPRXN           ) =   0.0D0
 
-      PROD(  APOCJ            ) =   0.0D0
-      LOSS(  APOCJ            ) =   0.0D0
+      PROD(  VLVPO1           ) =    7.5000D-02 * RXRAT( 922 )      ! VLVPO1+OH=0.1075D+01*VLVPO1+OH
+     &                          +    1.0750D+00 * RXRAT( 923 )      ! VSVPO1+OH=0.1075D+01*VLVPO1+OH
+      LOSS(  VLVPO1           ) =   0.0D0
 
-      PROD(  APNCOMJ          ) =    1.2500D+00 * RXRAT( 923 )      ! APOCJ+OH=0.1250D+...
-      LOSS(  APNCOMJ          ) =                 RXRAT( 924 )      ! APNCOMJ+OH=OH
+      PROD(  VSVPO1           ) =    1.0750D+00 * RXRAT( 924 )      ! VSVPO2+OH=0.1075D+01*VSVPO1+OH
+      LOSS(  VSVPO1           ) =                 RXRAT( 923 )      ! VSVPO1+OH=0.1075D+01*VLVPO1+OH
+
+      PROD(  VSVPO2           ) =    1.0750D+00 * RXRAT( 925 )      ! VSVPO3+OH=0.1075D+01*VSVPO2+OH
+      LOSS(  VSVPO2           ) =                 RXRAT( 924 )      ! VSVPO2+OH=0.1075D+01*VSVPO1+OH
+
+      PROD(  VSVPO3           ) =    1.0750D+00 * RXRAT( 926 )      ! VIVPO1+OH=0.1075D+01*VSVPO3+OH
+      LOSS(  VSVPO3           ) =                 RXRAT( 925 )      ! VSVPO3+OH=0.1075D+01*VSVPO2+OH
+
+      PROD(  VIVPO1           ) =   0.0D0
+      LOSS(  VIVPO1           ) =                 RXRAT( 926 )      ! VIVPO1+OH=0.1075D+01*VSVPO3+OH
 
       PROD(  AMTNO3J          ) =   0.0D0
-      LOSS(  AMTNO3J          ) =                 RXRAT( 925 )      ! AMTNO3J=HNO3+AMTHYDJ
+      LOSS(  AMTNO3J          ) =                 RXRAT( 927 )      ! AMTNO3J=HNO3+AMTHYDJ
 
-      PROD(  AMTHYDJ          ) =                 RXRAT( 925 )      ! AMTNO3J=AMTHYDJ+HNO3
-     &                          +    5.0000D-01 * RXRAT( 926 )      ! AISOPNNJ=0.5000D+...
+      PROD(  AMTHYDJ          ) =                 RXRAT( 927 )      ! AMTNO3J=AMTHYDJ+HNO3
+     &                          +    5.0000D-01 * RXRAT( 928 )      ! AISOPNNJ=0.5000D+...
       LOSS(  AMTHYDJ          ) =   0.0D0
 
       PROD(  AISOPNNJ         ) =   0.0D0
-      LOSS(  AISOPNNJ         ) =                 RXRAT( 926 )      ! AISOPNNJ=0.2000D+01*HNO3+...
+      LOSS(  AISOPNNJ         ) =                 RXRAT( 928 )      ! AISOPNNJ=0.2000D+01*HNO3+...
 
-      PROD(  AGLYJ            ) =                 RXRAT( 927 )      ! GLY=AGLYJ
-     &                          +                 RXRAT( 928 )      ! MGLY=AGLYJ
+      PROD(  AGLYJ            ) =                 RXRAT( 929 )      ! GLY=AGLYJ
+     &                          +                 RXRAT( 930 )      ! MGLY=AGLYJ
       LOSS(  AGLYJ            ) =   0.0D0
 
       RETURN

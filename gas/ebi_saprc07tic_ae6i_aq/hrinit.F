@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, July 16, 2015
+C  REVISION HISTORY: Created by EBI solver program, Nov. 2, 2015
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -144,7 +144,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 218
+      N_EBISP  = 221
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -361,14 +361,17 @@ c..Allocate and define ebi species
       EBISP( 208 ) = ASQTJ
       EBISP( 209 ) = APAH1J
       EBISP( 210 ) = APAH2J
-      EBISP( 211 ) = APOCI
-      EBISP( 212 ) = APNCOMI
-      EBISP( 213 ) = APOCJ
-      EBISP( 214 ) = APNCOMJ
-      EBISP( 215 ) = AMTNO3J
-      EBISP( 216 ) = AMTHYDJ
-      EBISP( 217 ) = AISOPNNJ
-      EBISP( 218 ) = AGLYJ
+      EBISP( 211 ) = VOCSMP
+      EBISP( 212 ) = SMPRXN
+      EBISP( 213 ) = VLVPO1
+      EBISP( 214 ) = VSVPO1
+      EBISP( 215 ) = VSVPO2
+      EBISP( 216 ) = VSVPO3
+      EBISP( 217 ) = VIVPO1
+      EBISP( 218 ) = AMTNO3J
+      EBISP( 219 ) = AMTHYDJ
+      EBISP( 220 ) = AISOPNNJ
+      EBISP( 221 ) = AGLYJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -597,10 +600,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ASQTJ            ) = 1.0D-03
       RTOL( APAH1J           ) = 1.0D-03
       RTOL( APAH2J           ) = 1.0D-03
-      RTOL( APOCI            ) = 1.0D-03
-      RTOL( APNCOMI          ) = 1.0D-03
-      RTOL( APOCJ            ) = 1.0D-03
-      RTOL( APNCOMJ          ) = 1.0D-03
+      RTOL( VOCSMP           ) = 1.0D-03
+      RTOL( SMPRXN           ) = 1.0D-03
+      RTOL( VLVPO1           ) = 1.0D-03
+      RTOL( VSVPO1           ) = 1.0D-03
+      RTOL( VSVPO2           ) = 1.0D-03
+      RTOL( VSVPO3           ) = 1.0D-03
+      RTOL( VIVPO1           ) = 1.0D-03
       RTOL( AMTNO3J          ) = 1.0D-03
       RTOL( AMTHYDJ          ) = 1.0D-03
       RTOL( AISOPNNJ         ) = 1.0D-03

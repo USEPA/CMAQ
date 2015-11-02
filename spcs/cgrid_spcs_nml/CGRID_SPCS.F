@@ -145,7 +145,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer k1, k2, k3, k4, k5  ! control type counters
             integer icall
             character(  1 ), parameter :: bl = ' '
-            integer, parameter :: spc_dim = 200
+            integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
 
