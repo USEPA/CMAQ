@@ -93,7 +93,7 @@ C-----------------------------------------------------------------------
 
 C Try to open existing file for update
 
-         CALL SE_BARRIER
+         CALL SUBST_BARRIER
 
          OK = OPEN3( S_CGRID, FSRDWR3, PNAME )
          CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
@@ -290,7 +290,7 @@ C proc 0 has CTM_CONC_1 open
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END IF
-      CALL SE_BARRIER
+      CALL SUBST_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( S_CGRID, FSNONIO, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( S_CGRID )
