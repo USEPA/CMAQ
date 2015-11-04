@@ -67,12 +67,12 @@ C..Arguments:
       LOGICAL, INTENT( IN ) :: LSTART   ! Flag to indicate start of chemical integration period
       LOGICAL, INTENT( IN ) :: LCHGVL   ! Flag to indicate vector length is changing
 
-      REAL,    INTENT( IN ) :: RK( BLKSIZE,NRXNS )    ! Reaction rate coefficients
+      REAL,    INTENT( IN ) :: RK( :,: )    ! Reaction rate coefficients
 !     REAL,    INTENT( IN ) :: CONC( BLKSIZE,N_GC_SPC ) ! Species concentrations
       REAL,    INTENT( IN ) :: CONC( :,: )            ! Species concentrations
-      REAL,    INTENT( IN ) :: DELT( BLKSIZE )        ! Chemistry integration time size
+      REAL,    INTENT( IN ) :: DELT( : )        ! Chemistry integration time size
       INTEGER, INTENT( IN ) :: NUMCELLS               ! Number of cells to process
-      INTEGER, INTENT( IN ) :: ICLND( BLKSIZE )       ! Original cell number 
+      INTEGER, INTENT( IN ) :: ICLND( : )       ! Original cell number 
 
 C..Parameters: None
 
