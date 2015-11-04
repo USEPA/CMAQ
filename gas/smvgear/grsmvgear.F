@@ -224,11 +224,11 @@ C..LOCAL VARIABLES:
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
             LOGICAL, INTENT( IN ) :: LSTART
             LOGICAL, INTENT( IN ) :: LCHGVL
-            REAL,    INTENT( IN ) :: RK( BLKSIZE,NRXNS )
+            REAL,    INTENT( IN ) :: RK( :,: )
             REAL,    INTENT( IN ) :: CONC( :,: )
-            REAL,    INTENT( IN ) :: DELT( BLKSIZE )
+            REAL,    INTENT( IN ) :: DELT( : )
             INTEGER, INTENT( IN ) :: NUMCELLS
-            INTEGER, INTENT( IN ) :: ICLND( BLKSIZE )
+            INTEGER, INTENT( IN ) :: ICLND( : )
          END SUBROUTINE PA_IRR
          SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME, BLKID )
            REAL( 8 ), INTENT( IN ) :: CBLK( :,  : ) ! array holding species concentrations

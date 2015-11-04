@@ -56,7 +56,7 @@ C                    15 Jul 14 B.Hutzell: replaced mechanism include files with
 C                    RXNS_DATA module, updated explicit interfaces and revised
 C                    block for FPP flag redebug is set in compilation
 C**********************************************************************
-      USE GRID_CONF               ! horizontal & vertical domain specifications
+
       USE RXNS_DATA
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
@@ -181,11 +181,11 @@ c.....ROS3 intermediate variables
       INTERFACE
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
             LOGICAL LSTART, LCHGVL
-            REAL    :: RK( BLKSIZE,NRXNS )
+            REAL    :: RK( :,: )
             REAL    :: CONC( :,: )
-            REAL    :: DELT( BLKSIZE )
-            INTEGER NUMCELLS
-            INTEGER :: ICLND( BLKSIZE )
+            REAL    :: DELT( : )
+            INTEGER :: NUMCELLS
+            INTEGER :: ICLND( : )
          END SUBROUTINE PA_IRR
          SUBROUTINE RBFEVAL( NCSP, YIN, YDOT )
             INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
