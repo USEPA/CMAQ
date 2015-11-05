@@ -163,7 +163,7 @@ c.....ROS3 intermediate variables
       REAL( 8 ), ALLOCATABLE, SAVE :: K3( :,: )
       REAL( 8 ), ALLOCATABLE, SAVE :: K4( :,: )
       REAL( 8 ), ALLOCATABLE, SAVE :: YP( :,: )     ! Predicted conc
-      REAL( 8 ), ALLOCATABLE :: ERR( : )            ! Error est for each cell
+      REAL( 8 ), ALLOCATABLE, SAVE :: ERR( : )      ! Error est for each cell
 
 
 #ifdef rbdebug

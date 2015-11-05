@@ -211,7 +211,7 @@ C..LOCAL VARIABLES:
       REAL( 8 ) :: YLOWA             ! Gear absolute error tolerance used
       REAL( 8 ) :: YLOWEPS           ! Tolerance ratio used in h0 calc
       REAL( 8 ) :: YLOWEPS1          ! Absolute tol over relative tol
-      REAL( 8 ), ALLOCATABLE :: DELY ( : )         ! Sum of squares of error estimates
+      REAL( 8 ), ALLOCATABLE, SAVE :: DELY ( : )   ! Sum of squares of error estimates
       REAL( 8 ), ALLOCATABLE, SAVE :: CEST ( :,: ) ! Error estimates for previous step 
       REAL( 8 ), ALLOCATABLE, SAVE :: CHOLD( :,: ) ! Factor for error tests
       REAL( 8 ), ALLOCATABLE, SAVE :: DTLOS( :,: ) ! Correction array for Newton iter.
