@@ -56,7 +56,7 @@ C                    15 Jul 14 B.Hutzell: replaced mechanism include files with
 C                    RXNS_DATA module, updated explicit interfaces and revised
 C                    block for FPP flag redebug is set in compilation
 C**********************************************************************
-      USE GRID_CONF               ! horizontal & vertical domain specifications
+!     USE GRID_CONF               ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
@@ -155,8 +155,7 @@ C..Local Variables:
       INTEGER    CELL_MAXERR      ! cell with maximum error estimate
       REAL( 8 ) :: MAX_SPC_ERR      ! species error in the cell
       
-      REAL( 8 ) :: ERR( BLKSIZE )           ! Error est for each cell
-      REAL( 8 ), ALLOCATABLE, SAVE :: YDOT( :, : )   ! dc/dt array
+      REAL( 8 ), ALLOCATABLE, SAVE :: YDOT( :,: )   ! dc/dt array
 
 c.....ROS3 intermediate variables
       REAL( 8 ), ALLOCATABLE, SAVE :: K1( :,: )    
@@ -164,6 +163,7 @@ c.....ROS3 intermediate variables
       REAL( 8 ), ALLOCATABLE, SAVE :: K3( :,: )
       REAL( 8 ), ALLOCATABLE, SAVE :: K4( :,: )
       REAL( 8 ), ALLOCATABLE, SAVE :: YP( :,: )     ! Predicted conc
+      REAL( 8 ), ALLOCATABLE, SAVE :: ERR( : )      ! Error est for each cell
 
 
 #ifdef rbdebug
@@ -180,12 +180,13 @@ c.....ROS3 intermediate variables
 
       INTERFACE
          SUBROUTINE PA_IRR ( LSTART, LCHGVL, RK, CONC, DELT, NUMCELLS, ICLND )
-            LOGICAL LSTART, LCHGVL
-            REAL    :: RK( BLKSIZE,NRXNS )
-            REAL    :: CONC( :,: )
-            REAL    :: DELT( BLKSIZE )
-            INTEGER NUMCELLS
-            INTEGER :: ICLND( BLKSIZE )
+            LOGICAL, INTENT( IN ) :: LSTART
+            LOGICAL, INTENT( IN ) :: LCHGVL
+            REAL,    INTENT( IN ) :: RK( :,: )
+            REAL,    INTENT( IN ) :: CONC( :,: )
+            REAL,    INTENT( IN ) :: DELT( : )
+            INTEGER, INTENT( IN ) :: NUMCELLS
+            INTEGER, INTENT( IN ) :: ICLND( : )
          END SUBROUTINE PA_IRR
          SUBROUTINE RBFEVAL( NCSP, YIN, YDOT )
             INTEGER,   INTENT(    IN ) :: NCSP          ! Index of mech to use: 1=gas/day, 2=gas/night
@@ -200,8 +201,8 @@ c.....ROS3 intermediate variables
            INTEGER,   INTENT( IN ) :: BLKID         ! ID number for the BLK
          END SUBROUTINE DEGRADE
          SUBROUTINE RBSOLVE( NCSP, RHS )
-           INTEGER,   INTENT( IN )    ::  NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
-           REAL( 8 ), INTENT( INOUT ) ::  RHS( :,: )  ! Right hand side = {b}
+           INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use: 1=gas/day, 2=gas/night
+           REAL( 8 ), INTENT( INOUT ) :: RHS( :,: )  ! Right hand side = {b}
          END SUBROUTINE RBSOLVE
          SUBROUTINE RBJACOB( NCSP, YIN )
            INTEGER,   INTENT( IN ) :: NCSP        ! Index of chem mech to use; 1=gas/day, 2=gas/night
@@ -249,7 +250,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      &              K2  ( BLKSIZE,N_SPEC ),
      &              K3  ( BLKSIZE,N_SPEC ),
      &              K4  ( BLKSIZE,N_SPEC ),
-     &              YP  ( BLKSIZE,N_SPEC ), STAT = IOS )
+     &              YP  ( BLKSIZE,N_SPEC ),
+     &              ERR ( BLKSIZE ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             XMSG = '*** Memory Allocation Error'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
