@@ -125,21 +125,16 @@ C Required interface for allocatable array dummy arguments
 
       INTERFACE
          SUBROUTINE RDBCON ( FDATE, FTIME, TSTEP, LVL, BCON )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
             REAL,    INTENT( OUT ) :: BCON( :,: )
          END SUBROUTINE RDBCON
          SUBROUTINE X_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
-            USE HGRD_DEFN
-            IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
 !           REAL,    INTENT( IN )  :: BCON( NBNDY,* )
             REAL,    INTENT( IN )  :: BCON( :,: )
          END SUBROUTINE X_PPM
          SUBROUTINE X_YAMO ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON, MTRHOJ )
-            USE HGRD_DEFN
-            IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
 !           REAL,    INTENT( IN )  :: BCON( NBNDY,* )
@@ -148,16 +143,12 @@ C Required interface for allocatable array dummy arguments
 !           REAL,    INTENT( IN )  :: MTRHOJ( :,: )
          END SUBROUTINE X_YAMO
          SUBROUTINE Y_PPM ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON )
-            USE HGRD_DEFN
-            IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
 !           REAL,    INTENT( IN )  :: BCON( NBNDY,: )
             REAL,    INTENT( IN )  :: BCON( :,: )
          END SUBROUTINE Y_PPM
          SUBROUTINE Y_YAMO ( CGRID, FDATE, FTIME, TSTEP, LVL, BCON, MTRHOJ )
-            USE HGRD_DEFN
-            IMPLICIT NONE
             REAL, POINTER          :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )  :: FDATE, FTIME, TSTEP, LVL
 !           REAL,    INTENT( IN )  :: BCON( NBNDY,1: )
@@ -166,7 +157,6 @@ C Required interface for allocatable array dummy arguments
 !           REAL,    INTENT( IN )  :: MTRHOJ( :,: )
          END SUBROUTINE Y_YAMO
 !        SUBROUTINE LCKSUMMER ( PNAME, CGRID, JDATE, JTIME, LVL )
-!           IMPLICIT NONE
 !           CHARACTER( * ), INTENT( IN ) :: PNAME
 !           REAL, POINTER                :: CGRID( :,:,:,: )
 !           INTEGER, INTENT( IN )        :: JDATE, JTIME, LVL

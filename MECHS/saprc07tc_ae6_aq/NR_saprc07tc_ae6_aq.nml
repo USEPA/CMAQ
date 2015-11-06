@@ -1,5 +1,5 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/saprc07tc_ae6_aq/NR_saprc07tc_ae6_aq.nml,v 1.1 2011/04/06 16:38:07 sjr Exp $
+! $Header: /project/yoj/arc/MECHS/src/saprc07tb_ae6_aq/NR_saprc07tc_ae6_aq.nml,v 1.1 2011/04/06 16:35:23 sjr Exp $
 
 &NR_nml
  

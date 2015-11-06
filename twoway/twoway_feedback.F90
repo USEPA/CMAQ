@@ -4,6 +4,10 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 ! Purpose:  Setup feedback buffer file
 !
 ! Revised:  April 2007  Original version.  David Wong
+!           Oct.  2015  -- put in error checking and updated water insoluble
+!                          calculation
+!                       -- commented out indirect code
+!                       -- used loop structure rather than explicit list
 !===============================================================================
 
   USE twoway_header_data_module
@@ -140,9 +144,13 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
   INTEGER   GXOFF, GYOFF      ! global origin offset from file
   integer, save :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
+  integer :: logdev
+
   CHARACTER( 96 ) :: XMSG = ' '
 
   IF ( firstime ) THEN
+
+     logdev = init3()
 
      write (pe_str, 11) '_', twoway_mype
  11  format (a1, i3.3)
@@ -178,23 +186,58 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 ! end: this is for indirect effect only, temporary blocked
 
      do i = 1, num_ws_spc
-        ws_spc_index(i) = index1 (ws_spc(i), n_ae_spc, ae_spc) + n_gc_spcd
+        ws_spc_index(i) = index1 (ws_spc(i), n_ae_spc, ae_spc)
+        if (ws_spc_index(i) == 0) then
+           write (logdev, *) ' in aero_driver ws species ', &
+                 trim(ws_spc(i)), ' is not found '
+           stop
+        else
+           ws_spc_index(i) = ws_spc_index(i) + n_gc_spcd
+        end if
      end do
 
      do i = 1, num_wi_spc
-        wi_spc_index(i) = index1 (wi_spc(i), n_ae_spc, ae_spc) + n_gc_spcd
+        wi_spc_index(i) = index1 (wi_spc(i), n_ae_spc, ae_spc)
+        if (wi_spc_index(i) == 0) then
+           write (logdev, *) ' in aero_driver wi species ', &
+                 trim(wi_spc(i)), ' is not found '
+           stop
+        else
+           wi_spc_index(i) = wi_spc_index(i) + n_gc_spcd
+        end if
      end do
 
      do i = 1, num_ec_spc
-        ec_spc_index(i) = index1 (ec_spc(i), n_ae_spc, ae_spc) + n_gc_spcd
+        ec_spc_index(i) = index1 (ec_spc(i), n_ae_spc, ae_spc)
+        if (ec_spc_index(i) == 0) then
+           write (logdev, *) ' in aero_driver ec species ', &
+                 trim(ec_spc(i)), ' is not found '
+           stop
+        else
+           ec_spc_index(i) = ec_spc_index(i) + n_gc_spcd
+        end if
      end do
 
      do i = 1, num_ss_spc
-        ss_spc_index(i) = index1 (ss_spc(i), n_ae_spc, ae_spc) + n_gc_spcd
+        ss_spc_index(i) = index1 (ss_spc(i), n_ae_spc, ae_spc)
+        if (ss_spc_index(i) == 0) then
+           write (logdev, *) ' in aero_driver ss species ', &
+                 trim(ss_spc(i)), ' is not found '
+           stop
+        else
+           ss_spc_index(i) = ss_spc_index(i) + n_gc_spcd
+        end if
      end do
 
      do i = 1, num_h2o_spc
-        h2o_spc_index(i) = index1 (h2o_spc(i), n_ae_spc, ae_spc) + n_gc_spcd
+        h2o_spc_index(i) = index1 (h2o_spc(i), n_ae_spc, ae_spc)
+        if (h2o_spc_index(i) == 0) then
+           write (logdev, *) ' in aero_driver h2o species ', &
+                 trim(h2o_spc(i)), ' is not found '
+           stop
+        else
+           h2o_spc_index(i) = h2o_spc_index(i) + n_gc_spcd
+        end if
      end do
 
      CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF, STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
@@ -215,34 +258,16 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
                                     + 0.0                      &    ! in AE5 cblk(VORGBAI)) = 0.0
                                     + cgrid(wi_spc_index( 2))  &
                                     + cgrid(wi_spc_index( 3)) 
-     feedback_data_cmaq(c,r,l, 5) =   cgrid(wi_spc_index( 4))  &    ! in AE5 it is the sum of
-                                    + cgrid(wi_spc_index( 5))  &    ! these 11 terms rather
-                                    + cgrid(wi_spc_index( 6))  &    ! than just cblk(VORGAJ)
-                                    + cgrid(wi_spc_index( 7))  &    
-                                    + cgrid(wi_spc_index( 8))  &
-                                    + cgrid(wi_spc_index( 9))  &
-                                    + cgrid(wi_spc_index(10))  &
-                                    + cgrid(wi_spc_index(11))  &
-                                    + cgrid(wi_spc_index(12))  &
-                                    + cgrid(wi_spc_index(13))  &
-                                    + cgrid(wi_spc_index(14))  &
-                                    + cgrid(wi_spc_index(15))  &
-                                    + cgrid(wi_spc_index(16))  &    ! in AE5 it is the sum of
-                                    + cgrid(wi_spc_index(17))  &    ! these 7 terms rather
-                                    + cgrid(wi_spc_index(18))  &    ! than just cblk(VORGBAJ)
-                                    + cgrid(wi_spc_index(19))  &
-                                    + cgrid(wi_spc_index(20))  &
-                                    + cgrid(wi_spc_index(21))  &
-                                    + cgrid(wi_spc_index(22))  &
-                                    + cgrid(wi_spc_index(23))  &
-                                    + cgrid(wi_spc_index(24))  &
-                                    + cgrid(wi_spc_index(25))  &
-                                    + cgrid(wi_spc_index(26))  &
-                                    + cgrid(wi_spc_index(27))  &
-                                    + cgrid(wi_spc_index(28))  &
-                                    + cgrid(wi_spc_index(29))  
-     feedback_data_cmaq(c,r,l, 6) =   cgrid(wi_spc_index(30))  &
-                                    + cgrid(wi_spc_index(31))  
+     feedback_data_cmaq(c,r,l, 5) =   0.0
+     do i = 4, 30
+        feedback_data_cmaq(c,r,l, 5) =   feedback_data_cmaq(c,r,l, 5) &
+                                       + cgrid(wi_spc_index(i))
+     end do
+     feedback_data_cmaq(c,r,l, 6) =   0.0
+     do i = 31, 32
+        feedback_data_cmaq(c,r,l, 6) =   feedback_data_cmaq(c,r,l, 6) &
+                                       + cgrid(wi_spc_index(i))
+     end do
 
 ! elemental carbon
      feedback_data_cmaq(c,r,l, 7) = cgrid(ec_spc_index(1))
@@ -278,36 +303,36 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 ! AE mass  ( this is for future indirect effect)
 
 ! begin: this is for indirect effect only, temporary blocked
-    if (indirect_effect) then
-       s = 23
-       e = n_feedback_var-3
-       j = 0
-       do i = s, e
-          j = j + 1
-          if (j == 29) then
-             feedback_data_cmaq(c,r,l,i) = cgrid(twoway_ae_cmaq_spc_name_other_index(1)) +      &
-                                           cgrid(twoway_ae_cmaq_spc_name_other_index(2))
-          else if (j == 30) then
-             feedback_data_cmaq(c,r,l,i) = cgrid(twoway_ae_cmaq_spc_name_other_index(3)) +      &
-                                           cgrid(twoway_ae_cmaq_spc_name_other_index(4))
-          else if (j == 37) then
-             feedback_data_cmaq(c,r,l,i) = 0.8373 * cgrid(twoway_ae_cmaq_spc_name_other_index(5)) +  &
-                                           0.0626 * cgrid(twoway_ae_cmaq_spc_name_other_index(6)) +  &
-                                           0.0023 * cgrid(twoway_ae_cmaq_spc_name_other_index(7))
-          else if (j == 42) then
-             feedback_data_cmaq(c,r,l,i) = 2.20 * cgrid(twoway_ae_cmaq_spc_name_other_index(8))  +  &
-                                           2.49 * cgrid(twoway_ae_cmaq_spc_name_other_index(9))  +  &
-                                           1.63 * cgrid(twoway_ae_cmaq_spc_name_other_index(10)) +  &
-                                           2.42 * cgrid(twoway_ae_cmaq_spc_name_other_index(11)) +  &
-                                           1.94 * cgrid(twoway_ae_cmaq_spc_name_other_index(12))
-          else
-             feedback_data_cmaq(c,r,l,i) = cgrid(twoway_ae_cmaq_spc_name_index(j))
-          end if
-       end do
-       feedback_data_cmaq(c,r,l,n_feedback_var-2) = cgrid(inumatkn)
-       feedback_data_cmaq(c,r,l,n_feedback_var-1) = cgrid(inumacc)
-       feedback_data_cmaq(c,r,l,n_feedback_var)   = cgrid(inumcor)
-    end if
+!   if (indirect_effect) then
+!      s = 23
+!      e = n_feedback_var-3
+!      j = 0
+!      do i = s, e
+!         j = j + 1
+!         if (j == 29) then
+!            feedback_data_cmaq(c,r,l,i) = cgrid(twoway_ae_cmaq_spc_name_other_index(1)) +      &
+!                                          cgrid(twoway_ae_cmaq_spc_name_other_index(2))
+!         else if (j == 30) then
+!            feedback_data_cmaq(c,r,l,i) = cgrid(twoway_ae_cmaq_spc_name_other_index(3)) +      &
+!                                          cgrid(twoway_ae_cmaq_spc_name_other_index(4))
+!         else if (j == 37) then
+!            feedback_data_cmaq(c,r,l,i) = 0.8373 * cgrid(twoway_ae_cmaq_spc_name_other_index(5)) +  &
+!                                          0.0626 * cgrid(twoway_ae_cmaq_spc_name_other_index(6)) +  &
+!                                          0.0023 * cgrid(twoway_ae_cmaq_spc_name_other_index(7))
+!         else if (j == 42) then
+!            feedback_data_cmaq(c,r,l,i) = 2.20 * cgrid(twoway_ae_cmaq_spc_name_other_index(8))  +  &
+!                                          2.49 * cgrid(twoway_ae_cmaq_spc_name_other_index(9))  +  &
+!                                          1.63 * cgrid(twoway_ae_cmaq_spc_name_other_index(10)) +  &
+!                                          2.42 * cgrid(twoway_ae_cmaq_spc_name_other_index(11)) +  &
+!                                          1.94 * cgrid(twoway_ae_cmaq_spc_name_other_index(12))
+!         else
+!            feedback_data_cmaq(c,r,l,i) = cgrid(twoway_ae_cmaq_spc_name_index(j))
+!         end if
+!      end do
+!      feedback_data_cmaq(c,r,l,n_feedback_var-2) = cgrid(inumatkn)
+!      feedback_data_cmaq(c,r,l,n_feedback_var-1) = cgrid(inumacc)
+!      feedback_data_cmaq(c,r,l,n_feedback_var)   = cgrid(inumcor)
+!   end if
 ! end: this is for indirect effect only, temporary blocked
 
      if ((c .eq. cmaq_c_ncols) .and. (r .eq. cmaq_c_nrows) .and. (l .eq. nlays)) then
@@ -324,17 +349,17 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
         end if
 
 ! begin: this is for indirect effect only, temporary blocked
-        if (indirect_effect) then
-           do k = 1, size(feedback_data_cmaq,3)
-              do rr = 1, size(feedback_data_cmaq,2)
-                 do cc = 1, size(feedback_data_cmaq,1)
-                    do s = 23, n_feedback_var
-                       feedback_data_cmaq(cc,rr,k,s) = feedback_data_cmaq(cc,rr,k,s) / dens(cc,rr,k)
-                    end do
-                 end do
-              end do
-           end do
-        end if
+!       if (indirect_effect) then
+!          do k = 1, size(feedback_data_cmaq,3)
+!             do rr = 1, size(feedback_data_cmaq,2)
+!                do cc = 1, size(feedback_data_cmaq,1)
+!                   do s = 23, n_feedback_var
+!                      feedback_data_cmaq(cc,rr,k,s) = feedback_data_cmaq(cc,rr,k,s) / dens(cc,rr,k)
+!                   end do
+!                end do
+!             end do
+!          end do
+!       end if
 ! end: this is for indirect effect only, temporary blocked
  
         if ( .not. buf_write3 (feedback_fname, allvar3, jdate, jtime, feedback_data_cmaq) ) then
@@ -354,6 +379,9 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
 !           to WRF
 !
 ! Revised:  April 2007  Original version.  David Wong
+!           25 Sep 2015  (David Wong)
+!             -- replace SUBST_MODULES with SE_MODULES
+!             -- removed ae_mass access
 !===============================================================================
 
   USE module_domain           ! WRF module
@@ -362,7 +390,7 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
   USE twoway_data_module
   USE twoway_met_param_module
   USE twoway_cgrid_aerosol_spc_map_module
-  USE SUBST_MODULES
+  USE SE_MODULES
   USE HGRD_DEFN
 
   use utilio_defn
@@ -503,14 +531,14 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
            grid%sig_k(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,21)
            grid%ozone(c, l, r)      = feedback_data_wrf(c-sc+1,r-sr+1,l,22)
 ! begin: this is for indirect effect only, temporary blocked
-           if (indirect_effect) then
-              s = 0
-              do d = 23, N_FEEDBACK_VAR-3
-                 s = s + 1
-                 grid%ae_mass(c, l, r, s) = feedback_data_wrf(c-sc+1,r-sr+1,l,d)
-              end do
-              grid%ae_num(c, l, r, 1:3) = feedback_data_wrf(c-sc+1,r-sr+1,l,N_FEEDBACK_VAR-2:N_FEEDBACK_VAR)
-           end if
+!          if (indirect_effect) then
+!             s = 0
+!             do d = 23, N_FEEDBACK_VAR-3
+!                s = s + 1
+!                grid%ae_mass(c, l, r, s) = feedback_data_wrf(c-sc+1,r-sr+1,l,d)
+!             end do
+!             grid%ae_num(c, l, r, 1:3) = feedback_data_wrf(c-sc+1,r-sr+1,l,N_FEEDBACK_VAR-2:N_FEEDBACK_VAR)
+!          end if
 ! end: this is for indirect effect only, temporary blocked
         end do
      end do
@@ -539,10 +567,10 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
   grid%sig_k(:,nlays3d+1,:) = grid%sig_k(:,nlays3d,:)
 
 ! begin: this is for indirect effect only, temporary blocked
-  if (indirect_effect) then
-     grid%ae_mass(:,nlays3d+1,:,:) = grid%ae_mass(:,nlays3d,:,:)
-     grid%ae_num(:,nlays3d+1,:,:)  = grid%ae_num(:,nlays3d,:,:)
-  end if
+! if (indirect_effect) then
+!    grid%ae_mass(:,nlays3d+1,:,:) = grid%ae_mass(:,nlays3d,:,:)
+!    grid%ae_num(:,nlays3d+1,:,:)  = grid%ae_num(:,nlays3d,:,:)
+! end if
 ! end: this is for indirect effect only, temporary blocked
 
 END SUBROUTINE feedback_read

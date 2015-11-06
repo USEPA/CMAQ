@@ -45,7 +45,8 @@ C Fundamental constants
       Real( 8 ), Parameter :: boltzmann = rgasuniv / avo  ! [ J/K ]
 
 C Concentration lower limit used for gas species
-      Real,      Parameter :: min_gasconc = 1.0E-30   ! [ ug/m^3 ]
+      Real,      Parameter :: min_gasconc = 1.0E-30        ! [ ug/m^3 ]
+      Real,      Parameter :: inv_mwair   = 1.0E3 / mwair  ! [ 1/g ]
 
 C Meteorological variables (data from MET_CRO_3D file)
       Real :: airtemp      ! air temp [ K ]

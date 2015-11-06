@@ -40,6 +40,8 @@
 !C    10 Jun 13 D.Wong: modified the code to work in the twoway model mode
 !C    24 Sep 13 D.Wong: modified the code to allow finer met data time step
 !C                      rather than fixed with one hour data
+!C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
+!C                        implementation
 !C----------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -294,7 +296,7 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
 !C Set up domain based on met file
 !C Open met file
 #ifdef twoway
-            IF (MYPE == 0) then
+            IF ( IO_PE_INCLUSIVE ) THEN
                MNAME = PROMPTMFILE( 
      &                 'Enter name for gridded met input file',
      &                 FSRDWR3, CTM_CONC_1, PNAME )
@@ -384,7 +386,7 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
                FDESC3D( 3 ) = '/Version/ CMAQ'
 
 !C Open output file (mol/s)
-               IF ( MYPE .EQ. 0 ) THEN
+               IF ( IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( DNAME, FSNEW3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( DNAME )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -502,6 +504,8 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          CHARACTER( 16 ), SAVE :: RC_NAME       ! RC name: old is RC and new is RCA
          INTEGER               :: SPC
          INTEGER               :: CDATE, CTIME
+
+         LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
 C statement function for ERF approximation
          REAL :: ERF                ! ERF approx. statement function
@@ -703,6 +707,18 @@ C statement function for ERF approximation
                LASTTIC = NTICS .EQ. TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) )
 
                IF ( LASTTIC ) THEN   ! time to write out
+
+#ifdef parallel_io
+                  IF ( FIRSTIME ) THEN
+                     FIRSTIME = .FALSE.
+                     IF ( .not. IO_PE_INCLUSIVE ) THEN
+                        IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+                           XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
+                           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                        END IF
+                     END IF
+                  END IF
+#endif
 
                   DIVFAC = 1.0 / FLOAT( NTICS )
                   VDEMIS_DIAG = VDEMIS_DIAG * DIVFAC   ! array assignment

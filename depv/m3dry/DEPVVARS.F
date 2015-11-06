@@ -38,10 +38,11 @@ C           11 May 2011 J.Bash: Updated for NH3 bidirectional exchange
 C           04 Jan 2012 J.Young: Initialize char variables with blank padding
 C           28 Aug 2014  G. Sarwar: added deposition for CLNO2 
 C           07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C           05 May 2015: H.Pye: Added ISOPNN and MTNO3 with Donna Schwede
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 63
+      INTEGER, PARAMETER :: LTOTG = 65
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -142,6 +143,8 @@ C-------------------------------------------------------------------------------
          DEPSPC( 61 ) = 'NTRPX           '
          DEPSPC( 62 ) = 'PROPNN          '
          DEPSPC( 63 ) = 'CLNO2           '
+         DEPSPC( 64 ) = 'ISOPNN          '
+         DEPSPC( 65 ) = 'MTNO3           '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

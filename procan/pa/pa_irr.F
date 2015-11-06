@@ -64,16 +64,14 @@ C..Includes:
       INCLUDE SUBST_PACMN_ID    ! PA control parameters
       
 C..Arguments: 
-      LOGICAL LSTART            ! Flag to indicate start of chemical 
-                                ! integration period
-      LOGICAL LCHGVL            ! Flag to indicate vector length is changing
+      LOGICAL, INTENT( IN ) :: LSTART   ! Flag to indicate start of chemical integration period
+      LOGICAL, INTENT( IN ) :: LCHGVL   ! Flag to indicate vector length is changing
 
-      REAL    :: RK  ( BLKSIZE,NRXNS )    ! Reaction rate coefficients
-!     REAL    :: CONC( BLKSIZE,N_GC_SPC ) ! Species concentrations
-      REAL    :: CONC( :,: )              ! Species concentrations
-      REAL    :: DELT( BLKSIZE )          ! Chemistry integration time size
-      INTEGER NUMCELLS                    ! Number of cells to process
-      INTEGER :: ICLND( BLKSIZE )         ! Original cell number 
+      REAL,    INTENT( IN ) :: RK( :,: )    ! Reaction rate coefficients
+      REAL,    INTENT( IN ) :: CONC( :,: )  ! Species concentrations
+      REAL,    INTENT( IN ) :: DELT( : )    ! Chemistry integration time size
+      INTEGER, INTENT( IN ) :: NUMCELLS     ! Number of cells to process
+      INTEGER, INTENT( IN ) :: ICLND( : )   ! Original cell number 
 
 C..Parameters: None
 

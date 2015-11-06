@@ -39,6 +39,9 @@ C  REVISION HISTORY:
 C       Original version 03/2011 by Shawn Roselle
 C                        08/2011 by David Wong
 C                          -- extended to handle buffer file
+C                        08/2015 by David Wong
+C                          -- defined WRITE3 under parallel I/O
+C                             implementation
 C....................................................................
 
       MODULE UTILIO_DEFN
@@ -56,8 +59,14 @@ C....................................................................
      &                  M3ERR   => PM3ERR,
      &                  M3EXIT  => PM3EXIT,
      &                  M3WARN  => PM3WARN,
+#ifdef parallel_io
+     &                  SHUT3   => PSHUT3
+
+         LOGICAL, EXTERNAL :: WRITE3
+#else
      &                  SHUT3   => PSHUT3,
      &                  WRITE3  => PWRITE3
+#endif
 #else
          USE M3UTILIO, INTERPB => INTERP3
 #endif

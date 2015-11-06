@@ -44,6 +44,7 @@ C     Prototype 12/95 by CJC, based on Briggs algorithm adapted from
 C     RADM 2.6 subroutine PLUMER() (but with completely different 
 C     data structuring).
 C     Copied from plmris.F 4.4 by M Houyoux 3/99 
+C     Aug 2015, D. Wong: Used assumed shape array declaration
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -79,12 +80,12 @@ C Arguments:
       REAL,    INTENT( IN )  :: STKVE           ! exhaust velocity [m/s]
       REAL,    INTENT( IN )  :: TSTK            ! tmptr at top of stack [deg K]
       REAL,    INTENT( IN )  :: USTAR           ! friction velocity [m/s]
-      REAL,    INTENT( IN )  :: DTHDZ( EMLAYS ) ! gradient of THETV
-      REAL,    INTENT( IN )  :: TA   ( EMLAYS ) ! temperature [deg K]
-      REAL,    INTENT( IN )  :: WSPD ( EMLAYS ) ! wind speed [m/s]
-      REAL,    INTENT( IN )  :: ZF ( 0:EMLAYS ) ! layer surface height [m]
-      REAL,    INTENT( IN )  :: ZH   ( EMLAYS ) ! layer center height [m]
-      REAL,    INTENT( IN )  :: ZSTK ( EMLAYS ) ! zf( l ) - stkht [m]
+      REAL,    INTENT( IN )  :: DTHDZ( : )      ! gradient of THETV
+      REAL,    INTENT( IN )  :: TA   ( : )      ! temperature [deg K]
+      REAL,    INTENT( IN )  :: WSPD ( : )      ! wind speed [m/s]
+      REAL,    INTENT( IN )  :: ZF ( 0:  )      ! layer surface height [m]
+      REAL,    INTENT( IN )  :: ZH   ( : )      ! layer center height [m]
+      REAL,    INTENT( IN )  :: ZSTK ( : )      ! zf( l ) - stkht [m]
       REAL,    INTENT( INOUT ) :: WSTK          ! wind speed @ top of stack [m/s]
                                                 ! OUT for reporting, only
       REAL,    INTENT( OUT ) :: ZPLM            ! temporarily, plume top height

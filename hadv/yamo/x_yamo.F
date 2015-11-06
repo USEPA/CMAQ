@@ -48,6 +48,8 @@ C   11 May 2009: Jeff Young: Simplify - assume constant cell widths, DS( i )
 C   11 May 2010: Jeff Young: New hppm fix for PGI compiler by David Wong
 C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
+C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
+C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -132,6 +134,10 @@ C Local Variables:
       INTEGER, SAVE :: STARTCOL2, ENDCOL2, ENDCOL2_LIM
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
 
+C Yamo CFL correction 
+      REAL    DTCFL
+      INTEGER ITER, NITER
+
 #ifdef parallel
       INTEGER EAST_COL, M
 !     REAL    HALO_EAST( SWP,NROWS,N_SPC_ADV )
@@ -142,30 +148,18 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: BUF_EW( : )
 #endif
       
-C Statement functions:
-
       INTEGER, SAVE :: EFX    ! fixed parameter for eastern boundary
       INTEGER, SAVE :: WFX    ! fixed parameter for western boundary
-
-      REAL    BCCN            ! boundary concentrations stmt fn
-
-      INTEGER BFX             ! dummy positional parameter
-      INTEGER CR              ! row or column index
-      INTEGER SS              ! species index
-
-      BCCN ( BFX, CR, SS ) = BCON( BFX + CR, SS )
 
 C Required interface for allocatable array dummy arguments
 
       INTERFACE
          SUBROUTINE HCONTVEL ( FDATE, FTIME, TSTEP, LVL, UORV, UHAT )
-            IMPLICIT NONE
             INTEGER,         INTENT( IN )     :: FDATE, FTIME, TSTEP, LVL
             CHARACTER( 16 ), INTENT( IN )     :: UORV
             REAL,            INTENT( OUT )    :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
          SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
-            IMPLICIT NONE
 #ifdef parallel
             INTEGER, PARAMETER                :: SWP = 3
 #else
@@ -339,6 +333,8 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
             IF ( VELX( 1 ) .LT. 0.0 ) VELX( 1 ) = VELX( 1 ) * ADJFAC
          END IF
 
+         DTCFL = DT
+
          DO COL = STARTCOL2, ENDCOL2
 
             IF ( COL .EQ. STARTCOL2 ) THEN
@@ -347,14 +343,16 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
                ADJFAC_L = ADJFAC
             END IF
 
-            IF ( COL .LT. ENDCOL2_LIM ) ADJFAC = XTRHOJ( COL,ROW )
-     &                                         / TRRHOJ( COL )
+            IF ( COL .LT. ENDCOL2_LIM ) ADJFAC = XTRHOJ( COL,ROW ) / TRRHOJ( COL )
 
             IF ( VELX( COL ) .LT. 0.0 ) THEN
                VELX( COL ) = VELX( COL ) * ADJFAC
-            ELSE IF ( VELX( COL ) .GT. 0.0 ) THEN
+            ELSE
                VELX( COL ) = VELX( COL ) * ADJFAC_L
             END IF
+
+C check adjusted velocities for Courant limited max timestep
+            DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
 
 !           if ( velx( col ) .lt. 0.0 ) then
 !              if ( adjfac .lt. 0.70 .or. adjfac .gt. 1.36 ) then
@@ -370,7 +368,7 @@ C direction to receive from: NORTH,SOUTH,EAST,WEST       X     X      X
 2011        format(  '#x_yamo> col, row, lvl, adjfac_l, velx: ',
      &                3i3, 1x, 2f7.2 )
 
-         END DO
+         END DO   ! COL
 
 #ifdef parallel
          CALL SWAP1D( VELX( 1 ), VELX( MY_NCOLS+1 ), 1, EAST )
@@ -398,7 +396,7 @@ C West boundary
      &               ZFDBC ( CONX( 1,SPC ), CONX( 2,SPC ),
      &                       VELX( 1 ),     VELX( 2 ) )
                ELSE    ! inflow
-                  CONX( 1-SWP:0,SPC ) = BCCN( WFX,ROW,SPC )
+                  CONX( 1-SWP:0,SPC ) = BCON( WFX+ROW,SPC )
                END IF
             END IF
 
@@ -410,11 +408,11 @@ C East boundary
      &               ZFDBC ( CONX( MY_NCOLS,SPC ), CONX( MY_NCOLS-1,SPC ),
      &                       VELX( MY_NCOLS+1 ),   VELX( MY_NCOLS ) )
                ELSE    ! inflow
-                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCCN( EFX,ROW,SPC )
+                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCON( EFX+ROW,SPC )
                END IF
             END IF
 
-         END DO
+         END DO   ! SPC
 
 !        if ( lvl .eq. 1 .and. row .eq. 14 ) then
 !           write( logdev,* ) '@@ x_yamo# time, col, velx'
@@ -425,8 +423,14 @@ C East boundary
 2017  format( '@@', 5x, i7.6, i4, 1pe12.3 )
 
 C PPM scheme
-
-         CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DT, DX1, 'C' )
+         IF ( DTCFL .LT. DT ) THEN
+            NITER = INT( DT / DTCFL ) + 1
+            DO ITER = 1, NITER
+               CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DTCFL, DX1, 'C' )
+            END DO
+         ELSE
+            CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DT, DX1, 'C' )
+         END IF
 
          DO SPC = 1, N_SPC_ADV
             A2C = ADV_MAP( SPC )

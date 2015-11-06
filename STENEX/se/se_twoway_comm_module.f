@@ -1,3 +1,22 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
 ! RCS file, release, date & time of last delta, author, state, [and locker]
 ! $Header: /home/wdx/lib/src/junk/junk/CMAQv5.0.1/models/STENEX/src/se_snl/se_twoway_comm_module.f,v 1.1.1.1 2012/04/19 19:48:15 sjr Exp $
 
@@ -13,6 +32,9 @@
 !   Orginal version: 4/10/07 by David Wong
 !          Modified: 5/21/12 by David Wong
 !                      -- used a more strict hand-shake paradiagm for communication
+!          Modified: 9/30/15 by David Wong
+!                      -- reduced the value of tag to accommodate various MPI 
+!                         implementation
 !-----------------------------------------------------------------------
 
         module se_twoway_comm_module
@@ -119,7 +141,8 @@
                        sarray(index) = wrf_data(c,r)
                     end do
                  end do
-                 tag = flag * 1000000 + mype * 1000 + sdir
+!                tag = flag * 1000000 + mype * 1000 + sdir
+                 tag = flag * 1000 + sdir
 
                  call mpi_send (sarray, data_size, mpi_real, sdir,
      &                          tag, mpi_comm_world, error)
@@ -139,7 +162,8 @@
                  data_size = wrf_cmaq_recv_index_l(j+2,1,mype) * wrf_cmaq_recv_index_l(j+2,2,mype)
 
                  allocate (rarray(data_size), stat=error)
-                 tag = flag * 1000000 + rdir * 1000 + mype
+!                tag = flag * 1000000 + rdir * 1000 + mype
+                 tag = flag * 1000 + mype
 
                  call mpi_recv (rarray, data_size, mpi_real, rdir, tag,
      $                          mpi_comm_world, status, error)
@@ -281,7 +305,8 @@
                        end do
                     end do
                  end do
-                 tag = flag * 1000000 + mype * 1000 + sdir
+!                tag = flag * 1000000 + mype * 1000 + sdir
+                 tag = flag * 1000 + sdir
 
 !        write (6, '(a12, 2i5, 8i10)') ' ==dw3 send ', j, sdir, tag, data_size, 
 !    $     size_3d, wrf_cmaq_send_index_l(j+2,1,mype),
@@ -309,7 +334,8 @@
                  data_size = size_3d * wrf_cmaq_recv_index_l(j+2,1,mype) * wrf_cmaq_recv_index_l(j+2,2,mype)
 
                  allocate (rarray(data_size), stat=error)
-                 tag = flag * 1000000 + rdir * 1000 + mype
+!                tag = flag * 1000000 + rdir * 1000 + mype
+                 tag = flag * 1000 + mype
 
                  call mpi_recv (rarray, data_size, mpi_real, rdir, tag, 
      $                          mpi_comm_world, status, error)
@@ -427,7 +453,8 @@
                        end do
                     end do
                  end do
-                 tag = flag * 1000000 + mype * 1000 + sdir
+!                tag = flag * 1000000 + mype * 1000 + sdir
+                 tag = flag * 1000 + sdir
 
                  call mpi_send (sarray, data_size, mpi_real, sdir,
      &                          tag, mpi_comm_world, error)
@@ -447,7 +474,8 @@
                  data_size = size_l_v * wrf_cmaq_recv_index_l(j+2,1,mype) * wrf_cmaq_recv_index_l(j+2,2,mype)
 
                  allocate (rarray(data_size), stat=error)
-                 tag = flag * 1000000 + rdir * 1000 + mype
+!                tag = flag * 1000000 + rdir * 1000 + mype
+                 tag = flag * 1000 + mype
 
                  call mpi_recv (rarray, data_size, mpi_real, rdir, tag,
      $                          mpi_comm_world, status, error)
@@ -550,7 +578,8 @@
                        sarray(index) = cmaq_data(c,r)
                     end do
                  end do
-                 tag = flag * 1000000 + mype * 1000 + sdir
+!                tag = flag * 1000000 + mype * 1000 + sdir
+                 tag = flag * 1000 + sdir
 
                  call mpi_send (sarray, data_size, mpi_real, sdir,
      &                          tag, mpi_comm_world, error)
@@ -570,7 +599,8 @@
                  data_size = cmaq_wrf_recv_index_l(j+2,1,mype) * cmaq_wrf_recv_index_l(j+2,2,mype)
 
                  allocate (rarray(data_size), stat=error)
-                 tag = flag * 1000000 + rdir * 1000 + mype
+!                tag = flag * 1000000 + rdir * 1000 + mype
+                 tag = flag * 1000 + mype
 
                  call mpi_recv (rarray, data_size, mpi_real, rdir, tag,
      $                          mpi_comm_world, status, error)
@@ -698,7 +728,8 @@
                        end do
                     end do
                  end do
-                 tag = flag * 1000000 + mype * 1000 + sdir
+!                tag = flag * 1000000 + mype * 1000 + sdir
+                 tag = flag * 1000 + sdir
 
 !        write (6, '(a12, 2i5, 8i10)') ' ==dc3 send ', j, sdir, tag, data_size, 
 !    $     size_3d, cmaq_wrf_send_index_l(j+2,1,mype),
@@ -723,7 +754,8 @@
                  data_size = size_3d * cmaq_wrf_recv_index_l(j+2,1,mype) * cmaq_wrf_recv_index_l(j+2,2,mype)
 
                  allocate (rarray(data_size), stat=error)
-                 tag = flag * 1000000 + rdir * 1000 + mype
+!                tag = flag * 1000000 + rdir * 1000 + mype
+                 tag = flag * 1000 + mype
 
                  call mpi_recv (rarray, data_size, mpi_real, rdir, tag, 
      $                          mpi_comm_world, status, error)
@@ -852,7 +884,8 @@
                        end do
                     end do
                  end do
-                 tag = flag * 1000000 + mype * 1000 + sdir
+!                tag = flag * 1000000 + mype * 1000 + sdir
+                 tag = flag * 1000 + sdir
 
 !        write (6, '(a12, 2i5, 8i10)') ' ==dc4 send ', j, sdir, tag, data_size, 
 !    $     size_l_v, cmaq_wrf_send_index_l(j+2,1,mype),
@@ -876,7 +909,8 @@
                  data_size = size_l_v * cmaq_wrf_recv_index_l(j+2,1,mype) * cmaq_wrf_recv_index_l(j+2,2,mype)
 
                  allocate (rarray(data_size), stat=error)
-                 tag = flag * 1000000 + rdir * 1000 + mype
+!                tag = flag * 1000000 + rdir * 1000 + mype
+                 tag = flag * 1000 + mype
 
 !        write (6, '(a12, 2i5, 10i8)') ' ==dc4 recv ', j, rdir, tag,
 !    $       data_size, size_l_v, cmaq_wrf_recv_index_l(j+2,1,mype), 
@@ -973,7 +1007,8 @@
                     end do
                  end do
               end do
-              tag = flag * 1000000 + mype * 1000 + sdir
+!             tag = flag * 1000000 + mype * 1000 + sdir
+              tag = flag * 1000 + sdir
 
 !             call mpi_issend (sarray(1:data_size), data_size, mpi_real, sdir,
 !    &                         tag, mpi_comm_world, request, error)
@@ -1014,7 +1049,8 @@
 
               data_size = size_l_v * recv_index_l(j+2,1,mype) * recv_index_l(j+2,2,mype)
 
-              tag = flag * 1000000 + rdir * 1000 + mype
+!             tag = flag * 1000000 + rdir * 1000 + mype
+              tag = flag * 1000 + mype
 
               call mpi_recv (rarray(1:data_size), data_size, mpi_real, rdir, tag, mpi_comm_world, status, error)
 

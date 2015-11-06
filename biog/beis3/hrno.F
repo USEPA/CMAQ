@@ -120,6 +120,8 @@ C                     * allowing simulation start time at any hour rather than 0
 C                     * allowing finer met data time step and maintaining an hourly
 C                       rainfall bucket
 C    07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O 
+C                      implementation and added code to handle parallel I/O
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -140,6 +142,11 @@ C-----------------------------------------------------------------------
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
       USE UTILIO_DEFN
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
         
@@ -231,6 +238,7 @@ C Local Variables:
       INTEGER, SAVE :: LOGDEV
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRSTHR  = .TRUE.
+      LOGICAL, SAVE :: FIRST_WRITE = .TRUE.
       CHARACTER( 256 ) :: MESG            ! message buffer
       CHARACTER( 16 )  :: PNAME = 'HRNO'  ! procedure name
 
@@ -241,6 +249,8 @@ C for INTERPX
 
       CHARACTER( 16 ), SAVE :: VNAME_RC, VNAME_RN
       INTEGER :: SPC
+
+      LOGICAL, EXTERNAL :: FLUSH3
 
 #ifdef verbose_hrno
       integer mxptype, ncfno0
@@ -763,12 +773,28 @@ C Build description for, and create/open soil NO emissions output file
       FDESC3D( 3 ) = '/Version/ CMAQ'
 
 C Open NO rain data save file
-      IF ( MYPE .EQ. 0 ) THEN
+      IF ( IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( SOILOUT, FSNEW3, PNAME ) ) THEN
             MESG = 'Could not open "' // TRIM( SOILOUT ) // '" file'
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
          END IF
       END IF
+
+#ifdef parallel_io
+      IF ( IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. FLUSH3 ( SOILOUT ) ) THEN
+            MESG = 'Could not sync to disk ' // TRIM( SOILOUT )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      END IF
+      CALL SE_BARRIER
+      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+         IF ( .NOT. OPEN3( SOILOUT, FSNONIO, PNAME ) ) THEN
+            MESG = 'Could not open ' // TRIM( SOILOUT )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      END IF
+#endif
 
 C Write soil NO rain data file
 

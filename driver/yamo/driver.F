@@ -88,6 +88,8 @@ C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
 C                      indicated in TSTEP(1) for twoway model
 C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C   Aug 2015 D.Wong:   Replaced MYPE with IO_PE_INCLUSIVE for parallel
+C                        I/O implementation
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -122,7 +124,8 @@ C Include Files:
       INCLUDE SUBST_PACTL_ID    ! PA control parameters
 
 #ifdef parallel
-      INCLUDE SUBST_MPI         ! MPI definitions and parameters
+!     INCLUDE SUBST_MPI         ! MPI definitions and parameters
+      include 'mpif.h'
 #endif
 
 
@@ -182,47 +185,39 @@ C Local variables:
 
       INTERFACE
          SUBROUTINE INITSCEN ( CGRID, STDATE, STTIME, TSTEP, NSTEPS )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( OUT )   :: STDATE, STTIME, TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: NSTEPS
          END SUBROUTINE INITSCEN
          SUBROUTINE ADVSTEP ( JDATE, JTIME, TSTEP, ASTEP, NREPS )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )    :: JDATE, JTIME
             INTEGER, INTENT( INOUT ) :: TSTEP( 3 )
             INTEGER, INTENT( OUT )   :: ASTEP( : )
             INTEGER, INTENT( OUT )   :: NREPS
          END SUBROUTINE ADVSTEP
          SUBROUTINE CKSUMMER ( PRNAME, CGRID, JDATE, JTIME )
-            IMPLICIT NONE
             CHARACTER( * ), INTENT( IN ) :: PRNAME
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE CKSUMMER
          SUBROUTINE PA_INIT ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
          END SUBROUTINE PA_INIT
          SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( INOUT ) :: JDATE, JTIME
             INTEGER, INTENT( IN )    :: TSTEP( 3 ), ASTEP( : )
          END SUBROUTINE SCIPROC
          SUBROUTINE WR_ACONC ( AGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL,    INTENT( IN )    :: AGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
          END SUBROUTINE WR_ACONC
          SUBROUTINE WR_CGRID ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
          END SUBROUTINE WR_CGRID
          SUBROUTINE PA_OUTPUT ( CGRID, JDATE, JTIME )
-            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE PA_OUTPUT
@@ -304,6 +299,16 @@ C Initialize stencil exchange
          write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
 #endif
 #endif
+
+#ifdef parallel_io
+         IF ( MOD( MYPE, NPCOL ) .EQ. 0 ) THEN
+#else
+         IF ( MYPE .EQ. 0 ) THEN
+#endif
+            IO_PE_INCLUSIVE = .TRUE.
+         ELSE
+            IO_PE_INCLUSIVE = .FALSE.
+         END IF
 
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required

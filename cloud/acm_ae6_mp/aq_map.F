@@ -151,11 +151,6 @@ C External Functions:
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
-           USE RXNS_DATA           ! chemical mechanism data
-           USE AQ_DATA
-           USE HG_AQCHEM_DATA
-           USE UTILIO_DEFN
-           IMPLICIT NONE
            INCLUDE SUBST_CONST          ! constants
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
