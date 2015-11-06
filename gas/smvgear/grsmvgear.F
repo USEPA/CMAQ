@@ -211,7 +211,7 @@ C..LOCAL VARIABLES:
       REAL( 8 ) :: YLOWA             ! Gear absolute error tolerance used
       REAL( 8 ) :: YLOWEPS           ! Tolerance ratio used in h0 calc
       REAL( 8 ) :: YLOWEPS1          ! Absolute tol over relative tol
-      REAL( 8 ) :: DELY ( BLKSIZE )  ! Sum of squares of error estimates
+      REAL( 8 ), ALLOCATABLE, SAVE :: DELY ( : )   ! Sum of squares of error estimates
       REAL( 8 ), ALLOCATABLE, SAVE :: CEST ( :,: ) ! Error estimates for previous step 
       REAL( 8 ), ALLOCATABLE, SAVE :: CHOLD( :,: ) ! Factor for error tests
       REAL( 8 ), ALLOCATABLE, SAVE :: DTLOS( :,: ) ! Correction array for Newton iter.
@@ -251,10 +251,11 @@ C**********************************************************************
      &              CHOLD( BLKSIZE, NUMB_MECH_SPC ),
      &              DTLOS( BLKSIZE, NSPCS1 ),
      &              CONC ( BLKSIZE, NUMB_MECH_SPC*MXORDER ),
-     &              YNEW_DEGRADE( BLKSIZE, NSPCSD), STAT = IOS )
+     &              YNEW_DEGRADE( BLKSIZE, NSPCSD),
+     &              DELY( BLKSIZE ), STAT = IOS )
          IF ( IOS .NE. 0 ) THEN
             MSG = '*** Memory allocation failure for '
-     &          // 'CEST, CHOLD, DTLOS, CONC, or YNEW_DEGRADE'
+     &          // 'CEST, CHOLD, DTLOS, CONC, YNEW_DEGRADE, or DELY'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )             
          END IF
 
