@@ -132,7 +132,7 @@ TYPE_MATRIX =
 'OLE1:72.34:OLE1:1.0:::::ETHENE:1.0:::Yes::Yes:Yes',
 'OLE2:75.78:OLE2:1.0:::::ETHENE:1.0:::Yes::Yes:Yes',
 'ARO1:95.16:ARO1:1.0:::::TOLUENE:1.0:::Yes::Yes:Yes',
-'ARO2MN:118.72:ARO2:1.0:::::O-XYLENE:1.0:::Yes::Yes:Yes',
+'ARO2MN:118.72:ARO2MN:1.0:::::O-XYLENE:1.0:::Yes::Yes:Yes',
 'NAPHTHAL:128.2:NAPHTHALENE:1:::::O-XYLENE:1:::Yes:::Yes',
 'PAHRO2:187.2::::::::::::::Yes',
 'TERP:136.24:TERP:1.0:::::PINENE:1.0:::Yes::Yes:Yes',
