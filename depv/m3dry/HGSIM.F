@@ -184,10 +184,10 @@ C--------------------------------------------------------------------------
             DO R = 1, MY_NROWS
                DO L = 1, N_LUFRAC
                   IF(CAT_LU(L) .EQ. 'EVEFOR') THEN
-                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(l,c,r)
+                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(c,r,l)
                   End IF
                   IF(CAT_LU(L) .EQ. 'MIXFOR') THEN
-                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(l,c,r)
+                     fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(c,r,l)
                   End IF                                    
                END DO
             END DO
@@ -451,7 +451,7 @@ C Arguments passed to and from m3dry
          cgHgII0 = 0.0D0
 
          DO i = 1, n_lufrac
-            cgHgII0 = cgHgII0+hglu_fac(i)*Grid_data%lufrac(i,c,r)
+            cgHgII0 = cgHgII0+hglu_fac(i)*Grid_data%lufrac(c,r,i)
          END DO
 C Set floor to smallest terrestrial value
          cgHgII0 = MAX( cgHgII0, 1.8D1 )          
