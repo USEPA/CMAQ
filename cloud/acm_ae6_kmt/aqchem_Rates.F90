@@ -181,6 +181,7 @@ CONTAINS
        
             REAL( kind=dp ) KR, DH
             REAL( kind=dp ) Q, q1, COTHq, SVIinh
+            REAL( kind=dp ) kO31, kO32, kO33, kO3T
             INTEGER QY, RTYPE, METAL
        
             SVIinh = 1.0D0 + 75.0D0 * ((VAR(ind_L_H2SO4) + VAR(ind_L_HSO4MIN) + &
@@ -203,28 +204,36 @@ CONTAINS
 !                    KRXN = KRXN * (1.0D0 + 2.5 * STION)
 !                 END IF       
 
-!           Aqueous diffusion limitation
+!           Aqueous diffusion limitation for O3
 
             q1 = 0.0D0
             Q = 1.0D0
-
-            IF ( QY .EQ. 1 ) q1 = DDIAM / 2.0D0 * SQRT( KRXN * VAR(ind_L_SO2) * PHI2 / DAQ )
-            IF ( QY .EQ. 2 ) q1 = DDIAM / 2.0D0 * SQRT( KRXN * VAR(ind_L_HSO3MIN) * PHI2 / DAQ )
-            IF ( QY .EQ. 3 ) q1 = DDIAM / 2.0D0 * SQRT( KRXN * VAR(ind_L_SO3MIN2) * PHI2 / DAQ )
-
-            IF ( q1 .GT. 1.0D-3 ) THEN
-               IF ( q1 .LE. 100.0D0 ) THEN
-                  COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
-                  Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
-                  IF ( Q .GT. 1.0D0 ) Q = 1.0D0
-               ELSE
-                  Q = 3.d0/q1
-               END IF
-            ELSE
-               Q = 1.0D0
-            END IF
+    
+            IF( QY .GE. 1 ) THEN    
        
-            KRXN = KRXN * Q       
+               kO31 = 2.4D+4 * EXP( 0.0D0 * DELINVT)
+               kO32 = 3.7D+5 * EXP( -5530.88D0 * DELINVT)
+               kO33 = 1.5D+9 * EXP( -5280.56D0 * DELINVT)
+               kO3T = ( kO31 * VAR( ind_L_SO2 ) + kO32 * VAR( ind_L_HSO3MIN ) + &
+                        kO33 * VAR( ind_L_SO3MIN2 ) ) * PHI2
+
+               q1 = DDIAM / 2.0D0 * SQRT( kO3T / DAQ )  ! diffuso-reactive parameter  
+
+               IF ( q1 .GT. 1.0D-3 ) THEN
+                  IF ( q1 .LE. 100.0D0 ) THEN
+                     COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
+                     Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
+                     IF ( Q .GT. 1.0D0 ) Q = 1.0D0
+                  ELSE
+                     Q = 3.d0/q1
+                  END IF
+               ELSE
+                  Q = 1.0D0
+               END IF
+       
+               KRXN = KRXN * Q 
+    
+            ENDIF       
       
             KRXN = KRXN * PHI2
        
