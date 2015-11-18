@@ -315,6 +315,16 @@ c the surrogate and ctrl arrays active dimensions not known a priori
                      gc_emis( i1 )     = mc_surr1( emis_ndx )%name
                      gc_emis_map( i1 ) = mc_surr1( emis_ndx )%map
                      gc_emis_fac( i1 ) = mc_surr1( emis_ndx )%fac
+
+                     !Add Code to Lump PNCOM in With POC if POC is 
+		     !Requested as a Surrogate
+		     if ( gc_emis(i1) == 'POC' ) then
+		       i1 = i1 + 1
+		       gc_emis( i1 ) = 'PNCOM'
+		       gc_emis_map( i1 ) = mc_surr1( emis_ndx )%map
+                       gc_emis_fac( i1 ) = mc_surr1( emis_ndx )%fac
+                     endif
+
                   end if
                end if
                if ( icbc_ndx .gt. 0 ) then

@@ -159,12 +159,12 @@ C                  --------- --------- ---------   ---------- -------   +  +  + 
      & spcs_type((/'       ','APAH3J ','       '/), conmin_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGAJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
      & spcs_type((/'       ','AOLGBJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'       ','AORGCJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),
-     & spcs_type((/'ALVPO1I','ALVPO1J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC   ',(/0.009,0.081,0.000/)),
-     & spcs_type((/'ASVPO1I','ASVPO1J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.009,0.081,0.000/)),
-     & spcs_type((/'ASVPO2I','ASVPO2J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.014,0.126,0.000/)),
-     & spcs_type((/'       ','ASVPO3J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.000,0.180,0.000/)),
-     & spcs_type((/'       ','AIVPO1J','       '/), conmin_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POA   ',(/0.000,0.500,0.000/)),
+     & spcs_type((/'       ','AORGCJ ','       '/), conmin_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),      !Vol
+     & spcs_type((/'ALVPO1I','ALVPO1J','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.009,0.081,0.000/)),  !0.09*1
+     & spcs_type((/'ASVPO1I','ASVPO1J','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/.0045,.0405,0.000/)),  !0.09*0.5
+     & spcs_type((/'ASVPO2I','ASVPO2J','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.000,0.000,0.000/)),  !0.14*0
+     & spcs_type((/'       ','ASVPO3J','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.000,0.000,0.000/)),  !0.18*0
+     & spcs_type((/'       ','AIVPO1J','       '/), conmin_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.000,0.000,0.000/)),  !0.5 *0
      & spcs_type((/'       ','       ','ASOIL  '/), conmin_set, 2600.0, F, F, F,  0,  0.0,'DUST  ','      ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ACORS  '/), conmin_cor, 2200.0, F, F, F,  0,  0.0,'DUST  ','PMC   ',(/0.000,0.000,1.000/)),
      & spcs_type((/'       ','       ','ASEACAT'/), conmin_cor, 2200.0, F, F, F,  1,  0.0,'SOLUTE','      ',(/0.000,0.000,1.000/))/)
@@ -321,10 +321,11 @@ C Missing aerosol species map
       Logical :: aero_missing( n_aerospc,n_mode )  ! indices of aero species to CGRID
 
 C Emissions mapping
-      Integer         :: n_emis_pm               ! number of aerospc with emissions
-      Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
-      Character( 06 ) :: pmem_map_name( n_aerospc ) ! mapping to aerospc array for PM emissions
-      Character( 16 ) :: pmem_units              ! units for PM emissions for all species
+      Integer         :: n_emis_pm            ! number of aerospc/emissions connections
+                                              ! There may be more than one emission surrogate for a species
+      Integer         :: pmem_map( 100 )      ! mapping to aerospc array for PM emissions
+      Character( 06 ) :: pmem_map_name( 100 ) ! mapping to aerospc array for PM emissions
+      Character( 16 ) :: pmem_units           ! units for PM emissions for all species
 
 C Private variables for loading from and unloading to CGRID array
       Logical, Private, Save :: mapped = .False.

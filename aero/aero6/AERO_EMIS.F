@@ -814,21 +814,21 @@ C     Binkowski & Roselle (2003).
 		  !the semivolatile surrogates representing the distribution.
 		  !If this is the aerosol species linked to POC then
 		  !also do all of the aerosol species linked to POA.
-                  IF ( IDX .EQ. APOC_IDX ) THEN
-		    DO ISPC = 1, N_AEROSPC
-		      IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
-		         DO N = 1, N_MODE - 1
-                            EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
-     &                          AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-                           IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
-                             EMISM3( N ) = EMISM3( N ) + 
-     &                        AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-     &                          * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
-                           END IF
-                         END DO
-                      END IF
-                    END DO
-                  END IF
+                  !IF ( IDX .EQ. APOC_IDX ) THEN
+		  !  DO ISPC = 1, N_AEROSPC
+		  !    IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
+		  !       DO N = 1, N_MODE - 1
+                  !          EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
+       !&            !              AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+                  !         IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
+                  !           EMISM3( N ) = EMISM3( N ) + 
+       !&                        AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+       !&                          * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
+               !            END IF
+               !          END DO
+                    !  END IF
+                   ! END DO
+                 ! END IF
 
                   !Apply Emissions to Coarse Aerosol Mode
                   N = N_MODE
@@ -967,21 +967,21 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
 		     !the semivolatile surrogates representing the distribution.
 		     !If this is the aerosol species linked to POC then
 		     !also do all of the aerosol species linked to POA.
-                     IF ( IDX .EQ. APOC_IDX ) THEN
-		       DO ISPC = 1, N_AEROSPC
-  		         IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
-		           DO N = 1, N_MODE - 1
-                              EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
-     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-                              IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
-                                 EMISM3( N ) = EMISM3( N ) + 
-     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-     &                              * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
-                              END IF
-                           END DO
-                         END IF
-                       END DO
-                     END IF
+!                     IF ( IDX .EQ. APOC_IDX ) THEN
+!		       DO ISPC = 1, N_AEROSPC
+!  		         IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
+!		           DO N = 1, N_MODE - 1
+!                              EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
+!     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+!                              IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
+!                                 EMISM3( N ) = EMISM3( N ) + 
+!     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
+!     &                              * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
+!                              END IF
+!                           END DO
+!                         END IF
+!                       END DO
+!                     END IF
                      
 		     !Compute Coarse Mode Properties
 		     N = N_MODE

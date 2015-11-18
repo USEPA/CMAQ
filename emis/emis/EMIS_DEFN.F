@@ -217,7 +217,7 @@ C lightning NO emissions?
             s = s + 1
             emis_spc( s ) = gc_emis( v )
             emis_map( s ) = gc_strt - 1 + gc_emis_map( v )
-         end do
+         end do 
          do v = 1, n_ae_emis
             s = s + 1
             emis_spc( s ) = ae_emis( v )
