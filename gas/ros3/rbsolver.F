@@ -56,7 +56,7 @@ C                    15 Jul 14 B.Hutzell: replaced mechanism include files with
 C                    RXNS_DATA module, updated explicit interfaces and revised
 C                    block for FPP flag redebug is set in compilation
 C**********************************************************************
-
+!     USE GRID_CONF               ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE RBDATA                  ! ROS3 solver data
       USE CGRID_SPCS              ! CGRID mechanism species
