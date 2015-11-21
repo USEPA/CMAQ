@@ -875,6 +875,23 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                   ' from ' // TRIM( STKENAME( N ) )
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                END IF
+
+               !Read Non-Carbon Organic Matter Too if POC is Requested
+               IF ( VNAME .EQ. 'POC' ) THEN
+	         STKEMIS_TMP( N )%ARRY = 0.0
+	         IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             STKEMIS_TMP( N )%ARRY( 1,V ) ) ) THEN
+                   XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                    ' from ' // TRIM( STKENAME( N ) )
+                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                 END IF     
+                 STKEMIS( N )%ARRY( 1,V ) = STKEMIS( N )%ARRY( 1,V ) 
+     &                                         + STKEMIS_TMP( N )%ARRY( 1,V )
+               ENDIF
+
             END DO
 
             IF ( FIREFLAG( N ) ) THEN
@@ -889,6 +906,22 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
      &                      ' from ' // TRIM( STKENAME( N ) )
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
+                  !Read Non-Carbon Organic Matter Too if POC is Requested
+                  IF ( VNAME .EQ. 'POC' ) THEN
+                    FIREVAR_TMP( 1 )%ARRY = 0.0
+	            IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             FIREVAR_TMP( 1 )%ARRY( 1,V ) ) ) THEN
+                      XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                    ' from ' // TRIM( STKENAME( N ) )
+                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                    END IF     
+                    FIREVAR( 1 )%ARRY( 1,V ) = FIREVAR( 1 )%ARRY( 1,V ) 
+     &                                           + FIREVAR_TMP( 1 )%ARRY( 1,V )
+                  ENDIF
+ 
                END DO
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )

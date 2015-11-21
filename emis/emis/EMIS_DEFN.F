@@ -73,6 +73,7 @@ C-----------------------------------------------------------------------
       REAL,    SAVE :: DT         ! TSTEP (output) in sec
 
       REAL,    ALLOCATABLE, SAVE :: BUFF( :,:,: )        ! read buffer
+      REAL,    ALLOCATABLE, SAVE :: BUFF2( :,:,: )        ! read buffer
       REAL,    ALLOCATABLE, SAVE :: FERT( :,:,: )        ! read buffer
 
       INTEGER, SAVE :: STRT_GC, FINI_GC, STRT_AE, FINI_AE,
@@ -268,6 +269,7 @@ C 3D point source emissions (N_SPC_EMIS+1 serves as the null map for PTEM_MAP)
          END IF
 
          ALLOCATE ( BUFF( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
+         ALLOCATE ( BUFF2( NCOLS,NROWS,EMLYRS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'BUFF memory allocation failed'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -376,6 +378,22 @@ C                                       vvvvvvv - emis surrogate names
 !              CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             END IF
+
+            !READ Non-Carbon Organic Matter From Gas Emissions
+            IF ( GC_EMIS( S ) == 'POC' ) THEN
+	       BUFF2 = 0.0
+	       IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
+     &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
+     &                          JDATE, JTIME, BUFF2 ) ) THEN
+                 XMSG = 'Could not read '
+     &               // TRIM( GC_EMIS( S ) ) // ' from ' // EMIS_1
+!                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+              END IF  
+              BUFF = BUFF + BUFF2
+            ENDIF
+	    
+
             CNVTI = CNVTP * GC_EMIS_FAC( S )
 
 C reactive gases (conversion to ppmv/s) VDEMIS in this order from RDEMIS
