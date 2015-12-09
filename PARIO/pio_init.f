@@ -62,6 +62,8 @@ C          -- added a statement to check whether allocated memory is already
 C             exist
 C       Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with M3UTILIO
+C       Modified 12/05/2015 by David Wong
+C          -- Initialized PIO_GL_NCOLS and PIO_GL_NROWS
  
 C
 C  ARGUMENT LIST DESCRIPTION:
@@ -211,6 +213,8 @@ C Set COMMON block variables.
       BTHICK   = NTHIK       ! Cell thickness of grid boundary           C
       NUMCOLS  = NCOLS       ! Number of columns in local subgrid        C
       NUMROWS  = NROWS       ! Number of rows in local subgrid           C
+      PIO_GL_NCOLS = GL_NCOLS  ! Number of columns in global grid          C
+      PIO_GL_NROWS = GL_NROWS  ! Number of rows in global grid             C
 C A - PIOMAPS_MODULE
 C B - PIOVARS.EXT
 C C - PIOGRID.EXT

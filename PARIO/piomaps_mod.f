@@ -32,6 +32,8 @@ C  DEPENDENT UPON:  none
  
 C  REVISION HISTORY:
 C       Original version 02/04 by David Wong
+C       Modified 12/05/2015 by David Wong
+C          -- Added two new varaible PIO_GL_NCOLS and PIO_GL_NROWS
  
 C  NOTES:  The mapping assumes 2-dimensional subdomain decomposition,
 C          over grid rows and columns.
@@ -81,5 +83,8 @@ C....................................................................
 
       INTEGER, ALLOCATABLE :: WR_NROWS_PE( : )
       INTEGER, ALLOCATABLE :: WR_ROWSX_PE( :,: )
+
+      integer :: pio_gl_ncols
+      integer :: pio_gl_nrows
 
       END MODULE PIOMAPS_MODULE
