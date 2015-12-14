@@ -1510,7 +1510,7 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 
 ! ioapi_header%vglvs(1:nlays) = znw
 ! ioapi_header%vglvs(nlays+1) = 0.0
-  ioapi_header%vglvs = znw
+  ioapi_header%vglvs(1:size(znw)) = znw
 
 !-------------------------------------------------------------------------------
 ! Define other identifiers.
