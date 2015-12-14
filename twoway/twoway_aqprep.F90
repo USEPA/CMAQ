@@ -43,6 +43,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 between NLCD, NLCD50 and NLCD40
 !           25 Sep 2015  (David Wong
 !              -- replaced SUBST_MODULES with SE_MOdULES
+!           14 Dec 2015  (David Wong)
+!              -- added assignment mminlu
+!              -- updated how ioapi_header%vglvs was set w.r.t. znw's dimension 
+!                 change
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -502,6 +506,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         end if
      end if
 
+     mminlu = config_flags%mminlu
      if (config_flags%mminlu == 'USGS') then
         lwater = 16
         lice   = 24
@@ -1503,8 +1508,9 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 
   ioapi_header%vgtop = ptop
 
-  ioapi_header%vglvs(1:nlays) = znw
-  ioapi_header%vglvs(nlays+1) = 0.0
+! ioapi_header%vglvs(1:nlays) = znw
+! ioapi_header%vglvs(nlays+1) = 0.0
+  ioapi_header%vglvs = znw
 
 !-------------------------------------------------------------------------------
 ! Define other identifiers.
