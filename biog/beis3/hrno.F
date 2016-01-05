@@ -312,12 +312,9 @@ C Get description of met file
 C Check that grid description matches B3GRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
-     &           // '" does not match previously set grid.'
-#ifdef twoway
+     &           // ' does not match Grid in file '
+     &           // TRIM( NNAME )
             CALL M3WARN( PNAME, 0, 0, MESG )
-#else
-            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-#endif
          END IF
 
 C Allocate memory for data and read
@@ -736,6 +733,23 @@ C Build description for, and create/open soil NO emissions output file
       NLAYS3D = 1
       NVARS3D = 3 + RHOURS
       MXREC3D = 1
+      NTHIK3D = 1
+      GDTYP3D = GDTYP_GD
+      P_ALP3D = P_ALP_GD
+      P_BET3D = P_BET_GD 
+      P_GAM3D = P_GAM_GD
+      XORIG3D = XORIG_GD
+      YORIG3D = YORIG_GD
+      XCENT3D = XCENT_GD
+      YCENT3D = YCENT_GD
+      XCELL3D = XCELL_GD
+      YCELL3D = YCELL_GD
+      VGTYP3D = VGTYP_GD
+      VGTOP3D = VGTOP_GD
+      DO L = 1, NLAYS3D + 1
+         VGLVS3D( L ) = VGLVS_GD( L )
+      END DO
+      GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
       VNAME3D = ' '
       VNAME3D( 1 ) = 'PTYPE'

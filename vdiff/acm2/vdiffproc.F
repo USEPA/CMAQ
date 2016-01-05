@@ -86,6 +86,7 @@ C-----------------------------------------------------------------------
       USE VDIFF_MAP
       USE UTILIO_DEFN
       USE BIDI_MOD
+      USE HGSIM
       USE LSM_MOD, ONLY: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
@@ -212,6 +213,10 @@ C create global maps
 
 C Initialize the met data
          CALL INIT_MET( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
+
+        IF ( HGBIDI ) THEN ! Initialize HGSIM module
+           CALL INIT_HGSIM(JDATE, JTIME)
+        END IF
 
 C Get gravitational settling (sedi) flag.
          GRAV_SETL = .TRUE.         ! default

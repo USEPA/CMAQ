@@ -179,6 +179,7 @@ CONTAINS
        
             REAL( kind=dp ) KR, DH
             REAL( kind=dp ) Q, q1, COTHq, SVIinh
+            REAL( kind=dp ) kO31, kO32, kO33, kO3T    
             INTEGER QY, RTYPE, METAL
        
             SVIinh = 1.0D0 + 75.0D0 * ((VAR(ind_L_H2SO4) + VAR(ind_L_HSO4MIN) + &
@@ -201,28 +202,36 @@ CONTAINS
 !                    KRXN = KRXN * (1.0D0 + 2.5 * STION)
 !                 END IF       
 
-!           Aqueous diffusion limitation
+!           Aqueous diffusion limitation for O3
 
             q1 = 0.0D0
             Q = 1.0D0
-
-            IF ( QY .EQ. 1 ) q1 = DDIAM / 2.0D0 * SQRT( KRXN * VAR(ind_L_SO2) * PHI2 / DAQ )
-            IF ( QY .EQ. 2 ) q1 = DDIAM / 2.0D0 * SQRT( KRXN * VAR(ind_L_HSO3MIN) * PHI2 / DAQ )
-            IF ( QY .EQ. 3 ) q1 = DDIAM / 2.0D0 * SQRT( KRXN * VAR(ind_L_SO3MIN2) * PHI2 / DAQ )
-
-            IF ( q1 .GT. 1.0D-3 ) THEN
-               IF ( q1 .LE. 100.0D0 ) THEN
-                  COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
-                  Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
-                  IF ( Q .GT. 1.0D0 ) Q = 1.0D0
-               ELSE
-                  Q = 3.d0/q1
-               END IF
-            ELSE
-               Q = 1.0D0
-            END IF
+    
+            IF( QY .GE. 1 ) THEN    
        
-            KRXN = KRXN * Q       
+               kO31 = 2.4D+4 * EXP( 0.0D0 * DELINVT)
+               kO32 = 3.7D+5 * EXP( -5530.88D0 * DELINVT)
+               kO33 = 1.5D+9 * EXP( -5280.56D0 * DELINVT)
+               kO3T = ( kO31 * VAR( ind_L_SO2 ) + kO32 * VAR( ind_L_HSO3MIN ) + &
+                        kO33 * VAR( ind_L_SO3MIN2 ) ) * PHI2
+
+               q1 = DDIAM / 2.0D0 * SQRT( kO3T / DAQ )  ! diffuso-reactive parameter  
+
+               IF ( q1 .GT. 1.0D-3 ) THEN
+                  IF ( q1 .LE. 100.0D0 ) THEN
+                     COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
+                     Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
+                     IF ( Q .GT. 1.0D0 ) Q = 1.0D0
+                  ELSE
+                     Q = 3.d0/q1
+                  END IF
+               ELSE
+                  Q = 1.0D0
+               END IF
+       
+               KRXN = KRXN * Q 
+    
+            ENDIF      
       
             KRXN = KRXN * PHI2
        
@@ -236,6 +245,7 @@ REAL( kind=dp )FUNCTION KIEPOX ( KH, KHSO4, TYPE )
       
             REAL( kind=dp ) KH, KHSO4
             REAL( kind=dp ) K1, K2
+            REAL( kind=dp ) KIEPOXT, KMAET
             REAL( kind=dp ) Q, q1, COTHq
             INTEGER TYPE
         
@@ -243,36 +253,65 @@ REAL( kind=dp )FUNCTION KIEPOX ( KH, KHSO4, TYPE )
             K2 = KHSO4 * VAR( ind_L_HSO4MIN ) * PHI2
         
             KIEPOX = K1 + K2 
-!           KIEPOX = KIEPOX * PHI2
 !
-! Aqueous diffusion limitation
+! Aqueous diffusion limitation for IEPOX and MAE
 !
 !
             q1 = 0.0D0
             Q = 1.0D0
-        
-            IF(TYPE .eq. 1) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( indf_L_H2O ) * PHI2 / DAQ )
-            IF(TYPE .eq. 2) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_SO4MIN2 ) * PHI2 / DAQ )
-            IF(TYPE .eq. 3) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_NO3MIN ) * PHI2 / DAQ )
-            IF(TYPE .eq. 4) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_IETET ) * PHI2 / DAQ )
-            IF(TYPE .eq. 5) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_IEOS ) * PHI2 / DAQ )
-!           IF(TYPE .eq. 6) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_IEON ) * PHI2 / DAQ )
-            IF(TYPE .eq. 7) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_IMGA ) * PHI2 / DAQ )
-            IF(TYPE .eq. 8) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_IMOS ) * PHI2 / DAQ )
-!           IF(TYPE .eq. 9) q1 = DDIAM/2.0D0 * SQRT( KIEPOX * VAR( ind_L_IMON ) * PHI2 / DAQ )
 
-            IF ( q1 .GT. 1.0D-3 ) THEN
-               IF ( q1 .LE. 100.0D0 ) THEN
-                  COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
-                  Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
-                  IF ( Q .GT. 1.0D0 ) Q = 1.0D0
+            IF( TYPE .eq. 1 ) THEN   ! FOR IEPOX
+
+               K1 = 9.0D-4 * VAR( ind_L_HPLUS ) * PHI2
+               K2 = 1.31D-5 * VAR( ind_L_HSO4MIN ) * PHI2        
+               KIEPOXT = (K1 + K2) * FIX( indf_L_H2O ) * PHI2  ! IEPOX + H2O
+        
+               K1 = 2.0D-4 * VAR( ind_L_HPLUS ) * PHI2
+               K2 = 2.92D-6 * VAR( ind_L_HSO4MIN ) * PHI2        
+               KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_SO4MIN2 ) * PHI2  ! IEPOX + SO4
+               KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_IETET ) * PHI2    ! IEPOX + IETET
+               KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_IEOS ) * PHI2     ! IEPOX + IEOS
+     
+               q1 = DDIAM/2.0D0 * SQRT( KIEPOXT / DAQ )
+       
+               IF ( q1 .GT. 1.0D-3 ) THEN
+                  IF ( q1 .LE. 100.0D0 ) THEN
+                     COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
+                     Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
+                     IF ( Q .GT. 1.0D0 ) Q = 1.0D0
+                  ELSE
+                     Q = 3.d0/q1
+                  END IF
                ELSE
-                  Q = 3.d0/q1
-               END IF
-            ELSE
-               Q = 1.0D0
+                  Q = 1.0D0
+               END IF             
+     
+            ELSE   ! FOR MAE OR HMML
+
+               K1 = 9.0D-4 * VAR( ind_L_HPLUS ) * PHI2
+               K2 = 1.31D-5 * VAR( ind_L_HSO4MIN ) * PHI2        
+               KMAET = (K1 + K2) * FIX( indf_L_H2O ) * PHI2                  ! MAE/HMML + H2O
+    
+               K1 = 2.0D-4 * VAR( ind_L_HPLUS ) * PHI2
+               K2 = 2.92D-6 * VAR( ind_L_HSO4MIN ) * PHI2        
+               KMAET = KMAET + (K1 + K2) * VAR( ind_L_SO4MIN2 ) * PHI2       ! MAE/HMML + SO4
+    
+               q1 = DDIAM/2.0D0 * SQRT( KMAET / DAQ )
+        
+               IF ( q1 .GT. 1.0D-3 ) THEN
+                  IF ( q1 .LE. 100.0D0 ) THEN
+                     COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
+                     Q = 3 * ( ( COTHq / q1 ) - ( 1 / ( q1 * q1 ) ) )
+                     IF ( Q .GT. 1.0D0 ) Q = 1.0D0
+                  ELSE
+                     Q = 3.d0/q1
+                  END IF
+               ELSE
+                  Q = 1.0D0
+               END IF  
+         
             END IF
-            
+     
             KIEPOX = KIEPOX * Q     
        
             KIEPOX = KIEPOX * PHI2  
@@ -400,12 +439,12 @@ SUBROUTINE Update_RCONST ( )
   RCONST(71) = ((KRXN(3.60D+07,-3999.2D0,3,0,0)))
   RCONST(72) = ((KRXN(7.0D+02,0.0D0,0,0,0)))
   RCONST(114) = ((KIEPOX(9.0D-4,1.31D-5,1)))
-  RCONST(115) = ((KIEPOX(2.0D-4,2.92D-6,2)))
-  RCONST(116) = ((KIEPOX(2.0D-4,2.92D-6,4)))
-  RCONST(117) = ((KIEPOX(2.0D-4,2.92D-6,5)))
-  RCONST(118) = ((KIEPOX(9.0D-4,1.31D-5,1)))
+  RCONST(115) = ((KIEPOX(2.0D-4,2.92D-6,1)))
+  RCONST(116) = ((KIEPOX(2.0D-4,2.92D-6,1)))
+  RCONST(117) = ((KIEPOX(2.0D-4,2.92D-6,1)))
+  RCONST(118) = ((KIEPOX(9.0D-4,1.31D-5,2)))
   RCONST(119) = ((KIEPOX(2.0D-4,2.92D-6,2)))
-  RCONST(120) = ((KIEPOX(9.0D-4,1.31D-5,1)))
+  RCONST(120) = ((KIEPOX(9.0D-4,1.31D-5,2)))
   RCONST(121) = ((KIEPOX(2.0D-4,2.92D-6,2)))
       
 END SUBROUTINE Update_RCONST
