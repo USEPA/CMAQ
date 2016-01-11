@@ -610,14 +610,14 @@ INDEX_OCEAN_WATER  =   17
  17 IGBP Water                                                    17     1.000
  18 unclassified                                                  17     1.000
  19 fill value                                                    17     1.000
- 20 Open Water                                                    17     1.000
- 21 Perennial Ice-Snow                                            15     1.000
- 22 Developed Open Space                                          13     1.067
- 23 Developed Low Intensity                                       13     1.133
- 24 Developed Medium Intensity                                    13     1.067
- 25 Developed High Intensity                                      13     1.133
- 26 Barren Land (Rock-Sand-Clay)                                  16     0.800
- 27 Unconsolidated Shore                                          16     1.400
+ 20 unclassified                                                  17     1.000
+ 21 Open Water                                                    17     1.000
+ 22 Perennial Ice-Snow                                            15     1.000
+ 23 Developed Open Space                                          13     1.067
+ 24 Developed Low Intensity                                       13     1.133
+ 25 Developed Medium Intensity                                    13     1.067
+ 26 Developed High Intensity                                      13     1.133
+ 27 Barren Land (Rock-Sand-Clay)                                  16     0.800
  28 Deciduous Forest                                               4     0.938
  29 Evergreen Forest                                               1     0.833
  30 Mixed Forest                                                   5     1.000

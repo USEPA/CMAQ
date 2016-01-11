@@ -2197,7 +2197,7 @@
 !  Reaction Label OLIG_PAH2       
              RKI( NCELL,  920) =   9.4882D-06 * SFACT 
 !  Reaction Label SIMP            
-             RKI( NCELL,  921) =   1.0000D-11 * CFACT 
+             RKI( NCELL,  921) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE1        
              RKI( NCELL,  922) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE2        

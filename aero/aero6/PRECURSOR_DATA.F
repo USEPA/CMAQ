@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/aero/aero5/PRECURSOR_DATA.F,v 1.10 2012/01/19 13:11:38 yoj Exp $
+C $Header: /project/yoj/arc/CCTM/src/aero/aero6_mp/PRECURSOR_DATA.F,v 1.3 2012/01/26 18:44:38 sjr Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module precursor_data
@@ -43,13 +43,14 @@ C    -added req_OH and OH_idx variables
 C    -changed precursor_conc to Real(8)
 
 C H.Pye 05/22/11: added ALK5RXN to precursor list for SAPRC mechanisms
-C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
+ 
+C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
 C H. Pye 09/2014: added alkane and PAH SOA precursor
 C-----------------------------------------------------------------------
 
       Implicit None
 
-      Integer, Parameter :: n_precursor = 23   ! # of precursors
+      Integer, Parameter :: n_precursor = 26   ! # of precursors
 
       Type precursor_type
          Character( 16 ) :: name               ! species name
@@ -60,7 +61,7 @@ C-----------------------------------------------------------------------
 
       Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
 C                       Name      RxnCounter  Update
-C                       -------   ----------  ------
+C                    ----------   ----------  ------
      & precursor_type( 'NO2    ', .False. , .True.  ),
      & precursor_type( 'N2O5   ', .False. , .True.  ),
      & precursor_type( 'HNO3   ', .False. , .True.  ),
@@ -79,12 +80,14 @@ C                       -------   ----------  ------
      & precursor_type( 'BNZNRXN', .True.  , .True.  ),
      & precursor_type( 'BNZHRXN', .True.  , .True.  ),
      & precursor_type( 'SESQRXN', .True.  , .True.  ),
+     & precursor_type( 'NH3    ', .False. , .True.  ),
+     & precursor_type( 'OH     ', .False. , .False. ),
      & precursor_type( 'PAHNRXN', .True.  , .True.  ),
      & precursor_type( 'PAHHRXN', .True.  , .True.  ),
      & precursor_type( 'SMPRXN ', .True.  , .True.  ),
      & precursor_type( 'NH3    ', .False. , .True.  ),
-     & precursor_type( 'OH     ', .False. , .False. )/)
-
+     & precursor_type( 'OH     ', .False. , .False. ),
+     & precursor_type( 'PHGRXN ', .True.  , .True. )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_NO2    = 'NO2'
@@ -96,6 +99,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_HCL    = 'HCL'
       Character( 16 ), Private, Parameter :: req_NH3    = 'NH3'
       Character( 16 ), Private, Parameter :: req_OH     = 'OH'
+      Character( 16 ), Private, Parameter :: req_PHGRXN = 'PHGRXN'
 
 C Indices of required species
       Integer :: NO2_idx
@@ -107,12 +111,14 @@ C Indices of required species
       Integer :: HCL_idx
       Integer :: NH3_idx
       Integer :: OH_idx
+      Integer :: PHGRXN_idx
 
-      Real    :: precursor_mw( n_precursor )   ! mol wt from cgrid_spcs [g/mol]
+      Real( 8 ) :: precursor_mw( n_precursor )   ! mol wt from cgrid_spcs [g/mol]
 
       Real( 8 ) :: precursor_conc( n_precursor ) ! precursor concentration [ug/m^3]
 
       Real    :: so4rate                       ! sulfate gas-phase production rate [ug/m^3*s]
+      Real    :: phg_rate                      ! particulate mercury gas-phase production rate [ug/m^3*s]
 
 C Private variables for loading and unloading to CGRID array
       Integer          :: precursor_map( n_precursor )  ! pointers to CGRID
@@ -136,54 +142,69 @@ C HS  03/10/11 Changed vtmp to real(8)
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
+      Use aero_data
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
 
       Implicit None
 
 C Local Variables:
-      Character( 80 ) :: xmsg
-      Real( 8 )       :: vtmp
-      Integer         :: n
-      Integer         :: spc
+      Character( 180 ) :: xmsg
+      Real( 8 )        :: vtmp
+      Integer          :: n
+      Integer          :: spc
 
       logdev = setup_logdev()
 
-      precursor_mw = 0.0
+      precursor_mw = 0.0d0
       precursor_map = 0
 
 C Build mapping to CGRID for each precursor species
       Do spc = 1, n_precursor
          n = index1( precursor( spc )%name, n_gc_g2ae, gc_g2ae )
          If ( n .Ne. 0 ) Then
-            precursor_mw( spc ) = gc_molwt( gc_g2ae_map( n ) )
+            precursor_mw( spc ) = real( gc_molwt( gc_g2ae_map( n ) ), 8 )
             precursor_map( spc ) = gc_strt - 1 + gc_g2ae_map( n )
          Else
             n = index1( precursor( spc )%name, n_nr_n2ae, nr_n2ae )
             If ( n .Ne. 0 ) Then
-               precursor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
+               precursor_mw( spc ) = real( nr_molwt( nr_n2ae_map( n ) ), 8 )
                precursor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
             Else
                xmsg = 'Species ' // Trim( precursor( spc )%name ) //
      &               ' in precursor name is not in GC_G2AE or NR_N2AE tables'
-!              Call m3exit( 'xtract_precursor', 0, 0, xmsg, xstat3 )
-               Call m3warn( 'xtract_precursor', 0, 0, xmsg )
+!               Call m3exit( 'map_precursor', 0, 0, xmsg, xstat3 )
+                Call m3warn( 'map_precursor', 0, 0, xmsg )
             End If
          End If
       End Do
 
 C Find indices of required species
-      NO2_idx    = findPrecursor( req_NO2 )
-      N2O5_idx   = findPrecursor( req_N2O5 )
-      HNO3_idx   = findPrecursor( req_HNO3 )
-      HONO_idx   = findPrecursor( req_HONO )
-      SULF_idx   = findPrecursor( req_SULF )
-      SULPRD_idx = findPrecursor( req_SULPRD )
-      HCL_idx    = findPrecursor( req_HCL )
-      NH3_idx    = findPrecursor( req_NH3 )
-      OH_idx     = findPrecursor( req_OH )
+      NO2_idx    = findPrecursor( req_NO2,    .true.)
+      N2O5_idx   = findPrecursor( req_N2O5,   .true.)
+      HNO3_idx   = findPrecursor( req_HNO3,   .true.)
+      HONO_idx   = findPrecursor( req_HONO,   .true.)
+      SULF_idx   = findPrecursor( req_SULF,   .true.)
+      SULPRD_idx = findPrecursor( req_SULPRD, .true.)
+      HCL_idx    = findPrecursor( req_HCL,    .true.)
+      NH3_idx    = findPrecursor( req_NH3,    .true.)
+      OH_idx     = findPrecursor( req_OH,     .true.)
+      If( aphgj_idx .gt. 0 )then
+          PHGRXN_idx = findPrecursor( req_phgrxn,  .false.)
+          If(   precursor_map( PHGRXN_idx ) .Lt. 1  )Then
+             xmsg = ' Gas Phase Precursor ' // Trim( req_PHGRXN )
+     &           // ' not found -> NO gas production of APHG species'
+             Call m3warn( 'map_precursor', 0, 0, xmsg )
+          End If 
+#ifdef verbose_aero
+      Else
+          xmsg = ' NO particulate mercury in model.'
+          Call m3warn( 'map_precursor', 0, 0, xmsg )
+          PHGRXN_idx = 0
+#endif
+      end if
 
-#ifdef verbose
+#ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_precursor required species'
       Write( logdev,'( 5x, a, i4 )' ) 'NO2_idx:    ', NO2_idx
       Write( logdev,'( 5x, a, i4 )' ) 'N2O5_idx:   ', N2O5_idx
@@ -194,6 +215,9 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'HCL_idx:    ', HCL_idx
       Write( logdev,'( 5x, a, i4 )' ) 'NH3_idx:    ', NH3_idx
       Write( logdev,'( 5x, a, i4 )' ) 'OH_idx:     ', OH_idx
+      if( aphgj_idx .gt. 0 )then
+          Write( logdev,'( 5x, a, i4 )' ) 'PHGRXN_idx:     ', PHGRXN_idx
+      end if
 #endif
 
       mapped = .True.
@@ -235,7 +259,7 @@ C Local Variables:
       End If
 
 C Compute gas conversion constant
-      gasconv = Real( airdens * 1.0E3 / mwair, 8 )
+      gasconv = Real( airdens * inv_mwair, 8 )
 
 C Copy grid cell concentrations of precursor species
       precursor_conc = 0.0
@@ -244,7 +268,7 @@ C Copy grid cell concentrations of precursor species
          n = precursor_map( spc )
          If ( n .Ne. 0 ) Then
             vtmp = gasconv * precursor_mw( spc )
-            precursor_conc( spc ) = Max( conc( n ) * vtmp, min_gasconc )
+            precursor_conc( spc ) = Max( Real( conc( n ), 8) * vtmp, Real( min_gasconc, 8) )
          End If
       End Do
 
@@ -287,7 +311,7 @@ C local variables:
       End If
 
 C compute gas conversion constant
-      gasconv = Real( airdens * 1.0E3 / mwair, 8 )
+      gasconv = Real( airdens * inv_mwair, 8 )
 
 C copy precursor_conc back to grid cell concentrations
       Do spc = 1, n_precursor
@@ -298,7 +322,7 @@ C copy precursor_conc back to grid cell concentrations
                   conc( n ) = 0.0
                Else
                   vtmp = precursor_mw( spc ) * gasconv
-                  conc( n ) = Max( precursor_conc( spc ) / vtmp, min_gasconc )
+                  conc( n ) = Max( real( precursor_conc( spc ) / vtmp, 4 ), min_gasconc  )
                End If
             End If
          End If
@@ -308,7 +332,7 @@ C copy precursor_conc back to grid cell concentrations
       End Subroutine update_precursor
 
 C-----------------------------------------------------------------------
-      Function findPrecursor( vname ) Result ( ndx )
+      Function findPrecursor( vname, required ) Result ( ndx )
 
 C  Finds the index of 'required' aerosol species in the precursor list
 
@@ -324,13 +348,17 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Arguments:
-      Character( 16 ) :: vname
+      Character( * ) :: vname
+      Logical        :: required
+      
       Integer ndx
 
 C Local Variables:
       Integer         :: spc
       Character( 80 ) :: xmsg
 
+      ndx = 0
+      
       Do spc = 1, n_precursor
          If ( Index( precursor( spc )%name, Trim( vname ) ) .Gt. 0 ) Then
             ndx = spc

@@ -24,6 +24,7 @@ C Function: User-defined types
 
 C Revision History:
 C     19 Aug 2014 J.Bash: initial implementation
+C     17 July 2015 H.Foroutan: Updated the calculation of MOL, MOLI, HOL, and WSTAR
 C
 C---------Notes
 C  * Updates based on literature review 7/96 JEP
@@ -86,6 +87,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: RN       ( :,: )  ! non-convective precipitation [mc]
          Real,    Allocatable :: RGRND    ( :,: )  ! Solar radiation at the ground [W/m**2]
          Real,    Allocatable :: HFX      ( :,: )  ! Sensible heat flux [W/m**2]
+         Real,    Allocatable :: LH       ( :,: )  ! Latent heat flux [W/m**2]
          Real,    Allocatable :: SNOCOV   ( :,: )  ! Snow cover [1=yes, 0=no]
          Real,    Allocatable :: TEMP2    ( :,: )  ! two meter temperature [K]
          Real,    Allocatable :: TEMPG    ( :,: )  ! skin temperature [K]
@@ -102,6 +104,7 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: SOIT1    ( :,: )  ! 1 cm soil temperature [K]
          Real,    Allocatable :: SOIT2    ( :,: )  ! 1 m soil temperature [K]
          Real,    Allocatable :: SEAICE   ( :,: )  ! Sea ice coverage [%]
+         Real,    Allocatable :: MOL      ( :,: )  ! Monin-Obukhov length [m]
          Real,    Allocatable :: MOLI     ( :,: )  ! inverse of Monin-Obukhov length [m]
          Real,    Allocatable :: HOL      ( :,: )  ! PBL over Obukhov length
          Real,    Allocatable :: XPBL     ( :,: )  ! PBL sigma height
@@ -242,6 +245,7 @@ C Land use information:
       Logical, Private, Save :: ifsst    = .false.
       Logical, Private, Save :: ifq2     = .false.
       Logical, Private, Save :: rinv     = .True.
+      Logical, Private, Save :: iflh     = .false.
       
       Integer,         Private :: C, R, L, S               ! loop induction variables
       Integer,         Private :: SPC
@@ -263,7 +267,7 @@ C Land use information:
       DATA subname( 2), dif0( 2), ar( 2), meso( 2), lebas( 2) / 'H2SO4           ', 0.1091, 8000.0,      0.0,  49.0/
       DATA subname( 3), dif0( 3), ar( 3), meso( 3), lebas( 3) / 'NO2             ', 0.1361,    2.0,      0.1,  21.0/
       DATA subname( 4), dif0( 4), ar( 4), meso( 4), lebas( 4) / 'NO              ', 0.1802,    2.0,      0.0,  14.0/
-      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,    8.0,      1.0,  21.0/
+      DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,   12.0,      1.0,  21.0/
       DATA subname( 6), dif0( 6), ar( 6), meso( 6), lebas( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,  35.0/
       DATA subname( 7), dif0( 7), ar( 7), meso( 7), lebas( 7) / 'H2O2            ', 0.1300,   30.0,      1.0,  28.0/
       DATA subname( 8), dif0( 8), ar( 8), meso( 8), lebas( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,  56.0/
@@ -328,7 +332,8 @@ C Land use information:
 
       CONTAINS
 
-         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX )
+C=======================================================================
+         Subroutine INIT_MET ( JDATE, JTIME, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -352,6 +357,7 @@ C Arguments:
          Integer, Intent( IN ) :: JDATE, JTIME      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: HGBIDI
 
 C File variables:
          Real, Pointer    :: MSFX2   ( :,: )
@@ -401,6 +407,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%RN       ( NCOLS,NROWS ),
      &             Met_Data%RGRND    ( NCOLS,NROWS ),
      &             Met_Data%HFX      ( NCOLS,NROWS ),
+     &             Met_Data%LH       ( NCOLS,NROWS ),
      &             Met_Data%SNOCOV   ( NCOLS,NROWS ),
      &             Met_Data%TEMP2    ( NCOLS,NROWS ),
      &             Met_Data%TEMPG    ( NCOLS,NROWS ),
@@ -415,6 +422,7 @@ C-----------------------------------------------------------------------
      &             Met_Data%SOIM1    ( NCOLS,NROWS ),
      &             Met_Data%SOIT1    ( NCOLS,NROWS ),
      &             Met_Data%SEAICE   ( NCOLS,NROWS ),
+     &             Met_Data%MOL      ( NCOLS,NROWS ),
      &             Met_Data%MOLI     ( NCOLS,NROWS ),
      &             Met_Data%HOL      ( NCOLS,NROWS ),
      &             Met_Data%XPBL     ( NCOLS,NROWS ),
@@ -463,7 +471,7 @@ C-----------------------------------------------------------------------
          Grid_Data%NAME    = name_lu
          Grid_Data%LU_Type = cat_lu
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
             ALLOCATE( Met_Data%SOIM2    ( NCOLS,NROWS ),
      &                Met_Data%SOIT2    ( NCOLS,NROWS ),
      &                STAT = ALLOCSTAT )
@@ -567,6 +575,9 @@ C-----------------------------------------------------------------------
 
          SPC = INDEX1( 'TSEASFC', NVARS3D, VNAME3D )
          If (SPC .Gt. 0) ifsst = .True. ! two meter SST in METCRO2D
+
+         SPC = INDEX1( 'LH', NVARS3D, VNAME3D )
+         If (SPC .Gt. 0) iflh = .True. ! LH in METCRO2D
 
          SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
          If (SPC .Gt. 0) Then
@@ -783,7 +794,8 @@ C-----------------------------------------------------------------------
          Return
          End Subroutine INIT_MET
 
-         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX )
+C=======================================================================
+         Subroutine GET_MET ( JDATE, JTIME, TSTEP, MOSAIC, ABFLUX, HGBIDI )
 
 C-----------------------------------------------------------------------
 C   30 Mar 01 J.Young: dyn alloc - Use HGRD_DEFN; replace INTERP3 with INTERPX;
@@ -808,32 +820,36 @@ C-----------------------------------------------------------------------
  
          Include SUBST_FILES_ID  ! file name parameters
          Include SUBST_PE_COMM   ! PE communication displacement and direction
+         Include SUBST_CONST     ! constants
 
 C Arguments:
 
          Integer, Intent( IN ) :: JDATE, JTIME, TSTEP      ! internal simulation date&time
          Logical, Intent( IN ) :: MOSAIC
          Logical, Intent( IN ) :: ABFLUX
+         Logical, Intent( IN ) :: HGBIDI
 
 C Parameters:
          Real, Parameter :: cond_min = 1.0 / resist_max ! minimum conductance [m/s]
-         REAL, PARAMETER :: KZMAXL = 500.0    ! upper limit for min Kz [m]
-         REAL, PARAMETER :: KZ0UT  = 1.0      ! minimum eddy diffusivity [m**2/sec] KZ0
-         REAL, PARAMETER :: KZL    = 0.01     ! lowest KZ
-         REAL, PARAMETER :: KZU    = 1.0      ! 2.0  ! highest KZ
-         REAL, PARAMETER :: EPS    = 1.0E-08  ! small number for temperature difference
+         Real, Parameter :: KZMAXL = 500.0    ! upper limit for min Kz [m]
+         Real, Parameter :: KZ0UT  = 1.0      ! minimum eddy diffusivity [m**2/sec] KZ0
+         Real, Parameter :: KZL    = 0.01     ! lowest KZ
+         Real, Parameter :: KZU    = 1.0      ! 2.0  ! highest KZ
+         Real, Parameter :: EPS    = 1.0E-08  ! small number for temperature difference
 
 C Local variables:
-         REAL    FINT
+         Real    FINT
+         Real    CPAIR, LV, QST 
+         Real    TMPFX, TMPVTCON, TST, TSTV
          Real, Pointer    :: Es_Grnd ( :,: )
          Real, Pointer    :: Es_Air  ( :,: )
          Real, Pointer    :: TV      ( :,:,: )
-         INTEGER LP
-         INTEGER C, R, L         ! loop induction variables
+         Integer LP
+         Integer C, R, L         ! loop induction variables
 
          Character( 16 ) :: PNAME = 'GET_MET'
          Character( 16 ) :: VNAME
-         CHARACTER( 30 ) :: MSG1 = ' Error interpolating variable '
+         CharactER( 30 ) :: MSG1 = ' Error interpolating variable '
          Character( 96 ) :: XMSG = ' '
 
 C-----------------------------------------------------------------------
@@ -963,7 +979,7 @@ C Soil vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         If ( ABFLUX .Or. MOSAIC ) Then
+         If ( ABFLUX .Or. HGBIDI .Or. MOSAIC ) Then
             VNAME = 'SOIM2'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
@@ -998,13 +1014,6 @@ C Soil vars
          End If
 
 C met vars
-         VNAME = 'MOLI'
-         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, Met_Data%MOLI ) ) Then
-            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End If
 
          VNAME = 'PRSFC'
          If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
@@ -1065,20 +1074,30 @@ C met vars
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         VNAME = 'WSTAR'
-         If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, Met_Data%WSTAR ) ) Then
-            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End If
-
          VNAME = 'HFX'
          If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                       JDATE, JTIME, Met_Data%HFX ) ) Then
             XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+
+         If ( iflh ) Then
+            VNAME = 'LH'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                          JDATE, JTIME, Met_Data%LH ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
+         Else   ! for backward compatibility
+            VNAME = 'QFX'
+            If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, Met_Data%LH ) ) Then
+               XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_2D
+               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            End If
          End If
 
          VNAME = 'PBL'
@@ -1116,7 +1135,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          End If
 
          If ( ifsst ) Then
-         VNAME = 'TSEASFC'
+            VNAME = 'TSEASFC'
             If ( .Not. INTERPX( MET_CRO_2D, VNAME, PNAME,
      &                          STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
      &                          JDATE, JTIME, Met_Data%TSEASFC ) ) Then
@@ -1136,7 +1155,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-            Where(Met_Data%RA .Gt. cond_min) 
+            Where( Met_Data%RA .Gt. cond_min ) 
                Met_Data%RA = 1.0/Met_Data%RA
             Elsewhere
                Met_Data%RA = resist_max
@@ -1150,7 +1169,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
 
-            Where(Met_Data%RS .Gt. cond_min) 
+            Where( Met_Data%RS .Gt. cond_min ) 
                Met_Data%RS = 1.0 / Met_Data%RS
             Elsewhere 
                Met_Data%RS = resist_max
@@ -1189,7 +1208,7 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          End If
          
          Es_Grnd => BUFF2D
-         Where(Met_Data%TEMPG .Lt. stdtemp )
+         Where( Met_Data%TEMPG .Lt. stdtemp )
             Es_Grnd = vp0 *Exp( 22.514 - ( 6.15e3 / Met_Data%TEMPG ) )
          Elsewhere
             Es_Grnd = vp0 *Exp( svp2 * ( Met_Data%TEMPG -stdtemp ) / ( Met_Data%TEMPG -svp3 ) ) 
@@ -1197,8 +1216,8 @@ C Met_cro_2D variables that have recently changed due to MCIP or WRF/CMAQ
          Met_Data%QSS_GRND = Es_Grnd * 0.622 / ( Met_Data%PRSFC - Es_Grnd )
          Nullify( Es_Grnd )
 
-          Es_Air => BUFF2D
-         Where(Met_Data%TEMP2 .Lt. stdtemp )
+         Es_Air => BUFF2D
+         Where( Met_Data%TEMP2 .Lt. stdtemp )
             Es_Air = vp0 *Exp( 22.514 - ( 6.15e3 / Met_Data%TEMP2 ) )
          Elsewhere
             Es_Air = vp0 *Exp( svp2 * ( Met_Data%TEMP2 -stdtemp ) / ( Met_Data%TEMP2 -svp3 ) ) 
@@ -1251,15 +1270,47 @@ C-------------------------------- Calculated Variables -------------------------
          Met_Data%THETAV = TV * ( P0 / Met_Data%PRES ) ** 0.286
          Nullify( TV )
 
-         Met_Data%HOL = Met_Data%PBL * Met_Data%MOLI
+C------  Updating MOL, then WSTAR, MOLI, HOL 
+         DO R = 1, MY_NROWS
+            DO C = 1, MY_NCOLS
+ !             CPAIR    = 1004.67 * ( 1.0 + 0.84 * Met_Data%QV( C,R,1 ) )   ! J/(K KG)
+               CPAIR    = CPD * ( 1.0 + 0.84 * Met_Data%QV( C,R,1 ) )   ! J/(K KG)
+               TMPFX    = Met_Data%HFX( C,R ) / ( CPAIR * Met_Data%DENS( C,R,1 ) )
+               TMPVTCON = 1.0 + 0.608 * Met_Data%QV( C,R,1 )  ! Conversion factor for virtual temperature
+               TST      = -TMPFX / Met_Data%USTAR( C,R )
+               IF ( Met_Data%TA( C,R,1 ) .GT. STDTEMP ) THEN
+                  LV = LV0 - ( 0.00237 * ( Met_Data%TA( C,R,1 ) - STDTEMP ) ) * 1.0E6
+               ELSE
+                  LV = 2.83E6     ! Latent heat of sublimation at 0C from Stull (1988) (J/KG)
+               END IF
+               QST  = -( Met_Data%LH( C,R ) / LV )
+     &              / ( Met_Data%USTAR( C,R ) * Met_Data%DENS( C,R,1 ) )
+               TSTV = TST * TMPVTCON + Met_Data%THETAV( C,R,1 ) * 0.608 * QST
+               IF ( ABS( TSTV ) .LT. 1.0E-6 ) THEN
+                  TSTV = SIGN( 1.0E-6, TSTV )
+               END IF
+               Met_Data%MOL( C,R ) = Met_Data%THETAV( C,R,1 )
+     &                             * Met_Data%USTAR( C,R ) ** 2 / ( karman * GRAV * TSTV )
+               IF ( Met_Data%MOL( C,R ) .LT. 0.0 ) THEN
+                  Met_Data%WSTAR( C,R ) = Met_Data%USTAR( C,R ) * ( Met_Data%PBL( C,R )
+     &                                  / ( karman * ABS( Met_Data%MOL( C,R ) ) ) ) ** 0.333333
+               ELSE
+                  Met_Data%WSTAR( C,R ) = 0.0
+               END IF
+
+            END DO
+         END DO
+   
+         Met_Data%MOLI  = 1.0 / Met_Data%MOL 
+         Met_Data%HOL   = Met_Data%PBL / Met_Data%MOL
+C------
 
          Met_Data%CONVCT = .FALSE.
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
                DO L = 1, NLAYS
                   IF ( Met_Data%PBL( C,R ) .LT. Met_Data%ZF( C,R,L ) ) THEN
-                     LP = L
-                     EXIT
+                     LP = L; EXIT
                   END IF
                END DO
 
@@ -1278,11 +1329,11 @@ C-------------------------------- Calculated Variables -------------------------
             END DO
          END DO
          Where( Met_Data%THETAV( :,:,1 ) - Met_Data%THETAV( :,:,2 ) .Gt. EPS .And.
-     &          Met_Data%HOL .Lt. -0.1 .And. Met_Data%LPBL .Gt. 3 )
+     &          Met_Data%HOL .Lt. -0.02 .And. Met_Data%LPBL .Gt. 3 )
             Met_Data%CONVCT = .True.
          End Where
 
-         RETURN
+         Return
          End Subroutine GET_MET
 
       End Module ASX_DATA_MOD

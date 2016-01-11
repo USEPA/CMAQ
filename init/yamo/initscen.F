@@ -68,6 +68,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -135,7 +136,6 @@ C  environment variable description
 
       INTERFACE
          SUBROUTINE LOAD_CGRID ( FNAME, STDATE, STTIME, SPC_CAT, CMIN, CGRID )
-            IMPLICIT NONE
             CHARACTER( 16 ), INTENT( IN ) :: FNAME
             INTEGER, INTENT( IN )         :: STDATE, STTIME
             CHARACTER(  2 ), INTENT( IN ) :: SPC_CAT
@@ -143,7 +143,6 @@ C  environment variable description
             REAL, POINTER                 :: CGRID( :,:,:,: )
          END SUBROUTINE LOAD_CGRID
          SUBROUTINE OPCONC ( CGRID, STDATE, STTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER                 :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )         :: STDATE, STTIME, TSTEP
          END SUBROUTINE OPCONC
@@ -343,6 +342,9 @@ C Test opening existing conc file for update
          CALL SUBST_BARRIER
          CALL OPCONC ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
       END IF
+
+      CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
+      CALL OPWDEP  ( STDATE, STTIME, TSTEP( 1 ) )
 
 !     IF ( MYPE .EQ. 0 ) THEN
 !        IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN

@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05E51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 2, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jan. 7, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -87,7 +87,6 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
-      REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
 
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
@@ -250,7 +249,7 @@ c..Species indices
       INTEGER, PARAMETER :: ALD2_PRIMARY     =  138
       INTEGER, PARAMETER :: BUTADIENE13      =  139
       INTEGER, PARAMETER :: ACROLEIN         =  140
-      INTEGER, PARAMETER :: ACROLEIN_PRIMARY =  141
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  141
       INTEGER, PARAMETER :: TOLU             =  142
       INTEGER, PARAMETER :: MXYL             =  143
       INTEGER, PARAMETER :: OXYL             =  144

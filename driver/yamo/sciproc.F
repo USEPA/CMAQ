@@ -108,69 +108,58 @@ C Local Variables:
 
       INTERFACE
          SUBROUTINE CKSUMMER ( PNAME, CGRID, JDATE, JTIME )
-            IMPLICIT NONE
             CHARACTER( * ), INTENT( IN ) :: PNAME
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
          END SUBROUTINE CKSUMMER
          SUBROUTINE PA_UPDATE ( PNAME, CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             CHARACTER( * ), INTENT( IN ) :: PNAME
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE PA_UPDATE
          SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
             INTEGER, INTENT( IN )     :: ASTEP( : )
          END SUBROUTINE HADV
          SUBROUTINE ZADV ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE ZADV
          SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE COUPLE
          SUBROUTINE DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE DECOUPLE
          SUBROUTINE HDIFF ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE HDIFF
          SUBROUTINE VDIFF ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE VDIFF
          SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CLDPROC
          SUBROUTINE CHEM ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CHEM
          SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
-            IMPLICIT NONE
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )

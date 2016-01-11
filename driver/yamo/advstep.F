@@ -194,14 +194,6 @@ C environment variable max horizontal divergence for adv step adjustment
 
       INTERFACE
         SUBROUTINE HVELOC( FDATE, FTIME, FSTEP, UWIND, VWIND, HDIV )
-            USE GRID_CONF
-#ifdef parallel
-            USE SE_MODULES
-#else
-            USE NOOP_MODULES
-#endif
-            USE UTILIO_DEFN
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: FDATE, FTIME, FSTEP
             REAL,    INTENT( OUT ) :: UWIND( :,:,: ), VWIND( :,:,: )
             REAL,    INTENT( OUT ) :: HDIV( :,:,: )
@@ -521,7 +513,7 @@ C If you get here: could not determine satisfactory advection time step.
 
       IF ( ADJFLG ) THEN
          WRITE( LOGDEV,92019 ) MINSECS, TSTEP( 2 ), NREPS
-         ELSE
+      ELSE
          WRITE( LOGDEV,92021 ) TSTEP( 2 ), NREPS
       END IF
 

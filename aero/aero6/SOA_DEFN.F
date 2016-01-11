@@ -35,12 +35,13 @@ C
 C HP  03/11/11 Updated monoterpene SOA alphas and Cstars to Carlton et al. 2010 values
 C HP  07/24/11 Changed aromatic SOA alphas for consistency with updated reaction counters
 C               BNZ, TOL, XYL numbers now match Ng et al. 2007 Atmos. Chem. Phys.
-C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
+C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
 C 13 Aug 13 H. Pye: Xylene and toluene low-NOx yields switched. Values now
 C               follow experimental data of Ng et al. 2007 ACP as shown in Table 3.
 C               Values in Table 6 of Ng et al. (previously used) are incorrect.
 C 18 Dec 13 G.Sarwar: added orgprod parent names based on RACM2 
-C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran
+C                      module
 C 21 Jul 14 B.Hutzell: used ifdef statement to make oligomerization
 C                      optional because process represented in chemical
 C                      mechanism
@@ -56,6 +57,7 @@ C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
+C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -184,14 +186,14 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
-C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA.
+C HP  09/27/14 alk_factor removed, updated for alkane/PAH SOA
 C              Conversion of reacted alkane to dodecane equivalent
 C              is handled in mech.def. A factor of 0.47 is in use and
 C              reflects the fact that alkane SOA precursor
 C              emissions are dominated by compounds smaller than dodecane.
 C-----------------------------------------------------------------------
 
-      Use rxns_data       ! chemical mechanism data
+      Use rxns_data
       Use aero_data       ! aero species
       Use aeromet_data    ! air and met variables
       Use cgrid_spcs      ! CGRID mechanism species
@@ -254,25 +256,32 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
                IEPOX_SOA_mechanism = .True.
-            Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
+            Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .GT. 0 ) then
                orgprod( 2 )%parent     = 'MXYL'
                orgprod( 3 )%parent     = 'MXYL'
                orgprod( 4 )%parent     = 'TOLUENE'
                orgprod( 5 )%parent     = 'TOLUENE'
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
+               IEPOX_SOA_mechanism = .True.
+            Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .GT. 0 ) then
+               orgprod( 2 )%parent     = 'MXYL'
+               orgprod( 3 )%parent     = 'MXYL'
+               orgprod( 4 )%parent     = 'TOLUENE'
+               orgprod( 5 )%parent     = 'TOLUENE'
+               orgprod( 8 )%parent     = 'NAPHTHAL'
+               orgprod( 9 )%parent     = 'NAPHTHAL'
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
 !               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
 ! the factor with RACM2 should be different because the HC8 + OH rate is higher
 ! but endothermic 
-               vaporspc( 1 )%drog_name = 'ALK5RXN'
-               vaporspc( 2 )%drog_name = 'ALK5RXN'
-               orgprod( 1 )%name       = 'ALK5RXN'
-               orgprod( 1 )%parent     = 'HC8'
+! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
                orgprod( 2 )%parent     = 'XYM'
                orgprod( 3 )%parent     = 'XYM'
                orgprod( 4 )%parent     = 'TOL'
-               orgprod( 5 )%parent     = 'TOL'
+               orgprod( 5 )%parent     = 'TOL'               
+               IEPOX_SOA_mechanism = .True.               
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
@@ -284,11 +293,12 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
             End If
 
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
-            If( INDEX( MECHNAME, '_AE6' ) .EQ. 0 ) then
+            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
                   xmsg =  'Using AERO6 option and the Mechanism, '  
      &                // Trim( MECHNAME ) // ', is not based on AERO6 '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
+
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
@@ -352,7 +362,7 @@ C Reactive variables that store their production rates (orgprod)
       End If     ! mapping condition
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = airdens * inv_mwair
 
 C Copy grid cell concentrations of vapor species
       vapor_conc = 0.0
@@ -376,7 +386,7 @@ C Copy grid cell concentrations of ORGPROD species
 
 C Adjust ALK orgprod for fraction that produces SOA
 !      orgprod_conc( 1 ) = alk_factor * orgprod_conc( 1 )
-
+ 
       Return
       End Subroutine extract_soa
 
@@ -414,7 +424,7 @@ C Local Variables:
       End If
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = airdens * inv_mwair
 
 C Copy vapor_conc back to grid cell concentrations
       Do spc = 1, n_vapor
@@ -478,7 +488,7 @@ C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      Use utilio_defn        ! i/o api
+      Use UTILIO_DEFN        ! i/o api
 
       Implicit None
 
@@ -778,12 +788,15 @@ C  21. Pye et al., Epoxide pathways improve model prediction of isoprene
 C      markers and reveal key role of acidity in aerosol formation,
 C      Environ. Sci. Technol., 2013.
 
+
 C Revision History:
 C    First orgaer version was coded in April 2010 by Steve Howard with
 C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
+C BNM 11/09/15 Added Some Comments to the SOA Scheme
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -911,11 +924,14 @@ C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
          drog( i ) = orgprod_conc( i ) * drog_ppm2ug( i ) * convfac
       end Do
 
-C Assignment of drog to totrog
+C Assignment of drog to totrog. This moving mass from the reactive 
+C gas tracer species to the array that will be multiplied by alpha
+C to give newly formed semivolatile vapors.
+      totrog = 0.0
       Do i = 1, n_vapor
-         If ( drog_map( i ) .GT. 0 ) then
+         if ( drog_map( i ) .gt. 0 ) then
            totrog( i ) = drog( drog_map( i ) )
-	 Endif
+	 endif
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
@@ -929,7 +945,6 @@ C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
 
 #ifdef Oligo_aero
 C Oligomerization
-
 C Convert semi-volatile SOA to non-volatile oligomers by an exponential decay
 C process that conserves carbon mass.
 
@@ -958,10 +973,9 @@ C process that conserves carbon mass.
      &                            + 12.0 * nsvpa * ( 1.0 - expdt ) * olgrat
       aerospc_conc( aolgb_idx,2 ) = aerospc_conc( aolgb_idx,2 )
      &                            + 12.0 * nsvpb * ( 1.0 - expdt ) * olgrat
-
 #endif
 C Compute molar concentrations of non-volatile organic material and total
-C organic material; in future code updates, molecularpartit weights of non-volatile
+C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
@@ -996,14 +1010,16 @@ C    Assuming totorg doesn't change during the timestep,
 C    caer * (1 + c0/MW / totorg) = ctotf
 C    caer = ctotf / ( 1 + c0/MW / totorg )
 
-      threshold = 0.0
+      threshold = 0.0  !This threshold will be compared to the
+                       !saturation concentration to determine whether
+		       !or not OA partitioning is even likely
       upb = 0.0 ! upper bound for bisection method
       
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = vaporspc( i )%cstar * tempcorr
-         prod( i )  = vaporspc( i )%alpha * totrog( i )
-         ctotf( i ) = ctoti( i ) + prod( i )
+         c0( i )    = vaporspc( i )%cstar * tempcorr        !Satn Conc.
+         prod( i )  = vaporspc( i )%alpha * totrog( i )     !Total Vapor Produced
+         ctotf( i ) = ctoti( i ) + prod( i )                !Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
@@ -1047,7 +1063,13 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+!        orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         If ( abs( upb - lowb ) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1055,7 +1077,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
@@ -1090,7 +1112,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
          vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
 
-C Acid-induced Isoprene SOA if IEPOX uptake is not considered
+C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
       IF( .Not. IEPOX_SOA_mechanism ) then
 
 C Particle-phase acidity is parameterized by the air concentration of hydrogen
@@ -1304,8 +1326,8 @@ C-----------------------------------------------------------------------
             CHECK = .FALSE.
             RETURN
          END IF
-         IF ( CHECK ) THEN        !Check for gradient of F zero,
-            TEST = 0.           !i.e., spurious convergence.
+         IF ( CHECK ) THEN        ! Check for gradient of F zero,
+            TEST = 0.0            ! i.e., spurious convergence.
             DEN = MAX( F, 0.5 * N )
             DO I = 1, N
                TEMP = ABS( G( I ) ) * MAX( ABS( X( I ) ), 1.0 ) / DEN
@@ -1358,7 +1380,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       IMPLICIT NONE
 
       INTEGER N                 ! dimension of problem
-      REAL X( N )               ! initial guess of CAER
+      REAL X( N )                 ! initial guess of CAER
 
       REAL CT
       REAL CS
@@ -1767,10 +1789,8 @@ C    all dimensions now depend upon N only
       RETURN
       END SUBROUTINE LUDCMP
 
-C-----------------------------------------------------------------------
       Function soabisect( lowerb, upperb, nonvolmol, cstaratt, totsemivol,
      &                    mlwt) RESULT ( nroot )
-
 C     Determines the root of an equation, nroot, that is located
 C     between the lowerb and upperb. The equation of interest is defined
 C     in the function soaequation. Before calling soabisect, the threshold 
@@ -1850,8 +1870,9 @@ C     abstol (absolute) amount
      &       'Warning: number of organic aerosol moles going to zero in soa bisection:',
      &        nroot
 #else
-          xmsg = 'Warning: number of organic aerosol moles going to zero in soa bisection'
+          xmsg = 'Error: number of organic aerosol moles going to zero in soa bisection'
 #endif
+!         Call m3warn( pname, 0, 0, xmsg )
           Call m3exit( pname, 0, 0, xmsg, xstat3 )
         End If
 
@@ -1885,7 +1906,7 @@ C     abstol (absolute) amount
      &      'Warning: possible false convergence in soa bisection:', fnguess, nroot
             Call m3warn( pname, 0, 0, xmsg )
 #else
-            xmsg = 'Warning: possible false convergence in soa bisection'
+!           xmsg = 'Warning: possible false convergence in soa bisection'
 #endif
 !           Call m3warn( pname, 0, 0, xmsg )
           End If

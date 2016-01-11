@@ -63,6 +63,8 @@ C  stratospheric values.
 ! FORTRAN modules that contain the layer level of the optical properties.
 C  07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C  10/10/14 - DJL added references to IUPAC10 to NO2 and O3 photo rates
+C  23Jun15   B.Hutzell: made TWOSTREAM and TRIDIAGONAL routine use REAL(8) variables
+C  30Jul15  J.Young: REAL(4) -> REAL for code portability
 C-----------------------------------------------------------------------
 
       USE CSQY_DATA
@@ -88,7 +90,6 @@ C-----------------------------------------------------------------------
 !***LOGDEV for NEW_OPTICS and supporting routines
       
       INTEGER, SAVE :: NEW_OPTICS_LOG
- 
 
       INTEGER, PARAMETER :: N_DIAG_WVL = 2         ! number of dianostic wavelengths
       INTEGER, SAVE      :: DIAG_WVL( N_DIAG_WVL ) ! pointers to diagnostic wavelengths
@@ -98,13 +99,13 @@ C-----------------------------------------------------------------------
       REAL               :: REFLECTION             ! broad band reflection coefficient (diffuse) at model top 
       REAL               :: TRANSMISSION           ! broad band transmission coefficient (diffuse) at surface
       REAL               :: TRANS_DIRECT           ! broad band direct transmission coefficient at surface
-      
+  
       LOGICAL            :: ONLY_SOLVE_RAD   ! only compute fluxes     
            
       CHARACTER( 133 )   :: PHOT_MOD_MSG
       
-      INTEGER            :: PHOT_ROW   ! cell row of routine calling module routine
       INTEGER            :: PHOT_COL   ! cell column of routine calling module routine
+      INTEGER            :: PHOT_ROW   ! cell row of routine calling module routine
 
       CONTAINS
 
@@ -180,7 +181,7 @@ C-----------------------------------------------------------------------
       REAL,    INTENT(INOUT) :: TAU_RAY  ( : )  ! Rayleigh optical depth above model domain
       REAL,    INTENT(OUT)   :: SSA_AERO ( : )  ! single scatering albedo for aerosol column
       
-      REAL( 4 ), INTENT(INOUT) :: TOTAL_O3_COLUMN  ! total ozone colum density [ DU ]
+      REAL, INTENT(INOUT) :: TOTAL_O3_COLUMN  ! total ozone colum density [ DU ]
 
 !***internal
       REAL, PARAMETER :: ONE_OVER_PI = 1.0 / PI 
@@ -231,36 +232,36 @@ C-----------------------------------------------------------------------
 
 !***Increment of optical depth
 
-      REAL DTAU    ( NLAYS+1 )    ! total depeth at level
-      REAL DT_AERO ( NLAYS+1 )    ! aerosol contribution at level
-      REAL DT_CLOUD( NLAYS+1 )    ! cloud contribution  at level
+      REAL, ALLOCATABLE, SAVE :: DTAU    ( : )   ! total depth at level
+      REAL, ALLOCATABLE, SAVE :: DT_AERO ( : )   ! aerosol contribution at level
+      REAL, ALLOCATABLE, SAVE :: DT_CLOUD( : )   ! cloud contribution at level
 
 !***single scattering albedo for layer
 
-      REAL OM( NLAYS+1 )
+      REAL, ALLOCATABLE, SAVE :: OM( : )
 
 !***asymmetry factor
 
-      REAL G( NLAYS+1 )
+      REAL, ALLOCATABLE, SAVE :: G( : )
 
 !***arrays for fluxes and irradiances used in
 
 !***delta-Eddington code
 
-      REAL FDIR( NLAYS+1 )        ! direct actinic flux
-      REAL FUP ( NLAYS+1 )        ! diffuse upward actinic flux
-      REAL FDN ( NLAYS+1 )        ! diffuse downward flux
-      REAL EDIR( NLAYS+1 )        ! direct irradiance
-      REAL EUP ( NLAYS+1 )        ! diffuse upward irradiance
-      REAL EDN ( NLAYS+1 )        ! diffuse downward irradiance
+      REAL, ALLOCATABLE, SAVE :: FDIR( : )   ! direct actinic flux
+      REAL, ALLOCATABLE, SAVE :: FUP ( : )   ! diffuse upward actinic flux
+      REAL, ALLOCATABLE, SAVE :: FDN ( : )   ! diffuse downward flux
+      REAL, ALLOCATABLE, SAVE :: EDIR( : )   ! direct irradiance
+      REAL, ALLOCATABLE, SAVE :: EUP ( : )   ! diffuse upward irradiance
+      REAL, ALLOCATABLE, SAVE :: EDN ( : )   ! diffuse downward irradiance
 
 !***surface albedo
 
       REAL RSFC
 
       REAL FX
-      REAL ESUM( NLAYS )          ! total downward irradiance
-      REAL FSUM( NLAYS )          ! total actinic flux
+      REAL, ALLOCATABLE, SAVE :: ESUM( : )   ! total downward irradiance
+      REAL, ALLOCATABLE, SAVE :: FSUM( : )   ! total actinic flux
 
 !***needed for stratospheric Raleigh optical depth
       REAL, PARAMETER :: R_G = 100.0 * RDGAS / GRAV  ! dry air gas constant
@@ -288,7 +289,7 @@ C-----------------------------------------------------------------------
       REAL DTSCAT_CLOUD         ! level increment in cloud scattering optical
       REAL TAU_SCAT_CLD         ! total scattering optical depth of cloud
       REAL LAYERING_FACTOR      ! correction factor for cloud layering
-      REAL(4)  STOZONE
+      REAL STOZONE
 
       LOGICAL, SAVE :: FIRST = .TRUE.  ! Flag for first call
       LOGICAL       :: SUCCESS
@@ -318,9 +319,22 @@ C-----------------------------------------------------------------------
          ALLOCATE( ACTINIC_FLUX( NLAYS,NWL ) )
          ALLOCATE( IRRADIANCE  ( NLAYS,NWL ) )
          
-         ALLOCATE( DSDH_TD( NLAYS+1 ) )
-         ALLOCATE( BLKDZ( NLAYS ) )
-         ALLOCATE( DSDH( NLAYS ) )
+         ALLOCATE( DSDH_TD ( NLAYS+1 ),
+     &             BLKDZ   ( NLAYS ),
+     &             DSDH    ( NLAYS ),
+     &             DTAU    ( NLAYS+1 ),
+     &             DT_AERO ( NLAYS+1 ),
+     &             DT_CLOUD( NLAYS+1 ),
+     &             OM      ( NLAYS+1 ),
+     &             G       ( NLAYS+1 ),
+     &             FDIR    ( NLAYS+1 ),
+     &             FUP     ( NLAYS+1 ),
+     &             FDN     ( NLAYS+1 ),
+     &             EDIR    ( NLAYS+1 ),
+     &             EUP     ( NLAYS+1 ),
+     &             EDN     ( NLAYS+1 ),
+     &             ESUM    ( NLAYS ),
+     &             FSUM    ( NLAYS ) )
 
 !***FSB Set up conversion factor for
 !***  [photons / ( cm**2 s) ] to [Watts / m**2 ]
@@ -345,13 +359,13 @@ C-----------------------------------------------------------------------
 
 !***initialize BLKRJ and other layer variables
 
-      BLKRJ        = 0.0
-      ACTINIC_FLUX = 0.0
-      IRRADIANCE   = 0.0
-      REFLECTION   = 0.0
-      TRANSMISSION = 0.0
-      TRANS_DIRECT = 0.0
-      INSOLATION   = 0.0
+      BLKRJ         = 0.0
+      ACTINIC_FLUX  = 0.0
+      IRRADIANCE    = 0.0
+      REFLECTION    = 0.0
+      TRANSMISSION  = 0.0
+      TRANS_DIRECT  = 0.0
+      INSOLATION    = 0.0
 
 !***Initialize sums or set default values for outputs: 
 !   TAUC_AERO, TAU_TOT, TAUO3_TOP, TAU_RAY, SSA_AERO, etc.
@@ -360,7 +374,7 @@ C-----------------------------------------------------------------------
       TAU_TOT   = 0.0
       TAU_CLOUD = 0.0
       TAU_SCAT  = 0.0
-      SSA_AERO  = 1.0
+      SSA_AERO  = 0.0
       TOTAL_TAU_CLD = 0.0
 #ifdef phot_debug      
       AVE_SSA_CLD   = 0.0
@@ -749,10 +763,10 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          END DO                 ! loop over layers
 
 ! add diffusion and direct components for calculating reflectivity and transmissivity
-         INSOLATION   = INSOLATION   + SOLAR_FLUX 
-         REFLECTION   = REFLECTION   + SOLAR_FLUX * EUP( 1 )
-         TRANSMISSION = TRANSMISSION + SOLAR_FLUX * EDN( NLEVEL )
-         TRANS_DIRECT = TRANS_DIRECT + SOLAR_FLUX * EDIR( NLEVEL ) 
+         INSOLATION    = INSOLATION    + SOLAR_FLUX 
+         REFLECTION    = REFLECTION    + SOLAR_FLUX * EUP( 1 )
+         TRANSMISSION  = TRANSMISSION  + SOLAR_FLUX * EDN( NLEVEL )
+         TRANS_DIRECT  = TRANS_DIRECT  + SOLAR_FLUX * EDIR( NLEVEL ) 
 
          IF ( ONLY_SOLVE_RAD ) CYCLE
 
@@ -813,7 +827,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
       END DO    ! loop over wavelengths
 
 ! normalize reflection and transmission coefficients 
-      INSOLATION   = 1.0 /( COSZEN * INSOLATION )     
+      INSOLATION   = 1.0 / ( COSZEN * INSOLATION )
       TRANS_DIRECT = TRANS_DIRECT * INSOLATION
       REFLECTION   = ONE_OVER_PI * REFLECTION * INSOLATION 
       TRANSMISSION = ONE_OVER_PI * TRANSMISSION * INSOLATION
@@ -1401,55 +1415,56 @@ C-----------------------------------------------------------------------
 
 !***local:
 
-      REAL :: TAUC  ( 0:KZ )        ! optical depth variable
-      REAL :: TAUSLA( 0:KZ )        ! slant path optical depth
-      REAL :: MU2   ( 0:KZ )        ! replaces mu1 for slant path
+      REAL( 8 ) :: TAUC  ( 0:KZ )        ! optical depth variable
+      REAL( 8 ) :: TAUSLA( 0:KZ )        ! slant path optical depth
+      REAL( 8 ) :: MU2   ( 0:KZ )        ! replaces mu1 for slant path
 
 !***internal coefficients and matrix
 
-      INTEGER ROW
-      REAL :: LAM(KZ), TAUN(KZ), BGAM(KZ)
-      REAL :: E1(KZ), E2(KZ), E3(KZ), E4(KZ)
-      REAL :: CUP(KZ), CDN(KZ), CUPTN(KZ), CDNTN(KZ)
-      REAL :: MU1                  ! constant for delta_Eddington method
-      REAL :: A(NROWS), B(NROWS), D(NROWS), E(NROWS), Y(NROWS)
+      REAL( 8 ) :: LAM( KZ ), TAUN( KZ ), BGAM( KZ )
+      REAL( 8 ) :: E1( KZ ), E2( KZ ), E3( KZ ), E4( KZ )
+      REAL( 8 ) :: CUP( KZ ), CDN( KZ ), CUPTN( KZ ), CDNTN( KZ )
+      REAL( 8 ) :: A( NROWS ), B( NROWS ), D( NROWS ), E( NROWS ), Y( NROWS )
 
 !***other:
 
-      REAL :: GI(KZ), OMI(KZ), TEMPG
-      REAL PIFS, FDN0
-      REAL F, G, OM
-      REAL GAM1, GAM2, GAM3, GAM4
+      REAL( 8 ) :: GI( KZ ), OMI( KZ ), TEMPG
+      REAL( 8 ) :: PIFS, FDN0
+      REAL( 8 ) :: F, G, OM
+      REAL( 8 ) :: GAM1, GAM2, GAM3, GAM4
 
-      REAL EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
-      REAL SSFC
-      INTEGER NLAYER, MROWS, LEV
+      REAL( 8 ) :: EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
+      REAL( 8 ) :: SSFC
 
-      INTEGER I, J
+      REAL      :: MU1  ! reciprocal of constant from delta_Eddington method
+
+      INTEGER   :: ROW
+      INTEGER   :: I, J
+      INTEGER   :: NLAYER, MROWS, LEV
 
 !***Some additional program constants:
 
 !!!!from above      REAL, PARAMETER :: PI          = 3.1415926535898  ! pi
-      REAL, PARAMETER :: LARGEST     = 1.0E+36 ! largest machine number
-      REAL, PARAMETER :: SMALLEST    = 1.0E-36 ! largest machine number
-      REAL, PARAMETER :: SQRTLRGST   = 1.0E+18 ! sqrt(largest)
-      REAL, PARAMETER :: SQRTLRGSTM1 = 1.0E-18 ! 1/sqrt(largest)
-      REAL, PARAMETER :: EPS         = 1.0E-3
-      REAL, PARAMETER :: PRECIS      = 1.0E-7
+      REAL( 8 ), PARAMETER :: LARGEST     = 1.0D+36 ! largest machine number
+      REAL( 8 ), PARAMETER :: SMALLEST    = 1.0D-36 ! smallest machine number
+      REAL( 8 ), PARAMETER :: SQRTLRGST   = 1.0D+18 ! sqrt(largest)
+      REAL( 8 ), PARAMETER :: SQRTLRGSTM1 = 1.0D-18 ! 1/sqrt(largest)
+      REAL( 8 ), PARAMETER :: EPS         = 1.0D-03
+      REAL( 8 ), PARAMETER :: PRECIS      = ( 1.0D0 - 1.0D-07 )
 
 C-----------------------------------------------------------------------
 
 !***boundary conditions:
 
-      PIFS = 1.0                ! solar flux is set to unity here.
-      FDN0 = 0.0                ! no downward diffuse flux
+      PIFS = 1.0D0                ! solar flux is set to unity here.
+      FDN0 = 0.0D0                ! no downward diffuse flux
 
       NLAYER = NLEVEL - 1
 
       DO J = 0, KZ
-         TAUC  ( J ) = 0.0
-         TAUSLA( J ) = 0.0
-         MU2   ( J ) = SQRTLRGSTM1
+         TAUC  ( J ) = 0.0D0
+         TAUSLA( J ) = 0.0D0
+         MU2   ( J ) = SQRTLRGST
       END DO
 
 !***scaling for delta-Eddington approximation
@@ -1457,16 +1472,18 @@ C-----------------------------------------------------------------------
 !***start diagnostic prinout
 
       DO I = 1, NLAYER
-         F = GU(I) * GU(I)
-         GI  (I) = ( GU(I) - F ) / ( 1.0 - F )
-         OMI (I) = ( 1.0 - F ) * OMU(I) / ( 1.0 - OMU(I) * F )
-         TAUN(I) = ( 1.0 - OMU( I ) * F ) * TAUU(I)
+         F = REAL( GU(I) * GU(I), 8 )
+         GI  (I) = ( GU(I) - F ) / ( 1.0D0 - F )
+         OMI (I) = ( 1.0D0 - F ) * REAL( OMU(I), 8 ) 
+     &           / ( 1.0D0 - REAL( OMU(I), 8 )  * F )
+         TAUN(I) = ( 1.0D0 - REAL( OMU( I ), 8 ) * F ) 
+     *           *  REAL( TAUU(I), 8)
       END DO
 
 !***set  tausla to be slant optical path contribution for each layer.
 
       DO I = 1, NLAYER
-         TAUSLA(I) = TAUN(I) * DSDH(I)
+         TAUSLA(I) = TAUN(I) * REAL( DSDH(I), 8 )
       END DO
 
       TAUC(1)   = TAUN(1)
@@ -1483,11 +1500,20 @@ C-----------------------------------------------------------------------
 !***  This has been simplified from TUV ps2str because only
 !***  zenith angles < or = 90 degrees are considered.
 
+!         IF ( TAUSLA(I) .EQ. TAUSLA(I-1) ) THEN
+!            MU2(I) = SQRTLRGST
+!         ELSE
+!            MU2(I) = (TAUC(I) - TAUC(I-1)) / (TAUSLA(I) - TAUSLA(I-1))
+!            MU2(I) = SIGN( MAX( ABS( MU2(I)), SQRTLRGSTM1 ), MU2(I) )
+!         END IF
+!         MU2(I) = 1.0D0 / MU2(I)
+!      END DO
+
          IF ( TAUSLA(I) .EQ. TAUSLA(I-1) ) THEN
-            MU2(I) = SQRTLRGST
+            MU2(I) = SQRTLRGSTM1
          ELSE
-            MU2(I) = (TAUC(I) - TAUC(I-1)) / (TAUSLA(I) - TAUSLA(I-1))
-            MU2(I) = SIGN( MAX( ABS( MU2(I)), SQRTLRGSTM1 ), MU2(I) )
+            MU2(I) =  (TAUSLA(I) - TAUSLA(I-1)) / (TAUC(I) - TAUC(I-1)) 
+            MU2(I) = SIGN( MIN( ABS( MU2(I)), SQRTLRGST ), MU2(I) )
          END IF
       END DO
 
@@ -1506,28 +1532,30 @@ C-----------------------------------------------------------------------
 
 !***stay away from 1 by precision.  For g, also stay away from -1
 
-         TEMPG = MIN( ABS( G ), 1.0 - PRECIS )
+!        TEMPG = MIN( ABS( G ), 1.0D0 - PRECIS )
+         TEMPG = MIN( ABS( G ), PRECIS )
          G = SIGN( TEMPG, G )
-         OM = MIN( OM, 1.0 - PRECIS )
+!        OM = MIN( OM, 1.0D0 - PRECIS )
+         OM = MIN( OM, PRECIS )
 
 !***calculate the gamma values from line 1 Table 1, page 16,289
 
-         GAM1 =  ( 7.0 - OM * ( 4.0 + 3.0 * G ) ) * 0.25
-         GAM2 = -( 1.0 - OM * ( 4.0 - 3.0 * G ) ) * 0.25
-         GAM3 =  ( 2.0 - 3.0 * G * MU ) * 0.25
-         GAM4 =  1.0 - GAM3
-         MU1  =  0.5
+         GAM1 =  ( 7.0D0 - OM * ( 4.0D0 + 3.0D0 * G ) ) * 0.25D0
+         GAM2 = -( 1.0D0 - OM * ( 4.0D0 - 3.0D0 * G ) ) * 0.25D0
+         GAM3 =  ( 2.0D0 - 3.0D0 * G * MU ) * 0.25D0
+         GAM4 =  1.0D0 - GAM3
+         MU1  =  2.0D0
 
 !***lambda = pg 16,290 equation 21
 !***big gamma = pg 16,290 equation 22
 
          IF ( ABS( GAM2 ) .LE. SMALLEST ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
             WRITE( NEW_OPTICS_LOG, 2610)
          END IF
 
-         IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0 ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609)I, GI(I), OMI(I), G, OM, GAM1, GAM2
+         IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0D0 ) THEN
+            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
             WRITE( NEW_OPTICS_LOG, 2611)
          END IF
  
@@ -1536,7 +1564,7 @@ C-----------------------------------------------------------------------
 
          IF ( ABS( GAM2 ) .LE. SMALLEST ) THEN 
 !***adjustment based on NCAR TUV model
-            BGAM(I) = 0.0
+            BGAM(I) = 0.0D0
          ELSE
             BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
          END IF
@@ -1545,8 +1573,8 @@ C-----------------------------------------------------------------------
 
 !***e1 - e4 = pg 16,292 equation 44
 
-         E1(I) = 1.0 + BGAM(I) * EXPON
-         E2(I) = 1.0 - BGAM(I) * EXPON
+         E1(I) = 1.0D0 + BGAM(I) * EXPON
+         E2(I) = 1.0D0 - BGAM(I) * EXPON
          E3(I) = BGAM(I) + EXPON
          E4(I) = BGAM(I) - EXPON
 
@@ -1559,15 +1587,15 @@ C-----------------------------------------------------------------------
          EXPON0 = EXP( -TAUSLA(I-1) )
          EXPON1 = EXP( -TAUSLA(I) )
 
-         DIVISR = LAM(I) * LAM(I) - 1.0 / ( MU2(I) * MU2(I) )
+         DIVISR = LAM(I) * LAM(I) - MU2(I) * MU2(I)
          TEMP = MAX( EPS, ABS( DIVISR ) )
          DIVISR = SIGN( TEMP , DIVISR )
 
          UP = OM * PIFS *
-     &        ( ( GAM1 - 1.0 / MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
+     &        ( ( GAM1 - MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
 
          DN = OM * PIFS *
-     &        ( ( GAM1 + 1.0 / MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
+     &        ( ( GAM1 + MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
 
 !***cup and cdn are when tau is equal to zero
 !***cuptn and cdntn are when tau is equal to taun
@@ -1582,7 +1610,7 @@ C-----------------------------------------------------------------------
 !***set up matrix
 !*** ssfc = pg 16,292 equation 37  where pi Fs is one (unity).
 
-      SSFC = RSFC * MU * EXP( -TAUSLA( NLAYER ) ) * PIFS
+      SSFC = REAL( RSFC * MU, 8 ) * EXP( -TAUSLA( NLAYER ) ) * PIFS
 
 !***MROWS = the number of rows in the matrix
 
@@ -1592,7 +1620,7 @@ C-----------------------------------------------------------------------
 !*** set up first row of matrix:
 
       I = 1
-      A(1) = 0.0
+      A(1) = 0.0D0
       B(1) = E1(I)
       D(1) = -E2(I)
       E(1) = FDN0 - CDN(I)
@@ -1630,8 +1658,8 @@ C-----------------------------------------------------------------------
 
       A(ROW) = E1(I) - RSFC * E3(I)
       B(ROW) = E2(I) - RSFC * E4(I)
-      D(ROW) = 0.0
-      E(ROW) = SSFC - CUPTN(I) + RSFC * CDNTN(I)
+      D(ROW) = 0.0D0
+      E(ROW) = SSFC - CUPTN(I) + REAL( RSFC, 8 ) * CDNTN(I)
 
 !***solve tri-diagonal matrix:
 
@@ -1646,34 +1674,34 @@ C-----------------------------------------------------------------------
 !***the following equations are from pg 16,291  equations 31 & 32
 
       FDR(LEV) = 1.0    ! this the downward flux at the top of the model
-      EDR(LEV) = MU * FDR(LEV)
-      EDN(LEV) = FDN0
-      EUP(LEV) =  Y(ROW) * E3(J) - Y(ROW + 1) * E4(J) + CUP(J)
-      FDN(LEV) = EDN(LEV) / MU1
-      FUP(LEV) = EUP(LEV) / MU1
+      EDR(LEV) = MU * REAL( FDR(LEV) )
+      EDN(LEV) = REAL( FDN0 )
+      EUP(LEV) = REAL( Y(ROW) * E3(J) - Y(ROW + 1) * E4(J) + CUP(J) )
+      FDN(LEV) = EDN(LEV) * MU1
+      FUP(LEV) = EUP(LEV) * MU1
 
       DO 60, LEV = 2, NLAYER + 1
-         FDR(LEV) = EXP( -TAUSLA(LEV-1) )
-         EDR(LEV) =  MU * FDR(LEV)
-         EDN(LEV) =  Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J)
-         EUP(LEV) =  Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J)
-         FDN(LEV) = EDN(LEV) / MU1
-         FUP(LEV) = EUP(LEV) / MU1
+         FDR(LEV) = REAL( EXP( -TAUSLA(LEV-1) ) )
+         EDR(LEV) = MU * FDR(LEV)
+         EDN(LEV) = REAL( Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J) )
+         EUP(LEV) = REAL( Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J) )
+         FDN(LEV) = EDN(LEV) * MU1 
+         FUP(LEV) = EUP(LEV) * MU1
 
          ROW = ROW + 2
          J = J + 1
  60   CONTINUE
 
 2609  FORMAT(/ 'PHOT_MOD: Instability in Two Stream RadTran Subroutine'
-     &       / 'Layer: I = ',I3
-     &       / 'Asymmetry Factor: GI = ',ES12.4
+     &       / 'Layer: I = ', I3
+     &       / 'Asymmetry Factor: GI = ', ES12.4
      &       / 'Single Scattering Albedo: OMI = ', ES12.4
      &       / 'SIGN( MIN( ABS( GI ), 1.0 - 1.0E-7), GI ): G = ', ES12.4
      &       / 'MIN( OMI, 1.0 - 1.0E-7 ): OM = ', ES12.4
      &       / '0.25*( 7.0 - OM * ( 4.0 + 3.0 * G ) ): GAM1 = ', ES12.4
      &       / '0.25*( OM * ( 4.0 + 3.0 * G ) - 1.0 ): GAM2 = ', ES12.4  /)
 
-2610  FORMAT(/ 'SETTING (GAM1 - SQRT( GAM1**2 - GAM2**2 ))/GAM2 to zero' /)
+2610  FORMAT(/ 'Setting (GAM1 - SQRT(GAM1**2 - GAM2**2))/GAM2 to zero' /)
 
 2611  FORMAT(/ ' ( GAM1**2 - GAM2**2 ) < 0: NaNs introduced into solution ' /)
 
@@ -1685,12 +1713,12 @@ C///////////////////////////////////////////////////////////////////////
       SUBROUTINE TRIDIAGONAL ( A, B, D, E, Y, N )
 C-----------------------------------------------------------------------
 C  This version has the same variable names as in twostream_s, that
-C     is D is the superdiagonal and E is the right hand side, and Y is
-C     the  solution. The size of A,B,D,E and Y is now N, the
-C     number of rows in the matrix.
+C  is D is the superdiagonal and E is the right hand side, and Y is
+C  the  solution. The size of A,B,D,E and Y is now N, the
+C  number of rows in the matrix.
 C-----------------------------------------------------------------------
 C
-C  FUNCTION:
+C  Function:
 C     Solves tridiagonal system by Thomas algorithm.  Algorithm fails
 C     if first pivot is zero.  In that case, rewrite the
 C     equation as a set of order N-1, with U(2) trivially eliminated.
@@ -1709,11 +1737,11 @@ C     [ .             .     .     .     0     ]
 C     [ .                   .     .     .     ]
 C     [ 0                           A(N) B(N) ]
 C
-C  PRECONDITIONS REQUIRED:
+C  Preconditions:
 C
-C  SUBROUTINES AND FUNCTIONS CALLED:
+C  Subroutines and Functions Called:
 C
-C  REVISION HISTORY:
+C  Revision History:
 C     NO.   DATE     WHO      WHAT
 C     __    ____     ___      ____
 C     5     11/09/04  FSB  Changed symbols to match twostream_s
@@ -1728,31 +1756,30 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-!***ARGUMENTS and their descriptions:
+!***Arguments:
 
-      INTEGER, INTENT(IN) :: N        ! number of rows in matrix
-      REAL,    INTENT(IN) :: A( : )   ! subdiagonal
-      REAL,    INTENT(IN) :: B( : )   ! diagonal
-      REAL,    INTENT(IN) :: D( : )   ! superdiagonal
-      REAL,    INTENT(IN) :: E( : )   ! R.H. side
-      REAL,   INTENT(OUT) :: Y( : )   ! solution
+      INTEGER,   INTENT( IN )  :: N        ! number of rows in matrix
+      REAL( 8 ), INTENT( IN )  :: A( : )   ! subdiagonal
+      REAL( 8 ), INTENT( IN )  :: B( : )   ! diagonal
+      REAL( 8 ), INTENT( IN )  :: D( : )   ! superdiagonal
+      REAL( 8 ), INTENT( IN )  :: E( : )   ! R.H. side
+      REAL( 8 ), INTENT( OUT ) :: Y( : )   ! solution
 
-!***SCRATCH LOCAL VARIABLES and their descriptions:
+!***Local Variables:
 
-      INTEGER     J             ! loop index
+      INTEGER J   ! loop index
 
-      REAL        BET           !
-      REAL        GAM( N )      !
+      REAL( 8 ) :: BET        !
+      REAL( 8 ) :: GAM( N )   !
 
-!***begin body of subroutine  TRIDIAGONAL
-!***  Decomposition and forward substitution:
+!***Decomposition and forward substitution:
 
-      BET = 1.0 / B( 1 )
+      BET = 1.0D0 / B( 1 )
       Y( 1 ) = BET * E( 1 )
 
       DO J = 2, N
          GAM( J ) = BET * D( J - 1 )
-         BET = 1.0 / ( B( J ) - A( J ) * GAM( J ) )
+         BET = 1.0D0 / ( B( J ) - A( J ) * GAM( J ) )
          Y( J ) = BET * ( E( J ) - A( J ) * Y( J - 1) )
       END DO
 
@@ -1771,27 +1798,27 @@ C///////////////////////////////////////////////////////////////////////
       INTEGER FUNCTION INDEXR0 ( NAME1, N, NAME2 )
 C-----------------------------------------------------------------------
 C
-C  FUNCTION:
+C  Function:
 C     This routine searches for NAME1 in list NAME2
 C
-C  REVISION HISTORY:
+C  Revision History:
 C     5/88   Modified for ROMNET
 C     July 29, 2005 by FSB
 C     Changed name to avoid conflict FSB
 C     copied from CMAQ routine INDEX2 to allow internal use
 C
-C  ARGUMENT LIST DESCRIPTION:
+C  Argument List Description:
 C
-C  Input arguments:
+C  Input Arguments:
 C     NAME1       Character string being searched for
 C     N           Length of array to be searched
 C     NAME2       Character array to be searched
 C
-C  Output arguments:
+C  Output Arguments:
 C     INDEX1      The position within the NAME2 array that NAME1
-C                 found.  If string was not found, INDEX1 = 0
+C                 found. If string was not found, INDEX1 = 0
 C
-C  LOCAL VARIABLE DESCRIPTION:
+C  Local Variable Description:
 C     None
 C
 C-----------------------------------------------------------------------

@@ -397,8 +397,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             XMSG = 'Variable CFRAC_3D (cloud fraction) not found in ' // MET_CRO_3D
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             WRITE( LOGDEV, '( 5(/10X,A) )' )
-     &           'Model will diagnose layer cloud fraction using Randall (1995) and ',
-     &           'Hong (1998), based on mixing ratios of water vapor and its ',
+     &           'Model will diagnose layer cloud fraction using Xu and Randall (1996)',
+     &           'and Hong (1998), based on mixing ratios of water vapor and its ',
      &           'condensed states.',
      &           'You may want to reprocess the meteorological data to obtain layer ',
      &           'cloud fractions if possible.'
@@ -454,6 +454,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          IMPLICIT NONE
 
+!  REVISION  HISTORY:
+!  B.Hutzell Oct 13, 2015 Changed computation of effective resolved fraction, CFRAC_2D,
+!             to be consisitent with random cloud overlap model that in used in the 
+!             radiative transfer calculation. Consult Tain and Curry (1989), JGR, vol.94,
+!             9925-9935 for more information.
 !...........Includes:
 
          INCLUDE SUBST_CONST                ! constants
@@ -689,17 +694,17 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          END IF
 
 ! compute averages for resolved cloud                
-!       CFRAC_2D = 0.0
+
          DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
                SUM_WEIGHTS = 0.0
-               CFRAC_2D( COL,ROW ) = 0.0
+               CFRAC_2D( COL,ROW ) = 1.0
                AVE_HYDROMETEORS( COL,ROW ) = 0.0
                DO LAY = 1, NLAYS
                   IF ( CFRAC_3D( COL,ROW,LAY ) .LE. 0.0 ) CYCLE
                   WEIGHT = DELTA_Z( COL,ROW,LAY ) 
                   CFRAC_2D( COL,ROW ) = CFRAC_2D( COL,ROW )
-     &                                + WEIGHT * CFRAC_3D( COL,ROW,LAY ) 
+     &                                * ( 1.0 - CFRAC_3D( COL,ROW,LAY ) )
                   SUM_WEIGHTS = SUM_WEIGHTS + WEIGHT
 
                   WATER = QC( COL,ROW,LAY ) + QR( COL,ROW,LAY ) + QI( COL,ROW,LAY )
@@ -717,9 +722,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                   end if
 #endif              
                END DO
-               IF ( SUM_WEIGHTS .LT. 1.0 ) CYCLE
-               CFRAC_2D( COL,ROW ) = CFRAC_2D( COL,ROW ) / SUM_WEIGHTS
-               AVE_HYDROMETEORS( COL,ROW ) = 1.0E+3 * AVE_HYDROMETEORS( COL,ROW ) / SUM_WEIGHTS                    
+               IF ( SUM_WEIGHTS .LT. 1.0 ) THEN 
+                    CFRAC_2D( COL,ROW ) = 0.0
+               ELSE
+                    CFRAC_2D( COL,ROW ) = 1.0 - CFRAC_2D( COL,ROW )
+                    AVE_HYDROMETEORS( COL,ROW ) = 1.0E+3 * AVE_HYDROMETEORS( COL,ROW ) / SUM_WEIGHTS
+               END IF
             END DO
          END DO
 
@@ -730,7 +738,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !                 ACM_CLOUDS( COL,ROW )  = 0.0
                   ACM_AVE_H2O( COL,ROW ) = 0.0
                   DO LAY = 1, NLAYS
-                     IF ( ACM_CFRAC( LAY,COL,ROW ) .LE. 0.0 )CYCLE
+                     IF ( ACM_CFRAC( LAY,COL,ROW ) .LE. 0.0 ) CYCLE
                      WEIGHT      = DELTA_Z( COL,ROW,LAY ) 
                      SUM_WEIGHTS = SUM_WEIGHTS + WEIGHT
 ! acm clouds do not contain snow
@@ -1079,11 +1087,14 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! this routine.
 !
 ! References:
-! 1) Randall, D. A., 1995: Parameterizing fractional cloudiness produced
+! 1) Randall, D. A. (1995), Parameterizing fractional cloudiness produced
 !    by cumulus entrainment. Preprints, Workshop on Cloud Microphysics
 !    Parameterizations in Global Atmospheric Circulation
 !    Models, Kananaskis, AB, Canada, WMO, 1–16.
-! 2) Hong et al. (1998). Implementation of Prognostic Cloud Scheme for a
+! 2) Xu, K. And D.A. Randall (1996), A semiempircal cloudiness 
+!    parameterization for use in climate models, J. Atm. Sci., vol 53(21),
+!    pp 3084-3102.
+! 3) Hong et al. (1998). Implementation of Prognostic Cloud Scheme for a
 !    Regional Spectral Model. Monhtly Weather Review, vol. 126, pp 2621-
 !    2639.
 ! Routine copied from module_radiation_driver.F in WRF 3.5 and modified for
@@ -1280,7 +1291,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          END SUBROUTINE CAL_CFRAC_3D
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE CAPTURE_ACM_CLOUD( JDATE, JTIME, ROW, COL, BOTTOM, TOP,
+         SUBROUTINE CAPTURE_ACM_CLOUD( JDATE, JTIME, COL, ROW, BOTTOM, TOP,
      &                                 FRACTION, WATER, ICE )
 
             USE CLOUD_OPTICS, ONLY : CLDMIN
@@ -1289,23 +1300,27 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! Purpose:
 !   Save properties determined by ACM subgrid cloud at vertical column into
 !   for radiation transfer calculations
+!  REVISION  HISTORY:
+!  12Jun15: BHutzell: comment out call to CLEAR_ACM_CLOUD because CONVCLD_ACM routine
+!                     calls CLEAR_ACM_CLOUD at every synchronization time if acm 
+!                     convection algorithm engaged, i.e., CONVCLD = .TRUE.
 ! Arguments:
             INTEGER, INTENT( IN )  :: JDATE      
             INTEGER, INTENT( IN )  :: JTIME                 
-            INTEGER, INTENT( IN )  :: ROW           ! array row index
             INTEGER, INTENT( IN )  :: COL           ! array column index
+            INTEGER, INTENT( IN )  :: ROW           ! array row index
             INTEGER, INTENT( IN )  :: TOP           ! vertical layer index
             INTEGER, INTENT( IN )  :: BOTTOM        ! vertical layer index
             REAL,    INTENT( IN )  :: FRACTION      ! cloud fraction of ACM cloud
             REAL,    INTENT( IN )  :: WATER( : )    ! liquid water droplet mixing ratio
             REAL,    INTENT( IN )  :: ICE( : )      ! ice partical mixing ratio
+
 ! Parameters:
 !           None
+
 ! Local variables:
             INTEGER                :: LAY           ! loop index
 
-            CALL CLEAR_ACM_CLOUD( JDATE, JTIME )
-  
             DO LAY = BOTTOM, TOP
                IF ( WATER( LAY ) + ICE( LAY ) .LT. CLDMIN ) CYCLE
                ACM_CFRAC( LAY,COL,ROW ) = FRACTION
@@ -1386,6 +1401,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             ACM_CLOUDS  = 0.0
             ACM_CFRAC   = 0.0
             ACM_AVE_H2O = 0.0
+            ACM_QC      = 0.0
+            ACM_QI      = 0.0
+            ACM_QR      = 0.0
+            ACM_QG      = 0.0
              
             RETURN
 

@@ -59,6 +59,8 @@ C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
 C 21 Apr 15 H. Pye: Added explicit monoterpene (MTNO3) and isoprene
 C                   (ISOPNN) aerosol. Parameters (C*) determined from Fry et al. 2009 ACP
 C                   and Rollins et al. 2009 ACP
+C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
+C
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -273,25 +275,29 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 8 )%parent = 'NAPHTHAL'
                orgprod( 9 )%parent = 'NAPHTHAL'
                IEPOX_SOA_mechanism = .True.
-            Else If ( INDEX( MECHNAME, 'SAPRC07T' ) .GT. 0 ) then
+            Else If ( INDEX( MECHNAME, 'SAPRC07TB' ) .GT. 0 ) then
                orgprod( 2 )%parent     = 'MXYL'
                orgprod( 3 )%parent     = 'MXYL'
                orgprod( 4 )%parent     = 'TOLUENE'
                orgprod( 5 )%parent     = 'TOLUENE'
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
+               IEPOX_SOA_mechanism = .True.
+            Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .GT. 0 ) then
+               orgprod( 2 )%parent     = 'MXYL'
+               orgprod( 3 )%parent     = 'MXYL'
+               orgprod( 4 )%parent     = 'TOLUENE'
+               orgprod( 5 )%parent     = 'TOLUENE'
+               orgprod( 8 )%parent     = 'NAPHTHAL'
+               orgprod( 9 )%parent     = 'NAPHTHAL'
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX(MECHNAME, 'RACM2') .GT. 0) then 
-!               alk_factor = 0.47    ! fraction of HC8 that can produce SOA
-! the factor with RACM2 should be different because the HC8 + OH rate is higher
-! but endothermic 
-               vaporspc( 1 )%drog_name = 'ALK5RXN'
-               vaporspc( 2 )%drog_name = 'ALK5RXN'
-               orgprod( 1 )%name       = 'ALK5RXN'
-               orgprod( 1 )%parent     = 'HC8'
+! Changed by Golam Sarwar, 07/15/2015 for CMAQv51
                orgprod( 2 )%parent     = 'XYM'
                orgprod( 3 )%parent     = 'XYM'
                orgprod( 4 )%parent     = 'TOL'
-               orgprod( 5 )%parent     = 'TOL'
+               orgprod( 5 )%parent     = 'TOL'               
+               IEPOX_SOA_mechanism = .True.               
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
@@ -302,10 +308,10 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
-! This SOA_DEFN works for AE6 and AE6i versions of aero
-            If( INDEX( MECHNAME, '_AE6' ) .EQ. 0 ) then
-                  xmsg =  'Using AERO6 option and the Mechanism, '  
-     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
+! This SOA_DEFN works AE6i versions of aero
+            If( INDEX( MECHNAME, '_AE6I' ) .EQ. 0 ) then
+                  xmsg =  'Using AERO6i option and the Mechanism, '  
+     &                // Trim( MECHNAME ) // ', is not based on AERO6i '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
@@ -370,7 +376,7 @@ C Build mapping array to orgprod species
       End If     ! mapping condition
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = airdens * inv_mwair
 
 C Copy grid cell concentrations of vapor species
       vapor_conc = 0.0
@@ -432,7 +438,7 @@ C Local Variables:
       End If
 
 C Compute gas conversion constant
-      gasconv = airdens * 1.0E3 / mwair
+      gasconv = airdens * inv_mwair
 
 C Copy vapor_conc back to grid cell concentrations
       Do spc = 1, n_vapor
@@ -1066,7 +1072,12 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         if( abs(upb-lowb) .lt. threshmin ) then
+            ! no SOA to partition
+            orgmoles = (lowb + upb)/2.0d0 
+         else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
+         end if
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor

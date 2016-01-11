@@ -41,6 +41,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !           21 Jul 2014  (David Wong)
 !              -- add new LU type: MODIFIED_IGBP_MODIS_NOAH and made a distinction 
 !                 between NLCD, NLCD50 and NLCD40
+!           25 Sep 2015  (David Wong
+!              -- replaced SUBST_MODULES with SE_MOdULES
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -54,7 +56,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   USE twoway_met_param_module
   USE twoway_data_module
   USE HGRD_DEFN
-  USE SUBST_MODULES
+  USE SE_MODULES
 
   use se_comm_info_ext
   use utilio_defn
@@ -1203,6 +1205,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,29) =  grid%smois (sc:ec, 2, sr:er)        ! SOIM2
   metcro2d_data_wrf (:,:,30) =  grid%tslb  (sc:ec, 1, sr:er)        ! SOIT1
   metcro2d_data_wrf (:,:,31) =  grid%tslb  (sc:ec, 2, sr:er)        ! SOIT2
+
+  metcro2d_data_wrf (:,:,32) =  grid%lh   (sc:ec, sr:er)   ! lh (qfx)
 
   where (metcro2d_data_wrf (:,:,13) .lt. 0.0)
     metcro2d_data_wrf (:,:,13) = 0.0

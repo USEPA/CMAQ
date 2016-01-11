@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Nov. 2, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jan. 7, 2016
 C
 C***********************************************************************
       USE HRDATA
@@ -608,7 +608,7 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  546 ) = RKI( 546 ) * YC(  MXYL ) * YC(  OH )
       RXRAT(  547 ) = RKI( 547 ) * YC(  OXYL ) * YC(  OH )
       RXRAT(  548 ) = RKI( 548 ) * YC(  PXYL ) * YC(  OH )
-      RXRAT(  549 ) = RKI( 549 ) * YC(  TRIMETH_BENZ124 ) * YC(  OH )
+      RXRAT(  549 ) = RKI( 549 ) * YC(  TMBENZ124 ) * YC(  OH )
       RXRAT(  550 ) = RKI( 550 ) * YC(  ETOH ) * YC(  OH )
       RXRAT(  551 ) = RKI( 551 ) * YC(  ALK1 ) * YC(  OH )
       RXRAT(  552 ) = RKI( 552 ) * YC(  ALK2 ) * YC(  OH )
@@ -731,7 +731,7 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  669 ) = RKI( 669 ) * YC(  MXYL ) * YC(  CL )
       RXRAT(  670 ) = RKI( 670 ) * YC(  OXYL ) * YC(  CL )
       RXRAT(  671 ) = RKI( 671 ) * YC(  PXYL ) * YC(  CL )
-      RXRAT(  672 ) = RKI( 672 ) * YC(  TRIMETH_BENZ124 ) * YC(  CL )
+      RXRAT(  672 ) = RKI( 672 ) * YC(  TMBENZ124 ) * YC(  CL )
       RXRAT(  673 ) = RKI( 673 ) * YC(  ETOH ) * YC(  CL )
       RXRAT(  674 ) = RKI( 674 ) * YC(  ALK1 ) * YC(  CL )
       RXRAT(  675 ) = RKI( 675 ) * YC(  ALK2 ) * YC(  CL )
@@ -762,12 +762,12 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(  700 ) = RKI( 700 ) * YC(  CCHO_PRIMARY )
       RXRAT(  701 ) = RKI( 701 ) * YC(  CCHO_PRIMARY ) * YC(  NO3 )
       RXRAT(  702 ) = RKI( 702 ) * YC(  CCHO_PRIMARY ) * YC(  CL )
-      RXRAT(  703 ) = RKI( 703 ) * YC(  ACROLEIN_PRIMARY ) * YC(  OH )
-      RXRAT(  704 ) = RKI( 704 ) * YC(  ACROLEIN_PRIMARY ) * YC(  O3 )
-      RXRAT(  705 ) = RKI( 705 ) * YC(  ACROLEIN_PRIMARY ) * YC(  NO3 )
-      RXRAT(  706 ) = RKI( 706 ) * YC(  ACROLEIN_PRIMARY ) * YC(  O3P )
-      RXRAT(  707 ) = RKI( 707 ) * YC(  ACROLEIN_PRIMARY )
-      RXRAT(  708 ) = RKI( 708 ) * YC(  ACROLEIN_PRIMARY ) * YC(  CL )
+      RXRAT(  703 ) = RKI( 703 ) * YC(  ACRO_PRIMARY ) * YC(  OH )
+      RXRAT(  704 ) = RKI( 704 ) * YC(  ACRO_PRIMARY ) * YC(  O3 )
+      RXRAT(  705 ) = RKI( 705 ) * YC(  ACRO_PRIMARY ) * YC(  NO3 )
+      RXRAT(  706 ) = RKI( 706 ) * YC(  ACRO_PRIMARY ) * YC(  O3P )
+      RXRAT(  707 ) = RKI( 707 ) * YC(  ACRO_PRIMARY )
+      RXRAT(  708 ) = RKI( 708 ) * YC(  ACRO_PRIMARY ) * YC(  CL )
       RXRAT(  709 ) = RKI( 709 ) * YC(  ISOPRENE ) * YC(  OH )
       RXRAT(  710 ) = RKI( 710 ) * YC(  ISOPO2 ) * YC(  NO )
       RXRAT(  711 ) = RKI( 711 ) * YC(  ISOPO2 ) * YC(  HO2 )

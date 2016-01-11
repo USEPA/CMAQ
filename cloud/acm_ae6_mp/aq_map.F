@@ -151,11 +151,6 @@ C External Functions:
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
-           USE RXNS_DATA           ! chemical mechanism data
-           USE AQ_DATA
-           USE HG_AQCHEM_DATA
-           USE UTILIO_DEFN
-           IMPLICIT NONE
            INCLUDE SUBST_CONST          ! constants
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
@@ -163,7 +158,7 @@ C External Functions:
            REAL,      INTENT( IN )  :: ALFA0     ! scav coef for aitken aerosol number
            REAL,      INTENT( IN )  :: ALFA2     ! scav coef for aitken aerosol sfc area
            REAL,      INTENT( IN )  :: ALFA3     ! scav coef for aitken aerosol mass
-           REAL,      INTENT( OUT ) :: HPWDEP   ! hydrogen wet deposition (mm mol/liter)
+           REAL,      INTENT( OUT ) :: HPWDEP    ! hydrogen wet deposition (mm mol/liter)
            REAL( 8 ), INTENT( OUT ) :: BETASO4  
            REAL,      INTENT( IN )  :: PRCRATE   ! precip rate (mm/hr)
            REAL,      INTENT( IN )  :: PRES_PA   ! pressure (Pa)
@@ -171,11 +166,11 @@ C External Functions:
            REAL,      INTENT( IN )  :: TEMP      ! temperature (K)
            REAL,      INTENT( IN )  :: WCAVG     ! liquid water content (kg/m3)
            REAL,      INTENT( IN )  :: WTAVG     ! total water content (kg/m3)
-           REAL( 8 ), INTENT( INOUT ) :: GAS    ( NGAS )             ! gas phase concentrations (mol/molV)
-           REAL( 8 ), INTENT( INOUT ) :: AEROSOL( MAX_NAER, NMODES ) ! aerosol concentrations (mol/molV)
-           REAL( 8 ), INTENT( INOUT ) :: GASWDEP( NGAS )             ! gas phase wet deposition array (mm mol/liter)
-           REAL( 8 ), INTENT( INOUT ) :: AERWDEP( MAX_NAER, NMODES ) ! aerosol wet deposition array (mm mol/liter)
-           LOGICAL,   INTENT( IN )    :: DARK            ! DARK = TRUE is night,  DARK = FALSE is day
+           REAL( 8 ), INTENT( INOUT ) :: GAS    ( : )   ! gas phase concentrations (mol/molV)
+           REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
+           REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
+           REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
+           LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
         END SUBROUTINE AQCHEM
       END INTERFACE      
 

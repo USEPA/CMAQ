@@ -4,6 +4,7 @@
 !           that will affect the radiation calculation
 !
 ! Revised:  11 Aug 2011  Original version.  David Wong
+!           21 Oct 2015  Updated water insoluble species list
 !===============================================================================
 
   module twoway_cgrid_aerosol_spc_map_module
@@ -24,14 +25,15 @@
       /)
 
     ! water insoluble
-    integer, parameter :: num_wi_spc = 31
+    integer, parameter :: num_wi_spc = 32
 
     integer :: wi_spc_index(num_wi_spc)
 
     character (len = 16), parameter :: wi_spc(num_wi_spc) = &
       (/ 'APOCI           ', 'AOTHRI          ',            &
          'APNCOMI         ',                                &
-         'AALKJ           ', 'AXYL1J          ',            &
+         'AALK1J          ', 'AALK2J          ',            &
+         'AXYL1J          ',                                &
          'AXYL2J          ', 'AXYL3J          ',            &
          'ATOL1J          ', 'ATOL2J          ',            &
          'ATOL3J          ', 'ABNZ1J          ',            &
@@ -83,7 +85,7 @@
          'AH2OK           '                                   &
       /)
 
-    INTEGER, PARAMETER :: num_twoway_ae_cmaq_spc = 43
+    INTEGER, PARAMETER :: num_twoway_ae_cmaq_spc = 44
 
     INTEGER, PARAMETER :: num_twoway_ae_cmaq_spc_other = 12
 
@@ -101,7 +103,8 @@
          'SD_1            ', 'SD_2            ', 'SD_3            ',  &
          'O3              ',                                          &
          'ASO4I           ', 'ASO4J           ', 'ASO4K           ', 'ANO3I           ', 'ANO3J           ', &
-         'ANO3K           ', 'ANH4I           ', 'ANH4J           ', 'ANH4K           ', 'AALKJ           ', &
+         'ANO3K           ', 'ANH4I           ', 'ANH4J           ', 'ANH4K           ', 'AALK1J          ', &
+         'AALK2J          ',                                                                                 &
          'AXYL1J          ', 'AXYL2J          ', 'AXYL3J          ', 'ATOL1J          ', 'ATOL2J          ', &
          'ATOL3J          ', 'ABNZ1J          ', 'ABNZ2J          ', 'ABNZ3J          ', 'ATRP1J          ', &
          'ATRP2J          ', 'AISO1J          ', 'AISO2J          ', 'ASQTJ           ', 'AISO3J          ', &
@@ -116,7 +119,8 @@
 
     character (len = 16), parameter :: twoway_ae_cmaq_spc_name (num_twoway_ae_cmaq_spc) =                    &
       (/ 'ASO4I           ', 'ASO4J           ', 'ASO4K           ', 'ANO3I           ', 'ANO3J           ', &
-         'ANO3K           ', 'ANH4I           ', 'ANH4J           ', 'ANH4K           ', 'AALKJ           ', &
+         'ANO3K           ', 'ANH4I           ', 'ANH4J           ', 'ANH4K           ', 'AALK1J          ', &
+         'AALK2J          ',                                                                                 &
          'AXYL1J          ', 'AXYL2J          ', 'AXYL3J          ', 'ATOL1J          ', 'ATOL2J          ', &
          'ATOL3J          ', 'ABNZ1J          ', 'ABNZ2J          ', 'ABNZ3J          ', 'ATRP1J          ', &
          'ATRP2J          ', 'AISO1J          ', 'AISO2J          ', 'ASQTJ           ', 'AISO3J          ', &

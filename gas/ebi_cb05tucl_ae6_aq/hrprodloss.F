@@ -35,7 +35,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 28, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jan. 7, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -798,14 +798,6 @@ C***********************************************************************
 
       PROD(  VIVPO1   ) =   0.0D0
       LOSS(  VIVPO1   ) =                 RXRAT( 237 )      ! VIVPO1+OH=0.1075D+01*VSVPO3+OH
-
-      PNEG( PAR ) =    6.6000D-01 * RXRAT(  61 )      ! NTR+OH=-0.6600D+00*PAR+HO2+...
-     &            +    6.6000D-01 * RXRAT(  62 )      ! NTR=-0.6600D+00*PAR+HO2+...
-     &            +    2.1000D+00 * RXRAT( 113 )      ! ROR=-0.2100D+01*PAR+...
-     &            +    7.0000D-01 * RXRAT( 117 )      ! OH+OLE=-0.7000D+00*PAR+...
-     &            +                 RXRAT( 118 )      ! O3+OLE=-PAR+0.7400D+...
-     &            +                 RXRAT( 119 )      ! NO3+OLE=-PAR+FORM+0.9100D+...
-     &            +                 RXRAT( 185 )      ! CL+OLE=-PAR+0.3300D+...
 
       RETURN
 

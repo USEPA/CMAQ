@@ -66,6 +66,7 @@ C   18 Aug 11 David Wong: In the merge inline point source PM species calculatio
 C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
 C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4"
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C   23 Dec 15 J.Young: turn off default windblown dust option
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -281,7 +282,7 @@ C *** set up for sea-salt emission processing
 
 C *** windblown dust emissions?
          WB_DUST = ENVYN( 'CTM_WB_DUST', 'Flag for windblown dust emissions',
-     &                   .TRUE., STATUS )
+     &                   .FALSE., STATUS )
 
          IF ( WB_DUST ) THEN
 C *** set up for dust emission processing
@@ -783,7 +784,7 @@ C *** Calculate speciated mass emission rates for fine aerosol [ug/m3/s]
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
                EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                          * PRECURSOR_MW( SULF_IDX ) / CONVM
+     &                          * REAL( PRECURSOR_MW( SULF_IDX ), 4 ) / CONVM
                VDEMIS( VSULF,L,C,R ) = 0.0
 
 C *** Assign fine-particle emission rates to the fine modes.
@@ -943,7 +944,7 @@ C *** Calculate speciated mass emission rates for fine aerosol [ug/m3/s]
 C *** Extract H2SO4 vapor emission rate from the VDEMIS array, add it to
 C     the fine-PM sulfate emissions, and remove it from the gas emissions
                   EM_RATE( VPSO4 ) = EM_RATE( VPSO4 ) + VDEMIS( VSULF,L,C,R )
-     &                             * PRECURSOR_MW( SULF_IDX ) / CONVM
+     &                             * REAL( PRECURSOR_MW( SULF_IDX ), 4 ) / CONVM
                   VDEMIS( VSULF,L,C,R ) = 0.0
 
 C *** Calculate emissions rate for third moments [m3/m3/s] of each mode 

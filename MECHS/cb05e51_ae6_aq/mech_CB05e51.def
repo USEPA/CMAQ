@@ -12,7 +12,6 @@ CB05E51_AE6_AQ
 ! 2.  added a marine ozone depletion reaction, parameterized from a detailed
 !      chemistry of halogens (Sarwar, 12-2-14)
 !     -Added a simple halogen chemistry over sea-water (<HAL_OZONE>)
-!     -Revised the simple halogen chemistry over sea-water using results of two-way CMAQ model and detailed halogen chemistry (6/25/2015)
 
 ! 3.  added heterogeneous reactions to mech.def file (Hutzell), including:
 !       - inorganic heterogeneous reactions for N2O5 and NO2, 
@@ -108,6 +107,7 @@ CB05E51_AE6_AQ
 !    - updated OH+NO2: implemented new Troe equation for HNO3 product from IUPAC
 !      (http://iupac.pole-ether.fr/htdocs/datasheets/pdf/NOx13_HO_NO2.pdf)
 !       and Troe publication (
+! 7.  corrected NTRCNOH vs. NTRCN products in NTRCNOH+OH reaction (error)
 !
 !As with v5.02,this version includes changes to standard CB05TU for aerosol 
 !  formation:
@@ -129,6 +129,8 @@ CB05E51_AE6_AQ
 ! As documented in CMAQv5.02, this version includes other changes to standard 
 !  CB05TU for CMAQ use:
 !  - Added fixed concentrations for CH4, H2, N2, O2, and AIR for CMAQ use
+! 10/19/15    B.Hutzell: Renamed ACROLEIN_PRIMARY to ACRO_PRIMARY for 
+!             DDM compliance
 !
 !----------------------------------80 Characters Wide---------------------------
 REACTIONS[CM] =
@@ -761,36 +763,36 @@ REACTIONS[CM] =
 ! reaction rates based on weighted reaction rates of top 5 alkanes and alkenes 
 ! peroxy+NO and peroxy+HO2 reaction rates from KRO2NO in MCM
 <N08> NTRALK  + OH           = NALKO2                 # 1.29e-12;
-<N08b> NALKO2 + NO           = 1.25*NO2
-                             + 0.12*NTRCN
-                             + 0.63*NTRCNOH          #2.7e-12@-360;
+<N08b> NALKO2 + NO           = 1.30*NO2
+                             + 0.15*NTRCN
+                             + 0.55*NTRCNOH          #2.7e-12@-360;
 <N08c> NALKO2 + HO2           = NTRPX                #2.05e-13@-1300;
 <N09> NTROH  + OH          = NOHO2                 # 7.26E-12;
-<N09b> NOHO2  + NO          = 1.17*NO2
-                             + 0.60*NTRCN
-                             + 0.22*NTRCNOH         #2.7e-12@-360;
+<N09b> NOHO2  + NO          = 1.22*NO2
+                             + 0.53*NTRCN
+                             + 0.25*NTRCNOH         #2.7e-12@-360;
 <N09c> NOHO2 + HO2           = NTRPX                #2.05e-13@-1300;
 
 ! carbonylnitrate (NTRCN) can be an aldehyde or ketone. Assumes that 40% has
-!  nitrate function on alpha carbon (releases NO2), 20% is an aldehyde,
-!  (makes another NTRCN) and the rest is a ketone, which reacts like NTRALK 
-!  (extracts carbon; recycles 25% NO2, produces 75% NTRCN and NTRCNOH).    
+!  nitrate function on alpha carbon to an aldehyde (releases 100% NO2), 20% 
+!  is an aldehyde(makes another NTRCN) and the rest is a ketone, which reacts 
+!  like NTRALK.    
 ! reaction rate with OH is that of butanone
 <N10> NTRCN  + OH          = NCNO2                  # 1.1e-12;
-<N10b> NCNO2  + NO          = 1.5*NO2
-                             + 0.24*NTRCN
+<N10b> NCNO2  + NO          = 1.53*NO2
+                             + 0.21*NTRCN
                              + 0.26*NTRCNOH         #2.7e-12@-360;
 <N10c> NCNO2 + HO2           = NTRPX                #2.05e-13@-1300;
 
-! hydroxycarbonylnitrate (NTRCN) can be an aldehyde or ketone. Assumes that 30% 
-!  nitrate function on alpha carbon (releases NO2), 40% is an aldehyde,
-! (makes another NTRCN) and 30% is a ketone, which reacts like NTROH (primarily
-! (reacts at C-OH; recycles 17% NO2; produces 83% NTRCN and NTRCNOH).    
+! hydroxycarbonylnitrate (NTRCN) can be an aldehyde or ketone. Assumes that 20%
+!  has the nitrate function alpha to an aldehyde (releases 100% NO2), 45% is 
+! a nitro hydroxy aldehyde (makes another NTRCN) and 30% is a ketone, which 
+!  reacts like NTROH (primarily reacts at C-OH)
 !  reaction rate with OH is that of butanal 
 <N11> NTRCNOH  + OH          = NCNOHO2              # 5.7e-12;
-<N11b> NCNOHO2  + NO          = 1.25*NO2
-                             + 0.54*NTRCN
-                             + 0.20*NTRCNOH         #2.7e-12@-360;
+<N11b> NCNOHO2  + NO          = 1.24*NO2
+                             + 0.59*NTRCNOH
+                             + 0.17*NTRCN         #2.7e-12@-360;
 <N11c> NCNOHO2 + HO2           = NTRPX                #2.05e-13@-1300;
 !  NTRPX is a hydroperoxide, use it to track low-NO reactions of nitrates
 ! reaction rate is that of ethylhyroperoxide
@@ -817,8 +819,12 @@ REACTIONS[CM] =
 !  (26%*yield from delta isopn and 74%*yield from beta isopn)
 !
 <N16> NTRI  + OH          = NTRIO2                     #2.32e-12;
-<N16b> NTRIO2  + NO          = 1.65*NO2
-                             + 0.35*NTRI            #2.7e-12@-360;
+!
+! assumes 60% retains nitrate group and 40% recycles NO2 (Jenkin et al., ACPD,
+!  15, 9709-9766, 2015
+
+<N16b> NTRIO2  + NO          = 1.40*NO2
+                             + 0.60*NTRI            #2.7e-12@-360;
 <N16c> NTRIO2 + HO2           = NTRI            #2.05e-13@-1300;
 
 ! photolysis
@@ -861,6 +867,13 @@ REACTIONS[CM] =
                              + HO2
                              + 1.0*ROOH             # 2.0/<NTR_IUPAC10>;                 
 ! iorganic heteorogeneous reactions from hetchem version 5.0.2
+<HET_NT1> NTRALK = HNO3                # 1.0~<HETERO_NTR2>;
+<HET_NT2> NTROH = HNO3                 # 1.0~<HETERO_NTR2>;
+<HET_NT3> NTRCN = HNO3                 # 1.0~<HETERO_NTR2>;
+<HET_NT4> NTRCNOH = HNO3               # 1.0~<HETERO_NTR2>;
+<HET_NT5> NTRPX = HNO3                 # 1.0~<HETERO_NTR2>;
+<HET_NT6> NTRM = HNO3                  # 1.0~<HETERO_NTR2>;
+<HET_NT7> NTRI = HNO3                  # 1.0~<HETERO_NTR2>;
 
 <HET_N2O5IJ>    N2O5 = HNO3 + H2NO3PIJ  # 1.0~<HETERO_N2O5IJ>;
 <HET_N2O5K>     N2O5 = HNO3 + H2NO3PK   # 1.0~<HETERO_N2O5K>;
@@ -876,7 +889,9 @@ REACTIONS[CM] =
 
 ! Simplified ozone loss from oceanic halogens excluding chlorine
 
+!<HAL_Ozone> O3 =  %H # 8.33E-47@-93.22 & 1.45E-8@-3.84;
 <HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
+
 
 
 ! organic heterogeneous reactions 
@@ -902,7 +917,7 @@ REACTIONS[CM] =
 <OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
 ! Formation of Simple OM
-<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 1.0E-11;
+<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 4.0E-11;
 
 ! Aging reactions for primary organic carbon
 
@@ -933,11 +948,11 @@ REACTIONS[CM] =
 < T11>  BUTADIENE13 + O3       = O3  + 0.52*ACROLEIN  # 8.2E-15 @ 2070.;
 < T12>  BUTADIENE13 + NO3      = NO3 + 0.045*ACROLEIN  # 1.79E-13;
 <TCL3>  BUTADIENE13 + CL       = CL  + 0.58*ACROLEIN  # 2.51E-10;
-< T14>  ACROLEIN_PRIMARY + OH  = OH                   # 2.0E-11;
-< T15>  ACROLEIN_PRIMARY + O3  = O3                   # 2.61E-19;
-< T16>  ACROLEIN_PRIMARY + NO3 = NO3                  # 1.7E-11 @ 3131.;
-< T17>  ACROLEIN_PRIMARY       =                      # 1.0/<ACRO_09>;
-<TCL4>  ACROLEIN_PRIMARY + CL  = CL                   # 2.37E-10;
+< T14>  ACRO_PRIMARY + OH  = OH                   # 2.0E-11;
+< T15>  ACRO_PRIMARY + O3  = O3                   # 2.61E-19;
+< T16>  ACRO_PRIMARY + NO3 = NO3                  # 1.7E-11 @ 3131.;
+< T17>  ACRO_PRIMARY       =                      # 1.0/<ACRO_09>;
+<TCL4>  ACRO_PRIMARY + CL  = CL                   # 2.37E-10;
 < T18>  ACROLEIN + OH          = OH                   # 2.0E-11;
 < T19>  ACROLEIN + O3          = O3                   # 2.61E-19;
 < T20>  ACROLEIN + NO3         = NO3                  # 1.7E-11 @ 3131.;

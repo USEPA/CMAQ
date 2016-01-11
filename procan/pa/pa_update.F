@@ -97,22 +97,24 @@ C Includes:
       INCLUDE SUBST_EMISPRM     ! Emissions processing control parameters
       
 C Arguments:
-      CHARACTER( * ) :: PRNAME   ! Last process called
+      CHARACTER( * ), INTENT( IN ) :: PRNAME   ! Last process called
 !     REAL CGRID( NCOLS, NROWS, NLAYS, N_SPCS )  ! Conc array
 !     REAL :: CGRID( :,:,:,: )  ! Conc array
       REAL, POINTER :: CGRID( :,:,:,: )  ! Conc array
-      INTEGER JDATE    !  current date,    format YYYYDDD
-      INTEGER JTIME    !  current time,    format HHMMSS
-      INTEGER TSTEP( 3 )   ! time step vector (HHMMSS)
-                           ! TSTEP(1) = local output step
-                           ! TSTEP(2) = sciproc sync. step (chem)
-                           ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                           !            step and wrf/cmaq call frequency
+      INTEGER, INTENT( IN ) :: JDATE       !  current date,    format YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME       !  current time,    format HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP( 3 )  ! time step vector (HHMMSS)
+                             ! TSTEP(1) = local output step
+                             ! TSTEP(2) = sciproc sync. step (chem)
+                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                             !            step and wrf/cmaq call frequency
+
+C..Additional or other Arguments for ENTRY's
+      REAL,    INTENT( IN ) :: VEMIS ( :,:,:,: )  ! Emission rates (g/s)
+      REAL,    INTENT( IN ) :: DDEP ( :,:,: )     ! Dry dep (Kg/ha)
 
 C Gas species counts:
       INTEGER, SAVE :: N_SPCS
-      REAL :: VEMIS ( :,:,:,: )  ! Emission rates (g/s)
-      REAL :: DDEP ( :,:,: )     ! Dry dep (Kg/ha)
 
 C Dimension index assigned for VDIF
       INTEGER, PARAMETER :: IND_VM = 1

@@ -71,17 +71,20 @@
 !             1) Renamed PROPNNB from NIT1NO3OOA (from ISOPRENE+NO3+NO3 )
 !                to PROPNN where PROPNN refers to isoprene nitrates with only ONE nitrate functional group
 !             2) PROPNNB from ISOPRENE+NO3,+NO3 leading to dinitrates renamed ISOPNN (C5O9N2H10, MW=226 g/mol). 
-!             3) PROPNNB from ISOPRENE+NO3,+OH with one nitrate and one OH NOT also named ISOPNN
+!             3) PROPNNB from ISOPRENE+NO3,+OH with one nitrate and one OH named PROPNN
 !             4) Nitrate from ISOPRENE+NO3,+O3 is relabeled PROPNN
 !             5) ISOPNN is semivolatile and forms SOA via partitioning
 !             See Rollins et al. 2009 ACP for info on second generation isoprene nitrates.
 ! 04-06/2015  H. Pye Added hydrolysis of particle-phase nitrates (AMTNO3, AISOPNN) with 3 hour lifetime. 
 ! 06/2015     H. Pye Added uptake of GLY and MGLY to particles to form SOA
+! 07/2015     H. Pye Corrected NO2, XC, and XN in MTNO3 forming reactions. See Pye et al. 2015 in prep.
 ! 07/2015     H. Pye All updates for saprc07tic-ae6i v5.1 documented 
 !                    in Pye et al. in prep for ES&T 2015
 ! 10/2015     B.Murphy Added organic reactions for representing SIMPLE SOA formation and semivolatile POA
 !                      aging. These changes are consistent with the lumped POA approach of Koo et al., 2014
 !                      and will be further documented in Murphy et al., 2016
+! 10/19/15    B.Hutzell: Renamed ACROLEIN_PRIMARY and TRIMETH_BENZ124 to ACRO_PRIMARY and TMBENZ124 for 
+!             DDM compliance
 
   SAPRC07TIC_AE6I_AQ
 
@@ -780,7 +783,7 @@ REACTIONS [CM] =
          0.076*RO2XC + 0.076*zRNO3 + 0.286*xGLY + 0.112*xMGLY + 0.159*CRES +
          0.088*xBALD + 0.045*xAFG1 + 0.067*xAFG2 + 0.278*AFG3 + 0.286*xAFG3 +
          0.102*yR6OOH + 0.461*yRAOOH + XYLRO2 + 0.399*XC # 1.43e-11;
-<BT17> TRIMETH_BENZ124 + OH = 0.022*HO2 + 0.627*xHO2 + 0.23*OH + 0.627*RO2C +
+<BT17> TMBENZ124 + OH = 0.022*HO2 + 0.627*xHO2 + 0.23*OH + 0.627*RO2C +
          0.121*RO2XC + 0.121*zRNO3 + 0.074*xGLY + 0.405*xMGLY + 0.112*xBACL +
          0.022*CRES + 0.036*xBALD + 0.088*xAFG1 + 0.352*xAFG2 + 0.23*AFG3 +
          0.151*xAFG3 + 0.043*yR6OOH + 0.705*yRAOOH + XYLRO2 + 
@@ -857,62 +860,49 @@ REACTIONS [CM] =
          0.002*xMACR + 0.001*xIPRD + 0.502*PRD2 + 0.428*yR6OOH + TRPRXN + 
          3.852*XC # 8.28e-16@785;
 <BL18> TERP + NO3 = TERPNRO2 # 1.33e-12@-490;
-<BL18a> TERPNRO2 + NO = 0.54*NO2 + 0.46*MTNO3 + 0.46*XN + 1.84*XC +
-         0.4244*RO2C + 0.2268*HO2 + 0.2867*NO2 + 0.0259*RCO3 + 0.0119*CO +
-         0.0232*HCHO + 0.0022*HOCCHO + 0.4028*RCHO + 0.2392*ACETONE + 
-         0.0049*MACR +
-         0.0011*MVK + 0.0038*IPRD + 0.2279*MTNO3 + 0.2533*XN + 
-         1.9451*XC # 1.0*K<BR07>;
+<BL18a> TERPNRO2 + NO = 0.827*NO2 + 0.688*MTNO3 + 0.424*RO2C + 0.227*HO2 +
+        0.026*RCO3 + 0.012*CO + 0.023*HCHO + 0.002*HOCCHO + 0.403*RCHO + 
+        0.239*ACETONE + 0.005*MACR + 0.001*MVK + 0.004*IPRD + 0.485*XN + 
+        1.035*XC # 1.0*K<BR07>;
 <BL18b> TERPNRO2 + HO2 = 1.0*MTNO3 # 2.65e-13@-1300;
-<BL18c> TERPNRO2 + NO3 = 1.0*NO2 +
-         0.786*RO2C + 0.420*HO2 + 0.531*NO2 + 0.048*RCO3 + 0.022*CO +
-         0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 0.443*ACETONE + 0.009*MACR +
-         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.469*XN + 
-         3.602*XC # 1.0*K<BR09>;
-<BL18d> TERPNRO2 + MEO2 = 0.5*MTNO3 + 0.5*HCHO + 0.5*HO2 + 0.25*HCHO + 
-         0.25*MEOH + 2*XC +
-         0.393*RO2C + 0.210*HO2 + 0.2655*NO2 + 0.024*RCO3 + 0.011*CO +
-         0.0215*HCHO + 0.002*HOCCHO + 0.373*RCHO + 0.2215*ACETONE + 
-         0.0045*MACR +
-         0.001*MVK + 0.0035*IPRD + 0.211*MTNO3 + 0.2345*XN + 
-         1.801*XC # 1.0*K<BR10>;
-<BL18e> TERPNRO2 + RO2C = 0.5*MTNO3 + 2*XC +
-         0.393*RO2C + 0.210*HO2 + 0.2655*NO2 + 0.024*RCO3 + 0.011*CO +
-         0.0215*HCHO + 0.002*HOCCHO + 0.373*RCHO + 0.2215*ACETONE + 
-         0.0045*MACR +
-         0.001*MVK + 0.0035*IPRD + 0.211*MTNO3 + 0.2345*XN + 
-         1.801*XC # 1.0*K<BR11>;
-<BL18f> TERPNRO2 + RO2XC = 0.5*MTNO3 + 2*XC +
-         0.393*RO2C + 0.210*HO2 + 0.2655*NO2 + 0.024*RCO3 + 0.011*CO +
-         0.0215*HCHO + 0.002*HOCCHO + 0.373*RCHO + 0.2215*ACETONE + 
-         0.0045*MACR +
-         0.001*MVK + 0.0035*IPRD + 0.211*MTNO3 + 0.2345*XN + 
-         1.801*XC # 1.0*K<BR11>;
-<BL18g> TERPNRO2 + MECO3 = NO2 + MEO2 + CO2 +
-         0.786*RO2C + 0.420*HO2 + 0.531*NO2 + 0.048*RCO3 + 0.022*CO +
-         0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 0.443*ACETONE + 0.009*MACR +
-         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.469*XN + 
-         3.602*XC # 1.0*K<BR25>;
-<BL18h> TERPNRO2 + RCO3 = RO2C + xHO2 + xCCHO + yROOH + CO2 +
-         0.786*RO2C + 0.420*HO2 + 0.531*NO2 + 0.048*RCO3 + 0.022*CO +
-         0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 0.443*ACETONE + 0.009*MACR +
-         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.469*XN + 
-         3.602*XC # 1.0*K<BR25>;
-<BL18i> TERPNRO2 + BZCO3 = RO2C + BZO + CO2 +
-          0.786*RO2C + 0.420*HO2 + 0.531*NO2 + 0.048*RCO3 + 0.022*CO +
-          0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 0.443*ACETONE + 0.009*MACR +
-          0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.469*XN + 
-          3.602*XC # 1.0*K<BR25>;
+<BL18c> TERPNRO2 + NO3 = 1.531*NO2 + 0.422*MTNO3 + 0.786*RO2C + 0.420*HO2 +
+        0.048*RCO3 + 0.022*CO + 0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 
+        0.443*ACETONE + 0.009*MACR + 0.002*MVK + 0.007*IPRD + 0.047*XN + 
+        1.917*XC # 1.0*K<BR09>;
+<BL18d> TERPNRO2 + MEO2 = 0.266*NO2 + 0.711*MTNO3 + 0.393*RO2C + 0.710*HO2 +
+        0.024*RCO3 + 0.011*CO + 0.772*HCHO + 0.002*HOCCHO + 0.373*RCHO + 
+        0.222*ACETONE + 0.005*MACR + 0.001*MVK + 0.004*IPRD + 0.024*XN + 
+        0.959*XC + 0.250*MEOH # 1.0*K<BR10>;
+<BL18e> TERPNRO2 + RO2C = 0.266*NO2 + 0.711*MTNO3 + 0.393*RO2C + 0.210*HO2 +
+        0.024*RCO3 + 0.011*CO + 0.022*HCHO + 0.002*HOCCHO + 0.373*RCHO + 
+        0.222*ACETONE + 0.005*MACR + 0.001*MVK + 0.004*IPRD + 0.024*XN + 
+        0.959*XC # 1.0*K<BR11>;
+<BL18f> TERPNRO2 + RO2XC = 0.266*NO2 + 0.711*MTNO3 + 0.393*RO2C + 0.210*HO2 +
+        0.024*RCO3 + 0.011*CO + 0.022*HCHO + 0.002*HOCCHO + 0.373*RCHO + 
+        0.222*ACETONE + 0.005*MACR + 0.001*MVK + 0.004*IPRD + 0.024*XN + 
+        0.959*XC # 1.0*K<BR11>;
+<BL18g> TERPNRO2 + MECO3 = 0.531*NO2 + 0.422*MTNO3 + 0.786*RO2C + 0.420*HO2 +
+        0.048*RCO3 + 0.022*CO + 0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 
+        0.443*ACETONE + 0.009*MACR + 0.002*MVK + 0.007*IPRD + 0.047*XN + 
+        1.917*XC + MEO2 + CO2 # 1.0*K<BR25>;
+<BL18h> TERPNRO2 + RCO3 = 0.531*NO2 + 0.422*MTNO3 + 1.786*RO2C + 0.420*HO2 +
+        0.048*RCO3 + 0.022*CO + 0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 
+        0.443*ACETONE + 0.009*MACR + 0.002*MVK + 0.007*IPRD + 0.047*XN + 
+        1.917*XC + CO2 + xHO2 + xCCHO + yROOH # 1.0*K<BR25>;
+<BL18i> TERPNRO2 + BZCO3 = 0.531*NO2 + 0.422*MTNO3 + 1.786*RO2C + 0.420*HO2 +
+        0.048*RCO3 + 0.022*CO + 0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 
+        0.443*ACETONE + 0.009*MACR + 0.002*MVK + 0.007*IPRD + 0.047*XN + 
+        1.917*XC + CO2 + BZO # 1.0*K<BR25>;
 <BL19j> TERPNRO2 + MACO3 = 1.0*CO2 + 1.0*HCHO + 1.0*MECO3 +
          0.786*RO2C + 0.420*HO2 + 0.531*NO2 + 0.048*RCO3 + 0.022*CO +
          0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 0.443*ACETONE + 0.009*MACR +
-         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.469*XN + 
-         3.602*XC # 1.0*K<BR25>;
+         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.047*XN + 
+         1.917*XC # 1.0*K<BR25>;
 <BL19k> TERPNRO2 + IMACO3 = 1.0*CO2 + 1.0*HCHO + 1.0*MECO3 +
          0.786*RO2C + 0.420*HO2 + 0.531*NO2 + 0.048*RCO3 + 0.022*CO +
          0.043*HCHO + 0.004*HOCCHO + 0.746*RCHO + 0.443*ACETONE + 0.009*MACR +
-         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.469*XN + 
-         3.602*XC # 1.0*K<BR25>;
+         0.002*MVK + 0.007*IPRD + 0.422*MTNO3 + 0.047*XN + 
+         1.917*XC # 1.0*K<BR25>;
 <BL19> TERP + O3P = 0.237*RCHO + 0.763*PRD2 + TRPRXN + 4.711*XC # 4.02e-11;
 <BT19> SESQ + OH = 0.734*xHO2 + 0.064*xRCO3 + 1.211*RO2C + 0.201*RO2XC +
          0.201*zRNO3 + 0.001*xCO + 0.411*xHCHO + 0.385*xRCHO + 0.037*xACETONE +
@@ -1055,7 +1045,7 @@ REACTIONS [CM] =
          0.864*xBALD + 1.136*XC # 1.40e-10;
 <TE07> PXYL + CL = 0.864*xHO2 + 0.864*RO2C + 0.136*RO2XC + 0.136*zRNO3 +
          0.864*xBALD + 1.136*XC # 1.44e-10;
-<TE08> TRIMETH_BENZ124 + CL = 0.838*xHO2 + 0.838*RO2C + 0.162*RO2XC +
+<TE08> TMBENZ124 + CL = 0.838*xHO2 + 0.838*RO2C + 0.162*RO2XC +
          0.162*zRNO3 + 0.838*xBALD + 2.162*XC # 2.42e-10;
 <TE09> ETOH + CL = HCL + 0.688*HO2 + 0.312*xHO2 + 0.312*RO2C + 0.503*xHCHO +
          0.688*CCHO + 0.061*xHOCCHO + 0.312*yROOH - 0.001*XC # 8.60e-11@-45;
@@ -1125,12 +1115,12 @@ REACTIONS [CM] =
 <TR09> CCHO_PRIMARY + NO3 = NO3  # 1.40e-12@1860;
 <TR10> CCHO_PRIMARY + CL  = CL  # 8.00e-11;
 
-<TR11> ACROLEIN_PRIMARY + OH  = OH  # 1.99e-11;
-<TR12> ACROLEIN_PRIMARY + O3  = O3  # 1.40e-15@2528;
-<TR13> ACROLEIN_PRIMARY + NO3 = NO3 # 1.18e-15;
-<TR14> ACROLEIN_PRIMARY + O3P = O3P # 2.37e-12;
-<TR15> ACROLEIN_PRIMARY       =     # 1.0/<ACRO_09>;
-<TR16> ACROLEIN_PRIMARY + CL  = CL  # 2.94e-10;
+<TR11> ACRO_PRIMARY + OH  = OH  # 1.99e-11;
+<TR12> ACRO_PRIMARY + O3  = O3  # 1.40e-15@2528;
+<TR13> ACRO_PRIMARY + NO3 = NO3 # 1.18e-15;
+<TR14> ACRO_PRIMARY + O3P = O3P # 2.37e-12;
+<TR15> ACRO_PRIMARY       =     # 1.0/<ACRO_09>;
+<TR16> ACRO_PRIMARY + CL  = CL  # 2.94e-10;
 
 
 
@@ -1688,7 +1678,7 @@ REACTIONS [CM] =
 <OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
 
 ! Formation of Simple OM
-<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 1.0E-11;
+<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 4.0E-11;
 
 ! Aging reactions for primary organic carbon
 

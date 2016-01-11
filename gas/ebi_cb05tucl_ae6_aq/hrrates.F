@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Sept. 28, 2015
+C  REVISION HISTORY: Created by EBI solver program, Jan. 7, 2016
 C
 C***********************************************************************
       USE HRDATA

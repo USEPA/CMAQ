@@ -171,22 +171,10 @@ C Local Variables:
 
       INTERFACE
          SUBROUTINE RHO_J ( JDATE, JTIME, TSTEP, RHOJ )
-            USE GRID_CONF
-            USE UTILIO_DEFN
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( OUT ) :: RHOJ( :,:,: )
          END SUBROUTINE RHO_J
          SUBROUTINE HCDIFF3D ( JDATE, JTIME, K11BAR, K22BAR, DT )
-            USE GRID_CONF
-            USE UTILIO_DEFN
-#ifdef parallel
-            USE SE_MODULES
-            USE SWAP_SANDIA
-#else
-            USE NOOP_MODULES
-#endif
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME
             REAL,    INTENT( OUT ) :: K11BAR( :,:,: ), K22BAR( :,:,: )
             REAL,    INTENT( OUT ) :: DT
