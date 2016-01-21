@@ -90,6 +90,9 @@ C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C   Aug 2015 D.Wong:   Replaced MYPE with IO_PE_INCLUSIVE for parallel
 C                        I/O implementation
+C   Dec 2015 D.Wong:   Moved the code which determines which processor is involving
+C                        I/O processing in front of routine PIO_RE_INIT and
+C                        passed that information into PIO_RE_INIT
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -128,6 +131,8 @@ C Include Files:
       include 'mpif.h'
 #endif
 
+
+      LOGICAL, PARAMETER :: WRITE_OUT_FLAG = .TRUE.
 
 C External Functions:
       INTEGER, EXTERNAL :: SETUP_LOGDEV
@@ -279,11 +284,21 @@ C Set CGRID mechanism
          write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif
 
+#ifdef parallel_io
+         IF (MOD(MYPE, NPCOL) == 0) THEN
+#else
+         IF (MYPE == 0) THEN
+#endif
+            IO_PE_INCLUSIVE = .TRUE.
+         ELSE
+            IO_PE_INCLUSIVE = .FALSE.
+         END IF
+
 #ifdef parallel
 C Initialize parallel I/O
          IF ( .NOT. PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
      &                           NCOLS, NROWS, NPCOL, NPROW, NPROCS,
-     &                           MYPE, .TRUE. ) ) THEN
+     &                           MYPE, WRITE_OUT_FLAG, IO_PE_INCLUSIVE ) ) THEN
             XMSG = 'Failed to initialize parallel I/O library.'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -299,16 +314,6 @@ C Initialize stencil exchange
          write( logdev,* ) ' MYPE -> MWDIS:    ', mype, mwdis
 #endif
 #endif
-
-#ifdef parallel_io
-         IF ( MOD( MYPE, NPCOL ) .EQ. 0 ) THEN
-#else
-         IF ( MYPE .EQ. 0 ) THEN
-#endif
-            IO_PE_INCLUSIVE = .TRUE.
-         ELSE
-            IO_PE_INCLUSIVE = .FALSE.
-         END IF
 
 C Set up horizontal domain and calculate processor-to-subdomain maps for
 C process analysis, if required
