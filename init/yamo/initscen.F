@@ -69,6 +69,9 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                        removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
+C   Dec 15 D.Wong: Restructure routine OPCONC so it only open the CONC file
+C                    and put the writing initial data to CONC file to
+C                    routine wr_init
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -142,10 +145,10 @@ C  environment variable description
             REAL,    INTENT( IN )         :: CMIN
             REAL, POINTER                 :: CGRID( :,:,:,: )
          END SUBROUTINE LOAD_CGRID
-         SUBROUTINE OPCONC ( CGRID, STDATE, STTIME, TSTEP )
-            REAL, POINTER                 :: CGRID( :,:,:,: )
+         SUBROUTINE WR_INIT ( CGRID, STDATE, STTIME, TSTEP )
+            REAL, POINTER                 :: CGRID(:,:,:,:)
             INTEGER, INTENT( IN )         :: STDATE, STTIME, TSTEP
-         END SUBROUTINE OPCONC
+         END SUBROUTINE WR_INIT
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -340,11 +343,13 @@ C Test opening existing conc file for update
          CALL M3MESG( MSG )
          ! Open the file new
          CALL SUBST_BARRIER
-         CALL OPCONC ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
+         CALL OPCONC ( STDATE, STTIME, TSTEP( 1 ) )
       END IF
 
-      CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
       CALL OPWDEP  ( STDATE, STTIME, TSTEP( 1 ) )
+
+      CALL WR_INIT ( CGRID, STDATE, STTIME, TSTEP( 1 ) )
+      CALL OPACONC ( STDATE, STTIME, TSTEP( 1 ) )
 
 !     IF ( MYPE .EQ. 0 ) THEN
 !        IF ( .NOT. CLOSE3( CTM_CONC_1 ) ) THEN
