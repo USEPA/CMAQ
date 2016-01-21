@@ -28,6 +28,8 @@ C  CONTAINS:  Interface for PAR I/O procedures
 C
 C  REVISION HISTORY:
 C       Original version 02/11 by Shawn Roselle
+C       Modified 12/09/2015 by David Wong
+C          -- Added an optional argument in PIO_RE_INIT routine
 C....................................................................
 
       MODULE PARUTILIO
@@ -133,7 +135,7 @@ C...Interface
 
             LOGICAL FUNCTION PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                                    NTHIK, NCOLS, NROWS, NPCOL, NPROW,
-     &                                    NPROCS, MYPE, WFLG )
+     &                                    NPROCS, MYPE, WFLG, IO_PE_INCLUSIVE )
                CHARACTER(2), INTENT(INOUT) :: COLROW
                INTEGER, INTENT(IN) :: GL_NCOLS
                INTEGER, INTENT(IN) :: GL_NROWS
@@ -146,6 +148,7 @@ C...Interface
                INTEGER, INTENT(IN) :: NPROCS
                INTEGER, INTENT(IN) :: MYPE
                LOGICAL, INTENT(IN) :: WFLG
+               LOGICAL, INTENT(IN), OPTIONAL :: IO_PE_INCLUSIVE
             END FUNCTION PIO_RE_INIT
 
             SUBROUTINE PM3ERR ( CALLER, JDATE, JTIME, ERRTXT, FATAL )
