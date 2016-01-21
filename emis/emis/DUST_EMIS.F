@@ -707,6 +707,7 @@ C=======================================================================
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
 C       8/12/15 D.Wong: added code to handle parallel I/O implementation
+C       1/21/16 D.Wong: enclosed ctm_dust_emis_1 file open block with a condition
 
 C Arguments:
          integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
@@ -954,14 +955,16 @@ C-----------------------------------------------------------------------
                call m3exit( pname, jdate, jtime, xmsg, xstat1 )
             end if
 
+            if ( dustem_diag ) then
 #ifdef parallel_io
-            if ( .not. io_pe_inclusive ) then
-               if ( .not. open3( ctm_dust_emis_1, fsnonio, pname ) ) then
-                  xmsg = 'Could not open ' // trim(ctm_dust_emis_1)
-                  call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+               if ( .not. io_pe_inclusive ) then
+                  if ( .not. open3( ctm_dust_emis_1, fsread3, pname ) ) then
+                     xmsg = 'Could not open ' // trim(ctm_dust_emis_1)
+                     call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+                  end if
                end if
-            end if
 #endif
+            end if
 
          end if
 
