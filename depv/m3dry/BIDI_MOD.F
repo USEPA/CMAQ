@@ -522,7 +522,7 @@ C--------------------------------------------------------------------------
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( MEDIA_CONC, FSNONIO, PNAME ) ) THEN
+               IF ( .NOT. OPEN3( MEDIA_CONC, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM( MEDIA_CONC )
                   CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                END IF

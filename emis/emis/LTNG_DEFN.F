@@ -712,7 +712,7 @@ C statement function for ERF approximation
                   IF ( FIRSTIME ) THEN
                      FIRSTIME = .FALSE.
                      IF ( .not. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+                        IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                         END IF

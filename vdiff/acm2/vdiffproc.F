@@ -440,17 +440,17 @@ C If last call this hour:  write accumulated depositions:
             WRITE_FIRSTIME = .FALSE.
 
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+               IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
                IF ( MOSAIC ) THEN
-                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSNONIO, PNAME ) ) THEN
+                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_MOS)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                   IF ( FST ) THEN
-                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSNONIO, PNAME ) ) THEN
+                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSREAD3, PNAME ) ) THEN
                         XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_FST)
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                      END IF

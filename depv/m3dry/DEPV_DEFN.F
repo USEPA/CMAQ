@@ -911,7 +911,7 @@ C-----------------------------------------------------------------------
                   FIRSTIME = .FALSE.
                   IF ( DEPV_DIAG ) THEN
                      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNONIO, PNAME ) ) THEN
+                        IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM( CTM_DEPV_DIAG )
                            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                         END IF
@@ -920,14 +920,14 @@ C-----------------------------------------------------------------------
 
                   IF ( MOSAIC ) THEN
                      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSNONIO, PNAME ) ) THEN
+                        IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM( CTM_DEPV_MOS )
                            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                         END IF
                      END IF
                      IF ( FST ) THEN
                         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                           IF ( .NOT. OPEN3( CTM_DEPV_FST, FSNONIO, PNAME ) ) THEN
+                           IF ( .NOT. OPEN3( CTM_DEPV_FST, FSREAD3, PNAME ) ) THEN
                               XMSG = 'Could not open ' // TRIM( CTM_DEPV_FST )
                               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                            END IF
