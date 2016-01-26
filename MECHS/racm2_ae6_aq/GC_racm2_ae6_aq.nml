@@ -135,7 +135,7 @@ TYPE_MATRIX =
 'BNZHRXN:127:::::::::BNZHRXN:::::',
 'SESQ:204:SESQ:1:::::PINENE:1:::Yes::Yes:Yes',
 'SESQRXN:204:::::::::SESQRXN:::::',
-'NAPH:128.2:NAPHTH:1:::::O-XYLENE:1:::Yes:::Yes',
+'NAPH:128.2:NAPH:1:::::O-XYLENE:1:::Yes:::Yes',
 'PAHRO2:187.2::::::::::::::Yes',
 'PAHNRXN:187.2:::::::::PAHNRXN:::::',
 'PAHHRXN:187.2:::::::::PAHHRXN:::::',
