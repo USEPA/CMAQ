@@ -335,6 +335,21 @@ C Land use information:
       DATA subname(65), dif0(65), ar(65), meso(65), lebas(65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/  
       DATA subname(66), dif0(66), ar(66), meso(66), lebas(66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/  
       DATA subname(67), dif0(67), ar(67), meso(67), lebas(67) / 'HACET           ',0.1060,    8.0,      0.0,  72.6/ ! dif0 from Nguyen 2015 PNAS 
+      DATA subname(68), dif0(68), ar(68), meso(68), lebas(68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/
+      DATA subname(69), dif0(69), ar(69), meso(69), lebas(69) / 'SVALK2          ',0.0546,   20.0,      0.0,  275.6/
+      DATA subname(70), dif0(70), ar(70), meso(70), lebas(70) / 'SVBNZ1          ',0.0642,   20.0,      0.0,  134.1/
+      DATA subname(71), dif0(71), ar(71), meso(71), lebas(71) / 'SVBNZ2          ',0.0726,   20.0,      0.0,  127.5/
+      DATA subname(72), dif0(72), ar(72), meso(72), lebas(72) / 'SVISO1          ',0.0733,   20.0,      0.0,  126.3/
+      DATA subname(73), dif0(73), ar(73), meso(73), lebas(73) / 'SVISO2          ',0.0729,   20.0,      0.0,  123.8/
+      DATA subname(74), dif0(74), ar(74), meso(74), lebas(74) / 'SVPAH1          ',0.0564,   20.0,      0.0,  235.7/
+      DATA subname(75), dif0(75), ar(75), meso(75), lebas(75) / 'SVPAH2          ',0.0599,   20.0,      0.0,  231.5/
+      DATA subname(76), dif0(76), ar(76), meso(76), lebas(76) / 'SVSQT           ',0.0451,   20.0,      0.0,  346.5/
+      DATA subname(77), dif0(77), ar(77), meso(77), lebas(77) / 'SVTOL1          ',0.0637,   20.0,      0.0,  153.7/
+      DATA subname(78), dif0(78), ar(78), meso(78), lebas(78) / 'SVTOL2          ',0.0607,   20.0,      0.0,  194.1/
+      DATA subname(79), dif0(79), ar(79), meso(79), lebas(79) / 'SVTRP1          ',0.0603,   20.0,      0.0,  194.9/
+      DATA subname(80), dif0(80), ar(80), meso(80), lebas(80) / 'SVTRP2          ',0.0559,   20.0,      0.0,  218.8/
+      DATA subname(81), dif0(81), ar(81), meso(81), lebas(81) / 'SVXYL1          ',0.0610,   20.0,      0.0,  154.6/
+      DATA subname(82), dif0(82), ar(82), meso(82), lebas(82) / 'SVXYL2          ',0.0585,   20.0,      0.0,  194.6/
 
 
       CONTAINS

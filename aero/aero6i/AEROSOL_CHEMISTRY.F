@@ -723,8 +723,10 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                      KGLY( N ) = GAMMA_GLY * WET_M2( N ) 
      &                          / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA_GLY 
      &                          * CBARGLY * INV_DIFFUSIVITY ) * CBARGLY * DPI
-                     KMGLY( N ) = GAMMA_GLY * WET_M2( N ) 
-     &                          / ( 4.0D0 + 0.5D0 * DE_WET( N ) * GAMMA_GLY 
+                     ! scale MGLY uptake by relative H-law (Marais et
+                     ! al. ACPD approach) implemented 1/2016 H. Pye
+                     KMGLY( N ) = 0.09 * GAMMA_GLY * WET_M2( N ) 
+     &                          / ( 4.0D0 + 0.5D0 * DE_WET( N ) * 0.09*GAMMA_GLY 
      &                          * CBARMGLY * INV_DIFFUSIVITY ) * CBARMGLY * DPI
                   ELSE
                      KGLY( N ) = 0.0d0
