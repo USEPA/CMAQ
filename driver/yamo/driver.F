@@ -93,6 +93,7 @@ C                        I/O implementation
 C   Dec 2015 D.Wong:   Moved the code which determines which processor is involving
 C                        I/O processing in front of routine PIO_RE_INIT and
 C                        passed that information into PIO_RE_INIT
+C   Jan 2016 D.Wong:   Add SAVE attribute to TSTEP for the two-way model implementation
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -143,11 +144,11 @@ C Local variables:
       INTEGER      LOGDEV       ! FORTRAN unit number for log file
       INTEGER      STDATE       ! starting date,    format YYYYDDD
       INTEGER      STTIME       ! starting time,    format HHMMSS
-      INTEGER      TSTEP( 3 )   ! time step vector (HHMMSS)
-                                ! TSTEP(1) = local output step
-                                ! TSTEP(2) = sciproc sync. step (chem)
-                                ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                !            step and wrf/cmaq call frequency
+      INTEGER, SAVE :: TSTEP( 3 )   ! time step vector (HHMMSS)
+                                    ! TSTEP(1) = local output step
+                                    ! TSTEP(2) = sciproc sync. step (chem)
+                                    ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                    !            step and wrf/cmaq call frequency
 
       INTEGER, ALLOCATABLE, SAVE :: ASTEP( : )
       INTEGER      NSTEPS       ! run duration: number of output time steps
