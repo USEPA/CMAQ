@@ -88,12 +88,13 @@ C   24 Sep 13 D.Wong:  Computed AGRID at the output mark of the model
 C                      indicated in TSTEP(1) for twoway model
 C   21 Apr 14 D.Wong:  Removed M3EXIT call in SHUT3 block
 C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
-C   Aug 2015 D.Wong:   Replaced MYPE with IO_PE_INCLUSIVE for parallel
-C                        I/O implementation
-C   Dec 2015 D.Wong:   Moved the code which determines which processor is involving
-C                        I/O processing in front of routine PIO_RE_INIT and
-C                        passed that information into PIO_RE_INIT
-C   Jan 2016 D.Wong:   Add SAVE attribute to TSTEP for the two-way model implementation
+C   10 Aug 15 D.Wong:  Replaced MYPE with IO_PE_INCLUSIVE for parallel
+C                      I/O implementation
+C   10 Dec 15 D.Wong:  Moved the code which determines which processors are involved
+C                      in I/O processing in front of routine PIO_RE_INIT and passed
+C                      that information into PIO_RE_INIT
+C   26 Jan 16 J.Young: Consolidate PIO_INIT, use keywords for optional arguments
+C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model implementation
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -129,36 +130,32 @@ C Include Files:
 
 #ifdef parallel
 !     INCLUDE SUBST_MPI         ! MPI definitions and parameters
-      include 'mpif.h'
+      INCLUDE 'mpif.h'
 #endif
-
-
-      LOGICAL, PARAMETER :: WRITE_OUT_FLAG = .TRUE.
 
 C External Functions:
       INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 
 C Local variables:
 
       INTEGER      LOGDEV       ! FORTRAN unit number for log file
       INTEGER      STDATE       ! starting date,    format YYYYDDD
       INTEGER      STTIME       ! starting time,    format HHMMSS
-      INTEGER, SAVE :: TSTEP( 3 )   ! time step vector (HHMMSS)
-                                    ! TSTEP(1) = local output step
-                                    ! TSTEP(2) = sciproc sync. step (chem)
-                                    ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                                    !            step and wrf/cmaq call frequency
+      INTEGER, SAVE :: TSTEP( 3 ) ! time step vector (HHMMSS)
+                                  ! TSTEP(1) = local output step
+                                  ! TSTEP(2) = sciproc sync. step (chem)
+                                  ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                                  !            step and wrf/cmaq call frequency
 
       INTEGER, ALLOCATABLE, SAVE :: ASTEP( : )
-      INTEGER      NSTEPS       ! run duration: number of output time steps
+      INTEGER          NSTEPS   ! run duration: number of output time steps
       INTEGER, SAVE :: NREPS    ! number of model time steps per output step
-      INTEGER      ISTEP        ! current output time step number
-      INTEGER      IREP         ! model step number within this output step
+      INTEGER          ISTEP    ! current output time step number
+      INTEGER          IREP     ! model step number within this output step
       INTEGER, SAVE :: JDATE    ! current model date, coded YYYYDDD
       INTEGER, SAVE :: JTIME    ! current model time, coded HHMMSS
-      INTEGER      C, R, L, K, S, V     ! loop induction variables
-      INTEGER      ALLOCSTAT
+      INTEGER          C, R, L, K, S, V     ! loop induction variables
+      INTEGER          ALLOCSTAT
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
       CHARACTER( 16 ) :: PNAME = 'DRIVER'
@@ -179,6 +176,7 @@ C Local variables:
       INTEGER ELAPTIME    ! ENDTIME-BEGTIME
 
       LOGICAL, SAVE :: FIRST_RUN = .TRUE.  ! used for twoway model
+      LOGICAL       :: WFLG                ! turn on write subdmap in pio_init
 
 #ifdef twoway
       LOGICAL, SAVE :: SD_TIME_SERIES
@@ -267,7 +265,7 @@ C and define vertical layer structure (in module GRID_CONF)
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-#ifdef Verbose
+#ifdef verbose_driver
          write( logdev,* ) ' MYPE -> NPROCS:   ', mype, nprocs
          write( logdev,* ) ' MYPE -> NPCOL:    ', mype, npcol
          write( logdev,* ) ' MYPE -> NPROW:    ', mype, nprow
@@ -281,14 +279,14 @@ C Set CGRID mechanism
             XMSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, 1 )
          END IF
-#ifdef Verbose
+#ifdef verbose_driver
          write( logdev,* ) ' MYPE -> NSPCS:    ', mype, nspcsd
 #endif
 
 #ifdef parallel_io
-         IF (MOD(MYPE, NPCOL) == 0) THEN
+         IF ( MOD( MYPE, NPCOL ) .EQ. 0 ) THEN
 #else
-         IF (MYPE == 0) THEN
+         IF ( MYPE .EQ. 0 ) THEN
 #endif
             IO_PE_INCLUSIVE = .TRUE.
          ELSE
@@ -296,19 +294,19 @@ C Set CGRID mechanism
          END IF
 
 #ifdef parallel
-C Initialize parallel I/O
-         IF ( .NOT. PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
-     &                           NCOLS, NROWS, NPCOL, NPROW, NPROCS,
-     &                           MYPE, WRITE_OUT_FLAG, IO_PE_INCLUSIVE ) ) THEN
+C Initialize PARIO
+         IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
+     &                        NCOLS, NROWS, NPCOL, NPROW, NPROCS, MYPE,
+     &                        wflg = WFLG, io_pe_inclusive = IO_PE_INCLUSIVE ) ) THEN
             XMSG = 'Failed to initialize parallel I/O library.'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Initialize stencil exchange
          CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
-     &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS)
+     &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
          CALL SWAP_INIT_SNL( NPCOL, NPROW )
-#ifdef Verbose
+#ifdef verbose_driver
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
          write( logdev,* ) ' MYPE -> MSDIS:    ', mype, msdis
@@ -469,7 +467,7 @@ C science process sequence:
 
 #ifdef twoway
          IF ( MOD( TIME2SEC( JTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) THEN
-!        print *, ' ==d== NREPS d ', myNREPS
+!        write( *,* ) ' ==d== NREPS d ', myNREPS
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
