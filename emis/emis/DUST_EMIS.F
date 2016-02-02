@@ -955,16 +955,16 @@ C-----------------------------------------------------------------------
                call m3exit( pname, jdate, jtime, xmsg, xstat1 )
             end if
 
-            if ( dustem_diag ) then
 #ifdef parallel_io
+            if ( dustem_diag ) then
                if ( .not. io_pe_inclusive ) then
                   if ( .not. open3( ctm_dust_emis_1, fsread3, pname ) ) then
                      xmsg = 'Could not open ' // trim(ctm_dust_emis_1)
                      call m3exit( pname, jdate, jtime, xmsg, xstat1 )
                   end if
                end if
-#endif
             end if
+#endif
 
          end if
 

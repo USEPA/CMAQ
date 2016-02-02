@@ -51,7 +51,7 @@ C                   J. Bash May 11 11: Updated for CMAQ 5.0
       Character( 80 ), Save , Allocatable :: MEDIA_DESCR( : )
 
 ! environment variable for mercury bi-directional flux
-      CHARACTER( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI      '
+      Character( 16 )                     :: CTM_HGBIDI = 'CTM_HGBIDI      '
 
       Integer, Parameter      :: HG_TOT = HG_AQ_CONC + HG_GAS_CONC + HG_SOL_CONC       
       Integer, Save           :: N_TOT
@@ -84,30 +84,33 @@ C... Local:
          Character( 80 ) :: VARDESC
          Integer         :: STATUS
          
-         If ( INDEX1('HG', N_GC_DDEP, GC_DDEP) .GT. 0 ) Then 
+C--------------------------------------------------------------------------
+         LOGDEV = INIT3()  
+
+         If ( INDEX1( 'HG', N_GC_DDEP, GC_DDEP ) .Gt. 0 ) Then 
          
             HGBIDI = .FALSE.
             XMSG   = 'Flag for mercury bi-directional flux calculation'
             HGBIDI = ENVYN( CTM_HGBIDI, XMSG, HGBIDI, STATUS )
-            If ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
+            If ( STATUS .NE. 0 ) Write( LOGDEV, '(5X, A)' ) XMSG
             If ( STATUS .EQ. 1 ) Then
                XMSG = 'Environment variable improperly formatted'
-               CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
+               Call M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
             Else If ( STATUS .EQ. -1 ) Then
                XMSG = 'Environment variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A)' ) XMSG
+               Write( LOGDEV, '(5X, A)' ) XMSG
             Else If ( STATUS .EQ. -2 ) Then
                XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A)' ) XMSG
+               Write( LOGDEV, '(5X, A)' ) XMSG
             End If
             
          End If
 
-         If ( ABFLUX .AND. .NOT. HGBIDI ) Then
+         If ( ABFLUX .And. .Not. HGBIDI ) Then
          
             N_TOT = NHx_TOT
             N_Hg  = 0            
-            ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
+            Allocate( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'Gamma1          '
             MEDIA_UNITS( 1 ) = ' '
@@ -122,10 +125,10 @@ C... Local:
             MEDIA_UNITS( 4 ) = 'mol/l'
             MEDIA_DESCR( 4 ) = 'Molar H+ in Soil layer 2'
                
-         Else If ( .NOT. ABFLUX .AND. HGBIDI ) Then
+         Else If ( .Not. ABFLUX .And. HGBIDI ) Then
             N_TOT = HG_TOT
             N_Hg  = HG_TOT
-            ALLOCATE( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
+            Allocate( MEDIA_NAMES( HG_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
             MEDIA_UNITS( 1 ) = 'umol/mol' 
@@ -146,10 +149,10 @@ C... Local:
             MEDIA_UNITS( 6 ) = 'umol/g'      
             MEDIA_DESCR( 6 ) = 'Hg(0) bound to vegetation surfaces'      
             
-         Else If ( ABFLUX .AND. HGBIDI ) Then
+         Else If ( ABFLUX .And. HGBIDI ) Then
             N_TOT = HG_TOT + NHx_TOT
             N_Hg  = HG_TOT
-            ALLOCATE( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
+            Allocate( MEDIA_NAMES( N_TOT ), MEDIA_UNITS( N_TOT ), MEDIA_DESCR( N_TOT )  )
 
             MEDIA_NAMES( 1 ) = 'DGM             ' ! Dissolved gaseous Hg
             MEDIA_UNITS( 1 ) = 'umol/mol' 
@@ -197,43 +200,43 @@ C... Local:
 !************** Iput / output section of the module **************************
 !*****************************************************************************
 
-         SUBROUTINE OPASX_MEDIA( JDATE, JTIME, TSTEP, ABFLUX )
+         Subroutine OPASX_MEDIA( JDATE, JTIME, TSTEP, ABFLUX )
 
-         USE GRID_CONF
-         USE CGRID_SPCS          ! CGRID mechanism species
-         USE UTILIO_DEFN
+         Use GRID_CONF
+         Use CGRID_SPCS          ! CGRID mechanism species
+         Use UTILIO_DEFN
 
-         IMPLICIT NONE
+         Implicit None
 
-         INCLUDE SUBST_FILES_ID  ! file name parameters
+         Include SUBST_FILES_ID  ! file name parameters
 
-         INTEGER,     INTENT( IN ) :: JDATE
-         INTEGER,     INTENT( IN ) :: JTIME
-         INTEGER,     INTENT( IN ) :: TSTEP
-         LOGICAL,     INTENT( IN ) :: abflux
+         Integer,     Intent( In ) :: JDATE
+         Integer,     Intent( In ) :: JTIME
+         Integer,     Intent( In ) :: TSTEP
+         Logical,     Intent( In ) :: ABFLUX
 
-         CHARACTER( 16 ) :: PNAME = 'OPASX_MEDIA     '
-         CHARACTER( 80 ) :: VARDESC
-         CHARACTER( 96 ) :: MSG = ' '
+         Character( 16 ) :: PNAME = 'OPASX_MEDIA     '
+         Character( 80 ) :: VARDESC
+         Character( 96 ) :: MSG = ' '
 
-         INTEGER  N, V, L
+         Integer  N, V, L
          
 C--------------------------------------------------------------------------
          LOGDEV = INIT3()  
          
-         If ( ABFLUX .AND. .NOT. HGBIDI) Then
+         If ( ABFLUX .And. .Not. HGBIDI) Then
 
-            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN
+            If ( .Not. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) Then
 
                XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
      &             // 'try to open new'
-               CALL M3MESG( XMSG )
+               Call M3MESG( XMSG )
 
                FTYPE3D = GRDDED3
                SDATE3D = JDATE
                STIME3D = JTIME
                TSTEP3D = TSTEP
-               CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
+               Call NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
                NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
@@ -252,9 +255,9 @@ C--------------------------------------------------------------------------
                YCELL3D = YCELL_GD
                VGTYP3D = VGTYP_GD
                VGTOP3D = VGTOP_GD
-               DO L = 1, NLAYS3D + 1
+               Do L = 1, NLAYS3D + 1
                   VGLVS3D( L ) = VGLVS_GD( L )
-               END DO
+               End Do
                GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
                FDESC3D = ' '   ! array
@@ -264,48 +267,48 @@ C--------------------------------------------------------------------------
                         
                N = 0
 
-               DO V = 1, NHx_AQ_CONC
+               Do V = 1, NHx_AQ_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'mol/l'
                   VDESC3D( N ) = 'aqueous phase concentration'
-               END DO
+               End Do
 
                N = NHx_AQ_CONC
 
-               DO V = 1, NHx_GAS_CONC
+               Do V = 1, NHx_GAS_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'ppmV g'
                   VDESC3D( N ) = 'gas phase concentration'
-               END DO
+               End Do
 
                N = NHx_AQ_CONC + NHx_GAS_CONC
 
-               DO V = 1, NHx_SOL_CONC
+               Do V = 1, NHx_SOL_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'umol/g'
                   VDESC3D( N ) = 'Solid phase concentration'
-               END DO              
-            EndIf
+               End Do              
+            End If
             
-         Else If ( .NOT. ABFLUX .AND. HGBIDI ) Then              
+         Else If ( .Not. ABFLUX .And. HGBIDI ) Then              
             
-            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN!
+            If ( .Not. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) Then!
 
                XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
      &             // 'try to open new'
-               CALL M3MESG( XMSG )
+               Call M3MESG( XMSG )
 
                FTYPE3D = GRDDED3
                SDATE3D = JDATE
                STIME3D = JTIME
                TSTEP3D = TSTEP
-               CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
+               Call NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
                NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
@@ -333,48 +336,48 @@ C--------------------------------------------------------------------------
 
                N = 0
 
-               DO V = 1, HG_AQ_CONC
+               Do V = 1, HG_AQ_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'umol/mol'
                   VDESC3D( N ) = 'aqueous phase concentration'
-               END DO
+               End Do
 
                N = HG_AQ_CONC
 
-               DO V = 1, HG_GAS_CONC
+               Do V = 1, HG_GAS_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'ppmV g'
                   VDESC3D( N ) = 'gas phase concentration'
-               END DO
+               End Do
 
                N = HG_AQ_CONC + HG_GAS_CONC
 
-               DO V = 1, HG_SOL_CONC
+               Do V = 1, HG_SOL_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'umol/g'
                   VDESC3D( N ) = 'Solid phase concentration'
-               END DO
+               End Do
             End If
             
-         Else If ( ABFLUX .AND. HGBIDI ) Then         
+         Else If ( ABFLUX .And. HGBIDI ) Then         
             
-            IF ( .NOT. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) THEN
+            If ( .Not. OPEN3( MEDIA_CONC, FSRDWR3, PNAME ) ) Then
 
                XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
      &             // 'try to open new'
-               CALL M3MESG( XMSG )
+               Call M3MESG( XMSG )
 
                FTYPE3D = GRDDED3
                SDATE3D = JDATE
                STIME3D = JTIME
                TSTEP3D = TSTEP
-               CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
+               Call NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour            
                NVARS3D = N_TOT
                NCOLS3D = GL_NCOLS
                NROWS3D = GL_NROWS
@@ -402,101 +405,102 @@ C--------------------------------------------------------------------------
 
                N = 0
 
-               DO V = 1, HG_AQ_CONC
+               Do V = 1, HG_AQ_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'umol/mol'
                   VDESC3D( N ) = 'aqueous phase concentration'
-               END DO
+               End Do
 
                N = HG_AQ_CONC
 
-               DO V = 1, HG_GAS_CONC
+               Do V = 1, HG_GAS_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'ppmV g'
                   VDESC3D( N ) = 'gas phase concentration'
-               END DO
+               End Do
 
                N = HG_AQ_CONC + HG_GAS_CONC
 
-               DO V = 1, HG_SOL_CONC
+               Do V = 1, HG_SOL_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'umol/g'
                   VDESC3D( N ) = 'Solid phase concentration'
-               END DO
+               End Do
                
                N = HG_TOT
 
-               DO V = 1, NHx_AQ_CONC
+               Do V = 1, NHx_AQ_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'mol/l'
                   VDESC3D( N ) = 'aqueous phase concentration'
-               END DO
+               End Do
 
                N = HG_TOT + NHx_AQ_CONC
 
-               DO V = 1, NHx_GAS_CONC
+               Do V = 1, NHx_GAS_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'ppmV g'
                   VDESC3D( N ) = 'gas phase concentration'
-               END DO
+               End Do
 
                N = HG_TOT + NHx_AQ_CONC + NHx_GAS_CONC
 
-               DO V = 1, NHx_SOL_CONC
+               Do V = 1, NHx_SOL_CONC
                   N = N + 1
                   VTYPE3D( N ) = M3REAL
                   VNAME3D( N ) = MEDIA_NAMES( N )
                   UNITS3D( N ) = 'umol/g'
                   VDESC3D( N ) = 'Solid phase concentration'
-               END DO        
-            End IF
+               End Do        
+            End If
                                                   
          End If         
 ! Open file, then close it for subsequent open by all processors
             
-         IF ( .NOT. OPEN3( MEDIA_CONC, FSNEW3, PNAME ) ) THEN
+         If ( .Not. OPEN3( MEDIA_CONC, FSNEW3, PNAME ) ) Then
             XMSG = 'Could not create '// TRIM( MEDIA_CONC) // ' file'
-            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-         END IF                   
+            Call M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+         End If                   
 
-         RETURN
+         Return
 
-         END SUBROUTINE OPASX_MEDIA
+         End Subroutine OPASX_MEDIA
 
 !****************************************************************************
 
-         SUBROUTINE WRASX_MEDIA( MDATE, MTIME, ABFLUX )
+         Subroutine WRASX_MEDIA( MDATE, MTIME, ABFLUX )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
+!     Jan 16, 16 J. Young: update log file once per output; consistent tokens
 
-         USE GRID_CONF           ! horizontal grid specifications
-         USE UTILIO_DEFN
+         Use GRID_CONF           ! horizontal grid specifications
+         Use UTILIO_DEFN
 
-         IMPLICIT NONE
+         Implicit None
 
-         INCLUDE SUBST_FILES_ID  ! file name parameters
+         Include SUBST_FILES_ID  ! file name parameters
 
-         INTEGER, INTENT( IN )    :: MDATE
-         INTEGER, INTENT( IN )    :: MTIME
-         LOGICAL, INTENT( IN )    :: ABFLUX
+         Integer, Intent( In )    :: MDATE
+         Integer, Intent( In )    :: MTIME
+         Logical, Intent( In )    :: ABFLUX
 
-         LOGICAL, SAVE :: FIRSTIME = .TRUE.
+         Logical, Save :: FIRSTIME = .TRUE.
 
-         REAL          WRMC( My_NCols,My_NRows )         ! media write buffer
-         INTEGER V, R, C
+         Real          WRMC( My_NCols,My_NRows )         ! media write buffer
+         Integer V, R, C
 
-         CHARACTER( 16 ) :: PNAME = 'WRASX_MEDIA     '
+         Character( 16 ) :: PNAME = 'WRASX_MEDIA     '
          
 !*****************************************************************************         
          LOGDEV = INIT3()    
@@ -519,38 +523,38 @@ C--------------------------------------------------------------------------
          End If
 
 #ifdef parallel_io
-         IF ( FIRSTIME ) THEN
+         If ( FIRSTIME ) Then
             FIRSTIME = .FALSE.
-            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( MEDIA_CONC, FSREAD3, PNAME ) ) THEN
+            If ( .Not. IO_PE_INCLUSIVE ) Then
+               If ( .Not. OPEN3( MEDIA_CONC, FSREAD3, PNAME ) ) Then
                   XMSG = 'Could not open ' // TRIM( MEDIA_CONC )
-                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
-         END IF
+                  Call M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               End If
+            End If
+         End If
 #endif
          
-         DO V = 1, N_TOT ! species/media loop
-            DO R = 1, My_NRows ! row loop
-               DO C = 1,My_NCols  ! column loop
+         Do V = 1, N_TOT ! species/media loop
+            Do R = 1, My_NRows ! row loop
+               Do C = 1,My_NCols  ! column loop
                   WRMC( C, R ) = CMEDIA( C,R,V  )
-               END DO
-            END DO
+               End Do
+            End Do
 
-            IF ( .NOT. WRITE3( MEDIA_CONC, MEDIA_NAMES( V ), MDATE, MTIME,
-     &                WRMC ) ) THEN
+            If ( .Not. WRITE3( MEDIA_CONC, MEDIA_NAMES( V ), MDATE, MTIME,
+     &                WRMC ) ) Then
                XMSG = 'Could not write ' // MEDIA_CONC // ' file'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+               Call M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            End If
 
-            WRITE( LOGDEV, '( /5X, A, I8, ":", I6.6 )' )
+         End Do                 
+
+         Write( LOGDEV, '( /5X, A, I8, ":", I6.6 )' )
      &         'Timestep written to "' // TRIM( MEDIA_CONC ) //
      &         '" for date and time', MDATE, MTIME
 
-         END DO                 
+         Return
 
-         RETURN
-
-         END SUBROUTINE WRASX_MEDIA
+         End Subroutine WRASX_MEDIA
 
       End Module Bidi_Mod   

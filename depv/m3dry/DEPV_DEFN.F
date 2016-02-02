@@ -201,7 +201,6 @@ C environment variable for diagnostic DEPV file
          CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
          CHARACTER( 120 ) :: XMSG = ' '
 
-         INTEGER          AE_OFFSET            ! Offset to AE start in CGRID
          INTEGER          NDX, NDX2, NDX3      ! Temp index
          INTEGER          LOGDEV, ALLOCSTAT
          INTEGER          J, L, N, S, V, STRT

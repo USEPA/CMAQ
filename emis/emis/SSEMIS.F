@@ -35,8 +35,7 @@ C                       in aero5 and aero6
 C   07 Apr 11 J.Young: additional mods
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C   12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
-C   09 Dec 15 D.Wong: Put open CTM_SSEMIS_1 file in a IO_PE_INCLUSIVE conditional block
-
+C   09 Dec 15 D.Wong: Open CTM_SSEMIS_1 file in a IO_PE_INCLUSIVE conditional block
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN
@@ -276,9 +275,9 @@ C   12 Aug 15 D.Wong: added code to handle parallel I/O implementation
             USE AERO_DATA
 
 #ifdef parallel
-      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+            USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
-      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+            USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
 
             IMPLICIT NONE
@@ -965,9 +964,9 @@ C Then reset the sea-salt emissions array and local write counter.
 #ifdef parallel_io
                IF ( FIRSTIME ) THEN
                   FIRSTIME = .FALSE.
-                  IF ( .not. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                      IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
-                        XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
+                        XMSG = 'Could not open ' // TRIM( CTM_DRY_DEP_1 )
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                      END IF
                   END IF

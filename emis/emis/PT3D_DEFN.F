@@ -876,16 +876,16 @@ C-----------------------------------------------------------------------
             LOGDEV = SETUP_LOGDEV()
             PRE_JDATE = JDATE
 
-            IF ( PT3DDIAG ) THEN
 #ifdef parallel_io
+            IF ( PT3DDIAG ) THEN
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
                   IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                   END IF
                END IF
-#endif
             END IF
+#endif
          END IF
 
 C For each time step, compute the layer fractions...
