@@ -18,11 +18,11 @@
 !------------------------------------------------------------------------!
 
 C RCS file, release, date & time of last delta, author, state, [and locker] 
-C $Header: /project/work/rep/PARIO/src/pio_init.f,v 1.9 2011/03/30 18:13:02 sjr Exp $
+C $Header: /project/work/rep/PARIO/src/pio_re_init.f,v 1.6 2011/03/30 18:13:02 sjr Exp $
 
       LOGICAL FUNCTION PIO_INIT ( COLROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                            NTHIK, NCOLS, NROWS, NPCOL, NPROW,
-     &                            NPROCS, MYPE )
+     &                            NPROCS, MYPE, WFLG, IO_PE_INCLUSIVE )
 C ....................................................................
  
 C  PURPOSE:    Initialize parallel Models-3 I/O API library routines.
@@ -37,7 +37,6 @@ C       M3WARN is called and execution is terminated. Subroutine
 C       SUBDMAP will also terminate program execution if an error is
 C       detected during memory allocation.
  
-C
 C  REVISION HISTORY: 
 C       Original version  2/96 by Al Bourgeois for parallel implementation
 C       Modified 6/98 by AJB for PAR_IO library, added error code
@@ -60,12 +59,18 @@ C             library
 C       Modified 08/26/2004 by David Wong
 C          -- added a statement to check whether allocated memory is already
 C             exist
+C                01/07/2006 Jeff Young, add arg list flag to optionally print
+C                decomposition map
 C       Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with M3UTILIO
 C       Modified 12/05/2015 by David Wong
 C          -- Initialized PIO_GL_NCOLS and PIO_GL_NROWS
+C       Modified 12/09/2015 by David Wong
+C          -- Added an optional argument in PIO_RE_INIT routine
+C       Modified 01/26/2016 by Jeff Young
+C          -- Change WFLG to an optional argument and make PIO_RE_INIT the only
+C             PIO_INIT routine
  
-C
 C  ARGUMENT LIST DESCRIPTION:
 C  IN:
 C     CHARACTER( 2 ) :: COLROW   ! Columns/Rows orientation check
@@ -79,6 +84,8 @@ C     INTEGER NCOLS              ! Column dimension of local-processor arrays
 C     INTEGER NROWS              ! Row dimension of local-processor arrays
 C     INTEGER NPROCS             ! Number of processors
 C     INTEGER MYPE               ! Local processor id
+C     LOGICAL WFLG               ! If present print out decompostion map
+C     LOGICAL IO_PE_INCLUSIVE    ! If present
  
 C  OUT:
 C   COMMON BLOCK PIOGRID:
@@ -162,10 +169,12 @@ C ARGUMENTS:
       INTEGER, INTENT( IN ) :: NROWS    ! Row dimension of local-processor arrays
       INTEGER, INTENT( IN ) :: NPROCS   ! Number of processors
       INTEGER, INTENT( IN ) :: MYPE     ! Local processor id
+      LOGICAL, INTENT( IN ), OPTIONAL :: WFLG  ! If present print out decomposition map
+      LOGICAL, INTENT( IN ), OPTIONAL :: IO_PE_INCLUSIVE
 
 C EXTERNAL FUNCTIONS:
 
-      EXTERNAL      SUBDMAP, WRSUBMAP   ! Parallel M3IO library
+      EXTERNAL      SUBDMAP, WRSUBDMAP  ! Parallel M3IO library
 
 C LOCAL VARIABLES: 
 
@@ -178,7 +187,6 @@ C LOCAL VARIABLES:
       INTEGER IERROR             ! Error code
       INTEGER LOGDEV             ! FORTRAN unit number for log file
       CHARACTER( 80 ) :: MSG     ! For message issued from M3WARN
-
       CHARACTER( 16 ), SAVE :: PNAME = 'PIO_INIT'
 
 C   Equivalence of the conversion table:
@@ -213,11 +221,17 @@ C Set COMMON block variables.
       BTHICK   = NTHIK       ! Cell thickness of grid boundary           C
       NUMCOLS  = NCOLS       ! Number of columns in local subgrid        C
       NUMROWS  = NROWS       ! Number of rows in local subgrid           C
-      PIO_GL_NCOLS = GL_NCOLS  ! Number of columns in global grid          C
-      PIO_GL_NROWS = GL_NROWS  ! Number of rows in global grid             C
+      PIO_GL_NCOLS = GL_NCOLS  ! Number of columns in global grid        C
+      PIO_GL_NROWS = GL_NROWS  ! Number of rows in global grid           C
 C A - PIOMAPS_MODULE
 C B - PIOVARS.EXT
 C C - PIOGRID.EXT
+
+C set flag in PIOMAPS_MODULE for PSHUT3
+
+      IF ( PRESENT( IO_PE_INCLUSIVE ) ) THEN
+         PARIO_IO_PE_INCLUSIVE = IO_PE_INCLUSIVE
+      END IF
 
 C Compute processor neighborhood
 
@@ -317,7 +331,8 @@ C Calculate processor-to-subdomain maps
 C Write out processor-to-subdomain map
 
       IF ( MY_PE .EQ. IO_PE ) THEN
-         CALL WRSUBMAP ( NUMPROCS, NCOLS_PE, NROWS_PE, COLSX_PE, ROWSX_PE )
+         IF ( PRESENT( WFLG ) )
+     &      CALL WRSUBDMAP ( NUMPROCS, NCOLS_PE, NROWS_PE, COLSX_PE, ROWSX_PE )
       END IF
 
 C Set number of rows and columns for (this) local processor
@@ -326,4 +341,4 @@ C Set number of rows and columns for (this) local processor
       MY_NROWS = NROWS_PE( MY_PE+1 )   ! COMMON block
 
       RETURN
-      END
+      END FUNCTION PIO_INIT

@@ -30,6 +30,10 @@ C  REVISION HISTORY:
 C       Original version 02/11 by Shawn Roselle
 C       Modified 12/09/2015 by David Wong
 C          -- Added an optional argument in PIO_RE_INIT routine
+C       Modified 01/26/2016 by Jeff Young
+C          -- Change WFLG to an optional argument, eliminate PIO_RE_INIT, and make
+C          PIO_INIT the only routine with a new optional IO_PE_INCLUSIVE argument;
+C          replace WRSUBMAP with the new WRSUBDMAP
 C....................................................................
 
       MODULE PARUTILIO
@@ -117,39 +121,24 @@ C...Interface
                REAL          :: VARRAY( VSIZE )
             END FUNCTION PINTERPB
 
-            LOGICAL FUNCTION PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS,
-     &                                 NTHIK, NCOLS, NROWS, NPCOL, NPROW,
-     &                                 NPROCS, MYPE )
-               CHARACTER(2), INTENT(INOUT) :: COLROW
-               INTEGER, INTENT(IN) :: GL_NCOLS
-               INTEGER, INTENT(IN) :: GL_NROWS
-               INTEGER, INTENT(IN) :: NLAYS
-               INTEGER, INTENT(IN) :: NTHIK
-               INTEGER, INTENT(IN) :: NCOLS
-               INTEGER, INTENT(IN) :: NROWS
-               INTEGER, INTENT(IN) :: NPCOL
-               INTEGER, INTENT(IN) :: NPROW
-               INTEGER, INTENT(IN) :: NPROCS
-               INTEGER, INTENT(IN) :: MYPE
+            LOGICAL FUNCTION PIO_INIT( colrow, gl_ncols, gl_nrows, nlays,
+     &                                 nthik, ncols, nrows, npcol, nprow,
+     &                                 nprocs, mype, wflg, io_pe_inclusive )
+               CHARACTER(2), INTENT(INOUT) :: colrow
+               INTEGER, INTENT(IN) :: gl_ncols
+               INTEGER, INTENT(IN) :: gl_nrows
+               INTEGER, INTENT(IN) :: nlays
+               INTEGER, INTENT(IN) :: nthik
+               INTEGER, INTENT(IN) :: ncols
+               INTEGER, INTENT(IN) :: nrows
+               INTEGER, INTENT(IN) :: npcol
+               INTEGER, INTENT(IN) :: nprow
+               INTEGER, INTENT(IN) :: nprocs
+               INTEGER, INTENT(IN) :: mype
+               LOGICAL, INTENT(IN), OPTIONAL :: wflg
+               LOGICAL, INTENT(IN), OPTIONAL :: io_pe_inclusive
             END FUNCTION PIO_INIT
-
-            LOGICAL FUNCTION PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS,
-     &                                    NTHIK, NCOLS, NROWS, NPCOL, NPROW,
-     &                                    NPROCS, MYPE, WFLG, IO_PE_INCLUSIVE )
-               CHARACTER(2), INTENT(INOUT) :: COLROW
-               INTEGER, INTENT(IN) :: GL_NCOLS
-               INTEGER, INTENT(IN) :: GL_NROWS
-               INTEGER, INTENT(IN) :: NLAYS
-               INTEGER, INTENT(IN) :: NTHIK
-               INTEGER, INTENT(IN) :: NCOLS
-               INTEGER, INTENT(IN) :: NROWS
-               INTEGER, INTENT(IN) :: NPCOL
-               INTEGER, INTENT(IN) :: NPROW
-               INTEGER, INTENT(IN) :: NPROCS
-               INTEGER, INTENT(IN) :: MYPE
-               LOGICAL, INTENT(IN) :: WFLG
-               LOGICAL, INTENT(IN), OPTIONAL :: IO_PE_INCLUSIVE
-            END FUNCTION PIO_RE_INIT
+C Note: more than one optional argument requires that the caller calls by name
 
             SUBROUTINE PM3ERR ( CALLER, JDATE, JTIME, ERRTXT, FATAL )
                CHARACTER(*) :: CALLER
@@ -231,14 +220,14 @@ C...Interface
                INTEGER :: IERR
             END SUBROUTINE SUBDMAP
 
-            SUBROUTINE WRSUBMAP ( NUMPROCS, NCOLS_PE, NROWS_PE, COLSX_PE,
-     &                            ROWSX_PE )
+            SUBROUTINE WRSUBDMAP ( NUMPROCS, NCOLS_PE, NROWS_PE, COLSX_PE,
+     &                             ROWSX_PE )
                INTEGER :: NUMPROCS
                INTEGER :: NCOLS_PE(*)
                INTEGER :: NROWS_PE(*)
                INTEGER :: COLSX_PE(2,*)
                INTEGER :: ROWSX_PE(2,*)
-            END SUBROUTINE WRSUBMAP
+            END SUBROUTINE WRSUBDMAP
 
          END INTERFACE
 
