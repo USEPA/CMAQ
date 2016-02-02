@@ -86,7 +86,6 @@ C species classes configuration for average CONC
 
          INTERFACE
             SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               IMPLICIT NONE
                CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
                INTEGER,         INTENT ( OUT ) :: NVARS
                CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )

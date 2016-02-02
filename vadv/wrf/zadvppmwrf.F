@@ -172,7 +172,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )    :: NI
             REAL,    INTENT( IN )    :: DT, DS( NI )
             REAL,    INTENT( IN )    :: FLX( NI+1 )

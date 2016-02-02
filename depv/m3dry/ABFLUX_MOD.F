@@ -94,11 +94,14 @@ C-------------------------------------------------------------------------------
          Integer                :: c,r,l,k
          Integer, Parameter :: e2c_cats = 42   ! number of crop catigories
          Integer            :: gxoff, gyoff    ! global origin offset from file
-         integer, save      :: strtcol, endcol, strtrow, endrow
+         integer            :: strtcol, endcol, strtrow, endrow
+         integer            :: strtcol_medi,  endcol_medi,  strtrow_medi,  endrow_medi
+         integer            :: strtcol_fert,  endcol_fert,  strtrow_fert,  endrow_fert
+         integer            :: strtcol_beld,  endcol_beld,  strtrow_beld,  endrow_beld
   
-         Real, Save, Allocatable :: F_rate1 ( :,:,: ) ! fertlizer application to layer 1 
-         Real, Save, Allocatable :: F_rate2 ( :,:,: ) ! fertlizer application to layer 2
-         Real, Save, Allocatable :: Beld_ag ( :,:,: )        
+         Real,       Allocatable :: F_rate1 ( :,:,: ) ! fertlizer application to layer 1 
+         Real,       Allocatable :: F_rate2 ( :,:,: ) ! fertlizer application to layer 2
+         Real,       Allocatable :: Beld_ag ( :,:,: )        
          Real                    :: Tot_Ag          ! total ag in the grid cell    
          Real, Parameter :: convl1 = 7.142857e-04   ! ha/m**2 * mol/g N * 1/z_soil_l1 
          Real, Parameter :: convl2 = 1.428571e-04   ! ha/m**2 * mol/g N * 1/z_soil_l2 
@@ -108,7 +111,7 @@ C-------------------------------------------------------------------------------
          Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
          Character( 16 )            :: vname
          Character( 96 )            :: xmsg = ' '
-         Character( 20 ), Save      :: Beld_Names( e2c_cats )
+         Character( 20 )            :: Beld_Names( e2c_cats )
 C Some compilers do not pad with blank characters in data initialization
 C                          '12345678901234567890'
          Data Beld_Names / 'Hay                 ',  !  1
@@ -223,15 +226,18 @@ C                          '12345678901234567890'
             Allocate ( F_rate2 ( my_ncols,my_nrows,e2c_cats ) )
          End If
          
+         Call Subhfile ( E2C_FERT, gxoff, gyoff, strtcol_fert, endcol_fert, 
+     &                   strtrow_fert, endrow_fert )
+
          vname = 'L1_ANH3'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow, endrow,
-     &                       strtcol, endcol, jdate, 0, F_rate1 ) ) Then
+         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                       strtcol_fert, endcol_fert, jdate, 0, F_rate1 ) ) Then
             Write( xmsg,9001 ) vname, E2C_FERT
             Go To 1001
          End If
          vname = 'L2_ANH3'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow, endrow,
-     &                       strtcol, endcol, jdate, 0, F_rate2 ) ) Then
+         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                       strtcol_fert, endcol_fert, jdate, 0, F_rate2 ) ) Then
             Write( xmsg,9001 ) vname, E2C_FERT
             Go To 1001
          End If                 
@@ -243,10 +249,13 @@ C                          '12345678901234567890'
          If ( .Not. Allocated ( Beld_ag ) ) Then
             Allocate ( Beld_ag ( my_ncols,my_nrows,e2c_cats ) )
          End If
+         Call Subhfile ( BELD4_LU, gxoff, gyoff, strtcol_beld, endcol_beld, 
+     &                   strtrow_beld, endrow_beld )
+
          Do k = 1, e2c_cats
             vname = BELD_Names(k)
-            If ( .Not. Interpx ( BELD4_LU, vname, pname, strtcol, endcol,
-     &                           strtrow, endrow, 1, 1, jdate, jtime,
+            If ( .Not. Interpx ( BELD4_LU, vname, pname, strtcol_beld, endcol_beld,
+     &                           strtrow_beld, endrow_beld, 1, 1, jdate, jtime,
      &                           Beld_ag( :,:,k ) ) ) Then   
                Write( xmsg,9001 ) vname, BELD4_LU
                Go To 1001
@@ -299,16 +308,17 @@ C                          '12345678901234567890'
             If ( .Not. Allocated ( NH4ps2 ) ) Then
                Allocate ( NH4ps2 ( my_ncols,my_nrows,e2c_cats ) )
             End If
+
             NH4ps2 = 0.0  
             vname = 'L1_NH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow, endrow,
-     &                       strtcol, endcol, jdate, 0, NH4ps1) ) Then
+            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                       strtcol_fert, endcol_fert, jdate, 0, NH4ps1) ) Then
                Write( xmsg,9001 ) vname, E2C_FERT
                Go To 1001
             End If
             vname = 'L2_NH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow, endrow,
-     &                       strtcol, endcol, jdate, 0, NH4ps2) ) Then
+            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
+     &                       strtcol_fert, endcol_fert, jdate, 0, NH4ps2) ) Then
                Write( xmsg,9001 ) vname, E2C_FERT
                Go To 1001
             End If
@@ -339,7 +349,7 @@ C                          '12345678901234567890'
      &                       NH4ps2( c,r,l ) .Gt. 0.0     ) Then
                            If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
                               frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                           End If
+                           End If                    
                            Tot_Ag        = Tot_Ag + Beld_ag( c,r,l )
                            gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
      &                                   / pHfac1 * Beld_ag( c,r,l )
@@ -396,30 +406,33 @@ C                          '12345678901234567890'
 !           Call M3exit( pname, jdate, jtime, xmsg, xstat1) ! JOB debuggin
 
          Else ! read
+            Call Subhfile ( INIT_MEDC_1, gxoff, gyoff, strtcol_medi, endcol_medi, 
+     &                      strtrow_medi, endrow_medi )
+
 ! for whatever reason the jdate and jtime get messed up by the e2c files
             Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'
 
             vname = 'Gamma1'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow, endrow,
-     &                           strtcol, endcol, jdate, 000000, gamma1 ) ) Then
+            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
+     &                           strtcol_medi, endcol_medi, jdate, 000000, gamma1 ) ) Then
                Write( xmsg,9001 ) vname, INIT_MEDC_1
                Go To 1001
             End If
             vname = 'Gamma2'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow, endrow,
-     &                           strtcol, endcol, jdate, 000000, gamma2 ) ) Then
+            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
+     &                           strtcol_medi, endcol_medi, jdate, 000000, gamma2 ) ) Then
                Write( xmsg,9001 ) vname, INIT_MEDC_1
                Go To 1001
             End If
             vname = 'MHpsl1'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow, endrow,
-     &                           strtcol, endcol, jdate, 000000, MHp1 ) ) Then
+            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
+     &                           strtcol_medi, endcol_medi, jdate, 000000, MHp1 ) ) Then
                Write( xmsg,9001 ) vname, INIT_MEDC_1
                Go To 1001
             End If
             vname = 'MHpsl2'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow, endrow,
-     &                           strtcol, endcol, jdate, 000000, MHp2 ) ) Then
+            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
+     &                           strtcol_medi, endcol_medi, jdate, 000000, MHp2 ) ) Then
                Write( xmsg,9001 ) vname, INIT_MEDC_1
                Go To 1001
             End If

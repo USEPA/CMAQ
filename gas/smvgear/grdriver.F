@@ -225,18 +225,16 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-           IMPLICIT NONE
-           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
-           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
-           INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
-           INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
-           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
+            INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
+            INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
+            INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
+            INTEGER, INTENT( IN )  :: JTIME       ! Current time (HHMMSS)
+            INTEGER, INTENT( IN )  :: DTSTEP( : ) ! time step vector (HHMMSS)
+            REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
          END SUBROUTINE PHOT
          SUBROUTINE PA_IRR_CKBLK ( NUMCELLS, LIRRBLK, OFFSET,
      &                             CCOL, CROW, CLEV, NORDCELL,
      &                             NIRRCLS, IRRCELL )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )   :: NUMCELLS, OFFSET
             LOGICAL, INTENT( INOUT )  :: LIRRBLK
             INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
@@ -247,7 +245,6 @@ C for INTERPX
          SUBROUTINE PA_IRR_BLKENDC ( OFFSET, 
      &                               CCOL, CROW, CLEV, NORDCELL,
      &                               NIRRCLS, IRRCELL )
-            IMPLICIT NONE
             INTEGER, INTENT( IN )   :: OFFSET
             INTEGER, INTENT( IN )   :: CCOL( : ), CROW( : ), CLEV( : )
             INTEGER, INTENT( IN )   :: NORDCELL( : )
@@ -256,11 +253,6 @@ C for INTERPX
          END SUBROUTINE PA_IRR_BLKENDC
          SUBROUTINE SMVGEAR ( IRUN, JDATE, JTIME, CHEMSTEP,
      &                        LIRRFLAG, NIRRCLS, IRRCELL )
-            USE RXNS_DATA
-            USE CGRID_SPCS         
-            USE UTILIO_DEFN
-            USE GRVARS              
-            IMPLICIT NONE
             INTEGER,   INTENT( IN ) :: IRUN         ! Counter of calls to calling subroutine
             INTEGER,   INTENT( IN ) :: JDATE        ! Date at start of integration
             INTEGER,   INTENT( IN ) :: JTIME        ! Time at start of integration
@@ -270,8 +262,6 @@ C for INTERPX
             REAL( 8 ), INTENT( IN ) :: CHEMSTEP     ! Chemistry integration interval (min) 
          END SUBROUTINE SMVGEAR
          SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
@@ -279,9 +269,6 @@ C for INTERPX
          END SUBROUTINE FIND_DEGRADED
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
      &                         JDATE, JTIME, LOGDEV, BLKID )
-           USE RXNS_DATA
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
            REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
            REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
@@ -293,8 +280,6 @@ C for INTERPX
            INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
-           USE DEGRADE_SETUP_TOX
-           IMPLICIT NONE
            REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
          END SUBROUTINE FINAL_DEGRADE
       END INTERFACE

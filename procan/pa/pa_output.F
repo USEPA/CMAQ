@@ -96,8 +96,8 @@ C Includes:
 
 C Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )
-      INTEGER JDATE    ! current model date, format YYYYDDD
-      INTEGER JTIME    ! current model time, format HHMMSS
+      INTEGER, INTENT( IN ) :: JDATE    ! current model date, format YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME    ! current model time, format HHMMSS
 
 C Parameters: None 
 

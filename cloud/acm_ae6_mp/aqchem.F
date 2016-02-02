@@ -191,11 +191,11 @@ C...........Arguments:
       REAL,      INTENT( IN )  :: TEMP      ! temperature (K)
       REAL,      INTENT( IN )  :: WCAVG     ! liquid water content (kg/m3)
       REAL,      INTENT( IN )  :: WTAVG     ! total water content (kg/m3)
-      REAL( 8 ), INTENT( INOUT ) :: GAS    ( NGAS )             ! gas phase concentrations (mol/molV)
-      REAL( 8 ), INTENT( INOUT ) :: AEROSOL( MAX_NAER, NMODES ) ! aerosol concentrations (mol/molV)
-      REAL( 8 ), INTENT( INOUT ) :: GASWDEP( NGAS )             ! gas phase wet deposition array (mm mol/liter)
-      REAL( 8 ), INTENT( INOUT ) :: AERWDEP( MAX_NAER, NMODES ) ! aerosol wet deposition array (mm mol/liter)
-      LOGICAL,   INTENT( IN )    :: DARK            ! DARK = TRUE is night,  DARK = FALSE is day
+      REAL( 8 ), INTENT( INOUT ) :: GAS    ( : )   ! gas phase concentrations (mol/molV)
+      REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
+      REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
+      REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
+      LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
 
 C...........Local Variables (scalars):
 
@@ -508,10 +508,8 @@ C...........External Functions:
      &                 - C_HINTCL2 * TEMPC
      &                 + D_HINTCL2
 
-#ifdef verbose_cloud
-      integer, save :: logdev
-      integer, external :: setup_logdev
-#endif
+      INTEGER, SAVE :: LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV
 
 C*********************************************************************
 
@@ -521,9 +519,7 @@ C...Initialization
 
         FIRSTIME = .FALSE.
 
-#ifdef verbose_cloud
-      logdev = setup_logdev()
-#endif
+        LOGDEV = SETUP_LOGDEV()
 
 C...Make sure an AE6 version of the mechanism is being used
 
@@ -1603,7 +1599,7 @@ C...Calculate a minimum time step required
 C...check for large time step
 
         IF ( DTW( 0 ) .GT. 8.0D+37 ) THEN
-          WRITE(6,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
+          WRITE(LOGDEV,1001) PRCRATE, DSIVDT(0), TS6, DTW(0), CTHK1, WTAVG
         ELSE
 
 C...CALCULATE IN-CLOUD SOA PRODUCTION

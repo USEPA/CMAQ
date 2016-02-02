@@ -157,14 +157,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE DEFORM( JDATE, JTIME, DEFORM3D )
-            USE GRID_CONF
-            USE UTILIO_DEFN
-#ifdef parallel
-            USE SE_MODULES
-#else
-            USE NOOP_MODULES
-#endif
-            IMPLICIT NONE
             INTEGER, INTENT( IN )  :: JDATE, JTIME
             REAL,    INTENT( OUT ) :: DEFORM3D( :,:,: )
          END SUBROUTINE DEFORM

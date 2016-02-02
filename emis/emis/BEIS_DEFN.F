@@ -176,10 +176,6 @@ C=======================================================================
 
          INTERFACE
             SUBROUTINE TMPBEIS312 ( MDATE, MTIME, TSTEP, N_SPC_BIOG, BEIS_MAP, BEMIS )
-               USE HGRD_DEFN
-               USE UTILIO_DEFN
-               USE BIOG_EMIS
-               IMPLICIT NONE
                INTEGER, INTENT(  IN ) :: MDATE, MTIME, TSTEP( 3 )
                INTEGER, INTENT(  IN ) :: N_SPC_BIOG
                INTEGER, INTENT(  IN ) :: BEIS_MAP( : )

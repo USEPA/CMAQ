@@ -50,6 +50,12 @@ C     19 Dec 2013 D. Wong: used WRTIME, a robust way to determine when to write 
 C                          PT3D diagnostic file instead of relying on NTICS in particular
 C                          for the twoway model where a time step can be sub-divided.
 C     29 Jul 2014 D. Wong: check MET_CRO_3D and MET_DOT_3D separately for domain windowing
+C     12 Aug 2015 D. Wong: - Used assumed shape array declaration and declared associated 
+C                            subroutines in INTERFACE block
+C                          - Replaced BMATVEC with BMATVECN which will call with a 1d or 
+C                            2d argument subroutine by F90 poly-morphism feature
+C                          - Based on the condition of MY_NSRC ( > 0 or not) to determine 
+C                            execution of certain section of code or not
 
 C-----------------------------------------------------------------------
 
@@ -158,6 +164,7 @@ C use N_SPC_EMIS+1 for non-accessed emissions
          USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
          USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
          USE UTILIO_DEFN
+         USE BMATVEC_MODULE
 
          IMPLICIT NONE
 
@@ -202,13 +209,12 @@ C Local Variables:
 
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
-               IMPLICIT NONE
                INTEGER, INTENT( IN )  :: EMLYRS, MY_NSRC
                INTEGER, INTENT( IN )  :: SRC_MAP( : )
                REAL,    INTENT( IN )  :: STKHT( : )
-               REAL,    INTENT( IN )  :: ZF  ( EMLYRS,MY_NSRC )
-               REAL,    INTENT( OUT ) :: ZSTK( EMLYRS,MY_NSRC )
-               REAL,    INTENT( OUT ) :: DDZF( EMLYRS,MY_NSRC )
+               REAL,    INTENT( IN )  :: ZF  ( :,: )
+               REAL,    INTENT( OUT ) :: ZSTK( :,: )
+               REAL,    INTENT( OUT ) :: DDZF( :,: )
             END SUBROUTINE DELTA_ZS
          END INTERFACE
 
@@ -576,51 +582,53 @@ C Open diagnostic layer fractions file?
 
 C Allocate and set stack parameters
 
-            ALLOCATE( STK_DM( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'STK_DM', PNAME )
-            STK_DM( N )%ARRY = 0.0   ! 1D array
-            STK_DM( N )%LEN = MY_NSRC( N )
+            IF ( MY_NSRC( N ) .GT. 0 ) THEN
+               ALLOCATE( STK_DM( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'STK_DM', PNAME )
+               STK_DM( N )%ARRY = 0.0   ! 1D array
+               STK_DM( N )%LEN = MY_NSRC( N )
 
-            ALLOCATE( STK_HT( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'STK_HT', PNAME )
-            STK_HT( N )%ARRY = 0.0   ! 1D array
-            STK_HT( N )%LEN = MY_NSRC( N )
+               ALLOCATE( STK_HT( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'STK_HT', PNAME )
+               STK_HT( N )%ARRY = 0.0   ! 1D array
+               STK_HT( N )%LEN = MY_NSRC( N )
 
-            ALLOCATE( STK_TK( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'STK_TK', PNAME )
-            STK_TK( N )%ARRY = 0.0   ! 1D array
-            STK_TK( N )%LEN = MY_NSRC( N )
+               ALLOCATE( STK_TK( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'STK_TK', PNAME )
+               STK_TK( N )%ARRY = 0.0   ! 1D array
+               STK_TK( N )%LEN = MY_NSRC( N )
 
-            ALLOCATE( STK_VEL( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
-            CALL CHECKMEM( IOS, 'STK_VEL', PNAME )
-            STK_VEL( N )%ARRY = 0.0   ! 1D array
-            STK_VEL( N )%LEN = MY_NSRC( N )
-
-            DO S = 1, MY_NSRC( N )
-               SRC = SOURCE( N )%ARRY( S )
-               STK_DM( N )%ARRY( S )  = STKDIAM( N )%ARRY( SRC )
-               STK_HT( N )%ARRY( S )  = STKHT( N )%ARRY( SRC )
-               STK_TK( N )%ARRY( S )  = STKTK( N )%ARRY( SRC )
-               STK_VEL( N )%ARRY( S ) = STKVEL( N )%ARRY( SRC )
-            END DO
-
-C If wildfire, allocate and fire parameters (assumes only one file group)
-            IF ( FIREFLAG( N ) ) THEN
-
-               ALLOCATE( ACRES( MY_NSRC( N ) ), STAT = IOS )
-               CALL CHECKMEM( IOS, 'ACRES', PNAME )
-               ACRES = 0.0   ! 1D array
-
+               ALLOCATE( STK_VEL( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'STK_VEL', PNAME )
+               STK_VEL( N )%ARRY = 0.0   ! 1D array
+               STK_VEL( N )%LEN = MY_NSRC( N )
+   
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )
-                  ACRES( S ) = ACRES_BURNED( SRC )
+                  STK_DM( N )%ARRY( S )  = STKDIAM( N )%ARRY( SRC )
+                  STK_HT( N )%ARRY( S )  = STKHT( N )%ARRY( SRC )
+                  STK_TK( N )%ARRY( S )  = STKTK( N )%ARRY( SRC )
+                  STK_VEL( N )%ARRY( S ) = STKVEL( N )%ARRY( SRC )
                END DO
 
-               ALLOCATE( BFLUX( MY_NSRC( N ) ), STAT = IOS )
-               CALL CHECKMEM( IOS, 'BFLUX', PNAME )
-               BFLUX = 0.0   ! 1D array
+C If wildfire, allocate and fire parameters (assumes only one file group)
+               IF ( FIREFLAG( N ) ) THEN
 
-            END IF
+                  ALLOCATE( ACRES( MY_NSRC( N ) ), STAT = IOS )
+                  CALL CHECKMEM( IOS, 'ACRES', PNAME )
+                  ACRES = 0.0   ! 1D array
+
+                  DO S = 1, MY_NSRC( N )
+                     SRC = SOURCE( N )%ARRY( S )
+                     ACRES( S ) = ACRES_BURNED( SRC )
+                  END DO
+
+                  ALLOCATE( BFLUX( MY_NSRC( N ) ), STAT = IOS )
+                  CALL CHECKMEM( IOS, 'BFLUX', PNAME )
+                  BFLUX = 0.0   ! 1D array
+
+               END IF
+            END IF   ! MY_NSRC > 0
 
          END DO
 
@@ -636,26 +644,29 @@ C If wildfire, allocate and fire parameters (assumes only one file group)
 
 C Compute per-source heights
 
+               IF ( MY_NSRC( N ) .GT. 0 ) THEN
 C Get un-gridding matrices for cross and dot point met data
-               CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
-               CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
-               CALL BMATVEC( METCGRID, MY_NSRC( N ), EMLYRS,
-     &                       BILIN_DATA( N )%NX,
-     &                       BILIN_DATA( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%ZH )
+                  CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
+                  CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
+                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLYRS,
+     &                          BILIN_DATA( N )%NX,
+     &                          BILIN_DATA( N )%CX,
+     &                          XBUF, PTMET_DATA( N )%ZH )
 
-               CALL READGC3 ( 'X3HT0F', SDATE, STIME, XBUF )
-               CALL BMATVEC( METCGRID, MY_NSRC( N ), EMLYRS,
-     &                       BILIN_DATA( N )%NX,
-     &                       BILIN_DATA( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%ZF )
+                  CALL READGC3 ( 'X3HT0F', SDATE, STIME, XBUF )
+                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLYRS,
+     &                          BILIN_DATA( N )%NX,
+     &                          BILIN_DATA( N )%CX,
+     &                          XBUF, PTMET_DATA( N )%ZF )
 
 C Compute ZSTK, DDZF
-               CALL DELTA_ZS( EMLYRS, MY_NSRC( N ),
-     &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
-     &                        PTMET_DATA( N )%ZF,
-     &                        PTMET_DATA( N )%ZSTK,
-     &                        PTMET_DATA( N )%DDZF )
+
+                  CALL DELTA_ZS( EMLYRS, MY_NSRC( N ),
+     &                           SOURCE( N )%ARRY, STKHT( N )%ARRY,
+     &                           PTMET_DATA( N )%ZF,
+     &                           PTMET_DATA( N )%ZSTK,
+     &                           PTMET_DATA( N )%DDZF )
+               END IF ! MY_NSRC( N ) > 0
 
             END DO   ! NPTGRPS
 
@@ -696,6 +707,9 @@ C Set Namelist emissions factors
 C=======================================================================
 
          SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP )
+
+! Revision History.
+!     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
 
 C-----------------------------------------------------------------------
 
@@ -772,6 +786,85 @@ C Local variables:
 
          INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
 
+         INTERFACE
+           SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
+     &                        TA, UW, VW, ZH, ZF, PRES, LSTK, LPBL, TSTK,
+     &                        WSTK, DTHDZ, WSPD )
+             LOGICAL, INTENT( IN )  :: FIREFLG
+             INTEGER, INTENT( IN )  :: EMLAYS
+             REAL,    INTENT( IN )  :: HMIX
+             REAL,    INTENT( IN )  :: HTS
+             REAL,    INTENT( IN )  :: PSFC
+             REAL,    INTENT( IN )  :: TS
+             REAL,    INTENT( IN )  :: DDZF( : )
+             REAL,    INTENT( IN )  :: QV  ( : )
+             REAL,    INTENT( IN )  :: TA  ( : )
+             REAL,    INTENT( IN )  :: UW  ( : )
+             REAL,    INTENT( IN )  :: VW  ( : )
+             REAL,    INTENT( IN )  :: ZH  ( : )
+             REAL,    INTENT( IN )  :: ZF  ( : )
+             REAL,    INTENT( IN )  :: PRES( 0: )
+             INTEGER, INTENT( OUT ) :: LSTK
+             INTEGER, INTENT( OUT ) :: LPBL
+             REAL,    INTENT( OUT ) :: TSTK
+             REAL,    INTENT( OUT ) :: WSTK
+             REAL,    INTENT( OUT ) :: DTHDZ( : )
+             REAL,    INTENT( OUT ) :: WSPD ( : )
+           END SUBROUTINE PREPLM
+
+           SUBROUTINE PLMRIS( EMLAYS, LSTK, HFX, HMIX,
+     &                        STKDM, STKHT, STKTK, STKVE,
+     &                        TSTK, USTAR, DTHDZ, TA, WSPD,
+     &                        ZF, ZH, ZSTK, WSTK, ZPLM )
+             INTEGER, INTENT( IN )  :: EMLAYS
+             INTEGER, INTENT( IN )  :: LSTK
+             REAL,    INTENT( IN )  :: HFX
+             REAL,    INTENT( IN )  :: HMIX
+             REAL,    INTENT( IN )  :: STKDM
+             REAL,    INTENT( IN )  :: STKHT
+             REAL,    INTENT( IN )  :: STKTK
+             REAL,    INTENT( IN )  :: STKVE
+             REAL,    INTENT( IN )  :: TSTK
+             REAL,    INTENT( IN )  :: USTAR
+             REAL,    INTENT( IN )  :: DTHDZ( : )
+             REAL,    INTENT( IN )  :: TA   ( : )
+             REAL,    INTENT( IN )  :: WSPD ( : )
+             REAL,    INTENT( IN )  :: ZF   ( 0: )
+             REAL,    INTENT( IN )  :: ZH   ( : )
+             REAL,    INTENT( IN )  :: ZSTK ( : )
+             REAL,    INTENT( INOUT ) :: WSTK
+             REAL,    INTENT( OUT ) :: ZPLM 
+           END SUBROUTINE PLMRIS
+
+           SUBROUTINE FIRE_PLMRIS( EMLAYS, LSTK, HFX, HMIX,
+     &                             BFLX, TSTK, USTAR, DTHDZ,
+     &                             TA, WSPD, ZF, WSTK, ZPLM )
+             INTEGER, INTENT( IN )  :: EMLAYS
+             INTEGER, INTENT( IN )  :: LSTK
+             REAL,    INTENT( IN )  :: HFX
+             REAL,    INTENT( IN )  :: HMIX
+             REAL,    INTENT( IN )  :: BFLX
+             REAL,    INTENT( IN )  :: TSTK
+             REAL,    INTENT( IN )  :: USTAR
+             REAL,    INTENT( IN )  :: DTHDZ( : )
+             REAL,    INTENT( IN )  :: TA   ( : )
+             REAL,    INTENT( IN )  :: WSPD ( : )
+             REAL,    INTENT( IN )  :: ZF   ( 0: )
+             REAL,    INTENT( INOUT ) :: WSTK
+             REAL,    INTENT( OUT ) :: ZPLM
+           END SUBROUTINE FIRE_PLMRIS
+
+           SUBROUTINE PLSPRD( DTHDZ, ZF, KZ, CEFSTK, PLTOP, PLBOT )
+             REAL,    INTENT ( IN ) :: DTHDZ( : )
+             REAL,    INTENT ( IN ) :: ZF   ( 0: )
+             INTEGER, INTENT ( IN ) :: KZ
+             REAL,    INTENT ( IN ) :: CEFSTK
+             REAL,    INTENT( OUT ) :: PLTOP
+             REAL,    INTENT( OUT ) :: PLBOT
+           END SUBROUTINE PLSPRD
+
+         END INTERFACE
+
 #ifdef Verbose1
          real mxzplm
 #endif
@@ -782,6 +875,15 @@ C-----------------------------------------------------------------------
             FIRSTIME = .FALSE.
             LOGDEV = SETUP_LOGDEV()
             PRE_JDATE = JDATE
+
+#ifdef parallel_io
+            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+               IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+               END IF
+            END IF
+#endif
          END IF
 
 C For each time step, compute the layer fractions...
@@ -829,6 +931,10 @@ C Convert pt source met data to bi-linear interpolated data
 
          DO N = 1, NPTGRPS
 
+            IF ( MY_NSRC( N ) .LE. 0 ) THEN
+               CYCLE
+            END IF
+
             ALLOCATE( STKEM( NVARS_EMIS( N ) ), STAT = IOS )
             CALL CHECKMEM( IOS, 'STKEM', PNAME )
             STKEM = 0.0   ! 1-D array assignment
@@ -841,19 +947,7 @@ C Convert pt source met data to bi-linear interpolated data
                ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
             END IF
 
-            IF ( MY_NSRC( N ) .LE. 0 ) THEN
-               IF ( ALLOCATED( STKEM ) ) DEALLOCATE( STKEM )
-               IF ( PT3DFRAC ) THEN
-                  IF ( ALLOCATED( LFRAC ) ) DEALLOCATE( LFRAC )
-                  IF ( ALLOCATED( ZPLUM ) ) DEALLOCATE( ZPLUM )
-               END IF
-               CYCLE
-            END IF
-
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-!           IF ( SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME ) .NE. SYNCOFF( N ) ) THEN
-!              STKDATE( N ) = SEC2TIME( TIME2SEC( JDATE ) + SYNCOFF( N ) )
-!           END IF
 
             IF ( PRE_JDATE .NE. JDATE ) THEN
                LOC_STKDATE = STKDATE( N ) + 1
@@ -926,11 +1020,11 @@ C Set surface pressure (convert to mb from Pa)
 C Compute derived met vars needed before layer assignments
                CALL PREPLM( FIREFLAG( N ), EMLYRS,
      &                      P_D( N )%HMIX( S ), STK_HT( N )%ARRY( S ), PSFC,
-     &                      P_D( N )%TSFC( S ),    P_D( N )%DDZF( 1,S ),
-     &                      P_D( N )%QV( 1,S ),    P_D( N )%TA( 1,S ),
-     &                      P_D( N )%UWIND( 1,S ), P_D( N )%VWIND( 1,S ),
-     &                      P_D( N )%ZH( 1,S ),    P_D( N )%ZF( 1,S ),
-     &                      P_D( N )%PRESF( 0 ), LSTK, LPBL, TSTK, WSTK,
+     &                      P_D( N )%TSFC( S ),    P_D( N )%DDZF( :,S ),
+     &                      P_D( N )%QV( :,S ),    P_D( N )%TA( :,S ),
+     &                      P_D( N )%UWIND( :,S ), P_D( N )%VWIND( :,S ),
+     &                      P_D( N )%ZH( :,S ),    P_D( N )%ZF( :,S ),
+     &                      P_D( N )%PRESF, LSTK,  LPBL, TSTK, WSTK,
      &                      P_D( N )%DTHDZ,        P_D( N )%WSPD )
 
 C Trap USTAR at a minimum realistic value
@@ -944,16 +1038,16 @@ C Convert heat flux (watts/m2 to m K /s )
      &                         STK_DM( N )%ARRY( S ), STK_HT( N )%ARRY( S ),
      &                         STK_TK( N )%ARRY( S ), STK_VEL( N )%ARRY( S ),
      &                         TSTK, USTMP,
-     &                         P_D( N )%DTHDZ,     P_D( N )%TA( 1,S ),
-     &                         P_D( N )%WSPD,      P_D( N )%ZZF( 0 ),
-     &                         P_D( N )%ZH( 1,S ), P_D( N )%ZSTK( 1,S ),
+     &                         P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
+     &                         P_D( N )%WSPD,      P_D( N )%ZZF,
+     &                         P_D( N )%ZH( :,S ), P_D( N )%ZSTK( :,S ),
      &                         WSTK, ZPLM )
                ELSE
                   CALL FIRE_PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
      &                         BFLUX( S ),
      &                         TSTK, USTMP,
-     &                         P_D( N )%DTHDZ,     P_D( N )%TA( 1,S ),
-     &                         P_D( N )%WSPD,      P_D( N )%ZZF( 0 ),
+     &                         P_D( N )%DTHDZ,     P_D( N )%TA( :,S ),
+     &                         P_D( N )%WSPD,      P_D( N )%ZZF,
      &                         WSTK, ZPLM )
                END IF
 

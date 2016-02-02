@@ -52,6 +52,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
 C   08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
+C   14 Sep 15 J.Young: change Fortran string comparison to logical from advbc_map
 C-----------------------------------------------------------------------
 
       USE GRID_CONF            ! horizontal & vertical domain specifications
@@ -100,6 +101,7 @@ C Local variables:
       CHARACTER( 16 ) :: BLNK = ' '
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: BCNAME( : )  ! BC name for adv species
       REAL,            ALLOCATABLE, SAVE :: BCFAC( : )   ! Scale factor for BCs
+      LOGICAL,         ALLOCATABLE, SAVE :: ONFILE( : )  ! BC species on the file
 
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -124,13 +126,11 @@ C for INTERPX
       INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
 
       INTERFACE
-         SUBROUTINE ADVBC_MAP( CONCMIN, BCNAME, BCFAC )
-            USE CGRID_SPCS
-            USE UTILIO_DEFN
-            IMPLICIT NONE
+         SUBROUTINE ADVBC_MAP( CONCMIN, BCNAME, BCFAC, ONFILE )
             CHARACTER( 16 ), INTENT( IN )  :: CONCMIN
             CHARACTER( 16 ), INTENT( OUT ) :: BCNAME( : )
             REAL,            INTENT( OUT ) :: BCFAC ( : )
+            LOGICAL,         INTENT( OUT ) :: ONFILE( : )
          END SUBROUTINE ADVBC_MAP
       END INTERFACE
 
@@ -178,15 +178,16 @@ C currently not implemented: case where only one origin component matches file`s
  !       write ( logdev,* ) '=0= window,n_spc_adv: ', window, n_spc_adv
 
          ALLOCATE ( BCNAME( N_SPC_ADV ),
-     &              BCFAC( N_SPC_ADV ), STAT = ALLOCSTAT )
+     &              BCFAC ( N_SPC_ADV ),
+     &              ONFILE( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating BCNAME or BCFAC'
+            XMSG = 'Failure allocating BCNAME, BCFAC, or ONFILE'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C create advected species map to bc`s
  
-         CALL ADVBC_MAP ( CONCMIN, BCNAME, BCFAC )
+         CALL ADVBC_MAP ( CONCMIN, BCNAME, BCFAC, ONFILE )
 
          ALLOCATE ( JACOBM_BND( NBNDY,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -307,31 +308,25 @@ C Read & interpolate boundary concentrations
       STRT = 1
       FINI = N_GC_TRNS
       DO 141 VAR = STRT, FINI
-         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
-
-            bbuf = 0.0   ! array assignment
-
+!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
+         IF ( ONFILE( VAR ) ) THEN
+            BBUF = 0.0   ! array assignment
             IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), PNAME,
  !          IF ( .NOT. INTERPB( BNDY_GASC_1, BCNAME( VAR ), 'DBG',
      &                          MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
-               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
-     &              // ' from ' // BNDY_GASC_1
+               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
+     &              // BNDY_GASC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-
             ELSE   ! found bc's (PPM) on file; convert
-
  !    if ( lvl .eq. 1 )
  !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
-
                DO BND = 1, NBNDY
-
  !    if ( lvl .eq. 1 ) then
  !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
 !    &                      '=0= var,bnd,bcfac,bbuf,rhoj_bnd: ',
  !   &                      '=b= bnd,bcfac,bbuf,rhoj_bnd: ',
  !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), rhoj_bnd( bnd,lvl )
  !    end if
-
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                END DO
@@ -361,15 +356,15 @@ C Read & interpolate boundary concentrations
       FINI = N_GC_TRNS + N_AE_TRNS
       DO 151 VAR = STRT, FINI
          SPC = SPC + 1
-         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
+!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
+         IF ( ONFILE( VAR ) ) THEN
+            BBUF = 0.0   ! array assignment
             IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), PNAME,
  !          IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME( VAR ), 'DBG',
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
-               XMSG = 'Could not read ' //
-     &                 TRIM( BCNAME ( VAR ) ) //
-     &                ' from ' // BNDY_AERO_1
+               XMSG = 'Could not read ' // TRIM( BCNAME ( VAR ) ) // ' from '
+     &              // BNDY_AERO_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-
             ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
                       ! on file; convert
                IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
@@ -410,7 +405,6 @@ C Read & interpolate boundary concentrations
                   END DO
                END IF
             END IF
-
          ELSE
             DO BND = 1, NBNDY
                BCON( BND,VAR ) = CMIN
@@ -433,40 +427,35 @@ C Read & interpolate boundary concentrations
       STRT = N_GC_TRNS + N_AE_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
       DO 161 VAR = STRT, FINI
-         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
-
+!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
+         IF ( ONFILE( VAR ) ) THEN
  !          write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
-
+            BBUF = 0.0   ! array assignment
             IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), PNAME,
  !          IF ( .NOT. INTERPB ( BNDY_NONR_1, BCNAME( VAR ), 'DBG',
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
-               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
-     &              // ' from ' // BNDY_NONR_1
+               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
+     &              // BNDY_NONR_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-
                ELSE   ! found bc's (PPM) on file; convert
-
  !    if ( lvl .eq. 1 )
  !   &   write ( logdev,'( a, i4, 1x, a )' ) '=b= var,bcname :', var, trim( bcname( var ) )
-
                DO BND = 1, NBNDY
-
  !    if ( lvl .eq. 1 ) then
  !       write ( logdev,'( a, i4, 3(1pe13.3 ) )' )
  !   &                      '=b= bnd,bcfac,bbuf,rhoj_bnd: ',
  !   &                           bnd, bcfac( var ), bbuf( bnd,lvl ), rhoj_bnd( bnd,lvl )
  !    end if
-
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )
                   END DO
                END IF
-            ELSE
+         ELSE
             DO BND = 1, NBNDY
                BCON( BND,VAR ) = CMIN
-               END DO
-            END IF
-161      CONTINUE
+            END DO
+         END IF
+161   CONTINUE
 
 #ifdef verbose_rdbcon
       if ( lvl .eq. 1 ) then
@@ -483,18 +472,16 @@ C Read & interpolate boundary concentrations
       STRT = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + 1
       FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
       DO 171 VAR = STRT, FINI
-         IF ( BCNAME( VAR ) .NE. BLNK ) THEN
-
+!        IF ( BCNAME( VAR ) .NE. BLNK ) THEN
+         IF ( ONFILE( VAR ) ) THEN
+            BBUF = 0.0   ! array assignment
  !          write ( logdev,* ) '=0= spc,var,bcname: ', spc, var, bcname( var )
-
             IF ( .NOT. INTERPB ( BNDY_TRAC_1, BCNAME( VAR ), PNAME,
      &                           MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
-               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) )
-     &              // ' from ' // BNDY_TRAC_1
+               XMSG = 'Could not read ' // TRIM( BCNAME( VAR ) ) // ' from '
+     &              // BNDY_TRAC_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-
             ELSE   ! found bc's (PPM) on file; convert
-
                DO BND = 1, NBNDY
                   BCON( BND,VAR ) = BCFAC( VAR ) * BBUF( BND,LVL )
      &                            * RHOJ_BND( BND,LVL )

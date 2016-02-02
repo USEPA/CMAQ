@@ -96,16 +96,16 @@ C..Includes:
       INCLUDE SUBST_PADAT_ID    ! PA data statements
 
 C..Arguments:
-      INTEGER SDATE    !  starting date,    format YYYYDDD
-      INTEGER STIME    !  starting time,    format HHMMSS
-      INTEGER TSTEP( 3 )   ! time step vector (HHMMSS)
-                           ! TSTEP(1) = local output step
-                           ! TSTEP(2) = sciproc sync. step (chem)
-                           ! TSTEP(3) = twoway model time step w.r.t. wrf time
-                           !            step and wrf/cmaq call frequency
-
 !     REAL :: CGRID( NCOLS,NROWS,NLAYS,ALLSPC )
       REAL, POINTER :: CGRID( :,:,:,: )
+      INTEGER, INTENT( IN ) :: SDATE      !  starting date, format YYYYDDD
+      INTEGER, INTENT( IN ) :: STIME      !  starting time, format HHMMSS
+      INTEGER, INTENT( IN ) :: TSTEP( 3 ) ! time step vector (HHMMSS)
+                             ! TSTEP(1) = local output step
+                             ! TSTEP(2) = sciproc sync. step (chem)
+                             ! TSTEP(3) = twoway model time step w.r.t. wrf time
+                             !            step and wrf/cmaq call frequency
+
 
 C..Parameters:
 
@@ -184,7 +184,7 @@ C..try to open existing file for update
      &                 // ' file for update - try to open new'
                   CALL M3MESG( XMSG )
 
-                  CALL PA_MKHDR ( 'IPR', NFL, OUTFNAME, SDATE, STIME, TSTEP )
+                  CALL PA_MKHDR( 'IPR', NFL, OUTFNAME, SDATE, STIME, TSTEP )
 
                   IF ( OPEN3( OUTFNAME, FSNEW3, PNAME ) ) THEN   ! open new
                      XMSG = 'Opened Integrated Reaction Rate Output File: '

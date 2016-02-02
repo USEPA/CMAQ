@@ -275,6 +275,9 @@ C emissions.
 C=======================================================================
          function dust_emis_init( jdate, jtime, tstep ) result( success )
 
+! Revision History.
+!     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+
          use hgrd_defn        ! horizontal domain specifications
          use aero_data        ! aerosol species definitions
          use asx_data_mod     ! meteorology data
@@ -303,7 +306,7 @@ C Local variables:
          character( 80 ) :: vardesc
          character( 120 ) :: xmsg = ' '
 
-         logical :: erode_agland = .true. ! default
+         logical :: erode_agland    ! default .true.
          integer status
          integer c, r, i, j, k, l, n
 
@@ -311,18 +314,12 @@ C Local variables:
 
          interface
             subroutine cropcal ( jdate, jtime, agland )
-            use hgrd_defn
-            use utilio_defn
-            implicit none
-            integer, intent( in )  :: jdate, jtime
-            real,    intent( out ) :: agland( :,: )
+               integer, intent( in )  :: jdate, jtime
+               real,    intent( out ) :: agland( :,: )
             end subroutine cropcal
             subroutine tfbelow ( jdate, jtime, tfb )
-            use hgrd_defn
-            use utilio_defn
-            implicit none
-            integer, intent( in )  :: jdate, jtime
-            real,    intent( out ) :: tfb( :,: )
+               integer, intent( in )  :: jdate, jtime
+               real,    intent( out ) :: tfb( :,: )
             end subroutine tfbelow
          end interface
 
@@ -474,7 +471,7 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
             sdate = envint( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, status )
             stime = envint( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, status )
 
-            if ( mype .eq. 0 )
+            if ( io_pe_inclusive )
      &         call opdust_emis ( sdate, stime, tstep, ndust_diag, diagnm )
 
          end if   ! dustem_diag
@@ -487,7 +484,7 @@ C Get soil type data   <== move to ASX_DATA_MOD ?
 !        end if
 
 C Get env var for erodible agriculture land fraction
-         erode_agland = .false.         ! default
+         erode_agland = .true.   ! default
          vardesc = 'Flag for calculating erodible agriculture land fraction'
          erode_agland = envyn( ctm_erode_agland, vardesc, erode_agland, status )
          if ( status .ne. 0 ) write( logdev,'( 5x, a )' ) vardesc
@@ -535,7 +532,7 @@ C    Fecan et al. 1999 Annales Geophys.,17,144-157.
                wmax( c,r ) = ( 14.0 * clayc( j ) + 17.0 ) * clayc( j )   ! [%]
 
 C    log(F/G) = 0.134(%clayX100)-6
-C    F/G (vertical to horizontal flux) ratio is a function of clay content 0~20%
+C    F/G (vertical to horizontal flux) ratio [1/cm] is a function of clay content 0~20%
 C    Marticorena and Bergametti, 1995
                if ( clayc( j ) .le. 0.2 ) then
                   kvh( c,r ) = 10.0 ** ( 13.4 * clayc( j ) - 6.0 )
@@ -565,6 +562,10 @@ C erodibility potential of soil component
 
          end do   ! c
          end do   ! r
+
+         kvh = 100.0 * kvh   ! 1/cm -> 1/m
+
+         write( logdev,'( 2x, a, i8.6, f12.5 )' ) 'max wmax:', jtime, maxval( wmax )
 
  !       WRITE( LOGDEV,'( 2X, A, I8.6, I6 )' ) 'KVHC:', JTIME, KVHC
 
@@ -705,6 +706,7 @@ C=======================================================================
 
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
+C       8/12/15 D.Wong: added code to handle parallel I/O implementation
 
 C Arguments:
          integer, intent( in ) :: jdate      ! current model date, coded YYYYDDD
@@ -721,18 +723,20 @@ C External Functions:
                
 C Parameters:
          real zi                           ! Height of Internal Boundary Layer [m]
-         real, parameter :: sc  = 32.0     ! SENSIT-based scaling parameter
-         real, parameter :: z0s = 1.0e-05  ! Surface roughness for dust [m],
+!        real, parameter :: sc  = 32.0     ! SENSIT-based scaling parameter
+!        real, parameter :: z0s = 1.0e-05  ! Surface roughness for dust [m],
                                            ! Ref. Marticorena et al. JGR 1997
 
 !        real, parameter :: amen = 2.8     ! values are from 0 to 3.5, mean 2.8
-         real, parameter :: amen = 32.0    ! values adjusted based on Dale's MNORT measurements
-         real, parameter :: radg = 122.87  ! [g s^2/m^4] 122.87->120.8
+!        real, parameter :: amen = 2.61    ! Marticorena and Bergametti, 1995
+         real, parameter :: amen = 1.0     ! Marticorena and Bergametti, 1997
+!        real, parameter :: amen = 32.0    ! values adjusted based on Dale's MNORT measurements
+         real, parameter :: radg = 122.87  ! rho_air/grav [g s^2/m^4] 122.87->120.8
 !        real, parameter :: fdsa = 0.5     ! factor of dust source area 1/.1/.01
          real, parameter :: fdsa = 1.0     ! factor of dust source area 1/.1/.01
          real, parameter :: gmad = 0.78    ! Factor to convert geometric to aerodynamic diameter
          real, parameter :: cfac = amen * radg * fdsa * gmad  ! combined factor for qam
-                               ! = 3066.8352
+                               ! = 3066.8352,250.13874,95.8386 w/ amen=32.0,2.61,1.0 resp.
 
          real, parameter :: f6dpi = 6.0 / pi
          real, parameter :: gpkg = 1.0e03     ! g/kg
@@ -747,6 +751,7 @@ C Parameters:
          integer         :: mdate, mtime   ! diagnostic file write date&time
 
                        ! automatic arrays
+         real       :: fruf  ( ncols,nrows )
          real       :: fmoit ( ncols,nrows )      ! factor of soil moisture on u*t
          real       :: ustr  ( ncols,nrows )      ! friction velocity [m/s]
          real       :: soimt ( ncols,nrows )      ! gravimetric soil moisture (Kg/Kg)
@@ -756,6 +761,7 @@ C Parameters:
          real, allocatable, save :: utem  ( :,:,: ) ! U term = U*(U**2-Ut**2) [(m/s)**3]
          real, allocatable, save :: qam   ( :,:,: ) ! emis for landuse type [g/m**2/s]
          real, allocatable, save :: elus  ( :,:,: ) ! Erodible landuse percent (0~100)
+         real, allocatable, save :: qad   ( : )     ! temp var for qam
 
          real       :: edust( n_mode )  ! mass emis rate [g/s] per mode (only accum & coarse)
          real       :: sumdfr           ! sum var for deset fraction
@@ -768,6 +774,7 @@ C Parameters:
 
 C Soil moisture limit: 13 types and 3 variables, which are:
 C    1 - saturation moisture limit, (gravimetric units assumed, Kg/Kg)
+             !!!! This is probably volumetric-- NOAH
 C    2 - fill capacity, and   <- not used
 C    3 - wilting point        <- not used
 C Modified values compatiable with both MM5 & NAM.
@@ -792,20 +799,69 @@ C    &              0.482,  0.367,  0.286 /),  ! Other
 C    &           (/ nsltyp,3 /), order = (/ 2,1 /) ) ! fill columns first
 
 C Since only soilml( nsltyp,1 ) is used, set the following:
+!        real :: soilml1( nsltyp ) =
+!    &           (/ 0.395,     ! Sand
+!    &              0.410,     ! Loamy Sand
+!    &              0.435,     ! Sandy Loam
+!    &              0.485,     ! Silt Loam
+!    &              0.476,     ! Silt
+!    &              0.451,     ! Loam
+!    &              0.420,     ! Sandy Clay Loam
+!    &              0.477,     ! Silty Clay Loam
+!    &              0.476,     ! Clay Loam
+!    &              0.426,     ! Sandy Clay
+!    &              0.482,     ! Silty Clay
+!    &              0.482,     ! Clay
+!    &              0.482 /)   ! Other
+
+C convert to gravimetric [kg/kg]
          real :: soilml1( nsltyp ) =
-     &           (/ 0.395,     ! Sand
-     &              0.410,     ! Loamy Sand
-     &              0.435,     ! Sandy Loam
-     &              0.485,     ! Silt Loam
-     &              0.476,     ! Silt
-     &              0.451,     ! Loam
-     &              0.420,     ! Sandy Clay Loam
-     &              0.477,     ! Silty Clay Loam
-     &              0.476,     ! Clay Loam
-     &              0.426,     ! Sandy Clay
-     &              0.482,     ! Silty Clay
-     &              0.482,     ! Clay
-     &              0.482 /)   ! Other
+     &           (/ 0.242,     ! Sand
+     &              0.257,     ! Loamy Sand
+     &              0.286,     ! Sandy Loam
+     &              0.350,     ! Silt Loam
+     &              0.350,     ! Silt
+     &              0.307,     ! Loam
+     &              0.277,     ! Sandy Clay Loam
+     &              0.350,     ! Silty Clay Loam
+     &              0.332,     ! Clay Loam
+     &              0.284,     ! Sandy Clay
+     &              0.357,     ! Silty Clay
+     &              0.344,     ! Clay
+     &              0.363 /)   ! Other
+
+!! FROM NCAR LSM Group 17 Apr 2007   "volumetric"
+!! ALSO in Spyrou, et al. JGR 2010
+!        real :: soilml1( nsltyp ) =
+!    &           (/ 0.339,     ! Sand
+!    &              0.421,     ! Loamy Sand
+!    &              0.434,     ! Sandy Loam
+!    &              0.476,     ! Silt Loam
+!    &              0.476,     ! Silt
+!    &              0.439,     ! Loam
+!    &              0.404,     ! Sandy Clay Loam
+!    &              0.464,     ! Silty Clay Loam
+!    &              0.465,     ! Clay Loam
+!    &              0.406,     ! Sandy Clay
+!    &              0.468,     ! Silty Clay
+!    &              0.468,     ! Clay
+!    &              0.482 /)   ! Other
+
+C convert to gravimetric [kg/kg]
+!        real :: soilml1( nsltyp ) =
+!    &           (/ 0.208,     ! Sand
+!    &              0.264,     ! Loamy Sand
+!    &              0.286,     ! Sandy Loam
+!    &              0.344,     ! Silt Loam
+!    &              0.350,     ! Silt
+!    &              0.299,     ! Loam
+!    &              0.266,     ! Sandy Clay Loam
+!    &              0.341,     ! Silty Clay Loam
+!    &              0.324,     ! Clay Loam
+!    &              0.271,     ! Sandy Clay
+!    &              0.347,     ! Silty Clay
+!    &              0.334,     ! Clay
+!    &              0.363 /)   ! Other
 
 C Threshold Friction Velocity [m/s] for 13 soil types and 3 land use types, which are:
 C    1 -shrubland,
@@ -816,53 +872,49 @@ C   Ref. Gillette et al., JGR, 1980 for desert soils (J=2).
 C   Ref. Gillette, JGR, 1988 for Loose Agr. Soils (J=3).
 C The following soil types were not measured for desert land (we chose to use
 C agr. data): Sandy Clay Loam, Clay Loam, Sandy Clay, and Silty Clay.
-C Modified values compatiable with both MM5 & NAM.
+C Modified values compatible with both MM5 & NAM.
 C There is no measurement of this value for Silt. The values for Silt are chosen from
 C Silty Loam since the soil composition is close.
 C Other includes all types higher than 12. The values of Other are too high to allow
 C any dust emission.
-!        real :: uthfv( nsltyp,3 ) = reshape (
-!    &           (/ 0.80,   0.42,   0.28,     ! Sand
-!    &              1.00,   0.51,   0.34,     ! Loamy Sand
-!    &              1.40,   0.66,   0.29,     ! Sandy Loam
-!    &              1.70,   0.34,   1.08,     ! Silt Loam
-!    &              1.70,   0.34,   1.08,     ! Silt
-!    &              1.70,   0.49,   0.78,     ! Loam
-!    &              1.70,   0.78,   0.78,     ! Sandy Clay Loam
-!    &              1.70,   0.33,   0.64,     ! Silty Clay Loam
-!    &              1.70,   0.71,   0.71,     ! Clay Loam
-!    &              1.70,   0.71,   0.71,     ! Sandy Clay
-!    &              1.70,   0.56,   0.56,     ! Silty Clay
-!    &              1.70,   0.78,   0.54,     ! Clay
-!    &              9.99,   9.99,   9.99 /),  ! Other
-!    &           (/ nsltyp,3 /), order = (/ 2,1 /) ) ! fill columns first
+         real :: uthfv( nsltyp,3 ) = reshape (
+     &           (/ 0.80,   0.42,   0.28,     ! Sand
+     &              1.00,   0.51,   0.34,     ! Loamy Sand
+     &              1.40,   0.66,   0.29,     ! Sandy Loam
+     &              1.70,   0.34,   1.08,     ! Silt Loam
+     &              1.70,   0.34,   1.08,     ! Silt
+     &              1.70,   0.49,   0.78,     ! Loam
+     &              1.70,   0.78,   0.78,     ! Sandy Clay Loam
+     &              1.70,   0.33,   0.64,     ! Silty Clay Loam
+     &              1.70,   0.71,   0.71,     ! Clay Loam
+     &              1.70,   0.71,   0.71,     ! Sandy Clay
+     &              1.70,   0.56,   0.56,     ! Silty Clay
+     &              1.70,   0.78,   0.54,     ! Clay
+     &              9.99,   9.99,   9.99 /),  ! Other
+     &           (/ nsltyp,3 /), order = (/ 2,1 /) ) ! fill columns first
 
 C D.Tong change:
-         real :: uthfv( nsltyp,3 ) = reshape (
-     &           (/ 0.34,   0.34,   0.23,     ! Sand
-     &              0.47,   0.47,   0.24,     ! Loamy Sand
-     &              0.22,   0.42,   0.16,     ! Sandy Loam
-     &              0.22,   0.22,   0.51,     ! Silt Loam
-     &              0.22,   0.22,   0.71,     ! Silt
-     &              0.28,   0.29,   0.43,     ! Loam
-     &              0.42,   0.42,   0.58,     ! Sandy Clay Loam
-     &              0.32,   0.20,   0.32,     ! Silty Clay Loam
-     &              0.42,   0.42,   0.63,     ! Clay Loam
-     &              0.42,   0.42,   0.45,     ! Sandy Clay
-     &              0.20,   0.20,   0.19,     ! Silty Clay
-     &              0.42,   0.42,   0.29,     ! Clay
-     &              9.99,   9.99,   3.40 /),  ! Other
-     &           (/ nsltyp,3 /), order = (/ 2,1 /) ) ! fill columns first
+!        real :: uthfv( nsltyp,3 ) = reshape (
+!    &           (/ 0.34,   0.34,   0.23,     ! Sand
+!    &              0.47,   0.47,   0.24,     ! Loamy Sand
+!    &              0.22,   0.42,   0.16,     ! Sandy Loam
+!    &              0.22,   0.22,   0.51,     ! Silt Loam
+!    &              0.22,   0.22,   0.71,     ! Silt
+!    &              0.28,   0.29,   0.43,     ! Loam
+!    &              0.42,   0.42,   0.58,     ! Sandy Clay Loam
+!    &              0.32,   0.20,   0.32,     ! Silty Clay Loam
+!    &              0.42,   0.42,   0.63,     ! Clay Loam
+!    &              0.42,   0.42,   0.45,     ! Sandy Clay
+!    &              0.20,   0.20,   0.19,     ! Silty Clay
+!    &              0.42,   0.42,   0.29,     ! Clay
+!    &              9.99,   9.99,   3.40 /),  ! Other
+!    &           (/ nsltyp,3 /), order = (/ 2,1 /) ) ! fill columns first
 
          real :: agmsk = 0.75 ! agriculture (cropland) fraction
 
          interface
             subroutine tfabove ( tfa )
-            use hgrd_defn
-            use asx_data_mod
-            use lus_defn, only: uland
-            implicit none
-            real,    intent( out ) :: tfa( :,: )
+               real,    intent( out ) :: tfa( :,: )
             end subroutine tfabove
          end interface
 
@@ -896,19 +948,55 @@ C-----------------------------------------------------------------------
                xmsg = '*** UTSTAR, UTEM, QAM, or ELUS memory allocation failed'
                call m3exit( pname, jdate, jtime, xmsg, xstat1 )
             end if
+            allocate ( qad( n_dlcat+1 ), stat = status )
+            if ( status .ne. 0 ) then
+               xmsg = '*** QAD memory allocation failed'
+               call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+            end if
+
+#ifdef parallel_io
+            if ( .not. io_pe_inclusive ) then
+               if ( .not. open3( ctm_dust_emis_1, fsnonio, pname ) ) then
+                  xmsg = 'Could not open ' // trim(ctm_dust_emis_1)
+                  call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+               end if
+            end if
+#endif
+
          end if
 
 C Convert layer-average U* into surface local U*
 C    -> U*t has to be surface values from measurements.
 
-         do r = 1, my_nrows
-         do c = 1, my_ncols
-!           zi = sc * zruf( c,r )
-!           ustar( c,r ) = ustar( c,r ) * log( zi / zruf( c,r ) ) / log( zi / z0s )
-            ustr( c,r ) = Met_Data%ustar( c,r )
-     &                  * 3.465736 / log( 32.0e+05 * Met_Data%z0( c,r ) )
-         end do
-         end do
+!         do r = 1, my_nrows
+!         do c = 1, my_ncols
+!!           zi = sc * zruf( c,r )
+!!           ustar( c,r ) = ustar( c,r ) * log( zi / zruf( c,r ) ) / log( zi / z0s )
+!            ustr( c,r ) = Met_Data%ustar( c,r )
+!     &                  * 3.465736 / log( 32.0e+05 * Met_Data%z0( c,r ) )
+!         end do
+!         end do
+
+C ***
+C        recalculating U* using the similarity theory and the aeolian
+C        roughness (cf. the aerodynamic roughness which is used in WRF).
+C        The constant value of z0 = 1e-5 m is used here following 
+C        Prigent et al., JGR 2005 for now.          
+C
+         ustr = 0.4 * Met_Data%WSPD10 / LOG ( 10.0 / 0.00001 )
+                                      ! 13.8155106
+C         
+C         Later, I should test this (following a discussion with J. Bash):
+C          do r = 1, my_nrows
+C          do c = 1, my_ncols
+C          IF ( Met_Data%LAI( C,R ) .ge.  1.0 ) THEN
+C                ustr( c,r ) = Met_Data%ustar( c,r ) * exp( -Met_Data%LAI( c,r ) )
+C          ELSE 
+C                ustr( c,r ) = 0.4 * Met_Data%WSPD10( c,r ) / LOG( 10.0 / 0.00001 )
+C          ENDIF
+C          end do
+C          end do
+C ***
 
 C calculate transport factor above the canopy
          call tfabove ( tfa )
@@ -956,6 +1044,7 @@ C Initialize windblown dust diagnostics output buffer
             soimt( c,r ) = 0.0
 !           fmoit( c,r ) = 999.9
             fmoit( c,r ) = 0.0   ! for diagnostic output visualization
+            fruf ( c,r ) = 0.0
             do m = 1, n_dlcat+1
 !              utstar( c,r,m ) = 999.9
                utstar( c,r,m ) = 0.0   ! for diagnostic output visualization
@@ -963,6 +1052,7 @@ C Initialize windblown dust diagnostics output buffer
                elus  ( c,r,m ) = 0.0
                utem  ( c,r,m ) = 0.0
             end do
+            qad = 0.0   ! array assignment
             rlay1hgt = rjacm ( c,r ) / cellhgt
 
             if ( Met_Data%snocov( c,r ) .gt. 0.0 ) cycle   ! grid cell snow covered
@@ -989,11 +1079,20 @@ C soil moisture effect on U*t
                else if ( soimt( c,r ) .le. soilml1( j ) ) then
  !                FCT = FCT + 1
                   fmoit( c,r ) = sqrt( 1.0 + 1.21
-     &                         * ( soimt( c,r ) - 0.01 * wmax( c,r ) ) ** 0.68 )
+     &                         * ( 100.0 * soimt( c,r ) - wmax( c,r ) ) ** 0.68 )
 !              else
 !                 fmoit( c,r ) = ?  not used
                end if
-
+C
+C roughness effect on effect on U*t            
+C fruf( c,r ) = 1.0 - ((LOG(0.00001/0.00000333))/(LOG(0.7*(0.1/0.00000333)**0.8)))
+               fruf( c,r ) = 1.0   ! roughness factor = 1.0 (for now)             
+!              if ( fruf( c,r ) .le. 0.0 .or. fruf( c,r ) .gt. 1.0 ) then
+!                 xmsg = 'ERROR: fruf out of bound'
+!                 call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+!              end if
+!              fruf( c,r ) = 1.0 / fruf( c,r ) 
+C
 C Dust occurs where erodible land exists, soil moisture is less than saturation,
 C and U* > U*t
 
@@ -1019,8 +1118,9 @@ C Adjust U*t based on soil moisture ---
                      if ( elus( c,r,m ) .gt. 0.0 ) then
 !                       utstar( c,r,m ) = 0.1 * uthfv( j,n ) * fmoit( c,r ) ! testing
 !                       utstar( c,r,m ) = 0.5 * uthfv( j,3 ) * fmoit( c,r ) ! testing
-                        n = dmap( m )   ! map to BELD3 for uthfv
-                        utstar( c,r,m ) = uthfv( j,n ) * fmoit( c,r )
+!                       n = dmap( m )   ! map to BELD3 for uthfv
+!                       utstar( c,r,m ) = uthfv( j,n ) * fmoit( c,r )
+                        utstar( c,r,m ) = uthfv( j,3 ) * fmoit( c,r ) * fruf( c,r )
                         if ( ustr( c,r ) .gt. utstar( c,r,m ) ) then
                            ! wind erosion occurs only when U* > Ut*
 !                          utem( c,r,m ) = ustr( c,r )
@@ -1029,17 +1129,19 @@ C Adjust U*t based on soil moisture ---
      &                                   -   utstar( c,r,m ) * utstar( c,r,m ) )
                            qam( c,r,m ) = cfac * kvh( c,r ) * utem( c,r,m ) * sd_ep( c,r )
                                                                           ! [g/m**2/s]
-                           qam( c,r,m ) = qam( c,r,m ) * rlay1hgt
-     &                                  * ( elus( c,r,m ) * 0.01 )        ! [g/m**3/s]
+!                          qam( c,r,m ) = qam( c,r,m ) * rlay1hgt
+                           qad( m ) = qad( m ) + qam( c,r,m ) * rlay1hgt
+     &                              * ( elus( c,r,m ) * 0.01 )            ! [g/m**3/s]
                         end if
                      end if
 
-                     if ( elus( c,r,m ) .eq. 0.0 .and. qam( c,r,m ) .ne. 0.0 ) then
+                     if ( elus( c,r,m ) .eq. 0.0 .and. qad( m ) .ne. 0.0 ) then
                         xmsg = 'ERROR: erodible land use = 0, but emissions .ne. 0'
                         call m3exit( pname, jdate, jtime, xmsg, xstat1 )
                      end if
 
-                     dust_em( c,r ) = dust_em( c,r ) + qam( c,r,m )
+!                    dust_em( c,r ) = dust_em( c,r ) + qam( c,r,m )
+                     dust_em( c,r ) = dust_em( c,r ) + qad( m )
 
                   end do   ! m landuse
 
@@ -1099,7 +1201,7 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
    
             if ( dustem_diag ) then
                do m = 1, n_dlcat+1
-                  diagv(  m ) = qam( c,r,m )            ! g/m**3/s
+                  diagv( m ) = qam( c,r,m )             ! g/m**2/s
                end do
                n = n_dlcat + 2       !  5 (if BELD3)
                diagv( n ) = dust_em( c,r )              ! g/m**3/s
@@ -1151,6 +1253,8 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
                diagv( n+3 ) = dustouts( 2,c,r )
                diagv( n+4 ) = dustouts( 3,c,r )
 
+C Multiply by sync step because when write to output we divide by the output step
+C to get a timestep average.
                do v = 1, ndust_diag
                   dustbf( v,c,r ) = dustbf( v,c,r ) + diagv( v )
      &                            * float( time2sec( tstep( 2 ) ) )

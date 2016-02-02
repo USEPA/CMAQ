@@ -63,13 +63,14 @@ C    23 Feb 11 S.Roselle: Replaced I/O API include files with UTILIO_DEFN
 C    06 Apr 11 B.Hutzell: added code that opens and writes photolysis rates
 C                         to an optional diagnostic file
 C    07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C    Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
 C
 C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE RXNS_DATA           ! chemical mechanism data
-      USE UTILIO_DEFN
-      USE PHOT_MET_DATA        ! Met and Grid data
+      USE UTILIO_DEFN         ! IO and other utility routines
+      USE PHOT_MET_DATA       ! Met and Grid data
 
       IMPLICIT NONE
 
@@ -129,6 +130,7 @@ C saved local variables:
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
 
 
+      LOGICAL       :: NDARK          ! Are all cells in darkness?
       LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
 
 C scratch local variables:
@@ -138,8 +140,6 @@ C scratch local variables:
       CHARACTER(  80 ) :: VARDESC      ! env var description
       CHARACTER( 120 ) :: XMSG    = ' '
 
-
-      LOGICAL       :: NDARK          ! Are the processors cells in darkness
 
       INTEGER      JVUNIT
       INTEGER      JVDATE             ! Julian date on JVALUE file
@@ -510,8 +510,17 @@ C...Get photolysis rate diagnostic file flag
 
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
-          IF ( MYPE .EQ. 0 ) CALL OPPHOT ( JDATE, JTIME, TSTEP )
+          IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( JDATE, JTIME, TSTEP )
         END IF  ! photdiag
+
+#ifdef parallel_io
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. OPEN3( CTM_RJ_2, FSNONIO, PNAME ) ) THEN
+               XMSG = 'Could not open ' // TRIM(CTM_RJ_2)
+               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+#endif
 
       END IF  ! FIRSTIME
 

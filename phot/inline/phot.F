@@ -111,6 +111,8 @@
 !                          7) Several miscellaneous changes attempting to improve efficiency
 !     June 10 15 J.Young: Modified diagnostic output timestamp to fix for other than one
 !                         hour time steps.
+!     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+
 !----------------------------------------------------------------------
 
 C...modules
@@ -300,12 +302,10 @@ C...modules
 
       INTERFACE
          SUBROUTINE O3TOTCOL ( LATITUDE, LONGITUDE, JDATE, OZONE )
-            USE UTILIO_DEFN
-            IMPLICIT NONE
-            INTEGER,   INTENT(IN)    :: JDATE      ! Julian day of the year (yyyyddd)
-            REAL,      INTENT(IN)    :: LATITUDE   ! latitude of point on earth's surface
-            REAL,      INTENT(IN)    :: LONGITUDE  ! longitude of point on earth's surface
-            REAL,      INTENT(INOUT)   :: OZONE      ! total column ozone [DU]
+            INTEGER, INTENT( IN )    :: JDATE      ! Julian day of the year (yyyyddd)
+            REAL,    INTENT( IN )    :: LATITUDE   ! latitude of point on earth's surface
+            REAL,    INTENT( IN )    :: LONGITUDE  ! longitude of point on earth's surface
+            REAL,    INTENT( INOUT ) :: OZONE      ! total column ozone [DU]
          END SUBROUTINE O3TOTCOL
       END INTERFACE
 
@@ -347,9 +347,8 @@ C...modules
          CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
  
-
-         PECOL_OFFSET = COLSD_PE( 1, MYPE ) - 1
-         PEROW_OFFSET = ROWSD_PE( 1, MYPE ) - 1
+         PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
+         PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
          CALL LOAD_CSQY_DATA( )
 
@@ -462,7 +461,7 @@ C...modules
 #ifndef phot_extra_tstep
             CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
 #endif
-            IF ( MYPE .EQ. 0 ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+            IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
 
          END IF  ! photdiag
 
@@ -519,6 +518,18 @@ C...modules
          CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
 #endif
          JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
+#ifdef parallel_io
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+            IF ( .NOT. OPEN3( CTM_RJ_1, FSNONIO, PNAME ) ) THEN
+               XMSG = 'Could not open ' // TRIM(CTM_RJ_1)
+               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
+            END IF
+            IF ( .NOT. OPEN3( CTM_RJ_2, FSNONIO, PNAME ) ) THEN
+               XMSG = 'Could not open ' // TRIM(CTM_RJ_2)
+               CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
+            END IF
+         END IF
+#endif
       ELSE     
          JTIME_CHK = .FALSE.
       END IF 

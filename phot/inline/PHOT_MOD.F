@@ -359,13 +359,13 @@ C-----------------------------------------------------------------------
 
 !***initialize BLKRJ and other layer variables
 
-      BLKRJ        = 0.0
-      ACTINIC_FLUX = 0.0
-      IRRADIANCE   = 0.0
-      REFLECTION   = 0.0
-      TRANSMISSION = 0.0
-      TRANS_DIRECT = 0.0
-      INSOLATION   = 0.0
+      BLKRJ         = 0.0
+      ACTINIC_FLUX  = 0.0
+      IRRADIANCE    = 0.0
+      REFLECTION    = 0.0
+      TRANSMISSION  = 0.0
+      TRANS_DIRECT  = 0.0
+      INSOLATION    = 0.0
 
 !***Initialize sums or set default values for outputs: 
 !   TAUC_AERO, TAU_TOT, TAUO3_TOP, TAU_RAY, SSA_AERO, etc.
@@ -374,7 +374,7 @@ C-----------------------------------------------------------------------
       TAU_TOT   = 0.0
       TAU_CLOUD = 0.0
       TAU_SCAT  = 0.0
-      SSA_AERO  = 1.0
+      SSA_AERO  = 0.0
       TOTAL_TAU_CLD = 0.0
 #ifdef phot_debug      
       AVE_SSA_CLD   = 0.0
@@ -763,10 +763,10 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          END DO                 ! loop over layers
 
 ! add diffusion and direct components for calculating reflectivity and transmissivity
-         INSOLATION   = INSOLATION   + SOLAR_FLUX 
-         REFLECTION   = REFLECTION   + SOLAR_FLUX * EUP( 1 )
-         TRANSMISSION = TRANSMISSION + SOLAR_FLUX * EDN( NLEVEL )
-         TRANS_DIRECT = TRANS_DIRECT + SOLAR_FLUX * EDIR( NLEVEL ) 
+         INSOLATION    = INSOLATION    + SOLAR_FLUX 
+         REFLECTION    = REFLECTION    + SOLAR_FLUX * EUP( 1 )
+         TRANSMISSION  = TRANSMISSION  + SOLAR_FLUX * EDN( NLEVEL )
+         TRANS_DIRECT  = TRANS_DIRECT  + SOLAR_FLUX * EDIR( NLEVEL ) 
 
          IF ( ONLY_SOLVE_RAD ) CYCLE
 

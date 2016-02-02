@@ -49,7 +49,6 @@ HC5,72,HC5,1,,,,,PENTANE,1,,,Yes,,Yes,Yes
 HC5P,103,,,,,,,,,,,,,,Yes
 HC8,114,HC8,1,,,,,OCTANE,1,,,Yes,,Yes,Yes
 HC8P,145,,,,,,,,,,,,,,Yes
-ALK5RXN,118.9,,,,,,,,,ALK5RXN,,,,,
 ETE,28,ETE,1,,,,,ETHENE,1,,,Yes,,Yes,Yes
 ETEP,77,,,,,,,,,,,,,,Yes
 OLT,42,OLT,1,,,,,ETHENE,1,,,Yes,,Yes,Yes
@@ -101,6 +100,7 @@ EOH,46,EOH,1,,,,,ETHANOL,1,,,Yes,,Yes,Yes
 ROH,60,ROH,1,,,,,N-PROPANOL,1,,,Yes,,Yes,Yes
 ETEG,62,ETEG,1,,,,,ETHYLENEGLYCOL,1,,,Yes,,Yes,Yes
 ISHP,118,,,VD_OP,1,,,METHACROLEIN,1,,,Yes,Yes,Yes,Yes
+IEPOX,118.1,,,VD_OP,1.5,,,HYDROXY_PEROXIDE,1,IEPOX,,Yes,Yes,Yes,Yes
 MAHP,102,,,VD_OP,1,,,METHACROLEIN,1,,,Yes,Yes,Yes,Yes
 ORA2,60,ORA2,1,VD_ORA,1,,,ACETIC_ACID,1,,,Yes,Yes,Yes,Yes
 ORAP,109,,,,,,,,,,,,,,Yes
@@ -127,3 +127,9 @@ BNZNRXN,127,,,,,,,,,BNZNRXN,,,,,
 BNZHRXN,127,,,,,,,,,BNZHRXN,,,,,
 SESQ,204,SESQ,1,,,,,PINENE,1,,,Yes,,Yes,Yes
 SESQRXN,204,,,,,,,,,SESQRXN,,,,,
+NAPH,128.2,NAPH,1,,,,,O-XYLENE,1,,,Yes,,,Yes
+PAHRO2,187.2,,,,,,,,,,,,,,Yes
+PAHNRXN,187.2,,,,,,,,,PAHNRXN,,,,,
+PAHHRXN,187.2,,,,,,,,,PAHHRXN,,,,,
+SOAALK,112.0,SOAALK,1,,,,,DECANE,1,,,Yes,,,Yes
+ALKRXN,112.0,,,,,,,,,ALKRXN,,,,,

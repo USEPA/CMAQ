@@ -105,9 +105,6 @@ C follow the Namelist dep vel surrogate name table
      &                        xxlsgac, xxlsgco,
      &                        pdensac, pdensco,
      &                        vsed )
-          use asx_data_mod, Only: Met_Data
-          use aeromet_data
-          implicit none
           real, intent( in ) :: xlm    ( : )  ! atmos mean free path [ m ]
           real, intent( in ) :: amu    ( : )  ! atmos dynamic viscosity [ kg/(m s) ]
           real, intent( in ) :: dgacc  ( : )  ! accum mode geom mean diameter [ m ]

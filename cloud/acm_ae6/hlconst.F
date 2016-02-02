@@ -71,6 +71,7 @@ C  H.Pye      02/05/13  added Henry's Law 133-134 for IEPOX and IMAE
 C  G.Sarwar   12/18/13  added Henry's Law constants for 135 to 140
 C  W.Hutzell  07/11/14  correct error in DATA from last revision
 C  D.Luecken  07/11/14  added 141 through 144 for nitrates
+C  H.Pye      05/05/15  added monoterpene and isoprene nitrates
 C  
 C-----------------------------------------------------------------------
 
@@ -90,7 +91,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 144     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 146     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -296,6 +297,8 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(142), A(142), E(142) / 'NTR_OH          ', 6.50E+03, 9.5E+03 /   ! 3-nitrooxy-butanol, from Sander
       DATA SUBNAME(143), A(143), E(143) / 'DINTR           ', 1.80E+01, 0.0E+00 /   ! 2,3-pentanedinitrate
       DATA SUBNAME(144), A(144), E(144) / 'NTR_PX          ', 3.40E+02, 6.0E+03 /   ! ethylhydroperoxide 
+      DATA SUBNAME(145), A(145), E(145) / 'MTNO3           ', 1.5E+06,  0.0E+00 /   ! monoterpene nitrates HenryWin v3.2 
+      DATA SUBNAME(146), A(146), E(146) / 'ISOPNN          ', 4.5E+08,  0.0E+00 /   ! isoprene dinitrate HenryWin v3.2
 
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)

@@ -454,6 +454,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          IMPLICIT NONE
 
+!  REVISION  HISTORY:
+!  B.Hutzell Oct 13, 2015 Changed computation of effective resolved fraction, CFRAC_2D,
+!             to be consisitent with random cloud overlap model that in used in the 
+!             radiative transfer calculation. Consult Tain and Curry (1989), JGR, vol.94,
+!             9925-9935 for more information.
 !...........Includes:
 
          INCLUDE SUBST_CONST                ! constants
@@ -693,13 +698,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
                SUM_WEIGHTS = 0.0
-               CFRAC_2D( COL,ROW ) = 0.0
+               CFRAC_2D( COL,ROW ) = 1.0
                AVE_HYDROMETEORS( COL,ROW ) = 0.0
                DO LAY = 1, NLAYS
                   IF ( CFRAC_3D( COL,ROW,LAY ) .LE. 0.0 ) CYCLE
                   WEIGHT = DELTA_Z( COL,ROW,LAY ) 
                   CFRAC_2D( COL,ROW ) = CFRAC_2D( COL,ROW )
-     &                                + WEIGHT * CFRAC_3D( COL,ROW,LAY ) 
+     &                                * ( 1.0 - CFRAC_3D( COL,ROW,LAY ) )
                   SUM_WEIGHTS = SUM_WEIGHTS + WEIGHT
 
                   WATER = QC( COL,ROW,LAY ) + QR( COL,ROW,LAY ) + QI( COL,ROW,LAY )
@@ -717,9 +722,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
                   end if
 #endif              
                END DO
-               IF ( SUM_WEIGHTS .LT. 1.0 ) CYCLE
-               CFRAC_2D( COL,ROW ) = CFRAC_2D( COL,ROW ) / SUM_WEIGHTS
-               AVE_HYDROMETEORS( COL,ROW ) = 1.0E+3 * AVE_HYDROMETEORS( COL,ROW ) / SUM_WEIGHTS                    
+               IF ( SUM_WEIGHTS .LT. 1.0 ) THEN 
+                    CFRAC_2D( COL,ROW ) = 0.0
+               ELSE
+                    CFRAC_2D( COL,ROW ) = 1.0 - CFRAC_2D( COL,ROW )
+                    AVE_HYDROMETEORS( COL,ROW ) = 1.0E+3 * AVE_HYDROMETEORS( COL,ROW ) / SUM_WEIGHTS
+               END IF
             END DO
          END DO
 
@@ -1296,7 +1304,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !  12Jun15: BHutzell: comment out call to CLEAR_ACM_CLOUD because CONVCLD_ACM routine
 !                     calls CLEAR_ACM_CLOUD at every synchronization time if acm 
 !                     convection algorithm engaged, i.e., CONVCLD = .TRUE.
-
 ! Arguments:
             INTEGER, INTENT( IN )  :: JDATE      
             INTEGER, INTENT( IN )  :: JTIME                 
