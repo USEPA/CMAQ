@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE wr_init ( CGRID, JDATE, JTIME, TSTEP )
+      SUBROUTINE WR_INIT ( CGRID, JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -85,8 +85,7 @@ C-----------------------------------------------------------------------
 
 #ifdef parallel_io
       CALL SUBST_BARRIER
-
-      IF ( .not. IO_PE_INCLUSIVE ) THEN
+      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
          IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -214,4 +213,4 @@ C (inital data assumed to be in correct output units)
      &   JDATE, JTIME
 
       RETURN
-      END
+      END SUBROUTINE WR_INIT

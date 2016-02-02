@@ -60,8 +60,8 @@ C   Aug 15 D.Wong:     Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O
 C                        implementation
 C                      Added a block of code to let non I/O processor to open
 C                        CTM_CONC_1 file
-C   Dec 15 D.Wong:     Removed all the data writing port and put it in a new
-C                        file, wr_init.F
+C   Dec 15 D.Wong:     Removed all the data writing parts and moved it into a
+C                      new file, wr_init.F
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -73,8 +73,6 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-
-      use timer_module
 
       IMPLICIT NONE
 
@@ -226,13 +224,14 @@ C Set output file characteristics based on COORD.EXT and open it
 C create header
 
       IF ( IO_PE_INCLUSIVE ) THEN   ! open new
+
          IF ( .NOT. OPEN3( CTM_CONC_1, FSNEW3, PNAME ) ) THEN
             XMSG = 'Could not open ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
          IF ( .NOT. FLUSH3 ( CTM_CONC_1 ) ) THEN
-            XMSG = 'Could not flush ' // CTM_CONC_1
+            XMSG = 'Could not sync to disk ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
