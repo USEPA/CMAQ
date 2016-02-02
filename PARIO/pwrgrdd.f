@@ -180,8 +180,8 @@ C Initialize return value and error code
       LERROR  = .FALSE.
       IERROR = 0
 
-      IF ( ( NCOLS3D - PIO_GL_NCOLS == 1 ) .AND. 
-     &     ( NROWS3D - PIO_GL_NROWS == 1 ) ) THEN
+      IF ( ( NCOLS3D - PIO_GL_NCOLS .EQ. 1 ) .AND. 
+     &     ( NROWS3D - PIO_GL_NROWS .EQ. 1 ) ) THEN
          DOT_FILE = .TRUE.
          DOT = 1
       ELSE
@@ -191,7 +191,7 @@ C Initialize return value and error code
 
       IF ( MY_PE .EQ. IO_PE ) THEN    ! I/O processor collects and writes data
          WSIZE = NCOLS3D * NROWS3D * NLAYS3D 
-         RSIZE = (NCOLS + DOT) * (NROWS + DOT) * NLAYS3D
+         RSIZE = ( NCOLS + DOT ) * ( NROWS + DOT ) * NLAYS3D
 
          IF ( WRITBUF_SIZE .NE. WSIZE ) THEN
             IF ( ALLOCATED ( WRITBUF ) ) DEALLOCATE ( WRITBUF )
