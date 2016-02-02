@@ -61,6 +61,7 @@ C...........   SCRATCH LOCAL VARIABLES and their descriptions:
         INTEGER         IERR            !  netCDF error status return
         INTEGER         ERROR           !  MPI error status return
         INTEGER         FID
+        INTEGER         LOC_MPIGRD3
 
         INTEGER, EXTERNAL :: NF_CLOSE
         INTEGER, EXTERNAL :: NFMPI_CLOSE
@@ -71,6 +72,12 @@ C***********************************************************************
         IF (.NOT. FINIT3) THEN
             RETURN
         END IF
+
+#ifdef parallel_io
+        LOC_MPIGRD3 = MPIGRD3
+#else
+        LOC_MPIGRD3 = IMISS3
+#endif
 
         DO FILE = 1, COUNT3
 
@@ -89,7 +96,7 @@ C***********************************************************************
 !                END IF
 !             END IF
 
-              IF( FTYPE3( FILE ) .EQ. MPIGRD3 ) THEN
+              IF( FTYPE3( FILE ) .EQ. LOC_MPIGRD3 ) THEN
 
 #ifdef parallel_io
                  IF( PARIO_IO_PE_INCLUSIVE ) THEN
