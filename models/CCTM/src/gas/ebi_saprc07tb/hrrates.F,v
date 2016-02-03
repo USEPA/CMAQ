@@ -1,0 +1,519 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2012.01.27.20.25.19;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.25.19;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/arc/CCTM/src/gas/ebi_saprc07tb/hrrates.F,v 1.2 2011/10/21 16:11:00 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+      SUBROUTINE HRRATES
+
+C***********************************************************************
+C
+C  FUNCTION: To calculate rates of reactions
+C
+C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
+C
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Created by EBI solver program, Feb. 9, 2011
+C
+C***********************************************************************
+      USE HRDATA
+
+      IMPLICIT NONE
+
+C.....INCLUDES: NONE
+
+
+C.....ARGUMENTS: NONE
+
+
+C.....PARAMETERS: NONE
+
+
+C.....EXTERNAL FUNCTIONS: NONE
+
+
+C.....SAVED VARIABLES: NONE
+      CHARACTER( 16 ), SAVE  ::  PNAME = 'HRRATES'   ! Program name
+
+
+C.....LOCAL VARIABLES: None
+
+C***********************************************************************
+C..NOTE: RXRAT commented out are not referenced by any routine
+!     RXRAT(   1 ) = RKI(   1 ) * YC( NO2 )
+!     RXRAT(   2 ) = RKI(   2 ) * YC( O3P )
+!     RXRAT(   3 ) = RKI(   3 ) * YC( O3P ) * YC( O3 )
+!     RXRAT(   4 ) = RKI(   4 ) * YC( O3P ) * YC( NO )
+!     RXRAT(   5 ) = RKI(   5 ) * YC( O3P ) * YC( NO2 )
+      RXRAT(   6 ) = RKI(   6 ) * YC( O3P ) * YC( NO2 )
+!     RXRAT(   7 ) = RKI(   7 ) * YC( O3 ) * YC( NO )
+      RXRAT(   8 ) = RKI(   8 ) * YC( O3 ) * YC( NO2 )
+      RXRAT(   9 ) = RKI(   9 ) * YC( NO ) * YC( NO3 )
+!     RXRAT(  10 ) = RKI(  10 ) * YC( NO ) * YC( NO )
+!     RXRAT(  11 ) = RKI(  11 ) * YC( NO2 ) * YC( NO3 )
+      RXRAT(  12 ) = RKI(  12 ) * YC( N2O5 )
+      RXRAT(  13 ) = RKI(  13 ) * YC( N2O5 )
+      RXRAT(  14 ) = RKI(  14 ) * YC( N2O5 )
+      RXRAT(  15 ) = RKI(  15 ) * YC( NO2 ) * YC( NO3 )
+      RXRAT(  16 ) = RKI(  16 ) * YC( NO3 )
+      RXRAT(  17 ) = RKI(  17 ) * YC( NO3 )
+      RXRAT(  18 ) = RKI(  18 ) * YC( O3 )
+      RXRAT(  19 ) = RKI(  19 ) * YC( O3 )
+!     RXRAT(  20 ) = RKI(  20 ) * YC( O1D )
+!     RXRAT(  21 ) = RKI(  21 ) * YC( O1D )
+!     RXRAT(  22 ) = RKI(  22 ) * YC( OH ) * YC( NO )
+      RXRAT(  23 ) = RKI(  23 ) * YC( HONO )
+      RXRAT(  24 ) = RKI(  24 ) * YC( OH ) * YC( HONO )
+      RXRAT(  25 ) = RKI(  25 ) * YC( OH ) * YC( NO2 )
+      RXRAT(  26 ) = RKI(  26 ) * YC( OH ) * YC( NO3 )
+      RXRAT(  27 ) = RKI(  27 ) * YC( OH ) * YC( HNO3 )
+      RXRAT(  28 ) = RKI(  28 ) * YC( HNO3 )
+      RXRAT(  29 ) = RKI(  29 ) * YC( OH ) * YC( CO )
+!     RXRAT(  30 ) = RKI(  30 ) * YC( OH ) * YC( O3 )
+!     RXRAT(  31 ) = RKI(  31 ) * YC( HO2 ) * YC( NO )
+!     RXRAT(  32 ) = RKI(  32 ) * YC( HO2 ) * YC( NO2 )
+      RXRAT(  33 ) = RKI(  33 ) * YC( HNO4 )
+      RXRAT(  34 ) = RKI(  34 ) * YC( HNO4 )
+      RXRAT(  35 ) = RKI(  35 ) * YC( HNO4 ) * YC( OH )
+!     RXRAT(  36 ) = RKI(  36 ) * YC( HO2 ) * YC( O3 )
+      RXRAT(  37 ) = RKI(  37 ) * YC( HO2 ) * YC( HO2 )
+      RXRAT(  38 ) = RKI(  38 ) * YC( HO2 ) * YC( HO2 )
+      RXRAT(  39 ) = RKI(  39 ) * YC( NO3 ) * YC( HO2 )
+      RXRAT(  40 ) = RKI(  40 ) * YC( NO3 ) * YC( NO3 )
+      RXRAT(  41 ) = RKI(  41 ) * YC( HO2H )
+      RXRAT(  42 ) = RKI(  42 ) * YC( HO2H ) * YC( OH )
+!     RXRAT(  43 ) = RKI(  43 ) * YC( OH ) * YC( HO2 )
+      RXRAT(  44 ) = RKI(  44 ) * YC( OH ) * YC( SO2 )
+!     RXRAT(  45 ) = RKI(  45 ) * YC( OH )
+      RXRAT(  46 ) = RKI(  46 ) * YC( NO2 )
+      RXRAT(  47 ) = RKI(  47 ) * YC( NO2EX )
+      RXRAT(  48 ) = RKI(  48 ) * YC( NO2EX )
+      RXRAT(  49 ) = RKI(  49 ) * YC( NO2EX )
+      RXRAT(  50 ) = RKI(  50 ) * YC( MEO2 ) * YC( NO )
+      RXRAT(  51 ) = RKI(  51 ) * YC( MEO2 ) * YC( HO2 )
+      RXRAT(  52 ) = RKI(  52 ) * YC( MEO2 ) * YC( HO2 )
+      RXRAT(  53 ) = RKI(  53 ) * YC( MEO2 ) * YC( NO3 )
+      RXRAT(  54 ) = RKI(  54 ) * YC( MEO2 ) * YC( MEO2 )
+      RXRAT(  55 ) = RKI(  55 ) * YC( MEO2 ) * YC( MEO2 )
+      RXRAT(  56 ) = RKI(  56 ) * YC( RO2C ) * YC( NO )
+      RXRAT(  57 ) = RKI(  57 ) * YC( RO2C ) * YC( HO2 )
+      RXRAT(  58 ) = RKI(  58 ) * YC( RO2C ) * YC( NO3 )
+      RXRAT(  59 ) = RKI(  59 ) * YC( RO2C ) * YC( MEO2 )
+      RXRAT(  60 ) = RKI(  60 ) * YC( RO2C ) * YC( RO2C )
+      RXRAT(  61 ) = RKI(  61 ) * YC( RO2XC ) * YC( NO )
+      RXRAT(  62 ) = RKI(  62 ) * YC( RO2XC ) * YC( HO2 )
+      RXRAT(  63 ) = RKI(  63 ) * YC( RO2XC ) * YC( NO3 )
+      RXRAT(  64 ) = RKI(  64 ) * YC( RO2XC ) * YC( MEO2 )
+      RXRAT(  65 ) = RKI(  65 ) * YC( RO2XC ) * YC( RO2C )
+      RXRAT(  66 ) = RKI(  66 ) * YC( RO2XC ) * YC( RO2XC )
+!     RXRAT(  67 ) = RKI(  67 ) * YC( MECO3 ) * YC( NO2 )
+      RXRAT(  68 ) = RKI(  68 ) * YC( PAN )
+      RXRAT(  69 ) = RKI(  69 ) * YC( PAN )
+      RXRAT(  70 ) = RKI(  70 ) * YC( MECO3 ) * YC( NO )
+      RXRAT(  71 ) = RKI(  71 ) * YC( MECO3 ) * YC( HO2 )
+      RXRAT(  72 ) = RKI(  72 ) * YC( MECO3 ) * YC( NO3 )
+      RXRAT(  73 ) = RKI(  73 ) * YC( MECO3 ) * YC( MEO2 )
+      RXRAT(  74 ) = RKI(  74 ) * YC( MECO3 ) * YC( RO2C )
+      RXRAT(  75 ) = RKI(  75 ) * YC( MECO3 ) * YC( RO2XC )
+      RXRAT(  76 ) = RKI(  76 ) * YC( MECO3 ) * YC( MECO3 )
+      RXRAT(  77 ) = RKI(  77 ) * YC( RCO3 ) * YC( NO2 )
+      RXRAT(  78 ) = RKI(  78 ) * YC( PAN2 )
+      RXRAT(  79 ) = RKI(  79 ) * YC( PAN2 )
+      RXRAT(  80 ) = RKI(  80 ) * YC( RCO3 ) * YC( NO )
+      RXRAT(  81 ) = RKI(  81 ) * YC( RCO3 ) * YC( HO2 )
+      RXRAT(  82 ) = RKI(  82 ) * YC( RCO3 ) * YC( NO3 )
+      RXRAT(  83 ) = RKI(  83 ) * YC( RCO3 ) * YC( MEO2 )
+      RXRAT(  84 ) = RKI(  84 ) * YC( RCO3 ) * YC( RO2C )
+      RXRAT(  85 ) = RKI(  85 ) * YC( RCO3 ) * YC( RO2XC )
+      RXRAT(  86 ) = RKI(  86 ) * YC( RCO3 ) * YC( MECO3 )
+      RXRAT(  87 ) = RKI(  87 ) * YC( RCO3 ) * YC( RCO3 )
+      RXRAT(  88 ) = RKI(  88 ) * YC( BZCO3 ) * YC( NO2 )
+      RXRAT(  89 ) = RKI(  89 ) * YC( PBZN )
+      RXRAT(  90 ) = RKI(  90 ) * YC( PBZN )
+      RXRAT(  91 ) = RKI(  91 ) * YC( BZCO3 ) * YC( NO )
+      RXRAT(  92 ) = RKI(  92 ) * YC( BZCO3 ) * YC( HO2 )
+      RXRAT(  93 ) = RKI(  93 ) * YC( BZCO3 ) * YC( NO3 )
+      RXRAT(  94 ) = RKI(  94 ) * YC( BZCO3 ) * YC( MEO2 )
+      RXRAT(  95 ) = RKI(  95 ) * YC( BZCO3 ) * YC( RO2C )
+      RXRAT(  96 ) = RKI(  96 ) * YC( BZCO3 ) * YC( RO2XC )
+      RXRAT(  97 ) = RKI(  97 ) * YC( BZCO3 ) * YC( MECO3 )
+      RXRAT(  98 ) = RKI(  98 ) * YC( BZCO3 ) * YC( RCO3 )
+      RXRAT(  99 ) = RKI(  99 ) * YC( BZCO3 ) * YC( BZCO3 )
+      RXRAT( 100 ) = RKI( 100 ) * YC( MACO3 ) * YC( NO2 )
+      RXRAT( 101 ) = RKI( 101 ) * YC( MAPAN )
+      RXRAT( 102 ) = RKI( 102 ) * YC( MAPAN )
+      RXRAT( 103 ) = RKI( 103 ) * YC( MACO3 ) * YC( NO )
+      RXRAT( 104 ) = RKI( 104 ) * YC( MACO3 ) * YC( HO2 )
+      RXRAT( 105 ) = RKI( 105 ) * YC( MACO3 ) * YC( NO3 )
+      RXRAT( 106 ) = RKI( 106 ) * YC( MACO3 ) * YC( MEO2 )
+      RXRAT( 107 ) = RKI( 107 ) * YC( MACO3 ) * YC( RO2C )
+      RXRAT( 108 ) = RKI( 108 ) * YC( MACO3 ) * YC( RO2XC )
+      RXRAT( 109 ) = RKI( 109 ) * YC( MACO3 ) * YC( MECO3 )
+      RXRAT( 110 ) = RKI( 110 ) * YC( MACO3 ) * YC( RCO3 )
+      RXRAT( 111 ) = RKI( 111 ) * YC( MACO3 ) * YC( BZCO3 )
+      RXRAT( 112 ) = RKI( 112 ) * YC( MACO3 ) * YC( MACO3 )
+      RXRAT( 113 ) = RKI( 113 ) * YC( TBUO ) * YC( NO2 )
+      RXRAT( 114 ) = RKI( 114 ) * YC( TBUO )
+      RXRAT( 115 ) = RKI( 115 ) * YC( BZO ) * YC( NO2 )
+      RXRAT( 116 ) = RKI( 116 ) * YC( BZO ) * YC( HO2 )
+      RXRAT( 117 ) = RKI( 117 ) * YC( BZO )
+      RXRAT( 118 ) = RKI( 118 ) * YC( xHO2 )
+      RXRAT( 119 ) = RKI( 119 ) * YC( xHO2 )
+      RXRAT( 120 ) = RKI( 120 ) * YC( xOH )
+      RXRAT( 121 ) = RKI( 121 ) * YC( xOH )
+      RXRAT( 122 ) = RKI( 122 ) * YC( xNO2 )
+      RXRAT( 123 ) = RKI( 123 ) * YC( xNO2 )
+      RXRAT( 124 ) = RKI( 124 ) * YC( xMEO2 )
+      RXRAT( 125 ) = RKI( 125 ) * YC( xMEO2 )
+      RXRAT( 126 ) = RKI( 126 ) * YC( xMECO3 )
+      RXRAT( 127 ) = RKI( 127 ) * YC( xMECO3 )
+      RXRAT( 128 ) = RKI( 128 ) * YC( xRCO3 )
+      RXRAT( 129 ) = RKI( 129 ) * YC( xRCO3 )
+      RXRAT( 130 ) = RKI( 130 ) * YC( xMACO3 )
+      RXRAT( 131 ) = RKI( 131 ) * YC( xMACO3 )
+      RXRAT( 132 ) = RKI( 132 ) * YC( xTBUO )
+      RXRAT( 133 ) = RKI( 133 ) * YC( xTBUO )
+      RXRAT( 134 ) = RKI( 134 ) * YC( xCO )
+      RXRAT( 135 ) = RKI( 135 ) * YC( xCO )
+      RXRAT( 136 ) = RKI( 136 ) * YC( HCHO )
+      RXRAT( 137 ) = RKI( 137 ) * YC( HCHO )
+      RXRAT( 138 ) = RKI( 138 ) * YC( HCHO ) * YC( OH )
+      RXRAT( 139 ) = RKI( 139 ) * YC( HCHO ) * YC( NO3 )
+      RXRAT( 140 ) = RKI( 140 ) * YC( CCHO ) * YC( OH )
+      RXRAT( 141 ) = RKI( 141 ) * YC( CCHO )
+      RXRAT( 142 ) = RKI( 142 ) * YC( CCHO ) * YC( NO3 )
+      RXRAT( 143 ) = RKI( 143 ) * YC( RCHO ) * YC( OH )
+      RXRAT( 144 ) = RKI( 144 ) * YC( RCHO )
+      RXRAT( 145 ) = RKI( 145 ) * YC( RCHO ) * YC( NO3 )
+      RXRAT( 146 ) = RKI( 146 ) * YC( ACETONE ) * YC( OH )
+      RXRAT( 147 ) = RKI( 147 ) * YC( ACETONE )
+      RXRAT( 148 ) = RKI( 148 ) * YC( MEK ) * YC( OH )
+      RXRAT( 149 ) = RKI( 149 ) * YC( MEK )
+      RXRAT( 150 ) = RKI( 150 ) * YC( MEOH ) * YC( OH )
+      RXRAT( 151 ) = RKI( 151 ) * YC( HCOOH ) * YC( OH )
+      RXRAT( 152 ) = RKI( 152 ) * YC( CCOOH ) * YC( OH )
+      RXRAT( 153 ) = RKI( 153 ) * YC( RCOOH ) * YC( OH )
+      RXRAT( 154 ) = RKI( 154 ) * YC( COOH ) * YC( OH )
+      RXRAT( 155 ) = RKI( 155 ) * YC( COOH )
+      RXRAT( 156 ) = RKI( 156 ) * YC( ROOH ) * YC( OH )
+      RXRAT( 157 ) = RKI( 157 ) * YC( ROOH )
+      RXRAT( 158 ) = RKI( 158 ) * YC( R6OOH ) * YC( OH )
+      RXRAT( 159 ) = RKI( 159 ) * YC( R6OOH )
+      RXRAT( 160 ) = RKI( 160 ) * YC( RAOOH ) * YC( OH )
+      RXRAT( 161 ) = RKI( 161 ) * YC( RAOOH )
+      RXRAT( 162 ) = RKI( 162 ) * YC( GLY )
+      RXRAT( 163 ) = RKI( 163 ) * YC( GLY )
+      RXRAT( 164 ) = RKI( 164 ) * YC( GLY ) * YC( OH )
+      RXRAT( 165 ) = RKI( 165 ) * YC( GLY ) * YC( NO3 )
+      RXRAT( 166 ) = RKI( 166 ) * YC( MGLY )
+      RXRAT( 167 ) = RKI( 167 ) * YC( MGLY ) * YC( OH )
+      RXRAT( 168 ) = RKI( 168 ) * YC( MGLY ) * YC( NO3 )
+      RXRAT( 169 ) = RKI( 169 ) * YC( BACL )
+      RXRAT( 170 ) = RKI( 170 ) * YC( CRES ) * YC( OH )
+      RXRAT( 171 ) = RKI( 171 ) * YC( CRES ) * YC( NO3 )
+      RXRAT( 172 ) = RKI( 172 ) * YC( NPHE ) * YC( OH )
+      RXRAT( 173 ) = RKI( 173 ) * YC( NPHE )
+      RXRAT( 174 ) = RKI( 174 ) * YC( NPHE )
+      RXRAT( 175 ) = RKI( 175 ) * YC( BALD ) * YC( OH )
+      RXRAT( 176 ) = RKI( 176 ) * YC( BALD )
+      RXRAT( 177 ) = RKI( 177 ) * YC( BALD ) * YC( NO3 )
+      RXRAT( 178 ) = RKI( 178 ) * YC( AFG1 ) * YC( OH )
+      RXRAT( 179 ) = RKI( 179 ) * YC( AFG1 ) * YC( O3 )
+      RXRAT( 180 ) = RKI( 180 ) * YC( AFG1 )
+      RXRAT( 181 ) = RKI( 181 ) * YC( AFG2 ) * YC( OH )
+      RXRAT( 182 ) = RKI( 182 ) * YC( AFG2 ) * YC( O3 )
+      RXRAT( 183 ) = RKI( 183 ) * YC( AFG2 )
+      RXRAT( 184 ) = RKI( 184 ) * YC( AFG3 ) * YC( OH )
+      RXRAT( 185 ) = RKI( 185 ) * YC( AFG3 ) * YC( O3 )
+      RXRAT( 186 ) = RKI( 186 ) * YC( MACR ) * YC( OH )
+      RXRAT( 187 ) = RKI( 187 ) * YC( MACR ) * YC( O3 )
+      RXRAT( 188 ) = RKI( 188 ) * YC( MACR ) * YC( NO3 )
+      RXRAT( 189 ) = RKI( 189 ) * YC( MACR ) * YC( O3P )
+      RXRAT( 190 ) = RKI( 190 ) * YC( MACR )
+      RXRAT( 191 ) = RKI( 191 ) * YC( MVK ) * YC( OH )
+      RXRAT( 192 ) = RKI( 192 ) * YC( MVK ) * YC( O3 )
+      RXRAT( 193 ) = RKI( 193 ) * YC( MVK ) * YC( O3P )
+      RXRAT( 194 ) = RKI( 194 ) * YC( MVK )
+      RXRAT( 195 ) = RKI( 195 ) * YC( IPRD ) * YC( OH )
+      RXRAT( 196 ) = RKI( 196 ) * YC( IPRD ) * YC( O3 )
+      RXRAT( 197 ) = RKI( 197 ) * YC( IPRD ) * YC( NO3 )
+      RXRAT( 198 ) = RKI( 198 ) * YC( IPRD )
+      RXRAT( 199 ) = RKI( 199 ) * YC( PRD2 ) * YC( OH )
+      RXRAT( 200 ) = RKI( 200 ) * YC( PRD2 )
+      RXRAT( 201 ) = RKI( 201 ) * YC( RNO3 ) * YC( OH )
+      RXRAT( 202 ) = RKI( 202 ) * YC( RNO3 )
+      RXRAT( 203 ) = RKI( 203 ) * YC( HOCCHO ) * YC( OH )
+      RXRAT( 204 ) = RKI( 204 ) * YC( HOCCHO )
+      RXRAT( 205 ) = RKI( 205 ) * YC( HOCCHO ) * YC( NO3 )
+      RXRAT( 206 ) = RKI( 206 ) * YC( ACROLEIN ) * YC( OH )
+      RXRAT( 207 ) = RKI( 207 ) * YC( ACROLEIN ) * YC( O3 )
+      RXRAT( 208 ) = RKI( 208 ) * YC( ACROLEIN ) * YC( NO3 )
+      RXRAT( 209 ) = RKI( 209 ) * YC( ACROLEIN ) * YC( O3P )
+      RXRAT( 210 ) = RKI( 210 ) * YC( ACROLEIN )
+      RXRAT( 211 ) = RKI( 211 ) * YC( CCOOOH ) * YC( OH )
+      RXRAT( 212 ) = RKI( 212 ) * YC( CCOOOH )
+      RXRAT( 213 ) = RKI( 213 ) * YC( RCOOOH ) * YC( OH )
+      RXRAT( 214 ) = RKI( 214 ) * YC( RCOOOH )
+      RXRAT( 215 ) = RKI( 215 ) * YC( xHCHO )
+      RXRAT( 216 ) = RKI( 216 ) * YC( xHCHO )
+      RXRAT( 217 ) = RKI( 217 ) * YC( xCCHO )
+      RXRAT( 218 ) = RKI( 218 ) * YC( xCCHO )
+      RXRAT( 219 ) = RKI( 219 ) * YC( xRCHO )
+      RXRAT( 220 ) = RKI( 220 ) * YC( xRCHO )
+      RXRAT( 221 ) = RKI( 221 ) * YC( xACETONE )
+      RXRAT( 222 ) = RKI( 222 ) * YC( xACETONE )
+      RXRAT( 223 ) = RKI( 223 ) * YC( xMEK )
+      RXRAT( 224 ) = RKI( 224 ) * YC( xMEK )
+      RXRAT( 225 ) = RKI( 225 ) * YC( xPROD2 )
+      RXRAT( 226 ) = RKI( 226 ) * YC( xPROD2 )
+      RXRAT( 227 ) = RKI( 227 ) * YC( xGLY )
+      RXRAT( 228 ) = RKI( 228 ) * YC( xGLY )
+      RXRAT( 229 ) = RKI( 229 ) * YC( xMGLY )
+      RXRAT( 230 ) = RKI( 230 ) * YC( xMGLY )
+      RXRAT( 231 ) = RKI( 231 ) * YC( xBACL )
+      RXRAT( 232 ) = RKI( 232 ) * YC( xBACL )
+      RXRAT( 233 ) = RKI( 233 ) * YC( xBALD )
+      RXRAT( 234 ) = RKI( 234 ) * YC( xBALD )
+      RXRAT( 235 ) = RKI( 235 ) * YC( xAFG1 )
+      RXRAT( 236 ) = RKI( 236 ) * YC( xAFG1 )
+      RXRAT( 237 ) = RKI( 237 ) * YC( xAFG2 )
+      RXRAT( 238 ) = RKI( 238 ) * YC( xAFG2 )
+      RXRAT( 239 ) = RKI( 239 ) * YC( xAFG3 )
+      RXRAT( 240 ) = RKI( 240 ) * YC( xAFG3 )
+      RXRAT( 241 ) = RKI( 241 ) * YC( xMACR )
+      RXRAT( 242 ) = RKI( 242 ) * YC( xMACR )
+      RXRAT( 243 ) = RKI( 243 ) * YC( xMVK )
+      RXRAT( 244 ) = RKI( 244 ) * YC( xMVK )
+      RXRAT( 245 ) = RKI( 245 ) * YC( xIPRD )
+      RXRAT( 246 ) = RKI( 246 ) * YC( xIPRD )
+      RXRAT( 247 ) = RKI( 247 ) * YC( xRNO3 )
+      RXRAT( 248 ) = RKI( 248 ) * YC( xRNO3 )
+      RXRAT( 249 ) = RKI( 249 ) * YC( zRNO3 )
+      RXRAT( 250 ) = RKI( 250 ) * YC( zRNO3 )
+      RXRAT( 251 ) = RKI( 251 ) * YC( zRNO3 )
+      RXRAT( 252 ) = RKI( 252 ) * YC( yROOH )
+      RXRAT( 253 ) = RKI( 253 ) * YC( yROOH )
+      RXRAT( 254 ) = RKI( 254 ) * YC( yROOH )
+      RXRAT( 255 ) = RKI( 255 ) * YC( yR6OOH )
+      RXRAT( 256 ) = RKI( 256 ) * YC( yR6OOH )
+      RXRAT( 257 ) = RKI( 257 ) * YC( yR6OOH )
+      RXRAT( 258 ) = RKI( 258 ) * YC( yRAOOH )
+      RXRAT( 259 ) = RKI( 259 ) * YC( yRAOOH )
+      RXRAT( 260 ) = RKI( 260 ) * YC( yRAOOH )
+      RXRAT( 261 ) = RKI( 261 ) * YC( xHOCCHO )
+      RXRAT( 262 ) = RKI( 262 ) * YC( xHOCCHO )
+      RXRAT( 263 ) = RKI( 263 ) * YC( xACROLEIN )
+      RXRAT( 264 ) = RKI( 264 ) * YC( xACROLEIN )
+      RXRAT( 265 ) = RKI( 265 ) * YC( OH )
+      RXRAT( 266 ) = RKI( 266 ) * YC( ETHENE ) * YC( OH )
+      RXRAT( 267 ) = RKI( 267 ) * YC( ETHENE ) * YC( O3 )
+      RXRAT( 268 ) = RKI( 268 ) * YC( ETHENE ) * YC( NO3 )
+      RXRAT( 269 ) = RKI( 269 ) * YC( ETHENE ) * YC( O3P )
+      RXRAT( 270 ) = RKI( 270 ) * YC( PROPENE ) * YC( OH )
+      RXRAT( 271 ) = RKI( 271 ) * YC( PROPENE ) * YC( O3 )
+      RXRAT( 272 ) = RKI( 272 ) * YC( PROPENE ) * YC( NO3 )
+      RXRAT( 273 ) = RKI( 273 ) * YC( PROPENE ) * YC( O3P )
+      RXRAT( 274 ) = RKI( 274 ) * YC( BUTADIENE13 ) * YC( OH )
+      RXRAT( 275 ) = RKI( 275 ) * YC( BUTADIENE13 ) * YC( O3 )
+      RXRAT( 276 ) = RKI( 276 ) * YC( BUTADIENE13 ) * YC( NO3 )
+      RXRAT( 277 ) = RKI( 277 ) * YC( BUTADIENE13 ) * YC( O3P )
+      RXRAT( 278 ) = RKI( 278 ) * YC( ISOPRENE ) * YC( OH )
+      RXRAT( 279 ) = RKI( 279 ) * YC( ISOPRENE ) * YC( O3 )
+      RXRAT( 280 ) = RKI( 280 ) * YC( ISOPRENE ) * YC( NO3 )
+      RXRAT( 281 ) = RKI( 281 ) * YC( ISOPRENE ) * YC( O3P )
+      RXRAT( 282 ) = RKI( 282 ) * YC( APIN ) * YC( OH )
+      RXRAT( 283 ) = RKI( 283 ) * YC( APIN ) * YC( O3 )
+      RXRAT( 284 ) = RKI( 284 ) * YC( APIN ) * YC( NO3 )
+      RXRAT( 285 ) = RKI( 285 ) * YC( APIN ) * YC( O3P )
+      RXRAT( 286 ) = RKI( 286 ) * YC( ACETYLENE ) * YC( OH )
+      RXRAT( 287 ) = RKI( 287 ) * YC( ACETYLENE ) * YC( O3 )
+      RXRAT( 288 ) = RKI( 288 ) * YC( BENZENE ) * YC( OH )
+      RXRAT( 289 ) = RKI( 289 ) * YC( TOLUENE ) * YC( OH )
+      RXRAT( 290 ) = RKI( 290 ) * YC( MXYL ) * YC( OH )
+      RXRAT( 291 ) = RKI( 291 ) * YC( OXYL ) * YC( OH )
+      RXRAT( 292 ) = RKI( 292 ) * YC( PXYL ) * YC( OH )
+      RXRAT( 293 ) = RKI( 293 ) * YC( TRIMETH_BENZ124 ) * YC( OH )
+      RXRAT( 294 ) = RKI( 294 ) * YC( ETOH ) * YC( OH )
+      RXRAT( 295 ) = RKI( 295 ) * YC( ALK1 ) * YC( OH )
+      RXRAT( 296 ) = RKI( 296 ) * YC( ALK2 ) * YC( OH )
+      RXRAT( 297 ) = RKI( 297 ) * YC( ALK3 ) * YC( OH )
+      RXRAT( 298 ) = RKI( 298 ) * YC( ALK4 ) * YC( OH )
+      RXRAT( 299 ) = RKI( 299 ) * YC( ALK5 ) * YC( OH )
+      RXRAT( 300 ) = RKI( 300 ) * YC( OLE1 ) * YC( OH )
+      RXRAT( 301 ) = RKI( 301 ) * YC( OLE1 ) * YC( O3 )
+      RXRAT( 302 ) = RKI( 302 ) * YC( OLE1 ) * YC( NO3 )
+      RXRAT( 303 ) = RKI( 303 ) * YC( OLE1 ) * YC( O3P )
+      RXRAT( 304 ) = RKI( 304 ) * YC( OLE2 ) * YC( OH )
+      RXRAT( 305 ) = RKI( 305 ) * YC( OLE2 ) * YC( O3 )
+      RXRAT( 306 ) = RKI( 306 ) * YC( OLE2 ) * YC( NO3 )
+      RXRAT( 307 ) = RKI( 307 ) * YC( OLE2 ) * YC( O3P )
+      RXRAT( 308 ) = RKI( 308 ) * YC( ARO1 ) * YC( OH )
+      RXRAT( 309 ) = RKI( 309 ) * YC( ARO2 ) * YC( OH )
+      RXRAT( 310 ) = RKI( 310 ) * YC( TERP ) * YC( OH )
+      RXRAT( 311 ) = RKI( 311 ) * YC( TERP ) * YC( O3 )
+      RXRAT( 312 ) = RKI( 312 ) * YC( TERP ) * YC( NO3 )
+      RXRAT( 313 ) = RKI( 313 ) * YC( TERP ) * YC( O3P )
+      RXRAT( 314 ) = RKI( 314 ) * YC( SESQ ) * YC( OH )
+      RXRAT( 315 ) = RKI( 315 ) * YC( SESQ ) * YC( O3 )
+      RXRAT( 316 ) = RKI( 316 ) * YC( SESQ ) * YC( NO3 )
+      RXRAT( 317 ) = RKI( 317 ) * YC( SESQ ) * YC( O3P )
+      RXRAT( 318 ) = RKI( 318 ) * YC( CL2 )
+      RXRAT( 319 ) = RKI( 319 ) * YC( CL ) * YC( NO )
+      RXRAT( 320 ) = RKI( 320 ) * YC( CLNO )
+      RXRAT( 321 ) = RKI( 321 ) * YC( CL ) * YC( NO2 )
+      RXRAT( 322 ) = RKI( 322 ) * YC( CL ) * YC( NO2 )
+      RXRAT( 323 ) = RKI( 323 ) * YC( CLONO )
+      RXRAT( 324 ) = RKI( 324 ) * YC( CLNO2 )
+      RXRAT( 325 ) = RKI( 325 ) * YC( CL ) * YC( HO2 )
+      RXRAT( 326 ) = RKI( 326 ) * YC( CL ) * YC( HO2 )
+      RXRAT( 327 ) = RKI( 327 ) * YC( CL ) * YC( O3 )
+      RXRAT( 328 ) = RKI( 328 ) * YC( CL ) * YC( NO3 )
+      RXRAT( 329 ) = RKI( 329 ) * YC( CLO ) * YC( NO )
+      RXRAT( 330 ) = RKI( 330 ) * YC( CLO ) * YC( NO2 )
+      RXRAT( 331 ) = RKI( 331 ) * YC( CLONO2 )
+      RXRAT( 332 ) = RKI( 332 ) * YC( CLONO2 )
+      RXRAT( 333 ) = RKI( 333 ) * YC( CLONO2 )
+      RXRAT( 334 ) = RKI( 334 ) * YC( CL ) * YC( CLONO2 )
+      RXRAT( 335 ) = RKI( 335 ) * YC( CLO ) * YC( HO2 )
+      RXRAT( 336 ) = RKI( 336 ) * YC( HOCL )
+      RXRAT( 337 ) = RKI( 337 ) * YC( CLO ) * YC( CLO )
+      RXRAT( 338 ) = RKI( 338 ) * YC( OH ) * YC( HCL )
+      RXRAT( 339 ) = RKI( 339 ) * YC( CL )
+      RXRAT( 340 ) = RKI( 340 ) * YC( HCHO ) * YC( CL )
+      RXRAT( 341 ) = RKI( 341 ) * YC( CCHO ) * YC( CL )
+      RXRAT( 342 ) = RKI( 342 ) * YC( MEOH ) * YC( CL )
+      RXRAT( 343 ) = RKI( 343 ) * YC( RCHO ) * YC( CL )
+      RXRAT( 344 ) = RKI( 344 ) * YC( ACETONE ) * YC( CL )
+      RXRAT( 345 ) = RKI( 345 ) * YC( MEK ) * YC( CL )
+      RXRAT( 346 ) = RKI( 346 ) * YC( RNO3 ) * YC( CL )
+      RXRAT( 347 ) = RKI( 347 ) * YC( PRD2 ) * YC( CL )
+      RXRAT( 348 ) = RKI( 348 ) * YC( GLY ) * YC( CL )
+      RXRAT( 349 ) = RKI( 349 ) * YC( MGLY ) * YC( CL )
+      RXRAT( 350 ) = RKI( 350 ) * YC( CRES ) * YC( CL )
+      RXRAT( 351 ) = RKI( 351 ) * YC( BALD ) * YC( CL )
+      RXRAT( 352 ) = RKI( 352 ) * YC( ROOH ) * YC( CL )
+      RXRAT( 353 ) = RKI( 353 ) * YC( R6OOH ) * YC( CL )
+      RXRAT( 354 ) = RKI( 354 ) * YC( RAOOH ) * YC( CL )
+      RXRAT( 355 ) = RKI( 355 ) * YC( ACROLEIN ) * YC( CL )
+      RXRAT( 356 ) = RKI( 356 ) * YC( MACR ) * YC( CL )
+      RXRAT( 357 ) = RKI( 357 ) * YC( MVK ) * YC( CL )
+      RXRAT( 358 ) = RKI( 358 ) * YC( IPRD ) * YC( CL )
+      RXRAT( 359 ) = RKI( 359 ) * YC( CLCCHO )
+      RXRAT( 360 ) = RKI( 360 ) * YC( CLCCHO ) * YC( OH )
+      RXRAT( 361 ) = RKI( 361 ) * YC( CLCCHO ) * YC( CL )
+      RXRAT( 362 ) = RKI( 362 ) * YC( CLACET )
+      RXRAT( 363 ) = RKI( 363 ) * YC( xCL )
+      RXRAT( 364 ) = RKI( 364 ) * YC( xCL )
+      RXRAT( 365 ) = RKI( 365 ) * YC( xCLCCHO )
+      RXRAT( 366 ) = RKI( 366 ) * YC( xCLCCHO )
+      RXRAT( 367 ) = RKI( 367 ) * YC( xCLACET )
+      RXRAT( 368 ) = RKI( 368 ) * YC( xCLACET )
+      RXRAT( 369 ) = RKI( 369 ) * YC( CL )
+      RXRAT( 370 ) = RKI( 370 ) * YC( ETHENE ) * YC( CL )
+      RXRAT( 371 ) = RKI( 371 ) * YC( PROPENE ) * YC( CL )
+      RXRAT( 372 ) = RKI( 372 ) * YC( BUTADIENE13 ) * YC( CL )
+      RXRAT( 373 ) = RKI( 373 ) * YC( ISOPRENE ) * YC( CL )
+      RXRAT( 374 ) = RKI( 374 ) * YC( APIN ) * YC( CL )
+      RXRAT( 375 ) = RKI( 375 ) * YC( ACETYLENE ) * YC( CL )
+      RXRAT( 376 ) = RKI( 376 ) * YC( TOLUENE ) * YC( CL )
+      RXRAT( 377 ) = RKI( 377 ) * YC( MXYL ) * YC( CL )
+      RXRAT( 378 ) = RKI( 378 ) * YC( OXYL ) * YC( CL )
+      RXRAT( 379 ) = RKI( 379 ) * YC( PXYL ) * YC( CL )
+      RXRAT( 380 ) = RKI( 380 ) * YC( TRIMETH_BENZ124 ) * YC( CL )
+      RXRAT( 381 ) = RKI( 381 ) * YC( ETOH ) * YC( CL )
+      RXRAT( 382 ) = RKI( 382 ) * YC( ALK1 ) * YC( CL )
+      RXRAT( 383 ) = RKI( 383 ) * YC( ALK2 ) * YC( CL )
+      RXRAT( 384 ) = RKI( 384 ) * YC( ALK3 ) * YC( CL )
+      RXRAT( 385 ) = RKI( 385 ) * YC( ALK4 ) * YC( CL )
+      RXRAT( 386 ) = RKI( 386 ) * YC( ALK5 ) * YC( CL )
+      RXRAT( 387 ) = RKI( 387 ) * YC( OLE1 ) * YC( CL )
+      RXRAT( 388 ) = RKI( 388 ) * YC( OLE2 ) * YC( CL )
+      RXRAT( 389 ) = RKI( 389 ) * YC( ARO1 ) * YC( CL )
+      RXRAT( 390 ) = RKI( 390 ) * YC( ARO2 ) * YC( CL )
+      RXRAT( 391 ) = RKI( 391 ) * YC( TERP ) * YC( CL )
+      RXRAT( 392 ) = RKI( 392 ) * YC( SESQ ) * YC( CL )
+      RXRAT( 393 ) = RKI( 393 ) * YC( BENZRO2 ) * YC( NO )
+      RXRAT( 394 ) = RKI( 394 ) * YC( BENZRO2 ) * YC( HO2 )
+      RXRAT( 395 ) = RKI( 395 ) * YC( XYLRO2 ) * YC( NO )
+      RXRAT( 396 ) = RKI( 396 ) * YC( XYLRO2 ) * YC( HO2 )
+      RXRAT( 397 ) = RKI( 397 ) * YC( TOLRO2 ) * YC( NO )
+      RXRAT( 398 ) = RKI( 398 ) * YC( TOLRO2 ) * YC( HO2 )
+      RXRAT( 399 ) = RKI( 399 ) * YC( HCHO_PRIMARY )
+      RXRAT( 400 ) = RKI( 400 ) * YC( HCHO_PRIMARY )
+      RXRAT( 401 ) = RKI( 401 ) * YC( HCHO_PRIMARY ) * YC( OH )
+      RXRAT( 402 ) = RKI( 402 ) * YC( HCHO_PRIMARY ) * YC( NO3 )
+      RXRAT( 403 ) = RKI( 403 ) * YC( HCHO_PRIMARY ) * YC( CL )
+      RXRAT( 404 ) = RKI( 404 ) * YC( CCHO_PRIMARY ) * YC( OH )
+      RXRAT( 405 ) = RKI( 405 ) * YC( CCHO_PRIMARY )
+      RXRAT( 406 ) = RKI( 406 ) * YC( CCHO_PRIMARY ) * YC( NO3 )
+      RXRAT( 407 ) = RKI( 407 ) * YC( CCHO_PRIMARY ) * YC( CL )
+      RXRAT( 408 ) = RKI( 408 ) * YC( ACROLEIN_PRIMARY ) * YC( OH )
+      RXRAT( 409 ) = RKI( 409 ) * YC( ACROLEIN_PRIMARY ) * YC( O3 )
+      RXRAT( 410 ) = RKI( 410 ) * YC( ACROLEIN_PRIMARY ) * YC( NO3 )
+      RXRAT( 411 ) = RKI( 411 ) * YC( ACROLEIN_PRIMARY ) * YC( O3P )
+      RXRAT( 412 ) = RKI( 412 ) * YC( ACROLEIN_PRIMARY )
+      RXRAT( 413 ) = RKI( 413 ) * YC( ACROLEIN_PRIMARY ) * YC( CL )
+
+
+      RETURN
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

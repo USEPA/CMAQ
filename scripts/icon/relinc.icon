@@ -1,0 +1,32 @@
+#! /bin/csh -f
+
+#relinc.icon
+
+ if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then
+    set RemoteBase = 
+    set RCP = "cp -p"
+ else
+    set RemoteBase = ${CVS_REMOTE_USER}@${CVS_REMOTE_MACH}:
+    set RCP = "scp -p"
+ endif
+
+# CGRID Mechanism Reactions global include files ...
+
+ set Rls = $Mechs/$Mechanism
+
+ set noglob
+
+ foreach file ( `find ${RemoteBase}${Rls}/ -type f -name "*" -print` )
+      if ( ! -e $file:t ) $RCP $file $Bld || exit 1
+ end
+
+# CGRID Tracer include files ...
+
+ set Rls = $Mechs/$Tracer
+
+ set noglob
+
+ foreach file ( `find ${RemoteBase}${Rls}/ -type f -name "*" -print` )
+      if ( ! -e $file:t ) $RCP $file $Bld || exit 1
+ end
+

@@ -1,0 +1,62 @@
+#!/bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/air5/sjr/CMAQv5.0/rel/models/mechs/MECHS/src/bin/update_release,v 1.1.1.1 2012/01/27 20:20:23 sjr Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+#> extract archive's released global include files
+#> env var ARCHIVE must be set
+
+ onintr abort
+ set echo
+ set Arc   = $ARCHIVE/mechs
+ set Rel   = HEAD
+#set Dest  = $Arc/release
+ set Dest  = $cwd
+
+ setenv CVSROOT $Arc/MECHS
+
+ if ( -d $CVSROOT ) then
+    echo "   for project (CVSROOT): $CVSROOT ..."
+ else
+    echo "   CVSROOT not defined"
+    exit()
+ endif
+
+ if ( ! -e "$Dest" ) then
+    mkdir $Dest
+ else
+    if ( ! -d "$Dest" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit(1)
+    endif
+ endif
+ chmod 755 $Dest
+ cd $Dest
+
+# get mechanism namelist files
+
+ set Mechs = ( trac0 \
+               cb05cl_ae5_aq \
+               cb05tucl_ae5_aq \
+               cb05tucl_ae6_aq \
+               cb05tump_ae6_aq \
+               saprc99_ae5_aq \
+               saprc99_ae6_aq \
+               saprc07tb_ae6_aq \
+               saprc07tc_ae6_aq )
+
+ foreach mech ( $Mechs )
+    mkdir $mech
+    cvs -r -q export -d $mech -r $Rel $mech
+    chmod 555 $mech
+ end
+
+ exit 0 
+
+ abort:
+    onintr -       # turn off
+    set nonomatch  # prevent file expansion errors
+    exit 1

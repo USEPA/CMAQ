@@ -1,0 +1,130 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.23.49;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.23.49;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/arc/BCON/src/bldmake/Makefile.trac,v 1.1 2011/09/12 14:10:27 yoj Exp $
+
+ MODEL = BCON_A6g   # namelist
+
+ IOAPI  = /home/wdx/lib/src/ioapi_3.1
+ NETCDF = /home/wdx/lib/x86_64/ifc11/netcdf/lib
+
+ FC    = ifort
+ CC    = icc
+
+#WARN = -warn declarations -warn errors -warn interfaces -warn unused -warn usage
+ WARN = -warn declarations -warn errors -warn interfaces              -warn usage
+#WARN = -warn declarations -warn errors                               -warn usage
+#WARN =
+
+ FSTD = -fixed -extend_source -fno-alias -mp1 $(WARN)
+  DBG = -check bounds -fpe0 -d-lines -fno-alias $(WARN) -ftrapuv -traceback
+
+ F_FLAGS = $(FSTD) -O3       -I $(IOAPI)/Linux2_x86_64ifort -I.
+ F_FLAGS = $(FSTD) -g $(DBG) -I $(IOAPI)/Linux2_x86_64ifort -I.
+ C_FLAGS = -O2 -DFLDMN -I $(MPICH)/include
+ LINK_FLAGS = -i-static
+
+ CPP  = FC
+
+ CPP_FLAGS =
+
+ LIBRARIES = -L$(IOAPI)/Linux2_x86_64ifort -lioapi -L$(NETCDF) -lnetcdf
+
+#INCL = /home/yoj/src/icon/phase1/BLD_m3
+
+#INCLUDES = \
+#-DSUBST_IOPARMS=\"$(IOAPI)/ioapi/fixed_src/PARMS3.EXT\" \
+#-DSUBST_IOFDESC=\"$(IOAPI)/ioapi/fixed_src/FDESC3.EXT\" \
+#-DSUBST_IODECL=\"$(IOAPI)/ioapi/fixed_src/IODECL3.EXT\" \
+#-DSUBST_GC_SPC=\"$(INCL)/GC_SPC.EXT\" \
+#-DSUBST_GC_ICBC=\"$(INCL)/GC_ICBC.EXT\" \
+#-DSUBST_AE_SPC=\"$(INCL)/AE_SPC.EXT\" \
+#-DSUBST_AE_ICBC=\"$(INCL)/AE_ICBC.EXT\" \
+#-DSUBST_NR_SPC=\"$(INCL)/NR_SPC.EXT\" \
+#-DSUBST_NR_ICBC=\"$(INCL)/NR_ICBC.EXT\" \
+#-DSUBST_TR_SPC=\"$(INCL)/TR_SPC.EXT\" \
+#-DSUBST_TR_ICBC=\"$(INCL)/TR_ICBC.EXT\"
+
+ INCL = /home/yoj/src/cmaqv51/BLD_V5b6
+#INCL = /home/yoj/src/bcon
+
+ INCLUDES = \
+ -DSUBST_RXCMMN=\"$(INCL)/RXCM.EXT\" \
+ -DSUBST_RXDATA=\"$(INCL)/RXDT.EXT\"
+
+ DRIVER =\
+ CGRID_SPCS.o \
+ HGRD_DEFN.o \
+ VGRD_DEFN.o \
+ findex.o \
+ get_envlist.o \
+ bcon.o \
+ lat_lon.o \
+ lr_interp.o \
+ lst_spc_map.o \
+ gc_spc_map.o \
+ ngc_spc_map.o \
+ opn_bc_file.o
+
+ INPUT =\
+ trac_bc.o \
+ trac_driver.o
+
+OBJS = $(DRIVER) $(INPUT)
+
+.SUFFIXES: .F .f .c
+
+$(MODEL): $(OBJS)
+	$(FC) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@@
+
+.F.o:
+	$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+.f.o:
+	$(FC) $(F_FLAGS) -c $<
+
+.c.o:
+	$(CC) $(C_FLAGS) -c $<
+
+clean:
+	rm -f $(OBJS) *.mod *__genmod.f90
+
+clear:
+	rm -f $(OBJS) $(MODEL) *.mod *__genmod.f90
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

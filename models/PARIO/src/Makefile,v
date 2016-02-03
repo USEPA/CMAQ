@@ -1,0 +1,88 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.27.38;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.27.38;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/PARIO/src/Makefile,v 1.8 2011/03/30 20:16:17 sjr Exp $
+
+SHELL=/bin/sh
+
+ LIBNAME = libpario.a
+#LIBNAME = libpario.debug.a
+
+ IOAPI_ext = /home/wdx/lib/src/ioapi_3.1/ioapi/fixed_src
+ IOAPI_mod = /home/wdx/lib/src/ioapi_3.1/Linux2_x86_64ifort
+ mpi_path  = /share/linux86_64/wdx/lib/x86_64i/ifc/mpich/include
+ FC        = /share/linux86_64/intel/fc/11.1.059/bin/intel64/ifort
+ FSTD      = -fixed -extend_source -fno-alias -nowarn -O3 -mp1
+ FFLAGS    = $(FSTD)    -I ${IOAPI_mod} -I ${IOAPI_ext} -I $(mpi_path) -I.
+#FFLAGS    = $(FSTD) -g -I ${IOAPI_mod} -I ${IOAPI_ext} -I $(mpi_path) -I.
+
+ OBJS= \
+ pinterpb_mod.o \
+ piomaps_mod.o \
+ alloc_data_mod.o \
+ boundary.o \
+ get_write_map.o \
+ growbuf.o \
+ gtndxhdv.o \
+ interpol.o \
+ pinterpb.o \
+ pio_init.o \
+ pio_re_init.o \
+ pm3err.o \
+ pm3exit.o \
+ pm3warn.o \
+ pshut3.o \
+ pwrite3.o \
+ ptrwrite3.o \
+ pwrgrdd.o \
+ readbndy.o \
+ subdmap.o \
+ wrsubmap.o \
+ parutilio.o
+
+.SUFFIXES: .f
+
+$(LIBNAME) : $(OBJS)
+	$(FC) $(FFLAGS) -c $(?:.o=.f)
+	ar -rv $@@ $?
+	chmod 644 $@@
+
+clean:
+	rm -f $(OBJS) $(LIBNAME) *.mod
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

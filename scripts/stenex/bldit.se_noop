@@ -1,0 +1,123 @@
+#! /bin/csh -f
+
+# ====================== STENEXv5.0 Build Script ==================== #
+# Usage: bldit.se_noop >&! bldit.se_noop.log                          #
+# Requirements: CVS and a Fortran compiler                            #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL =  source code CVS archive                         #
+#   setenv M3LIB   =  code libraries                                  #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the build environment
+ source ../config.cmaq
+
+#> Check for remote archive settings:
+ if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then 
+    echo " CVS_REMOTE_USER or CVS_REMOTE_MACH not set"
+    echo " Using local CVS archive"
+ endif
+
+## Check for M3MODEL and M3LIB settings:
+ if ( ! -e $M3MODEL || ! -e $M3LIB ) then
+    echo "   $M3MODEL or $M3LIB directory not found"
+    exit 1
+ endif
+ echo "   Model archive path: $M3MODEL"
+ echo "            LIBS path: $M3LIB"
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host\!"
+    exit 1
+ endif
+
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:Begin User Input Section #:##:#:#:#:#:#:#:#:#:#:#
+
+ set BASE = $cwd
+ set DEST = ${M3LIB}/se_noop   # location of output library files
+ if ( ! -d "$DEST" ) mkdir -p $DEST
+ set RM = "/bin/rm -f"
+ set MV = "/bin/mv -f"
+
+#> Set full path of Fortran 90 compiler 
+ set FC = ${myFC}
+ set FSTD = "${myFFLAGS}"
+
+# set DEBUG     # Uncomment to create debug version of library
+ if ( $?DEBUG ) then
+    set F_FLAGS = "${FSTD} -c -g"
+ else
+    set F_FLAGS = "${FSTD} -c "
+ endif
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ setenv CVSROOT $M3MODEL/STENEX
+
+ set Bld = $BASE/BLD_noop
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+ else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ cd $Bld
+
+ echo " "
+ echo "Host: " `hostname`
+ echo "Host operating system:       $BLD_OS"
+ echo "Libraries/objects/f90-modules directory: $DEST"
+ echo " "
+
+ set flist = (\
+    noop_comm_module.f\
+    noop_data_copy_module.f\
+    noop_gather_module.f\
+    noop_global_max_module.f\
+    noop_global_min_module.f\
+    noop_global_sum_module.f\
+    noop_init_module.f\
+    noop_slice_module.f\
+    noop_term_module.f\
+    noop_util_module.f\
+    noop_modules.f )
+
+#> extract source files from cvs archive
+ foreach file ( $flist )
+    cvs export -r HEAD -d $Bld noop_f90/$file
+ end
+
+ if ( $?DEBUG ) then
+    set Arc = libsef90_noop.debug.a
+ else
+    set Arc = libsef90_noop.a
+ endif
+ if ( -e "$Arc" ) $RM $Arc *.mod
+
+#> compile in the flist order (se_modules.f depends on the others)
+ foreach file ( $flist )
+    $FC $F_FLAGS $file
+ end
+
+ ar rv $Arc *.o
+ chmod 444 $Arc
+ if ( -e "$DEST/$Arc" ) $MV $DEST/$Arc $DEST/$Arc.old
+ $MV $Arc $DEST
+ $MV *.mod $DEST
+
+ if ( $?DEBUG ) then
+    $MV *.o $DEST
+ else
+    $RM *.o
+ endif
+ echo " "; echo " Finish building $DEST/$Arc "
+ exit()

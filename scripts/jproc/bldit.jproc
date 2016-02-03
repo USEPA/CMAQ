@@ -1,0 +1,204 @@
+#! /bin/csh -f
+
+# ====================== JPROCv5.0 Build Script ===================== #
+# Usage: bldit.jproc >&! bldit.jproc.log                              #
+# Requirements: I/O API & netCDF libs, CVS, and a Fortran compiler    #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL =  source code CVS archive                         #
+#   setenv M3LIB   =  code libraries                                  #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the build environment
+ source ../config.cmaq
+
+#> Check for remote archive settings:
+ if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then 
+    echo " CVS_REMOTE_USER or CVS_REMOTE_MACH not set"
+    echo " Using local CVS archive"
+ endif
+
+#> Check for M3MODEL and M3LIB settings:
+ if ( ! -e $M3MODEL || ! -e $M3LIB ) then 
+    echo "   $M3MODEL or $M3LIB directory not found"
+    exit 1
+ endif
+ echo "   Model archive path: $M3MODEL"
+ echo "         library path: $M3LIB"
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only 
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
+ endif
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
+
+#> user choices: cvs archives
+ set Project = $M3MODEL/JPROC
+ set GlobInc = $M3MODEL/includes/release
+ set Mechs   = $M3MODEL/mechs/release
+
+#> user choices: base working directory
+ set Base = $cwd
+
+ set APPL  = V5f
+ set CFG   = cfg.$APPL
+ set MODEL = JPROC_${APPL}_$EXECID
+
+#> user choices: bldmake command
+ set Opt = verbose      # show requested commands as they are executed
+#set MakeOpt            # builds a Makefile to make the model; comment out
+                        # this option for bldmake to compile the model
+
+#> user choices: various modules
+
+ set Revision = release       # release = latest CVS revision
+#set Revision = '"CMAQv5_0"'
+
+ set ModDriver = ( module jproc_table    $Revision; )
+
+#> user choices: mechanism
+#set Mechanism = cb05cl_ae5_aq
+#set Mechanism = cb05tucl_ae5_aq
+ set Mechanism = cb05tucl_ae6_aq
+#set Mechanism = cb05tump_ae6_aq
+#set Mechanism = saprc99_ae5_aq
+#set Mechanism = saprc99_ae6_aq
+#set Mechanism = saprc07tb_ae6_aq
+#set Mechanism = saprc07tc_ae6_aq
+
+#> user choices: computing system configuration:
+#>    name of the "BLD" directory for checking out and compiling source code
+#>    compiler name and location/link flags
+#>    library paths
+
+ set Bld = $Base/BLD_${APPL}
+
+#> Set full path of Fortran 90 compiler
+ set FC = ${myFC}
+ set FP = $FC
+
+#> Set location of M3Bld executable
+ set Blder = $M3LIB/build/bldmake
+
+#> Set location of libraries/include files
+ set IOAPI  = "${M3LIB}/ioapi_3.1/Linux2_${system}${compiler} -lioapi"
+ set IOAPIMOD = ${M3LIB}/ioapi_3.1/Linux2_${system}${compiler}
+
+ set NETCDF = "${M3LIB}/netcdf/lib -lnetcdf"
+
+#> Set compiler flags
+ set F_FLAGS    = "${myFFLAGS} -I ${IOAPIMOD} -I."
+ set F90_FLAGS  = "${myFRFLAGS} -I ${IOAPIMOD} -I."
+ set CPP_FLAGS  = ""
+ set C_FLAGS    = "${myCFLAGS} -DFLDMN"
+ set LINK_FLAGS = "${myLINK_FLAG}"
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+ else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ cd $Bld
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ set LIB1 = "-L${IOAPI}"
+ set LIB2 = "-L${NETCDF}"
+ set LIBS = "$LIB1 $LIB2"
+
+ source $Base/relinc.jproc
+ if ( $status ) exit 1
+
+ set ICL_CONST = $GlobInc
+ set ICL_MECH  = $Mechs/$Mechanism
+
+ if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then
+    setenv CVSROOT $Project
+ else
+    setenv CVSROOT :ext:${CVS_REMOTE_USER}@${CVS_REMOTE_MACH}:${Project}
+ endif
+
+#> make the config file
+
+ set Cfile = ${CFG}.bld
+ set quote = '"'
+
+ echo                                                               > $Cfile
+ echo "model       $MODEL;"                                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "FPP         $FP;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ set text = "$quote$CPP_FLAGS$quote;"
+ echo "cpp_flags   $text"                                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_compiler  $FC;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "global      $Opt;"                                          >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text="// mechanism:"
+ echo "$text ${Mechanism}"                                         >> $Cfile
+ echo "// project archive: ${Project}"                             >> $Cfile
+ echo                                                              >> $Cfile
+ if ( $compiler == gfort ) then
+   set ICL_CONST = '.'
+   set ICL_MECH = '.'
+ endif
+ echo "include SUBST_CONST      $ICL_CONST/CONST.EXT;"             >> $Cfile
+ echo "include SUBST_RXCMMN     $ICL_MECH/RXCM.EXT;"               >> $Cfile
+ echo "include SUBST_RXDATA     $ICL_MECH/RXDT.EXT;"               >> $Cfile
+
+ set text = "jproc_table"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModDriver"                                                 >> $Cfile
+ echo                                                              >> $Cfile
+
+#> make the model executable
+
+ if ( $?MakeOpt ) then
+    $Blder -make $Cfile   # $Cfile = ${CFG}.bld
+ else
+    set NoMake
+    $Blder $Cfile
+ endif
+ if ( $status != 0 ) then
+    echo "   *** failure in $Blder ***"
+    exit 1
+ endif
+ if ( -e "$Base/${CFG}" ) then
+    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    unalias mv
+    mv $Base/${CFG} $Base/${CFG}.old
+ endif
+ cp ${CFG}.bld $Base/${CFG}
+ if ( ( $Opt != no_compile ) && \
+      ( $Opt != no_link    ) && \
+      ( $Opt != parse_only ) && \
+      ( $Opt != show_only  ) && \
+        $?NoMake ) then
+    mv $MODEL $Base
+ endif
+
+ exit

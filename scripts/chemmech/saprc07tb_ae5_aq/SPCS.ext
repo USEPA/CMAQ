@@ -1,0 +1,169 @@
+C --------- Mechanism CTM Species intermediate INCLUDE File ----------
+C  /home/hwo/tools/mech_processor/saprc07tb_ae5_aq/SPCS.ext
+C Generated from ...
+C  /home/hwo/cmaq-v5.0/mechanisms/saprc07tb_ae5_aq
+C  /mech_SAPRC07TB_AE5_AQ.def
+C for Mechanism Name: SAPRC07TB_AE5_AQ                
+
+C The following are reserved symbols declared in this INCLUDE file:
+C    NSPCS    = Number of mechanism species
+C    SPCNAMES = Table of mechanism species names
+C    SPC1RX   = rx index of 1st occurence of species in mechanism table
+
+      INTEGER, PARAMETER :: NSPCS = 150
+
+      CHARACTER( 16 ) :: SPCNAMES( NSPCS )
+      INTEGER         :: SPC1RX( NSPCS )
+
+      DATA SPCNAMES(  1), SPC1RX(  1)  / 'NO2             ',   1 /
+      DATA SPCNAMES(  2), SPC1RX(  2)  / 'NO              ',   1 /
+      DATA SPCNAMES(  3), SPC1RX(  3)  / 'O3P             ',   1 /
+      DATA SPCNAMES(  4), SPC1RX(  4)  / 'O3              ',   2 /
+      DATA SPCNAMES(  5), SPC1RX(  5)  / 'NO3             ',   6 /
+      DATA SPCNAMES(  6), SPC1RX(  6)  / 'N2O5            ',  11 /
+      DATA SPCNAMES(  7), SPC1RX(  7)  / 'HNO3            ',  13 /
+      DATA SPCNAMES(  8), SPC1RX(  8)  / 'O1D             ',  18 /
+      DATA SPCNAMES(  9), SPC1RX(  9)  / 'OH              ',  20 /
+      DATA SPCNAMES( 10), SPC1RX( 10)  / 'HONO            ',  22 /
+      DATA SPCNAMES( 11), SPC1RX( 11)  / 'HO2             ',  26 /
+      DATA SPCNAMES( 12), SPC1RX( 12)  / 'CO              ',  29 /
+      DATA SPCNAMES( 13), SPC1RX( 13)  / 'CO2             ',  29 /
+      DATA SPCNAMES( 14), SPC1RX( 14)  / 'HNO4            ',  32 /
+      DATA SPCNAMES( 15), SPC1RX( 15)  / 'HO2H            ',  37 /
+      DATA SPCNAMES( 16), SPC1RX( 16)  / 'SO2             ',  44 /
+      DATA SPCNAMES( 17), SPC1RX( 17)  / 'SULF            ',  44 /
+      DATA SPCNAMES( 18), SPC1RX( 18)  / 'SULRXN          ',  44 /
+      DATA SPCNAMES( 19), SPC1RX( 19)  / 'NO2EX           ',  46 /
+      DATA SPCNAMES( 20), SPC1RX( 20)  / 'MEO2            ',  50 /
+      DATA SPCNAMES( 21), SPC1RX( 21)  / 'HCHO            ',  50 /
+      DATA SPCNAMES( 22), SPC1RX( 22)  / 'COOH            ',  51 /
+      DATA SPCNAMES( 23), SPC1RX( 23)  / 'MEOH            ',  54 /
+      DATA SPCNAMES( 24), SPC1RX( 24)  / 'RO2C            ',  56 /
+      DATA SPCNAMES( 25), SPC1RX( 25)  / 'RO2XC           ',  61 /
+      DATA SPCNAMES( 26), SPC1RX( 26)  / 'MECO3           ',  67 /
+      DATA SPCNAMES( 27), SPC1RX( 27)  / 'PAN             ',  67 /
+      DATA SPCNAMES( 28), SPC1RX( 28)  / 'CCOOOH          ',  71 /
+      DATA SPCNAMES( 29), SPC1RX( 29)  / 'CCOOH           ',  71 /
+      DATA SPCNAMES( 30), SPC1RX( 30)  / 'RCO3            ',  77 /
+      DATA SPCNAMES( 31), SPC1RX( 31)  / 'PAN2            ',  77 /
+      DATA SPCNAMES( 32), SPC1RX( 32)  / 'xHO2            ',  79 /
+      DATA SPCNAMES( 33), SPC1RX( 33)  / 'yROOH           ',  79 /
+      DATA SPCNAMES( 34), SPC1RX( 34)  / 'xCCHO           ',  79 /
+      DATA SPCNAMES( 35), SPC1RX( 35)  / 'RCOOOH          ',  81 /
+      DATA SPCNAMES( 36), SPC1RX( 36)  / 'RCOOH           ',  81 /
+      DATA SPCNAMES( 37), SPC1RX( 37)  / 'BZCO3           ',  88 /
+      DATA SPCNAMES( 38), SPC1RX( 38)  / 'PBZN            ',  88 /
+      DATA SPCNAMES( 39), SPC1RX( 39)  / 'BZO             ',  90 /
+      DATA SPCNAMES( 40), SPC1RX( 40)  / 'MACO3           ', 100 /
+      DATA SPCNAMES( 41), SPC1RX( 41)  / 'MAPAN           ', 100 /
+      DATA SPCNAMES( 42), SPC1RX( 42)  / 'TBUO            ', 113 /
+      DATA SPCNAMES( 43), SPC1RX( 43)  / 'RNO3            ', 113 /
+      DATA SPCNAMES( 44), SPC1RX( 44)  / 'ACETONE         ', 114 /
+      DATA SPCNAMES( 45), SPC1RX( 45)  / 'NPHE            ', 115 /
+      DATA SPCNAMES( 46), SPC1RX( 46)  / 'CRES            ', 116 /
+      DATA SPCNAMES( 47), SPC1RX( 47)  / 'xOH             ', 120 /
+      DATA SPCNAMES( 48), SPC1RX( 48)  / 'xNO2            ', 122 /
+      DATA SPCNAMES( 49), SPC1RX( 49)  / 'xMEO2           ', 124 /
+      DATA SPCNAMES( 50), SPC1RX( 50)  / 'xMECO3          ', 126 /
+      DATA SPCNAMES( 51), SPC1RX( 51)  / 'xRCO3           ', 128 /
+      DATA SPCNAMES( 52), SPC1RX( 52)  / 'xMACO3          ', 130 /
+      DATA SPCNAMES( 53), SPC1RX( 53)  / 'xTBUO           ', 132 /
+      DATA SPCNAMES( 54), SPC1RX( 54)  / 'xCO             ', 134 /
+      DATA SPCNAMES( 55), SPC1RX( 55)  / 'CCHO            ', 140 /
+      DATA SPCNAMES( 56), SPC1RX( 56)  / 'RCHO            ', 143 /
+      DATA SPCNAMES( 57), SPC1RX( 57)  / 'xHCHO           ', 146 /
+      DATA SPCNAMES( 58), SPC1RX( 58)  / 'MEK             ', 148 /
+      DATA SPCNAMES( 59), SPC1RX( 59)  / 'zRNO3           ', 148 /
+      DATA SPCNAMES( 60), SPC1RX( 60)  / 'xRCHO           ', 148 /
+      DATA SPCNAMES( 61), SPC1RX( 61)  / 'HCOOH           ', 151 /
+      DATA SPCNAMES( 62), SPC1RX( 62)  / 'xMGLY           ', 152 /
+      DATA SPCNAMES( 63), SPC1RX( 63)  / 'xBACL           ', 153 /
+      DATA SPCNAMES( 64), SPC1RX( 64)  / 'ROOH            ', 156 /
+      DATA SPCNAMES( 65), SPC1RX( 65)  / 'xPROD2          ', 156 /
+      DATA SPCNAMES( 66), SPC1RX( 66)  / 'R6OOH           ', 158 /
+      DATA SPCNAMES( 67), SPC1RX( 67)  / 'PRD2            ', 158 /
+      DATA SPCNAMES( 68), SPC1RX( 68)  / 'yR6OOH          ', 159 /
+      DATA SPCNAMES( 69), SPC1RX( 69)  / 'RAOOH           ', 160 /
+      DATA SPCNAMES( 70), SPC1RX( 70)  / 'MGLY            ', 160 /
+      DATA SPCNAMES( 71), SPC1RX( 71)  / 'IPRD            ', 160 /
+      DATA SPCNAMES( 72), SPC1RX( 72)  / 'xGLY            ', 160 /
+      DATA SPCNAMES( 73), SPC1RX( 73)  / 'xMEK            ', 160 /
+      DATA SPCNAMES( 74), SPC1RX( 74)  / 'xAFG1           ', 160 /
+      DATA SPCNAMES( 75), SPC1RX( 75)  / 'xAFG2           ', 160 /
+      DATA SPCNAMES( 76), SPC1RX( 76)  / 'GLY             ', 161 /
+      DATA SPCNAMES( 77), SPC1RX( 77)  / 'AFG1            ', 161 /
+      DATA SPCNAMES( 78), SPC1RX( 78)  / 'AFG2            ', 161 /
+      DATA SPCNAMES( 79), SPC1RX( 79)  / 'BACL            ', 169 /
+      DATA SPCNAMES( 80), SPC1RX( 80)  / 'BALD            ', 175 /
+      DATA SPCNAMES( 81), SPC1RX( 81)  / 'AFG3            ', 184 /
+      DATA SPCNAMES( 82), SPC1RX( 82)  / 'xIPRD           ', 184 /
+      DATA SPCNAMES( 83), SPC1RX( 83)  / 'MACR            ', 185 /
+      DATA SPCNAMES( 84), SPC1RX( 84)  / 'MVK             ', 185 /
+      DATA SPCNAMES( 85), SPC1RX( 85)  / 'xHOCCHO         ', 191 /
+      DATA SPCNAMES( 86), SPC1RX( 86)  / 'xRNO3           ', 197 /
+      DATA SPCNAMES( 87), SPC1RX( 87)  / 'HOCCHO          ', 198 /
+      DATA SPCNAMES( 88), SPC1RX( 88)  / 'xACETONE        ', 201 /
+      DATA SPCNAMES( 89), SPC1RX( 89)  / 'ACROLEIN        ', 206 /
+      DATA SPCNAMES( 90), SPC1RX( 90)  / 'xBALD           ', 233 /
+      DATA SPCNAMES( 91), SPC1RX( 91)  / 'xAFG3           ', 239 /
+      DATA SPCNAMES( 92), SPC1RX( 92)  / 'xMACR           ', 241 /
+      DATA SPCNAMES( 93), SPC1RX( 93)  / 'xMVK            ', 243 /
+      DATA SPCNAMES( 94), SPC1RX( 94)  / 'yRAOOH          ', 258 /
+      DATA SPCNAMES( 95), SPC1RX( 95)  / 'xACROLEIN       ', 263 /
+      DATA SPCNAMES( 96), SPC1RX( 96)  / 'ETHENE          ', 266 /
+      DATA SPCNAMES( 97), SPC1RX( 97)  / 'PROPENE         ', 270 /
+      DATA SPCNAMES( 98), SPC1RX( 98)  / 'BUTADIENE13     ', 274 /
+      DATA SPCNAMES( 99), SPC1RX( 99)  / 'ISOPRENE        ', 278 /
+      DATA SPCNAMES(100), SPC1RX(100)  / 'ISOPRXN         ', 278 /
+      DATA SPCNAMES(101), SPC1RX(101)  / 'APIN            ', 282 /
+      DATA SPCNAMES(102), SPC1RX(102)  / 'TRPRXN          ', 282 /
+      DATA SPCNAMES(103), SPC1RX(103)  / 'ACETYLENE       ', 286 /
+      DATA SPCNAMES(104), SPC1RX(104)  / 'BENZENE         ', 288 /
+      DATA SPCNAMES(105), SPC1RX(105)  / 'BENZRO2         ', 288 /
+      DATA SPCNAMES(106), SPC1RX(106)  / 'TOLUENE         ', 289 /
+      DATA SPCNAMES(107), SPC1RX(107)  / 'TOLRO2          ', 289 /
+      DATA SPCNAMES(108), SPC1RX(108)  / 'MXYL            ', 290 /
+      DATA SPCNAMES(109), SPC1RX(109)  / 'XYLRO2          ', 290 /
+      DATA SPCNAMES(110), SPC1RX(110)  / 'OXYL            ', 291 /
+      DATA SPCNAMES(111), SPC1RX(111)  / 'PXYL            ', 292 /
+      DATA SPCNAMES(112), SPC1RX(112)  / 'TRIMETH_BENZ124 ', 293 /
+      DATA SPCNAMES(113), SPC1RX(113)  / 'ETOH            ', 294 /
+      DATA SPCNAMES(114), SPC1RX(114)  / 'ALK1            ', 295 /
+      DATA SPCNAMES(115), SPC1RX(115)  / 'ALK2            ', 296 /
+      DATA SPCNAMES(116), SPC1RX(116)  / 'ALK3            ', 297 /
+      DATA SPCNAMES(117), SPC1RX(117)  / 'ALK4            ', 298 /
+      DATA SPCNAMES(118), SPC1RX(118)  / 'ALK5            ', 299 /
+      DATA SPCNAMES(119), SPC1RX(119)  / 'ALK5RXN         ', 299 /
+      DATA SPCNAMES(120), SPC1RX(120)  / 'OLE1            ', 300 /
+      DATA SPCNAMES(121), SPC1RX(121)  / 'OLE2            ', 304 /
+      DATA SPCNAMES(122), SPC1RX(122)  / 'ARO1            ', 308 /
+      DATA SPCNAMES(123), SPC1RX(123)  / 'ARO2            ', 309 /
+      DATA SPCNAMES(124), SPC1RX(124)  / 'TERP            ', 310 /
+      DATA SPCNAMES(125), SPC1RX(125)  / 'SESQ            ', 314 /
+      DATA SPCNAMES(126), SPC1RX(126)  / 'SESQRXN         ', 314 /
+      DATA SPCNAMES(127), SPC1RX(127)  / 'CL2             ', 318 /
+      DATA SPCNAMES(128), SPC1RX(128)  / 'CL              ', 318 /
+      DATA SPCNAMES(129), SPC1RX(129)  / 'CLNO            ', 319 /
+      DATA SPCNAMES(130), SPC1RX(130)  / 'CLONO           ', 321 /
+      DATA SPCNAMES(131), SPC1RX(131)  / 'CLNO2           ', 322 /
+      DATA SPCNAMES(132), SPC1RX(132)  / 'HCL             ', 325 /
+      DATA SPCNAMES(133), SPC1RX(133)  / 'CLO             ', 326 /
+      DATA SPCNAMES(134), SPC1RX(134)  / 'CLONO2          ', 330 /
+      DATA SPCNAMES(135), SPC1RX(135)  / 'HOCL            ', 335 /
+      DATA SPCNAMES(136), SPC1RX(136)  / 'xCL             ', 355 /
+      DATA SPCNAMES(137), SPC1RX(137)  / 'xCLCCHO         ', 355 /
+      DATA SPCNAMES(138), SPC1RX(138)  / 'xCLACET         ', 356 /
+      DATA SPCNAMES(139), SPC1RX(139)  / 'CLCCHO          ', 359 /
+      DATA SPCNAMES(140), SPC1RX(140)  / 'CLACET          ', 362 /
+      DATA SPCNAMES(141), SPC1RX(141)  / 'CLCHO           ', 370 /
+      DATA SPCNAMES(142), SPC1RX(142)  / 'BNZNRXN         ', 393 /
+      DATA SPCNAMES(143), SPC1RX(143)  / 'BNZHRXN         ', 394 /
+      DATA SPCNAMES(144), SPC1RX(144)  / 'XYLNRXN         ', 395 /
+      DATA SPCNAMES(145), SPC1RX(145)  / 'XYLHRXN         ', 396 /
+      DATA SPCNAMES(146), SPC1RX(146)  / 'TOLNRXN         ', 397 /
+      DATA SPCNAMES(147), SPC1RX(147)  / 'TOLHRXN         ', 398 /
+      DATA SPCNAMES(148), SPC1RX(148)  / 'HCHO_PRIMARY    ', 399 /
+      DATA SPCNAMES(149), SPC1RX(149)  / 'CCHO_PRIMARY    ', 404 /
+      DATA SPCNAMES(150), SPC1RX(150)  / 'ACROLEIN_PRIMARY', 408 /
+
+C End of Mechanism CTM Species intermediate INCLUDE File ------------

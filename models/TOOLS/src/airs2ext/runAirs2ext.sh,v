@@ -1,0 +1,83 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.29.45;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.29.45;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/sh
+#
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/TOOLS/src/airs2ext/runAirs2ext.sh,v 1.2 2011/10/21 13:02:46 sjr Exp $ 
+#
+# script for running the airs2ext program on Unix
+#
+#  program reads the output from rd_airs and writes hourly
+#  or daily values in the sitecmp input format (csv)
+#
+
+BASE=/project/model_evalb/extract_util
+
+EXECUTION_ID=airs2ext; export EXECUTION_ID
+
+EXEC=${BASE}/bin/${EXECUTION_ID}.exe
+
+## assign input and output files
+   INFILE=${BASE}/airs/output/rd_airsV1.0.ozone.2001.txt; export INFILE
+   OUTFILE=${BASE}/airs/output/airs2extV1.0.ozone.2001.csv; export OUTFILE
+
+## define species name for header
+   SPECIES="ozone"; export SPECIES
+
+## set time step (DAY or HOUR)
+   STEP=DAY; export STEP
+#  STEP=HOUR; export STEP
+
+## set start and end dates (YYYYJJJ) format
+   START_DATE=2001001; export START_DATE
+   END_DATE=2001365; export END_DATE
+
+## set domain window (comment out for all)
+#  LAT_MIN=32.0; export LAT_MIN
+#  LAT_MAX=47.0; export LAT_MAX
+#  LON_MIN=-90.0; export LON_MIN
+#  LON_MAX=-68.0; export LON_MAX
+
+
+## run executable using sorted file
+   ${EXEC}   
+
+   echo program complete, output = ${OUTFILE}
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

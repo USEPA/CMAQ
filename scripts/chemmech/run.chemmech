@@ -1,0 +1,56 @@
+#! /bin/csh -f
+
+ date
+ set echo
+
+ set BASE  = $cwd
+ set Xpath = $BASE/src
+ set EXEC  = CHEMMECH
+ set APPL  = BENCHMARK 
+
+# mechanism input file ........................................................
+
+ set Mpath = ${BASE}
+ set Mechanism = cb05cltx_ae5_aq
+#set Mechanism = saprc07tb_ae5_aq
+
+ set Mpath = ${Mpath}/${Mechanism}
+ set MCFL =  mech-${Mechanism}.def
+
+# output files ................................................................
+
+ set Opath = ${BASE}/${Mechanism}
+
+ if( !( -e $Mpath/$MCFL ) )then
+   \ls $Mpath/$MCFL
+    exit()
+ endif
+ set echo
+ setenv MECHDEF  $Mpath/$MCFL
+
+if( ! ( -d $Opath ) ) mkdir -p $Opath
+
+if( $Opath != ${Mpath} )\cp -f $MECHDEF $Opath/.
+
+ setenv SPCSDATX $Opath/SPCS.ext #<- temporary file, read by Species Processor
+ setenv RXNSDATX $Opath/RXDT.EXT
+ setenv RXNSCOMX $Opath/RXCM.EXT
+ unset echo
+
+#set system = `uname -i`
+#if ($system == i386)then
+#    set compiler = pgf
+#else
+#    set compiler = ifc
+#endif
+#source /home/hwo/scom -c $compiler
+#
+#cd $Xpath ; make clean ; make ; cd $BASE
+
+ ls -l $Xpath/$EXEC
+
+ $Xpath/$EXEC
+
+ exit()
+
+

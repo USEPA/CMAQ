@@ -1,0 +1,390 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.20.24;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.20.24;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/arc/mechs/MECHS/src/saprc99_ae5_aq/mech.def,v 1.2 2011/08/30 20:14:19 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+! SAPRC-99 Fixed Parameter Mechanism 
+! Created from BASEMECH.XLS 21-Jan-2000 18:19
+! Modified by Jerry Gipson 02/08/01 for Models3 implementation:
+!   1)  Added Mechanism name
+!   2)  Changed REACTIONS(CM)  to REACTIONS[CM]
+!   3)  Changed species BZ(NO2)_O to BZNO2_O
+!   4)  Added zero activation energies for <32> (special type %3)
+!   5)  Added recations for formic, acetic, and higher organic acids
+!   6)  Modified labels of photolysis reactions 
+!   7)  Added the following counter species for aerosols:
+!       SULAER, ARO1AER, ARO2AER, CRESAER, ALK5AER, OLE2AER, TRP1AER
+
+! Created 02/07/02 from SAPRC99_AE2_AQ for aero3
+
+! Modified by J Gipson 8/6/03 to zero rate constant for RXN <14>
+! N2O5+H20->2HNO3
+! Copied 06/21/05 from SAPRC99_AE3_AQ for aero4
+!
+! Modified by Golam Sarwar 4/18/06 to use actual rate constant for RXN <R14> 
+!
+! Modified by Golam Sarwar 3/12/07 to revise the reaction ID of the last 3 reactions in the mech.def file
+!  The reaction ID c1OH was changed to I1OH for the reaction HCOOH + HO = HO2
+!  The reaction ID c2OH was changed to I2OH for the reaction CCO_OH + HO = 0.13*RO2_R + 0.87*C_O2 + 0.13*MGLY
+!  The reaction ID c3OH was changed to I3OH for the reaction RCO_OH + HO = RO2_R + 0.605*CCHO + 0.21*RCHO + 0.185*BACL
+!  Reaction ID c1OH was used twice in the mechanism: (1) CH4 + HO = C_O2 (2) HCOOH + HO = HO2
+!  Reaction IDs for the last 3 reactions were changed to avoid duplication in the mechanism file
+!  It also affected RXDT.EXT file
+!
+! Modified by Golam Sarwar 9/11/07 for incorporating SOA mechanism from Dr. Edward Edney 
+!  Removed SULAER, CRESAER, OLE2AER, ALK5AER, ARO1AER, ARO2AER, TRP1AER; 
+!  Added SULRXN, ALK5RXN, ISOPRXN, TRPRXN - counter species for aerosol from ALK5, ISOPRENE, TERPENE  
+!  Added one reaction for BENZENE with OH
+!  Rate constant for ARO1 + OH is not changed since benzene doesn't make a significant contribution to ARO1 
+!  Added ARO1RO2, ARO2RO2, BENZRO2
+!  Added two reactions for ARO1RO2 (AR1N and AR1H), added TOLNRXN, TOLHRXN - counter species for aerosol from ARO1
+!  Added two reactions for ARO2RO2 (AR2N and AR2H), added XYLNRXN, XYLHRXN - counter species for aerosol from ARO2
+!  Added two reactions for BENZRO2 (BNZN and BNZH), added BNZNRXN, BNZHRXN - counter species for aerosol from BENZENE
+!  Added three reactions for SESQ from sesquiterpene (SSO3,SSOH, SSN3), added SESQRXN - counter species for aerosol from SESQ
+
+! B.Hutzell 07/22/11
+! Set product cofficients for BENZRO2, ARO1RO2 and ARO2RO2
+
+SAPRC99_AE5_AQ
+
+REACTIONS[CM] =
+<1> NO2 = NO + O3P # 1.0/<NO2_SAPRC99>;
+<2> O3P + O2 + M = O3 # 5.68e-34^-2.80;
+<3> O3P + O3 =  # 8.00e-12@@2060;
+<4> O3P + NO + M = NO2 # 1.00e-31^-1.60;
+<5> O3P + NO2 = NO # 6.50e-12@@-120;
+<6> O3P + NO2 = NO3 # 9.00e-32^-2.00&2.20e-11&0.80&1.0;
+<8> O3 + NO = NO2 # 1.80e-12@@1370;
+<9> O3 + NO2 = NO3 # 1.40e-13@@2470;
+<10> NO + NO3 = 2*NO2 # 1.80e-11@@-110;
+<11> NO + NO + O2 = 2*NO2 # 3.30e-39@@-530;
+<12> NO2 + NO3 = N2O5 # 2.80e-30^-3.50&2.00e-12^0.20&0.45&1.0;
+<13> N2O5 = NO2 + NO3 # 1.00e-03^-3.50@@11000&9.70e+14^0.10@@11080&0.45&1.0;
+<14> N2O5 + H2O = 2*HNO3 # 2.60e-22;
+<17> NO2 + NO3 = NO + NO2 # 4.50e-14@@1260;
+<18> NO3 = NO # 1.0/<NO3NO_SAPRC99>;
+<19> NO3 = NO2 + O3P # 1.0/<NO3NO2_SAPRC99>;
+<20> O3 = O3P # 1.0/<O3O3P_SAPRC99>;
+<21> O3 = O1D2 # 1.0/<O3O1D_SAPRC99>;
+<22> O1D2 + H2O = 2*HO # 2.20e-10;
+<23> O1D2 + M = O3P # 2.09e-11@@-95;
+<24> HO + NO = HONO # 7.00e-31^-2.60&3.60e-11^-0.10&0.60&1.0;
+<25> HONO = HO + NO # 1.0/<HONO_NO_SAPRC99>;
+<26> HONO = HO2 + NO2 # 1.0/<HONO_NO2_SAPRC99>;
+<27> HO + HONO = NO2 # 2.70e-12@@-260;
+<28> HO + NO2 = HNO3 # 2.43e-30^-3.10&1.67e-11^-2.10&0.60&1.0;
+<29> HO + NO3 = HO2 + NO2 # 2.00e-11;
+<30> HO + HNO3 = NO3 %2 # 7.20e-15@@-785&4.10e-16@@-1440&1.90e-33@@-725;
+<31> HNO3 = HO + NO2 # 1.0/<HNO3_SAPRC99>;
+<32> HO + CO = HO2 %3 # 1.30e-13@@0.0&3.19e-33@@0.0;
+<33> HO + O3 = HO2 # 1.90e-12@@1000;
+<34> HO2 + NO = HO + NO2 # 3.40e-12@@-270;
+<35> HO2 + NO2 = HNO4 # 1.80e-31^-3.20&4.70e-12&0.60&1.0;
+<36> HNO4 = HO2 + NO2 # 4.10e-05@@10650&5.70e+15@@11170&0.50&1.0;
+<37> HNO4 = 0.61*HO2 + 0.61*NO2 + 0.39*HO + 0.39*NO3 # 1.0/<HO2NO2_SAPRC99>;
+<38> HNO4 + HO = NO2 # 1.50e-12@@-360;
+<39> HO2 + O3 = HO # 1.40e-14@@600;
+<40A> HO2 + HO2 = HO2H %3 # 2.20e-13@@-600&1.85e-33@@-980;
+<40B> HO2 + HO2 + H2O = HO2H %3 # 3.08e-34@@-2800&2.59e-54@@-3180;
+<41> NO3 + HO2 = 0.8*HO + 0.8*NO2 + 0.2*HNO3 # 4.00e-12;
+<42> NO3 + NO3 = 2*NO2 # 8.50e-13@@2450;
+<43> HO2H = 2*HO # 1.0/<H2O2_SAPRC99>;
+<44> HO2H + HO = HO2 # 2.90e-12@@160;
+<45> HO + HO2 =  # 4.80e-11@@-250;
+<S2OH> HO + SO2 = HO2 + SULF + SULRXN # 4.00e-31^-3.30&2.00e-12&0.45&1.0;
+<H2OH> HO + H2 = HO2 # 7.70e-12@@2100;
+<MER1> C_O2 + NO = NO2 + HCHO + HO2 # 2.80e-12@@-285;
+<MER4> C_O2 + HO2 = COOH # 3.80e-13@@-780;
+<MEN3> C_O2 + NO3 = HCHO + HO2 + NO2 # 1.30e-12;
+<MER5> C_O2 + C_O2 = MEOH + HCHO # 2.45e-14@@-710;
+<MER6> C_O2 + C_O2 = 2*HCHO + 2*HO2 # 5.90e-13@@509;
+<RRNO> RO2_R + NO = NO2 + HO2 # 2.70e-12@@-360;
+<RRH2> RO2_R + HO2 = ROOH # 1.90e-13@@-1300;
+<RRN3> RO2_R + NO3 = NO2 + HO2 # 2.30e-12;
+<RRME> RO2_R + C_O2 = HO2 + 0.75*HCHO + 0.25*MEOH # 2.00e-13;
+<RRR2> RO2_R + RO2_R = HO2 # 3.50e-14;
+<R2NO> R2O2 + NO = NO2 # 1.0*K<RRNO>;
+<R2H2> R2O2 + HO2 = HO2 # 1.0*K<RRH2>;
+<R2N3> R2O2 + NO3 = NO2 # 1.0*K<RRN3>;
+<R2ME> R2O2 + C_O2 = C_O2 # 1.0*K<RRME>;
+<R2RR> R2O2 + RO2_R = RO2_R # 1.0*K<RRR2>;
+<R2R3> R2O2 + R2O2 =  # 1.0*K<RRR2>;
+<RNNO> RO2_N + NO = RNO3 # 1.0*K<RRNO>;
+<RNH2> RO2_N + HO2 = ROOH # 1.0*K<RRH2>;
+<RNME> RO2_N + C_O2 = HO2 + 0.25*MEOH + 0.5*MEK + 0.5*PROD2 + 0.75*HCHO
+        # 1.0*K<RRME>;
+<RNN3> RO2_N + NO3 = NO2 + HO2 + MEK # 1.0*K<RRN3>;
+<RNRR> RO2_N + RO2_R = HO2 + 0.5*MEK + 0.5*PROD2 # 1.0*K<RRR2>;
+<RNR2> RO2_N + R2O2 = RO2_N # 1.0*K<RRR2>;
+<RNRN> RO2_N + RO2_N = MEK + HO2 + PROD2 # 1.0*K<RRR2>;
+<APN2> CCO_O2 + NO2 = PAN # 2.70e-28^-7.10&1.20e-11^-0.90&0.30&1.0;
+<DPAN> PAN = CCO_O2 + NO2 # 4.90e-03@@12100&4.00e+16@@13600&0.30&1.0;
+<APNO> CCO_O2 + NO = C_O2 + NO2 # 7.80e-12@@-300;
+<APH2> CCO_O2 + HO2 = 0.75*CCO_OOH + 0.25*CCO_OH + 0.25*O3 # 4.30e-13@@-1040;
+<APN3> CCO_O2 + NO3 = C_O2 + NO2 # 4.00e-12;
+<APME> CCO_O2 + C_O2 = CCO_OH + HCHO # 1.80e-12@@-500;
+<APRR> CCO_O2 + RO2_R = CCO_OH # 7.50e-12;
+<APR2> CCO_O2 + R2O2 = CCO_O2 # 1.0*K<APRR>;
+<APRN> CCO_O2 + RO2_N = CCO_OH + PROD2 # 1.0*K<APRR>;
+<APAP> CCO_O2 + CCO_O2 = 2*C_O2 # 2.90e-12@@-500;
+<PPN2> RCO_O2 + NO2 = PAN2 # 1.20e-11^-0.90;
+<PAN2> PAN2 = RCO_O2 + NO2 # 2.00e+15@@12800;
+<PPNO> RCO_O2 + NO = NO2 + CCHO + RO2_R # 1.25e-11@@-240;
+<PPH2> RCO_O2 + HO2 = 0.75*RCO_OOH + 0.25*RCO_OH + 0.25*O3 # 1.0*K<APH2>;
+<PPN3> RCO_O2 + NO3 = NO2 + CCHO + RO2_R # 1.0*K<APN3>;
+<PPME> RCO_O2 + C_O2 = RCO_OH + HCHO # 1.0*K<APME>;
+<PPRR> RCO_O2 + RO2_R = RCO_OH # 1.0*K<APRR>;
+<PPR2> RCO_O2 + R2O2 = RCO_O2 # 1.0*K<APRR>;
+<PPRN> RCO_O2 + RO2_N = RCO_OH + PROD2 # 1.0*K<APRR>;
+<PPAP> RCO_O2 + CCO_O2 = C_O2 + CCHO + RO2_R # 1.0*K<APAP>;
+<PPPP> RCO_O2 + RCO_O2 = 2*CCHO + 2*RO2_R # 1.0*K<APAP>;
+<BPN2> BZCO_O2 + NO2 = PBZN # 1.37e-11;
+<BPAN> PBZN = BZCO_O2 + NO2 # 7.90e+16@@14000;
+<BPNO> BZCO_O2 + NO = NO2 + BZ_O + R2O2 # 1.0*K<PPNO>;
+<BPH2> BZCO_O2 + HO2 = 0.75*RCO_OOH + 0.25*RCO_OH + 0.25*O3 # 1.0*K<APH2>;
+<BPN3> BZCO_O2 + NO3 = NO2 + BZ_O + R2O2 # 1.0*K<APN3>;
+<BPME> BZCO_O2 + C_O2 = RCO_OH + HCHO # 1.0*K<APME>;
+<BPRR> BZCO_O2 + RO2_R = RCO_OH # 1.0*K<APRR>;
+<BPR2> BZCO_O2 + R2O2 = BZCO_O2 # 1.0*K<APRR>;
+<BPRN> BZCO_O2 + RO2_N = RCO_OH + PROD2 # 1.0*K<APRR>;
+<BPAP> BZCO_O2 + CCO_O2 = C_O2 + BZ_O + R2O2 # 1.0*K<APAP>;
+<BPPP> BZCO_O2 + RCO_O2 = CCHO + RO2_R + BZ_O + R2O2 # 1.0*K<APAP>;
+<BPBP> BZCO_O2 + BZCO_O2 = 2*BZ_O + 2*R2O2 # 1.0*K<APAP>;
+<MPN2> MA_RCO3 + NO2 = MA_PAN # 1.0*K<PPN2>;
+<MPPN> MA_PAN = MA_RCO3 + NO2 # 1.60e+16@@13486;
+<MPNO> MA_RCO3 + NO = NO2 + HCHO + CCO_O2 # 1.0*K<PPNO>;
+<MPH2> MA_RCO3 + HO2 = 0.75*RCO_OOH + 0.25*RCO_OH + 0.25*O3 # 1.0*K<APH2>;
+<MPN3> MA_RCO3 + NO3 = NO2 + HCHO + CCO_O2 # 1.0*K<APN3>;
+<MPME> MA_RCO3 + C_O2 = RCO_OH + HCHO # 1.0*K<APME>;
+<MPRR> MA_RCO3 + RO2_R = RCO_OH # 1.0*K<APRR>;
+<MPR2> MA_RCO3 + R2O2 = MA_RCO3 # 1.0*K<APRR>;
+<MPRN> MA_RCO3 + RO2_N = 2*RCO_OH # 1.0*K<APRR>;
+<MPAP> MA_RCO3 + CCO_O2 = C_O2 + HCHO + CCO_O2 # 1.0*K<APAP>;
+<MPPP> MA_RCO3 + RCO_O2 = HCHO + CCO_O2 + CCHO + RO2_R # 1.0*K<APAP>;
+<MPBP> MA_RCO3 + BZCO_O2 = HCHO + CCO_O2 + BZ_O + R2O2 # 1.0*K<APAP>;
+<MPMP> MA_RCO3 + MA_RCO3 = 2*HCHO + 2*CCO_O2 # 1.0*K<APAP>;
+<TBON> TBU_O + NO2 = RNO3 # 2.40e-11;
+<TBOD> TBU_O = ACET + C_O2 # 7.50e+14@@8152;
+<BRN2> BZ_O + NO2 = NPHE # 2.30e-11@@-150;
+<BRH2> BZ_O + HO2 = PHEN # 1.0*K<RRH2>;
+<BRXX> BZ_O = PHEN # 1.00e-03;
+<BNN2> BZNO2_O + NO2 =  # 1.0*K<BRN2>;
+<BNH2> BZNO2_O + HO2 = NPHE # 1.0*K<RRH2>;
+<BNXX> BZNO2_O = NPHE # 1.0*K<BRXX>;
+<FAHV> HCHO = 2*HO2 + CO # 1.0/<HCHO_R_SAPRC99>;
+<FAVS> HCHO = CO # 1.0/<HCHO_M_SAPRC99>;
+<FAOH> HCHO + HO = HO2 + CO # 8.60e-12@@-20;
+<FAH2> HCHO + HO2 = HOCOO # 9.70e-15@@-625;
+<FAHR> HOCOO = HO2 + HCHO # 2.40e+12@@7000;
+<FAHN> HOCOO + NO = HCOOH + NO2 + HO2 # 1.0*K<MER1>;
+<FAN3> HCHO + NO3 = HNO3 + HO2 + CO # 2.00e-12@@2431;
+<AAOH> CCHO + HO = CCO_O2 # 5.60e-12@@-310;
+<AAHV> CCHO = CO + HO2 + C_O2 # 1.0/<CCHO_R_SAPRC99>;
+<AAN3> CCHO + NO3 = HNO3 + CCO_O2 # 1.40e-12@@1860;
+<PAOH> RCHO + HO = 0.034*RO2_R + 0.001*RO2_N + 0.965*RCO_O2 + 0.034*CO +
+         0.034*CCHO # 2.00e-11;
+<PAHV> RCHO = CCHO + RO2_R + CO + HO2 # 1.0/<C2CHO_SAPRC99>;
+<PAN3> RCHO + NO3 = HNO3 + RCO_O2 # 1.40e-12@@1771;
+<K3OH> ACET + HO = HCHO + CCO_O2 + R2O2 # 1.10e-12@@520;
+<K3HV> ACET = CCO_O2 + C_O2 # 1.0/<ACETONE_SAPRC99>;
+<K4OH> MEK + HO = 0.37*RO2_R + 0.042*RO2_N + 0.616*R2O2 + 0.492*CCO_O2 +
+         0.096*RCO_O2 + 0.115*HCHO + 0.482*CCHO + 0.37*RCHO # 1.30e-12^2.00@@25;
+<K4HV> MEK = CCO_O2 + CCHO + RO2_R # 1.50e-1/<KETONE_SAPRC99>;
+<MeOH> MEOH + HO = HCHO + HO2 # 3.10e-12^2.00@@360;
+<MER9> COOH + HO = 0.35*HCHO + 0.35*HO + 0.65*C_O2 # 2.90e-12@@-190;
+<MERA> COOH = HCHO + HO2 + HO # 1.0/<COOH_SAPRC99>;
+<LPR9> ROOH + HO = RCHO + 0.34*RO2_R + 0.66*HO # 1.10e-11;
+<LPRA> ROOH = RCHO + HO2 + HO # 1.0/<COOH_SAPRC99>;
+<GLHV> GLY = 2*CO + 2*HO2 # 1.0/<GLY_R_SAPRC99>;
+<GLVM> GLY = HCHO + CO # 6.00e-3/<GLY_ABS_SAPRC99>;
+<GLOH> GLY + HO = 0.63*HO2 + 1.26*CO + 0.37*RCO_O2 # 1.10e-11;
+<GLN3> GLY + NO3 = HNO3 + 0.63*HO2 + 1.26*CO + 0.37*RCO_O2 # 2.80e-12@@2376;
+<MGHV> MGLY = HO2 + CO + CCO_O2 # 1.0/<MGLY_ADJ_SAPRC99>;
+<MGOH> MGLY + HO = CO + CCO_O2 # 1.50e-11;
+<MGN3> MGLY + NO3 = HNO3 + CO + CCO_O2 # 1.40e-12@@1895;
+<BAHV> BACL = 2*CCO_O2 # 1.0/<BACL_ADJ_SAPRC99>;
+<PHOH> PHEN + HO = 0.24*BZ_O + 0.76*RO2_R + 0.23*GLY # 2.63e-11;
+<PHN3> PHEN + NO3 = HNO3 + BZ_O # 3.78e-12;
+<CROH> CRES + HO = 0.24*BZ_O + 0.76*RO2_R + 0.23*MGLY # 4.20e-11;
+<CRN3> CRES + NO3 = HNO3 + BZ_O # 1.37e-11;
+<NPN3> NPHE + NO3 = HNO3 + BZNO2_O # 1.0*K<PHN3>;
+<BZOH> BALD + HO = BZCO_O2 # 1.29e-11;
+<BZHV> BALD =  # 5.00e-2/<BZCHO_SAPRC99>;
+<BZNT> BALD + NO3 = HNO3 + BZCO_O2 # 1.40e-12@@1872;
+<MAOH> METHACRO + HO = 0.5*RO2_R + 0.416*CO + 0.084*HCHO + 0.416*MEK +
+         0.084*MGLY + 0.5*MA_RCO3 # 1.86e-11@@-176;
+<MAO3> METHACRO + O3 = 0.008*HO2 + 0.1*RO2_R + 0.208*HO + 0.1*RCO_O2 + 0.45*CO +
+         0.2*HCHO + 0.9*MGLY + 0.333*HCOOH # 1.36e-15@@2114;
+<MAN3> METHACRO + NO3 = 0.5*HNO3 + 0.5*RO2_R + 0.5*CO + 0.5*MA_RCO3
+        # 1.50e-12@@1726;
+<MAOP> METHACRO + O3P = RCHO # 6.34e-12;
+<MAHV> METHACRO = 0.34*HO2 + 0.33*RO2_R + 0.33*HO + 0.67*CCO_O2 + 0.67*CO +
+         0.67*HCHO + 0.33*MA_RCO3 # 4.10e-3/<ACROLEIN_SAPRC99>;
+<MVOH> MVK + HO = 0.3*RO2_R + 0.025*RO2_N + 0.675*R2O2 + 0.675*CCO_O2 +
+         0.3*HCHO + 0.675*RCHO + 0.3*MGLY # 4.14e-12@@-453;
+<MVO3> MVK + O3 = 0.064*HO2 + 0.05*RO2_R + 0.164*HO + 0.05*RCO_O2 + 0.475*CO +
+         0.1*HCHO + 0.95*MGLY + 0.351*HCOOH # 7.51e-16@@1520;
+<MVOP> MVK + O3P = 0.45*RCHO + 0.55*MEK # 4.32e-12;
+<MVHV> MVK = 0.3*C_O2 + 0.7*CO + 0.7*PROD2 + 0.3*MA_RCO3
+             # 2.10e-3/<ACROLEIN_SAPRC99>;
+<IPOH> ISOPROD + HO = 0.67*RO2_R + 0.041*RO2_N + 0.289*MA_RCO3 + 0.336*CO +
+         0.055*HCHO + 0.129*CCHO + 0.013*RCHO + 0.15*MEK + 0.332*PROD2 +
+         0.15*GLY + 0.174*MGLY # 6.19e-11;
+<IPO3> ISOPROD + O3 = 0.4*HO2 + 0.048*RO2_R + 0.048*RCO_O2 + 0.285*HO +
+         0.498*CO + 0.125*HCHO + 0.047*CCHO + 0.21*MEK + 0.023*GLY +
+         0.742*MGLY + 0.1*HCOOH + 0.372*RCO_OH # 4.18e-18;
+<IPN3> ISOPROD + NO3 = 0.799*RO2_R + 0.051*RO2_N + 0.15*MA_RCO3 + 0.572*CO +
+         0.15*HNO3 + 0.227*HCHO + 0.218*RCHO + 0.008*MGLY + 0.572*RNO3
+        # 1.00e-13;
+<IPHV> ISOPROD = 1.233*HO2 + 0.467*CCO_O2 + 0.3*RCO_O2 + 1.233*CO + 0.3*HCHO +
+         0.467*CCHO + 0.233*MEK # 4.10e-3/<ACROLEIN_SAPRC99>;
+<K6OH> PROD2 + HO = 0.379*HO2 + 0.473*RO2_R + 0.07*RO2_N + 0.029*CCO_O2 +
+         0.049*RCO_O2 + 0.213*HCHO + 0.084*CCHO + 0.558*RCHO + 0.115*MEK +
+         0.329*PROD2 # 1.50e-11;
+<K6HV> PROD2 = 0.96*RO2_R + 0.04*RO2_N + 0.515*R2O2 + 0.667*CCO_O2 +
+         0.333*RCO_O2 + 0.506*HCHO + 0.246*CCHO + 0.71*RCHO 
+         # 2.00e-2/<KETONE_SAPRC99>;
+<RNOH> RNO3 + HO = 0.338*NO2 + 0.113*HO2 + 0.376*RO2_R + 0.173*RO2_N +
+         0.596*R2O2 + 0.01*HCHO + 0.439*CCHO + 0.213*RCHO + 0.006*ACET +
+         0.177*MEK + 0.048*PROD2 + 0.31*RNO3 # 7.80e-12;
+<RNHV> RNO3 = NO2 + 0.341*HO2 + 0.564*RO2_R + 0.095*RO2_N + 0.152*R2O2 +
+         0.134*HCHO + 0.431*CCHO + 0.147*RCHO + 0.02*ACET + 0.243*MEK +
+         0.435*PROD2 # 1.0/<IC3ONO2_SAPRC99>;
+<D1OH> DCB1 + HO = RCHO + RO2_R + CO # 5.00e-11;
+<D1O3> DCB1 + O3 = 1.5*HO2 + 0.5*HO + 1.5*CO + GLY # 2.00e-18;
+<D2OH> DCB2 + HO = R2O2 + RCHO + CCO_O2 # 5.00e-11;
+<D2HV> DCB2 = RO2_R + 0.5*CCO_O2 + 0.5*HO2 + CO + R2O2 + 0.5*GLY + 0.5*MGLY
+        # 3.65e-1/<MGLY_ABS_SAPRC99>;
+<D3OH> DCB3 + HO = R2O2 + RCHO + CCO_O2 # 5.00e-11;
+<D3HV> DCB3 = RO2_R + 0.5*CCO_O2 + 0.5*HO2 + CO + R2O2 + 0.5*GLY + 0.5*MGLY
+        # 7.28e+0/<ACROLEIN_SAPRC99>;
+<c1OH> CH4 + HO = C_O2 # 2.15e-12@@1735;
+<etOH> ETHENE + HO = RO2_R + 1.61*HCHO + 0.195*CCHO # 1.96e-12@@-438;
+<etO3> ETHENE + O3 = 0.12*HO + 0.12*HO2 + 0.5*CO + HCHO + 0.37*HCOOH
+        # 9.14e-15@@2580;
+<etN3> ETHENE + NO3 = RO2_R + RCHO # 4.39e-13^2.00@@2282;
+<etOA> ETHENE + O3P = 0.5*HO2 + 0.2*RO2_R + 0.3*C_O2 + 0.491*CO + 0.191*HCHO +
+         0.25*CCHO + 0.009*GLY # 1.04e-11@@792;
+<isOH> ISOPRENE + HO = 0.907*RO2_R + 0.093*RO2_N + 0.079*R2O2 + 0.624*HCHO +
+         0.23*METHACRO + 0.32*MVK + 0.357*ISOPROD + ISOPRXN # 2.50e-11@@-408;
+<isO3> ISOPRENE + O3 = 0.266*HO + 0.066*RO2_R + 0.008*RO2_N + 0.126*R2O2 +
+         0.192*MA_RCO3 + 0.275*CO + 0.592*HCHO + 0.1*PROD2 + 0.39*METHACRO +
+         0.16*MVK + 0.204*HCOOH + 0.15*RCO_OH # 7.86e-15@@1912;
+<isN3> ISOPRENE + NO3 = 0.187*NO2 + 0.749*RO2_R + 0.064*RO2_N + 0.187*R2O2 +
+         0.936*ISOPROD # 3.03e-12@@448;
+<isOP> ISOPRENE + O3P = 0.01*RO2_N + 0.24*R2O2 + 0.25*C_O2 + 0.24*MA_RCO3 +
+         0.24*HCHO + 0.75*PROD2 # 3.60e-11;
+<t1OH> TRP1 + HO = 0.75*RO2_R + 0.25*RO2_N + 0.5*R2O2 + 0.276*HCHO +
+         0.474*RCHO + 0.276*PROD2 + TRPRXN # 1.83e-11@@-449;
+<t1O3> TRP1 + O3 = 0.567*HO + 0.033*HO2 + 0.031*RO2_R + 0.18*RO2_N +
+         0.729*R2O2 + 0.123*CCO_O2 + 0.201*RCO_O2 + 0.157*CO + 0.235*HCHO +
+         0.205*RCHO + 0.13*ACET + 0.276*PROD2 + 0.001*GLY + 0.031*BACL +
+         0.103*HCOOH + 0.189*RCO_OH + TRPRXN # 1.08e-15@@821;
+<t1N3> TRP1 + NO3 = 0.474*NO2 + 0.276*RO2_R + 0.25*RO2_N + 0.75*R2O2 +
+         0.474*RCHO + 0.276*RNO3 + TRPRXN # 3.66e-12@@-175;
+<t1OP> TRP1 + O3P = 0.147*RCHO + 0.853*PROD2 + TRPRXN # 3.27e-11;
+<a1OH> ALK1 + HO = RO2_R + CCHO # 1.37e-12^2.00@@498;
+<a2OH> ALK2 + HO = 0.246*HO + 0.121*HO2 + 0.612*RO2_R + 0.021*RO2_N + 0.16*CO +
+         0.039*HCHO + 0.155*RCHO + 0.417*ACET + 0.248*GLY + 0.121*HCOOH
+        # 9.87e-12@@671;
+<a3OH> ALK3 + HO = 0.695*RO2_R + 0.07*RO2_N + 0.559*R2O2 + 0.236*TBU_O +
+         0.026*HCHO + 0.445*CCHO + 0.122*RCHO + 0.024*ACET + 0.332*MEK
+        # 1.02e-11@@434;
+<a4OH> ALK4 + HO = 0.835*RO2_R + 0.143*RO2_N + 0.936*R2O2 + 0.011*C_O2 +
+         0.011*CCO_O2 + 0.002*CO + 0.024*HCHO + 0.455*CCHO + 0.244*RCHO +
+         0.452*ACET + 0.11*MEK + 0.125*PROD2 # 5.95e-12@@91;
+<a5OH> ALK5 + HO = 0.653*RO2_R + 0.347*RO2_N + 0.948*R2O2 + 0.026*HCHO +
+         0.099*CCHO + 0.204*RCHO + 0.072*ACET + 0.089*MEK + 0.417*PROD2 +
+         ALK5RXN # 1.11e-11@@52;
+<b1OH> ARO1 + HO = 0.224*HO2 + 0.765*RO2_R + 0.011*RO2_N + 0.055*PROD2 +
+         0.118*GLY + 0.119*MGLY + 0.017*PHEN + 0.207*CRES + 0.059*BALD +
+         0.491*DCB1 + 0.108*DCB2 + 0.051*DCB3 + 1.0*ARO1RO2 # 1.81e-12@@-355;
+<AR1N> ARO1RO2 + NO  = NO  + TOLNRXN   # 2.70e-12@@-360;
+<AR1H> ARO1RO2 + HO2 = HO2 + TOLHRXN   # 1.90e-13@@-1300;
+<b2OH> ARO2 + HO = 0.187*HO2 + 0.804*RO2_R + 0.009*RO2_N + 0.097*GLY +
+         0.287*MGLY + 0.087*BACL + 0.187*CRES + 0.05*BALD + 0.561*DCB1 +
+         0.099*DCB2 + 0.093*DCB3 + 1.0*ARO2RO2 # 2.64e-11;
+<AR2N> ARO2RO2 + NO  = NO  + XYLNRXN   # 2.70e-12@@-360;
+<AR2H> ARO2RO2 + HO2 = HO2 + XYLHRXN   # 1.90e-13@@-1300; 
+<BENZ> BENZENE + HO = 0.236*HO2 + 0.764*RO2_R + 0.207*GLY + 0.236*PHEN + 
+         0.764*DCB1 + 1.0*BENZRO2 #2.47e-12@@206;   
+<BNZN> BENZRO2 + NO  = NO  + BNZNRXN   # 2.70e-12@@-360;
+<BNZH> BENZRO2 + HO2 = HO2 + BNZHRXN   # 1.90e-13@@-1300;
+<o1OH> OLE1 + HO = 0.91*RO2_R + 0.09*RO2_N + 0.205*R2O2 + 0.732*HCHO +
+         0.294*CCHO + 0.497*RCHO + 0.005*ACET + 0.119*PROD2 # 7.10e-12@@-451;
+<o1O3> OLE1 + O3 = 0.155*HO + 0.056*HO2 + 0.022*RO2_R + 0.001*RO2_N +
+         0.076*C_O2 + 0.345*CO + 0.5*HCHO + 0.154*CCHO + 0.363*RCHO +
+         0.001*ACET + 0.215*PROD2 + 0.185*HCOOH + 0.05*CCO_OH + 0.119*RCO_OH
+        # 2.62e-15@@1640;
+<o1N3> OLE1 + NO3 = 0.824*RO2_R + 0.176*RO2_N + 0.488*R2O2 + 0.009*CCHO +
+         0.037*RCHO + 0.024*ACET + 0.511*RNO3 # 4.45e-14@@376;
+<o1OP> OLE1 + O3P = 0.45*RCHO + 0.437*MEK + 0.113*PROD2 # 1.07e-11@@234;
+<o2OH> OLE2 + HO = 0.918*RO2_R + 0.082*RO2_N + 0.001*R2O2 + 0.244*HCHO +
+         0.732*CCHO + 0.511*RCHO + 0.127*ACET + 0.072*MEK + 0.061*BALD +
+         0.025*METHACRO + 0.025*ISOPROD # 1.74e-11@@-384;
+<o2O3> OLE2 + O3 = 0.378*HO + 0.003*HO2 + 0.033*RO2_R + 0.002*RO2_N +
+         0.137*R2O2 + 0.197*C_O2 + 0.137*CCO_O2 + 0.006*RCO_O2 + 0.265*CO +
+         0.269*HCHO + 0.456*CCHO + 0.305*RCHO + 0.045*ACET + 0.026*MEK +
+         0.006*PROD2 + 0.042*BALD + 0.026*METHACRO + 0.073*HCOOH +
+         0.129*CCO_OH + 0.303*RCO_OH # 5.02e-16@@461;
+<o2N3> OLE2 + NO3 = 0.391*NO2 + 0.442*RO2_R + 0.136*RO2_N + 0.711*R2O2 +
+         0.03*C_O2 + 0.079*HCHO + 0.507*CCHO + 0.151*RCHO + 0.102*ACET +
+         0.001*MEK + 0.015*BALD + 0.048*MVK + 0.321*RNO3 # 7.26e-13;
+<o2OP> OLE2 + O3P = 0.013*HO2 + 0.012*RO2_R + 0.001*RO2_N + 0.012*CO +
+         0.069*RCHO + 0.659*MEK + 0.259*PROD2 + 0.012*METHACRO # 2.09e-11;
+<I1OH> HCOOH + HO = HO2 # 4.5E-13;
+<I2OH> CCO_OH + HO = 0.13*RO2_R + 0.87*C_O2 + 0.13*MGLY # 8.00E-13;
+<I3OH> RCO_OH + HO = RO2_R + 0.605*CCHO + 0.21*RCHO + 0.185*BACL # 1.16E-12;
+<SSO3> SESQ + O3  = O3  + SESQRXN # 1.16E-14;
+<SSOH> SESQ + HO  = HO  + SESQRXN # 1.97E-10;
+<SSN3> SESQ + NO3 = NO3 + SESQRXN # 1.90E-11;
+
+endmech
+
+CONSTANTS
+<C1> ATM_AIR = 1.0E+06
+<C2> ATM_H2  = 0.56
+<C3> ATM_N2  = 0.7808E+06
+<C4> ATM_O2  = 0.2095E+06
+<C5> ATM_CH4 = 1.85
+END CONSTANTS
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

@@ -1,0 +1,70 @@
+#! /bin/csh -f
+
+# ================== CMAQ5.0 Configuration Script =================== #
+# Requirements: I/O API & netCDF libs, CVS, PGI, Intel, Gnu Fortran   #
+#               MPICH for multiprocessor computing                    #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+#                                                                     #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# =================================================================== #
+
+#config.cmaq
+
+#> model archive location
+# setenv M3HOME  /Add your directory path here/CMAQv5.0
+ setenv M3HOME  /nas01/depts/ie/cempd/apps/CMAQ/v5.0/CMAQv5.0
+ setenv M3MODEL $M3HOME/models
+ setenv M3DATA  $M3HOME/data
+
+#===============================================================================
+
+#> architecture & compiler specific settings
+#-------------------------------------------------------------------------------
+ setenv system "`/bin/uname -i`"
+ setenv bld_os "`/bin/uname -s``/bin/uname -r | cut -d. -f1`"
+ setenv lib_basedir $M3HOME/lib
+ setenv extra_lib "-lrdmacm -libumad -lopa -lmpl -lrt -lpthread -libverbs -ldl"
+
+##> Intel fortran compiler......................................................
+   setenv compiler ifort
+   setenv myFC ifort 
+   setenv myCC icc
+   setenv myLINK_FLAG "-i-static"
+   setenv myFFLAGS "-fixed -132 -O3 -override-limits -fno-alias -mp1"
+   setenv myFRFLAGS "-free -O3 -fno-alias -mp1"
+   setenv myCFLAGS "-O2"
+
+##> Portland Group fortran compiler.............................................
+#  setenv compiler pgf
+#  setenv LM_LICENSE_FILE /usr/local/pgi/license.dat
+#  setenv myFC pgf90
+#  setenv myCC pgcc
+#  setenv myLINK_FLAG ""
+#  setenv myFFLAGS "-Mfixed -Mextend -O3"
+#  setenv myFRFLAGS "-Mfree -O3"
+#  setenv myCFLAGS "-O2"
+##
+##> Gfortran compiler......................................................
+#  setenv compiler gfort
+#  setenv myFC gfortran
+#  setenv myCC gcc
+#  setenv myLINK_FLAG ""
+#  setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32 "
+#  setenv myFRFLAGS "-ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32 "
+#  setenv myCFLAGS "-O2"
+#  setenv extra_lib "$extra_lib -lgomp"
+#
+#===============================================================================
+
+#> automatically generate library location
+ setenv M3LIB   ${lib_basedir}/${system}/${compiler}
+
+#> set executable id
+ setenv EXECID ${bld_os}_${system}${compiler}
+
+#> set only if CVS archive is on a remote computer
+# setenv CVS_REMOTE_MACH address.of.your.computer
+# setenv CVS_REMOTE_USER remote_user_name
+# setenv CVS_RSH ssh
+

@@ -1,0 +1,57 @@
+#!/bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/air5/sjr/CMAQv5.0/rel/models/includes/ICL/src/bin/update_release,v 1.1.1.1 2012/01/27 20:22:10 sjr Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+#> extract archive's released global include files
+#> env var ARC must be set
+
+ onintr abort
+ set echo
+ set Arc   = $ARC/includes
+ set Rel   = HEAD
+#set Dest  = $Arc/release
+ set Dest  = $cwd
+ set Fixed = $Dest
+
+ setenv CVSROOT $Arc/ICL
+
+ if ( -d $CVSROOT ) then
+    echo "   for project (CVSROOT): $CVSROOT ..."
+ else
+    echo "   CVSROOT not defined"
+    exit()
+ endif
+
+ if ( ! -e "$Dest" ) then
+    mkdir $Dest
+    else
+    if ( ! -d "$Dest" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit(1)
+       endif
+    endif
+ cd $Dest
+
+#> get "fixed" include files
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/const/CONST.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/emctrl/EMISPRM.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/filenames/FILES_CTM.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/mpi/PE_COMM.EXT
+
+#> get pa_noop include files
+ if( ! -d pa_noop ) mkdir pa_noop
+ cvs -r -q export -r $Rel -d pa_noop src/procan/pa_noop/PA_CMN.EXT
+ cvs -r -q export -r $Rel -d pa_noop src/procan/pa_noop/PA_CTL.EXT
+ cvs -r -q export -r $Rel -d pa_noop src/procan/pa_noop/PA_DAT.EXT
+ chmod 555 pa_noop
+
+ exit 0 
+
+ abort:
+    onintr -       # turn off
+    set nonomatch  # prevent file expansion errors
+    exit 1

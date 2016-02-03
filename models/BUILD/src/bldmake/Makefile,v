@@ -1,0 +1,55 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.26.11;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.26.11;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# make file to build bldmake program
+
+PROGRAM = bldmake
+
+FC = ifort
+FC_FLAGS = -c -O2 -fixed -extend_source -WB 
+
+OBJS= cfg_module.o parser.o utils.o bldmake.o
+
+.SUFFIXES: .F .f .c
+
+$(PROGRAM):	$(OBJS)
+	$(FC) $(OBJS) -o $(PROGRAM)
+
+.F.o:
+	$(FC) $(FC_FLAGS) $<
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

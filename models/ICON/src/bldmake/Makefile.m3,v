@@ -1,0 +1,184 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.24.30;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.24.30;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/arc/ICON/src/bldmake/Makefile.m3,v 1.1 2011/09/12 14:48:38 yoj Exp $
+
+#MODEL = ICON_A4g   # serial
+#MODEL = ICON_A4h   # parallel
+#MODEL = ICON_A3g   # namelist serial
+#MODEL = ICON_A3h   # namelist parallel
+ MODEL = ICON_A3g   # namelist serial vinterp test
+ MODEL = ICON_A3h   # namelist parallel vinterp test
+
+# to do serial
+#STENEX = /home/wdx/lib/x86_64/ifc11/se_noop
+#
+#SE = NOOP
+#CPP_FLAGS = \
+
+# to do parallel
+#STENEX = /home/wdx/lib/x86_64/ifc11/se_snl
+#
+#SE = SE
+#CPP_FLAGS = \
+#-Dparallel \
+
+ IOAPI  = /home/wdx/lib/src/ioapi_3.1/Linux2_x86_64ifort
+ NETCDF = /home/wdx/lib/x86_64/ifc11/netcdf/lib
+ STENEX = /home/wdx/lib/x86_64/ifc11/se_noop
+ STENEX = /home/wdx/lib/x86_64/ifc11/se_snl
+ PARIO  = /home/wdx/lib/src/pario_3.1
+ MPICH  = /home/wdx/lib/x86_64/ifc11/mpich
+ MPIIF  = /usr/local/intel/impi/3.2.2.006/lib64
+
+ FC    = ifort
+ CC    = icc
+
+#WARN = -warn declarations -warn errors -warn interfaces -warn unused -warn usage
+ WARN = -warn declarations -warn errors -warn interfaces              -warn usage
+#WARN = -warn declarations -warn errors                               -warn usage
+ WARN =
+
+ FSTD = -fixed -extend_source -fno-alias -mp1 $(WARN)
+  DBG = -check bounds -fpe0 -d-lines -fno-alias $(WARN) -ftrapuv -traceback
+
+ F_FLAGS = $(FSTD) -O3       -I $(IOAPI) -I$(STENEX) -I$(PARIO) -I.
+ F_FLAGS = $(FSTD) -g $(DBG) -I $(IOAPI) -I$(STENEX) -I$(PARIO) -I.
+ C_FLAGS = -O2 -DFLDMN -I $(MPICH)/include
+ LINK_FLAGS = -i-static
+
+ CPP  = FC
+
+ SE = NOOP
+ SE = SE
+#-Dparallel \#
+
+ CPP_FLAGS = \
+ -Dparallel \
+ -Dmech_ck_off \
+ -DSUBST_MODULES=$(SE)_MODULES \
+ -DSUBST_INIT=$(SE)_INIT \
+ -DSUBST_DATA_COPY=$(SE)_DATA_COPY \
+ -DSUBST_SUBGRID_INDEX=$(SE)_SUBGRID_INDEX
+
+ LIBRARIES = \
+ -L$(PARIO) -lpario \
+ -L$(IOAPI) -lioapi \
+ -L$(NETCDF) -lnetcdf \
+ -L$(STENEX) -lse_snl \
+ -L$(MPICH)/lib -lmpich \
+ -L$(MPIIF) -lmpiif
+
+#INCL = /home/yoj/src/icon/BLD_m3
+ INCL = /home/yoj/src/cmaqv51/BLD_V5b6
+
+#INCLUDES = \
+#-DSUBST_GC_SPC=\"$(INCL)/GC_SPC.EXT\" \
+#-DSUBST_GC_ICBC=\"$(INCL)/GC_ICBC.EXT\" \
+#-DSUBST_AE_SPC=\"$(INCL)/AE_SPC.EXT\" \
+#-DSUBST_AE_ICBC=\"$(INCL)/AE_ICBC.EXT\" \
+#-DSUBST_NR_SPC=\"$(INCL)/NR_SPC.EXT\" \
+#-DSUBST_NR_ICBC=\"$(INCL)/NR_ICBC.EXT\" \
+#-DSUBST_TR_SPC=\"$(INCL)/TR_SPC.EXT\" \
+#-DSUBST_TR_ICBC=\"$(INCL)/TR_ICBC.EXT\" \
+#-DSUBST_MPI=\"$(MPICH)/include/mpif.h\"
+
+#INCLUDES = \
+#-DSUBST_RXCMMN=\"$(INCL)/RXCM.EXT\" \
+#-DSUBST_RXDATA=\"$(INCL)/RXDT.EXT\" \#
+ INCLUDES = \
+ -DSUBST_MPI=\"$(MPICH)/include/mpif.h\"
+
+ DRIVER =\
+ UTILIO_DEFN.o \
+ HGRD_DEFN.o \
+ VGRD_DEFN.o \
+ CGRID_SPCS.o \
+ findex.o \
+ get_envlist.o \
+ icon.o \
+ lat_lon.o \
+ lr_interp.o \
+ lst_spc_map.o \
+ gc_spc_map.o \
+ ngc_spc_map.o \
+ opn_ic_file.o \
+ setup_logdev.o
+
+ PAR =\
+ mpcomm_init.o \
+ subhdomain.o \
+ par_term.o
+
+### called only by m3_icout.F
+ M3 =\
+ reconfig_domain.o \
+ shift_map.o \
+ mapping_init.o
+
+ INPUT =\
+ m3_driver.o \
+ m3_ck_ctmmet.o \
+ m3_ck_ctms.o \
+ m3_ck_icmet.o \
+ m3_icout.o \
+ m3_vinterp.o
+
+OBJS = $(DRIVER) $(PAR) $(M3) $(INPUT)
+
+.SUFFIXES: .F .f .c
+
+$(MODEL): $(OBJS)
+	$(FC) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@@
+
+.F.o:
+	$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+.f.o:
+	$(FC) -c $(F_FLAGS) $<
+
+.c.o:
+	$(CC) -c $(C_FLAGS) $<
+
+clean:
+	rm -f $(OBJS) *.mod *__genmod.f90
+
+clear:
+	rm -f $(OBJS) $(MODEL) *.mod *__genmod.f90
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@

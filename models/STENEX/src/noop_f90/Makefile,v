@@ -1,0 +1,69 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.01.27.20.29.09;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.01.27.20.29.09;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# RCS file, release, date & time of last delta, author, state, [and locker] 
+# $Header: /project/work/rep/STENEX/src/noop_f90/Makefile,v 1.7 2004/09/27 11:48:43 yoj Exp $
+
+SHELL=/bin/sh
+
+#DEBUG   = .debug
+ DEBUG   =
+#FC      = /usr/pgi/linux86/bin/pgf90
+ FC      = /share/linux/pgi/linux86/5.0/bin/pgf90
+ FFLAGS = -Mfixed -Mextend -O2
+
+ LIBNAME = libsef90_noop$(DEBUG).a
+
+ OBJS = \
+ noop_comm_module.o \
+ noop_data_copy_module.o \
+ noop_gather_module.o \
+ noop_global_max_module.o \
+ noop_global_min_module.o \
+ noop_global_sum_module.o \
+ noop_init_module.o \
+ noop_term_module.o \
+ noop_slice_module.o \
+ noop_util_module.o \
+ noop_modules.o
+
+$(LIBNAME) : $(OBJS)
+	$(FC) $(FFLAGS) -c $(?:.o=.f)
+	ar -rv $@@ $?
+	chmod 644 $@@
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0 release
+@
+text
+@@
