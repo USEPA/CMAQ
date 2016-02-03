@@ -1,0 +1,177 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/mech_conv/noop/gc_spc_map.F,v 1.4 2006/06/09 18:01:34 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE GC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, SPMAP, 
+     &                       N_MCNV_SP, SFAC, MCNV_COEFF, LCONV, LSCALE,  
+     &                       LCONVSP, EXT_IC_NAME, INFL_SP_NAME,   
+     &                       MCNV_SPCS, SPNAME_OUT )
+
+C*************************************************************************
+C
+C  FUNCTION: Mechanism conversion noop
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None  
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998          
+C
+C*************************************************************************
+
+      IMPLICIT NONE
+
+C Include Files:
+      INCLUDE SUBST_GC_SPC    ! gas chemistry species table
+      INCLUDE SUBST_GC_ICBC   ! gas chem ic/bc surrogate names and map table
+
+C Arguments:
+      CHARACTER( * ) :: EXT_IC_NAME( * )  ! List of all IC species in .EXT files
+      CHARACTER( * ) :: INFL_SP_NAME( * ) ! List of species on the input file
+      CHARACTER( * ) :: SPNAME_OUT( * )   ! Output file species names
+      CHARACTER( * ) :: MCNV_SPCS( N_GC_SPCD,* ) ! Mechanism species names to
+                                                 ! convert from
+
+      INTEGER LOGUNIT             ! Ouput log unit number
+      INTEGER N_GC_OUT            ! No. of GC species for mech. conversion 
+      INTEGER NSPCS_IN            ! Total no. of species in input file
+      INTEGER SPMAP( * )          ! Map of output species to input species
+      INTEGER N_MCNV_SP( * )      ! No. of mech species to convert from
+
+      LOGICAL LCONV               ! Flag for mech conversion
+      LOGICAL LCONVSP( * )        ! Flag for species mech conversion
+      LOGICAL LSCALE( * )         ! Flag for scaling input concs 
+
+      REAL MCNV_COEFF( N_GC_SPCD,* ) ! Mech input species coefficients
+      REAL SFAC( * )                 ! Input species conc scale factor
+      
+C Parameters: None
+
+C External Functions: 
+      INTEGER FINDEX               ! Finds the index of a number in a list
+      INTEGER INDEX1               ! Looks up name in table
+
+C Local Variables:
+      CHARACTER( 16 ) :: PNAME = 'GC_SPC_MAP'
+
+      INTEGER ICBC_INDX            ! Index for ICBC *.EXT arrays
+      INTEGER IND_IC               ! Index for IC
+      INTEGER IND_SUR              ! Index for ICBC surrogate
+      INTEGER N                    ! Loop index
+      INTEGER NSP                  ! Output species counter
+
+C**********************************************************************
+
+      LCONV = .FALSE.
+
+      WRITE( LOGUNIT, 92000 ) 
+
+      DO N = 1, N_GC_SPC
+         LSCALE( N ) = .FALSE.
+         LCONVSP( N ) = .FALSE.
+         SFAC( N )   = 1.0
+      ENDDO
+
+      NSP = 0
+
+C set map for gas-phase species
+      DO N = 1, N_GC_SPC
+
+         IND_IC = INDEX1( GC_SPC( N ), NSPCS_IN, INFL_SP_NAME )
+
+         ICBC_INDX = FINDEX( N, N_GC_ICBC, GC_ICBC_MAP )
+
+         IF ( ICBC_INDX .NE. 0 ) THEN
+            IND_SUR = INDEX1( GC_ICBC( ICBC_INDX ), NSPCS_IN, INFL_SP_NAME )
+         ELSE
+            IND_SUR = 0
+         END IF
+
+         IF ( IND_IC .GT. 0 .OR. IND_SUR .GT. 0 ) THEN
+            NSP = NSP + 1
+            IF( IND_SUR .GT. 0 ) THEN
+               SPMAP( NSP ) = IND_SUR
+               IF ( GC_ICBC_FAC( ICBC_INDX ) .NE. 1.0 ) THEN
+                  LSCALE( NSP ) = .TRUE.
+                  SFAC( NSP )   = GC_ICBC_FAC( ICBC_INDX )
+               ENDIF
+            ELSE
+               SPMAP( NSP )   = IND_IC
+            END IF
+            SPNAME_OUT( NSP ) = INFL_SP_NAME( SPMAP( NSP ) )
+         END IF
+
+      END DO 
+
+      N_GC_OUT = NSP   
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( /1X, 79 ( '#' ) 
+     &        /1X, '#   Species map section'
+     &        /1X, 79 ( '#' ) )
+
+      END
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

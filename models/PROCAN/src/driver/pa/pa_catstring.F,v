@@ -1,0 +1,151 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_catstring.F,v 1.4 2002/05/20 14:49:46 ggb Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_catstring.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_catstring.F 04 Jul 1997 14:13:16
+
+
+
+      SUBROUTINE CATSTRING( NUMSTRNGS, STRING, STRLEN, STROUT, MAXLEN )
+
+C***********************************************************************
+C
+C  FUNCTION: To concatenate a series of strings, eliminated trailing
+C            blanks, but leaving a space between each string 
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Updated May 2002 by Jerry Gipson for dynamic allocation
+C                      version of CCTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES: 
+      INCLUDE 'PA_PARSE.EXT'
+      
+C..ARGUMENTS:
+
+      CHARACTER*(*) STRING( * )   ! Strings to concatenate 
+      CHARACTER*(*) STROUT       ! Concatenated string output
+
+      INTEGER MAXLEN     ! Maximum length of output string
+      INTEGER NUMSTRNGS  ! Number of strings to concatenate
+      INTEGER STRLEN     ! String length
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER TRIMLEN     ! Function to get position of last non-blank
+                          ! character in a string 
+
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+
+      INTEGER LPOS       ! Last position in output string
+      INTEGER N          ! Loop index for number of strings to concatenate
+      INTEGER NEWLEN     ! Length of string to be concatenated
+
+      LOGICAL LRETURN    ! Flag to return because of truncation
+C***********************************************************************
+      LRETURN = .FALSE.
+      STROUT = STRING( 1 )
+      LPOS = TRIMLEN( STRING( 1 ) ) + 1
+      IF(NUMSTRNGS .EQ. 1) RETURN
+      DO N = 2, NUMSTRNGS
+         NEWLEN = TRIMLEN( STRING( N ) )
+         IF( ( LPOS + NEWLEN ) .GE. MAXLEN ) THEN
+            NEWLEN = MAXLEN - LPOS
+            WRITE( MSG, 94000 ) 
+            CALL M3MESG( MSG )
+            LRETURN = .TRUE.
+         ENDIF
+         STROUT = STROUT( 1 : LPOS ) // STRING( N )( 1 : NEWLEN )
+         IF( LRETURN ) THEN
+            RETURN
+         ELSE
+            LPOS = LPOS + NEWLEN + 1
+         ENDIF
+      ENDDO
+      DO N = 1, NUMSTRNGS
+         STRING( N ) = ''
+      ENDDO
+      RETURN
+      
+      
+C*********************** FORMAT STATEMENTS *****************************
+     
+      
+94000 FORMAT( 1X,'WARNING: A string has been truncated because of ',
+     &           'excessive length in concatenation' )
+      END
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

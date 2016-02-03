@@ -1,0 +1,204 @@
+#! /bin/csh -f
+
+# ======================= CCTMv4.7.1 Run Script ===================== #
+# Usage: run.cctm >&! run.cctm.log &                                  #
+# The following environment variables must be set for this script to  #
+# execute properly:                                                   #
+#   setenv M3DATA =  input/output data directory                      #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# =================================================================== #
+
+#> Check that M3DATA is set:
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL     = benchmark
+ set CFG      = e1a 
+ set EXEC     = CCTM_${CFG}_Linux2_x86_64intel       # ctm version
+
+#> horizontal domain decomposition
+ setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
+#setenv NPCOL_NPROW "4 2"; set NPROCS   =  8 
+
+#> for Scyld Beowulf ...
+#setenv NP $NPROCS
+#setenv BEOWULF_JOB_MAP -1:-1:0:0:1:1:2:2:3:3:4:4
+#echo " task-processor map `beomap`"
+
+#> Set the working directory:
+ set BASE     = $cwd
+ cd $BASE; date; cat $BASE/cfg.$CFG; echo "    "; set echo
+
+#> timestep run parameters
+
+ set STDATE   = 2001203       # beginning date
+ set STTIME   = 000000        # beginning GMT time (HHMMSS)
+ set NSTEPS   = 240000        # time duration (HHMMSS) for this run
+ set TSTEP    = 010000        # output time step interval (HHMMSS)
+
+#> set log file [ default = unit 6 ]; uncomment to write standard output to a log
+#setenv LOGFILE $BASE/$APPL.log
+
+#> turn off excess WRITE3 logging
+ setenv IOAPI_LOG_WRITE F
+
+#> max sync time step (sec) (default is 720)
+#setenv CTM_MAXSYNC 300
+ 
+#> aerosol diagnostic file [ T | Y | F | N ] (default is F|N)
+#setenv CTM_AERDIAG Y
+
+#> sea-salt emissions diagnostic file [ T | Y | F | N ] (default is F|N)
+#setenv CTM_SSEMDIAG Y
+
+#> stop on inconsistent input file [ T | Y | F | N ]
+ setenv FL_ERR_STOP F
+
+#> remove existing output files?
+ set DISP = delete
+#set DISP = update
+# set DISP = keep
+
+#> output files and directories
+ set OUTDIR   = $M3DATA/cctm
+ if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+ set CONCfile  = $EXEC.$APPL.CONC.$STDATE.ncf               # CTM_CONC_1
+ set ACONCfile = $EXEC.$APPL.ACONC.$STDATE.ncf              # CTM_ACONC_1
+ set CGRIDfile = $EXEC.$APPL.CGRID.$STDATE.ncf              # CTM_CGRID_1
+ set DD1file   = $EXEC.$APPL.DRYDEP.$STDATE.ncf             # CTM_DRY_DEP_1
+ set WD1file   = $EXEC.$APPL.WETDEP1.$STDATE.ncf            # CTM_WET_DEP_1
+ set WD2file   = $EXEC.$APPL.WETDEP2.$STDATE.ncf            # CTM_WET_DEP_2
+ set SS1file   = $EXEC.$APPL.SSEMIS1.$STDATE.ncf            # CTM_SSEMIS_1
+ set AV1file   = $EXEC.$APPL.AEROVIS.$STDATE.ncf            # CTM_VIS_1
+ set AD1file   = $EXEC.$APPL.AERODIAM.$STDATE.ncf           # CTM_DIAM_1
+ set PA1file   = $EXEC.$APPL.PA_1.$STDATE.ncf               # CTM_IPR_1
+ set PA2file   = $EXEC.$APPL.PA_2.$STDATE.ncf               # CTM_IPR_2
+ set PA3file   = $EXEC.$APPL.PA_3.$STDATE.ncf               # CTM_IPR_3
+ set IRR1file  = $EXEC.$APPL.IRR_1.$STDATE.ncf              # CTM_IRR_1
+ set IRR2file  = $EXEC.$APPL.IRR_2.$STDATE.ncf              # CTM_IRR_2
+ set IRR3file  = $EXEC.$APPL.IRR_3.$STDATE.ncf              # CTM_IRR_3
+ set RJ1file   = $EXEC.$APPL.RJ_1.$STDATE.ncf               # CTM_RJ_1
+ set RJ2file   = $EXEC.$APPL.RJ_2.$STDATE.ncf               # CTM_RJ_2
+
+#> set ancillary log file name extensions
+ setenv CTM_APPL $APPL
+
+#> set floor file (neg concs)
+ setenv FLOOR_FILE $BASE/FLOOR_${APPL}
+
+#> horizontal grid defn; check GRIDDESC file for GRID_NAME options
+ setenv GRIDDESC ../GRIDDESC1
+ setenv GRID_NAME M_36_2001
+
+#> species for standard conc
+#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J"
+
+#> layer range for standard conc
+#setenv CONC_BLEV_ELEV " 1 4"
+
+#> species for integral average conc
+ setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3"
+#setenv AVG_CONC_SPCS "ALL"
+
+#> layer range for integral average conc
+ setenv ACONC_BLEV_ELEV " 1 1"
+
+#> input files and directories
+
+ set OCEANpath = $M3DATA/emis/2001
+ set OCEANfile = us36_surf.40x44.ncf
+
+ set EMISpath  = $M3DATA/emis/2001
+ set EMISfile  = emis3d.20010722.US36_40X44.ncf
+ 
+#set TR_EMpath = 
+#set TR_EMfile = 
+ 
+#set GC_ICpath = $OUTDIR
+#set GC_ICfile = CCTM_e3aCGRID.d1b
+ set GC_ICpath = $M3DATA/icon
+ set GC_ICfile = ICON_cb05cl_M_36_2001_profile
+ 
+ set GC_BCpath = $M3DATA/bcon
+ set GC_BCfile = BCON_cb05cl_M_36_2001_profile
+ 
+ set METpath   = $M3DATA/mcip3/M_36_2001
+ set extn      = 010722
+ set GC2file   = GRIDCRO2D_${extn}
+ set GD2file   = GRIDDOT2D_${extn}
+ set MC2file   = METCRO2D_${extn}
+ set MD3file   = METDOT3D_${extn}
+ set MC3file   = METCRO3D_${extn}
+ set MB3file   = METBDY3D_${extn}
+ 
+ set TR_DVpath = $METpath
+ set TR_DVfile = $MC2file
+ 
+#> 7-level photolysis data w/ file header
+ 
+ set JVALpath  = $M3DATA/jproc
+ set JVALfile  = JTABLE_${STDATE}
+
+ set AE_ICpath = $GC_ICpath
+ set NR_ICpath = $GC_ICpath
+ set TR_ICpath = $GC_ICpath
+ set AE_ICfile = $GC_ICfile
+ set NR_ICfile = $GC_ICfile
+ set TR_ICfile = $GC_ICfile
+
+ set AE_BCpath = $GC_BCpath
+ set NR_BCpath = $GC_BCpath
+ set TR_BCpath = $GC_BCpath
+ set AE_BCfile = $GC_BCfile
+ set NR_BCfile = $GC_BCfile
+ set TR_BCfile = $GC_BCfile
+
+#> input and output files and directories (boilerplate)
+ source in_out.q
+ if ( $status ) exit 1
+ 
+#> for the run control ...
+
+ setenv CTM_STDATE      $STDATE
+ setenv CTM_STTIME      $STTIME
+ setenv CTM_RUNLEN      $NSTEPS
+ setenv CTM_TSTEP       $TSTEP
+ setenv CTM_PROGNAME    $EXEC
+
+#> look for existing log files
+                              
+ set test = `ls CTM_LOG_???.${APPL}`
+ if ( "$test" != "" ) then
+    if ( $DISP == 'delete' ) then
+       echo " ancillary log files being deleted"
+       foreach file ( $test )
+          echo " deleting $file"
+          rm $file
+          end
+       else
+       echo "*** Logs exist - run ABORTED ***"
+       exit 1
+       endif
+    endif
+
+#> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ env
+
+ ls -l $BASE/$EXEC; size $BASE/$EXEC
+
+#> Executable call for serial executable, uncomment to invoke
+ time $BASE/$EXEC
+
+#> Executable call for multiple PE, set location of MPIRUN script
+# set MPIRUN = /share/linux/bin/mpich-ch_p4/bin/mpirun
+# set TASKMAP = $BASE/machines8
+# cat $TASKMAP
+# time $MPIRUN -v -machinefile $TASKMAP -np $NPROCS $BASE/$EXEC
+
+ date
+ exit

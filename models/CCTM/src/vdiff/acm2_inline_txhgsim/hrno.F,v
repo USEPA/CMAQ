@@ -1,0 +1,1233 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.06.14.16.03.09;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.09;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/vdiff/acm2_inline_txhgsim/hrno.F,v 1.1 2010/01/29 16:54:20 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE HRNO( JDATE, JTIME, TSTEP, TA, EMPOL )
+
+C-----------------------------------------------------------------------
+C Description:
+   
+C    Uses new NO algorithm NO = Normalized*Tadj*Padj*Fadj*Cadj
+C    to estimate NO emissions 
+C    Information needed to estimate NO emissions:
+C       Julian Day          (integer)    JDATE
+C       Surface Temperature (MCIP field) TA    (K)
+C       Rainfall    (MCIP derived field) RAIN  (cm)
+C       Soil Moisture       (MCIP field) SOILM (M**3/M**3) (PX_VERSION)
+C            (ratio of volume of water per volume of soil)
+C       Soil Temperature    (MCIP field) SOILT (K)         (PX_VERSION)
+C       Soil Type           (MCIP field) ISLTYP            (PX_VERSION)
+C       Saturation values for soil types (constants)       (PX_VERSION)
+C    FOR PX Version, the Temperature adjustment factor accounts for wet and dry
+C    soils and the precipitation adjustment factor accounts for saturated soils
+C    FOR the non-PX version, the basic algorithm remains with a temperature
+C    adjustment factor (dry soil) and no adjustment for saturated soils
+ 
+C    The following arrays are potentially updated after a call to HRNO:
+C       PTYPE     type of NO emission pulse 
+C       PULSEDATE julian date for the beginning of an NO pulse 
+C       PULSETIME        time for the beginning of an NO pulse
+   
+C    The calculation are based on the following paper:
+C    J.J. Yienger and H. Levy II, Journal of Geophysical Research, vol 100,
+C    11447-11464, 1995
+ 
+C    The Temperature Adjustment Factor is based on section 4.2 for wet and dry
+C    soils with the following modification (PX version):
+C       Instead of classifying soils as either 'wet' or 'dry', the wet and dry
+C       adjustment is calculated at each grid cell.  A linear interpolation between
+C       the wet and dry adjustment factor is made using the relative amount of soil
+C       moisture in the top layer (1cm) as the interpolating factor.  The relative
+C       amount of soil moisture is determined by taking the MCIP soil moisture field
+C       and dividing by the saturation value defined for each soil type in the PX
+C       version of MCIP the soil temperature is used in PX version
+ 
+C    The Precipation Adjustment factor is based on section 4.1 with the following
+C    modifications:
+C       The rainrate is computed from the MCIP directly using a 24 hr daily total. 
+C       The types of Pulses as described in YL95 were used to estimate the NO
+C       emission rate.  
+ 
+C    Also see the following paper for more information:
+C    Proceedings of the Air and Waste Management Association/U.S. Environmental
+C    Protection Agency EMission Inventory Conference, Raleigh October 26-28, 1999
+C    Raleigh NC by Tom Pierce and Lucille Bender       
+ 
+C    References:
+ 
+C    Jacquemin B. and Noilhan J. (1990), Bound.-Layer Meteorol., 52, 93-134.
+C    J.J. Yienger and H. Levy II, Journal of Geophysical Research, vol 100,
+C    11447-11464, 1995
+C    T. Pierce and L. Bender, Examining the Temporal Variability of Ammonia and
+C    Nitric Oxide Emissions from Agricultural Processes Proceedings of the Air and
+C    Waste Management Association/U.S. Environmental Protection Agency Emission
+C    Inventory Conference, Raleigh October 26-28, 1999 Raleigh NC
+
+C Preconditions:
+C     Normalized NO emissions, Surface Temperature, Soil Moisture, Soil type,
+C     NO emission pulse type, soil moisture from previous time step, julian date
+C     of NO emission pulse start, time of NO emission pulse start,
+C     soil type, SOIL TYPES, Land use data
+ 
+C Subroutines and Functions Called (directly or indirectly):
+C     PRECIP_ADJ     computes precipitation adjustment factor
+C     FERTILIZER_ADJ computes fertlizer adjustment factor
+C     VEG_ADJ        computes vegetation adjustment factor
+C     GROWSEASON     computes Julian day of growing season
+C     PRECIPFAC      computes precip adjustment factor from rainfall in last 24 hrs
+C                    and time since pulse initiation
+C     PULSETYPE      determines type & duration of NO emission pulse from rainrate
+      
+C Revision History:
+C    10/01 : Prototype by GAP
+C    10/03 : modified transition to non growing season for jul-oct of the year
+C    08/04 : Converted to SMOKE code style by C Seppanen
+C    Mar 07: Restructure; J.Young
+C    Jan 26: J.Young - move input data reads from tmpbeis;
+C                      remove ck & report if TAIR > 315;
+C                      restructure growing season, col/row loops;
+C                      restructure PRECIP_ADJ
+C    Jan 27: D. Wong - Eliminate potential race condition with mype = 0 and
+C                      barrier implementation - it's not needed anyway.
+  
+C-----------------------------------------------------------------------
+C Modified from:
+
+C Project Title: Sparse Matrix Operator Kernel Emissions (SMOKE) Modeling System
+C File: @@(#)$Id: hrno.F,v 1.1 2010/01/29 16:54:20 yoj Exp $
+C COPYRIGHT (C) 2004, Environmental Modeling for Policy Development
+C All Rights Reserved
+C Carolina Environmental Program
+C University of North Carolina at Chapel Hill
+C 137 E. Franklin St., CB# 6116
+C Chapel Hill, NC 27599-6116
+C smoke@@unc.edu
+C Pathname: $Source: /project/work/rep/CCTM/src/vdiff/acm2_inline_txhgsim/hrno.F,v $
+C Last updated: $Date: 2010/01/29 16:54:20 $ 
+C-----------------------------------------------------------------------
+
+      USE HGRD_DEFN             ! horizontal domain specifications
+      USE BIOG_EMIS, ONLY: NSEF ! beis
+
+      IMPLICIT NONE
+        
+C Includes:
+      INCLUDE SUBST_IOPARMS    ! I/O parameters definitions
+      INCLUDE SUBST_IOFDESC    ! file header data structure
+#include      SUBST_IODECL    # I/O definitions and declarations
+
+C Arguments:
+      INTEGER, INTENT( IN )    :: JDATE             ! current simulation date (YYYYDDD)
+      INTEGER, INTENT( IN )    :: JTIME             ! current simulation time (HHMMSS)
+      INTEGER, INTENT( IN )    :: TSTEP( 2 )        ! time step vector (HHMMSS)
+      REAL,    INTENT( IN )    :: TA   ( NCOLS,NROWS )      ! air temperature [K]
+      REAL,    INTENT( OUT )   :: EMPOL( NCOLS,NROWS,NSEF ) ! output NO emissions
+
+C External Functions
+      INTEGER,         EXTERNAL :: ENVINT
+      INTEGER,         EXTERNAL :: SECSDIFF
+      INTEGER,         EXTERNAL :: TIME2SEC
+      LOGICAL,         EXTERNAL :: ENVYN
+      LOGICAL,         EXTERNAL :: CHKGRID
+      CHARACTER( 16 ), EXTERNAL :: PROMPTMFILE
+
+C Parameters:
+      INTEGER, PARAMETER :: MXRHRS = 24     ! no. of rainfall hours for YL95 algorithm
+      INTEGER, PARAMETER :: MAXSTYPES = 11
+!                 IF ( SOILCAT .LE. 14 ) THEN  <<< NEW PX METCRO2D ??? 14 = water
+      REAL,    PARAMETER :: CFNODRYFC = ( 1.0 / 3.0 ) * ( 1.0 / 30.0 )
+        
+C Saturation values for 11 soil types from pxpbl.F  (MCIP PX version)
+C Pleim-Xiu Land-Surface and PBL Model (PX-LSM)
+C See Jacquemin B. and Noilhan J. (1990), Bound.-Layer Meteorol., 52, 93-134.
+
+      REAL :: SATURATION( MAXSTYPES ) =
+     &                  (/ 0.395, 0.410, 0.435, 0.485,
+     &                     0.451, 0.420, 0.477, 0.476,
+     &                     0.426, 0.482, 0.482 /)
+
+C Local Variables:
+
+      CHARACTER( 16 ), SAVE :: MNAME   ! logical name for MET_CRO_2D
+      CHARACTER( 16 ), SAVE :: NNAME   ! logical name for normalized-emissions input
+      CHARACTER( 16 ), SAVE :: SOILINP ! logical name for input NO soil data
+      CHARACTER( 16 ), SAVE :: SOILOUT = 'SOILOUT' ! logical name for output NO soil data
+      CHARACTER( 16 ), SAVE, ALLOCATABLE :: DDTTM( : ) ! description date and time
+      CHARACTER( 33 ), SAVE         !123456789012345678901234567890123
+     &                 :: DESCSTR = 'hrly cnv. & non-cnv. rainfall for'
+
+      CHARACTER( 16 ) :: VAR        ! variable name
+
+      INTEGER, SAVE :: IHR       ! current simulation hour
+      INTEGER          NDX       ! RAINFALL array timestep index
+
+      REAL,    ALLOCATABLE, SAVE :: SOILM    ( :,: )  ! soil moisture [m3/m3] (PX)
+      REAL,    ALLOCATABLE, SAVE :: SOILT    ( :,: )  ! soil temperature [K] (PX)
+      REAL,    ALLOCATABLE, SAVE :: ISLTYP   ( :,: )  ! soil type (PX)
+      REAL,    ALLOCATABLE, SAVE :: GROWAGNO ( :,: )  ! growing season ag norm NO emis
+      REAL,    ALLOCATABLE, SAVE :: NGROWAGNO( :,: )  ! non growing season ag norm NO emis
+      REAL,    ALLOCATABLE, SAVE :: NONAGNO  ( :,: )  ! non agriculture norm NO emis
+      REAL,    ALLOCATABLE, SAVE :: RN       ( :,: )  ! nonconvective rainfall
+      REAL,    ALLOCATABLE, SAVE :: RC       ( :,: )  ! convective rainfall
+      REAL,    ALLOCATABLE, SAVE :: RAINFALL ( :,:,: ) ! rainfall for 24 hours
+      REAL,    ALLOCATABLE, SAVE :: RNTOT    ( :,: )  ! RN + RC
+      INTEGER, ALLOCATABLE, SAVE :: PTYPE    ( :,: )  ! NO emissions 'pulse type'
+      INTEGER, ALLOCATABLE, SAVE :: PULSEDATE( :,: )  ! date when NO emission pulse begins
+      INTEGER, ALLOCATABLE, SAVE :: PULSETIME( :,: )  ! time when NO emission pulse begins
+      INTEGER, SAVE :: RHOURS    ! SOILINP(OUT) file no. of RAINFALL hour variables
+      INTEGER, SAVE :: RDATE     ! date to update rainfall
+      INTEGER, SAVE :: RTIME     ! time to update rainfall
+      INTEGER, SAVE :: EDATE     ! end scenario date
+      INTEGER, SAVE :: ETIME     ! end scenario time
+      INTEGER, SAVE :: NDATE     ! test date to update rainfall
+      INTEGER, SAVE :: NTIME     ! test time to update rainfall
+      INTEGER, SAVE :: SDATE     ! scenario start date
+      INTEGER, SAVE :: STIME     ! scenario start time
+        
+      LOGICAL, SAVE :: INITIAL_RUN            ! false: use SOILINP file
+      LOGICAL, SAVE :: INITIAL_DAY = .FALSE.  ! true: 1st 24 hours; no previous data
+                                              ! false: previous 24 hours of rainfall
+                                              ! are available for HRNO
+
+      LOGICAL, SAVE :: PX_VERSION         ! true: use PX version of MCIP
+
+      INTEGER          SOILCAT            ! soil category
+      INTEGER          NSTEPS             ! run duration (HHMMSS)
+      INTEGER, SAVE :: MSTEPS             ! run no. of steps
+      INTEGER          I, J, K, R, C, L   ! counters
+      LOGICAL          OK
+      INTEGER          IOS                ! IO or memory allocation status
+      
+      REAL,    SAVE :: EFAC
+      REAL             CFNO               ! NO correction factor
+      REAL             CFNOGRASS          ! NO correction factor for grasslands
+      REAL             TAIR               ! surface temperature
+      REAL             TSOI               ! soil temperature
+      REAL             CFNOWET, CFNODRY, RATIO
+      REAL             FAC1, FAC2, FAC3, FAC4
+
+      LOGICAL, SAVE :: USE_SOILT = .TRUE. ! use soil temperature in PX version
+                                          ! rather than estimate as in BEIS2
+
+      INTEGER, SAVE :: LOGDEV
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
+      CHARACTER( 256 ) :: MESG            ! message buffer
+      CHARACTER( 16 )  :: PNAME = 'HRNO'  ! procedure name
+
+      INTEGER      GXOFF, GYOFF           ! global origin offset from file
+C for INTERPX
+      INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
+      INTEGER       :: STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN  ! SOILINP
+      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2  ! MET_CRO_2D
+
+D     integer mxptype, ncfno0
+D     real    mxrntot, mxfac1, avgfac2, mxfac3, mxfac4
+D     real    mxtair, mxcfno
+C-----------------------------------------------------------------------
+
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+
+         LOGDEV = INIT3()
+
+C Determine last timestamp
+         SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, IOS )
+         STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, IOS )
+         NSTEPS = ENVINT( 'CTM_RUNLEN', 'Scenario Duration (HHMMSS)', 0, IOS )
+         EDATE = SDATE; ETIME = STIME
+         CALL NEXTIME( EDATE, ETIME, NSTEPS )   ! end date & time
+         MSTEPS = TIME2SEC( NSTEPS ) / TIME2SEC( TSTEP( 1 ) )
+
+C Check if using PX version of MCIP
+         PX_VERSION = ENVYN( 'PX_VERSION', 'MCIP is PX version?',
+     &                       .FALSE., IOS )
+
+C Open met file
+         MNAME = PROMPTMFILE(
+     &           'Enter name for gridded met input file',
+     &           FSREAD3, 'MET_CRO_2D', PNAME )
+
+C Get description of met file
+         IF ( .NOT. DESC3( MNAME ) ) THEN
+            MESG = 'Could not get description of file "'
+     &           // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+C Check that grid description matches BGRD file
+         IF ( .NOT. CHKGRID( MNAME ) ) THEN
+            MESG = 'Grid in file "' // TRIM( MNAME )
+     &           // '" does not match previously set grid.'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+C Get domain decomp info for the met file
+         CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
+     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+
+C Get normalized emissions file, BGRD
+         NNAME = PROMPTMFILE(
+     &           'Enter name for Normalized Emissions input file',
+     &           FSREAD3, 'B3GRD', PNAME )
+
+C Read description of normalized emissions file
+         IF ( .NOT. DESC3( NNAME ) ) THEN
+            MESG = 'Could not get description of file "' //
+     &             TRIM( NNAME ) // '"'
+            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+         END IF
+
+C Initialize grid definition
+         OK = CHKGRID( NNAME )
+
+C Get domain decomp info for the normalized emissions file
+         CALL SUBHFILE ( NNAME, GXOFF, GYOFF,
+     &                   STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3 )
+
+C Allocate memory for data and read
+         ALLOCATE( GROWAGNO( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'GROWAGNO', PNAME )
+
+         ALLOCATE( NGROWAGNO( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'NGROWAGNO', PNAME )
+
+         ALLOCATE( NONAGNO( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'NONAGNO', PNAME )
+
+         VAR = 'AVG_NOAG_GROW'
+         IF ( .NOT. XTRACT3( NNAME, VAR,
+     &                       1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
+     &                       0, 0, GROWAGNO ) ) THEN
+            MESG = 'Could not read "' // TRIM( VAR ) //
+     &             '" from file "' // TRIM( NNAME ) // '"'
+            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+         END IF
+
+         VAR = 'AVG_NOAG_NONGROWNB3'
+         IF ( .NOT. XTRACT3( NNAME, VAR,
+     &                       1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
+     &                       0, 0, NGROWAGNO ) ) THEN
+            MESG = 'Could not read "' // TRIM( VAR ) //
+     &             '" from file "' // TRIM( NNAME ) // '"'
+            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+         END IF
+
+         VAR = 'AVG_NONONAG'
+         IF ( .NOT. XTRACT3( NNAME, VAR,
+     &                       1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
+     &                       0, 0, NONAGNO ) ) THEN
+            MESG = 'Could not read "' // TRIM( VAR ) //
+     &             '" from file "' // TRIM( NNAME ) // '"'
+            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+         END IF
+
+         IF ( PX_VERSION ) THEN
+            ALLOCATE( SOILM( NCOLS,NROWS ), STAT=IOS )
+            CALL CHECKMEM( IOS, 'SOILM', PNAME )
+
+            ALLOCATE( SOILT( NCOLS,NROWS ), STAT=IOS )
+            CALL CHECKMEM( IOS, 'SOILT', PNAME )
+
+            ALLOCATE( ISLTYP( NCOLS,NROWS ), STAT=IOS )
+            CALL CHECKMEM( IOS, 'ISLTYP', PNAME )
+         END IF
+
+         ALLOCATE( RN( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RN', PNAME )
+
+         ALLOCATE( RC( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RC', PNAME )
+
+         ALLOCATE( RNTOT( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RNTOT', PNAME )
+         RNTOT = 0.0   ! array assignment
+
+         ALLOCATE( PTYPE( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PTYPE', PNAME )
+
+         ALLOCATE( PULSEDATE( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PULSEDATE', PNAME )
+
+         ALLOCATE( PULSETIME( NCOLS,NROWS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'PULSETIME', PNAME )
+
+C Initial run until a full 24 hours has been recorded on the SOIL(OUT/INP) file
+C for the Yienger and Levy algorithm
+         WRITE( LOGDEV,'(/5X, A)' ) 'Temporal BEIS ...'
+         MESG = 'Initial run?'
+         INITIAL_RUN = ENVYN( 'INITIAL_RUN', MESG, .FALSE., IOS )
+         RHOURS = MIN( MXRHRS, MSTEPS )
+
+C If initial run, initialize some variables, otherwise get them from file
+         IF ( INITIAL_RUN ) THEN
+
+            PULSEDATE = 0   ! array
+            PULSETIME = 0   ! array
+            PTYPE     = 0   ! array
+
+         ELSE
+
+C Open saved NO rain data file
+            SOILINP = PROMPTMFILE(
+     &                'Enter name for NO EMISSIONS SAVE file',
+     &                FSREAD3, 'SOILINP', PNAME )
+
+C Get description of NO rain data file
+            IF ( .NOT. DESC3( SOILINP ) ) THEN
+               MESG = 'Could not get description of file "' //
+     &                 TRIM( SOILINP ) // '"'
+               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+            END IF
+
+C Check that the file start date and time are consistent
+            IF ( SDATE3D .NE. SDATE ) THEN
+               WRITE( MESG,94010 ) 'Cannot use SOILINP file; ' //
+     &             'found date ', SDATE3D, ' expecting ', SDATE
+               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+            END IF
+
+            IF ( STIME3D .NE. STIME ) THEN
+               WRITE( MESG,94010 ) 'Cannot use SOILINP file; ' //
+     &             'found time ', STIME3D, ' expecting ', STIME
+               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+            END IF
+
+C Get domain decomp info for the NO rain data file
+            CALL SUBHFILE ( SOILINP, GXOFF, GYOFF,
+     &                      STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN )
+
+         END IF   ! initial run
+
+         ALLOCATE( RAINFALL( NCOLS,NROWS,RHOURS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'RAINFALL', PNAME )
+         RAINFALL = 0.0   ! array
+
+         ALLOCATE( DDTTM( RHOURS ), STAT=IOS )
+         CALL CHECKMEM( IOS, 'DDTTM', PNAME )
+         DDTTM = ' '   ! array
+
+         IF ( .NOT. INITIAL_RUN ) THEN   ! SOILINP file available
+C Read data from file
+            VAR = 'PTYPE'
+            IF ( .NOT. XTRACT3( SOILINP, VAR,
+     &                          1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
+     &                          0, 0, PTYPE ) ) THEN
+               MESG = 'Could not read "' // TRIM( VAR ) //
+     &                '" from file "' // TRIM( SOILINP ) // '"'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+            END IF
+
+            VAR = 'PULSEDATE'
+            IF ( .NOT. XTRACT3( SOILINP, VAR,
+     &                          1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
+     &                          0, 0, PULSEDATE ) ) THEN
+               MESG = 'Could not read "' // TRIM( VAR ) //
+     &                '" from file "' // TRIM( SOILINP ) // '"'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+            END IF
+
+            VAR = 'PULSETIME'
+            IF ( .NOT. XTRACT3( SOILINP, VAR,
+     &                          1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
+     &                          0, 0, PULSETIME ) ) THEN
+               MESG = 'Could not read "' // TRIM( VAR ) //
+     &                '" from file "' // TRIM( SOILINP ) // '"'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+            END IF
+
+C Get previous 24 hour rainfall amounts
+            DO I = 1, MXRHRS
+               WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
+               IF ( .NOT. XTRACT3( SOILINP, VAR,
+     &                             1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
+     &                             0, 0, RAINFALL( 1,1,I ) ) ) THEN
+                  MESG = 'Could not read "' // TRIM( VAR ) //
+     &                   '" from file "' // TRIM( SOILINP ) // '"'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+               END IF
+               J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
+               K = LEN_TRIM( VDESC3D( I+3 ) )
+               DDTTM( I ) = VDESC3D( I+3 )( J:K )
+            END DO
+
+C Close input file
+            IF ( .NOT. CLOSE3( SOILINP ) ) THEN
+               MESG = 'Could not close file "' // TRIM( SOILINP ) // '"'
+               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+            END IF
+
+         END IF   ! not initial run
+
+         RDATE = SDATE; RTIME = STIME
+         IHR = 0
+         EFAC = EXP( -0.103 * 30.0 )
+
+      END IF   ! FIRSTIME
+
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .LE. TIME2SEC( TSTEP( 2 ) ) ) GO TO 9999
+
+      IF ( PX_VERSION ) THEN
+
+C Read soil moisture data
+         IF ( .NOT. INTERPX( MNAME, 'SOIM1', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, SOILM ) ) THEN
+            MESG = 'Could not read "' // 'SOIM1' //
+     &             '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+C Read soil temperature data
+         IF ( .NOT. INTERPX( MNAME, 'SOIT1', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, SOILT ) ) THEN
+            MESG = 'Could not read "' // 'SOIT1' //
+     &                '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+C Read soil type data
+         IF ( .NOT. INTERPX( MNAME, 'SLTYP', PNAME,
+     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
+     &                       JDATE, JTIME, ISLTYP ) ) THEN
+            MESG = 'Could not read "' // 'SLTYP' //
+     &             '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+      END IF   ! PX_VERSION
+
+C Non-convective (RN) and convective (RC) rain is the total amount for the met
+C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
+C make much sense to time-interpolate these values, since rain generally does not
+C fall at a constant rate for an output timestep.
+      CALL CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ), NDATE, NTIME )
+      IF ( NDATE .EQ. RDATE .AND. NTIME .EQ. RTIME ) THEN   ! on the TSTEP (hour)
+
+C Read rainfall data
+         IF ( .NOT. XTRACT3( MNAME, 'RN',
+     &                       1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
+     &                       RDATE, RTIME, RN ) ) THEN
+            MESG = 'Could not read "' //  'RN' //
+     &              '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+         IF ( .NOT. XTRACT3( MNAME, 'RC',
+     &                       1,1, STRTROWMC2,ENDROWMC2, STRTCOLMC2,ENDCOLMC2,
+     &                       RDATE, RTIME, RC ) ) THEN
+            MESG = 'Could not read "' //  'RC' //
+     &             '" from file "' // TRIM( MNAME ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+
+C Store hourly rainfall totals
+         NDX = 1 + MOD( IHR, MXRHRS )
+         RAINFALL( :,:,NDX ) = RN + RC
+         WRITE( DDTTM( NDX ),'(I8,":",I6.6)' ) RDATE, RTIME
+
+         CALL NEXTIME( RDATE, RTIME, TSTEP( 1 ) )
+
+         IF ( INITIAL_RUN ) THEN
+            IF ( IHR .LT. MXRHRS ) THEN
+               INITIAL_DAY = .TRUE.
+            ELSE
+               INITIAL_DAY = .FALSE.
+            END IF
+         ELSE   ! store accumulated rain in RNTOT array
+            RNTOT = 0.0   ! array assignment
+            DO I = 1, MXRHRS
+               RNTOT = RNTOT + RAINFALL( :,:,I )
+            END DO
+         END IF
+
+D        write( logdev,* ) 'hrno - INITIAL_DAY, IHR: ', initial_day, ihr
+
+         IHR = IHR + 1
+
+      END IF   ! on the output tstep
+
+C Calculate temporal non-speciated soil NO emissions
+ 
+      IF ( GROWSEASON( JDATE ) .EQ. 0 ) THEN   ! not growing season
+
+D        write( logdev,* ) ' not growing season'
+
+D        mxtair = 0.0; mxcfno = 0.0; ncfno0 = 0
+
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
+            
+               TAIR = TA( C,R )   ! unit in degree K
+
+C Check min bounds for temperature and limit to 303 deg K
+               IF ( TAIR .LT. 200.0 ) THEN
+                  WRITE( MESG, 94010 ) 'TAIR=', TAIR,
+     &                 'out of range at (C,R)=', C, R
+                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+               END IF
+               TAIR = MIN( TAIR, 303.0 )
+
+               IF ( TAIR .GT. 268.8690 ) THEN  
+                  CFNO = EXP( 0.04686 * TAIR - 14.30579 ) ! grass (from BEIS2)
+               ELSE
+                  CFNO = 0.0
+D                 ncfno0 = ncfno0 + 1
+               END IF
+
+D              mxtair = max( mxtair, tair )
+D              mxcfno = max( mxcfno, cfno )
+
+               EMPOL( C,R,NSEF ) = CFNO * ( NGROWAGNO( C,R )  ! agriculture
+     &                                  +   NONAGNO( C,R ) )  ! non-agriculture
+
+            END DO  ! columns
+         END DO  ! rows
+
+D     write( logdev,2009 ) ncfno0, mxtair, mxcfno
+2009  format( 'hrno - NCFNO0, MAX TAIR,CFNO: ', i7, 2f10.5 )
+
+      ELSE   ! growing season
+
+D        mxptype = 0; mxrntot = 0.0
+D        mxfac1 = 0.0; avgfac2 = 0.0; mxfac3 = 0.0; mxfac4 = 0.0
+
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
+            
+               TAIR = TA( C,R )   ! unit in degree K
+
+C Check min bounds for temperature and limit to 303 deg K
+               IF ( TAIR .LT. 200.0 ) THEN
+                  WRITE( MESG, 94010 ) 'TAIR=', TAIR,
+     &                 'out of range at (C,R)=', C, R
+                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+               END IF
+               TAIR = MIN( TAIR, 303.0 )
+
+               IF ( .NOT. PX_VERSION ) THEN
+
+C Calculate NO emissions by going thru temperature cases
+                  TSOI = 0.72 * TAIR + 82.28
+                  TSOI = MIN( MAX( TSOI, 273.16 ), 303.16 ) - 273.16   ! deg C
+                  CFNODRY = CFNODRYFC * TSOI ! see YL 1995 Eqn 9a p. 11452
+                  IF ( TSOI .LE. 10.0 ) THEN ! see YL 1995 Eqn 7b
+                     CFNOWET = 0.28 * EFAC * TSOI   ! linear cold case
+                  ELSE
+                     CFNOWET = EFAC * EXP( 0.103 * TSOI )   ! exponential case
+                  END IF
+                  CFNO = 0.5 * ( CFNOWET + CFNODRY )
+
+                  FAC1 = GROWAGNO( C,R ) * CFNO
+     &                 * FERTILIZER_ADJ( JDATE )
+     &                 * VEG_ADJ( JDATE )
+     
+                  IF ( INITIAL_DAY ) THEN
+                     FAC2 = 1.0
+                     PTYPE( C,R ) = 0
+                     PULSEDATE( C,R ) = 0
+                     PULSETIME( C,R ) = 0
+                  ELSE
+                     FAC2 = PRECIP_ADJ( JDATE, JTIME, RNTOT( C,R ),
+     &                                  PTYPE( C,R ), PULSEDATE( C,R ),
+     &                                  PULSETIME( C,R ) )
+                  END IF
+
+               ELSE   ! using PX version of MCIP    
+
+C Calculate NO emissions by going thru temperature cases
+                  SOILCAT = INT( ISLTYP( C,R ) )
+                  IF ( SOILCAT .LE. MAXSTYPES ) THEN
+                     RATIO = SOILM( C,R ) / SATURATION( SOILCAT )
+                     IF ( USE_SOILT ) THEN
+                        TSOI = SOILT( C,R )
+                     ELSE
+                        TSOI = 0.72 * TAIR + 82.28
+                     END IF
+                     TSOI = MIN( MAX( TSOI, 273.16 ), 303.16 ) - 273.16   ! deg C
+                     CFNODRY = CFNODRYFC * TSOI ! see YL 1995 Eqn 9a p. 11452
+
+                     IF ( TSOI .LE. 10.0 ) THEN ! see YL 1995 Eqn 7b
+                        CFNOWET = 0.28 * EFAC * TSOI   ! linear cold case
+                     ELSE
+                        CFNOWET = EFAC * EXP( 0.103 * TSOI )   ! exponential case
+                     END IF
+
+                     CFNO = CFNODRY + RATIO * ( CFNOWET - CFNODRY )
+                     FAC1 = GROWAGNO( C,R ) * CFNO
+     &                    * FERTILIZER_ADJ( JDATE )
+     &                    * VEG_ADJ( JDATE )
+                  ELSE
+                     FAC1 = 0.0
+                  END IF
+
+                  IF ( INITIAL_DAY ) THEN
+                     FAC2 = 1.0
+                     PTYPE( C,R ) = 0
+                     PULSEDATE( C,R ) = 0
+                     PULSETIME( C,R ) = 0
+                  ELSE
+                     FAC2 = PRECIP_ADJ_PX( JDATE, JTIME, RNTOT( C,R ),
+     &                                     SOILM( C,R ), ISLTYP( C,R ),
+     &                                     PTYPE( C,R ), PULSEDATE( C,R ),
+     &                                     PULSETIME( C,R ) )
+                  END IF
+
+               END IF  ! PX version check
+
+               IF ( TAIR .GT. 268.8690 ) THEN  
+                  CFNOGRASS = EXP( 0.04686 * TAIR - 14.30579 ) ! grass (from BEIS2)
+                  FAC3 = NGROWAGNO( C,R ) * CFNOGRASS 
+                  FAC4 = NONAGNO( C,R ) * CFNOGRASS
+               ELSE
+                  FAC3 = 0.0
+                  FAC4 = 0.0
+               END IF
+
+D              mxptype = max( mxptype, ptype( c,r ) )
+D              mxrntot = max( mxrntot, rntot( c,r ) )
+D              mxfac1 = max( mxfac1, fac1 )
+D              avgfac2 = avgfac2 + fac2
+D              mxfac3 = max( mxfac3, fac3 )
+D              mxfac4 = max( mxfac4, fac4 )
+
+               EMPOL( C,R,NSEF ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
+
+            END DO  ! columns
+         END DO  ! rows
+
+D     write( logdev,2011 ) mxptype, mxrntot, avgfac2/(ncols*nrows), mxfac1, mxfac3, mxfac4
+2011  format( 'hrno MAX PTYPE,RNTOT,AVGFAC2,FAC1,3,4: ', I2, 2f8.3 , 3f10.3 )
+
+      END IF  ! growing season check
+
+      RETURN
+
+9999  CONTINUE
+
+C Create rain data file for soil NO
+
+C Final timestamp
+      NDATE = EDATE; NTIME = ETIME
+
+C Build description for, and create/open soil NO emissions output file
+      FTYPE3D = GRDDED3
+      SDATE3D = NDATE
+      STIME3D = NTIME
+      TSTEP3D = 0   ! make it a time-independent file
+      NCOLS3D = GL_NCOLS
+      NROWS3D = GL_NROWS
+      NLAYS3D = 1
+      NVARS3D = 3 + RHOURS
+      MXREC3D = 1
+
+      VNAME3D = ' '
+      VNAME3D( 1 ) = 'PTYPE'
+      VNAME3D( 2 ) = 'PULSEDATE'
+      VNAME3D( 3 ) = 'PULSETIME'
+
+      DO I = 1, RHOURS
+         WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
+         VNAME3D( I+3 ) = VAR
+      END DO
+
+      UNITS3D = ' '
+      UNITS3D( 1 ) = 'INTEGER'
+      UNITS3D( 2 ) = 'YYYYDDD'
+      UNITS3D( 3 ) = 'HHMMSS'
+      UNITS3D( 4:RHOURS+3 ) = 'cm'
+
+      VDESC3D( 1 ) = 'NO emission pulse type'
+      VDESC3D( 2 ) = 'CMAQ starting date for NO emission pulse'
+      VDESC3D( 3 ) = 'CMAQ starting time for NO emission pulse'
+!     VDESC3D( 4:RHOURS+3 ) = 'hourly convective and non-convective rainfall'
+      DO I = 1, RHOURS
+         VDESC3D( I+3 ) = DESCSTR // DDTTM( I )
+      END DO
+
+      VTYPE3D = 0
+      VTYPE3D( 1 ) = M3INT
+      VTYPE3D( 2 ) = M3INT
+      VTYPE3D( 3 ) = M3INT
+      VTYPE3D( 4:RHOURS+3 ) = M3REAL
+
+      FDESC3D = ' '
+      FDESC3D( 1 ) = 'Gridded rainfall data for soil NO emissions'
+      FDESC3D( 2 ) = '/From/ ' // PNAME
+      FDESC3D( 3 ) = '/Version/ CMAQ'
+
+C Open NO rain data save file
+      IF ( MYPE .EQ. 0 ) THEN
+         IF ( .NOT. OPEN3( SOILOUT, FSNEW3, PNAME ) ) THEN
+            MESG = 'Could not open "' // TRIM( SOILOUT ) // '" file'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT1 )
+         END IF
+      END IF
+
+C Write soil NO rain data file
+
+      VAR = 'PTYPE'
+      IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, PTYPE ) ) THEN
+         MESG = 'Could not write "' // TRIM( VAR ) //
+     &          '" to file "' // TRIM( SOILOUT ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+      VAR = 'PULSEDATE'
+      IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, PULSEDATE ) ) THEN
+         MESG = 'Could not write "' // TRIM( VAR ) //
+     &          '" to file "' // TRIM( SOILOUT ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+      VAR = 'PULSETIME'
+      IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, PULSETIME ) ) THEN
+         MESG = 'Could not write "' // TRIM( VAR ) //
+     &          '" to file "' // TRIM( SOILOUT ) // '"'
+         CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+      END IF
+
+      DO I = 1, RHOURS
+         WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
+         IF ( .NOT. WRITE3( SOILOUT, VAR, NDATE, NTIME, RAINFALL( 1,1,I ) ) ) THEN
+            MESG = 'Could not write "' // TRIM( VAR ) //
+     &             '" to file "' // TRIM( SOILOUT ) // '"'
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+         END IF
+      END DO
+
+      WRITE( LOGDEV,94040 )
+     &      'Timestep written to', SOILOUT,
+     &      'for date and time', NDATE, NTIME
+
+      RETURN
+
+94010 FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
+94020 FORMAT( A, F10.2, 1X, A, I3, ',', I3, A )
+94040 FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
+
+C-----------------------------------------------------------------------
+
+      CONTAINS
+
+         REAL FUNCTION PRECIP_ADJ_PX( JDATE, JTIME, RAIN, SOILM, ISLTYP,
+     &                                PTYPE, PULSEDATE, PULSETIME )
+
+C-----------------------------------------------------------------------
+ 
+C Description:
+   
+C    Compute precipitation adjustment factor for estimate of NO emissions 
+C    Uses: julian day, time, soil moisture
+C    Requires the use of three arrays that are re-used each time step:
+C    PTYPE, PULSEDATE, PULSETIME 
+C    These arrays store the type of NO pulse initiated by the rainfall
+C    and the starting date and time of the pulse.
+ 
+C Preconditions:
+C    Soil Moisture current time, Soil Moisture previous time,
+C    Soil type, Land Use, PTYPE, PULSEDATE, PULSETIME 
+ 
+C Subroutines and Functions Called:
+C    precipfact - computes precip adjustment factor from rainrate and time
+C                 since pulse initiation
+C    pulsetype  - determines type & duration of NO emission pulse from rainrate
+ 
+C Revision History:
+C    11/01 : Prototype by GAP
+C    3/05  : create separate functions for PX vs non-PX versions
+C    1/10  : J.Young - restructure
+C-----------------------------------------------------------------------
+
+         IMPLICIT NONE
+
+C Function arguments:
+         INTEGER, INTENT( IN )    :: JDATE, JTIME
+         REAL,    INTENT( IN )    :: RAIN
+         REAL,    INTENT( IN )    :: SOILM     ! only avilable if PX version
+         REAL,    INTENT( IN )    :: ISLTYP    ! only available if PX version
+         INTEGER, INTENT( INOUT ) :: PTYPE     ! pulse type
+         INTEGER, INTENT( INOUT ) :: PULSEDATE ! date of pulse start
+         INTEGER, INTENT( INOUT ) :: PULSETIME ! date of pulse end
+
+C External functions:
+         INTEGER, EXTERNAL :: GETEFILE
+         
+C Parameters:
+         REAL, PARAMETER :: SAT_THRES = 0.95
+
+C Local variables:
+         INTEGER SOILCAT     ! soil type category
+         INTEGER PTYPE_TEST
+
+C-----------------------------------------------------------------------
+
+C Summary of algorithm
+C   1. compute rate of change of soil moisture from soil moisture
+C   2. estimate rainrate from soil moisture and soil moisture rate
+C   3. compute adjustment using pulsetype, rainrate, ptype, and date/time
+C        if stronger NO pulse compared to previous time step, then
+C        start a new NO emission pulse,
+C        otherwise continue present NO pulse
+C   4. override adjustment for saturated soils 
+
+         SOILCAT = INT( ISLTYP )
+
+         IF ( SOILCAT .LE. MAXSTYPES ) THEN   ! not water
+            IF ( SOILM .GE. SAT_THRES * SATURATION( SOILCAT ) ) THEN
+               PRECIP_ADJ_PX = 0.0
+            ELSE
+               PTYPE_TEST = PULSETYPE( RAIN )
+               IF ( PTYPE_TEST .GT. PTYPE ) THEN ! Rainfall class type increases
+                  PULSEDATE = JDATE              ! (NO emission pulse generated)
+                  PULSETIME = JTIME
+                  PTYPE = PTYPE_TEST
+               END IF
+               PRECIP_ADJ_PX = PRECIPFAC( JDATE, JTIME, PULSEDATE, PULSETIME, PTYPE )
+            END IF
+         ELSE
+            PRECIP_ADJ_PX = 0.0
+         END IF
+
+         RETURN
+         
+         END FUNCTION PRECIP_ADJ_PX
+         
+C-----------------------------------------------------------------------
+
+         REAL FUNCTION PRECIP_ADJ( JDATE, JTIME, RAIN,
+     &                             PTYPE, PULSEDATE, PULSETIME )
+
+C-----------------------------------------------------------------------
+C Description:
+   
+C    Compute precipitation adjustment factor for estimate of NO emissions 
+C    Uses: julian day, time, soil moisture
+C    Requires the use of three arrays that are re-used each time step:
+C    PTYPE, PULSEDATE, PULSETIME 
+C    These arrays store the type of NO pulse initiated by the rainfall
+C    and the starting date and time of the pulse.
+ 
+C Preconditions:
+C    Soil Moisture current time, Soil Moisture previous time,
+C    Soil type, Land Use, PTYPE, PULSEDATE, PULSETIME 
+ 
+C Subroutines and Functions Called:
+C    precipfact - computes precip adjustment factor from rainrate and time
+C                 since pulse initiation
+C    pulsetype  - determines type & duration of NO emission pulse from rainrate
+ 
+C Revision History:
+C    11/01 : Prototype by GAP
+C    3/05  : created a non-PX version of this function 
+C    1/10  : J.Young - restructure
+  
+C-----------------------------------------------------------------------
+
+         IMPLICIT NONE
+
+C Function arguments:
+         INTEGER, INTENT( IN )    :: JDATE, JTIME
+         REAL,    INTENT( IN )    :: RAIN
+         INTEGER, INTENT( INOUT ) :: PTYPE     ! pulse type
+         INTEGER, INTENT( INOUT ) :: PULSEDATE ! date of pulse start
+         INTEGER, INTENT( INOUT ) :: PULSETIME ! time of pulse start
+
+C External functions:
+         INTEGER, EXTERNAL :: GETEFILE
+
+C Local variable
+         INTEGER PTYPE_TEST
+
+C-----------------------------------------------------------------------
+
+C Summary of algorithm
+C    1. if no rainfall or new rainfall class less than current one, continue
+C       existing NO emission pulse
+C    2. if new rainfall that increases rainfall class, then create new NO
+C       emission pulse using pulsetype, rainrate, ptype, and date/time -
+C       if stronger NO pulse compared to previous time step, then start
+C       a new NO emission pulse
+
+         PTYPE_TEST = PULSETYPE( RAIN )
+         IF ( PTYPE_TEST .GT. PTYPE ) THEN ! Rainfall class type increases
+            PULSEDATE = JDATE              ! (NO emission pulse generated)
+            PULSETIME = JTIME
+            PTYPE = PTYPE_TEST
+         END IF
+
+         PRECIP_ADJ = PRECIPFAC( JDATE, JTIME, PULSEDATE, PULSETIME, PTYPE )
+
+         RETURN
+         
+         END FUNCTION PRECIP_ADJ
+
+C-----------------------------------------------------------------------
+
+         REAL FUNCTION FERTILIZER_ADJ( DATE )
+
+C Compute a fertilizer adjustment factor for the given date in yyyyddd format.
+C If it is not growing season, the adjustment factor is 0; otherwise, it
+C ranges from 0.0 to 1.0.
+
+         IMPLICIT NONE
+         
+C Function arguments:
+         INTEGER, INTENT( IN ) :: DATE
+
+C Local variables:
+         INTEGER  GDAY
+
+C-----------------------------------------------------------------------
+
+         GDAY = GROWSEASON( DATE )
+         
+         IF ( GDAY .EQ. 0 ) THEN
+            FERTILIZER_ADJ = 0.0
+         ELSE IF ( GDAY .GE. 1 .AND. GDAY .LT. 30 ) THEN  ! first month of growing season
+            FERTILIZER_ADJ = 1.0
+         ELSE IF ( GDAY .GE. 30 ) THEN
+            FERTILIZER_ADJ = 1.0 + 30.0 / 184.0 - FLOAT( GDAY ) / 184.0
+         ELSE
+            WRITE( MESG,94010 ) 'Invalid date specified; date = ', DATE,
+     &                          'growing season day = ', GDAY
+            CALL M3EXIT( PNAME, 0, 0, MESG, 2 )
+         END IF
+
+94010    FORMAT( A, I8, 1X, A, I3 )
+         
+         RETURN
+         
+         END FUNCTION FERTILIZER_ADJ
+
+C-----------------------------------------------------------------------
+
+         REAL FUNCTION VEG_ADJ( DATE )
+
+C Compute a vegetation adjustment factor for the given date in yyyyddd format.
+C The adjustment factor ranges from 0.5 to 1.0.
+
+         IMPLICIT NONE
+         
+C Function arguments:
+         INTEGER, INTENT( IN ) :: DATE
+
+C Local variables:
+         INTEGER  GDAY
+
+C-----------------------------------------------------------------------
+
+         GDAY = GROWSEASON( DATE )
+         
+         IF ( GDAY .LE. 30 ) THEN
+            VEG_ADJ = 1.0
+         ELSE IF ( GDAY .GT. 30 .AND. GDAY .LT. 60 ) THEN
+            VEG_ADJ = 1.5 - ( FLOAT( GDAY ) / 60.0 )
+         ELSE IF ( GDAY .GE. 60 ) THEN
+            VEG_ADJ = 0.5
+         ELSE
+            WRITE( MESG,94010 ) 'Invalid date specified; date = ', DATE,
+     &                          'growing season day = ', GDAY
+            CALL M3EXIT( PNAME, 0, 0, MESG, 2 )
+         END IF
+
+94010    FORMAT( A, I8, 1X, A, I3 )
+
+         RETURN
+      
+         END FUNCTION VEG_ADJ
+         
+C-----------------------------------------------------------------------
+
+         INTEGER FUNCTION GROWSEASON( DATE )
+
+C Compute the day of the growing season corresponding to the given date
+C in yyyyddd format.
+
+         IMPLICIT NONE
+         
+C Function arguments:
+         INTEGER, INTENT( IN ) :: DATE   ! YYYYDDD
+
+C External functions:
+         INTEGER, EXTERNAL :: JULIAN
+
+C Parameters:
+         INTEGER, PARAMETER :: GSTART_MONTH  = 04     ! April
+         INTEGER, PARAMETER :: GSTART_DAY    = 01
+         INTEGER, PARAMETER :: GEND_MONTH    = 10     ! October
+         INTEGER, PARAMETER :: GEND_DAY      = 31
+
+C Local variables:
+         INTEGER  YEAR, MONTH, DAY
+         INTEGER  JDAY, GDAY
+         INTEGER  GSJULIAN_START
+         INTEGER  GSJULIAN_END
+         
+C-----------------------------------------------------------------------
+
+         YEAR = INT( FLOAT( DATE ) / 1000.0 )
+         JDAY = DATE - YEAR * 1000
+         
+         GSJULIAN_START = JULIAN( YEAR, GSTART_MONTH, GSTART_DAY )
+         GSJULIAN_END = JULIAN( YEAR, GEND_MONTH, GEND_DAY )
+         
+         IF ( JDAY .GE. GSJULIAN_START .AND. JDAY .LE. GSJULIAN_END ) THEN
+            GROWSEASON = JDAY - GSJULIAN_START + 1  ! growing season
+         ELSE IF ( JDAY .GE. 1 .AND. JDAY .LE. 366 ) THEN
+            GROWSEASON = 0                          ! before or after growing season
+         ELSE
+            WRITE( MESG,94010 ) 'Invalid date specified; date = ', DATE,
+     &                          'jday = ', JDAY
+            CALL M3EXIT( PNAME, 0, 0, MESG, 2 )
+         END IF
+
+94010    FORMAT( A, I8, 1X, A, I3 )
+
+         RETURN
+
+         END FUNCTION GROWSEASON
+
+C-----------------------------------------------------------------------
+
+         REAL FUNCTION PRECIPFAC( JDATE, JTIME, PDATE, PTIME, PTYPE )
+
+C Compute a precipitation adjustment factor from a previous 24 hour rainfall
+C based on YL 1995
+C The pulse type is an integer ranging from 0 to 3 indicating the type of
+C rainfall rate:
+C If rainfall < 0.1 cm in last 24 hr, "reset"
+C Else if rainfall < 0.5 cm in last 24 hr, and time since last pulse is .ge. 2 days,
+C    reset; else, precipfact=11.19*...
+C Else if rainfall < 1.5 cm in last 24 hr, and time since last pulse is .ge. 6 days,
+C    reset; else, precipfact=14.68*...
+C Else if rainfall >=1.5 cm in last 24 hr, and time since last pulse is .ge. 13 days,
+C    reset; else, precipfact=18.46*...
+
+         IMPLICIT NONE
+         
+C Function arguments:
+         INTEGER, INTENT( IN )    :: JDATE, JTIME, PDATE, PTIME
+         INTEGER, INTENT( INOUT ) :: PTYPE
+         
+C External functions:
+         INTEGER, EXTERNAL :: SECSDIFF
+
+C Parameters:
+         REAL, PARAMETER :: DAYPERSEC = 1.0 / ( 24.0 * 3600.0 ) ! = 0.000011574074074
+
+C Local variables:
+         REAL DAYDIFF, DAYDIF1
+         
+C-----------------------------------------------------------------------
+
+         DAYDIFF = FLOAT( SECSDIFF( PDATE, PTIME, JDATE, JTIME ) ) * DAYPERSEC
+         DAYDIF1 = DAYDIFF + 1.0
+         
+         SELECT CASE( PTYPE )
+         CASE( 0 )
+            PRECIPFAC = 1.0
+         CASE( 1 )
+            IF ( ( DAYDIFF ) .LT. 2.0 ) THEN
+               PRECIPFAC = 11.19 * EXP( -0.805 * DAYDIF1 )
+            ELSE
+               PTYPE = 0
+               PRECIPFAC = 1.0
+            END IF
+         CASE( 2 )
+            IF ( ( DAYDIFF ) .LT. 6.0 ) THEN
+               PRECIPFAC = 14.68 * EXP( -0.384 * DAYDIF1 )
+            ELSE
+               PTYPE = 0
+               PRECIPFAC = 1.0
+            END IF
+         CASE( 3 )
+            IF ( ( DAYDIFF ) .LT. 13.0 ) THEN
+               PRECIPFAC = 18.46 * EXP( -0.208 * DAYDIF1 )
+            ELSE
+               PTYPE = 0
+               PRECIPFAC = 1.0
+            END IF
+         CASE DEFAULT
+            WRITE( MESG,'( A, I6 )' ) 'Invalid Pulse Type specified ',
+     &                                 PTYPE
+            CALL M3EXIT( PNAME, 0, 0, MESG, 2 )
+         END SELECT
+         
+         RETURN
+         
+         END FUNCTION PRECIPFAC
+    
+C-----------------------------------------------------------------------
+
+         INTEGER FUNCTION PULSETYPE( RAIN )
+
+C Compute the pulse type from the rainfall rate (see YL 1995).
+
+         IMPLICIT NONE
+         
+C Function arguments
+         REAL, INTENT( IN ) :: RAIN   ! [cm/24hr]
+         
+C-----------------------------------------------------------------------
+
+         IF ( RAIN .LT. 0.1 ) THEN
+            PULSETYPE = 0
+         ELSE IF ( RAIN .LT. 0.5 ) THEN
+            PULSETYPE = 1
+         ELSE IF ( RAIN .LT. 1.5 ) THEN
+            PULSETYPE = 2
+         ELSE
+            PULSETYPE = 3
+         END IF
+         
+         RETURN
+         
+         END FUNCTION PULSETYPE
+
+C-----------------------------------------------------------------------
+
+      END SUBROUTINE HRNO
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

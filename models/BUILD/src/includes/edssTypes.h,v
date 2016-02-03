@@ -1,0 +1,67 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @ * @;
+
+
+1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/****************************************************************************
+*
+* Project Title: Environmental Decision Support System
+* File: @@(#)edssTypes.h	5.1
+*
+* COPYRIGHT (C) 1995, MCNC--North Carolina Supercomputing Center
+* All Rights Reserved
+*
+* See file COPYRIGHT for conditions of use.
+*
+* Environmental Programs Group
+* MCNC--North Carolina Supercomputing Center
+* P.O. Box 12889
+* Research Triangle Park, NC  27709-2889
+*
+* env_progs@@mcnc.org
+*
+* Pathname: /pub/storage/edss/framework/src/process_mgr/fw_include/SCCS/s.edssTypes.h
+* Last updated: 20 Mar 1996 13:03:34
+*
+****************************************************************************/
+#ifndef edssTypes_H
+#define edssTypes_H
+
+#ifdef HP_UX9
+typedef enum boolean { B_FALSE, B_TRUE } boolean_t;
+#endif
+
+#endif
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

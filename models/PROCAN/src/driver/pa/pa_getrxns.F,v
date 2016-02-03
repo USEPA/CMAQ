@@ -1,0 +1,313 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_getrxns.F,v 1.4 1998/06/19 11:38:46 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_getrxns.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_getrxns.F 04 Jul 1997 14:13:34
+
+      SUBROUTINE GETRXNS( NOUT, NTERM, NR, RXNUM, COEFF, LRXINC )
+
+C***********************************************************************
+C
+C  FUNCTION: To get the reaction numbers and coefficients for the
+C            PROD/LOSS/NET operators
+C            
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS:
+      INTEGER NOUT     ! The incoming output number
+      INTEGER NTERM    ! The incoming term number in the output list
+      INTEGER NR       ! The outgoing number of reactions found
+      INTEGER RXNUM(  MXRXNS )  ! The reaction numbers found
+
+      LOGICAL LRXINC( MXRXNS )  ! Flag to include reaction in prod,
+                                ! loss, or net operations
+      
+      REAL COEFF( MXRXNS )      ! The coefficients of the reactions found
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+
+      REAL MOLCLOSS    ! Function to get number of species or 
+                       ! family molecules lost in a reaction
+      REAL MOLCPROD    ! Function to get number of species or 
+                       ! family molecules produced in a reaction
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+
+
+      CHARACTER*4 NAMETYPE  ! Type of name (mech or family)
+      CHARACTER*4 TYPE      ! Type of term
+      CHARACTER*11 SP1      ! Species name holder
+      CHARACTER*11 SP2      ! species name holder
+
+      INTEGER INDX       ! Holder for pointer 
+      INTEGER NPFND      ! Number of reactant species found
+      INTEGER NRFND      ! Number of reactant species found
+      INTEGER NRFND1     ! Holder for umber of reactant species found
+      INTEGER NRX        ! Loop index for number of reactions
+
+      LOGICAL LINCL      ! Flag to include reaction in output
+      LOGICAL LTEST1, LTEST2    ! Flags to indicate that test passed
+
+      REAL COEF          ! Coefficient for product or reactant 
+      REAL COEF2         ! Coefficient for reactant for LOSS/OR operator
+      REAL SUM           ! Sum of molecular production and loss
+         
+C***********************************************************************
+
+      TYPE = OUTTYPE( NOUT, NTERM )
+      NR = 0
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the production operator
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( TYPE .EQ. 'PROD' .OR. TYPE .EQ. 'NETP' ) THEN
+
+         DO 20 NRX = 1, NRXNS
+
+c..Skip the reaction if it is in a cycle or the species is not produced
+            IF( .NOT. LRXINC( NRX ) ) GO TO 20
+            NAMETYPE  = OUTS1TYP( NOUT, NTERM )
+            INDX = OUTS1NUM( NOUT, NTERM )
+            IF( TYPE .EQ. 'PROD' ) THEN 
+               COEF = MOLCPROD( NAMETYPE, INDX, NRX, NPFND )              
+            ELSE
+               COEF = MOLCPROD( NAMETYPE, INDX, NRX, NPFND ) -
+     &                MOLCLOSS( NAMETYPE, INDX, NRX, NRFND )
+            ENDIF
+            IF( COEF .LE. 0.0 ) GO TO 20
+
+c..Set the test flag for the FROM operator
+            LTEST1 = .FALSE.
+            IF( OUTSPEC2( NOUT, NTERM ) .EQ. '' ) THEN
+               LTEST1 = .TRUE.
+            ELSE
+               NAMETYPE = OUTS2TYP( NOUT, NTERM )
+               INDX  = OUTS2NUM( NOUT, NTERM ) 
+               IF( OUTSPEC2( NOUT, NTERM ) .NE. 'hv' ) THEN
+                  SUM = MOLCLOSS( NAMETYPE, INDX, NRX, NRFND )
+                  NRFND1 = NRFND
+                  IF( NRFND .NE. 0 ) LTEST1 = .TRUE.
+               ELSE
+                  IF( BTEST( IRXBITS( NRX ), 1 ) ) LTEST1 = .TRUE.
+               ENDIF
+            ENDIF
+
+c..Set the test flag for the AND/OR operator 
+            LTEST2 = .FALSE.
+            IF( OUTSPEC3( NOUT, NTERM  ) .EQ. ''  ) THEN
+               LTEST2 = .TRUE.
+            ELSE
+               SP1  = OUTSPEC2( NOUT, NTERM )
+               SP2  = OUTSPEC3( NOUT, NTERM )
+               NAMETYPE  = OUTS3TYP( NOUT, NTERM )
+               INDX = OUTS3NUM( NOUT, NTERM ) 
+               IF( OUTSPEC3( NOUT, NTERM ) .NE. 'hv' ) THEN
+                  SUM = MOLCLOSS( NAMETYPE, INDX, NRX, NRFND )
+                  IF( SP1 .NE. SP2 ) THEN
+                     IF( NRFND .GT. 0 ) LTEST2 = .TRUE.
+                  ELSE
+                     NRFND = NRFND + NRFND1
+                     IF( NRFND .GE. 4 ) LTEST2 = .TRUE.
+                  ENDIF
+               ELSE
+                  IF( BTEST( IRXBITS( NRX ), 1 ) ) LTEST2 = .TRUE.
+               ENDIF
+            ENDIF
+
+c..Determine whether this reaction is to be included
+            LINCL = .FALSE.
+            IF( OUTSPEC2( NOUT, NTERM ) .EQ. '' ) THEN
+               LINCL = .TRUE.
+            ELSE 
+               IF( OUTSPEC3( NOUT, NTERM ) .EQ. '' ) THEN
+                  IF( LTEST1 ) LINCL = .TRUE.
+               ELSE                                    
+                  IF( OUTOP2( NOUT, NTERM ) .EQ. 'OR' ) THEN
+                     IF( LTEST1 .OR. LTEST2 ) LINCL = .TRUE.
+                  ELSEIF( OUTOP2( NOUT, NTERM ) .EQ. 'AND' ) THEN
+                     IF( LTEST1 .AND. LTEST2 ) LINCL = .TRUE. 
+                  ENDIF
+               ENDIF
+            ENDIF
+  
+c..Store reaction data for this term
+            IF( LINCL ) THEN
+                NR = NR + 1
+                RXNUM( NR ) = NRX
+                COEFF( NR ) = COEF
+            ENDIF
+   20    CONTINUE
+         RETURN
+      ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the loss operator
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( TYPE .EQ. 'LOSS' .OR. TYPE .EQ. 'NETL' ) THEN
+         DO 40 NRX = 1, NRXNS
+
+c..Skip the reaction if it is in a cycle and set test1 flag
+            IF( .NOT. LRXINC( NRX ) ) GO TO 40
+            LTEST1 = .TRUE.
+            NAMETYPE  = OUTS1TYP( NOUT, NTERM )
+            INDX = OUTS1NUM( NOUT, NTERM )
+            COEF = MOLCLOSS( NAMETYPE, INDX, NRX, NRFND ) -
+     &             MOLCPROD( NAMETYPE, INDX, NRX, NPFND )
+            IF( TYPE .EQ. 'LOSS' .AND. NRFND .GT. 0 ) COEF = 1.0
+            IF( COEF .LE. 0.0 ) LTEST1 = .FALSE.
+
+c..Set the test flag for the AND/OR operator 
+            LTEST2 = .FALSE.
+            IF( OUTSPEC3( NOUT, NTERM ) .EQ. '' ) THEN
+               LTEST2 = .TRUE.
+            ELSE
+               SP1  = OUTSPEC1( NOUT, NTERM )
+               SP2  = OUTSPEC3( NOUT, NTERM )
+               NAMETYPE  = OUTS3TYP( NOUT, NTERM )
+               INDX = OUTS3NUM( NOUT, NTERM ) 
+               IF( OUTSPEC3( NOUT, NTERM ) .NE. 'hv' ) THEN
+                  COEF2 = MOLCLOSS( NAMETYPE, INDX, NRX, NRFND ) -
+     &                    MOLCPROD( NAMETYPE, INDX, NRX, NPFND )
+                  IF( TYPE .EQ. 'LOSS' .AND. NRFND .GT. 0 ) COEF2 = 1.0
+                  IF( SP1 .NE. SP2 ) THEN
+                     IF( NRFND .GT. 0 ) LTEST2 = .TRUE.
+                  ELSE
+                     NRFND = NRFND + NRFND1
+                     IF( NRFND .GE. 4 ) LTEST2 = .TRUE.
+                  ENDIF
+               ELSE
+                  IF( BTEST( IRXBITS( NRX ), 1 ) ) LTEST2 = .TRUE.
+               ENDIF
+            ENDIF
+
+c..Determine whether this reaction is to be included
+            LINCL = .FALSE.
+            IF( OUTSPEC3( NOUT, NTERM ) .EQ. '' ) THEN
+               IF( LTEST1 ) LINCL = .TRUE.
+            ELSE                       
+               IF( OUTOP2( NOUT, NTERM ) .EQ. 'OR' ) THEN
+                  IF( LTEST1 .OR. LTEST2 ) LINCL = .TRUE.
+                  IF( LINCL .AND. .NOT. LTEST1 ) COEF = COEF2
+               ELSEIF( OUTOP2( NOUT, NTERM ) .EQ. 'AND' ) THEN
+                  IF( LTEST1 .AND. LTEST2 ) LINCL = .TRUE. 
+               ENDIF
+            ENDIF
+
+c..Store reaction data for this term
+            IF( LINCL ) THEN
+                NR = NR + 1
+                RXNUM( NR ) = NRX
+                COEFF( NR ) = COEF
+            ENDIF
+   40    CONTINUE
+         RETURN
+      ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the net operator
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( TYPE .EQ. 'NET' ) THEN
+         DO 60 NRX = 1, NRXNS
+
+c..Skip the reaction if it is in a cycle and set test1 flag
+            IF( .NOT. LRXINC( NRX ) ) GO TO 60
+            LTEST1 = .TRUE.
+            NAMETYPE  = OUTS1TYP( NOUT, NTERM )
+            INDX = OUTS1NUM( NOUT, NTERM )
+            COEF = MOLCPROD( NAMETYPE, INDX, NRX, NPFND ) -
+     &             MOLCLOSS( NAMETYPE, INDX, NRX, NRFND )
+            IF( COEF .NE. 0.0 ) THEN
+                NR = NR + 1
+                RXNUM( NR ) = NRX
+                COEFF( NR ) = COEF
+            ENDIF
+   60    CONTINUE
+         RETURN
+      ENDIF 
+
+      RETURN
+      END    
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

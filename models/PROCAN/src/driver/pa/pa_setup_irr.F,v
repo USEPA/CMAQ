@@ -1,0 +1,330 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_setup_irr.F,v 1.3 1998/06/19 11:39:00 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_setup_irr.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_setup_irr.F 04 Jul 1997 14:13:46
+
+      SUBROUTINE PA_SETUP_IRR
+
+C***********************************************************************
+C
+C  FUNCTION: To store IRR data that will be needed to
+C            generate the PA report and output INCLUDE files
+C            
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER LBLANK   ! Function to get no. of leading blanks
+      INTEGER TRIMLEN  ! Function to get pos of last non-blank character
+ 
+      REAL MOLCLOSS    ! Function to get number of species or 
+                       ! family molecules lost in a reaction
+      REAL MOLCPROD    ! Function to get number of species or 
+                       ! family molecules produced in a reaction
+
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES: 
+
+      CHARACTER*4 NAMETYPE   ! Type of name (mech or family)
+      CHARACTER*4 TYPE       ! Operator type
+      CHARACTER*7 PNFLAG     ! Initialization flag
+      CHARACTER*10 LBLOUT    ! Holder for output label
+
+      INTEGER EPOS1, EPOS2 ! Position of last non-blank character in string
+      INTEGER ICOUNT       ! Count of number of output terms in sum
+      INTEGER INDX         ! Pointer to cycle or rxsum number
+      INTEGER N            ! Loop index for specis and defined names
+      INTEGER NAMINDX      ! Pointer to species or family name
+      INTEGER NCYC         ! Loop index for number of cycles
+      INTEGER NFAM         ! Loop index for number of familys
+      INTEGER NFAMIN       ! Counter of no. of families in output
+      INTEGER NFAMOUT      ! Counter of no. of families listed for output
+      INTEGER NOUT         ! Loop index for number of output requests
+      INTEGER NRFND        ! Number of reactant species found
+      INTEGER NPFND        ! Number of reactant species found
+      INTEGER NRX          ! Loop index for number of reactions or Rxsums
+      INTEGER NTERM        ! Loop index for number of terms in output request
+      INTEGER SPOS1, SPOS2 ! Starting position for first non-blank character
+
+      INTEGER FAMINDX( MAXOUTTERMS )   ! Index of family
+
+      REAL SUM           ! Sum of molecular production and loss
+         
+C***********************************************************************
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store reaction data for all cycles  
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NCYC = 1, NCYCLES         
+         IF( CYCLSPEC( NCYC ) .NE. '' )  THEN
+            NAMETYPE = CYSPTYP( NCYC ) 
+            NAMINDX  = CYSPNUM( NCYC ) 
+            ICOUNT = 0
+            DO NRX = 1, NRXNS
+               SUM = MOLCPROD( NAMETYPE,  NAMINDX,  NRX,  NPFND )  - 
+     &               MOLCLOSS( NAMETYPE,  NAMINDX,  NRX,  NRFND ) 
+               IF( ABS( SUM ) .GT. 0.0001 )  THEN
+                  ICOUNT = ICOUNT + 1
+                  CYRXNUM( NCYC, ICOUNT )  = NRX
+                  NCYTERMS( NCYC )  = ICOUNT 
+                  CYSC( NCYC, ICOUNT )  = SUM
+               ENDIF
+            ENDDO
+         ENDIF
+      ENDDO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store data on the families used in each IRR_OUTPUT command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NOUT = 1, NIRROUT
+         NFAMIN = 0
+
+         DO N = 1, NIRRTERMS( NOUT ) 
+            IF( OUTS1TYP( NOUT, N ) .EQ. 'FAM' )  THEN
+               NFAMIN = NFAMIN + 1
+               FAMINDX( NFAMIN )  = OUTS1NUM( NOUT, N ) 
+            ENDIF
+            IF( OUTS2TYP( NOUT, N ) .EQ. 'FAM' )  THEN
+               NFAMIN = NFAMIN + 1
+               FAMINDX( NFAMIN )  = OUTS2NUM( NOUT, N ) 
+            ENDIF
+            IF( OUTS3TYP( NOUT, N ) .EQ. 'FAM' )  THEN
+               NFAMIN = NFAMIN + 1
+               FAMINDX( NFAMIN )  = OUTS3NUM( NOUT, N ) 
+            ENDIF
+         ENDDO
+
+         IF( NFAMIN .GT. 0 )  THEN
+            NFAMOUT = 0
+            DO NFAM = 1, NFAMIN
+               INDX = 0
+               DO N = 1,  NFAMOUT
+                  IF( FAMINDX( NFAM ) .EQ. OUTFAMS( NOUT, N )  )
+     &                  INDX = N
+               ENDDO
+               IF( INDX .EQ. 0 )  THEN
+                  NFAMOUT = NFAMOUT + 1
+                  OUTFAMS( NOUT, NFAMOUT )  = FAMINDX( NFAM ) 
+               ENDIF
+            ENDDO
+            NOUTFAMS( NOUT )  = NFAMOUT
+         ENDIF
+      ENDDO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store data on the cycles used in each IRR_OUTPUT command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NOUT = 1, NIRROUT
+         ICOUNT = 0
+         DO NTERM =1, NIRRTERMS( NOUT ) 
+            IF( OUTS1TYP( NOUT, NTERM ) .EQ. 'CYCL' )  THEN
+               ICOUNT = ICOUNT + 1
+               NOUTCYCS( NOUT )  = ICOUNT
+               OUTCYCS( NOUT, ICOUNT )  = OUTS1NUM( NOUT, NTERM )        
+            ENDIF
+         ENDDO
+      ENDDO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store data on all reaction sums used in each IRR_OUTPUT command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NOUT = 1, NIRROUT
+         ICOUNT = 0
+         DO NTERM =1, NIRRTERMS( NOUT ) 
+            IF( OUTS1TYP( NOUT, NTERM ) .EQ. 'RXSM' )  THEN
+               ICOUNT = ICOUNT + 1
+               NOUTRXSUMS( NOUT )  = ICOUNT
+               OUTRXSUMS( NOUT, ICOUNT )  = OUTS1NUM( NOUT, NTERM ) 
+            ENDIF
+         ENDDO
+      ENDDO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store data on all operators used in each IRR_OUTPUT command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NOUT = 1, NIRROUT
+         ICOUNT = 0
+         DO NTERM =1, NIRRTERMS( NOUT ) 
+            TYPE = OUTTYPE( NOUT, NTERM ) 
+            IF( TYPE .NE. 'NAME' .AND. TYPE .NE. 'RXN' )  THEN
+               ICOUNT = ICOUNT + 1
+               NOUTOPS( NOUT )  = ICOUNT
+            ENDIF
+         ENDDO
+      ENDDO
+           
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store data on individual reactions referenced in each IRR_OUTPUT
+c  command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NOUT = 1, NIRROUT
+         ICOUNT = 0
+         DO NTERM =1, NIRRTERMS( NOUT ) 
+            TYPE = OUTTYPE( NOUT, NTERM ) 
+            IF( TYPE .EQ. 'RXN' )  THEN
+               ICOUNT = ICOUNT + 1
+               NOUTRXN( NOUT )  = ICOUNT
+            ENDIF
+         ENDDO
+      ENDDO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Store data on the defined reaction sums that initialize IRR outputs
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NUMOUTPOS = 0
+      NUMOUTNEG = 0
+      NUMOUTIND = 0
+      DO NOUT = 1, NIRROUT 
+         DO NTERM =1, NIRRTERMS( NOUT ) 
+            TYPE = OUTS1TYP( NOUT, NTERM ) 
+
+            IF( TYPE .EQ. 'CYCL' .OR. TYPE .EQ. 'RXSM' )  THEN
+               INDX = OUTS1NUM( NOUT, NTERM ) 
+               IF( TYPE .EQ. 'RXSM' )  INDX = INDX + NCYCLES              
+               PNFLAG = OUTPNFLAG( NOUT, NTERM ) 
+               IF( PNFLAG .EQ. 'POSONLY' )  THEN
+                  NUMOUTPOS = NUMOUTPOS + 1
+                  TEMPOUTPOS( NUMOUTPOS )  = INDX
+                  INDXOUTPOS( NUMOUTPOS )  = NOUT
+                  COEFOUTPOS( NUMOUTPOS )  = OUTSC( NOUT, NTERM ) 
+               ELSEIF( PNFLAG .EQ. 'NEGONLY' )  THEN
+                  NUMOUTNEG = NUMOUTNEG + 1
+                  TEMPOUTNEG( NUMOUTNEG )  = INDX
+                  INDXOUTNEG( NUMOUTNEG )  = NOUT
+                  COEFOUTNEG( NUMOUTNEG )  = OUTSC( NOUT, NTERM )  
+               ELSEIF( PNFLAG .EQ. '' )  THEN
+                  NUMOUTIND = NUMOUTIND + 1
+                  TEMPOUTIND( NUMOUTIND )  = INDX
+                  INDXOUTIND( NUMOUTIND )  = NOUT
+                  COEFOUTIND( NUMOUTIND )  = OUTSC( NOUT, NTERM ) 
+               ENDIF 
+            ENDIF
+
+         ENDDO
+      ENDDO
+
+      NUMTEMPS = 0                                   
+      MXTEMPTRMS = 0
+      DO NCYC = 1, NCYCLES
+         NUMTEMPS   = NUMTEMPS + 1
+         MXTEMPTRMS = MAX( MXTEMPTRMS, NCYTERMS( NCYC )  ) 
+         TEMPTERMS( NUMTEMPS )  = NCYTERMS( NCYC ) 
+         DO N = 1,  NCYTERMS( NCYC ) 
+            TEMPRXN( NUMTEMPS, N )   = CYRXNUM( NCYC, N ) 
+            TEMPCOEF( NUMTEMPS, N )  = CYSC( NCYC, N ) 
+         ENDDO
+      ENDDO
+
+      DO NRX = 1, NRXSUMS
+         NUMTEMPS   = NUMTEMPS + 1
+         MXTEMPTRMS = MAX( MXTEMPTRMS, NRXTERMS( NRX )  ) 
+         TEMPTERMS( NUMTEMPS )  = NRXTERMS( NRX ) 
+         DO N = 1,  NRXTERMS( NRX ) 
+            TEMPRXN( NUMTEMPS, N )   = RXSUMRN( NRX, N ) 
+            TEMPCOEF( NUMTEMPS, N )  = RXNSC( NRX, N ) 
+         ENDDO
+      ENDDO
+
+      IF( LFULLIRR )  THEN
+         DO N = 1,  NRXNS
+            WRITE( LBLOUT, '( I10 )' )  N
+            SPOS1 = LBLANK(  LBLOUT )  + 1
+            EPOS1 = TRIMLEN( LBLOUT )           
+            SPOS2 = LBLANK(  RXLABEL( N )  )  + 1
+            EPOS2 = TRIMLEN( RXLABEL( N )  )           
+            IRRNAME( N )  = 'IRR_' // LBLOUT( SPOS1 : EPOS1 ) 
+            IRRDESC( N )  = 'IRR_' // LBLOUT( SPOS1 : EPOS1 )  // 
+     &                      ': ' // '<' //
+     &                      RXLABEL( N ) ( SPOS2 : EPOS2 )  // '>'
+         ENDDO
+      ENDIF
+
+      RETURN
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

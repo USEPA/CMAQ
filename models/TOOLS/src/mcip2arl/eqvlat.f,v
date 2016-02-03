@@ -1,0 +1,69 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/work/rep/TOOLS/src/mcip2arl/eqvlat.f,v 1.1.1.1 2006/09/19 15:04:17 sjr Exp $
+
+      REAL FUNCTION EQVLAT (XLAT1,XLAT2)
+!*  WRITTEN ON 3/31/94 BY Dr. Albion Taylor  NOAA / OAR / ARL
+      PARAMETER (PI=3.14159265358979,RADPDG=PI/180,DGPRAD=180/PI)
+      SIND(X) = SIN (RADPDG*X)
+      SINL1 = SIND (XLAT1)
+      SINL2 = SIND (XLAT2)
+      IF (ABS(SINL1 - SINL2) .GT. .001) THEN
+        AL1 = LOG((1. - SINL1)/(1. - SINL2))
+        AL2 = LOG((1. + SINL1)/(1. + SINL2))
+      ELSE
+!  CASE LAT1 NEAR OR EQUAL TO LAT2
+        TAU = - (SINL1 - SINL2)/(2. - SINL1 - SINL2)
+        TAU = TAU*TAU
+        AL1  = 2. / (2. - SINL1 - SINL2) * (1.    + TAU *                      &
+                                          (1./3. + TAU *                       &
+                                         (1./5. + TAU *                        &
+                                         (1./7.))))
+        TAU =   (SINL1 - SINL2)/(2. + SINL1 + SINL2)
+        TAU = TAU*TAU
+        AL2  = -2. / (2. + SINL1 + SINL2) * (1.    + TAU *                     &
+                                           (1./3. + TAU *                      &
+                                          (1./5. + TAU *                       &
+                                          (1./7.))))
+      ENDIF
+      EQVLAT = ASIN((AL1 + AL2) / (AL1 - AL2))/RADPDG
+      RETURN
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

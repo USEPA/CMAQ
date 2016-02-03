@@ -1,0 +1,128 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/chem/smvgear/GRPARMS.EXT,v 1.4 2002/04/05 18:22:59 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)GRPARMS.EXT       1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.GRPARMS.E XT 07 Jul 1997 12:45:12
+
+C......................................................................
+C  INCLUDE FILE: GRPARMS.EXT
+C
+C  CONTAINS: Parameter dimensioning parameters for Gear solver
+C
+C  DEPENDENT UPON: HGRD3.EXT
+C                  VGRD3.EXT
+C                  CHEMPARMS.EXT
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995
+C                    Revised 3/15/96 by Jerry Gipson to conform to
+C                      Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Revised April 1997 to distinguish NSPCS from NSPCSD
+C                    Revised April 1997 to conform to Models-3 framework
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C......................................................................
+C
+
+      INTEGER NCS            ! # of chemical mechanisms used
+      PARAMETER ( NCS = 1 )
+
+      INTEGER NCS2           ! 2 * # of chemical mechanisms
+      PARAMETER ( NCS2 = 2 * NCS )
+
+
+      INTEGER MXARRAY        ! Maximum # of terms in [P]=[I]-bh[J]
+      PARAMETER ( MXARRAY = 2100 )
+
+      INTEGER MAXGL          ! Maximum # prod/loss terms for a species
+      PARAMETER ( MAXGL = 150 )
+
+      INTEGER MAXGL2         ! A dimension smaller that MAXGL
+      PARAMETER ( MAXGL2 = 70 )
+
+      INTEGER MAXGL3         ! A dimension smaller MAXGL2
+      PARAMETER ( MAXGL3 = 100 )
+
+      INTEGER MXCOUNT1       ! Sparse matrix pointer dimension     
+      PARAMETER ( MXCOUNT1 = N_GC_SPC * MAXGL3 * 3 )
+
+      INTEGER MXCOUNT2       ! Sparse matrix pointer dimension     
+      PARAMETER ( MXCOUNT2 = N_GC_SPC * MAXGL3 * 3 )
+
+      INTEGER MXCOUNT3       ! Sparse matrix pointer dimension     
+      PARAMETER ( MXCOUNT3 = NRXNS * 4 )
+
+      INTEGER MXCOUNT4       ! Sparse matrix pointer dimension
+      PARAMETER ( MXCOUNT4 = NRXNS * 5 )
+
+      INTEGER MXRR           ! Maximum # of reactant PD terms
+      PARAMETER ( MXRR = 3 * 3 )
+
+      INTEGER MXRP           ! Maximum # of product PD terms
+      PARAMETER ( MXRP = 3 * MXPRD )
+
+      INTEGER MXORDER        ! Maximum order possible      
+      PARAMETER ( MXORDER = 7 )
+      
+      
+C............................ end GRPARMS.EXT .........................
+      
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

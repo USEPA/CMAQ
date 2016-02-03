@@ -1,0 +1,145 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/PA_PARSE.EXT,v 1.3 1998/06/19 11:38:26 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)PA_PARSE.EXT	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.PA_PARSE.EXT 04 Jul 1997 14:13:10
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/PA_PARSE.EXT,v 1.3 1998/06/19 11:38:26 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)PA_PARSE.EXT	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.PA_PARSE.EXT 04 Jul 1997 14:13:10
+
+C......................................................................
+C  INCLUDE FILE: PA_PARSE.EXT
+C
+C  CONTAINS: Commons data used by parsing routines in the Process
+C            Analysis Control Program
+C
+C  DEPENDENT UPON: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, July, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C......................................................................
+
+C..PARAMETERS:
+      INTEGER BUFLEN     ! Length of one input line
+      PARAMETER ( BUFLEN = 81 )
+
+      INTEGER LABLEN     ! Label character length
+      PARAMETER ( LABLEN = 16 )
+
+      INTEGER WRDLEN     ! Word character length
+      PARAMETER ( WRDLEN = 16 )
+
+
+      INTEGER IZERO      ! Integer zero
+      PARAMETER ( IZERO = 0 )
+
+C..COMMON VARIABLES:
+      CHARACTER*1         CHR   ! Last character read from input buffer
+      CHARACTER*200       MSG   ! Error message output buffer 
+      CHARACTER*60        QUOTE ! String found by GETQUOTE
+      CHARACTER*( BUFLEN )  INBUF ! Input line
+      CHARACTER*( LABLEN )  LABEL ! Label found by getlabel  
+      CHARACTER*( WRDLEN )  WORD  ! Word found by GETWORD
+    
+
+      INTEGER EXITSTAT   ! Exit status code
+      INTEGER IEOL       ! Position of last non-blank character
+      INTEGER IFILE      ! Unit number of input ASCII File
+      INTEGER LINNUM     ! Number of last line read 
+      INTEGER LOGUNIT    ! Unit number for output log
+      INTEGER LPOINT     ! Pointer to location of last character read
+
+      REAL NUMBER        ! Real number found by GETREAL
+
+
+C..COMMON BLOCKS:
+
+      COMMON /PARSCHR/ CHR,
+     &                 INBUF,
+     &                 LABEL,
+     &                 MSG,
+     &                 QUOTE,
+     &                 WORD
+
+      COMMON /PARSINT/ EXITSTAT,
+     &                 IEOL,
+     &                 IFILE,
+     &                 LINNUM,
+     &                 LOGUNIT,
+     &                 LPOINT
+
+      COMMON /PARSREAL/ NUMBER
+
+C............................ end PA_PARSE.EXT .........................
+ 
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

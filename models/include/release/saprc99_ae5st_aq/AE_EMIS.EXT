@@ -1,0 +1,79 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/saprc99_ae5st_aq/AE_EMIS.EXT,v 1.1.1.1 2009/12/16 19:16:03 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5ST_AQ
+
+        INTEGER        N_AE_EMIS
+        PARAMETER     (N_AE_EMIS = 31)
+        INTEGER        N_AE_EMISD
+        PARAMETER     (N_AE_EMISD = N_AE_EMIS)
+        CHARACTER*16   AE_EMIS(N_AE_EMISD)
+        INTEGER        AE_EMIS_MAP(N_AE_EMISD)
+!       REAL           AE_EMIS_FAC(N_AE_EMISD)
+
+        DATA AE_EMIS(  1 ), AE_EMIS_MAP(  1 ) / 'ASO4J',    1 /
+        DATA AE_EMIS(  2 ), AE_EMIS_MAP(  2 ) / 'ASO4I',    2 /
+        DATA AE_EMIS(  3 ), AE_EMIS_MAP(  3 ) / 'ANO3J',    5 /
+        DATA AE_EMIS(  4 ), AE_EMIS_MAP(  4 ) / 'ANO3I',    6 /
+        DATA AE_EMIS(  5 ), AE_EMIS_MAP(  5 ) / 'AORGPAJ', 23 /
+        DATA AE_EMIS(  6 ), AE_EMIS_MAP(  6 ) / 'AORGPAI', 24 /
+        DATA AE_EMIS(  7 ), AE_EMIS_MAP(  7 ) / 'AECJ',    25 /
+        DATA AE_EMIS(  8 ), AE_EMIS_MAP(  8 ) / 'AECI',    26 /
+        DATA AE_EMIS(  9 ), AE_EMIS_MAP(  9 ) / 'A25J',    27 /
+        DATA AE_EMIS( 10 ), AE_EMIS_MAP( 10 ) / 'A25I',    28 /
+        DATA AE_EMIS( 11 ), AE_EMIS_MAP( 11 ) / 'ACORS',   29 /
+        DATA AE_EMIS( 12 ), AE_EMIS_MAP( 12 ) / 'ASOIL',   30 /
+        DATA AE_EMIS( 13 ), AE_EMIS_MAP( 13 ) / 'NUMATKN', 31 /
+        DATA AE_EMIS( 14 ), AE_EMIS_MAP( 14 ) / 'NUMACC',  32 /
+        DATA AE_EMIS( 15 ), AE_EMIS_MAP( 15 ) / 'NUMCOR',  33 /
+        DATA AE_EMIS( 16 ), AE_EMIS_MAP( 16 ) / 'SRFATKN', 34 /
+        DATA AE_EMIS( 17 ), AE_EMIS_MAP( 17 ) / 'SRFACC',  35 /
+        DATA AE_EMIS( 18 ), AE_EMIS_MAP( 18 ) / 'SRFCOR',  36 / 
+        DATA AE_EMIS( 19 ), AE_EMIS_MAP( 19 ) / 'AH2OJ',   37 /
+        DATA AE_EMIS( 20 ), AE_EMIS_MAP( 20 ) / 'AH2OI',   38 /
+        DATA AE_EMIS( 21 ), AE_EMIS_MAP( 21 ) / 'ANAJ',    39 /
+        DATA AE_EMIS( 22 ), AE_EMIS_MAP( 22 ) / 'ANAI',    40 /
+        DATA AE_EMIS( 23 ), AE_EMIS_MAP( 23 ) / 'ACLJ',    41 /
+        DATA AE_EMIS( 24 ), AE_EMIS_MAP( 24 ) / 'ACLI',    42 /
+        DATA AE_EMIS( 25 ), AE_EMIS_MAP( 25 ) / 'ANAK',    43 /
+        DATA AE_EMIS( 26 ), AE_EMIS_MAP( 26 ) / 'ACLK',    44 /
+        DATA AE_EMIS( 27 ), AE_EMIS_MAP( 27 ) / 'ASO4K',   45 /
+        DATA AE_EMIS( 28 ), AE_EMIS_MAP( 28 ) / 'AH2OK',   48 /
+        DATA AE_EMIS( 29 ), AE_EMIS_MAP( 29 ) / 'ASO4EMISI', 60 /
+        DATA AE_EMIS( 30 ), AE_EMIS_MAP( 30 ) / 'ASO4EMISJ', 61 /
+        DATA AE_EMIS( 31 ), AE_EMIS_MAP( 31 ) / 'ASO4EMISK', 62 /
+!       DATA AE_EMIS_FAC(  1) /      1.0 /
+!       DATA AE_EMIS_FAC(  2) /      1.0 /
+!       DATA AE_EMIS_FAC(  3) /      1.0 /
+!       DATA AE_EMIS_FAC(  4) /      1.0 /
+!       DATA AE_EMIS_FAC(  5) /      1.0 /
+!       DATA AE_EMIS_FAC(  6) /      1.0 /
+!       DATA AE_EMIS_FAC(  7) /      1.0 /
+!       DATA AE_EMIS_FAC(  8) /      1.0 /
+!       DATA AE_EMIS_FAC(  9) /      1.0 /
+!       DATA AE_EMIS_FAC( 10) /      1.0 /
+!       DATA AE_EMIS_FAC( 11) /      1.0 /
+!       DATA AE_EMIS_FAC( 12) /      1.0 /
+!       DATA AE_EMIS_FAC( 13) /      1.0 /
+!       DATA AE_EMIS_FAC( 14) /      1.0 /
+!       DATA AE_EMIS_FAC( 15) /      1.0 /
+!       DATA AE_EMIS_FAC( 16) /      1.0 /
+!       DATA AE_EMIS_FAC( 17) /      1.0 /
+!       DATA AE_EMIS_FAC( 18) /      1.0 /
+!       DATA AE_EMIS_FAC( 19) /      1.0 /
+!       DATA AE_EMIS_FAC( 20) /      1.0 /
+!       DATA AE_EMIS_FAC( 21) /      1.0 /
+!       DATA AE_EMIS_FAC( 22) /      1.0 /
+!       DATA AE_EMIS_FAC( 23) /      1.0 /
+!       DATA AE_EMIS_FAC( 24) /      1.0 /
+!       DATA AE_EMIS_FAC( 25) /      1.0 /
+!       DATA AE_EMIS_FAC( 26) /      1.0 /
+!       DATA AE_EMIS_FAC( 27) /      1.0 /
+!       DATA AE_EMIS_FAC( 28) /      1.0 /
+!       DATA AE_EMIS_FAC( 29) /      1.0 /
+!       DATA AE_EMIS_FAC( 30) /      1.0 /
+!       DATA AE_EMIS_FAC( 31) /      1.0 /

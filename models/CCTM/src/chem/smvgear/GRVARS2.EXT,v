@@ -1,0 +1,169 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/chem/smvgear/GRVARS2.EXT,v 1.4 2002/04/05 18:22:59 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)GRVARS2.EXT       1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.GRVARS2.E XT 07 Jul 1997 12:45:14
+
+C......................................................................
+C
+C  INCLUDE FILE: GRVARS2.EXT
+C
+C  CONTAINS: Common block definitions for Gear control data that are 
+C            set in subroutine GRSPARS
+C
+C  DEPENDENT UPON: CHEMPARMS.EXT
+C                  GRPARMS.EXT
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995.
+C                    Revised 3/14/96 by Jerry Gipson to conform to
+C                      the Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Revised April 1997 to distinguish NSPCS from NSPCS
+C                    Revised April 1997 to conform to Models-3 framework
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C......................................................................
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Integer data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      INTEGER MAXORD           ! Max order allowed
+      INTEGER MBETWEEN         ! Max # of steps between calls to update
+                               ! the Jacobian
+      INTEGER MSTEP            ! Max # of corrector iterations allowed
+      INTEGER IARRAY(     NCS2 ) ! Number of PD terms in sparse matrix
+      INTEGER IJDECA( MXCOUNT2 ) ! Pointer for ij term 1 in decomp loop 1
+      INTEGER IJDECB( MXCOUNT2 ) ! Pointer for ij term 2 in decomp loop 1
+      INTEGER IKDECA( MXCOUNT2 ) ! Pointer for ik term 1 in decomp loop 1
+      INTEGER IKDECB( MXCOUNT2 ) ! Pointer for ik term 2 in decomp loop 1
+      INTEGER ISCHANG(     NCS ) ! Number of reacting species
+      INTEGER JZEROA(  MXARRAY ) ! Pointer for j term 1 in decomp loop 2
+      INTEGER JZEROB(  MXARRAY ) ! Pointer for j term 2 in decomp loop 2
+      INTEGER JZLO(       NCS2 ) ! # of ops in decomp loop 1
+      INTEGER KJDECA( MXCOUNT2 ) ! Pointer for kj term 1 in decomp loop 1
+      INTEGER KJDECB( MXCOUNT2 ) ! Pointer for kj term 2 in decomp loop 1
+      INTEGER NUSERAT(    NCS2 ) ! Number of active reactions in day and
+                                 ! night mechanisms 
+      INTEGER IDEC1LO(  N_GC_SPC, NCS2 )  ! Inner start index for dcmp loop 1
+      INTEGER IDEC1HI(  N_GC_SPC, NCS2 )  ! Inner end index for dcmp loop 1
+      INTEGER INEW2OLD( N_GC_SPC,  NCS )  ! Gives sorted species number from
+                                          ! original species number index
+      INTEGER IOLD2NEW( N_GC_SPC,  NCS )  ! Gives original species number 
+                                          ! from sorted species number index
+      INTEGER JHIZ1(    N_GC_SPC, NCS2 )  ! # of 2-term groups in dcmp loop 2
+      INTEGER JHIZ2(    N_GC_SPC, NCS2 )  ! # of 1-term groups in dcmp loop 2
+      INTEGER KZERO(     MXARRAY, NCS2 )  ! Pointer to bksub j index 
+      INTEGER KZHI0(    N_GC_SPC, NCS2 )  ! End index for 5-term bksub loop 1
+      INTEGER KZHI1(    N_GC_SPC, NCS2 )  ! End index for 2-term bksub loop 1
+      INTEGER KZILCH(   N_GC_SPC, NCS2 )  ! # of calcs in bksub loop 1 (L) 
+      INTEGER KZLO1(    N_GC_SPC, NCS2 )  ! Start index for 2-term bksub loop 1
+      INTEGER KZLO2(    N_GC_SPC, NCS2 )  ! Start index for 1-term bksub loop 1
+      INTEGER MZHI0(    N_GC_SPC, NCS2 )  ! End index for 5-term bksub loop 2
+      INTEGER MZHI1(    N_GC_SPC, NCS2 )  ! End index for 2-term bksub loop 2
+      INTEGER MZILCH(   N_GC_SPC, NCS2 )  ! # of calcs in bksub loop 2 (U)
+      INTEGER MZLO1(    N_GC_SPC, NCS2 )  ! Start index for 2-term bksub loop 2
+      INTEGER MZLO2(    N_GC_SPC, NCS2 )  ! Start index for 1-term bksub loop 2
+      INTEGER NDERIVL(     NRXNS, NCS2 )  ! # of loss PD terms per reaction
+      INTEGER NDERIVP(     NRXNS, NCS2 )  ! # of prod PD terms per reaction
+      INTEGER NKUSERAT(    NRXNS, NCS2 )  ! Rxn numbers of active reactions
+                                          ! in day and night  
+      INTEGER ICOEFF( NRXNS, MXRP, NCS2 )     ! Pointer to location of a 
+                                              ! non-unit stoichiometric coeff.
+      INTEGER JARRL(  NRXNS, MXRR, NCS2 )     ! Pointer to PD location of 
+                                              ! loss term     
+      INTEGER JARRP(  NRXNS, MXRP, NCS2 )     ! Pointer to PD location of 
+                                              ! prod term     
+      INTEGER JLIAL(  NRXNS,    MXRR, NCS2 )  ! Species # for PD loss term
+      INTEGER JPIAL(  NRXNS,    MXRP, NCS2 )  ! Species # for PD prod term 
+      INTEGER IRM2(   NRXNS, 3+MXPRD, NCS2 )  ! Mechanism reaction/species
+                                              ! using new (sorted) species
+                                              ! numbers                                             
+      INTEGER JARRAYPT( N_GC_SPC, N_GC_SPC, NCS2 ) ! Pointer to location of the
+                                                   ! PD terms in the 1D vector
+                                           
+      COMMON /ICNTL2/        ! Integer variables
+      
+     &       MAXORD, MBETWEEN, MSTEP, IARRAY, IJDECA, IJDECB, IKDECA,   
+     &       IKDECB, ISCHANG, JZEROA, JZEROB, JZLO, KJDECA, KJDECB, 
+     &       NUSERAT, IDEC1LO, IDEC1HI, INEW2OLD, IOLD2NEW,  JHIZ1, 
+     &       JHIZ2, KZERO, KZHI0, KZHI1, KZILCH, KZLO1, KZLO2, MZHI0,
+     &       MZHI1, MZILCH, MZLO1, MZLO2, NDERIVL, NDERIVP, NKUSERAT,
+     &       ICOEFF, JARRL, JARRP, JLIAL, JPIAL, IRM2, JARRAYPT 
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  REAL data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      REAL*8 CONP15( MXORDER )   ! Gear parameters used in convergence test
+      REAL*8 CONPST( MXORDER )   ! Gear parameters used in convergence test
+      REAL*8 ENQQ1(  MXORDER )   ! Gear coefficients used to select order   
+      REAL*8 ENQQ2(  MXORDER )   ! and step size
+      REAL*8 ENQQ3(  MXORDER )   !
+      REAL*8 ASET( 10, 8 )       ! Gear parameters for calculating [P] and
+                                 ! and determining the order
+      REAL*8 PERTST( MXORDER, 3 )  ! Gear coefficients used to select order
+                                   ! and step size
+                             
+      COMMON /RCNTL2/              ! REAL variables
+      
+     &      CONP15, CONPST, ENQQ1, ENQQ2, ENQQ3, ASET, PERTST                                                            
+
+c........................... end GRVARS2.EXT ..........................
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

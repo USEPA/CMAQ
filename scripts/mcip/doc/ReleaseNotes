@@ -1,0 +1,161 @@
+********************************************************************************
+Announcing the release of MCIP Version 3.6 (19 March 2010)
+********************************************************************************
+
+The MCIP code is updated to version 3.6.  MCIPv3.6 encompasses all changes from
+unofficial codes MCIPv3.4.1.1 which was only distributed to very few users,
+and MCIPv3.5 (beta) which had a reasonably wide circulation.  These release
+notes and the change log reflect all changes that have been made to MCIP since
+MCIPv3.4.1 (the previous official release).  Changes to MCIPv3.6 were overseen
+by Tanya Otte (EPA/ORD/NERL, RTP, NC).  User contributions are also noted below.
+The detailed list of changes to the MCIP code is in the CHANGES file, which is
+part of the MCIP tar file in the "doc" sub-directory.
+
+
+*** NOTE:  Users are encouraged to update to this version of MCIP, particularly
+           for WRF-based applications.
+
+*** NOTE:  The dry deposition calculations will be removed from MCIP in the
+           2011 release of the code.  These calculations are available
+           in CMAQv4.7 and beyond, and there is additional science available
+           to compute bi-directional fluxes (i.e., evasion or emissions) of
+           some species in CMAQ.
+
+*** NOTE:  Please consider updating I/O API v3.0 to the latest update.  There
+           is a new option to define a spherical earth with the radius that is
+           consistent with the released code in MM5 and WRF (6370.0 km).  That
+           is normal sphere option 20 in I/O API.  (Note that this aspect of
+           I/O API is not invoked in MCIP, but it will help the CMAQ system
+           to maintain spatial consistency among subprocessors.)  In addition,
+           there is improved compatibility with netCDF4 in the I/O API v3.0
+           updates.
+
+*** NOTE:  In this release of MCIP, the representation of Mercator grids from
+           MM5 and WRF has been changed to "equatorial Mercator" from
+           "general Mercator".  VERDI now recognizes this version of Mercator.
+           Neither PAVE nor IDV can correctly create the maps for equatorial
+           Mercator (EQMGRD3 in I/O API).
+
+
+Also updated with this release is the Frequently Asked Questions (FAQ) file,
+which is located in the MCIP tar file in the "doc" sub-directory.  Users are
+encouraged to read the FAQ to obtain information specific to changes made in
+this release, particularly on applications that use input data from WRF.
+
+***Users should read the FAQ before submitting inquiries to M3User, M3List,
+Bugzilla, CMAS, or the code developers.***
+
+
+Interactions with the following users (in alphabetical order) have resulted
+in some of the code changes/corrections that were made for MCIPv3.6:
+
+	Carlie Coats, Baron AMS, Raleigh, NC  (comp. sci. considerations and
+             Mercator compatibility with I/O API)
+        Kenneth Craig, Sonoma Tech., California (Bug 2905)
+        Neil Davis, UNC Institute for the Environment, Chapel Hill, NC
+             (Bug 2905 and several gridding issues)
+        Jeremiah Johnson, ENVIRON (Bug 2963)
+	Hsin-Mu Lin, STC Corp., Hampton, VA (potential vorticity code)
+        Feng Liu, Maricopa Assn. of Governments, Phoenix, AZ (Bug 2905)
+        Chris Loughner, Univ. of Maryland, College Park, MD (Bug 2949)
+	Rohit Mathur, US EPA, Research Triangle Park, NC (pot'l vort. code)
+	Moti Mittal, Univ. of South Florida, Tampa, FL (Mercator & WRF)
+        Talat Odman, Georgia Tech Univ., Atlanta, GA (wind rotation error)
+        Martin Otte, US EPA, Research Triangle Park, NC  (netCDF issues,
+             optimization, and gfortran)
+        Tao "LJ" Ruan, Hong Kong UST (WRF gridding issues and minor bugs)
+	Lucio de Souza, Brazil (Mercator & MM5)
+        Kyoung-Hee Sung, Pusan National University, Korea (Bug 2851)
+
+
+The following users (in alphabetical order) graciously participated in the
+MCIPv3.5 Beta Testing Program, and they are thanked for their time, effort,
+data sets, and contributions toward improving the robustness of MCIPv3.6:
+
+	Neil Davis, UNC Institute for the Enviroment, Chapel Hill, NC
+	Andrea Fraser, AEA, Oxfordshire, United Kingdom
+	Rob Gilliam, US EPA, Research Triangle Park, NC
+        Winston Hao, NY State Dept. of Environmental Conservation, Albany, NY
+	Gong-Do Hwang, CCRC, University of New Hampshire, Durham, NH
+	Mike Ku, NY State Dept. of Environmental Conservation, Albany, NY
+	Paul Livingstone, California Air Resources Board, Sacramento, CA
+	Chris Loughner, University of Maryland, College Park, MD
+        Ricardo Marcelo da Silva, Brazil
+	Moti Mittal, University of South Florida, Tampa, FL
+	Nilton Moraes, Brazil
+        Martin Otte, US EPA, Research Triangle Park, NC
+	Pruek Pongprueksa, Lamar University, Beaumont, TX
+	Lara Reynolds, CSC, Research Triangle Park, NC
+	Tao "LJ" Ruan, Hong Kong University of Science & Technology, Hong Kong
+	Lucio de Souza, Brazil
+	Kevin Talgo, UNC Institute for the Environment, Chapel Hill, NC
+
+
+The following are the notable changes in MCIPv3.6:
+
+ 1.  Several changes to the representation of WRF grids in I/O API headers
+     that are generated by MCIP.  Many are bug fixes, particularly for polar
+     stereographic projection and WRF nests in Lambert conformal projection.
+     Mercator representation has also been changed.  (The method of computing
+     dot-point latitude and longitude for MM5 is also changed to use the new
+     algorithms.)
+
+ 2.  Corrected error in computing wind direction when U-component wind is
+     effectively zero.
+
+ 3.  Added a user option to define a reference latitude for WRF domains with
+     Lambert conformal projection.  This option uses a new namelist variable,
+     and it is particularly useful when trying to match a WRF domain to an 
+     existing MM5 domain (to compare WRF vs. MM5 or to "recycle" emissions
+     surrogates).
+
+ 4.  Updated MCIP to support various new options in WRFv3.1+.  Several of
+     these changes are reflected in MCIP metadata (viewable with the
+     command "ncdump -h <file>" and at the tail of the MCIP log file).
+
+ 5.  Added support for Modified IGBP MODIS NOAH and NLCD/MODIS land use
+     classification schemes for WRF.  Changed GRIDCRO2D to print land use
+     category description and source classification scheme rather than just
+     index for fractional land use.
+
+ 6.  Added condition that vegetation fraction must be greater than zero
+     to be considered a land point for dry deposition.
+
+ 7.  Allow fractional land use field to be read in from output file of WRF
+     Preprocessing System (WPS) "GEOGRID" (similar to MM5's TERRAIN).
+
+ 8.  Changed representation of Mercator projection from MM5 and WRF in I/O API
+     from "general Mercator" to "equatorial Mercator".
+
+ 9.  Improved file handling with netCDF for WRF files.
+
+10.  Changes to output files:
+
+     GRIDDOT2D:  * Changed latitude and longitude from LAT and LON 
+                   to LATD and LOND.
+
+                 * Added latitude, longitude, and map-scale factors squared
+                   for the cell faces where the u- and v-component winds are
+                   valid (LATU, LATV, LONU, LONV, MSFU2, MSFV2).
+
+     METCRO3D:   * Created user option to not write vertical velocity created
+                   by the meteorological model (WWIND) to the file to save
+                   space.  (WWIND is purely available for diagnostics, and it
+                   is not used by SMOKE or CMAQ.  WHAT_JD is used by CMAQ for
+                   some mass conservation options.)
+
+                 * Created user option to output 3D potential vorticity field
+                   (PV) for research purposes.
+
+     METDOT3D:   * Created user option to output u- and v-component winds on
+                   the C-staggered grid (UWINDC and VWINDC) that is native
+                   to both WRF and CMAQ.  (Changes are introduced in the
+                   companion release of CMAQ to use these fields if they are
+                   available.)
+
+     MCIP log:   * Added metadata summary (as it appears in the I/O API headers)
+                   to echo meteorological model options in log.
+
+11.  Several minor bug fixes have also been introduced into MCIP as a result
+     of various interactions with the user community via Bugzilla, M3List,
+     and direct contact.  See the CHANGES file for specific details.

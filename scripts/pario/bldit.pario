@@ -1,0 +1,151 @@
+#! /bin/csh -f
+
+# ======================= PARIOv4.7.1 Build Script ================== #
+# Usage: bldit.pario >&! bldit.pario.log                              #
+# Requirements: I/O API include files, CVS, PGI or Intel Fortran      #
+#               compilers, and MPICH                                  #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL =  source code CVS archive                         #
+#   setenv M3LIB   =  code libraries                                  #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# =================================================================== #
+
+## Check for M3MODEL and M3LIB settings:
+ if ( ! -e $M3MODEL || ! -e $M3LIB ) then
+    echo "   $M3MODEL or $M3LIB directory not found"
+    exit 1
+    endif
+ echo "   Model archive path: $M3MODEL"
+ echo "            LIBS path: $M3LIB"
+ 
+ set BLD_OS = `uname -s``uname -r | cut -d. -f1`  ## Script set up for Linux 
+ if ($BLD_OS != 'Linux2') then
+    echo "   $BLD_OS -> wrong bldit script for host\!"
+    exit 1
+    endif
+
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:Begin User Input Section #:##:#:#:#:#:#:#:#:#:#:#
+
+#> Set BASE to the working directory for compiling the Stenex library 
+ set BASE = $cwd
+
+#> Set location of MPICH include files
+ set MPI   = /afs/isis/pkg/mpich-127/include
+
+#> Set location of I/O API include files
+ set IOAPI = $M3LIB/ioapi/fixed_src
+
+#> Set full path of Fortran 90 compiler
+ set FC = /afs/isis/pkg/mpich-127/intel/bin/mpif90
+
+#> Portland Group Fortran 9.01 Compiler Flags
+#  set FSTD = "-Mfixed -Mextend -c"
+
+#> Intel Fortran 10.1 Compiler Flags
+ set FSTD = "-extend_source 132 -cm -w95 -c"
+
+# set DEBUG     # Uncomment to create debug version of library
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ if ( $?DEBUG ) then
+    set F_FLAGS = "${FSTD} -g -I${MPI} -I${IOAPI}"
+ else
+    set F_FLAGS = "${FSTD} -O2 -I${MPI} -I${IOAPI}"
+ endif
+
+ set MACH = `uname -m`
+ set COMP = `echo $FC | grep -o pg`
+ if ( $status == 0 ) then
+ else
+ set COMP = `echo $FC | grep -o intel`
+ endif
+ if ( $status == 1 ) then
+    echo
+    echo "This script is configured for PGI or Intel Fortran."
+    echo "Manually set the FC, FSTD, and COMP variables"
+    echo "for alternative configurations."
+    echo
+ endif
+
+ set DEST = ${M3LIB}/pario/${BLD_OS}_${MACH}${COMP}  # location of output library files
+ if ( ! -d "$DEST" ) mkdir -p $DEST
+ set RM = "/bin/rm -f"
+ set MV = "/bin/mv -f"
+
+ setenv CVSROOT $M3MODEL/PARIO
+
+ set Bld = $BASE/BLD
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+    else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ cd $Bld
+
+ echo " "
+ echo "Host: " `hostname`
+ echo "Host operating system:       $BLD_OS"
+ echo "Libraries/objects/f90-modules directory: $DEST"
+ echo " "
+
+ if ( $?DEBUG ) then
+    set Arc = libpario.debug.a
+    else
+    set Arc = libpario.a
+    endif
+ if ( -e "$Arc" ) $RM $Arc *.mod
+
+#> extract source files from cvs archive
+ cvs export -r HEAD -d $Bld PARIO
+
+ set flist = (\
+      pinterpb_mod.f\
+      piomaps_mod.f\
+      alloc_data_mod.f\
+      boundary.f\
+      get_write_map.f\
+      growbuf.f\
+      gtndxhdv.f\
+      interpol.f\
+      pinterpb.f\
+      pio_init.f\
+      pio_re_init.f\
+      pm3err.f\
+      pm3exit.f\
+      pm3warn.f\
+      pshut3.f\
+      pwrite3.f\
+      ptrwrite3.f\
+      pwrgrdd.f\
+      readbndy.f\
+      subdmap.f\
+      wrsubmap.f )
+
+#> compile flist
+ foreach file ( $flist )
+    $FC $F_FLAGS $file
+    end
+
+ ar rv $Arc *.o
+ chmod 444 $Arc
+ if ( -e "$DEST/$Arc" ) $MV $DEST/$Arc $DEST/$Arc.old
+ $MV $Arc $DEST
+ $MV *.mod $DEST
+
+ if ( $?DEBUG ) then
+    $MV *.o $DEST
+    else
+    $RM *.o
+    endif
+ echo " "; echo " Finish building $DEST/$Arc "
+ exit()

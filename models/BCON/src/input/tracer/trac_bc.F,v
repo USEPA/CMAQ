@@ -1,0 +1,282 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/input/tracer/trac_bc.F,v 1.4 2002/04/12 14:19:32 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE TRAC_BC( TRNAME, TCOUT )
+
+C*************************************************************************
+C
+C  FUNCTION: Compute BCs for special tracer tests
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED:   
+C
+C  REVISION HISTORY: Prototype created by Daewon Byun
+C                    Modified for implementation in Models-3 ICON by
+C                        Jerry Gipson, January, 1998
+C                    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
+C
+C*************************************************************************
+
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+      INCLUDE SUBST_VGRD_ID     ! Vertical grid
+      INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+
+      INCLUDE 'BC_PARMS.EXT'    ! BCON paramters
+
+C..ARGUMENTS: 
+      CHARACTER*(*)  TRNAME     !  Tracer name
+
+      REAL TCOUT( NBNDY, NLAYS )
+
+C..PARAMETERS:
+      INTEGER CELL_RAD
+      PARAMETER( CELL_RAD = 3 )   ! Radius for superposition tracers
+
+      INTEGER COL_PEAK  ! Location of center of peak for superposition tracers
+      PARAMETER ( COL_PEAK = 10 )
+
+      INTEGER ROW_PEAK  ! Location of center of peak for superposition tracers
+      PARAMETER ( ROW_PEAK = 10 )
+
+      REAL  CMAX        ! Max tracer conc for superposition tracers
+      PARAMETER( CMAX = 50.0 )
+
+      REAL  CMIN        ! Min tracer conc for superposition tracers
+      PARAMETER( CMIN = 50.0 )
+
+C..EXTERNAL FUNCTIONS: None
+ 
+C..SAVED LOCAL VARIABLES:
+      LOGICAL  LFIRST           ! Flag for first call
+      SAVE     LFIRST
+
+      REAL, SAVE, ALLOCATABLE :: SHAPE(:)   ! Shape factor for superposition tracers   
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  PNAME       ! Program name
+
+      INTEGER C, R, L           ! Grid loop indices
+      INTEGER N                 ! Boundary cell counter
+
+      INTEGER BCOL( NBNDY)      ! Map from boundary cell no. to grid column
+      INTEGER BROW( NBNDY)      ! Map from boundary cell no. to grid row
+
+      REAL DISTSQ     ! Distance squared for for superposition tracers
+      REAL RADSQ      ! Hill radius squared for superposition tracers
+      REAL XDIST      ! x-distance for for superposition tracers
+      REAL YDIST      ! y-distance for for superposition tracers
+                       
+C**********************************************************************
+      DATA PNAME  / 'TRAC_BC' /
+      DATA LFIRST / .TRUE.    /
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Compute shape factors for superposition tracers on first call
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( LFIRST ) THEN
+
+c..Allocate memory for Saved array
+         ALLOCATE( SHAPE(NBNDY) )
+
+         N = 0
+
+c..South edge
+         DO C = 1, NCOLS
+            N = N + 1
+            BCOL( N ) = C
+            BROW( N ) = 1
+         ENDDO
+         N = N + 1
+         BCOL( N ) = NCOLS
+         BROW( N ) = 1
+
+c..East edge
+         DO R = 1, NROWS
+            N = N + 1
+            BCOL( N ) = NCOLS
+            BROW( N ) = R
+         ENDDO
+         N = N + 1
+         BCOL( N ) = NCOLS
+         BROW( N ) = NROWS
+
+c..North edge
+         N = N + 1
+         BCOL( N ) = 1
+         BROW( N ) = NROWS
+         DO C = 1, NCOLS
+            N = N + 1
+            BCOL( N ) = C
+            BROW( N ) = NROWS
+         ENDDO
+
+c..West edge
+         N = N + 1
+         BCOL( N ) = 1
+         BROW( N ) = 1
+         DO R = 1, NROWS
+            N = N + 1
+            BCOL( N ) = 1
+            BROW( N ) = R
+         ENDDO
+
+         LFIRST = .FALSE.
+
+         DO N = 1, NBNDY
+            SHAPE( N ) = 0.0
+            RADSQ = FLOAT( CELL_RAD ) ** 2
+            XDIST = ABS( FLOAT( BCOL( N ) - COL_PEAK ) )
+            YDIST = ABS( FLOAT( BROW( N ) - ROW_PEAK ) )
+            DISTSQ = XDIST * XDIST + YDIST * YDIST + RADSQ
+            SHAPE( N ) = RADSQ / DISTSQ
+         ENDDO
+
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Compute the ICs and return
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( TRNAME .EQ. TRAC_NAME( 1 ) ) THEN           ! UN_IC1_BC0
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 0.0
+            ENDDO
+         ENDDO
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 2 ) ) THEN        ! UN_IC1_BC1
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 1.0
+            ENDDO
+         ENDDO
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 3 ) ) THEN        ! UN_IC0_BC1
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 1.0
+            ENDDO
+         ENDDO
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 4 ) ) THEN        ! STREET
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 0.0
+            ENDDO
+         ENDDO
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 5 ) ) THEN        ! CHECKERBOARD
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 0.0
+            ENDDO
+         ENDDO
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 6 ) ) THEN        ! SPOS_SIG_A
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 1.0 * CMAX * ( 1.0 + SHAPE( N ) ) + CMIN
+            ENDDO
+         ENDDO
+
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 7 ) ) THEN        ! SPOS_SIG_B
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 2.0 * CMAX * ( 1.0 + SHAPE( N ) ) - CMIN
+            ENDDO
+         ENDDO
+
+      ELSEIF( TRNAME .EQ. TRAC_NAME( 8 ) ) THEN        ! SPOS_SIG_C
+
+         DO L = 1, NLAYS
+            DO N = 1, NBNDY
+               TCOUT( N, L ) = 
+     &            - 1.0 * CMAX * ( 1.0 + SHAPE( N ) ) + 2.0 * CMIN
+            ENDDO
+         ENDDO
+
+      ENDIF
+
+      RETURN
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

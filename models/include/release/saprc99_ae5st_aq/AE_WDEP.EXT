@@ -1,0 +1,69 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/saprc99_ae5st_aq/AE_WDEP.EXT,v 1.1.1.1 2009/12/16 19:16:03 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5ST_AQ
+
+        INTEGER        N_AE_WDEP
+        PARAMETER     (N_AE_WDEP = 53)
+        INTEGER        N_AE_WDEPD
+        PARAMETER     (N_AE_WDEPD = N_AE_WDEP)
+        CHARACTER*16   AE_WDEP(N_AE_WDEPD)
+        INTEGER        AE_WDEP_MAP(N_AE_WDEPD)
+
+        DATA          AE_WDEP(  1), AE_WDEP_MAP(  1) / 'ASO4J           ',   1 /
+        DATA          AE_WDEP(  2), AE_WDEP_MAP(  2) / 'ASO4I           ',   2 /
+        DATA          AE_WDEP(  3), AE_WDEP_MAP(  3) / 'ANH4J           ',   3 /
+        DATA          AE_WDEP(  4), AE_WDEP_MAP(  4) / 'ANH4I           ',   4 /
+        DATA          AE_WDEP(  5), AE_WDEP_MAP(  5) / 'ANO3J           ',   5 /
+        DATA          AE_WDEP(  6), AE_WDEP_MAP(  6) / 'ANO3I           ',   6 /
+        DATA          AE_WDEP(  7), AE_WDEP_MAP(  7) / 'AALKJ           ',   7 /
+        DATA          AE_WDEP(  8), AE_WDEP_MAP(  8) / 'AXYL1J          ',   8 /
+        DATA          AE_WDEP(  9), AE_WDEP_MAP(  9) / 'AXYL2J          ',   9 /
+        DATA          AE_WDEP( 10), AE_WDEP_MAP( 10) / 'AXYL3J          ',  10 /
+        DATA          AE_WDEP( 11), AE_WDEP_MAP( 11) / 'ATOL1J          ',  11 /
+        DATA          AE_WDEP( 12), AE_WDEP_MAP( 12) / 'ATOL2J          ',  12 /
+        DATA          AE_WDEP( 13), AE_WDEP_MAP( 13) / 'ATOL3J          ',  13 /
+        DATA          AE_WDEP( 14), AE_WDEP_MAP( 14) / 'ABNZ1J          ',  14 /
+        DATA          AE_WDEP( 15), AE_WDEP_MAP( 15) / 'ABNZ2J          ',  15 /
+        DATA          AE_WDEP( 16), AE_WDEP_MAP( 16) / 'ABNZ3J          ',  16 /
+        DATA          AE_WDEP( 17), AE_WDEP_MAP( 17) / 'ATRP1J          ',  17 /
+        DATA          AE_WDEP( 18), AE_WDEP_MAP( 18) / 'ATRP2J          ',  18 /
+        DATA          AE_WDEP( 19), AE_WDEP_MAP( 19) / 'AISO1J          ',  19 /
+        DATA          AE_WDEP( 20), AE_WDEP_MAP( 20) / 'AISO2J          ',  20 /
+        DATA          AE_WDEP( 21), AE_WDEP_MAP( 21) / 'ASQTJ           ',  21 /
+        DATA          AE_WDEP( 22), AE_WDEP_MAP( 22) / 'AORGCJ          ',  22 /
+        DATA          AE_WDEP( 23), AE_WDEP_MAP( 23) / 'AORGPAJ         ',  23 /
+        DATA          AE_WDEP( 24), AE_WDEP_MAP( 24) / 'AORGPAI         ',  24 /
+        DATA          AE_WDEP( 25), AE_WDEP_MAP( 25) / 'AECJ            ',  25 /
+        DATA          AE_WDEP( 26), AE_WDEP_MAP( 26) / 'AECI            ',  26 /
+        DATA          AE_WDEP( 27), AE_WDEP_MAP( 27) / 'A25J            ',  27 /
+        DATA          AE_WDEP( 28), AE_WDEP_MAP( 28) / 'ACORS           ',  29 /
+        DATA          AE_WDEP( 29), AE_WDEP_MAP( 29) / 'ASOIL           ',  30 /
+        DATA          AE_WDEP( 30), AE_WDEP_MAP( 30) / 'ANAJ            ',  39 /
+        DATA          AE_WDEP( 31), AE_WDEP_MAP( 31) / 'ACLJ            ',  41 /
+        DATA          AE_WDEP( 32), AE_WDEP_MAP( 32) / 'ANAK            ',  43 /
+        DATA          AE_WDEP( 33), AE_WDEP_MAP( 33) / 'ACLK            ',  44 /
+        DATA          AE_WDEP( 34), AE_WDEP_MAP( 34) / 'ASO4K           ',  45 /
+        DATA          AE_WDEP( 35), AE_WDEP_MAP( 35) / 'ANH4K           ',  46 /
+        DATA          AE_WDEP( 36), AE_WDEP_MAP( 36) / 'ANO3K           ',  47 /
+        DATA          AE_WDEP( 37), AE_WDEP_MAP( 37) / 'AISO3J          ',  49 /
+        DATA          AE_WDEP( 38), AE_WDEP_MAP( 38) / 'AOLGAJ          ',  50 /
+        DATA          AE_WDEP( 39), AE_WDEP_MAP( 39) / 'AOLGBJ          ',  51 /
+        DATA          AE_WDEP( 40), AE_WDEP_MAP( 40) / 'ASO4AQH2O2J     ',  52 /
+        DATA          AE_WDEP( 41), AE_WDEP_MAP( 41) / 'ASO4AQO3J       ',  53 /
+        DATA          AE_WDEP( 42), AE_WDEP_MAP( 42) / 'ASO4AQFEMNJ     ',  54 /
+        DATA          AE_WDEP( 43), AE_WDEP_MAP( 43) / 'ASO4AQMHPJ      ',  55 /
+        DATA          AE_WDEP( 44), AE_WDEP_MAP( 44) / 'ASO4AQPAAJ      ',  56 /
+        DATA          AE_WDEP( 45), AE_WDEP_MAP( 45) / 'ASO4GASI        ',  57 /
+        DATA          AE_WDEP( 46), AE_WDEP_MAP( 46) / 'ASO4GASJ        ',  58 /
+        DATA          AE_WDEP( 47), AE_WDEP_MAP( 47) / 'ASO4GASK        ',  59 /
+        DATA          AE_WDEP( 48), AE_WDEP_MAP( 48) / 'ASO4EMISI       ',  60 /
+        DATA          AE_WDEP( 49), AE_WDEP_MAP( 49) / 'ASO4EMISJ       ',  61 /
+        DATA          AE_WDEP( 50), AE_WDEP_MAP( 50) / 'ASO4EMISK       ',  62 /
+        DATA          AE_WDEP( 51), AE_WDEP_MAP( 51) / 'ASO4ICBCI       ',  63 /
+        DATA          AE_WDEP( 52), AE_WDEP_MAP( 52) / 'ASO4ICBCJ       ',  64 /
+        DATA          AE_WDEP( 53), AE_WDEP_MAP( 53) / 'ASO4ICBCK       ',  65 /

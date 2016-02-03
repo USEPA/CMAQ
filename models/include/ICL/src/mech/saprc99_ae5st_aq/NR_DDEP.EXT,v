@@ -1,0 +1,70 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.03;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.03;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/saprc99_ae5st_aq/NR_DDEP.EXT,v 1.1.1.1 2009/11/13 15:14:36 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5ST_AQ
+
+        INTEGER        N_NR_DDEP
+        PARAMETER     (N_NR_DDEP = 15)
+        INTEGER        N_NR_DDEPD
+        PARAMETER     (N_NR_DDEPD = N_NR_DDEP)
+        CHARACTER*16   NR_DDEP(N_NR_DDEPD)
+        INTEGER        NR_DDEP_MAP(N_NR_DDEPD)
+
+        DATA          NR_DDEP(  1), NR_DDEP_MAP(  1) / 'NH3             ',   1 /
+        DATA          NR_DDEP(  2), NR_DDEP_MAP(  2) / 'HCL             ',   2 /
+        DATA          NR_DDEP(  3), NR_DDEP_MAP(  3) / 'SV_ALK          ',   3 / 
+        DATA          NR_DDEP(  4), NR_DDEP_MAP(  4) / 'SV_XYL1         ',   4 / 
+        DATA          NR_DDEP(  5), NR_DDEP_MAP(  5) / 'SV_XYL2         ',   5 / 
+        DATA          NR_DDEP(  6), NR_DDEP_MAP(  6) / 'SV_TOL1         ',   6 / 
+        DATA          NR_DDEP(  7), NR_DDEP_MAP(  7) / 'SV_TOL2         ',   7 / 
+        DATA          NR_DDEP(  8), NR_DDEP_MAP(  8) / 'SV_BNZ1         ',   8 / 
+        DATA          NR_DDEP(  9), NR_DDEP_MAP(  9) / 'SV_BNZ2         ',   9 / 
+        DATA          NR_DDEP( 10), NR_DDEP_MAP( 10) / 'SV_TRP1         ',  10 / 
+        DATA          NR_DDEP( 11), NR_DDEP_MAP( 11) / 'SV_TRP2         ',  11 / 
+        DATA          NR_DDEP( 12), NR_DDEP_MAP( 12) / 'SV_ISO1         ',  12 / 
+        DATA          NR_DDEP( 13), NR_DDEP_MAP( 13) / 'SV_ISO2         ',  13 / 
+        DATA          NR_DDEP( 14), NR_DDEP_MAP( 14) / 'SV_SQT          ',  14 / 
+        DATA          NR_DDEP( 15), NR_DDEP_MAP( 15) / 'SULF_ICBC       ',  15 /
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

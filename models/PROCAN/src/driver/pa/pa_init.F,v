@@ -1,0 +1,141 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_init.F,v 1.3 1998/06/19 11:38:51 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_init.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_init.F 04 Jul 1997 14:13:37
+
+      SUBROUTINE PA_INIT
+
+C***********************************************************************
+C
+C  FUNCTION: To initialize data for processing Process Analysis commands 
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, May, 1997
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+       CHARACTER*24 DT2STR   ! Function to get character date and time
+
+       LOGICAL ISDSTIME ! True if DST in effect
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*5  TZ         ! Time zone label
+      CHARACTER*24 TIMNDAT    ! Wall clock time and date
+
+
+      INTEGER IDATE      ! Wall-clock date
+      INTEGER ITIME      ! Wall clock time
+
+C***********************************************************************
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the time and date to be used as the time stamp for all outputs;
+c  Convert from GMT to EDT or EST
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL GETDTTIME( IDATE, ITIME )
+
+      IF( ISDSTIME( IDATE ) ) THEN
+         CALL NEXTIME( IDATE, ITIME, -40000 )
+         TZ = ' EDT '
+      ELSE
+         CALL NEXTIME( IDATE, ITIME, -50000 )
+         TZ = ' EST '
+      ENDIF
+
+      TIMNDAT = DT2STR( IDATE, ITIME )
+      TDATOUT = TIMNDAT( 1 : 8 ) // TZ // TIMNDAT( 10 : 24 )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Initialize some key variables and return
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NFAMLYS    = 0
+      NRXSUMS    = 0
+      NCYCLES    = 0
+      NIRROUT    = 0
+      N_IPR_SPC  = 0
+
+      RETURN 
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,782 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/input/m3conc/m3_icout.F,v 1.11 2009/07/30 14:38:30 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE ICOUT( LOGUNIT,
+     &                  N_CTM_FLS,
+     &                  SDATE, STIME,
+     &                  GL_NCOLS_IN, GL_NROWS_IN,
+     &                  NLAYS_IN, NSPCS_IN,
+     &                  NSPCS_OUT,
+     &                  SPMAP, 
+     &                  N_MCNV_SP,
+     &                  SFAC,
+     &                  MCNV_COEFF,
+     &                  LCONV,
+     &                  LSCALE,
+     &                  LCONVSP,
+     &                  EXT_IC_NAME,
+     &                  INFL_SP_NAME,
+     &                  MCNV_SPCS,
+     &                  SPNAME_OUT,
+     &                  CTM_FL_NAME,
+     &                  LPING,
+     &                  N_PING_FLS,
+     &                  PING_FL_NAME )
+
+C*************************************************************************
+C
+C  FUNCTION: Reads the input CMAQ concentration file(s) and opens and
+C            writes the output IC file
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED:   
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C
+C                    02/09/00 David Wong, LM
+C                      -- block all HPALLOC or HPDALLOC calls by using a CPP
+C                         flag F90 when the code is running on T3E
+C                      -- renamed two original arguments NROWS_IN and NCOLS_IN
+C                         to GL_NROWS_IN and GL_NCOLS_IN, respectively
+C                      -- declared my_nrows_in, my_ncols_in, nrows_in, and
+C                         ncols_in
+C                      -- used MY_NROWS and MY_NCOLS in loops
+C                      -- developed a new algorithm to perform the mapping
+C                      -- introduced calls to new routines to aid 
+C                         parallelization of this routine
+C
+C                    02/05/00 David Wong, LM
+C                      -- added two more arguments GL_NCOLS_IN, GL_ROWS_IN when 
+C                         m3_ping is called
+C
+C                    01/24/02 Steve Howard (Jeff Young) - dynamic allocation
+C
+C                    02/20/02 David Wong, LM
+C                      -- modified the alogrithm to determine the row/column
+C                         position of fine grid relative to the coarse grid by
+C                         considering the case the fine and coarse grids have
+C                         the same resolution, i.e. TEMP1 = 0.0
+C                      -- used XTRACT3 to input data. With this new change, 
+C                         variables STRTROW, ENDROW, STRTCOL, and ENDCOL are
+C                         computed from ROWSX_PE and COLSX_PE, respectively.
+C
+C                    04/10/02 David Wong, LM
+C                      -- XTRACT3, which is used to read in data for a PE, does
+C                         not allow any empty space in data structure. The data
+C                         declaration for the allocatable array CONCIN requires
+C                         MY_NCOLS_IN and MY_NROWS_IN for dimensioning.
+C                      -- Arguments NCOLS_IN and NROWS_IN are replaced by 
+C                         MY_NCOLS_IN and MY_NROWS_IN in calling subroutines
+C                         SHIFT_MAP, M3_PING, and VINTERP, so array dimensions 
+C                         of CONCIN are correct inside those routines.
+C
+C                    02/06/09 David Wong
+C                      -- declared CONCVI as an allocatable array to avoid stacksize
+C                         limit problem in some machine setup
+C                      -- applied deallocate statement to arrays CONCVI and CONCIN
+C
+C Description of the new algorithm:
+C
+C   The new algorithm involves the following steps:
+C   
+C     -- compute the lat and lon of the (1,1) cell of the fine domain, 
+C        lat_out_1 and lon_out_1, respectively
+C     -- compute the lat and lon of the (1,1) cell of the coarse domain,
+C        lat_in_1 and lon_in_1, respectively
+C     -- locate the column and row position of the fine domain (1,1) cell with 
+C        respect to the coarse domain by using an iterative method
+C     -- locate the column and row position of the fine domain (1,1) cell 
+C        within the coarse grid cell found from above step in terms of fine 
+C        grid scale. The following is an illustration; let the resolution of
+C        the fine grid be 5 in the x and y directions, c denotes the center of
+C        the coarse grid cell which coincides with the (1,1) cell of the fine
+C        domain, x denotes the (1,1) cell's position where the step is going to
+C        determine.
+C
+C               * * * * *
+C               * * * * *
+C               * x c * *
+C               * * * * *
+C               * * * * *
+C
+C        In this example COL_DISP = 3 and ROW_DISP = 2
+C
+C     -- call mapping_init to determine the starting position of the fine
+C        domain in each processor
+C     -- perform the remapping in each processor
+C
+C                    12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
+C                                      eliminate malloc calls
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN             ! vertical layer specifications
+
+      IMPLICIT NONE     
+
+C Include Files;
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+#include      SUBST_IODECL      # IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+!     INCLUDE SUBST_VGRD_ID     ! Vertical grid
+!     INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+      INCLUDE SUBST_GC_SPC      ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC      ! aerosol species table
+      INCLUDE SUBST_NR_SPC      ! non-reactive species table
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+
+      INCLUDE 'IC_PARMS.EXT'    ! ICON paramters
+
+C Arguments;
+      CHARACTER( 16 ) :: EXT_IC_NAME( * )         ! Name of *.EXT IC species
+      CHARACTER( 16 ) :: SPNAME_OUT( * )          ! Output file species names
+      CHARACTER( 16 ) :: CTM_FL_NAME( * )         ! Name of CTM file
+      CHARACTER( 16 ) :: PING_FL_NAME( * )        ! Name of CTM_PING file
+      CHARACTER( 16 ) :: INFL_SP_NAME( * )        ! Name of input CTM species
+      CHARACTER( 16 ) :: MCNV_SPCS( N_GC_SPCD,* ) ! Mech conv species names
+
+      INTEGER LOGUNIT           ! Unit number for output log
+      INTEGER MXREL             ! Maximum no. of PinG releases per source
+      INTEGER N_CTM_FLS         ! Number of input CTM files
+      INTEGER N_PING_FLS        ! No. of PinG files
+      INTEGER GL_NCOLS_IN       ! No. of columns in input conc file
+      INTEGER GL_NROWS_IN       ! No. of rows in input conc file
+      INTEGER NLAYS_IN          ! No. of layers in input conc file
+      INTEGER NSPCS_IN          ! Total No. of species in input conc file(s)
+      INTEGER NSPCS_OUT         ! Number of IC species on output file(s)
+      INTEGER NSRC              ! No. of PinG sources
+      INTEGER SDATE             ! Date for IC Output
+      INTEGER STIME             ! Time for IC output
+
+      INTEGER NCOLS_IN          ! Max No. of columns in a processor
+      INTEGER NROWS_IN          ! Max No. of rows in a processor
+
+      INTEGER MY_NCOLS_IN       ! No. of columns which has work in a processor
+      INTEGER MY_NROWS_IN       ! No. of rows which has work in a processor
+
+      INTEGER SPMAP( * )        ! Map to CTM species from IC species
+      INTEGER N_MCNV_SP( * )    ! No. of mech input species for each
+                                ! mech output species    
+      LOGICAL LCONV             ! Flag for mech conversion
+      LOGICAL LCONVSP( * )      ! Flag for mechanism conversion of species 
+      LOGICAL LPING             ! Flag to process PinG files
+      LOGICAL LSCALE( * )       ! Flag for scaling input concs 
+
+      REAL MCNV_COEFF( N_GC_SPCD, * )  ! Mech conv species coefficients
+      REAL SFAC( * )                   ! Scale factor for input species concs
+
+C Parameters:
+
+      INTEGER, PARAMETER :: NSPCS = N_GC_SPC   ! Total no. of *.EXT species
+     &                            + N_AE_SPC 
+     &                            + N_NR_SPC 
+     &                            + N_TR_SPC
+
+      REAL, PARAMETER :: CMIN = 1.0E-30   ! Minimum output concentration
+
+C External Functions: 
+      INTEGER INDEX1        ! Looks up name in table
+ 
+C Local Variables:
+      CHARACTER(  2 ) :: COLROW = 'CR'      ! col/row arg list order
+      CHARACTER( 16 ) :: PNAME = 'M3_ICOUT' ! Program Name
+      CHARACTER( 80 ) :: MSG                ! Log message
+      CHARACTER( 16 ) :: VNAME              ! Species name on CTM conc file
+      CHARACTER( 16 ) :: IC_FNAME( MXCTMS ) ! Logical names of IC Output file(s) 
+
+      INTEGER C, CIN, CIC   ! Column loop indices
+      INTEGER FLN           ! IC output file number
+      INTEGER IND, ISP, V   ! Array indices for species
+      INTEGER SPC           ! Species loop index 
+      INTEGER L             ! Layer loop index
+      INTEGER N             ! Loop indices for species
+      INTEGER R, RIN, RIC   ! Row loop indices
+
+      INTEGER COL_LOC( NCOLS,NROWS )  ! Output IC col corresponding to
+                                      ! a cell in the input CTM file
+      INTEGER ROW_LOC( NCOLS,NROWS )  ! Output IC row corresponding to
+                                      ! a cell in the input CTM file
+
+      LOGICAL LNEG                    ! Flag for negative concentrations
+
+      REAL DMIN   ! Smallest distance between cell centers
+      REAL LAT    ! Latitude of center of cell for the IC output file
+      REAL LON    ! Longitude of center of cell for the IC output file
+      REAL X1     ! longitudenal distance between cell centers
+      REAL Y1     ! latitudinal distance between cell centers
+
+      REAL COUT( NCOLS,NROWS,NLAYS )   ! Substituted output IC conc
+!     REAL, ALLOCATABLE :: COUT( :,:,: ) ! Substituted output IC conc
+
+!     REAL CONCIN( ( GL_NCOLS_IN - 1 ) / NPCOL + 1, 
+!    &             ( GL_NROWS_IN - 1 ) / NPROW + 1, 
+!    &               NLAYS_IN, NSPCS_IN )  ! Input conc
+
+      REAL, ALLOCATABLE :: CONCIN ( :,:,:,: )
+
+!     REAL CONCVI( NCOLS,NROWS,NLAYS,NSPCS_IN ) ! Spatially interpolated
+      REAL, ALLOCATABLE :: CONCVI( :,:,:,: )
+
+      INTEGER PAR_ERR  ! Error code from parallel initialization.
+      INTEGER ALST     ! Allocation status
+
+      REAL LAT_IN_1    ! the lat of a cell in the coarse domain
+      REAL LON_IN_1    ! the lon of a cell in the coarse domain
+      REAL LAT_IN_2    ! the lat of a cell in the coarse domain
+      REAL LON_IN_2    ! the lon of a cell in the coarse domain
+      REAL LAT_OUT_1   ! the lat of a cell in the fine domain
+      REAL LON_OUT_1   ! the lon of a cell in the fine domain
+
+      REAL TMIN, TEMP1, TEMP2   ! temporary variables
+
+      INTEGER COL_LOC_1       ! column location corresponding to LON_IN_1
+      INTEGER ROW_LOC_1       ! row location corresponding to LAT_IN_1
+      INTEGER COL_LOC_1_SAVE  ! storage for saved value of COL_LOC_1
+      INTEGER ROW_LOC_1_SAVE  ! storage for saved value of ROW_LOC_1
+
+      INTEGER LOW_NCOLS_IN, UP_NCOLS_IN  ! range of columns for fine tune purposes
+      INTEGER LOW_NROWS_IN, UP_NROWS_IN  ! range of rows for fine tune purposes
+      INTEGER COL_POS, ROW_POS      ! column and row location of the cell in the
+                                    ! fine domain scale in each processor
+      INTEGER COL_RATIO, ROW_RATIO  ! column and row resolution ratio between
+                                    ! the fine and coarse domains
+      INTEGER COL_DISP, ROW_DISP    ! column and row displacement of the first
+                                    ! cell in each processor from the coarse
+                                    ! domain grid
+      INTEGER ORIG_ROW_DISP         ! storage for saved ROW_DISP  
+      INTEGER COUNT                 ! loop count
+      LOGICAL SEARCHED, STOP        ! boolean flags
+
+      INTEGER GXOFF, GYOFF          ! global origin offset from file for INTERPX
+      INTEGER STRTCOL, ENDCOL, STRTROW, ENDROW
+
+!     real time, start
+!     intrinsic rtc
+
+      INTERFACE
+         SUBROUTINE SHIFT_MAP ( NCOLS, NROWS, COL_LOC, ROW_LOC, 
+     &                          MY_NCOLS, MY_NROWS, GL_NCOLS_IN, GL_NROWS_IN,
+     &                          MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN,
+     &                          NSPCS_IN, CONCIN )
+         IMPLICIT NONE
+         INTEGER, INTENT( IN ) :: NCOLS, NROWS, MY_NCOLS, MY_NROWS
+         INTEGER, INTENT( IN ) :: GL_NCOLS_IN, GL_NROWS_IN
+         INTEGER, INTENT( IN ) :: MY_NCOLS_IN, MY_NROWS_IN
+         INTEGER, INTENT( IN ) :: NLAYS_IN, NSPCS_IN
+         INTEGER, INTENT( INOUT ) :: COL_LOC( NCOLS, NROWS ),
+     &                               ROW_LOC( NCOLS, NROWS )
+         REAL,    INTENT( INOUT ) :: CONCIN( MY_NCOLS_IN, MY_NROWS_IN,
+     &                                       NLAYS_IN, NSPCS_IN )
+         END SUBROUTINE SHIFT_MAP
+      END INTERFACE
+
+C**********************************************************************
+
+      ALLOCATE (CONCVI( NCOLS, NROWS, NLAYS, NSPCS_IN ), STAT = ALST)
+      IF ( ALST .NE. 0 ) THEN
+         MSG = 'Error allocating CONCVI'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      END IF
+
+      NCOLS_IN = ( GL_NCOLS_IN - 1 ) / NPCOL + 1
+      NROWS_IN = ( GL_NROWS_IN - 1 ) / NPROW + 1
+
+      IF( .NOT. DESC3 ( CTM_FL_NAME( 1 ) ) ) THEN
+         MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
+     &         // ' file'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      END IF
+
+!     start = rtc()
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Compute the lat and lon of the center of the fine domain (1,1) cell
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL LAT_LON( 1, 1, GDTYP_GD, XORIG_GD, YORIG_GD, 
+     &              XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &              P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT_1, LON_OUT_1 )
+
+      COUNT = 0
+      STOP = .FALSE.
+      SEARCHED = .FALSE.
+      ROW_LOC_1_SAVE = 1 
+      COL_LOC_1_SAVE = 1 
+
+      DO WHILE ( .NOT. STOP )
+         COUNT = COUNT + 1
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Approximate the lat of the center of the fine domain (1,1) cell in 
+c  the coarse domain
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         TMIN = 1.0E30
+         ROW_LOC_1 = 1
+         DO R = 1, GL_NROWS_IN
+            CALL LAT_LON( COL_LOC_1_SAVE, R, GDTYP3D, XORIG3D, YORIG3D,
+     &                    XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &                    P_ALP3D, P_BET3D, P_GAM3D, LAT_IN_1, LON_IN_1 )
+            TEMP1 = ABS( LAT_IN_1 - LAT_OUT_1 )
+            IF ( TEMP1 .LT. TMIN ) THEN
+               TMIN = TEMP1
+               ROW_LOC_1 = R
+            END IF
+         END DO
+ 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Approximate the lon of the center of the fine domain (1,1) cell in 
+c  the coarse domain
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         TMIN = 1.0E30
+         COL_LOC_1 = 1
+         DO C = 1, GL_NCOLS_IN
+            CALL LAT_LON( C, ROW_LOC_1, GDTYP3D, XORIG3D, YORIG3D,
+     &                    XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &                    P_ALP3D, P_BET3D, P_GAM3D, LAT_IN_1, LON_IN_1 )
+            TEMP1 = ABS( LON_IN_1 - LON_OUT_1 )
+            IF ( TEMP1 .LT. TMIN ) THEN
+               TMIN = TEMP1
+               COL_LOC_1 = C
+            END IF
+         END DO
+
+         IF ( ( COL_LOC_1 .EQ. COL_LOC_1_SAVE ) .AND.
+     &        ( ROW_LOC_1 .EQ. ROW_LOC_1_SAVE ) ) THEN
+            STOP = .TRUE.
+            SEARCHED = .TRUE.
+         ELSE
+            IF ( COUNT .EQ. 10 ) THEN
+               STOP = .TRUE.
+            ELSE
+               COL_LOC_1_SAVE = COL_LOC_1
+               ROW_LOC_1_SAVE = ROW_LOC_1
+            END IF
+         END IF
+      END DO   ! DO WHILE
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c if not converge, then perform fine tuning
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF ( .NOT. SEARCHED ) THEN
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set the fine tune range
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+         LOW_NCOLS_IN = MAX( COL_LOC_1 - 2, 1 )
+         UP_NCOLS_IN  = MIN( COL_LOC_1 + 2, GL_NCOLS_IN )
+         LOW_NROWS_IN = MAX( ROW_LOC_1 - 2, 1 )
+         UP_NROWS_IN  = MIN( ROW_LOC_1 + 2, GL_NROWS_IN )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Fine tune the center approximation of the lat and lon of the (1,1) 
+c  cell in the coarse domain
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         TMIN = 1.0E30
+         DO R = LOW_NROWS_IN, UP_NROWS_IN
+            DO C = LOW_NCOLS_IN, UP_NCOLS_IN
+               CALL LAT_LON( C, R, GDTYP3D, XORIG3D, YORIG3D,
+     &                       XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &                       P_ALP3D, P_BET3D, P_GAM3D, LAT_IN_1, LON_IN_1 )
+               TEMP1 = ( LAT_IN_1 - LAT_OUT_1 ) ** 2
+     &               + ( LON_IN_1 - LON_OUT_1 ) ** 2
+               IF ( TEMP1 .LT. TMIN ) THEN
+                  TMIN = TEMP1
+                  ROW_LOC_1 = R
+                  COL_LOC_1 = C
+               END IF
+            END DO
+         END DO
+      END IF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c determine the row positioning of the fine grid relative to the coarse 
+c grid
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL LAT_LON( COL_LOC_1, ROW_LOC_1, GDTYP3D, XORIG3D, YORIG3D,
+     &              XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &              P_ALP3D, P_BET3D, P_GAM3D, LAT_IN_1, LON_IN_1 )
+
+      IF ( ROW_LOC_1 .LT. GL_NROWS_IN ) THEN
+         CALL LAT_LON( COL_LOC_1, ROW_LOC_1+1, GDTYP3D, XORIG3D, YORIG3D,
+     &                 XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &                 P_ALP3D, P_BET3D, P_GAM3D, LAT_IN_2, LON_IN_2 )
+
+         SEARCHED = .FALSE.
+         ROW_POS = 1
+         DO WHILE ( .NOT. SEARCHED )
+
+            CALL LAT_LON( 1, ROW_POS, GDTYP_GD, XORIG_GD, YORIG_GD,
+     &                    XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                    P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT_1, LON_OUT_1 )
+
+            TEMP1 = ABS( LAT_IN_1 - LAT_OUT_1 )
+            TEMP2 = ABS( LAT_IN_2 - LAT_OUT_1 )
+!           IF ( TEMP1 .GT. TEMP2 ) THEN
+            IF ( ( TEMP1 .EQ. 0.0 ) .OR. ( TEMP1 .GT. TEMP2 ) ) THEN
+               SEARCHED = .TRUE.
+            ELSE
+               ROW_POS = ROW_POS + 1
+            END IF
+         END DO   ! DO WHILE
+      ELSE
+         ROW_POS = 1
+      END IF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c determine the col positioning of the fine grid relative to the coarse 
+c grid
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF ( COL_LOC_1 .LT. GL_NCOLS_IN ) THEN
+         CALL LAT_LON( COL_LOC_1+1, ROW_LOC_1, GDTYP3D, XORIG3D, YORIG3D,
+     &                 XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &                 P_ALP3D, P_BET3D, P_GAM3D, LAT_IN_2, LON_IN_2 )
+
+         SEARCHED = .FALSE.
+         COL_POS = 1
+         DO WHILE ( .NOT. SEARCHED )
+
+            CALL LAT_LON( COL_POS, 1, GDTYP_GD, XORIG_GD, YORIG_GD,
+     &                    XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                    P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT_1, LON_OUT_1 )
+
+            TEMP1 = ABS( LON_IN_1 - LON_OUT_1 )
+            TEMP2 = ABS( LON_IN_2 - LON_OUT_1 )
+!           IF ( TEMP1 .GT. TEMP2 ) THEN
+            IF ( ( TEMP1 .EQ. 0.0 ) .OR. ( TEMP1 .GT. TEMP2 ) ) THEN
+               SEARCHED = .TRUE.
+            ELSE
+               COL_POS = COL_POS + 1
+            END IF
+         END DO   ! DO WHILE
+      ELSE
+         COL_POS = 1
+      END IF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Initialize the fine domain starting point in a processor
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL MAPPING_INIT ( XCELL_GD, YCELL_GD, XCELL3D, YCELL3D,
+     &                    COL_POS, ROW_POS, COL_RATIO, ROW_RATIO,
+     &                    COL_DISP, ROW_DISP, COL_LOC_1, ROW_LOC_1 )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c? Map the CTM file LAT/LONs to the IC file LAT/LONs
+c  Map the CTM file cols/rows to the IC file cols/rows
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ORIG_ROW_DISP = ROW_DISP
+
+      CIN = COL_LOC_1
+      DO CIC = 1, MY_NCOLS
+         RIN = ROW_LOC_1
+         ROW_DISP = ORIG_ROW_DISP
+         DO RIC = 1, MY_NROWS
+            COL_LOC( CIC, RIC ) = CIN
+            ROW_LOC( CIC, RIC ) = RIN
+            ROW_DISP = ROW_DISP + 1
+            RIN = RIN + ROW_DISP / ROW_RATIO
+            ROW_DISP = MOD( ROW_DISP, ROW_RATIO )
+         END DO
+         COL_DISP = COL_DISP + 1
+         CIN = CIN + COL_DISP / COL_RATIO
+         COL_DISP = MOD( COL_DISP, COL_RATIO )
+      END DO
+
+!     time = rtc() - start
+!     print *, ' ----------- ', time
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Re-configure the domain
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL RECONFIG_DOMAIN( COLROW, GL_NCOLS_IN, GL_NROWS_IN, NLAYS, NSPCS_IN,
+     &                      NTHIK, NCOLS_IN, NROWS_IN, NPCOL, NPROW,
+     &                      MNDIS, MEDIS, MSDIS, MWDIS,
+     &                      COLSX_PE, ROWSX_PE, MY_NCOLS_IN, MY_NROWS_IN,
+     &                      MY_NBNDY, PAR_ERR )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Determine local starting and ending column and row indices for a file
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ISP = 0
+
+      STRTCOL = COLSX_PE( 1, MYPE+1 )
+      ENDCOL  = COLSX_PE( 2, MYPE+1 )
+      STRTROW = ROWSX_PE( 1, MYPE+1 )
+      ENDROW  = ROWSX_PE( 2, MYPE+1 )
+
+      ALLOCATE ( CONCIN( MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN, NSPCS_IN ), 
+     &           STAT = ALST )
+      IF ( ALST .NE. 0 ) THEN
+         MSG = 'Error allocating CONCIN'
+            CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+         END IF
+
+      DO N = 1, N_CTM_FLS
+
+         IF ( .NOT. DESC3 ( CTM_FL_NAME( N ) ) ) THEN
+            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
+     &            // ' file'
+            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         END IF
+                  
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Read the input CTM Conc file(s) 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         DO V = 1, NVARS3D
+
+            ISP = ISP + 1
+            VNAME = VNAME3D( V )
+
+!           IF ( .NOT. READ3( CTM_FL_NAME( N ), VNAME, ALLAYS3, SDATE, 
+!    &                        STIME, CONCIN( 1,1,1,ISP ) ) ) THEN
+
+            IF ( .NOT. XTRACT3( CTM_FL_NAME( N ), VNAME, 1, NLAYS_IN, 
+     &                          STRTROW, ENDROW, STRTCOL, ENDCOL,
+     &                          SDATE, STIME, CONCIN( 1,1,1,ISP ) ) ) THEN
+
+               MSG = 'Could not read input CTM Conc file ' //
+     &                CTM_FL_NAME( N )         
+               CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+            END IF
+
+         END DO
+
+      END DO 
+
+!     CALL SHIFT_MAP (CONCIN, COL_LOC, ROW_LOC, NCOLS, NROWS,
+!    &                MY_NCOLS, MY_NROWS, GL_NCOLS_IN, GL_NROWS_IN,
+!    &                NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN)
+
+!     CALL SHIFT_MAP (CONCIN, COL_LOC, ROW_LOC, NCOLS, NROWS,
+!    &                MY_NCOLS, MY_NROWS, GL_NCOLS_IN, GL_NROWS_IN,
+!    &                MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN, NSPCS_IN)
+
+      CALL SHIFT_MAP ( NCOLS, NROWS, COL_LOC, ROW_LOC, 
+     &                 MY_NCOLS, MY_NROWS, GL_NCOLS_IN, GL_NROWS_IN,
+     &                 MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN, NSPCS_IN, CONCIN )
+
+C InOut:
+C    CONCin      -- concentration field
+C    COL_LOC     -- column position of a grid point of the fine domain
+C                   relative to the coarse domain in a processor
+C    ROW_LOC     -- row position of a grid point of the fine domain
+C                   relative to the coarse domain in a processor
+C In:
+C    NCOLS       -- number of columns of the fine domain in a processor
+C    NROWS       -- number of rows of the fine domain in a processor
+C    MY_NCOLS    -- number of data columns of the fine domain in a processor
+C    MY_NROWS    -- number of data rows of the fine domain in a processor
+C    GL_NCOLS_IN -- number of columns of the coarse domain
+C    GL_NROWS_IN -- number of rows of the coarse domain
+C my_NCOLS_IN    -- number of columns of the coarse domain in a processor
+C my_NROWS_IN    -- number of rows of the coarse domain in a processor
+C    NLAYS_IN    -- number of layers of the coarse domain in a processor
+C    NSPCS_IN    -- number of species of the coarse domain in a processor
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Add PinG contributions if necessary
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc     
+      IF ( LPING ) THEN 
+
+         IF ( .NOT. DESC3 ( PING_PDM_1 ) ) THEN
+            MSG = 'Could not read DESC of  ' // PING_FL_NAME( 1 ) 
+     &           // ' file'
+            CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+         END IF
+
+         NSRC  = NCOLS3D
+         MXREL = NROWS3D
+
+!        CALL M3_PING( LOGUNIT, SDATE, STIME, GL_NCOLS_IN, GL_NROWS_IN,
+!    &                 NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN, INFL_SP_NAME, 
+!    &                 CONCIN, COL_LOC, ROW_LOC, NSRC, MXREL, N_PING_FLS,
+!    &                 PING_FL_NAME, COL_LOC_1, ROW_LOC_1 ) 
+
+         CALL M3_PING( LOGUNIT, SDATE, STIME, GL_NCOLS_IN, GL_NROWS_IN,
+     &                 MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN, NSPCS_IN, 
+     &                 INFL_SP_NAME, CONCIN, COL_LOC, ROW_LOC, NSRC, MXREL, 
+     &                 N_PING_FLS, PING_FL_NAME, COL_LOC_1, ROW_LOC_1 ) 
+
+      END IF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Re-configure the domain
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL RECONFIG_DOMAIN( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NSPCS_IN,
+     &                      NTHIK, NCOLS, NROWS, NPCOL, NPROW,
+     &                      MNDIS, MEDIS, MSDIS, MWDIS,
+     &                      COLSX_PE, ROWSX_PE, MY_NCOLS, MY_NROWS,
+     &                      MY_NBNDY, PAR_ERR )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do vertical interpolation/extrapolation
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!     CALL VINTERP( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, NLAYS_IN,
+!    &              NSPCS_IN, COL_LOC, ROW_LOC, CONCIN,
+!    &              CONCVI, CTM_FL_NAME )
+      
+      CALL VINTERP( LOGUNIT, SDATE, STIME, MY_NCOLS_IN, MY_NROWS_IN, NLAYS_IN,
+     &              NSPCS_IN, COL_LOC, ROW_LOC, CONCIN,
+     &              CONCVI, CTM_FL_NAME )
+      
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Open the IC output file
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc     
+      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, SPNAME_OUT,
+     &                  IC_FNAME, 1 )  
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the output IC concentrations
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc   
+      LNEG = .FALSE.
+      DO N = 1, NSPCS_OUT
+
+         FLN = ( N - 1 ) / MXVARS3 + 1
+         VNAME = SPNAME_OUT( N )
+           
+         IF ( LCONVSP( N ) ) THEN
+
+            IND = INDEX1( MCNV_SPCS( N,1 ), NSPCS_IN, INFL_SP_NAME )
+
+            DO L = 1, NLAYS
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     COUT( C,R,L ) = MCNV_COEFF( N,1 )
+     &                             * CONCVI( C,R,L,IND )
+                     IF ( COUT( C,R,L ) .LT. 0.0 ) THEN
+                        LNEG = .TRUE.
+                     ELSE IF ( COUT( C,R,L ) .LT. CMIN ) THEN
+                        COUT( C,R,L ) = CMIN
+                     END IF 
+                  END DO
+               END DO
+            END DO
+
+            IF ( N_MCNV_SP( N ) .GT. 1 ) THEN
+
+               DO SPC = 2, N_MCNV_SP( N ) 
+
+                  IND = INDEX1( MCNV_SPCS( N, SPC ), NSPCS_IN, INFL_SP_NAME )
+
+                  DO L = 1, NLAYS
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+
+                           COUT( C,R,L ) = COUT( C,R,L )
+     &                                   + MCNV_COEFF( N,SPC )
+     &                                   * CONCVI( C,R,L,IND )
+                           IF ( COUT( C,R,L ) .LT. 0.0 ) THEN
+                              LNEG = .TRUE.
+                           ELSE IF ( COUT( C,R,L ) .LT. CMIN ) THEN
+                              COUT( C,R,L ) = CMIN
+                           END IF 
+
+                        END DO
+                     END DO
+                  END DO
+
+               END DO
+
+            END IF
+
+         ELSE
+
+            IND = SPMAP( N )
+
+            DO L = 1, NLAYS
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+
+                     COUT( C,R,L ) = CONCVI( C,R,L,IND )
+                     IF ( COUT( C,R,L ) .LT. 0.0 ) THEN
+                        LNEG = .TRUE.
+                     ELSE IF ( COUT( C,R,L ) .LT. CMIN ) THEN
+                        COUT( C,R,L ) = CMIN
+                     END IF 
+
+                  END DO
+               END DO
+            END DO
+
+         END IF
+
+         IF ( .NOT. WRITE3( IC_FNAME( FLN ), VNAME, SDATE, STIME,
+     &                      COUT( 1,1,1 ) ) ) THEN
+            MSG =  'Could not WRITE species ' //  VNAME // 
+     &             'to file ' // IC_FNAME( FLN ) 
+            CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+         END IF
+
+      END DO
+
+      IF ( LNEG ) THEN
+         MSG = 'Negative ICs output'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. ) 
+      END IF
+
+      DEALLOCATE (CONCVI, CONCIN)
+
+      RETURN
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

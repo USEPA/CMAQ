@@ -1,0 +1,113 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.44.47;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.44.47;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/PARIO/src/Makefile,v 1.7 2006/08/30 18:15:25 yoj Exp $
+
+SHELL=/bin/sh
+
+ LIBNAME = libpario.a
+#LIBNAME = libpario.debug.a
+
+#> IBM
+#IOAPI   = /work/wdx/tools/ioapi_3/ioapi/fixed_src
+#FC      = mpxlf90
+#FSTD    = -qsave -qfixed=132 -qarch=auto -qtune=auto
+#FSTD    =        -qfixed=132 -qarch=auto -qtune=auto
+#FFLAGS  = $(FSTD) -I $(IOAPI) -O3 -qstrict -Q
+#FFLAGS  = $(FSTD) -I $(IOAPI) -g -qfloat=nans
+
+#> cluster Portland Group
+#MPI     = /usr/local/mpich-1.2.4/include
+ MPI     = /share/linux/bin/mpich-ch_p4/include
+#IOAPI   = /project/air5/sjr/CMAS4.5.1/rel/lib/ioapi_3/ioapi/fixed_src
+ IOAPI   = /project/rain1/yoj/lib/ioapi_3/ioapi/fixed_src
+ FC      = /share/linux/pgi5.2/linux86/5.2/bin/pgf90
+ FSTD    = -Mfixed -Mextend
+ DBG     = -g -Mbounds -Mchkptr -Mchkfpstk
+ FFLAGS  = $(FSTD) -O2        -I $(MPI) -I $(IOAPI) -I.
+#FFLAGS  = $(FSTD) -O0 $(DBG) -I $(MPI) -I $(IOAPI) -I.
+
+#> cluster Intel
+#MPI     = /share/linux/bin/mpich-ch_p4/include
+#IOAPI   = /share/linux/ioapi30_ifc/include
+#FC      = /share/linux9.0/intel/fc/9.0/bin/ifort
+#> Altix Intel
+#MPI     = /share/linux/mpi/include
+#IOAPI   = /4w/yoj/work/lib/ioapi_30/ioapi
+#FC      = /share/linux/intel/fc/9.0/bin/ifort
+#FC      = /share/linux/mpich-1.2.7p1/bin/mpif90
+#FSTD    = -FI -extend_source -O2 -w
+#FSTD    = -fixed -extend_source -nowarn
+#DBG     = -g -check bounds -debug extended -debug-parameters all
+#DBG     = -g -check bounds -fpe0 -fpstkchk -ftrapuv
+#DBG     = -g -check bounds -fpe0 -ftrapuv
+#FFLAGS  = $(FSTD) -O3        -I $(MPI) -I $(IOAPI) -I.
+#FFLAGS  = $(FSTD) -O2        -I $(MPI) -I $(IOAPI) -I.
+#FFLAGS  = $(FSTD) -O0 $(DBG) -I $(MPI) -I $(IOAPI) -I.
+
+ OBJS= \
+ pinterpb_mod.o \
+ piomaps_mod.o \
+ alloc_data_mod.o \
+ boundary.o \
+ get_write_map.o \
+ growbuf.o \
+ gtndxhdv.o \
+ interpol.o \
+ pinterpb.o \
+ pio_init.o \
+ pio_re_init.o \
+ pm3err.o \
+ pm3exit.o \
+ pm3warn.o \
+ pshut3.o \
+ pwrite3.o \
+ ptrwrite3.o \
+ pwrgrdd.o \
+ readbndy.o \
+ subdmap.o \
+ wrsubmap.o
+
+.SUFFIXES: .f
+
+$(LIBNAME) : $(OBJS)
+	$(FC) $(FFLAGS) -c $(?:.o=.f)
+	ar -rv $@@ $?
+	chmod 644 $@@
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

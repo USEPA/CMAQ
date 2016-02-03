@@ -1,0 +1,208 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_wrtctlext.F,v 1.5 2006/02/14 18:07:00 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_wrtctlext.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_wrtctlext.F 04 Jul 1997 14:13:49
+
+      SUBROUTINE PA_WRTCTLEXT
+
+C***********************************************************************
+C
+C  FUNCTION: To write the Models-3 Process Analysis Control Include
+C            File 
+C
+C  PRECONDITIONS: Requires mechanism to have been processed
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C                    Modified Jan, 2006 by J. Young
+C                      I couldn't resist the temptation to F90-ize the output
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_IPRDEF.EXT'
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER JUNIT    ! Function to get unit number
+
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+
+      CHARACTER*1   DOT        ! Dot character
+      CHARACTER*80  DELIM      ! Delimiter line output
+      CHARACTER*80  CEES       ! Line of cees
+      CHARACTER*78  LINOUT     ! Output line
+
+
+      INTEGER IOUT       ! Unit number for include file
+      INTEGER LINLEN     ! Length of output line
+      INTEGER N          ! Loop index
+         
+C***********************************************************************
+      DATA LINLEN / 78 /
+
+      DOT = '.'
+
+      DO N = 1, 78
+         DELIM( N:N ) = DOT
+         CEES( N:N ) = 'c'
+      ENDDO     
+      DELIM( 1:1 ) = 'C'
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Open and Control Include file and write the header data
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IOUT = JUNIT(  )
+      OPEN( UNIT = IOUT, FILE = 'PA_CTL.EXT' )
+      WRITE( IOUT, 94000 ) DELIM( 1:72 )
+      LINOUT = 'C    INCLUDE FILE   PA_CTL.EXT'
+      WRITE( IOUT, 94000 ) LINOUT
+      WRITE( IOUT, 94000 ) LINOUT( 1:1 )
+      LINOUT = 'C    CONTAINS: Control parameters for Process Analysis'
+      WRITE( IOUT, 94000 ) LINOUT
+      WRITE( IOUT, 94000 ) LINOUT( 1:1 )
+      LINOUT = 'C    DEPENDENT UPON: Mechanism Input file'
+      WRITE( IOUT, 94000 ) LINOUT
+      WRITE( IOUT, 94000 ) LINOUT( 1:1 )
+      LINOUT = 'C    CREATED BY: Process Analysis Control Program'
+      WRITE( IOUT, 94000 ) LINOUT
+      LINOUT = 'C                ' // TDATOUT
+      WRITE( IOUT, 94000 ) LINOUT
+      WRITE( IOUT, 94000 ) LINOUT( 1:1 )
+      WRITE( IOUT, 94000 ) DELIM( 1:72 )
+      LINOUT = ''
+      WRITE( IOUT, 94000 ) LINOUT
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the control parameters
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+!     WRITE( IOUT, 94000 )
+      WRITE( IOUT, 94000 ) CEES( 1:72 )
+      WRITE( IOUT, 94020 )
+!     WRITE( IOUT, 94000 ) CEES( 1:72 )
+      WRITE( IOUT, 94040 )      
+      WRITE( IOUT, 94000 ) CEES( 1:72 )
+      WRITE( IOUT, 94000 ) LINOUT
+
+c..LIPR -- for integrated process rates
+!     WRITE( IOUT, 94060 )
+      IF( N_IPR_SPC .GT. 0 ) THEN
+         WRITE( IOUT, 94080 )
+      ELSE
+         WRITE( IOUT, 94100 )
+      ENDIF
+
+
+c..LIRR -- for integrated reaction rates     
+!     WRITE( IOUT, 94120 )
+      IF( LFULLIRR .OR. LPARTIRR ) THEN
+         WRITE( IOUT, 94140 )
+      ELSE
+         WRITE( IOUT, 94160 )
+      ENDIF
+
+      LINOUT = DELIM
+      LINOUT( 14:58 ) = ' End of Process Analysis CONTROL' //
+     &                    ' Include File '
+      WRITE( IOUT, 94000 ) LINOUT
+      CLOSE( IOUT )
+
+C*********************** FORMAT STATEMENTS *****************************
+
+94000 FORMAT( A )     
+94020 FORMAT( 
+     & 'c  The following variables are used to control calls to', 
+     &     ' the Integrated' /
+     & 'c  Process Rate and Integrated Reaction Rate routines:' )
+94040 FORMAT( 
+     & 'c     LIPR = Flag for calculating Integrated Process Rates' /
+     & 'c     LIRR = Flag for calculating Integrated Reaction Rates' )
+!4060 FORMAT( //6X, 'LOGICAL LIPR' )
+94080 FORMAT(   6X, 'LOGICAL, PARAMETER :: LIPR = .TRUE.' / )
+94100 FORMAT(   6X, 'LOGICAL, PARAMETER :: LIPR = .FALSE.' / )
+!4120 FORMAT(   6X, 'LOGICAL LIRR' )
+94140 FORMAT(   6X, 'LOGICAL, PARAMETER :: LIRR = .TRUE.' / )
+94160 FORMAT(   6X, 'LOGICAL, PARAMETER :: LIRR = .FALSE.' / )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

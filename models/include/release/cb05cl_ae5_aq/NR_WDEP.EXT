@@ -1,0 +1,18 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/cb05cl_ae5_aq/NR_WDEP.EXT,v 1.1.1.1 2009/12/16 19:15:59 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: CB05CL_AE5_AQ
+
+        INTEGER        N_NR_WDEP
+        PARAMETER     (N_NR_WDEP = 1)
+        INTEGER        N_NR_WDEPD
+        PARAMETER     (N_NR_WDEPD = N_NR_WDEP)
+        CHARACTER*16   NR_WDEP(N_NR_WDEPD)
+        INTEGER        NR_WDEP_MAP(N_NR_WDEPD)
+
+        DATA          NR_WDEP(  1), NR_WDEP_MAP(  1) / 'NH3             ',   1 /
+  

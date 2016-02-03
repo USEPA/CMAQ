@@ -1,0 +1,96 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/include/ICL/src/bin/free,v 1.1 1999/02/05 14:49:06 yoj Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+ if ( $#argv == 0 ) then
+    echo "   usage: free <module1> <module2> ... (not file)"
+    exit()
+    endif
+ if ( $?CVSROOT ) then
+    echo "   for project (CVSROOT): $CVSROOT ..."
+    else
+    echo "   CVSROOT not defined"
+    exit()
+    endif
+ while ($#argv > 0)
+    set modl = $argv[1]
+    if ( ! -d $modl ) then
+       echo "   Not a valid module "
+       exit()
+       endif
+    set CVSRoot = `cat ./CVS/Root`
+    if ( $CVSROOT != $CVSRoot ) then
+       echo "   Warning: Local cvs archive, $CVSRoot"
+       echo "   does not match env CVSROOT, $CVSROOT"
+       echo -n "   Remove module $modl anyway? [Yy] "
+       set instr = $<
+#      set instr = `head -1`
+       else
+       set instr = y
+       endif
+    set rmcvs = 1
+    switch ( $instr )
+       case [Yy]
+       echo "   removing $modl"
+       cvs -Q release -d $modl
+       if ( $status != 0 ) then
+          cvs release -d $modl
+          exit()
+          endif
+       breaksw
+       default:
+       echo "   Not removing $modl"
+       set rmcvs = 0        # dont' remove the CVS directory
+       breaksw
+    endsw
+    shift
+    end
+ if ( $rmcvs ) then
+    echo "   removing CVS"
+    rm -rf CVS
+    else
+    echo "   Not removing CVS"
+    endif
+ exit()
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,706 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/input/radmconc/radm_bcout.F,v 1.4 2002/04/12 14:19:30 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE BCOUT( LOGUNIT, RF1, RF2, SDATE, STIME, RUNLEN, TSTEP, 
+     &                  NCOLS_IN, NROWS_IN, NLAYS_IN, NSPC1, NSPC2,    
+     &                  NSPCS_IN, NSPCS_OUT, SPMAP, N_MCNV_SP, SFAC,   
+     &                  MCNV_COEFF, LCONV, LSCALE, LCONVSP, EXT_IC_NAME,  
+     &                  INFL_SP_NAME, MCNV_SPCS, SPNAME_OUT )
+
+C*************************************************************************
+C
+C  FUNCTION: Reads the input RADM concentration files, calls routines to
+C            open the output file and do the vertical interpolation, and
+C            writes the ICs to the output Models-3 IC file.
+C             
+C  PRECONDITIONS: The RADM_SIGMA.EXT and RADM_COORD.EXT include files
+C                 must be supplied by the user and must contain the
+C                 vertical and horizontal grid data that were 
+C                 used in the original RADM simulation.      
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: LAT_LON 
+C                                    RDSLAB
+C                                    VINTERP
+C                                    OPN_IC_FILE 
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C                    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
+C
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+      INCLUDE SUBST_VGRD_ID     ! Vertical grid
+      INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+      INCLUDE SUBST_GC_SPC      ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC      ! aerosol species table
+      INCLUDE SUBST_NR_SPC      ! non-reactive species table
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+
+      INCLUDE 'BC_PARMS.EXT'    ! ICON paramters
+      INCLUDE 'RADM_COORD.EXT'  ! RADM coordinate and grid data
+
+C..ARGUMENTS: 
+      CHARACTER*16  EXT_IC_NAME( * )           ! Name of *.EXT IC species
+      CHARACTER*16  SPNAME_OUT( * )            ! Output file species names
+      CHARACTER*16  INFL_SP_NAME( * )          ! Name of input CTM species
+      CHARACTER*16  MCNV_SPCS( N_GC_SPCD, * )  ! Mech conv species names
+
+      INTEGER LOGUNIT           ! Unit number for output log
+      INTEGER NCOLS_IN          ! No. of columns in input conc file
+      INTEGER NLAYS_IN          ! No. of layers in input conc file
+      INTEGER NROWS_IN          ! No. of rows in input conc file
+      INTEGER NSPC1             ! No. of species on RADM conc file 1
+      INTEGER NSPC2             ! No. of species on RADM conc file 2
+      INTEGER NSPCS_IN          ! Total No. of species in RADM conc files
+      INTEGER NSPCS_OUT         ! Number of IC species on output file(s)
+      INTEGER RF1, RF2          ! RADM input file unit numbers
+      INTEGER RUNLEN            ! No. of hours for BC output
+      INTEGER SDATE             ! Date for IC Output
+      INTEGER STIME             ! Time for IC output
+      INTEGER TSTEP             ! RADM file stepsize
+
+      INTEGER  SPMAP( * )       ! Map to CTM species from IC species
+      INTEGER  N_MCNV_SP( * )   ! No. of mech input species for each
+                                ! mech output species
+    
+      LOGICAL LCONV             ! Flag for mech conversion
+      LOGICAL LCONVSP( * )      ! Flag for mechanism conversion of species 
+      LOGICAL LSCALE( * )       ! Flag for scaling input concs 
+
+      REAL MCNV_COEFF( N_GC_SPCD, * )  ! Mech conv species coefficients
+      REAL SFAC( * )                   ! Scale factor for input species concs
+
+C..PARAMETERS:
+      INTEGER      NSPCS               ! Total no. of *.EXT species
+      PARAMETER  ( NSPCS = N_GC_SPC
+     &                   + N_AE_SPC 
+     &                   + N_NR_SPC 
+     &                   + N_TR_SPC )
+
+C..EXTERNAL FUNCTIONS: 
+      CHARACTER*10 HHMMSS  !  converts to string "HH:MM:SS"
+
+      INTEGER INDEX1       ! Looks up name in table
+      INTEGER TIME2SEC     ! converts HHMMSS to raw seconds
+ 
+#ifdef _CRAY  
+      EXTERNAL  HPALLOC    ! Cray Memory allocation subroutine
+#else
+      INTEGER   MALLOC     ! Sun Memory allocation function
+#endif
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  PNAME        ! Program Name
+      CHARACTER*80  MSG          ! Log message
+      CHARACTER*80  RF1_TS_HDR   ! Time step header for RADM file 1
+      CHARACTER*80  RF2_TS_HDR   ! Time step header for RADM file 2
+      CHARACTER*16  VNAME        ! Species name on CTM conc file
+
+      CHARACTER*16 BC_FNAME( MXCTMS )  ! Logical names of BC Output file(s) 
+
+      INTEGER  ABORT             ! Abort code for Cray HPALLOC
+      INTEGER  C                 ! Column loop indices
+      INTEGER  ERRCODE           ! Error code for Cray HPALLOC
+      INTEGER  FLN               ! IC output file number
+      INTEGER  IND               ! Array indices for species
+      INTEGER  ISP               ! Loop index for species
+      INTEGER  JDATE             ! Current date
+      INTEGER  JTIME             ! Current time
+      INTEGER  SPC               ! Species loop index 
+      INTEGER  L                 ! Layer loop index
+      INTEGER  N                 ! Loop indices for species
+      INTEGER  NBND              ! Loop index for boundary
+      INTEGER  NCELL             ! Boundary cell index
+      INTEGER  NSTEPS            ! Run duration, as number of output time steps
+      INTEGER  R                 ! Row loop indices
+      INTEGER  R1DATE, R2DATE    ! RADM file time step date
+      INTEGER  R1TIME, R2TIME    ! RADM file time step time
+      INTEGER  RDATE             ! RADM date in YYYDDD format
+      INTEGER  RTIME             ! RADM date in HHMMSS format
+      INTEGER  SIZE1             ! Size of concin array
+      INTEGER  SIZE2             ! Size of bcin array
+      INTEGER  SIZE3             ! Size of bcvi array
+      INTEGER  SIZE4             ! Size of input lat and lon arrays
+      INTEGER  SLAB1             ! Size of RADM conc slab to read on File 1
+      INTEGER  SLAB2             ! Size of RADM conc slab to read on File 2
+      INTEGER  STEP              ! Time step loop index
+      INTEGER  STEPSECS          ! Seconds per time step
+      INTEGER  TOTSECS           ! Run duration seconds
+
+      INTEGER COL_LOC( NBNDY )   ! Output BC col corresponding to
+                                 ! a cell in the input CTM file
+      INTEGER ROW_LOC( NBNDY )   ! Output IC row corresponding to
+                                 ! a cell in the input CTM file
+
+      LOGICAL LERR               ! Error flag
+      LOGICAL LNEG               ! Negative conc flag
+
+      POINTER ( PTR1, CONCIN )   ! Array pointers
+      POINTER ( PTR2, BCIN   )
+      POINTER ( PTR3, BCVI   )
+      POINTER ( PTR4, LAT_IN )
+      POINTER ( PTR5, LON_IN )
+      
+      REAL DMIN   ! Smallest distance between cell centers
+      REAL LAT    ! Latitude of center of cell for the IC output file
+      REAL LON    ! Longitude of center of cell for the IC output file
+      REAL X1     ! longitudenal distance between cell centers
+      REAL Y1     ! latitudinal distance between cell centers
+
+      REAL LAT_IN(  NCOLS_IN, NROWS_IN )   ! Lat of cells in CTM conc file
+      REAL LAT_OUT( NBNDY    )             ! Lat of cells in BC output file
+      REAL LON_IN(  NCOLS_IN, NROWS_IN )   ! Lon of cells in CTM conc file
+      REAL LON_OUT( NBNDY    )             ! Lon of cells in BC output file
+
+      REAL COUT( NBNDY, NLAYS )            ! Substituted output BC conc
+
+      REAL CONCIN( NROWS_IN, NLAYS_IN, NSPCS_IN, NCOLS_IN )  ! Input conc
+
+      REAL BCIN( NBNDY, NLAYS_IN, NSPCS_IN )  ! Horizontally interpolated
+                                              ! BCs
+
+      REAL BCVI( NBNDY, NLAYS, NSPCS_IN )     ! Vertically interpolated
+                                              ! BCs
+
+C**********************************************************************
+      DATA ABORT / 0 /
+      DATA PNAME /'ICOUT' /
+      DATA LNEG / .FALSE. /
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Allocate memory for the conc and lat/lon arrays ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SIZE1 = NCOLS_IN * NROWS_IN * NLAYS_IN * NSPCS_IN
+
+      SIZE2 = NBNDY * NLAYS_IN * NSPCS_IN
+
+      SIZE3 = NBNDY * NLAYS * NSPCS_IN
+
+      SIZE4 = NCOLS_IN * NROWS_IN
+
+#ifdef _CRAY     
+
+      CALL HPALLOC( PTR1, SIZE1, ERRCODE, ABORT )
+ 
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94000 ) '1', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPALLOC( PTR2, SIZE2, ERRCODE, ABORT )
+
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94000 ) '2', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPALLOC( PTR3, SIZE3, ERRCODE, ABORT )
+
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94000 ) '3', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPALLOC( PTR4, SIZE4, ERRCODE, ABORT )
+
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94000 ) '4', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPALLOC( PTR5, SIZE4, ERRCODE, ABORT )
+
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94000 ) '5', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+#else
+
+      PTR1 = MALLOC( 4 * SIZE1 ) 
+
+      IF( PTR1 .EQ. 0 ) THEN
+         MSG = ' MALLOC Failure for PTR1'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      ENDIF
+
+      PTR2 = MALLOC( 4 * SIZE2 ) 
+
+      IF( PTR2 .EQ. 0 ) THEN
+         MSG = ' MALLOC Failure for PTR2'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      ENDIF
+
+      PTR3 = MALLOC( 4 * SIZE3 ) 
+
+      IF( PTR3 .EQ. 0 ) THEN
+         MSG = ' MALLOC Failure for PTR3'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      ENDIF
+
+      PTR4 = MALLOC( 4 * SIZE4 ) 
+
+      IF( PTR4 .EQ. 0 ) THEN
+         MSG = ' MALLOC Failure for PTR4'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      ENDIF
+
+      PTR5 = MALLOC( 4 * SIZE4 ) 
+
+      IF( PTR4 .EQ. 0 ) THEN
+         MSG = ' MALLOC Failure for PTR5'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      ENDIF
+
+#endif
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the LAT/LON of the center of each RADM grid cells
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c..Get the LAT/LON of the RADM cells
+      DO C = 1, NCOLS_IN
+         DO R = 1, NROWS_IN
+            CALL LAT_LON( C, R, LAMGRD3, XORIG_RADM, YORIG_RADM, 
+     &                    XCELL_RADM, YCELL_RADM, XCENT_RADM, 
+     &                    YCENT_RADM, P_ALP_RADM, P_BET_RADM, P_GAM_RADM,
+     &                    LAT_IN( C, R ), LON_IN( C, R ) )
+         ENDDO
+      ENDDO
+ 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the LAT/LON of the center of each output BC cells
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c..South edge
+      NCELL = 0
+      DO C = 1, NCOLS + 1
+         R = 0
+         NCELL = NCELL + 1
+         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
+     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                 P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT( NCELL ),
+     &                 LON_OUT( NCELL ) )
+      ENDDO
+
+c..East edge
+      DO R = 1, NROWS + 1
+         C = NCOLS + 1
+         NCELL = NCELL + 1
+         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
+     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                 P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT( NCELL ),
+     &                 LON_OUT( NCELL ) )
+      ENDDO
+
+c..North edge
+      DO C = 0, NCOLS 
+         R = NROWS + 1
+         NCELL = NCELL + 1
+         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
+     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                 P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT( NCELL ),
+     &                 LON_OUT( NCELL ) )
+      ENDDO
+
+c..West edge
+      DO R = 0, NROWS 
+         C = 0
+         NCELL = NCELL + 1
+         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
+     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                 P_ALP_GD, P_BET_GD, P_GAM_GD, LAT_OUT( NCELL ),
+     &                 LON_OUT( NCELL ) )
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Map the IC file LAT/LONs to the RADM file LAT/LONs
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO N = 1, NBNDY
+         LAT = LAT_OUT( N )
+         LON = LON_OUT( N )
+         DMIN = 1.0E+30
+         DO C = 1 + RADM_NTHIK, NCOLS_IN - RADM_NTHIK
+            DO R = 1 + RADM_NTHIK, NROWS_IN - RADM_NTHIK
+               Y1 = ( LAT - LAT_IN( C, R ) ) ** 2
+               X1 = ( LON - LON_IN( C, R ) ) ** 2
+               IF( ( X1 + Y1 ) .LT. DMIN ) THEN           
+                  DMIN = X1 + Y1
+                  COL_LOC( N ) = C
+                  ROW_LOC( N ) = R
+               ENDIF
+            ENDDO
+         ENDDO
+      ENDDO
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the vertical interpolation to report log info only
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL VINTERP( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, 
+     &              NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
+     &              BCVI )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Advance the RADM conc files to the start time 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      JDATE = SDATE
+      JTIME = STIME
+
+      WRITE( LOGUNIT, 92000 ) SDATE, STIME
+
+      SLAB1 = NROWS_IN * NLAYS_IN * NSPC1
+      SLAB2 = NROWS_IN * NLAYS_IN * NSPC2
+
+  100 CONTINUE
+
+      READ( RF1, ERR = 200, END = 220 ) RF1_TS_HDR
+      READ( RF2, ERR = 240, END = 260 ) RF2_TS_HDR
+
+      READ( RF1_TS_HDR, '( I5, I6 ) ' ) R1DATE, R1TIME
+      READ( RF2_TS_HDR, '( I5, I6 ) ' ) R2DATE, R2TIME
+
+      WRITE( LOGUNIT, 92020 ) R1DATE, R1TIME, R2DATE, R2TIME
+                           
+      IF( R1DATE .NE. R2DATE .OR. R1TIME .NE. R2TIME ) THEN
+         MSG = 'ERROR: Time steps out of sync on RADM conc files'
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+      LERR = .FALSE.
+      DO C = 1 , NCOLS_IN
+         CALL RDSLAB( RF1, CONCIN( 1, 1, 1, C ), SLAB1, LERR )
+         IF( LERR ) THEN
+            MSG = 'ERROR: Could not read slab from RADM conc file 1'
+            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         ENDIF
+      ENDDO
+      
+      DO C = 1 , NCOLS_IN
+         CALL RDSLAB( RF2, CONCIN( 1, 1, NSPC1 + 1, C ), SLAB2, LERR )
+         IF( LERR ) THEN
+            MSG = 'ERROR: Could not read slab from RADM conc file 2'
+            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         ENDIF
+      ENDDO
+
+      RDATE = 1900000 + R1DATE
+      RTIME = R1TIME
+
+      IF( RDATE .GT. SDATE ) THEN
+         MSG = 'ERROR: Starting date not on RADM conc files'
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ELSEIF( RDATE .LT. SDATE ) THEN         
+         GO TO 100
+      ELSEIF( RDATE .EQ. SDATE ) THEN
+         IF( RTIME .LT. STIME ) THEN
+            GO TO 100 
+         ELSEIF( RTIME .GT. STIME ) THEN
+            MSG = 'ERROR: Starting time not on RADM conc files'
+            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         ELSE
+            GO TO 300
+         ENDIF
+      ENDIF
+
+  200 MSG = 'ERROR: Could not read Time step header on RADM conc file 1'
+      CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+
+  220 MSG = 'ERROR: EOF encountered on RADM conc file 1'
+      CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+
+  240 MSG = 'ERROR: Could not read Time step header on RADM conc file 2'
+      CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+
+  260 MSG = 'ERROR: EOF encountered on RADM conc file 2'
+      CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+           
+  300 CONTINUE
+
+      WRITE( LOGUNIT, 92040 )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call the routine to open the Models3 IC output file; the last 
+c  argument species the root of the output file name
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc     
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
+     &                  SPNAME_OUT, BC_FNAME, 1 )  
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Compute the number of time steps needed
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( RUNLEN .LT. 1000000 ) THEN
+         TOTSECS  = TIME2SEC( RUNLEN )
+      ELSE                          ! HH > 99
+         RUNLEN = RUNLEN - 1000000
+         TOTSECS  = TIME2SEC( RUNLEN )
+         TOTSECS  = TOTSECS + 360000
+      ENDIF
+
+      STEPSECS = TIME2SEC( TSTEP )
+
+      IF( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
+         NSTEPS = TOTSECS / STEPSECS
+      ELSE
+         MSG = 'Output time step ' // HHMMSS( TSTEP  ) //
+     &         ' does not divide duration ' // HHMMSS( RUNLEN )
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Top of loop over output time steps
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO STEP = 1, NSTEPS + 1
+
+c..Load the BCIN array
+         DO NBND = 1, NBNDY
+            DO L = 1, NLAYS_IN
+               DO ISP = 1, NSPCS_IN
+                  BCIN( NBND, L, ISP ) = CONCIN( ROW_LOC( NBND ), L, ISP,
+     &                                           COL_LOC( NBND ) )
+               ENDDO
+            ENDDO
+         ENDDO
+
+c..Do the vertical interpolation
+         CALL VINTERP( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, 
+     &                 NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
+     &                 BCVI )
+  
+c..Write the output BC concentrations
+         DO N = 1, NSPCS_OUT
+
+            FLN = ( N - 1 ) / MXVARS3 + 1
+            VNAME = SPNAME_OUT( N )
+           
+            IF( LCONVSP( N ) ) THEN
+
+               IND = INDEX1( MCNV_SPCS( N, 1 ), NSPCS_IN, INFL_SP_NAME )
+
+               DO L = 1, NLAYS
+                  DO NBND = 1, NBNDY
+                     COUT( NBND, L ) = MCNV_COEFF( N, 1 ) * 
+     &                                 BCVI( NBND, L, IND )
+                     IF( COUT( NBND, L ) .LT. 0.0 ) LNEG = .TRUE.
+                  ENDDO
+               ENDDO
+
+               IF( N_MCNV_SP( N ) .GT. 1 ) THEN
+
+                  DO SPC = 2, N_MCNV_SP( N ) 
+
+                     IND = INDEX1( MCNV_SPCS( N, SPC ), NSPCS_IN, INFL_SP_NAME )
+
+                     DO L = 1, NLAYS
+                        DO NBND = 1, NBNDY
+                           COUT( NBND, L ) = COUT( NBND, L ) +
+     &                                       MCNV_COEFF( N, SPC ) * 
+     &                                       BCVI( NBND, L, IND )
+                           IF( COUT( NBND, L ) .LT. 0.0 ) LNEG = .TRUE.
+                        ENDDO
+                     ENDDO
+
+                  ENDDO
+
+               ENDIF
+
+            ELSE
+
+               IND = SPMAP( N )
+
+               DO L = 1, NLAYS
+                  DO NBND = 1, NBNDY
+                     COUT( NBND, L ) = BCVI( NBND, L, IND )
+                     IF( COUT( NBND, L ) .LT. 0.0 ) LNEG = .TRUE.
+                  ENDDO
+               ENDDO
+
+            ENDIF
+
+            IF( .NOT. WRITE3( BC_FNAME( FLN ), VNAME, JDATE, JTIME,
+     &                     COUT( 1, 1 ) ) ) THEN
+               MSG =  'Could not WRITE species ' //  VNAME // 
+     &                'to file ' // BC_FNAME( FLN ) 
+               CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            ENDIF
+
+         ENDDO
+
+c..Update the time and read the next slab if necessary
+         CALL NEXTIME( JDATE, JTIME, TSTEP )
+
+         IF( STEP .LT. NSTEPS + 1 ) THEN
+
+            READ( RF1, ERR = 200, END = 220 ) RF1_TS_HDR
+            READ( RF2, ERR = 240, END = 260 ) RF2_TS_HDR
+
+            READ( RF1_TS_HDR, '( I5, I6 ) ' ) R1DATE, R1TIME
+            READ( RF2_TS_HDR, '( I5, I6 ) ' ) R2DATE, R2TIME
+
+            IF( R1DATE .NE. R2DATE .OR. R1TIME .NE. R2TIME ) THEN
+               MSG = 'ERROR: Time steps out of sync on RADM conc files'
+               CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            ENDIF
+
+            RDATE = 1900000 + R1DATE
+            RTIME = R1TIME
+
+            IF( RDATE .NE. JDATE .OR. RTIME .NE. JTIME ) THEN
+               MSG = 'ERROR: Next step not found on RADM conc files'
+               CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            ENDIF
+
+            DO C = 1 , NCOLS_IN
+               CALL RDSLAB( RF1, CONCIN( 1, 1, 1, C ), SLAB1, LERR )
+               IF( LERR ) THEN
+                  MSG = 'ERROR: Could not read slab from RADM conc file 1'
+                  CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+               ENDIF
+            ENDDO
+      
+            DO C = 1 , NCOLS_IN
+               CALL RDSLAB( RF2, CONCIN( 1, 1, NSPC1 + 1, C ), SLAB2, LERR )
+               IF( LERR ) THEN
+                   MSG = 'ERROR: Could not read slab from RADM conc file 2'
+                  CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+               ENDIF
+            ENDDO
+
+         ENDIF
+
+      ENDDO      ! End of time step loop
+
+      IF( LNEG ) THEN
+         MSG = 'ERROR: Negative concentrations for ICs detected'
+         CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Free memory and return
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#ifdef _CRAY  
+      CALL HPDEALLC( PTR1, ERRCODE, ABORT )
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94020 ) '1', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPDEALLC( PTR2, ERRCODE, ABORT )
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94020 ) '2', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPDEALLC( PTR3, ERRCODE, ABORT )
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94020 ) '3', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPDEALLC( PTR4, ERRCODE, ABORT )
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94020 ) '4', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL HPDEALLC( PTR5, ERRCODE, ABORT )
+      IF( ERRCODE .NE. 0 ) THEN
+         WRITE( MSG, 94020 ) '5', ERRCODE
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+#else
+
+      CALL FREE ( PTR1 ) 
+      CALL FREE ( PTR2 ) 
+      CALL FREE ( PTR3 ) 
+      CALL FREE ( PTR4 ) 
+
+#endif
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  RADM File synchronization section'
+     &         / 1X, 79( '#' )
+     &         / 5X, 'Looking for SDATE = ', I7, ' and STIME = ',I6,
+     &               ' on RADM conc files' )
+92020 FORMAT( // 5X,'Read File 1 time step header for: ', I5, ' ' ,I6 
+     &         / 5X,'Read File 2 time step header for: ', I5, ' ' ,I6 ) 
+
+92040 FORMAT( // 1X, 'Starting time found on RADM conc files' )
+
+94000 FORMAT( ' HPALLOC Failure for PTR', A, ':  Error code= ', I3 )
+94020 FORMAT( ' HPDEALLC Failure for PTR', A, ':  Error code= ', I3 )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

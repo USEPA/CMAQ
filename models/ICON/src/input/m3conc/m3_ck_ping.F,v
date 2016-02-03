@@ -1,0 +1,447 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/input/m3conc/m3_ck_ping.F,v 1.2 2002/04/12 14:13:14 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE CK_PING_FLS( LOGUNIT, SDATE, STIME, N_CTM_FLS,
+     &                        CTM_FL_NAME,  N_PING_FLS,  PING_FL_NAME,
+     &                        NSEGS )
+
+C*************************************************************************
+C
+C  FUNCTION: To check input PING files for consistency with m3 CONC files
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, May, 1999
+C                   C*************************************************************************
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+
+      INCLUDE 'IC_PARMS.EXT'    ! BCON paramters
+
+C..ARGUMENTS:
+      CHARACTER*16  CTM_FL_NAME( * )              ! Names of CTM files
+      CHARACTER*16  PING_FL_NAME( MXCTMS )        ! Names of CTM files
+
+      INTEGER LOGUNIT                 ! Unit number for output log
+      INTEGER N_CTM_FLS               ! Number of input CTM files
+      INTEGER N_PING_FLS              ! No. of PinG files
+      INTEGER NSEGS                   ! No. of plume segments on CTM_PING file
+      INTEGER SDATE                   ! Start date
+      INTEGER STIME                   ! Start time
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER INDEX1        ! Finds index of an element in a vector
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  ENV_DFLT          ! Environment variable default value
+      CHARACTER*80  ENV_DESC          ! Environment variable description
+      CHARACTER*16  FL_NAME           ! Input file name
+      CHARACTER*80  MSG               ! Log message
+      CHARACTER*16  PNAME             ! Program Name
+      CHARACTER*15  VAL1              ! Character value of real
+      CHARACTER*15  VAL2              ! Character value of real
+      CHARACTER*256 RET_VAL           ! Returned value of environment variable
+
+      CHARACTER*16  CONC_SPC( MXCTMS * MXVARS3 )  ! CTM_CONC species
+      CHARACTER*16  PING_SPC( MXCTMS * MXVARS3 )  ! CTM_PING species
+
+      INTEGER IND         ! Array index
+      INTEGER JDATE       ! Current date
+      INTEGER JTIME       ! Current time
+      INTEGER N, V        ! Loop indices
+      INTEGER NFL         ! File loop index
+      INTEGER SPC, NSPC   ! Species counters
+      INTEGER STATUS      ! Status code
+      INTEGER FTYPE1      ! File 1 file type
+      INTEGER GDTYP1      ! File 1 horizontal grid type
+
+      LOGICAL LERROR      ! Error Flag
+      LOGICAL LSTOP       ! Exit Flag
+      LOGICAL LFIRST      ! First time flag
+ 
+      REAL P_ALP1         ! File 1 map projection parameter      
+      REAL P_BET1         ! File 1 map projection parameter   
+      REAL P_GAM1         ! File 1 map projection parameter
+      REAL XORIG1         ! File 1 X-origin
+      REAL YORIG1         ! File 1 Y-origin
+      REAL XCELL1         ! File 1 X-dimension of cells
+      REAL YCELL1         ! File 1 Y-dimension of cells
+      REAL XCENT1         ! File 1 X-center of coordinate system
+      REAL YCENT1         ! File 1 Y-center of coordinate system
+
+   
+C**********************************************************************
+      DATA PNAME      / 'CK_PING_FLS' /
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write out report data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      MSG = '   PinG Files being checked for consistent header data' 
+      CALL M3MESG( MSG )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get header data for CTM_CONC_1 file and create a list of species 
+c  in all the CTM_CONC files
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( .NOT. DESC3 ( CTM_FL_NAME( 1 ) ) ) THEN
+         MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
+     &         // ' file'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      FTYPE1 = FTYPE3D
+      GDTYP1 = GDTYP3D
+      P_ALP1 = P_ALP3D
+      P_BET1 = P_BET3D
+      P_GAM1 = P_GAM3D
+      XORIG1 = XORIG3D
+      YORIG1 = YORIG3D
+      XCELL1 = XCELL3D
+      YCELL1 = YCELL3D
+      XCENT1 = XCENT3D
+      YCENT1 = YCENT3D
+
+      NSPC = 0
+      DO N = 1, NVARS3D
+         NSPC = NSPC + 1 
+         CONC_SPC( NSPC ) = VNAME3D( N )
+      ENDDO
+
+      DO NFL = 2, N_CTM_FLS
+
+         IF( .NOT. DESC3 ( CTM_FL_NAME( NFL ) ) ) THEN
+            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( NFL ) 
+     &            // ' file'
+            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         ENDIF
+
+         DO N = 1, NVARS3D
+            NSPC = NSPC + 1 
+            CONC_SPC( NSPC ) = VNAME3D( N )
+         ENDDO
+
+      ENDDO
+     
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the number of PinG files
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO N = 1, MXCTMS
+
+         WRITE( FL_NAME, '( ''CTM_PING_'', I1 )' ) N
+         WRITE( ENV_DESC, '( ''PING Concentration file no. '', I1 )' ) N 
+         ENV_DFLT = ' '        
+         CALL ENVSTR( FL_NAME, ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
+
+         IF( STATUS .EQ. 0 ) THEN
+            N_PING_FLS = N_PING_FLS + 1
+            PING_FL_NAME( N_CTM_FLS ) = FL_NAME
+         ENDIF
+     
+      ENDDO
+
+      IF( N_PING_FLS .EQ. 0 ) THEN
+         MSG = 'No PinG CONC files found'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Open each PinG CONC file and check the species
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SPC = 0
+
+      DO N = 1, N_PING_FLS
+
+         IF( .NOT. OPEN3( PING_FL_NAME( N ), FSREAD3, PNAME ) ) THEN
+            MSG = 'Could not open ' // PING_FL_NAME( N ) // ' file'
+            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         ENDIF
+
+         IF( .NOT. DESC3( PING_FL_NAME( N ) ) ) THEN
+            MSG = 'Could not read DESC of  ' // PING_FL_NAME( N ) 
+     &            // ' file'
+            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         ENDIF
+
+         IF( N .EQ. 1 ) NSEGS = NCOLS3D
+
+         DO V = 1, NVARS3D
+            IF( V .LE. NVARS3D - 3 ) THEN 
+               SPC = SPC + 1
+               PING_SPC( SPC ) = VNAME3D( V )
+            ENDIF
+         ENDDO
+
+      ENDDO
+
+
+      LFIRST = .TRUE.
+      DO V = 1, SPC
+         IND = INDEX1( PING_SPC( V ), NSPC, CONC_SPC )
+         IF( IND .EQ. 0 ) THEN
+            IF( LFIRST ) THEN
+                MSG = 'The following species are in the CTM_PING file(s) ' //
+     &                'but not the CTM_CONC file(s):'
+                CALL M3WARN( PNAME, 0, 0, MSG )
+                LFIRST = .FALSE.
+            ENDIF
+            WRITE( LOGUNIT, '( 10X, A )' ) PING_SPC( V )
+         ENDIF
+      ENDDO
+
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Check PinG files
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LSTOP = .FALSE.
+
+      DO NFL = 1, N_PING_FLS
+
+         WRITE( MSG, '( ''     Differences found between files '', A, 
+     &                  '' and '', A, '':'' )' ) CTM_FL_NAME( 1 ), 
+     &         PING_FL_NAME( NFL )
+
+         CALL M3MESG( MSG )
+
+         LERROR = .FALSE.
+
+         IF( .NOT. DESC3 ( PING_FL_NAME( NFL ) ) ) THEN
+            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( NFL ) 
+     &         // ' file'
+            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         ENDIF
+         
+         IF( FTYPE1 .NE. FTYPE3D ) THEN
+            WRITE( LOGUNIT, 94020 ) FTYPE1, N, FTYPE3D
+            LERROR = .TRUE.
+         ENDIF
+
+         IF( GDTYP1 .NE. GDTYP3D ) THEN
+            WRITE( LOGUNIT, 94200 ) GDTYP1, N, GDTYP3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) P_ALP1
+         WRITE( VAL2, 94000 ) P_ALP3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94220 ) P_ALP1, N, P_ALP3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) P_BET1
+         WRITE( VAL2, 94000 ) P_BET3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94240 ) P_BET1, N, P_BET3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) P_GAM1
+         WRITE( VAL2, 94000 ) P_GAM3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94260 ) P_GAM1, N, P_GAM3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) XORIG1
+         WRITE( VAL2, 94000 ) XORIG3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94280 ) XORIG1, N, XORIG3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) YORIG1
+         WRITE( VAL2, 94000 ) YORIG3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94300 ) YORIG1, N, YORIG3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) XCELL1
+         WRITE( VAL2, 94000 ) XCELL3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94320 ) XCELL1, N, XCELL3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) YCELL1
+         WRITE( VAL2, 94000 ) YCELL3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94340 ) YCELL1, N, YCELL3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) XCENT1
+         WRITE( VAL2, 94000 ) XCENT3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94360 ) XCENT1, N, XCENT3D
+            LERROR = .TRUE.
+         ENDIF
+
+         WRITE( VAL1, 94000 ) YCENT1
+         WRITE( VAL2, 94000 ) YCENT3D
+         IF( VAL1 .NE. VAL2 ) THEN
+            WRITE( LOGUNIT, 94380 ) YCENT1, N, YCENT3D
+            LERROR = .TRUE.
+         ENDIF
+ 
+         IF( .NOT. CHECK3(  PING_FL_NAME( NFL ), 'ALL', SDATE, STIME ) ) THEN
+            MSG = 'Requested time is not on the ' // PING_FL_NAME( NFL )
+     &               // ' file'
+            WRITE( LOGUNIT, 94480 ) MSG
+            LERROR = .TRUE.
+         ENDIF
+
+         JDATE = SDATE
+         JTIME = STIME
+             
+         IF( NROWS3D .NE. NPILLARS + 4 ) THEN
+            WRITE( LOGUNIT, 94450 ) N, NROWS3D, NPILLARS + 4
+            LERROR = .TRUE.
+         ENDIF
+
+         IF( NFL .GT. 1 .AND. NCOLS3D .NE. NSEGS ) THEN
+            WRITE( LOGUNIT, 94455 ) NSEGS, N, NCOLS3D 
+            LERROR = .TRUE.
+         ENDIF
+
+         IF( .NOT. LERROR ) THEN
+            WRITE( LOGUNIT, 94460 )
+         ELSE
+            LSTOP = .TRUE.
+         ENDIF
+
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  If inconsistency found, then stop, else return
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( LSTOP ) THEN
+          MSG = 'PinG file inconsistencies detected: stopping' 
+          CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+     
+      RETURN
+
+C************************* FORMAT STATEMENTS **************************
+
+94000 FORMAT( E15.5 )
+
+94020 FORMAT(10X, 'CTM_CONC_1 FTYPE = ', I3, 3X,
+     &            'CTM_PING_', I1, ' FTYPE = ', I3 )
+
+94200 FORMAT(10X, 'CTM_CONC_1 GDTYP = ', I3, 3X,
+     &            'CTM_PING_', I1, ' GDTYP = ', I3 )
+
+94220 FORMAT(10X, 'CTM_CONC_1 P_ALP = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' P_ALP = ', 1PE12.5 )
+
+94240 FORMAT(10X, 'CTM_CONC_1 P_BET = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' P_BET = ', 1PE12.5 )
+
+94260 FORMAT(10X, 'CTM_CONC_1 P_GAM = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' P_GAM = ', 1PE12.5 )
+
+94280 FORMAT(10X, 'CTM_CONC_1 XORIG = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' XORIG = ', 1PE12.5 )
+
+94300 FORMAT(10X, 'CTM_CONC_1 YORIG = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' YORIG = ', 1PE12.5 )
+
+94320 FORMAT(10X, 'CTM_CONC_1 XCELL = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' XCELL = ', 1PE12.5 )
+
+94340 FORMAT(10X, 'CTM_CONC_1 YCELL = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' YCELL = ', 1PE12.5 )
+
+94360 FORMAT(10X, 'CTM_CONC_1 XCENT = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' XCENT = ', 1PE12.5 )
+
+94380 FORMAT(10X, 'CTM_CONC_1 YCENT = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' YCENT = ', 1PE12.5 )
+
+94420 FORMAT(10X, 'CTM_CONC_1 VGTOP = ', 1PE12.5, 3X,
+     &            'CTM_PING_', I1, ' VGTOP = ', 1PE12.5 )
+
+94440 FORMAT(10X, 'CTM_CONC_1 VGLVS(', I2, ' ) = ', 1PE12.5,
+     &            'CTM_PING_', I1, ' VGLVS(', I2, ' ) = ', 1PE12.5 )
+
+94450 FORMAT(10X, 'CTM_PING_', I1, ' NROWS = ' , I4, ' -- MUST BE ', I2 )
+
+94455 FORMAT(10X, 'CTM_PING_1 NCOLS = ' , I4,  3X,
+     &            'CTM_PING_', I1, ' NCOLS = ', I4 )
+
+94460 FORMAT(10X, 'NONE' )
+
+94480 FORMAT( A )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

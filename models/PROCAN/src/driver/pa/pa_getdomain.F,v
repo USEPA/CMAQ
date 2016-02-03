@@ -1,0 +1,349 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_getdomain.F,v 1.3 1998/06/19 11:38:39 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_getdomain.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_getdomain.F 04 Jul 1997 14:13:26
+
+      SUBROUTINE GETDOMAIN
+
+C***********************************************************************
+C
+C  FUNCTION: To process the OUTPUT DOMAIN option 
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: GETCHR
+C                                    GETWORD
+C                                    GETLABEL
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL  
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER TRIMLEN   ! Function to find trailing blanks in a string
+      INTEGER LBLANK    ! Function to find leading blanks in a string
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES: 
+      CHARACTER*( LABLEN )  TEMPSTR  ! Right justified string holder
+
+      INTEGER INTVAL    ! Integer value
+      INTEGER IE1, IE2  ! Pointers to ending character positions 
+      INTEGER IS1, IS2  ! Pointers to starting character positions
+      INTEGER LENM1     ! String length minus 1
+      INTEGER N         ! Loop index for character position
+
+      LOGICAL L_LOCOL   ! Flag for domain specifier
+      LOGICAL L_HICOL   ! Flag for domain specifier
+      LOGICAL L_LOROW   ! Flag for domain specifier
+      LOGICAL L_HIROW   ! Flag for domain specifier
+      LOGICAL L_LOLEV   ! Flag for domain specifier
+      LOGICAL L_HILEV   ! Flag for domain specifier
+
+C***********************************************************************
+
+      L_LOCOL = .FALSE.
+      L_HICOL = .FALSE.
+      L_LOROW = .FALSE.
+      L_HIROW = .FALSE.
+      L_LOLEV = .FALSE.
+      L_HILEV = .FALSE.
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc    
+c  Check for the = sign after OUTPUT_DOMAIN command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( CHR .NE. '=' ) THEN
+         EXITSTAT = 2
+         WRITE( MSG, 94000 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94500 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94020 ) CHR
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+      ELSE
+         CALL GETCHR
+      ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Top of loop for getting domain specifiers; get the keyword and its
+c  "label" and convert to integers 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+   20 CALL GETWORD
+      CALL GETLABEL
+
+c..convert the "label" to an integer
+      DO N = 1, LABLEN
+         TEMPSTR( N : N ) = ' '
+      ENDDO
+      IS1 = LBLANK( LABEL ) + 1
+      IE1 = TRIMLEN( LABEL )
+      LENM1 = IE1 - IS1
+      IS2 = LABLEN - LENM1
+      IE2 = LABLEN
+      TEMPSTR( IS2 : IE2 ) = LABEL( IS1 : IE1 )
+      READ( TEMPSTR, '( 6X, I10 )', ERR = 999 ) INTVAL
+      
+c..check that the keyword is valid
+      IF( WORD .EQ. 'LOCOL' ) THEN
+         BEGCOL = INTVAL
+         L_LOCOL = .TRUE.
+      ELSEIF( WORD .EQ. 'HICOL' ) THEN
+         ENDCOL = INTVAL
+         L_HICOL = .TRUE.
+      ELSEIF( WORD .EQ. 'LOROW' ) THEN
+         BEGROW = INTVAL
+         L_LOROW = .TRUE.
+      ELSEIF( WORD .EQ. 'HIROW' ) THEN
+         ENDROW = INTVAL
+         L_HIROW = .TRUE.
+      ELSEIF( WORD .EQ. 'LOLEV' ) THEN
+         BEGLEV = INTVAL
+         L_LOLEV = .TRUE.
+      ELSEIF( WORD .EQ. 'HILEV' ) THEN
+         ENDLEV = INTVAL
+         L_HILEV = .TRUE.
+      ELSE
+         EXITSTAT = 2
+         WRITE( MSG, 94020 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94500 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94040 ) WORD
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'GETDOMAIN', IZERO, IZERO, ' ', EXITSTAT )
+      ENDIF
+
+c..if the next char is a plus, go back and get the next keyword
+      IF( CHR .EQ. '+' ) THEN
+         CALL GETCHR
+         GO TO 20
+
+
+c..if we have a semicolon; check for valid nos. of cols,rows, and lays.
+c..set default values if they have not been processed and return
+      ELSEIF( CHR .EQ. ';' ) THEN
+
+         IF( .NOT. L_LOCOL ) THEN
+            WRITE( MSG, 94600 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94900 )
+            CALL M3MESG( MSG )
+            BEGCOL = 1
+         ELSEIF( BEGCOL .LE. 0 .OR. BEGCOL .GT. NCOLS ) THEN
+            WRITE( MSG, 94620 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94900 )
+            CALL M3MESG( MSG )
+            BEGCOL = 1
+         ENDIF
+
+         IF( .NOT. L_HICOL ) THEN
+            WRITE( MSG, 94640 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94920 )
+            CALL M3MESG( MSG )
+            ENDCOL = NCOLS
+         ELSEIF( ENDCOL .LE. 0 .OR. ENDCOL .GT. NCOLS ) THEN
+            WRITE( MSG, 94660 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94920 )
+            CALL M3MESG( MSG )
+            ENDCOL = NCOLS
+         ENDIF
+
+         IF( .NOT. L_LOROW ) THEN
+            WRITE( MSG, 94680 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94900 )
+            CALL M3MESG( MSG )
+            BEGROW = 1
+         ELSEIF( BEGROW .LE. 0 .OR. BEGROW .GT. NROWS ) THEN
+            WRITE( MSG, 94700 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94900 )
+            CALL M3MESG( MSG )
+            BEGROW = 1
+         ENDIF
+
+         IF( .NOT. L_HIROW ) THEN
+            WRITE( MSG, 94720 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94920 )
+            CALL M3MESG( MSG )
+            ENDROW = NROWS
+         ELSEIF( ENDROW .LE. 0 .OR. ENDROW .GT. NROWS ) THEN
+            WRITE( MSG, 94740 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94920 )
+            CALL M3MESG( MSG )
+            ENDROW = NROWS
+         ENDIF
+
+         IF( .NOT. L_LOLEV ) THEN
+            WRITE( MSG, 94760 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94900 )
+            CALL M3MESG( MSG )
+            BEGLEV = 1
+         ELSEIF( BEGLEV .LE. 0 .OR. BEGLEV .GT. NLAYS ) THEN
+            WRITE( MSG, 94780 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94900 )
+            CALL M3MESG( MSG )
+            BEGLEV = 1
+         ENDIF
+
+         IF( .NOT. L_HILEV ) THEN
+            WRITE( MSG, 94800 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94920 )
+            CALL M3MESG( MSG )
+            ENDLEV = NLAYS
+         ELSEIF( ENDLEV .LE. 0 .OR. ENDLEV .GT. NLAYS ) THEN
+            WRITE( MSG, 94820 )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94920 )
+            CALL M3MESG( MSG )
+            ENDLEV = NLAYS
+         ENDIF
+
+         CALL GETCHR
+         RETURN
+
+c..if we get here, there is an error
+      ELSE
+         EXITSTAT = 2
+         WRITE( MSG, 94040 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94500 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94520 ) CHR
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'GETDOMAIN', IZERO, IZERO, ' ', EXITSTAT )
+      ENDIF
+
+c..read error section
+  999 CONTINUE
+      EXITSTAT = 2
+      WRITE( MSG, 94060 ) 
+      CALL M3MESG( MSG )
+      WRITE( MSG, 94500 ) LINNUM, INBUF
+      CALL M3MESG( MSG )
+      WRITE( MSG, 94560 ) LABEL
+      CALL M3MESG( MSG )
+      CALL M3EXIT( 'GETDOMAIN', IZERO, IZERO, ' ', EXITSTAT )
+
+
+
+C*********************** FORMAT STATEMENTS ***************************** 
+
+   
+
+94000 FORMAT( 'ERROR: Equal sign expected after OUTPUT_DOMAIN' )
+94020 FORMAT( 'ERROR: Domain specifiers must be LOCOL, HICOL, LOWROW,',
+     &              ' HIROW, LOLEV, or HILEV' )
+94040 FORMAT( 'ERROR: Expecting a + or ; after a domain specifier' )
+94060 FORMAT( 'ERROR: Domain size value must be an integer' )
+     &
+94500 FORMAT( '       Line No. ', I4, ': ', A )
+94520 FORMAT( '       Character found: ', A )
+94540 FORMAT( '       Word found: ', A )
+94560 FORMAT( '       Number found: ', A )
+
+94600 FORMAT( 'WARNING: LOCOL not specified in OUTPUT_DOMAIN' )
+94620 FORMAT( 'WARNING: LOCOL improperly specified in OUTPUT_DOMAIN' )
+94640 FORMAT( 'WARNING: HICOL not specified in OUTPUT_DOMAIN' )
+94660 FORMAT( 'WARNING: HICOL improperly specified in OUTPUT_DOMAIN' )
+94680 FORMAT( 'WARNING: LOROW not specified in OUTPUT_DOMAIN' )
+94700 FORMAT( 'WARNING: LOROW improperly specified in OUTPUT_DOMAIN' )
+94720 FORMAT( 'WARNING: HIROW not specified in OUTPUT_DOMAIN' )
+94740 FORMAT( 'WARNING: HIROW improperly specified in OUTPUT_DOMAIN' )
+94760 FORMAT( 'WARNING: LOLEV not specified in OUTPUT_DOMAIN' )
+94780 FORMAT( 'WARNING: LOLEV improperly specified in OUTPUT_DOMAIN' )
+94800 FORMAT( 'WARNING: HILEV not specified in OUTPUT_DOMAIN' )
+94820 FORMAT( 'WARNING: HILEV improperly specified in OUTPUT_DOMAIN' )
+
+94900 FORMAT( '         The domain minimum will be used.' )
+94920 FORMAT( '         The domain maximum will be used.' )
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

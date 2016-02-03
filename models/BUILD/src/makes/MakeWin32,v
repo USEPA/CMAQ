@@ -1,0 +1,65 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# SHELL = /bin/sh
+
+win32.lst : bld_parser.c bld_scanner.c sms.c action.c parser.c m3bld.c module.c
+	@@echo "copy these file to Win32 platform and compile"
+	@@echo " m3bld.c"
+	@@echo " bld_parser.c"
+	@@echo " bld_scanner.c"
+	@@echo " action.c"
+	@@echo " parser.c"
+	@@echo " sms.c"
+	@@echo " module.c"
+	@@echo " fw_util.c"
+	@@echo " edssTypes.h"
+	@@echo " sms.h"
+	@@echo " softwareVersion.h"
+	@@echo " tokens.h"
+	@@echo " utsname.h"
+
+bld_parser.c:	bld_parser.y win32.sed
+	yacc -vtdl bld_parser.y
+	mv y.tab.h tokens.h
+	sed -f win32.sed < y.tab.c > bld_parser.c
+
+bld_scanner.c:	bld_scanner.l
+	lex bld_scanner.l
+	mv lex.yy.c bld_scanner.c
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

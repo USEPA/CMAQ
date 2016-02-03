@@ -1,0 +1,312 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/input/profile/prof_icout.F,v 1.9 2006/06/10 11:10:58 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE ICOUT( LOGUNIT,
+     &                  SDATE, STIME,
+     &                  NSPCS_IN,
+     &                  N_GC_CONV,
+     &                  NSPCS_OUT,  
+     &                  SPMAP,
+     &                  N_MCNV_SP,
+     &                  SFAC,
+     &                  MCNV_COEFF,
+     &                  LCONV, 
+     &                  LSCALE,
+     &                  LCONVSP,
+     &                  PROF_FL_NAME,
+     &                  EXT_IC_NAME, 
+     &                  PROF_SP_NAME,
+     &                  MCNV_SPCS,
+     &                  SPNAME_OUT )
+
+C*************************************************************************
+C
+C  FUNCTION: Reads the input profile concentration file and opens and
+C            writes the output IC file
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: OPN_IC_FILE
+C                                    PROF_VINTERP   
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C                    Modified April 1998 by JG to remove ppb option for 
+C                       input profile file
+C                    Modified 4/22/99 by JG to provide default treatment
+C                      for missing SDATE and STIME
+C                    Modified 04/20/00 by David Wong, LM
+C                      -- enable parallelization
+C                    01/24/02 Steve Howard (Jeff Young) - dynamic allocation
+C                    12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
+C
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN             ! vertical layer specifications
+
+      IMPLICIT NONE     
+
+C Include Files:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+#include      SUBST_IODECL      # IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+!     INCLUDE SUBST_VGRD_ID     ! Vertical grid
+!     INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+      INCLUDE SUBST_GC_SPC      ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC      ! aerosol species table
+      INCLUDE SUBST_NR_SPC      ! non-reactive species table
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+
+      INCLUDE 'IC_PARMS.EXT'    ! ICON paramters
+
+C Arguments: 
+      CHARACTER( * ) :: EXT_IC_NAME( * )            ! Names of IC species
+      CHARACTER( * ) :: SPNAME_OUT( * )             ! Ouput file species names
+      CHARACTER( * ) :: PROF_SP_NAME( * )           ! Profile species names
+      CHARACTER( * ) :: MCNV_SPCS( N_GC_SPCD, * )   ! Mech conv species names
+      CHARACTER( * ) :: PROF_FL_NAME                ! Input profile file name
+
+      INTEGER LOGUNIT          ! Unit number for output log
+      INTEGER N_GC_CONV        ! No. of GC species for conversion 
+      INTEGER NSPCS_IN         ! Total No. of species in input conc file(s)
+      INTEGER NSPCS_OUT        ! Number of IC species on output file(s)
+      INTEGER SDATE            ! Date for IC Output
+      INTEGER STIME            ! Time for IC output
+
+      INTEGER SPMAP( * )      ! Map to input file species from IC species
+      INTEGER N_MCNV_SP( * )  ! No. of mech input species for each
+                               ! mech output species
+
+      LOGICAL LCONV            ! Flag for mech conversion
+      LOGICAL LCONVSP( * )     ! Flag for species mech conversion
+      LOGICAL LSCALE( * )      ! Flag for scaling input concs 
+
+      REAL MCNV_COEFF( N_GC_SPCD, * )    ! Mech conv species coefficients
+      REAL SFAC( * )                     ! Scale factor for input concs
+
+C Parameters:
+      INTEGER, PARAMETER :: NSPCS = N_GC_SPC  ! Total number of species in EXTs
+     &                            + N_AE_SPC 
+     &                            + N_NR_SPC 
+     &                            + N_TR_SPC
+
+      INTEGER, PARAMETER :: NSPCSD = N_GC_SPCD  ! Dimension for total no. of species
+     &                             + N_AE_SPCD 
+     &                             + N_NR_SPCD 
+     &                             + N_TR_SPCD
+
+C External Functions: 
+      INTEGER, EXTERNAL :: INDEX1             ! Looks up name in table
+      INTEGER, EXTERNAL :: JUNIT              ! Gets file unit number
+
+ 
+C Local Variables:
+      CHARACTER( 80 ) :: MSG = ' '            ! Log message
+      CHARACTER( 16 ) :: PNAME = 'PROF_ICOUT' ! Program Name
+      CHARACTER( 16 ) :: PROF_SP              ! Species name on profile file
+      CHARACTER( 16 ) :: VNAME                ! Species name on CTM conc file
+      CHARACTER( 16 ) :: IC_FNAME( MXCTMS ) ! Logical names of IC Output file(s) 
+      INTEGER  C             ! Column loop indices
+      INTEGER  FLN           ! IC output file number
+      INTEGER  IND           ! Array indices for species
+      INTEGER  L             ! Layer loop index
+      INTEGER  N, SPC        ! Loop indices for species
+      INTEGER  NLEVS_IN      ! No. of layers in input conc file
+      INTEGER  PFILE         ! Unit number of profile file   
+      INTEGER  R             ! Row loop indices
+      INTEGER  STATUS        ! Status code
+
+      LOGICAL  LNEG          ! Flag for negative concentrations
+
+      REAL VGLVS_IN( MXLAYS3 + 1 )        ! Input vertical levels
+      REAL COUT( NCOLS,NROWS,NLAYS )    ! Substituted output IC conc
+      REAL INPROF( MXLAYS3,MX_INFL_SP )  ! Input conc profiles  
+      REAL VIPROF( NLAYS,MX_INFL_SP )    ! Vertically interpolated profiles
+                            
+C**********************************************************************
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Read the input profile file data  
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PFILE = JUNIT()
+
+      OPEN( UNIT = PFILE, FILE = PROF_FL_NAME , 
+     &       STATUS = 'OLD', ERR = 999 )
+
+      DO N = 1, 3
+         READ( PFILE,94000 ) 
+      END DO
+
+      READ( PFILE,* ) NLEVS_IN, SPC, ( VGLVS_IN( L ),
+     &                 L = 1, NLEVS_IN + 1 )
+
+      READ( PFILE,* ) 
+
+      DO SPC = 1, NSPCS_IN
+         READ( PFILE, * ) PROF_SP, ( INPROF( L,SPC ), L = 1, NLEVS_IN )
+      END DO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the vertical interpolation
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL PROF_VINTERP( LOGUNIT, NSPCS_IN, NLEVS_IN, VGLVS_IN, INPROF,
+     &                   VIPROF )      
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call the routine to open the Models3 IC output file
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+      SDATE = 0
+      STIME = 0
+      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, SPNAME_OUT,
+     &                  IC_FNAME, 1 )  
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the output IC concentrations
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc   
+      LNEG = .FALSE.
+
+      DO N = 1, NSPCS_OUT
+
+         FLN = ( N - 1 ) / MXVARS3 + 1
+         VNAME = SPNAME_OUT( N )
+           
+         IF ( LCONVSP( N ) ) THEN
+
+            IND = INDEX1( MCNV_SPCS( N, 1 ), NSPCS_IN, PROF_SP_NAME )
+
+            DO L = 1, NLAYS
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     COUT( C,R,L ) = MCNV_COEFF( N,1 ) * VIPROF( L,IND )
+                     IF( COUT( C,R,L ) .LT. 0.0 ) LNEG = .TRUE.
+                  END DO
+               END DO
+            END DO
+
+            IF ( N_MCNV_SP( N ) .GT. 1 ) THEN
+
+               DO SPC = 2, N_MCNV_SP( N ) 
+
+                  IND = INDEX1( MCNV_SPCS( N,SPC ), NSPCS_IN, PROF_SP_NAME )
+
+                  DO L = 1, NLAYS
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           COUT( C,R,L ) = COUT( C,R,L )
+     &                                   + MCNV_COEFF( N,SPC )
+     &                                   * VIPROF( L,IND )
+                           IF ( COUT( C,R,L ) .LT. 0.0 ) LNEG = .TRUE.
+                        END DO
+                     END DO
+                  END DO
+
+               END DO
+
+            END IF
+            
+         ELSE
+
+            IND = SPMAP( N )
+
+            DO L = 1, NLAYS
+               DO R = 1, MY_NROWS
+                  DO C = 1, MY_NCOLS
+                     COUT( C,R,L ) = VIPROF( L,IND )
+                     IF( COUT( C,R,L ) .LT. 0.0 ) LNEG = .TRUE.
+                  END DO
+               END DO
+            END DO
+       
+         END IF
+
+
+         IF( .NOT. WRITE3( IC_FNAME( FLN ), VNAME, SDATE, STIME,
+     &                     COUT( 1,1,1 ) ) ) THEN
+            MSG =  'Could not WRITE species ' //  VNAME // 
+     &             'to file ' // IC_FNAME( FLN ) 
+            CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+         END IF
+
+      END DO
+
+      IF ( LNEG ) THEN
+         MSG = 'Negative ICs output'
+         STATUS = 1
+         CALL M3EXIT( PNAME, 0, 0,' ', STATUS )
+      END IF
+
+      RETURN
+
+  999 CONTINUE 
+
+      MSG = 'Could not open file ' // PROF_FL_NAME
+      STATUS = 2
+      CALL M3EXIT( PNAME, 0, 0,' ', STATUS )
+
+C************************* FORMAT STATEMENTS ***************************
+
+94000 FORMAT( 1X )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

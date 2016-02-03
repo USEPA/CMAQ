@@ -1,0 +1,488 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/TOOLS/src/sitecmp/module_sites.F,v 1.4 2010/01/07 18:29:27 sjr Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C*************************************************************************
+C
+C  MODULE: defines site data
+C             
+C*************************************************************************
+      MODULE SITE_DATA
+
+      INTEGER  NSITES
+
+      CHARACTER*256   SITE_FNAME  
+
+      CHARACTER*10, ALLOCATABLE :: SITE( : )
+
+      INTEGER, ALLOCATABLE :: TZ( : ) 
+      INTEGER, ALLOCATABLE :: COL( : )
+      INTEGER, ALLOCATABLE :: ROW( : )
+
+      REAL, ALLOCATABLE :: LAT( : )   
+      REAL, ALLOCATABLE :: LON( : ) 
+      REAL, ALLOCATABLE :: SX( : )  
+      REAL, ALLOCATABLE :: SY( : )  
+
+
+      CONTAINS
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Subroutine to get data from file type 1
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+         SUBROUTINE FL_TYP1
+C*************************************************************************
+C
+C  FUNCTION:  To provide site data
+C             
+C*************************************************************************
+         USE ENV_VARS
+
+         IMPLICIT NONE 
+
+C..INCLUDES:  
+         INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+         INCLUDE SUBST_IOFDESC     ! IOAPI file description
+         INCLUDE SUBST_IODECL      ! IOAPI declarations
+
+      
+C..ARGUMENTS: None
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+         INTEGER JUNIT    ! Get a Fortran unit number
+         INTEGER getNumberOfFields
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+         CHARACTER*80    RECORD       ! input record buffer
+         CHARACTER*80    FIELD        ! input field
+         CHARACTER*16    ENV_DFLT     ! Environment variable default value
+         CHARACTER*16    PNAME        ! Program Name
+         CHARACTER*80    ENV_DESC     ! Environment variable description
+         CHARACTER*80    MSG          ! Error message
+         CHARACTER*256   RET_VAL      ! Returned value of environment variable
+
+         INTEGER   NFIELDS
+         INTEGER   LFN   
+         INTEGER   N   
+         INTEGER   NN   
+         INTEGER   STATUS  
+         INTEGER   TZONE  
+
+         Integer   numsites
+         Character*(10)              ::    prevSite
+         Character*(10), allocatable ::    idfld(:)
+         Real, allocatable           ::    lonfld(:)
+         Real, allocatable           ::    latfld(:)
+         Integer, allocatable        ::    tzfld(:)
+         Logical, allocatable        ::    active(:)   
+
+         Integer                     ::    siteField
+         Integer                     ::    t
+         Character*(10)              ::    ftypes(10)
+         Character*(10)              ::    sitehdrs(10)
+
+         Data ftypes /'CASTNET', 'SEARCH', 'IMPROVE', 'NADP', 'AIRMON', 'STN', 
+     &                'MDN', 'MET', 'DEARS', 'OUTPUT'/
+
+         Data sitehdrs /'site_id', 'site_id', 'site_code', 'SiteID', 'Site', 'SITE',
+     &                  'siteID', 'site_id', 'PID', 'SiteId'/
+
+C**********************************************************************
+         DATA  PNAME       / 'FL_TYP1'  /
+         LFN = JUNIT()
+         SITE_FNAME = SITE_FILE
+
+         OPEN(unit=lfn, file=SITE_FNAME, status='old', iostat=status)
+         if(status.ne.0) then
+           MSG = 'Cannot open site file:' // trim(SITE_FNAME)
+           CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+           endif
+
+         !  read file to determine number of sites
+         numsites = 0
+         DO
+           READ( LFN, '(A)', iostat=status ) RECORD
+           if(status.ne.0) EXIT
+           Call getField(record, char(9), 1, field)
+           nfields = getNumberOfFields(record, char(9))
+           IF(nfields.ge.3 .and. LEN_TRIM(field).ge.3) numsites = numsites + 1
+           ENDDO
+      
+         if( numsites.eq.0 ) then
+           write(*,'(''**ERROR**, No sites found in site file:'',a)') trim(SITE_FNAME)
+           Stop
+           endif
+
+ 
+         ALLOCATE( idfld( numsites ), lonfld( numsites ), latfld( numsites ) )
+         ALLOCATE( tzfld( numsites ), active( numsites) )
+
+         active = .false.
+
+         REWIND( LFN )
+         ! read all site data from LFN
+         N = 0
+         DO
+            READ( LFN, '(A)', iostat=status ) RECORD
+            if( status.ne.0 ) EXIT
+
+            nfields = getNumberOfFields(record, char(9))
+            Call getField(record, char(9), 1, field)
+            IF(nfields.ge.3 .and. LEN_TRIM(field).ge.3) THEN
+               N = N + 1
+               idfld( N ) = field
+               Call getField(record, char(9), 2, field)
+               read(field,'(f16.0)',iostat=status) lonfld(n)
+               if( status.ne.0 ) then
+                 write(*,'(''**WARNING**  Invalid site record:'',a)') TRIM(record)
+                 CYCLE
+                 endif
+
+               Call getField(record, char(9), 3, field)
+               read(field,'(f16.0)',iostat=status) latfld(n)
+               if( status.ne.0 ) then
+                 write(*,'(''**WARNING**  Invalid site record:'',a)') TRIM(record)
+                 CYCLE
+                 endif
+
+               ! compute Time zone offset from longitude
+               tzfld(n) = -(lonfld(n)+7.5) / 15
+
+               ! try to read Time zone offset from field 4
+               if(nfields.eq.4) then
+                 Call getField(record, char(9), 4, field)
+                 READ(field, '(BN,i10)', iostat=status) tzone
+                 if(status.eq.0 .and. field.ne.' ') tzfld(n) = tzone
+                 endif
+
+               endif
+            enddo
+
+         close(unit=LFN)
+         write(*,'(i6,'' total sites read'')') numsites
+
+         OPEN(unit=lfn, file=IN_TABLE, status='old', iostat=status)
+         if(status.ne.0) then
+           MSG = 'Cannot open site file:' // trim(IN_TABLE)
+           CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+           endif
+
+         ! find table type index t
+         do n=1,SIZE(ftypes)
+           if( TABLE_TYPE.eq.ftypes(n) ) t = n
+           enddo
+
+         ! determine location of site field in table file
+         siteField = 0
+
+         do
+           read(lfn,'(a)',iostat=status) record
+           if( status.ne.0 ) then
+             write(*,'(''**ERROR** Invalid table header in table file'')')
+             Stop
+             endif
+
+           call rmCommas(record)
+           nfields = getNumberOfFields(record, ',')
+
+           if( nfields.lt.3 ) CYCLE
+
+
+           if( INDEX(record,TRIM(sitehdrs(t))).gt.0 ) then
+             Do n=1,nfields
+               call getField(record, ',', n, field)
+               call rmQuots( field )
+               call LeftTrim(field)
+               if( INDEX(field,TRIM(sitehdrs(t))).gt.0 ) siteField = n
+               EndDo
+             EndIf
+           if( siteField.gt.0 ) EXIT
+           enddo
+
+
+         ! read table file and check for active sites
+         prevSite = ' '
+         do
+           read(lfn,'(a)',iostat=status) record
+           if( status.ne.0 ) EXIT
+           call rmCommas(record)
+
+           Call getField(record, ',', siteField, field )
+           call rmQuots( field )
+           if( field .eq. prevSite ) CYCLE
+
+           do n=1,numsites
+             if( field .eq. idfld(n) ) then
+               active(n) = .true.
+               EXIT
+               endif
+             enddo
+           prevSite = field
+           enddo
+
+         !  count number of active sites
+         nsites = 0
+         do n=1,numsites
+           if( active(n) ) nsites = nsites + 1
+           enddo
+
+
+         ! build list of active sites
+         ALLOCATE( SITE( nsites ), TZ( nsites ), LON( nsites ), LAT( nsites ) )
+
+         nn = 0
+         do n=1,numsites
+           if( active(n) ) then
+             nn = nn + 1
+             SITE(nn) = idfld(n)
+             TZ(nn) = tzfld(n)
+             LON(nn) = lonfld(n)
+             LAT(nn) = latfld(n)
+             endif
+           enddo
+
+
+         write(*,'(i6,'' active sites loaded'')') NSITES
+
+         close(lfn)
+         RETURN
+
+         END SUBROUTINE FL_TYP1
+
+
+         SUBROUTINE SET_SITE_LOC
+
+C*************************************************************************
+C
+C  FUNCTION: Finds the col and row location of each site
+C             
+C*************************************************************************
+         USE ENV_VARS
+         USE M3FILES
+         USE GRID_DATA
+         IMPLICIT NONE     
+
+C..INCLUDE FILES:
+         INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+         INCLUDE SUBST_IOFDESC     ! IOAPI file description
+         INCLUDE SUBST_IODECL      ! IOAPI declarations
+
+C..ARGUMENTS: None
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+         CHARACTER*24  DT2STR    ! Convert M3 date & time to string
+
+         INTEGER JUNIT           ! Get a Fortran unit number
+         INTEGER TRIMLEN         ! Get last non-blank character pos in string
+
+         LOGICAL SETLAM          ! Sets up Lambert projection
+         LOGICAL LL2LAM          ! Gets Lambert projection from LAT/LON
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+         CHARACTER*24  CRDATE      ! Create date
+         CHARACTER*80  MSG         ! Log message
+         CHARACTER*16  PNAME       ! Program Name
+         CHARACTER*256   RET_VAL   ! Returned value of environment variable
+
+         INTEGER   C, R, N         ! Loop indices
+         INTEGER   IOUT            ! Output file unit number
+         INTEGER   JDATE           ! Create date YYYYDDD
+         INTEGER   JTIME           ! Create timeHHMMSS
+
+         REAL   LATIN           ! Input lat
+         REAL   LONIN           ! Input lon
+         REAL   X               ! x-coordinate for lambert projection
+         REAL   Y               ! y-coordinate for lambert projection
+         REAL   XW, XE          ! X-coordinates of grid cell edges  
+         REAL   YS, YN          ! Y-coordinates of grid cell edges  
+
+   
+C**********************************************************************
+         DATA PNAME / 'SET_SITE_LOC' /
+
+         ALLOCATE( COL( NSITES ), ROW( NSITES ), SX( NSITES ), SY( NSITES ) )
+
+         IF( .NOT. SETLAM( SNGL( M3GRID % P_ALP ),     !  first, initialize
+     &                  SNGL( M3GRID % P_BET ),        !  for LAM2LL()
+     &                  SNGL( M3GRID % P_GAM ),
+     &                  SNGL( M3GRID % XCENT ), 
+     &                  SNGL( M3GRID % YCENT ) ) ) THEN
+            MSG = 'Lambert projection setup error'
+            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+         ENDIF
+
+         DO N = 1, NSITES
+
+c..for now make sure longitude is negative
+            LONIN = MIN( LON( N ), -1.0 * LON( N ) )
+            LATIN = LAT( N )
+         
+c..get the x,y coordinates using lat/lon to lambert conversion
+            IF( .NOT. LL2LAM( LONIN, LATIN, X, Y ) ) THEN
+               MSG = 'Lat/Lon to Lambert to conversion error'
+               CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+            ENDIF         
+
+c..save x,y cooridinates
+            SX( N ) = X
+            SY( N ) = Y
+
+c..find the column location 
+            COL( N )  = 0
+            DO C = 1, NCOLS3D
+               XW = M3GRID % XORIG + FLOAT( C - 1 ) * M3GRID % XCELL 
+               XE = XW + M3GRID % XCELL
+               IF( X .GE. XW .AND. X .LT. XE ) COL( N ) = C
+            ENDDO
+
+c..find the row location 
+            ROW( N ) = 0
+            DO R = 1, NROWS3D
+               YS = M3GRID % YORIG + FLOAT( R - 1 ) * M3GRID % YCELL 
+               YN = YS + M3GRID % YCELL
+               IF( Y .GE. YS .AND. Y .LT. YN ) ROW( N ) = R
+            ENDDO
+
+           ! Write(*,'(a,2f10.4,2i5)') SITE(N),LON(N),LAT(N), COL(N), ROW(N)
+         ENDDO
+
+         RETURN
+
+92000 FORMAT( '! INPUT M3 FILE ', I2, ': ', A )
+92020 FORMAT( '! INPUT SITE FILE: ', A )
+92040 FORMAT( '! SITEID STATE REGION LON LAT COL ROW X Y ' )
+92060 FORMAT( A9, 1X, A2, 1X, A2, F8.3, 1X, F8.3, 1X, I3, 1X, I3, 2F15.2 )
+
+         END SUBROUTINE SET_SITE_LOC
+
+C  function to find the index number of a site
+      Integer Function getSiteNumber( id ) result (siteNo)
+
+      CHARACTER*(*) :: id
+      Integer :: i
+
+      !  local variables
+      Character*(10), save :: prevId  
+      Integer, save        :: prevNo
+
+      siteNo = -1
+
+      !  check for repeat
+      if( id .eq. prevId ) then
+        siteNo = prevNo
+        return
+        endif
+
+      ! search list for match 
+      do i=1,NSITES
+       if( TRIM(id) .eq. TRIM(SITE(I)) ) then
+         siteNo = i
+
+         ! save for next lookup
+         prevId = id
+         prevNo = siteNo
+         return
+         endif
+       Enddo 
+      
+      !Write(*,'('' cannot find match for site '',a)') id
+      Return
+      End Function getSiteNumber
+
+
+C  function to return latitude value for site n
+      Real Function getLatitude( id ) result (latitude)
+
+      if(id .le. size(LAT)) Then
+        latitude = lat(id)
+      else
+        latitude = -99
+        endif
+
+      Return
+      End Function getLatitude
+      
+
+C  function to return longitude value for site n
+      Real Function getLongitude( id ) result (longitude)
+
+      if(id .le. size(LON)) Then
+        longitude = lon(id)
+      else
+        longitude = -99
+        endif
+
+      Return
+      End Function getLongitude
+
+
+      END MODULE SITE_DATA
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

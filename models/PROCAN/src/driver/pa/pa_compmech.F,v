@@ -1,0 +1,333 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_compmech.F,v 1.6 2002/05/20 14:49:46 ggb Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_compmech.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_compmech.F 04 Jul 1997 14:13:17
+
+      SUBROUTINE PA_COMPMECH
+
+C***********************************************************************
+C
+C  FUNCTION: To produce a compressed mechanism structure for the PA
+C            output listing program
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Dec. 7, 2000 by Jerry Gipson to correct
+C                      problem in getting character length of a species
+C                      name used in the compressed mechanism
+C                    Modified May 2002 by Jerry Gipson to increase 
+C                      number of reaction lines (for saprc99)
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER TRIMLEN  ! Gets position of last non-blank character in string
+      INTEGER LBLANK   ! Get number of leading blanks in string
+      CHARACTER*10 TRIMCOEF  ! Trims size of coefficients
+
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*72 LINOUT  ! line of mechanism text
+      CHARACTER*10 COUT    ! Coefficient in character representation
+      CHARACTER*1  SIGNC   ! Sign character
+      CHARACTER*16 SPCNAM  ! Species name
+      CHARACTER*( LABLEN ) TEMPSTR  ! Temporary holder of right-justified label
+
+      INTEGER COUTLEN  ! Length of character based coefficient
+      INTEGER ENDPOS   ! Ending position on line for next product
+      INTEGER EQPOS    ! Position of equals sign
+      INTEGER EXPOS    ! Eclamation point position 
+      INTEGER IE1, IE2 ! Ending position of characters in a string
+      INTEGER IEND     ! Position of last non-blank character in LINOUT
+      INTEGER INDX     ! Index for species name
+      INTEGER IS1, IS2 ! Starting position of characters in a string
+      INTEGER ISTAR    ! Counter for sign
+      INTEGER LEN1     ! Actual label length
+      INTEGER LINLEN   ! Max length of line of mechanism text
+      INTEGER MAXLEN   ! Max length of a label on output
+      INTEGER NAMLEN   ! Max length of a species/label name
+      INTEGER NRX      ! Loop index for reactions
+      INTEGER N        ! Loop index
+      INTEGER NFAM     ! Loop index for familys 
+      INTEGER OUTLEN   ! Number of characters in output string
+
+      REAL SPCOEF      ! Single Precision coefficient
+
+C***********************************************************************
+      DATA LINLEN / 72 /
+      DATA NAMLEN / 16 /
+      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Find the longest reaction label length and trim to six characters
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      MAXLEN = 0
+      DO NRX = 1, NRXNS
+         MAXLEN = MAX( MAXLEN, TRIMLEN( RXLABEL( NRX ) ) )
+      ENDDO
+      IF( MAXLEN .GT. 6 ) MAXLEN = 6
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set the compressed mechanism list for each reaction
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO 100 NRX = 1, NRXNS
+
+c..First get the reaction label right justified
+          LINOUT = 'c    &              IRR<'
+          IEND = TRIMLEN( LINOUT )
+          DO N = 1, LABLEN
+             TEMPSTR( N : N ) = ' '
+          ENDDO
+          IS1 = LBLANK( RXLABEL( NRX ) ) + 1
+          IE1 = TRIMLEN( RXLABEL( NRX ) )
+          LEN1 = IE1 - IS1 + 1
+          LEN1 = MIN( MAXLEN, LEN1 )
+          IE1 = IS1 + LEN1 - 1
+          IE2 = LABLEN
+          IS2 = LABLEN - LEN1 + 1
+          TEMPSTR( IS2 : IE2 ) = RXLABEL( NRX )( IS1 : IE1 ) 
+          IS2 = LABLEN - MAXLEN + 1          
+          LINOUT = LINOUT( 1 : IEND ) // TEMPSTR( IS2 : IE2 ) // '> !'
+          IEND = TRIMLEN( LINOUT ) + 1
+          EXPOS = IEND - 1
+          
+c..List reactants
+          DO N = 1, NREACT( NRX )
+             INDX = IRR( NRX, N )
+             SPCNAM = GC_SPC( INDX )
+             OUTLEN = MIN( 6, TRIMLEN( SPCNAM ) )
+             IF( N .EQ. 1 ) THEN
+                LINOUT = LINOUT( 1 : IEND ) // SPCNAM( 1 : OUTLEN )
+             ELSE
+                LINOUT = LINOUT( 1 : IEND ) // '+' // 
+     &                   SPCNAM( 1 : OUTLEN )
+             ENDIF
+             IEND = TRIMLEN( LINOUT )
+          ENDDO
+
+c..Add hv, H2O, M, N2 or O2
+          IF( BTEST( IRXBITS( NRX ), 1 ) ) THEN
+             LINOUT = LINOUT( 1 : IEND ) // '+hv'
+             IEND = TRIMLEN( LINOUT )
+          ENDIF
+          IF( BTEST( IRXBITS( NRX ), 2 ) ) THEN
+             LINOUT = LINOUT( 1 : IEND ) // '+M'
+             IEND = TRIMLEN( LINOUT )
+          ENDIF
+          IF( BTEST( IRXBITS( NRX ), 3 ) ) THEN
+             LINOUT = LINOUT( 1 : IEND ) // '+H2O'
+             IEND = TRIMLEN( LINOUT )
+          ENDIF
+          IF( BTEST( IRXBITS( NRX ), 4 ) ) THEN
+             LINOUT = LINOUT( 1 : IEND ) // '+O2'
+             IEND = TRIMLEN( LINOUT )
+          ENDIF
+          IF( BTEST( IRXBITS( NRX ), 5 ) ) THEN
+             LINOUT = LINOUT( 1 : IEND ) // '+N2'
+             IEND = TRIMLEN( LINOUT )
+          ENDIF
+          EQPOS = IEND + 1                
+          LINOUT = LINOUT( 1 : IEND ) // '='
+          IEND = IEND + 1               
+
+c..List products
+          LINNUM = 1
+          DO N = 1, NPRDCT( NRX )
+             INDX = IRR( NRX, N + 3 )
+             SPCNAM = GC_SPC( INDX )
+             OUTLEN = MIN( 6, TRIMLEN( SPCNAM ) )
+             SPCOEF = SC( NRX, N )
+             IF( SPCOEF .NE. 1.0 ) THEN
+                COUT = TRIMCOEF( SPCOEF )
+                COUTLEN = TRIMLEN( COUT )
+                ISTAR = 1
+             ELSE
+                COUTLEN = 0
+                ISTAR = 0
+             ENDIF                
+             ENDPOS = IEND + 1 + COUTLEN + OUTLEN
+             IF( ENDPOS .GT. LINLEN ) THEN
+                MECLINE( NRX, LINNUM ) = LINOUT
+                LINNUM = LINNUM + 1
+                IF( LINNUM .GT. MXMECHLINE ) THEN
+                   EXITSTAT = 2
+                   WRITE( MSG, 94000 )
+                   CALL M3MESG( MSG )
+                   CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', 
+     &                           EXITSTAT )
+                ENDIF
+                LINOUT = ''
+                LINOUT( 1 : 1 ) = 'c'
+                LINOUT( EXPOS : EXPOS ) = '!'
+                IEND = EXPOS + 6
+             ENDIF
+             IF( SPCOEF .LT. 0.0 ) THEN
+                SIGNC = '-'
+             ELSE
+                SIGNC = '+'
+             ENDIF
+             IF( N .NE. 1 .OR. SIGNC .EQ. '-' ) THEN
+                LINOUT = LINOUT( 1 : IEND ) // SIGNC
+                IEND = IEND + 1
+             ENDIF
+             IF( SPCOEF .EQ. 1.0 ) THEN
+                LINOUT = LINOUT( 1 : IEND ) // SPCNAM( 1 : OUTLEN )
+             ELSE
+                LINOUT = LINOUT( 1 : IEND ) // COUT( 1 : COUTLEN ) //
+     &                   '*' // SPCNAM( 1 : OUTLEN )
+             ENDIF
+             IEND = TRIMLEN( LINOUT )
+          ENDDO             
+          MECLINE( NRX, LINNUM ) = LINOUT 
+          MECNUMLNS( NRX ) = LINNUM 
+  100 CONTINUE      
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Now get a compressed list of Family definitions
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO 200 NFAM = 1, NFAMLYS
+         IEND = TRIMLEN( FAMNAME( NFAM ) )
+         LINOUT = 'c    ' // FAMNAME( NFAM )( 1 : IEND ) // '='
+         IEND = TRIMLEN( LINOUT )
+         EQPOS = IEND
+         LINNUM = 1
+         DO N = 1, NUMFAMMEM( NFAM )
+            SPCNAM = FAMMEMNAM( NFAM, N )
+            OUTLEN = MIN( 6, TRIMLEN( SPCNAM ) )
+            IF( FAMSC( NFAM, N ) .NE. 1.0 ) THEN
+               COUT = TRIMCOEF( FAMSC( NFAM, N ) )  
+               COUTLEN = TRIMLEN( COUT )
+               ISTAR = 1
+            ELSE
+               COUTLEN = 0
+               ISTAR = 0
+            ENDIF             
+            ENDPOS = IEND + 1 + COUTLEN + OUTLEN
+            IF( ENDPOS .GT. LINLEN ) THEN
+               FAMLINE( NFAM, LINNUM ) = LINOUT
+               LINNUM = LINNUM + 1
+               IF( LINNUM .GT. MXFAMLINE ) THEN
+                   EXITSTAT = 2
+                   WRITE( MSG, 94020 )
+                   CALL M3MESG( MSG )
+                   CALL M3EXIT( 'MECHCOMP', IZERO, IZERO, ' ', 
+     &                           EXITSTAT )
+               ENDIF
+               LINOUT = ''
+               LINOUT( 1 : 1 ) = 'c'
+               IEND = EQPOS
+            ENDIF
+            IF( FAMSC( NFAM, N ) .LT. 0.0 ) THEN
+               SIGNC = '-'
+            ELSE
+               SIGNC = '+'
+            ENDIF
+            IF( N .NE. 1 .OR. SIGNC .EQ. '-' ) THEN
+               LINOUT = LINOUT( 1 : IEND ) // SIGNC
+               IEND = IEND + 1
+            ENDIF
+            IF( FAMSC( NFAM, N ) .EQ. 1.0 ) THEN
+               LINOUT = LINOUT( 1 : IEND ) // SPCNAM( 1 : OUTLEN )
+            ELSE
+               LINOUT = LINOUT( 1 : IEND ) // COUT( 1 : COUTLEN ) //
+     &                  '*' // SPCNAM( 1 : OUTLEN )
+            ENDIF
+            IEND = TRIMLEN( LINOUT )
+         ENDDO    
+         FAMLINE( NFAM, LINNUM ) = LINOUT 
+         FAMNUMLNS( NFAM ) = LINNUM 
+  200 CONTINUE
+
+      RETURN
+
+C*********************** FORMAT STATEMENTS *****************************
+
+  
+94000 FORMAT( 'ERROR: Maximum number of lines for compressed',
+     &          ' mechanism exceeded' )
+94020 FORMAT( 'ERROR: Maximum number of lines for compressed',
+     &          ' family definition exceeded' )
+      END  
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

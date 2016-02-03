@@ -1,0 +1,196 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/TOOLS/src/cast2ext/cast2ext.F,v 1.1.1.1 2005/07/27 20:37:47 sjr Exp $
+
+C-------------------------------------------------------------
+C This program reads CASTNET hourly data and converts it to
+C use as input to the sitecmp program
+C-------------------------------------------------------------
+      Program cast2ext
+C-------------------------------------------------------------
+
+      Implicit none
+
+C..INCLUDES:  
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+
+C... external functions
+      Integer getParsedNumber
+
+C... local variables
+      Character*128 infile, outfile 
+      character*512 record
+      character*32 header(100) 
+      character*32 field(100) 
+      Integer in, out, logunit, status
+      Character*32 datefld
+      Character*32 flagname 
+      Integer nfields, kdate, i, pos
+      Character*32 siteId
+      Integer sitefld
+
+      in = 10
+      out = 20
+      sitefld = 1
+ 
+C... get filenames from evironment variables
+      LOGUNIT = INIT3()
+      CALL ENVSTR( 'INFILE', 'Input data file', 'castnet_hr.csv', infile, STATUS)
+      CALL ENVSTR( 'OUTFILE', 'Output data file', 'castnet.csv', outfile, STATUS)
+
+C... print starting program line
+      Write(*,'(/''<--- Starting Program cast2ext version 1.0 --->'')')
+
+C... open files
+      Open(unit=in, file=infile,status='OLD',err=501)
+      Open(unit=out, file=outfile, err=502)
+
+C... read header record
+      Read(in,'(a)',err=501) record
+      nfields = getParsedNumber(record, ',')
+
+      Do i=1,nfields
+        Call getParsedField( record, ',', i, header(i), .false. )
+        if( header(i).eq.'date_time' ) then
+          header(i) = 'dateon'
+          kdate = i
+          endif
+        if( header(i).eq.'site_id' ) then
+          sitefld = i
+          endif
+        enddo
+
+C.. print new header record
+      record = header(1)
+      Do i=2,nfields
+        record = TRIM(record) // ',' // TRIM(header(i))
+        if( i.eq.kdate ) then
+          record = TRIM(record) // ',' // 'dateoff'
+          endif
+        enddo
+      Write(out,'(a)') TRIM(record)
+
+
+C...  read each data record and write it with changed data fields
+      Do 
+        Read(in,'(a)',iostat=status) record
+
+        ! check for eof
+        if( status.ne.0 ) Then
+          exit
+          endif        
+
+        ! read input fields
+        Do i=1,nfields                                                                                
+          Call getParsedField( record, ',', i, field(i), .false. )
+          enddo
+
+        ! build new record 
+        record = TRIM(field(1))
+        Do i=2,nfields
+
+          ! check if next field is an invalid flag
+          if( i<nfields ) then
+            flagname = TRIM(header(i)) // '_f'
+            if( flagname .eq. header(i+1) ) then
+              if( INDEX('#IJKLMNF', field(i+1)(1:1) ) .gt. 0 ) field(i) = '-999'
+              endif
+            endif
+
+          record = TRIM(record) // ',' // TRIM(field(i))
+
+          if( i.eq.kdate ) then
+            pos = index(field(i), ':00:00"')
+            if(pos.eq.0) then
+              Write(*,'('' **ERROR** Cannot find :00:00 in field:'',a)') TRIM(field(i))
+              stop
+              endif
+            datefld = field(i)(1:pos) // '59:59"'
+            record = TRIM(record) // ',' // TRIM(datefld)
+            endif
+
+          enddo
+
+        ! if siteid changes, print line to standardout
+        if( siteid.ne.field(sitefld) ) then
+          siteid = field(sitefld)
+          Write(*,'(''Writing records for site '',a)') TRIM(siteid)
+          endif
+
+        Write(out,'(a)') TRIM(record)
+
+        endDo
+           
+
+      ! close files and exit
+      Close(unit=in)
+      Close(unit=out)
+      Stop
+
+501   Write(*,'(''Error opening input file'')')
+      Stop
+
+502   Write(*,'(''Error opening output file'')') 
+      Stop
+
+      End Program cast2ext
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,198 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_getfamily.F,v 1.3 1998/06/19 11:38:40 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_getfamily.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_getfamily.F 04 Jul 1997 14:13:27
+
+      SUBROUTINE GETFAMILY
+
+C***********************************************************************
+C
+C  FUNCTION: To process the DEFINE FAMILY command
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: GETCHR
+C                                    GETWORD
+C                                    GETREAL
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: None
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      INTEGER MEMNUM    ! Counter for number of members in the family
+      
+C***********************************************************************
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the name of the Family and check for a trailing equal sign
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NFAMLYS = NFAMLYS + 1
+      MEMNUM = 0
+      IF( NFAMLYS .GT. MAXFAMLYS ) THEN
+         EXITSTAT = 2
+         WRITE( MSG, 94000 )
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94020 ) MAXFAMLYS
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', EXITSTAT )
+      ENDIF
+
+      CALL GETWORD
+      FAMNAME( NFAMLYS ) = WORD
+
+      IF( CHR .NE. '=' ) THEN
+         WRITE( MSG, 94040 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94500 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94520 ) CHR
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO,' ', EXITSTAT )
+      ELSE
+         CALL GETCHR
+      ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Top of loop for getting the family member names and coefficients
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+   20 CONTINUE
+      MEMNUM = MEMNUM + 1
+
+      IF( MEMNUM .GT. MAXFAMMEM ) THEN
+         EXITSTAT = 2
+         WRITE( MSG, 94060 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94500 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94080 ) MAXFAMMEM
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', EXITSTAT )
+      ENDIF
+
+c..Set the coefficient for family member 
+      CALL GETCOEF( FAMSC( NFAMLYS, MEMNUM ) ) 
+
+c..Get the name of the family member
+      CALL GETWORD
+      FAMMEMNAM( NFAMLYS, MEMNUM ) = WORD
+      NUMFAMMEM( NFAMLYS ) = MEMNUM 
+
+c..Go back and get the next family member, return, or err off  
+      IF( CHR .EQ. '+' .OR. CHR .EQ. '-' ) THEN
+         GO TO 20
+      ELSEIF( CHR .EQ. ';' ) THEN
+         CALL GETCHR
+         RETURN
+      ELSE
+         EXITSTAT = 2
+         WRITE( MSG, 94100 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94500 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94520 ) CHR
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'GETFAMILY', IZERO, IZERO, ' ', EXITSTAT ) 
+      ENDIF
+
+C*********************** FORMAT STATEMENTS *****************************
+
+94000 FORMAT( 'ERROR: Maximum number of FAMILY''s exceeded' )
+94020 FORMAT( '       Modify PARAMETER ( MAXFAMLYS =', I3,' ) or',
+     &              '  decrease the number of defined FAMILY''s' )     
+94040 FORMAT( 'ERROR: Equal sign expected after FAMILY name' )
+94060 FORMAT( 'ERROR: Maximum number of family members exceeded' )
+94080 FORMAT( '       Modify PARAMETER ( MAXFAMMEM =',I3, ' ) or',
+     &              '  decrease the number of members in the family' )
+94100 FORMAT( 'ERROR: A +, -, or ; must follow a family member name' )
+94500 FORMAT( '       Line No. ', I4, ':', A )
+94520 FORMAT( '       Character found:', A )
+
+
+
+      END
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,372 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_setup_ipr.F,v 1.7 2006/02/14 18:03:43 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_setup_ipr.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_setup_ipr.F 04 Jul 1997 14:13:45
+
+      SUBROUTINE PA_SETUP_IPR
+
+C***********************************************************************
+C
+C  FUNCTION: To store IPR data that will be needed to 
+C            generate the PA report and output INCLUDE files
+C            
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified by Jerry Gipson April, 1997, to add ADJC
+C                       process
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                       with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C                    Modified Jun, 1998 by Jerry Gipson to add PING
+C                      to the CTM science processes
+C                    Modified Feb, 2002 by Jerry Gipson to correct 
+C                      IO/API variable names for TOTDIF & TOTTRAN
+C                             Jun, 2005 Jeff Young to add HADV for yamo
+C                            Jan, 2006 Jeff Young: change operator names to
+C                           be 4 chars - they prepend species names, which must
+C                           remain less that 12 chars, i.e. OPNM_<__SPECIES__>
+C                                                           12345 67890123456
+C.......................................................................
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_IPRDEF.EXT'
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      INCLUDE 'PA_INCDATA.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER INDEX1  ! Function to find a character string in an array
+
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+      INTEGER IFM    ! Family pointer 
+      INTEGER ISP    ! Species pointer
+      INTEGER N      ! Loop counter
+      INTEGER NIPR   ! Loop counter on IPR output commands
+      INTEGER NS     ! Loop index for species
+
+      LOGICAL LSAVSP( MXSPEC )  ! Flag to save species conc for PA
+         
+C.......................................................................
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set up the Process analysis output pointers 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO N = 1, NPROCS
+         LPROCOUT( N ) = .FALSE.
+      ENDDO
+
+      NIPRVAR = 0
+      DO NIPR = 1, N_IPR_SPC
+         IF ( LEN( TRIM( IPR_SPNAM( NIPR ) ) ) .GT. 11 ) THEN
+            WRITE( *,* ) ' '
+            WRITE( MSG, 94030 ) TRIM( IPR_SPNAM( NIPR ) )
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94031 )
+            CALL M3MESG( MSG )
+         END IF
+
+         DO N = 1, N_IPR_OPS( NIPR )
+
+            NIPRVAR = NIPRVAR + 1
+
+            IF( NIPRVAR .GT. MAXIPROUT ) THEN
+               EXITSTAT = 2
+               WRITE( MSG, 94000 ) 
+               CALL M3MESG( MSG )
+               WRITE( MSG, 94020 ) MAXIPROUT
+               CALL M3MESG( MSG )
+               CALL M3EXIT( 'GETEXTDAT', IZERO, IZERO, ' ', EXITSTAT )
+            ENDIF
+
+            IF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'XADV' ) THEN
+               IPRNAME( NIPRVAR ) = 'XADV_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'X-Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 1 )  =  NIPRVAR
+               LPROCOUT( 1 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'YADV' ) THEN
+               IPRNAME( NIPRVAR ) = 'YADV_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Y-Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 2 )  =  NIPRVAR
+               LPROCOUT( 2 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'ZADV' ) THEN
+               IPRNAME( NIPRVAR ) = 'ZADV_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Z-Advection of ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 3 )  = NIPRVAR
+               LPROCOUT( 3 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'ADJC' ) THEN
+               IPRNAME( NIPRVAR ) = 'ADJC_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Advection mass adjustment for ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 4 )  = NIPRVAR
+               LPROCOUT( 4 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'HADV' ) THEN
+               IPRNAME( NIPRVAR ) = 'HADV_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Horizontal Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 5 )  =  NIPRVAR
+               LPROCOUT( 5 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'HDIF' ) THEN
+               IPRNAME( NIPRVAR ) = 'HDIF_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Horizontal diffusion for ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 6 )  = NIPRVAR
+               LPROCOUT( 6 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'VDIF' ) THEN
+               IPRNAME( NIPRVAR ) = 'VDIF_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Vertical diffusion for ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 7 )  = NIPRVAR
+               LPROCOUT( 7 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'EMIS' ) THEN
+               IPRNAME( NIPRVAR ) = 'EMIS_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Emissions of ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 8 )  = NIPRVAR
+               LPROCOUT( 8 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'DDEP' ) THEN
+               IPRNAME( NIPRVAR ) = 'DDEP_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Dry deposition for ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 9 )  = NIPRVAR
+               LPROCOUT( 9 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'CLDS' ) THEN
+               IPRNAME( NIPRVAR ) = 'CLDS_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Clouds for ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 10 )  = NIPRVAR
+               LPROCOUT( 10 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'CHEM' ) THEN
+               IPRNAME( NIPRVAR )  = 'CHEM_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR )  = 'Chemistry of ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 11 )  = NIPRVAR
+               LPROCOUT( 11 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'AERO' ) THEN
+               IPRNAME( NIPRVAR )  = 'AERO_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR )  = 'Aerosols for ' // 
+     &                                IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 12 )  = NIPRVAR
+               LPROCOUT( 12 )      = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'ADV2' ) THEN
+               IPRNAME( NIPRVAR ) = 'ADV2_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'XY-Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 1 ) = NIPRVAR
+               IPROUT( NIPR, 2 ) = NIPRVAR
+               LPROCOUT( 1 )     = .TRUE.
+               LPROCOUT( 2 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'ADV3' ) THEN
+               IPRNAME( NIPRVAR ) = 'ADV3_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'XYZ-Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 1 ) = NIPRVAR
+               IPROUT( NIPR, 2 ) = NIPRVAR
+               IPROUT( NIPR, 3 ) = NIPRVAR
+               LPROCOUT( 1 )     = .TRUE.
+               LPROCOUT( 2 )     = .TRUE.
+               LPROCOUT( 3 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'MADV' ) THEN
+               IPRNAME( NIPRVAR ) = 'MADV_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Horizontal and Vertical Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 5 ) = NIPRVAR
+               IPROUT( NIPR, 3 ) = NIPRVAR
+               LPROCOUT( 5 )     = .TRUE.
+               LPROCOUT( 3 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'TADV' ) THEN
+               IPRNAME( NIPRVAR ) = 'TADV_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Total Advection of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 1 ) = NIPRVAR
+               IPROUT( NIPR, 2 ) = NIPRVAR
+               IPROUT( NIPR, 3 ) = NIPRVAR
+               IPROUT( NIPR, 4 ) = NIPRVAR
+               LPROCOUT( 1 )     = .TRUE.
+               LPROCOUT( 2 )     = .TRUE.
+               LPROCOUT( 3 )     = .TRUE.
+               LPROCOUT( 4 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'TDIF' ) THEN
+               IPRNAME( NIPRVAR ) = 'TDIF_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Total Diffusion of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 6 ) = NIPRVAR
+               IPROUT( NIPR, 7 ) = NIPRVAR
+               LPROCOUT( 6 )     = .TRUE.
+               LPROCOUT( 7 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'TRAN' ) THEN
+               IPRNAME( NIPRVAR ) = 'TRAN_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Total Transport of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 1 ) = NIPRVAR
+               IPROUT( NIPR, 2 ) = NIPRVAR
+               IPROUT( NIPR, 3 ) = NIPRVAR
+               IPROUT( NIPR, 4 ) = NIPRVAR
+               IPROUT( NIPR, 6 ) = NIPRVAR
+               IPROUT( NIPR, 7 ) = NIPRVAR
+               LPROCOUT( 1 )     = .TRUE.
+               LPROCOUT( 2 )     = .TRUE.
+               LPROCOUT( 3 )     = .TRUE.
+               LPROCOUT( 4 )     = .TRUE.
+               LPROCOUT( 6 )     = .TRUE.
+               LPROCOUT( 7 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'TRNM' ) THEN
+               IPRNAME( NIPRVAR ) = 'TRNM_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'Total Mass-Conserving Transport of ' //
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 5 ) = NIPRVAR
+               IPROUT( NIPR, 3 ) = NIPRVAR
+               IPROUT( NIPR, 6 ) = NIPRVAR
+               IPROUT( NIPR, 7 ) = NIPRVAR
+               LPROCOUT( 5 )     = .TRUE.
+               LPROCOUT( 3 )     = .TRUE.
+               LPROCOUT( 6 )     = .TRUE.
+               LPROCOUT( 7 )     = .TRUE.
+            ELSEIF( IPR_OPNAME( NIPR, N )( 1:4 ) .EQ. 'PING' ) THEN
+               IPRNAME( NIPRVAR ) = 'PING_' // IPR_SPNAM( NIPR )
+               IPRDESC( NIPRVAR ) = 'PING Impact on ' // 
+     &                               IPR_SPNAM( NIPR )
+               IPROUT( NIPR, 13 ) = NIPRVAR
+               LPROCOUT( 13 )     = .TRUE.
+            ENDIF
+         ENDDO
+      ENDDO
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set up the species pointers for the IPR Outputs
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO NS = 1, N_SPC
+         LSAVSP( NS ) = .FALSE.
+      ENDDO
+
+      MXCGRID = 1
+      DO NIPR = 1, N_IPR_SPC
+         ISP = INDEX1( IPR_SPNAM( NIPR ), N_SPC, SPC_NAME )
+         IF( ISP .NE. 0 ) THEN
+            LSAVSP( ISP ) = .TRUE.
+            NCGRID( NIPR ) = 1
+            IPR2GRD( NIPR, 1 ) = ISP
+            SPCOEF(  NIPR, 1 ) = 1.0
+         ELSE
+            IFM = INDEX1( IPR_SPNAM( NIPR ), NFAMLYS, FAMNAME )
+            NCGRID( NIPR ) = NUMFAMMEM( IFM )
+            MXCGRID = MAX( MXCGRID, NCGRID( NIPR ) )
+            DO N = 1, NUMFAMMEM( IFM )
+               ISP = INDEX1( FAMMEMNAM( IFM, N ), N_SPC, SPC_NAME )
+               LSAVSP( ISP ) = .TRUE.               
+               IPR2GRD( NIPR, N ) = ISP 
+               SPCOEF( NIPR, N ) = FAMSC( IFM, N )
+            ENDDO
+         ENDIF
+      ENDDO
+
+      NCSAVE = 0
+      DO NS = 1, N_SPC
+         IF( LSAVSP( NS ) ) THEN
+            NCSAVE = NCSAVE + 1
+            SV2GRD( NCSAVE ) = NS
+         ENDIF
+      ENDDO
+
+      DO NIPR = 1, N_IPR_SPC
+         DO N = 1, NCGRID( NIPR )
+            DO NS = 1, NCSAVE
+               IF( SV2GRD( NS ) .EQ. IPR2GRD( NIPR, N ) )
+     &              IPR2SAV( NIPR, N ) = NS
+            ENDDO
+         ENDDO
+      ENDDO
+
+      RETURN
+
+C....................... FORMAT STATEMENTS .............................
+
+94000 FORMAT( 'ERROR: Maximum number of IPR_OUTPUTs exceeded' )
+94020 FORMAT( '       Modify PARAMETER ( MAXIPROUT =', I3,' ) or',
+     &              ' decrease the number of IPR_OUTPUTs' )
+94030 FORMAT( 'WARNING: Species name ', A, ' too long.' )
+94031 FORMAT( '     Combined variable name will ',
+     &        'exceed the I/O-API''s 16 character limit.' )
+            
+      END            
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

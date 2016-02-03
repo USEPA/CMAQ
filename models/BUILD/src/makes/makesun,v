@@ -1,0 +1,78 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@CC=gcc
+CC_OPTS=-c 
+CLITEFLAGS=$(CC_OPTS)
+
+OBJECTS =	fw_util.o \
+		m3bld.o \
+		bld_parser.o \
+		bld_scanner.o \
+		action.o \
+		parser.o \
+		sms.o 
+
+m3bld: $(OBJECTS)
+	 $(CC) -o m3bld $(OBJECTS)
+
+clean:
+	rm -f *.o 
+
+bld_parser.o:	y.tab.c bld_parser.sed 
+	sed -f bld_parser.sed < y.tab.c > bld_parser.c
+	$(CC) -c $(CLITEFLAGS) bld_parser.c
+
+y.tab.c:	bld_parser.y
+	yacc -vtdl bld_parser.y
+	mv y.tab.h tokens.h
+
+bld_scanner.o:	bld_scanner.c sms.h tokens.h
+#	$(CC) $(CC_OPTS) bld_scanner.c
+#	don't do extensive semantic checks: lex doesn't write good enough code
+	$(CC) -c $(CLITEFLAGS) bld_scanner.c
+
+bld_scanner.c:	bld_scanner.l
+	lex bld_scanner.l
+	mv lex.yy.c bld_scanner.c
+
+# dependencies
+m3bld.o:	sms.h
+action.o:	sms.h
+sms.o:	sms.h
+bld_parser.o:	bld_parser.c sms.h
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

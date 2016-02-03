@@ -1,0 +1,117 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/saprc99_ae5st_aq/AE_CONC.EXT,v 1.1.1.1 2009/11/13 15:14:36 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5ST_AQ
+
+        INTEGER        N_AE_CONC
+        PARAMETER     (N_AE_CONC = 63)
+        INTEGER        N_AE_CONCD
+        PARAMETER     (N_AE_CONCD = N_AE_CONC)
+        CHARACTER*16   AE_CONC(N_AE_CONCD)
+        INTEGER        AE_CONC_MAP(N_AE_CONCD)
+
+        DATA          AE_CONC(  1), AE_CONC_MAP(  1) / 'ASO4J           ',   1 /
+        DATA          AE_CONC(  2), AE_CONC_MAP(  2) / 'ASO4I           ',   2 /
+        DATA          AE_CONC(  3), AE_CONC_MAP(  3) / 'ANH4J           ',   3 /
+        DATA          AE_CONC(  4), AE_CONC_MAP(  4) / 'ANH4I           ',   4 /
+        DATA          AE_CONC(  5), AE_CONC_MAP(  5) / 'ANO3J           ',   5 /
+        DATA          AE_CONC(  6), AE_CONC_MAP(  6) / 'ANO3I           ',   6 /
+        DATA          AE_CONC(  7), AE_CONC_MAP(  7) / 'AALKJ           ',   7 /
+        DATA          AE_CONC(  8), AE_CONC_MAP(  8) / 'AXYL1J          ',   8 /
+        DATA          AE_CONC(  9), AE_CONC_MAP(  9) / 'AXYL2J          ',   9 /
+        DATA          AE_CONC( 10), AE_CONC_MAP( 10) / 'AXYL3J          ',  10 /
+        DATA          AE_CONC( 11), AE_CONC_MAP( 11) / 'ATOL1J          ',  11 /
+        DATA          AE_CONC( 12), AE_CONC_MAP( 12) / 'ATOL2J          ',  12 /
+        DATA          AE_CONC( 13), AE_CONC_MAP( 13) / 'ATOL3J          ',  13 /
+        DATA          AE_CONC( 14), AE_CONC_MAP( 14) / 'ABNZ1J          ',  14 /
+        DATA          AE_CONC( 15), AE_CONC_MAP( 15) / 'ABNZ2J          ',  15 /
+        DATA          AE_CONC( 16), AE_CONC_MAP( 16) / 'ABNZ3J          ',  16 /
+        DATA          AE_CONC( 17), AE_CONC_MAP( 17) / 'ATRP1J          ',  17 /
+        DATA          AE_CONC( 18), AE_CONC_MAP( 18) / 'ATRP2J          ',  18 /
+        DATA          AE_CONC( 19), AE_CONC_MAP( 19) / 'AISO1J          ',  19 /
+        DATA          AE_CONC( 20), AE_CONC_MAP( 20) / 'AISO2J          ',  20 /
+        DATA          AE_CONC( 21), AE_CONC_MAP( 21) / 'ASQTJ           ',  21 /
+        DATA          AE_CONC( 22), AE_CONC_MAP( 22) / 'AORGCJ          ',  22 /
+        DATA          AE_CONC( 23), AE_CONC_MAP( 23) / 'AORGPAJ         ',  23 /
+        DATA          AE_CONC( 24), AE_CONC_MAP( 24) / 'AORGPAI         ',  24 /
+        DATA          AE_CONC( 25), AE_CONC_MAP( 25) / 'AECJ            ',  25 /
+        DATA          AE_CONC( 26), AE_CONC_MAP( 26) / 'AECI            ',  26 /
+        DATA          AE_CONC( 27), AE_CONC_MAP( 27) / 'A25J            ',  27 /
+        DATA          AE_CONC( 28), AE_CONC_MAP( 28) / 'ACORS           ',  29 /
+        DATA          AE_CONC( 29), AE_CONC_MAP( 29) / 'ASOIL           ',  30 /
+        DATA          AE_CONC( 30), AE_CONC_MAP( 30) / 'NUMATKN         ',  31 /
+        DATA          AE_CONC( 31), AE_CONC_MAP( 31) / 'NUMACC          ',  32 /
+        DATA          AE_CONC( 32), AE_CONC_MAP( 32) / 'NUMCOR          ',  33 /
+        DATA          AE_CONC( 33), AE_CONC_MAP( 33) / 'SRFATKN         ',  34 /
+        DATA          AE_CONC( 34), AE_CONC_MAP( 34) / 'SRFACC          ',  35 /
+        DATA          AE_CONC( 35), AE_CONC_MAP( 35) / 'SRFCOR          ',  36 /
+        DATA          AE_CONC( 36), AE_CONC_MAP( 36) / 'AH2OJ           ',  37 /
+        DATA          AE_CONC( 37), AE_CONC_MAP( 37) / 'AH2OI           ',  38 /
+        DATA          AE_CONC( 38), AE_CONC_MAP( 38) / 'ANAJ            ',  39 /
+        DATA          AE_CONC( 39), AE_CONC_MAP( 39) / 'ACLJ            ',  41 /
+        DATA          AE_CONC( 40), AE_CONC_MAP( 40) / 'ACLI            ',  42 /
+        DATA          AE_CONC( 41), AE_CONC_MAP( 41) / 'ANAK            ',  43 /
+        DATA          AE_CONC( 42), AE_CONC_MAP( 42) / 'ACLK            ',  44 /
+        DATA          AE_CONC( 43), AE_CONC_MAP( 43) / 'ASO4K           ',  45 /
+        DATA          AE_CONC( 44), AE_CONC_MAP( 44) / 'ANH4K           ',  46 /
+        DATA          AE_CONC( 45), AE_CONC_MAP( 45) / 'ANO3K           ',  47 /
+        DATA          AE_CONC( 46), AE_CONC_MAP( 46) / 'AH2OK           ',  48 /
+        DATA          AE_CONC( 47), AE_CONC_MAP( 47) / 'AISO3J          ',  49 /
+        DATA          AE_CONC( 48), AE_CONC_MAP( 48) / 'AOLGAJ          ',  50 /
+        DATA          AE_CONC( 49), AE_CONC_MAP( 49) / 'AOLGBJ          ',  51 /
+        DATA          AE_CONC( 50), AE_CONC_MAP( 50) / 'ASO4AQH2O2J     ',  52 /
+        DATA          AE_CONC( 51), AE_CONC_MAP( 51) / 'ASO4AQO3J       ',  53 /
+        DATA          AE_CONC( 52), AE_CONC_MAP( 52) / 'ASO4AQFEMNJ     ',  54 /
+        DATA          AE_CONC( 53), AE_CONC_MAP( 53) / 'ASO4AQMHPJ      ',  55 /
+        DATA          AE_CONC( 54), AE_CONC_MAP( 54) / 'ASO4AQPAAJ      ',  56 /
+        DATA          AE_CONC( 55), AE_CONC_MAP( 55) / 'ASO4GASI        ',  57 /
+        DATA          AE_CONC( 56), AE_CONC_MAP( 56) / 'ASO4GASJ        ',  58 /
+        DATA          AE_CONC( 57), AE_CONC_MAP( 57) / 'ASO4GASK        ',  59 /
+        DATA          AE_CONC( 58), AE_CONC_MAP( 58) / 'ASO4EMISI       ',  60 /
+        DATA          AE_CONC( 59), AE_CONC_MAP( 59) / 'ASO4EMISJ       ',  61 /
+        DATA          AE_CONC( 60), AE_CONC_MAP( 60) / 'ASO4EMISK       ',  62 /
+        DATA          AE_CONC( 61), AE_CONC_MAP( 61) / 'ASO4ICBCI       ',  63 /
+        DATA          AE_CONC( 62), AE_CONC_MAP( 62) / 'ASO4ICBCJ       ',  64 /
+        DATA          AE_CONC( 63), AE_CONC_MAP( 63) / 'ASO4ICBCK       ',  65 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

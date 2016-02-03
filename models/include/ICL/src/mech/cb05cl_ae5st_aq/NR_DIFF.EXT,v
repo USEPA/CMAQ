@@ -1,0 +1,68 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.00;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.00;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/cb05cl_ae5st_aq/NR_DIFF.EXT,v 1.1.1.1 2009/02/06 20:26:52 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: CB05CL_AE5ST_AQ
+
+        INTEGER        N_NR_DIFF
+        PARAMETER     (N_NR_DIFF = 14)
+        INTEGER        N_NR_DIFFD
+        PARAMETER     (N_NR_DIFFD = N_NR_DIFF)
+        CHARACTER*16   NR_DIFF(N_NR_DIFFD)
+        INTEGER        NR_DIFF_MAP(N_NR_DIFFD)
+
+        DATA          NR_DIFF  (1), NR_DIFF_MAP  (1) / 'NH3             ', 1 /
+        DATA          NR_DIFF  (2), NR_DIFF_MAP  (2) / 'SV_ALK          ', 2 /
+        DATA          NR_DIFF  (3), NR_DIFF_MAP  (3) / 'SV_XYL1         ', 3 /
+        DATA          NR_DIFF  (4), NR_DIFF_MAP  (4) / 'SV_XYL2         ', 4 /
+        DATA          NR_DIFF  (5), NR_DIFF_MAP  (5) / 'SV_TOL1         ', 5 /
+        DATA          NR_DIFF  (6), NR_DIFF_MAP  (6) / 'SV_TOL2         ', 6 /
+        DATA          NR_DIFF  (7), NR_DIFF_MAP  (7) / 'SV_BNZ1         ', 7 /
+        DATA          NR_DIFF  (8), NR_DIFF_MAP  (8) / 'SV_BNZ2         ', 8 /
+        DATA          NR_DIFF  (9), NR_DIFF_MAP  (9) / 'SV_TRP1         ', 9 /
+        DATA          NR_DIFF (10), NR_DIFF_MAP (10) / 'SV_TRP2         ',10 /
+        DATA          NR_DIFF (11), NR_DIFF_MAP (11) / 'SV_ISO1         ',11 /
+        DATA          NR_DIFF (12), NR_DIFF_MAP (12) / 'SV_ISO2         ',12 /
+        DATA          NR_DIFF (13), NR_DIFF_MAP (13) / 'SV_SQT          ',13 /
+        DATA          NR_DIFF (14), NR_DIFF_MAP (14) / 'SULF_ICBC       ',14 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

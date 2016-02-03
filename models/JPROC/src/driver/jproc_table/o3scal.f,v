@@ -1,0 +1,132 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.17.19.23.12;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.17.19.23.12;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/JPROC/src/driver/jproc_table/o3scal.f,v 1.4 2009/10/07 18:44:21 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)o3scal.F	1.1 /project/mod3/JPROC/src/driver/jproc_table/SCCS/s.o3scal.F 23 May 1997 12:44:20
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+       SUBROUTINE O3SCAL ( O3, HO3, XLAT, DOBNEW )
+
+C*********************************************************************
+C
+C  adjustment of O3 profiles to a user-selected dobson value.
+C   select value of DOBNEW in main program
+C   if don't want to use, don't call this subroutine
+C
+C*********************************************************************
+
+      IMPLICIT NONE
+            
+      INCLUDE 'JVALPARMS.EXT'    ! jproc parameters
+
+C...........ARGUMENTS and their descriptions
+
+      REAL         O3( MXLEV )        ! ozone profile
+      REAL         HO3                ! ozone scale height
+      REAL         XLAT               ! latitudinal band
+      REAL         DOBNEW             ! new dobson unit
+
+C...........LOCAL VARIABLES and their descriptions:
+
+      LOGICAL, SAVE :: FIRSTTIME = .TRUE.
+     
+      INTEGER      I                  ! level index
+     
+      REAL         DOBSREF            ! reference dobson unit
+      REAL         SCALE_FACTOR
+               
+C*********************************************************************
+C     begin body of subroutine O3SCAL2
+
+      IF ( FIRSTTIME ) THEN
+        FIRSTTIME = .FALSE.
+        WRITE ( 6, 2001 )
+      END IF
+
+C...convert O3 value into DU
+
+      DOBSREF = O3( MXLEV ) * 1.0E5 * HO3
+      DO I = 1, MXLEV
+        DOBSREF = DOBSREF + O3( I ) * 1.0E5
+      END DO
+      DOBSREF = DOBSREF / 2.687E16
+
+C...apply scale factor to O3 profile if a non-zero TOC value provided
+
+      IF ( DOBNEW .GT. 0.0 ) THEN
+        SCALE_FACTOR = DOBNEW / DOBSREF
+        WRITE( 6, 2003 ) XLAT, DOBSREF, DOBNEW, SCALE_FACTOR
+        DO I = 1, MXLEV
+          O3( I ) = O3( I ) * SCALE_FACTOR
+        END DO
+      ELSE
+        WRITE( 6, 2005 ) XLAT, DOBSREF
+      END IF
+
+C...formats
+
+2001  FORMAT( 1X, 'Rescaling O3 profile based on TOC data' )
+2003  FORMAT( 7X, 'Latitude:', 1X, F5.1, ', oldDOBS=', F9.4, ', newDOBS=',
+     &        F9.4, ', scale factor=', F7.4 )
+2005  FORMAT( 7X, 'Latitude:', 1X, F5.1, ', DOBS=', F9.4, ', not rescaled' )
+
+      RETURN
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

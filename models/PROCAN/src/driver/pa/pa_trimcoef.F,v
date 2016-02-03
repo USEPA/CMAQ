@@ -1,0 +1,176 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_trimcoef.F,v 1.3 1998/06/19 11:39:01 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_trimcoef.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_trimcoef.F 04 Jul 1997 14:13:47
+
+
+
+      CHARACTER*10 FUNCTION TRIMCOEF( COEFF )
+
+C***********************************************************************
+C
+C  FUNCTION: To convert a real number to character representation 
+C            using the fewest number of characters  
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES: None
+      
+C..ARGUMENTS:
+      REAL   COEFF             ! Real number to convert
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: NONE 
+ 
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*10 CHRCOEF  ! Temporary coefficient holder
+
+
+      INTEGER COEFLEN    ! Max number of characters in coefficient
+      INTEGER ENDPOS     ! Position of last significant haracter
+      INTEGER SPOS       ! Position of first significant character
+      INTEGER OFFSET     ! Justification offset
+      INTEGER POS        ! Loop index for string position
+C***********************************************************************
+      WRITE( CHRCOEF, '( F10.5 )' ) COEFF
+      COEFLEN = 10
+
+c..Strip Trailing zeroes
+      DO POS = COEFLEN, 6, -1
+          IF( CHRCOEF( POS : POS ) .EQ. '0' ) THEN
+             ENDPOS = POS
+             CHRCOEF( POS : POS ) = ' '
+          ELSE
+             GO TO 40
+          ENDIF
+      ENDDO
+   40 CONTINUE
+
+c..Strip decimal point if not needed
+      IF( ENDPOS .EQ. 6 ) THEN 
+         CHRCOEF( 5 : 5 ) = ' '
+         ENDPOS = ENDPOS - 1
+      ENDIF
+
+c..Strip leading any leading signs
+      DO POS = 1, 3
+         IF( CHRCOEF( POS : POS ) .EQ. '+' .OR. 
+     &       CHRCOEF( POS : POS ) .EQ. '-' ) THEN
+           CHRCOEF( POS : POS ) = ' '
+           GO TO 80
+         ENDIF
+      ENDDO
+
+   80 CONTINUE
+            
+c..Strip any leading zeros       
+      IF( ABS( COEFF ) .GT. 0.0 .AND. COEFF .LT. 1.0 ) THEN
+         DO POS = 4, 1, -1
+            IF( CHRCOEF( POS : POS ) .EQ. '0' )
+     &          CHRCOEF( POS : POS ) = ' '
+         ENDDO
+      ENDIF
+
+c..Left justify character string and return
+      DO POS = 1, COEFLEN
+         IF( CHRCOEF( POS : POS ) .NE. ' ' ) THEN
+            SPOS = POS
+            GO TO 120
+         ENDIF
+      ENDDO
+
+  120 CONTINUE
+
+      OFFSET = SPOS - 1
+
+      DO POS = 1, COEFLEN
+         IF( POS + OFFSET .LE. ENDPOS ) THEN
+            CHRCOEF( POS : POS ) = CHRCOEF( POS + OFFSET : POS+OFFSET )
+         ELSE
+            CHRCOEF( POS : POS ) = ' '
+         ENDIF
+      ENDDO
+
+      TRIMCOEF = CHRCOEF
+
+      RETURN
+      END  
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,433 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.06.14.16.03.03;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.03;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/cloud/cloud_acm_ae5_txhg/AQ_PARAMS.EXT,v 1.1.1.1 2008/09/07 19:08:45 sjr Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C...Aqueous species pointers INCLUDE File
+
+C...........PARAMETERS and their descriptions:
+
+      INTEGER, PARAMETER :: NGAS = 20  ! number of gas-phase species for AQCHEM
+      INTEGER, PARAMETER :: NAER = 58  ! number of aerosol species for AQCHEM 
+      INTEGER, PARAMETER :: NLIQS = 82 ! number of liquid-phase species in AQCHEM
+
+C...pointers for the AQCHEM array GAS
+
+      INTEGER, PARAMETER :: LSO2    =  1  ! Sulfur Dioxide
+      INTEGER, PARAMETER :: LHNO3   =  2  ! Nitric Acid
+      INTEGER, PARAMETER :: LN2O5   =  3  ! Dinitrogen Pentoxide
+      INTEGER, PARAMETER :: LCO2    =  4  ! Carbon Dioxide
+      INTEGER, PARAMETER :: LNH3    =  5  ! Ammonia
+      INTEGER, PARAMETER :: LH2O2   =  6  ! Hydrogen Perioxide
+      INTEGER, PARAMETER :: LO3     =  7  ! Ozone
+      INTEGER, PARAMETER :: LFOA    =  8  ! Formic Acid
+      INTEGER, PARAMETER :: LMHP    =  9  ! Methyl Hydrogen Peroxide
+      INTEGER, PARAMETER :: LPAA    = 10  ! Peroxyacidic Acid
+      INTEGER, PARAMETER :: LH2SO4  = 11  ! Sulfuric Acid
+      INTEGER, PARAMETER :: LHCL    = 12  ! Hydrogen Chloride
+      INTEGER, PARAMETER :: LGLY    = 13  ! Glyoxal
+      INTEGER, PARAMETER :: LMGLY   = 14  ! Methylglyoxal
+      INTEGER, PARAMETER :: LHO     = 15  ! OH, hydroxyl radical
+      INTEGER, PARAMETER :: LHO2    = 16  ! HO2, hydrogen Peroxyl radical
+      INTEGER, PARAMETER :: LCL2    = 17  ! CL2, chlorine gas
+      INTEGER, PARAMETER :: LHOCL   = 18  ! HOCL, Hypochlorous acid
+CWTH mercury chemistry
+      INTEGER, PARAMETER :: LHG     = 19  ! Elemental Mercury
+      INTEGER, PARAMETER :: LHGCL2  = 20  ! Mercuric Chloride
+
+
+C...pointers for the AQCHEM array AEROSOL
+
+      INTEGER, PARAMETER :: LSO4AKN  =  1  ! Aitken-mode Sulfate
+      INTEGER, PARAMETER :: LSO4ACC  =  2  ! Accumulation-mode Sulfate
+      INTEGER, PARAMETER :: LSO4COR  =  3  ! Coarse-mode Sulfate
+      INTEGER, PARAMETER :: LNH4AKN  =  4  ! Aitken-mode Ammonium
+      INTEGER, PARAMETER :: LNH4ACC  =  5  ! Accumulation-mode Ammonium
+      INTEGER, PARAMETER :: LNH4COR  =  6  ! Coarse-mode Ammonium 
+      INTEGER, PARAMETER :: LNO3AKN  =  7  ! Aitken-mode Nitrate
+      INTEGER, PARAMETER :: LNO3ACC  =  8  ! Accumulation-mode Nitrate
+      INTEGER, PARAMETER :: LNO3COR  =  9  ! Coarse-mode Nitrate
+      INTEGER, PARAMETER :: LALKACC  = 10  ! Accumulation-mode SOA (SV_ALK) 
+      INTEGER, PARAMETER :: LXYL1ACC = 11  ! Accumulation-mode SOA (1st semi-volatile product: SV_XYL1)
+      INTEGER, PARAMETER :: LXYL2ACC = 12  ! Accumulation-mode SOA (2nd semi-volatile product: SV_XYL2)
+      INTEGER, PARAMETER :: LXYL3ACC = 13  ! Accumulation-mode SOA (non-volatile product)
+      INTEGER, PARAMETER :: LTOL1ACC = 14  ! Accumulation-mode SOA (1st semi-volatile product: SV_TOL1)
+      INTEGER, PARAMETER :: LTOL2ACC = 15  ! Accumulation-mode SOA (2nd semi-volatile product: SV_TOL2)
+      INTEGER, PARAMETER :: LTOL3ACC = 16  ! Accumulation-mode SOA (non-volatile product)
+      INTEGER, PARAMETER :: LBNZ1ACC = 17  ! Accumulation-mode SOA (1st semi-volatile product: SV_BNZ1)
+      INTEGER, PARAMETER :: LBNZ2ACC = 18  ! Accumulation-mode SOA (2nd semi-volatile product: SV_BNZ2)
+      INTEGER, PARAMETER :: LBNZ3ACC = 19  ! Accumulation-mode SOA (non-volatile product)
+      INTEGER, PARAMETER :: LTRP1ACC = 20  ! Accumulation-mode SOA (1st semi-volatile product: SV_TRP1)
+      INTEGER, PARAMETER :: LTRP2ACC = 21  ! Accumulation-mode SOA (2nd semi-volatile product: SV_TRP2)
+      INTEGER, PARAMETER :: LISO1ACC = 22  ! Accumulation-mode SOA (1st semi-volatile product: SV_ISO1)
+      INTEGER, PARAMETER :: LISO2ACC = 23  ! Accumulation-mode SOA (2nd semi-volatile product: SV_ISO2)
+      INTEGER, PARAMETER :: LISO3ACC = 24  ! Accumulation-mode SOA (acid catalyzed)
+      INTEGER, PARAMETER :: LSQTACC  = 25  ! Accumulation-mode SOA (SV_SQT)
+      INTEGER, PARAMETER :: LORGCACC = 26  ! Accumulation-mode SOA (anthropogenic organic oligomers)
+      INTEGER, PARAMETER :: LOLGAACC = 27  ! Accumulation-mode SOA (biogenic organic oligomers)
+      INTEGER, PARAMETER :: LOLGBACC = 28  ! Accumulation-mode in-cloud SOA
+      INTEGER, PARAMETER :: LORGPAKN = 29  ! Aitken-mode primary organic aerosol
+      INTEGER, PARAMETER :: LORGPACC = 30  ! Accumulation-mode primary organic aerosol
+      INTEGER, PARAMETER :: LECAKN   = 31  ! Aitken-mode elemental carbon
+      INTEGER, PARAMETER :: LECACC   = 32  ! Accumulation-mode elemental carbon
+      INTEGER, PARAMETER :: LPRIAKN  = 33  ! Aitken-mode primary aerosol
+      INTEGER, PARAMETER :: LPRIACC  = 34  ! Accumulation-mode primary aerosol
+      INTEGER, PARAMETER :: LPRICOR  = 35  ! Coarse-mode primary aerosol
+      INTEGER, PARAMETER :: LNAAKN   = 36  ! Aitken-mode Sodium
+      INTEGER, PARAMETER :: LNAACC   = 37  ! Accumulation-mode Sodium
+      INTEGER, PARAMETER :: LNACOR   = 38  ! Coarse-mode Sodium
+      INTEGER, PARAMETER :: LCLAKN   = 39  ! Aitken-mode Chloride ion
+      INTEGER, PARAMETER :: LCLACC   = 40  ! Accumulation-mode Chloride ion
+      INTEGER, PARAMETER :: LCLCOR   = 41  ! Coarse-mode Chloride ion
+      INTEGER, PARAMETER :: LNUMAKN  = 42  ! Aitken-mode number
+      INTEGER, PARAMETER :: LNUMACC  = 43  ! Accumulation-mode number
+      INTEGER, PARAMETER :: LNUMCOR  = 44  ! Coarse-mode number
+      INTEGER, PARAMETER :: LSRFAKN  = 45  ! Aitken-mode surface area
+      INTEGER, PARAMETER :: LSRFACC  = 46  ! Accumulation-mode surface area
+      INTEGER, PARAMETER :: LSRFCOR  = 47  ! Coarse-mode surface area 
+      INTEGER, PARAMETER :: LCACO3   = 48  ! Calcium Carbonate aerosol (place holder)
+      INTEGER, PARAMETER :: LMGCO3   = 49  ! Magnesium Carbonate aerosol (place holder)
+      INTEGER, PARAMETER :: LA3FE    = 50  ! Iron aerosol (place holder)
+      INTEGER, PARAMETER :: LB2MN    = 51  ! Manganese aerosol (place holder)
+      INTEGER, PARAMETER :: LK       = 52  ! Potassium aerosol (Cl- tracked separately) (place holder)
+C:WTH
+      INTEGER, PARAMETER :: LTRACER_AKN  = 53  ! Aitken-mode TRACER
+      INTEGER, PARAMETER :: LTRACER_ACC  = 54  ! Accumulation-mode TRACER
+      INTEGER, PARAMETER :: LTRACER_COR  = 55  ! Coarse-mode TRACER
+C: mercury chemistry
+      INTEGER, PARAMETER :: LPHGAKN  = 56  ! Aitken-mode Mercury
+      INTEGER, PARAMETER :: LPHGACC  = 57  ! Accumulation-mode Mercury
+      INTEGER, PARAMETER :: LPHGCOR  = 58  ! Coarse-mode Mercury
+
+C...pointers for the AQCHEM arrays LIQUID and WETDEP
+
+      INTEGER, PARAMETER :: LACL        =  1  ! Hydrogen ion
+      INTEGER, PARAMETER :: LNH4ACCL    =  2  ! Ammonium(attributed to accum. mode) 
+      INTEGER, PARAMETER :: LCAL        =  3  ! Calcium
+      INTEGER, PARAMETER :: LNAACCL     =  4  ! Sodium
+      INTEGER, PARAMETER :: LOHL        =  5  ! Hydroxyl radical
+      INTEGER, PARAMETER :: LSO4ACCL    =  6  ! Sulfate (attributed to accumulation mode)
+      INTEGER, PARAMETER :: LHSO4ACCL   =  7  ! bisulfate (attributed to accumulation mode)
+      INTEGER, PARAMETER :: LSO3L       =  8  ! sulfite
+      INTEGER, PARAMETER :: LHSO3L      =  9  ! bisulfite
+      INTEGER, PARAMETER :: LSO2L       = 10  ! sulfur dioxide
+      INTEGER, PARAMETER :: LCO3L       = 11  ! carbonate
+      INTEGER, PARAMETER :: LHCO3L      = 12  ! bicarbonate
+      INTEGER, PARAMETER :: LCO2L       = 13  ! carbon dioxide
+      INTEGER, PARAMETER :: LNO3ACCL    = 14  ! nitrate(attributed to accumulation mode)
+      INTEGER, PARAMETER :: LNH3L       = 15  ! ammonia
+      INTEGER, PARAMETER :: LCLACCL     = 16  ! chloride ion (attributed to accumulation mode)
+      INTEGER, PARAMETER :: LH2O2L      = 17  ! hydrogen peroxide
+      INTEGER, PARAMETER :: LO3L        = 18  ! ozone
+      INTEGER, PARAMETER :: LFEL        = 19  ! iron
+      INTEGER, PARAMETER :: LMNL        = 20  ! Manganese
+      INTEGER, PARAMETER :: LAL         = 21  ! generalized anion associated with iron
+      INTEGER, PARAMETER :: LFOAL       = 22  ! Formic acid
+      INTEGER, PARAMETER :: LHCO2L      = 23  ! HCOO- ion
+      INTEGER, PARAMETER :: LMHPL       = 24  ! Methyl hydrogen peroxide
+      INTEGER, PARAMETER :: LPAAL       = 25  ! Peroxyacidic acid
+      INTEGER, PARAMETER :: LHCLL       = 26  ! Hydrogen chloride
+      INTEGER, PARAMETER :: LPRIML      = 27  ! primary aerosol
+      INTEGER, PARAMETER :: LMGL        = 28  ! Magnesium
+      INTEGER, PARAMETER :: LKL         = 29  ! potassium
+      INTEGER, PARAMETER :: LBL         = 30  ! generalized anion associated with manganese
+      INTEGER, PARAMETER :: LHNO3L      = 31  ! nitric acid
+      INTEGER, PARAMETER :: LPRIMCORL   = 32  ! coarse-mode primary aerosol
+      INTEGER, PARAMETER :: LNUMCORL    = 33  ! coarse-mode number
+      INTEGER, PARAMETER :: LTS6CORL    = 34  ! sulfate (attributed to coarse mode)
+      INTEGER, PARAMETER :: LNACORL     = 35  ! sodium (attributed to coarse mode)
+      INTEGER, PARAMETER :: LCLCORL     = 36  ! chloride ion (attributed to coarse mode)
+      INTEGER, PARAMETER :: LNO3CORL    = 37  ! nitrate (attributed to coarse mode)
+      INTEGER, PARAMETER :: LNH4CORL    = 38  ! ammonium (attributed to coarse mode) 
+      INTEGER, PARAMETER :: LALKL       = 39  ! SOA (SV_ALK)
+      INTEGER, PARAMETER :: LXYL1L      = 40  ! SOA (1st semi-volatile product: SV_XYL1)
+      INTEGER, PARAMETER :: LXYL2L      = 41  ! SOA (2nd semi-volatile product: SV_XYL2)
+      INTEGER, PARAMETER :: LXYL3L      = 42  ! SOA (non-volatile product)
+      INTEGER, PARAMETER :: LTOL1L      = 43  ! SOA (1st semi-volatile product: SV_TOL1)
+      INTEGER, PARAMETER :: LTOL2L      = 44  ! SOA (2nd semi-volatile product: SV_TOL2)
+      INTEGER, PARAMETER :: LTOL3L      = 45  ! SOA (non-volatile product)
+      INTEGER, PARAMETER :: LBNZ1L      = 46  ! SOA (1st semi-volatile product: SV_BNZ1)
+      INTEGER, PARAMETER :: LBNZ2L      = 47  ! SOA (2nd semi-volatile product: SV_BNZ2)
+      INTEGER, PARAMETER :: LBNZ3L      = 48  ! SOA (non-volatile product)
+      INTEGER, PARAMETER :: LTRP1L      = 49  ! SOA (1st semi-volatile product: SV_TRP1)
+      INTEGER, PARAMETER :: LTRP2L      = 50  ! SOA (2nd semi-volatile product: SV_TRP2)
+      INTEGER, PARAMETER :: LISO1L      = 51  ! SOA (1st semi-volatile product: SV_ISO1)
+      INTEGER, PARAMETER :: LISO2L      = 52  ! SOA (2nd semi-volatile product: SV_ISO2)
+      INTEGER, PARAMETER :: LISO3L      = 53  ! SOA (acid catalyzed)
+      INTEGER, PARAMETER :: LSQTL       = 54  ! SOA (SV_SQT)
+      INTEGER, PARAMETER :: LORGCL      = 55  ! in-cloud SOA
+      INTEGER, PARAMETER :: LOLGAL      = 56  ! SOA (anthropogenic organic oligomers)
+      INTEGER, PARAMETER :: LOLGBL      = 57  ! SOA (biogenic organic oligomers)
+      INTEGER, PARAMETER :: LORGPL      = 58  ! primary organic aerosols
+      INTEGER, PARAMETER :: LECL        = 59  ! elemental carbon
+      INTEGER, PARAMETER :: LGLYL       = 60  ! glyoxal
+      INTEGER, PARAMETER :: LMGLYL      = 61  ! methylglyoxal
+C:WTH
+      INTEGER, PARAMETER :: LTRACERL	 = 62  ! TRACER
+      INTEGER, PARAMETER :: LTRACER_CORL = 63  ! Coarse-mode TRACER
+      INTEGER, PARAMETER :: LHO2L        = 64  ! Hydrogen Peroxy Radical
+      INTEGER, PARAMETER :: LCL2L        = 65  ! Chlorine gas 
+      INTEGER, PARAMETER :: LHOCLL       = 66  ! Hypochlorous acid
+C mercuric compounds
+      INTEGER, PARAMETER :: LHgL        = 67  ! Hg
+      INTEGER, PARAMETER :: LHgCl2L     = 68  ! HgCl2
+      INTEGER, PARAMETER :: LHgSO3L     = 69  ! HgSO3
+      INTEGER, PARAMETER :: LHgdisulfL  = 70  ! Hgdisulf
+      INTEGER, PARAMETER :: LHgIIL      = 71  ! HgII
+      INTEGER, PARAMETER :: LHgOHpL     = 72  ! HgOHp
+      INTEGER, PARAMETER :: LHgHYL      = 73  ! HgHYL
+      INTEGER, PARAMETER :: LHgOHClL    = 74  ! HgOHCl
+      INTEGER, PARAMETER :: LSHgCl2L    = 75  ! Sorbed SHgCl2
+      INTEGER, PARAMETER :: LSHgSO3L    = 76  ! Sorbed SHgSO3
+      INTEGER, PARAMETER :: LSHgdisulfL = 77  ! Sorbed SHgdisulf
+      INTEGER, PARAMETER :: LSHgIIL     = 78  ! Sorbed SHgII
+      INTEGER, PARAMETER :: LSHgOHpL    = 79  ! Sorbed SHgOHp
+      INTEGER, PARAMETER :: LSHgHYL     = 80  ! Sorbed SHgHYL
+      INTEGER, PARAMETER :: LSHgOHClL   = 81  ! Sorbed SHgOHCl
+      INTEGER, PARAMETER :: LPHGCORL    = 82  ! Coarse-mode TRACER
+
+
+C...surrogate names, their background values, and units
+C...  for AQCHEM's GAS species
+
+      CHARACTER*16, SAVE :: SGRGAS  ( NGAS ) ! surrogate name for gases
+      CHARACTER*16, SAVE :: BUNTSGAS( NGAS ) ! units of bkgnd values
+
+      REAL, SAVE :: BGNDGAS( NGAS ) ! background values for each gas
+
+      DATA SGRGAS( LSO2   ), BGNDGAS( LSO2   ) /'SO2             ',   0.0 /
+      DATA SGRGAS( LHNO3  ), BGNDGAS( LHNO3  ) /'HNO3            ',   0.0 /
+      DATA SGRGAS( LN2O5  ), BGNDGAS( LN2O5  ) /'N2O5            ',   0.0 /
+      DATA SGRGAS( LCO2   ), BGNDGAS( LCO2   ) /'CO2             ', 340.0 /
+      DATA SGRGAS( LNH3   ), BGNDGAS( LNH3   ) /'NH3             ',   0.0 /
+      DATA SGRGAS( LH2O2  ), BGNDGAS( LH2O2  ) /'H2O2            ',   0.0 /
+      DATA SGRGAS( LO3    ), BGNDGAS( LO3    ) /'O3              ',   0.0 /
+      DATA SGRGAS( LFOA   ), BGNDGAS( LFOA   ) /'FOA             ',   0.0 /
+      DATA SGRGAS( LMHP   ), BGNDGAS( LMHP   ) /'MHP             ',   0.0 /
+      DATA SGRGAS( LPAA   ), BGNDGAS( LPAA   ) /'PAA             ',   0.0 /
+      DATA SGRGAS( LH2SO4 ), BGNDGAS( LH2SO4 ) /'H2SO4           ',   0.0 /
+      DATA SGRGAS( LHCL   ), BGNDGAS( LHCL   ) /'HCL             ',   0.0 /
+      DATA SGRGAS( LGLY   ), BGNDGAS( LGLY   ) /'GLY             ',   0.0 /
+      DATA SGRGAS( LMGLY  ), BGNDGAS( LMGLY  ) /'MGLY            ',   0.0 /
+      DATA SGRGAS( LHO    ), BGNDGAS( LHO    ) /'HO              ',   0.0 /
+C:WTH
+      DATA SGRGAS( LHO2   ), BGNDGAS( LHO2   ) /'HO2             ',   0.0 /
+      DATA SGRGAS( LCL2   ), BGNDGAS( LCL2   ) /'CL2             ',   0.0 /
+      DATA SGRGAS( LHOCL  ), BGNDGAS( LHOCL  ) /'HOCL            ',   0.0 /
+C mercury chemistry
+      DATA SGRGAS( LHg    ), BGNDGAS( LHg    ) /'HG              ',   0.0 /
+      DATA SGRGAS( LHgCl2 ), BGNDGAS( LHgCl2 ) /'HGIIGAS         ',   0.0 /
+
+      DATA BUNTSGAS( LSO2   ) / 'ppm' /
+      DATA BUNTSGAS( LHNO3  ) / 'ppm' /
+      DATA BUNTSGAS( LN2O5  ) / 'ppm' /
+      DATA BUNTSGAS( LCO2   ) / 'ppm' /
+      DATA BUNTSGAS( LNH3   ) / 'ppm' /
+      DATA BUNTSGAS( LH2O2  ) / 'ppm' /
+      DATA BUNTSGAS( LO3    ) / 'ppm' /
+      DATA BUNTSGAS( LFOA   ) / 'ppm' /
+      DATA BUNTSGAS( LMHP   ) / 'ppm' /
+      DATA BUNTSGAS( LPAA   ) / 'ppm' /
+      DATA BUNTSGAS( LH2SO4 ) / 'ppm' /
+      DATA BUNTSGAS( LHCL   ) / 'ppm' /
+      DATA BUNTSGAS( LGLY   ) / 'ppm' / 
+      DATA BUNTSGAS( LMGLY  ) / 'ppm' / 
+      DATA BUNTSGAS( LHO    ) / 'ppm' / 
+C:WTH
+      DATA BUNTSGAS( LHO2   ) / 'ppm' / 
+      DATA BUNTSGAS( LCL2   ) / 'ppm' / 
+      DATA BUNTSGAS( LHOCL  ) / 'ppm' / 
+C mercury chemistry
+      DATA BUNTSGAS( LHg    ) / 'ppm' /
+      DATA BUNTSGAS( LHgCl2 ) / 'ppm' /
+
+
+C...surrogate names, their background values, units, and molecular weights
+C...  for AQCHEM's AEROSOL species
+
+      CHARACTER*16, SAVE :: SGRAER  ( NAER ) ! surrogate name for aerosols
+      CHARACTER*16, SAVE :: BUNTSAER( NAER ) ! units of bkgnd values
+
+      REAL, SAVE :: SGRAERMW( NAER ) ! molecular weight for aerosol species
+      REAL, SAVE :: BGNDAER ( NAER ) ! bkground vals each aerosols
+
+      DATA SGRAER( LSO4AKN  ), SGRAERMW( LSO4AKN  ) / 'SO4_AITKEN      ' ,  96.0 /
+      DATA SGRAER( LSO4ACC  ), SGRAERMW( LSO4ACC  ) / 'SO4_ACCUM       ' ,  96.0 /
+      DATA SGRAER( LSO4COR  ), SGRAERMW( LSO4COR  ) / 'SO4_COARSE      ' ,  96.0 /
+      DATA SGRAER( LNH4AKN  ), SGRAERMW( LNH4AKN  ) / 'NH4_AITKEN      ' ,  18.0 /
+      DATA SGRAER( LNH4ACC  ), SGRAERMW( LNH4ACC  ) / 'NH4_ACCUM       ' ,  18.0 /
+      DATA SGRAER( LNH4COR  ), SGRAERMW( LNH4COR  ) / 'NH4_COARSE      ' ,  18.0 / 
+      DATA SGRAER( LNO3AKN  ), SGRAERMW( LNO3AKN  ) / 'NO3_AITKEN      ' ,  62.0 /
+      DATA SGRAER( LNO3ACC  ), SGRAERMW( LNO3ACC  ) / 'NO3_ACCUM       ' ,  62.0 /
+      DATA SGRAER( LNO3COR  ), SGRAERMW( LNO3COR  ) / 'NO3_COARSE      ' ,  62.0 /
+      DATA SGRAER( LALKACC  ), SGRAERMW( LALKACC  ) / 'AALK_ACCUM      ' , 150.0 /
+      DATA SGRAER( LXYL1ACC ), SGRAERMW( LXYL1ACC ) / 'AXYL1_ACCUM     ' , 192.0 /
+      DATA SGRAER( LXYL2ACC ), SGRAERMW( LXYL2ACC ) / 'AXYL2_ACCUM     ' , 192.0 /
+      DATA SGRAER( LXYL3ACC ), SGRAERMW( LXYL3ACC ) / 'AXYL3_ACCUM     ' , 192.0 /
+      DATA SGRAER( LTOL1ACC ), SGRAERMW( LTOL1ACC ) / 'ATOL1_ACCUM     ' , 168.0 /
+      DATA SGRAER( LTOL2ACC ), SGRAERMW( LTOL2ACC ) / 'ATOL2_ACCUM     ' , 168.0 /
+      DATA SGRAER( LTOL3ACC ), SGRAERMW( LTOL3ACC ) / 'ATOL3_ACCUM     ' , 168.0 /
+      DATA SGRAER( LBNZ1ACC ), SGRAERMW( LBNZ1ACC ) / 'ABNZ1_ACCUM     ' , 144.0 /
+      DATA SGRAER( LBNZ2ACC ), SGRAERMW( LBNZ2ACC ) / 'ABNZ2_ACCUM     ' , 144.0 /
+      DATA SGRAER( LBNZ3ACC ), SGRAERMW( LBNZ3ACC ) / 'ABNZ3_ACCUM     ' , 144.0 /
+      DATA SGRAER( LTRP1ACC ), SGRAERMW( LTRP1ACC ) / 'ATRP1_ACCUM     ' , 140.0 /
+      DATA SGRAER( LTRP2ACC ), SGRAERMW( LTRP2ACC ) / 'ATRP2_ACCUM     ' , 140.0 /
+      DATA SGRAER( LISO1ACC ), SGRAERMW( LISO1ACC ) / 'AISO1_ACCUM     ' , 150.0 /
+      DATA SGRAER( LISO2ACC ), SGRAERMW( LISO2ACC ) / 'AISO2_ACCUM     ' , 150.0 /
+      DATA SGRAER( LISO3ACC ), SGRAERMW( LISO3ACC ) / 'AISO3_ACCUM     ' , 150.0 /
+      DATA SGRAER( LSQTACC  ), SGRAERMW( LSQTACC  ) / 'ASQT_ACCUM      ' , 378.0 /
+      DATA SGRAER( LORGCACC ), SGRAERMW( LORGCACC ) / 'AORGC_ACCUM     ' , 177.0 /
+      DATA SGRAER( LOLGAACC ), SGRAERMW( LOLGAACC ) / 'AOLGA_ACCUM     ' , 176.4 /
+      DATA SGRAER( LOLGBACC ), SGRAERMW( LOLGBACC ) / 'AOLGB_ACCUM     ' , 252.0 /
+      DATA SGRAER( LORGPAKN ), SGRAERMW( LORGPAKN ) / 'ORGP_AITKEN     ' , 220.0 /
+      DATA SGRAER( LORGPACC ), SGRAERMW( LORGPACC ) / 'ORGP_ACCUM      ' , 220.0 /
+      DATA SGRAER( LECAKN   ), SGRAERMW( LECAKN   ) / 'EC_AITKEN       ' ,  12.0 /
+      DATA SGRAER( LECACC   ), SGRAERMW( LECACC   ) / 'EC_ACCUM        ' ,  12.0 /
+      DATA SGRAER( LPRIAKN  ), SGRAERMW( LPRIAKN  ) / 'PRI_AITKEN      ' , 200.0 /
+      DATA SGRAER( LPRIACC  ), SGRAERMW( LPRIACC  ) / 'PRI_ACCUM       ' , 200.0 /
+      DATA SGRAER( LPRICOR  ), SGRAERMW( LPRICOR  ) / 'PRI_COARSE      ' , 100.0 /
+      DATA SGRAER( LNAAKN   ), SGRAERMW( LNAAKN   ) / 'NA_AITKEN       ' ,  23.0 /
+      DATA SGRAER( LNAACC   ), SGRAERMW( LNAACC   ) / 'NA_ACCUM        ' ,  23.0 /
+      DATA SGRAER( LNACOR   ), SGRAERMW( LNACOR   ) / 'NA_COARSE       ' ,  23.0 /
+      DATA SGRAER( LCLAKN   ), SGRAERMW( LCLAKN   ) / 'CL_AITKEN       ' ,  35.5 /
+      DATA SGRAER( LCLACC   ), SGRAERMW( LCLACC   ) / 'CL_ACCUM        ' ,  35.5 /
+      DATA SGRAER( LCLCOR   ), SGRAERMW( LCLCOR   ) / 'CL_COARSE       ' ,  35.5 /
+      DATA SGRAER( LNUMAKN  ), SGRAERMW( LNUMAKN  ) / 'NUM_AITKEN      ' ,   1.0 /
+      DATA SGRAER( LNUMACC  ), SGRAERMW( LNUMACC  ) / 'NUM_ACCUM       ' ,   1.0 /
+      DATA SGRAER( LNUMCOR  ), SGRAERMW( LNUMCOR  ) / 'NUM_COARSE      ' ,   1.0 /
+      DATA SGRAER( LSRFAKN  ), SGRAERMW( LSRFAKN  ) / 'SRF_AITKEN      ' ,   1.0 /
+      DATA SGRAER( LSRFACC  ), SGRAERMW( LSRFACC  ) / 'SRF_ACCUM       ' ,   1.0 /
+      DATA SGRAER( LSRFCOR  ), SGRAERMW( LSRFCOR  ) / 'SRF_COARSE      ' ,   1.0 / 
+      DATA SGRAER( LCACO3   ), SGRAERMW( LCACO3   ) / 'CACO3           ' , 100.1 /
+      DATA SGRAER( LMGCO3   ), SGRAERMW( LMGCO3   ) / 'MGCO3           ' ,  84.3 /
+      DATA SGRAER( LA3FE    ), SGRAERMW( LA3FE    ) / 'A3FE            ' ,  55.8 /
+      DATA SGRAER( LB2MN    ), SGRAERMW( LB2MN    ) / 'B2MN            ' ,  54.9 /
+      DATA SGRAER( LK       ), SGRAERMW( LK       ) / 'K               ' ,  39.1 /
+C:WTH
+      DATA SGRAER( LTRACER_AKN  ), SGRAERMW( LTRACER_AKN  ) / 'TRACER_AITKEN  ' , 100.0 /
+      DATA SGRAER( LTRACER_ACC  ), SGRAERMW( LTRACER_ACC  ) / 'TRACER_ACCUM   ' , 100.0 /
+      DATA SGRAER( LTRACER_COR  ), SGRAERMW( LTRACER_COR  ) / 'TRACER_COARSE  ' , 100.0 /
+C mercury chemistry
+      DATA SGRAER( LPHGAKN  ), SGRAERMW( LPHGAKN  ) / 'PHG_AITKEN      ' , 200.59/
+      DATA SGRAER( LPHGACC  ), SGRAERMW( LPHGACC  ) / 'PHG_ACCUM       ' , 200.59/
+      DATA SGRAER( LPHGCOR  ), SGRAERMW( LPHGCOR  ) / 'PHG_COARSE      ' , 200.59/
+
+
+      DATA BGNDAER( LSO4AKN  ), BUNTSAER( LSO4AKN  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LSO4ACC  ), BUNTSAER( LSO4ACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LSO4COR  ), BUNTSAER( LSO4COR  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNH4AKN  ), BUNTSAER( LNH4AKN  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNH4ACC  ), BUNTSAER( LNH4ACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNH4COR  ), BUNTSAER( LNH4COR  ) /  0.0,   'ug/m3' / 
+      DATA BGNDAER( LNO3AKN  ), BUNTSAER( LNO3AKN  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNO3ACC  ), BUNTSAER( LNO3ACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNO3COR  ), BUNTSAER( LNO3COR  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LALKACC  ), BUNTSAER( LALKACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LXYL1ACC ), BUNTSAER( LXYL1ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LXYL2ACC ), BUNTSAER( LXYL2ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LXYL3ACC ), BUNTSAER( LXYL3ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTOL1ACC ), BUNTSAER( LTOL1ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTOL2ACC ), BUNTSAER( LTOL2ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTOL3ACC ), BUNTSAER( LTOL3ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LBNZ1ACC ), BUNTSAER( LBNZ1ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LBNZ2ACC ), BUNTSAER( LBNZ2ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LBNZ3ACC ), BUNTSAER( LBNZ3ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTRP1ACC ), BUNTSAER( LTRP1ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTRP2ACC ), BUNTSAER( LTRP2ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LISO1ACC ), BUNTSAER( LISO1ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LISO2ACC ), BUNTSAER( LISO2ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LISO3ACC ), BUNTSAER( LISO3ACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LSQTACC  ), BUNTSAER( LSQTACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LORGCACC ), BUNTSAER( LORGCACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LOLGAACC ), BUNTSAER( LOLGAACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LOLGBACC ), BUNTSAER( LOLGBACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LORGPAKN ), BUNTSAER( LORGPAKN ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LORGPACC ), BUNTSAER( LORGPACC ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LECAKN   ), BUNTSAER( LECAKN   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LECACC   ), BUNTSAER( LECACC   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LPRIAKN  ), BUNTSAER( LPRIAKN  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LPRIACC  ), BUNTSAER( LPRIACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LPRICOR  ), BUNTSAER( LPRICOR  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNAAKN   ), BUNTSAER( LNAAKN   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNAACC   ), BUNTSAER( LNAACC   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNACOR   ), BUNTSAER( LNACOR   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LCLAKN   ), BUNTSAER( LCLAKN   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LCLACC   ), BUNTSAER( LCLACC   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LCLCOR   ), BUNTSAER( LCLCOR   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LNUMAKN  ), BUNTSAER( LNUMAKN  ) /  0.0,   ' #/m3' /
+      DATA BGNDAER( LNUMACC  ), BUNTSAER( LNUMACC  ) /  0.0,   ' #/m3' /
+      DATA BGNDAER( LNUMCOR  ), BUNTSAER( LNUMCOR  ) /  0.0,   ' #/m3' /
+      DATA BGNDAER( LSRFAKN  ), BUNTSAER( LSRFAKN  ) /  0.0,   'm2/m3' /
+      DATA BGNDAER( LSRFACC  ), BUNTSAER( LSRFACC  ) /  0.0,   'm2/m3' /
+      DATA BGNDAER( LSRFCOR  ), BUNTSAER( LSRFCOR  ) /  0.0,   'm2/m3' / 
+      DATA BGNDAER( LCACO3   ), BUNTSAER( LCACO3   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LMGCO3   ), BUNTSAER( LMGCO3   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LA3FE    ), BUNTSAER( LA3FE    ) /  0.010, 'ug/m3' /
+      DATA BGNDAER( LB2MN    ), BUNTSAER( LB2MN    ) /  0.005, 'ug/m3' /
+      DATA BGNDAER( LK       ), BUNTSAER( LK       ) /  0.0,   'ug/m3' /
+C:WTH
+      DATA BGNDAER( LTRACER_AKN   ), BUNTSAER( LTRACER_AKN   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTRACER_ACC   ), BUNTSAER( LTRACER_ACC   ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LTRACER_COR   ), BUNTSAER( LTRACER_COR   ) /  0.0,   'ug/m3' /
+C mercuric species
+      DATA BGNDAER( LPHGAKN  ), BUNTSAER( LPHGAKN  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LPHGACC  ), BUNTSAER( LPHGACC  ) /  0.0,   'ug/m3' /
+      DATA BGNDAER( LPHGCOR  ), BUNTSAER( LPHGCOR  ) /  0.0,   'ug/m3' /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

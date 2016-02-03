@@ -1,0 +1,21 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/saprc99_ae5ca_aq/NR_N2AQ.EXT,v 1.1.1.1 2009/12/16 19:16:02 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5CA_AQ
+
+        INTEGER        N_NR_N2AQ
+        PARAMETER     (N_NR_N2AQ = 2)
+        INTEGER        N_NR_N2AQD
+        PARAMETER     (N_NR_N2AQD = N_NR_N2AQ)
+        CHARACTER*16   NR_N2AQ(N_NR_N2AQD)
+        INTEGER        NR_N2AQ_MAP(N_NR_N2AQD)
+        REAL           NR_N2AQ_FAC(N_NR_N2AQD)
+
+        DATA   NR_N2AQ(  1), NR_N2AQ_MAP(  1) / 'NH3             ',   1 /
+        DATA   NR_N2AQ_FAC(  1) /      1.0 /
+        DATA   NR_N2AQ(  2), NR_N2AQ_MAP(  2) / 'HCL             ',   2 /
+        DATA   NR_N2AQ_FAC(  2) /      1.0 /

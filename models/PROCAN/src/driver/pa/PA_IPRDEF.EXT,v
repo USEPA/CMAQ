@@ -1,0 +1,164 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/PA_IPRDEF.EXT,v 1.4 2006/02/14 18:03:43 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C......................................................................
+C  INCLUDE FILE: PA_IPRDEF.EXT
+C
+C  CONTAINS: Defines science processes contained in the CMAQ and the 
+C            IPR operators that can be used
+C
+C  DEPENDENT UPON: Nothing, but if the process names and/or operator
+C                  names are changed, the definitions of the 
+C                  operators must be re-programmed in pa_setup_ipr.F.
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, Sept, 1997
+C                      for the targeted CTM
+C                    Modified June 3, 1998 by Jerry Gipson to add PING
+C                      to the CTM science processes
+C                    Modified June 4, 2005 by Jeff Young to deal with
+C                      Yamo (Yamartino-type) advection scheme
+C                    27 Jan 2006, J.Young: change all operator names to
+C                    be 4 chars - they prepend species names, which must
+C                    remain less that 12 chars, i.e. OPNM_<__SPECIES__>
+C                                                    12345 67890123456
+C......................................................................
+
+      INTEGER NPROCS                   ! No. of CTM science processes
+      PARAMETER ( NPROCS = 13 )
+
+      INTEGER NOPNAMES                 ! Number of IPR_OUTPUT operators
+      PARAMETER ( NOPNAMES = 20 )
+
+      CHARACTER*16 PROCNAME( NPROCS )  ! Names of CTM science processes
+
+      DATA  PROCNAME(  1 ) / 'XADV            ' /
+      DATA  PROCNAME(  2 ) / 'YADV            ' /
+      DATA  PROCNAME(  3 ) / 'ZADV            ' /
+      DATA  PROCNAME(  4 ) / 'ADJC            ' /
+      DATA  PROCNAME(  5 ) / 'HADV            ' /
+      DATA  PROCNAME(  6 ) / 'HDIF            ' /
+      DATA  PROCNAME(  7 ) / 'VDIF            ' /
+      DATA  PROCNAME(  8 ) / 'EMIS            ' /
+      DATA  PROCNAME(  9 ) / 'DDEP            ' /
+      DATA  PROCNAME( 10 ) / 'CLDS            ' /
+      DATA  PROCNAME( 11 ) / 'CHEM            ' /
+      DATA  PROCNAME( 12 ) / 'AERO            ' /
+      DATA  PROCNAME( 13 ) / 'PING            ' /
+
+
+      CHARACTER*16 OPNAME( NOPNAMES )  ! IPR_OUTPUT Operator names
+
+      DATA  OPNAME(  1 ) / 'XADV            ' /
+      DATA  OPNAME(  2 ) / 'YADV            ' /
+      DATA  OPNAME(  3 ) / 'ZADV            ' /
+      DATA  OPNAME(  4 ) / 'ADJC            ' /
+      DATA  OPNAME(  5 ) / 'HADV            ' /
+      DATA  OPNAME(  6 ) / 'HDIF            ' /
+      DATA  OPNAME(  7 ) / 'VDIF            ' /
+      DATA  OPNAME(  8 ) / 'EMIS            ' /
+      DATA  OPNAME(  9 ) / 'DDEP            ' /
+      DATA  OPNAME( 10 ) / 'CLDS            ' /
+      DATA  OPNAME( 11 ) / 'CHEM            ' /
+      DATA  OPNAME( 12 ) / 'AERO            ' /
+!     DATA  OPNAME( 13 ) / 'XYADV           ' /
+      DATA  OPNAME( 13 ) / 'ADV2            ' /
+!     DATA  OPNAME( 14 ) / 'XYZADV          ' /
+      DATA  OPNAME( 14 ) / 'ADV3            ' /
+!     DATA  OPNAME( 15 ) / 'HZADV           ' /
+      DATA  OPNAME( 15 ) / 'MADV            ' /
+!     DATA  OPNAME( 16 ) / 'TOTADV          ' /
+      DATA  OPNAME( 16 ) / 'TADV            ' /
+!     DATA  OPNAME( 17 ) / 'TOTDIF          ' /
+      DATA  OPNAME( 17 ) / 'TDIF            ' /
+!     DATA  OPNAME( 18 ) / 'TOTTRAN         ' /
+      DATA  OPNAME( 18 ) / 'TRAN            ' /
+!     DATA  OPNAME( 19 ) / 'TOTTRAN_YAMO    ' /
+      DATA  OPNAME( 19 ) / 'TRNM            ' /
+      DATA  OPNAME( 20 ) / 'PING            ' /
+
+C  OLD Operator 13-19 definitions:
+C      XYADV   = XADV + YADV
+C      XYZADV  = XADV + YADV + ZADV
+C      HZADV   = HADV + ZADV  = TOTADV for YAMO
+C      TOTADV  = XADV + YADV + ZADV + ADJC
+C      TOTDIF  = HDIF + VDIF
+C      TOTTRAN = XADV + YADV + ZADV + ADJC + HDIF + VDIF
+C      TOTTRAN_YAMO = HADV + ZADV + HDIF + VDIF
+
+C  NEW Operator 13-19 definitions:
+C      ADV2 = XADV + YADV
+C      ADV3 = XADV + YADV + ZADV
+C      MADV = HADV + ZADV  = TOTADV for YAMO, "Mass-conserving ADV"
+C      TADV = XADV + YADV + ZADV + ADJC
+C      TDIF = HDIF + VDIF
+C      TRAN = XADV + YADV + ZADV + ADJC + HDIF + VDIF
+C      TRNM = HADV + ZADV + HDIF + VDIF = total "TRaN for Mass-conserving adv"
+
+C............................ end PA_IPRDEF.EXT .........................
+ 
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

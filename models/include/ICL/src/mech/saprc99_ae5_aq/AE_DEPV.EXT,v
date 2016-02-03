@@ -1,0 +1,158 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/saprc99_ae5_aq/AE_DEPV.EXT,v 1.1.1.1 2008/08/14 18:28:19 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5_AQ
+
+        INTEGER        N_AE_DEPV
+        PARAMETER     (N_AE_DEPV = 51)
+        INTEGER        N_AE_DEPVD
+        PARAMETER     (N_AE_DEPVD = N_AE_DEPV)
+        CHARACTER*16   AE_DEPV(N_AE_DEPVD)
+        INTEGER        AE_DEPV_MAP(N_AE_DEPVD)
+        REAL           AE_DEPV_FAC(N_AE_DEPVD)
+
+        DATA   AE_DEPV(  1), AE_DEPV_MAP(  1) / 'VMASSJ          ',   1 /
+        DATA   AE_DEPV_FAC(  1) /      1.0 /
+        DATA   AE_DEPV(  2), AE_DEPV_MAP(  2) / 'VMASSI          ',   2 /
+        DATA   AE_DEPV_FAC(  2) /      1.0 /
+        DATA   AE_DEPV(  3), AE_DEPV_MAP(  3) / 'VMASSJ          ',   3 /
+        DATA   AE_DEPV_FAC(  3) /      1.0 /
+        DATA   AE_DEPV(  4), AE_DEPV_MAP(  4) / 'VMASSI          ',   4 /
+        DATA   AE_DEPV_FAC(  4) /      1.0 /
+        DATA   AE_DEPV(  5), AE_DEPV_MAP(  5) / 'VMASSJ          ',   5 /
+        DATA   AE_DEPV_FAC(  5) /      1.0 /
+        DATA   AE_DEPV(  6), AE_DEPV_MAP(  6) / 'VMASSI          ',   6 /
+        DATA   AE_DEPV_FAC(  6) /      1.0 /
+        DATA   AE_DEPV(  7), AE_DEPV_MAP(  7) / 'VMASSJ          ',   7 /
+        DATA   AE_DEPV_FAC(  7) /      1.0 /
+        DATA   AE_DEPV(  8), AE_DEPV_MAP(  8) / 'VMASSJ          ',   8 /
+        DATA   AE_DEPV_FAC(  8) /      1.0 /
+        DATA   AE_DEPV(  9), AE_DEPV_MAP(  9) / 'VMASSJ          ',   9 /
+        DATA   AE_DEPV_FAC(  9) /      1.0 /
+        DATA   AE_DEPV( 10), AE_DEPV_MAP( 10) / 'VMASSJ          ',  10 /
+        DATA   AE_DEPV_FAC( 10) /      1.0 /
+        DATA   AE_DEPV( 11), AE_DEPV_MAP( 11) / 'VMASSJ          ',  11 /
+        DATA   AE_DEPV_FAC( 11) /      1.0 /
+        DATA   AE_DEPV( 12), AE_DEPV_MAP( 12) / 'VMASSJ          ',  12 /
+        DATA   AE_DEPV_FAC( 12) /      1.0 /
+        DATA   AE_DEPV( 13), AE_DEPV_MAP( 13) / 'VMASSJ          ',  13 /
+        DATA   AE_DEPV_FAC( 13) /      1.0 /
+        DATA   AE_DEPV( 14), AE_DEPV_MAP( 14) / 'VMASSJ          ',  14 /
+        DATA   AE_DEPV_FAC( 14) /      1.0 /
+        DATA   AE_DEPV( 15), AE_DEPV_MAP( 15) / 'VMASSJ          ',  15 /
+        DATA   AE_DEPV_FAC( 15) /      1.0 /
+        DATA   AE_DEPV( 16), AE_DEPV_MAP( 16) / 'VMASSJ          ',  16 /
+        DATA   AE_DEPV_FAC( 16) /      1.0 /
+        DATA   AE_DEPV( 17), AE_DEPV_MAP( 17) / 'VMASSJ          ',  17 /
+        DATA   AE_DEPV_FAC( 17) /      1.0 /
+        DATA   AE_DEPV( 18), AE_DEPV_MAP( 18) / 'VMASSJ          ',  18 /
+        DATA   AE_DEPV_FAC( 18) /      1.0 /
+        DATA   AE_DEPV( 19), AE_DEPV_MAP( 19) / 'VMASSJ          ',  19 /
+        DATA   AE_DEPV_FAC( 19) /      1.0 /
+        DATA   AE_DEPV( 20), AE_DEPV_MAP( 20) / 'VMASSJ          ',  20 /
+        DATA   AE_DEPV_FAC( 20) /      1.0 /
+        DATA   AE_DEPV( 21), AE_DEPV_MAP( 21) / 'VMASSJ          ',  21 /
+        DATA   AE_DEPV_FAC( 21) /      1.0 /
+        DATA   AE_DEPV( 22), AE_DEPV_MAP( 22) / 'VMASSJ          ',  22 /
+        DATA   AE_DEPV_FAC( 22) /      1.0 /
+        DATA   AE_DEPV( 23), AE_DEPV_MAP( 23) / 'VMASSJ          ',  23 /
+        DATA   AE_DEPV_FAC( 23) /      1.0 /
+        DATA   AE_DEPV( 24), AE_DEPV_MAP( 24) / 'VMASSI          ',  24 /
+        DATA   AE_DEPV_FAC( 24) /      1.0 /
+        DATA   AE_DEPV( 25), AE_DEPV_MAP( 25) / 'VMASSJ          ',  25 /
+        DATA   AE_DEPV_FAC( 25) /      1.0 /
+        DATA   AE_DEPV( 26), AE_DEPV_MAP( 26) / 'VMASSI          ',  26 /
+        DATA   AE_DEPV_FAC( 26) /      1.0 /
+        DATA   AE_DEPV( 27), AE_DEPV_MAP( 27) / 'VMASSJ          ',  27 /
+        DATA   AE_DEPV_FAC( 27) /      1.0 /
+        DATA   AE_DEPV( 28), AE_DEPV_MAP( 28) / 'VMASSI          ',  28 /
+        DATA   AE_DEPV_FAC( 28) /      1.0 /
+        DATA   AE_DEPV( 29), AE_DEPV_MAP( 29) / 'VMASSC          ',  29 /
+        DATA   AE_DEPV_FAC( 29) /      1.0 /
+        DATA   AE_DEPV( 30), AE_DEPV_MAP( 30) / 'VMASSC          ',  30 /
+        DATA   AE_DEPV_FAC( 30) /      1.0 /
+        DATA   AE_DEPV( 31), AE_DEPV_MAP( 31) / 'VNUMATKN        ',  31 /
+        DATA   AE_DEPV_FAC( 31) /      1.0 /
+        DATA   AE_DEPV( 32), AE_DEPV_MAP( 32) / 'VNUMACC         ',  32 /
+        DATA   AE_DEPV_FAC( 32) /      1.0 /
+        DATA   AE_DEPV( 33), AE_DEPV_MAP( 33) / 'VNUMCOR         ',  33 /
+        DATA   AE_DEPV_FAC( 33) /      1.0 /
+        DATA   AE_DEPV( 34), AE_DEPV_MAP( 34) / 'VSRFATKN        ',  34 /
+        DATA   AE_DEPV_FAC( 34) /      1.0 /
+        DATA   AE_DEPV( 35), AE_DEPV_MAP( 35) / 'VSRFACC         ',  35 /
+        DATA   AE_DEPV_FAC( 35) /      1.0 /
+        DATA   AE_DEPV( 36), AE_DEPV_MAP( 36) / 'VSRFCOR         ',  36 /
+        DATA   AE_DEPV_FAC( 36) /      1.0 /
+        DATA   AE_DEPV( 37), AE_DEPV_MAP( 37) / 'VMASSJ          ',  37 /
+        DATA   AE_DEPV_FAC( 37) /      1.0 /
+        DATA   AE_DEPV( 38), AE_DEPV_MAP( 38) / 'VMASSI          ',  38 /
+        DATA   AE_DEPV_FAC( 38) /      1.0 /
+        DATA   AE_DEPV( 39), AE_DEPV_MAP( 39) / 'VMASSJ          ',  39 /
+        DATA   AE_DEPV_FAC( 39) /      1.0 /
+        DATA   AE_DEPV( 40), AE_DEPV_MAP( 40) / 'VMASSI          ',  40 /
+        DATA   AE_DEPV_FAC( 40) /      1.0 /
+        DATA   AE_DEPV( 41), AE_DEPV_MAP( 41) / 'VMASSJ          ',  41 /
+        DATA   AE_DEPV_FAC( 41) /      1.0 /
+        DATA   AE_DEPV( 42), AE_DEPV_MAP( 42) / 'VMASSI          ',  42 /
+        DATA   AE_DEPV_FAC( 42) /      1.0 /
+        DATA   AE_DEPV( 43), AE_DEPV_MAP( 43) / 'VMASSC          ',  43 /
+        DATA   AE_DEPV_FAC( 43) /      1.0 /
+        DATA   AE_DEPV( 44), AE_DEPV_MAP( 44) / 'VMASSC          ',  44 /
+        DATA   AE_DEPV_FAC( 44) /      1.0 /
+        DATA   AE_DEPV( 45), AE_DEPV_MAP( 45) / 'VMASSC          ',  45 /
+        DATA   AE_DEPV_FAC( 45) /      1.0 /
+        DATA   AE_DEPV( 46), AE_DEPV_MAP( 46) / 'VMASSC          ',  46 /
+        DATA   AE_DEPV_FAC( 46) /      1.0 /
+        DATA   AE_DEPV( 47), AE_DEPV_MAP( 47) / 'VMASSC          ',  47 /
+        DATA   AE_DEPV_FAC( 47) /      1.0 /
+        DATA   AE_DEPV( 48), AE_DEPV_MAP( 48) / 'VMASSC          ',  48 /
+        DATA   AE_DEPV_FAC( 48) /      1.0 /
+        DATA   AE_DEPV( 49), AE_DEPV_MAP( 49) / 'VMASSJ          ',  49 /
+        DATA   AE_DEPV_FAC( 49) /      1.0 /
+        DATA   AE_DEPV( 50), AE_DEPV_MAP( 50) / 'VMASSJ          ',  50 /
+        DATA   AE_DEPV_FAC( 50) /      1.0 /
+        DATA   AE_DEPV( 51), AE_DEPV_MAP( 51) / 'VMASSJ          ',  51 /
+        DATA   AE_DEPV_FAC( 51) /      1.0 /
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

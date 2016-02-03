@@ -1,0 +1,299 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/input/radmconc/radm_driver.F,v 1.4 2002/04/12 14:19:31 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+      SUBROUTINE INBNDY( LOGUNIT, SDATE, STIME, RUNLEN, EXT_IC_NAME )   
+
+C*************************************************************************
+C
+C  FUNCTION: Opens a RADM conc file, calls routines to
+C            check for data consistency, and calls the routine to 
+C            compute the BCs and write the output BC file  
+C             
+C  PRECONDITIONS: The RADM_SIGMA.EXT and RADM_COORD.EXT include files
+C                 must be supplied by the user and must contain the
+C                 vertical and horizontal grid data that were 
+C                 used in the original RADM simulation.      
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: RDHDRS
+C                                    GC_SPC_MAP
+C                                    NGC_SPC_MAP
+C                                    LST_SPC_MAP
+C                                    BCOUT  
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998          
+C                    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
+C                  
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+      INCLUDE SUBST_VGRD_ID     ! Vertical grid
+      INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+      INCLUDE SUBST_GC_SPC      ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC      ! aerosol species table
+      INCLUDE SUBST_NR_SPC      ! non-reactive species table
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+
+      INCLUDE 'BC_PARMS.EXT'    ! BCON paramters
+      INCLUDE 'RADM_COORD.EXT'  ! RADM coordinate and grid data
+
+C..ARGUMENTS:
+      CHARACTER*16  EXT_IC_NAME( * )  ! Names of species in *.EXTs
+
+      INTEGER LOGUNIT      ! Unit number for output log
+      INTEGER RUNLEN       ! No. of hours for BC output
+      INTEGER SDATE        ! Date for IC Output
+      INTEGER STIME        ! Time for IC output
+
+C..PARAMETERS:
+      INTEGER      NSPCS   ! Total number of species
+
+      PARAMETER  ( NSPCS = N_GC_SPC
+     &                   + N_AE_SPC 
+     &                   + N_NR_SPC 
+     &                   + N_TR_SPC )
+
+      INTEGER      NSPCSD  ! Dimension for total number of species
+      PARAMETER  ( NSPCSD = N_GC_SPCD
+     &                    + N_AE_SPCD 
+     &                    + N_NR_SPCD 
+     &                    + N_TR_SPCD )
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER JUNIT      ! Gets unit number
+      INTEGER SEC2TIME   ! Converts seconds to HHMMSS format
+      INTEGER TRIMLEN    ! Get position of last character in a string
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*80  MSG            ! Log message
+      CHARACTER*16  PNAME          ! Program name
+      CHARACTER*16  RADM_FILE1     ! Input RADM file name
+      CHARACTER*16  RADM_FILE2     ! Input RADM file name
+      CHARACTER*256 RADM_F1_NAME   ! RADM Conc file 1 name
+      CHARACTER*256 RADM_F2_NAME   ! RADM Conc file 2 name
+
+      CHARACTER*16  INFL_SP_NAME( MX_INFL_SP ) ! RADM File species names
+      CHARACTER*16  SPNAME_OUT( NSPCSD )       ! Output file species names
+                                                 
+
+      CHARACTER*16  MCNV_SPCS( N_GC_SPCD, MXCVSP )  ! Mech conv species names
+
+      INTEGER EPOS         ! Last pos in character string
+      INTEGER N_GC_OUT     ! No. of GC species for conversion 
+      INTEGER NCOLS_IN     ! No. of columns in input conc file
+      INTEGER NLAYS_IN     ! No. of layers in input conc file
+      INTEGER NROWS_IN     ! No. of rows in input conc file
+      INTEGER NSPC1        ! No. of species on RADM conc file 1
+      INTEGER NSPC2        ! No. of species on RADM conc file 2
+      INTEGER NSPCS_IN     ! Total no. of species on RADM conc files
+      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER RF1, RF2     ! RADM input file unit numbers
+      INTEGER STATUS       ! Status code
+      INTEGER TSTEP        ! RADM file stepsize
+
+      INTEGER SPMAP( NSPCSD )              ! Map to input file species from IC
+                                           ! species
+
+      INTEGER N_MCNV_SP( N_GC_SPCD )       ! No. of mech input species for each
+                                           ! mech output species
+
+      LOGICAL LCONV                        ! Flag for mech conversion
+      LOGICAL LCONVSP( NSPCSD )            ! Flag for species mech conversion  
+      LOGICAL LSCALE( MXVARS3 * MXCTMS)    ! Flag for scaling input concs 
+
+      REAL MCNV_COEFF( N_GC_SPCD, MXCVSP ) ! Mech conv species coefficients
+      REAL SFAC( MXVARS3 * MXCTMS )        ! Scale factor for input species
+
+C**********************************************************************
+      DATA PNAME      / 'INIC      '  /
+      DATA RADM_FILE1 / 'RADM_FILE1' /
+      DATA RADM_FILE2 / 'RADM_FILE2' /
+
+      WRITE( LOGUNIT, 92000 )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the RADM conc file names and call routines to open and read
+c  header info
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL ENVSTR( RADM_FILE1, 'RADM CONC FILE 1', PNAME, RADM_F1_NAME,
+     &             STATUS)
+      IF( STATUS .NE. 0 ) THEN
+         MSG = 'Could not get RADM file name 1 from environment variable'
+     &         // RADM_FILE1
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      CALL ENVSTR( RADM_FILE2, 'RADM CONC FILE 2', PNAME, RADM_F2_NAME,
+     &             STATUS)
+      IF( STATUS .NE. 0 ) THEN
+         MSG = 'Could not get RADM file name 2 from environment variable'
+     &         // RADM_FILE2
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      EPOS = TRIMLEN( RADM_F1_NAME )
+      WRITE( LOGUNIT, 92020) RADM_F1_NAME( 1 : EPOS )
+
+      EPOS = TRIMLEN( RADM_F2_NAME )
+      WRITE( LOGUNIT, 92040) RADM_F2_NAME( 1 : EPOS )
+
+      RF1 = JUNIT()
+      RF2 = JUNIT()
+
+      CALL RDHDRS( LOGUNIT, RF1, RF2, RADM_F1_NAME, RADM_F2_NAME,     
+     &             NCOLS_IN, NROWS_IN, NLAYS_IN, NSPC1,
+     &             NSPC2, TSTEP, INFL_SP_NAME )   
+
+      WRITE( LOGUNIT, 92060 )
+
+      NSPCS_IN = NSPC1 + NSPC2
+
+      TSTEP = SEC2TIME( TSTEP ) 
+
+      WRITE( LOGUNIT, 92080 ) P_ALP_RADM, P_BET_RADM, P_GAM_RADM,
+     &                        XCENT_RADM, YCENT_RADM, XORIG_RADM,
+     &                        YORIG_RADM, XCELL_RADM, YCELL_RADM,
+     &                        IMAX, JMAX, RADM_NTHIK
+
+      IF( IMAX .NE. NCOLS_IN .OR. JMAX .NE. NROWS_IN ) THEN
+         MSG = 'Columns or rows on the RADM files are not '
+     &         // 'consistent with those in the RADM_COORD.EXT file.'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+     
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c   Build a species map and report 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL GC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, SPMAP, N_MCNV_SP,
+     &                 SFAC, MCNV_COEFF, LCONV, LSCALE, LCONVSP, 
+     &                 EXT_IC_NAME, INFL_SP_NAME, MCNV_SPCS,  
+     &                 SPNAME_OUT )
+
+      CALL NGC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT, SPMAP, 
+     &                  SFAC, LCONV, LSCALE, LCONVSP, EXT_IC_NAME,
+     &                  INFL_SP_NAME, SPNAME_OUT )
+
+
+      CALL LST_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT, SPMAP, 
+     &                  N_MCNV_SP, SFAC, MCNV_COEFF, LCONV, LSCALE,  
+     &                  LCONVSP, EXT_IC_NAME, INFL_SP_NAME, MCNV_SPCS, 
+     &                  SPNAME_OUT )
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call the routine that computes and outputs BCs from the input
+c  CTM conc file(s)  cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL BCOUT( LOGUNIT, RF1, RF2, SDATE, STIME, RUNLEN, TSTEP, NCOLS_IN,  
+     &            NROWS_IN, NLAYS_IN, NSPC1, NSPC2, NSPCS_IN, NSPCS_OUT, 
+     &            SPMAP, N_MCNV_SP, SFAC, MCNV_COEFF, LCONV, LSCALE, 
+     &            LCONVSP, EXT_IC_NAME, INFL_SP_NAME, MCNV_SPCS, 
+     &            SPNAME_OUT )
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  Input file section '
+     &         / 1X, 79( '#' )
+     &        // 5X, 'Boundary Concentrations from a RADM Model',
+     &               ' concentration file.' 
+     &        // 5X, 'WARNING: Correct horizontal and vertical coordinate '
+     &               'system and domain data used in the RADM '
+     &         / 5X, '         simulation MUST be specified in the ',
+     &               'RADM_COORD.EXT and the RADM_SIGIN.EXT include ',
+     &               'files.' 
+     &         / 1X )
+
+92020 FORMAT( // 5X, 'Input RADM Concentration file 1 name: ', A )
+
+92040 FORMAT(  / 5X, 'Input RADM Concentration file 2 name: ', A  
+     &        // 5X, 'RADM file header data follows:'
+     &         / 1X  )
+
+92060 FORMAT( // 5X, 'End of RADM file header data.' )
+
+92080 FORMAT( // 5X, 'The following horizontal grid data for the RADM ',
+     &               'domain are contained in the RADM_COORD.EXT file:'  
+     &         /10X, 'P_ALP      = ', G10.3
+     &         /10X, 'P_BET      = ', G10.3
+     &         /10X, 'P_GAM      = ', G10.3
+     &         /10X, 'XCENT      = ', G10.3
+     &         /10X, 'YCENT      = ', G10.3
+     &         /10X, 'XORIG      = ', G10.3
+     &         /10X, 'YORIG      = ', G10.3
+     &         /10X, 'XCELL      = ', G10.3
+     &         /10X, 'YCELL      = ', G10.3
+     &         /10X, 'IMAX       = ', I5
+     &         /10X, 'JMAX       = ', I5 
+     &         /10X, 'RADM_NTHIK = ', I5 )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

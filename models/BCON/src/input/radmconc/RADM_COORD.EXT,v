@@ -1,0 +1,121 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/input/radmconc/RADM_COORD.EXT,v 1.3 2002/04/12 14:19:26 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+
+C......................................................................
+C  INCLUDE FILE: RADM_COORD.EXT
+C
+C  CONTAINS: Coordinate and domain descriptions for RADM concentration
+C            files.  The user must insure that the data in this file
+C            correspond to the grid and domain data used in the original
+C            simulation.  Thus, this file may need modifications for 
+C            any particular application.  Lambert coordinates are 
+C            assumed for RADM runs. 
+C
+C  DEPENDENT UPON: RADM coordinates and grid domain. 
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C
+C......................................................................
+
+      INTEGER  IMAX           ! No. of columns in RADM grid
+      INTEGER  JMAX           ! No. of rowss in RADM grid
+      INTEGER  RADM_NTHIK     ! Thickness of bounadry cells
+
+      REAL*8   P_ALP_RADM     ! 1st map projection parameter, degrees
+      REAL*8   P_BET_RADM     ! 2nd map projection parameter, degrees
+      REAL*8   P_GAM_RADM     ! 3rd map projection parameter, degrees
+
+      REAL*8   XCELL_RADM     ! x-coord cell dimension, meters
+      REAL*8   YCELL_RADM     ! y-coord cell dimension, meters
+
+      REAL*8   XCENT_RADM     ! lon of coord system center, degrees
+      REAL*8   YCENT_RADM     ! lat of coord system center, degrees
+
+      REAL*8   XORIG_RADM     ! x-coord origin of grid, meters
+      REAL*8   YORIG_RADM     ! x-coord origin of grid, meters
+
+
+      DATA P_ALP_RADM   /   30.0 /
+      DATA P_BET_RADM   /   60.0 /
+      DATA P_GAM_RADM   /  -90.0 /
+
+      DATA XCENT_RADM   /  -90.0 /
+      DATA YCENT_RADM   /   40.0 /
+ 
+
+c..The following data must correspond to that used in the RADM simulation
+      DATA IMAX         /  35 /
+      DATA JMAX         /  38 /
+      DATA RADM_NTHIK   /   1 /
+
+      DATA XCELL_RADM   /  36000.0 /
+      DATA YCELL_RADM   /  36000.0 /
+
+      DATA XORIG_RADM   /  -108000.0 /
+      DATA YORIG_RADM   / -1080000.0 /
+
+
+C...........................RADM_COORD.EXT.................................
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

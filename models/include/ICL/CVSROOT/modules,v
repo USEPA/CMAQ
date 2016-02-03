@@ -1,0 +1,264 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2009.12.16.19.16.06;	author sjr;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2009.12.16.19.15.30;	author sjr;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@CMAQv4_7_1
+@
+text
+@
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/include/ICL/CVSROOT/modules,v 1.42 2008/09/19 16:26:53 sjr Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+# Three different line formats are valid:
+#	key	-a    aliases...
+#	key [options] directory
+#	key [options] directory files...
+#
+# Where "options" are composed of:
+#	-i prog		Run "prog" on "cvs commit" from top-level of module.
+#	-o prog		Run "prog" on "cvs checkout" of module.
+#	-e prog		Run "prog" on "cvs export" of module.
+#	-t prog		Run "prog" on "cvs rtag" of module.
+#	-u prog		Run "prog" on "cvs update" of module.
+#	-d dir		Place module in directory "dir" instead of module name.
+#	-l		Top-level directory only -- do not recurse.
+#
+# NOTE:  If you change any of the "Run" options above, you'll have to
+# release and re-checkout any working directories of these modules.
+#
+# And "directory" is a path to a directory relative to $CVSROOT.
+#
+# The "-a" option specifies an alias.  An alias is interpreted as if
+# everything on the right of the "-a" had been typed on the command line.
+#
+# You can encode a module within a module by using the special '&'
+# character to interpose another module into the current module.  This
+# can be useful for creating a module that consists of many directories
+# spread out over the entire source repository.
+
+      CVSROOT            CVSROOT
+      modules            CVSROOT modules
+      ICL                src
+      bin                src/bin
+      fixed              src/fixed
+#2    block              src/fixed/block
+      filenames          src/fixed/filenames
+      const              src/fixed/const
+      emctrl             src/fixed/emctrl
+#2    ioapi              src/fixed/ioapi
+#2    cgrid              src/fixed/cgrid
+      par                src/fixed/par
+#2    grid               src/grid
+#2    D_108_30           src/grid/D_108_30
+#2    D_80_30            src/grid/D_80_30
+#2    D_36_30            src/grid/D_36_30
+#2    D_12_30            src/grid/D_12_30
+#2    D_04_30            src/grid/D_04_30
+#2    D_108_21           src/grid/D_108_21
+#2    D_36_21            src/grid/D_36_21
+#2    D_32_21            src/grid/D_32_21
+#2    D_12_21            src/grid/D_12_21
+#2    D_08_21            src/grid/D_08_21
+#2    D_04_21            src/grid/D_04_21
+#2    D_02_21            src/grid/D_02_21
+#2    D_36_15            src/grid/D_36_15
+#2    D_12_15            src/grid/D_12_15
+#2    D_04_15            src/grid/D_04_15
+#2    D_80_06            src/grid/D_80_06
+#2    D_36_06            src/grid/D_36_06
+#2    D_12_06            src/grid/D_12_06
+#2    D_04_06            src/grid/D_04_06
+#2    vcoord             src/vcoord
+      mech               src/mech
+#2    radm2              src/mech/radm2
+#2    radm2_ae           src/mech/radm2_ae
+#2    radm2_ae2          src/mech/radm2_ae2
+#2    radm2_ae3          src/mech/radm2_ae3
+#2    radm2_aq           src/mech/radm2_aq
+#2    radm2_ae_aq        src/mech/radm2_ae_aq
+#2    radm2_ae2_aq       src/mech/radm2_ae2_aq
+#2    radm2_ae3_aq       src/mech/radm2_ae3_aq
+#2    radm2_cis1         src/mech/radm2_cis1
+#2    radm2_cis1_ae      src/mech/radm2_cis1_ae
+#2    radm2_ci1_ae2      src/mech/radm2_ci1_ae2
+#2    radm2_ci1_ae3      src/mech/radm2_ci1_ae3
+#2    radm2_cis1_aq      src/mech/radm2_cis1_aq
+#2    radm2_cis1_ae_aq   src/mech/radm2_cis1_ae_aq
+#2    radm2_ci1_ae2_aq   src/mech/radm2_ci1_ae2_aq
+#2    radm2_ci1_ae3_aq   src/mech/radm2_ci1_ae3_aq
+#2    radm2_cis4         src/mech/radm2_cis4
+#2    radm2_cis4_ae      src/mech/radm2_cis4_ae
+#2    radm2_ci4_ae2      src/mech/radm2_ci4_ae2
+#2    radm2_ci4_ae3      src/mech/radm2_ci4_ae3
+#2    radm2_cis4_aq      src/mech/radm2_cis4_aq
+#2    radm2_cis4_ae_aq   src/mech/radm2_cis4_ae_aq
+#2    radm2_ci4_ae2_aq   src/mech/radm2_ci4_ae2_aq
+#2    radm2_ci4_ae3_aq   src/mech/radm2_ci4_ae3_aq
+#2    cb4                src/mech/cb4
+#2    cb4_ae             src/mech/cb4_ae
+#2    cb4_ae2            src/mech/cb4_ae2
+#2    cb4_ae3            src/mech/cb4_ae3
+#2    cb4_ae4            src/mech/cb4_ae4
+#2    cb4_aq             src/mech/cb4_aq
+#2    cb4_ae_aq          src/mech/cb4_ae_aq
+#2    cb4_ae2_aq         src/mech/cb4_ae2_aq
+#2    cb4_ae3_aq         src/mech/cb4_ae3_aq
+#2    cb4_ae4_aq         src/mech/cb4_ae4_aq
+#2    cb4_ae3ca_aq       src/mech/cb4_ae3ca_aq
+#2    cb4_ae4ca_aq       src/mech/cb4_ae4ca_aq
+#2    cb4_ae3st_aq       src/mech/cb4_ae3st_aq
+#2    cb4cl_ae3_aq       src/mech/cb4cl_ae3_aq
+#2    cb4hg_ae3_aq       src/mech/cb4hg_ae3_aq
+#2    cb4tx1p_aq         src/mech/cb4tx1p_aq
+#2    cb4tx1p_ae3_aq     src/mech/cb4tx1p_ae3_aq
+      cb05_ae4_aq        src/mech/cb05_ae4_aq
+#2    cb05_ae4ca_aq      src/mech/cb05_ae4ca_aq
+#2    cb05_ae4st_aq      src/mech/cb05_ae4st_aq
+      cb05cl_ae4_aq      src/mech/cb05cl_ae4_aq
+      cb05cl_ae5_aq      src/mech/cb05cl_ae5_aq
+      cb05cl_ae5ca_aq    src/mech/cb05cl_ae5ca_aq
+      cb05cl_ae5st_aq    src/mech/cb05cl_ae5st_aq
+      cb05cltx_ae4_aq    src/mech/cb05cltx_ae4_aq
+      cb05cltx_ae5_aq    src/mech/cb05cltx_ae5_aq
+#2    cb05hg_ae4_aq      src/mech/cb05hg_ae4_aq
+      cb05txhg_ae4_aq    src/mech/cb05txhg_ae4_aq
+      cb05txhg_ae5_aq    src/mech/cb05txhg_ae5_aq
+#2    saprc99            src/mech/saprc99
+#2    saprc99_ae2        src/mech/saprc99_ae2
+#2    saprc99_ae3        src/mech/saprc99_ae3
+#2    saprc99_ae4        src/mech/saprc99_ae4
+#2    saprc99_aq         src/mech/saprc99_aq
+#2    saprc99_ae2_aq     src/mech/saprc99_ae2_aq
+#2    saprc99_ae3_aq     src/mech/saprc99_ae3_aq
+      saprc99_ae4_aq     src/mech/saprc99_ae4_aq
+      saprc99_ae5_aq     src/mech/saprc99_ae5_aq
+#2    saprc99_ae3ca_aq   src/mech/saprc99_ae3ca_aq
+#2    saprc99_ae4ca_aq   src/mech/saprc99_ae4ca_aq
+#2    saprc99_ae3st_aq   src/mech/saprc99_ae3st_aq
+#2    saprc99_ae4st_aq   src/mech/saprc99_ae4st_aq
+      saprc99_ae5ca_aq   src/mech/saprc99_ae5ca_aq
+      saprc99_ae5st_aq   src/mech/saprc99_ae5st_aq
+#2    saprc99tx2p_aq     src/mech/saprc99tx2p_aq
+#2    saprc99tx2p_ae3_aq  src/mech/saprc99tx2p_ae3_aq
+      saprc99tx3_ae4_aq  src/mech/saprc99tx3_ae4_aq
+      saprc99tx3_ae5_aq  src/mech/saprc99tx3_ae5_aq
+
+# for export ...
+      ETR0 -a TRC0
+      TRC0 -e /home/yoj/bin/movTR src/mech/trac0
+
+#2    RADM2              -d RADM2             src/mech/radm2             &ETR0
+#2    RADM2_AE           -d RADM2_AE          src/mech/radm2_ae          &ETR0
+#2    RADM2_AE2          -d RADM2_AE2         src/mech/radm2_ae2         &ETR0
+#2    RADM3_AE3          -d RADM3_AE3         src/mech/radm3_ae3         &ETR0
+#2    RADM2_AQ           -d RADM2_AQ          src/mech/radm2_aq          &ETR0
+#2    RADM2_AE_AQ        -d RADM2_AE_AQ       src/mech/radm2_ae_aq       &ETR0
+#2    RADM2_AE2_AQ       -d RADM2_AE2_AQ      src/mech/radm2_ae2_aq      &ETR0
+#2    RADM2_AE3_AQ       -d RADM2_AE3_AQ      src/mech/radm3_ae3_aq      &ETR0
+#2    RADM2_CIS1         -d RADM2_CIS1        src/mech/radm2_cis1        &ETR0
+#2    RADM2_CIS1_AE      -d RADM2_CIS1_AE     src/mech/radm2_cis1_ae     &ETR0
+#2    RADM2_CI1_AE2      -d RADM2_CI1_AE2     src/mech/radm2_ci1_ae2     &ETR0
+#2    RADM2_CI1_AE3      -d RADM2_CI1_AE3     src/mech/radm3_ci1_ae3     &ETR0
+#2    RADM2_CIS1_AQ      -d RADM2_CIS1_AQ     src/mech/radm2_cis1_aq     &ETR0
+#2    RADM2_CIS1_AE_AQ   -d RADM2_CIS1_AE_AQ  src/mech/radm2_cis1_ae_aq  &ETR0
+#2    RADM2_CI1_AE2_AQ   -d RADM2_CI1_AE2_AQ  src/mech/radm2_ci1_ae2_aq  &ETR0
+#2    RADM2_CI1_AE3_AQ   -d RADM2_CI1_AE3_AQ  src/mech/radm3_ci1_ae3_aq  &ETR0
+#2    RADM2_CIS4         -d RADM2_CIS4        src/mech/radm2_cis4        &ETR0
+#2    RADM2_CIS4_AE      -d RADM2_CIS4_AE     src/mech/radm2_cis4_ae     &ETR0
+#2    RADM2_CI4_AE2      -d RADM2_CI4_AE2     src/mech/radm2_ci4_ae2     &ETR0
+#2    RADM2_CI4_AE3      -d RADM2_CI4_AE3     src/mech/radm2_ci4_ae3     &ETR0
+#2    RADM2_CIS4_AQ      -d RADM2_CIS4_AQ     src/mech/radm2_cis4_aq     &ETR0
+#2    RADM2_CIS4_AE_AQ   -d RADM2_CIS4_AE_AQ  src/mech/radm2_cis4_ae_aq  &ETR0
+#2    RADM2_CI4_AE2_AQ   -d RADM2_CI4_AE2_AQ  src/mech/radm2_ci4_ae2_aq  &ETR0
+#2    RADM2_CI4_AE3_AQ   -d RADM2_CI4_AE3_AQ  src/mech/radm2_ci4_ae3_aq  &ETR0
+#2    CB4                -d CB4               src/mech/cb4               &ETR0
+#2    CB4_AE             -d CB4_AE            src/mech/cb4_ae            &ETR0
+#2    CB4_AE2            -d CB4_AE2           src/mech/cb4_ae2           &ETR0
+#2    CB4_AE3            -d CB4_AE3           src/mech/cb4_ae3           &ETR0
+#2    CB4_AE4            -d CB4_AE4           src/mech/cb4_ae4           &ETR0
+#2    CB4_AQ             -d CB4_AQ            src/mech/cb4_aq            &ETR0
+#2    CB4_AE_AQ          -d CB4_AE_AQ         src/mech/cb4_ae_aq         &ETR0
+#2    CB4_AE2_AQ         -d CB4_AE2_AQ        src/mech/cb4_ae2_aq        &ETR0
+#2    CB4_AE3_AQ         -d CB4_AE3_AQ        src/mech/cb4_ae3_aq        &ETR0
+#2    CB4_AE4_AQ         -d CB4_AE4_AQ        src/mech/cb4_ae4_aq        &ETR0
+#2    CB4_AE3CA_AQ       -d CB4_AE3CA_AQ      src/mech/cb4_ae3ca_aq      &ETR0
+#2    CB4_AE4CA_AQ       -d CB4_AE4CA_AQ      src/mech/cb4_ae4ca_aq      &ETR0
+#2    CB4_AE3ST_AQ       -d CB4_AE3ST_AQ      src/mech/cb4_ae3st_aq      &ETR0
+#2    CB4CL_AE3_AQ       -d CB4CL_AE3_AQ      src/mech/cb4cl_ae3_aq      &ETR0
+#2    CB4HG_AE3_AQ       -d CB4HG_AE3_AQ      src/mech/cb4hg_ae3_aq      &ETR0
+#2    CB4TX1P_AQ         -d CB4TX1P_AQ        src/mech/cb4tx1p_aq        &ETR0
+#2    CB4TX1P_AE3_AQ     -d CB4TX1P_AE3_AQ    src/mech/cb4tx1p_ae3_aq    &ETR0
+      CB05_AE4_AQ        -d CB05_AE4_AQ       src/mech/cb05_ae4_aq       &ETR0
+#2    CB05_AE4CA_AQ      -d CB05_AE4CA_AQ     src/mech/cb05_ae4ca_aq     &ETR0
+#2    CB05_AE4ST_AQ      -d CB05_AE4ST_AQ     src/mech/cb05_ae4st_aq     &ETR0
+      CB05CL_AE4_AQ      -d CB05CL_AE4_AQ     src/mech/cb05cl_ae4_aq     &ETR0
+      CB05CL_AE5_AQ      -d CB05CL_AE5_AQ     src/mech/cb05cl_ae5_aq     &ETR0
+      CB05CL_AE5CA_AQ    -d CB05CL_AE5CA_AQ   src/mech/cb05cl_ae5ca_aq   &ETR0
+      CB05CL_AE5ST_AQ    -d CB05CL_AE5ST_AQ   src/mech/cb05cl_ae5st_aq   &ETR0
+      CB05CLTX_AE4_AQ    -d CB05CLTX_AE4_AQ   src/mech/cb05cltx_ae4_aq   &ETR0
+      CB05CLTX_AE5_AQ    -d CB05CLTX_AE5_AQ   src/mech/cb05cltx_ae5_aq   &ETR0
+#2    CB05HG_AE4_AQ      -d CB05HG_AE4_AQ     src/mech/cb05hg_ae4_aq     &ETR0
+      CB05TXHG_AE4_AQ    -d CB05TXHG_AE4_AQ   src/mech/cb05txhg_ae4_aq   &ETR0
+      CB05TXHG_AE5_AQ    -d CB05TXHG_AE5_AQ   src/mech/cb05txhg_ae5_aq   &ETR0
+#2    SAPRC99            -d SAPRC99           src/mech/saprc99           &ETR0
+#2    SAPRC99_AE2        -d SAPRC99_AE2       src/mech/saprc99_ae2       &ETR0
+#2    SAPRC99_AE3        -d SAPRC99_AE3       src/mech/saprc99_ae3       &ETR0
+#2    SAPRC99_AE4        -d SAPRC99_AE4       src/mech/saprc99_ae4       &ETR0
+#2    SAPRC99_AQ         -d SAPRC99_AQ        src/mech/saprc99_aq        &ETR0
+#2    SAPRC99_AE2_AQ     -d SAPRC99_AE2_AQ    src/mech/saprc99_ae2_aq    &ETR0
+#2    SAPRC99_AE3_AQ     -d SAPRC99_AE3_AQ    src/mech/saprc99_ae3_aq    &ETR0
+      SAPRC99_AE4_AQ     -d SAPRC99_AE4_AQ    src/mech/saprc99_ae4_aq    &ETR0
+      SAPRC99_AE5_AQ     -d SAPRC99_AE5_AQ    src/mech/saprc99_ae5_aq    &ETR0
+#2    SAPRC99_AE3CA_AQ   -d SAPRC99_AE3CA_AQ  src/mech/saprc99_ae3ca_aq  &ETR0
+#2    SAPRC99_AE4CA_AQ   -d SAPRC99_AE4CA_AQ  src/mech/saprc99_ae4ca_aq  &ETR0
+      SAPRC99_AE5CA_AQ   -d SAPRC99_AE5CA_AQ  src/mech/saprc99_ae5ca_aq  &ETR0
+#2    SAPRC99_AE3ST_AQ   -d SAPRC99_AE3ST_AQ  src/mech/saprc99_ae3st_aq  &ETR0
+#2    SAPRC99_AE4ST_AQ   -d SAPRC99_AE4ST_AQ  src/mech/saprc99_ae4st_aq  &ETR0
+      SAPRC99_AE5ST_AQ   -d SAPRC99_AE5ST_AQ  src/mech/saprc99_ae5st_aq  &ETR0
+#2    SAPRC99TX2P_AQ     -d SAPRC99TX2P_AQ    src/mech/saprc99tx2p_aq    &ETR0
+#2    SAPRC99TX2P_AE3_AQ  -d SAPRC99TX2P_AE3_AQ  src/mech/saprc99tx2p_ae3_aq  &ETR0
+      SAPRC99TX3_AE4_AQ  -d SAPRC99TX3_AE4_AQ  src/mech/saprc99tx3_ae4_aq  &ETR0
+      SAPRC99TX3_AE5_AQ  -d SAPRC99TX3_AE5_AQ  src/mech/saprc99tx3_ae5_aq  &ETR0
+
+      trac0              src/mech/trac0
+      trac1              src/mech/trac1
+      trac2              src/mech/trac2
+      procan             src/procan
+      pa_noop            src/procan/pa_noop
+      pa                 src/procan/pa
+@
+
+
+1.1
+log
+@initial checkin
+@
+text
+@d1 7
+d34 191
+@
+
+

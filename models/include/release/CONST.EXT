@@ -1,0 +1,152 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/fixed/const/CONST.EXT,v 1.1.1.1 2009/12/16 19:15:59 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @(#)CONST.EXT 4.1 /project/mod3/ICL/src/fixed/const/SCCS/s.CONST.EXT 29 May 1997 10:50:26
+
+C.......................................................................
+ 
+C  INCLUDE FILE  CONST.EXT
+ 
+C  Contains:  Fundamental constants for air quality modeling
+ 
+C  Dependent Upon:  none
+ 
+C  Revision History: 
+ 
+C    Adapted 6/92 by CJC from ROM's PI.EXT.
+ 
+C    3/1/93 John McHenry - include constants needed by LCM aqueous chemistry
+C    9/93 by John McHenry - include additional constants needed for FMEM clouds
+C    and aqueous chemistry
+ 
+C    3/4/96 Dr. Francis S. Binkowski - reflect current Models3 view that MKS
+C    units should be used wherever possible and that sources be documented.
+C    Some variables have been added, names changed, and values revised.
+ 
+C    3/7/96 - add universal gas constant and compute gas constant in chemical
+C    form. TWOPI is now calculated rather than input. 
+ 
+C    3/13/96 - group declarations and parameter statements
+C    9/13/96 - include more physical constants
+C    12/24/96 - eliminate silly EPSILON, AMISS
+C    1/06/97 - eliminate most derived constants - YOJ
+C    1/17/97 (comments only) to provide numerical values as reference - DWB 
+C    4/30/08 - Changed REARTH to match default value in MM5 and WRF - TLO
+ 
+C FSB References:
+ 
+C      CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
+C                     CRC Press, 1995 
+C      Hobbs, P.V.   "Basic Physical Chemistry for the Atmospheric Sciences",
+C                     Cambridge Univ. Press, 206 pp, 1995.  
+C      Snyder, J.P., "Map Projections-A Working Manual, U.S. Geological Survey
+C                     Paper 1395 U.S.GPO, Washington, DC, 1987.
+C      Stull, R. B., "An Introduction to Bounday Layer Meteorology", Kluwer, 
+C                     Dordrecht, 1988
+C.......................................................................
+
+
+C Geometric Constants:
+
+      REAL*8      PI ! pi (single precision 3.141593)
+      PARAMETER ( PI = 3.14159265358979324D0 )
+ 
+      REAL        PI180 ! pi/180 [ rad/deg ]
+      PARAMETER ( PI180  = PI / 180.0 )
+
+C Geodetic Constants:
+ 
+      REAL        REARTH ! radius of the earth [ m ]
+                         ! FSB: radius of sphere having same surface area as
+                         ! Clarke ellipsoid of 1866 ( Source: Snyder, 1987)
+!     PARAMETER ( REARTH = 6370997.0 )
+      PARAMETER ( REARTH = 6370000.0 )  ! default Re in MM5 and WRF
+ 
+      REAL        SIDAY ! length of a sidereal day [ sec ]
+                        ! FSB: Source: CRC76 pp. 14-6 
+      PARAMETER ( SIDAY = 86164.09 )
+ 
+      REAL        GRAV ! mean gravitational acceleration [ m/sec**2 ]
+                       ! FSB: Value is mean of polar and equatorial values.
+                       ! Source: CRC Handbook (76th Ed) pp. 14-6
+      PARAMETER ( GRAV = 9.80622 )
+
+      REAL        DG2M ! latitude degrees to meters
+      PARAMETER ( DG2M = REARTH * PI180 )
+
+C Solar Constant: 
+      REAL        SOLCNST ! Solar constant [ W/m**2 ], p14-2 CRC76
+      PARAMETER ( SOLCNST = 1373.0 )
+
+C Fundamental Constants: ( Source: CRC76, pp. 1-1 to 1-6)
+
+      REAL        AVO ! Avogadro's Constant [ number/mol ]
+      PARAMETER ( AVO = 6.0221367 E23 )
+
+      REAL        RGASUNIV ! universal gas constant [ J/mol-K ]
+      PARAMETER ( RGASUNIV = 8.314510 )
+
+      REAL        STDATMPA ! standard atmosphere  [ Pa ]
+      PARAMETER ( STDATMPA = 101325.0 )
+
+      REAL        STDTEMP ! Standard Temperature [ K ]
+      PARAMETER ( STDTEMP = 273.15 )
+
+      REAL        STFBLZ ! Stefan-Boltzmann [ W/(m**2 K**4) ]
+      PARAMETER ( STFBLZ = 5.67051E-8 ) 
+
+C FSB Non-MKS
+
+      REAL        MOLVOL ! Molar volume at STP [ L/mol ] Non MKS units 
+      PARAMETER ( MOLVOL = 22.41410 ) 
+
+C Atmospheric Constants: 
+
+      REAL        MWAIR ! mean molecular weight for dry air [ g/mol ]
+                        ! FSB: 78.06% N2, 21% O2, and 0.943% A on a mole 
+                        ! fraction basis ( Source : Hobbs, 1995) pp. 69-70
+      PARAMETER ( MWAIR = 28.9628 )
+
+      REAL        RDGAS  ! dry-air gas constant [ J / kg-K ]
+      PARAMETER ( RDGAS = 1.0E3 * RGASUNIV / MWAIR ) ! 287.07548994
+
+      REAL        MWWAT ! mean molecular weight for water vapor [ g/mol ]
+      PARAMETER ( MWWAT = 18.0153 )
+
+      REAL        RWVAP ! gas constant for water vapor [ J/kg-K ]
+      PARAMETER ( RWVAP = 1.0E3 * RGASUNIV / MWWAT ) ! 461.52492604
+
+C FSB NOTE: CPD, CVD, CPWVAP and CVWVAP are calculated assuming dry air and
+C water vapor are classical ideal gases, i.e. vibration does not contribute
+C to internal energy.
+
+      REAL        CPD ! specific heat of dry air at constant pressure [ J/kg-K ]
+      PARAMETER ( CPD = 7.0 * RDGAS / 2.0 )          ! 1004.7642148 
+
+      REAL        CVD ! specific heat of dry air at constant volume [ J/kg-K ]
+      PARAMETER ( CVD = 5.0 * RDGAS / 2.0 )          ! 717.68872485
+
+      REAL        CPWVAP ! specific heat for water vapor at constant pressure [ J/kg-K ]
+      PARAMETER ( CPWVAP = 4.0 * RWVAP )             ! 1846.0997042
+
+      REAL        CVWVAP ! specific heat for water vapor at constant volume [ J/kg-K ]
+      PARAMETER ( CVWVAP = 3.0 * RWVAP )             ! 1384.5747781
+
+      REAL        VP0 ! vapor press of water at 0 C [ Pa ] Source: CRC76 pp. 6-15
+      PARAMETER ( VP0 = 611.29 )
+
+C FSB The following values are taken from p. 641 of Stull (1988):
+
+      REAL        LV0 ! latent heat of vaporization of water at 0 C [ J/kg ]
+      PARAMETER ( LV0 = 2.501 E6 )
+
+      REAL        DLVDT ! Rate of change of latent heat of vaporization with
+                        ! respect to temperature [ J/kg-K ]
+      PARAMETER ( DLVDT = 2370.0 ) 
+
+      REAL        LF0 ! latent heat of fusion of water at 0 C [ J/kg ]
+      PARAMETER ( LF0 = 3.34 E5 )
+
+C.......................................................................

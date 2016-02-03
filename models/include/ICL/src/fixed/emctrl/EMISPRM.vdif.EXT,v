@@ -1,0 +1,85 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/fixed/emctrl/EMISPRM.vdif.EXT,v 1.1.1.1 1998/01/27 18:29:43 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)EMISPRM.vdif.EXT  2.1 /project/mod3/ICL/src/fixed/emctrl/SCCS/s.EMISPRM.vdif.EXT 07 Jun 1997 09:17:09
+
+C.......................................................................
+C Include File  EMISPR.vdif.EXT
+ 
+C Contains:  Gas chemistry emissions processing control parameters
+ 
+C Dependent Upon:  HGRD.EXT, GC_EMIS.EXT, EMIS_LYRS.EXT
+ 
+C Revision History:  prototype
+C                    Jeff JAN,FEB,MAR,APR,MAY,JUN,JUL,... 96, 97
+C.......................................................................
+
+      LOGICAL    EMISVD              ! gas chem emis processing in vert. diff
+      PARAMETER (EMISVD = .TRUE.)
+c      INTEGER    NC_VD               ! col dimension for emis in vert. diff
+c      PARAMETER (NC_VD = NCOLS)
+c      INTEGER    NR_VD               ! row dimension for emis in vert. diff
+c      PARAMETER (NR_VD = NROWS)
+c      INTEGER    NL_VD               ! lev dimension for emis in vert. diff
+c      PARAMETER (NL_VD = EMISLYRS)
+c      INTEGER    NS_VD               ! spc dimension for emis in vert. diff
+c      PARAMETER (NS_VD = N_GC_EMIS)
+      INTEGER    NEMIS               ! no. of gas chem emis species for vdiff
+      PARAMETER (NEMIS = N_GC_EMIS)
+c      INTEGER    NEMVD               ! no. of emis species in vdiff for pointer
+c      PARAMETER (NEMVD = NEMIS + 1)
+
+      LOGICAL    EMISCH              ! gas chem emis processing in gas chem
+      PARAMETER (EMISCH = .FALSE.)
+      INTEGER    NC_CH               ! col dimension for emis in gas chem
+      PARAMETER (NC_CH = 1)
+      INTEGER    NR_CH               ! row dimension for emis in gas chem
+      PARAMETER (NR_CH = 1)
+      INTEGER    NL_CH               ! lev dimension for emis in gas chem
+      PARAMETER (NL_CH = 1)
+      INTEGER    NS_CH               ! spc dimension for emis in gas chem
+      PARAMETER (NS_CH = 1)
+c      INTEGER    NECLS   ! no. of cells with emissions sources in gas chem
+c      PARAMETER (NECLS = 0)
+
+C.......................................................................
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

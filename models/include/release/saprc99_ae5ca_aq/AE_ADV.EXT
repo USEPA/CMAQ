@@ -1,0 +1,129 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/saprc99_ae5ca_aq/AE_ADV.EXT,v 1.1.1.1 2009/12/16 19:16:02 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C------------------------------------------------------ 
+C  Copied from mech/saprc99_ae5_aq/
+C  Added 15 source categories of both POA and PEC to AE5
+C------------------------------------------------------ 
+C Mechanism Name: SAPRC99_AE5CA_AQ
+
+        INTEGER        N_AE_ADV
+        PARAMETER     (N_AE_ADV = 109)
+        INTEGER        N_AE_ADVD
+        PARAMETER     (N_AE_ADVD = N_AE_ADV)
+        CHARACTER*16   AE_ADV(N_AE_ADVD)
+        INTEGER        AE_ADV_MAP(N_AE_ADVD)
+
+        DATA          AE_ADV(  1), AE_ADV_MAP(  1) / 'ASO4J           ',   1 /
+        DATA          AE_ADV(  2), AE_ADV_MAP(  2) / 'ASO4I           ',   2 /
+        DATA          AE_ADV(  3), AE_ADV_MAP(  3) / 'ANH4J           ',   3 /
+        DATA          AE_ADV(  4), AE_ADV_MAP(  4) / 'ANH4I           ',   4 /
+        DATA          AE_ADV(  5), AE_ADV_MAP(  5) / 'ANO3J           ',   5 /
+        DATA          AE_ADV(  6), AE_ADV_MAP(  6) / 'ANO3I           ',   6 /
+        DATA          AE_ADV(  7), AE_ADV_MAP(  7) / 'AALKJ           ',   7 /
+        DATA          AE_ADV(  8), AE_ADV_MAP(  8) / 'AXYL1J          ',   8 /
+        DATA          AE_ADV(  9), AE_ADV_MAP(  9) / 'AXYL2J          ',   9 /
+        DATA          AE_ADV( 10), AE_ADV_MAP( 10) / 'AXYL3J          ',  10 /
+        DATA          AE_ADV( 11), AE_ADV_MAP( 11) / 'ATOL1J          ',  11 /
+        DATA          AE_ADV( 12), AE_ADV_MAP( 12) / 'ATOL2J          ',  12 /
+        DATA          AE_ADV( 13), AE_ADV_MAP( 13) / 'ATOL3J          ',  13 /
+        DATA          AE_ADV( 14), AE_ADV_MAP( 14) / 'ABNZ1J          ',  14 /
+        DATA          AE_ADV( 15), AE_ADV_MAP( 15) / 'ABNZ2J          ',  15 /
+        DATA          AE_ADV( 16), AE_ADV_MAP( 16) / 'ABNZ3J          ',  16 /
+        DATA          AE_ADV( 17), AE_ADV_MAP( 17) / 'ATRP1J          ',  17 /
+        DATA          AE_ADV( 18), AE_ADV_MAP( 18) / 'ATRP2J          ',  18 /
+        DATA          AE_ADV( 19), AE_ADV_MAP( 19) / 'AISO1J          ',  19 /
+        DATA          AE_ADV( 20), AE_ADV_MAP( 20) / 'AISO2J          ',  20 /
+        DATA          AE_ADV( 21), AE_ADV_MAP( 21) / 'ASQTJ           ',  21 /
+        DATA          AE_ADV( 22), AE_ADV_MAP( 22) / 'AORGCJ          ',  22 /
+        DATA          AE_ADV( 23), AE_ADV_MAP( 23) / 'AORGPAJ         ',  23 /
+        DATA          AE_ADV( 24), AE_ADV_MAP( 24) / 'AORGPAI         ',  24 /
+        DATA          AE_ADV( 25), AE_ADV_MAP( 25) / 'AECJ            ',  25 /
+        DATA          AE_ADV( 26), AE_ADV_MAP( 26) / 'AECI            ',  26 /
+        DATA          AE_ADV( 27), AE_ADV_MAP( 27) / 'A25J            ',  27 /
+        DATA          AE_ADV( 28), AE_ADV_MAP( 28) / 'ACORS           ',  29 /
+        DATA          AE_ADV( 29), AE_ADV_MAP( 29) / 'ASOIL           ',  30 /
+        DATA          AE_ADV( 30), AE_ADV_MAP( 30) / 'NUMATKN         ',  31 /
+        DATA          AE_ADV( 31), AE_ADV_MAP( 31) / 'NUMACC          ',  32 /
+        DATA          AE_ADV( 32), AE_ADV_MAP( 32) / 'NUMCOR          ',  33 /
+        DATA          AE_ADV( 33), AE_ADV_MAP( 33) / 'SRFATKN         ',  34 /
+        DATA          AE_ADV( 34), AE_ADV_MAP( 34) / 'SRFACC          ',  35 /
+        DATA          AE_ADV( 35), AE_ADV_MAP( 35) / 'SRFCOR          ',  36 /
+        DATA          AE_ADV( 36), AE_ADV_MAP( 36) / 'AH2OJ           ',  37 /
+        DATA          AE_ADV( 37), AE_ADV_MAP( 37) / 'AH2OI           ',  38 /
+        DATA          AE_ADV( 38), AE_ADV_MAP( 38) / 'ANAJ            ',  39 /
+        DATA          AE_ADV( 39), AE_ADV_MAP( 39) / 'ACLJ            ',  41 /
+        DATA          AE_ADV( 40), AE_ADV_MAP( 40) / 'ACLI            ',  42 /
+        DATA          AE_ADV( 41), AE_ADV_MAP( 41) / 'ANAK            ',  43 /
+        DATA          AE_ADV( 42), AE_ADV_MAP( 42) / 'ACLK            ',  44 /
+        DATA          AE_ADV( 43), AE_ADV_MAP( 43) / 'ASO4K           ',  45 /
+        DATA          AE_ADV( 44), AE_ADV_MAP( 44) / 'ANH4K           ',  46 /
+        DATA          AE_ADV( 45), AE_ADV_MAP( 45) / 'ANO3K           ',  47 /
+        DATA          AE_ADV( 46), AE_ADV_MAP( 46) / 'AH2OK           ',  48 /
+        DATA          AE_ADV( 47), AE_ADV_MAP( 47) / 'AISO3J          ',  49 /
+        DATA          AE_ADV( 48), AE_ADV_MAP( 48) / 'AOLGAJ          ',  50 /
+        DATA          AE_ADV( 49), AE_ADV_MAP( 49) / 'AOLGBJ          ',  51 /
+        DATA          AE_ADV( 50), AE_ADV_MAP( 50) / 'AORGP01J        ',  52 /
+        DATA          AE_ADV( 51), AE_ADV_MAP( 51) / 'AORGP01I        ',  53 /
+        DATA          AE_ADV( 52), AE_ADV_MAP( 52) / 'AORGP02J        ',  54 /
+        DATA          AE_ADV( 53), AE_ADV_MAP( 53) / 'AORGP02I        ',  55 /
+        DATA          AE_ADV( 54), AE_ADV_MAP( 54) / 'AORGP03J        ',  56 /
+        DATA          AE_ADV( 55), AE_ADV_MAP( 55) / 'AORGP03I        ',  57 /
+        DATA          AE_ADV( 56), AE_ADV_MAP( 56) / 'AORGP04J        ',  58 /
+        DATA          AE_ADV( 57), AE_ADV_MAP( 57) / 'AORGP04I        ',  59 /
+        DATA          AE_ADV( 58), AE_ADV_MAP( 58) / 'AORGP05J        ',  60 /
+        DATA          AE_ADV( 59), AE_ADV_MAP( 59) / 'AORGP05I        ',  61 /
+        DATA          AE_ADV( 60), AE_ADV_MAP( 60) / 'AORGP06J        ',  62 /
+        DATA          AE_ADV( 61), AE_ADV_MAP( 61) / 'AORGP06I        ',  63 /
+        DATA          AE_ADV( 62), AE_ADV_MAP( 62) / 'AORGP07J        ',  64 /
+        DATA          AE_ADV( 63), AE_ADV_MAP( 63) / 'AORGP07I        ',  65 /
+        DATA          AE_ADV( 64), AE_ADV_MAP( 64) / 'AORGP08J        ',  66 /
+        DATA          AE_ADV( 65), AE_ADV_MAP( 65) / 'AORGP08I        ',  67 /
+        DATA          AE_ADV( 66), AE_ADV_MAP( 66) / 'AORGP09J        ',  68 /
+        DATA          AE_ADV( 67), AE_ADV_MAP( 67) / 'AORGP09I        ',  69 /
+        DATA          AE_ADV( 68), AE_ADV_MAP( 68) / 'AORGP10J        ',  70 /
+        DATA          AE_ADV( 69), AE_ADV_MAP( 69) / 'AORGP10I        ',  71 /
+        DATA          AE_ADV( 70), AE_ADV_MAP( 70) / 'AORGP11J        ',  72 /
+        DATA          AE_ADV( 71), AE_ADV_MAP( 71) / 'AORGP11I        ',  73 /
+        DATA          AE_ADV( 72), AE_ADV_MAP( 72) / 'AORGP12J        ',  74 /
+        DATA          AE_ADV( 73), AE_ADV_MAP( 73) / 'AORGP12I        ',  75 /
+        DATA          AE_ADV( 74), AE_ADV_MAP( 74) / 'AORGP13J        ',  76 /
+        DATA          AE_ADV( 75), AE_ADV_MAP( 75) / 'AORGP13I        ',  77 /
+        DATA          AE_ADV( 76), AE_ADV_MAP( 76) / 'AORGP14J        ',  78 /
+        DATA          AE_ADV( 77), AE_ADV_MAP( 77) / 'AORGP14I        ',  79 /
+        DATA          AE_ADV( 78), AE_ADV_MAP( 78) / 'AORGP15J        ',  80 /
+        DATA          AE_ADV( 79), AE_ADV_MAP( 79) / 'AORGP15I        ',  81 /
+        DATA          AE_ADV( 80), AE_ADV_MAP( 80) / 'AEC01J          ',  82 /
+        DATA          AE_ADV( 81), AE_ADV_MAP( 81) / 'AEC01I          ',  83 /
+        DATA          AE_ADV( 82), AE_ADV_MAP( 82) / 'AEC02J          ',  84 /
+        DATA          AE_ADV( 83), AE_ADV_MAP( 83) / 'AEC02I          ',  85 /
+        DATA          AE_ADV( 84), AE_ADV_MAP( 84) / 'AEC03J          ',  86 /
+        DATA          AE_ADV( 85), AE_ADV_MAP( 85) / 'AEC03I          ',  87 /
+        DATA          AE_ADV( 86), AE_ADV_MAP( 86) / 'AEC04J          ',  88 /
+        DATA          AE_ADV( 87), AE_ADV_MAP( 87) / 'AEC04I          ',  89 /
+        DATA          AE_ADV( 88), AE_ADV_MAP( 88) / 'AEC05J          ',  90 /
+        DATA          AE_ADV( 89), AE_ADV_MAP( 89) / 'AEC05I          ',  91 /
+        DATA          AE_ADV( 90), AE_ADV_MAP( 90) / 'AEC06J          ',  92 /
+        DATA          AE_ADV( 91), AE_ADV_MAP( 91) / 'AEC06I          ',  93 /
+        DATA          AE_ADV( 92), AE_ADV_MAP( 92) / 'AEC07J          ',  94 /
+        DATA          AE_ADV( 93), AE_ADV_MAP( 93) / 'AEC07I          ',  95 /
+        DATA          AE_ADV( 94), AE_ADV_MAP( 94) / 'AEC08J          ',  96 /
+        DATA          AE_ADV( 95), AE_ADV_MAP( 95) / 'AEC08I          ',  97 /
+        DATA          AE_ADV( 96), AE_ADV_MAP( 96) / 'AEC09J          ',  98 /
+        DATA          AE_ADV( 97), AE_ADV_MAP( 97) / 'AEC09I          ',  99 /
+        DATA          AE_ADV( 98), AE_ADV_MAP( 98) / 'AEC10J          ', 100 /
+        DATA          AE_ADV( 99), AE_ADV_MAP( 99) / 'AEC10I          ', 101 /
+        DATA          AE_ADV(100), AE_ADV_MAP(100) / 'AEC11J          ', 102 /
+        DATA          AE_ADV(101), AE_ADV_MAP(101) / 'AEC11I          ', 103 /
+        DATA          AE_ADV(102), AE_ADV_MAP(102) / 'AEC12J          ', 104 /
+        DATA          AE_ADV(103), AE_ADV_MAP(103) / 'AEC12I          ', 105 /
+        DATA          AE_ADV(104), AE_ADV_MAP(104) / 'AEC13J          ', 106 /
+        DATA          AE_ADV(105), AE_ADV_MAP(105) / 'AEC13I          ', 107 /
+        DATA          AE_ADV(106), AE_ADV_MAP(106) / 'AEC14J          ', 108 /
+        DATA          AE_ADV(107), AE_ADV_MAP(107) / 'AEC14I          ', 109 /
+        DATA          AE_ADV(108), AE_ADV_MAP(108) / 'AEC15J          ', 110 /
+        DATA          AE_ADV(109), AE_ADV_MAP(109) / 'AEC15I          ', 111 /

@@ -1,0 +1,167 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/include/ICL/src/bin/mod_hgrd,v 1.2 1999/04/07 12:52:06 yoj Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+# must be set in environment:
+#  Grid
+#  nprow
+#  npcol
+
+ unset echo
+
+# the following are subject to change, depending on model algorithms
+ set  mndis = 2
+ set  medis = 2
+ set  msdis = 2
+ set  mwdis = 2
+
+ set nbody = nbody_$$
+ set line  = line_$$
+ set out   = out_$$
+
+# save ncols and nrows from HGRD_ncolsXnrows name convention
+
+ set grid = `echo $Grid | sed "s/X/ /"`
+
+# build new part of HGRD body
+
+ set pc = `grep -i nprow HGRD_${Grid}.EXT | wc -w`  # quit if found
+
+ if ($pc == 0) then
+#  set nthikstr = `grep -i -e "nthik =" HGRD_${Grid}.EXT`  # not on Sun
+   set nthikstr = `grep -i "nthik =" HGRD_${Grid}.EXT | tr -d ")"`
+ 
+# echo $nthikstr   # debug
+
+   set nthik = $nthikstr[$#nthikstr]
+ 
+   echo "      INTEGER    GL_NROWS  ! no. of rows in global grid" >> $nbody
+   echo "      PARAMETER( GL_NROWS = $grid[2] )" >> $nbody
+   echo " " >> $nbody
+
+   echo "      INTEGER    GL_NCOLS  ! no. of columns in global grid" >> $nbody
+   echo "      PARAMETER( GL_NCOLS = $grid[1] )" >> $nbody
+   echo " " >> $nbody
+
+   echo "      INTEGER    NPROW     ! no. of processors across grid rows" >> $nbody
+   echo "      PARAMETER( NPROW = $nprow )" >> $nbody
+   echo " " >> $nbody
+
+   echo "      INTEGER    NPCOL     ! no. of processors across grid columns" >> $nbody
+   echo "      PARAMETER( NPCOL = $npcol )" >> $nbody
+   echo " " >> $nbody
+
+   echo "      INTEGER    NROWS     ! grid rows array dimension" >> $nbody
+   echo "      PARAMETER( NROWS = (GL_NROWS - 1) / NPROW + 1 )" >> $nbody 
+   echo " " >> $nbody
+
+   echo "      INTEGER    NCOLS     ! grid columns array dimension" >> $nbody
+   echo "      PARAMETER( NCOLS = (GL_NCOLS - 1) / NPCOL + 1 )" >> $nbody
+   echo " " >> $nbody
+
+   echo "      INTEGER    NTHIK     ! boundary thickness (cells)" >> $nbody
+   echo "      PARAMETER( NTHIK = $nthik )" >> $nbody 
+   echo " " >> $nbody
+
+   echo "      INTEGER    GL_NBNDY  ! no. of cells in one layer of global boundary" >> $nbody 
+   echo "      PARAMETER( GL_NBNDY = 2*NTHIK*(GL_NCOLS + GL_NROWS + 2*NTHIK) )" >> $nbody 
+   echo " " >> $nbody
+
+   echo "      INTEGER    NBNDY     ! no. of cells in one layer of local boundary" >> $nbody 
+   echo "      PARAMETER( NBNDY = 2*NTHIK*(NCOLS + NROWS + 2*NTHIK) )" >> $nbody 
+   echo " " >> $nbody
+
+   echo "      INTEGER    MY_NROWS  ! local no. of computational grid rows" >> $nbody
+   echo "      INTEGER    MY_NCOLS  ! local no. of computational grid columns" >> $nbody
+   echo "      INTEGER    MY_NBNDY  ! local no. of boundary cells" >> $nbody
+   echo "      INTEGER    ROWSX_PE( 2,0:NPROW*NPCOL-1 ) ! row range for each processor" >> $nbody
+   echo "      INTEGER    COLSX_PE( 2,0:NPROW*NPCOL-1 ) ! column range for each processor" >> $nbody
+   echo " " >> $nbody
+   echo "      COMMON / PAR_INDEXES / MY_NROWS, MY_NCOLS, MY_NBNDY," >> $nbody
+   echo "     &                       ROWSX_PE, COLSX_PE" >> $nbody
+   echo " " >> $nbody
+
+   echo "      INTEGER    MNDIS     ! maximum stencil displacement in the north direction" >> $nbody
+   echo "      INTEGER    MEDIS     ! maximum stencil displacement in the east direction" >> $nbody
+   echo "      INTEGER    MSDIS     ! maximum stencil displacement in the south direction" >> $nbody
+   echo "      INTEGER    MWDIS     ! maximum stencil displacement in the west direction" >> $nbody
+   echo "      PARAMETER( MNDIS = $mndis, MEDIS = $medis, MSDIS = $msdis, MWDIS = $mwdis )" >> $nbody
+   echo " " >> $nbody
+
+   echo "C................   end  HGRD.EXT   ...................................." >> $nbody
+
+# save original header text (assumes 1st "live" code starts a line containing
+# "INTEGER"
+
+ @@ continue = 1
+ @@ lc = 0
+ @@ state = 0
+
+ while ($continue)     # read one line at a time
+
+    @@ lc++
+    head -n $lc HGRD_${Grid}.EXT | tail -1 > $line
+    set f = `grep INTEGER $line | wc -w`
+    if ($f > 0) @@ state = 1
+
+    if ($state == 1) then
+       cat $nbody >> $out
+       @@ continue = 0
+       else
+       if ($lc != 1) then
+          cat $line >> $out
+          else
+          cat $line > $out
+          endif
+       endif
+
+    end
+
+ rm $nbody $line
+#chmod 600 HGRD_${Grid}.EXT 
+ mv -f $out HGRD_${Grid}_${npcol}X${nprow}.EXT 
+ chmod 440 HGRD_${Grid}_${npcol}X${nprow}.EXT 
+
+ endif
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

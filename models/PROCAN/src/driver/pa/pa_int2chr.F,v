@@ -1,0 +1,125 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_int2chr.F,v 1.3 1998/06/19 11:38:52 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_int2chr.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_int2chr.F 04 Jul 1997 14:13:38
+
+      CHARACTER*10 FUNCTION INT2CHR( NOUT )
+
+C***********************************************************************
+C
+C  FUNCTION: To convert an integer number into character representation
+C            that is left justified in a string 
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES: None
+      
+C..ARGUMENTS:
+      INTEGER NOUT             ! Integer number to convert
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER LBLANK   ! Gets number of leading blanks in a string
+      INTEGER TRIMLEN  ! Gets pos of last non-blank character in a string
+ 
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*10 TEMPSTR  ! Temporary string holder
+
+      INTEGER EPOS1         ! Ending positions
+      INTEGER SPOS1         ! Starting positions
+      INTEGER LEN1          ! Length of string
+      INTEGER N             ! Loop index
+
+C***********************************************************************
+      WRITE( TEMPSTR, '( I10 )' ) NOUT
+      DO N = 1, 10
+         INT2CHR( N : N ) = ' '
+      ENDDO
+
+c..Left justify the numeric string
+      SPOS1 = LBLANK( TEMPSTR ) + 1
+      EPOS1 = TRIMLEN( TEMPSTR )
+      LEN1 = EPOS1 - SPOS1 + 1
+      INT2CHR( 1 : LEN1 ) = TEMPSTR( SPOS1 : EPOS1 )
+
+      RETURN
+      END
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

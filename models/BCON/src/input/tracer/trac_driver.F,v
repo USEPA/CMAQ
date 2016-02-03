@@ -1,0 +1,275 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/input/tracer/trac_driver.F,v 1.4 2002/04/12 14:19:32 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE INBNDY( LOGUNIT, SDATE, STIME, RUNLEN, EXT_IC_NAME )   
+
+C*************************************************************************
+C
+C   FUNCTION: Call the routine to compute catalogued special tracer species
+C             BCs and write the Models-3 output file
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED:
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998          
+C                    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
+C                   
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+      INCLUDE SUBST_VGRD_ID     ! Vertical grid
+      INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+      INCLUDE SUBST_TR_ICBC     ! tracer ICBC species table
+
+      INCLUDE 'BC_PARMS.EXT'    ! BCON paramters
+
+C..ARGUMENTS: 
+      CHARACTER*16  EXT_IC_NAME( * )  ! Names of species in *.EXTs (not used)
+
+      INTEGER LOGUNIT                 ! Unit number for output log
+      INTEGER RUNLEN                  ! No. of hours for BC output
+      INTEGER SDATE                   ! Date for IC Output
+      INTEGER STIME                   ! Time for IC output
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER FINDEX    ! Finds the index of a number in a list 
+      INTEGER INDEX1    ! Looks up name in table
+      
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  BLANK          ! String of blanks
+      CHARACTER*80  MSG            ! Log message
+      CHARACTER*16  PNAME          ! Program name
+      CHARACTER*16  SUROUT         ! Surrogate output to log
+      CHARACTER*16  VNAME          ! Output variable name
+
+      CHARACTER*16  SPNAME_OUT( N_TR_SPCD )    ! Output tracer names
+
+      CHARACTER*16  TREXT_SPC_NF( N_TR_SPCD )  ! TR_SPC.EXT species not found
+      CHARACTER*16  TREXT_SUR_NF( N_TR_ICBCD ) ! TR_SPC.EXT surr not found
+      CHARACTER*16  TR_FNAME( MXCTMS )         ! Output file name
+                            
+      INTEGER FLN          ! Output file number
+      INTEGER ICBC_IND     ! Index of surrogate in TR_ICBC.EXT
+      INTEGER N            ! Loop index
+      INTEGER NSP          ! Counter
+      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER TRIND        ! Index for catalogued tracer
+      INTEGER TSTEP        ! Time step for output file
+
+      INTEGER TRMAP( N_TR_SPCD )   ! Map to get catalogued tracer for
+                                   ! EXT species
+
+      LOGICAL LUSED( N_TR_SPCD )   ! Flag for output for TR_SPC.EXT species
+
+      REAL TCOUT( NBNDY, NLAYS )   ! Output tracer concs
+
+C**********************************************************************
+      DATA BLANK / '                ' /
+      DATA PNAME / 'INBNDRY         ' /
+
+      WRITE( LOGUNIT, 92000 )
+ 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Build a species map and report
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NSPCS_OUT = 0
+      DO N = 1, N_TR_SPC
+
+         LUSED( N ) = .TRUE.
+         TRMAP( N ) = 0
+
+c..get the index of the TR_SPC.EXT name in the catalogued list
+         TRIND = INDEX1( TR_SPC( N ), NTRACERS, TRAC_NAME )
+         TRMAP( N )  = TRIND
+         SUROUT = BLANK
+
+c..get the index of the TR_ICBC.EXT surrogate name in the catalogued list
+         ICBC_IND  = FINDEX( N, N_TR_ICBC, TR_ICBC_MAP )
+
+         IF( ICBC_IND .NE. 0 ) THEN
+            TRIND = INDEX1( TR_ICBC( ICBC_IND ), NTRACERS, TRAC_NAME )
+            TRMAP( N ) = TRIND
+            SUROUT = TR_ICBC( ICBC_IND )
+         ENDIF
+         
+c..list the ones found and tag the ones not found
+         IF( TRMAP( N ) .GT. 0 .AND. TRMAP( N ) .LE. NTRACERS ) THEN
+            WRITE( LOGUNIT, 92020) TR_SPC( N ), SUROUT, 
+     &                            TRAC_NAME( TRMAP( N ) ), 
+     &                            TRAC_DESC( TRMAP( N ) )
+            NSPCS_OUT = NSPCS_OUT + 1
+            SPNAME_OUT( NSPCS_OUT ) = TRAC_NAME( TRMAP( N ) )
+         ELSE
+            LUSED( N ) = .FALSE.
+         ENDIF
+
+      ENDDO
+
+      IF( NSPCS_OUT .EQ. 0 ) THEN
+          MSG = 'ERROR: No EXT species could be mapped to a'
+     &           // ' catalogued tracer species.'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF 
+
+c..list *.EXT species with no IC output
+      NSP = 0
+      DO N = 1, N_TR_SPC
+         IF( .NOT. LUSED( N ) ) THEN
+            NSP = NSP + 1
+            TREXT_SPC_NF( NSP ) = TR_SPC( N )
+         ENDIF
+      ENDDO
+
+      IF( NSP .GT. 0 ) THEN
+         WRITE( LOGUNIT, 92040 )
+         WRITE( LOGUNIT, 92060 ) ( TREXT_SPC_NF( N ), N = 1, NSP )
+      ENDIF
+         
+c..list surrogate species not found on the 
+      NSP = 0
+      DO N = 1, N_TR_ICBC
+         TRIND = INDEX1( TR_ICBC( N ), NTRACERS, TRAC_NAME )
+         IF( TRIND .EQ. 0 ) THEN
+            NSP = NSP + 1
+            TREXT_SUR_NF( NSP ) = TR_ICBC( N )
+         ENDIF
+      ENDDO
+
+      IF( NSP .GT. 0 ) THEN
+         WRITE( LOGUNIT, 92080 )
+         WRITE( LOGUNIT, 92060 ) ( TREXT_SUR_NF( N ), N = 1, NSP )
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call the routine to open the Models3 IC output file(s)
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+      TSTEP = 0
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
+     &                  SPNAME_OUT, TR_FNAME, 5 )  
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call the routine to compute the ICs and then write the ooutput file
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc 
+      DO N = 1, NSPCS_OUT
+
+         FLN = ( N - 1 ) / MXVARS3 + 1
+         VNAME = SPNAME_OUT( N )
+
+         CALL TRAC_BC( VNAME, TCOUT )
+
+         IF( .NOT. WRITE3( TR_FNAME( FLN ), VNAME, SDATE, STIME,
+     &                     TCOUT( 1, 1 ) ) ) THEN
+            MSG =  'Could not WRITE species ' //  VNAME // 
+     &             'to file ' // TR_FNAME( FLN ) 
+            CALL M3ERR( PNAME, SDATE, STIME, MSG, .TRUE. )
+         ENDIF
+
+      ENDDO
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  TRACER species section '
+     &         / 1X, 79( '#' )
+     &        // 5X, 'The tracer species module has been invoked; ',
+     &               'BCs will be generated for tracer species ONLY.'
+     &        // 5X, 'BCs set for the following tracer species:'
+     &        //10X, 'EXT Species       ICBC Surrogate    ',
+     &               'Catalogued Tracer' )
+
+92020 FORMAT(   10X, A16, 2X, A16, 2X, A16,': ', A )
+
+92040 FORMAT( // 5X, 'WARNING: The following *.EXT species could not be '
+     &               'mapped to a catalogued tracer.'
+     &         / 5X, '         BCs were not generated for them. ' )
+
+92060 FORMAT(   (15X, 4( A, 2X ) ) )
+
+
+92080 FORMAT( // 5X, 'WARNING: The following *.EXT surrogate species ',
+     &               'are not catalogued tracers.'
+     &         / 5X, '         BCs were generated only when the *.EXT '
+     &               'species could be mapped to a catalogued tracer.')
+
+
+94000 FORMAT( A )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

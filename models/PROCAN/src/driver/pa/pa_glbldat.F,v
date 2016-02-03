@@ -1,0 +1,258 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_glbldat.F,v 1.4 2002/05/20 14:49:47 ggb Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+      SUBROUTINE PA_GLBLDAT( NCOLS_IN, NROWS_IN, NLAYS_IN, MXSPEC,
+     &                       MXRXNS, MXPRD_IN, N_GC_SPC_IN, 
+     &                       N_AE_SPC_IN, N_NR_SPC_IN, N_TR_SPC_IN,
+     &                       NRXNS_IN, GC_SPC_IN, AE_SPC_IN,
+     &                       NR_SPC_IN, TR_SPC_IN, RXLABEL_IN, 
+     &                       NREACT_IN, NPRDCT_IN, IRXBITS_IN, 
+     &                       IRR_IN, SC_IN )
+
+C***********************************************************************
+C
+C  FUNCTION: To get mechanism and grid data to pass to the main
+C            PACP program.  It is included to speed compile time.
+C               
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, May, 1997
+C                    Modified Sept, 1997 by Jerry Gipson to be 
+C                      consistent with the targeted CTM
+C                    Updated May 2002 by Jerry Gipson for dynamic allocation
+C                      version of CCTM
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE SUBST_GC_SPC
+      INCLUDE SUBST_AE_SPC
+      INCLUDE SUBST_NR_SPC
+      INCLUDE SUBST_TR_SPC
+      INCLUDE SUBST_RXCMMN 
+      INCLUDE SUBST_RXDATA 
+
+#ifdef nodynalloc
+      INCLUDE SUBST_HGRD_ID     
+      INCLUDE SUBST_VGRD_ID 
+#endif    
+
+C..ARGUMENTS:
+
+      INTEGER MXPRD_IN     ! Maximum number of Products in a reaction
+      INTEGER MXRXNS       ! Maximum number of Reactions in mechanism
+      INTEGER MXSPEC       ! Maximum number of species in mechanism
+      INTEGER N_GC_SPC_IN  ! No. of gas-chemistry species
+      INTEGER N_AE_SPC_IN  ! No. of aerosol species
+      INTEGER N_NR_SPC_IN  ! No. of non-reactive species
+      INTEGER N_TR_SPC_IN  ! No. of tracer species
+      INTEGER NCOLS_IN     ! Number of columns in domain
+      INTEGER NLAYS_IN     ! Number of layers in domain
+      INTEGER NROWS_IN     ! Number of rows in domain
+      INTEGER NRXNS_IN     ! Number of mechanism reactions
+      INTEGER IRXBITS_IN( MXRXNS )  ! Bit test vector for selected reactions
+      INTEGER NPRDCT_IN(  MXRXNS )  ! Number of products in each reaction 
+      INTEGER NREACT_IN(  MXRXNS )  ! Number of reactants in each reaction
+
+      INTEGER IRR_IN( MXRXNS, MXPRD_IN + 3 )  ! Pointer to reactants and
+                                              ! products in reactions
+
+      REAL SC_IN( MXRXNS, MXPRD_IN )          ! Stoichiometric coefficients
+
+      CHARACTER*16 RXLABEL_IN( MXRXNS )  ! Reaction labels
+      CHARACTER*16 GC_SPC_IN(  MXSPEC )  ! Gas-chemistry species names
+      CHARACTER*16 AE_SPC_IN(  MXSPEC )  ! Aerosol species names
+      CHARACTER*16 NR_SPC_IN(  MXSPEC )  ! Non-reactive species names
+      CHARACTER*16 TR_SPC_IN(  MXSPEC )  ! Tracer species names
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: None 
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+       CHARACTER*16  PNAME   ! Program name
+       CHARACTER*132 MSG     ! Error message
+
+       LOGICAL LERROR        ! Error Flag
+
+       INTEGER EXITSTAT      ! Exit status code
+       INTEGER N, NP         ! Loop indices
+       INTEGER MAXNSPC       ! Maximum no. of species in AE, GC, NR, TR
+
+C***********************************************************************
+       DATA PNAME/'PA_GETGLOBAL'/
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Perform Error checking
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LERROR = .FALSE.
+
+      MAXNSPC = 0
+      MAXNSPC = MAX( MAXNSPC, N_GC_SPC )
+      MAXNSPC = MAX( MAXNSPC, N_AE_SPC )
+      MAXNSPC = MAX( MAXNSPC, N_NR_SPC )
+      MAXNSPC = MAX( MAXNSPC, N_TR_SPC )
+
+      IF( MAXNSPC .GT. MXSPEC ) THEN
+         WRITE( MSG,94000 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94020 ) MXSPEC, MAXNSPC 
+         CALL M3MESG( MSG )
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( NRXNS .GT. MXRXNS ) THEN
+         WRITE( MSG,94040 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94060 ) MXRXNS, NRXNS
+         CALL M3MESG( MSG )
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( MXPRD .GT. MXPRD_IN ) THEN
+         WRITE( MSG,94080 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94100 ) MXPRD_IN, MXPRD
+         CALL M3MESG( MSG )
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( LERROR ) THEN
+         EXITSTAT = 0
+         WRITE( MSG, 94120 )
+         CALL M3MESG( MSG )
+         CALL M3EXIT( PNAME, 0, 0, ' ', EXITSTAT )
+      ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Copy global include file data to PACP variables
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#ifdef nodynalloc
+      NCOLS_IN = NCOLS
+      NROWS_IN = NROWS 
+      NLAYS_IN = NLAYS
+#endif
+      
+      N_GC_SPC_IN = N_GC_SPC
+      N_AE_SPC_IN = N_AE_SPC
+      N_NR_SPC_IN = N_NR_SPC
+      N_TR_SPC_IN = N_TR_SPC
+      NRXNS_IN = NRXNS
+      
+      DO N = 1, N_GC_SPC
+         GC_SPC_IN( N ) = GC_SPC( N )
+      ENDDO
+
+      DO N = 1, N_AE_SPC
+         AE_SPC_IN( N ) = AE_SPC( N )
+      ENDDO
+
+      DO N = 1, N_NR_SPC
+         NR_SPC_IN( N ) = NR_SPC( N )
+      ENDDO
+      
+
+      DO N = 1, N_TR_SPC
+         TR_SPC_IN( N ) = TR_SPC( N )
+      ENDDO
+      
+      
+      DO N = 1, NRXNS
+         RXLABEL_IN( N ) = RXLABEL( N )
+         IRXBITS_IN( N ) = IRXBITS( N )
+         NREACT_IN(  N ) = NREACT(  N )
+         NPRDCT_IN(  N ) = NPRDCT(  N )
+         DO NP = 1, MXPRD
+            SC_IN( N, NP ) = SC ( N, NP )
+         ENDDO
+         DO NP = 1, MXPRD + 3
+            IRR_IN( N, NP ) = IRR( N, NP )
+         ENDDO
+      ENDDO
+      
+      RETURN 
+
+94000 FORMAT( 'ERROR: Maximum number of species exceeded' )
+94020 FORMAT( '       Increase PARAMETER ( MXSPEC =', I3,' ) to ', I3 )
+94040 FORMAT( 'ERROR: Maximum number of reactions exceeded' )
+94060 FORMAT( '       Increase PARAMETER ( MXRXNS =', I3,' ) to ', I3 )
+94080 FORMAT( 'ERROR: Maximum number of products exceeded' )
+94100 FORMAT( '       Increase PARAMETER ( MXPRD =', I3,' ) to ', I3 )
+94120 FORMAT( 'STOPPING because of dimensioning error(s)' )
+  
+
+
+      END
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

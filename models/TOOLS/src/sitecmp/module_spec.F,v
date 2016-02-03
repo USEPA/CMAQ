@@ -1,0 +1,356 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/TOOLS/src/sitecmp/module_spec.F,v 1.3 2008/09/23 16:47:58 sjr Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C*************************************************************************
+C
+C  MODULE:  defines a set of species variables for output
+C             
+C*************************************************************************
+      MODULE SPECIES_DEF
+
+      TYPE SPEC_VAR
+
+         CHARACTER(len=80) OBS_EXPRESSION
+         CHARACTER(len=16) OBS_UNITS
+         INTEGER           OBS_NUMSPEC
+         CHARACTER(len=36) OBS_NAME(10)
+         REAL              OBS_FACTOR(10)
+         INTEGER           OBS_FIELD(10)
+
+         CHARACTER(len=80) MOD_EXPRESSION
+         CHARACTER(len=16) MOD_UNITS
+         INTEGER           MOD_NUMSPEC
+         CHARACTER(len=36) MOD_NAME(10)
+         REAL              MOD_FACTOR(10)
+
+         CHARACTER(len=2)  OP_CODE
+
+      END TYPE SPEC_VAR
+
+      TYPE ( SPEC_VAR ) SPECVARS(300)
+      INTEGER NSPECVAR
+
+      CONTAINS
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C   ROUTINE TO GET SPECIES DEFINITIONS FROM ENVIRONMENT VARIABLES
+C
+C   VARIABLE FORMAT obs_expression, obs_units, mod_expression, mod_units, [output name]
+C
+C   expressions are in the format (f1*s1 + f2*s2 +...+f10*s10)
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+         SUBROUTINE GET_SPECS
+
+         IMPLICIT NONE 
+         
+         !Extrenal functions
+         INTEGER getParsedNumber
+
+         ! local variables
+         INTEGER            N, I, K
+         INTEGER            STATUS, split 
+         CHARACTER(LEN=16)  VARNAME
+         CHARACTER(LEN=256) RECORD
+         CHARACTER(LEN=256) FIELD 
+         CHARACTER(LEN=2)   operation(6)
+         CHARACTER(LEN=6)   varType(6)
+
+
+         ! OPERATION codes
+         !  AV - average
+         !  AC - accumulate
+         !  WD - wet deposition
+         !  WC - wet concentration
+         DATA OPERATION/'CH','AV','AV','WD','WC','AC'/
+         DATA varType/'CHAR','AERO','GAS','WETDEP','WETCON','PREC'/
+
+         NSPECVAR = 0
+         DO k=1,SIZE(varType)
+           DO N=1,50
+
+             !  build VARNAME
+             IF( N.le.9 ) THEN
+               WRITE(VARNAME,'(A,''_'',I1)') TRIM(varType(k)), N
+             ELSE
+               WRITE(VARNAME,'(A,''_'',I2)') TRIM(varType(k)), N
+             ENDIF
+    
+             ! GET DEFINITION RECORD
+             CALL ENVSTR( VARNAME, 'Species Variable definition', 'Not Used', RECORD, STATUS)
+             IF( STATUS .NE. 0 ) EXIT 
+             NSPECVAR = NSPECVAR + 1
+
+             ! truncate record at ! character
+             split = index(record, '!')
+             if( split.gt.0 ) then
+               record = record(1:split-1)
+               endif
+
+             !PARSE RECORD 
+             if( getParsedNumber(record, ',') .eq. 0 ) Then
+               CALL M3ERR( 'GET_SPECS', 0, 0,'Syntax error on variable definition '//
+     &                    TRIM(varname), .TRUE. )
+               Endif
+
+             ! parse field 1 of record to get obs_name
+             Call getParsedField( record, ',', 1, field, .false. ) 
+             SPECVARS(NSPECVAR)%OBS_EXPRESSION = TRIM(field)
+
+             ! check for Character species
+             if( varType(k).eq.'CHAR' ) then
+               SPECVARS(NSPECVAR)%OBS_UNITS = ' '   
+               SPECVARS(NSPECVAR)%OBS_NUMSPEC = 1
+               SPECVARS(NSPECVAR)%OBS_NAME(1) = field
+               SPECVARS(NSPECVAR)%OBS_FACTOR(1) = 1.0 
+               SPECVARS(NSPECVAR)%MOD_EXPRESSION = ' '
+               SPECVARS(NSPECVAR)%MOD_UNITS = ' '
+               SPECVARS(NSPECVAR)%OP_CODE = OPERATION(K)
+               CYCLE
+               endif 
+
+             Call parseObsSpecies(SPECVARS(NSPECVAR), status)
+             if( status .ne. 0 ) Then
+               CALL M3ERR( 'GET_SPECS', 0, 0,'Syntax error on variable definition '//
+     &                    TRIM(varname), .TRUE. )
+               Endif 
+         
+             ! parse field 2 of record to get obs_units
+             Call getParsedField( record, ',', 2, field, .false. )  
+             if( LEN_TRIM(field) .gt. 0 ) then
+               SPECVARS(NSPECVAR)%OBS_UNITS = field
+              Else
+               SPECVARS(NSPECVAR)%OBS_UNITS = ' '
+               Endif
+
+             ! parse field 3 of record to model species
+             Call getParsedField( record, ',', 3, field, .false. ) 
+             SPECVARS(NSPECVAR)%MOD_EXPRESSION = field
+             Call parseModSpecies(SPECVARS(NSPECVAR), status)
+             if( status .ne. 0 ) Then
+               CALL M3ERR( 'GET_SPECS', 0, 0,'Syntax error on variable definition '//
+     &                    TRIM(varname), .TRUE. )
+               Endif 
+             
+             ! parse field 4 of record to get model_units
+             Call getParsedField( record, ',', 4, field, .false. )  
+             if( LEN_TRIM(field) .gt. 0 ) then
+               SPECVARS(NSPECVAR)%MOD_UNITS = field
+              Else
+               SPECVARS(NSPECVAR)%MOD_UNITS = ' '
+               Endif
+
+             ! parse field 5 of record to get output name
+             Call getParsedField( record, ',', 5, field, .false. )  
+             if( LEN_TRIM(field) .gt. 0 ) then
+               SPECVARS(NSPECVAR)%MOD_EXPRESSION = field
+               SPECVARS(NSPECVAR)%OBS_EXPRESSION = field
+               endif
+
+             ! set operation code
+             SPECVARS(NSPECVAR)%OP_CODE = OPERATION(K)
+
+             ENDDO
+           ENDDO
+
+         END SUBROUTINE GET_SPECS
+
+
+C*************************************************************************
+C  routine to parse observed species from character record
+C*************************************************************************
+         SUBROUTINE parseObsSpecies(VAR, status)
+
+         IMPLICIT NONE 
+         
+         !Extrenal functions
+         INTEGER getParsedNumber
+
+         !arguments
+         TYPE (SPEC_VAR)    VAR
+         INTEGER            STATUS 
+
+         ! local variables
+         INTEGER            N               
+         CHARACTER(LEN=36)  VARNAME        
+         CHARACTER(LEN=256) FIELD 
+         CHARACTER(LEN=36)  factorFld
+         CHARACTER(LEN=36)  speciesFld 
+
+         ! set status flag to zero
+         status = 0
+
+         ! if record is blank, set NUMSPEC to zero and return
+         if( VAR%OBS_EXPRESSION.eq.' ' ) Then
+           VAR%OBS_NUMSPEC = 0
+           return
+           Endif
+
+         ! find number of model species for variable NSPECVAR
+         VAR%OBS_NUMSPEC = getParsedNumber(VAR%OBS_EXPRESSION, '+-')
+
+         ! if no model species defined, return with error status
+         if( VAR%OBS_NUMSPEC .eq. 0 ) goto 50
+         
+         Do N=1,VAR%OBS_NUMSPEC
+          Call getParsedField( VAR%OBS_EXPRESSION, '+-', N, field, .true. ) 
+
+          ! determine if spec field has a factor
+          if( getParsedNumber(field, '*') .gt. 1 ) then
+            Call getParsedField( field, '*', 1, factorFld, .true. ) 
+            Call getParsedField( field, '*', 2, speciesFld, .false. ) 
+           Else
+            ! check first character for sign 
+            if( Index('+-',field(1:1)) .gt.0 ) then
+              factorFld = field(1:1) // '1.0'
+              speciesFld = field(2:)
+             Else
+              factorFld = '1.0'
+              speciesFld = field
+              Endif
+            Endif
+
+          ! speciesFld and factorFld should be defined at this point
+
+          Call leftTrim(speciesFld)
+          VAR%OBS_NAME(N) = TRIM(speciesFld)
+          Read(factorFld,'(BN,f16.0)', err=50) VAR%OBS_FACTOR(N)     
+          EndDo
+
+         Return
+
+   50    status = 1
+         return
+
+         END SUBROUTINE parseObsSpecies
+
+
+C*************************************************************************
+C  routine to parse model species from character record
+C*************************************************************************
+         SUBROUTINE parseModSpecies(VAR, status)
+
+         IMPLICIT NONE 
+         
+         !Extrenal functions
+         INTEGER getParsedNumber
+
+         !arguments
+         TYPE (SPEC_VAR)    VAR
+         INTEGER            STATUS 
+
+         ! local variables
+         INTEGER            N               
+         CHARACTER(LEN=36)  VARNAME        
+         CHARACTER(LEN=256) FIELD 
+         CHARACTER(LEN=36)  factorFld
+         CHARACTER(LEN=36)  speciesFld 
+
+         ! set status flag to zero
+         status = 0
+
+         ! if record is blank, set NUMSPEC to zero and return
+         if( VAR%MOD_EXPRESSION.eq.' ' ) Then
+           VAR%MOD_NUMSPEC = 0
+           return
+           Endif
+
+         ! find number of model species for variable NSPECVAR
+         VAR%MOD_NUMSPEC = getParsedNumber(VAR%MOD_EXPRESSION, '+-')
+
+         ! if no model species defined, return with error status
+         if( VAR%MOD_NUMSPEC .eq. 0 ) goto 50
+         
+         Do N=1,VAR%MOD_NUMSPEC
+          Call getParsedField( VAR%MOD_EXPRESSION, '+-', N, field, .true. ) 
+
+          ! determine if spec field has a factor
+          if( getParsedNumber(field, '*') .gt. 1 ) then
+            Call getParsedField( field, '*', 1, factorFld, .true. ) 
+            Call getParsedField( field, '*', 2, speciesFld, .false. ) 
+           Else
+            ! check first character for sign 
+            if( Index('+-',field(1:1)) .gt.0 ) then
+              factorFld = field(1:1) // '1.0'
+              speciesFld = field(2:)
+             Else
+              factorFld = '1.0'
+              speciesFld = field
+              Endif
+            Endif
+
+          ! speciesFld and factorFld should be defined at this point
+
+          Call leftTrim(speciesFld)
+          VAR%MOD_NAME(N) = TRIM(speciesFld)
+          Read(factorFld,'(BN,f16.0)', err=50) VAR%MOD_FACTOR(N)     
+
+          EndDo
+
+         Return
+
+   50    status = 1
+         return
+
+         END SUBROUTINE parseModSpecies
+
+      END MODULE SPECIES_DEF
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

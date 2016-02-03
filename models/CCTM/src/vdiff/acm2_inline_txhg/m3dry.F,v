@@ -1,0 +1,1257 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.06.14.16.03.09;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.09;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/vdiff/acm2_inline_txhg/m3dry.F,v 1.6 2009/12/17 17:52:49 yoj Exp $
+
+C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE m3dry ( jdate, jtime, abflux, sfc_hono, cgridl1, depvel_gas, pvd )
+
+C-------------------------------------------------------------------------------
+C Name:     Models-3 Dry Deposition
+C Purpose:  Computes dry deposition velocities using Rst and Ra, and
+C           elements of ADOM DD model.
+C Revised:  21 Jan 1998  Original version.  (J. Pleim and A. Bourgeois)
+C           18 Sep 2001  Made general for USGS 24-category system.
+C                        (T. Otte, J. Pleim, and W. Hutzell)
+C           14 Jan 2002  Added temperature dependence to Henry's Law
+C                        constants.  Added temperature and pressure
+C                        dependence to diffusivity.  Added new dry
+C                        deposition species, methanol.  (Y. Wu and T. Otte)
+C           18 Jan 2002  Changed the reference wet cuticle resistance.
+C                        (J. Pleim)
+C           09 Jun 2003  Added logic for modeling snow covered surfaces.
+C                        Changed the reactivities for SO2, HNO3 and NH3.
+C                        Changed pH values to have an east-west variation.
+C                        Using the Henry's law constant function from CMAQ in
+C                        place of local code.  Also changed the code for
+C                        deposition to water to use a pH of 8.1 and the
+C                        temperature of water in calculating the Henry's law
+C                        constant.  Adjusted values of RSNOW0 = 1000 and
+C                        A(NH3) = 20.  Added new dry deposition species: N2O5,
+C                        NO3, Generic_aldehyde.  Corrected diffusivities of
+C                        chemicals and water and viscosity of air to all be at
+C                        the same temperature (273.15K).  Temperature and
+C                        pressure adjustments to the values are not needed
+C                        because the diffusivities and viscosity are always used
+C                        as ratios, so the temperature-pressure dependence was
+C                        removed.  Removed dry deposition species, ATRA and
+C                        ATRAP, from output.  (D. Schwede, J. Pleim, and
+C                        T. Otte)
+C           28 Feb 2005  Added optional dry deposition species for chlorine
+C                        and mercury.  (G. Sarwar, R. Bullock, and T. Otte)
+C           02 Feb 2006  Added mesophyll resistance to dry deposition velocity
+C                        calculation, and defined non-zero value for mercury.
+C                        (D. Schwede, J. Pleim, and R. Bullock)
+C           01 Aug 2007  Added a non-zero mesophyll resistance for NO, NO2, and
+C                        CO.  Restored wet cuticle resistance for O3 based on
+C                        field study measurements.  Added wet ground resistance.
+C                        Changed ground resistance to include partitioning of
+C                        wet and dry ground.  Updated pH of rain water for
+C                        eastern United States and outside of North America.
+C                        Changed reactivity for PAN.  Removed dry deposition
+C                        velocity calculations for obsolete chlorine species
+C                        ICL1 and ICL2.  Corrected error in the calculation of
+C                        surface resistance over water where (Sc/Pr)**(2/3) had
+C                        been inadvertently omitted from the numerator.
+C                        Surface resistance over water is now a function of
+C                        species.  Surface resistance over water now uses wet
+C                        bulb temperature rather than ground (water) temperature
+C                        in the calculation of the effective Henry's law
+C                        constant, and the algorithm has been updated.  Changed
+C                        (Sc/Pr)**(2/3) over water to a species-dependent,
+C                        meteorologically dependent variable.  Effective Henry's
+C                        law constant over land now uses 2-m temperature rather
+C                        than layer 1 temperature. Changed ES
+C                        into ES_AIR and ES_GRND, and changed QSS into QSS_AIR
+C                        and QSS_GRND to clarify usage.  (J. Pleim, E. Cooter,
+C                        J. Bash, T. Otte, and G. Sarwar)
+C           07 Dec 2007  Add into CMAQ for in-line deposition velocities.
+C                        (W. Hutzell, J. Young and T. Otte)
+C           07 Jan 2008  Changed the value of d3, the scaling parameter used to
+C                        estimate the friction velocity in surface waters from
+C                        the atmospheric friction velocity to a value following
+C                        Slinn et al. (1978) and Fairall et al. (2007).
+C                        (J. Bash)
+C           01 Feb 2008  Added bidirectional NH3 flux calculations. (J. Pleim and
+C                        J. Young)
+C           20 Mar 2008  Added a trap for undefined dry deposition velocities
+C                        (e.g., NaN's).  (T. Otte)
+C           21 Mar 2008  Added heterogeneous reaction for HONO. It affects HONO, NO2
+C                        and HNO3 (G. Sarwar)
+C           30 Apr 2008  Added five air toxic species to output.  (W. Hutzell
+C                        and T. Otte)
+C           August 2008  Applied a minimum value to ustg (0.001 m/s) to prevent 
+C                        negative rbg values in the bidi calculation (J. Pleim) 
+C           05 Oct 2009  Added condition that vegetation fraction must be
+C                        greater than zero to be considered a land point.  This
+C                        works around intermittent inconsistencies in surface
+C                        fields in some WRF data sets.  (T. Otte)
+C-------------------------------------------------------------------------------
+
+      USE HGRD_DEFN           ! horizontal grid specifications
+      USE DEPVVARS
+
+      IMPLICIT NONE
+C Includes:
+
+      INCLUDE SUBST_CONST     ! constants
+      INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+      INCLUDE SUBST_IOFDESC   ! file header data structure
+      INCLUDE SUBST_IODECL    ! I/O definitions and declarations
+      INCLUDE SUBST_FILES_ID  ! file name parameters
+
+C Arguments:
+
+      INTEGER,     INTENT( IN )  :: jdate
+      INTEGER,     INTENT( IN )  :: jtime
+      LOGICAL,     INTENT( IN )  :: abflux
+      LOGICAL,     INTENT( IN )  :: sfc_hono
+      REAL,        INTENT( IN )  :: cgridl1( :,:,: )    ! layer 1 concentrations
+      REAL,        INTENT( OUT ) :: depvel_gas( :,:,: )
+      REAL,        INTENT( OUT ) :: pvd( :,:,: )
+
+C Local Variables:
+
+      REAL,            PARAMETER :: a0         = 8.0     ! [dim'less]
+      INTEGER                    :: c
+      REAL                       :: cp_air               ! specific heat of moist air
+      REAL                       :: ctemp2               ! temp2 [C]
+
+      REAL,            PARAMETER :: d3         = 1.38564e-2 ! [dim'less]
+                                               ! k*sqrt(rhoair/rhowater) from Slinn 78
+      REAL,    SAVE, ALLOCATABLE :: delta     ( :,: )
+      REAL                       :: dw
+      REAL                       :: dw25       ! diffusivity of water at 298.15 k
+      REAL,            PARAMETER :: dwat       = 0.2178  ! [cm^2/s] at 273.15K
+      LOGICAL                    :: effective  ! true=compute effective Henry's Law const
+      INTEGER                    :: elapsedsec
+      INTEGER, SAVE              :: endcol
+      INTEGER, SAVE              :: endrow
+      REAL                       :: es_air
+      REAL                       :: es_grnd
+      LOGICAL, SAVE              :: first_call = .TRUE.
+      INTEGER                    :: gxoff                ! global origin offset from file
+      INTEGER                    :: gyoff                ! global origin offset from file
+      REAL                       :: hcan
+      REAL                       :: heff                 ! effective Henry's Law constant
+      REAL,            EXTERNAL  :: hlconst              ! [M / atm]
+      REAL                       :: hplus
+      REAL,            PARAMETER :: hplus_def  = 1.0e-5  ! pH=5.0
+      REAL,            PARAMETER :: hplus_east = 1.0e-5  ! pH=5.0
+      REAL,            PARAMETER :: hplus_h2o  = 7.94328e-9 ! 10.0**(-8.1)
+      REAL,            PARAMETER :: hplus_west = 3.16228e-6 ! 10.0**(-5.5)
+      LOGICAL, SAVE              :: ifq2       = .FALSE. ! Q2 in metcro2d?
+      INTEGER                    :: ifsnow               ! 1=snow
+      LOGICAL, SAVE              :: ifwr       = .FALSE. ! canopy wetness from LSM?
+      REAL,            PARAMETER :: kvis       = 0.132   ! [cm^2 / s] at 273.15K
+      REAL                       :: kvisw      ! kinematic viscosity of water [cm^2/s]
+      INTEGER                    :: l
+      REAL                       :: laicr                ! cell leaf area index
+      INTEGER, SAVE              :: logdev               ! unit number for the log file
+      INTEGER, SAVE, ALLOCATABLE :: lstwetdate( :,: )
+      INTEGER, SAVE, ALLOCATABLE :: lstwettime( :,: )
+      REAL                       :: lv                   ! latent heat of vaporization
+      INTEGER                    :: n
+      CHARACTER( 16 ), PARAMETER :: pname      = 'M3DRY'
+      REAL,            PARAMETER :: pr         = 0.709   ! [dim'less]
+      REAL                       :: q2p0cr               ! cell 2.0 m water vapor mix ratio
+      REAL                       :: qss_air
+      REAL                       :: qss_grnd
+      INTEGER                    :: r
+      REAL                       :: rac
+      REAL                       :: rbc
+      REAL                       :: rbsulf
+      REAL                       :: rbw
+      REAL                       :: rci
+      REAL                       :: rcut
+      REAL,            PARAMETER :: rcut0      = 3000.0  ! [s/m]
+      REAL,            PARAMETER :: rcw0       = 125000.0 ! acc'd'g to Padro and
+                                                          ! adapted from Slinn 78
+      REAL,            PARAMETER :: resist_min = 1.0e-30 ! minimum resistance
+      REAL,            PARAMETER :: rg0        = 1000.0  ! [s/m]
+      REAL                       :: rgnd
+      REAL                       :: rgndc
+      REAL                       :: rgw                  ! resist for water-covered sfc
+      REAL,            PARAMETER :: rgwet0     = 25000.0 ! [s/m]
+      REAL                       :: rh_air               ! rel humidity (air)
+      REAL                       :: rh_grnd              ! rel humidity (ground)
+      REAL                       :: rinc
+      REAL,            PARAMETER :: rsndiff    = 10.0    ! snow diffusivity fac
+      REAL                       :: rsnow
+      REAL,            PARAMETER :: rsnow0     = 1000.0
+      REAL                       :: rstom
+      REAL                       :: rsurf
+      REAL                       :: rwet                 ! wet sfc resist (cuticle or grnd)
+      REAL                       :: rwetsfc
+      REAL                       :: scw_pr_23            ! (scw/pr)**2/3
+      INTEGER,         EXTERNAL  :: secsdiff
+      INTEGER, SAVE              :: strtcol
+      INTEGER, SAVE              :: strtrow
+      REAL,            PARAMETER :: svp2       = 17.67   ! from MM5 and WRF
+      REAL,            PARAMETER :: svp3       = 29.65   ! from MM5 and WRF
+      REAL,            PARAMETER :: rt25inK    = 1.0/(stdtemp + 25.0) ! 298.15K = 25C
+      REAL                       :: temp2p0cr            ! cell 2.0-m temp
+      REAL                       :: tempgcr              ! cell ground temp
+      REAL                       :: tw                   ! wet bulb temp.
+      REAL,            PARAMETER :: twothirds  = 2.0 / 3.0
+      REAL                       :: ustarcr              ! cell friction velocity
+      REAL                       :: vegcr                ! cell veg coverage fraction
+      CHARACTER( 16 )            :: vname
+      REAL                       :: wrmax
+      REAL,    SAVE              :: xcent
+      REAL                       :: xm                   ! liquid water mass frac
+      CHARACTER( 96 )            :: xmsg = ' '
+      REAL,    SAVE              :: ycent
+
+      REAL,    SAVE, ALLOCATABLE :: dluse     ( :,: )
+      REAL,    SAVE, ALLOCATABLE :: lon       ( :,: )
+      REAL,    SAVE, ALLOCATABLE :: lwmask    ( :,: )
+      REAL                       :: lai       ( ncols,nrows ) ! leaf area index [area/area]
+      REAL                       :: prsfc     ( ncols,nrows ) ! surface pressure [Pa]
+      REAL                       :: q2        ( ncols,nrows ) ! 2-m water vapor mix rat [kg/kg]
+      REAL                       :: ra        ( ncols,nrows ) ! aerodynamic resistance [s/m]
+      REAL                       :: rc        ( ncols,nrows ) ! convective rain [cm]
+      REAL                       :: rgrnd     ( ncols,nrows ) ! SW radiation at ground [W/m2]
+      REAL                       :: rn        ( ncols,nrows ) ! nonconvective rain [cm]
+      REAL                       :: rs        ( ncols,nrows ) ! stomatal resistance [s/m]
+      REAL                       :: snocov    ( ncols,nrows ) ! snow cover [1=yes, 0=no]
+      REAL                       :: temp2p0   ( ncols,nrows ) ! 2.0-m temperature [K]
+      REAL                       :: tempg     ( ncols,nrows ) ! ground surface temperature [K]
+      REAL                       :: ustar     ( ncols,nrows ) ! friction velocity [m/s]
+      REAL                       :: veg       ( ncols,nrows ) ! vegetation coverage [fraction]
+      REAL                       :: wr        ( ncols,nrows ) ! precip intercepted by canopy [m]
+      REAL                       :: wspd10    ( ncols,nrows ) ! 10-m wind speed [m/s]
+      REAL                       :: wstar     ( ncols,nrows ) ! convective velocity scale [m/s]
+      REAL                       :: zruf      ( ncols,nrows ) ! roughness length [m]
+
+      INTEGER, SAVE              :: n_spc_m3dry = ltotg       ! from DEPVVARS module
+
+      REAL                       :: ar       ( ltotg )        ! reactivity relative to HNO3
+      REAL                       :: dif0     ( ltotg )        ! molecular diffusivity [cm2/s]
+      REAL                       :: meso     ( ltotg )        ! mesophyll resistance [s/m]
+      REAL                       :: mlwt     ( ltotg )        ! molecular weight
+      REAL, SAVE                 :: scc_pr_23( ltotg )        ! (SCC/PR)**2/3, fn of DIF0
+      CHARACTER( 16 )            :: subname  ( ltotg )        ! for subroutine HLCONST
+
+C-------------------------------------------------------------------------------
+C For heterogenous hono on surfaces
+      REAL                       :: conc_no2                  ! concentration of NO2
+      REAL                       :: kno2                      ! first order rate constant for the heterogenous reaction [1/s]  
+      REAL,    SAVE, ALLOCATABLE :: purb      ( :,: )         ! urban percent [%]
+      REAL                       :: surf_bldg                 ! Surface area of bldgs to volume of air [-]
+      REAL                       :: surf_leaf                 ! Surface area of leaves to volume of air [-]
+      REAL,    SAVE, ALLOCATABLE :: zf        ( :,: )         ! layer height [m]      
+      
+C-------------------------------------------------------------------------------
+C For Ammonia bi-directional flux
+
+      REAL                       :: aq           ! Quadradic equation variable
+      REAL                       :: bq           ! Quadradic equation variable
+      REAL                       :: cnh3         ! Layer 1 NH3 concentration from CGRID [ppm]
+      REAL                       :: cnh3c        ! In canopy NH3 concentration [ppm]
+      REAL                       :: cnh3g        ! NH3 compensation concentration for ground [ppm]
+      REAL                       :: cnh3s        ! NH3 compensation concentration for stomatal [ppm]
+      REAL                       :: cq           ! Quadradic equation variable
+      REAL                       :: cso2c        ! In canopy SO2 concentration [ppm]
+      REAL                       :: del0         ! for Rbg
+      REAL                       :: ga           ! Ga  = 1/Ra [m/s]
+      REAL                       :: gamma        ! [NH4+]/[H+]
+      REAL                       :: gcw
+      REAL                       :: gg           ! Gg  = 1/(Rgnd(nh3)+Rinc) [m/s]
+      REAL                       :: gsb          ! Gsb = 1/(Rstom(nh3)+Rb(nh3)) [m/s]
+      REAL                       :: gt
+      INTEGER                    :: k
+      REAL,            PARAMETER :: karman = 0.4 ! von Karman constant
+      REAL                       :: lnh3         ! loss part of ammonia flux
+                                                 ! Note that lnh3 is stored in DEPVEL_GAS(nh3) for use in vdiff
+      REAL,    SAVE, ALLOCATABLE :: lufrac( :,:,: )
+      INTEGER,         PARAMETER :: n_lufrac = 19 ! hardwired for 24-category USGS
+      REAL                       :: qq           ! intermediate variable
+      REAL                       :: rbg
+      REAL,            PARAMETER :: rwm = 50.0   ! Minimum NH3 cuticle resistance [s/m]
+      REAL                       :: rwmb         ! Rwmb = Rwm + Rb
+      REAL                       :: rwx          ! Rw = Rwm + Rwx * CNH3C [s/m]
+      REAL                       :: scn          ! for Rbg
+      REAL                       :: ustg         ! for Rbg
+      REAL                       :: vdg          ! Vd(nh3) to non-veg part [m/s]
+
+      REAL,    SAVE              :: luf_fac( n_lufrac )
+      DATA luf_fac(  1 ) /   50.0 /                ! hardwired for 24-category USGS
+      DATA luf_fac(  2 ) / 1000.0 /                !     "      "       "       "
+      DATA luf_fac(  3 ) / 1000.0 /                !     "      "       "       "
+      DATA luf_fac(  4 ) / 1000.0 /                !     "      "       "       "
+      DATA luf_fac(  5 ) /  500.0 /                !     "      "       "       "
+      DATA luf_fac(  6 ) /  500.0 /                !     "      "       "       "
+      DATA luf_fac(  7 ) /  300.0 /                !     "      "       "       "
+      DATA luf_fac(  8 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac(  9 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 10 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 11 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 12 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 13 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 14 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 15 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 16 ) /    0.0 /   ! not used (water)
+      DATA luf_fac( 17 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 18 ) /  100.0 /                !     "      "       "       "
+      DATA luf_fac( 19 ) /   10.0 /                !     "      "       "       "
+
+C-------------------------------------------------------------------------------
+C Soil Characteristics by Type
+C
+C   #  SOIL TYPE  WSAT  WFC  WWLT    B   CGSAT   JP   AS   C2R  C1SAT
+C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____
+C   1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082
+C   2  LOAMY SAND .410 .150  .075  4.38  3.057    4  .404  3.7  .098
+C   3  SANDY LOAM .435 .195  .114  4.90  3.560    4  .219  1.8  .132
+C   4  SILT LOAM  .485 .255  .179  5.30  4.418    6  .105  0.8  .153
+C   5  LOAM       .451 .240  .155  5.39  4.111    6  .148  0.8  .191
+C   6  SND CLY LM .420 .255  .175  7.12  3.670    6  .135  0.8  .213
+C   7  SLT CLY LM .477 .322  .218  7.75  3.593    8  .127  0.4  .385
+C   8  CLAY LOAM  .476 .325  .250  8.52  3.995   10  .084  0.6  .227
+C   9  SANDY CLAY .426 .310  .219 10.40  3.058    8  .139  0.3  .421
+C  10  SILTY CLAY .482 .370  .283 10.40  3.729   10  .075  0.3  .375
+C  11  CLAY       .482 .367  .286 11.40  3.600   12  .083  0.3  .342
+C
+C-------------------------------------------------------------------------------
+
+C-------------------------------------------------------------------------------
+C-- Chemical-Dependent Parameters (Original Source: Modified ADOM - Padro)
+C
+C                                                        at 298.15 K
+C     Species   Dif0(cm2/s) Alphastar   Reactivity     -DKHOR [K]  KH0 [M/atm]
+C     _______   ___________ _________   __________     _________  __________
+C  1   SO2      0.1089 ~    1000.       8.00            3100.0 ~     1.2e00 ~
+C  2   SULF      --       --           --                --           --
+C  3   NO2      0.1361 ~    1.00      8.00 2.00*        2500.0 ~     1.2e-2 ~
+C  4   NO       0.1802 ~    1         2.0+              1500.0 ~     1.9e-3 ~
+C  5   O3       0.1444 ~    10.00       15.0  8@@        2700.0 ~     1.2e-2 ~
+C  6   HNO3     0.1628 ~    1E9       18.0 800* 8000**  8700.0 ~     2.6e+6 ~
+C  7   H2O2     0.2402 ~    1.00      12.0 30*          6600.0 ~     9.7e+4 ~
+C  8   ACET ALD 0.1525 ~    1         10.+              5700.0 ~     1.3e+1 ~
+C  9   HCHO     0.1877 ~    1.00      10.+              6400.0 ~     7.0e+3 ~
+C 10   OP       0.1525 ~    1         10.0+             5200.0 ~     3.1e+2 ~
+C 11   PAA      0.1220 ~    1         20+               5300.0 ~     8.4e+2 ~
+C 12   ORA      0.1525 ~    1         20+               5700.0 ~     3.7e+3 ~
+C 13   NH3      0.1978 ~    1E5       10.0              4100.0 ~     5.8e+1 ~
+C 14   PAN      0.0938 ~    1         16.0~~            5900.0 ~     2.9e00 ~
+C 15   HONO     0.1525 ~    1         20+               4800.0 ~     4.9e+1 ~
+C 16   CO       0.1807 ~    1         5.0               1600.0 ~     9.5e-4 ~
+C 17   METHANOL 0.1363 ~    1.0 ~       2.0 ~           5200.0 ~     2.2e+2 ~
+C --   CO2      0.1381 ~                                2400.0 ~     3.4e-2 ~
+C 18   N2O5     0.0808 ^^             5000.0**
+C 19   NO3      0.1153 ^^             5000.0**
+C 20   GEN ALD  0.1525 ##   1.0       10.0##
+C 21   CL2      0.1080 %              10.0 %
+C 22   HOCL     0.1300 %              10.0 %
+C 23   HCL      0.1510 %              8000.0 %
+C 24   FMCL     0.1094 %              10.0 %
+C 27   HG       0.1194 $              0.1 $
+C 28   HGIIGAS  0.0976 $              8000.0 $
+C 50   HEXAMETHYLENE DIISOCYANATE       10.0 <>
+C 51   HYDRAZINE                        20.0 <>
+C 52   MALEIC ANHYDRIDE                 10.0 <>
+C 53   TOLUENE DIISOCYANATE             10.0 <>
+C 54   TRIETHYLAMINE                    10.0 <>
+C
+C---------Notes
+C  * Updates based on literature review 7/96 JEP
+C  # Diff and H based on Wesely (1988) same as RADM
+C  + Estimated by JEP 2/97
+C  @@ Updated by JEP 9/01
+C  ~ Added by YW 1/02.  Dif0 based on Massman (1998).  Henry's Law constant
+C    is defined here as: h=cg/ca, where cg is the concentration of a species
+C    in gas-phase, and ca is its aqueous-phase concentration.  The smaller h,
+C    the larger solubility.  Henry's Law constant in another definition (KH):
+C    KH = ca/pg [M/atm], KH = KH0 * exp(-DKH/R(1/T-1/T0)), where KH0 and -DKH
+C    values are from Rolf Sander (1999).  h=1/(KH*R*T).
+C ** Update by DBS based on estimates by JEP 1/03
+C ^^ From Bill Massman, personal communication 4/03
+C ## Diffusivity calculated by SPARC, reactivity = other aldehydes
+C ++ Dif0 in Massman is diffusivity at temperature 0C and 1 atm (101.325kPa), so
+C    chemicals that were not in Massman's paper need to be adjusted.  We assume
+C    JEP's original values were for 25C and 1 atm.
+C  % Added by G. Sarwar (10/04)
+C  $ Added by R. Bullock (02/05) HG diffusivity is from Massman (1999).
+C    HGIIGAS diffusivity calculated from the HG value and a mol. wt. scaling
+C    factor of MW**(-2/3) from EPA/600/3-87/015. ORD, Athens, GA.  HGIIGAS
+C    mol.wt. used is that of HgCl2.  Reactivity of HG is 1/20th of NO and NO2
+C    values based on general atmospheric lifetimes of each species.  Reactivity
+C    of HGIIGAS is based on HNO3 surrogate.
+C @@@@ Mesophyll resistances for NO, NO2, and CO added by J. Pleim (07/07) based
+C    on values in Pleim, Venkatram, and Yamartino, 1984:  ADOM/TADAP Model
+C    Development Program, Volume 4, The Dry Deposition Module.  ERT, Inc.,
+C    Concord, MA (peer reviewed).
+C ~~ Reactivity for PAN changed from 4.0 to 16.0 by J. Pleim (07/07) based on
+C    comparisons with Turnipseed et al., JGR, 2006.
+C %% Species ICL1 and ICL2 are removed, not used in CB05.  G. Sarwar (07/07)
+C <> Hazardous Air Pollutants that are believed to undergo significant dry
+C    deposition. Hydrazine and triethylamine reactivities are based on analogies
+C    to NH3. Maleic anhydride reactivity is assumed similar to aldehydes.
+C    Toluene diisocyanate and hexamethylene diisocyanate reactivities are
+C    assumed to be similar to SO2. Diffusivities are calculated with standard
+C    formulas.  W. Hutzell (04/08)
+C-------------------------------------------------------------------------------
+
+      DATA subname( 1), dif0( 1), ar( 1), meso( 1), mlwt( 1) / 'SO2             ', 0.1089,   10.0,      0.0,   64.0/
+      DATA subname( 2), dif0( 2), ar( 2), meso( 2), mlwt( 2) / 'SULFATE         ', 0.0001,    0.0,      0.0,   96.0/
+      DATA subname( 3), dif0( 3), ar( 3), meso( 3), mlwt( 3) / 'NO2             ', 0.1361,    2.0,    500.0,   46.0/
+      DATA subname( 4), dif0( 4), ar( 4), meso( 4), mlwt( 4) / 'NO              ', 0.1802,    2.0,   9400.0,   30.0/
+      DATA subname( 5), dif0( 5), ar( 5), meso( 5), mlwt( 5) / 'O3              ', 0.1444,    8.0,      0.0,   48.0/
+      DATA subname( 6), dif0( 6), ar( 6), meso( 6), mlwt( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,   63.0/
+      DATA subname( 7), dif0( 7), ar( 7), meso( 7), mlwt( 7) / 'H2O2            ', 0.1300,   30.0,      0.0,   34.0/
+      DATA subname( 8), dif0( 8), ar( 8), meso( 8), mlwt( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,   44.0/
+      DATA subname( 9), dif0( 9), ar( 9), meso( 9), mlwt( 9) / 'FORMALDEHYDE    ', 0.1554,   10.0,      0.0,   30.0/
+      DATA subname(10), dif0(10), ar(10), meso(10), mlwt(10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.0,   48.0/
+      DATA subname(11), dif0(11), ar(11), meso(11), mlwt(11) / 'PEROXYACETIC_ACI', 0.0868,   20.0,      0.0,   76.0/
+      DATA subname(12), dif0(12), ar(12), meso(12), mlwt(12) / 'ACETIC_ACID     ', 0.0944,   20.0,      0.0,   60.0/
+      DATA subname(13), dif0(13), ar(13), meso(13), mlwt(13) / 'NH3             ', 0.1978,   20.0,      0.0,   17.0/
+      DATA subname(14), dif0(14), ar(14), meso(14), mlwt(14) / 'PAN             ', 0.0687,   16.0,      0.0,  121.0/
+      DATA subname(15), dif0(15), ar(15), meso(15), mlwt(15) / 'HNO2            ', 0.1349,   20.0,      0.0,   47.0/
+      DATA subname(16), dif0(16), ar(16), meso(16), mlwt(16) / 'CO              ', 0.1807,    5.0, 100000.0,   28.0/
+      DATA subname(17), dif0(17), ar(17), meso(17), mlwt(17) / 'METHANOL        ', 0.1329,    2.0,      0.0,   32.0/
+      DATA subname(18), dif0(18), ar(18), meso(18), mlwt(18) / 'N2O5            ', 0.0808, 5000.0,      0.0,  108.0/
+      DATA subname(19), dif0(19), ar(19), meso(19), mlwt(19) / 'NO3             ', 0.1153, 5000.0,      0.0,   62.0/
+      DATA subname(20), dif0(20), ar(20), meso(20), mlwt(20) / 'GENERIC_ALDEHYDE', 0.0916,   10.0,      0.0,   58.0/
+      DATA subname(21), dif0(21), ar(21), meso(21), mlwt(21) / 'CL2             ', 0.1080,   10.0,      0.0,   70.0/
+      DATA subname(22), dif0(22), ar(22), meso(22), mlwt(22) / 'HOCL            ', 0.1300,   10.0,      0.0,   52.0/
+      DATA subname(23), dif0(23), ar(23), meso(23), mlwt(23) / 'HCL             ', 0.1510, 8000.0,      0.0,   36.0/
+      DATA subname(24), dif0(24), ar(24), meso(24), mlwt(24) / 'FMCL            ', 0.1094,   10.0,      0.0,   64.0/
+      DATA subname(25), dif0(25), ar(25), meso(25), mlwt(25) / 'ICL1            ', 0.0664,   10.0,      0.0,   35.0/
+      DATA subname(26), dif0(26), ar(26), meso(26), mlwt(26) / 'ICL2            ', 0.0664,   10.0,      0.0,   70.0/
+      DATA subname(27), dif0(27), ar(27), meso(27), mlwt(27) / 'HG              ', 0.1194,    0.1,   5000.0,  200.6/
+      DATA subname(28), dif0(28), ar(28), meso(28), mlwt(28) / 'HGIIGAS         ', 0.0976, 8000.0,      0.0,  270.6/
+      DATA subname(29), dif0(29), ar(29), meso(29), mlwt(29) / 'TECDD_2378      ', 0.0525,    2.0,      0.0,  320.0/
+      DATA subname(30), dif0(30), ar(30), meso(30), mlwt(30) / 'PECDD_12378     ', 0.0508,    2.0,      0.0,  354.0/
+      DATA subname(31), dif0(31), ar(31), meso(31), mlwt(31) / 'HXCDD_123478    ', 0.0494,    2.0,      0.0,  388.0/
+      DATA subname(32), dif0(32), ar(32), meso(32), mlwt(32) / 'HXCDD_123678    ', 0.0494,    2.0,      0.0,  388.0/
+      DATA subname(33), dif0(33), ar(33), meso(33), mlwt(33) / 'HXCDD_123478    ', 0.0494,    2.0,      0.0,  388.0/
+      DATA subname(34), dif0(34), ar(34), meso(34), mlwt(34) / 'HPCDD_1234678   ', 0.0480,    2.0,      0.0,  422.0/
+      DATA subname(35), dif0(35), ar(35), meso(35), mlwt(35) / 'OTCDD           ', 0.0474,    2.0,      0.0,  390.0/
+      DATA subname(36), dif0(36), ar(36), meso(36), mlwt(36) / 'TECDF_2378      ', 0.0534,    2.0,      0.0,  304.0/
+      DATA subname(37), dif0(37), ar(37), meso(37), mlwt(37) / 'PECDF_12378     ', 0.0517,    2.0,      0.0,  338.0/
+      DATA subname(38), dif0(38), ar(38), meso(38), mlwt(38) / 'PECDF_23478     ', 0.0517,    2.0,      0.0,  338.0/
+      DATA subname(39), dif0(39), ar(39), meso(39), mlwt(39) / 'HXCDF_123478    ', 0.0512,    2.0,      0.0,  372.0/
+      DATA subname(40), dif0(40), ar(40), meso(40), mlwt(40) / 'HXCDF_123678    ', 0.0512,    2.0,      0.0,  372.0/
+      DATA subname(41), dif0(41), ar(41), meso(41), mlwt(41) / 'HXCDF_234678    ', 0.0512,    2.0,      0.0,  372.0/
+      DATA subname(42), dif0(42), ar(42), meso(42), mlwt(42) / 'HXCDF_123789    ', 0.0512,    2.0,      0.0,  372.0/
+      DATA subname(43), dif0(43), ar(43), meso(43), mlwt(43) / 'HPCDF_1234678   ', 0.0487,    2.0,      0.0,  409.0/
+      DATA subname(44), dif0(44), ar(44), meso(44), mlwt(44) / 'HPCDF_1234789   ', 0.0487,    2.0,      0.0,  409.0/
+      DATA subname(45), dif0(45), ar(45), meso(45), mlwt(45) / 'OTCDF           ', 0.0474,    2.0,      0.0,  340.0/
+      DATA subname(46), dif0(46), ar(46), meso(46), mlwt(46) / 'NAPHTHALENE     ', 0.0778,    4.0,      0.0,  128.0/
+      DATA subname(47), dif0(47), ar(47), meso(47), mlwt(47) / '1NITRONAPHTHALEN', 0.0692,    4.0,      0.0,  245.0/
+      DATA subname(48), dif0(48), ar(48), meso(48), mlwt(48) / '2NITRONAPHTHALEN', 0.0692,    4.0,      0.0,  173.0/
+      DATA subname(49), dif0(49), ar(49), meso(49), mlwt(49) / '14NAPHTHOQUINONE', 0.0780,    4.0,      0.0,  158.0/
+      DATA subname(50), dif0(50), ar(50), meso(50), mlwt(50) / 'HEXAMETHYLE_DIIS', 0.0380,   10.0,      0.0, 168.2/
+      DATA subname(51), dif0(51), ar(51), meso(51), mlwt(51) / 'HYDRAZINE       ', 0.4164,   20.0,      0.0,  32.0/
+      DATA subname(52), dif0(52), ar(52), meso(52), mlwt(52) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  98.0/
+      DATA subname(53), dif0(53), ar(53), meso(53), mlwt(53) / '2,4-TOLUENE_DIIS', 0.0610,   10.0,      0.0, 174.2/
+      DATA subname(54), dif0(54), ar(54), meso(54), mlwt(54) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 101.2/
+
+      IF ( first_call ) THEN
+         first_call = .FALSE.
+         logdev  = init3()
+
+         DO l = 1, n_spc_m3dry
+            IF ( dif0( l ) > 0.0 ) THEN
+               scc_pr_23( l ) = ( ( kvis / dif0( l ) ) / pr ) ** twothirds
+            ELSE
+               scc_pr_23( l ) = 0.0
+            END IF
+         END DO
+
+         IF ( .NOT. desc3( met_cro_2d ) ) THEN
+            xmsg = 'Could not get  met_cro_2d  file description'
+            CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
+         END IF
+
+         xcent = xcent3d
+         ycent = ycent3d
+
+         DO l = 1, nvars3d
+            IF ( vname3d( l ) == 'WR' ) THEN   ! canopy wetness is in METCRO2D
+               ifwr = .TRUE.
+               WRITE( logdev,6501 )
+               EXIT
+            END IF
+         END DO
+
+         DO l = 1, nvars3d
+            IF ( vname3d( l ) == 'Q2' ) THEN   ! 2-m mixing ratio is in METCRO2D
+               ifq2 = .TRUE.
+               WRITE( logdev,6503 )
+               EXIT
+            END IF
+         END DO
+
+         CALL subhfile ( met_cro_2d, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
+
+C-------------------------------------------------------------------------------
+C Read fields from grid_cro_2d.
+C-------------------------------------------------------------------------------
+
+         IF ( .NOT. ALLOCATED ( lon ) ) THEN
+            ALLOCATE ( lon ( my_ncols,my_nrows ) )
+         END IF
+
+         IF ( .NOT. ALLOCATED ( lwmask ) ) THEN
+            ALLOCATE ( lwmask ( my_ncols,my_nrows ) )
+         END IF
+ 
+         IF ( .NOT. ALLOCATED ( dluse ) ) THEN
+            ALLOCATE ( dluse ( my_ncols,my_nrows ) )
+         END IF
+
+         vname = 'LON'
+         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, lon) ) THEN
+            WRITE( xmsg,9001 ) vname, grid_cro_2d
+            GO TO 1001
+         END IF
+
+         vname = 'LWMASK'
+         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, lwmask) ) THEN
+            WRITE( xmsg,9001 ) vname, grid_cro_2d
+            GO TO 1001
+         END IF
+ 
+         vname = 'DLUSE'
+         IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, dluse) ) THEN
+            WRITE( xmsg,9001 ) vname, grid_cro_2d
+            GO TO 1001
+         END IF
+
+         IF ( abflux ) THEN
+
+            ! Initial implementation of ammonia bidirectional flux is
+            ! hardwired for USGS 24-category land use.  Extract description
+            ! of dominant land use field (DLUSE) from GRIDCRO2D to determine
+            ! if "USGS24" is present.  If not, stop execution and note that
+            ! parts of this option (i.e., N_LUFRAC, LUF_FAC) need to be
+            ! updated for other land use classification schemes.
+
+            IF ( .NOT. desc3( grid_cro_2d ) ) THEN
+               xmsg = 'Could not get  grid_cro_2d  file description '
+               CALL m3exit( pname, jdate, jtime, xmsg, xstat2 )
+            END IF
+            DO l = 1, nvars3d
+               IF ( vname3d( l ) == 'DLUSE' ) THEN
+                  IF ( INDEX( vdesc3d( l ), 'USGS24' ) == 0 ) THEN  ! not USGS24
+                     WRITE( logdev,9005 ) TRIM( vdesc3d( l ) )
+                     xmsg = 'ABORT'
+                     GOTO 1001
+                  ELSE  ! USGS24 found in description of DLUSE
+                     EXIT
+                  END IF
+               END IF
+            END DO
+
+            IF ( .NOT. ALLOCATED ( lufrac ) ) THEN
+               ALLOCATE ( lufrac( n_lufrac,my_ncols,my_nrows ) )
+            END IF
+            DO k = 1, n_lufrac
+               WRITE( vname,'( "LUFRAC_",I2.2 )' ) k
+               IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+     &                             strtrow, endrow, 1, 1, jdate, jtime,
+     &                             lufrac( k,:,: )) ) THEN
+                  WRITE( xmsg,9001 ) vname, grid_cro_2d
+                  GO TO 1001
+               END IF
+            END DO
+
+         END IF   ! abflux
+
+         IF ( .NOT. ALLOCATED ( delta ) ) THEN
+            ALLOCATE ( delta( my_ncols,my_nrows ) )
+            delta( :,: ) = 0.0
+         END IF
+
+         IF ( .NOT. ALLOCATED ( lstwetdate ) .AND. .NOT. ifwr ) THEN
+            ALLOCATE ( lstwetdate( my_ncols,my_nrows ) )
+            lstwetdate( :,: ) = 0
+         END IF
+
+         IF ( .NOT. ALLOCATED ( lstwettime ) .AND. .NOT. ifwr ) THEN
+            ALLOCATE ( lstwettime( my_ncols,my_nrows ) )
+            lstwettime( :,: ) = 0
+         END IF
+
+         IF ( sfc_hono ) THEN
+            IF ( .NOT. ALLOCATED ( zf ) ) THEN
+               ALLOCATE ( zf( my_ncols,my_nrows ) )
+            END IF
+            IF ( .NOT. ALLOCATED ( purb ) ) THEN
+               ALLOCATE ( purb( my_ncols,my_nrows ) )
+            END IF
+            vname = 'PURB'
+            IF ( .NOT. interpx (grid_cro_2d, vname, pname, strtcol, endcol,
+     &                   strtrow, endrow, 1, 1, jdate, jtime, purb) ) THEN
+               WRITE( xmsg,9001 ) vname, grid_cro_2d
+               GO TO 1001
+            END IF
+         END IF   ! src_hono
+
+      END IF   ! first_call
+
+C-------------------------------------------------------------------------------
+C Read fields from met_cro_2d.
+C-------------------------------------------------------------------------------
+
+      vname = 'LAI'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,  
+     &                strtrow, endrow, 1, 1, jdate, jtime, lai) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'PRSFC'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,  
+     &                strtrow, endrow, 1, 1, jdate, jtime, prsfc) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      IF ( ifq2 ) THEN
+         vname = 'Q2'
+         IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                 strtrow, endrow, 1, 1, jdate, jtime, q2) ) THEN
+            WRITE( xmsg,9001 ) vname, met_cro_2d
+            GO TO 1001
+         END IF
+      END IF
+
+      vname = 'RADYNI'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, ra) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      ELSE
+         DO r = 1, my_nrows
+            DO c = 1, my_ncols
+               ra( c,r ) = 1.0 / MAX( ra( c,r ), resist_min )
+            END DO
+         END DO
+      END IF
+
+      vname = 'RC'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, rc) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'RGRND'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, rgrnd) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'RN'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, rn) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'RSTOMI'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, rs) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      ELSE
+         DO r = 1, my_nrows
+            DO c = 1, my_ncols
+               rs( c,r ) = 1.0 / MAX( rs( c,r ), resist_min )
+            END DO
+         END DO
+      END IF
+
+      vname = 'SNOCOV'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, snocov) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'TEMP2'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, temp2p0) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'TEMPG'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, tempg) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'USTAR'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, ustar) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'VEG'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, veg) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      IF ( ifwr ) THEN
+         vname = 'WR'
+         IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                 strtrow, endrow, 1, 1, jdate, jtime, wr) ) THEN
+            WRITE( xmsg,9001 ) vname, met_cro_2d
+            GO TO 1001
+         END IF
+      END IF
+
+      vname = 'WSPD10'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, wspd10) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'WSTAR'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, wstar) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+      vname = 'ZRUF'
+      IF ( .NOT. interpx (met_cro_2d, vname, pname, strtcol,  endcol,
+     &                strtrow, endrow, 1, 1, jdate, jtime, zruf) ) THEN
+         WRITE( xmsg,9001 ) vname, met_cro_2d
+         GO TO 1001
+      END IF
+
+C-------------------------------------------------------------------------------
+C Read fields from met_cro_3d.
+C-------------------------------------------------------------------------------
+
+      IF ( .NOT. ifq2 ) THEN  ! Q2 not in METCRO2D; substitute layer-1 QV
+         vname = 'QV'
+         IF ( .NOT. interpx (met_cro_3d, vname, pname, strtcol,  endcol,
+     &                       strtrow, endrow, 1, 1, jdate, jtime, q2) ) THEN
+            WRITE( xmsg,9001 ) vname, met_cro_3d
+            GO TO 1001
+         END IF
+      END IF
+
+      IF ( sfc_hono ) THEN
+         vname = 'ZF'
+         IF ( .NOT. interpx ( met_cro_3d, vname, pname, strtcol,  endcol,
+     &                        strtrow, endrow, 1, 1, jdate, jtime, zf) ) THEN
+            WRITE( xmsg,9001 ) vname, met_cro_3d
+            GO TO 1001
+         END IF
+      END IF
+
+C-------------------------------------------------------------------------------
+C Loop over grid cells and calculate dry deposition.
+C-------------------------------------------------------------------------------
+
+      effective = .TRUE.
+
+      depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
+      pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
+
+      DO r = 1, my_nrows
+      DO c = 1, my_ncols
+
+         laicr     = lai    ( c,r )
+         q2p0cr    = q2     ( c,r )
+         temp2p0cr = temp2p0( c,r )
+         tempgcr   = tempg  ( c,r )
+         ustarcr   = ustar  ( c,r )
+         vegcr     = veg    ( c,r )
+
+      ! Calculate the relative humidity of air and ground.
+
+         IF ( temp2p0cr <= stdtemp ) THEN
+            es_air = vp0 * EXP( 22.514 - (6.15e3 / temp2p0cr) )
+         ELSE
+            es_air = vp0 * EXP( svp2 * (temp2p0cr - stdtemp) /
+     &                                 (temp2p0cr - svp3) )
+         END IF
+
+         qss_air = es_air * 0.622 / (prsfc( c,r ) - es_air)
+         rh_air  = 100.0 * q2p0cr / qss_air
+         rh_air  = MIN( 100.0, rh_air )
+
+         IF ( tempgcr <= stdtemp ) THEN
+            es_grnd = vp0 * EXP( 22.514 - (6.15e3 / tempgcr) )
+         ELSE
+            es_grnd = vp0 * EXP( svp2 * (tempgcr - stdtemp) /
+     &                                  (tempgcr - svp3) )
+         END IF
+
+         qss_grnd = es_grnd * 0.622 / (prsfc( c,r ) - es_grnd)
+         rh_grnd  = 100.0 * q2p0cr / qss_grnd
+         rh_grnd  = MIN( 100.0, rh_grnd )
+
+         IF ( ( NINT(lwmask( c,r )) /= 0 ) .AND. ( vegcr > 0.0 ) ) THEN  ! land
+
+            IF ( .NOT. ifwr ) THEN  ! approx canopy wetness - dew from Wesely
+
+            ! canopy is wet if > trace precip. or moist with light winds
+
+               IF ( ( rn( c,r ) + rc( c,r ) > 0.025 ) .OR.
+     &              ( (0.6 + wspd10( c,r ))*(100.0-rh_grnd) <= 19.0 ) ) THEN
+
+                  delta( c,r )      = 1.0
+                  lstwetdate( c,r ) = jdate
+                  lstwettime( c,r ) = jtime
+
+               ELSE
+
+                  IF ( rgrnd( c,r ) > 5.0 ) THEN  ! day (if at night, persist delta)
+
+                  ! Determine if canopy was recently wet.
+
+                     IF ( ( lstwetdate( c,r ) > 0 ) .AND.
+     &                    ( lstwettime( c,r ) > 0 ) ) THEN  ! canopy recently wet
+
+                        elapsedsec = secsdiff ( lstwetdate( c,r ),
+     &                                          lstwettime( c,r ),
+     &                                          jdate, jtime )
+
+                        IF ( ( elapsedsec >     0 ) .AND.     ! assume canopy stays
+     &                       ( elapsedsec <= 7200 ) ) THEN    ! wet for 2 h
+                           delta( c,r ) = 1.0
+                        ELSE IF ( ( elapsedsec >  7200 ) .AND.     ! ramp down DELTA
+     &                            ( elapsedsec < 10800 ) ) THEN    ! between 2 & 3 h
+                           delta( c,r ) = ( 10800.0 - FLOAT( elapsedsec ) ) / 3600.0
+                        ELSE
+                           delta( c,r )      = 0.0
+                           lstwetdate( c,r ) = 0
+                           lstwettime( c,r ) = 0
+                        END IF
+
+                     END IF
+
+                  END IF
+
+               END IF
+
+            ELSE  ! Already have canopy wetness explicitly from met model
+
+               wrmax = 0.2e-3 * vegcr * laicr   ! [m]
+               IF ( wr( c,r ) <= 0.0 ) THEN
+                  delta( c,r ) = 0.0
+               ELSE
+                  delta( c,r ) = wr( c,r ) / wrmax   ! refer to SiB model
+                  delta( c,r ) = MIN( delta( c,r ), 1.0 )
+               END IF
+
+            END IF   ! canopy wetness
+
+      ! Assign a pH for rain water based on longitude if US simulation.
+      ! Otherwise use default pH.  Use pH value in HPLUS calculation.
+
+            IF ( ( ycent >=   30.0 ) .AND. ( ycent <=  45.0 ) .AND.
+     &           ( xcent >= -120.0 ) .AND. ( xcent <= -70.0 ) ) THEN
+               IF ( lon( c,r ) > -100.0 ) THEN
+                  hplus = hplus_east
+               ELSE
+                  hplus = hplus_west
+               END IF
+            ELSE
+               hplus = hplus_def
+            END IF
+
+         ELSE   ! water
+      ! Calculate the water surface film temperature: wet bulb temperature.
+      ! Wet bulb temperature based on eqn in Fritschen and Gay (1979).
+
+            ctemp2 = temp2p0cr - stdtemp
+            lv     = lv0 - dlvdt * ctemp2
+            cp_air = 1004.67 * ( 1.0 + 0.84 * q2p0cr )               ! [J/kg/K]
+            tw     = ( ( 4.71e4 * cp_air / lv ) - 0.870 ) + stdtemp  ! [K]
+
+         END IF  ! land or water
+
+      ! Loop over species to calculate dry deposition velocities.
+
+         n = 0
+         ddloop: DO l = 1, n_spc_m3dry
+
+            IF ( .NOT. use_depspc( l ) ) CYCLE ddloop
+
+            n = n + 1
+
+            IF ( TRIM( depspc( l ) ) == 'SULF' ) THEN  ! Sulfate (SULF)
+
+         ! Sulfate calculation follows Wesely (1985), Eqn. 11.
+
+               rbsulf = 1.0 / ( 0.002*(ustarcr**2 + 0.24*wstar( c,r )**2 ) /
+     &                  ustarcr )
+               depvel_gas( n,c,r ) = 1.0 / ( ra( c,r ) + rbsulf )
+
+            ELSE
+
+               IF ( ( NINT(lwmask( c,r )) == 0 ) .OR. ( vegcr == 0.0 ) ) THEN  ! water
+
+                  IF ( TRIM( depspc( l ) ) == 'HG' ) THEN  ! elemental mercury gas
+
+         ! Water bodies are usually supersaturated with dissolved
+         ! elemental mercury, so set the surface resistance to a
+         ! large value.
+
+                     rsurf = 1.0e30
+
+                  ELSE   ! any species other than elemental mercury gas
+
+         ! Use CMAQ function for calculating the effective Henry's Law
+         ! constant.  Note that original M3DRY wants inverse, non-
+         ! dimensional Henry's Law (caq/cg).   Water pH is different
+         ! than rain, and we need to use the water temperature.
+
+                     heff  = hlconst( subname( l ), tw, effective, hplus_h2o )
+
+         ! Make Henry's Law constant non-dimensional.
+
+                     heff  = heff * 0.08205 * tw
+
+                     dw25  = ( -2.41712 * LOG10( mlwt( l ) ) + 6.28752 ) * 0.00001
+                     kvisw = 0.017 * EXP( -0.025 * ( tw - stdtemp ) )
+                     dw    = dw25 * ( tw * rt25inK ) * ( 0.009025 / kvisw )
+                     scw_pr_23 = ( ( kvisw / dw ) / pr ) ** twothirds
+                     rgw   = scw_pr_23 / ( heff * d3 * ustarcr )
+                     rsurf = rgw
+
+                  END IF   ! elemental mercury exception
+
+               ELSE   ! land
+
+         ! Use CMAQ function for calculating the effective Henry's Law
+         ! constant.  Note that original M3DRY wants inverse,
+         ! non-dimensional Henry's Law (caq/cg).
+
+                  heff  = hlconst( subname( l ), temp2p0cr, effective, hplus )
+
+         ! Make Henry's Law constant non-dimensional.
+
+                  heff  = heff * 0.08205 * temp2p0cr
+
+         ! Wet surface resistance.  (Note DELTA = CWC in ADOM lingo.)
+         ! This now applies to cuticle and ground.
+
+                  IF ( TRIM( depspc( l ) ) /= 'O3' ) THEN
+                     rwet = rcw0 / heff      ! wet cuticle
+                  ELSE
+                  ! Set RCW/LAI = 200 s/m on basis of Keysburg exp for O3
+                     rwet = 1250.0    ! s/m
+                  END IF
+
+                  rgw  = rgwet0 / heff    ! wet ground
+
+         ! Dry snow resistance.
+
+                  rsnow = rsnow0 * a0 / ar( l )
+
+         ! If the surface is cold and wet, use dry snow.
+
+                  IF ( tempgcr < stdtemp ) THEN
+                     rwetsfc = rsnow
+                  ELSE
+                     rwetsfc = rwet
+                  END IF
+
+         ! Dry cuticle resistance.
+
+                  IF ( TRIM( depspc( l ) ) /= 'NH3' ) THEN
+                     rcut = rcut0 * a0 / ar( l )
+                  ELSE
+                     rcut = 4000.0 * EXP( -0.054 * rh_air )
+                  END IF
+
+         ! Dry ground resistance.  (revised according to Erisman)
+
+                  hcan  = zruf( c,r ) * 10.0
+                  rinc  = 14.0 * laicr * hcan / ustarcr
+                  rgnd  = rg0 * a0 / ar( l )
+                  rgndc = 1.0 / ( ( 1.0 - delta( c,r ) ) / rgnd + delta( c,r ) / rgw )
+     &                  + rinc          ! Add in-canopy part
+
+         ! Determine the snow liquid water mass fraction (0.0 to 0.5).
+
+                  xm = 0.02 * ( temp2p0cr - ( stdtemp - 1.0 ) )**2
+                  xm = MIN (xm, 0.5)
+                  xm = MAX (xm, 0.0)
+                  IF ( temp2p0cr < ( stdtemp - 1.0 ) ) xm = 0.0
+
+                  ifsnow = NINT( snocov( c,r ) )
+                  ifsnow = MAX( 0, ifsnow )
+
+         ! Bulk stomatal resistance; include mesophyll resistance.
+
+                  rstom = rs( c,r ) * dwat / dif0( l ) + meso( l ) / laicr
+
+         ! Bulk surface resistance.
+
+                  rci = vegcr
+     &                * ( 1.0/rstom + (1.0-delta( c,r )) * laicr / rcut
+     &                +   ( delta( c,r ) * laicr / rwetsfc ) + 1.0 / rgndc )
+     &                + (1-ifsnow) * ( (1.0 - vegcr) * ( (1.0-delta( c,r )) /
+     &                                  rgnd + delta( c,r ) / rgw ) )
+     &                + ifsnow * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) )
+
+                  rsurf = 1.0 / rci
+
+               END IF   ! land or water cell
+
+         ! Compute dry deposition velocity.
+
+               rbc = 5.0 / ustarcr * scc_pr_23( l )
+               rac = ra( c,r ) + rbc
+
+               depvel_gas( n,c,r ) = 1.0 / ( rsurf + rac )
+
+C--------------------------------------------------------------------------
+               IF ( abflux ) THEN   ! Ammonia Bidirectional Flux
+
+                  IF ( TRIM( depspc( l ) ) == 'SO2' ) THEN     ! Is SO2 before NH3?
+                     cso2c = cgridl1( n,c,r ) * ( 1.0 - depvel_gas( n,c,r ) * rac )
+                     cso2c = MAX( cso2c, 0.00001 )   ! impose minimum of 0.01 ppb
+                  END IF
+
+                  IF ( TRIM( depspc( l ) ) == 'NH3' ) THEN
+
+                     IF ( NINT( lwmask( c,r ) ) /= 0 ) THEN  ! land
+
+                     ! Compute quasi-laminar boundary layer resistance at
+                     ! the soil surface
+
+                        scn  = kvis / dif0( l )
+                        ustg = max( ustarcr / ( 1.0 + 1.4 * laicr ), 0.001 )
+                        del0 = 1.0E-4 * kvis / ( karman * ustg )
+                        rbg  = ( scn - LOG( 10.0 * del0 ) ) / ( karman * ustg )
+
+                     ! Compute compensation point. gamma is specified according to
+                     ! to the amount of cultivated vegetation  
+
+                        gamma = 0.0
+                        DO k = 1, n_lufrac
+                           gamma = gamma + luf_fac( k ) * lufrac( k,c,r )
+                        END DO
+
+                        cnh3s = 161512.0 / tempgcr
+     &                        * 10.0 ** ( -4507.11 / tempgcr ) * gamma
+                        cnh3s = cnh3s * 24.5 *1.0E6  ! ppm
+                        cnh3g = cnh3s * 0.8
+
+                     ! Cuticle resistance : rw = rwx * cnh3c + rwm
+
+                        rwx   = rwetsfc / cso2c * MAX( 1.0, 700.0 - 7.0 * rh_air )
+                        rwmb  = rwm + rbc
+                        ga    = 1.0 / ra( c,r )
+                        gsb   = 1.0 / ( rstom + rbc )
+                        gg    = 1.0 / ( rinc + rbg )
+                        gcw   = laicr / ( rbc + rwetsfc )
+                        gt    = gsb + gg + ga + delta( c,r ) * gcw
+                        cnh3  = cgridl1( n,c,r )
+                        qq    = ga * cnh3 + gsb * cnh3s + gg * cnh3g
+                        aq    = rwx * gt
+                        bq    = rwmb * gt + laicr * ( 1.0 - delta( c,r ) ) - rwx * qq
+                        cq    = -rwmb * qq
+                        cnh3c = ( -bq + SQRT( bq * bq - 4.0 * aq * cq ) ) / ( 2.0 * aq )
+                        vdg   = 1.0 / ( 1.0 / ga + rbg )
+                        pvd( n,c,r ) = cnh3c * ga * vegcr
+     &                               + ( 1.0 - vegcr ) * vdg * cnh3g
+!                       lnh3  = vegcr * ga + ( 1.0 - vegcr ) * vdg
+                        lnh3  = vdg + vegcr * ( ga - vdg )
+                        depvel_gas( n,c,r ) = lnh3
+
+                     END IF   ! land
+                  END IF   ! 'NH3'
+
+               END IF   ! abflux
+
+C--------------------------------------------------------------------------
+               IF ( sfc_hono ) THEN
+
+C HONO production via heterogeneous reaction on ground surfaces,
+C 2NO2 = HONO + HNO3
+C Rate constant for the reaction = (3.0E-3/60)* (A/V),
+C where A/V is surface area/volume ratio
+C HONO is produced and released into the atmosphere
+C NO2 is lost via chemical reaction
+C HNO3 is sticky and stays on the surfaces
+
+C Calculate A/V for leaves.
+C LAI was multiplied by 2 to account for the fact that surface area
+C is provided by both sides of the leaves.
+C Matthews Jones, Ammonia deposition to semi-natural vegetation,
+C PhD dissertation, University of Dundee, Scotland, 2006
+
+                  surf_leaf = 2.0 * laicr / zf( c,r )
+
+C Calculate A/V for buildings and other structures.
+C Buildings and other structures can provide additional surfaces in
+C urban areas for the heterogeneous reaction to occur. However, such
+C information is not readily available; in the absence of such information,
+C it is scaled to purb(c,r). Svensson et al., (1987) suggests a typical value
+C of 0.2 for A/V for buildings in urban environments. A maximum value of 0.2
+C for A/V for buildings is assigned to the grid cell containing the highest
+C purb(c,r) i.e., 100.0. A/V for buildings for other grid-cell is calculated
+C as purb(c,r)*(0.2/100.0); Cai et al. (2006) used a value of 1.0 for their
+C study at New York (total A/V)
+
+                  surf_bldg = purb( c,r ) * 0.002
+
+C Calculate rate constant for the reaction (psudeo-first order reaction,
+C unit per second). Calculate pseudo-first order rate constant using Eq 1
+C of Vogel et al. (2003).  Unit of KNO2 is in 1/min in the paper; divide it
+C by 60 to convert it into 1/sec.
+
+!                 kno2 = MAX( 0.0, 3.0E-3 * (surf_leaf + surf_bldg) / 60.0 )
+                  kno2 = MAX( 0.0, 5.0E-5 * (surf_leaf + surf_bldg) )
+
+C Determine NO2 concentration needed for HONO production term.
+
+                  IF ( TRIM( depspc( l ) ) == 'NO2' ) THEN
+                     conc_no2 = cgridl1( n,c,r )
+
+C Loss of NO2 via the heterogeneous reaction is accounted as additional
+C depositional loss. Add the loss of NO2 via the heterogeneous reaction
+C to the regular deposition velocity (increased dep. vel.).  This will
+C reduce the NO2 conc. in the atmosphere. Dep vel is adjusted back to the
+C original value in vdiffacm2 after NO2 conc is reduced but before calculating
+C depositional loss.
+
+                     depvel_gas( n,c,r ) = depvel_gas( n,c,r ) + 2.0 * kno2 * zf( c,r )
+
+                  END IF
+
+C Calculate production (pvd) for HONO; unit = ppm * m/s
+
+                  IF ( TRIM( depspc( l ) ) == 'HONO' )
+     &               pvd( n,c,r ) = kno2 * conc_no2 * zf( c,r )
+
+               END IF
+C--------------------------------------------------------------------------
+
+               ! Check for negative values or NaN's
+
+               IF ( depvel_gas( n,c,r ) < 0.0 .OR.
+     &              depvel_gas( n,c,r ) /= depvel_gas( n,c,r ) ) GO TO 999
+
+            END IF   ! special condition for sulfate (SULF)
+
+         END DO ddloop
+
+      END DO   ! c
+      END DO   ! r
+
+      RETURN
+
+C-------------------------------------------------------------------------------
+C Error-handling section.
+C-------------------------------------------------------------------------------
+
+999   CONTINUE
+      WRITE( logdev,9003 ) c, r, TRIM( subname( l ) ), depvel_gas( n,c,r )
+      xmsg = 'ABORT'
+
+1001  CONTINUE
+      CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
+
+      RETURN
+
+C-------------------------------------------------------------------------------
+C Format statements.
+C-------------------------------------------------------------------------------
+
+6501  FORMAT(/ 1x, 70('='),
+     &       / 1x, '--- Subroutine: M3DRY',
+     &       / 1x, '---   Found canopy wetness (WR) in MET_CRO_2D ',
+     &       / 1x, 70('=') /)
+
+6503  FORMAT(/ 1x, 70('='),
+     &       / 1x, '--- Subroutine: M3DRY',
+     &       / 1x, '---   Found 2-m water vapor mixing ratio (Q2) in MET_CRO_2D',
+     &       / 1x, 70('=') /)
+
+9001  FORMAT( 'Failure reading ', a, 1x, 'from ', a )
+
+9003  FORMAT(/ 1x, 70('*'),
+     &       / 1x, '*** Subroutine: M3DRY',
+     &       / 1x, '***   NEGATIVE or UNDEFINED Dry Deposition Velocity',
+     &       / 1x, '***   Point   = ', 2i5,
+     &       / 1x, '***   Species = ', a,
+     &       / 1x, '***   Vd      = ', e13.6,
+     &       / 1x, 70('*') /)
+
+9005  FORMAT(/ 1x, 70('*'),
+     &       / 1x, '*** Subroutine: M3DRY',
+     &       / 1x, '***   Bidirectional flux for ammonia assumes ',
+     &       / 1x, '***   USGS 24-category land use.',
+     &       / 1x, '***   Need to update N_LUFRAC, LUF_FAC, and other places',
+     &       / 1x, '***   Land use description is: ', a,
+     &       / 1x, 70('*') /)
+
+      END SUBROUTINE m3dry
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

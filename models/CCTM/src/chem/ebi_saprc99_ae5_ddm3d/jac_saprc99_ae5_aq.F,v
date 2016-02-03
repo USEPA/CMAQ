@@ -1,0 +1,2502 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/chem/ebi_saprc99_ae5_ddm3d/jac_saprc99_ae5_aq.F,v 1.1.1.1 2009/10/28 19:28:25 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+      SUBROUTINE JAC( C, PD, RK )                                       
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C                                                                       
+C Automatically generated Jacobian for DDM-3D                           
+C                                                                       
+C =-=-= MECHANISM: SAPRC99_AE5_AQ   =-=-=                               
+C                                                                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      IMPLICIT NONE                                                     
+
+      INCLUDE SUBST_RXCMMN                                              
+      INCLUDE SUBST_GC_SPC                                              
+      INCLUDE SUBST_IOPARMS                                             
+
+      INTEGER, PARAMETER :: NJACSPC =  88                               
+      INTEGER, PARAMETER :: NJACRXN = 224                               
+
+      CHARACTER( 16 ), SAVE :: PNAME = 'JAC'                            
+      CHARACTER( 132 ) :: MSG                                           
+
+      REAL, DIMENSION( NJACSPC ) :: C                                   
+      REAL, DIMENSION( NJACSPC, NJACSPC ) :: PD                         
+      REAL(KIND=8), DIMENSION( NJACRXN ) :: RK                          
+
+      INTEGER, SAVE :: LOGDEV                                           
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.                                
+
+      INTEGER, PARAMETER :: NO2              =   1                      
+      INTEGER, PARAMETER :: NO               =   2                      
+      INTEGER, PARAMETER :: O3P              =   3                      
+      INTEGER, PARAMETER :: O3               =   4                      
+      INTEGER, PARAMETER :: NO3              =   5                      
+      INTEGER, PARAMETER :: N2O5             =   6                      
+      INTEGER, PARAMETER :: HNO3             =   7                      
+      INTEGER, PARAMETER :: O1D2             =   8                      
+      INTEGER, PARAMETER :: HO               =   9                      
+      INTEGER, PARAMETER :: HONO             =  10                      
+      INTEGER, PARAMETER :: HO2              =  11                      
+      INTEGER, PARAMETER :: CO               =  12                      
+      INTEGER, PARAMETER :: HNO4             =  13                      
+      INTEGER, PARAMETER :: HO2H             =  14                      
+      INTEGER, PARAMETER :: SO2              =  15                      
+      INTEGER, PARAMETER :: SULF             =  16                      
+      INTEGER, PARAMETER :: SULRXN           =  17                      
+      INTEGER, PARAMETER :: C_O2             =  18                      
+      INTEGER, PARAMETER :: HCHO             =  19                      
+      INTEGER, PARAMETER :: COOH             =  20                      
+      INTEGER, PARAMETER :: MEOH             =  21                      
+      INTEGER, PARAMETER :: RO2_R            =  22                      
+      INTEGER, PARAMETER :: ROOH             =  23                      
+      INTEGER, PARAMETER :: R2O2             =  24                      
+      INTEGER, PARAMETER :: RO2_N            =  25                      
+      INTEGER, PARAMETER :: RNO3             =  26                      
+      INTEGER, PARAMETER :: MEK              =  27                      
+      INTEGER, PARAMETER :: PROD2            =  28                      
+      INTEGER, PARAMETER :: CCO_O2           =  29                      
+      INTEGER, PARAMETER :: PAN              =  30                      
+      INTEGER, PARAMETER :: CCO_OOH          =  31                      
+      INTEGER, PARAMETER :: CCO_OH           =  32                      
+      INTEGER, PARAMETER :: RCO_O2           =  33                      
+      INTEGER, PARAMETER :: PAN2             =  34                      
+      INTEGER, PARAMETER :: CCHO             =  35                      
+      INTEGER, PARAMETER :: RCO_OOH          =  36                      
+      INTEGER, PARAMETER :: RCO_OH           =  37                      
+      INTEGER, PARAMETER :: BZCO_O2          =  38                      
+      INTEGER, PARAMETER :: PBZN             =  39                      
+      INTEGER, PARAMETER :: BZ_O             =  40                      
+      INTEGER, PARAMETER :: MA_RCO3          =  41                      
+      INTEGER, PARAMETER :: MA_PAN           =  42                      
+      INTEGER, PARAMETER :: TBU_O            =  43                      
+      INTEGER, PARAMETER :: ACET             =  44                      
+      INTEGER, PARAMETER :: NPHE             =  45                      
+      INTEGER, PARAMETER :: PHEN             =  46                      
+      INTEGER, PARAMETER :: BZNO2_O          =  47                      
+      INTEGER, PARAMETER :: HOCOO            =  48                      
+      INTEGER, PARAMETER :: HCOOH            =  49                      
+      INTEGER, PARAMETER :: RCHO             =  50                      
+      INTEGER, PARAMETER :: GLY              =  51                      
+      INTEGER, PARAMETER :: MGLY             =  52                      
+      INTEGER, PARAMETER :: BACL             =  53                      
+      INTEGER, PARAMETER :: CRES             =  54                      
+      INTEGER, PARAMETER :: BALD             =  55                      
+      INTEGER, PARAMETER :: METHACRO         =  56                      
+      INTEGER, PARAMETER :: MVK              =  57                      
+      INTEGER, PARAMETER :: ISOPROD          =  58                      
+      INTEGER, PARAMETER :: DCB1             =  59                      
+      INTEGER, PARAMETER :: DCB2             =  60                      
+      INTEGER, PARAMETER :: DCB3             =  61                      
+      INTEGER, PARAMETER :: ETHENE           =  62                      
+      INTEGER, PARAMETER :: ISOPRENE         =  63                      
+      INTEGER, PARAMETER :: ISOPRXN          =  64                      
+      INTEGER, PARAMETER :: TRP1             =  65                      
+      INTEGER, PARAMETER :: TRPRXN           =  66                      
+      INTEGER, PARAMETER :: ALK1             =  67                      
+      INTEGER, PARAMETER :: ALK2             =  68                      
+      INTEGER, PARAMETER :: ALK3             =  69                      
+      INTEGER, PARAMETER :: ALK4             =  70                      
+      INTEGER, PARAMETER :: ALK5             =  71                      
+      INTEGER, PARAMETER :: ALK5RXN          =  72                      
+      INTEGER, PARAMETER :: ARO1             =  73                      
+      INTEGER, PARAMETER :: ARO1RO2          =  74                      
+      INTEGER, PARAMETER :: TOLNRXN          =  75                      
+      INTEGER, PARAMETER :: TOLHRXN          =  76                      
+      INTEGER, PARAMETER :: ARO2             =  77                      
+      INTEGER, PARAMETER :: ARO2RO2          =  78                      
+      INTEGER, PARAMETER :: XYLNRXN          =  79                      
+      INTEGER, PARAMETER :: XYLHRXN          =  80                      
+      INTEGER, PARAMETER :: BENZENE          =  81                      
+      INTEGER, PARAMETER :: BENZRO2          =  82                      
+      INTEGER, PARAMETER :: BNZNRXN          =  83                      
+      INTEGER, PARAMETER :: BNZHRXN          =  84                      
+      INTEGER, PARAMETER :: OLE1             =  85                      
+      INTEGER, PARAMETER :: OLE2             =  86                      
+      INTEGER, PARAMETER :: SESQ             =  87                      
+      INTEGER, PARAMETER :: SESQRXN          =  88                      
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      IF( FIRSTIME ) THEN                                               
+
+         IF( MECHNAME .NE. 'SAPRC99_AE5_AQ  ' ) THEN                    
+            MSG =  'This Jacobian was built for SAPRC99_AE5_AQ   '      
+     &            // MECHNAME // ' is in use. Exiting.'                 
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )                     
+         ENDIF                                                          
+
+         IF ( N_GC_SPC .NE. NJACSPC ) THEN                              
+            MSG =  'ERROR: Number of species in Jacobian '              
+     &          // 'does not match N_GC_SPC.'                           
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )                     
+         ELSE IF ( NRXNS .NE. NJACRXN ) THEN                            
+            MSG =  'ERROR: Number of reactions in Jacobian '            
+     &          // 'does not match NRXNS.'                              
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )                     
+         ENDIF                                                          
+
+         FIRSTIME = .FALSE.                                             
+
+      ENDIF                                                             
+
+      PD = 0.0                                                          
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   1: NO2                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( NO2     ,NO2      ) = -           RK( 001 )                   
+     &                          -           RK( 005 ) * C( O3P      )   
+     &                          -           RK( 006 ) * C( O3P      )   
+     &                          -           RK( 008 ) * C( O3       )   
+     &                          -           RK( 011 ) * C( NO3      )   
+     &                          -           RK( 025 ) * C( HO       )   
+     &                          -           RK( 032 ) * C( HO2      )   
+     &                          -           RK( 069 ) * C( CCO_O2   )   
+     &                          -           RK( 079 ) * C( RCO_O2   )   
+     &                          -           RK( 090 ) * C( BZCO_O2  )   
+     &                          -           RK( 102 ) * C( MA_RCO3  )   
+     &                          -           RK( 115 ) * C( TBU_O    )   
+     &                          -           RK( 117 ) * C( BZ_O     )   
+     &                          -           RK( 120 ) * C( BZNO2_O  )   
+      PD( NO2     ,NO       ) =             RK( 004 ) * C( O3P      )   
+     &                          +           RK( 007 ) * C( O3       )   
+     &                          + 2.00000 * RK( 009 ) * C( NO3      )   
+     &                          + 4.00000 * RK( 010 ) * C( NO       )   
+     &                          +           RK( 031 ) * C( HO2      )   
+     &                          +           RK( 046 ) * C( C_O2     )   
+     &                          +           RK( 051 ) * C( RO2_R    )   
+     &                          +           RK( 056 ) * C( R2O2     )   
+     &                          +           RK( 071 ) * C( CCO_O2   )   
+     &                          +           RK( 081 ) * C( RCO_O2   )   
+     &                          +           RK( 092 ) * C( BZCO_O2  )   
+     &                          +           RK( 104 ) * C( MA_RCO3  )   
+     &                          +           RK( 128 ) * C( HOCOO    )   
+      PD( NO2     ,O3P      ) =             RK( 004 ) * C( NO       )   
+     &                          -           RK( 005 ) * C( NO2      )   
+     &                          -           RK( 006 ) * C( NO2      )   
+      PD( NO2     ,O3       ) =             RK( 007 ) * C( NO       )   
+     &                          -           RK( 008 ) * C( NO2      )   
+      PD( NO2     ,NO3      ) =   2.00000 * RK( 009 ) * C( NO       )   
+     &                          -           RK( 011 ) * C( NO2      )   
+     &                          +           RK( 016 )                   
+     &                          +           RK( 026 ) * C( HO       )   
+     &                          + 0.80000 * RK( 039 ) * C( HO2      )   
+     &                          + 4.00000 * RK( 040 ) * C( NO3      )   
+     &                          +           RK( 048 ) * C( C_O2     )   
+     &                          +           RK( 053 ) * C( RO2_R    )   
+     &                          +           RK( 058 ) * C( R2O2     )   
+     &                          +           RK( 065 ) * C( RO2_N    )   
+     &                          +           RK( 073 ) * C( CCO_O2   )   
+     &                          +           RK( 083 ) * C( RCO_O2   )   
+     &                          +           RK( 094 ) * C( BZCO_O2  )   
+     &                          +           RK( 106 ) * C( MA_RCO3  )   
+     &                          + 0.18700 * RK( 191 ) * C( ISOPRENE )   
+     &                          + 0.47400 * RK( 195 ) * C( TRP1     )   
+     &                          + 0.39100 * RK( 217 ) * C( OLE2     )   
+      PD( NO2     ,N2O5     ) =             RK( 012 )                   
+      PD( NO2     ,HNO3     ) =             RK( 028 )                   
+      PD( NO2     ,HO       ) =             RK( 024 ) * C( HONO     )   
+     &                          -           RK( 025 ) * C( NO2      )   
+     &                          +           RK( 026 ) * C( NO3      )   
+     &                          +           RK( 035 ) * C( HNO4     )   
+     &                          + 0.33800 * RK( 176 ) * C( RNO3     )   
+      PD( NO2     ,HONO     ) =             RK( 023 )                   
+     &                          +           RK( 024 ) * C( HO       )   
+      PD( NO2     ,HO2      ) =             RK( 031 ) * C( NO       )   
+     &                          -           RK( 032 ) * C( NO2      )   
+     &                          + 0.80000 * RK( 039 ) * C( NO3      )   
+      PD( NO2     ,HNO4     ) =             RK( 033 )                   
+     &                          + 0.61000 * RK( 034 )                   
+     &                          +           RK( 035 ) * C( HO       )   
+      PD( NO2     ,C_O2     ) =             RK( 046 ) * C( NO       )   
+     &                          +           RK( 048 ) * C( NO3      )   
+      PD( NO2     ,RO2_R    ) =             RK( 051 ) * C( NO       )   
+     &                          +           RK( 053 ) * C( NO3      )   
+      PD( NO2     ,R2O2     ) =             RK( 056 ) * C( NO       )   
+     &                          +           RK( 058 ) * C( NO3      )   
+      PD( NO2     ,RO2_N    ) =             RK( 065 ) * C( NO3      )   
+      PD( NO2     ,RNO3     ) =   0.33800 * RK( 176 ) * C( HO       )   
+     &                          +           RK( 177 )                   
+      PD( NO2     ,CCO_O2   ) = -           RK( 069 ) * C( NO2      )   
+     &                          +           RK( 071 ) * C( NO       )   
+     &                          +           RK( 073 ) * C( NO3      )   
+      PD( NO2     ,PAN      ) =             RK( 070 )                   
+      PD( NO2     ,RCO_O2   ) = -           RK( 079 ) * C( NO2      )   
+     &                          +           RK( 081 ) * C( NO       )   
+     &                          +           RK( 083 ) * C( NO3      )   
+      PD( NO2     ,PAN2     ) =             RK( 080 )                   
+      PD( NO2     ,BZCO_O2  ) = -           RK( 090 ) * C( NO2      )   
+     &                          +           RK( 092 ) * C( NO       )   
+     &                          +           RK( 094 ) * C( NO3      )   
+      PD( NO2     ,PBZN     ) =             RK( 091 )                   
+      PD( NO2     ,BZ_O     ) = -           RK( 117 ) * C( NO2      )   
+      PD( NO2     ,MA_RCO3  ) = -           RK( 102 ) * C( NO2      )   
+     &                          +           RK( 104 ) * C( NO       )   
+     &                          +           RK( 106 ) * C( NO3      )   
+      PD( NO2     ,MA_PAN   ) =             RK( 103 )                   
+      PD( NO2     ,TBU_O    ) = -           RK( 115 ) * C( NO2      )   
+      PD( NO2     ,BZNO2_O  ) = -           RK( 120 ) * C( NO2      )   
+      PD( NO2     ,HOCOO    ) =             RK( 128 ) * C( NO       )   
+      PD( NO2     ,ISOPRENE ) =   0.18700 * RK( 191 ) * C( NO3      )   
+      PD( NO2     ,TRP1     ) =   0.47400 * RK( 195 ) * C( NO3      )   
+      PD( NO2     ,OLE2     ) =   0.39100 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   2: NO                         
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( NO      ,NO2      ) =             RK( 001 )                   
+     &                          +           RK( 005 ) * C( O3P      )   
+     &                          +           RK( 014 ) * C( NO3      )   
+      PD( NO      ,NO       ) = -           RK( 004 ) * C( O3P      )   
+     &                          -           RK( 007 ) * C( O3       )   
+     &                          -           RK( 009 ) * C( NO3      )   
+     &                          - 4.00000 * RK( 010 ) * C( NO       )   
+     &                          -           RK( 021 ) * C( HO       )   
+     &                          -           RK( 031 ) * C( HO2      )   
+     &                          -           RK( 046 ) * C( C_O2     )   
+     &                          -           RK( 051 ) * C( RO2_R    )   
+     &                          -           RK( 056 ) * C( R2O2     )   
+     &                          -           RK( 062 ) * C( RO2_N    )   
+     &                          -           RK( 071 ) * C( CCO_O2   )   
+     &                          -           RK( 081 ) * C( RCO_O2   )   
+     &                          -           RK( 092 ) * C( BZCO_O2  )   
+     &                          -           RK( 104 ) * C( MA_RCO3  )   
+     &                          -           RK( 128 ) * C( HOCOO    )   
+      PD( NO      ,O3P      ) = -           RK( 004 ) * C( NO       )   
+     &                          +           RK( 005 ) * C( NO2      )   
+      PD( NO      ,O3       ) = -           RK( 007 ) * C( NO       )   
+      PD( NO      ,NO3      ) = -           RK( 009 ) * C( NO       )   
+     &                          +           RK( 014 ) * C( NO2      )   
+     &                          +           RK( 015 )                   
+      PD( NO      ,HO       ) = -           RK( 021 ) * C( NO       )   
+      PD( NO      ,HONO     ) =             RK( 022 )                   
+      PD( NO      ,HO2      ) = -           RK( 031 ) * C( NO       )   
+      PD( NO      ,C_O2     ) = -           RK( 046 ) * C( NO       )   
+      PD( NO      ,RO2_R    ) = -           RK( 051 ) * C( NO       )   
+      PD( NO      ,R2O2     ) = -           RK( 056 ) * C( NO       )   
+      PD( NO      ,RO2_N    ) = -           RK( 062 ) * C( NO       )   
+      PD( NO      ,CCO_O2   ) = -           RK( 071 ) * C( NO       )   
+      PD( NO      ,RCO_O2   ) = -           RK( 081 ) * C( NO       )   
+      PD( NO      ,BZCO_O2  ) = -           RK( 092 ) * C( NO       )   
+      PD( NO      ,MA_RCO3  ) = -           RK( 104 ) * C( NO       )   
+      PD( NO      ,HOCOO    ) = -           RK( 128 ) * C( NO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   3: O3P                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( O3P     ,NO2      ) =             RK( 001 )                   
+     &                          -           RK( 005 ) * C( O3P      )   
+     &                          -           RK( 006 ) * C( O3P      )   
+      PD( O3P     ,NO       ) = -           RK( 004 ) * C( O3P      )   
+      PD( O3P     ,O3P      ) = -           RK( 002 )                   
+     &                          -           RK( 003 ) * C( O3       )   
+     &                          -           RK( 004 ) * C( NO       )   
+     &                          -           RK( 005 ) * C( NO2      )   
+     &                          -           RK( 006 ) * C( NO2      )   
+     &                          -           RK( 164 ) * C( METHACRO )   
+     &                          -           RK( 168 ) * C( MVK      )   
+     &                          -           RK( 188 ) * C( ETHENE   )   
+     &                          -           RK( 192 ) * C( ISOPRENE )   
+     &                          -           RK( 196 ) * C( TRP1     )   
+     &                          -           RK( 214 ) * C( OLE1     )   
+     &                          -           RK( 218 ) * C( OLE2     )   
+      PD( O3P     ,O3       ) = -           RK( 003 ) * C( O3P      )   
+     &                          +           RK( 017 )                   
+      PD( O3P     ,NO3      ) =             RK( 016 )                   
+      PD( O3P     ,O1D2     ) =             RK( 020 )                   
+      PD( O3P     ,METHACRO ) = -           RK( 164 ) * C( O3P      )   
+      PD( O3P     ,MVK      ) = -           RK( 168 ) * C( O3P      )   
+      PD( O3P     ,ETHENE   ) = -           RK( 188 ) * C( O3P      )   
+      PD( O3P     ,ISOPRENE ) = -           RK( 192 ) * C( O3P      )   
+      PD( O3P     ,TRP1     ) = -           RK( 196 ) * C( O3P      )   
+      PD( O3P     ,OLE1     ) = -           RK( 214 ) * C( O3P      )   
+      PD( O3P     ,OLE2     ) = -           RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   4: O3                         
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( O3      ,NO2      ) = -           RK( 008 ) * C( O3       )   
+      PD( O3      ,NO       ) = -           RK( 007 ) * C( O3       )   
+      PD( O3      ,O3P      ) =             RK( 002 )                   
+     &                          -           RK( 003 ) * C( O3       )   
+      PD( O3      ,O3       ) = -           RK( 003 ) * C( O3P      )   
+     &                          -           RK( 007 ) * C( NO       )   
+     &                          -           RK( 008 ) * C( NO2      )   
+     &                          -           RK( 017 )                   
+     &                          -           RK( 018 )                   
+     &                          -           RK( 030 ) * C( HO       )   
+     &                          -           RK( 036 ) * C( HO2      )   
+     &                          -           RK( 162 ) * C( METHACRO )   
+     &                          -           RK( 167 ) * C( MVK      )   
+     &                          -           RK( 171 ) * C( ISOPROD  )   
+     &                          -           RK( 179 ) * C( DCB1     )   
+     &                          -           RK( 186 ) * C( ETHENE   )   
+     &                          -           RK( 190 ) * C( ISOPRENE )   
+     &                          -           RK( 194 ) * C( TRP1     )   
+     &                          -           RK( 212 ) * C( OLE1     )   
+     &                          -           RK( 216 ) * C( OLE2     )   
+      PD( O3      ,HO       ) = -           RK( 030 ) * C( O3       )   
+      PD( O3      ,HO2      ) = -           RK( 036 ) * C( O3       )   
+     &                          + 0.25000 * RK( 072 ) * C( CCO_O2   )   
+     &                          + 0.25000 * RK( 082 ) * C( RCO_O2   )   
+     &                          + 0.25000 * RK( 093 ) * C( BZCO_O2  )   
+     &                          + 0.25000 * RK( 105 ) * C( MA_RCO3  )   
+      PD( O3      ,CCO_O2   ) =   0.25000 * RK( 072 ) * C( HO2      )   
+      PD( O3      ,RCO_O2   ) =   0.25000 * RK( 082 ) * C( HO2      )   
+      PD( O3      ,BZCO_O2  ) =   0.25000 * RK( 093 ) * C( HO2      )   
+      PD( O3      ,MA_RCO3  ) =   0.25000 * RK( 105 ) * C( HO2      )   
+      PD( O3      ,METHACRO ) = -           RK( 162 ) * C( O3       )   
+      PD( O3      ,MVK      ) = -           RK( 167 ) * C( O3       )   
+      PD( O3      ,ISOPROD  ) = -           RK( 171 ) * C( O3       )   
+      PD( O3      ,DCB1     ) = -           RK( 179 ) * C( O3       )   
+      PD( O3      ,ETHENE   ) = -           RK( 186 ) * C( O3       )   
+      PD( O3      ,ISOPRENE ) = -           RK( 190 ) * C( O3       )   
+      PD( O3      ,TRP1     ) = -           RK( 194 ) * C( O3       )   
+      PD( O3      ,OLE1     ) = -           RK( 212 ) * C( O3       )   
+      PD( O3      ,OLE2     ) = -           RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   5: NO3                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( NO3     ,NO2      ) =             RK( 006 ) * C( O3P      )   
+     &                          +           RK( 008 ) * C( O3       )   
+     &                          -           RK( 011 ) * C( NO3      )   
+     &                          -           RK( 014 ) * C( NO3      )   
+      PD( NO3     ,NO       ) = -           RK( 009 ) * C( NO3      )   
+      PD( NO3     ,O3P      ) =             RK( 006 ) * C( NO2      )   
+      PD( NO3     ,O3       ) =             RK( 008 ) * C( NO2      )   
+      PD( NO3     ,NO3      ) = -           RK( 009 ) * C( NO       )   
+     &                          -           RK( 011 ) * C( NO2      )   
+     &                          -           RK( 014 ) * C( NO2      )   
+     &                          -           RK( 015 )                   
+     &                          -           RK( 016 )                   
+     &                          -           RK( 026 ) * C( HO       )   
+     &                          -           RK( 039 ) * C( HO2      )   
+     &                          - 4.00000 * RK( 040 ) * C( NO3      )   
+     &                          -           RK( 048 ) * C( C_O2     )   
+     &                          -           RK( 053 ) * C( RO2_R    )   
+     &                          -           RK( 058 ) * C( R2O2     )   
+     &                          -           RK( 065 ) * C( RO2_N    )   
+     &                          -           RK( 073 ) * C( CCO_O2   )   
+     &                          -           RK( 083 ) * C( RCO_O2   )   
+     &                          -           RK( 094 ) * C( BZCO_O2  )   
+     &                          -           RK( 106 ) * C( MA_RCO3  )   
+     &                          -           RK( 129 ) * C( HCHO     )   
+     &                          -           RK( 132 ) * C( CCHO     )   
+     &                          -           RK( 135 ) * C( RCHO     )   
+     &                          -           RK( 148 ) * C( GLY      )   
+     &                          -           RK( 151 ) * C( MGLY     )   
+     &                          -           RK( 154 ) * C( PHEN     )   
+     &                          -           RK( 156 ) * C( CRES     )   
+     &                          -           RK( 157 ) * C( NPHE     )   
+     &                          -           RK( 160 ) * C( BALD     )   
+     &                          -           RK( 163 ) * C( METHACRO )   
+     &                          -           RK( 172 ) * C( ISOPROD  )   
+     &                          -           RK( 187 ) * C( ETHENE   )   
+     &                          -           RK( 191 ) * C( ISOPRENE )   
+     &                          -           RK( 195 ) * C( TRP1     )   
+     &                          -           RK( 213 ) * C( OLE1     )   
+     &                          -           RK( 217 ) * C( OLE2     )   
+      PD( NO3     ,N2O5     ) =             RK( 012 )                   
+      PD( NO3     ,HNO3     ) =             RK( 027 ) * C( HO       )   
+      PD( NO3     ,HO       ) = -           RK( 026 ) * C( NO3      )   
+     &                          +           RK( 027 ) * C( HNO3     )   
+      PD( NO3     ,HO2      ) = -           RK( 039 ) * C( NO3      )   
+      PD( NO3     ,HNO4     ) =   0.39000 * RK( 034 )                   
+      PD( NO3     ,C_O2     ) = -           RK( 048 ) * C( NO3      )   
+      PD( NO3     ,HCHO     ) = -           RK( 129 ) * C( NO3      )   
+      PD( NO3     ,RO2_R    ) = -           RK( 053 ) * C( NO3      )   
+      PD( NO3     ,R2O2     ) = -           RK( 058 ) * C( NO3      )   
+      PD( NO3     ,RO2_N    ) = -           RK( 065 ) * C( NO3      )   
+      PD( NO3     ,CCO_O2   ) = -           RK( 073 ) * C( NO3      )   
+      PD( NO3     ,RCO_O2   ) = -           RK( 083 ) * C( NO3      )   
+      PD( NO3     ,CCHO     ) = -           RK( 132 ) * C( NO3      )   
+      PD( NO3     ,BZCO_O2  ) = -           RK( 094 ) * C( NO3      )   
+      PD( NO3     ,MA_RCO3  ) = -           RK( 106 ) * C( NO3      )   
+      PD( NO3     ,NPHE     ) = -           RK( 157 ) * C( NO3      )   
+      PD( NO3     ,PHEN     ) = -           RK( 154 ) * C( NO3      )   
+      PD( NO3     ,RCHO     ) = -           RK( 135 ) * C( NO3      )   
+      PD( NO3     ,GLY      ) = -           RK( 148 ) * C( NO3      )   
+      PD( NO3     ,MGLY     ) = -           RK( 151 ) * C( NO3      )   
+      PD( NO3     ,CRES     ) = -           RK( 156 ) * C( NO3      )   
+      PD( NO3     ,BALD     ) = -           RK( 160 ) * C( NO3      )   
+      PD( NO3     ,METHACRO ) = -           RK( 163 ) * C( NO3      )   
+      PD( NO3     ,ISOPROD  ) = -           RK( 172 ) * C( NO3      )   
+      PD( NO3     ,ETHENE   ) = -           RK( 187 ) * C( NO3      )   
+      PD( NO3     ,ISOPRENE ) = -           RK( 191 ) * C( NO3      )   
+      PD( NO3     ,TRP1     ) = -           RK( 195 ) * C( NO3      )   
+      PD( NO3     ,OLE1     ) = -           RK( 213 ) * C( NO3      )   
+      PD( NO3     ,OLE2     ) = -           RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   6: N2O5                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( N2O5    ,NO2      ) =             RK( 011 ) * C( NO3      )   
+      PD( N2O5    ,NO3      ) =             RK( 011 ) * C( NO2      )   
+      PD( N2O5    ,N2O5     ) = -           RK( 012 )                   
+     &                          -           RK( 013 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   7: HNO3                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HNO3    ,NO2      ) =             RK( 025 ) * C( HO       )   
+      PD( HNO3    ,NO3      ) =   0.20000 * RK( 039 ) * C( HO2      )   
+     &                          +           RK( 129 ) * C( HCHO     )   
+     &                          +           RK( 132 ) * C( CCHO     )   
+     &                          +           RK( 135 ) * C( RCHO     )   
+     &                          +           RK( 148 ) * C( GLY      )   
+     &                          +           RK( 151 ) * C( MGLY     )   
+     &                          +           RK( 154 ) * C( PHEN     )   
+     &                          +           RK( 156 ) * C( CRES     )   
+     &                          +           RK( 157 ) * C( NPHE     )   
+     &                          +           RK( 160 ) * C( BALD     )   
+     &                          + 0.50000 * RK( 163 ) * C( METHACRO )   
+     &                          + 0.15000 * RK( 172 ) * C( ISOPROD  )   
+      PD( HNO3    ,N2O5     ) =   2.00000 * RK( 013 )                   
+      PD( HNO3    ,HNO3     ) = -           RK( 027 ) * C( HO       )   
+     &                          -           RK( 028 )                   
+      PD( HNO3    ,HO       ) =             RK( 025 ) * C( NO2      )   
+     &                          -           RK( 027 ) * C( HNO3     )   
+      PD( HNO3    ,HO2      ) =   0.20000 * RK( 039 ) * C( NO3      )   
+      PD( HNO3    ,HCHO     ) =             RK( 129 ) * C( NO3      )   
+      PD( HNO3    ,CCHO     ) =             RK( 132 ) * C( NO3      )   
+      PD( HNO3    ,NPHE     ) =             RK( 157 ) * C( NO3      )   
+      PD( HNO3    ,PHEN     ) =             RK( 154 ) * C( NO3      )   
+      PD( HNO3    ,RCHO     ) =             RK( 135 ) * C( NO3      )   
+      PD( HNO3    ,GLY      ) =             RK( 148 ) * C( NO3      )   
+      PD( HNO3    ,MGLY     ) =             RK( 151 ) * C( NO3      )   
+      PD( HNO3    ,CRES     ) =             RK( 156 ) * C( NO3      )   
+      PD( HNO3    ,BALD     ) =             RK( 160 ) * C( NO3      )   
+      PD( HNO3    ,METHACRO ) =   0.50000 * RK( 163 ) * C( NO3      )   
+      PD( HNO3    ,ISOPROD  ) =   0.15000 * RK( 172 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   8: O1D2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( O1D2    ,O3       ) =             RK( 018 )                   
+      PD( O1D2    ,O1D2     ) = -           RK( 019 )                   
+     &                          -           RK( 020 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species   9: HO                         
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HO      ,NO2      ) = -           RK( 025 ) * C( HO       )   
+      PD( HO      ,NO       ) = -           RK( 021 ) * C( HO       )   
+     &                          +           RK( 031 ) * C( HO2      )   
+      PD( HO      ,O3       ) = -           RK( 030 ) * C( HO       )   
+     &                          +           RK( 036 ) * C( HO2      )   
+     &                          + 0.20800 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.16400 * RK( 167 ) * C( MVK      )   
+     &                          + 0.28500 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.50000 * RK( 179 ) * C( DCB1     )   
+     &                          + 0.12000 * RK( 186 ) * C( ETHENE   )   
+     &                          + 0.26600 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.56700 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.15500 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.37800 * RK( 216 ) * C( OLE2     )   
+      PD( HO      ,NO3      ) = -           RK( 026 ) * C( HO       )   
+     &                          + 0.80000 * RK( 039 ) * C( HO2      )   
+      PD( HO      ,HNO3     ) = -           RK( 027 ) * C( HO       )   
+     &                          +           RK( 028 )                   
+      PD( HO      ,O1D2     ) =   2.00000 * RK( 019 )                   
+      PD( HO      ,HO       ) = -           RK( 021 ) * C( NO       )   
+     &                          -           RK( 024 ) * C( HONO     )   
+     &                          -           RK( 025 ) * C( NO2      )   
+     &                          -           RK( 026 ) * C( NO3      )   
+     &                          -           RK( 027 ) * C( HNO3     )   
+     &                          -           RK( 029 ) * C( CO       )   
+     &                          -           RK( 030 ) * C( O3       )   
+     &                          -           RK( 035 ) * C( HNO4     )   
+     &                          -           RK( 042 ) * C( HO2H     )   
+     &                          -           RK( 043 ) * C( HO2      )   
+     &                          -           RK( 044 ) * C( SO2      )   
+     &                          -           RK( 045 )                   
+     &                          -           RK( 125 ) * C( HCHO     )   
+     &                          -           RK( 130 ) * C( CCHO     )   
+     &                          -           RK( 133 ) * C( RCHO     )   
+     &                          -           RK( 136 ) * C( ACET     )   
+     &                          -           RK( 138 ) * C( MEK      )   
+     &                          -           RK( 140 ) * C( MEOH     )   
+     &                          - 0.65000 * RK( 141 ) * C( COOH     )   
+     &                          - 0.34000 * RK( 143 ) * C( ROOH     )   
+     &                          -           RK( 147 ) * C( GLY      )   
+     &                          -           RK( 150 ) * C( MGLY     )   
+     &                          -           RK( 153 ) * C( PHEN     )   
+     &                          -           RK( 155 ) * C( CRES     )   
+     &                          -           RK( 158 ) * C( BALD     )   
+     &                          -           RK( 161 ) * C( METHACRO )   
+     &                          -           RK( 166 ) * C( MVK      )   
+     &                          -           RK( 170 ) * C( ISOPROD  )   
+     &                          -           RK( 174 ) * C( PROD2    )   
+     &                          -           RK( 176 ) * C( RNO3     )   
+     &                          -           RK( 178 ) * C( DCB1     )   
+     &                          -           RK( 180 ) * C( DCB2     )   
+     &                          -           RK( 182 ) * C( DCB3     )   
+     &                          -           RK( 184 )                   
+     &                          -           RK( 185 ) * C( ETHENE   )   
+     &                          -           RK( 189 ) * C( ISOPRENE )   
+     &                          -           RK( 193 ) * C( TRP1     )   
+     &                          -           RK( 197 ) * C( ALK1     )   
+     &                          - 0.75400 * RK( 198 ) * C( ALK2     )   
+     &                          -           RK( 199 ) * C( ALK3     )   
+     &                          -           RK( 200 ) * C( ALK4     )   
+     &                          -           RK( 201 ) * C( ALK5     )   
+     &                          -           RK( 202 ) * C( ARO1     )   
+     &                          -           RK( 205 ) * C( ARO2     )   
+     &                          -           RK( 208 ) * C( BENZENE  )   
+     &                          -           RK( 211 ) * C( OLE1     )   
+     &                          -           RK( 215 ) * C( OLE2     )   
+     &                          -           RK( 219 ) * C( HCOOH    )   
+     &                          -           RK( 220 ) * C( CCO_OH   )   
+     &                          -           RK( 221 ) * C( RCO_OH   )   
+      PD( HO      ,HONO     ) =             RK( 022 )                   
+     &                          -           RK( 024 ) * C( HO       )   
+      PD( HO      ,HO2      ) =             RK( 031 ) * C( NO       )   
+     &                          +           RK( 036 ) * C( O3       )   
+     &                          + 0.80000 * RK( 039 ) * C( NO3      )   
+     &                          -           RK( 043 ) * C( HO       )   
+      PD( HO      ,CO       ) = -           RK( 029 ) * C( HO       )   
+      PD( HO      ,HNO4     ) =   0.39000 * RK( 034 )                   
+     &                          -           RK( 035 ) * C( HO       )   
+      PD( HO      ,HO2H     ) =   2.00000 * RK( 041 )                   
+     &                          -           RK( 042 ) * C( HO       )   
+      PD( HO      ,SO2      ) = -           RK( 044 ) * C( HO       )   
+      PD( HO      ,HCHO     ) = -           RK( 125 ) * C( HO       )   
+      PD( HO      ,COOH     ) = - 0.65000 * RK( 141 ) * C( HO       )   
+     &                          +           RK( 142 )                   
+      PD( HO      ,MEOH     ) = -           RK( 140 ) * C( HO       )   
+      PD( HO      ,ROOH     ) = - 0.34000 * RK( 143 ) * C( HO       )   
+     &                          +           RK( 144 )                   
+      PD( HO      ,RNO3     ) = -           RK( 176 ) * C( HO       )   
+      PD( HO      ,MEK      ) = -           RK( 138 ) * C( HO       )   
+      PD( HO      ,PROD2    ) = -           RK( 174 ) * C( HO       )   
+      PD( HO      ,CCO_OH   ) = -           RK( 220 ) * C( HO       )   
+      PD( HO      ,CCHO     ) = -           RK( 130 ) * C( HO       )   
+      PD( HO      ,RCO_OH   ) = -           RK( 221 ) * C( HO       )   
+      PD( HO      ,ACET     ) = -           RK( 136 ) * C( HO       )   
+      PD( HO      ,PHEN     ) = -           RK( 153 ) * C( HO       )   
+      PD( HO      ,HCOOH    ) = -           RK( 219 ) * C( HO       )   
+      PD( HO      ,RCHO     ) = -           RK( 133 ) * C( HO       )   
+      PD( HO      ,GLY      ) = -           RK( 147 ) * C( HO       )   
+      PD( HO      ,MGLY     ) = -           RK( 150 ) * C( HO       )   
+      PD( HO      ,CRES     ) = -           RK( 155 ) * C( HO       )   
+      PD( HO      ,BALD     ) = -           RK( 158 ) * C( HO       )   
+      PD( HO      ,METHACRO ) = -           RK( 161 ) * C( HO       )   
+     &                          + 0.20800 * RK( 162 ) * C( O3       )   
+     &                          + 0.33000 * RK( 165 )                   
+      PD( HO      ,MVK      ) = -           RK( 166 ) * C( HO       )   
+     &                          + 0.16400 * RK( 167 ) * C( O3       )   
+      PD( HO      ,ISOPROD  ) = -           RK( 170 ) * C( HO       )   
+     &                          + 0.28500 * RK( 171 ) * C( O3       )   
+      PD( HO      ,DCB1     ) = -           RK( 178 ) * C( HO       )   
+     &                          + 0.50000 * RK( 179 ) * C( O3       )   
+      PD( HO      ,DCB2     ) = -           RK( 180 ) * C( HO       )   
+      PD( HO      ,DCB3     ) = -           RK( 182 ) * C( HO       )   
+      PD( HO      ,ETHENE   ) = -           RK( 185 ) * C( HO       )   
+     &                          + 0.12000 * RK( 186 ) * C( O3       )   
+      PD( HO      ,ISOPRENE ) = -           RK( 189 ) * C( HO       )   
+     &                          + 0.26600 * RK( 190 ) * C( O3       )   
+      PD( HO      ,TRP1     ) = -           RK( 193 ) * C( HO       )   
+     &                          + 0.56700 * RK( 194 ) * C( O3       )   
+      PD( HO      ,ALK1     ) = -           RK( 197 ) * C( HO       )   
+      PD( HO      ,ALK2     ) = - 0.75400 * RK( 198 ) * C( HO       )   
+      PD( HO      ,ALK3     ) = -           RK( 199 ) * C( HO       )   
+      PD( HO      ,ALK4     ) = -           RK( 200 ) * C( HO       )   
+      PD( HO      ,ALK5     ) = -           RK( 201 ) * C( HO       )   
+      PD( HO      ,ARO1     ) = -           RK( 202 ) * C( HO       )   
+      PD( HO      ,ARO2     ) = -           RK( 205 ) * C( HO       )   
+      PD( HO      ,BENZENE  ) = -           RK( 208 ) * C( HO       )   
+      PD( HO      ,OLE1     ) = -           RK( 211 ) * C( HO       )   
+     &                          + 0.15500 * RK( 212 ) * C( O3       )   
+      PD( HO      ,OLE2     ) = -           RK( 215 ) * C( HO       )   
+     &                          + 0.37800 * RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  10: HONO                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HONO    ,NO       ) =             RK( 021 ) * C( HO       )   
+      PD( HONO    ,HO       ) =             RK( 021 ) * C( NO       )   
+     &                          -           RK( 024 ) * C( HONO     )   
+      PD( HONO    ,HONO     ) = -           RK( 022 )                   
+     &                          -           RK( 023 )                   
+     &                          -           RK( 024 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  11: HO2                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HO2     ,NO2      ) = -           RK( 032 ) * C( HO2      )   
+      PD( HO2     ,NO       ) = -           RK( 031 ) * C( HO2      )   
+     &                          +           RK( 046 ) * C( C_O2     )   
+     &                          +           RK( 051 ) * C( RO2_R    )   
+     &                          +           RK( 128 ) * C( HOCOO    )   
+      PD( HO2     ,O3P      ) =   0.50000 * RK( 188 ) * C( ETHENE   )   
+     &                          + 0.01300 * RK( 218 ) * C( OLE2     )   
+      PD( HO2     ,O3       ) =             RK( 030 ) * C( HO       )   
+     &                          -           RK( 036 ) * C( HO2      )   
+     &                          + 0.00800 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.06400 * RK( 167 ) * C( MVK      )   
+     &                          + 0.40000 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 1.50000 * RK( 179 ) * C( DCB1     )   
+     &                          + 0.12000 * RK( 186 ) * C( ETHENE   )   
+     &                          + 0.03300 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.05600 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.00300 * RK( 216 ) * C( OLE2     )   
+      PD( HO2     ,NO3      ) =             RK( 026 ) * C( HO       )   
+     &                          -           RK( 039 ) * C( HO2      )   
+     &                          +           RK( 048 ) * C( C_O2     )   
+     &                          +           RK( 053 ) * C( RO2_R    )   
+     &                          +           RK( 065 ) * C( RO2_N    )   
+     &                          +           RK( 129 ) * C( HCHO     )   
+     &                          + 0.63000 * RK( 148 ) * C( GLY      )   
+      PD( HO2     ,HO       ) =             RK( 026 ) * C( NO3      )   
+     &                          +           RK( 029 ) * C( CO       )   
+     &                          +           RK( 030 ) * C( O3       )   
+     &                          +           RK( 042 ) * C( HO2H     )   
+     &                          -           RK( 043 ) * C( HO2      )   
+     &                          +           RK( 044 ) * C( SO2      )   
+     &                          +           RK( 045 )                   
+     &                          +           RK( 125 ) * C( HCHO     )   
+     &                          +           RK( 140 ) * C( MEOH     )   
+     &                          + 0.63000 * RK( 147 ) * C( GLY      )   
+     &                          + 0.37900 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.11300 * RK( 176 ) * C( RNO3     )   
+     &                          + 0.12100 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.22400 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.18700 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.23600 * RK( 208 ) * C( BENZENE  )   
+     &                          +           RK( 219 ) * C( HCOOH    )   
+      PD( HO2     ,HONO     ) =             RK( 023 )                   
+      PD( HO2     ,HO2      ) = -           RK( 031 ) * C( NO       )   
+     &                          -           RK( 032 ) * C( NO2      )   
+     &                          -           RK( 036 ) * C( O3       )   
+     &                          - 4.00000 * RK( 037 ) * C( HO2      )   
+     &                          - 4.00000 * RK( 038 ) * C( HO2      )   
+     &                          -           RK( 039 ) * C( NO3      )   
+     &                          -           RK( 043 ) * C( HO       )   
+     &                          -           RK( 047 ) * C( C_O2     )   
+     &                          -           RK( 052 ) * C( RO2_R    )   
+     &                          -           RK( 063 ) * C( RO2_N    )   
+     &                          -           RK( 072 ) * C( CCO_O2   )   
+     &                          -           RK( 082 ) * C( RCO_O2   )   
+     &                          -           RK( 093 ) * C( BZCO_O2  )   
+     &                          -           RK( 105 ) * C( MA_RCO3  )   
+     &                          -           RK( 118 ) * C( BZ_O     )   
+     &                          -           RK( 121 ) * C( BZNO2_O  )   
+     &                          -           RK( 126 ) * C( HCHO     )   
+      PD( HO2     ,CO       ) =             RK( 029 ) * C( HO       )   
+      PD( HO2     ,HNO4     ) =             RK( 033 )                   
+     &                          + 0.61000 * RK( 034 )                   
+      PD( HO2     ,HO2H     ) =             RK( 042 ) * C( HO       )   
+      PD( HO2     ,SO2      ) =             RK( 044 ) * C( HO       )   
+      PD( HO2     ,C_O2     ) =             RK( 046 ) * C( NO       )   
+     &                          -           RK( 047 ) * C( HO2      )   
+     &                          +           RK( 048 ) * C( NO3      )   
+     &                          + 4.00000 * RK( 050 ) * C( C_O2     )   
+     &                          +           RK( 054 ) * C( RO2_R    )   
+     &                          +           RK( 064 ) * C( RO2_N    )   
+      PD( HO2     ,HCHO     ) =   2.00000 * RK( 123 )                   
+     &                          +           RK( 125 ) * C( HO       )   
+     &                          -           RK( 126 ) * C( HO2      )   
+     &                          +           RK( 129 ) * C( NO3      )   
+      PD( HO2     ,COOH     ) =             RK( 142 )                   
+      PD( HO2     ,MEOH     ) =             RK( 140 ) * C( HO       )   
+      PD( HO2     ,RO2_R    ) =             RK( 051 ) * C( NO       )   
+     &                          -           RK( 052 ) * C( HO2      )   
+     &                          +           RK( 053 ) * C( NO3      )   
+     &                          +           RK( 054 ) * C( C_O2     )   
+     &                          + 4.00000 * RK( 055 ) * C( RO2_R    )   
+     &                          +           RK( 066 ) * C( RO2_N    )   
+      PD( HO2     ,ROOH     ) =             RK( 144 )                   
+      PD( HO2     ,RO2_N    ) = -           RK( 063 ) * C( HO2      )   
+     &                          +           RK( 064 ) * C( C_O2     )   
+     &                          +           RK( 065 ) * C( NO3      )   
+     &                          +           RK( 066 ) * C( RO2_R    )   
+     &                          + 4.00000 * RK( 068 ) * C( RO2_N    )   
+      PD( HO2     ,RNO3     ) =   0.11300 * RK( 176 ) * C( HO       )   
+     &                          + 0.34100 * RK( 177 )                   
+      PD( HO2     ,PROD2    ) =   0.37900 * RK( 174 ) * C( HO       )   
+      PD( HO2     ,CCO_O2   ) = -           RK( 072 ) * C( HO2      )   
+      PD( HO2     ,RCO_O2   ) = -           RK( 082 ) * C( HO2      )   
+      PD( HO2     ,CCHO     ) =             RK( 131 )                   
+      PD( HO2     ,BZCO_O2  ) = -           RK( 093 ) * C( HO2      )   
+      PD( HO2     ,BZ_O     ) = -           RK( 118 ) * C( HO2      )   
+      PD( HO2     ,MA_RCO3  ) = -           RK( 105 ) * C( HO2      )   
+      PD( HO2     ,BZNO2_O  ) = -           RK( 121 ) * C( HO2      )   
+      PD( HO2     ,HOCOO    ) =             RK( 127 )                   
+     &                          +           RK( 128 ) * C( NO       )   
+      PD( HO2     ,HCOOH    ) =             RK( 219 ) * C( HO       )   
+      PD( HO2     ,RCHO     ) =             RK( 134 )                   
+      PD( HO2     ,GLY      ) =   2.00000 * RK( 145 )                   
+     &                          + 0.63000 * RK( 147 ) * C( HO       )   
+     &                          + 0.63000 * RK( 148 ) * C( NO3      )   
+      PD( HO2     ,MGLY     ) =             RK( 149 )                   
+      PD( HO2     ,METHACRO ) =   0.00800 * RK( 162 ) * C( O3       )   
+     &                          + 0.34000 * RK( 165 )                   
+      PD( HO2     ,MVK      ) =   0.06400 * RK( 167 ) * C( O3       )   
+      PD( HO2     ,ISOPROD  ) =   0.40000 * RK( 171 ) * C( O3       )   
+     &                          + 1.23300 * RK( 173 )                   
+      PD( HO2     ,DCB1     ) =   1.50000 * RK( 179 ) * C( O3       )   
+      PD( HO2     ,DCB2     ) =   0.50000 * RK( 181 )                   
+      PD( HO2     ,DCB3     ) =   0.50000 * RK( 183 )                   
+      PD( HO2     ,ETHENE   ) =   0.12000 * RK( 186 ) * C( O3       )   
+     &                          + 0.50000 * RK( 188 ) * C( O3P      )   
+      PD( HO2     ,TRP1     ) =   0.03300 * RK( 194 ) * C( O3       )   
+      PD( HO2     ,ALK2     ) =   0.12100 * RK( 198 ) * C( HO       )   
+      PD( HO2     ,ARO1     ) =   0.22400 * RK( 202 ) * C( HO       )   
+      PD( HO2     ,ARO2     ) =   0.18700 * RK( 205 ) * C( HO       )   
+      PD( HO2     ,BENZENE  ) =   0.23600 * RK( 208 ) * C( HO       )   
+      PD( HO2     ,OLE1     ) =   0.05600 * RK( 212 ) * C( O3       )   
+      PD( HO2     ,OLE2     ) =   0.00300 * RK( 216 ) * C( O3       )   
+     &                          + 0.01300 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  12: CO                         
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( CO      ,O3P      ) =   0.49100 * RK( 188 ) * C( ETHENE   )   
+     &                          + 0.01200 * RK( 218 ) * C( OLE2     )   
+      PD( CO      ,O3       ) =   0.45000 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.47500 * RK( 167 ) * C( MVK      )   
+     &                          + 0.49800 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 1.50000 * RK( 179 ) * C( DCB1     )   
+     &                          + 0.50000 * RK( 186 ) * C( ETHENE   )   
+     &                          + 0.27500 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.15700 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.34500 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.26500 * RK( 216 ) * C( OLE2     )   
+      PD( CO      ,NO3      ) =             RK( 129 ) * C( HCHO     )   
+     &                          + 1.26000 * RK( 148 ) * C( GLY      )   
+     &                          +           RK( 151 ) * C( MGLY     )   
+     &                          + 0.50000 * RK( 163 ) * C( METHACRO )   
+     &                          + 0.57200 * RK( 172 ) * C( ISOPROD  )   
+      PD( CO      ,HO       ) = -           RK( 029 ) * C( CO       )   
+     &                          +           RK( 125 ) * C( HCHO     )   
+     &                          + 0.03400 * RK( 133 ) * C( RCHO     )   
+     &                          + 1.26000 * RK( 147 ) * C( GLY      )   
+     &                          +           RK( 150 ) * C( MGLY     )   
+     &                          + 0.41600 * RK( 161 ) * C( METHACRO )   
+     &                          + 0.33600 * RK( 170 ) * C( ISOPROD  )   
+     &                          +           RK( 178 ) * C( DCB1     )   
+     &                          + 0.16000 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.00200 * RK( 200 ) * C( ALK4     )   
+      PD( CO      ,CO       ) = -           RK( 029 ) * C( HO       )   
+      PD( CO      ,HCHO     ) =             RK( 123 )                   
+     &                          +           RK( 124 )                   
+     &                          +           RK( 125 ) * C( HO       )   
+     &                          +           RK( 129 ) * C( NO3      )   
+      PD( CO      ,CCHO     ) =             RK( 131 )                   
+      PD( CO      ,RCHO     ) =   0.03400 * RK( 133 ) * C( HO       )   
+     &                          +           RK( 134 )                   
+      PD( CO      ,GLY      ) =   2.00000 * RK( 145 )                   
+     &                          +           RK( 146 )                   
+     &                          + 1.26000 * RK( 147 ) * C( HO       )   
+     &                          + 1.26000 * RK( 148 ) * C( NO3      )   
+      PD( CO      ,MGLY     ) =             RK( 149 )                   
+     &                          +           RK( 150 ) * C( HO       )   
+     &                          +           RK( 151 ) * C( NO3      )   
+      PD( CO      ,METHACRO ) =   0.41600 * RK( 161 ) * C( HO       )   
+     &                          + 0.45000 * RK( 162 ) * C( O3       )   
+     &                          + 0.50000 * RK( 163 ) * C( NO3      )   
+     &                          + 0.67000 * RK( 165 )                   
+      PD( CO      ,MVK      ) =   0.47500 * RK( 167 ) * C( O3       )   
+     &                          + 0.70000 * RK( 169 )                   
+      PD( CO      ,ISOPROD  ) =   0.33600 * RK( 170 ) * C( HO       )   
+     &                          + 0.49800 * RK( 171 ) * C( O3       )   
+     &                          + 0.57200 * RK( 172 ) * C( NO3      )   
+     &                          + 1.23300 * RK( 173 )                   
+      PD( CO      ,DCB1     ) =             RK( 178 ) * C( HO       )   
+     &                          + 1.50000 * RK( 179 ) * C( O3       )   
+      PD( CO      ,DCB2     ) =             RK( 181 )                   
+      PD( CO      ,DCB3     ) =             RK( 183 )                   
+      PD( CO      ,ETHENE   ) =   0.50000 * RK( 186 ) * C( O3       )   
+     &                          + 0.49100 * RK( 188 ) * C( O3P      )   
+      PD( CO      ,ISOPRENE ) =   0.27500 * RK( 190 ) * C( O3       )   
+      PD( CO      ,TRP1     ) =   0.15700 * RK( 194 ) * C( O3       )   
+      PD( CO      ,ALK2     ) =   0.16000 * RK( 198 ) * C( HO       )   
+      PD( CO      ,ALK4     ) =   0.00200 * RK( 200 ) * C( HO       )   
+      PD( CO      ,OLE1     ) =   0.34500 * RK( 212 ) * C( O3       )   
+      PD( CO      ,OLE2     ) =   0.26500 * RK( 216 ) * C( O3       )   
+     &                          + 0.01200 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  13: HNO4                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HNO4    ,NO2      ) =             RK( 032 ) * C( HO2      )   
+      PD( HNO4    ,HO       ) = -           RK( 035 ) * C( HNO4     )   
+      PD( HNO4    ,HO2      ) =             RK( 032 ) * C( NO2      )   
+      PD( HNO4    ,HNO4     ) = -           RK( 033 )                   
+     &                          -           RK( 034 )                   
+     &                          -           RK( 035 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  14: HO2H                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HO2H    ,HO       ) = -           RK( 042 ) * C( HO2H     )   
+      PD( HO2H    ,HO2      ) =   4.00000 * RK( 037 ) * C( HO2      )   
+     &                          + 4.00000 * RK( 038 ) * C( HO2      )   
+      PD( HO2H    ,HO2H     ) = -           RK( 041 )                   
+     &                          -           RK( 042 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  15: SO2                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( SO2     ,HO       ) = -           RK( 044 ) * C( SO2      )   
+      PD( SO2     ,SO2      ) = -           RK( 044 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  16: SULF                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( SULF    ,HO       ) =             RK( 044 ) * C( SO2      )   
+      PD( SULF    ,SO2      ) =             RK( 044 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  17: SULRXN                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( SULRXN  ,HO       ) =             RK( 044 ) * C( SO2      )   
+      PD( SULRXN  ,SO2      ) =             RK( 044 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  18: C_O2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( C_O2    ,NO       ) = -           RK( 046 ) * C( C_O2     )   
+     &                          +           RK( 071 ) * C( CCO_O2   )   
+      PD( C_O2    ,O3P      ) =   0.30000 * RK( 188 ) * C( ETHENE   )   
+     &                          + 0.25000 * RK( 192 ) * C( ISOPRENE )   
+      PD( C_O2    ,O3       ) =   0.07600 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.19700 * RK( 216 ) * C( OLE2     )   
+      PD( C_O2    ,NO3      ) = -           RK( 048 ) * C( C_O2     )   
+     &                          +           RK( 073 ) * C( CCO_O2   )   
+     &                          + 0.03000 * RK( 217 ) * C( OLE2     )   
+      PD( C_O2    ,HO       ) =   0.65000 * RK( 141 ) * C( COOH     )   
+     &                          +           RK( 184 )                   
+     &                          + 0.01100 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.87000 * RK( 220 ) * C( CCO_OH   )   
+      PD( C_O2    ,HO2      ) = -           RK( 047 ) * C( C_O2     )   
+      PD( C_O2    ,C_O2     ) = -           RK( 046 ) * C( NO       )   
+     &                          -           RK( 047 ) * C( HO2      )   
+     &                          -           RK( 048 ) * C( NO3      )   
+     &                          - 4.00000 * RK( 049 ) * C( C_O2     )   
+     &                          - 4.00000 * RK( 050 ) * C( C_O2     )   
+     &                          -           RK( 054 ) * C( RO2_R    )   
+     &                          -           RK( 064 ) * C( RO2_N    )   
+     &                          -           RK( 074 ) * C( CCO_O2   )   
+     &                          -           RK( 084 ) * C( RCO_O2   )   
+     &                          -           RK( 095 ) * C( BZCO_O2  )   
+     &                          -           RK( 107 ) * C( MA_RCO3  )   
+      PD( C_O2    ,COOH     ) =   0.65000 * RK( 141 ) * C( HO       )   
+      PD( C_O2    ,RO2_R    ) = -           RK( 054 ) * C( C_O2     )   
+      PD( C_O2    ,RO2_N    ) = -           RK( 064 ) * C( C_O2     )   
+      PD( C_O2    ,CCO_O2   ) =             RK( 071 ) * C( NO       )   
+     &                          +           RK( 073 ) * C( NO3      )   
+     &                          -           RK( 074 ) * C( C_O2     )   
+     &                          + 4.00000 * RK( 078 ) * C( CCO_O2   )   
+     &                          +           RK( 088 ) * C( RCO_O2   )   
+     &                          +           RK( 099 ) * C( BZCO_O2  )   
+     &                          +           RK( 111 ) * C( MA_RCO3  )   
+      PD( C_O2    ,CCO_OH   ) =   0.87000 * RK( 220 ) * C( HO       )   
+      PD( C_O2    ,RCO_O2   ) = -           RK( 084 ) * C( C_O2     )   
+     &                          +           RK( 088 ) * C( CCO_O2   )   
+      PD( C_O2    ,CCHO     ) =             RK( 131 )                   
+      PD( C_O2    ,BZCO_O2  ) = -           RK( 095 ) * C( C_O2     )   
+     &                          +           RK( 099 ) * C( CCO_O2   )   
+      PD( C_O2    ,MA_RCO3  ) = -           RK( 107 ) * C( C_O2     )   
+     &                          +           RK( 111 ) * C( CCO_O2   )   
+      PD( C_O2    ,TBU_O    ) =             RK( 116 )                   
+      PD( C_O2    ,ACET     ) =             RK( 137 )                   
+      PD( C_O2    ,MVK      ) =   0.30000 * RK( 169 )                   
+      PD( C_O2    ,ETHENE   ) =   0.30000 * RK( 188 ) * C( O3P      )   
+      PD( C_O2    ,ISOPRENE ) =   0.25000 * RK( 192 ) * C( O3P      )   
+      PD( C_O2    ,ALK4     ) =   0.01100 * RK( 200 ) * C( HO       )   
+      PD( C_O2    ,OLE1     ) =   0.07600 * RK( 212 ) * C( O3       )   
+      PD( C_O2    ,OLE2     ) =   0.19700 * RK( 216 ) * C( O3       )   
+     &                          + 0.03000 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  19: HCHO                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HCHO    ,NO       ) =             RK( 046 ) * C( C_O2     )   
+     &                          +           RK( 104 ) * C( MA_RCO3  )   
+      PD( HCHO    ,O3P      ) =   0.19100 * RK( 188 ) * C( ETHENE   )   
+     &                          + 0.24000 * RK( 192 ) * C( ISOPRENE )   
+      PD( HCHO    ,O3       ) =   0.20000 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.10000 * RK( 167 ) * C( MVK      )   
+     &                          + 0.12500 * RK( 171 ) * C( ISOPROD  )   
+     &                          +           RK( 186 ) * C( ETHENE   )   
+     &                          + 0.59200 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.23500 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.50000 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.26900 * RK( 216 ) * C( OLE2     )   
+      PD( HCHO    ,NO3      ) =             RK( 048 ) * C( C_O2     )   
+     &                          +           RK( 106 ) * C( MA_RCO3  )   
+     &                          -           RK( 129 ) * C( HCHO     )   
+     &                          + 0.22700 * RK( 172 ) * C( ISOPROD  )   
+     &                          + 0.07900 * RK( 217 ) * C( OLE2     )   
+      PD( HCHO    ,HO       ) = -           RK( 125 ) * C( HCHO     )   
+     &                          +           RK( 136 ) * C( ACET     )   
+     &                          + 0.11500 * RK( 138 ) * C( MEK      )   
+     &                          +           RK( 140 ) * C( MEOH     )   
+     &                          + 0.35000 * RK( 141 ) * C( COOH     )   
+     &                          + 0.08400 * RK( 161 ) * C( METHACRO )   
+     &                          + 0.30000 * RK( 166 ) * C( MVK      )   
+     &                          + 0.05500 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.21300 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.01000 * RK( 176 ) * C( RNO3     )   
+     &                          + 1.61000 * RK( 185 ) * C( ETHENE   )   
+     &                          + 0.62400 * RK( 189 ) * C( ISOPRENE )   
+     &                          + 0.27600 * RK( 193 ) * C( TRP1     )   
+     &                          + 0.03900 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.02600 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.02400 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.02600 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.73200 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.24400 * RK( 215 ) * C( OLE2     )   
+      PD( HCHO    ,HO2      ) = -           RK( 126 ) * C( HCHO     )   
+      PD( HCHO    ,C_O2     ) =             RK( 046 ) * C( NO       )   
+     &                          +           RK( 048 ) * C( NO3      )   
+     &                          + 4.00000 * RK( 049 ) * C( C_O2     )   
+     &                          + 4.00000 * RK( 050 ) * C( C_O2     )   
+     &                          + 0.75000 * RK( 054 ) * C( RO2_R    )   
+     &                          + 0.75000 * RK( 064 ) * C( RO2_N    )   
+     &                          +           RK( 074 ) * C( CCO_O2   )   
+     &                          +           RK( 084 ) * C( RCO_O2   )   
+     &                          +           RK( 095 ) * C( BZCO_O2  )   
+     &                          +           RK( 107 ) * C( MA_RCO3  )   
+      PD( HCHO    ,HCHO     ) = -           RK( 123 )                   
+     &                          -           RK( 124 )                   
+     &                          -           RK( 125 ) * C( HO       )   
+     &                          -           RK( 126 ) * C( HO2      )   
+     &                          -           RK( 129 ) * C( NO3      )   
+      PD( HCHO    ,COOH     ) =   0.35000 * RK( 141 ) * C( HO       )   
+     &                          +           RK( 142 )                   
+      PD( HCHO    ,MEOH     ) =             RK( 140 ) * C( HO       )   
+      PD( HCHO    ,RO2_R    ) =   0.75000 * RK( 054 ) * C( C_O2     )   
+      PD( HCHO    ,RO2_N    ) =   0.75000 * RK( 064 ) * C( C_O2     )   
+      PD( HCHO    ,RNO3     ) =   0.01000 * RK( 176 ) * C( HO       )   
+     &                          + 0.13400 * RK( 177 )                   
+      PD( HCHO    ,MEK      ) =   0.11500 * RK( 138 ) * C( HO       )   
+      PD( HCHO    ,PROD2    ) =   0.21300 * RK( 174 ) * C( HO       )   
+     &                          + 0.50600 * RK( 175 )                   
+      PD( HCHO    ,CCO_O2   ) =             RK( 074 ) * C( C_O2     )   
+     &                          +           RK( 111 ) * C( MA_RCO3  )   
+      PD( HCHO    ,RCO_O2   ) =             RK( 084 ) * C( C_O2     )   
+     &                          +           RK( 112 ) * C( MA_RCO3  )   
+      PD( HCHO    ,BZCO_O2  ) =             RK( 095 ) * C( C_O2     )   
+     &                          +           RK( 113 ) * C( MA_RCO3  )   
+      PD( HCHO    ,MA_RCO3  ) =             RK( 104 ) * C( NO       )   
+     &                          +           RK( 106 ) * C( NO3      )   
+     &                          +           RK( 107 ) * C( C_O2     )   
+     &                          +           RK( 111 ) * C( CCO_O2   )   
+     &                          +           RK( 112 ) * C( RCO_O2   )   
+     &                          +           RK( 113 ) * C( BZCO_O2  )   
+     &                          + 4.00000 * RK( 114 ) * C( MA_RCO3  )   
+      PD( HCHO    ,ACET     ) =             RK( 136 ) * C( HO       )   
+      PD( HCHO    ,HOCOO    ) =             RK( 127 )                   
+      PD( HCHO    ,GLY      ) =             RK( 146 )                   
+      PD( HCHO    ,METHACRO ) =   0.08400 * RK( 161 ) * C( HO       )   
+     &                          + 0.20000 * RK( 162 ) * C( O3       )   
+     &                          + 0.67000 * RK( 165 )                   
+      PD( HCHO    ,MVK      ) =   0.30000 * RK( 166 ) * C( HO       )   
+     &                          + 0.10000 * RK( 167 ) * C( O3       )   
+      PD( HCHO    ,ISOPROD  ) =   0.05500 * RK( 170 ) * C( HO       )   
+     &                          + 0.12500 * RK( 171 ) * C( O3       )   
+     &                          + 0.22700 * RK( 172 ) * C( NO3      )   
+     &                          + 0.30000 * RK( 173 )                   
+      PD( HCHO    ,ETHENE   ) =   1.61000 * RK( 185 ) * C( HO       )   
+     &                          +           RK( 186 ) * C( O3       )   
+     &                          + 0.19100 * RK( 188 ) * C( O3P      )   
+      PD( HCHO    ,ISOPRENE ) =   0.62400 * RK( 189 ) * C( HO       )   
+     &                          + 0.59200 * RK( 190 ) * C( O3       )   
+     &                          + 0.24000 * RK( 192 ) * C( O3P      )   
+      PD( HCHO    ,TRP1     ) =   0.27600 * RK( 193 ) * C( HO       )   
+     &                          + 0.23500 * RK( 194 ) * C( O3       )   
+      PD( HCHO    ,ALK2     ) =   0.03900 * RK( 198 ) * C( HO       )   
+      PD( HCHO    ,ALK3     ) =   0.02600 * RK( 199 ) * C( HO       )   
+      PD( HCHO    ,ALK4     ) =   0.02400 * RK( 200 ) * C( HO       )   
+      PD( HCHO    ,ALK5     ) =   0.02600 * RK( 201 ) * C( HO       )   
+      PD( HCHO    ,OLE1     ) =   0.73200 * RK( 211 ) * C( HO       )   
+     &                          + 0.50000 * RK( 212 ) * C( O3       )   
+      PD( HCHO    ,OLE2     ) =   0.24400 * RK( 215 ) * C( HO       )   
+     &                          + 0.26900 * RK( 216 ) * C( O3       )   
+     &                          + 0.07900 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  20: COOH                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( COOH    ,HO       ) = -           RK( 141 ) * C( COOH     )   
+      PD( COOH    ,HO2      ) =             RK( 047 ) * C( C_O2     )   
+      PD( COOH    ,C_O2     ) =             RK( 047 ) * C( HO2      )   
+      PD( COOH    ,COOH     ) = -           RK( 141 ) * C( HO       )   
+     &                          -           RK( 142 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  21: MEOH                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( MEOH    ,HO       ) = -           RK( 140 ) * C( MEOH     )   
+      PD( MEOH    ,C_O2     ) =   4.00000 * RK( 049 ) * C( C_O2     )   
+     &                          + 0.25000 * RK( 054 ) * C( RO2_R    )   
+     &                          + 0.25000 * RK( 064 ) * C( RO2_N    )   
+      PD( MEOH    ,MEOH     ) = -           RK( 140 ) * C( HO       )   
+      PD( MEOH    ,RO2_R    ) =   0.25000 * RK( 054 ) * C( C_O2     )   
+      PD( MEOH    ,RO2_N    ) =   0.25000 * RK( 064 ) * C( C_O2     )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  22: RO2_R                      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RO2_R   ,NO       ) = -           RK( 051 ) * C( RO2_R    )   
+     &                          +           RK( 081 ) * C( RCO_O2   )   
+      PD( RO2_R   ,O3P      ) =   0.20000 * RK( 188 ) * C( ETHENE   )   
+     &                          + 0.01200 * RK( 218 ) * C( OLE2     )   
+      PD( RO2_R   ,O3       ) =   0.10000 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.05000 * RK( 167 ) * C( MVK      )   
+     &                          + 0.04800 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.06600 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.03100 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.02200 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.03300 * RK( 216 ) * C( OLE2     )   
+      PD( RO2_R   ,NO3      ) = -           RK( 053 ) * C( RO2_R    )   
+     &                          +           RK( 083 ) * C( RCO_O2   )   
+     &                          + 0.50000 * RK( 163 ) * C( METHACRO )   
+     &                          + 0.79900 * RK( 172 ) * C( ISOPROD  )   
+     &                          +           RK( 187 ) * C( ETHENE   )   
+     &                          + 0.74900 * RK( 191 ) * C( ISOPRENE )   
+     &                          + 0.27600 * RK( 195 ) * C( TRP1     )   
+     &                          + 0.82400 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.44200 * RK( 217 ) * C( OLE2     )   
+      PD( RO2_R   ,HO       ) =   0.03400 * RK( 133 ) * C( RCHO     )   
+     &                          + 0.37000 * RK( 138 ) * C( MEK      )   
+     &                          + 0.34000 * RK( 143 ) * C( ROOH     )   
+     &                          + 0.76000 * RK( 153 ) * C( PHEN     )   
+     &                          + 0.76000 * RK( 155 ) * C( CRES     )   
+     &                          + 0.50000 * RK( 161 ) * C( METHACRO )   
+     &                          + 0.30000 * RK( 166 ) * C( MVK      )   
+     &                          + 0.67000 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.47300 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.37600 * RK( 176 ) * C( RNO3     )   
+     &                          +           RK( 178 ) * C( DCB1     )   
+     &                          +           RK( 185 ) * C( ETHENE   )   
+     &                          + 0.90700 * RK( 189 ) * C( ISOPRENE )   
+     &                          + 0.75000 * RK( 193 ) * C( TRP1     )   
+     &                          +           RK( 197 ) * C( ALK1     )   
+     &                          + 0.61200 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.69500 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.83500 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.65300 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.76500 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.80400 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.76400 * RK( 208 ) * C( BENZENE  )   
+     &                          + 0.91000 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.91800 * RK( 215 ) * C( OLE2     )   
+     &                          + 0.13000 * RK( 220 ) * C( CCO_OH   )   
+     &                          +           RK( 221 ) * C( RCO_OH   )   
+      PD( RO2_R   ,HO2      ) = -           RK( 052 ) * C( RO2_R    )   
+      PD( RO2_R   ,C_O2     ) = -           RK( 054 ) * C( RO2_R    )   
+      PD( RO2_R   ,RO2_R    ) = -           RK( 051 ) * C( NO       )   
+     &                          -           RK( 052 ) * C( HO2      )   
+     &                          -           RK( 053 ) * C( NO3      )   
+     &                          -           RK( 054 ) * C( C_O2     )   
+     &                          - 4.00000 * RK( 055 ) * C( RO2_R    )   
+     &                          -           RK( 066 ) * C( RO2_N    )   
+     &                          -           RK( 075 ) * C( CCO_O2   )   
+     &                          -           RK( 085 ) * C( RCO_O2   )   
+     &                          -           RK( 096 ) * C( BZCO_O2  )   
+     &                          -           RK( 108 ) * C( MA_RCO3  )   
+      PD( RO2_R   ,ROOH     ) =   0.34000 * RK( 143 ) * C( HO       )   
+      PD( RO2_R   ,RO2_N    ) = -           RK( 066 ) * C( RO2_R    )   
+      PD( RO2_R   ,RNO3     ) =   0.37600 * RK( 176 ) * C( HO       )   
+     &                          + 0.56400 * RK( 177 )                   
+      PD( RO2_R   ,MEK      ) =   0.37000 * RK( 138 ) * C( HO       )   
+     &                          +           RK( 139 )                   
+      PD( RO2_R   ,PROD2    ) =   0.47300 * RK( 174 ) * C( HO       )   
+     &                          + 0.96000 * RK( 175 )                   
+      PD( RO2_R   ,CCO_O2   ) = -           RK( 075 ) * C( RO2_R    )   
+     &                          +           RK( 088 ) * C( RCO_O2   )   
+      PD( RO2_R   ,CCO_OH   ) =   0.13000 * RK( 220 ) * C( HO       )   
+      PD( RO2_R   ,RCO_O2   ) =             RK( 081 ) * C( NO       )   
+     &                          +           RK( 083 ) * C( NO3      )   
+     &                          -           RK( 085 ) * C( RO2_R    )   
+     &                          +           RK( 088 ) * C( CCO_O2   )   
+     &                          + 4.00000 * RK( 089 ) * C( RCO_O2   )   
+     &                          +           RK( 100 ) * C( BZCO_O2  )   
+     &                          +           RK( 112 ) * C( MA_RCO3  )   
+      PD( RO2_R   ,RCO_OH   ) =             RK( 221 ) * C( HO       )   
+      PD( RO2_R   ,BZCO_O2  ) = -           RK( 096 ) * C( RO2_R    )   
+     &                          +           RK( 100 ) * C( RCO_O2   )   
+      PD( RO2_R   ,MA_RCO3  ) = -           RK( 108 ) * C( RO2_R    )   
+     &                          +           RK( 112 ) * C( RCO_O2   )   
+      PD( RO2_R   ,PHEN     ) =   0.76000 * RK( 153 ) * C( HO       )   
+      PD( RO2_R   ,RCHO     ) =   0.03400 * RK( 133 ) * C( HO       )   
+     &                          +           RK( 134 )                   
+      PD( RO2_R   ,CRES     ) =   0.76000 * RK( 155 ) * C( HO       )   
+      PD( RO2_R   ,METHACRO ) =   0.50000 * RK( 161 ) * C( HO       )   
+     &                          + 0.10000 * RK( 162 ) * C( O3       )   
+     &                          + 0.50000 * RK( 163 ) * C( NO3      )   
+     &                          + 0.33000 * RK( 165 )                   
+      PD( RO2_R   ,MVK      ) =   0.30000 * RK( 166 ) * C( HO       )   
+     &                          + 0.05000 * RK( 167 ) * C( O3       )   
+      PD( RO2_R   ,ISOPROD  ) =   0.67000 * RK( 170 ) * C( HO       )   
+     &                          + 0.04800 * RK( 171 ) * C( O3       )   
+     &                          + 0.79900 * RK( 172 ) * C( NO3      )   
+      PD( RO2_R   ,DCB1     ) =             RK( 178 ) * C( HO       )   
+      PD( RO2_R   ,DCB2     ) =             RK( 181 )                   
+      PD( RO2_R   ,DCB3     ) =             RK( 183 )                   
+      PD( RO2_R   ,ETHENE   ) =             RK( 185 ) * C( HO       )   
+     &                          +           RK( 187 ) * C( NO3      )   
+     &                          + 0.20000 * RK( 188 ) * C( O3P      )   
+      PD( RO2_R   ,ISOPRENE ) =   0.90700 * RK( 189 ) * C( HO       )   
+     &                          + 0.06600 * RK( 190 ) * C( O3       )   
+     &                          + 0.74900 * RK( 191 ) * C( NO3      )   
+      PD( RO2_R   ,TRP1     ) =   0.75000 * RK( 193 ) * C( HO       )   
+     &                          + 0.03100 * RK( 194 ) * C( O3       )   
+     &                          + 0.27600 * RK( 195 ) * C( NO3      )   
+      PD( RO2_R   ,ALK1     ) =             RK( 197 ) * C( HO       )   
+      PD( RO2_R   ,ALK2     ) =   0.61200 * RK( 198 ) * C( HO       )   
+      PD( RO2_R   ,ALK3     ) =   0.69500 * RK( 199 ) * C( HO       )   
+      PD( RO2_R   ,ALK4     ) =   0.83500 * RK( 200 ) * C( HO       )   
+      PD( RO2_R   ,ALK5     ) =   0.65300 * RK( 201 ) * C( HO       )   
+      PD( RO2_R   ,ARO1     ) =   0.76500 * RK( 202 ) * C( HO       )   
+      PD( RO2_R   ,ARO2     ) =   0.80400 * RK( 205 ) * C( HO       )   
+      PD( RO2_R   ,BENZENE  ) =   0.76400 * RK( 208 ) * C( HO       )   
+      PD( RO2_R   ,OLE1     ) =   0.91000 * RK( 211 ) * C( HO       )   
+     &                          + 0.02200 * RK( 212 ) * C( O3       )   
+     &                          + 0.82400 * RK( 213 ) * C( NO3      )   
+      PD( RO2_R   ,OLE2     ) =   0.91800 * RK( 215 ) * C( HO       )   
+     &                          + 0.03300 * RK( 216 ) * C( O3       )   
+     &                          + 0.44200 * RK( 217 ) * C( NO3      )   
+     &                          + 0.01200 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  23: ROOH                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ROOH    ,HO       ) = -           RK( 143 ) * C( ROOH     )   
+      PD( ROOH    ,HO2      ) =             RK( 052 ) * C( RO2_R    )   
+     &                          +           RK( 063 ) * C( RO2_N    )   
+      PD( ROOH    ,RO2_R    ) =             RK( 052 ) * C( HO2      )   
+      PD( ROOH    ,ROOH     ) = -           RK( 143 ) * C( HO       )   
+     &                          -           RK( 144 )                   
+      PD( ROOH    ,RO2_N    ) =             RK( 063 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  24: R2O2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( R2O2    ,NO       ) = -           RK( 056 ) * C( R2O2     )   
+     &                          +           RK( 092 ) * C( BZCO_O2  )   
+      PD( R2O2    ,O3P      ) =   0.24000 * RK( 192 ) * C( ISOPRENE )   
+      PD( R2O2    ,O3       ) =   0.12600 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.72900 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.13700 * RK( 216 ) * C( OLE2     )   
+      PD( R2O2    ,NO3      ) = -           RK( 058 ) * C( R2O2     )   
+     &                          +           RK( 094 ) * C( BZCO_O2  )   
+     &                          + 0.18700 * RK( 191 ) * C( ISOPRENE )   
+     &                          + 0.75000 * RK( 195 ) * C( TRP1     )   
+     &                          + 0.48800 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.71100 * RK( 217 ) * C( OLE2     )   
+      PD( R2O2    ,HO       ) =             RK( 136 ) * C( ACET     )   
+     &                          + 0.61600 * RK( 138 ) * C( MEK      )   
+     &                          + 0.67500 * RK( 166 ) * C( MVK      )   
+     &                          + 0.59600 * RK( 176 ) * C( RNO3     )   
+     &                          +           RK( 180 ) * C( DCB2     )   
+     &                          +           RK( 182 ) * C( DCB3     )   
+     &                          + 0.07900 * RK( 189 ) * C( ISOPRENE )   
+     &                          + 0.50000 * RK( 193 ) * C( TRP1     )   
+     &                          + 0.55900 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.93600 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.94800 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.20500 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.00100 * RK( 215 ) * C( OLE2     )   
+      PD( R2O2    ,HO2      ) = -           RK( 057 ) * C( R2O2     )   
+      PD( R2O2    ,C_O2     ) = -           RK( 059 ) * C( R2O2     )   
+      PD( R2O2    ,RO2_R    ) = -           RK( 060 ) * C( R2O2     )   
+      PD( R2O2    ,R2O2     ) = -           RK( 056 ) * C( NO       )   
+     &                          -           RK( 057 ) * C( HO2      )   
+     &                          -           RK( 058 ) * C( NO3      )   
+     &                          -           RK( 059 ) * C( C_O2     )   
+     &                          -           RK( 060 ) * C( RO2_R    )   
+     &                          - 4.00000 * RK( 061 ) * C( R2O2     )   
+     &                          -           RK( 067 ) * C( RO2_N    )   
+     &                          -           RK( 076 ) * C( CCO_O2   )   
+     &                          -           RK( 086 ) * C( RCO_O2   )   
+     &                          -           RK( 097 ) * C( BZCO_O2  )   
+     &                          -           RK( 109 ) * C( MA_RCO3  )   
+      PD( R2O2    ,RO2_N    ) = -           RK( 067 ) * C( R2O2     )   
+      PD( R2O2    ,RNO3     ) =   0.59600 * RK( 176 ) * C( HO       )   
+     &                          + 0.15200 * RK( 177 )                   
+      PD( R2O2    ,MEK      ) =   0.61600 * RK( 138 ) * C( HO       )   
+      PD( R2O2    ,PROD2    ) =   0.51500 * RK( 175 )                   
+      PD( R2O2    ,CCO_O2   ) = -           RK( 076 ) * C( R2O2     )   
+     &                          +           RK( 099 ) * C( BZCO_O2  )   
+      PD( R2O2    ,RCO_O2   ) = -           RK( 086 ) * C( R2O2     )   
+     &                          +           RK( 100 ) * C( BZCO_O2  )   
+      PD( R2O2    ,BZCO_O2  ) =             RK( 092 ) * C( NO       )   
+     &                          +           RK( 094 ) * C( NO3      )   
+     &                          -           RK( 097 ) * C( R2O2     )   
+     &                          +           RK( 099 ) * C( CCO_O2   )   
+     &                          +           RK( 100 ) * C( RCO_O2   )   
+     &                          + 4.00000 * RK( 101 ) * C( BZCO_O2  )   
+     &                          +           RK( 113 ) * C( MA_RCO3  )   
+      PD( R2O2    ,MA_RCO3  ) = -           RK( 109 ) * C( R2O2     )   
+     &                          +           RK( 113 ) * C( BZCO_O2  )   
+      PD( R2O2    ,ACET     ) =             RK( 136 ) * C( HO       )   
+      PD( R2O2    ,MVK      ) =   0.67500 * RK( 166 ) * C( HO       )   
+      PD( R2O2    ,DCB2     ) =             RK( 180 ) * C( HO       )   
+     &                          +           RK( 181 )                   
+      PD( R2O2    ,DCB3     ) =             RK( 182 ) * C( HO       )   
+     &                          +           RK( 183 )                   
+      PD( R2O2    ,ISOPRENE ) =   0.07900 * RK( 189 ) * C( HO       )   
+     &                          + 0.12600 * RK( 190 ) * C( O3       )   
+     &                          + 0.18700 * RK( 191 ) * C( NO3      )   
+     &                          + 0.24000 * RK( 192 ) * C( O3P      )   
+      PD( R2O2    ,TRP1     ) =   0.50000 * RK( 193 ) * C( HO       )   
+     &                          + 0.72900 * RK( 194 ) * C( O3       )   
+     &                          + 0.75000 * RK( 195 ) * C( NO3      )   
+      PD( R2O2    ,ALK3     ) =   0.55900 * RK( 199 ) * C( HO       )   
+      PD( R2O2    ,ALK4     ) =   0.93600 * RK( 200 ) * C( HO       )   
+      PD( R2O2    ,ALK5     ) =   0.94800 * RK( 201 ) * C( HO       )   
+      PD( R2O2    ,OLE1     ) =   0.20500 * RK( 211 ) * C( HO       )   
+     &                          + 0.48800 * RK( 213 ) * C( NO3      )   
+      PD( R2O2    ,OLE2     ) =   0.00100 * RK( 215 ) * C( HO       )   
+     &                          + 0.13700 * RK( 216 ) * C( O3       )   
+     &                          + 0.71100 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  25: RO2_N                      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RO2_N   ,NO       ) = -           RK( 062 ) * C( RO2_N    )   
+      PD( RO2_N   ,O3P      ) =   0.01000 * RK( 192 ) * C( ISOPRENE )   
+     &                          + 0.00100 * RK( 218 ) * C( OLE2     )   
+      PD( RO2_N   ,O3       ) =   0.00800 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.18000 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.00100 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.00200 * RK( 216 ) * C( OLE2     )   
+      PD( RO2_N   ,NO3      ) = -           RK( 065 ) * C( RO2_N    )   
+     &                          + 0.05100 * RK( 172 ) * C( ISOPROD  )   
+     &                          + 0.06400 * RK( 191 ) * C( ISOPRENE )   
+     &                          + 0.25000 * RK( 195 ) * C( TRP1     )   
+     &                          + 0.17600 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.13600 * RK( 217 ) * C( OLE2     )   
+      PD( RO2_N   ,HO       ) =   0.00100 * RK( 133 ) * C( RCHO     )   
+     &                          + 0.04200 * RK( 138 ) * C( MEK      )   
+     &                          + 0.02500 * RK( 166 ) * C( MVK      )   
+     &                          + 0.04100 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.07000 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.17300 * RK( 176 ) * C( RNO3     )   
+     &                          + 0.09300 * RK( 189 ) * C( ISOPRENE )   
+     &                          + 0.25000 * RK( 193 ) * C( TRP1     )   
+     &                          + 0.02100 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.07000 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.14300 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.34700 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.01100 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.00900 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.09000 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.08200 * RK( 215 ) * C( OLE2     )   
+      PD( RO2_N   ,HO2      ) = -           RK( 063 ) * C( RO2_N    )   
+      PD( RO2_N   ,C_O2     ) = -           RK( 064 ) * C( RO2_N    )   
+      PD( RO2_N   ,RO2_R    ) = -           RK( 066 ) * C( RO2_N    )   
+      PD( RO2_N   ,RO2_N    ) = -           RK( 062 ) * C( NO       )   
+     &                          -           RK( 063 ) * C( HO2      )   
+     &                          -           RK( 064 ) * C( C_O2     )   
+     &                          -           RK( 065 ) * C( NO3      )   
+     &                          -           RK( 066 ) * C( RO2_R    )   
+     &                          - 4.00000 * RK( 068 ) * C( RO2_N    )   
+     &                          -           RK( 077 ) * C( CCO_O2   )   
+     &                          -           RK( 087 ) * C( RCO_O2   )   
+     &                          -           RK( 098 ) * C( BZCO_O2  )   
+     &                          -           RK( 110 ) * C( MA_RCO3  )   
+      PD( RO2_N   ,RNO3     ) =   0.17300 * RK( 176 ) * C( HO       )   
+     &                          + 0.09500 * RK( 177 )                   
+      PD( RO2_N   ,MEK      ) =   0.04200 * RK( 138 ) * C( HO       )   
+      PD( RO2_N   ,PROD2    ) =   0.07000 * RK( 174 ) * C( HO       )   
+     &                          + 0.04000 * RK( 175 )                   
+      PD( RO2_N   ,CCO_O2   ) = -           RK( 077 ) * C( RO2_N    )   
+      PD( RO2_N   ,RCO_O2   ) = -           RK( 087 ) * C( RO2_N    )   
+      PD( RO2_N   ,BZCO_O2  ) = -           RK( 098 ) * C( RO2_N    )   
+      PD( RO2_N   ,MA_RCO3  ) = -           RK( 110 ) * C( RO2_N    )   
+      PD( RO2_N   ,RCHO     ) =   0.00100 * RK( 133 ) * C( HO       )   
+      PD( RO2_N   ,MVK      ) =   0.02500 * RK( 166 ) * C( HO       )   
+      PD( RO2_N   ,ISOPROD  ) =   0.04100 * RK( 170 ) * C( HO       )   
+     &                          + 0.05100 * RK( 172 ) * C( NO3      )   
+      PD( RO2_N   ,ISOPRENE ) =   0.09300 * RK( 189 ) * C( HO       )   
+     &                          + 0.00800 * RK( 190 ) * C( O3       )   
+     &                          + 0.06400 * RK( 191 ) * C( NO3      )   
+     &                          + 0.01000 * RK( 192 ) * C( O3P      )   
+      PD( RO2_N   ,TRP1     ) =   0.25000 * RK( 193 ) * C( HO       )   
+     &                          + 0.18000 * RK( 194 ) * C( O3       )   
+     &                          + 0.25000 * RK( 195 ) * C( NO3      )   
+      PD( RO2_N   ,ALK2     ) =   0.02100 * RK( 198 ) * C( HO       )   
+      PD( RO2_N   ,ALK3     ) =   0.07000 * RK( 199 ) * C( HO       )   
+      PD( RO2_N   ,ALK4     ) =   0.14300 * RK( 200 ) * C( HO       )   
+      PD( RO2_N   ,ALK5     ) =   0.34700 * RK( 201 ) * C( HO       )   
+      PD( RO2_N   ,ARO1     ) =   0.01100 * RK( 202 ) * C( HO       )   
+      PD( RO2_N   ,ARO2     ) =   0.00900 * RK( 205 ) * C( HO       )   
+      PD( RO2_N   ,OLE1     ) =   0.09000 * RK( 211 ) * C( HO       )   
+     &                          + 0.00100 * RK( 212 ) * C( O3       )   
+     &                          + 0.17600 * RK( 213 ) * C( NO3      )   
+      PD( RO2_N   ,OLE2     ) =   0.08200 * RK( 215 ) * C( HO       )   
+     &                          + 0.00200 * RK( 216 ) * C( O3       )   
+     &                          + 0.13600 * RK( 217 ) * C( NO3      )   
+     &                          + 0.00100 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  26: RNO3                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RNO3    ,NO2      ) =             RK( 115 ) * C( TBU_O    )   
+      PD( RNO3    ,NO       ) =             RK( 062 ) * C( RO2_N    )   
+      PD( RNO3    ,NO3      ) =   0.57200 * RK( 172 ) * C( ISOPROD  )   
+     &                          + 0.27600 * RK( 195 ) * C( TRP1     )   
+     &                          + 0.51100 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.32100 * RK( 217 ) * C( OLE2     )   
+      PD( RNO3    ,HO       ) = - 0.69000 * RK( 176 ) * C( RNO3     )   
+      PD( RNO3    ,RO2_N    ) =             RK( 062 ) * C( NO       )   
+      PD( RNO3    ,RNO3     ) = - 0.69000 * RK( 176 ) * C( HO       )   
+     &                          -           RK( 177 )                   
+      PD( RNO3    ,TBU_O    ) =             RK( 115 ) * C( NO2      )   
+      PD( RNO3    ,ISOPROD  ) =   0.57200 * RK( 172 ) * C( NO3      )   
+      PD( RNO3    ,TRP1     ) =   0.27600 * RK( 195 ) * C( NO3      )   
+      PD( RNO3    ,OLE1     ) =   0.51100 * RK( 213 ) * C( NO3      )   
+      PD( RNO3    ,OLE2     ) =   0.32100 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  27: MEK                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( MEK     ,O3P      ) =   0.55000 * RK( 168 ) * C( MVK      )   
+     &                          + 0.43700 * RK( 214 ) * C( OLE1     )   
+     &                          + 0.65900 * RK( 218 ) * C( OLE2     )   
+      PD( MEK     ,O3       ) =   0.21000 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.02600 * RK( 216 ) * C( OLE2     )   
+      PD( MEK     ,NO3      ) =             RK( 065 ) * C( RO2_N    )   
+     &                          + 0.00100 * RK( 217 ) * C( OLE2     )   
+      PD( MEK     ,HO       ) = -           RK( 138 ) * C( MEK      )   
+     &                          + 0.41600 * RK( 161 ) * C( METHACRO )   
+     &                          + 0.15000 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.11500 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.17700 * RK( 176 ) * C( RNO3     )   
+     &                          + 0.33200 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.11000 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.08900 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.07200 * RK( 215 ) * C( OLE2     )   
+      PD( MEK     ,C_O2     ) =   0.50000 * RK( 064 ) * C( RO2_N    )   
+      PD( MEK     ,RO2_R    ) =   0.50000 * RK( 066 ) * C( RO2_N    )   
+      PD( MEK     ,RO2_N    ) =   0.50000 * RK( 064 ) * C( C_O2     )   
+     &                          +           RK( 065 ) * C( NO3      )   
+     &                          + 0.50000 * RK( 066 ) * C( RO2_R    )   
+     &                          + 4.00000 * RK( 068 ) * C( RO2_N    )   
+      PD( MEK     ,RNO3     ) =   0.17700 * RK( 176 ) * C( HO       )   
+     &                          + 0.24300 * RK( 177 )                   
+      PD( MEK     ,MEK      ) = -           RK( 138 ) * C( HO       )   
+     &                          -           RK( 139 )                   
+      PD( MEK     ,PROD2    ) =   0.11500 * RK( 174 ) * C( HO       )   
+      PD( MEK     ,METHACRO ) =   0.41600 * RK( 161 ) * C( HO       )   
+      PD( MEK     ,MVK      ) =   0.55000 * RK( 168 ) * C( O3P      )   
+      PD( MEK     ,ISOPROD  ) =   0.15000 * RK( 170 ) * C( HO       )   
+     &                          + 0.21000 * RK( 171 ) * C( O3       )   
+     &                          + 0.23300 * RK( 173 )                   
+      PD( MEK     ,ALK3     ) =   0.33200 * RK( 199 ) * C( HO       )   
+      PD( MEK     ,ALK4     ) =   0.11000 * RK( 200 ) * C( HO       )   
+      PD( MEK     ,ALK5     ) =   0.08900 * RK( 201 ) * C( HO       )   
+      PD( MEK     ,OLE1     ) =   0.43700 * RK( 214 ) * C( O3P      )   
+      PD( MEK     ,OLE2     ) =   0.07200 * RK( 215 ) * C( HO       )   
+     &                          + 0.02600 * RK( 216 ) * C( O3       )   
+     &                          + 0.00100 * RK( 217 ) * C( NO3      )   
+     &                          + 0.65900 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  28: PROD2                      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( PROD2   ,O3P      ) =   0.75000 * RK( 192 ) * C( ISOPRENE )   
+     &                          + 0.85300 * RK( 196 ) * C( TRP1     )   
+     &                          + 0.11300 * RK( 214 ) * C( OLE1     )   
+     &                          + 0.25900 * RK( 218 ) * C( OLE2     )   
+      PD( PROD2   ,O3       ) =   0.10000 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.27600 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.21500 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.00600 * RK( 216 ) * C( OLE2     )   
+      PD( PROD2   ,HO       ) =   0.33200 * RK( 170 ) * C( ISOPROD  )   
+     &                          - 0.67100 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.04800 * RK( 176 ) * C( RNO3     )   
+     &                          + 0.27600 * RK( 193 ) * C( TRP1     )   
+     &                          + 0.12500 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.41700 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.05500 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.11900 * RK( 211 ) * C( OLE1     )   
+      PD( PROD2   ,C_O2     ) =   0.50000 * RK( 064 ) * C( RO2_N    )   
+      PD( PROD2   ,RO2_R    ) =   0.50000 * RK( 066 ) * C( RO2_N    )   
+      PD( PROD2   ,RO2_N    ) =   0.50000 * RK( 064 ) * C( C_O2     )   
+     &                          + 0.50000 * RK( 066 ) * C( RO2_R    )   
+     &                          + 4.00000 * RK( 068 ) * C( RO2_N    )   
+     &                          +           RK( 077 ) * C( CCO_O2   )   
+     &                          +           RK( 087 ) * C( RCO_O2   )   
+     &                          +           RK( 098 ) * C( BZCO_O2  )   
+      PD( PROD2   ,RNO3     ) =   0.04800 * RK( 176 ) * C( HO       )   
+     &                          + 0.43500 * RK( 177 )                   
+      PD( PROD2   ,PROD2    ) = - 0.67100 * RK( 174 ) * C( HO       )   
+     &                          -           RK( 175 )                   
+      PD( PROD2   ,CCO_O2   ) =             RK( 077 ) * C( RO2_N    )   
+      PD( PROD2   ,RCO_O2   ) =             RK( 087 ) * C( RO2_N    )   
+      PD( PROD2   ,BZCO_O2  ) =             RK( 098 ) * C( RO2_N    )   
+      PD( PROD2   ,MVK      ) =   0.70000 * RK( 169 )                   
+      PD( PROD2   ,ISOPROD  ) =   0.33200 * RK( 170 ) * C( HO       )   
+      PD( PROD2   ,ISOPRENE ) =   0.10000 * RK( 190 ) * C( O3       )   
+     &                          + 0.75000 * RK( 192 ) * C( O3P      )   
+      PD( PROD2   ,TRP1     ) =   0.27600 * RK( 193 ) * C( HO       )   
+     &                          + 0.27600 * RK( 194 ) * C( O3       )   
+     &                          + 0.85300 * RK( 196 ) * C( O3P      )   
+      PD( PROD2   ,ALK4     ) =   0.12500 * RK( 200 ) * C( HO       )   
+      PD( PROD2   ,ALK5     ) =   0.41700 * RK( 201 ) * C( HO       )   
+      PD( PROD2   ,ARO1     ) =   0.05500 * RK( 202 ) * C( HO       )   
+      PD( PROD2   ,OLE1     ) =   0.11900 * RK( 211 ) * C( HO       )   
+     &                          + 0.21500 * RK( 212 ) * C( O3       )   
+     &                          + 0.11300 * RK( 214 ) * C( O3P      )   
+      PD( PROD2   ,OLE2     ) =   0.00600 * RK( 216 ) * C( O3       )   
+     &                          + 0.25900 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  29: CCO_O2                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( CCO_O2  ,NO2      ) = -           RK( 069 ) * C( CCO_O2   )   
+      PD( CCO_O2  ,NO       ) = -           RK( 071 ) * C( CCO_O2   )   
+     &                          +           RK( 104 ) * C( MA_RCO3  )   
+      PD( CCO_O2  ,O3       ) =   0.12300 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.13700 * RK( 216 ) * C( OLE2     )   
+      PD( CCO_O2  ,NO3      ) = -           RK( 073 ) * C( CCO_O2   )   
+     &                          +           RK( 106 ) * C( MA_RCO3  )   
+     &                          +           RK( 132 ) * C( CCHO     )   
+     &                          +           RK( 151 ) * C( MGLY     )   
+      PD( CCO_O2  ,HO       ) =             RK( 130 ) * C( CCHO     )   
+     &                          +           RK( 136 ) * C( ACET     )   
+     &                          + 0.49200 * RK( 138 ) * C( MEK      )   
+     &                          +           RK( 150 ) * C( MGLY     )   
+     &                          + 0.67500 * RK( 166 ) * C( MVK      )   
+     &                          + 0.02900 * RK( 174 ) * C( PROD2    )   
+     &                          +           RK( 180 ) * C( DCB2     )   
+     &                          +           RK( 182 ) * C( DCB3     )   
+     &                          + 0.01100 * RK( 200 ) * C( ALK4     )   
+      PD( CCO_O2  ,HO2      ) = -           RK( 072 ) * C( CCO_O2   )   
+      PD( CCO_O2  ,C_O2     ) = -           RK( 074 ) * C( CCO_O2   )   
+      PD( CCO_O2  ,RO2_R    ) = -           RK( 075 ) * C( CCO_O2   )   
+      PD( CCO_O2  ,RO2_N    ) = -           RK( 077 ) * C( CCO_O2   )   
+      PD( CCO_O2  ,MEK      ) =   0.49200 * RK( 138 ) * C( HO       )   
+     &                          +           RK( 139 )                   
+      PD( CCO_O2  ,PROD2    ) =   0.02900 * RK( 174 ) * C( HO       )   
+     &                          + 0.66700 * RK( 175 )                   
+      PD( CCO_O2  ,CCO_O2   ) = -           RK( 069 ) * C( NO2      )   
+     &                          -           RK( 071 ) * C( NO       )   
+     &                          -           RK( 072 ) * C( HO2      )   
+     &                          -           RK( 073 ) * C( NO3      )   
+     &                          -           RK( 074 ) * C( C_O2     )   
+     &                          -           RK( 075 ) * C( RO2_R    )   
+     &                          -           RK( 077 ) * C( RO2_N    )   
+     &                          - 4.00000 * RK( 078 ) * C( CCO_O2   )   
+     &                          -           RK( 088 ) * C( RCO_O2   )   
+     &                          -           RK( 099 ) * C( BZCO_O2  )   
+      PD( CCO_O2  ,PAN      ) =             RK( 070 )                   
+      PD( CCO_O2  ,RCO_O2   ) = -           RK( 088 ) * C( CCO_O2   )   
+     &                          +           RK( 112 ) * C( MA_RCO3  )   
+      PD( CCO_O2  ,CCHO     ) =             RK( 130 ) * C( HO       )   
+     &                          +           RK( 132 ) * C( NO3      )   
+      PD( CCO_O2  ,BZCO_O2  ) = -           RK( 099 ) * C( CCO_O2   )   
+     &                          +           RK( 113 ) * C( MA_RCO3  )   
+      PD( CCO_O2  ,MA_RCO3  ) =             RK( 104 ) * C( NO       )   
+     &                          +           RK( 106 ) * C( NO3      )   
+     &                          +           RK( 112 ) * C( RCO_O2   )   
+     &                          +           RK( 113 ) * C( BZCO_O2  )   
+     &                          + 4.00000 * RK( 114 ) * C( MA_RCO3  )   
+      PD( CCO_O2  ,ACET     ) =             RK( 136 ) * C( HO       )   
+     &                          +           RK( 137 )                   
+      PD( CCO_O2  ,MGLY     ) =             RK( 149 )                   
+     &                          +           RK( 150 ) * C( HO       )   
+     &                          +           RK( 151 ) * C( NO3      )   
+      PD( CCO_O2  ,BACL     ) =   2.00000 * RK( 152 )                   
+      PD( CCO_O2  ,METHACRO ) =   0.67000 * RK( 165 )                   
+      PD( CCO_O2  ,MVK      ) =   0.67500 * RK( 166 ) * C( HO       )   
+      PD( CCO_O2  ,ISOPROD  ) =   0.46700 * RK( 173 )                   
+      PD( CCO_O2  ,DCB2     ) =             RK( 180 ) * C( HO       )   
+     &                          + 0.50000 * RK( 181 )                   
+      PD( CCO_O2  ,DCB3     ) =             RK( 182 ) * C( HO       )   
+     &                          + 0.50000 * RK( 183 )                   
+      PD( CCO_O2  ,TRP1     ) =   0.12300 * RK( 194 ) * C( O3       )   
+      PD( CCO_O2  ,ALK4     ) =   0.01100 * RK( 200 ) * C( HO       )   
+      PD( CCO_O2  ,OLE2     ) =   0.13700 * RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  30: PAN                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( PAN     ,NO2      ) =             RK( 069 ) * C( CCO_O2   )   
+      PD( PAN     ,CCO_O2   ) =             RK( 069 ) * C( NO2      )   
+      PD( PAN     ,PAN      ) = -           RK( 070 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  31: CCO_OOH                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( CCO_OOH ,HO2      ) =   0.75000 * RK( 072 ) * C( CCO_O2   )   
+      PD( CCO_OOH ,CCO_O2   ) =   0.75000 * RK( 072 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  32: CCO_OH                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( CCO_OH  ,O3       ) =   0.05000 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.12900 * RK( 216 ) * C( OLE2     )   
+      PD( CCO_OH  ,HO       ) = -           RK( 220 ) * C( CCO_OH   )   
+      PD( CCO_OH  ,HO2      ) =   0.25000 * RK( 072 ) * C( CCO_O2   )   
+      PD( CCO_OH  ,C_O2     ) =             RK( 074 ) * C( CCO_O2   )   
+      PD( CCO_OH  ,RO2_R    ) =             RK( 075 ) * C( CCO_O2   )   
+      PD( CCO_OH  ,RO2_N    ) =             RK( 077 ) * C( CCO_O2   )   
+      PD( CCO_OH  ,CCO_O2   ) =   0.25000 * RK( 072 ) * C( HO2      )   
+     &                          +           RK( 074 ) * C( C_O2     )   
+     &                          +           RK( 075 ) * C( RO2_R    )   
+     &                          +           RK( 077 ) * C( RO2_N    )   
+      PD( CCO_OH  ,CCO_OH   ) = -           RK( 220 ) * C( HO       )   
+      PD( CCO_OH  ,OLE1     ) =   0.05000 * RK( 212 ) * C( O3       )   
+      PD( CCO_OH  ,OLE2     ) =   0.12900 * RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  33: RCO_O2                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RCO_O2  ,NO2      ) = -           RK( 079 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,NO       ) = -           RK( 081 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,O3       ) =   0.10000 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.05000 * RK( 167 ) * C( MVK      )   
+     &                          + 0.04800 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.20100 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.00600 * RK( 216 ) * C( OLE2     )   
+      PD( RCO_O2  ,NO3      ) = -           RK( 083 ) * C( RCO_O2   )   
+     &                          +           RK( 135 ) * C( RCHO     )   
+     &                          + 0.37000 * RK( 148 ) * C( GLY      )   
+      PD( RCO_O2  ,HO       ) =   0.96500 * RK( 133 ) * C( RCHO     )   
+     &                          + 0.09600 * RK( 138 ) * C( MEK      )   
+     &                          + 0.37000 * RK( 147 ) * C( GLY      )   
+     &                          + 0.04900 * RK( 174 ) * C( PROD2    )   
+      PD( RCO_O2  ,HO2      ) = -           RK( 082 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,C_O2     ) = -           RK( 084 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,RO2_R    ) = -           RK( 085 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,RO2_N    ) = -           RK( 087 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,MEK      ) =   0.09600 * RK( 138 ) * C( HO       )   
+      PD( RCO_O2  ,PROD2    ) =   0.04900 * RK( 174 ) * C( HO       )   
+     &                          + 0.33300 * RK( 175 )                   
+      PD( RCO_O2  ,CCO_O2   ) = -           RK( 088 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,RCO_O2   ) = -           RK( 079 ) * C( NO2      )   
+     &                          -           RK( 081 ) * C( NO       )   
+     &                          -           RK( 082 ) * C( HO2      )   
+     &                          -           RK( 083 ) * C( NO3      )   
+     &                          -           RK( 084 ) * C( C_O2     )   
+     &                          -           RK( 085 ) * C( RO2_R    )   
+     &                          -           RK( 087 ) * C( RO2_N    )   
+     &                          -           RK( 088 ) * C( CCO_O2   )   
+     &                          - 4.00000 * RK( 089 ) * C( RCO_O2   )   
+     &                          -           RK( 100 ) * C( BZCO_O2  )   
+     &                          -           RK( 112 ) * C( MA_RCO3  )   
+      PD( RCO_O2  ,PAN2     ) =             RK( 080 )                   
+      PD( RCO_O2  ,BZCO_O2  ) = -           RK( 100 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,MA_RCO3  ) = -           RK( 112 ) * C( RCO_O2   )   
+      PD( RCO_O2  ,RCHO     ) =   0.96500 * RK( 133 ) * C( HO       )   
+     &                          +           RK( 135 ) * C( NO3      )   
+      PD( RCO_O2  ,GLY      ) =   0.37000 * RK( 147 ) * C( HO       )   
+     &                          + 0.37000 * RK( 148 ) * C( NO3      )   
+      PD( RCO_O2  ,METHACRO ) =   0.10000 * RK( 162 ) * C( O3       )   
+      PD( RCO_O2  ,MVK      ) =   0.05000 * RK( 167 ) * C( O3       )   
+      PD( RCO_O2  ,ISOPROD  ) =   0.04800 * RK( 171 ) * C( O3       )   
+     &                          + 0.30000 * RK( 173 )                   
+      PD( RCO_O2  ,TRP1     ) =   0.20100 * RK( 194 ) * C( O3       )   
+      PD( RCO_O2  ,OLE2     ) =   0.00600 * RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  34: PAN2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( PAN2    ,NO2      ) =             RK( 079 ) * C( RCO_O2   )   
+      PD( PAN2    ,RCO_O2   ) =             RK( 079 ) * C( NO2      )   
+      PD( PAN2    ,PAN2     ) = -           RK( 080 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  35: CCHO                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( CCHO    ,NO       ) =             RK( 081 ) * C( RCO_O2   )   
+      PD( CCHO    ,O3P      ) =   0.25000 * RK( 188 ) * C( ETHENE   )   
+      PD( CCHO    ,O3       ) =   0.04700 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.15400 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.45600 * RK( 216 ) * C( OLE2     )   
+      PD( CCHO    ,NO3      ) =             RK( 083 ) * C( RCO_O2   )   
+     &                          -           RK( 132 ) * C( CCHO     )   
+     &                          + 0.00900 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.50700 * RK( 217 ) * C( OLE2     )   
+      PD( CCHO    ,HO       ) = -           RK( 130 ) * C( CCHO     )   
+     &                          + 0.03400 * RK( 133 ) * C( RCHO     )   
+     &                          + 0.48200 * RK( 138 ) * C( MEK      )   
+     &                          + 0.12900 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.08400 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.43900 * RK( 176 ) * C( RNO3     )   
+     &                          + 0.19500 * RK( 185 ) * C( ETHENE   )   
+     &                          +           RK( 197 ) * C( ALK1     )   
+     &                          + 0.44500 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.45500 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.09900 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.29400 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.73200 * RK( 215 ) * C( OLE2     )   
+     &                          + 0.60500 * RK( 221 ) * C( RCO_OH   )   
+      PD( CCHO    ,RNO3     ) =   0.43900 * RK( 176 ) * C( HO       )   
+     &                          + 0.43100 * RK( 177 )                   
+      PD( CCHO    ,MEK      ) =   0.48200 * RK( 138 ) * C( HO       )   
+     &                          +           RK( 139 )                   
+      PD( CCHO    ,PROD2    ) =   0.08400 * RK( 174 ) * C( HO       )   
+     &                          + 0.24600 * RK( 175 )                   
+      PD( CCHO    ,CCO_O2   ) =             RK( 088 ) * C( RCO_O2   )   
+      PD( CCHO    ,RCO_O2   ) =             RK( 081 ) * C( NO       )   
+     &                          +           RK( 083 ) * C( NO3      )   
+     &                          +           RK( 088 ) * C( CCO_O2   )   
+     &                          + 4.00000 * RK( 089 ) * C( RCO_O2   )   
+     &                          +           RK( 100 ) * C( BZCO_O2  )   
+     &                          +           RK( 112 ) * C( MA_RCO3  )   
+      PD( CCHO    ,CCHO     ) = -           RK( 130 ) * C( HO       )   
+     &                          -           RK( 131 )                   
+     &                          -           RK( 132 ) * C( NO3      )   
+      PD( CCHO    ,RCO_OH   ) =   0.60500 * RK( 221 ) * C( HO       )   
+      PD( CCHO    ,BZCO_O2  ) =             RK( 100 ) * C( RCO_O2   )   
+      PD( CCHO    ,MA_RCO3  ) =             RK( 112 ) * C( RCO_O2   )   
+      PD( CCHO    ,RCHO     ) =   0.03400 * RK( 133 ) * C( HO       )   
+     &                          +           RK( 134 )                   
+      PD( CCHO    ,ISOPROD  ) =   0.12900 * RK( 170 ) * C( HO       )   
+     &                          + 0.04700 * RK( 171 ) * C( O3       )   
+     &                          + 0.46700 * RK( 173 )                   
+      PD( CCHO    ,ETHENE   ) =   0.19500 * RK( 185 ) * C( HO       )   
+     &                          + 0.25000 * RK( 188 ) * C( O3P      )   
+      PD( CCHO    ,ALK1     ) =             RK( 197 ) * C( HO       )   
+      PD( CCHO    ,ALK3     ) =   0.44500 * RK( 199 ) * C( HO       )   
+      PD( CCHO    ,ALK4     ) =   0.45500 * RK( 200 ) * C( HO       )   
+      PD( CCHO    ,ALK5     ) =   0.09900 * RK( 201 ) * C( HO       )   
+      PD( CCHO    ,OLE1     ) =   0.29400 * RK( 211 ) * C( HO       )   
+     &                          + 0.15400 * RK( 212 ) * C( O3       )   
+     &                          + 0.00900 * RK( 213 ) * C( NO3      )   
+      PD( CCHO    ,OLE2     ) =   0.73200 * RK( 215 ) * C( HO       )   
+     &                          + 0.45600 * RK( 216 ) * C( O3       )   
+     &                          + 0.50700 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  36: RCO_OOH                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RCO_OOH ,HO2      ) =   0.75000 * RK( 082 ) * C( RCO_O2   )   
+     &                          + 0.75000 * RK( 093 ) * C( BZCO_O2  )   
+     &                          + 0.75000 * RK( 105 ) * C( MA_RCO3  )   
+      PD( RCO_OOH ,RCO_O2   ) =   0.75000 * RK( 082 ) * C( HO2      )   
+      PD( RCO_OOH ,BZCO_O2  ) =   0.75000 * RK( 093 ) * C( HO2      )   
+      PD( RCO_OOH ,MA_RCO3  ) =   0.75000 * RK( 105 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  37: RCO_OH                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RCO_OH  ,O3       ) =   0.37200 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.15000 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.18900 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.11900 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.30300 * RK( 216 ) * C( OLE2     )   
+      PD( RCO_OH  ,HO       ) = -           RK( 221 ) * C( RCO_OH   )   
+      PD( RCO_OH  ,HO2      ) =   0.25000 * RK( 082 ) * C( RCO_O2   )   
+     &                          + 0.25000 * RK( 093 ) * C( BZCO_O2  )   
+     &                          + 0.25000 * RK( 105 ) * C( MA_RCO3  )   
+      PD( RCO_OH  ,C_O2     ) =             RK( 084 ) * C( RCO_O2   )   
+     &                          +           RK( 095 ) * C( BZCO_O2  )   
+     &                          +           RK( 107 ) * C( MA_RCO3  )   
+      PD( RCO_OH  ,RO2_R    ) =             RK( 085 ) * C( RCO_O2   )   
+     &                          +           RK( 096 ) * C( BZCO_O2  )   
+     &                          +           RK( 108 ) * C( MA_RCO3  )   
+      PD( RCO_OH  ,RO2_N    ) =             RK( 087 ) * C( RCO_O2   )   
+     &                          +           RK( 098 ) * C( BZCO_O2  )   
+     &                          + 2.00000 * RK( 110 ) * C( MA_RCO3  )   
+      PD( RCO_OH  ,RCO_O2   ) =   0.25000 * RK( 082 ) * C( HO2      )   
+     &                          +           RK( 084 ) * C( C_O2     )   
+     &                          +           RK( 085 ) * C( RO2_R    )   
+     &                          +           RK( 087 ) * C( RO2_N    )   
+      PD( RCO_OH  ,RCO_OH   ) = -           RK( 221 ) * C( HO       )   
+      PD( RCO_OH  ,BZCO_O2  ) =   0.25000 * RK( 093 ) * C( HO2      )   
+     &                          +           RK( 095 ) * C( C_O2     )   
+     &                          +           RK( 096 ) * C( RO2_R    )   
+     &                          +           RK( 098 ) * C( RO2_N    )   
+      PD( RCO_OH  ,MA_RCO3  ) =   0.25000 * RK( 105 ) * C( HO2      )   
+     &                          +           RK( 107 ) * C( C_O2     )   
+     &                          +           RK( 108 ) * C( RO2_R    )   
+     &                          + 2.00000 * RK( 110 ) * C( RO2_N    )   
+      PD( RCO_OH  ,ISOPROD  ) =   0.37200 * RK( 171 ) * C( O3       )   
+      PD( RCO_OH  ,ISOPRENE ) =   0.15000 * RK( 190 ) * C( O3       )   
+      PD( RCO_OH  ,TRP1     ) =   0.18900 * RK( 194 ) * C( O3       )   
+      PD( RCO_OH  ,OLE1     ) =   0.11900 * RK( 212 ) * C( O3       )   
+      PD( RCO_OH  ,OLE2     ) =   0.30300 * RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  38: BZCO_O2                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BZCO_O2 ,NO2      ) = -           RK( 090 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,NO       ) = -           RK( 092 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,NO3      ) = -           RK( 094 ) * C( BZCO_O2  )   
+     &                          +           RK( 160 ) * C( BALD     )   
+      PD( BZCO_O2 ,HO       ) =             RK( 158 ) * C( BALD     )   
+      PD( BZCO_O2 ,HO2      ) = -           RK( 093 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,C_O2     ) = -           RK( 095 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,RO2_R    ) = -           RK( 096 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,RO2_N    ) = -           RK( 098 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,CCO_O2   ) = -           RK( 099 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,RCO_O2   ) = -           RK( 100 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,BZCO_O2  ) = -           RK( 090 ) * C( NO2      )   
+     &                          -           RK( 092 ) * C( NO       )   
+     &                          -           RK( 093 ) * C( HO2      )   
+     &                          -           RK( 094 ) * C( NO3      )   
+     &                          -           RK( 095 ) * C( C_O2     )   
+     &                          -           RK( 096 ) * C( RO2_R    )   
+     &                          -           RK( 098 ) * C( RO2_N    )   
+     &                          -           RK( 099 ) * C( CCO_O2   )   
+     &                          -           RK( 100 ) * C( RCO_O2   )   
+     &                          - 4.00000 * RK( 101 ) * C( BZCO_O2  )   
+     &                          -           RK( 113 ) * C( MA_RCO3  )   
+      PD( BZCO_O2 ,PBZN     ) =             RK( 091 )                   
+      PD( BZCO_O2 ,MA_RCO3  ) = -           RK( 113 ) * C( BZCO_O2  )   
+      PD( BZCO_O2 ,BALD     ) =             RK( 158 ) * C( HO       )   
+     &                          +           RK( 160 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  39: PBZN                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( PBZN    ,NO2      ) =             RK( 090 ) * C( BZCO_O2  )   
+      PD( PBZN    ,BZCO_O2  ) =             RK( 090 ) * C( NO2      )   
+      PD( PBZN    ,PBZN     ) = -           RK( 091 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  40: BZ_O                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BZ_O    ,NO2      ) = -           RK( 117 ) * C( BZ_O     )   
+      PD( BZ_O    ,NO       ) =             RK( 092 ) * C( BZCO_O2  )   
+      PD( BZ_O    ,NO3      ) =             RK( 094 ) * C( BZCO_O2  )   
+     &                          +           RK( 154 ) * C( PHEN     )   
+     &                          +           RK( 156 ) * C( CRES     )   
+      PD( BZ_O    ,HO       ) =   0.24000 * RK( 153 ) * C( PHEN     )   
+     &                          + 0.24000 * RK( 155 ) * C( CRES     )   
+      PD( BZ_O    ,HO2      ) = -           RK( 118 ) * C( BZ_O     )   
+      PD( BZ_O    ,CCO_O2   ) =             RK( 099 ) * C( BZCO_O2  )   
+      PD( BZ_O    ,RCO_O2   ) =             RK( 100 ) * C( BZCO_O2  )   
+      PD( BZ_O    ,BZCO_O2  ) =             RK( 092 ) * C( NO       )   
+     &                          +           RK( 094 ) * C( NO3      )   
+     &                          +           RK( 099 ) * C( CCO_O2   )   
+     &                          +           RK( 100 ) * C( RCO_O2   )   
+     &                          + 4.00000 * RK( 101 ) * C( BZCO_O2  )   
+     &                          +           RK( 113 ) * C( MA_RCO3  )   
+      PD( BZ_O    ,BZ_O     ) = -           RK( 117 ) * C( NO2      )   
+     &                          -           RK( 118 ) * C( HO2      )   
+     &                          -           RK( 119 )                   
+      PD( BZ_O    ,MA_RCO3  ) =             RK( 113 ) * C( BZCO_O2  )   
+      PD( BZ_O    ,PHEN     ) =   0.24000 * RK( 153 ) * C( HO       )   
+     &                          +           RK( 154 ) * C( NO3      )   
+      PD( BZ_O    ,CRES     ) =   0.24000 * RK( 155 ) * C( HO       )   
+     &                          +           RK( 156 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  41: MA_RCO3                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( MA_RCO3 ,NO2      ) = -           RK( 102 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,NO       ) = -           RK( 104 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,O3P      ) =   0.24000 * RK( 192 ) * C( ISOPRENE )   
+      PD( MA_RCO3 ,O3       ) =   0.19200 * RK( 190 ) * C( ISOPRENE )   
+      PD( MA_RCO3 ,NO3      ) = -           RK( 106 ) * C( MA_RCO3  )   
+     &                          + 0.50000 * RK( 163 ) * C( METHACRO )   
+     &                          + 0.15000 * RK( 172 ) * C( ISOPROD  )   
+      PD( MA_RCO3 ,HO       ) =   0.50000 * RK( 161 ) * C( METHACRO )   
+     &                          + 0.28900 * RK( 170 ) * C( ISOPROD  )   
+      PD( MA_RCO3 ,HO2      ) = -           RK( 105 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,C_O2     ) = -           RK( 107 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,RO2_R    ) = -           RK( 108 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,RO2_N    ) = -           RK( 110 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,CCO_O2   ) = -           RK( 111 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,RCO_O2   ) = -           RK( 112 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,BZCO_O2  ) = -           RK( 113 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,MA_RCO3  ) = -           RK( 102 ) * C( NO2      )   
+     &                          -           RK( 104 ) * C( NO       )   
+     &                          -           RK( 105 ) * C( HO2      )   
+     &                          -           RK( 106 ) * C( NO3      )   
+     &                          -           RK( 107 ) * C( C_O2     )   
+     &                          -           RK( 108 ) * C( RO2_R    )   
+     &                          -           RK( 110 ) * C( RO2_N    )   
+     &                          -           RK( 111 ) * C( CCO_O2   )   
+     &                          -           RK( 112 ) * C( RCO_O2   )   
+     &                          -           RK( 113 ) * C( BZCO_O2  )   
+     &                          - 4.00000 * RK( 114 ) * C( MA_RCO3  )   
+      PD( MA_RCO3 ,MA_PAN   ) =             RK( 103 )                   
+      PD( MA_RCO3 ,METHACRO ) =   0.50000 * RK( 161 ) * C( HO       )   
+     &                          + 0.50000 * RK( 163 ) * C( NO3      )   
+     &                          + 0.33000 * RK( 165 )                   
+      PD( MA_RCO3 ,MVK      ) =   0.30000 * RK( 169 )                   
+      PD( MA_RCO3 ,ISOPROD  ) =   0.28900 * RK( 170 ) * C( HO       )   
+     &                          + 0.15000 * RK( 172 ) * C( NO3      )   
+      PD( MA_RCO3 ,ISOPRENE ) =   0.19200 * RK( 190 ) * C( O3       )   
+     &                          + 0.24000 * RK( 192 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  42: MA_PAN                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( MA_PAN  ,NO2      ) =             RK( 102 ) * C( MA_RCO3  )   
+      PD( MA_PAN  ,MA_RCO3  ) =             RK( 102 ) * C( NO2      )   
+      PD( MA_PAN  ,MA_PAN   ) = -           RK( 103 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  43: TBU_O                      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( TBU_O   ,NO2      ) = -           RK( 115 ) * C( TBU_O    )   
+      PD( TBU_O   ,HO       ) =   0.23600 * RK( 199 ) * C( ALK3     )   
+      PD( TBU_O   ,TBU_O    ) = -           RK( 115 ) * C( NO2      )   
+     &                          -           RK( 116 )                   
+      PD( TBU_O   ,ALK3     ) =   0.23600 * RK( 199 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  44: ACET                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ACET    ,O3       ) =   0.13000 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.00100 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.04500 * RK( 216 ) * C( OLE2     )   
+      PD( ACET    ,NO3      ) =   0.02400 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.10200 * RK( 217 ) * C( OLE2     )   
+      PD( ACET    ,HO       ) = -           RK( 136 ) * C( ACET     )   
+     &                          + 0.00600 * RK( 176 ) * C( RNO3     )   
+     &                          + 0.41700 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.02400 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.45200 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.07200 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.00500 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.12700 * RK( 215 ) * C( OLE2     )   
+      PD( ACET    ,RNO3     ) =   0.00600 * RK( 176 ) * C( HO       )   
+     &                          + 0.02000 * RK( 177 )                   
+      PD( ACET    ,TBU_O    ) =             RK( 116 )                   
+      PD( ACET    ,ACET     ) = -           RK( 136 ) * C( HO       )   
+     &                          -           RK( 137 )                   
+      PD( ACET    ,TRP1     ) =   0.13000 * RK( 194 ) * C( O3       )   
+      PD( ACET    ,ALK2     ) =   0.41700 * RK( 198 ) * C( HO       )   
+      PD( ACET    ,ALK3     ) =   0.02400 * RK( 199 ) * C( HO       )   
+      PD( ACET    ,ALK4     ) =   0.45200 * RK( 200 ) * C( HO       )   
+      PD( ACET    ,ALK5     ) =   0.07200 * RK( 201 ) * C( HO       )   
+      PD( ACET    ,OLE1     ) =   0.00500 * RK( 211 ) * C( HO       )   
+     &                          + 0.00100 * RK( 212 ) * C( O3       )   
+     &                          + 0.02400 * RK( 213 ) * C( NO3      )   
+      PD( ACET    ,OLE2     ) =   0.12700 * RK( 215 ) * C( HO       )   
+     &                          + 0.04500 * RK( 216 ) * C( O3       )   
+     &                          + 0.10200 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  45: NPHE                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( NPHE    ,NO2      ) =             RK( 117 ) * C( BZ_O     )   
+      PD( NPHE    ,NO3      ) = -           RK( 157 ) * C( NPHE     )   
+      PD( NPHE    ,HO2      ) =             RK( 121 ) * C( BZNO2_O  )   
+      PD( NPHE    ,BZ_O     ) =             RK( 117 ) * C( NO2      )   
+      PD( NPHE    ,NPHE     ) = -           RK( 157 ) * C( NO3      )   
+      PD( NPHE    ,BZNO2_O  ) =             RK( 121 ) * C( HO2      )   
+     &                          +           RK( 122 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  46: PHEN                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( PHEN    ,NO3      ) = -           RK( 154 ) * C( PHEN     )   
+      PD( PHEN    ,HO       ) = -           RK( 153 ) * C( PHEN     )   
+     &                          + 0.01700 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.23600 * RK( 208 ) * C( BENZENE  )   
+      PD( PHEN    ,HO2      ) =             RK( 118 ) * C( BZ_O     )   
+      PD( PHEN    ,BZ_O     ) =             RK( 118 ) * C( HO2      )   
+     &                          +           RK( 119 )                   
+      PD( PHEN    ,PHEN     ) = -           RK( 153 ) * C( HO       )   
+     &                          -           RK( 154 ) * C( NO3      )   
+      PD( PHEN    ,ARO1     ) =   0.01700 * RK( 202 ) * C( HO       )   
+      PD( PHEN    ,BENZENE  ) =   0.23600 * RK( 208 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  47: BZNO2_O                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BZNO2_O ,NO2      ) = -           RK( 120 ) * C( BZNO2_O  )   
+      PD( BZNO2_O ,NO3      ) =             RK( 157 ) * C( NPHE     )   
+      PD( BZNO2_O ,HO2      ) = -           RK( 121 ) * C( BZNO2_O  )   
+      PD( BZNO2_O ,NPHE     ) =             RK( 157 ) * C( NO3      )   
+      PD( BZNO2_O ,BZNO2_O  ) = -           RK( 120 ) * C( NO2      )   
+     &                          -           RK( 121 ) * C( HO2      )   
+     &                          -           RK( 122 )                   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  48: HOCOO                      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HOCOO   ,NO       ) = -           RK( 128 ) * C( HOCOO    )   
+      PD( HOCOO   ,HO2      ) =             RK( 126 ) * C( HCHO     )   
+      PD( HOCOO   ,HCHO     ) =             RK( 126 ) * C( HO2      )   
+      PD( HOCOO   ,HOCOO    ) = -           RK( 127 )                   
+     &                          -           RK( 128 ) * C( NO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  49: HCOOH                      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( HCOOH   ,NO       ) =             RK( 128 ) * C( HOCOO    )   
+      PD( HCOOH   ,O3       ) =   0.33300 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.35100 * RK( 167 ) * C( MVK      )   
+     &                          + 0.10000 * RK( 171 ) * C( ISOPROD  )   
+     &                          + 0.37000 * RK( 186 ) * C( ETHENE   )   
+     &                          + 0.20400 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.10300 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.18500 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.07300 * RK( 216 ) * C( OLE2     )   
+      PD( HCOOH   ,HO       ) =   0.12100 * RK( 198 ) * C( ALK2     )   
+     &                          -           RK( 219 ) * C( HCOOH    )   
+      PD( HCOOH   ,HOCOO    ) =             RK( 128 ) * C( NO       )   
+      PD( HCOOH   ,HCOOH    ) = -           RK( 219 ) * C( HO       )   
+      PD( HCOOH   ,METHACRO ) =   0.33300 * RK( 162 ) * C( O3       )   
+      PD( HCOOH   ,MVK      ) =   0.35100 * RK( 167 ) * C( O3       )   
+      PD( HCOOH   ,ISOPROD  ) =   0.10000 * RK( 171 ) * C( O3       )   
+      PD( HCOOH   ,ETHENE   ) =   0.37000 * RK( 186 ) * C( O3       )   
+      PD( HCOOH   ,ISOPRENE ) =   0.20400 * RK( 190 ) * C( O3       )   
+      PD( HCOOH   ,TRP1     ) =   0.10300 * RK( 194 ) * C( O3       )   
+      PD( HCOOH   ,ALK2     ) =   0.12100 * RK( 198 ) * C( HO       )   
+      PD( HCOOH   ,OLE1     ) =   0.18500 * RK( 212 ) * C( O3       )   
+      PD( HCOOH   ,OLE2     ) =   0.07300 * RK( 216 ) * C( O3       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  50: RCHO                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( RCHO    ,O3P      ) =             RK( 164 ) * C( METHACRO )   
+     &                          + 0.45000 * RK( 168 ) * C( MVK      )   
+     &                          + 0.14700 * RK( 196 ) * C( TRP1     )   
+     &                          + 0.45000 * RK( 214 ) * C( OLE1     )   
+     &                          + 0.06900 * RK( 218 ) * C( OLE2     )   
+      PD( RCHO    ,O3       ) =   0.20500 * RK( 194 ) * C( TRP1     )   
+     &                          + 0.36300 * RK( 212 ) * C( OLE1     )   
+     &                          + 0.30500 * RK( 216 ) * C( OLE2     )   
+      PD( RCHO    ,NO3      ) = -           RK( 135 ) * C( RCHO     )   
+     &                          + 0.21800 * RK( 172 ) * C( ISOPROD  )   
+     &                          +           RK( 187 ) * C( ETHENE   )   
+     &                          + 0.47400 * RK( 195 ) * C( TRP1     )   
+     &                          + 0.03700 * RK( 213 ) * C( OLE1     )   
+     &                          + 0.15100 * RK( 217 ) * C( OLE2     )   
+      PD( RCHO    ,HO       ) = -           RK( 133 ) * C( RCHO     )   
+     &                          + 0.37000 * RK( 138 ) * C( MEK      )   
+     &                          +           RK( 143 ) * C( ROOH     )   
+     &                          + 0.67500 * RK( 166 ) * C( MVK      )   
+     &                          + 0.01300 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.55800 * RK( 174 ) * C( PROD2    )   
+     &                          + 0.21300 * RK( 176 ) * C( RNO3     )   
+     &                          +           RK( 178 ) * C( DCB1     )   
+     &                          +           RK( 180 ) * C( DCB2     )   
+     &                          +           RK( 182 ) * C( DCB3     )   
+     &                          + 0.47400 * RK( 193 ) * C( TRP1     )   
+     &                          + 0.15500 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.12200 * RK( 199 ) * C( ALK3     )   
+     &                          + 0.24400 * RK( 200 ) * C( ALK4     )   
+     &                          + 0.20400 * RK( 201 ) * C( ALK5     )   
+     &                          + 0.49700 * RK( 211 ) * C( OLE1     )   
+     &                          + 0.51100 * RK( 215 ) * C( OLE2     )   
+     &                          + 0.21000 * RK( 221 ) * C( RCO_OH   )   
+      PD( RCHO    ,ROOH     ) =             RK( 143 ) * C( HO       )   
+     &                          +           RK( 144 )                   
+      PD( RCHO    ,RNO3     ) =   0.21300 * RK( 176 ) * C( HO       )   
+     &                          + 0.14700 * RK( 177 )                   
+      PD( RCHO    ,MEK      ) =   0.37000 * RK( 138 ) * C( HO       )   
+      PD( RCHO    ,PROD2    ) =   0.55800 * RK( 174 ) * C( HO       )   
+     &                          + 0.71000 * RK( 175 )                   
+      PD( RCHO    ,RCO_OH   ) =   0.21000 * RK( 221 ) * C( HO       )   
+      PD( RCHO    ,RCHO     ) = -           RK( 133 ) * C( HO       )   
+     &                          -           RK( 134 )                   
+     &                          -           RK( 135 ) * C( NO3      )   
+      PD( RCHO    ,METHACRO ) =             RK( 164 ) * C( O3P      )   
+      PD( RCHO    ,MVK      ) =   0.67500 * RK( 166 ) * C( HO       )   
+     &                          + 0.45000 * RK( 168 ) * C( O3P      )   
+      PD( RCHO    ,ISOPROD  ) =   0.01300 * RK( 170 ) * C( HO       )   
+     &                          + 0.21800 * RK( 172 ) * C( NO3      )   
+      PD( RCHO    ,DCB1     ) =             RK( 178 ) * C( HO       )   
+      PD( RCHO    ,DCB2     ) =             RK( 180 ) * C( HO       )   
+      PD( RCHO    ,DCB3     ) =             RK( 182 ) * C( HO       )   
+      PD( RCHO    ,ETHENE   ) =             RK( 187 ) * C( NO3      )   
+      PD( RCHO    ,TRP1     ) =   0.47400 * RK( 193 ) * C( HO       )   
+     &                          + 0.20500 * RK( 194 ) * C( O3       )   
+     &                          + 0.47400 * RK( 195 ) * C( NO3      )   
+     &                          + 0.14700 * RK( 196 ) * C( O3P      )   
+      PD( RCHO    ,ALK2     ) =   0.15500 * RK( 198 ) * C( HO       )   
+      PD( RCHO    ,ALK3     ) =   0.12200 * RK( 199 ) * C( HO       )   
+      PD( RCHO    ,ALK4     ) =   0.24400 * RK( 200 ) * C( HO       )   
+      PD( RCHO    ,ALK5     ) =   0.20400 * RK( 201 ) * C( HO       )   
+      PD( RCHO    ,OLE1     ) =   0.49700 * RK( 211 ) * C( HO       )   
+     &                          + 0.36300 * RK( 212 ) * C( O3       )   
+     &                          + 0.03700 * RK( 213 ) * C( NO3      )   
+     &                          + 0.45000 * RK( 214 ) * C( O3P      )   
+      PD( RCHO    ,OLE2     ) =   0.51100 * RK( 215 ) * C( HO       )   
+     &                          + 0.30500 * RK( 216 ) * C( O3       )   
+     &                          + 0.15100 * RK( 217 ) * C( NO3      )   
+     &                          + 0.06900 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  51: GLY                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( GLY     ,O3P      ) =   0.00900 * RK( 188 ) * C( ETHENE   )   
+      PD( GLY     ,O3       ) =   0.02300 * RK( 171 ) * C( ISOPROD  )   
+     &                          +           RK( 179 ) * C( DCB1     )   
+     &                          + 0.00100 * RK( 194 ) * C( TRP1     )   
+      PD( GLY     ,NO3      ) = -           RK( 148 ) * C( GLY      )   
+      PD( GLY     ,HO       ) = -           RK( 147 ) * C( GLY      )   
+     &                          + 0.23000 * RK( 153 ) * C( PHEN     )   
+     &                          + 0.15000 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.24800 * RK( 198 ) * C( ALK2     )   
+     &                          + 0.11800 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.09700 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.20700 * RK( 208 ) * C( BENZENE  )   
+      PD( GLY     ,PHEN     ) =   0.23000 * RK( 153 ) * C( HO       )   
+      PD( GLY     ,GLY      ) = -           RK( 145 )                   
+     &                          -           RK( 146 )                   
+     &                          -           RK( 147 ) * C( HO       )   
+     &                          -           RK( 148 ) * C( NO3      )   
+      PD( GLY     ,ISOPROD  ) =   0.15000 * RK( 170 ) * C( HO       )   
+     &                          + 0.02300 * RK( 171 ) * C( O3       )   
+      PD( GLY     ,DCB1     ) =             RK( 179 ) * C( O3       )   
+      PD( GLY     ,DCB2     ) =   0.50000 * RK( 181 )                   
+      PD( GLY     ,DCB3     ) =   0.50000 * RK( 183 )                   
+      PD( GLY     ,ETHENE   ) =   0.00900 * RK( 188 ) * C( O3P      )   
+      PD( GLY     ,TRP1     ) =   0.00100 * RK( 194 ) * C( O3       )   
+      PD( GLY     ,ALK2     ) =   0.24800 * RK( 198 ) * C( HO       )   
+      PD( GLY     ,ARO1     ) =   0.11800 * RK( 202 ) * C( HO       )   
+      PD( GLY     ,ARO2     ) =   0.09700 * RK( 205 ) * C( HO       )   
+      PD( GLY     ,BENZENE  ) =   0.20700 * RK( 208 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  52: MGLY                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( MGLY    ,O3       ) =   0.90000 * RK( 162 ) * C( METHACRO )   
+     &                          + 0.95000 * RK( 167 ) * C( MVK      )   
+     &                          + 0.74200 * RK( 171 ) * C( ISOPROD  )   
+      PD( MGLY    ,NO3      ) = -           RK( 151 ) * C( MGLY     )   
+     &                          + 0.00800 * RK( 172 ) * C( ISOPROD  )   
+      PD( MGLY    ,HO       ) = -           RK( 150 ) * C( MGLY     )   
+     &                          + 0.23000 * RK( 155 ) * C( CRES     )   
+     &                          + 0.08400 * RK( 161 ) * C( METHACRO )   
+     &                          + 0.30000 * RK( 166 ) * C( MVK      )   
+     &                          + 0.17400 * RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.11900 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.28700 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.13000 * RK( 220 ) * C( CCO_OH   )   
+      PD( MGLY    ,CCO_OH   ) =   0.13000 * RK( 220 ) * C( HO       )   
+      PD( MGLY    ,MGLY     ) = -           RK( 149 )                   
+     &                          -           RK( 150 ) * C( HO       )   
+     &                          -           RK( 151 ) * C( NO3      )   
+      PD( MGLY    ,CRES     ) =   0.23000 * RK( 155 ) * C( HO       )   
+      PD( MGLY    ,METHACRO ) =   0.08400 * RK( 161 ) * C( HO       )   
+     &                          + 0.90000 * RK( 162 ) * C( O3       )   
+      PD( MGLY    ,MVK      ) =   0.30000 * RK( 166 ) * C( HO       )   
+     &                          + 0.95000 * RK( 167 ) * C( O3       )   
+      PD( MGLY    ,ISOPROD  ) =   0.17400 * RK( 170 ) * C( HO       )   
+     &                          + 0.74200 * RK( 171 ) * C( O3       )   
+     &                          + 0.00800 * RK( 172 ) * C( NO3      )   
+      PD( MGLY    ,DCB2     ) =   0.50000 * RK( 181 )                   
+      PD( MGLY    ,DCB3     ) =   0.50000 * RK( 183 )                   
+      PD( MGLY    ,ARO1     ) =   0.11900 * RK( 202 ) * C( HO       )   
+      PD( MGLY    ,ARO2     ) =   0.28700 * RK( 205 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  53: BACL                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BACL    ,O3       ) =   0.03100 * RK( 194 ) * C( TRP1     )   
+      PD( BACL    ,HO       ) =   0.08700 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.18500 * RK( 221 ) * C( RCO_OH   )   
+      PD( BACL    ,RCO_OH   ) =   0.18500 * RK( 221 ) * C( HO       )   
+      PD( BACL    ,BACL     ) = -           RK( 152 )                   
+      PD( BACL    ,TRP1     ) =   0.03100 * RK( 194 ) * C( O3       )   
+      PD( BACL    ,ARO2     ) =   0.08700 * RK( 205 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  54: CRES                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( CRES    ,NO3      ) = -           RK( 156 ) * C( CRES     )   
+      PD( CRES    ,HO       ) = -           RK( 155 ) * C( CRES     )   
+     &                          + 0.20700 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.18700 * RK( 205 ) * C( ARO2     )   
+      PD( CRES    ,CRES     ) = -           RK( 155 ) * C( HO       )   
+     &                          -           RK( 156 ) * C( NO3      )   
+      PD( CRES    ,ARO1     ) =   0.20700 * RK( 202 ) * C( HO       )   
+      PD( CRES    ,ARO2     ) =   0.18700 * RK( 205 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  55: BALD                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BALD    ,O3       ) =   0.04200 * RK( 216 ) * C( OLE2     )   
+      PD( BALD    ,NO3      ) = -           RK( 160 ) * C( BALD     )   
+     &                          + 0.01500 * RK( 217 ) * C( OLE2     )   
+      PD( BALD    ,HO       ) = -           RK( 158 ) * C( BALD     )   
+     &                          + 0.05900 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.05000 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.06100 * RK( 215 ) * C( OLE2     )   
+      PD( BALD    ,BALD     ) = -           RK( 158 ) * C( HO       )   
+     &                          -           RK( 159 )                   
+     &                          -           RK( 160 ) * C( NO3      )   
+      PD( BALD    ,ARO1     ) =   0.05900 * RK( 202 ) * C( HO       )   
+      PD( BALD    ,ARO2     ) =   0.05000 * RK( 205 ) * C( HO       )   
+      PD( BALD    ,OLE2     ) =   0.06100 * RK( 215 ) * C( HO       )   
+     &                          + 0.04200 * RK( 216 ) * C( O3       )   
+     &                          + 0.01500 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  56: METHACRO                   
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( METHACRO,O3P      ) = -           RK( 164 ) * C( METHACRO )   
+     &                          + 0.01200 * RK( 218 ) * C( OLE2     )   
+      PD( METHACRO,O3       ) = -           RK( 162 ) * C( METHACRO )   
+     &                          + 0.39000 * RK( 190 ) * C( ISOPRENE )   
+     &                          + 0.02600 * RK( 216 ) * C( OLE2     )   
+      PD( METHACRO,NO3      ) = -           RK( 163 ) * C( METHACRO )   
+      PD( METHACRO,HO       ) = -           RK( 161 ) * C( METHACRO )   
+     &                          + 0.23000 * RK( 189 ) * C( ISOPRENE )   
+     &                          + 0.02500 * RK( 215 ) * C( OLE2     )   
+      PD( METHACRO,METHACRO ) = -           RK( 161 ) * C( HO       )   
+     &                          -           RK( 162 ) * C( O3       )   
+     &                          -           RK( 163 ) * C( NO3      )   
+     &                          -           RK( 164 ) * C( O3P      )   
+     &                          -           RK( 165 )                   
+      PD( METHACRO,ISOPRENE ) =   0.23000 * RK( 189 ) * C( HO       )   
+     &                          + 0.39000 * RK( 190 ) * C( O3       )   
+      PD( METHACRO,OLE2     ) =   0.02500 * RK( 215 ) * C( HO       )   
+     &                          + 0.02600 * RK( 216 ) * C( O3       )   
+     &                          + 0.01200 * RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  57: MVK                        
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( MVK     ,O3P      ) = -           RK( 168 ) * C( MVK      )   
+      PD( MVK     ,O3       ) = -           RK( 167 ) * C( MVK      )   
+     &                          + 0.16000 * RK( 190 ) * C( ISOPRENE )   
+      PD( MVK     ,NO3      ) =   0.04800 * RK( 217 ) * C( OLE2     )   
+      PD( MVK     ,HO       ) = -           RK( 166 ) * C( MVK      )   
+     &                          + 0.32000 * RK( 189 ) * C( ISOPRENE )   
+      PD( MVK     ,MVK      ) = -           RK( 166 ) * C( HO       )   
+     &                          -           RK( 167 ) * C( O3       )   
+     &                          -           RK( 168 ) * C( O3P      )   
+     &                          -           RK( 169 )                   
+      PD( MVK     ,ISOPRENE ) =   0.32000 * RK( 189 ) * C( HO       )   
+     &                          + 0.16000 * RK( 190 ) * C( O3       )   
+      PD( MVK     ,OLE2     ) =   0.04800 * RK( 217 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  58: ISOPROD                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ISOPROD ,O3       ) = -           RK( 171 ) * C( ISOPROD  )   
+      PD( ISOPROD ,NO3      ) = -           RK( 172 ) * C( ISOPROD  )   
+     &                          + 0.93600 * RK( 191 ) * C( ISOPRENE )   
+      PD( ISOPROD ,HO       ) = -           RK( 170 ) * C( ISOPROD  )   
+     &                          + 0.35700 * RK( 189 ) * C( ISOPRENE )   
+     &                          + 0.02500 * RK( 215 ) * C( OLE2     )   
+      PD( ISOPROD ,ISOPROD  ) = -           RK( 170 ) * C( HO       )   
+     &                          -           RK( 171 ) * C( O3       )   
+     &                          -           RK( 172 ) * C( NO3      )   
+     &                          -           RK( 173 )                   
+      PD( ISOPROD ,ISOPRENE ) =   0.35700 * RK( 189 ) * C( HO       )   
+     &                          + 0.93600 * RK( 191 ) * C( NO3      )   
+      PD( ISOPROD ,OLE2     ) =   0.02500 * RK( 215 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  59: DCB1                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( DCB1    ,O3       ) = -           RK( 179 ) * C( DCB1     )   
+      PD( DCB1    ,HO       ) = -           RK( 178 ) * C( DCB1     )   
+     &                          + 0.49100 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.56100 * RK( 205 ) * C( ARO2     )   
+     &                          + 0.76400 * RK( 208 ) * C( BENZENE  )   
+      PD( DCB1    ,DCB1     ) = -           RK( 178 ) * C( HO       )   
+     &                          -           RK( 179 ) * C( O3       )   
+      PD( DCB1    ,ARO1     ) =   0.49100 * RK( 202 ) * C( HO       )   
+      PD( DCB1    ,ARO2     ) =   0.56100 * RK( 205 ) * C( HO       )   
+      PD( DCB1    ,BENZENE  ) =   0.76400 * RK( 208 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  60: DCB2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( DCB2    ,HO       ) = -           RK( 180 ) * C( DCB2     )   
+     &                          + 0.10800 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.09900 * RK( 205 ) * C( ARO2     )   
+      PD( DCB2    ,DCB2     ) = -           RK( 180 ) * C( HO       )   
+     &                          -           RK( 181 )                   
+      PD( DCB2    ,ARO1     ) =   0.10800 * RK( 202 ) * C( HO       )   
+      PD( DCB2    ,ARO2     ) =   0.09900 * RK( 205 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  61: DCB3                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( DCB3    ,HO       ) = -           RK( 182 ) * C( DCB3     )   
+     &                          + 0.05100 * RK( 202 ) * C( ARO1     )   
+     &                          + 0.09300 * RK( 205 ) * C( ARO2     )   
+      PD( DCB3    ,DCB3     ) = -           RK( 182 ) * C( HO       )   
+     &                          -           RK( 183 )                   
+      PD( DCB3    ,ARO1     ) =   0.05100 * RK( 202 ) * C( HO       )   
+      PD( DCB3    ,ARO2     ) =   0.09300 * RK( 205 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  62: ETHENE                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ETHENE  ,O3P      ) = -           RK( 188 ) * C( ETHENE   )   
+      PD( ETHENE  ,O3       ) = -           RK( 186 ) * C( ETHENE   )   
+      PD( ETHENE  ,NO3      ) = -           RK( 187 ) * C( ETHENE   )   
+      PD( ETHENE  ,HO       ) = -           RK( 185 ) * C( ETHENE   )   
+      PD( ETHENE  ,ETHENE   ) = -           RK( 185 ) * C( HO       )   
+     &                          -           RK( 186 ) * C( O3       )   
+     &                          -           RK( 187 ) * C( NO3      )   
+     &                          -           RK( 188 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  63: ISOPRENE                   
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ISOPRENE,O3P      ) = -           RK( 192 ) * C( ISOPRENE )   
+      PD( ISOPRENE,O3       ) = -           RK( 190 ) * C( ISOPRENE )   
+      PD( ISOPRENE,NO3      ) = -           RK( 191 ) * C( ISOPRENE )   
+      PD( ISOPRENE,HO       ) = -           RK( 189 ) * C( ISOPRENE )   
+      PD( ISOPRENE,ISOPRENE ) = -           RK( 189 ) * C( HO       )   
+     &                          -           RK( 190 ) * C( O3       )   
+     &                          -           RK( 191 ) * C( NO3      )   
+     &                          -           RK( 192 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  64: ISOPRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ISOPRXN ,HO       ) =             RK( 189 ) * C( ISOPRENE )   
+      PD( ISOPRXN ,ISOPRENE ) =             RK( 189 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  65: TRP1                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( TRP1    ,O3P      ) = -           RK( 196 ) * C( TRP1     )   
+      PD( TRP1    ,O3       ) = -           RK( 194 ) * C( TRP1     )   
+      PD( TRP1    ,NO3      ) = -           RK( 195 ) * C( TRP1     )   
+      PD( TRP1    ,HO       ) = -           RK( 193 ) * C( TRP1     )   
+      PD( TRP1    ,TRP1     ) = -           RK( 193 ) * C( HO       )   
+     &                          -           RK( 194 ) * C( O3       )   
+     &                          -           RK( 195 ) * C( NO3      )   
+     &                          -           RK( 196 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  66: TRPRXN                     
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( TRPRXN  ,O3P      ) =             RK( 196 ) * C( TRP1     )   
+      PD( TRPRXN  ,O3       ) =             RK( 194 ) * C( TRP1     )   
+      PD( TRPRXN  ,NO3      ) =             RK( 195 ) * C( TRP1     )   
+      PD( TRPRXN  ,HO       ) =             RK( 193 ) * C( TRP1     )   
+      PD( TRPRXN  ,TRP1     ) =             RK( 193 ) * C( HO       )   
+     &                          +           RK( 194 ) * C( O3       )   
+     &                          +           RK( 195 ) * C( NO3      )   
+     &                          +           RK( 196 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  67: ALK1                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ALK1    ,HO       ) = -           RK( 197 ) * C( ALK1     )   
+      PD( ALK1    ,ALK1     ) = -           RK( 197 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  68: ALK2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ALK2    ,HO       ) = -           RK( 198 ) * C( ALK2     )   
+      PD( ALK2    ,ALK2     ) = -           RK( 198 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  69: ALK3                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ALK3    ,HO       ) = -           RK( 199 ) * C( ALK3     )   
+      PD( ALK3    ,ALK3     ) = -           RK( 199 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  70: ALK4                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ALK4    ,HO       ) = -           RK( 200 ) * C( ALK4     )   
+      PD( ALK4    ,ALK4     ) = -           RK( 200 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  71: ALK5                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ALK5    ,HO       ) = -           RK( 201 ) * C( ALK5     )   
+      PD( ALK5    ,ALK5     ) = -           RK( 201 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  72: ALK5RXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ALK5RXN ,HO       ) =             RK( 201 ) * C( ALK5     )   
+      PD( ALK5RXN ,ALK5     ) =             RK( 201 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  73: ARO1                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ARO1    ,HO       ) = -           RK( 202 ) * C( ARO1     )   
+      PD( ARO1    ,ARO1     ) = -           RK( 202 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  74: ARO1RO2                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ARO1RO2 ,NO       ) = -           RK( 203 ) * C( ARO1RO2  )   
+      PD( ARO1RO2 ,HO       ) =   0.76500 * RK( 202 ) * C( ARO1     )   
+      PD( ARO1RO2 ,HO2      ) = -           RK( 204 ) * C( ARO1RO2  )   
+      PD( ARO1RO2 ,ARO1     ) =   0.76500 * RK( 202 ) * C( HO       )   
+      PD( ARO1RO2 ,ARO1RO2  ) = -           RK( 203 ) * C( NO       )   
+     &                          -           RK( 204 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  75: TOLNRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( TOLNRXN ,NO       ) =             RK( 203 ) * C( ARO1RO2  )   
+      PD( TOLNRXN ,ARO1RO2  ) =             RK( 203 ) * C( NO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  76: TOLHRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( TOLHRXN ,HO2      ) =             RK( 204 ) * C( ARO1RO2  )   
+      PD( TOLHRXN ,ARO1RO2  ) =             RK( 204 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  77: ARO2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ARO2    ,HO       ) = -           RK( 205 ) * C( ARO2     )   
+      PD( ARO2    ,ARO2     ) = -           RK( 205 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  78: ARO2RO2                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( ARO2RO2 ,NO       ) = -           RK( 206 ) * C( ARO2RO2  )   
+      PD( ARO2RO2 ,HO       ) =   0.80400 * RK( 205 ) * C( ARO2     )   
+      PD( ARO2RO2 ,HO2      ) = -           RK( 207 ) * C( ARO2RO2  )   
+      PD( ARO2RO2 ,ARO2     ) =   0.80400 * RK( 205 ) * C( HO       )   
+      PD( ARO2RO2 ,ARO2RO2  ) = -           RK( 206 ) * C( NO       )   
+     &                          -           RK( 207 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  79: XYLNRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( XYLNRXN ,NO       ) =             RK( 206 ) * C( ARO2RO2  )   
+      PD( XYLNRXN ,ARO2RO2  ) =             RK( 206 ) * C( NO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  80: XYLHRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( XYLHRXN ,HO2      ) =             RK( 207 ) * C( ARO2RO2  )   
+      PD( XYLHRXN ,ARO2RO2  ) =             RK( 207 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  81: BENZENE                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BENZENE ,HO       ) = -           RK( 208 ) * C( BENZENE  )   
+      PD( BENZENE ,BENZENE  ) = -           RK( 208 ) * C( HO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  82: BENZRO2                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BENZRO2 ,NO       ) = -           RK( 209 ) * C( BENZRO2  )   
+      PD( BENZRO2 ,HO       ) =   0.76400 * RK( 208 ) * C( BENZENE  )   
+      PD( BENZRO2 ,HO2      ) = -           RK( 210 ) * C( BENZRO2  )   
+      PD( BENZRO2 ,BENZENE  ) =   0.76400 * RK( 208 ) * C( HO       )   
+      PD( BENZRO2 ,BENZRO2  ) = -           RK( 209 ) * C( NO       )   
+     &                          -           RK( 210 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  83: BNZNRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BNZNRXN ,NO       ) =             RK( 209 ) * C( BENZRO2  )   
+      PD( BNZNRXN ,BENZRO2  ) =             RK( 209 ) * C( NO       )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  84: BNZHRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( BNZHRXN ,HO2      ) =             RK( 210 ) * C( BENZRO2  )   
+      PD( BNZHRXN ,BENZRO2  ) =             RK( 210 ) * C( HO2      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  85: OLE1                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( OLE1    ,O3P      ) = -           RK( 214 ) * C( OLE1     )   
+      PD( OLE1    ,O3       ) = -           RK( 212 ) * C( OLE1     )   
+      PD( OLE1    ,NO3      ) = -           RK( 213 ) * C( OLE1     )   
+      PD( OLE1    ,HO       ) = -           RK( 211 ) * C( OLE1     )   
+      PD( OLE1    ,OLE1     ) = -           RK( 211 ) * C( HO       )   
+     &                          -           RK( 212 ) * C( O3       )   
+     &                          -           RK( 213 ) * C( NO3      )   
+     &                          -           RK( 214 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  86: OLE2                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( OLE2    ,O3P      ) = -           RK( 218 ) * C( OLE2     )   
+      PD( OLE2    ,O3       ) = -           RK( 216 ) * C( OLE2     )   
+      PD( OLE2    ,NO3      ) = -           RK( 217 ) * C( OLE2     )   
+      PD( OLE2    ,HO       ) = -           RK( 215 ) * C( OLE2     )   
+      PD( OLE2    ,OLE2     ) = -           RK( 215 ) * C( HO       )   
+     &                          -           RK( 216 ) * C( O3       )   
+     &                          -           RK( 217 ) * C( NO3      )   
+     &                          -           RK( 218 ) * C( O3P      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  87: SESQ                       
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( SESQ    ,O3       ) = -           RK( 222 ) * C( SESQ     )   
+      PD( SESQ    ,NO3      ) = -           RK( 224 ) * C( SESQ     )   
+      PD( SESQ    ,HO       ) = -           RK( 223 ) * C( SESQ     )   
+      PD( SESQ    ,SESQ     ) = -           RK( 222 ) * C( O3       )   
+     &                          -           RK( 223 ) * C( HO       )   
+     &                          -           RK( 224 ) * C( NO3      )   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  PDs of the rate of change of species  88: SESQRXN                    
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      PD( SESQRXN ,O3       ) =             RK( 222 ) * C( SESQ     )   
+      PD( SESQRXN ,NO3      ) =             RK( 224 ) * C( SESQ     )   
+      PD( SESQRXN ,HO       ) =             RK( 223 ) * C( SESQ     )   
+      PD( SESQRXN ,SESQ     ) =             RK( 222 ) * C( O3       )   
+     &                          +           RK( 223 ) * C( HO       )   
+     &                          +           RK( 224 ) * C( NO3      )   
+
+
+      RETURN                                                            
+      END                                                               
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

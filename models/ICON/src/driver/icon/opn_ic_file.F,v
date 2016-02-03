@@ -1,0 +1,356 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/driver/icon/opn_ic_file.F,v 1.11 2005/02/17 16:43:03 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, 
+     &                        SPNAME_OUT, IC_FNAME, RINDX )  
+
+C*************************************************************************
+C
+C  FUNCTION: Sets most of the Models-3 file description parameters for 
+C            the IC output file and opens it.
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None   
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C                    Error message problem fixed by JG 3/31/98
+C                    Output format modified by JG 4/24/98
+C                    Added units for aerosol surface area JG 4/22/99         
+C
+C                    02/15/00 David Wong, LM
+C                      -- changed NROWS to GL_NROWS and same for NCOLS
+C                    01/24/02 Steve Howard (Jeff Young, Dave Wong) 
+C                      -- dynamic allocation
+C                    12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
+C                   
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN           ! vertical layer specifications
+      USE SUBST_MODULES
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS    ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC    ! IOAPI file description
+      INCLUDE SUBST_IODECL     ! IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID    ! Horizontal grid
+!     INCLUDE SUBST_VGRD_ID    ! Vertical grid
+!     INCLUDE SUBST_COORD_ID   ! Grid coordinate data
+      INCLUDE SUBST_GC_SPC     ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC     ! aerosol species table
+      INCLUDE SUBST_NR_SPC     ! non-reactive species table
+      INCLUDE SUBST_TR_SPC     ! tracer species table
+
+      INCLUDE 'IC_PARMS.EXT'   ! ICON parameters
+
+C..ARGUMENTS: 
+      CHARACTER*(*)  IC_FNAME( * )    ! Logical names of IC Output file(s) 
+      CHARACTER*(*)  SPNAME_OUT( * )  ! Ouput file species names
+
+      INTEGER LOGUNIT      ! Unit number for output log
+      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER RINDX        ! Index of root file name
+      INTEGER SDATE        ! Date for IC Output
+      INTEGER STIME        ! Time for IC output
+
+
+C..PARAMETERS:
+      INTEGER      NSPCS   ! Total number of species
+      PARAMETER  ( NSPCS = N_GC_SPC
+     &                   + N_AE_SPC 
+     &                   + N_NR_SPC 
+     &                   + N_TR_SPC )
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER INDEX1    ! Looks up name in table
+      INTEGER LBLANK    ! Get position last leading blank in a string
+      INTEGER TRIMLEN   ! Get position of last non-blank character in a string
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  BUF16          ! 16 character buffer
+      CHARACTER*3   CHRDAT         ! 3 character buffer
+      CHARACTER*16  ENV_DFLT       ! Default value for env variable
+      CHARACTER*80  ENV_DESC       ! Description of env variable 
+      CHARACTER*80  MSG            ! Log message
+      CHARACTER*16  PNAME          ! Program Name
+      CHARACTER*256 RET_VAL        ! Return value of an env variable
+
+      INTEGER  L, N, V       ! Loop indices
+      INTEGER  NUMFLS        ! Number of output IC files
+      INTEGER  SPOS1, EPOS1  ! Start and end position of char string
+      INTEGER  SPOS2, EPOS2  ! Start and end position of char string
+      INTEGER  STATUS        ! Status code
+      INTEGER  VARINDX       ! Variable index
+
+C**********************************************************************
+      DATA PNAME / 'OPN_IC_FILE' /
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write log information
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
+      WRITE( LOGUNIT, 92000 )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the value of environment variable EXECUTION_ID
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc         
+      ENV_DESC = 'Value of environment variable EXECUTION_ID' 
+      ENV_DFLT = '-----------'        
+      CALL ENVSTR( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL,
+     &              STATUS)
+      EXECN3D = RET_VAL
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set start date, start time, and time step
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SDATE3D = SDATE
+      STIME3D = STIME
+      TSTEP3D = 00000
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set start date, start time, and time step
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      FTYPE3D = GRDDED3
+      NVARS3D = NSPCS_OUT
+      NCOLS3D = GL_NCOLS
+      NROWS3D = GL_NROWS
+      NLAYS3D = NLAYS
+      NTHIK3D = NTHIK
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set coordinate data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!     GDNAM3D = GDNAME_GD  ! e.g.  / 'EAST_US' /
+      GDNAM3D = GRID_NAME  ! from HGRD_DEFN
+      GDTYP3D = GDTYP_GD   !       / LAMGRD3   /
+      P_ALP3D = P_ALP_GD   !       /  30.0 /       ! degrees
+      P_BET3D = P_BET_GD   !       /  60.0 /       ! degrees
+      P_GAM3D = P_GAM_GD   !       / -90.0 /       ! degrees
+
+      XCENT3D = XCENT_GD   !       / -90.0 /       ! degrees longitude
+      YCENT3D = YCENT_GD   !       /  40.0 /       ! degrees latitude
+      XORIG3D = XORIG_GD   !       /  -880000.0 /  ! m, for cross grid here
+      YORIG3D = YORIG_GD   !       / -1720000.0 /  ! m, for cross grid here
+      XCELL3D = XCELL_GD   !       /    80000.0 /  ! m
+      YCELL3D = YCELL_GD   !       /    80000.0 /  ! m
+
+      VGTYP3D = VGTYP_GD   !       / VGSGPN3 /     ! 2: Sigma-P0
+      VGTOP3D = VGTOP_GD   !       / 10000.0 /     ! Pa
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set vertical levels
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO L = 1, NLAYS + 1
+         VGLVS3D ( L ) = VGLVS_GD ( L )
+      ENDDO 
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set character descriptors
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO N = 1, MXDESC3
+         FDESC3D( N ) = ' '
+         UPDSC3D( N ) = ' '
+      ENDDO
+ 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set-up output file header data, compute the number of output
+c  files needed, and open each one
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc    
+      IF( MOD( NSPCS_OUT, MXVARS3 ) .EQ. 0 ) THEN
+         NUMFLS = NSPCS_OUT / MXVARS3
+      ELSE
+         NUMFLS = ( NSPCS_OUT / MXVARS3 ) + 1
+      ENDIF
+ 
+      WRITE( LOGUNIT, 92020 ) NUMFLS
+
+      DO N = 1, NUMFLS
+         
+
+         WRITE( CHRDAT, '( I3 )' ) N
+         SPOS1 = LBLANK(  CHRDAT ) + 1
+         EPOS1 = TRIMLEN( CHRDAT )
+
+         SPOS2 = LBLANK(  ICFL_ROOT( RINDX ) ) + 1
+         EPOS2 = TRIMLEN( ICFL_ROOT( RINDX ) )
+
+         BUF16 = ICFL_ROOT( RINDX )
+
+         IC_FNAME( N ) = BUF16( SPOS2 : EPOS2 ) // CHRDAT( SPOS1 : EPOS1 )
+
+         ENV_DESC = 'IC Output file ' // IC_FNAME( N ) 
+         ENV_DFLT = ' '       
+         CALL ENVSTR( IC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
+
+         IF( STATUS .NE. 0 ) THEN
+            MSG = 'IC output file ' // IC_FNAME( N ) //
+     &                   ' not assigned' 
+            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         ENDIF
+
+         FDESC3D( 1 ) = 'ICON output file ' // IC_FNAME( N )
+         NVARS3D = MIN( MXVARS3 , ( NSPCS_OUT - ( N - 1 ) * 
+     &                  MXVARS3 ) )
+          
+         DO V = 1, NVARS3D
+
+            VARINDX = ( N - 1 ) * MXVARS3 + V
+            VTYPE3D( V ) = M3REAL
+
+            VNAME3D( V ) = SPNAME_OUT( VARINDX )
+            UNITS3D( V ) = 'ppmV'
+            VDESC3D( V ) = 'Variable ' // SPNAME_OUT( VARINDX )
+            
+            IF( INDEX1( SPNAME_OUT( VARINDX ), N_AE_SPC, AE_SPC ) .GT. 0 )
+     &            THEN
+
+               IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'NUM' ) THEN
+                  UNITS3D( V ) = '#/m**3'
+               ELSE IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'SRF' ) THEN
+                  UNITS3D( V ) = 'm**2/m**3'
+               ELSE
+                  UNITS3D( V ) = 'micrograms/m**3'
+               ENDIF
+
+            ENDIF
+
+         ENDDO
+         
+         WRITE( LOGUNIT, 92040 ) N, IC_FNAME( N )
+
+
+         WRITE( LOGUNIT, 92060 ) EXECN3D, FTYPE3D, SDATE3D, STIME3D,
+     &                           TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D,
+     &                           NTHIK3D, NVARS3D, GDTYP3D, P_ALP3D,
+     &                           P_BET3D, P_GAM3D, XCENT3D, YCENT3D,
+     &                           XORIG3D, YORIG3D, XCELL3D, YCELL3D,
+     &                           VGTYP3D, VGTOP3D, GDNAM3D                           
+
+         WRITE( LOGUNIT, 92080 ) ( VGLVS3D( L ), L = 1, NLAYS + 1 )
+
+         WRITE( LOGUNIT, 92100 )
+
+         DO V = 1, NVARS3D
+           WRITE( LOGUNIT, 92120 ) VNAME3D( V ), VTYPE3D( V ), UNITS3D( V )
+         ENDDO
+
+C PE 0 only opens file
+         IF ( MYPE .EQ. 0 ) THEN   ! open new
+            IF ( .NOT. OPEN3( IC_FNAME( N ), FSUNKN3, PNAME ) ) THEN
+               MSG = 'Could not open nor create ' //  IC_FNAME( N ) //
+     &            ' file '
+               CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+            ENDIF
+         ENDIF
+
+         CALL SUBST_BARRIER
+
+      ENDDO
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  Output File Section '
+     &         / 1X, 79( '#' ) )
+
+92020 FORMAT( // 5X, 'Total number of ouput files created: ', I1 )
+
+92040 FORMAT( // 5X, 'IO/API Header data for IC file ', I1, ': ', A )
+92060 FORMAT(  /10X, 'EXEC_ID: ', A 
+     &         /10X, 'FTYPE = ', I4 
+     &         /10X, 'SDATE = ', I7
+     &         /10X, 'STIME = ', I7
+     &         /10X, 'TSTEP = ', I7
+     &         /10X, 'NCOLS = ', I4
+     &         /10X, 'NROWS = ', I4
+     &         /10X, 'NLAYS = ', I4
+     &         /10X, 'NTHIK = ', I4
+     &         /10X, 'NVARS = ', I4
+     &         /10X, 'GDTYP = ', I4
+     &         /10X, 'P_ALP = ', 1PE14.5
+     &         /10X, 'P_BET = ', 1PE14.5
+     &         /10X, 'P_GAM = ', 1PE14.5
+     &         /10X, 'XCENT = ', 1PE14.5
+     &         /10X, 'YCENT = ', 1PE14.5
+     &         /10X, 'XORIG = ', 1PE14.5
+     &         /10X, 'YORIG = ', 1PE14.5
+     &         /10X, 'XCELL = ', 1PE14.5
+     &         /10X, 'YCELL = ', 1PE14.5
+     &         /10X, 'VGTYP = ', I4
+     &         /10X, 'VGTOP = ', 1PE14.5 
+     &         /10X, 'GDNAM = ', A ) 
+92080 FORMAT(  /10X, 'VGLVS = ',  5 ( 1PE14.5 ) /
+     &        ( 11X,  '       ', 5 ( 1PE14.5 ) ) )
+92100 FORMAT( //10X, 'Output Variables:'
+     &         /10X, 'Variable name     Variable type    Variable units ' )
+92120 FORMAT(   10X, A16, 8X, I1, 10X, A )    
+
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

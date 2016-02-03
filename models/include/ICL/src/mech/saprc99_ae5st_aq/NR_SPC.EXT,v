@@ -1,0 +1,69 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.03;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.03;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/saprc99_ae5st_aq/NR_SPC.EXT,v 1.1.1.1 2009/11/13 15:14:36 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5ST_AQ
+
+        INTEGER        N_NR_SPC
+        PARAMETER     (N_NR_SPC = 15)
+        INTEGER      N_NR_SPCD
+        PARAMETER     (N_NR_SPCD = N_NR_SPC)
+        CHARACTER*16   NR_SPC(N_NR_SPCD)
+        REAL           NR_MOLWT(N_NR_SPCD)
+
+        DATA          NR_SPC(  1), NR_MOLWT(  1) / 'NH3             ',  17.0 /
+        DATA          NR_SPC(  2), NR_MOLWT(  2) / 'HCL             ',  36.0 /
+        DATA          NR_SPC(  3), NR_MOLWT(  3) / 'SV_ALK          ', 150.0 /
+        DATA          NR_SPC(  4), NR_MOLWT(  4) / 'SV_XYL1         ', 192.0 /
+        DATA          NR_SPC(  5), NR_MOLWT(  5) / 'SV_XYL2         ', 192.0 /
+        DATA          NR_SPC(  6), NR_MOLWT(  6) / 'SV_TOL1         ', 168.0 /
+        DATA          NR_SPC(  7), NR_MOLWT(  7) / 'SV_TOL2         ', 168.0 /
+        DATA          NR_SPC(  8), NR_MOLWT(  8) / 'SV_BNZ1         ', 144.0 /
+        DATA          NR_SPC(  9), NR_MOLWT(  9) / 'SV_BNZ2         ', 144.0 /
+        DATA          NR_SPC( 10), NR_MOLWT( 10) / 'SV_TRP1         ', 168.0 /
+        DATA          NR_SPC( 11), NR_MOLWT( 11) / 'SV_TRP2         ', 168.0 /
+        DATA          NR_SPC( 12), NR_MOLWT( 12) / 'SV_ISO1         ',  96.0 /
+        DATA          NR_SPC( 13), NR_MOLWT( 13) / 'SV_ISO2         ',  96.0 /
+        DATA          NR_SPC( 14), NR_MOLWT( 14) / 'SV_SQT          ', 378.0 /
+        DATA          NR_SPC( 15), NR_MOLWT( 15) / 'SULF_ICBC       ',  98.0 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

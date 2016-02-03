@@ -1,0 +1,369 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_read.F,v 1.6 2004/08/05 19:43:49 ggb Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_read.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_read.F 04 Jul 1997 14:13:42
+
+      SUBROUTINE PA_READ
+
+C***********************************************************************
+C
+C  FUNCTION: To read the Process Analysis input commmand file 
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: GETCHR
+C                                    GETCYCLE
+C                                    GETDESC
+C                                    GETDOMAIN
+C                                    GETFAMILY
+C                                    GETIPROUT
+C                                    GETIRROUT
+C                                    GETRXNSUM
+C                                    GETWORD
+C                                    RDLINE 
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, May, 1997
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C                    Fixed default domain problem, Jerry Gipson, Feb '98
+C                    Updated May 2002 by Jerry Gipson for dynamic allocation
+C                      version of CCTM
+C                    Updated August 2004 by Jerry Gipson to get input file
+C                      path from environment variables
+C                    Modified output_domain error message, J. Gipson Aug '04
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS:
+      ! env var for PACP input file name
+      CHARACTER( 16 ), PARAMETER :: PACP_INFILE = 'PACP_INFILE'  
+
+C..EXTERNAL FUNCTIONS: 
+!     INTEGER JUNIT         ! Function to get next available unit number
+      INTEGER  GETEFILE     ! Function to open FORTRAN file
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16 CMND       ! Current command being processed
+      CHARACTER*16 LASTCMND   ! Previous command processed
+
+      INTEGER NDOMAIN    ! Number of GETDOMIN calls
+
+      LOGICAL LIRRTYPE   ! Flag for input IRRTYPE command
+      LOGICAL LIRRNONE   ! Flag for no IRR analysis
+      LOGICAL LRDONLY    ! Flag for read only file
+      LOGICAL LFMTTED    ! Flag for formatted file
+
+         
+C***********************************************************************
+
+ 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Open irr mb file and get the first non-comment line
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!      IFILE  = JUNIT( )
+!      OPEN( UNIT = IFILE, FILE = 'pa.inp', STATUS = 'OLD' )
+
+      LRDONLY = .TRUE.
+      LFMTTED = .TRUE.
+
+      IFILE = GETEFILE ( PACP_INFILE, LRDONLY, LFMTTED, 'PA_READ' )
+      IF( IFILE .LT. 0 ) THEN
+         MSG = 'PACP_INFILE not found; looking for pa.inp'
+         CALL M3MESG( MSG )
+         IFILE = GETEFILE ( 'pa.inp', LRDONLY, LFMTTED, 'PA_READ' )
+         IF( IFILE .LT. 0 ) THEN 
+            MSG = 'ERROR: Could not open PACP input file'
+            CALL M3EXIT( 'PA_READ', IZERO, IZERO, MSG, EXITSTAT )
+         ENDIF
+      ENDIF
+ 
+      LINNUM  = 0
+      NDOMAIN = 0
+      LIRRTYPE = .FALSE.
+      LIRRNONE = .FALSE.
+      CALL RDLINE
+      CALL GETCHR
+      CALL GETWORD
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Process the IRRTYPE command if it is present
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( WORD .EQ. 'IRRTYPE' ) THEN
+         LIRRTYPE = .TRUE.
+         IF( CHR .NE. '=' ) THEN
+            EXITSTAT = 2
+            WRITE( MSG, 94060 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94000 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94020 ) CHR
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+         ENDIF
+         CALL GETCHR
+         CALL GETWORD
+         IF( WORD .EQ. 'FULL' ) THEN
+            LFULLIRR = .TRUE.
+            LPARTIRR = .FALSE.
+         ELSEIF( WORD .EQ. 'PARTIAL' ) THEN
+            LFULLIRR = .FALSE.
+            LPARTIRR = .TRUE.
+         ELSEIF( WORD .EQ. 'NONE' ) THEN
+            LIRRNONE = .TRUE.
+            LFULLIRR = .FALSE.
+            LPARTIRR = .FALSE.             
+         ELSE
+            EXITSTAT = 2
+            WRITE( MSG, 94080 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94000 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94040 ) WORD
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+         ENDIF
+         IF( CHR .NE. ';' ) THEN
+            EXITSTAT = 2
+            WRITE( MSG, 94100 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94000 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94020 ) CHR
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+         ELSE
+            CALL GETCHR
+            CALL GETWORD
+         ENDIF
+      ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Top of loop for processing remaining commands
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+   20 CONTINUE
+      CMND = WORD
+      IF( WORD .EQ. 'DEFINE' ) THEN
+         CALL GETWORD
+         IF( WORD .EQ. 'FAMILY' ) THEN 
+            CALL GETFAMILY
+         ELSEIF( WORD .EQ. 'RXNSUM' ) THEN
+            CALL GETRXNSUM
+         ELSEIF( WORD .EQ. 'CYCLE' ) THEN
+            CALL GETCYCLE
+         ELSE
+            EXITSTAT = 2
+            WRITE( MSG, 94120 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94000 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG,94040 ) WORD
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+         ENDIF
+      ELSEIF( WORD .EQ. 'IRR_OUTPUT' ) THEN
+         CALL GETIRROUT
+      ELSEIF( WORD .EQ. 'IPR_OUTPUT' ) THEN
+         CALL GETIPROUT
+      ELSEIF( WORD .EQ. 'DESCRIPTION' ) THEN
+         CALL GETDESC( LASTCMND )
+      ELSEIF( WORD .EQ. 'OUTPUT_DOMAIN' ) THEN
+#ifdef nodynalloc
+         CALL GETDOMAIN
+         NDOMAIN = NDOMAIN + 1
+#else
+         WRITE( MSG, 94400 )
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94420 )
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94440 )
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+#endif
+
+      ELSEIF( WORD .EQ. 'ENDPA' ) THEN
+         GO TO 100
+      ELSE
+         EXITSTAT = 2
+         WRITE( MSG, 94140 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94000 ) LINNUM, INBUF
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94040 ) WORD
+         CALL M3MESG( MSG )
+         CALL M3EXIT( 'PA_READ', IZERO, IZERO, ' ', EXITSTAT )
+      ENDIF
+      LASTCMND = CMND
+      CALL GETWORD
+      GO TO 20
+  100 CONTINUE
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Print Warning messages for inconsistencies,omissions, etc.
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#ifdef nodynalloc
+      IF( NDOMAIN .EQ. 0 ) THEN
+         WRITE( MSG, 94160 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94180 ) 
+         CALL M3MESG( MSG )
+         BEGCOL = 1
+         ENDCOL = NCOLS
+         BEGROW = 1
+         ENDROW = NROWS
+         BEGLEV = 1
+         ENDLEV = NLAYS
+      ELSEIF( NDOMAIN .GT. 1 ) THEN
+         WRITE( MSG, 94200 ) 
+         CALL M3MESG( MSG )
+         WRITE( MSG, 94220 ) 
+         CALL M3MESG( MSG )
+      ENDIF
+#endif
+
+      IF( LIRRTYPE ) THEN
+         IF( LFULLIRR .AND. NIRROUT .GT. 0 ) THEN
+            WRITE( MSG, 94240 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94260 ) 
+            CALL M3MESG( MSG )
+         ELSEIF( LPARTIRR .AND. NIRROUT .EQ. 0 ) THEN
+            LPARTIRR = .FALSE.
+            WRITE( MSG, 94280 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94300 ) 
+            CALL M3MESG( MSG )
+         ELSEIF( LIRRNONE .AND. NIRROUT .GT. 0 ) THEN
+            WRITE( MSG, 94320 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94340 ) 
+            CALL M3MESG( MSG )
+         ENDIF
+      ELSE
+         IF( NIRROUT .GT. 0 ) THEN
+            LPARTIRR = .TRUE.
+            LFULLIRR = .FALSE.
+            WRITE( MSG, 94360 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94380 ) 
+            CALL M3MESG( MSG )
+         ENDIF
+      ENDIF            
+      RETURN 
+
+
+
+C*********************** FORMAT STATEMENTS *****************************
+
+
+
+94000 FORMAT( '   Line No. ', I4, ': ', A )
+94020 FORMAT( '   Character found: ', A )
+94040 FORMAT( '   Word found: ', A )
+94060 FORMAT( 'ERROR: Equal sign expected after IRRTYPE' )
+94080 FORMAT( 'ERROR: FULL, PARTIAL, or NONE must follow IRRTYPE' )
+94100 FORMAT( 'ERROR: A ; must follow FULL, PARTIAL, or NONE' )
+94120 FORMAT( 'ERROR: FAMILY, RXNSUM, OR CYCLE must follow the DEFINE',
+     &                 ' command' )
+94140 FORMAT( 'ERROR: Invalid command' )
+94160 FORMAT( 'WARNING: No output domain was specified.' )
+94180 FORMAT( '         Output will be generated for the full domain.' )
+94200 FORMAT( 'WARNING: Multiple output domains were specified.' )
+94220 FORMAT( '         The last specification will be used.' )
+94240 FORMAT( 'WARNING: LIRRTYPE = FULL but PARTIAL commands included' )
+94260 FORMAT( '         A FULL IRR analysis will be assumed' )
+94280 FORMAT( 'WARNING: LIRRTYPE = PARTIAL but no PARTIAL commands',
+     &                    ' included' )
+94300 FORMAT( '         No IRR outputs will be generated' )
+94320 FORMAT( 'WARNING: LIRRTYPE = NONE but PARTIAL IRR commands', 
+     &                     ' included' )
+94340 FORMAT( '          No IRR outputs will be generated' )
+94360 FORMAT( 'WARNING: LIRRTYPE not specified but PARTIAL commands',
+     &                     ' included' )
+94380 FORMAT( '         A PARTIAL IRR analysis will be generated' )  
+
+94400 FORMAT( 'ERROR: OUTPUT_DOMAIN command included for dynamic allocation',
+     &                     ' version' )
+94420 FORMAT( '       OUTPUT_DOMAIN command must be removed from PACP',
+     &        ' input file;' )
+94440 FORMAT( '       set output domain via enviroment variables in CCTM',
+     &        ' run script' )
+
+      END
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

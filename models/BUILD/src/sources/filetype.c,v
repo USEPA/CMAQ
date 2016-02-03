@@ -1,0 +1,70 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @ * @;
+
+
+1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/* function to return type of file given filename */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#if _WIN32
+#include <io.h>
+#define access _access
+#endif
+
+
+/*************************************************/
+int filetype( char* fname )
+{
+/*   return -1 file does not exist
+             0 file exist with no permissions
+             1 file is write only
+             2 file is read only
+             3 file is read & write
+*/
+
+    int flag=-1;
+
+    if(access( fname, 0) == 0) flag=0;
+    if(access( fname, 2) == 0) flag=1;
+    if(access( fname, 4) == 0) flag=2;
+    if(access( fname, 6) == 0) flag=3;
+
+    return flag;
+
+}
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

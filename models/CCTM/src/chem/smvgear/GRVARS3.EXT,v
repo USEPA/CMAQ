@@ -1,0 +1,157 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/chem/smvgear/GRVARS3.EXT,v 1.5 2002/04/05 18:23:00 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)GRVARS3.EXT       1.1 /project/mod3/CMAQ/src/chem/smvgear/SCCS/s.GRVARS3.E XT 07 Jul 1997 12:45:15
+
+C......................................................................
+C
+C  INCLUDE FILE: GRVARS3.EXT
+C
+C  CONTAINS: Common block definitions for Gear data that are set in 
+C            in the solver subroutines
+C
+C  DEPENDENT UPON: GRPARMS.EXT
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995.
+C                    Revised 3/14/96 by Jerry Gipson to conform to
+C                      the Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Revised April 1997 to distinguish NSPCS from NSPCS
+C                    Revised April 1997 to conform to Models-3 framework
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    17 Aug 01 by J.Young: split out variables that are
+C                    intrinsically dependent on NCOLS, NROWS into an f90
+C                    module
+C......................................................................
+C
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Logical data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LOGICAL LCONCOUT       ! Flag to turn on cell conc. output
+      LOGICAL LORDERING      ! Flag to indicate cell ordering on
+      LOGICAL LSUNLIGHT      ! Flag for daytime
+      LOGICAL LTRCOUT        ! Flag to turn on Trace output
+
+      COMMON /CNTL3/         ! Logical variables
+     &
+     &         LCONCOUT, LORDERING, LSUNLIGHT, LTRCOUT
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Integer data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      INTEGER BLKID          ! Number of block being processed
+      INTEGER CELLOUT        ! Number of cell to output concentrations
+      INTEGER IRSTART        ! Number of restarts at beginning
+      INTEGER ISCHAN         ! Number of species in [P]
+      INTEGER OFFSET         ! Pointer for start cell number in block
+      INTEGER MXORDUSED      ! Maximum order used
+      INTEGER NCFAIL         ! Number of convergence failures
+      INTEGER NCSP           ! Day/night mechanism index;
+                             ! = NCS ===>day; = NCS+1 ===>night      
+      INTEGER NEFAIL         ! Number of error test failures
+      INTEGER NPDERIV        ! Number of Jacobian updates
+      INTEGER NSTEPS         ! Number of steps used
+      INTEGER NSUBFUN        ! Number of RHS evaluations
+      INTEGER NUMBKUPS       ! Number of backups
+      INTEGER NUMCELLS       ! Number of cells in block being processed
+      INTEGER NUMNEWT        ! Number of iterations
+!     INTEGER NORDCELL( MXCELLS )  ! Original cell number of ordered cell
+                                   ! index       
+
+      COMMON /ICNTL3/        ! Integer variables
+     &
+     &        BLKID, CELLOUT, IRSTART, ISCHAN, OFFSET, MXORDUSED,
+     &        NCFAIL, NCSP, NEFAIL, NPDERIV, NSTEPS, NSUBFUN,
+!    &        NUMBKUPS, NUMCELLS, NUMNEWT, NORDCELL  
+     &        NUMBKUPS, NUMCELLS, NUMNEWT
+    
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  REAL data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      REAL*8 HMAX                ! Maximum Gear time step (min)
+      REAL*8 R1DELT              ! Time step times Gear coefficient
+      REAL*8 BLKCH2O( BLKSIZE )  ! Water conc. of each cell (ppm)
+      REAL*8 BLKPRES( BLKSIZE )  ! Pressure of each cell  (mb)
+      REAL*8 BLKTEMP( BLKSIZE )  ! Temperature of each cell in block (K) 
+!     REAL*8 ERRMX2(  MXCELLS )  ! Estimated stiffness of each cell
+      REAL*8 BLKCONC( BLKSIZE,  N_GC_SPC )  ! Species conc. for cells in block
+                                            ! in original species order (ppm) 
+      REAL*8 CC2(     BLKSIZE, 0:MXARRAY )  ! Array holding Jacobian
+      REAL*8 CNEW(    BLKSIZE,  N_GC_SPC )  ! Species conc. for cells in block
+                                            ! in sorted species order (ppm)
+      REAL*8 EMBLK(   BLKSIZE,  N_GC_SPC )  ! Species emissions in each cell
+      REAL*8 GLOSS(   BLKSIZE,  N_GC_SPC )  ! dc/dt for each species (i.e., RHS)
+      REAL*8 RK(      BLKSIZE,     NRXNS )  ! Rate const. for each cell
+      REAL*8 RXRAT(   BLKSIZE,     NRXNS )  ! Reaction rates for each cell
+      REAL*8 VDIAG(   BLKSIZE,  N_GC_SPC )  ! L-U Diagonal terms  
+
+      COMMON /RCOMM3/       ! REAL variables
+     &
+     &       HMAX, R1DELT, BLKCH2O,  BLKPRES, BLKTEMP, 
+!    &       ERRMX2, BLKCONC, CC2, CNEW, EMBLK, GLOSS, RK,
+     &               BLKCONC, CC2, CNEW, EMBLK, GLOSS, RK,
+     &       RXRAT, VDIAG
+      
+     
+c........................... end GRVARS1.EXT ..........................
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,67 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/cb05cl_ae5_aq/AE_DIFF.EXT,v 1.1.1.1 2009/12/16 19:15:59 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: CB05CL_AE5_AQ
+
+        INTEGER        N_AE_DIFF
+        PARAMETER     (N_AE_DIFF = 51)
+        INTEGER        N_AE_DIFFD
+        PARAMETER     (N_AE_DIFFD = N_AE_DIFF)
+        CHARACTER*16   AE_DIFF(N_AE_DIFFD)
+        INTEGER        AE_DIFF_MAP(N_AE_DIFFD)
+
+        DATA          AE_DIFF(  1), AE_DIFF_MAP(  1) / 'ASO4J           ',   1 /
+        DATA          AE_DIFF(  2), AE_DIFF_MAP(  2) / 'ASO4I           ',   2 /
+        DATA          AE_DIFF(  3), AE_DIFF_MAP(  3) / 'ANH4J           ',   3 /
+        DATA          AE_DIFF(  4), AE_DIFF_MAP(  4) / 'ANH4I           ',   4 /
+        DATA          AE_DIFF(  5), AE_DIFF_MAP(  5) / 'ANO3J           ',   5 /
+        DATA          AE_DIFF(  6), AE_DIFF_MAP(  6) / 'ANO3I           ',   6 /
+        DATA          AE_DIFF(  7), AE_DIFF_MAP(  7) / 'AALKJ           ',   7 /
+        DATA          AE_DIFF(  8), AE_DIFF_MAP(  8) / 'AXYL1J          ',   8 /
+        DATA          AE_DIFF(  9), AE_DIFF_MAP(  9) / 'AXYL2J          ',   9 /
+        DATA          AE_DIFF( 10), AE_DIFF_MAP( 10) / 'AXYL3J          ',  10 /
+        DATA          AE_DIFF( 11), AE_DIFF_MAP( 11) / 'ATOL1J          ',  11 /
+        DATA          AE_DIFF( 12), AE_DIFF_MAP( 12) / 'ATOL2J          ',  12 /
+        DATA          AE_DIFF( 13), AE_DIFF_MAP( 13) / 'ATOL3J          ',  13 /
+        DATA          AE_DIFF( 14), AE_DIFF_MAP( 14) / 'ABNZ1J          ',  14 /
+        DATA          AE_DIFF( 15), AE_DIFF_MAP( 15) / 'ABNZ2J          ',  15 /
+        DATA          AE_DIFF( 16), AE_DIFF_MAP( 16) / 'ABNZ3J          ',  16 /
+        DATA          AE_DIFF( 17), AE_DIFF_MAP( 17) / 'ATRP1J          ',  17 /
+        DATA          AE_DIFF( 18), AE_DIFF_MAP( 18) / 'ATRP2J          ',  18 /
+        DATA          AE_DIFF( 19), AE_DIFF_MAP( 19) / 'AISO1J          ',  19 /
+        DATA          AE_DIFF( 20), AE_DIFF_MAP( 20) / 'AISO2J          ',  20 /
+        DATA          AE_DIFF( 21), AE_DIFF_MAP( 21) / 'ASQTJ           ',  21 /
+        DATA          AE_DIFF( 22), AE_DIFF_MAP( 22) / 'AORGCJ          ',  22 /
+        DATA          AE_DIFF( 23), AE_DIFF_MAP( 23) / 'AORGPAJ         ',  23 /
+        DATA          AE_DIFF( 24), AE_DIFF_MAP( 24) / 'AORGPAI         ',  24 /
+        DATA          AE_DIFF( 25), AE_DIFF_MAP( 25) / 'AECJ            ',  25 /
+        DATA          AE_DIFF( 26), AE_DIFF_MAP( 26) / 'AECI            ',  26 /
+        DATA          AE_DIFF( 27), AE_DIFF_MAP( 27) / 'A25J            ',  27 /
+        DATA          AE_DIFF( 28), AE_DIFF_MAP( 28) / 'A25I            ',  28 /
+        DATA          AE_DIFF( 29), AE_DIFF_MAP( 29) / 'ACORS           ',  29 /
+        DATA          AE_DIFF( 30), AE_DIFF_MAP( 30) / 'ASOIL           ',  30 /
+        DATA          AE_DIFF( 31), AE_DIFF_MAP( 31) / 'NUMATKN         ',  31 /
+        DATA          AE_DIFF( 32), AE_DIFF_MAP( 32) / 'NUMACC          ',  32 /
+        DATA          AE_DIFF( 33), AE_DIFF_MAP( 33) / 'NUMCOR          ',  33 /
+        DATA          AE_DIFF( 34), AE_DIFF_MAP( 34) / 'SRFATKN         ',  34 /
+        DATA          AE_DIFF( 35), AE_DIFF_MAP( 35) / 'SRFACC          ',  35 /
+        DATA          AE_DIFF( 36), AE_DIFF_MAP( 36) / 'SRFCOR          ',  36 /
+        DATA          AE_DIFF( 37), AE_DIFF_MAP( 37) / 'AH2OJ           ',  37 /
+        DATA          AE_DIFF( 38), AE_DIFF_MAP( 38) / 'AH2OI           ',  38 /
+        DATA          AE_DIFF( 39), AE_DIFF_MAP( 39) / 'ANAJ            ',  39 /
+        DATA          AE_DIFF( 40), AE_DIFF_MAP( 40) / 'ANAI            ',  40 /
+        DATA          AE_DIFF( 41), AE_DIFF_MAP( 41) / 'ACLJ            ',  41 /
+        DATA          AE_DIFF( 42), AE_DIFF_MAP( 42) / 'ACLI            ',  42 /
+        DATA          AE_DIFF( 43), AE_DIFF_MAP( 43) / 'ANAK            ',  43 /
+        DATA          AE_DIFF( 44), AE_DIFF_MAP( 44) / 'ACLK            ',  44 /
+        DATA          AE_DIFF( 45), AE_DIFF_MAP( 45) / 'ASO4K           ',  45 /
+        DATA          AE_DIFF( 46), AE_DIFF_MAP( 46) / 'ANH4K           ',  46 /
+        DATA          AE_DIFF( 47), AE_DIFF_MAP( 47) / 'ANO3K           ',  47 /
+        DATA          AE_DIFF( 48), AE_DIFF_MAP( 48) / 'AH2OK           ',  48 /
+        DATA          AE_DIFF( 49), AE_DIFF_MAP( 49) / 'AISO3J          ',  49 /
+        DATA          AE_DIFF( 50), AE_DIFF_MAP( 50) / 'AOLGAJ          ',  50 /
+        DATA          AE_DIFF( 51), AE_DIFF_MAP( 51) / 'AOLGBJ          ',  51 /

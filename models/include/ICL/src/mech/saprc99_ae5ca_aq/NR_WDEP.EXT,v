@@ -1,0 +1,68 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/saprc99_ae5ca_aq/NR_WDEP.EXT,v 1.1.1.1 2009/11/13 14:55:20 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5CA_AQ
+
+        INTEGER        N_NR_WDEP
+        PARAMETER     (N_NR_WDEP = 14)
+        INTEGER        N_NR_WDEPD
+        PARAMETER     (N_NR_WDEPD = N_NR_WDEP)
+        CHARACTER*16   NR_WDEP(N_NR_WDEPD)
+        INTEGER        NR_WDEP_MAP(N_NR_WDEPD)
+
+        DATA          NR_WDEP(  1), NR_WDEP_MAP(  1) / 'NH3             ',   1 /
+        DATA          NR_WDEP(  2), NR_WDEP_MAP(  2) / 'HCL             ',   2 / 
+        DATA          NR_WDEP(  3), NR_WDEP_MAP(  3) / 'SV_ALK          ',   3 / 
+        DATA          NR_WDEP(  4), NR_WDEP_MAP(  4) / 'SV_XYL1         ',   4 / 
+        DATA          NR_WDEP(  5), NR_WDEP_MAP(  5) / 'SV_XYL2         ',   5 / 
+        DATA          NR_WDEP(  6), NR_WDEP_MAP(  6) / 'SV_TOL1         ',   6 / 
+        DATA          NR_WDEP(  7), NR_WDEP_MAP(  7) / 'SV_TOL2         ',   7 / 
+        DATA          NR_WDEP(  8), NR_WDEP_MAP(  8) / 'SV_BNZ1         ',   8 / 
+        DATA          NR_WDEP(  9), NR_WDEP_MAP(  9) / 'SV_BNZ2         ',   9 / 
+        DATA          NR_WDEP( 10), NR_WDEP_MAP( 10) / 'SV_TRP1         ',  10 / 
+        DATA          NR_WDEP( 11), NR_WDEP_MAP( 11) / 'SV_TRP2         ',  11 / 
+        DATA          NR_WDEP( 12), NR_WDEP_MAP( 12) / 'SV_ISO1         ',  12 / 
+        DATA          NR_WDEP( 13), NR_WDEP_MAP( 13) / 'SV_ISO2         ',  13 / 
+        DATA          NR_WDEP( 14), NR_WDEP_MAP( 14) / 'SV_SQT          ',  14 / 
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

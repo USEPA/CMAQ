@@ -1,0 +1,82 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/#start   YYYYDDD  HHMMSS
+/#end     YYYYDDD  HHMMSS
+#layer         1
+/
+
+! 1) WDEP_ASO4T ASO4I+ASO4J+ASO4K
+! 2) WDEP_TSO4  ASO4I+ASO4J+ASO4K+1.5*SO2
+! 3) RT         RN+RC
+! 4) WDEP_TNO3  ANO3I+ANO3J+ANO3K+0.984*HNO3
+! 5) WDEP_NHX   ANH4I+ANH4J+ANH4K+1.059*NH3
+! 6) WDEP_Na    0.78*ANAJ+0.78*ANAK
+! 7) WDEP_CL    0.972*HCL+ACLJ+ACLK
+! 8) TDEP_ASO4T ASO4I+ASO4J+ASO4K+ASO4I+ASO4J+ASO4K
+! 9) TDEP_ANO3T ANO3I+ANO3J+ANO3K+ANO3I+ANO3J+ANO3K
+! 10) TDEP_NHX  ANH4I+ANH4J+ANH4K+1.059*NH3+ANH4I+ANH4J+ANH4K+1.059*NH3
+! 11) TDEP_NH4  ANH4I+ANH4J+ANH4K+ANH4I+ANH4J+ANH4K
+
+! INFILE1: WETDEP1
+! INFILE2: DRYDEP
+! INFILE3: METCRO2D
+
+/new species    ,units     ,expression
+
+WDEP_ASO4T      ,kg/ha     ,ASO4I[1] + ASO4J[1] + ASO4K[1]
+
+WDEP_TSO4       ,kg/ha     ,ASO4I[1] + ASO4J[1] + ASO4K[1] + 1.5*SO2[1]
+
+RT              ,cm        ,RN[3] + RC[3]
+
+WDEP_TNO3       ,kg/ha     ,ANO3I[1] + ANO3J[1] + ANO3K[1] + 0.984*HNO3[1]
+
+WDEP_NHX        ,kg/ha     ,ANH4I[1] + ANH4J[1] + ANH4K[1] + 1.059*NH3[1]
+
+WDEP_Na         ,kg/ha     ,0.78*ANAJ[1] + 0.78*ANAK[1]
+
+WDEP_CL         ,kg/ha     ,0.972*HCL[1] + ACLJ[1] + ACLK[1]
+
+TDEP_ASO4T      ,kg/ha     ,ASO4I[1] + ASO4J[1] + ASO4K[1] + ASO4I[2] + ASO4J[2] + ASO4K[2]
+
+TDEP_ANO3T      ,kg/ha     ,ANO3I[1] + ANO3J[1] + ANO3K[1] + ANO3I[2] + ANO3J[2] + ANO3K[2]
+
+TDEP_NHX        ,kg/ha     ,ANH4I[1] + ANH4J[1] + ANH4K[1] + 1.059*NH3[1] + ANH4I[2] + ANH4J[2] + ANH4K[2] + 1.059*NH3[2]
+
+TDEP_NH4        ,kg/ha     ,ANH4I[1] + ANH4J[1] + ANH4K[1] + ANH4I[2] + ANH4J[2] + ANH4K[2]
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

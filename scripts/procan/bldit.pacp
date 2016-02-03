@@ -1,0 +1,204 @@
+#! /bin/csh -f
+
+# ======================= PACP4.7.1 Build Script ==================== #
+# Usage: bldit.pacp.pgf >&! bldit.pacp.pgf.log                        #
+# Requirements: I/O API & netCDF libs, CVS, and PGI Fortran compiler, #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL =  source code CVS archive                         #
+#   setenv M3LIB   =  code libraries                                  #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# =================================================================== #
+
+## Check for M3MODEL and M3LIB settings:
+ if ( ! -e $M3MODEL || ! -e $M3LIB ) then
+    echo "   $M3MODEL or $M3LIB directory not found"
+    exit 1
+    endif
+ echo "   Model archive path: $M3MODEL"
+ echo "           Tools path: $M3LIB"
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only 
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong makit script for host!"
+    exit 1
+    endif
+
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:Begin User Input Section #:##:#:#:#:#:#:#:#:#:#:#
+
+#> user choices: cvs archives
+ set Project = $M3MODEL/PROCAN
+ set GlobInc = $M3MODEL/include/release
+
+#> user choices: base working directory
+ set Base = $cwd
+
+ set APPL  = e2a
+ set CFG   = cfg.$APPL
+ set MODEL = PACP_$APPL
+
+#> user choices: m3bld command, see M3BLD_README for options
+ set Opt = verbose      # show requested commands as they are executed
+#set MakeOpt            # builds a Makefile, but does not execute it
+
+#> user choices: various modules
+
+ set Revision = release
+#set Revision = '"CMAQv4_7_1"'
+
+ set ModPa = ( module pa              $Revision; )
+
+#> user choices: mechanism, check $GlobInc directory for all mechanism options
+#set Mechanism = cb05cl_ae4_aq
+ set Mechanism = cb05cl_ae5_aq
+#set Mechanism = saprc99_ae4_aq
+#set Mechanism = saprc99_ae5_aq
+ set Tracer    = trac0               # default: no tracer species
+
+#> user choices: computing system configuration:
+#>    name of the "BLD" directory for checking out and compiling source code
+#>    compiler name and location/link flags
+#>    library paths
+
+ set Bld = $Base/BLD_${APPL}
+
+#> Set full path of Fortran 90 compiler
+ set FC = /afs/isis/pkg/intel_fortran-101/bin/ifort
+ set FP = $FC
+
+#> Portland Group Fortran 9.01 Compiler Flags
+#set FSTD = "-Mfixed -Mextend"
+#set LINK_FLAGS = "-Bstatic"
+
+#> Intel Fortran 10.1 Compiler Flags
+ set FSTD = "-extend_source 132 -vec-report0 -cm -w95 -c"
+ set LINK_FLAGS = "-liomp5 -lpthread -Bstatic"
+
+#> Set compiler flags
+ set F_FLAGS    = "${FSTD} -O2 -I."
+ set CPP_FLAGS  = ""
+ set C_FLAGS    = "-v -O2 -I."
+
+#> Set location of M3Bld executable
+ set Blder = $M3LIB/build/$BLD_OS/m3bld
+
+#> Set location of libraries/include files
+ set IOAPI  = "${M3LIB}/ioapi/${BLD_OS}2_x86_64ifort -lioapi"
+ set ICL_IOAPI = ${M3LIB}/ioapi/fixed_src
+ set NETCDF = "${M3LIB}/netCDF/${BLD_OS}2_x86_64ifort -lnetcdf"
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+#> Append O/S, machine, and compiler information to executable name
+ set MACH = `uname -m`
+ set COMP = `echo $FC | grep -o pg`
+ if ( $status == 0 ) then
+ else
+    set COMP = `echo $FC | grep -o intel`
+ endif
+ if ( $status == 1 ) then
+    echo
+    echo "This script is configured for PGI or Intel Fortran."
+    echo "Manually set the FC, FSTD, and COMP variables"
+    echo "for alternative configurations."
+    echo
+ endif
+ 
+ set EXEID = ${BLD_OS}_${MACH}${COMP}
+ set MODEL = ${MODEL}_${EXEID}
+
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+    else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+       endif
+    endif
+ cd $Bld
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ set LIB1 = "-L${IOAPI}"
+ set LIB2 = "-L${NETCDF}"
+ set LIBS = "$LIB1 $LIB2"
+
+ set ICL_MECH  = $GlobInc/$Mechanism
+ set ICL_TRAC  = $GlobInc/$Tracer
+
+
+ setenv CVSROOT $Project
+
+#> make the config file
+
+ set Cfile = ${CFG}.bld
+ set quote = '"'
+
+ echo                                                               > $Cfile
+ echo "model       $MODEL;"                                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "FPP         $FP;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ set text = "$quote$CPP_FLAGS$quote;"
+ echo "cpp_flags   $text"                                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_compiler  $FC;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "global      $Opt;"                                          >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text="// mechanism and tracer:"
+ echo "$text  ${Mechanism}, ${Tracer}"                             >> $Cfile
+ echo "// project archive: ${Project}"                             >> $Cfile
+ echo                                                              >> $Cfile
+
+ echo "include SUBST_IODECL     $ICL_IOAPI/IODECL3.EXT;"           >> $Cfile
+ echo "include SUBST_GC_SPC     $ICL_MECH/GC_SPC.EXT;"             >> $Cfile
+ echo "include SUBST_AE_SPC     $ICL_MECH/AE_SPC.EXT;"             >> $Cfile
+ echo "include SUBST_NR_SPC     $ICL_MECH/NR_SPC.EXT;"             >> $Cfile
+ echo "include SUBST_RXCMMN     $ICL_MECH/RXCM.EXT;"               >> $Cfile
+ echo "include SUBST_RXDATA     $ICL_MECH/RXDT.EXT;"               >> $Cfile
+ echo "include SUBST_TR_SPC     $ICL_TRAC/TR_SPC.EXT;"             >> $Cfile
+
+ echo "$ModPa"                                                     >> $Cfile
+ echo                                                              >> $Cfile
+
+#> make the model executable
+
+ if ( $?MakeOpt ) then
+    $Blder -make $Cfile   # $Cfile = ${CFG}.bld
+    else
+    set NoMake
+    $Blder $Cfile
+    endif
+ if ( $status != 0 ) then
+    echo "   *** failure in $Blder ***"
+    exit 1
+    endif
+ if ( -e "$Base/${CFG}" ) then
+    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    unalias mv
+    mv $Base/${CFG} $Base/${CFG}.old
+    endif
+ cp ${CFG}.bld $Base/${CFG}
+ if ( ( $Opt != no_compile ) && \
+      ( $Opt != no_link    ) && \
+      ( $Opt != parse_only ) && \
+      ( $Opt != show_only  ) && \
+        $?NoMake ) then
+    mv $MODEL $Base
+    endif
+
+ exit

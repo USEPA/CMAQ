@@ -1,0 +1,277 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.00;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.00;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/cb05cl_ae5ca_aq/AE_A2AQ.EXT,v 1.1.1.1 2009/11/13 14:51:34 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: CB05CL_AE5CA_AQ
+
+        INTEGER        N_AE_A2AQ
+        PARAMETER     (N_AE_A2AQ =111)
+        INTEGER        N_AE_A2AQD
+        PARAMETER     (N_AE_A2AQD = N_AE_A2AQ)
+        CHARACTER*16   AE_A2AQ(N_AE_A2AQD)
+        INTEGER        AE_A2AQ_MAP(N_AE_A2AQD)
+        REAL           AE_A2AQ_FAC(N_AE_A2AQD)
+
+        DATA   AE_A2AQ(  1), AE_A2AQ_MAP(  1) / 'SO4_ACCUM       ',   1 /
+        DATA   AE_A2AQ_FAC(  1) /      1.0 /
+        DATA   AE_A2AQ(  2), AE_A2AQ_MAP(  2) / 'SO4_AITKEN      ',   2 /
+        DATA   AE_A2AQ_FAC(  2) /      1.0 /
+        DATA   AE_A2AQ(  3), AE_A2AQ_MAP(  3) / 'NH4_ACCUM       ',   3 /
+        DATA   AE_A2AQ_FAC(  3) /      1.0 /
+        DATA   AE_A2AQ(  4), AE_A2AQ_MAP(  4) / 'NH4_AITKEN      ',   4 /
+        DATA   AE_A2AQ_FAC(  4) /      1.0 /
+        DATA   AE_A2AQ(  5), AE_A2AQ_MAP(  5) / 'NO3_ACCUM       ',   5 /
+        DATA   AE_A2AQ_FAC(  5) /      1.0 /
+        DATA   AE_A2AQ(  6), AE_A2AQ_MAP(  6) / 'NO3_AITKEN      ',   6 /
+        DATA   AE_A2AQ_FAC(  6) /      1.0 /
+        DATA   AE_A2AQ(  7), AE_A2AQ_MAP(  7) / 'AALK_ACCUM      ',   7 /
+        DATA   AE_A2AQ_FAC(  7) /      1.0 /
+        DATA   AE_A2AQ(  8), AE_A2AQ_MAP(  8) / 'AXYL1_ACCUM     ',   8 /
+        DATA   AE_A2AQ_FAC(  8) /      1.0 /
+        DATA   AE_A2AQ(  9), AE_A2AQ_MAP(  9) / 'AXYL2_ACCUM     ',   9 /
+        DATA   AE_A2AQ_FAC(  9) /      1.0 /
+        DATA   AE_A2AQ( 10), AE_A2AQ_MAP( 10) / 'AXYL3_ACCUM     ',  10 /
+        DATA   AE_A2AQ_FAC( 10) /      1.0 /
+        DATA   AE_A2AQ( 11), AE_A2AQ_MAP( 11) / 'ATOL1_ACCUM     ',  11 /
+        DATA   AE_A2AQ_FAC( 11) /      1.0 /
+        DATA   AE_A2AQ( 12), AE_A2AQ_MAP( 12) / 'ATOL2_ACCUM     ',  12 /
+        DATA   AE_A2AQ_FAC( 12) /      1.0 /
+        DATA   AE_A2AQ( 13), AE_A2AQ_MAP( 13) / 'ATOL3_ACCUM     ',  13 /
+        DATA   AE_A2AQ_FAC( 13) /      1.0 /
+        DATA   AE_A2AQ( 14), AE_A2AQ_MAP( 14) / 'ABNZ1_ACCUM     ',  14 /
+        DATA   AE_A2AQ_FAC( 14) /      1.0 /
+        DATA   AE_A2AQ( 15), AE_A2AQ_MAP( 15) / 'ABNZ2_ACCUM     ',  15 /
+        DATA   AE_A2AQ_FAC( 15) /      1.0 /
+        DATA   AE_A2AQ( 16), AE_A2AQ_MAP( 16) / 'ABNZ3_ACCUM     ',  16 /
+        DATA   AE_A2AQ_FAC( 16) /      1.0 /
+        DATA   AE_A2AQ( 17), AE_A2AQ_MAP( 17) / 'ATRP1_ACCUM     ',  17 /
+        DATA   AE_A2AQ_FAC( 17) /      1.0 /
+        DATA   AE_A2AQ( 18), AE_A2AQ_MAP( 18) / 'ATRP2_ACCUM     ',  18 /
+        DATA   AE_A2AQ_FAC( 18) /      1.0 /
+        DATA   AE_A2AQ( 19), AE_A2AQ_MAP( 19) / 'AISO1_ACCUM     ',  19 /
+        DATA   AE_A2AQ_FAC( 19) /      1.0 /
+        DATA   AE_A2AQ( 20), AE_A2AQ_MAP( 20) / 'AISO2_ACCUM     ',  20 /
+        DATA   AE_A2AQ_FAC( 20) /      1.0 /
+        DATA   AE_A2AQ( 21), AE_A2AQ_MAP( 21) / 'ASQT_ACCUM      ',  21 /
+        DATA   AE_A2AQ_FAC( 21) /      1.0 /
+        DATA   AE_A2AQ( 22), AE_A2AQ_MAP( 22) / 'AORGC_ACCUM     ',  22 /
+        DATA   AE_A2AQ_FAC( 22) /      1.0 /
+        DATA   AE_A2AQ( 23), AE_A2AQ_MAP( 23) / 'ORGP_ACCUM      ',  23 /
+        DATA   AE_A2AQ_FAC( 23) /      1.0 /
+        DATA   AE_A2AQ( 24), AE_A2AQ_MAP( 24) / 'ORGP_AITKEN     ',  24 /
+        DATA   AE_A2AQ_FAC( 24) /      1.0 /
+        DATA   AE_A2AQ( 25), AE_A2AQ_MAP( 25) / 'EC_ACCUM        ',  25 /
+        DATA   AE_A2AQ_FAC( 25) /      1.0 /
+        DATA   AE_A2AQ( 26), AE_A2AQ_MAP( 26) / 'EC_AITKEN       ',  26 /
+        DATA   AE_A2AQ_FAC( 26) /      1.0 /
+        DATA   AE_A2AQ( 27), AE_A2AQ_MAP( 27) / 'PRI_ACCUM       ',  27 /
+        DATA   AE_A2AQ_FAC( 27) /      1.0 /
+        DATA   AE_A2AQ( 28), AE_A2AQ_MAP( 28) / 'PRI_AITKEN      ',  28 /
+        DATA   AE_A2AQ_FAC( 28) /      1.0 /
+        DATA   AE_A2AQ( 29), AE_A2AQ_MAP( 29) / 'PRI_COARSE      ',  29 /
+        DATA   AE_A2AQ_FAC( 29) /      1.0 /
+        DATA   AE_A2AQ( 30), AE_A2AQ_MAP( 30) / 'PRI_COARSE      ',  30 /
+        DATA   AE_A2AQ_FAC( 30) /      1.0 /
+        DATA   AE_A2AQ( 31), AE_A2AQ_MAP( 31) / 'NUM_AITKEN      ',  31 /
+        DATA   AE_A2AQ_FAC( 31) /      1.0 /
+        DATA   AE_A2AQ( 32), AE_A2AQ_MAP( 32) / 'NUM_ACCUM       ',  32 /
+        DATA   AE_A2AQ_FAC( 32) /      1.0 /
+        DATA   AE_A2AQ( 33), AE_A2AQ_MAP( 33) / 'NUM_COARSE      ',  33 /
+        DATA   AE_A2AQ_FAC( 33) /      1.0 /
+        DATA   AE_A2AQ( 34), AE_A2AQ_MAP( 34) / 'SRF_AITKEN      ',  34 /
+        DATA   AE_A2AQ_FAC( 34) /      1.0 /
+        DATA   AE_A2AQ( 35), AE_A2AQ_MAP( 35) / 'SRF_ACCUM       ',  35 /
+        DATA   AE_A2AQ_FAC( 35) /      1.0 /
+        DATA   AE_A2AQ( 36), AE_A2AQ_MAP( 36) / 'SRF_COARSE      ',  36 /
+        DATA   AE_A2AQ_FAC( 36) /      1.0 /
+        DATA   AE_A2AQ( 37), AE_A2AQ_MAP( 37) / 'H2O_ACCUM       ',  37 /
+        DATA   AE_A2AQ_FAC( 37) /      1.0 /
+        DATA   AE_A2AQ( 38), AE_A2AQ_MAP( 38) / 'H2O_AITKEN      ',  38 /
+        DATA   AE_A2AQ_FAC( 38) /      1.0 /
+        DATA   AE_A2AQ( 39), AE_A2AQ_MAP( 39) / 'NA_ACCUM        ',  39 /
+        DATA   AE_A2AQ_FAC( 39) /      1.0 /
+        DATA   AE_A2AQ( 40), AE_A2AQ_MAP( 40) / 'NA_AITKEN       ',  40 /
+        DATA   AE_A2AQ_FAC( 40) /      1.0 /
+        DATA   AE_A2AQ( 41), AE_A2AQ_MAP( 41) / 'CL_ACCUM        ',  41 /
+        DATA   AE_A2AQ_FAC( 41) /      1.0 /
+        DATA   AE_A2AQ( 42), AE_A2AQ_MAP( 42) / 'CL_AITKEN       ',  42 /
+        DATA   AE_A2AQ_FAC( 42) /      1.0 /
+        DATA   AE_A2AQ( 43), AE_A2AQ_MAP( 43) / 'NA_COARSE       ',  43 /
+        DATA   AE_A2AQ_FAC( 43) /      1.0 /
+        DATA   AE_A2AQ( 44), AE_A2AQ_MAP( 44) / 'CL_COARSE       ',  44 /
+        DATA   AE_A2AQ_FAC( 44) /      1.0 /
+        DATA   AE_A2AQ( 45), AE_A2AQ_MAP( 45) / 'SO4_COARSE      ',  45 /
+        DATA   AE_A2AQ_FAC( 45) /      1.0 /
+        DATA   AE_A2AQ( 46), AE_A2AQ_MAP( 46) / 'NH4_COARSE      ',  46 /
+        DATA   AE_A2AQ_FAC( 46) /      1.0 /
+        DATA   AE_A2AQ( 47), AE_A2AQ_MAP( 47) / 'NO3_COARSE      ',  47 /
+        DATA   AE_A2AQ_FAC( 47) /      1.0 /
+        DATA   AE_A2AQ( 48), AE_A2AQ_MAP( 48) / 'H2O_COARSE      ',  48 /
+        DATA   AE_A2AQ_FAC( 48) /      1.0 /
+        DATA   AE_A2AQ( 49), AE_A2AQ_MAP( 49) / 'AISO3_ACCUM     ',  49 /
+        DATA   AE_A2AQ_FAC( 49) /      1.0 /
+        DATA   AE_A2AQ( 50), AE_A2AQ_MAP( 50) / 'AOLGA_ACCUM     ',  50 /
+        DATA   AE_A2AQ_FAC( 50) /      1.0 /
+        DATA   AE_A2AQ( 51), AE_A2AQ_MAP( 51) / 'AOLGB_ACCUM     ',  51 /
+        DATA   AE_A2AQ_FAC( 51) /      1.0 /
+        DATA   AE_A2AQ( 52), AE_A2AQ_MAP( 52) / 'ORGP_ACCUM      ',  52 /
+        DATA   AE_A2AQ_FAC( 52) /      1.0 /
+        DATA   AE_A2AQ( 53), AE_A2AQ_MAP( 53) / 'ORGP_AITKEN     ',  53 /
+        DATA   AE_A2AQ_FAC( 53) /      1.0 /
+        DATA   AE_A2AQ( 54), AE_A2AQ_MAP( 54) / 'ORGP_ACCUM      ',  54 /
+        DATA   AE_A2AQ_FAC( 54) /      1.0 /
+        DATA   AE_A2AQ( 55), AE_A2AQ_MAP( 55) / 'ORGP_AITKEN     ',  55 /
+        DATA   AE_A2AQ_FAC( 55) /      1.0 /
+        DATA   AE_A2AQ( 56), AE_A2AQ_MAP( 56) / 'ORGP_ACCUM      ',  56 /
+        DATA   AE_A2AQ_FAC( 56) /      1.0 /
+        DATA   AE_A2AQ( 57), AE_A2AQ_MAP( 57) / 'ORGP_AITKEN     ',  57 /
+        DATA   AE_A2AQ_FAC( 57) /      1.0 /
+        DATA   AE_A2AQ( 58), AE_A2AQ_MAP( 58) / 'ORGP_ACCUM      ',  58 /
+        DATA   AE_A2AQ_FAC( 58) /      1.0 /
+        DATA   AE_A2AQ( 59), AE_A2AQ_MAP( 59) / 'ORGP_AITKEN     ',  59 /
+        DATA   AE_A2AQ_FAC( 59) /      1.0 /
+        DATA   AE_A2AQ( 60), AE_A2AQ_MAP( 60) / 'ORGP_ACCUM      ',  60 /
+        DATA   AE_A2AQ_FAC( 60) /      1.0 /
+        DATA   AE_A2AQ( 61), AE_A2AQ_MAP( 61) / 'ORGP_AITKEN     ',  61 /
+        DATA   AE_A2AQ_FAC( 61) /      1.0 /
+        DATA   AE_A2AQ( 62), AE_A2AQ_MAP( 62) / 'ORGP_ACCUM      ',  62 /
+        DATA   AE_A2AQ_FAC( 62) /      1.0 /
+        DATA   AE_A2AQ( 63), AE_A2AQ_MAP( 63) / 'ORGP_AITKEN     ',  63 /
+        DATA   AE_A2AQ_FAC( 63) /      1.0 /
+        DATA   AE_A2AQ( 64), AE_A2AQ_MAP( 64) / 'ORGP_ACCUM      ',  64 /
+        DATA   AE_A2AQ_FAC( 64) /      1.0 /
+        DATA   AE_A2AQ( 65), AE_A2AQ_MAP( 65) / 'ORGP_AITKEN     ',  65 /
+        DATA   AE_A2AQ_FAC( 65) /      1.0 /
+        DATA   AE_A2AQ( 66), AE_A2AQ_MAP( 66) / 'ORGP_ACCUM      ',  66 /
+        DATA   AE_A2AQ_FAC( 66) /      1.0 /
+        DATA   AE_A2AQ( 67), AE_A2AQ_MAP( 67) / 'ORGP_AITKEN     ',  67 /
+        DATA   AE_A2AQ_FAC( 67) /      1.0 /
+        DATA   AE_A2AQ( 68), AE_A2AQ_MAP( 68) / 'ORGP_ACCUM      ',  68 /
+        DATA   AE_A2AQ_FAC( 68) /      1.0 /
+        DATA   AE_A2AQ( 69), AE_A2AQ_MAP( 69) / 'ORGP_AITKEN     ',  69 /
+        DATA   AE_A2AQ_FAC( 69) /      1.0 /
+        DATA   AE_A2AQ( 70), AE_A2AQ_MAP( 70) / 'ORGP_ACCUM      ',  70 /
+        DATA   AE_A2AQ_FAC( 70) /      1.0 /
+        DATA   AE_A2AQ( 71), AE_A2AQ_MAP( 71) / 'ORGP_AITKEN     ',  71 /
+        DATA   AE_A2AQ_FAC( 71) /      1.0 /
+        DATA   AE_A2AQ( 72), AE_A2AQ_MAP( 72) / 'ORGP_ACCUM      ',  72 /
+        DATA   AE_A2AQ_FAC( 72) /      1.0 /
+        DATA   AE_A2AQ( 73), AE_A2AQ_MAP( 73) / 'ORGP_AITKEN     ',  73 /
+        DATA   AE_A2AQ_FAC( 73) /      1.0 /
+        DATA   AE_A2AQ( 74), AE_A2AQ_MAP( 74) / 'ORGP_ACCUM      ',  74 /
+        DATA   AE_A2AQ_FAC( 74) /      1.0 /
+        DATA   AE_A2AQ( 75), AE_A2AQ_MAP( 75) / 'ORGP_AITKEN     ',  75 /
+        DATA   AE_A2AQ_FAC( 75) /      1.0 /
+        DATA   AE_A2AQ( 76), AE_A2AQ_MAP( 76) / 'ORGP_ACCUM      ',  76 /
+        DATA   AE_A2AQ_FAC( 76) /      1.0 /
+        DATA   AE_A2AQ( 77), AE_A2AQ_MAP( 77) / 'ORGP_AITKEN     ',  77 /
+        DATA   AE_A2AQ_FAC( 77) /      1.0 /
+        DATA   AE_A2AQ( 78), AE_A2AQ_MAP( 78) / 'ORGP_ACCUM      ',  78 /
+        DATA   AE_A2AQ_FAC( 78) /      1.0 /
+        DATA   AE_A2AQ( 79), AE_A2AQ_MAP( 79) / 'ORGP_AITKEN     ',  79 /
+        DATA   AE_A2AQ_FAC( 79) /      1.0 /
+        DATA   AE_A2AQ( 80), AE_A2AQ_MAP( 80) / 'ORGP_ACCUM      ',  80 /
+        DATA   AE_A2AQ_FAC( 80) /      1.0 /
+        DATA   AE_A2AQ( 81), AE_A2AQ_MAP( 81) / 'ORGP_AITKEN     ',  81 /
+        DATA   AE_A2AQ_FAC( 81) /      1.0 /
+        DATA   AE_A2AQ( 82), AE_A2AQ_MAP( 82) / 'EC_ACCUM        ',  82 /
+        DATA   AE_A2AQ_FAC( 82) /      1.0 /
+        DATA   AE_A2AQ( 83), AE_A2AQ_MAP( 83) / 'EC_AITKEN       ',  83 /
+        DATA   AE_A2AQ_FAC( 83) /      1.0 /
+        DATA   AE_A2AQ( 84), AE_A2AQ_MAP( 84) / 'EC_ACCUM        ',  84 /
+        DATA   AE_A2AQ_FAC( 84) /      1.0 /
+        DATA   AE_A2AQ( 85), AE_A2AQ_MAP( 85) / 'EC_AITKEN       ',  85 /
+        DATA   AE_A2AQ_FAC( 85) /      1.0 /
+        DATA   AE_A2AQ( 86), AE_A2AQ_MAP( 86) / 'EC_ACCUM        ',  86 /
+        DATA   AE_A2AQ_FAC( 86) /      1.0 /
+        DATA   AE_A2AQ( 87), AE_A2AQ_MAP( 87) / 'EC_AITKEN       ',  87 /
+        DATA   AE_A2AQ_FAC( 87) /      1.0 /
+        DATA   AE_A2AQ( 88), AE_A2AQ_MAP( 88) / 'EC_ACCUM        ',  88 /
+        DATA   AE_A2AQ_FAC( 88) /      1.0 /
+        DATA   AE_A2AQ( 89), AE_A2AQ_MAP( 89) / 'EC_AITKEN       ',  89 /
+        DATA   AE_A2AQ_FAC( 89) /      1.0 /
+        DATA   AE_A2AQ( 90), AE_A2AQ_MAP( 90) / 'EC_ACCUM        ',  90 /
+        DATA   AE_A2AQ_FAC( 90) /      1.0 /
+        DATA   AE_A2AQ( 91), AE_A2AQ_MAP( 91) / 'EC_AITKEN       ',  91 /
+        DATA   AE_A2AQ_FAC( 91) /      1.0 /
+        DATA   AE_A2AQ( 92), AE_A2AQ_MAP( 92) / 'EC_ACCUM        ',  92 /
+        DATA   AE_A2AQ_FAC( 92) /      1.0 /
+        DATA   AE_A2AQ( 93), AE_A2AQ_MAP( 93) / 'EC_AITKEN       ',  93 /
+        DATA   AE_A2AQ_FAC( 93) /      1.0 /
+        DATA   AE_A2AQ( 94), AE_A2AQ_MAP( 94) / 'EC_ACCUM        ',  94 /
+        DATA   AE_A2AQ_FAC( 94) /      1.0 /
+        DATA   AE_A2AQ( 95), AE_A2AQ_MAP( 95) / 'EC_AITKEN       ',  95 /
+        DATA   AE_A2AQ_FAC( 95) /      1.0 /
+        DATA   AE_A2AQ( 96), AE_A2AQ_MAP( 96) / 'EC_ACCUM        ',  96 /
+        DATA   AE_A2AQ_FAC( 96) /      1.0 /
+        DATA   AE_A2AQ( 97), AE_A2AQ_MAP( 97) / 'EC_AITKEN       ',  97 /
+        DATA   AE_A2AQ_FAC( 97) /      1.0 /
+        DATA   AE_A2AQ( 98), AE_A2AQ_MAP( 98) / 'EC_ACCUM        ',  98 /
+        DATA   AE_A2AQ_FAC( 98) /      1.0 /
+        DATA   AE_A2AQ( 99), AE_A2AQ_MAP( 99) / 'EC_AITKEN       ',  99 /
+        DATA   AE_A2AQ_FAC( 99) /      1.0 /
+        DATA   AE_A2AQ(100), AE_A2AQ_MAP(100) / 'EC_ACCUM        ', 100 /
+        DATA   AE_A2AQ_FAC(100) /      1.0 /
+        DATA   AE_A2AQ(101), AE_A2AQ_MAP(101) / 'EC_AITKEN       ', 101 /
+        DATA   AE_A2AQ_FAC(101) /      1.0 /
+        DATA   AE_A2AQ(102), AE_A2AQ_MAP(102) / 'EC_ACCUM        ', 102 /
+        DATA   AE_A2AQ_FAC(102) /      1.0 /
+        DATA   AE_A2AQ(103), AE_A2AQ_MAP(103) / 'EC_AITKEN       ', 103 /
+        DATA   AE_A2AQ_FAC(103) /      1.0 /
+        DATA   AE_A2AQ(104), AE_A2AQ_MAP(104) / 'EC_ACCUM        ', 104 /
+        DATA   AE_A2AQ_FAC(104) /      1.0 /
+        DATA   AE_A2AQ(105), AE_A2AQ_MAP(105) / 'EC_AITKEN       ', 105 /
+        DATA   AE_A2AQ_FAC(105) /      1.0 /
+        DATA   AE_A2AQ(106), AE_A2AQ_MAP(106) / 'EC_ACCUM        ', 106 /
+        DATA   AE_A2AQ_FAC(106) /      1.0 /
+        DATA   AE_A2AQ(107), AE_A2AQ_MAP(107) / 'EC_AITKEN       ', 107 /
+        DATA   AE_A2AQ_FAC(107) /      1.0 /
+        DATA   AE_A2AQ(108), AE_A2AQ_MAP(108) / 'EC_ACCUM        ', 108 /
+        DATA   AE_A2AQ_FAC(108) /      1.0 /
+        DATA   AE_A2AQ(109), AE_A2AQ_MAP(109) / 'EC_AITKEN       ', 109 /
+        DATA   AE_A2AQ_FAC(109) /      1.0 /
+        DATA   AE_A2AQ(110), AE_A2AQ_MAP(110) / 'EC_ACCUM        ', 110 /
+        DATA   AE_A2AQ_FAC(110) /      1.0 /
+        DATA   AE_A2AQ(111), AE_A2AQ_MAP(111) / 'EC_AITKEN       ', 111 /
+        DATA   AE_A2AQ_FAC(111) /      1.0 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,226 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_getreal.F,v 1.3 1998/06/19 11:38:45 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_getreal.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_getreal.F 04 Jul 1997 14:13:33
+
+      SUBROUTINE GETREAL
+
+C***********************************************************************
+C
+C  FUNCTION: GETWORD gets the next word from the input buffer starting
+C            with the current character; the word can be any length,
+C            but only the first sixteen characters are retained.  The
+C            first character must be alphabetic.
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE 'PA_PARSE.EXT' 
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: None
+
+C..SAVED LOCAL VARIABLES: None 
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*15        NUMSTRING  ! String holding number
+
+      INTEGER ICHR      ! ASCII code number of character
+      INTEGER LENGTH    ! Length of numeric string
+      INTEGER NOSIGNS   ! Number of pos or neg signs found
+      INTEGER START     ! Starting position in input buffer
+
+      LOGICAL LDECIMAL  ! Flag to indicate decimal point found
+      LOGICAL LEXP      ! Flag to indicate exponent found
+         
+C***********************************************************************
+
+      START    = LPOINT
+      LENGTH   = 0
+      NOSIGNS  = 0
+      LDECIMAL = .FALSE.
+      LEXP     = .FALSE.
+
+c..Top of loop for getting characters in the number string
+   10 CONTINUE
+
+      IF( LENGTH .NE. 0 ) THEN
+         LPOINT = LPOINT + 1
+         IF( LPOINT .GT. IEOL ) THEN
+            CHR = ' '
+         ELSE
+            CHR = INBUF( LPOINT : LPOINT )
+         ENDIF
+      ENDIF
+
+      ICHR = ICHAR( CHR )
+      LENGTH = LENGTH + 1
+
+c..Check for decimal point
+      IF( CHR .EQ. '.' ) THEN
+         IF( .NOT. LDECIMAL ) THEN
+            LDECIMAL = .TRUE.
+            GO TO 10
+         ELSE
+            EXITSTAT = 2
+            WRITE( MSG, 94000 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94500 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94520 ) INBUF( START : LPOINT )
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'GETREAL', IZERO, IZERO,' ', EXITSTAT )
+         ENDIF        
+      ENDIF   
+
+c..If numeric value, get next character
+      IF( ICHR .GE. 48 .AND. ICHR .LE. 57 ) GO TO 10
+
+c..Check for exponent term
+      IF( CHR .EQ. 'E' .OR. CHR .EQ. 'e' ) THEN
+         IF( .NOT. LEXP ) THEN
+            LEXP = .TRUE.
+            GO TO 10
+         ELSE
+            EXITSTAT = 2
+            WRITE( MSG, 94020 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94500 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94520 ) INBUF( START : LPOINT )
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', EXITSTAT )
+         ENDIF
+      ENDIF
+      
+c..check for sign
+      IF( CHR .EQ. '+' .OR. CHR .EQ. '-' ) THEN
+         NOSIGNS = NOSIGNS + 1
+         IF( NOSIGNS .LE. 2 ) THEN
+            GO TO 10
+         ELSE
+            EXITSTAT = 2
+            WRITE( MSG, 94040 ) 
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94500 ) LINNUM, INBUF
+            CALL M3MESG( MSG )
+            WRITE( MSG, 94520 ) INBUF( START : LPOINT )
+            CALL M3MESG( MSG )
+            CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', EXITSTAT )
+         ENDIF
+      ENDIF
+
+c..End of the numeric string; convert to real number
+      NUMSTRING = INBUF( START : LPOINT - 1 )
+      LENGTH = LENGTH - 1
+      IF( ( .NOT. LEXP ) .AND. ( .NOT. LDECIMAL ) ) THEN
+         NUMSTRING = NUMSTRING( 1 : LENGTH ) // '.'
+         LENGTH = LENGTH + 1
+      ENDIF
+
+      READ( NUMSTRING( 1 : LENGTH ), '( E20.6 )', ERR = 999 ) NUMBER
+      IF( LPOINT .GT. IEOL ) CALL RDLINE
+      IF( CHR .EQ. ' ' ) CALL GETCHR
+
+      RETURN
+
+c..Error converting numeric string to real number
+  999 CONTINUE
+      EXITSTAT = 2
+      WRITE( MSG, 94060 ) 
+      CALL M3MESG( MSG )
+      WRITE( MSG, 94500 ) LINNUM, INBUF
+      CALL M3MESG( MSG )
+      WRITE( MSG, 94520 ) INBUF( START : LPOINT )
+      CALL M3MESG( MSG )
+      CALL M3EXIT( 'GETREAL', IZERO, IZERO, ' ', EXITSTAT )
+      
+      
+C*********************** FORMAT STATEMENTS ***************************** 
+     
+
+94000 FORMAT( 'ERROR: Two decimal points found in a numeric field' )
+94020 FORMAT( 'ERROR: More than one E or e found in a numeric field' )
+94040 FORMAT( 'ERROR: Too many + or - signs found in a numeric field' )
+94060 FORMAT( 'ERROR: Numeric field contains an invalid character' )
+94500 FORMAT( '       Line No. ', I4, ': ', A )
+94520 FORMAT( '       Numeric field: ', A )
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

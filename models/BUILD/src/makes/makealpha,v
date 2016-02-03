@@ -1,0 +1,73 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.16;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# make file to compile for ALPHA
+
+CC = cc
+CFLAGS = -std1 -g
+CLITEFLAGS = -g
+
+OBJECTS =	fw_util.o \
+		m3bld.o \
+		bld_parser.o \
+		bld_scanner.o \
+		action.o \
+		parser.o \
+		sms.o 
+
+m3bld: $(OBJECTS)
+	 $(CC) -o m3bld $(OBJECTS)
+
+bld_parser.o:	bld_parser.c
+	$(CC) -c $(CLITEFLAGS) bld_parser.c
+
+bld_scanner.o:	bld_scanner.c sms.h tokens.h
+	$(CC) -c $(CLITEFLAGS) bld_scanner.c
+
+action.o:	action.c sms.h tokens.h
+	$(CC) -c $(CLITEFLAGS) action.c
+
+sms.o:	sms.c sms.h tokens.h
+	$(CC) -c $(CLITEFLAGS) sms.c
+
+module.o:	module.c sms.h tokens.h
+	$(CC) -c $(CLITEFLAGS) module.c
+
+fw_util.o:	fw_util.c sms.h tokens.h
+	$(CC) -c $(CLITEFLAGS) fw_util.c
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,269 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/input/radmconc/radm_rdhdrs.F,v 1.3 2002/04/12 14:13:21 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+      SUBROUTINE RDHDRS( LOGUNIT, RF1, RF2, RADM_F1_NAME, RADM_F2_NAME,
+     &                   NCOLS_IN, NROWS_IN, NLAYS_IN, NSPC1_IN,
+     &                   NSPC2_IN, INFL_SP_NAME )   
+
+C*************************************************************************
+C
+C  FUNCTION: Reads RADM concentration file header data
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: FILEOPEN
+C                                    RDUFH
+C                                    RDFD
+C                                    RDSPR
+C                                    RDTEXT 
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998          
+C                   C*************************************************************************
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+
+      INCLUDE 'IC_PARMS.EXT'    ! ICON paramters
+
+      include 'hw_filfmt.icl'   ! RADM model includes
+      include 'hw_logdb.icl'
+      include 'hw_datfmt.icl'
+
+C..ARGUMENTS:
+      CHARACTER*(*) INFL_SP_NAME( * ) ! Names of species on RADM input files
+      CHARACTER*(*) RADM_F1_NAME      ! RADM Conc file 1 name
+      CHARACTER*(*) RADM_F2_NAME      ! RADM Conc file 2 name
+
+      INTEGER LOGUNIT      ! Unit number for output log
+      INTEGER RF1, RF2     ! RADM input file unit numbers
+      INTEGER NCOLS_IN     ! No. in columns in RADM domain 
+      INTEGER NROWS_IN     ! No. in rows in RADM domain 
+      INTEGER NLAYS_IN     ! No. in lays in RADM domain 
+      INTEGER NSPC1_IN     ! No. of species on RADM conc file 1
+      INTEGER NSPC2_IN     ! No. of species on RADM conc file 2
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: None
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*6   BUF6                   ! Character buffer
+      CHARACTER*16  PNAME                  ! Program name
+      CHARACTER*80  MSG                    ! Log message
+      CHARACTER*80  I1HSTR                 ! File1 header string
+      CHARACTER*80  I1FDSTR                ! File1 header string
+      CHARACTER*80  I1TEXT( 20 )           ! File1 text string
+      CHARACTER*80  I2HSTR                 ! File1 header string
+      CHARACTER*80  I2FDSTR                ! File1 header string
+      CHARACTER*80  I2TEXT( 20 )           ! File1 text string
+
+      CHARACTER*20  I1SLN(  MX_INFL_SP )   ! File 1 species short name
+      CHARACTER*4   I1SMAP( MX_INFL_SP )   ! File 1 species map
+      CHARACTER*5   I1SSN(  MX_INFL_SP )   ! File 1 species short name
+      CHARACTER*10  I1SUN(  MX_INFL_SP )   ! File 1 species units
+      CHARACTER*20  I2SLN(  MX_INFL_SP )   ! File 2 species short name
+      CHARACTER*4   I2SMAP( MX_INFL_SP )   ! File 2 map
+      CHARACTER*5   I2SSN(  MX_INFL_SP )   ! File 2 species short name
+      CHARACTER*10  I2SUN(  MX_INFL_SP )   ! File 2 species units
+
+      INTEGER I, N, NSP                    ! Loop indices
+      INTEGER IIND1,  IIND2                ! String position of IMAX
+      INTEGER JIND1,  JIND2                ! String position of JMAX
+      INTEGER KIND1,  KIND2                ! String position of KMAX
+      INTEGER NCOLS1, NCOLS2               ! Value of IMAX
+      INTEGER NLAYS1, NLAYS2               ! Value of KMAX
+      INTEGER NROWS1, NROWS2               ! Value of JMAX
+      INTEGER NSPEC1, NSPEC2               ! Value of NSPEC
+      INTEGER SIND1,  SIND2                ! String position of NSPEC
+
+      LOGICAL LERROR                       ! Error flag
+
+C**********************************************************************
+      DATA PNAME / 'RDHDRS' /     
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call routines to open and read file 1 header data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL FILEOPEN( RF1, RADM_F1_NAME, I1FMT )  !open I1 file
+
+      CALL RDUFH( RF1, I1HSTR, I1FMT )             !read universal file header
+
+      CALL RDFD( RF1, I1FDSTR, I1FMT )             !read file descriptor
+ 
+      JIND1 = INDEX( I1FDSTR, 'JMAX' )
+      KIND1 = INDEX( I1FDSTR, 'KMAX' )
+      IIND1 = INDEX( I1FDSTR, 'IMAX' )
+      SIND1 = INDEX( I1FDSTR, 'NSPEC' )
+
+      WRITE( BUF6, '( A )' ) I1FDSTR( JIND1 + 4 : JIND1 + 9 )
+      READ( BUF6, '( I6 )' ) NROWS1
+
+      WRITE( BUF6, '( A )' ) I1FDSTR( KIND1 + 4 : KIND1 + 9 )
+      READ( BUF6, '( I6 )' ) NLAYS1
+
+      WRITE( BUF6, '( A )' ) I1FDSTR( IIND1 + 4 : IIND1 + 9 )
+      READ( BUF6, '( I6 )' ) NCOLS1
+
+      WRITE( BUF6, '( A )' ) I1FDSTR( SIND1 + 5 : SIND1 + 9 )
+      READ( BUF6, '( I6 )' ) NSPEC1
+
+      IF( NSPEC1 .GT. MX_INFL_SP ) THEN
+         MSG = 'ERROR: NSPEC on RADM file 1 exceeds MX_INFL_SP'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+         
+      DO I = 1, NSPEC1
+         CALL RDSPR( RF1, I1SSN(I), I1SLN(I), I1SUN(I), I1SMAP(I), I1FMT)
+      ENDDO
+ 
+      CALL RDTEXT( RF1, I1TEXT, I1FMT )         !read text group
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call routines to open and read file 2 header data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL FILEOPEN( RF2, RADM_F2_NAME, I2FMT ) !open I2 file
+
+      CALL RDUFH( RF2, I2HSTR, I2FMT )          !read universal file header
+
+      CALL RDFD( RF2, I2FDSTR, I2FMT )          !read file descriptor
+
+      JIND2 = INDEX( I2FDSTR, 'JMAX' )
+      KIND2 = INDEX( I2FDSTR, 'KMAX' )
+      IIND2 = INDEX( I2FDSTR, 'IMAX' )
+      SIND2 = INDEX( I2FDSTR, 'NSPEC' )
+
+      WRITE( BUF6, '( A )' ) I2FDSTR( JIND2 + 4 : JIND2 + 9 )
+      READ( BUF6, '( I6 )' ) NROWS2
+
+      WRITE( BUF6, '( A )' ) I2FDSTR( KIND2 + 4 : KIND2 + 9 )
+      READ( BUF6, '( I6 )' ) NLAYS2
+
+      WRITE( BUF6, '( A )' ) I2FDSTR( IIND2 + 4 : IIND2 + 9 )
+      READ( BUF6, '( I6 )' ) NCOLS2
+
+      WRITE( BUF6, '( A )' ) I2FDSTR( SIND2 + 5 : SIND2 + 9 )
+      READ( BUF6, '( I6 )' ) NSPEC2
+
+      IF( NSPEC2 .GT. MX_INFL_SP ) THEN
+         MSG = 'ERROR: NSPEC on RADM file 2 exceeds MX_INFL_SP'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      DO I = 1, NSPEC2                    !read species group
+         CALL RDSPR( RF2, I2SSN( I ), I2SLN( I ), I2SUN( I ),
+     &               I2SMAP( I ), I2FMT )
+      ENDDO
+
+      CALL RDTEXT( RF2, I2TEXT, I2FMT )         !read text group
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Check domain size for consistency and set returned arguments
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LERROR = .FALSE.
+
+      IF( NCOLS1 .NE. NCOLS2 ) THEN
+         MSG = 'ERROR: IMAX not consistent on RADM conc files'
+         CALL M3MESG( MSG )
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( NROWS1 .NE. NROWS2 ) THEN
+         MSG = 'ERROR: JMAX not consistent on RADM conc files'
+         CALL M3MESG( MSG )
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( NLAYS1 .NE. NLAYS2 ) THEN
+         MSG = 'ERROR: KMAX not consistent on RADM conc files'
+         CALL M3MESG( MSG )
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( LERROR ) CALL M3ERR( PNAME, 0, 0, 'RADM File error', .TRUE. )
+
+      NCOLS_IN = NCOLS1
+      NROWS_IN = NROWS1
+      NLAYS_IN = NLAYS1
+      NSPC1_IN = NSPEC1
+      NSPC2_IN = NSPEC2
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Set species names and return
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO N = 1, NSPEC1
+         INFL_SP_NAME( N ) = I1SSN( N )
+      ENDDO
+
+      DO N = 1, NSPEC2
+         NSP = NSPEC1 + N
+         INFL_SP_NAME( NSP ) = I2SSN( N )
+      ENDDO         
+        
+      RETURN
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,128 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.22;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.22;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                      
+C***********************************************************************
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C C $Header: /project/work/rep/ICON/src/par/par_noop/mapping_init_noop.F,v 1.7 2006/06/10 11:03:56 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+        SUBROUTINE MAPPING_INIT ( XCELL_C, YCELL_C, XCELL_F, YCELL_F,
+     &                            COL, ROW, COL_RATIO, ROW_RATIO,
+     &                            COL_DISP, ROW_DISP, COL_LOC, ROW_LOC )
+
+C-----------------------------------------------------------------------
+C Purpose:
+C
+C   A noop counter part of mapping_init.F
+C
+C Note: Description of variables (see mapping_init.F)
+C
+C Revision history:
+C
+C   Orginal version: 02/15/00 by David Wong, LM
+C
+C   7/20/00 David Wong, LM
+C           -- convert XCELL_C, YCELL_C, XCELL_F, and YCELL_F into integer
+C              before computing the ratio. This will avoid machine precision
+C              problem to compute the ratio first and let the machine to
+C              convert the answer into integer.
+C
+C   8/25/04 David Wong, LM
+C           -- corrected the calculations of ROW_DISP and COL_DISP when
+C              the coarse and fine domains are the same, namely, ROW_RATIO
+C              is 1 and COL_RATIO is 1.
+C   27 May 06 J.Young: changed row/col to col/row
+C
+C-----------------------------------------------------------------------
+
+        REAL( 8 ) :: XCELL_C, YCELL_C, XCELL_F, YCELL_F
+        INTEGER COL, ROW
+        INTEGER COL_RATIO, ROW_RATIO, COL_DISP, ROW_DISP
+        INTEGER COL_LOC, ROW_LOC
+
+        CHARACTER( 16 ) :: PNAME = 'MAPPING_INITNOOP'
+        CHARACTER( 80 ) :: MSG = ' '
+
+C-----------------------------------------------------------------------
+
+        COL_RATIO = INT( YCELL_F ) / INT( YCELL_C )
+        ROW_RATIO = INT( XCELL_F ) / INT( XCELL_C )
+
+        IF ( COL_RATIO .LE. 0 .OR. ROW_RATIO .LE. 0 ) THEN
+           WRITE( *,* ) ' *** COL_RATIO: ', COL_RATIO,
+     &                  ' *** ROW_RATIO: ', ROW_RATIO
+           MSG = 'Error in grid cell resolution'
+           CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+        END IF
+
+        IF ( COL_RATIO .EQ. 1 ) THEN
+           COL_DISP = 0
+        ELSE
+           COL_DISP = COL_RATIO - COL + 1
+        END IF
+
+        IF ( ROW_RATIO .EQ. 1 ) THEN
+           ROW_DISP = 0
+        ELSE
+           ROW_DISP = ROW_RATIO - ROW + 1
+        END IF
+
+        COL_LOC = COL_LOC
+        ROW_LOC = ROW_LOC
+
+        RETURN
+        END SUBROUTINE MAPPING_INIT
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

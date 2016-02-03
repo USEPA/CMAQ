@@ -1,0 +1,254 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/ variable definitions for standard evaluation extractions
+/
+/ RCS file, release, date & time of last delta, author, state, [and locker]
+/ $Header: /project/work/rep/TOOLS/src/combine/spec_def.conc,v 1.3 2008/09/23 17:29:08 sjr Exp $
+/
+/#start   YYYYDDD  HHMMSS
+/#end     YYYYDDD  HHMMSS
+#layer         1
+/
+/
+! The formulas used in this file implicitly assume that the model-ready emission files were prepared 
+! using a GSPRO from the 2002 emissions platform or later, in which POC emissions 
+! (hence, the CMAQ species AORGPAI and AORGPAJ) represent pure organic carbon without any scaling factor for OM:OC ratios.
+
+! Output variables that begin with 'PM' represent those in which a size cut was 
+! applied.  For example, PM25_NA is all sodium that falls below 2.5 um diameter.  
+! Output variables beginning with 'A' represent a 
+! combination of aerosol species in which no size cut was applied.  For example, 
+! ASO4T is the sum of i-mode and j-mode sulfate.
+
+! Species formulas
+
+! 1)  O3 1000.0*O3
+! 2)  CO  1000.0*CO
+! 3)  NO 1000.0*NO
+! 4)  NO2 1000.0*NO2
+! 5)  NOY 1000.0*(NO+NO2+NO3+2*N2O5+HONO+HNO3+PAN+PANX+PNA+NTR)
+! 6)  NOY_AC 1000.0*(NO+NO2+NO3+2*N2O5+HONO+HNO3+PAN+PANX+PNA+NTR)
+! 7)  HOX 1000.0*(OH+HO2)
+! 8)  VOC 1000.0*PAR+2000.0*ETH+2000.0*ETOH+2000.0*OLE+7000.0*TOL+8000.0*XYL+1000.0*FORM+2000.0*ALD2+5000.0*ISOP \
+!               +2000.0*ETHA+4000.0*IOLE+2000.0*ALDX+10000.0*TERP
+! 9)  ISOP 1000.0*ISOP
+! 10) ASO4T ASO4J+ASO4I
+! 11) ANO3T ANO3J+ANO3I
+! 12) ANH4T ANH4J+ANH4I
+! 22) ACLT ACLI+ACLJ   [I moved this but didn't renumber so you can see diffs easily]
+! 13) AORGAT AXYL1J+AXYL2J+AXYL3J+ATOL1J+ATOL2J+ATOL3J+ABNZ1J+ABNZ2J+ABNZ3J+AALKJ+AOLGAJ
+! 14) AORGPAT AORGPAIAORGPAJ
+! 15) AORGBT AISO1J+AISO2J+AISO3J+ATRP1J+ATRP2J+ASQTJ+AOLGBJ
+! 16) AORGCT AORGCJ
+! 17) AOCT (AXYL1J+AXYL2J+AXYL3J)/2.0+(ATOL1J+ATOL2J+ATOL3J)/2.0+(ABNZ1J+ABNZ2J+ABNZ3J)/2.0 \
+!               +(AISO1J+AISO2J)/1.6+AISO3J/2.7+(ATRP1J+ATRP2J)/1.4+ASQTJ/2.1+0.64*AALKJ+AORGCJ/2.0+(AOLGBJ+AOLGAJ)/2.1+AORGPAT
+! 18) AECT   AECJ+AECI
+! 19) AFINET ASO4T+ANO3T+ANH4T+ANAJ+ACLT+A25J-0.2*AORGPAT+1.4*AORGPAT+AECT+AORGAT+AORGBT+AORGCT
+! 20) A_PMTOT    ,ASO4I+ASO4J+ANO3I+ANO3J+ANH4I+ANH4J+AORGAI+AORGAJ+1.4*AORGPAI+1.4*AORGPAJ+AORGBI \
+                +AORGBJ+AECI+AECJ+ANAJ+ACLJ+A25J-0.2*(AORGPAI+AORGPAJ)
+! 21) ANAT 0.78*ANAJ
+! 22) PM25_NA 0.78*(ANAJ*PM25AC+ANAK*PM25CO)
+! 23) PM25_CL ACLI*PM25AT+ACLJ*PM25AC+ACLK*PM25CO
+! 24) AOTHRT A25J+0.22*ANAJ
+! 25) ACORST ASOIL+ACORS+ANAK+ACLK+ASO4K+ANO3K+ANH4K
+! 26) DCV_Recon DCV_Recon
+! 27) SO2 1000.0*SO2
+! 28) SO2_UGM3 1000.0*SO2*2.2118*DENS
+! 29) SULF 1000.0*SULF
+! 30) HNO3 1000.0*HNO3
+! 31) HNO3_UGM3 1000.0*HNO3*2.1756*DENS
+! 32) NH3 1000.0*NH3
+! 33) NH3_UGM3 1000.0*NH3*0.5880*DENS
+! 34) NHX 1000.0*NH3*0.5880*DENS+ANH4I+ANH4J
+! 35) H2O2 1000.0*H2O2
+! 36) TERP 1000.0*TERP
+! 37) FORM 1000.0*FORM
+! 38) ALD2 1000.0*ALD2
+! 39) PM25_SO4 ASO4I*PM25AT+ASO4J*PM25AC+ASO4K*PM25CO
+! 40) PM25_NO3  ANO3I*PM25AT+ANO3J*PM25AC+ANO3K*PM25CO
+! 41) PM25_NH4  ANH4I*PM25AT+ANH4J*PM25AC+ANH4K*PM25CO
+! 42) PM25_EC   AECI*PM25AT+AECJ*PM25AC
+! 43) PM25_OC   AORGPAI*PM25AT+(AOCT-AORGPAI)*PM25AC
+! 44) PM25_TOT  (ASO4I+ANO3I+ANH4I+1.4*AORGPAI+AECI+ACLI)*PM25AT+(ASO4J+ANO3J+ANH4J+1.4*AORGPAJ+AECJ+ANAJ \
+!               +ACLJ+A25J-0.2*AORGPAJ+AORGAT+AORGBT+AORGCT)*PM25AC+(ASO4K+ANO3K+ANH4K+ANAK+ACLK \
+!               + ACORS+ASOIL)*PM25CO
+! 45) PM25_OTHR (A25J+0.22*ANAJ)*PM25AC+(ASOIL+ACORS+0.22*ANAK)*PM25CO
+! 46) PMC_SO4   ASO4I+ASO4J+ASO4K-PM25_SO4
+! 47) PMC_NO3   ANO3I+ANO3J+ANO3K-PM25_NO3
+! 48) PMC_NH4   ANH4I+ANH4J+ANH4K-PM25_NH4
+! 49) PMC_NA    (ANAJ+ANAK)*0.78-PM25_NA
+! 50) PMC_CL    ACLI+ACLJ+ACLK-PM25_CL
+! 51) PMC_OTHR  (ASOIL+ACORS+0.22*ANAK)*(1.0-PM25CO)
+! 52) PMC_TOT   PMC_SO4+PMC_NO3+PMC_NH4+PMC_NA+PMC_CL+PMC_OTHR
+
+
+! INFILE1: AERODIAM
+! INFILE2: CONC
+! INFILE3: METCRO3D
+/
+/
+/new species    ,units     ,expression
+
+O3              ,ppbV      ,1000.0*O3[2]
+
+CO              ,ppbV      ,1000.0*CO[2]
+
+NO              ,ppbV      ,1000.0*NO[2]
+
+NO2             ,ppbV      ,1000.0*NO2[2]
+
+NOY             ,ppbV      ,1000.0*(NO[2]+NO2[2]+NO3[2]+2*N2O5[2]+HONO[2]+HNO3[2]+PAN[2]+PANX[2]+PNA[2]+NTR[2])
+
+HOX             ,ppbV      ,1000.0*(OH[2]+HO2[2])
+
+VOC             ,ppbC      ,1000.0*PAR[2] + 2000.0*ETH[2] + 2000.0*ETOH[2] + 2000.0*OLE[2] + 7000.0*TOL[2] \
+                           +8000.0*XYL[2] + 1000.0*FORM[2] + 2000.0*ALD2[2] + 5000.0*ISOP[2] \
+                           +2000.0*ETHA[2] + 4000.0*IOLE[2] + 2000.0*ALDX[2] + 10000.0*TERP[2]
+
+ISOP            ,ppbV      ,1000.0*ISOP[2]
+
+ASO4T           ,ug/m3     ,ASO4J[2] + ASO4I[2]
+
+ANO3T           ,ug/m3     ,ANO3J[2] + ANO3I[2]
+
+ANH4T           ,ug/m3     ,ANH4J[2] + ANH4I[2]
+
+ACLT            ,ug/m3     ,ACLI[2]  + ACLJ[2]
+
+AORGAT          ,ug/m3     ,AXYL1J[2]+AXYL2J[2]+AXYL3J[2] \
+                           +ATOL1J[2]+ATOL2J[2]+ATOL3J[2] \
+                           +ABNZ1J[2]+ABNZ2J[2]+ABNZ3J[2] \
+                           +AALKJ[2] +AOLGAJ[2]
+
+AORGPAT         ,ug/m3     ,AORGPAI[2] + AORGPAJ[2]
+
+AORGBT          ,ug/m3     ,AISO1J[2]+AISO2J[2]+AISO3J[2] \
+                           +ATRP1J[2]+ATRP2J[2]+ASQTJ[2] \
+                           +AOLGBJ[2]
+
+AORGCT          ,ug/m3     ,AORGCJ[2]
+
+AOCT            ,ugC/m3    ,(AXYL1J[2]+AXYL2J[2]+AXYL3J[2])/2.0 \
+                           +(ATOL1J[2]+ATOL2J[2]+ATOL3J[2])/2.0 \
+                           +(ABNZ1J[2]+ABNZ2J[2]+ABNZ3J[2])/2.0 \
+                           +(AISO1J[2]+AISO2J[2])/1.6           \
+                           +AISO3J[2]/2.7                       \
+                           +(ATRP1J[2]+ATRP2J[2])/1.4           \
+                           +ASQTJ[2]/2.1                        \
+                           +0.64*AALKJ[2]                       \
+                           +AORGCJ[2]/2.0                       \
+                           +(AOLGBJ[2]+AOLGAJ[2])/2.1           \
+                           +AORGPAT[0]
+
+AECT            ,ug/m3     ,AECJ[2] + AECI[2]
+
+AFINET          ,ug/m3     ,ASO4T[0] + ANO3T[0] + ANH4T[0] \
+                           + ANAJ[2] + ACLT[0] \
+                           + A25J[2] - 0.2*AORGPAT[0] \
+                           + 1.4*AORGPAT[0] + AECT[0] \
+                           + AORGAT[0] + AORGBT[0] + AORGCT[0]
+
+ANAT            ,ug/m3     ,0.78*ANAJ[2]
+
+PM25_NA         ,ug/m3     ,0.78*(ANAJ[2]*PM25AC[1] + ANAK[2]*PM25CO[1])
+
+PM25_CL         ,ug/m3     ,ACLI[2]*PM25AT[1] + ACLJ[2]*PM25AC[1] + ACLK[2]*PM25CO[1]
+
+AOTHRT          ,ug/m3     ,A25J[2] + 0.22*ANAJ[2]
+
+ACORST          ,ug/m3     ,ASOIL[2] + ACORS[2] + ANAK[2] + ACLK[2] + ASO4K[2] + ANO3K[2] + ANH4K[2]
+
+SO2             ,ppbV      ,1000.0*SO2[2]
+
+SO2_UGM3        ,ug/m3     ,1000.0*SO2[2] * 2.2118*DENS[3]
+
+SULF            ,ppbV      ,1000.0*SULF[2]
+
+HNO3            ,ppbV      ,1000.0*HNO3[2]
+
+HNO3_UGM3       ,ug/m3     ,1000.0*HNO3[2] * 2.1756*DENS[3]
+
+NH3             ,ppbV      ,1000.0*NH3[2]
+
+NH3_UGM3        ,ug/m3     ,1000.0*NH3[2] * 0.5880*DENS[3]
+
+NHX             ,ug/m3     ,1000.0*NH3[2] * 0.5880*DENS[3] + ANH4I[2] + ANH4J[2]
+
+H2O2            ,ppbV      ,1000.0*H2O2[2]
+
+TERP            ,ppbV      ,1000.0*TERP[2]
+
+FORM            ,ppbV      ,1000.0*FORM[2]
+
+ALD2            ,ppbV      ,1000.0*ALD2[2]
+
+PM25_SO4        ,ug/m3     ,ASO4I[2]*PM25AT[1]  + ASO4J[2]*PM25AC[1] \
+                           + ASO4K[2]*PM25CO[1]
+
+PM25_NO3        ,ug/m3     ,ANO3I[2]*PM25AT[1] + ANO3J[2]*PM25AC[1] + ANO3K[2]*PM25CO[1]
+
+PM25_NH4        ,ug/m3     ,ANH4I[2]*PM25AT[1] + ANH4J[2]*PM25AC[1] + ANH4K[2]*PM25CO[1]
+
+PM25_EC         ,ug/m3     ,AECI[2]*PM25AT[1] + AECJ[2]*PM25AC[1]
+
+PM25_OC         ,ugC/m3    ,AORGPAI[2]*PM25AT[1]  \
+                           + (AOCT[0] - AORGPAI[2])*PM25AC[1]
+
+PM25_TOT        ,ug/m3     ,(ASO4I[2] + ANO3I[2] + ANH4I[2] + 1.4*AORGPAI[2] + AECI[2] + ACLI[2])*PM25AT[1] \
+      +(ASO4J[2] + ANO3J[2] + ANH4J[2] + 1.4*AORGPAJ[2] + AECJ[2] + ANAJ[2]  \
+      + ACLJ[2] + A25J[2]-0.2*AORGPAJ[2] + AORGAT[0] + AORGBT[0] + AORGCT[0])*PM25AC[1] \
+      +(ASO4K[2] + ANO3K[2] + ANH4K[2] + ANAK[2] + ACLK[2] \
+      + ACORS[2] + ASOIL[2])*PM25CO[1]
+
+PM25_OTHR       ,ug/m3     ,(A25J[2]+0.22*ANAJ[2])*PM25AC[1]+(ASOIL[2]+ACORS[2]+0.22*ANAK[2])*PM25CO[1]
+
+PMC_SO4         ,ug/m3     ,ASO4I[2] + ASO4J[2] + ASO4K[2] - PM25_SO4[0]
+
+PMC_NO3         ,ug/m3     ,ANO3I[2] + ANO3J[2] + ANO3K[2] - PM25_NO3[0]
+
+PMC_NH4         ,ug/m3     ,ANH4I[2] + ANH4J[2] + ANH4K[2] - PM25_NH4[0]
+
+PMC_NA          ,ug/m3     ,(ANAJ[2] + ANAK[2])*0.78 - PM25_NA[0]
+
+PMC_CL          ,ug/m3     ,ACLI[2] + ACLJ[2] + ACLK[2] - PM25_CL[0]
+
+PMC_OTHR        ,ug/m3     ,(ASOIL[2] + ACORS[2] + 0.22*ANAK[2]) * (1.0-PM25CO[1])
+
+PMC_TOT         ,ug/m3     ,PMC_SO4[0] + PMC_NO3[0] + PMC_NH4[0] \
+      + PMC_NA[0] + PMC_CL[0] + PMC_OTHR[0]
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

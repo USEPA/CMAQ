@@ -1,0 +1,174 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.22;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.22;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/par/par/shift_map.F,v 1.6 2006/06/10 11:02:30 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+        SUBROUTINE SHIFT_MAP ( NCOLS, NROWS, COL_LOC, ROW_LOC, 
+     &                         MY_NCOLS, MY_NROWS, GL_NCOLS_IN, GL_NROWS_IN,
+     &                         NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN, CONC )
+
+C ----------------------------------------------------------------------------
+C Purpose:
+ 
+C To re-decompose the coarse grid domain with respect to the position of the
+C fine grid domain by shifting CONC and re-calculating COL_LOC and ROW_LOC 
+C accordingly.
+ 
+C Revision history:
+ 
+C   02/15/00 by David Wong, LM
+C   -- Orginal version
+ 
+C   10/10/00 by David Wong, LM
+C   -- replaced SUBST_CSG_INDEX with SUBST_SUBGRID_INDEX 
+C      after unification of subroutines SUBST_CSF_INDEX and 
+C      SUBST_FSG_INDX in the STENEX library and removed one
+C      argument in the SUBST_DATA_COPY routine with respect
+C      to the unification.
+ 
+C   04/10/02 by David Wong, LM
+C   -- Fixed the incorrect arguments order in the 
+C      SUBST_SUBGRID_INDEX call statement.
+ 
+C   12/21/04 J.Young
+C   -- Changed the argument list
+ 
+C Argument list:
+ 
+C In:
+C        NCOLS       -- number of columns of the fine domain in a processor
+C        NROWS       -- number of rows of the fine domain in a processor
+C        MY_NCOLS    -- number of data columns of the fine domain a a processor
+C        MY_NROWS    -- number of data rows of the fine domain a a processor
+C        GL_NCOLS_IN -- number of columns of the coarse domain
+C        GL_NROWS_IN -- number of rows of the coarse domain
+C        NCOLS_IN    -- number of columns of the coarse domain in a processor
+C        NROWS_IN    -- number of rows of the coarse domain in a processor
+C        NLAYS_IN    -- number of layers of the coarse domain in a processor
+C        NSPCS_IN    -- number of species of the coarse domain in a processor
+ 
+C InOut:
+C        CONC        -- concentration field
+C        COL_LOC     -- column position of a grid point of the fine domain 
+C                       relative to the coarse domain in a processor 
+C        ROW_LOC     -- row position of a grid point of the fine domain 
+C                       relative to the coarse domain in a processor 
+ 
+C ----------------------------------------------------------------------------
+
+      USE SUBST_MODULES
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_MPICH        ! MPI definitions and parameters.
+
+      INTEGER, INTENT( IN )    :: NCOLS, NROWS, MY_NCOLS, MY_NROWS
+      INTEGER, INTENT( IN )    :: GL_NCOLS_IN, GL_NROWS_IN
+      INTEGER, INTENT( IN )    :: NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN
+      REAL, INTENT( INOUT )    :: CONC( NCOLS_IN,NROWS_IN,NLAYS_IN,NSPCS_IN )
+      INTEGER, INTENT( INOUT ) :: COL_LOC( NCOLS,NROWS ), ROW_LOC( NCOLS,NROWS )
+
+      REAL    TCONC( NCOLS_IN,NROWS_IN,NLAYS_IN,NSPCS_IN )
+      INTEGER I, J, FIRST_ROW, FIRST_COL
+
+      INTEGER MY_BEGCOL, MY_ENDCOL, MY_BEGROW, MY_ENDROW,
+     &        MY_SUBGRID_COLS, MY_SUBGRID_ROWS
+
+C -- determine the decompostion of the coarse domain relative to the position
+C    of the fine domain and determine of range of row and column in a processor
+C    for data exchange purposes
+
+      CALL SUBST_SUBGRID_INDEX ( COL_LOC( 1,1 ), COL_LOC( MY_NCOLS,MY_NROWS ),
+     &                           ROW_LOC( 1,1 ), ROW_LOC( MY_NCOLS,MY_NROWS ),
+     &                           MY_BEGCOL, MY_ENDCOL,
+     &                           MY_BEGROW, MY_ENDROW,
+     &                           MY_SUBGRID_COLS, MY_SUBGRID_ROWS, 
+     &                           GL_NCOLS_IN, GL_NROWS_IN )
+
+!!!!! Even tho' it looks like you should, don't do following, because having
+!!!!! specified "RC" in par_init, Dave's stenex code does the swapping of
+!!!!! row-col internally
+
+!     CALL SUBST_SUBGRID_INDEX ( ROW_LOC( 1,1 ), ROW_LOC( MY_NCOLS,MY_NROWS ),
+!    &                           COL_LOC( 1,1 ), COL_LOC( MY_NCOLS,MY_NROWS ),
+!    &                           MY_BEGROW, MY_ENDROW,
+!    &                           MY_BEGCOL, MY_ENDCOL,
+!    &                           MY_SUBGRID_ROWS, MY_SUBGRID_COLS, 
+!    &                           GL_NROWS_IN, GL_NCOLS_IN )
+
+C -- exchange data according to the new decomposition of the coarse domain
+
+      CALL SUBST_DATA_COPY ( CONC, TCONC )
+
+      CONC = TCONC
+
+C -- normalize the row and column positions
+
+      FIRST_COL = COL_LOC( 1,1 ) - 1
+      FIRST_ROW = ROW_LOC( 1,1 ) - 1
+      DO J = 1, MY_NROWS
+         DO I = 1, MY_NCOLS
+            COL_LOC( I,J ) = COL_LOC( I,J ) - FIRST_COL
+            ROW_LOC( I,J ) = ROW_LOC( I,J ) - FIRST_ROW
+         END DO
+      END DO
+
+      RETURN
+      END SUBROUTINE SHIFT_MAP
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

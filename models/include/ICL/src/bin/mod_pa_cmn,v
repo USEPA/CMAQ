@@ -1,0 +1,132 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/include/ICL/src/bin/mod_pa_cmn,v 1.2 1999/04/07 12:54:46 yoj Exp $
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+# usage: cd to directory containing the three standard PA_* include files
+
+ unset echo
+
+ set FILE   = PA_CMN.EXT
+
+ set top    = top_$$
+ set first  = first_$$
+ set last   = last_$$
+ set new1   = new1_$$
+ set new2   = new2_$$
+ set new3   = new3_$$
+ set pass_1 = pass_1_$$
+ set bottom = bottom_$$
+ set line   = line_$$
+
+ set nl = `cat $FILE | wc -l`
+ @@ nn = $nl - 1
+ head -n $nn $FILE > $top
+
+ tail -1 $FILE > $bottom
+
+ @@ continue = 1
+ @@ lc = 0
+ while ($continue)     # read one line at a time
+    @@ lc++
+    head -n $lc $top | tail -1 > $line
+    set f = `grep "INTEGER PACOLSD" $line | wc -w`
+    if ($f > 0) @@ continue = 0
+    end
+
+ @@ n1 = $lc - 1
+ @@ n2 = $nn - $n1 - 1
+ head -n $n1 $top > $first
+ tail   -$n2 $top > $last
+
+ echo "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" >> $new2
+ echo "c The following variables define the domain of PA grid in each " >> $new2
+ echo "c processor for parallel version of CCTM code. " >> $new2
+ echo "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" >> $new2
+ echo " " >> $new2
+ echo "      INTEGER MY_BEGROW    ! Starting row of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_ENDROW    ! Ending row of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_BEGCOL    ! Starting column of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_ENDCOL    ! Ending column of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_BEGLEV    ! Starting level of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_ENDLEV    ! Ending level of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_PAROWS    ! Number of rows of local PA grid a processor has" >> $new2
+ echo "      INTEGER MY_PACOLS    ! Number of columns of local PA grid a processor has" >> $new2
+ echo "      INTEGER MY_IRR_BEGROW    ! Starting row of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_IRR_ENDROW    ! Ending row of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_IRR_BEGCOL    ! Starting column of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_IRR_ENDCOL    ! Ending column of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_IRR_BEGLEV    ! Starting level of local PA grid in a processor" >> $new2
+ echo "      INTEGER MY_IRR_ENDLEV    ! Ending level of local PA grid in a processor" >> $new2
+ echo " " >> $new2
+
+ set n = `grep -i false PA_CTL.EXT | wc -l`
+
+ if ($n < 2) then
+
+    echo "      INTEGER     X1F0" > $new1
+    echo "      PARAMETER ( X1F0 =  (NCOLS / GL_NCOLS) * (NROWS / GL_NROWS) )" >> $new1
+    echo " " >> $new1
+
+    sed -e 's/= PAROWS/= X1F0 * PAROWS + (1 - X1F0) * NROWS/' $last > $pass_1
+    sed -e 's/= PACOLS/= X1F0 * PACOLS + (1 - X1F0) * NCOLS/' $pass_1 >! $last
+
+    echo "      COMMON / PA_GRID / MY_BEGROW, MY_ENDROW, MY_BEGCOL, MY_ENDCOL," >> $new3
+    echo "     &                   MY_BEGLEV, MY_ENDLEV, MY_PAROWS, MY_PACOLS," >> $new3
+    echo "     &                   MY_IRR_BEGROW, MY_IRR_ENDROW, MY_IRR_BEGCOL," >> $new3
+    echo "     &                   MY_IRR_ENDCOL, MY_IRR_BEGLEV, MY_IRR_ENDLEV" >> $new3
+    echo " " >> $new3
+    echo " " >> $new3
+
+    cat $first $new1 $last $new2 $new3 $bottom >! PA_CMN_UNI.EXT
+    rm  $first $new1 $last $new2 $new3 $bottom $line $top $pass_1
+
+    else
+
+    cat $first $last $new2 $bottom >! PA_CMN_UNI.EXT
+    rm  $first $last $new2 $bottom $line $top
+
+    endif
+
+ exit
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

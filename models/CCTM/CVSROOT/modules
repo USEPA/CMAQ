@@ -1,0 +1,227 @@
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: modules,v 1.2 2010/06/14 16:03:13 sjr Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+# Three different line formats are valid:
+#	key	-a    aliases...
+#	key [options] directory
+#	key [options] directory files...
+#
+# Where "options" are composed of:
+#	-i prog		Run "prog" on "cvs commit" from top-level of module.
+#	-o prog		Run "prog" on "cvs checkout" of module.
+#	-e prog		Run "prog" on "cvs export" of module.
+#	-t prog		Run "prog" on "cvs rtag" of module.
+#	-u prog		Run "prog" on "cvs update" of module.
+#	-d dir		Place module in directory "dir" instead of module name.
+#	-l		Top-level directory only -- do not recurse.
+#
+# NOTE:  If you change any of the "Run" options above, you'll have to
+# release and re-checkout any working directories of these modules.
+#
+# And "directory" is a path to a directory relative to $CVSROOT.
+#
+# The "-a" option specifies an alias.  An alias is interpreted as if
+# everything on the right of the "-a" had been typed on the command line.
+#
+# You can encode a module within a module by using the special '&'
+# character to interpose another module into the current module.  This
+# can be useful for creating a module that consists of many directories
+# spread out over the entire source repository.
+
+      CVSROOT               CVSROOT
+      modules               CVSROOT modules
+
+      CCTM                  src
+
+      driver             -s CLASS_driver      src/driver
+      ctm                -s MODULE_driver     src/driver/ctm
+      ctm_yamo           -s MODULE_driver     src/driver/yamo
+      ctm_yamo_ddm3d     -s MODULE_driver     src/driver/yamo_ddm3d
+
+      par_C              -s CLASS_par         src/par   
+      par                -s MODULE_par        src/par/par
+      par_nodistr        -s MODULE_par -d par src/par/par par_init.F par_term.F
+      par_noop           -s MODULE_par        src/par/par_noop
+
+      adjcon             -s CLASS_adjcon      src/adjcon
+      adjcon_noop        -s MODULE_adjcon     src/adjcon/adjcon_noop
+      denrate            -s MODULE_adjcon     src/adjcon/denrate
+
+      hadv               -s CLASS_hadv        src/hadv
+      hadv_noop          -s MODULE_hadv       src/hadv/hadv_noop
+#2    hbot               -s MODULE_hadv       src/hadv/hbot
+      hppm               -s MODULE_hadv       src/hadv/hppm
+      hyamo              -s MODULE_hadv       src/hadv/yamo
+      hyamo_ddm3d        -s MODULE_hadv       src/hadv/yamo_ddm3d
+#1    hsmo               -s MODULE_hadv       src/hadv/hsmo
+
+      vadv               -s CLASS_vadv        src/vadv
+      vadv_noop          -s MODULE_vadv       src/vadv/vadv_noop
+#2    vbot               -s MODULE_vadv       src/vadv/vbot
+      vppm               -s MODULE_vadv       src/vadv/vppm
+      vyamo              -s MODULE_vadv       src/vadv/yamo
+      vyamo_ddm3d        -s MODULE_vadv       src/vadv/yamo_ddm3d
+#1    vsmo               -s MODULE_vadv       src/vadv/vsmo
+
+      hdiff              -s CLASS_hdiff       src/hdiff
+      hdiff_noop         -s MODULE_hdiff      src/hdiff/hdiff_noop
+#2    unif               -s MODULE_hdiff      src/hdiff/unif
+      multiscale         -s MODULE_hdiff      src/hdiff/multiscale
+      multiscale_ddm3d   -s MODULE_hdiff      src/hdiff/multiscale_ddm3d
+
+      vdiff              -s CLASS_vdiff       src/vdiff
+      vdiff_noop         -s MODULE_vdiff      src/vdiff/vdiff_noop
+      eddy               -s MODULE_vdiff      src/vdiff/eddy
+#2    eddy_carb          -s MODULE_vdiff      src/vdiff/eddy_carb
+#2    eddy_hg            -s MODULE_vdiff      src/vdiff/eddy_hg
+      eddy_ddm3d         -s MODULE_vdiff      src/vdiff/eddy_ddm3d
+#2    eddy_sulf          -s MODULE_vdiff      src/vdiff/eddy_sulf
+#2    eddy_tx            -s MODULE_vdiff      src/vdiff/eddy_tx
+      eddy_txhg          -s MODULE_vdiff      src/vdiff/eddy_txhg
+#2    acm                -s MODULE_vdiff      src/vdiff/acm
+      acm2               -s MODULE_vdiff      src/vdiff/acm2
+      acm2_inline        -s MODULE_vdiff      src/vdiff/acm2_inline
+      acm2_inline_carb   -s MODULE_vdiff      src/vdiff/acm2_inline_carb
+      acm2_inline_sulf   -s MODULE_vdiff      src/vdiff/acm2_inline_sulf
+      acm2_inline_txhg   -s MODULE_vdiff      src/vdiff/acm2_inline_txhg
+      acm2_inline_txhgsim -s MODULE_vdiff     src/vdiff/acm2_inline_txhgsim
+#2    acm2_carb          -s MODULE_vdiff      src/vdiff/acm2_carb
+#2    acm2_hg            -s MODULE_vdiff      src/vdiff/acm2_hg
+#2    acm2_sulf          -s MODULE_vdiff      src/vdiff/acm2_sulf
+#2    acm2_tx            -s MODULE_vdiff      src/vdiff/acm2_tx
+      acm2_txhg          -s MODULE_vdiff      src/vdiff/acm2_txhg
+#1    trns               -s MODULE_vdiff      src/vdiff/trns
+
+      chem               -s CLASS_chem        src/chem
+      chem_noop          -s MODULE_chem       src/chem/chem_noop
+      smvgear            -s MODULE_chem       src/chem/smvgear
+#2    qssa               -s MODULE_chem       src/chem/qssa
+#2    mebi_cb4_1         -s MODULE_chem       src/chem/mebi_cb4_1
+#2    mebi_cb4           -s MODULE_chem       src/chem/mebi_cb4
+#2    ebi_cb4            -s MODULE_chem       src/chem/ebi_cb4
+#2    ebi_cb4cl          -s MODULE_chem       src/chem/ebi_cb4cl
+#2    ebi_cb4hg          -s MODULE_chem       src/chem/ebi_cb4hg
+#2    ebi_cb4tx1p        -s MODULE_chem       src/chem/ebi_cb4tx1p
+      ebi_cb05           -s MODULE_chem       src/chem/ebi_cb05
+      ebi_cb05cl         -s MODULE_chem       src/chem/ebi_cb05cl
+      ebi_cb05cl_ae5     -s MODULE_chem       src/chem/ebi_cb05cl_ae5
+      ebi_cb05cl_ae5_ddm3d -s MODULE_chem     src/chem/ebi_cb05cl_ae5_ddm3d
+#2    ebi_cb05hg         -s MODULE_chem       src/chem/ebi_cb05hg
+      ebi_cb05cltx       -s MODULE_chem       src/chem/ebi_cb05cltx
+      ebi_cb05cltx_ae5   -s MODULE_chem       src/chem/ebi_cb05cltx_ae5
+      ebi_cb05txhg       -s MODULE_chem       src/chem/ebi_cb05txhg
+      ebi_cb05txhg_ae5   -s MODULE_chem       src/chem/ebi_cb05txhg_ae5
+#2    mebi_radm2_cis4    -s MODULE_chem       src/chem/mebi_radm2_cis4
+#2    mebi_saprc99       -s MODULE_chem       src/chem/mebi_saprc99
+      ebi_saprc99        -s MODULE_chem       src/chem/ebi_saprc99
+      ebi_saprc99_ae5    -s MODULE_chem       src/chem/ebi_saprc99_ae5
+      ebi_saprc99_ae5_ddm3d -s MODULE_chem    src/chem/ebi_saprc99_ae5_ddm3d
+#2    ebi_saprc99tx2p    -s MODULE_chem       src/chem/ebi_saprc99tx2p
+      ebi_saprc99tx3     -s MODULE_chem       src/chem/ebi_saprc99tx3
+      ebi_saprc99tx3_ae5 -s MODULE_chem       src/chem/ebi_saprc99tx3_ae5
+      ros3               -s MODULE_chem       src/chem/ros3
+
+      phot_C             -s CLASS_phot        src/phot
+#2    phot_noop          -s MODULE_phot       src/phot/phot_noop
+#2    phot               -s MODULE_phot       src/phot/phot
+      phot_table         -s MODULE_phot       src/phot/phot
+      phot_sat           -s MODULE_phot       src/phot/phot_sat
+      phot_inline        -s MODULE_phot       src/phot/phot_inline
+
+      aero_depv_C        -s CLASS_aero_depv   src/aero_depv
+      aero_depv_noop     -s MODULE_aero_depv  src/aero_depv/aero_depv_noop
+#2    oldaero_depv       -s MODULE_aero_depv  src/aero_depv/aero_depv
+#2    aero_depv1         -s MODULE_aero_depv  src/aero_depv/aero_depv1
+      aero_depv2         -s MODULE_aero_depv  src/aero_depv/aero_depv2
+      aero_depv2_carb    -s MODULE_aero_depv  src/aero_depv/aero_depv2_carb
+#2    aero_depv2_hg      -s MODULE_aero_depv  src/aero_depv/aero_depv2_hg
+      aero_depv2_sulf    -s MODULE_aero_depv  src/aero_depv/aero_depv2_sulf
+
+      aero_C             -s CLASS_aero        src/aero
+      aero_noop          -s MODULE_aero       src/aero/aero_noop
+#2    oldaero            -s MODULE_aero       src/aero/aero
+#2    aero1              -s MODULE_aero       src/aero/aero1
+#2    aero2              -s MODULE_aero       src/aero/aero2
+#2    aero3              -s MODULE_aero       src/aero/aero3
+#2    aero3_carb         -s MODULE_aero       src/aero/aero3_carb
+#2    aero3_sulf         -s MODULE_aero       src/aero/aero3_sulf
+#2    aero3_hg           -s MODULE_aero       src/aero/aero3_hg
+      aero4              -s MODULE_aero       src/aero/aero4
+#2    aero4_carb         -s MODULE_aero       src/aero/aero4_carb
+#2    aero4_sulf         -s MODULE_aero       src/aero/aero4_sulf
+#2    aero4_hg           -s MODULE_aero       src/aero/aero4_hg
+#2    aero4_tx           -s MODULE_aero       src/aero/aero4_tx
+      aero4_txhg         -s MODULE_aero       src/aero/aero4_txhg
+      aero5              -s MODULE_aero       src/aero/aero5
+      aero5_carb         -s MODULE_aero       src/aero/aero5_carb
+      aero5_ddm3d        -s MODULE_aero       src/aero/aero5_ddm3d
+      aero5_sulf         -s MODULE_aero       src/aero/aero5_sulf
+      aero5_txhg         -s MODULE_aero       src/aero/aero5_txhg
+
+      cloud              -s CLASS_cloud       src/cloud
+      cloud_noop         -s MODULE_cloud      src/cloud/cloud_noop
+#2    cloud_radm         -s MODULE_cloud      src/cloud/cloud_radm
+#2    cloud_radm_sulf    -s MODULE_cloud      src/cloud/cloud_radm_sulf
+      cloud_acm          -s MODULE_cloud      src/cloud/cloud_acm
+#2    cloud_acm_hg       -s MODULE_cloud      src/cloud/cloud_acm_hg
+#2    cloud_acm_sulf     -s MODULE_cloud      src/cloud/cloud_acm_sulf
+      cloud_acm_tx       -s MODULE_cloud      src/cloud/cloud_acm_tx
+      cloud_acm_txhg     -s MODULE_cloud      src/cloud/cloud_acm_txhg
+      cloud_acm_ae5      -s MODULE_cloud      src/cloud/cloud_acm_ae5
+      cloud_acm_ae5_ddm3d -s MODULE_cloud     src/cloud/cloud_acm_ae5_ddm3d
+      cloud_acm_ae5_sulf -s MODULE_cloud      src/cloud/cloud_acm_ae5_sulf
+      cloud_acm_ae5_tx   -s MODULE_cloud      src/cloud/cloud_acm_ae5_tx
+      cloud_acm_ae5_txhg -s MODULE_cloud      src/cloud/cloud_acm_ae5_txhg
+      cloud_acm_ae5_txhgsim -s MODULE_cloud   src/cloud/cloud_acm_ae5_txhgsim
+#1    kfbmrs             -s MODULE_cloud      src/cloud/kfbmrs
+
+#1    aqchem_C           -s CLASS_aqchem      src/aqchem
+#1    aqchem_noop        -s MODULE_aqchem     src/aqchem/aqchem_noop
+#1    aqchem             -s MODULE_aqchem     src/aqchem/aqchem
+
+#2    ping_C             -s CLASS_ping        src/ping
+#2    ping_noop          -s MODULE_ping       src/ping/ping_noop
+#2    ping_qssa          -s MODULE_ping       -a _ping_base _ping_qssa
+#2    ping_smvgear_aero3 -s MODULE_ping -a _ping_base _ping_smvgear _ping_aero3
+#2    ping_smvgear_aero4 -s MODULE_ping -a _ping_base _ping_smvgear _ping_aero4
+#2    ping_mebi_cb4_1    -s MODULE_ping       -a _ping_base _ping_mebi_cb4_1
+#2    ping_mebi_cb4      -s MODULE_ping       -a _ping_base _ping_mebi_cb4
+#2    _ping_base         -s MODULE_ping       src/ping/base
+#2    _ping_qssa         -s MODULE_ping       src/ping/qssa
+#2    _ping_smvgear      -s MODULE_ping       src/ping/smvgear
+#2    _ping_aero3        -s MODULE_ping       src/ping/aero3
+#2    _ping_aero4        -s MODULE_ping       src/ping/aero4
+#2    _ping_mebi_cb4_1   -s MODULE_ping       src/ping/mebi_cb4_1
+#2    _ping_mebi_cb4     -s MODULE_ping       src/ping/mebi_cb4
+
+      procan             -s CLASS_procan      src/procan
+      pa                 -s MODULE_procan     src/procan/pa
+
+      couple             -s CLASS_couple      src/couple
+      gencoor            -s MODULE_couple     src/couple/gencoor
+      gencoor_ddm3d      -s MODULE_couple     src/couple/gencoor_ddm3d
+
+      init_C             -s CLASS_init        src/init
+      init               -s MODULE_init       src/init/init
+      init_yamo          -s MODULE_init       src/init/yamo
+      init_yamo_ddm3d    -s MODULE_init       src/init/yamo_ddm3d
+ 
+      util_C             -s CLASS_util        src/util
+      util               -s MODULE_util       src/util/util
+
+#1    doc                -s CLASS_doc         src/doc
+
+#1    bldrun             -s CLASS_bldrun      src/bldrun
+#1    sunOS5             -s MODULE_bldrun     src/bldrun/sunOS5
+#1    unicos             -s MODULE_bldrun     src/bldrun/unicos
+#2    sunOS5             -s MODULE_bldrun     src/sunOS5
+#2    unicos             -s MODULE_bldrun     src/unicos
+#1    decunix            -s MODULE_bldrun     src/bldrun/decunix
+
+#1 = not implemented
+#2 = hidden
+

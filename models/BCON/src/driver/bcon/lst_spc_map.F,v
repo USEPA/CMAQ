@@ -1,0 +1,539 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/driver/bcon/lst_spc_map.F,v 1.4 2002/04/12 14:19:20 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE LST_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT,  
+     &                        SPMAP, N_MCNV_SP, SFAC, MCNV_COEFF, LCONV, 
+     &                        LSCALE, LCONVSP, EXT_IC_NAME, INFL_SP_NAME,  
+     &                        MCNV_SPCS, SPNAME_OUT )
+
+C*************************************************************************
+C
+C  FUNCTION:  To list a table showing the relationship between species
+C             on the CTM conc file(s) and the species on the output BC
+C             file(s) 
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C
+C*************************************************************************
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS   ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC   ! IOAPI file description
+      INCLUDE SUBST_IODECL    ! IOAPI declarations
+      INCLUDE SUBST_GC_SPC    ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC    ! aerosol species table
+      INCLUDE SUBST_NR_SPC    ! non-reactive species table
+      INCLUDE SUBST_TR_SPC    ! tracer species table
+      INCLUDE SUBST_GC_ICBC   ! gas chem ic/bc surrogate names and map table
+      INCLUDE SUBST_AE_ICBC   ! aerosol ic/bc surrogate names and map table
+      INCLUDE SUBST_NR_ICBC   ! non-react ic/bc surrogate names and map table
+      INCLUDE SUBST_TR_ICBC   ! tracer ic/bc surrogate names and map table
+
+      INCLUDE 'BC_PARMS.EXT'  ! BCON parameters 
+
+C..ARGUMENTS:
+      CHARACTER*( * ) EXT_IC_NAME( * )      ! List of all species names in
+                                            ! .EXT files
+
+      CHARACTER*( * ) INFL_SP_NAME( * )     ! List of species on the input
+                                            ! file
+
+      CHARACTER*( * ) SPNAME_OUT( * )       ! Output file species names
+
+      CHARACTER*( * ) MCNV_SPCS(  N_GC_SPCD, * )    ! Mechanism species names
+                                                    ! to convert from
+
+      INTEGER LOGUNIT             ! Ouput log unit number
+      INTEGER N_GC_OUT            ! No. of GC species for mech. conversion 
+      INTEGER NSPCS_IN            ! Total no. of species in input file
+      INTEGER NSPCS_OUT           ! Number of BC species on output file(s)
+      INTEGER SPMAP( * )          ! Map of output species to input species
+      INTEGER N_MCNV_SP( * )      ! No. of mech species to convert from
+
+      LOGICAL LCONV               ! Flag for mech conversion
+      LOGICAL LCONVSP( * )        ! Flag for species mech conversion
+      LOGICAL LSCALE( * )         ! Flag for scaling input concs 
+
+
+      REAL MCNV_COEFF( N_GC_SPCD, * ) ! Mech input species coefficients
+      REAL SFAC( * )                  ! Input species conc scale factor
+      
+C..PARAMETERS: 
+      INTEGER      NSPCS              ! Total number of species
+      PARAMETER  ( NSPCS = N_GC_SPC
+     &                   + N_AE_SPC 
+     &                   + N_NR_SPC 
+     &                   + N_TR_SPC )
+
+      INTEGER      NSPCSD             ! Dimension for total number of species
+      PARAMETER  ( NSPCSD = N_GC_SPCD
+     &                    + N_AE_SPCD 
+     &                    + N_NR_SPCD 
+     &                    + N_TR_SPCD )
+
+      INTEGER    LINLEN               ! Length of otput line
+      PARAMETER (LINLEN = 120 )
+
+
+C..EXTERNAL FUNCTIONS:
+      INTEGER FINDEX      ! Finds the index of a number in a list 
+      INTEGER INDEX1      ! Looks up name in table
+      INTEGER TRIMLEN     ! Gets position of last character in a string
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  BLANK             ! Blank chars
+      CHARACTER*3   CSIGN             ! Sign of coefficient
+      CHARACTER*9   COEFF             ! Coefficient in character form
+      CHARACTER*12  FACOUT            ! Scale factor written to log
+      CHARACTER*16  NAMEOUT           ! Species names padded with blanks
+      CHARACTER*16  PNAME             ! Program Name
+      CHARACTER*16  SUROUT            ! *.EXT surrogate name
+      CHARACTER*(LINLEN) LINOUT       ! Output line
+
+      CHARACTER*16 IC_SP_NF( NSPCSD ) ! BC species for which BCs not
+                                      ! computed 
+
+      CHARACTER*16 INFL_SP_NF( MX_INFL_SP )  ! Input file species not
+                                             ! referenced in computing BCs
+
+      INTEGER EON         ! Position of last char in a species name
+      INTEGER EPOS        ! Position of last char in a string
+      INTEGER IND         ! Array index
+      INTEGER I, N, SPC   ! Loop indices
+      INTEGER IC_IND      ! IC species index
+      INTEGER MXIN        ! Longest name length of mech input species
+      INTEGER MXOUT       ! Longest name length of mech output species
+      INTEGER MXONLINE    ! max no. of terms on an output line
+      INTEGER NSP         ! species counter
+      INTEGER NONLIN      ! Number of species on a line
+      INTEGER SUR_IND     ! Surrogate name index
+
+      LOGICAL LFOUND           ! Flag for name found in list
+      LOGICAL LUSED( NSPCSD )  ! Flag for EXT species being used
+   
+C**********************************************************************
+      DATA PNAME / 'LST_SPC_MAP' /
+      DATA BLANK / '                ' /
+
+      DO N = 1, NSPCS
+         LUSED( N ) = .FALSE.
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  List species table
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c...gas-phase species section
+      IF( LCONV ) THEN
+       
+         WRITE( LOGUNIT, 92000 )
+
+         MXOUT = 0
+         DO N = 1, N_GC_OUT
+            MXOUT = MAX( MXOUT, TRIMLEN( SPNAME_OUT( N ) ) )
+         ENDDO
+
+         MXIN = 0
+         DO N = 1, N_GC_OUT
+            DO SPC = 1, N_MCNV_SP( N )
+               MXIN = MAX( MXIN, TRIMLEN( SPNAME_OUT( N ) ) )
+            ENDDO
+         ENDDO
+
+         MXONLINE = LINLEN / (MXOUT + MXIN + 18 )
+
+         DO N = 1, N_GC_OUT
+
+            IND = INDEX1( SPNAME_OUT( N ), N_GC_SPC, GC_SPC )
+            IF( IND .NE. 0 ) LUSED( IND ) = .TRUE.
+
+            EON = TRIMLEN( SPNAME_OUT( N ) )
+            NAMEOUT = BLANK
+            NAMEOUT( 1 : EON ) = SPNAME_OUT( N )( 1 : EON )
+
+            NONLIN = 0
+            LINOUT = '[' // NAMEOUT( 1 : MXOUT ) // '] = '
+            EPOS = TRIMLEN( LINOUT ) + 1
+
+            DO SPC = 1, N_MCNV_SP( N )
+
+               EON = TRIMLEN( MCNV_SPCS( N, SPC ) )
+               NAMEOUT = BLANK
+               NAMEOUT( 1 : EON ) = MCNV_SPCS( N, SPC )( 1 : EON )
+
+               IND = INDEX1( MCNV_SPCS( N, SPC ), NSPCS_IN, INFL_SP_NAME )
+
+               NONLIN = NONLIN + 1
+
+               IF( NONLIN .EQ. 1 ) THEN
+                  CSIGN = ' '
+               ELSE
+                  CSIGN = '+'
+               ENDIF
+
+               IF( MCNV_COEFF( N, SPC ) .EQ. 1.0 ) THEN
+                  COEFF = '         '
+               ELSE
+                  WRITE( COEFF, ' ( F6.3, '' * '' ) ' ) MCNV_COEFF( N, SPC )
+               ENDIF
+
+               LINOUT = LINOUT( 1 : EPOS ) // CSIGN // COEFF // '[' //
+     &                  NAMEOUT( 1 : MXOUT ) // '] '
+               EPOS = TRIMLEN( LINOUT ) + 1
+
+               IF( NONLIN .EQ. MXONLINE ) THEN
+                  EPOS = TRIMLEN( LINOUT )
+                  IF( SPC .LT. N_MCNV_SP( N ) ) THEN
+                     LINOUT = LINOUT( 1 : EPOS ) // ' +'
+                     EPOS = TRIMLEN( LINOUT )
+                  ENDIF
+                  WRITE( LOGUNIT, ' ( 5X, A ) ' ) LINOUT( 1 : EPOS )
+                  LINOUT = '                     '
+                  EPOS = MXIN + 5
+                  NONLIN = 0
+               ENDIF
+            ENDDO
+
+            IF( NONLIN .GT. 0 ) THEN 
+               EPOS = TRIMLEN( LINOUT )
+               WRITE( LOGUNIT, ' ( 5X, A ) ' ) LINOUT( 1 : EPOS )
+            ENDIF
+
+         ENDDO
+
+         IF( NSPCS_OUT .GT. N_GC_OUT ) WRITE( LOGUNIT, 92020 ) 
+
+         NSP = N_GC_OUT                
+
+      ELSE
+
+         WRITE( LOGUNIT, 92040 )
+
+         NSP = 0
+
+         DO N = 1, NSPCS_OUT
+
+            IC_IND  = INDEX1( SPNAME_OUT( N ), N_GC_SPC, GC_SPC ) 
+            SUR_IND = INDEX1( SPNAME_OUT( N ), N_GC_ICBC, GC_ICBC )
+
+            IF( SUR_IND .NE. 0 ) THEN 
+               IC_IND = GC_ICBC_MAP( SUR_IND ) 
+            ELSE
+               SUR_IND = FINDEX( IC_IND, N_GC_ICBC, GC_ICBC_MAP )
+            ENDIF
+
+            IF( IC_IND .NE. 0 .OR. SUR_IND .NE. 0) THEN
+               LUSED( IC_IND ) = .TRUE.
+               WRITE( FACOUT, 94000 ) SFAC( N )
+               IF( SUR_IND .NE. 0 ) THEN
+                  SUROUT = GC_ICBC( SUR_IND )
+               ELSE
+                  SUROUT = BLANK
+               ENDIF
+ 
+               WRITE( LOGUNIT, 92060 ) GC_SPC( IC_IND ), SUROUT,
+     &                                 INFL_SP_NAME( SPMAP ( N ) ),
+     &                                 FACOUT
+            ENDIF
+
+         ENDDO
+
+      ENDIF
+
+c..aerosol map
+      DO N = 1, NSPCS_OUT
+
+         IC_IND  = INDEX1( SPNAME_OUT( N ), N_AE_SPC, AE_SPC ) 
+         SUR_IND = INDEX1( SPNAME_OUT( N ), N_AE_ICBC, AE_ICBC )
+
+         IF( SUR_IND .NE. 0 ) THEN 
+            IC_IND = AE_ICBC_MAP( SUR_IND ) 
+         ELSE
+            SUR_IND = FINDEX( IC_IND, N_AE_ICBC, AE_ICBC_MAP )
+         ENDIF
+
+
+         IF( IC_IND .NE. 0 .OR. SUR_IND .NE. 0) THEN
+            LUSED( IC_IND + N_GC_SPC ) = .TRUE.
+            WRITE( FACOUT, 94000 ) SFAC( N )
+            IF( SUR_IND .NE. 0 ) THEN
+               SUROUT = AE_ICBC( SUR_IND )
+            ELSE
+               SUROUT = BLANK
+            ENDIF
+            WRITE( LOGUNIT, 92060 ) AE_SPC( IC_IND ), SUROUT,
+     &                              INFL_SP_NAME( SPMAP ( N ) ),
+     &                              FACOUT
+         ENDIF
+
+      ENDDO
+
+c..nonreactive species map
+      DO N = 1, NSPCS_OUT
+
+         IC_IND  = INDEX1( SPNAME_OUT( N ), N_NR_SPC, NR_SPC ) 
+         SUR_IND = INDEX1( SPNAME_OUT( N ), N_NR_ICBC, NR_ICBC )
+
+         IF( SUR_IND .NE. 0 ) THEN 
+            IC_IND = NR_ICBC_MAP( SUR_IND ) 
+         ELSE
+            SUR_IND = FINDEX( IC_IND, N_NR_ICBC, NR_ICBC_MAP )
+         ENDIF
+
+         IF( IC_IND .NE. 0 .OR. SUR_IND .NE. 0) THEN
+            LUSED( IC_IND + N_GC_SPC + N_AE_SPC) = .TRUE.
+            WRITE( FACOUT, 94000 ) SFAC( N )
+            IF( SUR_IND .NE. 0 ) THEN
+               SUROUT = NR_ICBC( SUR_IND )
+            ELSE
+               SUROUT = BLANK
+            ENDIF
+            WRITE( LOGUNIT, 92060 ) NR_SPC( IC_IND ), SUROUT,
+     &                              INFL_SP_NAME( SPMAP ( N ) ),
+     &                              FACOUT
+         ENDIF
+
+      ENDDO
+
+c..tracer map
+      DO N = 1, NSPCS_OUT
+
+         IC_IND  = INDEX1( SPNAME_OUT( N ), N_TR_SPC, TR_SPC ) 
+         SUR_IND = INDEX1( SPNAME_OUT( N ), N_TR_ICBC, TR_ICBC )
+
+         IF( SUR_IND .NE. 0 ) THEN 
+            IC_IND = TR_ICBC_MAP( SUR_IND ) 
+         ELSE
+            SUR_IND = FINDEX( IC_IND, N_TR_ICBC, TR_ICBC_MAP )
+         ENDIF
+
+         IF( IC_IND .NE. 0 .OR. SUR_IND .NE. 0) THEN
+            LUSED( IC_IND + N_GC_SPC + N_AE_SPC + N_NR_SPC ) = .TRUE.
+            WRITE( FACOUT, 94000 ) SFAC( N )
+            IF( SUR_IND .NE. 0 ) THEN
+               SUROUT = TR_ICBC( SUR_IND )
+            ELSE
+               SUROUT = BLANK
+            ENDIF
+            WRITE( LOGUNIT, 92060 ) TR_SPC( IC_IND ), SUROUT,
+     &                              INFL_SP_NAME( SPMAP ( N ) ),
+     &                              FACOUT
+         ENDIF
+
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Report on *.EXT species with no ICs and input file species not
+c  referenced
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c..list *.EXT species with no BC output
+      NSP = 0
+      DO N = 1, NSPCS
+
+         IF( .NOT. LUSED( N ) ) THEN
+            NSP = NSP + 1
+            IC_SP_NF( NSP ) = EXT_IC_NAME( N )
+         ENDIF
+      ENDDO
+
+      IF( NSP .GT. 0 ) THEN
+         WRITE( LOGUNIT, 92080 )
+         WRITE( LOGUNIT, 92100 ) ( IC_SP_NF( N ), N = 1, NSP )
+      ENDIF
+         
+c..list surrogate species not found on the input file
+      NSP = 0
+      IF( .NOT. LCONV ) THEN
+         DO N = 1, N_GC_ICBC
+            IND = INDEX1( GC_ICBC( N ), NSPCS_OUT, SPNAME_OUT )
+            IF( IND .EQ. 0 ) THEN
+               NSP = NSP + 1
+               IC_SP_NF( NSP ) = GC_ICBC( N )
+            ENDIF
+         ENDDO
+      ENDIF
+ 
+      DO N = 1, N_AE_ICBC
+         IND = INDEX1( AE_ICBC( N ), NSPCS_OUT, SPNAME_OUT )
+         IF( IND .EQ. 0 ) THEN
+            NSP = NSP + 1
+            IC_SP_NF( NSP ) = AE_ICBC( N )
+         ENDIF
+      ENDDO
+              
+      DO N = 1, N_NR_ICBC
+         IND = INDEX1( NR_ICBC( N ), NSPCS_OUT, SPNAME_OUT )
+         IF( IND .EQ. 0 ) THEN
+            NSP = NSP + 1
+            IC_SP_NF( NSP ) = NR_ICBC( N )
+         ENDIF
+      ENDDO
+
+      DO N = 1, N_TR_ICBC
+         IND = INDEX1( TR_ICBC( N ), NSPCS_OUT, SPNAME_OUT )
+         IF( IND .EQ. 0 ) THEN
+            NSP = NSP + 1
+            IC_SP_NF( NSP ) = TR_ICBC( N )
+         ENDIF
+      ENDDO
+
+      IF( NSP .GT. 0 ) THEN
+         WRITE( LOGUNIT, 92120 )
+         WRITE( LOGUNIT, 92100 ) ( IC_SP_NF( N ), N = 1, NSP )
+      ENDIF
+
+c..list input file species not referenced
+      NSP = 0
+      DO N = 1, NSPCS_IN
+
+         LFOUND = .FALSE.
+
+         IF( LCONV ) THEN
+
+            DO I = 1, N_GC_OUT
+               DO SPC = 1, N_MCNV_SP( I )
+                  IF( INFL_SP_NAME( N ) .EQ. MCNV_SPCS( I, SPC ) ) 
+     &                LFOUND = .TRUE.
+               ENDDO
+            ENDDO
+
+            DO I = N_GC_OUT + 1, NSPCS_OUT
+               IF( INFL_SP_NAME( N ) .EQ. INFL_SP_NAME( SPMAP ( I ) ) )
+     &             LFOUND = .TRUE.
+            ENDDO
+
+         ELSE
+
+            DO I = 1, NSPCS_OUT
+               IF( INFL_SP_NAME( N ) .EQ. INFL_SP_NAME( SPMAP ( I ) ) )
+     &             LFOUND = .TRUE.
+            ENDDO
+            
+         ENDIF 
+          
+         IF( .NOT. LFOUND ) THEN
+            NSP = NSP + 1
+            INFL_SP_NF( NSP ) = INFL_SP_NAME( N )
+         ENDIF
+
+      ENDDO
+
+      IF( NSP .GT. 0 ) THEN
+         WRITE( LOGUNIT, 92140 )
+         WRITE( LOGUNIT, 92100 ) ( INFL_SP_NF( N ), N = 1, NSP )
+      ENDIF
+
+      WRITE( LOGUNIT, 92160 )
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( //1X, 'The following conversion procedures will be ',
+     &              'used to compute BCs for gas-phase species:'
+     &        / 1X ) 
+
+
+92020 FORMAT( //1X, 'Species map for non gas-phase species:'  
+     &       //10X, 'EXT Species          EXT Surrogate   ',
+     &              '     Input File Species Used',
+     &              '     Scale Factor')
+
+
+
+92040 FORMAT( //1X, 'Species Map for Boundary Concentrations' 
+     &       //10X, 'EXT Species          EXT Surrogate   ',
+     &              '     Input File Species Used',
+     &              '     Scale Factor')
+
+92060 FORMAT(  10X, A16, 5X, A16, 5X, A16, 12X, A )
+
+92080 FORMAT( // 5X, 'WARNING: The following *.EXT species could not be ',
+     &               'mapped to a species in the input file.'
+     &         / 5X, '         BCs were not generated for them. ' )
+
+
+92100 FORMAT(   (15X, 4( A, 2X ) ) )
+
+92120 FORMAT( // 5X, 'WARNING: The following *.EXT surrogate species ',
+     &               'could not be found in the input file.'
+     &         / 5X, '         BCs were generated only when the *.EXT',
+     &               ' species could be mapped to an input species.')
+
+
+92140 FORMAT( // 5X, 'WARNING: The following species in the input file ',
+     &               'were not referenced.' )
+
+92160 FORMAT( // 5X, 'NOTE: All scale factors will be applied in the ',
+     &               'CTM.' )
+
+94000 FORMAT( F12.3 )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

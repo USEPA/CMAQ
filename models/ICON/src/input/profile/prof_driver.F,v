@@ -1,0 +1,284 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/input/profile/prof_driver.F,v 1.5 2005/02/17 16:31:16 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE INIC( LOGUNIT, SDATE, STIME, EXT_IC_NAME )   
+
+C*************************************************************************
+C
+C   FUNCTION: Opens the input profile data file, and calls the routine to 
+C             compute the ICs and write the output IC file  
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: GC_DPC_MAP
+C                                    NGC_SPC_MAP
+C                                    LST_SPC_MAP
+C                                    ICOUT
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C                    Modified April 1998 by JG to remove ppb option for 
+C                       input profile file
+C
+C*************************************************************************
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+      INCLUDE SUBST_GC_SPC      ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC      ! aerosol species table
+      INCLUDE SUBST_NR_SPC      ! non-reactive species table
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+
+      INCLUDE 'IC_PARMS.EXT'    ! ICON paramters
+
+C..ARGUMENTS: 
+      CHARACTER*16  EXT_IC_NAME( * )  ! Names of species in *.EXTs
+
+      INTEGER LOGUNIT                 ! Unit number for output log
+      INTEGER SDATE                   ! Date for IC Output
+      INTEGER STIME                   ! Time for IC output
+
+C..PARAMETERS:
+
+      INTEGER      NSPCSD             ! Dimension for total no. of species
+      PARAMETER  ( NSPCSD = N_GC_SPCD
+     &                    + N_AE_SPCD 
+     &                    + N_NR_SPCD 
+     &                    + N_TR_SPCD )
+
+C..EXTERNAL FUNCTIONS: 
+      INTEGER JUNIT                ! Get Logical unit no. for file
+      
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*16  ENV_DFLT       ! Environment variable default value
+      CHARACTER*80  ENV_DESC       ! Environment variable description
+      CHARACTER*16  IC_PROFILE     ! Logical name of input profile file
+      CHARACTER*256 LINEIN         ! Input line
+      CHARACTER*80  MSG            ! Log message
+      CHARACTER*16  PNAME          ! Program name
+      CHARACTER*256 PROF_FL_NAME   ! Input profile file name
+      CHARACTER*16  PROF_UNITS     ! Environment variable for units
+      CHARACTER*16  PUNITS         ! Value of units Environment variable
+
+      CHARACTER*16  PROF_SP_NAME( MXCTMS * MXVARS3 )  ! Species names on
+                                                      ! profile file
+      CHARACTER*16  SPNAME_OUT( NSPCSD )              ! Output file species
+                                                      ! names
+      CHARACTER*16  MCNV_SPCS(  N_GC_SPCD, MXCVSP )   ! Mech conv species
+                                                      ! names
+  
+      INTEGER N, SPC       ! Loop indices
+      INTEGER N_GC_OUT     ! No. of GC species for conversion 
+      INTEGER NLAYS_IN     ! No. of layers in input conc file
+      INTEGER NSPCS_IN     ! CTM files species counter
+      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER PFILE        ! Unit number of profile file    
+      INTEGER STATUS       ! Status code
+
+      INTEGER  SPMAP( NSPCSD )           ! Map to input file species from IC
+                                         ! species
+      INTEGER  N_MCNV_SP( N_GC_SPCD )    ! No. of mech input species for each
+                                         ! mech output species
+
+      LOGICAL LCONV                      ! Flag for mech conversion
+      LOGICAL LERROR                     ! Error flag
+      LOGICAL LCONVSP( NSPCSD )          ! Flag for species mech conversion
+      LOGICAL LSCALE( MXVARS3 * MXCTMS)  ! Flag for scaling input concs 
+
+      REAL MCNV_COEFF( N_GC_SPCD, MXCVSP ) ! Mech conv species coefficients
+      REAL SFAC( MXVARS3 * MXCTMS )        ! Input species conc scale factor
+
+C**********************************************************************
+      DATA PNAME      / 'INIC'       /
+      DATA IC_PROFILE / 'IC_PROFILE' /
+      DATA PROF_UNITS / 'PROF_UNITS' /
+
+      WRITE( LOGUNIT, 92000 )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Open the input profile file, read the number of species and their 
+c  names, and list the file on the output log
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ENV_DFLT = ' '
+      ENV_DESC = 'Input IC Profile file'        
+      CALL ENVSTR( IC_PROFILE, ENV_DESC, ENV_DFLT, PROF_FL_NAME, STATUS)
+
+      IF( STATUS .NE. 0 ) THEN
+         MSG = 'No IC profile file assigned to IC_PROFILE'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+      ENDIF
+
+      PFILE = JUNIT()
+
+      OPEN( UNIT = PFILE, FILE = PROF_FL_NAME ,
+     &      STATUS = 'OLD',   ERR = 999 )
+
+      WRITE( LOGUNIT, 92020) PROF_FL_NAME( 1 : 100 )
+
+      DO N = 1, 3
+         READ( PFILE, 94000 ) LINEIN
+         WRITE( LOGUNIT, 92040 ) LINEIN
+      ENDDO
+
+      READ( PFILE, * ) NLAYS_IN, NSPCS_IN
+      BACKSPACE PFILE 
+      READ( PFILE, 94000 ) LINEIN
+      WRITE( LOGUNIT, 92040 ) LINEIN
+
+      READ( PFILE, 94000 ) LINEIN
+      WRITE( LOGUNIT, 92040 ) LINEIN
+
+      LERROR = .FALSE.
+      IF( NLAYS_IN .GT. MXLAYS3 + 1 ) THEN
+         MSG = 'ERROR: No of layers on profile file exceeds MXLAYS + 1' 
+         WRITE( LOGUNIT, 92080  ) MSG
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( NSPCS_IN .GT. MX_INFL_SP ) THEN
+         MSG = 'ERROR: No of layers on profile file exceeds  MXINFL_SP' 
+         WRITE( LOGUNIT, 92080  ) MSG
+         LERROR = .TRUE.
+      ENDIF
+
+      IF( LERROR ) THEN
+         MSG = 'Dimension problem in IC profile file'
+         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE.) 
+      ENDIF
+
+      DO SPC = 1, NSPCS_IN
+         READ( PFILE, 94000 ) LINEIN
+         WRITE( LOGUNIT, 92040 ) LINEIN
+         BACKSPACE PFILE
+         READ( PFILE, * ) PROF_SP_NAME( SPC )
+      ENDDO
+
+      WRITE( LOGUNIT, 92060 ) 
+
+      CLOSE( PFILE )
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Build a species map and report
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL GC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, SPMAP, N_MCNV_SP,
+     &                 SFAC, MCNV_COEFF, LCONV, LSCALE, LCONVSP, 
+     &                 EXT_IC_NAME, PROF_SP_NAME, MCNV_SPCS,  
+     &                 SPNAME_OUT )
+
+      CALL NGC_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT, SPMAP, 
+     &                  SFAC, LCONV, LSCALE, LCONVSP, EXT_IC_NAME,
+     &                  PROF_SP_NAME, SPNAME_OUT )
+
+
+      CALL LST_SPC_MAP( LOGUNIT, NSPCS_IN, N_GC_OUT, NSPCS_OUT, SPMAP, 
+     &                  N_MCNV_SP, SFAC, MCNV_COEFF, LCONV, LSCALE,  
+     &                  LCONVSP, EXT_IC_NAME, PROF_SP_NAME, MCNV_SPCS, 
+     &                  SPNAME_OUT )
+            
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Call the routine that computes and outputs ICs from the input
+c  CTM conc file(s)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CALL ICOUT( LOGUNIT, SDATE, STIME, NSPCS_IN, N_GC_OUT, NSPCS_OUT,  
+     &            SPMAP, N_MCNV_SP, SFAC, MCNV_COEFF, LCONV, 
+     &            LSCALE, LCONVSP, PROF_FL_NAME, EXT_IC_NAME, 
+     &            PROF_SP_NAME, MCNV_SPCS, SPNAME_OUT )
+
+      RETURN
+
+  999 CONTINUE
+
+      MSG = 'Could not open file ' // IC_PROFILE
+      STATUS = 2
+      CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. ) 
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  Input file section '
+     &         / 1X, 79( '#' )
+     &        // 5X, 'Initial Concentrations from an input IC profile ',
+     &               'file.' )
+
+92020 FORMAT( //5X, 'Profile file name: ', A 
+     &        //5X, 'File contents: '
+     &        //1X )
+
+92040 FORMAT( 10X, A100 )
+
+92060 FORMAT( //5X, 'End of file contents.')
+
+92080 FORMAT( //1X, A )
+
+92200 FORMAT( //5X, 'Profile concentration units assumed to be ppm' ) 
+
+92220 FORMAT( //5X, 'Profile concentration units assumed to be ppb' ) 
+
+94000 FORMAT( A )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

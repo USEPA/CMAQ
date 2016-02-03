@@ -1,0 +1,49 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@	SUBROUTINE CLL2XY (STCPRM, XLAT,XLONG, X,Y)
+!*  WRITTEN ON 3/31/94 BY Dr. Albion Taylor  NOAA / OAR / ARL
+      PARAMETER (REARTH=6371.2)
+      REAL STCPRM(9)
+      CALL CNLLXY(STCPRM, XLAT,XLONG, XI,ETA)
+      X = STCPRM(3) + REARTH/STCPRM(7) *                                       &
+                   (XI * STCPRM(5) + ETA * STCPRM(6) )
+      Y = STCPRM(4) + REARTH/STCPRM(7) *                                       &
+                   (ETA * STCPRM(5) - XI * STCPRM(6) )
+      RETURN
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

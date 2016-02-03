@@ -1,0 +1,240 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/saprc99_ae5ca_aq/AE_SCAV.EXT,v 1.1.1.1 2009/12/16 19:16:02 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5CA_AQ
+
+        INTEGER        N_AE_SCAV
+        PARAMETER     (N_AE_SCAV =111)
+        INTEGER        N_AE_SCAVD
+        PARAMETER     (N_AE_SCAVD = N_AE_SCAV)
+        CHARACTER*16   AE_SCAV(N_AE_SCAVD)
+        INTEGER        AE_SCAV_MAP(N_AE_SCAVD)
+        REAL           AE_SCAV_FAC(N_AE_SCAVD)
+
+        DATA   AE_SCAV(  1), AE_SCAV_MAP(  1) / 'SO4_ACCUM       ',   1 /
+        DATA   AE_SCAV_FAC(  1) /      1.0 /
+        DATA   AE_SCAV(  2), AE_SCAV_MAP(  2) / 'SO4_AITKEN      ',   2 /
+        DATA   AE_SCAV_FAC(  2) /      1.0 /
+        DATA   AE_SCAV(  3), AE_SCAV_MAP(  3) / 'NH4_ACCUM       ',   3 /
+        DATA   AE_SCAV_FAC(  3) /      1.0 /
+        DATA   AE_SCAV(  4), AE_SCAV_MAP(  4) / 'NH4_AITKEN      ',   4 /
+        DATA   AE_SCAV_FAC(  4) /      1.0 /
+        DATA   AE_SCAV(  5), AE_SCAV_MAP(  5) / 'NO3_ACCUM       ',   5 /
+        DATA   AE_SCAV_FAC(  5) /      1.0 /
+        DATA   AE_SCAV(  6), AE_SCAV_MAP(  6) / 'NO3_AITKEN      ',   6 /
+        DATA   AE_SCAV_FAC(  6) /      1.0 /
+        DATA   AE_SCAV(  7), AE_SCAV_MAP(  7) / 'ORG_ACCUM       ',   7 /
+        DATA   AE_SCAV_FAC(  7) /      1.0 /
+        DATA   AE_SCAV(  8), AE_SCAV_MAP(  8) / 'ORG_ACCUM       ',   8 /
+        DATA   AE_SCAV_FAC(  8) /      1.0 /
+        DATA   AE_SCAV(  9), AE_SCAV_MAP(  9) / 'ORG_ACCUM       ',   9 /
+        DATA   AE_SCAV_FAC(  9) /      1.0 /
+        DATA   AE_SCAV( 10), AE_SCAV_MAP( 10) / 'ORG_ACCUM       ',  10 /
+        DATA   AE_SCAV_FAC( 10) /      1.0 /
+        DATA   AE_SCAV( 11), AE_SCAV_MAP( 11) / 'ORG_ACCUM       ',  11 /
+        DATA   AE_SCAV_FAC( 11) /      1.0 /
+        DATA   AE_SCAV( 12), AE_SCAV_MAP( 12) / 'ORG_ACCUM       ',  12 /
+        DATA   AE_SCAV_FAC( 12) /      1.0 /
+        DATA   AE_SCAV( 13), AE_SCAV_MAP( 13) / 'ORG_ACCUM       ',  13 /
+        DATA   AE_SCAV_FAC( 13) /      1.0 /
+        DATA   AE_SCAV( 14), AE_SCAV_MAP( 14) / 'ORG_ACCUM       ',  14 /
+        DATA   AE_SCAV_FAC( 14) /      1.0 /
+        DATA   AE_SCAV( 15), AE_SCAV_MAP( 15) / 'ORG_ACCUM       ',  15 /
+        DATA   AE_SCAV_FAC( 15) /      1.0 /
+        DATA   AE_SCAV( 16), AE_SCAV_MAP( 16) / 'ORG_ACCUM       ',  16 /
+        DATA   AE_SCAV_FAC( 16) /      1.0 /
+        DATA   AE_SCAV( 17), AE_SCAV_MAP( 17) / 'ORG_ACCUM       ',  17 /
+        DATA   AE_SCAV_FAC( 17) /      1.0 /
+        DATA   AE_SCAV( 18), AE_SCAV_MAP( 18) / 'ORG_ACCUM       ',  18 /
+        DATA   AE_SCAV_FAC( 18) /      1.0 /
+        DATA   AE_SCAV( 19), AE_SCAV_MAP( 19) / 'ORG_ACCUM       ',  19 /
+        DATA   AE_SCAV_FAC( 19) /      1.0 /
+        DATA   AE_SCAV( 20), AE_SCAV_MAP( 20) / 'ORG_ACCUM       ',  20 /
+        DATA   AE_SCAV_FAC( 20) /      1.0 /
+        DATA   AE_SCAV( 21), AE_SCAV_MAP( 21) / 'ORG_ACCUM       ',  21 /
+        DATA   AE_SCAV_FAC( 21) /      1.0 /
+        DATA   AE_SCAV( 22), AE_SCAV_MAP( 22) / 'ORG_ACCUM       ',  22 /
+        DATA   AE_SCAV_FAC( 22) /      1.0 /
+        DATA   AE_SCAV( 23), AE_SCAV_MAP( 23) / 'ORG_ACCUM       ',  23 /
+        DATA   AE_SCAV_FAC( 23) /      1.0 /
+        DATA   AE_SCAV( 24), AE_SCAV_MAP( 24) / 'ORG_AITKEN      ',  24 /
+        DATA   AE_SCAV_FAC( 24) /      1.0 /
+        DATA   AE_SCAV( 25), AE_SCAV_MAP( 25) / 'PRI_ACCUM       ',  25 /
+        DATA   AE_SCAV_FAC( 25) /      1.0 /
+        DATA   AE_SCAV( 26), AE_SCAV_MAP( 26) / 'PRI_AITKEN      ',  26 /
+        DATA   AE_SCAV_FAC( 26) /      1.0 /
+        DATA   AE_SCAV( 27), AE_SCAV_MAP( 27) / 'PRI_ACCUM       ',  27 /
+        DATA   AE_SCAV_FAC( 27) /      1.0 /
+        DATA   AE_SCAV( 28), AE_SCAV_MAP( 28) / 'PRI_AITKEN      ',  28 /
+        DATA   AE_SCAV_FAC( 28) /      1.0 /
+        DATA   AE_SCAV( 29), AE_SCAV_MAP( 29) / 'PRI_COARSE      ',  29 /
+        DATA   AE_SCAV_FAC( 29) /      1.0 /
+        DATA   AE_SCAV( 30), AE_SCAV_MAP( 30) / 'PRI_COARSE      ',  30 /
+        DATA   AE_SCAV_FAC( 30) /      1.0 /
+        DATA   AE_SCAV( 31), AE_SCAV_MAP( 31) / 'NUM_AITKEN      ',  31 /
+        DATA   AE_SCAV_FAC( 31) /      1.0 /
+        DATA   AE_SCAV( 32), AE_SCAV_MAP( 32) / 'NUM_ACCUM       ',  32 /
+        DATA   AE_SCAV_FAC( 32) /      1.0 /
+        DATA   AE_SCAV( 33), AE_SCAV_MAP( 33) / 'NUM_COARSE      ',  33 /
+        DATA   AE_SCAV_FAC( 33) /      1.0 /
+        DATA   AE_SCAV( 34), AE_SCAV_MAP( 34) / 'SRF_AITKEN      ',  34 /
+        DATA   AE_SCAV_FAC( 34) /      1.0 /
+        DATA   AE_SCAV( 35), AE_SCAV_MAP( 35) / 'SRF_ACCUM       ',  35 /
+        DATA   AE_SCAV_FAC( 35) /      1.0 /
+        DATA   AE_SCAV( 36), AE_SCAV_MAP( 36) / 'SRF_COARSE      ',  36 /
+        DATA   AE_SCAV_FAC( 36) /      1.0 /
+        DATA   AE_SCAV( 37), AE_SCAV_MAP( 37) / 'H2O_ACCUM       ',  37 /
+        DATA   AE_SCAV_FAC( 37) /      1.0 /
+        DATA   AE_SCAV( 38), AE_SCAV_MAP( 38) / 'H2O_AITKEN      ',  38 /
+        DATA   AE_SCAV_FAC( 38) /      1.0 /
+        DATA   AE_SCAV( 39), AE_SCAV_MAP( 39) / 'NA_ACCUM        ',  39 /
+        DATA   AE_SCAV_FAC( 39) /      1.0 /
+        DATA   AE_SCAV( 40), AE_SCAV_MAP( 40) / 'NA_AITKEN       ',  40 /
+        DATA   AE_SCAV_FAC( 40) /      1.0 /
+        DATA   AE_SCAV( 41), AE_SCAV_MAP( 41) / 'CL_ACCUM        ',  41 /
+        DATA   AE_SCAV_FAC( 41) /      1.0 /
+        DATA   AE_SCAV( 42), AE_SCAV_MAP( 42) / 'CL_AITKEN       ',  42 /
+        DATA   AE_SCAV_FAC( 42) /      1.0 /
+        DATA   AE_SCAV( 43), AE_SCAV_MAP( 43) / 'NA_COARSE       ',  43 /
+        DATA   AE_SCAV_FAC( 43) /      1.0 /
+        DATA   AE_SCAV( 44), AE_SCAV_MAP( 44) / 'CL_COARSE       ',  44 /
+        DATA   AE_SCAV_FAC( 44) /      1.0 /
+        DATA   AE_SCAV( 45), AE_SCAV_MAP( 45) / 'SO4_COARSE      ',  45 /
+        DATA   AE_SCAV_FAC( 45) /      1.0 /
+        DATA   AE_SCAV( 46), AE_SCAV_MAP( 46) / 'NH4_COARSE      ',  46 /
+        DATA   AE_SCAV_FAC( 46) /      1.0 /
+        DATA   AE_SCAV( 47), AE_SCAV_MAP( 47) / 'NO3_COARSE      ',  47 /
+        DATA   AE_SCAV_FAC( 47) /      1.0 /
+        DATA   AE_SCAV( 48), AE_SCAV_MAP( 48) / 'H2O_COARSE      ',  48 /
+        DATA   AE_SCAV_FAC( 48) /      1.0 /
+        DATA   AE_SCAV( 49), AE_SCAV_MAP( 49) / 'ORG_ACCUM       ',  49 /
+        DATA   AE_SCAV_FAC( 49) /      1.0 /
+        DATA   AE_SCAV( 50), AE_SCAV_MAP( 50) / 'ORG_ACCUM       ',  50 /
+        DATA   AE_SCAV_FAC( 50) /      1.0 /
+        DATA   AE_SCAV( 51), AE_SCAV_MAP( 51) / 'ORG_ACCUM       ',  51 /
+        DATA   AE_SCAV_FAC( 51) /      1.0 /
+        DATA   AE_SCAV( 52), AE_SCAV_MAP( 52) / 'ORG_ACCUM       ',  52 /
+        DATA   AE_SCAV_FAC( 52) /      1.0 /
+        DATA   AE_SCAV( 53), AE_SCAV_MAP( 53) / 'ORG_AITKEN      ',  53 /
+        DATA   AE_SCAV_FAC( 53) /      1.0 /
+        DATA   AE_SCAV( 54), AE_SCAV_MAP( 54) / 'ORG_ACCUM       ',  54 /
+        DATA   AE_SCAV_FAC( 54) /      1.0 /
+        DATA   AE_SCAV( 55), AE_SCAV_MAP( 55) / 'ORG_AITKEN      ',  55 /
+        DATA   AE_SCAV_FAC( 55) /      1.0 /
+        DATA   AE_SCAV( 56), AE_SCAV_MAP( 56) / 'ORG_ACCUM       ',  56 /
+        DATA   AE_SCAV_FAC( 56) /      1.0 /
+        DATA   AE_SCAV( 57), AE_SCAV_MAP( 57) / 'ORG_AITKEN      ',  57 /
+        DATA   AE_SCAV_FAC( 57) /      1.0 /
+        DATA   AE_SCAV( 58), AE_SCAV_MAP( 58) / 'ORG_ACCUM       ',  58 /
+        DATA   AE_SCAV_FAC( 58) /      1.0 /
+        DATA   AE_SCAV( 59), AE_SCAV_MAP( 59) / 'ORG_AITKEN      ',  59 /
+        DATA   AE_SCAV_FAC( 59) /      1.0 /
+        DATA   AE_SCAV( 60), AE_SCAV_MAP( 60) / 'ORG_ACCUM       ',  60 /
+        DATA   AE_SCAV_FAC( 60) /      1.0 /
+        DATA   AE_SCAV( 61), AE_SCAV_MAP( 61) / 'ORG_AITKEN      ',  61 /
+        DATA   AE_SCAV_FAC( 61) /      1.0 /
+        DATA   AE_SCAV( 62), AE_SCAV_MAP( 62) / 'ORG_ACCUM       ',  62 /
+        DATA   AE_SCAV_FAC( 62) /      1.0 /
+        DATA   AE_SCAV( 63), AE_SCAV_MAP( 63) / 'ORG_AITKEN      ',  63 /
+        DATA   AE_SCAV_FAC( 63) /      1.0 /
+        DATA   AE_SCAV( 64), AE_SCAV_MAP( 64) / 'ORG_ACCUM       ',  64 /
+        DATA   AE_SCAV_FAC( 64) /      1.0 /
+        DATA   AE_SCAV( 65), AE_SCAV_MAP( 65) / 'ORG_AITKEN      ',  65 /
+        DATA   AE_SCAV_FAC( 65) /      1.0 /
+        DATA   AE_SCAV( 66), AE_SCAV_MAP( 66) / 'ORG_ACCUM       ',  66 /
+        DATA   AE_SCAV_FAC( 66) /      1.0 /
+        DATA   AE_SCAV( 67), AE_SCAV_MAP( 67) / 'ORG_AITKEN      ',  67 /
+        DATA   AE_SCAV_FAC( 67) /      1.0 /
+        DATA   AE_SCAV( 68), AE_SCAV_MAP( 68) / 'ORG_ACCUM       ',  68 /
+        DATA   AE_SCAV_FAC( 68) /      1.0 /
+        DATA   AE_SCAV( 69), AE_SCAV_MAP( 69) / 'ORG_AITKEN      ',  69 /
+        DATA   AE_SCAV_FAC( 69) /      1.0 /
+        DATA   AE_SCAV( 70), AE_SCAV_MAP( 70) / 'ORG_ACCUM       ',  70 /
+        DATA   AE_SCAV_FAC( 70) /      1.0 /
+        DATA   AE_SCAV( 71), AE_SCAV_MAP( 71) / 'ORG_AITKEN      ',  71 /
+        DATA   AE_SCAV_FAC( 71) /      1.0 /
+        DATA   AE_SCAV( 72), AE_SCAV_MAP( 72) / 'ORG_ACCUM       ',  72 /
+        DATA   AE_SCAV_FAC( 72) /      1.0 /
+        DATA   AE_SCAV( 73), AE_SCAV_MAP( 73) / 'ORG_AITKEN      ',  73 /
+        DATA   AE_SCAV_FAC( 73) /      1.0 /
+        DATA   AE_SCAV( 74), AE_SCAV_MAP( 74) / 'ORG_ACCUM       ',  74 /
+        DATA   AE_SCAV_FAC( 74) /      1.0 /
+        DATA   AE_SCAV( 75), AE_SCAV_MAP( 75) / 'ORG_AITKEN      ',  75 /
+        DATA   AE_SCAV_FAC( 75) /      1.0 /
+        DATA   AE_SCAV( 76), AE_SCAV_MAP( 76) / 'ORG_ACCUM       ',  76 /
+        DATA   AE_SCAV_FAC( 76) /      1.0 /
+        DATA   AE_SCAV( 77), AE_SCAV_MAP( 77) / 'ORG_AITKEN      ',  77 /
+        DATA   AE_SCAV_FAC( 77) /      1.0 /
+        DATA   AE_SCAV( 78), AE_SCAV_MAP( 78) / 'ORG_ACCUM       ',  78 /
+        DATA   AE_SCAV_FAC( 78) /      1.0 /
+        DATA   AE_SCAV( 79), AE_SCAV_MAP( 79) / 'ORG_AITKEN      ',  79 /
+        DATA   AE_SCAV_FAC( 79) /      1.0 /
+        DATA   AE_SCAV( 80), AE_SCAV_MAP( 80) / 'ORG_ACCUM       ',  80 /
+        DATA   AE_SCAV_FAC( 80) /      1.0 /
+        DATA   AE_SCAV( 81), AE_SCAV_MAP( 81) / 'ORG_AITKEN      ',  81 /
+        DATA   AE_SCAV_FAC( 81) /      1.0 /
+        DATA   AE_SCAV( 82), AE_SCAV_MAP( 82) / 'PRI_ACCUM       ',  82 /
+        DATA   AE_SCAV_FAC( 82) /      1.0 /
+        DATA   AE_SCAV( 83), AE_SCAV_MAP( 83) / 'PRI_AITKEN      ',  83 /
+        DATA   AE_SCAV_FAC( 83) /      1.0 /
+        DATA   AE_SCAV( 84), AE_SCAV_MAP( 84) / 'PRI_ACCUM       ',  84 /
+        DATA   AE_SCAV_FAC( 84) /      1.0 /
+        DATA   AE_SCAV( 85), AE_SCAV_MAP( 85) / 'PRI_AITKEN      ',  85 /
+        DATA   AE_SCAV_FAC( 85) /      1.0 /
+        DATA   AE_SCAV( 86), AE_SCAV_MAP( 86) / 'PRI_ACCUM       ',  86 /
+        DATA   AE_SCAV_FAC( 86) /      1.0 /
+        DATA   AE_SCAV( 87), AE_SCAV_MAP( 87) / 'PRI_AITKEN      ',  87 /
+        DATA   AE_SCAV_FAC( 87) /      1.0 /
+        DATA   AE_SCAV( 88), AE_SCAV_MAP( 88) / 'PRI_ACCUM       ',  88 /
+        DATA   AE_SCAV_FAC( 88) /      1.0 /
+        DATA   AE_SCAV( 89), AE_SCAV_MAP( 89) / 'PRI_AITKEN      ',  89 /
+        DATA   AE_SCAV_FAC( 89) /      1.0 /
+        DATA   AE_SCAV( 90), AE_SCAV_MAP( 90) / 'PRI_ACCUM       ',  90 /
+        DATA   AE_SCAV_FAC( 90) /      1.0 /
+        DATA   AE_SCAV( 91), AE_SCAV_MAP( 91) / 'PRI_AITKEN      ',  91 /
+        DATA   AE_SCAV_FAC( 91) /      1.0 /
+        DATA   AE_SCAV( 92), AE_SCAV_MAP( 92) / 'PRI_ACCUM       ',  92 /
+        DATA   AE_SCAV_FAC( 92) /      1.0 /
+        DATA   AE_SCAV( 93), AE_SCAV_MAP( 93) / 'PRI_AITKEN      ',  93 /
+        DATA   AE_SCAV_FAC( 93) /      1.0 /
+        DATA   AE_SCAV( 94), AE_SCAV_MAP( 94) / 'PRI_ACCUM       ',  94 /
+        DATA   AE_SCAV_FAC( 94) /      1.0 /
+        DATA   AE_SCAV( 95), AE_SCAV_MAP( 95) / 'PRI_AITKEN      ',  95 /
+        DATA   AE_SCAV_FAC( 95) /      1.0 /
+        DATA   AE_SCAV( 96), AE_SCAV_MAP( 96) / 'PRI_ACCUM       ',  96 /
+        DATA   AE_SCAV_FAC( 96) /      1.0 /
+        DATA   AE_SCAV( 97), AE_SCAV_MAP( 97) / 'PRI_AITKEN      ',  97 /
+        DATA   AE_SCAV_FAC( 97) /      1.0 /
+        DATA   AE_SCAV( 98), AE_SCAV_MAP( 98) / 'PRI_ACCUM       ',  98 /
+        DATA   AE_SCAV_FAC( 98) /      1.0 /
+        DATA   AE_SCAV( 99), AE_SCAV_MAP( 99) / 'PRI_AITKEN      ',  99 /
+        DATA   AE_SCAV_FAC( 99) /      1.0 /
+        DATA   AE_SCAV(100), AE_SCAV_MAP(100) / 'PRI_ACCUM       ', 100 /
+        DATA   AE_SCAV_FAC(100) /      1.0 /
+        DATA   AE_SCAV(101), AE_SCAV_MAP(101) / 'PRI_AITKEN      ', 101 /
+        DATA   AE_SCAV_FAC(101) /      1.0 /
+        DATA   AE_SCAV(102), AE_SCAV_MAP(102) / 'PRI_ACCUM       ', 102 /
+        DATA   AE_SCAV_FAC(102) /      1.0 /
+        DATA   AE_SCAV(103), AE_SCAV_MAP(103) / 'PRI_AITKEN      ', 103 /
+        DATA   AE_SCAV_FAC(103) /      1.0 /
+        DATA   AE_SCAV(104), AE_SCAV_MAP(104) / 'PRI_ACCUM       ', 104 /
+        DATA   AE_SCAV_FAC(104) /      1.0 /
+        DATA   AE_SCAV(105), AE_SCAV_MAP(105) / 'PRI_AITKEN      ', 105 /
+        DATA   AE_SCAV_FAC(105) /      1.0 /
+        DATA   AE_SCAV(106), AE_SCAV_MAP(106) / 'PRI_ACCUM       ', 106 /
+        DATA   AE_SCAV_FAC(106) /      1.0 /
+        DATA   AE_SCAV(107), AE_SCAV_MAP(107) / 'PRI_AITKEN      ', 107 /
+        DATA   AE_SCAV_FAC(107) /      1.0 /
+        DATA   AE_SCAV(108), AE_SCAV_MAP(108) / 'PRI_ACCUM       ', 108 /
+        DATA   AE_SCAV_FAC(108) /      1.0 /
+        DATA   AE_SCAV(109), AE_SCAV_MAP(109) / 'PRI_AITKEN      ', 109 /
+        DATA   AE_SCAV_FAC(109) /      1.0 /
+        DATA   AE_SCAV(110), AE_SCAV_MAP(110) / 'PRI_ACCUM       ', 110 /
+        DATA   AE_SCAV_FAC(110) /      1.0 /
+        DATA   AE_SCAV(111), AE_SCAV_MAP(111) / 'PRI_AITKEN      ', 111 /
+        DATA   AE_SCAV_FAC(111) /      1.0 /
+

@@ -1,0 +1,231 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.00;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.00;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/cb05cl_ae5ca_aq/AE_EMIS.EXT,v 1.1.1.1 2009/11/13 14:51:34 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: CB05CL_AE5CA_AQ
+
+        INTEGER        N_AE_EMIS
+        PARAMETER     (N_AE_EMIS = 88)
+        INTEGER        N_AE_EMISD
+        PARAMETER     (N_AE_EMISD = N_AE_EMIS)
+        CHARACTER*16   AE_EMIS(N_AE_EMISD)
+        INTEGER        AE_EMIS_MAP(N_AE_EMISD)
+!       REAL           AE_EMIS_FAC(N_AE_EMISD)
+
+        DATA AE_EMIS(  1 ), AE_EMIS_MAP(  1 ) / 'ASO4J',    1 /
+        DATA AE_EMIS(  2 ), AE_EMIS_MAP(  2 ) / 'ASO4I',    2 /
+        DATA AE_EMIS(  3 ), AE_EMIS_MAP(  3 ) / 'ANO3J',    5 /
+        DATA AE_EMIS(  4 ), AE_EMIS_MAP(  4 ) / 'ANO3I',    6 /
+        DATA AE_EMIS(  5 ), AE_EMIS_MAP(  5 ) / 'AORGPAJ', 23 /
+        DATA AE_EMIS(  6 ), AE_EMIS_MAP(  6 ) / 'AORGPAI', 24 /
+        DATA AE_EMIS(  7 ), AE_EMIS_MAP(  7 ) / 'AECJ',    25 /
+        DATA AE_EMIS(  8 ), AE_EMIS_MAP(  8 ) / 'AECI',    26 /
+        DATA AE_EMIS(  9 ), AE_EMIS_MAP(  9 ) / 'A25J',    27 /
+        DATA AE_EMIS( 10 ), AE_EMIS_MAP( 10 ) / 'A25I',    28 /
+        DATA AE_EMIS( 11 ), AE_EMIS_MAP( 11 ) / 'ACORS',   29 /
+        DATA AE_EMIS( 12 ), AE_EMIS_MAP( 12 ) / 'ASOIL',   30 /
+        DATA AE_EMIS( 13 ), AE_EMIS_MAP( 13 ) / 'NUMATKN', 31 /
+        DATA AE_EMIS( 14 ), AE_EMIS_MAP( 14 ) / 'NUMACC',  32 /
+        DATA AE_EMIS( 15 ), AE_EMIS_MAP( 15 ) / 'NUMCOR',  33 /
+        DATA AE_EMIS( 16 ), AE_EMIS_MAP( 16 ) / 'SRFATKN', 34 /
+        DATA AE_EMIS( 17 ), AE_EMIS_MAP( 17 ) / 'SRFACC',  35 /
+        DATA AE_EMIS( 18 ), AE_EMIS_MAP( 18 ) / 'SRFCOR',  36 / 
+        DATA AE_EMIS( 19 ), AE_EMIS_MAP( 19 ) / 'AH2OJ',   37 /
+        DATA AE_EMIS( 20 ), AE_EMIS_MAP( 20 ) / 'AH2OI',   38 /
+        DATA AE_EMIS( 21 ), AE_EMIS_MAP( 21 ) / 'ANAJ',    39 /
+        DATA AE_EMIS( 22 ), AE_EMIS_MAP( 22 ) / 'ANAI',    40 /
+        DATA AE_EMIS( 23 ), AE_EMIS_MAP( 23 ) / 'ACLJ',    41 /
+        DATA AE_EMIS( 24 ), AE_EMIS_MAP( 24 ) / 'ACLI',    42 /
+        DATA AE_EMIS( 25 ), AE_EMIS_MAP( 25 ) / 'ANAK',    43 /
+        DATA AE_EMIS( 26 ), AE_EMIS_MAP( 26 ) / 'ACLK',    44 /
+        DATA AE_EMIS( 27 ), AE_EMIS_MAP( 27 ) / 'ASO4K',   45 /
+        DATA AE_EMIS( 28 ), AE_EMIS_MAP( 28 ) / 'AH2OK',   48 /
+        DATA AE_EMIS( 29 ), AE_EMIS_MAP( 29 ) / 'AORGP01J', 52 /
+        DATA AE_EMIS( 30 ), AE_EMIS_MAP( 30 ) / 'AORGP01I', 53 /
+        DATA AE_EMIS( 31 ), AE_EMIS_MAP( 31 ) / 'AORGP02J', 54 /
+        DATA AE_EMIS( 32 ), AE_EMIS_MAP( 32 ) / 'AORGP02I', 55 /
+        DATA AE_EMIS( 33 ), AE_EMIS_MAP( 33 ) / 'AORGP03J', 56 /
+        DATA AE_EMIS( 34 ), AE_EMIS_MAP( 34 ) / 'AORGP03I', 57 /
+        DATA AE_EMIS( 35 ), AE_EMIS_MAP( 35 ) / 'AORGP04J', 58 /
+        DATA AE_EMIS( 36 ), AE_EMIS_MAP( 36 ) / 'AORGP04I', 59 /
+        DATA AE_EMIS( 37 ), AE_EMIS_MAP( 37 ) / 'AORGP05J', 60 /
+        DATA AE_EMIS( 38 ), AE_EMIS_MAP( 38 ) / 'AORGP05I', 61 /
+        DATA AE_EMIS( 39 ), AE_EMIS_MAP( 39 ) / 'AORGP06J', 62 /
+        DATA AE_EMIS( 40 ), AE_EMIS_MAP( 40 ) / 'AORGP06I', 63 /
+        DATA AE_EMIS( 41 ), AE_EMIS_MAP( 41 ) / 'AORGP07J', 64 /
+        DATA AE_EMIS( 42 ), AE_EMIS_MAP( 42 ) / 'AORGP07I', 65 /
+        DATA AE_EMIS( 43 ), AE_EMIS_MAP( 43 ) / 'AORGP08J', 66 /
+        DATA AE_EMIS( 44 ), AE_EMIS_MAP( 44 ) / 'AORGP08I', 67 /
+        DATA AE_EMIS( 45 ), AE_EMIS_MAP( 45 ) / 'AORGP09J', 68 /
+        DATA AE_EMIS( 46 ), AE_EMIS_MAP( 46 ) / 'AORGP09I', 69 /
+        DATA AE_EMIS( 47 ), AE_EMIS_MAP( 47 ) / 'AORGP10J', 70 /
+        DATA AE_EMIS( 48 ), AE_EMIS_MAP( 48 ) / 'AORGP10I', 71 /
+        DATA AE_EMIS( 49 ), AE_EMIS_MAP( 49 ) / 'AORGP11J', 72 /
+        DATA AE_EMIS( 50 ), AE_EMIS_MAP( 50 ) / 'AORGP11I', 73 /
+        DATA AE_EMIS( 51 ), AE_EMIS_MAP( 51 ) / 'AORGP12J', 74 /
+        DATA AE_EMIS( 52 ), AE_EMIS_MAP( 52 ) / 'AORGP12I', 75 /
+        DATA AE_EMIS( 53 ), AE_EMIS_MAP( 53 ) / 'AORGP13J', 76 /
+        DATA AE_EMIS( 54 ), AE_EMIS_MAP( 54 ) / 'AORGP13I', 77 /
+        DATA AE_EMIS( 55 ), AE_EMIS_MAP( 55 ) / 'AORGP14J', 78 /
+        DATA AE_EMIS( 56 ), AE_EMIS_MAP( 56 ) / 'AORGP14I', 79 /
+        DATA AE_EMIS( 57 ), AE_EMIS_MAP( 57 ) / 'AORGP15J', 80 /
+        DATA AE_EMIS( 58 ), AE_EMIS_MAP( 58 ) / 'AORGP15I', 81 /
+        DATA AE_EMIS( 59 ), AE_EMIS_MAP( 59 ) / 'AEC01J  ', 82 /
+        DATA AE_EMIS( 60 ), AE_EMIS_MAP( 60 ) / 'AEC01I  ', 83 /
+        DATA AE_EMIS( 61 ), AE_EMIS_MAP( 61 ) / 'AEC02J  ', 84 /
+        DATA AE_EMIS( 62 ), AE_EMIS_MAP( 62 ) / 'AEC02I  ', 85 /
+        DATA AE_EMIS( 63 ), AE_EMIS_MAP( 63 ) / 'AEC03J  ', 86 /
+        DATA AE_EMIS( 64 ), AE_EMIS_MAP( 64 ) / 'AEC03I  ', 87 /
+        DATA AE_EMIS( 65 ), AE_EMIS_MAP( 65 ) / 'AEC04J  ', 88 /
+        DATA AE_EMIS( 66 ), AE_EMIS_MAP( 66 ) / 'AEC04I  ', 89 /
+        DATA AE_EMIS( 67 ), AE_EMIS_MAP( 67 ) / 'AEC05J  ', 90 /
+        DATA AE_EMIS( 68 ), AE_EMIS_MAP( 68 ) / 'AEC05I  ', 91 /
+        DATA AE_EMIS( 69 ), AE_EMIS_MAP( 69 ) / 'AEC06J  ', 92 /
+        DATA AE_EMIS( 70 ), AE_EMIS_MAP( 70 ) / 'AEC06I  ', 93 /
+        DATA AE_EMIS( 71 ), AE_EMIS_MAP( 71 ) / 'AEC07J  ', 94 /
+        DATA AE_EMIS( 72 ), AE_EMIS_MAP( 72 ) / 'AEC07I  ', 95 /
+        DATA AE_EMIS( 73 ), AE_EMIS_MAP( 73 ) / 'AEC08J  ', 96 /
+        DATA AE_EMIS( 74 ), AE_EMIS_MAP( 74 ) / 'AEC08I  ', 97 /
+        DATA AE_EMIS( 75 ), AE_EMIS_MAP( 75 ) / 'AEC09J  ', 98 /
+        DATA AE_EMIS( 76 ), AE_EMIS_MAP( 76 ) / 'AEC09I  ', 99 /
+        DATA AE_EMIS( 77 ), AE_EMIS_MAP( 77 ) / 'AEC10J  ',100 /
+        DATA AE_EMIS( 78 ), AE_EMIS_MAP( 78 ) / 'AEC10I  ',101 /
+        DATA AE_EMIS( 79 ), AE_EMIS_MAP( 79 ) / 'AEC11J  ',102 /
+        DATA AE_EMIS( 80 ), AE_EMIS_MAP( 80 ) / 'AEC11I  ',103 /
+        DATA AE_EMIS( 81 ), AE_EMIS_MAP( 81 ) / 'AEC12J  ',104 /
+        DATA AE_EMIS( 82 ), AE_EMIS_MAP( 82 ) / 'AEC12I  ',105 /
+        DATA AE_EMIS( 83 ), AE_EMIS_MAP( 83 ) / 'AEC13J  ',106 /
+        DATA AE_EMIS( 84 ), AE_EMIS_MAP( 84 ) / 'AEC13I  ',107 /
+        DATA AE_EMIS( 85 ), AE_EMIS_MAP( 85 ) / 'AEC14J  ',108 /
+        DATA AE_EMIS( 86 ), AE_EMIS_MAP( 86 ) / 'AEC14I  ',109 /
+        DATA AE_EMIS( 87 ), AE_EMIS_MAP( 87 ) / 'AEC15J  ',110 /
+        DATA AE_EMIS( 88 ), AE_EMIS_MAP( 88 ) / 'AEC15I  ',111 /
+!       DATA AE_EMIS_FAC(  1) /      1.0 /
+!       DATA AE_EMIS_FAC(  2) /      1.0 /
+!       DATA AE_EMIS_FAC(  3) /      1.0 /
+!       DATA AE_EMIS_FAC(  4) /      1.0 /
+!       DATA AE_EMIS_FAC(  5) /      1.0 /
+!       DATA AE_EMIS_FAC(  6) /      1.0 /
+!       DATA AE_EMIS_FAC(  7) /      1.0 /
+!       DATA AE_EMIS_FAC(  8) /      1.0 /
+!       DATA AE_EMIS_FAC(  9) /      1.0 /
+!       DATA AE_EMIS_FAC( 10) /      1.0 /
+!       DATA AE_EMIS_FAC( 11) /      1.0 /
+!       DATA AE_EMIS_FAC( 12) /      1.0 /
+!       DATA AE_EMIS_FAC( 13) /      1.0 /
+!       DATA AE_EMIS_FAC( 14) /      1.0 /
+!       DATA AE_EMIS_FAC( 15) /      1.0 /
+!       DATA AE_EMIS_FAC( 16) /      1.0 /
+!       DATA AE_EMIS_FAC( 17) /      1.0 /
+!       DATA AE_EMIS_FAC( 18) /      1.0 /
+!       DATA AE_EMIS_FAC( 19) /      1.0 /
+!       DATA AE_EMIS_FAC( 20) /      1.0 /
+!       DATA AE_EMIS_FAC( 21) /      1.0 /
+!       DATA AE_EMIS_FAC( 22) /      1.0 /
+!       DATA AE_EMIS_FAC( 23) /      1.0 /
+!       DATA AE_EMIS_FAC( 24) /      1.0 /
+!       DATA AE_EMIS_FAC( 25) /      1.0 /
+!       DATA AE_EMIS_FAC( 26) /      1.0 /
+!       DATA AE_EMIS_FAC( 27) /      1.0 /
+!       DATA AE_EMIS_FAC( 28) /      1.0 /
+!       DATA AE_EMIS_FAC( 29) /      1.0 /
+!       DATA AE_EMIS_FAC( 30) /      1.0 /
+!       DATA AE_EMIS_FAC( 31) /      1.0 /
+!       DATA AE_EMIS_FAC( 32) /      1.0 /
+!       DATA AE_EMIS_FAC( 33) /      1.0 /
+!       DATA AE_EMIS_FAC( 34) /      1.0 /
+!       DATA AE_EMIS_FAC( 35) /      1.0 /
+!       DATA AE_EMIS_FAC( 36) /      1.0 /
+!       DATA AE_EMIS_FAC( 37) /      1.0 /
+!       DATA AE_EMIS_FAC( 38) /      1.0 /
+!       DATA AE_EMIS_FAC( 39) /      1.0 /
+!       DATA AE_EMIS_FAC( 40) /      1.0 /
+!       DATA AE_EMIS_FAC( 41) /      1.0 /
+!       DATA AE_EMIS_FAC( 42) /      1.0 /
+!       DATA AE_EMIS_FAC( 43) /      1.0 /
+!       DATA AE_EMIS_FAC( 44) /      1.0 /
+!       DATA AE_EMIS_FAC( 45) /      1.0 /
+!       DATA AE_EMIS_FAC( 46) /      1.0 /
+!       DATA AE_EMIS_FAC( 47) /      1.0 /
+!       DATA AE_EMIS_FAC( 48) /      1.0 /
+!       DATA AE_EMIS_FAC( 49) /      1.0 /
+!       DATA AE_EMIS_FAC( 50) /      1.0 /
+!       DATA AE_EMIS_FAC( 51) /      1.0 /
+!       DATA AE_EMIS_FAC( 52) /      1.0 /
+!       DATA AE_EMIS_FAC( 53) /      1.0 /
+!       DATA AE_EMIS_FAC( 54) /      1.0 /
+!       DATA AE_EMIS_FAC( 55) /      1.0 /
+!       DATA AE_EMIS_FAC( 56) /      1.0 /
+!       DATA AE_EMIS_FAC( 57) /      1.0 /
+!       DATA AE_EMIS_FAC( 58) /      1.0 /
+!       DATA AE_EMIS_FAC( 59) /      1.0 /
+!       DATA AE_EMIS_FAC( 60) /      1.0 /
+!       DATA AE_EMIS_FAC( 61) /      1.0 /
+!       DATA AE_EMIS_FAC( 62) /      1.0 /
+!       DATA AE_EMIS_FAC( 63) /      1.0 /
+!       DATA AE_EMIS_FAC( 64) /      1.0 /
+!       DATA AE_EMIS_FAC( 65) /      1.0 /
+!       DATA AE_EMIS_FAC( 66) /      1.0 /
+!       DATA AE_EMIS_FAC( 67) /      1.0 /
+!       DATA AE_EMIS_FAC( 68) /      1.0 /
+!       DATA AE_EMIS_FAC( 69) /      1.0 /
+!       DATA AE_EMIS_FAC( 70) /      1.0 /
+!       DATA AE_EMIS_FAC( 71) /      1.0 /
+!       DATA AE_EMIS_FAC( 72) /      1.0 /
+!       DATA AE_EMIS_FAC( 73) /      1.0 /
+!       DATA AE_EMIS_FAC( 74) /      1.0 /
+!       DATA AE_EMIS_FAC( 75) /      1.0 /
+!       DATA AE_EMIS_FAC( 76) /      1.0 /
+!       DATA AE_EMIS_FAC( 77) /      1.0 /
+!       DATA AE_EMIS_FAC( 78) /      1.0 /
+!       DATA AE_EMIS_FAC( 79) /      1.0 /
+!       DATA AE_EMIS_FAC( 80) /      1.0 /
+!       DATA AE_EMIS_FAC( 81) /      1.0 /
+!       DATA AE_EMIS_FAC( 82) /      1.0 /
+!       DATA AE_EMIS_FAC( 83) /      1.0 /
+!       DATA AE_EMIS_FAC( 84) /      1.0 /
+!       DATA AE_EMIS_FAC( 85) /      1.0 /
+!       DATA AE_EMIS_FAC( 86) /      1.0 /
+!       DATA AE_EMIS_FAC( 87) /      1.0 /
+!       DATA AE_EMIS_FAC( 88) /      1.0 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

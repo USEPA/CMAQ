@@ -1,0 +1,301 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/input/profile/prof_vinterp.F,v 1.5 2005/02/18 17:44:46 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+      SUBROUTINE PROF_VINTERP( LOGUNIT, NSPCS_IN, NLAYS_IN, VGLVS_IN,
+     &                         CONCIN, CONCOUT )    
+C*************************************************************************
+C
+C   FUNCTION: Interpolates/Extrapolates concentrations in vertical.
+C             The number of layers in CONCIN is collapsed or expanded
+C             according to the number of layers in COORD.EXT.
+C             Interpolation is done using rational function interpolation
+C             ( Numerical Recipes, Press et al.) or linear 
+C             interpolation.  When extapolation is required, the 
+C             concentration of the outside layer is used. If the input 
+C             file has only one layer, the concentrations in that layer
+C             are used for all output layers.
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: LR_INTERP  
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998          
+C                    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
+C                    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
+C                   
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN             ! vertical layer specifications
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+      INCLUDE SUBST_IODECL      ! IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+!     INCLUDE SUBST_VGRD_ID     ! Vertical grid
+!     INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+      INCLUDE SUBST_GC_SPC      ! gas chemistry species table
+      INCLUDE SUBST_AE_SPC      ! aerosol species table
+      INCLUDE SUBST_NR_SPC      ! non-reactive species table
+      INCLUDE SUBST_TR_SPC      ! tracer species table
+
+      INCLUDE 'BC_PARMS.EXT'    ! BCON paramters
+
+C..ARGUMENTS: 
+      INTEGER LOGUNIT                ! Unit number for output log
+      INTEGER NLAYS_IN               ! No. of layers in input conc file
+      INTEGER NSPCS_IN               ! No. of species in input conc file
+
+      REAL VGLVS_IN( * )             ! Input vertical levels
+
+      REAL CONCIN( MXLAYS3, 4, * )   ! Input conc array
+      REAL CONCOUT( NLAYS,  4, * )   ! Output IC array
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS:
+      LOGICAL ENVYN          ! Gets logical envi]ronment variable
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER*20  CHR1     ! Value of variable 1 in character data
+      CHARACTER*20  CHR2     ! Value of variable 1 in character data
+      CHARACTER*80  MSG      ! Log message
+      CHARACTER*16  PNAME    ! Program Name
+
+      INTEGER EDG            ! Boundary edge loop index
+      INTEGER L              ! Loop index for vertical layers
+      INTEGER MXLEV          ! Max no. of levels
+      INTEGER N              ! Loop index
+      INTEGER STATUS         ! Status code
+
+      LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
+      LOGICAL LINC           ! Flag for monotonic increasing layer levels
+      LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
+      LOGICAL L_RATINT       ! Flag to use rational function interpolation 
+
+      REAL DELY  ! Error estimate for conc interpolated by rational func
+      REAL X3    ! Vertical coordinate used in interpolation
+      REAL Y     ! Interpolated concentration
+
+      REAL WORKA(  MXLAYS3 )   ! Work array for conc input
+      REAL X3_OLD( MXLAYS3 )   ! Old Vertical coordinate values
+     
+C**********************************************************************
+      DATA PNAME / 'PROF_VINTERP' /
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write log info
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( LOGUNIT, 92000 )
+
+      WRITE( LOGUNIT, 92020 ) VGDESC( VGTYP_GD )
+
+      WRITE( LOGUNIT, 92040 ) 
+
+      MXLEV = MAX( NLAYS + 1, NLAYS_IN + 1 )
+
+      DO L = 1, MXLEV 
+
+         IF( L .LE. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
+            WRITE( LOGUNIT, 92080 ) L, VGLVS_GD( L ), VGLVS_IN( L )
+         ELSEIF( L .LE. NLAYS + 1 .AND. L .GT. NLAYS_IN + 1 ) THEN
+            WRITE( LOGUNIT, 92080 ) L, VGLVS_GD( L )
+         ELSEIF( L .GT. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
+            WRITE( LOGUNIT, 92100 ) L, VGLVS_IN( L )
+         ENDIF
+
+      ENDDO        
+     
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Check for consistent vertical coordinates
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      L_IDENTICAL  = .TRUE.
+
+      IF( NLAYS .EQ. NLAYS_IN ) THEN
+         DO L = 1, NLAYS + 1
+            WRITE( CHR1, 94060 ) VGLVS_GD( L )
+            WRITE( CHR2, 94060 ) VGLVS_IN(  L )
+            IF( CHR1 .NE. CHR2 ) L_IDENTICAL  = .FALSE.
+         ENDDO
+      ELSE
+         L_IDENTICAL  = .FALSE. 
+      ENDIF
+            
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  For identical vertical coordinates, copy the input profile
+C  to the interpolated profile and return
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( L_IDENTICAL ) THEN
+
+         WRITE( LOGUNIT, 92120 ) 
+
+         DO EDG = 1, 4
+            DO L = 1, NLAYS
+               DO N = 1, NSPCS_IN
+                  CONCOUT( L, EDG, N ) = CONCIN( L, EDG, N )
+               ENDDO
+            ENDDO
+         ENDDO
+         RETURN
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Determine type of interpolation to use: linear or rational function
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      L_RATINT = .FALSE.
+      MSG = 'Flag for interpolation by rational function'
+c      L_RATINT = ENVYN( 'RATIONAL_FUNC', MSG, L_RATINT, STATUS )  
+      IF( .NOT. L_RATINT ) THEN
+         MSG = 'Linear vertical interpolation used'
+      ELSE
+         MSG = 'Vertical interpolation by rational function'
+      ENDIF
+      CALL M3MESG( MSG )
+         
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Interpolate by VGLEVS for vertical coords of same type but different
+c  resolution
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO L = 1, NLAYS_IN 
+         X3_OLD( L ) = 0.5 * ( VGLVS_IN ( L ) +  VGLVS_IN ( L + 1 ) )
+      ENDDO
+
+      LINC = .FALSE.
+      LDEC = .FALSE.
+      IF( VGLVS_IN ( NLAYS_IN ) .GT. VGLVS_IN ( 1 ) ) THEN
+         LINC = .TRUE.
+      ELSE
+         LDEC = .TRUE.
+      ENDIF
+
+      DO EDG = 1, 4
+
+         DO N = 1, NSPCS_IN    
+
+            DO L = 1, NLAYS_IN
+               WORKA( L ) = CONCIN( L, EDG, N )
+            ENDDO
+
+            DO L = 1, NLAYS
+
+               IF( NLAYS_IN .EQ. 1 ) THEN
+
+                  CONCOUT( L, EDG, N ) = WORKA( 1 )
+
+               ELSE
+
+                  X3 = 0.5 * ( VGLVS_GD ( L ) +  VGLVS_GD ( L + 1 ) )
+
+                  IF( LINC .AND. X3 .LE. X3_OLD( 1 ) ) THEN
+                     CONCOUT( L, EDG, N ) = WORKA( 1 )
+                  ELSEIF( LDEC .AND. X3 .GE. X3_OLD( 1 ) ) THEN
+                     CONCOUT( L, EDG, N ) = WORKA( 1 )
+                  ELSEIF( LINC .AND. X3 .GE. X3_OLD( NLAYS_IN ) ) THEN
+                     CONCOUT( L, EDG, N ) = WORKA( NLAYS_IN )
+                  ELSEIF( LDEC .AND. X3 .LE. X3_OLD( NLAYS_IN ) ) THEN
+                     CONCOUT( L, EDG, N ) = WORKA( NLAYS_IN )
+                  ELSE
+                     CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
+     &                               X3, Y, DELY )
+                     CONCOUT( L, EDG, N ) = Y
+                  ENDIF
+
+               ENDIF
+
+            ENDDO 
+
+         ENDDO
+ 
+      ENDDO
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  Vertical Interpolation Section '
+     &         / 1X, 79( '#' ) 
+     &        // 5X, 'WARNING: The vertical grid type used for the ',
+     &               'profile data is assumed to be the same as the '
+     &         / 5X, '         type specified in COORD.EXT. The ',
+     &               'resolution of each is listed below. ' )
+
+92020 FORMAT( // 5X, 'COORD.EXT Vertical grid type: ', A )
+92040 FORMAT( // 5X, 'Vertical layer surface values: '
+     &         /10X, ' K    COORD.EXT    Input Profile data' )
+92060 FORMAT( A )
+92080 FORMAT(   10X, I2, 1X, F12.3, 10X, F12.3 )
+92100 FORMAT(   10X, I2,       13X, 10X, F12.3 )
+92120 FORMAT( // 5X, 'The vertical structure in COORD.EXT is identical',
+     &               ' to that of the input profile data. '
+     &        /  5X, 'No vertical interpolation necessary.' )
+
+94060 FORMAT( 1PE20.4 )
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

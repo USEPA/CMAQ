@@ -1,0 +1,117 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/include/ICL/src/bin/update_release,v 1.34 2008/09/19 16:32:06 sjr Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+# extract archive's released global include files
+
+ onintr abort
+ set echo
+ set Arc   = $M3MODEL/include
+ set Rel   = HEAD
+#set Dest  = $Arc/release
+ set Dest  = $cwd
+ set Fixed = $Dest
+ set Rm    = "/bin/rm -rf"
+
+ setenv CVSROOT $Arc/ICL
+
+ if ( ! -e "$Dest" ) then
+    mkdir $Dest
+    else
+    if ( ! -d "$Dest" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit(1)
+       endif
+    endif
+ cd $Dest
+
+# get mechanism include files
+
+ set Mechs = ( trac0 \
+               cb05_ae4_aq \
+               cb05cl_ae4_aq \
+               cb05cl_ae5_aq \
+               cb05cl_ae5ca_aq \
+               cb05cl_ae5st_aq \
+               cb05cltx_ae4_aq \
+               cb05cltx_ae5_aq \
+               cb05txhg_ae4_aq \
+               cb05txhg_ae5_aq \
+               saprc99_ae4_aq \
+               saprc99_ae5_aq \
+               saprc99_ae5ca_aq \
+               saprc99_ae5st_aq \
+               saprc99tx3_ae4_aq \
+               saprc99tx3_ae5_aq )
+
+ cd $Dest
+ foreach mech ( $Mechs )
+    mkdir $mech
+    cd $mech
+    cvs -r -q export -d . -r $Rel $mech
+    cd ..
+    end
+
+# get "fixed" include files
+
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/const/CONST.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/emctrl/EMISPRM.chem.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/emctrl/EMISPRM.vdif.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/filenames/FILES_CTM.EXT
+ cvs -r -q export -r $Rel -d $Fixed src/fixed/par/PE_COMM.EXT
+
+# get pa_noop include files
+
+ mkdir pa_noop
+ cvs -r -q export -r $Rel -d pa_noop src/procan/pa_noop/PA_CMN.EXT
+ cvs -r -q export -r $Rel -d pa_noop src/procan/pa_noop/PA_CTL.EXT
+ cvs -r -q export -r $Rel -d pa_noop src/procan/pa_noop/PA_DAT.EXT
+
+ exit 0 
+
+ abort:
+    onintr -       # turn off
+    set nonomatch  # prevent file expansion errors
+    exit 1
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

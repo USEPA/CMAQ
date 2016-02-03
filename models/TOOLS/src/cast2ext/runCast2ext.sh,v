@@ -1,0 +1,67 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!/bin/sh
+#
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/TOOLS/src/cast2ext/runCast2ext.sh,v 1.1.1.1 2005/07/27 20:37:47 sjr Exp $ 
+#
+# script for running the cast2ext program on Unix
+#
+#  converts CASTNET hourly data to a format used by sitecmp
+#
+
+BASE=/project/model_evalb/extract_util
+ 
+EXECUTION_ID=cast2extV1.0; export EXECUTION_ID
+ 
+EXEC=${BASE}/bin/${EXECUTION_ID}.exe
+
+
+#   input file (downloaded from CASTNET web site) 
+#   containing site-id, time-period, and data fields
+INFILE=${BASE}/castnet/obs/castnet_hr.csv; export INFILE  
+
+
+#  output file (csv text file can be used as input to sitecmp)
+OUTFILE=${BASE}/castnet/output/cast2extV1.0.2001.csv; export OUTFILE
+
+ ${EXEC}
+
+echo run completed, output file = ${OUTFILE}
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

@@ -1,0 +1,30 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/air5/sjr/CMAS4.7.1/rel/models/include/ICL/src/mech/saprc99_ae5ca_aq/NR_CONC.EXT,v 1.1.1.1 2009/12/16 19:16:02 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5CA_AQ
+
+        INTEGER        N_NR_CONC
+        PARAMETER     (N_NR_CONC = 14)
+        INTEGER        N_NR_CONCD
+        PARAMETER     (N_NR_CONCD = N_NR_CONC)
+        CHARACTER*16   NR_CONC(N_NR_CONCD)
+        INTEGER        NR_CONC_MAP(N_NR_CONCD)
+
+        DATA          NR_CONC  (1), NR_CONC_MAP  (1) / 'NH3             ', 1 /
+        DATA          NR_CONC  (2), NR_CONC_MAP  (2) / 'HCL             ', 2 /
+        DATA          NR_CONC  (3), NR_CONC_MAP  (3) / 'SV_ALK          ', 3 /
+        DATA          NR_CONC  (4), NR_CONC_MAP  (4) / 'SV_XYL1         ', 4 /
+        DATA          NR_CONC  (5), NR_CONC_MAP  (5) / 'SV_XYL2         ', 5 /
+        DATA          NR_CONC  (6), NR_CONC_MAP  (6) / 'SV_TOL1         ', 6 /
+        DATA          NR_CONC  (7), NR_CONC_MAP  (7) / 'SV_TOL2         ', 7 /
+        DATA          NR_CONC  (8), NR_CONC_MAP  (8) / 'SV_BNZ1         ', 8 /
+        DATA          NR_CONC  (9), NR_CONC_MAP  (9) / 'SV_BNZ2         ', 9 /
+        DATA          NR_CONC (10), NR_CONC_MAP (10) / 'SV_TRP1         ',10 /
+        DATA          NR_CONC (11), NR_CONC_MAP (11) / 'SV_TRP2         ',11 /
+        DATA          NR_CONC (12), NR_CONC_MAP (12) / 'SV_ISO1         ',12 /
+        DATA          NR_CONC (13), NR_CONC_MAP (13) / 'SV_ISO2         ',13 /
+        DATA          NR_CONC (14), NR_CONC_MAP (14) / 'SV_SQT          ',14 /

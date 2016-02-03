@@ -1,0 +1,1146 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.06.14.16.03.09;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.06.14.16.03.09;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/CCTM/src/vdiff/acm2_inline_txhgsim/HGSIM.F,v 1.5 2009/11/13 18:05:00 sjr Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      MODULE HGSIM
+
+C-----------------------------------------------------------------------
+C Function: This module contains the code to predict bidirectional
+C          exchanges between the atmosphere and surface media using a two
+C          layer resistance-capacitance model. Fluxes are parameterized by
+C          applying Fick's law  across the atmospheric surface media
+C          concentration gradient.
+C
+C Revision History:
+C      12 Aug 2008 J. Bash initial implementation
+C       2 Apr 2009 J. Bash for solar irradation on the order of 1e-3 w/m2
+C                          the mercury surface water photo redox scheme 
+C                          became unstable. A conditional statement was
+C                          added to correct this instability. 
+C       4 June 2009 J. Bash Corrected the time stamp on WRASX_MEDIA to be
+C                          consistant with other CMAQ modules reported by
+C                         (T.Myers) 
+C     22 Oct  2009 J. Bash Corrected a units conversion error in ASWX and ATX
+C                          reported by (P. Pongprueksa) and added a more 
+C                          robust soil diffusion model adapted from the
+C                          Community Land Model 3.5.  
+C
+C  References: 
+C 
+C  Bash, J.O. (in press) Description and initial simulaiton of a dynamic
+C     bi-directional surface exchange model for mercury in CMAQ, J. Geophys.
+C     Res.
+C  Mason, R.P., J.R. Reinfelder, F.M.M. Morel, 1996, Uptake, toxicity, and
+C     trophic transfer of mercury in a coastal diatom, Environ. Sci. Technol.
+C     30, 1835-1845
+C  Scholtz, M.T., B.J. Van Heyst, W.H. Schroeder, 2003, Modelling of mercury
+C     emissions from background soils, Sci. Tot. Environ. 304, 185-207
+C  Trapp S. and Matthies, 1995, Generic one-compartment model for uptake of
+C     organic chemicals by foliar vegetations. Environ. Sci. Technol. 29, 
+C     2333-2338
+C  Trapp, S., 2004, Plant uptake and transport for netural and ionic chemicals,
+C     Environ. Sci. Pollut. Res. 11, 33-39
+C  Whalin, L., E.-H. Kim, R. Mason, 2007, Factors influencing the oxidation,
+C     reduciton, methylation and demethylation of mercury species in costal
+C     water, Marine Chem. 107, 278-294
+C-----------------------------------------------------------------------
+      IMPLICIT NONE
+
+C    Shared variables
+
+      REAL,    SAVE, ALLOCATABLE :: lwmask    ( :,: )
+
+C     Private variables used in this routine and
+
+      LOGICAL, SAVE, PRIVATE   :: INIT_ASX
+
+      REAL, PARAMETER, PRIVATE :: zsurf  = 1 ! ocean slab depth (m)
+      REAL, PARAMETER, PRIVATE :: ZG = 0.05  
+
+      CHARACTER( 96 ), PRIVATE :: XMSG = ' '
+      INTEGER, SAVE,PRIVATE :: LOGDEV
+
+C variable needed for SGEEV eigen value funciton
+      REAL, ALLOCATABLE, PRIVATE :: KO(:,:)
+      REAL, ALLOCATABLE, PRIVATE :: COEFS(:,:)
+      REAL, ALLOCATABLE, PRIVATE :: EIVAL(:)
+      REAL, ALLOCATABLE, PRIVATE :: WI(:)
+      REAL, ALLOCATABLE, PRIVATE :: WORK(:)
+      REAL, ALLOCATABLE, PRIVATE :: VR(:,:)
+      REAL, ALLOCATABLE, PRIVATE :: VL(:,:)
+      INTEGER, PRIVATE :: NC
+      INTEGER, PRIVATE :: LDA
+      INTEGER, PRIVATE :: LDVR
+      INTEGER, PRIVATE :: LDVL
+      INTEGER, PRIVATE :: i
+      INTEGER, PRIVATE :: j
+      INTEGER, PRIVATE :: LWORK
+      INTEGER, PRIVATE :: INFO
+
+C variable needed for SGETRF LU matrix factorization
+      REAL,    ALLOCATABLE, PRIVATE :: EVECTS(:,:) ! eigen vectors
+      INTEGER, ALLOCATABLE, PRIVATE :: IPIV(:)     ! pivot locations for LU decomp
+
+C variable needed for SGETRS linear system solver function
+      REAL, ALLOCATABLE, PRIVATE :: B( :,: )   ! Surface media concentration vector
+      REAL, ALLOCATABLE, PRIVATE :: NHS( :,: ) ! non-homogenious solution
+      INTEGER, PRIVATE :: NRHS
+      INTEGER, PRIVATE :: LDB
+
+      INTEGER, SAVE, PRIVATE :: dt  ! internal model time step
+
+C input/output parameters
+
+      INTEGER, PRIVATE :: N_AQ_CONC  ! aqueous media concentrations
+      INTEGER, PRIVATE :: N_GAS_CONC ! gaseous media concentrations
+      INTEGER, PRIVATE :: N_SOL_CONC ! solid media concentrations
+      INTEGER, PRIVATE :: N_TOT
+
+      CHARACTER( 16 ), ALLOCATABLE, PRIVATE :: MEDIA_NAMES( : )
+
+      REAL, ALLOCATABLE, PRIVATE ::  WRMC( :,: ) ! media read/write buffer
+      REAL, ALLOCATABLE, PRIVATE :: CMEDIA( :,:,: ) ! surface layer concs
+
+      CONTAINS
+
+         SUBROUTINE ATX (diff, ra, rbc, rstom, rcut, rwetsfc, rinc, rsnow, rsndiff,
+     &                   rgw, ifsnow, xm, dvel, HG, H, LAI, dpvd, del, TS1CM,
+     &                   SOIM1CM, tstep, c, r, veg, sltype, jdate, jtime, lufrac,
+     &                   n_lufrac )
+
+! test program to find and return eigenvalues and eigenvectors for a coupled
+! land - surface echange model using Intels math kernel library (MKL) linear
+! algebra functions
+
+         USE HGRD_DEFN           ! horizontal grid specifications
+         USE DEPVVARS
+
+C Includes:
+
+         INCLUDE SUBST_CONST     ! constants
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+         INCLUDE SUBST_IOFDESC   ! file header data structure
+         INCLUDE SUBST_IODECL    ! I/O definitions and declarations
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+
+C Arguments passed to and from m3dry
+
+         REAL, INTENT( IN )   :: diff    ! Elemental Hg diffusivity
+         REAL, INTENT( IN )   :: ra      ! Aerodynamic resistance
+         REAL, INTENT( IN )   :: rbc     ! laminar boundary layer resistance
+         REAL, INTENT( IN )   :: rstom   ! stomatal resistance
+         REAL, INTENT( IN )   :: rcut    ! cuticle resistance
+         REAL, INTENT( IN )   :: rwetsfc ! wet surface resistance
+         REAL, INTENT( IN )   :: rinc    ! in canopy resistance
+         REAL, INTENT( IN )   :: rsnow
+         REAL, INTENT( IN )   :: rsndiff ! diffusivity through snow pack
+         REAL, INTENT( IN )   :: rgw     ! wet soil resistance
+         REAL, INTENT( IN )   :: xm
+         REAL, INTENT( IN )   :: HG
+         REAL, INTENT( IN )   :: H
+         REAL, INTENT( IN )   :: del
+         REAL, INTENT( IN )   :: LAI
+         REAL, INTENT( IN )   :: SOIM1CM ! 1 cm soil moisture
+         REAL, INTENT( IN )   :: TS1CM
+         REAL, INTENT( IN )   :: veg
+         REAL, INTENT( IN )   :: sltype
+         REAL, INTENT( IN )   :: lufrac(n_lufrac,NCOLS,NROWS)
+
+         REAL, INTENT( OUT )  :: dpvd     ! evasion
+         REAL, INTENT( OUT )  :: dvel     ! deposition velocity
+
+         INTEGER, INTENT( IN ) :: c
+         INTEGER, INTENT( IN ) :: r
+         INTEGER, INTENT( IN ) :: jdate
+         INTEGER, INTENT( IN ) :: jtime
+         INTEGER, INTENT( IN ) :: tstep
+         INTEGER, INTENT( IN ) :: ifsnow
+         INTEGER, INTENT( IN ) :: n_lufrac
+
+         CHARACTER( 96 ) :: XMSG = ' '
+
+         CHARACTER( 16 ), PARAMETER :: pname      = 'ATX'
+
+         REAL   :: vdHG   ! Elemental Hg deposition velocity
+         REAL   :: vdHGct   ! Hg cuticular transfer velocity
+         REAL   :: vdHGst  ! stomatal transfer velocity
+         REAL   :: vdHGsl
+         REAL   :: pdHgsl
+         REAL   :: rgnd
+         REAL   :: rgndc
+
+         REAL :: ZC, ZM ! depth of model surface media
+
+!Model concentrations
+
+         REAL, SAVE :: Cc         ! cuticular Hg(0) concentrations
+         REAL, SAVE :: Cm         ! mesophyll Hg(0) concentrations
+         REAL, SAVE :: CgHg       ! Soil Hg(0) concentrations
+         REAL, SAVE :: CHgzo      ! Hg(0) concentrations at z = zo
+         REAL, SAVE :: CgHgII0    ! Soil Hg(II) concentrations
+         REAL :: vdHgt   ! sum of Hg deposition velocities
+!********* reduction and partioning terms *******************************
+         REAL :: kr      ! soil divalent mercury reduction term
+         REAL :: Kam     ! air mesophyll partitioning coefficient for Hg(II)
+         REAL :: Kac     ! air cuticule partitioning coeffiecient for Hg(II)
+         REAL :: Kow     ! HgCl2 Octanol water partioning coefficient
+         REAL :: Kpwc    ! Hg(0) air-vegetation surface partitioning coefficient
+         REAL :: Kpwm    ! Hg(0) air-mesophyll partitioning coefficient
+         REAL :: Kas     ! Hg(0) air-soil partitioning coefficient   
+!******** soil properties ***********************************************
+         REAL :: rhob ! soil bulk density
+         REAL :: pr   ! soil porocity
+         REAL :: sas  ! soil air space
+         REAL :: foc  ! fraction of soil organic matter
+         REAL :: ldiff ! diffusion length
+!********* vegetation poperties *****************************************
+         REAL :: lm  ! leaf mesophyll lipid fraction
+         REAL :: lc  ! cuticular wax mesophyll lipid fraction
+         REAL :: Wp  ! water content fraction of the leaf
+         REAL :: bc  ! Emprical coefficeint to describe differences in plant lipids
+!********* Intermediate concentration variables *********************
+         REAL, SAVE :: Hgm
+         REAL, SAVE :: Hgc
+         REAL, SAVE :: Hgs
+!********* Unit conversions *********************	
+         REAL :: M3MOLVOL ! molar volume of air at stp m3/mol	 
+
+         M3MOLVOL = MOLVOL/1e3 
+         dt     = tstep
+         Cm     = CMEDIA( 5,c,r )  ! ng/g bulk leaf concentration
+         Cc     = CMEDIA( 6,c,r )  ! ng/g bulk leaf concentration
+         CgHg   = CMEDIA( 3,c,r )  ! ng/g bulk soil concentration
+         CHgzo  = CMEDIA( 4,c,r )  ! ng/g bulk soil concentration
+
+! Model layer depths
+
+         ZC     = 70*LAI ! g/m**2 based off of leaf litter fall
+         ZM     = 70*LAI !  measurements at UCONN's experimental forest
+! Soil divalent mercury reduction rate following Scholz et al 2003
+         kr     = 8e-11
+
+!***************** canopy parameters *********************************
+         Kow  = 4.15    ! For Hg, Mason 1996
+         lm   = 0.02    ! From Trapp and Matthis 1995
+         lc   = 0.02    ! Assumed cuticular wax lipid content
+         Wp   = 0.8     ! leaf water fraction, Trapp and Mathis 1996
+         bc    = 0.95   ! For barley, Trapp and Mathis 1996
+         Kpwc = (Wp+lc*1.0/0.822*Kow**bc)*MWWAT                 ! g/umol
+         Kpwm = (Wp+lm*1.0/0.822*Kow**bc)*MWWAT                 ! g/umol
+! Partitioning coeficients following the methodology of the PEM model
+         kac = (Kpwc*(1-del)) +  ! evasion from dry cuticles
+     &         Kpwc*del*H        ! g/mol cuticle surface
+         kam = Kpwm*H            ! g/mol apoplast solution
+!**************** soil parameters ************************************
+! with the soil redcution rate following Lyons et al 1997
+         soil: SELECT CASE( int(sltype+0.1) ) ! added 0.1 to prevent rounding
+         CASE(1) ! Sand                         down of sltype
+            rhob    = 1.59e6     ! g/m3 bulk soil density
+            pr      = 0.395
+         CASE(2) ! Loamy Sand
+            rhob    = 1.55e6     ! g/m3 bulk soil density
+            pr      = 0.410
+         CASE(3) ! Sandy Loam
+            rhob    = 1.53e6     ! g/m3 bulk soil density
+            pr      = 0.435
+         CASE(4) ! Silt Loam
+            rhob    = 1.53e6     ! g/m3 bulk soil density
+            pr      = 0.485
+         CASE(5) ! Loam
+            rhob    = 1.55e6     ! g/m3 bulk soil density
+            pr      = 0.451
+         CASE(6) ! Sand Clay Loam
+            rhob    = 1.62e6     ! g/m3 bulk soil density
+            pr      = 0.42
+         CASE(7) ! Silt Clay Loam
+            rhob    = 1.67e6     ! g/m3 bulk soil density
+            pr      = 0.477
+         CASE(8) ! Clay Loam
+            rhob    = 1.66e6     ! g/m3 bulk soil density
+            pr      = 0.476
+         CASE(9) ! Sandy Clay
+            rhob    = 1.83e6     ! g/m3 bulk soil density
+            pr      = 0.426
+         CASE(10) ! Silty Clay
+            rhob    = 1.78e6     ! g/m3 bulk soil density
+            pr      = 0.482
+         CASE(11) ! Clay
+            rhob    = 1.83e6     ! g/m3 bulk soil density
+            pr      = 0.482      ! soil procity vol/vol
+         CASE DEFAULT ! Soil code not found
+            WRITE(*,*) 'Soil type ',sltype
+            XMSG = 'Invalid soil type'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END SELECT soil
+
+C fraction of soil organic matter using the empircal relationship of 
+C Prevost Soil Sci. Soc. Americal J. 68(3): 943	 
+         foc = (-(1.561*rhob/1e6-0.159)+((1.561*rhob/1e6-0.159)**2 +
+     &            4*0.159**2*1.561)**0.5)/(2.0*0.159)
+
+         Kas = H
+         sas     = pr - SOIM1CM
+         IF ( sas .LE. 0.0 ) THEN
+            sas = 1e-5  ! set to an arbitrary small value to avoid dividing by 0
+         END IF
+         cgHgII0 = 90.0 !ng/g
+
+C Diffusion distance through soil following Kondo et al 1990, J. App. Meteorol.
+         ldiff = min(ZG/2,ZG/2*(exp((1.0-SOIM1CM/pr)**5)-1)/(exp(1.0)-1.0))
+         ldiff = max(ldiff,0.0) ! don't allow negative diffusion lenghts
+C diffusion through soil from Scholtz et al. 2003	 
+         rgnd  = ldiff/( diff*( sas**(10.0/3.0)/pr**2 ) )*100**2  !mid soil JOB 10/19/09
+C         rgndc = 1.0/( ( 1.0-del )/rgnd + del/rgw ) + rinc ! Add in-canopy part
+         rgndc  = rgnd + rinc ! new soil diffusion model accounts for wet surfaces
+         vdHg   = 1/ra
+         vdHgst = 1/( rbc + rstom )
+         vdHgct = lai*(( 1.0 - del  )/( rbc + rcut )
+     &            + ( del )/(rbc + rwetsfc ))
+         vdHgsl = veg/( rbc + rgndc )
+     &            + ((1-ifsnow) *( 1.0 - veg )*( 1.0-del ))/(rbc + rgnd )
+     &            + (del * (1-ifsnow))/(rbc + rgw )
+     &            + (ifsnow*(1.0 - xm))/( rbc + rsnow ) 
+     &            + (xm*ifsnow)/(rbc + rsndiff + rgw)
+         pdHgsl = 1/(ra + 1/vdHgsl )     ! production term with no canopy
+
+         vdHgt = vdHg + vdHgst + vdHgct + vdHgsl
+
+         CHgzo = (vdHg*Hg+vdHgst/kam*Cm+vdHgct/kac*Cc+vdHgsl/Kas*cgHg)
+     &                    /vdHgt
+
+         dpvd = veg * vdHg * CHgzo + (1-veg) * pdHgsl/Kas * CgHg
+
+         dvel = pdHgsl + veg *(vdhg-pdHgsl)
+
+
+! Load array A
+         NC = 3
+         LDA = 3
+         LDVR = 3
+         LDVL = 3
+         LWORK = 204
+
+         ALLOCATE ( KO(NC,NC), VR(NC,NC), VL(NC,NC), EIVAL(NC),
+     &              WI(NC), WORK(LWORK), COEFS(NC,NC) )
+
+
+         KO = 0.0
+
+         KO(1,1) = -vdHgst/(ZM*kam*M3MOLVOL)*(1-vdHgst/(kam*vdHgt))
+         KO(1,2) =  vdHgst/(ZM*M3MOLVOL)*vdHgct/(kac*vdHgt)
+         KO(1,3) =  vdHgst/(ZM*M3MOLVOL)*vdHgsl/(H*vdHgt)
+         KO(2,1) =  vdHgct/(ZC*M3MOLVOL)*vdHgst/(kam*vdHgt)
+         KO(2,2) = -vdHgct/(ZC*kac*M3MOLVOL)*(1-vdHgct/(kac*vdHgt))
+         KO(2,3) =  vdHgct/(ZC*M3MOLVOL)*vdHgsl/(H*vdHgt)
+         KO(3,1) =  vdHgsl/(ZG*SOIM1CM)*vdHgst/(kam*vdHgt)
+         KO(3,2) =  vdHgsl/(ZG*SOIM1CM)*vdHgct/(kac*vdHgt)
+         KO(3,3) = -vdHgsl/(ZG*SOIM1CM*Kas)*(1-vdHgsl/(H*vdHgt))
+
+         DO i = 1, NC
+            DO j = 1, NC
+               COEFS(i,j) = KO(i,j)
+            END DO
+         END DO
+
+         NRHS = 1
+         LDB = 3
+
+         ALLOCATE( NHS(LDB,NRHS))
+
+         NHS = 0.0
+
+         NHS(1,1) = -vdHgst/ZM*(vdHg*HG/M3MOLVOL)/vdHgt
+         NHS(2,1) = -vdHgct/ZC*(vdHg*HG/M3MOLVOL)/vdHgt
+         NHS(3,1) = -vdHgsl/(ZG*SOIM1CM)*(vdHg*HG)/vdHgt -
+     &               kr*rhob*cgHgII0*(ZG)/(1.0e3*200.59)
+
+         ALLOCATE( B(LDB,NRHS))
+
+         B = 0.0
+
+         B(1,1) = Cm
+         B(2,1) = Cc
+         B(3,1) = CgHg
+
+
+         ALLOCATE( EVECTS(NC, NC ), IPIV(LDA))
+
+         EVECTS = 0.0
+
+C*****************************************************************************
+C********** call LAPACK DGEEV to get eigen values and vectors ****************
+C*****************************************************************************
+
+         CALL SGEEV('N','V',NC,KO,LDA,EIVAL,WI,VR, LDVR,VR,LDVR,WORK,LWORK,INFO)
+
+         IF ( INFO .NE. 0 ) THEN
+            IF ( INFO .LT. 0 ) THEN
+               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
+            ELSE
+               WRITE( LOGDEV,* ) 'SGEEV failed to compute all eigenvalues and vectors'
+            END IF
+               XMSG = '*** SGEEV fails ***'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+
+         DO i = 1, NC
+            DO j = 1, NC
+               EVECTS(i,j) = VR(i,j)
+            END DO
+         END DO
+
+C******************************************************************************
+C******* Do the non homogenious part ******************************************
+C******************************************************************************
+
+
+! call LAPACK SGETRF to calculate the LU array factorization
+         CALL SGETRF(NC, NC, COEFS, LDA, IPIV, INFO)
+
+         IF ( INFO .NE. 0 ) THEN
+            IF ( INFO .LT. 0 ) THEN
+               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
+            ELSE
+               WRITE( LOGDEV,* ) 'The upper triangular matrix is singular'
+            END IF
+            XMSG = '*** SGETRF fails ***'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+
+! call LAPACK SGETRS linear system solver for initial conditions
+         CALL SGETRS('N', NC, NRHS, COEFS, LDA, IPIV, NHS, LDB, INFO )
+!
+         IF ( INFO .NE. 0 ) THEN
+            WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
+            XMSG = '*** SGETRS fails ***'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+
+C******************************************************************************
+C*** Update the IC's for the Non-homogenious solutions and solve the system ***
+C******************************************************************************
+
+         DO i = 1, NC
+            B(i,1) = B(i,1) - NHS(i,1)
+         ENDDO
+
+! call LAPACK SGETRF to calculate the LU array factorization
+         CALL SGETRF(NC, NC, EVECTS, LDA, IPIV, INFO)
+
+         IF ( INFO .NE. 0 ) THEN
+            WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRF is incorrect'
+            XMSG = '*** SGETRS fails ***'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+         END IF
+
+
+! call LAPACK SGETRS linear system solver for initial conditions
+         CALL SGETRS('N', NC, NRHS, EVECTS, LDA, IPIV, B, LDB, INFO )
+
+         IF( INFO .NE. 0 ) THEN
+            WRITE(*,*) 'Error in non homogenious SGETRS!!'
+            WRITE(*,*) 'INFO: ', INFO
+         END IF
+
+! update the surface array
+         Hgm = 0.0
+         Hgc = 0.0
+         Hgs   = 0.0
+
+         DO i = 1, NC
+            Hgm = Hgm + B(i,1) * VR(1,i) * EXP( EIVAL(i) * dt )
+            Hgc = Hgc + B(i,1) * VR(2,i) * EXP( EIVAL(i) * dt )
+            Hgs   = Hgs   + B(i,1) * VR(3,i) * EXP( EIVAL(i) * dt )
+         END DO
+
+
+         Hgm   = Hgm + NHS(1,1)
+         Hgc   = Hgc + NHS(2,1)
+         Hgs   = Hgs   + NHS(3,1)
+         ! debugging test code
+
+         IF ( Hgm .LT. 0.0 .OR. Hgc .LT. 0.0 .OR. Hgs .LT. 0.0 ) THEN
+
+            XMSG = '*** Negative concentration in MEDIA variabes ***'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+
+         END IF
+
+         CMEDIA( 3,c,r ) = Hgs
+         CMEDIA( 4,c,r ) = CHgzo
+         CMEDIA( 5,c,r ) = Hgm
+         CMEDIA( 6,c,r ) = Hgc
+
+         DEALLOCATE( KO, VR, VL, EIVAL, WI, WORK, COEFS )
+
+         DEALLOCATE( B )
+
+         DEALLOCATE( NHS )
+
+         DEALLOCATE( EVECTS, IPIV )
+
+         RETURN
+
+         END SUBROUTINE ATX
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C::::::: Air surface water exchange subroutine :::::::::::::::::::::::::::
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+         SUBROUTINE ASWX( Hg, HgIIgas, vdHg, vdHgII, awhg, rgrnd,
+     &                    dpvd, c, r, JDATE, JTIME, TSTEP )
+
+         USE HGRD_DEFN           ! horizontal grid specifications
+         USE DEPVVARS
+
+C Includes:
+
+         INCLUDE SUBST_CONST     ! constants
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+         INCLUDE SUBST_IOFDESC   ! file header data structure
+         INCLUDE SUBST_IODECL    ! I/O definitions and declarations
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+
+         INTEGER, INTENT( IN )   :: JDATE
+         INTEGER, INTENT( IN )   :: JTIME
+         INTEGER, INTENT( IN )   :: TSTEP
+         REAL,    INTENT( IN )   :: Hg
+         REAL,    INTENT( IN )   :: HgIIgas
+         REAL,    INTENT( IN )   :: vdHg
+         REAL,    INTENT( IN )   :: vdHgII
+         REAL,    INTENT( IN )   :: awhg
+         REAL,    INTENT( IN )   :: rgrnd
+         REAL,    INTENT( OUT )  :: dpvd
+         INTEGER, INTENT( IN )   :: c
+         INTEGER, INTENT( IN )   :: r
+
+         CHARACTER( 16 ), PARAMETER :: pname      = 'ASWX'
+
+C*************************** Ocean box parameters ***********************
+         REAL, PARAMETER :: satten = 0.758
+C*************************** Model concentrations ***********************
+         REAL, SAVE :: cDGM
+         REAL, SAVE :: cHgIIaq
+C***** reduction and partioning terms from Whalin et al 2007 ************
+         REAL, PARAMETER :: rref  = 240    ! referance incoming radiation
+                                           ! for redox measurements (w/m2)
+         REAL, PARAMETER :: kphot = 6.5e-4 ! drm photoreduction rate 1/s
+         REAL, PARAMETER :: kox   = 7.2e-4 ! dgm photo-oxidation rate 1/s
+C********* Intermediate concentration variables *********************
+         REAL, SAVE :: DGM
+         REAL, SAVE :: DRM
+
+
+         IF (INIT_ASX ) THEN
+            cDGM    = Hg*awhg*3 ! assume 3x eq con.
+            cHgIIaq = 3.57e-6   ! from Whalin et al 2007
+         ELSE
+            cDGM    = CMEDIA( 1,c,r )
+            cHgIIaq = CMEDIA( 2,c,r )
+         END IF
+
+         dt   = TSTEP
+
+         dpvd = cDGM * vdHg/awhg
+
+         IF ( rgrnd .LT. 1e-3 ) THEN
+C the aqueous elemental and divalent Hg pools become decoupled and the
+C matrices become singular warrenting an alternative solution
+
+C Find a simple one box solution for elemental Hg
+
+            DGM = Hg*awhg + (cDGM - Hg*awhg)*exp(-vdHg/(ZSURF*awhg)*dt)
+
+C in the absence of photo-redox reactions divalent Hg accumulates
+            DRM = cHgIIaq + vdHgII/ZSURF*HgIIgas*dt
+
+         ELSE
+
+            NC    = 2
+            LDA   = 2
+            LDVR  = 2
+            LDVL  = 2
+            LWORK = 16 ! use the box model to calculate optimal size of the
+                     ! work array
+
+            ALLOCATE ( KO(NC,NC), COEFS(NC,NC), VR(NC,NC), VL(NC,NC), EIVAL(NC),
+     &              WI(NC), WORK(LWORK) )
+
+            KO = 0.0
+
+C 240 w/m**2 is the 'typical light spectrum' from Whalin et al 2007 Marine Chem.
+C attenuation at 1 m = 1/K (1-exp(-K Z)) = 0.758 using a K of 0.58
+
+
+            KO( 1,1 )   = -vdhg / ( ZSURF * awhg ) 
+     &                    -kox * satten *rgrnd/rref
+            KO( 1,2 )   = kphot * satten*rgrnd/rref
+            KO( 2,1 )   = kox * satten * rgrnd/rref
+            KO( 2,2 )   = -kphot * satten * rgrnd/rref
+
+            COEFS = 0.0
+
+            DO i = 1, NC
+               DO j = 1, NC
+                  COEFS(i,j) = KO(i,j)
+               END DO
+            END DO
+
+            NRHS = 1
+            LDB = 2
+
+            ALLOCATE( NHS(LDB,NRHS))
+
+            NHS = 0.0
+
+            NHS(1,1) = -vdHg/ZSURF*HG
+            NHS(2,1) = -vdHgII/ZSURF*HgIIgas
+
+            ALLOCATE( B(LDB,NRHS))
+
+            B = 0.0
+
+            B( 1,1 ) = cDGM
+            B( 2,1 ) = cHgIIaq
+
+            ALLOCATE( EVECTS(NC, NC ), IPIV(LDA))
+
+            EVECTS = 0.0
+
+C*****************************************************************************
+C********** call LAPACK DGEEV to get eigen values and vectors ****************
+C*****************************************************************************
+
+         CALL SGEEV('N','V',NC,KO,LDA,EIVAL,WI,VR, LDVR,VR,LDVR,WORK,LWORK,INFO)
+
+            IF ( INFO .NE. 0 ) THEN
+               IF ( INFO .LT. 0 ) THEN
+                  WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
+               ELSE
+                  WRITE( LOGDEV,* ) 'SGEEV failed to compute all eigenvalues and vectors'
+               END IF
+               XMSG = '*** SGEEV fails ***'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+            DO i = 1, NC
+               DO j = 1, NC
+                  EVECTS(i,j) = VR(i,j)
+               END DO
+            END DO
+
+C******************************************************************************
+C******* Do the non homogenious part ******************************************
+C******************************************************************************
+! call LAPACK SGETRF to calculate the LU array factorization
+            CALL SGETRF(NC, NC, COEFS, LDA, IPIV, INFO)
+
+            IF ( INFO .NE. 0 ) THEN
+               IF ( INFO .LT. 0 ) THEN
+                  WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGEEV is incorrect'
+               ELSE
+                  WRITE( LOGDEV,* ) 'The upper triangular matrix is singular'
+               END IF
+               XMSG = '*** SGETRF fails ***'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+! call LAPACK SGETRS linear system solver for initial conditions
+            CALL SGETRS('N', NC, NRHS, COEFS, LDA, IPIV, NHS, LDB, INFO )
+!
+            IF ( INFO .NE. 0 ) THEN
+               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRS is incorrect'
+               XMSG = '*** SGETRS fails ***'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+C******************************************************************************
+C*** Update the IC's for the Non-homogenious solutions and solve the system ***
+C******************************************************************************
+
+            DO i = 1, NC
+               B(i,1) = B(i,1) - NHS(i,1)
+            ENDDO
+
+! call LAPACK SGETRF to calculate the LU array factorization
+            CALL SGETRF(NC, NC, EVECTS, LDA, IPIV, INFO)
+
+            IF ( INFO .NE. 0 ) THEN
+               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRF is incorrect'
+               XMSG = '*** SGETRF fails ***'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+
+! call LAPACK SGETRS linear system solver for initial conditions
+            CALL SGETRS('N', NC, NRHS, EVECTS, LDA, IPIV, B, LDB, INFO )
+
+            IF( INFO .NE. 0 ) THEN
+               WRITE( LOGDEV,* ) 'The ', INFO, ' var in SGETRS is incorrect'
+               XMSG = '*** SGETRS fails ***'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+
+! update the surface array
+            DGM = 0.0
+            DRM = 0.0
+
+            DO i = 1, NC
+               DGM = DGM + B(i,1) * VR(1,i) * EXP( EIVAL(i) * dt )
+               DRM = DRM + B(i,1) * VR(2,i) * EXP( EIVAL(i) * dt )
+            END DO
+
+            DGM     = DGM   + NHS(1,1)
+            DRM     = DRM   + NHS(2,1)
+
+            DEALLOCATE( KO, VR, VL, EIVAL, WI, WORK, COEFS )
+
+            DEALLOCATE( B )
+
+            DEALLOCATE( NHS )
+
+            DEALLOCATE( EVECTS, IPIV )
+
+         END IF
+
+         IF ( DGM .LT. 0.0 .OR. DRM .LT. 0.0 ) THEN
+
+            XMSG = '*** Negative concentration ***'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+
+         END IF
+
+         CMEDIA( 1,c,r ) = DGM
+         CMEDIA( 2,c,r ) = DRM
+
+         RETURN
+
+         END SUBROUTINE ASWX
+
+C------------------------------------------------------------------------------
+
+         SUBROUTINE GET_WDEP( CSE, WDEP, C, R )
+
+         IMPLICIT NONE
+
+         INCLUDE SUBST_CONST     ! constants	 
+
+         CHARACTER( 8 ), INTENT( IN ) :: CSE  ! wet dep sepcies
+         REAL,      INTENT( IN ) :: WDEP ! wet deposition in kg/ha
+         INTEGER,   INTENT( IN ) :: C
+         INTEGER,   INTENT( IN ) :: R
+         REAL, PARAMETER :: HAOM2   = 1.0e-4 ! ha/m^2 conversion
+         REAL, PARAMETER :: MWHG    = 200.59 ! molecular weight of Hg
+         REAL, PARAMETER :: UGOKG   = 1.0e9  ! ug/kg conversion
+         REAL, PARAMETER :: GH2ONM3 = 1.0e6  ! g H2O in M^3 H2O
+         REAL, PARAMETER :: MWH2O   = 18.02  ! molecular weight of H2O
+         REAL  WDEP_LOAD   ! loading due to wet deposition
+
+
+         IF ( NINT( lwmask( c,r ) ) .EQ. 0 ) THEN ! water
+
+         ! convert to umol/m2 pulse input
+            WDEP_LOAD = WDEP*HAOM2*UGOKG/MWHG
+         ! convert to added concentration in ppm assuming it remains at the surface
+            WDEP_LOAD = WDEP_LOAD/ZSURF/GH2ONM3*MWWAT
+
+            IF( TRIM(CSE) .EQ. 'HG      ' ) THEN
+
+               CMEDIA( 1,C,R ) = CMEDIA( 1,C,R ) + WDEP_LOAD
+
+            END IF
+
+            IF( TRIM(CSE) .EQ. 'HGIIGAS ' ) THEN
+
+               CMEDIA( 2,C,R ) = CMEDIA( 2,C,R ) + WDEP_LOAD
+
+            END IF
+
+         END IF ! water
+
+         RETURN
+
+         END SUBROUTINE GET_WDEP
+
+
+C*****************************************************************************
+C************** Iput / output section of the module **************************
+C*****************************************************************************
+
+         SUBROUTINE OPASX_MEDIA( JDATE, JTIME, TSTEP )
+
+         USE HGRD_DEFN           ! horizontal grid specifications
+         USE SUBST_MODULES       ! stenex
+         USE GRID_CONF
+
+         IMPLICIT NONE
+
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+         INCLUDE SUBST_IOFDESC   ! file header data structure
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+#include         SUBST_IODECL    ! I/O definitions and declarations
+
+         INTEGER JDATE
+         INTEGER JTIME
+         INTEGER TSTEP
+         INTEGER GXOFF
+         INTEGER GYOFF
+         INTEGER STATUS
+         INTEGER STDATE
+         INTEGER STTIME
+         INTEGER LSTEP
+         INTEGER, SAVE   :: ENDCOL
+         INTEGER, SAVE   :: ENDROW
+         INTEGER, SAVE   :: STRTCOL
+         INTEGER, SAVE   :: STRTROW
+         INTEGER, EXTERNAL  :: TRIMLEN
+         INTEGER, EXTERNAL  :: ENVINT
+         INTEGER, EXTERNAL  :: TIME2SEC
+         INTEGER, EXTERNAL  :: SEC2TIME
+
+         LOGICAL OK
+
+         CHARACTER( 16 ) :: PNAME = 'OPASX_MEDIA'
+         CHARACTER( 16 ) :: CTM_STDATE = 'CTM_STDATE'
+         CHARACTER( 16 ) :: CTM_STTIME = 'CTM_STTIME'
+         CHARACTER( 40 ) :: CHWARN = 'Domain extents different from model for '
+         CHARACTER( 80 ) :: VARDESC
+         CHARACTER( 96 ) :: MSG = ' '
+
+         INTEGER  N, V, L, C, R
+
+C--------------------------------------------------------------------------
+         LOGDEV = INIT3()
+
+C Specify number of media concentrations
+         N_AQ_CONC      = 3 ! surface water Hg, Hg(II), and soil Hg
+         N_GAS_CONC     = 1 ! Ambient Hg at z = z0, zero plane displacement
+         N_SOL_CONC     = 2 ! Stomatal and Cuticular bound Hg(0)
+         N_TOT = N_AQ_CONC + N_GAS_CONC + N_SOL_CONC
+
+         ALLOCATE( MEDIA_NAMES( N_TOT ), CMEDIA( N_TOT,NCOLS,NROWS ),
+     &             WRMC( NCOLS,NROWS )  )
+
+         MEDIA_NAMES(1) = 'DGM            ' ! Dissolved gaseous Hg
+         MEDIA_NAMES(2) = 'DRM            '! Dissolved reactive Hg
+         MEDIA_NAMES(3) = 'HGSOIL         '
+         MEDIA_NAMES(4) = 'HGZ0           '
+         MEDIA_NAMES(5) = 'HGMES          ' ! mesophyll Hg
+         MEDIA_NAMES(6) = 'HGCUT          '! cuticular Hg
+
+         OK = OPEN3( S_CGRID, FSRDWR3, PNAME )
+
+C **** Try opening saved media concentraitons ****
+         CALL SUBST_BARRIER
+
+         CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
+
+         IF( .NOT. OK ) THEN
+
+            XMSG = 'Could not open ' // MEDIA_CONC // ' file for update - '
+     &        // 'try to open new'
+            CALL M3MESG( XMSG )
+
+            CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
+
+            IF ( MYPE .EQ. 0 ) THEN
+
+               FTYPE3D = GRDDED3
+               SDATE3D = JDATE
+               TSTEP3D = TSTEP
+              ! CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
+
+               NVARS3D = N_TOT
+               NCOLS3D = GL_NCOLS
+               NROWS3D = GL_NROWS
+               NLAYS3D =     1
+               NTHIK3D =     1
+               GDTYP3D = GDTYP_GD
+               P_ALP3D = P_ALP_GD
+               P_BET3D = P_BET_GD
+               P_GAM3D = P_GAM_GD
+               XORIG3D = XORIG_GD
+               YORIG3D = YORIG_GD
+               XCENT3D = XCENT_GD
+               YCENT3D = YCENT_GD
+               XCELL3D = XCELL_GD
+               YCELL3D = YCELL_GD
+               VGTYP3D = VGTYP_GD
+               VGTOP3D = VGTOP_GD
+
+               FDESC3D = ' '   ! array
+
+               FDESC3D( 1 ) = 'Multimedia concentration estimates from integrated ambient '
+     &                     // 'concentraitons and surface exchange algorithms'
+
+               NVARS3D = N_AQ_CONC + N_GAS_CONC + N_SOL_CONC
+               NLAYS3D = 1
+
+               N = 0
+
+               DO V = 1, N_AQ_CONC
+                  N = N + 1
+                  VTYPE3D( N ) = M3REAL
+                  VNAME3D( N ) = MEDIA_NAMES( N )
+                  UNITS3D( N ) = 'umol/mol'
+                  VDESC3D( N ) = 'aqueous phase concentration'
+               END DO
+
+               N = N_AQ_CONC
+
+               DO V = 1, N_GAS_CONC
+                  N = N + 1
+                  VTYPE3D( N ) = M3REAL
+                  VNAME3D( N ) = MEDIA_NAMES( N )
+                  UNITS3D( N ) = 'ppmV g'
+                  VDESC3D( N ) = 'gas phase concentration'
+               END DO
+
+               N = N_AQ_CONC + N_GAS_CONC
+
+               DO V = 1, N_SOL_CONC
+                  N = N + 1
+                  VTYPE3D( N ) = M3REAL
+                  VNAME3D( N ) = MEDIA_NAMES( N )
+                  UNITS3D( N ) = 'umol/g'
+                  VDESC3D( N ) = 'Solid phase concentration'
+               END DO
+
+C Open file, then close it for subsequent open by all processors
+
+               IF ( .NOT. OPEN3( MEDIA_CONC, FSNEW3, PNAME ) ) THEN
+                  XMSG = 'Could not create '// TRIM( MEDIA_CONC) // ' file'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+
+            END IF ! MYPE
+
+            DO V = 1, N_TOT
+               DO R = 1, NROWS
+                  DO C = 1,NCOLS
+                     WRMC( C,R ) = CMEDIA( V,C,R )
+                  END DO
+               END DO
+
+               IF ( .NOT. WRITE3( MEDIA_CONC, MEDIA_NAMES( V ), SDATE3D,
+     &               STIME3D, WRMC ) ) THEN
+                  XMSG = 'Could not write initial values to' // MEDIA_CONC // ' file'
+                  CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+               END IF
+
+                  WRITE( LOGDEV, '( /5X, A, I8, ":", I6.6 )' )
+     &                'Inital timestep written to "' // TRIM( MEDIA_CONC ) //
+     &                '" for date and time', SDATE3D, STIME3D
+            END DO
+
+         END IF ! open MEDIA_CONC
+
+C **** Read in saved surface layer concentrations
+         IF ( .NOT. OPEN3( INIT_MEDC_1, FSREAD3, PNAME ) ) THEN
+            INIT_ASX = .TRUE.
+            WRITE( LOGDEV,* ) 'First day of the model simulation initializing surface arrays'
+
+            DO V = 1,N_TOT
+               DO R = 1, NROWS
+                  DO C = 1,NCOLS
+                     WRMC( C,R ) = 1e-30
+                  END DO
+               END DO
+
+               IF ( .NOT. WRITE3( MEDIA_CONC, MEDIA_NAMES( V ), SDATE3D,
+     &               STIME3D, WRMC ) ) THEN
+                  XMSG = 'Could not write initial values to' // MEDIA_CONC // ' file'
+                  CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
+               END IF
+
+               WRITE( LOGDEV, '( /5X, A, I8, ":", I6.6 )' )
+     &                'Inital timestep written to "' // TRIM( MEDIA_CONC ) //
+     &                '" for date and time', SDATE3D, STIME3D
+            END DO
+
+         ELSE
+
+            INIT_ASX = .FALSE.
+
+            IF ( .NOT. DESC3( INIT_MEDC_1 ) ) THEN
+               XMSG = 'Could not get ' // TRIM( INIT_MEDC_1 ) // ' file description'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+
+            LSTEP = SEC2TIME( ( MXREC3D - 2 ) * TIME2SEC( TSTEP3D ) )
+            STTIME = STIME3D
+            STDATE = SDATE3D
+            CALL NEXTIME( STDATE, STTIME, LSTEP )
+
+            IF ( GL_NCOLS .NE. NCOLS3D ) THEN
+               WRITE( LOGDEV,* ) ' '
+               WRITE( LOGDEV,* ) '    WARNING: ' // CHWARN // INIT_MEDC_1
+               WRITE( LOGDEV,* ) '>>  GL_NCOLS: ', GL_NCOLS, '  NCOLS3D: ', NCOLS3D
+            END IF
+
+            IF ( GL_NROWS .NE. NROWS3D ) THEN
+               WRITE( LOGDEV,* ) ' '
+               WRITE( LOGDEV,* ) '    WARNING: ' // CHWARN // INIT_MEDC_1
+               WRITE( LOGDEV,* ) '>>  GL_NROWS: ', GL_NROWS, '  NROWS3D: ', NROWS3D
+            END IF
+
+            CALL SUBHFILE ( INIT_MEDC_1, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
+
+            DO V = 1, N_TOT
+               IF( .NOT. INTERPX( INIT_MEDC_1, MEDIA_NAMES( V ), PNAME, STRTCOL,
+     &                 ENDCOL, STRTROW, ENDROW, 1, 1, STDATE, STTIME, WRMC ) )THEN
+                  XMSG = 'Could not read ' //
+     &                MEDIA_NAMES( V )( 1:TRIMLEN( MEDIA_NAMES( V ) ) ) //
+     &                ' from ' // INIT_MEDC_1
+                  CALL M3EXIT ( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
+               END IF
+
+               WRITE(LOGDEV,*) MEDIA_NAMES( V )( 1:TRIMLEN( MEDIA_NAMES( V ) ) ),
+     &                        ' read into surface array'
+
+               DO R = 1, NROWS
+                  DO C = 1,NCOLS
+                     CMEDIA( V,C,R ) = WRMC( C,R )
+                  END DO
+               END DO
+
+            END DO
+
+         END IF ! load surface arrays
+
+         DEALLOCATE( WRMC )
+
+         RETURN
+
+         END SUBROUTINE OPASX_MEDIA
+
+C****************************************************************************
+
+         SUBROUTINE WRASX_MEDIA( TSTEP, JDATE, JTIME )
+
+         USE HGRD_DEFN           ! horizontal grid specifications
+         USE DEPVVARS
+
+         IMPLICIT NONE
+
+         INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
+         INCLUDE SUBST_IOFDESC   ! file header data structure
+         INCLUDE SUBST_FILES_ID  ! file name parameters
+#include         SUBST_IODECL    ! I/O definitions and declarations
+
+         INTEGER, INTENT( IN )    :: TSTEP
+         INTEGER, INTENT( IN )    :: JDATE
+         INTEGER, INTENT( IN )    :: JTIME
+         INTEGER, EXTERNAL :: SEC2TIME, TIME2SEC
+         INTEGER  :: NTIME
+         INTEGER  :: NDATE
+         INTEGER  :: tsec
+
+         INTEGER V, R, C
+
+         CHARACTER( 16 ) :: PNAME = 'WRASX_MEDIA'
+
+         N_AQ_CONC      = 3 ! surface water Hg, Hg(II), and soil Hg
+         N_GAS_CONC     = 1 ! Ambient Hg at z = z0, zero plane displacement
+         N_SOL_CONC     = 2 ! Stomatal and Cuticular bound Hg(0)
+         N_TOT = N_AQ_CONC + N_GAS_CONC + N_SOL_CONC
+
+         NDATE = JDATE
+         NTIME = JTIME
+
+         !CALL NEXTIME( NDATE, NTIME, TSTEP/2 )
+         tsec = time2sec(tstep)/2
+         CALL NEXTIME( NDATE, NTIME, sec2time(tsec) )
+
+         INIT_ASX = .FALSE.
+
+         ALLOCATE( WRMC(NCOLS,NROWS) )
+
+         DO V = 1, N_TOT ! species/media loop
+            DO R = 1, NROWS ! row loop
+               DO C = 1,NCOLS  ! column loop
+                  WRMC( C, R ) = CMEDIA( V, C, R )
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( MEDIA_CONC, MEDIA_NAMES( V ), NDATE, NTIME,
+     &                WRMC ) ) THEN
+               XMSG = 'Could not write ' // MEDIA_CONC // ' file'
+               CALL M3EXIT( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+            END IF
+
+            WRITE( LOGDEV, '( /5X, A, I8, ":", I6.6 )' )
+     &         'Timestep written to "' // TRIM( MEDIA_CONC ) //
+     &         '" for date and time', NDATE, NTIME
+
+         END DO
+
+         DEALLOCATE( WRMC )
+
+         RETURN
+
+         END SUBROUTINE WRASX_MEDIA
+
+
+      END MODULE HGSIM
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

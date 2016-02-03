@@ -1,0 +1,135 @@
+#! /bin/csh -f
+
+# ======================= BCONv4.7.1 Run Script ===================== #
+# Usage: run.bcon >&! run.bcon.log &                                  #
+# The following environment variables must be set for this script to  #
+# execute properly:                                                   #
+#   setenv M3DATA =  source code CVS archive                          #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# =================================================================== #
+
+#> Check that M3DATA is set:
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL     = cb05cl
+ set CFG      = e1a
+ set EXEC     = BCON_${CFG}_Linux2_x86_64intel
+ setenv NPCOL_NPROW "1 1"
+
+#> Set the working directory:
+ set BASE     = $cwd      
+ cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo
+
+#> horizontal grid defn; check GRIDDESC file for GRID_NAME options
+ setenv GRIDDESC ../GRIDDESC1
+ setenv GRID_NAME M_36_2001
+ setenv IOAPI_ISPH 19
+
+#> vertical layer defn
+ setenv LAYER_FILE $M3DATA/mcip3/M_36_2001/METCRO3D_010722
+
+# set the path for the output file containing the BC's
+ set OUTDIR   = $M3DATA/bcon
+ if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+
+#> turn off excessive WRITE3 logging
+ setenv IOAPI_LOG_WRITE F
+
+##############################################################################
+# This script to run the BCON preprocessor has two major sections;           #
+# 1) use default profile inputs, or 2) use CMAQ CTM concentration files.     #
+# Follow these steps:                                                        #
+#   1) Set BC equal to "profile" or "m3conc"                                 #
+#   2) set the remainder of the environment variables for the section being  #
+#      used (see below)                                                      #
+##############################################################################
+
+ set BC = profile      # use default profile file
+#set BC = m3conc       # use CMAQ CTM concentration files (nested runs)
+
+#> date or profile
+ if ( $BC == profile ) then
+    setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${GRID_NAME}_profile -v"
+    endif
+ if ( $BC == m3conc ) then 
+    set DATE = 2001203  # July 22, 2001
+    setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${GRID_NAME}_${DATE} -v"
+    endif
+
+##############################################################################
+# Default profile environment variables                                      #
+#----------------------------------------------------------------------------#
+# BC_PROFILE     = the file containing the default BC profiles               #
+#                                                                            #
+# MECH_CONV_FL   = file containing mechanism conversion rules (optional) -   #
+#                  must be set if a user-defined mechanism conversion file   #
+#                  is being used                                             #
+#                                                                            #
+# NOTE: SDATE and STIME do not need to be set                                #
+##############################################################################
+
+ if ( $BC == profile ) then
+
+    setenv BC_PROFILE      $M3DATA/raw/bcon/bc_profile_v9.dat
+
+#   setenv MECH_CONV_FILE  /home/ggb/models3/icbc/mech_conv_fl.v1
+
+    endif
+ 
+##############################################################################
+# CMAQ CTM concentration file environment variables (e.g., for nesting )     #
+#----------------------------------------------------------------------------#
+# CTM_CONC_1     = the CTM concentration file for the coarse domain          #
+#                                                                            #
+# BCON_PING      = flag controlling PinG BC's creation - must be set to YES  #
+#                  if PinG is included, otherwise set BCON_PING to NO        #
+#                                                                            #
+# CTM_PING_1     = the PinG concentration file for the coarse domain         #
+#                                                                            #
+# PING_PDM_1     = the PinG plume dynamics file for the coarse domain        #
+#                                                                            #
+# MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain - must be   #
+#                  set if PinG is included or if the vertical grid type is   #
+#                  changed between nests                                     #
+#                                                                            #
+# MET_CRO_3D_FIN = the MET_CRO_3D met file for the inner, nested, domain -   #
+#                  must be set if the vertical grid type is changed between  #
+#                  nests                                                     #
+#                                                                            #
+# MECH_CONV_FL   = file containing mechanism conversion rules (optional) -   #
+#                  must be set if a user-defined mechanism conversion file   #
+#                  is being used                                             #
+#                                                                            #
+# NOTE: If SDATE (yyyyddd), STIME (hhmmss) and RUNLEN (hhmmss) are not set,  #
+#       these variables will be set from the input CTM_CONC_1 file           #
+##############################################################################
+ 
+ if ( $BC == m3conc ) then 
+
+    setenv CTM_CONC_1 $M3DATA/cctm/CCTM_d1bCONC.d1b
+
+    setenv BCON_PING
+
+    setenv CTM_PING_1
+    setenv PING_PDM_1
+    setenv MET_CRO_3D_CRS
+
+    setenv MET_CRO_3D_FIN
+
+    setenv MECH_CONV_FILE
+
+    setenv SDATE           ${DATE}
+    setenv STIME           000000
+    setenv RUNLEN          240000
+
+    endif
+
+#> Executable call:
+ /usr/bin/time $BASE/$EXEC
+
+ exit() 

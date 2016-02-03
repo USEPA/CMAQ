@@ -1,0 +1,48 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/work/rep/PROCAN/src/data/pa.noop,v 1.1 2001/01/26 16:20:23 yoj Exp $ 
+
+! what(1) key, module and SID; SCCS file; date and time of last delta:
+! @@(#)pa.noop	1.1 /project/mod3/PROCAN/doc/bldrun/sunOS5/SCCS/s.pa.noop 07 Jul 1997 08:04:10
+
+  IRRTYPE = NONE;
+  ENDPA;
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

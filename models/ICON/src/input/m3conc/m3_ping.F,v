@@ -1,0 +1,544 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/ICON/src/input/m3conc/m3_ping.F,v 1.7 2005/02/17 16:33:55 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+       SUBROUTINE M3_PING( LOGUNIT, JDATE, JTIME, GL_NCOLS_IN, GL_NROWS_IN, 
+     &                     NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN, 
+     &                     INFL_SP_NAME, CONCIN, COL_LOC, ROW_LOC, NSRC, 
+     &                     MXREL, N_PING_FLS, PING_FL_NAME, COL, ROW )
+
+
+C*************************************************************************
+C
+C  FUNCTION:  Adds PinG contributions to boundary cell concentrations
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED:   
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, May, 1999
+C
+C                    02/25/00 David Wong, LM
+C                      -- added two new parameters: COL and ROW
+C                      -- block all HPALLOC or HPDALLOC calls by using a CPP
+C                         flag F90 when the code is running on T3E
+C                      -- parallelized the code
+C
+C                    10/10/00 David Wong, LM
+C                      -- removed one argument in the SUBST_DATA_COPY routine
+C                         with repsect to unification of subroutines
+C                         SUBST_CSG_INDEX and SUBST_FSG_INDEX in the STENEX
+C                         library
+C                    01/24/02 Steve Howard (Jeff Young) - dynamic allocation
+C                    12/15/04 J.Young: putenvvar -> setenvvar
+C
+C*************************************************************************
+
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+
+      USE SUBST_MODULES
+
+      IMPLICIT NONE     
+
+C..INCLUDE FILES:
+      INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+      INCLUDE SUBST_IOFDESC     ! IOAPI file description
+#include      SUBST_IODECL      # IOAPI declarations
+!     INCLUDE SUBST_HGRD_ID     ! Horizontal grid
+!     INCLUDE SUBST_VGRD_ID     ! Vertical grid
+!     INCLUDE SUBST_COORD_ID    ! Grid coordinate data
+
+      INCLUDE 'IC_PARMS.EXT'    ! BCON paramters
+
+C..ARGUMENTS: 
+      CHARACTER*16  PING_FL_NAME( * )          ! Name of CTM_PING file
+      CHARACTER*16  INFL_SP_NAME( * )          ! Name of input CTM species
+
+      INTEGER LOGUNIT      ! Unit number for output log
+      INTEGER MXREL        ! Maximum no. of PinG releases per source
+      INTEGER GL_NCOLS_IN  ! Global NCOLS_IN
+      INTEGER NCOLS_IN     ! No. of columns in input conc file
+      INTEGER NLAYS_IN     ! No. of layers in input conc file
+      INTEGER GL_NROWS_IN  ! Global NROWS_IN
+      INTEGER NROWS_IN     ! No. of rows in input conc file
+      INTEGER NSPCS_IN     ! No. of species in input conc file
+      INTEGER NSRC         ! No. of PinG sources
+      INTEGER N_PING_FLS   ! No. of PinG files
+      INTEGER JDATE        ! Date for IC Output
+      INTEGER JTIME        ! Time for IC output
+      INTEGER COL         ! Starting column of the fine domain in each processor
+      INTEGER ROW         ! Starting row of the fine domain in each processor
+
+      INTEGER COL_LOC( NCOLS, NROWS ) ! Output IC col corresponding to
+                                      ! a cell in the input CTM file
+      INTEGER ROW_LOC( NCOLS, NROWS ) ! Output IC row corresponding to
+                                      ! a cell in the input CTM file
+
+      REAL CONCIN( NCOLS_IN, NROWS_IN, NLAYS_IN, * )    ! Input conc array
+
+C..PARAMETERS:
+      INTEGER NPDM_INT
+      PARAMETER( NPDM_INT =  4 )   ! No. of int variables in PDM file that
+                                   ! are currently used in M3_PING
+      INTEGER NPDM_REAL
+      PARAMETER( NPDM_REAL = 10 )   ! No. of real variables in PDM file that
+                                    ! are currently used in M3_PING
+
+C..EXTERNAL FUNCTIONS:
+ 
+      INTEGER   INDEX1     ! Gets subscript of element in a vector
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      CHARACTER( 16 ) :: PNAME = 'M3_PING'    ! Program Name
+      CHARACTER( 80 ) :: MSG      ! Log message
+      CHARACTER( 16 ) :: VNAME    ! Variable name
+
+      INTEGER  FL_NUM        ! PinG output file number
+      INTEGER  HILEV         ! Highest level of plume dump
+      INTEGER  IND, V        ! Array indices for species
+      INTEGER  IPLUME        ! Plume release index
+      INTEGER  IXC, IYC      ! Plume center column and row location
+      INTEGER  MY_IXC, MY_IYC ! My plume center column and row location
+      INTEGER  IXLL, IXUR    ! Plume edge column locations
+      INTEGER  IYLL, IYUR    ! Plume edge row locations
+      INTEGER  IZLL, IZUR    ! Plume edge layer locations
+      INTEGER  C, R, L       ! Column, row, and layer loop indices
+      INTEGER  LOLEV         ! Lowest level of plume dump
+      INTEGER  N             ! Loop indices for species
+      INTEGER  NRELEASES     ! No. of plume releases
+      INTEGER  PFLAG         ! Status code for plume segment
+      INTEGER  PILL          ! loop index for plume pillars
+      INTEGER  SRC, REL      ! Loop indices
+
+      INTEGER PDM_IVAR( NSRC, MXREL, NPDM_INT )  ! PDM integer variables
+!     REAL    PDM_IVAR( NSRC, MXREL, NPDM_INT )  ! PDM integer variables
+
+      LOGICAL  LDONE             ! Flag for PinG processing done
+
+      REAL BAVCONC   ! Average background concentration
+      REAL FRACTION  ! Ratio of plume volume to cell volume
+      REAL HP        ! Plume height
+      REAL PAVCONC   ! Average pillar concentration
+      REAL SUM       ! Sum of pillar concentrations
+      REAL UPLUME    ! Plume length
+      REAL WP        ! Plume width
+      REAL XCELL     ! x-dimension of cell
+      REAL YCELL     ! y-dimension of cell
+      REAL ZDIFF     ! Top of plume in model domain
+
+      REAL DMPCELL( NSRC, MXREL, 4 )            ! Index of boundary cells to
+                                                ! dump to
+      REAL CPLUME( NSRC * MXREL, NPILLARS + 4, MXVARS3 ) ! Plume conc array
+      REAL ZF( NCOLS_IN, NROWS_IN, NLAYS_IN)    ! Full layer heights
+#ifdef parallel
+      REAL TZF( NCOLS_IN, NROWS_IN, NLAYS_IN)   ! temporary ZF
+#endif
+      REAL PDM_RVAR( NSRC, MXREL, NPDM_REAL )   ! PDM real variables
+
+      LOGICAL LDUMP( NSRC, MXREL )              ! Flag to dump release
+C**********************************************************************
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Read the MET_CRO_3D file and get the grid size
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( .NOT. DESC3 ( MET_CRO_3D_CRS ) ) THEN
+         MSG = 'Could not get DESC of ' // MET_CRO_3D_CRS // ' file'
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+      
+      VNAME = 'ZF'
+      IF( .NOT. INTERP3( MET_CRO_3D_CRS, VNAME, PNAME, JDATE, JTIME,
+     &                   NCOLS_IN*NROWS_IN*NLAYS_IN, ZF( 1, 1, 1) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // MET_CRO_3D_CRS         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+#ifdef parallel
+C -- exchange data as in CONC
+      CALL SUBST_DATA_COPY (ZF, TZF)
+      ZF = TZF
+#endif
+
+      XCELL = XCELL3D
+      YCELL = YCELL3D
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Read the PDM file data
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( .NOT. DESC3 ( PING_PDM_1 ) ) THEN
+         MSG = 'Could not read DESC of ' // PING_PDM_1 // ' file'
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+      
+      VNAME = 'PLUME_ID'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_IVAR( 1, 1, 1 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+
+      VNAME = 'PLUME_FLAG'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_IVAR( 1, 1, 2 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+      VNAME = 'ID_LL'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_IVAR( 1, 1, 3 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+      VNAME = 'ID_RU'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_IVAR( 1, 1, 4 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+      VNAME = 'WIDTH'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_RVAR( 1, 1, 1 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+      VNAME = 'DEPTH'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_RVAR( 1, 1, 2 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+      VNAME = 'INITIAL_WIND'
+      IF( .NOT. READ3( PING_PDM_1, VNAME, ALLAYS3, JDATE, JTIME,
+     &                PDM_RVAR( 1, 1, 3 ) ) ) THEN
+         MSG = 'Could not read variable ' // VNAME // 
+     &         'from input file '  // PING_PDM_1         
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+      ENDIF
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the number of releases for this hour
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NRELEASES = 0
+      DO N = 1, MXREL
+         IF( PDM_IVAR( 1, N, 2 ) .NE. -100 ) NRELEASES = NRELEASES + 1
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Decompose ID_LL and ID_RU and find which releases to dump;
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LDONE = .TRUE.
+      IPLUME = 0
+      DO REL = 1, NRELEASES            
+         DO SRC = 1, NSRC
+            IPLUME = IPLUME + 1
+
+            PFLAG = PDM_IVAR( SRC, REL, 2 )
+
+!       write(*, '( A, 4I4)' ) 'src,rel,iplume,pflag: ', 
+!     &     src,rel,iplume,pflag
+
+            LDUMP( SRC, REL ) = .FALSE.
+
+            IF( ( PFLAG .GE. 2 .AND. PFLAG .LE. 5 ) .OR.
+     &            PFLAG .EQ. 14 ) THEN
+
+               CALL PING_MAP1TO3( GL_NCOLS_IN, GL_NROWS_IN, NLAYS_IN, 
+     &              PDM_IVAR( SRC, REL, 3 ), IXLL, IYLL, IZLL )            
+
+               CALL PING_MAP1TO3( GL_NCOLS_IN, GL_NROWS_IN, NLAYS_IN, 
+     &              PDM_IVAR( SRC, REL, 4 ), IXUR, IYUR, IZUR )
+
+               IXC = ( IXLL + IXUR ) / 2 
+               IYC = ( IYLL + IYUR ) / 2 
+
+!       write(*, '( A, 6I4)' ) 'src,rel,iplume,pflag,ixc,iyc: ', 
+!     &     src,rel,iplume,pflag,ixc,iyc
+
+C -- computer my plume center of the column and row location
+#ifdef parallel
+               MY_IXC = IXC - COL + 1
+               MY_IYC = IYC - ROW + 1
+#else
+               MY_IXC = IXC
+               MY_IYC = IYC
+#endif
+
+               DO C = 1, MY_NCOLS
+                  DO R = 1, MY_NROWS
+
+                     IF(  MY_IXC .EQ. COL_LOC( C, R ) .AND. 
+     &                  MY_IYC .EQ. ROW_LOC( C, R ) ) THEN
+                        LDUMP( SRC, REL ) = .TRUE.
+                        LDONE = .FALSE.
+                        DMPCELL( SRC, REL, 1 ) = MY_IXC 
+                        DMPCELL( SRC, REL, 2 ) = MY_IYC 
+                        DMPCELL( SRC, REL, 3 ) = IZLL 
+                        DMPCELL( SRC, REL, 4 ) = IZUR 
+                     ENDIF
+
+                 ENDDO    ! NROWS
+               ENDDO      ! NCOLS
+ 
+            ENDIF
+
+         ENDDO         ! SRC
+      ENDDO            ! REL
+
+C -- Due to the possibility that some processors won't have any plumes, so
+C    synchronized I/O is not needed
+#ifdef parallel
+      CALL SETENVVAR( 'ALL_PE_SYNC_IO_MODE', 'N' )
+#endif
+
+      IF( LDONE ) GO TO 999   ! No plumes to dump 
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c List the plumes being dumped
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      WRITE( LOGUNIT, 92000 ) JDATE, JTIME
+      DO SRC = 1, NSRC
+         DO REL = 1, NRELEASES
+             IF( LDUMP( SRC, REL ) ) THEN
+                IXC = DMPCELL( SRC, REL, 1 )
+                IYC = DMPCELL( SRC, REL, 2 )
+                LOLEV = MIN( DMPCELL( SRC, REL, 3 ),
+     &                       DMPCELL( SRC, REL, 4 ) )
+                HILEV = MAX( DMPCELL( SRC, REL, 3 ), 
+     &                       DMPCELL( SRC, REL, 4 ) )
+                WRITE( LOGUNIT, 92020 ) SRC, REL, PDM_IVAR( SRC, REL, 1 ),
+     &          IXC, IYC, LOLEV, HILEV
+             ENDIF
+         ENDDO
+      ENDDO
+
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c Dump the plume concentrations
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO FL_NUM = 1, N_PING_FLS
+
+         IF( .NOT. DESC3 ( PING_FL_NAME( FL_NUM ) ) ) THEN
+            MSG = 'Could not read DESC of ' // PING_FL_NAME( FL_NUM ) //
+     &            ' file'
+            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         ENDIF
+ 
+c..Read the PING plume file
+         IF( .NOT. READ3( PING_FL_NAME( FL_NUM ), ALLVAR3, ALLAYS3,
+     &                    JDATE, JTIME, CPLUME( 1, 1, 1 ) ) ) THEN
+             MSG = 'Could not read input CTM_PING file ' //
+     &              PING_FL_NAME( FL_NUM )         
+             CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         ENDIF
+
+
+c..loop over plumes and releases to dump active plumes
+         IPLUME = 0
+         DO REL = 1, NRELEASES
+            DO SRC = 1, NSRC
+  
+               IPLUME = IPLUME + 1
+
+               IF( LDUMP( SRC, REL ) ) THEN
+
+
+                  WP       = PDM_RVAR( SRC, REL, 1 )
+                  HP       = PDM_RVAR( SRC, REL, 2 )
+                  UPLUME   = PDM_RVAR( SRC, REL, 3 )
+
+                  IXC  =  DMPCELL( SRC, REL, 1 )
+                  IYC  =  DMPCELL( SRC, REL, 2 )
+                  IZLL =  DMPCELL( SRC, REL, 3 )
+                  IZUR =  DMPCELL( SRC, REL, 4 )
+
+!       print *,'dumping src, rel, iplume, ixc, iyc, izll,izur ',
+!     &          src, rel, iplume, ixc, iyc, izll, izur
+
+                  IF( IZLL .GT. 1 ) THEN
+                     ZDIFF = ZF( IXC, IYC , IZUR ) - 
+     &                        ZF( IXC, IYC, IZLL - 1 )
+                  ELSE
+                     ZDIFF = ZF( IXC, IYC, IZUR )
+                  ENDIF
+
+                  FRACTION = ( WP * HP * UPLUME * 3600. ) /
+     &                       ( XCELL * YCELL * ZDIFF )
+
+c..loop over the PinG species
+                  DO V = 1, NVARS3D
+
+                     VNAME = VNAME3D( V )
+
+                     IND =  INDEX1( VNAME, NSPCS_IN, INFL_SP_NAME )
+
+                     IF( IND .NE. 0 ) THEN
+
+                        SUM = 0.0
+                        DO PILL = 2, NPILLARS + 1
+                           SUM = SUM + CPLUME( IPLUME, PILL, V )
+                        ENDDO
+                        PAVCONC = SUM / FLOAT( NPILLARS )
+                
+                        BAVCONC = 0.5 * ( CPLUME( IPLUME, 1, V ) +
+     &                                    CPLUME( IPLUME, NPILLARS + 2, V ) )                
+                        DO L = IZLL, IZUR
+                           CONCIN( IXC, IYC, L, IND ) = MAX ( 0.,
+     &                        CONCIN( IXC, IYC, L, IND ) + 
+     &                        ( PAVCONC - BAVCONC ) * FRACTION )
+                        ENDDO
+
+                     ENDIF
+
+                  ENDDO   ! NVARS3D
+
+               ENDIF
+
+            ENDDO         ! NSRC
+         ENDDO            ! NRELEASES
+
+      ENDDO               ! N_PING_FLS
+
+  999 CONTINUE
+
+C -- reset synchronized I/O mode to YES
+#ifdef parallel
+      CALL SETENVVAR( 'ALL_PE_SYNC_IO_MODE', 'Y' )
+#endif
+
+      RETURN
+
+C************************* FORMAT STATEMENTS ***************************
+
+92000 FORMAT( // 1X, 79( '#' ) 
+     &         / 1X, '#  PinG Section '
+     &         / 1X, 79( '#' ) 
+     &        // 1X, 'The following plumes were handed over at JDATE:JTIME ',
+     &           I7,':', I6 /1X, ' SRC REL   PLUME_ID   COL  ROW LEV1 LEV2' )
+
+92020 FORMAT(    1X, 2I4, 1X, I10, 1X, 4I5 ) 
+     &
+
+      END
+
+
+      SUBROUTINE PING_MAP1TO3( NOX, NOY, NOZ, IPOINT, IX, IY, IZ ) 
+
+C*************************************************************************
+C
+C  FUNCTION: Decompose PinG single cell ID to col, row and lev numbers
+C             
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: NonE  
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, May, 1999
+C
+C*************************************************************************
+      IMPLICIT NONE     
+
+C..INCLUDE FILES: None
+
+C..ARGUMENTS:
+      INTEGER NOX      !  No. of columns
+      INTEGER NOY      !  No. of rows
+      INTEGER NOZ      !  No. of layers
+
+      INTEGER IPOINT   !  Point to decompose
+
+      INTEGER IX       !  Column no.
+      INTEGER IY       !  Row no.
+      INTEGER IZ       !  Layer no.
+
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: None
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES:
+      INTEGER ITEMP     ! Temporary variable
+      INTEGER NOXY      ! Product on cols and rows
+
+C**********************************************************************
+      NOXY = NOX * NOY
+      
+      ITEMP = MOD( IPOINT - 1, NOXY ) + 1
+      IZ = ( IPOINT - ITEMP ) / NOXY + 1
+      IX = MOD( ITEMP - 1, NOX ) + 1
+      IY = ( ITEMP - IX ) / NOX  + 1
+
+      RETURN
+
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

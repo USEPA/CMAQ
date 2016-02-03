@@ -1,0 +1,254 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/TOOLS/src/rd_airs/module_envvar.F,v 1.1.1.1 2005/07/27 20:13:53 sjr Exp $
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c   Module for reading the environment variables used for this program
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      MODULE ENV_VARS
+
+
+      CHARACTER*256  SITE_FILE              ! Site info file
+
+      CHARACTER*256  IN_FILE                ! Input Data file
+
+      CHARACTER*256  OUT_FILE               ! Output file
+
+      INTEGER        YEARS(20)              ! list of years to process
+      CHARACTER*2   STATES(20)              ! list of States to process
+
+      CHARACTER*5   PARAMETER               ! parameter code
+
+      CHARACTER*1   TIMEINTVL               ! time interval code
+
+      LOGICAL       CHECKUNITS              ! switch to verify units
+
+      INTEGER NSTATES
+      INTEGER NYEARS
+
+      CONTAINS
+
+C*************************************************************************
+C  FUNCTION:  To get environment variables            
+C*************************************************************************
+         SUBROUTINE GET_ENVS
+ 
+         IMPLICIT NONE 
+
+C..INCLUDES:  
+         INCLUDE SUBST_IOPARMS     ! IOAPI parameters
+         INCLUDE SUBST_IOFDESC     ! IOAPI file description
+         INCLUDE SUBST_IODECL      ! IOAPI declarations
+      
+
+C..EXTERNAL FUNCTIONS:
+         LOGICAL ENVYN
+         INTEGER ENVINT
+         LOGICAL INTLIST
+         LOGICAL STRLIST
+
+
+C..SCRATCH LOCAL VARIABLES:
+         INTEGER LOGUNIT
+         LOGICAL LERROR
+         INTEGER STATUS   
+         CHARACTER*2  STATEABRS(20)  
+         INTEGER I
+   
+         LERROR = .FALSE. 
+
+         LOGUNIT = init3()
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the name of the input data file
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+         CALL ENVSTR( 'INFILE', 'input data file', '', IN_FILE, STATUS)
+
+         IF( STATUS .NE. 0 ) THEN
+            CALL M3MESG( 'ERROR: no file name assigned to INFILE' )
+            LERROR = .TRUE.
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the name of the site file
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+         CALL ENVSTR( 'SITEFILE', 'Site File', '', SITE_FILE, STATUS)
+
+         IF( STATUS .NE. 0 ) THEN
+            CALL M3MESG( 'ERROR: no file name assigned to SITEFILE' )
+            LERROR = .TRUE.
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the name of the output file
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+         CALL ENVSTR( 'OUTFILE', 'output File', 'output.dat', OUT_FILE, STATUS)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the Check unit switch
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+         CHECKUNITS = ENVYN( 'CHECKUNITS', 'Verify units switch', .TRUE., STATUS)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the parameter code (default ozone 44201)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+         CALL ENVSTR( 'PARAMETER', 'parameter code', '44201', parameter, STATUS)
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the time interval code (default is *)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
+         CALL ENVSTR( 'INTERVAL', 'time interval code', '*', timeIntvl, STATUS)
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the list of state codes
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       
+         if( STRLIST('STATES','States to process', 20, NSTATES, STATEABRS) ) Then
+           Call getStates( NSTATES, STATEABRS )
+          Else           
+           NSTATES = 0
+           Endif 
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Get the list of years to process
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         if( INTLIST('YEARS','Years to process', 20, NYEARS, YEARS) ) Then
+           Do I=1,NYEARS
+             YEARS(I) = MOD( YEARS(I), 100 )
+             Enddo
+          Else
+           NYEARS = 0
+           Endif
+
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Stop if errors detected
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+         IF( LERROR ) THEN
+           CALL M3ERR( 'GETENV', 0, 0, 
+     &         'Error in assigning environment variables -- stopping', .TRUE. ) 
+           ENDIF
+
+
+         RETURN
+         END SUBROUTINE GET_ENVS
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  routine to build state codes from state abr
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc   
+         Subroutine getStates(num, stateAbrs)
+
+         Integer num
+         Character*2 stateAbrs(*)
+
+         Integer I, J
+         Character*2 codes(56)
+
+         Data codes/'AL','AK','xx','AZ','AR','CA','xx','CO','CT','DE',
+     &              'DC','FL','GA','xx','HI','ID','IL','IN','IA','KS',
+     &              'KY','LA','ME','MD','MA','MI','MN','MS','MO','MT',
+     &              'NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK',
+     &              'OR','PA','xx','RI','SC','SD','TN','TX','UT','VT',
+     &              'VA','xx','WA','WV','WI','WY'/ 
+
+         Do I=1,num 
+           call ucase(stateAbrs(I), 2) 
+           States(I) = stateAbrs(I)
+           Do J=1,56
+             if( trim(stateAbrs(I)) .eq. codes(J) ) then
+               Write(States(I),'(I2.2)') J
+               EXIT           
+               EndIf
+             EndDo
+           EndDo 
+
+         write(*,'(/'' state abreviations:'',20a3)')( stateAbrs(i),i=1,num)   
+         write(*,'( '' state codes:       '',20a3)')( states(i),i=1,num)   
+         write(*,'(1x)')
+
+         Return
+         End Subroutine getStates
+
+C***********************************************************************
+C  Routine to change character string to upper characters
+C***********************************************************************
+      SUBROUTINE UCASE ( STR, NCHR )
+
+      IMPLICIT NONE
+
+      CHARACTER STR*( * )
+      INTEGER NCHR
+      INTEGER I
+      INTEGER K
+
+      DO I = 1, NCHR
+        K = ICHAR(STR(I:I))
+        IF ( ( K .GE. 97 ) .AND. ( K .LE. 122 ) )
+     &    STR( I:I ) = CHAR( K - 32 )
+      END DO
+
+      RETURN
+      END SUBROUTINE UCASE
+
+      END MODULE ENV_VARS
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

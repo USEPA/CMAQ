@@ -1,0 +1,59 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.16.02;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/saprc99_ae5_aq/NR_N2AQ.EXT,v 1.1.1.1 2008/08/14 18:28:19 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: SAPRC99_AE5_AQ
+
+        INTEGER        N_NR_N2AQ
+        PARAMETER     (N_NR_N2AQ = 2)
+        INTEGER        N_NR_N2AQD
+        PARAMETER     (N_NR_N2AQD = N_NR_N2AQ)
+        CHARACTER*16   NR_N2AQ(N_NR_N2AQD)
+        INTEGER        NR_N2AQ_MAP(N_NR_N2AQD)
+        REAL           NR_N2AQ_FAC(N_NR_N2AQD)
+
+        DATA   NR_N2AQ(  1), NR_N2AQ_MAP(  1) / 'NH3             ',   1 /
+        DATA   NR_N2AQ_FAC(  1) /      1.0 /
+        DATA   NR_N2AQ(  2), NR_N2AQ_MAP(  2) / 'HCL             ',   2 /
+        DATA   NR_N2AQ_FAC(  2) /      1.0 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

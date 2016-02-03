@@ -1,0 +1,887 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.45.48;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***************************************************************************
+C  Significant portions of Models-3/CMAQ software were developed by        *
+C  Government employees and under a United States Government contract.     *
+C  Portions of the software were also based on information from non-       *
+C  Federal sources, including software developed by research institutions  *
+C  through jointly funded cooperative agreements. These research institu-  *
+C  tions have given the Government permission to use, prepare derivative   *
+C  works, and distribute copies of their work to the public within the     *
+C  Models-3/CMAQ software release and to permit others to do so. EPA       *
+C  therefore grants similar permissions for use of Models-3/CMAQ software, *
+C  but users are requested to provide copies of derivative works to the    *
+C  Government without re-strictions as to use by others.  Users are        *
+C  responsible for acquiring their own copies of commercial software       *
+C  associated with the Models-3/CMAQ release and are also responsible      *
+C  to those vendors for complying with any of the vendors' copyright and   *
+C  license restrictions. In particular users must obtain a Runtime license *
+C  for Orbix from IONA Technologies for each CPU used in Models-3/CMAQ     *
+C  applications.                                                           *
+C                                                                          *
+C  Portions of I/O API, PAVE, and the model builder are Copyrighted        *
+C  1993-1997 by MCNC--North Carolina Supercomputing Center and are         *
+C  used with their permissions subject to the above restrictions.          *
+C***************************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/pa_report.F,v 1.5 2002/05/20 14:49:47 ggb Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)pa_report.F	1.1 /project/mod3/PROCAN/src/driver/pa/SCCS/s.pa_report.F 04 Jul 1997 14:13:44
+
+      SUBROUTINE PA_REPORT
+
+C***********************************************************************
+C
+C  FUNCTION: To provide an output listing that symbolically represents
+C            the operations to be performed in Process Analysis 
+C
+C  PRECONDITIONS: None
+C 
+C  KEY SUBROUTINES/FUNCTIONS CALLED: None
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, August, 1996
+C                    Modified May, 1997 by Jerry Gipson to be consistent
+C                       with beta CTM
+C                    Modified Sept, 1997 by Jerry Gipson to be consistent
+C                      with targeted CTM
+C                    Modified Jun, 1998 by Jerry Gipson to change name
+C                      of output report
+C                    Modified May 2002 by Jerry Gipson to add comma in 
+C                      format statements
+C
+C***********************************************************************
+      IMPLICIT NONE
+      
+C..INCLUDES:
+      INCLUDE SUBST_IODECL 
+      INCLUDE 'PA_GLOBAL.EXT'
+      INCLUDE 'PA_PARSE.EXT'
+      INCLUDE 'PA_VARS.EXT'
+      
+C..ARGUMENTS: None
+                                        
+C..PARAMETERS: None
+
+C..EXTERNAL FUNCTIONS: 
+      CHARACTER*10 INT2CHR  ! Function to conver integer to character
+
+      INTEGER JUNIT    ! Function to get unit number for report file
+      INTEGER LBLANK   ! Gets number of leading blanks in a string
+      INTEGER TRIMLEN  ! Gets position of last non-blank character in a 
+                       ! string
+
+C..SAVED LOCAL VARIABLES: None
+
+C..SCRATCH LOCAL VARIABLES
+
+
+      CHARACTER*1 C         ! Lowercase c
+      CHARACTER*3 LABL      ! Output reaction label or term number
+      CHARACTER*3 OUTLBL    ! Output label number
+      CHARACTER*4 OPNAM     ! Operator variable name
+      CHARACTER*4 TYPE      ! Operator type
+      CHARACTER*7 PNFLG     ! Pos or Neg only flag
+      CHARACTER*11 COUT     ! Output coefficient
+      CHARACTER*72 CEES     ! Line of asterisks
+      CHARACTER*80 LINOUT   ! line of output
+
+      CHARACTER*50 STRING( 20 )             ! Strings to concatenate
+      CHARACTER*( LABLEN ) RJLABL( MXRXNS ) ! Right justified reaction label
+      CHARACTER*4  SAVOP( MAXTERMS )        ! Operator name
+      CHARACTER*4  SAVLBL( MAXTERMS )       ! Operator label
+
+      INTEGER E1, E2, E3 ! Ending character positions
+      INTEGER EQPOS1     ! Position of equal sign plus 1
+      INTEGER ICOUNT     ! Counter of no. of output terms
+      INTEGER IE1, IE2   ! Pointer to ending positions in a string
+      INTEGER IEND       ! Pointer to end of output line 
+      INTEGER INDX       ! Pointer to reaction number
+      INTEGER IOUT       ! Unit number for output report   
+      INTEGER IS1, IS2   ! Pointer to startinging positions in a string
+      INTEGER LEN1       ! Length of a string
+      INTEGER LINLEN     ! Length of output line
+      INTEGER MAXLEN     ! Length of longest reaction label
+      INTEGER N          ! Loop index for specis and defined names
+      INTEGER NCYC       ! Loop index for number of cycles
+      INTEGER NNETR      ! No. of net reaction operators in OUTPUT request
+      INTEGER NNLOS      ! No. of net loss operators in OUTPUT request
+      INTEGER NLN        ! Loop index for no. of mech lines
+      INTEGER NLOSS      ! No. of loss operators in OUTPUT request
+      INTEGER NFAM       ! Loop index for number of familys
+      INTEGER NNPRD      ! No. of net production operators in OUTPUT request
+      INTEGER NOUT       ! Loop index for number of output requests
+      INTEGER NIPR       ! Loop index for IPR species
+      INTEGER NPROD      ! No. of net production operators in OUTPUT request
+      INTEGER NRX        ! Loop index for number of reactions
+      INTEGER NR         ! Total number of reactions in operator
+      INTEGER NTERM      ! Loop index for number of terms in output request
+      INTEGER NUMSTRNGS  ! Number of strings to concatenate
+      INTEGER SPOS       ! Starting position of right justified label
+      INTEGER STRLEN     ! Maximum length of string to be concatenated
+
+      INTEGER RXNUMS( MXRXNS )       ! Rx nos. of reactions in operator term
+
+      LOGICAL LFIRST     ! Flag for first time throuhh a loop
+      LOGICAL LINITFLG   ! Flag to indicate initialization present
+
+      LOGICAL LRXINC( MXRXNS )    ! Flag to include reaction in prod,
+                                  ! loss, or net operations
+
+
+      REAL COEFFS( MXRXNS )       ! Coefficients of operator reactions
+         
+C***********************************************************************
+      DATA LINLEN/80/
+      DATA STRLEN/50/
+      DATA C/'c'/
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Open file and write report header
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IOUT = JUNIT( )
+      OPEN( UNIT = IOUT, FILE = 'PA_REPORT' )
+      DO N = 1,72
+         CEES( N : N ) = C
+      ENDDO
+      WRITE( IOUT, 93020 ) TDATOUT
+      WRITE( IOUT, 93000 )
+      WRITE( IOUT, 93000 )
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the modeling domain section
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+#ifdef nodynalloc
+      LINOUT = CEES
+      WRITE( IOUT, 93000 ) LINOUT
+      WRITE( IOUT, 93040 )
+      LINOUT = CEES
+      WRITE( IOUT, 93000 ) LINOUT
+      WRITE( IOUT, 93060 ) BEGCOL,  ENDCOL,  BEGROW,  ENDROW,  BEGLEV,
+     &                     ENDLEV
+      WRITE( IOUT, 93000 )
+      WRITE( IOUT, 93000 )
+#endif
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Do the integrated process rate section
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LINOUT = CEES
+      WRITE( IOUT, 93000 ) LINOUT
+      IF( N_IPR_SPC .LE. 0 ) THEN
+         WRITE( IOUT, 93080 )
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+         WRITE( IOUT, 93000 )
+         WRITE( IOUT, 93000 )
+      ELSE 
+         WRITE( IOUT, 93100 )
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+         LFIRST = .TRUE.
+         DO NIPR = 1, N_IPR_SPC
+            IF( IPR_SPTYPE( NIPR ) .EQ. 'FAM' ) THEN
+               IF( LFIRST ) THEN
+                  WRITE( IOUT, 93120 )
+                  LFIRST = .FALSE.
+               ENDIF 
+               INDX = IPR_SPNUM( NIPR )
+               DO N = 1, FAMNUMLNS( INDX )
+                  WRITE( IOUT, 93000 ) FAMLINE( INDX, N )
+               ENDDO
+               WRITE( IOUT, 93140 ) 
+               WRITE( IOUT, 93000 ) LINOUT
+            ENDIF
+         ENDDO
+         ICOUNT = 0
+         DO NIPR = 1,  N_IPR_SPC  
+            DO N = 1,  N_IPR_OPS( NIPR )
+               ICOUNT = ICOUNT + 1
+               E1 = TRIMLEN( IPR_OPNAME( NIPR, N ) )
+               WRITE( IOUT, 93160 ) ICOUNT, 
+     &                              IPR_OPNAME( NIPR, N )( 1 : E1 ),  
+     &                              IPR_SPNAM( NIPR )
+            ENDDO
+         ENDDO
+         WRITE( IOUT, 93000 ) 
+         WRITE( IOUT, 93000 ) 
+      ENDIF              
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  If not doing a partial IRR,  write a header and skip to the end
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF( .NOT. LPARTIRR ) THEN
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+         IF( LFULLIRR ) THEN 
+            WRITE( IOUT, 93180 ) 
+         ELSE
+            WRITE( IOUT, 93200 )
+         ENDIF
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+         GO TO 999
+      ENDIF 
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the section header for the partial IRR section
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      LINOUT = CEES
+      WRITE( IOUT, 93000 ) LINOUT
+      WRITE( IOUT, 93220 )
+      LINOUT = CEES
+      WRITE( IOUT, 93000 ) LINOUT
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Find the longest reaction label length, right justify and save
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      MAXLEN = 0
+      DO NRX = 1, NRXNS
+         MAXLEN = MAX( MAXLEN, TRIMLEN( RXLABEL( NRX ) ) )
+      ENDDO
+       
+      DO NRX = 1, NRXNS
+         DO N = 1,  LABLEN
+            RJLABL( NRX )( N : N ) = ' '
+         ENDDO
+         IS1 = LBLANK( RXLABEL( NRX ) ) + 1
+         IE1 = TRIMLEN( RXLABEL( NRX ) )
+         LEN1 = IE1 - IS1 + 1
+         IE2 = LABLEN
+         IS2 = LABLEN - LEN1 + 1
+         RJLABL( NRX )( IS2 : IE2 ) = RXLABEL( NRX )( IS1 : IE1 )       
+      ENDDO
+
+      SPOS = LABLEN - MAXLEN + 1
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Top of loop for doing each IRR_OUTPUT report
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      DO 540 NOUT = 1, NIRROUT
+         WRITE( OUTLBL, '( I3 )' ) NOUT
+
+c..Write the header for each output
+         WRITE( IOUT, 93240 )
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+         STRING( 1 ) = 'c  Summary of Input IRR Commands for OUTPUT'
+         STRING( 2 ) = INT2CHR( NOUT )
+         IEND = TRIMLEN( STRING( 2 ) )
+         STRING( 2 ) = STRING( 2 )( 1 : IEND ) // ':'
+         STRING( 3 ) = IRRNAME( NOUT )
+         NUMSTRNGS = 3         
+         CALL CATSTRING( NUMSTRNGS,  STRING,  STRLEN,  LINOUT,  LINLEN )
+         WRITE( IOUT, 93000 ) LINOUT
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the input IRR commands
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         WRITE( IOUT, 93140 )
+         WRITE( IOUT, 93260 )
+         WRITE( IOUT, 93140 )
+         LINOUT = 'c      IRROUT(' // OUTLBL // ') = '
+         IEND = TRIMLEN( LINOUT ) + 1
+         EQPOS1 = IEND
+         DO 100 NTERM = 1, NIRRTERMS( NOUT )
+
+            CALL DOCOEFF( OUTSC( NOUT, NTERM ), COUT )
+            IF( NTERM .EQ. 1 .AND. OUTSC( NOUT, NTERM ) .GT. 0.0 )
+     &            COUT( 1 : 1 ) = ' '
+            LINOUT = LINOUT( 1 : EQPOS1 ) // COUT
+            IEND = EQPOS1 + 12
+            TYPE = OUTTYPE( NOUT, NTERM )
+            E1 = MIN( TRIMLEN( OUTSPEC1( NOUT, NTERM ) ), 6 )
+            E2 = MIN( TRIMLEN( OUTSPEC2( NOUT, NTERM ) ), 6 )
+            E3 = MIN( TRIMLEN( OUTSPEC3( NOUT, NTERM ) ), 6 )
+
+            IF( TYPE .EQ. 'NAME' ) THEN
+
+               LINOUT = LINOUT( 1 : IEND ) // OUTSPEC1( NOUT, NTERM )
+               IEND = TRIMLEN( LINOUT )
+               IF( OUTPNFLAG( NOUT, NTERM ) .EQ. 'POSONLY' ) THEN
+                  LINOUT = LINOUT( 1 : IEND ) // '[POSONLY]'
+               ELSEIF( OUTPNFLAG( NOUT, NTERM ) .EQ. 'NEGONLY' ) THEN
+                  LINOUT = LINOUT( 1 : IEND ) // '[NEGONLY]'
+               ENDIF
+
+            ELSEIF( TYPE .EQ. 'PROD' .OR. TYPE .EQ. 'NETP' ) THEN
+
+               OPNAM = TYPE
+               LINOUT = LINOUT( 1 : IEND ) // OPNAM // ' [' //
+     &                  OUTSPEC1( NOUT, NTERM )( 1 : E1 ) // ']'
+               IEND   = TRIMLEN( LINOUT )
+               IF( OUTSPEC2( NOUT, NTERM ) .NE. '' ) THEN
+                  LINOUT = LINOUT( 1 : IEND ) // ' FROM [' //
+     &                     OUTSPEC2( NOUT, NTERM )( 1 : E2 ) // ']'
+                  IEND   = TRIMLEN( LINOUT )
+               ENDIF
+               IF( OUTSPEC3( NOUT, NTERM ) .NE. '' ) THEN
+                  IF( OUTOP2( NOUT, NTERM ) .EQ. 'AND' ) THEN
+                     LINOUT = LINOUT( 1 : IEND ) // ' AND [' //
+     &                        OUTSPEC3( NOUT, NTERM )( 1 : E3 ) // ']'
+                  ELSE
+                     LINOUT = LINOUT( 1 : IEND ) // ' OR [' //
+     &                        OUTSPEC3( NOUT, NTERM )( 1 : E3 ) // ']'
+                  ENDIF
+                  IEND = TRIMLEN( LINOUT )
+               ENDIF
+
+            ELSEIF( TYPE .EQ. 'LOSS' .OR. TYPE .EQ. 'NETL' ) THEN
+
+               OPNAM = TYPE
+               LINOUT = LINOUT( 1 : IEND ) // OPNAM // ' [' //
+     &                  OUTSPEC1( NOUT, NTERM )( 1 : E1 ) // ']'
+               IEND = TRIMLEN( LINOUT )
+               IF( OUTSPEC3( NOUT, NTERM ) .NE. '' ) THEN
+                  IF( OUTOP2( NOUT, NTERM ) .EQ. 'AND' ) THEN
+                     LINOUT = LINOUT( 1 : IEND ) // ' AND [' //
+     &                        OUTSPEC3( NOUT, NTERM )( 1 : E3 ) // ']'
+                  ELSE
+                     LINOUT = LINOUT( 1 : IEND ) // ' OR [' //
+     &                        OUTSPEC3( NOUT, NTERM )( 1 : E3 ) // ']'
+                  ENDIF
+                  IEND = TRIMLEN( LINOUT )
+               ENDIF
+
+            ELSEIF( TYPE .EQ. 'NET' ) THEN
+
+               OPNAM = TYPE
+               LINOUT = LINOUT( 1 : IEND ) // OPNAM // ' [' //
+     &                  OUTSPEC1( NOUT, NTERM )( 1 : E1 ) // ']'
+               IEND = TRIMLEN( LINOUT )
+
+            ELSEIF( TYPE .EQ. 'RXN' ) THEN
+
+               INDX = OUTRN( NOUT, NTERM )
+               LINOUT = LINOUT( 1 : IEND ) // 'IRR<' //
+     &                  RJLABL( INDX )( SPOS : LABLEN ) // '>'
+            ENDIF
+
+            WRITE( IOUT, 93000 ) LINOUT
+            LINOUT = 'c     &'
+            LINOUT = LINOUT( 1 : EQPOS1 )
+
+  100    CONTINUE
+         WRITE( IOUT, 93140 )
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT   
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the descriptions for any families referenced
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         IF( NOUTFAMS( NOUT ) .GT. 0 ) THEN
+            WRITE( IOUT, 93140 )
+            WRITE( IOUT, 93280 )
+            DO NFAM = 1, NOUTFAMS( NOUT )
+               INDX = OUTFAMS( NOUT, NFAM )
+               DO N = 1, FAMNUMLNS( INDX )
+                  WRITE( IOUT, 93000 ) FAMLINE( INDX, N )
+               ENDDO
+               WRITE( IOUT, 93140 ) 
+            ENDDO
+            LINOUT = CEES
+            WRITE( IOUT, 93000 ) LINOUT
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Output descriptions of all cycles referenced
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         IF( NOUTCYCS( NOUT ) .GT. 0 ) THEN
+            WRITE( IOUT, 93140 )
+            WRITE( IOUT, 93300 )
+            DO 200 N = 1, NOUTCYCS( NOUT )
+               NCYC = OUTCYCS( NOUT, N )
+
+c..Write the cycle name
+               STRING( 1 ) = 'c..CYCLE'
+               STRING( 2 ) = INT2CHR( NCYC )
+               IEND = TRIMLEN( STRING( 2 ) )
+               STRING( 2 ) = STRING( 2 )( 1 : IEND )
+               STRING( 3 ) = CYCLNAME( NCYC )
+               NUMSTRNGS = 3         
+               CALL CATSTRING( NUMSTRNGS,  STRING,  STRLEN,  LINOUT, 
+     &                         LINLEN )
+               WRITE( IOUT, 93000 ) LINOUT
+
+c..Write reactions used in the cycle
+               WRITE( LABL, '( I3 )' ) NCYC
+               LINOUT = 'c     CYSM(' // LABL // ') ='
+               IEND = TRIMLEN( STRING( 2 ) )
+
+               IF( NCYTERMS( NCYC ) .EQ. 0 ) THEN
+                  LINOUT = LINOUT( 1 : IEND ) // ' 0.0'
+                  WRITE( IOUT, 93000 ) LINOUT
+               ELSE
+                  WRITE( IOUT, 93000 ) LINOUT
+                  DO NTERM = 1, NCYTERMS( NCYC )
+                     INDX = CYRXNUM( NCYC, NTERM )
+                     CALL DOCOEFF( CYSC( NCYC, NTERM ), COUT )
+                     LINOUT = MECLINE( INDX, 1 )
+                     LINOUT( 9 : 19 ) = COUT
+                     WRITE( IOUT, 93000 ) LINOUT
+                     IF( MECNUMLNS( INDX ) .GT. 1 ) THEN
+                        DO NLN = 2, MECNUMLNS( INDX )
+                           WRITE( IOUT, 93000 ) MECLINE( INDX, NLN )
+                        ENDDO
+                     ENDIF
+                  ENDDO
+                  WRITE( IOUT, 93140 )
+               ENDIF
+
+  200       CONTINUE
+            LINOUT = CEES
+            WRITE( IOUT, 93000 ) LINOUT
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Output descriptions of all reaction sums referenced
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         IF( NOUTRXSUMS( NOUT ) .GT. 0 ) THEN
+            WRITE( IOUT, 93140 )
+            WRITE( IOUT, 93320 )
+            DO 300 N = 1, NOUTRXSUMS( NOUT )
+               NRX = OUTRXSUMS( NOUT, N )
+
+c..Write the reaction sum name
+               STRING( 1 ) = 'c..RXSUM'
+               STRING( 2 ) = INT2CHR( NRX )
+               IEND = TRIMLEN( STRING( 2 ) )
+               STRING( 2 ) = STRING( 2 )( 1 : IEND )
+               STRING( 3 ) = RXSUMNAME( NRX )
+               NUMSTRNGS = 3         
+               CALL CATSTRING( NUMSTRNGS,  STRING,  STRLEN,  LINOUT, 
+     &                         LINLEN )
+               WRITE( IOUT, 93000 ) LINOUT
+
+c..Write reactions used in the reaction sum
+               WRITE( LABL, '( I3 )' ) NRX
+               LINOUT = 'c     RXSM(' // LABL // ') ='
+               WRITE( IOUT, 93000 ) LINOUT
+               IEND = TRIMLEN( STRING( 2 ) )
+
+               IF( NRXTERMS( NRX ) .EQ. 0 ) THEN
+                  LINOUT = LINOUT( 1 : IEND ) // ' 0.0'
+                  WRITE( IOUT, LINOUT )
+               ELSE
+                  DO NTERM = 1, NRXTERMS( NRX )
+                     INDX = RXSUMRN( NRX, NTERM )
+                     CALL DOCOEFF( RXNSC( NRX, NTERM ), COUT )
+                     LINOUT = MECLINE( INDX, 1 )
+                     LINOUT( 9 : 19 ) = COUT
+                     WRITE( IOUT, 93000 ) LINOUT
+                     IF( MECNUMLNS( INDX ) .GT. 1 ) THEN
+                        DO NLN = 2, MECNUMLNS( INDX )
+                           WRITE( IOUT, 93000 ) MECLINE( INDX, NLN )
+                        ENDDO
+                     ENDIF
+                  ENDDO
+               ENDIF 
+               WRITE( IOUT, 93140 )
+  300       CONTINUE
+            LINOUT = CEES
+            WRITE( IOUT, 93000 ) LINOUT
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Before doing operators,  flag all reactions included in cycles for
+c  elimination from production/loss/net operators 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         DO NRX = 1, NRXNS
+            LRXINC( NRX ) = .TRUE.
+         ENDDO
+
+         IF( NOUTCYCS( NOUT ) .GT. 0 ) THEN
+            DO N = 1, NOUTCYCS( NOUT )
+               NCYC = OUTCYCS( NOUT, N )
+               DO NTERM = 1, NCYTERMS( NCYC )
+                  INDX = CYRXNUM( NCYC, NTERM )
+                  LRXINC( INDX ) = .FALSE.
+               ENDDO
+            ENDDO
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Output descriptions of production/loss/net operator
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         IF( NOUTOPS( NOUT ) .GT. 0 ) THEN
+            WRITE( IOUT, 93140 )
+            WRITE( IOUT, 93340 )
+            NPROD = 0
+            NNPRD = 0
+            NLOSS = 0
+            NNLOS = 0
+            NNETR = 0
+            DO 400 NTERM = 1, NIRRTERMS( NOUT )
+
+               TYPE = OUTTYPE( NOUT, NTERM ) 
+
+               IF( TYPE .NE. 'NAME' .AND. TYPE .NE. 'RXN' ) THEN             
+
+                  CALL GETRXNS( NOUT,  NTERM,  NR,  RXNUMS,  COEFFS, 
+     &                          LRXINC )
+
+c..Write the operator description
+                  IF( TYPE .EQ. 'PROD' ) THEN
+                     STRING( 1 ) = 'c..Production of'
+                     OPNAM = 'PROD'
+                     NPROD = NPROD + 1
+                     WRITE( LABL, '( I3 )' ) NPROD
+                  ELSEIF( TYPE .EQ. 'NETP' ) THEN
+                     STRING( 1 ) = 'c..Net production of'
+                     OPNAM = 'NPRD'
+                     NNPRD = NNPRD + 1
+                     WRITE( LABL, '( I3 )' ) NNPRD
+                  ELSEIF( TYPE .EQ. 'LOSS' ) THEN
+                     STRING( 1 ) = 'c..Loss of'
+                     OPNAM = 'LOSS'
+                     NLOSS = NLOSS + 1
+                     WRITE( LABL, '( I3 )' ) NLOSS
+                  ELSEIF( TYPE .EQ. 'NETL' ) THEN
+                     STRING( 1 ) = 'c..Net loss of'
+                     OPNAM = 'NLOS'
+                     NNLOS = NNLOS + 1
+                     WRITE( LABL, '( I3 )' ) NNLOS
+                  ELSEIF( TYPE .EQ. 'NET' ) THEN
+                     STRING( 1 ) = 'c..Net reaction of'
+                     OPNAM = 'NETR'
+                     NNETR = NNETR + 1
+                     WRITE( LABL, '( I3 )' ) NNETR
+                  ENDIF
+
+                  SAVOP( NTERM ) = OPNAM
+                  SAVLBL( NTERM ) = LABL
+
+                  STRING( 2 ) = OUTSPEC1( NOUT, NTERM )
+                  NUMSTRNGS = 2
+
+                  IF( OUTSPEC2( NOUT, NTERM ) .NE. '' ) THEN
+                     STRING( 3 ) = 'from'
+                     STRING( 4 ) = OUTSPEC2( NOUT, NTERM )
+                     NUMSTRNGS = 4
+                  ENDIF                  
+
+                  IF( OUTSPEC3( NOUT, NTERM ) .NE. '' ) THEN
+                     IF( OUTOP2( NOUT, NTERM ) .EQ. 'AND' ) THEN
+                        STRING( NUMSTRNGS + 1 ) = 'and'
+                     ELSE
+                        STRING( NUMSTRNGS + 1 ) = 'or'
+                     ENDIF
+                     STRING( NUMSTRNGS + 2 ) = OUTSPEC3( NOUT, NTERM )
+                     NUMSTRNGS = NUMSTRNGS + 2
+                  ENDIF
+
+                  CALL CATSTRING( NUMSTRNGS,  STRING,  STRLEN,  LINOUT, 
+     &                            LINLEN )
+                  IEND = TRIMLEN( LINOUT )
+                  WRITE( IOUT, 93000 ) LINOUT
+
+c..Write reactions used in the operator
+                  LINOUT = 'c     ' // OPNAM // '(' // LABL // ') ='
+                  IEND = TRIMLEN( LINOUT )                  
+                  IF( NR .LE. 0 ) THEN
+                     LINOUT = LINOUT( 1 : IEND ) // ' 0.0'
+                     WRITE( IOUT, 93000 ) LINOUT                  
+                  ELSE
+                     WRITE( IOUT, 93000 ) LINOUT
+                     DO N = 1, NR
+                        INDX = RXNUMS( N )
+                        CALL DOCOEFF( COEFFS( N ), COUT )
+                        LINOUT = MECLINE( INDX, 1 )
+                        LINOUT( 9 : 19 ) = COUT
+                        WRITE( IOUT, 93000 ) LINOUT
+                        IF( MECNUMLNS( INDX ) .GT. 1 ) THEN
+                           DO NLN = 2, MECNUMLNS( INDX )
+                              WRITE( IOUT, 93000 ) MECLINE( INDX, NLN )
+                           ENDDO
+                        ENDIF
+                     ENDDO
+                  ENDIF
+                  WRITE( IOUT, 93140 )
+               ENDIF
+  400       CONTINUE 
+            LINOUT = CEES
+            WRITE( IOUT, 93000 ) LINOUT
+         ENDIF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Output list of all reactions referenced in the OUTPUT command
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         IF( NOUTRXN( NOUT ) .GT. 0 ) THEN
+            WRITE( IOUT, 93140 )
+            WRITE( IOUT, 93360 )
+            IF( NOUTRXN( NOUT ) .GT. 0 ) THEN
+               DO NTERM = 1, NIRRTERMS( NOUT )
+                  TYPE = OUTTYPE( NOUT, NTERM ) 
+                  IF( TYPE .EQ. 'RXN' ) THEN
+                     INDX = OUTRN( NOUT, NTERM )
+                     LINOUT = MECLINE( INDX, 1 )
+                     LINOUT( 6 : 6 ) = ' '
+                     WRITE( IOUT, 93000 ) LINOUT
+                     IF( MECNUMLNS( INDX ) .GT. 1 ) THEN
+                        DO NLN = 2, MECNUMLNS( INDX )
+                           WRITE( IOUT, 93000 ) MECLINE( INDX, NLN )
+                        ENDDO
+                     ENDIF
+                  ENDIF
+               ENDDO
+            ENDIF
+            WRITE( IOUT, 93140 )
+            LINOUT = CEES
+            WRITE( IOUT, 93000 ) LINOUT
+         ENDIF           
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Write the pseudocode for IRROUT
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         STRING( 1 ) = 'c  Pseudocode for OUTPUT'
+         STRING( 2 ) = INT2CHR( NOUT )
+         IEND = TRIMLEN( STRING( 2 ) )
+         STRING( 2 ) = STRING( 2 )( 1 : IEND ) // ':'
+         STRING( 3 ) = IRRNAME( NOUT )
+         NUMSTRNGS = 3         
+         CALL CATSTRING( NUMSTRNGS,  STRING,  STRLEN,  LINOUT,  LINLEN )
+         WRITE( IOUT, 93000 ) LINOUT
+         LINOUT = CEES
+         WRITE( IOUT, 93000 ) LINOUT
+
+c..Write the pseudocode for the initialization terms
+         LINITFLG = .FALSE.
+         LFIRST = .TRUE.
+         DO 500  NTERM = 1, NIRRTERMS( NOUT )
+            PNFLG = OUTPNFLAG( NOUT, NTERM )
+
+            IF( PNFLG .NE. '' ) THEN
+               LINITFLG = .TRUE.
+               TYPE = OUTS1TYP( NOUT, NTERM )
+               WRITE( LABL, '( I3 )' ) OUTS1NUM( NOUT, NTERM )
+               IF( LFIRST ) THEN
+                  LINOUT = '      IRROUT(' // OUTLBL // ') = 0.0' 
+                  WRITE( IOUT, 93000 ) LINOUT
+                  WRITE( IOUT, 93000 )
+                  LFIRST = .FALSE.
+               ENDIF
+
+               IF( TYPE .EQ. 'CYCL' ) THEN
+                  OPNAM = 'CYSM'
+               ELSE
+                  OPNAM = 'RXSM'
+               ENDIF
+
+               CALL DOCOEFF( OUTSC( NOUT, NTERM ),  COUT )
+               IF( ABS( OUTSC( NOUT, NTERM ) ) .NE. 1.0 ) THEN
+                  E1 = 11
+               ELSE
+                  E1 = 1
+               ENDIF      
+
+               IF( PNFLG .EQ. 'POSONLY' ) THEN
+                  LINOUT = '      IF( ' // OPNAM // '(' // LABL // 
+     &                     ') .GT. 0.0 ) THEN'
+               ELSE
+                  LINOUT = '      IF( ' // OPNAM // '(' // LABL // 
+     &                     ') .LT. 0.0 ) THEN'
+               ENDIF
+
+               WRITE( IOUT, 93000 ) LINOUT
+               IF( PNFLG .EQ. 'POSONLY' ) THEN
+                  LINOUT = '         IRROUT(' // OUTLBL // 
+     &                     ') = IRROUT(' // OUTLBL // ') ' //
+     &                     COUT( 1 : E1 ) // ' ' // OPNAM  //
+     &                    '(' // LABL // ')'
+               ELSE
+                  LINOUT = '         IRROUT(' // OUTLBL //
+     &                     ') = IRROUT(' // OUTLBL // ') ' //
+     &                     COUT( 1 : E1 ) // ' ABS('  // OPNAM //
+     &                     '(' // LABL // '))'
+               ENDIF
+
+               WRITE( IOUT, 93000 ) LINOUT
+               LINOUT = '      ENDIF'
+               WRITE( IOUT, 93000 ) LINOUT
+               WRITE( IOUT, 93000 )
+            ENDIF
+
+  500    CONTINUE               
+
+c..Write the final equation for the output integrated reaction rates
+         IF( NIRRTERMS( NOUT ) .EQ. 0 ) THEN
+            LINOUT = '       IRROUT(' // OUTLBL // ') = 0.0'
+            WRITE( IOUT, 93000 ) LINOUT
+         ELSE
+            ICOUNT = 0
+            DO 520 NTERM = 1, NIRRTERMS( NOUT )
+               IF( NTERM .EQ. 1 ) THEN
+                  LINOUT = '      IRROUT(' // OUTLBL // ') = '
+                  EQPOS1 = TRIMLEN( LINOUT ) 
+                  IF( LINITFLG ) THEN
+                     LINOUT = LINOUT( 1 : EQPOS1 ) // ' IRROUT(' //
+     &                        OUTLBL // ')'
+                     WRITE( IOUT, 93000 ) LINOUT
+                     LINOUT ='     &'
+                     LINOUT = LINOUT( 1 : EQPOS1 )
+                     ICOUNT = ICOUNT + 1
+                  ENDIF 
+               ELSE
+                  LINOUT ='     &'
+                  LINOUT = LINOUT( 1 : EQPOS1 )
+               ENDIF
+
+               TYPE = OUTTYPE( NOUT, NTERM )
+               IF( TYPE .EQ. 'NAME' ) TYPE = OUTS1TYP( NOUT, NTERM ) 
+               PNFLG = OUTPNFLAG( NOUT, NTERM )
+
+               IF( PNFLG .EQ. 'POSONLY' .OR. PNFLG .EQ. 'NEGONLY' )
+     &             GO TO 520
+               IF( TYPE .EQ. 'CYCL' .AND. PNFLG .EQ. '' ) THEN
+                  OPNAM = 'CYSM'
+                  WRITE( LABL, '( I3 )' ) OUTS1NUM( NOUT, NTERM )
+               ELSEIF( TYPE .EQ. 'RXSM' .AND. PNFLG .EQ. '' ) THEN
+                  OPNAM = 'RXSM'
+                  WRITE( LABL, '( I3 )' ) OUTS1NUM( NOUT, NTERM )
+               ELSEIF( TYPE .EQ. 'RXN' ) THEN
+                  OPNAM = ' IRR' 
+                  INDX = OUTRN( NOUT, NTERM )
+               ELSE
+                  OPNAM = SAVOP( NTERM )
+                  LABL  = SAVLBL( NTERM )
+               ENDIF
+
+               CALL DOCOEFF( OUTSC( NOUT, NTERM ), COUT )
+               ICOUNT = ICOUNT + 1
+               IF( OUTSC( NOUT, NTERM ) .GT. 0.0 .AND. ICOUNT .EQ. 1 ) 
+     &              COUT( 1 : 1 ) = ' '
+               IF( TYPE .EQ. 'RXN' ) THEN
+                  LINOUT = LINOUT( 1 : EQPOS1 ) // COUT // ' ' // 
+     &                     OPNAM // '<'  // 
+     &                     RJLABL( INDX )( SPOS : LABLEN ) // '>'
+               ELSE
+                  LINOUT = LINOUT( 1 : EQPOS1 ) // COUT // ' ' // 
+     &                     OPNAM // '(' // LABL( 1 : 3 ) // ')'
+               ENDIF
+               WRITE( IOUT, 93000 ) LINOUT
+  520       CONTINUE
+         ENDIF
+  540 CONTINUE
+
+  999 CONTINUE
+    
+      WRITE( IOUT, 93380 ) 
+      CLOSE( IOUT )
+      RETURN
+      
+      
+C*********************** FORMAT STATEMENTS *****************************
+
+
+93000 FORMAT( A )
+
+93020 FORMAT( ///'************ PROCESS ANALYSIS CONTROL PROGRAM OUTPUT', 
+     &        ' REPORT ************'/18X, 'Created  ', A// )
+
+93040 FORMAT( 'c', 24X, 'OUTPUT DOMAIN SECTION'/
+     &        'c  Process Monitoring and IRR outputs will be generated', 
+     &        ' for the'/
+     &        'c  following cells relative to the full modeling domain.' )
+93060 FORMAT( '       Starting column:', I4/
+     &        '       Ending column:  ', I4/
+     &        '       Starting row:   ', I4/
+     &        '       Ending row:     ', I4/ 
+     &        '       Starting layer: ', I4/
+     &        '       Ending layer:   ', I4 ) 
+
+93080 FORMAT( 'c', 19X, 'INTEGRATED PROCESS RATE SECTION'/
+     &        'c  No requests for IPR outputs were included', 
+     &        ' in the command file.' )
+
+93100 FORMAT( 'c', 19X, 'INTEGRATED PROCESS RATE SECTION'/
+     &        'c  The following section lists the IPR ', 
+     &        'outputs generated from the'/
+     &        'c  command file inputs.' )
+
+93120 FORMAT( 'c'/
+     &        'c  The referenced families are defined as follows:'/
+     &        'c' )
+93140 FORMAT( 'c' )
+93160 FORMAT( '      IPR_OUTPUT(', I3, ') = ', A, ' of ', A ) 
+93180 FORMAT( 'c', 19X, 'INTEGRATED REACTION RATE SECTION'/
+     &        'c  A FULL IRR analysis has been requested. Each reaction', 
+     &          ' rate will be'/
+     &        'c  integrated individually and output for the',
+     &          ' specified domain.' )
+93200 FORMAT( 'c', 19X, 'INTEGRATED REACTION RATE SECTION'/
+     &        'c  No requests for IRR analysis were included in the', 
+     &        ' command file.' )
+93220 FORMAT( 'c', 19X, 'INTEGRATED REACTION RATE SECTION'/
+     &        'c  The following section gives a symbolic representation', 
+     &        ' of how the'/
+     &        'c  PARTIAL IRR outputs are calculated given the commands', 
+     &        ' that were'/
+     &        'c  included in the command file. The report includes', 
+     &        ' pseudocode showing'/
+     &        'c  how individual integrated reactions rates are', 
+     &        ' combined to produce the '/
+     &        'c  requested output.  In the pseudocode that follows'/
+     &        'c'/
+     &        'c        IRR< x > = the integrated reaction rate for '/
+     &        'c                   the reaction with label x as '/
+     &        'c                   defined in the chemical mechanism'/
+     &        'c'/
+     &        'c        IRROUT( n ) = the nth integrated reaction rate'/
+     &        'c                      output that was requested'/
+     &        'c' )  
+93240 FORMAT( ////1X )
+93260 FORMAT( 'c  The IRR_OUTPUT command was specified as follows:' )
+93280 FORMAT( 'c  The referenced families are defined as follows:'/'c' )
+93300 FORMAT( 'c  The referenced cycles are defined as follows:'/'c' )
+93320 FORMAT( 'c  The referenced reaction sums are defined as follows:'/
+     &        'c' )
+93340 FORMAT( 'c  The referenced operators are defined as follows:'/'c' )
+93360 FORMAT( 'c  The following reactions are referenced individually:'/
+     &        'c' )
+93380 FORMAT( ///'********* END OF PROCESS ANALYSIS CONTROL PROGRAM', 
+     &         ' OUTPUT REPORT ********'  )  
+
+
+      END
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

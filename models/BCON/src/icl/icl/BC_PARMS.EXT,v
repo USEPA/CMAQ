@@ -1,0 +1,151 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.46.53;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C***********************************************************************
+C   Portions of Models-3/CMAQ software were developed or based on      *
+C   information from various groups: Federal Government employees,     *
+C   contractors working on a United States Government contract, and    *
+C   non-Federal sources (including research institutions).  These      *
+C   research institutions have given the Government permission to      *
+C   use, prepare derivative works, and distribute copies of their      *
+C   work in Models-3/CMAQ to the public and to permit others to do     *
+C   so.  EPA therefore grants similar permissions for use of the       *
+C   Models-3/CMAQ software, but users are requested to provide copies  *
+C   of derivative works to the Government without restrictions as to   *
+C   use by others.  Users are responsible for acquiring their own      *
+C   copies of commercial software associated with Models-3/CMAQ and    *
+C   for complying with vendor requirements.  Software copyrights by    *
+C   the MCNC Environmental Modeling Center are used with their         *
+C   permissions subject to the above restrictions.                     *
+C***********************************************************************
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BCON/src/icl/icl/BC_PARMS.EXT,v 1.4 2002/04/12 14:19:21 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+
+C......................................................................
+C  INCLUDE FILE: BC_PARMS.EXT
+C
+C  CONTAINS: Dimensioning parameters and data for BCON 
+C
+C  DEPENDENT UPON: None 
+C
+C  REVISION HISTORY: Prototype created by Jerry Gipson, January, 1998
+C                    Modified by JG May, 1999 to treat PinG concs
+C
+C......................................................................
+
+
+c..Dimensioning parameters
+      INTEGER  NROOTS
+      PARAMETER( NROOTS = 5 )
+
+      INTEGER MXCTMS                     ! Max no. of input CTM files
+      PARAMETER( MXCTMS = 3 )
+
+      INTEGER  MX_MECHFL_IC
+      PARAMETER ( MX_MECHFL_IC = 500  )  ! Max no. of species
+      
+      INTEGER MXCVSP                     ! Max no. of terms per species for
+      PARAMETER( MXCVSP = 20 )           ! Max no. of conversion terms
+
+      INTEGER MX_INFL_SP
+      PARAMETER ( MX_INFL_SP = 500  )    ! Max no. of species in an input file
+
+      INTEGER NTRACERS                   ! No. of catalogued tracers
+      PARAMETER( NTRACERS = 8 )
+
+      INTEGER NPILLARS                   ! No. of pillars in PinG plume
+      PARAMETER( NPILLARS = 10 )
+
+c..Type declarations
+      CHARACTER*16  BCFL_ROOT( NROOTS )     ! Output file root names
+      CHARACTER*50  TRAC_DESC( NTRACERS )   ! Description of catalogued tracers
+      CHARACTER*16  TRAC_NAME( NTRACERS )   ! Catalogued tracer names
+      CHARACTER*23  VGDESC( 6 )             ! Description of vertical grid type
+      CHARACTER*16  PING_PDM_1              ! PDM file name
+      CHARACTER*16  MET_CRO_3D_CRS          ! MET_CRO_3D file for coarse grid
+      CHARACTER*16  MET_BDY_3D_FIN          ! MET_BDY_3D file for fine grid
+
+c..Possible root names of output files
+      DATA BCFL_ROOT( 1 ) / 'BNDY_CONC_' /
+      DATA BCFL_ROOT( 2 ) / 'BNDY_GASC_' /
+      DATA BCFL_ROOT( 3 ) / 'BNDY_AERO_' /
+      DATA BCFL_ROOT( 4 ) / 'BNDY_NONR_' /
+      DATA BCFL_ROOT( 5 ) / 'BNDY_TRAC_' /
+
+c..Catalogued tracer species names
+      DATA TRAC_NAME( 1 ) / 'IC1_BC0' /
+      DATA TRAC_NAME( 2 ) / 'IC1_BC1' /
+      DATA TRAC_NAME( 3 ) / 'IC0_BC1' /
+      DATA TRAC_NAME( 4 ) / 'STREET' /
+      DATA TRAC_NAME( 5 ) / 'CHKBRD' /
+      DATA TRAC_NAME( 6 ) / 'SPOS_A' /
+      DATA TRAC_NAME( 7 ) / 'SPOS_B' /
+      DATA TRAC_NAME( 8 ) / 'SPOS_C' /
+
+c..Descriptions of tracers species
+      DATA TRAC_DESC( 1 ) /'Uniform IC/BC with IC = 1.0 and BC 0.0' /
+      DATA TRAC_DESC( 2 ) /'Uniform IC/BC with IC = 1.0 and BC 1.0' /
+      DATA TRAC_DESC( 3 ) /'Uniform IC/BC with IC = 0.0 and BC 0.0' /
+      DATA TRAC_DESC( 4 ) /'Checkerboard pattern of IC/BC = 1.0 & 0.0' /
+      DATA TRAC_DESC( 5 ) /'Street pattern of IC/BC = 1.0 & 0.0' /
+      DATA TRAC_DESC( 6 ) /'Signal A for superposition test, A-B-C=0' /
+      DATA TRAC_DESC( 7 ) /'Signal B for superposition test, A-B-C=0' /
+      DATA TRAC_DESC( 8 ) /'Signal C for superposition test, A-B-C=0' /
+
+c..Descriptions of catalogued vertical coordinate systems
+      DATA VGDESC( 1 ) / 'Hydrostatic sigma-p    ' /
+      DATA VGDESC( 2 ) / 'Non-hydrostatic sigma-p' /
+      DATA VGDESC( 3 ) / 'Sigma-z                ' /
+      DATA VGDESC( 4 ) / 'Pressure (mb)          ' /
+      DATA VGDESC( 5 ) / 'Z (m above sea level)  ' /
+      DATA VGDESC( 6 ) / 'H (m above ground      ' /
+
+c..Met & PinG file names
+      DATA PING_PDM_1       / 'PING_PDM_1'    /
+      DATA MET_CRO_3D_CRS  / 'MET_CRO_3D_CRS' /
+      DATA MET_BDY_3D_FIN  / 'MET_BDY_3D_FIN' /
+
+
+C...........................BC_PARMS.EXT.................................
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

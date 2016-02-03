@@ -1,0 +1,71 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2010.01.07.18.35.50;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# make file to build AIRS convert program (airs2ext)
+# used to build data set for extract program
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/TOOLS/src/airs2ext/Makefile,v 1.1.1.1 2005/07/27 20:29:44 sjr Exp $ 
+
+PROGRAM = airs2extV1.0.exe
+
+# Include file subsitution definitions
+INCLUDES = -DSUBST_GRID_ID= \
+ -DSUBST_IOPARMS=\'/share/linux/ioapi_pg/include/PARMS3.EXT\' \
+ -DSUBST_IOFDESC=\'/share/linux/ioapi_pg/include/FDESC3.EXT\' \
+ -DSUBST_IODECL=\'/share/linux/ioapi_pg/include/IODECL3.EXT\' \
+ -DSUBST_XSTAT=\'/share/linux/ioapi_pg/include/STATE3.EXT\'
+
+FC = pgf90
+FC_FLAGS = -c -Mextend $(INCLUDES)
+
+LIBRARIES = -L /share/linux/ioapi_pg/lib -lioapi \
+            -L /share/linux/netcdf_3.5/lib -lnetcdf 
+
+
+OBJS=airs2ext.o
+
+
+$(PROGRAM):  $(OBJS)
+	$(FC) $(OBJS) $(LIBRARIES) -o $(PROGRAM)
+ 
+.F.o:
+	$(FC) $(FC_FLAGS) $<
+ 
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

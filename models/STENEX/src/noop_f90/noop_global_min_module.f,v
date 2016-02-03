@@ -1,0 +1,120 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2009.12.10.15.43.47;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.10.15.43.47;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/STENEX/src/noop_f90/noop_global_min_module.f,v 1.1.1.1 2000/04/12 17:40:55 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C --------------------------------------------------------------------------
+C Purpose:
+C
+C   use F90 interface feature to achieve "faked" polymorphism for noop global 
+C min routine
+C
+C Revision history:
+C
+C   Orginal version: 11/05/99 by David Wong
+C -----------------------------------------------------------------------------
+
+        module noop_global_min_module
+
+        implicit none
+
+        interface noop_global_min
+          module procedure noop_global_imin, noop_global_rmin
+        end interface
+
+        contains
+
+C -----------------------------------------------------------------------------
+C Purpose: 
+C
+C   to provide a no-op counter part for serial code se_global_imin.f
+C
+C Revision history:
+C
+C   Orginal version: 6/9/99 by David Wong
+C                    11/05/99 by David Wong
+C                      -- recode using F90 syntax
+C
+C Parameter List:
+C
+C   In: var -- input variable
+C -----------------------------------------------------------------------------
+
+        function noop_global_imin (var) result (noop_global_imin_result)
+
+        implicit none
+
+        integer, intent(in) :: var
+        integer :: noop_global_imin_result
+
+        noop_global_imin_result = var
+
+        end function noop_global_imin 
+
+C -----------------------------------------------------------------------------
+C Purpose: 
+C
+C   to provide a no-op counter part for serial code se_global_rmin.f
+C
+C Revision history:
+C
+C   Orginal version: 6/9/99 by David Wong
+C                    11/05/99 by David Wong
+C                      -- recode using F90 syntax
+C
+C Parameter List:
+C
+C   In: var -- input variable
+C -----------------------------------------------------------------------------
+
+        function noop_global_rmin (var) result (noop_global_rmin_result)
+
+        real none
+
+        real, intent(in) :: var
+        real :: noop_global_rmin_result
+
+        noop_global_rmin_result = var
+
+        end function noop_global_rmin 
+
+        end module noop_global_min_module
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

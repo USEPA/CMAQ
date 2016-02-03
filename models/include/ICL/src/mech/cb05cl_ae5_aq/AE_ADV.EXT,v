@@ -1,0 +1,103 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv4_7_1:1.1.1.1 ASMD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2009.12.16.19.15.59;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/include/ICL/src/mech/cb05cl_ae5_aq/AE_ADV.EXT,v 1.4 2008/09/09 20:22:39 sjr Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C Mechanism Name: CB05CL_AE5_AQ
+
+        INTEGER        N_AE_ADV
+        PARAMETER     (N_AE_ADV = 49)
+        INTEGER        N_AE_ADVD
+        PARAMETER     (N_AE_ADVD = N_AE_ADV)
+        CHARACTER*16   AE_ADV(N_AE_ADVD)
+        INTEGER        AE_ADV_MAP(N_AE_ADVD)
+
+        DATA          AE_ADV(  1), AE_ADV_MAP(  1) / 'ASO4J           ',   1 /
+        DATA          AE_ADV(  2), AE_ADV_MAP(  2) / 'ASO4I           ',   2 /
+        DATA          AE_ADV(  3), AE_ADV_MAP(  3) / 'ANH4J           ',   3 /
+        DATA          AE_ADV(  4), AE_ADV_MAP(  4) / 'ANH4I           ',   4 /
+        DATA          AE_ADV(  5), AE_ADV_MAP(  5) / 'ANO3J           ',   5 /
+        DATA          AE_ADV(  6), AE_ADV_MAP(  6) / 'ANO3I           ',   6 /
+        DATA          AE_ADV(  7), AE_ADV_MAP(  7) / 'AALKJ           ',   7 /
+        DATA          AE_ADV(  8), AE_ADV_MAP(  8) / 'AXYL1J          ',   8 /
+        DATA          AE_ADV(  9), AE_ADV_MAP(  9) / 'AXYL2J          ',   9 /
+        DATA          AE_ADV( 10), AE_ADV_MAP( 10) / 'AXYL3J          ',  10 /
+        DATA          AE_ADV( 11), AE_ADV_MAP( 11) / 'ATOL1J          ',  11 /
+        DATA          AE_ADV( 12), AE_ADV_MAP( 12) / 'ATOL2J          ',  12 /
+        DATA          AE_ADV( 13), AE_ADV_MAP( 13) / 'ATOL3J          ',  13 /
+        DATA          AE_ADV( 14), AE_ADV_MAP( 14) / 'ABNZ1J          ',  14 /
+        DATA          AE_ADV( 15), AE_ADV_MAP( 15) / 'ABNZ2J          ',  15 /
+        DATA          AE_ADV( 16), AE_ADV_MAP( 16) / 'ABNZ3J          ',  16 /
+        DATA          AE_ADV( 17), AE_ADV_MAP( 17) / 'ATRP1J          ',  17 /
+        DATA          AE_ADV( 18), AE_ADV_MAP( 18) / 'ATRP2J          ',  18 /
+        DATA          AE_ADV( 19), AE_ADV_MAP( 19) / 'AISO1J          ',  19 /
+        DATA          AE_ADV( 20), AE_ADV_MAP( 20) / 'AISO2J          ',  20 /
+        DATA          AE_ADV( 21), AE_ADV_MAP( 21) / 'ASQTJ           ',  21 /
+        DATA          AE_ADV( 22), AE_ADV_MAP( 22) / 'AORGCJ          ',  22 /
+        DATA          AE_ADV( 23), AE_ADV_MAP( 23) / 'AORGPAJ         ',  23 /
+        DATA          AE_ADV( 24), AE_ADV_MAP( 24) / 'AORGPAI         ',  24 /
+        DATA          AE_ADV( 25), AE_ADV_MAP( 25) / 'AECJ            ',  25 /
+        DATA          AE_ADV( 26), AE_ADV_MAP( 26) / 'AECI            ',  26 /
+        DATA          AE_ADV( 27), AE_ADV_MAP( 27) / 'A25J            ',  27 /
+        DATA          AE_ADV( 28), AE_ADV_MAP( 28) / 'ACORS           ',  29 /
+        DATA          AE_ADV( 29), AE_ADV_MAP( 29) / 'ASOIL           ',  30 /
+        DATA          AE_ADV( 30), AE_ADV_MAP( 30) / 'NUMATKN         ',  31 /
+        DATA          AE_ADV( 31), AE_ADV_MAP( 31) / 'NUMACC          ',  32 /
+        DATA          AE_ADV( 32), AE_ADV_MAP( 32) / 'NUMCOR          ',  33 /
+        DATA          AE_ADV( 33), AE_ADV_MAP( 33) / 'SRFATKN         ',  34 /
+        DATA          AE_ADV( 34), AE_ADV_MAP( 34) / 'SRFACC          ',  35 /
+        DATA          AE_ADV( 35), AE_ADV_MAP( 35) / 'SRFCOR          ',  36 /
+        DATA          AE_ADV( 36), AE_ADV_MAP( 36) / 'AH2OJ           ',  37 /
+        DATA          AE_ADV( 37), AE_ADV_MAP( 37) / 'AH2OI           ',  38 /
+        DATA          AE_ADV( 38), AE_ADV_MAP( 38) / 'ANAJ            ',  39 /
+        DATA          AE_ADV( 39), AE_ADV_MAP( 39) / 'ACLJ            ',  41 /
+        DATA          AE_ADV( 40), AE_ADV_MAP( 40) / 'ACLI            ',  42 /
+        DATA          AE_ADV( 41), AE_ADV_MAP( 41) / 'ANAK            ',  43 /
+        DATA          AE_ADV( 42), AE_ADV_MAP( 42) / 'ACLK            ',  44 /
+        DATA          AE_ADV( 43), AE_ADV_MAP( 43) / 'ASO4K           ',  45 /
+        DATA          AE_ADV( 44), AE_ADV_MAP( 44) / 'ANH4K           ',  46 /
+        DATA          AE_ADV( 45), AE_ADV_MAP( 45) / 'ANO3K           ',  47 /
+        DATA          AE_ADV( 46), AE_ADV_MAP( 46) / 'AH2OK           ',  48 /
+        DATA          AE_ADV( 47), AE_ADV_MAP( 47) / 'AISO3J          ',  49 /
+        DATA          AE_ADV( 48), AE_ADV_MAP( 48) / 'AOLGAJ          ',  50 /
+        DATA          AE_ADV( 49), AE_ADV_MAP( 49) / 'AOLGBJ          ',  51 /
+@
+
+
+1.1.1.1
+log
+@CMAQv4_7_1 release
+@
+text
+@@

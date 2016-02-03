@@ -1,0 +1,357 @@
+################################################################################
+###                        MCIP code dependencies                            ###
+###                             Version 3.5                                  ###
+################################################################################
+
+
+mcip.F----+---mcipparm_mod.F
+          +---date_pack_mod.F
+          +---date_time_mod.F
+          +---file_mod.F
+          +---sat2mcip_mod.F
+          |
+          +---init_io.F-----+-date_time_mod.F
+          |                 | iodecl3_mod.F--------+-IODECL3.EXT
+          |                 +-parms3_mod.F---------+-PARMS3.EXT
+          |                 |
+          |                 +-graceful_stop.F------+-date_time_mod.F
+          |
+          +---vstamp.F------+-mcipparm_mod.F
+          |
+          +---readnml.F-----+-mcipparm_mod.F
+          |                 | const_mod.F
+          |                 | file_mod.F
+          |                 +-sat2mcip_mod.F
+          |                 |
+          |                 +-graceful_stop.F------+-date_time_mod.F
+          |
+          +---getsdt.F------+-julian.F
+          |
+          +---setup.F-------+-mcipparm_mod.F
+          |                 | metinfo_mod.F
+          |                 | file_mod.F
+          |                 +-netcdf.inc
+          |                 |
+          |                 +-getversion.F---------+-file_mod.F
+          |                 |                      +-metinfo_mod.F
+          |                 |                      |
+          |                 |                      +-graceful_stop.F----+-date_time_mod.F
+          |                 |
+          |                 +-setup_mm5v3.F--------+-file_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      | mcipparm_mod.F
+          |                 |                      +-parms3_mod.F-------+-PARMS3.EXT
+          |                 |                      |
+          |                 |                      +-getgist.F----------+-file_mod.F
+          |                 |                      |                    |
+          |                 |                      |                    +-graceful_stop.F---+-date_time_mod.F
+          |                 |                      |
+          |                 |                      +-ll2xy_lam.F
+          |                 |                      +-ll2xy_ps.F
+          |                 |                      +-ll2xy_merc.F
+          |                 |                      |
+          |                 |                      +-graceful_stop.F----+-date_time_mod.F
+          |                 |
+          |                 +-setup_wrfem.F--------+-metinfo_mod.F
+          |                 |                      | date_pack_mod.F
+          |                 |                      | mcipparm_mod.F
+          |                 |                      | file_mod.F
+          |                 |                      | parms3_mod.F-------+-PARMS3.EXT
+          |                 |                      | wrf_netcdf_mod.F
+          |                 |                      | const_mod.F
+          |                 |                      +-netcdf.inc
+          |                 |                      |
+          |                 |                      +-chkwpshdr.F
+          |                 |                      |
+          |                 |                      +-ll2xy_lam.F
+          |                 |                      +-ll2xy_ps.F
+          |                 |                      +-ll2xy_merc.F
+          |                 |                      |
+          |                 |                      +-graceful_stop.F----+-date_time_mod.F
+          |                 |
+          |                 +-graceful_stop.F------+-date_time_mod.F
+          | 
+          +---setgriddefs.F-+-mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 | metinfo_mod.F
+          |                 | coord_mod.F
+          |                 | parms3_mod.F---------+-PARMS3.EXT
+          |                 +-sat2mcip_mod.F
+          |                 |
+          |                 +-graceful_stop.F------+-date_time_mod.F
+          |
+          +---alloc_met.F---+-metinfo_mod.F
+          |                 | metvars_mod.F
+          |                 +-mcipparm_mod.F
+          |
+          +---alloc_lu.F----+-luvars_mod.F
+          |
+          +---alloc_x.F-----+-mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 +-metinfo_mod.F
+          |
+          +---alloc_depv.F--+-depvvars_mod.F
+          |                 +-mcipparm_mod.F
+          |
+          |---alloc_ctm.F---+-coord_mod.F
+          |                 | vgrd_mod.F
+          |                 | mcipparm_mod.F
+          |                 | groutcom_mod.F
+          |                 | mcoutcom_mod.F
+          |                 | mdoutcom_mod.F
+          |                 +-parms3_mod.F---------+-PARMS3.EXT
+          |
+          +---init_met.F----+-metinfo_mod.F
+          |                 | metvars_mod.F
+          |                 +-mcipparm_mod.F
+          |
+          +---init_lu.F-----+-luvars_mod.F
+          |
+          +---init_x.F------+-mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 | parms3_mod.F---------+-PARMS3.EXT
+          |                 +-metinfo_mod.F
+          |
+          +---init_depv.F---+-mcipparm_mod.F
+          |                 +-depvvars_mod.F
+          |
+          +---vertarys.F----+-mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 | coord_mod.F
+          |                 +-vgrd_mod.F
+          |
+          +===getmet.F======+=metinfo_mod.F
+          |                 |
+          |                 +=rdmm5v3.F============+=date_pack_mod.F
+          |                 |                      | file_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      | metvars_mod.F
+          |                 |                      +=mcipparm_mod.F
+          |                 |                      |
+          |                 |                      +=cori.F
+          |                 |                      |
+          |                 |                      +=xy2ll_lam.F
+          |                 |                      +=mapfac_lam.F
+          |                 |                      |
+          |                 |                      +=xy2ll_ps.F
+          |                 |                      +=mapfac_ps.F
+          |                 |                      |
+          |                 |                      +=xy2ll_merc.F
+          |                 |                      +=mapfac_merc.F
+          |                 |                      |
+          |                 |                      +=readter.F=========+=file_mod.F
+          |                 |                      |                   | metvars_mod.F
+          |                 |                      |                   +=mcipparm_mod.F
+          |                 |                      |                   |
+          |                 |                      |                   +=graceful_stop.F===+=date_time_mod.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F===+=date_time_mod.F
+          |                 |                       
+          |                 +=rdwrfem.F============+=date_pack_mod.F
+          |                 |                      | file_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      | metvars_mod.F
+          |                 |                      | mcipparm_mod.F
+          |                 |                      | wrf_netcdf_mod.F===+=netcdf.inc
+          |                 |                      +=netcdf.inc
+          |                 |                      |
+          |                 |                      +=xy2ll_lam.F
+          |                 |                      +=mapfac_lam.F
+          |                 |                      |
+          |                 |                      +=xy2ll_ps.F
+          |                 |                      +=mapfac_ps.F
+          |                 |                      |
+          |                 |                      +=xy2ll_merc.F
+          |                 |                      +=mapfac_merc.F
+          |                 |                      |
+          |                 |                      +=chkwrfhdr.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=graceful_stop.F======+=date_time_mod.F
+          |
+          +===statflds.F====+=mcipparm_mod.F
+          |                 | coord_mod.F
+          |                 | metinfo_mod.F
+          |                 +=metvars_mod.F
+          |                 |
+          |                 +=getluse.F============+=metvars_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      +=mcipparm_mod.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=metgrid2ctm.F========+=mcipparm_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      +=metvars_mod.F
+          |                 |
+          |                 +=refstate.F===========+=mcipparm_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      | const_mod.F
+          |                 |                      +=metinfo_mod.F
+          |                 |
+          |                 +=blddesc.F============+=mcipparm_mod.F
+          |                 |                      +=metinfo_mod.F
+          |                 |                      |
+          |                 |                      +=mm5v3opts.F========+=metinfo_mod.F
+          |                 |                      |
+          |                 |                      +=wrfemopts.F========+=metinfo_mod.F
+          |                 |
+          |                 +=graceful_stop.F======+=date_time_mod.F
+          |                  
+          +===gridout.F=====+=mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 | coord_mod.F
+          |                 | fdesc3_mod.F=========+=FDESC3.EXT
+          |                 | file_mod.F
+          |                 | iodecl3_mod.F========+=IODECL3.EXT
+          |                 | groutcom_mod.F
+          |                 | vgrd_mod.F
+          |                 +=parms3_mod.F=========+=PARMS3.EXT
+          |                 |
+          |                 +=comheader.F==========+=coord_mod.F
+          |                 |                      | fdesc3_mod.F=======+=FDESC3.EXT
+          |                 |                      +=mcipparm_mod.F
+          |                 |
+          |                 +=collapx.F============+=locate.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=graceful_stop.F======+=date_time_mod.F
+          |
+          +===wrgdesc.F=====+=coord_mod.F
+          |                 | file_mod.F
+          |                 +=mcipparm_mod.F
+          |
+          +===dynflds.F=====+=mcipparm_mod.F
+          |                 |
+          |                 +=metvars2ctm.F========+=mcipparm_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      | metvars_mod.F
+          |                 |                      | const_mod.F
+          |                 |                      +=parms3_mod.F=======+=PARMS3.EXT
+          |                 |                      |
+          |                 |                      +=layht.F============+=graceful_stop.F===+=date_time_mod.F
+          |                 |                      |
+          |                 |                      +=vertnhy.F==========+=mcipparm_mod.F
+          |                 |                      |                    | xvars_mod.F
+          |                 |                      |                    | const_mod.F
+          |                 |                      |                    +=coord_mod.F
+          |                 |                      |
+          |                 |                      +=vertnhy_wrf.F======+=mcipparm_mod.F
+          |                 |                      |                    | xvars_mod.F
+          |                 |                      |                    +=coord_mod.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=pblsup.F=============+=mcipparm_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      | const_mod.F
+          |                 |                      | const_pbl_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      +=parms3_mod.F=======+=PARMS3.EXT
+          |                 |                      |
+          |                 |                      +=wind.F=============+=const_mod.F
+          |                 |                      |
+          |                 |                      +=getpblht.F=========+=mcipparm_mod.F
+          |                 |                      |                    | const_mod.F
+          |                 |                      |                    +=xvars_mod.F
+          |                 |                      |
+          |                 |                      +=sfclayer.F=========+=const_pbl_mod.F
+          |                 |                      |
+          |                 |                      +=resistcalc.F=======+=mcipparm_mod.F
+          |                 |                                           | const_mod.F
+          |                 |                                           | const_pbl_mod.F
+          |                 |                                           | xvars_mod.F
+          |                 |                                           +=parms3_mod.F====+=PARMS3.EXT
+          |                 |                                           |
+          |                 |                                           +=graceful_stop.F===+=date_time_mod.F
+          |                 |
+          |                 +=bcldprc_ak.F=========+=mcipparm_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      +=const_mod.F
+          |                 |
+          |                 +=m3dry.F==============+=mcipparm_mod.F
+          |                 |                      | xvars_mod.F
+          |                 |                      | depvvars_mod.F
+          |                 |                      | const_mod.F
+          |                 |                      | metinfo_mod.F
+          |                 |                      | parms3_mod.F=======+=PARMS3.EXT
+          |                 |                      +=metinfo_mod.F
+          |                 |                      |
+          |                 |                      +=hlconst.F==========+=graceful_stop.F====+=date_time_mod.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=pvs.F================+=coord_mod.F
+          |                 |                      | mcipparm_mod.F
+          |                 |                      +=xvars_mod.F
+          |                 |
+          |                 +=graceful_stop.F======+=date_time_mod.F
+          |
+          +===(sat2mcip_mod.F)
+          |
+          +===metcro.F======+=mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 | depvvars_mod.F
+          |                 | coord_mod.F
+          |                 | fdesc3_mod.F=========+=FDESC3.EXT
+          |                 | file_mod.F
+          |                 | iodecl3_mod.F========+=IODECL3.EXT
+          |                 | mcoutcom_mod.F
+          |                 | vgrd_mod.F
+          |                 | parms3_mod.F=========+=PARMS3.EXT
+          |                 +=sat2mcip_mod.F
+          |                 |
+          |                 +=comheader.F==========+=coord_mod.F
+          |                 |                      | fdesc3_mod.F-------+-FDESC3.EXT
+          |                 |                      +=mcipparm_mod.F
+          |                 |
+          |                 +=collapx.F============+=locate.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=graceful_stop.F======+=date_time_mod.F
+          |
+          +===metdot.F======+=mcipparm_mod.F
+          |                 | xvars_mod.F
+          |                 | coord_mod.F
+          |                 | fdesc3_mod.F=========+=FDESC3.EXT
+          |                 | file_mod.F
+          |                 | iodecl3_mod.F========+=IODECL3.EXT
+          |                 | mdoutcom_mod.F
+          |                 | vgrd_mod.F
+          |                 +=parms3_mod.F=========+=PARMS3.EXT
+          |                 |
+          |                 +=comheader.F==========+=coord_mod.F
+          |                 |                      | fdesc3_mod.F=======+=FDESC3.EXT
+          |                 |                      +=mcipparm_mod.F
+          |                 |
+          |                 +=collapx.F============+=locate.F
+          |                 |                      |
+          |                 |                      +=graceful_stop.F====+=date_time_mod.F
+          |                 |
+          |                 +=graceful_stop.F======+=date_time_mod.F
+          |
+          +---dealloc_met.F-+-metinfo_mod.F
+          |                 | metvars_mod.F
+          |                 +-mcipparm_mod.F
+          |
+          +---dealloc_lu.F--+-luvars_mod.F
+          |
+          +---dealloc_x.F---+-mcipparm_mod.F
+          |                 +-xvars_mod.F
+          |
+          +---dealloc_depv.F+-depvvars_mod.F
+          |
+          +---dealloc_ctm.F-+-coord_mod.F
+          |                 | vgrd_mod.F
+          |                 | groutcom_mod.F
+          |                 | mcoutcom_mod.F
+          |                 +-mdoutcom_mod.F
+          |
+          +---close_files.F-+-iodecl3_mod.F--------+-IODECL3.EXT
+                            |
+                            +=graceful_stop.F======+=date_time_mod.F
