@@ -1,0 +1,2 @@
+
+      character( 128 ) :: out_fl_name = "/home/yoj/src/bcon/mech_conv/radm2_to_cb05/bc_profile_CBO5.dat"

@@ -1,0 +1,474 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/PROCAN/src/data/pa.radm2_ae,v 1.1 2001/01/26 16:20:24 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+!***********************************************************************
+!  The IRR outputs have been set to reproduce the exact same 
+!  info has Gail Tonnesen is getting from the HRADM model.
+!  Created by Jerry Gipson 4/28/97
+!***********************************************************************
+
+
+IRRTYPE = PARTIAL;
+
+OUTPUT_DOMAIN = LOLEV[1] + HILEV[2];
+
+
+!=======================================================================
+! Family Definitions 
+!=======================================================================
+DEFINE FAMILY OX    = O3 + NO2 + 2*NO3 + O3P +O1D + PAN + HNO4 + 3*N2O5 +
+                      TPAN + OLN {+ HNO3 + ONIT};
+DEFINE FAMILY NOZ   = PAN + TPAN + HONO + HNO4 + NO3 + N2O5 + ONIT + 
+                      OLN + HNO3;
+DEFINE FAMILY NOX   = NO + NO2;
+DEFINE FAMILY VOCA  = OL2 + OLI + OLT + ISO;
+DEFINE FAMILY RO2   = MO2 + ETHP + HC3P + HC5P + HC8P + OL2P +
+                      OLTP + OLIP + TOLP + XYLP + ACO3 + KETP +
+                      TCO3 + XO2 + XNO2;
+DEFINE FAMILY VOC   = {CH4 +} CO + ETH + HC3 + HC5 + HC8 + OL2 + OLT + 
+                      OLI + ISO + TOL + CSL + XYL + HCHO + ALD + KET +
+                      GLY + MGLY + DCB;
+DEFINE FAMILY dauHC = CSL + KET + GLY + MGLY + DCB + OP1 + OP2 +
+                      PAA + PAN + ONIT;
+DEFINE FAMILY VOCB  = 2*ETH + 2.9*HC3 + 4.8*HC5 + 7.9*HC8 + 2.0*OL2 +
+                      3.8*OLT + 4.8*OLI + 5.0*ISO + 7.1*TOL + 6.6*CSL +
+                      8.9*XYL + HCHO + 2.4*ALD + 3.9*KET;                      
+
+
+!=======================================================================
+! Cycle Definitions 
+!=======================================================================
+DEFINE CYCLE PANcyc  = PAN;
+DEFINE CYCLE TPANcyc = TPAN;
+DEFINE CYCLE HONOcyc = HONO;
+DEFINE CYCLE HNO4cyc = HNO4;
+
+
+!=======================================================================
+! Reaction Sum Definitions 
+!=======================================================================
+DEFINE RXNSUM NO3cyc       = < 17> - < P7> - < P8> - < 18> - < 19>;
+DEFINE RXNSUM N2O5cyc      = < 21> - < 22>;
+DEFINE RXNSUM H2O2_OHcyc   = <  9> - < 12> - < 13>;
+DEFINE RXNSUM HNO3_OHcyc   = < P5> - < 24>;
+DEFINE RXNSUM OP1_OHcyc    = <P13> - < 88>;
+DEFINE RXNSUM OP2_OHcyc    = <P14> - < 89> - < 90> - < 91> - < 92> -
+                             < 93> - < 94> - < 95> - < 96> - < 97> -  
+                             < 98> - < 99> - <100>{ - <101>}; 
+DEFINE RXNSUM PAA_OHcyc    = <P15> - < 97>;
+DEFINE RXNSUM HNO4_HO2cyc  = < P6> + < 11> - < 10>;
+DEFINE RXNSUM OP2_HO2cyc   = <P14> - < 89> - < 90> - < 91> - < 92> -
+                             < 93> - < 94> - < 95> - < 96> - < 97> -  
+                             < 98> - < 99> - <100> {- <101>} - <127> -
+                             <133>; 
+DEFINE RXNSUM HOXcyc       = <  7> - <  8>;
+DEFINE RXNSUM newMO2       = <P12> + 0.22*< 85> + 0.31*< 86> + 0.22*< 87>;
+DEFINE RXNSUM newACO3      = <P16> + <P19> + 0.02*<P20> + < 77>;
+DEFINE RXNSUM newETHP      = <P16>;
+DEFINE RXNSUM newTCO3      = <P20> + < 78>;
+DEFINE RXNSUM PAN_ACO3cyc  = < 54> - < 53>;
+DEFINE RXNSUM TPAN_TCO3cyc = < 56> - < 55>;
+!DEFINE RXNSUM propRO2_NO   = <67> + 4.05*<68> + 1.5*<126>;
+
+!=======================================================================
+! IRR_OUTPUT 1 FOR FILE C2 --  OX Production 
+!=======================================================================
+IRR_OUTPUT OXprod = NETP[OX];
+
+DESCRIPTION = 'OX Production';
+
+!=======================================================================
+! IRR_OUTPUT 2 FOR FILE C2 --  OX Loss 
+!=======================================================================
+IRR_OUTPUT OXloss =  NETL[OX];
+
+DESCRIPTION = 'OX Loss';
+
+
+!=======================================================================
+! IRR_OUTPUT 3 FOR FILE C2 --  NOZ from NOX 
+!=======================================================================
+IRR_OUTPUT NOZfromNOX =  PANcyc[POSONLY] +
+                        TPANcyc[POSONLY] + 
+                        HONOcyc[POSONLY] +
+                        HNO4cyc[POSONLY] + 
+                         NO3cyc[POSONLY] +
+                        N2O5cyc[POSONLY] +
+                              < 24> + 0.036*< 58> + 0.08*< 60> +
+                        0.024*< 62> +       <132>;
+DESCRIPTION = 'NOZ produced from NOX';
+
+
+!=======================================================================
+! IRR_OUTPUT 4 FOR FILE C2 --  NOX from NOZ 
+!=======================================================================
+IRR_OUTPUT NOXfromNOZ =  PANcyc[NEGONLY] +
+                        TPANcyc[NEGONLY] + 
+                        HONOcyc[NEGONLY] +
+                        HNO4cyc[NEGONLY] + 
+                         NO3cyc[NEGONLY] +
+                        N2O5cyc[NEGONLY] +
+                             < P5> +       <P21> +       < 51> +
+                             < 73> +       <138> +       <139> +
+                         2.0*<140>;     
+
+DESCRIPTION = 'NOX produced from NOZ';
+
+!=======================================================================
+! IRR_OUTPUT 5 FOR FILE C2 -- OH from O1D
+!=======================================================================
+IRR_OUTPUT OHfromO1D = PROD [HO] FROM [O1D];
+
+DESCRIPTION = 'OH produced from O1D';
+
+ 
+!=======================================================================
+! IRR_OUTPUT 6 FOR FILE C2 -- new OH
+!=======================================================================
+IRR_OUTPUT newOH =   0.1*< 85> +  0.14*< 86> +   0.1*< 87> +
+                     2*H2O2_OHcyc[POSONLY]  +
+                     HNO3_OHcyc[POSONLY]  +  
+                        HONOcyc[NEGONLY]  +
+                      OP1_OHcyc[POSONLY]  + 
+                      OP2_OHcyc[POSONLY]  + 
+                      PAA_OHcyc[POSONLY]; 
+
+DESCRIPTION = 'new OH';
+
+
+!=======================================================================
+! IRR_OUTPUT 7 FOR FILE C2 -- new HO2
+!=======================================================================
+IRR_OUTPUT newHO2 =      2.0*<P11> +       <P12> +   0.8*<P18> +
+                             <P19> +  0.98*<P20> +       <P21> + 
+                             < 74> +       < 76> +  0.12*< 84> +
+                        0.23*< 85> +  0.26*< 86> +  0.23*< 87> +
+                        OP1_OHcyc[POSONLY] + 
+                        OP2_HO2cyc[POSONLY] + 
+                        HNO4_HO2cyc[POSONLY];                    
+DESCRIPTION = 'new HO2';
+
+
+!=======================================================================
+! IRR_OUTPUT 8 FOR FILE C2 -- total HO2 Production
+!=======================================================================
+IRR_OUTPUT totalHO2 =    2.0*<P11> +       <P12> +   0.8*<P18> +
+                             <P19> +  0.98*<P20> +       <P21> + 
+                             < 74> +       < 76> +  0.12*< 84> +
+   {HO2new}             0.23*< 85> +  0.26*< 86> +  0.23*< 87> +
+                          OP1_OHcyc[POSONLY] + 
+                         OP2_HO2cyc[POSONLY] + 
+                        HNO4_HO2cyc[POSONLY] +
+                        
+  {HO2propbyOH}        PROD[HO2] FROM  [HO] AND [VOC] +
+   
+  {HO2viaRO2_NO}       PROD[HO2] FROM  [NO] AND [RO2] +
+  
+  {HO2byRO2_RO2}       PROD[HO2] FROM [RO2] AND [RO2] +
+  
+  {otherOH}            HOXcyc[POSONLY];
+  
+DESCRIPTION = 'total HO2';
+
+!=======================================================================
+! IRR_OUTPUT 9 FOR FILE C2 -- new RO2 Production
+!=======================================================================
+IRR_OUTPUT newRO2 =   newMO2  + 
+                      newACO3 + 
+                      newETHP + 
+                      newTCO3 + 
+                      PAN_ACO3cyc[POSONLY] +
+                      TPAN_TCO3cyc[POSONLY]; 
+
+DESCRIPTION = 'new RO2';
+
+
+
+!=======================================================================
+! IRR_OUTPUT 10 FOR FILE C2 -- Total RO2 Production
+!=======================================================================
+IRR_OUTPUT TotalRO2 = newMO2  + 
+                      newACO3 + 
+{newRO2}              newETHP + 
+                      newTCO3 + 
+                      PAN_ACO3cyc[POSONLY] +
+                      TPAN_TCO3cyc[POSONLY] +
+                      
+{propRO2_OH}          PROD[RO2] FROM [HO] AND [VOC] + 
+                             < 30> +   0.5*< 47> +   0.5*<48> + 
+                             < 50> +       < 51> +  
+                              
+{propRO2_NO}          PROD[RO2] FROM [NO];
+
+DESCRIPTION = 'Total RO2';
+
+!=======================================================================
+! IRR_OUTPUT 11 FOR FILE C2 -- Loss of CO & CH4 from OH
+!=======================================================================
+IRR_OUTPUT Loss_CO_CH4 =     < 30> +
+                         LOSS [CO];
+
+!DESCRIPTION = 'Loss of CO & CH4';
+
+
+!=======================================================================
+! IRR_OUTPUT 12 FOR FILE C2 -- HO2 to OH
+!=======================================================================
+IRR_OUTPUT HO2toOH =  HOXcyc[NEGONLY] + 
+                      <9> + 
+                      2.0*H2O2_OHcyc[POSONLY];
+
+DESCRIPTION = 'HO2 to OH';
+
+
+!=======================================================================
+! IRR_OUTPUT 13 FOR FILE C2 -- NO2 from HO2
+!=======================================================================
+IRR_OUTPUT NO2fromHO2 = <  9>;
+
+DESCRIPTION = 'NO2 FROM HO2';
+
+!=======================================================================
+! IRR_OUTPUT 14 FOR FILE C2 -- NO2 from RO2
+!=======================================================================
+IRR_OUTPUT NO2fromRO2 =        < 57> + 0.964*< 58> + 0.92*< 60> +
+                          0.76*< 62> +       < 64> +      < 65> + 
+                               < 66> +       < 67> +      < 68> +   
+                               < 69> +       < 70> +      < 71> +  
+                               < 72> +       < 73> +      <131>;
+
+DESCRIPTION = 'NO2 FROM HO2';
+
+
+!=======================================================================
+! IRR_OUTPUT 15 FOR FILE C2 -- PAN + TPAN Production
+!=======================================================================
+IRR_OUTPUT prodPAN_TPAN = PANcyc + TPANcyc;
+
+DESCRIPTION = 'Production of PAN and TPAN';
+
+
+!=======================================================================
+! IRR_OUTPUT 16 FOR FILE C2 -- Net ONIT Production
+!=======================================================================
+IRR_OUTPUT netONIT = NET[ONIT];
+
+DESCRIPTION = 'Net production of ONIT';
+
+!=======================================================================
+! IRR_OUTPUT 17 FOR FILE C2 -- OH Reacting with HC (?)
+!=======================================================================
+IRR_OUTPUT lossOH_HC = LOSS[VOC] AND [HO]    +
+                       < 30> + < 47> + < 48> +
+                       < 49> + < 50> + < 51>;
+
+DESCRIPTION = 'Loss of HC plus OH';
+
+!=======================================================================
+! IRR_OUTPUT 18 FOR FILE C2 -- OH Reacting with Inorganics
+!=======================================================================
+IRR_OUTPUT lossOH_INORG = <  7> + < 14> + < 15> + 
+                          < 24> + < 25> + < 26> + 
+                          < 27>;
+
+DESCRIPTION = 'Loss of OH with iorganics';
+
+
+!=======================================================================
+! IRR_OUTPUT 19 FOR FILE C2 -- Net HNO3
+!=======================================================================
+IRR_OUTPUT netHNO3 = NET[HNO3];
+
+DESCRIPTION = 'Net change in HNO3';
+
+
+!=======================================================================
+! IRR_OUTPUT 20 FOR FILE C2 -- HCHO and OH
+!=======================================================================
+IRR_OUTPUT lossHCHO_OH = LOSS[HCHO] AND [HO];
+
+DESCRIPTION = 'Reaction OH HCHO with OH';
+
+
+!=======================================================================
+! IRR_OUTPUT 21 FOR FILE C2 -- ISO and OH
+!=======================================================================
+IRR_OUTPUT lossISO_OH = LOSS[ISO] AND [HO];
+
+DESCRIPTION = 'Reaction of ISO with OH';
+
+!=======================================================================
+! IRR_OUTPUT 22 FOR FILE C2 -- Not Applicable to IRR
+!=======================================================================
+
+!=======================================================================
+! IRR_OUTPUT 23 FOR FILE C2 -- newHO2 from HCHO
+!=======================================================================
+IRR_OUTPUT newHO2fromHCHO = PROD[HO2] FROM [HCHO] AND [hv];
+
+DESCRIPTION = 'New HO2 from HCHO';
+
+!=======================================================================
+! IRR_OUTPUT 24 FOR FILE C2 -- newACO3 from PAN
+!=======================================================================
+IRR_OUTPUT newACO3fromPAN = PAN_ACO3cyc;
+
+DESCRIPTION = 'New HO2 from PAN';
+
+!=======================================================================
+! IRR_OUTPUT 1 FOR FILE C3 -- not used
+!=======================================================================
+
+!=======================================================================
+! IRR_OUTPUT 2 FOR FILE C3 -- HO2 from RO2 and NO
+!=======================================================================
+IRR_OUTPUT HO2fromRO2_NO = PROD[HO2] FROM [NO] AND [RO2];
+
+DESCRIPTION = 'HO2 from RO2 and NO';
+
+!=======================================================================
+! IRR_OUTPUT 3 FOR FILE C3 -- HO2 from RO2 and RO2
+!=======================================================================
+IRR_OUTPUT HO2fromRO2_RO2 = PROD[HO2] FROM [RO2] AND [RO2];
+
+DESCRIPTION = 'HO2 from RO2 and RO2';
+
+!=======================================================================
+! IRR_OUTPUT 4 FOR FILE C3 -- RO2 from OH
+!=======================================================================
+IRR_OUTPUT RO2fromOH = PROD[RO2] FROM [HO];
+
+DESCRIPTION = 'RO2 from OH';
+
+!=======================================================================
+! IRR_OUTPUT 5 FOR FILE C3 -- HNO3 from OH + NO2
+!=======================================================================
+IRR_OUTPUT HNO3fromOH_NO2 = < 24>;
+
+DESCRIPTION = 'RO2 from OH';
+
+!=======================================================================
+! IRR_OUTPUT 6 FOR FILE C3 -- new OH from H2O2
+!=======================================================================
+IRR_OUTPUT newOH_H2O2 = 2*H2O2_OHcyc;
+
+DESCRIPTION = 'new OH from H2O2';
+
+!=======================================================================
+! IRR_OUTPUT 7 FOR FILE C3 -- new OH from OP1 OP2 PAA
+!=======================================================================
+IRR_OUTPUT newOH_OP1 =  OP1_OHcyc[POSONLY] + 
+                        OP2_OHcyc[POSONLY] + 
+                        PAA_OHcyc[POSONLY];
+
+DESCRIPTION = 'new OH from OP1 OP2 PAA';
+
+
+!=======================================================================
+! IRR_OUTPUT 8 FOR FILE C3 -- new OH from HONO
+!=======================================================================
+IRR_OUTPUT newOHfromHONO = HONOcyc[NEGONLY];
+
+DESCRIPTION = 'new OH from HONO';
+
+
+!=======================================================================
+! IRR_OUTPUTs 9-10 FOR FILE C3 -- Not applicable
+!=======================================================================
+
+!=======================================================================
+! IRR_OUTPUT 11 FOR FILE C3 -- OH term
+!=======================================================================
+IRR_OUTPUT OHterm = < 25> + <26> + <27> + < 50> + 
+                     HNO3_OHcyc[NEGONLY] +
+                        HONOcyc[POSONLY];
+
+DESCRIPTION = 'OH Termination';
+
+!=======================================================================
+! IRR_OUTPUT 12 FOR FILE C3 -- HO2 term
+!=======================================================================
+IRR_OUTPUT HO2term =    < 20> + < 27> + <101> +
+                     2 *  H2O2_OHcyc[NEGONLY] +
+                         HNO4_HO2cyc[NEGONLY];
+
+DESCRIPTION = 'HO2 Termination';
+
+
+!=======================================================================
+! IRR_OUTPUT 13 FOR FILE C3 -- HO2 term with RO2
+!=======================================================================
+IRR_OUTPUT termHO2_RO2 =   OP1_OHcyc[NEGONLY] + 
+                          OP2_HO2cyc[NEGONLY] + 
+                           PAA_OHcyc[NEGONLY];
+
+DESCRIPTION = 'HO2 term with RO2';
+
+!=======================================================================
+! IRR_OUTPUT 14 FOR FILE C3 -- RO2 Termination
+!=======================================================================
+IRR_OUTPUT termRO2 = .036*<58> + .08*<60> + .24*<62> + .03*<68> +
+                      PAN_ACO3cyc[NEGONLY] +
+                          TPANcyc[POSONLY];
+
+DESCRIPTION = 'RO2 Termination';
+
+
+!=======================================================================
+! IRR_OUTPUT 15 FOR FILE C3 -- RO2 Termination with HO2
+!=======================================================================
+IRR_OUTPUT termRO2_HO2 =  OP1_OHcyc[NEGONLY] + 
+                          OP2_OHcyc[NEGONLY] + 
+                          PAA_OHcyc[NEGONLY];
+
+DESCRIPTION = 'RO2 Termination with HO2';
+
+!=======================================================================
+! IRR_OUTPUT 16 FOR FILE C3 -- RO2 Termination with RO2
+!=======================================================================
+IRR_OUTPUT termRO2_RO2 =    <102> + <103> + <104> + <105> + <106> +
+                            <107> + <108> + <109> + <110> + <111> +
+                    1.515 * <114> + <115> + <116> + <117> +
+                            <118> + <119> + <120> + <121> + <122> +
+                    1.030 * <126> + 0.500 * <138> +
+                    0.500 * <139>;
+
+DESCRIPTION = 'RO2 Termination with RO2';
+
+!=======================================================================
+! IRR_OUTPUTs 17-25 FOR FILE C3 -- Not applicable
+!=======================================================================
+
+!=======================================================================
+! IRR_OUTPUTs 26 FOR FILE C3 -- OH + daughter HC
+!=======================================================================
+IRR_OUTPUT dauHC_OH = LOSS [HO] AND [dauHC];
+
+DESCRIPTION = 'OH + daughter HC';
+
+!=======================================================================
+! IPR_OUTPUTS
+!=======================================================================
+
+IPR_OUTPUT NO;
+
+IPR_OUTPUT NO2;
+
+IPR_OUTPUT O3;
+
+IPR_OUTPUT ACORS;
+
+IPR_OUTPUT OX;
+
+IPR_OUTPUT NH3;
+
+IPR_OUTPUT VOC;
+
+ENDPA;
+
+
+

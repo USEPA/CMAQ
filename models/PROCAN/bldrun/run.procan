@@ -1,0 +1,81 @@
+#! /bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/yoj/arc/PROCAN/src/bldrun/terra/run.procan,v 1.1 2011/09/13 17:15:05 yoj Exp $
+
+# method: run.procan >&! procan.log &
+ 
+#PBS -N procan.log
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=1:00:00
+#PBS -q mod3dev
+#PBS -V
+#PBS -m n
+#PBS -j oe
+#PBS -r n
+
+ if ( $?PBS_JOBID ) then
+    echo Job ID is $PBS_JOBID
+    echo Queue is $PBS_O_QUEUE
+#> Switch to the working directory; by default PBS launches processes from your home directory.
+    echo Working directory is $PBS_O_WORKDIR
+    cd $PBS_O_WORKDIR
+ endif
+ echo '>>>>>> start model run at ' `date`
+ set echo
+
+set CURRENT = $cwd
+
+set Base    = $cwd
+ 
+date; echo "    ";  set echo
+ 
+ set APPL = cb05tucl
+ set CFG  = ${APPL}
+ set Exec = PACP_${CFG}
+ set XBase = $Base
+ 
+ set NML = ${XBase}
+ ln -sf $NML/GC_cb05tucl_ae6_aq.nml gc_matrix.nml
+ ln -sf $NML/AE_cb05tucl_ae6_aq.nml ae_matrix.nml
+ ln -sf $NML/NR_cb05tucl_ae6_aq.nml nr_matrix.nml
+ ln -sf $NML/Species_Table_TR_0.nml tr_matrix.nml
+
+ set mechanism = cb05tucl_ae6_aq
+
+ setenv  gc_matrix_nml $NML/GC_${mechanism}.nml
+ setenv  ae_matrix_nml $NML/AE_${mechanism}.nml
+ setenv  nr_matrix_nml $NML/NR_${mechanism}.nml
+ setenv  tr_matrix_nml $NML/Species_Table_TR_0.nml
+
+
+#set InFile =  ../data/pa_cb05tucl_ae6_aq.inp.ful
+ set InFile =  ../data/pa.cb05tucl_ae6_aq.noipr
+
+ setenv PACP_INFILE $InFile
+ 
+ set OUTDIR = $CURRENT/output_test_3
+ 
+ if( ! ( -d $OUTDIR ) )then
+    mkdir -p $OUTDIR
+ endif
+ 
+#totalview $XBase/$Exec; date; goto Last
+ if( ! ( -e $XBase/$Exec ) )then
+    ls $XBase/$Exec
+    exit()
+ endif
+
+ $XBase/$Exec
+
+        
+
+
+ \mv -f PA_CMN.EXT $OUTDIR/.
+ \mv -f PA_CTL.EXT $OUTDIR/.
+ \mv -f PA_DAT.EXT $OUTDIR/.
+ \mv -f PA_REPORT  $OUTDIR/.
+
+ 
+#Last:
+ exit()

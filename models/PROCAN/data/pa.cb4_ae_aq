@@ -1,0 +1,159 @@
+
+IRRTYPE = PARTIAL;
+
+
+OUTPUT_DOMAIN = LOLEV[1] + HILEV[12];
+
+
+
+!=======================================================================
+! Family Definitions 
+!=======================================================================
+DEFINE FAMILY VOC   = 1.0*PAR + 2.0*ETH   + 2.0*OLE  + 7.0*TOL  +  
+                      8.0*XYL + 5.0*ISOP  + 1.0*FORM + 2.0*ALD2;
+
+DEFINE FAMILY OX    = O3 + NO2 + 2*NO3 + O + O1D + PAN + 3*N2O5 +
+                      PNA + HNO3 + NTR;
+
+DEFINE FAMILY NOY   = PAN + HONO + PNA  + NO3 + 2*N2O5 +
+                      NTR + HNO3 + NO + NO2;
+
+DEFINE FAMILY RO2   = C2O3 + TO2 + ROR;
+
+
+!=======================================================================
+! Reaction Sum Definitions 
+!=======================================================================
+ DEFINE RXNSUM HONOcyc     = <R22> - <R23>;
+ DEFINE RXNSUM PNAcyc      = <R29> - <R30>;
+ DEFINE RXNSUM PANcyc      = <R47> - <R48>;
+ DEFINE RXNSUM H2O2cyc     = <R32> + <R33> - <R34>;
+
+!=======================================================================
+! IPR_OUTPUTS
+!=======================================================================
+
+IPR_OUTPUT NO   = XYADV + ZADV + ADJC + HDIF + VDIF + EMIS + DDEP + CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT NO2  = XYADV + ZADV + ADJC + HDIF + VDIF + EMIS + DDEP + CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT O3   = XYADV + ZADV + ADJC + HDIF + VDIF +        DDEP + CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT CO   = XYADV + ZADV + ADJC + HDIF + VDIF + EMIS +        CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT VOC  = XYADV + ZADV + ADJC + HDIF + VDIF + EMIS + DDEP + CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT HNO3 = XYADV + ZADV + ADJC + HDIF + VDIF +        DDEP + CLDS +
+                  CHEM  + AERO;
+
+IPR_OUTPUT H2O2 = XYADV + ZADV + ADJC + HDIF + VDIF +        DDEP + CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT PAN  = XYADV + ZADV + ADJC + HDIF + VDIF +               CLDS +
+                  CHEM        ;
+
+IPR_OUTPUT NOY  = XYADV + ZADV + ADJC + HDIF + VDIF + EMIS + DDEP + CLDS +
+                  CHEM  + AERO;
+
+IPR_OUTPUT ISOP = XYADV + ZADV + ADJC + HDIF + VDIF + EMIS +        CLDS +
+                  CHEM        ;
+
+!=======================================================================
+! IRR_OUTPUTS
+!=======================================================================
+
+ IRR_OUTPUT OxPROD = NETP[OX];
+
+ IRR_OUTPUT OXLOSS = NETL[OX];
+
+ IRR_OUTPUT OHfromO1D = PROD [OH] FROM [O1D];
+
+ IRR_OUTPUT newOHmisc = <R40> + <R42> + 0.2*<R56> + 0.1 *<R59> + 
+                        0.3*<R60> + 0.08*<R72> + 0.266*<R77> +
+                        0.268*<R91> +
+                        2.0*H2O2cyc[NEGONLY] + HONOcyc[NEGONLY];
+              
+
+ IRR_OUTPUT newHO2fromHCHO = 2.0*<R38>;
+
+ IRR_OUTPUT newHO2prod =   2.0*<R38> +       <R40> +       <R41> +
+                          2.0*<R45> +  0.38*<R56> +  0.44*<R58> + 
+                          1.7*<R60> +  0.12*<R62> +       <R71> +
+                          0.76*<R72> +      <R74> +  0.25*<R75> +
+                          0.066*<R77> + 0.80*<R78> + 0.154*<R91> +
+                          0.925*<R92> + 1.033*<R93> + 0.8*<R94> +
+                          <R70> +
+                          PNAcyc[NEGONLY];
+
+
+
+IRR_OUTPUT newRO2prod = <R42> + <R44> + <R71> + 0.62*<R72> + <R74> +
+                         0.25*<R75> + 0.2*<R77> + 0.114*<R91> +
+                         0.075*<R92> + 0.967*<R93> + <R70> +
+                         PANcyc[NEGONLY];
+
+                      
+
+
+IRR_OUTPUT prodHO2fromRO2 =  <R46> + 2.0*<R49> + 0.94*<R53> + <R54> + 
+                             0.9*<R64> + <R65>;
+
+
+IRR_OUTPUT OHwithC1 = <R36> + <R51>;
+
+IRR_OUTPUT ISOmisc = <R75> + <R77> +<R78> + <R94>;
+
+IRR_OUTPUT OHwithISO = <R76>;
+
+IRR_OUTPUT OHwithHC = LOSS[OH] AND [VOC]
+                      + <R36> + <R51> + <R66> + <R70> + <R73> + <R90>;
+
+IRR_OUTPUT OHwithmisc = <R12> + <R35> + <R82>;
+
+IRR_OUTPUT HO2prod = NETP[HO2];
+
+IRR_OUTPUT netRO2prod = NETP[RO2];
+
+IRR_OUTPUT NO2fromHO2  = PROD[NO2] FROM [HO2];
+
+IRR_OUTPUT OHfromHO2   = PROD[OH] FROM [HO2] +
+                         2.0*H2O2cyc[NEGONLY];
+
+IRR_OUTPUT NO2fromRO2   = PROD[NO2] FROM [RO2];
+
+IRR_OUTPUT OHterm   = HONOcyc[POSONLY] + <R24> + <R26> +< R27> + < R31> +
+                      0.13*<R52> + 0.088*<R76>;
+
+IRR_OUTPUT HO2term  = PNAcyc[POSONLY] + H2O2cyc[POSONLY] 
+                      + 0.21*<R50> + < R86> + <R87>;
+
+
+
+IRR_OUTPUT RO2term  = PANcyc[POSONLY] + 0.21*<R50> + <R55> + 0.04*<R53> +
+                      0.1*<R64>;
+
+IRR_OUTPUT prodHCHO = PROD[FORM];
+
+IRR_OUTPUT HNO3fromOH_NO2 = <R26>;
+
+IRR_OUTPUT HNO3fromNO3_HC = <R41> + <R44> + <R67> + 0.075*<R92>;
+
+IRR_OUTPUT HNO3from_misc  = <R18>;
+
+IRR_OUTPUT lossHNO3 = LOSS[HNO3];
+
+IRR_OUTPUT netPAN = PANcyc;
+
+IRR_OUTPUT ONITfromNOX = PROD[NTR];
+
+
+
+ENDPA;
+
+
+

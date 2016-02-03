@@ -1,0 +1,260 @@
+#! /bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/yoj/arc/JPROC/src/sunOS5/bldit.jproc,v 1.3 1999/03/25 19:24:11 yoj Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
+# user choices: sams projects
+ set Project = /project/work/rep/JPROC
+ set InclArc = /project/work/rep/include
+
+# user choices: base directory
+#set Base = /your_dir/you/working_dir
+ set Base = $cwd
+
+ set APPL  = abc
+ set CFG   = cfg.$APPL
+ set MODEL = JPROC_$APPL
+
+# user choices: bldmod command
+#set Opt = compile_all  # force compile, even if object files are current
+#set Opt = clean_up     # remove all source files upon successful completion
+#set Opt = no_compile   # do everything except compile
+#set Opt = no_link      # do everything except link
+#set Opt = one_step     # compile and link in one step
+#set Opt = parse_only   # checks config file syntax
+#set Opt = show_only    # show requested commands but doesn't execute them
+ set Opt = verbose      # show requested commands as they are executed
+#set MakeOpt = -make    # builds a Makefile, but does not execute it
+ set MakeOpt =
+
+# update (retrieve, even if they exist) all the global include files ...
+#set Retrieve = 1    # yes
+ set Retrieve = 0    # no
+
+# user choices: various modules
+
+ set revision = release
+#set revision = '"SDCv1_1"'
+
+ set ModDriver = ( module jproc_table    $revision; )
+
+# user choices: mechanism
+
+ set Mech_Rev  = HEAD
+#set Mech_Rev  = SDCv1_0a
+#set Mechanism = radm2_ae_aq
+#set Mechanism = radm2_cis1_ae_aq
+ set Mechanism = radm2_cis4_ae_aq
+#set Mechanism = cb4_ae_aq
+#set Mechanism = cb4
+
+# other user choices set below are:
+#    name of the "BLD" directory
+#    compiler/link flags
+#    library paths
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ set Bld = $Base/BLD
+#unset echo
+ if (! -e "$Bld") then
+    mkdir $Bld
+    else
+    if (! -d "$Bld") then
+       echo "   *** target exists, but not a directory ***"
+       exit(1)
+       endif
+    endif
+#set echo
+ cd $Bld
+
+ set machine = `uname -s``uname -r | cut -d"." -f1`
+ switch ( $machine )
+    case "IRIX5":
+       set BLD_OS = $machine
+       breaksw
+    case "SunOS5":
+       set BLD_OS = $machine
+       set platf = `uname -i | cut -d"," -f2`
+       breaksw
+    case "OSF1*":
+       set BLD_OS = `uname -s`
+       breaksw
+    case "sn*":    # sequoia cray
+       set BLD_OS = "unicos"`uname -r | cut -d"." -f1`
+       breaksw
+    default:
+       echo " "
+       echo "  bldit not available for machine type $machine."
+       exit 1
+       endif
+    endsw
+
+ if ($BLD_OS == 'SunOS5') then
+
+#   set F_FLAGS = "-e -Nl200 -fast -O4"
+    set F_FLAGS = "-e -fast -O4"
+#   set F_FLAGS = "-e -O2"
+#   set F_FLAGS = "-g -C -e -fnonstd"
+#   set F_FLAGS = "-g    -e -fnonstd"
+#   set F_FLAGS = "-g -C -e"
+
+    set LINK_FLAGS = "-e -fast -O4"
+#   set LINK_FLAGS = "-e -O2"
+#   set LINK_FLAGS = "-g -C -e -fnonstd"
+#   set LINK_FLAGS = "-g    -e -fnonstd"
+#   set LINK_FLAGS = "-g -C -e"
+
+    set LIB1 = "-L/home/models3/tools/IOAPI/release/m3io/lib/SunOS5 -lm3io"
+    set LIB2 = "-L/home/models3/tools/netCDF/SunOS5 -lnetcdf"
+    set LIBS = "$LIB1 $LIB2"
+
+    set Include = $InclArc/release
+    set GlobInc = $InclArc/ICL
+    set ProjArc = $Project
+    set Dump = $Bld
+    set Blder = /project/work/showard/tools/build/SunOS5/m3bld
+
+    else if ($BLD_OS == 'OSF1') then
+
+    set F_FLAGS = " -O2 -extend_source -non_shared -align64 -align dcommons"
+#   set F_FLAGS = "-g -c -extend_source -non_shared -align64 -align dcommons - C"
+
+#   set LINK_FLAGS = "-g -C -e"
+    set LINK_FLAGS = ""
+
+    set LIB1 = "-L/home/models3/tools/IOAPI/release/m3io/lib/OSF1V4 -lm3io"
+    set LIB2 = "-L/home/models3/tools/netCDF/OSF1V4 -lnetcdf"
+    set LIBS = "$LIB1 $LIB2"
+ 
+    set Include = $InclArc/release
+    set GlobInc = $InclArc/ICL
+    set ProjArc = $Project
+    set Dump = $Bld
+    set Blder = /home/models3/tools/build/OSF1V4/m3bld
+
+    else if ($BLD_OS == 'unicos9') then
+
+    if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then
+       echo "   CVS_REMOTE_USER or CVS_REMOTE_MACH not set"
+       exit 1
+       endif
+
+# get Gary's cvs first in the path ...
+    set cvs_bin = /work/wgl/bin
+    set sniff = `echo $path | grep -c $cvs_bin`
+    if ( $sniff == 0 ) set path = ( $path[1] $cvs_bin $path[2-$#path] )
+
+#   set F_FLAGS = "         -Wf'-o aggress'"
+#   set F_FLAGS = "    -N80 -Wf'-em -Rab'"
+#   set F_FLAGS = "-Zv -N80 -Wf'-em -ef -o aggress'"
+#   set F_FLAGS = "-Zv -N80 -Wf'-em -ez -o aggress'"
+    set F_FLAGS = "-Zv -N80 -Wf'-em     -o aggress'"
+#   set F_FLAGS = "-Zv -N80 -Wf'        -o aggress'"
+#   set F_FLAGS = "-g  -N80"
+
+#   set LINK_FLAGS = "-Zv -Wf'-o aggress' -F -l prof"
+#   set LINK_FLAGS = "-Zv -Wf'-o aggress'    -l prof"
+#   set LINK_FLAGS = "-Zv -Wf'-o aggress' -F -l perf"
+#   set LINK_FLAGS = "-Zv -Wf'-o aggress' -Wl'-M,f'"
+#   set LINK_FLAGS = "-Zv -Wf'-o aggress' -Wl'-m -E'"
+    set LINK_FLAGS = "-Zv -Wf'-o aggress'"
+#   set LINK_FLAGS = "    -Wf'-Rab' "
+#   set LINK_FLAGS = "-g -N80"
+                                      
+    set LIB1 = "-L/work/shq/m3io/lib/sn46059 -lm3io"
+    set LIB2 = "-L/work/shq/netcdf-3.4/lib -lnetcdf"
+    set LIBS = "$LIB1 $LIB2"
+
+    set Include = $Bld
+    setenv CVS_RSH remsh
+    set GlobInc = :ext:${CVS_REMOTE_USER}@${CVS_REMOTE_MACH}:${InclArc}/ICL
+    set ProjArc = :ext:${CVS_REMOTE_USER}@${CVS_REMOTE_MACH}:${Project}
+    set Dump = $$
+#   set Blder = /work/wgl/build/m3bld
+    set Blder = /work/shq/build/m3bld
+
+# get the "other" include files that would be referenced directly from
+# the archive on the local machine
+
+    if ( $Retrieve       || \
+         ! ( -e CONST.EXT )   ) then
+       rcp ${CVS_REMOTE_MACH}:${InclArc}/release/CONST.EXT $Bld
+       endif
+    
+    else 
+    echo "   not ready for prime time"
+    exit(1)
+
+    endif
+ 
+ setenv CVSROOT $GlobInc
+
+ if ( $Retrieve          || \
+      ! ( -e RXCM.EXT )  || \
+      ! ( -e RXDT.EXT )     ) then
+   cvs -r export -r$Mech_Rev -d$Dump ${Mechanism}/RXCM.EXT
+   if ( $status ) exit(1)
+   if ( $Dump != $Bld ) then
+      /bin/mv -f $Dump/RXCM.EXT $Bld
+      /bin/rm -rf $Dump
+      endif
+   cvs -r export -r$Mech_Rev -d$Dump ${Mechanism}/RXDT.EXT
+   if ( $status ) exit(1)
+   if ( $Dump != $Bld ) then
+      /bin/mv -f $Dump/RXDT.EXT $Bld
+      /bin/rm -rf $Dump
+      endif
+   endif
+
+ setenv CVSROOT $ProjArc
+
+ set ICL_CONST = $Include
+ set ICL_MECH  = $Bld
+
+ cat >! $CFG.bld << E+O+X
+
+ model $MODEL;
+
+// cpp_flags  "";
+
+ f77_flags  "$F_FLAGS";
+
+ link_flags "$LINK_FLAGS";
+
+ libraries  "$LIBS";
+
+ global $Opt;
+
+ include SUBST_CONST       $ICL_CONST/CONST.EXT;
+ include SUBST_RXCMMN      $ICL_MECH/RXCM.EXT;
+ include SUBST_RXDATA      $ICL_MECH/RXDT.EXT;
+
+ $ModDriver
+
+E+O+X
+
+ $Blder $MakeOpt $CFG.bld
+ if ($status != 0) then
+    echo "   *** failure in $Blder ***"
+    exit(1)
+    endif
+ if (($Opt != no_compile) && \
+     ($Opt != no_link   ) && \
+     ($Opt != parse_only) && \
+     ($Opt != show_only )) then
+    mv $MODEL $Base
+    if ( -e "$Base/$CFG") then
+       echo "   >>> previous $CFG exists, re-naming to $CFG.old <<<"
+       unalias mv
+       mv $Base/$CFG $Base/$CFG.old
+       endif
+    cp $CFG.bld $Base/$CFG
+    endif
+
+ exit()

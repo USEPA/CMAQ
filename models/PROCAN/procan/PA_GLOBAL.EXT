@@ -1,0 +1,97 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/PROCAN/src/driver/pa/PA_GLOBAL.EXT,v 1.6 2011/11/02 14:33:54 yoj Exp $
+
+C......................................................................
+C INCLUDE FILE: PA_GLOBAL.EXT
+ 
+C Contains: Mech and Grid data used in the Process Analysis Control Program
+ 
+C Dependent Upon: Nothing
+ 
+C Revision History:
+C  Prototype created by Jerry Gipson, May, 1997
+C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
+C  Modified May 2002 by Jerry Gipson to increase number of products (for saprc99)
+C  Aug 2011 Jeff Young: Removed domain data
+  
+C......................................................................
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Dimensioning parameters for species and mechanism data
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      INTEGER, PARAMETER :: MXSPEC = 1000 ! Maximum number of species in mechanism
+      
+      INTEGER, PARAMETER :: MXALLSPC = 4 * MXSPEC + 1
+
+      INTEGER, PARAMETER :: MXRXNS = 8000 ! Maximum number of Reactions in mechanism
+      
+      INTEGER, PARAMETER :: MXPRD = 50 ! Maximum number of Products in a reaction
+
+      INTEGER, PARAMETER :: MXRPP = MXPRD + 3 ! Maximum number of Products and reactants
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Declarations for species and mechanism data
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      CHARACTER( 16 ) :: RXLABEL( MXRXNS )    ! Reaction labels
+      CHARACTER( 16 ) :: AE_SPC ( MXSPEC )    ! Aerosol pecies names
+      CHARACTER( 16 ) :: GC_SPC ( MXSPEC )    ! Gas-phase species names
+      CHARACTER( 16 ) :: NR_SPC ( MXSPEC )    ! Nonreactive species names
+      CHARACTER( 16 ) :: TR_SPC ( MXSPEC )    ! Tracer species names
+      CHARACTER( 16 ) :: SPC_NAME( MXALLSPC ) ! Names of all species
+
+      INTEGER N_SPC      ! Total number of species
+      INTEGER N_AE_SPC   ! Number of aerosol species
+      INTEGER N_GC_SPC   ! Number of gas-phase mechanism species
+      INTEGER N_NR_SPC   ! Number of non-reactive species
+      INTEGER N_TR_SPC   ! Number of tracer species
+      INTEGER NRXNS      ! Number of mechanism reactions
+       
+      INTEGER IRXBITS( MXRXNS ) ! Bit test vector for selected reactions
+      INTEGER NREACT ( MXRXNS ) ! Number of reactants in each reaction
+      INTEGER NPRDCT ( MXRXNS ) ! Number of products in each reaction 
+
+      INTEGER :: IRR( MXRXNS,MXRPP )  ! Pointer to reactants and products
+      REAL    :: SC ( MXRXNS,MXPRD )  ! Stoichiometric coefficients     
+     
+      COMMON /SPCCHR/ RXLABEL,
+     &                N_SPC,
+     &                GC_SPC,
+     &                AE_SPC,
+     &                NR_SPC,
+     &                TR_SPC
+
+      COMMON /SPCINT/ SPC_NAME,
+     &                N_GC_SPC,
+     &                N_AE_SPC,
+     &                N_NR_SPC,
+     &                N_TR_SPC,
+     &                NRXNS,
+     &                IRXBITS,
+     &                NREACT,
+     &                NPRDCT,
+     &                IRR
+                     
+      COMMON /SPCREAL/ SC 
+                           
+C............................ end PA_GLOBAL.EXT .........................
+ 
