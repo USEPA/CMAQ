@@ -1,0 +1,69 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/work/rep/TOOLS/src/mcip2arl/cspanf.f,v 1.1.1.1 2006/09/19 15:04:17 sjr Exp $
+
+      REAL FUNCTION CSPANF (VALUE, BEGIN, END)
+!*  WRITTEN ON 3/31/94 BY Dr. Albion Taylor  NOAA / OAR / ARL
+!* REAL FUNCTION CSPANF RETURNS A VALUE IN THE INTERVAL (BEGIN,END]
+!* WHICH IS EQUIVALENT TO VALUE, MOD (END - BEGIN).  IT IS USED TO
+!* REDUCE PERIODIC VARIABLES TO A STANDARD RANGE.  IT ADJUSTS FOR THE
+!* BEHAVIOR OF THE MOD FUNCTION WHICH PROVIDES POSITIVE RESULTS FOR
+!* POSITIVE INPUT, AND NEGATIVE RESULTS FOR NEGATIVE INPUT
+!* INPUT:
+!*       VALUE - REAL NUMBER TO BE REDUCED TO THE SPAN
+!*       BEGIN - FIRST VALUE OF THE SPAN
+!*       END   - LAST VALUE OF THE SPAN
+!* RETURNS:
+!*       THE REDUCED VALUE
+!* EXAMPLES:
+!*      ALONG = CSPANF(XLONG, -180., +180.)
+!*      DIR  = CSPANF(ANGLE, 0., 360.)
+      REAL FIRST,LAST
+      FIRST = MIN(BEGIN,END)
+      LAST = MAX(BEGIN,END)
+      VAL = MOD( VALUE - FIRST , LAST - FIRST)
+      IF (VAL.LE.0.) THEN
+        CSPANF = VAL + LAST
+      ELSE
+        CSPANF = VAL + FIRST
+      ENDIF
+      RETURN
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

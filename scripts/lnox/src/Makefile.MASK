@@ -1,0 +1,27 @@
+# make file to build mask program
+
+PROGRAM = MASK_IOAPI
+IOAPI = $(M3HOME)/lib/x86_64/ifort/ioapi_3.1/Linux2_x86_64ifort
+NETCDF = $(M3HOME)/lib/x86_64/ifort/netcdf
+
+# Include file subsitution definitions
+INCLUDES =  \
+
+FC_FLAGS = -c -extend_source -I $(IOAPI)
+
+FC=ifort
+
+LIBRARIES = -L $(IOAPI) -lioapi \
+	    -L $(NETCDF)/lib -lnetcdf
+
+OBJS = \
+ $(PROGRAM).o
+
+
+$(PROGRAM):  $(OBJS)
+	$(FC) -i-static $(OBJS) $(LIBRARIES)  -o $(PROGRAM)
+
+.F.o:
+	$(FC) $(FC_FLAGS) $<
+
+

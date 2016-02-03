@@ -1,0 +1,75 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# makefile to build the MCIP2ARL program
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/TOOLS/src/mcip2arl/Makefile,v 1.1.1.1 2006/09/19 15:04:17 sjr Exp $ 
+
+PROGRAM = MCIP2ARL
+
+INC     = /share/linux/ioapi30_pg/include/free
+
+FC = pgf90
+FC_FLAGS = -c -tp px -Mfree -Mextend -Mbounds -I$(INC)
+
+LIBRARIES = -L /share/linux/ioapi30_pg/lib -lioapi \
+            -L /share/linux/netcdf_3.5/lib -lnetcdf 
+
+OBJS=setgrid.o \
+ crs2dot.o \
+ mcip2arl.o \
+ pakset.o \
+ pakrec.o \
+ pakndx.o \
+ pakini.o \
+ pakout.o \
+ stlmbr.o \
+ stcm2p.o \
+ cxy2ll.o \
+ cspanf.o \
+ cnllxy.o \
+ cll2xy.o \
+ cnxyll.o \
+ eqvlat.o
+
+$(PROGRAM):  $(OBJS)
+	$(FC) $(OBJS) $(LIBRARIES) -o $(PROGRAM)
+
+.f.o:
+	$(FC) $(FC_FLAGS) $<
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

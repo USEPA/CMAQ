@@ -1,0 +1,116 @@
+#! /bin/csh -f
+
+# ===================== JPROCv5.0.1 Run Script ====================== #
+# Usage: run.jproc >&! jproc_V5.log &                                 #
+# The following environment variables must be set for this script to  #
+# execute properly:                                                   #
+#   setenv M3DATA =  source code CVS archive                          #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the run environment
+ source ../config.cmaq
+
+#> Check that M3DATA is set: 
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL  = V5g
+ set CFG   = CMAQ-BENCHMARK
+ set EXEC  = JPROC_${APPL}_$EXECID
+
+#> Set the working directory:
+ set BASE  = $cwd
+ cd $BASE; date; set timestamp; cat $BASE/cfg.${APPL}; echo " "; set echo
+ set BLD  = $BASE/BLD_${APPL} 
+
+# the parameters for this run - produces one file per day
+
+ set STDATE   = 2006213            # the beginning day for this run
+ set ENDATE   = 2006213            # the ending day
+
+# input files and directories
+
+ set CSQYpath   = $M3DATA/raw/phot  # CSQY input data
+ set PROFpath   = $M3DATA/raw/phot  # PROF input data
+ set ETpath     = $M3DATA/raw/phot  # ET input data
+ set TOMSpath   = $M3DATA/raw/phot  # TOMS input data
+
+ set ETfile    = ETirradiance.dat
+ set PROFfile  = PROFILES.dat
+ set O2ABSfile = O2_JPL06-2
+ set O3ABSfile = O3O1D_JPL06-2
+ set TOMSfile  = not_available
+
+# output directory
+ set OUTDIR   = $M3DATA/jproc
+ if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+
+#  setenv for input files
+
+ setenv ET        $ETpath/$ETfile
+ setenv PROFILES  $PROFpath/$PROFfile
+ setenv TOMS      $TOMSpath/$TOMSfile
+ setenv O2ABS     $CSQYpath/$O2ABSfile
+ setenv O3ABS     $CSQYpath/$O3ABSfile
+ setenv CSQY      $CSQYpath
+
+# check ET input file
+
+ if (! ( -e $ET ) ) then
+    echo " $ET not found "
+    exit
+    endif
+
+# check profile input file
+
+ if (! ( -e $PROFILES ) ) then
+    echo " $PROFILES not found "
+    exit
+    endif
+
+# check TOMS input file
+
+ setenv JPROC_TOMSEXIST  N  # Assume TOMS data file does not exist for this run
+ if ( -e $TOMS ) then
+    setenv JPROC_TOMSEXIST  Y
+    endif
+
+# check O2 absorption input file
+
+ if (! ( -e $O2ABS ) ) then
+    echo " $O2ABS not found "
+    exit
+    endif
+
+# check O3 absorption input file
+
+ if (! ( -e $O3ABS ) ) then
+    echo " $O3ABS not found "
+    exit
+    endif
+
+ env
+
+ ls -l $BLD/$EXEC
+
+ unalias rm
+ 
+ @ Date = $STDATE
+ while ( $Date <= $ENDATE )         # Loop thru all the days to run
+    setenv JPROC_STDATE $Date
+    echo "   Running for $Date ..."
+    set JVfile = JTABLE_${Date}     # Daily output file name
+    setenv JVALUES $OUTDIR/$JVfile
+    if ( -e $JVALUES ) rm $JVALUES  # Remove existing output file
+
+#   Executable call:
+    $BASE/$EXEC
+    @ Date++
+    end
+
+ exit() 

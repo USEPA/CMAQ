@@ -1,0 +1,1143 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2012.04.19.19.46.09;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.46.09;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@!-----------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in    !
+!  continuous development by various groups and is based on information !
+!  from these groups: Federal Government employees, contractors working !
+!  within a United States Government contract, and non-Federal sources  !
+!  including research institutions.  These groups give the Government   !
+!  permission to use, prepare derivative works of, and distribute copies!
+!  of their work in the CMAQ system to the public and to permit others  !
+!  to do so.  The United States Environmental Protection Agency         !
+!  therefore grants similar permission to use the CMAQ system software, !
+!  but users are requested to provide copies of derivative works or     !
+!  products designed to operate in the CMAQ system to the United States !
+!  Government without restrictions as to use by others.  Software       !
+!  that is used with the CMAQ system but distributed under the GNU      !
+!  General Public License or the GNU Lesser General Public License is   !
+!  subject to their copyright restrictions.                             !
+!-----------------------------------------------------------------------!
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BUILD/src/bldmake/cfg_module.F,v 1.6 2012/04/11 13:38:26 sjr Exp $
+
+C*********************************************************************************
+C   Module containing config data for model builder
+C
+C*********************************************************************************
+      Module ModelCfg
+
+      ! parameters
+      Integer, parameter :: REC_LEN = 2048
+      Integer, parameter :: FLD_LEN = 1024
+      Integer, parameter :: FIL_LEN = 512
+      Integer, parameter :: MAX_FLD = 100
+      Integer, parameter :: MAX_ICL = 100
+      Integer, parameter :: MAX_MOD = 100
+      Integer, parameter :: MAX_FILES = 100
+
+      Character(1), parameter :: backslash = '\\'
+
+      ! source file extensions
+      Character(4), parameter :: extension(5) = (/ '.F  ', '.f  ', '.c  ', '.F90', '.f90' /)
+
+      !!! User derfined types for storing CFG data
+
+      Type file_type
+         Character( FIL_LEN )  :: name             ! file name
+         Character( FIL_LEN )  :: path             ! path name
+         Character( 32 )       :: mod_name         ! fortran module name
+         Character( FLD_LEN )  :: uses             ! fortran use names
+         Logical               :: global_module    ! fortran module used in other modules
+      End Type file_type
+
+      Type module_type
+         Character( 32 )   :: name             ! module name
+         Character( 32 )   :: version          ! archive version
+         Integer           :: nfiles           ! Number of files in module
+         Type( file_type ) :: file(MAX_FILES)  ! module files
+      End Type module_type
+
+      Type include_type
+         Character( 32 )      :: name     ! include name
+         Character( FLD_LEN)  :: path     ! include path
+         Character( FLD_LEN)  :: path2    ! include path with macros
+      End Type include_type
+
+
+      ! Global flags
+      Logical         :: verbose
+      Logical         :: debug
+      Logical         :: checkout
+      Logical         :: make     ! only create Makefile
+
+      ! CVSROOT value
+      Character*(FIL_LEN) cvsroot
+
+      ! Current System Date
+      Character*(20)  :: currentDate
+
+      ! Model name
+      Character(32)   :: model
+
+      ! search path for source files
+      Character(FLD_LEN)  :: VPATH=' '
+
+      ! Compilers and flags
+      Character(FIL_LEN)  :: f_compiler      !! Fortran compiler
+      Character(FIL_LEN)  :: f_flags         !! .f
+      Character(FIL_LEN)  :: Fflags          !! .F
+      Character(FIL_LEN)  :: f90_flags       !! .f90
+      Character(FIL_LEN)  :: F90flags        !! .F90
+
+      Character(FIL_LEN)  :: c_compiler      !! c compiler
+      Character(FIL_LEN)  :: c_flags
+
+      Character(FIL_LEN)  :: cpp             !! pre_compiler
+      Character(FLD_LEN)  :: cpp_flags
+
+      ! Linker
+      Character(FIL_LEN)  :: linker
+      Character(FLD_LEN)  :: link_flags
+
+      ! Includes
+      Integer              ::  n_includes
+      Type( include_type ) :: include(MAX_ICL)
+
+      ! Modules
+      Integer         ::  n_modules
+      Type( module_type ) :: module(MAX_MOD)
+
+      ! Libraries
+      Character(FLD_LEN)  :: libraries
+
+      ! misc module number for local files
+      Integer         ::  miscMod
+
+      contains
+
+
+C*********************************************************************************
+C    Reader routine for cfg file
+C*********************************************************************************
+      Subroutine readCFG( lfn )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+
+      ! functions
+      Integer getNumberOfFields
+
+      ! local variables
+      Integer            :: status
+      Character(REC_LEN) :: record
+      Character(REC_LEN) :: nextrecord
+      Character(FLD_LEN) :: field
+      Character(FLD_LEN) :: key
+      Character(FLD_LEN) :: fields(MAX_FLD)
+      Character(FLD_LEN) :: fortran
+      Integer            :: nfields
+      Integer            :: n
+      Integer            :: i
+      Integer            :: reclen
+
+      n_includes = 0
+      n_modules = 0
+      miscMod = 0
+
+      model = 'a.out'
+
+      f_compiler = 'ifort'
+      c_compiler = 'cc'
+      cpp = ' '
+      linker = ' '
+
+      f_flags = ' '
+      fflags = ' '
+      f90_flags = ' '
+      f90flags = ' '
+
+      c_flags = ' '
+      cpp_flags = ' '
+      link_flags = ' '
+
+      do
+        Read(lfn,'(a)',iostat=status) record
+        if( status .ne. 0 ) EXIT
+
+        ! check for blank line
+        if( record .eq. ' ' ) CYCLE
+
+        ! check for comment line
+        if( index( '!/', record(1:1) ) .gt. 0 ) CYCLE
+
+        ! append any continuation records
+        do
+          ! check for ';' character
+          if( index( record, ';' ) .gt. 0 ) then
+            reclen = index( record, ';' )
+            record = record(1:reclen-1)
+            EXIT
+            endif
+
+          Read( lfn, '(a)', IOSTAT=status ) nextrecord
+          if( status.ne.0 ) then
+            Write(*,'(''**ERROR** EOF reading continuation record'')')
+            EXIT
+            endif
+
+          Call LeftTrim( nextrecord )
+
+          ! check for record length exceeded
+          if( (LEN_TRIM(record) + LEN_TRIM(nextrecord)) .ge. (LEN(record)) ) then
+            Write(*,'(//,''**ERROR** The maximum record length exceeded'')')
+            Write(*,'(''  Maximum length ='',i8)') LEN(record)
+            Write(*,'(''  Record length = '',i8)') LEN_TRIM(record) + LEN_TRIM(nextrecord)
+            Stop
+            endif
+
+          ! append NEXTRECORD to record
+          record = TRIM(record) // ' ' // TRIM(nextrecord)
+
+          enddo
+
+        if( debug ) then
+          Write(*,'(''Parsing record:'',a)') TRIM(record)
+          endif
+
+        ! replace tabs with spases
+        Call replace( record, char(9), char(32), .false. )
+
+        ! replace spaces with tabs within quot marks
+        Call replace( record, char(32), char(9), .true. )
+
+        ! parse fields by spaces
+        nfields = getNumberOfFields( record, ' ' )
+        if( nfields .gt. SIZE(fields) ) nfields = SIZE(fields)
+        fields = ' '
+
+        do n = 1, nfields
+          Call getField( record, ' ', n, field )
+          Call replace( field, char(9), char(32), .false. )
+          Call rmQuots( field )
+          fields(n) = field
+          enddo
+
+        ! set key to upper case of field 1
+        key = fields(1)
+        Call UCASE( key )
+
+
+        if( key .eq. 'MODEL' ) then
+          model = fields(2)
+          if( verbose ) Write(*,'(''Model set to '',a)') TRIM(model)
+          CYCLE
+          endif
+
+        !! check for Fortran compilers
+        if( key .eq. 'F_COMPILER' ) then
+          f_compiler = fields(2)
+          if( verbose ) Write(*,'(''F_COMPILER set to '',a)') TRIM(f_compiler)
+          CYCLE
+          endif
+
+        if( key .eq. 'F_FLAGS' .and. fields(1)(1:1).eq.'f' ) then
+          f_flags = fields(2)
+          if( verbose ) Write(*,'(''f_FLAGS set to '',a)') TRIM(f_flags)
+          CYCLE
+          endif
+
+        if( key .eq. 'F_FLAGS' .and. fields(1)(1:1).eq.'F' ) then
+          Fflags = fields(2)
+          if( verbose ) Write(*,'(''F_FLAGS set to '',a)') TRIM(Fflags)
+          CYCLE
+          endif
+
+        if( key .eq. 'F90_FLAGS' .and. fields(1)(1:1).eq.'f' ) then
+          f90_flags = fields(2)
+          if( verbose ) Write(*,'(''f90_FLAGS set to '',a)') TRIM(f90_flags)
+          CYCLE
+          endif
+
+        if( key .eq. 'F90_FLAGS' .and. fields(1)(1:1).eq.'F' ) then
+          F90flags = fields(2)
+          if( verbose ) Write(*,'(''F90_FLAGS set to '',a)') TRIM(F90flags)
+          CYCLE
+          endif
+
+        !! check for c compiler
+        if( key .eq. 'C_COMPILER' ) then
+          c_compiler = fields(2)
+          if( verbose ) Write(*,'(''C_COMPILER set to '',a)') TRIM(c_compiler)
+          CYCLE
+          endif
+
+        if( key .eq. 'C_FLAGS' ) then
+          c_flags = fields(2)
+          if( verbose ) Write(*,'(''C_FLAGS set to '',a)') TRIM(c_flags)
+          CYCLE
+          endif
+
+        if( key .eq. 'CPP' ) then
+          cpp = fields(2)
+          if( verbose ) Write(*,'(''CPP set to '',a)') TRIM(cpp)
+          CYCLE
+          endif
+
+        if( key .eq. 'CPP_FLAGS' ) then
+          cpp_flags = fields(2)
+          if( verbose ) Write(*,'(''CPP_FLAGS set to '',a)') TRIM(cpp_flags)
+          CYCLE
+          endif
+
+        if( key .eq. 'LINKER' ) then
+          linker = fields(2)
+          if( verbose ) Write(*,'(''LINKER set to '',a)') TRIM(linker)
+          CYCLE
+          endif
+
+        if( key .eq. 'LINK_FLAGS' ) then
+          link_flags = fields(2)
+          if( verbose ) Write(*,'(''LINK_FLAGS set to '',a)') TRIM(link_flags)
+          CYCLE
+          endif
+
+        if( key .eq. 'LIBRARIES' ) then
+          libraries = fields(2)
+          if( verbose ) Write(*,'(''LIBRARIES set to '',a)') TRIM(libraries)
+          CYCLE
+          endif
+
+        if( key .eq. 'INCLUDE' ) then
+          n_includes = n_includes + 1
+          include( n_includes )%name = fields(2)
+          include( n_includes )%path = fields(3)
+          if( verbose ) Write(*,'(''INCLUDE '',a,'' = '',a)') TRIM(fields(2)), TRIM(fields(3))
+          CYCLE
+          endif
+
+        if( key .eq. 'MODULE' ) then
+          n_modules = n_modules + 1
+          module( n_modules )%name = fields(2)
+          module( n_modules )%version = 'HEAD'
+          if( LEN_TRIM( fields(3) ) .gt. 0 ) then
+            if( fields(3) .ne. 'release' )  module( n_modules )%version = fields(3)
+            endif
+          CYCLE
+          endif
+
+        if( key .eq. 'MISC' ) then
+          if( miscMod.eq.0 ) then   !! add MISC module for local files
+            n_modules = n_modules + 1
+            miscMod = n_modules
+            module( miscMod )%name = 'MISC'
+            module( miscMod )%version = 'LOCAL'
+            module( miscMod )%nfiles = 0
+            endif
+
+          do i = 2, nfields
+            module( miscMod )%nfiles = module( miscMod )%nfiles + 1
+            if( module( miscMod )%nfiles .gt. MAX_FILES ) then
+              Write(*,'(/''**ERROR** Number of MISC files exceed Maximum'')')
+              Stop
+              endif
+
+            module( miscMod )%file( module( miscMod )%nfiles )%name = fields(i)
+            enddo
+
+          CYCLE
+          endif
+
+        !! invalid key
+        if( debug ) then
+          Write(*,'(/''**Warning** input key:'',a)') TRIM(key)
+          Write(*,'(''  on record:'',a)') TRIM(record)
+          endif
+
+        enddo  ! read loop
+
+      !! set defaults
+
+      if( debug .and. linker .eq. ' ' ) then
+        Write(*,'(/''**Warning** LINKER not defined, using [F_COMPILER]'')')
+        endif
+      if( linker .eq. ' ' ) linker = f_compiler
+
+      if( debug .and. cpp .eq. ' ' ) then
+        Write(*,'(/''**Warning** CPP not defined, using [F_COMPILER]'')')
+        endif
+      if( cpp .eq. ' ' )  cpp = f_compiler
+
+      if( debug .and. Fflags .eq. ' ' ) then
+        Write(*,'(/''**Warning** F_FLAGS not defined, using [f_FLAGS]'')')
+        endif
+      if( Fflags .eq. ' ' ) Fflags = f_flags
+
+      if( debug .and. F90flags .eq. ' ' ) then
+        Write(*,'(/''**Warning** F90_FLAGS not defined, using [f90_FLAGS]'')')
+        endif
+      if( F90flags .eq. ' ' )  F90flags = f90_flags
+
+      return
+      end Subroutine ReadCFG
+
+
+C*********************************************************************************
+C    Prints Help page for Config-file format
+C*********************************************************************************
+      Subroutine cfgHelp( )
+
+      IMPLICIT NONE
+
+      Write(*,'(/,''   ***** BLDMAKE Configuration file Format *****'',/)')
+
+      Write(*,'(/,''       Keys                       Arguments'')')
+      Write(*,'(  ''  ---------------  --------------------------------------------'')')
+
+      Write(*,'(  ''   Model           (Model Executable Name)                     '')')
+
+      Write(*,'(/,''   F_Compiler      (Fortran Compiler)                          '')')
+      Write(*,'(  ''   F_FLAGS         (Fortran Compiler options for .F sources)   '')')
+      Write(*,'(  ''   f_FLAGS         (Fortran Compiler options for .f sources)   '')')
+      Write(*,'(  ''   F90_FLAGS       (Fortran Compiler options for .F90 sources) '')')
+      Write(*,'(  ''   f90_FLAGS       (Fortran Compiler options for .f90 sources) '')')
+
+      Write(*,'(/,''   C_Compiler      (C Compiler)                                '')')
+      Write(*,'(  ''   C_FLAGS         (C Compiler options for .c sources)         '')')
+
+      Write(*,'(/,''   CPP             (Pre-Compiler)                              '')')
+      Write(*,'(  ''   CPP_FLAGS       (Pre-Compiler options)                      '')')
+
+      Write(*,'(/,''   LINKER          (Linker)                                    '')')
+      Write(*,'(  ''   LINK_FLAGS      (Linker options)                            '')')
+
+      Write(*,'(/,''   LIBRARIES       (Libraries in "-L/-l" format)               '')')
+
+      Write(*,'(/,''   INCLUDE         (Include Subsitution Name) (File)           '')')
+
+      Write(*,'(/,''   Module          (CVS Module Name) [Version]                 '')')
+
+      Write(*,'(/,''   MISC            (Local source files)                        '')')
+
+      Write(*,'(//)')
+
+      return
+      end Subroutine cfgHelp
+
+C*********************************************************************************
+C    Export files from each module and store its files in list
+C*********************************************************************************
+      Subroutine export( status )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer          :: status
+
+      ! functions
+      Integer system
+      Integer getNumberOfFields
+
+      ! local variables
+      Integer            :: lfn
+      Integer            :: n
+      Integer            :: i
+      Integer            :: npaths
+      Character(FLD_LEN) :: scrfile
+      Character(REC_LEN) :: record
+      Character(FLD_LEN) :: path
+      Character(FLD_LEN) :: toFile
+      Character(FLD_LEN) :: cmdline
+
+      lfn = 25
+
+      ! loop thru each module and extract its files
+      do n = 1, n_modules
+        if( n.eq.miscMod ) CYCLE   !! skip MISC module
+
+        if( debug .or. verbose ) then
+          Write(*,'(//,''Exporting module '',a)') TRIM(module(n)%name)
+          endif
+
+        ! remove old module directory
+        Call rmdir( module(n)%name, status )
+
+        write(cmdline,'(''cvs -d ${CVSROOT} -r export -r '',a,'' -d '',a,1x,a)')
+     &             TRIM(module(n)%version), TRIM(module(n)%name), TRIM(module(n)%name)
+
+        ! create filename for scratch file
+        Call getSCRNAME( scrfile )
+
+        ! run export command using system function
+        status = system( TRIM(cmdline) // ' > ' // TRIM(scrfile) )
+        if( status.ne.0 ) then
+          Write(*,'(''**ERROR** while running CSV export command'',/)')
+          Stop
+          endif
+
+        ! open scratch file to capture checkout results
+        Open(unit=lfn, FILE=scrfile, iostat=status)
+        if( status.ne.0 ) then
+          Write(*,'(''**ERROR** cannot open scratch file to capture checkout results'',/)')
+          Stop
+          endif
+
+        ! run export command using system function
+        ! remove any existing files from list
+        module(n)%nfiles = 0
+        module(n)%file = file_type(' ',' ',' ',' ',.false.)
+
+        ! read each output record and parse to obtain file name
+        do
+          read(lfn,'(a)',iostat=status) record
+          if( status.ne.0 ) EXIT
+
+          ! get file name from second field in line
+          Call getField( record, ' ', 2, path )
+
+          ! get file name from path
+          module(n)%nfiles = module(n)%nfiles + 1
+          Call getField( path, '/', 2, module(n)%file(module(n)%nfiles)%name )
+
+          if( debug .or. verbose ) then
+            Write(*,'(''  file '',a,'' extracted'')') TRIM(module(n)%file(module(n)%nfiles)%name)
+            endif
+
+          ! copy file to current directory
+          call copyfile( path, module(n)%file(module(n)%nfiles)%name, status )
+
+          ! change file permissions to 444
+          call chmod( module(n)%file(module(n)%nfiles)%name, '444', status )
+
+          ! set file path to name
+          module(n)%file(module(n)%nfiles)%path = module(n)%file(module(n)%nfiles)%name
+
+          enddo
+
+        ! remove module directory
+        Call rmdir( module(n)%name, status )
+
+        ! close and delete command output file
+        close(unit=lfn, status='delete')
+        end do     ! end of module loop
+
+      !! copy MISC files to local directory
+      if( miscMod.ne.0 ) then
+        do n = 1, module(miscMod)%nfiles
+
+          ! copy misc file to current directory
+          path = module(miscMod)%file(n)%name
+          npaths = getNumberOfFields( path,'/' )
+          Call getField( path, '/', npaths, toFile )
+          Call copyfile( path, toFile, status )
+          module(miscMod)%file(n)%name = toFile
+          module(miscMod)%file(n)%path = toFile
+
+          ! if file replaces an extracted file, then add 'replaced' to extracted file name
+          Call rename( toFile, TRIM(toFile) // '.replace', path )
+
+          enddo
+        endif      !! miscMod condition
+
+      !! set mod_name and uses for each source file
+      do n = 1, n_modules
+        Call findMods( module(n) )
+        enddo
+
+      !! find and set global modules
+      Call findGlobal()
+
+      status = 0
+      return
+      end Subroutine export
+
+
+
+C*********************************************************************************
+C    get filename of Fortran module
+C*********************************************************************************
+      Subroutine getModFile( modName, modFile )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Character*(*)    :: modName
+      Character*(*)    :: modFile
+
+      ! local variables
+      Integer n
+      Integer i
+
+
+      modFile = ''
+
+      do n = 1, n_modules
+        do i = 1, module(n)%nfiles
+          if( modName .eq. module(n)%file(i)%mod_name ) then
+            modFile = module(n)%file(i)%name
+            return
+            endif
+          enddo
+        enddo
+
+      return
+      end Subroutine getModFile
+
+
+
+C*********************************************************************************
+C    Checkout files from each module and store its files in list
+C*********************************************************************************
+      Subroutine co_module( status )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer          :: status
+
+      ! functions
+      Integer system
+      Integer getNumberOfFields
+
+      ! local variables
+      Integer            :: lfn
+      Integer            :: n
+      Integer            :: i
+      Integer            :: npaths
+      Integer            :: pos
+      Character(FLD_LEN) :: scrfile
+      Character(REC_LEN) :: record
+      Character(FLD_LEN) :: path
+      Character(FLD_LEN) :: toFile
+      Character(FLD_LEN) :: cmdline
+
+      lfn = 25
+
+      VPATH = '.:'
+
+      ! loop thru each module and extract its files
+      do n = 1, n_modules
+        if( n.eq.miscMod ) CYCLE   !! skip MISC module
+
+        if( debug .or. verbose ) then
+          Write(*,'(//,''Checking out module '',a)') TRIM(module(n)%name)
+          endif
+
+        ! remove old module directory
+        Call rmdir( module(n)%name, status )
+
+        write(cmdline,'(''cvs -d ${CVSROOT} checkout -r '',a,1x,a)')
+     &             TRIM(module(n)%version), TRIM(module(n)%name)
+
+        ! create filename for scratch file
+        Call getSCRNAME( scrfile )
+
+        ! run export command using system function
+        status = system( TRIM(cmdline) // ' > ' // TRIM(scrfile) )
+        if( status.ne.0 ) then
+          Write(*,'(''**ERROR** while running CSV export command'',/)')
+          Stop
+          endif
+
+        ! open scratch file to capture checkout results
+        Open(unit=lfn, file=scrfile, iostat=status)
+        if( status.ne.0 ) then
+          Write(*,'(''**ERROR** cannot open scratch file to capture checkout results''/)')
+          Stop
+          endif
+
+        ! remove any existing files from list
+        module(n)%nfiles = 0
+        module(n)%file = file_type(' ',' ',' ',' ',.false.)
+
+        ! read each output record and parse to obtain file name
+        do
+          read(lfn,'(a)',iostat=status) record
+          if( status.ne.0 ) EXIT
+
+          module(n)%nfiles = module(n)%nfiles + 1
+
+          ! get file path from second field in line
+          Call getField( record, ' ', 2, path )
+          module(n)%file(module(n)%nfiles)%path = path
+
+          ! get file name from path
+          pos = INDEX(path, '/', .true.)
+          module(n)%file(module(n)%nfiles)%name = path(pos+1:)
+          if( pos.gt.0 ) path = path(1:pos-1)
+
+          ! add file path to VPATH string if new
+          path = TRIM(path) // ':'
+          if( INDEX(VPATH, ':' // TRIM(path)) .LE. 0 ) VPATH = TRIM(VPATH) // TRIM(path)
+
+          if( debug .or. verbose ) then
+            Write(*,'(''  file '',a,'' checked out'')') TRIM(module(n)%file(module(n)%nfiles)%path)
+            endif
+
+          enddo
+
+        ! close and delete command output file
+        close(unit=lfn, status='delete')
+        end do     ! end of module loop
+
+      !! copy MISC files to local directory
+      if( miscMod.ne.0 ) then
+        do n = 1, module(miscMod)%nfiles
+
+          ! copy misc file to current directory
+          path = module(miscMod)%file(n)%name
+          npaths = getNumberOfFields( path,'/' )
+          Call getField( path, '/', npaths, toFile )
+          Call copyfile( path, toFile, status )
+          module(miscMod)%file(n)%name = toFile
+          module(miscMod)%file(n)%path = toFile
+
+          ! if file replaces an extracted file, then add 'replaced' to extracted file name
+          Call rename( toFile, TRIM(toFile) // '.replace', path )
+
+          enddo
+        endif      !! miscMod condition
+
+      !! set mod_name and uses for each source file
+      do n = 1, n_modules
+        Call findMods( module(n) )
+        enddo
+
+      !! find and set global modules
+      Call findGlobal()
+
+      status = 0
+      return
+      end Subroutine co_module
+
+
+
+C*********************************************************************************
+C    rename filename in module list
+C*********************************************************************************
+      Subroutine rename( oldName, newName, path )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Character*(*)       :: oldName
+      Character*(*)       :: newName
+      Character*(*)       :: path
+
+      ! local variables
+      Integer            :: n
+      Integer            :: i
+
+      do n = 1, n_modules
+        if( n.eq.miscMod ) CYCLE
+
+        do i = 1, module(n)%nfiles
+          if( module(n)%file(i)%name .eq. oldName ) then
+            module(n)%file(i)%name = TRIM(newName)
+            module(n)%file(i)%path = TRIM( module(n)%file(i)%path ) // '.replaced'
+            Write(*,'(''replacing file ['',a,'':'',a,''] with '',a)')
+     &         TRIM(module(n)%name), TRIM(oldName), TRIM(path)
+            endif
+          enddo  !! file loop
+        enddo     !! module loop
+
+      return
+      end Subroutine rename
+
+
+C*********************************************************************************
+C    Idenify module and use statements in source files
+C*********************************************************************************
+      Subroutine findMods( srcModule )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Type( module_type ) :: srcModule
+
+      ! local variables
+      Integer            :: status
+      Integer            :: lfn
+      Logical            :: isSrc
+      Character(REC_LEN) :: record
+      Character(FLD_LEN) :: field
+      Integer            :: n
+      Integer            :: i
+
+      lfn = 25
+
+      ! loop thru files and search for Module and use statements
+      do n=1,srcModule%nfiles
+
+        ! check if file is a source file
+        isSrc = .false.
+        do i=1,SIZE(extension)
+         if( INDEX( srcModule%file(n)%name, extension(i) ) .gt. 0 ) then
+           isSrc = .true.
+           Exit
+           endif
+         enddo
+
+        ! skip if not a source file
+        if( .NOT.isSrc ) CYCLE
+
+        srcModule%file(n)%mod_name = ' '
+        srcModule%file(n)%uses = ':'
+
+        ! open file and scan for MODULE and USE statements
+        open(UNIT=lfn, FILE=srcModule%file(n)%path, STATUS='OLD', IOSTAT=status)
+        if( status .ne. 0 ) then
+          Write(*,'(''**ERROR** Cannot open source file:'',a)') TRIM(srcModule%file(n)%name)
+          Stop
+          endif
+
+        do
+          Read(lfn,'(a)',iostat=status) record
+          if( status .ne. 0 ) EXIT
+
+          Call UCASE( record )
+          Call LeftTrim( record )
+          Call replace( record, ',', ' ', .false. )
+
+          if( record(1:7) .eq. 'MODULE ' ) then
+            Call getField( record, ' ', 2, field )
+            srcModule%file(n)%mod_name = field
+            endif
+
+          if( record(1:4) .eq. 'USE ' ) then
+            Call getField( record, ' ', 2, field )
+
+            !! add modules to uses if not in list
+            if( INDEX( srcModule%file(n)%uses, ':'// TRIM(field) // ':' ) .eq. 0 ) then
+              srcModule%file(n)%uses = TRIM(srcModule%file(n)%uses) // TRIM( field ) // ':'
+              endif
+            endif
+
+          enddo   ! read loop
+
+        close(UNIT=lfn)
+        enddo  !  file loop
+
+      return
+      end Subroutine findMods
+
+
+C*********************************************************************************
+C    find and set global modules
+C*********************************************************************************
+      Subroutine findGlobal()
+
+      IMPLICIT NONE
+
+      ! local variables
+      Character(FLD_LEN) :: modStr
+      Integer            :: m
+      Integer            :: n
+      Integer            :: i
+      Integer            :: j
+      Logical            :: sorted
+
+      if( verbose .or. debug ) then
+        Write(*,'(/,''Determining global module files'')')
+        endif
+
+      ! loop thru each module and check if Module is used in other module
+      do m=1, n_modules
+        do i=1,module(m)%nfiles
+          if( module(m)%file(i)%mod_name .eq. ' ' ) CYCLE
+          modstr = ':' // TRIM(module(m)%file(i)%mod_name) // ':'
+
+          do n=1, n_modules
+            if( n .eq. m ) CYCLE
+            if( module(m)%file(i)%global_module ) EXIT
+
+            do j=1,module(n)%nfiles
+
+              if( INDEX(module(n)%file(j)%uses, TRIM(modstr)) .gt. 0 ) then
+                module(m)%file(i)%global_module = .true.
+                if( verbose .or. debug ) then
+                  Write(*,'(''  file '',a,'' determined to be global'')')
+     &                 TRIM(module(m)%file(i)%name)
+                  endif
+                EXIT
+                endif
+
+              enddo    ! inner file loop (j)
+            enddo    ! inner module loop (n)
+          enddo    ! outer file loop (i)
+        enddo    ! outer module loop (m)
+
+      ! loop thru each module and check if global Module is used
+      do
+        sorted = .true.
+        do m=1, n_modules
+          do i=1,module(m)%nfiles
+            if( module(m)%file(i)%global_module ) then
+              modstr = ':' // TRIM(module(m)%file(i)%mod_name) // ':'
+
+              do n=1, n_modules
+                do j=1,module(n)%nfiles
+                  if( module(n)%file(j)%global_module ) CYCLE
+
+                  modstr = ':' // TRIM(module(n)%file(j)%mod_name) // ':'
+
+                  if( INDEX(module(m)%file(i)%uses, TRIM(modstr)) .gt. 0 ) then
+                    module(n)%file(j)%global_module = .true.
+                    if( verbose .or. debug ) then
+                      Write(*,'(''  file '',a,'' determined to be global'')')
+     &                   TRIM(module(n)%file(j)%name)
+                      endif
+                    sorted = .false.
+                    endif
+
+                  enddo    ! inner file loop (j)
+                enddo    ! inner module loop (n)
+              endif    ! if global module
+            enddo    ! outer file loop (i)
+          enddo    ! outer module loop (m)
+
+         if(sorted) EXIT
+         enddo    ! sort loop
+
+      return
+      end Subroutine findGlobal
+
+
+C*********************************************************************************
+C    Order files so modules comes before use files
+C*********************************************************************************
+      Subroutine orderfiles( srcModule, global, nfiles, filename )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Type (module_type)   :: srcModule
+      Logical              :: global
+      Character(FLD_LEN) :: filename(MAX_FILES)
+      Integer            :: nfiles
+
+      ! local variables
+      Character(FLD_LEN) :: modname(MAX_FILES)
+      Character(FLD_LEN) :: usename(MAX_FILES)
+
+      Character(FLD_LEN) :: filetemp
+      Character(FLD_LEN) :: modtemp
+      Character(FLD_LEN) :: usetemp
+
+      Integer            :: n
+      Integer            :: i
+      Integer            :: m
+      Logical            :: isSrc
+      Logical            :: sorted
+      Integer            :: msort
+      Integer            :: nmodfiles
+
+      ! build list of files to sort
+      nfiles = 0
+
+      ! if global build list from all modules
+      if( global ) then
+        do n=1, n_modules
+          do i =1, module(n)%nfiles
+            if( module(n)%file(i)%global_module ) then
+              nfiles = nfiles + 1
+              filename( nfiles ) = module(n)%file(i)%name
+              modname( nfiles ) = module(n)%file(i)%mod_name
+              usename( nfiles ) = module(n)%file(i)%uses
+              endif
+
+            enddo
+          enddo
+        endif     ! global
+
+      ! if not global, build list from srcModule
+      if( .NOT.global ) then
+        do n =1, srcModule%nfiles
+
+          ! skip if a global_module
+          if( srcModule%file(n)%global_module ) CYCLE
+
+          ! check if file is a source file
+          isSrc = .false.
+          do i=1,SIZE(extension)
+            if( INDEX( srcModule%file(n)%name, extension(i) ) .gt. 0 ) then
+              isSrc = .true.
+              Exit
+              endif
+            enddo
+
+          ! skip if not a source file
+          if( .NOT.isSrc ) CYCLE
+
+          nfiles = nfiles + 1
+          filename( nfiles ) = srcModule%file(n)%name
+          modname( nfiles ) = srcModule%file(n)%mod_name
+          usename( nfiles ) = srcModule%file(n)%uses
+          enddo  !  file loop
+        endif   ! not global
+
+      ! count number of module files
+      nmodfiles = 0
+      do n=1, nfiles
+        if( modname(n) .ne. ' ' ) nmodfiles = nmodfiles + 1
+        enddo
+
+      if( nmodfiles .gt. 0 ) then
+        ! sort file list so modules are at the top
+        msort = nfiles
+        do
+          sorted = .true.
+          msort = msort - 1
+
+          do n = 1, msort
+            if( modname(n).eq.' ' .and. modname(n+1).ne.' ' ) then
+              filetemp = filename(n)
+              modtemp = modname(n)
+              usetemp = usename(n)
+
+              filename(n) = filename(n+1)
+              modname(n) = modname(n+1)
+              usename(n) = usename(n+1)
+
+              filename(n+1) = filetemp
+              modname(n+1) = modtemp
+              usename(n+1) = usetemp
+              sorted = .false.
+              endif
+            enddo
+
+          if( sorted ) EXIT
+          enddo    ! end of sort loop to put modules at top
+
+        ! sort module files where modules are before uses
+        do
+          sorted = .true.
+
+          do n = 1, nmodfiles-1       ! use name loop
+            do m = n+1, nmodfiles     ! module name loop
+
+              modtemp = ':' // TRIM(modname(m)) // ':'
+
+              if( INDEX(usename(n), TRIM(modtemp)) .gt. 0 ) then
+                filetemp = filename(n)
+                modtemp = modname(n)
+                usetemp = usename(n)
+
+                filename(n) = filename(m)
+                modname(n) = modname(m)
+                usename(n) = usename(m)
+
+                filename(m) = filetemp
+                modname(m) = modtemp
+                usename(m) = usetemp
+                sorted = .false.
+                EXIT
+                endif
+              enddo
+
+            if( .NOT.sorted ) EXIT
+            enddo
+
+          if( sorted ) EXIT
+          enddo
+
+        endif  ! contains module files
+
+      return
+      end Subroutine orderfiles
+
+
+C*********************************************************************************
+C    Idenify include file dependencies of a source file
+C*********************************************************************************
+      Subroutine getIncDep( srcFile, incdep )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Character*(*)      :: srcFile 
+      Logical            :: incdep(n_includes) 
+
+      ! local variables
+      Integer            :: status
+      Integer            :: lfn
+      Character(REC_LEN) :: record
+      Character(FLD_LEN) :: field
+      Integer            :: n
+
+      lfn = 25
+
+      incdep = .false.
+
+      ! open source file
+      open(UNIT=lfn, FILE=srcFile, STATUS='OLD', IOSTAT=status)
+      if( status .ne. 0 ) then
+        Write(*,'(''**ERROR** Cannot open source file:'',a)') TRIM(srcFile)
+        return
+        endif
+
+      ! loop thru file and search for INCLUDE statements
+      do
+        Read(lfn,'(a)',iostat=status) record
+        if( status .ne. 0 ) EXIT
+
+        field = record
+        Call LeftTrim( field )
+        Call UCASE( field )
+
+        if( field(1:7) .eq. 'INCLUDE' ) then
+      
+          do n = 1, n_includes
+            if( .NOT.incdep(n) ) then
+              if( INDEX(record,TRIM(include(n)%name)) .gt. 0 ) incdep(n) = .true.
+              endif
+            enddo  ! includes loop
+       
+          endif  ! INCLUDE record
+
+        enddo   ! read loop
+
+      close(UNIT=lfn)
+
+      return
+      end Subroutine getIncDep
+
+      end Module ModelCfg
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

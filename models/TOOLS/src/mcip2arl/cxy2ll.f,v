@@ -1,0 +1,54 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/work/rep/TOOLS/src/mcip2arl/cxy2ll.f,v 1.1.1.1 2006/09/19 15:04:17 sjr Exp $
+
+	SUBROUTINE CXY2LL (STCPRM, X,Y, XLAT,XLONG)
+!*  WRITTEN ON 3/31/94 BY Dr. Albion Taylor  NOAA / OAR / ARL
+      PARAMETER (REARTH=6371.2)
+      REAL STCPRM(9)
+      XI0 = ( X - STCPRM(3) ) * STCPRM(7) / REARTH
+      ETA0 = ( Y - STCPRM(4) ) * STCPRM(7) /REARTH
+      XI = XI0 * STCPRM(5) - ETA0 * STCPRM(6)
+      ETA = ETA0 * STCPRM(5) + XI0 * STCPRM(6)
+      CALL CNXYLL(STCPRM, XI,ETA, XLAT,XLONG)
+      XLONG = CSPANF(XLONG, -180., 180.)
+      RETURN
+      END
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

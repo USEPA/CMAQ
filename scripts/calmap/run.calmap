@@ -1,0 +1,30 @@
+#!/bin/csh -f 
+
+#> Source the config.cmaq file to set the run environment
+ source ../config.cmaq
+
+#> Check that M3DATA is set:
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+ endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set BASE = $M3HOME/scripts/calmap
+
+ setenv GRID_CRO_2D $M3DATA/mcip/GRIDCRO2D_Benchmark 
+ setenv BELD01      $M3DATA/dust/beld3_CMAQ-BENCHMARK_output_a.ncf
+
+ setenv CROPMAP01 $BASE/BeginPlanting_12km_CMAQ-BENCHMARK
+ setenv CROPMAP02 $BASE/CropMap02_12km_CMAQ-BENCHMARK
+ setenv CROPMAP03 $BASE/CropMap03_12km_CMAQ-BENCHMARK
+ setenv CROPMAP04 $BASE/EndPlanting_12km_CMAQ-BENCHMARK
+ setenv CROPMAP05 $BASE/CropMap05_12km_CMAQ-BENCHMARK
+ setenv CROPMAP06 $BASE/CropMap06_12km_CMAQ-BENCHMARK
+ setenv CROPMAP07 $BASE/CropMap07_12km_CMAQ-BENCHMARK
+ setenv CROPMAP08 $BASE/EndHarvesting_12km_CMAQ-BENCHMARK
+
+#> turn off excess WRITE3 logging
+ setenv IOAPI_LOG_WRITE F
+ $BASE/src/CALMAP; exit
+

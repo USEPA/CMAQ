@@ -1,0 +1,89 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.04.30.13.06.07;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.30.13.06.07;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/work/rep/PROCAN/src/data/pa.noirr,v 1.1 2001/01/26 16:20:23 yoj Exp $ 
+
+! what(1) key, module and SID; SCCS file; date and time of last delta:
+! %W% %P% %G% %U%
+
+IRRTYPE = NONE;
+
+OUTPUT_DOMAIN = LOLEV[1] + HILEV[8];
+
+!=======================================================================
+! Family Definitions
+!=======================================================================
+DEFINE FAMILY VOC   = 1.0*PAR + 2.0*ETH   + 2.0*OLE  + 7.0*TOL  +
+                      8.0*XYL + 5.0*ISOP  + 1.0*FORM + 2.0*ALD2;
+
+DEFINE FAMILY OX    = O3 + NO2 + 2*NO3 + O + O1D + PAN + 3*N2O5 +
+                      PNA + HNO3 + NTR;
+
+DEFINE FAMILY NOY   = PAN + HONO + PNA  + NO3 + 2*N2O5 +
+                      NTR + HNO3 + NO + NO2;
+
+DEFINE FAMILY RO2   = C2O3 + TO2 + ROR;
+
+!=======================================================================
+! IPR_OUTPUTS
+!=======================================================================
+
+IPR_OUTPUT NO;
+
+IPR_OUTPUT NO2;
+
+IPR_OUTPUT NOY;
+
+IPR_OUTPUT O3;
+
+IPR_OUTPUT RO2;
+
+IPR_OUTPUT ACORS;
+
+IPR_OUTPUT OX;
+
+IPR_OUTPUT NH3;
+
+IPR_OUTPUT VOC;
+
+ENDPA;
+
+
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

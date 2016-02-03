@@ -1,0 +1,117 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.04.30.13.06.07;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.30.13.06.07;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/PROCAN/src/driver/pa/PA_PARSE.EXT,v 1.5 2011/11/02 14:33:55 yoj Exp $
+
+C......................................................................
+C INCLUDE FILE: PA_PARSE.EXT
+ 
+C Contains: Commons data used by parsing routines in the Process
+C           Analysis Control Program
+ 
+C Dependent Upon: None
+ 
+C Revision History:
+C  Prototype created by Jerry Gipson, July, 1996
+C  Modified May, 1997 by Jerry Gipson to be consistent with beta CTM
+C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
+ 
+C......................................................................
+
+C Parameters:
+      INTEGER, PARAMETER :: BUFLEN = 81  ! Length of one input line
+      INTEGER, PARAMETER :: LABLEN = 16  ! Label character length
+      INTEGER, PARAMETER :: WRDLEN = 16  ! Word character length
+      INTEGER, PARAMETER :: IZERO = 0    ! Integer zero
+
+C Common Variables:
+      CHARACTER(   1 ) :: CHR   ! Last character read from input buffer
+      CHARACTER( 200 ) :: MSG   ! Error message output buffer 
+      CHARACTER(  60 ) :: QUOTE ! String found by GETQUOTE
+      CHARACTER( BUFLEN ) :: INBUF ! Input line
+      CHARACTER( LABLEN ) :: LABEL ! Label found by getlabel  
+      CHARACTER( WRDLEN ) :: WORD  ! Word found by GETWORD
+    
+      INTEGER IEOL       ! Position of last non-blank character
+      INTEGER IFILE      ! Unit number of input ASCII File
+      INTEGER LINNUM     ! Number of last line read 
+      INTEGER LOGUNIT    ! Unit number for output log
+      INTEGER LPOINT     ! Pointer to location of last character read
+
+      REAL NUMBER        ! Real number found by GETREAL
+
+C Common Blocks:
+
+      COMMON /PARSCHR/ CHR,
+     &                 INBUF,
+     &                 LABEL,
+     &                 MSG,
+     &                 QUOTE,
+     &                 WORD
+
+      COMMON /PARSINT/ IEOL,
+     &                 IFILE,
+     &                 LINNUM,
+     &                 LOGUNIT,
+     &                 LPOINT
+
+      COMMON /PARSREAL/ NUMBER
+
+C............................ end PA_PARSE.EXT .........................
+ 
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

@@ -1,0 +1,68 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.04.19.19.47.21;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.47.21;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@C RCS file, release, date & time of last delta, author, state, [and locker] 
+C $Header: /project/work/rep/PARIO/src/PIOVARS.EXT,v 1.2 2002/06/25 14:26:59 yoj Exp $
+
+C....................................................................
+C  INCLUDE FILE  PIOVARS.EXT
+ 
+C  CONTAINS:  Variables for parallel Models-3 I/O
+C             library routines.
+              
+C  DEPENDENT UPON:  none
+ 
+C  REVISION HISTORY:
+C       Original version  2/96 by Al Bourgeois (AJB).
+C       Modified 6/98 by AJB for PAR_IO library. Removed species dim.
+C       Modified 07/08/1998 by AJB to add NPROW, NPCOL, IO_GRP, MY_IO_PE.
+C       Modified 07/29/1998 by AJB to move grid variables to another file.
+C       Modified 08/28/1998 by AJB to remove MY_NROWS, MY_NCOLS, MAXCELLS.
+C                12 Apr 2001, J. Young - eliminate I/O group idea
+C....................................................................
+
+C          Variables            Description
+C          ---------            -----------
+
+      INTEGER  MY_PE         !  Local processor id.
+      INTEGER  IO_PE         !  Id of primary processor used for log file
+
+      COMMON / PIOVARS /
+     &         MY_PE,
+     &         IO_PE
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

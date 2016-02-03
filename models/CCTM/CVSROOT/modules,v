@@ -1,0 +1,163 @@
+head	1.2;
+access;
+symbols;
+locks; strict;
+comment	@# @;
+
+
+1.2
+date	2012.05.10.17.23.44;	author sjr;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2012.05.10.17.23.22;	author sjr;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@CMAQv5_0_1
+@
+text
+@
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/arc/CCTM/CVSROOT/modules,v 1.19 2011/10/20 16:11:09 sjr Exp $ 
+
+# what(1) key, module and SID; SCCS file; date and time of last delta:
+# %W% %P% %G% %U%
+
+# Three different line formats are valid:
+#	key	-a    aliases...
+#	key [options] directory
+#	key [options] directory files...
+#
+# Where "options" are composed of:
+#	-i prog		Run "prog" on "cvs commit" from top-level of module.
+#	-o prog		Run "prog" on "cvs checkout" of module.
+#	-e prog		Run "prog" on "cvs export" of module.
+#	-t prog		Run "prog" on "cvs rtag" of module.
+#	-u prog		Run "prog" on "cvs update" of module.
+#	-d dir		Place module in directory "dir" instead of module name.
+#	-l		Top-level directory only -- do not recurse.
+#
+# NOTE:  If you change any of the "Run" options above, you'll have to
+# release and re-checkout any working directories of these modules.
+#
+# And "directory" is a path to a directory relative to $CVSROOT.
+#
+# The "-a" option specifies an alias.  An alias is interpreted as if
+# everything on the right of the "-a" had been typed on the command line.
+#
+# You can encode a module within a module by using the special '&'
+# character to interpose another module into the current module.  This
+# can be useful for creating a module that consists of many directories
+# spread out over the entire source repository.
+
+      CVSROOT               CVSROOT
+      modules               CVSROOT modules
+
+      CCTM                  src
+
+      spcs_C             -s CLASS_spcs        src/spcs
+      cgrid_spcs_nml     -s MODULE_spcs       src/spcs/cgrid_spcs_nml
+      cgrid_spcs_icl     -s MODULE_spcs       src/spcs/cgrid_spcs_icl
+
+      grid_C             -s CLASS_grid        src/grid
+      cartesian          -s MODULE_grid       src/grid/cartesian
+
+      driver_C           -s CLASS_driver      src/driver
+      ctm_yamo           -s MODULE_driver     src/driver/yamo
+      ctm_wrf            -s MODULE_driver     src/driver/wrf
+      
+      par_C              -s CLASS_par         src/par
+      par                -s MODULE_par        src/par/mpi
+      par_nodistr        -s MODULE_par -d par src/par/mpi mpcomm_init.F par_term.F
+      par_noop           -s MODULE_par        src/par/par_noop
+
+      init_C             -s CLASS_init        src/init
+      init_yamo          -s MODULE_init       src/init/yamo
+
+      emis_C             -s CLASS_emis        src/emis
+      emis               -s MODULE_emis       src/emis/emis
+
+      biog_C             -s CLASS_biog        src/biog
+      beis3              -s MODULE_biog       src/biog/beis3
+
+      plrise_C           -s CLASS_plrise      src/plrise
+      smoke              -s MODULE_plrise     src/plrise/smoke
+
+      depv_C             -s CLASS_depv        src/depv
+      m3dry              -s MODULE_depv       src/depv/m3dry
+      m3dry_mp           -s MODULE_depv       src/depv/m3dry_mp
+
+      vdiff_C            -s CLASS_vdiff       src/vdiff
+      acm2               -s MODULE_vdiff      src/vdiff/acm2
+      acm2_mp            -s MODULE_vdiff      src/vdiff/acm2_mp
+
+      couple_C           -s CLASS_couple      src/couple
+      gencoor            -s MODULE_couple     src/couple/gencoor
+      gencoor_wrf        -s MODULE_couple     src/couple/gencoor_wrf
+
+      hadv_C             -s CLASS_hadv        src/hadv
+      hyamo              -s MODULE_hadv       src/hadv/yamo
+
+      vadv_C             -s CLASS_vadv        src/vadv
+      vyamo              -s MODULE_vadv       src/vadv/yamo
+      vwrf               -s MODULE_vadv       src/vadv/wrf
+
+      hdiff_C            -s CLASS_hdiff       src/hdiff
+      multiscale         -s MODULE_hdiff      src/hdiff/multiscale
+
+      cloud_C            -s CLASS_cloud       src/cloud
+      cloud_acm_ae5      -s MODULE_cloud      src/cloud/cloud_acm_ae5
+      cloud_acm_ae6      -s MODULE_cloud      src/cloud/cloud_acm_ae6
+      cloud_acm_ae6_mp   -s MODULE_cloud      src/cloud/cloud_acm_ae6_mp
+
+      gas_C              -s CLASS_gas         src/gas
+      ebi_cb05cl_ae5     -s MODULE_gas        src/gas/ebi_cb05cl
+      ebi_cb05cl         -s MODULE_gas        src/gas/ebi_cb05cl
+      ebi_cb05tucl       -s MODULE_gas        src/gas/ebi_cb05tucl
+      ebi_cb05tump       -s MODULE_gas        src/gas/ebi_cb05tump
+      ebi_saprc99        -s MODULE_gas        src/gas/ebi_saprc99
+      ebi_saprc07tb      -s MODULE_gas        src/gas/ebi_saprc07tb
+      ebi_saprc07tc      -s MODULE_gas        src/gas/ebi_saprc07tc
+      ros3               -s MODULE_gas        src/gas/ros3
+      smvgear            -s MODULE_gas        src/gas/smvgear
+
+      phot_C             -s CLASS_phot        src/phot
+      phot_inline        -s MODULE_phot       src/phot/phot_inline
+      phot_table         -s MODULE_phot       src/phot/phot_table
+
+      aero_C             -s CLASS_aero        src/aero
+      aero5              -s MODULE_aero       src/aero/aero5
+      aero6              -s MODULE_aero       src/aero/aero6
+      aero6_mp           -s MODULE_aero       src/aero/aero6_mp
+
+      procan_C           -s CLASS_procan      src/procan
+      pa                 -s MODULE_procan     src/procan/pa
+
+      util_C             -s CLASS_util        src/util
+      util               -s MODULE_util       src/util/util
+
+
+#1 = not implemented
+#2 = hidden
+@
+
+
+1.1
+log
+@initial checkin
+@
+text
+@d1 7
+d34 90
+@
+
+

@@ -1,0 +1,484 @@
+#! /bin/csh -f
+
+# ====================== CCTMv5.0.1 Build Script ======================= #
+# Usage: bldit.cctm >&! bldit.cctm.log                                   #
+# Requirements: I/O API & netCDF libs, CVS, and a Fortran compiler,      #
+#               MPICH for multiprocessor computing                       #
+# Note that this script is configured/tested for Red Hat Linux O/S       #
+# The following environment variables must be set for this script to     #
+# build an executable.                                                   #
+#   setenv M3MODEL <source code CVS archive>                             #
+#   setenv M3LIB   <code libraries>                                      #
+# If building on a machine which is accessing the CVS archive remotely   #
+# CVS_REMOTE_USER and CVS_REMOTE_MACH must be set in the environment.    #
+# The remote machine must be set up for passwordless access from ssh.    #
+#   setenv CVS_REMOTE_USER <user ID on remote machine>                   #
+#   setenv CVS_REMOTE_MACH <CVS archive remote machine>                  #
+# The sourced file, relinc.cctm is required to get the include files.    #
+# To report problems or request help with this script/program:           #
+#             http://www.cmascenter.org/html/help.html                   #
+# ====================================================================== #
+
+#> Source the config.cmaq file to set the build environment
+ source ../config.cmaq
+
+#> Check for remote archive settings:
+ if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then 
+    echo " CVS_REMOTE_USER or CVS_REMOTE_MACH not set"
+    echo " Using local CVS archive"
+ endif
+
+#> Check for M3MODEL and M3LIB settings:
+ if ( ! -e $M3MODEL || ! -e $M3LIB ) then 
+    echo "   $M3MODEL or $M3LIB directory not found"
+    exit 1
+ endif
+ echo "   Model archive path: $M3MODEL"
+ echo "         library path: $M3LIB"
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only 
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
+ endif
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
+
+#> user choices: cvs archives
+ setenv Project $M3MODEL/CCTM
+ setenv GlobInc $M3MODEL/includes/release
+ setenv Mechs   $M3MODEL/mechs/release
+
+#> user choices: base working directory
+ set Base = $cwd
+
+ set APPL  = V5g
+ set CFG   = cfg.$APPL
+ set MODEL = CCTM_${APPL}_$EXECID
+
+#> user choices: bldmake command
+ set Opt = verbose      # show requested commands as they are executed
+#set MakeOpt            # builds a Makefile to make the model; comment out
+                        # this option for bldmake to compile the model
+
+#> user choices:  single or multiple processors
+ set ParOpt             # set for multiple PE's; comment out for single PE
+
+#> user choices: various modules
+
+ set Revision = release       # release = latest CVS revision
+#set Revision = '"CMAQv5_0_1"'
+
+ set ModDriver = ( module ctm_wrf               $Revision; )
+#set ModDriver = ( module ctm_yamo              $Revision; )
+
+ set ModGrid   = ( module cartesian             $Revision; )
+
+ if ( $?ParOpt ) then
+#   set ModPar = ( module par                   $Revision; )
+    set ModPar = ( module par_nodistr           $Revision; )
+ else
+    set ModPar = ( module par_noop              $Revision; )
+ endif 
+
+ set ModInit   = ( module init_yamo             $Revision; )
+
+ set ModAdjc   = ( // yamo option does not need denrate )
+
+ set ModCpl    = ( module gencoor_wrf           $Revision; )
+#set ModCpl    = ( module gencoor               $Revision; )
+
+ set ModHadv   = ( module hyamo                 $Revision; )
+
+ set ModVadv   = ( module vwrf                  $Revision; )
+#set ModVadv   = ( module vyamo                 $Revision; )
+
+ set ModHdiff  = ( module multiscale            $Revision; )
+
+ set ModVdiff  = ( module acm2                  $Revision; )
+#set ModVdiff  = ( module acm2_mp               $Revision; )
+
+ set ModDepv   = ( module m3dry                 $Revision; )
+#set ModDepv   = ( module m3dry_mp              $Revision; )
+
+ set ModEmis   = ( module emis                  $Revision; )
+
+ set ModBiog   = ( module beis3                 $Revision; )
+ 
+ set ModPlmrs  = ( module smoke                 $Revision; )
+
+ set ModCgrds  = ( module cgrid_spcs_nml        $Revision; )
+#set ModCgrds  = ( module cgrid_spcs_icl        $Revision; )
+
+ set ModPhot   = ( module phot_inline           $Revision; )
+#set ModPhot   = ( module phot_table            $Revision; )
+
+#set ModChem   = ( module smvgear               $Revision; )
+#set ModChem   = ( module ros3                  $Revision; )
+#set ModChem   = ( module ebi_cb05cl            $Revision; )
+ set ModChem   = ( module ebi_cb05tucl          $Revision; )
+#set ModChem   = ( module ebi_cb05tump          $Revision; )
+#set ModChem   = ( module ebi_saprc99           $Revision; )
+#set ModChem   = ( module ebi_saprc07tb         $Revision; )
+#set ModChem   = ( module ebi_saprc07tc         $Revision; )
+
+#set ModAero   = ( module aero5                 $Revision; )
+ set ModAero   = ( module aero6                 $Revision; )
+#set ModAero   = ( module aero6_mp              $Revision; )
+
+#set ModCloud  = ( module cloud_acm_ae5         $Revision; )
+ set ModCloud  = ( module cloud_acm_ae6         $Revision; )
+#set ModCloud  = ( module cloud_acm_ae6_mp      $Revision; )
+
+ set ModPa     = ( module pa                    $Revision; )
+
+ set ModUtil   = ( module util                  $Revision; )
+
+#> user choices: emissions processing in chem or vdiff (default) ...
+#set Cemis        # Uncomment to process in chem
+
+#> user choices: mechanism
+#set Mechanism = cb05cl_ae5_aq
+#set Mechanism = cb05tucl_ae5_aq
+ set Mechanism = cb05tucl_ae6_aq
+#set Mechanism = cb05tump_ae6_aq
+#set Mechanism = saprc99_ae5_aq
+#set Mechanism = saprc99_ae6_aq
+#set Mechanism = saprc07tb_ae6_aq
+#set Mechanism = saprc07tc_ae6_aq
+ set Tracer    = trac0               # default: no tracer species
+
+#> user choices: set process analysis linkages
+ set PABase    = $GlobInc
+ set PAOpt     = pa_noop
+
+#> user choices: computing system configuration:
+#>    name of the "BLD" directory for checking out and compiling source code
+#>    compiler name and location/link flags
+#>    library paths
+
+ set Bld = $Base/BLD_${APPL}
+ 
+#> Set full path of Fortran 90 compiler
+ set FC = ${myFC}
+ set FP = $FC
+
+#> Set location of M3Bld executable
+ set Blder = $M3LIB/build/bldmake
+
+#> Set location of libraries/include files
+ set IOAPI  = "${M3LIB}/ioapi_3.1/Linux2_${system}${compiler} -lioapi"
+ set IOAPIMOD = ${M3LIB}/ioapi_3.1/Linux2_${system}${compiler}
+
+ set NETCDF = "${M3LIB}/netcdf/lib -lnetcdf"
+
+ if ( $?ParOpt ) then      # Multiprocessor system configuration
+    set PARMOD = ${M3LIB}/pario
+    set STENEX = ${M3LIB}/se_snl
+    set MPI_INC = ${M3LIB}/mpich/include
+ else
+    set PARMOD = "."
+    set STENEX = "${M3LIB}/se_noop"
+    set MPI_INC = "."
+ endif
+
+#> Set compiler flags
+ set F_FLAGS    = "${myFFLAGS} -I ${IOAPIMOD} -I ${PARMOD} -I ${STENEX} -I."
+ set F90_FLAGS  = "${myFRFLAGS} -I ${IOAPIMOD} -I ${PARMOD} -I ${STENEX} -I."
+ set CPP_FLAGS  = ""
+ set C_FLAGS    = "${myCFLAGS} -DFLDMN -I ${MPI_INC}"
+ set LINK_FLAGS = "${myLINK_FLAG}"
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+    else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+       endif
+    endif
+ 
+ cd $Bld
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ if ( $?ParOpt ) then      # Multiprocessor system configuration
+#   set Mpich = $MPICH 
+    set seL = se_snl
+    set LIB2 = "-L${M3LIB}/pario -lpario"
+    set LIB3 = 
+    set LIB4 = "-L${M3LIB}/mpich/lib -lmpich ${extra_lib}"
+    set Str1 = (// Parallel / Include message passing definitions)
+    set Str2 = (include SUBST_MPI ${MPI_INC}/mpif.h;)
+ else
+    set seL = sef90_noop
+    set LIB2 =
+    set LIB3 =
+    set LIB4 = "${extra_lib}"
+    set Str1 =
+    set Str2 =
+ endif
+
+ set LIB1 = "-L${STENEX} -l${seL}"
+ set LIB5 = "-L${IOAPI}"
+ set LIB6 = "-L${NETCDF}"
+ set LIBS = "$LIB1 $LIB2 $LIB3 $LIB4 $LIB5 $LIB6"
+ 
+ source $Base/relinc.cctm
+ if ( $status ) exit 1
+
+ set ICL_PAR   = $Bld
+ set ICL_CONST = $Bld
+ set ICL_FILES = $Bld
+ set ICL_EMCTL = $Bld
+ set ICL_MECH  = $Bld
+ set ICL_PA    = $Bld
+
+#if ( $?Cemis ) then
+#   set CV = -Demis_chem
+#   else
+#   set CV =
+#   endif
+
+ if ( $?ParOpt ) then   # split to avoid line > 256 char
+    set PAR = ( -Dparallel )
+
+    set Popt = SE
+ else
+    echo "   Not Parallel; set Serial (no-op) flags"
+    set PAR = ""
+    set Popt = NOOP
+ endif
+ 
+ set STX1 = ( -DSUBST_MODULES=${Popt}_MODULES\
+              -DSUBST_BARRIER=${Popt}_BARRIER )
+ set STX2 = ( -DSUBST_GLOBAL_MAX=${Popt}_GLOBAL_MAX\
+              -DSUBST_GLOBAL_MIN=${Popt}_GLOBAL_MIN\
+              -DSUBST_GLOBAL_MIN_DATA=${Popt}_GLOBAL_MIN_DATA\
+              -DSUBST_GLOBAL_TO_LOCAL_COORD=${Popt}_GLOBAL_TO_LOCAL_COORD\
+              -DSUBST_GLOBAL_SUM=${Popt}_GLOBAL_SUM\
+              -DSUBST_GLOBAL_LOGICAL=${Popt}_GLOBAL_LOGICAL\
+              -DSUBST_LOOP_INDEX=${Popt}_LOOP_INDEX\
+              -DSUBST_SUBGRID_INDEX=${Popt}_SUBGRID_INDEX )
+ set STX3 = ( -DSUBST_HI_LO_BND_PE=${Popt}_HI_LO_BND_PE\
+              -DSUBST_SUM_CHK=${Popt}_SUM_CHK\
+              -DSUBST_INIT_ARRAY=${Popt}_INIT_ARRAY\
+              -DSUBST_COMM=${Popt}_COMM\
+              -DSUBST_MY_REGION=${Popt}_MY_REGION\
+              -DSUBST_SLICE=${Popt}_SLICE\
+              -DSUBST_GATHER=${Popt}_GATHER\
+              -DSUBST_DATA_COPY=${Popt}_DATA_COPY\
+              -DSUBST_IN_SYN=${Popt}_IN_SYN )
+
+ if ( ! $?CVS_REMOTE_USER || ! $?CVS_REMOTE_MACH ) then
+    setenv CVSROOT $Project
+ else
+    setenv CVSROOT :ext:${CVS_REMOTE_USER}@${CVS_REMOTE_MACH}:${Project}
+ endif
+
+#> make the config file
+
+ set Cfile = ${CFG}.bld
+ set quote = '"'
+
+ echo                                                               > $Cfile
+ echo "model       $MODEL;"                                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "FPP         $FP;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ set text = "$quote$CPP_FLAGS $PAR $STX1 $STX2 $STX3$quote;"
+ echo "cpp_flags   $text"                                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_compiler  $FC;"                                           >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
+ echo                                                              >> $Cfile
+ echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
+ echo                                                              >> $Cfile
+ echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
+ echo "global      $Opt;"                                          >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text="// mechanism:"
+ echo "$text ${Mechanism}"                                         >> $Cfile
+ echo "// project archive: ${Project}"                             >> $Cfile
+ echo                                                              >> $Cfile
+ if ( $compiler == gfort ) then
+   set ICL_PAR = '.'
+   set ICL_CONST = '.'
+   set ICL_FILES = '.'
+   set ICL_EMCTL = '.'
+   set ICL_MECH = '.'
+   set ICL_PA = '.'
+ endif
+ echo "include SUBST_PE_COMM    $ICL_PAR/PE_COMM.EXT;"             >> $Cfile
+ echo "include SUBST_CONST      $ICL_CONST/CONST.EXT;"             >> $Cfile
+ echo "include SUBST_FILES_ID   $ICL_FILES/FILES_CTM.EXT;"         >> $Cfile
+ echo "include SUBST_EMISPRM    $ICL_EMCTL/EMISPRM.EXT;"           >> $Cfile
+ echo "include SUBST_RXCMMN     $ICL_MECH/RXCM.EXT;"               >> $Cfile
+ echo "include SUBST_RXDATA     $ICL_MECH/RXDT.EXT;"               >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "// Process Analysis / Integrated Reaction Rates processing"
+ echo $text                                                        >> $Cfile
+ echo "include SUBST_PACTL_ID    $ICL_PA/PA_CTL.EXT;"              >> $Cfile
+ echo "include SUBST_PACMN_ID    $ICL_PA/PA_CMN.EXT;"              >> $Cfile
+ echo "include SUBST_PADAT_ID    $ICL_PA/PA_DAT.EXT;"              >> $Cfile
+ echo                                                              >> $Cfile
+
+ echo "$Str1"                                                      >> $Cfile
+ if ( $compiler == gfort && $?ParOpt ) then
+  ln -s ${MPI_INC}/mpif.h $Bld
+  echo "include SUBST_MPI ./mpif.h;"                                >> $Cfile
+ else
+  echo "$Str2"                                                      >> $Cfile
+ endif
+ echo                                                              >> $Cfile
+
+ set text = "ctm_wrf and ctm_yamo"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModDriver"                                                 >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "cartesian"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModGrid"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "par, par_nodistr and par_noop"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModPar"                                                    >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "init_yamo"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModInit"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = ""
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModAdjc"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "gencoor_wrf and gencoor"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModCpl"                                                    >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "hyamo"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModHadv"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "vwrf and vyamo"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModVadv"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "multiscale"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModHdiff"                                                  >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "acm2 and acm2_mp"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModVdiff"                                                  >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "m3dry and m3dry_mp"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModDepv"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "emis"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModEmis"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "beis3"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModBiog"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "smoke"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModPlmrs"                                                  >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "cgrid_spcs_nml and cgrid_spcs_icl"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModCgrds"                                                  >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "phot_inline and phot_table"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModPhot"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "smvgear, ros3, ebi_cb05cl, ebi_cb05tucl, ebi_cb05tump, ebi_saprc99, ebi_saprc07tb, and ebi_saprc07tc"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModChem"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "aero5, aero6, and aero6_mp"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModAero"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "cloud_acm_ae5, cloud_acm_ae6, and cloud_acm_ae6_mp"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModCloud"                                                  >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "pa, which requires the"
+ echo "// options are" $text "replacement of the three"            >> $Cfile
+ set text = "// global include files with their pa_noop counterparts"
+ echo $text                                                        >> $Cfile
+ echo "$ModPa"                                                     >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "util"
+ echo "// options are" $text                                       >> $Cfile
+ echo "$ModUtil"                                                   >> $Cfile
+ echo                                                              >> $Cfile
+
+ if ( $?ModMisc ) then
+    echo "$ModMisc"                                                >> $Cfile
+    echo                                                           >> $Cfile
+ endif
+
+#> make the makefile or the model executable
+
+ if ( $?MakeOpt ) then
+    $Blder -make $Cfile   # $Cfile = ${CFG}.bld
+ else
+    set NoMake
+    $Blder $Cfile
+ endif
+ if ( $status != 0 ) then
+    echo "   *** failure in $Blder ***"
+    exit 1
+ endif
+ if ( -e "$Base/${CFG}" ) then
+    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    unalias mv
+    mv $Base/${CFG} $Base/${CFG}.old
+ endif
+ cp ${CFG}.bld $Base/${CFG}
+ if ( ( $Opt != no_compile ) && \
+      ( $Opt != no_link    ) && \
+      ( $Opt != parse_only ) && \
+      ( $Opt != show_only  ) && \
+        $?NoMake ) then
+    mv $MODEL $Base
+ endif
+
+ exit

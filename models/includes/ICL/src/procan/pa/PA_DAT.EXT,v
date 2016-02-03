@@ -1,0 +1,901 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.04.19.19.39.05;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.39.05;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/arc/includes/ICL/src/procan/pa/PA_DAT.EXT,v 1.1.1.1 2010/07/23 15:12:35 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C @@(#)PA_DAT.EXT	1.2 /project/mod3/ICL/src/procan/pa/SCCS/s.PA_DAT.EXT 07 Jul 1997 11:45:02
+
+C.......................................................................
+C    INCLUDE FILE   PA_DAT.EXT                                                
+C
+C    CONTAINS: Data statements for Process Analysis                           
+C
+C    DEPENDENT UPON: Process Analysis COMMON IncludeFile                      
+C
+C    CREATED BY: Process Analysis Control Program                             
+C                11:36:11 EDT July 7, 1997                                    
+C
+C.......................................................................
+                                                                              
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Output file descriptor data
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      INTEGER TERM
+
+
+      DATA (IPRNAME(TERM), TERM =    1 ,   63) /
+     &   'HADV_NO         ', 'ZADV_NO         ', 'VDIF_NO         ',
+     &   'EMIS_NO         ', 'CHEM_NO         ', 'CLDS_NO         ',
+     &   'DDEP_NO         ', 'ADJC_NO         ', 'AERO_NO         ',
+     &   'HADV_NO2        ', 'ZADV_NO2        ', 'VDIF_NO2        ',
+     &   'EMIS_NO2        ', 'CHEM_NO2        ', 'CLDS_NO2        ',
+     &   'DDEP_NO2        ', 'ADJC_NO2        ', 'AERO_NO2        ',
+     &   'HADV_O3         ', 'ZADV_O3         ', 'VDIF_O3         ',
+     &   'EMIS_O3         ', 'CHEM_O3         ', 'CLDS_O3         ',
+     &   'DDEP_O3         ', 'ADJC_O3         ', 'AERO_O3         ',
+     &   'HADV_ACORS      ', 'ZADV_ACORS      ', 'VDIF_ACORS      ',
+     &   'EMIS_ACORS      ', 'CHEM_ACORS      ', 'CLDS_ACORS      ',
+     &   'DDEP_ACORS      ', 'ADJC_ACORS      ', 'AERO_ACORS      ',
+     &   'HADV_OX         ', 'ZADV_OX         ', 'VDIF_OX         ',
+     &   'EMIS_OX         ', 'CHEM_OX         ', 'CLDS_OX         ',
+     &   'DDEP_OX         ', 'ADJC_OX         ', 'AERO_OX         ',
+     &   'HADV_NH3        ', 'ZADV_NH3        ', 'VDIF_NH3        ',
+     &   'EMIS_NH3        ', 'CHEM_NH3        ', 'CLDS_NH3        ',
+     &   'DDEP_NH3        ', 'ADJC_NH3        ', 'AERO_NH3        ',
+     &   'HADV_VOC        ', 'ZADV_VOC        ', 'VDIF_VOC        ',
+     &   'EMIS_VOC        ', 'CHEM_VOC        ', 'CLDS_VOC        ',
+     &   'DDEP_VOC        ', 'ADJC_VOC        ', 'AERO_VOC        '/
+
+
+      DATA (IPRDESC(TERM), TERM =    1 ,   63) /
+     &  'Horizontal Advection of NO                                  ',       
+     &  'Vertical Advection of NO                                    ',       
+     &  'Vertical Diffusion of NO                                    ',       
+     &  'Emissions of NO                                             ',       
+     &  'Chemistry of NO                                             ',       
+     &  'Clouds for NO                                               ',       
+     &  'Dry deposition for NO                                       ',       
+     &  'SAQM Adjustment for NO                                      ',       
+     &  'Aerosols for NO                                             ',       
+     &  'Horizontal Advection of NO2                                 ',       
+     &  'Vertical Advection of NO2                                   ',       
+     &  'Vertical Diffusion of NO2                                   ',       
+     &  'Emissions of NO2                                            ',       
+     &  'Chemistry of NO2                                            ',       
+     &  'Clouds for NO2                                              ',       
+     &  'Dry deposition for NO2                                      ',       
+     &  'SAQM Adjustment for NO2                                     ',       
+     &  'Aerosols for NO2                                            ',       
+     &  'Horizontal Advection of O3                                  ',       
+     &  'Vertical Advection of O3                                    ',       
+     &  'Vertical Diffusion of O3                                    ',       
+     &  'Emissions of O3                                             ',       
+     &  'Chemistry of O3                                             ',       
+     &  'Clouds for O3                                               ',       
+     &  'Dry deposition for O3                                       ',       
+     &  'SAQM Adjustment for O3                                      ',       
+     &  'Aerosols for O3                                             ',       
+     &  'Horizontal Advection of ACORS                               ',       
+     &  'Vertical Advection of ACORS                                 ',       
+     &  'Vertical Diffusion of ACORS                                 ',       
+     &  'Emissions of ACORS                                          ',       
+     &  'Chemistry of ACORS                                          ',       
+     &  'Clouds for ACORS                                            ',       
+     &  'Dry deposition for ACORS                                    ',       
+     &  'SAQM Adjustment for ACORS                                   ',       
+     &  'Aerosols for ACORS                                          ',       
+     &  'Horizontal Advection of OX                                  ',       
+     &  'Vertical Advection of OX                                    ',       
+     &  'Vertical Diffusion of OX                                    ',       
+     &  'Emissions of OX                                             ',       
+     &  'Chemistry of OX                                             ',       
+     &  'Clouds for OX                                               ',       
+     &  'Dry deposition for OX                                       ',       
+     &  'SAQM Adjustment for OX                                      ',       
+     &  'Aerosols for OX                                             ',       
+     &  'Horizontal Advection of NH3                                 ',       
+     &  'Vertical Advection of NH3                                   ',       
+     &  'Vertical Diffusion of NH3                                   ',       
+     &  'Emissions of NH3                                            ',       
+     &  'Chemistry of NH3                                            ',       
+     &  'Clouds for NH3                                              ',       
+     &  'Dry deposition for NH3                                      ',       
+     &  'SAQM Adjustment for NH3                                     ',       
+     &  'Aerosols for NH3                                            ',       
+     &  'Horizontal Advection of VOC                                 ',       
+     &  'Vertical Advection of VOC                                   ',       
+     &  'Vertical Diffusion of VOC                                   ',       
+     &  'Emissions of VOC                                            ',       
+     &  'Chemistry of VOC                                            ',       
+     &  'Clouds for VOC                                              ',       
+     &  'Dry deposition for VOC                                      ',       
+     &  'SAQM Adjustment for VOC                                     ',       
+     &  'Aerosols for VOC                                            '/       
+
+
+      DATA (IRRNAME(TERM), TERM =    1 ,   37) /
+     &   'OXprod          ', 'OXloss          ', 'NOZfromNOX      ',
+     &   'NOXfromNOZ      ', 'OHfromO1D       ', 'newOH           ',
+     &   'newHO2          ', 'totalHO2        ', 'newRO2          ',
+     &   'TotalRO2        ', 'Loss_CO_CH4     ', 'HO2toOH         ',
+     &   'NO2fromHO2      ', 'NO2fromRO2      ', 'prodPAN_TPAN    ',
+     &   'netONIT         ', 'lossOH_HC       ', 'lossOH_INORG    ',
+     &   'netHNO3         ', 'lossHCHO_OH     ', 'lossISO_OH      ',
+     &   'newHO2fromHCHO  ', 'newACO3fromPAN  ', 'HO2fromRO2_NO   ',
+     &   'HO2fromRO2_RO2  ', 'RO2fromOH       ', 'HNO3fromOH_NO2  ',
+     &   'newOH_H2O2      ', 'newOH_OP1       ', 'newOHfromHONO   ',
+     &   'OHterm          ', 'HO2term         ', 'termHO2_RO2     ',
+     &   'termRO2         ', 'termRO2_HO2     ', 'termRO2_RO2     ',
+     &   'dauHC_OH        '/
+
+
+      DATA (IRRDESC(TERM), TERM =    1 ,   37) /
+     &  'OX Production                                               ',       
+     &  'OX Loss                                                     ',       
+     &  'NOZ produced from NOX                                       ',       
+     &  'NOX produced from NOZ                                       ',       
+     &  'OH produced from O1D                                        ',       
+     &  'new OH                                                      ',       
+     &  'new HO2                                                     ',       
+     &  'total HO2                                                   ',       
+     &  'new RO2                                                     ',       
+     &  'Total RO2                                                   ',       
+     &  'Loss_CO_CH4                                                 ',       
+     &  'HO2 to OH                                                   ',       
+     &  'NO2 FROM HO2                                                ',       
+     &  'NO2 FROM HO2                                                ',       
+     &  'Production of PAN and TPAN                                  ',       
+     &  'Net production of ONIT                                      ',       
+     &  'Loss of HC plus OH                                          ',       
+     &  'Loss of OH with iorganics                                   ',       
+     &  'Net change in HNO3                                          ',       
+     &  'Reaction OH HCHO with OH                                    ',       
+     &  'Reaction of ISO with OH                                     ',       
+     &  'New HO2 from HCHO                                           ',       
+     &  'New HO2 from PAN                                            ',       
+     &  'HO2 from RO2 and NO                                         ',       
+     &  'HO2 from RO2 and RO2                                        ',       
+     &  'RO2 from OH                                                 ',       
+     &  'RO2 from OH                                                 ',       
+     &  'new OH from H2O2                                            ',       
+     &  'new OH from OP1 OP2 PAA                                     ',       
+     &  'new OH from HONO                                            ',       
+     &  'OH Termination                                              ',       
+     &  'HO2 Termination                                             ',       
+     &  'HO2 term with RO2                                           ',       
+     &  'RO2 Termination                                             ',       
+     &  'RO2 Termination with HO2                                    ',       
+     &  'RO2 Termination with RO2                                    ',       
+     &  'OH + daughter HC                                            '/       
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  IPR data
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      DATA (PROCNAMES(TERM), TERM =    1 ,    9) /
+     &   'HADV            ', 'ZADV            ', 'VDIF            ',
+     &   'EMIS            ', 'CHEM            ', 'CLDS            ',
+     &   'DDEP            ', 'ADJC            ', 'AERO            '/
+
+
+      DATA (NCGRID(TERM), TERM =    1 ,    7) /
+     &      1,    1,    1,    1,   10,    1,   18/
+
+
+      DATA (SV2GRD(TERM), TERM =    1 ,   31) /
+     &      1,    2,    3,    4,    5,    9,   11,   13,   14,   15,
+     &     20,   23,   24,   25,   28,   32,   33,   35,   38,   41,
+     &     43,   45,   48,   50,   52,   57,   58,   59,   60,   81,
+     &     89/
+
+
+      DATA (IPROUT(  1 , TERM), TERM =    1 ,    9) /
+     &      1,    2,    3,    4,    5,    6,    7,    8,    9/
+
+
+      DATA (IPROUT(  2 , TERM), TERM =    1 ,    9) /
+     &     10,   11,   12,   13,   14,   15,   16,   17,   18/
+
+
+      DATA (IPROUT(  3 , TERM), TERM =    1 ,    9) /
+     &     19,   20,   21,   22,   23,   24,   25,   26,   27/
+
+
+      DATA (IPROUT(  4 , TERM), TERM =    1 ,    9) /
+     &     28,   29,   30,   31,   32,   33,   34,   35,   36/
+
+
+      DATA (IPROUT(  5 , TERM), TERM =    1 ,    9) /
+     &     37,   38,   39,   40,   41,   42,   43,   44,   45/
+
+
+      DATA (IPROUT(  6 , TERM), TERM =    1 ,    9) /
+     &     46,   47,   48,   49,   50,   51,   52,   53,   54/
+
+
+      DATA (IPROUT(  7 , TERM), TERM =    1 ,    9) /
+     &     55,   56,   57,   58,   59,   60,   61,   62,   63/
+
+
+      DATA (IPR2GRD(  1 , TERM), TERM =    1 ,    1) /
+     &      3/
+
+
+      DATA (IPR2GRD(  2 , TERM), TERM =    1 ,    1) /
+     &      1/
+
+
+      DATA (IPR2GRD(  3 , TERM), TERM =    1 ,    1) /
+     &      4/
+
+
+      DATA (IPR2GRD(  4 , TERM), TERM =    1 ,    1) /
+     &     81/
+
+
+      DATA (IPR2GRD(  5 , TERM), TERM =    1 ,   10) /
+     &      4,    1,   11,    2,    5,   57,    9,   28,   59,   60/
+
+
+      DATA (IPR2GRD(  6 , TERM), TERM =    1 ,    1) /
+     &     89/
+
+
+      DATA (IPR2GRD(  7 , TERM), TERM =    1 ,   18) /
+     &     14,   32,   33,   35,   38,   41,   43,   45,   58,   48,
+     &     50,   52,   13,   15,   20,   23,   24,   25/
+
+
+      DATA (IPR2SAV(  1 , TERM), TERM =    1 ,    1) /
+     &      3/
+
+
+      DATA (IPR2SAV(  2 , TERM), TERM =    1 ,    1) /
+     &      1/
+
+
+      DATA (IPR2SAV(  3 , TERM), TERM =    1 ,    1) /
+     &      4/
+
+
+      DATA (IPR2SAV(  4 , TERM), TERM =    1 ,    1) /
+     &     30/
+
+
+      DATA (IPR2SAV(  5 , TERM), TERM =    1 ,   10) /
+     &      4,    1,    7,    2,    5,   26,    6,   15,   28,   29/
+
+
+      DATA (IPR2SAV(  6 , TERM), TERM =    1 ,    1) /
+     &     31/
+
+
+      DATA (IPR2SAV(  7 , TERM), TERM =    1 ,   18) /
+     &      9,   16,   17,   18,   19,   20,   21,   22,   27,   23,
+     &     24,   25,    8,   10,   11,   12,   13,   14/
+
+
+      DATA (LPROCOUT(TERM), TERM =    1 ,    9) /
+     &       .TRUE.,     .TRUE.,     .TRUE.,     .TRUE.,     .TRUE.,
+     &       .TRUE.,     .TRUE.,     .TRUE.,     .TRUE./
+
+
+      DATA (SPCOEF(  1 , TERM), TERM =    1 ,    1) /
+     &       1.0000/
+
+
+      DATA (SPCOEF(  2 , TERM), TERM =    1 ,    1) /
+     &       1.0000/
+
+
+      DATA (SPCOEF(  3 , TERM), TERM =    1 ,    1) /
+     &       1.0000/
+
+
+      DATA (SPCOEF(  4 , TERM), TERM =    1 ,    1) /
+     &       1.0000/
+
+
+      DATA (SPCOEF(  5 , TERM), TERM =    1 ,   10) /
+     &       1.0000,     1.0000,     2.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     3.0000,     1.0000,     1.0000/
+
+
+      DATA (SPCOEF(  6 , TERM), TERM =    1 ,    1) /
+     &       1.0000/
+
+
+      DATA (SPCOEF(  7 , TERM), TERM =    1 ,   18) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000/
+
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  IRR data
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      DATA (NIRRRXNS(TERM), TERM =    1 ,   37) /
+     &     22,   25,    5,    7,    1,    3,   12,   57,    0,   22,
+     &      2,    1,    1,   15,    0,    7,   25,    7,   11,    1,
+     &      1,    1,    0,   12,   26,   21,    1,    0,    0,    0,
+     &      4,    3,    0,    4,    0,   22,   11/
+
+
+      DATA (TEMPTERMS(TERM), TERM =    1 ,   20) /
+     &      3,    2,    2,    4,    5,    2,    3,    2,    2,   13,
+     &      2,    3,   15,    2,    4,    4,    1,    2,    2,    2/
+
+
+      DATA (TEMPOUTPOS(TERM), TERM =    1 ,   28) /
+     &      1,    2,    3,    4,    5,    6,    7,    8,    9,   10,
+     &     11,    9,   13,   12,    9,   13,   12,   14,   19,   20,
+     &     19,   20,    7,    9,   10,   11,    3,    2/
+
+
+      DATA (TEMPOUTNEG(TERM), TERM =    1 ,   19) /
+     &      1,    2,    3,    4,    5,    6,    3,   14,    3,    8,
+     &      7,   12,    9,   13,   11,   19,    9,   10,   11/
+
+
+      DATA (TEMPOUTIND(TERM), TERM =    1 ,   12) /
+     &     15,   16,   17,   18,   15,   16,   17,   18,    1,    2,
+     &     19,    7/
+
+
+      DATA (INDXOUTPOS(TERM), TERM =    1 ,   28) /
+     &      3,    3,    3,    3,    3,    3,    6,    6,    6,    6,
+     &      6,    7,    7,    7,    8,    8,    8,    8,    9,    9,
+     &     10,   10,   12,   29,   29,   29,   31,   34/
+
+
+      DATA (INDXOUTNEG(TERM), TERM =    1 ,   19) /
+     &      4,    4,    4,    4,    4,    4,    6,   12,   30,   31,
+     &     32,   32,   33,   33,   33,   34,   35,   35,   35/
+
+
+      DATA (INDXOUTIND(TERM), TERM =    1 ,   12) /
+     &      9,    9,    9,    9,   10,   10,   10,   10,   15,   15,
+     &     23,   28/
+
+
+      DATA (IRRRXN(  1 , TERM), TERM =    1 ,   22) /
+     &      5,   21,   30,   37,   46,   72,   73,   79,   80,   81,
+     &     82,   83,   84,   85,   86,   87,   88,   89,   90,   91,
+     &     92,  153/
+
+
+      DATA (IRRRXN(  2 , TERM), TERM =    1 ,   25) /
+     &      7,   23,   26,   28,   29,   40,   41,   44,   45,   93,
+     &     94,   95,   96,   97,   98,   99,  100,  101,  102,  103,
+     &    104,  105,  106,  120,  154/
+
+
+      DATA (IRRRXN(  3 , TERM), TERM =    1 ,    5) /
+     &     45,   80,   81,   82,  154/
+
+
+      DATA (IRRRXN(  4 , TERM), TERM =    1 ,    7) /
+     &      5,   21,   73,   92,  134,  147,  148/
+
+
+      DATA (IRRRXN(  5 , TERM), TERM =    1 ,    1) /
+     &     26/
+
+
+      DATA (IRRRXN(  6 , TERM), TERM =    1 ,    3) /
+     &    104,  105,  106/
+
+
+      DATA (IRRRXN(  7 , TERM), TERM =    1 ,   12) /
+     &     11,   12,   18,   19,   20,   21,   93,   95,  103,  104,
+     &    105,  106/
+
+
+      DATA (IRRRXN(  8 , TERM), TERM =    1 ,   57) /
+     &     11,   12,   18,   19,   20,   21,   93,   95,  103,  104,
+     &    105,  106,   50,   53,   59,   60,   61,   63,   66,   79,
+     &     80,   81,   82,   83,   84,   85,   87,   88,   89,   90,
+     &     91,  121,  122,  123,  124,  125,  126,  127,  128,  129,
+     &    130,  131,  132,  133,  135,  136,  137,  138,  139,  140,
+     &    141,  142,  144,  145,  146,  150,  156/
+
+
+      DATA (IRRRXN( 10 , TERM), TERM =    1 ,   22) /
+     &     52,   53,   54,   55,   56,   57,   58,   59,   60,   61,
+     &     64,   65,   67,   68,   74,   51,   69,   70,   72,   73,
+     &     86,   87/
+
+
+      DATA (IRRRXN( 11 , TERM), TERM =    1 ,    2) /
+     &     51,   50/
+
+
+      DATA (IRRRXN( 12 , TERM), TERM =    1 ,    1) /
+     &     30/
+
+
+      DATA (IRRRXN( 13 , TERM), TERM =    1 ,    1) /
+     &     30/
+
+
+      DATA (IRRRXN( 14 , TERM), TERM =    1 ,   15) /
+     &     79,   80,   81,   82,   83,   84,   85,   86,   87,   88,
+     &     89,   90,   91,   92,  153/
+
+
+      DATA (IRRRXN( 16 , TERM), TERM =    1 ,    7) /
+     &     21,   73,   80,   81,   82,  120,  154/
+
+
+      DATA (IRRRXN( 17 , TERM), TERM =    1 ,   25) /
+     &     50,   52,   53,   54,   55,   56,   57,   58,   59,   60,
+     &     61,   62,   63,   64,   65,   66,   67,   68,   74,   51,
+     &     69,   70,   71,   72,   73/
+
+
+      DATA (IRRRXN( 18 , TERM), TERM =    1 ,    7) /
+     &     28,   35,   36,   45,   46,   47,   48/
+
+
+      DATA (IRRRXN( 19 , TERM), TERM =    1 ,   11) /
+     &      5,   41,   44,   45,   46,   93,   94,   95,   96,   97,
+     &     98/
+
+
+      DATA (IRRRXN( 20 , TERM), TERM =    1 ,    1) /
+     &     63/
+
+
+      DATA (IRRRXN( 21 , TERM), TERM =    1 ,    1) /
+     &     74/
+
+
+      DATA (IRRRXN( 22 , TERM), TERM =    1 ,    1) /
+     &     11/
+
+
+      DATA (IRRRXN( 24 , TERM), TERM =    1 ,   12) /
+     &     79,   80,   81,   82,   83,   84,   85,   87,   88,   89,
+     &     90,   91/
+
+
+      DATA (IRRRXN( 25 , TERM), TERM =    1 ,   26) /
+     &    121,  122,  123,  124,  125,  126,  127,  128,  129,  130,
+     &    131,  132,  133,  135,  136,  137,  138,  139,  140,  141,
+     &    142,  144,  145,  146,  150,  156/
+
+
+      DATA (IRRRXN( 26 , TERM), TERM =    1 ,   21) /
+     &     51,   52,   53,   54,   55,   56,   57,   58,   59,   60,
+     &     61,   64,   65,   67,   68,   69,   70,   71,   72,   73,
+     &     74/
+
+
+      DATA (IRRRXN( 27 , TERM), TERM =    1 ,    1) /
+     &     45/
+
+
+      DATA (IRRRXN( 31 , TERM), TERM =    1 ,    4) /
+     &     46,   47,   48,   72/
+
+
+      DATA (IRRRXN( 32 , TERM), TERM =    1 ,    3) /
+     &     41,   48,  120/
+
+
+      DATA (IRRRXN( 34 , TERM), TERM =    1 ,    4) /
+     &     80,   81,   82,   87/
+
+
+      DATA (IRRRXN( 36 , TERM), TERM =    1 ,   22) /
+     &    121,  122,  123,  124,  125,  126,  127,  128,  129,  130,
+     &    133,  135,  136,  137,  138,  139,  140,  141,  142,  146,
+     &    134,  147/
+
+
+      DATA (IRRRXN( 37 , TERM), TERM =    1 ,   11) /
+     &     61,   62,   65,   66,   67,   68,   69,   70,   71,   72,
+     &     73/
+
+
+      DATA (TEMPRXN(  1 , TERM), TERM =    1 ,    3) /
+     &     72,   75,   76/
+
+
+      DATA (TEMPRXN(  2 , TERM), TERM =    1 ,    2) /
+     &     77,   78/
+
+
+      DATA (TEMPRXN(  3 , TERM), TERM =    1 ,    2) /
+     &      4,   36/
+
+
+      DATA (TEMPRXN(  4 , TERM), TERM =    1 ,    4) /
+     &      6,   31,   32,   47/
+
+
+      DATA (TEMPRXN(  5 , TERM), TERM =    1 ,    5) /
+     &     38,    7,    8,   39,   40/
+
+
+      DATA (TEMPRXN(  6 , TERM), TERM =    1 ,    2) /
+     &     42,   43/
+
+
+      DATA (TEMPRXN(  7 , TERM), TERM =    1 ,    3) /
+     &     30,   33,   34/
+
+
+      DATA (TEMPRXN(  8 , TERM), TERM =    1 ,    2) /
+     &      5,   45/
+
+
+      DATA (TEMPRXN(  9 , TERM), TERM =    1 ,    2) /
+     &     13,  107/
+
+
+      DATA (TEMPRXN( 10 , TERM), TERM =    1 ,   13) /
+     &     14,  108,  109,  110,  111,  112,  113,  114,  115,  116,
+     &    117,  118,  119/
+
+
+      DATA (TEMPRXN( 11 , TERM), TERM =    1 ,    2) /
+     &     15,  116/
+
+
+      DATA (TEMPRXN( 12 , TERM), TERM =    1 ,    3) /
+     &      6,   32,   31/
+
+
+      DATA (TEMPRXN( 13 , TERM), TERM =    1 ,   15) /
+     &     14,  108,  109,  110,  111,  112,  113,  114,  115,  116,
+     &    117,  118,  119,  149,  155/
+
+
+      DATA (TEMPRXN( 14 , TERM), TERM =    1 ,    2) /
+     &     28,   29/
+
+
+      DATA (TEMPRXN( 15 , TERM), TERM =    1 ,    4) /
+     &     12,  104,  105,  106/
+
+
+      DATA (TEMPRXN( 16 , TERM), TERM =    1 ,    4) /
+     &     16,   19,   20,   96/
+
+
+      DATA (TEMPRXN( 17 , TERM), TERM =    1 ,    1) /
+     &     16/
+
+
+      DATA (TEMPRXN( 18 , TERM), TERM =    1 ,    2) /
+     &     20,   97/
+
+
+      DATA (TEMPRXN( 19 , TERM), TERM =    1 ,    2) /
+     &     76,   75/
+
+
+      DATA (TEMPRXN( 20 , TERM), TERM =    1 ,    2) /
+     &     78,   77/
+
+
+      DATA (COEFOUTPOS(TERM), TERM =    1 ,   28) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     2.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     2.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000/
+
+
+      DATA (COEFOUTNEG(TERM), TERM =    1 ,   19) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       2.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000/
+
+
+      DATA (COEFOUTIND(TERM), TERM =    1 ,   12) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     2.0000/
+
+
+      DATA (TEMPCOEF(  1 , TERM), TERM =     1 ,    3) /
+     &      -1.0000,     1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  2 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  3 , TERM), TERM =     1 ,    2) /
+     &      -1.0000,     1.0000/
+
+
+      DATA (TEMPCOEF(  4 , TERM), TERM =     1 ,    4) /
+     &      -1.0000,     1.0000,    -1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  5 , TERM), TERM =     1 ,    5) /
+     &       1.0000,    -1.0000,    -1.0000,    -1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  6 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  7 , TERM), TERM =     1 ,    3) /
+     &       1.0000,    -1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  8 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF(  9 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 10 , TERM), TERM =     1 ,   13) /
+     &       1.0000,    -1.0000,    -1.0000,    -1.0000,    -1.0000,
+     &      -1.0000,    -1.0000,    -1.0000,    -1.0000,    -1.0000,
+     &      -1.0000,    -1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 11 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 12 , TERM), TERM =     1 ,    3) /
+     &       1.0000,     1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 13 , TERM), TERM =     1 ,   15) /
+     &       1.0000,    -1.0000,    -1.0000,    -1.0000,    -1.0000,
+     &      -1.0000,    -1.0000,    -1.0000,    -1.0000,    -1.0000,
+     &      -1.0000,    -1.0000,    -1.0000,    -1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 14 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 15 , TERM), TERM =     1 ,    4) /
+     &       1.0000,     0.2200,     0.3100,     0.2200/
+
+
+      DATA (TEMPCOEF( 16 , TERM), TERM =     1 ,    4) /
+     &       1.0000,     1.0000,     0.0200,     1.0000/
+
+
+      DATA (TEMPCOEF( 17 , TERM), TERM =     1 ,    1) /
+     &       1.0000/
+
+
+      DATA (TEMPCOEF( 18 , TERM), TERM =     1 ,    2) /
+     &       1.0000,     1.0000/
+
+
+      DATA (TEMPCOEF( 19 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (TEMPCOEF( 20 , TERM), TERM =     1 ,    2) /
+     &       1.0000,    -1.0000/
+
+
+      DATA (IRRCOEF(  1 , TERM), TERM =     1 ,   22) /
+     &       1.0000,     1.0000,     1.0000,     2.0000,     2.0000,
+     &       1.0000,     1.0000,     1.0000,     0.9640,     0.9200,
+     &       0.7600,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000/
+
+
+      DATA (IRRCOEF(  2 , TERM), TERM =     1 ,   25) /
+     &       2.0000,     2.0000,     1.0000,     1.0000,     1.0000,
+     &       2.0000,     2.0000,     3.0000,     1.0000,     2.0000,
+     &       2.0000,     2.0000,     2.0000,     2.0000,     2.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000/
+
+
+      DATA (IRRCOEF(  3 , TERM), TERM =     1 ,    5) /
+     &       1.0000,     0.0360,     0.0800,     0.0240,     1.0000/
+
+
+      DATA (IRRCOEF(  4 , TERM), TERM =     1 ,    7) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     2.0000/
+
+
+      DATA (IRRCOEF(  5 , TERM), TERM =     1 ,    1) /
+     &       2.0000/
+
+
+      DATA (IRRCOEF(  6 , TERM), TERM =     1 ,    3) /
+     &       0.1000,     0.1400,     0.1000/
+
+
+      DATA (IRRCOEF(  7 , TERM), TERM =     1 ,   12) /
+     &       2.0000,     1.0000,     0.8000,     1.0000,     0.9800,
+     &       1.0000,     1.0000,     1.0000,     0.1200,     0.2300,
+     &       0.2600,     0.2300/
+
+
+      DATA (IRRCOEF(  8 , TERM), TERM =     1 ,   57) /
+     &       2.0000,     1.0000,     0.8000,     1.0000,     0.9800,
+     &       1.0000,     1.0000,     1.0000,     0.1200,     0.2300,
+     &       0.2600,     0.2300,     1.0000,     0.1700,     0.2500,
+     &       0.1700,     0.1000,     1.0000,     1.0000,     1.0000,
+     &       0.9640,     0.9200,     0.7600,     1.0000,     1.0000,
+     &       1.0000,     0.9200,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       0.5000,     2.0000,     2.0000,     0.4600,     0.5000,
+     &       0.5000,     0.5000,     0.5000,     0.5000,     0.5000,
+     &       0.5000,     0.5000,     1.0000,     1.0000,     0.9200,
+     &       1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 10 , TERM), TERM =     1 ,   22) /
+     &       1.0000,     0.8300,     1.2500,     1.7500,     1.0000,
+     &       1.0000,     1.0000,     0.7500,     0.8300,     1.8000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     0.5000,     0.5000,     1.0000,     1.0000,
+     &       1.0000,     2.0500/
+
+
+      DATA (IRRCOEF( 11 , TERM), TERM =     1 ,    2) /
+     &       1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 12 , TERM), TERM =     1 ,    1) /
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 13 , TERM), TERM =     1 ,    1) /
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 14 , TERM), TERM =     1 ,   15) /
+     &       1.0000,     0.9640,     0.9200,     0.7600,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 16 , TERM), TERM =     1 ,    7) /
+     &      -1.0000,    -1.0000,     0.0360,     0.0800,     0.2400,
+     &       1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 17 , TERM), TERM =     1 ,   25) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 18 , TERM), TERM =     1 ,    7) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 19 , TERM), TERM =     1 ,   11) /
+     &      -1.0000,     1.0000,     2.0000,     1.0000,    -1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 20 , TERM), TERM =     1 ,    1) /
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 21 , TERM), TERM =     1 ,    1) /
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 22 , TERM), TERM =     1 ,    1) /
+     &       2.0000/
+
+
+      DATA (IRRCOEF( 24 , TERM), TERM =     1 ,   12) /
+     &       1.0000,     0.9640,     0.9200,     0.7600,     1.0000,
+     &       1.0000,     1.0000,     0.9200,     1.0000,     1.0000,
+     &       1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 25 , TERM), TERM =     1 ,   26) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     0.5000,
+     &       2.0000,     2.0000,     0.4600,     0.5000,     0.5000,
+     &       0.5000,     0.5000,     0.5000,     0.5000,     0.5000,
+     &       0.5000,     1.0000,     1.0000,     0.9200,     1.0000,
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 26 , TERM), TERM =     1 ,   21) /
+     &       1.0000,     1.0000,     0.8300,     1.2500,     1.7500,
+     &       1.0000,     1.0000,     1.0000,     0.7500,     0.8300,
+     &       1.8000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       0.5000,     0.5000,     1.0000,     1.0000,     1.0000,
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 27 , TERM), TERM =     1 ,    1) /
+     &       1.0000/
+
+
+      DATA (IRRCOEF( 31 , TERM), TERM =     1 ,    4) /
+     &       1.0000,     1.0000,     1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 32 , TERM), TERM =     1 ,    3) /
+     &       1.0000,     1.0000,     1.0000/
+
+
+      DATA (IRRCOEF( 34 , TERM), TERM =     1 ,    4) /
+     &       0.0360,     0.0800,     0.2400,     0.0300/
+
+
+      DATA (IRRCOEF( 36 , TERM), TERM =     1 ,   22) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.5150,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0300,
+     &       0.5000,     0.5000/
+
+
+      DATA (IRRCOEF( 37 , TERM), TERM =     1 ,   11) /
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000,     1.0000,     1.0000,     1.0000,     1.0000,
+     &       1.0000/
+
+
+
+C............ End of Process Analysis DATA Include File   ....................
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

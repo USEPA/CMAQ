@@ -1,0 +1,114 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.06.07.17.36.44;  author yoj;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.06.07.17.36.44;  author yoj;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#! /bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/arc/ICON/src/bldmake/getic,v 1.1 2011/09/27 17:25:01 yoj Exp $
+
+# script to extract code from archive to build a complete ICON code package
+
+set echo
+
+ set ARC     = /project/work/rep/arc
+ set Project = $ARC/ICON
+ set Mechs   = $ARC/mechs/release
+
+#> user choices: base working directory
+ set Base = $cwd
+
+ set APPL = V50   # icon
+
+#set Revision = release       # release = latest CVS revision
+ set Revision = HEAD
+#set Revision = '5_0'
+
+ set Bld = $Base/BLD_${APPL}
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+ else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ set Type = profile
+#set Type = m3conc
+#set Type = tracer
+ set ParOpt = 1   # on
+ 
+ cd $Bld
+
+ set CMD = "cvs -d $Project export -d. -r $Revision"
+
+#> Common Module
+ $CMD common
+
+#> Par Module
+ if ( $?ParOpt ) $CMD par
+
+#> Type Module
+ $CMD $Type
+
+#> base mechanism
+ set mech = cb05
+#set mech = saprc99
+#set mech = saprc07t
+
+#> Namelists for mechanism
+#set Mechanism = ${mech}cl_ae5_aq
+#set Mechanism = ${mech}cl_ae6_aq
+ set Mechanism = ${mech}tucl_ae5_aq
+#set Mechanism = ${mech}tucl_ae6_aq
+
+#set Mechanism = ${mech}_ae5_aq
+#set Mechanism = ${mech}_ae6_aq
+
+#set Mechanism = ${mech}b_ae5_aq
+#set Mechanism = ${mech}b_ae6_aq
+#set Mechanism = ${mech}c_ae5_aq
+#set Mechanism = ${mech}c_ae6_aq
+
+#> Profile mech Module
+ if ( $Type == "profile" ) $CMD $mech
+
+ /bin/cp -p  $Mechs/$Mechanism/*.nml     $Bld
+ /bin/cp -p  $Mechs/trac0/*.nml          $Bld
+
+ exit
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

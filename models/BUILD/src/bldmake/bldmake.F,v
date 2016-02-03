@@ -1,0 +1,825 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @c @;
+
+
+1.1
+date     2012.04.19.19.46.09;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.46.09;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@!-----------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in    !
+!  continuous development by various groups and is based on information !
+!  from these groups: Federal Government employees, contractors working !
+!  within a United States Government contract, and non-Federal sources  !
+!  including research institutions.  These groups give the Government   !
+!  permission to use, prepare derivative works of, and distribute copies!
+!  of their work in the CMAQ system to the public and to permit others  !
+!  to do so.  The United States Environmental Protection Agency         !
+!  therefore grants similar permission to use the CMAQ system software, !
+!  but users are requested to provide copies of derivative works or     !
+!  products designed to operate in the CMAQ system to the United States !
+!  Government without restrictions as to use by others.  Software       !
+!  that is used with the CMAQ system but distributed under the GNU      !
+!  General Public License or the GNU Lesser General Public License is   !
+!  subject to their copyright restrictions.                             !
+!-----------------------------------------------------------------------!
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/BUILD/src/bldmake/bldmake.F,v 1.6 2012/04/11 13:38:26 sjr Exp $
+
+C*******************************************************************************************
+c      PROGRAM bldmake
+c
+c      Generates a Makefile for source files extracted from a CVS archive
+c
+C*******************************************************************************************
+
+      Program bldmake
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      Character(256) cfgFile
+      Integer :: lfn = 11
+      Integer status
+      Integer n
+
+      ! call Setup routine to process command line arguments
+      Call SETUP( cfgFile )
+
+      ! open cfgFile
+      Open(unit=lfn, file=cfgFile, status='old', iostat=status)
+      if( status.ne.0 ) then
+        Write(*,'('' Open error number:'',i5)') status
+        Call ERROR_MSG( 'Cannot open FILE [' // TRIM(cfgFile) //']' )
+        endif
+
+      ! read CFG file
+      Call ReadCFG( lfn )
+      Close(unit=lfn)
+
+      ! extract files for each module
+      if( checkout ) then
+        Call co_module( status )
+      else
+        Call export( status )
+        endif
+
+      ! create Makefile
+      Open(unit=lfn, file='Makefile', iostat=status)
+      if( status.ne.0 ) Call ERROR_MSG( 'Cannot create FILE [Makefile]' )
+
+      Call makefile( lfn, cfgFile )
+
+      Close(unit=lfn)
+
+      ! if not make, then run the make command to build
+      if( .NOT.make ) then
+        Call RunMake( status )
+        endif
+
+
+      Stop
+      end Program bldmake
+
+
+C****************************************************************************************
+c      Setup routine:  gets input file and run options from command line
+c
+C*****************************************************************************************
+      Subroutine SETUP( cfgFile )
+
+      Use ModelCfg
+
+      IMPLICIT NONE
+
+      ! arguments
+      Character(*) cfgFile
+
+      ! functions
+      Integer :: IARGC
+
+      ! local variables
+      Integer nargs
+      Integer n
+      Character*(32) argv
+
+      ! date and time variables
+      Character*(8)    :: cdate
+      Character*(10)   :: ctime
+      Character*(5)    :: czone
+      Integer          :: dateValues(8)
+
+      ! set defaults
+      debug = .false.
+      verbose = .false.
+      checkout = .false.
+      make = .false.
+
+      ! check number of arguments on command line
+      nargs = IARGC()
+      if( nargs .eq. 0 ) then
+        Call HELP_MSG('No arguments on command line')
+        Stop
+        endif
+
+      ! set last argument to cfgFile
+      Call GETARG( nargs, cfgFile )
+      if( cfgFile(1:1) .eq. '-' ) then
+        Call UCASE( cfgFile )
+
+        if( cfgFile .eq. '-HELP' ) then
+          Call HELP_MSG('')
+          Call cfgHelp( )
+          Stop
+          endif
+
+        Call HELP_MSG('Invalid configuration file argument:' // TRIM(cfgFile) )
+        Stop
+        endif
+
+      ! check for run options
+      do n = 1, nargs-1
+        Call GETARG(n,argv)
+
+        if( argv(1:1) .ne. '-' ) then
+          Call HELP_MSG('Invalid arguments on command line:' // TRIM(argv) )
+          Stop
+          endif
+
+        Call UCASE( argv )
+
+        if( argv .eq. '-HELP' ) then
+          Call HELP_MSG('Help option:' // TRIM(argv) )
+          Call cfgHelp( )
+          Stop
+          endif
+
+        if( argv .eq. '-MAKE' ) then
+          make = .true.
+          CYCLE
+          endif
+
+        if( argv .eq. '-CO' ) then
+          checkout = .true.
+          CYCLE
+          endif
+
+        if( argv .eq. '-DEBUG' ) then
+          debug = .true.
+          CYCLE
+          endif
+
+        if( argv .eq. '-VERBOSE' ) then
+          verbose = .true.
+          CYCLE
+          endif
+
+        Call HELP_MSG('Invalid arguments [' // TRIM(argv) // '] on command line')
+
+        enddo
+
+      !! verify that system variable CVSROOT is defined
+      cvsroot = ' '
+      Call GETENV('CVSROOT', cvsroot)
+      if( cvsroot.eq.' ' ) then
+        Write(*,'(/,''**ERROR** System variable [CVSROOT] not defined.'',/)')
+        Write(*,'('' ( System variable CVSROOT must be set to your cvs archive. )'',/)')
+        Stop
+        endif
+
+      if( debug .or. verbose ) then
+        Write(*,'(''System variable [CVSROOT] set to:'',a,/)') TRIM( cvsroot )
+        endif
+
+      !!  get system date and time
+      Call date_and_time( cdate, ctime, czone, dateValues )
+      Write(currentDate, '(i2.2,''/'',i2.2,''/'',2i4.2,'':'',i2.2,'':'',i2.2)')
+     &   dateValues(2), dateValues(3), dateValues(1),
+     &   dateValues(5), dateValues(6), dateValues(7)
+
+      return
+      End Subroutine SETUP
+
+
+C****************************************************************************************
+c      Help message:  Prints command line format and options and stops run
+C*****************************************************************************************
+      Subroutine HELP_MSG( msg )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Character(*) msg
+
+      Write(*,'(/,a)') TRIM( msg )
+
+      Write(*,'(/,''Usage: bldmake [-<option>...] filename'')')
+      Write(*,'(/,''where <option> is one of the following:'',/)')
+
+      Write(*,'(''-verbose     Echo CVS actions.'')')
+      Write(*,'(''-debug       Echo all actions.'')')
+      Write(*,'(''-make        Creates Makefile without building.'')')
+      Write(*,'(''-co          Uses CVS checkout (creates module directories).'')')
+      Write(*,'(''-help        Displays help screen.'')')
+      Write(*,'(//)')
+
+      End Subroutine HELP_MSG
+
+
+C****************************************************************************************
+c     Error:  Prints error string and stops run
+C*****************************************************************************************
+      Subroutine ERROR_MSG( msg )
+
+      IMPLICIT NONE
+
+      ! arguments
+      Character(*) msg
+
+      Write(*,'(/,''*** Program terminated on Error ***'',/)')
+      Write(*,'(5x,a,//)') TRIM( msg )
+
+      Stop
+      End Subroutine ERROR_MSG
+
+
+
+C****************************************************************************************
+c      Makefile routine:  creates Makefile from CFG data
+c
+C*****************************************************************************************
+      Subroutine makefile( lfn, cfgFile )
+
+      Use ModelCfg
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+      Character(*) cfgFile
+
+      if( verbose ) then
+        Write(*,'(/''Generating Makefile''/)')
+        endif
+
+      ! print header lines
+      Write(lfn,'(''#   Makefile generated using program [bldmake]'')')
+      Write(lfn,'(''#'')')
+      Write(lfn,'(''#   Generation date ['',a,'']'')') TRIM( currentDate )
+      Write(lfn,'(''#   Configuration file ['',a,'']'')') TRIM( cfgFile )
+      Write(lfn,'(''#   CVS archive ['',a,'']'')') TRIM( cvsroot )
+      Write(lfn,'(''#'')')
+
+      Write(lfn,'(/,''MODEL = '',a)') TRIM( model )
+
+      Write(lfn,'(/,''FC    = '',a)') TRIM( f_compiler )
+      Write(lfn,'(''CC    = '',a)') TRIM( c_compiler )
+
+      Write(lfn,'(/,''f_FLAGS       = '',a)') TRIM( f_flags )
+      Write(lfn,'(''F_FLAGS       = '',a)') TRIM( Fflags )
+      Write(lfn,'(''f90_FLAGS     = '',a)') TRIM( f90_flags )
+      Write(lfn,'(''F90_FLAGS     = '',a)') TRIM( F90flags )
+      Write(lfn,'(''C_FLAGS       = '',a)') TRIM( c_flags )
+
+      if( verbose ) then
+        Write(*,'(''  Compilers defined'')')
+        endif
+
+      Write(lfn,'(/,''LINKER        = '',a)') TRIM( linker )
+      Write(lfn,'(''LINK_FLAGS    = '',a)') TRIM( link_flags )
+
+      if( LEN_TRIM(VPATH) .gt. 0 ) Then
+        Write(lfn,'(/,''#   Search PATH for source files'')')
+        Write(lfn,'(''VPATH = '',a)') TRIM( VPATH )
+        endif
+
+      Call WriteCPP( lfn )
+      if( verbose ) then
+        Write(*,'(''  CPP Flags defined'')')
+        endif
+
+      Call WriteLIB( lfn )
+      if( verbose ) then
+        Write(*,'(''  Libraries defined'')')
+        endif
+
+      Call WriteINC( lfn )
+      if( verbose ) then
+        Write(*,'(''  Includes defined'')')
+        endif
+
+      Call WriteOBJS( lfn )
+      if( verbose ) then
+        Write(*,'(''  Objects defined'')')
+        endif
+
+      Call WriteRules( lfn )
+      if( verbose ) then
+        Write(*,'(''  Make rules defined'')')
+        endif
+
+      Call WriteDEP( lfn )
+      if( verbose ) then
+        Write(*,'(''  USE/MODULE dependencies defined'')')
+        endif
+
+      Write(*,'(/''Makefile generated'')')
+
+      return
+      end Subroutine makefile
+
+
+C****************************************************************************************
+c      WriteCPP routine:  Writes each '-D' on its own line
+c
+C*****************************************************************************************
+      Subroutine writeCPP( lfn )
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+
+      ! functions
+      Integer getFieldCount
+
+      ! local variables
+      Integer nfields
+      Integer n
+      Character( 256 ) field
+
+
+      Write(lfn,'(/,''CPP = '',a)') TRIM( cpp )
+
+      nfields = getFieldCount( cpp_flags, ' ' )
+
+      if( nfields .le. 1 ) then
+        Write(lfn,'(''CPP_FLAGS = '',a)') TRIM( cpp_flags )
+        return
+        endif
+
+      Write(lfn,'(''CPP_FLAGS ='',$)')
+
+      !! print each field at a time
+      do n = 1, nfields
+        Call getField( cpp_flags, ' ', n, field )
+        Write(lfn,'(1x,a,/,2x,a,$)') backslash, TRIM( field )
+        enddo
+
+      Write(lfn,'(1x)')
+
+      return
+      end Subroutine writeCPP
+
+
+C****************************************************************************************
+c      WriteLIB routine:  Writes libraries line to Makefile
+c
+C*****************************************************************************************
+      Subroutine writeLIB( lfn )
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+
+      ! functions
+      Integer getFieldCount
+
+      ! local variables
+      Integer nfields
+      Integer n
+      Integer pos
+      Character( 256 ) field
+      Character( 256 ) librec
+      Character( 256 ) libname
+      Character( 256 ) libs
+
+
+      !!Write(lfn,'(/,''#   Library paths'')')
+      Write(lfn,'(1x)')
+
+      nfields = getFieldCount( libraries, ' ' )
+
+      if( nfields .le. 1 ) then
+        Write(lfn,'(''LIBRARIES  = '',a)') TRIM( libraries )
+        return
+        endif
+
+      libs =  'LIBRARIES ='
+
+      !! parse library fields
+      librec = ' '
+      libname = ' '
+      do n = 1, nfields
+        Call getField( libraries, ' ', n, field )
+
+        if( n.gt.1 .and. field(1:2) .eq. '-L' ) then
+          if( libname.eq.' ' ) Write(libname,'(''LIB'',i2.2)') n/2
+
+          Write(lfn,'(a)') TRIM(libname) // ' = ' // TRIM(librec)
+          libs = TRIM(libs) // ' $(' // TRIM(libname) // ')'
+          librec = ' '
+          libname = ' '
+          endif
+
+        librec = TRIM( librec ) // ' ' // TRIM( field )
+
+        pos = INDEX( librec, '-l' )
+        if( libname.eq.' ' .and. pos.gt.0 ) then
+           libname = librec(pos+2:)
+           Call UCASE( libname )
+           endif
+
+        enddo
+
+      if( libname.eq.' ' ) Write(libname,'(''LIB'',i2.2)') n/2
+      Write(lfn,'(a)') TRIM(libname) // ' = ' // TRIM(librec)
+      libs = TRIM(libs) // ' $(' // TRIM(libname) // ')'
+
+      !!Write(lfn,'(/,''#   Libraries'')')
+      Write(lfn,'(/,a)') TRIM(libs)
+
+      return
+      end Subroutine writeLIB
+
+
+C****************************************************************************************
+c      WriteINC routine:  Writes include lines to Makefile
+c
+C*****************************************************************************************
+      Subroutine writeINC( lfn )
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+
+      ! functions
+      Integer getNumberOfFields
+
+      ! local variables
+      Integer n
+      Integer i
+      Integer k
+      Integer nkeys
+      Integer pos
+      Integer pos2
+      Character(256)  base_inc
+      Character(256)  ioapi_inc
+      Character(256)  mech_inc
+      Character(256)  trac_inc
+      Character(256)  mpi_inc
+
+      Character(256)  pathName(5)
+      Character(256)  pathChk(5)
+      Character(256)  pathStr(5)
+      Character(256)  pathkey(5)
+      Character(256)  key
+      Logical         hasPaths
+
+      Character(256)  path
+
+      Data pathName /'BASE_INC', 'IOAPI_INC', 'MECH_INC', 'TRAC_INC', 'MPI_INC'/
+      Data pathChk /'SUBST_CONST', 'SUBST_IOPARMS', 'SUBST_GC_SPC', 'SUBST_TR_SPC', 'SUBST_MPICH'/
+      Data pathKey /'', '', '_GC_:_AE_:_NR_', '_TR_', ''/
+
+
+      if( n_includes .eq. 0 ) return
+
+      pathStr = ' '
+      hasPaths = .false.
+
+      ! find path strings
+      do n=1,n_includes
+        do i=1,SIZE( pathName )
+          if( include(n)%name .eq. pathChk(i) ) then
+            pos = INDEX( include(n)%path, '/', .true.)
+            pathStr(i) = include(n)%path(1:pos-1)
+            hasPaths = .true.
+            endif
+          enddo
+        enddo
+
+      ! if paths found, write them
+      if( hasPaths ) then
+        Write(lfn,'(1x)')
+
+        do i=1,SIZE( pathName )
+          if( pathStr(i) .ne. ' ' ) then
+            Write(lfn,'(a,'' = '',a)') TRIM(pathName(i)), TRIM(pathStr(i))
+            endif
+          enddo
+        endif     ! has paths
+
+      ! write include lines
+      Write(lfn,'(/''INCLUDES = '',a)') backslash
+      Write(lfn,'(''  -DSUBST_GRID_ID='',$)')
+
+      do n=1,n_includes
+        path = include(n)%path
+
+        do i = SIZE( pathName ), 1, -1
+          if(pathStr(i) .eq. ' ') CYCLE
+
+          nkeys = getNumberOfFields( pathKey(i), ':' )
+          pos = 0
+          do k=1,nkeys
+            Call getField( pathKey(i), ':', k, key )
+            pos = pos + INDEX(include(n)%name, TRIM(key))
+            enddo
+
+          if( pos.gt.0 .and. INDEX( path, TRIM(pathStr(i)) ) .gt. 0 ) then
+            pos = INDEX( path, TRIM(pathStr(i)) )
+            pos2 = pos + LEN_TRIM(pathStr(i))
+            if( pos .gt. 1 ) path = path(1:pos-1) // '$(' // TRIM(pathName(i)) // ')' // path(pos2:)
+            if( pos .le. 1 ) path = '$(' // TRIM(pathName(i)) // ')' // path(pos2:)
+            endif
+          enddo
+
+        do i = 1, SIZE( pathName )
+          if( pathStr(i) .ne. ' ' .and. INDEX( path, TRIM(pathStr(i)) ) .gt. 0 ) then
+            pos = INDEX( path, TRIM(pathStr(i)) )
+            pos2 = pos + LEN_TRIM( pathStr(i) )
+            if( pos .gt. 1 ) path = path(1:pos-1) // '$(' // TRIM(pathName(i)) // ')' // path(pos2:)
+            if( pos .le. 1 ) path = '$(' // TRIM(pathName(i)) // ')' // path(pos2:)
+            endif
+          enddo
+
+        Write(lfn,'(1x,a,/,''  -D'',a,''='',a,''"'',a,a,''"'',$)') backslash,
+     &       TRIM(include(n)%name), backslash, TRIM(path), backslash
+
+        !! define include(n)%path2 to path with macro subsitutions
+        include(n)%path2 = path
+
+        enddo
+
+      Write(lfn,'(1x)')
+
+      return
+      end Subroutine writeINC
+
+
+C****************************************************************************************
+c      WriteOBJS routine:  Writes objects files by modules to Makefile
+c
+C*****************************************************************************************
+      Subroutine writeOBJS( lfn )
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+
+      ! functions
+      Integer getNumberOfFields
+
+      ! local variables
+      Character(FLD_LEN) :: filename(MAX_FILES)
+      Integer            :: nfiles
+      Integer            :: nfields
+      Integer            :: n
+      Integer            :: i
+      Integer            :: pos
+      Character(FLD_LEN) :: modname
+      Character(FLD_LEN) :: obj
+      Character(FLD_LEN) :: objStr
+
+
+      objStr = ' '
+
+      ! get list of all global modules
+      Call orderfiles( module(1), .true., nfiles, filename )
+      modname = 'GLOBAL_MODULES'
+
+      if( nfiles .gt. 0 ) then
+        Write(lfn,'(/,a,'' ='',$)') TRIM( modname )
+        objStr = '$(' // TRIM(modname) // ')'
+        do i = 1, nfiles
+          pos = INDEX(filename(i), '.')
+          if( pos .le. 0 ) CYCLE
+          obj = filename(i)(1:pos) // 'o'
+          Write(lfn,'(1x,a,/,2x,a,$)') backslash, TRIM(obj)
+          enddo
+        endif
+
+      ! loop thru each module and build list of objects
+      do n = 1, n_modules
+        Call orderfiles( module(n), .false., nfiles, filename )
+
+        if( nfiles .gt. 0 ) then
+          modname = module(n)%name
+          Call UCASE( modname )
+          Write(lfn,'(//,a,'' ='',$)') TRIM(modname)
+          objStr = TRIM(objStr) // ' $(' // TRIM(modname) // ')'
+          do i = 1, nfiles
+            pos = INDEX(filename(i), '.')
+            if( pos .le. 0 ) CYCLE
+            obj = filename(i)(1:pos) // 'o'
+            Write(lfn,'(1x,a,/,2x,a,$)') backslash, TRIM(obj)
+            enddo
+          endif
+        enddo
+
+
+      Write(lfn,'(//,''OBJS ='',$)')
+
+      nfields = getNumberOfFields( objStr, ' ')
+      do n = 1, nfields
+        Call getField( objStr, ' ', n, obj )
+        Write(lfn,'(1x,a,/,2x,a,$)') backslash, TRIM(obj)
+        enddo
+
+      Write(lfn,'(1x)')
+
+      return
+      end Subroutine writeOBJS
+
+
+C****************************************************************************************
+c      WriteDEP routine:  Writes USE/MODULE and INCLUDE dependencies lines to Makefile
+c
+C*****************************************************************************************
+      Subroutine writeDEP( lfn )
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer lfn
+
+      ! functions
+      Integer getNumberOfFields
+
+      ! local variables
+      Character(FLD_LEN) :: objname
+      Character(FLD_LEN) :: reqStr 
+      Character(32)      :: modName
+      Character(32)      :: modFile
+      Integer            :: nfields
+      Integer            :: n
+      Integer            :: i
+      Integer            :: j
+      Integer            :: pos
+      Character(1)       :: tab = char(9)
+
+      Logical            :: incdep(n_includes)
+      Integer            :: ndep
+      Character(FLD_LEN) :: depfile(MAX_FILES+n_includes)
+
+      Write(lfn,'(''# dependencies'',/)')
+
+      ! loop thru each module and write list of source file dependencies
+      do n = 1, n_modules
+        do i = 1, module(n)%nfiles
+          ndep = 0
+          depfile = ''
+
+          !! build object filename
+          objname = module(n)%file(i)%name
+          pos = INDEX(objname, '.')
+          if( pos .gt. 0 ) objname = objname(1:pos) // 'o'
+
+          !! parse uses string to get module names 
+          nfields = getNumberOfFields( module(n)%file(i)%uses, ':' )
+          if( nfields .gt. 2 ) then 
+            do j = 2, nfields-1
+              Call getField( module(n)%file(i)%uses, ':', j, modName )
+              Call getModFile( modName, modFile ) 
+              if( LEN_TRIM(modFile) .gt. 0 ) then 
+                ndep = ndep+ 1
+                depfile( ndep ) = modFile
+                endif
+              enddo
+            endif   !! has uses files
+
+          !! check for include file dependencies
+          Call getIncDep( module(n)%file(i)%path, incdep )
+          do j = 1, n_includes
+            if( incdep(j) ) then
+              ndep = ndep+ 1
+              depfile( ndep ) = include(j)%path2
+              endif
+            enddo
+              
+          !! write dependencies string
+          reqStr = ''
+          do j = 1, ndep
+
+             if( LEN_TRIM(reqStr) .eq. 0 ) then
+               reqStr = TRIM(objName) // ':' // tab // depFile(j)
+             else if( LEN_TRIM(reqStr) .le. 60 ) then
+               reqStr = TRIM(reqStr) // ' ' // depFile(j)
+             else
+               Write(lfn,'(a,1x,a)') TRIM(reqStr), backslash
+               reqStr = tab // tab // depFile(j)
+             endif
+  
+            enddo
+
+          if( LEN_TRIM(reqStr) .gt. 0 ) Write(lfn,'(a)') TRIM(reqStr) 
+
+          enddo    !! file loop
+        enddo    !! module loop
+
+      return
+      end Subroutine writeDEP 
+
+
+
+C****************************************************************************************
+c      WriteRules routine:  Writes rules to Makefile
+c
+C*****************************************************************************************
+      Subroutine writeRules( lfn )
+
+      Use ModelCFG
+
+      IMPLICIT NONE
+
+      ! arguments
+      Integer            :: lfn
+
+      ! local variables
+      Integer            :: n
+      Character(FLD_LEN) :: record
+      Character(1)       :: tab = char(9)
+
+
+      !! build SUFFIXES record
+      record = '.SUFFIXES:'
+
+      do n = 1, SIZE(extension)
+        record = TRIM(record) // ' ' // extension(n)
+        enddo
+
+      Write(lfn,'(/,a)') TRIM( record )
+
+
+      Write(lfn,'(/,''$(MODEL): $(OBJS)'')')
+      Write(lfn,'(a,''$(LINKER) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@@'',/)') tab
+
+      Write(lfn,'(''.F.o:'')')
+      Write(lfn,'(a,''$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<'',/)') tab
+
+      Write(lfn,'(''.f.o:'')')
+      Write(lfn,'(a,''$(FC) -c $(f_FLAGS) $<'',/)') tab
+
+      Write(lfn,'(''.F90.o:'')')
+      Write(lfn,'(a,''$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<'',/)') tab
+
+      Write(lfn,'(''.f90.o:'')')
+      Write(lfn,'(a,''$(FC) -c $(f90_FLAGS) $<'',/)') tab
+
+      Write(lfn,'(''.c.o:'')')
+      Write(lfn,'(a,''$(CC) -c $(C_FLAGS) $<'',/)') tab
+
+      Write(lfn,'(''clean:'')')
+      Write(lfn,'(a,''rm -f $(OBJS) $(MODEL) *.mod'',/)') tab
+
+      Write(lfn,'(1x)')
+
+      return
+      end Subroutine writeRules
+
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

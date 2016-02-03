@@ -1,0 +1,423 @@
+#! /bin/csh -f
+
+# ====================== CCTMv5.0.1 Run Script ====================== #
+# Usage: run.cctm >&! cctm_V5.log &                                   #
+# The following environment variables must be set for this script to  #
+# execute properly:                                                   #
+#   setenv M3DATA =  input/output data directory                      #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+ 
+#> Source the config.cmaq file to set the run environment
+
+ source ../config.cmaq
+
+#> Check that M3DATA is set:
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL     = V5g
+ set CFG      = CMAQ-BENCHMARK
+ set MECH     = cb05tucl_ae6_aq 
+ set EXEC     = CCTM_${APPL}_$EXECID
+
+#> horizontal domain decomposition
+#setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
+ setenv NPCOL_NPROW "4 3"; set NPROCS   = 12
+
+#> Set the working directory:
+ set BASE     = $cwd 
+ set BLD      = ${BASE}/BLD_$APPL
+
+ cd $BASE; date; cat $BASE/cfg.${APPL}; echo "    "; set echo
+
+#> timestep run parameters
+
+ set STDATE   = 2006213       # beginning date
+ set STTIME   = 000000        # beginning GMT time (HHMMSS)
+ set NSTEPS   = 240000        # time duration (HHMMSS) for this run
+ set TSTEP    = 010000        # output time step interval (HHMMSS)
+ set YEAR  = 2006
+ set YR    = 06
+ set MONTH = 08
+ set DAY   = 01
+
+#> set log file [ default = unit 6 ]; uncomment to write standard output to a log
+#setenv LOGFILE $BASE/$APPL.log
+
+#> horizontal grid defn; check GRIDDESC file for GRID_NAME options
+ setenv GRIDDESC $M3HOME/scripts/GRIDDESC
+ setenv GRID_NAME CMAQ-BENCHMARK
+
+#> species for standard conc
+#setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J"
+
+#> layer range for standard conc
+#setenv CONC_BLEV_ELEV " 1 4"
+
+#> species for integral average conc
+ setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3"
+#setenv AVG_CONC_SPCS "ALL"
+
+#> layer range for integral average conc
+ setenv ACONC_BLEV_ELEV " 1 1"
+
+#> override default beginning time average conc timestamp [ N|F ]
+#setenv ACONC_END_TIME Y
+
+#> max sync time step (sec) [720]
+#setenv CTM_MAXSYNC 300
+ 
+#> min sync time step (sec) [60]
+#setenv CTM_MINSYNC 01
+
+#> cksum report [ Y|T ]
+#setenv CTM_CKSUM N
+
+#> cloud diagnostic file [ N|F ]
+#setenv CLD_DIAG Y
+
+#> aerosol diagnostic file [ N|F ]
+#setenv CTM_AERDIAG Y
+
+#> photolysis diagnostic file [ N|F ]
+#setenv CTM_PHOTDIAG Y
+
+#> sea-salt emissions diagnostic file [ N|F ]
+#setenv CTM_SSEMDIAG Y
+
+#> windblown dust? [ Y|T ]
+ setenv CTM_WB_DUST Y
+
+#> use agricultural activity for windblown dust? [ N|F ]
+#> - env var ignored if CTM_WB_DUST is N|F
+ setenv CTM_ERODE_AGLAND Y
+
+#> windblown dust emissions diagnostic file [ N|F ]
+#> - env var ignored if CTM_WB_DUST is N|F
+ setenv CTM_DUSTEM_DIAG Y
+
+#> turn on lightning NOx [ N|F ]
+ setenv CTM_LTNG_NO Y
+
+#> save derived vertical velocity component to conc file [ N|F ]
+ setenv CTM_WVEL Y
+
+#> use Min Kz option in edyintb [Y], otherwise revert to Kz0UT
+#setenv KZMIN Y
+
+#> inline deposition velocities [ Y|T ]
+ setenv CTM_ILDEPV Y
+
+#> landuse specific deposition velocities [ N|F ] 
+ setenv CTM_MOSAIC N
+
+#> Ammonia bi-directional flux for inline deposition velocities [ N|F ]
+#> - env var ignored if CTM_ILDEPV is N|F
+ setenv CTM_ABFLUX N
+
+#> Mercury bi-directional flux for inline deposition velocities [ N|F ]
+#> - env var ignored if CTM_ILDEPV is N|F
+ setenv CTM_HGBIDI N
+
+#> Surface HONO interaction [ Y|T ]
+#> - env var ignored if CTM_ILDEPV is N|F
+ setenv CTM_SFC_HONO Y
+
+#> diagnostic file for deposition velocities [ N|F ]
+ setenv CTM_DEPV_FILE N 
+
+#> use in-line biogenic emissions [ N|F ]
+ setenv CTM_BIOGEMIS Y
+
+#> use in-line plume rise emissions [ N|F ]
+ setenv CTM_PT3DEMIS Y
+
+#> turn off excess WRITE3 logging
+ setenv IOAPI_LOG_WRITE F
+
+#> stop on inconsistent input file [ T | Y | F | N ]
+ setenv FL_ERR_STOP F
+
+#> turn off I/O-API PROMPT*FILE interactive mode
+ setenv PROMPTFLAG F
+
+#> support needed for large timestep records (>2GB/timestep record) [ NO ]
+ setenv IOAPI_OFFSET_64 NO 
+
+#> define the model execution id
+ setenv EXECUTION_ID $EXEC
+
+#> remove existing output files?
+#set DISP = delete
+#set DISP = update
+ set DISP = keep
+
+#> output files and directories
+ set OUTDIR   = $M3DATA/cctm
+ if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+
+#> inputs
+
+#> species defn & photolysis
+ setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
+ setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
+ setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
+ setenv tr_matrix_nml ${BLD}/Species_Table_TR_0.nml
+ setenv CSQY_DATA ${BLD}/CSQY_DATA_$MECH
+ if (! (-e $CSQY_DATA ) ) then
+           echo " $CSQY_DATA  not found "
+           exit 1
+           endif
+
+#> inline biogenic emissions processing
+ if ( $?CTM_BIOGEMIS ) then   # $CTM_BIOGEMIS is defined
+    if ( $CTM_BIOGEMIS == 'Y' || $CTM_BIOGEMIS == 'T' ) then
+       set biogon = 1
+    else
+       set biogon = 0
+    endif
+ else   # $CTM_BIOGEMIS is not defined => $CTM_BIOGEMIS == 'Y'
+    set biogon = 1
+ endif
+ if ( $biogon ) then
+    set GSPROpath = ${M3DATA}/emis
+    setenv GSPRO $GSPROpath/gspro_cb05soa_notoxics_cmaq_poc_09nov2007.txt
+    set IN_BEISpath = ${M3DATA}/emis
+    setenv B3GRD     $IN_BEISpath/b3grd_CMAQ-BENCHMARK_C70_2006am_Fulltox.ncf
+#   setenv BIOSEASON $IN_BEISpath/bioseason.cmaq.2002_02b_CMAQ-BENCHMARK_v31.ncf
+    setenv BIOG_SPRO     B10C5 # speciation profile to use for biogenics
+    setenv BIOSW_YN      N     # use frost date switch [Y|T]
+    setenv SUMMER_YN     Y     # Use summer normalized emissions? [Y|T]
+#   setenv PX_VERSION    Y     # MCIP is PX version? [N|F]
+#> beis mass emissions diagnostic file [N|F] ]
+    setenv B3GTS_DIAG Y
+    setenv YMD ${YEAR}${MONTH}${DAY}
+    setenv INITIAL_RUN Y # non-existent or not using SOILINP [N|F]; default uses SOILINP
+#   setenv SOILINP $OUTDIR/$EXEC"_SOILINP".${YEAR}${MONTH}${DAY}  # Biogenic NO soil input file
+ endif
+
+#if ( $DISP == 'delete' && $biogon ) then
+#   rm -f $B3GTS_S $SOILOUT
+#endif
+
+ if ( $?CTM_PT3DEMIS ) then   # $CTM_PT3DEMIS is defined
+    if ( $CTM_PT3DEMIS == 'Y' || $CTM_PT3DEMIS == 'T' ) then
+       set pt3don = 1
+    else
+       set pt3don = 0
+    endif
+ else   # $CTM_PT3DEMIS is not defined => $CTM_PT3DEMIS == 'N'
+    set pt3don = 0
+ endif
+
+ setenv OCEAN_1 ${M3DATA}/ocean/CMAQ-BENCHMARK_surf.ncf
+
+ if ( $?CTM_ERODE_AGLAND ) then   # $CTM_ERODE_AGLAND is defined
+    if ( $CTM_ERODE_AGLAND == 'Y' || $CTM_ERODE_AGLAND == 'T' ) then
+       set aglandon = 1
+    else
+       set aglandon = 0
+    endif
+ else   # $CTM_ERODE_AGLAND is not defined => $CTM_ERODE_AGLAND == 'N'
+    set aglandon = 0
+ endif
+
+ if ( $aglandon ) then
+    setenv CROPMAP01 ${M3DATA}/crop/BeginPlanting_12km_CMAQ-BENCHMARK
+    setenv CROPMAP04 ${M3DATA}/crop/EndPlanting_12km_CMAQ-BENCHMARK
+    setenv CROPMAP08 ${M3DATA}/crop/EndHarvesting_12km_CMAQ-BENCHMARK
+ endif
+
+ set COT = ${M3DATA}/dust
+ setenv DUST_LU_1 $COT/beld3_CMAQ-BENCHMARK_output_a.ncf
+ setenv DUST_LU_2 $COT/beld3_CMAQ-BENCHMARK_output_tot.ncf
+
+##> lightning NOx
+ if ( $?CTM_LTNG_NO ) then   # $CTM_LTNG_NO is defined
+    if ( $CTM_LTNG_NO == 'Y' || $CTM_LTNG_NO == 'T' ) then
+       set ltngon = 1
+    else
+       set ltngon = 0
+    endif
+ else   # $CTM_LTNG_NO is not defined => $CTM_LTNG_NO == 'N
+    set ltngon = 0
+ endif
+
+#> set output file name extensions
+ setenv CTM_APPL ${CFG}_${YMD}
+
+#> set output file names
+ set CONCfile  = $EXEC.CONC.${CTM_APPL}               # CTM_CONC_1
+ set ACONCfile = $EXEC.ACONC.${CTM_APPL}              # CTM_ACONC_1
+ set CGRIDfile = $EXEC.CGRID.${CTM_APPL}              # CTM_CGRID_1
+ set DD1file   = $EXEC.DRYDEP.${CTM_APPL}             # CTM_DRY_DEP_1
+ set DV1file   = $EXEC.DEPV.${CTM_APPL}               # CTM_DEPV_DIAG
+ set PT1file   = $EXEC.PT3D.${CTM_APPL}               # CTM_PT3D_DIAG
+ set BIO1file  = $EXEC.B3GTS_S.${CTM_APPL}            # B3GTS_S
+ set SOIL1file = $EXEC.SOILOUT.${CTM_APPL}            # SOILOUT
+ set WD1file   = $EXEC.WETDEP1.${CTM_APPL}            # CTM_WET_DEP_1
+ set WD2file   = $EXEC.WETDEP2.${CTM_APPL}            # CTM_WET_DEP_2
+ set AV1file   = $EXEC.AEROVIS.${CTM_APPL}            # CTM_VIS_1
+ set AD1file   = $EXEC.AERODIAM.${CTM_APPL}           # CTM_DIAM_1
+ set RJ1file   = $EXEC.PHOTDIAG1.${CTM_APPL}          # CTM_RJ_1
+ set RJ2file   = $EXEC.PHOTDIAG2.${CTM_APPL}          # CTM_RJ_2
+ set SSEfile   = $EXEC.SSEMIS.$CTM_APPL               # CTM_SSEMIS_1
+ set DSEfile   = $EXEC.DUSTEMIS.$CTM_APPL             # CTM_DUST_EMIS_1
+ set PA1file   = $EXEC.PA_1.${CTM_APPL}               # CTM_IPR_1
+ set PA2file   = $EXEC.PA_2.${CTM_APPL}               # CTM_IPR_2
+ set PA3file   = $EXEC.PA_3.${CTM_APPL}               # CTM_IPR_3
+ set IRR1file  = $EXEC.IRR_1.${CTM_APPL}              # CTM_IRR_1
+ set IRR2file  = $EXEC.IRR_2.${CTM_APPL}              # CTM_IRR_2
+ set IRR3file  = $EXEC.IRR_3.${CTM_APPL}              # CTM_IRR_3
+ set DEPVFSTfile = $EXEC.DEPVFST.${CTM_APPL}          # CTM_DEPV_FST
+ set DEPVMOSfile = $EXEC.DEPVMOS.${CTM_APPL}          # CTM_DEPV_MOS
+ set DDFSTfile = $EXEC.DDFST.${CTM_APPL}              # CTM_DRY_DEP_FST
+ set DDMOSfile = $EXEC.DDMOS.${CTM_APPL}              # CTM_DRY_DEP_MOS
+
+#> set floor file (neg concs)
+ setenv FLOOR_FILE $BASE/FLOOR_${CTM_APPL}
+
+#> input files and directories
+
+ source outck.q
+ 
+ if ( $biogon ) then
+    if ( $B3GTS_DIAG == 'Y' || $B3GTS_DIAG == 'T' ) then
+       setenv B3GTS_S $OUTDIR/$EXEC"_B3GTS_S".${CTM_APPL}
+    endif
+    setenv SOILOUT $OUTDIR/$EXEC"_SOILOUT".${CTM_APPL}  # Biogenic NO soil output file
+ endif
+
+ setenv EMISDATE ${YEAR}${MONTH}${DAY}
+    if ( $pt3don ) then
+       setenv NPTGRPS 5
+       set IN_PTpath  = ${M3DATA}/emis
+       set CASE1 = 12US1_C25_2006am
+       set CASE2 = 12US1_cmaq_cb05_tx_C25_2006am
+       setenv CASE ${EMISDATE}_$CASE2
+       set EMISpath = $IN_PTpath
+       set EMISfile  = emis_mole_all_${CASE}.ncf
+       setenv STK_GRPS_01 $IN_PTpath/stack_groups_ptnonipm_${CASE1}.ncf
+       setenv STK_GRPS_02 $IN_PTpath/stack_groups_ptipm_${CASE1}.ncf
+       setenv STK_GRPS_03 $IN_PTpath/stack_groups_othpt_${CASE1}.ncf
+       setenv STK_GRPS_04 $IN_PTpath/stack_groups_seca_c3_${CASE1}.ncf
+       setenv STK_GRPS_05 $IN_PTpath/stack_groups_ptfire_${EMISDATE}_${CASE1}.ncf
+#      setenv PT3DDIAG Y  # optional 3d point source emissions diagnostic file [N]
+#      setenv PT3DFRAC Y  # optional layer fractions diagnostic (play) file(s) [N]
+       setenv LAYP_STTIME $STTIME
+       setenv LAYP_NSTEPS $NSTEPS
+       setenv STK_EMIS_01 $IN_PTpath/inln_mole_ptnonipm_${CASE}.ncf
+       setenv STK_EMIS_02 $IN_PTpath/inln_mole_ptipm_${CASE}.ncf
+       setenv STK_EMIS_03 $IN_PTpath/inln_mole_othpt_${CASE}.ncf
+       setenv STK_EMIS_04 $IN_PTpath/inln_mole_seca_c3_${CASE}.ncf
+       setenv STK_EMIS_05 $IN_PTpath/inln_mole_ptfire_${CASE}.ncf
+       setenv LAYP_STDATE $STDATE
+    else
+       set EMISpath = ${M3DATA}/emis
+       set EMISfile  = e3d.${EMISDATE}.12EUS1_279X240.cb05soa.24.ncf
+    endif
+    setenv EMIS_1 $EMISpath/$EMISfile
+
+#set TR_EMpath = 
+#set TR_EMfile = 
+ 
+ if ( $ltngon ) then
+#> file (offline)
+   set IN_LTpath  = ${M3DATA}/lightning
+   setenv LTNGNO $IN_LTpath/nox_CMAQ-BENCHMARK.35L.$EMISDATE
+#> inline
+#    setenv LTNGNO "InLine" 
+#> use lightning parameter file? [ Y|T ]
+#    setenv LTNGPARAM Y
+#> point to lightning parameter file (ignored if LTNGPARAM is [ N|F]
+#    setenv LTNGPARM_FILE $IN_LTpath/params/LTNG_RATIO.2004.$MONTH.ioapi
+#> diagnostic file?  [ N|F ]
+#    setenv LTNGDIAG Y
+#    setenv LTNGOUT $OUTDIR/${EXEC}.LTNGDIAG.${CTM_APPL}
+#   unsetenv LTNGPARAM
+#   if (! -e $LTNGNO) aget -a $IN_LTpath /asm2/MOD3EVAL/LNOx/emisLNOx/2004af/36US1/pnox3d.t$EMISDATE
+ endif
+
+#set ICpath = $OUTDIR
+#set ICfile = CCTM_e3aCGRID.d1b
+ set ICpath = $M3DATA/icon
+ set ICFILE = ICON_${APPL}_${CFG}_profile
+ setenv INIT_GASC_1 $ICpath/$ICFILE
+ setenv INIT_AERO_1 $INIT_GASC_1
+ setenv INIT_NONR_1 $INIT_GASC_1
+ setenv INIT_TRAC_1 $INIT_GASC_1
+ 
+ set BCpath = $M3DATA/bcon
+ set BCFILE = BCON_${APPL}_${CFG}_profile
+ setenv BNDY_GASC_1 $BCpath/$BCFILE
+ setenv BNDY_AERO_1 $BNDY_GASC_1
+ setenv BNDY_NONR_1 $BNDY_GASC_1
+ setenv BNDY_TRAC_1 $BNDY_GASC_1
+
+ set EXTN = Benchmark
+ set METpath = $M3DATA/mcip
+ setenv GRID_DOT_2D $METpath/GRIDDOT2D_${EXTN}
+ setenv GRID_CRO_2D $METpath/GRIDCRO2D_${EXTN}
+ setenv MET_CRO_2D $METpath/METCRO2D_${EXTN}
+ setenv MET_CRO_3D $METpath/METCRO3D_${EXTN}
+ setenv MET_DOT_3D $METpath/METDOT3D_${EXTN}
+ setenv MET_BDY_3D $METpath/METBDY3D_${EXTN}
+ 
+ set TR_DVpath = $METpath
+ set TR_DVfile = $MET_CRO_2D
+
+ set JVALpath  = $M3DATA/jproc
+ set JVALfile  = JTABLE_${STDATE}
+ setenv XJ_DATA $JVALpath/$JVALfile
+ 
+#> ozone columne data for the photolysis model
+ set OMIpath  = $M3DATA/raw/phot
+ setenv OMI $OMIpath/OMI.dat
+
+#> for the run control ...
+
+ setenv CTM_STDATE      $STDATE
+ setenv CTM_STTIME      $STTIME
+ setenv CTM_RUNLEN      $NSTEPS
+ setenv CTM_TSTEP       $TSTEP
+ setenv CTM_PROGNAME    $EXEC
+
+#> look for existing log files
+                              
+ set test = `ls CTM_LOG_???.${CTM_APPL}`
+ if ( "$test" != "" ) then
+    if ( $DISP == 'delete' ) then
+       echo " ancillary log files being deleted"
+       foreach file ( $test )
+          echo " deleting $file"
+          rm $file
+          end
+       else
+       echo "*** Logs exist - run ABORTED ***"
+       exit 1
+       endif
+    endif
+
+#> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+ #env
+
+ ls -l $BASE/$EXEC; size $BASE/$EXEC
+ unlimit
+ limit
+
+#> Executable call for single PE, uncomment to invoke
+ time  $BASE/$EXEC
+
+#> Executable call for multiple PE, set location of MPIRUN script
+ #set MPI = /share/linux86_64/mvapich2/mvapich2-1.4/install_x86_64_intel111059/bin
+ #set MPIRUN = $MPI/mpiexec
+ #time $MPIRUN -n $NPROCS $BASE/$EXEC
+
+ date
+ exit

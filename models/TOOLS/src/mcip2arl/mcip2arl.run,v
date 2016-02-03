@@ -1,0 +1,105 @@
+head     1.1;
+branch   1.1.1;
+access   ;
+symbols  CMAQv5_0_1:1.1.1.1 AMAD:1.1.1;
+locks    ; strict;
+comment  @# @;
+
+
+1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches 1.1.1.1;
+next     ;
+
+1.1.1.1
+date     2012.04.19.19.48.37;  author sjr;  state Exp;
+branches ;
+next     ;
+
+
+desc
+@@
+
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#!
+# C-shell script to MCIP2ARL on a Linux machine
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/work/rep/TOOLS/src/mcip2arl/mcip2arl.run,v 1.1.1.1 2006/09/19 15:04:17 sjr Exp $ 
+
+date
+set timestamp
+set echo
+
+ setenv IOAPI_LOG_WRITE F
+
+#
+set BASE     = /home/mcip2arl/runit
+set XBASE    = /home/mcip2arl/src
+set EXEC     = MCIP2ARL 
+
+# Define directory paths.
+ set METDIR   = /home/user/data
+ set OUTDIR   = /home/user/output
+
+ set YR = 95
+
+##### foreach MONTH
+foreach MONTH (07)
+# time step parameters over the period of days
+if ( $MONTH == 07 ) then
+ set days  = "7"
+ set juladd = 187 
+  else
+ echo " Month is not correct "
+ exit (1)
+endif
+
+ foreach day ($days)
+ echo $day
+ set STDAT  = `echo $day | awk '{printf("%2.2d",$1)}'`
+
+cd $BASE; set timestamp; echo " "; set echo
+unalias rm
+#
+##############################################################
+#                  Set up for a MCIP2ARL test run            #
+##############################################################
+#
+ set extn = ${YR}${MONTH}${STDAT}
+
+ set OUT = MCIP.ARL${extn}
+ setenv OUTFILE $OUTDIR/$OUT
+if (-e $OUTDIR/$OUT) rm $OUTDIR/$OUT
+#
+ln -s  $METDIR/GRIDDOT2D_${extn} GRIDDOT2D_${extn}
+ln -s  $METDIR/METCRO2D_${extn}  METCRO2D_${extn}
+ln -s  $METDIR/METCRO3D_${extn}  METCRO3D_${extn}
+ln -s  $METDIR/METDOT3D_${extn}  METDOT3D_${extn}
+#
+ if ($status != 0) exit (2)
+
+ ls -l $XBASE/$EXEC; size $XBASE/$EXEC
+
+ $XBASE/$EXEC ${extn} ${OUTFILE}
+
+ end
+
+ end
+
+ exit(77)
+@
+
+
+1.1.1.1
+log
+@CMAQv5_0_1 release
+@
+text
+@@

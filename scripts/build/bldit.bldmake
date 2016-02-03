@@ -1,0 +1,95 @@
+#! /bin/csh -f
+
+# =================== BLDMAKEv5.0.1 Build Script ==================== #
+# Usage: bldit.bldmake >&! bldit.bldmake.log                          #
+# Requirements: CVS, and Gnu C compiler                               #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL =  source code CVS archive                         #
+#   setenv M3LIB   =  code libraries                                  #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the build environment
+ source ../config.cmaq
+
+# Check for M3MODEL and M3LIB settings:
+ if ( ! -e $M3MODEL || ! -e $M3LIB ) then
+    echo "   $M3MODEL or $M3LIB directory not found"
+    exit 1
+    endif
+ echo "   Model archive path: $M3MODEL"
+ echo "           Tools path: $M3LIB"
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host\!"
+    exit 1
+    endif
+ set DEST = $M3LIB/build
+
+ set echo
+
+ set BASE = $cwd  # cannot be $M3LIB/BUILD
+ set EXEC = bldmake
+
+# code repository
+ setenv CVSROOT $M3MODEL/BUILD
+ set Rel = HEAD
+
+# set fortran compiler and flags
+ set FC = ${myFC}
+ set FC_FLAGS = "-c ${myFFLAGS}"
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ set Bld = $BASE/BLD
+#unset echo
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+    else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+       else
+       echo "Deleting files in $Bld"
+       /bin/rm -f $Bld/*
+       endif
+    endif
+#set echo
+ cd $Bld
+
+# extract source files from cvs archive
+ cvs export -r $Rel -d $Bld bldmake
+
+ set flist = (\
+      cfg_module.F\
+      bldmake.F\
+      parser.F\
+      utils.F )
+
+#> compile flist
+ foreach file ( $flist )
+    $FC $FC_FLAGS $file
+    end
+
+ $FC *.o -o $EXEC
+ if( ! -e $EXEC ) then
+  echo " "; echo " ***ERROR*** Compile failed"; echo " "
+  exit 1
+  endif
+
+ if ( ! -d "$DEST" ) mkdir -p $DEST
+ cd $DEST
+ if ( -e $EXEC ) then
+    mv -f $EXEC $EXEC.old
+    endif
+
+ mv ${Bld}/${EXEC} $EXEC
+ chmod 755 $EXEC
+
+ echo " "; echo " Finish building $EXEC "
+
+ exit()

@@ -1,0 +1,46 @@
+********************************************************************************
+Announcing the release of MCIP Version 4.1 (11 May 2012)
+********************************************************************************
+
+The MCIP code is updated to version 4.1.  These release notes and the change
+log reflect all changes that have been made to MCIP since MCIPv4.0 (the last
+official release).  Changes to MCIPv4.1 were made by Tanya Otte (U.S. EPA).
+User contributions are also noted below.  The detailed list of changes to the
+MCIP code is in the CHANGES file, which is part of the MCIP tar file in the
+"doc" sub-directory.
+
+MCIPv4.1 requires an upgrade to I/O API version 3.1 to support error-checking
+within the I/O API.  This is consistent with the requirement for I/O API v3.1
+with CMAQv5.0.1 (released concurrently with MCIPv4.1).
+
+MCIPv4.1 requires the netCDF F90 module (rather than the F77 include).
+
+Users are encouraged to read the Frequently Asked Questions (FAQ) file,
+which is located in the MCIP tar file in the "doc" sub-directory.
+
+***Users should consult the FAQ before submitting inquiries to M3User,
+   CMAS, or the code developers.***
+
+
+Interactions with the following users (in alphabetical order) have resulted
+in some of the code changes/corrections that were made for MCIPv4.1:
+
+	Kathy Brehme, CSC, Research Triangle Park, NC
+	Ruen Tang, CSC, Research Triangle Park, NC
+
+
+The following is a summary of the changes in MCIPv4.1:
+
+ 1.  Updated code and made minor corrections to handle spectral nudging
+     runs from WRF.
+
+ 2.  Force 2-m water vapor mixing ratio from WRF with YSU PBL to be filled
+     with layer 1 QVAPOR to avoid occasional Q2 < 0 in wintertime.
+
+ 3.  Corrected error in tipping bucket precipitation calculation for long
+     WRF runs.
+
+ 4.  Added provision for calculating Monin-Obukhov length when the sensible
+     heat flux is 0.
+
+ 5.  Updated metadata for new physics options in WRFv3.4.
