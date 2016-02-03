@@ -1,0 +1,26 @@
+NTR_IUPAC04
+!i-C3H7ONO2 + HV = iC3H7O + NO2 
+! From IUPAC Subcommittee on Gas Kinetic Data Evaluation
+! Data Sheet P17_i-C3H7ONO2+hv, updated 16th July 2001
+! Website: http://www.iupac-kinetic.ch.cam.ac.uk/
+Points (! These are point values)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+280.0  2.800E-20  1.0
+285.0  2.200E-20  1.0
+290.0  1.600E-20  1.0
+295.0  1.200E-20  1.0
+300.0  7.800E-21  1.0
+305.0  5.000E-21  1.0
+310.0  2.900E-21  1.0
+315.0  1.700E-21  1.0
+320.0  8.500E-22  1.0
+325.0  4.400E-22  1.0
+330.0  2.200E-22  1.0
+335.0  1.100E-22  1.0
+340.0  5.300E-23  1.0
+345.0  1.800E-23  1.0
+350.0  8.000E-24  1.0
+355.0  2.900E-24  1.0
+360.0  1.800E-24  1.0
+365.0  0.0        1.0

@@ -1,0 +1,26 @@
+#! /bin/csh -f
+
+#relinc.cctm
+
+ set RCP = "cp -p"
+
+# CGRID Mechanism Reactions global include files ...
+
+ set Rls = $Mechs/$Mechanism
+
+ set noglob
+
+ foreach file ( `find ${Rls}/ -type f -name "*" -print` )
+      if ( ! -e $file:t ) $RCP $file $Bld || exit 1
+ end
+
+# CGRID Tracer include files ...
+
+ set Rls = $Mechs/$Tracer
+
+ set noglob
+
+ foreach file ( `find ${Rls}/ -type f -name "*" -print` )
+      if ( ! -e $file:t ) $RCP $file $Bld || exit 1
+ end
+

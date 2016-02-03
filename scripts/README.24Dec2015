@@ -1,0 +1,10 @@
+Release Note provided by Jon and Jeff:
+-------------------------------------------------------------------------
+CMAQv5.1 Update.
+The current inline dust model has a tendency to occasionally produce unrealistically high emissions and concentrations.  Therefore, we have turned off the default option for windblown inline dust.  The inline dust option can still be turned on by adding this line in the script:
+setenv CTM_WB_DUST   Y
+ 
+If running in the US, add setenv CTM_WBDUST_BELD BELD3, if using BELD3.
+ 
+The default for this option has been changed from Y to N
+We are in the process of developing and evaluating a new dust model that will be released in 2016.

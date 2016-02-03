@@ -1,0 +1,66 @@
+Modified Anderson Level 1 Class Codes and Descriptions 
+0 No Data 
+1 Open Water - All areas of open water, generally with less than 25% vegetation or soil cover. Pixels coded to a value of 1 have not changed between 1992 and 2001.  
+2 Urban - Includes developed open spaces with a mixture of some constructed materials, but mostly vegetation in the form of lawn grasses such as large-lot single-family housing units, parks, golf courses, and vegetation planted in developed settings for recreation, erosion control, or aesthetic purposes. Also included are lands of low, medium, and high intensity with a mixture of constructed materials and vegetation, such as single-family housing units, multifamily housing units, and areas of retail, commercial, and industrial uses. Pixels coded to a value of 2 have not changed between 1992 and 2001. 
+3 Barren - Barren areas of bedrock, desert pavement, scarps, talus, slides, volcanic material, glacial debris, sand dunes, strip mines, gravel pits, and other accumulations of earthen material. Generally, vegetation accounts for less than 15% of total cover. Pixels coded to a value of 3 have not changed between 1992 and 2001. 
+4 Forest - Areas dominated by trees generally taller than 5 meters, and greater than 20% of total vegetation cover. Includes deciduous forest, evergreen forest, and mixed forest. Pixels coded to a value of 4 have not changed between 1992 and 2001. 
+5 Grassland/Shrub - Includes grassland areas dominated by gramminoid or herbaceous vegetation and shrub/scrub areas dominated by shrubs less than 5 meters tall with shrub canopy typically greater than 20% of total vegetation, including true shrubs, young trees in an early successional stage, or trees stunted due to harsh environmental conditions. Management techniques that associate soil, water, and forage-vegetation resources are more suitable for rangeland management than are practices generally used in managing pastureland. Some rangelands have been or may be seeded to introduced or domesticated plant species. Includes those areas in the Eastern United States that commonly are called brushlands. Pixels coded to a value of 5 have not changed between 1992 and 2001 (Anderson, et al., 1976). 
+6 Agriculture - including cultivated crops and pasture/hay – Cultivated crops are described as areas used for the production of annual crops, such as corn, soybeans, vegetables, tobacco, and cotton, and also perennial woody crops such as orchards and vineyards. This class also includes all actively tilled land. Pasture/Hay is described as grasses, legumes, or grass-legume mixtures planted for livestock grazing or the production of seed or hay crops, typically on a perennial cycle. Pixels coded to a value of 6 have not changed between 1992 and 2001. 
+7 Wetlands - including woody wetlands and herbaceous wetlands – Areas where forest or shrubland vegetation accounts for greater than 20 percent of vegetative cover and the soil or substrate is periodically saturated with or covered with water. This class also includes areas where perennial herbaceous vegetation accounts for greater than 80 percent of vegetative cover and the soil or substrate is periodically saturated with or covered with water. Pixels coded to a value of 7 have not changed between 1992 and 2001. 
+8 Ice/Snow - All areas characterized by a perennial cover of ice and/or snow, generally greater than 25% of total cover. Pixels coded to a value of 8 have not changed between 1992 and 2001. 
+12 Open Water to Urban 
+13 Open Water to Barren 
+14 Open Water to Forest 
+15 Open Water to Grassland/Shrub 
+16 Open Water to Agriculture 
+17 Open Water to Wetlands 
+18 Open Water to Ice/Snow 
+21 Urban to Open Water 
+23 Urban to Barren 
+24 Urban to Forest 
+25 Urban to Grassland/Shrub 
+26 Urban to Agriculture 
+27 Urban to Wetlands 
+28 Urban to Ice/Snow 
+31 Barren to Open Water 
+32 Barren to Urban 
+34 Barren to Forest 
+35 Barren to Grassland/Shrub 
+36 Barren to Agriculture 
+37 Barren to Wetlands 
+38 Barren to Ice/Snow 
+41 Forest to Open Water 
+42 Forest to Urban 
+43 Forest to Barren 
+45 Forest to Grassland/Shrub 
+46 Forest to Agriculture 
+47 Forest to Wetlands 
+48 Forest to Ice/Snow 
+51 Grassland/Shrub to Open Water 
+52 Grassland/Shrub to Urban 
+53 Grassland/Shrub to Barren 
+54 Grassland/Shrub to Forest 
+56 Grassland/Shrub to Agriculture 
+57 Grassland/Shrub to Wetlands 
+58 Grassland/Shrub to Ice/Snow 
+61 Agriculture to Open Water 
+62 Agriculture to Urban 
+63 Agriculture to Barren 
+64 Agriculture to Forest 
+65 Agriculture to Grassland/Shrub 
+67 Agriculture to Wetlands 
+68 Agriculture to Ice/Snow 
+71 Wetlands to Open Water 
+72 Wetlands to Urban 
+73 Wetlands to Barren 
+74 Wetlands to Forest 
+75 Wetlands to Grassland/Shrub 
+76 Wetlands to Agriculture 
+81 Ice/snow to Open Water 
+82 Ice/snow to Urban 
+83 Ice/snow to Barren 
+84 Ice/snow to Forest 
+85 Ice/snow to Grassland/Shrub 
+86 Ice/snow to Agriculture 
+87 Ice/snow to Wetland 
+

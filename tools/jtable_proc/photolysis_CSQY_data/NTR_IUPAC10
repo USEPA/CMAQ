@@ -1,0 +1,27 @@
+NTR_IUPAC10
+! j(NTR)  IUPAC(2010) i-C3H7ONO2                        
+! NTR = NO2 + XO2H + RO2                                
+! From IUPAC Subcommittee on Gas Kinetic Data Evaluation
+! Data Sheet P17, updated 16th May, 2002                
+! These are point values                                
+Begining (the mechanism evaluated with this format)
+!WL(nm) XSEC(cm2) QY
+FAC=1.0
+280.0 2.800E-20 1.000
+285.0 2.200E-20 1.000
+290.0 1.600E-20 1.000
+295.0 1.200E-20 1.000
+300.0 7.800E-21 1.000
+305.0 5.000E-21 1.000
+310.0 2.900E-21 1.000
+315.0 1.700E-21 1.000
+320.0 8.500E-22 1.000
+325.0 4.400E-22 1.000
+330.0 2.200E-22 1.000
+335.0 1.100E-22 1.000
+340.0 5.300E-23 1.000
+345.0 1.800E-23 1.000
+350.0 8.000E-24 1.000
+355.0 2.900E-24 1.000
+360.0 1.800E-24 1.000
+361.0 0.000E+00 1.000

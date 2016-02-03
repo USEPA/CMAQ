@@ -1,0 +1,49 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+C RCS file, release, date & time of last delta, author, state, [and locker] 
+C $Header: /project/work/rep/PARIO/src/PIOVARS.EXT,v 1.2 2002/06/25 14:26:59 yoj Exp $
+
+C....................................................................
+C  INCLUDE FILE  PIOVARS.EXT
+ 
+C  CONTAINS:  Variables for parallel Models-3 I/O
+C             library routines.
+              
+C  DEPENDENT UPON:  none
+ 
+C  REVISION HISTORY:
+C       Original version  2/96 by Al Bourgeois (AJB).
+C       Modified 6/98 by AJB for PAR_IO library. Removed species dim.
+C       Modified 07/08/1998 by AJB to add NPROW, NPCOL, IO_GRP, MY_IO_PE.
+C       Modified 07/29/1998 by AJB to move grid variables to another file.
+C       Modified 08/28/1998 by AJB to remove MY_NROWS, MY_NCOLS, MAXCELLS.
+C                12 Apr 2001, J. Young - eliminate I/O group idea
+C....................................................................
+
+C          Variables            Description
+C          ---------            -----------
+
+      INTEGER  MY_PE         !  Local processor id.
+      INTEGER  IO_PE         !  Id of primary processor used for log file
+
+      COMMON / PIOVARS /
+     &         MY_PE,
+     &         IO_PE
+

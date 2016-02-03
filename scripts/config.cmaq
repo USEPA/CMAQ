@@ -1,0 +1,94 @@
+#!/bin/csh -f
+
+# ================== CMAQ5.1 Configuration Script =================== #
+# Requirements: I/O API & netCDF libraries                            #
+#               PGI, Intel, or Gnu Fortran compiler                   #
+#               MPICH for multiprocessor computing                    #
+# Optional:     Git for GitHub source code repository                 #
+#                                                                     #
+# Note that this script was configured/tested on Red Hat Linux O/S    #
+#                                                                     #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/help_desk.cfm                 #
+# =================================================================== #
+
+#> model source code repository location
+ setenv M3HOME  [Add directory path]/CMAQv5.1
+ setenv M3MODEL ${M3HOME}/models
+ setenv M3DATA  ${M3HOME}/data
+
+#===============================================================================
+#> architecture & compiler specific settings
+#-------------------------------------------------------------------------------
+
+#> Set the compiler
+ setenv compiler intel  #> options: intel, pgi, gcc
+
+#> I/O API and netCDF libraries 
+ setenv netcdf_lib "-lnetcdff -lnetcdf"
+ setenv ioapi_lib "-lioapi"
+ setenv pnetcdf_lib "-lpnetcdf"
+
+#> MPI libraries 
+ setenv mpi "-lmpi"   #> -lmpich for mvapich or -lmpi for openmpi
+
+#> Compiler flags and settings
+ switch ( $compiler )
+    case intel:
+#> Intel fortran compiler......................................................
+       setenv myFC mpif90 
+       setenv myCC icc
+       setenv myLINK_FLAG "-i-static"
+       setenv myFFLAGS "-fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise"
+       setenv myFRFLAGS "-free -O3 -fno-alias -mp1 -fp-model precise"
+       setenv myCFLAGS "-O2"
+       setenv extra_lib "-lmpiif"
+       breaksw
+
+    case pgi:
+#> Portland Group fortran compiler.............................................
+       setenv myFC mpif90 
+       setenv myCC pgcc
+       setenv myLINK_FLAG ""
+       setenv myFFLAGS "-Mfixed -Mextend -O3"
+       setenv myFRFLAGS "-Mfree -O3"
+       setenv myCFLAGS "-O2"
+       setenv extra_lib "-lcurl"
+       breaksw
+
+    case gcc:
+#> gfortran compiler......................................................
+       setenv myFC mpif90
+       setenv myCC gcc
+       setenv myLINK_FLAG ""
+       setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -O3 -funroll-loops -finit-character=32"
+       setenv myFRFLAGS "-ffree-form -ffree-line-length-none -O3 -funroll-loops -finit-character=32"
+       setenv myCFLAGS "-O2"
+       setenv extra_lib "-lgomp"
+       breaksw
+
+    default:
+       echo "*** Compiler $compiler not found"
+       exit(2)
+       breaksw
+
+ endsw
+ 
+#===============================================================================
+ 
+ setenv system "`/bin/uname -i`"
+ setenv bld_os "`/bin/uname -s``/bin/uname -r | cut -d. -f1`"
+ setenv lib_basedir $M3HOME/lib
+
+#> generate library locations
+ setenv M3LIB ${lib_basedir}/${system}/${compiler}
+ setenv MPI_INC $M3LIB/mpi/include
+ setenv NETCDF_DIR $M3LIB/netcdf
+ setenv PNETCDF_DIR $M3LIB/pnetcdf
+ setenv IOAPI_DIR $M3LIB/ioapi
+
+ if ( ! -d $M3LIB ) mkdir -p $M3LIB
+ if ( ! -d $M3DATA) mkdir -p $M3DATA
+
+#> set executable id
+ setenv EXEC_ID ${bld_os}_${system}${compiler}
