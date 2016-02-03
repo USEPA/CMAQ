@@ -50,7 +50,7 @@ C-----------------------------------------------------------------------
 
       Implicit None
 
-      Integer, Parameter :: n_precursor = 26   ! # of precursors
+      Integer, Parameter :: n_precursor = 24   ! # of precursors
 
       Type precursor_type
          Character( 16 ) :: name               ! species name
@@ -85,8 +85,6 @@ C                    ----------   ----------  ------
      & precursor_type( 'PAHNRXN', .True.  , .True.  ),
      & precursor_type( 'PAHHRXN', .True.  , .True.  ),
      & precursor_type( 'SMPRXN ', .True.  , .True.  ),
-     & precursor_type( 'NH3    ', .False. , .True.  ),
-     & precursor_type( 'OH     ', .False. , .False. ),
      & precursor_type( 'PHGRXN ', .True.  , .True. )/)
 
 C Required species
