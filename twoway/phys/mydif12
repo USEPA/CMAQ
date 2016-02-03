@@ -1,0 +1,1519 @@
+343a344,348
+>     real*8 :: beg_time, end_time
+>     real*8, save :: tot_exe = 0.0
+> 
+>     include 'mpif.h'
+> 
+814a820
+> !           beg_time = MPI_WTIME()
+818a825,826
+> !           end_time = MPI_WTIME()
+> !           tot_exe = tot_exe + end_time - beg_time
+833a842,843
+> ! write (6, '(a19, e18.3)') ' ==d== aero opt sw ', tot_exe
+> 
+1002a1013,1016
+> !FSB This version switches between BHCOAT to BHMIE depending upon whether
+> !    EC is present or not. 04/15/2012.
+> 
+> !FSB this version does a core-shell calculation with BHCOAT 04/11/2012    
+1009a1024,1025
+> ! FSB 04/14/2012 REmoved MODULUS, made changes to ghintBH.
+> !     Put in option for core-shell (coated-sphere). 
+1011a1028,1030
+>       use sw_rrtmg_aero_optical_util_module
+> 
+>       implicit none     
+1014c1033
+<       integer, intent(in) ::  nmode   ! should be 3
+---
+>       integer,intent(in) ::  nmode   ! should be 3 for WRF/CMAQ calculation
+1016c1035
+< ! FSB mode types 
+---
+> ! FSB mode types for WRF/CMAQ 
+1026c1045
+<       
+---
+> ! FSB particle size-distribution information      
+1029,1030c1048,1049
+< !... output aerosol radiative property  [dimensionless]
+< !
+---
+> 
+> !FSB output aerosol radiative properties  [dimensionless]
+1037,1039d1055
+< ! FSB total modal mass concentration [ g/ cm **3 ]     
+< ! FSB in this RRTMG version MMASS is in [ ug / m**3 ]
+<       real :: MMASS(nmode)
+1041,1043c1057
+<       integer nspint ! number of spectral intervals
+<        parameter( nspint = 14)
+< 
+---
+>       integer,parameter ::  nspint = 14 ! number of spectral intervals for RRTMG
+1046,1047c1060,1062
+< !      real Mdens1(nmode) ! reciprocal density concentration [ cm**3 / g ]
+<       real DGN(nmode)    ! modal geometric mean diameter [cm]
+---
+>       complex  refcor(nmode), refshell(nmode) ! complex refracive indices
+>       complex  crefin(nmode)  ! complex refractive index
+>       real DGN(nmode)         ! modal geometric mean diameter [m]
+1048a1064,1066
+> ! FSB special values for EC CORE-shell calculation
+>       real DGNSHELL(nmode)    ! modal geometric mean diameter [m]
+>       real DGNCORE (nmode)    ! modal geometric mean diameter [m] 
+1057c1075
+< ! FSB Modal volumes [ m**3 / cm **3 ]
+---
+> ! FSB Modal volumes [ m**3 / m**3 ]
+1063d1080
+< 
+1065,1098c1082,1084
+<       real MODULUS(nmode)
+< !      real mdgn(nmode)
+< !      real frac_aec(nmode)    ! volume fraction of soot like aerosol
+< ! FSB additions for external mixtures    
+<       real sig_scat, sig_abs  ! specific scattering and absorption cross sections
+<                               ! for diesel soot
+<                               ! reference schnaiter et al. jour. of
+<                               ! aerosol science vol. 34, pp1421-1444, 2003
+<        parameter(sig_scat = 1.6e-6, sig_abs = 6.6e-6) ! [ m**2 / ug ] values at 550 [nm]
+< !!       parameter(sig_scat = 1.6d-2, sig_abs = 6.6d-2) ! [ cm**2 / ug ] values at 550 [nm]
+<       
+<       
+< !      real Tot_mass_ec ! total mass of elemental carbon [ ug / m **3 ] 
+<       real Tot_mass  ! total aerosol mass [ ug / m **3 ]
+<       real angstrm_scat, angstrm_abs
+<        parameter( angstrm_scat = 1.1d0, angstrm_abs = 1.9d0) ! angstrom exponents
+< !      real wavescale_scat, wavescale_abs ! scaling for scattering 
+<                                                          ! and absorption
+<       real l550                                          ! 550 [micro-m]
+<        parameter( l550 = 0.550 )
+< !      real rat550                                        ! l550 / lamda
+< 
+<       real dsootdens                     ! diesel soot density 
+<        parameter( dsootdens = 1.7 )      ! [ g /cm ** 3] schnaiter et al. (2003)
+<                                          ! page 1430 table 2
+< !      real qqscat, qqabs ! specific cross sections at  various
+<                                          ! spectral intervals [ m**2 / g]
+< !      real ndqscat                       ! non dimensionsal qqscat 
+< !     real asmfac_soot           ! asymmetry factor for soot
+< !     real*8 asmfac_tot
+<    
+< !      real    bscat_s ! scattering coefficient for soot [1/m]
+< !      real    babs_s  ! absorption ceofficient for soot [1/m]
+< !      real    bext_s  ! extinction coefficient for soot [1/m
+---
+> ! FSB special values for EC CORE-shell calculation      
+>       real VOLCOR(nmode)    ! volume of EC core  [m** 3 / m**3]
+>       real VOLSHELL(nmode)  ! volume of shell    [m** 3 / m**3]
+1100a1087,1091
+>       real    bext            ! extinction coefficient [1 / m]
+>       real    bscat           ! scattering coefficient [1 / m]
+>       real    gfac            ! asymmetry factor
+> 
+>       real bextsum, bscatsum, bsgsum
+1102,1103c1093,1096
+< !      real    aermmr   ! mass mixing ratio of aerosols
+< !      real    aerMMr_ec ! mass mixing ratio for ec
+---
+>  ! FSB History variables by wavelength and mode     
+>       real   bext_wm(ns,nmode) 
+>       real   bscat_wm(ns,nmode)
+>       real   gfac_wm(ns,nmode)
+1105,1108c1098,1101
+<       real    bext                ! extinction coefficient [cm**2 / g]
+<       real    bscat               ! scattering coefficient [cm**2 / g]
+<       real    g_bar              ! asymmetry factor    
+< !      logical do_external(nmode)
+---
+>       real, parameter ::  one3rd = 1.0 / 3.0 
+>       real dfac      ! ratio of (volcor/vol) ** one3rd
+>                      ! used for calculating the diameter
+>                      ! of the EC core
+1110c1103
+< !...component densities [ g/ cm**3 ]
+---
+> !...component densities [ g/ cm**3 ] <<<<< cgs
+1119c1112,1113
+<        parameter (   rhoec = 1.7 )
+---
+> !       parameter (   rhoec = 1.7 )
+>        parameter (   rhoec = 1.8 ) ! new value
+1131a1126,1129
+> ! FSB scale factor for [1/g] to [1/ug]
+>       real  cug2g
+>       Parameter  ( cug2g = 1.0e-06 )
+> 
+1161c1159
+< !     Hess, M. P. Koepke, and I. Schult, Optical properties of
+---
+> !     Hess,  Koepke, and  Schult, Optical properties of
+1199d1196
+<       real, save ::  xnreal_ec(nspint), xnimag_ec(nspint) ! soot like
+1201,1205c1198
+<       data xnreal_ec /1.877, 1.832, 1.813, 1.802, 1.791, 1.769, 1.761,    &
+<                       1.760, 1.750, 1.740, 1.750, 1.738, 1.620, 2.120/
+<       data xnimag_ec/ 5.563E-1, 5.273E-1, 5.030E-1, 4.918E-1, 4.814E-1,   &
+<                       4.585E-1, 4.508E-1, 4.404E-1, 4.300E-1, 4.400E-1,   &
+<                       4.600E-1, 4.696E-1, 4.500E-1, 5.700E-1/
+---
+>       real, save ::  xnreal_ec(nspint), xnimag_ec(nspint) ! soot like
+1206a1200,1240
+> ! FSB 02/11/2012 These values are replaced.
+> !      data xnreal_ec /1.877, 1.832, 1.813, 1.802, 1.791, 1.769, 1.761,   &
+> !     &                1.760, 1.750, 1.740, 1.750, 1.738, 1.620, 2.120/
+> !      data xnimag_ec/ 5.563E-1, 5.273E-1, 5.030E-1, 4.918E-1, 4.814E-1,  &
+> !     &                4.585E-1, 4.508E-1, 4.404E-1, 4.300E-1, 4.400E-1,  &
+> !     &                4.600E-1, 4.696E-1, 4.500E-1, 5.700E-1/
+> 
+> !    New  Refractive indices for EC at RRTMG Wavelengths
+> !       Source  lamda   xnreal_ec       xnimag_ec
+> !       C&C Values
+> !          3.4615       2.089   1.070
+> !               2.7885  2.014   0.939
+> !               2.325   1.962   0.843
+> !               2.046   1.950   0.784
+> !       Bond values     
+> !           1.784       1.940   0.760
+> !               1.4625  1.930   0.749
+> !                   1.2705      1.905   0.737
+> !                   1.0101      1.870   0.726
+> !  B&B  Values  
+> !          0.7016       1.85    0.71
+> !          0.53325  1.85    0.71
+> !                  0.38815  1.85        0.71
+> !                  0.299        1.85    0.71
+> !                  0.2316       1.85    0.71
+> !        C & C values   
+> !          8.24     2.589       1.771
+> !References:    
+> ! Bond  Personal Communication from Tami Bond
+> ! B&B Bond, T.C. & R.W. Bergstrom (2006) Light absorption by 
+> ! Carbonaceous Particles: An investigative review,
+> ! Aerosol Science and Technology. Vol. 40. pp 27-67
+> !
+> ! C&C Chang,H and T.T. Charalmpopoulos (1990) Determination of the
+> ! wavelength dependence of refractive indices of flame soot, 
+> ! Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.
+> ! FSB new values
+>       data xnreal_ec /2.089, 2.014, 1.962, 1.950, 1.940, 1.930, 1.905,    &
+>                       1.870, 1.85, 1.85, 1.85, 1.85, 1.85, 2.589 /
+>       data xnimag_ec/ 1.070, 0.939, 0.843, 0.784, 0.760, 0.749, 0.737,    &
+>                       0.726, 0.71, 0.71, 0.71, 0.71,    0.71, 1.771   / 
+1217,1221c1251
+<       
+<       
+< 
+< 
+< !
+---
+> !!
+1242d1271
+<       end do 
+1244,1255d1272
+<      Tot_mass = 0.0
+<       
+< ! FSB sum to get total modal volumes and total mass
+<       do m = 1, nmode
+<       
+<         VOL(m) = MVOL_ws(m) + MVOL_in(m) + MVOL_ss(m) +  &
+<                  MVOL_ec(m) + MVOL_h2o(m)
+<        
+<         MMASS(m) = MASS_ws(m) + MASS_in(m) + MASS_ss(m)  &
+<                   + MASS_ec(m)+ MASS_h2o(m)     
+<         
+<         Tot_mass = Tot_mass + MMASS(m)
+1256a1274,1293
+>         VOL(m)    = MVOL_ws(m) + MVOL_in(m) + MVOL_ss(m) + MVOL_h2o(m)   
+>         VOLCOR(m) = MVOL_ec(m)
+>         VOL(m)    = VOL(m) + VOLCOR(m) ! VOL is total volume
+>     
+>        if( VOLCOR(m) .gt. 0.0 ) then
+> ! FSB EC is present  
+> !       calculate the ratio of core to shell volume
+> !       take cube root for scaling the diameter of 
+> !       the core to that of the shell.
+>        
+>         dfac        = ( VOLCOR(m) / VOL(m) ) ** one3rd
+> ! FSB Set shell and core diameters        
+>         DGNSHELL(m) = INDGN(m)
+>         DGNCORE(M)  = dfac * INDGN(m)
+>         VOLSHELL(m) = VOL(m) 
+>        else
+> ! FSB EC is not present       
+>         DGN(m) = INDGN(m)
+> ! FSB note that VOL(m) is the total volume even  if EC is not present        
+>        end if
+1259,1265d1295
+< ! FSB determine fraction of elemental carbon      
+< !      do m = 1, nmode
+< !        do_external(m) = .false.      
+< !        frac_aec(m) = MVOL_ec(m) / VOL(m)
+< !        if( frac_aec(m) .ge. 0.60 ) do_external(m) = .true.
+< !      end do  ! loop on modes
+< 
+1271d1300
+<         
+1274c1303
+<        ! modal real refractive index
+---
+>        ! modal real refractive index No EC 
+1277,1278c1306
+<           + MVOL_h2o(m) * xnreal_h2o(ns) + MVOL_ec(m) * xnreal_ec(ns)     &
+<           ) / VOL(m)
+---
+>            + MVOL_h2o(m) * xnreal_h2o(ns) ) / VOL(m)
+1280c1308
+<        ! modal imaginary refractive index 
+---
+>        ! modal imaginary refractive index no EC
+1283,1409c1311
+<           + MVOL_h2o(m) * xnimag_h2o(ns) +  MVOL_ec(m) * xnimag_ec(ns)    &
+<          ) / VOL(m)
+< 
+<        ! modulus of modal refracive index
+<         MODULUS(m) = sqrt( nr(m) * nr(m) + ni(m) * ni(m)  ) 
+< 
+<      end do ! loop over modes 
+< 
+<            CALL aero_optical( LAMDA(ns),  &
+<               NMODE,                      &
+<               NR, NI,                     &
+<               MODULUS,                    &
+<               VOL, DGN, SIG,              &
+<               bext, bscat, g_bar)
+<      
+<         tauaer = bext  * delta_z  ! contributionto aerosol optical depth
+< 
+<         waer   = bscat / bext 
+<         gaer   = g_bar
+<         faer   = gaer * gaer
+<      
+<       return
+<       end subroutine get_aerosol_Optics_RRTMG_SW
+< 
+< ! --------------------------------------------------------------------------
+< 
+< ! ------------------------------------------------------------------------------
+< !     /////////////////////////////////////////////////////////////////
+<       
+<        subroutine aero_optical(  lamda_in,  &
+<                   nmode,                    &
+<                   nr, ni,                   &
+<                   modulus,                  &
+<                   Vol,  dgn, sig,           &
+<                   bext, bscat, g_bar )
+<      
+< ! *** calculate the extinction and scattering coefficients and
+< !     assymetry factors for each wavelength as a sum over the 
+< !     individual lognormal modes. Each mode may have a different 
+< !     set of refractive indices.
+< 
+<       IMPLICIT NONE
+< ! *** input variables
+<       real lamda_in      ! wavelengths  [micro-m]
+<                       
+<       INTEGER nmode  ! number of lognormal modes
+<       real nr( nmode), ni(nmode) ! real(r8) and imaginary 
+<                                 ! refractive indices
+<       real modulus(nmode) ! modulus of refracive index                          
+<       real Vol(nmode) ! modal aerosol volumes [m**3 /m**3]
+<       real dgn(nmode) ! geometric mean diameters 
+<                       ! for number distribution [ m]
+<       real sig(nmode) ! geometric standard deviation 
+<       
+<       
+< ! *** output variables 
+<       real bext  ! extinction coefficient [ 1 / m ]
+<       real bscat ! scattering coefficient [ 1 / m ]
+<       real g_bar  ! assymetry factor for Mie and molecular scattering
+<       
+<       
+< ! *** internal variables
+<       INTEGER  j  ! loop index
+<       real lamda  ! wavelength [ m]
+< !      real xlnsig(nmode) ! natural log of geometric standard deviations      
+<       real beta_Sc, bsc  !aerosol scattering coefficient 
+<  
+<       real beta_Ex       ! aerosol extinction coefficients       
+<       real G             ! modal aerosol assymetry factors
+<       real sum_g
+<       real VLX, DGX, SIGX, NRX, NIX, LSIGX
+<       real lamdam1 ! 1/ lamda
+<       real alphav ! Mie size parameter
+<       real vfac
+<       real modalph
+<       real pi
+<       PARAMETER( pi = 3.14159265359)
+<        
+<        
+< ! *** coded 09/08/2004 by Dr. Francis S. Binkowski
+< ! FSB Modified for RRTMG version December 2009.
+< ! FSB modified 10/06/2004, 10/12/2004, 10/18/2005
+< ! FSB 01/12/2006
+< !     Formerly Carolina Environmental Program
+< ! FSB now the Institute for the Environment
+< !     University of North Carolina at Chapel Hill
+< !     email: frank_binkowski@unc.edu
+< 
+< 
+< ! *** initialize variables
+<        lamda = 1.0e-6 * lamda_in ! lamda now in [ m ]
+<        bext  = 0.0
+<        bscat = 0.0
+<        sum_g = 0.0
+<        lamdam1 = 1.0 / lamda
+<         
+< !     write(20,*) ' inside aero_optical', ' lamda = ', lamda
+<       
+<        DO j = 1, nmode
+< !    calculate the extinction and scattering coefficients
+< !    for each mode 
+< !        write(20,*) ' j = ', j
+<         VLX   = Vol(j)
+<         DGX   = dgn(j)
+<         SIGX  = sig(j) 
+<         NRX   = nr(j)
+<         NIX   = ni(j)
+<         LSIGX = log(SIGX)
+<        
+< !     calculate Mie size parameter for volume distribution
+< !     exp(3.0 * xlnsig*xlnsig)  converts dgn to dgv (volume diameter)
+<           alphav =  pi * DGX *  &
+<                            exp(3.0 * LSIGX * LSIGX) * lamdam1
+<        modalph = alphav * modulus(j)   
+<        
+< !      write(20,*) j, alphav, modalph, modulus(j)
+< !       write(20,*) j, alphav, modalph, NRX, NIX
+<       
+< 
+<         CALL ghintBH(NRX, NIX, alphav, LSIGX, beta_EX, beta_Sc, G)            
+< 
+< ! *** fast_optics  returns the normalized values
+< !     Calculate the actual extinction and scattering coefficients 
+< !     by multplying by the modal volume and dividing by the wavelength
+<          
+<          
+<          vfac  =  VLX * lamdam1
+---
+>            + MVOL_h2o(m) * xnimag_h2o(ns) ) / VOL(m)
+1411,1645d1312
+< !        write(20,*)' vfac = ', vfac
+< !        write(20,*)' G = ', G
+< !        write(20,*) ' beta_Ex = ', beta_Ex
+< !        write(20,*) ' beta_Sc = ', beta_Sc
+<         
+< ! *** sum to get total extinction and scattering 
+< !     and contribution to the overal assymetry factor
+< 
+<           bext    = bext  + vfac * beta_Ex
+<           bsc     = vfac * beta_Sc
+<           bscat   = bscat + bsc          
+<           sum_g   = sum_g + bsc * G
+< 
+< 
+<        END DO  ! loop on modes  
+<        
+< ! *** calculate combined assymetry factor for all modes  
+< 
+<        g_bar = sum_g / bscat ! changed to divide by bscat
+< !        write(30,*) ' inside aero_optical '       
+< !        write(30,*) ' g_bar = ', g_bar
+< !       write(20,*) ' bext = ', bext
+< !       write(20,*) ' bscat = ', bscat
+< !       write(20,*) ' gbar = ', g_bar 
+<       RETURN
+<       
+<       END SUBROUTINE ! aero_optical
+< 
+< 
+< 
+< ! /////////////////////////////////////////////////////////////////////
+< 
+< 
+< ! ***************
+<        subroutine ghintBH(nr, ni, alfv_in, xlnsig,  bext, bscat, g) 
+< 
+< ! FSB This version includes a call to Wiscombe (1980) for values
+< !     of modulus * alfv less than or equal to 0.1
+< !
+< ! FSB This version uses the large limit code for alfv .gt. 30.0
+< 
+< ! FSB For  certian ranges of nr and ni / (nr -1) the EF method is used
+< !     see subroutines  getqext_integ and getqext_EF below.
+< 
+< !       calculates the extinction and scattering coefficients 
+< !       normalized by wavelength and total particle volume
+< !       concentration for a log normal particle distribution 
+< !       with the logarithm of the geometri!  standard deviation
+< !       given by xlnsig. The integral of the
+< !       asymmetry factor g is also calculated. 
+< 
+< !  *** Does Gauss-Hermite quadrature of Qext / alfa & Qscat / alfa
+< !      over log normal distribution using  symmetric  points
+< !
+< !      Reference:  Abramowitz, M & I.A. Stegun,  Handbook of Mathematical
+< !      Functions with Formulas, Graphs and Mathematical Tables,
+< !      Nat. Bur. Stand. Appl. Math. Ser. Vol 55, U.S. Gov't. 
+< !      Printing Office, Washington, D.C., 1965.
+< !
+< 
+<       implicit none
+< 
+<       real, intent(in)    :: nr, ni  ! indices of refraction
+<       real, intent(in)    :: alfv_in ! Mie parameter for dgv
+<       real, intent(in)    :: xlnsig  ! log of geometri!  standard deviation
+< !      integer, intent(in) :: IGH ! index for GH quadrature      
+<       real, intent(out)   :: bext    ! normalized extinction coefficient
+<       real, intent(out)   :: bscat   ! normalized scattering coefficient
+<       real, intent(out)   :: g       ! asymmetry factor
+<       
+<       complex :: crefin ! complex refractive index      
+<       real    :: modulus ! modulus of refractive index
+<       real    :: modalph ! modulus * alfv
+<       real    :: tau     ! ni / ( nr - 1)
+<       real    :: aa1     ! see below for definition
+< 
+<       real    :: alfaip, alfaim   ! Mie parameters at abscissas
+<       
+<       real    :: alfv
+< !  *** these are Qext/alfa and Qscat/alfv at the abscissas
+<       real    :: qalfip_e, qalfim_e ! extinction  
+<       real    :: qalfip_s, qalfim_s ! scattering
+<       real    :: gsalfp, gsalfm     ! scattering times asymmetry factor
+< 
+< ! FSB define parameters 
+<       real, parameter :: pi = 3.14159265
+< 
+<       real, parameter :: sqrtpi = 1.772454 
+< 
+<       real, parameter :: sqrtpi1 = 1.0 / sqrtpi 
+< 
+<       real, parameter :: sqrt2 = 1.414214 
+< 
+<       real, parameter :: three_pi_two = 3.0 * pi / 2.0 
+< 
+<       real, parameter ::  const = three_pi_two * sqrtpi1 
+<       
+<       integer ::  i
+<       
+<  
+<  
+< ! FSB variables neded for Gauss-Hermite numerical quadrature. 
+<       real    ::  sum_e,sum_s, sum_sg, xi,wxi,xf
+< 
+< ! FSB full precision from Table 25.10 
+< ! Gauss-Hermite abscissas and weights are from Abramowitz &
+< ! Stegun, Table 25.10 page 924
+< 
+<       real,save :: ghxi_6(3),   ghwi_6(3)
+< 
+< ! FSB six-point 
+<        data ghxi_6 / 0.436077411927617,                                  &
+<      &               1.335849074013597,                                  &
+<      &               2.350604973674492/
+<           
+<        data ghwi_6 / 7.246295952244e-01,                                 &
+<      &               1.570673203229e-01,                                 &
+<      &               4.530009905509e-03/
+< 
+< 
+< 
+< ! FSB begin code
+< 
+<        alfv = alfv_in
+<        modulus = sqrt( nr*nr + ni*ni ) ! nr, ni are assumed to be well behaved.
+<        modalph = modulus * alfv
+<        crefin = cmplx(nr,ni)
+<        tau = ni / ( nr - 1.0 )
+< 
+< ! FSB check for small and large limits
+< 
+<       if( modalph .lt. 0.1 ) then
+<       
+<  !  FSB use Wiscombe code for small modalph note change of call.       
+<         call SMALL4( alfv, crefin, xlnsig, bext, bscat, g )
+<         return
+<       end if ! small test
+< 
+<       if( alfv .gt. 30.0 ) then
+<       
+< ! FSB use geometric optics for large alfv      
+<         call large_limit( nr, ni, alfv, xlnsig, bext, bscat, g)
+<         
+<         return
+<       end if ! large test
+< 
+< ! FSB do Gauss-Hermite numerical quadrature 
+< 
+< !     Zero out  summation variables.     
+<       sum_e  = 0.0
+<       sum_s  = 0.0
+<       sum_sg = 0.0
+<       aa1 = sqrt2 * xlnsig ! This 1.0 / Sqrt( A ) in derivation
+<                            ! of the integral
+<                            ! where A = 1.0 / ( 2.0 * xlnsg**2 ) 
+< ! Then alpha = alfv * exp[ u / sqrt(A) ]
+< ! For Gauss-Hermite Quadrature u = xi 
+< ! Therefore, xf = exp( xi / sqrt(A) ),
+< !  or xf = exp( xi * aa1 ) 
+< 
+< 
+< ! use six point       
+<         do i= 1,3
+<           xi      = ghxi_6(i)
+<           wxi     = ghwi_6(i)
+<           xf      = exp( xi * aa1 )
+<        
+<          alfaip  = alfv * xf
+<          alfaim  = alfv / xf ! division cheaper than another exp()
+< 
+< ! *** call suboutine fetch the efficiencies
+< 
+<          call getqext_integ(alfaip,nr, ni, modulus, tau,                 &
+<      &                      qalfip_e,qalfip_s, gsalfp)
+<          call getqext_integ(alfaim,nr, ni, modulus, tau,                 &
+<      &                       qalfim_e,qalfim_s, gsalfm)
+<        
+< 
+<          sum_e  = sum_e + wxi  * ( qalfip_e + qalfim_e )
+<          sum_s  = sum_s + wxi  * ( qalfip_s + qalfim_s )
+<            
+<         end do
+< ! FSB calculate extinction and scattering coefficients.  
+<         bext  = const * sum_e  
+<         bscat = const * sum_s   
+<         
+< ! FSB  get g at alfv after  using the mean values theorem for integrals.
+<          call getqesg(alfv, crefin, qalfip_e, qalfip_s, gsalfp)        
+<         g = gsalfp / qalfip_s 
+<       return
+<       end subroutine ghintBH
+< 
+< ! FSB /////////////////////////////////////////////////////////////////      
+<       subroutine getqesg(xx, crefin, qextalf, qscatalf, gscatalfg)
+<       implicit none
+<       real :: xx, qextalf, qscatalf, gscatalfg
+<       COMPLEX   CREFIN
+<       
+<       real :: QEXT, QSCA, QBACK, G_MIE
+<       INTEGER ::    NANG, MXNANG, maxang
+<       
+<       PARAMETER  ( MXNANG = 10, NANG = 2 )
+<       PARAMETER( maxang = 2* MXNANG-1)
+<       
+<           CALL BHMIE(xx,CREFIN,QEXT,QSCA,QBACK,G_MIE)
+<             qextalf    = QEXT / xx
+<             qscatalf   = QSCA / xx
+<             gscatalfg  = qscatalf * G_MIE 
+<        
+<       RETURN
+<       END subroutine getqesg
+<  
+< ! FSB /////////////////////////////////////////////////////////////////      
+<       subroutine getqext_integ(xx, nr, ni, modulus, tau,                 &
+<      & qextalf, qscatalf, gscatalfg)
+<       implicit none
+<       real :: xx, nr, ni, modulus, tau, qextalf, qscatalf, gscatalfg
+<       real :: qext_ef,qabs_ef,qscat_ef,g_ef, QABS
+<       real :: QEXT, QSCA, QBACK, G_MIE
+<       INTEGER ::    NANG, MXNANG, maxang
+<       
+<       PARAMETER  ( MXNANG = 10, NANG = 2 )
+<       PARAMETER( maxang = 2* MXNANG-1)
+<       COMPLEX   CREFIN
+<        
+<       
+<         if ( modulus .lt. 1.71 .and. tau .lt. 0.1) then
+< 
+< ! FSB Use Evans & Fournier method here.       
+<           call getqext_EF(xx,nr,ni,qext_ef,qabs_ef,qscat_ef,g_ef)
+<         
+<           qextalf      = qext_ef/xx
+<           QABS         = qabs_ef/xx
+<           qscatalf     = qscat_ef/xx
+<           gscatalfg    = qscatalf * g_ef
+1646a1314,1318
+>        if( VOLCOR(m) .gt. 0.0 )then      
+>   ! FSB set up inputs for BHCOAT 
+>         refcor(m)   = cmplx( xnreal_ec(ns), xnimag_ec(ns) ) 
+>         refshell(m) = cmplx(nr(m), ni(m) )
+>  ! FSB set up finputs for BHMIE       
+1648,2109c1320
+<          
+< ! FSB Use BHMIE method here.
+< 
+<           CREFIN = cmplx(nr,ni)
+<           CALL BHMIE(xx,CREFIN,QEXT,QSCA,QBACK,G_MIE)
+<             qextalf    = QEXT / xx
+<             qscatalf   = QSCA / xx
+<             gscatalfg  =  qscatalf * G_MIE 
+<          end if        
+<         
+<       RETURN
+<       END subroutine getqext_integ
+< !______________________________________________________________________
+<       SUBROUTINE BHMIE(X,REFREL,QEXT,QSCA,QBACK,GSCA)
+<       IMPLICIT NONE   
+< ! Declare parameters:
+< ! Note: important that MXNANG be consistent with dimension of S1 and S2
+< !       in calling routine!
+<       INTEGER MXNANG,NMXX
+< !      PARAMETER(MXNANG=1000,NMXX=15000)
+<       PARAMETER(MXNANG=10,NMXX=150000)
+< ! Arguments:
+<       INTEGER NANG
+<       REAL GSCA,QBACK,QEXT,QSCA,X
+<       COMPLEX REFREL
+<       COMPLEX S1(2*MXNANG-1),S2(2*MXNANG-1)
+< ! Local variables:
+<       INTEGER J,JJ,N,NSTOP,NMX,NN
+<       DOUBLE PRECISION CHI,CHI0,CHI1,DANG,DX,EN,FN,P,PII,PSI,PSI0,PSI1, &
+<                        THETA,XSTOP,YMOD
+<       DOUBLE PRECISION AMU(MXNANG),PI(MXNANG),PI0(MXNANG),PI1(MXNANG),  &
+<                        TAU(MXNANG)
+<       DOUBLE COMPLEX AN,AN1,BN,BN1,DREFRL,XI,XI1,Y
+<       DOUBLE COMPLEX D(NMXX)
+< ! ***********************************************************************
+< ! Subroutine BHMIE is the Bohren-Huffman Mie scattering subroutine
+< !    to calculate scattering and absorption by a homogenous isotropic
+< !    sphere.
+< ! Given:
+< !    X = 2*pi*a/lambda
+< !    REFREL = (complex refr. index of sphere)/(real index of medium)
+< !    NANG = number of angles between 0 and 90 degrees
+< !           (will calculate 2*NANG-1 directions from 0 to 180 deg.)
+< !           if called with NANG<2, will set NANG=2 and will compute
+< !           scattering for theta=0,90,180.
+< ! Returns:
+< !    S1(1 - 2*NANG-1) = -i*f_22 (incid. E perp. to scatt. plane,
+< !                                scatt. E perp. to scatt. plane)
+< !    S2(1 - 2*NANG-1) = -i*f_11 (incid. E parr. to scatt. plane,
+< !                                scatt. E parr. to scatt. plane)
+< !    QEXT = C_ext/pi*a**2 = efficiency factor for extinction
+< !    QSCA = C_sca/pi*a**2 = efficiency factor for scattering
+< !    QBACK = (dC_sca/domega)/pi*a**2
+< !          = backscattering efficiency [NB: this is (1/4*pi) smaller
+< !            than the "radar backscattering efficiency"; see Bohren &
+< !            Huffman 1983 pp. 120-123]
+< !    GSCA = <cos(theta)> for scattering
+< !
+< ! Original program taken from Bohren and Huffman (1983), Appendix A
+< ! Modified by B.T.Draine, Princeton Univ. Obs., 90/10/26
+< ! in order to compute <cos(theta)>
+< ! 91/05/07 (BTD): Modified to allow NANG=1
+< ! 91/08/15 (BTD): Corrected error (failure to initialize P)
+< ! 91/08/15 (BTD): Modified to enhance vectorizability.
+< ! 91/08/15 (BTD): Modified to make NANG=2 if called with NANG=1
+< ! 91/08/15 (BTD): Changed definition of QBACK.
+< ! 92/01/08 (BTD): Converted to full double precision and double complex
+< !                 eliminated 2 unneed lines of code
+< !                 eliminated redundant variables (e.g. APSI,APSI0)
+< !                 renamed RN -> EN = double precision N
+< !                 Note that DOUBLE COMPLEX and DCMPLX are not part
+< !                 of f77 standard, so this version may not be fully
+< !                 portable.  In event that portable version is
+< !                 needed, use src/bhmie_f77.f
+< ! 93/06/01 (BTD): Changed AMAX1 to generic function MAX
+< ! ***********************************************************************
+< ! *** Safety checks
+<       NANG = 2
+<       IF(NANG.GT.MXNANG)STOP'***Error: NANG > MXNANG in bhmie'
+<       IF(NANG.LT.2)NANG=2
+< ! *** Obtain pi:
+<       PII=4.*ATAN(1.D0)
+<       DX=X
+<       DREFRL=REFREL
+<       Y=X*DREFRL
+<       YMOD=ABS(Y)
+< !
+< ! *** Series expansion terminated after NSTOP terms
+< !    Logarithmic derivatives calculated from NMX on down
+<       XSTOP=X+4.*X**0.3333+2.
+<       NMX=MAX(XSTOP,YMOD)+15
+< ! BTD experiment 91/1/15: add one more term to series and compare results
+< !      NMX=AMAX1(XSTOP,YMOD)+16
+< ! test: compute 7001 wavelengths between .0001 and 1000 micron
+< ! for a=1.0micron SiC grain.  When NMX increased by 1, only a single
+< ! computed number changed (out of 4*7001) and it only changed by 1/8387
+< ! conclusion: we are indeed retaining enough terms in series!
+<       NSTOP=XSTOP
+< !
+<       IF(NMX.GT.NMXX)THEN
+<           WRITE(0,*)'Error: NMX > NMXX=',NMXX,' for |m|x=',YMOD
+<           STOP
+<       ENDIF
+< !*** Require NANG.GE.1 in order to calculate scattering intensities
+<       DANG=0.
+<       IF(NANG.GT.1)DANG=.5*PII/DBLE(NANG-1)
+<       DO 1000 J=1,NANG
+<           THETA=DBLE(J-1)*DANG
+<           AMU(J)=COS(THETA)
+<  1000 CONTINUE
+<       DO 1100 J=1,NANG
+<           PI0(J)=0.
+<           PI1(J)=1.
+<  1100 CONTINUE
+<       NN=2*NANG-1
+<       DO 1200 J=1,NN
+<           S1(J)=(0.,0.)
+<           S2(J)=(0.,0.)
+<  1200 CONTINUE
+< !
+< ! *** Logarithmic derivative D(J) calculated by downward recurrence
+< !    beginning with initial value (0.,0.) at J=NMX
+< !
+< !     D(NMX)=(0.,0.)
+<       D(NMX)=0.0
+<       NN=NMX-1
+<       DO 2000 N=1,NN
+<           EN=NMX-N+1
+<           D(NMX-N)=(EN/Y)-(1./(D(NMX-N+1)+EN/Y))
+<  2000 CONTINUE
+< !
+< ! *** Riccati-Bessel functions with real argument X
+< !    calculated by upward recurrence
+< !
+<       PSI0=COS(DX)
+<       PSI1=SIN(DX)
+<       CHI0=-SIN(DX)
+<       CHI1=COS(DX)
+<       XI1=DCMPLX(PSI1,-CHI1)
+<       QSCA=0.E0
+<       GSCA=0.E0
+<       P=-1.
+<       DO 3000 N=1,NSTOP
+<           EN=N
+<           FN=(2.E0*EN+1.)/(EN*(EN+1.))
+< ! for given N, PSI  = psi_n        CHI  = chi_n
+< !              PSI1 = psi_{n-1}    CHI1 = chi_{n-1}
+< !              PSI0 = psi_{n-2}    CHI0 = chi_{n-2}
+< ! Calculate psi_n and chi_n
+<           PSI=(2.E0*EN-1.)*PSI1/DX-PSI0
+<           CHI=(2.E0*EN-1.)*CHI1/DX-CHI0
+<           XI=DCMPLX(PSI,-CHI)
+< !
+< ! *** Store previous values of AN and BN for use
+< !    in computation of g=<cos(theta)>
+<           IF(N.GT.1)THEN
+<               AN1=AN
+<               BN1=BN
+<           ENDIF
+< !
+< ! *** Compute AN and BN:
+<           AN=(D(N)/DREFRL+EN/DX)*PSI-PSI1
+<           AN=AN/((D(N)/DREFRL+EN/DX)*XI-XI1)
+<           BN=(DREFRL*D(N)+EN/DX)*PSI-PSI1
+<           BN=BN/((DREFRL*D(N)+EN/DX)*XI-XI1)
+< !
+< ! *** Augment sums for Qsca and g=<cos(theta)>
+<           QSCA=QSCA+(2.*EN+1.)*(ABS(AN)**2+ABS(BN)**2)
+<           GSCA=GSCA+((2.*EN+1.)/(EN*(EN+1.)))*                          &
+<                (REAL(AN)*REAL(BN)+IMAG(AN)*IMAG(BN))
+<           IF(N.GT.1)THEN
+<               GSCA=GSCA+((EN-1.)*(EN+1.)/EN)*                           &
+<               (REAL(AN1)*REAL(AN)+IMAG(AN1)*IMAG(AN)+                   &
+<                REAL(BN1)*REAL(BN)+IMAG(BN1)*IMAG(BN))
+<           ENDIF
+< !
+< ! *** Now calculate scattering intensity pattern
+< !    First do angles from 0 to 90
+<           DO 2500 J=1,NANG
+<               JJ=2*NANG-J
+<               PI(J)=PI1(J)
+<               TAU(J)=EN*AMU(J)*PI(J)-(EN+1.)*PI0(J)
+<               S1(J)=S1(J)+FN*(AN*PI(J)+BN*TAU(J))
+<               S2(J)=S2(J)+FN*(AN*TAU(J)+BN*PI(J))
+<  2500     CONTINUE
+< !
+< ! *** Now do angles greater than 90 using PI and TAU from
+< !    angles less than 90.
+< !    P=1 for N=1,3,...; P=-1 for N=2,4,...
+<           P=-P
+<           DO 2600 J=1,NANG-1
+<               JJ=2*NANG-J
+<               S1(JJ)=S1(JJ)+FN*P*(AN*PI(J)-BN*TAU(J))
+<               S2(JJ)=S2(JJ)+FN*P*(BN*PI(J)-AN*TAU(J))
+<  2600     CONTINUE
+<           PSI0=PSI1
+<           PSI1=PSI
+<           CHI0=CHI1
+<           CHI1=CHI
+<           XI1=DCMPLX(PSI1,-CHI1)
+< !
+< ! *** Compute pi_n for next value of n
+< !    For each angle J, compute pi_n+1
+< !    from PI = pi_n , PI0 = pi_n-1
+<           DO 2800 J=1,NANG
+<               PI1(J)=((2.*EN+1.)*AMU(J)*PI(J)-(EN+1.)*PI0(J))/EN
+<               PI0(J)=PI(J)
+<  2800     CONTINUE
+<  3000 CONTINUE
+< ! 
+< ! *** Have summed sufficient terms.
+< !    Now compute QSCA,QEXT,QBACK,and GSCA
+<       GSCA=2.*GSCA/QSCA
+<       QSCA=(2./(DX*DX))*QSCA
+<       QEXT=(4./(DX*DX))*REAL(S1(1))
+<       QBACK=(ABS(S1(2*NANG-1))/DX)**2/PII
+<       RETURN
+<       END SUBROUTINE BHMIE
+< 
+< 
+< !     /////////////////////////////////////////////////////////////////
+<       SUBROUTINE SMALL4( XX, CREFIN, XLNSIG, BEXT, BSCAT, G )
+< ! FSB This is a modification of Wiscombe's SMALL2 subroutine from MIEV0
+< ! Using the analytic character of QEXT / XX, QSCA / XX  GQSC, to calculate
+< ! the integral over a log normal distribution characterized by XX and XLNSIG. 
+< !  
+< !     The presence of XX  within the calculations of the A and B 
+< !     coefficients is ignored in order to facilitate the analytical 
+< !     integration. These terms have the same dominant powers in the
+< !     numerators and denomenators, and are thus held constant for the
+< !     integration of QSCAT and QEXT over XX. 
+< 
+< ! FSB code revised 02/09/2011 to have MIMCUT as a local parameter,
+< !     and to set the calculations of BSCAT and BEXT immediately 
+< !     after the calculationof QSCAT and QEXT. 
+< 
+< !       Small-particle limit of Mie quantities for general refractive
+< !       index ( Mie series truncated after 2 terms )
+< 
+< !        A,B       First two Mie coefficients, with numerator and
+< !                  denominator expanded in powers of XX ( a factor
+< !                  of XX**3 is missing but is restored before return
+< !                  to Wiscombe's calling program MIEV0)
+< 
+< !        CIORSQ    Square of refractive index
+< 
+< !    References:
+< !     Wiscombe, W. J., Improves Mie Scattering Algorithms, Applied 
+< !       Optics, Vol. 19,No. 9, PP 1505-1509, May 1, 1980. 
+< 
+< !     Wiscombe, W. J. Mie Scattering Calculations: Advances in 
+< !      Techniques and Fast Vector-Speed Computer Codes, 
+< !      NCAR Technical NCAR/TN 140+STR, June 1979, revised August 1996.
+< !        Equation citations below are to the NCAR document.
+< 
+<       IMPLICIT  NONE
+<        
+<        REAL, INTENT(IN)  :: XX        ! PI * diameter / wavelength
+<        COMPLEX, INTENT( IN) :: CREFIN ! complex refractive index
+<        REAL, INTENT(IN)  :: XLNSIG    ! Logrithm of geometric standart deviation.
+<        REAL, INTENT(OUT) :: BEXT      ! Extinction coeffcient
+<        REAL, INTENT(OUT) :: BSCAT     ! Scattering coefficient
+<        REAL, INTENT(OUT) :: G         ! asymmetry factor 
+< 
+< 
+<       REAL :: QEXT    ! Extinction efficiency factor
+<       REAL :: QSCA    ! Scattering efficiency factor
+<       
+< 
+< !     .. Parameters ..
+<        REAL, PARAMETER :: MIMCUT = 1.0E-05 ! the cutoff value of imaginary 
+<                                   ! part of the refractive index.
+<                                   ! values smaller than the cutoff are 
+<                                   ! treated as zero.
+< 
+<       REAL, PARAMETER :: PI = 3.14159265358979324 
+<       REAL, PARAMETER :: THREE_PI_TWO = 1.5 * PI
+< 
+<       REAL   :: TWOTHR, FIVTHR
+<       PARAMETER ( TWOTHR = 2.0/3.0, FIVTHR = 5.0/3.0)
+<       REAL  ::    FOUR5, F49_2
+<       PARAMETER ( FOUR5 = 4.50 , F49_2 = 0.5 * 49.0 / 2.0 )
+<       REAL  ::  T
+< !     .. Scalar Arguments ..
+< 
+<       REAL ::  MRE, MIM, XLNSIG2, EXPFAC3, EXPFACM1 
+<       REAL ::  XX_2, XX_3, XX_4
+<       REAL ::  GG
+< !     .. Array Arguments ..
+< 
+<       COMPLEX ::  A( 2 ), B( 2 )
+< !     ..
+< !     .. Local Scalars ..
+< 
+<       COMPLEX :: CIOR, CIORSQ, CTMP
+< !     ..
+< !     .. Intrinsic Functions ..
+< 
+<       INTRINSIC :: AIMAG, CMPLX, CONJG, REAL
+< !     ..
+< !     .. Statement Functions ..
+< 
+<       REAL ::     SQ
+< !     ..
+< !     .. Statement Function definitions ..
+< 
+<       SQ( CTMP ) = REAL( CTMP )**2 + AIMAG( CTMP )**2
+< 
+< !     Begin Code..
+<       
+<       CIOR = CREFIN
+<       XLNSIG2  = XLNSIG * XLNSIG
+<       EXPFAC3  = EXP( FOUR5 * XLNSIG2 )
+<       EXPFACM1 = EXP( 0.5 * XLNSIG2 )
+<       XX_2 = XX * XX
+<       XX_3 = XX * XX * XX
+<       XX_4 = XX_2 * XX_2 
+<       
+< ! FSB MIEV0 wants the refractive index with a negative value for the
+< !     imaginary part.        
+<       IF( AIMAG(CIOR) .GT. 0.0 ) CIOR = CONJG( CIOR )
+< 
+<       MRE    = REAL( CIOR )
+<       MIM    = -AIMAG( CIOR )
+< 
+<       CIORSQ = CIOR**2
+<       CTMP   = CMPLX( 0.0, TWOTHR )*( CIORSQ - 1.0 )
+< 
+< !                                           ** Eq. R42a
+<       A( 1 ) = CTMP*( 1.0- 0.1*XX_2 +                                     &
+<                ( CIORSQ / 350.0 + 1.0/280.)*XX_4 ) /                      &
+<                ( CIORSQ + 2.0 + ( 1.0- 0.7 * CIORSQ )*XX_2 -              &
+<                ( CIORSQ**2 / 175.0- 0.275 * CIORSQ + 0.25 )*XX_4 +        &
+<                XX**3 * CTMP * ( 1.- 0.1*XX_2 ) )
+< 
+< !                                           ** Eq. R42b
+<       B( 1 ) = ( XX**2 / 30.0 )*CTMP*( 1.0 +                              &
+<                ( CIORSQ / 35.0 - 1.0/ 14.0)*XX_2 ) /                      &
+<                ( 1.0- ( CIORSQ / 15.0 - 1.0/6.0)*XX_2 )                      
+< 
+< !                                           ** Eq. R42c
+< 
+<       A( 2 ) = ( 0.1*XX_2 )*CTMP*( 1.0 - XX_2 / 14.0 ) /                  &
+<                ( 2.0*CIORSQ + 3.0- ( CIORSQ / 7.0- 0.5 ) * XX_2 )
+< 
+< !                                           ** Eq. R40a
+< 
+< !      QSCA = (6.*XX_4) * ( SQ( A(1) ) + SQ( B(1) ) +                      &
+< !     &                     FIVTHR * SQ( A(2) ) )
+<      
+<       T   =  ( SQ( A(1) ) + SQ( B(1) ) + FIVTHR * SQ( A(2) )  )
+<       
+<       QSCA = (6.0*XX_4) * T
+< ! Analytic integrals   
+<         BSCAT  = THREE_PI_TWO *  QSCA * EXPFAC3 / XX
+<         BEXT   = BSCAT
+< ! FSB  If the imaginary part of CREFIN is larger than MIMCUT
+< !      then calculate the extinction efficiency and the
+< !      extinction coefficient. 
+< !                                          ** Eq. R40b
+<       IF( MIM .GT. MIMCUT )  THEN                                            
+<         QEXT = 6.0*XX * REAL( A(1) + B(1) + FIVTHR*A(2) )
+< ! FSB  Form analytical integral       
+<         BEXT   = THREE_PI_TWO  * QEXT / XX
+<        END IF
+< 
+< !                                           ** Eq. R40c
+< 
+< !      GQSC = (6.*XX_4) * REAL( A(1)*CONJG( A(2) + B(1) ) )
+< 
+< !      G = GQSC / QSCA 
+< 
+< ! This is  the form given in Wiscombe (1980) 
+< 
+<        GG =  REAL( A(1)*CONJG( A(2) + B(1) ) ) / T
+<                      
+<        G  =  GG
+<       
+<       RETURN
+<       END SUBROUTINE SMALL4
+< ! /////////////////////////////////////////////////////////////////////
+< 
+<       subroutine large_limit( nr, ni, xx, xlnsig, bext, bscat, g)
+< ! FSB calculate bext, bscat, g from asymptotic limits.
+< !     The values of bext, and bscat are dimensionless and have been
+< !     integrated over a log normal distribution. 
+< !     References:
+< !     Irvine, W.M. Light scattering by spherica particles: radiation 
+< !       pressre, asymmetry factor, and extinction cross section, Jour.
+< !       of the Optical Society of America, Vol. 55, No. 1,
+< !       pp. 16-21.January, 1965.
+< !
+< !     Kokhanovsky, A.A. and E.F. Zege, Otical properties of aerosol 
+< !      particles: a revies of approximate analytical solutions, Jour.
+< !      of Aerosol  Science, Vol. 28, Number 1, pp. 1-21, 1997. (K&Z)
+< 
+< !     We fit values in Table 6 of Kokhanovsy and Zege with
+< !     polynomials. Edge effects are ignored.
+< 
+< !     coded April 26, 2010, by Dr. Francis S. Binkowski
+< !     Center for Environmental Modeling for Policy Development, 
+< !     The Institute for the Environment, The University of 
+< !     North Carolina at Chapel Hill. 
+< 
+<       implicit none
+<       real, intent(in)  :: nr, ni ! refractive indices
+<       real, intent(in)  :: xx     ! pi * dg_v / lamda
+<       real, intent(in)  :: xlnsig  ! ln( sigma_g )
+<       real, intent(out) :: bext   ! extinction coefficient       
+<       real, intent(out) :: bscat  ! scatering coefficient
+<       real, intent(out) :: g      ! asymmetry factor.
+<       
+<       real  :: ginf  ! asymmetry factor for an absorbing sphere
+<       real  :: delta_g ! difference between g0 and ginf
+<       real  :: Y     ! variable from Kokhanovsky and Zege
+<       real  :: QSCA  ! Scattering eficiency
+<       real  :: QEXT  ! extinction efficiency
+<       real  :: expfac1, expfac2
+<       real  :: c
+<       real  :: nr2, nr3, nr4
+<       real  :: y1, y2,y3, y4
+<       real  :: g1, g2, dg1, dg2
+<       real  :: qs1,qs2
+<       real, parameter :: pi = 3.1415926525
+<       real, parameter :: three_pi_two = 1.5 * pi
+< ! FSB begin code 
+<       expfac1 = exp( 0.5 * xlnsig * xlnsig ) / xx 
+<       c = 4.0 * ni * xx
+<       
+<       nr2 = nr * nr      
+<       nr3 = nr * nr * nr
+<       nr4 = nr2 * nr2
+< 
+< ! assemble components of polynomials      
+<       y4  = -1.27579 * nr4
+<       y3  = 8.845570 * nr3
+<       y2  = - 2.299855e01 * nr2
+<       y1  = 2.68117e01 * nr -1.104857e01       
+<       g1  = -9.418646e-02 * nr + 1.107985
+<       g2  = -6.558408e-03 * nr2
+<       dg1 = 5.874452e-01 * nr - 4.614125e-01
+<       dg2 = -1.329323e-01 * nr2
+<       qs1 = 2.344471e-01 * nr + 8.025779e-01
+<       qs2 = -2.772065e-02 * nr2 
+< 
+< ! calculate variables
+< 
+< ! For scattering, use Irvine equation (11): QSCA = 1.0 + w
+< ! The variable S in (K&Z) Table 6 is the same as w in
+< ! Table 1 of Irvine. (K&Z) have a larger range of nr in 
+< ! their Table 6. 
+< ! We fit 1.0 + S  with a quadratic
+<       QSCA  = qs1 + qs2
+< ! Equation (10 ) from Irvine.      
+<       QEXT  = 2.0 
+< ! Integrate QSCA / xx and QEXT / xx over a lognormal
+< ! distribution 
+<       bext  = three_pi_two * QEXT * EXPFAC1 
+<       bscat = bext ! FSB 02/09/2011 Ensure that bscat = bext when 
+<                    ! ni is zero. 
+<       if( ni .ge. 1.0e-5) then ! same value as in SMALL4.
+<         bscat = three_pi_two * QSCA * EXPFAC1 
+---
+>         crefin(m) = cmplx(nr(m), ni(m) )
+2111,2162d1321
+< ! For asymmetry factor, use  (K&Z) equation (49), g0
+< ! is a geometric optics approximation. 
+< ! for nearly non-absorbing spheres, the (K&Z) values
+< ! g0 match Irvine falues at nr = 1.2 an 1.5 to 4 decimal 
+< ! places. The (K&Z) version adjusts for absorbing spheres
+< ! We fit the varaible y in (K&Z) Table 6 with a quartic. 
+<       y         = y4 + y3 + y2 + y1
+<       ginf      = g1 + g2     ! quadratic fit 
+<       delta_g   = dg1 + dg2   ! quadratic fit 
+<       expfac2   = exp( - c * y )       
+<       g         = ginf - delta_g * expfac2 ! Eq (49) 
+< ! The expfac1 and xx terms cancel out when g is integrated
+< ! over a lognormal distribution. This follows from
+< ! equation (7) of (K&Z). This step is not an approximation.
+< 
+<       return
+<       end subroutine large_limit
+< ! ______________________________________
+< 
+< !//////////////////////////////////////////////////////////////////////
+< 
+< 
+<        subroutine getqext_EF(alfa, nr, ni, qext, qabs, qscat, g ) 
+< ! FSB  compute the extinction and scattering efficienies and the
+< !      asymmetry factor. 
+< 
+< !      where:
+< 
+< !      alfa is Mie parameter
+< !      nr is the real part ot the refractive index
+< !      ni is the imaginary part of the refractive index
+< !      qext is extinction efficiency
+< !      qabs is the absorption efficiency
+< !      qscat is the scattering efficiency
+< !      g is the asymmetry factor <cos>
+< !      all input and output variables are REAL*4
+< 
+< !      references:
+< !      For the main approximation to extinction
+<  
+< !      Evans, B.T.N.  and G.R. Fournier, Simple approximations to
+< !      extinction efficiency valid over all size parameters,
+< !      Applied Optics, 29, 4666 - 4670. 1990.
+< !      
+< !      For ADT algorithm
+< !      van de Hulst- Light Scattering by Small Particles,
+< !      Dover,1981 page 179. Original edition was Wiley, 1957.
+< 
+< !      For the small particle approximation
+< 
+< !      Penndorf, R., Scattering and extinction coefficients for small
+< !      aerosols, J. Atmos. Sci., 19, p 193, 1962.
+2164,2468c1323
+< !     For the absorption approximation
+< 
+< !     Bohren and Nevitt, Absorption by a sphere: a simple approximation
+< !     Applied Optics, vol 22, no 6, pp 774-775, 15 March 1983.
+< 
+< !     For an algebrai! simplification is due to Kokhanovsky and Zege,
+< 
+< !     Kokhanovsky and Zege, Optical properties of aerosol particles: 
+< !     a review of approximate analytical solutions, J. Aerosol Science, 
+< !     vol 28, No 1, pp 1-21, 1997.
+< 
+< !     Asymmetry factor is calculated by an algorithm due to 
+< !     Adel Hanna and Rohit Mathur (personal communication)
+< 
+< !     This version coded June 10, 2003, and modified for inline
+< !     documentation September 02, 2003 by Dr. Francis S. Binkowski
+< !     Carolina Environmental Program, University of North Carolina
+< !     modified by FSB to report only qscaef 05/10/2005
+< !     modified by FSB 12/21/2010 to report qext,qabs,qscat, and g
+< 
+< !     Email: frank_binkowski@unc.edu
+< 
+<        implicit none
+< 
+<        real :: nr, ni  ! real and imaginary parts of index of refraction
+<        real :: qextadt
+<        real :: qext, qabs, qscat
+<        real :: QABS_PENN, QEXT_PENN, QSCAT_PENN, QABS_BN 
+< 
+< 
+<        real :: tt        !  edge effect factor
+<        real :: mu, mum1  !  exponents in formula
+<        real :: aa        !  first coefficient in mu
+<        real :: gg        !  second coefficient in mu
+<        real :: nrm1, sqrtni
+<        real :: alfa
+<        real :: alfm23   ! functions of alfa (mie parameter)
+<        real :: three5, three4, two3
+<         parameter( three5    = 3.0 / 5.0   ,   &
+<                    three4    = 3.0 / 4.0   ,   &
+<                    two3      = 2.0 / 3.0   )
+<        
+< ! FSB added for asymmetry factor calculation
+<       real :: aa0, aa1,aa2,aa3,aa4
+<        parameter( aa0 =  88.466,                                        &
+<                   aa1 = -61.628,                                        &
+<                   aa2 =  34.483,                                        &
+<                   aa3 = -8.543,                                         &
+<                   aa4 =  0.77435 )
+<       real :: qangle,g 
+<       real :: qq, qf1,qf2,qf3
+<       real :: degtorad 
+<       real :: pi 
+<        parameter( pi = 3.141592654)
+<        parameter( degtorad = pi / 180.0 )
+<        
+<        nrm1   = nr - 1.0
+<        sqrtni = sqrt (ni )
+<        call adtqext(alfa,nr,ni, qextadt)
+<        call penndorf(alfa,nr,ni,QEXT_PENN, QABS_PENN, QSCAT_PENN)
+<        
+< ! FSB Evens and Fournier approximation
+< 
+<          alfm23  = ( 1.0 / alfa ) ** two3
+< 
+<          tt      = 2.0 - exp( -alfm23 )
+< 
+<          aa      = 0.5 + ( nrm1 - two3 * sqrtni - 0.5 * ni ) +          &
+<                  ( nrm1 + two3 * ( sqrtni - 5.0  * ni )  ) ** 2
+< 
+<          gg      = three5 - three4 * sqrt ( nrm1) + 3.0 * nrm1 ** 4 +   &
+<                   25.0 * ni / ( 6.0 * ni + 5.0 * nrm1 )
+< 
+<          mu      = aa + gg / alfa
+<          mum1    = - 1.0 / mu
+< 
+<          qext = ( QEXT_PENN *                                           &
+<                 ( 1.0 + (QEXT_PENN /( qextadt * tt)) ** mu ) ** mum1 ) 
+<        
+< 
+<          qabs = 0.0
+< 
+< ! FSB test imaginary part of the refractive index
+< !     if it is nonzero, calculate absorption efficiency
+<          if( ni .gt. 0.0 ) then
+<  
+<           call abs_bn(nr,ni,alfa, QABS_BN) ! Bohren & Nevitt
+< 
+< ! *** use the same  Evans & Fournier algorithm for absorption.
+<           
+<              qabs  = ( QABS_PENN *                                      &
+<                  ( 1.0 + (QABS_PENN /( QABS_BN * tt)) ** mu ) ** mum1) 
+<      
+<          
+<  
+<          end if 
+<          
+<          qscat = qext - qabs
+< 
+< ! FSB Set up for Mathur & Hanna method for asymmetry factor
+<          
+<        
+<        qangle = aa0
+<       if( qscat .gt. 1.0e-4 ) then
+< ! FSB evaluate quartic equation for qangle      
+<         qq  = qscat * qscat
+<         qf1 = aa0 + aa1 * qscat
+<         qf2 = aa2 + aa3 * qscat
+<         qf3 = aa4 * qq
+<         qangle = qf1 + qf2 * qq + qf3 * qq
+<       end if 
+<       qangle = degtorad * qangle 
+<       g = cos( qangle)
+< !       write(35,*) 'alfa=',alfa, 'qangle = ', qangle,'g=',g
+<        return
+<        end subroutine getqext_EF
+< ! ______________________________________
+<       subroutine adtqext(alfa, nr, ni, QEXT)
+< 
+< ! *** van de Hulst approximation for QEXT.
+< ! ***  This approximation is known as Anomalous Diffraction Theory (ADT)
+< 
+< ! *** originally coded by Dr Francis  S. Binkowski,
+< !        AMAB/MD/ESRL RTP,N.C. 27711 28 July 1977.
+< !       corrected 7/19/90 by fsb.
+< !       revised 1/8/98 by FSB
+< 
+< 
+< ! *** reference:
+< !         van de Hulst- Light Scattering by Small Particles,
+< !         Dover,1981 page 179. Original edition was Wiley, 1957.
+< 
+<         implicit none
+<         real :: alfa   ! Mie parameter
+<         real :: nr, ni ! real and imaginary parts of the index of refraction
+<         real :: QEXT   ! extinction efficiency for a sphere
+<         real :: z, tanb, b, cos2b,  x, expmx, cs1, cs2
+<         real :: twob, cosb, sinzmb, coszm2b
+<         real :: nr1
+<         real :: xxalf
+<         
+<         xxalf   = max( alfa, 1.0) ! limiting range of ADT 
+<         
+<         nr1     = nr - 1.0
+<         z       = 2.0 * xxalf * nr1
+<         tanb    = ni/nr1
+<         b       = atan(tanb)
+<         cosb    = cos(b)
+<         twob    = 2.0 * b        
+<         sinzmb  = sin(z-b)
+<         coszm2b = cos(z-twob)
+<         cos2b   = cos(twob)
+<         x       = z * tanb
+<         expmx   = exp( -x )
+<         cs1     = cosb / z
+<         cs2     = cs1 * cs1
+< 
+<         QEXT    = 2.0 - 4.0 * cs1 * expmx * sinzmb + 4.0 * cs2 *         &
+<                     ( cos2b - expmx * coszm2b )
+<         
+<         return
+<         end subroutine adtqext
+< ! __________________________________________________
+<       subroutine penndorf(alfa, nr, ni, QEXT, QABS, QSCA)
+< ! *** calculates the Mie efficiencies for extinction, scattering and
+< !     absorption using Penndorf's approximations for small
+< !     values of alfa.
+< !
+< !  input:
+< !       nr        the real part of the refractive index.
+< !       ni        the imaginary part of the refractive index
+< !       alfa      mie parameter
+< 
+< !
+< !  output:
+< !       QEXT      extinction efficiency
+< !       QABS      absorption efficeincy
+< !       QSCA      scattereing efficiency
+< !
+< ! *** reference:
+< !       Penndorf, r., Scattering and extinction coefficients for small
+< !       aerosols, J. Atmos. Sci., 19, p 193, 1962.
+< !
+< ! *** originally coded by Dr Francis  S.  Binkowski,
+< !       AMAB/MD/ESRL RTP,N.C. 27711 28 July 1977.
+< !       corrected 7/19/90 by FSB
+< !       modified 30 september 1992 by FSB
+< !       modified 1/6/98 by FSB
+< !       modified to include QSCAT, QABS June 9, 2003 by FSB
+< 
+<         implicit none
+< 
+<         real :: alfa, nr, ni
+<         real :: QEXT, QABS, QSCA
+<         real :: alf2,alf3,alf4
+< 
+<         real :: a1,a2,a3
+<         real :: xnr,xni,xnr2,xni2,xnri,xnri2,xnrmi
+<         real :: xri,xri2,xri36,xnx,xnx2
+<             real :: z1,z12,z2,xc1
+< 
+<         xnr   = nr
+<         xni   = ni
+<         xnr2  = xnr   * xnr
+<         xni2  = xni   * xni
+<         xnri  = xnr2  + xni2
+<         xnri2 = xnri  * xnri
+<         xnrmi = xnr2  - xni2
+<         xri   = xnr   * xni
+<         xri2  = xri   * xri
+<         xri36 = 36.0  * xri2
+<         xnx   = xnri2 + xnrmi - 2.0
+<         xnx2  = xnx   * xnx
+< 
+<         z1    = xnri2 + 4.0 * xnrmi + 4.0
+<         z12   = z1    * z1
+<         z2    = 4.0   * xnri2 + 12.0 * xnrmi + 9.0
+<         xc1   = 8.0   / (3.0*z12)
+< 
+<         alf2  = alfa  * alfa
+<         alf3  = alfa  * alf2
+<         alf4  = alfa  * alf3
+< 
+<         a1    = 24.0  * xri / z1
+< 
+<         a2    = 4.0   * xri / 15.0 + 20.0 * xri / (3.0 * z2) +           &
+<                     4.8   * xri * (  7.0 * xnri2 +                       &
+<                     4.0   * ( xnrmi - 5.0) ) / z12
+< 
+<         a3    = xc1 * (xnx2 - xri36)
+< 
+<             QEXT  = a1 * alfa + a2 * alf3 + a3 * alf4
+<         QSCA  = a3 * alf4
+<         QABS  = QEXT - QSCA 
+<         return
+<         end subroutine penndorf
+< !______________________________________________________________________
+< 
+<       subroutine abs_bn(nr, ni,x, QABS)
+< ! FSB calculate the absorption efficiency using the algorithm of
+< !     Bohren and Nevitt.
+< !     The algebrai! simplification is due to Kokhanovsky and Zege,
+< 
+< !     Reference:
+< !     Bohren and Nevitt, Absorption by a sphere: a simple approximation
+< !     Applied Optics, vol22, no 6, pp 774-775, 15 March 1983.
+< 
+< !     Kokhanovsky and Zege
+< !     Optical properties of aerosol particles: a review of approximate
+< !     analytical solutions, J. Aerosol Science, 
+< !     vol 28, No 1, pp 1-21, 1997.
+< 
+< ! FSB coded June 9, 2003, by Dr. Francis S. Binkowski
+< ! FSB modified June 27,20033 for case M > 1.0
+< !     use Kokhanovsky & Zege ( J. aerosol Science Vol. 38, No.1,
+< !     pp1-21, 1996 ) recommendation that M can be approximated by
+< !     Mst = exp( -2 * ! *( nr##2 - b**3) / 3 ). They cite Shifrin &
+< !     Tonna with a claim that the differenced is about 1%. for nr
+< !     in the range 1.1 to 1.5.  
+<       implicit none
+<       real :: nr    ! real refractive index
+<       real :: ni    ! imaginary refractive index
+<       real :: x     ! Mie parameter
+<       real :: QABS  ! absorption efficiency
+<       real :: nrm1, nrp1,nr2, b,c,c2,cb,D, expmc, Mst, psi 
+<       real :: two3
+<        parameter( two3 = 2.0 / 3.0 )
+<            
+< ! *** If ni is zero, so is QABS.       
+<       if( ni .eq. 0.0) then
+<         QABS = 0.0
+<         return
+<       end if ! check on ni
+<       
+<       c     = 4.0 * x * ni
+<       c2    = c * c
+<       expmc = exp(-c)
+<       nr2   = nr * nr
+<       nrp1  = nr + 1.0
+<       nrm1  = nr - 1.0      
+<       D     = nrp1 * nrp1 - ( nrm1 * nrm1) * expmc
+<       b     = sqrt( ( nr2 - 1.0 ) / nr2 )
+<       psi   = nr2 * ( 1.0 - b * b * b)      
+<       cb    = c * b
+<       
+< !      Mbn = 2.0 * nr2 * 
+< !     &     ( exp( - cb) * ( 1.0 + cb) - (1.0 + c ) * expmc ) / c2 
+< 
+< ! *** algebraic simplification:
+< 
+<       Mst  = exp( - two3 * c * psi ) 
+<       
+< !      if ( Mbn .ge. 1.0 ) then
+< !       M = Mst
+< !      else
+< !       M = Mbn
+< !      end if
+<       
+<       QABS = 4.0 * nr * ( 1.0 - Mst ) / D
+<       
+<       return
+<       end subroutine abs_bn
+< 
+< 
+< !     /////////////////////////////////////////////////////////////////
+---
+>       end do ! loop over modes 
+2469a1325,1351
+> ! FSB now loop over modes and choose method BHMIE or BHCOAT
+>       bextsum  = 0.0
+>       bscatsum = 0.0
+>       bsgsum   = 0.0
+>       do m = 1, nmode      
+>        if( VOLCOR(m) .gt. 0.0) then
+>  ! FSB do BHCOAT case        
+>            CALL aero_optical_CS( LAMDA(ns),                               &
+>                refcor(m), refshell(m),                                    &
+>                VOLCOR(m),VOLSHELL(m), DGNCORE(m), DGNSHELL(m), SIG(m),    &                            
+>                bext, bscat, gfac)
+>        else      
+> ! FSB do BHMIE case 
+>            CALL aero_optical2( LAMDA(ns),                                  &
+>                crefin(m),                                                  &
+>                VOL(m), DGN(m), SIG(m),                                     &
+>                bext, bscat, gfac)
+>        end if       
+> ! FSB sum for total values
+>           bextsum  = bextsum + bext
+>           bscatsum = bscatsum +bscat              
+>           bsgsum   = bsgsum + bscat * gfac
+> ! FSB get history 
+>           bext_wm(ns,m)  = bext
+>           bscat_wm(ns,m) = bscat
+>           gfac_wm(ns,m)  = gfac          
+>       end do ! loop over modes
+2470a1353,1369
+> ! FSB construct output variables      
+>       tauaer = bextsum * delta_z
+>       waer   = bscatsum / bextsum      
+>       gaer   = bsgsum / bscatsum
+> 
+> !     Write out modal values.
+> 
+>       write(100,*) ' lamda mode bext bscat gaer '
+>       m=1
+>        write(100,*) lamda(ns), m, bext_wm(ns,m),bscat_wm(ns,m),           &
+>                       gfac_wm(ns,m) 
+>        m=2
+>        write(100,*) lamda(ns), m, bext_wm(ns,m),bscat_wm(ns,m),           &
+>                       gfac_wm(ns,m) 
+>        m=3
+>        write(100,*) lamda(ns), m, bext_wm(ns,m),bscat_wm(ns,m),           &
+>                           gfac_wm(ns,m) 
+2472c1371
+< !      /////////////////////////////////////////////////////////////////
+---
+>       end subroutine get_aerosol_Optics_RRTMG_SW

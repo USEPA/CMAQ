@@ -1,0 +1,5 @@
+336a337,340
+>             TSLB(I,1,J) = SST(I,J)
+>             TSLB(I,2,J) = SST(I,J)
+>             SMOIS(I,1,J) = 1.0
+>             SMOIS(I,2,J) = 1.0

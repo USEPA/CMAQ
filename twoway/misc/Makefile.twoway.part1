@@ -1,0 +1,61 @@
+
+ IOAPI_LIB = $(IOAPI)/$(LIOAPI)
+
+#   Compiler flags
+f_FLAGS       = -override-limits -c $(FORMAT_FIXED) \
+                $(FCOPTIM) -I $(STENEX) -I $(IOAPI_LIB) -I $(PARIO) -I.
+F_FLAGS       = -override-limits -c $(FORMAT_FIXED) \
+                $(FCOPTIM) -I $(STENEX) -I $(IOAPI_LIB) -I $(PARIO) -I.
+F90_FLAGS     = -c $(FORMAT_FREE) $(FCOPTIM) \
+                -I $(STENEX) -I $(IOAPI_LIB) -I $(PARIO) -I.
+f90_FLAGS     = -c $(FORMAT_FREE) $(FCOPTIM) \
+                -I $(STENEX) -I $(IOAPI_LIB) -I $(PARIO) -I.
+C_FLAGS       = -O2  -DFLDMN -I /usr/include
+
+ WRF_MODULE = -I ../frame \
+              -I ../share \
+              -I ../phys  \
+              -I ../main  \
+              -I ../external/esmf_time_f90 -I.
+
+#   Pre-compiler and flags
+CPP_FLAGS = \
+  -Dparallel \
+  -Dtwoway \
+  -DSUBST_MODULES=SE_MODULES \
+  -DSUBST_BARRIER=SE_BARRIER \
+  -DSUBST_GLOBAL_MAX=SE_GLOBAL_MAX \
+  -DSUBST_GLOBAL_MIN=SE_GLOBAL_MIN \
+  -DSUBST_GLOBAL_MIN_DATA=SE_GLOBAL_MIN_DATA \
+  -DSUBST_GLOBAL_TO_LOCAL_COORD=SE_GLOBAL_TO_LOCAL_COORD \
+  -DSUBST_GLOBAL_SUM=SE_GLOBAL_SUM \
+  -DSUBST_GLOBAL_LOGICAL=SE_GLOBAL_LOGICAL \
+  -DSUBST_LOOP_INDEX=SE_LOOP_INDEX \
+  -DSUBST_SUBGRID_INDEX=SE_SUBGRID_INDEX \
+  -DSUBST_HI_LO_BND_PE=SE_HI_LO_BND_PE \
+  -DSUBST_SUM_CHK=SE_SUM_CHK \
+  -DSUBST_INIT_ARRAY=SE_INIT_ARRAY \
+  -DSUBST_COMM=SE_COMM \
+  -DSUBST_MY_REGION=SE_MY_REGION \
+  -DSUBST_SLICE=SE_SLICE \
+  -DSUBST_GATHER=SE_GATHER \
+  -DSUBST_DATA_COPY=SE_DATA_COPY \
+  -DSUBST_IN_SYN=SE_IN_SYN
+
+#   Includes paths
+BASE_INC = .
+
+#   Includes
+INCLUDES = \
+  -DSUBST_GRID_ID= \
+  -DSUBST_PE_COMM=\"$(BASE_INC)/PE_COMM.EXT\" \
+  -DSUBST_CONST=\"$(BASE_INC)/CONST.EXT\" \
+  -DSUBST_FILES_ID=\"$(BASE_INC)/FILES_CTM.EXT\" \
+  -DSUBST_EMISPRM=\"$(BASE_INC)/EMISPRM.EXT\" \
+  -DSUBST_RXCMMN=\"$(BASE_INC)/RXCM.EXT\" \
+  -DSUBST_RXDATA=\"$(BASE_INC)/RXDT.EXT\" \
+  -DSUBST_PACTL_ID=\"$(BASE_INC)/PA_CTL.EXT\" \
+  -DSUBST_PACMN_ID=\"$(BASE_INC)/PA_CMN.EXT\" \
+  -DSUBST_PADAT_ID=\"$(BASE_INC)/PA_DAT.EXT\" \
+  -DSUBST_MPI=\"$(MPI_INC)/mpif.h\"
+

@@ -1,0 +1,6 @@
+184c184
+<    USE module_ra_rrtmg_sw   , ONLY : rrtmg_swrad, rrtmg_swrad2
+---
+>    USE module_ra_rrtmg_sw   , ONLY : rrtmg_swrad
+1495a1496
+> print *, ' ==d== sw ', wrf_restart

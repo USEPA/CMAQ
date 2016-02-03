@@ -1,0 +1,10 @@
+8a9
+>         module_twoway_rrtmg_aero_optical_util.o \
+342c343
+< module_twoway_ra_rrtmg_sw.o: module_ra_rrtmg_sw.o
+---
+> module_twoway_ra_rrtmg_sw.o: module_ra_rrtmg_sw.o module_twoway_rrtmg_aero_optical_util.o
+346c347
+< module_ra_rrtmg_lw.o: ../share/module_model_constants.o
+---
+> module_ra_rrtmg_lw.o: ../share/module_model_constants.o module_twoway_rrtmg_aero_optical_util.o

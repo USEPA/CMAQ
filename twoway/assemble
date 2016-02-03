@@ -1,0 +1,87 @@
+#!/bin/csh
+
+cd twoway
+
+ls -1 */* > __tfile
+
+set count = `wc -l __tfile`
+
+@ n = 0
+
+set echo
+# copy twoway related files to the appropriate directory and keep an old copy
+while ($n < $count[1])
+  @ n++
+  set temp = `head -n $n __tfile | tail -n 1 | sed 's/\// /' `
+  set directory = $temp[1]
+  set file      = $temp[2]
+  if (($directory != misc) && ($directory != cmaq50-add)) then
+     if ($directory == external) then
+        cp -p $directory/$file ../$directory/io_netcdf
+     else
+        if (-f ../$directory/$file) then
+           if (! -d misc/orig) then
+              mkdir misc/orig
+           endif
+           if (! -d misc/orig/$directory) then
+              mkdir misc/orig/$directory
+           endif
+           mv ../$directory/$file misc/orig/$directory/$file
+        endif
+        cp -p $directory/$file ../$directory
+     endif
+  endif
+end
+
+rm -f __tfile
+
+mv ../clean misc/orig/clean
+cp -r clean ..
+
+mv ../Makefile misc/orig/Makefile
+cp -r Makefile ..
+
+cp -r -p cmaq50-add/two*.F ../cmaq50
+
+cd ..
+
+# create Makefile.twoway
+
+cd cmaq50
+
+cp ../twoway/misc/Makefile.twoway.part1 Makefile.twoway
+
+echo 'GLOBAL_MODULES = \' >> Makefile.twoway
+echo '  twoway_data_module.o \' >> Makefile.twoway
+
+set first_line  = `grep -n -e "\.o" Makefile | head -n 1 | sed 's/:/ /' `
+set second_line = `grep -n OBJS Makefile | head -n 1 | sed 's/:/ /' `
+set third_line  = `grep -n SUFFIXES Makefile | head -n 1 | sed 's/:/ /' `
+
+@ first = $first_line[1]
+@ second = $second_line[1] - 1
+@ third = $third_line[1] - 2
+
+@ diff = 1 + $second - $first
+@ end = $second
+@ num_line = $second
+
+head -n $num_line Makefile | tail -n $diff >> Makefile.twoway
+
+cat ../twoway/misc/Makefile.twoway.part2 >> Makefile.twoway
+
+@ diff = 2
+@ num_line = $second + 2
+
+head -n $num_line Makefile | tail -n 2 >> Makefile.twoway
+
+echo '  $(TWOWAY) \' >> Makefile.twoway
+
+@ diff = $third - ($second + 2)
+@ num_line = $third 
+
+head -n $num_line Makefile | tail -n $diff >> Makefile.twoway
+
+cat ../twoway/misc/Makefile.twoway.part3 >> Makefile.twoway
+
+cd ..
