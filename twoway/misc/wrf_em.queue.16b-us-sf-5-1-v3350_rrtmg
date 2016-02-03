@@ -1,0 +1,939 @@
+#!/bin/csh
+
+#PBS -N wrf-us-sf-rrtmg
+#PBS -q mod3dev
+#PBS -l nodes=16:ppn=8
+#PBS -l walltime=168:00:00
+#PBS -j oe
+#PBS -o /work/MOD3DEV/wdx/ptmp/wdx/wrf_us_sf_5_1_v3350-rrtmg.log
+
+set echo
+# ##### begin user defined parameters #####
+set NPROCS   = 128
+
+setenv WRF_ROOT /work/MOD3DEV/wdx/ptmp/wdx
+
+setenv INPUT_DIR /work/MOD3DEV/wdx/ptmp/wrf
+
+  set domain = us                 # (eus, ca, hemi)
+
+  set NUM_LAND_USE_TYPE = 50      # MODIS is 20, USGS is 24, NLCD is 50
+                                  # make sure the script contains num_land_cat in the physics section
+
+  set mechanism = c50
+  set version = 33
+
+  setenv RUN_CMAQ_DRIVER      T   # default is F
+  setenv DO_SW_CAL            T   # default is F
+  setenv DO_LW_CAL            F   # default is F
+  setenv WRF_CMAQ_FREQ        5   # run n wrf step and then 1 cmaq step, default is 1
+  setenv CREATE_PHYSICAL_FILE F   # default is F
+  setenv FILE_TIME_STEP   10000   # in hhmmss format
+  setenv SD_TIME_SERIES       F   # sub domain time series output option, default is F
+  setenv SD_SCOL            241   # sub domain time series starting column
+  setenv SD_ECOL            248   # sub domain time series ending column
+  setenv SD_SROW            160   # sub domain time series starting row
+  setenv SD_EROW            169   # sub domain time series ending row
+
+  setenv WRF_COL_DIM        472
+  setenv WRF_ROW_DIM        312
+  setenv WRF_LAY_DIM         36
+
+  setenv CMAQ_COL_DIM       459
+  setenv CMAQ_ROW_DIM       299
+  setenv TWOWAY_DELTA_X       6   # distance between the wrf and cmaq lower left corner in the x-direction
+  setenv TWOWAY_DELTA_Y       6   # distance between the wrf and cmaq lower left corner in the y-direction
+
+  setenv WRF_LC_REF_LAT    40.0   # WRF Lambert conformal reference latitude
+
+  setenv MYCOL 162
+  setenv MYROW 84
+  setenv MYLAY 1
+  setenv MYSPC 1
+  setenv MYTIME 190000
+  setenv MYTIME2 100000
+
+  set rad_option = 4   # 3 = CAM, 4 = RRTMG
+  set radt = 6
+
+  setenv IOAPI_OFFSET_64 Y
+
+# default is [ N | F ]
+  setenv CTM_ABFLUX   N     #  Pleim's ammonia bi-directional flux for inline deposition velocities
+  setenv CTM_MOSAIC   N
+  setenv CTM_BIOGEMIS Y     #  use in-line biogenic emissions
+  setenv CTM_PT3DEMIS Y     #  use in-line plume rise emissions
+
+  set year        = 2006
+  set start_month = 7
+  set end_month   = 7
+  set start_day   = 11
+  set end_day     = 12      # include the end day 25
+  set cycle       = 0
+  set firstday    = 20060709
+  set IDAY        = 01      # this is for Biogenic NO soil input file
+
+  set OCEANpath        = $INPUT_DIR/input/$mechanism
+  set emis_path        = $INPUT_DIR/input/$mechanism/emis_50
+  set emis_inline_path = $INPUT_DIR/input/$mechanism/emis_50
+  set ic_path          = $INPUT_DIR/input/$mechanism
+  set GC_BCpath        = $INPUT_DIR/input/$mechanism
+  if ($mechanism == saprc99) then
+     set JVALpath  = $INPUT_DIR/input
+  else
+     set JVALpath  = $INPUT_DIR/input/$mechanism
+  endif
+
+setenv SD_CONC_SPCS "NO2 NO O3 NO3 CO ASO4J ASO4I ANH4J ANH4I ANO3J ANO3I AORGAJ AORGAI AORGPAJ AORGPAI AORGBJ AORGBI AECJ AECI A25J A25I ACORS ASEAS ASOIL" # sub domain time series species subset list
+# ##### end user defined parameters #####
+
+if (($DO_SW_CAL == T) || ($DO_LW_CAL == T)) then
+  setenv CMAQ_WRF_FEEDBACK    T   # default is F
+else
+  setenv CMAQ_WRF_FEEDBACK    F   # default is F
+endif
+
+if ($rad_option == 3) then
+   set rad_scheme = _cam_$radt
+else if ($rad_option == 4) then
+   set rad_scheme = _rrtmg_$radt
+else
+   set rad_scheme =
+endif
+
+if ($CMAQ_WRF_FEEDBACK == 'T') then
+   if ($DO_LW_CAL == T) then
+      set feedback = slf
+   else
+      set feedback = sf
+   endif
+else
+   set feedback = nf
+endif
+
+set call_ratio = "${WRF_CMAQ_FREQ}_1"
+
+set output_direct_name = output_${domain}_${feedback}${rad_scheme}_${call_ratio}_v${version}50
+
+set mylogfile = $WRF_ROOT/wrf_${domain}_${feedback}_${call_ratio}_v${version}50{rad_scheme}.log
+
+if (-e $mylogfile) then
+   rm -f $mylogfile
+endif
+
+# ----- BEGIN CMAQ SETUP -----
+
+ set EXEC        = CCTM
+
+ @ yr          = $year
+ @ start_hour  = $cycle / 10000
+ @ end_hour    = ($start_hour + 23) % 24
+
+#set M3DATA      = /work/wdx/ptmp/amber/CMAQ/data
+
+if (($year % 4) != 0) then
+   set leap_year = 0
+else if (($year % 400) == 0) then
+   set leap_year = 1     # leap year, nday = 29
+else if (($year % 100) == 0) then
+   set leap_year = 0
+else
+   set leap_year = 1     # leap year, nday = 29
+endif
+
+if ($leap_year) then
+   set numday = ( 31 29 31 30 31 30 31 31 30 31 30 31 )
+else
+   set numday = ( 31 28 31 30 31 30 31 31 30 31 30 31 )
+endif
+
+# setup the current and previous day in julian format
+@ cur_day_j = 0
+@ temp_month = 1
+while ($temp_month < $start_month)
+  @ cur_day_j = $cur_day_j + $numday[$temp_month]
+  @ temp_month++
+end
+@ cur_day_j = $cur_day_j + $start_day
+@ pre_day_j = $cur_day_j - 1
+
+@ cur_month = $start_month - 1
+while ($cur_month < $end_month)
+  @ cur_month++
+
+  if ($cur_month == $start_month) then
+     @ cur_day = $start_day - 1
+  else
+     @ cur_day = 0
+  endif
+  if ($cur_month == $end_month) then
+     @ cur_month_end_day = $end_day
+  else
+     @ cur_month_end_day = $numday[$cur_month]
+  endif
+
+  while ($cur_day < $cur_month_end_day)
+
+    @ cur_day++
+
+    if ($cur_day == 1) then
+       @ pre_month = $cur_month - 1
+       set yest = $numday[$pre_month]
+       set yesterday = `printf "%d%2.2d%2.2d\n" $year $pre_month $yest`
+    else
+       @ yest = $cur_day - 1
+       set yesterday = `printf "%d%2.2d%2.2d\n" $year $cur_month $yest`
+    endif
+
+    set today_j     = `printf "%d%3.3d\n" $year $cur_day_j`                # beginning date in Julian format, yyyyxxx
+    set yesterday_j = `printf "%d%3.3d\n" $year $pre_day_j`                # beginning date in Julian format, yyyyxxx
+    set today       = `printf "%d%2.2d%2.2d\n" $year $cur_month $cur_day`  # beginning date in calendar format, yyyymmdd
+
+    if ($today == $firstday) then
+       rm -f -r $WRF_ROOT/$output_direct_name
+
+       setenv RSTFLAG .false.
+       setenv WRF_RSTFLAG .false.
+
+       mkdir $WRF_ROOT/$output_direct_name
+    else
+       if ($today == 20060711) then
+          setenv RSTFLAG .false.
+       else
+          setenv RSTFLAG .true.
+       endif
+       setenv WRF_RSTFLAG .true.
+    endif
+
+    mkdir $WRF_ROOT/$output_direct_name/$today
+
+    set STDATE   = $today_j      # beginning date in julian format
+    set STTIME   = $cycle        # beginning GMT time (HHMMSS)
+    set NSTEPS   = 240000        # time duration (HHMMSS) for this run
+    set TSTEP    = 010000        # output time step interval (HHMMSS)
+
+    set APPL     = $today
+
+#> horizontal grid defn
+ setenv GRIDDESC $WRF_ROOT/$output_direct_name/GRIDDESC
+ setenv GRID_NAME WRF_CMAQ_2WAY
+
+#> species for integral average conc
+#setenv AVG_CONC_SPCS "O3 HO CO HCHO CCHO"
+ setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3"
+ set SPC_LIST = ( \
+ "O3" \
+ "HO" \
+ "CO" \
+ "HCHO" \
+ "CCHO" \
+ "FORM_PRIMARY" \
+ "ALD2_PRIMARY" \
+ "ACROLEIN" \
+ "ACROLEIN_PRIMARY" \
+ "BUTADIENE13" \
+ "ACRYLONITRILE" \
+ "BENZENE" \
+ "CARBONTET" \
+ "CHCL3" \
+ "BR2_C2_12" \
+ "PROPDICHLORIDE" \
+ "DICHLOROPROPENE" \
+ "CL2_C2_12" \
+ "ETOX" \
+ "CL2_ME" \
+ "CL4_ETHANE1122" \
+ "CL4_ETHE" \
+ "CL3_ETHE" \
+ "CL_ETHE" \
+ "QUINOLINE" \
+ "NAPHTHALENE" )
+
+#setenv AVG_CONC_SPCS "${SPC_LIST}"
+
+#> layer range for integral average conc
+ setenv ACONC_BLEV_ELEV " 1 2"
+
+#> process analysis (and irr) column, row and layer ranges
+#>>> user must check GRIDDESC for validity!
+ setenv PA_BCOL_ECOL "30 100"
+ setenv PA_BROW_EROW "10 50"
+ setenv PA_BLEV_ELEV "1  5"
+
+#> set log file [ default = unit 6 ]
+#setenv LOGFILE $WRF_ROOT/$APPL.log
+
+#> max sync time step (sec) [720]
+ setenv CTM_MAXSYNC 300
+
+#> min sync time step (sec) [60]
+#setenv CTM_MINSYNC 60
+
+#> top sigma level thru which sync step determined [0.7]
+#setenv SIGMA_SYNC_TOP 0.7
+
+#> symmetric processing [ T | Y | F | N ]
+ setenv CTM_SYMPROC N
+
+#> cksum report [ T | Y | F | N ]
+ setenv CTM_CKSUM Y
+
+#> cloud diagnostic file [ T | Y | F | N ]
+ setenv CLD_DIAG N
+
+#> aerosol diagnostic file [ T | Y | F | N ]
+ setenv CTM_AERDIAG Y
+
+#> sea-salt emissions diagnostic file [ T | Y | F | N ]
+# setenv CTM_SSEMDIAG N
+
+#> turn on lightning NOx [ N|F ]
+ setenv CTM_LTNG_NO Y
+
+#> save derived vertical velocity component to conc file [ T | Y | F | N ]
+ setenv CTM_WVEL Y
+
+#> inline deposition velocities [ T|Y | F|N ] (default is T|Y)
+#setenv CTM_ILDEPV N
+
+#> diagnostic file for deposition velocities [ T|Y | F|N ]
+ setenv CTM_DEPV_FILE Y
+
+#> use Min Kz option in edyintb [Y], otherwise revert to Kz0UT
+ setenv KZMIN Y
+
+#> set path for snl_timing stats
+ setenv MY_PATH $WRF_ROOT
+
+#> stop if compiled for binary (not netcdf) file access
+ setenv NOTCDF_FATAL F
+
+#> turn off excess WRITE3 logging
+ setenv IOAPI_LOG_WRITE F
+
+#> stop on inconsistent input file [ T | Y | F | N ]
+ setenv FL_ERR_STOP F
+
+#> remove existing output files?
+ set DISP = delete
+#set DISP = update
+#set DISP = keep
+
+#> output files and directories
+ set OUTDIR    = $WRF_ROOT/$output_direct_name
+ if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+
+# this is for inline biogenic emissions *.q
+ set YEAR = $year
+ set MONTH = `printf "%2.2d\n" $cur_month`
+ set day = $cur_day
+    
+ set EMISDATE = `printf "%4d%2.2d%2.2d\n" ${YEAR} $cur_month $cur_day`
+
+# inline biogenic emissions processing
+ set biogon = 1
+ if ( $?CTM_BIOGEMIS ) then     # $CTM_BIOGEMIS is defined
+    if ( $CTM_BIOGEMIS == 'N' || $CTM_BIOGEMIS == 'F' ) then
+       set biogon = 0
+    endif
+ endif
+ if ( $biogon ) then
+    set GSPROpath = $INPUT_DIR/input/c50
+    setenv GSPRO $GSPROpath/gspro_cb05soa_notoxics_cmaq_poc_09nov2007.txt
+    set IN_BEISpath = $INPUT_DIR/input/c50
+    setenv B3GRD     $IN_BEISpath/b3grd_12US1_C70_2006am_Fulltox.ncf
+    setenv BIOG_SPRO     B10C5 # speciation profile to use for biogenics
+    setenv BIOSW_YN      N     # use frost date switch [Y|T]
+    setenv B3GTS_DIAG    Y     # beis mass emissions diagnostic file [N|F] ]
+    setenv INITIAL_RUN   Y     # non-existent or not using SOILINP [N|F]; default uses SOILINP
+    setenv SOILINP $OUTDIR/$EXEC"_SOILINP".${YEAR}${MONTH}${IDAY}  # Biogenic NO soil input file
+ endif
+
+ set pt3don = 1
+ if ( $?CTM_PT3DEMIS ) then   # $CTM_PT3DEMIS is defined
+    if ( $CTM_PT3DEMIS == 'N' || $CTM_PT3DEMIS == 'F' ) then
+       set pt3don = 0
+    endif
+ endif
+
+ set CONCfile  = $EXEC"_CONC".${APPL}               # CTM_CONC_1
+ set ACONCfile = $EXEC"_ACONC".${APPL}              # CTM_ACONC_1
+ set VCONCfile = $EXEC"_VCONC".${APPL}              # CTM_VCONC
+ set CGRIDfile = $EXEC"_CGRID".${APPL}              # CTM_CGRID_1
+ set DD1file   = $EXEC"_DRYDEP".${APPL}             # CTM_DRY_DEP_1
+ set DV1file   = $EXEC"_DEPV".${APPL}               # CTM_DEPV_DIAG
+ set PT1file   = $EXEC"_PT3D".${APPL}               # CTM_PT3D_DIAG
+ set BIO1file  = $EXEC"_"B3GTS_S.${APPL}            # B3GTS_S
+ set SOIL1file = $EXEC"_"SOILOUT.${APPL}            # SOILOUT
+ set WD1file   = $EXEC"_WETDEP1".${APPL}            # CTM_WET_DEP_1
+ set WD2file   = $EXEC"_WETDEP2".${APPL}            # CTM_WET_DEP_2
+ set AV1file   = $EXEC"_AEROVIS".${APPL}            # CTM_VIS_1
+ set AD1file   = $EXEC"_AERODIAM".${APPL}           # CTM_DIAM_1
+ set RJ1file   = $EXEC"_"PHOTDIAG1.${APPL}          # CTM_RJ_2
+ set RJ2file   = $EXEC"_"PHOTDIAG2.${APPL}          # CTM_RJ_2
+ set SSEfile   = $EXEC"_SSEMIS".$APPL               # CTM_SSEMIS_1
+ set DSEfile   = $EXEC"_DUSTEMIS".${APPL}           # CTM_DUST_EMIS_1
+ set PA1file   = $EXEC"_PA_1".${APPL}               # CTM_IPR_1
+ set PA2file   = $EXEC"_PA_2".${APPL}               # CTM_IPR_2
+ set PA3file   = $EXEC"_PA_3".${APPL}               # CTM_IPR_3
+ set IRR1file  = $EXEC"_IRR_1".${APPL}              # CTM_IRR_1
+ set IRR2file  = $EXEC"_IRR_2".${APPL}              # CTM_IRR_2
+ set IRR3file  = $EXEC"_IRR_3".${APPL}              # CTM_IRR_3
+ set PG1file   = $EXEC"_PING".${APPL}               # CTM_PING_1
+ set PGDfile   = $EXEC"_PING_ADIAM".${APPL}         # CTM_PING_DIAM_1
+ set PGWfile   = $EXEC"_PING_DDEP".${APPL}          # CTM_PING_DDEP_1
+
+ set SD_TSfile  = $EXEC"_SD_TIME_SERIES".${APPL}    # CTM_SD_TS
+
+ if ( $biogon ) then
+    if ( $B3GTS_DIAG == 'Y' || $B3GTS_DIAG == 'T' ) then
+       setenv B3GTS_S $OUTDIR/$EXEC"_B3GTS_S".${APPL}
+    endif
+    setenv SOILOUT $OUTDIR/$EXEC"_SOILOUT".${APPL}  # Biogenic NO soil output file
+ endif
+
+#> set floor file (neg concs)
+ setenv FLOOR_FILE $WRF_ROOT/FLOOR_${APPL}
+
+#> turn off I/O-API PROMPT*FILE interactive mode
+ setenv PROMPTFLAG F
+
+#> set ping floor file (neg concs) [remember: env var .le. 16 chars]
+ setenv PLUME_FLOOR_FILE $WRF_ROOT/CPLUME_FLOOR_${APPL}
+
+#> set ancillary log file name extensions
+ setenv CTM_APPL ${APPL}
+
+ set test = `ls CTM_LOG_???.${APPL}`
+ if ( "$test" != "" ) then
+    if ( $DISP == 'delete' ) then
+       echo " ancillary log files being deleted"
+       foreach file ( $test )
+          echo " deleting $file"
+          rm $file
+          end
+       else
+       echo "*** Logs exist - run ABORTED ***"
+       exit 1
+       endif
+    endif
+
+#> input files and directories
+
+#> windblown dust? [ Y|T ]
+#setenv CTM_WB_DUST N
+
+#> use agricultural activity for windblown dust? [ N|F ]
+#> - env var ignored if CTM_WB_DUST is N|F
+ setenv CTM_ERODE_AGLAND Y
+
+#> windblown dust emissions diagnostic file [ N|F ]
+#> - env var ignored if CTM_WB_DUST is N|F
+ setenv CTM_DUSTEM_DIAG N
+
+ if ( $?CTM_ERODE_AGLAND ) then   # $CTM_ERODE_AGLAND is defined
+    if ( $CTM_ERODE_AGLAND == 'Y' || $CTM_ERODE_AGLAND == 'T' ) then
+       set aglandon = 1
+    else
+       set aglandon = 0
+    endif
+ else   # $CTM_ERODE_AGLAND is not defined => $CTM_ERODE_AGLAND == 'N'
+    set aglandon = 0
+ endif
+
+ set COT = /work/MOD3DEV/wdx/ptmp/wrf/input/c50
+ if ( $aglandon ) then
+    setenv CROPMAP01 $COT/BeginPlanting_12km
+    setenv CROPMAP04 $COT/EndPlanting_12km
+    setenv CROPMAP08 $COT/EndHarvesting_12km
+ endif
+
+ setenv DUST_LU_1 $COT/beld3_12US1_459X299_output_a.ncf
+ setenv DUST_LU_2 $COT/beld3_12US1_459X299_output_tot.ncf
+
+##> lightning NOx
+ if ( $?CTM_LTNG_NO ) then   # $CTM_LTNG_NO is defined
+    if ( $CTM_LTNG_NO == 'Y' || $CTM_LTNG_NO == 'T' ) then
+       set ltngon = 1
+    else
+       set ltngon = 0
+    endif
+ else   # $CTM_LTNG_NO is not defined => $CTM_LTNG_NO == 'N
+    set ltngon = 0
+ endif
+
+ if ( $ltngon ) then
+#> file (offline)
+   set IN_LTpath  = /work/MOD3DEV/wdx/ptmp/wrf/input/$mechanism/LNOx
+   setenv LTNGNO $IN_LTpath/nox12km.35L.$EMISDATE
+#> inline
+#    setenv LTNGNO "InLine" 
+#> use lightning parameter file? [ Y|T ]
+#    setenv LTNGPARAM Y
+#> point to lightning parameter file (ignored if LTNGPARAM is [ N|F]
+#    setenv LTNGPARM_FILE $PTMP/params/LTNG_RATIO.2004.$MONTH.ioapi
+#> diagnostic file?  [ N|F ]
+#    setenv LTNGDIAG Y
+#    setenv LTNGOUT $OUTDIR/$EXEC"_"$EPI.LTNGDIAG.${APPL}
+#   unsetenv LTNGPARAM
+#   if (! -e $LTNGNO) aget -a $IN_LTpath /asm2/MOD3EVAL/LNOx/emisLNOx/2004af/36US1/pnox3d.t$EMISDATE
+ endif
+
+ setenv OMI /work/MOD3DEV/wdx/ptmp/wrf/input/OMI.dat
+
+ set NML = /work/MOD3DEV/wdx/ptmp/wrf/input/ae6_nml
+
+ setenv CSQY_DATA $NML/CSQY_DATA_cb05tucl_ae6_aq
+ if (! (-e $CSQY_DATA ) ) then
+    echo " $CSQY_DATA  not found "
+    exit 1
+ endif
+
+ set OCEANfile = 12US1_surf.ncf
+
+ if ( $pt3don ) then
+    set IN_PTpath  = $INPUT_DIR/input/c50/emis_50
+    set STKCASE = 12US1_C25_2006am
+    set CASE = 12US1_cmaq_cb05_tx_C25_2006am
+    setenv PT3DDIAG Y  # optional 3d point source emissions diagnostic file [N]
+#   setenv PT3DFRAC Y  # optional layer fractions diagnostic (play) file(s) [N]
+
+    set EMISpath  = $emis_inline_path
+    set EMISfile  = emis_mole_all_${today}_${CASE}.ncf
+
+    setenv NPTGRPS 5
+
+    setenv STK_GRPS_01 $IN_PTpath/stack_groups_ptnonipm_${STKCASE}.ncf
+    setenv STK_GRPS_02 $IN_PTpath/stack_groups_ptipm_${STKCASE}.ncf
+    setenv STK_GRPS_03 $IN_PTpath/stack_groups_othpt_${STKCASE}.ncf
+    setenv STK_GRPS_04 $IN_PTpath/stack_groups_seca_c3_${STKCASE}.ncf
+    setenv STK_GRPS_05 $IN_PTpath/stack_groups_ptfire_${today}_${STKCASE}.ncf
+
+    setenv STK_EMIS_01 $IN_PTpath/inln_mole_ptnonipm_${today}_${CASE}.ncf
+    setenv STK_EMIS_02 $IN_PTpath/inln_mole_ptipm_${today}_${CASE}.ncf
+    setenv STK_EMIS_03 $IN_PTpath/inln_mole_othpt_${today}_${CASE}.ncf
+    setenv STK_EMIS_04 $IN_PTpath/inln_mole_seca_c3_${today}_${CASE}.ncf
+    setenv STK_EMIS_05 $IN_PTpath/inln_mole_ptfire_${today}_${CASE}.ncf
+
+#> report of plumes exceeding layer REP_LAYER_MAX ...
+    setenv REP_LAYER_MIN 0   # Minimum layer for reporting plume rise info [0=off]
+#   setenv REP_LAYER_MIN 7
+
+    unset echo
+    if ( $REP_LAYER_MIN != "0" ) then
+       set DATE = $EMISDATE
+       @ count = 0
+       while ( $count <= $NPROCS )
+          if ( $count <= 9 ) then
+             set sub = 0${count}
+          else
+             set sub = ${count}
+          endif
+          @ grp = 1
+          while ( $grp <= $NPTGRPS )
+             set file = $OUTDIR/rptlay_0${grp}.${DATE}.${APPL}_${sub}
+             setenv REPRTLAY_0${grp}${sub} $file
+             if ( $DISP == 'delete' ) /bin/rm -f $file
+             @ grp ++
+          end
+          @ count ++
+       end
+    endif
+    set echo
+
+    setenv LAYP_STDATE $STDATE
+    setenv LAYP_STTIME $STTIME
+    setenv LAYP_NSTEPS $NSTEPS
+ else
+    set EMISpath  = /work/uiy/CA
+    set EMISfile  = aqm.t06z.$today.emis+fireCA.ncf
+ endif
+
+ if ($today == $firstday) then
+    set GC_ICpath  = $INPUT_DIR/input/$mechanism
+    set GC_ICfile = aqm.t06z.conc.init_$today.ncf
+ else
+    set GC_ICpath  = $WRF_ROOT/$output_direct_name
+    set GC_ICfile = CCTM_CONC.$yesterday
+ endif
+
+ set GC_BCpath = $INPUT_DIR/input/$mechanism
+ set GC_BCfile = geoschem_bc_cb05_ae6_aq_35L.200607.ncf.patch
+
+ set METpath   = $WRF_ROOT/$output_direct_name
+ set TR_DVpath = $METpath
+#set TR_DVfile = $MC2file
+
+#> 7-level photolysis data w/ file header
+
+ set JVALfile  = JTABLE_${today_j}
+
+ set AE_ICpath = $GC_ICpath
+ set NR_ICpath = $GC_ICpath
+ set TR_ICpath = $GC_ICpath
+ set AE_ICfile = $GC_ICfile
+ set NR_ICfile = $GC_ICfile
+ set TR_ICfile = $GC_ICfile
+
+ set AE_BCpath = $GC_BCpath
+ set NR_BCpath = $GC_BCpath
+ set TR_BCpath = $GC_BCpath
+ set AE_BCfile = $GC_BCfile
+ set NR_BCfile = $GC_BCfile
+ set TR_BCfile = $GC_BCfile
+
+ set GD2file = GRID_DOT_2D
+ set GC2file = GRID_CRO_2D
+ set MC2file = MET_CRO_2D
+ set MD3file = MET_DOT_3D
+ set MC3file = MET_CRO_3D
+
+#> input and output files and directories (boilerplate)
+# if ($RUN_CMAQ_DRIVER == T) then
+   source $INPUT_DIR/input/in_outb.q
+# endif
+
+ if ( $status ) exit 1
+
+#> increase shared memory pool in case many MPI_SEND headers
+ setenv MPI_SM_POOL 16000
+
+#> set MPI message passing buffer to max
+ setenv MP_EAGER_LIMIT 65536
+
+#> tell mpi threading is not done
+ setenv MP_SINGLE_THREAD yes
+
+#> order stnd out msgs
+ setenv MP_STDOUTMODE ordered
+ setenv MP_LABELIO yes
+
+#> avoid using interconnect switch if on same node
+ setenv MP_SHARED_MEMORY yes
+
+#> additional tuning
+ setenv MP_ADAPTER_USE shared
+ setenv MP_CPU_USE multiple
+ setenv MP_CSS_INTERRUPT yes
+
+#> for the run control ...
+
+ setenv CTM_STDATE      $STDATE
+ setenv CTM_STTIME      $STTIME
+ setenv CTM_RUNLEN      $NSTEPS
+ setenv CTM_TSTEP       $TSTEP
+ setenv CTM_PROGNAME    $EXEC
+
+#> mechanism name list files
+ ln -s $NML/GC_cb05tucl_ae6_aq.nml    gc_matrix.nml
+ ln -s $NML/AE_cb05tucl_ae6_aq.nml    ae_matrix.nml
+ ln -s $NML/NR_cb05tucl_ae6_aq.nml    nr_matrix.nml
+ ln -s $NML/Species_Table_TR_0.nml    tr_matrix.nml
+
+# ----- END CMAQ SETUP -----
+
+# ----- BEGIN WRF SETUP -----
+
+set WRF_DIR = $WRF_ROOT/WRFV${version}
+set SIDIR = $WRF_ROOT/siprd
+set TempDir = $WRF_ROOT/$output_direct_name
+
+#-----------------------------------------------------------------------
+# Create a temporary directory for this job.
+#-----------------------------------------------------------------------
+
+if ( ! -d $TempDir ) then
+  mkdir -p $TempDir
+  if ( $status != 0 ) then
+    echo "Failed to make work directory, $TempDir"
+    exit 1
+  endif
+endif
+
+cd $TempDir
+
+#-----------------------------------------------------------------------
+# Build WRF namelist.
+#-----------------------------------------------------------------------
+
+if ( -f namelist.input ) rm -f namelist.input
+
+cat << End_Of_Namelist  > namelist.input
+
+ &time_control
+ run_days                            = 1,
+ RUN_HOURS                           = 0,			  
+ run_minutes                         = 0,
+ run_seconds                         = 0,
+ START_YEAR                          = $year 
+ START_MONTH                         = $cur_month
+ START_DAY                           = $cur_day
+ START_HOUR                          = $start_hour
+ start_minute                        = 00,  
+ start_second                        = 00,  
+ END_YEAR                            = $year  
+ END_MONTH                           = $cur_month
+ END_DAY                             = $end_day 
+ END_HOUR                            = $end_hour
+ end_minute                          = 00, 
+ end_second                          = 00, 
+ interval_seconds                    = 10800
+ input_from_file                     = .true.,
+ HISTORY_INTERVAL                    = 60
+ FRAMES_PER_OUTFILE                  = 131	  
+ restart                             = $WRF_RSTFLAG
+ restart_interval                    = 1440,
+ io_form_restart                     = 2
+ io_form_input                       = 2
+ io_form_boundary                    = 2
+ io_form_auxinput2                   = 2
+ io_form_auxinput4                   = 2
+ debug_level                         = 0
+/
+
+ &domains
+ time_step                           = 60,
+ time_step_fract_num                 = 0,
+ time_step_fract_den                 = 1,
+ max_dom                             = 1,
+ s_we                                = 1,   
+ e_we                                = $WRF_COL_DIM,   
+ s_sn                                = 1,  
+ e_sn                                = $WRF_ROW_DIM, 
+ s_vert                              = 1, 
+ e_vert                              = $WRF_LAY_DIM,
+ p_top_requested                     = 10226,
+ eta_levels                          = 1.00000, 0.99468, 0.98405, 0.97306, 0.96163, 0.94964, 0.93677,
+                                       0.92267, 0.90714, 0.88838, 0.86319, 0.83244, 0.77906, 0.71924,
+                                       0.65376, 0.58195, 0.50449, 0.42458, 0.34356, 0.26214, 0.18515,
+                                       0.10062, 0.00000
+ num_metgrid_levels                  = 40
+ dx                                  = 12000, 
+ dy                                  = 12000,
+ grid_id                             = 1, 
+ parent_id                           = 0,  
+ i_parent_start                      = 0,   
+ j_parent_start                      = 0,     
+ parent_grid_ratio                   = 1,   
+ parent_time_step_ratio              = 1,    
+ feedback                            = 1,
+ smooth_option                       = 0
+ /
+
+ &physics
+ mp_physics                          = 6, 
+ ra_lw_physics                       = $rad_option, 
+ ra_sw_physics                       = $rad_option, 
+ paerlev                             = 29, 
+ levsiz                              = 59, 
+ cam_abs_dim1                        = 4,
+ cam_abs_dim2                        = $WRF_LAY_DIM,
+ radt                                = $radt, 
+ sf_sfclay_physics                   = 7, 
+ sf_surface_physics                  = 7, 
+ bl_pbl_physics                      = 7, 
+ bldt                                = 0, 
+ cu_physics                          = 1, 
+ cudt                                = 0, 
+ isfflx                              = 1,
+ ifsnow                              = 1,
+ icloud                              = 1,
+ surface_input_source                = 1,
+ num_soil_layers                     = 2,
+ sst_update                          = 1,
+ pxlsm_smois_init                    = 1
+ slope_rad                           = 1,
+ topo_shading                        = 1,
+ shadlen                             = 25000.,
+ num_land_cat                        = $NUM_LAND_USE_TYPE,
+ /
+
+ &fdda
+ grid_fdda                           = 1,    
+ grid_sfdda                          = 1,
+ pxlsm_soil_nudge                    = 1,
+ sgfdda_inname                       = "wrfsfdda_d01",
+ sgfdda_end_h                        = 132,
+ sgfdda_interval_m                   = 180,
+ gfdda_inname                        = "wrffdda_d01",
+ GFDDA_END_H                         = 768
+ gfdda_interval_m                    = 180,  
+ fgdt                                = 0,    
+ if_no_pbl_nudging_uv                = 1,    
+ if_no_pbl_nudging_t                 = 1,     
+ if_no_pbl_nudging_q                 = 1,     
+ if_zfac_uv                          = 0,     
+  k_zfac_uv                          = 13,   
+ if_zfac_t                           = 0,    
+  k_zfac_t                           = 13,   
+ if_zfac_q                           = 0,     
+  k_zfac_q                           = 13,   
+ guv                                 = 0.0003,     
+ gt                                  = 0.0003,    
+ gq                                  = 0.00001,    
+ guv_sfc                             = 0.0000,
+ gt_sfc                              = 0.0000,
+ gq_sfc                              = 0.0000,
+ if_ramping                          = 1,
+ dtramp_min                          = 60.0,
+ io_form_gfdda                       = 2,
+ rinblw                              = 250.0
+ /
+
+ &dynamics
+ w_damping                           = 1,
+ diff_opt                            = 1,
+ km_opt                              = 4,
+ diff_6th_opt                        = 2,
+ diff_6th_factor                     = 0.12,
+ damp_opt                            = 3,
+ base_temp                           = 290.
+ zdamp                               = 5000., 
+ dampcoef                            = 0.05,  
+ khdif                               = 0,     
+ kvdif                               = 0,    
+ non_hydrostatic                     = .true., 
+ moist_adv_opt                       = 2,
+ tke_adv_opt                         = 2,
+ scalar_adv_opt                      = 2,
+ use_baseparam_fr_nml                = .true.,
+ /
+
+ &bdy_control
+ spec_bdy_width                      = 5,
+ spec_zone                           = 1,
+ relax_zone                          = 4,
+ specified                           = .true., 
+ nested                              = .false.,
+ /
+
+ &grib2
+ /
+
+ &namelist_quilt
+ nio_tasks_per_group = 0,
+ nio_groups = 1,
+ /
+ 
+End_Of_Namelist
+
+#-----------------------------------------------------------------------
+# Set up REAL input files.
+#-----------------------------------------------------------------------
+
+rm -f wrf_real_input*
+
+# foreach real_input_file ( `ls $SIDIR/wrf_real_input*` )
+# foreach real_input_file ( `ls $WRF_DIR/run/met*`)
+#   set file = $real_input_file:t
+#   ln -s $real_input_file $file
+# end
+
+#-----------------------------------------------------------------------
+# Set up and run REAL executable.
+#-----------------------------------------------------------------------
+
+if ( -f real.exe  ) rm -f real.exe
+rm -f wrfinput*
+rm -f wrfbdy*
+
+ln -s $WRF_DIR/main/real.exe .
+
+set skip_real = 1
+
+if (! $skip_real) then
+   if ( -f gribmap.txt   ) rm -f gribmap.txt
+   ln -s $WRF_DIR/test/em_real/gribmap.txt   gribmap.txt
+
+   date '+Started WRF at %m/%d/%y %H:%M:%S'
+   if (`uname` == AIX) then
+     time poe real.exe -procs $NPROCS
+   else
+     time mpirun -np $NPROCS real.exe
+   endif
+   date '+Completed real.exe at %m/%d/%y %H:%M:%S%n'
+
+   if ( ( ! -f wrfinput_d01 ) || ( ! -f wrfbdy_d01 ) ) then
+     echo "Could not find REAL output files"
+     exit 1
+   else
+     foreach file ( `ls rsl.*` )
+       mv $file ${file}.real
+     end
+     rm -f wrf_real_input*
+   endif
+else
+   rm -f wrfbdy_d01 wrffdda_d01 wrfsfdda_d01 wrfinput_d01 wrflowinp_d01
+   ln -s $INPUT_DIR/input/real-input-v$version-$domain/$today/wrfbdy_d01 wrfbdy_d01
+   ln -s $INPUT_DIR/input/real-input-v$version-$domain/$today/wrffdda_d01 wrffdda_d01
+   ln -s $INPUT_DIR/input/real-input-v$version-$domain/$today/wrfsfdda_d01 wrfsfdda_d01
+   ln -s $INPUT_DIR/input/real-input-v$version-$domain/$today/wrfinput_d01 wrfinput_d01
+   ln -s $INPUT_DIR/input/real-input-v$version-$domain/$today/wrflowinp_d01 wrflowinp_d01
+endif
+
+#-----------------------------------------------------------------------
+# Set up and run WRF-EM executable.
+#-----------------------------------------------------------------------
+
+if ( -f wrf.exe       ) rm -f wrf.exe
+
+if ( -f ETAMPNEW_DATA ) rm -f ETAMPNEW_DATA
+if ( -f GENPARM.TBL   ) rm -f GENPARM.TBL
+if ( -f landFilenames ) rm -f landFilenames
+if ( -f LANDUSE.TBL   ) rm -f LANDUSE.TBL
+if ( -f RRTM_DATA     ) rm -f RRTM_DATA
+if ( -f SOILPARM.TBL  ) rm -f SOILPARM.TBL
+if ( -f tr49t67       ) rm -f tr49t67
+if ( -f tr49t85       ) rm -f tr49t85
+if ( -f tr67t85       ) rm -f tr67t85
+if ( -f VEGPARM.TBL   ) rm -f VEGPARM.TBL
+
+  ln -s /work/MOD3DEV/wdx/ptmp/wdx/WRFV33/main/wrf.exe           wrf.exe
+
+ln -s $WRF_DIR/test/em_real/ETAMPNEW_DATA ETAMPNEW_DATA
+ln -s $WRF_DIR/test/em_real/GENPARM.TBL   GENPARM.TBL
+ln -s $WRF_DIR/test/em_real/landFilenames landFilenames
+ln -s $WRF_DIR/test/em_real/LANDUSE.TBL   LANDUSE.TBL
+ln -s $WRF_DIR/test/em_real/RRTM_DATA     RRTM_DATA
+ln -s $WRF_DIR/test/em_real/RRTMG_SW_DATA RRTMG_SW_DATA
+ln -s $WRF_DIR/test/em_real/RRTMG_LW_DATA RRTMG_LW_DATA
+ln -s $WRF_DIR/test/em_real/SOILPARM.TBL  SOILPARM.TBL
+ln -s $WRF_DIR/test/em_real/tr49t67       tr49t67
+ln -s $WRF_DIR/test/em_real/tr49t85       tr49t85
+ln -s $WRF_DIR/test/em_real/tr67t85       tr67t85
+ln -s $WRF_DIR/test/em_real/VEGPARM.TBL   VEGPARM.TBL
+
+# for cam scheme
+ln -s $WRF_DIR/run/CAM_ABS_DATA CAM_ABS_DATA
+ln -s $WRF_DIR/run/CAM_AEROPT_DATA CAM_AEROPT_DATA
+ln -s $WRF_DIR/run/ozone_plev.formatted ozone_plev.formatted
+ln -s $WRF_DIR/run/ozone.formatted ozone.formatted
+ln -s $WRF_DIR/run/ozone_lat.formatted ozone_lat.formatted
+
+# ----- END WRF SETUP -----
+
+date '+Started wrf.exe at %m/%d/%y %H:%M:%S'
+time mpirun -r ssh -np $NPROCS wrf.exe
+date '+Completed WRF at %m/%d/%y %H:%M:%S%n'
+
+     mv rsl.* $WRF_ROOT/$output_direct_name/$today
+
+     if ($CREATE_PHYSICAL_FILE == T) then
+        mv MET* $WRF_ROOT/$output_direct_name/$today
+        mv GRI* $WRF_ROOT/$output_direct_name/$today
+     endif
+
+     chgrp -R wrf CC*$today wrf* $WRF_ROOT/$output_direct_name/$today
+
+     if ( $biogon ) then
+        mv $SOILOUT $OUTDIR/$EXEC"_SOILINP".${APPL}
+        setenv SOILINP $OUTDIR/$EXEC"_SOILINP".${APPL}  # Biogenic NO soil input file
+        setenv INITIAL_RUN N
+     endif
+
+     @ cur_day_j++
+     @ pre_day_j++
+  end
+end
+
+exit 0

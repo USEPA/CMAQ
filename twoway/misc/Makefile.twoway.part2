@@ -1,0 +1,11 @@
+
+TWOWAY = \
+  twoway_aqprep_util.o \
+  twoway_cgrid_aerosol_spc_map_module.o \
+  twoway_header_data_module.o \
+  twoway_met_param_module.o \
+  twoway_sd_time_series.o \
+  twoway_util_module.o \
+  twoway_aqprep.o \
+  twoway_feedback.o
+

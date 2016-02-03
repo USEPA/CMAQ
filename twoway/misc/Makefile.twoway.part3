@@ -1,0 +1,68 @@
+
+LIBTARGET    =  cmaq
+TARGETDIR    =  ./
+$(LIBTARGET) :  $(OBJS)
+		$(AR) $(ARFLAGS) ../main/libcmaqlib.a $(OBJS)
+
+.SUFFIXES: .F .f .c .F90 .f90
+
+include ../configure.wrf
+
+.F.o:
+	$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+.f.o:
+	$(FC) -c $(f_FLAGS) $<
+
+.F90.o:
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<
+
+.f90.o:
+	$(FC) -c $(f90_FLAGS) $<
+
+.c.o:
+	$(CC) -c $(C_FLAGS) $<
+
+aero_driver.o : twoway_feedback.o aero_driver.F
+	$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) aero_driver.F
+
+twoway_aqprep.o: twoway_util_module.o \
+		twoway_header_data_module.o \
+		twoway_met_param_module.o \
+		twoway_data_module.o \
+		../frame/module_domain.o twoway_aqprep.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_aqprep.F
+
+twoway_aqprep_util.o:   ../frame/module_domain.o twoway_aqprep_util.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_aqprep_util.F
+
+twoway_cgrid_aerosol_spc_map_module.o: twoway_cgrid_aerosol_spc_map_module.F
+	$(FC) -c $(F90_FLAGS) $(INCLUDES) twoway_cgrid_aerosol_spc_map_module.F
+
+twoway_data_module.o:   ../frame/module_domain.o twoway_data_module.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_data_module.F
+
+twoway_feedback.o: twoway_util_module.o \
+		twoway_header_data_module.o \
+		twoway_met_param_module.o \
+		twoway_data_module.o \
+		twoway_cgrid_aerosol_spc_map_module.o \
+		../frame/module_domain.o twoway_feedback.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_feedback.F
+
+twoway_header_data_module.o:    ../frame/module_domain.o twoway_header_data_module.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) twoway_header_data_module.F
+
+twoway_met_param_module.o:  ../frame/module_domain.o twoway_met_param_module.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_met_param_module.F
+
+twoway_sd_time_series.o: twoway_sd_time_series.F
+	$(FC) -c $(F90_FLAGS) $(INCLUDES) twoway_sd_time_series.F
+
+twoway_util_module.o: 	twoway_header_data_module.o \
+			../frame/module_domain.o twoway_util_module.F
+	$(FC) -c $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) -I. twoway_util_module.F
+
+clean:
+	rm -f $(OBJS) $(MODEL) *.mod
+

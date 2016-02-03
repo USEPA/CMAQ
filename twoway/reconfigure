@@ -1,0 +1,44 @@
+#!/bin/csh
+
+if ($FC == ifort) then
+   cat configure.wrf | sed 's/-O3/-O2/' \
+                     | sed 's/-FI/-FI -132/' \
+                     > configure.wrf.new
+else if ($FC == pgi) then
+   cat configure.wrf | sed 's/-O3/-O2/' \
+                     | sed 's/-Mfixed/-Mfixed -Mextend/' \
+                     > configure.wrf.new
+endif
+
+set first_line  = `grep -n -e "REGISTRY        =" configure.wrf.new | head -n 1 | sed 's/:/ /' `
+
+set n = $first_line[1]
+set nl = `wc -l configure.wrf.new`
+@ t = $nl[1] - ($n + 2)
+
+head -n $n configure.wrf.new > __temp
+
+echo ' ' >> __temp
+echo '##### BEGIN for WRF-CMAQ twoway model ####' >> __temp
+echo "IOAPI   = $IOAPI" >> __temp
+if ($FC == ifort) then
+   echo "LIOAPI  = Linux2_x86_64ifort" >> __temp
+else if ($FC == pgi) then
+   echo "LIOAPI  = Linux2_x86_64pg" >> __temp
+endif
+echo "STENEX  = $STENEX" >> __temp
+echo "PARIO   = $PARIO" >> __temp
+echo "MPI_INC = $MPI_INC" >> __temp
+echo '##### END for WRF-CMAQ twoway model #### ' >> __temp
+echo ' ' >> __temp
+echo ' LIB_BUNDLED     = \' >> __temp
+echo '           -L$(STENEX) -lse_snl \' >> __temp
+echo '           -L$(PARIO) -lpario \' >> __temp
+echo '           -L$(IOAPI)/$(LIOAPI) -lioapi \' >> __temp
+
+cat configure.wrf.new | tail -n $t >> __temp
+
+mv configure.wrf twoway/misc/orig
+
+rm -f configure.wrf.new
+mv __temp configure.wrf

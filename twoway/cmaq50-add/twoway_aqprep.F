@@ -1,0 +1,1684 @@
+SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
+                   z_at_w_wrf, dz8w_wrf, p8w_wrf, t8w_wrf,  &
+                   numlu,                                   &
+                   ids, ide, jds, jde, kds, kde,            &
+                   ims, ime, jms, jme, kms, kme,            &
+                   its, ite, jts, jte, kts, kte,            &
+                   qv_curr_wrf,                             &  ! optional
+                   qc_curr_wrf,                             &  ! optional
+                   qr_curr_wrf,                             &  ! optional
+                   qi_curr_wrf,                             &  ! optional
+                   qs_curr_wrf,                             &  ! optional
+                   qg_curr_wrf                         )  ! optional
+
+!===============================================================================
+! Name:     AQ Prep
+! Purpose:  Prepare meteorological fields for air quality simulation, including
+!           meteorologically dependent emissions and chemical transport
+!           modeling.
+! Notes:    Some algorithms taken from the Community Multiscale Air Quality
+!           (CMAQ) Modeling System's Meteorology-Chemistry Interface Processor.
+! Revised:  06 Apr 2007  Original version.  (T. Otte)
+!           10 Apr 2007  (David Wong)
+!              -- define header_constant_data_record in header_data_module to
+!                 capture header constant info for met. and grid buffered files.
+!              -- redefine ioffset and joffset which are the distance, in number
+!                 of grid cells, between the wrf and cmaq domain at the lower
+!                 left corner. Note: ioffset >= 5 and joffset >= 5
+!           11 Aug 2011  (David Wong)
+!              -- updated to comply with CMAQ 5.0
+!===============================================================================
+
+  USE module_domain                                ! WRF module
+  USE module_model_constants                       ! WRF module
+  USE module_configure                             ! WRF module
+  USE module_gfs_physcons, only : con_rerth        ! WRF module
+  USE module_state_description, only : PXLSMSCHEME ! WRF module
+
+  USE twoway_util_module
+  USE twoway_header_data_module
+  USE twoway_met_param_module
+  USE twoway_data_module
+  USE HGRD_DEFN
+  USE SUBST_MODULES
+
+  use utilio_defn
+
+  IMPLICIT NONE
+
+  INCLUDE SUBST_CONST
+  INCLUDE SUBST_MPI
+
+  TYPE(domain), INTENT(IN)                :: grid
+  TYPE (grid_config_rec_type), INTENT(IN) :: config_flags
+
+  REAL,    INTENT(IN)           :: t_phy_wrf    ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN)           :: p_phy_wrf    ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN)           :: rho_wrf      ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN)           :: z_at_w_wrf   ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN)           :: dz8w_wrf     ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN)           :: p8w_wrf      ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN)           :: t8w_wrf      ( ims:ime, kms:kme, jms:jme )
+
+  REAL,    INTENT(IN), OPTIONAL :: qv_curr_wrf  ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN), OPTIONAL :: qc_curr_wrf  ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN), OPTIONAL :: qr_curr_wrf  ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN), OPTIONAL :: qi_curr_wrf  ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN), OPTIONAL :: qs_curr_wrf  ( ims:ime, kms:kme, jms:jme )
+  REAL,    INTENT(IN), OPTIONAL :: qg_curr_wrf  ( ims:ime, kms:kme, jms:jme )
+
+  INTEGER, INTENT(IN)           :: numlu
+
+  INTEGER, INTENT(IN)           :: ids, ide, jds, jde, kds, kde
+  INTEGER, INTENT(IN)           :: ims, ime, jms, jme, kms, kme
+  INTEGER, INTENT(IN)           :: its, ite, jts, jte, kts, kte
+
+  LOGICAL, PARAMETER            :: def_false = .false.
+  LOGICAL, SAVE                 :: first = .TRUE.
+
+  INTEGER, SAVE :: nlays, nvars, v
+  INTEGER, SAVE :: tstep = 0
+
+  INTEGER                       :: ii, jj, kk, ll, iim1, jjm1
+  INTEGER                       :: c, r, lcm1, lrm1, kp1
+  INTEGER                       :: ioffset, joffset
+  INTEGER                       :: stat, temp
+  REAL,    PARAMETER            :: gravi = 1 / g
+  REAL                          :: tf, qf, densf
+
+integer :: lwr, lcr, lt1, lt2, ut1, ut2
+real, parameter :: zero(20) = 0.0
+
+  CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
+
+  CHARACTER (LEN = 16), PARAMETER :: pname = 'aq_prep         '
+
+  CHARACTER (LEN = 16) :: fname, pfname
+
+! metcro3d temporary storage
+
+  REAL, ALLOCATABLE, SAVE :: densq   ( : , : , : )
+  REAL, ALLOCATABLE, SAVE :: zf      ( : , : , : )
+  REAL, ALLOCATABLE, SAVE :: dzf     ( : , : , : )
+  REAL, ALLOCATABLE, SAVE :: presf   ( : , : , : )
+
+! metdot3d temporary storage
+
+  REAL, ALLOCATABLE, SAVE :: jdenm   ( : , : )
+
+! metcro2d temporary storage
+
+  REAL, ALLOCATABLE, SAVE :: u10     ( : , : )
+  REAL, ALLOCATABLE, SAVE :: v10     ( : , : )
+  REAL, ALLOCATABLE, SAVE :: albedo  ( : , : )
+
+  real, allocatable, save :: gridcro2d_data_wrf (:,:,:)
+  real, allocatable, save :: griddot2d_data_wrf (:,:)
+  real, allocatable, save :: metcro3d_data_wrf (:,:,:,:)
+  real, allocatable, save :: metdot3d_data_wrf (:,:,:,:)
+  real, allocatable, save :: metcro2d_data_wrf (:,:,:)
+
+  real, allocatable       :: gridcro2d_data_cmaq (:,:,:)
+  real, allocatable       :: griddot2d_data_cmaq (:,:)
+  real, allocatable, save :: metcro3d_data_cmaq (:,:,:,:)
+  real, allocatable, save :: metdot3d_data_cmaq (:,:,:,:)
+  real, allocatable, save :: metcro2d_data_cmaq (:,:,:)
+! real, allocatable, save :: previous_rain_rec(:,:,:)
+
+  real :: wrf_lc_ref_lat
+
+    integer, save :: jdate, jtime, sdate, stime, logdev, nstep
+    integer       :: wrf_halo_x_l, wrf_halo_x_r
+    integer       :: wrf_halo_y_l, wrf_halo_y_u
+
+    logical, save :: run_cmaq_driver, create_physical_file, write_to_physical_file, &
+                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe
+    integer, save :: file_time_step, file_time_step_in_sec
+
+    integer :: i, j
+    character (len = 50) :: myfmt
+
+!   character (len = 4), save :: pe_str
+
+    logical, parameter :: debug = .true.
+
+    integer, save :: wrf_cmaq_freq, cmaq_tstep
+
+    TYPE(WRFU_Time) :: current_wrf_time
+    integer :: rc
+    character (len = 2), save :: data_ori = 'cr'
+
+    integer, save :: tsc_c, tec_c, tsr_c, ter_c,     &
+                     tsc_d, tec_d, tsr_d, ter_d,     &
+                     tsc_e, tec_e, tsr_e, ter_e
+
+    interface
+      SUBROUTINE bcldprc_ak (wrf_ncols, wrf_nrows, nlays,                &
+                             zf, ta, pres, qv, pbl, dzf, presf,  &
+                             cfrac, cldb, cldt, wbar)
+        INTEGER,       INTENT(IN)    :: wrf_ncols
+        INTEGER,       INTENT(IN)    :: wrf_nrows
+        INTEGER,       INTENT(IN)    :: nlays
+        REAL,          INTENT(IN)    :: zf         ( : , : , : )
+        REAL,          INTENT(IN)    :: ta         ( : , : , : )
+        REAL,          INTENT(IN)    :: pres       ( : , : , : )
+        REAL,          INTENT(IN)    :: qv         ( : , : , : )
+        REAL,          INTENT(IN)    :: pbl        ( : , : )
+        REAL,          INTENT(IN)    :: dzf        ( : , : , : )
+        REAL,          INTENT(IN)    :: presf      ( : , : , : )
+        REAL,          INTENT(OUT)   :: cfrac      ( : , : )
+        REAL,          INTENT(OUT)   :: cldb       ( : , : )
+        REAL,          INTENT(OUT)   :: cldt       ( : , : )
+        REAL,          INTENT(OUT)   :: wbar       ( : , : )
+      END SUBROUTINE bcldprc_ak
+    end interface
+
+!-------------------------------------------------------------------------------
+! Define horizontal bounds for CMAQ processing.
+!
+! Note:  May want to have a set of four input variables that define the
+!        AQ window:  IOFFSET, JOFFSET, NCOLS, NROWS.  Define SC, EC, SR, and ER
+!        from those variables and the horizontal dimensions of the WRF domain.
+!
+! Note:  Not sure how lateral boundary cells (formerly found in METBDY3D) are
+!        handled in indexing and in two-way system yet.
+!-------------------------------------------------------------------------------
+
+! call WRFU_ClockGet (grid%domain_clock, CurrTime=current_wrf_time, rc=rc )
+
+  tstep = tstep + 1
+
+  IF ( first ) THEN
+
+     call mpi_comm_rank (mpi_comm_world, twoway_mype, stat)
+
+     wrf_halo_x_l = abs(its - ims)
+     wrf_halo_x_r = abs(ite - ime)
+     wrf_halo_y_l = abs(jts - jms)
+     wrf_halo_y_u = abs(jte - jme)
+
+     nprocs = grid%nproc_x * grid%nproc_y
+
+     if (twoway_mype >= (nprocs - grid%nproc_x)) then
+        north_bdy_pe = .true.
+     else
+        north_bdy_pe = .false.
+     end if
+
+     if (twoway_mype < grid%nproc_x) then
+        south_bdy_pe = .true.
+     else
+        south_bdy_pe = .false.
+     end if
+
+     if (mod(twoway_mype, grid%nproc_x) == (grid%nproc_x - 1)) then
+        east_bdy_pe = .true.
+     else
+        east_bdy_pe = .false.
+     end if
+
+     if (mod(twoway_mype, grid%nproc_x) == 0) then
+        west_bdy_pe = .true.
+     else
+        west_bdy_pe = .false.
+     end if
+
+     allocate (wrf_c_domain_map(3, 2, 0:nprocs-1), cmaq_c_domain_map(3, 2, 0:nprocs-1),           &
+               wrf_d_domain_map(3, 2, 0:nprocs-1), cmaq_d_domain_map(3, 2, 0:nprocs-1),           &
+                                                   cmaq_ce_domain_map(3, 2, 0:nprocs-1),          &
+                                                   cmaq_de_domain_map(3, 2, 0:nprocs-1), stat=stat)
+     if (stat .ne. 0) then
+        print *, ' Error: Allocating domain_maps'
+        stop
+     end if
+
+     wrf_c_domain_map(1, 1, twoway_mype) = its
+     wrf_c_domain_map(2, 1, twoway_mype) = ite
+     wrf_c_domain_map(3, 1, twoway_mype) = ite - its + 1
+     wrf_c_domain_map(1, 2, twoway_mype) = jts
+     wrf_c_domain_map(2, 2, twoway_mype) = jte
+     wrf_c_domain_map(3, 2, twoway_mype) = jte - jts + 1
+
+     call mpi_allgather (wrf_c_domain_map(:,:,twoway_mype), 6, mpi_integer, wrf_c_domain_map, 6, &
+                         mpi_integer, mpi_comm_world, stat)
+
+     sc = ims + wrf_halo_x_l
+     ec = ime - wrf_halo_x_r
+     sr = jms + wrf_halo_y_l
+     er = jme - wrf_halo_y_u
+
+     sc_d = sc
+     ec_d = ec + 1
+     sr_d = sr
+     er_d = er + 1
+
+     wrf_c_ncols = ime - ims + 1 - wrf_halo_x_l - wrf_halo_x_r
+     wrf_c_nrows = jme - jms + 1 - wrf_halo_y_l - wrf_halo_y_u
+     wrf_d_ncols = wrf_c_ncols + 1
+     wrf_d_nrows = wrf_c_nrows + 1
+     nlays = kme - 1             ! wrf is using layer, znw contains level values (D. Wong 5/22/07)
+
+     wrf_c_col_dim = ide - ids + 1
+     wrf_c_row_dim = jde - jds + 1
+
+     cmaq_c_col_dim = envint ('CMAQ_COL_DIM', ' ', wrf_c_col_dim-10, stat)
+     cmaq_c_row_dim = envint ('CMAQ_ROW_DIM', ' ', wrf_c_row_dim-10, stat)
+     delta_x        = envint ('TWOWAY_DELTA_X', ' ', 5, stat)
+     delta_y        = envint ('TWOWAY_DELTA_Y', ' ', 5, stat)
+
+     wrf_lc_ref_lat = envreal ('WRF_LC_REF_LAT', ' ', 0.0, stat)
+
+     logdev = init3 ()
+
+     wrf_cmaq_freq = envint ('WRF_CMAQ_FREQ', ' ', 1, stat)
+
+     stime = envint ('CTM_STTIME', ' ', 0, stat)
+     sdate = envint ('CTM_STDATE', ' ', 0, stat)
+
+     cmaq_tstep = sec2time(grid%time_step*wrf_cmaq_freq)
+
+     jdate = sdate
+     jtime = stime
+
+     nstep = ((grid%run_days * 24 + grid%run_hours) * 3600 + grid%run_minutes * 60 + grid%run_seconds) / &
+             (grid%time_step * wrf_cmaq_freq)
+
+! Allocate arrays for CCTM...to mimic MCIP output arrays.
+!-------------------------------------------------------------------------------
+
+! Fields from METCRO3D
+
+     ALLOCATE ( densq   (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! new output variable
+     ALLOCATE ( zf      (wrf_c_ncols,   wrf_c_nrows,   0:nlays) )
+
+     ALLOCATE ( dzf     (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! used in calcs, not output
+     ALLOCATE ( presf   (wrf_c_ncols,   wrf_c_nrows,   nlays) )  ! used in calcs, not output
+
+! Fields from METDOT3D
+
+     ALLOCATE ( jdenm   (wrf_d_ncols, wrf_d_nrows)        )
+
+! Fields from METCRO2D.
+
+     ALLOCATE ( u10     (wrf_c_ncols,   wrf_c_nrows)          )
+     ALLOCATE ( v10     (wrf_c_ncols,   wrf_c_nrows)          )
+     ALLOCATE ( albedo  (wrf_c_ncols,   wrf_c_nrows)          )
+
+!-------------------------------------------------------------------------------
+! Fill M3IO header variables.
+!
+! Note:  The M3IO header variables are currently local to AQ_HEADER, but they
+!        should fill variables that are available in COORD.EXT (or whatever
+!        replaced it).
+!-------------------------------------------------------------------------------
+
+     npcol = grid%nproc_x
+     nprow = grid%nproc_y
+
+     nprocs = npcol * nprow
+
+     wrf_d_domain_map(1,:,:) = wrf_c_domain_map(1,:,:)
+     wrf_d_domain_map(2,:,:) = wrf_c_domain_map(2,:,:) + 1
+     wrf_d_domain_map(3,:,:) = wrf_c_domain_map(3,:,:) + 1
+
+! cmaq cross point domain
+     call compute_decomp (cmaq_c_col_dim, npcol, nprow, 'cmaq', 'c', cmaq_c_domain_map(:,1,:), delta_x)
+     call compute_decomp (cmaq_c_row_dim, nprow, npcol, 'cmaq', 'r', cmaq_c_domain_map(:,2,:), delta_y)
+
+! cmaq dot point domain
+     cmaq_d_domain_map(1,:,:) = cmaq_c_domain_map(1,:,:)
+     cmaq_d_domain_map(2,:,:) = cmaq_c_domain_map(2,:,:) + 1
+     cmaq_d_domain_map(3,:,:) = cmaq_c_domain_map(3,:,:) + 1
+
+! cmaq cross point extended domain
+     cmaq_ce_domain_map(1,:,:) = cmaq_c_domain_map(1,:,:) - 1
+     cmaq_ce_domain_map(2,:,:) = cmaq_c_domain_map(2,:,:) + 1
+     cmaq_ce_domain_map(3,:,:) = cmaq_c_domain_map(3,:,:) + 2
+
+! cmaq dot point extended domain
+     cmaq_de_domain_map(1,:,:) = cmaq_d_domain_map(1,:,:) - 1
+     cmaq_de_domain_map(2,:,:) = cmaq_d_domain_map(2,:,:) + 1
+     cmaq_de_domain_map(3,:,:) = cmaq_d_domain_map(3,:,:) + 2
+
+     cmaq_c_ncols = cmaq_c_domain_map(3, 1, twoway_mype)
+     cmaq_c_nrows = cmaq_c_domain_map(3, 2, twoway_mype)
+     cmaq_d_ncols = cmaq_d_domain_map(3, 1, twoway_mype)
+     cmaq_d_nrows = cmaq_d_domain_map(3, 2, twoway_mype)
+
+! the reason for nprocs*3 is in the worst scenario, the entire cmaq domain is inside one wrf processor domain
+     allocate (wrf_cmaq_c_send_to(0:nprocs, 0:nprocs-1),          &
+               wrf_cmaq_c_recv_from(0:9, 0:nprocs-1),             &
+               wrf_cmaq_c_send_index_g(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_send_index_l(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_g(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_l(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_to(0:nprocs, 0:nprocs-1),          &
+               wrf_cmaq_d_recv_from(0:9, 0:nprocs-1),             &
+               wrf_cmaq_d_send_index_g(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_index_l(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_g(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_l(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_to(0:nprocs, 0:nprocs-1),         &
+               wrf_cmaq_ce_recv_from(0:9, 0:nprocs-1),            &
+               wrf_cmaq_ce_send_index_g(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_index_l(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_g(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_l(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_to(0:nprocs, 0:nprocs-1),         &
+               wrf_cmaq_de_recv_from(0:9, 0:nprocs-1),            &
+               wrf_cmaq_de_send_index_g(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_index_l(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_g(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_l(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               stat=stat) 
+     if (stat .ne. 0) then
+        print *, ' Error: Allocating communication indices arrays'
+        stop
+     end if
+
+     call compute_comm_indices (nprocs, wrf_c_domain_map, cmaq_c_domain_map,      &
+                                wrf_cmaq_c_send_to, wrf_cmaq_c_recv_from,         &
+                                wrf_cmaq_c_send_index_g, wrf_cmaq_c_send_index_l, &
+                                wrf_cmaq_c_recv_index_g, wrf_cmaq_c_recv_index_l   )
+
+     call compute_comm_indices (nprocs, wrf_d_domain_map, cmaq_d_domain_map,      &
+                                wrf_cmaq_d_send_to, wrf_cmaq_d_recv_from,         &
+                                wrf_cmaq_d_send_index_g, wrf_cmaq_d_send_index_l, &
+                                wrf_cmaq_d_recv_index_g, wrf_cmaq_d_recv_index_l   )
+
+     call compute_comm_indices (nprocs, wrf_c_domain_map, cmaq_ce_domain_map,       &
+                                wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,         &
+                                wrf_cmaq_ce_send_index_g, wrf_cmaq_ce_send_index_l, &
+                                wrf_cmaq_ce_recv_index_g, wrf_cmaq_ce_recv_index_l   )
+
+     call compute_comm_indices (nprocs, wrf_d_domain_map, cmaq_de_domain_map,       &
+                                wrf_cmaq_de_send_to, wrf_cmaq_de_recv_from,         &
+                                wrf_cmaq_de_send_index_g, wrf_cmaq_de_send_index_l, &
+                                wrf_cmaq_de_recv_index_g, wrf_cmaq_de_recv_index_l   )
+
+    CALL aq_header (cmaq_c_ncols, cmaq_c_nrows, wrf_c_col_dim, wrf_c_row_dim, nlays,     &
+                    sdate, stime, grid%dx, grid%dy, delta_x, delta_y,                    & 
+                    config_flags%map_proj, config_flags%truelat1, config_flags%truelat2, &
+                    config_flags%cen_lat, config_flags%cen_lon, config_flags%stand_lon,  &
+                    grid%p_top, grid%znw, grid%xlat(sc,sr), grid%xlong(sc,sr),           &
+                    wrf_lc_ref_lat)
+
+     CALL setup_griddesc_file (cmaq_c_col_dim, cmaq_c_row_dim)
+
+     create_physical_file = envyn ('CREATE_PHYSICAL_FILE', ' ', def_false, stat)
+
+     if (create_physical_file) then
+        file_time_step = envint ('FILE_TIME_STEP', ' ', 10000, stat)
+
+        file_time_step_in_sec = time2sec (file_time_step)
+
+        if (.not.  pio_re_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
+                                nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
+                                npcol, nprow, nprocs, twoway_mype, .false.) ) then
+           print *, ' Error: in invoking pio_re_init'
+           stop
+        end if
+     end if
+
+     RUN_CMAQ_DRIVER = envyn ('RUN_CMAQ_DRIVER', ' ', def_false, stat)
+
+!-------------------------------------------------------------------------------
+! Fill time-independent arrays for GRIDCRO2D and GRIDDOT2D.
+! only need to do this once per run, not each step
+!-------------------------------------------------------------------------------
+
+     if (RUN_CMAQ_DRIVER) then
+        fname = 'GRID_CRO_2D'
+     end if
+     if (create_physical_file) then
+        pfname = 'PGRID_CRO_2D'
+     end if
+
+     call aq_set_ioapi_header ('C', cmaq_c_ncols, cmaq_c_nrows)
+
+     mxrec3d = 1
+     nlays3d = 1
+
+     vname3d(1:n_gridcro2d_var) = gridcro2d_vlist
+     units3d(1:n_gridcro2d_var) = gridcro2d_units
+
+     num_land_cat = config_flags%num_land_cat
+
+     do v = 1, numlu
+        write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
+        units3d(v+n_gridcro2d_var) = 'FRACTION'
+     end do
+
+! this is particular for m3dry LUFRAC_01
+     units3d(1+n_gridcro2d_var) = 'USGS24'
+
+     nvars3d = numlu+n_gridcro2d_var
+     tstep3d = 0
+     vtype3d = ioapi_header%vtype
+
+     allocate ( gridcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
+     allocate ( gridcro2d_data_cmaq (cmaq_c_ncols, cmaq_c_nrows, nvars3d), stat=stat)
+
+     if (RUN_CMAQ_DRIVER) then
+        if ( .not. open3 (fname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', fname, 'for update'
+           if ( .not. open3 (fname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', fname
+           end if
+        end if
+     end if
+     if (create_physical_file) then
+        if (twoway_mype == 0) then
+           ncols3d = cmaq_c_col_dim
+           nrows3d = cmaq_c_row_dim
+           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', pfname, 'for update'
+              if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname
+              end if
+           end if
+        end if
+     end if
+
+    !---------------------------------------------------------------------------
+    ! Fill scalar-point arrays of latitude (LAT), longitude (LON), terrain
+    ! elevation (HT), land-water mask (LWMASK), and fractional land use (LUFRAC)
+    ! directly from WRF arrays.
+    !---------------------------------------------------------------------------
+
+     gridcro2d_data_wrf (:,:,1) = grid%xlat (sc:ec, sr:er)
+     gridcro2d_data_wrf (:,:,2) = grid%xlong (sc:ec, sr:er)
+     gridcro2d_data_wrf (:,:,4) = grid%ht (sc:ec, sr:er)
+     gridcro2d_data_wrf (:,:,5) = grid%landmask (sc:ec, sr:er)
+ 
+     do i = 1, numlu
+        gridcro2d_data_wrf (:,:,n_gridcro2d_var+i) = grid%landusef     (sc:ec, i, sr:er)
+     end do
+
+    !---------------------------------------------------------------------------
+    ! Compute squared scalar-point map-scale factors (MSFX2).
+    !
+    ! Note:  The scalar-point map-scale factors (MSFX), which are filled
+    !        directly from a WRF array, are needed in the UHAT_JD and VHAT_JD
+    !        calculations below.
+    !---------------------------------------------------------------------------
+
+     gridcro2d_data_wrf (:,:,3) = grid%msftx (sc:ec, sr:er) * grid%msftx (sc:ec, sr:er)
+
+    !---------------------------------------------------------------------------
+    ! Compute percentage of urban area per land in grid cell (PURB) using
+    ! algorithm from MCIP.
+    !---------------------------------------------------------------------------
+
+     WHERE ( gridcro2d_data_wrf(:,:,5) == 0.0 )
+       gridcro2d_data_wrf(:,:,6) = 0.0
+     ELSEWHERE
+       WHERE ( gridcro2d_data_wrf(:,:,model_config_rec%iswater(1)+n_gridcro2d_var) < 1.0 )
+         gridcro2d_data_wrf(:,:,6) = ( gridcro2d_data_wrf(:,:,model_config_rec%isurban(1)+n_gridcro2d_var) / &
+                     (1.0 - gridcro2d_data_wrf(:,:,model_config_rec%iswater(1)+n_gridcro2d_var)) ) * 100.0
+       ELSEWHERE
+         gridcro2d_data_wrf(:,:,6) = 0.0
+       END WHERE
+     END WHERE
+
+     call se_wrf_cmaq_comm (twoway_mype, gridcro2d_data_wrf, gridcro2d_data_cmaq,     &
+                            wrf_cmaq_c_send_to, wrf_cmaq_c_recv_from,                 &
+                            wrf_cmaq_c_send_index_l, wrf_cmaq_c_recv_index_l, tstep)
+
+     if (RUN_CMAQ_DRIVER) then
+        if ( .not. buf_write3 (fname, allvar3, jdate, jtime, gridcro2d_data_cmaq ) ) then
+           print *, ' Error: Could not write to file ', fname
+           stop
+        end if
+     end if
+     if (create_physical_file) then
+        if ( .not. write3 (pfname, allvar3, jdate, jtime, gridcro2d_data_cmaq ) ) then
+           print *, ' Error: Could not write to file ', pfname
+           stop
+        end if
+     end if
+
+    !---------------------------------------------------------------------------
+    ! Compute sqaured dot-point map-scale factors (MSFD2).
+    !
+    ! The correct method would be to use the grid projection information and
+    ! call a routine like gridgeometry from MCIP.  Here, for simplicity, 
+    ! approximate dot-point map-scale factors from flux-point map-scale
+    ! factors that are readily available in WRF using four-point interpolation.
+    !---------------------------------------------------------------------------
+
+     if (RUN_CMAQ_DRIVER) then
+        fname = 'GRID_DOT_2D'
+     end if
+     if (create_physical_file) then
+        pfname = 'PGRID_DOT_2D'
+     end if
+
+     call aq_set_ioapi_header ('D', cmaq_d_ncols, cmaq_d_nrows)
+ 
+     mxrec3d = 1
+     nlays3d = 1
+
+     nvars3d = n_griddot2d_var
+     vname3d(1:nvars3d) = griddot2d_vlist
+     units3d(1:nvars3d) = griddot2d_units
+     tstep3d = 0
+     vtype3d = ioapi_header%vtype
+
+     if (RUN_CMAQ_DRIVER) then
+        if ( .not. open3 (fname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', fname, 'for update'
+           if ( .not. open3 (fname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', fname
+           end if
+        end if
+     end if
+     if (create_physical_file) then
+        if (twoway_mype == 0) then
+           ncols3d = cmaq_c_col_dim + 1
+           nrows3d = cmaq_c_row_dim + 1
+           if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+              print *, ' Error: Could not open file ', pfname, 'for update'
+              if ( .not. open3 (pfname, FSNEW3, pname) ) then
+                 print *, ' Error: Could not open file ', pfname
+              end if
+           end if
+        end if
+     end if
+
+     allocate ( griddot2d_data_wrf (wrf_d_ncols, wrf_d_nrows), stat=stat)
+     allocate ( griddot2d_data_cmaq (cmaq_d_ncols, cmaq_d_nrows), stat=stat)
+
+     jj = sr_d - 1
+     DO r = 1, wrf_d_nrows
+        jj = min (jj+1, er_d)
+        jjm1 = MAX( jj-1, 1 )
+        ii = sc_d - 1
+        DO c = 1, wrf_d_ncols
+           ii = min (ii+1, ec_d)
+           iim1 = MAX ( ii-1, 1 )
+
+           griddot2d_data_wrf(c,r) = 0.25 * ( grid%msfux(ii,jjm1) + grid%msfux(ii,jj) +  &
+                                              grid%msfvx(iim1,jj) + grid%msfvx(ii,jj) )
+
+           griddot2d_data_wrf(c,r) = griddot2d_data_wrf(c,r) * griddot2d_data_wrf(c,r)
+
+        ENDDO
+     ENDDO
+
+     call se_wrf_cmaq_comm (twoway_mype, griddot2d_data_wrf, griddot2d_data_cmaq,     &
+                            wrf_cmaq_d_send_to, wrf_cmaq_d_recv_from,                 &
+                            wrf_cmaq_d_send_index_l, wrf_cmaq_d_recv_index_l, tstep)
+
+     if (RUN_CMAQ_DRIVER) then
+        if ( .not. buf_write3 (fname, allvar3, jdate, jtime, griddot2d_data_cmaq ) ) then
+           print *, ' Error: Could not write to file ', fname
+           stop
+        end if
+     end if
+     if (create_physical_file) then
+        tsc_d = 1
+        if (east_bdy_pe) then
+           tec_d = cmaq_d_domain_map(3,1,twoway_mype)
+        else
+           tec_d = cmaq_d_domain_map(3,1,twoway_mype) - 1
+        end if
+        tsr_d = 1
+        if (north_bdy_pe) then
+           ter_d = cmaq_d_domain_map(3,2,twoway_mype)
+        else
+           ter_d = cmaq_d_domain_map(3,2,twoway_mype) - 1
+        end if
+
+        if ( .not. write3 (pfname, allvar3, jdate, jtime, griddot2d_data_cmaq(tsc_d:tec_d,tsr_d:ter_d) ) ) then
+           print *, ' Error: Could not write to file ', pfname
+           stop
+        end if
+     end if
+
+     first = .false.
+
+  ENDIF  ! first
+
+  if (RUN_CMAQ_DRIVER) then
+     fname = 'MET_CRO_3D'
+  end if
+  if (create_physical_file) then
+     pfname = 'PMET_CRO_3D'
+  end if
+
+  call aq_set_ioapi_header ('C', cmaq_ce_domain_map(3,1,twoway_mype), cmaq_ce_domain_map(3,2,twoway_mype))
+
+  mxrec3d = nstep
+
+  xorig3d = ioapi_header%xorig - ioapi_header%xcell
+  yorig3d = ioapi_header%yorig - ioapi_header%ycell
+
+  nlays3d = ioapi_header%nlays
+  nvars3d = n_metcro3d_var
+  vname3d(1:nvars3d) = metcro3d_vlist
+  units3d(1:nvars3d) = metcro3d_units
+  tstep3d = cmaq_tstep
+  vtype3d = ioapi_header%vtype
+
+  if (.not. allocated(metcro3d_data_wrf)) then
+     allocate ( metcro3d_data_wrf (wrf_c_ncols, wrf_c_nrows, nlays, nvars3d), stat=stat)
+     allocate ( metcro3d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype), &
+                                    cmaq_ce_domain_map(3,2,twoway_mype), nlays, nvars3d), stat=stat)
+
+     tsc_c = 2
+     tec_c = cmaq_ce_domain_map(3,1,twoway_mype) - 1
+     tsr_c = 2
+     ter_c = cmaq_ce_domain_map(3,2,twoway_mype) - 1
+
+     tsc_e = 2
+     tec_e = cmaq_ce_domain_map(3,1,twoway_mype) - 1
+     tsr_e = 2
+     ter_e = cmaq_ce_domain_map(3,2,twoway_mype) - 1
+
+     if (west_bdy_pe) then
+        tsc_e = 1
+     end if
+     if (east_bdy_pe) then
+        tec_e = tec_e + 1
+     end if
+     if (south_bdy_pe) then
+        tsr_e = 1
+     end if
+     if (north_bdy_pe) then
+        ter_e = ter_e + 1
+     end if
+
+  end if
+
+  if (RUN_CMAQ_DRIVER) then
+     if ( .not. open3 (fname, FSRDWR3, pname) ) then
+        print *, ' Error: Could not open file ', fname, 'for update'
+        if ( .not. open3 (fname, FSNEW3, pname) ) then
+           print *, ' Error: Could not open file ', fname
+        end if
+     end if
+  end if
+
+  if (create_physical_file) then
+     if (twoway_mype == 0) then
+        ncols3d = cmaq_c_col_dim + 2
+        nrows3d = cmaq_c_row_dim + 2
+        tstep3d = file_time_step
+        if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', pfname, 'for update'
+           if ( .not. open3 (pfname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', pfname
+           end if
+        end if
+     end if
+  end if
+
+!-------------------------------------------------------------------------------
+! Fill time-dependent arrays for METCRO3D.
+!
+! Note:  Cannot just assign pointers for 3D variables because order of indices
+!        is different in WRF (i,k,j) vs. CMAQ (i,j,k).
+!-------------------------------------------------------------------------------
+
+  zf (:,:,0) = 0.0
+  DO kk = 1, nlays
+     kp1 = kk + 1
+     jj = sr - 1
+     DO r = 1, wrf_c_nrows
+        jj = jj + 1
+        ii = sc - 1
+        DO c = 1, wrf_c_ncols
+           ii = ii + 1
+
+        !-----------------------------------------------------------------------
+        ! Fill "required" 3D scalar-point arrays of temperature (TA), water
+        ! vapor mixing ratio (QV), pressure (PRES), density (DENS), density
+        ! including contribution from water vapor (DENSQ), height of the
+        ! half-layers (mid-layers) (ZH), height of the full levels (ZF),
+        ! pressure on full levels (PRESF), height difference of full levels
+        ! (DZF), cloud mixing ratio (QC), and rain water mixing ratio (QR)
+        ! directly from WRF arrays.
+        !
+        ! Note:  QV, QC, and QR are "optional" variables in the WRF model
+        !        because they are not output in some configurations of the
+        !        model.  It may be better to ensure they are defined before
+        !        this routine is called and make them required rather than
+        !        optional on the calling statement.
+        !
+        ! Note:  DENSQ is new for output.  It may be preferred over DENS in
+        !        some CMAQ calculations.
+        !
+        ! Note:  PRESF and DZF are filled to support other calculations, and
+        !        they are not part of the output.
+        !
+        ! Note:  None of the full-level arrays are dimensioned to full levels.
+        !        All arrays are filled using CMAQ's (:,:,0:nlays) convention.
+        !        PRESF(:,:0) is PRSFC, which is filled in the 2D arrays.
+        !        ZF(:,:,0) is 0.0 for all grid cells.  DZF(:,:,0) does not
+        !        exist because there are only NLAYS differences between
+        !        NLAYS+1 levels.
+        !-----------------------------------------------------------------------
+
+           metcro3d_data_wrf (c,r,kk,4) = t_phy_wrf   (ii,kk,jj)  ! ta
+
+           IF ( PRESENT (qv_curr_wrf) .AND. f_qv ) THEN
+              metcro3d_data_wrf (c,r,kk,5) = qv_curr_wrf (ii,kk,jj)   ! qv
+           ELSE
+              print *, ' Error: CMAQ *needs* QV to run. '
+              stop
+           ENDIF
+
+           metcro3d_data_wrf   (c,r,kk,11) = p_phy_wrf   (ii,kk,jj)      ! pres
+
+           metcro3d_data_wrf (c,r,kk,12) = 1.0 / grid%alt(ii,kk,jj)      ! den
+
+           densq  (c,r,kk) = rho_wrf    (ii,kk,jj)  ! includes QV: 1/dens*(1+QV)
+
+           zf     (c,r,kk) = z_at_w_wrf (ii,kp1,jj) - z_at_w_wrf (ii,1,jj)    ! adjust for 0: indexing in AQ
+           metcro3d_data_wrf (c,r,kk,13) = 0.5 * (zf(c,r,kk) + zf(c,r,kk-1))  ! zh
+
+           presf  (c,r,kk) = p8w_wrf    (ii,kp1,jj) ! adjust for 0: indexing in AQ
+           dzf    (c,r,kk) = dz8w_wrf   (ii,kk,jj)  ! no kp1: dz8w=0 at model top
+
+           IF ( PRESENT (qc_curr_wrf) .AND. f_qc ) THEN
+              metcro3d_data_wrf (c,r,kk,6) = qc_curr_wrf(ii,kk,jj)   ! qc
+           ELSE
+             print *, ' Error: CMAQ *needs* QC to run. '
+             stop
+           ENDIF
+
+           IF ( PRESENT (qr_curr_wrf) .AND. f_qr ) THEN
+              metcro3d_data_wrf (c,r,kk,7) = qr_curr_wrf(ii,kk,jj)   ! qr
+           ELSE
+             print *, ' Error: CMAQ *needs* QR to run. '
+             stop
+           ENDIF
+
+        !-----------------------------------------------------------------------
+        ! Fill "optional" moisture variables:  ice mixing ratio (QI), snow
+        ! mixing ratio (QS), and graupel mixing ratio (QG).
+        !
+        ! Note:  QI, QS, and QG are not required for CMAQ, but will be used
+        !        if they are available.  They are not written to output if
+        !        they are not available...so do not fill with 0.0 or BADVAL3.
+        !-----------------------------------------------------------------------
+
+           IF ( PRESENT (qi_curr_wrf) .AND. f_qi ) THEN
+              metcro3d_data_wrf (c,r,kk,8) = qi_curr_wrf(ii,kk,jj)    ! qi
+           ELSE
+              metcro3d_data_wrf (c,r,kk,8) = 0.0
+           ENDIF
+
+           IF ( PRESENT (qs_curr_wrf) .AND. f_qs ) THEN
+              metcro3d_data_wrf (c,r,kk,9) = qs_curr_wrf(ii,kk,jj)    ! qs
+           ELSE
+              metcro3d_data_wrf (c,r,kk,9) = 0.0
+           ENDIF
+
+           IF ( PRESENT (qg_curr_wrf) .AND. f_qg ) THEN
+              metcro3d_data_wrf (c,r,kk,10) = qg_curr_wrf(ii,kk,jj)   ! qg
+           ELSE
+              metcro3d_data_wrf (c,r,kk,10) = 0.0
+           ENDIF
+
+        !-----------------------------------------------------------------------
+        ! Compute Jacobian on full levels and mid-layers, and compute
+        ! coupled density and Jacobian on mid-layers.  Need to compute
+        ! full-level density (in WRF coordinate) for Jacobian.
+        !
+        ! Jacobian is from WRF relation:
+        !   J*g = d(phi)/d(eta) = d(g z)/d(eta) = -mu alpha = -mu/rho
+        !
+        ! Note:  In QF calculation, use "raw" WRF variable QV_CURR_WRF instead
+        !        of QV here because QV(:,kp1,:) is not yet filled.
+        !
+        ! Note:  JACOBF at the surface (i.e., JACOBS) is not filled because
+        !        it is not used in CMAQ.
+        !-----------------------------------------------------------------------
+
+           tf    = t8w_wrf(ii,kp1,jj)  ! kp1 to adjust for 0: indexing in AQ model
+           qf    = 0.5 * ( qv_curr_wrf(ii,kk,jj) + qv_curr_wrf(ii,kp1,jj) )
+           densf = presf(c,r,kk) / ( r_d * tf * (1.0 + r_v*qf/r_d) )
+
+           metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+
+           metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
+
+           metcro3d_data_wrf(c,r,kk,3) = gravi * grid%mut(ii,jj) / gridcro2d_data_wrf (c,r,3)
+
+        ENDDO
+     ENDDO
+  ENDDO
+
+  metcro3d_data_wrf (:,:,1:nlays,14) = zf (:,:,1:nlays)
+
+  call se_wrf_cmaq_comm (twoway_mype, metcro3d_data_wrf, metcro3d_data_cmaq,         &
+                         wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,                 &
+                         wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, tstep)
+
+  if (RUN_CMAQ_DRIVER) then
+     if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metcro3d_data_cmaq ) ) then
+        print *, ' Error: Could not write to file ', fname
+        stop
+     end if
+  end if
+  if (create_physical_file) then
+     if (mod(time2sec(jtime), file_time_step_in_sec) == 0) then
+        write_to_physical_file = .true.
+        if ( .not. write3 (pfname, allvar3, jdate, jtime, metcro3d_data_cmaq(tsc_e:tec_e, tsr_e:ter_e, :, :) ) ) then
+           print *, ' Error: Could not write to file ', pfname
+           stop
+        end if
+     else
+        write_to_physical_file = .false.
+     end if
+  end if
+
+! --------------------------
+
+  if (RUN_CMAQ_DRIVER) then
+     fname = 'MET_DOT_3D'
+  end if
+  if (create_physical_file) then
+     pfname = 'PMET_DOT_3D'
+  end if
+
+  call aq_set_ioapi_header ('D', cmaq_de_domain_map(3,1,twoway_mype), cmaq_de_domain_map(3,2,twoway_mype))
+
+  mxrec3d = nstep
+
+  nlays3d = ioapi_header%nlays
+  nvars3d = n_metdot3d_var
+  vname3d(1:nvars3d) = metdot3d_vlist
+  units3d(1:nvars3d) = metdot3d_units
+  tstep3d = cmaq_tstep
+  vtype3d = ioapi_header%vtype
+
+  if (.not. allocated(metdot3d_data_wrf)) then
+     allocate ( metdot3d_data_wrf (wrf_d_ncols, wrf_d_nrows, nlays, nvars3d), stat=stat)
+     allocate ( metdot3d_data_cmaq (cmaq_de_domain_map(3,1,twoway_mype), &
+                                    cmaq_de_domain_map(3,2,twoway_mype), nlays, nvars3d), stat=stat)
+     tsc_d = 2
+     if (east_bdy_pe) then
+        tec_d = cmaq_de_domain_map(3,1,twoway_mype) - 1
+     else
+        tec_d = cmaq_de_domain_map(3,1,twoway_mype) - 2
+     end if
+     tsr_d = 2
+     if (north_bdy_pe) then
+        ter_d = cmaq_de_domain_map(3,2,twoway_mype) - 1
+     else
+        ter_d = cmaq_de_domain_map(3,2,twoway_mype) - 2
+     end if
+  end if
+
+  if (RUN_CMAQ_DRIVER) then
+     if ( .not. open3 (fname, FSRDWR3, pname) ) then
+        print *, ' Error: Could not open file ', fname, 'for update'
+        if ( .not. open3 (fname, FSNEW3, pname) ) then
+           print *, ' Error: Could not open file ', fname
+        end if
+     end if
+  end if
+
+  if (create_physical_file) then
+     if (twoway_mype == 0) then
+        ncols3d = cmaq_c_col_dim + 1
+        nrows3d = cmaq_c_row_dim + 1
+        tstep3d = file_time_step
+        if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', pfname, 'for update'
+           if ( .not. open3 (pfname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', pfname
+           end if
+        end if
+     end if
+  end if
+
+!-------------------------------------------------------------------------------
+! Fill time-dependent arrays in METDOT3D.
+!-------------------------------------------------------------------------------
+
+  !-----------------------------------------------------------------------------
+  ! Fill UWINDC and VWINDC directly from WRF arrays.
+  !
+  ! Note:  UWIND and VWIND changed to UWINDC and VWINDC to remind us that
+  !        they are on the Arakawa C staggering, not the Arakawa B staggering
+  !        that is in MCIP output and is expected in community SMOKE and CMAQ
+  !        codes.
+  !
+  ! Note:  If trying to combine triply nested loops for UWINDC/VWINDC with
+  !        UHAT_JD/VHAT_JD, the ends for R and C loop counters are different.
+  !-----------------------------------------------------------------------------
+
+  DO kk = 1, nlays
+     jj = sr_d - 1
+     DO r = 1, wrf_d_nrows
+        jj  = jj + 1
+        ii = sc_d - 1
+        DO c = 1, wrf_d_ncols
+           ii  = ii + 1
+
+           metdot3d_data_wrf (c,r,kk,1) = grid%u_2 (ii,kk,jj)     ! C grid staggering, uwindc
+           metdot3d_data_wrf (c,r,kk,2) = grid%v_2 (ii,kk,jj)     ! C grid staggering, vwindc
+
+        ENDDO
+     ENDDO
+
+  !-----------------------------------------------------------------------------
+  ! Compute UHAT_JD and VHAT_JD.
+  !
+  ! Note:  If order of loops is changed so that K is not on outside, JDENM
+  !        needs to be allocated and filled in three dimensions.
+  !
+  ! Note:  If trying to combine triply nested loops for UWINDC/VWINDC with
+  !        UHAT_JD/VHAT_JD, the ends for R and C loop counters are different.
+  !-----------------------------------------------------------------------------
+
+     jj = sr - 1
+     DO r = 1, wrf_d_nrows
+        lrm1 = MAX( r-1, 1 )
+        jj = jj + 1
+        ii = sc - 1
+        DO c = 1, wrf_d_ncols
+           ii = ii + 1
+           lcm1 = MAX( c-1, 1 )
+
+           jdenm  (c,r) = gravi * grid%mut(ii,jj) / grid%msftx (ii,jj)
+
+           metdot3d_data_wrf(c,r,kk,3) = 0.5 * ( jdenm(lcm1,r) + jdenm(c,r) ) * metdot3d_data_wrf(c,r,kk,1)
+
+           metdot3d_data_wrf(c,r,kk,4) = 0.5 * ( jdenm(c,lrm1) + jdenm(c,r) ) * metdot3d_data_wrf(c,r,kk,2)
+
+        ENDDO
+     ENDDO
+
+    !---------------------------------------------------------------------------
+    ! Note:  Use of NCOLS and NROWS for JDENM in the outermost column/row is
+    !        deliberate in UHAT_JD and VHAT_JD calculations.  Original code in
+    !        MCIP has JDENM defined to NCOLS+1, NROWS+1, but outer row and
+    !        column are simply persisted from NCOLS, NROWS.
+    !---------------------------------------------------------------------------
+
+  ENDDO
+
+  call se_wrf_cmaq_comm (twoway_mype, metdot3d_data_wrf, metdot3d_data_cmaq,       &
+                         wrf_cmaq_de_send_to, wrf_cmaq_de_recv_from,               &
+                         wrf_cmaq_de_send_index_l, wrf_cmaq_de_recv_index_l, tstep)
+
+  if (RUN_CMAQ_DRIVER) then
+     if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metdot3d_data_cmaq ) ) then
+       print *, ' Error: Could not write to file ', fname
+       stop
+     end if
+  end if
+  if (create_physical_file) then
+     if (write_to_physical_file) then
+        if ( .not. write3 (pfname, allvar3, jdate, jtime, metdot3d_data_cmaq(tsc_d:tec_d, tsr_d:ter_d, :, :) ) ) then
+           print *, ' Error: Could not write to file ', pfname
+           stop
+        end if
+     end if
+  end if
+
+! ------------------
+
+  if (RUN_CMAQ_DRIVER) then
+     fname = 'MET_CRO_2D'
+  end if
+  if (create_physical_file) then
+     pfname = 'PMET_CRO_2D'
+  end if
+
+  call aq_set_ioapi_header ('C', cmaq_ce_domain_map(3,1,twoway_mype), cmaq_ce_domain_map(3,2,twoway_mype))
+
+  nlays3d = 1
+  mxrec3d = nstep
+  nvars3d = n_metcro2d_var
+  vname3d(1:nvars3d) = metcro2d_vlist
+  units3d(1:nvars3d) = metcro2d_units
+  tstep3d = cmaq_tstep
+  vtype3d = ioapi_header%vtype
+
+  if (.not. allocated(metcro2d_data_wrf)) then
+     allocate ( metcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
+     allocate ( metcro2d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype), &
+                                      cmaq_ce_domain_map(3,2,twoway_mype), nvars3d), stat=stat)
+  end if
+
+  if (RUN_CMAQ_DRIVER) then
+     if ( .not. open3 (fname, FSRDWR3, pname) ) then
+        print *, ' Error: Could not open file ', fname, 'for update'
+        if ( .not. open3 (fname, FSNEW3, pname) ) then
+           print *, ' Error: Could not open file ', fname
+        end if
+     end if
+  end if
+
+  if (create_physical_file) then
+     if (twoway_mype == 0) then
+        ncols3d = cmaq_c_col_dim
+        nrows3d = cmaq_c_row_dim
+        tstep3d = file_time_step
+        if ( .not. open3 (pfname, FSRDWR3, pname) ) then
+           print *, ' Error: Could not open file ', pfname, 'for update'
+           if ( .not. open3 (pfname, FSNEW3, pname) ) then
+              print *, ' Error: Could not open file ', pfname
+           end if
+        end if
+     end if
+  end if
+
+!-------------------------------------------------------------------------------
+! Fill time-dependent arrays for METCRO2D.
+!-------------------------------------------------------------------------------
+
+  !-----------------------------------------------------------------------------
+  ! Fill friction velocity (USTAR), planetary boundary layer height (PBL),
+  ! roughness length (ZRUF), inverse Monin-Obukhov length (MOLI), sensible
+  ! heat flux (HFX), aerodynamic resistance (RA), stomatal resistance (RS),
+  ! ground temperature (TEMPG), shortwave radiation (GSW), accumulated
+  ! non-convective precipitation (RNA), accumulated convective precipitation
+  ! (RCA), snow cover flag (SNOCOV), leaf area index (LAI), 2-m temperature
+  ! (TEMP2), and canopy moisture content (WR) directly from WRF arrays.
+  !
+  ! Note:  RA and RS are the reciprocals of RADYNI and RSTOMI, respectively.
+  !        RA and RS are directly available in WRF, and they are actually
+  !        used in CMAQ, rather than the reciprocals RADYNI and RSTOMI, which
+  !        are typically part of WRF output.
+  !
+  ! Note:  RNA and RCA are accumulated non-convective and convective precip,
+  !        respectively.  RN and RC are MCIP "time step" buckets (typically
+  !        hourly).  Can use RNA and RCA from current and previous CMAQ time
+  !        steps in two-way model to compute rainfall rates needed in CMAQ.
+  !
+  ! Note:  For rainfall:  biogenics code uses cm/h, CMAQ ultimately needs mm/h.
+  !-----------------------------------------------------------------------------
+
+  metcro2d_data_wrf  (:,:,2) =  grid%ust   (sc:ec, sr:er)   ! ustar
+  metcro2d_data_wrf  (:,:,4) =  grid%pblh  (sc:ec, sr:er)   ! pbl
+  metcro2d_data_wrf  (:,:,5) =  grid%znt   (sc:ec, sr:er)   ! zruf
+  metcro2d_data_wrf  (:,:,6) =  grid%rmol  (sc:ec, sr:er)   ! moli
+  metcro2d_data_wrf  (:,:,7) =  grid%hfx   (sc:ec, sr:er)   ! hfx
+  metcro2d_data_wrf  (:,:,8) =  grid%ra    (sc:ec, sr:er)   ! RA = 1/RADNYI
+  metcro2d_data_wrf  (:,:,9) =  grid%rs    (sc:ec, sr:er)   ! RA = 1/RSTOMI
+  metcro2d_data_wrf (:,:,11) =  grid%gsw   (sc:ec, sr:er)   ! gsw
+
+  metcro2d_data_wrf (:,:,13) =  (grid%rainnc(sc:ec, sr:er) - grid%prev_rainnc(sc:ec,sr:er)) * 0.1  ! RNA = SUM(RN), in cm
+  metcro2d_data_wrf (:,:,14) =  (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
+  metcro2d_data_wrf (:,:,19) =  grid%snowc (sc:ec, sr:er)           ! snowcov
+  metcro2d_data_wrf (:,:,21) =  grid%t2    (sc:ec, sr:er)           ! temp2
+  metcro2d_data_wrf (:,:,22) =  grid%canwat(sc:ec, sr:er) * 0.001   ! wr (in meter)
+  metcro2d_data_wrf (:,:,23) =  grid%tsk   (sc:ec, sr:er)           ! tempg
+  metcro2d_data_wrf (:,:,24) =  grid%lai   (sc:ec, sr:er)           ! lai
+  metcro2d_data_wrf (:,:,25) =  grid%isltyp(sc:ec, sr:er)           ! soil type
+  metcro2d_data_wrf (:,:,26) =  grid%q2    (sc:ec, sr:er)           ! Q2
+  metcro2d_data_wrf (:,:,27) =  grid%xice  (sc:ec, sr:er)           ! seaice
+  metcro2d_data_wrf (:,:,28) =  grid%smois (sc:ec, 1, sr:er)        ! SOIM1
+  metcro2d_data_wrf (:,:,29) =  grid%tslb  (sc:ec, 1, sr:er)        ! SOIT1
+
+  where (metcro2d_data_wrf (:,:,13) .lt. 0.0)
+    metcro2d_data_wrf (:,:,13) = 0.0
+  end where
+
+  where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
+    metcro2d_data_wrf (:,:,14) = 0.0
+  end where
+
+  !-----------------------------------------------------------------------------
+  ! Assign surface pressure (PRSFC) from WRF array P8W (i.e., "p at w levels").
+  !-----------------------------------------------------------------------------
+
+  jj = sr - 1
+  DO r = 1, wrf_c_nrows
+     jj = jj + 1
+     ii = sc - 1
+     DO c = 1, wrf_c_ncols
+        ii = ii + 1
+        metcro2d_data_wrf(c,r,1) = p8w_wrf(ii,1,jj)   ! prsfc
+     ENDDO
+  ENDDO
+
+  !-----------------------------------------------------------------------------
+  ! Compute convective velocity scale (WSTAR) using a algorithm from MCIP.
+  !
+  ! Note:  KARMAN is defined in WRF module_model_constants.  It is the same
+  !        value (0.4) that is used in MCIP.
+  !-----------------------------------------------------------------------------
+
+  jj = sr - 1
+  DO r = 1, wrf_c_nrows
+     jj = jj + 1
+     ii = sc - 1
+     DO c = 1, wrf_c_ncols
+        ii = ii + 1
+        IF ( grid%rmol(ii,jj) < 0.0 ) THEN
+           ! wstart = ustar * (pbl * ABS(grid%rmol / karman )) ** 0.3333333
+           metcro2d_data_wrf(c,r,3) = metcro2d_data_wrf(c,r,2) * ( metcro2d_data_wrf(c,r,4) * ABS(grid%rmol(ii, jj) / karman ) ) ** 0.3333333
+        ELSE
+           metcro2d_data_wrf(c,r,3) = 0.0
+        END IF
+     END DO
+  END DO
+
+  !-----------------------------------------------------------------------------
+  ! Compute WSPD10 from WRF components U10 and V10.  WSPD10 should be on
+  ! scalar points.  Assume here that U10 and V10 are on scalar points in WRF.
+  !-----------------------------------------------------------------------------
+
+  u10     (:,:) =  grid%u10   (sc:ec, sr:er)
+  u10     (:,:) =  u10(:,:) * u10(:,:)
+  v10     (:,:) =  grid%v10   (sc:ec, sr:er)
+  v10     (:,:) =  v10(:,:) * v10(:,:)
+  metcro2d_data_wrf (:,:,10) =  SQRT( u10(:,:) + v10(:,:) )   ! components already squared, wspd10
+
+  !-----------------------------------------------------------------------------
+  ! Compute solar radiation reaching the ground (RGRND) from ALBEDO and GSW.
+  !
+  ! Note:  RGRND may not be needed depending on how it is used by biogenics.
+  !-----------------------------------------------------------------------------
+
+  albedo  (:,:) =  grid%albedo(sc:ec, sr:er)
+  ! rgrnd = gsw / ( 1.0 - albedo)
+  metcro2d_data_wrf   (:,:,12) =  metcro2d_data_wrf(:,:,11) / (1.0 - albedo(:,:))
+
+  !-----------------------------------------------------------------------------
+  ! Compute vegetation coverage (VEG) by converting WRF variable VEGFRA from
+  ! percent to decimal.
+  !-----------------------------------------------------------------------------
+
+  if (config_flags%sf_sfclay_physics == PXLSMSCHEME) then
+     metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)        ! veg
+  else
+     metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01  ! veg
+  end if
+
+  !-----------------------------------------------------------------------------
+  ! Compute total cloud fraction (CFRAC), cloud top layer height (CLDT), 
+  ! cloud bottom layer height (CLDB), and average liquid water content of
+  ! cloud (WBAR) using a modified MCIP subroutine.
+  !-----------------------------------------------------------------------------
+
+  CALL bcldprc_ak (wrf_c_ncols, wrf_c_nrows, nlays, zf, metcro3d_data_wrf(:,:,:,4),                   &
+                   metcro3d_data_wrf(:,:,:,11), metcro3d_data_wrf(:,:,:,5), metcro2d_data_wrf(:,:,4), &
+                   dzf, presf, metcro2d_data_wrf(:,:,15),                                             &
+                   metcro2d_data_wrf(:,:,17), metcro2d_data_wrf(:,:,16), metcro2d_data_wrf(:,:,18))
+
+  call se_wrf_cmaq_comm (twoway_mype, metcro2d_data_wrf, metcro2d_data_cmaq,       &
+                         wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,                 &
+                         wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, tstep)
+
+  if (RUN_CMAQ_DRIVER) then
+     if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metcro2d_data_cmaq ) ) then
+       print *, ' Error: Could not write to file ', fname
+       stop
+     end if
+  end if
+  if (create_physical_file) then
+     if (write_to_physical_file) then
+        if ( .not. write3 (pfname, allvar3, jdate, jtime, metcro2d_data_cmaq(tsc_c:tec_c, tsr_c:ter_c, :) ) ) then
+           print *, ' Error: Could not write to file ', pfname
+           stop
+        end if
+        write_to_physical_file = .false.
+     end if
+  end if
+
+  CALL NEXTIME( JDATE, JTIME, cmaq_tstep)
+
+!-------------------------------------------------------------------------------
+
+CONTAINS
+
+SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,    &
+                      delta_x, delta_y, map_proj, truelat1, truelat2, moad_cen_lat, &
+                      cen_lon, stand_lon, ptop, znw, lat_llc, lon_llc, wrf_lc_ref_lat)
+
+!-------------------------------------------------------------------------------
+! Name:     AQ Header
+! Purpose:  Fill M3IO header variables for CMAQ in WRF-CMAQ two-way system.
+! Revised:  02 Apr 2007  Original version.  (T. Otte)
+!           11 Apr 2007  (David Wong)
+!              -- store info in variable ioapi_header
+!-------------------------------------------------------------------------------
+
+  USE twoway_header_data_module
+
+  use utilio_defn
+
+  IMPLICIT NONE
+
+  REAL,          INTENT(IN)    :: dx                ! [m]
+  REAL,          INTENT(IN)    :: dy                ! [m]
+  REAL,          INTENT(IN)    :: lat_llc
+  REAL,          INTENT(IN)    :: lon_llc
+  INTEGER,       INTENT(IN)    :: map_proj, delta_x, delta_y
+  REAL,          INTENT(IN)    :: moad_cen_lat
+  REAL,          INTENT(IN)    :: cen_lon
+  INTEGER,       INTENT(IN)    :: ncols, gncols
+  INTEGER,       INTENT(IN)    :: nrows, gnrows
+  INTEGER,       INTENT(IN)    :: nlays
+  INTEGER,       INTENT(IN)    :: sdate
+  INTEGER,       INTENT(IN)    :: stime
+  REAL,          INTENT(IN)    :: ptop              ! model top [Pa]
+  REAL,          INTENT(IN)    :: stand_lon
+  REAL,          INTENT(IN)    :: truelat1
+  REAL,          INTENT(IN)    :: truelat2
+  REAL,          INTENT(IN)    :: znw        ( : )
+  REAL,          INTENT(IN)    :: wrf_lc_ref_lat
+
+  CHARACTER*16                 :: coordnam_gd
+  INTEGER                      :: gdtyp_gd
+  INTEGER                      :: kvert
+  REAL(8)                      :: p_alp_gd
+  REAL(8)                      :: p_bet_gd
+  REAL(8)                      :: p_gam_gd
+  REAL                         :: vgtop_gd
+  CHARACTER*16                 :: vgtpun_gd
+  REAL,          ALLOCATABLE   :: vglvs_gd   ( : )
+  CHARACTER*16                 :: vglvun_gd
+  REAL,          ALLOCATABLE   :: x3face_gd  ( : )
+  REAL                         :: xorig             ! X-origin [m]
+  REAL(8)                      :: xxx
+  REAL                         :: yorig             ! Y-origin [m]
+  REAL(8)                      :: yyy
+  REAL                         :: ref_lat
+  REAL                         :: cntrx, cntry
+  REAL                         :: xtemp, ytemp
+
+  INTEGER                      :: GRID_SIZE, DOMAIN_TYPE, STAT
+
+  logical                      :: use_hard_code_values
+
+!-------------------------------------------------------------------------------
+! Define map projection identifiers for M3IO.
+!-------------------------------------------------------------------------------
+
+  ioapi_header%ncols = ncols
+  ioapi_header%nrows = nrows
+  ioapi_header%nlays = nlays
+  ioapi_header%nthik = 1
+  ioapi_header%sdate = sdate
+  ioapi_header%stime = stime
+
+  SELECT CASE ( map_proj )
+
+    CASE (1)  ! Lambert conformal
+      gdtyp_gd = lamgrd3  ! in PARMS3
+      p_alp_gd = DBLE( MIN(truelat1, truelat2) )
+      p_bet_gd = DBLE( MAX(truelat1, truelat2) )
+      p_gam_gd = DBLE( stand_lon )
+
+    CASE (2)  ! polar stereographic
+      gdtyp_gd = polgrd3  ! in PARMS3
+      p_alp_gd = DBLE( SIGN(1.0, moad_cen_lat) )
+      p_bet_gd = DBLE( truelat1 )
+      p_gam_gd = DBLE( stand_lon )
+
+    CASE (3)  ! Mercator
+      gdtyp_gd = EQMGRD3  ! in PARMS3
+      p_alp_gd = 0.0
+      p_bet_gd = 0.0
+      p_gam_gd = DBLE( stand_lon )
+
+  END SELECT
+
+  ioapi_header%vtype = m3real
+
+  ioapi_header%gdtyp = gdtyp_gd
+  ioapi_header%p_alp = p_alp_gd
+  ioapi_header%p_bet = p_bet_gd
+  ioapi_header%p_gam = p_gam_gd
+
+!-------------------------------------------------------------------------------
+! Define grid location for M3IO.  Use center of projection as reference point
+! for XCENT and YCENT.  Compute XORIG and YORIG with respect to XCENT and YCENT.
+!
+! Note:  After the call to LATLON_TO_XY, the REAL coordinates of the center of
+!        the projection (XXX, YYY) may not be "exact".  Will need to adjust the
+!        values of XORIG and YORIG such that they are multiples of 0.5*DX and
+!        0.5*DY.  (This may not be a universal assumption, but it is a practical
+!        assumption for two-way modeling...at least initially.)
+!
+! Note:  DX and DY are the same for our application.
+!-------------------------------------------------------------------------------
+
+  IF ( map_proj == 1 ) THEN
+     ioapi_header%xcent = stand_lon
+     IF ( wrf_lc_ref_lat > 0.0) THEN
+        ioapi_header%ycent = wrf_lc_ref_lat
+     ELSE
+        ioapi_header%ycent = (p_alp_gd + p_bet_gd) * 0.5
+     END IF
+  ELSE IF ( map_proj == 2 ) THEN
+     ioapi_header%xcent = stand_lon
+     ioapi_header%ycent = moad_cen_lat
+  ELSE IF ( map_proj == 3 ) THEN
+     ioapi_header%xcent = stand_lon
+     ioapi_header%ycent = 0.0
+  ELSE
+     write (6, *) ' Unknown projection '
+  END IF
+
+!-------------------------------------------------------------------------------
+! (XCENT_GD, YCENT_GD):
+! For most projections, these are the longitude, -180 < X <= 180, and the
+!   latitude, -90 <= Y <= 90, for the center of the grid's respective Cartesian
+!   coordinate system.  Units are meters.
+! For UTM:  UTM coordinates of the origin for offset UTM coordinates (or are
+!           (0,0) for Equator-based UTM coordinates).
+! For Lat-Lon:  unused
+!-------------------------------------------------------------------------------
+
+  IF ( map_proj == 1 ) THEN
+    IF ( wrf_lc_ref_lat > 0.0) THEN
+      ref_lat  = wrf_lc_ref_lat
+    ELSE
+      ref_lat  = ( truelat1 + truelat2 ) * 0.5
+    ENDIF
+
+    CALL ll2xy_lam (moad_cen_lat, cen_lon, truelat1, truelat2, stand_lon, ref_lat, xxx, yyy)
+  ELSE IF ( map_proj == 2 ) THEN
+    CALL ll2xy_ps (moad_cen_lat, cen_lon, truelat1, cen_lon, xxx, yyy)
+  ENDIF
+
+  nthik = 1
+  cntrx = FLOAT(gncols)/2.0 + 0.5
+  cntry = FLOAT(gnrows)/2.0 + 0.5
+
+  xorig = xxx - DBLE( cntrx - FLOAT(delta_x+nthik) ) * DBLE(dx)
+  yorig = yyy - DBLE( cntry - FLOAT(delta_y+nthik) ) * DBLE(dy)
+
+  IF ( moad_cen_lat > -999.0 ) THEN  ! adjust XORIG and YORIG
+
+    xtemp = xorig / 500.0
+    ytemp = yorig / 500.0
+    xtemp = FLOAT(NINT(xtemp))
+    ytemp = FLOAT(NINT(ytemp))
+    xorig = xtemp * 500.0
+    yorig = ytemp * 500.0
+
+  ENDIF
+
+  ioapi_header%xorig = xorig
+  ioapi_header%yorig = yorig
+
+!-------------------------------------------------------------------------------
+! Fill horizontal grid spacing.
+!-------------------------------------------------------------------------------
+
+  ioapi_header%xcell = dx
+  ioapi_header%ycell = dy
+
+!-------------------------------------------------------------------------------
+! Define vertical grid.
+!-------------------------------------------------------------------------------
+
+  ioapi_header%vgtyp = vgwrfem  ! in PARMS3
+
+  ioapi_header%vgtop = ptop
+
+  ioapi_header%vglvs(1:nlays) = znw
+  ioapi_header%vglvs(nlays+1) = 0.0
+
+!-------------------------------------------------------------------------------
+! Define other identifiers.
+!-------------------------------------------------------------------------------
+
+  ioapi_header%gdnam = "WRF-CMAQ"
+
+END SUBROUTINE aq_header
+
+!-------------------------------------------------------------------------------
+
+SUBROUTINE ll2xy_lam (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
+
+!-------------------------------------------------------------------------------
+! Name:     Latitude-Longitude to (X,Y) for Lambert Conformal Projection
+! Purpose:  Determines secant or tangent Lambert conformal case, and calls
+!           appropriate routine.
+! Revised:  03 Jun 2008  Original version.  (T. Otte)
+!           26 Nov 2008  Added argument for reference latitude, PHI0.
+!                        Prevent users from having tangent Lambert conformal
+!                        case until it can be tested with the Spatial
+!                        Allocator.  (Known problem is that the Spatial
+!                        Allocator does not work properly when the
+!                        reference latitude is equal to the first true
+!                        latitude.  Work-around is to set reference latitude
+!                        to average of true latitudes for Lambert conformal.
+!                        But average of true latiudes for tangent Lambert
+!                        conformal case is the first true latitude, which
+!                        will result in the same problem as solution used
+!                        in MCIPv3.4.)  (T. Otte)
+!-------------------------------------------------------------------------------
+
+  IMPLICIT NONE
+
+  REAL,          INTENT(IN)    :: lambda  ! longitude [deg]
+  REAL,          INTENT(IN)    :: lambda0 ! standard longitude [deg]
+  REAL,          INTENT(IN)    :: phi     ! latitude [deg]
+  REAL,          INTENT(IN)    :: phi0    ! reference latitude [deg]
+  REAL,          INTENT(IN)    :: phi1    ! true latitude 1 [deg]
+  REAL,          INTENT(IN)    :: phi2    ! true latitude 2 [deg]
+  REAL(8),       INTENT(OUT)   :: xx      ! X-coordinate from origin
+  REAL(8),       INTENT(OUT)   :: yy      ! Y-coordinate from origin
+
+  REAL,          PARAMETER     :: phitol  = 0.001  ! tolerance [deg]
+
+  CHARACTER*16,  PARAMETER     :: pname   = 'LL2XY_LAM'
+
+!-------------------------------------------------------------------------------
+! Determine whether Lambert conformal is tangent or secant.
+!-------------------------------------------------------------------------------
+
+  IF ( ABS( phi1 - phi2 ) < phitol ) THEN  ! tangent case
+    WRITE (6,9000) phi1, phi2
+    PRINT *, 'Error: Lambert conformal is tangent '
+    STOP
+  ELSE  ! secant case
+    CALL ll2xy_lam_sec (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
+  ENDIF
+
+  RETURN
+
+!-------------------------------------------------------------------------------
+! Error-handling section.
+!-------------------------------------------------------------------------------
+
+ 9000 FORMAT (/, 1x, 70('*'),                                                  &
+              /, 1x, '*** SUBROUTINE: LL2XY_LAM',                              &
+              /, 1x, '***   TANGENT LAMBERT CONFORMAL PROJECTION DETECTED',    &
+              /, 1x, '***   TRUE LATITUDES = ', f8.3, 2x, f8.3,                &
+              /, 1x, '***   MAY NOT WORK PROPERLY IN SPATIAL ALLOCATOR',       &
+              /, 1x, '***   ...PLEASE SUBMIT BUGZILLA TICKET TO INVESTIGATE',  &
+              /, 1x, 70('*'))
+
+END SUBROUTINE ll2xy_lam
+
+!-------------------------------------------------------------------------------
+
+SUBROUTINE ll2xy_lam_sec (phi, lambda, phi1, phi2, lambda0, phi0, xx, yy)
+
+!-------------------------------------------------------------------------------
+! Name:     Latitude-Longitude to (X,Y) for Lambert Conformal Projection
+! Purpose:  Calcluates (X,Y) from origin for a given latitude-longitude pair
+!           and Lambert conformal projection information for secant case.
+! Notes:    Equations taken from "Map Projections: Theory and Applications"
+!           by Frederick Pearson, II (1990), pp. 181-182.
+! Revised:  03 Jun 2008  Original version.  (T. Otte)
+!           04 Dec 2008  Added argument for reference latitude, PHI0.
+!                        Changed routine so it is no longer hard-wired to
+!                        have a reference latitude at the first true
+!                        latitude.  (T. Otte and J. Pleim)
+!           17 Sep 2009  Corrected inline comments associated with definitions
+!                        of RHO and RHO0.  Corrected calculation of PSI (with
+!                        no impact on results).  (T. Otte)
+!-------------------------------------------------------------------------------
+
+  IMPLICIT NONE
+
+  REAL,          INTENT(IN)    :: lambda  ! longitude [deg]
+  REAL,          INTENT(IN)    :: lambda0 ! standard longitude [deg]
+  REAL,          INTENT(IN)    :: phi     ! latitude [deg]
+  REAL,          INTENT(IN)    :: phi0    ! reference latitude [deg]
+  REAL,          INTENT(IN)    :: phi1    ! true latitude 1 [deg]
+  REAL,          INTENT(IN)    :: phi2    ! true latitude 2 [deg]
+  REAL(8),       INTENT(OUT)   :: xx      ! X-coordinate from origin
+  REAL(8),       INTENT(OUT)   :: yy      ! Y-coordinate from origin
+
+  REAL, PARAMETER              :: rearth = 6370000.0  ! [m]
+
+  REAL(8)                      :: deg2rad ! convert degrees to radians
+  REAL(8)                      :: dlambda ! delta lambda
+  REAL(8)                      :: drearth ! double-precision radius of earth [m]
+  REAL(8)                      :: phirad  ! latitude [rad]
+  REAL(8)                      :: phi0rad ! reference latitude [rad]
+  REAL(8)                      :: phi1rad ! true latitude 1 [rad]
+  REAL(8)                      :: phi2rad ! true latitude 2 [rad]
+  REAL(8)                      :: pi
+  REAL(8)                      :: piover4 ! pi/4
+  REAL(8)                      :: psi     ! auxiliary function
+  REAL(8)                      :: rho     ! polar radius to latitude phi
+  REAL(8)                      :: rho0    ! polar radius to origin
+  REAL(8)                      :: term
+  REAL(8)                      :: term0
+  REAL(8)                      :: term1
+  REAL(8)                      :: term2
+  REAL(8)                      :: theta   ! polar angle
+  REAL(8)                      :: sinphi0 ! cone constant
+
+!-------------------------------------------------------------------------------
+! Compute constants.
+!-------------------------------------------------------------------------------
+
+  piover4 = DATAN(1.0d0)
+  pi      = 4.0d0 * piover4
+  deg2rad = pi / 1.8d2
+
+  drearth = DBLE(rearth)
+
+!-------------------------------------------------------------------------------
+! Compute cone constant, SINPHI0.
+! Note:  PHI0 is the reference latitude, which is user-defined.  It is NOT
+!        used in the calculation of SINPHI0, which is the cone constant.
+!-------------------------------------------------------------------------------
+
+  phi0rad = DBLE(phi0) * deg2rad  ! convert PHI0 from degrees to radians
+  phi1rad = DBLE(phi1) * deg2rad  ! convert PHI1 from degrees to radians
+  phi2rad = DBLE(phi2) * deg2rad  ! convert PHI2 from degrees to radians
+
+  term0 = DTAN (piover4 - phi0rad/2.0d0)
+  term1 = DTAN (piover4 - phi1rad/2.0d0)
+  term2 = DTAN (piover4 - phi2rad/2.0d0)
+
+  sinphi0 = DLOG ( DCOS(phi1rad) / DCOS(phi2rad) )
+  sinphi0 = sinphi0 / DLOG (term1 / term2)
+
+!-------------------------------------------------------------------------------
+! Compute polar angle, THETA.
+!-------------------------------------------------------------------------------
+
+  dlambda = DBLE(lambda - lambda0) * deg2rad
+  theta   = dlambda * sinphi0
+
+!-------------------------------------------------------------------------------
+! Compute polar radius to origin, RHO0, where origin is at PHI0.
+!-------------------------------------------------------------------------------
+
+  psi  = drearth * DCOS(phi1rad) / sinphi0 / (term1**sinphi0)
+  rho0 = psi * (term0**sinphi0)
+
+!-------------------------------------------------------------------------------
+! Compute polar radius to latitude PHI, RHO.
+!-------------------------------------------------------------------------------
+
+  phirad = DBLE(phi) * deg2rad  ! convert PHI from degrees to radians
+  term   = DTAN (piover4 - phirad/2.0d0)
+  rho    = psi * (term**sinphi0)
+
+!-------------------------------------------------------------------------------
+! Compute Cartesian coordinates, XX and YY.
+!-------------------------------------------------------------------------------
+
+  xx =        rho * DSIN(theta)
+  yy = rho0 - rho * DCOS(theta)
+
+END SUBROUTINE ll2xy_lam_sec
+
+SUBROUTINE ll2xy_ps (phi, lambda, phi1, lambda0, xx, yy)
+
+!-------------------------------------------------------------------------------
+! Name:     Latitude-Longitude to (X,Y) for Polar Stereographic Projection
+! Purpose:  Calcluates (X,Y) from origin for a given latitude-longitude pair
+!           and polar stereographic projection information.
+! Notes:    Adapted from equations found at http://starbase.jpl.nasa.gov/
+!           mgn-v-rdrs-5-dvdr-v1.0/gvdr0001/catalog/dsmp.lbl.
+! Revised:  28 Sep 2009  Original version.  (T. Otte)
+!-------------------------------------------------------------------------------
+
+  IMPLICIT NONE
+
+  REAL,          INTENT(IN)    :: lambda  ! longitude [deg]
+  REAL,          INTENT(IN)    :: lambda0 ! standard longitude [deg]
+  REAL,          INTENT(IN)    :: phi     ! latitude [deg]
+  REAL,          INTENT(IN)    :: phi1    ! true latitude 1 [deg]
+  REAL(8),       INTENT(OUT)   :: xx      ! X-coordinate from origin
+  REAL(8),       INTENT(OUT)   :: yy      ! Y-coordinate from origin
+
+  REAL, PARAMETER              :: rearth = 6370000.0  ! [m]
+
+  REAL(8)                      :: deg2rad ! convert degrees to radians
+  REAL(8)                      :: drearth ! earth radius [m]
+  REAL(8)                      :: hemi    ! +/-1 for Northern/Southern Hemis
+  REAL(8)                      :: phirad  ! latitude [rad]
+  REAL(8)                      :: phi1rad ! true latitude 1 [rad]
+  REAL(8)                      :: pi
+  REAL(8)                      :: piover4 ! pi/4
+  REAL(8)                      :: scalefac
+  REAL(8)                      :: sigma   ! image scale
+  REAL(8)                      :: theta   ! polar angle
+  REAL(8)                      :: tt
+
+!-------------------------------------------------------------------------------
+! Compute constants.
+!-------------------------------------------------------------------------------
+
+  piover4 = DATAN(1.0d0)
+  pi      = 4.0d0 * piover4
+  deg2rad = pi / 1.8d2
+
+  drearth = DBLE(rearth)
+
+!-------------------------------------------------------------------------------
+! Compute image scale, SIGMA.
+!-------------------------------------------------------------------------------
+
+  hemi = DSIGN (1.0d0, DBLE(phi1))
+
+  phi1rad = DBLE(phi1) * deg2rad  ! convert PHI1 from degrees to radians
+  phirad  = DBLE(phi)  * deg2rad  ! convert PHI  from degrees to radians
+
+!!!TLO  sigma   = (1.0d0 + DSIN(phi1rad)) / (1.0d0 + DSIN(pi))  ! at pole
+  sigma   = (1.0d0 + DSIN(phi1rad)) / 2.0d0 * hemi
+
+  scalefac = drearth / sigma
+
+  tt = DTAN ( piover4 - phirad/2.0d0)
+
+!-------------------------------------------------------------------------------
+! Compute polar angle, THETA.
+!-------------------------------------------------------------------------------
+
+  theta = DBLE(lambda - lambda0) * deg2rad
+
+!-------------------------------------------------------------------------------
+! Compute Cartesian coordinates, XX and YY.
+!-------------------------------------------------------------------------------
+
+  xx =         2.0d0 * scalefac * tt * DSIN(theta)
+  yy = -hemi * 2.0d0 * scalefac * tt * DCOS(theta)
+
+END SUBROUTINE ll2xy_ps
+
+END SUBROUTINE aqprep
