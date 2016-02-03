@@ -1,0 +1,3 @@
+echo "  **** : pgf90 $2" 
+#/usr/pgi/linux86/6.1/bin/pgf90 $1 $2
+/usr/local/pgi/linux86/bin/pgf90 $1 $2

@@ -1,0 +1,146 @@
+#! /bin/csh -f
+
+# ===================== STENEXv5.0.2 Build Script =================== #
+# Usage: bldit.se >&! bldit.se.log                                    #
+# Requirements: a Fortran compiler and MPICH include files            #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL <source code repository>                           #
+#   setenv M3LIB   <code libraries>                                   #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the build environment
+ source ../config.cmaq
+
+#> Check for M3HOME and M3LIB settings:
+ if ( ! -e $M3HOME || ! -e $M3LIB ) then
+    echo "   $M3HOME or $M3LIB directory not found"
+    exit 1
+ endif
+ echo "    Model repository base path: $M3HOME"
+ echo "                  library path: $M3LIB"
+
+#> If $M3MODEL not set, default to $M3HOME
+ if ( $?M3MODEL ) then
+    echo "         Model repository path: $M3MODEL"
+ else
+    setenv M3MODEL $M3HOME
+    echo " default Model repository path: $M3MODEL"
+ endif
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only 
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
+ endif
+
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:Begin User Input Section #:##:#:#:#:#:#:#:#:#:#:#
+ 
+#> user choices: Git repository
+#git --work-tree=$M3MODEL status
+#git status
+ setenv REPOROOT ${M3MODEL}/CCTM
+
+ set BASE = $cwd
+ set DEST = ${M3LIB}/se_snl   # location of output library files
+ if ( ! -d "$DEST" ) mkdir -p $DEST
+ set RM = "/bin/rm -f"
+ set MV = "/bin/mv -f"
+
+#> Set location of MPICH include files
+ set MPI_INC  = ${M3LIB}/mpich/include
+
+#> Set full path of Fortran 90 compiler 
+ set FC = ${myFC}
+ set FSTD = "${myFFLAGS}"
+
+# set DEBUG     # Uncomment to create debug version of library
+ if ( $?DEBUG ) then
+    set F_FLAGS = "${FSTD} -c -g -I${MPI_INC}"
+ else
+    set F_FLAGS = "${FSTD} -c -I${MPI_INC}"
+ endif
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ set Bld = $BASE/BLD
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+ else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ cd $Bld
+
+ echo " "
+ echo "Host: " `hostname`
+ echo "Host operating system:       $BLD_OS"
+ echo "Libraries/objects/f90-modules directory: $DEST"
+ echo " "
+
+ set flist = (\
+    se_comm_info_ext.f\
+    se_disp_info_ext.f\
+    se_domain_info_ext.f\
+    se_pe_info_ext.f\
+    se_subgrid_info_ext.f\
+    se_reconfig_grid_info_ext.f\
+    se_bndy_copy_info_ext.f\
+    se_internal_util_module.f\
+    se_global_max_module.f\
+    se_global_min_module.f\
+    se_global_sum_module.f\
+    se_util_module.f\
+    se_data_send_module.f\
+    se_data_recv_module.f\
+    se_slice_module.f\
+    se_comm_module.f\
+    se_gather_module.f\
+    se_data_copy_module.f\
+    se_reconfig_grid_module.f\
+    se_bndy_copy_module.f\
+    swap_sandia.f\
+    swap_sandia_routines.f\
+    se_init_module.F\
+    se_term_module.f\
+    se_twoway_comm_module.f\
+    se_modules.f )
+
+#> extract source files from code repository
+ foreach file ( $flist )
+    cp ${REPOROOT}/STENEX/$file $Bld
+    end
+
+ if ( $?DEBUG ) then
+    set Arc = libse_snl.debug.a
+ else
+    set Arc = libse_snl.a
+ endif
+ if ( -e "$Arc" ) $RM $Arc *.mod
+
+#> compile in the flist order (se_modules.f depends on the others)
+ foreach file ( $flist )
+    $FC $F_FLAGS $file
+ end
+
+ ar rv $Arc *.o
+ chmod 444 $Arc
+ if ( -e "$DEST/$Arc" ) $MV $DEST/$Arc $DEST/$Arc.old
+ $MV $Arc $DEST
+ $MV *.mod $DEST
+
+ if ( $?DEBUG ) then
+    $MV *.o $DEST
+ else
+    $RM *.o
+ endif
+ echo " "; echo " Finish building $DEST/$Arc "
+ exit()

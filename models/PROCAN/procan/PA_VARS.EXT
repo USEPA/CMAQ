@@ -1,0 +1,270 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/PROCAN/src/driver/pa/PA_VARS.EXT,v 1.7 2011/11/02 14:33:55 yoj Exp $
+
+C......................................................................
+C INCLUDE FILE: PA_DATA.EXT
+ 
+C CONTAINS: Commons data used in the Process Analysis Control Program
+ 
+C DEPENDENT UPON: None
+ 
+C REVISION HISTORY:
+C  Prototype created by Jerry Gipson, July, 1996
+C  Revised by Jerry Gipson April, 1997 to add the ADJC process and replace
+C  NSPCSD with NSPCS for dimensioning
+C  Modified May, 1997 by Jerry Gipson to be consistent with beta CTM
+C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
+C  Modified May 2002 by Jerry Gipson to increase number of reaction lines (for saprc99)
+C  Aug 2011 Jeff Young: Removed domain data
+ 
+C......................................................................
+
+C Parameters:
+
+      INTEGER, PARAMETER :: MAXFAMLYS = 50   ! Max no. of families
+
+      INTEGER, PARAMETER :: MAXRXNSUM = 50   ! Max no. of reaction sums
+
+      INTEGER, PARAMETER :: MAXCYCLES = 50   ! Max no. of cycles
+
+!     INTEGER, PARAMETER :: MAXIRROUT = 200  ! Max number of IRR outputs
+      INTEGER, PARAMETER :: MAXIRROUT = 300  ! Max number of IRR outputs
+
+      INTEGER, PARAMETER :: MAXDEFNAMES =    ! Max no. of defined names
+     &                                    MAXFAMLYS
+     &                                  + MAXRXNSUM
+     &                                  + MAXCYCLES
+     &                                  + MAXIRROUT
+
+      INTEGER, PARAMETER :: MAXRXTERMS = 100   ! Max no. of terms in a reaction sum
+      
+      INTEGER, PARAMETER :: MAXCYTERMS = 100   ! Max no. of rxns in a cycle
+
+      INTEGER, PARAMETER :: MAXOUTTERMS = 100  ! Max no. of terms in an IRR output
+
+!     INTEGER, PARAMETER :: MAXTERMS = 200     ! Generic max no. of terms
+      INTEGER, PARAMETER :: MAXTERMS = 300     ! Generic max no. of terms
+
+      INTEGER, PARAMETER :: MAXIPRSPC = 200    ! Max no. of IPR species
+
+      INTEGER, PARAMETER :: MAXIPROUT = MAXIPRSPC * 10   ! Max no. IPR outputs
+
+      INTEGER, PARAMETER :: MAXFAMMEM = MXSPEC   ! Max no of members in any family
+
+      INTEGER, PARAMETER :: MXMECHLINE = 10
+
+      INTEGER, PARAMETER :: MXFAMLINE = 5
+
+C Common Variables:
+      CHARACTER(  4 ) :: CYSPTYP( MAXCYCLES )               ! Type of name for cycle
+      CHARACTER(  4 ) :: IPR_SPTYPE( MAXIPRSPC )            ! Type of mass bal species
+      CHARACTER(  4 ) :: OUTTYPE ( MAXIRROUT,MAXOUTTERMS ) ! Output term type
+      CHARACTER(  4 ) :: OUTOP2  ( MAXIRROUT,MAXOUTTERMS ) ! Output AND/OR keyword
+      CHARACTER(  4 ) :: OUTS1TYP( MAXIRROUT,MAXOUTTERMS ) ! Name type for species 1 
+      CHARACTER(  4 ) :: OUTS2TYP( MAXIRROUT,MAXOUTTERMS ) ! Name type for species 2
+      CHARACTER(  4 ) :: OUTS3TYP( MAXIRROUT,MAXOUTTERMS ) ! Name type for species 3
+
+      CHARACTER(  7 ) :: OUTPNFLAG( MAXIRROUT,MAXOUTTERMS ) ! Flag to include
+                                                            ! only if sum is + or -
+
+      CHARACTER( 16 ) :: FAMNAME  ( MAXFAMLYS )  ! Name of Family
+      CHARACTER( 16 ) :: RXSUMNAME( MAXRXNSUM )  ! Name assigned to reaction sum
+      CHARACTER( 16 ) :: CYCLNAME ( MAXCYCLES )  ! Name assigned to reaction sum
+      CHARACTER( 16 ) :: IRRNAME  ( MAXIRROUT )  ! Name assigned to reaction sum
+      CHARACTER( 16 ) :: CYCLSPEC ( MAXCYCLES )  ! Species to cycle if so defined
+      CHARACTER( 16 ) :: IPR_SPNAM( MAXIPRSPC )  ! Name of mass balance species
+
+      CHARACTER( 16 ) :: FAMMEMNAM( MAXFAMLYS,MAXFAMMEM )  ! Name of family member
+      CHARACTER( 16 ) :: RXSUMLBL ( MAXRXNSUM,MAXRXTERMS ) ! Rx no. of terms in sum
+      CHARACTER( 16 ) :: CYRXLBL  ( MAXCYCLES,MAXCYTERMS ) ! Rx no. of cycle terms
+      CHARACTER( 16 ) :: OUTRXLBL ( MAXIRROUT,MAXOUTTERMS ) ! Reaction labels of 
+                                                            ! terms in command
+      CHARACTER( 16 ) :: OUTSPEC1 ( MAXIRROUT,MAXOUTTERMS ) ! Species 1 name for  
+                                                            ! output operator
+      CHARACTER( 16 ) :: OUTSPEC2 ( MAXIRROUT,MAXOUTTERMS ) ! Species 2 name for  
+                                                            ! output operator
+      CHARACTER( 16 ) :: OUTSPEC3 ( MAXIRROUT,MAXOUTTERMS ) ! Species 3 name for  
+                                                            ! output operator
+      CHARACTER( 16 ) :: IPR_OPNAME( MAXIPRSPC,MAXTERMS )   ! Input IPR op names
+
+      CHARACTER( 28 ) :: TDATOUT    ! Output clock time and date
+
+      CHARACTER( 80 ) :: MECLINE( MXRXNS,MXMECHLINE )    ! Compressed reaction lines
+      CHARACTER( 80 ) :: FAMLINE( MAXFAMLYS,MXFAMLINE )  ! Compressed family lines
+
+      CHARACTER( 60 ) :: IRRDESC( MAXIRROUT )      ! Description of IRROUTPUT field
+
+      INTEGER NFAMLYS            ! Number of families pdefined
+      INTEGER NRXSUMS            ! Number of reaction sums defined
+      INTEGER NCYCLES            ! Number of cycles defined
+      INTEGER NIRROUT            ! Number of outputs IRR fields
+                                 ! requested
+      INTEGER N_IPR_SPC          ! Number of IPR species requested
+      INTEGER NUMTEMPS           ! Number of predefined cycls & rxsums
+      INTEGER NUMOUTPOS          ! Number of init. if positive
+      INTEGER NUMOUTNEG          ! Number of init. if neg
+      INTEGER NUMOUTIND          ! Number of init. if pos or neg
+      INTEGER MXNIRRRXNS         ! Max no. Rx terms in any output IRR
+      INTEGER MXTEMPTRMS         ! Max no. Rx terms in any temp. IRR     
+      INTEGER FAMNUMLNS ( MAXFAMLYS ) ! Number of lines for family
+      INTEGER MECNUMLNS (    MXRXNS ) ! Number of lines for reaction
+      INTEGER NUMFAMMEM ( MAXFAMLYS ) ! Number of members of each family
+      INTEGER NRXTERMS  ( MAXRXNSUM ) ! Number of terms in reaction sum
+      INTEGER NCYTERMS  ( MAXCYCLES ) ! Number of reaction terms in each
+                                      ! cycle
+      INTEGER NIRRTERMS ( MAXIRROUT ) ! Number of terms in each output request
+      INTEGER NIRRRXNS  (  MAXTERMS ) ! Number of reactions in an IRR output,
+                                      ! excluding pre-defined CYCLES and RXSUMS
+      INTEGER NOUTCYCS  ( MAXIRROUT ) ! No. of cycles used in output
+      INTEGER NOUTFAMS  ( MAXIRROUT ) ! No. of families used in output
+      INTEGER NOUTRXSUMS( MAXIRROUT ) ! No. of reaction sums used in output
+      INTEGER NOUTOPS   ( MAXIRROUT ) ! No. of output operators
+      INTEGER NOUTRXN   ( MAXIRROUT ) ! No. of reaction used in output
+      INTEGER N_IPR_OPS ( MAXIPRSPC ) ! No. of input IPR operation names
+      INTEGER CYSPNUM   ( MAXCYCLES ) ! Species or family-name number
+      INTEGER IPR_SPNUM ( MAXIPRSPC ) ! Species or family-name number
+      INTEGER TEMPOUTIND(  MAXTERMS ) ! No. of temp IRR terms to add
+      INTEGER INDXOUTIND(  MAXTERMS ) ! IRR output index of temp terms
+      INTEGER TEMPOUTNEG(  MAXTERMS ) ! No. of temp IRR terms to add if neg
+      INTEGER INDXOUTNEG(  MAXTERMS ) ! IRR output index of neg only temp terms
+      INTEGER TEMPOUTPOS(  MAXTERMS ) ! No. of temp IRR terms to add if pos
+      INTEGER INDXOUTPOS(  MAXTERMS ) ! IRR output index of pos only temp terms
+      INTEGER TEMPTERMS (  MAXTERMS ) ! No of temp IRRs to compute
+      INTEGER FAMSPIDS ( MAXFAMLYS,MAXFAMMEM )   ! Mech spec IDs for fam. mem.
+      INTEGER RXSUMRN  ( MAXRXNSUM,MAXRXTERMS )  ! Rx numbers of rxsum terms 
+      INTEGER CYRXNUM  ( MAXCYCLES,MAXCYTERMS )  ! Rx numbers of cycle terms
+      INTEGER OUTCYCS  ( MAXIRROUT,MAXOUTTERMS ) ! Cycle number of output terms
+      INTEGER OUTFAMS  ( MAXIRROUT,MAXOUTTERMS )
+      INTEGER OUTRXSUMS( MAXIRROUT,MAXOUTTERMS ) ! Rxsum number of output terms 
+      INTEGER OUTS1NUM ( MAXIRROUT,MAXOUTTERMS ) ! Species/family name number
+      INTEGER OUTS2NUM ( MAXIRROUT,MAXOUTTERMS ) ! Species/family name number
+      INTEGER OUTS3NUM ( MAXIRROUT,MAXOUTTERMS ) ! Species/family name number
+      INTEGER OUTRN    ( MAXIRROUT,MAXOUTTERMS ) ! Input IRR Rxn nos.
+      INTEGER IRRRXN   ( MAXIRROUT,MAXTERMS )    ! IRR Rx nos. excluding
+                                                 ! CYCLES and RXNSUMS
+      INTEGER TEMPRXN  ( MAXTERMS,MAXTERMS )     ! Rxn nos. for each temp IRR
+
+      LOGICAL LFULLIRR                   ! Flag for full IRR
+      LOGICAL LPARTIRR                   ! Falg for part IRR
+
+      REAL COEFOUTIND( MAXTERMS )        ! Coefficients for pos or neg init
+      REAL COEFOUTNEG( MAXTERMS )        ! Coefficients for neg init
+      REAL COEFOUTPOS( MAXTERMS )        ! Coefficients for pos init
+
+      REAL FAMSC  ( MAXFAMLYS,MAXFAMMEM )   ! Coefficients for a family member
+      REAL RXNSC  ( MAXRXNSUM,MAXRXTERMS )  ! Coefficients for a sum rxn term
+      REAL CYSC   ( MAXCYCLES,MAXCYTERMS )  ! Coefficients for cycle terms
+      REAL OUTSC  ( MAXIRROUT,MAXOUTTERMS ) ! Coefficients for output terms
+      REAL IRRCOEF( MAXIRROUT,MAXTERMS )    ! Coefficients for IRR Rxns
+      REAL TEMPCOEF( MAXTERMS,MAXTERMS )    ! Coefficients for temp IRRs
+
+C Common Blocks:
+
+      COMMON /DATACHR/ OUTTYPE,
+     &                 OUTOP2,
+     &                 CYSPTYP,
+     &                 OUTS1TYP,
+     &                 OUTS2TYP,
+     &                 OUTS3TYP,
+     &                 IPR_SPTYPE,
+     &                 OUTPNFLAG,
+     &                 FAMNAME, 
+     &                 FAMMEMNAM,
+     &                 RXSUMNAME,
+     &                 RXSUMLBL,
+     &                 CYCLNAME,
+     &                 CYCLSPEC,
+     &                 CYRXLBL,
+     &                 IRRNAME,
+     &                 OUTRXLBL,
+     &                 OUTSPEC1,
+     &                 OUTSPEC2,
+     &                 OUTSPEC3,
+     &                 IPR_SPNAM,
+     &                 MECLINE,
+     &                 FAMLINE, 
+     &                 IRRDESC,
+     &                 IPR_OPNAME,
+     &                 TDATOUT
+
+      COMMON /DATAINT/ NFAMLYS,
+     &                 FAMSPIDS,
+     &                 NRXSUMS, 
+     &                 NCYCLES,
+     &                 NIRROUT,      
+     &                 NUMFAMMEM,
+     &                 NRXTERMS,
+     &                 NCYTERMS,
+     &                 NIRRTERMS,
+     &                 NIRRRXNS,
+     &                 RXSUMRN,
+     &                 CYRXNUM,
+     &                 CYSPNUM,
+     &                 OUTS1NUM,
+     &                 OUTS2NUM,
+     &                 OUTS3NUM,
+     &                 OUTRN,
+     &                 IRRRXN,
+     &                 MECNUMLNS,
+     &                 FAMNUMLNS,
+     &                 NOUTCYCS,
+     &                 OUTCYCS,
+     &                 NOUTRXSUMS,
+     &                 OUTRXSUMS,
+     &                 NOUTFAMS,
+     &                 OUTFAMS,
+     &                 NOUTOPS,
+     &                 NOUTRXN,
+     &                 N_IPR_SPC,
+     &                 IPR_SPNUM,
+     &                 NUMTEMPS,
+     &                 NUMOUTPOS,
+     &                 NUMOUTNEG,
+     &                 NUMOUTIND,
+     &                 MXNIRRRXNS,
+     &                 MXTEMPTRMS,
+     &                 TEMPOUTIND,
+     &                 INDXOUTIND,
+     &                 TEMPOUTNEG,
+     &                 INDXOUTNEG,
+     &                 TEMPOUTPOS,
+     &                 INDXOUTPOS,
+     &                 TEMPTERMS,
+     &                 TEMPRXN,
+     &                 N_IPR_OPS
+
+      COMMON /DATALOG/ LFULLIRR,
+     &                 LPARTIRR
+
+      COMMON /DATAREAL/ FAMSC,
+     &                  RXNSC,
+     &                  CYSC,
+     &                  OUTSC,
+     &                  IRRCOEF,
+     &                  COEFOUTIND,
+     &                  COEFOUTNEG,
+     &                  COEFOUTPOS,
+     &                  TEMPCOEF
+
+C............................ end PA_VARS.EXT .........................
+ 

@@ -1,0 +1,137 @@
+# This makefile creates the merge_deps executable
+# Called by bldit
+
+#-------------------------------------------------------------
+homedir     = $(shell pwd)
+HOSTDIR     = $(homedir)/../BLD_V5g_APT
+HOST_ICLDIR = $(HOSTDIR)
+HOST_MODDIR = $(HOSTDIR)
+
+SCI_MODDIR   = $(homedir)/modules
+SCILIBDIR    = $(homedir)/lib
+
+# Compiler
+FC    = /usr/local/pgi/linux86/bin/pgf90
+FTN   = $(FC)
+FPP   = $(FC)
+
+#ICL_MECH   = $(homedir)/../include/$(Mechanism)
+#ICL_TRAC   = $(homedir)/../include/trac0
+
+ICL_IOAPI = $(LIBDIR)/ioapi/ioapi-3.0/ioapi/fixed_src
+
+# Executables directory
+EXEDIR	= $(homedir)/bin
+
+TARGET  = $(EXEDIR)/merge_deps
+   
+# SCICHEM DIRECTORIES
+SRCDIR   = $(homedir)
+
+# MERGE_DEPS SOURCE DIRECTORIES
+usrcdir = $(SRCDIR)/utilpig/merge_deps
+
+#ICLFLAGS = -I$(ICL_MECH) -I$(ICL_TRAC) -I$(ICL_IOAPI)
+
+# Stenex, IOAPI and netCDF libraries
+ IOAPIDIR = /models/CMAQ/src/CMAQv5.0.1/lib/ioapi_3.1/Linux2_x86_64pg
+ PARIODIR = /models/CMAQ/src/CMAQv5.0.1/lib/pario
+ SE_SNL   = /models/CMAQ/src/CMAQv5.0.1/lib/se_snl
+ NETCDF   = /models/CMAQ/src/CMAQv5.0.1/lib/netcdf/lib
+ MPICH    = /models/CMAQ/src/CMAQv5.0.1/lib/mpich/lib
+
+LIBRARIES = -L${SE_SNL} -lse_snl  \
+ -L${PARIODIR} -lpario \
+ -L${MPICH} -lmpich \
+ -L${IOAPIDIR} -lioapi \
+ -L${NETCDF} -lnetcdf
+# -lgcc -lc -lgcc_eh
+
+SCILIB = -L${SCILIBDIR} -lsci -lodepack
+
+# Set compiler version dependent flags and LINKTOOL
+
+# Fortran flags
+
+# Compiler flags for free format scichem files
+LENGTHFLAG = -Mextend
+FLAGS0  = -module $(SCI_MODDIR) -c -Mstandard -O3
+FLAGS0H = $(FLAGS0) -I$(HOST_MODDIR) -I$(IOAPIDIR) -I$(PARIODIR)
+# Compiler flags for fixed format scichem files
+FLAGS1H = $(FLAGS0H) $(LENGTHFLAG)
+
+# Compiler flags for host model routine
+FLAGSH = -I$(HOST_MODDIR) -I$(IOAPIDIR) -I$(PARIODIR) $(LENGTHFLAG) -c -Mstandard
+
+# Link flags
+#LINK_FLAGS = -O3
+LINK_FLAGS    = -Bstatic_pgi
+#LINK_FLAGS = -Wl,-Bstatic
+#************************* OBJECT FILES ****************************************
+# merge_deps Object files
+#
+
+OBJECT  = $(usrcdir)/merge_deps.o   \
+          $(usrcdir)/input1.o      \
+          $(usrcdir)/open_files.o      \
+          $(usrcdir)/close_files.o      \
+          $(usrcdir)/read_griddep.o      \
+          $(usrcdir)/sum_depos.o      \
+          $(usrcdir)/write_dep.o      \
+          $(usrcdir)/updmet.o
+
+# CMAQ Object files
+
+OBJECTC = $(usrcdir)/setup_logdev.o   \
+          $(usrcdir)/get_envlist.o    \
+          $(usrcdir)/subhdomain.o \
+          $(HOSTDIR)/HGRD_DEFN.o      \
+          $(HOSTDIR)/VGRD_DEFN.o      \
+          $(HOSTDIR)/GRID_CONF.o
+
+# CMAQ Stub Object files
+
+OBJECTS = $(usrcdir)/stubs.o
+#
+#******************* EXECUTABLE ************************************************
+#
+$(TARGET): $(OBJECT) $(OBJECTC) $(OBJECTS)
+	echo "  **** : Linking $(TARGET)"	
+	$(FTN) $(LINK_FLAGS) $(OBJECT) $(OBJECTC) $(OBJECTS) $(SCILIB) $(LIBRARIES) \
+	-o $(TARGET)
+#
+#******************* merge_deps FILES ************************************
+# Update the merge_deps objects if necessary
+
+$(usrcdir)/merge_deps.o : $(usrcdir)/merge_deps.f90
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f90)
+
+$(usrcdir)/input1.o : $(usrcdir)/input1.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/close_files.o : $(usrcdir)/close_files.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/open_files.o : $(usrcdir)/open_files.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/read_griddep.o : $(usrcdir)/read_griddep.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/sum_depos.o : $(usrcdir)/sum_depos.f
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/updmet.o : $(usrcdir)/updmet.f
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/write_dep.o : $(usrcdir)/write_dep.f
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f)
+
+$(usrcdir)/setup_logdev.o : $(usrcdir)/setup_logdev.F
+	@cd $(usrcdir) ; $(FTN) $(FLAGSH) setup_logdev.F
+
+$(usrcdir)/subhdomain.o : $(usrcdir)/subhdomain.F
+	@cd $(usrcdir) ; $(FTN) $(FLAGSH) subhdomain.F
+# 
+# $(usrcdir)/get_envlist.o : $(usrcdir)/get_envlist.f
+# 	@cd $(usrcdir) ; $(FTN) $(FLAGSH) get_envlist.f

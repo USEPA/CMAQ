@@ -1,0 +1,1 @@
+../smvgear/degrade_data.F

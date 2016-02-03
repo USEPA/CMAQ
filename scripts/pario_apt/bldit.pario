@@ -1,0 +1,143 @@
+#! /bin/csh -f
+
+# ===================== PARIOv5.0.2 Build Script ==================== #
+# Usage: bldit.pario >&! bldit.pario.log                              #
+# Requirements: I/O API include files and m3utilio module,            #
+#               a Fortran compiler, and MPICH include files           #
+# Note that this script is configured/tested for Red Hat Linux O/S    #
+# The following environment variables must be set for this script to  #
+# build an executable.                                                #
+#   setenv M3MODEL <source code repository>                           #
+#   setenv M3LIB   <code libraries>                                   #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the build environment
+ source ../config.cmaq
+
+#> Check for M3HOME and M3LIB settings:
+ if ( ! -e $M3HOME || ! -e $M3LIB ) then
+    echo "   $M3HOME or $M3LIB directory not found"
+    exit 1
+ endif
+ echo "    Model repository base path: $M3HOME"
+ echo "                  library path: $M3LIB"
+
+#> If $M3MODEL not set, default to $M3HOME
+ if ( $?M3MODEL ) then
+    echo "         Model repository path: $M3MODEL"
+ else
+    setenv M3MODEL $M3HOME
+    echo " default Model repository path: $M3MODEL"
+ endif
+
+ set BLD_OS = `uname -s`        ## Script set up for Linux only 
+ if ($BLD_OS != 'Linux') then
+    echo "   $BLD_OS -> wrong bldit script for host!"
+    exit 1
+ endif
+
+ set echo
+
+#:#:#:#:#:#:#:#:#:#:#:Begin User Input Section #:##:#:#:#:#:#:#:#:#:#:#
+
+#> user choices: Git repository
+#git --work-tree=$M3MODEL status
+#git status
+ setenv REPOROOT ${M3MODEL}/CCTM_APT
+
+ set BASE = $cwd
+ set DEST = ${M3LIB}/pario   # location of output library files
+ if ( ! -d "$DEST" ) mkdir -p $DEST
+ set RM = "/bin/rm -f"
+ set MV = "/bin/mv -f"
+
+ set MPI_INC  = ${M3LIB}/mpich/include
+ #set MPI_INC  = ${M3LIB}/mpich_opnmpi/include
+ set IOAPIEXT = ${M3LIB}/ioapi_3.1/ioapi/fixed_src
+ set IOAPIMOD = ${M3LIB}/ioapi_3.1/Linux2_${system}pg
+
+#> Set full path of Fortran 90 compiler
+ set FC   = ${myFC}
+ set FSTD = "${myFFLAGS}"
+
+#set DEBUG     # Uncomment to create debug version of library
+ if ( $?DEBUG ) then
+    set F_FLAGS = "${FSTD} -c -g -I ${IOAPIMOD} -I ${IOAPIEXT} -I ${MPI_INC}"
+ else
+    set F_FLAGS = "${FSTD} -c -I ${IOAPIMOD} -I ${IOAPIEXT} -I ${MPI_INC}"
+ endif
+
+#:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
+
+ set Bld = $BASE/BLD
+ if ( ! -e "$Bld" ) then
+    mkdir $Bld
+    else
+    if ( ! -d "$Bld" ) then
+       echo "   *** target exists, but not a directory ***"
+       exit 1
+    endif
+ endif
+
+ cd $Bld
+
+ echo " "
+ echo "Host: " `hostname`
+ echo "Host operating system:       $BLD_OS"
+ echo "Libraries/objects/f90-modules directory: $DEST"
+ echo " "
+
+ if ( $?DEBUG ) then
+    set Arc = libpario.debug.a
+ else
+    set Arc = libpario.a
+ endif
+ if ( -e "$Arc" ) $RM $Arc *.mod
+
+#> extract source files from code repository
+ cp ${REPOROOT}/PARIO/* $Bld
+
+ set flist = (\
+      pinterpb_mod.f\
+      piomaps_mod.f\
+      alloc_data_mod.f\
+      boundary.f\
+      get_write_map.f\
+      growbuf.f\
+      gtndxhdv.f\
+      interpol.f\
+      pinterpb.f\
+      pio_init.f\
+      pio_re_init.f\
+      pm3err.f\
+      pm3exit.f\
+      pm3warn.f\
+      pshut3.f\
+      pwrite3.f\
+      ptrwrite3.f\
+      pwrgrdd.f\
+      readbndy.f\
+      subdmap.f\
+      wrsubmap.f\
+      parutilio.f )
+
+#> compile flist
+ foreach file ( $flist )
+    $FC $F_FLAGS $file
+ end
+
+ ar rv $Arc *.o
+ chmod 444 $Arc
+ if ( -e "$DEST/$Arc" ) $MV $DEST/$Arc $DEST/$Arc.old
+ $MV $Arc $DEST
+ $MV *.mod $DEST
+
+ if ( $?DEBUG ) then
+    $MV *.o $DEST
+ else
+    $RM *.o
+ endif
+ echo " "; echo " Finish building $DEST/$Arc "
+ exit()

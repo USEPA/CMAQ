@@ -1,0 +1,5 @@
+#echo "  **** : pgf90 $2" 
+echo "  **** : intel $2"
+#/usr/pgi/linux86/6.1/bin/pgf90 $1 $2
+#/usr/local/pgi/linux86/bin/pgf90 $1 $2
+/usr/local/openmpi-1.4.3/bin/mpif90 $1 $2

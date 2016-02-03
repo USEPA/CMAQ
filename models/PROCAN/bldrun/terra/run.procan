@@ -1,0 +1,52 @@
+#! /bin/csh -f
+
+# RCS file, release, date & time of last delta, author, state, [and locker]
+# $Header: /project/yoj/arc/PROCAN/src/bldrun/terra/run.procan,v 1.1 2011/09/13 17:15:05 yoj Exp $
+
+# method: run.procan >&! procan.log &
+ 
+#PBS -N procan.log
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=1:00:00
+#PBS -q mod3dev
+#PBS -V
+#PBS -m n
+#PBS -j oe
+#PBS -r n
+# BS -o /home/yoj/src/procan
+
+ if ( $?PBS_JOBID ) then
+    echo Job ID is $PBS_JOBID
+    echo Queue is $PBS_O_QUEUE
+#> Switch to the working directory; by default PBS launches processes from your home directory.
+    echo Working directory is $PBS_O_WORKDIR
+    cd $PBS_O_WORKDIR
+ endif
+ echo '>>>>>> start model run at ' `date`
+ set echo
+
+#set Base = $cwd
+ set Base = /home/yoj/src/procan
+ 
+ date; echo "    ";  set echo
+ 
+#set Exec = PACP_SAPRC99
+#set Exec = PACP_CB05CL
+ set Exec = PACP_CB05TUCL
+ set XBase = $Base/BLD
+ set NML = /home/yoj/src/cmaqv51/BLD_V5c
+ ln -s $NML/GC_cb05tucl_ae6_aq.nml gc_matrix.nml
+ ln -s $NML/AE_cb05tucl_ae6_aq.nml ae_matrix.nml
+ ln -s $NML/NR_cb05tucl_ae6_aq.nml nr_matrix.nml
+ ln -s $NML/Species_Table_TR_0.nml     tr_matrix.nml
+
+ set InFile = $Base/pa.testa
+
+ setenv PACP_INFILE $InFile
+
+#totalview $XBase/$Exec; date; goto Last
+           $XBase/$Exec; date; goto Last
+
+ Last:
+ /bin/rm gc_matrix.nml ae_matrix.nml nr_matrix.nml tr_matrix.nml
+ exit()

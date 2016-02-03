@@ -1,0 +1,50 @@
+********************************************************************************
+Announcing the release of MCIP Version 4.2 (23 August 2013)
+********************************************************************************
+
+The MCIP code is updated to version 4.2.  These release notes and the change
+log reflect all changes that have been made to MCIP since MCIPv4.1 (the last
+official release).  Changes to MCIPv4.2 were made by Tanya Otte (U.S. EPA).
+User contributions are also noted below.  The detailed list of changes to the
+MCIP code is in the CHANGES file, which is part of the MCIP tar file in the
+"doc" sub-directory.
+
+MCIPv4.2 requires I/O API version 3.1 to support error-checking within the
+I/O API.  This is consistent with the requirement for I/O API v3.1 with
+CMAQv5.0.2 (released concurrently with MCIPv4.2).
+
+MCIPv4.2 requires the netCDF F90 module (rather than the F77 include).
+
+Users are encouraged to read the Frequently Asked Questions (FAQ) file,
+which is located in the MCIP tar file in the "doc" sub-directory.
+
+***Users should consult the FAQ before submitting inquiries to M3User,
+   CMAS, or the code developers.***
+
+
+Interactions with the following users (in alphabetical order) have resulted
+in some of the code changes/corrections that were made for MCIPv4.2:
+
+	Chris Misenis, U.S. EPA, Research Triangle Park, NC
+        Jon Pleim, U.S. EPA, Research Triangle Park, NC
+	Brian Timin, U.S. EPA, Research Triangle Park, NC
+
+
+The following is a summary of the changes in MCIPv4.2:
+
+ 1.  Increased maximum number of input files for MCIP in order to handle one
+     year of daily output files at a time.
+
+ 2.  Added option to process convective and non-convective precipitation if it
+     is already incremental from WRF.
+
+ 3.  Added handling for 40-category 2006 NLCD-MODIS land use classification as
+     "NLCD40".  Added alternate name for 50-category 2001 NLCD-MODIS land use
+     classification as "NLCD50".
+
+ 4.  Read land-water mask from WRF and use directly for WRF runs that used the
+     Pleim-Xiu land-surface model (rather than reconstructing inside MCIP).
+     For other LSMs in WRF, the land-water mask is dynamic and ice points toggle
+     from water to land.
+
+ 5.  Updated metadata for new physics options in WRFv3.4.1 and WRFv3.5.

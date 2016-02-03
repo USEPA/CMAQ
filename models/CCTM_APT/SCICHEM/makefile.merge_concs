@@ -1,0 +1,146 @@
+# This makefile creates the merge_concs executable
+# Called by bldit
+
+#-------------------------------------------------------------
+homedir     = $(shell pwd)
+HOSTDIR     = $(homedir)/../BLD_V5g_APT
+HOST_ICLDIR = $(HOSTDIR)
+HOST_MODDIR = $(HOSTDIR)
+
+SCI_MODDIR   = $(homedir)/modules
+SCILIBDIR    = $(homedir)/lib
+
+# Compiler
+FC    = /usr/local/pgi/linux86/bin/pgf90
+FTN   = $(FC)
+FPP   = $(FC)
+
+#ICL_MECH   = $(homedir)/../include/$(Mechanism)
+#ICL_TRAC   = $(homedir)/../include/trac0
+
+# Executables directory
+EXEDIR	= $(homedir)/bin
+
+TARGET  = $(EXEDIR)/merge_concs
+
+# SCICHEM DIRECTORIES
+SRCDIR   = $(homedir)
+
+# MERGE_CONCS SOURCE DIRECTORY
+usrcdir = $(SRCDIR)/utilpig/merge_concs
+
+#ICLFLAGS = -I$(ICL_MECH) -I$(ICL_TRAC) -I$(ICL_IOAPI)
+
+# Stenex, IOAPI and netCDF libraries
+ IOAPIDIR = /models/CMAQ/src/CMAQv5.0.1/lib/ioapi_3.1/Linux2_x86_64pg
+ PARIODIR = /models/CMAQ/src/CMAQv5.0.1/lib/pario
+ SE_SNL   = /models/CMAQ/src/CMAQv5.0.1/lib/se_snl
+ NETCDF   = /models/CMAQ/src/CMAQv5.0.1/lib/netcdf/lib
+ MPICH    = /models/CMAQ/src/CMAQv5.0.1/lib/mpich/lib
+
+LIBRARIES = -L${SE_SNL} -lse_snl  \
+ -L${PARIODIR} -lpario \
+ -L${MPICH} -lmpich \
+ -L${IOAPIDIR} -lioapi \
+ -L${NETCDF} -lnetcdf
+# -lgcc -lc -lgcc_eh
+
+SCILIB = -L${SCILIBDIR} -lsci -lodepack
+
+# Set compiler version dependent flags and LINKTOOL
+
+# Fortran flags
+
+# Compiler flags
+# Compiler flags for free format scichem files
+FLAGS0  = -module $(SCI_MODDIR) -c -Mstandard -O3
+FLAGS0H = $(FLAGS0) -I$(HOST_MODDIR) -I$(IOAPIDIR) -I$(PARIODIR)
+LENGTHFLAG = -Mextend
+# Compiler flags for host model routine
+#FLAGSH = -module $(SCI_MODDIR) $(LENGTHFLAG) $(ICLFLAGS) -c -Mstandard $(FLAGS8) $(APT_HG_FLAG)
+FLAGSH = -I$(HOST_MODDIR) -I$(IOAPIDIR) -I$(PARIODIR) $(LENGTHFLAG) -c -Mstandard
+
+# Link flags
+#LINK_FLAGS = -O3
+LINK_FLAGS    = -Bstatic_pgi
+#LINK_FLAGS = -Wl,-Bstatic
+#************************* OBJECT FILES ***************************************
+# merge_concs Object files
+#
+CGRID_SPCS = $(HOSTDIR)/CGRID_SPCS.o
+PCGRID_DEFN = $(HOSTDIR)/PCGRID_DEFN.o
+
+OBJECT  = $(usrcdir)/merge_concs.o   \
+          $(usrcdir)/input1.o      \
+          $(usrcdir)/open_files.o      \
+          $(usrcdir)/close_files.o      \
+          $(usrcdir)/read_cgrid.o      \
+          $(usrcdir)/write_cgrid.o      \
+          $(usrcdir)/updmet.o
+
+# CMAQ Object files
+
+OBJECTC = $(usrcdir)/setup_logdev.o   \
+          $(usrcdir)/get_envlist.o    \
+          $(usrcdir)/subhdomain.o \
+          $(HOSTDIR)/CGRID_SPCS.o      \
+          $(HOSTDIR)/HGRD_DEFN.o      \
+          $(HOSTDIR)/VGRD_DEFN.o      \
+          $(HOSTDIR)/GRID_CONF.o      \
+          $(HOSTDIR)/PCGRID_DEFN.o
+
+#          $(usrcdir)/hgaqchem.o \
+#          $(usrcdir)/isocom.o \
+#          $(usrcdir)/isofwd.o \
+#          $(usrcdir)/isorev.o \
+
+# CMAQ Stub Object files
+
+OBJECTS = $(usrcdir)/stubs.o
+#
+#
+#******************* EXECUTABLE ***********************************************
+#
+$(TARGET): $(OBJECT) $(OBJECTC) $(OBJECTS)
+	echo "  **** : Linking $(TARGET)"
+	$(FTN) $(LINK_FLAGS) $(OBJECT) $(OBJECTC) $(OBJECTS) $(SCILIB) $(LIBRARIES) \
+	-o $(TARGET)
+#
+#******************* merge_concs FILES ************************************
+# Update the merge_concs objects if necessary
+
+#$(usrcdir)/CGRID_SPCS.o : $(usrcdir)/CGRID_SPCS.F
+#	@cd $(usrcdir) ; $(FTN) $(FLAGSH) CGRID_SPCS.F
+
+#$(usrcdir)/PCGRID_DEFN.o : $(usrcdir)/PCGRID_DEFN.F $(CGRID_SPCS)
+#	@cd $(usrcdir) ; $(FTN) $(FLAGSH) PCGRID_DEFN.F
+
+$(usrcdir)/merge_concs.o : $(usrcdir)/merge_concs.f90
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f90)
+
+$(usrcdir)/input1.o : $(usrcdir)/input1.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f)
+
+$(usrcdir)/close_files.o : $(usrcdir)/close_files.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f)
+
+$(usrcdir)/open_files.o : $(usrcdir)/open_files.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f)
+
+$(usrcdir)/read_cgrid.o : $(usrcdir)/read_cgrid.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f)
+
+$(usrcdir)/updmet.o : $(usrcdir)/updmet.f
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f)
+
+$(usrcdir)/write_cgrid.o : $(usrcdir)/write_cgrid.f 
+	@cd $(usrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f)
+
+$(usrcdir)/setup_logdev.o : $(usrcdir)/setup_logdev.F
+	@cd $(usrcdir) ; $(FTN) $(FLAGSH) setup_logdev.F
+
+$(usrcdir)/subhdomain.o : $(usrcdir)/subhdomain.F
+	@cd $(usrcdir) ; $(FTN) $(FLAGSH) subhdomain.F
+# 
+# $(usrcdir)/get_envlist.o : $(usrcdir)/get_envlist.f
+# 	@cd $(usrcdir) ; $(FTN) $(FLAGSH) get_envlist.f

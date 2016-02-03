@@ -1,0 +1,36 @@
+C***********************************************************************
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /usr2/cp194/cmaq-repository/oct2004/models/CCTM/src/ping/ping_apt/FILES_APT.diag.EXT,v 1.1 2005/01/07 23:19:40 cp194 Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C Include File  FILES_APT.diag.EXT
+C
+C Contains:  Standard logical names for APT diagnostic files
+ 
+C Dependent Upon:  none
+ 
+C Revision History:
+C   Prototype 10/2000 by PKK, AER
+C.......................................................................
+
+      INTEGER, PARAMETER :: NUMFLS = 8  ! Number of diagnostic output files
+      CHARACTER( 16 ), DIMENSION( NUMFLS) :: DGNFNAME  ! Names for Diagnostic files
+
+      CHARACTER( 16 )  :: EMIS_DGN = 'EMIS_DGN'
+      CHARACTER( 16 )  :: STATICS_DGN = 'STATICS_DGN'
+      CHARACTER( 16 )  :: BDRY_DGN = 'BDRY_DGN'
+      CHARACTER( 16 )  :: DDEPOS_DGN = 'DDEPOS_DGN'
+      CHARACTER( 16 )  :: WDEPOS_DGN = 'WDEPOS_DGN'
+      CHARACTER( 16 )  :: CHEM_DGN = 'CHEM_DGN'
+      CHARACTER( 16 )  :: ACTIVE_DGN = 'ACTIVE_DGN'
+      CHARACTER( 16 )  :: DUMP_DGN = 'DUMP_DGN'
+
+      COMMON   / APTDIAG /
+     &           DGNFNAME
+
+C................   end   FILES_APT.diag.EXT   ........................
+

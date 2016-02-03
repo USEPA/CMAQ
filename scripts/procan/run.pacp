@@ -1,0 +1,48 @@
+#! /bin/csh -f
+
+# ======================= PACPv5.0.2 Run Script ===================== #
+# Usage: run.pacp >&! pacp_V5.log &                                   #
+# The following environment variables must be set for this script to  #
+# execute properly:                                                   #
+#   setenv M3DATA = data path for input and output                    #
+# To report problems or request help with this script/program:        #
+#             http://www.cmascenter.org/html/help.html                #
+# =================================================================== #
+
+#> Source the config.cmaq file to set the run environment
+ source ../config.cmaq
+
+#> Check that M3DATA is set:
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL     = D502a
+ set CFG      = CMAQ-BENCHMARK
+ set MECH     = cb05tucl_ae6_aq
+ set EXEC     = PACP_${APPL}_$EXEC_ID
+
+#> Set the working directory:
+ set BASE     = $cwd
+ set BLD      = ${BASE}/BLD_$APPL
+
+ cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo
+
+#> define the model execution id
+ setenv EXECUTION_ID $EXEC
+
+#> species defn
+ setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
+ setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
+ setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
+ setenv tr_matrix_nml ${BLD}/Species_Table_TR_0.nml
+
+#> PACP input file
+ setenv PACP_INFILE $M3DATA/procan/pacp.inp
+
+#> Executable call:
+ time $BLD/$EXEC
+
+ exit() 

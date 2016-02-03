@@ -1,0 +1,38 @@
+
+// RCS file, release, date & time of last delta, author, state, [and locker]
+// $Header: /project/yoj/arc/JPROC/src/sunOS5/cfg,v 1.1 1997/10/13 17:41:44 yoj Exp $ 
+
+// what(1) key, module and SID; SCCS file; date and time of last delta:
+// @(#)cfg	1.3 /project/mod3/JPROC/doc/bldrun/sunOS5/SCCS/s.cfg 17 Jun 1997 10:20:18
+
+// This is a configuration file for
+   model JPROC;
+
+// cpp_flags "-Dsunws";
+// cpp_flags "-Dunicos";
+
+// f77_flags "-e -O4 -cg92";
+   f77_flags "-e -fast -O4";
+// f77_flags "-e -g";
+// f77_flags "-C -g -fnonstd -e";
+
+// link_flags "-e -O4 -cg92";
+   link_flags "-e -fast -O4";
+// link_flags "-e -g";
+// link_flags "-C -g -fnonstd -e";
+
+  libraries  "-L${M3TOOLS}/IOAPI/src_lib/SunOS5 -lm3io \
+              -L${M3TOOLS}/netCDF/SunOS5 -lnetcdf";
+ 
+// global { verbose | parse_only | compile_all | one_step | clean_up } ... ;
+   global verbose;
+
+   include SUBST_RXCMMN  $M3MODEL/ICL/src/mech/radm2_ae/RXCM_RADM_AE.EXT;
+   include SUBST_RXDATA  $M3MODEL/ICL/src/mech/radm2_ae/RXDT_RADM_AE.EXT;
+
+   include SUBST_CONST   $M3MODEL/ICL/src/fixed/const/CONST3_RADM.EXT;
+
+// Photolysis Rate Processor
+   include SUBST_JVPARM_ID $M3MODEL/JPROC/src/icl/icl/JVALPARMS.EXT;
+
+   module jproc_table development;

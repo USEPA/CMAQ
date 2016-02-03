@@ -1,0 +1,13 @@
+set RUNDIR = $M3HOME/scripts/cctm_isam
+cat << eof > $RUNDIR/sa_io_list.tmp
+TAG NAME        |BENCH
+TAG CLASSES     |OZONE
+REGION(S)       |EVERYWHERE
+FILENAME(S)     |SG01,SG02,SG03,SG04,SG05,SG06
+STACK FILE(S)   |STK01,STK02,STK03,STK04,STK05,STK06
+
+ENDLIST eof
+
+setenv SA_IOLIST $RUNDIR/sa_io_list.tmp
+setenv SA_APPMAP $SRC_APP_MAP
+

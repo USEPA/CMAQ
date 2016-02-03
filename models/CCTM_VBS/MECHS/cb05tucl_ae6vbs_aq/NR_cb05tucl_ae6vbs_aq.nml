@@ -1,0 +1,14 @@
+! RCS file, release, date & time of last delta, author, state, [and locker]
+! $Header: /project/air5/sjr/CMAQv5.0.1/models/mechs/MECHS/src/cb05tucl_vbs_aq/NR_cb05tucl_vbs_aq.nml,v 1.1.1.1 2012/04/19 19:39:41 sjr Exp $
+
+&NR_nml
+ 
+n_surr1 = 4,
+n_surr2 = 2,
+n_ctrl = 4,
+ 
+TYPE_HEADER =
+'SPC:MOLWT:EMIS_SUR:EMIS_FAC:DEPV_SUR:DEPV_FAC:ICBC_SUR:ICBC_FAC:SCAV_SUR:SCAV_FAC:N2AE_SUR:N2AQ_SUR:TRNS:DDEP:WDEP:CONC',
+TYPE_MATRIX =
+'NH3:17:NH3:1:VD_NH3:1:::NH3:1:NH3:NH3:Yes:Yes:Yes:Yes'
+/

@@ -1,0 +1,1 @@
+../aero6/getpar.f

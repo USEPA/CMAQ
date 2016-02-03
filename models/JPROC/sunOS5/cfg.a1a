@@ -1,0 +1,19 @@
+
+ model JPROC_a1a;
+
+// cpp_flags  "";
+
+ f77_flags  "-e -fast -O4";
+
+ link_flags "-e -fast -O4";
+
+ libraries  "-L/home/models3/tools/IOAPI/lib/SunOS5 -lm3io -L/home/models3/tools/netCDF/SunOS5 -lnetcdf";
+
+ global verbose;
+
+ include SUBST_CONST       /project/work/rep/include/release/CONST3_RADM.EXT;
+ include SUBST_RXCMMN      /tmp/scr/BLD/RXCM.EXT;
+ include SUBST_RXDATA      /tmp/scr/BLD/RXDT.EXT;
+
+ module jproc_table development ;
+

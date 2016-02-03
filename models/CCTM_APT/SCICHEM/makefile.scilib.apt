@@ -1,0 +1,767 @@
+# This makefile creates the SCICHEM library needed for CMAQ-APT
+# This is invoked by 'bldit'
+
+#-------------------------------------------------------------
+# Compiler
+FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+FTN   = $(FC)
+ LINKER     = $(FC)
+ LINK_FLAGS = -i-static
+
+# Directories
+homedir  = /home/sjr/dev/apt/SCICHEM
+HOSTDIR  = /home/sjr/dev/apt/bldit/BLD_WORK_APT01
+BASE_INC = /home/sjr/dev/apt/bldit/BLD_WORK_APT01
+
+HOST_ICLDIR   = $(HOSTDIR)
+
+HOST_MODDIR   = $(HOSTDIR)
+
+SCI_MODDIR   = $(homedir)/modules
+SCILIBDIR    = $(homedir)/lib
+
+#IOAPIDIR = /models/CMAQ/src/CMAQv5.0.1/lib/ioapi_3.1/Linux2_x86_64pg
+#PARIODIR = /models/CMAQ/src/CMAQv5.0.1/lib/pario
+IOAPIDIR = /home/sjr/dev/cmaqv502/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort
+PARIODIR =  /home/sjr/dev/cmaqv502/lib/x86_64/intel/pario
+
+PARALLEL_FLAG = \
+-Dparallel
+
+#Path to MPI include and modules (mpif.h or mpi.mod)
+#ICL_MPI      = /models/CMAQ/src/CMAQv5.0.1/lib/mpich/include
+MPICH  = /home/sjr/dev/cmaqv502/lib/x86_64/intel/mpich
+ICL_MPI      = $(MPICH)/include
+#ICL_MPI     = /usr/local/mpich2-1.0.7/include
+
+FLAGS8 = \
+-DSUBST_FILES_ID=\'$(BASE_INC)/FILES_CTM.EXT\' \
+-DSUBST_RXCMMN=\'$(BASE_INC)/RXCM.EXT\' \
+-DSUBST_FILES_APT=\'$(BASE_INC)/FILES_APT.diag.EXT\'
+
+FLAGS_MPI = \
+#-DSUBST_MPI=\"/models/CMAQ/src/CMAQv5.0.1/lib/mpich/include/mpif.h\"
+-DSUBST_MPI=\"$(MPICH)/include/mpif.h\"
+
+TARGET	= $(SCILIBDIR)/libsci.a
+   
+# SCICHEM DIRECTORY
+SRCDIR   = $(homedir)
+
+# SCICHEM SOURCE DIRECTORIES
+srcdir     = $(SRCDIR)/scipuff
+pigsrcdir  = $(SRCDIR)/pig
+pighostdir  = $(SRCDIR)/pig/host
+hsrcdir = $(SRCDIR)/stubs
+hpigsrcdir = $(SRCDIR)/stubpig
+aerosrcdir = $(SRCDIR)/aero
+aqsrcdir = $(SRCDIR)/aqueous
+
+# SCICHEM INCLUDE DIRECTORIES
+
+incdir  = $(srcdir)/inc
+pigincdir  = $(pigsrcdir)/inc
+aeroincdir = $(aerosrcdir)/inc
+aqincdir = $(aqsrcdir)/inc
+
+# Fortran flags
+
+LENGTHFLAG = -132
+
+my_inc = -I${homedir}/aqueous/inc \
+         -I${homedir}/aero/inc    \
+         -I${HOSTDIR} \
+         -I${homedir}/pig/inc \
+         -I${homedir}/scipuff/inc \
+         -I${homedir}/pig/host
+
+#f_FLAGS    = -fixed -132 -O3 -override-limits -fno-alias -mp1 -fp-model precise -I/home/sjr/dev/cmaqv502/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort -I /home/sjr/dev/cmaqv502/lib/x86_64/intel/pario -I /home/sjr/dev/cmaqv502/lib/x86_64/intel/se_snl -I/home/sjr/dev/cmaqv502/lib/x86_64/intel/mpich/include -I./modules
+#F_FLAGS    = $(f_FLAGS)
+#f90_FLAGS  = -free -O3 -fno-alias -mp1 -fp-model precise -I /home/sjr/dev/cmaqv502/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort -I /home/sjr/dev/cmaqv502/lib/x86_64/intel/pario -I /home/sjr/dev/cmaqv502/lib/x86_64/intel/se_snl -I /home/sjr/dev/cmaqv502/lib/x86_64/intel/mpich/include -I./modules
+#F90_FLAGS  = $(f90_FLAGS)
+
+# Compiler flags for free format scichem files
+#FLAGS0  = -module $(SCI_MODDIR) -c -Mstandard
+FLAGS0  = ${my_inc} -I$(SCI_MODDIR) -c
+FLAGS0H = ${my_inc} $(FLAGS0) -I$(HOST_MODDIR)
+FLAGS1  = $(FLAGS0) -O3
+FLAGS1H = $(FLAGS1) -I$(HOST_MODDIR) -I$(IOAPIDIR) -I$(PARIODIR)
+FLAGS1P  = -I$(MPICH)/lib $(FLAGS1H) -I$(ICL_MPI) $(PARALLEL_FLAG)
+#FLAGS1P = $(FLAGS1) $(PARALLEL_FLAG)
+FLAGSP  = $(FLAGS1P) $(FLAGS_MPI)
+
+# Compiler flags for fixed format scichem files
+FLAGS2  = $(FLAGS1) $(LENGTHFLAG)
+FLAGS2H = $(FLAGS2) -I$(HOST_MODDIR) -I$(IOAPIDIR) -I$(PARIODIR)
+
+# Compiler flags for host model routine
+FLAGSH = $(FLAGS2H) $(FLAGS8)
+
+#************************* SCIPUFF INCLUDE/MODULE FILES ***********************
+#
+AER_SECTIONS_INC  = $(incdir)/aer_sections_inc.o
+AMB_DATA_INC      = $(pigincdir)/amb_data_pig_inc.o
+CLASS_INC         = $(incdir)/class_inc.o
+CODE_DEFINES_INC  = $(pigincdir)/code_defines_host_inc.o
+COMMON_DATE       = $(pigincdir)/common_date.o
+COMMON_GRD        = $(incdir)/common_grd.o
+COMMON_MC_MET     = $(incdir)/common_mc_met.o
+COMMON_MET        = $(incdir)/common_met.o
+COMMON_METN       = $(pigincdir)/common_metn_pig.o
+COMMON_MPI        = $(pigincdir)/common_mpi.o
+COMMON_MC_PUF     = $(incdir)/common_mc_puf.o
+COMMON_PUF        = $(incdir)/common_puf.o
+COMMON_SMP        = $(incdir)/common_smp.o
+COMMON_SRF        = $(incdir)/common_srf.o
+CONSTANTS_FD      = $(incdir)/constants_fd.o
+CONT_REL_INC      = $(incdir)/cont_rel_inc.o
+DEFAULT_INC       = $(incdir)/default_inc.o
+DIAGNOSTICS       = $(incdir)/diagnostics.o
+EMISSIONS_INC     = $(pigincdir)/emissions_inc.o
+ERROR_INC         = $(incdir)/error_inc.o
+FILES_INC         = $(incdir)/files_inc.o
+GET_MET_INC       = $(incdir)/get_met_inc.o
+HOST_CHEM_INC     = $(pighostdir)/host_chem_inc.o
+HOST_INC          = $(pighostdir)/host_inc.o
+#ifdef PARALLEL_FLAG
+#MPI               = $(pighostdir)/mpi.o
+#endif
+INTER_INC         = $(incdir)/inter_inc.o
+INTERFACE_DEF     = $(pigincdir)/interface_definitions.o
+IPGRD_INC         = $(incdir)/ipgrd_inc.o
+MET_PARAM_INC     = $(pigincdir)/met_param_pig_inc.o
+METINTRP_INC      = $(incdir)/metintrp_inc.o
+MULTCOMP_INC      = $(incdir)/multcomp_inc.o
+MULTCOMP_MC_INC   = $(incdir)/multcomp_mc_inc.o
+PARAM_INC         = $(incdir)/param_inc.o
+PRIME_INC         = $(incdir)/prime_inc.o
+REFL_INC          = $(incdir)/refl_inc.o
+RELPARAM_FD       = $(incdir)/relparam_fd.o
+RELPARAM_INC      = $(incdir)/relparam_inc.o
+SCIPRIME_INC      = $(incdir)/sciprime_inc.o
+SRFDOS_INC        = $(incdir)/srfdos_inc.o
+SRFPARAM_INC      = $(incdir)/srfparam_inc.o
+STEP_P_INC        = $(incdir)/step_p_inc.o
+STIMET_INC        = $(incdir)/stimet_inc.o
+STRUCT_INC        = $(incdir)/struct_inc.o
+SURFACE_INC       = $(incdir)/surface_inc.o
+UNITS_INC         = $(incdir)/units_inc.o
+
+#************************* AEROSOL INCLUDE FILES ******************************
+#
+AERO_CONSTS_INC   = $(aeroincdir)/aero_consts_inc.o
+AERO_SPECIES_INC  = $(aeroincdir)/aero_species_inc.o
+
+#************************* CMAQ INCLUDE/MODULE FILES **************************
+#
+
+#************************* AQUEOUS INCLUDE FILES ******************************
+#
+AQUEOUS_CONSTS_INC  = $(aqincdir)/aqueous_consts_inc.o
+AQUEOUS_SPECIES_INC = $(aqincdir)/aqueous_species_inc.o
+
+#************************* PRIME INCLUDE FILES ********************************
+#
+AMBIENT           = $(incdir)/ambient.pri
+DFSN              = $(incdir)/dfsn.pri
+NUMPARM           = $(incdir)/numparm.pri
+PARAMS            = $(incdir)/params.pri
+WAKEDAT           = $(incdir)/wakedat.pri
+
+#************************* MODULE FILES **************************************
+#
+# Module Object files
+#
+OBJECTM = $(incdir)/aer_sections_inc.o     \
+	  $(incdir)/class_inc.o     \
+          $(incdir)/common_grd.o     \
+          $(incdir)/common_mc_met.o     \
+          $(incdir)/common_met.o     \
+          $(incdir)/common_mc_puf.o     \
+          $(incdir)/common_puf.o     \
+          $(incdir)/common_smp.o     \
+          $(incdir)/common_srf.o     \
+          $(incdir)/constants_fd.o     \
+          $(incdir)/cont_rel_inc.o     \
+          $(incdir)/default_inc.o     \
+          $(incdir)/diagnostics.o     \
+          $(incdir)/error_inc.o     \
+          $(incdir)/files_inc.o     \
+          $(incdir)/get_met_inc.o     \
+          $(incdir)/inter_inc.o     \
+          $(incdir)/ipgrd_inc.o     \
+          $(incdir)/metintrp_inc.o     \
+          $(incdir)/multcomp_inc.o     \
+          $(incdir)/multcomp_mc_inc.o     \
+          $(incdir)/param_inc.o     \
+          $(incdir)/prime_inc.o     \
+          $(incdir)/refl_inc.o     \
+          $(incdir)/relparam_fd.o     \
+          $(incdir)/relparam_inc.o     \
+          $(incdir)/sciprime_inc.o     \
+          $(incdir)/srfdos_inc.o     \
+          $(incdir)/srfparam_inc.o     \
+          $(incdir)/step_p_inc.o     \
+          $(incdir)/stimet_inc.o     \
+          $(incdir)/struct_inc.o     \
+          $(incdir)/surface_inc.o     \
+          $(incdir)/units_inc.o
+
+OBJECTMP = $(pigincdir)/amb_data_pig_inc.o     \
+           $(pigincdir)/code_defines_host_inc.o     \
+           $(pigincdir)/common_date.o     \
+           $(pigincdir)/common_metn_pig.o     \
+           $(pigincdir)/common_mpi.o     \
+           $(pigincdir)/emissions_inc.o     \
+           $(pighostdir)/host_chem_inc.o     \
+           $(pighostdir)/host_inc.o     \
+           $(pigincdir)/interface_definitions.o     \
+           $(pigincdir)/met_param_pig_inc.o
+
+#ifdef PARALLEL_FLAG
+#OBJECTP1 = $(pighostdir)/mpi.o
+#endif
+
+OBJECTMA = $(aeroincdir)/aero_consts_inc.o     \
+	   $(aeroincdir)/aero_species_inc.o     \
+	   $(aqincdir)/aqueous_consts_inc.o     \
+	   $(aqincdir)/aqueous_species_inc.o
+
+#************************* OBJECT FILES **************************************
+#
+# Stub Object files
+#
+OBJECT  = $(hsrcdir)/progress.o  \
+          $(hpigsrcdir)/arap.o       \
+          $(hpigsrcdir)/set_files_pig.o \
+          $(hpigsrcdir)/set_version_string.o \
+          $(hsrcdir)/update.o
+
+#
+# SCICHEM Object files
+#
+OBJECTS = $(srcdir)/accumsrf.o     \
+          $(srcdir)/checks.o     \
+          $(srcdir)/cont_rel_dyn.o \
+          $(srcdir)/dezone.o         \
+          $(srcdir)/dump.o         \
+          $(srcdir)/ensm_sub.o     \
+          $(srcdir)/get_matl.o     \
+          $(srcdir)/get_met.o      \
+          $(srcdir)/get_top.o      \
+          $(srcdir)/init_met.o \
+          $(srcdir)/init_multcomp.o\
+          $(srcdir)/init_wash.o    \
+          $(srcdir)/inter_dyn.o    \
+          $(srcdir)/isc_prime.o    \
+          $(srcdir)/map_loc.o     \
+          $(srcdir)/mapfac.o       \
+          $(srcdir)/merge.o        \
+          $(srcdir)/multcomp.o     \
+          $(srcdir)/output.o       \
+          $(srcdir)/prime.o          \
+          $(srcdir)/puff_rel_dyn.o \
+          $(srcdir)/read_prj.o     \
+          $(srcdir)/reflect.o      \
+          $(srcdir)/restart.o      \
+          $(srcdir)/sampler.o      \
+          $(srcdir)/set_bl_from_ua.o     \
+          $(srcdir)/set_bltb.o     \
+          $(srcdir)/set_grid.o     \
+          $(srcdir)/set_ip.o       \
+          $(srcdir)/set_stack_rel_prime.o     \
+          $(srcdir)/set_tlev.o     \
+          $(srcdir)/settle.o       \
+          $(srcdir)/split.o        \
+          $(srcdir)/splitz.o       \
+          $(srcdir)/start.o        \
+          $(srcdir)/step.o         \
+          $(srcdir)/step_amb.o   \
+          $(srcdir)/step_p_dyn.o   \
+          $(srcdir)/sun.o     \
+          $(srcdir)/surface.o     \
+          $(srcdir)/time_cnv.o     \
+          $(srcdir)/tmerge.o       \
+          $(srcdir)/ufall.o        \
+          $(srcdir)/us_atmos.o     \
+          $(srcdir)/util.o         \
+          $(srcdir)/vd_slinn.o     \
+          $(srcdir)/version.o      \
+          $(srcdir)/wrt_prj.o      
+
+ifdef PARALLEL_FLAG
+OBJECTP2 = $(srcdir)/mpitype.o
+endif
+
+OBJECTSP = $(pigsrcdir)/amb_data_pig.o     \
+           $(pigsrcdir)/dump_pig.o         \
+           $(pigsrcdir)/emissions.o	   \
+           $(pigsrcdir)/init_met_pig.o   \
+           $(pigsrcdir)/init_pig.o       \
+           $(pigsrcdir)/init_pig_grid.o   \
+           $(pigsrcdir)/init_pig_inp.o   \
+           $(pigsrcdir)/init_scichem_pig.o \
+           $(pigsrcdir)/initmap.o      \
+           $(pigsrcdir)/met_data_pig.o     \
+           $(pigsrcdir)/namelist_pig.o     \
+           $(pigsrcdir)/output_dgn.o     \
+           $(pigsrcdir)/pig.o          \
+           $(pigsrcdir)/pig_specific.o  \
+           $(pigsrcdir)/ratek.o     \
+           $(pigsrcdir)/sciphot.o          \
+           $(pigsrcdir)/set_bltb_pig.o     \
+           $(pigsrcdir)/setgrid.o      \
+           $(pigsrcdir)/step_pig.o     \
+           $(pigsrcdir)/update_k_pig.o   \
+           $(pigsrcdir)/update_met_pig.o
+
+OBJECTSPH = $(pighostdir)/set_cgrid_host.o
+
+OBJECTP  = $(aerosrcdir)/aerosol_chem.o  \
+           $(aerosrcdir)/init_aero.o  \
+
+OBJECTA  = $(aqsrcdir)/aqradm.o    \
+           $(aqsrcdir)/init_aqueous.o    \
+           $(aqsrcdir)/step_aqueous.o    \
+           $(aqsrcdir)/vode.o    
+
+#
+#******************* LIBRARY **********************************************
+$(TARGET): $(OBJECT) $(OBJECTS) $(OBJECTSP) $(OBJECTSPH) $(OBJECTM) $(OBJECTMA) $(OBJECTMP) $(OBJECTP) $(OBJECTA) $(OBJECTP1) $(OBJECTP2)
+	echo "  **** : Making $(TARGET)"
+	echo "  PARALLEL_FLAG is $(PARALLEL_FLAG)"
+	ar vru $(TARGET) $(OBJECT) $(OBJECTS) $(OBJECTSP) $(OBJECTSPH) $(OBJECTM) $(OBJECTMP) $(OBJECTMA) $(OBJECTP) $(OBJECTA) $(OBJECTP1) $(OBJECTP2)
+	ranlib $(TARGET)
+
+#
+#******************* SCIPUFF FILES *********************************************
+#
+# Update the SCIPUFF modules if necessary
+
+$(incdir)/aer_sections_inc.o : $(incdir)/aer_sections_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/class_inc.o : $(incdir)/class_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_grd.o : $(incdir)/common_grd.f90 $(COMMON_MET)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_mc_met.o : $(incdir)/common_mc_met.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_met.o : $(incdir)/common_met.f90 $(MET_PARAM_INC) $(COMMON_METN) $(STIMET_INC) $(PARAM_INC) $(COMMON_MC_MET)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_mc_puf.o : $(incdir)/common_mc_puf.f90 $(PARAM_INC) $(ERROR_INC) $(DEFAULT_INC) $(STRUCT_INC) $(CONSTANTS_FD)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_puf.o : $(incdir)/common_puf.f90 $(COMMON_MC_PUF)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_smp.o : $(incdir)/common_smp.f90 $(PARAM_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/common_srf.o : $(incdir)/common_srf.f90 $(PARAM_INC) $(SURFACE_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/constants_fd.o : $(incdir)/constants_fd.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/cont_rel_inc.o : $(incdir)/cont_rel_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/default_inc.o : $(incdir)/default_inc.f90 $(incdir)/default.inc
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/diagnostics.o : $(incdir)/diagnostics.f90 $(PARAM_INC) $(MULTCOMP_MC_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/error_inc.o : $(incdir)/error_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/files_inc.o : $(incdir)/files_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/get_met_inc.o : $(incdir)/get_met_inc.f90 $(METINTRP_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/inter_inc.o : $(incdir)/inter_inc.f90 $(PARAM_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/ipgrd_inc.o : $(incdir)/ipgrd_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/metintrp_inc.o : $(incdir)/metintrp_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/multcomp_inc.o : $(incdir)/multcomp_inc.f90 $(MULTCOMP_MC_INC) $(UNITS_INC) $(PARAM_INC) $(AER_SECTIONS_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/multcomp_mc_inc.o : $(incdir)/multcomp_mc_inc.f90 $(AER_SECTIONS_INC) $(MET_PARAM_INC) $(STRUCT_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/param_inc.o : $(incdir)/param_inc.f90 $(incdir)/param.inc
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/prime_inc.o : $(incdir)/prime_inc.f90 $(AMBIENT) $(DFSN) $(NUMPARM) $(PARAMS) $(WAKEDAT)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/refl_inc.o : $(incdir)/refl_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/relparam_fd.o : $(incdir)/relparam_fd.f90 $(RELPARAM_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/relparam_inc.o : $(incdir)/relparam_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/sciprime_inc.o : $(incdir)/sciprime_inc.f90 $(PARAM_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/srfdos_inc.o : $(incdir)/srfdos_inc.f90 $(STRUCT_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/srfparam_inc.o : $(incdir)/srfparam_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/step_p_inc.o : $(incdir)/step_p_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/stimet_inc.o : $(incdir)/stimet_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/struct_inc.o : $(incdir)/struct_inc.f90 $(PARAM_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/surface_inc.o : $(incdir)/surface_inc.f90 $(PARAM_INC)
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(incdir)/units_inc.o : $(incdir)/units_inc.f90
+	@cd $(incdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+#******************* PIG INC FILES ******************************************
+$(pigincdir)/amb_data_pig_inc.o : $(pigincdir)/amb_data_pig_inc.f90
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pigincdir)/code_defines_host_inc.o : $(pigincdir)/code_defines_host_inc.f90
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pigincdir)/common_date.o : $(pigincdir)/common_date.f90
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pigincdir)/common_metn_pig.o : $(pigincdir)/common_metn_pig.f90
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pigincdir)/common_mpi.o : $(pigincdir)/common_mpi.f90
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pigincdir)/emissions_inc.o : $(pigincdir)/emissions_inc.f90 $(PARAM_INC)
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pighostdir)/host_chem_inc.o : $(pighostdir)/host_chem_inc.F
+	@cd $(pighostdir) ; $(FTN) $(FLAGSH) host_chem_inc.F
+
+$(pighostdir)/host_inc.o : $(pighostdir)/host_inc.F
+	@cd $(pighostdir) ; $(FTN) $(FLAGSH) host_inc.F
+
+#ifdef PARALLEL_FLAG
+#$(pighostdir)/mpi.o : $(pighostdir)/mpi.F90
+#	@cd $(pighostdir) ; $(homedir)/make_obj_f90 "$(FLAGSP)" $(@F:.o=.F90)
+#endif
+
+$(pigincdir)/interface_definitions.o : $(pigincdir)/interface_definitions.f90 $(STRUCT_INC)
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(pigincdir)/met_param_pig_inc.o : $(pigincdir)/met_param_pig_inc.f90
+	@cd $(pigincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+#
+#******************* STUB FILES *********************************************
+
+# Update the Stub objects if necessary
+
+$(hsrcdir)/progress.o : $(hsrcdir)/progress.f90 $(FILES_INC)
+	@cd $(hsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(hpigsrcdir)/arap.o : $(hpigsrcdir)/arap.f90
+	@cd $(hpigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(hpigsrcdir)/set_files_pig.o : $(hpigsrcdir)/set_files_pig.f90 $(FILES_INC) $(COMMON_PUF) $(ERROR_INC)
+	@cd $(hpigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(hpigsrcdir)/set_version_string.o : $(hpigsrcdir)/set_version_string.f90 
+	@cd $(hpigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(hsrcdir)/update.o : $(hsrcdir)/update.f90 $(ERROR_INC)
+	@cd $(hsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+#
+#******************* SCICHEM FILES *******************************************
+#
+# Update the Basic SCICHEM objects if necessary
+
+$(srcdir)/accumsrf.o : $(srcdir)/accumsrf.f90 $(ERROR_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/checks.o : $(srcdir)/checks.f90 $(ERROR_INC) $(COMMON_PUF) $(DEFAULT_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/cont_rel_dyn.o : $(srcdir)/cont_rel_dyn.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(STEP_P_INC) $(INTER_INC) $(CONT_REL_INC) $(RELPARAM_FD) $(DIAGNOSTICS) $(GET_MET_INC) $(INTERFACE_DEF) $(COMMON_MPI) $(MULTCOMP_MC_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/dezone.o : $(srcdir)/dezone.f90 $(COMMON_SRF) $(PARAM_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(srcdir)/dump.o : $(srcdir)/dump.f90 $(COMMON_PUF) $(COMMON_MET) $(COMMON_SRF) $(FILES_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(srcdir)/ensm_sub.o : $(srcdir)/ensm_sub.f90 $(COMMON_PUF) $(COMMON_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/get_matl.o : $(srcdir)/get_matl.f90 $(COMMON_PUF) $(FILES_INC) $(PARAM_INC) $(STRUCT_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/get_met.o : $(srcdir)/get_met.f90 $(COMMON_PUF) $(COMMON_MET) $(MULTCOMP_INC) $(GET_MET_INC) $(METINTRP_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/get_top.o : $(srcdir)/get_top.f90 $(COMMON_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(srcdir)/init_met.o : $(srcdir)/init_met.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/init_multcomp.o : $(srcdir)/init_multcomp.f90 $(COMMON_PUF) $(FILES_INC) $(MULTCOMP_INC) $(COMMON_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/init_wash.o : $(srcdir)/init_wash.f90 $(COMMON_PUF) $(FILES_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/inter_dyn.o : $(srcdir)/inter_dyn.f90 $(COMMON_PUF) $(DIAGNOSTICS) $(FILES_INC) $(INTER_INC) $(REFL_INC) $(INTERFACE_DEF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/isc_prime.o : $(srcdir)/isc_prime.f90 $(SCIPRIME_INC) $(ERROR_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/mapfac.o : $(srcdir)/mapfac.f90 $(COMMON_PUF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/map_loc.o : $(srcdir)/map_loc.f90 $(COMMON_PUF) $(COMMON_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/merge.o : $(srcdir)/merge.f90 $(COMMON_PUF) $(INTER_INC) $(INTERFACE_DEF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+ifdef PARALLEL_FLAG
+$(srcdir)/mpitype.o : $(srcdir)/mpitype.F90 $(COMMON_MC_PUF) $(PARAM_INC) $(MULTCOMP_INC) $(COMMON_MPI) $(MPI) $(COMMON_MC_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1P)" $(@F:.o=.F90)
+endif
+
+$(srcdir)/multcomp.o : $(srcdir)/multcomp.f90 $(COMMON_PUF) $(COMMON_MC_PUF) $(FILES_INC) $(MULTCOMP_INC) $(STEP_P_INC) $(PARAM_INC) $(DIAGNOSTICS) $(COMMON_MET) $(COMMON_MC_MET) $(INTER_INC) $(ERROR_INC) $(INTERFACE_DEF) $(AMB_DATA_INC) $(AERO_SPECIES_INC) $(AQUEOUS_SPECIES_INC) $(COMMON_MPI)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(srcdir)/output.o : $(srcdir)/output.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(MULTCOMP_INC) $(CONT_REL_INC) $(DIAGNOSTICS) $(AMB_DATA_INC) $(INTERFACE_DEF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/prime.o : $(srcdir)/prime.f $(PRIME_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2)" $(@F:.o=.f)
+
+$(srcdir)/puff_rel_dyn.o : $(srcdir)/puff_rel_dyn.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(COMMON_SRF) $(RELPARAM_FD) $(ERROR_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/read_prj.o : $(srcdir)/read_prj.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(MULTCOMP_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/reflect.o : $(srcdir)/reflect.f90 $(REFL_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/restart.o : $(srcdir)/restart.f90 $(COMMON_PUF) $(COMMON_MET) $(COMMON_SRF) $(FILES_INC) $(MULTCOMP_INC) $(DIAGNOSTICS) $(CONT_REL_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/sampler.o : $(srcdir)/sampler.f90 $(COMMON_PUF) $(COMMON_SMP) $(FILES_INC) $(MULTCOMP_INC) $(COMMON_MET) $(INTERFACE_DEF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/set_bl_from_ua.o : $(srcdir)/set_bl_from_ua.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC)  
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/set_bltb.o : $(srcdir)/set_bltb.f90 $(COMMON_PUF) $(COMMON_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/set_grid.o : $(srcdir)/set_grid.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/set_ip.o : $(srcdir)/set_ip.f90 $(COMMON_PUF) $(IPGRD_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/set_stack_rel_prime.o : $(srcdir)/set_stack_rel_prime.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(GET_MET_INC) $(SCIPRIME_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/settle.o : $(srcdir)/settle.f90 $(COMMON_PUF) $(REFL_INC) $(STRUCT_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/set_tlev.o : $(srcdir)/set_tlev.f90 $(COMMON_PUF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/split.o : $(srcdir)/split.f90 $(COMMON_PUF) $(MULTCOMP_INC) $(FILES_INC) $(STRUCT_INC) $(INTERFACE_DEF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/splitz.o : $(srcdir)/splitz.f90 $(COMMON_PUF) $(STEP_P_INC) $(STRUCT_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/start.o : $(srcdir)/start.f90 $(DIAGNOSTICS) $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(MULTCOMP_INC) $(CONT_REL_INC) $(ERROR_INC) $(AMB_DATA_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/step_amb.o : $(srcdir)/step_amb.f90 $(MULTCOMP_INC) $(PARAM_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/step.o : $(srcdir)/step.F90 $(COMMON_PUF) $(MULTCOMP_MC_INC) $(FILES_INC) $(INTERFACE_DEF) $(COMMON_MPI) $(COMMON_MET) $(DIAGNOSTICS)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1P)" $(@F:.o=.F90)
+
+$(srcdir)/step_p_dyn.o : $(srcdir)/step_p_dyn.F90 $(COMMON_PUF) $(COMMON_MET) $(COMMON_SRF) $(FILES_INC) $(STEP_P_INC) $(SRFPARAM_INC) $(INTERFACE_DEF) $(COMMON_MPI) $(MULTCOMP_MC_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.F90)
+
+$(srcdir)/sun.o : $(srcdir)/sun.f90 $(COMMON_PUF) $(COMMON_MET)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/surface.o : $(srcdir)/surface.f90 $(COMMON_PUF) $(COMMON_SRF) $(FILES_INC) $(REFL_INC) \
+                      $(SRFPARAM_INC) $(SRFDOS_INC) $(SURFACE_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/time_cnv.o : $(srcdir)/time_cnv.f90 $(COMMON_PUF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/tmerge.o : $(srcdir)/tmerge.f90 $(COMMON_PUF) $(INTERFACE_DEF)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/ufall.o : $(srcdir)/ufall.f90
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/us_atmos.o : $(srcdir)/us_atmos.f90
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/util.o : $(srcdir)/util.f90 $(COMMON_PUF) $(FILES_INC) $(SRFPARAM_INC) $(CLASS_INC) $(STRUCT_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/vd_slinn.o : $(srcdir)/vd_slinn.f90 $(CONSTANTS_FD)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/version.o : $(srcdir)/version.f90
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(srcdir)/wrt_prj.o : $(srcdir)/wrt_prj.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(MULTCOMP_INC)
+	@cd $(srcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+#
+#******************* SCICHEM PIG FILES ****************************************
+#
+# Update the Basic SCICHEM objects if necessary
+
+$(pigsrcdir)/amb_data_pig.o : $(pigsrcdir)/amb_data_pig.f90 $(AMB_DATA_INC) $(FILES_INC) $(ERROR_INC) $(MULTCOMP_INC) $(COMMON_MET) $(COMMON_PUF) $(CODE_DEFINES_INC) $(PARAM_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(pigsrcdir)/dump_pig.o : $(pigsrcdir)/dump_pig.f90 $(CODE_DEFINES_INC) $(COMMON_PUF) $(COMMON_MET) $(MULTCOMP_INC) $(DIAGNOSTICS) $(FILES_INC) $(PARAM_INC) $(INTERFACE_DEF)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(pigsrcdir)/emissions.o : $(pigsrcdir)/emissions.f $(COMMON_PUF) $(RELPARAM_FD) $(EMISSIONS_INC) $(MULTCOMP_INC) $(HOST_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+$(pigsrcdir)/init_met_pig.o : $(pigsrcdir)/init_met_pig.f90 $(COMMON_PUF) $(COMMON_MET) $(COMMON_GRD) $(FILES_INC) $(MULTCOMP_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/init_pig.o : $(pigsrcdir)/init_pig.f90 $(COMMON_PUF) $(FILES_INC) $(MULTCOMP_INC) $(INTERFACE_DEF)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/init_pig_grid.o : $(pigsrcdir)/init_pig_grid.f90 $(ERROR_INC) $(COMMON_MET) $(COMMON_GRD)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(pigsrcdir)/init_pig_inp.o : $(pigsrcdir)/init_pig_inp.f90 $(COMMON_PUF) $(COMMON_MET) $(COMMON_SRF) $(FILES_INC) $(MULTCOMP_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/init_scichem_pig.o : $(pigsrcdir)/init_scichem_pig.F90 $(COMMON_PUF) $(FILES_INC) $(INTERFACE_DEF) $(COMMON_MPI)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1P)" $(@F:.o=.F90)
+
+$(pigsrcdir)/initmap.o : $(pigsrcdir)/initmap.f $(COMMON_MET) $(HOST_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+$(pigsrcdir)/met_data_pig.o : $(pigsrcdir)/met_data_pig.f90 $(COMMON_MET) $(COMMON_PUF)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/namelist_pig.o : $(pigsrcdir)/namelist_pig.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(CLASS_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/output_dgn.o : $(pigsrcdir)/output_dgn.f $(DIAGNOSTICS) $(HOST_INC) $(MULTCOMP_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+$(pigsrcdir)/pig.o : $(pigsrcdir)/pig.f90 $(COMMON_PUF) $(COMMON_MET) $(FILES_INC) $(COMMON_SRF) $(INTERFACE_DEF)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/pig_specific.o : $(pigsrcdir)/pig_specific.f90 $(COMMON_PUF) $(DIAGNOSTICS) $(MULTCOMP_INC) $(FILES_INC) $(INTERFACE_DEF) \
+               $(COMMON_MET) $(COMMON_GRD) $(EMISSIONS_INC) $(CONT_REL_INC) $(ERROR_INC) $(DEFAULT_INC) $(CONSTANTS_FD)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(pigsrcdir)/ratek.o : $(pigsrcdir)/ratek.f $(HOST_CHEM_INC) $(ERROR_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2)" $(@F:.o=.f)
+
+$(pigsrcdir)/sciphot.o : $(pigsrcdir)/sciphot.f $(HOST_CHEM_INC) $(MULTCOMP_INC) $(HOST_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+$(pigsrcdir)/set_bltb_pig.o : $(pigsrcdir)/set_bltb_pig.f90 $(COMMON_PUF) $(COMMON_MET)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+$(pigsrcdir)/setgrid.o : $(pigsrcdir)/setgrid.f $(COMMON_PUF) $(COMMON_MET) $(COMMON_GRD) $(HOST_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+$(pigsrcdir)/step_pig.o : $(pigsrcdir)/step_pig.F90 $(COMMON_PUF) $(COMMON_DATE) $(CODE_DEFINES_INC) $(INTERFACE_DEF) $(COMMON_MPI)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1P)" $(@F:.o=.F90)
+
+$(pigsrcdir)/update_k_pig.o : $(pigsrcdir)/update_k_pig.f $(HOST_CHEM_INC) $(COMMON_PUF) $(COMMON_MET) $(MULTCOMP_INC) $(STEP_P_INC) $(COMMON_DATE)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2)" $(@F:.o=.f)
+
+$(pigsrcdir)/update_met_pig.o : $(pigsrcdir)/update_met_pig.f $(COMMON_PUF) $(COMMON_MET) $(MULTCOMP_INC) $(HOST_INC)
+	@cd $(pigsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+#
+#******************* SCICHEM PIG HOST FILES ***********************************
+#
+
+$(pighostdir)/set_cgrid_host.o : $(pighostdir)/set_cgrid_host.f90
+	@cd $(pighostdir) ; $(homedir)/make_obj_f90 "$(FLAGS1)" $(@F:.o=.f90)
+
+#***************** AERO FILES ********************************************
+
+# Update the aerosol module objects if necessary
+
+$(aeroincdir)/aero_consts_inc.o : $(aeroincdir)/aero_consts_inc.f90
+	@cd $(aeroincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(aeroincdir)/aero_species_inc.o : $(aeroincdir)/aero_species_inc.f90 $(PARAM_INC)
+	@cd $(aeroincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f90)
+
+$(aerosrcdir)/init_aero.o : $(aerosrcdir)/init_aero.f90 $(ERROR_INC) $(AERO_SPECIES_INC)
+	@cd $(aerosrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(aerosrcdir)/aerosol_chem.o : $(aerosrcdir)/aerosol_chem.f90 $(ERROR_INC) $(FILES_INC) $(AERO_SPECIES_INC) $(AERO_CONSTS_INC) $(UNITS_INC) $(HOST_INC)
+	@cd $(aerosrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+#******************* AQUEOUS FILES ********************************************
+
+# Update the aqueous objects if necessary
+#
+
+$(aqincdir)/aqueous_species_inc.o : $(aqincdir)/aqueous_species_inc.f90  $(PARAM_INC)
+	@cd $(aqincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0H)" $(@F:.o=.f90)
+
+$(aqincdir)/aqueous_consts_inc.o : $(aqincdir)/aqueous_consts_inc.f90 $(AERO_CONSTS_INC)
+	@cd $(aqincdir) ; $(homedir)/make_obj_f90 "$(FLAGS0)" $(@F:.o=.f90)
+
+$(aqsrcdir)/aqradm.o : $(aqsrcdir)/aqradm.f $(AQUEOUS_SPECIES_INC) $(ERROR_INC) $(AQUEOUS_CONSTS_INC)
+	@cd $(aqsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2H)" $(@F:.o=.f)
+
+$(aqsrcdir)/init_aqueous.o : $(aqsrcdir)/init_aqueous.f90 $(ERROR_INC) $(AQUEOUS_SPECIES_INC)
+	@cd $(aqsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(aqsrcdir)/step_aqueous.o : $(aqsrcdir)/step_aqueous.f90 $(AQUEOUS_SPECIES_INC) $(ERROR_INC) $(AQUEOUS_CONSTS_INC) $(UNITS_INC)
+	@cd $(aqsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS1H)" $(@F:.o=.f90)
+
+$(aqsrcdir)/vode.o : $(aqsrcdir)/vode.f
+	@cd $(aqsrcdir) ; $(homedir)/make_obj_f90 "$(FLAGS2)" $(@F:.o=.f)

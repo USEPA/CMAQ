@@ -1,0 +1,205 @@
+#!/bin/csh -f
+
+#> Source the config.cmaq file to set the run environment
+ source $M3HOME/scripts/config.cmaq
+
+@ NPCOL = 1
+@ NPROW = 1
+@ NPROCS = $NPCOL * $NPROW
+
+setenv NPCOL_NPROW "$NPCOL $NPROW"
+
+echo '>>>>>> start model run at ' `date`
+date; set timestamp; set echo
+
+# These are the parameters for this run, set them carefully
+set SDATE = 2005179 
+set EDATE = 2005182
+
+set PUFFILE  = 'cmaqapt50.puf'	# name of SCICHEM puff file ("projectname".puf)
+set STDATE   = $SDATE     	# simulation start date: year & Julian date (YYYDDD) DON'T CHANGE THIS LINE
+set STTIME   = 000000  		# simulation start hour in GMT:             (HHMMSS) DON'T CHANGE THIS LINE
+
+##############################################################
+# 	Set up script base and executable directories	     #
+##############################################################
+
+# Need user input
+ set BASE     = $cwd
+
+ set SRCDIR   = $M3HOME/scripts/cctm_apt
+ set APPL     = D502_apt
+ set BLD      = ${SRCDIR}/BLD_${APPL} 
+ set EXEDIR   = ${BLD}/merge_conc
+ set EXENAME  = MERGE_CONC_$EXEC_ID	  		### EXECUTABLE FILE NAME ###
+
+ set CFG   = CMAQ-APTTEST
+ set MECH  = cb05tucl_ae6_aq 
+ set EXEC  = CCTM_${APPL}_${EXEC_ID}
+
+#> species defn & photolysis
+ setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
+ setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
+ setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
+ setenv tr_matrix_nml ${BLD}/Species_Table_TR_0.nml
+ setenv CSQY_DATA ${BLD}/CSQY_DATA_$MECH
+ if (! (-e $CSQY_DATA ) ) then
+           echo " $CSQY_DATA  not found "
+           exit 1
+           endif
+
+#> horizontal domain decomposition
+ setenv NPCOL_NPROW "1 1"
+ set NPROCS   = 1
+
+#> horizontal grid defn
+ setenv GRIDDESC $M3DATA/mcip/GRIDDESC
+ setenv GRID_NAME CMAQ-APTTEST
+
+##############################################################
+# 	Set up input directories	            	     #
+##############################################################
+
+#set METDIR    = [ need user input ]
+ set METpath   = $M3DATA/mcip
+#set JVALpath  = /work/MOD3EVAL/jug/apttestdata/environ/jproc
+
+set JDATE    = $SDATE   	# merge start date: year & Julian date (YYYDDD)
+set JTIME    = 000000   	# merge start hour in GMT:             (HHMMSS)       # use this for other days
+
+while ($JDATE <= $EDATE)
+echo JDATE is $JDATE
+@ ENDATE = $JDATE + 1
+set JEDATE   = $ENDATE     # merge end date: year & Julian date   (YYYDDD)
+set JETIME   = 000000     # merge end hour in GMT:               (HHMMSS)
+set OUTTS    = 10000      # output time step:                    (HHMMSS)
+
+set YEAR = 2005
+set YMD   = `/nas01/depts/ie/cempd/apps/ioapi_30/072908/Linux2_x86pg_pgcc_nomp/datshift $JDATE 0`
+
+ set EXTN = ${YMD}
+ set GC2file   = GRIDCRO2D.TEMA.12km.${EXTN}
+ set GD2file   = GRIDDOT2D.TEMA.12km.${EXTN}
+ set MC2file   = METCRO2D.TEMA.12km.${EXTN}
+ set MD3file   = METDOT3D.TEMA.12km.${EXTN}
+ set MC3file   = METCRO3D.TEMA.12km.${EXTN}
+
+#set JVALfile  = JTABLE_${JDATE}
+
+##############################################################
+# 	Set up conc files and directories		     #
+##############################################################
+
+#set CONCDIR = [ need user input ]
+ set CONCDIR   = $M3DATA/cctm
+ setenv CTM_APPL ${CFG}_${APPL}
+
+# link CTM_CONC_1 to output file before next step
+ set CC3_G0  = $EXEC.CONC.${CFG}_${EXTN}               # CTM_CONC_1
+ set CC3_OUT = $EXEC.CONC.${CFG}_APT_MERGED_${EXTN}    # CTM_CONC_1
+
+ set PUFDIR = ${CONCDIR}/$JDATE
+
+# simulation parameters
+ 
+ cd $BASE
+
+"rm" cmaqapt50.prj cmaqapt50.puf ${CC3_G0}
+ln -s ${PUFDIR}/cmaqapt50.prj 
+ln -s ${PUFDIR}/cmaqapt50.puf
+ln -s ${CONCDIR}/${CC3_G0}
+
+set UI       = ui.mergeconc.$$
+unalias rm
+cat >! $UI << E$O$F          # Create user input file for model run
+$PUFFILE
+$STDATE
+$STTIME
+$JDATE
+$JTIME
+$JEDATE
+$JETIME
+$OUTTS
+E$O$F
+
+##############################################################
+#                  Set up for model run                      #
+##############################################################
+
+# Set up input files
+
+set metfiles=( \
+	$GC2file  \
+	$GD2file  \
+	$MC3file  \
+	$MC2file  \
+	$MD3file  \
+)
+
+#set photfile = $JVALfile
+
+set inputconc=( \
+        $CC3_G0  \
+)
+
+#-----------------------------------------
+# check input files
+
+foreach input ($metfiles)
+   if (! (-e $METpath/$input) ) then
+      echo ' ${METpath}/${input} must exist '
+      exit
+   endif
+end
+
+#if (! (-e $JVALpath/$photfile) ) then
+#   echo ' ${JVALpath}/${photfile} must exist '
+#   exit
+#endif
+
+foreach input ($inputconc)
+   if (! (-e $CONCDIR/$input) ) then
+      echo ' ${CONCDIR}/${input} must exist '
+      exit
+   endif
+end
+
+# setenv for meteorological files
+
+setenv GRID_CRO_2D   $METpath/$GC2file
+setenv GRID_DOT_2D   $METpath/$GD2file
+setenv MET_CRO_2D    $METpath/$MC2file
+setenv MET_CRO_3D    $METpath/$MC3file
+setenv MET_DOT_3D    $METpath/$MD3file
+#setenv XJ_DATA       $JVALpath/$JVALfile
+
+# for layer definition file (use the MET_CRO_3D file)...
+setenv     LAYER_FILE      $METpath/$MC3file
+
+# setenv for concentration files
+
+setenv CTM_CONC_1       $CONCDIR/$CC3_G0
+setenv CTM_CONC_MERGED  $CONCDIR/$CC3_OUT
+
+#-----------------------------------------
+# test to see if things went ok
+
+if ($status != 0) exit(11)
+
+#-----------------------------------------
+# run program
+
+# set MPI = /usr/local/apps/intel/impi/4.1.0.024/intel64/bin          
+# set MPIRUN = $MPI/mpirun 
+echo $GRID_NAME
+rm tmp.dgn
+rm tmp.dmp
+time  $EXEDIR/$EXENAME < $UI >>& LOGS/$0.$JDATE.log
+#time $MPIRUN -r ssh -np $NPROCS $EXEDIR/$EXENAME < $UI >>&  log_merge_conc.99jul06
+#mv $CC3_OUT $CONCDIR
+if (-e $EXEDIR/core)  rm $EXEDIR/core
+echo
+@ JDATE = $JDATE + 1
+end
+ echo '>>>>>> end run at ' `date`
+ exit()

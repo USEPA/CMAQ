@@ -1,0 +1,59 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/JPROC/src/sunOS5/README,v 1.1 1998/10/02 17:43:27 yoj Exp $ 
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
+ For some reason, this doesn't work on the CRAY (remote):
++ setenv CVSROOT :ext:yoj@nova.rtpnc.epa.gov:/project/work/rep/include/ICL
++ if ( 0 || ! ( -e RXCM.EXT ) || ! ( -e RXDT.EXT ) ) then
++ cvs -r export -rHEAD -d36631 radm2_cis4_ae_aq/RXCM.EXT
+U 36631/RXCM.EXT
++ if ( 0 ) exit ( 1 )
++ cvs -r export -rHEAD -d36631 radm2_cis4_ae_aq/RXDT.EXT
+cvs export: existing repository /project/work/rep/include/ICL does not match
+/project/work/rep/include/ICL/src/mech/radm2_cis4_ae_aq
+cvs export: ignoring module radm2_cis4_ae_aq/RXDT.EXT
+
+ It does on the workstations, and it does it I just specify the module,
+ radm2_cis4_ae_aq, without the file.
+
+ Using cvs 1.9.2
+
+ However, the following works:
+ INSTEAD OF ...
+ if ( $Retrieve          || \
+      ! ( -e RXCM.EXT )  || \
+      ! ( -e RXDT.EXT )     ) then
+   cvs -r export -r$Mech_Rev -d$Dump ${Mechanism}/RXCM.EXT
+   if ( $status ) exit(1)
+   cvs -r export -r$Mech_Rev -d$Dump ${Mechanism}/RXDT.EXT
+   if ( $status ) exit(1)
+   if ( $Dump != $Bld ) then
+      /bin/mv -f $Dump/*.EXT $Bld
+      /bin/rm -rf $Dump
+      endif
+   endif
+
+ DO ...
+ if ( $Retrieve          || \
+      ! ( -e RXCM.EXT )  || \
+      ! ( -e RXDT.EXT )     ) then
+   cvs -r export -r$Mech_Rev -d$Dump ${Mechanism}/RXCM.EXT
+   if ( $status ) exit(1)
+   if ( $Dump != $Bld ) then
+      /bin/mv -f $Dump/RXCM.EXT $Bld
+      /bin/rm -rf $Dump
+      endif
+   cvs -r export -r$Mech_Rev -d$Dump ${Mechanism}/RXDT.EXT
+   if ( $status ) exit(1)
+   if ( $Dump != $Bld ) then
+      /bin/mv -f $Dump/RXDT.EXT $Bld
+      /bin/rm -rf $Dump
+      endif
+   endif
+
+ Maybe CVS, in doing the 
+ setenv CVSROOT :ext:${CVS_REMOTE_USER}@${CVS_REMOTE_MACH}:${InclArc}/ICL,
+ it actually does something like a checkout, getting a CVS directory, etc.

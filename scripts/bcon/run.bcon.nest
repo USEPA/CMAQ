@@ -1,0 +1,129 @@
+#! /bin/csh -f
+
+# ====================== BCONv5.0.1 Run Script ======================= #
+# Usage: run.bcon >&! bcon.V5.log &                                    #
+# The following environment variable must be set in the external       #
+# environment for this script to execute properly:                     #
+#   setenv M3DATA = data path for input and output                     #
+# The following environment variables must be set internally:          # 
+#   setenv GRIDDESC = horizontal projection and grid description table #
+#   setenv GRID_NAME = grid definition in GRIDDESC                     #
+#   setenv LAYER_FILE = vertical layer definition file                 #
+# To report problems or request help with this script/program:         #
+#             http://www.cmascenter.org/html/help.html                 #
+# ==================================================================== #
+
+#> Source the config.cmaq file to set the run environment
+ source ../config.cmaq
+
+#> Check that M3DATA is set:
+ if ( ! -e $M3DATA ) then
+    echo "   $M3DATA path does not exist"
+    exit 1
+    endif
+ echo " "; echo " Input data path, M3DATA set to $M3DATA"; echo " "
+
+ set APPL     = V5n 
+ set CFG      = CMAQ-BENCHMARK
+ set MECH     = cb05tucl_ae6_aq
+ set EXEC     = BCON_${APPL}_$EXECID
+
+#> Set the working directory:
+ set BASE     = $cwd      
+ set BLD      = ${BASE}/BLD_$APPL
+
+ cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo
+
+#> horizontal grid defn; check GRIDDESC file for GRID_NAME options
+ setenv GRIDDESC $M3DATA/mcip/GRIDDESC
+ setenv GRID_NAME CMAQ-BENCHMARK
+ setenv IOAPI_ISPH 20
+
+#> support needed for large timestep records (>2GB/timestep record) [ NO ]
+ setenv IOAPI_OFFSET_64 YES
+
+#> define the model execution id
+ setenv EXECUTION_ID $EXEC
+
+#> vertical layer defn
+ setenv LAYER_FILE $M3DATA/mcip/METCRO3D_Benchmark
+
+#> species defn
+ setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
+ setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
+ setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
+ setenv tr_matrix_nml ${BLD}/Species_Table_TR_0.nml
+
+# set the path for the output file containing the BC's
+ set OUTDIR   = $M3DATA/bcon
+ if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
+
+#> turn off excessive WRITE3 logging
+ setenv IOAPI_LOG_WRITE F
+
+##############################################################################
+# This script to run the BCON preprocessor has two major sections;           #
+# 1) use default profile inputs, or 2) use CMAQ CTM concentration files.     #
+# Follow these steps:                                                        #
+#   1) Set BC equal to "profile" or "m3conc"                                 #
+#   2) set the remainder of the environment variables for the section being  #
+#      used (see below)                                                      #
+##############################################################################
+
+#set BC = profile      # use default profile file
+ set BC = m3conc       # use CMAQ CTM concentration files (nested runs)
+
+#> date or profile
+ if ( $BC == profile ) then
+    setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${CFG}_profile -v"
+    endif
+ if ( $BC == m3conc ) then 
+    set DATE = 2006213  # August 1, 2006                                       
+    setenv BNDY_CONC_1    "$OUTDIR/BCON_${APPL}_${CFG}_${DATE} -v"
+    endif
+
+##############################################################################
+# Default profile environment variables                                      #
+#----------------------------------------------------------------------------#
+# BC_PROFILE     = the file containing the default BC profiles               #
+#                                                                            #
+# NOTE: SDATE and STIME do not need to be set                                #
+##############################################################################
+
+ if ( $BC == profile ) then
+    setenv BC_PROFILE      $BLD/bc_profile_CB05.dat
+ endif
+ 
+##############################################################################
+# CMAQ CTM concentration file environment variables (e.g., for nesting )     #
+#----------------------------------------------------------------------------#
+# CTM_CONC_1     = the CTM concentration file for the coarse domain          #
+#                                                                            #
+# MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain - must be   #
+#                  set if PinG is included or if the vertical grid type is   #
+#                  changed between nests                                     #
+#                                                                            #
+# MET_CRO_3D_FIN = the MET_CRO_3D met file for the inner, nested, domain -   #
+#                  must be set if the vertical grid type is changed between  #
+#                  nests                                                     #
+#                                                                            #
+# NOTE: If SDATE (yyyyddd), STIME (hhmmss) and RUNLEN (hhmmss) are not set,  #
+#       these variables will be set from the input CTM_CONC_1 file           #
+##############################################################################
+ 
+ if ( $BC == m3conc ) then 
+
+    setenv CTM_CONC_1 $M3DATA/cctm/BCON_${APPL}_${CFG}_${DATE}_4km
+    setenv MET_CRO_3D_CRS
+    setenv MET_CRO_3D_FIN
+
+    setenv SDATE           ${DATE}
+    setenv STIME           000000
+    setenv RUNLEN          240000
+
+    endif
+
+#> Executable call:
+ time $BASE/$EXEC
+
+ exit() 

@@ -1,0 +1,438 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/GRVARS.F,v 1.3 2011/10/21 16:11:12 yoj Exp $
+
+      MODULE GRVARS
+
+!     USE GRID_CONF, ONLY: BLKSIZE  ! horizontal & vertical domain specifications
+      USE GRID_CONF                 ! horizontal & vertical domain specifications
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
+
+C......................................................................
+C  INCLUDE FILE: GRPARMS.EXT
+C  CONTAINS: Dimensioning parameters for Gear solver
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995
+C                    Revised 3/15/96 by Jerry Gipson to conform to
+C                      Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Revised April 1997 to distinguish NSPCS from NSPCSD
+C                    Revised April 1997 to conform to Models-3 framework
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C......................................................................
+
+C # of chemical mechanisms used
+      INTEGER, PARAMETER :: NCS = 1
+
+C 2 * # of chemical mechanisms
+      INTEGER, PARAMETER :: NCS2 = 2 * NCS
+
+C Maximum # of terms in [P]=[I]-bh[J]
+      INTEGER, PARAMETER :: MXARRAY = 4200
+
+C Maximum # prod/loss terms for a species
+      INTEGER, PARAMETER :: MAXGL = 150
+
+C A dimension smaller that MAXGL
+      INTEGER, PARAMETER :: MAXGL2 = 70
+
+C A dimension smaller MAXGL2
+      INTEGER, PARAMETER :: MAXGL3 = 100
+
+C Sparse matrix pointer dimension     
+!     INTEGER, PARAMETER :: MXCOUNT1 = N_GC_SPC * MAXGL3 * 3
+      INTEGER :: MXCOUNT1
+
+C Sparse matrix pointer dimension     
+!     INTEGER, PARAMETER :: MXCOUNT2 = N_GC_SPC * MAXGL3 * 3
+      INTEGER :: MXCOUNT2
+
+C Sparse matrix pointer dimension     
+      INTEGER, PARAMETER :: MXCOUNT3 = NRXNS * 4
+
+C Sparse matrix pointer dimension
+      INTEGER, PARAMETER :: MXCOUNT4 = NRXNS * 5
+
+C Maximum # of reactant PD terms
+      INTEGER, PARAMETER :: MXRR = 3 * 3
+
+C Maximum # of product PD terms
+      INTEGER, PARAMETER :: MXRP = 3 * MXPRD
+
+C Maximum order possible      
+      INTEGER, PARAMETER :: MXORDER = 7
+      
+C............................ end GRPARMS.EXT .........................
+
+C......................................................................
+C  INCLUDE FILE: GRVARS1.EXT
+C  CONTAINS: Common block definitions for Gear control data that are 
+C            set in subroutine GRINIT
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995
+C                    Revised 3/14/96 by Jerry Gipson to conform to
+C                      the Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    17 Aug 01 by J.Young: split out variables that are
+C                    intrinsically dependent on NCOLS, NROWS into an f90
+C                    module
+C......................................................................
+      LOGICAL LDEBUG          ! Flag to turn on/off debug output
+      LOGICAL LDUMPBLK        ! Flag to dump IC data for one block
+      LOGICAL LDUMPCELL       ! Flag to dump IC data for one cell
+      LOGICAL LTRACE          ! Flag for trace report for one block
+      LOGICAL LPERFSMRY       ! Flag for Gear summary statistics
+      LOGICAL LCELLCONC       ! Flag to output cell concentrations
+      LOGICAL LREORDER        ! Flag to reorder cells for Gear solver
+      
+C ldebug option -- output debug report for one run      
+      INTEGER DBGCOL          ! Column number for debug data
+      INTEGER DBGROW          ! Row number for debug data
+      INTEGER DBGLEV          ! Layer number for debug data
+      INTEGER IBLKBUG         ! Block number for debug output  
+      INTEGER ICPR            ! Cell number for cell data output
+      INTEGER IRUNBUG         ! Run number for debug output
+      INTEGER IUNDBG          ! Unit number of output file
+      INTEGER NPDOUT          ! Number for Jacobian evaluation output
+      INTEGER NSTEPOUT        ! Gear step number for debug output
+      INTEGER NSUBOUT         ! Number for RHS evaluation output
+            
+C ldumpblk option -- output IC data for one block
+      INTEGER IBLKBLK         ! Block number to output
+      INTEGER IRUNBLK         ! Run number to output
+      INTEGER IUNBIC          ! Unit number of output file
+      
+C ldumpcell option -- output IC data for one cell      
+      INTEGER IBLKCELL        ! Block number to output
+      INTEGER INUMCELL        ! Cell number to output
+      INTEGER IRUNCELL        ! Run number to output
+      INTEGER IUNCIC          ! Unit number of output file
+      
+C ltrace option -- output trace report for one run
+      INTEGER IBLKTRC         ! Block number to output 
+      INTEGER IRUNTRC1        ! Run number to output
+      INTEGER IRUNTRC2        ! Run number to output
+      INTEGER IUNTRC          ! Unit number of output file
+            
+C lperfsmry option -- output Gear performance report for entire run
+      INTEGER IUNPERF         ! Unit number for output file
+      
+C lcellconc option -- output conc. of one cell at Gear time steps      
+      INTEGER CCOLOUT         ! Column index of cell to output
+      INTEGER CLEVOUT         ! Layer index of cell to output
+      INTEGER CROWOUT         ! Row index of cell to output
+      INTEGER IRUNPRO1        ! Starting run number for output
+      INTEGER IRUNPRO2        ! Ending run number for output
+      INTEGER IUNCOUT         ! Unit number of output file
+      
+C  Other variables      
+      INTEGER NBLKS               ! Number of blocks of cells
+
+C real variables
+      REAL( 8 ) :: CONCMIN        ! Zero threshold used in Gear solver
+      REAL( 8 ) :: FRACDEC        ! Gear time step reduction factor 
+      REAL( 8 ) :: HMAXNIT        ! Maximum Gear time step for nighttime
+      REAL( 8 ) :: HMIN           ! Minimum Gear time step
+      REAL( 8 ) :: RUNMIN         ! Simulation time for lcellconc option
+      REAL( 8 ) :: ZBOUND         ! Lower bound of zero threshold
+      REAL( 8 ) :: ERRMAX ( NCS ) ! Gear relative error tolerance
+      REAL( 8 ) :: HMAXDAY( NCS ) ! Maximum Gear time step for daytime
+      REAL( 8 ) :: YLOW   ( NCS ) ! Gear absolute error tolerance
+
+C........................... end GRVARS1.EXT ..........................
+
+C......................................................................
+C  INCLUDE FILE: GRVARS2.EXT
+C  CONTAINS: Common block definitions for Gear control data that are 
+C            set in subroutine GRSPARS
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995.
+C                    Revised 3/14/96 by Jerry Gipson to conform to
+C                      the Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Revised April 1997 to distinguish NSPCS from NSPCS
+C                    Revised April 1997 to conform to Models-3 framework
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C......................................................................
+
+      INTEGER MAXORD              ! Max order allowed
+      INTEGER MBETWEEN            ! Max # of steps between calls to update
+                                  ! the Jacobian
+      INTEGER MSTEP               ! Max # of corrector iterations allowed
+      INTEGER IARRAY(     NCS2 )  ! Number of PD terms in sparse matrix
+      INTEGER, ALLOCATABLE, SAVE :: IJDECA( : )  ! Pointer for ij term 1 in decomp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: IJDECB( : )  ! Pointer for ij term 2 in decomp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: IKDECA( : )  ! Pointer for ik term 1 in decomp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: IKDECB( : )  ! Pointer for ik term 2 in decomp loop 1
+      INTEGER ISCHANG(     NCS )  ! Number of reacting species
+      INTEGER JZEROA(  MXARRAY )  ! Pointer for j term 1 in decomp loop 2
+      INTEGER JZEROB(  MXARRAY )  ! Pointer for j term 2 in decomp loop 2
+      INTEGER JZLO(       NCS2 )  ! # of ops in decomp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: KJDECA( : )  ! Pointer for kj term 1 in decomp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: KJDECB( : )  ! Pointer for kj term 2 in decomp loop 1
+      INTEGER NUSERAT(    NCS2 )  ! Number of active reactions in day and
+                                  ! night mechanisms 
+      INTEGER, ALLOCATABLE, SAVE :: IDEC1LO ( :, : ) ! Inner start index for dcmp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: IDEC1HI ( :, : ) ! Inner end index for dcmp loop 1
+      INTEGER, ALLOCATABLE, SAVE :: INEW2OLD( :, : ) ! Gives sorted species number from
+                                               ! original species number index
+      INTEGER, ALLOCATABLE, SAVE :: IOLD2NEW( :, : ) ! Gives original species number 
+                                               ! from sorted species number index
+      INTEGER, ALLOCATABLE, SAVE :: JHIZ1   ( :, : ) ! # of 2-term groups in dcmp loop 2
+      INTEGER, ALLOCATABLE, SAVE :: JHIZ2   ( :, : ) ! # of 1-term groups in dcmp loop 2
+      INTEGER  KZERO( MXARRAY, NCS2 ) ! Pointer to bksub j index 
+      INTEGER, ALLOCATABLE, SAVE :: KZHI0 ( :, : )  ! End index for 5-term bksub loop 1
+      INTEGER, ALLOCATABLE, SAVE :: KZHI1 ( :, : )  ! End index for 2-term bksub loop 1
+      INTEGER, ALLOCATABLE, SAVE :: KZILCH( :, : )  ! # of calcs in bksub loop 1 (L) 
+      INTEGER, ALLOCATABLE, SAVE :: KZLO1 ( :, : )  ! Start index for 2-term bksub loop 1
+      INTEGER, ALLOCATABLE, SAVE :: KZLO2 ( :, : )  ! Start index for 1-term bksub loop 1
+      INTEGER, ALLOCATABLE, SAVE :: MZHI0 ( :, : )  ! End index for 5-term bksub loop 2
+      INTEGER, ALLOCATABLE, SAVE :: MZHI1 ( :, : )  ! End index for 2-term bksub loop 2
+      INTEGER, ALLOCATABLE, SAVE :: MZILCH( :, : )  ! # of calcs in bksub loop 2 (U)
+      INTEGER, ALLOCATABLE, SAVE :: MZLO1 ( :, : )  ! Start index for 2-term bksub loop 2
+      INTEGER, ALLOCATABLE, SAVE :: MZLO2 ( :, : )  ! Start index for 1-term bksub loop 2
+      INTEGER NDERIVL ( NRXNS, NCS2 )  ! # of loss PD terms per reaction
+      INTEGER NDERIVP ( NRXNS, NCS2 )  ! # of prod PD terms per reaction
+      INTEGER NKUSERAT( NRXNS, NCS2 )  ! Rxn numbers of active reactions
+                                          ! in day and night  
+      INTEGER ICOEFF( NRXNS, MXRP, NCS2 )     ! Pointer to location of a 
+                                              ! non-unit stoichiometric coeff.
+      INTEGER JARRL ( NRXNS, MXRR, NCS2 )     ! Pointer to PD location of 
+                                              ! loss term     
+      INTEGER JARRP ( NRXNS, MXRP, NCS2 )     ! Pointer to PD location of 
+                                              ! prod term     
+      INTEGER JLIAL ( NRXNS,    MXRR, NCS2 )  ! Species # for PD loss term
+      INTEGER JPIAL ( NRXNS,    MXRP, NCS2 )  ! Species # for PD prod term 
+      INTEGER IRM2  ( NRXNS, 3+MXPRD, NCS2 )  ! Mechanism reaction/species
+                                              ! using new (sorted) species
+                                              ! numbers                                             
+      INTEGER, ALLOCATABLE, SAVE :: JARRAYPT( :, :, : ) ! Pointer to location of the
+                                                  ! PD terms in the 1D vector
+                                           
+      REAL( 8 ) :: CONP15( MXORDER )   ! Gear parameters used in convergence test
+      REAL( 8 ) :: CONPST( MXORDER )   ! Gear parameters used in convergence test
+      REAL( 8 ) :: ENQQ1 ( MXORDER )   ! Gear coefficients used to select order   
+      REAL( 8 ) :: ENQQ2 ( MXORDER )   ! and step size
+      REAL( 8 ) :: ENQQ3 ( MXORDER )   !
+      REAL( 8 ) :: ASET( 10, 8 )       ! Gear parameters for calculating [P] and
+                                       ! and determining the order
+      REAL( 8 ) :: PERTST( MXORDER, 3 )  ! Gear coefficients used to select order
+                                       ! and step size
+                             
+C........................... end GRVARS2.EXT ..........................
+
+      DATA PERTST /   ! (7,3)
+     &  2.0,  4.5,  7.333, 10.42,  13.7,     17.15,     1.0,
+     &  3.0,  6.0,  9.167, 12.5,   15.98,     1.0,      1.0,
+     &  1.0,  1.0,  0.5,    0.1667, 0.04133,  0.008267, 1.0 /
+
+C......................................................................
+C  INCLUDE FILE: GRVARS3.EXT
+C  CONTAINS: Common block definitions for Gear data that are set in 
+C            in the solver subroutines
+C  REVISION HISTORY: Prototype created by Jerry Gipson, June, 1995.
+C                    Revised 3/14/96 by Jerry Gipson to conform to
+C                      the Models-3 minimum IOV configuration.
+C                    Revised December 1996 by Jerry Gipson to conform
+C                      to the Models-3 interim CTM that includes emissions
+C                      in chemistry.
+C                    Revised April 1997 to distinguish NSPCS from NSPCS
+C                    Revised April 1997 to conform to Models-3 framework
+C                    Modified June, 1997 by Jerry Gipson to be consistent
+C                      with beta CTM
+C                    17 Aug 01 by J.Young: split out variables that are
+C                    intrinsically dependent on NCOLS, NROWS into an f90
+C                    module
+C......................................................................
+
+      LOGICAL LCONCOUT       ! Flag to turn on cell conc. output
+      LOGICAL LORDERING      ! Flag to indicate cell ordering on
+      LOGICAL LSUNLIGHT      ! Flag for daytime
+      LOGICAL LTRCOUT        ! Flag to turn on Trace output
+
+      INTEGER BLKID          ! Number of block being processed
+      INTEGER CELLOUT        ! Number of cell to output concentrations
+      INTEGER IRSTART        ! Number of restarts at beginning
+      INTEGER ISCHAN         ! Number of species in [P]
+      INTEGER OFFSET         ! Pointer for start cell number in block
+      INTEGER MXORDUSED      ! Maximum order used
+      INTEGER NCFAIL         ! Number of convergence failures
+      INTEGER NCSP           ! Day/night mechanism index;
+                             ! = NCS ===>day; = NCS+1 ===>night      
+      INTEGER NEFAIL         ! Number of error test failures
+      INTEGER NPDERIV        ! Number of Jacobian updates
+      INTEGER NSTEPS         ! Number of steps used
+      INTEGER NSUBFUN        ! Number of RHS evaluations
+      INTEGER NUMBKUPS       ! Number of backups
+      INTEGER NUMCELLS       ! Number of cells in block being processed
+      INTEGER NUMNEWT        ! Number of iterations
+
+      REAL( 8 ) :: HMAX                ! Maximum Gear time step (min)
+      REAL( 8 ) :: R1DELT              ! Time step times Gear coefficient
+      REAL( 8 ) :: BLKCH2O( BLKSIZE )  ! Water conc. of each cell (ppm)
+      REAL( 8 ) :: BLKPRES( BLKSIZE )  ! Pressure of each cell  (mb)
+      REAL( 8 ) :: BLKTEMP( BLKSIZE )  ! Temperature of each cell in block (K) 
+      REAL( 8 ), ALLOCATABLE, SAVE :: BLKCONC( :, : ) ! Species conc. for cells in block
+                                            ! in original species order (ppm) 
+      REAL( 8 ) :: CC2(     BLKSIZE, 0:MXARRAY )  ! Array holding Jacobian
+      REAL( 8 ), ALLOCATABLE, SAVE :: CNEW( :, : )  ! Species conc. for cells in block
+                                            ! in sorted species order (ppm)
+      REAL( 8 ), ALLOCATABLE, SAVE :: EMBLK( :, : )  ! Species emissions in each cell
+      REAL( 8 ), ALLOCATABLE, SAVE :: GLOSS( :, : )  ! dc/dt for each species (i.e., RHS)
+      REAL( 8 ) :: RK(      BLKSIZE,     NRXNS )  ! Rate const. for each cell
+      REAL( 8 ) :: RXRAT(   BLKSIZE,     NRXNS )  ! Reaction rates for each cell
+      REAL( 8 ), ALLOCATABLE, SAVE :: VDIAG( :, : ) ! L-U Diagonal terms  
+
+C........................... end GRVARS3.EXT ..........................
+
+C.......................................................................
+C     MODULE GRVARS
+C smvgear variables that are dependent on NCOLS, NROWS
+C Revision History: J.Young 17 Aug 01: create
+C                   J.Young 31 Jan 05: get MXCELLS from dyn alloc horizontal
+C                   & vertical domain specifications module (GRID_CONF)
+C                   29 Jul 05 WTH: added variable used by degrade routines.
+C                   29 Mar 11 S.Roselle: Replaced I/O API include files 
+C                   with UTILIO_DEFN
+C.......................................................................
+C Column index of ordered cells
+      INTEGER, ALLOCATABLE, SAVE :: CCOL( : )
+C Row index for ordered cells
+      INTEGER, ALLOCATABLE, SAVE :: CROW( : )
+C Layer index of ordered cells
+      INTEGER, ALLOCATABLE, SAVE :: CLEV( : )
+C Cell number offset for each block
+      INTEGER, ALLOCATABLE, SAVE :: BLKCNO( : )
+C Number of cells in each block
+      INTEGER, ALLOCATABLE, SAVE :: BLKLEN( : )
+
+C Original cell number of ordered cell index
+      INTEGER, ALLOCATABLE, SAVE :: NORDCELL( : )
+C Estimated stiffness of each cell
+      REAL( 8 ), ALLOCATABLE, SAVE :: ERRMX2( : )
+
+      LOGICAL, SAVE :: CALL_DEG = .FALSE.    ! WTH: SWITCH for calling DEGRADE routine
+
+      CONTAINS
+
+         SUBROUTINE GRVARS_INIT( JDATE, JTIME )
+!           USE GRID_CONF           ! horizontal & vertical domain specifications
+            USE CGRID_SPCS, ONLY: N_GC_SPC   ! CGRID mechanism species
+            USE UTILIO_DEFN
+            IMPLICIT NONE
+
+            INTEGER, INTENT( IN ) :: JDATE, JTIME
+            INTEGER :: IOS
+            CHARACTER( 16 ) :: PNAME = 'GRVARS_INIT'   ! Procedure name
+            CHARACTER( 96 ) :: MSG = ' '
+
+C-----------------------------------------------------------------------
+
+            MXCOUNT1 = N_GC_SPC * MAXGL3 * 3
+            MXCOUNT2 = N_GC_SPC * MAXGL3 * 3
+
+            ALLOCATE ( IJDECA( MXCOUNT2 ),
+     &                 IJDECB( MXCOUNT2 ),
+     &                 IKDECA( MXCOUNT2 ),
+     &                 IKDECB( MXCOUNT2 ),
+     &                 KJDECA( MXCOUNT2 ),
+     &                 KJDECB( MXCOUNT2 ), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+               MSG = '*** Memory allocation failed for '
+     &              // 'IJDECA, IJDECB, IKDECA, IKDECB, KJDECA,or KJDECB'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+            END IF
+            IJDECA = 0   ! array assignment
+            IJDECB = 0   ! array assignment
+            IKDECA = 0   ! array assignment
+            IKDECB = 0   ! array assignment
+            KJDECA = 0   ! array assignment
+            KJDECB = 0   ! array assignment
+
+            ALLOCATE ( IDEC1LO ( N_GC_SPC, NCS2 ),
+     &                 IDEC1HI ( N_GC_SPC, NCS2 ),
+     &                 INEW2OLD( N_GC_SPC,  NCS ),
+     &                 IOLD2NEW( N_GC_SPC,  NCS ),
+     &                 JHIZ1   ( N_GC_SPC, NCS2 ),
+     &                 JHIZ2   ( N_GC_SPC, NCS2 ),
+     &                 KZHI0   ( N_GC_SPC, NCS2 ),
+     &                 KZHI1   ( N_GC_SPC, NCS2 ),
+     &                 KZILCH  ( N_GC_SPC, NCS2 ),
+     &                 KZLO1   ( N_GC_SPC, NCS2 ),
+     &                 KZLO2   ( N_GC_SPC, NCS2 ),
+     &                 MZHI0   ( N_GC_SPC, NCS2 ),
+     &                 MZHI1   ( N_GC_SPC, NCS2 ),
+     &                 MZILCH  ( N_GC_SPC, NCS2 ),
+     &                 MZLO1   ( N_GC_SPC, NCS2 ),
+     &                 MZLO2   ( N_GC_SPC, NCS2 ), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+               MSG = '*** Memory allocation failed for'
+     &              // 'IDEC1LO, IDEC1HI, INEW2OLD, IOLD2NEW, JHIZ1, JHIZ2, '
+     &              // 'KZHI0, KZHI1, KZILCH, KZLO1, KZLO2, '
+     &              // 'MZHI0, MZHI1, MZILCH, MZLO1, or MZLO2'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+            END IF
+
+            ALLOCATE ( JARRAYPT( N_GC_SPC, N_GC_SPC, NCS2 ), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+               MSG = '*** Memory allocation failed for JARRAYPT'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+            END IF
+            JARRAYPT = 0   ! array assignment
+
+            ALLOCATE ( BLKCONC( BLKSIZE,  N_GC_SPC ),
+     &                 CNEW   ( BLKSIZE,  N_GC_SPC ),
+     &                 EMBLK  ( BLKSIZE,  N_GC_SPC ),
+     &                 GLOSS  ( BLKSIZE,  N_GC_SPC ),
+     &                 VDIAG  ( BLKSIZE,  N_GC_SPC ), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+               MSG = '*** Memory allocation failed for '
+     &             // 'BLKCONC, CNEW, EMBLK, GLOSS, or VDIAG'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+            END IF
+
+            ALLOCATE ( CCOL( MXCELLS ),
+     &                 CROW( MXCELLS ),
+     &                 CLEV( MXCELLS ),
+     &                 BLKCNO( MXBLKS ),
+     &                 BLKLEN( MXBLKS ),
+     &                 NORDCELL( MXCELLS ),
+     &                 ERRMX2( MXCELLS ), STAT = IOS )
+            IF ( IOS .NE. 0 ) THEN
+               MSG = '*** Memory allocation failed for'
+     &              // ' CCOL, CROW, CLEV, BLKCNO, BLKLEN, NORDCELL, or ERRMX2'
+               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+            END IF
+
+         END SUBROUTINE GRVARS_INIT
+
+      END MODULE GRVARS

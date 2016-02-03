@@ -1,0 +1,113 @@
+#relinc.cctm
+
+ set RCP = "cp -p"
+
+# "fixed" global include files ...
+
+ if ( $?Retrieve ) then
+    else
+    echo " "
+    echo " >>> WARNING: Not updating global include files"
+    echo " "
+ endif
+
+ set Rls = $GlobInc/fixed/const
+ set IncList = ( CONST.EXT )
+
+ if ( $?Retrieve ) then
+    foreach file ( $IncList )
+       if ( -e $file ) chmod 640 $file
+       $RCP ${Rls}/$file $Bld || exit 1
+       chmod 440 $file
+    end
+ else
+    foreach file ( $IncList )
+       if ( ! -e $file ) $RCP ${Rls}/$file $Bld || exit 1
+    end
+ endif
+
+ set Rls = $GlobInc/fixed/filenames
+ set IncList = ( FILES_CTM.EXT )
+
+ if ( $?Retrieve ) then
+    foreach file ( $IncList )
+       if ( -e $file ) chmod 640 $file
+       $RCP ${Rls}/$file $Bld || exit 1
+       chmod 440 $file
+    end
+ else
+    foreach file ( $IncList )
+       if ( ! -e $file ) $RCP ${Rls}/$file $Bld || exit 1
+    end
+ endif
+
+ set Rls = $GlobInc/fixed/emctrl
+ set IncList = ( EMISPRM.EXT )
+
+ if ( $?Retrieve ) then
+    foreach file ( $IncList )
+       if ( -e $file ) chmod 640 $file
+       $RCP ${Rls}/$file $Bld || exit 1
+       chmod 440 $file
+    end
+ else
+    foreach file ( $IncList )
+       if ( ! -e $file ) $RCP ${Rls}/$file $Bld || exit 1
+    end
+ endif
+
+ set Rls = $GlobInc/fixed/mpi
+ set IncList = ( PE_COMM.EXT )
+
+ if ( $?Retrieve ) then
+    foreach file ( $IncList )
+       if ( -e $file ) chmod 640 $file
+       $RCP ${Rls}/$file $Bld || exit 1
+       chmod 440 $file
+    end
+ else
+    foreach file ( $IncList )
+       if ( ! -e $file ) $RCP ${Rls}/$file $Bld || exit 1
+    end
+ endif
+
+# CGRID Mechanism Reactions global include files ...
+
+ set Rls = $Mechs/$Mechanism
+
+ set noglob
+
+ foreach file ( `find ${Rls}/ -type f -name "*" -print` )
+      if ( ! -e $file:t ) $RCP $file $Bld || exit 1
+ end
+
+# CGRID Tracer include files ...
+
+ set Rls = $Mechs/$Tracer
+
+ set noglob
+
+ foreach file ( `find ${Rls}/ -type f -name "*" -print` )
+      if ( ! -e $file:t ) $RCP $file $Bld || exit 1
+ end
+
+# Process Analysis include files (default no-op)
+
+ set Rls = $GlobInc/procan/$PAOpt
+
+ set IncList = ( PA_CMN.EXT  \
+                 PA_DAT.EXT \
+                 PA_CTL.EXT )
+ 
+ if ( $?Retrieve ) then
+    foreach file ( $IncList )
+       if ( -e $file ) chmod 640 $file
+       $RCP ${Rls}/$file $Bld || exit 1
+       chmod 440 $file
+    end
+ else
+    foreach file ( $IncList )
+       if ( ! -e $file ) $RCP ${Rls}/$file $Bld || exit 1
+    end
+ endif
+

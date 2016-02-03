@@ -1,0 +1,1 @@
+../scipuff/splitz.f90

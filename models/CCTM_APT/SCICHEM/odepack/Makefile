@@ -1,0 +1,59 @@
+# This Makefile will build ODEPACK on most unix systems.  To use it,
+# name this file "Makefile", and put it in the same directory as the
+# ODEPACK source code, and simply type "make".
+#
+#
+# Set the following path to the directory where you want the ODEPACK
+# binary to be installed.
+#
+BASEDIR	= ..
+
+ODEPACK	= $(BASEDIR)/odepack
+
+LIBDIR	= $(BASEDIR)/lib
+
+FC = /usr/local/intel/ictce/3.2.2.013/fc/bin/intel64/ifort
+
+OBJECTS	= adjlr.o aigbt.o ainvg.o bnorm.o cdrv.o cfode.o cntnzu.o 	\
+	decbt.o	ewset.o fnorm.o intdy.o iprep.o isamax.o	\
+	jgroup.o lsoda.o lsodar.o lsode.o lsode_bd.o lsode_sl.o lsodes.o \
+	lsodi.o lsoibt.o md.o mdi.o mdm.o mdp.o mdu.o nnfc.o nnsc.o nntc.o \
+	nroc.o nsfc.o odrv.o pjibt.o prep.o prepj.o prepji.o prja.o prjs.o \
+	r1mach.o rchek.o roots.o saxpy.o scopy.o sdot.o sgbfa.o sgbsl.o	\
+	sgefa.o sgesl.o slsbt.o slss.o solbt.o solsy.o srcar.o srcma.o	\
+	srcms.o srcom.o sro.o sscal.o stoda.o stode.o stodi.o vmnorm.o	\
+	vnorm.o xerrwv.o xsetf.o xsetun.o
+
+FSOURCES = adjlr.f aigbt.f ainvg.f bnorm.f cdrv.f cfode.f cntnzu.f	\
+	decbt.f ewset.f fnorm.f intdy.f iprep.f isamax.f	\
+	jgroup.f lsoda.f lsodar.f lsode.f lsode_bd.f lsodes.f lsodi.f 	\
+	lsoibt.f md.f mdi.f mdm.f mdp.f mdu.f nnfc.f nnsc.f nntc.f nroc.f \
+	nsfc.f odrv.f pjibt.f prep.f prepj.f prepji.f prja.f prjs.f 	\
+	r1mach.f rchek.f roots.f saxpy.f scopy.f sdot.f sgbfa.f sgbsl.f	\
+	sgefa.f sgesl.f slsbt.f slss.f solbt.f solsy.f srcar.f srcma.f 	\
+	srcms.f srcom.f sro.f sscal.f stoda.f stode.f stodi.f vmnorm.f  \
+	vnorm.f	xerrwv.f xsetf.f xsetun.f
+
+OTHR_SOURCES = Makefile README
+
+FLOAT_OPT =
+
+DEBUG_OPT = -O
+
+FFLAGS	= $(FLOAT_OPT) $(DEBUG_OPT)
+
+CFLAGS	= $(FLOAT_OPT) $(DEBUG_OPT)
+
+TARGET	= $(LIBDIR)/libodepack.a
+
+all:	$(TARGET)
+$(TARGET): $(OBJECTS)
+	ar vru $(TARGET) $(OBJECTS)
+	ranlib $(TARGET)
+
+#
+# When ODEPACK has been successfully installed, you will want to
+# clean up the ODEPACK directory.  To do this type "make clean".
+#
+clean:
+	rm -f $(OBJECTS) core

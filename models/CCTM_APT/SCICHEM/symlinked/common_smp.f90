@@ -1,0 +1,1 @@
+../scipuff/inc/common_smp.f90

@@ -1,0 +1,1650 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/emis/emis/PT3D_DEFN.F,v 1.12 2012/01/19 15:23:37 yoj Exp $
+
+ 
+C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      MODULE PT3D_DEFN
+
+C-----------------------------------------------------------------------
+C Function: 3d point source emissions interface to the chemistry-transport model
+
+C Revision History:
+C     21 Nov 2007 J.Young: initial implementation
+C     1  Jun 2010 David Wong: In subroutine GET_PT3D_EMIS, removed a IF-THEN
+C                             block of code since the argument for TIME2SEC is in
+C                             HHMMSS format rather than day format and also
+C                             STKDATE is already set correctly
+C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C     11 May 2011 David Wong: incorporated twoway model implementation
+C     27 Jul 2011 David Wong: 1. in subroutine GET_PT3D_EMIS, use PRE_JDATE, and
+C                                LOC_STKDATE to track change of date during a
+C                                simulation when the start time is not 0, so
+C                                correct data can be pulled by INTERPX routine
+C                             2. used WINDOW logical variable (in subroutine
+C                                PT3D_INIT) to determine x and y orig information
+C                                and in subroutine READGC3, do not expand the
+C                                STATCOL and STRTROw in the west and south direction
+C     29 Oct 2011 J.Young: fix domain windowing
+C     30 Apr 2012 C.Nolte: fix number of substeps, NTICS to be the number of
+C                          synchronization time steps rather than the number of seconds. 
+C     19 Jul 13 R.Kwok: isam
+C     19 Dec 2013 D. Wong: used WRTIME, a robust way to determine when to write the
+C                          PT3D diagnostic file instead of relying on NTICS in particular
+C                          for the twoway model where a time step can be sub-divided.
+
+C-----------------------------------------------------------------------
+
+      USE UDTYPES           ! implementation for multiple groups of stack input files
+#ifdef isam
+      USE SA_DEFN   !20140121
+#endif
+      IMPLICIT NONE
+
+      LOGICAL,                       SAVE :: PT3DEMIS   ! flag in-lining plume rise
+      INTEGER,                       SAVE :: NPTGRPS    ! no. pt src input file groups
+      REAL,             ALLOCATABLE, SAVE :: VDEMIS_PT( :,:,:,: ) ! 3D pt src non-PM emis
+      REAL,             ALLOCATABLE, SAVE :: PMEMIS_PT( :,:,:,: ) ! 3D pt src PM emis
+
+      PUBLIC PT3DEMIS, NPTGRPS, VDEMIS_PT, PMEMIS_PT, PT3D_INIT, GET_PT3D_EMIS
+#ifdef isam
+      REAL,             ALLOCATABLE, SAVE :: SA_VDEMIS_PT( :,:,:,:,: ) ! 3D pt src gas emis for tags
+      REAL,             ALLOCATABLE, SAVE :: SA_PMEMIS_PT( :,:,:,:,: ) ! 3D pt src PM emis for tags
+      REAL,             ALLOCATABLE, SAVE :: SA_SULF_PT( :,:,:,: ) ! 3D pt src SULF emis for tags
+      REAL,             ALLOCATABLE, SAVE :: VOC_E_PT( :,:,:,:,: ) ! 20120919 for pt src VOC
+      !krt to map indices of pt pm emis species to isam tracers 20140121
+      INTEGER, ALLOCATABLE, SAVE :: J_ISAM_PTPM( : )
+      PUBLIC SA_VDEMIS_PT, SA_PMEMIS_PT, SA_SULF_PT, VOC_E_PT, J_ISAM_PTPM
+#endif
+      PRIVATE
+
+C Scenario start
+      INTEGER,              SAVE :: SDATE = 0   ! Julian start date (YYYYDDD)
+      INTEGER,              SAVE :: STIME = 0   ! start time (HHMMSS)
+
+C Output layer fractions, dimensioned NSRC, emlays, and for diagnostic file
+      REAL,    ALLOCATABLE, SAVE :: LFRAC( :,: ) ! per source local layer fractn
+      REAL,    ALLOCATABLE, SAVE :: TFRAC( : )   ! Temporary LFRAC
+
+C debugging zplume
+      REAL,    ALLOCATABLE, SAVE :: ZPLUM( :,: ) ! has to be 2D for play file
+
+C Stack emissions for sources within domain
+      REAL,    ALLOCATABLE, SAVE :: STKEM( : )   ! per source local stk emis
+      INTEGER,              SAVE :: EMLYRS       ! no. of emis layers
+
+C Gas-phase Namelist emissions factors
+      REAL,    ALLOCATABLE, SAVE :: EMIS_FAC( : )  ! per species scaling factor
+      INTEGER,              SAVE :: N_EMIS_GAS_SPC ! number of gas-phase emissions species
+
+C Wildfire emissions source parameters
+      REAL,    ALLOCATABLE, SAVE :: ACRES( : )   ! acres burned
+      REAL,    ALLOCATABLE, SAVE :: BFLUX( : )   ! Briggs buoyancy flux
+
+C Vertical coord values
+      REAL,    ALLOCATABLE, SAVE :: VGLVSXG( : )
+
+C Play report log
+      INTEGER, ALLOCATABLE, SAVE :: RDEV( : )
+C Play files source id file
+#ifdef srcid
+      INTEGER, ALLOCATABLE, SAVE :: LDEV( : )
+#endif
+C Plume rise info report files
+      CHARACTER( 13 ), ALLOCATABLE, SAVE :: REPTNAME( : )
+      CHARACTER( 11 )                    :: REPSTR
+C Minimum layer for reporting srcs w/ high plumes
+      INTEGER, SAVE :: REP_LAYR
+
+C Layer fractions matrix output files
+      CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAYNAME( : )
+C Layer fractions source id output files
+      CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAY_SRCID_NAME( : )
+
+C Get heights from GRID_CRO file, if true
+      LOGICAL,              SAVE :: ZSTATIC = .TRUE.
+C Write point source 3d emis diagnostic file, if true
+      LOGICAL,              SAVE :: PT3DDIAG = .FALSE.
+C Point source 3d emis diagnostic file names
+!     CHARACTER( 16 ),               SAVE :: PT3DNAME
+C Point source 3d emis diagnostic integral average write buffers
+      REAL,    ALLOCATABLE, SAVE :: VDEMIS_BUF( :,:,:,: )
+      REAL,    ALLOCATABLE, SAVE :: PMEMIS_BUF( :,:,:,: )
+C Diagnostic file avg factor
+      REAL                       :: DIVFAC
+C Write layer fractions diagnostic file, if true
+      LOGICAL,              SAVE :: PT3DFRAC = .FALSE.
+
+C Numerical flag for plume vertical spread method
+      INTEGER,              SAVE :: IPVERT
+
+C Stack parameters
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_DM( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_HT( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_TK( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_VEL( : )
+#ifdef isam
+      !krt 20140121
+      !TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STK_SAID( : )
+      !20140514
+      TYPE( IARRY1 ), ALLOCATABLE, SAVE :: STK_SAID( : )
+#endif
+
+C Private Parameters:
+      CHARACTER(  10 ), PARAMETER :: BLANK10 = '          '
+
+C cross-point layered grid file name
+      CHARACTER(  16 ),     SAVE :: GC3NAME
+
+C hourly stack emissions file names
+      CHARACTER(  16 ), ALLOCATABLE, SAVE :: STKENAME( : )
+
+      CHARACTER( 240 )           :: XMSG = ' '
+
+      CONTAINS
+
+C=======================================================================
+
+         FUNCTION PT3D_INIT ( N_SPC_EMIS, EMLAYS, JDATE, JTIME, TSTEP )
+     &                       RESULT ( SUCCESS )
+
+C use N_SPC_EMIS+1 for non-accessed emissions
+
+         USE GRID_CONF   ! horizontal & vertical domain specifications
+         USE CGRID_SPCS  ! CGRID mechanism species
+         USE STK_PRMS    ! stack groups file
+         USE STK_EMIS    ! hourly point source emissions
+         USE PTMET       ! defines met variables used in plume rise
+         USE PTBILIN     ! defines bi-linear interpolation from grid to pt src locations
+         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
+         USE UTILIO_DEFN
+#ifdef isam
+         USE SA_DEFN
+         USE OZVOC_DEFN
+         USE AERO_DATA   ! 20140121
+#endif
+
+         IMPLICIT NONE
+
+C Includes:
+         INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
+
+C Arguments:
+         INTEGER          N_SPC_EMIS ! total no. of model emissions species
+         INTEGER          EMLAYS     ! number of emissions layers
+         INTEGER          JDATE      ! Julian date (YYYYDDD)
+         INTEGER          JTIME      ! time (HHMMSS)
+         INTEGER          TSTEP      ! output time step
+         LOGICAL          SUCCESS
+
+C External Functions:
+         INTEGER,         EXTERNAL :: SETUP_LOGDEV
+
+C Parameters:
+
+C Local Variables:
+         CHARACTER( 16 ), SAVE :: CTM_PT3DEMIS = 'CTM_PT3DEMIS    ' ! env var for in-line
+                                                                    ! 3d pt src emis
+         CHARACTER( 16 )       :: PNAME = 'PT3D_INIT       ' ! procedure name
+         CHARACTER( 16 )       :: VNAME    ! variable name buffer
+         CHARACTER( 16 ), SAVE, ALLOCATABLE :: STKGNAME( : ) ! stack groups file name
+
+         INTEGER          METCCOLS       ! cross point grid number of columns
+         INTEGER          METCROWS       ! cross point grid number of rows
+         INTEGER          METDCOLS       ! dot point grid number of columns
+         INTEGER          METDROWS       ! dot point grid number of rows
+         INTEGER          IOS            ! i/o and allocate memory status
+         INTEGER, SAVE :: NSTEPS = 1
+         INTEGER          NDATE          ! next timestep file Julian date (YYYYDDD)
+         INTEGER          NTIME          ! next timestep file time (HHMMSS)
+
+         INTEGER          LOGDEV
+
+         INTEGER I, J, K, L, M, N, S, SRC, V  ! counters and indices
+
+         INTEGER :: GXOFF, GYOFF
+         INTEGER :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
+
+         LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
+                                           ! processing domain
+!krt 20130926
+#ifdef isam  
+         INTEGER          JSPCTAG, IBGN, JAE
+#endif
+
+         INTERFACE
+            SUBROUTINE DELTA_ZS( EMLYRS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
+               IMPLICIT NONE
+               INTEGER, INTENT( IN )  :: EMLYRS, MY_NSRC
+               INTEGER, INTENT( IN )  :: SRC_MAP( : )
+               REAL,    INTENT( IN )  :: STKHT( : )
+               REAL,    INTENT( IN )  :: ZF  ( EMLYRS,MY_NSRC )
+               REAL,    INTENT( OUT ) :: ZSTK( EMLYRS,MY_NSRC )
+               REAL,    INTENT( OUT ) :: DDZF( EMLYRS,MY_NSRC )
+            END SUBROUTINE DELTA_ZS
+         END INTERFACE
+
+C-----------------------------------------------------------------------
+
+         SUCCESS = .TRUE.
+
+!        LOGDEV = INIT3()
+         LOGDEV = SETUP_LOGDEV()
+
+C In-line 3D point source emissions?
+         PT3DEMIS = ENVYN( 'CTM_PT3DEMIS',
+     &                   'Flag for in-line 3d point source emissions',
+     &                   .FALSE., IOS )
+
+         IF ( PT3DEMIS ) THEN
+            XMSG = 'Using in-line 3d point source emissions option'
+            CALL M3MSG2( XMSG )
+         ELSE
+            RETURN
+         END IF
+
+C Get setting from environment variables
+!        EMLAYS = ENVINT( 'SMK_EMLAYS', 'Number of emission layers', -1, IOS )
+         EMLYRS = EMLAYS
+
+         IPVERT = ENVINT( 'IPVERT', 'Method for vertical spread', 0, IOS )
+
+C Cannot use default and cannot set to less than 4 because of limits of plume
+C rise algorithm
+         IF ( EMLYRS .LT. 4 ) THEN
+            XMSG = 'Environment variable CTM_EMLAYS must be set to ' //
+     &             'a number from 4 to the ' // CRLF() // BLANK10 //
+     &             'number of layers in the meteorology inputs.'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+C get number of different file groups (sectors)
+
+         NPTGRPS = ENVINT( 'NPTGRPS',
+     &                     'Number of file groups',
+     &                      1, IOS )
+
+C get diagnostic files options
+
+         PT3DDIAG = ENVYN( 'PT3DDIAG',
+     &                     'generate diagnostic 3d pt emis file?',
+     &                     .FALSE., IOS )
+
+         PT3DFRAC = ENVYN( 'PT3DFRAC',
+     &                     'generate diagnostic layer fraction file?',
+     &                     .FALSE., IOS )
+
+         REP_LAYR = ENVINT( 'REP_LAYER_MIN',
+     &                      'Minimum layer for reporting plume rise info',
+     &                      -1, IOS )
+
+         IF ( IOS .EQ. 0 ) THEN
+
+            IF ( REP_LAYR .LT. 1 ) THEN
+               XMSG = 'NOTE: Environment variable REP_LAYR_MIN is ' //
+     &                'less than 1.  Turning off reporting...'
+            ELSE IF ( REP_LAYR .GT. EMLYRS ) THEN
+               WRITE( XMSG,94010 )
+     &                'NOTE: Environment variable REP_LAYR_MIN is '//
+     &                'greater than the number of emissions ' //
+     &                CRLF() // BLANK10 // 'layers (', EMLYRS, '). '//
+     &                'Resetting to number of emissions layers.'
+               REP_LAYR = EMLYRS
+            ELSE
+               WRITE( XMSG,94010 )
+     &                'logging stack data for plume rise .ge. layer', REP_LAYR
+            END IF
+
+            CALL M3MSG2( XMSG )
+
+         END IF
+
+#ifdef srcid
+         IF ( PT3DFRAC ) THEN   ! save local source id's
+            ALLOCATE ( LDEV( NPTGRPS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'LDEV', PNAME )
+            LDEV = 0   ! array
+            WRITE( XMSG,94010 ) "Enter logical name for file containing " //
+     &                          "source id's of play files"
+            ALLOCATE ( PLAY_SRCID_NAME( NPTGRPS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'PLAY_SRCID_NAME', PNAME )
+            DO N = 1, NPTGRPS
+               WRITE( REPSTR,'( "SRCIDLAY", I2.2, "_" )' ) N
+               WRITE( PLAY_SRCID_NAME( N ),'( A, I2.2 )' ) REPSTR, MYPE   ! limited to 99 PE's
+               LDEV( N ) = PROMPTFFILE( XMSG, .FALSE., .TRUE.,
+     &                                  PLAY_SRCID_NAME( N ), PNAME )
+            END DO
+         END IF
+#endif
+
+         ALLOCATE ( RDEV( NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'RDEV', PNAME )
+         RDEV = 0   ! array
+         IF ( REP_LAYR .GT. 0 ) THEN
+            WRITE( XMSG,94010 ) 'Enter logical name for report of ' //
+     &                          'plumes exceeding layer', REP_LAYR
+            ALLOCATE ( REPTNAME( NPTGRPS ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'REPTNAME', PNAME )
+            DO N = 1, NPTGRPS
+               WRITE( REPSTR,'( "REPRTLAY", I2.2, "_" )' ) N
+               WRITE( REPTNAME( N ),'( A, I2.2 )' ) REPSTR, MYPE   ! limited to 99 PE's
+               RDEV( N ) = PROMPTFFILE( XMSG, .FALSE., .TRUE., REPTNAME( N ), PNAME )
+            END DO
+         END IF
+
+C get scenario timing
+
+         SDATE = ENVINT( 'LAYP_STDATE',
+     &                   'Scenario Starting Date (YYYYDDD)',
+     &                    2001188, IOS )
+
+         STIME = ENVINT( 'LAYP_STTIME',
+     &                   'Scenario Starting Time (HHMMSS)',
+     &                    0, IOS )
+
+         NSTEPS = ENVINT( 'LAYP_NSTEPS',
+     &                    'Scenario Run Duration (integer steps)',
+     &                     24, IOS )
+
+         JDATE = SDATE
+         JTIME = STIME
+
+C open met files
+
+         MC2NAME = PROMPTMFILE( 'Enter name for CROSS-POINT SURFACE MET file',
+     &                          FSREAD3, 'MET_CRO_2D', PNAME )
+
+         MC3NAME = PROMPTMFILE( 'Enter name for CROSS-POINT LAYERED MET file',
+     &                          FSREAD3, 'MET_CRO_3D', PNAME )
+
+         MD3NAME = PROMPTMFILE( 'Enter name for DOT-POINT LAYERED MET file',
+     &                          FSREAD3, 'MET_DOT_3D', PNAME )
+
+C Get grid parameters from 3-d cross-point met file and store header information.
+C Use time parameters for time defaults.
+         CALL RETRIEVE_IOAPI_HEADER( MC3NAME, JDATE, JTIME )
+
+         CALL SUBHFILE ( MC3NAME, GXOFF, GYOFF,
+     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
+
+C Initialize reference grid with met file
+C (declared and stored in PTBILIN module)
+         XCELLCG = XCELL3D
+         YCELLCG = YCELL3D
+         METCCOLS = NCOLS3D
+         METCROWS = NROWS3D
+         METCXORIG = XORIG3D
+         METCYORIG = YORIG3D
+
+         IF ( ( GXOFF .GT. 0 ) .AND. ( GYOFF .GT. 0 ) ) THEN
+            WINDOW = .TRUE.
+         ELSE
+            WINDOW = .FALSE.
+         END IF
+
+         IF ( WINDOW ) THEN
+            METCXORIG = XORIG3D + REAL( GXOFF,8 ) * XCELL3D
+            METCYORIG = YORIG3D + REAL( GYOFF,8 ) * YCELL3D
+         ELSE
+            METCXORIG = XORIG3D
+            METCYORIG = YORIG3D
+         END IF
+
+!!!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
+
+C Get grid parameters from 3-d dot-point met file and store header information.
+C (declared and stored in PTBILIN module)
+         CALL RETRIEVE_IOAPI_HEADER( MD3NAME, JDATE, JTIME )
+         XCELLDG = XCELL3D
+         YCELLDG = YCELL3D
+         METDXORIG = XORIG3D
+         METDYORIG = YORIG3D
+         METDCOLS = NCOLS3D
+         METDROWS = NROWS3D
+
+         IF ( WINDOW ) THEN
+            METDXORIG = XORIG3D + REAL( GXOFF,8 ) * XCELL3D
+            METDYORIG = YORIG3D + REAL( GYOFF,8 ) * YCELL3D
+         ELSE
+            METDXORIG = XORIG3D
+            METDYORIG = YORIG3D
+         END IF
+
+!!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
+
+C Determine whether height information is time dependent or time independent.
+C Non-hydrostatic is time-independent and hydrostatic is time-dependent.
+         SELECT CASE( VGTYP_GD )
+            CASE ( VGSGPH3, VGHVAL3, VGWRFEM )
+               ZSTATIC = .FALSE.
+            CASE ( VGSGPN3 )
+               ZSTATIC = .TRUE.
+            CASE DEFAULT
+               WRITE( XMSG,94010 ) 'Cannot process vertical ' //
+     &                             'coordinate type', VGTYP_GD
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+         END SELECT
+
+         IF ( ZSTATIC ) THEN
+            GC3NAME = PROMPTMFILE( 'Enter name for CROSS-POINT LAYERED GRID file',
+     &                             FSREAD3, 'GRID_CRO_3D', PNAME )
+         END IF
+
+C Compare number of meteorology layers to number of emissions layers
+         IF ( EMLYRS .LE. NLAYS ) THEN
+            WRITE( XMSG,94010 ) 'NOTE: The number of emission layers ' //
+     &                          'is', EMLYRS, ', and the maximum ' // CRLF()
+     &                          // BLANK10 // 'possible layers is', NLAYS
+            CALL M3MSG2( XMSG )
+         ELSE
+            WRITE( XMSG,94010 ) 'Resetting number of emission layers ' //
+     &                          'from', EMLYRS, 'to number of ' // CRLF() //
+     &                          BLANK10 // 'layers in the meteorology file,', NLAYS
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            EMLYRS = NLAYS
+         END IF
+
+         ALLOCATE( VGLVSXG( 0:MXLAYS3 ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'VGLVSXG', PNAME )
+
+C Store local layer information
+         J = LBOUND( VGLVS3D, 1 )   ! F90 array intrinsic
+         VGLVSXG( 0 ) = VGLVS3D( J )
+         DO L = 1, NLAYS
+            J = J + 1
+            VGLVSXG( L ) = VGLVS3D( J )
+         END DO
+
+         IF ( NSTEPS .GT. MXREC3D ) THEN
+            WRITE( XMSG,94010 ) 'Requested output time steps > those on met file '
+     &                          // CRLF() // BLANK10 // 'reset to ', MXREC3D
+            NSTEPS = MXREC3D
+         END IF
+
+C Get stack data
+         ALLOCATE ( STKGNAME( NPTGRPS ), STAT = IOS )   ! stk parms files array
+         CALL CHECKMEM( IOS, 'STKGNAME', PNAME )
+         STKGNAME = ' '   ! array
+
+         DO N = 1, NPTGRPS
+            WRITE( VNAME,'( "STK_GRPS_",I2.2 )' ) N
+            STKGNAME( N ) = PROMPTMFILE( 'Enter name for stack groups file',
+     &                                   FSREAD3, VNAME, PNAME )
+         END DO
+
+         IF ( .NOT. STK_PRMS_INIT( STKGNAME ) ) THEN
+            XMSG = 'Could not initialize stack parameters'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+#ifdef srcid
+         IF ( PT3DFRAC ) THEN
+            DO N = 1, NPTGRPS
+               WRITE( LDEV( N ),93053 ) N, MY_NSRC( N ), MY_STRT_SRC( N )
+               DO S = 1, MY_NSRC( N )
+                  WRITE( LDEV( N ),93057 ) S, SOURCE( N )%ARRY( S ) + MY_STRT_SRC( N ) - 1
+               END DO
+            END DO
+         END IF
+#endif
+
+C Initialize stack emissions data
+         ALLOCATE ( STKENAME( NPTGRPS ), STAT = IOS )   ! stk emis files array
+         CALL CHECKMEM( IOS, 'STKENAME', PNAME )
+         STKENAME = ' '   ! array
+
+         DO N = 1, NPTGRPS
+            WRITE( VNAME,'( "STK_EMIS_",I2.2 )' ) N
+            STKENAME( N ) = PROMPTMFILE( 'Enter name for stack emissions file',
+     &                                   FSREAD3, VNAME, PNAME )
+#ifdef isam
+!20140514  
+!20140515   IF ( YES_PRINT ) THEN
+!20140515     WRITE(LOGDEV,*)'Stack emis files for base run: N=',N,' stkename=',STKENAME(N)
+!20140515   ENDIF
+#endif
+         END DO
+
+         IF ( .NOT. STK_EMIS_INIT( STKENAME, JDATE, JTIME ) ) THEN
+            XMSG = 'Could not initialize stack parameters'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         DO N = 1, NPTGRPS
+            IF ( NSRC( N ) .NE. NSRC_EMIS( N ) ) THEN
+               WRITE( LOGDEV,* ) 'NSRC vs. NSRC_EMIS:', N, NSRC( N ), NSRC_EMIS( N )
+               XMSG = 'No. of sources for stack files don''t match'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               SUCCESS = .FALSE.; RETURN
+            END IF
+         END DO
+
+         IF ( .NOT. PTMAP_INIT( NPTGRPS ) ) THEN
+            XMSG = 'Could not get point source mappings'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+#ifdef isam
+         IF ( YES_PRINT ) THEN
+           IF ( MYPE .EQ. 1 )
+     &         WRITE( LOGDEV,'(/5X, A )' ) 'ptmap_init Done!'
+         END IF ! yes_print
+#endif
+
+         ALLOCATE ( VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'VDEMIS_PT', PNAME )
+         VDEMIS_PT = 0.0   ! array assignment
+
+         N_EMIS_GAS_SPC = N_GC_EMIS + N_NR_EMIS + N_TR_EMIS
+         ALLOCATE ( EMIS_FAC( N_EMIS_GAS_SPC ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'EMIS_FAC', PNAME )
+         EMIS_FAC = 1.0   ! array assignment (default)
+
+         ALLOCATE ( PMEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'PMEMIS_PT', PNAME )
+         PMEMIS_PT = 0.0   ! array
+
+#ifdef isam
+         ALLOCATE ( SA_VDEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM,NTAG_SA ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'SA_VDEMIS_PT', PNAME )
+         SA_VDEMIS_PT = 0.0   ! array assignment
+         ALLOCATE ( VOC_E_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_EVOC,NTAG_SA ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'VOC_E_PT', PNAME )
+         VOC_E_PT = 0.0   ! array assignment
+         ALLOCATE ( J_ISAM_PTPM( N_SPCTAG ), STAT = IOS )  !krt 20140121
+         CALL CHECKMEM( IOS, 'J_ISAM_PTPM', PNAME )
+         J_ISAM_PTPM = 0
+
+         IF ( YES_PRINT ) THEN
+           IF ( MYPE .EQ. 1 ) THEN
+             WRITE( LOGDEV,'(/5X, A )' ) 'sa_vdemis_pt allocated'
+             WRITE( LOGDEV,'(/5X, A )' ) 'voc_e_pt allocated'
+             WRITE( LOGDEV,'(/5X, A )' ) 'j_isam_ptpm allocated'
+           END IF ! mype0
+         END IF ! yes_print
+#endif
+
+C Set up and open 3d point source emissions diagnostic file?
+         IF ( PT3DDIAG ) THEN
+            NDATE = SDATE; NTIME = STIME
+            CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
+            CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP, EMLYRS,
+     &                        N_SPC_PTEM, STKEM_NAME, N_SPC_PTPM, STKPM_NAME )
+            ALLOCATE ( VDEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTEM ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
+            VDEMIS_BUF = 0.0   ! array
+            ALLOCATE ( PMEMIS_BUF( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'PM_EMIS_BUF', PNAME )
+            PMEMIS_BUF = 0.0   ! array
+            WRITE( LOGDEV,'(/5X, A /5X, A )' )
+     &                        'Recording 3d point source emissions diagnostics',
+!    &                        'as an integral average over the output timestep'
+     &                        'as a linear average over the output timestep'
+         END IF
+
+C Open diagnostic layer fractions file?
+         IF ( PT3DFRAC ) THEN
+            ALLOCATE ( PLAYNAME( NPTGRPS ), STAT = IOS )   ! stk parms files array
+            CALL CHECKMEM( IOS, 'PLAYNAME', PNAME )
+            PLAYNAME = ' '   ! array
+            NDATE = SDATE; NTIME = STIME
+            CALL NEXTIME( NDATE, NTIME, TSTEP ) ! advance one output tstep
+            CALL OPENLAYOUT( NDATE, NTIME, TSTEP, EMLYRS, VGLVSXG, NPTGRPS,
+     &                       MY_NSRC, PLAYNAME )
+         END IF
+
+         IF ( .NOT. PTMET_INIT ( NPTGRPS, EMLYRS ) ) THEN
+            XMSG = 'Could not initialize stack met data'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         ALLOCATE( TFRAC( EMLYRS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'TFRAC', PNAME )
+         TFRAC = 0.0   ! array
+
+         ALLOCATE( STK_DM( NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'STK_DM', PNAME )
+
+         ALLOCATE( STK_HT( NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'STK_HT', PNAME )
+
+         ALLOCATE( STK_TK( NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'STK_TK', PNAME )
+
+         ALLOCATE( STK_VEL( NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'STK_VEL', PNAME )
+#ifdef isam
+         ALLOCATE( STK_SAID( NPTGRPS ), STAT = IOS )
+         CALL CHECKMEM( IOS, 'STK_SAID', PNAME )
+#endif
+
+         DO N = 1, NPTGRPS
+
+C Allocate and set stack parameters
+
+            ALLOCATE( STK_DM( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'STK_DM', PNAME )
+            STK_DM( N )%ARRY = 0.0   ! 1D array
+            STK_DM( N )%LEN = MY_NSRC( N )
+
+            ALLOCATE( STK_HT( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'STK_HT', PNAME )
+            STK_HT( N )%ARRY = 0.0   ! 1D array
+            STK_HT( N )%LEN = MY_NSRC( N )
+
+            ALLOCATE( STK_TK( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'STK_TK', PNAME )
+            STK_TK( N )%ARRY = 0.0   ! 1D array
+            STK_TK( N )%LEN = MY_NSRC( N )
+
+            ALLOCATE( STK_VEL( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'STK_VEL', PNAME )
+            STK_VEL( N )%ARRY = 0.0   ! 1D array
+            STK_VEL( N )%LEN = MY_NSRC( N )
+#ifdef isam
+            ALLOCATE( STK_SAID( N )%ARRY( MY_NSRC( N ) ), STAT = IOS )  ! krt 20140121
+            CALL CHECKMEM( IOS, 'STK_SAID', PNAME )
+            STK_SAID( N )%ARRY = 0.0   ! 1D array
+            STK_SAID( N )%LEN = MY_NSRC( N )
+!20140515   IF ( YES_PRINT ) THEN
+!20140515     WRITE(LOGDEV,*)'N=',N,' said_on(n)=',SAID_ON(N)
+!20140515   ENDIF
+#endif
+
+            DO S = 1, MY_NSRC( N )
+               SRC = SOURCE( N )%ARRY( S )
+               STK_DM( N )%ARRY( S )  = STKDIAM( N )%ARRY( SRC )
+               STK_HT( N )%ARRY( S )  = STKHT( N )%ARRY( SRC )
+               STK_TK( N )%ARRY( S )  = STKTK( N )%ARRY( SRC )
+               STK_VEL( N )%ARRY( S ) = STKVEL( N )%ARRY( SRC )
+#ifdef isam
+!20140515               IF ( YES_PRINT ) THEN
+!20140515                 WRITE(LOGDEV,*)'N=',N,'S=',S,'src=',SRC,
+!20140515     & 'stksaid(n)%arry(src)=',STKSAID(N)%ARRY(SRC)
+!20140515               ENDIF
+               IF ( SAID_ON( N ) )
+     &           STK_SAID( N )%ARRY( S ) = STKSAID( N )%ARRY( SRC )
+#endif
+            END DO
+
+
+C If wildfire, allocate and fire parameters (assumes only one file group)
+            IF ( FIREFLAG( N ) ) THEN
+
+               ALLOCATE( ACRES( MY_NSRC( N ) ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'ACRES', PNAME )
+               ACRES = 0.0   ! 1D array
+
+               DO S = 1, MY_NSRC( N )
+                  SRC = SOURCE( N )%ARRY( S )
+                  ACRES( S ) = ACRES_BURNED( SRC )
+               END DO
+
+               ALLOCATE( BFLUX( MY_NSRC( N ) ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'BFLUX', PNAME )
+               BFLUX = 0.0   ! 1D array
+
+            END IF
+
+         END DO
+#ifdef isam
+         IF ( YES_PRINT ) THEN
+           IF ( MYPE .EQ. 1 )
+     &       WRITE( LOGDEV,'(/5X, A )' ) 'STK_SAID(n)%ARRY(s) assigned!'      
+         END IF ! yes print
+#endif
+
+         IF ( .NOT. PTBILIN_INIT ( NPTGRPS ) ) THEN
+            XMSG = 'Could not initialize stack met bilinear interpolation data'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+
+         IF ( ZSTATIC ) THEN ! Read time-independent ZF and ZH for non-hydrost Met data
+
+            DO N = 1, NPTGRPS
+
+C Compute per-source heights
+
+C Get un-gridding matrices for cross and dot point met data
+               CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
+               CALL READGC3 ( 'X3HT0M', SDATE, STIME, XBUF )
+               CALL BMATVEC( METCGRID, MY_NSRC( N ), EMLYRS,
+     &                       BILIN_DATA( N )%NX,
+     &                       BILIN_DATA( N )%CX,
+     &                       XBUF, PTMET_DATA( N )%ZH )
+
+               CALL READGC3 ( 'X3HT0F', SDATE, STIME, XBUF )
+               CALL BMATVEC( METCGRID, MY_NSRC( N ), EMLYRS,
+     &                       BILIN_DATA( N )%NX,
+     &                       BILIN_DATA( N )%CX,
+     &                       XBUF, PTMET_DATA( N )%ZF )
+
+C Compute ZSTK, DDZF
+               CALL DELTA_ZS( EMLYRS, MY_NSRC( N ),
+     &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
+     &                        PTMET_DATA( N )%ZF,
+     &                        PTMET_DATA( N )%ZSTK,
+     &                        PTMET_DATA( N )%DDZF )
+
+            END DO   ! NPTGRPS
+
+         END IF   ! ZSTATIC
+
+C Set Namelist emissions factors
+
+         V = 0
+         DO S = 1, N_SPC_PTEM
+
+            K = INDEX1 ( STKEM_NAME( S ), N_GC_EMIS, GC_EMIS )
+            IF ( K .NE. 0 ) THEN
+               V = V + 1
+               EMIS_FAC( V ) = GC_EMIS_FAC( K )
+            END IF
+            K = INDEX1 ( STKEM_NAME( S ), N_NR_EMIS, NR_EMIS )
+            IF ( K .NE. 0 ) THEN
+               V = V + 1
+               EMIS_FAC( V ) = NR_EMIS_FAC( K )
+            END IF
+            K = INDEX1 ( STKEM_NAME( S ), N_TR_EMIS, TR_EMIS )
+            IF ( K .NE. 0 ) THEN
+               V = V + 1
+               EMIS_FAC( V ) = TR_EMIS_FAC( K )
+            END IF
+
+         END DO
+
+!krt map indices of pt pm emis species to isam tracers 20140121
+#ifdef isam
+         DO N = 1, NPTGRPS
+           DO V = 1, STKPM_MAP(N)%LEN
+             J = PM_MAP(N)%ARRY(V)
+             DO JSPCTAG = 1, N_SPCTAG
+               IBGN = INDEX( VNAM_SPCTAG(JSPCTAG), '_', .FALSE. )
+               AEFOUND : DO JAE = 1, N_AEROSPC
+                 IF ( VNAM_SPCTAG(JSPCTAG)(1:IBGN-1) .EQ.
+     &  AEROSPC(JAE)%NAME(2) .AND.
+     &  TRIM(STKPM_VAR(N)%ARRY(V)) .EQ.
+     &  AEROSPC(JAE)%EMIS ) THEN
+                  J_ISAM_PTPM( JSPCTAG ) = J
+                ENDIF
+               ENDDO AEFOUND
+             ENDDO ! jspctag
+           ENDDO ! V
+         ENDDO ! N
+         IF ( YES_PRINT ) THEN
+           IF ( MYPE .EQ. 1 )
+     &         WRITE( LOGDEV,'(/5X, A )' ) 'j_isam_ptpm(jspctag) assigned!'      
+         END IF ! yes print
+#endif
+
+         SUCCESS = .TRUE.; RETURN
+
+93053    FORMAT("#  Src Id's for play file", I2, ', with', I10, ' total sources',
+     &          ", and my_strt_src:", I10 )
+93057    FORMAT( I6, I8 )
+94010    FORMAT( 12( A, :, I8, :, 1X ) )
+
+         END FUNCTION PT3D_INIT
+
+C=======================================================================
+
+         SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP )
+
+C-----------------------------------------------------------------------
+
+C Time step part of laypoint
+
+         USE GRID_CONF   ! horizontal & vertical domain specifications
+         USE CGRID_SPCS  ! CGRID mechanism species
+         USE STK_PRMS    ! stack groups file
+         USE STK_EMIS    ! hourly point source emissions
+         USE PTMET, P_D => PTMET_DATA
+         USE PTMAP       ! defines pt src species mapping to VDEMIS* arrays
+         USE UTILIO_DEFN
+         USE SUBST_MODULES         ! stenex
+!        USE SUBST_UTIL_MODULE     ! stenex
+#ifdef isam
+         USE SA_DEFN     ! 20120719
+         USE AERO_DATA   ! 20120725
+         USE OZVOC_DEFN  ! 20120919 for pt src VOC
+#endif
+
+         IMPLICIT NONE
+
+C Includes:
+         INCLUDE SUBST_CONST     ! physical and mathematical constants
+         INCLUDE SUBST_FILES_ID  ! file name parameters (for CTM_PT3D_DIAG)
+
+C Arguments:
+         INTEGER               :: JDATE, JTIME
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )
+
+C Parameters:
+         REAL,            PARAMETER :: USTARMIN = 0.1   ! Min valid value for USTAR
+         REAL,            PARAMETER :: CONVPA = 1.0E-2  ! convert Pa to mb
+         REAL,            PARAMETER :: BTU2M4PS3 = 9.2752E-03 ! convert BTU/s to m**4/s**3
+         REAL,            PARAMETER :: BFACPHR = BTU2M4PS3 / 3600.0 ! m**4/s**3 per hour
+                                 ! assumes heat flux from file pt src file is in BTU/hr
+
+C External functions:
+         INTEGER,         EXTERNAL :: SETUP_LOGDEV
+         LOGICAL,         EXTERNAL :: WRITE3_DISTR   ! calls WRITE3 directly
+
+C Local variables:
+         INTEGER          CDATE      ! previous step start date
+         INTEGER          CTIME      ! previous step start time
+         INTEGER, SAVE :: LDATE = 0  ! previous date
+         INTEGER          LBOT       ! layer containing plume bottom
+         INTEGER          LTOP       ! layer containing plume top
+         INTEGER          LPBL       ! first L: ZF(L) above mixing layer - ONLY for REPORT
+         INTEGER          LSTK       ! first L: ZF(L) > STKHT
+         INTEGER          SRC        ! source pointer in this proc sub-domain
+         REAL             LFRC       ! intermediate LFRAC
+         REAL             MV         ! mininum LFRAC 
+         REAL             PSFC       ! surface pressure [Pa]
+         REAL             TSTK       ! temperature at top of stack [K]
+         REAL             TSUM       ! tmp layer frac sum for renormalizing
+         REAL             WSTK       ! wind speed  at top of stack [m/s]
+         REAL             ZBOT       ! plume bottom elevation [m]
+         REAL             ZTOP       ! plume top    elevation [m]
+         REAL             ZDIFF      ! ZTOP - ZBOT
+         REAL             DDZ        ! 1 / ZDIFF
+         REAL             ZPLM       ! plume centerline height above stack [m]
+         REAL             USTMP      ! temp storage for ustar [m/s]
+         REAL             HFLX       ! converted heat flux
+         REAL             BESIZE     ! effective size of the fire buoyant core
+         REAL             SFRACT     ! smoldering fraction size (1-BESIZE)
+
+         CHARACTER(  8 ) :: CINT     ! integer to character buffer for warning messages
+         CHARACTER( 16 ) :: PNAME = 'GET_PT3D_EMIS   '   ! procedure name
+         CHARACTER( 16 ) :: VNAME    ! variable name buffer
+
+         INTEGER          IOS        ! i/o and allocate memory status
+         INTEGER          L, S, V    ! counters
+         INTEGER          C, R, I, J, K, N
+
+         INTEGER, SAVE :: WSTEP = 0
+         INTEGER          WDATE, WTIME
+         LOGICAL, SAVE :: WRTIME
+         INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
+         LOGICAL, SAVE :: FIRSTIME = .TRUE.
+         INTEGER, SAVE :: LOGDEV
+
+         INTEGER, SAVE :: PRE_JDATE, LOC_STKDATE
+#ifdef isam
+         INTEGER  JSPCTAG, ITAG  ! 20130308
+         CHARACTER( 16 ) DUMMY
+         CHARACTER( 256 ), ALLOCATABLE, SAVE :: SGNAME( :,: )  !20130308 changed
+         CHARACTER( 256 ) :: SENAME( NPTGRPS )
+         CHARACTER( 256 ) :: DUMLONG
+         INTEGER  IBGN
+         LOGICAL  LSULF
+         INTEGER  JV   ! 20120919 for VOC
+         ! To deal with multi-sectors-for-single-tag situation 20130308
+         INTEGER ISGSTK
+         ! stack group ID values 20130801
+         LOGICAL  YES_XTRAC
+         INTEGER  JCNT
+         ! 20140515 figure out pec's location in stkpm_var
+         INTEGER GOTPEC
+#endif
+
+#ifdef Verbose1
+         real mxzplm
+#endif
+
+C-----------------------------------------------------------------------
+
+         IF ( FIRSTIME ) THEN
+            FIRSTIME = .FALSE.
+            LOGDEV = SETUP_LOGDEV()
+            PRE_JDATE = JDATE
+#ifdef isam
+            IF ( .NOT. ALLOCATED( SGNAME ) ) ALLOCATE( SGNAME( NTAG_SA-3,N_SGSTACKS ) )
+            SGNAME = 'blank'
+            DO ITAG = 1, NTAG_SA - 3
+               DO ISGSTK = 1, N_SGSTACKS
+                  IF ( YESSTK( ITAG,ISGSTK ) ) THEN
+                     WRITE( DUMMY, '( "SG",I2.2 )' ) ISGSTK
+                     CALL ENVSTR( DUMMY, 'stack emis file', 'to be tagged', DUMLONG, IOS )
+                     IBGN = INDEX( DUMLONG, '/', .TRUE. ) + 1
+                     SGNAME( ITAG,ISGSTK ) = DUMLONG( IBGN:LEN_TRIM( DUMLONG ) )
+                     IF ( IOS .EQ. 0 ) THEN
+!20140515               WRITE( LOGDEV,* ) 'In get_pt3d_emis, sgname=', SGNAME( ITAG, ISGSTK )
+                     ELSE
+                        WRITE( LOGDEV,* ) 'Failed to obtain value of logical SG??'
+                     END IF
+                  END IF
+               END DO
+            END DO
+#endif
+         END IF   ! firstime
+
+C For each time step, compute the layer fractions...
+
+         WRITE( XMSG,'(A, I7.6)' )
+     &   'Calculating emissions point source layer fractions for', JTIME
+         WRITE( LOGDEV,* ) ' '
+         CALL M3MSG2( XMSG )
+
+         IF ( LDATE .NE. JDATE ) THEN  ! write day and date to stdout & XMSG
+            CALL WRDAYMSG( JDATE, XMSG )
+            LDATE = JDATE
+            WRITE( LOGDEV,'(9X, "at time ", A)' ) HHMMSS( JTIME )
+         END IF
+         WRTIME = .FALSE.
+         WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+            WDATE = JDATE; WTIME = JTIME
+            CALL NEXTIME( WDATE, WTIME, TSTEP( 2 ) )
+            IF ( .NOT. CURRSTEP( WDATE, WTIME, SDATE, STIME, TSTEP( 1 ),
+     &                           CDATE, CTIME ) ) THEN
+               XMSG = 'Cannot get step date and time'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+            END IF
+            WDATE = CDATE; WTIME = CTIME
+            WSTEP = 0
+            WRTIME = .TRUE.
+            DO N = 1, NPTGRPS
+               IF ( RDEV( N ) .GT. 0 ) THEN    ! write day, date and time to report file
+                  WRITE( CINT,'( I8 )' ) REP_LAYR
+                  CALL WRDAYMSG( WDATE, XMSG )
+                  XMSG = XMSG( 1:LEN_TRIM( XMSG ) )
+     &                    // ' at time ' // HHMMSS( WTIME )
+     &                    // 'for ltop .ge. ' // TRIM( ADJUSTL( CINT ) )
+                  WRITE( RDEV( N ),93000 ) XMSG( 1:LEN_TRIM( XMSG ) )
+               END IF
+            END DO
+         END IF
+
+C Convert pt source met data to bi-linear interpolated data
+         CALL PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLYRS, ZSTATIC )
+
+         VDEMIS_PT = 0.0   ! array assignment
+         PMEMIS_PT = 0.0   ! array assignment
+#ifdef isam
+         SA_VDEMIS_PT = 0.0 ! KRT: reinitialization
+         VOC_E_PT     = 0.0 ! 20120919 reinitialization of inline VOC emis
+C Allocate sa_pmemis_pt here....
+         IF ( .NOT. ALLOCATED( SA_PMEMIS_PT ) ) THEN
+            ALLOCATE ( SA_PMEMIS_PT( MY_NCOLS,MY_NROWS,EMLYRS,N_SPC_PTPM,NTAG_SA ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'SA_PMEMIS_PT', PNAME )
+         END IF
+         SA_PMEMIS_PT = 0.0 ! KRT: reinitialization
+
+Ckrt...For now, allocate sa_sulf_pt for inline point source SULF
+         IF ( .NOT. ALLOCATED( SA_SULF_PT ) ) THEN
+            ALLOCATE ( SA_SULF_PT( MY_NCOLS,MY_NROWS,EMLYRS,NTAG_SA ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'SA_SULF_PT', PNAME )
+         END IF
+         SA_SULF_PT = 0.0   ! array
+#endif
+
+         DO N = 1, NPTGRPS
+
+            ALLOCATE( STKEM( NVARS_EMIS( N ) ), STAT = IOS )
+            CALL CHECKMEM( IOS, 'STKEM', PNAME )
+            STKEM = 0.0   ! 1-D array assignment
+            IF ( PT3DFRAC ) THEN   ! Store layer fractions
+               ALLOCATE( LFRAC( MY_NSRC( N ),EMLYRS ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'LFRAC', PNAME )
+               ALLOCATE( ZPLUM( MY_NSRC( N ),EMLYRS ), STAT = IOS )
+               CALL CHECKMEM( IOS, 'ZPLUM', PNAME )
+               LFRAC = 0.0   ! 2-D array - Initialize layer fraction
+               ZPLUM = 0.0   ! 2-D array - Initialize plume centroid height
+            END IF
+
+
+            IF ( MY_NSRC( N ) .LE. 0 ) THEN
+               IF ( ALLOCATED( STKEM ) ) DEALLOCATE( STKEM )
+               IF ( PT3DFRAC ) THEN
+                  IF ( ALLOCATED( LFRAC ) ) DEALLOCATE( LFRAC )
+                  IF ( ALLOCATED( ZPLUM ) ) DEALLOCATE( ZPLUM )
+               END IF
+               CYCLE
+            END IF
+
+
+C Ensure that the model and stack groups emissions timestamp dates stay synchronized
+!           IF ( SECSDIFF( JDATE,JTIME, STKDATE( N ),JTIME ) .NE. SYNCOFF( N ) ) THEN
+!              STKDATE( N ) = SEC2TIME( TIME2SEC( JDATE ) + SYNCOFF( N ) )
+!           END IF
+
+            IF ( PRE_JDATE .NE. JDATE ) THEN
+               LOC_STKDATE = STKDATE( N ) + 1
+            ELSE
+               LOC_STKDATE = STKDATE( N )
+            END IF
+
+            DO V = 1, NVARS_EMIS( N )
+               VNAME = STKSPC( N )%ARRY( V )
+               IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
+     &                             1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                             STKDATE( N ), JTIME,
+     &                             LOC_STKDATE, JTIME,
+     &                             STKEMIS( N )%ARRY( 1,V ) ) ) THEN
+                  XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                   ' from ' // TRIM( STKENAME( N ) )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+            END DO
+
+            IF ( FIREFLAG( N ) ) THEN
+               DO V = 1, NVARS_FIRE
+                  VNAME = FIRENAM( 1 )%ARRY( V )
+                  IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
+     &                                1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
+!    &                                STKDATE( N ), JTIME,
+     &                                LOC_STKDATE, JTIME,
+     &                                FIREVAR( 1 )%ARRY( 1,V ) ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( VNAME ) //
+     &                      ' from ' // TRIM( STKENAME( N ) )
+                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF
+               END DO
+               DO S = 1, MY_NSRC( N )
+                  SRC = SOURCE( N )%ARRY( S )
+                  BFLUX( S ) = FIREVAR( 1 )%ARRY( SRC,1 ) * BTU2M4PS3
+               END DO
+            END IF
+
+#ifdef isam
+Ckrt Acquire filename of stkename(n)
+           CALL ENVSTR( STKENAME( N ), 'stack emis file','for basic run', DUMLONG, IOS )
+           IF ( IOS .GT. 0 ) THEN
+             WRITE(LOGDEV,*)'stkename N=',N,' fails to show'
+           ENDIF
+           IBGN = INDEX( DUMLONG, '/', .TRUE. ) + 1
+           SENAME( N ) = DUMLONG( IBGN:LEN_TRIM( DUMLONG ) )
+!20140515  IF ( YES_PRINT ) THEN
+!20140515    WRITE(LOGDEV,*)'Cmplete stack emis file: N=',N,' sename=',SENAME(N)
+!20140515  ENDIF
+#endif
+
+C Loop through sources and compute plume rise
+
+#ifdef Verbose1
+            mxzplm = 0.0
+#endif
+
+            DO S = 1, MY_NSRC( N )
+
+               IF ( FIREFLAG( N ) ) THEN
+                  IF ( BFLUX( S ) .LE. 0.0 ) THEN
+                     TFRAC( 1 ) = 1.0
+                     TFRAC( 2:EMLYRS ) = 0.0
+                     LTOP = 1
+                     GO TO 201
+                  END IF
+               END IF
+
+               P_D( N )%ZZF( 0 ) = 0.0
+               P_D( N )%ZZF( 1:EMLYRS ) = P_D( N )%ZF( 1:EMLYRS,S )  ! array of layers
+
+C Get pressures: Use SIGMA values and surface pres. p=sigma*(psfc-ptop)+ptop
+               PSFC = P_D( N )%PRSFC( S )
+               DO L = 0, EMLYRS
+                  P_D( N )%PRESF( L ) = ( VGLVSXG( L ) * ( PSFC - VGTOP_GD )
+     &                                +   VGTOP_GD ) * CONVPA
+               END DO
+
+C Set surface pressure (convert to mb from Pa)
+               PSFC = CONVPA * PSFC
+
+C Compute derived met vars needed before layer assignments
+               CALL PREPLM( FIREFLAG( N ), EMLYRS,
+     &                      P_D( N )%HMIX( S ), STK_HT( N )%ARRY( S ), PSFC,
+     &                      P_D( N )%TSFC( S ),    P_D( N )%DDZF( 1,S ),
+     &                      P_D( N )%QV( 1,S ),    P_D( N )%TA( 1,S ),
+     &                      P_D( N )%UWIND( 1,S ), P_D( N )%VWIND( 1,S ),
+     &                      P_D( N )%ZH( 1,S ),    P_D( N )%ZF( 1,S ),
+     &                      P_D( N )%PRESF( 0 ), LSTK, LPBL, TSTK, WSTK,
+     &                      P_D( N )%DTHDZ,        P_D( N )%WSPD )
+
+C Trap USTAR at a minimum realistic value
+               USTMP = MAX( P_D( N )%USTAR( S ), USTARMIN )
+
+C Convert heat flux (watts/m2 to m K /s )
+               HFLX = P_D( N )%HFX( S ) / ( CPD * P_D( N )%DENS( 1,S ) )
+
+               IF ( .NOT. FIREFLAG( N ) ) THEN
+                  CALL PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
+     &                         STK_DM( N )%ARRY( S ), STK_HT( N )%ARRY( S ),
+     &                         STK_TK( N )%ARRY( S ), STK_VEL( N )%ARRY( S ),
+     &                         TSTK, USTMP,
+     &                         P_D( N )%DTHDZ,     P_D( N )%TA( 1,S ),
+     &                         P_D( N )%WSPD,      P_D( N )%ZZF( 0 ),
+     &                         P_D( N )%ZH( 1,S ), P_D( N )%ZSTK( 1,S ),
+     &                         WSTK, ZPLM )
+               ELSE
+                  CALL FIRE_PLMRIS( EMLYRS, LSTK, HFLX, P_D( N )%HMIX( S ),
+     &                         BFLUX( S ),
+     &                         TSTK, USTMP,
+     &                         P_D( N )%DTHDZ,     P_D( N )%TA( 1,S ),
+     &                         P_D( N )%WSPD,      P_D( N )%ZZF( 0 ),
+     &                         WSTK, ZPLM )
+               END IF
+
+#ifdef Verbose1
+               if ( zplm .gt. mxzplm ) mxzplm = zplm
+#endif
+
+C Determine the bottom and top heights of the plume.
+               IF ( IPVERT .EQ. 0 ) THEN
+C Default Turner approach.  Plume thickness = amount of plume rise
+C Plume rise DH = ZPLM minus the stack height STKHT
+                  IF ( FIREFLAG( N ) ) THEN
+                     ZTOP = 1.5 * ZPLM 
+                     ZBOT = 0.5 * ZPLM
+                  ELSE
+                     ZTOP = STK_HT( N )%ARRY( S )
+     &                    + 1.5 * ( ZPLM - STK_HT( N )%ARRY( S ) )
+                     ZBOT = STK_HT( N )%ARRY( S )
+     &                    + 0.5 * ( ZPLM - STK_HT( N )%ARRY( S ) )
+                  END IF
+               ELSE
+C Alternative method to compute plume top/bot heights
+                  CALL PLSPRD( P_D( N )%DTHDZ, P_D( N )%ZZF, EMLYRS,
+     &                         ZPLM, ZTOP, ZBOT )
+               END IF
+
+C Set up for computing plume fractions, assuming uniform distribution in pressure
+C (~mass concentration -- minor hydrostatic assumption) from bottom to top.
+
+               IF ( ZTOP .LT. STK_HT( N )%ARRY( S ) ) THEN
+                  WRITE( CINT,'( I8 )' ) S
+                  WRITE( XMSG,94010 ) 'ERROR: Top of plume is less than '
+     &                                // 'top of stack for source:' // CINT
+                  CALL M3MESG( XMSG )
+                  WRITE( LOGDEV,* ) '    Zbot: ', ZBOT, ' Ztop: ', ZTOP
+                  WRITE( LOGDEV,* ) '    Stack Top: ', STK_HT( N )%ARRY( S ),
+     &                              ' Plume Top: ', ZPLM
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+
+C Allocate plume to layers (compute layer plume fractions)
+
+!              CALL POSTPLM( EMLYRS, ZBOT, ZTOP, PRESF, ZZF, TA( 1,S ), ZH( 1,S ),
+!    &                       LTOP, TFRAC )
+
+C Compute LBOT, LTOP such that
+C  ZZF( LBOT-1 ) <= ZBOT < ZZF( LBOT ) and
+C  ZZF( LTOP-1 ) <= ZTOP < ZZF( LTOP )
+
+               DO L = 1, EMLYRS - 1
+                  IF ( ZBOT .LE. P_D( N )%ZZF( L ) ) THEN
+                     LBOT = L
+                     GO TO  122
+                  ELSE
+                     TFRAC( L ) = 0.0             ! fractions below plume
+                  END IF
+               END DO
+               LBOT = EMLYRS                      !  fallback
+
+#ifdef Verbose1
+               c = my_stkcol( n )%arry( s ); r = my_stkrow( n )%arry( s )
+            write( logdev,'(a, 4i4)' ) 'Layer top at c,r, for file, source: ', c, r, n, s
+#endif
+
+122            CONTINUE                           !  loop exit:  bottom found at LBOT
+
+               IF ( ZTOP .LE. P_D( N )%ZZF( LBOT ) ) THEN  ! plume in this layer
+
+                  TFRAC( LBOT ) = 1.0
+                  LTOP = LBOT
+
+                  DO L = LBOT + 1, EMLYRS         ! fractions above plume
+                     TFRAC( L ) = 0.0
+                  END DO
+
+               ELSE IF ( LBOT .EQ. EMLYRS ) THEN  ! plume above top layer
+
+                  TFRAC( LBOT ) = 1.0
+
+                  DO L = 1, EMLYRS - 1            ! fractions below plume
+                     TFRAC( L ) = 0.0
+                  END DO
+
+               ELSE                               ! plume crosses layers
+
+                  DO L = LBOT + 1, EMLYRS
+                     IF ( ZTOP .LE. P_D( N )%ZZF( L ) ) THEN
+                        LTOP = L
+                        GO TO 126
+                     END IF
+                  END DO
+                  LTOP = EMLYRS                   !  fallback
+
+#ifdef Verbose1
+            write( logdev,'(a, 4i4)' ) '> Hit top at c,r, for file, source: ', c, r, n, s
+#endif
+126               CONTINUE
+
+                  ZDIFF = ZTOP - ZBOT
+                  IF ( ZDIFF .GT. 0.0 ) THEN
+
+                     DDZ  = 1.0 / ZDIFF
+                     TFRAC( LBOT ) = DDZ * ( P_D( N )%ZZF( LBOT ) - ZBOT )
+                     TFRAC( LTOP ) = DDZ * ( ZTOP - P_D( N )%ZZF( LTOP-1 ) )
+
+                  ELSE   ! ZDIFF .le. 0
+
+                     WRITE( CINT,'( I8 )' ) S
+                     WRITE( XMSG,94020 )
+     &                  'Infinitely small plume created for source:,'
+     &                  // CINT // CRLF() // BLANK10
+     &                  // 'All emissions put in first layer.'
+                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                     LBOT = 1; LTOP = 1
+                     TFRAC( LBOT ) = 1.0
+
+                  END IF
+
+                  DO L = LBOT + 1, LTOP - 1       ! layers in plume
+                     TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
+                  END DO
+
+                  DO L = LTOP + 1, EMLYRS         ! fractions above plume
+                     TFRAC( L ) = 0.0
+                  END DO
+
+               END IF
+
+C If layer fractions are negative, put in the first layer
+               MV = MINVAL( TFRAC( 1:EMLYRS ) )
+               IF ( MV .LT. 0.0 ) THEN
+
+                  WRITE( CINT,'( I8 )' ) S
+                  WRITE( XMSG,94010 ) 'WARNING: One or more negative plume '
+     &                     // 'fractions found for source:' // CINT
+     &                     // CRLF() // BLANK10 // 'Plume reset to '
+     &                     // 'put all emissions in surface layer.'
+                  CALL M3MESG( XMSG )
+
+                  TFRAC( 1 ) = 1.0
+                  TFRAC( 2:EMLYRS ) = 0.0
+
+               END IF
+
+               IF ( FIREFLAG( N ) ) THEN
+C If source is a fire, adjust for fire smoldering effects (include fractions below LBOT)
+C calculate smoldering fraction:
+
+                  IF ( ACRES( S ) .NE. 0.0 ) THEN
+                     BESIZE = 0.0703 * LOG( ACRES( S ) ) + 0.3
+                     BESIZE = MIN( BESIZE, 1.0 )
+                     SFRACT = 1.0 - BESIZE
+                  ELSE
+                     SFRACT = 1.0
+                     write( logdev,* ) "we can't get here: ", n, s
+                  END IF
+
+                  ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
+                  IF ( ZDIFF .GT. 0.0 ) THEN
+                     DDZ  = 1.0 / ZDIFF
+                     DO L = 1, LBOT - 1
+                       TFRAC( L ) = DDZ * ( P_D( N )%ZZF( L ) - P_D( N )%ZZF( L-1 ) )
+     &                            * SFRACT
+                     END DO
+                     TFRAC( LBOT ) = TFRAC( LBOT )
+     &                             + ( DDZ * ( ZBOT - P_D( N )%ZZF( LBOT-1 ) )
+     &                               - TFRAC( LBOT ) ) * SFRACT
+                  ELSE   ! LBOT = 1
+!                    TFRAC( 1:LBOT-1 ) = 0.0
+                     TFRAC( LBOT ) = TFRAC( LBOT ) * ( 1.0 - SFRACT )
+                  END IF
+
+                  DO L = LBOT + 1, LTOP
+                     TFRAC( L ) = TFRAC( L ) * ( 1.0 - SFRACT )
+                  END DO
+
+               END IF
+
+201            CONTINUE
+
+C Apportion emissions to the layers
+
+               SRC = SOURCE( N )%ARRY( S )
+               STKEM( : ) = STKEMIS( N )%ARRY( SRC,: )   ! array of species
+
+               C = MY_STKCOL( N )%ARRY( S ); R = MY_STKROW( N )%ARRY( S )
+               DO L = 1, EMLYRS
+                  LFRC = TFRAC( L )
+                  IF ( LFRC .LE. 0.0 ) CYCLE
+
+                  DO V = 1, STKEM_MAP( N )%LEN
+                     I = GAS_MAP( N )%ARRY( V )
+                     J = STKEM_MAP( N )%ARRY( V )
+                     VDEMIS_PT( C,R,L,I ) = VDEMIS_PT( C,R,L,I )
+!    &                                    + LFRC * STKEM( J )
+     &                                    + LFRC * EMIS_FAC( V ) * STKEM( J )
+                  END DO
+                  DO V = 1, STKPM_MAP( N )%LEN
+                     I = PM_MAP( N )%ARRY( V )
+                     J = STKPM_MAP( N )%ARRY( V )
+                     PMEMIS_PT( C,R,L,I ) = PMEMIS_PT( C,R,L,I )
+     &                                    + LFRC * STKEM( J )   ! emis fac applied in AERO_EMIS
+                  END DO
+
+               END DO
+
+#ifdef isam
+!20140515
+!20140516      IF ( YES_PRINT ) THEN
+!20140516        GOTPEC = INDEX1( 'PEC', STKPM_VAR( N )%LEN, STKPM_VAR(N)%ARRY )
+!20140516        IF ( GOTPEC .GT. 0 ) THEN
+!20140516          WRITE(LOGDEV,*)'N=',N,'location of pec in stkpm_var=',GOTPEC
+!20140516        ENDIF
+!20140516      ENDIF
+Ckrt .... LOOP through SPCTAGLOOP ...............................
+
+               SPCTAGLOOP: DO JSPCTAG = 1, N_SPCTAG
+               IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. )
+
+               MULTISECT: DO ISGSTK = 1, N_SGSTACKS
+
+!krt...20130801 Only if stack emis from SA matches one of those in base model
+               IF ( SGNAME( T_SPCTAG(JSPCTAG),ISGSTK ) .EQ. SENAME( N ) ) THEN
+
+!krt...20130801 either no sa_id needed, or sa_id from SA matches those in base model
+                 YES_XTRAC = .FALSE.
+                 IF ( STK_SAID( N )%ARRY( S ) .EQ. 0 ) THEN
+                   YES_XTRAC = .TRUE.
+                 ELSEIF ( T_SPCTAG(JSPCTAG) .LE. NTAG_SA-3 .AND.
+     & TAGRGN( T_SPCTAG(JSPCTAG) )(1:6) .NE. 'INLINE' ) THEN !20130920
+                   YES_XTRAC = .TRUE.
+                 ELSE
+                   DO JCNT = 1, NINLN
+                     IF ( YES_PRINT ) THEN  !20140513
+                       WRITE(LOGDEV,*)'N=',N,'S=',S,'stk_said(n)%arry(s)=',STK_SAID(N)%ARRY(S),
+     & 'jspctag=',JSPCTAG,'t_spctag=',T_SPCTAG(JSPCTAG),'jcnt=',JCNT,
+     & 'vnam_spctag=',VNAM_SPCTAG(JSPCTAG),'saidvalu=',SAIDVALU(T_SPCTAG(JSPCTAG),JCNT )
+                     ENDIF
+                  IF ( STK_SAID( N )%ARRY( S ) .EQ. INT(SAIDVALU( T_SPCTAG(JSPCTAG),JCNT ))
+     & .AND. SAIDVALU( T_SPCTAG(JSPCTAG),JCNT ) .GT. 0.0
+     & .AND. .NOT. YES_XTRAC ) THEN  
+                       YES_XTRAC = .TRUE.
+                       !20140513
+                       IF ( YES_PRINT ) WRITE(LOGDEV,*)'mype=',MYPE,'stack hit.'
+                     ENDIF
+                   ENDDO !jcnt
+                 ENDIF ! stk_said(n)%arry(s) = 0 or...
+
+                 IF ( YES_XTRAC ) THEN
+
+!krt...20130926 reduce to single layer loop, and single gas species loop
+                   DO L = 1, EMLYRS
+                     LFRC = TFRAC( L )
+                     IF ( LFRC .LE. 0.0 ) CYCLE
+                     DO V = 1, STKEM_MAP( N )%LEN
+                       I = GAS_MAP( N )%ARRY( V )
+                       J = STKEM_MAP( N )%ARRY( V )
+                       IF ( STKEM_VAR( N )%ARRY( V ) .EQ.
+     &    VNAM_SPCTAG(JSPCTAG)(1:IBGN-1) ) THEN
+                       !krt inline pt sulf or gas emis. 20130926
+                         IF ( VNAM_SPCTAG(JSPCTAG)(1:IBGN-1) .EQ. "SULF" ) THEN
+                           SA_SULF_PT( C,R,L,T_SPCTAG(JSPCTAG) ) =
+     &                       SA_SULF_PT( C,R,L,T_SPCTAG(JSPCTAG) ) +
+     &                       LFRC * STKEM( J )
+                         ELSE ! other gas species
+                           SA_VDEMIS_PT( C,R,L,I,T_SPCTAG(JSPCTAG) ) =
+     &                       SA_VDEMIS_PT( C,R,L,I,T_SPCTAG(JSPCTAG) ) +
+     &                       LFRC * STKEM( J )
+                         ENDIF ! sulf or other gases?
+                       ENDIF ! gaseous, sulf or voc species names matched
+                     ENDDO ! V of gaseous, sulf or voc
+
+Ckrt ...Tap certain inline pt emissions to an INTERMEDIATE array.....PM
+                     DO V = 1, STKPM_MAP( N )%LEN
+                       I = PM_MAP( N )%ARRY( V )
+                       J = STKPM_MAP( N )%ARRY( V )
+!20140516              IF ( J_ISAM_PTPM(JSPCTAG) .EQ. J ) THEN
+                       IF ( J_ISAM_PTPM(JSPCTAG) .EQ. I ) THEN
+                         SA_PMEMIS_PT( C,R,L,I,T_SPCTAG(JSPCTAG) ) =
+     &                    SA_PMEMIS_PT( C,R,L,I,T_SPCTAG(JSPCTAG) ) +
+     &                      LFRC * STKEM( J )
+                         IF ( YES_PRINT ) THEN
+                           IF ( TRIM(STKPM_NAME(I)) .EQ. 'PEC'  .AND. L .EQ. 1 ) WRITE(LOGDEV,*) 
+     & 'MYPE Equals ',MYPE,' Col=',C,' Row=',R,' L=1',
+     & 'N=',N,' stkem=',STKEM(J),' lfrc=',LFRC,' jspctag=',JSPCTAG,
+     & ' t_spctag=',T_SPCTAG(JSPCTAG),
+     & ' sa_pmemis_pt=',SA_PMEMIS_PT(C,R,L,I,T_SPCTAG(JSPCTAG))
+                         ENDIF
+                       ENDIF
+                     END DO ! loop of V again
+                   END DO ! loop of L
+
+                 ENDIF  ! yes_xtrac
+
+               ENDIF ! sgname = sename ?
+
+               END DO MULTISECT  ! loop of multisectors-4-single-tags
+
+               END DO SPCTAGLOOP ! jspctag loop
+
+Ckrt ....................inline emission captured for tagging arrays above.....
+#endif
+
+               IF ( PT3DFRAC ) THEN   ! Store layer fractions
+                  LFRAC( S,1:EMLYRS ) = TFRAC( 1:EMLYRS )  ! array
+                  ZPLUM( S,1 ) = ZPLM
+               END IF
+
+C Possible report to REPRTLAY
+               IF ( LTOP .GE. REP_LAYR .AND. RDEV( N ) .GT. 0 .AND. WRTIME ) THEN
+                  WRITE( RDEV( N ),93048 ) S, STK_HT( N )%ARRY( S ), LPBL,
+     &                                     LBOT, LTOP, STK_VEL( N )%ARRY( S ), WSTK,
+     &                                     STK_TK( N )%ARRY( S ), TSTK
+               END IF
+
+            END DO    ! end loop on sources S
+
+            IF ( PT3DFRAC .AND. WRTIME ) THEN     ! Write out layer fractions
+               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'LFRAC', WDATE, WTIME,
+     &                                  MY_NSRC( N ), EMLYRS, LFRAC ) ) THEN
+                  XMSG = 'Error writing "LFRAC" to file "' //
+     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+               IF ( .NOT. WRITE3_DISTR( PLAYNAME( N ), 'ZPLUME', WDATE, WTIME,
+     &                                  MY_NSRC( N ), EMLYRS, ZPLUM ) ) THEN
+                  XMSG = 'Error writing "ZPLUM" to file "' //
+     &                    PLAYNAME( N )( 1:LEN_TRIM( PLAYNAME( N ) ) ) // '."'
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+               END IF
+            WRITE( LOGDEV,94030 )
+     &            'Timestep written to', TRIM( PLAYNAME( N ) ),
+     &            'for date and time', WDATE, WTIME
+            END IF
+
+#ifdef Verbose1
+            write( logdev,* ) '   Max ZPLM(', n, ' ):', mxzplm
+#endif
+
+            DEALLOCATE( STKEM )
+            IF ( PT3DFRAC ) THEN
+               DEALLOCATE( LFRAC )
+               DEALLOCATE( ZPLUM )
+            END IF
+
+         END DO   ! NPTGRPS
+
+         IF ( PT3DDIAG ) THEN  ! store 3d point source emissions
+            NTICS = NTICS + 1
+            VDEMIS_BUF = VDEMIS_BUF + VDEMIS_PT   ! array assignmnt
+            PMEMIS_BUF = PMEMIS_BUF + PMEMIS_PT   ! array assignmnt
+#ifdef Verbose1
+            write( logdev,* ) '   ntics, jtime: ', ntics, jtime
+#endif
+            IF ( WRTIME ) THEN
+               DIVFAC = 1.0 / FLOAT( NTICS )
+#ifdef Verbose1
+               write( logdev,* ) '   ntics, divfac: ', ntics, divfac
+#endif
+               DO V = 1, N_SPC_PTEM
+                  VDEMIS_BUF( :,:,:,V ) = DIVFAC * VDEMIS_BUF( :,:,:,V )
+                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKEM_NAME( V ),
+     &                               WDATE, WTIME, VDEMIS_BUF( :,:,:,V ) ) ) THEN
+                     XMSG = 'Error writing "VDEMIS_PT" to '
+     &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
+                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF
+               END DO
+               DO V = 1, N_SPC_PTPM
+                  PMEMIS_BUF( :,:,:,V ) = DIVFAC * PMEMIS_BUF( :,:,:,V )
+                  IF ( .NOT. WRITE3( CTM_PT3D_DIAG, STKPM_NAME( V ),
+     &                               WDATE, WTIME, PMEMIS_BUF( :,:,:,V ) ) ) THEN
+                     XMSG = 'Error writing "PMEMIS_PT" to '
+     &                    // CTM_PT3D_DIAG( 1:LEN_TRIM( CTM_PT3D_DIAG ) )
+                     CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+                  END IF
+               END DO
+               WRITE( LOGDEV,94030 )
+     &               'Timestep written to', CTM_PT3D_DIAG,
+     &               'for date and time', WDATE, WTIME
+            VDEMIS_BUF = 0.0   ! array
+            PMEMIS_BUF = 0.0   ! array
+            NTICS = 0
+            END IF
+         END IF
+
+         RETURN
+
+C------------------  FORMAT  STATEMENTS   ------------------------------
+
+93000    FORMAT( A / 1X, 'source', 3X, 'ht', 3X, 'lpbl', 1X, 'lbot', 1X, 'ltop',
+     &               3X, 'vel', 4X, 'windspeed', 2X, 'StkTemp', 3X, 'AmbTemp' )
+
+93040    FORMAT( 'Sources with top of plume greater than layer', I3, //,
+     &           'Src ID, ', A, ', H[m], ', 'V[m/s], ', 'Ts[K], ',
+     &           'Ta[K], ', 'U[m/s], ', 'LPBL, ', 'LTOP' )
+
+93042    FORMAT( '( I6, ",", I6.6, ",", A', I2.2, ', ","', I2.2, '(A',
+     &           I2.2, ',", ") , F6.1, ", ", F6.2, ", ", F6.1, ", ",',
+     &           'F5.1, ", ", F6.2, ", ", I3, ", ", I3 )' )
+
+93044    FORMAT( I6, ",", I6.6, F6.1, ", ", F6.2, ", ", F6.1, ", ",
+     &           F5.1, ", ", F6.2, ", ", I3, ", ", I3 )
+
+93048    FORMAT( I6, F8.2, 3I4, 4F10.2 )
+
+94010    FORMAT( 12( A, :, I8, :, 1X ) )
+94020    FORMAT( 10( A, :, I7, :, 1X ) )
+94030    FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
+
+         END SUBROUTINE GET_PT3D_EMIS
+
+C-------------- Subprograms used by GET_PT3D_EMIS ----------------------
+
+         SUBROUTINE RETRIEVE_IOAPI_HEADER( FNAME, JDATE, JTIME )
+
+            USE UTILIO_DEFN
+
+            IMPLICIT NONE
+
+            CHARACTER( * ) :: FNAME
+            INTEGER        :: JDATE, JTIME
+
+            CHARACTER( 16 )  :: PNAME = 'RETRVE_IOAPI_HDR'   ! procedure name
+            CHARACTER( 120 ) :: XMSG = ' '
+
+            IF ( .NOT. DESC3( FNAME ) ) THEN
+               XMSG = 'Could not get description of file "' //
+     &                FNAME( 1:LEN_TRIM( FNAME ) ) // '"'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+            RETURN
+
+         END SUBROUTINE RETRIEVE_IOAPI_HEADER
+
+C-----------------------------------------------------------------------
+
+         SUBROUTINE READGC3 ( VNAME, JDATE, JTIME, XBUF )
+
+            USE VGRD_DEFN             ! vertical layer specifications
+            USE PTBILIN, ONLY: XBND, YBND
+            USE UTILIO_DEFN
+
+            IMPLICIT NONE
+
+            INCLUDE SUBST_FILES_ID  ! file name parameters
+
+            CHARACTER( * ) :: VNAME     ! variable name
+            INTEGER           JDATE     ! Julian date
+            INTEGER           JTIME     ! time
+            REAL              XBUF( * ) ! read buffer
+
+            INTEGER      GXOFF, GYOFF   ! global origin offset from file
+C for INTERPX
+            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
+
+            INTEGER, SAVE   :: LAY1, LAY2
+            INTEGER            L1
+            CHARACTER( 16 ) :: PNAME = 'READGC3'   ! procedure name
+            LOGICAL, SAVE   :: FIRSTIME = .TRUE.
+
+            integer, save :: logdev
+            integer, external :: setup_logdev
+
+            IF ( FIRSTIME )  THEN
+               FIRSTIME = .FALSE.
+               logdev = setup_logdev()
+
+               GRID_CRO_3D = GC3NAME
+
+               CALL SUBHFILE ( GRID_CRO_3D, GXOFF, GYOFF,
+     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
+
+!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
+               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
+!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
+               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
+
+               LAY1 = 1; LAY2 = NLAYS
+
+            END IF
+
+            IF ( .NOT. INTERPX( GRID_CRO_3D, VNAME, PNAME,
+     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
+     &                          JDATE, JTIME, XBUF ) ) THEN
+
+               L1 = LEN_TRIM( VNAME )
+               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
+     &                ' from file GRID_CRO_3D'
+               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
+            END IF
+
+            RETURN
+
+         END SUBROUTINE READGC3
+
+C-----------------------------------------------------------------------
+
+      END MODULE PT3D_DEFN
+

@@ -1,0 +1,6 @@
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/ICON/src/mech_conv/radm2_to_saprc99/mech_table.ext,v 1.1 2011/09/12 16:31:36 yoj Exp $
+
+      use saprc99_table
+
