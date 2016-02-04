@@ -22,8 +22,9 @@ This command shows how to check out CMAQ v5.1 codes and scripts.
 The release versions of CMAQ that are currently available on Git Hub include:
 
 * [v5.1 (December 2015)](https://github.com/CMASCenter/CMAQ/tree/5.1)
-* v5.0.2 (April 2014)
-* v5.0.1 (July 2012)
-* v5.0 (February 2012)
+* [v5.0.2 (April 2014)](https://github.com/CMASCenter/CMAQ/tree/5.0.2)
+* [v5.0.1 (July 2012)](https://github.com/CMASCenter/CMAQ/tree/5.0.1)
+* [v5.0 (February 2012)](https://github.com/CMASCenter/CMAQ/tree/5.0)
+* [v4.7.1 (June 2010)](https://github.com/CMASCenter/CMAQ/tree/4.7.1)
 
 
