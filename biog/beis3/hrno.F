@@ -122,6 +122,9 @@ C                       rainfall bucket
 C    07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C    Aug 15 D.Wong:    Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O 
 C                      implementation and added code to handle parallel I/O
+C    09 Jan 15 J.Young: fix bug of not calculating NOPOL for last sync step of last
+C                       run output step; get saturation from LSM module; put PX_VERSION
+C                       as first conditional clause
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -141,6 +144,7 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE BIOG_EMIS, ONLY: NSEF ! beis
       USE ASX_DATA_MOD
+      USE LSM_MOD, ONLY: WSAT
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -167,13 +171,9 @@ C Parameters:
       REAL,    PARAMETER :: CFNODRYFC = ( 1.0 / 3.0 ) * ( 1.0 / 30.0 )
         
 C Saturation values for 11 soil types from pxpbl.F  (MCIP PX version)
+C In LSM_MOD:WSAT
 C Pleim-Xiu Land-Surface and PBL Model (PX-LSM)
 C See Jacquemin B. and Noilhan J. (1990), Bound.-Layer Meteorol., 52, 93-134.
-
-      REAL, SAVE :: SATURATION( MAXSTYPES ) =
-     &                        (/ 0.395, 0.410, 0.435, 0.485,
-     &                           0.451, 0.420, 0.477, 0.476,
-     &                           0.426, 0.482, 0.482 /)
 
 C Local Variables:
 
@@ -312,9 +312,12 @@ C Get description of met file
 C Check that grid description matches B3GRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
-     &           // ' does not match Grid in file '
-     &           // TRIM( NNAME )
+     &           // '" does not match grid in file ' // TRIM( NNAME ) // '"'
+#ifdef twoway
             CALL M3WARN( PNAME, 0, 0, MESG )
+#else
+            CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
+#endif
          END IF
 
 C Allocate memory for data and read
@@ -371,7 +374,7 @@ C for the Yienger and Levy algorithm
          WRITE( LOGDEV,'(/5X, A)' ) 'Temporal BEIS ...'
          MESG = 'Initial run?'
          INITIAL_RUN = ENVYN( 'INITIAL_RUN', MESG, .FALSE., IOS )
-!        RHOURS = MIN( MXRHRS, MSTEPS )
+         RHOURS = MXRHRS
 
 C If initial run, initialize some variables, otherwise get them from file
          IF ( INITIAL_RUN ) THEN
@@ -380,10 +383,7 @@ C If initial run, initialize some variables, otherwise get them from file
             PULSETIME = 0   ! array
             PTYPE     = 0   ! array
 
-            RHOURS = 24
          ELSE
-
-            RHOURS = 24
 
 C Open saved NO rain data file
             SOILINP = PROMPTMFILE(
@@ -484,12 +484,10 @@ C Close input file
 
       END IF   ! FIRSTIME
 
-      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .LE. TIME2SEC( TSTEP( 2 ) ) ) GO TO 9999
-
 C Non-convective (RN) and convective (RC) rain is the total amount for the met
 C preprocessor's (typically MCIP) output timestep (typically one hour). It doesn't
-C make much sense to time-interpolate these values, since rain generally does not
-C fall at a constant rate for an output timestep.
+C make sense to time-interpolate these values, since rain generally does not fall
+C at a constant rate for an output timestep.
       IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, METSTEP,
      &                     NDATE, NTIME ) ) THEN
          MESG = 'Cannot get step date and time'
@@ -505,11 +503,10 @@ C Store current time step rainfall totals
                                                  ! to accommodate non-zero start hour
          END IF
 
-! for the first hour of the simulation day, use the previous 24 hour
-! data to compute precip adjustment
+C For the first hour of the simulation day, use the previous 24 hour
+C data to compute precip adjustment
 
          NDX = 1 + MOD( IHR, MXRHRS )
-!        RAINFALL( :,:,NDX ) = RN + RC
          C_RAINFALL = C_RAINFALL + MET_DATA%RN + MET_DATA%RC
          WRITE( DDTTM( NDX ),'(I8,":",I6.6)' ) RDATE, RTIME
 
@@ -539,8 +536,6 @@ C Store current time step rainfall totals
          write( logdev,* ) 'hrno - INITIAL_DAY, IHR: ', initial_day, ihr
 #endif
 
-!        IHR = IHR + 1
-
       END IF   ! on the METSTEP
 
 C Calculate temporal non-speciated soil NO emissions
@@ -558,18 +553,21 @@ C Calculate temporal non-speciated soil NO emissions
                TAIR = MET_DATA%TEMP2( C,R )   ! unit in degree K
 
 C Check min bounds for temperature and limit to 303 deg K
-               Write(MESG,94010) 'Max TAIR: ', Maxval(MET_DATA%TEMP2),
-     &            'at (C,R)', Maxloc(MET_DATA%TEMP2)
-               Write(MESG,94010) 'Min TAIR: ', Minval(MET_DATA%TEMP2),
-     &            'at (C,R)', Minloc(MET_DATA%TEMP2)
                IF ( TAIR .LT. 200.0 ) THEN
                   WRITE( MESG, 94010 ) 'TAIR=', TAIR,
      &                 'out of range at (C,R)=', C, R
-                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, 2 )
+                  CALL M3MESG( MESG )
+                  Write( MESG,94010 ) 'Max TAIR: ', Maxval( MET_DATA%TEMP2 ),
+     &                 'at (C,R)', Maxloc( MET_DATA%TEMP2 )
+                  CALL M3MESG( MESG )
+                  Write( MESG,94010 ) 'Min TAIR: ', Minval( MET_DATA%TEMP2 ),
+     &                 'at (C,R)', Minloc( MET_DATA%TEMP2 )
+                  CALL M3MESG( MESG )
+                  CALL M3EXIT( PNAME, JDATE, JTIME, '*** ABORT', 2 )
                END IF
                TAIR = MIN( TAIR, 303.0 )
 
-               IF ( TAIR .GT. 268.8690 ) THEN  
+               IF ( TAIR .GT. 268.8690 ) THEN
                   CFNO = EXP( 0.04686 * TAIR - 14.30579 ) ! grass (from BEIS2)
                ELSE
                   CFNO = 0.0
@@ -591,7 +589,7 @@ C Check min bounds for temperature and limit to 303 deg K
 
 #ifdef verbose_hrno
       write( logdev,2009 ) ncfno0, mxtair, mxcfno
-2009  format( 'hrno - NCFNO0, MAX TAIR,CFNO: ', i7, 2f10.5 )
+2009  format( ' hrno - NCFNO0, MAX TAIR,CFNO: ', i7, 2f10.5 )
 #endif
 
       ELSE   ! growing season
@@ -606,7 +604,7 @@ C Check min bounds for temperature and limit to 303 deg K
             
                TAIR = MET_DATA%TEMP2( C,R )   ! unit in degree K
 
-C Check min bounds for temperature and limit to 303 deg K
+C Check min bounds for temperature and limit max to 303 deg K
                IF ( TAIR .LT. 200.0 ) THEN
                   WRITE( MESG, 94010 ) 'TAIR=', TAIR,
      &                 'out of range at (C,R)=', C, R
@@ -614,40 +612,13 @@ C Check min bounds for temperature and limit to 303 deg K
                END IF
                TAIR = MIN( TAIR, 303.0 )
 
-               IF ( .NOT. PX_VERSION ) THEN
-
 C Calculate NO emissions by going thru temperature cases
-                  TSOI = 0.72 * TAIR + 82.28
-                  TSOI = MIN( MAX( TSOI, 273.16 ), 303.16 ) - 273.16   ! deg C
-                  CFNODRY = CFNODRYFC * TSOI ! see YL 1995 Eqn 9a p. 11452
-                  IF ( TSOI .LE. 10.0 ) THEN ! see YL 1995 Eqn 7b
-                     CFNOWET = 0.28 * EFAC * TSOI   ! linear cold case
-                  ELSE
-                     CFNOWET = EFAC * EXP( 0.103 * TSOI )   ! exponential case
-                  END IF
-                  CFNO = 0.5 * ( CFNOWET + CFNODRY )
 
-                  FAC1 = GROWAGNO( C,R ) * CFNO
-     &                 * FERTILIZER_ADJ( JDATE )
-     &                 * VEG_ADJ( JDATE )
-     
-                  IF ( INITIAL_DAY ) THEN
-                     FAC2 = 1.0
-                     PTYPE( C,R ) = 0
-                     PULSEDATE( C,R ) = 0
-                     PULSETIME( C,R ) = 0
-                  ELSE
-                     FAC2 = PRECIP_ADJ( JDATE, JTIME, RNTOT( C,R ),
-     &                                  PTYPE( C,R ), PULSEDATE( C,R ),
-     &                                  PULSETIME( C,R ) )
-                  END IF
+               IF ( PX_VERSION ) THEN
 
-               ELSE   ! using PX version of MCIP    
-
-C Calculate NO emissions by going thru temperature cases
                   SOILCAT = GRID_DATA%SLTYP( C,R )
                   IF ( SOILCAT .LE. MAXSTYPES ) THEN
-                     RATIO = MET_DATA%SOIM1( C,R ) / SATURATION( SOILCAT )
+                     RATIO = MET_DATA%SOIM1( C,R ) / WSAT( SOILCAT )
                      IF ( USE_SOILT ) THEN
                         TSOI = MET_DATA%SOIT1( C,R )
                      ELSE
@@ -682,6 +653,33 @@ C Calculate NO emissions by going thru temperature cases
      &                                     PULSEDATE( C,R ), PULSETIME( C,R ) )
                   END IF
 
+               ELSE
+
+                  TSOI = 0.72 * TAIR + 82.28
+                  TSOI = MIN( MAX( TSOI, 273.16 ), 303.16 ) - 273.16   ! deg C
+                  CFNODRY = CFNODRYFC * TSOI ! see YL 1995 Eqn 9a p. 11452
+                  IF ( TSOI .LE. 10.0 ) THEN ! see YL 1995 Eqn 7b
+                     CFNOWET = 0.28 * EFAC * TSOI   ! linear cold case
+                  ELSE
+                     CFNOWET = EFAC * EXP( 0.103 * TSOI )   ! exponential case
+                  END IF
+                  CFNO = 0.5 * ( CFNOWET + CFNODRY )
+
+                  FAC1 = GROWAGNO( C,R ) * CFNO
+     &                 * FERTILIZER_ADJ( JDATE )
+     &                 * VEG_ADJ( JDATE )
+     
+                  IF ( INITIAL_DAY ) THEN
+                     FAC2 = 1.0
+                     PTYPE( C,R ) = 0
+                     PULSEDATE( C,R ) = 0
+                     PULSETIME( C,R ) = 0
+                  ELSE
+                     FAC2 = PRECIP_ADJ( JDATE, JTIME, RNTOT( C,R ),
+     &                                  PTYPE( C,R ), PULSEDATE( C,R ),
+     &                                  PULSETIME( C,R ) )
+                  END IF
+
                END IF  ! PX version check
 
                IF ( TAIR .GT. 268.8690 ) THEN  
@@ -709,14 +707,12 @@ C Calculate NO emissions by going thru temperature cases
 
 #ifdef verbose_hrno
       write( logdev,2011 ) mxptype, mxrntot, avgfac2/(ncols*nrows), mxfac1, mxfac3, mxfac4
-2011  format( 'hrno MAX PTYPE,RNTOT,AVGFAC2,FAC1,3,4: ', I2, 2f8.3 , 3f10.3 )
+2011  format( ' hrno MAX PTYPE,RNTOT,AVGFAC2,FAC1,3,4: ', I2, 2f8.3 , 3f10.3 )
 #endif
 
       END IF  ! growing season check
 
-      RETURN
-
-9999  CONTINUE
+      IF ( SECSDIFF( JDATE,JTIME, EDATE,ETIME ) .GT. TIME2SEC( TSTEP( 2 ) ) ) RETURN
 
 C Create rain data file for soil NO
 
@@ -736,7 +732,7 @@ C Build description for, and create/open soil NO emissions output file
       NTHIK3D = 1
       GDTYP3D = GDTYP_GD
       P_ALP3D = P_ALP_GD
-      P_BET3D = P_BET_GD 
+      P_BET3D = P_BET_GD
       P_GAM3D = P_GAM_GD
       XORIG3D = XORIG_GD
       YORIG3D = YORIG_GD
@@ -851,7 +847,6 @@ C Write soil NO rain data file
       RETURN
 
 94010 FORMAT( A, F10.2, 1X, A, I3, ',', I3 )
-94020 FORMAT( A, F10.2, 1X, A, I3, ',', I3, A )
 94040 FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
 
 C-----------------------------------------------------------------------
@@ -923,7 +918,7 @@ C   4. override adjustment for saturated soils
          SOILCAT = ISLTYP
 
          IF ( SOILCAT .LE. MAXSTYPES ) THEN   ! not water
-            IF ( SOILM .GE. SAT_THRES * SATURATION( SOILCAT ) ) THEN
+            IF ( SOILM .GE. SAT_THRES * WSAT( SOILCAT ) ) THEN
                PRECIP_ADJ_PX = 0.0
             ELSE
                PTYPE_TEST = PULSETYPE( RAIN )
