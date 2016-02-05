@@ -740,7 +740,12 @@
             real( 8 ), parameter :: chi_snow = -1.97059682D+01 ! -2.0*(1.0e+3*pi*rho_snow*n0_snow)**0.25, (cm-4*g/m3)**.25
             real( 8 ), parameter :: chi_grau = -1.78063523D+01 ! -2.0*(1.0e+3*pi*rho_grau*n0_grau)**0.25, (cm-4*g/m3)**.25
    
-            real, parameter :: limit = 1.0e-7
+!!!!!!!!!!! real, parameter :: limit = 1.0E-10 ! value of q where calculation converges to a lower limit
+            real, parameter :: limit = 1.0E-04 ! value of q where calculation converges to a upper limit
+
+            real, parameter :: dmin_snow = 887.873       ! lower convergence results for snow, um 
+            real, parameter :: dmin_grau = dmin_snow     ! lower convergence results for graupel, um 
+            real, parameter :: dmin_rain = 0.5*dmin_snow ! lower convergence results for rain, um 
 
 !  local variables
             integer   :: lay, nk
@@ -752,6 +757,7 @@
             real( 8 ) :: comp
             real( 8 ) :: psd   ! partical size distribution
             real      :: factor
+            real      :: dmin  ! value if q .le. limit
 
 ! initialize
 !
@@ -767,24 +773,27 @@
                   n0        =  n0_rain
                   chi       =  chi_rain
                   factor    =  1.0e+4
+                  dmin      =  dmin_rain
                case( 2 )
                   rho_hydro =  rho_snow
                   n0        =  n0_snow
                   chi       =  chi_snow
                   factor    =  2.0e+4
+                  dmin      =  dmin_snow
                case( 3 )
                   rho_hydro =  rho_grau
                   n0        =  n0_grau
                   chi       =  chi_grau
                   factor    =  2.0e+4
+                  dmin      =  dmin_snow
                case default
                   reff( 1:nlayers )  = min_dge
                   return
                end select
             do lay = 1, nlayers
 !              lamda = (1.0e+3*pi*rho_hydro*n0/q(lay))**0.25
-               if( q(lay) .le.  cldmin )then
-                  reff(lay) = min_dge
+               if( q(lay) .le.  limit )then
+                  reff(lay) = dmin
                   cycle
                end if
                lamda = chi*(1.0D0/real( q(lay), 8))**0.25D0
