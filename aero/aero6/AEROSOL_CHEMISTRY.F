@@ -143,8 +143,6 @@ C Mapping array for location of acid enhanced products and nucleophiles in aeros
       INTEGER :: ACID_PRODMAP_IDX( N_NUCPAIRS )
       INTEGER :: ACID_NUCMAP_IDX(  N_NUCPAIRS )
 
-      LOGICAL :: AERO_CHEM_SET = .FALSE.
-
       CONTAINS
 
       SUBROUTINE HETCHEM_RATES( TEMP, PRESS, WVAPOR, CGRID, DENS )
