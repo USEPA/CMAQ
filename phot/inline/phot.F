@@ -128,6 +128,12 @@ C...modules
       USE PHOT_MET_DATA        ! Met and Grid data
       USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
 
+#ifdef parallel
+      USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES         ! stenex (using NOOP_UTIL_MODULE)
+#endif
+
       IMPLICIT NONE
 
 !...include files
@@ -463,6 +469,8 @@ C...modules
 #endif
             IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
 
+            CALL SUBST_BARRIER
+
          END IF  ! photdiag
 
 !...set pointers to species O3 and NO2 in CGRID
@@ -520,11 +528,11 @@ C...modules
          JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 ) 
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-            IF ( .NOT. OPEN3( CTM_RJ_1, FSNONIO, PNAME ) ) THEN
+            IF ( .NOT. OPEN3( CTM_RJ_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM(CTM_RJ_1)
                CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
             END IF
-            IF ( .NOT. OPEN3( CTM_RJ_2, FSNONIO, PNAME ) ) THEN
+            IF ( .NOT. OPEN3( CTM_RJ_2, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM(CTM_RJ_2)
                CALL M3EXIT( PNAME, ODATE, OTIME, XMSG, XSTAT1 )
             END IF
