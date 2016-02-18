@@ -104,7 +104,7 @@ C Override default beginning time timestamp for ACONC?
 
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
 #ifdef parallel_io
-            IF ( .NOT. OPEN3( A_CONC_1, FSNONIO, PNAME ) ) THEN
+            IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
 #else
             IF ( .NOT. OPEN3( A_CONC_1, FSREAD3, PNAME ) ) THEN
 #endif

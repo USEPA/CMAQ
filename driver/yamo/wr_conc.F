@@ -131,11 +131,7 @@ C-----------------------------------------------------------------------
 C open conc file for update
 
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-#ifdef parallel_io
-            IF ( .NOT. OPEN3( CTM_CONC_1, FSNONIO, PNAME ) ) THEN
-#else
             IF ( .NOT. OPEN3( CTM_CONC_1, FSREAD3, PNAME ) ) THEN
-#endif
                XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF

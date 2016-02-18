@@ -292,7 +292,7 @@ C proc 0 has CTM_CONC_1 open
       END IF
       CALL SUBST_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-         IF ( .NOT. OPEN3( S_CGRID, FSNONIO, PNAME ) ) THEN
+         IF ( .NOT. OPEN3( S_CGRID, FSREAD3, PNAME ) ) THEN
             XMSG = 'Could not open ' // TRIM( S_CGRID )
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF

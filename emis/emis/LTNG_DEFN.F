@@ -712,7 +712,7 @@ C statement function for ERF approximation
                   IF ( FIRSTIME ) THEN
                      FIRSTIME = .FALSE.
                      IF ( .not. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+                        IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                         END IF
@@ -768,7 +768,7 @@ C statement function for ERF approximation
                 
          END IF  ! end lightning NO production inline or from a file
                
-         write( logdev,* ) 'VDEMIS_LT sum: ', jdate, jtime, sum( vdemis_lt )
+         write( logdev,94042 ) 'VDEMIS_LT sum:', jdate, jtime, sum( vdemis_lt )
 
 !C Save date
 !        LDATE = JDATE
@@ -787,6 +787,7 @@ C statement function for ERF approximation
 C------------------  Format  Statements   ------------------------------
 
 94040 FORMAT( /5X, 3( A, :, 1X ), I8, ":", I6.6 )
+94042 FORMAT( /5X, A, 1X, I8, ":", I6.6, 1X, 1PE13.5 )
         
          END SUBROUTINE GET_LTNG
       

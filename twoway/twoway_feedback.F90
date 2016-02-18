@@ -8,6 +8,10 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 !                          calculation
 !                       -- commented out indirect code
 !                       -- used loop structure rather than explicit list
+!           Jan.  2016  -- resized the first dimension of cmaq_wrf_c_send_to,
+!                          cmaq_wrf_c_recv_from, cmaq_wrf_c_send_index_g,
+!                          cmaq_wrf_c_send_index_l, cmaq_wrf_c_recv_index_g,
+!                          and cmaq_wrf_c_recv_index_l
 !===============================================================================
 
   USE twoway_header_data_module
@@ -38,12 +42,12 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 
        logdev = init3 ()
 
-       allocate (cmaq_wrf_c_send_to(0:4, 0:nprocs-1),              &
-                 cmaq_wrf_c_recv_from(0:nprocs, 0:nprocs-1),       &
-                 cmaq_wrf_c_send_index_g(12, 2, 0:nprocs-1),       &   ! starting and ending dimension, dimenionality
-                 cmaq_wrf_c_send_index_l(12, 2, 0:nprocs-1),       &   ! starting and ending dimension, dimenionality
-                 cmaq_wrf_c_recv_index_g(nprocs*3, 2, 0:nprocs-1), &   ! starting and ending dimension, dimenionality
-                 cmaq_wrf_c_recv_index_l(nprocs*3, 2, 0:nprocs-1), &   ! starting and ending dimension, dimenionality
+       allocate (cmaq_wrf_c_send_to(0:9, 0:nprocs-1),              &
+                 cmaq_wrf_c_recv_from(0:9, 0:nprocs-1),            &
+                 cmaq_wrf_c_send_index_g(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
+                 cmaq_wrf_c_send_index_l(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
+                 cmaq_wrf_c_recv_index_g(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
+                 cmaq_wrf_c_recv_index_l(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
                  stat=stat) 
        if (stat .ne. 0) then
           print *, ' Error: Allocating communication indices arrays'

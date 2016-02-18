@@ -1,6 +1,9 @@
 !===============================================================================
 ! Purpose:  Various utility programs to faciliate the twoway model implementation
 ! Revised:  11 Apr 2007  Original version.  (David Wong)
+!           11 Jan 2016  David wong
+!              -- increased the string length of griddesc_fname to 500 in routine
+!                 setup_griddesc_file to accommondate long path name
 !===============================================================================
 
   module twoway_util_module
@@ -76,7 +79,8 @@
     character (len = 16), parameter :: griddesc = 'GRIDDESC'
     character (len = 16), parameter :: grid_name = 'GRID_NAME'
     character (len = 16)  :: grid_name_str
-    character (len = 100) :: buffer, myfmt, griddesc_fname
+    character (len = 100) :: buffer, myfmt
+    character (len = 500) :: griddesc_fname
     character (len = 4)   :: projection_type
 
     call nameval (griddesc, griddesc_fname)

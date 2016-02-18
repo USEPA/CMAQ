@@ -829,7 +829,7 @@ C Local variables:
              REAL,    INTENT( IN )  :: DTHDZ( : )
              REAL,    INTENT( IN )  :: TA   ( : )
              REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF   ( 0: )
+             REAL,    INTENT( IN )  :: ZF ( 0:  )
              REAL,    INTENT( IN )  :: ZH   ( : )
              REAL,    INTENT( IN )  :: ZSTK ( : )
              REAL,    INTENT( INOUT ) :: WSTK
@@ -849,14 +849,14 @@ C Local variables:
              REAL,    INTENT( IN )  :: DTHDZ( : )
              REAL,    INTENT( IN )  :: TA   ( : )
              REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF   ( 0: )
+             REAL,    INTENT( IN )  :: ZF ( 0:  )
              REAL,    INTENT( INOUT ) :: WSTK
              REAL,    INTENT( OUT ) :: ZPLM
            END SUBROUTINE FIRE_PLMRIS
 
            SUBROUTINE PLSPRD( DTHDZ, ZF, KZ, CEFSTK, PLTOP, PLBOT )
              REAL,    INTENT ( IN ) :: DTHDZ( : )
-             REAL,    INTENT ( IN ) :: ZF   ( 0: )
+             REAL,    INTENT ( IN ) :: ZF( 0:  )
              INTEGER, INTENT ( IN ) :: KZ
              REAL,    INTENT ( IN ) :: CEFSTK
              REAL,    INTENT( OUT ) :: PLTOP
@@ -877,10 +877,12 @@ C-----------------------------------------------------------------------
             PRE_JDATE = JDATE
 
 #ifdef parallel_io
-            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSNONIO, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+            IF ( PT3DDIAG ) THEN
+               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSREAD3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  END IF
                END IF
             END IF
 #endif

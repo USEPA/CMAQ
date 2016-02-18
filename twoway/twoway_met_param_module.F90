@@ -4,6 +4,7 @@
 ! Revised:  April 2007  Original version.  David Wong
 !           July, 16 2013  David Wong -- corrected the unit for RA and RS
 !                                     -- added DLUSE in GRIDCRO2D
+!           Jan, 11 2016  David Wong -- added a new variable PV
 !===============================================================================
 
   module twoway_met_param_module
@@ -11,7 +12,7 @@
     INTEGER, PARAMETER :: max_nvars       = 1000
     INTEGER, PARAMETER :: n_gridcro2d_var = 7
     INTEGER, PARAMETER :: n_griddot2d_var = 1
-    INTEGER, PARAMETER :: n_metcro3d_var  = 14
+    INTEGER, PARAMETER :: n_metcro3d_var  = 15
     INTEGER, PARAMETER :: n_metdot3d_var  = 4
     INTEGER, PARAMETER :: n_metcro2d_var  = 32
 
@@ -40,7 +41,8 @@
          'QR              ', 'QI              ',            &
          'QS              ', 'QG              ',            &
          'PRES            ', 'DENS            ',            &
-         'ZH              ', 'ZF              '  /)
+         'ZH              ', 'ZF              ',            &
+         'PV              '                      /)
 
     CHARACTER (LEN = 16), PARAMETER :: metcro3d_units(n_metcro3d_var) = &
       (/ 'M               ', 'M               ',            &
@@ -49,7 +51,8 @@
          'KG/KG           ', 'KG/KG           ',            &
          'KG/KG           ', 'KG/KG           ',            &
          'Pa              ', 'KG/M**3         ',            &
-         'M               ', 'M               '  /)
+         'M               ', 'M               ',            &
+         'M^2*K/KG/S * E-6'                      /)
 
     CHARACTER (LEN = 16), PARAMETER :: metdot3d_vlist(n_metdot3d_var) =  &
       (/ 'UWINDC          ', 'VWINDC          ',            &

@@ -799,7 +799,7 @@ C Open NO rain data save file
       END IF
       CALL SE_BARRIER
       IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-         IF ( .NOT. OPEN3( SOILOUT, FSNONIO, PNAME ) ) THEN
+         IF ( .NOT. OPEN3( SOILOUT, FSREAD3, PNAME ) ) THEN
             MESG = 'Could not open ' // TRIM( SOILOUT )
             CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
          END IF
