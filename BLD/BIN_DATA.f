@@ -57,6 +57,8 @@
      &    303.0,   310.0, 316.0, 333.0, 380.0, 574.0 /
 
           REAL, ALLOCATABLE, SAVE   :: EFFECTIVE_LAMBDA( : ) ! nm
+          REAL, ALLOCATABLE, SAVE   :: EFFECTIVE_WVNUMB( : ) ! 1/cm
+	  
           REAL, ALLOCATABLE, SAVE   :: SOLAR_PHOTONS(    : ) ! solar photon flux in bin, photons/cm2/s
   
       integer, parameter :: nwv_regress = 27
@@ -356,8 +358,9 @@
          MIDWL_NEW = 0.0
 
          ALLOCATE(  EFFECTIVE_LAMBDA( NJO_NEW ) )
+         ALLOCATE(  EFFECTIVE_WVNUMB( NJO_NEW ) )
          ALLOCATE(  SOLAR_PHOTONS(    NJO_NEW ) )
-         
+
 
        IF( USE_REGRESS )THEN
 
@@ -546,7 +549,10 @@ c--- find flux-weighted effective wavelength over the bins
 
         do J=1,NJO_NEW
            if(SSBIN(J) .gt. 0.0)FFBIN_AVE(J) = FFBIN_AVE(J)/DBLE(SSBIN(J))
-           if(FFBIN(J) .gt. 0.d0)EFFECTIVE_LAMBDA(J) = REAL(FFBIN(J)/AABIN(J))
+           if(FFBIN(J) .gt. 0.d0)THEN
+	      EFFECTIVE_LAMBDA(J) = REAL(FFBIN(J)/AABIN(J))
+	      EFFECTIVE_WVNUMB(J) = 1.0E7 / EFFECTIVE_LAMBDA(J)
+	   end if
            WRITE(6,'(A18,I3,A4,F6.1,2X,A25,ES12.4)')
      &     'EFFECTIVE_LAMBDA(',J,') = ',EFFECTIVE_LAMBDA(J),
      &     'Mean Solar Photons = ',FFBIN_AVE(J)

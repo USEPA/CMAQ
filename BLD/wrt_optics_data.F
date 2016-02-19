@@ -70,18 +70,12 @@
 
       INTERFACE
         SUBROUTINE OPTICS_WATER_CLOUD(CLOUD_RADIUS_LIQUID, WC_EXT, WC_ASF, WC_SSA)
-           USE BIN_DATA
-           USE CSQY_PARAMETERS
-           IMPLICIT NONE
            REAL, INTENT( IN )  :: CLOUD_RADIUS_LIQUID
            REAL, INTENT( OUT ) :: WC_EXT( : )
            REAL, INTENT( OUT ) :: WC_ASF( : )
            REAL, INTENT( OUT ) :: WC_SSA( : )
         END SUBROUTINE OPTICS_WATER_CLOUD
         SUBROUTINE OPTICS_ICE_CLOUD(CLOUD_DIAMETER_ICE, ICE_EXT, ICE_ASY, ICE_SSA, ICE_DEL)
-           USE BIN_DATA
-           USE CSQY_PARAMETERS
-           IMPLICIT NONE
            REAL, INTENT( IN )  :: CLOUD_DIAMETER_ICE   ! effective ice droplet size or diameter, um
            REAL, INTENT( OUT ) :: ICE_EXT( : )         ! (cloud extinction coef)/IWC, 1/m*/(g/m**3)
            REAL, INTENT( OUT ) :: ICE_ASY( : )         !  cloud asymmetry factor
@@ -90,21 +84,19 @@
         END SUBROUTINE OPTICS_ICE_CLOUD
         SUBROUTINE AERO_REFRACT_INDEX ( NAERO_REFRACT, AERO_REFRACT_INDX, AERO_REAL_REFRACT,
      &                                AERO_IMAG_REFRACT )
-            USE BIN_DATA
-            USE CSQY_PARAMETERS
-            IMPLICIT NONE
             INTEGER,         INTENT( IN )  :: NAERO_REFRACT             ! number of refractive indices
             CHARACTER( 16 ), INTENT( IN )  :: AERO_REFRACT_INDX( : )    ! names of refractive indices
             REAL,            INTENT( OUT ) :: AERO_IMAG_REFRACT( :, : ) ! imaginary part of index [Dimensionaless]
             REAL,            INTENT( OUT ) :: AERO_REAL_REFRACT( :, : ) ! real part of index [Dimensionaless]
         END SUBROUTINE AERO_REFRACT_INDEX
         SUBROUTINE SPECTRAL_REFLECT(MODIS_ALBEDO)
-           USE BIN_DATA
-           USE CSQY_PARAMETERS
-           IMPLICIT NONE
            REAL, INTENT( OUT ) :: MODIS_ALBEDO( :, : )
         END SUBROUTINE SPECTRAL_REFLECT
-      END INTERFACE
+        SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+            CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
+            LOGICAL,           INTENT( IN    ) :: UPPER
+        END SUBROUTINE CONVERT_CASE
+       END INTERFACE
 
 
         CALL INIT_BIN_DATA

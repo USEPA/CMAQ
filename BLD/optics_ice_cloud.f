@@ -74,9 +74,6 @@
      &                         SPECTRA_TYPE,
      &                         WLL_AVE, WLU_AVE, NWL_AVE, 
      &                         CS_AVE, QY_AVE )
-          USE CSQY_PARAMETERS
-          USE BIN_DATA
-          IMPLICIT NONE      
           CHARACTER(1), INTENT( IN ) :: SPECTRA_TYPE        ! spectra type
           INTEGER, INTENT( IN )      :: NWL_AVE             ! number of intervals average 
           INTEGER, INTENT( IN )      :: NWL_CS_IN           ! number of intervals CS_IN
@@ -96,9 +93,6 @@
      &                         SPECTRA_TYPE,
      &                         WLL_AVE, WLU_AVE, NWL_AVE, 
      &                         CS_AVE, QY_AVE )
-          USE CSQY_PARAMETERS
-          USE BIN_DATA
-          IMPLICIT NONE      
           CHARACTER(1), INTENT( IN ) :: SPECTRA_TYPE        ! spectra type
           INTEGER, INTENT( IN )      :: NWL_AVE             ! number of intervals average 
           INTEGER, INTENT( IN )      :: NWL_CS_IN           ! number of intervals CS_IN

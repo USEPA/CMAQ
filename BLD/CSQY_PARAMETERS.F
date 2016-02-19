@@ -34,9 +34,9 @@
           INTEGER, PARAMETER :: KT = MXLEV	
 
           REAL,    PARAMETER :: T298K = 298.0     ! standard air temperature
-          REAL,    PARAMETER :: DENS0 = 2.59E+19  ! approximate air number density at 1 Atm and 298K, molec/cm3 
-                                                  ! should be 2.465E+19 but using values for consistent results
-                                                  ! from original version of CSQY pre-processor, 3% difference
+          REAL,    PARAMETER :: DENS0 = 2.46E+19  ! approximate air number density at 1 Atm and 298K, molec/cm3 
+                                                  ! should be 2.465E+19 but the original version of CSQY pre-processor
+                                                  ! used 2.59E+19, a 3% difference
 
 
           REAL               :: Z_JPROC(    MXLEV )      ! altitudes for JPROC level, km
@@ -355,6 +355,13 @@
           CHARACTER(64) :: JTABLE_NAME
           CHARACTER(32) :: WORD
           CHARACTER(255)   EQNAME
+
+          INTERFACE
+           SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+             CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
+             LOGICAL,           INTENT( IN    ) :: UPPER
+           END SUBROUTINE CONVERT_CASE
+         END INTERFACE
 
           IF( FIRSTCALL )THEN
 
