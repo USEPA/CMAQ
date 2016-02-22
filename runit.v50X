@@ -8,14 +8,18 @@
  set EXDIR           = ${BASE}/BLD  
  set EXEC            = cr_ebi_solver 
 
+#setenv COMPILER INTEL
+#setenv COMPILER PGF90
+ setenv COMPILER GFORT
+
 #Define the gas, aerosol and aqueous components in MECHNAME
 #setenv GC_NAME       CB05TUCL
 #setenv GC_NAME       SAPRC99
 #setenv GC_NAME       SAPRC07TIC
-#setenv GC_NAME       SAPRC07TB
+ setenv GC_NAME       SAPRC07TB
 #setenv GC_NAME       RACM2
 #setenv GC_NAME       CB05E51
- setenv GC_NAME       CB05MP51
+#setenv GC_NAME       CB05MP51
  setenv AE_NAME       AE6
 #setenv AE_NAME       AE6I
  setenv AQ_NAME       AQ
@@ -23,7 +27,8 @@
 set MECH = ` echo ${GC_NAME}_${AE_NAME}_${AQ_NAME} |  tr 'a-zA-Z' 'A-Za-z' `
 #et MECH = cb05tucl_ae6_aq-poaage
 
- set REP              = /home/${USER}/CCTM_git_repository/MECHS/${MECH}
+ set CMAQ_git_repository = /home/${USER}/CCTM_git_repository
+ set REP              = ${CMAQ_git_repository}/MECHS/${MECH}
 #set REP              = /home/${USER}/tools/mech_processor/output/${MECH}
 #set REP              = /home/${USER}/tools/create_ebi_cmaq_v50
 #set MECH             = cb05tucl_clno2_hetchem
@@ -92,15 +97,15 @@ endif
 # output directory
 set day = ` date "+%b-%d-%Y" `
 #set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
- setenv OUTDIR        ${BASE}/output/ebi_${MECH}-${day}
+ setenv OUTDIR        ${BASE}/output/ebi_${MECH}-${day}_${COMPILER}
 #setenv OUTDIR         /home/${USER}/CCTM_git_repository/gas/ebi_${MECH}
  
  setenv COPYRT_FLAG      N
  setenv CVS_HDR_FLAG     N
 
  setenv ALL_MECHS       F    # obsolete option 
- setenv PAR_NEG_FLAG    T    # True for CB4 and CB05 but false for SAPRC99/07T
- setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines
+ setenv PAR_NEG_FLAG    F    # True for CB4 and CB05 but false for SAPRC99/07T
+ setenv DEGRADE_SUBS    F    # include calls for HAPs degrade routines
 # below option is a possible solution based on work by Golam Sawar if the 
 # mechanism includes excited NO2.  The user employs it at their own risk 
 # and should check the EBI solver's accuracy against the Gear or Rosenbrock solver
@@ -118,17 +123,17 @@ set day = ` date "+%b-%d-%Y" `
  setenv MECH_NO2   NO2    #  NO2          # NO2      # Mechanism name for nitrogen dioxide
  setenv MECH_NO2EX NO2EX  #  NO2EX / Not Present # NO2S     # Mechanism name for excited nitrogen dioxide
  setenv MECH_O3    O3     #  O3           # O3       # Mechanism name for ozone
-#setenv MECH_O3P   O3P     #  O3P          # O        # Mechanism name for ground state oxygen atom
- setenv MECH_O3P   O     #  O3P          # O        # Mechanism name for ground state oxygen atom
+ setenv MECH_O3P   O3P     #  O3P          # O        # Mechanism name for ground state oxygen atom
+#setenv MECH_O3P   O     #  O3P          # O        # Mechanism name for ground state oxygen atom
  setenv MECH_O1D   O1D    #  O1D2 or O1D  # O1D      # Mechanism name for excited state oxygen atom
  setenv MECH_OH    OH     #  HO or OH / HO  # OH       # Mechanism name for hydroxyl radical
  setenv MECH_HO2   HO2    #  HO2          # HO2      # Mechanism name for hydroperoxy radical
  setenv MECH_HONO  HONO   #  HONO         # HONO     # Mechanism name for nitrous acid
  setenv MECH_HNO4  HNO4   #  HNO4         # PNA      # Mechanism name for peroxynitric acid
- setenv MECH_HNO4  PNA   #  HNO4         # PNA      # Mechanism name for peroxynitric acid
+#setenv MECH_HNO4  PNA   #  HNO4         # PNA      # Mechanism name for peroxynitric acid
  setenv MECH_PAN   PAN    #  PAN          # PAN      # Mechanism name for peroxy acetyl nitrate
- setenv MECH_C2O3  C2O3   #CCO_O2 or MECO3 / ACO3 # C2O3    # Mechanism name for peroxy acetyl radical
-#setenv MECH_C2O3  MECO3  #CCO_O2 or MECO3 # C2O3    # Mechanism name for peroxy acetyl radical
+#setenv MECH_C2O3  C2O3   #CCO_O2 or MECO3 / ACO3 # C2O3    # Mechanism name for peroxy acetyl radical
+ setenv MECH_C2O3  MECO3  #CCO_O2 or MECO3 # C2O3    # Mechanism name for peroxy acetyl radical
  setenv MECH_NO3   NO3    #   NO3         # NO3      # Mechanism name for nitrate radical
  setenv MECH_N2O5  N2O5   #   N2O5        # N2O5     # Mechanism name for dinitrogen pentoxide
  
