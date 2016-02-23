@@ -58,6 +58,8 @@ C             deprecated TRIMLEN
 C       Modified 01/24/2012 by David Wong
 C          -- Only let IO PE to allocate WRITBUF and RECVBUF to reduce overall
 C             memory requirement
+C       Modified 12/05/2015 by David Wong
+C          -- Fixed bug so the code handle dot file correctly
  
 C  ARGUMENT LIST DESCRIPTION:
 C  M1 in PIOMAPS_MODULE
@@ -168,6 +170,9 @@ C Local Variables:
 
       INTEGER  LOC
 
+      LOGICAL :: DOT_FILE
+      INTEGER :: DOT
+
 C........................................................................
 
 C Initialize return value and error code
@@ -175,9 +180,18 @@ C Initialize return value and error code
       LERROR  = .FALSE.
       IERROR = 0
 
+      IF ( ( NCOLS3D - PIO_GL_NCOLS .EQ. 1 ) .AND. 
+     &     ( NROWS3D - PIO_GL_NROWS .EQ. 1 ) ) THEN
+         DOT_FILE = .TRUE.
+         DOT = 1
+      ELSE
+         DOT_FILE = .FALSE.
+         DOT = 0
+      END IF
+
       IF ( MY_PE .EQ. IO_PE ) THEN    ! I/O processor collects and writes data
          WSIZE = NCOLS3D * NROWS3D * NLAYS3D 
-         RSIZE = NCOLS * NROWS * NLAYS3D
+         RSIZE = ( NCOLS + DOT ) * ( NROWS + DOT ) * NLAYS3D
 
          IF ( WRITBUF_SIZE .NE. WSIZE ) THEN
             IF ( ALLOCATED ( WRITBUF ) ) DEALLOCATE ( WRITBUF )

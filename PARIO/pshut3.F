@@ -17,12 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/work/rep/PARIO/src/pshut3.f,v 1.2 2011/03/30 18:13:05 sjr Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
         LOGICAL FUNCTION  PSHUT3 ( )
 
@@ -42,9 +38,13 @@ C       Modified 02/23/2011 by Shawn Roselle
 C          -- Replaced I/O API include files with M3UTILIO
 C       Modified 09/10/2014 by David Wong
 C          -- Removed redundant INCLUDE NETCDF.EXT statement
+C       Modified 12/09/2015 by David Wong
+C          -- Introduced a new variable PARIO_IO_PE_INCLUSIVE to determine
+C             which procesor involves in file closing process
 C***********************************************************************
 
       USE M3UTILIO              ! i/o api
+      USE PIOMAPS_MODULE
 
       IMPLICIT NONE
 
@@ -60,6 +60,11 @@ C...........   SCRATCH LOCAL VARIABLES and their descriptions:
         INTEGER         V               !  loop counter over vbles
         INTEGER         IERR            !  netCDF error status return
         INTEGER         ERROR           !  MPI error status return
+        INTEGER         FID
+        INTEGER         LOC_MPIGRD3
+
+        INTEGER, EXTERNAL :: NF_CLOSE
+        INTEGER, EXTERNAL :: NFMPI_CLOSE
 
 C***********************************************************************
 
@@ -68,19 +73,54 @@ C***********************************************************************
             RETURN
         END IF
 
+#ifdef parallel_io
+        LOC_MPIGRD3 = MPIGRD3
+#else
+        LOC_MPIGRD3 = IMISS3
+#endif
+
         DO FILE = 1, COUNT3
 
-           IF ((CDFID3(FILE) .GE. 0) .AND. (FLIST3(FILE) .NE. CMISS3)) THEN
+           FID = CDFID3(FILE)
 
-              IF (MY_PE .EQ. 0) THEN
-                 CALL NCCLOS( CDFID3( FILE ), IERR )
-                 IF (IERR .NE. 0) THEN
-                    WRITE (LOGDEV,91010)
-     &                     'Error closing netCDF file ',
-     &                     'File name:  ' // FLIST3( FILE ) ,
-     &                     'netCDF error number', IERR
-                    PSHUT3 = .FALSE.
+           IF ((FID .GE. 0) .AND. (FLIST3(FILE) .NE. CMISS3)) THEN
+
+!             IF (MY_PE .EQ. 0) THEN
+!                CALL NCCLOS( CDFID3( FILE ), IERR )
+!                IF (IERR .NE. 0) THEN
+!                   WRITE (LOGDEV,91010)
+!    &                     'Error closing netCDF file ',
+!    &                     'File name:  ' // FLIST3( FILE ) ,
+!    &                     'netCDF error number', IERR
+!                   PSHUT3 = .FALSE.
+!                END IF
+!             END IF
+
+              IF( FTYPE3( FILE ) .EQ. LOC_MPIGRD3 ) THEN
+
+#ifdef parallel_io
+                 IF( PARIO_IO_PE_INCLUSIVE ) THEN
+                   IERR =  NFMPI_CLOSE( FID )
+                   IF ( IERR .NE. 0 ) THEN
+                       WRITE( LOGDEV,91010 )
+     &                 'Error closing PnetCDF file ',
+     &                 'File name:  ' // FLIST3( FILE ) ,
+     &                 'PnetCDF error number', IERR
+                       PSHUT3 = .FALSE.
+                   END IF
                  END IF
+#endif
+
+              ELSE IF( FTYPE3( FILE ) .GE. 0 ) THEN
+
+                   IERR =  NF_CLOSE( FID )
+                   IF ( IERR .NE. 0 ) THEN
+                       WRITE( LOGDEV,91010 )
+     &                 'Error closing netCDF file ',
+     &                 'File name:  ' // FLIST3( FILE ) ,
+     &                 'netCDF error number', IERR
+                       PSHUT3 = .FALSE.
+                   END IF
               END IF
            END IF
 

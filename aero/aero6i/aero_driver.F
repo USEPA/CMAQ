@@ -620,14 +620,14 @@ C *** If last call this hour, write visibility information.
          IF ( FIRST_CTM_VIS_1 ) THEN
             FIRST_CTM_VIS_1 = .FALSE.
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_VIS_1, FSNONIO, PNAME ) ) THEN
+               IF ( .NOT. OPEN3( CTM_VIS_1, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM( CTM_VIS_1 )
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
             END IF
             IF ( AERDIAG ) THEN
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( CTM_DIAM_1, FSNONIO, PNAME ) ) THEN
+                  IF ( .NOT. OPEN3( CTM_DIAM_1, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( CTM_DIAM_1 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
@@ -635,7 +635,7 @@ C *** If last call this hour, write visibility information.
             END IF
             IF ( AOD ) THEN
                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( CTM_AOD_1, FSNONIO, PNAME ) ) THEN
+                  IF ( .NOT. OPEN3( CTM_AOD_1, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM( CTM_AOD_1 )
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
