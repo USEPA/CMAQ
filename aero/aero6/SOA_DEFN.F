@@ -900,7 +900,10 @@ C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
 
 C Assignment of drog to totrog
       Do i = 1, n_vapor
-         totrog( i ) = drog( drog_map( i ) )
+         totrog( i ) = 0.0
+         if ( drog_map( i ) .gt. 0 ) then
+           totrog( i ) = drog( drog_map( i ) )
+	 endif
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
