@@ -382,40 +382,69 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ! count total number of terms in special rates
          SPECIAL_TERMS = 0
          DO IREACT = 1, MAXSPECTERMS
-            IF( INDEX_KTERM( NXX, IREACT ) .GT. 0 )THEN
+            IF( KC_COEFFS( NXX, IREACT ) .EQ. 0.0 )CYCLE
+            IF( INDEX_KTERM( NXX, IREACT ) .GT. -1 )THEN
                 SPECIAL_TERMS = SPECIAL_TERMS + 1
             END IF
+         END DO         
+         DO IREACT = 1, MAXSPECTERMS
             IF( OPERATORS( NXX, IREACT ) .GT. 0 )THEN
                 SPECIAL_TERMS = SPECIAL_TERMS + 1
             END IF
          END DO         
          WRITE(MODULE_UNIT,'(11X, A16)', ADVANCE = 'NO' )SPECIAL( NXX )
+         WRITE(MODULE_UNIT,'(A3)', ADVANCE = 'NO' )' = '
          FIRST_TERM = .TRUE.
 ! first write standard rate constants time concentrations
          COUNT_TERMS = 0
+         print*,'SPECIAL_TERMS  = ',SPECIAL_TERMS 
          DO IREACT = 1, MAXSPECTERMS
              IRX  = INDEX_KTERM( NXX, IREACT )
-             IF( IRX .LT. 1 )CYCLE
+             IF( IRX .LT. 0 .OR. KC_COEFFS( NXX, IREACT ) .EQ. 0.0 )CYCLE
+              WRITE(6,'(11X, A16, 1X, ES12.4)' )SPECIAL( NXX ),KC_COEFFS( NXX, IREACT )
              COUNT_TERMS = COUNT_TERMS + 1 
              IF( FIRST_TERM )THEN
-                PHRASE = ' = '
-                FIRST_TERM = .FALSE.
-                IF(KC_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' = ' // ' - '
+                PHRASE = ' '
+                IF(KC_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' - '
+!                FIRST_TERM = .FALSE.
              ELSE
                 WRITE(MODULE_UNIT, 4711, ADVANCE = 'NO' )
-                PHRASE = ' + '
-                IF(KC_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' - '
+                PHRASE = ' +  '
+                IF(KC_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = '  -  '
              END IF
              IF( KC_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
-                 WRITE(MODULE_UNIT, 4708, ADVANCE = 'NO')TRIM(PHRASE),
-     &          REAL( ABS( KC_COEFFS( NXX, IREACT ) ), 8), IRX
+                IF( IRX .GT. 0 )THEN
+                    WRITE(MODULE_UNIT, 4708, ADVANCE = 'NO')TRIM(PHRASE),
+     &              REAL( ABS( KC_COEFFS( NXX, IREACT ) ), 8), IRX
+                ELSE
+                    WRITE(MODULE_UNIT, 4718, ADVANCE = 'NO')TRIM(PHRASE),
+     &              REAL( ABS( KC_COEFFS( NXX, IREACT ) ), 8)
+                END IF
              ELSE
-                 WRITE(MODULE_UNIT, 4706, ADVANCE = 'NO')TRIM(PHRASE),IRX
+                IF( IRX .GT. 0 )THEN
+                  IF( FIRST_TERM )THEN
+                      FIRST_TERM = .FALSE.
+                      WRITE(MODULE_UNIT, 4706, ADVANCE = 'NO')TRIM(PHRASE),IRX
+                 ELSE
+                      WRITE(MODULE_UNIT, 4706, ADVANCE = 'NO')TRIM(PHRASE) // ' ',IRX
+                 END IF
+                ELSE
+                  IF( FIRST_TERM )THEN
+                      FIRST_TERM = .FALSE.
+                      WRITE(MODULE_UNIT, 4726, ADVANCE = 'NO')TRIM(PHRASE)
+                 ELSE
+                      WRITE(MODULE_UNIT, 4726, ADVANCE = 'NO')TRIM(PHRASE) // ' '
+                 END IF
+                END IF
              END IF
              ISPC = INDEX_CTERM( NXX, IREACT )
              IF( ISPC .LT. 1 )CYCLE
 !             WRITE(PHRASE,'(A,I4,A)')' * Y( NCELL, ', IOLD2NEW(ISPC,NCS) , ' ) '
-             WRITE(PHRASE,'(A,I4,A)')' * Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
+             IF( IRX .GT. 0 .OR. KC_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
+                WRITE(PHRASE,'(A,I4,A)')' * Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
+             ELSE
+                WRITE(PHRASE,'(A,I4,A)')'Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
+             END IF
              WRITE(MODULE_UNIT, 4709, ADVANCE = 'NO')TRIM( PHRASE )
              IF( IREACT .LT. MAXSPECTERMS )THEN
                  IF( COUNT_TERMS .LT. SPECIAL_TERMS )THEN
@@ -427,21 +456,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO IREACT = 1, MAXSPECTERMS
             IDX = OPERATORS( NXX, IREACT )
             IF( IDX .LT. 1 )CYCLE
+              WRITE(6,'(11X, A16, 1X, ES12.4)' )SPECIAL( NXX ),OPERATOR_COEFFS( NXX, IREACT )
              COUNT_TERMS = COUNT_TERMS + 1 
              IF( FIRST_TERM )THEN
-                PHRASE = ' = '
-                IF(OPERATOR_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' = ' // ' - '
-                FIRST_TERM = .FALSE.
+                PHRASE = ''
+                IF(OPERATOR_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = '-'
+!                FIRST_TERM = .FALSE.
              ELSE
                 WRITE(MODULE_UNIT, 4711, ADVANCE = 'NO' )
-                PHRASE = ' + '
-                IF(OPERATOR_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' - '
+                PHRASE = ' +  '
+                IF(OPERATOR_COEFFS( NXX, IREACT ) .LT. 0.0 )PHRASE = ' -  '
              END IF
              IF( OPERATOR_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
                  WRITE(MODULE_UNIT, 4710, ADVANCE = 'NO')TRIM(PHRASE),
      &           REAL( ABS( OPERATOR_COEFFS( NXX, IREACT ) ), 8), TRIM( SPECIAL( IDX ) )
              ELSE
-                 WRITE(MODULE_UNIT, 4712, ADVANCE = 'NO')TRIM(PHRASE),TRIM( SPECIAL( IDX ) )
+                IF( FIRST_TERM )THEN
+                   FIRST_TERM = .FALSE.
+                   WRITE(MODULE_UNIT, 4712, ADVANCE = 'NO')TRIM(PHRASE),TRIM( SPECIAL( IDX ) )
+                ELSE
+                   WRITE(MODULE_UNIT, 4712, ADVANCE = 'NO')TRIM(PHRASE) // ' ',TRIM( SPECIAL( IDX ) )
+                END IF
              END IF
              IF( IREACT .LT. MAXSPECTERMS )THEN
                  IF( COUNT_TERMS .LT. SPECIAL_TERMS )THEN
@@ -658,8 +693,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           CASE( 11 )
 	      DO IDX = 1, NSPECIAL_RXN
 	         IF( ISPECIAL( IDX, 1) .EQ. NXX )EXIT
-              END DO
-             IDIFF_ORDER = IORDER(NXX) - ORDER_SPECIAL( ISPECIAL( IDX, 2 ))
+              END DO       
+             IF( ORDER_SPECIAL( ISPECIAL( IDX, 2 ) ) .EQ. 0 )THEN
+                  IDIFF_ORDER = IORDER(NXX) - 1
+             ELSE IF( ORDER_SPECIAL( ISPECIAL( IDX, 2 ) ) .GT. 0 )THEN
+                  IDIFF_ORDER = IORDER(NXX) - ORDER_SPECIAL( ISPECIAL( IDX, 2 ))
+             END IF
              IF( IDIFF_ORDER .NE. 0 )THEN
                 IF( KUNITS .EQ. 2 )THEN
                     WRITE(MODULE_UNIT,95069,ADVANCE = 'NO')ISPECIAL( IDX,1 )
@@ -1117,9 +1156,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 4557   FORMAT('DATA PHOTAB(', I3,' ) / ''',A16,''' /')
 4507  FORMAT('RKI_RXN_', A16,A4)        
 4706  FORMAT(A,1X,'RKI( NCELL, ', I4,' ) ')
-4708  FORMAT(A,1X,1PD12.4,' * RKI( NCELL, ', I4,' ) ')
+4726  FORMAT(A,1X)
+4708  FORMAT(A,1PD12.4,' * RKI( NCELL, ', I4,' ) ')
+4718  FORMAT(A,1PD12.4,' * ')
 4709  FORMAT( A )     
-4710  FORMAT(A,1X,1PD12.4,' * ', A)
+4710  FORMAT(A,1PD12.4,' * ', A)
 4711  FORMAT( / 5X, '&' 21X)
 4712  FORMAT(A, 1X, A)
 4713  FORMAT( '!If( .Not. CALC_RCONST )Then'
