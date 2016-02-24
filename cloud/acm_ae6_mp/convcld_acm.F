@@ -123,14 +123,14 @@ C...........INCLUDES
 
 C...........Arguments
 
-      REAL, POINTER          :: CGRID( :,:,:,: )
-      INTEGER, INTENT( IN )  :: JDATE
-      INTEGER, INTENT( IN )  :: JTIME
-      INTEGER, INTENT( IN )  :: TSTEP( 3 )
-      INTEGER, INTENT( IN )  :: N_SPC_WDEP
-      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-      REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
-      REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+      REAL, POINTER            :: CGRID( :,:,:,: )
+      INTEGER, INTENT( IN )    :: JDATE
+      INTEGER, INTENT( IN )    :: JTIME
+      INTEGER, INTENT( IN )    :: TSTEP( 3 )
+      INTEGER, INTENT( IN )    :: N_SPC_WDEP
+      INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+      REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
+      REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 
 
 C...........Parameters
