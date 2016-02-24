@@ -4,43 +4,43 @@
  date
  set echo
 
-#set BASE  = $cwd
- set BASE = /home/${USER}/tools/mech_processor
+ set BASE  = $cwd
 
+#option to set compiler and build a new executable (not required)
+  setenv COMPILER  INTEL
+# setenv COMPILER  PGF90
+# setenv COMPILER  GFORT
+  set recompile = "T"
 
-#set Xpath = /home/${USER}/tools/mech_processor/BLD-kpp_special_SS4
-#set Xpath = /home/${USER}/tools/mech_processor/BLD-ggb_special_SS4
- set Xpath = /home/${USER}/tools/mech_processor/BLD-kpp_hetero
+#set path and name of executable mechanism porcessor
+ set Xpath = ${BASE}/BLD-kpp_hetero
  set EXEC  = CHEMMECH_ggb_SS4
+
+ if( ${recompile} == "T" )then
+   cd ${Xpath}; make clean; \rm -f ${EXEC}; make
+   if( ! ( -e ${EXEC} ) )then
+      echo "failed to recompile" ${Xpath}/${EXEC}
+      exit()
+   endif
+   cd ${BASE}
+ endif
 
 #option use CMAQ species namelists to determine CGRID species indices
  setenv USE_SPCS_NAMELISTS T
 
 # mechanism input file ........................................................
 
- set MECH_ARCHIVE = /home/${USER}/CCTM_git_repository/MECHS
 
-#set mechanisms = ( cb05tutx_ae6_aq cb05tump_ae6_aq cb05tuhg_ae6_aq cb05tucl_ae6_aq )
-#set mechanisms = ( cb05cltx_ae5_aq )
  
-# set mechanisms = saprc07tb_ae6_aq
-   set mechanisms = cb05tucl_ae6_aq
-#set mechanisms = racm2_ae6_aq
-#set mechanisms = cb05e6_ae6_aq
-#set mechanisms = ( cb05tucl_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq racm2_ae6_aq )
+    set mechanisms = cb05e51_ae6_aq
+#set mechanisms = ( cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq )
+
 
 foreach Mechanism ( $mechanisms )
 
-# set  Mpath = ${BASE}/input/${Mechanism}-hetchem_POAAGING
-# set  Mpath = ${BASE}/input/${Mechanism}_POAAGING
-# set  Mpath = ${MECH_ARCHIVE}/${Mechanism}
-#set  Mpath = ${BASE}/input/cb05e6cl
-  set  Mpath = ${BASE}/input/cb05tucl_HALO3
-# set  Mpath = ${BASE}/input/cb05tucl_clno2_b3
-#set MCFL =  mech-${Mechanism}.def
-   set MCFL =  `cd ${Mpath} ; \ls mech*def; cd ${BASE} `
-# set MCFL =   mech_CB05e6.def
-# set MCFL =   mech_revision_B3.def
+  set  Mpath = ${BASE}/input/${Mechanism}
+
+cd ${Mpath} ; set MCFL =  ` \ls mech*def ` ; cd ${BASE}
 
  if( !( -e $Mpath/$MCFL ) )then
    \ls $Mpath/$MCFL
@@ -49,19 +49,14 @@ foreach Mechanism ( $mechanisms )
  set echo
  setenv MECHDEF  $Mpath/$MCFL
 
-  setenv MAPPING_ROUTINE "/home/${USER}/tools/mech_processor/BLD-kpp_hetero/map_chemistry_spc.F90"
+  setenv MAPPING_ROUTINE "${BASE}/BLD-kpp_hetero/map_chemistry_spc.F90"
  
 
  set NML    = ${Mpath}
  set NML_TR = ${BASE}/input/trac0
-#set NML_TR = ${MECH_ARCHIVE}/trac0
-
  set GC_NML = $NML/GC_${Mechanism}.nml
  set AE_NML = $NML/AE_${Mechanism}.nml
  set NR_NML = $NML/NR_${Mechanism}.nml
-#set AE_NML = $NML/AE_saprc07tc_ae6_aq.nml
-#set NR_NML = $NML/NR_saprc07tc_ae6_aq.nml
-#set GC_NML = $NML/GC_saprc11tc_ae6_aq.nml
 
  set TR_NML = $NML_TR/Species_Table_TR_0.nml
 
@@ -71,19 +66,19 @@ setenv ae_matrix_nml $AE_NML
 setenv nr_matrix_nml $NR_NML
 setenv tr_matrix_nml $TR_NML
 
-
+set day = ` date "+%b-%d-%Y" `
 # set Opath = ${Mpath}
-# set Opath = ${BASE}/output/cb05tucl_clno2_b3
-  set Opath = ${BASE}/output/${Mechanism}-check
+  set Opath = ${BASE}"/output/"${Mechanism}"-"${day}"-"${COMPILER}
   if( ! ( -d $Opath ) ) mkdir -p $Opath
 
 # output files ................................................................
 
- if( $Opath != ${Mpath} )\cp -f $MECHDEF $Opath/.
+ if( $Opath != ${Mpath} )then
+    \cp -f $MECHDEF  $Opath/.
+    \cp -f $NML/*nml $Opath/.
+ endif
 
- setenv SPCSDATX    $Opath/SPCS.ext #<- temporary file, read by Species Processor
- setenv RXNSDATX    $Opath/RXDT.EXT
- setenv RXNSCOMX    $Opath/RXCM.EXT
+ setenv SPCSDATX    $Opath/SPCS.ext # lists species in mechanism
 
  setenv RXNS_DATA_MODULE $Opath/RXNS_DATA_MODULE.F90
  setenv RXNS_FUNC_MODULE $Opath/RXNS_FUNC_MODULE.F90
@@ -96,25 +91,14 @@ setenv tr_matrix_nml $TR_NML
  set KPP_SPC =  mech_${Mechanism}.spc
 
  setenv EQNS_KPP_FILE ${KPP_Out_Path}/${KPP_EQN}
- setenv SPCS_KPP_FILE ${KPP_Out_Path}/${KPP_SPC}
+ setenv SPCS_KPP_FILE ${KPP_Out_Path}/${KPP_SPC} 
 
- 
+ if( !( -e $Xpath/$EXEC ) )then
+  ls -l $Xpath/$EXEC
+  exit()
+ endif
 
- unset echo
-
-#set system = `uname -i`
-#if ($system == i386)then
-#    set compiler = pgf
-#else
-#    set compiler = ifc
-#endif
-#source /home/${USER}/scom -c $compiler
-#
-#cd $Xpath ; make clean ; make ; cd $BASE
-
- ls -l $Xpath/$EXEC
-
- $Xpath/$EXEC
+$Xpath/$EXEC
 
 end
 
