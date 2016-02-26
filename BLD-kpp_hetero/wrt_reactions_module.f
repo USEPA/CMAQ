@@ -397,11 +397,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          FIRST_TERM = .TRUE.
 ! first write standard rate constants time concentrations
          COUNT_TERMS = 0
-         print*,'SPECIAL_TERMS  = ',SPECIAL_TERMS 
          DO IREACT = 1, MAXSPECTERMS
              IRX  = INDEX_KTERM( NXX, IREACT )
              IF( IRX .LT. 0 .OR. KC_COEFFS( NXX, IREACT ) .EQ. 0.0 )CYCLE
-              WRITE(6,'(11X, A16, 1X, ES12.4)' )SPECIAL( NXX ),KC_COEFFS( NXX, IREACT )
+!              WRITE(6,'(11X, A16, 1X, ES12.4)' )SPECIAL( NXX ),KC_COEFFS( NXX, IREACT )
              COUNT_TERMS = COUNT_TERMS + 1 
              IF( FIRST_TERM )THEN
                 PHRASE = ' '
@@ -440,8 +439,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              ISPC = INDEX_CTERM( NXX, IREACT )
              IF( ISPC .LT. 1 )CYCLE
 !             WRITE(PHRASE,'(A,I4,A)')' * Y( NCELL, ', IOLD2NEW(ISPC,NCS) , ' ) '
-             IF( IRX .GT. 0 .OR. KC_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
-                WRITE(PHRASE,'(A,I4,A)')' * Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
+!             IF( IRX .GT. 0 .AND. KC_COEFFS( NXX, IREACT ) .NE. 1.0 )THEN
+             IF( IRX .GT. 0 )THEN
+                WRITE(PHRASE,'(A,I4,A)')'* Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
              ELSE
                 WRITE(PHRASE,'(A,I4,A)')'Y( NCELL, IOLD2NEW( ', ISPC, ', NCS) ) '
              END IF
@@ -456,7 +456,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO IREACT = 1, MAXSPECTERMS
             IDX = OPERATORS( NXX, IREACT )
             IF( IDX .LT. 1 )CYCLE
-              WRITE(6,'(11X, A16, 1X, ES12.4)' )SPECIAL( NXX ),OPERATOR_COEFFS( NXX, IREACT )
+!              WRITE(6,'(11X, A16, 1X, ES12.4)' )SPECIAL( NXX ),OPERATOR_COEFFS( NXX, IREACT )
              COUNT_TERMS = COUNT_TERMS + 1 
              IF( FIRST_TERM )THEN
                 PHRASE = ''
@@ -1262,9 +1262,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &          / 7X,'END SUBROUTINE SPECIAL_RATES')
 95100  FORMAT(2X,A16,' = 0.0D0')        
 
-95068 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD12.4,' * ', A16,' ! reaction: ',A16)
+95068 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',1PD10.4,' * ', A16,' ! reaction: ',A)
 95069 FORMAT(11X,'RKI( NCELL,',I4,' ) = ')
-95070 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',A16,' ! reaction: ',A)
+95070 FORMAT(11X,'RKI( NCELL,',I4,' ) = ',A16,13X,' ! reaction: ',A)
 95071 FORMAT('RKI( NCELL,',I4,' ) ')
 
 
