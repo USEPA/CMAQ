@@ -77,6 +77,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 wrf_cmaq_de_send_index_l,
 !                 wrf_cmaq_de_recv_index_g,
 !                 wrf_cmaq_de_recv_index_l
+!           26 Feb 2016  (David Wong)
+!              -- transformed the call pio_re_init to pio_init as routines
+!                 pio_re_init and pio_init have been merged into one pio_init
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -139,7 +142,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   INTEGER :: loc_wrf_c_domain_map(3, 2)
 
-  CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
+  CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_init
 
   CHARACTER (LEN = 16), PARAMETER :: pname = 'aq_prep         '
 
@@ -511,10 +514,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
         file_time_step_in_sec = time2sec (file_time_step)
 
-        if (.not.  pio_re_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
-                                nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
-                                npcol, nprow, nprocs, twoway_mype, .false.) ) then
-           print *, ' Error: in invoking pio_re_init'
+        if (.not.  pio_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
+                             nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
+                             npcol, nprow, nprocs, twoway_mype, wflg=.false.) ) then
+           print *, ' Error: in invoking pio_init'
            stop
         end if
      end if
