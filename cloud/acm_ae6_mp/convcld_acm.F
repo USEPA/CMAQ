@@ -546,7 +546,8 @@ C...allocate saved arrays
      &             QICE   ( NLAYS ), 
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC or REMOV'
+          XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
+     &         // 'QLQD or QICE'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -988,8 +989,7 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
 C...compute relative humidity at the cloud source level
 
-            RLHSRC = QVL( SRCLAY )
-     &             / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
+            RLHSRC = QVL( SRCLAY ) / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
 
 C...If all tests pass, then a CNP or PFW cloud exists
 C...  Proceed to find CLTOP for CNP or PFW; don't allow
@@ -1235,7 +1235,6 @@ C...end of Walcek bisection solver
 
 C...ice load in cloud is a function of temperature below freezing
 
-!           QICE( LAY ) = 0.0
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
               QICE( LAY ) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
               IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
@@ -1334,8 +1333,6 @@ C...  below cloud base. First, parameterize total water content
             QWAT( LAY ) = TWC / RHOAIR    ! kg H2O / kg air
 
 C...again partition into ice and liquid
-
-!           QICE( LAY ) = 0.0
 
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
               QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
