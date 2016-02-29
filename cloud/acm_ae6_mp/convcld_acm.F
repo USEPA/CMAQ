@@ -105,6 +105,8 @@ C                          reduce memory footprint and to increase code efficien
 C       28May15 J.Young: cleanup
 C       12Jun15 B.Hutzell: Moved call to CLEAR_ACM_CLOUD to after FIRSTIME block to
 C                          insure results from previous time step are removed
+C       12Jan16 D.Wong: Fixed a bug that causes different result when code run with 
+C                       different domain decomposition
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -323,8 +325,8 @@ C-------------------------------------------
       REAL          :: F    ( NLAYS )      ! cloud entrainment fraction to be solved for
       REAL          :: FSIDE( NLAYS )      ! sidewall entrainment vertical profile
       REAL          :: LWC  ( NLAYS )      ! liq wat cont of cloud in kg H2O/m3 air
-      REAL          :: QICE ( NLAYS )      ! ice mixing ratio in cloud
-      REAL          :: QLQD ( NLAYS )      ! actual liq. wat. mix ratio in cloud
+      REAL, ALLOCATABLE, SAVE :: QICE ( : )      ! ice mixing ratio in cloud
+      REAL, ALLOCATABLE, SAVE :: QLQD ( : )      ! actual liq. wat. mix ratio in cloud
       REAL          :: QVC  ( NLAYS )      ! saturation wat vap mix ratio at T1
       REAL          :: QWAT ( NLAYS )      ! liq wat mix rat, taken as total condensed water (ice + liq) profile (Eq.4, W&T)
       REAL          :: RHOM2( NLAYS )      ! mol/m2 air
@@ -539,9 +541,13 @@ C...allocate saved arrays
      &             CBASEF ( MXSPCS ),
      &             CEND   ( MXSPCS ),
      &             POLC   ( MXSPCS ),
-     &             REMOV  ( MXSPCS ), STAT = ALLOCSTAT )
+     &             REMOV  ( MXSPCS ), 
+     &             QLQD   ( NLAYS ), 
+     &             QICE   ( NLAYS ), 
+     &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC or REMOV'
+          XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
+     &         // 'QLQD or QICE'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -723,6 +729,9 @@ C...Loop through all grid cells
 
       DO 311 ROW = 1, MY_NROWS
         DO 301 COL = 1, MY_NCOLS
+
+          QLQD = 0.0
+          QICE = 0.0
 
           CLBASE = NLAYS
           CLTOPUSTBL = NLAYS
@@ -980,8 +989,7 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
 C...compute relative humidity at the cloud source level
 
-            RLHSRC = QVL( SRCLAY )
-     &             / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
+            RLHSRC = QVL( SRCLAY ) / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
 
 C...If all tests pass, then a CNP or PFW cloud exists
 C...  Proceed to find CLTOP for CNP or PFW; don't allow
@@ -1227,7 +1235,6 @@ C...end of Walcek bisection solver
 
 C...ice load in cloud is a function of temperature below freezing
 
-            QICE( LAY ) = 0.0
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
               QICE( LAY ) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
               IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
@@ -1326,8 +1333,6 @@ C...  below cloud base. First, parameterize total water content
             QWAT( LAY ) = TWC / RHOAIR    ! kg H2O / kg air
 
 C...again partition into ice and liquid
-
-            QICE( LAY ) = 0.0
 
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
               QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
