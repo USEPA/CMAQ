@@ -491,6 +491,7 @@ C        INTEGER, INTENT( IN ) :: EMLAYS     ! number of emissions layers
          REAL :: LTEMIS( LTLYRS )
          REAL    XCELLR, YCELLR   ! cell spacing ratio to 36Km
          REAL    FLASH_FAC        ! lightning flashes factor
+         REAL    DT_STEP          ! model time step 
 
          LOGICAL, SAVE :: LASTTIC   ! true: last sync step this output tstep
          REAL    DIVFAC   ! averaging factor for diagnostic file
@@ -516,6 +517,13 @@ C statement function for ERF approximation
 
          IF ( LNAME .EQ. "InLine" ) THEN
 !C case of inline lightning NO production
+
+!C set the LNOX time step
+#ifdef twoway
+            DT_STEP = TIME2SEC( TSTEP( 3 ) )
+#else
+            DT_STEP = TIME2SEC( TSTEP( 1 ) )
+#endif
 
 !C initialize output array
             VDEMIS_LT = 0.0
@@ -582,7 +590,7 @@ C statement function for ERF approximation
      &                    * ( MOLSNFLASH( COL,ROW ) +  ! moles N per flash
 !                             intercloud strikes per cloud to ground strike
      &                        (MOLSNIC(COL,ROW) * ICCG( COL,ROW ) )))
-     &                 / ( 60.0 * 60.0 )         ! get time units right
+     &                 / DT_STEP         ! get time units right
 
 !                   write( logdev,'( 2i4, 7f9.4 )' ) col,row,
 !      &                 ltng_rc( col,row ),
@@ -596,7 +604,7 @@ C statement function for ERF approximation
 
                XCELLR =  REAL( XCELL_GD, 4 ) / 36000.0
                YCELLR =  REAL( YCELL_GD, 4 ) / 36000.0
-               FLASH_FAC = 147.0 * XCELLR * YCELLR * 500.0 * 4.0 / ( 60.0 * 60.0 )
+               FLASH_FAC = 147.0 * XCELLR * YCELLR * 500.0 * 4.0 / DT_STEP
                ! 147 flahses, but adjust depending on horizontal grid resolution
                ! 500 moles N per flash * 3 intercloud strikes per ground strike
                DO ROW = 1, MY_NROWS 
