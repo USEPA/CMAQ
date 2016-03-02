@@ -58,6 +58,15 @@ C sedi sub-timestep counter
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+!     Mar  2, 16 D. Wong: Modified the code to handle any combination of two environment
+!                         variables: CTM_GRAV_SETL and VDIFF_DIAG_FILE, in a robust way for
+!                         parallel I/O implementation
+
+#ifdef parallel
+         use se_modules            ! stenex (using SE_UTIL_MODULE)
+#else
+         use noop_moudles          ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
          implicit none
          include SUBST_FILES_ID  ! file name parameters
@@ -261,6 +270,22 @@ C get CONC file header description
             dtccr_sum = 0.0      ! array assignment
 
          end if
+
+#ifdef parallel_io
+         call se_barrier
+         if ( .not. io_pe_inclusive ) then
+            if ( grvsetl ) then
+               if ( .not. open3 ( ctm_vsed_diag, fsread3, pname ) ) then
+                  xmsg = 'Could not open ' // trim(ctm_vsed_diag)
+                  call m3exit ( pname, jdate, jtime, xmsg, xstat2 )
+               end if
+            end if
+            if ( .not. open3 ( ctm_vdiff_diag, fsread3, pname ) ) then
+               xmsg = 'Could not open ' // trim(ctm_vdiff_diag)
+               call m3exit ( pname, jdate, jtime, xmsg, xstat2 )
+            end if
+         end if
+#endif
 
          end function vdiff_diag_init
 
