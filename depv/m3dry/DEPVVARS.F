@@ -39,10 +39,12 @@ C           04 Jan 2012 J.Young: Initialize char variables with blank padding
 C           28 Aug 2014  G. Sarwar: added deposition for CLNO2 
 C           07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C           05 May 2015: H.Pye: Added ISOPNN and MTNO3 with Donna Schwede
+C           24 Aug 2015: H.Pye: Added IEPOX and HACET with Donna Schwede
+C           26 Jan 2016: H. Pye added info for SOA SVOCs
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 65
+      INTEGER, PARAMETER :: LTOTG = 82
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -145,6 +147,23 @@ C-------------------------------------------------------------------------------
          DEPSPC( 63 ) = 'CLNO2           '
          DEPSPC( 64 ) = 'ISOPNN          '
          DEPSPC( 65 ) = 'MTNO3           '
+         DEPSPC( 66 ) = 'IEPOX           '
+         DEPSPC( 67 ) = 'HACET           '
+         DEPSPC( 68 ) = 'SVALK1          '
+         DEPSPC( 69 ) = 'SVALK2          '
+         DEPSPC( 70 ) = 'SVBNZ1          '
+         DEPSPC( 71 ) = 'SVBNZ2          '
+         DEPSPC( 72 ) = 'SVISO1          '
+         DEPSPC( 73 ) = 'SVISO2          '
+         DEPSPC( 74 ) = 'SVPAH1          '
+         DEPSPC( 75 ) = 'SVPAH2          '
+         DEPSPC( 76 ) = 'SVSQT           '
+         DEPSPC( 77 ) = 'SVTOL1          '
+         DEPSPC( 78 ) = 'SVTOL2          '
+         DEPSPC( 79 ) = 'SVTRP1          '
+         DEPSPC( 80 ) = 'SVTRP2          '
+         DEPSPC( 81 ) = 'SVXYL1          '
+         DEPSPC( 82 ) = 'SVXYL2          '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

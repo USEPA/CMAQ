@@ -25,6 +25,11 @@ C Function: User-defined types
 C Revision History:
 C     19 Aug 2014 J.Bash: initial implementation
 C     17 July 2015 H.Foroutan: Updated the calculation of MOL, MOLI, HOL, and WSTAR
+C     25 Aug 2015 H. Pye: Added IEPOX, HACET surrogates
+C                         modified PROPNN and H2O2
+C                         Increased ar for ozone from 8 to 12.
+C                         Change meso from 0.1 to 0 for some org. nitrates
+C                         Changes based on Nguyen et al. 2015 PNAS and SOAS
 C
 C---------Notes
 C  * Updates based on literature review 7/96 JEP
@@ -269,10 +274,10 @@ C Land use information:
       DATA subname( 4), dif0( 4), ar( 4), meso( 4), lebas( 4) / 'NO              ', 0.1802,    2.0,      0.0,  14.0/
       DATA subname( 5), dif0( 5), ar( 5), meso( 5), lebas( 5) / 'O3              ', 0.1444,   12.0,      1.0,  21.0/
       DATA subname( 6), dif0( 6), ar( 6), meso( 6), lebas( 6) / 'HNO3            ', 0.1067, 8000.0,      0.0,  35.0/
-      DATA subname( 7), dif0( 7), ar( 7), meso( 7), lebas( 7) / 'H2O2            ', 0.1300,   30.0,      1.0,  28.0/
+      DATA subname( 7), dif0( 7), ar( 7), meso( 7), lebas( 7) / 'H2O2            ', 0.1300,34000.0,      1.0,  28.0/ !ar=34,000 such that r_cut=0.7 s/m as in Nguyen et al. 2015
       DATA subname( 8), dif0( 8), ar( 8), meso( 8), lebas( 8) / 'ACETALDEHYDE    ', 0.1111,   10.0,      0.0,  56.0/
       DATA subname( 9), dif0( 9), ar( 9), meso( 9), lebas( 9) / 'FORMALDEHYDE    ', 0.1554,   10.0,      0.0,  35.0/
-      DATA subname(10), dif0(10), ar(10), meso(10), lebas(10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.1,  49.0/
+      DATA subname(10), dif0(10), ar(10), meso(10), lebas(10) / 'METHYLHYDROPEROX', 0.1179,   10.0,      0.3,  49.0/ !meso change from 0.1 to 0.3, Wolfe and Thornton 2011 ACP per J. Bash
       DATA subname(11), dif0(11), ar(11), meso(11), lebas(11) / 'PEROXYACETIC_ACI', 0.0868,   20.0,      0.1,  70.0/
       DATA subname(12), dif0(12), ar(12), meso(12), lebas(12) / 'ACETIC_ACID     ', 0.0944,   20.0,      0.0,  63.0/
       DATA subname(13), dif0(13), ar(13), meso(13), lebas(13) / 'NH3             ', 0.1978,   20.0,      0.0,  28.0/
@@ -315,19 +320,36 @@ C Land use information:
       DATA subname(50), dif0(50), ar(50), meso(50), lebas(50) / 'MALEIC_ANHYDRIDE', 0.0950,   10.0,      0.0,  70.0/
       DATA subname(51), dif0(51), ar(51), meso(51), lebas(51) / '24-TOLUENE_DIIS ', 0.0610,   10.0,      0.0, 154.0/
       DATA subname(52), dif0(52), ar(52), meso(52), lebas(52) / 'TRIETHYLAMINE   ', 0.0881,   20.0,      0.0, 154.0/
-      DATA subname(53), dif0(53), ar(53), meso(53), lebas(53) / 'ORG_NTR         ', 0.0607,   16.0,      0.1, 160.0/  ! assumes 58.2% C5H11O4N and 41.8% C5H11O3N
-      DATA subname(54), dif0(54), ar(54), meso(54), lebas(54) / 'HYDROXY_NITRATES', 0.0609,   16.0,      0.1, 156.1/
+      DATA subname(53), dif0(53), ar(53), meso(53), lebas(53) / 'ORG_NTR         ', 0.0607,   16.0,      0.0, 160.0/  ! assumes 58.2% C5H11O4N and 41.8% C5H11O3N
+      DATA subname(54), dif0(54), ar(54), meso(54), lebas(54) / 'HYDROXY_NITRATES', 0.0609,   16.0,      0.0, 156.1/
       DATA subname(55), dif0(55), ar(55), meso(55), lebas(55) / 'MPAN            ', 0.0580,   16.0,      0.1, 133.0/
       DATA subname(56), dif0(56), ar(56), meso(56), lebas(56) / 'PPN             ', 0.0631,   16.0,      0.1, 118.2/
       DATA subname(57), dif0(57), ar(57), meso(57), lebas(57) / 'MVK             ', 0.0810,    8.0,      1.0,  88.8/
       DATA subname(58), dif0(58), ar(58), meso(58), lebas(58) / 'DINTR           ', 0.0617,   16.0,      0.1, 169.8/
       DATA subname(59), dif0(59), ar(59), meso(59), lebas(59) / 'NTR_ALK         ', 0.0688,   16.0,      0.1, 133.0/
       DATA subname(60), dif0(60), ar(60), meso(60), lebas(60) / 'NTR_OH          ', 0.0665,   16.0,      0.1, 140.4/
-      DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.1, 147.8/
-      DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0677,   16.0,      0.1, 133.0/
+      DATA subname(61), dif0(61), ar(61), meso(61), lebas(61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.0, 147.8/
+      DATA subname(62), dif0(62), ar(62), meso(62), lebas(62) / 'PROPNN          ', 0.0677,   16.0,      0.0, 133.0/
       DATA subname(63), dif0(63), ar(63), meso(63), lebas(63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/   ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
       DATA subname(64), dif0(64), ar(64), meso(64), lebas(64) / 'ISOPNN          ',0.0457,    8.0,      0.0,  206.8/  
       DATA subname(65), dif0(65), ar(65), meso(65), lebas(65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/  
+      DATA subname(66), dif0(66), ar(66), meso(66), lebas(66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/  
+      DATA subname(67), dif0(67), ar(67), meso(67), lebas(67) / 'HACET           ',0.1060,    8.0,      0.0,  72.6/ ! dif0 from Nguyen 2015 PNAS 
+      DATA subname(68), dif0(68), ar(68), meso(68), lebas(68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/
+      DATA subname(69), dif0(69), ar(69), meso(69), lebas(69) / 'SVALK2          ',0.0546,   20.0,      0.0,  275.6/
+      DATA subname(70), dif0(70), ar(70), meso(70), lebas(70) / 'SVBNZ1          ',0.0642,   20.0,      0.0,  134.1/
+      DATA subname(71), dif0(71), ar(71), meso(71), lebas(71) / 'SVBNZ2          ',0.0726,   20.0,      0.0,  127.5/
+      DATA subname(72), dif0(72), ar(72), meso(72), lebas(72) / 'SVISO1          ',0.0733,   20.0,      0.0,  126.3/
+      DATA subname(73), dif0(73), ar(73), meso(73), lebas(73) / 'SVISO2          ',0.0729,   20.0,      0.0,  123.8/
+      DATA subname(74), dif0(74), ar(74), meso(74), lebas(74) / 'SVPAH1          ',0.0564,   20.0,      0.0,  235.7/
+      DATA subname(75), dif0(75), ar(75), meso(75), lebas(75) / 'SVPAH2          ',0.0599,   20.0,      0.0,  231.5/
+      DATA subname(76), dif0(76), ar(76), meso(76), lebas(76) / 'SVSQT           ',0.0451,   20.0,      0.0,  346.5/
+      DATA subname(77), dif0(77), ar(77), meso(77), lebas(77) / 'SVTOL1          ',0.0637,   20.0,      0.0,  153.7/
+      DATA subname(78), dif0(78), ar(78), meso(78), lebas(78) / 'SVTOL2          ',0.0607,   20.0,      0.0,  194.1/
+      DATA subname(79), dif0(79), ar(79), meso(79), lebas(79) / 'SVTRP1          ',0.0603,   20.0,      0.0,  194.9/
+      DATA subname(80), dif0(80), ar(80), meso(80), lebas(80) / 'SVTRP2          ',0.0559,   20.0,      0.0,  218.8/
+      DATA subname(81), dif0(81), ar(81), meso(81), lebas(81) / 'SVXYL1          ',0.0610,   20.0,      0.0,  154.6/
+      DATA subname(82), dif0(82), ar(82), meso(82), lebas(82) / 'SVXYL2          ',0.0585,   20.0,      0.0,  194.6/
 
 
       CONTAINS
