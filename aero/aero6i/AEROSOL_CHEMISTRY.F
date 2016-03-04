@@ -20,8 +20,9 @@
 !-----------------------------------------------------------------------
 ! Revision history
 !
-! 26 Sep 14 H. Pye: Heterogeneous uptake of IEPOX added 
-! 31 Mar 15 H. Pye: formatting and cleanup (copied from aero6/AEROSOL_CHEMISTRY)
+! 26 Sep 14 H. Pye:    Heterogeneous uptake of IEPOX added 
+! 31 Mar 15 H. Pye:    formatting and cleanup (copied from aero6/AEROSOL_CHEMISTRY)
+! 22 Feb 16 B.Hutzell: Added Flag stating whether module is initialized
 ! 
 !-----------------------------------------------------------------------
 
@@ -36,9 +37,11 @@
        REAL,      ALLOCATABLE :: GAMMA_IMAE (  :,:,:  ) ! IMAE uptake coeff
        REAL,      ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
        REAL,      ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
-       
+ 
+       LOGICAL                :: AERO_CHEM_SET = .FALSE.
+      
        PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE,
-     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES
+     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET
        
        PRIVATE 
 
@@ -580,6 +583,8 @@ C ***  Determine molecular weights
        CFACTOR_MGLY = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTMGLY * DPI ) )
 
        F_PART_NTR2 =  0.0
+
+       AERO_CHEM_SET = .TRUE.
 
       END IF   ! first time condition
 

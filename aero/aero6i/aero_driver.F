@@ -103,6 +103,8 @@ C   David Wong   - Aug 15 - Used IO_PE_INCLUSIVE rather than MYPE to facilitate
 C                           parallel I/O implementation
 C                         - Used a new logical variable, FIRST_CTM_VIS_1 to
 C                           determine when to open CTM_VIS_1 
+C  B.Hutzell 22 Feb 16 - Added test to determine to write diagnostics from aerosol
+C                        chemistry
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -117,7 +119,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE UTILIO_DEFN
       USE CGRID_SPCS
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
-     &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX
+     &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX,
+     &                              AERO_CHEM_SET
 
       IMPLICIT NONE
 
@@ -511,13 +514,17 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,20 ) = PM25( 1 )             ! i-mode fine fraction
                   DIAM_SPC( C,R,L,21 ) = PM25( 2 )             ! j-mode fine fraction
                   DIAM_SPC( C,R,L,22 ) = PM25( 3 )             ! coarse-mode fine fraction
-                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
-                  DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
-                  DIAM_SPC( C,R,L,27 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
-                  DIAM_SPC( C,R,L,28 ) = KPARTIEPOX( C,R,L )   ! IEPOX particle phase rxn rate [1/s]
-                  DIAM_SPC( C,R,L,29 ) = GAMMA_IMAE( C,R,L )   ! IMAE heterorxn uptake coeff
+                  IF ( AERO_CHEM_SET ) THEN
+                     DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                     DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
+                     DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                     DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
+                     DIAM_SPC( C,R,L,27 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
+                     DIAM_SPC( C,R,L,28 ) = KPARTIEPOX( C,R,L )   ! IEPOX particle phase rxn rate [1/s]
+                     DIAM_SPC( C,R,L,29 ) = GAMMA_IMAE( C,R,L )   ! IMAE heterorxn uptake coeff
+                  ELSE
+                     DIAM_SPC( C,R,L,23:29 ) = 0.0
+                  END IF
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
