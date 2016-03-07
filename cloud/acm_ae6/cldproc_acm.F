@@ -152,25 +152,25 @@ C...........EXTERNAL FUNCTIONS
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE
-            INTEGER, INTENT( IN )  :: JTIME
-            INTEGER, INTENT( IN )  :: TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
-            REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+            REAL, POINTER            :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )    :: JDATE
+            INTEGER, INTENT( IN )    :: JTIME
+            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: N_SPC_WDEP
+            INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+            REAL,    INTENT( INOUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT )   :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE
-            INTEGER, INTENT( IN )  :: JTIME
-            INTEGER, INTENT( IN )  :: TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
-            REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+            REAL, POINTER            :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )    :: JDATE
+            INTEGER, INTENT( IN )    :: JTIME
+            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: N_SPC_WDEP
+            INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+            REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
+            REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
 C-----------------------------------------------------------------------
