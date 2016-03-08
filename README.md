@@ -27,4 +27,4 @@ The release versions of CMAQ that are currently available on Git Hub include:
 * [v5.0 (February 2012)](https://github.com/CMASCenter/CMAQ/tree/5.0)
 * [v4.7.1 (June 2010)](https://github.com/CMASCenter/CMAQ/tree/4.7.1)
 
-
+Benchmark/tutorial input and output data for each CMAQ release version are available from the CMAS Center Software Clearinghouse. From http://www.cmascenter.org, select Download -> Software -> CMAQ and choose the version to get the tutorial data.
