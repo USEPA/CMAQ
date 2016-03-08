@@ -225,17 +225,17 @@ C diagnostic file
          VTYPE3D( 23 ) = M3REAL
          VNAME3D( 23 ) = 'PM25AT'
          UNITS3D( 23 ) = '----'
-         VDESC3D( 23 ) = 'Fine fraction of Aitken mode'
+         VDESC3D( 23 ) = 'PM2.5 fraction of Aitken mode'
 
          VTYPE3D( 24 ) = M3REAL
          VNAME3D( 24 ) = 'PM25AC'
          UNITS3D( 24 ) = '----'
-         VDESC3D( 24 ) = 'Fine fraction of accumulation mode'
+         VDESC3D( 24 ) = 'PM2.5 fraction of accumulation mode'
 
          VTYPE3D( 25 ) = M3REAL
          VNAME3D( 25 ) = 'PM25CO'
          UNITS3D( 25 ) = '----'
-         VDESC3D( 25 ) = 'Fine fraction of coarse mode'
+         VDESC3D( 25 ) = 'PM2.5 fraction of coarse mode'
 
          VTYPE3D( 26 ) = M3REAL
          VNAME3D( 26 ) = 'PM10AT'
@@ -295,17 +295,17 @@ C diagnostic file
          VTYPE3D( 37 ) = M3REAL
          VNAME3D( 37 ) = 'DENS_ATKN'
          UNITS3D( 37 ) = 'kg m-3'
-         VDESC3D( 37 ) = 'Bulk Density for Aitken-Mode Particles'
+         VDESC3D( 37 ) = 'Bulk Density of Aitken-Mode Particles'
 
          VTYPE3D( 38 ) = M3REAL
          VNAME3D( 38 ) = 'DENS_ACC'
          UNITS3D( 38 ) = 'kg m-3'
-         VDESC3D( 38 ) = 'Bulk Density for Accumulation-Mode Particles'
+         VDESC3D( 38 ) = 'Bulk Density of Accumulation-Mode Particles'
 
          VTYPE3D( 39 ) = M3REAL
          VNAME3D( 39 ) = 'DENS_COR'
          UNITS3D( 39 ) = 'kg m-3'
-         VDESC3D( 39 ) = 'Bulk Density for Coarse-Mode Particles'
+         VDESC3D( 39 ) = 'Bulk Density of Coarse-Mode Particles'
 
 
          FDESC3D( 1 ) = 'aerosol distribution and chemistry parameters'

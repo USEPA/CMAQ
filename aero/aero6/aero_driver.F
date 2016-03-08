@@ -186,9 +186,9 @@ C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
       REAL AMU             ! atmospheric dynamic viscosity [ kg/m s ]
 
-C *** mass fraction of each mode less than Selective Aerodynamic Diameters
+C *** mass fraction of each mode less than Specified Aerodynamic Diameters
       REAL fPM1 ( N_MODE )  ! PM1 fraction
-      REAL fPM25( N_MODE )  ! fine fraction
+      REAL fPM25( N_MODE )  ! PM2.5 fraction
       REAL fPM10( N_MODE )  ! PM10 fraction
       REAL fAMS ( N_MODE )  ! AMS Transmission Fraction
 
@@ -485,9 +485,10 @@ C *** Calculate volume fraction of each mode for measurement applications
      &                              AEROMODE_DENS( N ), fPM1( N ), fPM25( N ),
      &                              fPM10( N ) )
            
-                  !Caclulate AMS Transmission Fraction. The routine will
-		  !also handle the water mass that may be evaporated
-		  !during the operation of the instrument.
+                  !Calculate AMS Transmission Fraction. Aerosol water
+		  !will be excluded from the calculation since AMS
+		  !standard procedures recommend drying particles before
+		  !they enter the intstrument.
                   CALL AERO_AMS ( MOMENT3_CONC( N ), MOMENT2_CONC( N ),
      &                            MOMENT0_CONC( N ), AEROSPC_CONC( AH2O_IDX,N ), 
      &                            AEROMODE_DENS( N ),AEROSPC( AH2O_IDX)%DENSITY, 
@@ -523,18 +524,18 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,18 ) = MOMENT3_CONC( 3 )     ! wet k-mode 3rd moment
                   DIAM_SPC( C,R,L,20 ) = fPM1( 1 )             ! i-mode PM1 fraction
                   DIAM_SPC( C,R,L,21 ) = fPM1( 2 )             ! j-mode PM1 fraction
-                  DIAM_SPC( C,R,L,22 ) = fPM1( 3 )             ! coarse PM1 fraction
+                  DIAM_SPC( C,R,L,22 ) = fPM1( 3 )             ! k-mode PM1 fraction
                   DIAM_SPC( C,R,L,23 ) = fPM25( 1 )            ! i-mode fine fraction
                   DIAM_SPC( C,R,L,24 ) = fPM25( 2 )            ! j-mode fine fraction
-                  DIAM_SPC( C,R,L,25 ) = fPM25( 3 )            ! coarse-mode fine fraction
+                  DIAM_SPC( C,R,L,25 ) = fPM25( 3 )            ! k-mode fine fraction
                   DIAM_SPC( C,R,L,26 ) = fPM10( 1 )            ! i-mode PM10 fraction
                   DIAM_SPC( C,R,L,27 ) = fPM10( 2 )            ! j-mode PM10 fraction
-                  DIAM_SPC( C,R,L,28 ) = fPM10( 3 )            ! coarse-mode PM10 fraction
+                  DIAM_SPC( C,R,L,28 ) = fPM10( 3 )            ! k-mode PM10 fraction
                   DIAM_SPC( C,R,L,29 ) = fAMS( 1 )             ! i-mode fraction transmitted through AMS
                   DIAM_SPC( C,R,L,30 ) = fAMS( 2 )             ! j-mode fraction transmitted through AMS
-                  DIAM_SPC( C,R,L,31 ) = fAMS( 3 )             ! coarse-mode fraction transmitted through AMS
+                  DIAM_SPC( C,R,L,31 ) = fAMS( 3 )             ! k-mode fraction transmitted through AMS
                   DIAM_SPC( C,R,L,32 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,33 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,33 ) = GAMMA_N2O5K( C,R,L )  ! coarse N2O5 heterorxn probability
                   DIAM_SPC( C,R,L,34 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
                   DIAM_SPC( C,R,L,35 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
                   DIAM_SPC( C,R,L,36 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
