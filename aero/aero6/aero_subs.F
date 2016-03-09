@@ -2933,7 +2933,7 @@ C *** First Calculate Parameters of Dry Distributiuon since this is more
 C     applicable in general to AMS measurements.
       M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        !m3 m-3
       M3_DRY = M3_WET - M3SUBT              !m3 m-3
-      M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** (2./3.)  !m3 m-3
+      M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** (2./3.)  !m2 m-3
       
       M_WET  = M3_WET * 1.0E+9 * PI6 * RHOP !ug m-3
       M_DRY  = M_WET - M_H2O                !ug m-3
@@ -2942,16 +2942,16 @@ C     applicable in general to AMS measurements.
 
       XFSUM = 1./3. * Log( M0 ) + 2./3. * Log( M3_DRY )
       LXFM2 = Log( M2_DRY )
-      L2SG = XFSUM - LXFM2    
+      L2SG = XFSUM - LXFM2   ! ( ln(sigma) )^2 
 
       L2SG = Min( Max( L2SG, LOG( MIN_SIGMA_G ) **2 ), LOG( MAX_SIGMA_G ) **2 )
       LXFM2  = XFSUM - L2SG
       ES36 = Exp( 4.5 * L2SG )
 
-      DG = Max( DGMIN, ( M3_DRY / ( M0 * ES36 ) ) ** (1./3.) ) * 1.0E+06 ![um] Units should correspond to B parameter
-      XXLSG = Sqrt( L2SG )
+      DG = Max( DGMIN, ( M3_DRY / ( M0 * ES36 ) ) ** (1./3.) ) * 1.0E+06 ![um] Units should correspond to Dp cutoffs
+      XXLSG = Sqrt( L2SG )  ! ln(sigma)
 
-      DGv = EXP( LOG( DG ) + 3.*XXLSG )
+      DGv = EXP( LOG( DG ) + 3.*L2SG )
 
 C *** Calculate Transmission Fractions for AMS with Vacuum Aerodynamic
 C     Cutoffs. This approzimation is split into a piecewise function (see
@@ -2960,6 +2960,7 @@ C     Appendix B in Ensberg et al., 2013).
       DENSFAC = 1.0E+03 / DRY_DENS  !Density Correction Factor
                                     !   = rho0 / rho 
                                     !   = 1000.0 / rho
+      SQRT2LSG = SQRT2 * XXLSG
 
       !First Piece of Function [T(%) = 1666.6 * (Dva - 0.04) ]
       DBlo_st = 0.040 * DENSFAC  !Stokes Lower Bound of Piece [um]
@@ -2968,7 +2969,6 @@ C     Appendix B in Ensberg et al., 2013).
       LOG_HILO = LOG( 100./40. )
       LOG_HI   = LOG( DBhi_st/DGv )
       LOG_LO   = LOG( DBlo_st/DGv )
-      SQRT2LSG = SQRT2 * XXLSG
 
       TERM1 = LOG( DGv/DBlo_st ) / LOG_HILO
       TERM2 =  ERF( LOG_HI / SQRT2LSG )
