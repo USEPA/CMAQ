@@ -117,8 +117,10 @@ C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   dust_type( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.50219, 0.0    /) ),   ! Other
      &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
 
-      real, parameter :: fracmj = 0.20  ! mass fraction assigned to accum mode
-      real, parameter :: fracmk = 0.80  ! mass fraction assigned to coarse mode
+C updated values of mass fraction for "freshly emitted dust"
+C based on Kok [PNAS, 2011] and Nabat et al. [ACP, 2012]  
+      real, parameter :: fracmj = 0.07  ! mass fraction assigned to accum mode
+      real, parameter :: fracmk = 0.93  ! mass fraction assigned to coarse mode
 
 C diam`s from FRACMJ,FRACMK-weighted 2 2-bin averages of geom means
       real, parameter :: dgvj = 1.3914  ! geom mean diam of accum mode [um]
@@ -278,6 +280,7 @@ C Local variables:
 
          integer  gxoff, gyoff                 ! global origin offset from file
          integer, save :: strtcol, endcol, strtrow, endrow
+         integer  jdatemod
 
          interface
             subroutine cropcal ( jdate, jtime, agland )
@@ -328,11 +331,29 @@ C Allocate private arrays
          wmax   = 0.0   ! array assignment
          sd_ep  = 0.0   ! array assignment
          fpar   = 0.0   ! array assignment
+ 
 
 C Open MODIS file to get vegetation fraction
          if ( .not. open3( modis_fpar_1, fsread3, pname ) ) then
             xmsg = 'Could not open ' // modis_fpar_1
             call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+         end if
+
+C Get the file description 
+         if ( .not. desc3( modis_fpar_1 ) ) then
+            xmsg = 'Could not get '
+     &      // trim( modis_fpar_1 )
+     &      // ' file description'
+            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
+         end if
+        
+C To be able to use either climatological (2001-2010 averaged) or
+C current fpar value. The year for the climatological fpar is 2005 in
+C the input file.     
+         if ( sdate3d .eq. 2005001 ) then          ! climatological
+            jdatemod = 2005000 + mod( jdate,1000 )
+         else                                      ! current
+            jdatemod = jdate
          end if
 
 C Get domain decomp info
@@ -343,7 +364,7 @@ C Read in FPAR from MODIS file
          xmsg = 'Could not read FPAR from ' // trim( modis_fpar_1 )
          if ( .not. xtract3( modis_fpar_1, 'MODIS_FPAR_T', 1,1,
      &                       strtrow,endrow,strtcol,endcol,
-     &                       jdate, jtime, fpar( 1,1 ) ) )
+     &                       jdatemod, jtime, fpar( 1,1 ) ) )
      &   call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
 
 C Initialize land use/cover variables
@@ -764,14 +785,14 @@ C from Darmenova et al. [JGR,2009] and Xi and Sokolik [JGR,2015]
         real :: lambdab( 4 ) =
      &           (/ 0.03,     ! shrubland
      &              0.04,     ! shrubgrass
-     &              0.002,    ! barrenland
+     &              0.0001,   ! barrenland
      &              0.15 /)   ! cropland       
 
 C---Compound for computational efficiency
          real :: hb_lambdab( 4 ) =
-     &           (/ 3.0e-04,   ! shrubland
+     &           (/ 6.0e-04,   ! shrubland
      &              8.0e-04,   ! shrubgrass
-     &              1.0e-05,   ! barrenland
+     &              2.0e-06,   ! barrenland
      &              3.0e-03 /) ! cropland
 
 C Soil moisture limit: 13 types and 3 variables, which are:
@@ -929,25 +950,25 @@ C---Get Julian day number in year
 
 C---Vegetation height dynamically changed based on the month of the year
 C   Veg. heights in [m] for 1: Shrubland 2: shrubgrass 3: barrenland 4: Cropland
-C   from Xi and Sokolik [JGR,2015]
+C   following the idea of Xi and Sokolik [JGR,2015]
          if ( jday .gt. 59 .and. jday .le. 90 ) then         ! Mar
-            hv = (/ 0.15 , 0.05 , 0.02 , 0.02 /)
+            hv = (/ 0.15 , 0.05 , 0.10 , 0.05 /)
          else if ( jday .gt. 90 .and. jday .le. 120 ) then   ! Apr
-            hv = (/ 0.15 , 0.10 , 0.02 , 0.05 /) 
+            hv = (/ 0.15 , 0.10 , 0.10 , 0.05 /) 
          else if ( jday .gt. 120 .and. jday .le. 151 ) then  ! May
-            hv = (/ 0.12 , 0.20 , 0.02 , 0.15 /)      
+            hv = (/ 0.12 , 0.20 , 0.10 , 0.10 /)      
          else if ( jday .gt. 151 .and. jday .le. 181 ) then  ! Jun
-            hv = (/ 0.12 , 0.15 , 0.02 , 0.30 /)      
+            hv = (/ 0.12 , 0.15 , 0.10 , 0.30 /)      
          else if ( jday .gt. 181 .and. jday .le. 212 ) then  ! Jul
-            hv = (/ 0.10 , 0.12 , 0.02 , 0.50 /)      
+            hv = (/ 0.10 , 0.12 , 0.10 , 0.50 /)      
          else if ( jday .gt. 212 .and. jday .le. 243 ) then  ! Aug
-            hv = (/ 0.10 , 0.12 , 0.02 , 0.50 /)      
+            hv = (/ 0.10 , 0.12 , 0.10 , 0.50 /)      
          else if ( jday .gt. 243 .and. jday .le. 273 ) then  ! Sep
-            hv = (/ 0.10 , 0.10 , 0.02 , 0.40 /)
+            hv = (/ 0.10 , 0.10 , 0.10 , 0.30 /)
          else if ( jday .gt. 273 .and. jday .le. 304 ) then  ! Oct
-            hv = (/ 0.05 , 0.08 , 0.02 , 0.15 /)                
+            hv = (/ 0.05 , 0.08 , 0.10 , 0.10 /)                
          else                                                ! Nov-Feb
-            hv = (/ 0.02 , 0.02 , 0.02 , 0.02 /)
+            hv = (/ 0.05 , 0.05 , 0.05 , 0.05 /)
          end if
 
 #ifdef verbose_wbdust
@@ -1053,33 +1074,33 @@ C   First, mapping soil types into 4 main soil types following Kang et al. [JGR,
                      case( 1, 2 )          ! sand
                   !     pp = 5000.0 
                   !     calpha = 0.001
-                  !     pfrac = 0.02
+                  !     pfrac = 0.06
                   !     flxfac1 = calpha * 9.81 * pfrac * 500.0 / pp
-                        flxfac1 = 1.962e-05 
+                        flxfac1 = 5.886e-05 
                   !     flxfac2 = 2.09 * sqrt( 2650.0 / pp )
                         flxfac2 = 1.5215430
                      case( 3, 4, 6, 8, 9 ) ! loam
                   !     pp = 10000.0 
                   !     calpha = 0.0006
-                  !     pfrac = 0.06
+                  !     pfrac = 0.18
                   !     flxfac1 = calpha * 9.81 * pfrac * 500.0 / pp
-                        flxfac1 = 1.7658e-05
+                        flxfac1 = 5.2974e-05
                   !     flxfac2 = 2.09 * sqrt( 2650.0 / pp )
                         flxfac2 = 1.0758933
                      case( 7 )             ! sandy clay loam
                   !     pp = 10000.0
                   !     calpha = 0.0006
-                  !     pfrac = 0.26
+                  !     pfrac = 0.32
                   !     flxfac1 = calpha * 9.81 * pfrac * 500.0 / pp
-                        flxfac1 = 7.6518e-05
+                        flxfac1 = 9.4176e-05
                   !     flxfac2 = 2.09 * sqrt( 2650.0 / pp )
                         flxfac2 = 1.0758933
                      case( 5, 10, 11, 12 ) ! clay
                   !     pp = 30000.0
                   !     calpha = 0.0002
-                  !     pfrac = 0.24
+                  !     pfrac = 0.72
                   !     flxfac1 = calpha * 9.81 * pfrac * 500.0 / pp
-                        flxfac1 = 7.848e-06
+                        flxfac1 = 2.3544e-05
                   !     flxfac2 = 2.09 * sqrt( 2650.0 / pp )
                         flxfac2 = 0.1964303
                      case default          ! others -- no dust
