@@ -27,6 +27,7 @@ C Land Use/Cover Schema
 
 C Revision History:
 C   10 Nov 2011: J.Young - Created
+C   10 Dec 2011: J.Young - fix for two-way application (Tanya Spero`s help)
 
       implicit none
 
@@ -475,7 +476,7 @@ C includes both nlcd and MODIS versions of shrublands
 
          use hgrd_defn           ! horizontal domain specifications
 #ifdef twoway
-         use twoway_data_module, only : num_land_cat
+         use twoway_data_module, only : mminlu, num_land_cat
 #endif
          use utilio_defn
 
@@ -503,6 +504,7 @@ C Includes:
          character( 16 ) :: pname = 'LUS_INIT'
          character( 128 ) :: vardesc = ' '
          character( 128 ) :: xmsg = ' '
+         character( 24 ) :: strg = 'incorrect num_land_cat, '
          real( 8 ) :: tland
          logical isbeld
          integer logdev
@@ -563,17 +565,69 @@ C Includes:
             end if
 
 #ifdef twoway
-            if ( num_land_cat .eq. 24 ) then
-               land_scheme = 'USGS24'
-            else if ( num_land_cat .eq. 20 ) then
-               land_scheme = 'MODIS'
-            else if ( num_land_cat .eq. 40 ) then
-               land_scheme = 'NLCD40'
-            else if ( num_land_cat .eq. 50 ) then
-               land_scheme = 'NLCD-MODIS'
-            end if
+!           if ( num_land_cat .eq. 24 ) then
+!              land_scheme = 'USGS24'
+!           else if ( num_land_cat .eq. 20 ) then
+!              land_scheme = 'MODIS'
+!           else if ( num_land_cat .eq. 40 ) then
+!              land_scheme = 'NLCD40'
+!           else if ( num_land_cat .eq. 50 ) then
+!              land_scheme = 'NLCD-MODIS'
+!           end if
+
+C mminlu and num_land_cat are WRF global variables
+            
+            select case( trim( mminlu ) )
+
+               case( 'USGS24' )
+                  if ( num_land_cat .ne. 24 ) then
+                     write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
+     &                                        ' for ' // trim( mminlu )
+                     call m3warn( pname, jdate, jtime, xmsg )
+                     success = .false.; return
+                  end if
+                  land_scheme = 'USGS24'
+               case( 'NLCD40' )
+                  if ( num_land_cat .ne. 40 ) then
+                     write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
+     &                                        ' for ' // trim( mminlu )
+                     call m3warn( pname, jdate, jtime, xmsg )
+                     success = .false.; return
+                  end if
+                  land_scheme = 'NLCD40'
+               case( 'NLCD-MODIS' )
+                  if ( num_land_cat .ne. 50 ) then
+                     write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
+     &                                        ' for ' // trim( mminlu )
+                     call m3warn( pname, jdate, jtime, xmsg )
+                     success = .false.; return
+                  end if
+                  land_scheme = 'NLCD-MODIS'
+               case( 'MODIFIED_IGBP_MODIS_NOAH' )
+                  if ( num_land_cat .ne. 20 ) then
+                     write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
+     &                                        ' for ' // trim( mminlu )
+                     call m3warn( pname, jdate, jtime, xmsg )
+                     success = .false.; return
+                  end if
+                  land_scheme = 'MODIS_NOAH'
+               case( 'MODIS' )
+                  if ( num_land_cat .ne. 20 ) then
+                     write( xmsg, '(a, i3, a )' ) strg, num_land_cat,
+     &                                        ' for ' // trim( mminlu )
+                     call m3warn( pname, jdate, jtime, xmsg )
+                     success = .false.; return
+                  end if
+                  land_scheme = 'MODIS'
+               case default
+                  xmsg = 'Land use scheme not supported'
+                  call m3warn( pname, jdate, jtime, xmsg )
+                  success = .false.; return
+
+            end select
+
 #else
-            l_s: do i = 1, nvars3d   ! determine land scheme
+            l_s: do i = 1, nvars3d   ! determine land scheme from GRID_CRO_2D
                if ( vname3d( i ) .eq. 'DLUSE' ) then
                   if ( index( vdesc3d( i ), 'USGS24' ) .ne. 0 ) then
                      land_scheme = 'USGS24'; exit l_s
@@ -585,7 +639,7 @@ C Includes:
                      if ( index( vdesc3d( i ), 'NLCD-MODIS' ) .ne. 0 ) then
                         land_scheme = 'NLCD-MODIS'; exit l_s
                      else if ( index( vdesc3d( i ), 'MODIS NOAH' ) .ne. 0 ) then
-                        land_scheme = 'MODIS NOAH'; exit l_s
+                        land_scheme = 'MODIS_NOAH'; exit l_s
                      else
                         land_scheme = 'MODIS'; exit l_s
                      end if
@@ -700,7 +754,7 @@ C Includes:
                dmsk = dmsk_nlcd_modis     ! array assignment
                dmap = dmap_nlcd_modis     ! array assignment
 
-            case( 'MODIS NOAH' )
+            case( 'MODIS_NOAH' )
                n_lucat = n_lucat_modis_noah
                n_dlcat = n_dlcat_modis_noah
                allocate( vnmlu( n_lucat ),
@@ -1040,7 +1094,7 @@ C           forest surrounding
             end do
             end do
 
-            case( 'MODIS NOAH' )
+            case( 'MODIS_NOAH' )
             do r = 1, my_nrows
             do c = 1, my_ncols
 C           water & barren surrounding
