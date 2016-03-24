@@ -906,7 +906,7 @@ C to give newly formed semivolatile vapors.
          totrog( i ) = 0.0
          if ( drog_map( i ) .gt. 0 ) then
            totrog( i ) = drog( drog_map( i ) )
-	 endif
+         endif
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
