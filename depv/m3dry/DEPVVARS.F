@@ -41,10 +41,12 @@ C           07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C           05 May 2015: H.Pye: Added ISOPNN and MTNO3 with Donna Schwede
 C           24 Aug 2015: H.Pye: Added IEPOX and HACET with Donna Schwede
 C           26 Jan 2016: H. Pye added info for SOA SVOCs
+C           24 Mar 2016: G. Sarwar: added iodine and bromine species
+
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 82
+      INTEGER, PARAMETER :: LTOTG = 101
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -164,6 +166,25 @@ C-------------------------------------------------------------------------------
          DEPSPC( 80 ) = 'SVTRP2          '
          DEPSPC( 81 ) = 'SVXYL1          '
          DEPSPC( 82 ) = 'SVXYL2          '
+         DEPSPC( 83 ) = 'IO              '
+         DEPSPC( 84 ) = 'OIO             '         
+         DEPSPC( 85 ) = 'I2O2            '         
+         DEPSPC( 86 ) = 'I2O3            '
+         DEPSPC( 87 ) = 'I2O4            '
+         DEPSPC( 88 ) = 'HI              '
+         DEPSPC( 89 ) = 'HOI             '
+         DEPSPC( 90 ) = 'HIO3            '
+         DEPSPC( 91 ) = 'INO             '
+         DEPSPC( 92 ) = 'INO2            '
+         DEPSPC( 93 ) = 'IONO2           '
+         DEPSPC( 94 ) = 'BRO             '
+         DEPSPC( 95 ) = 'HOBR            '
+         DEPSPC( 96 ) = 'HBR             '
+         DEPSPC( 97 ) = 'BRONO2          '
+         DEPSPC( 98 ) = 'BRNO2           '
+         DEPSPC( 99 ) = 'BRCL            '
+         DEPSPC( 100) = 'DMS             '
+         DEPSPC( 101) = 'MSA             '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
