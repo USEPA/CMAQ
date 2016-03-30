@@ -101,6 +101,8 @@ C   David Wong - Aug 15 - Used IO_PE_INCLUSIVE rather than MYPE to facilitate
 C                         parallel I/O implementation
 C                       - Used a new logical variable, FIRST_CTM_VIS_1 to
 C                         determine when to open CTM_VIS_1 
+C  B.Hutzell 22 Feb 16 - Added test to determine to write diagnostics from aerosol
+C                        chemistry
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -114,7 +116,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AOD_DEFN            ! IMPROVE reconstructed method AOD
       USE UTILIO_DEFN
       USE CGRID_SPCS
-      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX,
+     &                              AERO_CHEM_SET
 
       IMPLICIT NONE
 
@@ -180,14 +183,17 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,27 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,39 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
       REAL AMU             ! atmospheric dynamic viscosity [ kg/m s ]
 
-C *** mass fraction of each mode less than 2.5um aerodynamic diameter
-      REAL PM25( N_MODE )  ! fine fractions
+C *** mass fraction of each mode less than Specified Aerodynamic Diameters
+      REAL fPM1 ( N_MODE )  ! PM1 fraction
+      REAL fPM25( N_MODE )  ! PM2.5 fraction
+      REAL fPM10( N_MODE )  ! PM10 fraction
+      REAL fAMS ( N_MODE )  ! AMS Transmission Fraction
 
 C *** visual range information
       REAL BLKDCV1         ! block deciview (Mie)
@@ -472,10 +478,23 @@ C *** Update precursor variables conc back into CGRID
 C *** Update gas soa concentrations back to CGRID
                CALL UPDATE_SOA( CGRID( C,R,L,: ) )
 
-C *** Calculate volume fraction of each mode < 2.5um aerodynamic diameter
+C *** Calculate volume fraction of each mode for measurement applications
                DO N = 1, N_MODE
-                  CALL INLET25 ( AEROMODE_DIAM( N ), AEROMODE_SDEV( N ),
-     &                           AEROMODE_DENS( N ), PM25( N ) )
+                  ! Calculate transmission of each mode in aerosol impactors.
+                  ! Report fraction of PM1, PM2.5, and PM10.0 for all modes
+                  ! after converting to aerodynamic diameter.
+                  CALL AERO_INLET ( AEROMODE_DIAM( N ), AEROMODE_SDEV( N ),
+     &                              AEROMODE_DENS( N ), fPM1( N ), fPM25( N ),
+     &                              fPM10( N ) )
+           
+                  ! Calculate AMS Transmission Fraction. Aerosol water will
+                  ! be excluded from the calculation since AMS standard
+                  ! procedures recommend drying particles before they enter
+                  ! the intstrument.
+                  CALL AERO_AMS ( MOMENT3_CONC( N ), MOMENT2_CONC( N ),
+     &                            MOMENT0_CONC( N ), AEROSPC_CONC( AH2O_IDX,N ), 
+     &                            AEROMODE_DENS( N ),AEROSPC( AH2O_IDX)%DENSITY, 
+     &                            fAMS( N ) )
                END DO
 
 C *** Write aerosol extinction coefficients and deciviews to visibility
@@ -505,14 +524,26 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,16 ) = MOMENT3_CONC( 1 )     ! wet i-mode 3rd moment
                   DIAM_SPC( C,R,L,17 ) = MOMENT3_CONC( 2 )     ! wet j-mode 3rd moment
                   DIAM_SPC( C,R,L,18 ) = MOMENT3_CONC( 3 )     ! wet k-mode 3rd moment
-                  DIAM_SPC( C,R,L,20 ) = PM25( 1 )             ! i-mode fine fraction
-                  DIAM_SPC( C,R,L,21 ) = PM25( 2 )             ! j-mode fine fraction
-                  DIAM_SPC( C,R,L,22 ) = PM25( 3 )             ! coarse-mode fine fraction
-                  DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
-                  DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
-                  DIAM_SPC( C,R,L,27 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
+                  DIAM_SPC( C,R,L,20 ) = fPM1( 1 )             ! i-mode PM1 fraction
+                  DIAM_SPC( C,R,L,21 ) = fPM1( 2 )             ! j-mode PM1 fraction
+                  DIAM_SPC( C,R,L,22 ) = fPM1( 3 )             ! k-mode PM1 fraction
+                  DIAM_SPC( C,R,L,23 ) = fPM25( 1 )            ! i-mode fine fraction
+                  DIAM_SPC( C,R,L,24 ) = fPM25( 2 )            ! j-mode fine fraction
+                  DIAM_SPC( C,R,L,25 ) = fPM25( 3 )            ! k-mode fine fraction
+                  DIAM_SPC( C,R,L,26 ) = fPM10( 1 )            ! i-mode PM10 fraction
+                  DIAM_SPC( C,R,L,27 ) = fPM10( 2 )            ! j-mode PM10 fraction
+                  DIAM_SPC( C,R,L,28 ) = fPM10( 3 )            ! k-mode PM10 fraction
+                  DIAM_SPC( C,R,L,29 ) = fAMS( 1 )             ! i-mode fraction transmitted through AMS
+                  DIAM_SPC( C,R,L,30 ) = fAMS( 2 )             ! j-mode fraction transmitted through AMS
+                  DIAM_SPC( C,R,L,31 ) = fAMS( 3 )             ! k-mode fraction transmitted through AMS
+                  DIAM_SPC( C,R,L,32 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,33 ) = GAMMA_N2O5K( C,R,L )  ! coarse N2O5 heterorxn probability
+                  DIAM_SPC( C,R,L,34 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,35 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
+                  DIAM_SPC( C,R,L,36 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
+                  DIAM_SPC( C,R,L,37 ) = AEROMODE_DENS( 1 )    ! Aitken Mode Density [kg m-3]
+                  DIAM_SPC( C,R,L,38 ) = AEROMODE_DENS( 2 )    ! Accumulation Mode Density [kg m-3]
+                  DIAM_SPC( C,R,L,39 ) = AEROMODE_DENS( 3 )    ! Coarse Mode Density [kg m3-]
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
