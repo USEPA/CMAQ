@@ -565,15 +565,6 @@ C Includes:
             end if
 
 #ifdef twoway
-!           if ( num_land_cat .eq. 24 ) then
-!              land_scheme = 'USGS24'
-!           else if ( num_land_cat .eq. 20 ) then
-!              land_scheme = 'MODIS'
-!           else if ( num_land_cat .eq. 40 ) then
-!              land_scheme = 'NLCD40'
-!           else if ( num_land_cat .eq. 50 ) then
-!              land_scheme = 'NLCD-MODIS'
-!           end if
 
 C mminlu and num_land_cat are WRF global variables
             
