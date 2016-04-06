@@ -85,14 +85,14 @@ C...........Includes:
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
 C...........Arguments:
-      REAL, POINTER          :: CGRID( :,:,:,: ) ! concentrations
-      INTEGER, INTENT( IN )  :: JDATE            ! current model date, coded YYYYDDD
-      INTEGER, INTENT( IN )  :: JTIME            ! current model time, coded HHMMSS
-      INTEGER, INTENT( IN )  :: TSTEP( 3 )       ! model time steps, coded HHMMSS
-      INTEGER, INTENT( IN )  :: N_SPC_WDEP       ! # of wet deposition species
-      INTEGER, INTENT( IN )  :: WDEP_MAP( : )    ! wet deposition species map to CGRID
-      REAL,    INTENT( OUT ) :: DEP( :,:,: )     ! wet deposition
-      REAL,    INTENT( OUT ) :: RESTRANS( :,: )  ! resolved cloud transmissivity
+      REAL, POINTER            :: CGRID( :,:,:,: ) ! concentrations
+      INTEGER, INTENT( IN )    :: JDATE            ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN )    :: JTIME            ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN )    :: TSTEP( 3 )       ! model time steps, coded HHMMSS
+      INTEGER, INTENT( IN )    :: N_SPC_WDEP       ! # of wet deposition species
+      INTEGER, INTENT( IN )    :: WDEP_MAP( : )    ! wet deposition species map to CGRID
+      REAL,    INTENT( INOUT ) :: DEP( :,:,: )     ! wet deposition
+      REAL,    INTENT( OUT )   :: RESTRANS( :,: )  ! resolved cloud transmissivity
 
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 

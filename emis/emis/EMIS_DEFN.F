@@ -44,6 +44,8 @@ C      5 Jun 2012 J.Bash: Added support for NH3 bidirectional exchange. Fertiliz
 C                         sector emissions are subtracted from the total NH3 emissions
 C                         if the CTM_ABFLUX flag is set
 C     07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C     24 Feb 16 B.Murphy: Generalize scaling of point source species based on
+C                         mapping model species, not point source species
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -425,7 +427,8 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
                      IF ( V .GT. 0 ) THEN
                         N = N + 1
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_BI( N,C,R )
+     &                                    + CNVTC * GC_EMIS_FAC( V )
+     &                                            * VDEMIS_BI( N,C,R )
                       END IF
                   END DO
                END DO
@@ -445,7 +448,8 @@ C lightning NO
                      CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
                      V = LTNG_MAP
                      VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                 + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_LT( C,R,L )
+     &                                 + CNVTC * GC_EMIS_FAC( V )
+     &                                         * VDEMIS_LT( C,R,L )
                   END DO
                END DO
             END DO
@@ -470,7 +474,8 @@ C accessed by GET_AERO_EMIS to be "speciated" and merged with the AE emissions.
                         N = PTEM_MAP( S )     ! <- pointer to non-PM emissions
                         IF ( V .LT. 1 ) CYCLE
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * VDEMIS_PT( C,R,L,N )
+     &                                    + CNVTC * SPC_PTEM_FAC( S )
+     &                                            * VDEMIS_PT( C,R,L,N )
                      END DO
                   END DO
                END DO

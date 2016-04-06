@@ -25,6 +25,7 @@
 ! 17 March 15 D. Luecken:  Added NTR heterogeneous hydrolysis as per
 !    the CB6r3 chemical mechanism used by the Environ CAMX model consult 
 !    references 8 and 9.
+! 22 Feb 16 B.Hutzell: Added Flag stating whether module is initialized
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -36,9 +37,11 @@
        REAL,      ALLOCATABLE :: GAMMA_IEPOX(  :,:,:  ) ! IEPOX uptake coeff
        REAL,      ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
        REAL,      ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
-       
+
+       LOGICAL                :: AERO_CHEM_SET = .FALSE.
+             
        PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, GAMMA_IEPOX,
-     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES
+     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET
        
        PRIVATE 
 
@@ -111,6 +114,7 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
       REAL ( 8 ), PARAMETER :: K_H_WATER    = 9.0D-4
       REAL ( 8 ), PARAMETER :: K_H_NUC      = 2.0D-4
+      REAL ( 8 ), PARAMETER :: K_H_SO4      = 8.83D-3 ! Piletic et al. 2013, Budisulistiorini et al. in prep
       REAL ( 8 ), PARAMETER :: K_HSO4_WATER = 1.31D-5
       REAL ( 8 ), PARAMETER :: K_HSO4_NUC   = 2.92D-6
 
@@ -133,7 +137,7 @@ C                  Parent   Nucleophile     Acid     Acid    Remove   Rate Const
 C                 (parent)    (nuc)        (acid)    Index   Index       (kchem)      (prod)
 C                 --------  -----------  ----------  -----   ------   -------------  --------
      &   ACID_CAT('IEPOX',  'AH2OJ    ', 'HPLUS   ',   1,     0,       K_H_WATER,    'AISO3J' ),
-     &   ACID_CAT('IEPOX',  'ASO4J    ', 'HPLUS   ',   1,     2,       K_H_NUC,      'AISO3J'  ),
+     &   ACID_CAT('IEPOX',  'ASO4J    ', 'HPLUS   ',   1,     2,       K_H_SO4,      'AISO3J'  ),
      &   ACID_CAT('IEPOX',  'ANO3J    ', 'HPLUS   ',   1,     0,       K_H_NUC,      'AISO3J'  ),
      &   ACID_CAT('IEPOX',  'AH2OJ    ', 'HSO4    ',   2,     0,       K_HSO4_WATER, 'AISO3J' ),
      &   ACID_CAT('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_HSO4_NUC,   'AISO3J'  ),
@@ -466,6 +470,8 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
        CFACTOR_IEPOX = DSQRT( 8.0D3 * REAL( RGASUNIV, 8 ) / ( MWTIEPOX * DPI ) )    
 
        F_PART_NTR2 = 0.0
+
+       AERO_CHEM_SET = .TRUE.
 
       END IF   ! first time condition
 

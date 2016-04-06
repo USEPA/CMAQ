@@ -43,6 +43,43 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 between NLCD, NLCD50 and NLCD40
 !           25 Sep 2015  (David Wong
 !              -- replaced SUBST_MODULES with SE_MOdULES
+!           14 Dec 2015  (David Wong)
+!              -- added assignment mminlu
+!              -- updated how ioapi_header%vglvs was set w.r.t. znw's dimension 
+!                 change
+!           28 Dec 2015  (David Wong)
+!              -- added optional PV calculation which is dictated by an environment
+!                 variable CTM_TURN_ON_PV with default .false. value
+!           11 Jan 2016  (David Wong)
+!              -- removed mminlu
+!              -- resized the first dimension of the following arrays:
+!                 wrf_cmaq_c_send_to,
+!                 wrf_cmaq_c_recv_from,
+!                 wrf_cmaq_c_send_index_g,
+!                 wrf_cmaq_c_send_index_l,
+!                 wrf_cmaq_c_recv_index_g,
+!                 wrf_cmaq_c_recv_index_l,
+!                 wrf_cmaq_d_send_to,
+!                 wrf_cmaq_d_recv_from,
+!                 wrf_cmaq_d_send_index_g,
+!                 wrf_cmaq_d_send_index_l,
+!                 wrf_cmaq_d_recv_index_g,
+!                 wrf_cmaq_d_recv_index_l,
+!                 wrf_cmaq_ce_send_to,
+!                 wrf_cmaq_ce_recv_from,
+!                 wrf_cmaq_ce_send_index_g,
+!                 wrf_cmaq_ce_send_index_l,
+!                 wrf_cmaq_ce_recv_index_g,
+!                 wrf_cmaq_ce_recv_index_l,
+!                 wrf_cmaq_de_send_to,
+!                 wrf_cmaq_de_recv_from,
+!                 wrf_cmaq_de_send_index_g,
+!                 wrf_cmaq_de_send_index_l,
+!                 wrf_cmaq_de_recv_index_g,
+!                 wrf_cmaq_de_recv_index_l
+!           26 Feb 2016  (David Wong)
+!              -- transformed the call pio_re_init to pio_init as routines
+!                 pio_re_init and pio_init have been merged into one pio_init
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -105,11 +142,46 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   INTEGER :: loc_wrf_c_domain_map(3, 2)
 
-  CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
+  CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_init
 
   CHARACTER (LEN = 16), PARAMETER :: pname = 'aq_prep         '
 
   CHARACTER (LEN = 16) :: fname, pfname
+
+! Calc for PV
+
+  REAL,    SAVE, ALLOCATABLE  :: xuu_s      ( : , : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xvv_t      ( : , : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xuu_d      ( : , : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xvv_d      ( : , : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xtheta     ( : , : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xmapc      ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xmapc2     ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: xcorl      ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: dtds       ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: dtdx       ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: dtdy       ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: duds       ( : , : )
+  REAL,    SAVE, ALLOCATABLE  :: dvds       ( : , : )
+  REAL                        :: f0
+  REAL                        :: f1
+  REAL                        :: f2
+  INTEGER                     :: k
+  INTEGER                     :: k0
+  INTEGER                     :: k1
+  INTEGER                     :: k2
+  REAL,    SAVE, ALLOCATABLE  :: sigma      ( : )
+  REAL                        :: t00
+  REAL                        :: t1
+  REAL                        :: t2
+  REAL                        :: t3
+  INTEGER                     :: rp1
+  INTEGER                     :: cp1
+  REAL                        :: vor
+  REAL                        :: dsx
+  REAL                        :: dsy
+  REAL                        :: dx
+  REAL                        :: dy
 
 ! metcro3d temporary storage
 
@@ -143,12 +215,14 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   real :: wrf_lc_ref_lat
 
+  integer :: east_adjustment, north_adjustment
+
     integer, save :: jdate, jtime, sdate, stime, logdev, nstep
     integer       :: wrf_halo_x_l, wrf_halo_x_r
     integer       :: wrf_halo_y_l, wrf_halo_y_u
 
     logical, save :: run_cmaq_driver, create_physical_file, write_to_physical_file, &
-                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe
+                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe, turn_on_pv
     integer, save :: file_time_step, file_time_step_in_sec
 
     integer :: i, j, status(MPI_STATUS_SIZE)
@@ -218,8 +292,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      nprocs = grid%nproc_x * grid%nproc_y
 
+     north_adjustment = 0
      if (twoway_mype >= (nprocs - grid%nproc_x)) then
         north_bdy_pe = .true.
+        north_adjustment = -1
      else
         north_bdy_pe = .false.
      end if
@@ -230,8 +306,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         south_bdy_pe = .false.
      end if
 
+     east_adjustment = 0
      if (mod(twoway_mype, grid%nproc_x) == (grid%nproc_x - 1)) then
         east_bdy_pe = .true.
+        east_adjustment = -1
      else
         east_bdy_pe = .false.
      end if
@@ -252,27 +330,27 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      end if
 
      loc_wrf_c_domain_map(1, 1) = its
-     loc_wrf_c_domain_map(2, 1) = ite
+     loc_wrf_c_domain_map(2, 1) = ite + east_adjustment
      loc_wrf_c_domain_map(3, 1) = ite - its + 1
      loc_wrf_c_domain_map(1, 2) = jts
-     loc_wrf_c_domain_map(2, 2) = jte
+     loc_wrf_c_domain_map(2, 2) = jte + north_adjustment
      loc_wrf_c_domain_map(3, 2) = jte - jts + 1
 
      call mpi_allgather (loc_wrf_c_domain_map, 6, mpi_integer, wrf_c_domain_map, 6, &
                          mpi_integer, mpi_comm_world, stat)
 
      sc = ims + wrf_halo_x_l
-     ec = ime - wrf_halo_x_r
+     ec = ime - wrf_halo_x_r + east_adjustment
      sr = jms + wrf_halo_y_l
-     er = jme - wrf_halo_y_u
+     er = jme - wrf_halo_y_u + north_adjustment
 
      sc_d = sc
      ec_d = ec + 1
      sr_d = sr
      er_d = er + 1
 
-     wrf_c_ncols = ime - ims + 1 - wrf_halo_x_l - wrf_halo_x_r
-     wrf_c_nrows = jme - jms + 1 - wrf_halo_y_l - wrf_halo_y_u
+     wrf_c_ncols = ime - ims + 1 - wrf_halo_x_l - wrf_halo_x_r + east_adjustment
+     wrf_c_nrows = jme - jms + 1 - wrf_halo_y_l - wrf_halo_y_u + north_adjustment
      wrf_d_ncols = wrf_c_ncols + 1
      wrf_d_nrows = wrf_c_nrows + 1
      nlays = kme - 1             ! wrf is using layer, znw contains level values (D. Wong 5/22/07)
@@ -301,6 +379,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      nstep = ((grid%run_days * 24 + grid%run_hours) * 3600 + grid%run_minutes * 60 + grid%run_seconds) / &
              (grid%time_step * wrf_cmaq_freq)
+
+     turn_on_pv = envyn ('CTM_TURN_ON_PV', ' ', def_false, stat)
 
 ! Allocate arrays for CCTM...to mimic MCIP output arrays.
 !-------------------------------------------------------------------------------
@@ -368,30 +448,30 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      cmaq_d_nrows = cmaq_d_domain_map(3, 2, twoway_mype)
 
 ! the reason for nprocs*3 is in the worst scenario, the entire cmaq domain is inside one wrf processor domain
-     allocate (wrf_cmaq_c_send_to(0:nprocs, 0:nprocs-1),          &
+     allocate (wrf_cmaq_c_send_to(0:9, 0:nprocs-1),               &
                wrf_cmaq_c_recv_from(0:9, 0:nprocs-1),             &
-               wrf_cmaq_c_send_index_g(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_send_index_l(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_recv_index_g(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_recv_index_l(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_send_to(0:nprocs, 0:nprocs-1),          &
+               wrf_cmaq_c_send_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_send_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_to(0:9, 0:nprocs-1),               &
                wrf_cmaq_d_recv_from(0:9, 0:nprocs-1),             &
-               wrf_cmaq_d_send_index_g(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_send_index_l(nprocs*3, 2, 0:nprocs-1),  &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_recv_index_g(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_recv_index_l(27, 2, 0:nprocs-1),        &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_send_to(0:nprocs, 0:nprocs-1),         &
+               wrf_cmaq_d_send_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_to(0:9, 0:nprocs-1),              &
                wrf_cmaq_ce_recv_from(0:9, 0:nprocs-1),            &
-               wrf_cmaq_ce_send_index_g(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_send_index_l(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_recv_index_g(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_recv_index_l(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_send_to(0:nprocs, 0:nprocs-1),         &
+               wrf_cmaq_ce_send_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_to(0:9, 0:nprocs-1),              &
                wrf_cmaq_de_recv_from(0:9, 0:nprocs-1),            &
-               wrf_cmaq_de_send_index_g(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_send_index_l(nprocs*3, 2, 0:nprocs-1), &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_recv_index_g(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_recv_index_l(27, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
                stat=stat) 
      if (stat .ne. 0) then
         print *, ' Error: Allocating communication indices arrays'
@@ -434,10 +514,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
         file_time_step_in_sec = time2sec (file_time_step)
 
-        if (.not.  pio_re_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
-                                nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
-                                npcol, nprow, nprocs, twoway_mype, .false.) ) then
-           print *, ' Error: in invoking pio_re_init'
+        if (.not.  pio_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
+                             nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
+                             npcol, nprow, nprocs, twoway_mype, wflg=.false.) ) then
+           print *, ' Error: in invoking pio_init'
            stop
         end if
      end if
@@ -807,6 +887,61 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !        is different in WRF (i,k,j) vs. CMAQ (i,j,k).
 !-------------------------------------------------------------------------------
 
+  IF (turn_on_pv) THEN
+
+     IF ( .NOT. ALLOCATED ( sigma ) ) ALLOCATE ( sigma ( nlays ) )
+
+     sigma = grid%znu(1:nlays)
+!    sigma = grid%znu
+
+     IF ( .NOT. ALLOCATED ( xuu_s ) ) ALLOCATE ( xuu_s ( wrf_d_ncols, wrf_d_nrows, nlays) )
+     IF ( .NOT. ALLOCATED ( xvv_t ) ) ALLOCATE ( xvv_t ( wrf_d_ncols, wrf_d_nrows, nlays) )
+
+     IF ( .NOT. ALLOCATED ( xuu_d ) ) ALLOCATE ( xuu_d ( wrf_d_ncols, wrf_d_nrows, nlays) )
+     IF ( .NOT. ALLOCATED ( xvv_d ) ) ALLOCATE ( xvv_d ( wrf_d_ncols, wrf_d_nrows, nlays) )
+
+     DO kk = 1, nlays
+        jj = sr_d - 1
+        DO r = 1, wrf_d_nrows
+           jj  = jj + 1
+           ii = sc_d - 1
+           DO c = 1, wrf_d_ncols
+              ii  = ii + 1
+
+              xuu_s(c,r,kk)  = grid%u_2 (ii,kk,jj)
+              xvv_t(c,r,kk)  = grid%v_2 (ii,kk,jj)
+
+           ENDDO ! c
+        ENDDO  ! r
+
+        xvv_d(2:wrf_d_ncols-1,:,kk) = 0.5 * (xvv_t(1:wrf_d_ncols-2,:,kk) + xvv_t(2:wrf_d_ncols-1,:,kk))
+        IF (west_bdy_pe) THEN
+             xvv_d(1,        :,kk) = xvv_t(1,:,kk)
+        ELSE
+             xvv_d(1,        :,kk) = 0.5 * (xvv_t(1,:,kk) + grid%v_2 (sc_d-1,kk,sr_d:er_d))
+        ENDIF
+        IF (east_bdy_pe) THEN
+             xvv_d(wrf_d_ncols,:,kk) = xvv_t(wrf_d_ncols-1,:,kk)
+        ELSE
+             xvv_d(wrf_d_ncols,:,kk) = 0.5 * (xvv_t(wrf_d_ncols-1,:,kk) + xvv_t(wrf_d_ncols,:,kk))
+        ENDIF
+
+        xuu_d(:,2:wrf_d_nrows-1,kk) = 0.5 * (xuu_s(:,1:wrf_d_nrows-2,kk) + xuu_s(:,2:wrf_d_nrows-1,kk))
+        IF (south_bdy_pe) THEN
+             xuu_d(:,1,        kk) = xuu_s(:,1,kk)
+        ELSE
+             xuu_d(:,1,        kk) =  0.5 * (xuu_s(:,1,kk) + grid%u_2 (sc_d:ec_d,kk,sr_d-1))
+        ENDIF
+        IF (north_bdy_pe) THEN
+             xuu_d(:,wrf_d_nrows,kk) = xuu_s(:,wrf_d_nrows-1,kk)
+        ELSE
+             xuu_d(:,wrf_d_nrows,kk) = 0.5 * (xuu_s(:,wrf_d_nrows-1,kk) + xuu_s(:,wrf_d_nrows,kk))
+        ENDIF
+     ENDDO ! kk
+
+     IF ( .NOT. ALLOCATED ( xtheta ) ) ALLOCATE ( xtheta ( wrf_c_ncols, wrf_c_nrows, nlays) )
+  END IF  ! turn_on_pv
+
   zf (:,:,0) = 0.0
   DO kk = 1, nlays
      kp1 = kk + 1
@@ -847,6 +982,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         !-----------------------------------------------------------------------
 
            metcro3d_data_wrf (c,r,kk,4) = t_phy_wrf   (ii,kk,jj)  ! ta
+           if (turn_on_pv) then
+              xtheta(c,r,kk) = grid%t_2 (ii,kk,jj) + t0
+           end if
 
            IF ( PRESENT (qv_curr_wrf) .AND. f_qv ) THEN
               metcro3d_data_wrf (c,r,kk,5) = qv_curr_wrf (ii,kk,jj)   ! qv
@@ -924,10 +1062,15 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         !-----------------------------------------------------------------------
 
            tf    = t8w_wrf(ii,kp1,jj)  ! kp1 to adjust for 0: indexing in AQ model
+
            qf    = 0.5 * ( qv_curr_wrf(ii,kk,jj) + qv_curr_wrf(ii,kp1,jj) )
            densf = presf(c,r,kk) / ( r_d * tf * (1.0 + r_v*qf/r_d) )
 
-           metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+           if (turn_on_pv) then
+              metcro3d_data_wrf (c,r,kk,1) = tf*2
+           else
+              metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+           end if
 
            metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
 
@@ -938,6 +1081,214 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   ENDDO
 
   metcro3d_data_wrf (:,:,1:nlays,14) = zf (:,:,1:nlays)
+
+!-------------------------------------------------------------------------------
+! Name:     Potential Vorticity on Sigma
+! Purpose:  Compute potential vorticity on sigma surfaces from Ertel's form.
+! Notes:    Formalism based on Ebel et al., "Simulation of ozone intrusion
+!           caused by tropopause fold and cut-off low, Atmos. Environ.,
+!           Part A, 25, 2131-2144.
+! Revised:  ?? ??? 1999  Original version.  (S. McKeen)
+!           ?? ??? 2007  Adapted for use in air quality forecasting model.
+!                        (H.-M. Lin and R. Mathur)
+!           17 Sep 2009  Adapted for MCIP by changing array indexing and using
+!                        arrays available in MCIP.  (T. Otte)
+!           07 Sep 2011  Updated disclaimer.  Changed SCALE to SCALEF to avoid
+!                        conflict with F90 intrinsic.  (T. Otte)
+!           05 Sep 2012  Embeded in two-way model from Mcip4.0 (J. XING)
+!-------------------------------------------------------------------------------
+
+!-------------------------------------------------------------------------------
+! Compute vertical gradients using 2nd order polynomials at all levels.
+! Gradients obtained at model sigma levels,
+!   not at sigma=.5*(sigma(K+1)+sigma(K-1))
+!-------------------------------------------------------------------------------
+
+  IF (TURN_ON_PV) THEN
+     IF ( .NOT. ALLOCATED ( xmapc ) ) ALLOCATE ( xmapc ( wrf_c_ncols, wrf_c_nrows) )
+     xmapc(:,:) = grid%msftx (sc:ec, sr:er)
+     IF ( .NOT. ALLOCATED ( xmapc2 ) ) ALLOCATE ( xmapc2 ( wrf_c_ncols, wrf_c_nrows))
+     xmapc2(:,:) = grid%msftx (sc:ec, sr:er) * grid%msftx (sc:ec, sr:er)
+     IF ( .NOT. ALLOCATED ( xcorl ) ) ALLOCATE ( xcorl ( wrf_c_ncols, wrf_c_nrows) )
+     xcorl(:,:) = grid%f (sc:ec, sr:er)
+
+     dx  = grid%dx
+     dy  = grid%dy
+
+     dsx = 2.0 * dx
+     dsy = 2.0 * dy
+
+     DO k = 1, nlays
+        IF ( k == 1 ) THEN
+           k0 = k
+           k1 = k + 1
+           k2 = k + 2
+
+           f0 = -1.0 / (sigma(k1) - sigma(k0)) - 1.0 / (sigma(k2) - sigma(k0))
+           f1 =  1.0 / (sigma(k1) - sigma(k0)) + 1.0 / (sigma(k2) - sigma(k1))
+           f2 = -1.0 * ( (sigma(k1) - sigma(k0)) /   &
+                     ( (sigma(k2) - sigma(k0)) * (sigma(k2) - sigma(k1)) ) )
+
+        ELSE IF ( k == nlays ) THEN
+
+           k0 = k - 2
+           k1 = k - 1
+           k2 = k
+
+           f0 =        (sigma(k2) - sigma(k1)) /  &
+                     ( (sigma(k2) - sigma(k0)) * (sigma(k1) - sigma(k0)) )
+           f1 = -1.0 / (sigma(k1) - sigma(k0)) - 1.0 / (sigma(k2) - sigma(k1))
+           f2 =  1.0 / (sigma(k2) - sigma(k0)) + 1.0 / (sigma(k2) - sigma(k1))
+
+        ELSE
+
+           k0 = k - 1
+           k1 = k
+           k2 = k + 1
+  
+           f0 = -1.0 * (sigma(k2) - sigma(k1)) /  &
+                     ( (sigma(k1) - sigma(k0)) * (sigma(k2) - sigma(k0)) )
+           f1 =  1.0 / (sigma(k1) - sigma(k0)) - 1.0 / (sigma(k2) - sigma(k1))
+           f2 =        (sigma(k1) - sigma(k0)) /  &
+                     ( (sigma(k2) - sigma(k1)) * (sigma(k2) - sigma(k0)) )
+
+        ENDIF
+
+!-------------------------------------------------------------------------------
+! Compute vertical derivatives: dU/ds, dV/ds, dTHETA/ds.
+!-------------------------------------------------------------------------------
+
+        IF ( .NOT. ALLOCATED ( duds  ) ) ALLOCATE ( duds ( wrf_c_ncols,   wrf_c_nrows) )
+        IF ( .NOT. ALLOCATED ( dvds  ) ) ALLOCATE ( dvds ( wrf_c_ncols,   wrf_c_nrows) )
+        IF ( .NOT. ALLOCATED ( dtdx  ) ) ALLOCATE ( dtdx ( wrf_c_ncols,   wrf_c_nrows) )
+        IF ( .NOT. ALLOCATED ( dtdy  ) ) ALLOCATE ( dtdy ( wrf_c_ncols,   wrf_c_nrows) )
+        IF ( .NOT. ALLOCATED ( dtds  ) ) ALLOCATE ( dtds ( wrf_c_ncols,   wrf_c_nrows) )
+
+        DO r = 1, wrf_c_nrows
+           rp1 = r + 1
+           DO c = 1, wrf_c_ncols
+              cp1 = c + 1
+
+              duds(c,r) = 0.5 * ( f0 * ( xuu_s(cp1,r  ,k0) + xuu_s(c,r,k0) ) +  &
+                                  f1 * ( xuu_s(cp1,r  ,k1) + xuu_s(c,r,k1) ) +  &
+                                  f2 * ( xuu_s(cp1,r  ,k2) + xuu_s(c,r,k2) ) )
+
+              dvds(c,r) = 0.5 * ( f0 * ( xvv_t(c  ,rp1,k0) + xvv_t(c,r,k0) ) +  &
+                                  f1 * ( xvv_t(c  ,rp1,k1) + xvv_t(c,r,k1) ) +  &
+                                  f2 * ( xvv_t(c  ,rp1,k2) + xvv_t(c,r,k2) ) )
+
+           ENDDO
+        ENDDO
+
+        DO r = 1, wrf_c_nrows
+           DO c = 1, wrf_c_ncols
+
+              t00 = xtheta(c,r,k0)
+              t1  = xtheta(c,r,k1)
+              t2  = xtheta(c,r,k2)
+
+              dtds(c,r) = f0*t00 + f1*t1 + f2*t2
+
+           ENDDO
+        ENDDO
+
+        jj = sr - 1
+        DO r = 1, wrf_c_nrows
+           jj = jj + 1
+           DO c = 2, wrf_c_ncols-1
+              t1        = xtheta(c-1,r,k) / xmapc(c-1,r)
+              t2        = xtheta(c+1,r,k) / xmapc(c+1,r)                    
+              dtdx(c,r) = xmapc2(c,r) * (t2-t1) / dsx
+           ENDDO
+
+           IF (west_bdy_pe) THEN
+              t1        = xtheta(1,r,k) / xmapc(1,r)
+              t2        = xtheta(2,r,k) / xmapc(2,r)
+              t3        = xtheta(3,r,k) / xmapc(3,r)
+              dtdx(1,r) = xmapc2(1,r) * (-1.5*t1 + 2.0*t2 - 0.5*t3) / dx
+           ELSE
+              t1        = (grid%t_2(sc-1,k,jj) + t0) / grid%msftx(sc-1,jj)
+              t2        = xtheta(2,r,k) / xmapc(2,r)
+              dtdx(1,r) = xmapc2(1,r) * (t2-t1) / dsx
+           ENDIF
+
+           IF (east_bdy_pe) THEN
+              t00             = xtheta(wrf_c_ncols-2,r,k) / xmapc(wrf_c_ncols-2,r)
+              t1              = xtheta(wrf_c_ncols-1,r,k) / xmapc(wrf_c_ncols-1,r)
+              t2              = xtheta(wrf_c_ncols,  r,k) / xmapc(wrf_c_ncols,  r)
+              dtdx(wrf_c_ncols,r) = xmapc2(wrf_c_ncols,r) * (0.5*t00 - 2.0*t1 + 1.5*t2) / dx
+           ELSE
+              t1        = xtheta(c-1,r,k) / xmapc(c-1,r)
+              t2        = (grid%t_2(ec+1,k,jj) + t0) / grid%msftx(ec+1,jj)
+              dtdx(wrf_c_ncols,r) = xmapc2(wrf_c_ncols,r) * (t2-t1) / dsx
+           ENDIF
+
+        ENDDO
+
+        ii = sc - 1
+        DO c = 1, wrf_c_ncols
+           ii = ii + 1
+            DO r = 2, wrf_c_nrows-1
+               t1        = xtheta(c,r-1,k) / xmapc(c,r-1)
+               t2        = xtheta(c,r+1,k) / xmapc(c,r+1)
+               dtdy(c,r) = xmapc2(c,r) * (t2-t1) / dsy
+            ENDDO ! r
+
+            IF (south_bdy_pe) THEN
+              t1        = xtheta(c,1,k) / xmapc(c,1)
+              t2        = xtheta(c,2,k) / xmapc(c,2)
+              t3        = xtheta(c,3,k) / xmapc(c,3)
+              dtdy(c,1) = xmapc2(c,1) * (-1.5*t1 + 2.0*t2 - 0.5*t3) / dy
+           ELSE
+              t1        = (grid%t_2(ii,k,sr-1) + t0) / grid%msftx(ii,sr-1)
+              t2        = xtheta(c,2,k) / xmapc(c,2)
+              dtdy(c,1) = xmapc2(c,1) * (t2-t1) / dsy
+           ENDIF
+
+           IF (north_bdy_pe) THEN
+              t00       = xtheta(c,wrf_c_nrows-2,k) / xmapc(c,wrf_c_nrows-2)
+              t1        = xtheta(c,wrf_c_nrows-1,k) / xmapc(c,wrf_c_nrows-1)
+              t2        = xtheta(c,wrf_c_nrows,  k) / xmapc(c,wrf_c_nrows)
+              dtdy(c,wrf_c_nrows) = xmapc2(c,wrf_c_nrows) * (0.5*t00 - 2.0*t1 + 1.5*t2) / dy
+           ELSE
+              t1        = xtheta(c,r-1,k) / xmapc(c,r-1)
+              t2        = (grid%t_2(ii,k,er+1) + t0)/ grid%msftx(ii,er+1)
+              dtdy(c,wrf_c_nrows) = xmapc2(c,wrf_c_nrows) * (t2-t1) / dsy
+           ENDIF
+
+        ENDDO
+
+!-------------------------------------------------------------------------------
+! Compute slab absolute vorticity, and store potential vorticity in XPVC.
+!
+!     1. Because we use X3 instead of SIGMA in equation,
+!        GRAV/PSB is replaced by 1.0/XRHOJM (density * Jacobian).
+!
+!     2. As a shortcut, 1.0/XRHOJM is not included in XPVC here;
+!        it will be included in subroutine METCRO before PV is output.
+!     3. Added RHOJ
+!-------------------------------------------------------------------------------
+
+        DO r = 1, wrf_c_nrows
+           rp1 = r + 1
+
+           DO c = 1, wrf_c_ncols
+              cp1 = c + 1
+
+              vor = xmapc2(c,r) * ((xvv_d(cp1,r,  k) + xvv_d(cp1,rp1,k) -          &
+                                    xvv_d(c,  r,  k) - xvv_d(c,  rp1,k)) / dsx  -  &
+                                   (xuu_d(c,  rp1,k) + xuu_d(cp1,rp1,k) -          &
+                                    xuu_d(c,  r,  k) - xuu_d(cp1,r,  k)) / dsy) +  &
+                    xcorl(c,r)
+
+              metcro3d_data_wrf (c,r,k,15) = -1.0e6 * ( vor * dtds(c,r) &
+                                           - dvds(c,r) * dtdx(c,r)      &
+                                           + duds(c,r) * dtdy(c,r) )    &
+                         / ( metcro3d_data_wrf (c,r,k,3) * gridcro2d_data_wrf (c,r,3))
+           ENDDO
+        ENDDO
+     ENDDO
+  END IF  ! turn on pv
 
   call se_wrf_cmaq_comm (twoway_mype, metcro3d_data_wrf, metcro3d_data_cmaq,         &
                          wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,                 &
@@ -1503,8 +1854,9 @@ SUBROUTINE aq_header (ncols, nrows, gncols, gnrows, nlays, sdate, stime, dx, dy,
 
   ioapi_header%vgtop = ptop
 
-  ioapi_header%vglvs(1:nlays) = znw
-  ioapi_header%vglvs(nlays+1) = 0.0
+  ioapi_header%vglvs(1:nlays+1) = znw
+! ioapi_header%vglvs(1:nlays) = znw
+! ioapi_header%vglvs(nlays+1) = 0.0
 
 !-------------------------------------------------------------------------------
 ! Define other identifiers.

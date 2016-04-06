@@ -74,12 +74,13 @@ C  15 Feb 06 J.Young: new pario PIO_RE_INIT from PIO_INIT to add flag
 C                     to control printing decomposition map
 C  10 Jul 10 J.Young: restructure so as to not keep reallocating DBUFF for IRR
 C  16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C  26 Jan 16 J.Young: consolidated pio_init, flag for couple/decouple
 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE PAGRD_DEFN            ! PA horiz domain specs
-      USE UTILIO_DEFN
+      USE UTILIO_DEFN           ! inherits PARUTILIO
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
@@ -130,7 +131,7 @@ C Local Variables:
      
 #ifdef parallel
       CHARACTER( 2 ) :: COLROW = 'CR'  ! col/row arg list order for pio_re_init
-      LOGICAL, SAVE :: WFLG = .TRUE.   ! pio_init - print decomposition
+      LOGICAL :: WFLG                  ! pio_init - print decomposition
 #endif
       INTEGER ALLOCSTAT
 
@@ -138,9 +139,9 @@ C-----------------------------------------------------------------------
 
 #ifdef parallel
 C Reset decomposition map
-      IF ( .NOT. PIO_RE_INIT( COLROW, PACOLS, PAROWS, PALEVS, NTHIK,
-     &                        MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
-     &                        MYPE, WFLG ) ) THEN
+      IF ( .NOT. PIO_INIT( COLROW, PACOLS, PAROWS, PALEVS, NTHIK,
+     &                     MY_PACOLS, MY_PAROWS, NPCOL, NPROW, NPCOL*NPROW,
+     &                     MYPE, wflg = WFLG ) ) THEN
          XMSG = 'Failed to re-initialize parallel I/O library.'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          RETURN
@@ -336,14 +337,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 #ifdef parallel
 C Reset decomposition map for the rest of the model
-      IF ( .NOT. PIO_RE_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
-     &                        NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
-     &                        MYPE, WFLG ) ) THEN
+      IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
+     &                     NCOLS, NROWS, NPCOL, NPROW, NPCOL*NPROW,
+     &                     MYPE, wflg = WFLG ) ) THEN
          XMSG = 'Failed to re-initialize parallel I/O library.'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          RETURN
       END IF
-      WFLG = .FALSE.
 #endif
 
       RETURN

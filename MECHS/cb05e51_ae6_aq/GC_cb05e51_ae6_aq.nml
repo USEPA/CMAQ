@@ -70,7 +70,7 @@ TYPE_MATRIX =
 'OPAN:161:::VD_PAN:1:::MPAN:1:::Yes:Yes:Yes:Yes',
 'XYLMN:106:XYLMN:1:::::O-XYLENE:1:::Yes:::Yes',
 'XYLRO2:155::::::::::::::Yes',
-'NAPH:128.2:NAPHTH:1:::::O-XYLENE:1:::Yes:::Yes',
+'NAPH:128.2:NAPH:1:::::O-XYLENE:1:::Yes:::Yes',
 'PAHRO2:187.2::::::::::::::Yes',
 'ISOP:68:ISOP:1:::::ISOPRENE:1:::Yes:::Yes',
 'ISPD:70:::VD_ISPD:1:::MVK:1:::Yes:::Yes',

@@ -672,29 +672,6 @@ C Compute ZSTK, DDZF
 
          END IF   ! ZSTATIC
 
-C Set Namelist emissions factors
-
-         V = 0
-         DO S = 1, N_SPC_PTEM
-
-            K = INDEX1 ( STKEM_NAME( S ), N_GC_EMIS, GC_EMIS )
-            IF ( K .NE. 0 ) THEN
-               V = V + 1
-               EMIS_FAC( V ) = GC_EMIS_FAC( K )
-            END IF
-            K = INDEX1 ( STKEM_NAME( S ), N_NR_EMIS, NR_EMIS )
-            IF ( K .NE. 0 ) THEN
-               V = V + 1
-               EMIS_FAC( V ) = NR_EMIS_FAC( K )
-            END IF
-            K = INDEX1 ( STKEM_NAME( S ), N_TR_EMIS, TR_EMIS )
-            IF ( K .NE. 0 ) THEN
-               V = V + 1
-               EMIS_FAC( V ) = TR_EMIS_FAC( K )
-            END IF
-
-         END DO
-
          SUCCESS = .TRUE.; RETURN
 
 93053    FORMAT("#  Src Id's for play file", I2, ', with', I10, ' total sources',
@@ -829,7 +806,7 @@ C Local variables:
              REAL,    INTENT( IN )  :: DTHDZ( : )
              REAL,    INTENT( IN )  :: TA   ( : )
              REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF   ( 0: )
+             REAL,    INTENT( IN )  :: ZF ( 0:  )
              REAL,    INTENT( IN )  :: ZH   ( : )
              REAL,    INTENT( IN )  :: ZSTK ( : )
              REAL,    INTENT( INOUT ) :: WSTK
@@ -849,14 +826,14 @@ C Local variables:
              REAL,    INTENT( IN )  :: DTHDZ( : )
              REAL,    INTENT( IN )  :: TA   ( : )
              REAL,    INTENT( IN )  :: WSPD ( : )
-             REAL,    INTENT( IN )  :: ZF   ( 0: )
+             REAL,    INTENT( IN )  :: ZF ( 0:  )
              REAL,    INTENT( INOUT ) :: WSTK
              REAL,    INTENT( OUT ) :: ZPLM
            END SUBROUTINE FIRE_PLMRIS
 
            SUBROUTINE PLSPRD( DTHDZ, ZF, KZ, CEFSTK, PLTOP, PLBOT )
              REAL,    INTENT ( IN ) :: DTHDZ( : )
-             REAL,    INTENT ( IN ) :: ZF   ( 0: )
+             REAL,    INTENT ( IN ) :: ZF( 0:  )
              INTEGER, INTENT ( IN ) :: KZ
              REAL,    INTENT ( IN ) :: CEFSTK
              REAL,    INTENT( OUT ) :: PLTOP
@@ -877,10 +854,12 @@ C-----------------------------------------------------------------------
             PRE_JDATE = JDATE
 
 #ifdef parallel_io
-            IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSNONIO, PNAME ) ) THEN
-                  XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+            IF ( PT3DDIAG ) THEN
+               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_PT3D_DIAG, FSREAD3, PNAME ) ) THEN
+                     XMSG = 'Could not open ' // TRIM(CTM_PT3D_DIAG)
+                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  END IF
                END IF
             END IF
 #endif

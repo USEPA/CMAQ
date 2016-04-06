@@ -201,7 +201,6 @@ C environment variable for diagnostic DEPV file
          CHARACTER( 16 )  :: PNAME = 'DEPV_INIT'
          CHARACTER( 120 ) :: XMSG = ' '
 
-         INTEGER          AE_OFFSET            ! Offset to AE start in CGRID
          INTEGER          NDX, NDX2, NDX3      ! Temp index
          INTEGER          LOGDEV, ALLOCSTAT
          INTEGER          J, L, N, S, V, STRT
@@ -911,7 +910,7 @@ C-----------------------------------------------------------------------
                   FIRSTIME = .FALSE.
                   IF ( DEPV_DIAG ) THEN
                      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSNONIO, PNAME ) ) THEN
+                        IF ( .NOT. OPEN3( CTM_DEPV_DIAG, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM( CTM_DEPV_DIAG )
                            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                         END IF
@@ -920,14 +919,14 @@ C-----------------------------------------------------------------------
 
                   IF ( MOSAIC ) THEN
                      IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                        IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSNONIO, PNAME ) ) THEN
+                        IF ( .NOT. OPEN3( CTM_DEPV_MOS, FSREAD3, PNAME ) ) THEN
                            XMSG = 'Could not open ' // TRIM( CTM_DEPV_MOS )
                            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                         END IF
                      END IF
                      IF ( FST ) THEN
                         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                           IF ( .NOT. OPEN3( CTM_DEPV_FST, FSNONIO, PNAME ) ) THEN
+                           IF ( .NOT. OPEN3( CTM_DEPV_FST, FSREAD3, PNAME ) ) THEN
                               XMSG = 'Could not open ' // TRIM( CTM_DEPV_FST )
                               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                            END IF
