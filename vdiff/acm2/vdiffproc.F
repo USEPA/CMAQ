@@ -261,8 +261,8 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
-C        IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
-         IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ), CGRID ) ) THEN 
+         IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
+!        IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ), CGRID ) ) THEN 
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -345,7 +345,7 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
-      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA )
+      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_EMIS+1

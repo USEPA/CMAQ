@@ -353,25 +353,24 @@ C Land use information:
       DATA subname( 80), dif0( 80), ar( 80), meso( 80), lebas( 80) / 'SVTRP2          ',0.0559,   20.0,      0.0,  218.8/
       DATA subname( 81), dif0( 81), ar( 81), meso( 81), lebas( 81) / 'SVXYL1          ',0.0610,   20.0,      0.0,  154.6/
       DATA subname( 82), dif0( 82), ar( 82), meso( 82), lebas( 82) / 'SVXYL2          ',0.0585,   20.0,      0.0,  194.6/
-      DATA subname( 83), dif0( 83), ar( 83), meso( 83), lebas( 83) / 'IO              ', 0.1014,    8.0,      0.0,  45.5/
-      DATA subname( 84), dif0( 84), ar( 84), meso( 84), lebas( 84) / 'OIO             ', 0.0956,    8.0,      0.0,  52.5/
-      DATA subname( 85), dif0( 85), ar( 85), meso( 85), lebas( 85) / 'I2O2            ', 0.0742,    8.0,      0.0,  91.0/
-      DATA subname( 86), dif0( 86), ar( 86), meso( 86), lebas( 86) / 'I2O3            ', 0.0720,    8.0,      0.0,  98.0/
-      DATA subname( 87), dif0( 87), ar( 87), meso( 87), lebas( 87) / 'I2O4            ', 0.0720,    8.0,      0.0,  98.0/
-      DATA subname( 88), dif0( 88), ar( 88), meso( 88), lebas( 88) / 'HI              ', 0.1061,    8.0,      0.0,  45.5/
-      DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ', 0.0995,    8.0,      0.0,  52.5/
-      DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'HIO3            ', 0.0893,    8.0,      0.0,  66.5/
-      DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO             ', 0.1068,    8.0,      0.0,  52.5/
-      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'INO2            ', 0.1001,   20.0,      0.0,  59.5/
-      DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'IONO2           ', 0.0946,    8.0,      0.0,  66.5/
-      DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'BRO             ', 0.1160,    1.0,      0.0,  38.5/
-      DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HOBR            ', 0.1132,    1.0,      0.0,  45.5/
-      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'HBR             ', 0.1239,    2.0,      0.0,  38.5/
-      DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRONO2          ', 0.1051,    1.0,      0.0,  59.5/
-      DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRNO2           ', 0.1130,    1.0,      0.0,  52.5/
-      DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'BRCL            ', 0.0968,    1.0,      0.0,  56.0/
-      DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'DMS             ', 0.1079,    2.0,      0.0,  77.0/
-      DATA subname(101), dif0(101), ar(101), meso(101), lebas(101) / 'MSA             ', 0.1044,    2.0,      0.0,  77.0/
+      DATA subname( 83), dif0( 83), ar( 83), meso( 83), lebas( 83) / 'IO              ', 0.1002,    8.0,      0.0,  44.4/
+      DATA subname( 84), dif0( 84), ar( 84), meso( 84), lebas( 84) / 'OIO             ', 0.0938,    8.0,      0.0,  51.8/
+      DATA subname( 85), dif0( 85), ar( 85), meso( 85), lebas( 85) / 'I2O2            ', 0.0732,    8.0,      0.0,  88.8/
+      DATA subname( 86), dif0( 86), ar( 86), meso( 86), lebas( 86) / 'I2O3            ', 0.0707,    8.0,      0.0,  96.2/
+      DATA subname( 87), dif0( 87), ar( 87), meso( 87), lebas( 87) / 'I2O4            ', 0.0684,    8.0,      0.0, 103.6/
+      DATA subname( 88), dif0( 88), ar( 88), meso( 88), lebas( 88) / 'HI              ', 0.1045,    8.0,      0.0,  40.7/
+      DATA subname( 89), dif0( 89), ar( 89), meso( 89), lebas( 89) / 'HOI             ', 0.0972,    8.0,      0.0,  48.1/
+      DATA subname( 90), dif0( 90), ar( 90), meso( 90), lebas( 90) / 'INO             ', 0.0882,    8.0,      0.0,  60.9/
+      DATA subname( 91), dif0( 91), ar( 91), meso( 91), lebas( 91) / 'INO2            ', 0.0883,   20.0,      0.0,  69.2/
+      DATA subname( 92), dif0( 92), ar( 92), meso( 92), lebas( 92) / 'IONO2           ', 0.0792,    8.0,      0.0,  77.5/
+      DATA subname( 93), dif0( 93), ar( 93), meso( 93), lebas( 93) / 'BRO             ', 0.1144,    1.0,      0.0,  34.4/
+      DATA subname( 94), dif0( 94), ar( 94), meso( 94), lebas( 94) / 'HOBR            ', 0.1101,    1.0,      0.0,  38.1/
+      DATA subname( 95), dif0( 95), ar( 95), meso( 95), lebas( 95) / 'HBR             ', 0.1216,    2.0,      0.0,  30.7/
+      DATA subname( 96), dif0( 96), ar( 96), meso( 96), lebas( 96) / 'BRONO2          ', 0.0855,    1.0,      0.0,  67.5/
+      DATA subname( 97), dif0( 97), ar( 97), meso( 97), lebas( 97) / 'BRNO2           ', 0.0909,    1.0,      0.0,  59.2/
+      DATA subname( 98), dif0( 98), ar( 98), meso( 98), lebas( 98) / 'BRCL            ', 0.0966,    1.0,      0.0,  51.6/
+      DATA subname( 99), dif0( 99), ar( 99), meso( 99), lebas( 99) / 'DMS             ', 0.0926,    2.0,      0.0,  77.4/
+      DATA subname(100), dif0(100), ar(100), meso(100), lebas(100) / 'MSA             ', 0.0896,    2.0,      0.0,  77.4/
 
       CONTAINS
 

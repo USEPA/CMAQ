@@ -46,6 +46,8 @@ C Marine gas Emissions Rates
       PUBLIC NMGSPC, VDEMIS_MG, MGSPC_MAP, MGEMIS_INIT, GET_MGEMIS, MGEM
       PRIVATE
 
+      INTEGER, SAVE              :: LGC_O3            ! pointer to O3 in CGRID
+
 C Variables for the marine gas diagnostic file
       INTEGER :: NMGDIAG                              ! number of species in marine gas
                                                       ! diagnostic emission file
@@ -55,7 +57,7 @@ C Variables for the marine gas diagnostic file
       REAL,    ALLOCATABLE, SAVE :: WRMG( :,: )       ! marine gas emiss write buffer
       INTEGER, SAVE              :: SDATE, STIME      ! scenario start date & time
 
-C Species names in the speciated marine gas-emissions
+! Species names in the speciated marine gas-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
 
 C Variables for handling marine gas emissions
@@ -84,7 +86,6 @@ C Variables interpolated from the meteorological input files
       REAL,    ALLOCATABLE, SAVE :: U10( :,: )      ! wind speed at 10m [m/s]
       REAL,    ALLOCATABLE, SAVE :: TSEASFC( :,: )  ! sea surface temp K
       REAL,    ALLOCATABLE, SAVE :: ILON( :,: )     ! longitude
-      REAL,    ALLOCATABLE, SAVE :: IO3( :,: )      ! surface ozone
       REAL,    ALLOCATABLE, SAVE :: SEAICE( :,: )   ! seaice fraction
 
       INTEGER I
@@ -99,7 +100,7 @@ C Domain decomposition info from emission and meteorology files
       CONTAINS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      FUNCTION MGEMIS_INIT( JDATE, JTIME, TSTEP, CGRID ) RESULT ( SUCCESS )
+      FUNCTION MGEMIS_INIT( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
 
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine gas emissions
@@ -115,7 +116,6 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
 
 C Arguments:
             INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP
-            REAL, POINTER :: CGRID( :,:,:,: )
             LOGICAL :: SUCCESS
 
             CHARACTER( 16 ), SAVE :: CTM_MGEMDIAG = 'CTM_MGEMDIAG'  ! env var for diagnostic file
@@ -130,7 +130,6 @@ C Local Variables:
             CHARACTER( 16 ), SAVE :: PNAME = 'MGEMIS_INIT'
             CHARACTER( 96 ) :: XMSG = ' '
             CHARACTER(  16 ) :: VARNM
-            INTEGER, SAVE :: LGC_O3                                ! pointer to O3 in CGRID
             INTEGER STATUS
             INTEGER S, N, L, K, V        
 
@@ -140,11 +139,12 @@ C-----------------------------------------------------------------------
             SUCCESS = .TRUE.
 
 C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 is used
-          IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
-            MGEM = .TRUE.
-          ELSE 
-            MGEM = .FALSE.          
-          ENDIF 
+            IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
+               MGEM = .TRUE.
+            ELSE 
+               MGEM = .FALSE.          
+               RETURN
+            ENDIF 
             
 C Allocate mapping array
             ALLOCATE ( MGSPC_MAP( NMGSPC ), STAT = STATUS )
@@ -187,7 +187,6 @@ C Allocate MG arrays using NMGSPC value
      &                 TSEASFC( NCOLS,NROWS ),
      &                 U10( NCOLS,NROWS ),
      &                 ILON( NCOLS,NROWS ),
-     &                 IO3( NCOLS,NROWS ), 
      &                 SEAICE( NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
               XMSG = '*** OCEAN,SZONE,TSEASFC,CHLR, or WSPD10 memory'
@@ -225,66 +224,76 @@ C Open the grid file, with contains latitude and longitude
             CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
      &                      STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
+C Read longitude from the grid file
+           IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
+     &                         STRTCOLGC2,ENDCOLGC2,STRTROWGC2,ENDROWGC2,
+     &                         1, 1, 0, 0, ILON ) ) THEN
+              XMSG = 'Could not interpolate LON from ' // GRID_CRO_2D
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           END IF
+
 C Get the surface ozone concentration (ppbv)
-         VARNM = 'O3'
-         LGC_O3 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IO3(1:NCOLS,1:NROWS) = CGRID(1:NCOLS,1:NROWS,1,LGC_O3) * 1000.0
-         IF ( LGC_O3 .LE. 0 ) THEN
-            XMSG = 'Could not find ' // VARNM // 'in species table'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
+            VARNM = 'O3'
+            LGC_O3 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_O3 .LE. 0 ) THEN
+               XMSG = 'Could not find ' // VARNM // 'in species table'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+            END IF
 
 C Get marine gas emission diagnostic output file flag.
-            MGEMDIAG = .FALSE.         ! default
-            VARDESC = 'Flag for writing MG emission diagnostic file'
-            MGEMDIAG = ENVYN( CTM_MGEMDIAG, VARDESC, MGEMDIAG, STATUS )
-            IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-            IF ( STATUS .EQ. 1 ) THEN
-               XMSG = 'Environment variable improperly formatted'
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            ELSE IF ( STATUS .EQ. -1 ) THEN
-               XMSG =
+           MGEMDIAG = .FALSE.         ! default
+           VARDESC = 'Flag for writing MG emission diagnostic file'
+           MGEMDIAG = ENVYN( CTM_MGEMDIAG, VARDESC, MGEMDIAG, STATUS )
+           IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+           IF ( STATUS .EQ. 1 ) THEN
+              XMSG = 'Environment variable improperly formatted'
+              CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+              SUCCESS = .FALSE.; RETURN
+           ELSE IF ( STATUS .EQ. -1 ) THEN
+              XMSG =
      &             'Environ variable set, but empty ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+              WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
             ELSE IF ( STATUS .EQ. -2 ) THEN
-               XMSG = 'Environment variable not set ... Using default:'
-               WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
+              XMSG = 'Environment variable not set ... Using default:'
+              WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
             END IF
 
             IF (MGEM .AND. MGEMDIAG ) THEN                            ! Open the marine gas emission diagnostic file
 C Determine number of marine gas species for diagnostic file
-            NMGDIAG = NMGSPC
+                NMGDIAG = NMGSPC
 
 C Allocate diagnostic arrays
-            ALLOCATE ( MGOUTD( NMGDIAG ),
-     &                    WRMG_SPC( NMGDIAG ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-                  XMSG = '*** MGOUTD or WRMG_SPC memory alloc failed'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-            END IF
+                ALLOCATE ( MGOUTD( NMGDIAG ),
+     &                     WRMG_SPC( NMGDIAG ), STAT = STATUS )
+                IF ( STATUS .NE. 0 ) THEN
+                    XMSG = '*** MGOUTD or WRMG_SPC memory alloc failed'
+                    CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                    SUCCESS = .FALSE.; RETURN
+                END IF
 
 C Build diagnostic file write buffer (WRMG_SPC) array
-            NMGDIAG = 0
-               DO S = 1, NMGSPC
-                        NMGDIAG = NMGDIAG + 1
-                        WRMG_SPC( NMGDIAG ) = MG_SPC( S )
-               END DO
+                NMGDIAG = 0
+                DO S = 1, NMGSPC
+                   NMGDIAG = NMGDIAG + 1
+                   WRMG_SPC( NMGDIAG ) = MG_SPC( S )
+                END DO
 
 C Open the marine gas emission dignostic file
-            SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 0, STATUS )
-            STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 0, STATUS )
+                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 
+     &                  0, STATUS )
+                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 
+     &                  0, STATUS )
 
-            IF ( MYPE .EQ. 0 ) CALL OPMGEMIS ( SDATE, STIME, TSTEP, NMGDIAG, WRMG_SPC )
+                IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( SDATE, STIME, TSTEP, NMGDIAG, WRMG_SPC )
 
-            ALLOCATE ( MGBF( NMGDIAG,NCOLS,NROWS ),
-     &                    WRMG( NCOLS,NROWS ), STAT = STATUS )
-            IF ( STATUS .NE. 0 ) THEN
-                  XMSG = '*** MGBF or WRMG memory allocation failed'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-            END IF
+                ALLOCATE ( MGBF( NMGDIAG,NCOLS,NROWS ),
+     &                     WRMG( NCOLS,NROWS ), STAT = STATUS )
+                IF ( STATUS .NE. 0 ) THEN
+                   XMSG = '*** MGBF or WRMG memory allocation failed'
+                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                   SUCCESS = .FALSE.; RETURN
+                END IF
+                MGBF = 0.0
 
             END IF
 
@@ -303,11 +312,11 @@ C 8 Aug 14 B.Gantt adapted from sea salt diagnostic
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
-         INTEGER      JDATE      ! current model date, coded YYYYDDD
-         INTEGER      JTIME      ! current model time, coded HHMMSS
-         INTEGER      TSTEP      ! output time step
-         INTEGER      NMGDIAG
-         CHARACTER( 16 ) :: WRMG_SPC( NMGDIAG )
+         INTEGER, INTENT( IN )         :: JDATE      ! current model date, coded YYYYDDD
+         INTEGER, INTENT( IN )         :: JTIME      ! current model time, coded HHMMSS
+         INTEGER, INTENT( IN )         :: TSTEP      ! output time step
+         INTEGER, INTENT( IN )         :: NMGDIAG
+         CHARACTER( 16 ), INTENT( IN ) :: WRMG_SPC( NMGDIAG )
 
 C Local variables:
          CHARACTER( 16 ) :: PNAME = 'OPMGEMIS'
@@ -380,7 +389,7 @@ C Open marine gas emissions diagnostic file
          END SUBROUTINE OPMGEMIS
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-         SUBROUTINE GET_MGEMIS ( JDATE, JTIME, TSTEP )
+         SUBROUTINE GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
 
 C GET_MGEMIS calculates the marine gas emission rates in a grid cell
 C given the fractional grid-cell area covered by open ocean and surf zone
@@ -389,314 +398,340 @@ C Key Subroutines/Functions Called:  NONE
  
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version from sea salt diagnostic file
+C 
+CReferences:
+C MacDonald, S. M., Gómez Martín, J. C., Chance, R., Warriner, S., Saiz-Lopez, A., Carpenter, L. J., 
+C and Plane, J. M. C.: A laboratory characterisation of inorganic iodine emissions from the sea 
+C surface: dependence on oceanic variables and parameterisation for global modelling, Atmos. Chem. 
+C Phys., 14, 5841-5852, doi:10.5194/acp-14-5841-2014, 2014.
 C-----------------------------------------------------------------------
-      USE UTILIO_DEFN
-      USE AEROMET_DATA   ! Includes CONST.EXT    
-      USE ASX_DATA_MOD, ONLY: MET_DATA                 ! added by Sarwar 
-      USE CGRID_SPCS     ! CGRID mechanism species
-      USE PCGRID_DEFN    ! get cgrid
-      USE GRID_CONF
-      IMPLICIT NONE
+            USE UTILIO_DEFN
+            USE AEROMET_DATA   ! Includes CONST.EXT    
+            USE ASX_DATA_MOD, ONLY: MET_DATA                 ! added by Sarwar 
+            USE CGRID_SPCS     ! CGRID mechanism species
+            USE PCGRID_DEFN    ! get cgrid
+            USE GRID_CONF
+            
+            IMPLICIT NONE
 
 C Arguments
-      INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
+            INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP( 3 )
+            REAL, POINTER         :: CGRID( :,:,:,: )         !  concentrations
 
 C Includes:
-      INCLUDE SUBST_FILES_ID  ! file name parameters
+            INCLUDE SUBST_FILES_ID  ! file name parameters
+
+C Parameters:
+C.. Define Marine Gas indices
+
+            INTEGER, PARAMETER :: IMB3  = 1
+            INTEGER, PARAMETER :: IMB2  = 2
+            INTEGER, PARAMETER :: IMBC  = 3
+            INTEGER, PARAMETER :: IMB2C = 4
+            INTEGER, PARAMETER :: IMBC2 = 5
+            INTEGER, PARAMETER :: ICH3I = 6
+            INTEGER, PARAMETER :: IMIC  = 7
+            INTEGER, PARAMETER :: IMIB  = 8
+            INTEGER, PARAMETER :: IMI2  = 9
+            INTEGER, PARAMETER :: II2   = 10
+            INTEGER, PARAMETER :: IHOI  = 11
+            INTEGER, PARAMETER :: IBR2  = 12
+            INTEGER, PARAMETER :: IDMS  = 13
+            
+            REAL, PARAMETER :: SECS2HR = 1.0 / 3600.0          ! hour per seconds
+            REAL, PARAMETER :: C_FACT  = 1.0E-9 /(24.0*3600.0) ! factor to convert nmole/m2/day to mole/m2/sec         
+            REAL, PARAMETER :: MWBR2   = 159.8                 ! MW of BR2 in gm/mole   
+            REAL, PARAMETER :: IMWBR2  = 1.0 / MWBR2           ! Reciprocal MW of BR2 in gm/mole   
+            REAL, PARAMETER :: RA      = 0.00223               ! Sea-salt BR/NACL mass ratio [gm/gm) 
+            REAL, PARAMETER :: DF      = 0.5                   ! Bromine depletion factor from sea-salt, Yang et al., JGR, 2005
+            REAL, PARAMETER :: LON2TZ  = 1.0 / 15.0            ! longitude to time zone, 1/degrees
+            REAL, PARAMETER :: FHRLY(24) = 
+     &                         ( / 0.032, 0.032, 0.032, 0.033, 0.034, 0.036,
+     &                             0.039, 0.044, 0.051, 0.057, 0.062, 0.064,
+     &                             0.062, 0.057, 0.051, 0.044, 0.039, 0.036,
+     &                             0.034, 0.033, 0.032, 0.032, 0.032, 0.032 / )      
 
 C Local Variables:
-      REAL    :: OFRAC              ! fractional seawater cover
-      REAL    :: SFRAC              ! fractional surf-zone cover
-      REAL    :: CHLA
-!      REAL    :: SSTC              
-      REAL    :: SST            
-      REAL    :: DMS                ! DMS in atmosphere                        
+!            REAL    :: OFRAC              ! fractional seawater cover
+!            REAL    :: SFRAC              ! fractional surf-zone cover
+            REAL    :: CHLA
+!            REAL    :: SSTC              
+            REAL    :: SST            
+            REAL    :: DMS                ! DMS in atmosphere                        
             
-      CHARACTER( 16 ), SAVE :: PNAME = 'GET_MGEMIS'
-      CHARACTER( 96 ) :: XMSG = ' '
-      INTEGER C, R, L, N, V, S         ! loop indices
+            CHARACTER( 16 ), SAVE :: PNAME = 'GET_MGEMIS'
+            CHARACTER( 96 )       :: XMSG = ' '
+            CHARACTER( 80 ) :: MSG                      ! Message
 
-      CHARACTER*80  MSG                      ! Message
-      INTEGER  LOGUNIT
-      INTEGER  NVARS, NSTEPS
-      INTEGER  LOCHR, IMB3, IMB2, IMBC, IMB2C, IMBC2, ICH3I, IMIC
-      INTEGER  IMIB, IMI2, II2, IHOI, IBR2, IDMS
-      INTEGER, SAVE   :: WSTEP  = 0                      ! local write counter
-      INTEGER         :: MDATE, MTIME                    ! MGEM write date&time
+            INTEGER         :: C, R, L, N, V, S         ! loop indices
+
+            INTEGER         :: LOGUNIT
+            INTEGER         :: NVARS, NSTEPS
+            INTEGER         :: LOCHR
+            INTEGER, SAVE   :: WSTEP  = 0                      ! local write counter
+            INTEGER         :: MDATE, MTIME                    ! MGEM write date&time
  
-      REAL  DX1, DX2                                     ! CX x1- and x2-cell widths
-      REAL, PARAMETER :: C_FACT = 1.0E-9 / (24 * 60 *60) ! factor to convert nmole/m2/day to mole/m2/sec         
-      REAL, PARAMETER :: MWBR2 = 159.8                   ! MW of BR2 in gm/mole   
-      REAL, PARAMETER :: RA = 0.00223                    ! Sea-salt BR/NACL mass ratio [gm/gm) 
-      REAL, PARAMETER :: DF = 0.5                        ! Bromine depletion factor from sea-salt, Yang et al., JGR, 2005
-      REAL  O3, I_AQ, A                                  ! SST in K, SSTC in C, O3 in ppb, SWPD10 in m/s
-      REAL  DUMMY                                        ! dummy variable for calculating marine gas emission
-!      REAL, PARAMETER :: VFLUX = 3.575E-16               ! VFLUX: volume flux at 1 m/s over full size range [m3/m2/s] from Gong et al. (2003) with T=8       
-!      REAL  WDSCALO                                      ! WDSCALO: 10 meter wind-speed-dependent scaling factors for emissions flux functions
-!      REAL  SSTSCALO                                     ! SSTSCALO: SST-dependent scaling factor for emissions from Jaegle et al. (2011) (SST in Celsius)
-      REAL  LON                                          ! grid-cell longitude    
-      REAL  WSPD10                                       ! wind speed 
-      REAL  WSPD10_M3                                    ! wind speed with a minimum sppeed of 3 m/s (used for HOI and I2 emission calculation) 
+            REAL            :: IWSTEP                          ! reciprocal of local write counter
+            REAL            :: DX1, DX2                        ! CX x1- and x2-cell widths
+            REAL            :: O3, I_AQ                        ! SST in K, SSTC in C, O3 in ppb, SWPD10 in m/s
+            REAL            :: DUMMY                           ! dummy variable for calculating marine gas emission
+!            REAL            :: WDSCALO                         ! WDSCALO: 10 meter wind-speed-dependent scaling factors for emissions flux functions
+!            REAL            :: SSTSCALO                        ! SSTSCALO: SST-dependent scaling factor for emissions from Jaegle et al. (2011) (SST in Celsius)
+            REAL            :: LON                             ! grid-cell longitude    
+            REAL            :: WSPD10                          ! wind speed 
+            REAL            :: WSPD10_M3                       ! wind speed with a minimum sppeed of 3 m/s (used for HOI and I2 emission calculation) 
+            REAL            :: MARINE_AREA                     ! marine fraction of surface and later marine surface area                     
+            REAL            :: CURRHR                          ! current GMT hour
+            REAL, SAVE      :: A                               ! horizontal area of cells, m**2
 
-      REAL CURRHR                                        ! current GMT hour
-      REAL FHRLY(24)
-      DATA FHRLY /0.032, 0.032, 0.032, 0.033, 0.034, 0.036,
-     &            0.039, 0.044, 0.051, 0.057, 0.062, 0.064,
-     &            0.062, 0.057, 0.051, 0.044, 0.039, 0.036,
-     &            0.034, 0.033, 0.032, 0.032, 0.032, 0.032/     
+            LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
 C----------------------------- Begin calc ------------------------------
 
+           IF( FIRST_TIME ) THEN
 C calculate grid-cell area 
-         IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
-            DX1 = DG2M * XCELL_GD ! in m.
-            DX2 = DG2M * YCELL_GD
-     &          * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 )))! in m.
-         ELSE
-            DX1 = XCELL_GD        ! in m.
-            DX2 = YCELL_GD        ! in m.
-         END IF                                      
-      A = DX1 * DX2                                      ! m2
+             IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
+                DX1 = DG2M * XCELL_GD ! in m.
+                DX2 = DG2M * YCELL_GD
+     &              * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 )))! in m.
+             ELSE
+                DX1 = XCELL_GD        ! in m.
+                DX2 = YCELL_GD        ! in m.
+             END IF                                     
+             A = DX1 * DX2                                      ! m2
+             
+             FIRST_TIME = .FALSE.
+           END IF
 
-      CURRHR = FLOAT(JTIME) / 10000.0
+           CURRHR = 1.0E-4 * REAL( JTIME )
 
-C Open the MET_CRO_XD file 
+C Open the MET_CRO_2D file 
 
-            IF ( .NOT. INTERPX( MET_CRO_2D, 'WSPD10', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, U10 ) ) THEN
-               XMSG = 'Could not find WSPD10 in ' // MET_CRO_2D //
-     &                ' search for WIND10.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               IF ( .NOT. INTERPX( MET_CRO_2D, 'WIND10', PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                             1,1, JDATE, JTIME, U10 ) ) THEN
-                  XMSG = 'Could not find WIND10 or WSPD10 in ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
+           IF ( .NOT. INTERPX( MET_CRO_2D, 'WSPD10', PNAME,
+     &                         STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
+     &                         1,1, JDATE, JTIME, U10 ) ) THEN
+              XMSG = 'Could not find WSPD10 in ' // MET_CRO_2D //
+     &               ' search for WIND10.'
+              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+              IF ( .NOT. INTERPX( MET_CRO_2D, 'WIND10', PNAME,
+     &                            STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
+     &                            1,1, JDATE, JTIME, U10 ) ) THEN
+                 XMSG = 'Could not find WIND10 or WSPD10 in ' // MET_CRO_2D
+                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+              END IF
+           END IF
 
-            IF ( .NOT. INTERPX( MET_CRO_2D, 'TSEASFC', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3,STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, TSEASFC ) ) THEN
-               XMSG = 'Could not find TSEASFC in ' // MET_CRO_2D //
+           IF ( .NOT. INTERPX( MET_CRO_2D, 'TSEASFC', PNAME,
+     &                         STRTCOLMC3,ENDCOLMC3,STRTROWMC3,ENDROWMC3,
+     &                         1,1, JDATE, JTIME, TSEASFC ) ) THEN
+              XMSG = 'Could not find TSEASFC in ' // MET_CRO_2D //
      &                ' search for TEMPG.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               IF ( .NOT. INTERPX( MET_CRO_2D, 'TEMPG', PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3,STRTROWMC3,ENDROWMC3,
-     &                             1,1, JDATE, JTIME, TSEASFC ) ) THEN
-                  XMSG = 'Could not find TEMPG or TSEASFC in ' //MET_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
+              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+              IF ( .NOT. INTERPX( MET_CRO_2D, 'TEMPG', PNAME,
+     &                            STRTCOLMC3,ENDCOLMC3,STRTROWMC3,ENDROWMC3,
+     &                            1,1, JDATE, JTIME, TSEASFC ) ) THEN
+                 XMSG = 'Could not find TEMPG or TSEASFC in ' //MET_CRO_2D
+                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+              END IF
+           END IF
 
-            IF ( .NOT. INTERPX( MET_CRO_2D, 'SEAICE', PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                          1,1, JDATE, JTIME, SEAICE ) ) THEN
-               XMSG = 'Could not find SEAICE in ' // MET_CRO_2D //
-     &                ' search for SEAICE '
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               IF ( .NOT. INTERPX( MET_CRO_2D, 'SEAICE', PNAME,
-     &                             STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                             1,1, JDATE, JTIME, SEAICE ) ) THEN
-                  XMSG = 'Could not find WIND10 or SEAICE in ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF
+           IF ( .NOT. INTERPX( MET_CRO_2D, 'SEAICE', PNAME,
+     &                         STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
+     &                         1,1, JDATE, JTIME, SEAICE ) ) THEN
+              XMSG = 'Could not find SEAICE in ' // MET_CRO_2D //
+     &               ' search for SEAICE '
+              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+              IF ( .NOT. INTERPX( MET_CRO_2D, 'SEAICE', PNAME,
+     &                            STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
+     &                            1,1, JDATE, JTIME, SEAICE ) ) THEN
+                 XMSG = 'Could not find WIND10 or SEAICE in ' // MET_CRO_2D
+                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+              END IF
+           END IF
 
 C Read fractional seawater and surf-zone coverage from the OCEAN file.
 C Store results in the OCEAN and SZONE arrays.
-            IF ( .NOT. INTERPX( OCEAN_1, 'OPEN', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, OCEAN ) ) THEN
-               XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+           IF ( .NOT. INTERPX( OCEAN_1, 'OPEN', PNAME,
+     &                         STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
+     &                         1,1, JDATE, JTIME, OCEAN ) ) THEN
+              XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
+              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+           END IF
 
-            IF ( .NOT. INTERPX( OCEAN_1, 'SURF', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
+           IF ( .NOT. INTERPX( OCEAN_1, 'SURF', PNAME,
+     &                         STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
      &                          1,1, JDATE, JTIME, SZONE ) ) THEN
-               XMSG = 'Could not interpolate SURF from ' // OCEAN_1 //
-     &                '.  Surf-zone emissions set to zero.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            END IF
+              XMSG = 'Could not interpolate SURF from ' // OCEAN_1 //
+     &               '.  Surf-zone emissions set to zero.'
+              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+           END IF
 
-            IF ( .NOT. INTERPX( OCEAN_1, 'CHLO', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, CHLR ) ) THEN
-               XMSG = 'Could not interpolate CHLO from ' // OCEAN_1 //
-     &                '.  Chlorophyll-a concentrations set to zero.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            END IF
+           IF ( .NOT. INTERPX( OCEAN_1, 'CHLO', PNAME,
+     &                         STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
+     &                         1,1, JDATE, JTIME, CHLR ) ) THEN
+              XMSG = 'Could not interpolate CHLO from ' // OCEAN_1 //
+     &               '.  Chlorophyll-a concentrations set to zero.'
+              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+           END IF
 
-C Read longitude from the grid file
-            IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
-     &                          STRTCOLGC2,ENDCOLGC2,STRTROWGC2,ENDROWGC2,
-     &                          1, 1, 0, 0, ILON ) ) THEN
-               XMSG = 'Could not interpolate LON from ' // GRID_CRO_2D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
 
-C.. Define MG index
-
-      IMB3 = 1
-      IMB2 = 2
-      IMBC = 3
-      IMB2C = 4
-      IMBC2 = 5
-      ICH3I = 6
-      IMIC = 7
-      IMIB = 8
-      IMI2 = 9
-      II2 = 10
-      IHOI = 11
-      IBR2 = 12
-      IDMS = 13
-
-      IF ( MGEMDIAG .AND. WSTEP .EQ. 0 ) MGBF = 0.0
+          IF ( MGEMDIAG .AND. WSTEP .EQ. 0 ) MGBF = 0.0
 
 C Initialize marinegas output buffer
-            DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  IF ( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 .AND. SEAICE( C, R ) .LE. 0.0) THEN
-                     OFRAC   = OCEAN ( C,R )
-                     SFRAC   = SZONE ( C,R )
-                     CHLA    = MIN (1.0, CHLR ( C,R ))
-                     WSPD10  = U10( C,R )                   
+          DO R = 1, NROWS
+             DO C = 1, NCOLS
+                MARINE_AREA = ( OCEAN( C,R ) + SZONE( C,R ) )
+                IF ( MARINE_AREA .GT. 0.0 .AND. SEAICE( C, R ) .LE. 0.0) THEN
+!            convert area fraction to an actual area
+                     MARINE_AREA = MARINE_AREA * A
+
+                     CHLA      = MIN (1.0, CHLR ( C,R ))
+                     WSPD10    = U10( C,R )                   
                      WSPD10_M3 = MAX (3.0, WSPD10)                   
-                     SST     = TSEASFC (C,R)
+                     SST       = TSEASFC (C,R)
 !                     SSTC    = SST - 273.15
-                     LON     = ILON (C,R)                             
-                     O3      = IO3 (C,R)                              
+                     LON       = ILON (C,R)
+                      O3       = 1000.0 * CGRID(C, R, 1, LGC_O3)
 
 C.. calculate iodide in water  
-       I_AQ = 1.46E6 * EXP( -9134.0 / SST)
+                     I_AQ = 1.46E6 * EXP( -9134.0 / SST)
 
 C.. calculate local hour    
-       LOCHR = NINT(CURRHR + LON / 15.0 )
-       IF (LOCHR .LT.  1) LOCHR = LOCHR + 24
-       IF (LOCHR .GT. 24) LOCHR = LOCHR - 24
+                     LOCHR = NINT(CURRHR + LON * LON2TZ )
+                     IF (LOCHR .LT.  1) LOCHR = LOCHR + 24
+                     IF (LOCHR .GT. 24) LOCHR = LOCHR - 24
 
-       DUMMY = (OFRAC + SFRAC) * 4.31E-8 * A * FHRLY(LOCHR) * CHLA / 3600.0
-
+!                     DUMMY = MAX( 0.0, MARINE_AREA * 4.31E-8 * FHRLY(LOCHR) * CHLA * SECS2HR)
+                      DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
+ 
 C.. Calculate MB3 emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 2.00 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMB3, C, R ) = MAX ( 0.0, DUMMY * 2.00 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 2.00 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
 
 C.. Calculate MB2 emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 0.50 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMB2, C, R ) = MAX ( 0.0, DUMMY * 0.50 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 0.50 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMB2, C, R ) = DUMMY * 0.50
 
 C.. Calculate MBC emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 0.08 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMBC, C, R ) = MAX ( 0.0, DUMMY * 0.08 )
+!                     DUMMY = MARINE_AREA * 4.31E-8 * 0.08 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMBC, C, R ) = DUMMY * 0.08
 
 C.. Calculate MB2C emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 0.12 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMB2C, C, R ) = MAX ( 0.0, DUMMY * 0.12 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 0.12 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMB2C, C, R ) = DUMMY * 0.12
 
 C.. Calculate MBC2 emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 0.10 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMBC2, C, R ) = MAX ( 0.0, DUMMY * 0.10 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 0.10 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMBC2, C, R ) = DUMMY * 0.10
 
 C.. Calculate CH3I emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 1.60 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( ICH3I, C, R ) = MAX ( 0.0, DUMMY * 1.60 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 1.60 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( ICH3I, C, R ) = DUMMY * 1.60
 
 C.. Calculate MIC emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 1.41 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMIC, C, R ) = MAX ( 0.0, DUMMY * 1.41 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 1.41 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMIC, C, R ) = DUMMY * 1.41
 
 C.. Calculate MIB emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 0.42 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMIB, C, R ) = MAX ( 0.0, DUMMY * 0.42 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 0.42 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMIB, C, R ) = DUMMY * 0.42
 
 C.. Calculate MI2 emission rate in mole/s
-!      DUMMY = (OFRAC + SFRAC) * 4.31E-8 * 0.46 * A * FHRLY(LOCHR) * CHLA / 3600.0
-       VDEMIS_MG( IMI2, C, R ) = MAX ( 0.0, DUMMY * 0.46 )
+!                      DUMMY = MARINE_AREA * 4.31E-8 * 0.46 * A * FHRLY(LOCHR) * CHLA / 3600.0
+                     VDEMIS_MG( IMI2, C, R ) = DUMMY * 0.46
 
 C.. Calculate I2 emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
-       DUMMY = O3 * (I_AQ ** 1.3) * ( 1.74E9 - (6.54E8 *LOG(WSPD10_M3))) ! NMOL/M2/D
-       DUMMY = (OFRAC + SFRAC) * DUMMY * C_FACT * A
-       VDEMIS_MG( II2, C, R ) = MAX ( 0.0, DUMMY )
+                     DUMMY = O3 * (I_AQ**1.3) * (1.74E9 - 6.54E8*LOG(WSPD10_M3)) ! NMOL/M2/D
+                     DUMMY = MARINE_AREA * DUMMY * C_FACT
+                     VDEMIS_MG( II2, C, R ) = MAX( 0.0, DUMMY )
 
 C.. Calculate HOI emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
-       DUMMY = O3 * (4.15E5 * (SQRT(I_AQ)/WSPD10_M3) -(20.6/WSPD10_M3) - 23600.0*SQRT(I_AQ))  ! NMOL/M2/D  
-       DUMMY = (OFRAC + SFRAC) * DUMMY * C_FACT * A 
-       VDEMIS_MG( IHOI, C, R ) = MAX ( 0.0, DUMMY )
+                     DUMMY = SQRT(I_AQ)
+                     DUMMY = O3 
+     &                     * ((4.15E5*DUMMY - 20.6)/WSPD10_M3 - 23600.0*DUMMY)  ! NMOL/M2/D  
+                     DUMMY = MARINE_AREA * DUMMY * C_FACT 
+                     VDEMIS_MG( IHOI, C, R ) = MAX( 0.0, DUMMY )
  
 C.. Calculate NACL mass emission rate of particles with d <10 um (g/m2/s)
-       DUMMY = Met_Data%NACL_EMIS( C,R )                                                   ! gm/m2/s
+                     DUMMY = Met_Data%NACL_EMIS( C,R )   ! gm/m2/s
               
 C.. Calculate BR2 emission rate in mole/s
-       DUMMY = (OFRAC + SFRAC) * DUMMY * A * RA * DF / MWBR2                               ! mol/cell/s
-       VDEMIS_MG( IBR2, C, R ) = MAX ( 0.0, DUMMY )
+                     DUMMY = MARINE_AREA * DUMMY * RA * DF * IMWBR2 ! mol/cell/s
+                     VDEMIS_MG( IBR2, C, R ) = MAX( 0.0, DUMMY )
 
 C .. Calculate DMS emisission rate in mole/s 
-       VDEMIS_MG( IDMS, C, R ) = 0.0
+                     VDEMIS_MG( IDMS, C, R ) = 0.0
 
-                  ELSE
-                        DO N = 1, NMGSPC
-                           VDEMIS_MG( N, C, R ) = 0.0
-                        END DO
-                  
+                ELSE
+                     DO N = 1, NMGSPC
+                        VDEMIS_MG( N, C, R ) = 0.0
+                     END DO
                      CYCLE
-                  END IF
+                END IF
 
 C Update the MGBF array, for writing the diagnostic marine gas emission file
-                  IF ( MGEMDIAG ) THEN
-                     V = 0
-                        DO S = 1, NMGSPC
-                              V = V + 1
-                              MGOUTD( V ) = VDEMIS_MG( S,C,R )
-                        END DO
+                IF ( MGEMDIAG ) THEN
+                   V = 0
+                   DO S = 1, NMGSPC
+                      V = V + 1
+                      MGOUTD( V ) = VDEMIS_MG( S,C,R )
+                   END DO
 
-                     DO S = 1, NMGDIAG
-                        MGBF( S,C,R ) = MGBF( S,C,R ) + MGOUTD( S )
-     &                                * FLOAT( TIME2SEC ( TSTEP( 2 ) ) )
-                     END DO
-                  END IF  ! MGEMDIAG
+                   DO S = 1, NMGDIAG
+                      MGBF( S,C,R ) = MGBF( S,C,R ) + MGOUTD( S )
+     &                              * REAL( TIME2SEC ( TSTEP( 2 ) ) )
+                  END DO
+                END IF  ! MGEMDIAG
 
-               END DO   ! C
-            END DO   ! R
+             END DO   ! C
+         END DO   ! R
 
 
 C If last call this hour, write out the total MG emissions [moles/s].
 C Then reset the MG emissions array and local write counter.
-            IF ( MGEMDIAG ) THEN
+         IF ( MGEMDIAG ) THEN
 
-               WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
+             WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
 
-               IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
-                  IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
-     &                                 MDATE, MTIME ) ) THEN
+             IF ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) ) THEN
+                IF ( .NOT. CURRSTEP( JDATE, JTIME, SDATE, STIME, TSTEP( 1 ),
+     &                                MDATE, MTIME ) ) THEN
                      XMSG = 'Cannot get step date and time'
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                END IF
+                CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
+                IWSTEP = 1.0 / REAL( WSTEP )
+#ifdef parallel_io
+                IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+                  IF ( .NOT. OPEN3( CTM_MGEM_1, FSREAD3, PNAME ) ) THEN
+                       XMSG = 'Could not open ' // TRIM(CTM_MGEM_1)
+                       CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
-                  CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
-                  DO V = 1, NMGDIAG
-                     DO R = 1, NROWS
-                        DO C = 1, NCOLS
-                           WRMG( C,R ) = MGBF( V,C,R ) / FLOAT( WSTEP )
-                        END DO
-                     END DO
-                     IF ( .NOT. WRITE3( CTM_MGEM_1, WRMG_SPC( V ),
-     &                          MDATE, MTIME, WRMG ) ) THEN
-                      XMSG = 'Couldnt write ' // CTM_MGEM_1 // 'file'
-                      CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-                     END IF
-                  END DO
-                  WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )')
-     &                  'Timestep written to', CTM_MGEM_1,
-     &                  'for date and time', MDATE, MTIME
-                  WSTEP = 0
-                  MGBF = 0.0
-               END IF
+                END IF
+#endif                
+                DO V = 1, NMGDIAG
+                   DO R = 1, NROWS
+                      DO C = 1, NCOLS
+                         WRMG( C,R ) = MGBF( V,C,R ) * IWSTEP
+                      END DO
+                   END DO
+                   IF ( .NOT. WRITE3( CTM_MGEM_1, WRMG_SPC( V ),
+     &                        MDATE, MTIME, WRMG ) ) THEN
+                     XMSG = 'Couldnt write ' // CTM_MGEM_1 // 'file'
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                   END IF
+               END DO
+               WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )')
+     &                      'Timestep written to', CTM_MGEM_1,
+     &                      'for date and time', MDATE, MTIME
+               WSTEP = 0
+               MGBF = 0.0
+             END IF
 
-            END IF  ! MGDIAG
+          END IF  ! MGDIAG
 
-            RETURN
+         RETURN
             
-         END SUBROUTINE GET_MGEMIS
+       END SUBROUTINE GET_MGEMIS
 
       END MODULE MGEMIS

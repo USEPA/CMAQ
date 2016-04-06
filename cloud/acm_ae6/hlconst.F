@@ -93,7 +93,7 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 194     ! Number of substances
+      INTEGER, PARAMETER :: MXSPCS = 193     ! Number of substances
       INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
@@ -328,31 +328,31 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(168), A(168), E(168) / 'I2O4            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014 
       DATA SUBNAME(169), A(169), E(169) / 'HI              ', 2.50E+00, 5.3E+03 /   ! Schweitzer et al. (2000) 
       DATA SUBNAME(170), A(170), E(170) / 'HOI             ', 4.10E+02, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Palmer et al. (1985)
-      DATA SUBNAME(171), A(171), E(171) / 'HIO3            ', 1.00E+06, 0.0E+00 /   ! Final Report to TCEQ, Environ International, 2012  
-      DATA SUBNAME(172), A(172), E(172) / 'INO             ', 5.00E-02, 0.0E+00 /   ! Same as ClNO which is from ROLF SANDERS COMPILATION (1999)/Scheer et al. (1997)     
-      DATA SUBNAME(173), A(173), E(173) / 'INO2            ', 3.00E-01, 0.0E+00 /   ! Same as BRNO2 which is from ROLF SANDERS COMPILATION (1999)/Frenzel et al. (1998)
-      DATA SUBNAME(174), A(174), E(174) / 'IONO2           ', 1.00E+06, 0.0E+00 /   ! Same as BRONO2; BRONO2 from Ordonez et al. (2012) 
-      DATA SUBNAME(175), A(175), E(175) / 'CH3I            ', 1.40E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)    
-      DATA SUBNAME(176), A(176), E(176) / 'MIC             ', 8.90E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)      
-      DATA SUBNAME(177), A(177), E(177) / 'MIB             ', 8.90E-01, 4.3E+03 /   ! Same as MIC, Final Report to TCEQ, Environ International, 2012     
-      DATA SUBNAME(178), A(178), E(178) / 'MI2             ', 2.30E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)    
+ 
+      DATA SUBNAME(171), A(171), E(171) / 'INO             ', 5.00E-02, 0.0E+00 /   ! Same as ClNO which is from ROLF SANDERS COMPILATION (1999)/Scheer et al. (1997)     
+      DATA SUBNAME(172), A(172), E(172) / 'INO2            ', 3.00E-01, 0.0E+00 /   ! Same as BRNO2 which is from ROLF SANDERS COMPILATION (1999)/Frenzel et al. (1998)
+      DATA SUBNAME(173), A(173), E(173) / 'IONO2           ', 1.00E+06, 0.0E+00 /   ! Same as BRONO2; BRONO2 from Ordonez et al. (2012) 
+      DATA SUBNAME(174), A(174), E(174) / 'CH3I            ', 1.40E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)    
+      DATA SUBNAME(175), A(175), E(175) / 'MIC             ', 8.90E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)      
+      DATA SUBNAME(176), A(176), E(176) / 'MIB             ', 8.90E-01, 4.3E+03 /   ! Same as MIC, Final Report to TCEQ, Environ International, 2012     
+      DATA SUBNAME(177), A(177), E(177) / 'MI2             ', 2.30E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)    
 
-      DATA SUBNAME(179), A(179), E(179) / 'BRO             ', 7.10E-01, 0.0E+00 /   ! Parrella et al. (2012)
-      DATA SUBNAME(180), A(180), E(180) / 'HOBR            ', 6.10E+03, 6.0E+03 /   ! Parrella et al. (2012)      
-      DATA SUBNAME(181), A(181), E(181) / 'HBR             ', 7.50E-01, 5.0E+03 /   ! Schweitzer et al. (2000)             
-      DATA SUBNAME(182), A(182), E(182) / 'BR2             ', 1.80E+00, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Dubik et al. (1987)
-      DATA SUBNAME(183), A(183), E(183) / 'BRONO2          ', 1.00E+06, 0.0E+00 /   ! Ordonez et al. (2012)
-      DATA SUBNAME(184), A(184), E(184) / 'MB3             ', 1.40E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(185), A(185), E(185) / 'CH3BR           ', 1.50E-01, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Yaws and Yang et al. (1992)
-      DATA SUBNAME(186), A(186), E(186) / 'MB2             ', 9.30E-01, 4.4E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(187), A(187), E(187) / 'MB2C            ', 7.30E-01, 4.9E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(188), A(188), E(188) / 'MBC2            ', 4.00E-01, 4.7E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
-      DATA SUBNAME(189), A(189), E(189) / 'MBC             ', 8.90E-01, 4.3E+03 /   ! Same as MIC
-      DATA SUBNAME(190), A(190), E(190) / 'BRNO2           ', 3.00E-01, 0.0E+00 /   ! Frenzel et al. (1998)
-      DATA SUBNAME(191), A(191), E(191) / 'BRCL            ', 5.90E-01, 0.0E+00 /   ! Frenzel et al. (1998)
-      DATA SUBNAME(192), A(192), E(192) / 'ICL             ', 1.10E+02, 0.0E+00 /   ! Wagman et al. (1982)
-      DATA SUBNAME(193), A(193), E(193) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
-      DATA SUBNAME(194), A(194), E(194) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
+      DATA SUBNAME(178), A(178), E(178) / 'BRO             ', 7.10E-01, 0.0E+00 /   ! Parrella et al. (2012)
+      DATA SUBNAME(179), A(179), E(179) / 'HOBR            ', 6.10E+03, 6.0E+03 /   ! Parrella et al. (2012)      
+      DATA SUBNAME(180), A(180), E(180) / 'HBR             ', 7.50E-01, 5.0E+03 /   ! Schweitzer et al. (2000)             
+      DATA SUBNAME(181), A(181), E(181) / 'BR2             ', 1.80E+00, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Dubik et al. (1987)
+      DATA SUBNAME(182), A(182), E(182) / 'BRONO2          ', 1.00E+06, 0.0E+00 /   ! Ordonez et al. (2012)
+      DATA SUBNAME(183), A(183), E(183) / 'MB3             ', 1.40E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(184), A(184), E(184) / 'CH3BR           ', 1.50E-01, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Yaws and Yang et al. (1992)
+      DATA SUBNAME(185), A(185), E(185) / 'MB2             ', 9.30E-01, 4.4E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(186), A(186), E(186) / 'MB2C            ', 7.30E-01, 4.9E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(187), A(187), E(187) / 'MBC2            ', 4.00E-01, 4.7E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(188), A(188), E(188) / 'MBC             ', 8.90E-01, 4.3E+03 /   ! Same as MIC
+      DATA SUBNAME(189), A(189), E(189) / 'BRNO2           ', 3.00E-01, 0.0E+00 /   ! Frenzel et al. (1998)
+      DATA SUBNAME(190), A(190), E(190) / 'BRCL            ', 5.90E-01, 0.0E+00 /   ! Frenzel et al. (1998)
+      DATA SUBNAME(191), A(191), E(191) / 'ICL             ', 1.10E+02, 0.0E+00 /   ! Wagman et al. (1982)
+      DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
+      DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)

@@ -90,7 +90,7 @@ C-----------------------------------------------------------------------
       CONTAINS
 
 C-----------------------------------------------------------------------
-         FUNCTION EMIS_INIT ( JDATE, JTIME, TSTEP, CGRID ) RESULT ( SUCCESS )
+         FUNCTION EMIS_INIT ( JDATE, JTIME, TSTEP ) RESULT ( SUCCESS )
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
@@ -109,7 +109,6 @@ C Includes:
 
 C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP   ! TSTEP is output time step (HHMMSS)
-         REAL, POINTER :: CGRID( :,:,:,: )
          LOGICAL :: SUCCESS
 
 C Parameters:
@@ -152,7 +151,7 @@ C In-line biogenic emissions?
 
 C In-line marine gas emissions?
 
-         IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP, CGRID ) ) THEN
+         IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing marine gas emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
@@ -312,7 +311,7 @@ C combined gas emssions conversion factor
          END FUNCTION EMIS_INIT
 
 C-----------------------------------------------------------------------
-         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CONVPA )
+         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CONVPA, CGRID )
 
 C NEW APPROACH:
 C Apply NML factors to all *input* emissions and inline plume rise, aero emis
@@ -337,9 +336,10 @@ C Includes:
          INCLUDE SUBST_FILES_ID  ! file name parameters
 
 C Arguments:
-         INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
-         INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
-         REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
+         INTEGER, INTENT( IN ) :: JDATE, JTIME     ! date (YYYYDDD), time (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )       ! time step vector (HHMMSS)
+         REAL,    INTENT( IN ) :: CONVPA           ! conversion factor to pressure in Pascals
+         REAL, POINTER :: CGRID( :,:,:,: )
 
 C Local Variables:
          REAL             CNVTC         ! combined conversion factor
@@ -446,7 +446,7 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
 
 C marine gas emissions
          IF ( MGEM ) THEN
-         CALL GET_MGEMIS ( JDATE, JTIME, TSTEP )
+            CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
 
             L = 1
             CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec

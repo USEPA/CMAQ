@@ -46,7 +46,7 @@ C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 101
+      INTEGER, PARAMETER :: LTOTG = 100
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -173,18 +173,17 @@ C-------------------------------------------------------------------------------
          DEPSPC( 87 ) = 'I2O4            '
          DEPSPC( 88 ) = 'HI              '
          DEPSPC( 89 ) = 'HOI             '
-         DEPSPC( 90 ) = 'HIO3            '
-         DEPSPC( 91 ) = 'INO             '
-         DEPSPC( 92 ) = 'INO2            '
-         DEPSPC( 93 ) = 'IONO2           '
-         DEPSPC( 94 ) = 'BRO             '
-         DEPSPC( 95 ) = 'HOBR            '
-         DEPSPC( 96 ) = 'HBR             '
-         DEPSPC( 97 ) = 'BRONO2          '
-         DEPSPC( 98 ) = 'BRNO2           '
-         DEPSPC( 99 ) = 'BRCL            '
-         DEPSPC( 100) = 'DMS             '
-         DEPSPC( 101) = 'MSA             '
+         DEPSPC( 90 ) = 'INO             '
+         DEPSPC( 91 ) = 'INO2            '
+         DEPSPC( 92 ) = 'IONO2           '
+         DEPSPC( 93 ) = 'BRO             '
+         DEPSPC( 94 ) = 'HOBR            '
+         DEPSPC( 95 ) = 'HBR             '
+         DEPSPC( 96 ) = 'BRONO2          '
+         DEPSPC( 97 ) = 'BRNO2           '
+         DEPSPC( 98 ) = 'BRCL            '
+         DEPSPC( 99 ) = 'DMS             '
+         DEPSPC( 100) = 'MSA             '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array
