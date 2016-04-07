@@ -570,7 +570,7 @@ C...allocate saved arrays
 C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
 C...Mocko and Cotton (1995)
         RCRITL = 0.839 + SQRT(1.0/(50.0+0.5*REAL(XCELL_GD/1000)**3))
-        RCRITW = 0.879 + SQRT(1.0/(50.0+REAL(XCELL_GD/1000)**2))
+        RCRITW = 0.879 + SQRT(1.0/(100.0+REAL(XCELL_GD/1000)**2))
 
       END IF   ! Firstime
 
