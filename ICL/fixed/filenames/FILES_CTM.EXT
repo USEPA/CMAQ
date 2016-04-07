@@ -24,6 +24,8 @@
 !   28 Feb 2011, J.Bash, Added files for NH3 bidi and MOSAIC
 !   11 May 11 D.Wong: added files for sub-domain time series
 !   14 Aug 14 J.Young: added vdiff and grav. settling diagnostic files
+!   3  Nov 2015 G. Sarwar deleted CHLOROPHYLL since it is not used
+!   3  Nov 2015 G. Sarwar added CTM_MGEM_1 output files
 !.......................................................................
 
       INTEGER, PARAMETER :: N_FILES = 70
@@ -47,6 +49,7 @@
       CHARACTER( 16 ) :: CTM_WET_DEP_1
       CHARACTER( 16 ) :: CTM_WET_DEP_2
       CHARACTER( 16 ) :: CTM_SSEMIS_1
+      CHARACTER( 16 ) :: CTM_MGEM_1
       CHARACTER( 16 ) :: CTM_DUST_EMIS_1
       CHARACTER( 16 ) :: CTM_VIS_1
       CHARACTER( 16 ) :: CTM_DIAM_1
@@ -98,7 +101,6 @@
       CHARACTER( 16 ) :: CTM_SD_TS
       CHARACTER( 16 ) :: CTM_VDIFF_DIAG
       CHARACTER( 16 ) :: CTM_VSED_DIAG
-      CHARACTER( 16 ) :: CHLOROPHYLL
       CHARACTER( 16 ) :: BNDY_TRAC_S
       CHARACTER( 16 ) :: INIT_TRAC_S
 
@@ -119,6 +121,7 @@
       DATA CTM_WET_DEP_1    / 'CTM_WET_DEP_1   ' /
       DATA CTM_WET_DEP_2    / 'CTM_WET_DEP_2   ' /
       DATA CTM_SSEMIS_1     / 'CTM_SSEMIS_1    ' /
+      DATA CTM_MGEM_1       / 'CTM_MGEM_1    ' /
       DATA CTM_DUST_EMIS_1  / 'CTM_DUST_EMIS_1 ' /
       DATA CTM_VIS_1        / 'CTM_VIS_1       ' /
       DATA CTM_DIAM_1       / 'CTM_DIAM_1      ' /
@@ -170,7 +173,6 @@
       DATA CTM_SD_TS        / 'CTM_SD_TS       ' /
       DATA CTM_VDIFF_DIAG   / 'CTM_VDIFF_DIAG  ' /
       DATA CTM_VSED_DIAG    / 'CTM_VSED_DIAG   ' /
-      DATA CHLOROPHYLL      / 'CHLOROPHYLL     ' /
       DATA BNDY_TRAC_S      / 'BNDY_TRAC_S     ' /
       DATA INIT_TRAC_S      / 'INIT_TRAC_S     ' /
 
@@ -241,8 +243,8 @@
       DATA LGCL_NAME( 65 ), IN_MODE( 65 )    / 'CTM_SD_TS       ', .FALSE. /
       DATA LGCL_NAME( 66 ), IN_MODE( 66 )    / 'CTM_VDIFF_DIAG  ', .FALSE. /
       DATA LGCL_NAME( 67 ), IN_MODE( 67 )    / 'CTM_VSED_DIAG   ', .FALSE. /
-      DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'CHLOROPHYLL     ', .FALSE. /
-      DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'BNDY_TRAC_S     ', .FALSE. /
-      DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'INIT_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'BNDY_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'INIT_TRAC_S     ', .FALSE. /
+      DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_MGEM_1      ', .FALSE. /
 
 !................   end   FILES3_CTM.EXT   .............................
