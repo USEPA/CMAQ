@@ -672,29 +672,6 @@ C Compute ZSTK, DDZF
 
          END IF   ! ZSTATIC
 
-C Set Namelist emissions factors
-
-         V = 0
-         DO S = 1, N_SPC_PTEM
-
-            K = INDEX1 ( STKEM_NAME( S ), N_GC_EMIS, GC_EMIS )
-            IF ( K .NE. 0 ) THEN
-               V = V + 1
-               EMIS_FAC( V ) = GC_EMIS_FAC( K )
-            END IF
-            K = INDEX1 ( STKEM_NAME( S ), N_NR_EMIS, NR_EMIS )
-            IF ( K .NE. 0 ) THEN
-               V = V + 1
-               EMIS_FAC( V ) = NR_EMIS_FAC( K )
-            END IF
-            K = INDEX1 ( STKEM_NAME( S ), N_TR_EMIS, TR_EMIS )
-            IF ( K .NE. 0 ) THEN
-               V = V + 1
-               EMIS_FAC( V ) = TR_EMIS_FAC( K )
-            END IF
-
-         END DO
-
          SUCCESS = .TRUE.; RETURN
 
 93053    FORMAT("#  Src Id's for play file", I2, ', with', I10, ' total sources',
