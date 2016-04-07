@@ -24,7 +24,7 @@
 !   28 Feb 2011, J.Bash, Added files for NH3 bidi and MOSAIC
 !   11 May 11 D.Wong: added files for sub-domain time series
 !   14 Aug 14 J.Young: added vdiff and grav. settling diagnostic files
-!   3  Nov 2015 G. Sarwar deleted CHLOROPHYLL since it is not used 
+!   3  Nov 2015 G. Sarwar deleted CHLOROPHYLL since it is not used
 !   3  Nov 2015 G. Sarwar added CTM_MGEM_1 output files
 !.......................................................................
 

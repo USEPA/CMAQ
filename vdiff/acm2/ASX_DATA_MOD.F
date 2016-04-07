@@ -69,7 +69,6 @@ C    Toluene diisocyanate and hexamethylene diisocyanate reactivities are
 C    assumed to be similar to SO2. Diffusivities are calculated with standard
 C    formulas.  W. Hutzell (04/08)
 C %% G. Sarwar: added data for iodine and bromine species (03/2016)
-
 C-------------------------------------------------------------------------------
 
       Use GRID_CONF           ! horizontal & vertical domain specifications
@@ -117,8 +116,8 @@ C-------------------------------------------------------------------------------
          Real,    Allocatable :: XPBL     ( :,: )  ! PBL sigma height
          Integer, Allocatable :: LPBL     ( :,: )  ! PBL layer
          Logical, Allocatable :: CONVCT   ( :,: )  ! convection flag
-         Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)        
-         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)         
+         Real,    Allocatable :: PBL      ( :,: )  ! pbl height (m)
+         Real,    Allocatable :: NACL_EMIS( :,: )  ! NACL mass emission rate of particles with d <10 um (g/m2/s)
 !> U and V wind components on the cross grid points
          Real,    Allocatable :: UWIND    ( :,:,: )  ! [m/s]
          Real,    Allocatable :: VWIND    ( :,:,: )  ! [m/s]                    
@@ -334,10 +333,10 @@ C Land use information:
       DATA subname( 61), dif0( 61), ar( 61), meso( 61), lebas( 61) / 'HYDROXY_NITRATES', 0.0646,   16.0,      0.0, 147.8/
       DATA subname( 62), dif0( 62), ar( 62), meso( 62), lebas( 62) / 'PROPNN          ', 0.0677,   16.0,      0.0, 133.0/
       DATA subname( 63), dif0( 63), ar( 63), meso( 63), lebas( 63) / 'NITRYL_CHLORIDE ', 0.0888,    8.0,      0.0,  45.5/  ! dif0 estimated following Erickson III et al., JGR, 104, D7, 8347-8372, 1999
-      DATA subname( 64), dif0( 64), ar( 64), meso( 64), lebas( 64) / 'ISOPNN          ',0.0457,    8.0,      0.0,  206.8/  
-      DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/  
-      DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/  
-      DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0,      0.0,   72.6/  ! dif0 from Nguyen 2015 PNAS 
+      DATA subname( 64), dif0( 64), ar( 64), meso( 64), lebas( 64) / 'ISOPNN          ',0.0457,    8.0,      0.0,  206.8/
+      DATA subname( 65), dif0( 65), ar( 65), meso( 65), lebas( 65) / 'MTNO3           ',0.0453,    8.0,      0.0,  251.2/
+      DATA subname( 66), dif0( 66), ar( 66), meso( 66), lebas( 66) / 'IEPOX           ',0.0579,    8.0,      0.0,  110.8/
+      DATA subname( 67), dif0( 67), ar( 67), meso( 67), lebas( 67) / 'HACET           ',0.1060,    8.0,      0.0,   72.6/  ! dif0 from Nguyen 2015 PNAS
       DATA subname( 68), dif0( 68), ar( 68), meso( 68), lebas( 68) / 'SVALK1          ',0.0514,   20.0,      0.0,  280.5/
       DATA subname( 69), dif0( 69), ar( 69), meso( 69), lebas( 69) / 'SVALK2          ',0.0546,   20.0,      0.0,  275.6/
       DATA subname( 70), dif0( 70), ar( 70), meso( 70), lebas( 70) / 'SVBNZ1          ',0.0642,   20.0,      0.0,  134.1/
@@ -470,8 +469,8 @@ C-----------------------------------------------------------------------
      &             Met_Data%XPBL     ( NCOLS,NROWS ),
      &             Met_Data%LPBL     ( NCOLS,NROWS ),
      &             Met_Data%CONVCT   ( NCOLS,NROWS ),
-     &             Met_Data%PBL      ( NCOLS,NROWS ),     
-     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),     
+     &             Met_Data%PBL      ( NCOLS,NROWS ),
+     &             Met_Data%NACL_EMIS( NCOLS,NROWS ),
      &             Met_Data%UWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%VWIND    ( NCOLS+1,NROWS+1,NLAYS ),
      &             Met_Data%KZMIN    ( NCOLS,NROWS,NLAYS ),

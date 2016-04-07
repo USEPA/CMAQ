@@ -23,7 +23,7 @@ C $Header: /project/yoj/arc/CCTM/src/emis/emis/HALEMIS.F,v 1.8 2012/01/19 15:29:
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
- 
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE MGEMIS
 C-----------------------------------------------------------------------
@@ -35,7 +35,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
       USE HGRD_DEFN
 
       IMPLICIT NONE
-     
+
       LOGICAL, SAVE :: MGEM                           ! flag for marine gas emissions
 
       INTEGER, PARAMETER :: NMGSPC = 13
@@ -131,7 +131,7 @@ C Local Variables:
             CHARACTER( 96 ) :: XMSG = ' '
             CHARACTER(  16 ) :: VARNM
             INTEGER STATUS
-            INTEGER S, N, L, K, V        
+            INTEGER S, N, L, K, V
 
 C-----------------------------------------------------------------------
 
@@ -141,11 +141,11 @@ C-----------------------------------------------------------------------
 C flag for marine gas emissions; use in-line marine gas option only if CB05EH51 is used
             IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
                MGEM = .TRUE.
-            ELSE 
-               MGEM = .FALSE.          
+            ELSE
+               MGEM = .FALSE.
                RETURN
-            ENDIF 
-            
+            ENDIF
+
 C Allocate mapping array
             ALLOCATE ( MGSPC_MAP( NMGSPC ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -279,9 +279,9 @@ C Build diagnostic file write buffer (WRMG_SPC) array
                 END DO
 
 C Open the marine gas emission dignostic file
-                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)', 
+                SDATE = ENVINT( 'CTM_STDATE', 'Scenario Start (YYYYJJJ)',
      &                  0, STATUS )
-                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)', 
+                STIME = ENVINT( 'CTM_STTIME', 'Scenario Start (HHMMSS)',
      &                  0, STATUS )
 
                 IF ( IO_PE_INCLUSIVE ) CALL OPMGEMIS ( SDATE, STIME, TSTEP, NMGDIAG, WRMG_SPC )
@@ -375,7 +375,7 @@ C Set output file characteristics based on COORD.EXT and open diagnostic file
             DO L = 2, MXDESC3
                FDESC3D( L ) = ' '
             END DO
-            
+
 C Open marine gas emissions diagnostic file
             IF ( .NOT. OPEN3( CTM_MGEM_1, FSNEW3, PNAME ) ) THEN
                XMSG = 'Could not create the CTM_MGEM_1 file'
@@ -393,25 +393,25 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C GET_MGEMIS calculates the marine gas emission rates in a grid cell
 C given the fractional grid-cell area covered by open ocean and surf zone
- 
+
 C Key Subroutines/Functions Called:  NONE
- 
+
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version from sea salt diagnostic file
-C 
+C
 CReferences:
-C MacDonald, S. M., Gómez Martín, J. C., Chance, R., Warriner, S., Saiz-Lopez, A., Carpenter, L. J., 
-C and Plane, J. M. C.: A laboratory characterisation of inorganic iodine emissions from the sea 
-C surface: dependence on oceanic variables and parameterisation for global modelling, Atmos. Chem. 
+C MacDonald, S. M., Gómez Martín, J. C., Chance, R., Warriner, S., Saiz-Lopez, A., Carpenter, L. J.,
+C and Plane, J. M. C.: A laboratory characterisation of inorganic iodine emissions from the sea
+C surface: dependence on oceanic variables and parameterisation for global modelling, Atmos. Chem.
 C Phys., 14, 5841-5852, doi:10.5194/acp-14-5841-2014, 2014.
 C-----------------------------------------------------------------------
             USE UTILIO_DEFN
-            USE AEROMET_DATA   ! Includes CONST.EXT    
-            USE ASX_DATA_MOD, ONLY: MET_DATA                 ! added by Sarwar 
+            USE AEROMET_DATA   ! Includes CONST.EXT
+            USE ASX_DATA_MOD, ONLY: MET_DATA                 ! added by Sarwar
             USE CGRID_SPCS     ! CGRID mechanism species
             USE PCGRID_DEFN    ! get cgrid
             USE GRID_CONF
-            
+
             IMPLICIT NONE
 
 C Arguments
@@ -437,28 +437,28 @@ C.. Define Marine Gas indices
             INTEGER, PARAMETER :: IHOI  = 11
             INTEGER, PARAMETER :: IBR2  = 12
             INTEGER, PARAMETER :: IDMS  = 13
-            
+
             REAL, PARAMETER :: SECS2HR = 1.0 / 3600.0          ! hour per seconds
-            REAL, PARAMETER :: C_FACT  = 1.0E-9 /(24.0*3600.0) ! factor to convert nmole/m2/day to mole/m2/sec         
-            REAL, PARAMETER :: MWBR2   = 159.8                 ! MW of BR2 in gm/mole   
-            REAL, PARAMETER :: IMWBR2  = 1.0 / MWBR2           ! Reciprocal MW of BR2 in gm/mole   
-            REAL, PARAMETER :: RA      = 0.00223               ! Sea-salt BR/NACL mass ratio [gm/gm) 
+            REAL, PARAMETER :: C_FACT  = 1.0E-9 /(24.0*3600.0) ! factor to convert nmole/m2/day to mole/m2/sec
+            REAL, PARAMETER :: MWBR2   = 159.8                 ! MW of BR2 in gm/mole
+            REAL, PARAMETER :: IMWBR2  = 1.0 / MWBR2           ! Reciprocal MW of BR2 in gm/mole
+            REAL, PARAMETER :: RA      = 0.00223               ! Sea-salt BR/NACL mass ratio [gm/gm)
             REAL, PARAMETER :: DF      = 0.5                   ! Bromine depletion factor from sea-salt, Yang et al., JGR, 2005
             REAL, PARAMETER :: LON2TZ  = 1.0 / 15.0            ! longitude to time zone, 1/degrees
-            REAL, PARAMETER :: FHRLY(24) = 
+            REAL, PARAMETER :: FHRLY(24) =
      &                         ( / 0.032, 0.032, 0.032, 0.033, 0.034, 0.036,
      &                             0.039, 0.044, 0.051, 0.057, 0.062, 0.064,
      &                             0.062, 0.057, 0.051, 0.044, 0.039, 0.036,
-     &                             0.034, 0.033, 0.032, 0.032, 0.032, 0.032 / )      
+     &                             0.034, 0.033, 0.032, 0.032, 0.032, 0.032 / )
 
 C Local Variables:
 !            REAL    :: OFRAC              ! fractional seawater cover
 !            REAL    :: SFRAC              ! fractional surf-zone cover
             REAL    :: CHLA
-!            REAL    :: SSTC              
+!            REAL    :: SSTC
             REAL    :: SST            
             REAL    :: DMS                ! DMS in atmosphere                        
-            
+
             CHARACTER( 16 ), SAVE :: PNAME = 'GET_MGEMIS'
             CHARACTER( 96 )       :: XMSG = ' '
             CHARACTER( 80 ) :: MSG                      ! Message
@@ -477,10 +477,10 @@ C Local Variables:
             REAL            :: DUMMY                           ! dummy variable for calculating marine gas emission
 !            REAL            :: WDSCALO                         ! WDSCALO: 10 meter wind-speed-dependent scaling factors for emissions flux functions
 !            REAL            :: SSTSCALO                        ! SSTSCALO: SST-dependent scaling factor for emissions from Jaegle et al. (2011) (SST in Celsius)
-            REAL            :: LON                             ! grid-cell longitude    
-            REAL            :: WSPD10                          ! wind speed 
-            REAL            :: WSPD10_M3                       ! wind speed with a minimum sppeed of 3 m/s (used for HOI and I2 emission calculation) 
-            REAL            :: MARINE_AREA                     ! marine fraction of surface and later marine surface area                     
+            REAL            :: LON                             ! grid-cell longitude
+            REAL            :: WSPD10                          ! wind speed
+            REAL            :: WSPD10_M3                       ! wind speed with a minimum sppeed of 3 m/s (used for HOI and I2 emission calculation)
+            REAL            :: MARINE_AREA                     ! marine fraction of surface and later marine surface area
             REAL            :: CURRHR                          ! current GMT hour
             REAL, SAVE      :: A                               ! horizontal area of cells, m**2
 
@@ -489,7 +489,7 @@ C Local Variables:
 C----------------------------- Begin calc ------------------------------
 
            IF( FIRST_TIME ) THEN
-C calculate grid-cell area 
+C calculate grid-cell area
              IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
                 DX1 = DG2M * XCELL_GD ! in m.
                 DX2 = DG2M * YCELL_GD
@@ -497,15 +497,15 @@ C calculate grid-cell area
              ELSE
                 DX1 = XCELL_GD        ! in m.
                 DX2 = YCELL_GD        ! in m.
-             END IF                                     
+             END IF
              A = DX1 * DX2                                      ! m2
-             
+
              FIRST_TIME = .FALSE.
            END IF
 
            CURRHR = 1.0E-4 * REAL( JTIME )
 
-C Open the MET_CRO_2D file 
+C Open the MET_CRO_2D file
 
            IF ( .NOT. INTERPX( MET_CRO_2D, 'WSPD10', PNAME,
      &                         STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
@@ -586,24 +586,24 @@ C Initialize marinegas output buffer
                      MARINE_AREA = MARINE_AREA * A
 
                      CHLA      = MIN (1.0, CHLR ( C,R ))
-                     WSPD10    = U10( C,R )                   
-                     WSPD10_M3 = MAX (3.0, WSPD10)                   
+                     WSPD10    = U10( C,R )
+                     WSPD10_M3 = MAX (3.0, WSPD10)
                      SST       = TSEASFC (C,R)
 !                     SSTC    = SST - 273.15
                      LON       = ILON (C,R)
                       O3       = 1000.0 * CGRID(C, R, 1, LGC_O3)
 
-C.. calculate iodide in water  
+C.. calculate iodide in water
                      I_AQ = 1.46E6 * EXP( -9134.0 / SST)
 
-C.. calculate local hour    
+C.. calculate local hour
                      LOCHR = NINT(CURRHR + LON * LON2TZ )
                      IF (LOCHR .LT.  1) LOCHR = LOCHR + 24
                      IF (LOCHR .GT. 24) LOCHR = LOCHR - 24
 
 !                     DUMMY = MAX( 0.0, MARINE_AREA * 4.31E-8 * FHRLY(LOCHR) * CHLA * SECS2HR)
                       DUMMY = 4.31E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR
- 
+
 C.. Calculate MB3 emission rate in mole/s
 !                      DUMMY = MARINE_AREA * 4.31E-8 * 2.00 * A * FHRLY(LOCHR) * CHLA / 3600.0
                      VDEMIS_MG( IMB3, C, R ) = DUMMY * 2.00
@@ -647,19 +647,19 @@ C.. Calculate I2 emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 
 
 C.. Calculate HOI emission rate in mole/s (Macdonald et al., ACP, 14, 5841-5852, 2014)
                      DUMMY = SQRT(I_AQ)
-                     DUMMY = O3 
-     &                     * ((4.15E5*DUMMY - 20.6)/WSPD10_M3 - 23600.0*DUMMY)  ! NMOL/M2/D  
-                     DUMMY = MARINE_AREA * DUMMY * C_FACT 
+                     DUMMY = O3
+     &                     * ((4.15E5*DUMMY - 20.6)/WSPD10_M3 - 23600.0*DUMMY)  ! NMOL/M2/D
+                     DUMMY = MARINE_AREA * DUMMY * C_FACT
                      VDEMIS_MG( IHOI, C, R ) = MAX( 0.0, DUMMY )
- 
+
 C.. Calculate NACL mass emission rate of particles with d <10 um (g/m2/s)
                      DUMMY = Met_Data%NACL_EMIS( C,R )   ! gm/m2/s
-              
+
 C.. Calculate BR2 emission rate in mole/s
                      DUMMY = MARINE_AREA * DUMMY * RA * DF * IMWBR2 ! mol/cell/s
                      VDEMIS_MG( IBR2, C, R ) = MAX( 0.0, DUMMY )
 
-C .. Calculate DMS emisission rate in mole/s 
+C .. Calculate DMS emisission rate in mole/s
                      VDEMIS_MG( IDMS, C, R ) = 0.0
 
                 ELSE
@@ -708,7 +708,7 @@ C Then reset the MG emissions array and local write counter.
                        CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
                 END IF
-#endif                
+#endif
                 DO V = 1, NMGDIAG
                    DO R = 1, NROWS
                       DO C = 1, NCOLS
@@ -731,7 +731,7 @@ C Then reset the MG emissions array and local write counter.
           END IF  ! MGDIAG
 
          RETURN
-            
+
        END SUBROUTINE GET_MGEMIS
 
       END MODULE MGEMIS

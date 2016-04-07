@@ -887,15 +887,15 @@ C obtain speciated mass emissions.
      &                                    * AEROSPC_SSF( 3,SSSPC_MAP( S ) )
                      END IF
 
-                     IF( SSSPC_MAP( S ) .EQ. ana_idx )     
+                     IF( SSSPC_MAP( S ) .EQ. ana_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
 C 0.80 = ratio of seasalt emisisions with d<10 um to all K-mode emisisions, 0.8373 = NA fraction in SEACAT, 0.66984 = 0.80 * 0.8373
-                     IF( SSSPC_MAP( S ) .EQ. aseacat_idx ) 
-     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,3,C,R ) / RLAY1HT * 0.66984     
-                     IF( SSSPC_MAP( S ) .EQ. acl_idx )     
+                     IF( SSSPC_MAP( S ) .EQ. aseacat_idx )
+     &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,3,C,R ) / RLAY1HT * 0.66984
+                     IF( SSSPC_MAP( S ) .EQ. acl_idx )
      &                  Met_Data%NACL_EMIS( C,R ) = Met_Data%NACL_EMIS( C,R ) + SSOUTM( S,2,C,R ) / RLAY1HT
-     &                                                                        + SSOUTM( S,3,C,R ) / RLAY1HT * 0.80                     
-                     
+     &                                                                        + SSOUTM( S,3,C,R ) / RLAY1HT * 0.80
+
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]

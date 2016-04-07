@@ -262,7 +262,6 @@ C Allocate and initialize dry deposition array
          ICMP = 0.0   ! array assignment
 
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
-!        IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ), CGRID ) ) THEN 
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF

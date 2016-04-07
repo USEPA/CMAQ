@@ -38,7 +38,7 @@
        REAL,      ALLOCATABLE :: GAMMA_IEPOX(  :,:,:  ) ! IEPOX uptake coeff
        REAL,      ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
        REAL,      ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
-       
+
        LOGICAL                :: AERO_CHEM_SET = .FALSE.
              
        PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, GAMMA_IEPOX,
@@ -58,8 +58,8 @@
      &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
      &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
      &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
-     &                       'HETERO_NTR2      ', 'HETERO_BRONO2IJ  ', 
-     &                       'HETERO_BRONO2K '/)     
+     &                       'HETERO_NTR2      ', 'HETERO_BRONO2IJ  ',
+     &                       'HETERO_BRONO2K '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -94,8 +94,8 @@
      &                       IA_H2NO3PBJ , IA_N2O5I    , 
      &                       IA_N2O5J    , IA_PNCOMLI  ,
      &                       IA_PNCOMLJ  , IA_IEPOX    ,
-     &                       IA_NTR2     , IA_BRONO2IJ , 
-     &                       IA_BRONO2K  /) 
+     &                       IA_NTR2     , IA_BRONO2IJ ,
+     &                       IA_BRONO2K  /)
 
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
@@ -223,9 +223,9 @@ C   9. Liu, S., J.E. Shilling, C. Song, N. Hiranuma, R.A. Zaveri, L.M. Russell,
 C      Hydrolysis of Organonitrate Functional Groups in Aerosol Particles.
 C      Aerosol Sci. Technol., 46, 1359-1369, 2012.
 C
-C  10. Yang, X., R. A. Cox, N. J. Warwick, J. A. Pyle, G. D. Carver, F. M. 
-C      O'Connor, and N. H. Savage, Tropospheric bromine chemistry 
-C      and its impacts on ozone: A model study, J. Geophys. Res., 110, D23311, 
+C  10. Yang, X., R. A. Cox, N. J. Warwick, J. A. Pyle, G. D. Carver, F. M.
+C      O'Connor, and N. H. Savage, Tropospheric bromine chemistry
+C      and its impacts on ozone: A model study, J. Geophys. Res., 110, D23311,
 C      doi:10.1029/2005JD006244, 2005.
 C-----------------------------------------------------------------------
 
@@ -254,7 +254,7 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: AQUEOUS_FREQUENCY = 1.0D+9
       REAL( 8 ), PARAMETER :: INV_SQRT_MWNO2  = 1.47425932467825D-1
       REAL( 8 ), PARAMETER :: INV_SQRT_MWN2O5 = 9.62161363758323D-2
-      REAL( 8 ), PARAMETER :: INV_SQRT_MWBRONO2 = 8.394770000000D-2  
+      REAL( 8 ), PARAMETER :: INV_SQRT_MWBRONO2 = 8.394770000000D-2
 
       REAL( 8 ), PARAMETER :: UGM3_CONV_FAC   = 8.31251724585556D00 ! =1.0E-3*AIRDENS_STD*(PRESS_STD/TEMP_STD)
       REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
@@ -311,11 +311,11 @@ C *** Local Variables
       
       REAL( 8 )    :: CBAR             ! molecular velocity of N2O5 (m/s)
       REAL( 8 )    :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
-      REAL( 8 )    :: CBAR_BRONO2      ! molecular velocity of BRONO2 (m/s)  
-      REAL( 8 )    :: BRONO2_RXN_TIME  ! BRONO2 reaction time per aerosol surface area density (s/m)  
+      REAL( 8 )    :: CBAR_BRONO2      ! molecular velocity of BRONO2 (m/s)
+      REAL( 8 )    :: BRONO2_RXN_TIME  ! BRONO2 reaction time per aerosol surface area density (s/m)
 
-      REAL( 8 )    :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec] 
-                  
+      REAL( 8 )    :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
+
       LOGICAL      :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
       LOGICAL      :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
 
@@ -361,7 +361,7 @@ C *** Statement Function **************
       REAL( 8 )            :: TT
 
 ! reciprocal of rxn probability for BRONO2 on aerosol, Yang et al., JGR, 2005
-      REAL( 8 ), PARAMETER :: INV_GAMMA_BRONO2 = 1.0D0 / 0.3D0  
+      REAL( 8 ), PARAMETER :: INV_GAMMA_BRONO2 = 1.0D0 / 0.3D0
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
 !     REAL( 8 ), PARAMETER :: AL = 610.94D0 / STDATMPA
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
@@ -651,11 +651,11 @@ c *** compute yield from lumped Aitken and Accumulations concentrations
 C *** calculate aerosol surface area
                TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
 
-C *** set up variables needed for calculating K_BRONO2 
+C *** set up variables needed for calculating K_BRONO2
                CBAR_BRONO2     = CBAR_COEFF * INV_SQRT_MWBRONO2
-               BRONO2_RXN_TIME = 4.0D0 * INV_GAMMA_BRONO2 / CBAR_BRONO2 
+               BRONO2_RXN_TIME = 4.0D0 * INV_GAMMA_BRONO2 / CBAR_BRONO2
 
-               LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES             
+               LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
  
                SELECT CASE( WHICH_AERO_RATE( IRATE ) )
                   CASE( IA_N2O5IJ )  
@@ -827,20 +827,20 @@ C hydrolysis
      &                                            * ( 5.0D0 * AIRRH - 1.0D0 )
                      END IF
 
-                 CASE( IA_BRONO2IJ )                              
+                 CASE( IA_BRONO2IJ )
 C *** calculate total KBRONO2 from fine modes
-                     KBRONO2 = WET_M2( 1 ) * DPI                           
+                     KBRONO2 = WET_M2( 1 ) * DPI
      &                       / ( 0.5D0 * DE_WET( 1 ) * INV_DIFF_BRONO2
-     &                           + BRONO2_RXN_TIME ) 
+     &                           + BRONO2_RXN_TIME )
      &                       + WET_M2( 2 ) * DPI
      &                       / ( 0.5D0 * DE_WET( 2 ) * INV_DIFF_BRONO2
-     &                           + BRONO2_RXN_TIME ) 
-              
+     &                           + BRONO2_RXN_TIME )
+
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * KBRONO2
 
-                 CASE( IA_BRONO2K )                              
+                 CASE( IA_BRONO2K )
 C *** calculate KBRONO2 from coarse mode
-                     KBRONO2 = WET_M2( 3 ) * DPI 
+                     KBRONO2 = WET_M2( 3 ) * DPI
      &                       / ( 0.5D0 * DE_WET( 3 ) * INV_DIFF_BRONO2
      &                            + BRONO2_RXN_TIME )
 
