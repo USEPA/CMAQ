@@ -156,6 +156,7 @@ C compute extinction and aod from conc files similar to getvisby.f as a template
          real    :: airrh
 
 !        logical :: output_ext
+         logical :: m3_wet_flag ! flag to determine if M2 is wet
 
          integer :: nvars
          integer :: logdev
@@ -212,7 +213,8 @@ C compute extinction and aod from conc files similar to getvisby.f as a template
 
 ! compute extinction, 1/km
                   call extract_aero( conc_cr( k,: ), .false. )
-                  call getpar( .true., .false. )
+                  M3_wet_flag = .false.
+                  call getpar( M3_wet_flag, .false. )
 
                   call get_extinc( airrh, ext_cr( k ) )
 ! compute aod

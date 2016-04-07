@@ -458,6 +458,7 @@ C***  variables for calculating modal averaged properties per layer and lambda
       INTEGER MODE                  ! aerosol mode loop counter
       LOGICAL SUCCESS
       LOGICAL TROUBLE
+      LOGICAL M3_WET_FLAG           ! Flag to tell getpar if M2 is wet
       
  
 #ifdef verbose_phot
@@ -498,7 +499,9 @@ C ***    Calculate aerosol surface area to 2nd moment.
          END DO
 
 C *** Calculate geometric mean diameters and standard deviations of "dry" size distribution
-         CALL GETPAR ( .TRUE., .FALSE. )
+C     M2 is dry since it is coming out of the CGRID surface area value
+         M3_WET_FLAG = .FALSE.
+         CALL GETPAR ( M3_WET_FLAG, .FALSE. )
 
 #ifdef verbose_phot
          if(col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 )then
