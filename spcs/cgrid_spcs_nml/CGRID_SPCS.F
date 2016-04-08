@@ -31,6 +31,7 @@ c Jeff Young 31 Aug 09: created
 c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 08 Apr 16 D.Luecken:  increased spc_dim to 400
 c-----------------------------------------------------------------------
 
       implicit none
@@ -145,7 +146,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer k1, k2, k3, k4, k5  ! control type counters
             integer icall
             character(  1 ), parameter :: bl = ' '
-            integer, parameter :: spc_dim = 200
+            integer, parameter :: spc_dim = 400
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
 
