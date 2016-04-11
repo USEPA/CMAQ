@@ -2,11 +2,14 @@
 ! Purpose:  Define general data structure for the twoway model
 !
 ! Revised:  April 2007  Original version.  David Wong
+! Revised:  April 7, 2016 David Wong: Added variable mminlu
 !===============================================================================
 
   module twoway_data_module
 
     LOGICAL :: indirect_effect
+
+    CHARACTER (LEN = 40) :: mminlu
 
     INTEGER, SAVE :: num_land_cat
     INTEGER, SAVE :: twoway_mype, nprocs
