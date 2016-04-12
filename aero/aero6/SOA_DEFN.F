@@ -1122,14 +1122,12 @@ C Update 3rd moment, 2nd moment, and Dg in CBLK array by assuming that SOA
 C condensation/evaporation does not affect the geometric standard deviation.
 
       ! Get new third moment of all species, do not get second moment
+      ! directly from the calcmoments diagnostic. Instead, update it
+      ! manually to account for condensation in ORGAER.
       Call calcmoments( .true. )
       m3wet_final = moment3_conc( 2 )
       m2wet_final = m2wet_init * ( m3wet_final / m3wet_init ) ** ( 2.0 / 3.0 )
-
       moment2_conc( 2 )  = m2wet_final
-      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( m2wet_final / m2wet_init )
-      !Assume standard deviation is unchanged. Diameter becomes easy
-      !calculation. Relax the standard deviation assumption eventually.
 
       Return
       End Subroutine orgaer
