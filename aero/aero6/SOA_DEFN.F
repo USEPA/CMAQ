@@ -817,7 +817,6 @@ C Parameters & variables for adjusting cstar to ambient conditions
       Real, Parameter :: kacid  = 0.00361        ! acid-induced enhancement factor
       Real, Parameter :: threshmin = 1.0E-19     ! small positive number
       Real, Parameter :: ctolmin = 1.0E-06
-      Real, Parameter :: orgfac = 1.0E-9 * f6dpi / 2.0E3
       Real, Parameter :: convfac_298 = 101325.0 * rgas1 * trefm1  ! P/RT at 1 atm and 298 K [ mole/m**3 ]
 
       Real convfac
@@ -852,10 +851,10 @@ C Variables used in equilibrium partitioning calculations
                              ! converged to a spurious root
 
 C Variables for updating 2nd and 3rd moments
-      Real old_m3  ! initial 3rd moment minus nonvol SOA [ mom/m3 ]
-      Real old_m2  ! initial 2nd moment minus nonvol SOA [ mom/m3 ]
-      Real new_m3  ! final 3rd moment with updated SOA [ mom/m3 ]
-      Real new_m2  ! final 2nd moment with updated SOA [ mom/m3 ]
+      Real m3wet_init  ! initial 3rd moment, wet [ mom/m3 ]
+      Real m2wet_init  ! initial 2nd moment, wet [ mom/m3 ]
+      Real m3wet_final  ! final 3rd moment with updated SOA [ mom/m3 ]
+      Real m2wet_final  ! final 2nd moment with updated SOA [ mom/m3 ]
 
 C Added for new SOA bisection (hotp 7/6/11)
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
@@ -868,47 +867,31 @@ C-----------------------------------------------------------------------
          logdev = setup_logdev()
 
 C Set unit conversion and inverse mw constants
-
-         Do i = 1, n_orgprod
-            drog_ppm2ug( i ) = orgprod_mw( i ) * convfac_298
-         End Do
-
-         Do i = 1, n_vapor
-            mw_vap_m1( i ) = 1.0 / vapor_mw( i )
-         End Do
-
+         drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
+         mw_vap_m1( : ) = 1.0 / vapor_mw( : )
          mwpoa = aerospc_mw( apoc_idx )
 
       End If ! first_time
-
-C Compute 3rd moment, 2nd moment, and Dg without nonvolatile SOA. Cloud-produced
-C SOA (i.e., orgcj) is not subtracted here because it is unchanged in this subroutine
-      old_m3 = moment3_conc( 2 )
-      Do i = 1, n_aerospc
-         If(  aerospc( i )%tracer )cycle
-         If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
-            old_m3 = old_m3 - orgfac * aerospc_conc( i,2 )
-         End If
-      End Do
-
-      old_m2 = moment2_conc( 2 ) * ( old_m3 / moment3_conc( 2 ) ) ** ( 2.0 / 3.0 )
-      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( old_m2 / moment2_conc( 2 ) )
 
 C Set temperature factors
       tt1 = tref / airtemp
       tt2 = trefm1 - 1.0 / airtemp
       convfac = tt1 * airpres * prefm1
 
+C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
+C Only the accumulation mode is modified
+      Call calcmoments ( .true. )
+      m3wet_init = moment3_conc( 2 )
+      m2wet_init = moment2_conc( 2 )
+
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
-      Do i = 1, n_orgprod
-         drog( i ) = orgprod_conc( i ) * drog_ppm2ug( i ) * convfac
-      end Do
+      drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
 
 C Assignment of drog to totrog. This moving mass from the reactive 
 C gas tracer species to the array that will be multiplied by alpha
 C to give newly formed semivolatile vapors.
+      totrog( : ) = 0.0
       Do i = 1, n_vapor
-         totrog( i ) = 0.0
          if ( drog_map( i ) .gt. 0 ) then
            totrog( i ) = drog( drog_map( i ) )
          endif
@@ -1138,25 +1121,15 @@ C of SO2, based on the lab experiments of Kleindienst et al. (2007)
 C Update 3rd moment, 2nd moment, and Dg in CBLK array by assuming that SOA
 C condensation/evaporation does not affect the geometric standard deviation.
 
-      new_m3 = old_m3
+      ! Get new third moment of all species, do not get second moment
+      Call calcmoments( .true. )
+      m3wet_final = moment3_conc( 2 )
+      m2wet_final = m2wet_init * ( m3wet_final / m3wet_init ) ** ( 2.0 / 3.0 )
 
-      Do i = 1, n_aerospc
-         If(  aerospc( i )%tracer )cycle
-         If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
-            new_m3 = new_m3 + orgfac * aerospc_conc( i,2 )
-         End If
-      End Do
-
-      Do i = 1, n_vapor
-         If( soa_aeroMap( i ) .lt. 1 )Cycle
-         new_m3 = new_m3 + orgfac * aerospc_conc( soa_aeroMap( i ),2 )
-      End Do
-
-      new_m2 = old_m2 * ( new_m3 / old_m3 ) ** ( 2.0 / 3.0 )
-
-      moment3_conc( 2 ) = new_m3
-      moment2_conc( 2 ) = new_m2
-      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( new_m2 / old_m2 )
+      moment2_conc( 2 )  = m2wet_final
+      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( m2wet_final / m2wet_init )
+      !Assume standard deviation is unchanged. Diameter becomes easy
+      !calculation. Relax the standard deviation assumption eventually.
 
       Return
       End Subroutine orgaer

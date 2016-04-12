@@ -187,6 +187,9 @@ C              chemical mechanism
 
 C GS/KF 09/23/14 Updated nucleation scheme with Vehkamaki et al. (2002)
 
+C HP/BM  4/16 Removed m3_wet_flag since wet/dry status is now
+C             tracked by AERO_DATA variable. Moments are always wet in AEROPROC
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -276,7 +279,6 @@ C *** Variables for mode merging
 C *** local variables
       INTEGER      SPC        ! loop counter
       INTEGER      N          ! loop counter
-      LOGICAL      M3_WET_FLAG
       LOGICAL   :: LIMIT_Sg = .FALSE.
 
       integer, save :: logdev 
@@ -311,14 +313,6 @@ C *** Set minimums for coarse mode
       MOMENT0_CONC( N_MODE ) = MAX( AEROMODE_MINNUM( N_MODE ),
      &                              MOMENT0_CONC( N_MODE ) )
 
-C *** Outside AEROPROC, the surface area concentration [ m**2 / m**3 ]
-C     of the Aitken and accumulation modes is tracked.  Internally,
-C     the 2nd moment concentration is the variable of interest.
-C     Surface area = pi * 2nd moment.
-      DO N = 1, N_MODE
-         MOMENT2_CONC( N ) = MOMENT2_CONC( N ) / PI
-      END DO
-
 C *** Update the third moments, geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated
@@ -327,15 +321,17 @@ C     chemistry.  Ignore H2O and semi-volatile SOA (i.e., M3_WET_FLAG
 C     = .FALSE.) because those species are not transported with the
 C     2nd moment and their concentrations will be updated subsequently
 C     to establish gas/particle equilibrium.
-      M3_WET_FLAG = .FALSE.
       LIMIT_Sg = .FALSE.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+      CALL GETPAR( LIMIT_Sg )
 
 C *** Secondary Organics
 C     Update the secondary organic aerosol (SOA) mass concentrations
 C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
+C
+C     Ben and Havala will update the algorithm before this point to make
+C     sure that the aerosol is wet when it enters orgaer
       CALL ORGAER( DT, LAYER )
 
 C *** Secondary Inorganics
@@ -347,23 +343,11 @@ C *** Compute H2SO4 diffusivity, correct for temperature and pressure
       DIFFCORR = ( STDATMPA / AIRPRES ) * ( AIRTEMP / 273.16 ) ** 1.75
       DV_SO4 = DIFFSULF * DIFFCORR
 
-C *** Augment 2nd and 3rd moment concentrations with H2O and recompute
-C     size distribution parameters because wetted distribution is
-C     needed in subroutine VOLINORG
-
-      DO N = 1, N_MODE
-         M3_OLD = MOMENT3_CONC( N )
-         M2_OLD = MOMENT2_CONC( N )
-
-         MOMENT3_CONC( N ) = M3_OLD + H2OFAC * AEROSPC_CONC( AH2O_IDX, N )
-         MOMENT2_CONC( N ) = M2_OLD * ( MOMENT3_CONC( N ) / M3_OLD ) ** TWOTHIRDS
-      END DO
-
-      M3_WET_FLAG = .TRUE.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+C *** Update size parameters (distribution is wet)
+      CALL GETPAR( LIMIT_Sg )
 
       CALL VOLINORG( DT, COL, ROW, LAYER,
-     &               DV_SO4, CGR, M3_WET_FLAG )
+     &               DV_SO4, CGR )
 
 C *** Coagulation
 C     Calculate coagulation coefficients using a method dictated by
@@ -614,7 +598,7 @@ C *** Before mode merging, update the third moments, geometric mean
 C     diameters, geometric standard deviations, modal mass totals, and
 C     particle densities, based on the new concentrations of M2, M0, and
 C     speciated masses calculated above.
-         CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+         CALL GETPAR( LIMIT_Sg )
 
 C *** Calculate AAA = ln( Dij / DGATK ) / ( SQRT2 * XXLSGAT ), where Dij
 C     is the diameter at which the Aitken-mode and accumulation-mode
@@ -679,7 +663,7 @@ C *** Update the third moments, geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and particle densities,
 C     based on the final concentrations of M2, M0, and speciated masses
 C     after mode merging is complete.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+      CALL GETPAR( LIMIT_Sg )
 
 C *** Set minimum value for all concentrations in the CBLK array
 
@@ -695,7 +679,7 @@ C *** Set minimum value for all concentrations in the CBLK array
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VOLINORG( DT, COL, ROW, LAYER,
-     &                     DV_SO4, CGR, M3_WET_FLAG )
+     &                     DV_SO4, CGR )
 
 C *** Calculates the partitioning of inorganic components (CL,NO3,NH4,SO4)
 C     between the aerosol and gas phase over the operator synchronization
@@ -751,7 +735,6 @@ C *** Arguments:
       REAL    DV_SO4          ! molecular diffusivity of H2SO4 vapor 
                               ! after correction for ambient conditions
       REAL( 8 ) :: CGR( N_MODE-1 ) ! 3rd moment SO4 growth rate [m^3/m^3-s]
-      LOGICAL M3_WET_FLAG     ! flag to include water in GETPAR update
 
 C *** Parameters: 
       INTEGER, PARAMETER :: NINORG = 9      ! number of inorganic species
@@ -1370,7 +1353,7 @@ C *** Update the third moments, geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle 
 C     densities.
                
-            CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+            CALL GETPAR( LIMIT_Sg )
 
          END DO   ! end mass transfer time step loop
          
@@ -1643,6 +1626,10 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
          AEROSPC_CONC( ASO4_IDX, IMODE ) = SO4
          AEROSPC_CONC( AH2O_IDX, IMODE ) = H2O
          IF ( IMODE .EQ. 1 ) MOMENT0_CONC( IMODE ) = AM0(IMODE) + DNDT * DELT
+
+         !Update moment2_conc. This should be the wet moment if
+         !M3_WET_FLAG is set to true. It should be the dry moment if
+         !M3_WET_FLAG is set to false.
          MOMENT2_CONC( IMODE ) = WETM2
 
          HPLUS( IMODE ) = 0.0
@@ -1663,12 +1650,15 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
       ELSE
           AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
       END IF
-      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )
+      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )  !Coarse moed H+ concentration
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
-C     densities.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+C     densities. Note that moment2_conc needs to be up to date when this
+C     routine is called. Moment3_conc does not need to be up to date
+C     because it will be recalculated inside GETPAR as the sum of 
+C     aerospc_conc variables. Those DO need to be up to date.
+      CALL GETPAR( LIMIT_Sg )
 
 2023  FORMAT( 1X, 'VOLINORG returning negative gas concentrations from ISOROPIA:'
      &       /10X, 'GAS(1) = NH3, GAS(2) = HNO3, GAS(3) = HCl' )

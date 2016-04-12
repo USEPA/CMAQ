@@ -106,12 +106,9 @@ C *** Molecular weight
       REAL( 8 ), SAVE        :: MWTIEPOX      ! molecular weight of IEPOX [g/mol]
       REAL( 8 ), SAVE        :: CFACTOR_IEPOX ! factor used for the mean molecular speed of IEPOX [m/(s^1*(deg K)^0.5)]
 
-C *** 2nd and 3rd moments before equilibration (without H2O)
-      REAL( 8 ), ALLOCATABLE :: OLD_M3( : ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
-      REAL( 8 ), ALLOCATABLE :: OLD_M2( : ) ! OLD_M2_I, OLD_M2_J, OLD_M2_K
-
-      REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 before equilibration w.H2O
-      REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 before equilibration w.H2O
+C *** 2nd and 3rd moments with wet species
+      REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 w.H2O, svOA
+      REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 w.H2O, svOA
       REAL( 8 ), ALLOCATABLE :: DG_WET( : ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
       REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
 
@@ -316,7 +313,6 @@ C *** Local Variables
 
       REAL( 8 )    :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
 
-      LOGICAL      :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
       LOGICAL      :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
 
 C *** variables for parameterization by Bertram and Thornton 
@@ -384,8 +380,7 @@ C                            pp 601-609, April, 1996.
 
       
       INTERFACE
-         SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
-           LOGICAL, INTENT( IN ) :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
+         SUBROUTINE GETPAR( LIMIT_SG  )
            LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
          END SUBROUTINE GETPAR
       END INTERFACE 
@@ -424,10 +419,8 @@ C *** Get aerosol diagnostic file flag.
 
         ALLOCATE( WHICH_AERO_RATE( NHETERO ) )
         
-C *** 2nd and 3rd moments before equilibration (without H2O)
-        ALLOCATE(  OLD_M3( N_MODE ), 
-     &             OLD_M2( N_MODE ), 
-     &             WET_M3( N_MODE ), 
+C *** 2nd and 3rd moments (w. H2O and svOA)
+        ALLOCATE(  WET_M3( N_MODE ), 
      &             WET_M2( N_MODE ), 
      &             DG_WET( N_MODE ), 
      &             DE_WET( N_MODE ))
@@ -520,6 +513,7 @@ C *** 2nd and 3rd moments before equilibration (without H2O)
       
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
+C     also converts dry surface area to wet second moment
                CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
@@ -552,37 +546,22 @@ C *** to compute RH & molecular kinetic factors
               
                RFACTOR     = 60.0D0 * COEF1 * REAL( PRESS( C,R,L ) / TEMP( C,R,L ), 8 )
 
-C *** Update the third moments, geometric mean diameters, geometric
+C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated
-C     masses resulting from transport, cloud processing, and gas-phase
-C     chemistry.  Ignore H2O and semi-volatile SOA (i.e., M3_WET_FLAG
-C     = .FALSE.) because those species are not transported with the
-C     2nd moment and their concentrations will be updated subsequently
-C     to establish gas/particle equilibrium.
-               M3_WET_FLAG = .False.
+C     masses.
                LIMIT_Sg    = .False.
-
-               MOMENT2_CONC = MOMENT2_CONC / PI
-      
-               CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+               CALL GETPAR( LIMIT_Sg )
     
 C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
 
                DO N = 1, N_MODE
-              
-C *** capture values of "dry" 2nd and 3rd moments before equilibration
-C     the folowing code assumes that GETPAR has been called with
-C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
-C     been adjusted for the new SOA.
-                  OLD_M2( N ) = REAL( MOMENT2_CONC( N ), 8)
-                  OLD_M3( N ) = REAL( MOMENT3_CONC( N ), 8)
-C *** estimate the "wet third moments" by adding aerosol water
+C *** estimate the "wet third moments" from moment3_conc
 C      Note: this is the H2O concentration from previous time step
-                  WET_M3( N ) = OLD_M3( N ) + H2OFAC * REAL(aerospc_conc( AH2O_IDX,N ), 8)
+                  WET_M3( N ) = MOMENT3_CONC( N ) 
 C *** calculate "wet second moment" assuming that H2O does not
 C     affect the geometric standard deviation
-                  WET_M2( N ) = OLD_M2( N ) * ( WET_M3( N ) / OLD_M3( N ) ) ** ( 2.0D0 / 3.0D0 )
+                  WET_M2( N ) = MOMENT2_CONC( N ) 
 C *** calculate "wet" geometric mean (same as median) diameters
                   DG_WET( N ) = REAL( aeromode_diam( N ), 8) * DSQRT( WET_M2( N ) / OLD_M2( N ))
 C *** calculate effective diameters using Eq 3 of Pleim et al (1995)

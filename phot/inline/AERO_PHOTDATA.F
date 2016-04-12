@@ -354,9 +354,9 @@ C
 C     NOTE
 C       2nd moment concentrations (M2) are passed into GETPAR in the
 C       CBLK array.  The GETPAR calculations implicitly assume
-C       that the input value of M2 is consistent with the input value of
-C       M3_WET_FLAG.  If, for example, the input M2 value was calculated
-C       for a "dry" aerosol and the M3_WET_FLAG is .TRUE., GETPAR would
+C       that the input value of M2 is up to date
+C       If, for example, the input M2 value was calculated
+C       for a "dry" aerosol and the Wet_Moments_FLAG is .TRUE., GETPAR would
 C       incorrectly adjust the M2 concentrations!
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  EXTRACT_AERO, EXTRACT_SOA, GETPAR
@@ -458,7 +458,6 @@ C***  variables for calculating modal averaged properties per layer and lambda
       INTEGER MODE                  ! aerosol mode loop counter
       LOGICAL SUCCESS
       LOGICAL TROUBLE
-      
  
 #ifdef verbose_phot
       character( 26 ), allocatable :: lambda_list( : )
@@ -486,19 +485,14 @@ C *** initialize internal and external dimensions of aerosols
 
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
 C *** in aero_data module
+C     Also converts dry surface area to wet second moment
          CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
 
-C ***    Calculate aerosol surface area to 2nd moment.
-         DO MODE = 1, N_MODE
-            N = AEROSRF_MAP( MODE )
-            MOMENT2_CONC( MODE ) = CGRID( COL,ROW,L,N ) * ONE_OVER_PI
-         END DO
-
-C *** Calculate geometric mean diameters and standard deviations of "dry" size distribution
-         CALL GETPAR ( .TRUE., .FALSE. )
+C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
+         CALL GETPAR ( .FALSE. )
 
 #ifdef verbose_phot
          if(col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 )then
@@ -872,9 +866,9 @@ C
 C     NOTE
 C       2nd moment concentrations (M2) are passed into GETPAR in the
 C       CBLK array.  The GETPAR calculations implicitly assume
-C       that the input value of M2 is consistent with the input value of
-C       M3_WET_FLAG.  If, for example, the input M2 value was calculated
-C       for a "dry" aerosol and the M3_WET_FLAG is .TRUE., GETPAR would
+C       that the input value of M2 is up to date.  
+C       If, for example, the input M2 value was calculated
+C       for a "dry" aerosol and the Wet_Moments_FLAG is .TRUE., GETPAR would
 C       incorrectly adjust the M2 concentrations!
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  EXTRACT_AERO, EXTRACT_SOA, GETPAR
@@ -995,19 +989,14 @@ C *** initialize internal and external dimensions of aerosols
 
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
 C *** in aero_data module
+C     Also converts surface area to wet second moment
          CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
 
-C ***    Calculate aerosol surface area to 2nd moment.
-         DO MODE = 1, N_MODE
-            N = AEROSRF_MAP( MODE )
-            MOMENT2_CONC( MODE ) = CGRID( COL,ROW,L,N ) * ONE_OVER_PI
-         END DO
-
-C *** Calculate geometric mean diameters and standard deviations of "dry" size distribution
-         CALL GETPAR ( .TRUE., .FALSE. )
+C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
+         CALL GETPAR ( .FALSE. )
 
 #ifdef verbose_phot
          if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
