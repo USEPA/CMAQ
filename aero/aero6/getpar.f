@@ -55,9 +55,11 @@ C HP and BM 4/2016: Updated use of wet_moments_flag which is now
 C    available through AERO_DATA consistent with the moments it refers to
 C-----------------------------------------------------------------------
 
-      Use aero_data, only :: wet_moments_flag, moment3_conc, moment2_conc, 
-     &                       aeromode_dens, aeromode_sdev, aeromode_diam, aeromode_mass
-      Use aeromet_data, only :: f6pi   ! Includes CONST.EXT
+      Use aero_data, only : wet_moments_flag, moment3_conc, moment2_conc, moment0_conc,
+     &                       aeromode_dens, aeromode_sdev, aeromode_diam, aeromode_mass,
+     &                       min_sigma_g, max_sigma_g, n_mode, n_aerospc,
+     &                       aerospc, aero_missing, aerospc_conc, aeromode
+      Use aeromet_data, only : f6pi   ! Includes CONST.EXT
 
       Implicit None
 

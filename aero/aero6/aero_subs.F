@@ -757,6 +757,13 @@ C *** Inputs to subroutine HCOND3
       REAL( 8 ) :: AM1( N_MODE ) ! first moments
       REAL( 8 ) :: AM2( N_MODE ) ! second moments
 
+      REAL( 8 ) :: M2DRY_INIT( N_MODE ) !Dry Second Moment Initial Array
+      REAL( 8 ) :: M3DRY_INIT( N_MODE ) !Dry Third Moment Initial Array
+      REAL( 8 ) :: M2WET_INIT( N_MODE ) !Wet Second Moment Initial Array
+      REAL( 8 ) :: M3WET_INIT( N_MODE ) !Wet Third Moment Initial Array
+      REAL( 8 ) :: M2WET_FINAL( N_MODE ) !Wet Second Moment Final Array
+      REAL( 8 ) :: M3WET_FINAL( N_MODE ) !Wet Third Moment Final Array
+
 C *** Outputs from HCOND3: size-dependent term in the condensational-growth 
 C     expressions defined in Equations A13-A14 of [Binkowski & Shankar,1995]
       REAL( 8 ) :: FCONC_SO4( N_MODE,2 )  ! All sizes 2nd and 3rd moments
@@ -876,12 +883,16 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: CFAC_AK
       REAL( 8 ), SAVE :: CFAC_AMG
       REAL( 8 ), SAVE :: CFAC_ASEACAT
+      REAL( 8 ), SAVE :: CFAC_GNH3
+      REAL( 8 ), SAVE :: CFAC_GHNO3
+      REAL( 8 ), SAVE :: CFAC_GHCL
 
       REAL( 8 ), SAVE :: M3FAC_ANA
       REAL( 8 ), SAVE :: M3FAC_ASO4
       REAL( 8 ), SAVE :: M3FAC_ANH4
       REAL( 8 ), SAVE :: M3FAC_ANO3
       REAL( 8 ), SAVE :: M3FAC_ACL
+      REAL( 8 ), SAVE :: M3FAC_H2O
 
       logical, save :: write1 = .true.
 
@@ -1351,7 +1362,7 @@ C     ISORROPIA. Convert everything to [mol m-3].
       !Compute sulfate from total sulfate production rate [ug/m3-s] for fine 
       !modes; add in H2SO4 nucleated in model timestep
       WI( 2 ) = ( SUM( AEROSPC_CONC( ASO4_IDX,1:2 ) ) 
-                 +( DMDT_SO4 + SUM( CONDSO4( 1:2 ) ) ) * DELT * H2SO4RATM1 ) * CFAC_ASO4
+     &           +( DMDT_SO4 + SUM( CONDSO4( 1:2 ) ) ) * DELT * H2SO4RATM1 ) * CFAC_ASO4
       WI( 3 ) = PRECURSOR_CONC( NH3_IDX )  * CFAC_GNH3
      &         +SUM( AEROSPC_CONC( ANH4_IDX,1:2 ) ) * CFAC_ANH4 
       WI( 4 ) = PRECURSOR_CONC( HNO3_IDX ) * CFAC_GHNO3
@@ -1525,10 +1536,10 @@ C     (including nucleation) using equation A7 of Binkowski & Shankar (1995)
 C *** Update dry 2nd moment for condensation/evaporation based on whether
 C     net change in dry 2nd moment is production or loss
          IF ( DDRYM2DT .LT. 0.0D0 ) THEN
-            LOSS = DDRYM2DT / M2DRY_INIT
-            Y = M2DRY_INIT * EXP( LOSS * DELT )
+            LOSS = DDRYM2DT / M2DRY_INIT( IMODE )
+            Y = M2DRY_INIT( IMODE ) * EXP( LOSS * DELT )
          ELSE
-            Y = M2DRY_INIT + DDRYM2DT * DELT
+            Y = M2DRY_INIT( IMODE ) + DDRYM2DT * DELT
          END IF
          moment2_conc( IMODE ) = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
 
