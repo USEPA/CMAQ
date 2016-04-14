@@ -73,6 +73,7 @@ C  W.Hutzell  07/11/14  correct error in DATA from last revision
 C  D.Luecken  07/11/14  added 141 through 144 for nitrates
 C  H.Pye      05/05/15  added monoterpene and isoprene nitrates
 C  H.Pye      01/26/2016 added SOA SVOCs
+C  G.Sarwar   03/24/15  added iodine and bromine species
 C  
 C-----------------------------------------------------------------------
 
@@ -92,8 +93,8 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 161     ! Number of substances
-      INTEGER, PARAMETER :: MXDSPCS = 17     ! Number of dissociating species
+      INTEGER, PARAMETER :: MXSPCS = 193     ! Number of substances
+      INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
 
@@ -114,6 +115,8 @@ C...pointers for the dissociation constants (array B and D)
       INTEGER, PARAMETER :: LHOCL      = 15  ! HOCL
       INTEGER, PARAMETER :: LHCL       = 16  ! HCL
       INTEGER, PARAMETER :: LHYDRAZINE = 17  ! Hydrazine
+      INTEGER, PARAMETER :: LHBR       = 18  ! HBR
+      INTEGER, PARAMETER :: LHI        = 19  ! HI
 
 
 C...........SCRATCH LOCAL VARIABLES and their descriptions:
@@ -316,6 +319,40 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(160), A(160), E(160) / 'SVXYL1          ', 6.2E+07,  6.0E+03 /   ! Pye 2016 est based on Hodzic 2014 GRL
       DATA SUBNAME(161), A(161), E(161) / 'SVXYL2          ', 4.0E+06,  6.0E+03 /   ! Pye 2016 est based on Hodzic 2014 GRL
 
+      DATA SUBNAME(162), A(162), E(162) / 'I2              ', 3.10E+00, 4.6E+03 /   ! ROLF SANDERS COMPILATION (1999)/Berdnikov and Bazhin (1970)
+      DATA SUBNAME(163), A(163), E(163) / 'I               ', 6.30E-03, 2.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Berdnikov and Bazhin (1970)
+      DATA SUBNAME(164), A(164), E(164) / 'IO              ', 4.50E+02, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
+      DATA SUBNAME(165), A(165), E(165) / 'OIO             ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
+      DATA SUBNAME(166), A(166), E(166) / 'I2O2            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
+      DATA SUBNAME(167), A(167), E(167) / 'I2O3            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
+      DATA SUBNAME(168), A(168), E(168) / 'I2O4            ', 1.00E+04, 0.0E+00 /   ! Saiz-Lopez et al., ACPD, 2014
+      DATA SUBNAME(169), A(169), E(169) / 'HI              ', 2.50E+00, 5.3E+03 /   ! Schweitzer et al. (2000)
+      DATA SUBNAME(170), A(170), E(170) / 'HOI             ', 4.10E+02, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Palmer et al. (1985)
+
+      DATA SUBNAME(171), A(171), E(171) / 'INO             ', 5.00E-02, 0.0E+00 /   ! Same as ClNO which is from ROLF SANDERS COMPILATION (1999)/Scheer et al. (1997)
+      DATA SUBNAME(172), A(172), E(172) / 'INO2            ', 3.00E-01, 0.0E+00 /   ! Same as BRNO2 which is from ROLF SANDERS COMPILATION (1999)/Frenzel et al. (1998)
+      DATA SUBNAME(173), A(173), E(173) / 'IONO2           ', 1.00E+06, 0.0E+00 /   ! Same as BRONO2; BRONO2 from Ordonez et al. (2012)
+      DATA SUBNAME(174), A(174), E(174) / 'CH3I            ', 1.40E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(175), A(175), E(175) / 'MIC             ', 8.90E-01, 4.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(176), A(176), E(176) / 'MIB             ', 8.90E-01, 4.3E+03 /   ! Same as MIC, Final Report to TCEQ, Environ International, 2012
+      DATA SUBNAME(177), A(177), E(177) / 'MI2             ', 2.30E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+
+      DATA SUBNAME(178), A(178), E(178) / 'BRO             ', 7.10E-01, 0.0E+00 /   ! Parrella et al. (2012)
+      DATA SUBNAME(179), A(179), E(179) / 'HOBR            ', 6.10E+03, 6.0E+03 /   ! Parrella et al. (2012)
+      DATA SUBNAME(180), A(180), E(180) / 'HBR             ', 7.50E-01, 5.0E+03 /   ! Schweitzer et al. (2000)
+      DATA SUBNAME(181), A(181), E(181) / 'BR2             ', 1.80E+00, 3.3E+03 /   ! ROLF SANDERS COMPILATION (1999)/Dubik et al. (1987)
+      DATA SUBNAME(182), A(182), E(182) / 'BRONO2          ', 1.00E+06, 0.0E+00 /   ! Ordonez et al. (2012)
+      DATA SUBNAME(183), A(183), E(183) / 'MB3             ', 1.40E+00, 5.0E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(184), A(184), E(184) / 'CH3BR           ', 1.50E-01, 0.0E+00 /   ! ROLF SANDERS COMPILATION (1999)/Yaws and Yang et al. (1992)
+      DATA SUBNAME(185), A(185), E(185) / 'MB2             ', 9.30E-01, 4.4E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(186), A(186), E(186) / 'MB2C            ', 7.30E-01, 4.9E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(187), A(187), E(187) / 'MBC2            ', 4.00E-01, 4.7E+03 /   ! ROLF SANDERS COMPILATION (1999)/Moore et al. (1995)
+      DATA SUBNAME(188), A(188), E(188) / 'MBC             ', 8.90E-01, 4.3E+03 /   ! Same as MIC
+      DATA SUBNAME(189), A(189), E(189) / 'BRNO2           ', 3.00E-01, 0.0E+00 /   ! Frenzel et al. (1998)
+      DATA SUBNAME(190), A(190), E(190) / 'BRCL            ', 5.90E-01, 0.0E+00 /   ! Frenzel et al. (1998)
+      DATA SUBNAME(191), A(191), E(191) / 'ICL             ', 1.10E+02, 0.0E+00 /   ! Wagman et al. (1982)
+      DATA SUBNAME(192), A(192), E(192) / 'DMS             ', 4.80E-01, 3.1E+03 /   ! ROLF SANDERS COMPILATION (1999)/De Bryuyn et al. (1995)
+      DATA SUBNAME(193), A(193), E(193) / 'MSA             ', 7.70E+04, 0.0E+00 /   ! Meylan and Howard (1991), inverse of the value is used due to unit conversion
 
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
@@ -334,6 +371,8 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA B( LHOCL  ), D( LHOCL  ) / 3.16E-08,  0.00E+00 /  ! HOCL <=>H + OCL      : LIN AND PEHKONEN, JGR, 103, D21, 28093-28102, NOVEMBER 20, 1998
       DATA B( LHCL   ), D( LHCL   ) / 1.74E+06,  6.90E+03 /  ! HCL <=> H + CL       : Marsh and McElroy (1985)
       DATA B( LHYDRAZINE), D( LHYDRAZINE) / 1.11E-08,  0.00E+00 /  ! HYDRAZINE <=> HYDRAZINE+ + OH-  : Moliner and Street (1989)
+      DATA B( LHBR   ), D( LHBR   ) / 1.00E+09,  0.00E+00 /  ! HBR <=> H + BR       : Schweitzer et al. (2000)
+      DATA B( LHI    ), D( LHI    ) / 3.20E+09,  0.00E+00 /  ! HI <=> H + I         : Schweitzer et al. (2000)
 !-------------------------------------------------------------------------------
 ! Note for dissociation constant for equation 14: CL2*H2O <=> HOCL + H + CL
 ! Need aqueous [CL-] concentration to calculate effective henry's law coefficient
@@ -467,6 +506,16 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
         CASE ( 'HOCL' )         ! HOCL <=> H+ + OCL-
 
           AKEQ1   = B( LHOCL ) * EXP( D( LHOCL ) * TFAC )
+          HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
+
+        CASE ( 'HBR' )          ! HBR <=> H+ + BR-
+
+          AKEQ1   = B( LHBR ) * EXP( D( LHBR ) * TFAC )
+          HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
+
+        CASE ( 'HI' )          ! HI <=> H+ + I-
+
+          AKEQ1   = B( LHI ) * EXP( D( LHI ) * TFAC )
           HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
 
         END SELECT CHECK_NAME

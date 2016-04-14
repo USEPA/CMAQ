@@ -58,6 +58,7 @@ C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
+C 24 Mar 16 G. Sarwar: updated for CB05EH51
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -263,6 +264,10 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 5 )%parent     = 'TOL'               
                IEPOX_SOA_mechanism = .True.               
             Else If( INDEX(MECHNAME, 'CB05E51') .GT. 0) then 
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB05EH51') .GT. 0) then
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
@@ -771,6 +776,7 @@ C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
+C BNM 11/09/15 Added Some Comments to the SOA Scheme
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -898,9 +904,14 @@ C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
          drog( i ) = orgprod_conc( i ) * drog_ppm2ug( i ) * convfac
       end Do
 
-C Assignment of drog to totrog
+C Assignment of drog to totrog. This moving mass from the reactive 
+C gas tracer species to the array that will be multiplied by alpha
+C to give newly formed semivolatile vapors.
       Do i = 1, n_vapor
-         totrog( i ) = drog( drog_map( i ) )
+         totrog( i ) = 0.0
+         if ( drog_map( i ) .gt. 0 ) then
+           totrog( i ) = drog( drog_map( i ) )
+         endif
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
@@ -978,14 +989,16 @@ C    Assuming totorg doesn't change during the timestep,
 C    caer * (1 + c0/MW / totorg) = ctotf
 C    caer = ctotf / ( 1 + c0/MW / totorg )
 
-      threshold = 0.0
+      threshold = 0.0  !This threshold will be compared to the
+                       !saturation concentration to determine whether
+		       !or not OA partitioning is even likely
       upb = 0.0 ! upper bound for bisection method
       
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = vaporspc( i )%cstar * tempcorr
-         prod( i )  = vaporspc( i )%alpha * totrog( i )
-         ctotf( i ) = ctoti( i ) + prod( i )
+         c0( i )    = vaporspc( i )%cstar * tempcorr        !Satn Conc.
+         prod( i )  = vaporspc( i )%alpha * totrog( i )     !Total Vapor Produced
+         ctotf( i ) = ctoti( i ) + prod( i )                !Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
