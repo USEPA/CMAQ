@@ -42,7 +42,8 @@
        LOGICAL                :: AERO_CHEM_SET = .FALSE.
              
        PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, GAMMA_IEPOX,
-     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET
+     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET, 
+     &         HETCHEM_UPDATE_AERO
        
        PRIVATE 
 
@@ -912,6 +913,61 @@ C *** calculate KBRONO2 from coarse mode
       RETURN
 
       END SUBROUTINE HETCHEM_RATES
+ 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      subroutine HETCHEM_UPDATE_AERO ( CGRID )  
+
+c  Calculates the change in aerosol surface area due to heterogeneous
+C  reactions and updates the CGRID array with this information.
+C  
+
+C  Key Subroutines Called: none
+C
+C  Called by: Gas-Phase Chemistry Driver
+      USE AERO_DATA        
+      USE AEROMET_DATA, ONLY: pi
+      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
+
+      IMPLICIT NONE
+      
+      REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
+      REAL                :: M2DRY_FINAL( n_mode ) !Dry 2nd Aerosol Moment
+      REAL                :: M3DRY_FINAL( n_mode ) !Dry 3rd Aerosol Moment
+      INTEGER L, R, C, m
+
+      LOOP_LAY: DO L = 1, NLAYS
+         LOOP_ROW: DO R = 1, MY_NROWS
+            LOOP_COL: DO C = 1, MY_NCOLS
+     
+               !Extract grid cell concentrations of aero species from CGRID
+               !into aerospc_conc in aero_data module
+               !also converts dry surface area to wet second moment
+               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
+
+               !Recalculate Dry 3rd Moment After Chemistry Processes
+               !2nd moment hasn't been update yet.
+               CALL CALCMOMENTS( .False. )
+               M2DRY_FINAL( : ) = moment2_conc( : )
+               M3DRY_FINAL( : ) = moment3_conc( : )
+
+               !Calculate new Second Moment Manually
+               !Assume standard deviation is fixed.
+               M2DRY_FINAL( : ) = CHEM_M2DRY_INIT( C,R,L,: ) * 
+     &                            ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
+
+               !Update the Aerosol Surface Area making sure to multiply
+               !the 2nd moment by Pi to convert properly
+               Do m = 1, n_mode
+                 CGRID( C,R,L,aerosrf_map(m) ) = Real( pi, 4 ) * M2DRY_FINAL( m )
+               End Do
+
+            END DO LOOP_COL
+         END DO LOOP_ROW
+      END DO LOOP_LAY
+
+      End Subroutine HETCHEM_UPDATE_AERO
+
+C ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       REAL( 8 ) FUNCTION PNCOM_LOSS( POC, PNCOM )
 !C Calculates rate constant in cm3 molec-1 sec-1 for PNCOM loss by reacting 
@@ -1842,58 +1898,6 @@ C Gamma [ denom: m/s / ( mol/L/atm * L atm /mol/K * K * sqrt ( m2/s * 1/s )) = d
       End Function gammaiepoxj
 
 
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      subroutine HETCHEM_UPDATE_AERO ( CGRID )  
 
-c  Calculates the change in aerosol surface area due to heterogeneous
-C  reactions and updates the CGRID array with this information.
-C  
-
-C  Key Subroutines Called: none
-C
-C  Called by: Gas-Phase Chemistry Driver
-      USE AERO_DATA        
-      USE AEROMET_DATA, ONLY: pi
-      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
-
-      IMPLICIT NONE
-      
-      REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
-      REAL                :: M2DRY_FINAL( n_mode ) !Dry 2nd Aerosol Moment
-      REAL                :: M3DRY_FINAL( n_mode ) !Dry 3rd Aerosol Moment
-      INTEGER L, R, C, m
-
-      LOOP_LAY: DO L = 1, NLAYS
-         LOOP_ROW: DO R = 1, MY_NROWS
-            LOOP_COL: DO C = 1, MY_NCOLS
-     
-               !Extract grid cell concentrations of aero species from CGRID
-               !into aerospc_conc in aero_data module
-               !also converts dry surface area to wet second moment
-               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
-
-               !Recalculate Dry 3rd Moment After Chemistry Processes
-               !2nd moment hasn't been update yet.
-               CALL CALCMOMENTS( .False. )
-               M2DRY_FINAL( : ) = moment2_conc( : )
-               M3DRY_FINAL( : ) = moment3_conc( : )
-
-               !Calculate new Second Moment Manually
-               !Assume standard deviation is fixed.
-               M2DRY_FINAL( : ) = CHEM_M2DRY_INIT( C,R,L,: ) * 
-     &                            ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
-
-               !Update the Aerosol Surface Area making sure to multiply
-               !the 2nd moment by Pi to convert properly
-               Do m = 1, n_mode
-                 CGRID( C,R,L,aerosrf_map(m) ) = Real( pi, 4 ) * M2DRY_FINAL( m )
-               End Do
-
-            END DO LOOP_COL
-         END DO LOOP_ROW
-      END DO LOOP_LAY
-
-
-      End Subroutine HETCHEM_UPDATE_AERO
 
       END MODULE AEROSOL_CHEMISTRY
