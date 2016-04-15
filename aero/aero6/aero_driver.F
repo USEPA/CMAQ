@@ -211,8 +211,8 @@ C *** synchronization time step [ s ]
       REAL DT
 
 C *** variables to set up for "dry transport "
-      REAL M3_WET( nmode ), M3_DRY( nmode )   ! third moment with and without water
-      REAL M2_WET( nmode ), M2_DRY( nmode )   ! second moment with and without water
+      REAL M3_WET( N_MODE ), M3_DRY( N_MODE )   ! third moment with and without water
+      REAL M2_WET( N_MODE ), M2_DRY( N_MODE )   ! second moment with and without water
 
 C *** if LIMIT_Sg = T, atkn & accum std. dev. are not changed by GETPAR
       LOGICAL, PARAMETER :: LIMIT_Sg = .FALSE.

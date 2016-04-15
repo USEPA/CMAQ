@@ -635,9 +635,9 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
-      Implicit None
-
       Use aeromet_data, only : pi     ! fundamental constants, data type definitions, etc.
+      
+      Implicit None
 
 C Arguments:
       Real,    Intent( In ) :: conc( : )
@@ -772,7 +772,7 @@ C Copy aero number and surface area back to grid cell concentrations
 
 C Savew dry second moment to surface area (with pi conversion)
       If ( wet_moments_flag ) Then
-         calcmoments( .false. ) ! called with the F flag, returns dry moments
+         call calcmoments( .false. ) ! called with the F flag, returns dry moments
       Endif
 
       Do m = 1, n_mode
@@ -851,9 +851,7 @@ C 4/2016: HOT Pye Created routine
 C
 C-----------------------------------------------------------------------
 
-!      Use aero_data, only n_mode, aerospc, aerospc_conc, moment2_conc,
-!     &                    moment3_conc, aeromode, aero_missing, m3_wet_flag
-      Use aeromet_data, only f6dpi
+      Use aeromet_data, only: f6dpi, f6pi
 
       Implicit None
 
@@ -861,11 +859,12 @@ C Arguments:
       Logical :: addwet ! T: result in wet m3 and m2, F: result in dry m3 and m2
 
 C Local variables:
-      Integer :: n ! loop variable
+      Integer :: spc, n ! loop variable
       Real( 4 ) :: m3( n_mode )       ! wet or dry M3
       Real( 4 ) :: m2( n_mode )       ! wet or dry M2
       Real( 8 ) :: drysumM3  ! dry M3 [ m**3 / m**3 ]
       Real( 8 ) :: wetsumM3  ! wet M3 [ m**3 / m**3 ]
+      Real( 8 ) :: factor
       Real( 4 ) :: initialM3 ! initial M3 from moment3_conc [ m**3 /m**3 ]
       Real( 4 ) :: initialM2 ! initial M2 from moment2_conc [ m**2 /m**3 ]
 
@@ -906,7 +905,7 @@ C     moment [ m**2/m**3 ]
             drysumM3 = 0.0
             Do spc = 1, n_aerospc
                If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or.
-     &            ( aerospc( spc )%no_M2Wet  ) Cycle
+     &              aerospc( spc )%no_M2Wet  ) Cycle
                factor = 1.0E-9 * f6pi / aerospc( spc )%density
                drysumM3  = drysumM3 + factor * aerospc_conc( spc,n )
             End Do
