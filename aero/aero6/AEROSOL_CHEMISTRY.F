@@ -111,8 +111,8 @@ C *** 2nd and 3rd moments with wet species
       REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 w.H2O, svOA
       REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 w.H2O, svOA
       REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
-      REAL( 8 ), ALLOCATABLE :: CHEM_M3DRY_INIT( :,:,:,: ) ! Gridded M3 without H2O, svOA
-      REAL( 8 ), ALLOCATABLE :: CHEM_M2DRY_INIT( :,:,:,: ) ! Gridded M2 without H2O, svOA
+      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M3DRY_INIT( :,:,:,: ) ! Gridded M3 without H2O, svOA
+      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M2DRY_INIT( :,:,:,: ) ! Gridded M2 without H2O, svOA
 
 
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]

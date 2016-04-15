@@ -468,7 +468,7 @@ C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      Use UTILIO_DEFN        ! i/o api
+      Use utilio_defn        ! i/o api
 
       Implicit None
 

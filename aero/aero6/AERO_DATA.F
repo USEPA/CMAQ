@@ -770,7 +770,7 @@ C Copy aero number and surface area back to grid cell concentrations
          End Do
       End If
 
-C Savew dry second moment to surface area (with pi conversion)
+C Save dry second moment to surface area (with pi conversion)
       If ( wet_moments_flag ) Then
          call calcmoments( .false. ) ! called with the F flag, returns dry moments
       Endif
