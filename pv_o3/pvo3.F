@@ -44,7 +44,11 @@ C..Includes:
       INCLUDE SUBST_CONST     ! CMAQ constants
 
 C..Parameters:
-      REAL, PARAMETER :: PSFC = 100000.0
+      REAL, PARAMETER :: PSFC = 100000.0  ! generic surface pres. [Pa]
+
+C To scale O3 with PV at specified altitudes, set highest pressure level to exclude
+C PV scaling:
+      REAL, PARAMETER :: PPVT = 11000.0   ! [Pa] (~14-16km or X3 > 0.93)
 
       REAL, PARAMETER :: AX = 203.53
       REAL, PARAMETER :: BX = -13.622
@@ -53,9 +57,9 @@ C..Parameters:
       REAL, PARAMETER :: EX =  7.299E-5
       REAL, PARAMETER :: FX = -2.0214E-7
 
-      REAL, PARAMETER :: AY = -2.1902
-      REAL, PARAMETER :: BY =  4.5507E-2
-      REAL, PARAMETER :: CY = -2.4557E-4
+      REAL, PARAMETER :: AY = -2.1902E-2
+      REAL, PARAMETER :: BY =  4.5507E-4
+      REAL, PARAMETER :: CY = -2.4557E-6
 
 C..Arguments:
       REAL, POINTER :: CGRID( :,:,:,: )   ! Species concentrations
@@ -94,7 +98,7 @@ C..Scratch Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: LAT( :,: )    ! grid lat (deg) -90<= LAT <= 90
       REAL, ALLOCATABLE, SAVE :: CSTARZ( :,: ) ! cstar at 58hPa estimated by polynomial fit
-      REAL, ALLOCATABLE, SAVE :: CXX( :,: )    ! intermediate quadratic
+      REAL, ALLOCATABLE, SAVE :: CXX( :,: )    ! intermediate quadratic (< 0 for any lat.)
       REAL PV( NCOLS,NROWS,NLAYS )             ! potential vorticity
       REAL PRES( NCOLS,NROWS,NLAYS )           ! Air pressure [ Pa ]
 
@@ -111,22 +115,24 @@ C First time: set up parameters
 
 C Get number of species, and starting indices for CGRID array.
          VO3T = INDEX1( 'O3PV', N_TR_SPC, TR_SPC )
-         IF ( VO3T .LE. 0 ) then
-            XMSG = 'Option: a tracer Namelist file with species O3PV'
+         IF ( VO3T .GT. 0 ) then
+            XMSG = '     Option used: a tracer Namelist file with species O3PV'
             CALL M3MESG ( XMSG )
             VO3T = TR_STRT - 1 + VO3T
             WRITE( LOGDEV,92001 ) TR_STRT-1, N_TR_SPC, VO3T
          END IF
 
-C determine layers above 8.5km or X3 > 0.58
+C Determine first layer above PPVT to scale O3 to PV
          DO L = 0, NLAYS
             PLAY = PSFC - ( PSFC - VGTOP_GD ) * X3FACE_GD( L )
-            IF ( PLAY .LT. 11000.0 ) THEN
-               KPV = L
-               GO TO 20
+            IF ( PLAY .LT. PPVT ) THEN
+               KPV = L; EXIT
             END IF
          END DO
-20       CONTINUE
+C Scale top 3 layers O3 to PV
+!        KPV = NLAYS - 2
+C Scale only top layer O3 to PV
+!        KPV = NLAYS
          WRITE( LOGDEV,92002 ) KPV, X3FACE_GD( KPV )
 
          CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
@@ -203,28 +209,21 @@ C   of a 22-layer configuration
          END DO
       END DO
 
-C Scale only top layer O3 to PV
-!     DO L = NLAYS, NLAYS
-C Scale top 3 layers O3 to PV
-!     DO L = NLAYS-2, NLAYS
-C Scale O3 at specified altitudes (>8.5km) to PV
       DO L = KPV, NLAYS
          DO R = 1, MY_NROWS
             DO C = 1, MY_NCOLS
 
-               FC     = CSTARZ( C,R ) + ( PRES( C,R,L ) - 5856.0 )
-     &                * 0.01 * MIN ( 0.0, CXX( C,R ) )
+               FC     = CSTARZ( C,R ) + ( PRES( C,R,L ) - 5856.0 ) * CXX( C,R )
 
                CSTAR  = MAX ( 30.0, ABS( FC * GC ) )
 
 !     write( *,logdev ) "MFRC= ", MFRC, "C= ", CSTAR, "LAT= ", LATABS,
-!    &                  "PRES= ", PRES(C,R,L)
+!    &                  "PRES= ", PRES( C,R,L )
 
                CGRID( C,R,L,VO3 ) = 0.001 * CSTAR * ABS( PV( C,R,L ) )
                IF ( VO3T .GT. 0 ) THEN
                   CGRID( C,R,L,VO3T ) = CGRID( C,R,L,VO3 )
                END IF
-!              CGRID( C,R,L,VO3T ) = PV ( C,R,L )
             END DO
          END DO
       END DO
@@ -239,6 +238,6 @@ C Scale O3 at specified altitudes (>8.5km) to PV
      &        / 10X, 'Number of tracer phase species:  ', I4
      &        / 10X, 'Species index for O3PV tracer:         ', I4 )
 92002 FORMAT( / 10X, 'PV Scaling at Layers Starting from: ', I4
-     &        / 10X, 'X3 coordinate value at staruting layer: ', F10.7 )
+     &        / 10X, 'X3 coordinate value at starting layer: ', F10.7 / )
 
       END
