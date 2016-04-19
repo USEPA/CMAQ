@@ -714,13 +714,14 @@ C     and particulate phase, and the aerosol modal parameters
 C *** Revision history: 4/07 - Moved HCOND3 and NEWPART3 calls from 
 C                              AEROPROC to this subroutine for 
 C                              mass transfer calculation  
-C     15 Jul 08, J.Young, P.Bhave: increased cutoff to hybrid from .01 to .05 ug/m**3
-C                J.Young: change 'OPTIONFLAG' to just a logical variable, 'Hybrid'
+C     15 Jul 08 J.Young, P.Bhave: increased cutoff to hybrid from .01 to .05 ug/m**3
+C               J.Young: change 'OPTIONFLAG' to just a logical variable, 'Hybrid'
 
-C SH  03/10/11 Renamed met_data to aeromet_data
-C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
-C GS  04/26/11 Replaced existing ISORROPIA with ISORROPIA 2.1
-C              Updated coarse-mode aerosol speciation and H+ calculation  
+C     10 Mar 11 S.Howard Renamed met_data to aeromet_data
+C     25 Mar 11 S.Roselle Replaced I/O API include files with UTILIO_DEFN
+C     26 Apr 11 G.Sarwar Replaced existing ISORROPIA with ISORROPIA 2.1
+C               Updated coarse-mode aerosol speciation and H+ calculation  
+C     15 Apr 16 J.Young: Use aerosol factors from AERO_DATA module named constants
 
 C *** References
 C 1. Pilinis C, Capaldo KP, Nenes A, Pandis SN (2000) MADM - A new
@@ -1121,49 +1122,48 @@ C     semi-volatile components of coarse mode (NO3, CL, NH4)
             INT_TIME = INT_TIME + TSTEP 
             ISTEP = ISTEP + 1   
 
-!           IF ( ISTEP .GT. 1 ) THEN     ISTEP is *ALWAYS* .gt. 1 !!!!!!!!!!!!!!!!!
-
 C *** Calculate first moments using Equation 4 of Binkowski & Shankar
 C     (1995) or Equation 3 of Binkowski and Roselle (2003).
 C     N.B: these are for a "wet" size distribution
-               AM0( 3 ) = MOMENT0_CONC( 3 )
-               AM1( 3 ) = MOMENT0_CONC( 3 ) * AEROMODE_DIAM( 3 )
-     &                  * EXP( 0.5 * AEROMODE_SDEV( 3 ) * AEROMODE_SDEV( 3 ) )
-               AM2( 3 ) = MOMENT2_CONC( 3 )
+            AM0( 3 ) = MOMENT0_CONC( 3 )
+            AM1( 3 ) = MOMENT0_CONC( 3 ) * AEROMODE_DIAM( 3 )
+     &               * EXP( 0.5 * AEROMODE_SDEV( 3 ) * AEROMODE_SDEV( 3 ) )
+            AM2( 3 ) = MOMENT2_CONC( 3 )
 
 C *** Calculate the size-dependent terms in the condensational-
 C     growth factor expressions for sulfate using 
 C     Equations A13-A14 of Binkowski & Shankar (1995). 
-               CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
-     &                      CBAR_SO4, FCONC_OUT )  ! adapted from Eq A14
-               FCONC_SO4( 3, : ) = FCONC_OUT( : )
+            CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
+     &                   CBAR_SO4, FCONC_OUT )  ! adapted from Eq A14
+            FCONC_SO4( 3, : ) = FCONC_OUT( : )
 
-               GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
-               GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 
-
-!           END IF               ! if ISTEP .GT. 1
+            GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
+            GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 
 
 C *** Set conc array to aerosol concentrations prior to mass transfer
-            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )           ! ASEACAT_IDX = 40
-            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ( 1.0D0 - 0.04642D0 )  ! ASOIL_IDX = 38
-            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ( 1.0D0 - 0.00325D0 )  ! ACORS_IDX = 39
-            CINORG( KNH4,IMODE ) = REAL( AEROSPC_CONC( ANH4_IDX,IMODE ), 8 )   ! KNH4 = 1, ANH4_IDX = 4
-            CINORG( KNO3,IMODE ) = REAL( AEROSPC_CONC( ANO3_IDX,IMODE ), 8 )   ! KNO3 = 2, ANO3_IDX = 2
-            CINORG( KCL, IMODE ) = REAL( AEROSPC_CONC( ACL_IDX,IMODE ), 8 )    ! KCL = 3, ACL_IDX = 3
-            CINORG( KSO4,IMODE ) = REAL( AEROSPC_CONC( ASO4_IDX,IMODE ), 8 )   ! KSO4 = 4, ASO4_IDX = 1
-            CINORG( KNA, IMODE ) = 0.8373D0 * SEACAT                           ! KNA = 5
-     &                           + 0.0626D0 * SOILwVOLS
-     &                           + 0.0023D0 * PMCwVOLS
-            CINORG( KMG, IMODE ) = 0.0997D0 * SEACAT                           ! KMG = 6
-     &                           + 0.0D0    * SOILwVOLS
-     &                           + 0.0032D0 * PMCwVOLS
-            CINORG( KK,  IMODE ) = 0.0310D0 * SEACAT                           ! KK = 7
-     &                           + 0.0242D0 * SOILwVOLS
-     &                           + 0.0176D0 * PMCwVOLS
-            CINORG( KCA, IMODE ) = 0.0320D0 * SEACAT                           ! KCA = 8
-     &                           + 0.0838D0 * SOILwVOLS
-     &                           + 0.0562D0 * PMCwVOLS
-            CINORG( KHP, IMODE ) = REAL( HPLUS( IMODE ), 8 )                   ! KHP = 9
+C     (The _RENORM and cation_FAC constants are set in the AERO_DATA module)
+
+            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )          ! ASEACAT_IDX = 40
+            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ASOIL_RENORM ! ASOIL_IDX = 38
+            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ACORS_RENORM ! ACORS_IDX = 39
+
+            CINORG( KNH4,IMODE ) = REAL( AEROSPC_CONC( ANH4_IDX,IMODE ), 8 )  ! KNH4 = 1, ANH4_IDX = 4
+            CINORG( KNO3,IMODE ) = REAL( AEROSPC_CONC( ANO3_IDX,IMODE ), 8 )  ! KNO3 = 2, ANO3_IDX = 2
+            CINORG( KCL, IMODE ) = REAL( AEROSPC_CONC( ACL_IDX,IMODE ), 8 )   ! KCL = 3, ACL_IDX = 3
+            CINORG( KSO4,IMODE ) = REAL( AEROSPC_CONC( ASO4_IDX,IMODE ), 8 )  ! KSO4 = 4, ASO4_IDX = 1
+            CINORG( KNA, IMODE ) = ASCAT_NA_FAC * SEACAT                      ! KNA = 5
+     &                           + ASOIL_NA_FAC * SOILwVOLS
+     &                           + ACORS_NA_FAC * PMCwVOLS
+            CINORG( KMG, IMODE ) = ASCAT_MG_FAC * SEACAT                      ! KMG = 6
+     &                           + ASOIL_MG_FAC * SOILwVOLS
+     &                           + ACORS_MG_FAC * PMCwVOLS
+            CINORG( KK,  IMODE ) = ASCAT_K_FAC  * SEACAT                      ! KK = 7
+     &                           + ASOIL_K_FAC  * SOILwVOLS
+     &                           + ACORS_K_FAC  * PMCwVOLS
+            CINORG( KCA, IMODE ) = ASCAT_CA_FAC * SEACAT                      ! KCA = 8
+     &                           + ASOIL_CA_FAC * SOILwVOLS
+     &                           + ACORS_CA_FAC * PMCwVOLS
+            CINORG( KHP, IMODE ) = REAL( HPLUS( IMODE ), 8 )                  ! KHP = 9
 
             M3OTHR = SOILFAC * AEROSPC_CONC( ASOIL_IDX,IMODE )
      &             + ANTHFAC * AEROSPC_CONC( ACORS_IDX,IMODE )
@@ -2709,7 +2709,7 @@ C  a sharp-cut inlet, using equations from Jiang et al (2006). The
 C  subroutine calculates transmission factors for PM1, PM2.5 and PM10,
 C  after first converting those cutoffs from Aerodynamic Diameter to
 C  Stokes Diameter (used internally within CMAQ).
-C
+ 
 C  CMAQ aerosols are represented with Stokes Diameter. There are many
 C  alternate forms of diameter including the following:
 C       Volume Equivalent Diameter (D_ve) - the diameter of a sphere with the
@@ -2729,10 +2729,10 @@ C          factor, not Slip Correction. The very high Knudsen number
 C          could be because the particle is very small or because the
 C          system pressure is very low.
 C       Electrical Mobility Diameter (D_em) - the diameter of a sphere with the
-C          same migration velocity as the real particle. Requires a 
-C          slip-correction and a shape factor correction when converting 
+C          same migration velocity as the real particle. Requires a
+C          slip-correction and a shape factor correction when converting
 C          from volume equivalent diameter.
-C
+ 
 C  Conversions:
 C       Parameters
 C         rho  - Density
@@ -2749,7 +2749,6 @@ C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_em )
 C       Vacuum Aerodynamic -> Volume Equivalent (DeCarlo et al., 2004)
 C         D_ve = D_va * rho0/rho * X
 C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_va * rho0/rho )
-
  
 C  Key Subroutines called: none
  
@@ -2782,18 +2781,17 @@ C    Input variables
       REAL   RHOP    ! average particle density [ kg/m**3 ]
 
 C    Output variable
-      REAL, INTENT(OUT) :: fPM1   ! fraction of particulate volume transmitted through 1 micron inlet
-      REAL, INTENT(OUT) :: fPM25  ! fraction of particulate volume transmitted through 2.5 micron inlet
-      REAL, INTENT(OUT) :: fPM10  ! fraction of particulate volume transmitted through 10 micron inlet
+      REAL, INTENT( OUT ) :: fPM1   ! fraction of particulate volume transmitted through 1
+      REAL, INTENT( OUT ) :: fPM25  ! fraction of particulate volume transmitted through 2
+      REAL, INTENT( OUT ) :: fPM10  ! fraction of particulate volume transmitted through 10
 
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
-
-      REAL, PARAMETER :: D_AD1  = 1.0 ! aerodynamic diameter cut point [ um ]
-      REAL, PARAMETER :: D_AD25 = 2.5 ! aerodynamic diameter cut point [ um ]
-      REAL, PARAMETER :: D_AD10 = 10.0! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD1  = 1.0  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD25 = 2.5  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD10 = 10.0 ! aerodynamic diameter cut point [ um ]
       REAL, PARAMETER :: B = 0.21470 ! Cunningham slip-correction approx. param [ um ]
-                                     ! This factor works well applied to the entire particle size-range.
+                                     ! This factor works well applied to the entire particle size-range
                                      ! The approximation is: Cc(Dp) = 1 + B/Dp
       REAL D_ST1, D_ST25, D_ST10     ! Stokes diameter equivalent of DCA..
       REAL DG                        ! DGN converted to [ um ]
@@ -2808,11 +2806,11 @@ C ----------------------- Begin solution -------------------------------
 
 C *** Calculate Transmission Fractions for Inlets with Aerodynamic
 C     Cutoffs
-      DG     = DGN * 1.0E+06 ! [um] The units need to be equivalent with the B parameter
+      DG = DGN * 1.0E+06 ! [um] The units need to be equivalent with the B parameter
 
-      !Convert size cut to equivalent Stokes diameter using
-      !equation 2 of Jiang et al. (2006). Note: the equation in Step 5
-      !of this paper has a typo (i.e., eq. 2 is correct).
+      ! Convert size cut to equivalent Stokes diameter using
+      ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
+      ! of this paper has a typo (i.e., eq. 2 is correct).
       D_ST1  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD1 *
      &                     ( D_AD1 + B ) * 1.0E+03 / RHOP ) - B )
       D_ST25 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD25 *
@@ -2820,18 +2818,18 @@ C     Cutoffs
       D_ST10 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD10 *
      &                     ( D_AD10 + B ) * 1.0E+03 / RHOP ) - B )
 
-      !Calculate mass fraction with Dca < SizeCut, using ERF approximation
-      !from Meng & Seinfeld (1994) and modified form of Fk(X) equation
-      !in Step#6 of Jiang et al. (2006).
+      ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
+      ! from Meng & Seinfeld (1994) and modified form of Fk(X) equation
+      ! in Step#6 of Jiang et al. (2006).
       ERFARG = ( LOG( D_ST1 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM1   = 0.5 * ( 1.0 + ERF( ERFARG ) )
       ERFARG = ( LOG( D_ST25 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM25  = 0.5 * ( 1.0 + ERF( ERFARG ) )
       ERFARG = ( LOG( D_ST10 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM10  = 0.5 * ( 1.0 + ERF( ERFARG ) )
- 
+
       END SUBROUTINE AERO_INLET
- 
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_AMS ( M3_WET, M2_WET, M0, M_H2O, RHOP, RHO_H2O, fAMS )
 
@@ -2841,14 +2839,14 @@ C  and coworkers  (http://cires1.colorado.edu/jimenez-group/wiki/index.php/
 C  FAQ_for_AMS_Data_Users#What_is_the_size_cut_of_AMS_measurements.3F).
 C  The AMS measures Vacuum Aerodynamic Diameter (D_va) because the pressure is
 C  so low in the instrument. This curve (also described in Ensberg et
-C  al., 2004)  includes the following (Note: before applying the curve, 
+C  al., 2004)  includes the following (Note: before applying the curve,
 C  the bounds must be converted to Stokes Diameter):
 C     D_va < 0.04 um: 0% transmission (T)
 C     0.04 < D_va < 0.1 um:  T% = 1666.6 * (D_va - 0.04)   (1)
 C     0.1  < D_va < 0.55 um: T% = 100%                     (2)
 C     0.55 < D_va < 2.0 um:  T% = 100-68.965*(D_va-0.55)   (3)
 C     2.0 um < D_va: T = 0%
-C
+ 
 C  CMAQ aerosols are represented with Stokes Diameter. There are many
 C  alternate froms of diameter including the following:
 C       Volume Equivalent Diameter (D_ve) - the diameter of a sphere with the
@@ -2863,7 +2861,7 @@ C          Stokes diameter that is only dependent on density and shape
 C          factor, not Slip Correction. The very high Knudsen number
 C          could be because the particle is very small or because the
 C          system pressure is very low.
-C
+ 
 C  Conversions:
 C       Parameters
 C         ro  - Density
@@ -2878,14 +2876,14 @@ C  Key Functions called:  ERF
  
 C  Revision History:
 C    Coded Feb 2016 B.Murphy: Created
- 
+
 C  References:
 C   1. DeCarlo et al., Particle Morphology and Density Characterization
 C   by Combined Mobility and Aerodynamic Diameter Measurements. Part 1:
 C   Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004
 C   2. Ensberg et al., Inorganic and black carbin aerosols in the Los
 C   Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
- 
+
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY : MIN_SIGMA_G, MAX_SIGMA_G
@@ -2896,12 +2894,12 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST    ! for PI
 
 C    Input variables
-      REAL, INTENT(IN) :: M3_WET  ! Third Moment of Wet Distirbution (m3/m3)
-      REAL, INTENT(IN) :: M2_WET  ! Second Moment of Wet Distribution (m2/m3)
-      REAL, INTENT(IN) :: M0      ! Number of Particles in Distribution (N/m3)
-      REAL, INTENT(IN) :: M_H2O   ! Mass Conc. of Water in Particles (ug/m3)
-      REAL, INTENT(IN) :: RHOP    ! average particle density [ kg/m**3 ]
-      REAL, INTENT(IN) :: RHO_H2O ! Water Density [ kg/m3 ]
+      REAL, INTENT( IN ) :: M3_WET  ! Third Moment of Wet Distirbution (m3/m3)
+      REAL, INTENT( IN ) :: M2_WET  ! Second Moment of Wet Distribution (m2/m3)
+      REAL, INTENT( IN ) :: M0      ! Number of Particles in Distribution (N/m3)
+      REAL, INTENT( IN ) :: M_H2O   ! Mass Conc. of Water in Particles (ug/m3)
+      REAL, INTENT( IN ) :: RHOP    ! average particle density [ kg/m**3 ]
+      REAL, INTENT( IN ) :: RHO_H2O ! Water Density [ kg/m3 ]
 
 C    Output variable
       REAL, INTENT(OUT) :: fAMS   ! fraction of particulate volume transmitted through AMS Inlet
@@ -2909,6 +2907,8 @@ C    Output variable
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136    !  SQRT( 2 )
       REAL, PARAMETER :: DGMIN = 1.0E-9       !  min(Dp) in [m]
+      REAL, PARAMETER :: ONETHIRD = 1.0 / 3.0
+      REAL, PARAMETER :: TWOTHIRDS = 2.0 * ONETHIRD
 
       REAL DG                        ! DGN converted to [ um ]
       REAL DGv                       ! Volume Median Diameter
@@ -2931,86 +2931,85 @@ C ----------------------- Begin solution -------------------------------
 
 C *** First Calculate Parameters of Dry Distributiuon since this is more
 C     applicable in general to AMS measurements.
-      M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        !m3 m-3
-      M3_DRY = M3_WET - M3SUBT              !m3 m-3
-      M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** (2./3.)  !m2 m-3
-      
-      M_WET  = M3_WET * 1.0E+9 * PI6 * RHOP !ug m-3
-      M_DRY  = M_WET - M_H2O                !ug m-3
+      M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        ! m3 m-3
+      M3_DRY = M3_WET - M3SUBT              ! m3 m-3
+      M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS  ! m2 m-3
 
-      DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   !kg m-3
+      M_WET = M3_WET * 1.0E+9 * PI6 * RHOP ! ug m-3
+      M_DRY = M_WET - M_H2O                ! ug m-3
 
-      XFSUM = 1./3. * Log( M0 ) + 2./3. * Log( M3_DRY )
+      DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   ! kg m-3
+
+      XFSUM = ONETHIRD * Log( M0 ) + TWOTHIRDS * Log( M3_DRY )
       LXFM2 = Log( M2_DRY )
-      L2SG = XFSUM - LXFM2   ! ( ln(sigma) )^2 
+      L2SG = XFSUM - LXFM2   ! ( ln(sigma) )^2
 
-      L2SG = Min( Max( L2SG, LOG( MIN_SIGMA_G ) **2 ), LOG( MAX_SIGMA_G ) **2 )
-      LXFM2  = XFSUM - L2SG
+      L2SG = Min( Max( L2SG, LOG( MIN_SIGMA_G ) ** 2 ), LOG( MAX_SIGMA_G ) ** 2 )
+      LXFM2 = XFSUM - L2SG
       ES36 = Exp( 4.5 * L2SG )
 
-      DG = Max( DGMIN, ( M3_DRY / ( M0 * ES36 ) ) ** (1./3.) ) * 1.0E+06 ![um] Units should correspond to Dp cutoffs
+      DG = Max( DGMIN, ( M3_DRY / ( M0 * ES36 ) ) ** ONETHIRD ) * 1.0E+06 ![um] Units should correspond to D
       XXLSG = Sqrt( L2SG )  ! ln(sigma)
 
-      DGv = EXP( LOG( DG ) + 3.*L2SG )
+      DGv = EXP( LOG( DG ) + 3.0 * L2SG )
 
 C *** Calculate Transmission Fractions for AMS with Vacuum Aerodynamic
 C     Cutoffs. This approzimation is split into a piecewise function (see
 C     Appendix B in Ensberg et al., 2013).
       fAMS = 0.0
-      DENSFAC = 1.0E+03 / DRY_DENS  !Density Correction Factor
-                                    !   = rho0 / rho 
+      DENSFAC = 1.0E+03 / DRY_DENS  ! Density Correction Factor
+                                    !   = rho0 / rho
                                     !   = 1000.0 / rho
       SQRT2LSG = SQRT2 * XXLSG
 
-      !First Piece of Function [T(%) = 1666.6 * (Dva - 0.04) ]
-      DBlo_st = 0.040 * DENSFAC  !Stokes Lower Bound of Piece [um]
-      DBhi_st = 0.100 * DENSFAC  !Stokes Upper Bound of Piece [um]
+      ! First Piece of Function [T(%) = 1666.6 * (Dva - 0.04) ]
+      DBlo_st = 0.040 * DENSFAC  ! Stokes Lower Bound of Piece [um]
+      DBhi_st = 0.100 * DENSFAC  ! Stokes Upper Bound of Piece [um]
 
-      LOG_HILO = LOG( 100./40. )
+      LOG_HILO = LOG( 100.0/40.0 )
       LOG_HI   = LOG( DBhi_st/DGv )
       LOG_LO   = LOG( DBlo_st/DGv )
 
       TERM1 = LOG( DGv/DBlo_st ) / LOG_HILO
       TERM2 =  ERF( LOG_HI / SQRT2LSG )
      &        -ERF( LOG_LO / SQRT2LSG )
-      TERM3 = XXLSG / ( LOG_HILO * (pi/2.)**0.5 )
-      TERM4 = EXP( -1.* ( LOG_LO / SQRT2LSG )**2 )
-      TERM5 = EXP( -1.* ( LOG_HI / SQRT2LSG )**2 )
+      TERM3 = XXLSG / ( LOG_HILO * (pi/2.0) ** 0.5 )
+      TERM4 = EXP( -1.0 * ( LOG_LO / SQRT2LSG ) ** 2 )
+      TERM5 = EXP( -1.0 * ( LOG_HI / SQRT2LSG ) ** 2 )
 
       fAMS = ( TERM1*TERM2  +  TERM3*(TERM4-TERM5) )
 
-      !Second Piece of Function [T(%) = 100]
-      DBlo_st = DBhi_st         !Stokes Lower Bound [um]
-      DBhi_st = 0.55 * DENSFAC  !Stokes Upper Bound [um]
-           
-      TERM1 = ERF( LOG( DBhi_st/DGv ) / SQRT2LSG )     
-      TERM2 = ERF( LOG( DBlo_st/DGv ) / SQRT2LSG )     
+      ! Second Piece of Function [T(%) = 100]
+      DBlo_st = DBhi_st         ! Stokes Lower Bound [um]
+      DBhi_st = 0.55 * DENSFAC  ! Stokes Upper Bound [um]
+
+      TERM1 = ERF( LOG( DBhi_st/DGv ) / SQRT2LSG )
+      TERM2 = ERF( LOG( DBlo_st/DGv ) / SQRT2LSG )
       fAMS = fAMS +  (TERM1 - TERM2)
 
-      !Third Piece of Function [T(%) = 1.0 - 0.6805 * (Dva - 0.55) ]
-      DBlo_st = DBhi_st        !Stokes Lower Bound [um]
-      DBhi_st = 2.0 * DENSFAC  !Stokes Upper Bound [um]
+      ! Third Piece of Function [T(%) = 1.0 - 0.6805 * (Dva - 0.55) ]
+      DBlo_st = DBhi_st        ! Stokes Lower Bound [um]
+      DBhi_st = 2.0 * DENSFAC  ! Stokes Upper Bound [um]
 
-      LOG_LOHI = LOG( 550./2000. )
+      LOG_LOHI = LOG( 550.0/2000.0 )
       LOG_HI   = LOG( DBhi_st/DGv )
       LOG_LO   = LOG( DBlo_st/DGv )
 
       TERM1 = LOG( DGv/DBhi_st ) / LOG_LOHI
-      TERM2 =  ERF( LOG_HI / SQRT2LSG ) 
+      TERM2 =  ERF( LOG_HI / SQRT2LSG )
      &        -ERF( LOG_LO / SQRT2LSG )
-      TERM3 = XXLSG / ( LOG_LOHI * (pi/2.)**0.5 )
-      TERM4 = EXP( -1.* ( LOG_LO / SQRT2LSG )**2 )
-      TERM5 = EXP( -1.* ( LOG_HI / SQRT2LSG )**2 )
+      TERM3 = XXLSG / ( LOG_LOHI * (pi/2.0) ** 0.5 )
+      TERM4 = EXP( -1.0 * ( LOG_LO / SQRT2LSG ) ** 2 )
+      TERM5 = EXP( -1.0 * ( LOG_HI / SQRT2LSG ) ** 2 )
 
-      fAMS = fAMS + TERM1*TERM2  +  TERM3*(TERM4-TERM5)
+      fAMS = fAMS + TERM1 * TERM2  +  TERM3 * (TERM4-TERM5)
 
-      !Apply the Factor of 0.5 Consistent with Appendix B in Ensberg et
-      !al., 2013. Omit the total mass quantity since these are fractions
-      !we want.
+      ! Apply the Factor of 0.5 Consistent with Appendix B in Ensberg et
+      ! al., 2013. Omit the total mass quantity since these are fractions
+      ! we want.
       fAMS = 0.5 * fAMS
 
       END SUBROUTINE AERO_AMS
-
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETVISBY( DCV1, EXT1, DCV2, EXT2 )
