@@ -41,7 +41,7 @@
        LOGICAL                :: AERO_CHEM_SET = .FALSE.
       
        PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE,
-     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET
+     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET, HETCHEM_UPDATE_AERO
        
        PRIVATE 
 
@@ -129,14 +129,13 @@ C *** Molecular weight
       REAL( 8 ), SAVE        :: MWTMGLY       ! molecular weight of MGLY [g/mol]
       REAL( 8 ), SAVE        :: CFACTOR_MGLY  ! factor used for the mean molecular speed of MGLY [m/(s^1*(deg K)^0.5)]
 
-C *** 2nd and 3rd moments before equilibration (without H2O)
-      REAL( 8 ), ALLOCATABLE :: OLD_M3( : ) ! OLD_M3_I, OLD_M3_J, OLD_M3_K
-      REAL( 8 ), ALLOCATABLE :: OLD_M2( : ) ! OLD_M2_I, OLD_M2_J, OLD_M2_K
-
-      REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 before equilibration w.H2O
-      REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 before equilibration w.H2O
-      REAL( 8 ), ALLOCATABLE :: DG_WET( : ) ! DG_AT_WET, DG_AC_WET, DG_CO_WET ! Initial median diameter w.H2O
+C *** 2nd and 3rd moments with wet species
+      REAL( 8 ), ALLOCATABLE :: WET_M3( : ) ! WET_M3_I,  WET_M3_J, WET_M3_K   ! M3 w.H2O, svOA
+      REAL( 8 ), ALLOCATABLE :: WET_M2( : ) ! WET_M2_I,  WET_M2_J, WET_M2_K   ! M2 w.H2O, svOA
       REAL( 8 ), ALLOCATABLE :: DE_WET( : ) ! DE_AT_WET, DE_AC_WET, DE_CO_WET ! Initial effective diameter w.H2O
+      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M3DRY_INIT( :,:,:,: ) ! Gridded M3 without H2O, svOA
+      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M2DRY_INIT( :,:,:,: ) ! Gridded M2 without H2O, svOA
+
 
 C Isoprene product particle phase reaction rates (Eddingsaas et al. 2010) [1/(M^2 s)]
       REAL ( 8 ), PARAMETER :: K_H_WATER    = 9.0D-4
@@ -440,8 +439,7 @@ C                            pp 601-609, April, 1996.
       INV_ESATL( TT ) = DL * DEXP( BL * ( 273.15D0 - TT ) / ( TT - 273.15D0 + CL ) )
       
       INTERFACE
-         SUBROUTINE GETPAR( M3_WET_FLAG, LIMIT_SG  )
-           LOGICAL, INTENT( IN ) :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
+         SUBROUTINE GETPAR( LIMIT_SG  )
            LOGICAL, INTENT( IN ) :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
          END SUBROUTINE GETPAR
       END INTERFACE 
@@ -480,13 +478,14 @@ C *** Get aerosol diagnostic file flag.
 
         ALLOCATE( WHICH_AERO_RATE( NHETERO ) )
         
-C *** 2nd and 3rd moments before equilibration (without H2O)
-        ALLOCATE(  OLD_M3( N_MODE ), 
-     &             OLD_M2( N_MODE ), 
-     &             WET_M3( N_MODE ), 
+C *** 2nd and 3rd moments (w. H2O and svOA)
+        ALLOCATE(  WET_M3( N_MODE ), 
      &             WET_M2( N_MODE ), 
-     &             DG_WET( N_MODE ), 
      &             DE_WET( N_MODE ))
+C *** Allocate Gridded Dry Initial Moments so they can be saved for the
+C     end of the gas-phase chemical driver
+        ALLOCATE( CHEM_M2DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ) )
+        ALLOCATE( CHEM_M3DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ) )
         
         WHICH_AERO_RATE = -1
         
@@ -618,6 +617,7 @@ C *** Calculate rate constants at each grid cell location
       
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
+C     also converts dry surface area to wet second moment
                CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
@@ -648,43 +648,33 @@ C *** to compute RH & molecular kinetic factors
               
                RFACTOR     = 60.0D0 * COEF1 * REAL( PRESS( C,R,L ) / TEMP( C,R,L ), 8 )
 
-C *** Update the third moments, geometric mean diameters, geometric
+C *** Update geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and modal particle
 C     densities, based on the concentrations of M2, M0, and speciated
-C     masses resulting from transport, cloud processing, and gas-phase
-C     chemistry.  Ignore H2O and semi-volatile SOA (i.e., M3_WET_FLAG
-C     = .FALSE.) because those species are not transported with the
-C     2nd moment and their concentrations will be updated subsequently
-C     to establish gas/particle equilibrium.
-               M3_WET_FLAG = .False.
+C     masses.
                LIMIT_Sg    = .False.
-
-               MOMENT2_CONC = MOMENT2_CONC / PI
-      
-               CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+               CALL GETPAR( LIMIT_Sg )
     
 C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
 
                DO N = 1, N_MODE
-              
-C *** capture values of "dry" 2nd and 3rd moments before equilibration
-C     the folowing code assumes that GETPAR has been called with
-C     M3_WET_FLAG set to .FALSE. and that the 2nd and 3rd moments have
-C     been adjusted for the new SOA.
-                  OLD_M2( N ) = REAL( MOMENT2_CONC( N ), 8)
-                  OLD_M3( N ) = REAL( MOMENT3_CONC( N ), 8)
-C *** estimate the "wet third moments" by adding aerosol water
+C *** estimate the "wet third moments" from moment3_conc
 C      Note: this is the H2O concentration from previous time step
-                  WET_M3( N ) = OLD_M3( N ) + H2OFAC * REAL(aerospc_conc( AH2O_IDX,N ), 8)
+                  WET_M3( N ) = MOMENT3_CONC( N ) 
 C *** calculate "wet second moment" assuming that H2O does not
 C     affect the geometric standard deviation
-                  WET_M2( N ) = OLD_M2( N ) * ( WET_M3( N ) / OLD_M3( N ) ) ** ( 2.0D0 / 3.0D0 )
-C *** calculate "wet" geometric mean (same as median) diameters
-                  DG_WET( N ) = REAL( aeromode_diam( N ), 8) * DSQRT( WET_M2( N ) / OLD_M2( N ))
-C *** calculate effective diameters using Eq 3 of Pleim et al (1995)
-                  DE_WET( N ) = DG_WET( N ) 
-     &                      * REAL( EXP( 1.5 * ( LOG( EXP( aeromode_sdev( N ) ) ) ** 2.0 ) ), 8)
+                  WET_M2( N ) = MOMENT2_CONC( N ) 
+C *** The "wet" geometric mean (same as median) diameter was updated in
+C     getpar. It is stored in aeromode_diam
+C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
+                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_sdev( N ) ** 2 ), 8)
                END DO
+
+C *** Retrieve and Save the Dry 3rd and 2nd Moments
+               CALL CALCMOMENTS( .False. )
+               CHEM_M2DRY_INIT( C,R,L,: ) = moment2_conc( : )
+               CHEM_M3DRY_INIT( C,R,L,: ) = moment3_conc( : )
+
 
 C *** calculate N2O5 and NO3 molecular speed (m/s) using Eq 4 of Pleim et al (1995)
 
@@ -1114,6 +1104,61 @@ C hydrolysis
       RETURN
 
       END SUBROUTINE HETCHEM_RATES
+ 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      subroutine HETCHEM_UPDATE_AERO ( CGRID )  
+
+c  Calculates the change in aerosol surface area due to heterogeneous
+C  reactions and updates the CGRID array with this information.
+C  
+
+C  Key Subroutines Called: none
+C
+C  Called by: Gas-Phase Chemistry Driver
+      USE AERO_DATA        
+      USE AEROMET_DATA, ONLY: pi
+      USE GRID_CONF, ONLY: NLAYS, MY_NROWS, MY_NCOLS
+
+      IMPLICIT NONE
+      
+      REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
+      REAL                :: M2DRY_FINAL( n_mode ) !Dry 2nd Aerosol Moment
+      REAL                :: M3DRY_FINAL( n_mode ) !Dry 3rd Aerosol Moment
+      INTEGER L, R, C, m
+
+      LOOP_LAY: DO L = 1, NLAYS
+         LOOP_ROW: DO R = 1, MY_NROWS
+            LOOP_COL: DO C = 1, MY_NCOLS
+     
+               !Extract grid cell concentrations of aero species from CGRID
+               !into aerospc_conc in aero_data module
+               !also converts dry surface area to wet second moment
+               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
+
+               !Recalculate Dry 3rd Moment After Chemistry Processes
+               !2nd moment hasn't been update yet.
+               CALL CALCMOMENTS( .False. )
+               M2DRY_FINAL( : ) = moment2_conc( : )
+               M3DRY_FINAL( : ) = moment3_conc( : )
+
+               !Calculate new Second Moment Manually
+               !Assume standard deviation is fixed.
+               M2DRY_FINAL( : ) = CHEM_M2DRY_INIT( C,R,L,: ) * 
+     &                            ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
+
+               !Update the Aerosol Surface Area making sure to multiply
+               !the 2nd moment by Pi to convert properly
+               Do m = 1, n_mode
+                 CGRID( C,R,L,aerosrf_map(m) ) = Real( pi, 4 ) * M2DRY_FINAL( m )
+               End Do
+
+            END DO LOOP_COL
+         END DO LOOP_ROW
+      END DO LOOP_LAY
+
+      End Subroutine HETCHEM_UPDATE_AERO
+
+C ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       REAL( 8 ) FUNCTION PNCOM_LOSS( POC, PNCOM )
 !C Calculates rate constant in cm3 molec-1 sec-1 for PNCOM loss by reacting 

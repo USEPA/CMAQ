@@ -1318,7 +1318,7 @@ C     net change in dry 2nd moment is production or loss
                Y = DRYM20 + DDRYM2DT * TSTEP
             END IF
 
-C *** Add water and SOA to 2nd moment while preserving standard deviation
+C *** Add water (no SOA) 2nd moment while preserving standard deviation
 
             !Calculate 3rd Moment
             DRYM3 = ( M3FAC_ASO4 ) * SO4
@@ -1327,7 +1327,7 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
      &            + M3FAC_ACL  * CFINAL( KCL,IMODE )
      &            + M3FAC_ANA  * SEACAT
      &            + M3OTHR                   
-            WETM3 = DRYM3 + M3SOA + H2O * M3FAC_H2O
+            WETM3 = DRYM3 + H2O * M3FAC_H2O
 
             !Calculate 2nd moment
             DRYM2 = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )

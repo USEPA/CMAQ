@@ -51,9 +51,9 @@ C-----------------------------------------------------------------------
 C Arguments:
 
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
-      INTEGER      JDATE        ! starting date (YYYYDDD)
-      INTEGER      JTIME        ! starting time (HHMMSS)
-      INTEGER      TSTEP        ! output timestep (HHMMSS)
+      INTEGER, INTENT( IN ) ::      JDATE        ! starting date (YYYYDDD)
+      INTEGER, INTENT( IN ) ::      JTIME        ! starting time (HHMMSS)
+      INTEGER, INTENT( IN ) ::      TSTEP        ! output timestep (HHMMSS)
 
 C Local Variables:
 

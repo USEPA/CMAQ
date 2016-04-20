@@ -319,6 +319,7 @@ C                  ----------  -------  -------- -------  ------
       Real            :: moment0_conc( n_mode )     ! 0th moment concentration
       Real            :: moment2_conc( n_mode )     ! 2nd moment concentration
       Real            :: moment3_conc( n_mode )     ! 3rd moment concentration
+      Logical, save   :: wet_moments_flag           ! T if M2 and M3 are wet, F otherwise
 
 C Mass concentration (calculated by GETPAR)
       Real :: aeromode_mass( n_mode )   ! [ ug/m^3 ]
@@ -641,13 +642,18 @@ C Check that all emissions units match
 C-----------------------------------------------------------------------
       Subroutine extract_aero( conc, minchk )
 
-C  Extracts the required aerosol data from CGRID into conc.
+C  Extracts aerosol data into the AERO_DATA:aerospc_conc array
+C  The original idea is that the data for conc comes from CGRID
+C  Also transfers dry surface area to wet 2nd moment.
  
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
+      Use aeromet_data, only : pi     ! fundamental constants, data type definitions, etc.
+      
       Implicit None
 
 C Arguments:
@@ -684,7 +690,7 @@ C Copy grid cell concentrations of aero species to aerospc_conc
       End If
 
 C Copy grid cell concentrations of aero # and surf area
-C Convert and assign to moment0_conc and moment2_conc
+C Convert surface area to M2 and set wet_moments_flag
 
       moment0_conc = 0.0
       moment2_conc = 0.0
@@ -692,18 +698,23 @@ C Convert and assign to moment0_conc and moment2_conc
       If ( minchk ) Then
          Do m = 1, n_mode
             n = aeronum_map( m )
-            moment0_conc( m ) = Max( conc( n ), aeromode( m )%min_numconc )
+            moment0_conc( m ) = Max( conc( n ), aeromode( m )%min_numconc ) 
             n = aerosrf_map( m )
-            moment2_conc( m ) = Max( conc( n ), aeromode( m )%min_m2conc )
+            moment2_conc( m ) = Max( conc( n ) / pi, aeromode( m )%min_m2conc ) 
          End Do
       Else
          Do m = 1, n_mode
             n = aeronum_map( m )
             moment0_conc( m ) = conc( n )
             n = aerosrf_map( m )
-            moment2_conc( m ) = conc( n )
+            moment2_conc( m ) = conc( n ) / pi
          End Do
       End If
+      wet_moments_flag = .false.
+
+C Convert dry 2,3 moment to wet 2,3 moment
+C flag will be set to .true.
+      Call calcmoments( .true. )
 
       Return
       End Subroutine extract_aero
@@ -711,14 +722,18 @@ C Convert and assign to moment0_conc and moment2_conc
 C-----------------------------------------------------------------------
       Subroutine update_aero( conc, minchk )
 
-C  Updates aerosol values in CGRID from the conc array.
+C  Updates conc from the AERO_DATA:aerospc_conc array.
+C  The original idea is that the data in conc updates CGRID
+C  Update_aero now also saves the updated surface area back to CGRID as
+C  well. Moment2 will be dried if necessary and flag reset.
  
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
-      Use aeromet_data      ! fundamental constants, data type definitions, etc.
+      Use aeromet_data, only : pi     ! fundamental constants, data type definitions, etc.
       Use utilio_defn
 
       Implicit None
@@ -772,6 +787,11 @@ C Copy aero number and surface area back to grid cell concentrations
          End Do
       End If
 
+C Save dry second moment to surface area (with pi conversion)
+      If ( wet_moments_flag ) Then
+         call calcmoments( .false. ) ! called with the F flag, returns dry moments
+      Endif
+
       Do m = 1, n_mode
          n = aerosrf_map( m )
          conc( n ) = Real( pi, 4 ) * moment2_conc( m ) 
@@ -824,6 +844,107 @@ C Find the substring vname in aerospc( spc )%name( n )
 
       Return
       End Function findAero
+
+C-----------------------------------------------------------------------
+      Subroutine calcmoments( addwet )
+
+C Subroutine calculates wet (addwet=T) or dry (addwet=F) aerosol third
+C and second moment and stores them in moment_conc arrays and
+C updates wet_moments_flag. 
+C Note that third moment information will be overwritten no matter what
+C the wet_moments_flag indicates. M2 will depend on the history
+C of the moment (wet_moments_flag). This routine will not update
+C M2 in the event of added mass due to processes other than
+C wetting/drying.
+C
+C Notes:
+C wet_moments_flag is obtained from AERO_DATA ! true =  H2O and SOA included in 2,3 moment
+C                                             ! false = H2O and SOA excluded from 2,3 moment
+C wet_moments_flag reflects the current state of the moment2,3_conc arrays.
+C addwet will results in wet (T) or dry (F) moments.
+C
+C History:
+C 4/2016: HOT Pye Created routine
+C
+C-----------------------------------------------------------------------
+
+      Use aeromet_data, only: f6dpi, f6pi
+
+      Implicit None
+
+C Arguments:
+      Logical :: addwet ! T: result in wet m3 and m2, F: result in dry m3 and m2
+
+C Local variables:
+      Integer :: spc, n ! loop variable
+      Real( 4 ) :: m3( n_mode )       ! wet or dry M3
+      Real( 4 ) :: m2( n_mode )       ! wet or dry M2
+      Real( 8 ) :: drysumM3  ! dry M3 [ m**3 / m**3 ]
+      Real( 8 ) :: wetsumM3  ! wet M3 [ m**3 / m**3 ]
+      Real( 8 ) :: factor
+      Real( 4 ) :: initialM3 ! initial M3 from moment3_conc [ m**3 /m**3 ]
+      Real( 4 ) :: initialM2 ! initial M2 from moment2_conc [ m**2 /m**3 ]
+
+C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ], 2nd
+C     moment [ m**2/m**3 ]
+
+      If( addwet ) then
+
+         Do n = 1, n_mode
+            initialM2 = moment2_conc( n )
+            initialM3 = moment3_conc( n )
+
+            wetsumM3 = 0.0
+            Do spc = 1, n_aerospc
+               If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) ) Cycle
+               factor = 1.0E-9 * f6pi / aerospc( spc )%density
+               wetsumM3  = wetsumM3 + factor * aerospc_conc( spc,n )
+            End Do
+            m3( n ) = Max ( real( wetsumM3, 4), aeromode( n )%min_m3conc )
+            If( wet_moments_flag ) then
+               m2( n ) = initialM2
+            Else
+               m2( n ) = initialM2 * ( real( wetsumM3, 4) / initialM3 ) ** ( 2.0d0 / 3.0d0 )
+            End if
+         End Do
+
+         ! Save back to aero_data variables
+         moment2_conc( : ) = m2( : )
+         moment3_conc( : ) = m3( : )
+         wet_moments_flag = .true.
+
+      Else ! produce dry moments
+
+         Do n = 1, n_mode
+            initialM2 = moment2_conc( n )
+            initialM3 = moment3_conc( n )
+
+            drysumM3 = 0.0
+            Do spc = 1, n_aerospc
+               If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or.
+     &              aerospc( spc )%no_M2Wet  ) Cycle
+               factor = 1.0E-9 * f6pi / aerospc( spc )%density
+               drysumM3  = drysumM3 + factor * aerospc_conc( spc,n )
+            End Do
+            m3( n ) = Max ( real( drysumM3, 4), aeromode( n )%min_m3conc )
+            If( wet_moments_flag) then
+               m2( n ) = initialM2 * ( real( drysumM3, 4) / initialM3 ) ** ( 2.0d0/ 3.0d0 )
+            Else ! already dry
+               m2( n ) = initialM2
+            Endif
+         End Do
+
+         ! Save back to aero_data variables
+         moment2_conc( : ) = m2( : )
+         moment3_conc( : ) = m3( : )
+         wet_moments_flag = .false.
+
+      Endif
+
+      Return
+      End Subroutine calcmoments
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       End Module aero_data
 
