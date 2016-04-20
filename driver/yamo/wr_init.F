@@ -32,6 +32,8 @@ C   Create the IO/API netCDF header and open the output CONC file
 
 C Revision history:
 C   Dec 15 D.Wong: Created for writing initial data to CONC file
+C   Apr 16 D.Wong: Added INTEN attribute for arguments JDATE, JTIME, and TSTEP
+C                  so they match with the interface block in INITSCEN.F
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -51,9 +53,9 @@ C-----------------------------------------------------------------------
 C Arguments:
 
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
-      INTEGER      JDATE        ! starting date (YYYYDDD)
-      INTEGER      JTIME        ! starting time (HHMMSS)
-      INTEGER      TSTEP        ! output timestep (HHMMSS)
+      INTEGER, INTENT(in) :: JDATE       ! starting date (YYYYDDD)
+      INTEGER, INTENT(IN) :: JTIME       ! starting time (HHMMSS)
+      INTEGER, INTENT(IN) :: TSTEP       ! output timestep (HHMMSS)
 
 C Local Variables:
 
