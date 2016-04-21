@@ -1408,19 +1408,19 @@ C     condensation and negative for evaporation.
       DVOLINORG( KCL )  = GCLR8  * CFAC_GHCL  - GAS( 3 )   !mol m-3
 
       IF ( DVOLINORG( KNH4 ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -REAL( SUM(AEROSPC_CONC( ANH4_IDX,1:2 )), 8 ) / DF( KNH4 )
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANH4_IDX,1:2 ), 8 ) ) * CFAC_ANH4 + EVAPMIN
          DVOLINORG( KNH4 ) = MAX( DVOLINORG( KNH4 ), DVOLMAX )
       END IF
 
       IF ( DVOLINORG( KNO3 ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -REAL( SUM(AEROSPC_CONC( ANO3_IDX,1:2 )), 8 ) / DF( KNO3 )
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANO3_IDX,1:2 ), 8 ) ) * CFAC_ANO3 + EVAPMIN
          DVOLINORG( KNO3 ) = MAX( DVOLINORG( KNO3 ), DVOLMAX)
       END IF
 
       IF ( .not.TRUSTCL ) THEN  
          DVOLINORG( KCL ) = 0.0D0
       ELSEIF ( DVOLINORG( KCL ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -REAL( SUM(AEROSPC_CONC( ACL_IDX,1:2 )), 8 ) / DF( KCL )
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ACL_IDX,1:2 ), 8 ) ) * CFAC_ACL + EVAPMIN
          DVOLINORG( KCL ) = MAX( DVOLINORG( KCL ), DVOLMAX )
       END IF
 
@@ -1429,6 +1429,7 @@ C *** Apply modal partitioning of equilibrium aerosol mass
       OMEGA( 1 ) = GRFAC2( 1 ) / ( GRFAC2( 1 ) + GRFAC2( 2 ) )
       OMEGA( 2 ) = 1.0D0 - OMEGA( 1 )
 
+      CFINAL = 0.0
       DO IMODE = 1, 2  
          !Save Initial Concentrations
          CINORG( KSO4,IMODE ) = AEROSPC_CONC( ASO4_IDX, IMODE )
@@ -1443,9 +1444,8 @@ C *** Apply modal partitioning of equilibrium aerosol mass
          !Calculate Final Concentrations
          DO ISP = 1, NVOLINORG
 
-            CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
-     &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
-     &                          * DF( ISP )
+            CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + CINORG( ISP,IMODE )
+     &                          + OMEGA( IMODE ) * DVOLINORG( ISP ) * DF( ISP )
 
             !Jai Xing's VOLINORG fix - Check Aitken and Accumulation modes
             !individually for negative concentrations
