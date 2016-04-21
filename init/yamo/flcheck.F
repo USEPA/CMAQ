@@ -127,7 +127,7 @@ c check time steps for time dependent files
 
                         FID   = NAME2FID( LGCL_NAME( N ) )
 
-                        IF ( MXREC3(FID) > 0) THEN
+                        IF ( MXREC3( FID ) .GT. 0 ) THEN
                            IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
      &                                        JDATE, JTIME ) ) THEN
                               LOK = .FALSE.
