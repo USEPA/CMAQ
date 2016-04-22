@@ -341,12 +341,15 @@ C composition so emitted mass doesn’t matter.
       Real( 8 ), Parameter :: acors_ca_fac = 0.0562D0    ! for CA in anthropogenic coarse
 
 
-      Real( 8 ), Parameter :: asoil_fe_fac = 0.0281D0    ! for FE in dust
+      Real( 8 ), Parameter :: asoil_fe_fac = 0.02695D0   ! for FE in dust*
       Real( 8 ), Parameter :: acors_fe_fac = 0.0467D0    ! for FE in anthropogenic coarse
 
-      Real( 8 ), Parameter :: asoil_mn_fac = 0.00078D0   ! for MN in dust
+      Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in dust*
       Real( 8 ), Parameter :: acors_mn_fac = 0.0011D0    ! for MN in anthropogenic coarse
 
+C *Also the asoil_fe_fac is not 0.0281D0 and the asoil_mn_fac is not 0.00078D0 according
+C to the "pm25pmc_desert_soil_profile_cmaq_5.xlsx" spreadsheet (K.Fahey 25Mar2016
+C communication)
 
 C AERO_EMIS - Prakash Bhave noted Coarse mode PMC speciation:
 C *** PVB: temporary hack to speciate PMC
