@@ -94,7 +94,9 @@ C Number of aerosol species and modes
                                                 ! 3 = coarse 
 
 C Default minimum concentration
-      Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
+      Real,    Parameter :: conmin  = 1.0E-30    ! [ ug/m^3 ]
+      Real(8), Parameter :: conminD = 1.0D-30    ! [ ug/m^3 ]
+      Real(8), Parameter :: evapmin = 1.0D-20    ! [ ug/m^3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
       Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0E-6, conmin/)
       Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544E-05/)
@@ -635,7 +637,7 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
-      Use aeromet_data, only : pi     ! fundamental constants, data type definitions, etc.
+      Use aeromet_data, only : pi, f6pi  ! fundamental constants, data type definitions, etc.
       
       Implicit None
 
@@ -671,6 +673,13 @@ C Copy grid cell concentrations of aero species to aerospc_conc
             End Do
          End Do
       End If
+
+      !Calculate Dry Third Moment [ m3 / m3 ]
+      Do m = 1, n_mode
+         moment3_conc( m ) = sum( aerospc_conc(:,m) / aerospc(:)%density, 
+     &      MASK= (aerospc%no_M2wet==.false. .AND. aerospc%Tracer==.false.) )
+         moment3_conc( m ) = max( moment3_conc( m ) * 1.0E-9 * f6pi, aeromode( m )%min_m3conc )
+      End Do
 
 C Copy grid cell concentrations of aero # and surf area
 C Convert surface area to M2 and set wet_moments_flag
@@ -866,7 +875,10 @@ C Local variables:
       Real( 8 ) :: wetsumM3  ! wet M3 [ m**3 / m**3 ]
       Real( 8 ) :: factor
       Real( 4 ) :: initialM3 ! initial M3 from moment3_conc [ m**3 /m**3 ]
-      Real( 4 ) :: initialM2 ! initial M2 from moment2_conc [ m**2 /m**3 ]
+      Real( 4 ) :: initialM2 ! initial M2 from moment2_conc [ m**2 /m**3 ] 
+
+      Character( 16 )  :: pname_loc = 'CalcMoments'
+      Character( 100 ) :: xmsg
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ], 2nd
 C     moment [ m**2/m**3 ]
@@ -875,7 +887,18 @@ C     moment [ m**2/m**3 ]
 
          Do n = 1, n_mode
             initialM2 = moment2_conc( n )
+            If (initialM2 .eq. 0.0) then
+                write( xmsg,'(A32,I1,A42)') "Warning: Second Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
+
             initialM3 = moment3_conc( n )
+            If (initialM3 .eq. 0.0) then
+                write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
 
             wetsumM3 = 0.0
             Do spc = 1, n_aerospc
