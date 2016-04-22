@@ -923,7 +923,18 @@ C     moment [ m**2/m**3 ]
 
          Do n = 1, n_mode
             initialM2 = moment2_conc( n )
+            If (initialM2 .eq. 0.0) then
+                write( xmsg,'(A32,I1,A42)') "Warning: Second Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
+
             initialM3 = moment3_conc( n )
+            If (initialM3 .eq. 0.0) then
+                write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
 
             drysumM3 = 0.0
             Do spc = 1, n_aerospc

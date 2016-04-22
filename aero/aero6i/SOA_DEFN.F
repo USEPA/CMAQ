@@ -1005,9 +1005,9 @@ C    caer = ctotf / ( 1 + c0/MW / totorg )
       
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = vaporspc( i )%cstar * tempcorr
-         prod( i )  = vaporspc( i )%alpha * totrog( i )
-         ctotf( i ) = ctoti( i ) + prod( i )
+         c0( i )    = vaporspc( i )%cstar * tempcorr        !Satn Conc.
+         prod( i )  = vaporspc( i )%alpha * totrog( i )     !Total Vapor Produced
+         ctotf( i ) = ctoti( i ) + prod( i )                !Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
