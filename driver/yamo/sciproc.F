@@ -17,12 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/driver/yamo/sciproc.F,v 1.5 2011/10/21 16:10:43 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
@@ -57,6 +53,7 @@ C                       HADV negative conc's until after ZADV
 C    25 Jul 08 S.Roselle: removed PING from modeled processes
 C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
+C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -159,6 +156,13 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE CHEM
+#ifdef potvorto3
+         SUBROUTINE PVO3 ( CGRID, JDATE, JTIME )
+            IMPLICIT NONE
+            REAL, POINTER             :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )     :: JDATE, JTIME
+         END SUBROUTINE PVO3
+#endif
          SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -228,6 +232,12 @@ C decouple CGRID for cloud and chemistry
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CHEM', CGRID, JDATE, JTIME, TSTEP ) 
+
+#ifdef potvorto3
+      CALL PVO3 ( CGRID, JDATE, JTIME )
+      IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
+      IF ( LIPR ) CALL PA_UPDATE ( 'PVO3', CGRID, JDATE, JTIME, TSTEP )
+#endif
 
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )

@@ -65,7 +65,7 @@ C sedi sub-timestep counter
 #ifdef parallel
          use se_modules            ! stenex (using SE_UTIL_MODULE)
 #else
-         use noop_moudles          ! stenex (using NOOP_UTIL_MODULE)
+         use noop_modules          ! stenex (using NOOP_UTIL_MODULE)
 #endif
 
          implicit none
