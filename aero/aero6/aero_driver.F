@@ -536,11 +536,15 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,29 ) = fAMS( 1 )             ! i-mode fraction transmitted through AMS
                   DIAM_SPC( C,R,L,30 ) = fAMS( 2 )             ! j-mode fraction transmitted through AMS
                   DIAM_SPC( C,R,L,31 ) = fAMS( 3 )             ! k-mode fraction transmitted through AMS
-                  DIAM_SPC( C,R,L,32 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,33 ) = GAMMA_N2O5K( C,R,L )  ! coarse N2O5 heterorxn probability
-                  DIAM_SPC( C,R,L,34 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
-                  DIAM_SPC( C,R,L,35 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
-                  DIAM_SPC( C,R,L,36 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
+                  IF ( AERO_CHEM_SET ) THEN
+                     DIAM_SPC( C,R,L,32 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                     DIAM_SPC( C,R,L,33 ) = GAMMA_N2O5K( C,R,L )  ! coarse N2O5 heterorxn probability
+                     DIAM_SPC( C,R,L,34 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                     DIAM_SPC( C,R,L,35 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
+                     DIAM_SPC( C,R,L,36 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
+                  ELSE
+                     DIAM_SPC( C,R,L,32:36 ) = 0.0
+                  END IF
                   DIAM_SPC( C,R,L,37 ) = AEROMODE_DENS( 1 )    ! Aitken Mode Density [kg m-3]
                   DIAM_SPC( C,R,L,38 ) = AEROMODE_DENS( 2 )    ! Accumulation Mode Density [kg m-3]
                   DIAM_SPC( C,R,L,39 ) = AEROMODE_DENS( 3 )    ! Coarse Mode Density [kg m3-]

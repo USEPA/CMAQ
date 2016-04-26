@@ -41,7 +41,7 @@ C                             AE_CKSUM, NR_CKSUM, and TR_CKSUM
 C   1/28/99 David Wong at LM: compute global sum for GCELLS
 
 C   15 Dec 00 J.Young: move CGRID_MAP into f90 module
-C                      GLOBAL_RSUM -> Dave Wong's f90 stenex GLOBAL_SUM
+C                      GLOBAL_RSUM -> Dave Wong`s f90 stenex GLOBAL_SUM
 C   Jeff - Feb 01 - assumed shape arrays
 C   23 Mar 01 J.Young: Use HGRD_DEFN
 C   31 May 02 J.Young: REAL*8 reduction accumulator (avoid 32 bit roundoff)
@@ -54,6 +54,8 @@ C                        removed deprecated TRIMLEN
 C   10 Aug 11 David Wong: reset output format 1PEw.d to meet the standard
 C                         w-d > 6
 C    9 Apr 15 J.Bash: Use F90 MINVAL to speed up execution
+C   18 Mar 16 J.Young: Add "INTENT" attribute; remove commented out code;
+C                      rearrange logic for efficiency
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -67,11 +69,12 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-      CHARACTER( * ) SCIPROC    ! science process name
-!     REAL      :: CGRID( :,:,:,: )
+C Arguments:
+
+      CHARACTER( * ), INTENT( IN ) :: SCIPROC  ! science process name
       REAL, POINTER :: CGRID( :,:,:,: )
-      INTEGER      JDATE        ! current model date, coded YYYYDDD
-      INTEGER      JTIME        ! current model time, coded HHMMSS
+      INTEGER, INTENT( IN ) :: JDATE        ! current model date, coded YYYYDDD
+      INTEGER, INTENT( IN ) :: JTIME        ! current model time, coded HHMMSS
 
 C Parameters:
 
@@ -84,7 +87,6 @@ C Local variables:
 
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
       CHARACTER( 96 ) :: XMSG = ' '
-!     CHARACTER( 16 ), SAVE :: OUTNAME = 'FLOOR_FILE'
       CHARACTER(  8 ) :: APPL = 'CTM_APPL'
       CHARACTER( 48 ) :: EQNAME
       CHARACTER(  6 ) :: PRESTR = 'FLOOR_'
@@ -100,7 +102,6 @@ C Local variables:
       INTEGER     S, V, L, C, R
       REAL( 8 ) :: DBL_CKSUM
       REAL         GC_CKSUM, AE_CKSUM, NR_CKSUM, TR_CKSUM
-!     REAL, SAVE :: GCELLS
       REAL, SAVE :: LCELLS
 
       LOGICAL, SAVE :: OPFLG = .TRUE.               ! open file flag
@@ -112,21 +113,8 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-!        GCELLS = SUBST_GLOBAL_SUM ( FLOAT( MY_NCOLS * MY_NROWS * NLAYS ) )
          LCELLS = FLOAT( MY_NCOLS * MY_NROWS * NLAYS )
 
-!        CALL ENVSTR( OUTNAME, 'Floor file', PNAME, DEVNAME, STATUS )
-!        IF ( STATUS .NE. 0 ) WRITE( LOGDEV,'(5X, A)' ) 'Floor file'
-!        IF ( STATUS .EQ. 1 ) THEN
-!           XMSG = 'Environment variable improperly formatted'
-!           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-!        ELSE IF ( STATUS .EQ. -1 ) THEN
-!           XMSG = 'Environment variable set, but empty ... Using default:'
-!           WRITE( LOGDEV,'(5X, A, I9)' ) XMSG, JTIME
-!        ELSE IF ( STATUS .EQ. -2 ) THEN
-!           XMSG = 'Environment variable not set ... Using default:'
-!           WRITE( LOGDEV,'(5X, A, I9)' ) XMSG, JTIME
-!        END IF
          CALL NAMEVAL ( APPL, EQNAME )
          WRITE( CMYPE,'(I3.3)' ) MYPE
          DEVNAME = PRESTR // CMYPE // '.' // TRIM( EQNAME )
@@ -167,8 +155,6 @@ C-----------------------------------------------------------------------
 
             GC_CKSUM = DBL_CKSUM
  
-!           WRITE( LOGDEV,1005 ) 'Gas chemistry', SCIPROC, CKSUM
-
          ELSE
 
             GC_CKSUM = 0.0
@@ -205,8 +191,6 @@ C-----------------------------------------------------------------------
 
             AE_CKSUM = DBL_CKSUM
   
-!           WRITE( LOGDEV,1005 ) '      Aerosol', SCIPROC, CKSUM
-
          ELSE
 
             AE_CKSUM = 0.0
@@ -243,8 +227,6 @@ C-----------------------------------------------------------------------
 
             NR_CKSUM = DBL_CKSUM
   
-!           WRITE( LOGDEV,1005 ) ' Non-reactive', SCIPROC, CKSUM
-
          ELSE
 
             NR_CKSUM = 0.0
@@ -281,31 +263,30 @@ C-----------------------------------------------------------------------
 
             TR_CKSUM = DBL_CKSUM
   
-!           WRITE( LOGDEV,1005 ) '       Tracer', SCIPROC, CKSUM
+         ELSE
+
+            TR_CKSUM = 0.0
  
          END IF
 
+      ELSE   ! MINVAL( CGRID ) .GE. CMIN
+
+         GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) )
+         AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) )
+         NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) )
+         IF ( N_TR_SPC .GT. 0 ) THEN
+            TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) )
+         END IF
+     
       END IF
 
-      GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) )
-      AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) )
-      NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) )
-     
       IF ( N_TR_SPC .EQ. 0 ) THEN
          WRITE( LOGDEV,1005 ) SCIPROC,
-!    &                        SUBST_GLOBAL_SUM( GC_CKSUM ) / GCELLS,
-!    &                        SUBST_GLOBAL_SUM( AE_CKSUM ) / GCELLS,
-!    &                        SUBST_GLOBAL_SUM( GC_CKSUM ) / GCELLS,
      &                        GC_CKSUM / LCELLS,
      &                        AE_CKSUM / LCELLS,
      &                        NR_CKSUM / LCELLS
       ELSE
-         TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) )
          WRITE( LOGDEV,1007 ) SCIPROC,
-!    &                        SUBST_GLOBAL_SUM( GC_CKSUM ) / GCELLS,
-!    &                        SUBST_GLOBAL_SUM( AE_CKSUM ) / GCELLS,
-!    &                        SUBST_GLOBAL_SUM( NR_CKSUM ) / GCELLS,
-!    &                        SUBST_GLOBAL_SUM( TR_CKSUM ) / GCELLS
      &                        GC_CKSUM / LCELLS,
      &                        AE_CKSUM / LCELLS,
      &                        NR_CKSUM / LCELLS,
@@ -320,10 +301,8 @@ C-----------------------------------------------------------------------
      &         5X, 'Col', 2X, 'Row', 1X, 'Layer', 1X, 'Species',
      &         13X, 'Value before reset' )
 
-c003  FORMAT( 1X, 4I7, 9X, 1PE11.3)
 1003  FORMAT( 5X, I8, ':', I6.6, 4I5, 1X, '(', A16, ')', 1PE12.3)
 
-c005  FORMAT( 3X, A13, 1X, 'Conc field cksum after science process:',
 1005  FORMAT( 1X, 'after',
      &        1X, A09, 1X, 'G ', 1PE14.7,
      &                 1X, 'A ', 1PE14.7,
