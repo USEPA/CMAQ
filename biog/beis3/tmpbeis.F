@@ -85,6 +85,12 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
 
+#ifdef parallel
+      USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
+#endif
+
       IMPLICIT NONE
 
 C Includes:
@@ -335,6 +341,7 @@ C (all but variables-table and horizontal domain in description is borrowed from
 C Open mass output file (tons/hour)
 
             SNAME = 'B3GTS_S'
+            CALL SUBST_BARRIER
             IF ( IO_PE_INCLUSIVE ) THEN
                IF ( .NOT. OPEN3( SNAME, FSNEW3, PNAME ) ) THEN
                   MESG = 'Could not open "' // TRIM( SNAME ) // '" file'
@@ -433,7 +440,7 @@ C Initialize normalized emissons to be used
             EMISS = 0.0   ! array
 #ifdef parallel_io
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( SNAME, FSNONIO, PNAME ) ) THEN
+               IF ( .NOT. OPEN3( SNAME, FSREAD3, PNAME ) ) THEN
                   MESG = 'Could not open ' // TRIM(SNAME)
                   CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
                END IF

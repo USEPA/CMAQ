@@ -156,25 +156,25 @@ C...........EXTERNAL FUNCTIONS
       INTERFACE
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE
-            INTEGER, INTENT( IN )  :: JTIME
-            INTEGER, INTENT( IN )  :: TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
-            REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+            REAL, POINTER            :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )    :: JDATE
+            INTEGER, INTENT( IN )    :: JTIME
+            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: N_SPC_WDEP
+            INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+            REAL,    INTENT( INOUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT )   :: RESTRANS( :,: )
          END SUBROUTINE RESCLD
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE
-            INTEGER, INTENT( IN )  :: JTIME
-            INTEGER, INTENT( IN )  :: TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
-            REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+            REAL, POINTER            :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )    :: JDATE
+            INTEGER, INTENT( IN )    :: JTIME
+            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: N_SPC_WDEP
+            INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+            REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
+            REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -333,14 +333,14 @@ C...initialize the deposition array before processing clouds
 
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-            IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSNONIO, PNAME ) ) THEN
+            IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSREAD3, PNAME ) ) THEN
                XMSG = 'Could not open ' // TRIM( CTM_WET_DEP_1 )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
          END IF
          IF ( CLD_DIAG ) THEN
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSNONIO, PNAME ) ) THEN
+               IF ( .NOT. OPEN3( CTM_WET_DEP_2, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM( CTM_WET_DEP_2 )
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF

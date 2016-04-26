@@ -713,13 +713,13 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
 
          ! Dry cuticle resistance.
 
-               IF ( l .Ne. l_NH3 ) THEN
-                  rcut = rcut0 * a0 / ar( l )
-               ELSE IF( l .Eq. l_O3 ) THEN
+               IF( l .Eq. l_O3 ) THEN
                   rh_func = max( 0.0,( MET_DATA%RH( c,r ) - 70.0 )/30.0 )
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwet * rh_func
-               ELSE 
+               ELSE IF ( l .Eq. l_NH3 ) THEN
                   rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
+               ELSE 
+                  rcut = rcut0 * a0 / ar( l )
                END IF
 
 ! Dry ground resistance.  (revised according to Erisman). Canopy height is assumed to be 10 * z0 according to PX-LSM

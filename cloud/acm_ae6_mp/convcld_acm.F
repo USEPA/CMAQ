@@ -105,6 +105,11 @@ C                          reduce memory footprint and to increase code efficien
 C       28May15 J.Young: cleanup
 C       12Jun15 B.Hutzell: Moved call to CLEAR_ACM_CLOUD to after FIRSTIME block to
 C                          insure results from previous time step are removed
+C       12Jan16 D.Wong: Fixed a bug that causes different result when code run with 
+C                       different domain decomposition
+C       4Apr16 J.Bash      Calculate the Sundqvist et al. 1989 threshold humidities 
+C                          for cloud formation based on Mocko and Cotton (1995) to be
+C                          More consistent with WRF
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -113,6 +118,7 @@ C-----------------------------------------------------------------------
       USE AQ_DATA
       USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
       USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
+      USE ASX_DATA_MOD,  ONLY: GRID_DATA
 
       IMPLICIT NONE
 
@@ -123,23 +129,24 @@ C...........INCLUDES
 
 C...........Arguments
 
-      REAL, POINTER          :: CGRID( :,:,:,: )
-      INTEGER, INTENT( IN )  :: JDATE
-      INTEGER, INTENT( IN )  :: JTIME
-      INTEGER, INTENT( IN )  :: TSTEP( 3 )
-      INTEGER, INTENT( IN )  :: N_SPC_WDEP
-      INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-      REAL,    INTENT( OUT ) :: CONV_DEP( :,:,: )
-      REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+      REAL, POINTER            :: CGRID( :,:,:,: )
+      INTEGER, INTENT( IN )    :: JDATE
+      INTEGER, INTENT( IN )    :: JTIME
+      INTEGER, INTENT( IN )    :: TSTEP( 3 )
+      INTEGER, INTENT( IN )    :: N_SPC_WDEP
+      INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+      REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
+      REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 
 
 C...........Parameters
 
-C critical rel humidity, lower bound (fraction)
-      REAL, PARAMETER :: RCRIT1 = 0.7
 
-C critical rel humidity, upper bound (fraction)
-      REAL, PARAMETER :: RCRIT2 = 0.9
+C critical rel humidity for land
+      REAL, SAVE      :: RCRITL
+
+C critical rel humidity for ocean
+      REAL, SAVE      :: RCRITW
 
 C param contlng sidewall entrainment function for raining clouds
       REAL, PARAMETER :: SIDEFAC = 0.5
@@ -323,8 +330,8 @@ C-------------------------------------------
       REAL          :: F    ( NLAYS )      ! cloud entrainment fraction to be solved for
       REAL          :: FSIDE( NLAYS )      ! sidewall entrainment vertical profile
       REAL          :: LWC  ( NLAYS )      ! liq wat cont of cloud in kg H2O/m3 air
-      REAL          :: QICE ( NLAYS )      ! ice mixing ratio in cloud
-      REAL          :: QLQD ( NLAYS )      ! actual liq. wat. mix ratio in cloud
+      REAL, ALLOCATABLE, SAVE :: QICE ( : )      ! ice mixing ratio in cloud
+      REAL, ALLOCATABLE, SAVE :: QLQD ( : )      ! actual liq. wat. mix ratio in cloud
       REAL          :: QVC  ( NLAYS )      ! saturation wat vap mix ratio at T1
       REAL          :: QWAT ( NLAYS )      ! liq wat mix rat, taken as total condensed water (ice + liq) profile (Eq.4, W&T)
       REAL          :: RHOM2( NLAYS )      ! mol/m2 air
@@ -539,9 +546,13 @@ C...allocate saved arrays
      &             CBASEF ( MXSPCS ),
      &             CEND   ( MXSPCS ),
      &             POLC   ( MXSPCS ),
-     &             REMOV  ( MXSPCS ), STAT = ALLOCSTAT )
+     &             REMOV  ( MXSPCS ), 
+     &             QLQD   ( NLAYS ), 
+     &             QICE   ( NLAYS ), 
+     &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC or REMOV'
+          XMSG = 'Failure allocating BMOL, CBASE0, CBASEF, CEND, POLC, REMOV,'
+     &         // 'QLQD or QICE'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -557,6 +568,11 @@ C...allocate saved arrays
           XMSG = 'Failure allocating COSZEN'
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
+
+C...Calculate the Sundqvist et al. 1989 threshold humidities for cloud formation based on 
+C...Mocko and Cotton (1995)
+        RCRITL = 0.839 + SQRT(1.0/(50.0+0.5*REAL(XCELL_GD/1000)**3))
+        RCRITW = 0.879 + SQRT(1.0/(100.0+REAL(XCELL_GD/1000)**2))
 
       END IF   ! Firstime
 
@@ -723,6 +739,9 @@ C...Loop through all grid cells
 
       DO 311 ROW = 1, MY_NROWS
         DO 301 COL = 1, MY_NCOLS
+
+          QLQD = 0.0
+          QICE = 0.0
 
           CLBASE = NLAYS
           CLTOPUSTBL = NLAYS
@@ -980,8 +999,7 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
 C...compute relative humidity at the cloud source level
 
-            RLHSRC = QVL( SRCLAY )
-     &             / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
+            RLHSRC = QVL( SRCLAY ) / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
 
 C...If all tests pass, then a CNP or PFW cloud exists
 C...  Proceed to find CLTOP for CNP or PFW; don't allow
@@ -1015,12 +1033,14 @@ C...  solver
             IF ( ISOUND .EQ. 1 ) CLTOP = MIN( CLTOP, CLTOPUSTBL )
 
 C...Now compute fractional coverage for either CNP or PFW:
-
-            IF ( RLHSRC .GE. RCRIT2 ) THEN
-              FRAC = FRACMAX
-            ELSE
-              FRAC = FRACMAX * ( ( RLHSRC - RCRIT1 ) / ( RCRIT2 - RCRIT1 ) )
+C...Now based on Sunqdvist et al. 1989 DOI: 10.1175/1520-0493(1989)117<1641:CACPSW>2.0.CO;2 
+            FRAC = 0.0
+            IF ( RLHSRC .GE. RCRITL .AND. GRID_DATA%LWMASK( COL,ROW ) .EQ. 1.0 ) THEN
+              FRAC = 1.0-SQRT((1.0-RLHSRC)/(1.0-RCRITL))
+            ELSE IF ( RLHSRC .GE. RCRITW .AND. GRID_DATA%LWMASK( COL,ROW ) .EQ. 0.0 ) THEN
+              FRAC = 1.0-SQRT((1.0-RLHSRC)/(1.0-RCRITW))
             END IF
+            FRAC = MAX(0.0, MIN( FRAC, 0.95 ) )
             
             IF ( FRAC .LT. 0.01 ) GO TO 299
 
@@ -1227,7 +1247,6 @@ C...end of Walcek bisection solver
 
 C...ice load in cloud is a function of temperature below freezing
 
-            QICE( LAY ) = 0.0
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
               QICE( LAY ) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
               IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
@@ -1326,8 +1345,6 @@ C...  below cloud base. First, parameterize total water content
             QWAT( LAY ) = TWC / RHOAIR    ! kg H2O / kg air
 
 C...again partition into ice and liquid
-
-            QICE( LAY ) = 0.0
 
             IF ( TCLD( LAY ) .LT. 273.15 ) THEN
               QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0

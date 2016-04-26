@@ -44,6 +44,9 @@ C      5 Jun 2012 J.Bash: Added support for NH3 bidirectional exchange. Fertiliz
 C                         sector emissions are subtracted from the total NH3 emissions
 C                         if the CTM_ABFLUX flag is set
 C     07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C     24 Feb 16 B.Murphy: Generalize scaling of point source species based on
+C                         mapping model species, not point source species
+C     03 Mar 16 B.Gantt/G. Sarwar: incorporated halogen emissions
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -94,6 +97,7 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
+         USE MGEMIS              ! marine gas emissions
          USE LTNG_DEFN           ! NO emissions from lightning strikes
          USE PT3D_DEFN           ! plume rise emissions
          USE UTILIO_DEFN         ! I/O API
@@ -145,6 +149,13 @@ C-----------------------------------------------------------------------
 C In-line biogenic emissions?
          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+C In-line marine gas emissions?
+
+         IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
+            XMSG = 'Failure initializing marine gas emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -304,7 +315,7 @@ C combined gas emssions conversion factor
          END FUNCTION EMIS_INIT
 
 C-----------------------------------------------------------------------
-         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CONVPA )
+         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CONVPA, CGRID )
 
 C NEW APPROACH:
 C Apply NML factors to all *input* emissions and inline plume rise, aero emis
@@ -315,6 +326,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE AERO_EMIS           ! inherits GRID_CONF
          USE BEIS_DEFN           ! biogenic emissions
          USE BIOG_EMIS, ONLY: MSPCS
+         USE MGEMIS              ! marine gas emissions
          USE PT3D_DEFN           ! plume rise emissions
          USE PTMAP               ! defines emissions file(s) PM mapping
          USE LTNG_DEFN           ! lightning NO emissions
@@ -331,6 +343,7 @@ C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL,    INTENT( IN ) :: CONVPA        ! conversion factor to pressure in Pascals
+         REAL, POINTER :: CGRID( :,:,:,: )
 
 C Local Variables:
          REAL             CNVTC         ! combined conversion factor
@@ -444,7 +457,31 @@ C merge: VDEMIS_BI in mol/hr. Convert to ppm/sec
                      IF ( V .GT. 0 ) THEN
                         N = N + 1
                         VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                    + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_BI( N,C,R )
+     &                                    + CNVTC * GC_EMIS_FAC( V )
+     &                                            * VDEMIS_BI( N,C,R )
+                      END IF
+                  END DO
+               END DO
+            END DO
+
+         END IF
+
+C marine gas emissions
+         IF ( MGEM ) THEN
+            CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
+
+            L = 1
+            CNVTI = CONVPA * CNVTE * Grid_Data%RDX3F( L )  ! per sec
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                 CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
+                  N = 0
+                  DO S = 1, NMGSPC
+                     V = MGSPC_MAP( S )
+                     IF ( V .GT. 0 ) THEN
+                        N = N + 1
+                        VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
+     &                                    + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_MG( N,C,R)
                       END IF
                   END DO
                END DO
@@ -464,7 +501,8 @@ C lightning NO
                      CNVTC = CNVTI * Met_Data%RRHOJ( C,R,L )
                      V = LTNG_MAP
                      VDEMIS( V,L,C,R ) = VDEMIS( V,L,C,R )
-     &                                 + CNVTC * GC_EMIS_FAC( V ) * VDEMIS_LT( C,R,L )
+     &                                 + CNVTC * GC_EMIS_FAC( V )
+     &                                         * VDEMIS_LT( C,R,L )
                   END DO
                END DO
             END DO

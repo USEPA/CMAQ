@@ -378,7 +378,7 @@ C>> WTH
                GSPC( J ) = GC_SPC( GC_EMIS_MAP( J ) )
                SPC_PTEM_MAP( L ) = J
                PTEM_MAP( L ) = IDX
-	       SPC_PTEM_FAC( L ) = GC_EMIS_FAC( J )
+               SPC_PTEM_FAC( L ) = GC_EMIS_FAC( J )
 #ifdef Verbose
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )
@@ -397,7 +397,7 @@ C>> WTH
                GSPC( J ) = NR_SPC( NR_EMIS_MAP( J ) )
                SPC_PTEM_MAP( L ) = J + NSPC2
                PTEM_MAP( L ) = IDX
-	       SPC_PTEM_FAC( L ) = NR_EMIS_FAC( J )
+               SPC_PTEM_FAC( L ) = NR_EMIS_FAC( J )
 #ifdef Verbose
                WRITE( LOGDEV,1045 ) L, PTEM_MAP( L ), TRIM( STKEM_NAME( IDX ) ),  
      &         SPC_PTEM_MAP( L ), TRIM( GSPC( J ) )

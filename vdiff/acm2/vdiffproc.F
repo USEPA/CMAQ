@@ -76,6 +76,7 @@ C                     implementation
 C                   - Added a block of code to allow non I/O processors
 C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
+C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -343,7 +344,7 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS from EMIS_DEFN module
-      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA )
+      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CONVPA, CGRID )
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_EMIS+1
@@ -440,17 +441,17 @@ C If last call this hour:  write accumulated depositions:
             WRITE_FIRSTIME = .FALSE.
 
             IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-               IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSNONIO, PNAME ) ) THEN
+               IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSREAD3, PNAME ) ) THEN
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
                IF ( MOSAIC ) THEN
-                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSNONIO, PNAME ) ) THEN
+                  IF ( .NOT. OPEN3( CTM_DRY_DEP_MOS, FSREAD3, PNAME ) ) THEN
                      XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_MOS)
                      CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                   END IF
                   IF ( FST ) THEN
-                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSNONIO, PNAME ) ) THEN
+                     IF ( .NOT. OPEN3( CTM_DRY_DEP_FST, FSREAD3, PNAME ) ) THEN
                         XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_FST)
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                      END IF
