@@ -123,6 +123,10 @@ C Local Variables:
 
          CHARACTER( 16 ), SAVE :: CTM_EMLAYS = 'CTM_EMLAYS'    ! env var for no. of
                                                                ! emiss. layers
+         LOGICAL :: ZERO_PCSOA
+         CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
+                                                                    ! pcSOA modeling
+         
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
          CHARACTER( 120 ) :: XMSG = ' '
@@ -310,6 +314,23 @@ C combined gas emssions conversion factor
          STRT_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + 1
          FINI_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
 
+C Let the user set the pcVOC species (which makes pcSOA) emissions
+C scaling to 0.0
+         !Retrieve the Environment Variable allowing the User to Toggle
+         !the pcVOC emissions
+         ZERO_PCSOA = .FALSE.         ! default
+         VARDESC = 'Flag for Ignoring the pcSOA species'
+         ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
+
+         !Find the index for the pcVOC species in the emissions
+         !scale-factor vector
+         DO V = 1, N_GC_EMIS
+            IF ( GC_EMIS( V ) == 'PCVOC' ) THEN
+               GC_EMIS_FAC( V ) = 0.0
+            ENDIF
+         ENDDO
+
+C RETURN FROM INITIALIZATION
          SUCCESS = .TRUE.; RETURN
 
          END FUNCTION EMIS_INIT
@@ -394,8 +415,8 @@ C                                       vvvvvvv - emis surrogate names
 
             !READ Non-Carbon Organic Matter From Gas Emissions
             IF ( GC_EMIS( S ) == 'POC' ) THEN
-	       BUFF2 = 0.0
-	       IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
+	          BUFF2 = 0.0
+	          IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,
      &                          JDATE, JTIME, BUFF2 ) ) THEN
                  XMSG = 'Could not read '
