@@ -42,6 +42,9 @@ C   30 Mar 01 J.Young: elim reference to grid
 C    6 Jul 10 J.Young: minor mods - F90-ize
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   11 Apr 16 D.Wong: formulated a robust way to handle a situation when
+C                     ACONC file with STIME3 = starting time of the simulation,
+C                     and the file is emtpy and requires to go through CHECK3
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -50,6 +53,7 @@ C-----------------------------------------------------------------------
 
 C Includes:
       INCLUDE SUBST_FILES_ID    ! file name parameters
+      INCLUDE 'STATE3.EXT'
       
 C Arguments:
       INTEGER, INTENT( IN ) :: STDATE   ! Current date (YYYYDDD)
@@ -71,11 +75,14 @@ C Local Variables:
       INTEGER N         ! Loop index
       INTEGER RUNLEN    ! Length of run
       INTEGER STATUS    ! Status of returned value
-      INTEGER LOGDEV    ! Log file device no.
+!     INTEGER LOGDEV    ! Log file device no.
 
       LOGICAL LERROFF   ! Flag to stop run if errors found
       LOGICAL LERROR    ! Flag to indicate error for 1 or more files
       LOGICAL LOK       ! Flag to indicate error for 1 file
+
+      INTEGER :: FID
+      INTEGER, EXTERNAL :: NAME2FID
 
 C-----------------------------------------------------------------------
 
@@ -94,7 +101,7 @@ C-----------------------------------------------------------------------
      &                 RUNLEN, STATUS )
 
       DO N = 1, N_FILES      
-        
+
 C skip Ping and Mepse files
          IF ( INDEX( LGCL_NAME( N ), 'PING'  ) .EQ. 0 .AND. 
      &        INDEX( LGCL_NAME( N ), 'MEPSE' ) .EQ. 0 ) THEN
@@ -104,7 +111,7 @@ C skip Ping and Mepse files
             IF ( LOK ) THEN
 
                IF ( DESC3( LGCL_NAME( N ) ) ) THEN
-
+     
 C only check gridded or boundary files
                   IF ( FTYPE3D .EQ. GRDDED3 .OR. FTYPE3D .EQ. BNDARY3 ) THEN
 
@@ -118,11 +125,15 @@ c check time steps for time dependent files
                         JDATE = STDATE
                         JTIME = STTIME
 
-                        IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
-     &                                     JDATE, JTIME ) ) THEN
-                           LOK = .FALSE.
-                           MSG = 'Starting time not on file'
-                           CALL M3MESG( MSG )
+                        FID   = NAME2FID( LGCL_NAME( N ) )
+
+                        IF ( MXREC3( FID ) .GT. 0 ) THEN
+                           IF ( .NOT. CHECK3( LGCL_NAME( N ), ALLVAR3,
+     &                                        JDATE, JTIME ) ) THEN
+                              LOK = .FALSE.
+                              MSG = 'Starting time not on file'
+                              CALL M3MESG( MSG )
+                           END IF
                         END IF
  
 c skip checking ending time for output files

@@ -26,6 +26,7 @@
 !    the CB6r3 chemical mechanism used by the Environ CAMX model consult 
 !    references 8 and 9.
 ! 22 Feb 16 B.Hutzell: Added Flag stating whether module is initialized
+! 24 Mar 16 G. Sarwar: Added heterogeneous uptake of BRONO2 on aerosols
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -45,7 +46,7 @@
        
        PRIVATE 
 
-       INTEGER, PARAMETER :: NUMB_AERO_RATES = 19
+       INTEGER, PARAMETER :: NUMB_AERO_RATES = 21
        
        CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
      &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
@@ -57,7 +58,8 @@
      &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
      &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
      &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
-     &                       'HETERO_NTR2      ' /)
+     &                       'HETERO_NTR2      ', 'HETERO_BRONO2IJ  ',
+     &                       'HETERO_BRONO2K '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
@@ -78,6 +80,8 @@
        INTEGER, PARAMETER  :: IA_PNCOMLJ        =   17
        INTEGER, PARAMETER  :: IA_IEPOX          =   18
        INTEGER, PARAMETER  :: IA_NTR2           =   19
+       INTEGER, PARAMETER  :: IA_BRONO2IJ       =   20
+       INTEGER, PARAMETER  :: IA_BRONO2K        =   21
 
 
        INTEGER, PARAMETER :: INDEX_AERO_RATES( NUMB_AERO_RATES ) = 
@@ -90,8 +94,9 @@
      &                       IA_H2NO3PBJ , IA_N2O5I    , 
      &                       IA_N2O5J    , IA_PNCOMLI  ,
      &                       IA_PNCOMLJ  , IA_IEPOX    ,
-     &                       IA_NTR2    /)
- 
+     &                       IA_NTR2     , IA_BRONO2IJ ,
+     &                       IA_BRONO2K  /)
+
        INTEGER               :: SELECTED_AERO_RATES
        INTEGER, ALLOCATABLE  :: WHICH_AERO_RATE( : )
        
@@ -170,8 +175,8 @@ c            of inorganic reactive trace gases in the atmosphere. Atmos. Chem.
 c            Phys. Discuss., 14, 15645–15682, 2014. 
 c            www.atmos-chem-phys-discuss.net/14/15645/2014/doi:10.5194/acpd-14-15645-2014.pdf
 C 02/09/15 - B.Hutzell - corrected NO2 rate by a factor of two based consulting the stoiciometery for 
-C            reaction published in Sarwar et al. (2008) and its analytical solution
-
+c            reaction published in Sarwar et al. (2008) and its analytical solution
+c 03/24/16 - G. Sarwar - Heterogeneous uptake of BRONO2 on aerosols
 c
 c
 c  REFERENCES:
@@ -217,6 +222,11 @@ C
 C   9. Liu, S., J.E. Shilling, C. Song, N. Hiranuma, R.A. Zaveri, L.M. Russell,
 C      Hydrolysis of Organonitrate Functional Groups in Aerosol Particles.
 C      Aerosol Sci. Technol., 46, 1359-1369, 2012.
+C
+C  10. Yang, X., R. A. Cox, N. J. Warwick, J. A. Pyle, G. D. Carver, F. M.
+C      O'Connor, and N. H. Savage, Tropospheric bromine chemistry
+C      and its impacts on ozone: A model study, J. Geophys. Res., 110, D23311,
+C      doi:10.1029/2005JD006244, 2005.
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
@@ -244,12 +254,14 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: AQUEOUS_FREQUENCY = 1.0D+9
       REAL( 8 ), PARAMETER :: INV_SQRT_MWNO2  = 1.47425932467825D-1
       REAL( 8 ), PARAMETER :: INV_SQRT_MWN2O5 = 9.62161363758323D-2
+      REAL( 8 ), PARAMETER :: INV_SQRT_MWBRONO2 = 8.394770000000D-2
+
       REAL( 8 ), PARAMETER :: UGM3_CONV_FAC   = 8.31251724585556D00 ! =1.0E-3*AIRDENS_STD*(PRESS_STD/TEMP_STD)
       REAL( 8 ), PARAMETER :: COEF1           = 7.24382926227485D10 ! Molec/cc to ppm conv factor 
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
-
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
+      REAL( 8 ), PARAMETER :: STD_DIFF_BRONO2 = 0.1051D-4  ! BRONO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
       REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
@@ -279,6 +291,7 @@ C *** Local Variables
       REAL( 8 )    :: KN2O5( N_MODE  ) ! pseudo-first order rate constant, sec-1
       REAL( 8 )    :: KNO2             ! pseudo-first order rate constant, sec-1
       REAL( 8 )    :: KIEPOX           ! pseudo-first order rate constant, sec-1
+      REAL( 8 )    :: KBRONO2          ! pseudo-first order rate constant, sec-1
 
       REAL( 8 )    :: CBAR_COEFF       ! cell coefficient for mean molecular speed
       REAL( 8 )    :: ADJUST_DIFF      ! Cell temp and press correction to diffusivity
@@ -298,7 +311,10 @@ C *** Local Variables
       
       REAL( 8 )    :: CBAR             ! molecular velocity of N2O5 (m/s)
       REAL( 8 )    :: CBARIEPOX        ! molecular velocity of IEPOX (m/s)
+      REAL( 8 )    :: CBAR_BRONO2      ! molecular velocity of BRONO2 (m/s)
+      REAL( 8 )    :: BRONO2_RXN_TIME  ! BRONO2 reaction time per aerosol surface area density (s/m)
 
+      REAL( 8 )    :: INV_DIFF_BRONO2  ! reciprocal molecular diffusivity [m2/sec]
 
       LOGICAL      :: M3_WET_FLAG ! true = include H2O and SOA in 3rd moment
       LOGICAL      :: LIMIT_SG    ! fix coarse and accum Sg's to the input value?
@@ -343,12 +359,16 @@ C *** variables for getting aerosol diagnostic file flag
 C *** Statement Function **************
       REAL( 8 )            :: INV_ESATL ! arithmetic statement function for reciporcal vapor pressure [Pa]
       REAL( 8 )            :: TT
+
+! reciprocal of rxn probability for BRONO2 on aerosol, Yang et al., JGR, 2005
+      REAL( 8 ), PARAMETER :: INV_GAMMA_BRONO2 = 1.0D0 / 0.3D0
 C *** Coefficients for the equation, ESATL defining saturation vapor pressure
 !     REAL( 8 ), PARAMETER :: AL = 610.94D0 / STDATMPA
       REAL( 8 ), PARAMETER :: AL = 610.94D0 
       REAL( 8 ), PARAMETER :: BL = 17.625D0
       REAL( 8 ), PARAMETER :: CL = 243.04D0
       REAL( 8 ), PARAMETER :: DL = 1.0D0 / AL
+
 
 #ifdef verbose_aerosol_chemistry
        LOGICAL              :: DUMP_CELL
@@ -578,6 +598,10 @@ C *** correct N2O5 molecular diffusivity for ambient conditions
 
                INV_DIFFUSIVITY  = 1.0D0 / ( STD_DIFF_N2O5 * ADJUST_DIFF )
 
+C *** correct BRONO2 molecular diffusivity for ambient conditions - assumed similar to that of N2O5
+
+               INV_DIFF_BRONO2  = 1.0D0 / ( STD_DIFF_BRONO2 * ADJUST_DIFF )
+
 C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                YIELD_CLNO2 = 0.0D0
                YIELDIJ     = 0.0D0
@@ -627,8 +651,11 @@ c *** compute yield from lumped Aitken and Accumulations concentrations
 C *** calculate aerosol surface area
                TOTSURFA = ( WET_M2( 1 ) + WET_M2( 2 ) ) * DPI
 
+C *** set up variables needed for calculating K_BRONO2
+               CBAR_BRONO2     = CBAR_COEFF * INV_SQRT_MWBRONO2
+               BRONO2_RXN_TIME = 4.0D0 * INV_GAMMA_BRONO2 / CBAR_BRONO2
+
                LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
-             
  
                SELECT CASE( WHICH_AERO_RATE( IRATE ) )
                   CASE( IA_N2O5IJ )  
@@ -799,6 +826,25 @@ C hydrolysis
                         KHETERO( IRATE, C, R, L ) = REAL( F_PART_NTR2 * KHON, 8 ) ! [1/min]
      &                                            * ( 5.0D0 * AIRRH - 1.0D0 )
                      END IF
+
+                 CASE( IA_BRONO2IJ )
+C *** calculate total KBRONO2 from fine modes
+                     KBRONO2 = WET_M2( 1 ) * DPI
+     &                       / ( 0.5D0 * DE_WET( 1 ) * INV_DIFF_BRONO2
+     &                           + BRONO2_RXN_TIME )
+     &                       + WET_M2( 2 ) * DPI
+     &                       / ( 0.5D0 * DE_WET( 2 ) * INV_DIFF_BRONO2
+     &                           + BRONO2_RXN_TIME )
+
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * KBRONO2
+
+                 CASE( IA_BRONO2K )
+C *** calculate KBRONO2 from coarse mode
+                     KBRONO2 = WET_M2( 3 ) * DPI
+     &                       / ( 0.5D0 * DE_WET( 3 ) * INV_DIFF_BRONO2
+     &                            + BRONO2_RXN_TIME )
+
+                     KHETERO( IRATE, C,R,L ) = 60.0D0 * KBRONO2
 
                END SELECT
 
