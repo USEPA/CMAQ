@@ -1678,7 +1678,7 @@ REACTIONS [CM] =
 <OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
 
 ! Formation of Simple OM
-<SIMP>  VOCSMP + OH       = OH  + SMPRXN  # 1.25E-11;
+<SIMP>  PCVOC + OH       = OH  + PCSOARXN  # 1.25E-11;
 
 ! Aging reactions for primary organic carbon
 

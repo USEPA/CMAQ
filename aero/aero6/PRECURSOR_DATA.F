@@ -84,7 +84,7 @@ C                    ----------   ----------  ------
      & precursor_type( 'OH     ', .False. , .False. ),
      & precursor_type( 'PAHNRXN', .True.  , .True.  ),
      & precursor_type( 'PAHHRXN', .True.  , .True.  ),
-     & precursor_type( 'SMPRXN ', .True.  , .True.  ),
+     & precursor_type( 'PCSOARXN',.True.  , .True.  ),
      & precursor_type( 'PHGRXN ', .True.  , .True. )/)
 
 C Required species

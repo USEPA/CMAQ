@@ -184,7 +184,7 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','AISO2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','AISO3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ASMPJ  ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'       ','APCSOJ ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH3J ','       '/), cm_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
@@ -240,7 +240,7 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! AISO2
      &       0.0,     0.0,     0.0,         ! AISO3
      &       0.0,     0.0,     0.0,         ! ASQT
-     &       0.0,     0.0,     0.0,         ! ASMP !Simple OM
+     &       0.0,     0.0,     0.0,         ! APCSO !This is pcSOA
      &       0.0,     0.0,     0.0,         ! APAH1
      &       0.0,     0.0,     0.0,         ! APAH2
      &       0.0,     0.0,     0.0,         ! APAH3

@@ -97,7 +97,7 @@ C                  -------    -------  --------  -------  ------    --   ----   
      & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN'),
      & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN'),
      & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN'),
-     & vapor_type('LV_SMP ',  1.0   ,   1.0e-5,  40.0E3, 'ASMPJ  ', 'A', 10.0, 'SMPRXN' ),
+     & vapor_type('LV_PCSOG', 1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
      & vapor_type('VLVPO1 ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J', 'A',  0.0, ''       ),
      & vapor_type('VSVPO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, ''       ),
      & vapor_type('VSVPO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, ''       ),
@@ -155,7 +155,7 @@ C                     -------    -------    ------   ------
      & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
      & orgprod_type( 'ISOPRXN', 'ISOPRXN', '      ', 0.000 ),
      & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ),
-     & orgprod_type( 'SMPRXN ', 'VOCSMP ', '      ', 0.000 ) /)
+     & orgprod_type( 'PCSOARXN','PCVOC  ', '      ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
