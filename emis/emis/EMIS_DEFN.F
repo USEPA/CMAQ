@@ -123,9 +123,6 @@ C Local Variables:
 
          CHARACTER( 16 ), SAVE :: CTM_EMLAYS = 'CTM_EMLAYS'    ! env var for no. of
                                                                ! emiss. layers
-         LOGICAL :: ZERO_PCSOA
-         CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
-                                                                    ! pcSOA modeling
          
          CHARACTER( 16 ) :: PNAME = 'EMIS_INIT'
          CHARACTER( 80 ) :: VARDESC   ! env variable description
@@ -196,6 +193,7 @@ C lightning NO emissions?
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+C Initialize Aerosol Emissions         
          IF ( N_AE_SPC .GT. 0 ) THEN
             WRITE( LOGDEV,'( /5X, A )' ) 'Aerosol Emissions Processing in '
      &                                // 'Vertical diffusion ...'
@@ -212,6 +210,7 @@ C lightning NO emissions?
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+C Map Emissions Surrogates to Global Variables
          N_SPC_EMIS = N_GC_EMIS
      &              + NEMIS_AE
      &              + N_NR_EMIS
@@ -314,22 +313,6 @@ C combined gas emssions conversion factor
          STRT_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + 1
          FINI_TR = N_GC_EMIS + NEMIS_AE + N_NR_EMIS + N_TR_EMIS
 
-C Let the user set the pcVOC species (which makes pcSOA) emissions
-C scaling to 0.0
-         !Retrieve the Environment Variable allowing the User to Toggle
-         !the pcVOC emissions
-         ZERO_PCSOA = .FALSE.         ! default
-         VARDESC = 'Flag for Ignoring the pcSOA species'
-         ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
-
-         !Find the index for the pcVOC species in the emissions
-         !scale-factor vector
-         DO V = 1, N_GC_EMIS
-            IF ( GC_EMIS( V ) == 'PCVOC' ) THEN
-               GC_EMIS_FAC( V ) = 0.0
-            ENDIF
-         ENDDO
-
 C RETURN FROM INITIALIZATION
          SUCCESS = .TRUE.; RETURN
 
@@ -394,7 +377,7 @@ C Get domain decomp info from the emissions file
             CALL SUBHFILE ( EMIS_1, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
             CNVTP = CONVPA * CNVTE
 
-         END IF
+         END IF    !FirstTime
 
 C read & interpolate emissions (create VDEMIS in the species class order)
 
@@ -450,7 +433,7 @@ C  loads."
 
          END DO   ! V
 
-C beis
+C Retrieve BEIS Emissions
 
          IF ( BIOGEMIS ) THEN
 

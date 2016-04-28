@@ -163,6 +163,7 @@ C                     -------    -------    ------   ------
       Integer :: orgprod_aeroMap( n_orgprod )  ! orgprod pointers to aerospc
       Integer :: soa_aeroMap    ( n_vapor )    ! soa pointers to aerospc
 
+
 C mapping variables used for loading and unloading to CGRID array
       Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
       Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID

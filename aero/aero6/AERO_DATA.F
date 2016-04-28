@@ -156,8 +156,6 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','AMGJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PMG   ',es_acc),
      & spcs_type((/'       ','AKJ    ','       '/), cm_set, 2200.0, F, F, F,  1,  1.0,'DUST  ','PK    ',es_acc),
      & spcs_type((/'       ','ACAJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0,'DUST  ','PCA   ',es_acc),
-  !   & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
-  !   & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 2000.0, F, F, F,  0,  4.0,'DUST  ','PNCOM ',es_fin),
      & spcs_type((/'AECI   ','AECJ   ','       '/), cm_set, 2200.0, F, F, F,  0, 10.0,'SOOT  ','PEC   ',es_fin),
      & spcs_type((/'       ','AFEJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PFE   ',es_acc),
      & spcs_type((/'       ','AALJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0,'DUST  ','PAL   ',es_acc),
@@ -190,16 +188,33 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','APAH3J ','       '/), cm_set, 1550.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',(/0.000,0.000,0.000/)),      !Vol
-     & spcs_type((/'ALVPO1I','ALVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.009,0.081,0.000/)),  !0.09*1
-     & spcs_type((/'ASVPO1I','ASVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/.0045,.0405,0.000/)),  !0.09*0.5
-     & spcs_type((/'ASVPO2I','ASVPO2J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.000,0.000,0.000/)),  !0.14*0
-     & spcs_type((/'       ','ASVPO3J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.000,0.000,0.000/)),  !0.18*0
-     & spcs_type((/'       ','AIVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',(/0.000,0.000,0.000/)),  !0.5 *0
+     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),  
+     & spcs_type((/'ALVPO1I','ALVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
+     & spcs_type((/'ASVPO1I','ASVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
+     & spcs_type((/'ASVPO2I','ASVPO2J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
+     & spcs_type((/'       ','ASVPO3J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
+     & spcs_type((/'       ','AIVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
      & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6,'DUST  ','      ',es_cor),
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6,'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1, 1.37,'SOLUTE','      ',es_cor)/)
+ 
+C Primary Organic Aerosol Volatility Distributions
+       Integer, Parameter :: N_VBS_BIN = 5
+       Character(10)   :: POA_NAME( N_VBS_BIN ) =   (/'LVPO1','SVPO1','SVPO2','SVPO3','IVPO1'/)
+       Real, Parameter :: POA_OP_VF( N_VBS_BIN )= (/0.09,  0.09,   0.14,   0.18,   0.5/)  !Aggregated
+       !Real, Parameter :: POA_GV_VF(N_VBS_BIN) = (/0.27,  0.15,   0.26,   0.15,   0.17/) !Gasoline
+       !Real, Parameter :: POA_DV_VF(N_VBS_BIN) = (/0.03,  0.25,   0.37,   0.24,   0.11/) !Diesel
+       !Real, Parameter :: POA_BB_VF(N_VBS_BIN) = (/0.2,   0.1,    0.1,    0.2,    0.4/)  !Biomass Burning
+       !Real, Parameter :: POA_NV_VF(N_VBS_BIN) = (/1.0,   0.0,    0.0,    0.0,    0.0/)  !Nonvolatile
+       !Real, Parameter :: POA_MC_VF(N_VBS_BIN) = (/0.35,  0.35,   0.1,    0.1,    0.1/)  !Meat Cooking
 
+       !POA_AMF is the fraction of total emissions in the particle phase. 
+       !This parameter is for distributing the total emissions between
+       !gas and particle BEFORE the aerosol size distribution is applied. 
+       !This helps prevent numerical issues with shrinking the particles
+       !instantaneously.
+       Real, Parameter :: POA_AMF(N_VBS_BIN)   = (/1.0, 0.5, 0.0, 0.0, 0.0/)  
+ 
 C Sea-Salt Speciation factors
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
 C            Aitken    Accum   Coarse
@@ -212,8 +227,6 @@ C           -------  -------  -------
      &       0.0,     0.0368,  0.0,         ! AMG
      &       0.0,     0.0114,  0.0,         ! AK
      &       0.0,     0.0118,  0.0,         ! ACA
-   !  &       0.0,     0.0,     0.0,         ! APOC
-   !  &       0.0,     0.0,     0.0,         ! APNCOM
      &       0.0,     0.0,     0.0,         ! AEC
      &       0.0,     0.0,     0.0,         ! AFE
      &       0.0,     0.0,     0.0,         ! AAL
@@ -470,7 +483,6 @@ C Find indices of required species
       ah3op_idx   = findAero( req_h3op,   .True. )
       asoil_idx   = findAero( req_soil,   .True. )
       acors_idx   = findAero( req_cors,   .True. )
-      !apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
       aphgj_idx   = findAero( req_phgj,  .False. )
 
@@ -596,7 +608,7 @@ C are the same and set pmem_units
             pmem_map_name (n_emis_pm ) = aerospc( v )%emis
 
             !Add Non-Carbon Primary Organic Emissions Surrogate and Map
-	    !it to the Carbon Primary Organic Emissions Surrogate
+	        !it to the Carbon Primary Organic Emissions Surrogate
             If ( aerospc( v )%emis == 'POC' ) Then
               indx = index1( 'PNCOM', nvars3d, vname3d )
               If ( indx .Le. 0 ) Then

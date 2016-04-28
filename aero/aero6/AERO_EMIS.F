@@ -235,9 +235,15 @@ C Arguments:
          INTEGER, INTENT( IN ) :: NEMIS_AE   ! number of aerosol emissions species
          LOGICAL SUCCESS
 
+C External Functions:
+         INTEGER, EXTERNAL :: FINDEX       !  looks up number in table.
+
 C Local Variables:
 
          CHARACTER( 16 ), SAVE :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
+         LOGICAL :: ZERO_PCSOA
+         CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
+                                                                    ! pcSOA modeling
 
 C Geometric mean diameter by volume (or mass) of emitted particles in 
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
@@ -263,7 +269,8 @@ C Miscellaneous variables
          INTEGER STATUS                   ! ENV..., ALLOCATE status
          CHARACTER( 16 ), SAVE :: PNAME = 'AERO_EMIS_INIT  '
          CHARACTER( 16 ) :: VNAME         ! temp var for species names
-         INTEGER L, N, S                  ! Loop indices
+         CHARACTER( 50 ) :: VARDESC       ! variable for reading environ. variables
+         INTEGER L, N, S, V, IPOA         ! Loop indices
 
 C ----------------------------------------------------------------------
 
@@ -407,6 +414,16 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
                      L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
                      IF ( L .GT. 0 ) THEN
                         EM_FAC( S,N ) = AE_EMIS_FAC( L )
+                        !Test for POA Species and Aggregate Volatility
+                        !Parameters
+                        IF ( AEROSPC( S )%EMIS .EQ. 'POC' ) THEN
+                            DO IPOA = 1,N_VBS_BIN
+                               IF ( AEROSPC( S )%NAME( N )(2:6) == POA_NAME( IPOA ) ) THEN
+                                  EM_FAC( S,N ) = EM_FAC( S,N ) * POA_OP_VF( IPOA ) * POA_AMF( IPOA )
+                               ENDIF
+                            ENDDO
+                        ENDIF
+
                         if ( em_fac( s,n ) .ne. 1.0 ) then
                            write( logdev,* ) ' ', s, n, aerospc( s )%name( n ), em_fac( s,n )
                         end if
@@ -427,6 +444,37 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
                END DO
             END IF
          END DO
+
+C *** Let the user set the pcVOC species (which makes pcSOA) emissions
+C *** scaling to 0.0
+         !Retrieve the Environment Variable allowing the User to Toggle
+         !the pcVOC emissions
+         ZERO_PCSOA = .FALSE.         ! default
+         VARDESC = 'Flag for Ignoring the pcSOA species'
+         ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
+
+         IF ( ZERO_PCSOA == .TRUE. ) THEN
+           !Find the index for the pcVOC species in the emissions
+           !scale-factor vector
+           V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
+           S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
+           GC_EMIS_FAC( S ) = 0.0
+         ENDIF
+
+C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
+         !Find the Index for Each Vapor and alter the emissions scaling
+         !to reflect the parameters in AERO_DATA. The GC_EMIS_FAC field
+         !from the GC namelist should account for the conversion from
+         !g/s (POC) to mol/s (Vapors). That factor is then modified
+         !by the volatility distribution itself.
+         DO IPOA = 1,N_VBS_BIN
+           VNAME = 'V' // POA_NAME( IPOA )
+           V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
+           S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
+           GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
+     &                        (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
+         ENDDO
+
 
 C *** Map aerosol number emission species and set across-the-board adjustment factors
          NUM_MAP = 0   ! array assignment
@@ -810,27 +858,6 @@ C     Binkowski & Roselle (2003).
                      END IF
                   END DO
 
-                  !In order to implement semivolatile POA, the total
-		  !mass of POC and PNCOM must be distributed out to
-		  !the semivolatile surrogates representing the distribution.
-		  !If this is the aerosol species linked to POC then
-		  !also do all of the aerosol species linked to POA.
-                  !IF ( IDX .EQ. APOC_IDX ) THEN
-		  !  DO ISPC = 1, N_AEROSPC
-		  !    IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
-		  !       DO N = 1, N_MODE - 1
-                  !          EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
-       !&            !              AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-                  !         IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
-                  !           EMISM3( N ) = EMISM3( N ) + 
-       !&                        AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-       !&                          * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
-               !            END IF
-               !          END DO
-                    !  END IF
-                   ! END DO
-                 ! END IF
-
                   !Apply Emissions to Coarse Aerosol Mode
                   N = N_MODE
                   IF ( IDX .EQ. ASO4_IDX ) THEN
@@ -953,7 +980,7 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                   EMISM3 = 0.0    ! array assignment
                   DO S = 1, N_EMIS_PM
                      IDX = PMEM_MAP( S )
-		     DO N = 1, N_MODE - 1
+		             DO N = 1, N_MODE - 1
                         EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
      &                      AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
                         IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
@@ -963,29 +990,8 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                         END IF
                      END DO
 
-                     !In order to implement semivolatile POA, the total
-		     !mass of POC and PNCOM must be distributed out to
-		     !the semivolatile surrogates representing the distribution.
-		     !If this is the aerosol species linked to POC then
-		     !also do all of the aerosol species linked to POA.
-!                     IF ( IDX .EQ. APOC_IDX ) THEN
-!		       DO ISPC = 1, N_AEROSPC
-!  		         IF ( AEROSPC( ISPC )%EMIS .EQ. 'POA' ) THEN
-!		           DO N = 1, N_MODE - 1
-!                              EM_PART( ISPC,N ) = EM_PART( ISPC,N ) + 
-!     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-!                              IF ( .NOT. AEROSPC( ISPC )%TRACER ) THEN
-!                                 EMISM3( N ) = EMISM3( N ) + 
-!     &                           AEROSPC( ISPC )%EMIS_SPLIT( N ) * EM_RATE( S )
-!     &                              * ( F6DPIM9 / AEROSPC( ISPC )%DENSITY )
-!                              END IF
-!                           END DO
-!                         END IF
-!                       END DO
-!                     END IF
-                     
-		     !Compute Coarse Mode Properties
-		     N = N_MODE
+		             !Compute Coarse Mode Properties
+		             N = N_MODE
                      IF ( IDX .EQ. ASO4_IDX ) THEN
                         EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
                      ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
