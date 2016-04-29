@@ -67,12 +67,16 @@ C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and 
 C    products of the acid-catalyzed ring-opening of atmospherically relevant
 C    butyl epoxy alcohols," J. Phys. Chem. A., 2010, 114, 8106-8113.
-C 2. Chan, et al., Secondary organic aerosol formation from photooxidation
+C 2. Chan, et al., "Secondary organic aerosol formation from photooxidation
 C    of naphthalene and alkylnaphthalenes: implications for oxidation of
-C    intermediate volatility organic compounds (IVOCs), Atmos. Chem. Phys., 
+C    intermediate volatility organic compounds (IVOCs)", Atmos. Chem. Phys., 
 C    2009, 9, 3049-3060.
-C 3. Upadhyay, et al., Size-Differentiated Chemical Composition of Re-Suspended Soil
+C 3. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
 C    Dust from the Desert Southwest United States," Aero. and AQ Res., 2015, 387-398
+
+C 4. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
+C    Air Quality modeling system in the Pacific Northwest: 3. Size distribution of
+C    particles emitted into a mesoscale model", JGR, 115, D03204, 2010
 
 C JY: From Christian Hogrefe...
 C Based on Malm and Hand (Atmos. Env. 41, 3407-3427, 2007), the revised
@@ -228,9 +232,9 @@ C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   dust_type( (/'       ','ASIJ   ','       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
      &   dust_type( (/'       ','ATIJ   ','       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
      &   dust_type( (/'       ','AMNJ   ','       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   dust_type( (/'       ','AH2OJ  ','       '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
+     &   dust_type( (/'       ','AH2OJ  ','AH2OK  '/), (/ 0.0, 0.00541, 0.00637/) ),   ! Water
      &   dust_type( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
-     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
+     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95358/) ) /) ! Non-Anion Dust
 
 C Sea-Salt Speciation factors
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
@@ -304,7 +308,7 @@ C the dust emissions because that species is not transported in the model, rathe
 C H2O is recalculated at every time step in VOLINORG and is dependent on RH and PM
 C composition so emitted mass doesn’t matter.
 
-      Real( 8 ), Parameter :: asoil_renorm = 1.0D0 - 0.04642D0
+      Real( 8 ), Parameter :: asoil_renorm = 1.0D0 - 0.04642D0  ! = 0.95358, same as ASOIL speciation factor in the dust_spc table above
 
       Real( 8 ), Parameter :: ascat_na_fac = 0.8373D0    ! coarse sea-salt NA cation
       Real( 8 ), Parameter :: asoil_na_fac = 0.0626D0    ! for NA in windblown dust

@@ -192,15 +192,17 @@ C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C   17 Sep 14 K.Fahey:  Changed geometric mean diameter and geometric
 C                       standard deviation of emitted particles according to 
 C                       Elleman and Covert (2010)
-C   15 Apr 16 J.Young: Use aerosol factors from AERO_DATA module named constants
+C   15 Apr 16 J.Young: Use aerosol factors from the AERO_DATA module's named constants;
+C                      Moved K.Fahey's mods to geometric mean diameter and standard
+C                      deviation to the AERO_DATA module
  
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
 C                   CRC Press, 1995
-C    Elleman & Covert Aerosol size distribution modeling with the Community
+C    Elleman & Covert, "Aerosol size distribution modeling with the Community
 C                   Multiscale Air Quality modeling system in the Pacific
 C                   Northwest: 3. Size distribution of particles emitted
-C                   into a mesoscale model. J. Geophys. Res., Vol 115,
+C                   into a mesoscale model", J. Geophys. Res., Vol 115,
 C                   No D3, doi:10.1029/2009JD012401, 2010
 C    Hobbs, P.V.   "Basic Physical Chemistry for the Atmospheric Sciences",
 C                   Cambridge Univ. Press, 206 pp, 1995.

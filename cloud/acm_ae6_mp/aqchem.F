@@ -424,11 +424,11 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
 
-      REAL( 8 ), SAVE :: SOIL_FE_FAC  ! ASOIL MW to FE MW ratio
-      REAL( 8 ), SAVE :: CORS_FE_FAC
-      REAL( 8 ), SAVE :: SOIL_MN_FAC
+      REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
+      REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
+      REAL( 8 ), SAVE :: SOIL_MN_FAC  ! etc.
       REAL( 8 ), SAVE :: CORS_MN_FAC
-      REAL( 8 ), SAVE :: SEAS_NA_FAC
+      REAL( 8 ), SAVE :: SEAS_NA_FAC  ! Na molar fraction of ASEACAT
       REAL( 8 ), SAVE :: SOIL_NA_FAC
       REAL( 8 ), SAVE :: CORS_NA_FAC
       REAL( 8 ), SAVE :: SEAS_MG_FAC

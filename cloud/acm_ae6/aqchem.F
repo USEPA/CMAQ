@@ -346,9 +346,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: RECIPA1         !
       REAL( 8 ) :: RECIPA2         !
       REAL( 8 ) :: RECIPAP1        ! one over pressure (/atm)
-!     REAL( 8 ) :: RGLY3           ! liter/(mol sec)
       REAL( 8 ) :: RH2O2           !
-!     REAL( 8 ) :: RMGLY3          ! liter/(mol sec)
       REAL( 8 ) :: RMHP            !
       REAL( 8 ) :: RPAA            !
       REAL( 8 ) :: RT              ! gas const * temperature (liter atm/mol)
@@ -425,11 +423,11 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FE_SOL          ! Fractional Fe solubility, GS - July 1, 2011
       REAL( 8 ) :: MN_SOL          ! Fractional Mn solubility, GS - July 1, 2011
 
-      REAL( 8 ), SAVE :: SOIL_FE_FAC  ! ASOIL MW to FE MW ratio
-      REAL( 8 ), SAVE :: CORS_FE_FAC
-      REAL( 8 ), SAVE :: SOIL_MN_FAC
+      REAL( 8 ), SAVE :: SOIL_FE_FAC  ! Fe molar fraction of ASOIL
+      REAL( 8 ), SAVE :: CORS_FE_FAC  ! Fe molar fraction of ACORS
+      REAL( 8 ), SAVE :: SOIL_MN_FAC  ! etc.
       REAL( 8 ), SAVE :: CORS_MN_FAC
-      REAL( 8 ), SAVE :: SEAS_NA_FAC
+      REAL( 8 ), SAVE :: SEAS_NA_FAC  ! Na molar fraction of ASEACAT
       REAL( 8 ), SAVE :: SOIL_NA_FAC
       REAL( 8 ), SAVE :: CORS_NA_FAC
       REAL( 8 ), SAVE :: SEAS_MG_FAC
@@ -603,11 +601,6 @@ C...   From Jacobson, 1997
 
       RMHP = 1.90D+07 * EXP( -12.75D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
       RPAA = 3.60D+07 * EXP( -13.42D0 * ( ( 298.0D0 / TEMP )  - 1.0D0 ) )
-
-C...From Carlton et al. (2007)
-
-!     RGLY3  = 3.0D+10   ! rate constant measured at 298K
-!     RMGLY3 = 3.0D+10   ! assumed to be the same as GLY
 
 C...make initializations
 
