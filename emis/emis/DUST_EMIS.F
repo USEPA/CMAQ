@@ -121,7 +121,7 @@ C the first 12 soil types are used and the rest lumped into Other.
 
 C Variables for the windblown dust diagnostic file:
       logical, save      :: dustem_diag   ! flag for dustemis diagnostic file
-      integer, parameter :: fndust_diag = 41 ! number of fixed diagnostic output vars
+      integer, parameter :: fndust_diag = 42 ! number of fixed diagnostic output vars
       integer, save      :: ndust_diag       ! number of diagnostic output vars
       real, allocatable, save :: diagv( : ) ! diagnostic output variables
       real, allocatable, save :: dustbf( :,:,: ) ! diagnostic accumulate buffer
@@ -185,6 +185,7 @@ C                 ----------------    --------    ------------------------------
      & diag_type( 'ASO4K           ', 'g/m**3/s', 'coarse mode Sulfate                        '),
      & diag_type( 'ANO3K           ', 'g/m**3/s', 'coarse mode Nitrate                        '),
      & diag_type( 'ACLK            ', 'g/m**3/s', 'coarse mode Chlorine                       '),
+     & diag_type( 'AH2OK           ', 'g/m**3/s', 'coarse mode Water                          '),
      & diag_type( 'ASOIL           ', 'g/m**3/s', 'coarse mode total                          '),
      & diag_type( 'ANUMJ           ', '#/s     ', 'accumulation mode number                   '),
      & diag_type( 'ANUMK           ', '#/s     ', 'coarse mode number                         '),
@@ -230,7 +231,6 @@ C Arguments:
 
 C Includes:
          include SUBST_FILES_ID  ! file name parameters
- !       include SUBST_CONST     ! physical and mathematical constants
 
 C External Functions:
          integer, external :: setup_logdev
@@ -471,13 +471,6 @@ C Build the complete diagnostic name array                     n for MODIS NOAH
 
          end if   ! dustem_diag
 
-C Get soil type data   <== move to ASX_DATA_MOD ?
-!        if ( metmod .eq. 'mm5' ) then
- !          vname = 'SLTYP'
-!        else if (metmod == 'NAM') then
-!           vname = 'sotyp'
-!        end if
-
 C Get env var for erodible agriculture land fraction
          erode_agland = .false.         ! default
          vardesc = 'Flag for calculating erodible agriculture land fraction'
@@ -657,19 +650,11 @@ C Arguments:
          real,    intent( in ) :: cellhgt    ! grid-cell height [sigma]
 
 C Includes:
-
          include SUBST_FILES_ID  ! file name parameters
 
 C External Functions:
                
 C Parameters:
-!        real, parameter :: z0s = 1.0e-05  ! Surface roughness for dust [m], <--- smooth surface
-                                           ! Ref. Marticorena et al. JGR 1997
-!        real, parameter :: amen = 1.0     ! Marticorena and Bergametti, 1997
-!        real, parameter :: radg = 122.87  ! rho_air/grav [g s^2/m^4] 122.87->120.8
-!        real, parameter :: fdsa = 1.0     ! factor of dust source area 1/.1/.01
-!        real, parameter :: gmad = 0.78    ! Factor to convert geometric to aerodynamic diameter
-!        real, parameter :: cfac = amen / 9.81  ! using Met_Data%DENS1 instead of a constant -- Hosein 9/15 
          integer, parameter :: ndp = 4     ! number of soil texture type particle sizes:
                                            !  1  Coarse sand
                                            !  2  Fine-medium sand
@@ -694,7 +679,7 @@ C Parameters:
          character( 16 ) :: vname
          character( 96 ) :: xmsg
          integer status
-         integer c, r, j, m, n, v, ii
+         integer c, r, j, m, n, v
 
          integer, save   :: wstep = 0      ! local write counter
          integer         :: mdate, mtime   ! diagnostic file write date&time
@@ -709,8 +694,6 @@ C Parameters:
          real       :: lai    ( ncols,nrows )      ! leaf area index
 
          real, allocatable, save :: ustr  ( :,:,: ) ! U* [m/s]
-!        real, allocatable, save :: utstar( :,:,: ) ! threshold U* [m/s]
-!        real, allocatable, save :: utem  ( :,:,: ) ! U term = U*(U**2-Ut**2) [(m/s)**3]
          real, allocatable, save :: qam   ( :,:,: ) ! emis for landuse type [g/m**2/s]
          real, allocatable, save :: elus  ( :,:,: ) ! erodible landuse percent (0~100)
          real, allocatable, save :: fruf  ( :,:,: ) ! surface roughness factor
@@ -726,7 +709,6 @@ C Parameters:
 
          real       :: lambda, vegheight
          real       :: z0
-!        real       :: pp, calpha, pfrac
          real       :: lambdav           ! vegetation roughness density - Shao et. al [Aus. J. Soil Res., 1996]
          real       :: flxfac1, flxfac2  ! combined soli type mapping factors
          real       :: hflux, vflux      ! horizontal and vertical dust flux
@@ -900,14 +882,11 @@ C-----------------------------------------------------------------------
 
          if ( firstime ) then
             firstime = .false.
-            allocate (
-!    &                 utstar( ncols,nrows,4 ),
-     &                   ustr( ncols,nrows,n_dlcat+1 ),
-!    &                   utem( ncols,nrows,4 ),
-     &                    qam( ncols,nrows,n_dlcat+1 ),
-     &                   fruf( ncols,nrows,n_dlcat+1 ),
-     &                    kvh( ncols,nrows,n_dlcat+1 ),
-     &                   elus( ncols,nrows,n_dlcat+1 ), stat = status )
+            allocate ( ustr( ncols,nrows,n_dlcat+1 ),
+     &                  qam( ncols,nrows,n_dlcat+1 ),
+     &                 fruf( ncols,nrows,n_dlcat+1 ),
+     &                  kvh( ncols,nrows,n_dlcat+1 ),
+     &                 elus( ncols,nrows,n_dlcat+1 ), stat = status )
             if ( status .ne. 0 ) then
                xmsg = '*** Failure allocating USTR, QAM, FRUF, KVH, or ELUS'
                call m3exit( pname, jdate, jtime, xmsg, xstat1 )
@@ -977,10 +956,6 @@ C --------- ###### Start Main Loop ###### ---------
                fruf( c,r,m ) = 0.0
                kvh ( c,r,m ) = 0.0
             end do
-!            do n = 1, ndp
-!               utstar( c,r,n ) = 0.0
-!               utem( c,r,n )   = 0.0
-!            end do
  
             rlay1hgt = rjacm ( c,r ) / cellhgt
 
@@ -1246,16 +1221,22 @@ C 2nd moment multiplied by PI to obtain the surface area emissions rate.
 
                n = n + 8
 
-               do v = 1, ndust_spc-1
-                  diagv( v+n ) = dustoutm( v,2,c,r )  ! accum. mode
+               m = 0
+               do v = 1, ndust_spc
+                  if ( trim( dust_spc( v )%name( 2 ) ) .ne. ' ' ) then  ! accum. mode
+                     m = m + 1
+                     diagv( m+n ) = dustoutm( v,2,c,r )
+                  end if
                end do
 
-               n = n + ndust_spc - 1
-               do v = 1, 3
-                  diagv( v+n ) = dustoutm( v,3,c,r )  ! coarse mode
+               do v = 1, ndust_spc
+                  if ( trim( dust_spc( v )%name( 3 ) ) .ne. ' ' ) then  ! coarse mode
+                     m = m + 1
+                     diagv( m+n ) = dustoutm( v,3,c,r )
+                  end if
                end do
-               n = n + 4
-               diagv( n ) = dustoutm( ndust_spc,3,c,r )  ! 'ASOIL'
+
+               n = n + m
 
                diagv( n+1 ) = dustoutn( 2,c,r )
                diagv( n+2 ) = dustoutn( 3,c,r )
