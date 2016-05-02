@@ -268,11 +268,11 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
-<<<<<<< HEAD
             Else If( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
-=======
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX(MECHNAME, 'CB05EH51') .GT. 0) then
->>>>>>> master
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
