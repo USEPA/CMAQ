@@ -10,12 +10,13 @@ set echo
 
 #define path to mechanism include or module data files
  set mech_archive = /home/${USER}/CCTM_git_repository/MECHS
+ set mechanism    = cb05e51_ae6_aq
+ setenv APPL ${mechanism}
+#setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
+#setenv GC_INC ${mech_archive}/cb05tucl_ae6_aq
+ setenv GC_INC ${mech_archive}/${mechanism}
 
- setenv suffix ikx
- setenv APPL cb05e51_ae6_aq
- setenv GC_INC /home/${USER}/tools/mech_processor/output/cb05e6cl_ae6_aq
- setenv GC_INC /home/${USER}/CCTM_git_repository/MECHS/cb05e51_ae6_aq
-#use RXNS_DATA_MODULE, comment out if CMAQ v5.02 and keep if CMAQ v5.1
+#use RXNS_DATA_MODULE, comment out if not use
  setenv USE_RXNS_MODULES T
  
 #Whether to include spectral values of refractive indices for aerosol species [T|Y|F|N]
@@ -31,8 +32,6 @@ setenv SPLIT_OUTPUT T
 
 set BASE  = /home/${USER}/tools/CSQY_table_processor
 set XBASE = /home/${USER}/tools/CSQY_table_processor
-
-
 set EXEC  = CSQY_TABLE_PROCESSOR_${APPL}
 
 
@@ -92,5 +91,6 @@ endif
  
  cd $BASE
 
+\ls ${OUTDIR}
 
 exit()
