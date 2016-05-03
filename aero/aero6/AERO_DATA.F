@@ -60,6 +60,8 @@ C              geometric standard deviation of emitted particles according to
 C              Elleman and Covert (2010)
 C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow Chan et al.
 C JY  08/24/15 Changed visual index factors
+C HOTP 2/17/2016 Updated SOA densities. BTX follows Ng et al. 2007. 
+C                1.4 g/cm3 used by default.
 C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
 C              DUST_EMIS, aero_subs:VOLINORG, and aqchem 
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
@@ -72,12 +74,16 @@ C 2. Chan, et al., "Secondary organic aerosol formation from photooxidation
 C    of naphthalene and alkylnaphthalenes: implications for oxidation of
 C    intermediate volatility organic compounds (IVOCs)", Atmos. Chem. Phys., 
 C    2009, 9, 3049-3060.
-C 3. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
+C 3. Ng, N. L., Kroll, J. H., Chan, A. W. H., Chhabra, P. S., Flagan, R.
+C    C., and Seinfeld, J. H.: Secondary organic aerosol formation from
+C    m-xylene, toluene, and benzene, Atmos. Chem. Phys., 7, 3909-3922,
+C    doi:10.5194/acp-7-3909-2007, 2007.
+C 4. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
 C    Air Quality modeling system in the Pacific Northwest: 3. Size distribution of
 C    particles emitted into a mesoscale model", JGR, 115, D03204, 2010
-C 4. Simon, et al., "The development and uses of EPA's SPECIATE database",
+C 5. Simon, et al., "The development and uses of EPA's SPECIATE database",
 C    Atmos. Poll. Res., 1, 196-206, 2010
-C 5. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
+C 6. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
 C    Dust from the Desert Southwest United States," Aero. and AQ Res., 2015, 387-398
 
 C JY: From Christian Hogrefe...
@@ -166,8 +172,8 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','AMGJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 'DUST  ','PMG   ',es_acc),
      & spcs_type((/'       ','AKJ    ','       '/), cm_set, 2200.0, F, F, F,  1,  1.0, 'DUST  ','PK    ',es_acc),
      & spcs_type((/'       ','ACAJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 'DUST  ','PCA   ',es_acc),
-     & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 2000.0, F, F, F,  0,  4.0, 'DUST  ','POC   ',es_fin),
-     & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 2000.0, F, F, F,  0,  4.0, 'DUST  ','PNCOM ',es_fin),
+     & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 1400.0, F, F, F,  0,  4.0, 'DUST  ','POC   ',es_fin),
+     & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 1400.0, F, F, F,  0,  4.0, 'DUST  ','PNCOM ',es_fin),
      & spcs_type((/'AECI   ','AECJ   ','       '/), cm_set, 2200.0, F, F, F,  0, 10.0, 'SOOT  ','PEC   ',es_fin),
      & spcs_type((/'       ','AFEJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PFE   ',es_acc),
      & spcs_type((/'       ','AALJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PAL   ',es_acc),
@@ -177,29 +183,29 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), cm_set, 1000.0, T, F, F,  0,  0.0, 'WATER ','PH2O  ',es_fin),
      & spcs_type((/'AH3OPI ','AH3OPJ ','AH3OPK '/), cm_set, 1000.0, T, F, T,  0,  0.0, 'WATER ','      ',es_0),
      & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PMOTHR',es_fin),
-     & spcs_type((/'       ','AALK1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AALK2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATRP1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATRP2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AALK1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AALK2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL3J ','       '/), cm_set, 1330.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL1J ','       '/), cm_set, 1240.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL2J ','       '/), cm_set, 1240.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL3J ','       '/), cm_set, 1450.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ3J ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATRP1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATRP2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO3J ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH3J ','       '/), cm_set, 1550.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6, 'DUST  ','      ',es_cor),
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6, 'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1,  1.37,'SOLUTE','      ',es_cor)/)
