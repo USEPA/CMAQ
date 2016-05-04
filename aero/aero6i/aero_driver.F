@@ -494,14 +494,14 @@ C *** Calculate volume fraction of each mode for measurement applications
                   CALL AERO_INLET ( AEROMODE_DIAM( N ), AEROMODE_SDEV( N ),
      &                              AEROMODE_DENS( N ), fPM1( N ), fPM25( N ),
      &                              fPM10( N ) )
-           
+                  
                   ! Calculate AMS Transmission Fraction. Aerosol water will
                   ! be excluded from the calculation since AMS standard
                   ! procedures recommend drying particles before they enter
                   ! the intstrument.
                   CALL AERO_AMS ( MOMENT3_CONC( N ), MOMENT2_CONC( N ),
-     &                            MOMENT0_CONC( N ), AEROSPC_CONC( AH2O_IDX,N ), 
-     &                            AEROMODE_DENS( N ),AEROSPC( AH2O_IDX)%DENSITY, 
+     &                            MOMENT0_CONC( N ), AEROSPC_CONC( AH2O_IDX,N ),
+     &                            AEROMODE_DENS( N ),AEROSPC( AH2O_IDX)%DENSITY,
      &                            fAMS( N ) )
                END DO
 

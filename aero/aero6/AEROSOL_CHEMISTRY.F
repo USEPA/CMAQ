@@ -24,7 +24,9 @@
 ! 27 Feb 15 J. Bash:
 ! 17 March 15 D. Luecken:  Added NTR heterogeneous hydrolysis as per
 !    the CB6r3 chemical mechanism used by the Environ CAMX model consult 
-!    references 8 and 9.
+!    references 8 and 9., 
+! 24 March 16 D. Luecken: removed the references to F_NTR2_ON so that all 
+!  nitrates have the potential to partition to aerosol.  
 ! 22 Feb 16 B.Hutzell: Added Flag stating whether module is initialized
 ! 24 Mar 16 G. Sarwar: Added heterogeneous uptake of BRONO2 on aerosols
 !-----------------------------------------------------------------------
@@ -260,7 +262,7 @@ C *** Parameters
       REAL( 8 ), PARAMETER :: COEF2           = 2.14805198392421D13 ! convert air density [kg/m3] to number density [ppm]
 
       REAL( 8 ), PARAMETER :: STD_DIFF_N2O5 = 0.0855D-4  ! N2O5 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
-      REAL( 8 ), PARAMETER :: STD_DIFF_BRONO2 = 0.1051D-4  ! BRONO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
+      REAL( 8 ), PARAMETER :: STD_DIFF_BRONO2 = 0.0855D-4  ! BRONO2 molecular diffusivity at 101325 Pa and 273.15 K [m2/sec]
 
       REAL,      PARAMETER :: GPKG        = 1.0E+03                      ! g/kg unit conversion
       REAL,      PARAMETER :: CFACTOR     = 8.0 * GPKG  * RGASUNIV / PI  ! factor in cbar_coeff
@@ -275,7 +277,6 @@ C *** parameters for heterogeneous hydrolysis of NTR2
      &                        ON_ALPHA2   = 0.66,     ! based on Rollins et al., 2013
      &                        ON_CSTAR1   = 0.73,
      &                        ON_CSTAR2   = 1000.0
-      REAL,      PARAMETER :: F_NTR2_ON   = 1.4084    ! reciprocal of (NTR2 over total ON, equals 0.71)
 
       REAL,      PARAMETER :: MIN_TOA     = 0.0001       ! Min. conc. of total OA for partitioning to occur [ug/m3]
       REAL,      PARAMETER :: KHON        = 2.7778E-03   ! heterogeneous ON hydrolysis rate [1/min] ~ 4/day
@@ -801,7 +802,6 @@ C *** calculate gas-particle partitioning of NTR2
                     If ( CON_TOA .GE. MIN_TOA ) Then
                        F_PART_NTR2 = ON_ALPHA1 / (1.0 + ON_CSTAR1/CON_TOA)
      &                             + ON_ALPHA2 / (1.0 + ON_CSTAR2/CON_TOA)
-                       F_PART_NTR2 = F_PART_NTR2 * F_NTR2_ON
                     End If
 
 C *** calculate pseudo-first order rate constant for heterogeneous NTR2
