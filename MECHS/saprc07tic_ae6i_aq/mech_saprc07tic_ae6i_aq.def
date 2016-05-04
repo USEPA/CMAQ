@@ -1677,22 +1677,22 @@ REACTIONS [CM] =
 <OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
 <OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
 
-! Formation of Simple OM
-<SIMP>  PCVOC + OH       = OH  + PCSOARXN  # 1.25E-11;
+! Formation of Potential Combustion SOA (pcSOA)
+<SIMP>  PCVOC + OH       = OH  + PCSOARXN  # 2.094E-11;
 
-! Aging reactions for primary organic carbon
+! Aging reactions for fresh primary organic carbon
+<POA_AGE1> VLVPO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
+<POA_AGE2> VSVPO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
+<POA_AGE3> VSVPO2 + OH = 1.075 * VSVOO1 + OH  #4.0e-11;
+<POA_AGE4> VSVPO3 + OH = 1.075 * VSVOO2 + OH  #4.0e-11;
+<POA_AGE5> VIVPO1 + OH = 1.075 * VSVOO3 + OH  #4.0e-11;
 
-!<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
-!<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
-!<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
-!<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
-
-<POA_AGE1> VLVPO1 + OH = 1.075 * VLVPO1 + OH  #4.0e-11;
-<POA_AGE2> VSVPO1 + OH = 1.075 * VLVPO1 + OH  #4.0e-11;
-<POA_AGE3> VSVPO2 + OH = 1.075 * VSVPO1 + OH  #4.0e-11;
-<POA_AGE4> VSVPO3 + OH = 1.075 * VSVPO2 + OH  #4.0e-11;
-<POA_AGE5> VIVPO1 + OH = 1.075 * VSVPO3 + OH  #4.0e-11;
-
+! Aging reactions for oxygenated organic carbon
+<POA_AGE6> VLVOO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
+<POA_AGE7> VSVOO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
+<POA_AGE8> VSVOO2 + OH = 1.075 * VSVOO1 + OH  #4.0e-11;
+<POA_AGE9> VSVOO3 + OH = 1.075 * VSVOO2 + OH  #4.0e-11;
+<POA_AGE10>VIVOO1 + OH = 1.075 * VSVOO3 + OH  #4.0e-11;
 
 ! Hydrolysis of particle-phase nitrates
 

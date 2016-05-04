@@ -102,7 +102,12 @@ C                  -------    -------  --------  -------  ------    --   ----   
      & vapor_type('VSVPO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, ''       ),
      & vapor_type('VSVPO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, ''       ),
      & vapor_type('VSVPO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J', 'A',  0.0, ''       ),
-     & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J', 'A',  0.0, ''       )/)
+     & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J', 'A',  0.0, ''       ),
+     & vapor_type('VLVOO1 ',  0.0000,    1.e-1,  96.0E3, 'ALVOO1J', 'A',  0.0, ''       ),
+     & vapor_type('VSVOO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, ''       ),
+     & vapor_type('VSVOO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, ''       ),
+     & vapor_type('VSVOO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, ''       ),
+     & vapor_type('VIVOO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVOO1J', 'A',  0.0, ''       )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'

@@ -194,6 +194,11 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'ASVPO2I','ASVPO2J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
      & spcs_type((/'       ','ASVPO3J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
      & spcs_type((/'       ','AIVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
+     & spcs_type((/'ALVOO1I','ALVOO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'ASVOO1I','ASVOO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'ASVOO2I','ASVOO2J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ASVOO3J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AIVOO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6,'DUST  ','      ',es_cor),
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6,'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1, 1.37,'SOLUTE','      ',es_cor)/)
