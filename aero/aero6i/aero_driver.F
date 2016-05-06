@@ -105,6 +105,8 @@ C                         - Used a new logical variable, FIRST_CTM_VIS_1 to
 C                           determine when to open CTM_VIS_1 
 C  B.Hutzell 22 Feb 16 - Added test to determine to write diagnostics from aerosol
 C                        chemistry
+C  H Pye and B Murphy April 2016 - Updated dry/wet moment process to use
+C                        Extract_aero and Update_aero for getting moment/saving surface area
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -186,7 +188,7 @@ C *** visibility variables
       REAL VIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ) ! Visual range information
 
 C *** aerosol size distribution variables
-      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,29 )
+      REAL DIAM_SPC( NCOLS,NROWS,NLAYS,41 )
 
 C *** atmospheric properties
       REAL XLM             ! atmospheric mean free path [ m ]
@@ -212,12 +214,8 @@ C *** synchronization time step [ s ]
       REAL DT
 
 C *** variables to set up for "dry transport "
-      REAL M3_WET, M3_DRY   ! third moment with and without water
-      REAL M2_WET, M2_DRY   ! second moment with and without water
-      REAL M3SUBT           ! temp variable for dry 3rd moment calcs
-
-C *** flag to include water in the 3rd moment calculation
-      LOGICAL, PARAMETER :: M3_WET_FLAG = .FALSE.
+      REAL M3_WET( N_MODE ), M3_DRY( N_MODE )   ! third moment with and without water
+      REAL M2_WET( N_MODE ), M2_DRY( N_MODE )   ! second moment with and without water
 
 C *** if LIMIT_Sg = T, atkn & accum std. dev. are not changed by GETPAR
       LOGICAL, PARAMETER :: LIMIT_Sg = .FALSE.
@@ -466,13 +464,15 @@ C *** Calculate PHG_RATE stored in module
                   PHG_RATE = 0.0
                END IF
 
-C *** Extract soa concentrations from CGRID
+C *** Extract soa concentrations from CGRID and 
+C     convert M2 to wet
                CALL EXTRACT_SOA( CGRID( C,R,L,: ) )
 
 C *** Aerosol process routines
                CALL AEROPROC( DT, C, R, L )
 
-C *** Update aerosol variables conc back into CGRID (set minimum)
+C *** Update aerosol variables conc back into CGRID (set minimum) 
+C     and convert M2 to dry and save as surface area
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )
 
 C *** Update precursor variables conc back into CGRID
@@ -481,7 +481,12 @@ C *** Update precursor variables conc back into CGRID
 C *** Update gas soa concentrations back to CGRID
                CALL UPDATE_SOA( CGRID( C,R,L,: ) )
 
-C *** Calculate volume fraction of each mode < 2.5um aerodynamic diameter
+C *** OUTPUT DIAGNOSTIC INFORMATION
+C *** Get wet moment info (dry will be converted to wet)
+               CALL calcmoments( .true. )
+               CALL GETPAR( LIMIT_Sg ) ! update AEROMODE_DIAM,DENS,SDEV
+                   
+C *** Calculate volume fraction of each mode for measurement applications
                DO N = 1, N_MODE
                   ! Calculate transmission of each mode in aerosol impactors.
                   ! Report fraction of PM1, PM2.5, and PM10.0 for all modes
@@ -489,7 +494,7 @@ C *** Calculate volume fraction of each mode < 2.5um aerodynamic diameter
                   CALL AERO_INLET ( AEROMODE_DIAM( N ), AEROMODE_SDEV( N ),
      &                              AEROMODE_DENS( N ), fPM1( N ), fPM25( N ),
      &                              fPM10( N ) )
-
+                  
                   ! Calculate AMS Transmission Fraction. Aerosol water will
                   ! be excluded from the calculation since AMS standard
                   ! procedures recommend drying particles before they enter
@@ -515,7 +520,6 @@ C     diagnostic array (lowest vertical layer only)
                END IF
 
 C *** Write wet diameters, 2nd, and 3rd moments to aerosol diagnostic array
-C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                IF ( WRITETIME .AND. AERDIAG ) THEN
 !                 DIAM_SPC( C,R,L, : ) = 0.0
                   DIAM_SPC( C,R,L, 7 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! wet i-mode diam.
@@ -540,69 +544,26 @@ C     This assumes that GETPAR was last called with M3_WET_FLAG = .TRUE.
                   DIAM_SPC( C,R,L,30 ) = fAMS( 2 )             ! j-mode fraction transmitted through AMS
                   DIAM_SPC( C,R,L,31 ) = fAMS( 3 )             ! k-mode fraction transmitted through AMS
                   IF ( AERO_CHEM_SET ) THEN
-                     DIAM_SPC( C,R,L,23 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
-                     DIAM_SPC( C,R,L,24 ) = GAMMA_N2O5K( C,R,L )  ! fine N2O5 heterorxn probability
-                     DIAM_SPC( C,R,L,25 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
-                     DIAM_SPC( C,R,L,26 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
-                     DIAM_SPC( C,R,L,27 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
-                     DIAM_SPC( C,R,L,28 ) = KPARTIEPOX( C,R,L )   ! IEPOX particle phase rxn rate [1/s]
-                     DIAM_SPC( C,R,L,29 ) = GAMMA_IMAE( C,R,L )   ! IMAE heterorxn uptake coeff
+                     DIAM_SPC( C,R,L,32 ) = GAMMA_N2O5IJ( C,R,L ) ! fine N2O5 heterorxn probability
+                     DIAM_SPC( C,R,L,33 ) = GAMMA_N2O5K( C,R,L )  ! coarse N2O5 heterorxn probability
+                     DIAM_SPC( C,R,L,34 ) = YCLNO2IJ( C,R,L )     ! fine CLNO2 heterorxn yield
+                     DIAM_SPC( C,R,L,35 ) = YCLNO2K( C,R,L )      ! coarse CLNO2 heterorxn yield
+                     DIAM_SPC( C,R,L,36 ) = GAMMA_IEPOX( C,R,L )  ! IEPOX heterorxn uptake coeff
+                     DIAM_SPC( C,R,L,37 ) = KPARTIEPOX( C,R,L )   ! IEPOX particle phase rxn rate [1/s]
+                     DIAM_SPC( C,R,L,38 ) = GAMMA_IMAE( C,R,L )   ! IMAE heterorxn uptake coeff
                   ELSE
-                     DIAM_SPC( C,R,L,23:29 ) = 0.0
+                     DIAM_SPC( C,R,L,32:38 ) = 0.0
                   END IF
-                  DIAM_SPC( C,R,L,37 ) = AEROMODE_DENS( 1 )    ! Aitken Mode Density [kg m-3]
-                  DIAM_SPC( C,R,L,38 ) = AEROMODE_DENS( 2 )    ! Accumulation Mode Density [kg m-3]
-                  DIAM_SPC( C,R,L,39 ) = AEROMODE_DENS( 3 )    ! Coarse Mode Density [kg m3-]
+                  DIAM_SPC( C,R,L,39 ) = AEROMODE_DENS( 1 )    ! Aitken Mode Density [kg m-3]
+                  DIAM_SPC( C,R,L,40 ) = AEROMODE_DENS( 2 )    ! Accumulation Mode Density [kg m-3]
+                  DIAM_SPC( C,R,L,41 ) = AEROMODE_DENS( 3 )    ! Coarse Mode Density [kg m3-]
                END IF   ! WRITETIME .AND. AERDIAG
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
 C     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
 C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
-
-C     Aitken mode
-               M3_WET = MOMENT3_CONC( 1 )
-               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
-     &                * AEROSPC_CONC( AH2O_IDX,1 )
-               M3_DRY = M3_WET - M3SUBT
-               M2_WET = MOMENT2_CONC( 1 )
-               M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS
-
-               MOMENT3_CONC( 1 ) = MAX( CONMIN, M3_DRY )
-               MOMENT2_CONC( 1 ) = MAX( CONMIN, M2_DRY )
-
-C     accumulation mode
-               M3_WET = MOMENT3_CONC( 2 )
-
-               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
-     &                * AEROSPC_CONC( AH2O_IDX,2 )
-               DO SPC = 1, N_VAPOR
-                  IF( SOA_AEROMAP( SPC ) .LT. 1 )CYCLE
-                  M3SUBT = M3SUBT
-     &                   + ( 1.0E-9 * F6PI / AEROSPC( APOC_IDX )%DENSITY )
-     &                   * AEROSPC_CONC( SOA_AEROMAP( SPC ),2 )
-               END DO
-
-               M3_DRY = M3_WET - M3SUBT
-               M2_WET = MOMENT2_CONC( 2 )
-               M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS
-
-               MOMENT3_CONC( 2 ) = MAX( CONMIN, M3_DRY )
-               MOMENT2_CONC( 2 ) = MAX( CONMIN, M2_DRY )
-
-C     coarse mode
-               M3_WET = MOMENT3_CONC(3)
-               M3SUBT = ( 1.0E-9 * F6PI / AEROSPC( AH2O_IDX )%DENSITY )
-     &                * AEROSPC_CONC( AH2O_IDX,3 )
-               M3_DRY = M3_WET - M3SUBT
-               M2_WET = MOMENT2_CONC( 3 )
-               M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS
-
-               MOMENT3_CONC( 3 ) = MAX( CONMIN, M3_DRY )
-               MOMENT2_CONC( 3 ) = MAX( CONMIN, M2_DRY )
-
-C *** Calculate geometric mean diameters and standard deviations of the
-C     "dry" size distribution
-               CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+               CALL calcmoments( .false. )
+               CALL GETPAR( LIMIT_Sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
 C *** Write dry aerosol distribution parameters to aerosol diagnostic array
                IF ( WRITETIME .AND. AERDIAG ) THEN
@@ -617,13 +578,6 @@ C *** Write dry aerosol distribution parameters to aerosol diagnostic array
                   DIAM_SPC( C,R,L,15 ) = MOMENT3_CONC( 3 )    ! dry k-mode 3rd moment
                   DIAM_SPC( C,R,L,19 ) = AIRRH                ! relative humidity
                END IF   ! WRITETIME .AND. AERDIAG
-
-C *** Calculate aerosol surface area from the dry 2nd moment.  Dry value is
-C     used in transport routines.  Put aeroSrf values back to CGRID
-               DO N = 1, N_MODE
-                  V = AEROSRF_MAP( N )
-                  CGRID( C,R,L,V ) = PI * MOMENT2_CONC( N )
-               END DO
 
 #ifdef twoway
                IF ( CMAQ_WRF_FEEDBACK ) THEN
@@ -703,8 +657,8 @@ C *** Write data to the aerosol diagnostic file.
      &                     'for date and time', MDATE, MTIME
 
          END IF
-
-C *** Write data to the IMPROVE network AOD diagnostic file.
+     
+C *** Write data to the AOD diagnostic file.
          IF ( AOD ) THEN
 
             IF ( .NOT. WRITE3( CTM_AOD_1, ALLVAR3,

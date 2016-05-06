@@ -87,7 +87,7 @@ C diagnostic file
          TSTEP3D = TSTEP
          CALL NEXTIME ( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-         NVARS3D = 29 
+         NVARS3D = 41 
          NCOLS3D = GL_NCOLS
          NROWS3D = GL_NROWS
          NLAYS3D = NLAYS
@@ -209,54 +209,114 @@ C diagnostic file
          VDESC3D( 19 ) = 'Relative humidity'
 
          VTYPE3D( 20 ) = M3REAL
-         VNAME3D( 20 ) = 'PM25AT'
-         UNITS3D( 20 ) = 'fraction'
-         VDESC3D( 20 ) = 'Fine fraction of Aitken mode'
+         VNAME3D( 20 ) = 'PM1AT'
+         UNITS3D( 20 ) = '----'
+         VDESC3D( 20 ) = 'PM1 fraction of Aitken mode'
 
          VTYPE3D( 21 ) = M3REAL
-         VNAME3D( 21 ) = 'PM25AC'
-         UNITS3D( 21 ) = 'fraction'
-         VDESC3D( 21 ) = 'Fine fraction of accumulation mode'
+         VNAME3D( 21 ) = 'PM1AC'
+         UNITS3D( 21 ) = '----'
+         VDESC3D( 21 ) = 'PM1 fraction of accumulation mode'
 
          VTYPE3D( 22 ) = M3REAL
-         VNAME3D( 22 ) = 'PM25CO'
-         UNITS3D( 22 ) = 'fraction'
-         VDESC3D( 22 ) = 'Fine fraction of coarse mode'
+         VNAME3D( 22 ) = 'PM1CO'
+         UNITS3D( 22 ) = '----'
+         VDESC3D( 22 ) = 'PM1 fraction of coarse mode'
 
          VTYPE3D( 23 ) = M3REAL
-         VNAME3D( 23 ) = 'GAMMA_N2O5'
-         UNITS3D( 23 ) = 'na'
-         VDESC3D( 23 ) = 'Fine Mode N2O5 Heterogeneous reaction probability'
+         VNAME3D( 23 ) = 'PM25AT'
+         UNITS3D( 23 ) = '----'
+         VDESC3D( 23 ) = 'PM2.5 fraction of Aitken mode'
 
          VTYPE3D( 24 ) = M3REAL
-         VNAME3D( 24 ) = 'GAMMA_N2O5K'
-         UNITS3D( 24 ) = 'na'
-         VDESC3D( 24 ) = 'Coarse Mode N2O5 Heterogeneous reaction probability'
+         VNAME3D( 24 ) = 'PM25AC'
+         UNITS3D( 24 ) = '----'
+         VDESC3D( 24 ) = 'PM2.5 fraction of accumulation mode'
 
          VTYPE3D( 25 ) = M3REAL
-         VNAME3D( 25 ) = 'YIELD_CLNO2'
-         UNITS3D( 25 ) = 'na'
-         VDESC3D( 25 ) = 'Fine Mode CLNO2 Heterogeneous reaction yield'
+         VNAME3D( 25 ) = 'PM25CO'
+         UNITS3D( 25 ) = '----'
+         VDESC3D( 25 ) = 'PM2.5 fraction of coarse mode'
 
          VTYPE3D( 26 ) = M3REAL
-         VNAME3D( 26 ) = 'YIELD_CLNO2K'
-         UNITS3D( 26 ) = 'na'
-         VDESC3D( 26 ) = 'Coarse Mode CLNO2 Heterogeneous reaction yield'
+         VNAME3D( 26 ) = 'PM10AT'
+         UNITS3D( 26 ) = '----'
+         VDESC3D( 26 ) = 'PM10 fraction of Aitken mode'
 
          VTYPE3D( 27 ) = M3REAL
-         VNAME3D( 27 ) = 'GAMMA_IEPOX'
-         UNITS3D( 27 ) = 'na'
-         VDESC3D( 27 ) = 'IEPOX heterogeneous uptake coefficient'
+         VNAME3D( 27 ) = 'PM10AC'
+         UNITS3D( 27 ) = '----'
+         VDESC3D( 27 ) = 'PM10 fraction of accumulation mode'
 
          VTYPE3D( 28 ) = M3REAL
-         VNAME3D( 28 ) = 'k_prtcl_iepox'
-         UNITS3D( 28 ) = '1/s'
-         VDESC3D( 28 ) = 'IEPOX pseudo particle phase reaction rate const'
-
+         VNAME3D( 28 ) = 'PM10CO'
+         UNITS3D( 28 ) = '----'
+         VDESC3D( 28 ) = 'PM10 fraction of coarse mode'
+          
          VTYPE3D( 29 ) = M3REAL
-         VNAME3D( 29 ) = 'GAMMA_IMAE'
-         UNITS3D( 29 ) = 'na'
-         VDESC3D( 29 ) = 'IMAE heterogeneous uptake coefficient'
+         VNAME3D( 29 ) = 'AMSAT'
+         UNITS3D( 29 ) = '----'
+         VDESC3D( 29 ) = 'AMS Transmission Fraction of Aitken mode'
+          
+         VTYPE3D( 30 ) = M3REAL
+         VNAME3D( 30 ) = 'AMSAC'
+         UNITS3D( 30 ) = '----'
+         VDESC3D( 30 ) = 'AMS Transmission Fraction of Accumulation mode'
+          
+         VTYPE3D( 31 ) = M3REAL
+         VNAME3D( 31 ) = 'AMSCO'
+         UNITS3D( 31 ) = '----'
+         VDESC3D( 31 ) = 'AMS Transmission Fraction of Coarse mode'
+
+         VTYPE3D( 32 ) = M3REAL
+         VNAME3D( 32 ) = 'GAMMA_N2O5'
+         UNITS3D( 32 ) = 'na'
+         VDESC3D( 32 ) = 'Fine Mode N2O5 Heterogeneous reaction probability'
+
+         VTYPE3D( 33 ) = M3REAL
+         VNAME3D( 33 ) = 'GAMMA_N2O5K'
+         UNITS3D( 33 ) = 'na'
+         VDESC3D( 33 ) = 'Coarse Mode N2O5 Heterogeneous reaction probability'
+
+         VTYPE3D( 34 ) = M3REAL
+         VNAME3D( 34 ) = 'YIELD_CLNO2'
+         UNITS3D( 34 ) = 'na'
+         VDESC3D( 34 ) = 'Fine Mode CLNO2 Heterogeneous reaction yield'
+
+         VTYPE3D( 35 ) = M3REAL
+         VNAME3D( 35 ) = 'YIELD_CLNO2K'
+         UNITS3D( 35 ) = 'na'
+         VDESC3D( 35 ) = 'Coarse Mode CLNO2 Heterogeneous reaction yield'
+
+         VTYPE3D( 36 ) = M3REAL
+         VNAME3D( 36 ) = 'GAMMA_IEPOX'
+         UNITS3D( 36 ) = 'na'
+         VDESC3D( 36 ) = 'IEPOX heterogeneous uptake coefficient'
+
+         VTYPE3D( 37 ) = M3REAL
+         VNAME3D( 37 ) = 'k_prtcl_iepox'
+         UNITS3D( 37 ) = '1/s'
+         VDESC3D( 37 ) = 'IEPOX pseudo particle phase reaction rate const'
+
+         VTYPE3D( 38 ) = M3REAL
+         VNAME3D( 38 ) = 'GAMMA_IMAE'
+         UNITS3D( 38 ) = 'na'
+         VDESC3D( 38 ) = 'IMAE heterogeneous uptake coefficient'
+
+         VTYPE3D( 39 ) = M3REAL
+         VNAME3D( 39 ) = 'DENS_ATKN'
+         UNITS3D( 39 ) = 'kg m-3'
+         VDESC3D( 39 ) = 'Bulk Density of Aitken-Mode Particles'
+
+         VTYPE3D( 40 ) = M3REAL
+         VNAME3D( 40 ) = 'DENS_ACC'
+         UNITS3D( 40 ) = 'kg m-3'
+         VDESC3D( 40 ) = 'Bulk Density of Accumulation-Mode Particles'
+
+         VTYPE3D( 41 ) = M3REAL
+         VNAME3D( 41 ) = 'DENS_COR'
+         UNITS3D( 41 ) = 'kg m-3'
+         VDESC3D( 41 ) = 'Bulk Density of Coarse-Mode Particles'
 
          FDESC3D( 1 ) = 'aerosol distribution and chemistry parameters'
          DO L = 2, MXDESC3

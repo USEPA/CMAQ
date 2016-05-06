@@ -21,40 +21,49 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/aero/aero5/getpar.f,v 1.7 2012/01/19 13:13:27 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      Subroutine getpar( m3_wet_flag, limit_sg  )
+      Subroutine getpar( limit_sg  )
 
 C  Calculates the 3rd moments (M3), masses, aerosol densities, and
 C  geometric mean diameters (Dg) of all 3 modes, and the natural logs of
 C  geometric standard deviations (Sg) of the Aitken and accumulation modes.
 
-C  The input logical variable, M3_WET_FLAG, dictates whether the
+C  The logical variable, WET_MOMENTS_FLAG, dictates whether the
 C  calculations in GETPAR are to assume that the aerosol is "wet" or
 C  "dry."  In the present context, a "wet" aerosol consists of all
 C  chemical components of the aerosol.  A "dry" aerosol excludes
-C  particle-bound water and also excludes secondary organic aerosol.
+C  particle-bound water and also excludes semivol secondary organic aerosol.
 
 C  NOTE! 2nd moment concentrations (M2) are passed into GETPAR in the
 C  CBLK array and are modified within GETPAR only in the event that
 C  the Sg value of a given mode has gone outside of the acceptable
 C  range (1.05 to 2.50).  The GETPAR calculations implicitly assume
 C  that the input value of M2 is consistent with the input value of
-C  M3_WET_FLAG.  If, for example, the input M2 value was calculated
-C  for a "dry" aerosol and the M3_WET_FLAG is .TRUE., GETPAR would
+C  WET_MOMENTS_FLAG.  If, for example, the input M2 value was calculated
+C  for a "dry" aerosol and the WET_MOMENTS_FLAG is .TRUE., GETPAR would
 C  incorrectly adjust the M2 concentrations!
-
+C  
+C  Outputs: 
+C    moment3_conc
+C    moment2_conc (adjusted if standard dev. hits limit)
+C    aeromode_dens
+C    aeromode_sdev
+C    aeromode_diam
+C    aeromode_mass
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
+C HP and BM 4/2016: Updated use of wet_moments_flag which is now
+C    available through AERO_DATA consistent with the moments it refers to
 C-----------------------------------------------------------------------
 
-      Use aero_data
-      Use aeromet_data   ! Includes CONST.EXT
+      Use aero_data, only : wet_moments_flag, moment3_conc, moment2_conc, moment0_conc,
+     &                       aeromode_dens, aeromode_sdev, aeromode_diam, aeromode_mass,
+     &                       min_sigma_g, max_sigma_g, n_mode, n_aerospc,
+     &                       aerospc, aero_missing, aerospc_conc, aeromode
+      Use aeromet_data, only : f6pi   ! Includes CONST.EXT
 
       Implicit None
 
 C Arguments:
-      Logical, Intent( In ) :: m3_wet_flag ! true = include H2O and SOA in 3rd moment
-                                           ! false = exclude H2O and SOA from 3rd moment
-
       Logical, Intent( In ) :: limit_sg  ! fix coarse and accum Sg's to the input value?
 
 C Output variables:
@@ -110,7 +119,7 @@ C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
          Do spc = 1, n_aerospc
             If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or. 
-     &         ( aerospc( spc )%no_M2Wet .AND. .Not. m3_wet_flag ) ) Cycle
+     &         ( aerospc( spc )%no_M2Wet .AND. .Not. wet_moments_flag ) ) Cycle
 
             factor = 1.0E-9 * f6pi / aerospc( spc )%density
             sumM3  = sumM3 + factor * aerospc_conc( spc,n )

@@ -114,17 +114,17 @@ C diagnostic file
 
          VTYPE3D( 1 ) = M3REAL
          VNAME3D( 1 ) = 'STDEVATKN'
-         UNITS3D( 1 ) = '----'
+         UNITS3D( 1 ) = 'na'
          VDESC3D( 1 ) = 'Aitken mode standard deviation (dry and wet)'
 
          VTYPE3D( 2 ) = M3REAL
          VNAME3D( 2 ) = 'STDEVACC'
-         UNITS3D( 2 ) = '----'
+         UNITS3D( 2 ) = 'na'
          VDESC3D( 2 ) = 'Accumulation mode standard deviation (dry and wet)'
 
          VTYPE3D( 3 ) = M3REAL
          VNAME3D( 3 ) = 'STDEVCOR'
-         UNITS3D( 3 ) = '----'
+         UNITS3D( 3 ) = 'na'
          VDESC3D( 3 ) = 'Coarse mode standard deviation (dry and wet)'
             
          VTYPE3D( 4 ) = M3REAL
@@ -204,7 +204,7 @@ C diagnostic file
 
          VTYPE3D( 19 ) = M3REAL
          VNAME3D( 19 ) = 'RH'
-         UNITS3D( 19 ) = '----'
+         UNITS3D( 19 ) = 'na'
          VDESC3D( 19 ) = 'Relative humidity'
 
          VTYPE3D( 20 ) = M3REAL
