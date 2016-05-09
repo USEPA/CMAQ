@@ -33,6 +33,7 @@ C Revision History:
 C     29 Dec 2006 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C      3 Nov 2011 D.Wong: fix source location within grid determination bug
+C     30 Apr 2016 J.Young: add multiple fire source capability a la Yongtao Hu
 
 C-----------------------------------------------------------------------
 
@@ -42,7 +43,6 @@ C-----------------------------------------------------------------------
 
       INTEGER,        ALLOCATABLE, SAVE :: MY_NSRC( : )
       INTEGER,        ALLOCATABLE, SAVE :: NSRC( : )
-      REAL,           ALLOCATABLE, SAVE :: ACRES_BURNED( : )
 
 c     TYPE :: IARRY1
 c        INTEGER, POINTER :: ARRY( : )
@@ -67,6 +67,7 @@ c     END TYPE RARRY1
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKHT  ( : )
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKTK  ( : )
       TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKVEL ( : )
+      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: ACRES_BURNED( : )
 
       CONTAINS
 
@@ -152,6 +153,9 @@ C-----------------------------------------------------------------------
          ALLOCATE ( FIRE_ON( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'FIRE_ON', PNAME )
          FIRE_ON = .FALSE.   ! array assignment
+
+         ALLOCATE ( ACRES_BURNED( NGRPS ), STAT = ASTAT )
+         CALL CHECKMEM( ASTAT, 'ACRES_BURNED', PNAME )
 
          DO N = 1, NGRPS
 
@@ -291,7 +295,8 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
             CALL CHECKMEM( ASTAT, 'STKVEL', PNAME )
 
             IF ( FIRE_ON( N ) ) THEN
-               ALLOCATE ( ACRES_BURNED( MY_DELTA ), STAT = ASTAT )
+               ACRES_BURNED( N )%LEN = MY_DELTA
+               ALLOCATE ( ACRES_BURNED( N )%ARRY( MY_DELTA ), STAT = ASTAT )
                CALL CHECKMEM( ASTAT, 'ACRES_BURNED', PNAME )
             END IF
 
@@ -342,7 +347,7 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
                IF ( FIRE_ON( N ) ) THEN
                   IF ( .NOT. XTRACT3( STKPRMS( N ), 'ACRESBURNED', 1,NLAYS,
      &                                MY_STRT_SRC( N ),MY_END_SRC( N ),
-     &                                1,1, SDATE, STIME, ACRES_BURNED ) ) THEN
+     &                                1,1, SDATE, STIME, ACRES_BURNED( N )%ARRY ) ) THEN
                      XMSG = 'Could not read ACRESBURNED from ' // TRIM( STKPRMS( N ) )
                      CALL M3MESG( XMSG )
                      SUCCESS = .FALSE.; RETURN
