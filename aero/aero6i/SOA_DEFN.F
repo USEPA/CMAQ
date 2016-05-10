@@ -60,7 +60,8 @@ C 21 Apr 15 H. Pye: Added explicit monoterpene (MTNO3) and isoprene
 C                   (ISOPNN) aerosol. Parameters (C*) determined from Fry et al. 2009 ACP
 C                   and Rollins et al. 2009 ACP
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
-C
+C 03/03/16  D. Luecken: added capability for CB6
+C 24 Mar 16 G. Sarwar: updated for CB05EH51
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -299,6 +300,14 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB05EH51') .GT. 0) then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -311,6 +320,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
      &                // Trim( MECHNAME ) // ', is not based on AERO6i '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
+
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
@@ -799,12 +809,15 @@ C  21. Pye et al., Epoxide pathways improve model prediction of isoprene
 C      markers and reveal key role of acidity in aerosol formation,
 C      Environ. Sci. Technol., 2013.
 
+
 C Revision History:
 C    First orgaer version was coded in April 2010 by Steve Howard with
 C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
+C BNM 11/09/15 Added Some Comments to the SOA Scheme
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -915,11 +928,13 @@ C Only the accumulation mode is modified
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
 
-C Assignment of drog to totrog
-      totrog = 0.0
+C Assignment of drog to totrog. This moving mass from the reactive 
+C gas tracer species to the array that will be multiplied by alpha
+C to give newly formed semivolatile vapors.
+      totrog( : ) = 0.0
       Do i = 1, n_vapor
-         If ( vaporspc( i )%alpha .Gt. 0.0 ) Then
-            totrog( i ) = drog( drog_map( i ) )
+         if ( drog_map( i ) .gt. 0 ) then
+           totrog( i ) = drog( drog_map( i ) )
          endif
       End Do
 
@@ -966,7 +981,7 @@ C process that conserves carbon mass.
 
 #endif
 C Compute molar concentrations of non-volatile organic material and total
-C organic material; in future code updates, molecularpartit weights of non-volatile
+C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
@@ -1000,7 +1015,9 @@ C    Assuming totorg doesn't change during the timestep,
 C    caer * (1 + c0/MW / totorg) = ctotf
 C    caer = ctotf / ( 1 + c0/MW / totorg )
 
-      threshold = 0.0
+      threshold = 0.0  !This threshold will be compared to the
+                       !saturation concentration to determine whether
+		       !or not OA partitioning is even likely
       upb = 0.0 ! upper bound for bisection method
       
       Do i = 1, n_vapor
@@ -1051,12 +1068,12 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         if( abs(upb-lowb) .lt. threshmin ) then
+         If ( abs( upb - lowb ) .lt. threshmin ) then
             ! no SOA to partition
-            orgmoles = (lowb + upb)/2.0d0 
-         else
-            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
-         end if
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1064,7 +1081,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
@@ -1099,7 +1116,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
          vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
 
-C Acid-induced Isoprene SOA if IEPOX uptake is not considered
+C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
       IF( .Not. IEPOX_SOA_mechanism ) then
 
 C Particle-phase acidity is parameterized by the air concentration of hydrogen
