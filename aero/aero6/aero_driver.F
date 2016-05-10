@@ -488,7 +488,7 @@ C *** Calculate volume fraction of each mode for measurement applications
                   ! Calculate transmission of each mode in aerosol impactors.
                   ! Report fraction of PM1, PM2.5, and PM10.0 for all modes
                   ! after converting to aerodynamic diameter.
-                  CALL AERO_INLET ( AEROMODE_DIAM( N ), AEROMODE_LNSTD( N ),
+                  CALL AERO_INLET ( AEROMODE_DIAM( N ), AEROMODE_LNSG( N ),
      &                              AEROMODE_DENS( N ), fPM1( N ), fPM25( N ),
      &                              fPM10( N ) )
            
@@ -562,9 +562,9 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
 
 C *** Write dry aerosol distribution parameters to aerosol diagnostic array
                IF ( WRITETIME .AND. AERDIAG ) THEN
-                  DIAM_SPC( C,R,L, 1 ) = EXP( AEROMODE_LNSTD( 1 ) )
-                  DIAM_SPC( C,R,L, 2 ) = EXP( AEROMODE_LNSTD( 2 ) )
-                  DIAM_SPC( C,R,L, 3 ) = EXP( AEROMODE_LNSTD( 3 ) )
+                  DIAM_SPC( C,R,L, 1 ) = EXP( AEROMODE_LNSG( 1 ) )
+                  DIAM_SPC( C,R,L, 2 ) = EXP( AEROMODE_LNSG( 2 ) )
+                  DIAM_SPC( C,R,L, 3 ) = EXP( AEROMODE_LNSG( 3 ) )
                   DIAM_SPC( C,R,L, 4 ) = AEROMODE_DIAM( 1 ) * 1.0E6  ! dry i-mode diam.
                   DIAM_SPC( C,R,L, 5 ) = AEROMODE_DIAM( 2 ) * 1.0E6  ! dry j-mode diam.
                   DIAM_SPC( C,R,L, 6 ) = AEROMODE_DIAM( 3 ) * 1.0e6  ! dry k-mode diam.
@@ -578,7 +578,7 @@ C *** Write dry aerosol distribution parameters to aerosol diagnostic array
                IF ( CMAQ_WRF_FEEDBACK ) THEN
                   IF ( TIME_TO_CALL_FEEDBACK_WRITE ) THEN
                      CALL FEEDBACK_WRITE ( C, R, L, CGRID(C,R,L,:), CGRID(C,R,L,O3),
-!    &                                     aeromode_diam, AEROMODE_LNSTD, jdate, jtime)
+!    &                                     aeromode_diam, AEROMODE_LNSG, jdate, jtime)
      &                                     JDATE, JTIME )
                   END IF
                END IF

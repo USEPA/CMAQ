@@ -193,8 +193,8 @@ C "wet" size distribution
 C                        | do not fix stnd dev`s to existing value
 
 C Save getpar values to arrays
-         xxlsgac( l ) = aeromode_lnstd( 2 )
-         xxlsgco( l ) = aeromode_lnstd( 3 )
+         xxlsgac( l ) = aeromode_lnsg( 2 )
+         xxlsgco( l ) = aeromode_lnsg( 3 )
 
          dgacc( l )   = aeromode_diam( 2 )
          dgcor( l )   = aeromode_diam( 3 )

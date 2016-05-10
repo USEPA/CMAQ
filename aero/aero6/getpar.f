@@ -46,7 +46,7 @@ C  Outputs:
 C    moment3_conc
 C    moment2_conc (adjusted if standard dev. hits limit)
 C    aeromode_dens
-C    aeromode_lnstd
+C    aeromode_lnsg
 C    aeromode_diam
 C    aeromode_mass
 C
@@ -56,7 +56,7 @@ C    available through AERO_DATA consistent with the moments it refers to
 C-----------------------------------------------------------------------
 
       Use aero_data, only : wet_moments_flag, moment3_conc, moment2_conc, moment0_conc,
-     &                       aeromode_dens, aeromode_lnstd, aeromode_diam, aeromode_mass,
+     &                       aeromode_dens, aeromode_lnsg, aeromode_diam, aeromode_mass,
      &                       min_sigma_g, max_sigma_g, n_mode, n_aerospc,
      &                       aerospc, aero_missing, aerospc_conc, aeromode
       Use aeromet_data, only : f6pi   ! Includes CONST.EXT
@@ -72,7 +72,7 @@ C  moment3_conc   3rd moment concentration [ ug /m**3 ]
 C  aeromode_mass  mass concentration: [ ug / m**3 ]
 C  aeromode_dens  avg particle density [ kg / m**3 ]
 C  aeromode_diam  geometric mean diameter [ m ]
-C  aeromode_lnstd  log of geometric standard deviation
+C  aeromode_lnsg  log of geometric standard deviation
 
 C Local Variables:
       Real( 8 ) :: xxm0        ! temporary storage of moment 0 conc's
@@ -104,8 +104,8 @@ C-----------------------------------------------------------------------
 C *** Set bounds for ln(Sg)**2
 
       If ( limit_sg ) Then
-         minl2sg = aeromode_lnstd ** 2
-         maxl2sg = aeromode_lnstd ** 2
+         minl2sg = aeromode_lnsg ** 2
+         maxl2sg = aeromode_lnsg ** 2
       Else
          minl2sg = Log( min_sigma_g ) ** 2
          maxl2sg = Log( max_sigma_g ) ** 2
@@ -166,7 +166,7 @@ C *** Aitken Mode:
 
          lxfm2 = xfsum - l2sg
          moment2_conc( n )  = Exp ( lxfm2 )
-         aeromode_lnstd( n ) = Sqrt( l2sg )
+         aeromode_lnsg( n ) = Sqrt( l2sg )
 
          ES36 = Exp( 4.5 * l2sg )
          aeromode_diam( n ) = Max( dgmin, ( moment3_conc( n )

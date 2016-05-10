@@ -98,7 +98,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 ! Revised:  April 2007  Original version.  David Wong
 !===============================================================================
 
-! SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, aeromode_lnstd, &
+! SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, aeromode_lnsg, &
 !                             aeromode_diam, jdate, jtime )
 
   USE HGRD_DEFN
@@ -297,8 +297,8 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
      feedback_data_cmaq(c,r,l,18) = aeromode_diam(3)   ! min(cblk(VDGCO), 6.8e-6)       ! temporarily fix
 
 ! standard deviations
-     feedback_data_cmaq(c,r,l,19) = EXP(aeromode_lnstd(1))
-     feedback_data_cmaq(c,r,l,20) = EXP(aeromode_lnstd(2))
+     feedback_data_cmaq(c,r,l,19) = EXP(aeromode_lnsg(1))
+     feedback_data_cmaq(c,r,l,20) = EXP(aeromode_lnsg(2))
      feedback_data_cmaq(c,r,l,21) = 2.2
 
 ! O3
