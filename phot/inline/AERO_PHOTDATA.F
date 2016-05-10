@@ -498,7 +498,7 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
          if(col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 )then
             do m = 1, n_mode
                write(logdev, 4999)l, m, aeromode_diam( m ),pi6*moment3_conc( m ),
-     &         aeromode_sdev( m )
+     &         aeromode_logstd( m )
 4999           format('lay = ',i3,' mode = ',i3,' diam = ',es12.4,' pi6*moment3 = ', 
      &         es12.4,' ae_lsg = ', es12.4)
            end do
@@ -540,7 +540,7 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
             FRACTION_CORE  = CORE_MOMENT3(  MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8)
             FRACTION_SHELL = SHELL_MOMENT3( MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8)
 
-            BLK_AE_LSG  ( MODE,L ) = AEROMODE_SDEV( MODE )
+            BLK_AE_LSG  ( MODE,L ) = AEROMODE_LOGSTD( MODE )
             AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
 
             IF ( FRACTION_CORE .LT. NEGLECT_FRAC ) THEN
@@ -1002,7 +1002,7 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
          if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
             do m = 1, n_mode
                write(logdev, 4999)l, m, aeromode_diam( m ),pi6*moment3_conc( m ),
-     &         aeromode_sdev( m )
+     &         aeromode_logstd( m )
 4999           format('lay = ',i3,' mode = ',i3,' diam = ',es12.4,' pi6*moment3 = ', 
      &         es12.4,' ae_lsg = ', es12.4)
             end do
@@ -1025,7 +1025,7 @@ C *** Calculate geometric mean diameters and standard deviations of "wet" size d
 #endif 
             END DO SPC_LOOP1
 
-            BLK_AE_LSG  ( MODE,L ) = AEROMODE_SDEV( MODE )
+            BLK_AE_LSG  ( MODE,L ) = AEROMODE_LOGSTD( MODE )
             AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
                    
             IF ( MOMENT3_CONC( MODE ) .GT. AEROMODE( MODE )%MIN_M3CONC ) THEN
