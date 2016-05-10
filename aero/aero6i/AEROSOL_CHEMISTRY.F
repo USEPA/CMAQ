@@ -667,7 +667,7 @@ C     affect the geometric standard deviation
 C *** The "wet" geometric mean (same as median) diameter was updated in
 C     getpar. It is stored in aeromode_diam
 C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
-                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_logstd( N ) ** 2 ), 8)
+                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_lnstd( N ) ** 2 ), 8)
                END DO
 
 C *** Retrieve and Save the Dry 3rd and 2nd Moments
