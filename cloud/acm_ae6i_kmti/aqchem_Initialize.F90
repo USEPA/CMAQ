@@ -350,14 +350,12 @@ CONTAINS
 !     FIX( indf_L_H2O ) = 1.D0 * INVPHI2   ! set to 1 M -- Kw includes [H2O]
       FIX( indf_L_H2O ) = 55.5D0 * INVPHI2   ! Kw in dynamic calcs does not include [H2O]
 !      FIX( indf_L_HO )  = ( GAS( LHO ) * PRESS * 30.D0 * EXP( 4.5D3 * &
-!                            DELINVT ) ) * INVPHI2
-      FIX( indf_L_HO )  = (( (GAS( LHO ) * 6.022d23*PRESS/0.08206/1000/TEMP_KPP) &
-                            * HOH ) * INVPHI2) / &
-                            (30.D0 * EXP( 4.5D3 * DELINVT) * INVPHI2 + (6.022d23/ &
-                            (0.08206*1000*TEMP_KPP)))  !initial HO(aq) calculated based on 
-			                               !Henry's Law equil. with initial/input 
-						       !HOg representing amount of total 
-						       !HO (gas+aq) available       
+!                            DELINVT ) ) * INVPHI2      
+      FIX( indf_L_HO )  = INVPHI2 * ( ( GAS( LHO ) * PRESS * HOH ) /  &
+                          ( 1.d0 + HOH * WCAVG * 0.08206D0 * TEMP_KPP &
+                          / 1000.d0 ) )   !initial HO(aq) calculated based on Henry's 
+                                          !Law equil. with initial/input HOg 
+                                          !representing amount of total HO (gas+aq) available       
                   
 !  Calculate initial H+ and OH- from electroneutrality and Kw
 !
