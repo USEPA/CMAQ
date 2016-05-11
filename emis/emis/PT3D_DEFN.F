@@ -56,7 +56,8 @@ C                          - Replaced BMATVEC with BMATVECN which will call with
 C                            2d argument subroutine by F90 poly-morphism feature
 C                          - Based on the condition of MY_NSRC ( > 0 or not) to determine 
 C                            execution of certain section of code or not
-C     30 Apr 2016 J.Young: add multiple fire source capability a la Yongtao Hu
+C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
+C                          Yongtao Hu (Georgia Tech)
 
 C-----------------------------------------------------------------------
 

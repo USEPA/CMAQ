@@ -33,8 +33,8 @@ C           3d point source emissions
 C Revision History:
 C     16 Jan 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-C     30 Apr 2016 J.Young: add multiple fire source capability a la Yongtoa Hu
-
+C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
+C                          Yongtao Hu (Georgia Tech)
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY2, CARRY1
