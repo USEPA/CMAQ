@@ -115,7 +115,7 @@ AOCIJ           ,ugC/m3    ,AXYL1J[1]/2.42 + AXYL2J[1]/1.93 + AXYL3J[1]/2.30 \
                            +ATRP1J[1]/1.84 + ATRP2J[1]/1.83 + ASQTJ[1] /1.52 \
                            +AALK1J[1]/1.56 + AALK2J[1]/1.42 +                \
                            +AORGCJ[1]/2.00 + AOLGBJ[1]/2.10 + AOLGAJ[1]/2.50 \
-                           +APAH1J[1]/2.03 + APAH2J[1]/2.03 + APAH3J[1]/2.03 \
+                           +APAH1J[1]/1.63 + APAH2J[1]/1.49 + APAH3J[1]/1.77 \
                            +APOCIJ[0]      
 AOMIJ           ,ug/m3     ,AXYL1J[1]+AXYL2J[1]+AXYL3J[1]+ATOL1J[1]+ATOL2J[1]+ATOL3J[1] \
                            +ABNZ1J[1]+ABNZ2J[1]+ABNZ3J[1]+AISO1J[1]+AISO2J[1]+AISO3J[1] \
@@ -168,7 +168,7 @@ PMC_NA          ,ug/m3     ,ANAIJ[0]+ANAK[0]*0.78-PM25_NA[0]
 PMC_NH4         ,ug/m3     ,ANH4I[1]+ANH4J[1]+ANH4K[1]-PM25_NH4[0]
 PMC_NO3         ,ug/m3     ,ANO3I[1]+ANO3J[1]+ANO3K[1]-PM25_NO3[0]
 PMC_SO4         ,ug/m3     ,ASO4I[1]+ASO4J[1]+ASO4K[1]-PM25_SO4[0]
-PMC_TOT         ,ug/m3     ,PM10_TOT[0]-PM25_TOT[0]
+PMC_TOT         ,ug/m3     ,PMIJK[0]-PM25_TOT[0]
 
 
 ! Meteorology

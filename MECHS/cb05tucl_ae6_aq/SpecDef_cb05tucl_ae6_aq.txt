@@ -71,7 +71,7 @@ TOL             ,ppbV      ,1000.0*TOLU[1]
 VOC             ,ppbC      ,1000.0* ( PAR[1]      + 2.0*ETH[1]  + MEOH[1]     + 2.0*ETOH[1]  \
                                      +2.0*OLE[1]  + 7.0*TOL[1]  + 8.0*XYLMN[1]+ FORM[1]      \
                                      +2.0*ALD2[1] + 2.0*ETHA[1] + 4.0*IOLE[1] + 2.0*ALDX[1]  \
-                                     +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1])
+                                     +5.0*ISOP[1] + 10.0*TERP[1]+ 10.0*NAPH[1]+ MEOH[1] )
 XYL             ,ppbV      ,1000.0*(MXYL[1]+OXYL[1]+PXYL[1])
 
 
