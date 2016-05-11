@@ -607,7 +607,7 @@ C-------------------------------------------------------------------------------
          End If
  
          wg_ir = Min( wg_ir,GRID_DATA%WSAT( c,r ) )
-         wg_ir = Max( wg_ir,GRID_DATA%WSAT( c,r ) )
+         wg_ir = Max( wg_ir,GRID_DATA%WRES( c,r ) )
 
          ldry= d1 * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          
