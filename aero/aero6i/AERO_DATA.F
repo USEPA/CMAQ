@@ -17,7 +17,7 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date and time of last delta, author, state, [and locker]
+C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/CCTM/src/aero/aero6/AERO_DATA.F,v 1.10 2012/01/19 13:18:37 yoj Exp $
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -57,11 +57,10 @@ C HOTP 01/18/13 Added information for particle phase reaction of isoprene produc
 C               based on Eddingsaas et al. 2010
 C KF  09/23/14 Changed emitted modal PM mass fractions according to  
 C              Elleman and Covert (2010)
-C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow
-C               Chan et al.
+C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow Chan et al.
+C JY  08/24/15 Changed visual index factors
 C HOTP 2/17/2016 Updated SOA densities. BTX follows Ng et al. 2007. 
 C                1.4 g/cm3 used by default.
-C JY  08/24/15 Changed visual index factors
 C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
 C              DUST_EMIS, aero_subs:VOLINORG, and aqchem
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
@@ -70,15 +69,20 @@ C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and 
 C    products of the acid-catalyzed ring-opening of atmospherically relevant
 C    butyl epoxy alcohols," J. Phys. Chem. A., 2010, 114, 8106-8113.
-C 2. Chan et al., Secondary organic aerosol formation from photooxidation
+C 2. Chan, et al., "Secondary organic aerosol formation from photooxidation
 C    of naphthalene and alkylnaphthalenes: implications for oxidation of
-C    intermediate volatility organic compounds (IVOCs), Atmos. Chem. Phys., 
+C    intermediate volatility organic compounds (IVOCs)", Atmos. Chem. Phys., 
 C    2009, 9, 3049-3060.
 C 3. Ng, N. L., Kroll, J. H., Chan, A. W. H., Chhabra, P. S., Flagan, R.
 C    C., and Seinfeld, J. H.: Secondary organic aerosol formation from
 C    m-xylene, toluene, and benzene, Atmos. Chem. Phys., 7, 3909-3922,
 C    doi:10.5194/acp-7-3909-2007, 2007.
-C 4. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
+C 4. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
+C    Air Quality modeling system in the Pacific Northwest: 3. Size distribution of
+C    particles emitted into a mesoscale model", JGR, 115, D03204, 2010
+C 5. Simon, et al., "The development and uses of EPA's SPECIATE database",
+C    Atmos. Poll. Res., 1, 196-206, 2010
+C 6. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
 C    Dust from the Desert Southwest United States," Aero. and AQ Res., 2015, 387-398
 
 C JY: From Christian Hogrefe...
@@ -90,8 +94,8 @@ C both scattering and absorption contribute to total extinction.
 C ASEACAT includes all sea-salt cations in coarse mode (Na, Ca, K, and Mg)
 C Also note...
 C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mass
-C extinction efficiency [m^2/g], see White, Atmos.Env.,294(10)(1990),pp 2673-1672
-C and Malm, et al., JGR,99(D1)(1994),pp 1347-1370
+C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
+C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
 
       Implicit None
@@ -105,7 +109,7 @@ C Number of aerosol species and modes
                                                 ! 3 = coarse 
 
 C Default minimum concentration
-      Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
+      Real,    Parameter :: conmin  = 1.0E-30    ! [ ug/m^3 ]
       Real(8), Parameter :: conminD = 1.0D-30    ! [ ug/m^3 ]
       Real(8), Parameter :: evapmin = 1.0D-20    ! [ ug/m^3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
@@ -120,13 +124,13 @@ C Emissions splits
 
 C Geometric mean diameter by volume (or mass) of emitted particles in
 C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-!     Real,    Parameter :: dgvem( n_mode ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
-      Real,    Parameter :: dgvem( n_mode ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /) ! KF 05/06/14
+C 09/17/14 change by Kathleen Fahey - see Revision History, above
+      Real,    Parameter :: dgvem( n_mode ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /)
 
 C Geometric standard deviation of emitted particles in each mode, as
 C described in paragraph #14 of Binkowski & Roselle (2003)
-!     Real,    Parameter :: sgem( n_mode ) = (/ 1.7, 2.0, 2.2 /)
-      Real,    Parameter :: sgem( n_mode ) = (/ 1.7, 1.7, 2.2 /)  ! KF 05/06/14
+C 09/17/14 change by Kathleen Fahey - see Revision History, above
+      Real,    Parameter :: sgem( n_mode ) = (/ 1.7, 1.7, 2.2 /)
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -226,7 +230,11 @@ C - but only accumulation and coarse modes used
          Real            :: spcfac( n_mode )
       End type dust_type
 
-C speciation factors from SPECIATE composite of 4 desert soil profiles (Pouliot):
+C For the wind-blown dust speciation factors, we used the median of the Desert Soil
+C profiles 3398, 3403, 3408, and 3413 for the J mode from the SPECIATE database and
+C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private communication)
+C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
+
       Type( dust_type ), Parameter :: dust_spc( ndust_spc ) = (/
 C                        -------- name --------         -------- spcfac --------
 C                      Aitken    accum     coarse        Aitken  accum   coarse
@@ -246,11 +254,11 @@ C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   dust_type( (/'       ','ASIJ   ','       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
      &   dust_type( (/'       ','ATIJ   ','       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
      &   dust_type( (/'       ','AMNJ   ','       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   dust_type( (/'       ','AH2OJ  ','       '/), (/ 0.0, 0.00541, 0.0    /) ),   ! Water
+     &   dust_type( (/'       ','AH2OJ  ','AH2OK  '/), (/ 0.0, 0.00541, 0.00637/) ),   ! Water
      &   dust_type( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
-     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95995/) ) /) ! Non-Anion Dust
+     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95358/) ) /) ! Non-Anion Dust
 
-C Sea-Salt Speciation factors
+C Sea-Salt Speciation factors based on seawater composition:
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
 C            Aitken    accum   coarse
 C           -------  -------  -------
@@ -310,28 +318,9 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0 /),      ! AGLY
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
-C aero_subs:VOLINORG parameters
-C what is 0.04642D0 and 0.00325D0?
-C     SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ( 1.0D0 - 0.04642D0 )  ! ASOIL_IDX = 38
-C     PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ( 1.0D0 - 0.00325D0 )  ! ACORS_IDX = 39
-C From Heather Simon:
-C “PMC profiles for CMAQ” tab, the PMC speciation was listed as follows:
-C    PCL       0.01190
-C    PNO3      0.00160
-C    PSO4      0.02655
-C    PH2O      0.00637
-C    REMAINDER 0.95358
-C If you add up PCL + PNO3 + PSO4 + PH2O you get the 0.04642 number.  I didn’t
-C double check, but I assume that the 0.00325 matches with the mass fraction of
-C volatile anthropogenic PMC components (i.e. sulfate, nitrate, chlorine).  So it
-C appears that Prakash (Bhave) did indeed renormalize the metal concentration to take
-C into account that fact the ACORS and ASOIL only made up a fraction of the emitted
-C PMC mass (dust and anthropogenic).  Also note, that PH2O may have been dropped in
-C the dust emissions because that species is not transported in the model, rather
-C H2O is recalculated at every time step in VOLINORG and is dependent on RH and PM
-C composition so emitted mass doesn’t matter.
+C Constants used in other routines:
 
-      Real( 8 ), Parameter :: asoil_renorm = 1.0D0 - 0.04642D0
+      Real( 8 ), Parameter :: asoil_renorm = 1.0D0 - 0.04642D0  ! = 0.95358, same as ASOIL speciation factor in the dust_spc table above
 
       Real( 8 ), Parameter :: ascat_na_fac = 0.8373D0    ! coarse sea-salt NA cation
       Real( 8 ), Parameter :: asoil_na_fac = 0.0626D0    ! for NA in windblown dust
@@ -356,18 +345,8 @@ C composition so emitted mass doesn’t matter.
       Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in dust*
       Real( 8 ), Parameter :: acors_mn_fac = 0.0011D0    ! for MN in anthropogenic coarse
 
-C *Also the asoil_fe_fac is not 0.0281D0 and the asoil_mn_fac is not 0.00078D0 according
-C to the "pm25pmc_desert_soil_profile_cmaq_5.xlsx" spreadsheet (K.Fahey 25Mar2016
-C communication)
-
-C AERO_EMIS - Prakash Bhave noted Coarse mode PMC speciation:
-C *** PVB: temporary hack to speciate PMC
-C        SPFC_ACORS = ( 1.0 - 0.00325 ) * AEROSPC( ACORS_IDX )%EMIS_SPLIT( N_MODE )
-C        SPFC_ASO4  = 0.00100 * AEROSPC( ASO4_IDX )%EMIS_SPLIT( N_MODE )
-C        SPFC_ANO3  = 0.00048 * AEROSPC( ANO3_IDX )%EMIS_SPLIT( N_MODE )
-C        SPFC_ACL   = 0.00145 * AEROSPC( ACL_IDX )%EMIS_SPLIT( N_MODE )
-C        SPFC_AH2O  = 0.00032 * AEROSPC( AH2O_IDX )%EMIS_SPLIT( N_MODE )
-C If you add up SPFC_ASO4 + SPFC_ANO3 + SPFC_ACL + SPFC_AH2O you get the 0.00325 number.
+C Coarse mode PMC speciation based on anthopogenic inventory composite from various
+C sources (G. Pouliot - private communication):
 
       Real( 8 ), Parameter :: acorsem_aso4_fac = 0.00100D0
       Real( 8 ), Parameter :: acorsem_ano3_fac = 0.00048D0
@@ -538,7 +517,7 @@ C Local Variables:
       aerospc_mw = 0.0
       aerospc_map = 0
 
-      Allocate( aero_missing( n_aerospc,n_mode ) )         
+      Allocate( aero_missing(n_aerospc, n_mode ) )         
 
 C build mapping to CGRID for each aero spc
       Do m = 1, n_mode
@@ -679,7 +658,7 @@ C compute aeromode_minNum and aeromode_minM2
 
 C-----------------------------------------------------------------------
       Subroutine map_pmemis ( )
-C
+ 
 C  Set the emissions units from the header of EMIS_1 file
 C  Verify that all the units on the file are consistent
 

@@ -63,7 +63,7 @@ C JY  08/24/15 Changed visual index factors
 C HOTP 2/17/2016 Updated SOA densities. BTX follows Ng et al. 2007. 
 C                1.4 g/cm3 used by default.
 C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
-C              DUST_EMIS, aero_subs:VOLINORG, and aqchem 
+C              DUST_EMIS, aero_subs:VOLINORG, and aqchem
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
 
 C References:
@@ -442,7 +442,7 @@ C Mapping for loading from and unloading to CGRID array
       Integer :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
 
 C Missing aerosol species map
-      Logical :: aero_missing( n_aerospc,n_mode )  ! indices of aero species to CGRID
+      Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
 
 C Emissions mapping
       Integer         :: n_emis_pm               ! number of aerospc with emissions
@@ -489,6 +489,8 @@ C Local Variables:
 
       aerospc_mw = 0.0
       aerospc_map = 0
+
+      Allocate( aero_missing(n_aerospc, n_mode ) )         
 
 C build mapping to CGRID for each aero spc
       Do m = 1, n_mode
