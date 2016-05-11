@@ -133,8 +133,10 @@
 !                       function) [changes in aqchem_kmt, aqchem_Initialize, aqchem_Global,
 !                       aqchem_Rates]; updated to use AERO_DATA constants in calculation of 
 !                       coarse cations following J. Young updates in AQCHEM.F [changes in 
-!                       aqchem_kmt, aqchem_Initialize]; Updated IEPOX+SO4 rate coefficient 
-!                       to be consistent with aero6i updates [changes in aqchem_Rates].
+!                       aqchem_kmt, aqchem_Initialize]; adjusted initial HO calculation to 
+!                       be more consistent with standard AQCHEM [change in aqchem_Initialize];
+!                       updated IEPOX+SO4 rate coefficient to be consistent with aero6i 
+!                       updates [changes in aqchem_Rates].
 !
 !  References:
 !     Walcek & Taylor, 1986, A theoretical Method for computing

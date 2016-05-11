@@ -129,7 +129,8 @@
 !                       function) [changes in aqchem_kmt, aqchem_Initialize, aqchem_Global]; 
 !                       updated to use AERO_DATA constants in calculation of coarse cations 
 !                       following J. Young updates in AQCHEM.F [changes in aqchem_kmt, 
-!                       aqchem_Initialize]. 
+!                       aqchem_Initialize]; adjusted initial HO calculation to be more 
+!                       consistent with standard AQCHEM [change in aqchem_Initialize]. 
 !
 !  References:
 !     Walcek & Taylor, 1986, A theoretical Method for computing
