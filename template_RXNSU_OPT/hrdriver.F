@@ -395,9 +395,9 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
  
-C.. Get photolysis rates in /min
+C.. Get photolysis rates in 1/min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rats
+C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties 
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -499,8 +499,8 @@ R5               END IF
          END DO
       END DO
 
-
-
+!  Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CGRID )
 
 #ifdef hrstats 
       AVGEBI = SUMEBI / REAL( NCOLS * NROWS * NLAYS )

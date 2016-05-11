@@ -419,6 +419,12 @@ c         LERROR = .FALSE.
            ELSE IF( STATUS .LT. 0 )THEN
               STATUS  = 0
               VAR_VALUE = TRIM( VAR_DEFAULT ) 
+           ELSE IF( STATUS .GT. 1 )THEN
+              STATUS  = 1
+              MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
+              WRITE(LOGDEV,'(a)')TRIM( MSG )
+              MSG = 'ERROR Processor does not support environment variables '
+              WRITE(LOGDEV,'(a)')
            END IF
            IF( STATUS .EQ. 0 )THEN
                MSG = '     Value for ' // TRIM( VAR_NAME ) // ': ' // TRIM( VAR_VALUE )
@@ -440,13 +446,21 @@ c         LERROR = .FALSE.
 
            CALL GET_ENVIRONMENT_VARIABLE( NAME=VAR_NAME, VALUE= VAR_VALUE, STATUS=STATUS, TRIM_NAME=.TRUE.)
 
-           IF( STATUS .GT. 0 ) THEN
+           IF( STATUS .LT. 0 ) THEN
               MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
               WRITE(LOGDEV,'(a)')TRIM( MSG )
-           ELSE IF( STATUS .LT. 0 )THEN
-              STATUS  = 0
+              STATUS = 1
+           ELSE IF( STATUS .EQ. 1 )THEN
+              STATUS  = -1
               GET_ENV_FLAG = VAR_DEFAULT
-           ELSE 
+           ELSE IF( STATUS .GT. 1 )THEN
+              STATUS  = 1
+              MSG = 'ERROR in environment value for ' // TRIM( VAR_NAME )
+              WRITE(LOGDEV,'(a)')TRIM( MSG )
+              MSG = 'ERROR Processor does not support environment variables '
+              WRITE(LOGDEV,'(a)')
+           ELSE
+              STATUS = 0 
               IF( VAR_VALUE(1:1) .EQ. 'T' .OR. VAR_VALUE(1:1) .EQ. 'Y' )THEN
                   GET_ENV_FLAG = .TRUE.
               ELSE IF( VAR_VALUE(1:1) .EQ. 't' .OR. VAR_VALUE(1:1) .EQ. 'y' )THEN
