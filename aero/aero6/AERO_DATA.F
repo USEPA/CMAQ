@@ -359,7 +359,10 @@ C Required species
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS'
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'
       Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT'
+
 C Optional Species
+      Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
+      Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
      
 C Indices of required species
@@ -382,6 +385,8 @@ C Indices of required species
       Integer :: aseacat_idx
 
 C Indices of Optional species
+      Integer :: aietet_idx
+      Integer :: aieos_idx
       Integer :: aphgj_idx
 
       Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
@@ -467,6 +472,7 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C HS  01/24/11 Renamed AORGPA as POC for AERO6
 C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
+C HOTP 05/11/16 Add IEPOX derived species
 C JY  03/22/16 Get index for new required species: Fe, Mn (aqchem)
 C-----------------------------------------------------------------------
 
@@ -564,7 +570,10 @@ C Find indices of required species
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
-      aphgj_idx   = findAero( req_phgj,  .False. )
+C Optional species
+      aietet_idx  = findAero( req_ietet,  .False. )
+      aieos_idx   = findAero( req_ieos,   .False. )
+      aphgj_idx   = findAero( req_phgj,   .False. )
 
 #ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
@@ -585,7 +594,13 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
+      If( aphgj_idx .Gt. 0 )Then
+          Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
+      else
+          Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx: ', aphgj_idx
+      End If
 #endif
  
 C Compute common factors

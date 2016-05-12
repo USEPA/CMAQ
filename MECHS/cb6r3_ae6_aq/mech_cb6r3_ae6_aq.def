@@ -419,10 +419,15 @@ REACTIONS[CM] =
 
 ! updated reaction rate to v51 release
 <HAL_Ozone> O3 =  %H # 1.0000E-40@-78.4256 & 4.0582E-9@-5.8212;
+
 ! added het reaction based on EPOX 
 <HET_IEPOX> EPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
-! oligomerization reaction for secondary organic aerosols
 
+! GLY and MGLY uptake
+<HET_GLY>  GLY  = AGLYJ # 1.0~<HETERO_GLY>;
+<HET_MGLY> MGLY = AGLYJ # 1.0~<HETERO_MGLY>;
+
+! oligomerization reaction for secondary organic aerosols
 <OLIG_XYLENE1>    AXYL1J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_XYLENE2>    AXYL2J = 1.1428*AOLGAJ  # 9.48816E-6;
 <OLIG_TOLUENE1>   ATOL1J = 1.0000*AOLGAJ  # 9.48816E-6;
