@@ -299,9 +299,9 @@ C        "wet" size distribution
          CALL GETPAR( .FALSE. )     
 
 C        Save getpar values to arrays
-         XXLSGAT( C,R ) = AEROMODE_SDEV( 1 )
-         XXLSGAC( C,R ) = AEROMODE_SDEV( 2 )
-         XXLSGCO( C,R ) = AEROMODE_SDEV( 3 )
+         XXLSGAT( C,R ) = AEROMODE_LNSG( 1 )
+         XXLSGAC( C,R ) = AEROMODE_LNSG( 2 )
+         XXLSGCO( C,R ) = AEROMODE_LNSG( 3 )
 
          DGATK( C,R )   = AEROMODE_DIAM( 1 )
          DGACC( C,R )   = AEROMODE_DIAM( 2 )

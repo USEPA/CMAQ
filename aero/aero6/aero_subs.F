@@ -366,8 +366,8 @@ C *** set geometric mean diameters, geometric standard deviations, and
 C     ln(GSD) in double precision
          DO N = 1, N_MODE
             DG_D( N ) = AEROMODE_DIAM( N )
-            SG_D( N ) = EXP( AEROMODE_SDEV( N ) )
-            XXL_D( N ) = AEROMODE_SDEV( N )
+            SG_D( N ) = EXP( AEROMODE_LNSG( N ) )
+            XXL_D( N ) = AEROMODE_LNSG( N )
          END DO
 
 C *** calculate intermodal and intramodal coagulation coefficients
@@ -384,18 +384,18 @@ C     coefficient for third moment
 C *** calculate Aitken-mode intramodal coagulation coefficients
 C     for zeroth and second moments
          CALL INTRACOAG_GH( LAMDA, KFMAT, KNC, AEROMODE_DIAM( 1 ),
-     &                      AEROMODE_SDEV( 1 ), BATAT( 2 ), BATAT( 1 ) )
+     &                      AEROMODE_LNSG( 1 ), BATAT( 2 ), BATAT( 1 ) )
 
 C *** calculate accumulation-mode intramodal coagulation coefficients
 C     for zeroth and second moments
          CALL INTRACOAG_GH( LAMDA, KFMAC, KNC, AEROMODE_DIAM( 2 ),
-     &                      AEROMODE_SDEV( 2 ), BACAC( 2 ), BACAC( 1 ) )
+     &                      AEROMODE_LNSG( 2 ), BACAC( 2 ), BACAC( 1 ) )
 
 C *** calculate intermodal coagulation coefficients for zeroth, second,
 C     and third moments
          CALL INTERCOAG_GH( LAMDA, KFMATAC, KNC,
      &                      AEROMODE_DIAM( 1 ), AEROMODE_DIAM( 2 ),
-     &                      AEROMODE_SDEV( 1 ), AEROMODE_SDEV( 2 ),
+     &                      AEROMODE_LNSG( 1 ), AEROMODE_LNSG( 2 ),
      &                      BATAC( 2 ), BACAT( 2 ), BATAC( 1 ), C3IJ )
 
       END IF   ! FASTCOAG_FLAG
@@ -597,14 +597,14 @@ C     to the "Xnum" term described below Equation 10a by Binkowski and
 C     Roselle (2003).
          AAA = GETAF( MOMENT0_CONC( 1 ), MOMENT0_CONC( 2 ),
      &                AEROMODE_DIAM( 1 ), AEROMODE_DIAM( 2 ), 
-     &                AEROMODE_SDEV( 1 ), AEROMODE_SDEV( 2 ),
+     &                AEROMODE_LNSG( 1 ), AEROMODE_LNSG( 2 ),
      &                SQRT2 ) 
 
 C *** Ensure that Xnum is large enough so that no more than half of
 C     the Aitken mode mass is merged into the accumulation mode during
 C     any given time step.  This criterion is described in Paragraph 26
 C     of Binkowski and Roselle (2003).
-         XXM3 = 3.0 * AEROMODE_SDEV( 1 ) / SQRT2
+         XXM3 = 3.0 * AEROMODE_LNSG( 1 ) / SQRT2
          XNUM = MAX( AAA, XXM3 )
 
 C *** Factors used in error function calls for M2 and M3 mode merging
@@ -991,7 +991,7 @@ C     N.B: these are for a "wet" size distribution
       DO I = 1, N_MODE
          AM0( I ) = MOMENT0_CONC( I ) 
          AM1( I ) = MOMENT0_CONC( I ) * AEROMODE_DIAM( I )
-     &            * EXP( 0.5 * AEROMODE_SDEV( I ) * AEROMODE_SDEV( I ) )
+     &            * EXP( 0.5 * AEROMODE_LNSG( I ) * AEROMODE_LNSG( I ) )
          AM2( I ) = MOMENT2_CONC( I )
       END DO
       
@@ -1113,7 +1113,7 @@ C     (1995) or Equation 3 of Binkowski and Roselle (2003).
 C     N.B: these are for a "wet" size distribution
             AM0( IMODE ) = MOMENT0_CONC( IMODE )
             AM1( IMODE ) = MOMENT0_CONC( IMODE ) * AEROMODE_DIAM( IMODE )
-     &                  * EXP( 0.5 * AEROMODE_SDEV( IMODE ) * AEROMODE_SDEV( IMODE ) )
+     &                  * EXP( 0.5 * AEROMODE_LNSG( IMODE ) * AEROMODE_LNSG( IMODE ) )
             AM2( IMODE ) = MOMENT2_CONC( IMODE )
 
 C *** Calculate the size-dependent terms in the condensational-
@@ -3073,13 +3073,13 @@ C *** set up Mie parameters for Volume ( mass median diameter)
       
       DO N = 1, N_MODE
         ALFV( N ) = CONST3 * AEROMODE_DIAM( N )
-     &            * EXP( 3.0 * AEROMODE_SDEV( N ) * AEROMODE_SDEV( N ) )
+     &            * EXP( 3.0 * AEROMODE_LNSG( N ) * AEROMODE_LNSG( N ) )
       END DO
 
 C *** Call extinction routines
 
       DO N = 1, N_MODE
-         CALL GETBEXT( NR, NI, ALFV( N ), AEROMODE_SDEV( N ), BBEXT )
+         CALL GETBEXT( NR, NI, ALFV( N ), AEROMODE_LNSG( N ), BBEXT )
          BEXT( N ) = CONSTL * MOMENT3_CONC( N ) * BBEXT
       END DO
 
