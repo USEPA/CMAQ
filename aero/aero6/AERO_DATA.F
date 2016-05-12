@@ -497,9 +497,9 @@ C Local Variables:
 
       if ( mapped ) Return
 
-      n_aerospc      = 0.0
+      n_aerospc      = 0.0 !Number of Used Aerosol Chemical Species
       aerolist_map   = 0   !Pointer from aerolist to CGRID
-      aerospc_tolist = 0  !Pointer from aerospc to aerolist
+      aerospc_tolist = 0   !Pointer from aerospc to aerolist
       error_flag = .false.
 
 C Build mapping to CGRID for each species in the master AeroList
@@ -514,8 +514,7 @@ C Build mapping to CGRID for each species in the master AeroList
                If ( n .NE. 0 ) Then
                   !Species is in the Master List and on the NameList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
-                  !This Species is Not a Tracer. Add it to the map
-                  !if it does not exist already
+                  !Add this species to the map if it does not exist already
                   If ( .NOT. (Any( aerolist_map( spc,: ) .NE. 0 ) ) ) Then
                      n_aerospc = n_aerospc + 1
                      aerospc_tolist( n_aerospc ) = spc
@@ -559,7 +558,7 @@ C Build mapping to CGRID for each species in the master AeroList
          
          Write( xmsg2,* ) (' ', TRIM( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
          Do n = 1,n_mode
-            !Map the Modal-Dependent Variables from AeroSpc to AeroList
+            !Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = aerolist_map( l, n )
 
             !Map The Sea-Salt Species to the aerospc_ssf Array
