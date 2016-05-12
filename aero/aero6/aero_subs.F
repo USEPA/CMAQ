@@ -1830,8 +1830,8 @@ C.. Calculate particle nucleation rate: unit [ 1 / cm**3 s] [Eq-12 - Vehkamaki e
       Jnuc = EXP(XFAC)  
       
 C.. The parameterization is valid for nucleation rates of 1.0E-7-1.0E10 [ 1 / cm**3 s]
-      Jnuc = MAX (Jnuc, 1.0E-7)
-      Jnuc = MIN (1.0E10, Jnuc)
+      Jnuc = MAX (Jnuc, 1.0D-7)
+      Jnuc = MIN (1.0D10, Jnuc)
 
 C.. Convert the unit of particle nucleation rate into [ 1 / m**3 s] by multiplying it by 1.0E6  
        DNDT = Jnuc * 1.0E06  ! (1/(m**3 s))

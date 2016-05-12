@@ -1084,7 +1084,7 @@ C---New parametrization for surface roughness by H. Foroutan - Oct. 2015
                         if ( lambda .le. 0.2 ) then
                            z0 = 0.96  * ( lambda ** 1.07 )  * vegheight 
                         else
-                           z0 = 0.083 * ( lambda ** -0.46 ) * vegheight 
+                           z0 = 0.083 * ( lambda ** ( -0.46 ) ) * vegheight 
                         end if
 
 C---Calculate friction velocity (U*) at the surafce applicable to dust emission 
