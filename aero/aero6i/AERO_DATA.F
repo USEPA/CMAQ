@@ -454,7 +454,7 @@ C Geometric mean diameter (calculated by GETPAR)
       Real :: aeromode_diam( n_mode )   ! [ m ]
 
 C Log of geometric standard deviation (calculated by GETPAR )
-      Real :: aeromode_sdev( n_mode )
+      Real :: aeromode_lnsg( n_mode )
 
 C Minimum number (calculated in map_aero routine)
       Real :: aeromode_minNum( n_mode )

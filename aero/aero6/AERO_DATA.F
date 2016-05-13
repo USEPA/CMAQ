@@ -433,7 +433,7 @@ C Geometric mean diameter (calculated by GETPAR)
       Real :: aeromode_diam( n_mode )   ! [ m ]
 
 C Log of geometric standard deviation (calculated by GETPAR )
-      Real :: aeromode_sdev( n_mode )
+      Real :: aeromode_lnsg( n_mode )
 
 C Minimum number (calculated in map_aero routine)
       Real :: aeromode_minNum( n_mode )
@@ -793,8 +793,11 @@ C Copy grid cell concentrations of aero species to aerospc_conc
       !Calculate Dry Third Moment [ m3 / m3 ]
       Do m = 1, n_mode
          moment3_conc( m ) = sum( aerospc_conc(:,m) / aerospc(:)%density, 
-     &      MASK= (aerospc%no_M2wet==.false. .AND. aerospc%Tracer==.false.) )
-         moment3_conc( m ) = max( moment3_conc( m ) * 1.0E-9 * f6pi, aeromode( m )%min_m3conc )
+!    &      MASK= (aerospc%no_M2wet==.false. .AND. aerospc%Tracer==.false.) )
+     &      MASK= ( ( .NOT. aerospc%no_M2wet ) .AND. 
+     &              ( .NOT. aerospc%Tracer ) ) )
+         moment3_conc( m ) = max( moment3_conc( m ) * 1.0E-9 * f6pi, 
+     &                            aeromode( m )%min_m3conc )
       End Do
 
 C Copy grid cell concentrations of aero # and surf area

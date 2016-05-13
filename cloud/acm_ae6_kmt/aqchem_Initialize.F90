@@ -71,22 +71,21 @@ CONTAINS
  
       END FUNCTION KMTF
 
-      REAL( kind=dp )FUNCTION KMTB ( HL, DH, ACC, DG, MW )
+      REAL( kind=dp )FUNCTION KMTB ( HLCONST, ACC, DG, MW )
 
             IMPLICIT NONE
  
-            REAL( kind=dp ) HL, DH   ! Henry's Law coefficient, heat of dissolution
+            REAL( kind=dp ) HLCONST  ! Henry's Law coefficient
             REAL( kind=dp ) ACC      ! accommodation coefficient (unitless)
             REAL( kind=dp ) DG       ! gas molecular diffusion coef (m2/s)
             REAL( kind=dp ) MW       ! molecular weight (g/mol)
-            REAL( kind=dp ) HLCONST, RHO1, RAD, R, PI, KMT, V, R2
+            REAL( kind=dp ) RHO1, RAD, R, PI, KMT, V, R2
  
             RAD = DDIAM * 0.5D0      ! droplet radius (m)
             R = 8.3145D0             ! ideal gas constant (J/mol-K)
             R2 = 0.08206D0           ! ideal gas constant (L-atm/mol-K)  (= R/101325)
             PI = 3.1415926536
     
-            HLCONST = HL * EXP( DH * ( DELINVT ) )
             V = SQRT( 8 * R * TEMP_KPP * 1000.0D0 / PI / MW ) ! m/s
     
             KMT = ( RAD * RAD ) / ( 3 * DG )
@@ -121,8 +120,15 @@ CONTAINS
 
 ! SUBROUTINE Initialize ( )
 
-      SUBROUTINE Initialize ( TEMP2, PRES_PA, TAUCLD, PRCRATE,  &
-         WCAVG, WTAVG, AIRM, ALFA0, ALFA3, GAS, AEROSOL, CTHK1, DARK )
+      SUBROUTINE Initialize ( TEMP2, PRES_PA, TAUCLD, PRCRATE,       &
+                       WCAVG, WTAVG, AIRM, ALFA0, ALFA3,      &
+                       GAS, AEROSOL, CTHK1, DARK,             &
+                       SOIL_FE_FAC, CORS_FE_FAC, SOIL_MN_FAC, &
+                       CORS_MN_FAC, SEAS_NA_FAC, SOIL_NA_FAC, &
+                       CORS_NA_FAC, SEAS_MG_FAC, SOIL_MG_FAC, &
+                       CORS_MG_FAC, SEAS_CA_FAC, SOIL_CA_FAC, &
+                       CORS_CA_FAC, SEAS_K_FAC, SOIL_K_FAC, &
+                       CORS_K_FAC )
 
 
       USE aqchem_Global
@@ -150,7 +156,22 @@ CONTAINS
       REAL( 8 ), INTENT( IN )  :: GAS( NGAS )             ! Gas phase concentrations (mol/molV)
       REAL( 8 ), INTENT( IN )  :: AEROSOL( NAER, NMODES ) ! Aerosol concentrations (mol/molV)
       REAL( 8 ), INTENT( IN )  :: CTHK1
-
+      REAL( 8 ), INTENT( IN )  :: SOIL_FE_FAC                        ! Fe molar fraction of ASOIL
+      REAL( 8 ), INTENT( IN )  :: CORS_FE_FAC                        ! Fe molar fraction of ACORS
+      REAL( 8 ), INTENT( IN )  :: SOIL_MN_FAC                        ! Mn molar fraction of ASOIL
+      REAL( 8 ), INTENT( IN )  :: CORS_MN_FAC                        ! Fe molar fraction of ACORS
+      REAL( 8 ), INTENT( IN )  :: SEAS_NA_FAC                        ! Na molar fraction of ASEACAT
+      REAL( 8 ), INTENT( IN )  :: SOIL_NA_FAC                        ! Fe molar fraction of ASOIL
+      REAL( 8 ), INTENT( IN )  :: CORS_NA_FAC                        ! Fe molar fraction of ACORS
+      REAL( 8 ), INTENT( IN )  :: SEAS_MG_FAC                        ! Na molar fraction of ASEACAT
+      REAL( 8 ), INTENT( IN )  :: SOIL_MG_FAC                        ! Fe molar fraction of ASOIL
+      REAL( 8 ), INTENT( IN )  :: CORS_MG_FAC                        ! Fe molar fraction of ACORS
+      REAL( 8 ), INTENT( IN )  :: SEAS_CA_FAC                        ! Na molar fraction of ASEACAT
+      REAL( 8 ), INTENT( IN )  :: SOIL_CA_FAC                        ! Fe molar fraction of ASOIL
+      REAL( 8 ), INTENT( IN )  :: CORS_CA_FAC                        ! Fe molar fraction of ACORS
+      REAL( 8 ), INTENT( IN )  :: SEAS_K_FAC                         ! Na molar fraction of ASEACAT
+      REAL( 8 ), INTENT( IN )  :: SOIL_K_FAC                         ! Fe molar fraction of ASOIL
+      REAL( 8 ), INTENT( IN )  :: CORS_K_FAC                         ! Fe molar fraction of ACORS      
 
 !...........Local Variables:
 
@@ -283,22 +304,16 @@ CONTAINS
 
 ! Coarse crustal species from SOILCOR, ANTHCOR, SEASCOR
 
-      FECOR   = 0.0281D0  * ( 100.0D0 / 55.8D0 ) * AEROSOL(LSOILC,COR) / ( 1.0 - 0.04642 ) &
-              + 0.0467D0  * ( 100.0D0 / 55.8D0 ) * AEROSOL(LANTHC,COR) / ( 1.0 - 0.00325 )
-      MNCOR   = 0.00078D0 * ( 100.0D0 / 54.9D0 ) * AEROSOL(LSOILC,COR) / ( 1.0 - 0.04642 ) &
-              + 0.0011D0  * ( 100.0D0 / 54.9D0 ) * AEROSOL(LANTHC,COR) / ( 1.0 - 0.00325 )
-      NACOR   = 0.8373D0  * (  23.0D0 / 23.0D0 ) * AEROSOL(LSEASC,COR) &                    
-              + 0.0652D0  * ( 100.0D0 / 23.0D0 ) * AEROSOL(LSOILC,COR) / ( 1.0 - 0.04642 ) &
-              + 0.0023D0  * ( 100.0D0 / 23.0D0 ) * AEROSOL(LANTHC,COR) / ( 1.0 - 0.00325 )
-      MGCOR   = 0.0997D0  * (  23.0D0 / 24.3D0 ) * AEROSOL(LSEASC,COR) &                    
-              + 0.0000D0  * ( 100.0D0 / 24.3D0 ) * AEROSOL(LSOILC,COR) / ( 1.0 - 0.04642 ) &
-              + 0.0032D0  * ( 100.0D0 / 24.3D0 ) * AEROSOL(LANTHC,COR) / ( 1.0 - 0.00325 )
-      CACOR   = 0.0320D0  * (  23.0D0 / 40.1D0 ) * AEROSOL(LSEASC,COR) &                 
-              + 0.0872D0  * ( 100.0D0 / 40.1D0 ) * AEROSOL(LSOILC,COR) / ( 1.0 - 0.04642 ) &
-              + 0.0562D0  * ( 100.0D0 / 40.1D0 ) * AEROSOL(LANTHC,COR) / ( 1.0 - 0.00325 )
-      KCOR    = 0.0310D0  * (  23.0D0 / 39.1D0 ) * AEROSOL(LSEASC,COR) &                 
-              + 0.0252D0  * ( 100.0D0 / 39.1D0 ) * AEROSOL(LSOILC,COR) / ( 1.0 - 0.04642 ) &
-              + 0.0176D0  * ( 100.0D0 / 39.1D0 ) * AEROSOL(LANTHC,COR) / ( 1.0 - 0.00325 )
+      FECOR   = SOIL_FE_FAC * AEROSOL(LSOILC,COR) + CORS_FE_FAC * AEROSOL(LANTHC,COR)
+      MNCOR   = SOIL_MN_FAC * AEROSOL(LSOILC,COR) + CORS_MN_FAC * AEROSOL(LANTHC,COR)
+      NACOR   = SEAS_NA_FAC * AEROSOL(LSEASC,COR) + SOIL_NA_FAC * AEROSOL(LSOILC,COR)  &
+              + CORS_NA_FAC * AEROSOL(LANTHC,COR)
+      MGCOR   = SEAS_MG_FAC * AEROSOL(LSEASC,COR) + SOIL_MG_FAC * AEROSOL(LSOILC,COR)  &
+              + CORS_MG_FAC * AEROSOL(LANTHC,COR)
+      CACOR   = SEAS_CA_FAC * AEROSOL(LSEASC,COR) + SOIL_CA_FAC * AEROSOL(LSOILC,COR)  &
+              + CORS_CA_FAC * AEROSOL(LANTHC,COR)
+      KCOR    = SEAS_K_FAC  * AEROSOL(LSEASC,COR) + SOIL_K_FAC  * AEROSOL(LSOILC,COR)  &
+              + CORS_K_FAC  * AEROSOL(LANTHC,COR)
             
 ! Cloudwater cations 
 
@@ -326,9 +341,14 @@ CONTAINS
     
 !     FIX( indf_L_H2O ) = 1.D0 * INVPHI2   ! set to 1 M -- Kw includes [H2O]
       FIX( indf_L_H2O ) = 55.5D0 * INVPHI2   ! Kw in dynamic calcs does not include [H2O]
-      FIX( indf_L_HO )  = ( GAS( LHO ) * PRESS * 30.D0 * EXP( 4.5D3 * &
-                            DELINVT ) ) * INVPHI2
-          
+!      FIX( indf_L_HO )  = ( GAS( LHO ) * PRESS * 30.D0 * EXP( 4.5D3 * &
+!                            DELINVT ) ) * INVPHI2      
+      FIX( indf_L_HO )  = INVPHI2 * ( ( GAS( LHO ) * PRESS * HOH ) /  &
+                          ( 1.d0 + HOH * WCAVG * 0.08206D0 * TEMP_KPP &
+                          / 1000.d0 ) )   !initial HO(aq) calculated based on Henry's 
+                                          !Law equil. with initial/input HOg 
+                                          !representing amount of total HO (gas+aq) available   
+              
 !  Calculate initial H+ and OH- from electroneutrality and Kw
 !
 !  Sum of positive ions + H+ = Sum of negative ions + OH-
@@ -378,18 +398,18 @@ CONTAINS
   RCONST(10) = ((KMTF(0.1158D0,1.89D-5,36.461D0)))
   RCONST(11) = ((KMTF(0.023D0,1.15D-5,58.04D0)))
   RCONST(12) = ((KMTF(0.023D0,1.15D-5,72.06D0)))
-  RCONST(13) = ((KMTB(1.4D+00,2.9D+03,0.11D0,1.28D-5,64.064D0)))
-  RCONST(14) = ((KMTB(2.1D+05,8.7D+03,0.0868D0,1.32D-5,63.013D0)))
-  RCONST(15) = ((KMTB(3.6D-02,2.2D+03,0.00015D0,1.55D-5,44.01D0)))
-  RCONST(16) = ((KMTB(6.1D+01,4.2D+03,0.091D0,2.3D-5,17.031D0)))
-  RCONST(17) = ((KMTB(8.3D+04,7.4D+03,0.1532D0,1.46D-5,34.015D0)))
-  RCONST(18) = ((KMTB(1.14D-02,2.3D+03,0.1D0,1.48D-5,47.998D0)))
-  RCONST(19) = ((KMTB(8.9D+03,6.1D+03,0.0229D0,1.53D-5,46.025D0)))
-  RCONST(20) = ((KMTB(3.1D+02,5.2D+03,0.006758D0,1.31D-5,48.04D0)))
-  RCONST(21) = ((KMTB(8.4D+02,5.3D+03,0.019D0,1.02D-5,76.05D0)))
-  RCONST(22) = ((KMTB(1.9D+01,6.0D+02,0.1158D0,1.89D-5,36.461D0)))
-  RCONST(23) = ((KMTB(3.6D+05,0.0D+00,0.023D0,1.15D-5,58.04D0)))
-  RCONST(24) = ((KMTB(MGLYH,0.0D+0,0.023D0,1.15D-5,72.06D0)))
+  RCONST(13) = ((KMTB(SO2H,0.11D0,1.28D-5,64.064D0)))
+  RCONST(14) = ((KMTB(HNO3H,0.0868D0,1.32D-5,63.013D0)))
+  RCONST(15) = ((KMTB(CO2H,0.00015D0,1.55D-5,44.01D0)))
+  RCONST(16) = ((KMTB(NH3H,0.091D0,2.3D-5,17.031D0)))
+  RCONST(17) = ((KMTB(H2O2H,0.1532D0,1.46D-5,34.015D0)))
+  RCONST(18) = ((KMTB(O3H,0.1D0,1.48D-5,47.998D0)))
+  RCONST(19) = ((KMTB(FOAH,0.0229D0,1.53D-5,46.025D0)))
+  RCONST(20) = ((KMTB(MHPH,0.006758D0,1.31D-5,48.04D0)))
+  RCONST(21) = ((KMTB(PAAH,0.019D0,1.02D-5,76.05D0)))
+  RCONST(22) = ((KMTB(HCLH,0.1158D0,1.89D-5,36.461D0)))
+  RCONST(23) = ((KMTB(GLYH,0.023D0,1.15D-5,58.04D0)))
+  RCONST(24) = ((KMTB(MGLYH,0.023D0,1.15D-5,72.06D0)))
   RCONST(25) = (ALFA3_KPP)
   RCONST(26) = (ALFA3_KPP)
   RCONST(27) = (ALFA3_KPP)

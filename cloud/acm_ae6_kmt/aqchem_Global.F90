@@ -98,12 +98,25 @@ MODULE aqchem_Global
       REAL( kind=dp ) :: MN_II         ! Mn(2+) fraction of Mn total
       REAL( kind=dp ) :: FE_SOL        ! Fraction of soluble Fe
       REAL( kind=dp ) :: MN_SOL        ! Fraction of soluble Mn
-      REAL( kind=dp ) :: DDIAM         ! Droplet Diameter (m)    
-      REAL( kind=dp ) :: MGLYH         ! MGLY H Law coef -- gas phase mech dependent     
+      REAL( kind=dp ) :: DDIAM         ! Droplet Diameter (m)         
       REAL( kind=dp ) :: PHI2, INVPHI2 ! conversion factor (and inverse) (M/(molec/cm3air))  
       REAL( kind=dp ) :: STION         ! Ionic strength
       REAL( kind=dp ) :: GM1LOG, GM2LOG, GM1, GM2  ! Activity correction
       REAL( kind=dp ) :: DELINVT       ! 1/T - 1/298
+      
+      REAL( kind=dp ) :: SO2H          ! SO2 H Law coef - from HLCONST  
+      REAL( kind=dp ) :: CO2H          ! CO2 H Law coef - from HLCONST
+      REAL( kind=dp ) :: NH3H          ! NH3 H Law coef - from HLCONST 
+      REAL( kind=dp ) :: H2O2H         ! H2O2 H Law coef - from HLCONST
+      REAL( kind=dp ) :: O3H           ! O3 H Law coef - from HLCONST 
+      REAL( kind=dp ) :: HCLH          ! HCL H Law coef - from HLCONST  
+      REAL( kind=dp ) :: HNO3H         ! HNO3 H Law coef - from HLCONST
+      REAL( kind=dp ) :: MHPH          ! MHP H Law coef - from HLCONST 
+      REAL( kind=dp ) :: PAAH          ! PAA H Law coef - from HLCONST
+      REAL( kind=dp ) :: FOAH          ! FOA H Law coef - from HLCONST 
+      REAL( kind=dp ) :: GLYH          ! GLY H Law coef - from HLCONST
+      REAL( kind=dp ) :: MGLYH         ! MGLY H Law coef - from HLCONST -- gas phase mech dependent  
+      REAL( kind=dp ) :: HOH           ! HO H Law coef - from HLCONST
 
       INTEGER JDATEKPP
       INTEGER JTIMEKPP       

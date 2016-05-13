@@ -464,7 +464,7 @@ C *** variables for getting aerosol diagnostic file flag
       CHARACTER( 132 )  :: XMSG
       
 C *** Statement Function **************
-      REAL( 8 )            :: INV_ESATL ! arithmetic statement function for reciporcal vapor pressure [Pa]
+      REAL( 8 )            :: INV_ESATL ! arithmetic statement function for reciprocal vapor pressure [Pa]
       REAL( 8 )            :: TT
 
 ! reciprocal of rxn probability for BRONO2 on aerosol, Yang et al., JGR, 2005
@@ -738,7 +738,7 @@ C     affect the geometric standard deviation
 C *** The "wet" geometric mean (same as median) diameter was updated in
 C     getpar. It is stored in aeromode_diam
 C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
-                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_sdev( N ) ** 2 ), 8)
+                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_lnsg( N ) ** 2 ), 8)
                END DO
 
 C *** Retrieve and Save the Dry 3rd and 2nd Moments

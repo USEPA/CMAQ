@@ -309,8 +309,8 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 C...check for minimums
 
       DO IMODE = 2, N_MODE
-        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIN )
-        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIN )
+        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND )
+        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND )
       END DO
 
 C...Update surface area
