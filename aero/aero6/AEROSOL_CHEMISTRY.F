@@ -349,8 +349,8 @@ C *** variables for heterogeneous hydrolysis of NTR2
 C *** variables for getting aerosol diagnostic file flag
       INTEGER           :: STATUS                      ! ENV... status
       CHARACTER( 80 )   :: VARDESC                     ! environment variable description
-      CHARACTER( 16 )   :: CTM_AERDIAG = 'CTM_AERDIAG' ! environment variable for AERDIAG file
-      LOGICAL, SAVE     :: AERDIAG                     ! flag for AERDIAG file [F], default
+      CHARACTER( 16 )   :: CTM_PMDIAG = 'CTM_PMDIAG'   ! environment variable for PMDIAG file
+      LOGICAL, SAVE     :: PMDIAG                      ! flag for PMDIAG file [F], default
       
       CHARACTER( 132 )  :: XMSG
       
@@ -400,9 +400,9 @@ C *** compute only on first pass
         LOGDEV = INIT3()
          
 C *** Get aerosol diagnostic file flag.
-        AERDIAG = .FALSE.         ! default
+        PMDIAG = .FALSE.         ! default
         VARDESC = 'Flag for writing the aerosol diagnostic file'
-        AERDIAG = ENVYN( CTM_AERDIAG, VARDESC, AERDIAG, STATUS )
+        PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
 !       STATUS = 0
         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
         IF ( STATUS .EQ. 1 ) THEN
@@ -460,7 +460,7 @@ C     end of the gas-phase chemical driver
         
        ALLOCATE( KHETERO( SELECTED_AERO_RATES, NCOLS,NROWS,NLAYS ) )
        
-       IF ( AERDIAG ) THEN
+       IF ( PMDIAG ) THEN
           ALLOCATE( GAMMA_N2O5IJ( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_N2O5K( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_IEPOX( NCOLS,NROWS,NLAYS ) )
@@ -495,7 +495,7 @@ C     end of the gas-phase chemical driver
 
       KHETERO      = 0.0D0
       
-      IF ( AERDIAG ) THEN
+      IF ( PMDIAG ) THEN
          GAMMA_N2O5IJ = 0.0
          GAMMA_N2O5K  = 0.0
          YCLNO2IJ     = 0.0
@@ -598,10 +598,10 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
 
                   IF ( N .LE. 2 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
-                     IF ( AERDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( PMDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE IF ( N .EQ. 3 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
-                     IF ( AERDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( PMDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE
                      GAMMA = 0.0D0
                   END IF
@@ -666,18 +666,18 @@ C *** set up variables needed for calculating K_BRONO2
                   CASE( IA_N2O5IJY )  
                  
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1                    
-                     IF ( AERDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_N2O5KY )  
                  
                      KHETERO( IRATE, C,R,L )  = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
-                     IF ( AERDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
+                     IF ( PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
 
                   CASE( IA_H2NO3PAIJ )  
                 
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                       *  MAX((1.0D0 - YIELDIJ), 0.0D0) 
-                     IF ( AERDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_H2NO3PBIJ )  
                  
@@ -698,7 +698,7 @@ C *** set up variables needed for calculating K_BRONO2
                      IF ( YIELD_CLNO2( 1 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
-                        IF ( AERDIAG ) THEN
+                        IF ( PMDIAG ) THEN
                            FACTOR = CL_PPM( 1 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -717,7 +717,7 @@ C *** set up variables needed for calculating K_BRONO2
                      IF (  YIELD_CLNO2( 2 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
-                        IF ( AERDIAG ) THEN
+                        IF ( PMDIAG ) THEN
                            FACTOR = CL_PPM( 2 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -750,7 +750,7 @@ C *** set up variables needed for calculating K_BRONO2
                      IF ( YIELD_CLNO2( 3 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                        IF ( AERDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
+                        IF ( PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF 
@@ -771,7 +771,7 @@ C     by 60 to convert it into 1/sec
                      RADIUS       = 0.5D0 * DE_WET( 2 ) ! particle size
                      CBARIEPOX    = CFACTOR_IEPOX * DSQRT( AIRTEMP )
                      GAMMAIEPOX   = GAMMAIEPOXJ( RADIUS, AIRTEMP )
-                     IF ( AERDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX, 4 )
+                     IF ( PMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX, 4 )
                      IF ( GAMMAIEPOX .GT. 0.0D0 ) THEN
                         KIEPOX = WET_M2( 2 ) * DPI
      &                         / ( RADIUS * INV_DIFFUSIVITY
