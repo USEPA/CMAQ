@@ -78,7 +78,7 @@ c-----------------------------------------------------------------------
      &    PMDIAG_SPC_RECORD_TYPE( 'DENS_ACC        ', 5, 'kg m-3          ', 'Bulk Density of Accumulation-Mode Particles' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'DENS_COR        ', 5, 'kg m-3          ', 'Bulk Density of Coarse-Mode Particles' ), 
      &    PMDIAG_SPC_RECORD_TYPE( 'k_prtcl_iepox   ', 5, '1/s             ', 'IEPOX pseudo particle phase reaction rate const' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_IMAE      ', 5, 'na             ', 'IMAE heterogeneous uptake coefficient' ) /)
+     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_IMAE      ', 5, 'na              ', 'IMAE heterogeneous uptake coefficient' ) /)
 
         INTEGER :: A_PMDIAG_SPC_MAP (41), NUM_PMDIAG_SPC
 
