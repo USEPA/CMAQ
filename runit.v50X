@@ -8,6 +8,10 @@
  set EXDIR           = ${BASE}/BLD  
  set EXEC            = cr_ebi_solver 
 
+#setenv COMPILER INTEL
+#setenv COMPILER PGF90
+ setenv COMPILER GFORT
+
 #Define the gas, aerosol and aqueous components in MECHNAME
 #setenv GC_NAME       CB05TUCL
 #setenv GC_NAME       SAPRC99
@@ -95,7 +99,7 @@ endif
 # output directory
 set day = ` date "+%b-%d-%Y" `
 #set OUTDIR   =     ${BASE}/EBI_NCELL-${MECH}_${day}
- setenv OUTDIR        ${BASE}/output/ebi_${MECH}-${day}
+ setenv OUTDIR        ${BASE}/output/ebi_${MECH}-${day}_${COMPILER}
 #setenv OUTDIR         /home/${USER}/CCTM_git_repository/gas/ebi_${MECH}
  setenc OUTDIR        ${REP}
  
