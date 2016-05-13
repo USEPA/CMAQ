@@ -31,6 +31,7 @@ c Jeff Young 31 Aug 09: created
 c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
+C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 c-----------------------------------------------------------------------
 
       implicit none
