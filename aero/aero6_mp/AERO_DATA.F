@@ -53,10 +53,16 @@ C JY  04/21/11 Added optional log messages (verbose_aero)
 C JY  05/02/11 Added Reshape to aerospc_ssf initialization for pgf90 compiler
 C BH  08/31/11 Adapted for mercury and HAP mechanisms
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C HOTP 01/16/13 Removed isoprene acid enhanced aerosol and added new isoprene aerosol
+C HOTP 01/18/13 Added information for particle phase reaction of isoprene products
+C               based on Eddingsaas et al. 2010
 C KF  09/17/14 Changed emitted modal PM mass fractions and geometric mean diameter and
 C              geometric standard deviation of emitted particles according to
 C              Elleman and Covert (2010)
+C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow Chan et al.
 C JY  08/24/15 Changed visual index factors
+C HOTP 2/17/2016 Updated SOA densities. BTX follows Ng et al. 2007. 
+C                1.4 g/cm3 used by default.
 C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
 C              DUST_EMIS, aero_subs:VOLINORG, and aqchem
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
@@ -69,12 +75,16 @@ C 2. Chan, et al., "Secondary organic aerosol formation from photooxidation
 C    of naphthalene and alkylnaphthalenes: implications for oxidation of
 C    intermediate volatility organic compounds (IVOCs)", Atmos. Chem. Phys.,
 C    2009, 9, 3049-3060.
-C 3. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
+C 3. Ng, N. L., Kroll, J. H., Chan, A. W. H., Chhabra, P. S., Flagan, R.
+C    C., and Seinfeld, J. H.: Secondary organic aerosol formation from
+C    m-xylene, toluene, and benzene, Atmos. Chem. Phys., 7, 3909-3922,
+C    doi:10.5194/acp-7-3909-2007, 2007.
+C 4. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
 C    Air Quality modeling system in the Pacific Northwest: 3. Size distribution of
 C    particles emitted into a mesoscale model", JGR, 115, D03204, 2010
 C 4. Simon, et al., "The development and uses of EPA's SPECIATE database",
 C    Atmos. Poll. Res., 1, 196-206, 2010
-C 5. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
+C 6. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
 C    Dust from the Desert Southwest United States," Aero. and AQ Res., 2015, 387-398
 
 C JY: From Christian Hogrefe...
@@ -104,10 +114,12 @@ C Number of aerosol species and modes
       Integer, Save :: n_aerospc ! number of aero species
 
 C Default minimum concentration
-      Real,    Parameter :: conmin = 1.0E-30    ! [ ug/m^3 ]
-      Real,    Parameter :: cm_set( n_mode ) = (/ conmin, conmin, conmin /)
-      Real,    Parameter :: cm_so4( n_mode ) = (/ 1.0E-12,1.0E-6, conmin /)
-      Real,    Parameter :: cm_cor( n_mode ) = (/ conmin, conmin, 1.889544E-05 /)
+      Real,    Parameter :: conmin  = 1.0E-30    ! [ ug/m^3 ]
+      Real(8), Parameter :: conminD = 1.0D-30    ! [ ug/m^3 ]
+      Real(8), Parameter :: evapmin = 1.0D-20    ! [ ug/m^3 ]
+      Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
+      Real,    Parameter :: cm_so4( n_mode ) = (/1.0E-12,1.0E-6, conmin/)
+      Real,    Parameter :: cm_cor( n_mode ) = (/conmin, conmin, 1.889544E-05/)
 
 C Emissions splits
       Real,    Parameter :: es_fin( n_mode ) = (/ 0.100, 0.900, 0.000 /)
@@ -156,7 +168,7 @@ C-------------------------------------------------------------------------------
          Logical         :: nonVol_soa           ! non-volatile SOA flag
          Logical         :: tracer               ! tracer flag; does have not mass
          Integer         :: charge               ! electroneutrality charge
-         Real            :: visual_idx           ! visual index factor
+         Real            :: visual_idx           ! visual index factor [ m^2/g ]
          Character( 16 ) :: optic_surr           ! optical surrogate name
          Character( 16 ) :: emis                 ! file emissions names
          Real            :: emis_split( n_mode ) ! minimum concentration values for each mode
@@ -346,6 +358,7 @@ C Required species
       Character( 16 ), Private, Parameter :: req_cors   = 'ACORS'
       Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'
       Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT'
+C Optional Species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
     
 C Indices of required species
@@ -366,6 +379,8 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: apncom_idx
       Integer :: aseacat_idx
+
+C Indices of Optional species
       Integer :: aphgj_idx
 
       Real, Allocatable :: aerospc_mw( : )     ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
@@ -385,12 +400,12 @@ C-------------------------------------------------------------------------------
       End Type mode_type
 
       Type ( mode_type ), Parameter  :: aeromode( n_mode ) = (/
-C                    number    surface  minimum minimum minimum
-C                     name      name    numconc  m2conc  m3conc
-C                   --------   -------   ------  ------  ------
-     &   mode_type('NUMATKN', 'SRFATKN', conmin, conmin, conmin),
-     &   mode_type('NUMACC ', 'SRFACC ', conmin, conmin, conmin),
-     &   mode_type('NUMCOR ', 'SRFCOR ', conmin, conmin, conmin)/)
+C                   number     surface   minimum minimum minimum
+C                    name       name     numconc  m2conc  m3conc
+C                  ----------  -------  -------- -------  ------
+     &   mode_type('NUMATKN', 'SRFATKN', conmin,  conmin, conmin),
+     &   mode_type('NUMACC ', 'SRFACC ', conmin,  conmin, conmin),
+     &   mode_type('NUMCOR ', 'SRFCOR ', conmin,  conmin, conmin)/)
 
       Real, Parameter :: min_sigma_g = 1.05
       Real, Parameter :: max_sigma_g = 2.50
@@ -400,6 +415,7 @@ C                   --------   -------   ------  ------  ------
       Real            :: moment0_conc( n_mode )     ! 0th moment concentration
       Real            :: moment2_conc( n_mode )     ! 2nd moment concentration
       Real            :: moment3_conc( n_mode )     ! 3rd moment concentration
+      Logical, save   :: wet_moments_flag           ! T if M2 and M3 are wet, F otherwise
 
 C Mass concentration (calculated by GETPAR)
       Real :: aeromode_mass( n_mode )   ! [ ug/m^3 ]
@@ -463,7 +479,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Local Variables:
-      Character( 120 ) ::  msg
+      Character( 120 ) ::  xmsg2
       Character( 120 )  :: xmsg
       Integer l, m, n, spc
       Real  so4fac
@@ -541,12 +557,12 @@ C build mapping to CGRID for each aero spc
 !              Call m3mesg( xmsg )
                Cycle
             Else If ( tracer_present ) Then
-               Write( msg,* ) (' ', TRIM( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
+               Write( xmsg2,* ) (' ', TRIM( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
                Do m = 1, n_mode
                   If ( aerolist( spc )%name( m ) .Ne. tracer_names( m ) ) then
                      error_flag = .true.
                      Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
-     &                    TRIM( msg ),', is missing species, ',
+     &                    TRIM( xmsg2 ),', is missing species, ',
      &                    TRIM( aerolist( spc )%name( m ) )
                      call  m3mesg( xmsg ) 
                      CYCLE
@@ -653,7 +669,6 @@ C Find indices of required species
       aseacat_idx = findAero( req_seacat, .True. )
       aphgj_idx   = findAero( req_phgj,  .False. )
 
-
 #ifdef verbose_aero
       Write( logdev,'( /5x, a )' ) 'map_aero required species' 
       Write( logdev,'( 5x, a, i4 )' ) 'aso4_idx:   ', aso4_idx
@@ -708,7 +723,7 @@ C compute aeromode_minNum and aeromode_minM2
 
 C-----------------------------------------------------------------------
       Subroutine map_pmemis ( )
-C
+ 
 C  Set the emissions units from the header of EMIS_1 file
 C  Verify that all the units on the file are consistent
 
@@ -822,12 +837,16 @@ C-----------------------------------------------------------------------
 
 C  Extracts aerosol data into the AERO_DATA:aerospc_conc array
 C  The original idea is that the data for conc comes from CGRID
+C  Also transfers dry surface area to wet 2nd moment.
  
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
+      Use aeromet_data, only : pi, f6pi  ! fundamental constants, data type definitions, etc.
+      
       Implicit None
 
 C Arguments:
@@ -863,8 +882,15 @@ C Copy grid cell concentrations of aero species to aerospc_conc
          End Do
       End If
 
+      !Calculate Dry Third Moment [ m3 / m3 ]
+      Do m = 1, n_mode
+         moment3_conc( m ) = sum( aerospc_conc(:,m) / aerospc(:)%density, 
+     &      MASK= (aerospc%no_M2wet==.false. .AND. aerospc%Tracer==.false.) )
+         moment3_conc( m ) = max( moment3_conc( m ) * 1.0E-9 * f6pi, aeromode( m )%min_m3conc )
+      End Do
+
 C Copy grid cell concentrations of aero # and surf area
-C Convert and assign to moment0_conc and moment2_conc
+C Convert surface area to M2 and set wet_moments_flag
 
       moment0_conc = 0.0
       moment2_conc = 0.0
@@ -874,16 +900,21 @@ C Convert and assign to moment0_conc and moment2_conc
             n = aeronum_map( m )
             moment0_conc( m ) = Max( conc( n ), aeromode( m )%min_numconc )
             n = aerosrf_map( m )
-            moment2_conc( m ) = Max( conc( n ), aeromode( m )%min_m2conc )
+            moment2_conc( m ) = Max( conc( n ) / pi, aeromode( m )%min_m2conc ) 
          End Do
       Else
          Do m = 1, n_mode
             n = aeronum_map( m )
             moment0_conc( m ) = conc( n )
             n = aerosrf_map( m )
-            moment2_conc( m ) = conc( n )
+            moment2_conc( m ) = conc( n ) / pi
          End Do
       End If
+      wet_moments_flag = .false.
+
+C Convert dry 2,3 moment to wet 2,3 moment
+C flag will be set to .true.
+      Call calcmoments( .true. )
 
       Return
       End Subroutine extract_aero
@@ -893,13 +924,16 @@ C-----------------------------------------------------------------------
 
 C  Updates conc from the AERO_DATA:aerospc_conc array.
 C  The original idea is that the data in conc updates CGRID
+C  Update_aero now also saves the updated surface area back to CGRID as
+C  well. Moment2 will be dried if necessary and flag reset.
  
 C  Revision History:
 C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
+C     4/2016: Updated for 2nd moment by H. Pye and B. Murphy
 C-----------------------------------------------------------------------
 
-      Use aeromet_data      ! fundamental constants, data type definitions, etc.
+      Use aeromet_data, only : pi     ! fundamental constants, data type definitions, etc.
       Use utilio_defn
 
       Implicit None
@@ -952,6 +986,11 @@ C Copy aero number and surface area back to grid cell concentrations
             conc( n ) = moment0_conc( m )
          End Do
       End If
+
+C Save dry second moment to surface area (with pi conversion)
+      If ( wet_moments_flag ) Then
+         call calcmoments( .false. ) ! called with the F flag, returns dry moments
+      Endif
 
       Do m = 1, n_mode
          n = aerosrf_map( m )
@@ -1007,6 +1046,132 @@ C Find the substring vname in aerospc( spc )%name( n )
 
       Return
       End Function findAero
+
+C-----------------------------------------------------------------------
+      Subroutine calcmoments( addwet )
+
+C Subroutine calculates wet (addwet=T) or dry (addwet=F) aerosol third
+C and second moment and stores them in moment_conc arrays and
+C updates wet_moments_flag. 
+C Note that third moment information will be overwritten no matter what
+C the wet_moments_flag indicates. M2 will depend on the history
+C of the moment (wet_moments_flag). This routine will not update
+C M2 in the event of added mass due to processes other than
+C wetting/drying.
+C
+C Notes:
+C wet_moments_flag is obtained from AERO_DATA ! true =  H2O and SOA included in 2,3 moment
+C                                             ! false = H2O and SOA excluded from 2,3 moment
+C wet_moments_flag reflects the current state of the moment2,3_conc arrays.
+C addwet will results in wet (T) or dry (F) moments.
+C
+C History:
+C 4/2016: HOT Pye Created routine
+C
+C-----------------------------------------------------------------------
+
+      Use aeromet_data, only: f6dpi, f6pi
+
+      Implicit None
+
+C Arguments:
+      Logical :: addwet ! T: result in wet m3 and m2, F: result in dry m3 and m2
+
+C Local variables:
+      Integer :: spc, n ! loop variable
+      Real( 4 ) :: m3( n_mode )       ! wet or dry M3
+      Real( 4 ) :: m2( n_mode )       ! wet or dry M2
+      Real( 8 ) :: drysumM3  ! dry M3 [ m**3 / m**3 ]
+      Real( 8 ) :: wetsumM3  ! wet M3 [ m**3 / m**3 ]
+      Real( 8 ) :: factor
+      Real( 4 ) :: initialM3 ! initial M3 from moment3_conc [ m**3 /m**3 ]
+      Real( 4 ) :: initialM2 ! initial M2 from moment2_conc [ m**2 /m**3 ] 
+
+      Character( 16 )  :: pname_loc = 'CalcMoments'
+      Character( 100 ) :: xmsg
+
+C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ], 2nd
+C     moment [ m**2/m**3 ]
+
+      If( addwet ) then
+
+         Do n = 1, n_mode
+            initialM2 = moment2_conc( n )
+            If (initialM2 .eq. 0.0) then
+                write( xmsg,'(A32,I1,A42)') "Warning: Second Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
+
+            initialM3 = moment3_conc( n )
+            If (initialM3 .eq. 0.0) then
+                write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
+
+            wetsumM3 = 0.0
+            Do spc = 1, n_aerospc
+               If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) ) Cycle
+               factor = 1.0E-9 * f6pi / aerospc( spc )%density
+               wetsumM3  = wetsumM3 + factor * aerospc_conc( spc,n )
+            End Do
+            m3( n ) = Max ( real( wetsumM3, 4), aeromode( n )%min_m3conc )
+            If( wet_moments_flag ) then
+               m2( n ) = initialM2
+            Else
+               m2( n ) = initialM2 * ( real( wetsumM3, 4) / initialM3 ) ** ( 2.0d0 / 3.0d0 )
+            End if
+         End Do
+
+         ! Save back to aero_data variables
+         moment2_conc( : ) = m2( : )
+         moment3_conc( : ) = m3( : )
+         wet_moments_flag = .true.
+
+      Else ! produce dry moments
+
+         Do n = 1, n_mode
+            initialM2 = moment2_conc( n )
+            If (initialM2 .eq. 0.0) then
+                write( xmsg,'(A32,I1,A42)') "Warning: Second Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
+
+            initialM3 = moment3_conc( n )
+            If (initialM3 .eq. 0.0) then
+                write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ", 
+     &                 n," is 0.0. This will cause numerical issues."
+                call m3warn( pname_loc, 0, 0, xmsg )
+            End If
+
+            drysumM3 = 0.0
+            Do spc = 1, n_aerospc
+               If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or.
+     &              aerospc( spc )%no_M2Wet  ) Cycle
+               factor = 1.0E-9 * f6pi / aerospc( spc )%density
+               drysumM3  = drysumM3 + factor * aerospc_conc( spc,n )
+            End Do
+            m3( n ) = Max ( real( drysumM3, 4), aeromode( n )%min_m3conc )
+            If( wet_moments_flag) then
+               m2( n ) = initialM2 * ( real( drysumM3, 4) / initialM3 ) ** ( 2.0d0/ 3.0d0 )
+            Else ! already dry
+               m2( n ) = initialM2
+            Endif
+         End Do
+
+         ! Save back to aero_data variables
+         moment2_conc( : ) = m2( : )
+         moment3_conc( : ) = m3( : )
+         wet_moments_flag = .false.
+
+      Endif
+
+      Return
+      End Subroutine calcmoments
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       End Module aero_data
 
