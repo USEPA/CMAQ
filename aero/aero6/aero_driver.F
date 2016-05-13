@@ -126,8 +126,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE AOD_DEFN            ! IMPROVE reconstructed method AOD
       USE UTILIO_DEFN
       USE CGRID_SPCS
-      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX,
-     &                              AERO_CHEM_SET
+      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
+     &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE
 
       IMPLICIT NONE
@@ -315,7 +315,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 
          IF (MECHNAME == 'CB05E51_AE6_AQ') THEN
             NUM_PMDIAG_SPC = 39
-         ELSE IF (MECHNAME == 'CB05E51_AE6i_AQ') THEN
+         ELSE IF (MECHNAME == 'SAPRC07TIC_AE6I_AQ') THEN
             NUM_PMDIAG_SPC = 41
          ELSE
             XMSG = ' Warning: Unknown AE mechanism '
@@ -664,6 +664,10 @@ C     diagnostic array (lowest vertical layer only)
                   TEMP_DATA( 37 ) = AEROMODE_DENS( 1 )    ! Aitken Mode Density [kg m-3]
                   TEMP_DATA( 38 ) = AEROMODE_DENS( 2 )    ! Accumulation Mode Density [kg m-3]
                   TEMP_DATA( 39 ) = AEROMODE_DENS( 3 )    ! Coarse Mode Density [kg m3-]
+                  IF ( NUM_PMDIAG_SPC .GT. 39 ) THEN ! AERO6i
+                     TEMP_DATA( 40 ) = KPARTIEPOX( C,R,L )      ! coarse CLNO2 heterorxn yield
+                     TEMP_DATA( 41 ) = GAMMA_IMAE( C,R,L )  ! IEPOX heterorxn uptake coeff
+                  END IF
                END IF
 
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution

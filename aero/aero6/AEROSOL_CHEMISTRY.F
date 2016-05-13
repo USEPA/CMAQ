@@ -167,8 +167,9 @@ C Acid catalyzed particle phase reactions
       END TYPE ACID_CAT
 
 C IEPOX uptake parameters 
-      INTEGER, SAVE                       :: N_NUCPAIRS      ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
-      TYPE( ACID_CAT ), ALLOCATABLE, SAVE :: ACID_NUC_PAIRS
+      INTEGER, SAVE                       :: N_NUCPAIRS          ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
+      TYPE( ACID_CAT ), ALLOCATABLE, SAVE :: ACID_NUC_PAIRS( : )
+      INTEGER, SAVE                       :: NUMVOC              ! number of VOCs treated (IEPOX, IMAE)
 
 C IEPOX uptake parameters for standard AERO6
       INTEGER, PARAMETER       :: N_NUCPAIRS_AE6 = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
@@ -212,8 +213,8 @@ C                 --------  -----------  ----------  -----   ------   ----------
 
 
 C Mapping array for location of acid enhanced products and nucleophiles in aerospc_conc 
-      INTEGER, ALLOCATABLE, SAVE :: ACID_PRODMAP_IDX
-      INTEGER, ALLOCATABLE, SAVE :: ACID_NUCMAP_IDX
+      INTEGER, ALLOCATABLE, SAVE :: ACID_PRODMAP_IDX( : )
+      INTEGER, ALLOCATABLE, SAVE ::  ACID_NUCMAP_IDX( : )
 
       CONTAINS
 
@@ -631,15 +632,18 @@ C ***  Map to acids/nucleophiles for epoxide uptake
        INDX =  INDEX1( NAMES_AERO_RATES( IA_IEPOX ), NHETERO, HETERO )   
        IF ( INDX .GT. 0 ) THEN ! Find indices for acid catalyzed species in IEPOX reaction
           If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
+             NUMVOC         = 2
              N_NUCPAIRS     = N_NUCPAIRS_AE6I
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
              ACID_NUC_PAIRS = ACID_NUC_PAIRS_AE6I
           Else ! AERO6
+             NUMVOC         = 1
              N_NUCPAIRS     = N_NUCPAIRS_AE6
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
              ACID_NUC_PAIRS = ACID_NUC_PAIRS_AE6
           END IF
           ALLOCATE ( ACID_PRODMAP_IDX( N_NUCPAIRS ) )
+          ALLOCATE (  ACID_NUCMAP_IDX( N_NUCPAIRS ) )
           ACID_PRODMAP_IDX = 0
           ACID_NUCMAP_IDX  = 0
           DO N = 1, N_NUCPAIRS
@@ -860,6 +864,8 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                   End If
                ELSE
                   KIEPOX = 0.0d0
+                  Tetrol_PPM = 0.0
+                  IEPOXOS_PPM = 0.0
                ENDIF
 
                IF( GAMMAIMAE .gt. 0.0d0 ) THEN
@@ -2095,7 +2101,6 @@ C     Diagnostic
 
 C *** Local Variables
       Integer   :: i                   ! counter and temporary indices
-      Integer   :: numvoc              ! number of VOCs treated (IEPOX, IMAE)
       Real( 8 ) :: eqlbh               ! Particle Phase H+ from isoropia [mol/m**3]
       Real( 8 ) :: q, denom            ! quantities in Hanson et al. 1994 equation for gamma []
       Real( 8 ) :: nu                  ! molecular speed [m/s], note this is the same as CBAR but we want to avoid excessive passing
@@ -2226,12 +2231,6 @@ C *** Cfactor
 
 C     Loop over precursor species and calculate gamma
 C     (see Hanson et al. 1994 JGR Eqn (2) for details)
-      If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
-         numvoc = 2
-      Else
-         numvoc = 1
-      Endif
-
       Do  i = 1, numvoc
 
 C     Note that if the rate of particle phase reaction is very slow, there may not
