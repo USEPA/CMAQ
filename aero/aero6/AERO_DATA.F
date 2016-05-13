@@ -66,6 +66,7 @@ C                1.4 g/cm3 used by default.
 C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
 C              DUST_EMIS, aero_subs:VOLINORG, and aqchem
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
+C HOTP,BM  5/16 Updated to work with all ae6 mechs (6, 6i, 6mp)
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -104,7 +105,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 69     ! number of aero species
+      Integer, Parameter :: n_aerolist = 78     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -218,6 +219,19 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6, 'DUST  ','      ',es_cor),
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6, 'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1,  1.37,'SOLUTE','      ',es_cor),
+
+     ! Associated with ae6i
+     & spcs_type((/'        ','AMTNO3J ','        '/), cm_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AISOPNNJ','        '/), cm_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AMTHYDJ ','        '/), cm_set, 1400.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIETETJ ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIEOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','ADIMJ   ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIMGAJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIMOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+
+     ! ae6i and cb6
+     & spcs_type((/'        ','AGLYJ   ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
      
        !The Following Species Were Associated with the Multi-Pollutant Code
      & spcs_type((/'ANII     ','ANIJ     ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','NICKEL_F     ',es_fin), 
@@ -364,6 +378,10 @@ C Required species
 C Optional Species
       Character( 16 ), Private, Parameter :: req_ietet  = 'AIETET'
       Character( 16 ), Private, Parameter :: req_ieos   = 'AIEOS'
+      Character( 16 ), Private, Parameter :: req_dim    = 'ADIM'
+      Character( 16 ), Private, Parameter :: req_imga   = 'AIMGA'
+      Character( 16 ), Private, Parameter :: req_imos   = 'AIMOS'
+C Optional Species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
     
 C Indices of required species
@@ -388,6 +406,9 @@ C Indices of required species
 C Indices of Optional species
       Integer :: aietet_idx
       Integer :: aieos_idx
+      Integer :: adim_idx
+      Integer :: aimga_idx
+      Integer :: aimos_idx
       Integer :: aphgj_idx
 
       Real, Allocatable :: aerospc_mw( : )          ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
@@ -496,6 +517,7 @@ C Local Variables:
       Integer :: aerolist_map  ( n_aerolist,n_mode )
       Integer :: aerospc_tolist( n_aerolist )
       Logical :: error_flag
+      Logical :: ae6isoa
 
       logdev = setup_logdev()
       mole_weight = 0.0
@@ -643,10 +665,19 @@ C Find indices of required species
       acors_idx   = findAero( req_cors,   .True. )
       apncom_idx  = findAero( req_ncom,   .True. )
       aseacat_idx = findAero( req_seacat, .True. )
-C Optional species
-      aietet_idx  = findAero( req_ietet,  .False. )
-      aieos_idx   = findAero( req_ieos,   .False. )
-      aphgj_idx   = findAero( req_phgj,   .False. )
+
+      If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
+         AE6ISOA = .True.
+      Else
+         AE6ISOA = .False.
+      Endif
+      aietet_idx  = findAero( req_ietet, AE6ISOA )
+      aieos_idx   = findAero( req_ieos,  AE6ISOA )
+      adim_idx    = findAero( req_dim,   AE6ISOA )
+      aimga_idx   = findAero( req_imga,  AE6ISOA )
+      aimos_idx   = findAero( req_imos,  AE6ISOA )
+      aphgj_idx   = findAero( req_phgj,  .False. )
+
 
 #ifdef verbose_aero
       !Mandatory Species
@@ -670,6 +701,10 @@ C Optional species
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aietet_idx: ', aietet_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aieos_idx:  ', aieos_idx
+      ! Optional
+      Write( logdev,'( 5x, a, i4 )' ) 'adim_idx:   ', adim_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimga_idx:  ', aimga_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'aimos_idx:  ', aimos_idx
       If( aphgj_idx .Gt. 0 )Then
           Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
       else
