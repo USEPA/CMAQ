@@ -48,6 +48,10 @@ C                       Jeff Young, Sergey Napelenok, and Shawn Roselle
 C       6 03/01/11 sjr  replaced I/O API include files with UTILIO_DEFN;
 C       7 07/01/01 gs   calculate zenith angle to determine daytime and nightime 
 C                       needed for sulfur oxidation via metal catalysis
+C       8 09/10/11 wth  adapted for multiple pollutant model, i.e., Gas phase mercury 
+C                       PM mercury and tracer species
+C       07 Jul 14  wth: replaced mechanism include file(s) with fortran module
+ 
 C  Called by:  RADMCLD and RESCLD
  
 C  Calls the following subroutines:  AQCHEM
@@ -75,8 +79,8 @@ C    DARK       logical  input DARK = TRUE is night,  DARK = FALSE is day
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS     ! CGRID mechanism species
-      USE AQ_DATA        ! aqueous chemistry shared parameters
       USE AERO_DATA      ! aerosol shared parameters
+      USE AQ_DATA        ! aqueous chemistry shared parameters
       USE UTILIO_DEFN
 
       IMPLICIT NONE
@@ -133,20 +137,48 @@ C Local Variables (scalars):
       REAL       :: HPWDEP                        ! hydrogen wet dep (mm mol/liter)
       REAL( 8 )  :: GAS    ( NGAS )               ! gas phase conc (mol/mol)
       REAL( 8 )  :: GASWDEP( NGAS )               ! gas phase wet dep array (mm mol/liter)
-      REAL( 8 )  :: AEROSOL( NAER,NMODES )        ! aerosol conc (mol/mol)
-      REAL( 8 )  :: AERWDEP( NAER,NMODES )        ! aerosol wet dep array (mm mol/liter)
-      REAL( 8 )  :: WSRGGAS( NGAS,MXSRG )         ! weights for surrogate
-      REAL( 8 )  :: WSRGAER( NAER,NMODES,MXSRG )  ! weights for surrogate
+      REAL( 8 )  :: AEROSOL( MAX_NAER, NMODES)        ! aerosol conc (mol/mol)
+      REAL( 8 )  :: AERWDEP( MAX_NAER, NMODES)        ! aerosol wet dep array (mm mol/liter)
+      REAL( 8 )  :: WSRGGAS( NGAS, MXSRG)             ! weights for surrogate
+      REAL( 8 )  :: WSRGAER( MAX_NAER, NMODES, MXSRG) ! weights for surrogate
 
 C External Functions:
 
       INTEGER, EXTERNAL :: INDEXN           ! external func to get species pointers
 
+
+      INTERFACE
+        SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
+     &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
+     &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
+           INCLUDE SUBST_CONST          ! constants
+           INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
+           INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
+           REAL,      INTENT( IN )  :: AIRM      ! total air mass in cloudy layers (mol/m2)
+           REAL,      INTENT( IN )  :: ALFA0     ! scav coef for aitken aerosol number
+           REAL,      INTENT( IN )  :: ALFA2     ! scav coef for aitken aerosol sfc area
+           REAL,      INTENT( IN )  :: ALFA3     ! scav coef for aitken aerosol mass
+           REAL,      INTENT( OUT ) :: HPWDEP    ! hydrogen wet deposition (mm mol/liter)
+           REAL( 8 ), INTENT( OUT ) :: BETASO4  
+           REAL,      INTENT( IN )  :: PRCRATE   ! precip rate (mm/hr)
+           REAL,      INTENT( IN )  :: PRES_PA   ! pressure (Pa)
+           REAL,      INTENT( IN )  :: TAUCLD    ! timestep for cloud (s)
+           REAL,      INTENT( IN )  :: TEMP      ! temperature (K)
+           REAL,      INTENT( IN )  :: WCAVG     ! liquid water content (kg/m3)
+           REAL,      INTENT( IN )  :: WTAVG     ! total water content (kg/m3)
+           REAL( 8 ), INTENT( INOUT ) :: GAS    ( : )   ! gas phase concentrations (mol/molV)
+           REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :,: ) ! aerosol concentrations (mol/molV)
+           REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )   ! gas phase wet deposition array (mm mol/liter)
+           REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :,: ) ! aerosol wet deposition array (mm mol/liter)
+           LOGICAL,   INTENT( IN )    :: DARK           ! DARK = TRUE is night,  DARK = FALSE is day
+        END SUBROUTINE AQCHEM
+      END INTERFACE      
+
 C-----------------------------------------------------------------------
 
 C...Initialization
 C...  event-statistics variables.
-     
+
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
@@ -164,9 +196,11 @@ C...  specified, otherwise there is no need to perform aqueous chemistry
 
 C...load gas-phase concentrations
 
-      DO IGAS = 1, NGAS
+      GAS     = 0.0D0
+      WSRGGAS = 0.0D0
+      GASWDEP = 0.0D0
 
-        GAS( IGAS ) = 0.0D0
+      DO IGAS = 1, NGAS
 
         DO ISRG = 1, NSRGGAS( IGAS )
           PNTR = CGRID2AQ_MAP( LSRGGAS( IGAS, ISRG ) )
@@ -193,6 +227,10 @@ C...set background values for gases if no surrogates were specified
       END DO
 
 C...load aerosol concentrations
+
+      AEROSOL = 0.0D0
+      WSRGAER = 0.0D0
+      AERWDEP = 0.0D0
 
       DO IAER = 1, NAER
         DO IMODE = 1, NMODES
@@ -242,6 +280,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
       DO IMODE = 2, N_MODE
 
         DO SPC = 1, N_AEROSPC
+          IF (  AEROSPC( SPC )%TRACER ) CYCLE 
           IF ( ( AEROSPC( SPC )%NAME( IMODE ) .NE. ' ' ) .AND.
      &         ( .NOT. AEROSPC( SPC )%NO_M2WET ) ) THEN
              M3OLD( IMODE ) = M3OLD( IMODE )
@@ -297,6 +336,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
       DO IMODE = 2, N_MODE
 
         DO SPC = 1, N_AEROSPC
+          IF (  AEROSPC( SPC )%TRACER ) CYCLE 
           IF ( ( AEROSPC( SPC )%NAME( IMODE ) .NE. ' ' ) .AND.
      &         ( .NOT. AEROSPC( SPC )%NO_M2WET ) ) THEN
              M3NEW( IMODE ) = M3NEW( IMODE )
@@ -309,8 +349,8 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 C...check for minimums
 
       DO IMODE = 2, N_MODE
-        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIN )
-        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIN )
+        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), REAL( CONMIN, 8 ) )
+        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), REAL( CONMIN, 8 ) )
       END DO
 
 C...Update surface area

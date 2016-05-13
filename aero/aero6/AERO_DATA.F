@@ -104,7 +104,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 45     ! number of aero species
+      Integer, Parameter :: n_aerolist = 69     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -385,8 +385,8 @@ C Indices of required species
 C Indices of Optional species
       Integer :: aphgj_idx
 
-      Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
-      Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
+      Real, Allocatable :: aerospc_mw( : )          ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
+      Real, Allocatable :: aerospc_conc( :,: ) ! aero species concentration [ ug/m^3 ]
 
 C Common factors
       Real( 8 ) :: h2ofac                      ! converts mass concentrations [ug/m3] to 3rd moment concentrations [m3/m3]
@@ -438,16 +438,16 @@ C Minimum 2nd moment (calculated in map_aero routine)
       Real :: aeromode_minM2( n_mode )
 
 C Mapping for loading from and unloading to CGRID array
-      Integer :: aerospc_map( n_aerospc,n_mode )  ! indices of aero species to CGRID
-      Integer :: aeronum_map( n_mode )      ! indices of aero number variable to CGRID
-      Integer :: aerosrf_map( n_mode )      ! indices of aero surf area variable to CGRID
+      Integer, Allocatable :: aerospc_map( :,: )  ! indices of aero species to CGRID
+      Integer, Allocatable :: aeronum_map( : )      ! indices of aero number variable to CGRID
+      Integer, Allocatable :: aerosrf_map( : )      ! indices of aero surf area variable to CGRID
 
 C Missing aerosol species map
-      Logical :: aero_missing( n_aerospc,n_mode )  ! indices of aero species to CGRID
+      Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
 
 C Emissions mapping
       Integer         :: n_emis_pm               ! number of aerospc with emissions
-      Integer         :: pmem_map( n_aerospc )   ! mapping to aerospc array for PM emissions
+      Integer, Allocatable :: pmem_map( : )   ! mapping to aerospc array for PM emissions
       Character( 16 ) :: pmem_units              ! units for PM emissions for all species
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
@@ -482,7 +482,7 @@ C-----------------------------------------------------------------------
 C Local Variables:
       Character( 120 ) :: xmsg
       Character( 120 ) :: xmsg2
-      Integer l, m, n, spc
+      Integer l, m, n, spc, isea
       Real  so4fac
       Real  anthfac
                 
@@ -490,7 +490,6 @@ C Local Variables:
       Integer :: aerolist_map  ( n_aerolist,n_mode )
       Integer :: aerospc_tolist( n_aerolist )
       Logical :: error_flag
-      Character(16) :: tracer_names( Cn_mode )
 
       logdev = setup_logdev()
       mole_weight = 0.0
@@ -513,9 +512,8 @@ C Build mapping to CGRID for each species in the master AeroList
                
                If ( n .NE. 0 ) Then
                   !Species is in the Master List and on the NameList
-                  aerolist_map( spc,m ) = ae_strt - 1 + n
-                  !Add this species to the map if it does not exist already
                   If ( .NOT. (Any( aerolist_map( spc,: ) .NE. 0 ) ) ) Then
+                     !Add this species to the map if it does not exist already
                      n_aerospc = n_aerospc + 1
                      aerospc_tolist( n_aerospc ) = spc
                      !Set the Molecular Weight
@@ -526,14 +524,16 @@ C Build mapping to CGRID for each species in the master AeroList
                      !namelist is not matching the standing
                      !molecular weight, throw an error
                      xmsg = 'molecular weight of ' // Trim( aerolist(spc )%name( m ) )
-                            // ' is different from that of the same species'
-                            // ' in the same or another mode.'
+     &                      // ' is different from that of the same species'
+     &                      // ' in the same or another mode.'
                      Call m3warn( pname, 0, 0, xmsg )
                      Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
-                                     'Expected value(', spc, ')= ', mole_weight( spc )
+     &                               'Expected value(', spc, ')= ', mole_weight( spc )
                      Call m3warn( pname, 0, 0, xmsg )
                      error_flag = .true. 
                   End If
+                  !Add the map from CGRID to AeroList 
+                  aerolist_map( spc,m ) = ae_strt - 1 + n
                   
                End If
             End If
@@ -550,6 +550,8 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate( aerospc_conc( n_aerospc, n_mode ) )
       Allocate( aerospc_ssf ( n_mode, n_aerospc ) )
       Allocate( aero_missing( n_aerospc, n_mode ) )
+      Allocate( aeronum_map ( n_aerospc ) )
+      Allocate( aerosrf_map ( n_aerospc ) )
 
       Do spc = 1, n_aerospc !Loop through user-requested chemical species
          l = aerospc_tolist( spc )
@@ -565,7 +567,7 @@ C Build mapping to CGRID for each species in the master AeroList
             Do isea = 1,nsea_spc
                Do m = 1,n_mode
                   If ( sea_spc( isea )%name( m ) .EQ. aerospc( spc )%name( n ) ) Then
-                     aerospc_ssf( n, spc ) = sea_spc( spc )%spcfac( n )
+                     aerospc_ssf( n, spc ) = sea_spc( isea )%spcfac( n )
                   End If
                End Do
             End Do
@@ -578,12 +580,12 @@ C Build mapping to CGRID for each species in the master AeroList
                error_flag = .true.
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    TRIM( xmsg2 ),', is missing species, ',
-     &                    TRIM( aerolist( spc )%name( m ) ) 
+     &                    TRIM( aerolist( spc )%name( n ) ) 
                call  m3mesg( xmsg )
             End If
 
             !Set the Aero_Missing Flag
-            If ( aerospc( spc )%name( m ) .Ne. ' ' ) Then
+            If ( aerospc( spc )%name( n ) .Ne. ' ' ) Then
                 aero_missing( spc,n ) = .False.
             Else
                 aero_missing( spc,n ) = .True.
