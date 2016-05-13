@@ -46,10 +46,12 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: ngas = 15   ! number of gas-phase species for AQCHEM
 !     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
       Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: max_naer = n_aerolist + naddaer ! max number aero surrogates
+      Integer, Parameter :: nadd_tx = 5 ! number of surrogates for HAPS aerosol species for AQCHEM
+
+      Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 72  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 51  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 35  ! maximum number of species for surrogate
 
@@ -145,6 +147,16 @@ C                      -------------    -------------    -------------    ------
      & sur_aer_type((/'NUM_AITKEN   ', 'NUM_ACCUM    ', 'NUM_COARSE   '/),   0.0,      0.0,    1.0),
      & sur_aer_type((/'SRF_AITKEN   ', 'SRF_ACCUM    ', 'SRF_COARSE   '/),   0.0,      0.0,    1.0)/)
 
+C...TX species added to Aerosol surrogate if not found in AE namelist file      
+      Type ( sur_aer_type ), private :: srgaer_addtx( nadd_tx ) = (/
+C                         Aitken           Accum            Coarse        Background MolWt  Density
+C                      -------------    -------------    -------------    ---------- -----  ------
+     & sur_aer_type((/'TRACER_AITKEN', '             ', '             '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'             ', 'TRACER_ACCUM ', '             '/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'             ', '             ', 'TRACER_COARSE'/),   0.0,    100.0, 2200.0),
+     & sur_aer_type((/'PHG_AITKEN   ', 'PHG_ACCUM    ', '             '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'             ', '             ', 'PHG_COARSE   '/),   0.0,    200.5, 2200.0)/)
+
 C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_aso4   = 'SO4_ACCUM'
       Character( 16 ), Parameter, Private :: req_anh4   = 'NH4_ACCUM'
@@ -173,6 +185,12 @@ C...Required aerosol species
       Character( 16 ), Parameter, Private :: req_soilc  = 'SOIL_COARSE' ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_anthc  = 'ANTH_COARSE' ! SLN 16March2011
       Character( 16 ), Parameter, Private :: req_seasc  = 'SEAS_COARSE' ! SLN 16March2011
+C...For TX version      
+      Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
+      Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
+      Character( 16 ), Parameter, Private :: req_tracerk = 'TRACER_COARSE'
+      Character( 16 ), Parameter, Private :: req_phg     = 'PHG_ACCUM'
+      Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
 
 
 C...Pointers for the AQCHEM array AEROSOL
@@ -194,6 +212,13 @@ C...Pointers for the AQCHEM array AEROSOL
 !     Integer :: lk       !  Potassium aerosol (Cl- tracked separately) (place holder)
       Integer :: lnum     !  Number
       Integer :: lsrf     !  Surface area
+C...TXHG aersosols      
+      Integer :: ltracer_akn  !  Tracer aerosols (Aitken)
+      Integer :: ltracer_acc  !  Tracer aerosols (Accumulation)
+      Integer :: ltracer_cor  !  Tracer aerosols (Coarse)
+      Integer :: lphg_akn     !  Mercuric aerosols (Aitken and Accumulation)
+      Integer :: lphg_acc     !  Mercuric aerosols (Aitken and Accumulation)
+      Integer :: lphg_cor     !  Mercuric aerosols (Coarse)
 
       Integer :: lcaacc   !  Ca in Accumulation mode (AE6) SLN 16March2011
       Integer :: lmgacc   !  Mg in Accumulation mode (AE6) SLN 16March2011
@@ -205,58 +230,64 @@ C...Pointers for the AQCHEM array AEROSOL
       Integer :: lseasc   !  SEAS in Coarse mode (AE6)     SLN 16March2011
 
 C...Pointers for the AQCHEM arrays LIQUID and WETDEP
-      Integer, Parameter :: lacl      = 01  ! Hydrogen ion
-      Integer, Parameter :: lnh4accl  = 02  ! Ammonium(attributed to accum. mode)
-      Integer, Parameter :: lcacorl   = 03  ! coarse mode Calcium 
-      Integer, Parameter :: lnaaccl   = 04  ! Sodium
-      Integer, Parameter :: lohl      = 05  ! Hydroxyl radical
-      Integer, Parameter :: lso4accl  = 06  ! Sulfate (attributed to accumulation mode)
-      Integer, Parameter :: lhso4accl = 07  ! bisulfate (attributed to accumulation mode)
-      Integer, Parameter :: lso3l     = 08  ! sulfite
-      Integer, Parameter :: lhso3l    = 09  ! bisulfite
-      Integer, Parameter :: lso2l     = 10  ! sulfur dioxide
-      Integer, Parameter :: lco3l     = 11  ! carbonate
-      Integer, Parameter :: lhco3l    = 12  ! bicarbonate
-      Integer, Parameter :: lco2l     = 13  ! carbon dioxide
-      Integer, Parameter :: lno3accl  = 14  ! nitrate(attributed to accumulation mode)
-      Integer, Parameter :: lnh3l     = 15  ! ammonia
-      Integer, Parameter :: lclaccl   = 16  ! chloride ion (attributed to accumulation mode)
-      Integer, Parameter :: lh2o2l    = 17  ! hydrogen peroxide
-      Integer, Parameter :: lo3l      = 18  ! ozone
-      Integer, Parameter :: lfecorl   = 19  ! iron
-      Integer, Parameter :: lmncorl   = 20  ! Manganese
-      Integer, Parameter :: lal       = 21  ! generalized anion associated with iron
-      Integer, Parameter :: lfoal     = 22  ! Formic acid
-      Integer, Parameter :: lhco2l    = 23  ! HCOO- ion
-      Integer, Parameter :: lmhpl     = 24  ! Methyl hydrogen peroxide
-      Integer, Parameter :: lpaal     = 25  ! Peroxyacidic acid
-      Integer, Parameter :: lhcll     = 26  ! Hydrogen chloride
-      Integer, Parameter :: lpriml    = 27  ! primary aerosol
-      Integer, Parameter :: lmgcorl   = 28  ! coarse mode Magnesium
-      Integer, Parameter :: lkcorl    = 29  ! coarse mode Potassium
-      Integer, Parameter :: lbl       = 30  ! generalized anion associated with manganese
-      Integer, Parameter :: lhno3l    = 31  ! nitric acid
-!     Integer, Parameter :: lprimcorl = 32  ! coarse-mode primary aerosol
-      Integer, Parameter :: lnumcorl  = 32  ! coarse-mode number
-      Integer, Parameter :: lts6corl  = 33  ! sulfate (attributed to coarse mode)
-      Integer, Parameter :: lnacorl   = 34  ! sodium (attributed to coarse mode)
-      Integer, Parameter :: lclcorl   = 35  ! chloride ion (attributed to coarse mode)
-      Integer, Parameter :: lno3corl  = 36  ! nitrate (attributed to coarse mode)
-      Integer, Parameter :: lnh4corl  = 37  ! ammonium (attributed to coarse mode)
-      Integer, Parameter :: lsoal     = 38  ! secondary organic aerosols
-      Integer, Parameter :: lorgcl    = 39  ! in-cloud soa
-      integer, parameter :: lpoal     = 40  ! primary organic aerosols
-      Integer, Parameter :: lecl      = 41  ! elemental carbon
-      Integer, Parameter :: lglyl     = 42  ! glyoxal
-      Integer, Parameter :: lmglyl    = 43  ! methylglyoxal
-      Integer, Parameter :: lcaaccl   = 44  ! accumulation mode Calcium (AE6)   SLN 16March2011
-      Integer, Parameter :: lmgaccl   = 45  ! accumulation mode Magnesium (AE6) SLN 16March2011
-      Integer, Parameter :: lkaccl    = 46  ! accumulation mode Potassium (AE6) SLN 16March2011
-      Integer, Parameter :: lsoilcl   = 47  ! coarse mode SOIL (AE6)   SLN 16March2011
-      Integer, Parameter :: lanthcl   = 48  ! coarse mode CORS (lol) (AE6)   SLN 16March2011
-      Integer, Parameter :: lseascl   = 49  ! coarse mode SEAS (AE6) SLN 16March2011
-      Integer, Parameter :: lfeaccl   = 50  ! accumulation mode Iron (AE6)      SLN 22March2011
-      Integer, Parameter :: lmnaccl   = 51  ! accumulation mode Manganese (AE6) SLN 22March2011
+      Integer, Parameter :: lacl        = 01  ! Hydrogen ion
+      Integer, Parameter :: lnh4accl    = 02  ! Ammonium(attributed to accum. mode)
+      Integer, Parameter :: lcacorl     = 03  ! coarse mode Calcium 
+      Integer, Parameter :: lnaaccl     = 04  ! Sodium
+      Integer, Parameter :: lohl        = 05  ! Hydroxyl radical
+      Integer, Parameter :: lso4accl    = 06  ! Sulfate (attributed to accumulation mode)
+      Integer, Parameter :: lhso4accl   = 07  ! bisulfate (attributed to accumulation mode)
+      Integer, Parameter :: lso3l       = 08  ! sulfite
+      Integer, Parameter :: lhso3l      = 09  ! bisulfite
+      Integer, Parameter :: lso2l       = 10  ! sulfur dioxide
+      Integer, Parameter :: lco3l       = 11  ! carbonate
+      Integer, Parameter :: lhco3l      = 12  ! bicarbonate
+      Integer, Parameter :: lco2l       = 13  ! carbon dioxide
+      Integer, Parameter :: lno3accl    = 14  ! nitrate(attributed to accumulation mode)
+      Integer, Parameter :: lnh3l       = 15  ! ammonia
+      Integer, Parameter :: lclaccl     = 16  ! chloride ion (attributed to accumulation mode)
+      Integer, Parameter :: lh2o2l      = 17  ! hydrogen peroxide
+      Integer, Parameter :: lo3l        = 18  ! ozone
+      Integer, Parameter :: lfecorl     = 19  ! iron
+      Integer, Parameter :: lmncorl     = 20  ! Manganese
+      Integer, Parameter :: lal         = 21  ! generalized anion associated with iron
+      Integer, Parameter :: lfoal       = 22  ! Formic acid
+      Integer, Parameter :: lhco2l      = 23  ! HCOO- ion
+      Integer, Parameter :: lmhpl       = 24  ! Methyl hydrogen peroxide
+      Integer, Parameter :: lpaal       = 25  ! Peroxyacidic acid
+      Integer, Parameter :: lhcll       = 26  ! Hydrogen chloride
+      Integer, Parameter :: lpriml      = 27  ! primary aerosol
+      Integer, Parameter :: lmgcorl     = 28  ! coarse mode Magnesium
+      Integer, Parameter :: lkcorl      = 29  ! coarse mode Potassium
+      Integer, Parameter :: lbl         = 30  ! generalized anion associated with manganese
+      Integer, Parameter :: lhno3l      = 31  ! nitric acid
+!     Integer, Parameter :: lprimcorl   = 32  ! coarse-mode primary aerosol
+      Integer, Parameter :: lnumcorl    = 32  ! coarse-mode number
+      Integer, Parameter :: lts6corl    = 33  ! sulfate (attributed to coarse mode)
+      Integer, Parameter :: lnacorl     = 34  ! sodium (attributed to coarse mode)
+      Integer, Parameter :: lclcorl     = 35  ! chloride ion (attributed to coarse mode)
+      Integer, Parameter :: lno3corl    = 36  ! nitrate (attributed to coarse mode)
+      Integer, Parameter :: lnh4corl    = 37  ! ammonium (attributed to coarse mode)
+      Integer, Parameter :: lsoal       = 38  ! secondary organic aerosols
+      Integer, Parameter :: lorgcl      = 39  ! in-cloud soa
+      integer, parameter :: lpoal       = 40  ! primary organic aerosols
+      Integer, Parameter :: lecl        = 41  ! elemental carbon
+      Integer, Parameter :: lglyl       = 42  ! glyoxal
+      Integer, Parameter :: lmglyl      = 43  ! methylglyoxal
+      Integer, Parameter :: lcaaccl     = 44  ! accumulation mode Calcium (AE6)   SLN 16March2011
+      Integer, Parameter :: lmgaccl     = 45  ! accumulation mode Magnesium (AE6) SLN 16March2011
+      Integer, Parameter :: lkaccl      = 46  ! accumulation mode Potassium (AE6) SLN 16March2011
+      Integer, Parameter :: lsoilcl     = 47  ! coarse mode SOIL (AE6)   SLN 16March2011
+      Integer, Parameter :: lanthcl     = 48  ! coarse mode CORS (lol) (AE6)   SLN 16March2011
+      Integer, Parameter :: lseascl     = 49  ! coarse mode SEAS (AE6) SLN 16March2011
+      Integer, Parameter :: lfeaccl     = 50  ! accumulation mode Iron (AE6)      SLN 22March2011
+      Integer, Parameter :: lmnaccl     = 51  ! accumulation mode Manganese (AE6) SLN 22March2011
+C for TX version
+      integer, parameter :: ltracerl    = 52 ! TRACER
+      integer, parameter :: ltracercorl = 53 ! Coarse-mode TRACER
+      integer, parameter :: lphgfinel   = 54 ! Fine-mode Mercury Tracer
+      integer, parameter :: lphgcorl    = 55 ! Coarse-mode Mercury Tracer
+
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -310,11 +341,23 @@ C Local Variables:
       Integer :: lsrg( mxsrg )
       Integer :: n_cgrid2aq
       Integer :: ios
+C Local Variable used to determine what optional TX to add to surrogates
+      Logical :: found_all_modes
+      Integer :: n_missing_tx
+      Integer :: n_which_txadd( nadd_tx )
 
+      Logical, Save :: Firstcall = .True.
+      
 C-----------------------------------------------------------------------
 
       logdev = setup_logdev()
 
+      If ( Firstcall ) Then
+         Firstcall = .False.
+      Else
+         Return
+      Endif
+ 
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating aename'
@@ -357,7 +400,7 @@ C...Set number of species in CGRID and used in Aqeuous module
 C...Map aero species
       Call map_aero()
 
-      naer = n_aerospc + naddaer 
+      naer = n_aerospc + naddaer + nadd_tx
 
       Allocate ( srgaer( naer ), stat = ios )
       If ( ios .Ne. 0 ) Then
@@ -377,9 +420,14 @@ C...Map aero species
          Call m3exit( 'aq_data_init', 0, 0, xmsg, xstat3 )
       End If
 
+C...Add missing optional aerosol surrogate species      
+      Do spc = 1, nadd_tx
+         srgaer( spc ) = srgaer_addtx( spc )
+      End Do
+ 
       Do var = 1, n_aerospc
 
-         spc = var
+         spc = nadd_tx + var
          srgaer( spc ) = sur_aer_type( (/' ',' ',' '/), 0.0, 0.0, 0.0 )
 
          ! Skip H2O, H2OP, and SOIL species
@@ -416,7 +464,7 @@ C...Map aero species
 
 C...Add additional aerosol surrogate species
       Do n = 1, naddaer
-         spc = n_aerospc + n
+         spc = n_aerospc + nadd_tx + n
          srgaer( spc ) = addsrgaer( n )
       End Do
    
@@ -564,10 +612,17 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       lsoilc = findSgrAer( req_soilc )   !  SOIL in Coarse mode  (AE6)    SLN 16March2011
       lanthc = findSgrAer( req_anthc )   !  CORS in Coarse mode  (AE6)    SLN 16March2011
       lseasc = findSgrAer( req_seasc )   !  SEAS in Coarse mode  (AE6)    SLN 16March2011
+C...For TXHG version
+      ltracer_akn    = findSgrAer( req_traceri  )   !  Tracer aitken mode 
+      ltracer_acc    = findSgrAer( req_tracerj  )   !  Tracer accumation mode 
+      ltracer_cor    = findSgrAer( req_tracerk  )   !  Tracer coarse mode 
+      lphg_akn       = findSgrAer( req_phgi )       !  Mercuric aitken and accumulation modes
+      lphg_acc       = findSgrAer( req_phgj )       !  Mercuric aitken and accumulation modes
+      lphg_cor       = findSgrAer( req_phgk )       !  Mercuric coarse mode
 
       mapped = .True.
 
-#ifdef verbose
+#ifdef verbose_cloud
       Write( logdev,'( /5x, a )' ) 'AQCHEM gas surrogate species'
       Write( logdev,'( 5x, a, i4 )' ) 'lso2:   ', lso2
       Write( logdev,'( 5x, a, i4 )' ) 'lhno3:  ', lhno3
@@ -609,6 +664,9 @@ C...Create the pointers for required aerosol surrogate species needed by AQCHEM
       Write( logdev,'( 5x, a, i4 )' ) 'ltracer_akn:  ', ltracer_akn
       Write( logdev,'( 5x, a, i4 )' ) 'ltracer_acc:  ', ltracer_acc
       Write( logdev,'( 5x, a, i4 )' ) 'ltracer_cor:  ', ltracer_cor
+      Write( logdev,'( 5x, a, i4 )' ) 'lphg_akn:     ', lphg_akn
+      Write( logdev,'( 5x, a, i4 )' ) 'lphg_acc:     ', lphg_acc
+      Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor:     ', lphg_cor
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'

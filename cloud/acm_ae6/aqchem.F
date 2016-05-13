@@ -455,6 +455,13 @@ C...........External Functions:
 
       REAL, EXTERNAL :: HLCONST
 
+!For Varaible used by TXHG Version
+      LOGICAL, SAVE :: TRUST_TXHG_CHEM = .TRUE.  ! allow effects for TXHG version on ion and ph
+      REAL( 8 ) :: TRACER           ! TRACER acc+akn aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: TRACERCOR        ! TRACER coarse aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: HGFINE           ! mercury PM acc+akn aerosol in cloudwater (mol/liter)
+      REAL( 8 ) :: HGCOR            ! mercury PM coarse aerosol in cloudwater (mol/liter)
+
       INTEGER, SAVE :: LOGDEV
       INTEGER, EXTERNAL :: SETUP_LOGDEV
 
@@ -838,6 +845,22 @@ C...don't allow gas concentrations to go below zero
           INITGAS( IGAS ) = MAX( INITGAS( IGAS ), 0.0D0 )
         END DO
 
+C...Aerosol specific to TXHG Versions
+
+        TRACER     = LOADING( LTRACER_ACC,  ACC ) + LOADING( LTRACER_AKN,  AKN )
+     &             - WETDEP( LTRACERL ) * XC1
+        TRACER    = MAX( TRACER,    0.0D0 )
+        
+        TRACERCOR  = LOADING( LTRACER_COR,  COR ) - WETDEP( LTRACERCORL ) * XC1
+        TRACERCOR = MAX( TRACERCOR, 0.0D0 )
+ 
+        HGFINE    = LOADING( LPHG_ACC,  ACC ) + LOADING( LPHG_AKN,  AKN )
+     &             - WETDEP( LPHGFINEL ) * XC1
+        HGFINE    = MAX( HGFINE,    0.0D0 )
+
+        HGCOR     = LOADING( LPHG_COR, COR ) - WETDEP( LPHGCORL ) * XC1
+        HGCOR     = MAX( HGCOR ,     0.0D0 )
+
         DO I7777C = 1, 10001
 
           IF ( I7777C .GE. 10000 ) THEN
@@ -1141,6 +1164,14 @@ C...load the liquid concentration array with current values
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
+
+C...Load array variable TXHG Version
+
+        LIQUID( LTRACERL    )  = TRACER
+        LIQUID( LTRACERCORL )  = TRACERCOR
+        LIQUID( LPHGFINEL   )  = HGFINE
+        LIQUID( LPHGCORL    )  = HGCOR
+
 
 C...if the maximum cloud lifetime has not been reached, then compute
 C...  the next timestep, else exit loop 20.
@@ -1502,6 +1533,15 @@ C...  to the accumulation mode particles
 !     AERWDEP( LSRF, ACC ) = 0.0D0
 !     AERWDEP( LSRF, COR ) = 0.0D0
 
+C...Compute for Aerosol species in  TXHG Version
+
+      AERWDEP( LTRACER_AKN, AKN ) = 0.0D0
+      AERWDEP( LTRACER_ACC, ACC ) = WETDEP( LTRACERL )
+      AERWDEP( LTRACER_COR, COR ) = WETDEP( LTRACERCORL )
+      AERWDEP( LPHG, AKN ) = 0.0D0
+      AERWDEP( LPHG, ACC ) = WETDEP( LPHGFINEL )
+      AERWDEP( LPHG_COR, COR ) = WETDEP( LPHGCORL )
+
 C...aerosol concentrations (mol/molV)
 
       AEROSOL( LSO4, AKN ) = AEROSOL( LSO4, AKN ) * EALFA3T
@@ -1552,6 +1592,15 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LSEASC, COR ) = SEASCOR * XL * RECIPAP1 ! AE6 - SLN 16March2011
       AEROSOL( LFEACC, ACC ) = FEACC   * XL * RECIPAP1 ! AE6 - SLN 22March2011
       AEROSOL( LMNACC, ACC ) = MNACC   * XL * RECIPAP1 ! AE6 - SLN 22March2011
+
+C...Compute for Aerosol species in  TXHG Version
+
+      AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EALFA3T
+      AEROSOL( LTRACER_ACC, ACC ) = TRACER    * XL * RECIPAP1
+      AEROSOL( LTRACER_COR, COR ) = TRACERCOR * XL * RECIPAP1
+      AEROSOL( LPHG, AKN )        = AEROSOL( LPHG, AKN ) * EALFA3T
+      AEROSOL( LPHG, ACC )        = HGFINE * XL * RECIPAP1
+      AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
 
 C...store the amount of hydrogen deposition
 
