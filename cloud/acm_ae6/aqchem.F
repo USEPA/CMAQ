@@ -1538,8 +1538,8 @@ C...Compute for Aerosol species in  TXHG Version
       AERWDEP( LTRACER_AKN, AKN ) = 0.0D0
       AERWDEP( LTRACER_ACC, ACC ) = WETDEP( LTRACERL )
       AERWDEP( LTRACER_COR, COR ) = WETDEP( LTRACERCORL )
-      AERWDEP( LPHG, AKN ) = 0.0D0
-      AERWDEP( LPHG, ACC ) = WETDEP( LPHGFINEL )
+      AERWDEP( LPHG_AKN, AKN ) = 0.0D0
+      AERWDEP( LPHG_ACC, ACC ) = WETDEP( LPHGFINEL )
       AERWDEP( LPHG_COR, COR ) = WETDEP( LPHGCORL )
 
 C...aerosol concentrations (mol/molV)
@@ -1598,8 +1598,8 @@ C...Compute for Aerosol species in  TXHG Version
       AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EALFA3T
       AEROSOL( LTRACER_ACC, ACC ) = TRACER    * XL * RECIPAP1
       AEROSOL( LTRACER_COR, COR ) = TRACERCOR * XL * RECIPAP1
-      AEROSOL( LPHG, AKN )        = AEROSOL( LPHG, AKN ) * EALFA3T
-      AEROSOL( LPHG, ACC )        = HGFINE * XL * RECIPAP1
+      AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EALFA3T
+      AEROSOL( LPHG_ACC, ACC )    = HGFINE * XL * RECIPAP1
       AEROSOL( LPHG_COR, COR )    = HGCOR * XL * RECIPAP1
 
 C...store the amount of hydrogen deposition

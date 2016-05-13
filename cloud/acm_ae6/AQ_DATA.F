@@ -46,12 +46,12 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: ngas = 15   ! number of gas-phase species for AQCHEM
 !     Integer, Parameter :: naddaer = 7 ! number of additional aerosol surrogate species for AQCHEM
       Integer, Parameter :: naddaer = 2 ! number of additional aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nadd_tx = 5 ! number of surrogates for HAPS aerosol species for AQCHEM
+      Integer, Parameter :: nadd_tx = 6 ! number of surrogates for HAPS aerosol species for AQCHEM
 
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 51  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 55  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 35  ! maximum number of species for surrogate
 
@@ -154,7 +154,8 @@ C                      -------------    -------------    -------------    ------
      & sur_aer_type((/'TRACER_AITKEN', '             ', '             '/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'             ', 'TRACER_ACCUM ', '             '/),   0.0,    100.0, 2200.0),
      & sur_aer_type((/'             ', '             ', 'TRACER_COARSE'/),   0.0,    100.0, 2200.0),
-     & sur_aer_type((/'PHG_AITKEN   ', 'PHG_ACCUM    ', '             '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'PHG_AITKEN   ', '             ', '             '/),   0.0,    200.5, 2200.0),
+     & sur_aer_type((/'             ', 'PHG_ACCUM    ', '             '/),   0.0,    200.5, 2200.0),
      & sur_aer_type((/'             ', '             ', 'PHG_COARSE   '/),   0.0,    200.5, 2200.0)/)
 
 C...Required aerosol species
@@ -189,7 +190,8 @@ C...For TX version
       Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
       Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
       Character( 16 ), Parameter, Private :: req_tracerk = 'TRACER_COARSE'
-      Character( 16 ), Parameter, Private :: req_phg     = 'PHG_ACCUM'
+      Character( 16 ), Parameter, Private :: req_phgi     = 'PHG_AITKEN'
+      Character( 16 ), Parameter, Private :: req_phgj     = 'PHG_ACCUM'
       Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
 
 
