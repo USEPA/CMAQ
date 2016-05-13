@@ -315,7 +315,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 
          IF (MECHNAME == 'CB05E51_AE6_AQ') THEN
             NUM_PMDIAG_SPC = 39
-         ELSE IF (MECHNAME == 'CB05E51_AE6i_AQ') THEN
+         ELSE IF (MECHNAME == 'SAPRC07TIC_AE6I_AQ') THEN
             NUM_PMDIAG_SPC = 41
          ELSE
             XMSG = ' Warning: Unknown AE mechanism '
