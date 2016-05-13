@@ -220,7 +220,7 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6, 'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1,  1.37,'SOLUTE','      ',es_cor),
 
-     ! Associated with ae6i
+       ! Associated with ae6i
      & spcs_type((/'        ','AMTNO3J ','        '/), cm_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'        ','AISOPNNJ','        '/), cm_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'        ','AMTHYDJ ','        '/), cm_set, 1400.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
@@ -230,7 +230,7 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'        ','AIMGAJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'        ','AIMOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
 
-     ! ae6i and cb6
+       ! ae6i and cb6
      & spcs_type((/'        ','AGLYJ   ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
      
        !The Following Species Were Associated with the Multi-Pollutant Code
