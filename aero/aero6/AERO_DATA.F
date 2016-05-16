@@ -581,6 +581,8 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate( aeronum_map ( n_aerospc ) )
       Allocate( aerosrf_map ( n_aerospc ) )
 
+      aerospc_ssf = 0.0
+
       Do spc = 1, n_aerospc !Loop through user-requested chemical species
          l = aerospc_tolist( spc )
          aerospc( spc ) = aerolist( l )   !Map AeroList to AeroSpc
@@ -595,7 +597,7 @@ C Build mapping to CGRID for each species in the master AeroList
             Do isea = 1,nsea_spc
                Do m = 1,n_mode
                   If ( sea_spc( isea )%name( m ) .EQ. aerospc( spc )%name( n ) ) Then
-                     aerospc_ssf( n, spc ) = sea_spc( isea )%spcfac( n )
+                     aerospc_ssf( n, spc ) = sea_spc( isea )%spcfac( m )
                   End If
                End Do
             End Do
@@ -609,7 +611,7 @@ C Build mapping to CGRID for each species in the master AeroList
                Write( xmsg,* ) 'FATAL ERROR: Linked set of tracers, ',
      &                    TRIM( xmsg2 ),', is missing species, ',
      &                    TRIM( aerolist( spc )%name( n ) ) 
-               call  m3mesg( xmsg )
+               call  m3warn( pname,0,0,xmsg  )
             End If
 
             !Set the Aero_Missing Flag
