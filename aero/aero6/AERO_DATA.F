@@ -38,7 +38,7 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 
 C HS = Heather Simon; GS = Golam Sarwar; SH = Steve Howard; SR = Shawn Roselle;
-C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey
+C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey, CGN = Chris Nolte
 
 C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C GS  03/02/11 Revised parameters for Mg, K, and Ca
@@ -55,20 +55,36 @@ C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 
 C HOTP 01/16/13 Removed isoprene acid enhanced aerosol and added new isoprene aerosol
 C HOTP 01/18/13 Added information for particle phase reaction of isoprene products
 C               based on Eddingsaas et al. 2010
-C KF  09/17/14 Changed emitted modal PM mass fractions according to  
+C KF  09/17/14 Changed emitted modal PM mass fractions and geometric mean diameter and
+C              geometric standard deviation of emitted particles according to  
 C              Elleman and Covert (2010)
-C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow
-C               Chan et al.
+C HOTP 09/27/14 Added alkane and PAH SOA species. PAH SOA densities follow Chan et al.
 C JY  08/24/15 Changed visual index factors
-C
+C HOTP 2/17/2016 Updated SOA densities. BTX follows Ng et al. 2007. 
+C                1.4 g/cm3 used by default.
+C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
+C              DUST_EMIS, aero_subs:VOLINORG, and aqchem 
+C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
+
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and 
 C    products of the acid-catalyzed ring-opening of atmospherically relevant
 C    butyl epoxy alcohols," J. Phys. Chem. A., 2010, 114, 8106-8113.
-C 2. Chan et al., Secondary organic aerosol formation from photooxidation
+C 2. Chan, et al., "Secondary organic aerosol formation from photooxidation
 C    of naphthalene and alkylnaphthalenes: implications for oxidation of
-C    intermediate volatility organic compounds (IVOCs), Atmos. Chem. Phys., 
+C    intermediate volatility organic compounds (IVOCs)", Atmos. Chem. Phys., 
 C    2009, 9, 3049-3060.
+C 3. Ng, N. L., Kroll, J. H., Chan, A. W. H., Chhabra, P. S., Flagan, R.
+C    C., and Seinfeld, J. H.: Secondary organic aerosol formation from
+C    m-xylene, toluene, and benzene, Atmos. Chem. Phys., 7, 3909-3922,
+C    doi:10.5194/acp-7-3909-2007, 2007.
+C 4. Elleman and Covert, "Aerosol size distribution modeling with the Community Multiscale
+C    Air Quality modeling system in the Pacific Northwest: 3. Size distribution of
+C    particles emitted into a mesoscale model", JGR, 115, D03204, 2010
+C 5. Simon, et al., "The development and uses of EPA's SPECIATE database",
+C    Atmos. Poll. Res., 1, 196-206, 2010
+C 6. Upadhyay, et al., "Size-Differentiated Chemical Composition of Re-Suspended Soil
+C    Dust from the Desert Southwest United States," Aero. and AQ Res., 2015, 387-398
 
 C JY: From Christian Hogrefe...
 C Based on Malm and Hand (Atmos. Env. 41, 3407-3427, 2007), the revised
@@ -79,8 +95,8 @@ C both scattering and absorption contribute to total extinction.
 C ASEACAT includes all sea-salt cations in coarse mode (Na, Ca, K, and Mg)
 C Also note...
 C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mass
-C extinction efficiency [m^2/g], see White, Atmos.Env.,294(10)(1990),pp 2673-1672
-C and Malm, et al., JGR,99(D1)(1994),pp 1347-1370
+C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
+C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
 
       Implicit None
@@ -105,15 +121,15 @@ C Emissions splits
       Real,    Parameter :: es_cor( n_mode ) = (/ 0.000, 0.000, 1.000 /)
       Real,    Parameter :: es_0  ( n_mode ) = (/ 0.000, 0.000, 0.000 /)
 
-C Sea salt factors
-!     Real,    Parameter :: ss_so4( n_mode ) = (/ 0.0,   0.0776, 0.0776 /)
-!     Real,    Parameter :: ss_cl ( n_mode ) = (/ 0.0,   0.5338, 0.5338 /)
-!     Real,    Parameter :: ss_na ( n_mode ) = (/ 0.0,   0.3086, 0.0    /)
-!     Real,    Parameter :: ss_mg ( n_mode ) = (/ 0.0,   0.0368, 0.0    /)
-!     Real,    Parameter :: ss_k  ( n_mode ) = (/ 0.0,   0.0114, 0.0    /)
-!     Real,    Parameter :: ss_ca ( n_mode ) = (/ 0.0,   0.0118, 0.0    /)
-!     Real,    Parameter :: ss_sea( n_mode ) = (/ 0.0,   0.0   , 0.3686 /)
-!     Real,    Parameter :: ss_0  ( n_mode ) = (/ 0.0,   0.0   , 0.0    /)
+C Geometric mean diameter by volume (or mass) of emitted particles in
+C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
+C 09/17/14 change by Kathleen Fahey - see Revision History, above
+      Real,    Parameter :: dgvem( n_mode ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /)
+
+C Geometric standard deviation of emitted particles in each mode, as
+C described in paragraph #14 of Binkowski & Roselle (2003)
+C 09/17/14 change by Kathleen Fahey - see Revision History, above
+      Real,    Parameter :: sgem( n_mode ) = (/ 1.7, 1.7, 2.2 /)
 
 C Flag to obtain coagulation coefficients
 C by analytical approximation (True) or by Gauss-Hermite quadrature (False)
@@ -156,8 +172,8 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','AMGJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 'DUST  ','PMG   ',es_acc),
      & spcs_type((/'       ','AKJ    ','       '/), cm_set, 2200.0, F, F, F,  1,  1.0, 'DUST  ','PK    ',es_acc),
      & spcs_type((/'       ','ACAJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 'DUST  ','PCA   ',es_acc),
-     & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 2000.0, F, F, F,  0,  4.0, 'DUST  ','POC   ',es_fin),
-     & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 2000.0, F, F, F,  0,  4.0, 'DUST  ','PNCOM ',es_fin),
+     & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 1400.0, F, F, F,  0,  4.0, 'DUST  ','POC   ',es_fin),
+     & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 1400.0, F, F, F,  0,  4.0, 'DUST  ','PNCOM ',es_fin),
      & spcs_type((/'AECI   ','AECJ   ','       '/), cm_set, 2200.0, F, F, F,  0, 10.0, 'SOOT  ','PEC   ',es_fin),
      & spcs_type((/'       ','AFEJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PFE   ',es_acc),
      & spcs_type((/'       ','AALJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PAL   ',es_acc),
@@ -167,36 +183,74 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), cm_set, 1000.0, T, F, F,  0,  0.0, 'WATER ','PH2O  ',es_fin),
      & spcs_type((/'AH3OPI ','AH3OPJ ','AH3OPK '/), cm_set, 1000.0, T, F, T,  0,  0.0, 'WATER ','      ',es_0),
      & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PMOTHR',es_fin),
-     & spcs_type((/'       ','AALK1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AALK2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATRP1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATRP2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO1J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO2J ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO3J ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 2000.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AALK1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AALK2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL3J ','       '/), cm_set, 1330.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL1J ','       '/), cm_set, 1240.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL2J ','       '/), cm_set, 1240.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL3J ','       '/), cm_set, 1450.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ3J ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATRP1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATRP2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO3J ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','APAH3J ','       '/), cm_set, 1550.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 2000.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
      & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6, 'DUST  ','      ',es_cor),
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6, 'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1,  1.37,'SOLUTE','      ',es_cor)/)
 
-C Sea-Salt Speciation factors
+C number of chemical species in windblown dust aerosol
+      integer, parameter :: ndust_spc = 19
+
+C number of lognormal modes in windblown dust aerosol = n_mode
+C - but only accumulation and coarse modes used
+      Type dust_type
+         Character( 16 ) :: name  ( n_mode )
+         Real            :: spcfac( n_mode )
+      End type dust_type
+
+C For the wind-blown dust speciation factors, we used the median of the Desert Soil
+C profiles 3398, 3403, 3408, and 3413 for the J mode from the SPECIATE database and
+C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private communication)
+C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
+
+      Type( dust_type ), Parameter :: dust_spc( ndust_spc ) = (/
+C                        -------- name --------         -------- spcfac --------
+C                      Aitken    accum     coarse        Aitken  accum   coarse
+     &   dust_type( (/'       ','ASO4J  ','ASO4K  '/), (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
+     &   dust_type( (/'       ','ANO3J  ','ANO3K  '/), (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
+     &   dust_type( (/'       ','ACLJ   ','ACLK   '/), (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
+     &   dust_type( (/'       ','ANH4J  ','       '/), (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
+     &   dust_type( (/'       ','ANAJ   ','       '/), (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
+     &   dust_type( (/'       ','ACAJ   ','       '/), (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
+     &   dust_type( (/'       ','AMGJ   ','       '/), (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
+     &   dust_type( (/'       ','AKJ    ','       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
+     &   dust_type( (/'       ','APOCJ  ','       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   dust_type( (/'       ','APNCOMJ','       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   dust_type( (/'       ','AECJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
+     &   dust_type( (/'       ','AFEJ   ','       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
+     &   dust_type( (/'       ','AALJ   ','       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
+     &   dust_type( (/'       ','ASIJ   ','       '/), (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
+     &   dust_type( (/'       ','ATIJ   ','       '/), (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
+     &   dust_type( (/'       ','AMNJ   ','       '/), (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
+     &   dust_type( (/'       ','AH2OJ  ','AH2OK  '/), (/ 0.0, 0.00541, 0.00637/) ),   ! Water
+     &   dust_type( (/'       ','AOTHRJ ','       '/), (/ 0.0, 0.48319, 0.0    /) ),   ! Other
+     &   dust_type( (/'       ','       ','ASOIL  '/), (/ 0.0, 0.0,     0.95358/) ) /) ! Non-Anion Dust
+
+C Sea-Salt Speciation factors based on seawater composition:
       Real, Parameter :: aerospc_ssf( n_mode, n_aerospc ) = Reshape (
-C            Aitken    Accum   Coarse
+C            Aitken    accum   coarse
 C           -------  -------  -------
      &   (/  0.0,     0.0776,  0.0776,      ! ASO4
      &       0.0,     0.0,     0.0,         ! ANO3
@@ -245,23 +299,64 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.3686 /),   ! ASEACAT
      &   (/ n_mode,n_aerospc /), Order = (/ 1,2 /) )
 
+C Constants used in other routines:
+
+      Real( 8 ), Parameter :: asoil_renorm = 1.0D0 - 0.04642D0  ! = 0.95358, same as ASOIL speciation factor in the dust_spc table above
+
+      Real( 8 ), Parameter :: ascat_na_fac = 0.8373D0    ! coarse sea-salt NA cation
+      Real( 8 ), Parameter :: asoil_na_fac = 0.0626D0    ! for NA in windblown dust
+      Real( 8 ), Parameter :: acors_na_fac = 0.0023D0    ! for NA in anthropogenic coarse
+
+      Real( 8 ), Parameter :: ascat_mg_fac = 0.0997D0    ! coarse sea-salt MG cation
+      Real( 8 ), Parameter :: asoil_mg_fac = 0.0170D0    ! for MG in windblown dust
+      Real( 8 ), Parameter :: acors_mg_fac = 0.0032D0    ! for MG in anthropogenic coarse
+
+      Real( 8 ), Parameter :: ascat_k_fac =  0.0310D0    ! coarse sea-salt K cation
+      Real( 8 ), Parameter :: asoil_k_fac =  0.0242D0    ! for K in windblown dust
+      Real( 8 ), Parameter :: acors_k_fac =  0.0176D0    ! for K in anthropogenic coarse
+
+      Real( 8 ), Parameter :: ascat_ca_fac = 0.0320D0    ! coarse sea-salt CA cation
+      Real( 8 ), Parameter :: asoil_ca_fac = 0.0838D0    ! for CA in windblown dust
+      Real( 8 ), Parameter :: acors_ca_fac = 0.0562D0    ! for CA in anthropogenic coarse
+
+
+      Real( 8 ), Parameter :: asoil_fe_fac = 0.02695D0   ! for FE in dust*
+      Real( 8 ), Parameter :: acors_fe_fac = 0.0467D0    ! for FE in anthropogenic coarse
+
+      Real( 8 ), Parameter :: asoil_mn_fac = 0.00075D0   ! for MN in dust*
+      Real( 8 ), Parameter :: acors_mn_fac = 0.0011D0    ! for MN in anthropogenic coarse
+
+C Coarse mode PMC speciation based on anthopogenic inventory composite from various
+C sources (G. Pouliot - private communication):
+
+      Real( 8 ), Parameter :: acorsem_aso4_fac = 0.00100D0
+      Real( 8 ), Parameter :: acorsem_ano3_fac = 0.00048D0
+      Real( 8 ), Parameter :: acorsem_acl_fac  = 0.00145D0
+      Real( 8 ), Parameter :: acorsem_ah2o_fac = 0.00032D0
+      Real( 8 ), Parameter :: acors_renorm = 1.0D0
+     &                                     - acorsem_aso4_fac
+     &                                     - acorsem_ano3_fac
+     &                                     - acorsem_acl_fac
+     &                                     - acorsem_ah2o_fac
 
 C Required species
-      Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'  
-      Character( 16 ), Private, Parameter :: req_no3    = 'ANO3'  
-      Character( 16 ), Private, Parameter :: req_cl     = 'ACL'   
-      Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4'  
-      Character( 16 ), Private, Parameter :: req_na     = 'ANA'   
-      Character( 16 ), Private, Parameter :: req_mg     = 'AMG'           
-      Character( 16 ), Private, Parameter :: req_k      = 'AK' 
-      Character( 16 ), Private, Parameter :: req_ca     = 'ACA' 
-      Character( 16 ), Private, Parameter :: req_poc    = 'APOC'  
-      Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'  
-      Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'  
+      Character( 16 ), Private, Parameter :: req_so4    = 'ASO4'
+      Character( 16 ), Private, Parameter :: req_no3    = 'ANO3'
+      Character( 16 ), Private, Parameter :: req_cl     = 'ACL'
+      Character( 16 ), Private, Parameter :: req_nh4    = 'ANH4'
+      Character( 16 ), Private, Parameter :: req_na     = 'ANA'
+      Character( 16 ), Private, Parameter :: req_mg     = 'AMG'
+      Character( 16 ), Private, Parameter :: req_k      = 'AK'
+      Character( 16 ), Private, Parameter :: req_ca     = 'ACA'
+      Character( 16 ), Private, Parameter :: req_fe     = 'AFE'
+      Character( 16 ), Private, Parameter :: req_mn     = 'AMN'
+      Character( 16 ), Private, Parameter :: req_poc    = 'APOC'
+      Character( 16 ), Private, Parameter :: req_h2o    = 'AH2O'
+      Character( 16 ), Private, Parameter :: req_h3op   = 'AH3OP'
       Character( 16 ), Private, Parameter :: req_soil   = 'ASOIL'
-      Character( 16 ), Private, Parameter :: req_cors   = 'ACORS' 
-      Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'  
-      Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT' 
+      Character( 16 ), Private, Parameter :: req_cors   = 'ACORS'
+      Character( 16 ), Private, Parameter :: req_ncom   = 'APNCOM'
+      Character( 16 ), Private, Parameter :: req_seacat = 'ASEACAT'
 C Optional Species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
      
@@ -274,6 +369,8 @@ C Indices of required species
       Integer :: amg_idx
       Integer :: ak_idx
       Integer :: aca_idx
+      Integer :: afe_idx
+      Integer :: amn_idx
       Integer :: apoc_idx
       Integer :: ah2o_idx 
       Integer :: ah3op_idx 
@@ -281,10 +378,11 @@ C Indices of required species
       Integer :: acors_idx
       Integer :: apncom_idx
       Integer :: aseacat_idx
+
 C Indices of Optional species
       Integer :: aphgj_idx
 
-      Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC.EXT) [ g/mol ]
+      Real :: aerospc_mw( n_aerospc )          ! aero species M.W. (from AE_SPC Namelist) [ g/mol ]
       Real :: aerospc_conc( n_aerospc,n_mode ) ! aero species concentration [ ug/m^3 ]
 
 C Common factors
@@ -366,6 +464,7 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C HS  01/24/11 Renamed AORGPA as POC for AERO6
 C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
+C JY  03/22/16 Get index for new required species: Fe, Mn (aqchem)
 C-----------------------------------------------------------------------
 
       Use rxns_data             ! chemical mechanism data
@@ -376,7 +475,7 @@ C-----------------------------------------------------------------------
       Implicit None
 
 C Local Variables:
-      Character( 80 ) :: xmsg
+      Character( 120 ) :: xmsg
       Integer m, n, spc
       Real  so4fac
       Real  anthfac
@@ -397,7 +496,7 @@ C build mapping to CGRID for each aero spc
 
             If ( aerospc( spc )%name( m ) .Ne. ' ' ) Then
                aero_missing( spc,m ) = .False.
-               n = index1( aerospc( spc )%name( m ), n_ae_spc, ae_spc )
+               n = index1( aerospc( spc )%name( m ), n_ae_spc, ae_spc ) ! look in AE namelist
                If ( n .Eq. 0 ) Then
                   xmsg = 'Species '// aerospc(spc)%name( m )
      &                 // ' in aerospc name is not in the AE_SPC table.'
@@ -423,7 +522,7 @@ C Build mapping to CGRID for aero # and surf area variables
       aerosrf_map = 0
 
       Do m = 1, n_mode
-         n = index1( aeromode( m )%num_name, n_ae_spc, ae_spc )
+         n = index1( trim( aeromode( m )%num_name ), n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'Species ' // Trim( aeromode( m )%num_name )
      &           //' in aeronum name is not in AE_SPC'
@@ -432,7 +531,7 @@ C Build mapping to CGRID for aero # and surf area variables
             aeronum_map( m ) = ae_strt - 1 + n
          End If
 
-         n = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
+         n = index1( trim( aeromode( m )%srf_name ), n_ae_spc, ae_spc )
          If ( n .Eq. 0 ) Then
             xmsg = 'species ' // Trim( aeromode( m )%srf_name )
      &           // ' in aerosrf name is not in AE_SPC'
@@ -451,6 +550,8 @@ C Find indices of required species
       amg_idx     = findAero( req_mg,     .True. )
       ak_idx      = findAero( req_k,      .True. )
       aca_idx     = findAero( req_ca,     .True. )
+      afe_idx     = findAero( req_fe,     .True. )
+      amn_idx     = findAero( req_mn,     .True. )
       apoc_idx    = findAero( req_poc,    .True. )
       ah2o_idx    = findAero( req_h2o,    .True. )
       ah3op_idx   = findAero( req_h3op,   .True. )
@@ -470,6 +571,8 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'amg_idx:    ', amg_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ak_idx:     ', ak_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aca_idx:    ', aca_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'afe_idx:    ', afe_idx
+      Write( logdev,'( 5x, a, i4 )' ) 'amn_idx:    ', amn_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apoc_idx:   ', apoc_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah2o_idx:   ', ah2o_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ah3op_idx:  ', ah3op_idx
@@ -477,11 +580,7 @@ C Find indices of required species
       Write( logdev,'( 5x, a, i4 )' ) 'acors_idx:  ', acors_idx
       Write( logdev,'( 5x, a, i4 )' ) 'apncom_idx: ', apncom_idx
       Write( logdev,'( 5x, a, i4 )' ) 'aseacat_idx:', aseacat_idx
-      If ( aphgj_idx .Gt. 0 ) Then
-          Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
-      else
-          Write( logdev,'( 5x, a, i4 )' ) 'PHGJ not found so aphgj_idx:  ', aphgj_idx
-      End If
+      Write( logdev,'( 5x, a, i4 )' ) 'aphgj_idx:  ', aphgj_idx
 #endif
  
 C Compute common factors
@@ -492,7 +591,7 @@ C compute aeromode_minNum and aeromode_minM2
       anthfac = 1.0E-9 * Real( f6dpi, 4 ) / aerospc( acors_idx )%density
 
       Do m = 1, n_mode
-         If ( m .lt. n_mode ) Then
+         If ( m .Lt. n_mode ) Then
             aeromode_minNum( m ) = so4fac * aerospc( aso4_idx )%min_conc( m ) /
      &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
          Else
@@ -512,7 +611,7 @@ C compute aeromode_minNum and aeromode_minM2
 
 C-----------------------------------------------------------------------
       Subroutine map_pmemis ( )
-C
+ 
 C  Set the emissions units from the header of EMIS_1 file
 C  Verify that all the units on the file are consistent
 
@@ -651,7 +750,7 @@ C Copy grid cell concentrations of aero species to aerospc_conc
          Do m = 1, n_mode
             Do spc = 1, n_aerospc
                n = aerospc_map( spc,m )
-               If ( n .ne. 0 ) Then
+               If ( n .Ne. 0 ) Then
                   aerospc_conc( spc,m ) = Max( conc( n ), aerospc( spc )%min_conc( m ) ) ! [ug/m^3]
                End If
             End Do
@@ -660,7 +759,7 @@ C Copy grid cell concentrations of aero species to aerospc_conc
          Do m = 1, n_mode
             Do spc = 1, n_aerospc
                n = aerospc_map( spc,m )
-               If ( n .ne. 0 ) Then
+               If ( n .Ne. 0 ) Then
                   aerospc_conc( spc,m ) = conc( n )   ! [ug/m^3]
                End If
             End Do
@@ -766,7 +865,6 @@ C Copy aero number and surface area back to grid cell concentrations
       End Subroutine update_aero   
 
 C-----------------------------------------------------------------------
-!     Integer Function findAero( vname, required ) Result ( idx )
       Function findAero( vname, required ) Result ( idx )
 
 C  Finds the index of 'required' aerosol species in the aerospc list
@@ -800,7 +898,10 @@ C Find the substring vname in aerospc( spc )%name( n )
       End Do
 
       If ( .Not. required ) Then
-         idx = -1
+         idx = 0
+         xmsg =  pname // 'Optional Species '
+     &       // Trim( vname ) // ' Not found in aerospc names array'
+         call m3mesg( xmsg )
          Return
       End If
 
