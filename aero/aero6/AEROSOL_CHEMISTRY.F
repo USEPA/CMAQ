@@ -2186,16 +2186,18 @@ C        Update sum
 C        Store information with speciation for IEPOX
          if ( acid_nuc_pairs(i)%parent == 'IEPOX' ) then
             kparticle(1)  = kparticle(1) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then
+            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then !ae6i
               kchemos(1)  = kchemos(1)   + kchem
             elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then
+     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then !ae6i
               kchemdim1(1) = kchemdim1(1)  + kchem
             elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then
+     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then !ae6i
               kchemdim2(1) = kchemdim2(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then
+            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then !ae6i
               kchemtet(1) = kchemtet(1)  + kchem
+            elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
+              ! do nothing for aero6 since speciation isn't tracked
             else
                print*, 'Reaction not recognized'
                STOP
