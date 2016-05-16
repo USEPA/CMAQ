@@ -61,7 +61,7 @@
      &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
      &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
      &                       'HETERO_NTR2      ', 'HETERO_BRONO2IJ  ',
-     &                       'HETERO_BRONO2K '/)
+     &                       'HETERO_BRONO2K   '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2
