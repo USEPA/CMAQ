@@ -110,7 +110,7 @@ C-----------------------------------------------------------------------
 C Retrieve the species saved to the concentration file
 
          CALL GET_ENVLIST ( STD_CONC_SPCS, N_CSPCS, CONC_SPCS )
-         IF ((N_CSPCS == 0) .OR. ( CONC_SPCS( 1 ) .EQ. 'ALL' )) THEN
+         IF ( N_CSPCS .EQ. 0 .OR. CONC_SPCS( 1 ) .EQ. 'ALL' ) THEN
             N_CSPCS = N_GC_CONC + N_AE_CONC + N_NR_CONC + N_TR_SPC
             V = 0
             DO VAR = 1, N_GC_CONC
