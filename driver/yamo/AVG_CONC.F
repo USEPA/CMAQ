@@ -29,6 +29,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       IMPLICIT NONE
 
+C Revision History
+C   10 May 2016 D. Wong Modified code to provide flexibility to handle
+C                       environment variable AVG_CONC_SPCS is set to 'ALL' 
+C                       or not set.
+
 C Function: species, layer pointers and definitions for integral average
 C CONC calculations
 
@@ -102,7 +107,7 @@ C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
 
          CALL GET_ENVLIST ( AVG_CONC_SPCS, N_ASPCS, AVG_SPCS )
 
-         IF ( AVG_SPCS( 1 ) .EQ. 'ALL' ) THEN
+         IF ((N_ASPCS .EQ. 0) .OR. ( AVG_SPCS( 1 ) .EQ. 'ALL' )) THEN
             N_ASPCS = N_GC_SPC + N_AE_SPC + N_NR_SPC + N_TR_SPC
             DO VAR = 1, N_GC_SPC
                V = VAR

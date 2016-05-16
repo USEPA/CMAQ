@@ -34,6 +34,8 @@ C calculations
 C Revision: J.Young 13Sep2011: Increase size of CONC_SPCS dimension -
 C           previous revision used dynamic allocation, but GET_ENVLIST
 C           was called with the CONC_SPCS argument before it was allocated
+C           D.Wong 11 May 2016: Modified code to provide flexibility to handle
+C                environment variable CONC_SPCS is set to 'ALL' or not set.
 
       INTEGER, SAVE :: N_CSPCS    ! Number of species saved to conc file
       CHARACTER( 16 ), SAVE :: CONC_SPCS( 900 ) ! conc file species list
@@ -108,7 +110,7 @@ C-----------------------------------------------------------------------
 C Retrieve the species saved to the concentration file
 
          CALL GET_ENVLIST ( STD_CONC_SPCS, N_CSPCS, CONC_SPCS )
-         IF ( N_CSPCS .LE. 0 ) THEN   ! revert to include files
+         IF ((N_CSPCS .EQ. 0) .OR. ( CONC_SPCS( 1 ) .EQ. 'ALL' )) THEN
             N_CSPCS = N_GC_CONC + N_AE_CONC + N_NR_CONC + N_TR_SPC
             V = 0
             DO VAR = 1, N_GC_CONC
