@@ -66,7 +66,6 @@ C   18 Aug 11 David Wong: In the merge inline point source PM species calculatio
 C                         arrays EMBUFF and PMEMIS_PT have incorrect index values
 C   17 Apr 13 J.Young: replace "SPFC ASO4" (found by Havala Pye) with "SPFC_ASO4"
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
-C   23 Dec 15 J.Young: turn off default windblown dust option
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY: N_MODE
@@ -195,14 +194,17 @@ C   07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C   17 Sep 14 K.Fahey:  Changed geometric mean diameter and geometric
 C                       standard deviation of emitted particles according to 
 C                       Elleman and Covert (2010)
+C   15 Apr 16 J.Young: Use aerosol factors from the AERO_DATA module's named constants;
+C                      Moved K.Fahey's mods to geometric mean diameter and standard
+C                      deviation to the AERO_DATA module
  
 C  References:
 C    CRC76,        "CRC Handbook of Chemistry and Physics (76th Ed)",
 C                   CRC Press, 1995
-C    Elleman & Covert Aerosol size distribution modeling with the Community
+C    Elleman & Covert, "Aerosol size distribution modeling with the Community
 C                   Multiscale Air Quality modeling system in the Pacific
 C                   Northwest: 3. Size distribution of particles emitted
-C                   into a mesoscale model. J. Geophys. Res., Vol 115,
+C                   into a mesoscale model", J. Geophys. Res., Vol 115,
 C                   No D3, doi:10.1029/2009JD012401, 2010
 C    Hobbs, P.V.   "Basic Physical Chemistry for the Atmospheric Sciences",
 C                   Cambridge Univ. Press, 206 pp, 1995.
@@ -239,22 +241,11 @@ C External Functions:
          INTEGER, EXTERNAL :: FINDEX       !  looks up number in table.
 
 C Local Variables:
-
          CHARACTER( 16 ), SAVE :: CTM_WB_DUST = 'CTM_WB_DUST' ! env var for windblown dust
          LOGICAL :: ZERO_PCSOA
          CHARACTER( 16 ), SAVE :: CTM_ZERO_PCSOA = 'CTM_ZERO_PCSOA' ! env var for toggling
                                                                     ! pcSOA modeling
 
-C Geometric mean diameter by volume (or mass) of emitted particles in 
-C each mode [ m ].  See paragraph #14 of Binkowski & Roselle (2003)
-!        REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.03E-6, 0.3E-6, 6.0E-6 /)
-         REAL, PARAMETER :: DGVEM( N_MODE ) = (/ 0.06E-6, 0.28E-6, 6.0E-6 /) !KF 05/06/14
-
-C Geometric standard deviation of emitted particles in each mode, as
-C described in paragraph #14 of Binkowski & Roselle (2003)
-!        REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 2.0, 2.2 /)
-         REAL, PARAMETER :: SGEM( N_MODE ) = (/ 1.7, 1.7, 2.2 /)  !KF 05/06/14
- 
 C Variables for calculating the volume of each grid cell
          REAL  DX1, DX2                            ! grid-cell width and length [m]
          REAL  CELLAREA                            ! grid-cell area [m2]
@@ -289,7 +280,7 @@ C *** set up for sea-salt emission processing
 
 C *** windblown dust emissions?
          WB_DUST = ENVYN( 'CTM_WB_DUST', 'Flag for windblown dust emissions',
-     &                   .FALSE., STATUS )
+     &                   .TRUE., STATUS )
 
          IF ( WB_DUST ) THEN
 C *** set up for dust emission processing
@@ -508,12 +499,13 @@ C *** Map aerosol surface emission species and set across-the-board adjustment f
             END IF
          END DO
 
-C *** PVB: temporary hack to speciate PMC
-         SPFC_ACORS = ( 1.0 - 0.00325 ) * AEROSPC( ACORS_IDX )%EMIS_SPLIT( N_MODE )
-         SPFC_ASO4  = 0.00100 * AEROSPC( ASO4_IDX )%EMIS_SPLIT( N_MODE )
-         SPFC_ANO3  = 0.00048 * AEROSPC( ANO3_IDX )%EMIS_SPLIT( N_MODE )
-         SPFC_ACL   = 0.00145 * AEROSPC( ACL_IDX )%EMIS_SPLIT( N_MODE )
-         SPFC_AH2O  = 0.00032 * AEROSPC( AH2O_IDX )%EMIS_SPLIT( N_MODE )
+C *** PVB: speciate PMC (from AERO_DATA)
+         N = N_MODE
+         SPFC_ASO4  = REAL( ACORSEM_ASO4_FAC ) * AEROSPC( ASO4_IDX )%EMIS_SPLIT( N )
+         SPFC_ANO3  = REAL( ACORSEM_ANO3_FAC ) * AEROSPC( ANO3_IDX )%EMIS_SPLIT( N )
+         SPFC_ACL   = REAL( ACORSEM_ACL_FAC ) * AEROSPC( ACL_IDX )%EMIS_SPLIT( N )
+         SPFC_AH2O  = REAL( ACORSEM_AH2O_FAC ) * AEROSPC( AH2O_IDX )%EMIS_SPLIT( N )
+         SPFC_ACORS = REAL( ACORS_RENORM ) * AEROSPC( ACORS_IDX )%EMIS_SPLIT( N )
 
 C *** Map sea salt emission species
          SS_MAP = 0   ! array assignment
@@ -523,7 +515,7 @@ C *** Map sea salt emission species
             write( logdev,* ) 'ssspc_map: ', s, idx, ssspc_map( s )
 #endif
             DO N = 2, N_MODE   ! add SEASALT indices to EM_MAP
-               IF ( .NOT. AERO_MISSING(IDX,N) ) THEN
+               IF ( .NOT. AERO_MISSING( IDX,N ) ) THEN
                   EM_MAP( IDX,N ) = INDEX1( AEROSPC( IDX )%NAME( N ), N_AE_EMIS, AE_EMIS )
                   SS_MAP( IDX,N ) = S
 #ifdef Verbose1
@@ -562,7 +554,7 @@ C *** Map windblown dust emission species
          end do
 #endif
 
-C *** find index of SO4 emissions
+C *** get index of SO4 emissions
          VPSO4 = 0
          DO S = 1, N_EMIS_PM
             IF ( PMEM_MAP( S ) .EQ. ASO4_IDX ) VPSO4 = S

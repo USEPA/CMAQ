@@ -187,6 +187,9 @@ C              chemical mechanism
 
 C GS/KF 09/23/14 Updated nucleation scheme with Vehkamaki et al. (2002)
 
+C HP/BM  4/16 Removed m3_wet_flag since wet/dry status is now
+C             tracked by AERO_DATA variable. Moments are always wet in AEROPROC
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -276,7 +279,6 @@ C *** Variables for mode merging
 C *** local variables
       INTEGER      SPC        ! loop counter
       INTEGER      N          ! loop counter
-      LOGICAL      M3_WET_FLAG
       LOGICAL   :: LIMIT_Sg = .FALSE.
 
       integer, save :: logdev 
@@ -311,31 +313,14 @@ C *** Set minimums for coarse mode
       MOMENT0_CONC( N_MODE ) = MAX( AEROMODE_MINNUM( N_MODE ),
      &                              MOMENT0_CONC( N_MODE ) )
 
-C *** Outside AEROPROC, the surface area concentration [ m**2 / m**3 ]
-C     of the Aitken and accumulation modes is tracked.  Internally,
-C     the 2nd moment concentration is the variable of interest.
-C     Surface area = pi * 2nd moment.
-      DO N = 1, N_MODE
-         MOMENT2_CONC( N ) = MOMENT2_CONC( N ) / PI
-      END DO
-
-C *** Update the third moments, geometric mean diameters, geometric
-C     standard deviations, modal mass totals, and modal particle
-C     densities, based on the concentrations of M2, M0, and speciated
-C     masses resulting from transport, cloud processing, and gas-phase
-C     chemistry.  Ignore H2O and semi-volatile SOA (i.e., M3_WET_FLAG
-C     = .FALSE.) because those species are not transported with the
-C     2nd moment and their concentrations will be updated subsequently
-C     to establish gas/particle equilibrium.
-      M3_WET_FLAG = .FALSE.
-      LIMIT_Sg = .FALSE.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
-
 C *** Secondary Organics
 C     Update the secondary organic aerosol (SOA) mass concentrations
 C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
+C
+C     Ben and Havala will update the algorithm before this point to make
+C     sure that the aerosol is wet when it enters orgaer
       CALL ORGAER( DT, LAYER )
 
 C *** Secondary Inorganics
@@ -347,23 +332,11 @@ C *** Compute H2SO4 diffusivity, correct for temperature and pressure
       DIFFCORR = ( STDATMPA / AIRPRES ) * ( AIRTEMP / 273.16 ) ** 1.75
       DV_SO4 = DIFFSULF * DIFFCORR
 
-C *** Augment 2nd and 3rd moment concentrations with H2O and recompute
-C     size distribution parameters because wetted distribution is
-C     needed in subroutine VOLINORG
-
-      DO N = 1, N_MODE
-         M3_OLD = MOMENT3_CONC( N )
-         M2_OLD = MOMENT2_CONC( N )
-
-         MOMENT3_CONC( N ) = M3_OLD + H2OFAC * AEROSPC_CONC( AH2O_IDX, N )
-         MOMENT2_CONC( N ) = M2_OLD * ( MOMENT3_CONC( N ) / M3_OLD ) ** TWOTHIRDS
-      END DO
-
-      M3_WET_FLAG = .TRUE.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+C *** Update size parameters (distribution is wet from ORGAER)
+      CALL GETPAR( LIMIT_Sg )
 
       CALL VOLINORG( DT, COL, ROW, LAYER,
-     &               DV_SO4, CGR, M3_WET_FLAG )
+     &               DV_SO4, CGR )
 
 C *** Coagulation
 C     Calculate coagulation coefficients using a method dictated by
@@ -393,8 +366,8 @@ C *** set geometric mean diameters, geometric standard deviations, and
 C     ln(GSD) in double precision
          DO N = 1, N_MODE
             DG_D( N ) = AEROMODE_DIAM( N )
-            SG_D( N ) = EXP( AEROMODE_SDEV( N ) )
-            XXL_D( N ) = AEROMODE_SDEV( N )
+            SG_D( N ) = EXP( AEROMODE_LNSG( N ) )
+            XXL_D( N ) = AEROMODE_LNSG( N )
          END DO
 
 C *** calculate intermodal and intramodal coagulation coefficients
@@ -411,18 +384,18 @@ C     coefficient for third moment
 C *** calculate Aitken-mode intramodal coagulation coefficients
 C     for zeroth and second moments
          CALL INTRACOAG_GH( LAMDA, KFMAT, KNC, AEROMODE_DIAM( 1 ),
-     &                      AEROMODE_SDEV( 1 ), BATAT( 2 ), BATAT( 1 ) )
+     &                      AEROMODE_LNSG( 1 ), BATAT( 2 ), BATAT( 1 ) )
 
 C *** calculate accumulation-mode intramodal coagulation coefficients
 C     for zeroth and second moments
          CALL INTRACOAG_GH( LAMDA, KFMAC, KNC, AEROMODE_DIAM( 2 ),
-     &                      AEROMODE_SDEV( 2 ), BACAC( 2 ), BACAC( 1 ) )
+     &                      AEROMODE_LNSG( 2 ), BACAC( 2 ), BACAC( 1 ) )
 
 C *** calculate intermodal coagulation coefficients for zeroth, second,
 C     and third moments
          CALL INTERCOAG_GH( LAMDA, KFMATAC, KNC,
      &                      AEROMODE_DIAM( 1 ), AEROMODE_DIAM( 2 ),
-     &                      AEROMODE_SDEV( 1 ), AEROMODE_SDEV( 2 ),
+     &                      AEROMODE_LNSG( 1 ), AEROMODE_LNSG( 2 ),
      &                      BATAC( 2 ), BACAT( 2 ), BATAC( 1 ), C3IJ )
 
       END IF   ! FASTCOAG_FLAG
@@ -613,8 +586,9 @@ C     renaming.
 C *** Before mode merging, update the third moments, geometric mean
 C     diameters, geometric standard deviations, modal mass totals, and
 C     particle densities, based on the new concentrations of M2, M0, and
-C     speciated masses calculated above.
-         CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+C     speciated masses calculated above. This is still the wet
+C     distribution.
+         CALL GETPAR( LIMIT_Sg )
 
 C *** Calculate AAA = ln( Dij / DGATK ) / ( SQRT2 * XXLSGAT ), where Dij
 C     is the diameter at which the Aitken-mode and accumulation-mode
@@ -623,14 +597,14 @@ C     to the "Xnum" term described below Equation 10a by Binkowski and
 C     Roselle (2003).
          AAA = GETAF( MOMENT0_CONC( 1 ), MOMENT0_CONC( 2 ),
      &                AEROMODE_DIAM( 1 ), AEROMODE_DIAM( 2 ), 
-     &                AEROMODE_SDEV( 1 ), AEROMODE_SDEV( 2 ),
+     &                AEROMODE_LNSG( 1 ), AEROMODE_LNSG( 2 ),
      &                SQRT2 ) 
 
 C *** Ensure that Xnum is large enough so that no more than half of
 C     the Aitken mode mass is merged into the accumulation mode during
 C     any given time step.  This criterion is described in Paragraph 26
 C     of Binkowski and Roselle (2003).
-         XXM3 = 3.0 * AEROMODE_SDEV( 1 ) / SQRT2
+         XXM3 = 3.0 * AEROMODE_LNSG( 1 ) / SQRT2
          XNUM = MAX( AAA, XXM3 )
 
 C *** Factors used in error function calls for M2 and M3 mode merging
@@ -663,7 +637,8 @@ C     Equations 11d - 11f of Binkowski and Roselle (2003).
          MOMENT3_CONC( 1 ) = MOMENT3_CONC( 1 ) * PHM3
  
 C *** Rename masses of each species from Aitken mode to acumulation mode
-C     using Equation 11b of Binkowski and Roselle (2003).
+C     using Equation 11b of Binkowski and Roselle (2003). Do this for
+C     all species, even the aerosol water.
          DO SPC = 1, N_AEROSPC
             IF ( AERO_MISSING(SPC,1) ) CYCLE
 
@@ -678,8 +653,9 @@ C *** end of update for mode merging
 C *** Update the third moments, geometric mean diameters, geometric
 C     standard deviations, modal mass totals, and particle densities,
 C     based on the final concentrations of M2, M0, and speciated masses
-C     after mode merging is complete.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+C     after mode merging is complete. This should be done for the wet
+C     distribution.
+      CALL GETPAR( LIMIT_Sg )
 
 C *** Set minimum value for all concentrations in the CBLK array
 
@@ -693,9 +669,10 @@ C *** Set minimum value for all concentrations in the CBLK array
       RETURN
       END SUBROUTINE AEROPROC
 
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE VOLINORG( DT, COL, ROW, LAYER,
-     &                     DV_SO4, CGR, M3_WET_FLAG )
+     &                     DV_SO4, CGR )
 
 C *** Calculates the partitioning of inorganic components (CL,NO3,NH4,SO4)
 C     between the aerosol and gas phase over the operator synchronization
@@ -714,13 +691,15 @@ C     and particulate phase, and the aerosol modal parameters
 C *** Revision history: 4/07 - Moved HCOND3 and NEWPART3 calls from 
 C                              AEROPROC to this subroutine for 
 C                              mass transfer calculation  
-C     15 Jul 08, J.Young, P.Bhave: increased cutoff to hybrid from .01 to .05 ug/m**3
-C                J.Young: change 'OPTIONFLAG' to just a logical variable, 'Hybrid'
+C     15 Jul 08 J.Young, P.Bhave: increased cutoff to hybrid from .01 to .05 ug/m**3
+C               J.Young: change 'OPTIONFLAG' to just a logical variable, 'Hybrid'
 
-C SH  03/10/11 Renamed met_data to aeromet_data
-C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
-C GS  04/26/11 Replaced existing ISORROPIA with ISORROPIA 2.1
-C              Updated coarse-mode aerosol speciation and H+ calculation  
+C     10 Mar 11 S.Howard Renamed met_data to aeromet_data
+C     25 Mar 11 S.Roselle Replaced I/O API include files with UTILIO_DEFN
+C     26 Apr 11 G.Sarwar Replaced existing ISORROPIA with ISORROPIA 2.1
+C               Updated coarse-mode aerosol speciation and H+ calculation  
+C     12 Apr 16 H. Pye and B. Murphy: Update with consistent treatment for wet particles.
+C     15 Apr 16 J.Young: Use aerosol factors from AERO_DATA module named constants
 
 C *** References
 C 1. Pilinis C, Capaldo KP, Nenes A, Pandis SN (2000) MADM - A new
@@ -751,7 +730,6 @@ C *** Arguments:
       REAL    DV_SO4          ! molecular diffusivity of H2SO4 vapor 
                               ! after correction for ambient conditions
       REAL( 8 ) :: CGR( N_MODE-1 ) ! 3rd moment SO4 growth rate [m^3/m^3-s]
-      LOGICAL M3_WET_FLAG     ! flag to include water in GETPAR update
 
 C *** Parameters: 
       INTEGER, PARAMETER :: NINORG = 9      ! number of inorganic species
@@ -779,6 +757,13 @@ C *** Inputs to subroutine HCOND3
       REAL( 8 ) :: AM0( N_MODE ) ! zeroth moments
       REAL( 8 ) :: AM1( N_MODE ) ! first moments
       REAL( 8 ) :: AM2( N_MODE ) ! second moments
+
+      REAL( 8 ) :: M2DRY_INIT( N_MODE ) !Dry Second Moment Initial Array
+      REAL( 8 ) :: M3DRY_INIT( N_MODE ) !Dry Third Moment Initial Array
+      REAL( 8 ) :: M2WET_INIT( N_MODE ) !Wet Second Moment Initial Array
+      REAL( 8 ) :: M3WET_INIT( N_MODE ) !Wet Third Moment Initial Array
+      REAL( 8 ) :: M2WET_FINAL( N_MODE ) !Wet Second Moment Final Array
+      REAL( 8 ) :: M3WET_FINAL( N_MODE ) !Wet Third Moment Final Array
 
 C *** Outputs from HCOND3: size-dependent term in the condensational-growth 
 C     expressions defined in Equations A13-A14 of [Binkowski & Shankar,1995]
@@ -857,13 +842,11 @@ C     mass partitioning between the modes
       REAL( 8 ) :: M3OTHR, M3SOA          ! vars for 3rd moment calculation [m**3/m**3]
       REAL( 8 ), SAVE :: DF( NVOLINORG )  ! scratch array for mole -> ug conversion
       REAL( 8 ), SAVE :: DFH2OR8          ! mole -> ug conversion for H2O
-      REAL( 8 ) :: CONVFAC                ! conversion factor for SO4 conc from DH2SO4/DT
       REAL( 8 ) :: J( NVOLINORG )         ! condensation/evaporation flux [mol/m**3-s]
       REAL( 8 ) :: CFINAL( NVOLINORG,N_MODE ) ! conc after mass xfer step [ug/m**3]
       REAL( 8 ) :: H2O                    ! Scratch LWC variable for output
       REAL( 8 ) :: H2O_NEW                ! Update of LWC after condensation 
       REAL( 8 ) :: SO4                    ! modal SO4 after condensation or cond + nucl
-      REAL( 8 ) :: DMASS( NVOLINORG )     ! excess mass in fine mode partitioning
       REAL( 8 ) :: DDRYM3DT               ! rate of 3rd moment transfer - dry inorg spcs
       REAL( 8 ) :: DDRYM2DT               ! rate of 2nd moment transfer -  "     "    "
       REAL( 8 ) :: DRYM3, WETM3           ! scratch vars for 3rd moment calc [m**3/m**3]
@@ -878,7 +861,8 @@ C     mass partitioning between the modes
       INTEGER ISP                         ! loop index, species loop
       INTEGER, SAVE :: LOGDEV 
       LOGICAL, PARAMETER :: LIMIT_Sg = .TRUE.   ! fix Sg at current value?
-      LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F 
+      LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
+      CHARACTER*50 :: XMSG
 
 C *** Local Saved Variables 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -901,12 +885,16 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: CFAC_AK
       REAL( 8 ), SAVE :: CFAC_AMG
       REAL( 8 ), SAVE :: CFAC_ASEACAT
+      REAL( 8 ), SAVE :: CFAC_GNH3
+      REAL( 8 ), SAVE :: CFAC_GHNO3
+      REAL( 8 ), SAVE :: CFAC_GHCL
 
       REAL( 8 ), SAVE :: M3FAC_ANA
       REAL( 8 ), SAVE :: M3FAC_ASO4
       REAL( 8 ), SAVE :: M3FAC_ANH4
       REAL( 8 ), SAVE :: M3FAC_ANO3
       REAL( 8 ), SAVE :: M3FAC_ACL
+      REAL( 8 ), SAVE :: M3FAC_H2O
 
       logical, save :: write1 = .true.
 
@@ -929,12 +917,16 @@ C-----------------------------------------------------------------------
          CFAC_AK   = 1.0D-6 / REAL( AEROSPC_MW( AK_IDX ), 8 )
          CFAC_AMG  = 1.0D-6 / REAL( AEROSPC_MW( AMG_IDX ), 8 )
          CFAC_ASEACAT = 1.0D-6 / REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
+         CFAC_GNH3 = 1.0D-6 / PRECURSOR_MW( NH3_IDX )
+         CFAC_GHNO3= 1.0D-6 / PRECURSOR_MW( HNO3_IDX )
+         CFAC_GHCL = 1.0D-6 / PRECURSOR_MW( HCL_IDX )
 
          M3FAC_ANA  = 1.0D-9 * F6DPI / REAL( AEROSPC( ANA_IDX )%DENSITY, 8 )
          M3FAC_ASO4 = 1.0D-9 * F6DPI / REAL( AEROSPC( ASO4_IDX )%DENSITY, 8 )
          M3FAC_ANH4 = 1.0D-9 * F6DPI / REAL( AEROSPC( ANH4_IDX )%DENSITY, 8 )
          M3FAC_ANO3 = 1.0D-9 * F6DPI / REAL( AEROSPC( ANO3_IDX )%DENSITY, 8 )
          M3FAC_ACL  = 1.0D-9 * F6DPI / REAL( AEROSPC( ACL_IDX )%DENSITY, 8 )
+         M3FAC_H2O  = 1.0D-9 * F6DPI / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 )
 
          MWH2SO4 = PRECURSOR_MW( SULF_IDX ) ! molecular weight for H2SO4
          FAERH2SO4 = 1.0E-6 / MWH2SO4
@@ -945,9 +937,6 @@ C-----------------------------------------------------------------------
          SOILFAC = 1.0D-9 * F6DPI / REAL( AEROSPC( ASOIL_IDX )%DENSITY, 8 )
          ANTHFAC = 1.0D-9 * F6DPI / REAL( AEROSPC( ACORS_IDX )%DENSITY, 8 )
 
-!        DF( KNH4 ) = 1.0D6 * AEROSPC_MW( ANH4_IDX )
-!        DF( KNO3 ) = 1.0D6 * AEROSPC_MW( ANO3_IDX )
-!        DF( KCL )  = 1.0D6 * AEROSPC_MW( ACL_IDX )
          DF( KNH4 ) = 1.0D0 / CFAC_ANH4
          DF( KNO3 ) = 1.0D0 / CFAC_ANO3
          DF( KCL )  = 1.0D0 / CFAC_ACL
@@ -972,8 +961,6 @@ C *** Determine if Hybrid
 #endif
 
       DELT  = REAL( DT, 8 )
-      CONVFAC = DELT * H2SO4RATM1
-
       TEMPI = AIRTEMP             ! assume const within synch timestep
       RHI   = MIN( 0.95, AIRRH )  ! "        "     "      "     "
 
@@ -1004,7 +991,7 @@ C     N.B: these are for a "wet" size distribution
       DO I = 1, N_MODE
          AM0( I ) = MOMENT0_CONC( I ) 
          AM1( I ) = MOMENT0_CONC( I ) * AEROMODE_DIAM( I )
-     &            * EXP( 0.5 * AEROMODE_SDEV( I ) * AEROMODE_SDEV( I ) )
+     &            * EXP( 0.5 * AEROMODE_LNSG( I ) * AEROMODE_LNSG( I ) )
          AM2( I ) = MOMENT2_CONC( I )
       END DO
       
@@ -1121,56 +1108,54 @@ C     semi-volatile components of coarse mode (NO3, CL, NH4)
             INT_TIME = INT_TIME + TSTEP 
             ISTEP = ISTEP + 1   
 
-!           IF ( ISTEP .GT. 1 ) THEN     ISTEP is *ALWAYS* .gt. 1 !!!!!!!!!!!!!!!!!
-
 C *** Calculate first moments using Equation 4 of Binkowski & Shankar
 C     (1995) or Equation 3 of Binkowski and Roselle (2003).
 C     N.B: these are for a "wet" size distribution
-               AM0( 3 ) = MOMENT0_CONC( 3 )
-               AM1( 3 ) = MOMENT0_CONC( 3 ) * AEROMODE_DIAM( 3 )
-     &                  * EXP( 0.5 * AEROMODE_SDEV( 3 ) * AEROMODE_SDEV( 3 ) )
-               AM2( 3 ) = MOMENT2_CONC( 3 )
+            AM0( IMODE ) = MOMENT0_CONC( IMODE )
+            AM1( IMODE ) = MOMENT0_CONC( IMODE ) * AEROMODE_DIAM( IMODE )
+     &                  * EXP( 0.5 * AEROMODE_LNSG( IMODE ) * AEROMODE_LNSG( IMODE ) )
+            AM2( IMODE ) = MOMENT2_CONC( IMODE )
 
 C *** Calculate the size-dependent terms in the condensational-
 C     growth factor expressions for sulfate using 
 C     Equations A13-A14 of Binkowski & Shankar (1995). 
-               CALL HCOND3( AM0( 3 ), AM1( 3 ), AM2( 3 ), DV_SO4, ALPHSULF, 
+            CALL HCOND3( AM0( IMODE ), AM1( IMODE ), AM2( IMODE ), DV_SO4, ALPHSULF, 
      &                      CBAR_SO4, FCONC_OUT )  ! adapted from Eq A14
-               FCONC_SO4( 3, : ) = FCONC_OUT( : )
+            FCONC_SO4( IMODE, : ) = FCONC_OUT( : )
 
-               GRFAC1( 3 ) = FCONC_SO4( 3,1 ) 
-               GRFAC2( 3 ) = FCONC_SO4( 3,2 ) 
-
-!           END IF               ! if ISTEP .GT. 1
+            GRFAC1( IMODE ) = FCONC_SO4( IMODE,1 ) 
+            GRFAC2( IMODE ) = FCONC_SO4( IMODE,2 ) 
 
 C *** Set conc array to aerosol concentrations prior to mass transfer
-            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )           ! ASEACAT_IDX = 40
-            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ( 1.0D0 - 0.04642D0 )  ! ASOIL_IDX = 38
-            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ( 1.0D0 - 0.00325D0 )  ! ACORS_IDX = 39
-            CINORG( KNH4,IMODE ) = REAL( AEROSPC_CONC( ANH4_IDX,IMODE ), 8 )   ! KNH4 = 1, ANH4_IDX = 4
-            CINORG( KNO3,IMODE ) = REAL( AEROSPC_CONC( ANO3_IDX,IMODE ), 8 )   ! KNO3 = 2, ANO3_IDX = 2
-            CINORG( KCL, IMODE ) = REAL( AEROSPC_CONC( ACL_IDX,IMODE ), 8 )    ! KCL = 3, ACL_IDX = 3
-            CINORG( KSO4,IMODE ) = REAL( AEROSPC_CONC( ASO4_IDX,IMODE ), 8 )   ! KSO4 = 4, ASO4_IDX = 1
-            CINORG( KNA, IMODE ) = 0.8373D0 * SEACAT                           ! KNA = 5
-     &                           + 0.0626D0 * SOILwVOLS
-     &                           + 0.0023D0 * PMCwVOLS
-            CINORG( KMG, IMODE ) = 0.0997D0 * SEACAT                           ! KMG = 6
-     &                           + 0.0D0    * SOILwVOLS
-     &                           + 0.0032D0 * PMCwVOLS
-            CINORG( KK,  IMODE ) = 0.0310D0 * SEACAT                           ! KK = 7
-     &                           + 0.0242D0 * SOILwVOLS
-     &                           + 0.0176D0 * PMCwVOLS
-            CINORG( KCA, IMODE ) = 0.0320D0 * SEACAT                           ! KCA = 8
-     &                           + 0.0838D0 * SOILwVOLS
-     &                           + 0.0562D0 * PMCwVOLS
-            CINORG( KHP, IMODE ) = REAL( HPLUS( IMODE ), 8 )                   ! KHP = 9
+C     (The _RENORM and cation_FAC constants are set in the AERO_DATA module)
+
+            SEACAT    = REAL( AEROSPC_CONC( ASEACAT_IDX,IMODE ), 8 )          ! ASEACAT_IDX = 40
+            SOILwVOLS = REAL( AEROSPC_CONC( ASOIL_IDX,IMODE ), 8 ) / ASOIL_RENORM ! ASOIL_IDX = 38
+            PMCwVOLS  = REAL( AEROSPC_CONC( ACORS_IDX,IMODE ), 8 ) / ACORS_RENORM ! ACORS_IDX = 39
+
+            CINORG( KNH4,IMODE ) = REAL( AEROSPC_CONC( ANH4_IDX,IMODE ), 8 )  ! KNH4 = 1, ANH4_IDX = 4
+            CINORG( KNO3,IMODE ) = REAL( AEROSPC_CONC( ANO3_IDX,IMODE ), 8 )  ! KNO3 = 2, ANO3_IDX = 2
+            CINORG( KCL, IMODE ) = REAL( AEROSPC_CONC( ACL_IDX,IMODE ), 8 )   ! KCL = 3, ACL_IDX = 3
+            CINORG( KSO4,IMODE ) = REAL( AEROSPC_CONC( ASO4_IDX,IMODE ), 8 )  ! KSO4 = 4, ASO4_IDX = 1
+            CINORG( KNA, IMODE ) = ASCAT_NA_FAC * SEACAT                      ! KNA = 5
+     &                           + ASOIL_NA_FAC * SOILwVOLS
+     &                           + ACORS_NA_FAC * PMCwVOLS
+            CINORG( KMG, IMODE ) = ASCAT_MG_FAC * SEACAT                      ! KMG = 6
+     &                           + ASOIL_MG_FAC * SOILwVOLS
+     &                           + ACORS_MG_FAC * PMCwVOLS
+            CINORG( KK,  IMODE ) = ASCAT_K_FAC  * SEACAT                      ! KK = 7
+     &                           + ASOIL_K_FAC  * SOILwVOLS
+     &                           + ACORS_K_FAC  * PMCwVOLS
+            CINORG( KCA, IMODE ) = ASCAT_CA_FAC * SEACAT                      ! KCA = 8
+     &                           + ASOIL_CA_FAC * SOILwVOLS
+     &                           + ACORS_CA_FAC * PMCwVOLS
+            CINORG( KHP, IMODE ) = REAL( HPLUS( IMODE ), 8 )                  ! KHP = 9
 
             M3OTHR = SOILFAC * AEROSPC_CONC( ASOIL_IDX,IMODE )
      &             + ANTHFAC * AEROSPC_CONC( ACORS_IDX,IMODE )
-            M3SOA  = 0.0D0
             WETM3  = MOMENT3_CONC( IMODE )
             WETM2  = MOMENT2_CONC( IMODE )
-            DRYM3  = WETM3 - REAL( H2OFAC * AEROSPC_CONC( AH2O_IDX, IMODE ), 8 )
+            DRYM3  = WETM3 - REAL( H2OFAC * AEROSPC_CONC( AH2O_IDX, IMODE ), 8 )  !Assume no SOA in coarse mode
             DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
 
 C *** Initial vapor-phase concentrations [ug/m3]
@@ -1186,6 +1171,9 @@ C *** Compute sulfate production rate [ug/m3 s] for coarse mode
             IF ( TrustIso ) THEN
 
 C *** Double Precision vars for ISORROPIA [mole/m3]
+C              Compute equilibrium vapor pressures [mol/m3] of NH3, HNO3, and HCL
+C              at the gas/particle interface of coarse mode aerosol.
+C                 GAS(1) = NH3, GAS(2) = HNO3, GAS(3) = HCl
                WI( 1 ) = CINORG( KNA, IMODE ) * CFAC_ANA
                WI( 2 ) =                  SO4 * CFAC_ASO4
                WI( 3 ) = CINORG( KNH4,IMODE ) * CFAC_ANH4
@@ -1194,19 +1182,6 @@ C *** Double Precision vars for ISORROPIA [mole/m3]
                WI( 6 ) = CINORG( KCA, IMODE ) * CFAC_ACA
                WI( 7 ) = CINORG( KK,  IMODE ) * CFAC_AK
                WI( 8 ) = CINORG( KMG, IMODE ) * CFAC_AMG
-
-C *** Set flags to account for mass conservation violations in ISRP3F
-C              Compute equilibrium vapor pressures [mol/m3] of NH3, HNO3, and HCL
-C              at the gas/particle interface of coarse mode aerosol.
-C                 GAS(1) = NH3, GAS(2) = HNO3, GAS(3) = HCl
-C              WI( 1 ) = NA    [mol/m3]
-C              WI( 2 ) = SO4      ``
-C              WI( 3 ) = NH4      ``
-C              WI( 4 ) = NO3      ``
-C              WI( 5 ) = CL       ``
-C              WI( 6 ) = CA       ``
-C              WI( 7 ) = K        ``
-C              WI( 8 ) = MG       ``
 C              Also obtain the aqueous H+ concentration, AERLIQ(1) [mol/m3]
 
 #ifdef verbose_aero
@@ -1242,17 +1217,14 @@ C     condensation and negative for evaporation.
          if ( write1 ) then
          write( logdev,'(a, 3e13.3)' ) "GASes:", gas( 1 ), gas( 2 ), gas( 3 )
 
-         dvolinorg( knh4 ) = gnh3r8 * 1.0d-6 / real( precursor_mw( nh3_idx ), 8 )
-     &                     - gas( 1 )  ! [mol/m**3]
-         dvolinorg( kno3 ) = gno3r8 * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 )
-     &                     - gas( 2 )  ! [mol/m**3]
-         dvolinorg( kcl )  = gclr8  * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 )
-     &                     - gas( 3 )  ! [mol/m**3]
+         dvolinorg( knh4 ) = gnh3r8 * CFAC_GNH3  - gas( 1 )  ! [mol/m**3]
+         dvolinorg( kno3 ) = gno3r8 * CFAC_GHNO3 - gas( 2 )  ! [mol/m**3]
+         dvolinorg( kcl )  = gclr8  * CFAC_GHCL  - gas( 3 )  ! [mol/m**3]
            
          write( logdev,'(a, 3e13.3)' ) "DVOLINORG_coarse:",
-     &      dvolinorg( knh4 ) / ( gnh3r8 * 1.0d-6 / real( precursor_mw( nh3_idx ), 8 ) ),
-     &      dvolinorg( kno3 ) / ( gno3r8 * 1.0d-6 / real( precursor_mw( hno3_idx ), 8 ) ),
-     &      dvolinorg( kcl )  / ( gclr8  * 1.0d-6 / real( precursor_mw( hcl_idx ), 8 ) )
+     &      dvolinorg( knh4 ) / ( gnh3r8 * CFAC_GNH3 ),
+     &      dvolinorg( kno3 ) / ( gno3r8 * CFAC_GHNO3),
+     &      dvolinorg( kcl )  / ( gclr8  * CFAC_GHCL )
          end if
 #endif
 
@@ -1315,6 +1287,22 @@ C *** Equilibrate aerosol LWC with CFINAL by calling CALC_H2O
 
             H2O = H2O_NEW * DFH2OR8 
 
+C *** Update all Local Aerosol Mass and Vapor Concentrations 
+            !Aerosol
+            AEROSPC_CONC( ANH4_IDX,IMODE ) = CFINAL( KNH4,IMODE )
+            AEROSPC_CONC( ANO3_IDX,IMODE ) = CFINAL( KNO3,IMODE )
+            AEROSPC_CONC( ACL_IDX,IMODE )  = CFINAL( KCL, IMODE )
+            AEROSPC_CONC( ASO4_IDX,IMODE ) = SO4
+            AEROSPC_CONC( AH2O_IDX,IMODE ) = H2O
+
+            !Gas
+            PRECURSOR_CONC( NH3_IDX ) = GNH3R8 + ( CINORG( KNH4,IMODE )
+     &                                 -CFINAL( KNH4,IMODE ) ) * NH3RAT 
+            PRECURSOR_CONC( HNO3_IDX )= GNO3R8 + ( CINORG( KNO3,IMODE )
+     &                                 -CFINAL( KNO3,IMODE) ) * HNO3RAT  
+            PRECURSOR_CONC( HCL_IDX ) = GCLR8 + ( CINORG( KCL,IMODE )
+     &                                 -CFINAL( KCL,IMODE) ) * HCLRAT 
+ 
 C *** Compute net change in 3rd moment due to dry inorganic mass transfer
 
             DDRYM3DT = ( ( CFINAL( KNH4,IMODE ) - CINORG( KNH4,IMODE ) ) * M3FAC_ANH4
@@ -1335,106 +1323,70 @@ C     net change in dry 2nd moment is production or loss
                Y = DRYM20 + DDRYM2DT * TSTEP
             END IF
 
-C *** Add water and SOA to 2nd moment while preserving standard deviation
+C *** Add water (no SOA) 2nd moment while preserving standard deviation
 
+            !Calculate 3rd Moment
             DRYM3 = ( M3FAC_ASO4 ) * SO4
      &            + M3FAC_ANH4 * CFINAL( KNH4,IMODE )
      &            + M3FAC_ANO3 * CFINAL( KNO3,IMODE )
      &            + M3FAC_ACL  * CFINAL( KCL,IMODE )
      &            + M3FAC_ANA  * SEACAT
      &            + M3OTHR                   
+            WETM3 = DRYM3 + H2O * M3FAC_H2O
 
-            WETM3 = DRYM3 + M3SOA
-     &            + ( 1.0D-9 * F6DPI / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 ) ) * H2O  
+            !Calculate 2nd moment
             DRYM2 = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
             WETM2 = DRYM2 * ( WETM3 / DRYM3 ) ** D_TWOTHIRDS
 
-
-            PRECURSOR_CONC( NH3_IDX ) = GNH3R8 + ( CINORG( KNH4,IMODE )
-     &                                - CFINAL( KNH4,IMODE ) ) * NH3RAT 
- 
-            PRECURSOR_CONC( HNO3_IDX ) = GNO3R8 + ( CINORG( KNO3,IMODE )
-     &                                 - CFINAL( KNO3,IMODE) ) * HNO3RAT  
-   
-            PRECURSOR_CONC( HCL_IDX ) = GCLR8 + ( CINORG( KCL,IMODE )
-     &                                - CFINAL( KCL,IMODE) ) * HCLRAT 
-
-            AEROSPC_CONC( ANH4_IDX,IMODE ) = CFINAL( KNH4,IMODE )
-            AEROSPC_CONC( ANO3_IDX,IMODE ) = CFINAL( KNO3,IMODE )
-            AEROSPC_CONC( ACL_IDX,IMODE )  = CFINAL( KCL, IMODE )
-            AEROSPC_CONC( ASO4_IDX,IMODE ) = SO4
-            AEROSPC_CONC( AH2O_IDX,IMODE ) = H2O
             MOMENT2_CONC( IMODE ) = WETM2
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
-C     densities.
+C     densities. It is a waste of time updating the aitken and
+C     accumulation modes but the coarse mode does need to be updated
+C     each sub-time step. This should be for the wet distribution
                
-            CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+            CALL GETPAR( LIMIT_Sg )
 
          END DO   ! end mass transfer time step loop
          
       END IF   ! for 'Hybrid' method
 
       write1 = .false.
+C *** End of Coarse Mode dynamic mass transfer calculations
 
-C *** End of dynamic mass transfer calculations for coarse mode
-
-C *** Call ISORROPIA in forward mode to calculate gas-particle equilibrium in 
-C     the fine aerosol modes 
-      GNH3R8 = PRECURSOR_CONC( NH3_IDX )
-      GNO3R8 = PRECURSOR_CONC( HNO3_IDX )
+C *** Fine Aerosol Modes: Call ISORROPIA in forward mode to calculate gas-particle equilibrium
+      !Get Precursors Vapor concentrations [ug m-3]
+      GNH3R8 = PRECURSOR_CONC( NH3_IDX )   
+      GNO3R8 = PRECURSOR_CONC( HNO3_IDX )  
       GCLR8  = PRECURSOR_CONC( HCL_IDX )
 
-C *** Compute sulfate from total sulfate production rate [ug/m3-s] for fine 
-C     modes; add in H2SO4 nucleated in model timestep
-
-      SO4 = AEROSPC_CONC( ASO4_IDX,1 ) + AEROSPC_CONC( ASO4_IDX,2 )
-      SO4 = SO4 + ( DMDT_SO4 + CONDSO4( 1 ) + CONDSO4( 2 ) ) * DELT * H2SO4RATM1 
-
-      WI( 1 ) = ( AEROSPC_CONC( ANA_IDX,1 ) + AEROSPC_CONC( ANA_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( ANA_IDX ), 8 )
-
-      WI( 2 ) = SO4 * 1.0D-6 / REAL( AEROSPC_MW( ASO4_IDX ), 8 )
-
-      WI( 3 ) = PRECURSOR_CONC( NH3_IDX ) * 1.0D-6 / PRECURSOR_MW( NH3_IDX )
-     &        + ( AEROSPC_CONC( ANH4_IDX,1 ) + AEROSPC_CONC( ANH4_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( ANH4_IDX ), 8 )
-
-      WI( 4 ) = PRECURSOR_CONC( HNO3_IDX ) * 1.0D-6 / PRECURSOR_MW( HNO3_IDX )
-     &        + ( AEROSPC_CONC( ANO3_IDX,1 ) + AEROSPC_CONC( ANO3_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( ANO3_IDX ), 8 )
-
-      WI( 5 ) = PRECURSOR_CONC( HCL_IDX ) * 1.0D-6 / PRECURSOR_MW( HCL_IDX )
-     &        + ( AEROSPC_CONC( ACL_IDX,1 ) + AEROSPC_CONC( ACL_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( ACL_IDX ), 8 )
-     
-      WI( 6 ) = ( AEROSPC_CONC( ACA_IDX,1 ) + AEROSPC_CONC( ACA_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( ACA_IDX ), 8 )
-
-      WI( 7 ) = ( AEROSPC_CONC( AK_IDX,1 ) + AEROSPC_CONC( AK_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( AK_IDX ), 8 )
-     
-      WI( 8 ) = ( AEROSPC_CONC( AMG_IDX,1 ) + AEROSPC_CONC( AMG_IDX,2 ) )
-     &        * 1.0D-6 / REAL( AEROSPC_MW( AMG_IDX ), 8 )
+C *** Diagnose all total gas+particle concentrations to passed to
+C     ISORROPIA. Convert everything to [mol m-3].
+      WI( 1 ) = SUM( AEROSPC_CONC( ANA_IDX,1:2 ))   * CFAC_ANA
+      !Compute sulfate from total sulfate production rate [ug/m3-s] for fine 
+      !modes; add in H2SO4 nucleated in model timestep
+      WI( 2 ) = ( SUM( AEROSPC_CONC( ASO4_IDX,1:2 ) ) 
+     &           +( DMDT_SO4 + SUM( CONDSO4( 1:2 ) ) ) * DELT * H2SO4RATM1 ) * CFAC_ASO4
+      WI( 3 ) = PRECURSOR_CONC( NH3_IDX )  * CFAC_GNH3
+     &         +SUM( AEROSPC_CONC( ANH4_IDX,1:2 ) ) * CFAC_ANH4 
+      WI( 4 ) = PRECURSOR_CONC( HNO3_IDX ) * CFAC_GHNO3
+     &         +SUM( AEROSPC_CONC( ANO3_IDX,1:2 ) ) * CFAC_ANO3 
+      WI( 5 ) = PRECURSOR_CONC( HCL_IDX )  * CFAC_GHCL 
+     &         +SUM( AEROSPC_CONC( ACL_IDX,1:2 ) )  * CFAC_ACL 
+      WI( 6 ) = SUM( AEROSPC_CONC( ACA_IDX,1:2 ) )  * CFAC_ACA 
+      WI( 7 ) = SUM( AEROSPC_CONC( AK_IDX,1:2 ) )   * CFAC_AK 
+      WI( 8 ) = SUM( AEROSPC_CONC( AMG_IDX,1:2 ) )  * CFAC_AMG 
 
       CNTRL( 1 ) = 0.0D0   ! Forward Problem
       CNTRL( 2 ) = 1.0D0   ! Aerosol in Metastable State
 
 C *** Set flags to account for mass conservation violations in ISRP3F
       TRUSTCL  = .TRUE.
-      IF ( WI( 1 ) + WI( 5 ) .LT. 1.0D-20 ) THEN
+      IF ( (WI( 1 ) + WI( 5 )) .LT. 1.0D-20 .or. WI( 5 ) .LT. 1.0D-10 ) THEN
          TRUSTCL = .FALSE.
-      ELSE
-         IF ( WI( 5 ) .LT. 1.0D-10 ) TRUSTCL  = .FALSE.
       END IF
          
-#ifdef verbose_aero
-!        write( logdev,'(a, 8e13.3)' ) "VOLINORG,wi's:",
-!    &                                  wi( 1 ), wi( 2 ), wi( 3 ), wi( 4 ),
-!    &                                  wi( 5 ), wi( 6 ), wi( 7 ), wi( 8 )
-#endif
-
 #ifndef noiso
       CALL ISOROPIA( WI, RHI, TEMPI, CNTRL, WT, GAS, AERLIQ,
      &               AERSLD, SCASI, OTHER )
@@ -1443,14 +1395,10 @@ C *** Save H+ concentration information in microgram/m3 for consistency
 C     Assume J mode dominates I+J H+ concentration
       EQLBHIJ = AERLIQ(1) * 1.0D6 * PRECURSOR_MW( ah3op_idx) 
 
-C *** Update gas-phase concentrations
-      PRECURSOR_CONC( NH3_IDX )  = GAS( 1 ) * 1.0D6 * PRECURSOR_MW( NH3_IDX )
-      PRECURSOR_CONC( HNO3_IDX ) = GAS( 2 ) * 1.0D6 * PRECURSOR_MW( HNO3_IDX )
-      PRECURSOR_CONC( HCL_IDX )  = GAS( 3 ) * 1.0D6 * PRECURSOR_MW( HCL_IDX )
 #else
-      gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * 1.0d-6 / precursor_mw( nh3_idx )
-      gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * 1.0d-6 / precursor_mw( hno3_idx )
-      gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * 1.0d-6 / precursor_mw( hcl_idx )
+      gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * CFAC_GNH3
+      gas( 2 ) = real( precursor_conc( hno3_idx ), 8 ) * CFAC_GHNO3
+      gas( 3 ) = real( precursor_conc( hcl_idx ),  8 ) * CFAC_GHCL
 
       EQLBHIJ =  HPLUS( 1 ) + HPLUS( 2 )  ! use charge balance if lacking isoropia info 
 
@@ -1460,41 +1408,35 @@ C *** Change in volatile inorganic PM concentration to achieve
 C     equilibrium, calculated as initial-gas-phase concentration minus 
 C     equilibrium gas-phase concentration.  DVOLINORG is positive for
 C     condensation and negative for evaporation.
-      DVOLINORG( KNH4 ) = GNH3R8 * 1.0D-6 / PRECURSOR_MW( NH3_IDX )  - GAS( 1 )
-      DVOLINORG( KNO3 ) = GNO3R8 * 1.0D-6 / PRECURSOR_MW( HNO3_IDX ) - GAS( 2 )
-
-      IF ( TRUSTCL ) THEN  
-         DVOLINORG( KCL ) = GCLR8  * 1.0D-6 / PRECURSOR_MW( HCL_IDX ) - GAS( 3 ) 
-      ELSE
-         DVOLINORG( KCL ) = 0.0D0
-      END IF
+      DVOLINORG( KNH4 ) = GNH3R8 * CFAC_GNH3  - GAS( 1 )   !mol m-3
+      DVOLINORG( KNO3 ) = GNO3R8 * CFAC_GHNO3 - GAS( 2 )   !mol m-3
+      DVOLINORG( KCL )  = GCLR8  * CFAC_GHCL  - GAS( 3 )   !mol m-3
 
       IF ( DVOLINORG( KNH4 ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -( REAL( AEROSPC_CONC( ANH4_IDX,1 ), 8 )
-     &              + REAL( AEROSPC_CONC( ANH4_IDX,2 ), 8 ) ) / DF( KNH4 )
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANH4_IDX,1:2 ), 8 ) ) * CFAC_ANH4 + EVAPMIN
          DVOLINORG( KNH4 ) = MAX( DVOLINORG( KNH4 ), DVOLMAX )
       END IF
 
       IF ( DVOLINORG( KNO3 ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -( REAL( AEROSPC_CONC( ANO3_IDX,1 ), 8 )
-     &              + REAL( AEROSPC_CONC( ANO3_IDX,2 ), 8 ) ) / DF( KNO3 )
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ANO3_IDX,1:2 ), 8 ) ) * CFAC_ANO3 + EVAPMIN
          DVOLINORG( KNO3 ) = MAX( DVOLINORG( KNO3 ), DVOLMAX)
       END IF
 
-      IF ( DVOLINORG( KCL ) .LT. 0.0D0 ) THEN
-         DVOLMAX = -( REAL( AEROSPC_CONC( ACL_IDX,1 ), 8 )
-     &              + REAL( AEROSPC_CONC( ACL_IDX,2 ), 8 ) ) / DF( KCL )
+      IF ( .not.TRUSTCL ) THEN  
+         DVOLINORG( KCL ) = 0.0D0
+      ELSEIF ( DVOLINORG( KCL ) .LT. 0.0D0 ) THEN
+         DVOLMAX = -SUM(REAL( AEROSPC_CONC( ACL_IDX,1:2 ), 8 ) ) * CFAC_ACL + EVAPMIN
          DVOLINORG( KCL ) = MAX( DVOLINORG( KCL ), DVOLMAX )
       END IF
 
-      OMEGA( 1 ) = GRFAC2( 1 ) / ( GRFAC2( 1 ) + GRFAC2( 2 ) ) ! partitioning coeff
+C *** Apply modal partitioning of equilibrium aerosol mass
+      !Calculate Distribution of Mass Transfer Among Modes
+      OMEGA( 1 ) = GRFAC2( 1 ) / ( GRFAC2( 1 ) + GRFAC2( 2 ) )
       OMEGA( 2 ) = 1.0D0 - OMEGA( 1 )
 
-C *** Initialize excess evaporated mass array
-      DMASS = 0.0D0
-
-      DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
-
+      CFINAL = 0.0
+      DO IMODE = 1, 2  
+         !Save Initial Concentrations
          CINORG( KSO4,IMODE ) = AEROSPC_CONC( ASO4_IDX, IMODE )
          CINORG( KNH4,IMODE ) = AEROSPC_CONC( ANH4_IDX, IMODE )
          CINORG( KNO3,IMODE ) = AEROSPC_CONC( ANO3_IDX, IMODE )
@@ -1504,83 +1446,65 @@ C *** Initialize excess evaporated mass array
          CINORG( KK,  IMODE ) = AEROSPC_CONC( AK_IDX,   IMODE )
          CINORG( KMG, IMODE ) = AEROSPC_CONC( AMG_IDX,  IMODE )
 
-!** Jai Xing's VOLINORG fix
+         !Calculate Final Concentrations
          DO ISP = 1, NVOLINORG
 
-            CFINAL( ISP,IMODE ) = CINORG( ISP,IMODE )
-     &                          + OMEGA( IMODE ) * DVOLINORG( ISP )
-     &                          * DF( ISP )
+            CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + CINORG( ISP,IMODE )
+     &                          + OMEGA( IMODE ) * DVOLINORG( ISP ) * DF( ISP )
 
-            IF ( IMODE .EQ. 1 ) THEN
+            !Jai Xing's VOLINORG fix - Check Aitken and Accumulation modes
+            !individually for negative concentrations
+            IF (CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
 
-               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  DMASS( ISP ) = CFINAL( ISP,IMODE )
-                  CFINAL( ISP,IMODE ) = 0.0D0
-               END IF
+              IF ( IMODE .EQ. 1 ) THEN
+                CFINAL( ISP,2 ) = CFINAL( ISP,2 ) + CFINAL( ISP,1 )
+                CFINAL( ISP,1 ) = 0.0D0
+              ELSE   ! IMODE = 2
+                CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,2 )
+                CFINAL( ISP,IMODE ) = 0.0D0
 
-            ELSE   ! IMODE = 2
-
-               CFINAL( ISP,IMODE ) = CFINAL( ISP,IMODE ) + DMASS( ISP )
-
-               IF ( CFINAL( ISP,IMODE ) .LT. 0.0D0 ) THEN
-                  CFINAL( ISP,1 ) = CFINAL( ISP,1 ) + CFINAL( ISP,IMODE )
-                  CFINAL( ISP,IMODE ) = 0.0D0
-
-                  IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
-                     IF ( ABS( CFINAL( ISP,1 ) ) .LT. 1.0D-15 ) THEN
-                        CFINAL( ISP,1 ) = 0.0D0
-                     ELSE
-                        WRITE( LOGDEV,* ) 'VOLINORG: Too much evaporation'
-                        CFINAL( ISP,1 ) = 0.0D0
-                     END IF
+                IF ( CFINAL( ISP, 1 ) .LT. 0.0D0 ) THEN
+                  IF ( ABS( CFINAL( ISP,1 ) ) .LT. 1.0D-15 ) THEN
+                     CFINAL( ISP,1 ) = 0.0D0
+                  ELSE
+                     !Note: this should NEVER happen because there
+                     !should not be more evaporated mass than there is
+                     !existing particle mass
+                     XMSG = 'VOLINORG: Too much evaporation'
+                     CFINAL( ISP,1 ) = 0.0D0
+                     CALL M3EXIT( 'VOLINORG', 0, 0, XMSG, XSTAT1 ) 
                   END IF
-               END IF
-
+                END IF
+              ENDIF
             END IF  ! IMODE = 1
-
          END DO ! ISP
 
       END DO    ! IMODE
-      
+
+C *** Apply Final Concentrations to Moment Variables in Aerosol Scheme
+      !Store Initial Wet Moments
+      M3WET_INIT( : ) = MOMENT3_CONC( : )
+      M2WET_INIT( : ) = MOMENT2_CONC( : )
+
+      !Calculate and Store Initial Dry Moments and set wet_moments_flag to false/dry
+      !There has not yet been an update to AEROSPC_CONC so this will
+      !calculate the old 3rd moment.
+      call calcmoments( .false. )
+      M3DRY_INIT( : ) = MOMENT3_CONC( : )
+      M2DRY_INIT( : ) = MOMENT2_CONC( : )
+
       DO IMODE = 1, 2  ! modal partitioning of equilibrium aerosol mass
 
-         WETM3 = MOMENT3_CONC( IMODE )
-         WETM2 = MOMENT2_CONC( IMODE )
-
          IF ( IMODE .EQ. 1 ) THEN
+            !Update Number Concentration with NPF
+            MOMENT0_CONC( IMODE ) = AM0(IMODE) + DNDT * DELT
+            !Add NPF to total condensation rate
             RATE = DMDT_SO4 + CONDSO4( IMODE )
+            SO4 = CINORG( KSO4,IMODE ) + RATE * DELT * H2SO4RATM1 
          ELSE
-            RATE = CONDSO4( IMODE )
+            !Ignore NPF. The small particles are not in these modes
+            SO4 = CINORG( KSO4,IMODE ) + CONDSO4( IMODE ) * DELT * H2SO4RATM1
          END IF
-
-         M3OTHR = 0.0
-         M3SOA = 0.0
-         DO I = 1, N_AEROSPC
-
-            IF(  AEROSPC( I )%tracer )CYCLE
-
-            ! Skip thermodynamically-active inorganic species
-            IF ( I .EQ. ASO4_IDX .OR. I .EQ. ANO3_IDX .OR. I .EQ. ACL_IDX  .OR. 
-     &           I .EQ. ANH4_IDX .OR. I .EQ. ANA_IDX  .OR. I .EQ. AMG_IDX  .OR. 
-     &           I .EQ. AK_IDX   .OR. I .EQ. ACA_IDX  .OR. I .EQ. AH2O_IDX .OR.
-     &           I .EQ. AH3OP_IDX ) CYCLE 
-
-            IF ( AEROSPC( I )%NO_M2WET ) THEN
-               M3SOA = M3SOA 
-     &               + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
-     &               * AEROSPC_CONC( I,IMODE )
-            ELSE
-               M3OTHR = M3OTHR
-     &                + ( 1.0E-9 * F6PI / AEROSPC( I )%DENSITY )
-     &                * AEROSPC_CONC( I,IMODE )
-            END IF   
-
-         END DO    ! N_AEROSPC loop
-
-         DRYM3 = WETM3 - H2OFAC * REAL( AEROSPC_CONC( AH2O_IDX,IMODE ), 8 ) - M3SOA
-         DRYM20 = WETM2 * ( DRYM3 / WETM3 ) ** D_TWOTHIRDS
-                        
-         SO4 = CINORG( KSO4,IMODE ) + RATE * CONVFAC
 
 C *** Double precision vars for CALC_H2O
          WI( 1 ) = CINORG( KNA, IMODE ) * CFAC_ANA
@@ -1593,21 +1517,23 @@ C *** Double precision vars for CALC_H2O
          WI( 8 ) = CINORG( KMG, IMODE ) * CFAC_AMG
 
          CALL CALC_H2O( WI, RHI, TEMPI, H2O_NEW ) 
-            
-         H2O = H2O_NEW * DFH2OR8 
+         
+         !Update All Aerosol Concentrations
+         AEROSPC_CONC( AH2O_IDX, IMODE ) = H2O_NEW * DFH2OR8
+         AEROSPC_CONC( ANH4_IDX, IMODE ) = CFINAL( KNH4,IMODE )
+         AEROSPC_CONC( ANO3_IDX, IMODE ) = CFINAL( KNO3,IMODE )
+         AEROSPC_CONC( ACL_IDX, IMODE )  = CFINAL( KCL ,IMODE )
+         AEROSPC_CONC( ASO4_IDX, IMODE ) = SO4
 
 C *** Compute net change in 3rd moment due to dry inorganic mass transfer
-C     (includes nucleated sulfate mass)
-
-         DDRYM3DT = (
-     &                ( CFINAL( KNH4,IMODE ) - CINORG( KNH4,IMODE ) )
-     &                  * ( 1.0D-9 * F6DPI / REAL( AEROSPC( ANH4_IDX )%DENSITY, 8 ) )
-     &              + ( CFINAL( KNO3,IMODE ) - CINORG( KNO3,IMODE ) )
-     &                  * ( 1.0D-9 * F6DPI / REAL( AEROSPC( ANO3_IDX )%DENSITY, 8 ) )
-     &              + ( CFINAL( KCL, IMODE ) - CINORG( KCL,IMODE ) )
-     &                  * ( 1.0D-9 * F6DPI / REAL( AEROSPC( ACL_IDX )%DENSITY, 8 ) )
-     &              + ( SO4                  - CINORG( KSO4,IMODE ) )
-     &                  * ( 1.0D-9 * F6DPI / REAL( AEROSPC( ASO4_IDX )%DENSITY, 8 ) ) ) / DELT 
+C     (includes nucleated sulfate mass). This is for projecting the
+C     change to the second moment due to dry inorganic condensation
+         
+         DDRYM3DT = ( ( CFINAL( KNH4,IMODE ) - CINORG( KNH4,IMODE ) ) * M3FAC_ANH4
+     &              + ( CFINAL( KNO3,IMODE ) - CINORG( KNO3,IMODE ) ) * M3FAC_ANO3
+     &              + ( CFINAL( KCL, IMODE ) - CINORG( KCL,IMODE ) )  * M3FAC_ACL
+     &              + ( SO4                  - CINORG( KSO4,IMODE ) ) * M3FAC_ASO4 ) 
+     &              / DELT 
 
 C *** Compute net change in 2nd moment due to dry inorganic mass transfer
 C     (including nucleation) using equation A7 of Binkowski & Shankar (1995)
@@ -1616,60 +1542,53 @@ C     (including nucleation) using equation A7 of Binkowski & Shankar (1995)
 C *** Update dry 2nd moment for condensation/evaporation based on whether
 C     net change in dry 2nd moment is production or loss
          IF ( DDRYM2DT .LT. 0.0D0 ) THEN
-            LOSS = DDRYM2DT / DRYM20
-            Y = DRYM20 * EXP( LOSS * DELT )
+            LOSS = DDRYM2DT / M2DRY_INIT( IMODE )
+            Y = M2DRY_INIT( IMODE ) * EXP( LOSS * DELT )
          ELSE
-            Y = DRYM20 + DDRYM2DT * DELT
+            Y = M2DRY_INIT( IMODE ) + DDRYM2DT * DELT
          END IF
- 
+         moment2_conc( IMODE ) = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
+
+      ENDDO
+
 C *** Add water and SOA to 2nd moment while preserving standard deviation
-         DRYM3 = ( 1.0D-9 * F6DPI / REAL( AEROSPC( ASO4_IDX )%DENSITY, 8 ) ) * SO4
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( ANH4_IDX )%DENSITY, 8 ) ) * CFINAL( KNH4,IMODE )
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( ANO3_IDX )%DENSITY, 8 ) ) * CFINAL( KNO3,IMODE )
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( ACL_IDX )%DENSITY, 8 ) )  * CFINAL( KCL, IMODE )
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( ANA_IDX )%DENSITY, 8 ) )  * CINORG( KNA, IMODE )
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( AMG_IDX )%DENSITY, 8 ) )  * CINORG( KMG, IMODE )
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( AK_IDX )%DENSITY, 8 ) )   * CINORG( KK,  IMODE )
-     &         + ( 1.0D-9 * F6DPI / REAL( AEROSPC( ACA_IDX )%DENSITY, 8 ) )  * CINORG( KCA, IMODE )
-     &         + M3OTHR
+      call calcmoments( .true. )
+      M3WET_FINAL = moment3_conc
+      M2WET_FINAL = moment2_conc
 
-         WETM3 = DRYM3 + M3SOA + REAL( H2OFAC, 8 ) * H2O 
-         DRYM2 = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
-         WETM2 = DRYM2 * ( WETM3 / DRYM3 ) ** D_TWOTHIRDS
-
-         AEROSPC_CONC( ANH4_IDX, IMODE ) = CFINAL( KNH4,IMODE )
-         AEROSPC_CONC( ANO3_IDX, IMODE ) = CFINAL( KNO3,IMODE )
-         AEROSPC_CONC( ACL_IDX, IMODE )  = CFINAL( KCL ,IMODE )
-         AEROSPC_CONC( ASO4_IDX, IMODE ) = SO4
-         AEROSPC_CONC( AH2O_IDX, IMODE ) = H2O
-         IF ( IMODE .EQ. 1 ) MOMENT0_CONC( IMODE ) = AM0(IMODE) + DNDT * DELT
-         MOMENT2_CONC( IMODE ) = WETM2
-
-         HPLUS( IMODE ) = 0.0
-         DO I = 1, N_AEROSPC
-           IF(  AEROSPC( I )%tracer )CYCLE
-           HPLUS( IMODE ) = HPLUS( IMODE )
-     &                    - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,IMODE ) / AEROSPC_MW( I )
-         END DO
-
-      END DO    ! end fine mode mass transfer calculations
+C *** Assign H+ Concentration to each Mode
+      HPLUS = 0.0
+      DO I = 1, N_AEROSPC
+         IF(  AEROSPC( I )%tracer )CYCLE
+         HPLUS( 1:2 ) = HPLUS( 1:2 )
+     &                  - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,1:2 ) / AEROSPC_MW( I )
+      END DO
 
       H2O = AEROSPC_CONC( AH2O_IDX, 1 ) + AEROSPC_CONC( AH2O_IDX, 2 )
       IF(  H2O .GT. CONMIN )THEN
           H2O = 1.0 / H2O
-          DO IMODE = 1, 2 
-             AEROSPC_CONC( AH3OP_IDX, IMODE ) = EQLBHIJ * AEROSPC_CONC( AH2O_IDX, IMODE ) * H2O
-          END DO
+          AEROSPC_CONC( AH3OP_IDX, 1:2 ) = EQLBHIJ * AEROSPC_CONC( AH2O_IDX, 1:2 ) * H2O
       ELSE
           AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
       END IF
-      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )
+      AEROSPC_CONC( AH3OP_IDX, 3 ) = 1.0D+6 * HPLUS( 3 )  !Coarse mode H+ concentration
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 
-C     densities.
-      CALL GETPAR( M3_WET_FLAG, LIMIT_Sg )
+C     densities. Note that moment2_conc needs to be up to date when this
+C     routine is called. Moment3_conc does not need to be up to date
+C     because it will be recalculated inside GETPAR as the sum of 
+C     aerospc_conc variables. This should be for the wet distribution.
+      CALL GETPAR( LIMIT_Sg )
 
+C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitioning
+      PRECURSOR_CONC( NH3_IDX )  = GNH3R8 + sum( CINORG( KNH4,1:2 )
+     &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
+      PRECURSOR_CONC( HNO3_IDX ) = GNO3R8 + sum( CINORG( KNO3,1:2 )
+     &                            -CFINAL( KNO3,1:2) ) * HNO3RAT  
+      PRECURSOR_CONC( HCL_IDX )  = GCLR8 + sum( CINORG( KCL,1:2 )
+     &                            -CFINAL( KCL,1:2) ) * HCLRAT 
+         
 2023  FORMAT( 1X, 'VOLINORG returning negative gas concentrations from ISOROPIA:'
      &       /10X, 'GAS(1) = NH3, GAS(2) = HNO3, GAS(3) = HCl' )
 2029  FORMAT( 1X, '[see VOLINORG msg]'
@@ -1911,8 +1830,8 @@ C.. Calculate particle nucleation rate: unit [ 1 / cm**3 s] [Eq-12 - Vehkamaki e
       Jnuc = EXP(XFAC)  
       
 C.. The parameterization is valid for nucleation rates of 1.0E-7-1.0E10 [ 1 / cm**3 s]
-      Jnuc = MAX (Jnuc, 1.0E-7)
-      Jnuc = MIN (1.0E10, Jnuc)
+      Jnuc = MAX (Jnuc, 1.0D-7)
+      Jnuc = MIN (1.0D10, Jnuc)
 
 C.. Convert the unit of particle nucleation rate into [ 1 / m**3 s] by multiplying it by 1.0E6  
        DNDT = Jnuc * 1.0E06  ! (1/(m**3 s))
@@ -2709,7 +2628,7 @@ C  a sharp-cut inlet, using equations from Jiang et al (2006). The
 C  subroutine calculates transmission factors for PM1, PM2.5 and PM10,
 C  after first converting those cutoffs from Aerodynamic Diameter to
 C  Stokes Diameter (used internally within CMAQ).
-C
+ 
 C  CMAQ aerosols are represented with Stokes Diameter. There are many
 C  alternate forms of diameter including the following:
 C       Volume Equivalent Diameter (D_ve) - the diameter of a sphere with the
@@ -2729,10 +2648,10 @@ C          factor, not Slip Correction. The very high Knudsen number
 C          could be because the particle is very small or because the
 C          system pressure is very low.
 C       Electrical Mobility Diameter (D_em) - the diameter of a sphere with the
-C          same migration velocity as the real particle. Requires a 
-C          slip-correction and a shape factor correction when converting 
+C          same migration velocity as the real particle. Requires a
+C          slip-correction and a shape factor correction when converting
 C          from volume equivalent diameter.
-C
+ 
 C  Conversions:
 C       Parameters
 C         rho  - Density
@@ -2749,7 +2668,6 @@ C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_em )
 C       Vacuum Aerodynamic -> Volume Equivalent (DeCarlo et al., 2004)
 C         D_ve = D_va * rho0/rho * X
 C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_va * rho0/rho )
-
  
 C  Key Subroutines called: none
  
@@ -2782,18 +2700,17 @@ C    Input variables
       REAL   RHOP    ! average particle density [ kg/m**3 ]
 
 C    Output variable
-      REAL, INTENT(OUT) :: fPM1   ! fraction of particulate volume transmitted through 1 micron inlet
-      REAL, INTENT(OUT) :: fPM25  ! fraction of particulate volume transmitted through 2.5 micron inlet
-      REAL, INTENT(OUT) :: fPM10  ! fraction of particulate volume transmitted through 10 micron inlet
+      REAL, INTENT( OUT ) :: fPM1   ! fraction of particulate volume transmitted through 1
+      REAL, INTENT( OUT ) :: fPM25  ! fraction of particulate volume transmitted through 2
+      REAL, INTENT( OUT ) :: fPM10  ! fraction of particulate volume transmitted through 10
 
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
-
-      REAL, PARAMETER :: D_AD1  = 1.0 ! aerodynamic diameter cut point [ um ]
-      REAL, PARAMETER :: D_AD25 = 2.5 ! aerodynamic diameter cut point [ um ]
-      REAL, PARAMETER :: D_AD10 = 10.0! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD1  = 1.0  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD25 = 2.5  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD10 = 10.0 ! aerodynamic diameter cut point [ um ]
       REAL, PARAMETER :: B = 0.21470 ! Cunningham slip-correction approx. param [ um ]
-                                     ! This factor works well applied to the entire particle size-range.
+                                     ! This factor works well applied to the entire particle size-range
                                      ! The approximation is: Cc(Dp) = 1 + B/Dp
       REAL D_ST1, D_ST25, D_ST10     ! Stokes diameter equivalent of DCA..
       REAL DG                        ! DGN converted to [ um ]
@@ -2808,11 +2725,11 @@ C ----------------------- Begin solution -------------------------------
 
 C *** Calculate Transmission Fractions for Inlets with Aerodynamic
 C     Cutoffs
-      DG     = DGN * 1.0E+06 ! [um] The units need to be equivalent with the B parameter
+      DG = DGN * 1.0E+06 ! [um] The units need to be equivalent with the B parameter
 
-      !Convert size cut to equivalent Stokes diameter using
-      !equation 2 of Jiang et al. (2006). Note: the equation in Step 5
-      !of this paper has a typo (i.e., eq. 2 is correct).
+      ! Convert size cut to equivalent Stokes diameter using
+      ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
+      ! of this paper has a typo (i.e., eq. 2 is correct).
       D_ST1  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD1 *
      &                     ( D_AD1 + B ) * 1.0E+03 / RHOP ) - B )
       D_ST25 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD25 *
@@ -2820,18 +2737,18 @@ C     Cutoffs
       D_ST10 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD10 *
      &                     ( D_AD10 + B ) * 1.0E+03 / RHOP ) - B )
 
-      !Calculate mass fraction with Dca < SizeCut, using ERF approximation
-      !from Meng & Seinfeld (1994) and modified form of Fk(X) equation
-      !in Step#6 of Jiang et al. (2006).
+      ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
+      ! from Meng & Seinfeld (1994) and modified form of Fk(X) equation
+      ! in Step#6 of Jiang et al. (2006).
       ERFARG = ( LOG( D_ST1 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM1   = 0.5 * ( 1.0 + ERF( ERFARG ) )
       ERFARG = ( LOG( D_ST25 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM25  = 0.5 * ( 1.0 + ERF( ERFARG ) )
       ERFARG = ( LOG( D_ST10 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM10  = 0.5 * ( 1.0 + ERF( ERFARG ) )
- 
+
       END SUBROUTINE AERO_INLET
- 
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_AMS ( M3_WET, M2_WET, M0, M_H2O, RHOP, RHO_H2O, fAMS )
 
@@ -2841,14 +2758,14 @@ C  and coworkers  (http://cires1.colorado.edu/jimenez-group/wiki/index.php/
 C  FAQ_for_AMS_Data_Users#What_is_the_size_cut_of_AMS_measurements.3F).
 C  The AMS measures Vacuum Aerodynamic Diameter (D_va) because the pressure is
 C  so low in the instrument. This curve (also described in Ensberg et
-C  al., 2004)  includes the following (Note: before applying the curve, 
+C  al., 2004)  includes the following (Note: before applying the curve,
 C  the bounds must be converted to Stokes Diameter):
 C     D_va < 0.04 um: 0% transmission (T)
 C     0.04 < D_va < 0.1 um:  T% = 1666.6 * (D_va - 0.04)   (1)
 C     0.1  < D_va < 0.55 um: T% = 100%                     (2)
 C     0.55 < D_va < 2.0 um:  T% = 100-68.965*(D_va-0.55)   (3)
 C     2.0 um < D_va: T = 0%
-C
+ 
 C  CMAQ aerosols are represented with Stokes Diameter. There are many
 C  alternate froms of diameter including the following:
 C       Volume Equivalent Diameter (D_ve) - the diameter of a sphere with the
@@ -2863,7 +2780,7 @@ C          Stokes diameter that is only dependent on density and shape
 C          factor, not Slip Correction. The very high Knudsen number
 C          could be because the particle is very small or because the
 C          system pressure is very low.
-C
+ 
 C  Conversions:
 C       Parameters
 C         ro  - Density
@@ -2878,14 +2795,14 @@ C  Key Functions called:  ERF
  
 C  Revision History:
 C    Coded Feb 2016 B.Murphy: Created
- 
+
 C  References:
 C   1. DeCarlo et al., Particle Morphology and Density Characterization
 C   by Combined Mobility and Aerodynamic Diameter Measurements. Part 1:
 C   Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004
 C   2. Ensberg et al., Inorganic and black carbin aerosols in the Los
 C   Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
- 
+
 C-----------------------------------------------------------------------
 
       USE AERO_DATA, ONLY : MIN_SIGMA_G, MAX_SIGMA_G
@@ -2896,12 +2813,12 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST    ! for PI
 
 C    Input variables
-      REAL, INTENT(IN) :: M3_WET  ! Third Moment of Wet Distirbution (m3/m3)
-      REAL, INTENT(IN) :: M2_WET  ! Second Moment of Wet Distribution (m2/m3)
-      REAL, INTENT(IN) :: M0      ! Number of Particles in Distribution (N/m3)
-      REAL, INTENT(IN) :: M_H2O   ! Mass Conc. of Water in Particles (ug/m3)
-      REAL, INTENT(IN) :: RHOP    ! average particle density [ kg/m**3 ]
-      REAL, INTENT(IN) :: RHO_H2O ! Water Density [ kg/m3 ]
+      REAL, INTENT( IN ) :: M3_WET  ! Third Moment of Wet Distirbution (m3/m3)
+      REAL, INTENT( IN ) :: M2_WET  ! Second Moment of Wet Distribution (m2/m3)
+      REAL, INTENT( IN ) :: M0      ! Number of Particles in Distribution (N/m3)
+      REAL, INTENT( IN ) :: M_H2O   ! Mass Conc. of Water in Particles (ug/m3)
+      REAL, INTENT( IN ) :: RHOP    ! average particle density [ kg/m**3 ]
+      REAL, INTENT( IN ) :: RHO_H2O ! Water Density [ kg/m3 ]
 
 C    Output variable
       REAL, INTENT(OUT) :: fAMS   ! fraction of particulate volume transmitted through AMS Inlet
@@ -2909,6 +2826,8 @@ C    Output variable
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136    !  SQRT( 2 )
       REAL, PARAMETER :: DGMIN = 1.0E-9       !  min(Dp) in [m]
+      REAL, PARAMETER :: ONETHIRD = 1.0 / 3.0
+      REAL, PARAMETER :: TWOTHIRDS = 2.0 * ONETHIRD
 
       REAL DG                        ! DGN converted to [ um ]
       REAL DGv                       ! Volume Median Diameter
@@ -2931,86 +2850,85 @@ C ----------------------- Begin solution -------------------------------
 
 C *** First Calculate Parameters of Dry Distributiuon since this is more
 C     applicable in general to AMS measurements.
-      M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        !m3 m-3
-      M3_DRY = M3_WET - M3SUBT              !m3 m-3
-      M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** (2./3.)  !m2 m-3
-      
-      M_WET  = M3_WET * 1.0E+9 * PI6 * RHOP !ug m-3
-      M_DRY  = M_WET - M_H2O                !ug m-3
+      M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        ! m3 m-3
+      M3_DRY = M3_WET - M3SUBT              ! m3 m-3
+      M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS  ! m2 m-3
 
-      DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   !kg m-3
+      M_WET = M3_WET * 1.0E+9 * PI6 * RHOP ! ug m-3
+      M_DRY = M_WET - M_H2O                ! ug m-3
 
-      XFSUM = 1./3. * Log( M0 ) + 2./3. * Log( M3_DRY )
+      DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   ! kg m-3
+
+      XFSUM = ONETHIRD * Log( M0 ) + TWOTHIRDS * Log( M3_DRY )
       LXFM2 = Log( M2_DRY )
-      L2SG = XFSUM - LXFM2   ! ( ln(sigma) )^2 
+      L2SG = XFSUM - LXFM2   ! ( ln(sigma) )^2
 
-      L2SG = Min( Max( L2SG, LOG( MIN_SIGMA_G ) **2 ), LOG( MAX_SIGMA_G ) **2 )
-      LXFM2  = XFSUM - L2SG
+      L2SG = Min( Max( L2SG, LOG( MIN_SIGMA_G ) ** 2 ), LOG( MAX_SIGMA_G ) ** 2 )
+      LXFM2 = XFSUM - L2SG
       ES36 = Exp( 4.5 * L2SG )
 
-      DG = Max( DGMIN, ( M3_DRY / ( M0 * ES36 ) ) ** (1./3.) ) * 1.0E+06 ![um] Units should correspond to Dp cutoffs
+      DG = Max( DGMIN, ( M3_DRY / ( M0 * ES36 ) ) ** ONETHIRD ) * 1.0E+06 ![um] Units should correspond to D
       XXLSG = Sqrt( L2SG )  ! ln(sigma)
 
-      DGv = EXP( LOG( DG ) + 3.*L2SG )
+      DGv = EXP( LOG( DG ) + 3.0 * L2SG )
 
 C *** Calculate Transmission Fractions for AMS with Vacuum Aerodynamic
 C     Cutoffs. This approzimation is split into a piecewise function (see
 C     Appendix B in Ensberg et al., 2013).
       fAMS = 0.0
-      DENSFAC = 1.0E+03 / DRY_DENS  !Density Correction Factor
-                                    !   = rho0 / rho 
+      DENSFAC = 1.0E+03 / DRY_DENS  ! Density Correction Factor
+                                    !   = rho0 / rho
                                     !   = 1000.0 / rho
       SQRT2LSG = SQRT2 * XXLSG
 
-      !First Piece of Function [T(%) = 1666.6 * (Dva - 0.04) ]
-      DBlo_st = 0.040 * DENSFAC  !Stokes Lower Bound of Piece [um]
-      DBhi_st = 0.100 * DENSFAC  !Stokes Upper Bound of Piece [um]
+      ! First Piece of Function [T(%) = 1666.6 * (Dva - 0.04) ]
+      DBlo_st = 0.040 * DENSFAC  ! Stokes Lower Bound of Piece [um]
+      DBhi_st = 0.100 * DENSFAC  ! Stokes Upper Bound of Piece [um]
 
-      LOG_HILO = LOG( 100./40. )
+      LOG_HILO = LOG( 100.0/40.0 )
       LOG_HI   = LOG( DBhi_st/DGv )
       LOG_LO   = LOG( DBlo_st/DGv )
 
       TERM1 = LOG( DGv/DBlo_st ) / LOG_HILO
       TERM2 =  ERF( LOG_HI / SQRT2LSG )
      &        -ERF( LOG_LO / SQRT2LSG )
-      TERM3 = XXLSG / ( LOG_HILO * (pi/2.)**0.5 )
-      TERM4 = EXP( -1.* ( LOG_LO / SQRT2LSG )**2 )
-      TERM5 = EXP( -1.* ( LOG_HI / SQRT2LSG )**2 )
+      TERM3 = XXLSG / ( LOG_HILO * (pi/2.0) ** 0.5 )
+      TERM4 = EXP( -1.0 * ( LOG_LO / SQRT2LSG ) ** 2 )
+      TERM5 = EXP( -1.0 * ( LOG_HI / SQRT2LSG ) ** 2 )
 
       fAMS = ( TERM1*TERM2  +  TERM3*(TERM4-TERM5) )
 
-      !Second Piece of Function [T(%) = 100]
-      DBlo_st = DBhi_st         !Stokes Lower Bound [um]
-      DBhi_st = 0.55 * DENSFAC  !Stokes Upper Bound [um]
-           
-      TERM1 = ERF( LOG( DBhi_st/DGv ) / SQRT2LSG )     
-      TERM2 = ERF( LOG( DBlo_st/DGv ) / SQRT2LSG )     
+      ! Second Piece of Function [T(%) = 100]
+      DBlo_st = DBhi_st         ! Stokes Lower Bound [um]
+      DBhi_st = 0.55 * DENSFAC  ! Stokes Upper Bound [um]
+
+      TERM1 = ERF( LOG( DBhi_st/DGv ) / SQRT2LSG )
+      TERM2 = ERF( LOG( DBlo_st/DGv ) / SQRT2LSG )
       fAMS = fAMS +  (TERM1 - TERM2)
 
-      !Third Piece of Function [T(%) = 1.0 - 0.6805 * (Dva - 0.55) ]
-      DBlo_st = DBhi_st        !Stokes Lower Bound [um]
-      DBhi_st = 2.0 * DENSFAC  !Stokes Upper Bound [um]
+      ! Third Piece of Function [T(%) = 1.0 - 0.6805 * (Dva - 0.55) ]
+      DBlo_st = DBhi_st        ! Stokes Lower Bound [um]
+      DBhi_st = 2.0 * DENSFAC  ! Stokes Upper Bound [um]
 
-      LOG_LOHI = LOG( 550./2000. )
+      LOG_LOHI = LOG( 550.0/2000.0 )
       LOG_HI   = LOG( DBhi_st/DGv )
       LOG_LO   = LOG( DBlo_st/DGv )
 
       TERM1 = LOG( DGv/DBhi_st ) / LOG_LOHI
-      TERM2 =  ERF( LOG_HI / SQRT2LSG ) 
+      TERM2 =  ERF( LOG_HI / SQRT2LSG )
      &        -ERF( LOG_LO / SQRT2LSG )
-      TERM3 = XXLSG / ( LOG_LOHI * (pi/2.)**0.5 )
-      TERM4 = EXP( -1.* ( LOG_LO / SQRT2LSG )**2 )
-      TERM5 = EXP( -1.* ( LOG_HI / SQRT2LSG )**2 )
+      TERM3 = XXLSG / ( LOG_LOHI * (pi/2.0) ** 0.5 )
+      TERM4 = EXP( -1.0 * ( LOG_LO / SQRT2LSG ) ** 2 )
+      TERM5 = EXP( -1.0 * ( LOG_HI / SQRT2LSG ) ** 2 )
 
-      fAMS = fAMS + TERM1*TERM2  +  TERM3*(TERM4-TERM5)
+      fAMS = fAMS + TERM1 * TERM2  +  TERM3 * (TERM4-TERM5)
 
-      !Apply the Factor of 0.5 Consistent with Appendix B in Ensberg et
-      !al., 2013. Omit the total mass quantity since these are fractions
-      !we want.
+      ! Apply the Factor of 0.5 Consistent with Appendix B in Ensberg et
+      ! al., 2013. Omit the total mass quantity since these are fractions
+      ! we want.
       fAMS = 0.5 * fAMS
 
       END SUBROUTINE AERO_AMS
-
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETVISBY( DCV1, EXT1, DCV2, EXT2 )
@@ -3155,13 +3073,13 @@ C *** set up Mie parameters for Volume ( mass median diameter)
       
       DO N = 1, N_MODE
         ALFV( N ) = CONST3 * AEROMODE_DIAM( N )
-     &            * EXP( 3.0 * AEROMODE_SDEV( N ) * AEROMODE_SDEV( N ) )
+     &            * EXP( 3.0 * AEROMODE_LNSG( N ) * AEROMODE_LNSG( N ) )
       END DO
 
 C *** Call extinction routines
 
       DO N = 1, N_MODE
-         CALL GETBEXT( NR, NI, ALFV( N ), AEROMODE_SDEV( N ), BBEXT )
+         CALL GETBEXT( NR, NI, ALFV( N ), AEROMODE_LNSG( N ), BBEXT )
          BEXT( N ) = CONSTL * MOMENT3_CONC( N ) * BBEXT
       END DO
 

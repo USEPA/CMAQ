@@ -60,7 +60,8 @@ C 21 Apr 15 H. Pye: Added explicit monoterpene (MTNO3) and isoprene
 C                   (ISOPNN) aerosol. Parameters (C*) determined from Fry et al. 2009 ACP
 C                   and Rollins et al. 2009 ACP
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
-C
+C 03/03/16  D. Luecken: added capability for CB6
+C 24 Mar 16 G. Sarwar: updated for CB05EH51
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -302,6 +303,14 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 2 )%parent = 'XYLMN'
                orgprod( 3 )%parent = 'XYLMN'
                IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB6R3') .GT. 0) then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
+            Else If( INDEX(MECHNAME, 'CB05EH51') .GT. 0) then
+               orgprod( 2 )%parent = 'XYLMN'
+               orgprod( 3 )%parent = 'XYLMN'
+               IEPOX_SOA_mechanism = .True.
             Else If( INDEX( MECHNAME, 'CB05' ) .EQ. 0 ) then
                xmsg =  'Mechanism ' // MECHNAME
      &              // ' is not supported in this version of the model'
@@ -314,6 +323,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
      &                // Trim( MECHNAME ) // ', is not based on AERO6i '
                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
+
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
 
@@ -802,12 +812,15 @@ C  21. Pye et al., Epoxide pathways improve model prediction of isoprene
 C      markers and reveal key role of acidity in aerosol formation,
 C      Environ. Sci. Technol., 2013.
 
+
 C Revision History:
 C    First orgaer version was coded in April 2010 by Steve Howard with
 C    Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
+C HOTP 05Aug15 Made the calculation for total number of organic moles more robust
+C BNM 11/09/15 Added Some Comments to the SOA Scheme
 C-----------------------------------------------------------------------
 
 C Key Subroutines/Functions called:  newt, soabisection
@@ -848,7 +861,6 @@ C Parameters & variables for adjusting cstar to ambient conditions
       Real, Parameter :: kacid  = 0.00361        ! acid-induced enhancement factor
       Real, Parameter :: threshmin = 1.0E-19     ! small positive number
       Real, Parameter :: ctolmin = 1.0E-06
-      Real, Parameter :: orgfac = 1.0E-9 * f6dpi / 2.0E3
       Real, Parameter :: convfac_298 = 101325.0 * rgas1 * trefm1  ! P/RT at 1 atm and 298 K [ mole/m**3 ]
 
       Real convfac
@@ -883,10 +895,10 @@ C Variables used in equilibrium partitioning calculations
                              ! converged to a spurious root
 
 C Variables for updating 2nd and 3rd moments
-      Real old_m3  ! initial 3rd moment minus nonvol SOA [ mom/m3 ]
-      Real old_m2  ! initial 2nd moment minus nonvol SOA [ mom/m3 ]
-      Real new_m3  ! final 3rd moment with updated SOA [ mom/m3 ]
-      Real new_m2  ! final 2nd moment with updated SOA [ mom/m3 ]
+      Real m3wet_init  ! initial 3rd moment, wet [ mom/m3 ]
+      Real m2wet_init  ! initial 2nd moment, wet [ mom/m3 ]
+      Real m3wet_final  ! final 3rd moment with updated SOA [ mom/m3 ]
+      Real m2wet_final  ! final 2nd moment with updated SOA [ mom/m3 ]
 
 C Added for new SOA bisection (hotp 7/6/11)
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
@@ -899,47 +911,33 @@ C-----------------------------------------------------------------------
          logdev = setup_logdev()
 
 C Set unit conversion and inverse mw constants
-
-         Do i = 1, n_orgprod
-            drog_ppm2ug( i ) = orgprod_mw( i ) * convfac_298
-         End Do
-
-         Do i = 1, n_vapor
-            mw_vap_m1( i ) = 1.0 / vapor_mw( i )
-         End Do
-
+         drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
+         mw_vap_m1( : ) = 1.0 / vapor_mw( : )
          mwpoa = aerospc_mw( apoc_idx )
 
       End If ! first_time
-
-C Compute 3rd moment, 2nd moment, and Dg without nonvolatile SOA. Cloud-produced
-C SOA (i.e., orgcj) is not subtracted here because it is unchanged in this subroutine
-      old_m3 = moment3_conc( 2 )
-      Do i = 1, n_aerospc
-         If(  aerospc( i )%tracer )cycle
-         If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
-            old_m3 = old_m3 - orgfac * aerospc_conc( i,2 )
-         End If
-      End Do
-
-      old_m2 = moment2_conc( 2 ) * ( old_m3 / moment3_conc( 2 ) ) ** ( 2.0 / 3.0 )
-      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( old_m2 / moment2_conc( 2 ) )
 
 C Set temperature factors
       tt1 = tref / airtemp
       tt2 = trefm1 - 1.0 / airtemp
       convfac = tt1 * airpres * prefm1
 
-C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
-      Do i = 1, n_orgprod
-         drog( i ) = orgprod_conc( i ) * drog_ppm2ug( i ) * convfac
-      end Do
+C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
+C Only the accumulation mode is modified
+      Call calcmoments ( .true. )
+      m3wet_init = moment3_conc( 2 )
+      m2wet_init = moment2_conc( 2 )
 
-C Assignment of drog to totrog
-      totrog = 0.0
+C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
+      drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
+
+C Assignment of drog to totrog. This moving mass from the reactive 
+C gas tracer species to the array that will be multiplied by alpha
+C to give newly formed semivolatile vapors.
+      totrog( : ) = 0.0
       Do i = 1, n_vapor
-         If ( vaporspc( i )%alpha .Gt. 0.0 ) Then
-            totrog( i ) = drog( drog_map( i ) )
+         if ( drog_map( i ) .gt. 0 ) then
+           totrog( i ) = drog( drog_map( i ) )
          endif
       End Do
 
@@ -986,7 +984,7 @@ C process that conserves carbon mass.
 
 #endif
 C Compute molar concentrations of non-volatile organic material and total
-C organic material; in future code updates, molecularpartit weights of non-volatile
+C organic material; in future code updates, molecular weights of non-volatile
 C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
@@ -1021,14 +1019,16 @@ C    Assuming totorg doesn't change during the timestep,
 C    caer * (1 + c0/MW / totorg) = ctotf
 C    caer = ctotf / ( 1 + c0/MW / totorg )
 
-      threshold = 0.0
+      threshold = 0.0  !This threshold will be compared to the
+                       !saturation concentration to determine whether
+		       !or not OA partitioning is even likely
       upb = 0.0 ! upper bound for bisection method
       
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = vaporspc( i )%cstar * tempcorr
-         prod( i )  = vaporspc( i )%alpha * totrog( i )
-         ctotf( i ) = ctoti( i ) + prod( i )
+         c0( i )    = vaporspc( i )%cstar * tempcorr        !Satn Conc.
+         prod( i )  = vaporspc( i )%alpha * totrog( i )     !Total Vapor Produced
+         ctotf( i ) = ctoti( i ) + prod( i )                !Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
@@ -1072,12 +1072,12 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         if( abs(upb-lowb) .lt. threshmin ) then
+         If ( abs( upb - lowb ) .lt. threshmin ) then
             ! no SOA to partition
-            orgmoles = (lowb + upb)/2.0d0 
-         else
-            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw ) 
-         end if
+            orgmoles = ( lowb + upb ) / 2.0D0
+         Else
+            orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
+         End If
 
 C        Determine concentration of each semivoltile (hotp 7/5/11)
          Do i = 1, n_vapor
@@ -1085,7 +1085,7 @@ C        Determine concentration of each semivoltile (hotp 7/5/11)
          End Do
 
 C End SOA paritioning solver METHOD selection
-       Endif
+       End If
 
 C Constrain caer to values between conmin and ctotf
          Do i = 1, n_vapor
@@ -1120,7 +1120,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
          vapor_conc( i ) = ctotf( i ) - caer( i )
       End Do
 
-C Acid-induced Isoprene SOA if IEPOX uptake is not considered
+C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
       IF( .Not. IEPOX_SOA_mechanism ) then
 
 C Particle-phase acidity is parameterized by the air concentration of hydrogen
@@ -1167,25 +1167,13 @@ C of SO2, based on the lab experiments of Kleindienst et al. (2007)
 C Update 3rd moment, 2nd moment, and Dg in CBLK array by assuming that SOA
 C condensation/evaporation does not affect the geometric standard deviation.
 
-      new_m3 = old_m3
-
-      Do i = 1, n_aerospc
-         If(  aerospc( i )%tracer )cycle
-         If ( aerospc( i )%nonVol_soa .And. i .Ne. aorgc_idx ) Then
-            new_m3 = new_m3 + orgfac * aerospc_conc( i,2 )
-         End If
-      End Do
-
-      Do i = 1, n_vapor
-         If( soa_aeroMap( i ) .lt. 1 )Cycle
-         new_m3 = new_m3 + orgfac * aerospc_conc( soa_aeroMap( i ),2 )
-      End Do
-
-      new_m2 = old_m2 * ( new_m3 / old_m3 ) ** ( 2.0 / 3.0 )
-
-      moment3_conc( 2 ) = new_m3
-      moment2_conc( 2 ) = new_m2
-      aeromode_diam( 2 ) = aeromode_diam( 2 ) * Sqrt( new_m2 / old_m2 )
+      ! Get new third moment of all species, do not get second moment
+      ! directly from the calcmoments diagnostic. Instead, update it
+      ! manually to account for condensation in ORGAER.
+      Call calcmoments( .true. )
+      m3wet_final = moment3_conc( 2 )
+      m2wet_final = m2wet_init * ( m3wet_final / m3wet_init ) ** ( 2.0 / 3.0 )
+      moment2_conc( 2 )  = m2wet_final
 
       Return
       End Subroutine orgaer
@@ -1334,8 +1322,8 @@ C-----------------------------------------------------------------------
             CHECK = .FALSE.
             RETURN
          END IF
-         IF ( CHECK ) THEN        !Check for gradient of F zero,
-            TEST = 0.           !i.e., spurious convergence.
+         IF ( CHECK ) THEN        ! Check for gradient of F zero,
+            TEST = 0.0            ! i.e., spurious convergence.
             DEN = MAX( F, 0.5 * N )
             DO I = 1, N
                TEMP = ABS( G( I ) ) * MAX( ABS( X( I ) ), 1.0 ) / DEN
