@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/has/gitrepos/github/CMAQ.omtooc/MECHS/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.def
+! Source file: /home/hutzellb/CCTM_git_repository/MECHS/saprc07tic_ae6i_aq/mech_saprc07tic_ae6i_aq.def
 ! for Mechanism Name: SAPRC07TIC_AE6I_AQ              
 
 ! This file is used to create mechanism data and functions
@@ -328,246 +328,479 @@
 
       LOGICAL   :: HALOGEN_PARAMETER = .TRUE. 
 
+      DATA CHEMISTRY_SPC(   1 ), SPECIES_MOLWT(   1 ) / 'NO2             ',   46.01 /
+      DATA CHEMISTRY_SPC(   2 ), SPECIES_MOLWT(   2 ) / 'NO              ',   30.01 /
+      DATA CHEMISTRY_SPC(   3 ), SPECIES_MOLWT(   3 ) / 'O3P             ',   16.00 /
+      DATA CHEMISTRY_SPC(   4 ), SPECIES_MOLWT(   4 ) / 'O3              ',   48.00 /
+      DATA CHEMISTRY_SPC(   5 ), SPECIES_MOLWT(   5 ) / 'NO3             ',   62.01 /
+      DATA CHEMISTRY_SPC(   6 ), SPECIES_MOLWT(   6 ) / 'N2O5            ',  108.02 /
+      DATA CHEMISTRY_SPC(   7 ), SPECIES_MOLWT(   7 ) / 'HNO3            ',   63.02 /
+      DATA CHEMISTRY_SPC(   8 ), SPECIES_MOLWT(   8 ) / 'O1D             ',   16.00 /
+      DATA CHEMISTRY_SPC(   9 ), SPECIES_MOLWT(   9 ) / 'OH              ',   17.01 /
+      DATA CHEMISTRY_SPC(  10 ), SPECIES_MOLWT(  10 ) / 'HONO            ',   47.02 /
+      DATA CHEMISTRY_SPC(  11 ), SPECIES_MOLWT(  11 ) / 'HO2             ',   33.01 /
+      DATA CHEMISTRY_SPC(  12 ), SPECIES_MOLWT(  12 ) / 'CO              ',   28.01 /
+      DATA CHEMISTRY_SPC(  13 ), SPECIES_MOLWT(  13 ) / 'CO2             ',   44.01 /
+      DATA CHEMISTRY_SPC(  14 ), SPECIES_MOLWT(  14 ) / 'HNO4            ',   79.02 /
+      DATA CHEMISTRY_SPC(  15 ), SPECIES_MOLWT(  15 ) / 'HO2H            ',   34.01 /
+      DATA CHEMISTRY_SPC(  16 ), SPECIES_MOLWT(  16 ) / 'SO2             ',   64.06 /
+      DATA CHEMISTRY_SPC(  17 ), SPECIES_MOLWT(  17 ) / 'SULF            ',   98.08 /
+      DATA CHEMISTRY_SPC(  18 ), SPECIES_MOLWT(  18 ) / 'SULRXN          ',   98.08 /
+      DATA CHEMISTRY_SPC(  19 ), SPECIES_MOLWT(  19 ) / 'MEO2            ',   47.03 /
+      DATA CHEMISTRY_SPC(  20 ), SPECIES_MOLWT(  20 ) / 'HCHO            ',   30.03 /
+      DATA CHEMISTRY_SPC(  21 ), SPECIES_MOLWT(  21 ) / 'COOH            ',   48.04 /
+      DATA CHEMISTRY_SPC(  22 ), SPECIES_MOLWT(  22 ) / 'MEOH            ',   32.04 /
+      DATA CHEMISTRY_SPC(  23 ), SPECIES_MOLWT(  23 ) / 'RO2C            ',    1.00 /
+      DATA CHEMISTRY_SPC(  24 ), SPECIES_MOLWT(  24 ) / 'RO2XC           ',    1.00 /
+      DATA CHEMISTRY_SPC(  25 ), SPECIES_MOLWT(  25 ) / 'MECO3           ',   75.04 /
+      DATA CHEMISTRY_SPC(  26 ), SPECIES_MOLWT(  26 ) / 'PAN             ',  121.05 /
+      DATA CHEMISTRY_SPC(  27 ), SPECIES_MOLWT(  27 ) / 'CCOOOH          ',   76.00 /
+      DATA CHEMISTRY_SPC(  28 ), SPECIES_MOLWT(  28 ) / 'CCOOH           ',   60.05 /
+      DATA CHEMISTRY_SPC(  29 ), SPECIES_MOLWT(  29 ) / 'RCO3            ',   89.07 /
+      DATA CHEMISTRY_SPC(  30 ), SPECIES_MOLWT(  30 ) / 'PAN2            ',  135.08 /
+      DATA CHEMISTRY_SPC(  31 ), SPECIES_MOLWT(  31 ) / 'xHO2            ',   33.01 /
+      DATA CHEMISTRY_SPC(  32 ), SPECIES_MOLWT(  32 ) / 'yROOH           ',   76.10 /
+      DATA CHEMISTRY_SPC(  33 ), SPECIES_MOLWT(  33 ) / 'xCCHO           ',   44.05 /
+      DATA CHEMISTRY_SPC(  34 ), SPECIES_MOLWT(  34 ) / 'RCOOOH          ',   74.08 /
+      DATA CHEMISTRY_SPC(  35 ), SPECIES_MOLWT(  35 ) / 'RCOOH           ',   74.08 /
+      DATA CHEMISTRY_SPC(  36 ), SPECIES_MOLWT(  36 ) / 'BZCO3           ',  137.12 /
+      DATA CHEMISTRY_SPC(  37 ), SPECIES_MOLWT(  37 ) / 'PBZN            ',  183.13 /
+      DATA CHEMISTRY_SPC(  38 ), SPECIES_MOLWT(  38 ) / 'BZO             ',   93.00 /
+      DATA CHEMISTRY_SPC(  39 ), SPECIES_MOLWT(  39 ) / 'MACO3           ',  101.08 /
+      DATA CHEMISTRY_SPC(  40 ), SPECIES_MOLWT(  40 ) / 'MAPAN           ',  147.09 /
+      DATA CHEMISTRY_SPC(  41 ), SPECIES_MOLWT(  41 ) / 'TBUO            ',   73.00 /
+      DATA CHEMISTRY_SPC(  42 ), SPECIES_MOLWT(  42 ) / 'RNO3            ',  147.18 /
+      DATA CHEMISTRY_SPC(  43 ), SPECIES_MOLWT(  43 ) / 'ACETONE         ',   58.08 /
+      DATA CHEMISTRY_SPC(  44 ), SPECIES_MOLWT(  44 ) / 'NPHE            ',  139.11 /
+      DATA CHEMISTRY_SPC(  45 ), SPECIES_MOLWT(  45 ) / 'CRES            ',  108.14 /
+      DATA CHEMISTRY_SPC(  46 ), SPECIES_MOLWT(  46 ) / 'xOH             ',   17.01 /
+      DATA CHEMISTRY_SPC(  47 ), SPECIES_MOLWT(  47 ) / 'xNO2            ',   46.01 /
+      DATA CHEMISTRY_SPC(  48 ), SPECIES_MOLWT(  48 ) / 'xMEO2           ',   47.03 /
+      DATA CHEMISTRY_SPC(  49 ), SPECIES_MOLWT(  49 ) / 'xMECO3          ',   75.04 /
+      DATA CHEMISTRY_SPC(  50 ), SPECIES_MOLWT(  50 ) / 'xRCO3           ',   89.07 /
+      DATA CHEMISTRY_SPC(  51 ), SPECIES_MOLWT(  51 ) / 'xMACO3          ',  101.08 /
+      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'xTBUO           ',   73.00 /
+      DATA CHEMISTRY_SPC(  53 ), SPECIES_MOLWT(  53 ) / 'xCO             ',   28.01 /
+      DATA CHEMISTRY_SPC(  54 ), SPECIES_MOLWT(  54 ) / 'CCHO            ',   44.05 /
+      DATA CHEMISTRY_SPC(  55 ), SPECIES_MOLWT(  55 ) / 'RCHO            ',   58.08 /
+      DATA CHEMISTRY_SPC(  56 ), SPECIES_MOLWT(  56 ) / 'xHCHO           ',   30.03 /
+      DATA CHEMISTRY_SPC(  57 ), SPECIES_MOLWT(  57 ) / 'MEK             ',   72.11 /
+      DATA CHEMISTRY_SPC(  58 ), SPECIES_MOLWT(  58 ) / 'zRNO3           ',  147.18 /
+      DATA CHEMISTRY_SPC(  59 ), SPECIES_MOLWT(  59 ) / 'xRCHO           ',   58.08 /
+      DATA CHEMISTRY_SPC(  60 ), SPECIES_MOLWT(  60 ) / 'HCOOH           ',   46.03 /
+      DATA CHEMISTRY_SPC(  61 ), SPECIES_MOLWT(  61 ) / 'xMGLY           ',   72.07 /
+      DATA CHEMISTRY_SPC(  62 ), SPECIES_MOLWT(  62 ) / 'xBACL           ',   86.09 /
+      DATA CHEMISTRY_SPC(  63 ), SPECIES_MOLWT(  63 ) / 'ROOH            ',   76.10 /
+      DATA CHEMISTRY_SPC(  64 ), SPECIES_MOLWT(  64 ) / 'xPROD2          ',  116.16 /
+      DATA CHEMISTRY_SPC(  65 ), SPECIES_MOLWT(  65 ) / 'R6OOH           ',  118.17 /
+      DATA CHEMISTRY_SPC(  66 ), SPECIES_MOLWT(  66 ) / 'PRD2            ',  116.16 /
+      DATA CHEMISTRY_SPC(  67 ), SPECIES_MOLWT(  67 ) / 'yR6OOH          ',  118.17 /
+      DATA CHEMISTRY_SPC(  68 ), SPECIES_MOLWT(  68 ) / 'RAOOH           ',  188.18 /
+      DATA CHEMISTRY_SPC(  69 ), SPECIES_MOLWT(  69 ) / 'MGLY            ',   72.07 /
+      DATA CHEMISTRY_SPC(  70 ), SPECIES_MOLWT(  70 ) / 'IPRD            ',  100.12 /
+      DATA CHEMISTRY_SPC(  71 ), SPECIES_MOLWT(  71 ) / 'xGLY            ',   58.04 /
+      DATA CHEMISTRY_SPC(  72 ), SPECIES_MOLWT(  72 ) / 'xMEK            ',   72.11 /
+      DATA CHEMISTRY_SPC(  73 ), SPECIES_MOLWT(  73 ) / 'xAFG1           ',   98.10 /
+      DATA CHEMISTRY_SPC(  74 ), SPECIES_MOLWT(  74 ) / 'xAFG2           ',   98.10 /
+      DATA CHEMISTRY_SPC(  75 ), SPECIES_MOLWT(  75 ) / 'GLY             ',   58.04 /
+      DATA CHEMISTRY_SPC(  76 ), SPECIES_MOLWT(  76 ) / 'AFG1            ',   98.10 /
+      DATA CHEMISTRY_SPC(  77 ), SPECIES_MOLWT(  77 ) / 'AFG2            ',   98.10 /
+      DATA CHEMISTRY_SPC(  78 ), SPECIES_MOLWT(  78 ) / 'HCOCO3          ',   89.00 /
+      DATA CHEMISTRY_SPC(  79 ), SPECIES_MOLWT(  79 ) / 'BACL            ',   86.09 /
+      DATA CHEMISTRY_SPC(  80 ), SPECIES_MOLWT(  80 ) / 'BALD            ',  106.13 /
+      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'AFG3            ',  124.14 /
+      DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'xIPRD           ',  100.12 /
+      DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'MACR            ',   70.09 /
+      DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'MVK             ',   70.09 /
+      DATA CHEMISTRY_SPC(  85 ), SPECIES_MOLWT(  85 ) / 'xHOCCHO         ',   60.05 /
+      DATA CHEMISTRY_SPC(  86 ), SPECIES_MOLWT(  86 ) / 'xRNO3           ',  147.18 /
+      DATA CHEMISTRY_SPC(  87 ), SPECIES_MOLWT(  87 ) / 'HOCCHO          ',   60.05 /
+      DATA CHEMISTRY_SPC(  88 ), SPECIES_MOLWT(  88 ) / 'xACETONE        ',   58.08 /
+      DATA CHEMISTRY_SPC(  89 ), SPECIES_MOLWT(  89 ) / 'ACROLEIN        ',   56.06 /
+      DATA CHEMISTRY_SPC(  90 ), SPECIES_MOLWT(  90 ) / 'xBALD           ',  106.13 /
+      DATA CHEMISTRY_SPC(  91 ), SPECIES_MOLWT(  91 ) / 'xAFG3           ',  124.74 /
+      DATA CHEMISTRY_SPC(  92 ), SPECIES_MOLWT(  92 ) / 'xMACR           ',   70.09 /
+      DATA CHEMISTRY_SPC(  93 ), SPECIES_MOLWT(  93 ) / 'xMVK            ',   70.09 /
+      DATA CHEMISTRY_SPC(  94 ), SPECIES_MOLWT(  94 ) / 'xMTNO3          ',  231.00 /
+      DATA CHEMISTRY_SPC(  95 ), SPECIES_MOLWT(  95 ) / 'MTNO3           ',  231.00 /
+      DATA CHEMISTRY_SPC(  96 ), SPECIES_MOLWT(  96 ) / 'IMACO3          ',  101.08 /
+      DATA CHEMISTRY_SPC(  97 ), SPECIES_MOLWT(  97 ) / 'yRAOOH          ',  188.18 /
+      DATA CHEMISTRY_SPC(  98 ), SPECIES_MOLWT(  98 ) / 'zMTNO3          ',  231.00 /
+      DATA CHEMISTRY_SPC(  99 ), SPECIES_MOLWT(  99 ) / 'xACROLEIN       ',   56.06 /
+      DATA CHEMISTRY_SPC( 100 ), SPECIES_MOLWT( 100 ) / 'ETHENE          ',   28.05 /
+      DATA CHEMISTRY_SPC( 101 ), SPECIES_MOLWT( 101 ) / 'PROPENE         ',   42.08 /
+      DATA CHEMISTRY_SPC( 102 ), SPECIES_MOLWT( 102 ) / 'BUTADIENE13     ',   54.09 /
+      DATA CHEMISTRY_SPC( 103 ), SPECIES_MOLWT( 103 ) / 'ISOPRENE        ',   68.12 /
+      DATA CHEMISTRY_SPC( 104 ), SPECIES_MOLWT( 104 ) / 'APIN            ',  136.23 /
+      DATA CHEMISTRY_SPC( 105 ), SPECIES_MOLWT( 105 ) / 'TRPRXN          ',  136.00 /
+      DATA CHEMISTRY_SPC( 106 ), SPECIES_MOLWT( 106 ) / 'ACETYLENE       ',   26.04 /
+      DATA CHEMISTRY_SPC( 107 ), SPECIES_MOLWT( 107 ) / 'BENZENE         ',   78.11 /
+      DATA CHEMISTRY_SPC( 108 ), SPECIES_MOLWT( 108 ) / 'BENZRO2         ',  159.11 /
+      DATA CHEMISTRY_SPC( 109 ), SPECIES_MOLWT( 109 ) / 'TOLUENE         ',   92.14 /
+      DATA CHEMISTRY_SPC( 110 ), SPECIES_MOLWT( 110 ) / 'TOLRO2          ',  172.14 /
+      DATA CHEMISTRY_SPC( 111 ), SPECIES_MOLWT( 111 ) / 'MXYL            ',  106.17 /
+      DATA CHEMISTRY_SPC( 112 ), SPECIES_MOLWT( 112 ) / 'XYLRO2          ',  187.17 /
+      DATA CHEMISTRY_SPC( 113 ), SPECIES_MOLWT( 113 ) / 'OXYL            ',  106.17 /
+      DATA CHEMISTRY_SPC( 114 ), SPECIES_MOLWT( 114 ) / 'PXYL            ',  106.17 /
+      DATA CHEMISTRY_SPC( 115 ), SPECIES_MOLWT( 115 ) / 'TMBENZ124       ',  120.19 /
+      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ETOH            ',   46.07 /
+      DATA CHEMISTRY_SPC( 117 ), SPECIES_MOLWT( 117 ) / 'ALK1            ',   30.07 /
+      DATA CHEMISTRY_SPC( 118 ), SPECIES_MOLWT( 118 ) / 'ALK2            ',   36.73 /
+      DATA CHEMISTRY_SPC( 119 ), SPECIES_MOLWT( 119 ) / 'ALK3            ',   58.61 /
+      DATA CHEMISTRY_SPC( 120 ), SPECIES_MOLWT( 120 ) / 'ALK4            ',   77.60 /
+      DATA CHEMISTRY_SPC( 121 ), SPECIES_MOLWT( 121 ) / 'ALK5            ',  118.89 /
+      DATA CHEMISTRY_SPC( 122 ), SPECIES_MOLWT( 122 ) / 'SOAALK          ',  112.00 /
+      DATA CHEMISTRY_SPC( 123 ), SPECIES_MOLWT( 123 ) / 'ALKRXN          ',  112.00 /
+      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'OLE1            ',   72.34 /
+      DATA CHEMISTRY_SPC( 125 ), SPECIES_MOLWT( 125 ) / 'OLE2            ',   75.78 /
+      DATA CHEMISTRY_SPC( 126 ), SPECIES_MOLWT( 126 ) / 'ARO1            ',   95.16 /
+      DATA CHEMISTRY_SPC( 127 ), SPECIES_MOLWT( 127 ) / 'ARO2MN          ',  118.72 /
+      DATA CHEMISTRY_SPC( 128 ), SPECIES_MOLWT( 128 ) / 'NAPHTHAL        ',  128.20 /
+      DATA CHEMISTRY_SPC( 129 ), SPECIES_MOLWT( 129 ) / 'PAHRO2          ',  187.20 /
+      DATA CHEMISTRY_SPC( 130 ), SPECIES_MOLWT( 130 ) / 'TERP            ',  136.24 /
+      DATA CHEMISTRY_SPC( 131 ), SPECIES_MOLWT( 131 ) / 'TERPNRO2        ',  197.00 /
+      DATA CHEMISTRY_SPC( 132 ), SPECIES_MOLWT( 132 ) / 'SESQ            ',  204.35 /
+      DATA CHEMISTRY_SPC( 133 ), SPECIES_MOLWT( 133 ) / 'SESQRXN         ',  204.35 /
+      DATA CHEMISTRY_SPC( 134 ), SPECIES_MOLWT( 134 ) / 'CL2             ',   70.00 /
+      DATA CHEMISTRY_SPC( 135 ), SPECIES_MOLWT( 135 ) / 'CL              ',   35.50 /
+      DATA CHEMISTRY_SPC( 136 ), SPECIES_MOLWT( 136 ) / 'CLNO            ',   65.50 /
+      DATA CHEMISTRY_SPC( 137 ), SPECIES_MOLWT( 137 ) / 'CLONO           ',   81.50 /
+      DATA CHEMISTRY_SPC( 138 ), SPECIES_MOLWT( 138 ) / 'CLNO2           ',   81.50 /
+      DATA CHEMISTRY_SPC( 139 ), SPECIES_MOLWT( 139 ) / 'HCL             ',   36.50 /
+      DATA CHEMISTRY_SPC( 140 ), SPECIES_MOLWT( 140 ) / 'CLO             ',   51.50 /
+      DATA CHEMISTRY_SPC( 141 ), SPECIES_MOLWT( 141 ) / 'CLONO2          ',   97.45 /
+      DATA CHEMISTRY_SPC( 142 ), SPECIES_MOLWT( 142 ) / 'HOCL            ',   52.50 /
+      DATA CHEMISTRY_SPC( 143 ), SPECIES_MOLWT( 143 ) / 'xCL             ',   35.50 /
+      DATA CHEMISTRY_SPC( 144 ), SPECIES_MOLWT( 144 ) / 'xCLCCHO         ',   78.50 /
+      DATA CHEMISTRY_SPC( 145 ), SPECIES_MOLWT( 145 ) / 'xCLACET         ',   92.50 /
+      DATA CHEMISTRY_SPC( 146 ), SPECIES_MOLWT( 146 ) / 'CLCCHO          ',   78.50 /
+      DATA CHEMISTRY_SPC( 147 ), SPECIES_MOLWT( 147 ) / 'CLACET          ',   92.50 /
+      DATA CHEMISTRY_SPC( 148 ), SPECIES_MOLWT( 148 ) / 'CLCHO           ',   64.50 /
+      DATA CHEMISTRY_SPC( 149 ), SPECIES_MOLWT( 149 ) / 'BNZNRXN         ',  159.11 /
+      DATA CHEMISTRY_SPC( 150 ), SPECIES_MOLWT( 150 ) / 'BNZHRXN         ',  159.11 /
+      DATA CHEMISTRY_SPC( 151 ), SPECIES_MOLWT( 151 ) / 'XYLNRXN         ',  187.17 /
+      DATA CHEMISTRY_SPC( 152 ), SPECIES_MOLWT( 152 ) / 'XYLHRXN         ',  187.17 /
+      DATA CHEMISTRY_SPC( 153 ), SPECIES_MOLWT( 153 ) / 'TOLNRXN         ',  172.14 /
+      DATA CHEMISTRY_SPC( 154 ), SPECIES_MOLWT( 154 ) / 'TOLHRXN         ',  172.14 /
+      DATA CHEMISTRY_SPC( 155 ), SPECIES_MOLWT( 155 ) / 'PAHNRXN         ',  187.20 /
+      DATA CHEMISTRY_SPC( 156 ), SPECIES_MOLWT( 156 ) / 'PAHHRXN         ',  187.20 /
+      DATA CHEMISTRY_SPC( 157 ), SPECIES_MOLWT( 157 ) / 'HCHO_PRIMARY    ',   30.03 /
+      DATA CHEMISTRY_SPC( 158 ), SPECIES_MOLWT( 158 ) / 'CCHO_PRIMARY    ',   44.05 /
+      DATA CHEMISTRY_SPC( 159 ), SPECIES_MOLWT( 159 ) / 'ACRO_PRIMARY    ',   56.06 /
+      DATA CHEMISTRY_SPC( 160 ), SPECIES_MOLWT( 160 ) / 'ISOPO2          ',  117.10 /
+      DATA CHEMISTRY_SPC( 161 ), SPECIES_MOLWT( 161 ) / 'ISOPRXN         ',   68.00 /
+      DATA CHEMISTRY_SPC( 162 ), SPECIES_MOLWT( 162 ) / 'ISOPND          ',  147.10 /
+      DATA CHEMISTRY_SPC( 163 ), SPECIES_MOLWT( 163 ) / 'ISOPNB          ',  147.10 /
+      DATA CHEMISTRY_SPC( 164 ), SPECIES_MOLWT( 164 ) / 'HC5             ',  100.10 /
+      DATA CHEMISTRY_SPC( 165 ), SPECIES_MOLWT( 165 ) / 'DIBOO           ',  133.10 /
+      DATA CHEMISTRY_SPC( 166 ), SPECIES_MOLWT( 166 ) / 'ISOPOOH         ',  118.10 /
+      DATA CHEMISTRY_SPC( 167 ), SPECIES_MOLWT( 167 ) / 'HPALD           ',  116.12 /
+      DATA CHEMISTRY_SPC( 168 ), SPECIES_MOLWT( 168 ) / 'HACET           ',   74.10 /
+      DATA CHEMISTRY_SPC( 169 ), SPECIES_MOLWT( 169 ) / 'NISOPO2         ',  162.10 /
+      DATA CHEMISTRY_SPC( 170 ), SPECIES_MOLWT( 170 ) / 'NIT1            ',  145.10 /
+      DATA CHEMISTRY_SPC( 171 ), SPECIES_MOLWT( 171 ) / 'NISOPOOH        ',  163.13 /
+      DATA CHEMISTRY_SPC( 172 ), SPECIES_MOLWT( 172 ) / 'HC5OO           ',  149.10 /
+      DATA CHEMISTRY_SPC( 173 ), SPECIES_MOLWT( 173 ) / 'DHMOB           ',  132.10 /
+      DATA CHEMISTRY_SPC( 174 ), SPECIES_MOLWT( 174 ) / 'ISOPNOOD        ',  196.10 /
+      DATA CHEMISTRY_SPC( 175 ), SPECIES_MOLWT( 175 ) / 'PROPNN          ',  119.10 /
+      DATA CHEMISTRY_SPC( 176 ), SPECIES_MOLWT( 176 ) / 'MVKN            ',  149.10 /
+      DATA CHEMISTRY_SPC( 177 ), SPECIES_MOLWT( 177 ) / 'ETHLN           ',  105.00 /
+      DATA CHEMISTRY_SPC( 178 ), SPECIES_MOLWT( 178 ) / 'RNO3I           ',  147.18 /
+      DATA CHEMISTRY_SPC( 179 ), SPECIES_MOLWT( 179 ) / 'ISOPNOOB        ',  196.10 /
+      DATA CHEMISTRY_SPC( 180 ), SPECIES_MOLWT( 180 ) / 'MACRN           ',  149.10 /
+      DATA CHEMISTRY_SPC( 181 ), SPECIES_MOLWT( 181 ) / 'NIT1NO3OOA      ',  176.10 /
+      DATA CHEMISTRY_SPC( 182 ), SPECIES_MOLWT( 182 ) / 'NIT1NO3OOB      ',  239.10 /
+      DATA CHEMISTRY_SPC( 183 ), SPECIES_MOLWT( 183 ) / 'ISOPNN          ',  226.00 /
+      DATA CHEMISTRY_SPC( 184 ), SPECIES_MOLWT( 184 ) / 'NIT1OHOO        ',  194.12 /
+      DATA CHEMISTRY_SPC( 185 ), SPECIES_MOLWT( 185 ) / 'MVKOO           ',  119.10 /
+      DATA CHEMISTRY_SPC( 186 ), SPECIES_MOLWT( 186 ) / 'MACROO          ',  119.10 /
+      DATA CHEMISTRY_SPC( 187 ), SPECIES_MOLWT( 187 ) / 'PYRUACD         ',   88.10 /
+      DATA CHEMISTRY_SPC( 188 ), SPECIES_MOLWT( 188 ) / 'IEPOX           ',  118.13 /
+      DATA CHEMISTRY_SPC( 189 ), SPECIES_MOLWT( 189 ) / 'IEPOXOO         ',  149.12 /
+      DATA CHEMISTRY_SPC( 190 ), SPECIES_MOLWT( 190 ) / 'IMPAA           ',  102.08 /
+      DATA CHEMISTRY_SPC( 191 ), SPECIES_MOLWT( 191 ) / 'IMAPAN          ',  147.09 /
+      DATA CHEMISTRY_SPC( 192 ), SPECIES_MOLWT( 192 ) / 'IMAE            ',  102.00 /
+      DATA CHEMISTRY_SPC( 193 ), SPECIES_MOLWT( 193 ) / 'IHMML           ',  102.00 /
+      DATA CHEMISTRY_SPC( 194 ), SPECIES_MOLWT( 194 ) / 'H2NO3PIJ        ',   64.00 /
+      DATA CHEMISTRY_SPC( 195 ), SPECIES_MOLWT( 195 ) / 'H2NO3PK         ',   64.00 /
+      DATA CHEMISTRY_SPC( 196 ), SPECIES_MOLWT( 196 ) / 'ACLI            ',   35.50 /
+      DATA CHEMISTRY_SPC( 197 ), SPECIES_MOLWT( 197 ) / 'ACLJ            ',   35.50 /
+      DATA CHEMISTRY_SPC( 198 ), SPECIES_MOLWT( 198 ) / 'ACLK            ',   35.50 /
+      DATA CHEMISTRY_SPC( 199 ), SPECIES_MOLWT( 199 ) / 'IEPOXP          ',  118.13 /
+      DATA CHEMISTRY_SPC( 200 ), SPECIES_MOLWT( 200 ) / 'IMAEP           ',  102.00 /
+      DATA CHEMISTRY_SPC( 201 ), SPECIES_MOLWT( 201 ) / 'IHMMLP          ',  102.00 /
+      DATA CHEMISTRY_SPC( 202 ), SPECIES_MOLWT( 202 ) / 'AIETETJ         ',  136.15 /
+      DATA CHEMISTRY_SPC( 203 ), SPECIES_MOLWT( 203 ) / 'AIEOSJ          ',  216.20 /
+      DATA CHEMISTRY_SPC( 204 ), SPECIES_MOLWT( 204 ) / 'ADIMJ           ',  248.23 /
+      DATA CHEMISTRY_SPC( 205 ), SPECIES_MOLWT( 205 ) / 'AIMGAJ          ',  120.10 /
+      DATA CHEMISTRY_SPC( 206 ), SPECIES_MOLWT( 206 ) / 'AIMOSJ          ',  200.16 /
+      DATA CHEMISTRY_SPC( 207 ), SPECIES_MOLWT( 207 ) / 'AALK1J          ',  225.00 /
+      DATA CHEMISTRY_SPC( 208 ), SPECIES_MOLWT( 208 ) / 'AOLGAJ          ',  206.00 /
+      DATA CHEMISTRY_SPC( 209 ), SPECIES_MOLWT( 209 ) / 'AALK2J          ',  205.10 /
+      DATA CHEMISTRY_SPC( 210 ), SPECIES_MOLWT( 210 ) / 'AXYL1J          ',  174.00 /
+      DATA CHEMISTRY_SPC( 211 ), SPECIES_MOLWT( 211 ) / 'AXYL2J          ',  185.00 /
+      DATA CHEMISTRY_SPC( 212 ), SPECIES_MOLWT( 212 ) / 'ATOL1J          ',  163.00 /
+      DATA CHEMISTRY_SPC( 213 ), SPECIES_MOLWT( 213 ) / 'ATOL2J          ',  175.00 /
+      DATA CHEMISTRY_SPC( 214 ), SPECIES_MOLWT( 214 ) / 'ABNZ1J          ',  161.00 /
+      DATA CHEMISTRY_SPC( 215 ), SPECIES_MOLWT( 215 ) / 'ABNZ2J          ',  134.00 /
+      DATA CHEMISTRY_SPC( 216 ), SPECIES_MOLWT( 216 ) / 'ATRP1J          ',  177.00 /
+      DATA CHEMISTRY_SPC( 217 ), SPECIES_MOLWT( 217 ) / 'AOLGBJ          ',  248.00 /
+      DATA CHEMISTRY_SPC( 218 ), SPECIES_MOLWT( 218 ) / 'ATRP2J          ',  198.00 /
+      DATA CHEMISTRY_SPC( 219 ), SPECIES_MOLWT( 219 ) / 'AISO1J          ',  132.00 /
+      DATA CHEMISTRY_SPC( 220 ), SPECIES_MOLWT( 220 ) / 'AISO2J          ',  133.00 /
+      DATA CHEMISTRY_SPC( 221 ), SPECIES_MOLWT( 221 ) / 'ASQTJ           ',  273.00 /
+      DATA CHEMISTRY_SPC( 222 ), SPECIES_MOLWT( 222 ) / 'APAH1J          ',  195.60 /
+      DATA CHEMISTRY_SPC( 223 ), SPECIES_MOLWT( 223 ) / 'APAH2J          ',  178.70 /
+      DATA CHEMISTRY_SPC( 224 ), SPECIES_MOLWT( 224 ) / 'APOCI           ',  220.00 /
+      DATA CHEMISTRY_SPC( 225 ), SPECIES_MOLWT( 225 ) / 'APNCOMI         ',  220.00 /
+      DATA CHEMISTRY_SPC( 226 ), SPECIES_MOLWT( 226 ) / 'APOCJ           ',  220.00 /
+      DATA CHEMISTRY_SPC( 227 ), SPECIES_MOLWT( 227 ) / 'APNCOMJ         ',  220.00 /
+      DATA CHEMISTRY_SPC( 228 ), SPECIES_MOLWT( 228 ) / 'AMTNO3J         ',  231.00 /
+      DATA CHEMISTRY_SPC( 229 ), SPECIES_MOLWT( 229 ) / 'AMTHYDJ         ',  185.00 /
+      DATA CHEMISTRY_SPC( 230 ), SPECIES_MOLWT( 230 ) / 'AISOPNNJ        ',  226.00 /
+      DATA CHEMISTRY_SPC( 231 ), SPECIES_MOLWT( 231 ) / 'AGLYJ           ',   66.40 /
+
+
+
+      LOGICAL   :: MAPPED_TO_CGRID   = .FALSE. 
+
 
 ! MAPPED_TO_CGRID declares whether CMAQ namelists were used to determine 
 ! the below values of CGRID_INDEX, SPECIES_TYPE, SPECIES_MOLWT, and CONVERT_CONC
       LOGICAL, PARAMETER, PRIVATE :: F = .FALSE.
       LOGICAL, PARAMETER, PRIVATE :: T = .TRUE.
 
-
-      LOGICAL   :: MAPPED_TO_CGRID   = .FALSE. 
-
-      DATA CHEMISTRY_SPC(   1 ), CGRID_INDEX(   1 ), SPECIES_TYPE(   1 ), SPECIES_MOLWT(   1 ), CONVERT_CONC(   1 ) / 'NO2             ',    1, 'GC',   46.01, F /
-      DATA CHEMISTRY_SPC(   2 ), CGRID_INDEX(   2 ), SPECIES_TYPE(   2 ), SPECIES_MOLWT(   2 ), CONVERT_CONC(   2 ) / 'NO              ',    2, 'GC',   30.01, F /
-      DATA CHEMISTRY_SPC(   3 ), CGRID_INDEX(   3 ), SPECIES_TYPE(   3 ), SPECIES_MOLWT(   3 ), CONVERT_CONC(   3 ) / 'O3P             ',    3, 'GC',   16.00, F /
-      DATA CHEMISTRY_SPC(   4 ), CGRID_INDEX(   4 ), SPECIES_TYPE(   4 ), SPECIES_MOLWT(   4 ), CONVERT_CONC(   4 ) / 'O3              ',    4, 'GC',   48.00, F /
-      DATA CHEMISTRY_SPC(   5 ), CGRID_INDEX(   5 ), SPECIES_TYPE(   5 ), SPECIES_MOLWT(   5 ), CONVERT_CONC(   5 ) / 'NO3             ',    5, 'GC',   62.01, F /
-      DATA CHEMISTRY_SPC(   6 ), CGRID_INDEX(   6 ), SPECIES_TYPE(   6 ), SPECIES_MOLWT(   6 ), CONVERT_CONC(   6 ) / 'N2O5            ',    6, 'GC',  108.02, F /
-      DATA CHEMISTRY_SPC(   7 ), CGRID_INDEX(   7 ), SPECIES_TYPE(   7 ), SPECIES_MOLWT(   7 ), CONVERT_CONC(   7 ) / 'HNO3            ',    7, 'GC',   63.02, F /
-      DATA CHEMISTRY_SPC(   8 ), CGRID_INDEX(   8 ), SPECIES_TYPE(   8 ), SPECIES_MOLWT(   8 ), CONVERT_CONC(   8 ) / 'O1D             ',    8, 'GC',   16.00, F /
-      DATA CHEMISTRY_SPC(   9 ), CGRID_INDEX(   9 ), SPECIES_TYPE(   9 ), SPECIES_MOLWT(   9 ), CONVERT_CONC(   9 ) / 'OH              ',    9, 'GC',   17.01, F /
-      DATA CHEMISTRY_SPC(  10 ), CGRID_INDEX(  10 ), SPECIES_TYPE(  10 ), SPECIES_MOLWT(  10 ), CONVERT_CONC(  10 ) / 'HONO            ',   10, 'GC',   47.02, F /
-      DATA CHEMISTRY_SPC(  11 ), CGRID_INDEX(  11 ), SPECIES_TYPE(  11 ), SPECIES_MOLWT(  11 ), CONVERT_CONC(  11 ) / 'HO2             ',   11, 'GC',   33.01, F /
-      DATA CHEMISTRY_SPC(  12 ), CGRID_INDEX(  12 ), SPECIES_TYPE(  12 ), SPECIES_MOLWT(  12 ), CONVERT_CONC(  12 ) / 'CO              ',   12, 'GC',   28.01, F /
-      DATA CHEMISTRY_SPC(  13 ), CGRID_INDEX(  13 ), SPECIES_TYPE(  13 ), SPECIES_MOLWT(  13 ), CONVERT_CONC(  13 ) / 'CO2             ',   13, 'GC',   44.01, F /
-      DATA CHEMISTRY_SPC(  14 ), CGRID_INDEX(  14 ), SPECIES_TYPE(  14 ), SPECIES_MOLWT(  14 ), CONVERT_CONC(  14 ) / 'HNO4            ',   14, 'GC',   79.02, F /
-      DATA CHEMISTRY_SPC(  15 ), CGRID_INDEX(  15 ), SPECIES_TYPE(  15 ), SPECIES_MOLWT(  15 ), CONVERT_CONC(  15 ) / 'HO2H            ',   15, 'GC',   34.01, F /
-      DATA CHEMISTRY_SPC(  16 ), CGRID_INDEX(  16 ), SPECIES_TYPE(  16 ), SPECIES_MOLWT(  16 ), CONVERT_CONC(  16 ) / 'SO2             ',   16, 'GC',   64.06, F /
-      DATA CHEMISTRY_SPC(  17 ), CGRID_INDEX(  17 ), SPECIES_TYPE(  17 ), SPECIES_MOLWT(  17 ), CONVERT_CONC(  17 ) / 'SULF            ',   17, 'GC',   98.08, F /
-      DATA CHEMISTRY_SPC(  18 ), CGRID_INDEX(  18 ), SPECIES_TYPE(  18 ), SPECIES_MOLWT(  18 ), CONVERT_CONC(  18 ) / 'SULRXN          ',   18, 'GC',   98.08, F /
-      DATA CHEMISTRY_SPC(  19 ), CGRID_INDEX(  19 ), SPECIES_TYPE(  19 ), SPECIES_MOLWT(  19 ), CONVERT_CONC(  19 ) / 'MEO2            ',   19, 'GC',   47.03, F /
-      DATA CHEMISTRY_SPC(  20 ), CGRID_INDEX(  20 ), SPECIES_TYPE(  20 ), SPECIES_MOLWT(  20 ), CONVERT_CONC(  20 ) / 'HCHO            ',   20, 'GC',   30.03, F /
-      DATA CHEMISTRY_SPC(  21 ), CGRID_INDEX(  21 ), SPECIES_TYPE(  21 ), SPECIES_MOLWT(  21 ), CONVERT_CONC(  21 ) / 'COOH            ',   21, 'GC',   48.04, F /
-      DATA CHEMISTRY_SPC(  22 ), CGRID_INDEX(  22 ), SPECIES_TYPE(  22 ), SPECIES_MOLWT(  22 ), CONVERT_CONC(  22 ) / 'MEOH            ',   22, 'GC',   32.04, F /
-      DATA CHEMISTRY_SPC(  23 ), CGRID_INDEX(  23 ), SPECIES_TYPE(  23 ), SPECIES_MOLWT(  23 ), CONVERT_CONC(  23 ) / 'RO2C            ',   23, 'GC',    1.00, F /
-      DATA CHEMISTRY_SPC(  24 ), CGRID_INDEX(  24 ), SPECIES_TYPE(  24 ), SPECIES_MOLWT(  24 ), CONVERT_CONC(  24 ) / 'RO2XC           ',   24, 'GC',    1.00, F /
-      DATA CHEMISTRY_SPC(  25 ), CGRID_INDEX(  25 ), SPECIES_TYPE(  25 ), SPECIES_MOLWT(  25 ), CONVERT_CONC(  25 ) / 'MECO3           ',   25, 'GC',   75.04, F /
-      DATA CHEMISTRY_SPC(  26 ), CGRID_INDEX(  26 ), SPECIES_TYPE(  26 ), SPECIES_MOLWT(  26 ), CONVERT_CONC(  26 ) / 'PAN             ',   26, 'GC',  121.05, F /
-      DATA CHEMISTRY_SPC(  27 ), CGRID_INDEX(  27 ), SPECIES_TYPE(  27 ), SPECIES_MOLWT(  27 ), CONVERT_CONC(  27 ) / 'CCOOOH          ',   27, 'GC',   76.00, F /
-      DATA CHEMISTRY_SPC(  28 ), CGRID_INDEX(  28 ), SPECIES_TYPE(  28 ), SPECIES_MOLWT(  28 ), CONVERT_CONC(  28 ) / 'CCOOH           ',   28, 'GC',   60.05, F /
-      DATA CHEMISTRY_SPC(  29 ), CGRID_INDEX(  29 ), SPECIES_TYPE(  29 ), SPECIES_MOLWT(  29 ), CONVERT_CONC(  29 ) / 'RCO3            ',   29, 'GC',   89.07, F /
-      DATA CHEMISTRY_SPC(  30 ), CGRID_INDEX(  30 ), SPECIES_TYPE(  30 ), SPECIES_MOLWT(  30 ), CONVERT_CONC(  30 ) / 'PAN2            ',   30, 'GC',  135.08, F /
-      DATA CHEMISTRY_SPC(  31 ), CGRID_INDEX(  31 ), SPECIES_TYPE(  31 ), SPECIES_MOLWT(  31 ), CONVERT_CONC(  31 ) / 'xHO2            ',   31, 'GC',   33.01, F /
-      DATA CHEMISTRY_SPC(  32 ), CGRID_INDEX(  32 ), SPECIES_TYPE(  32 ), SPECIES_MOLWT(  32 ), CONVERT_CONC(  32 ) / 'yROOH           ',   32, 'GC',   76.10, F /
-      DATA CHEMISTRY_SPC(  33 ), CGRID_INDEX(  33 ), SPECIES_TYPE(  33 ), SPECIES_MOLWT(  33 ), CONVERT_CONC(  33 ) / 'xCCHO           ',   33, 'GC',   44.05, F /
-      DATA CHEMISTRY_SPC(  34 ), CGRID_INDEX(  34 ), SPECIES_TYPE(  34 ), SPECIES_MOLWT(  34 ), CONVERT_CONC(  34 ) / 'RCOOOH          ',   34, 'GC',   74.08, F /
-      DATA CHEMISTRY_SPC(  35 ), CGRID_INDEX(  35 ), SPECIES_TYPE(  35 ), SPECIES_MOLWT(  35 ), CONVERT_CONC(  35 ) / 'RCOOH           ',   35, 'GC',   74.08, F /
-      DATA CHEMISTRY_SPC(  36 ), CGRID_INDEX(  36 ), SPECIES_TYPE(  36 ), SPECIES_MOLWT(  36 ), CONVERT_CONC(  36 ) / 'BZCO3           ',   36, 'GC',  137.12, F /
-      DATA CHEMISTRY_SPC(  37 ), CGRID_INDEX(  37 ), SPECIES_TYPE(  37 ), SPECIES_MOLWT(  37 ), CONVERT_CONC(  37 ) / 'PBZN            ',   37, 'GC',  183.13, F /
-      DATA CHEMISTRY_SPC(  38 ), CGRID_INDEX(  38 ), SPECIES_TYPE(  38 ), SPECIES_MOLWT(  38 ), CONVERT_CONC(  38 ) / 'BZO             ',   38, 'GC',   93.00, F /
-      DATA CHEMISTRY_SPC(  39 ), CGRID_INDEX(  39 ), SPECIES_TYPE(  39 ), SPECIES_MOLWT(  39 ), CONVERT_CONC(  39 ) / 'MACO3           ',   39, 'GC',  101.08, F /
-      DATA CHEMISTRY_SPC(  40 ), CGRID_INDEX(  40 ), SPECIES_TYPE(  40 ), SPECIES_MOLWT(  40 ), CONVERT_CONC(  40 ) / 'MAPAN           ',   40, 'GC',  147.09, F /
-      DATA CHEMISTRY_SPC(  41 ), CGRID_INDEX(  41 ), SPECIES_TYPE(  41 ), SPECIES_MOLWT(  41 ), CONVERT_CONC(  41 ) / 'TBUO            ',   41, 'GC',   73.00, F /
-      DATA CHEMISTRY_SPC(  42 ), CGRID_INDEX(  42 ), SPECIES_TYPE(  42 ), SPECIES_MOLWT(  42 ), CONVERT_CONC(  42 ) / 'RNO3            ',   42, 'GC',  147.18, F /
-      DATA CHEMISTRY_SPC(  43 ), CGRID_INDEX(  43 ), SPECIES_TYPE(  43 ), SPECIES_MOLWT(  43 ), CONVERT_CONC(  43 ) / 'ACETONE         ',   44, 'GC',   58.08, F /
-      DATA CHEMISTRY_SPC(  44 ), CGRID_INDEX(  44 ), SPECIES_TYPE(  44 ), SPECIES_MOLWT(  44 ), CONVERT_CONC(  44 ) / 'NPHE            ',   45, 'GC',  139.11, F /
-      DATA CHEMISTRY_SPC(  45 ), CGRID_INDEX(  45 ), SPECIES_TYPE(  45 ), SPECIES_MOLWT(  45 ), CONVERT_CONC(  45 ) / 'CRES            ',   46, 'GC',  108.14, F /
-      DATA CHEMISTRY_SPC(  46 ), CGRID_INDEX(  46 ), SPECIES_TYPE(  46 ), SPECIES_MOLWT(  46 ), CONVERT_CONC(  46 ) / 'xOH             ',   47, 'GC',   17.01, F /
-      DATA CHEMISTRY_SPC(  47 ), CGRID_INDEX(  47 ), SPECIES_TYPE(  47 ), SPECIES_MOLWT(  47 ), CONVERT_CONC(  47 ) / 'xNO2            ',   48, 'GC',   46.01, F /
-      DATA CHEMISTRY_SPC(  48 ), CGRID_INDEX(  48 ), SPECIES_TYPE(  48 ), SPECIES_MOLWT(  48 ), CONVERT_CONC(  48 ) / 'xMEO2           ',   49, 'GC',   47.03, F /
-      DATA CHEMISTRY_SPC(  49 ), CGRID_INDEX(  49 ), SPECIES_TYPE(  49 ), SPECIES_MOLWT(  49 ), CONVERT_CONC(  49 ) / 'xMECO3          ',   50, 'GC',   75.04, F /
-      DATA CHEMISTRY_SPC(  50 ), CGRID_INDEX(  50 ), SPECIES_TYPE(  50 ), SPECIES_MOLWT(  50 ), CONVERT_CONC(  50 ) / 'xRCO3           ',   51, 'GC',   89.07, F /
-      DATA CHEMISTRY_SPC(  51 ), CGRID_INDEX(  51 ), SPECIES_TYPE(  51 ), SPECIES_MOLWT(  51 ), CONVERT_CONC(  51 ) / 'xMACO3          ',   52, 'GC',  101.08, F /
-      DATA CHEMISTRY_SPC(  52 ), CGRID_INDEX(  52 ), SPECIES_TYPE(  52 ), SPECIES_MOLWT(  52 ), CONVERT_CONC(  52 ) / 'xTBUO           ',   53, 'GC',   73.00, F /
-      DATA CHEMISTRY_SPC(  53 ), CGRID_INDEX(  53 ), SPECIES_TYPE(  53 ), SPECIES_MOLWT(  53 ), CONVERT_CONC(  53 ) / 'xCO             ',   54, 'GC',   28.01, F /
-      DATA CHEMISTRY_SPC(  54 ), CGRID_INDEX(  54 ), SPECIES_TYPE(  54 ), SPECIES_MOLWT(  54 ), CONVERT_CONC(  54 ) / 'CCHO            ',   55, 'GC',   44.05, F /
-      DATA CHEMISTRY_SPC(  55 ), CGRID_INDEX(  55 ), SPECIES_TYPE(  55 ), SPECIES_MOLWT(  55 ), CONVERT_CONC(  55 ) / 'RCHO            ',   56, 'GC',   58.08, F /
-      DATA CHEMISTRY_SPC(  56 ), CGRID_INDEX(  56 ), SPECIES_TYPE(  56 ), SPECIES_MOLWT(  56 ), CONVERT_CONC(  56 ) / 'xHCHO           ',   57, 'GC',   30.03, F /
-      DATA CHEMISTRY_SPC(  57 ), CGRID_INDEX(  57 ), SPECIES_TYPE(  57 ), SPECIES_MOLWT(  57 ), CONVERT_CONC(  57 ) / 'MEK             ',   58, 'GC',   72.11, F /
-      DATA CHEMISTRY_SPC(  58 ), CGRID_INDEX(  58 ), SPECIES_TYPE(  58 ), SPECIES_MOLWT(  58 ), CONVERT_CONC(  58 ) / 'zRNO3           ',   59, 'GC',  147.18, F /
-      DATA CHEMISTRY_SPC(  59 ), CGRID_INDEX(  59 ), SPECIES_TYPE(  59 ), SPECIES_MOLWT(  59 ), CONVERT_CONC(  59 ) / 'xRCHO           ',   60, 'GC',   58.08, F /
-      DATA CHEMISTRY_SPC(  60 ), CGRID_INDEX(  60 ), SPECIES_TYPE(  60 ), SPECIES_MOLWT(  60 ), CONVERT_CONC(  60 ) / 'HCOOH           ',   61, 'GC',   46.03, F /
-      DATA CHEMISTRY_SPC(  61 ), CGRID_INDEX(  61 ), SPECIES_TYPE(  61 ), SPECIES_MOLWT(  61 ), CONVERT_CONC(  61 ) / 'xMGLY           ',   62, 'GC',   72.07, F /
-      DATA CHEMISTRY_SPC(  62 ), CGRID_INDEX(  62 ), SPECIES_TYPE(  62 ), SPECIES_MOLWT(  62 ), CONVERT_CONC(  62 ) / 'xBACL           ',   63, 'GC',   86.09, F /
-      DATA CHEMISTRY_SPC(  63 ), CGRID_INDEX(  63 ), SPECIES_TYPE(  63 ), SPECIES_MOLWT(  63 ), CONVERT_CONC(  63 ) / 'ROOH            ',   64, 'GC',   76.10, F /
-      DATA CHEMISTRY_SPC(  64 ), CGRID_INDEX(  64 ), SPECIES_TYPE(  64 ), SPECIES_MOLWT(  64 ), CONVERT_CONC(  64 ) / 'xPROD2          ',   65, 'GC',  116.16, F /
-      DATA CHEMISTRY_SPC(  65 ), CGRID_INDEX(  65 ), SPECIES_TYPE(  65 ), SPECIES_MOLWT(  65 ), CONVERT_CONC(  65 ) / 'R6OOH           ',   66, 'GC',  118.17, F /
-      DATA CHEMISTRY_SPC(  66 ), CGRID_INDEX(  66 ), SPECIES_TYPE(  66 ), SPECIES_MOLWT(  66 ), CONVERT_CONC(  66 ) / 'PRD2            ',   67, 'GC',  116.16, F /
-      DATA CHEMISTRY_SPC(  67 ), CGRID_INDEX(  67 ), SPECIES_TYPE(  67 ), SPECIES_MOLWT(  67 ), CONVERT_CONC(  67 ) / 'yR6OOH          ',   68, 'GC',  118.17, F /
-      DATA CHEMISTRY_SPC(  68 ), CGRID_INDEX(  68 ), SPECIES_TYPE(  68 ), SPECIES_MOLWT(  68 ), CONVERT_CONC(  68 ) / 'RAOOH           ',   71, 'GC',  188.18, F /
-      DATA CHEMISTRY_SPC(  69 ), CGRID_INDEX(  69 ), SPECIES_TYPE(  69 ), SPECIES_MOLWT(  69 ), CONVERT_CONC(  69 ) / 'MGLY            ',   72, 'GC',   72.07, F /
-      DATA CHEMISTRY_SPC(  70 ), CGRID_INDEX(  70 ), SPECIES_TYPE(  70 ), SPECIES_MOLWT(  70 ), CONVERT_CONC(  70 ) / 'IPRD            ',   73, 'GC',  100.12, F /
-      DATA CHEMISTRY_SPC(  71 ), CGRID_INDEX(  71 ), SPECIES_TYPE(  71 ), SPECIES_MOLWT(  71 ), CONVERT_CONC(  71 ) / 'xGLY            ',   74, 'GC',   58.04, F /
-      DATA CHEMISTRY_SPC(  72 ), CGRID_INDEX(  72 ), SPECIES_TYPE(  72 ), SPECIES_MOLWT(  72 ), CONVERT_CONC(  72 ) / 'xMEK            ',   75, 'GC',   72.11, F /
-      DATA CHEMISTRY_SPC(  73 ), CGRID_INDEX(  73 ), SPECIES_TYPE(  73 ), SPECIES_MOLWT(  73 ), CONVERT_CONC(  73 ) / 'xAFG1           ',   76, 'GC',   98.10, F /
-      DATA CHEMISTRY_SPC(  74 ), CGRID_INDEX(  74 ), SPECIES_TYPE(  74 ), SPECIES_MOLWT(  74 ), CONVERT_CONC(  74 ) / 'xAFG2           ',   77, 'GC',   98.10, F /
-      DATA CHEMISTRY_SPC(  75 ), CGRID_INDEX(  75 ), SPECIES_TYPE(  75 ), SPECIES_MOLWT(  75 ), CONVERT_CONC(  75 ) / 'GLY             ',   78, 'GC',   58.04, F /
-      DATA CHEMISTRY_SPC(  76 ), CGRID_INDEX(  76 ), SPECIES_TYPE(  76 ), SPECIES_MOLWT(  76 ), CONVERT_CONC(  76 ) / 'AFG1            ',   79, 'GC',   98.10, F /
-      DATA CHEMISTRY_SPC(  77 ), CGRID_INDEX(  77 ), SPECIES_TYPE(  77 ), SPECIES_MOLWT(  77 ), CONVERT_CONC(  77 ) / 'AFG2            ',   80, 'GC',   98.10, F /
-      DATA CHEMISTRY_SPC(  78 ), CGRID_INDEX(  78 ), SPECIES_TYPE(  78 ), SPECIES_MOLWT(  78 ), CONVERT_CONC(  78 ) / 'HCOCO3          ',   81, 'GC',   89.00, F /
-      DATA CHEMISTRY_SPC(  79 ), CGRID_INDEX(  79 ), SPECIES_TYPE(  79 ), SPECIES_MOLWT(  79 ), CONVERT_CONC(  79 ) / 'BACL            ',   82, 'GC',   86.09, F /
-      DATA CHEMISTRY_SPC(  80 ), CGRID_INDEX(  80 ), SPECIES_TYPE(  80 ), SPECIES_MOLWT(  80 ), CONVERT_CONC(  80 ) / 'BALD            ',   83, 'GC',  106.13, F /
-      DATA CHEMISTRY_SPC(  81 ), CGRID_INDEX(  81 ), SPECIES_TYPE(  81 ), SPECIES_MOLWT(  81 ), CONVERT_CONC(  81 ) / 'AFG3            ',   84, 'GC',  124.14, F /
-      DATA CHEMISTRY_SPC(  82 ), CGRID_INDEX(  82 ), SPECIES_TYPE(  82 ), SPECIES_MOLWT(  82 ), CONVERT_CONC(  82 ) / 'xIPRD           ',   85, 'GC',  100.12, F /
-      DATA CHEMISTRY_SPC(  83 ), CGRID_INDEX(  83 ), SPECIES_TYPE(  83 ), SPECIES_MOLWT(  83 ), CONVERT_CONC(  83 ) / 'MACR            ',   86, 'GC',   70.09, F /
-      DATA CHEMISTRY_SPC(  84 ), CGRID_INDEX(  84 ), SPECIES_TYPE(  84 ), SPECIES_MOLWT(  84 ), CONVERT_CONC(  84 ) / 'MVK             ',   87, 'GC',   70.09, F /
-      DATA CHEMISTRY_SPC(  85 ), CGRID_INDEX(  85 ), SPECIES_TYPE(  85 ), SPECIES_MOLWT(  85 ), CONVERT_CONC(  85 ) / 'xHOCCHO         ',   88, 'GC',   60.05, F /
-      DATA CHEMISTRY_SPC(  86 ), CGRID_INDEX(  86 ), SPECIES_TYPE(  86 ), SPECIES_MOLWT(  86 ), CONVERT_CONC(  86 ) / 'xRNO3           ',   89, 'GC',  147.18, F /
-      DATA CHEMISTRY_SPC(  87 ), CGRID_INDEX(  87 ), SPECIES_TYPE(  87 ), SPECIES_MOLWT(  87 ), CONVERT_CONC(  87 ) / 'HOCCHO          ',   90, 'GC',   60.05, F /
-      DATA CHEMISTRY_SPC(  88 ), CGRID_INDEX(  88 ), SPECIES_TYPE(  88 ), SPECIES_MOLWT(  88 ), CONVERT_CONC(  88 ) / 'xACETONE        ',   91, 'GC',   58.08, F /
-      DATA CHEMISTRY_SPC(  89 ), CGRID_INDEX(  89 ), SPECIES_TYPE(  89 ), SPECIES_MOLWT(  89 ), CONVERT_CONC(  89 ) / 'ACROLEIN        ',   92, 'GC',   56.06, F /
-      DATA CHEMISTRY_SPC(  90 ), CGRID_INDEX(  90 ), SPECIES_TYPE(  90 ), SPECIES_MOLWT(  90 ), CONVERT_CONC(  90 ) / 'xBALD           ',   93, 'GC',  106.13, F /
-      DATA CHEMISTRY_SPC(  91 ), CGRID_INDEX(  91 ), SPECIES_TYPE(  91 ), SPECIES_MOLWT(  91 ), CONVERT_CONC(  91 ) / 'xAFG3           ',   94, 'GC',  124.74, F /
-      DATA CHEMISTRY_SPC(  92 ), CGRID_INDEX(  92 ), SPECIES_TYPE(  92 ), SPECIES_MOLWT(  92 ), CONVERT_CONC(  92 ) / 'xMACR           ',   95, 'GC',   70.09, F /
-      DATA CHEMISTRY_SPC(  93 ), CGRID_INDEX(  93 ), SPECIES_TYPE(  93 ), SPECIES_MOLWT(  93 ), CONVERT_CONC(  93 ) / 'xMVK            ',   96, 'GC',   70.09, F /
-      DATA CHEMISTRY_SPC(  94 ), CGRID_INDEX(  94 ), SPECIES_TYPE(  94 ), SPECIES_MOLWT(  94 ), CONVERT_CONC(  94 ) / 'xMTNO3          ',   70, 'GC',  231.00, F /
-      DATA CHEMISTRY_SPC(  95 ), CGRID_INDEX(  95 ), SPECIES_TYPE(  95 ), SPECIES_MOLWT(  95 ), CONVERT_CONC(  95 ) / 'MTNO3           ',   43, 'GC',  231.00, F /
-      DATA CHEMISTRY_SPC(  96 ), CGRID_INDEX(  96 ), SPECIES_TYPE(  96 ), SPECIES_MOLWT(  96 ), CONVERT_CONC(  96 ) / 'IMACO3          ',  189, 'GC',  101.08, F /
-      DATA CHEMISTRY_SPC(  97 ), CGRID_INDEX(  97 ), SPECIES_TYPE(  97 ), SPECIES_MOLWT(  97 ), CONVERT_CONC(  97 ) / 'yRAOOH          ',   97, 'GC',  188.18, F /
-      DATA CHEMISTRY_SPC(  98 ), CGRID_INDEX(  98 ), SPECIES_TYPE(  98 ), SPECIES_MOLWT(  98 ), CONVERT_CONC(  98 ) / 'zMTNO3          ',   69, 'GC',  231.00, F /
-      DATA CHEMISTRY_SPC(  99 ), CGRID_INDEX(  99 ), SPECIES_TYPE(  99 ), SPECIES_MOLWT(  99 ), CONVERT_CONC(  99 ) / 'xACROLEIN       ',   98, 'GC',   56.06, F /
-      DATA CHEMISTRY_SPC( 100 ), CGRID_INDEX( 100 ), SPECIES_TYPE( 100 ), SPECIES_MOLWT( 100 ), CONVERT_CONC( 100 ) / 'ETHENE          ',   99, 'GC',   28.05, F /
-      DATA CHEMISTRY_SPC( 101 ), CGRID_INDEX( 101 ), SPECIES_TYPE( 101 ), SPECIES_MOLWT( 101 ), CONVERT_CONC( 101 ) / 'PROPENE         ',  100, 'GC',   42.08, F /
-      DATA CHEMISTRY_SPC( 102 ), CGRID_INDEX( 102 ), SPECIES_TYPE( 102 ), SPECIES_MOLWT( 102 ), CONVERT_CONC( 102 ) / 'BUTADIENE13     ',  101, 'GC',   54.09, F /
-      DATA CHEMISTRY_SPC( 103 ), CGRID_INDEX( 103 ), SPECIES_TYPE( 103 ), SPECIES_MOLWT( 103 ), CONVERT_CONC( 103 ) / 'ISOPRENE        ',  102, 'GC',   68.12, F /
-      DATA CHEMISTRY_SPC( 104 ), CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), SPECIES_MOLWT( 104 ), CONVERT_CONC( 104 ) / 'APIN            ',  103, 'GC',  136.23, F /
-      DATA CHEMISTRY_SPC( 105 ), CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), SPECIES_MOLWT( 105 ), CONVERT_CONC( 105 ) / 'TRPRXN          ',  104, 'GC',  136.00, F /
-      DATA CHEMISTRY_SPC( 106 ), CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), SPECIES_MOLWT( 106 ), CONVERT_CONC( 106 ) / 'ACETYLENE       ',  105, 'GC',   26.04, F /
-      DATA CHEMISTRY_SPC( 107 ), CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), SPECIES_MOLWT( 107 ), CONVERT_CONC( 107 ) / 'BENZENE         ',  106, 'GC',   78.11, F /
-      DATA CHEMISTRY_SPC( 108 ), CGRID_INDEX( 108 ), SPECIES_TYPE( 108 ), SPECIES_MOLWT( 108 ), CONVERT_CONC( 108 ) / 'BENZRO2         ',  107, 'GC',  159.11, F /
-      DATA CHEMISTRY_SPC( 109 ), CGRID_INDEX( 109 ), SPECIES_TYPE( 109 ), SPECIES_MOLWT( 109 ), CONVERT_CONC( 109 ) / 'TOLUENE         ',  108, 'GC',   92.14, F /
-      DATA CHEMISTRY_SPC( 110 ), CGRID_INDEX( 110 ), SPECIES_TYPE( 110 ), SPECIES_MOLWT( 110 ), CONVERT_CONC( 110 ) / 'TOLRO2          ',  109, 'GC',  172.14, F /
-      DATA CHEMISTRY_SPC( 111 ), CGRID_INDEX( 111 ), SPECIES_TYPE( 111 ), SPECIES_MOLWT( 111 ), CONVERT_CONC( 111 ) / 'MXYL            ',  110, 'GC',  106.17, F /
-      DATA CHEMISTRY_SPC( 112 ), CGRID_INDEX( 112 ), SPECIES_TYPE( 112 ), SPECIES_MOLWT( 112 ), CONVERT_CONC( 112 ) / 'XYLRO2          ',  111, 'GC',  187.17, F /
-      DATA CHEMISTRY_SPC( 113 ), CGRID_INDEX( 113 ), SPECIES_TYPE( 113 ), SPECIES_MOLWT( 113 ), CONVERT_CONC( 113 ) / 'OXYL            ',  112, 'GC',  106.17, F /
-      DATA CHEMISTRY_SPC( 114 ), CGRID_INDEX( 114 ), SPECIES_TYPE( 114 ), SPECIES_MOLWT( 114 ), CONVERT_CONC( 114 ) / 'PXYL            ',  113, 'GC',  106.17, F /
-      DATA CHEMISTRY_SPC( 115 ), CGRID_INDEX( 115 ), SPECIES_TYPE( 115 ), SPECIES_MOLWT( 115 ), CONVERT_CONC( 115 ) / 'TMBENZ124       ',  114, 'GC',  120.19, F /
-      DATA CHEMISTRY_SPC( 116 ), CGRID_INDEX( 116 ), SPECIES_TYPE( 116 ), SPECIES_MOLWT( 116 ), CONVERT_CONC( 116 ) / 'ETOH            ',  115, 'GC',   46.07, F /
-      DATA CHEMISTRY_SPC( 117 ), CGRID_INDEX( 117 ), SPECIES_TYPE( 117 ), SPECIES_MOLWT( 117 ), CONVERT_CONC( 117 ) / 'ALK1            ',  116, 'GC',   30.07, F /
-      DATA CHEMISTRY_SPC( 118 ), CGRID_INDEX( 118 ), SPECIES_TYPE( 118 ), SPECIES_MOLWT( 118 ), CONVERT_CONC( 118 ) / 'ALK2            ',  117, 'GC',   36.73, F /
-      DATA CHEMISTRY_SPC( 119 ), CGRID_INDEX( 119 ), SPECIES_TYPE( 119 ), SPECIES_MOLWT( 119 ), CONVERT_CONC( 119 ) / 'ALK3            ',  118, 'GC',   58.61, F /
-      DATA CHEMISTRY_SPC( 120 ), CGRID_INDEX( 120 ), SPECIES_TYPE( 120 ), SPECIES_MOLWT( 120 ), CONVERT_CONC( 120 ) / 'ALK4            ',  119, 'GC',   77.60, F /
-      DATA CHEMISTRY_SPC( 121 ), CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), SPECIES_MOLWT( 121 ), CONVERT_CONC( 121 ) / 'ALK5            ',  120, 'GC',  118.89, F /
-      DATA CHEMISTRY_SPC( 122 ), CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), SPECIES_MOLWT( 122 ), CONVERT_CONC( 122 ) / 'SOAALK          ',  121, 'GC',  112.00, F /
-      DATA CHEMISTRY_SPC( 123 ), CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), SPECIES_MOLWT( 123 ), CONVERT_CONC( 123 ) / 'ALKRXN          ',  122, 'GC',  112.00, F /
-      DATA CHEMISTRY_SPC( 124 ), CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), SPECIES_MOLWT( 124 ), CONVERT_CONC( 124 ) / 'OLE1            ',  123, 'GC',   72.34, F /
-      DATA CHEMISTRY_SPC( 125 ), CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), SPECIES_MOLWT( 125 ), CONVERT_CONC( 125 ) / 'OLE2            ',  124, 'GC',   75.78, F /
-      DATA CHEMISTRY_SPC( 126 ), CGRID_INDEX( 126 ), SPECIES_TYPE( 126 ), SPECIES_MOLWT( 126 ), CONVERT_CONC( 126 ) / 'ARO1            ',  125, 'GC',   95.16, F /
-      DATA CHEMISTRY_SPC( 127 ), CGRID_INDEX( 127 ), SPECIES_TYPE( 127 ), SPECIES_MOLWT( 127 ), CONVERT_CONC( 127 ) / 'ARO2MN          ',  126, 'GC',  118.72, F /
-      DATA CHEMISTRY_SPC( 128 ), CGRID_INDEX( 128 ), SPECIES_TYPE( 128 ), SPECIES_MOLWT( 128 ), CONVERT_CONC( 128 ) / 'NAPHTHAL        ',  127, 'GC',  128.20, F /
-      DATA CHEMISTRY_SPC( 129 ), CGRID_INDEX( 129 ), SPECIES_TYPE( 129 ), SPECIES_MOLWT( 129 ), CONVERT_CONC( 129 ) / 'PAHRO2          ',  128, 'GC',  187.20, F /
-      DATA CHEMISTRY_SPC( 130 ), CGRID_INDEX( 130 ), SPECIES_TYPE( 130 ), SPECIES_MOLWT( 130 ), CONVERT_CONC( 130 ) / 'TERP            ',  129, 'GC',  136.24, F /
-      DATA CHEMISTRY_SPC( 131 ), CGRID_INDEX( 131 ), SPECIES_TYPE( 131 ), SPECIES_MOLWT( 131 ), CONVERT_CONC( 131 ) / 'TERPNRO2        ',  130, 'GC',  197.00, F /
-      DATA CHEMISTRY_SPC( 132 ), CGRID_INDEX( 132 ), SPECIES_TYPE( 132 ), SPECIES_MOLWT( 132 ), CONVERT_CONC( 132 ) / 'SESQ            ',  131, 'GC',  204.35, F /
-      DATA CHEMISTRY_SPC( 133 ), CGRID_INDEX( 133 ), SPECIES_TYPE( 133 ), SPECIES_MOLWT( 133 ), CONVERT_CONC( 133 ) / 'SESQRXN         ',  132, 'GC',  204.35, F /
-      DATA CHEMISTRY_SPC( 134 ), CGRID_INDEX( 134 ), SPECIES_TYPE( 134 ), SPECIES_MOLWT( 134 ), CONVERT_CONC( 134 ) / 'CL2             ',  133, 'GC',   70.00, F /
-      DATA CHEMISTRY_SPC( 135 ), CGRID_INDEX( 135 ), SPECIES_TYPE( 135 ), SPECIES_MOLWT( 135 ), CONVERT_CONC( 135 ) / 'CL              ',  134, 'GC',   35.50, F /
-      DATA CHEMISTRY_SPC( 136 ), CGRID_INDEX( 136 ), SPECIES_TYPE( 136 ), SPECIES_MOLWT( 136 ), CONVERT_CONC( 136 ) / 'CLNO            ',  135, 'GC',   65.50, F /
-      DATA CHEMISTRY_SPC( 137 ), CGRID_INDEX( 137 ), SPECIES_TYPE( 137 ), SPECIES_MOLWT( 137 ), CONVERT_CONC( 137 ) / 'CLONO           ',  136, 'GC',   81.50, F /
-      DATA CHEMISTRY_SPC( 138 ), CGRID_INDEX( 138 ), SPECIES_TYPE( 138 ), SPECIES_MOLWT( 138 ), CONVERT_CONC( 138 ) / 'CLNO2           ',  137, 'GC',   81.50, F /
-      DATA CHEMISTRY_SPC( 139 ), CGRID_INDEX( 139 ), SPECIES_TYPE( 139 ), SPECIES_MOLWT( 139 ), CONVERT_CONC( 139 ) / 'HCL             ',  138, 'GC',   36.50, F /
-      DATA CHEMISTRY_SPC( 140 ), CGRID_INDEX( 140 ), SPECIES_TYPE( 140 ), SPECIES_MOLWT( 140 ), CONVERT_CONC( 140 ) / 'CLO             ',  139, 'GC',   51.50, F /
-      DATA CHEMISTRY_SPC( 141 ), CGRID_INDEX( 141 ), SPECIES_TYPE( 141 ), SPECIES_MOLWT( 141 ), CONVERT_CONC( 141 ) / 'CLONO2          ',  140, 'GC',   97.45, F /
-      DATA CHEMISTRY_SPC( 142 ), CGRID_INDEX( 142 ), SPECIES_TYPE( 142 ), SPECIES_MOLWT( 142 ), CONVERT_CONC( 142 ) / 'HOCL            ',  141, 'GC',   52.50, F /
-      DATA CHEMISTRY_SPC( 143 ), CGRID_INDEX( 143 ), SPECIES_TYPE( 143 ), SPECIES_MOLWT( 143 ), CONVERT_CONC( 143 ) / 'xCL             ',  142, 'GC',   35.50, F /
-      DATA CHEMISTRY_SPC( 144 ), CGRID_INDEX( 144 ), SPECIES_TYPE( 144 ), SPECIES_MOLWT( 144 ), CONVERT_CONC( 144 ) / 'xCLCCHO         ',  143, 'GC',   78.50, F /
-      DATA CHEMISTRY_SPC( 145 ), CGRID_INDEX( 145 ), SPECIES_TYPE( 145 ), SPECIES_MOLWT( 145 ), CONVERT_CONC( 145 ) / 'xCLACET         ',  144, 'GC',   92.50, F /
-      DATA CHEMISTRY_SPC( 146 ), CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), SPECIES_MOLWT( 146 ), CONVERT_CONC( 146 ) / 'CLCCHO          ',  145, 'GC',   78.50, F /
-      DATA CHEMISTRY_SPC( 147 ), CGRID_INDEX( 147 ), SPECIES_TYPE( 147 ), SPECIES_MOLWT( 147 ), CONVERT_CONC( 147 ) / 'CLACET          ',  146, 'GC',   92.50, F /
-      DATA CHEMISTRY_SPC( 148 ), CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), SPECIES_MOLWT( 148 ), CONVERT_CONC( 148 ) / 'CLCHO           ',  147, 'GC',   64.50, F /
-      DATA CHEMISTRY_SPC( 149 ), CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), SPECIES_MOLWT( 149 ), CONVERT_CONC( 149 ) / 'BNZNRXN         ',  148, 'GC',  159.11, F /
-      DATA CHEMISTRY_SPC( 150 ), CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), SPECIES_MOLWT( 150 ), CONVERT_CONC( 150 ) / 'BNZHRXN         ',  149, 'GC',  159.11, F /
-      DATA CHEMISTRY_SPC( 151 ), CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), SPECIES_MOLWT( 151 ), CONVERT_CONC( 151 ) / 'XYLNRXN         ',  150, 'GC',  187.17, F /
-      DATA CHEMISTRY_SPC( 152 ), CGRID_INDEX( 152 ), SPECIES_TYPE( 152 ), SPECIES_MOLWT( 152 ), CONVERT_CONC( 152 ) / 'XYLHRXN         ',  151, 'GC',  187.17, F /
-      DATA CHEMISTRY_SPC( 153 ), CGRID_INDEX( 153 ), SPECIES_TYPE( 153 ), SPECIES_MOLWT( 153 ), CONVERT_CONC( 153 ) / 'TOLNRXN         ',  152, 'GC',  172.14, F /
-      DATA CHEMISTRY_SPC( 154 ), CGRID_INDEX( 154 ), SPECIES_TYPE( 154 ), SPECIES_MOLWT( 154 ), CONVERT_CONC( 154 ) / 'TOLHRXN         ',  153, 'GC',  172.14, F /
-      DATA CHEMISTRY_SPC( 155 ), CGRID_INDEX( 155 ), SPECIES_TYPE( 155 ), SPECIES_MOLWT( 155 ), CONVERT_CONC( 155 ) / 'PAHNRXN         ',  154, 'GC',  187.20, F /
-      DATA CHEMISTRY_SPC( 156 ), CGRID_INDEX( 156 ), SPECIES_TYPE( 156 ), SPECIES_MOLWT( 156 ), CONVERT_CONC( 156 ) / 'PAHHRXN         ',  155, 'GC',  187.20, F /
-      DATA CHEMISTRY_SPC( 157 ), CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), SPECIES_MOLWT( 157 ), CONVERT_CONC( 157 ) / 'HCHO_PRIMARY    ',  156, 'GC',   30.03, F /
-      DATA CHEMISTRY_SPC( 158 ), CGRID_INDEX( 158 ), SPECIES_TYPE( 158 ), SPECIES_MOLWT( 158 ), CONVERT_CONC( 158 ) / 'CCHO_PRIMARY    ',  157, 'GC',   44.05, F /
-      DATA CHEMISTRY_SPC( 159 ), CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), SPECIES_MOLWT( 159 ), CONVERT_CONC( 159 ) / 'ACRO_PRIMARY    ',  158, 'GC',   56.06, F /
-      DATA CHEMISTRY_SPC( 160 ), CGRID_INDEX( 160 ), SPECIES_TYPE( 160 ), SPECIES_MOLWT( 160 ), CONVERT_CONC( 160 ) / 'ISOPO2          ',  159, 'GC',  117.10, F /
-      DATA CHEMISTRY_SPC( 161 ), CGRID_INDEX( 161 ), SPECIES_TYPE( 161 ), SPECIES_MOLWT( 161 ), CONVERT_CONC( 161 ) / 'ISOPRXN         ',  160, 'GC',   68.00, F /
-      DATA CHEMISTRY_SPC( 162 ), CGRID_INDEX( 162 ), SPECIES_TYPE( 162 ), SPECIES_MOLWT( 162 ), CONVERT_CONC( 162 ) / 'ISOPND          ',  161, 'GC',  147.10, F /
-      DATA CHEMISTRY_SPC( 163 ), CGRID_INDEX( 163 ), SPECIES_TYPE( 163 ), SPECIES_MOLWT( 163 ), CONVERT_CONC( 163 ) / 'ISOPNB          ',  162, 'GC',  147.10, F /
-      DATA CHEMISTRY_SPC( 164 ), CGRID_INDEX( 164 ), SPECIES_TYPE( 164 ), SPECIES_MOLWT( 164 ), CONVERT_CONC( 164 ) / 'HC5             ',  163, 'GC',  100.10, F /
-      DATA CHEMISTRY_SPC( 165 ), CGRID_INDEX( 165 ), SPECIES_TYPE( 165 ), SPECIES_MOLWT( 165 ), CONVERT_CONC( 165 ) / 'DIBOO           ',  164, 'GC',  133.10, F /
-      DATA CHEMISTRY_SPC( 166 ), CGRID_INDEX( 166 ), SPECIES_TYPE( 166 ), SPECIES_MOLWT( 166 ), CONVERT_CONC( 166 ) / 'ISOPOOH         ',  165, 'GC',  118.10, F /
-      DATA CHEMISTRY_SPC( 167 ), CGRID_INDEX( 167 ), SPECIES_TYPE( 167 ), SPECIES_MOLWT( 167 ), CONVERT_CONC( 167 ) / 'HPALD           ',  166, 'GC',  116.12, F /
-      DATA CHEMISTRY_SPC( 168 ), CGRID_INDEX( 168 ), SPECIES_TYPE( 168 ), SPECIES_MOLWT( 168 ), CONVERT_CONC( 168 ) / 'HACET           ',  167, 'GC',   74.10, F /
-      DATA CHEMISTRY_SPC( 169 ), CGRID_INDEX( 169 ), SPECIES_TYPE( 169 ), SPECIES_MOLWT( 169 ), CONVERT_CONC( 169 ) / 'NISOPO2         ',  168, 'GC',  162.10, F /
-      DATA CHEMISTRY_SPC( 170 ), CGRID_INDEX( 170 ), SPECIES_TYPE( 170 ), SPECIES_MOLWT( 170 ), CONVERT_CONC( 170 ) / 'NIT1            ',  169, 'GC',  145.10, F /
-      DATA CHEMISTRY_SPC( 171 ), CGRID_INDEX( 171 ), SPECIES_TYPE( 171 ), SPECIES_MOLWT( 171 ), CONVERT_CONC( 171 ) / 'NISOPOOH        ',  170, 'GC',  163.13, F /
-      DATA CHEMISTRY_SPC( 172 ), CGRID_INDEX( 172 ), SPECIES_TYPE( 172 ), SPECIES_MOLWT( 172 ), CONVERT_CONC( 172 ) / 'HC5OO           ',  171, 'GC',  149.10, F /
-      DATA CHEMISTRY_SPC( 173 ), CGRID_INDEX( 173 ), SPECIES_TYPE( 173 ), SPECIES_MOLWT( 173 ), CONVERT_CONC( 173 ) / 'DHMOB           ',  172, 'GC',  132.10, F /
-      DATA CHEMISTRY_SPC( 174 ), CGRID_INDEX( 174 ), SPECIES_TYPE( 174 ), SPECIES_MOLWT( 174 ), CONVERT_CONC( 174 ) / 'ISOPNOOD        ',  173, 'GC',  196.10, F /
-      DATA CHEMISTRY_SPC( 175 ), CGRID_INDEX( 175 ), SPECIES_TYPE( 175 ), SPECIES_MOLWT( 175 ), CONVERT_CONC( 175 ) / 'PROPNN          ',  174, 'GC',  119.10, F /
-      DATA CHEMISTRY_SPC( 176 ), CGRID_INDEX( 176 ), SPECIES_TYPE( 176 ), SPECIES_MOLWT( 176 ), CONVERT_CONC( 176 ) / 'MVKN            ',  175, 'GC',  149.10, F /
-      DATA CHEMISTRY_SPC( 177 ), CGRID_INDEX( 177 ), SPECIES_TYPE( 177 ), SPECIES_MOLWT( 177 ), CONVERT_CONC( 177 ) / 'ETHLN           ',  176, 'GC',  105.00, F /
-      DATA CHEMISTRY_SPC( 178 ), CGRID_INDEX( 178 ), SPECIES_TYPE( 178 ), SPECIES_MOLWT( 178 ), CONVERT_CONC( 178 ) / 'RNO3I           ',  177, 'GC',  147.18, F /
-      DATA CHEMISTRY_SPC( 179 ), CGRID_INDEX( 179 ), SPECIES_TYPE( 179 ), SPECIES_MOLWT( 179 ), CONVERT_CONC( 179 ) / 'ISOPNOOB        ',  178, 'GC',  196.10, F /
-      DATA CHEMISTRY_SPC( 180 ), CGRID_INDEX( 180 ), SPECIES_TYPE( 180 ), SPECIES_MOLWT( 180 ), CONVERT_CONC( 180 ) / 'MACRN           ',  179, 'GC',  149.10, F /
-      DATA CHEMISTRY_SPC( 181 ), CGRID_INDEX( 181 ), SPECIES_TYPE( 181 ), SPECIES_MOLWT( 181 ), CONVERT_CONC( 181 ) / 'NIT1NO3OOA      ',  180, 'GC',  176.10, F /
-      DATA CHEMISTRY_SPC( 182 ), CGRID_INDEX( 182 ), SPECIES_TYPE( 182 ), SPECIES_MOLWT( 182 ), CONVERT_CONC( 182 ) / 'NIT1NO3OOB      ',  181, 'GC',  239.10, F /
-      DATA CHEMISTRY_SPC( 183 ), CGRID_INDEX( 183 ), SPECIES_TYPE( 183 ), SPECIES_MOLWT( 183 ), CONVERT_CONC( 183 ) / 'ISOPNN          ',  182, 'GC',  226.00, F /
-      DATA CHEMISTRY_SPC( 184 ), CGRID_INDEX( 184 ), SPECIES_TYPE( 184 ), SPECIES_MOLWT( 184 ), CONVERT_CONC( 184 ) / 'NIT1OHOO        ',  183, 'GC',  194.12, F /
-      DATA CHEMISTRY_SPC( 185 ), CGRID_INDEX( 185 ), SPECIES_TYPE( 185 ), SPECIES_MOLWT( 185 ), CONVERT_CONC( 185 ) / 'MVKOO           ',  184, 'GC',  119.10, F /
-      DATA CHEMISTRY_SPC( 186 ), CGRID_INDEX( 186 ), SPECIES_TYPE( 186 ), SPECIES_MOLWT( 186 ), CONVERT_CONC( 186 ) / 'MACROO          ',  185, 'GC',  119.10, F /
-      DATA CHEMISTRY_SPC( 187 ), CGRID_INDEX( 187 ), SPECIES_TYPE( 187 ), SPECIES_MOLWT( 187 ), CONVERT_CONC( 187 ) / 'PYRUACD         ',  186, 'GC',   88.10, F /
-      DATA CHEMISTRY_SPC( 188 ), CGRID_INDEX( 188 ), SPECIES_TYPE( 188 ), SPECIES_MOLWT( 188 ), CONVERT_CONC( 188 ) / 'IEPOX           ',  187, 'GC',  118.13, F /
-      DATA CHEMISTRY_SPC( 189 ), CGRID_INDEX( 189 ), SPECIES_TYPE( 189 ), SPECIES_MOLWT( 189 ), CONVERT_CONC( 189 ) / 'IEPOXOO         ',  188, 'GC',  149.12, F /
-      DATA CHEMISTRY_SPC( 190 ), CGRID_INDEX( 190 ), SPECIES_TYPE( 190 ), SPECIES_MOLWT( 190 ), CONVERT_CONC( 190 ) / 'IMPAA           ',  190, 'GC',  102.08, F /
-      DATA CHEMISTRY_SPC( 191 ), CGRID_INDEX( 191 ), SPECIES_TYPE( 191 ), SPECIES_MOLWT( 191 ), CONVERT_CONC( 191 ) / 'IMAPAN          ',  191, 'GC',  147.09, F /
-      DATA CHEMISTRY_SPC( 192 ), CGRID_INDEX( 192 ), SPECIES_TYPE( 192 ), SPECIES_MOLWT( 192 ), CONVERT_CONC( 192 ) / 'IMAE            ',  192, 'GC',  102.00, F /
-      DATA CHEMISTRY_SPC( 193 ), CGRID_INDEX( 193 ), SPECIES_TYPE( 193 ), SPECIES_MOLWT( 193 ), CONVERT_CONC( 193 ) / 'IHMML           ',  193, 'GC',  102.00, F /
-      DATA CHEMISTRY_SPC( 194 ), CGRID_INDEX( 194 ), SPECIES_TYPE( 194 ), SPECIES_MOLWT( 194 ), CONVERT_CONC( 194 ) / 'H2NO3PIJ        ',  194, 'GC',   64.00, F /
-      DATA CHEMISTRY_SPC( 195 ), CGRID_INDEX( 195 ), SPECIES_TYPE( 195 ), SPECIES_MOLWT( 195 ), CONVERT_CONC( 195 ) / 'H2NO3PK         ',  195, 'GC',   64.00, F /
-      DATA CHEMISTRY_SPC( 196 ), CGRID_INDEX( 196 ), SPECIES_TYPE( 196 ), SPECIES_MOLWT( 196 ), CONVERT_CONC( 196 ) / 'ACLI            ',  260, 'AE',   35.50, T /
-      DATA CHEMISTRY_SPC( 197 ), CGRID_INDEX( 197 ), SPECIES_TYPE( 197 ), SPECIES_MOLWT( 197 ), CONVERT_CONC( 197 ) / 'ACLJ            ',  259, 'AE',   35.50, T /
-      DATA CHEMISTRY_SPC( 198 ), CGRID_INDEX( 198 ), SPECIES_TYPE( 198 ), SPECIES_MOLWT( 198 ), CONVERT_CONC( 198 ) / 'ACLK            ',  262, 'AE',   35.50, T /
-      DATA CHEMISTRY_SPC( 199 ), CGRID_INDEX( 199 ), SPECIES_TYPE( 199 ), SPECIES_MOLWT( 199 ), CONVERT_CONC( 199 ) / 'IEPOXP          ',  196, 'GC',  118.13, F /
-      DATA CHEMISTRY_SPC( 200 ), CGRID_INDEX( 200 ), SPECIES_TYPE( 200 ), SPECIES_MOLWT( 200 ), CONVERT_CONC( 200 ) / 'IMAEP           ',  197, 'GC',  102.00, F /
-      DATA CHEMISTRY_SPC( 201 ), CGRID_INDEX( 201 ), SPECIES_TYPE( 201 ), SPECIES_MOLWT( 201 ), CONVERT_CONC( 201 ) / 'IHMMLP          ',  198, 'GC',  102.00, F /
-      DATA CHEMISTRY_SPC( 202 ), CGRID_INDEX( 202 ), SPECIES_TYPE( 202 ), SPECIES_MOLWT( 202 ), CONVERT_CONC( 202 ) / 'AIETETJ         ',  271, 'AE',  136.15, T /
-      DATA CHEMISTRY_SPC( 203 ), CGRID_INDEX( 203 ), SPECIES_TYPE( 203 ), SPECIES_MOLWT( 203 ), CONVERT_CONC( 203 ) / 'AIEOSJ          ',  272, 'AE',  216.20, T /
-      DATA CHEMISTRY_SPC( 204 ), CGRID_INDEX( 204 ), SPECIES_TYPE( 204 ), SPECIES_MOLWT( 204 ), CONVERT_CONC( 204 ) / 'ADIMJ           ',  273, 'AE',  248.23, T /
-      DATA CHEMISTRY_SPC( 205 ), CGRID_INDEX( 205 ), SPECIES_TYPE( 205 ), SPECIES_MOLWT( 205 ), CONVERT_CONC( 205 ) / 'AIMGAJ          ',  274, 'AE',  120.10, T /
-      DATA CHEMISTRY_SPC( 206 ), CGRID_INDEX( 206 ), SPECIES_TYPE( 206 ), SPECIES_MOLWT( 206 ), CONVERT_CONC( 206 ) / 'AIMOSJ          ',  275, 'AE',  200.16, T /
-      DATA CHEMISTRY_SPC( 207 ), CGRID_INDEX( 207 ), SPECIES_TYPE( 207 ), SPECIES_MOLWT( 207 ), CONVERT_CONC( 207 ) / 'AALK1J          ',  206, 'AE',  225.00, T /
-      DATA CHEMISTRY_SPC( 208 ), CGRID_INDEX( 208 ), SPECIES_TYPE( 208 ), SPECIES_MOLWT( 208 ), CONVERT_CONC( 208 ) / 'AOLGAJ          ',  268, 'AE',  206.00, T /
-      DATA CHEMISTRY_SPC( 209 ), CGRID_INDEX( 209 ), SPECIES_TYPE( 209 ), SPECIES_MOLWT( 209 ), CONVERT_CONC( 209 ) / 'AALK2J          ',  207, 'AE',  205.10, T /
-      DATA CHEMISTRY_SPC( 210 ), CGRID_INDEX( 210 ), SPECIES_TYPE( 210 ), SPECIES_MOLWT( 210 ), CONVERT_CONC( 210 ) / 'AXYL1J          ',  208, 'AE',  174.00, T /
-      DATA CHEMISTRY_SPC( 211 ), CGRID_INDEX( 211 ), SPECIES_TYPE( 211 ), SPECIES_MOLWT( 211 ), CONVERT_CONC( 211 ) / 'AXYL2J          ',  209, 'AE',  185.00, T /
-      DATA CHEMISTRY_SPC( 212 ), CGRID_INDEX( 212 ), SPECIES_TYPE( 212 ), SPECIES_MOLWT( 212 ), CONVERT_CONC( 212 ) / 'ATOL1J          ',  211, 'AE',  163.00, T /
-      DATA CHEMISTRY_SPC( 213 ), CGRID_INDEX( 213 ), SPECIES_TYPE( 213 ), SPECIES_MOLWT( 213 ), CONVERT_CONC( 213 ) / 'ATOL2J          ',  212, 'AE',  175.00, T /
-      DATA CHEMISTRY_SPC( 214 ), CGRID_INDEX( 214 ), SPECIES_TYPE( 214 ), SPECIES_MOLWT( 214 ), CONVERT_CONC( 214 ) / 'ABNZ1J          ',  214, 'AE',  161.00, T /
-      DATA CHEMISTRY_SPC( 215 ), CGRID_INDEX( 215 ), SPECIES_TYPE( 215 ), SPECIES_MOLWT( 215 ), CONVERT_CONC( 215 ) / 'ABNZ2J          ',  215, 'AE',  134.00, T /
-      DATA CHEMISTRY_SPC( 216 ), CGRID_INDEX( 216 ), SPECIES_TYPE( 216 ), SPECIES_MOLWT( 216 ), CONVERT_CONC( 216 ) / 'ATRP1J          ',  220, 'AE',  177.00, T /
-      DATA CHEMISTRY_SPC( 217 ), CGRID_INDEX( 217 ), SPECIES_TYPE( 217 ), SPECIES_MOLWT( 217 ), CONVERT_CONC( 217 ) / 'AOLGBJ          ',  269, 'AE',  248.00, T /
-      DATA CHEMISTRY_SPC( 218 ), CGRID_INDEX( 218 ), SPECIES_TYPE( 218 ), SPECIES_MOLWT( 218 ), CONVERT_CONC( 218 ) / 'ATRP2J          ',  221, 'AE',  198.00, T /
-      DATA CHEMISTRY_SPC( 219 ), CGRID_INDEX( 219 ), SPECIES_TYPE( 219 ), SPECIES_MOLWT( 219 ), CONVERT_CONC( 219 ) / 'AISO1J          ',  223, 'AE',  132.00, T /
-      DATA CHEMISTRY_SPC( 220 ), CGRID_INDEX( 220 ), SPECIES_TYPE( 220 ), SPECIES_MOLWT( 220 ), CONVERT_CONC( 220 ) / 'AISO2J          ',  224, 'AE',  133.00, T /
-      DATA CHEMISTRY_SPC( 221 ), CGRID_INDEX( 221 ), SPECIES_TYPE( 221 ), SPECIES_MOLWT( 221 ), CONVERT_CONC( 221 ) / 'ASQTJ           ',  227, 'AE',  273.00, T /
-      DATA CHEMISTRY_SPC( 222 ), CGRID_INDEX( 222 ), SPECIES_TYPE( 222 ), SPECIES_MOLWT( 222 ), CONVERT_CONC( 222 ) / 'APAH1J          ',  217, 'AE',  195.60, T /
-      DATA CHEMISTRY_SPC( 223 ), CGRID_INDEX( 223 ), SPECIES_TYPE( 223 ), SPECIES_MOLWT( 223 ), CONVERT_CONC( 223 ) / 'APAH2J          ',  218, 'AE',  178.70, T /
-      DATA CHEMISTRY_SPC( 224 ), CGRID_INDEX( 224 ), SPECIES_TYPE( 224 ), SPECIES_MOLWT( 224 ), CONVERT_CONC( 224 ) / 'APOCI           ',  230, 'AE',  220.00, T /
-      DATA CHEMISTRY_SPC( 225 ), CGRID_INDEX( 225 ), SPECIES_TYPE( 225 ), SPECIES_MOLWT( 225 ), CONVERT_CONC( 225 ) / 'APNCOMI         ',  232, 'AE',  220.00, T /
-      DATA CHEMISTRY_SPC( 226 ), CGRID_INDEX( 226 ), SPECIES_TYPE( 226 ), SPECIES_MOLWT( 226 ), CONVERT_CONC( 226 ) / 'APOCJ           ',  229, 'AE',  220.00, T /
-      DATA CHEMISTRY_SPC( 227 ), CGRID_INDEX( 227 ), SPECIES_TYPE( 227 ), SPECIES_MOLWT( 227 ), CONVERT_CONC( 227 ) / 'APNCOMJ         ',  231, 'AE',  220.00, T /
-      DATA CHEMISTRY_SPC( 228 ), CGRID_INDEX( 228 ), SPECIES_TYPE( 228 ), SPECIES_MOLWT( 228 ), CONVERT_CONC( 228 ) / 'AMTNO3J         ',  222, 'AE',  231.00, T /
-      DATA CHEMISTRY_SPC( 229 ), CGRID_INDEX( 229 ), SPECIES_TYPE( 229 ), SPECIES_MOLWT( 229 ), CONVERT_CONC( 229 ) / 'AMTHYDJ         ',  270, 'AE',  185.00, T /
-      DATA CHEMISTRY_SPC( 230 ), CGRID_INDEX( 230 ), SPECIES_TYPE( 230 ), SPECIES_MOLWT( 230 ), CONVERT_CONC( 230 ) / 'AISOPNNJ        ',  226, 'AE',  226.00, T /
-      DATA CHEMISTRY_SPC( 231 ), CGRID_INDEX( 231 ), SPECIES_TYPE( 231 ), SPECIES_MOLWT( 231 ), CONVERT_CONC( 231 ) / 'AGLYJ           ',  276, 'AE',   66.40, T /
+      DATA CGRID_INDEX(   1 ), SPECIES_TYPE(   1 ), CONVERT_CONC(   1 ) /    1, 'GC', F /  ! NO2
+      DATA CGRID_INDEX(   2 ), SPECIES_TYPE(   2 ), CONVERT_CONC(   2 ) /    2, 'GC', F /  ! NO
+      DATA CGRID_INDEX(   3 ), SPECIES_TYPE(   3 ), CONVERT_CONC(   3 ) /    3, 'GC', F /  ! O3P
+      DATA CGRID_INDEX(   4 ), SPECIES_TYPE(   4 ), CONVERT_CONC(   4 ) /    4, 'GC', F /  ! O3
+      DATA CGRID_INDEX(   5 ), SPECIES_TYPE(   5 ), CONVERT_CONC(   5 ) /    5, 'GC', F /  ! NO3
+      DATA CGRID_INDEX(   6 ), SPECIES_TYPE(   6 ), CONVERT_CONC(   6 ) /    6, 'GC', F /  ! N2O5
+      DATA CGRID_INDEX(   7 ), SPECIES_TYPE(   7 ), CONVERT_CONC(   7 ) /    7, 'GC', F /  ! HNO3
+      DATA CGRID_INDEX(   8 ), SPECIES_TYPE(   8 ), CONVERT_CONC(   8 ) /    8, 'GC', F /  ! O1D
+      DATA CGRID_INDEX(   9 ), SPECIES_TYPE(   9 ), CONVERT_CONC(   9 ) /    9, 'GC', F /  ! OH
+      DATA CGRID_INDEX(  10 ), SPECIES_TYPE(  10 ), CONVERT_CONC(  10 ) /   10, 'GC', F /  ! HONO
+      DATA CGRID_INDEX(  11 ), SPECIES_TYPE(  11 ), CONVERT_CONC(  11 ) /   11, 'GC', F /  ! HO2
+      DATA CGRID_INDEX(  12 ), SPECIES_TYPE(  12 ), CONVERT_CONC(  12 ) /   12, 'GC', F /  ! CO
+      DATA CGRID_INDEX(  13 ), SPECIES_TYPE(  13 ), CONVERT_CONC(  13 ) /   13, 'GC', F /  ! CO2
+      DATA CGRID_INDEX(  14 ), SPECIES_TYPE(  14 ), CONVERT_CONC(  14 ) /   14, 'GC', F /  ! HNO4
+      DATA CGRID_INDEX(  15 ), SPECIES_TYPE(  15 ), CONVERT_CONC(  15 ) /   15, 'GC', F /  ! HO2H
+      DATA CGRID_INDEX(  16 ), SPECIES_TYPE(  16 ), CONVERT_CONC(  16 ) /   16, 'GC', F /  ! SO2
+      DATA CGRID_INDEX(  17 ), SPECIES_TYPE(  17 ), CONVERT_CONC(  17 ) /   17, 'GC', F /  ! SULF
+      DATA CGRID_INDEX(  18 ), SPECIES_TYPE(  18 ), CONVERT_CONC(  18 ) /   18, 'GC', F /  ! SULRXN
+      DATA CGRID_INDEX(  19 ), SPECIES_TYPE(  19 ), CONVERT_CONC(  19 ) /   19, 'GC', F /  ! MEO2
+      DATA CGRID_INDEX(  20 ), SPECIES_TYPE(  20 ), CONVERT_CONC(  20 ) /   20, 'GC', F /  ! HCHO
+      DATA CGRID_INDEX(  21 ), SPECIES_TYPE(  21 ), CONVERT_CONC(  21 ) /   21, 'GC', F /  ! COOH
+      DATA CGRID_INDEX(  22 ), SPECIES_TYPE(  22 ), CONVERT_CONC(  22 ) /   22, 'GC', F /  ! MEOH
+      DATA CGRID_INDEX(  23 ), SPECIES_TYPE(  23 ), CONVERT_CONC(  23 ) /   23, 'GC', F /  ! RO2C
+      DATA CGRID_INDEX(  24 ), SPECIES_TYPE(  24 ), CONVERT_CONC(  24 ) /   24, 'GC', F /  ! RO2XC
+      DATA CGRID_INDEX(  25 ), SPECIES_TYPE(  25 ), CONVERT_CONC(  25 ) /   25, 'GC', F /  ! MECO3
+      DATA CGRID_INDEX(  26 ), SPECIES_TYPE(  26 ), CONVERT_CONC(  26 ) /   26, 'GC', F /  ! PAN
+      DATA CGRID_INDEX(  27 ), SPECIES_TYPE(  27 ), CONVERT_CONC(  27 ) /   27, 'GC', F /  ! CCOOOH
+      DATA CGRID_INDEX(  28 ), SPECIES_TYPE(  28 ), CONVERT_CONC(  28 ) /   28, 'GC', F /  ! CCOOH
+      DATA CGRID_INDEX(  29 ), SPECIES_TYPE(  29 ), CONVERT_CONC(  29 ) /   29, 'GC', F /  ! RCO3
+      DATA CGRID_INDEX(  30 ), SPECIES_TYPE(  30 ), CONVERT_CONC(  30 ) /   30, 'GC', F /  ! PAN2
+      DATA CGRID_INDEX(  31 ), SPECIES_TYPE(  31 ), CONVERT_CONC(  31 ) /   31, 'GC', F /  ! xHO2
+      DATA CGRID_INDEX(  32 ), SPECIES_TYPE(  32 ), CONVERT_CONC(  32 ) /   32, 'GC', F /  ! yROOH
+      DATA CGRID_INDEX(  33 ), SPECIES_TYPE(  33 ), CONVERT_CONC(  33 ) /   33, 'GC', F /  ! xCCHO
+      DATA CGRID_INDEX(  34 ), SPECIES_TYPE(  34 ), CONVERT_CONC(  34 ) /   34, 'GC', F /  ! RCOOOH
+      DATA CGRID_INDEX(  35 ), SPECIES_TYPE(  35 ), CONVERT_CONC(  35 ) /   35, 'GC', F /  ! RCOOH
+      DATA CGRID_INDEX(  36 ), SPECIES_TYPE(  36 ), CONVERT_CONC(  36 ) /   36, 'GC', F /  ! BZCO3
+      DATA CGRID_INDEX(  37 ), SPECIES_TYPE(  37 ), CONVERT_CONC(  37 ) /   37, 'GC', F /  ! PBZN
+      DATA CGRID_INDEX(  38 ), SPECIES_TYPE(  38 ), CONVERT_CONC(  38 ) /   38, 'GC', F /  ! BZO
+      DATA CGRID_INDEX(  39 ), SPECIES_TYPE(  39 ), CONVERT_CONC(  39 ) /   39, 'GC', F /  ! MACO3
+      DATA CGRID_INDEX(  40 ), SPECIES_TYPE(  40 ), CONVERT_CONC(  40 ) /   40, 'GC', F /  ! MAPAN
+      DATA CGRID_INDEX(  41 ), SPECIES_TYPE(  41 ), CONVERT_CONC(  41 ) /   41, 'GC', F /  ! TBUO
+      DATA CGRID_INDEX(  42 ), SPECIES_TYPE(  42 ), CONVERT_CONC(  42 ) /   42, 'GC', F /  ! RNO3
+      DATA CGRID_INDEX(  43 ), SPECIES_TYPE(  43 ), CONVERT_CONC(  43 ) /   44, 'GC', F /  ! ACETONE
+      DATA CGRID_INDEX(  44 ), SPECIES_TYPE(  44 ), CONVERT_CONC(  44 ) /   45, 'GC', F /  ! NPHE
+      DATA CGRID_INDEX(  45 ), SPECIES_TYPE(  45 ), CONVERT_CONC(  45 ) /   46, 'GC', F /  ! CRES
+      DATA CGRID_INDEX(  46 ), SPECIES_TYPE(  46 ), CONVERT_CONC(  46 ) /   47, 'GC', F /  ! xOH
+      DATA CGRID_INDEX(  47 ), SPECIES_TYPE(  47 ), CONVERT_CONC(  47 ) /   48, 'GC', F /  ! xNO2
+      DATA CGRID_INDEX(  48 ), SPECIES_TYPE(  48 ), CONVERT_CONC(  48 ) /   49, 'GC', F /  ! xMEO2
+      DATA CGRID_INDEX(  49 ), SPECIES_TYPE(  49 ), CONVERT_CONC(  49 ) /   50, 'GC', F /  ! xMECO3
+      DATA CGRID_INDEX(  50 ), SPECIES_TYPE(  50 ), CONVERT_CONC(  50 ) /   51, 'GC', F /  ! xRCO3
+      DATA CGRID_INDEX(  51 ), SPECIES_TYPE(  51 ), CONVERT_CONC(  51 ) /   52, 'GC', F /  ! xMACO3
+      DATA CGRID_INDEX(  52 ), SPECIES_TYPE(  52 ), CONVERT_CONC(  52 ) /   53, 'GC', F /  ! xTBUO
+      DATA CGRID_INDEX(  53 ), SPECIES_TYPE(  53 ), CONVERT_CONC(  53 ) /   54, 'GC', F /  ! xCO
+      DATA CGRID_INDEX(  54 ), SPECIES_TYPE(  54 ), CONVERT_CONC(  54 ) /   55, 'GC', F /  ! CCHO
+      DATA CGRID_INDEX(  55 ), SPECIES_TYPE(  55 ), CONVERT_CONC(  55 ) /   56, 'GC', F /  ! RCHO
+      DATA CGRID_INDEX(  56 ), SPECIES_TYPE(  56 ), CONVERT_CONC(  56 ) /   57, 'GC', F /  ! xHCHO
+      DATA CGRID_INDEX(  57 ), SPECIES_TYPE(  57 ), CONVERT_CONC(  57 ) /   58, 'GC', F /  ! MEK
+      DATA CGRID_INDEX(  58 ), SPECIES_TYPE(  58 ), CONVERT_CONC(  58 ) /   59, 'GC', F /  ! zRNO3
+      DATA CGRID_INDEX(  59 ), SPECIES_TYPE(  59 ), CONVERT_CONC(  59 ) /   60, 'GC', F /  ! xRCHO
+      DATA CGRID_INDEX(  60 ), SPECIES_TYPE(  60 ), CONVERT_CONC(  60 ) /   61, 'GC', F /  ! HCOOH
+      DATA CGRID_INDEX(  61 ), SPECIES_TYPE(  61 ), CONVERT_CONC(  61 ) /   62, 'GC', F /  ! xMGLY
+      DATA CGRID_INDEX(  62 ), SPECIES_TYPE(  62 ), CONVERT_CONC(  62 ) /   63, 'GC', F /  ! xBACL
+      DATA CGRID_INDEX(  63 ), SPECIES_TYPE(  63 ), CONVERT_CONC(  63 ) /   64, 'GC', F /  ! ROOH
+      DATA CGRID_INDEX(  64 ), SPECIES_TYPE(  64 ), CONVERT_CONC(  64 ) /   65, 'GC', F /  ! xPROD2
+      DATA CGRID_INDEX(  65 ), SPECIES_TYPE(  65 ), CONVERT_CONC(  65 ) /   66, 'GC', F /  ! R6OOH
+      DATA CGRID_INDEX(  66 ), SPECIES_TYPE(  66 ), CONVERT_CONC(  66 ) /   67, 'GC', F /  ! PRD2
+      DATA CGRID_INDEX(  67 ), SPECIES_TYPE(  67 ), CONVERT_CONC(  67 ) /   68, 'GC', F /  ! yR6OOH
+      DATA CGRID_INDEX(  68 ), SPECIES_TYPE(  68 ), CONVERT_CONC(  68 ) /   71, 'GC', F /  ! RAOOH
+      DATA CGRID_INDEX(  69 ), SPECIES_TYPE(  69 ), CONVERT_CONC(  69 ) /   72, 'GC', F /  ! MGLY
+      DATA CGRID_INDEX(  70 ), SPECIES_TYPE(  70 ), CONVERT_CONC(  70 ) /   73, 'GC', F /  ! IPRD
+      DATA CGRID_INDEX(  71 ), SPECIES_TYPE(  71 ), CONVERT_CONC(  71 ) /   74, 'GC', F /  ! xGLY
+      DATA CGRID_INDEX(  72 ), SPECIES_TYPE(  72 ), CONVERT_CONC(  72 ) /   75, 'GC', F /  ! xMEK
+      DATA CGRID_INDEX(  73 ), SPECIES_TYPE(  73 ), CONVERT_CONC(  73 ) /   76, 'GC', F /  ! xAFG1
+      DATA CGRID_INDEX(  74 ), SPECIES_TYPE(  74 ), CONVERT_CONC(  74 ) /   77, 'GC', F /  ! xAFG2
+      DATA CGRID_INDEX(  75 ), SPECIES_TYPE(  75 ), CONVERT_CONC(  75 ) /   78, 'GC', F /  ! GLY
+      DATA CGRID_INDEX(  76 ), SPECIES_TYPE(  76 ), CONVERT_CONC(  76 ) /   79, 'GC', F /  ! AFG1
+      DATA CGRID_INDEX(  77 ), SPECIES_TYPE(  77 ), CONVERT_CONC(  77 ) /   80, 'GC', F /  ! AFG2
+      DATA CGRID_INDEX(  78 ), SPECIES_TYPE(  78 ), CONVERT_CONC(  78 ) /   81, 'GC', F /  ! HCOCO3
+      DATA CGRID_INDEX(  79 ), SPECIES_TYPE(  79 ), CONVERT_CONC(  79 ) /   82, 'GC', F /  ! BACL
+      DATA CGRID_INDEX(  80 ), SPECIES_TYPE(  80 ), CONVERT_CONC(  80 ) /   83, 'GC', F /  ! BALD
+      DATA CGRID_INDEX(  81 ), SPECIES_TYPE(  81 ), CONVERT_CONC(  81 ) /   84, 'GC', F /  ! AFG3
+      DATA CGRID_INDEX(  82 ), SPECIES_TYPE(  82 ), CONVERT_CONC(  82 ) /   85, 'GC', F /  ! xIPRD
+      DATA CGRID_INDEX(  83 ), SPECIES_TYPE(  83 ), CONVERT_CONC(  83 ) /   86, 'GC', F /  ! MACR
+      DATA CGRID_INDEX(  84 ), SPECIES_TYPE(  84 ), CONVERT_CONC(  84 ) /   87, 'GC', F /  ! MVK
+      DATA CGRID_INDEX(  85 ), SPECIES_TYPE(  85 ), CONVERT_CONC(  85 ) /   88, 'GC', F /  ! xHOCCHO
+      DATA CGRID_INDEX(  86 ), SPECIES_TYPE(  86 ), CONVERT_CONC(  86 ) /   89, 'GC', F /  ! xRNO3
+      DATA CGRID_INDEX(  87 ), SPECIES_TYPE(  87 ), CONVERT_CONC(  87 ) /   90, 'GC', F /  ! HOCCHO
+      DATA CGRID_INDEX(  88 ), SPECIES_TYPE(  88 ), CONVERT_CONC(  88 ) /   91, 'GC', F /  ! xACETONE
+      DATA CGRID_INDEX(  89 ), SPECIES_TYPE(  89 ), CONVERT_CONC(  89 ) /   92, 'GC', F /  ! ACROLEIN
+      DATA CGRID_INDEX(  90 ), SPECIES_TYPE(  90 ), CONVERT_CONC(  90 ) /   93, 'GC', F /  ! xBALD
+      DATA CGRID_INDEX(  91 ), SPECIES_TYPE(  91 ), CONVERT_CONC(  91 ) /   94, 'GC', F /  ! xAFG3
+      DATA CGRID_INDEX(  92 ), SPECIES_TYPE(  92 ), CONVERT_CONC(  92 ) /   95, 'GC', F /  ! xMACR
+      DATA CGRID_INDEX(  93 ), SPECIES_TYPE(  93 ), CONVERT_CONC(  93 ) /   96, 'GC', F /  ! xMVK
+      DATA CGRID_INDEX(  94 ), SPECIES_TYPE(  94 ), CONVERT_CONC(  94 ) /   70, 'GC', F /  ! xMTNO3
+      DATA CGRID_INDEX(  95 ), SPECIES_TYPE(  95 ), CONVERT_CONC(  95 ) /   43, 'GC', F /  ! MTNO3
+      DATA CGRID_INDEX(  96 ), SPECIES_TYPE(  96 ), CONVERT_CONC(  96 ) /  189, 'GC', F /  ! IMACO3
+      DATA CGRID_INDEX(  97 ), SPECIES_TYPE(  97 ), CONVERT_CONC(  97 ) /   97, 'GC', F /  ! yRAOOH
+      DATA CGRID_INDEX(  98 ), SPECIES_TYPE(  98 ), CONVERT_CONC(  98 ) /   69, 'GC', F /  ! zMTNO3
+      DATA CGRID_INDEX(  99 ), SPECIES_TYPE(  99 ), CONVERT_CONC(  99 ) /   98, 'GC', F /  ! xACROLEIN
+      DATA CGRID_INDEX( 100 ), SPECIES_TYPE( 100 ), CONVERT_CONC( 100 ) /   99, 'GC', F /  ! ETHENE
+      DATA CGRID_INDEX( 101 ), SPECIES_TYPE( 101 ), CONVERT_CONC( 101 ) /  100, 'GC', F /  ! PROPENE
+      DATA CGRID_INDEX( 102 ), SPECIES_TYPE( 102 ), CONVERT_CONC( 102 ) /  101, 'GC', F /  ! BUTADIENE13
+      DATA CGRID_INDEX( 103 ), SPECIES_TYPE( 103 ), CONVERT_CONC( 103 ) /  102, 'GC', F /  ! ISOPRENE
+      DATA CGRID_INDEX( 104 ), SPECIES_TYPE( 104 ), CONVERT_CONC( 104 ) /  103, 'GC', F /  ! APIN
+      DATA CGRID_INDEX( 105 ), SPECIES_TYPE( 105 ), CONVERT_CONC( 105 ) /  104, 'GC', F /  ! TRPRXN
+      DATA CGRID_INDEX( 106 ), SPECIES_TYPE( 106 ), CONVERT_CONC( 106 ) /  105, 'GC', F /  ! ACETYLENE
+      DATA CGRID_INDEX( 107 ), SPECIES_TYPE( 107 ), CONVERT_CONC( 107 ) /  106, 'GC', F /  ! BENZENE
+      DATA CGRID_INDEX( 108 ), SPECIES_TYPE( 108 ), CONVERT_CONC( 108 ) /  107, 'GC', F /  ! BENZRO2
+      DATA CGRID_INDEX( 109 ), SPECIES_TYPE( 109 ), CONVERT_CONC( 109 ) /  108, 'GC', F /  ! TOLUENE
+      DATA CGRID_INDEX( 110 ), SPECIES_TYPE( 110 ), CONVERT_CONC( 110 ) /  109, 'GC', F /  ! TOLRO2
+      DATA CGRID_INDEX( 111 ), SPECIES_TYPE( 111 ), CONVERT_CONC( 111 ) /  110, 'GC', F /  ! MXYL
+      DATA CGRID_INDEX( 112 ), SPECIES_TYPE( 112 ), CONVERT_CONC( 112 ) /  111, 'GC', F /  ! XYLRO2
+      DATA CGRID_INDEX( 113 ), SPECIES_TYPE( 113 ), CONVERT_CONC( 113 ) /  112, 'GC', F /  ! OXYL
+      DATA CGRID_INDEX( 114 ), SPECIES_TYPE( 114 ), CONVERT_CONC( 114 ) /  113, 'GC', F /  ! PXYL
+      DATA CGRID_INDEX( 115 ), SPECIES_TYPE( 115 ), CONVERT_CONC( 115 ) /  114, 'GC', F /  ! TMBENZ124
+      DATA CGRID_INDEX( 116 ), SPECIES_TYPE( 116 ), CONVERT_CONC( 116 ) /  115, 'GC', F /  ! ETOH
+      DATA CGRID_INDEX( 117 ), SPECIES_TYPE( 117 ), CONVERT_CONC( 117 ) /  116, 'GC', F /  ! ALK1
+      DATA CGRID_INDEX( 118 ), SPECIES_TYPE( 118 ), CONVERT_CONC( 118 ) /  117, 'GC', F /  ! ALK2
+      DATA CGRID_INDEX( 119 ), SPECIES_TYPE( 119 ), CONVERT_CONC( 119 ) /  118, 'GC', F /  ! ALK3
+      DATA CGRID_INDEX( 120 ), SPECIES_TYPE( 120 ), CONVERT_CONC( 120 ) /  119, 'GC', F /  ! ALK4
+      DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  120, 'GC', F /  ! ALK5
+      DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  121, 'GC', F /  ! SOAALK
+      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  122, 'GC', F /  ! ALKRXN
+      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  123, 'GC', F /  ! OLE1
+      DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  124, 'GC', F /  ! OLE2
+      DATA CGRID_INDEX( 126 ), SPECIES_TYPE( 126 ), CONVERT_CONC( 126 ) /  125, 'GC', F /  ! ARO1
+      DATA CGRID_INDEX( 127 ), SPECIES_TYPE( 127 ), CONVERT_CONC( 127 ) /  126, 'GC', F /  ! ARO2MN
+      DATA CGRID_INDEX( 128 ), SPECIES_TYPE( 128 ), CONVERT_CONC( 128 ) /  127, 'GC', F /  ! NAPHTHAL
+      DATA CGRID_INDEX( 129 ), SPECIES_TYPE( 129 ), CONVERT_CONC( 129 ) /  128, 'GC', F /  ! PAHRO2
+      DATA CGRID_INDEX( 130 ), SPECIES_TYPE( 130 ), CONVERT_CONC( 130 ) /  129, 'GC', F /  ! TERP
+      DATA CGRID_INDEX( 131 ), SPECIES_TYPE( 131 ), CONVERT_CONC( 131 ) /  130, 'GC', F /  ! TERPNRO2
+      DATA CGRID_INDEX( 132 ), SPECIES_TYPE( 132 ), CONVERT_CONC( 132 ) /  131, 'GC', F /  ! SESQ
+      DATA CGRID_INDEX( 133 ), SPECIES_TYPE( 133 ), CONVERT_CONC( 133 ) /  132, 'GC', F /  ! SESQRXN
+      DATA CGRID_INDEX( 134 ), SPECIES_TYPE( 134 ), CONVERT_CONC( 134 ) /  133, 'GC', F /  ! CL2
+      DATA CGRID_INDEX( 135 ), SPECIES_TYPE( 135 ), CONVERT_CONC( 135 ) /  134, 'GC', F /  ! CL
+      DATA CGRID_INDEX( 136 ), SPECIES_TYPE( 136 ), CONVERT_CONC( 136 ) /  135, 'GC', F /  ! CLNO
+      DATA CGRID_INDEX( 137 ), SPECIES_TYPE( 137 ), CONVERT_CONC( 137 ) /  136, 'GC', F /  ! CLONO
+      DATA CGRID_INDEX( 138 ), SPECIES_TYPE( 138 ), CONVERT_CONC( 138 ) /  137, 'GC', F /  ! CLNO2
+      DATA CGRID_INDEX( 139 ), SPECIES_TYPE( 139 ), CONVERT_CONC( 139 ) /  138, 'GC', F /  ! HCL
+      DATA CGRID_INDEX( 140 ), SPECIES_TYPE( 140 ), CONVERT_CONC( 140 ) /  139, 'GC', F /  ! CLO
+      DATA CGRID_INDEX( 141 ), SPECIES_TYPE( 141 ), CONVERT_CONC( 141 ) /  140, 'GC', F /  ! CLONO2
+      DATA CGRID_INDEX( 142 ), SPECIES_TYPE( 142 ), CONVERT_CONC( 142 ) /  141, 'GC', F /  ! HOCL
+      DATA CGRID_INDEX( 143 ), SPECIES_TYPE( 143 ), CONVERT_CONC( 143 ) /  142, 'GC', F /  ! xCL
+      DATA CGRID_INDEX( 144 ), SPECIES_TYPE( 144 ), CONVERT_CONC( 144 ) /  143, 'GC', F /  ! xCLCCHO
+      DATA CGRID_INDEX( 145 ), SPECIES_TYPE( 145 ), CONVERT_CONC( 145 ) /  144, 'GC', F /  ! xCLACET
+      DATA CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), CONVERT_CONC( 146 ) /  145, 'GC', F /  ! CLCCHO
+      DATA CGRID_INDEX( 147 ), SPECIES_TYPE( 147 ), CONVERT_CONC( 147 ) /  146, 'GC', F /  ! CLACET
+      DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  147, 'GC', F /  ! CLCHO
+      DATA CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), CONVERT_CONC( 149 ) /  148, 'GC', F /  ! BNZNRXN
+      DATA CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), CONVERT_CONC( 150 ) /  149, 'GC', F /  ! BNZHRXN
+      DATA CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), CONVERT_CONC( 151 ) /  150, 'GC', F /  ! XYLNRXN
+      DATA CGRID_INDEX( 152 ), SPECIES_TYPE( 152 ), CONVERT_CONC( 152 ) /  151, 'GC', F /  ! XYLHRXN
+      DATA CGRID_INDEX( 153 ), SPECIES_TYPE( 153 ), CONVERT_CONC( 153 ) /  152, 'GC', F /  ! TOLNRXN
+      DATA CGRID_INDEX( 154 ), SPECIES_TYPE( 154 ), CONVERT_CONC( 154 ) /  153, 'GC', F /  ! TOLHRXN
+      DATA CGRID_INDEX( 155 ), SPECIES_TYPE( 155 ), CONVERT_CONC( 155 ) /  154, 'GC', F /  ! PAHNRXN
+      DATA CGRID_INDEX( 156 ), SPECIES_TYPE( 156 ), CONVERT_CONC( 156 ) /  155, 'GC', F /  ! PAHHRXN
+      DATA CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), CONVERT_CONC( 157 ) /  156, 'GC', F /  ! HCHO_PRIMARY
+      DATA CGRID_INDEX( 158 ), SPECIES_TYPE( 158 ), CONVERT_CONC( 158 ) /  157, 'GC', F /  ! CCHO_PRIMARY
+      DATA CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), CONVERT_CONC( 159 ) /  158, 'GC', F /  ! ACRO_PRIMARY
+      DATA CGRID_INDEX( 160 ), SPECIES_TYPE( 160 ), CONVERT_CONC( 160 ) /  159, 'GC', F /  ! ISOPO2
+      DATA CGRID_INDEX( 161 ), SPECIES_TYPE( 161 ), CONVERT_CONC( 161 ) /  160, 'GC', F /  ! ISOPRXN
+      DATA CGRID_INDEX( 162 ), SPECIES_TYPE( 162 ), CONVERT_CONC( 162 ) /  161, 'GC', F /  ! ISOPND
+      DATA CGRID_INDEX( 163 ), SPECIES_TYPE( 163 ), CONVERT_CONC( 163 ) /  162, 'GC', F /  ! ISOPNB
+      DATA CGRID_INDEX( 164 ), SPECIES_TYPE( 164 ), CONVERT_CONC( 164 ) /  163, 'GC', F /  ! HC5
+      DATA CGRID_INDEX( 165 ), SPECIES_TYPE( 165 ), CONVERT_CONC( 165 ) /  164, 'GC', F /  ! DIBOO
+      DATA CGRID_INDEX( 166 ), SPECIES_TYPE( 166 ), CONVERT_CONC( 166 ) /  165, 'GC', F /  ! ISOPOOH
+      DATA CGRID_INDEX( 167 ), SPECIES_TYPE( 167 ), CONVERT_CONC( 167 ) /  166, 'GC', F /  ! HPALD
+      DATA CGRID_INDEX( 168 ), SPECIES_TYPE( 168 ), CONVERT_CONC( 168 ) /  167, 'GC', F /  ! HACET
+      DATA CGRID_INDEX( 169 ), SPECIES_TYPE( 169 ), CONVERT_CONC( 169 ) /  168, 'GC', F /  ! NISOPO2
+      DATA CGRID_INDEX( 170 ), SPECIES_TYPE( 170 ), CONVERT_CONC( 170 ) /  169, 'GC', F /  ! NIT1
+      DATA CGRID_INDEX( 171 ), SPECIES_TYPE( 171 ), CONVERT_CONC( 171 ) /  170, 'GC', F /  ! NISOPOOH
+      DATA CGRID_INDEX( 172 ), SPECIES_TYPE( 172 ), CONVERT_CONC( 172 ) /  171, 'GC', F /  ! HC5OO
+      DATA CGRID_INDEX( 173 ), SPECIES_TYPE( 173 ), CONVERT_CONC( 173 ) /  172, 'GC', F /  ! DHMOB
+      DATA CGRID_INDEX( 174 ), SPECIES_TYPE( 174 ), CONVERT_CONC( 174 ) /  173, 'GC', F /  ! ISOPNOOD
+      DATA CGRID_INDEX( 175 ), SPECIES_TYPE( 175 ), CONVERT_CONC( 175 ) /  174, 'GC', F /  ! PROPNN
+      DATA CGRID_INDEX( 176 ), SPECIES_TYPE( 176 ), CONVERT_CONC( 176 ) /  175, 'GC', F /  ! MVKN
+      DATA CGRID_INDEX( 177 ), SPECIES_TYPE( 177 ), CONVERT_CONC( 177 ) /  176, 'GC', F /  ! ETHLN
+      DATA CGRID_INDEX( 178 ), SPECIES_TYPE( 178 ), CONVERT_CONC( 178 ) /  177, 'GC', F /  ! RNO3I
+      DATA CGRID_INDEX( 179 ), SPECIES_TYPE( 179 ), CONVERT_CONC( 179 ) /  178, 'GC', F /  ! ISOPNOOB
+      DATA CGRID_INDEX( 180 ), SPECIES_TYPE( 180 ), CONVERT_CONC( 180 ) /  179, 'GC', F /  ! MACRN
+      DATA CGRID_INDEX( 181 ), SPECIES_TYPE( 181 ), CONVERT_CONC( 181 ) /  180, 'GC', F /  ! NIT1NO3OOA
+      DATA CGRID_INDEX( 182 ), SPECIES_TYPE( 182 ), CONVERT_CONC( 182 ) /  181, 'GC', F /  ! NIT1NO3OOB
+      DATA CGRID_INDEX( 183 ), SPECIES_TYPE( 183 ), CONVERT_CONC( 183 ) /  182, 'GC', F /  ! ISOPNN
+      DATA CGRID_INDEX( 184 ), SPECIES_TYPE( 184 ), CONVERT_CONC( 184 ) /  183, 'GC', F /  ! NIT1OHOO
+      DATA CGRID_INDEX( 185 ), SPECIES_TYPE( 185 ), CONVERT_CONC( 185 ) /  184, 'GC', F /  ! MVKOO
+      DATA CGRID_INDEX( 186 ), SPECIES_TYPE( 186 ), CONVERT_CONC( 186 ) /  185, 'GC', F /  ! MACROO
+      DATA CGRID_INDEX( 187 ), SPECIES_TYPE( 187 ), CONVERT_CONC( 187 ) /  186, 'GC', F /  ! PYRUACD
+      DATA CGRID_INDEX( 188 ), SPECIES_TYPE( 188 ), CONVERT_CONC( 188 ) /  187, 'GC', F /  ! IEPOX
+      DATA CGRID_INDEX( 189 ), SPECIES_TYPE( 189 ), CONVERT_CONC( 189 ) /  188, 'GC', F /  ! IEPOXOO
+      DATA CGRID_INDEX( 190 ), SPECIES_TYPE( 190 ), CONVERT_CONC( 190 ) /  190, 'GC', F /  ! IMPAA
+      DATA CGRID_INDEX( 191 ), SPECIES_TYPE( 191 ), CONVERT_CONC( 191 ) /  191, 'GC', F /  ! IMAPAN
+      DATA CGRID_INDEX( 192 ), SPECIES_TYPE( 192 ), CONVERT_CONC( 192 ) /  192, 'GC', F /  ! IMAE
+      DATA CGRID_INDEX( 193 ), SPECIES_TYPE( 193 ), CONVERT_CONC( 193 ) /  193, 'GC', F /  ! IHMML
+      DATA CGRID_INDEX( 194 ), SPECIES_TYPE( 194 ), CONVERT_CONC( 194 ) /  194, 'GC', F /  ! H2NO3PIJ
+      DATA CGRID_INDEX( 195 ), SPECIES_TYPE( 195 ), CONVERT_CONC( 195 ) /  195, 'GC', F /  ! H2NO3PK
+      DATA CGRID_INDEX( 196 ), SPECIES_TYPE( 196 ), CONVERT_CONC( 196 ) /  260, 'AE', T /  ! ACLI
+      DATA CGRID_INDEX( 197 ), SPECIES_TYPE( 197 ), CONVERT_CONC( 197 ) /  259, 'AE', T /  ! ACLJ
+      DATA CGRID_INDEX( 198 ), SPECIES_TYPE( 198 ), CONVERT_CONC( 198 ) /  262, 'AE', T /  ! ACLK
+      DATA CGRID_INDEX( 199 ), SPECIES_TYPE( 199 ), CONVERT_CONC( 199 ) /  196, 'GC', F /  ! IEPOXP
+      DATA CGRID_INDEX( 200 ), SPECIES_TYPE( 200 ), CONVERT_CONC( 200 ) /  197, 'GC', F /  ! IMAEP
+      DATA CGRID_INDEX( 201 ), SPECIES_TYPE( 201 ), CONVERT_CONC( 201 ) /  198, 'GC', F /  ! IHMMLP
+      DATA CGRID_INDEX( 202 ), SPECIES_TYPE( 202 ), CONVERT_CONC( 202 ) /  271, 'AE', T /  ! AIETETJ
+      DATA CGRID_INDEX( 203 ), SPECIES_TYPE( 203 ), CONVERT_CONC( 203 ) /  272, 'AE', T /  ! AIEOSJ
+      DATA CGRID_INDEX( 204 ), SPECIES_TYPE( 204 ), CONVERT_CONC( 204 ) /  273, 'AE', T /  ! ADIMJ
+      DATA CGRID_INDEX( 205 ), SPECIES_TYPE( 205 ), CONVERT_CONC( 205 ) /  274, 'AE', T /  ! AIMGAJ
+      DATA CGRID_INDEX( 206 ), SPECIES_TYPE( 206 ), CONVERT_CONC( 206 ) /  275, 'AE', T /  ! AIMOSJ
+      DATA CGRID_INDEX( 207 ), SPECIES_TYPE( 207 ), CONVERT_CONC( 207 ) /  206, 'AE', T /  ! AALK1J
+      DATA CGRID_INDEX( 208 ), SPECIES_TYPE( 208 ), CONVERT_CONC( 208 ) /  268, 'AE', T /  ! AOLGAJ
+      DATA CGRID_INDEX( 209 ), SPECIES_TYPE( 209 ), CONVERT_CONC( 209 ) /  207, 'AE', T /  ! AALK2J
+      DATA CGRID_INDEX( 210 ), SPECIES_TYPE( 210 ), CONVERT_CONC( 210 ) /  208, 'AE', T /  ! AXYL1J
+      DATA CGRID_INDEX( 211 ), SPECIES_TYPE( 211 ), CONVERT_CONC( 211 ) /  209, 'AE', T /  ! AXYL2J
+      DATA CGRID_INDEX( 212 ), SPECIES_TYPE( 212 ), CONVERT_CONC( 212 ) /  211, 'AE', T /  ! ATOL1J
+      DATA CGRID_INDEX( 213 ), SPECIES_TYPE( 213 ), CONVERT_CONC( 213 ) /  212, 'AE', T /  ! ATOL2J
+      DATA CGRID_INDEX( 214 ), SPECIES_TYPE( 214 ), CONVERT_CONC( 214 ) /  214, 'AE', T /  ! ABNZ1J
+      DATA CGRID_INDEX( 215 ), SPECIES_TYPE( 215 ), CONVERT_CONC( 215 ) /  215, 'AE', T /  ! ABNZ2J
+      DATA CGRID_INDEX( 216 ), SPECIES_TYPE( 216 ), CONVERT_CONC( 216 ) /  220, 'AE', T /  ! ATRP1J
+      DATA CGRID_INDEX( 217 ), SPECIES_TYPE( 217 ), CONVERT_CONC( 217 ) /  269, 'AE', T /  ! AOLGBJ
+      DATA CGRID_INDEX( 218 ), SPECIES_TYPE( 218 ), CONVERT_CONC( 218 ) /  221, 'AE', T /  ! ATRP2J
+      DATA CGRID_INDEX( 219 ), SPECIES_TYPE( 219 ), CONVERT_CONC( 219 ) /  223, 'AE', T /  ! AISO1J
+      DATA CGRID_INDEX( 220 ), SPECIES_TYPE( 220 ), CONVERT_CONC( 220 ) /  224, 'AE', T /  ! AISO2J
+      DATA CGRID_INDEX( 221 ), SPECIES_TYPE( 221 ), CONVERT_CONC( 221 ) /  227, 'AE', T /  ! ASQTJ
+      DATA CGRID_INDEX( 222 ), SPECIES_TYPE( 222 ), CONVERT_CONC( 222 ) /  217, 'AE', T /  ! APAH1J
+      DATA CGRID_INDEX( 223 ), SPECIES_TYPE( 223 ), CONVERT_CONC( 223 ) /  218, 'AE', T /  ! APAH2J
+      DATA CGRID_INDEX( 224 ), SPECIES_TYPE( 224 ), CONVERT_CONC( 224 ) /  230, 'AE', T /  ! APOCI
+      DATA CGRID_INDEX( 225 ), SPECIES_TYPE( 225 ), CONVERT_CONC( 225 ) /  232, 'AE', T /  ! APNCOMI
+      DATA CGRID_INDEX( 226 ), SPECIES_TYPE( 226 ), CONVERT_CONC( 226 ) /  229, 'AE', T /  ! APOCJ
+      DATA CGRID_INDEX( 227 ), SPECIES_TYPE( 227 ), CONVERT_CONC( 227 ) /  231, 'AE', T /  ! APNCOMJ
+      DATA CGRID_INDEX( 228 ), SPECIES_TYPE( 228 ), CONVERT_CONC( 228 ) /  222, 'AE', T /  ! AMTNO3J
+      DATA CGRID_INDEX( 229 ), SPECIES_TYPE( 229 ), CONVERT_CONC( 229 ) /  270, 'AE', T /  ! AMTHYDJ
+      DATA CGRID_INDEX( 230 ), SPECIES_TYPE( 230 ), CONVERT_CONC( 230 ) /  226, 'AE', T /  ! AISOPNNJ
+      DATA CGRID_INDEX( 231 ), SPECIES_TYPE( 231 ), CONVERT_CONC( 231 ) /  276, 'AE', T /  ! AGLYJ
 
       INTEGER, PARAMETER :: N_ACT_SP = 231
 
@@ -9889,7 +10122,7 @@
 ! Special Rate information not available ...
       CHARACTER( 16 )    :: SPECIAL( 1 )
 
-      INTEGER, PARAMETER :: MAXSPECTERMS =  10
+      INTEGER, PARAMETER :: MAXSPECTERMS = 700
       REAL( 8 )          :: KC_COEFFS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_KTERMS( NSPECIAL + 1, MAXSPECTERMS)
       INTEGER            :: INDEX_CTERMS( NSPECIAL + 1, MAXSPECTERMS)
