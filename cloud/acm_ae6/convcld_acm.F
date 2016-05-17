@@ -997,7 +997,7 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
 C...compute relative humidity at the cloud source level
 
-            RLHSRC = QVL( SRCLAY ) / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) )
+            RLHSRC = MIN(1.0, QVL( SRCLAY ) / QSAT( ESAT( TAL( SRCLAY ) ), PRESL( SRCLAY ) ) )
 
 C...If all tests pass, then a CNP or PFW cloud exists
 C...  Proceed to find CLTOP for CNP or PFW; don't allow
