@@ -132,9 +132,9 @@ C Indices of required species
       Integer :: aolgb_idx
       Integer :: aorgc_idx
 
-      Real    :: vapor_mw  ( n_vapor )   ! Molecular weights
-      Real    :: vapor_conc( n_vapor )   ! vapor concentration
-      Integer :: drog_map  ( n_vapor )   ! drog mapping assignments
+      Real, Allocatable    :: vapor_mw  ( : )   ! Molecular weights
+      Real, Allocatable    :: vapor_conc( : )   ! vapor concentration
+      Integer, Allocatable :: drog_map  ( : )   ! drog mapping assignments
 
 C orgprod species
 
@@ -169,12 +169,12 @@ C                     -------    -------    ------   ------
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
       Real    :: orgprod_conc   ( n_orgprod )  ! orgprod concentration
       Integer :: orgprod_aeroMap( n_orgprod )  ! orgprod pointers to aerospc
-      Integer :: soa_aeroMap    ( n_vapor )    ! soa pointers to aerospc
+      Integer, Allocatable :: soa_aeroMap    ( : )    ! soa pointers to aerospc
 
 
 C mapping variables used for loading and unloading to CGRID array
-      Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
-      Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
+      Integer, Allocatable :: vapor_map( : )     ! pointers of vapor species to CGRID
+      Integer              :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
 
       Logical, Private, Save :: mapped              = .False.
       Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
@@ -222,6 +222,7 @@ C Local Variables:
       Real            :: vtmp
       Integer         :: n, g
       Integer         :: spc
+      Integer         :: vapor_to_vaporlist( n_vapor_list )
 
       Real, Save :: alk_factor = 1.00
 
@@ -242,7 +243,13 @@ C namelist or in the NR namelist.
              End If
           End Do
 
-          Allocate ( vaporspc( n_vapor )
+          Allocate ( vaporspc  ( n_vapor ))
+          Allocate ( vapor_mw  ( n_vapor ))
+          Allocate ( vapor_conc( n_vapor ))
+          Allocate ( drog_map  ( n_vapor ))
+          Allocate ( SOA_AeroMap  ( n_vapor ))
+          Allocate ( vapor_map  ( n_vapor ))
+
           Do spc = 1,n_vapor
              vaporspc( spc ) = vaporlist( vapor_to_vaporlist( spc ) )
           End Do
@@ -866,7 +873,7 @@ C Local variables:
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
-      Real, Save ::  mw_vap_m1( n_vapor )     ! Inverse MW of SVOCs [ mol/g ]
+      Real, Allocatable, Save ::  mw_vap_m1( : )     ! Inverse MW of SVOCs [ mol/g ]
 
       Real, Save ::  drog_ppm2ug( n_orgprod ) ! [ ppm per ug/m3 ] for ORGPROD at
                                               ! reference temperature and pressure
@@ -932,6 +939,7 @@ C-----------------------------------------------------------------------
 
 C Set unit conversion and inverse mw constants
          drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
+         Allocate( mw_vap_m1( n_vapor ) )
          mw_vap_m1( : ) = 1.0 / vapor_mw( : )
          mwpoa = aerospc_mw( apoc_idx )
 
@@ -1262,9 +1270,9 @@ C  Arguments
 C  Following Numerical recipes
 
       Integer NN
-      REAL FVEC               ! vector of functions to be zeroed
-      COMMON /NEWTV/ FVEC(n_vapor), NN
-      SAVE /NEWTV/
+      REAL :: FVEC( N )               ! vector of functions to be zeroed
+      !COMMON /NEWTV/ FVEC(n_vapor), NN
+      !SAVE /NEWTV/
 
 C  Parameters
       INTEGER, PARAMETER :: MAXITS = 100  ! maximum number of iterations
@@ -1275,12 +1283,12 @@ C  Parameters
       REAL, PARAMETER :: STPMX = 100.0    ! scaled maximum step length allowed
 
 C  Local variables
-      REAL CT
-      REAL CS
-      REAL IMW
-      REAL M
-      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
-      SAVE /NEWTINP/
+      REAL :: CT( N ), CS( N ), IMW( N ), M
+      !REAL CS
+      !REAL IMW
+      !REAL M
+      !COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
+      !SAVE /NEWTINP/
 
       INTEGER I, ITS, J, INDX( N_VAPOR )
       REAL D, DEN, F, FOLD, STPMAX, SUM, TEMP, TEST
@@ -1299,7 +1307,7 @@ C-----------------------------------------------------------------------
       END DO
 
       NN = N
-      CALL FMINV( X,F )       ! The vector FVEC is also computed by this call
+      CALL FMINV( X,F,NN,FVEC,CT,CS,IMW,M )  ! The vector FVEC is also computed by this call
       TEST = 0.0              ! Test for initial guess being a root. Use more
                               ! stringent test than simply TOLF.
       DO I = 1, N
@@ -1313,7 +1321,7 @@ C-----------------------------------------------------------------------
       END DO
       STPMAX = STPMX * MAX( SQRT( SUM ), FLOAT( N ) )
       DO ITS = 1, MAXITS           ! start of iteration loop
-         CALL FDJAC( N, X, FJAC )  ! get Jacobian
+         CALL FDJAC( N, X, FJAC, CT, CS, IMW, M )  ! get Jacobian
          DO I = 1, N               ! compute Delta f for line search
             SUM = 0.0
             DO J = 1, N
@@ -1333,7 +1341,8 @@ C-----------------------------------------------------------------------
          CALL LNSRCH( CTOT,
      &                N, XOLD, FOLD, G,  ! LNSRCH returns new X and F. It also
      &                P, X, F, STPMAX,   ! calculates FVEC at the new X when it
-     &                TOLX, CHECK )      ! calls FMINV
+     &                TOLX, CHECK, FVEC,
+     &                CT, CS, IMW, M)      ! calls FMINV
          TEST = 0.0
          DO I = 1, N
             IF ( ABS( FVEC( I ) ) .GT. TEST ) TEST = ABS( FVEC( I ) )
@@ -1367,7 +1376,7 @@ C-----------------------------------------------------------------------
       END SUBROUTINE NEWT
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FDJAC( N, X, FJAC )
+      SUBROUTINE FDJAC( N, X, FJAC, CT, CS, IMW, M )
 
 C  Description:
 C    Get the Jacobian of the function
@@ -1398,11 +1407,10 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       INTEGER N                 ! dimension of problem
       REAL X( N )               ! initial guess of CAER
 
-      REAL CT
-      REAL CS
-      REAL IMW
+      REAL CT( N )
+      REAL CS( N )
+      REAL IMW( N )
       REAL M
-      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
 
       REAL FJAC( N,N )
 
@@ -1437,7 +1445,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       END SUBROUTINE FDJAC
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FMINV( X,F )
+      SUBROUTINE FMINV( X,F,N,FVEC, CT, CS, IMW, M )
 
 C Description:
 C    Returns f = 0.5 * F*F at X. SR FUNCV(N,X,F) is a fixed-name,
@@ -1459,14 +1467,11 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       INTEGER N
 
       REAL X( * ), F
-      REAL FVEC
-
-      COMMON /NEWTV/ FVEC( N_VAPOR ), N
-      SAVE /NEWTV/
+      REAL :: FVEC( N ), CT( N ), CS( N ), IMW( N ), M
 
       INTEGER I
       REAL SUM
-      CALL FUNCV( N, X, FVEC )
+      CALL FUNCV( N, X, FVEC, CT, CS, IMW, M )
       SUM = 0.0
       DO I = 1, N
          SUM = SUM + FVEC( I ) ** 2
@@ -1476,7 +1481,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       END SUBROUTINE FMINV
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FUNCV( N, X, FVEC )
+      SUBROUTINE FUNCV( N, X, FVEC, CT, CS, IMW, M )
 
 C Description:
 C   From Equation (8) of Schell et al., 2001:
@@ -1517,12 +1522,10 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
       REAL X( * )
       REAL FVEC( N )
 
-      REAL CT
-      REAL CS
-      REAL IMW
+      REAL CT( N )
+      REAL CS( N )
+      REAL IMW( N )
       REAL M
-      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
-      SAVE /NEWTINP/
 
       INTEGER I, J
       REAL SUM_JNEI
@@ -1548,7 +1551,8 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
 C-----------------------------------------------------------------------
       SUBROUTINE LNSRCH( CTOT,
      &                   N, XOLD, FOLD, G, P,
-     &                   X, F, STPMAX, TOLX, CHECK)
+     &                   X, F, STPMAX, TOLX, CHECK, FVEC,
+     &                   CT, CS, IMW, M )
 
 C Description:
 C   Given an n-dimensional point XOLD(1:N), the value of the function
@@ -1583,6 +1587,7 @@ C       subroutine).
       REAL CTOT( N )
       REAL, PARAMETER :: ALF = 1.E-04
       REAL, PARAMETER :: CONMIN = 1.E-30
+      REAL :: FVEC( N ), CT( N ), CS( N ), IMW( N ), M
 
       INTEGER I
       REAL A, ALAM, ALAM2, ALAMIN, B, DISC
@@ -1621,7 +1626,7 @@ C  avoid negative concentrations and set upper limit given by CTOT.
          IF ( X( I ) .LE. 0.0 )       X( I ) = CONMIN
          IF ( X( I ) .GT. CTOT( I ) ) X( I ) = CTOT( I )
       END DO
-      CALL FMINV( X,F )
+      CALL FMINV( X,F,N,FVEC,CT,CS,IMW,M )
       IF ( ALAM .LT. ALAMIN ) THEN
          DO I = 1, N
             X( I ) = XOLD( I )

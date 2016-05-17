@@ -105,7 +105,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 78     ! number of aero species
+      Integer, Parameter :: n_aerolist = 89     ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -359,7 +359,6 @@ C Constants used in other routines:
       Real( 8 ), Parameter :: ascat_mg_fac = 0.0997D0    ! coarse sea-salt MG cation
       Real( 8 ), Parameter :: asoil_mg_fac = 0.0170D0    ! for MG in windblown dust
       Real( 8 ), Parameter :: acors_mg_fac = 0.0032D0    ! for MG in anthropogenic coarse
->>>>>>> AeroSprint
 
       Real( 8 ), Parameter :: ascat_k_fac =  0.0310D0    ! coarse sea-salt K cation
       Real( 8 ), Parameter :: asoil_k_fac =  0.0242D0    ! for K in windblown dust
@@ -434,7 +433,6 @@ C Indices of required species
       Integer :: ah3op_idx 
       Integer :: asoil_idx
       Integer :: acors_idx
-      Integer :: apncom_idx
       Integer :: aseacat_idx
 
 C Indices of Optional species
@@ -506,9 +504,10 @@ C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  ! indices of aero species to CGRID
 
 C Emissions mapping
-      Integer         :: n_emis_pm            ! number of aerospc with emissions
-      Integer, Allocatable :: pmem_map( : )   ! mapping to aerospc array for PM emissions
-      Character( 16 ) :: pmem_units           ! units for PM emissions for all species
+      Integer         :: n_emis_pm              ! number of aerospc with emissions
+      Integer, Allocatable :: pmem_map( : )     ! mapping to aerospc array for PM emissions
+      Character( 16 ), Allocatable :: pmem_map_name( : )! mapping to aerospc array for PM emissions
+      Character( 16 ) :: pmem_units             ! units for PM emissions for all species
 
       Logical, Save :: V51_SOA_mechanism   = .False. !
 C Private variables for loading from and unloading to CGRID array
@@ -605,15 +604,16 @@ C Build mapping to CGRID for each species in the master AeroList
       !Migrate all of the user-requested aerosols from AeroList to
       !AeroSpc. Begin by allocating all of the new arrays now that we
       !know the value of n_aerospc
-      Allocate( aerospc     ( n_aerospc ) )
-      Allocate( aerospc_mw  ( n_aerospc ) )
-      Allocate( pmem_map    ( n_aerospc ) )
-      Allocate( aerospc_map ( n_aerospc, n_mode ) )
-      Allocate( aerospc_conc( n_aerospc, n_mode ) )
-      Allocate( aerospc_ssf ( n_mode, n_aerospc ) )
-      Allocate( aero_missing( n_aerospc, n_mode ) )
-      Allocate( aeronum_map ( n_aerospc ) )
-      Allocate( aerosrf_map ( n_aerospc ) )
+      Allocate( aerospc       ( n_aerospc ) )
+      Allocate( aerospc_mw    ( n_aerospc ) )
+      Allocate( pmem_map      ( n_aerospc ) )
+      Allocate( pmem_map_name ( n_aerospc ) )
+      Allocate( aerospc_map   ( n_aerospc, n_mode ) )
+      Allocate( aerospc_conc  ( n_aerospc, n_mode ) )
+      Allocate( aerospc_ssf   ( n_mode, n_aerospc ) )
+      Allocate( aero_missing  ( n_aerospc, n_mode ) )
+      Allocate( aeronum_map   ( n_aerospc ) )
+      Allocate( aerosrf_map   ( n_aerospc ) )
 
       aerospc_ssf = 0.0
 
@@ -702,11 +702,11 @@ C Find indices of required species
 
 
       If ( INDEX( MECHNAME, 'AE6svPOA' ) .GT. 0 ) then
-         apoc_idx    = findAero( 'ALVPO1',    .True. )
+         apoc_idx    = findAero( 'ALVPO1          ',    .True. )
          apncom_idx  = 0
       Else
          apoc_idx    = findAero( req_poc,    .True. )
-         apncom_idx  = findAero( req_pncom,  .True. )
+         apncom_idx  = findAero( req_ncom,  .True. )
       Endif
 
       If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
