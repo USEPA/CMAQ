@@ -87,7 +87,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerospc = 49      ! number of aero species
+      Integer, Parameter :: n_aerospc = 54      ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken 
                                                 ! 2 = accumulation 
@@ -195,10 +195,10 @@ C                  --------- --------- ---------  --------- ------- +  +  +   + 
      & spcs_type((/'       ','ASVPO3J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
      & spcs_type((/'       ','AIVPO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','POC   ',es_fin),
      & spcs_type((/'ALVOO1I','ALVOO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'ALVOO2I','ALVOO2J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'ASVOO1I','ASVOO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'ASVOO2I','ASVOO2J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','ASVOO3J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AIVOO1J','       '/), cm_set, 2000.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
      & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6,'DUST  ','      ',es_cor),
      & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6,'DUST  ','PMC   ',es_cor),
      & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1, 1.37,'SOLUTE','      ',es_cor)/)
@@ -270,6 +270,11 @@ C           -------  -------  -------
      &       0.0,     0.0,     0.0,         ! ASVPO2
      &       0.0,     0.0,     0.0,         ! ASVPO3
      &       0.0,     0.0,     0.0,         ! AIVPO1
+     &       0.0,     0.0,     0.0,         ! ALVPO1
+     &       0.0,     0.0,     0.0,         ! ALVPO2
+     &       0.0,     0.0,     0.0,         ! ASVPO1
+     &       0.0,     0.0,     0.0,         ! ASVPO2
+     &       0.0,     0.0,     0.0,         ! ASVPO3
      &       0.0,     0.0,     0.0,         ! ASOIL
      &       0.0,     0.0,     0.0,         ! ACORS
      &       0.0,     0.0,     0.3686 /),   ! ASEACAT
