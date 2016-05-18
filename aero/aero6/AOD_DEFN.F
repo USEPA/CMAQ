@@ -239,6 +239,11 @@ C         AERO_DATA.F. Moments are wet after extract_aero
       subroutine get_extinc( airrh, ext2 )
  
 C *** adapted from getvisby.F
+C Revisions:
+C 05/2016: P Liu, 1) update humfac and add humfac_large, because ammonium sulfate, nitrate and OM
+C                 are splitted into small and large modes,humfac will be used for small mode
+C                 2) update algorithm for estimating light extinction efficiency based on IMPROVE 
+C                 for both updates see Pitchford et al., Journal of the Air & Waste Management Association (57)(2007), pp 1326.
 C-----------------------------------------------------------------------
  
          use aero_data
@@ -256,30 +261,66 @@ C *** Internal Variables:
 
          integer irh ! percent realtive humidity as an integer used for index
          real    frh ! RH correction factor: sulfate, nitrate, and ammonium aerosols
+         real    frh_large ! RH correction factor for large mode sulfate, nitrate, and ammonium aerosols
          real    frh_ss ! RH correction factor: sea salt aerosols (Malm & Hand, AE,2007)
 
-C air humidity scaling factors at 1% RH intervals
+C air humidity scaling factors at 1% RH intervals for small mode
+C values for RH96%-99% were linearly extrapolated by using the 94% and
+C 95% values:
+C     f(96%)=f(95%)+(f(95%)-f(94%))
+C     f(97%)=f(96%)+(f(96%)-f(95%))
+C     f(98%)=f(97%)+(f(97%)-f(96%))
+C     f(99%)=f(98%)+(f(98%)-f(97%))
          real, parameter :: humfac( 99 ) = (/
      &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
      &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
-     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0001e+00,  1.0001e+00,
-     &      1.0004e+00,  1.0006e+00,  1.0024e+00,  1.0056e+00,  1.0089e+00,
-     &      1.0097e+00,  1.0105e+00,  1.0111e+00,  1.0115e+00,  1.0118e+00,
-     &      1.0122e+00,  1.0126e+00,  1.0130e+00,  1.0135e+00,  1.0139e+00,
-     &      1.0173e+00,  1.0206e+00,  1.0254e+00,  1.0315e+00,  1.0377e+00,
-     &      1.0486e+00,  1.0596e+00,  1.0751e+00,  1.0951e+00,  1.1151e+00,
-     &      1.1247e+00,  1.1343e+00,  1.1436e+00,  1.1525e+00,  1.1615e+00,
-     &      1.1724e+00,  1.1833e+00,  1.1955e+00,  1.2090e+00,  1.2224e+00,
-     &      1.2368e+00,  1.2512e+00,  1.2671e+00,  1.2844e+00,  1.3018e+00,
-     &      1.3234e+00,  1.3450e+00,  1.3695e+00,  1.3969e+00,  1.4246e+00,
-     &      1.4628e+00,  1.5014e+00,  1.5468e+00,  1.5992e+00,  1.6516e+00,
-     &      1.6991e+00,  1.7466e+00,  1.7985e+00,  1.8549e+00,  1.9113e+00,
-     &      1.9596e+00,  2.0080e+00,  2.0596e+00,  2.1146e+00,  2.1695e+00,
-     &      2.2630e+00,  2.3565e+00,  2.4692e+00,  2.6011e+00,  2.7330e+00,
-     &      2.8461e+00,  2.9592e+00,  3.0853e+00,  3.2245e+00,  3.3637e+00,
-     &      3.5743e+00,  3.7849e+00,  4.0466e+00,  4.3594e+00,  4.6721e+00,
-     &      5.3067e+00,  5.9412e+00,  6.9627e+00,  8.3710e+00,  9.7793e+00,
-     &      1.2429e+01,  1.5078e+01,  1.8059e+01,  2.1371e+01/)
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.3800e+00,  1.4000e+00,  1.4200e+00,  1.4400e+00,
+     &      1.4600e+00,  1.4800e+00,  1.4900e+00,  1.5100e+00,  1.5300e+00,
+     &      1.5500e+00,  1.5700e+00,  1.5900e+00,  1.6200e+00,  1.6400e+00,
+     &      1.6600e+00,  1.6800e+00,  1.7100e+00,  1.7300e+00,  1.7600e+00,
+     &      1.7800e+00,  1.8100e+00,  1.8300e+00,  1.8600e+00,  1.8900e+00,
+     &      1.9200e+00,  1.9500e+00,  1.9900e+00,  2.0200e+00,  2.0600e+00,
+     &      2.0900e+00,  2.1300e+00,  2.1700e+00,  2.2200e+00,  2.2600e+00,
+     &      2.3100e+00,  2.3600e+00,  2.4100e+00,  2.4700e+00,  2.5400e+00,
+     &      2.6000e+00,  2.6700e+00,  2.7500e+00,  2.8400e+00,  2.9300e+00,
+     &      3.0300e+00,  3.1500e+00,  3.2700e+00,  3.4200e+00,  3.5800e+00,
+     &      3.7600e+00,  3.9800e+00,  4.2300e+00,  4.5300e+00,  4.9000e+00,
+     &      5.3500e+00,  5.9300e+00,  6.7100e+00,  7.7800e+00,  9.3400e+00,
+     &      1.0900e+01,  1.2460e+01,  1.4020e+01,  1.5580e+01/)
+
+C air humidity scaling factors at 1% RH intervals for large mode
+C values for RH96%-99% were linearly extrapolated by using the 94% and
+C 95% values:
+C     f(96%)=f(95%)+(f(95%)-f(94%))
+C     f(97%)=f(96%)+(f(96%)-f(95%))
+C     f(98%)=f(97%)+(f(97%)-f(96%))
+C     f(99%)=f(98%)+(f(98%)-f(97%))
+         real, parameter :: humfac_large( 99 ) = (/
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
+     &      1.0000e+00,  1.3100e+00,  1.3200e+00,  1.3400e+00,  1.3500e+00,
+     &      1.3600e+00,  1.3800e+00,  1.3900e+00,  1.4100e+00,  1.4200e+00,
+     &      1.4400e+00,  1.4500e+00,  1.4700e+00,  1.4900e+00,  1.5000e+00,
+     &      1.5200e+00,  1.5400e+00,  1.5500e+00,  1.5700e+00,  1.5900e+00,
+     &      1.6100e+00,  1.6300e+00,  1.6500e+00,  1.6700e+00,  1.6900e+00,
+     $      1.7100e+00,  1.7300e+00,  1.7500e+00,  1.7800e+00,  1.8000e+00,
+     &      1.8300e+00,  1.8600e+00,  1.8900e+00,  1.9200e+00,  1.9500e+00,
+     &      1.9800e+00,  2.0100e+00,  2.0500e+00,  2.0900e+00,  2.1300e+00,
+     &      2.1800e+00,  2.2200e+00,  2.2700e+00,  2.3300e+00,  2.3900e+00,
+     &      2.4500e+00,  2.5200e+00,  2.6000e+00,  2.6900e+00,  2.7900e+00,
+     &      2.9000e+00,  3.0200e+00,  3.1600e+00,  3.3300e+00,  3.5300e+00,
+     &      3.7700e+00,  4.0600e+00,  4.4300e+00,  4.9200e+00,  5.5700e+00,
+     &      6.2200e+00,  6.8700e+00,  7.5200e+00,  8.1700e+00/)
 
 C Update from Christian Hogrefe...
 C sea salt humidity scaling factors at 1% RH values
@@ -317,6 +358,8 @@ C     f(99%)=f(98%)+(f(98%)-f(97%))
 
          integer m, n    ! loop counters
 
+         real :: total_mass_so4,total_mass_no3,total_mass_om  ! total aerosol mass of sulfate, nitrate,or OM
+         real :: mass_with_nh4
 C-----------------------------------------------------------------------
 
 C *** IMPROVE reconstructed method
@@ -324,29 +367,116 @@ C *** IMPROVE reconstructed method
          irh = int( 100.0 * airrh  ) ! truncate relative humidity to nearest integer
          irh = max( 1, min( 99, irh ) ) ! set bounds
 
-         frh = humfac( irh )         ! aso4, ano3, anh4 humidity correction
+         frh = humfac( irh )             ! aso4, ano3, anh4 humidity correction for small mode
+         frh_large = humfac_large( irh ) ! aso4, ano3, anh4 humidity correction for large mode
          frh_ss = humfac_ss( irh )   ! sea salt aerosol humidity correction
 
 C *** NOTE in the following the fine primary mass "other" is
 C     treated as though it were fine mass soil.
 
-         ext2 = 0.0
       
-C     sum from aerospc species
+C     split aerosol mass of sulfate nitrate and OM to small and large
+C     modes based on their individual total mass
+
+         total_mass_so4 = 0.0
+         total_mass_no3 = 0.0
+         total_mass_om  = 0.0
+
+         do n = 1, n_aerospc
+             if ( n .eq. aso4_idx ) then
+                do m = 1, n_mode
+                  if ( .not. aero_missing( n,m ) ) then
+                     total_mass_so4 = total_mass_so4 +aerospc_conc( n,m )
+                  end if
+                end do
+                cycle
+             end if
+
+             if ( n .eq. ano3_idx ) then
+                do m = 1, n_mode
+                  if ( .not. aero_missing( n,m ) ) then
+                     total_mass_no3 = total_mass_no3 +aerospc_conc( n,m )
+                  end if
+                end do
+                cycle
+             end if
+
+             if ( aerospc( n )%om ) then
+                 do m = 1, n_mode
+                  if ( .not. aero_missing( n,m ) ) then
+                     total_mass_om = total_mass_om +aerospc_conc( n,m )
+                  end if
+                 end do
+                 cycle
+              end if
+         end do
+C  convert mass of sulfate and nitrate to ammonium sulfate and ammounium nitrate
+         total_mass_so4 = total_mass_so4 * (aerospc_mw(anh4_idx)*2+aerospc_mw(aso4_idx))
+     &                    /aerospc_mw(aso4_idx) 
+         total_mass_no3 = total_mass_no3 * (aerospc_mw(anh4_idx)+aerospc_mw(ano3_idx))
+     &                    /aerospc_mw(ano3_idx)       
+
+C     get the extinction efficiency for all species
+         ext2 = 0.0
+         
          do n = 1, n_aerospc
 
             if (  aerospc( n )%tracer ) cycle
 
-            if ( n .eq. aso4_idx .or. n .eq. ano3_idx .or. n .eq. anh4_idx ) then
+            if ( n .eq. aso4_idx ) then         ! for ammonium sulfate
                do m = 1, n_mode
                   if ( .not. aero_missing( n,m ) ) then
-                     ext2 = ext2 + frh * aerospc( n )%visual_idx * aerospc_conc( n,m )
+                     mass_with_nh4 = aerospc_conc( n,m)*
+     &                               (aerospc_mw(anh4_idx)*2+aerospc_mw(n))/aerospc_mw(n)
+                     if (total_mass_so4 .lt. 20)  then  ! if total mass less than 20ug/m3, split to 2 modes
+                       ext2 = ext2 + frh*aerospc( n )%visual_idx *(mass_with_nh4-mass_with_nh4/20)
+     &                        + frh_large * aerospc(n)%visual_idx_large*mass_with_nh4/20
+     
+                     else                               ! else  all mass goes to large mode
+                       ext2 = ext2 + frh_large * aerospc( n )%visual_idx_large *mass_with_nh4
+                          
+                     end if
                   end if
                end do
                cycle
             end if
+        
+            if (n .eq. ano3_idx ) then        ! for ammonium nitrate
+                do m = 1, n_mode
+                  if ( .not. aero_missing( n,m ) ) then
+                    mass_with_nh4 = aerospc_conc( n,m)*
+     &                              (aerospc_mw(anh4_idx)+aerospc_mw(n))/aerospc_mw(n)
+                     if (total_mass_no3 .lt. 20)  then  ! if total mass less than 20ug/m3, split to 2 modes
+                       ext2 = ext2 + frh*aerospc( n )%visual_idx*(mass_with_nh4-mass_with_nh4/20)
+     &                        + frh_large * aerospc(n)%visual_idx_large*mass_with_nh4/20
 
-            if ( n .eq. acl_idx .or. n .eq. ana_idx .or. n .eq. aseacat_idx ) then
+                     else                               ! else  all mass goes to large mode
+                       ext2 = ext2 + frh_large * aerospc( n)%visual_idx_large *mass_with_nh4
+
+                     end if 
+                  end if
+                end do
+                cycle
+            end if
+
+            if ( aerospc( n )%om ) then        ! for organic mass
+                 do m = 1, n_mode
+                  if ( .not. aero_missing( n,m ) ) then
+                   if (total_mass_om .lt. 20)  then  ! if total mass less than 20ug/m3, split to 2 modes
+                       ext2 = ext2 + aerospc( n )%visual_idx*(aerospc_conc( n,m)-aerospc_conc( n,m)/20)
+     &                        + aerospc(n)%visual_idx_large*aerospc_conc( n,m)/20
+
+                     else                               ! else  all mass goes to large mode
+                       ext2 = ext2 + aerospc(n)%visual_idx_large *aerospc_conc( n,m)
+
+                     end if
+                  end if
+                 end do
+                 cycle
+            end if
+
+
+            if ( n .eq. acl_idx .or. n .eq. ana_idx .or. n .eq. aseacat_idx ) then ! for sea salt
                do m = 1, n_mode
                   if ( .not. aero_missing( n,m ) ) then
                      ext2 = ext2 + frh_ss * aerospc( n )%visual_idx * aerospc_conc( n,m )
