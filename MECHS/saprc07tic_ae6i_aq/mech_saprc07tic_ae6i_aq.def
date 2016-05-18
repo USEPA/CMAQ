@@ -80,11 +80,9 @@
 ! 07/2015     H. Pye Corrected NO2, XC, and XN in MTNO3 forming reactions. See Pye et al. 2015 in prep.
 ! 07/2015     H. Pye All updates for saprc07tic-ae6i v5.1 documented 
 !                    in Pye et al. in prep for ES&T 2015
-! 10/2015     B.Murphy Added organic reactions for representing SIMPLE SOA formation and semivolatile POA
-!                      aging. These changes are consistent with the lumped POA approach of Koo et al., 2014
-!                      and will be further documented in Murphy et al., 2016
 ! 10/19/15    B.Hutzell: Renamed ACROLEIN_PRIMARY and TRIMETH_BENZ124 to ACRO_PRIMARY and TMBENZ124 for 
 !             DDM compliance
+
 
   SAPRC07TIC_AE6I_AQ
 
@@ -1677,22 +1675,13 @@ REACTIONS [CM] =
 <OLIG_PAH1>       APAH1J = 1.4286*AOLGAJ  # 9.48816E-6;
 <OLIG_PAH2>       APAH2J = 1.4286*AOLGAJ  # 9.48816E-6;
 
-! Formation of Potential Combustion SOA (pcSOA)
-<SIMP>  PCVOC + OH       = OH  + PCSOARXN  # 2.094E-11;
 
-! Aging reactions for fresh primary organic carbon
-<POA_AGE1> VLVPO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
-<POA_AGE2> VSVPO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
-<POA_AGE3> VSVPO2 + OH = 1.075 * VSVOO1 + OH  #4.0e-11;
-<POA_AGE4> VSVPO3 + OH = 1.075 * VSVOO2 + OH  #4.0e-11;
-<POA_AGE5> VIVPO1 + OH = 1.075 * VSVOO3 + OH  #4.0e-11;
+!aging reactions for primary organic carbon
 
-! Aging reactions for oxygenated organic carbon
-<POA_AGE6> VLVOO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
-<POA_AGE7> VSVOO1 + OH = 1.075 * VLVOO1 + OH  #4.0e-11;
-<POA_AGE8> VSVOO2 + OH = 1.075 * VSVOO1 + OH  #4.0e-11;
-<POA_AGE9> VSVOO3 + OH = 1.075 * VSVOO2 + OH  #4.0e-11;
-<POA_AGE10>VIVOO1 + OH = 1.075 * VSVOO3 + OH  #4.0e-11;
+<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
+<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
+<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
+<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
 
 ! Hydrolysis of particle-phase nitrates
 

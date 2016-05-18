@@ -107,10 +107,10 @@ C                  -------    -------  --------  -------  ------    --   ----   
      & vapor_type('VSVPO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J', 'A',  0.0, ''       ),
      & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J', 'A',  0.0, ''       ),
      & vapor_type('VLVOO1 ',  0.0000,    1.e-2, 107.0E3, 'ALVOO1J', 'A',  0.0, ''       ),
-     & vapor_type('VLVOO2 ',  0.0000,    1.e-1,  96.0E3, 'ASVOO1J', 'A',  0.0, ''       ),
-     & vapor_type('VSVOO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVOO2J', 'A',  0.0, ''       ),
-     & vapor_type('VSVOO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVOO3J', 'A',  0.0, ''       ),
-     & vapor_type('VSVOO3 ',  0.0000,    1.e+2,  63.0E3, 'AIVOO1J', 'A',  0.0, ''       )/)
+     & vapor_type('VLVOO2 ',  0.0000,    1.e-1,  96.0E3, 'ALVOO2J', 'A',  0.0, ''       ),
+     & vapor_type('VSVOO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, ''       ),
+     & vapor_type('VSVOO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, ''       ),
+     & vapor_type('VSVOO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, ''       )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
@@ -237,7 +237,7 @@ C namelist or in the NR namelist.
              g = 0
              n = index1( vaporlist( spc )%name, n_nr_n2ae, nr_n2ae )
              g = index1( vaporlist( spc )%name, n_gc_g2ae, gc_g2ae )
-             If ( n .OR. g ) Then
+             If ( n .GT. 0 .OR. g .GT. 0 ) Then
                  n_vapor = n_vapor + 1
                  vapor_to_vaporlist( n_vapor ) = spc
              End If
@@ -343,12 +343,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
+!SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
-            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
-                  xmsg =  'Using AERO6 option and the Mechanism, '  
-     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
-                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
-            End If
+!            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
+!                  xmsg =  'Using AERO6 option and the Mechanism, '  
+!     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
+!                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
+!            End If
 
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent

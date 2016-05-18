@@ -606,8 +606,6 @@ C Build mapping to CGRID for each species in the master AeroList
       !know the value of n_aerospc
       Allocate( aerospc       ( n_aerospc ) )
       Allocate( aerospc_mw    ( n_aerospc ) )
-      Allocate( pmem_map      ( n_aerospc ) )
-      Allocate( pmem_map_name ( n_aerospc ) )
       Allocate( aerospc_map   ( n_aerospc, n_mode ) )
       Allocate( aerospc_conc  ( n_aerospc, n_mode ) )
       Allocate( aerospc_ssf   ( n_mode, n_aerospc ) )
@@ -832,6 +830,8 @@ C species
 C Search emissions file for emission species names. Verify that their units
 C are the same and set pmem_units
 
+      Allocate( pmem_map      ( n_aerospc ) )
+      Allocate( pmem_map_name ( n_aerospc ) )
       n_emis_pm = 0
       pmem_units = 'null'
       found = .True.
@@ -854,7 +854,7 @@ C are the same and set pmem_units
 
             !Add Non-Carbon Primary Organic Emissions Surrogate and Map
 	        !it to the Carbon Primary Organic Emissions Surrogate
-            If ( aerospc( v )%emis == 'POC' ) Then
+            If ( INDEX( MECHNAME,"AE6svPOA") .GT. 0 .AND. aerospc( v )%emis == 'POC' ) Then
               indx = index1( 'PNCOM', nvars3d, vname3d )
               If ( indx .Le. 0 ) Then
                  xmsg1 = Trim( xmsg1 ) // crlf() // blank10

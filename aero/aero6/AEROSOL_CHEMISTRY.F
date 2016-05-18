@@ -1059,8 +1059,11 @@ C ***            Isoprene epoxide uptake
 
                  CASE( IA_NTR2 )
 C *** calculate gas-particle partitioning of NTR2
-                    CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
+                    CON_TOA = 0.0
+                    If ( INDEX( MECHNAME, 'AE6svPOA' ) .EQ. 0 ) Then
+                      CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
      &                      + aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )
+                    End If
 
                     Do i = 1, n_aerospc
                        If ( aerospc( i )%nonVol_soa ) Then
@@ -2196,6 +2199,8 @@ C        Store information with speciation for IEPOX
               kchemdim2(1) = kchemdim2(1)  + kchem
             elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then
               kchemtet(1) = kchemtet(1)  + kchem
+            elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
+              ! do nothing for aero6 since speciation isn't tracked
             else
                print*, 'Reaction not recognized'
                STOP
