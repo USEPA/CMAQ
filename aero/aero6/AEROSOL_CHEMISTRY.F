@@ -31,6 +31,7 @@
 ! 24 Mar 16 G. Sarwar: Added heterogeneous uptake of BRONO2 on aerosols
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
+!    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -596,13 +597,13 @@ C ***  Determine molecular weights
           INV_MWIETET = REAL( 1.0/ aerospc_mw( AIETET_IDX ), 8 )
        ELSE
           INV_MWIETET = 0.0
-       ENDIF
+       END IF
 
        IF( AIEOS_IDX .GT. 0 ) THEN
           INV_MWIEOS  = REAL( 1.0/ aerospc_mw( AIEOS_IDX  ), 8 )
        ELSE 
           INV_MWIEOS = 0.0
-       ENDIF
+       END IF
 
        NO3_IDX = INDEX1( 'NO3', NUMB_MECH_SPC, CHEMISTRY_SPC )
        IF( NO3_IDX .GT. 0 )THEN
@@ -788,7 +789,7 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
      &                          * CBARNO3 * INV_DIFFUSIVITY ) * CBARNO3 * DPI
                   ELSE
                      KNO3( N ) = 0.0d0
-                  ENDIF
+                  END IF
 
                   IF( GAMMA_GLY .gt. 0.0d0) THEN
                      KGLY( N ) = GAMMA_GLY * WET_M2( N ) 
@@ -802,7 +803,7 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                   ELSE
                      KGLY( N ) = 0.0d0
                      KMGLY( N ) = 0.0d0
-                  ENDIF
+                  END IF
 
 
 c *** get fine aerosol H2O and chlorine concentrations in
@@ -866,14 +867,14 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                   KIEPOX = 0.0d0
                   Tetrol_PPM = 0.0
                   IEPOXOS_PPM = 0.0
-               ENDIF
+               END IF
 
                IF( GAMMAIMAE .gt. 0.0d0 ) THEN
                   KIMAE        = WET_M2( 2 ) * DPI
      &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIMAE * GAMMAIMAE) )
                ELSE
                   KIMAE = 0.0d0
-               ENDIF
+               END IF
 
                ! Diagnostic information
                IF( PMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
@@ -1022,7 +1023,7 @@ C ***            Isoprene epoxide uptake
      &                                              * FDIM1(1) / TETROL_PPM !min*ppm-1  
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
-                     ENDIF
+                     END IF
 
                  CASE( IA_IEPOXOSDI )
 
@@ -1031,7 +1032,7 @@ C ***            Isoprene epoxide uptake
      &                                              * FDIM2(1) / IEPOXOS_PPM !min*ppm-1
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
-                     ENDIF
+                     END IF
 
                  CASE( IA_IMAE )
 

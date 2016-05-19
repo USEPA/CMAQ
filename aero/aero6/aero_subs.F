@@ -189,6 +189,7 @@ C GS/KF 09/23/14 Updated nucleation scheme with Vehkamaki et al. (2002)
 
 C HP/BM  4/16 Removed m3_wet_flag since wet/dry status is now
 C             tracked by AERO_DATA variable. Moments are always wet in AEROPROC
+C             Updated treatment of aerosol moments
 
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
@@ -319,8 +320,7 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
 C
-C     Ben and Havala will update the algorithm before this point to make
-C     sure that the aerosol is wet when it enters orgaer
+C     Aerosol is wet when it enters orgaer
       CALL ORGAER( DT, LAYER )
 
 C *** Secondary Inorganics
@@ -335,8 +335,7 @@ C *** Compute H2SO4 diffusivity, correct for temperature and pressure
 C *** Update size parameters (distribution is wet from ORGAER)
       CALL GETPAR( LIMIT_Sg )
 
-      CALL VOLINORG( DT, COL, ROW, LAYER,
-     &               DV_SO4, CGR )
+      CALL VOLINORG( DT, COL, ROW, LAYER, DV_SO4, CGR )
 
 C *** Coagulation
 C     Calculate coagulation coefficients using a method dictated by
@@ -671,8 +670,7 @@ C *** Set minimum value for all concentrations in the CBLK array
 
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VOLINORG( DT, COL, ROW, LAYER,
-     &                     DV_SO4, CGR )
+      SUBROUTINE VOLINORG( DT, COL, ROW, LAYER, DV_SO4, CGR )
 
 C *** Calculates the partitioning of inorganic components (CL,NO3,NH4,SO4)
 C     between the aerosol and gas phase over the operator synchronization
@@ -862,7 +860,7 @@ C     mass partitioning between the modes
       INTEGER, SAVE :: LOGDEV 
       LOGICAL, PARAMETER :: LIMIT_Sg = .TRUE.   ! fix Sg at current value?
       LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
-      CHARACTER*50 :: XMSG
+      CHARACTER( 50 ) :: XMSG
 
 C *** Local Saved Variables 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -1475,7 +1473,7 @@ C *** Apply modal partitioning of equilibrium aerosol mass
                      CALL M3EXIT( 'VOLINORG', 0, 0, XMSG, XSTAT1 ) 
                   END IF
                 END IF
-              ENDIF
+              END IF
             END IF  ! IMODE = 1
          END DO ! ISP
 
@@ -1549,7 +1547,7 @@ C     net change in dry 2nd moment is production or loss
          END IF
          moment2_conc( IMODE ) = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
 
-      ENDDO
+      END DO
 
 C *** Add water and SOA to 2nd moment while preserving standard deviation
       call calcmoments( .true. )
