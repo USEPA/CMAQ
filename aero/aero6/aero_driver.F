@@ -115,6 +115,7 @@ C                      - added flexibility to handle AE6 and AE6i
 C                      - renamed DIAM to PMDIAG
 C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVE_FILE_END_TIME
 C                      - updated the way to define NUM_PMDIAG_SPC
+C  D. Wong 19 May 2016 - set CTM_PMDIAG default value to .TRUE.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -355,7 +356,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 #endif
 
 C *** Get aerosol diagnostic file flag.
-         PMDIAG = .FALSE.         ! default
+         PMDIAG = .TRUE.         ! default
          VARDESC = 'Flag for writing the aerosol diagnostic file'
          PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
