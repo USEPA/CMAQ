@@ -113,6 +113,8 @@ C                        environment variable CTM_AVISDIAG
 C                      - renamed AERODIAM to PMDIAG and CTM_AERDIAG to CTM_PMDIAG
 C                      - added flexibility to handle AE6 and AE6i
 C                      - renamed DIAM to PMDIAG
+C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVE_FILE_END_TIME
+C                      - updated the way to define NUM_PMDIAG_SPC
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -273,7 +275,7 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
 
       INTEGER, SAVE :: O3
 
-      CHARACTER( 16 ) :: ACONC_END_TIME = 'ACONC_END_TIME'
+      CHARACTER( 16 ) :: AVE_FILE_END_TIME = 'AVE_FILE_END_TIME'
       LOGICAL, SAVE :: END_TIME = .FALSE.
 
       REAL, ALLOCATABLE, SAVE :: TEMP_DATA(:)
@@ -313,13 +315,10 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-         IF (MECHNAME == 'CB05E51_AE6_AQ') THEN
-            NUM_PMDIAG_SPC = 39
-         ELSE IF (MECHNAME == 'CB05E51_AE6i_AQ') THEN
+         IF (MECHNAME == 'CB05E51_AE6i_AQ') THEN
             NUM_PMDIAG_SPC = 41
          ELSE
-            XMSG = ' Warning: Unknown AE mechanism '
-            CALL M3MESG( XMSG )
+            NUM_PMDIAG_SPC = 39
          END IF
 
          CALL GET_ENVLIST ( APMDIAG_BLEV_ELEV, N, V_LIST )
@@ -341,7 +340,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          AVIS_SPC = 0.0
          N_VIS_STEP = 0
 
-         END_TIME = ENVYN( ACONC_END_TIME, ' ', END_TIME, STATUS )
+         END_TIME = ENVYN( AVE_FILE_END_TIME, ' ', END_TIME, STATUS )
 
 #ifdef twoway
 ! -- this is for twoway

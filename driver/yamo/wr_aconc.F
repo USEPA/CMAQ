@@ -41,6 +41,7 @@ C   12 Aug 15 D.Wong:  Extracted section of code that deals with creating
 C                        A_CONC_1 and put it in opaconc.F
 C                      Added a section of code to allow non IO processors
 C                        to open A_CONC_1
+C   19 May 16 D.Wong: renamed ACONC_END_TIME to AVE_FILE_END_TIME
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -69,7 +70,7 @@ C Local variables:
       INTEGER      MTIME        ! modified model time, coded HHMMSS
 
       CHARACTER( 16 ) :: PNAME = 'WR_ACONC'
-      CHARACTER( 16 ) :: ACONC_END_TIME = 'ACONC_END_TIME'
+      CHARACTER( 16 ) :: AVE_FILE_END_TIME = 'AVE_FILE_END_TIME'
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -92,7 +93,7 @@ C represents data computed from time 1995196:090000 to 1995196:100000
 
 C Override default beginning time timestamp for ACONC?
          VARDESC = 'Flag to Override default beginning time timestamp for ACONC'
-         END_TIME = ENVYN( ACONC_END_TIME, VARDESC, END_TIME, STATUS )
+         END_TIME = ENVYN( AVE_FILE_END_TIME, VARDESC, END_TIME, STATUS )
          IF ( STATUS .EQ. 1 ) THEN
             XMSG = 'Environment variable improperly formatted'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
