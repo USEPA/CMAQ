@@ -264,13 +264,13 @@ C *** Internal Variables:
          real    frh_large ! RH correction factor for large mode sulfate, nitrate, and ammonium aerosols
          real    frh_ss ! RH correction factor: sea salt aerosols (Malm & Hand, AE,2007)
 
-C air humidity scaling factors at 1% RH intervals for small mode
-C values for RH96%-99% were linearly extrapolated by using the 94% and
-C 95% values:
-C     f(96%)=f(95%)+(f(95%)-f(94%))
-C     f(97%)=f(96%)+(f(96%)-f(95%))
-C     f(98%)=f(97%)+(f(97%)-f(96%))
-C     f(99%)=f(98%)+(f(98%)-f(97%))
+C air humidity scaling factors at 1% RH intervals for small mode                                                               
+C values for RH96%-99% are the same as value for RH95%, based on the
+C Regional Haze Rule protocal: "Values are presented to RH = 95%, to
+C which higher RH are 'rolled back' under the RHR protocol to mitigate
+C the potentially large errors associated with RH measurement
+C uncertainty for near saturation conditions"
+
          real, parameter :: humfac( 99 ) = (/
      &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
      &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
@@ -291,15 +291,9 @@ C     f(99%)=f(98%)+(f(98%)-f(97%))
      &      3.0300e+00,  3.1500e+00,  3.2700e+00,  3.4200e+00,  3.5800e+00,
      &      3.7600e+00,  3.9800e+00,  4.2300e+00,  4.5300e+00,  4.9000e+00,
      &      5.3500e+00,  5.9300e+00,  6.7100e+00,  7.7800e+00,  9.3400e+00,
-     &      1.0900e+01,  1.2460e+01,  1.4020e+01,  1.5580e+01/)
+     &      9.3400e+00,  9.3400e+00,  9.3400e+00,  9.3400e+00/)
 
 C air humidity scaling factors at 1% RH intervals for large mode
-C values for RH96%-99% were linearly extrapolated by using the 94% and
-C 95% values:
-C     f(96%)=f(95%)+(f(95%)-f(94%))
-C     f(97%)=f(96%)+(f(96%)-f(95%))
-C     f(98%)=f(97%)+(f(97%)-f(96%))
-C     f(99%)=f(98%)+(f(98%)-f(97%))
          real, parameter :: humfac_large( 99 ) = (/
      &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
      &      1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,  1.0000e+00,
@@ -320,19 +314,9 @@ C     f(99%)=f(98%)+(f(98%)-f(97%))
      &      2.4500e+00,  2.5200e+00,  2.6000e+00,  2.6900e+00,  2.7900e+00,
      &      2.9000e+00,  3.0200e+00,  3.1600e+00,  3.3300e+00,  3.5300e+00,
      &      3.7700e+00,  4.0600e+00,  4.4300e+00,  4.9200e+00,  5.5700e+00,
-     &      6.2200e+00,  6.8700e+00,  7.5200e+00,  8.1700e+00/)
+     &      5.5700e+00,  5.5700e+00,  5.5700e+00,  5.5700e+00/)
 
-C Update from Christian Hogrefe...
 C sea salt humidity scaling factors at 1% RH values
-C based on "fss(Rh)" in Table 1 of
-C "revised IMPROVE algorithm for estimating light extinction
-C from particle speciation data", available at
-C http://vista.cira.colostate.edu/improve/Publications/GrayLit/gray_literature.htm
-C values for RH96%-99% were linearly extrapolated by using the 94% and 95% values:
-C     f(96%)=f(95%)+(f(95%)-f(94%))
-C     f(97%)=f(96%)+(f(96%)-f(95%))
-C     f(98%)=f(97%)+(f(97%)-f(96%))
-C     f(99%)=f(98%)+(f(98%)-f(97%))
 
          real, parameter :: humfac_ss( 99 ) = (/
      &        1.00, 1.00, 1.00, 1.00, 1.00,
@@ -354,7 +338,7 @@ C     f(99%)=f(98%)+(f(98%)-f(97%))
      &        3.69, 3.81, 3.95, 4.04, 4.11,
      &        4.28, 4.49, 4.61, 4.86, 5.12,
      &        5.38, 5.75, 6.17, 6.72, 7.35,
-     &        7.98, 8.61, 9.24, 9.87/)
+     &        7.35, 7.35, 7.35, 7.35/)
 
          integer m, n    ! loop counters
 
@@ -428,9 +412,9 @@ C     get the extinction efficiency for all species
                   if ( .not. aero_missing( n,m ) ) then
                      mass_with_nh4 = aerospc_conc( n,m)*
      &                               (aerospc_mw(anh4_idx)*2+aerospc_mw(n))/aerospc_mw(n)
-                     if (total_mass_so4 .lt. 20)  then  ! if total mass less than 20ug/m3, split to 2 modes
-                       ext2 = ext2 + frh*aerospc( n )%visual_idx *(mass_with_nh4-mass_with_nh4/20)
-     &                        + frh_large * aerospc(n)%visual_idx_large*mass_with_nh4/20
+                     if (total_mass_so4 .lt. 20.0)  then  ! if total mass less than 20ug/m3, split to 2 modes
+                       ext2 = ext2 + frh*aerospc( n )%visual_idx *(mass_with_nh4-mass_with_nh4/20.0)
+     &                        + frh_large * aerospc(n)%visual_idx_large*mass_with_nh4/20.0
      
                      else                               ! else  all mass goes to large mode
                        ext2 = ext2 + frh_large * aerospc( n )%visual_idx_large *mass_with_nh4
@@ -446,9 +430,9 @@ C     get the extinction efficiency for all species
                   if ( .not. aero_missing( n,m ) ) then
                     mass_with_nh4 = aerospc_conc( n,m)*
      &                              (aerospc_mw(anh4_idx)+aerospc_mw(n))/aerospc_mw(n)
-                     if (total_mass_no3 .lt. 20)  then  ! if total mass less than 20ug/m3, split to 2 modes
-                       ext2 = ext2 + frh*aerospc( n )%visual_idx*(mass_with_nh4-mass_with_nh4/20)
-     &                        + frh_large * aerospc(n)%visual_idx_large*mass_with_nh4/20
+                     if (total_mass_no3 .lt. 20.0)  then  ! if total mass less than 20ug/m3, split to 2 modes
+                       ext2 = ext2 + frh*aerospc( n )%visual_idx*(mass_with_nh4-mass_with_nh4/20.0)
+     &                        + frh_large * aerospc(n)%visual_idx_large*mass_with_nh4/20.0
 
                      else                               ! else  all mass goes to large mode
                        ext2 = ext2 + frh_large * aerospc( n)%visual_idx_large *mass_with_nh4
@@ -462,9 +446,9 @@ C     get the extinction efficiency for all species
             if ( aerospc( n )%om ) then        ! for organic mass
                  do m = 1, n_mode
                   if ( .not. aero_missing( n,m ) ) then
-                   if (total_mass_om .lt. 20)  then  ! if total mass less than 20ug/m3, split to 2 modes
-                       ext2 = ext2 + aerospc( n )%visual_idx*(aerospc_conc( n,m)-aerospc_conc( n,m)/20)
-     &                        + aerospc(n)%visual_idx_large*aerospc_conc( n,m)/20
+                   if (total_mass_om .lt. 20.0)  then  ! if total mass less than 20ug/m3, split to 2 modes
+                       ext2 = ext2 + aerospc( n )%visual_idx*(aerospc_conc( n,m)-aerospc_conc( n,m)/20.0)
+     &                        + aerospc(n)%visual_idx_large*aerospc_conc( n,m)/20.0
 
                      else                               ! else  all mass goes to large mode
                        ext2 = ext2 + aerospc(n)%visual_idx_large *aerospc_conc( n,m)
