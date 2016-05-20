@@ -739,13 +739,13 @@ C     affect the geometric standard deviation
 C *** The "wet" geometric mean (same as median) diameter was updated in
 C     getpar. It is stored in aeromode_diam
 C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
-                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_lnsg( N ) ** 2 ), 8)
+                  DE_WET( N ) = REAL( AEROMODE_DIAM( N ) * EXP( 1.5 * AEROMODE_LNSG( N ) ** 2 ), 8)
                END DO
 
 C *** Retrieve and Save the Dry 3rd and 2nd Moments
                CALL CALCMOMENTS( .False. )
-               CHEM_M2DRY_INIT( C,R,L,: ) = moment2_conc( : )
-               CHEM_M3DRY_INIT( C,R,L,: ) = moment3_conc( : )
+               CHEM_M2DRY_INIT( C,R,L,: ) = MOMENT2_CONC( : )
+               CHEM_M3DRY_INIT( C,R,L,: ) = MOMENT3_CONC( : )
 
 
 C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
@@ -1220,6 +1220,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 c  Calculates the change in aerosol surface area due to heterogeneous
 C  reactions and updates the CGRID array with this information.
 C  
+C  History
+C  May 2016: BM Created
 
 C  Key Subroutines Called: none
 C
@@ -1231,8 +1233,8 @@ C  Called by: Gas-Phase Chemistry Driver
       IMPLICIT NONE
       
       REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
-      REAL                :: M2DRY_FINAL( n_mode ) !Dry 2nd Aerosol Moment
-      REAL                :: M3DRY_FINAL( n_mode ) !Dry 3rd Aerosol Moment
+      REAL                :: M2DRY_FINAL( N_MODE ) !Dry 2nd Aerosol Moment
+      REAL                :: M3DRY_FINAL( N_MODE ) !Dry 3rd Aerosol Moment
       INTEGER L, R, C, m
 
       LOOP_LAY: DO L = 1, NLAYS
@@ -1247,8 +1249,8 @@ C  Called by: Gas-Phase Chemistry Driver
                !Recalculate Dry 3rd Moment After Chemistry Processes
                !2nd moment hasn't been update yet.
                CALL CALCMOMENTS( .False. )
-               M2DRY_FINAL( : ) = moment2_conc( : )
-               M3DRY_FINAL( : ) = moment3_conc( : )
+               M2DRY_FINAL( : ) = MOMENT2_CONC( : )
+               M3DRY_FINAL( : ) = MOMENT3_CONC( : )
 
                !Calculate new Second Moment Manually
                !Assume standard deviation is fixed.
@@ -1257,9 +1259,9 @@ C  Called by: Gas-Phase Chemistry Driver
 
                !Update the Aerosol Surface Area making sure to multiply
                !the 2nd moment by Pi to convert properly
-               Do m = 1, n_mode
-                 CGRID( C,R,L,aerosrf_map(m) ) = Real( pi, 4 ) * M2DRY_FINAL( m )
-               End Do
+               DO M = 1, N_MODE
+                 CGRID( C, R, L, AEROSRF_MAP(M) ) = Real( PI, 4 ) * M2DRY_FINAL( M )
+               END DO
 
             END DO LOOP_COL
          END DO LOOP_ROW
