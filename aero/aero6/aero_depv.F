@@ -78,6 +78,7 @@ C                       arrays to avoid run time memory issue
 C 08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC) 4.1.2
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C    May 16 B. Murphy, H. Pye: Updated treatment of aerosol moments
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications

@@ -24,6 +24,7 @@ C (Atmos. Env. 41, 3407-3427, 2007) See comments in AERO_DATA.F
 
 C Revision History:
 C 10 Sep 15 J.Young: inital
+C    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
 
       implicit none
 

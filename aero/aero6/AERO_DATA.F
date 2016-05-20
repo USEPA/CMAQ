@@ -672,7 +672,7 @@ C Find indices of required species
          AE6ISOA = .True.
       Else
          AE6ISOA = .False.
-      Endif
+      End If
       aietet_idx  = findAero( req_ietet, AE6ISOA )
       aieos_idx   = findAero( req_ieos,  AE6ISOA )
       adim_idx    = findAero( req_dim,   AE6ISOA )
@@ -1012,7 +1012,7 @@ C Copy aero number and surface area back to grid cell concentrations
 C Save dry second moment to surface area (with pi conversion)
       If ( wet_moments_flag ) Then
          call calcmoments( .false. ) ! called with the F flag, returns dry moments
-      Endif
+      End If
 
       Do m = 1, n_mode
          n = aerosrf_map( m )
@@ -1180,7 +1180,7 @@ C     moment [ m**2/m**3 ]
                m2( n ) = initialM2 * ( real( drysumM3, 4) / initialM3 ) ** ( 2.0d0/ 3.0d0 )
             Else ! already dry
                m2( n ) = initialM2
-            Endif
+            End If
          End Do
 
          ! Save back to aero_data variables
@@ -1188,7 +1188,7 @@ C     moment [ m**2/m**3 ]
          moment3_conc( : ) = m3( : )
          wet_moments_flag = .false.
 
-      Endif
+      End If
 
       Return
       End Subroutine calcmoments

@@ -364,6 +364,8 @@ C                                     AERO_OPTICAL2, AERO_OPTICAL_CS
 C  REVISION HISTORY
 C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
 C                          from version 5.01
+C     05/2016 H. Pye and B. Murphy - updated treatment of aerosol
+C                          moments
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -876,6 +878,8 @@ C                                     AERO_OPTICAL2, AERO_OPTICAL_CS
 C  REVISION HISTORY
 C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
 C                          from version 5.01
+C     05/2016 H. Pye and B. Murphy - updated treatment of aerosol
+C                          moments
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
