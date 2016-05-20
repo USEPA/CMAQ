@@ -25,6 +25,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revision history
 C   09 May 16 D. Wong: Initial Implemnetation
+C   19 May 16 D. Wong: renamed ACONC_END_TIME to AVG_FILE_END_TIME
 
         USE GRID_CONF           ! horizontal & vertical domain specifications
         USE UTILIO_DEFN
@@ -36,9 +37,9 @@ C   09 May 16 D. Wong: Initial Implemnetation
 
 C...Arguments:
 
-        INTEGER, INTENT(IN) :: JDATE      ! current model date, coded YYYYDDD
-        INTEGER, INTENT(IN) :: JTIME      ! current model time, coded HHMMSS
-        INTEGER, INTENT(IN) :: TSTEP      ! output time step
+        INTEGER, INTENT( IN ) :: JDATE      ! current model date, coded YYYYDDD
+        INTEGER, INTENT( IN ) :: JTIME      ! current model time, coded HHMMSS
+        INTEGER, INTENT( IN ) :: TSTEP      ! output time step
 
 C...Local variables:
 
@@ -51,7 +52,7 @@ C...Local variables:
         CHARACTER( 32 ) :: APMDIAG_BLEV_ELEV = 'APMDIAG_BLEV_ELEV'
         CHARACTER( 16 ) :: V_LIST( 41 )
         CHARACTER( 80 ) :: VARDESC = ' '
-        CHARACTER( 16 ) :: ACONC_END_TIME = 'ACONC_END_TIME'
+        CHARACTER( 16 ) :: AVG_FILE_END_TIME = 'AVG_FILE_END_TIME'
         INTEGER :: BEG_LVL, END_LVL, N, V
         INTEGER :: MDATE, MTIME, LOGDEV, STATUS, LOC
         LOGICAL :: END_TIME = .FALSE.
@@ -69,7 +70,7 @@ C-----------------------------------------------------------------------
 
 ! get begin and end level information from environment variable
         CALL GET_ENVLIST ( APMDIAG_BLEV_ELEV, N, V_LIST )
-        IF ( N == 0 ) THEN
+        IF ( N .EQ. 0 ) THEN
            BEG_LVL = 1
            END_LVL = NLAYS
         ELSE
@@ -94,13 +95,13 @@ C-----------------------------------------------------------------------
 
 ! get subset PMDIAG species list
         CALL GET_ENVLIST ( AVG_PMDIAG_SPCS, N, V_LIST )
-        IF ((N == 0) .OR. (V_LIST(1) == 'ALL')) THEN
+        IF ( N .EQ. 0 .OR. V_LIST( 1 ) .EQ. 'ALL' ) THEN
            DO L = 1, NUM_PMDIAG_SPC
-              VTYPE3D(L) = PMDIAG_SPC_RECORD(L)%VAR_TYPE
-              VNAME3D(L) = PMDIAG_SPC_RECORD(L)%SPC_NAME
-              UNITS3D(L) = PMDIAG_SPC_RECORD(L)%SPC_UNIT
-              VDESC3D(L) = PMDIAG_SPC_RECORD(L)%SPC_DESC
-              A_PMDIAG_SPC_MAP(L) = 1
+              VTYPE3D( L ) = PMDIAG_SPC_RECORD( L )%VAR_TYPE
+              VNAME3D( L ) = PMDIAG_SPC_RECORD( L )%SPC_NAME
+              UNITS3D( L ) = PMDIAG_SPC_RECORD( L )%SPC_UNIT
+              VDESC3D( L ) = PMDIAG_SPC_RECORD( L )%SPC_DESC
+              A_PMDIAG_SPC_MAP( L ) = 1
            END DO
            NVARS3D = NUM_PMDIAG_SPC 
         ELSE
@@ -108,31 +109,31 @@ C-----------------------------------------------------------------------
            DO L = 1, N
               FOUND = .FALSE.
               V = 0
-              DO WHILE ((.NOT. FOUND) .AND. (V < NUM_PMDIAG_SPC))
+              DO WHILE ( ( .NOT. FOUND ) .AND. ( V .LT. NUM_PMDIAG_SPC ) )
                  V = V + 1
-                 IF (V_LIST(L) == PMDIAG_SPC_RECORD(V)%SPC_NAME) THEN
+                 IF ( V_LIST( L ) .EQ. PMDIAG_SPC_RECORD( V )%SPC_NAME ) THEN
                     FOUND = .TRUE.
                  END IF
               END DO
               IF ( FOUND ) THEN
-                 A_PMDIAG_SPC_MAP(V) = 1
-                 VTYPE3D(L) = PMDIAG_SPC_RECORD(V)%VAR_TYPE
-                 VNAME3D(L) = PMDIAG_SPC_RECORD(V)%SPC_NAME
-                 UNITS3D(L) = PMDIAG_SPC_RECORD(V)%SPC_UNIT
-                 VDESC3D(L) = PMDIAG_SPC_RECORD(V)%SPC_DESC
+                 A_PMDIAG_SPC_MAP( V ) = 1
+                 VTYPE3D( L ) = PMDIAG_SPC_RECORD( V )%VAR_TYPE
+                 VNAME3D( L ) = PMDIAG_SPC_RECORD( V )%SPC_NAME
+                 UNITS3D( L ) = PMDIAG_SPC_RECORD( V )%SPC_UNIT
+                 VDESC3D( L ) = PMDIAG_SPC_RECORD( V )%SPC_DESC
               ELSE
-                 WRITE (XMSG, *) ' Warning: Invalid species ', TRIM(V_LIST(L))
+                 WRITE (XMSG, *) ' Warning: Invalid species ', TRIM( V_LIST( L ) )
                  CALL M3MESG( XMSG )
               END IF
            END DO
            NVARS3D = N 
         END IF
 
-! get end time information from environment variable ACONC_END_TIME
+! get end time information from environment variable AVG_FILE_END_TIME
         LOGDEV = INIT3 ()
 
         VARDESC = 'Flag to Override default beginning time timestamp for PMDIAG'
-        END_TIME = ENVYN( ACONC_END_TIME, VARDESC, END_TIME, STATUS )
+        END_TIME = ENVYN( AVG_FILE_END_TIME, VARDESC, END_TIME, STATUS )
         IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

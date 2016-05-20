@@ -113,6 +113,9 @@ C                        environment variable CTM_AVISDIAG
 C                      - renamed AERODIAM to PMDIAG and CTM_AERDIAG to CTM_PMDIAG
 C                      - added flexibility to handle AE6 and AE6i
 C                      - renamed DIAM to PMDIAG
+C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_END_TIME
+C                      - updated the way to define NUM_PMDIAG_SPC
+C                      - set CTM_PMDIAG default value to .TRUE.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -273,7 +276,7 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
 
       INTEGER, SAVE :: O3
 
-      CHARACTER( 16 ) :: ACONC_END_TIME = 'ACONC_END_TIME'
+      CHARACTER( 16 ) :: AVG_FILE_END_TIME = 'AVG_FILE_END_TIME'
       LOGICAL, SAVE :: END_TIME = .FALSE.
 
       REAL, ALLOCATABLE, SAVE :: TEMP_DATA(:)
@@ -301,8 +304,8 @@ C *** End Statement Function  ********
 #ifdef twoway
       INTERFACE
         SUBROUTINE FEEDBACK_WRITE (C, R, L, CGRID_DATA, O3_VALUE, JDATE, JTIME)
-          REAL, INTENT(IN) :: CGRID_DATA(:), O3_VALUE
-          INTEGER, INTENT(IN) :: C, R, L, JDATE, JTIME
+          REAL, INTENT( IN ) :: CGRID_DATA(:), O3_VALUE
+          INTEGER, INTENT( IN ) :: C, R, L, JDATE, JTIME
         END SUBROUTINE FEEDBACK_WRITE
       END INTERFACE
 #endif
@@ -313,23 +316,20 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-         IF (MECHNAME == 'CB05E51_AE6_AQ') THEN
-            NUM_PMDIAG_SPC = 39
-         ELSE IF (MECHNAME == 'SAPRC07TIC_AE6I_AQ') THEN
+         IF ( MECHNAME .EQ. 'SAPRC07TIC_AE6I_AQ' ) THEN
             NUM_PMDIAG_SPC = 41
          ELSE
-            XMSG = ' Warning: Unknown AE mechanism '
-            CALL M3MESG( XMSG )
+            NUM_PMDIAG_SPC = 39
          END IF
 
          CALL GET_ENVLIST ( APMDIAG_BLEV_ELEV, N, V_LIST )
-         IF ( N == 0 ) THEN
+         IF ( N .EQ. 0 ) THEN
             A_NLAYS = NLAYS
          ELSE
            READ( V_LIST( 2 ), '( I4 )' ) A_NLAYS
          END IF
 
-         ALLOCATE ( PMDIAG_SPC(NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC),
+         ALLOCATE (   PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
      &              A_PMDIAG_SPC( NCOLS,NROWS,A_NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
      &              AVIS_SPC( NCOLS,NROWS,N_AE_VIS_SPC ),
@@ -341,7 +341,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          AVIS_SPC = 0.0
          N_VIS_STEP = 0
 
-         END_TIME = ENVYN( ACONC_END_TIME, ' ', END_TIME, STATUS )
+         END_TIME = ENVYN( AVG_FILE_END_TIME, ' ', END_TIME, STATUS )
 
 #ifdef twoway
 ! -- this is for twoway
@@ -356,7 +356,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 #endif
 
 C *** Get aerosol diagnostic file flag.
-         PMDIAG = .FALSE.         ! default
+         PMDIAG = .TRUE.         ! default
          VARDESC = 'Flag for writing the aerosol diagnostic file'
          PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
          IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
@@ -433,9 +433,9 @@ C *** Open the met files.
 C *** Set up file structure for visibility file. It has two variables,
 C     visual range in deciview units (dimensionless) and extinction in
 C     units of (1/km) and is for layer 1 only.
-         IF ( IO_PE_INCLUSIVE ) CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
-         IF ( AVISDIAG ) THEN
-            IF ( IO_PE_INCLUSIVE ) CALL OPAVIS ( JDATE, JTIME, TSTEP( 1 ) )
+         IF ( IO_PE_INCLUSIVE ) THEN
+            CALL OPVIS ( JDATE, JTIME, TSTEP( 1 ) )
+            IF ( AVISDIAG ) CALL OPAVIS ( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
@@ -611,11 +611,11 @@ C *** Calculate volume fraction of each mode for measurement applications
 C *** Write aerosol extinction coefficients and deciviews to visibility
 C     diagnostic array (lowest vertical layer only)
 
-               IF (L .EQ. 1) THEN
+               IF ( L .EQ. 1 ) THEN
                   IF ( WRITETIME .OR. AVISDIAG) THEN
                      CALL GETVISBY( BLKDCV1, BLKEXT1, BLKDCV2, BLKEXT2 )
                   END IF
-                  IF (AVISDIAG) THEN
+                  IF ( AVISDIAG ) THEN
                      AVIS_SPC( C,R,1 ) = AVIS_SPC( C,R,1 ) + BLKDCV1  ! Mie visual range [deciview]
                      AVIS_SPC( C,R,2 ) = AVIS_SPC( C,R,2 ) + BLKEXT1  ! Mie aero extinction [1/km]
                      AVIS_SPC( C,R,3 ) = AVIS_SPC( C,R,3 ) + BLKDCV2  ! Reconstructed visual range [deciview]
@@ -673,7 +673,7 @@ C     diagnostic array (lowest vertical layer only)
 C *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
 C     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
 C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
-               CALL calcmoments( .false. )
+               CALL CALCMOMENTS( .FALSE. )
                CALL GETPAR( LIMIT_Sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
                IF ( PMDIAG .OR. APMDIAG ) THEN
@@ -690,18 +690,16 @@ C     EXCEPT!  nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
                END IF
 
 C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnostic array
-               IF ( APMDIAG .AND. (L <= A_NLAYS) ) THEN
+               IF ( APMDIAG .AND. L .LE. A_NLAYS ) THEN
                   DO V = 1, NUM_PMDIAG_SPC
-                     IF (A_PMDIAG_SPC_MAP(V) == 1) then
-                        A_PMDIAG_SPC( C,R,L,v ) = A_PMDIAG_SPC( C,R,L,v ) + TEMP_DATA( V )
+                     IF ( A_PMDIAG_SPC_MAP( V ) .EQ. 1 ) THEN
+                        A_PMDIAG_SPC( C,R,L,V ) = A_PMDIAG_SPC( C,R,L,V ) + TEMP_DATA( V )
                      END IF
                   END DO 
                END IF
 
 C *** Write dry aerosol distribution parameters to aerosol diagnostic array
-               IF ( WRITETIME .AND. PMDIAG ) THEN
-                  PMDIAG_SPC( C,R,L, : ) = TEMP_DATA
-               END IF   ! WRITETIME .AND. PMDIAG
+               IF ( WRITETIME .AND. PMDIAG ) PMDIAG_SPC( C,R,L,: ) = TEMP_DATA
 
 #ifdef twoway
                IF ( CMAQ_WRF_FEEDBACK ) THEN
@@ -717,9 +715,7 @@ C *** Write dry aerosol distribution parameters to aerosol diagnostic array
          END DO ! loop on MY_ROWS
       END DO ! loop on NLAYS
 
-      IF ( WRITETIME .AND. AOD ) THEN
-         CALL GET_AOD( CGRID )
-      END IF
+      IF ( WRITETIME .AND. AOD ) CALL GET_AOD( CGRID )
 
 C *** From AEROPROC call to ORGAER...
 !     If ( pfc .gt. 0 ) Then
@@ -811,7 +807,7 @@ C *** Write data to the AOD diagnostic file.
 
          END IF
 
-         IF ( APMDIAG .OR. AVISDIAG) THEN
+         IF ( APMDIAG .OR. AVISDIAG ) THEN
             IF ( .NOT. END_TIME ) THEN   ! ending time timestamp
                CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
             END IF
@@ -822,15 +818,15 @@ C *** Write data to the average aerosol diagnostic file.
 
             DO V = 1, NUM_PMDIAG_SPC
  
-               IF (A_PMDIAG_SPC_MAP(V) == 1) then
-                  A_PMDIAG_SPC(:,:,:,V) = A_PMDIAG_SPC(:,:,:,V) / N_APMDIAG_STEP 
+               IF ( A_PMDIAG_SPC_MAP( V ) .EQ. 1 ) THEN
+                  A_PMDIAG_SPC( :,:,:,V ) = A_PMDIAG_SPC( :,:,:,V ) / N_APMDIAG_STEP 
 
-                  IF ( .NOT. WRITE3( CTM_APMDIAG_1, PMDIAG_SPC_RECORD(V)%SPC_NAME,
-     &                               MDATE, MTIME, A_PMDIAG_SPC(:,:,:,V) ) ) THEN
+                  IF ( .NOT. WRITE3( CTM_APMDIAG_1, PMDIAG_SPC_RECORD( V )%SPC_NAME,
+     &                               MDATE, MTIME, A_PMDIAG_SPC( :,:,:,V ) ) ) THEN
                      XMSG = 'Could not write ' // CTM_APMDIAG_1 // ' file'
                      CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
                   END IF
-                  A_PMDIAG_SPC(:,:,:,V)  = 0.0
+                  A_PMDIAG_SPC( :,:,:,V ) = 0.0
                END IF
             END DO
 
@@ -842,7 +838,7 @@ C *** Write data to the average aerosol diagnostic file.
          END IF
      
 C *** Write data to the average visibility diagnostic file.
-         IF (AVISDIAG) THEN
+         IF ( AVISDIAG ) THEN
             AVIS_SPC = AVIS_SPC / N_VIS_STEP
             IF ( .NOT. WRITE3( CTM_AVIS_1, ALLVAR3,
      &                         MDATE, MTIME, AVIS_SPC ) ) THEN
@@ -857,7 +853,7 @@ C *** Write data to the average visibility diagnostic file.
      &                  'Timestep written to', CTM_AVIS_1,
      &                  'for date and time', MDATE, MTIME
 
-      END IF
+      END IF   ! WRITETIME
 
       RETURN
       END
