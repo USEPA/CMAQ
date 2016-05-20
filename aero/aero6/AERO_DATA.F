@@ -38,7 +38,8 @@ C     First version was coded in April 2010 by Steve Howard with
 C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 
 C HS = Heather Simon; GS = Golam Sarwar; SH = Steve Howard; SR = Shawn Roselle;
-C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey, CGN = Chris Nolte
+C JY = Jeff Young; HOTP = Havala Pye; KF = Kathleen Fahey, CGN = Chris Nolte;
+C PL = Peng Liu;
 
 C HS  01/24/11 Updated to initial AERO6; PMOTHR -> 9 species
 C GS  03/02/11 Revised parameters for Mg, K, and Ca
@@ -99,6 +100,14 @@ C Also note...
 C In the Fortran user-derived spcs_type, below, visual_idx is an optimal dry mass
 C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1672
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
+
+C PL 05/15/16 Update visual_idx, and add visual_idx_large in spcs_type, due to ammonium sulfate, nitrate and OM
+C             are splitted into small and large modes.
+C             visual_idx for ammominm is zero, because it will be treated together with sulfate and nitrate 
+C             see Pitchford et al., Journal of the Air & Waste Management Association (57)(2007), pp 1326
+C PL 05/15/16 Add "om" in spcs_type, to flag organic aerosols, which
+C             will be used to calculate total mass of organic aerosls for estimating
+C             aerosol extinction efficiency
 C----------------------------------------------------------------------
 
       Implicit None
@@ -158,7 +167,9 @@ C-------------------------------------------------------------------------------
          Logical         :: nonVol_soa           ! non-volatile SOA flag
          Logical         :: tracer               ! tracer flag; does have not mass
          Integer         :: charge               ! electroneutrality charge
-         Real            :: visual_idx           ! visual index factor [ m^2/g ]
+         Real            :: visual_idx           ! visual index factor [ m^2/g ] 
+         Real            :: visual_idx_large     ! visual index factor [m^2/g ] for large mode, if not applicable, same value as visual_idx
+         Logical         :: om                   ! flag for organic aerosols
          Character( 16 ) :: optic_surr           ! optical surrogate name
          Character( 16 ) :: emis                 ! file emissions names
          Real            :: emis_split( n_mode ) ! minimum concentration values for each mode
@@ -169,95 +180,95 @@ C-------------------------------------------------------------------------------
 
       !Master List of Aerosol Species and Properties
       Type( spcs_type ), Parameter :: aerolist( n_aerolist ) = (/
-C                                                                  nonVolSOA
-C                                                                      |    Charge                  
-C                  -----------Name--------------               NoM2Wet |Tracer|                        Emissions
-C                   Aitken    Accum     Coarse    Min_Concs Density |  |  |   | Visidx OptSurr   Emis   Splits
-C                  --------- --------- ---------  --------- ------- +  +  +   + ------ -------- -------- ------
-     & spcs_type((/'ASO4I  ','ASO4J  ','ASO4K  '/), cm_so4, 1800.0, F, F, F, -2,  3.0, 'SOLUTE','PSO4  ',es_fin),
-     & spcs_type((/'ANO3I  ','ANO3J  ','ANO3K  '/), cm_set, 1800.0, F, F, F, -1,  3.0, 'SOLUTE','PNO3  ',es_fin),
-     & spcs_type((/'ACLI   ','ACLJ   ','ACLK   '/), cm_set, 2200.0, F, F, F, -1,  1.37,'SOLUTE','PCL   ',es_fin),
-     & spcs_type((/'ANH4I  ','ANH4J  ','ANH4K  '/), cm_set, 1800.0, F, F, F,  1,  3.0, 'SOLUTE','PNH4  ',es_fin),
-     & spcs_type((/'ANAI   ','ANAJ   ','       '/), cm_set, 2200.0, F, F, F,  1,  1.37,'SOLUTE','PNA   ',es_fin),
-     & spcs_type((/'       ','AMGJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 'DUST  ','PMG   ',es_acc),
-     & spcs_type((/'       ','AKJ    ','       '/), cm_set, 2200.0, F, F, F,  1,  1.0, 'DUST  ','PK    ',es_acc),
-     & spcs_type((/'       ','ACAJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 'DUST  ','PCA   ',es_acc),
-     & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 1400.0, F, F, F,  0,  4.0, 'DUST  ','POC   ',es_fin),
-     & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 1400.0, F, F, F,  0,  4.0, 'DUST  ','PNCOM ',es_fin),
-     & spcs_type((/'AECI   ','AECJ   ','       '/), cm_set, 2200.0, F, F, F,  0, 10.0, 'SOOT  ','PEC   ',es_fin),
-     & spcs_type((/'       ','AFEJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PFE   ',es_acc),
-     & spcs_type((/'       ','AALJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PAL   ',es_acc),
-     & spcs_type((/'       ','ASIJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PSI   ',es_acc),
-     & spcs_type((/'       ','ATIJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PTI   ',es_acc),
-     & spcs_type((/'       ','AMNJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PMN   ',es_acc),
-     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), cm_set, 1000.0, T, F, F,  0,  0.0, 'WATER ','PH2O  ',es_fin),
-     & spcs_type((/'AH3OPI ','AH3OPJ ','AH3OPK '/), cm_set, 1000.0, T, F, T,  0,  0.0, 'WATER ','      ',es_0),
-     & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 'DUST  ','PMOTHR',es_fin),
-     & spcs_type((/'       ','AALK1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AALK2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AXYL3J ','       '/), cm_set, 1330.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL1J ','       '/), cm_set, 1240.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL2J ','       '/), cm_set, 1240.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATOL3J ','       '/), cm_set, 1450.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ABNZ3J ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATRP1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ATRP2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO1J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO2J ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AISO3J ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 1400.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','APAH1J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','APAH2J ','       '/), cm_set, 1480.0, T, F, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','APAH3J ','       '/), cm_set, 1550.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 1400.0, F, T, F,  0,  4.0, 'DUST  ','      ',es_0),
-     & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6, 'DUST  ','      ',es_cor),
-     & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6, 'DUST  ','PMC   ',es_cor),
-     & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1,  1.37,'SOLUTE','      ',es_cor),
+C                                                                  nonVolSOA         Visidx_Large
+C                                                                      |    Charge      |            
+C                  -----------Name--------------               NoM2Wet |Tracer|         | OM            Emissions
+C                   Aitken    Accum     Coarse    Min_Concs Density |  |  |   | Visidx  |  |  OptSurr   Emis   Splits
+C                  --------- --------- ---------  --------- ------- +  +  +   + ------ --- +  -------- -------- ------
+     & spcs_type((/'ASO4I  ','ASO4J  ','ASO4K  '/), cm_so4, 1800.0, F, F, F, -2,  2.2, 4.8,F, 'SOLUTE','PSO4  ',es_fin),
+     & spcs_type((/'ANO3I  ','ANO3J  ','ANO3K  '/), cm_set, 1800.0, F, F, F, -1,  2.4, 5.1,F, 'SOLUTE','PNO3  ',es_fin),
+     & spcs_type((/'ACLI   ','ACLJ   ','ACLK   '/), cm_set, 2200.0, F, F, F, -1,  1.7, 1.7,F, 'SOLUTE','PCL   ',es_fin),
+     & spcs_type((/'ANH4I  ','ANH4J  ','ANH4K  '/), cm_set, 1800.0, F, F, F,  1,  0.0, 0.0,F, 'SOLUTE','PNH4  ',es_fin),
+     & spcs_type((/'ANAI   ','ANAJ   ','       '/), cm_set, 2200.0, F, F, F,  1,  1.7, 1.7,F, 'SOLUTE','PNA   ',es_fin),
+     & spcs_type((/'       ','AMGJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 1.0,F, 'DUST  ','PMG   ',es_acc),
+     & spcs_type((/'       ','AKJ    ','       '/), cm_set, 2200.0, F, F, F,  1,  1.0, 1.0,F, 'DUST  ','PK    ',es_acc),
+     & spcs_type((/'       ','ACAJ   ','       '/), cm_set, 2200.0, F, F, F,  2,  1.0, 1.0,F, 'DUST  ','PCA   ',es_acc),
+     & spcs_type((/'APOCI  ','APOCJ  ','       '/), cm_set, 1400.0, F, F, F,  0,  2.8, 6.1,T, 'DUST  ','POC   ',es_fin),
+     & spcs_type((/'APNCOMI','APNCOMJ','       '/), cm_set, 1400.0, F, F, F,  0,  2.8, 6.1,T, 'DUST  ','PNCOM ',es_fin),
+     & spcs_type((/'AECI   ','AECJ   ','       '/), cm_set, 2200.0, F, F, F,  0, 10.0,10.0,F, 'SOOT  ','PEC   ',es_fin),
+     & spcs_type((/'       ','AFEJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 1.0,F, 'DUST  ','PFE   ',es_acc),
+     & spcs_type((/'       ','AALJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 1.0,F, 'DUST  ','PAL   ',es_acc),
+     & spcs_type((/'       ','ASIJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 1.0,F, 'DUST  ','PSI   ',es_acc),
+     & spcs_type((/'       ','ATIJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 1.0,F, 'DUST  ','PTI   ',es_acc),
+     & spcs_type((/'       ','AMNJ   ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 1.0,F, 'DUST  ','PMN   ',es_acc),
+     & spcs_type((/'AH2OI  ','AH2OJ  ','AH2OK  '/), cm_set, 1000.0, T, F, F,  0,  0.0, 0.0,F, 'WATER ','PH2O  ',es_fin),
+     & spcs_type((/'AH3OPI ','AH3OPJ ','AH3OPK '/), cm_set, 1000.0, T, F, T,  0,  0.0, 0.0,F, 'WATER ','      ',es_0),
+     & spcs_type((/'AOTHRI ','AOTHRJ ','       '/), cm_set, 2200.0, F, F, F,  0,  1.0, 1.0,F, 'DUST  ','PMOTHR',es_fin),
+     & spcs_type((/'       ','AALK1J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AALK2J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL1J ','       '/), cm_set, 1480.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL2J ','       '/), cm_set, 1480.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AXYL3J ','       '/), cm_set, 1330.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL1J ','       '/), cm_set, 1240.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL2J ','       '/), cm_set, 1240.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATOL3J ','       '/), cm_set, 1450.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ1J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ2J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ABNZ3J ','       '/), cm_set, 1400.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATRP1J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ATRP2J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO1J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO2J ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AISO3J ','       '/), cm_set, 1400.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','ASQTJ  ','       '/), cm_set, 1400.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','APAH1J ','       '/), cm_set, 1480.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','APAH2J ','       '/), cm_set, 1480.0, T, F, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','APAH3J ','       '/), cm_set, 1550.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AOLGAJ ','       '/), cm_set, 1400.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AOLGBJ ','       '/), cm_set, 1400.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','AORGCJ ','       '/), cm_set, 1400.0, F, T, F,  0,  2.8, 6.1,T,  'DUST  ','      ',es_0),
+     & spcs_type((/'       ','       ','ASOIL  '/), cm_set, 2600.0, F, F, F,  0,  0.6, 0.6,F,  'DUST  ','      ',es_cor),
+     & spcs_type((/'       ','       ','ACORS  '/), cm_cor, 2200.0, F, F, F,  0,  0.6, 0.6,F,  'DUST  ','PMC   ',es_cor),
+     & spcs_type((/'       ','       ','ASEACAT'/), cm_cor, 2200.0, F, F, F,  1,  1.7, 1.7,F,  'SOLUTE','      ',es_cor),
 
        ! Associated with ae6i
-     & spcs_type((/'        ','AMTNO3J ','        '/), cm_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','AISOPNNJ','        '/), cm_set, 1400.0, T, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','AMTHYDJ ','        '/), cm_set, 1400.0, F, T, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','AIETETJ ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','AIEOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','ADIMJ   ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','AIMGAJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
-     & spcs_type((/'        ','AIMOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AMTNO3J ','        '/), cm_set, 1400.0, T, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AISOPNNJ','        '/), cm_set, 1400.0, T, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AMTHYDJ ','        '/), cm_set, 1400.0, F, T, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIETETJ ','        '/), cm_set, 1400.0, F, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIEOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','ADIMJ   ','        '/), cm_set, 1400.0, F, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIMGAJ  ','        '/), cm_set, 1400.0, F, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AIMOSJ  ','        '/), cm_set, 1400.0, F, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
 
        ! ae6i and cb6
-     & spcs_type((/'        ','AGLYJ   ','        '/), cm_set, 1400.0, F, F, F,  0,  4.0,'DUST  ','      ',es_0),
+     & spcs_type((/'        ','AGLYJ   ','        '/), cm_set, 1400.0, F, F, F,  0,2.8, 6.1,T,'DUST  ','      ',es_0),
      
        !The Following Species Were Associated with the Multi-Pollutant Code
-     & spcs_type((/'ANII     ','ANIJ     ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','NICKEL_F     ',es_fin), 
-     & spcs_type((/'         ','         ','ANIK     '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','NICKEL_C     ',es_cor), 
-     & spcs_type((/'ACR_VII  ','ACR_VIJ  ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','CHROMHEX_F   ',es_fin), 
-     & spcs_type((/'         ','         ','ACR_VIK  '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','CHROMHEX_C   ',es_cor), 
-     & spcs_type((/'ACR_IIII ','ACR_IIIJ ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','CHROMTRI_F   ',es_fin), 
-     & spcs_type((/'         ','         ','ACR_IIIK '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','CHROMTRI_C   ',es_cor), 
-     & spcs_type((/'ABEI     ','ABEJ     ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','BERYLLIUM_F  ',es_fin), 
-     & spcs_type((/'         ','         ','ABEK     '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','BERYLLIUM_C  ',es_cor), 
-     & spcs_type((/'APBI     ','APBJ     ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','LEAD_F       ',es_fin), 
-     & spcs_type((/'         ','         ','APBK     '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','LEAD_C       ',es_cor), 
-     & spcs_type((/'ADE_OTHRI','ADE_OTHRJ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','DIESEL_PMFINE',es_fin), 
-     & spcs_type((/'ADE_ECI  ','ADE_ECJ  ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','DIESEL_PMEC  ',es_fin), 
-     & spcs_type((/'ADE_OCI  ','ADE_OCJ  ','         '/), cm_set, 2000.0, F, F, T,  0,  0.0,'DUST  ','DIESEL_PMOC  ',es_fin), 
-     & spcs_type((/'         ','ADE_NO3J ','         '/), cm_set, 1800.0, F, F, T,  0,  0.0,'DUST  ','DIESEL_PMNO3 ',es_acc), 
-     & spcs_type((/'         ','ADE_SO4J ','         '/), cm_set, 1800.0, F, F, T,  0,  0.0,'DUST  ','DIESEL_PMSO4 ',es_acc), 
-     & spcs_type((/'         ','         ','ADE_K    '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','DIESEL_PMC   ',es_cor), 
-     & spcs_type((/'ACDI     ','ACDJ     ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','CADMIUM_F    ',es_fin), 
-     & spcs_type((/'         ','         ','ACDK     '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','CADMIUM_C    ',es_cor), 
-     & spcs_type((/'AMN_HAPSI','AMN_HAPSJ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','MANGANESE_F  ',es_fin), 
-     & spcs_type((/'         ','         ','AMN_HAPSK'/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','MANGANESE_C  ',es_cor), 
-     & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','PHGI         ',es_fin), 
-     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','             ',es_0),   
-     & spcs_type((/'AASI     ','AASJ     ','         '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','ARSENIC_F    ',es_fin), 
-     & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F, F, T,  0,  0.0,'DUST  ','ARSENIC_C    ',es_cor) 
+     & spcs_type((/'ANII     ','ANIJ     ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','NICKEL_F     ',es_fin), 
+     & spcs_type((/'         ','         ','ANIK     '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','NICKEL_C     ',es_cor), 
+     & spcs_type((/'ACR_VII  ','ACR_VIJ  ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','CHROMHEX_F   ',es_fin), 
+     & spcs_type((/'         ','         ','ACR_VIK  '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','CHROMHEX_C   ',es_cor), 
+     & spcs_type((/'ACR_IIII ','ACR_IIIJ ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','CHROMTRI_F   ',es_fin), 
+     & spcs_type((/'         ','         ','ACR_IIIK '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','CHROMTRI_C   ',es_cor), 
+     & spcs_type((/'ABEI     ','ABEJ     ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','BERYLLIUM_F  ',es_fin), 
+     & spcs_type((/'         ','         ','ABEK     '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','BERYLLIUM_C  ',es_cor), 
+     & spcs_type((/'APBI     ','APBJ     ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','LEAD_F       ',es_fin), 
+     & spcs_type((/'         ','         ','APBK     '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','LEAD_C       ',es_cor), 
+     & spcs_type((/'ADE_OTHRI','ADE_OTHRJ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','DIESEL_PMFINE',es_fin), 
+     & spcs_type((/'ADE_ECI  ','ADE_ECJ  ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','DIESEL_PMEC  ',es_fin), 
+     & spcs_type((/'ADE_OCI  ','ADE_OCJ  ','         '/), cm_set, 2000.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','DIESEL_PMOC  ',es_fin), 
+     & spcs_type((/'         ','ADE_NO3J ','         '/), cm_set, 1800.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','DIESEL_PMNO3 ',es_acc), 
+     & spcs_type((/'         ','ADE_SO4J ','         '/), cm_set, 1800.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','DIESEL_PMSO4 ',es_acc), 
+     & spcs_type((/'         ','         ','ADE_K    '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','DIESEL_PMC   ',es_cor), 
+     & spcs_type((/'ACDI     ','ACDJ     ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','CADMIUM_F    ',es_fin), 
+     & spcs_type((/'         ','         ','ACDK     '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','CADMIUM_C    ',es_cor), 
+     & spcs_type((/'AMN_HAPSI','AMN_HAPSJ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','MANGANESE_F  ',es_fin), 
+     & spcs_type((/'         ','         ','AMN_HAPSK'/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','MANGANESE_C  ',es_cor), 
+     & spcs_type((/'APHGI    ','APHGJ    ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','PHGI         ',es_fin), 
+     & spcs_type((/'         ','         ','APHGK    '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','             ',es_0),   
+     & spcs_type((/'AASI     ','AASJ     ','         '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','ARSENIC_F    ',es_fin), 
+     & spcs_type((/'         ','         ','AASK     '/), cm_set, 2200.0, F,F,T, 0,0.0, 0.0,F,'DUST  ','ARSENIC_C    ',es_cor) 
      & /)                                                                                                                          
 
 C number of lognormal modes in windblown dust aerosol = n_mode
