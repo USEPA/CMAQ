@@ -84,6 +84,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- reversed the decision of removing mminlu
 !              -- removed obsolete NLCD50
 !              -- set lwater = 17 and lice = 15 for NLCD40
+!           05 May 2016  (David Wong)
+!              -- Calculated and output the rainfall (convective and
+!                 non-convect) information according to the output file time step
+!                 rather than the two-way model time step
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -134,10 +138,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   LOGICAL, PARAMETER            :: def_false = .false.
   LOGICAL, SAVE                 :: first = .TRUE.
 
-  INTEGER, SAVE :: nlays, nvars, v
+  INTEGER, SAVE :: nlays, nvars
   INTEGER, SAVE :: tstep = 0
 
-  INTEGER                       :: ii, jj, kk, ll, iim1, jjm1
+  INTEGER                       :: ii, jj, kk, ll, iim1, jjm1, v
   INTEGER                       :: c, r, lcm1, lrm1, kp1
   INTEGER                       :: ioffset, joffset
   INTEGER                       :: stat, temp
@@ -216,6 +220,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   real, allocatable, save :: metdot3d_data_cmaq (:,:,:,:)
   real, allocatable, save :: metcro2d_data_cmaq (:,:,:)
 ! real, allocatable, save :: previous_rain_rec(:,:,:)
+  real, allocatable, save :: temp_rainnc(:,:)
+  real, allocatable, save :: temp_rainc(:,:)
 
   real :: wrf_lc_ref_lat
 
@@ -1003,6 +1009,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         !-----------------------------------------------------------------------
 
            metcro3d_data_wrf (c,r,kk,4) = t_phy_wrf   (ii,kk,jj)  ! ta
+
            if (turn_on_pv) then
               xtheta(c,r,kk) = grid%t_2 (ii,kk,jj) + t0
            end if
@@ -1501,8 +1508,15 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
   if (.not. allocated(metcro2d_data_wrf)) then
      allocate ( metcro2d_data_wrf (wrf_c_ncols, wrf_c_nrows, nvars3d), stat=stat)
-     allocate ( metcro2d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype), &
-                                      cmaq_ce_domain_map(3,2,twoway_mype), nvars3d), stat=stat)
+     allocate ( metcro2d_data_cmaq (cmaq_ce_domain_map(3,1,twoway_mype),           &
+                                    cmaq_ce_domain_map(3,2,twoway_mype), nvars3d), &
+                temp_rainnc (cmaq_ce_domain_map(3,1,twoway_mype),                  &
+                             cmaq_ce_domain_map(3,2,twoway_mype)),                 &
+                temp_rainc (cmaq_ce_domain_map(3,1,twoway_mype),                   &
+                            cmaq_ce_domain_map(3,2,twoway_mype)),                  &
+                stat=stat)
+     temp_rainnc = 0.0
+     temp_rainc  = 0.0
   end if
 
   if (RUN_CMAQ_DRIVER) then
@@ -1671,6 +1685,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                          wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,                 &
                          wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, 5)
 
+  temp_rainnc = temp_rainnc + metcro2d_data_cmaq(:,:,13)
+  temp_rainc  = temp_rainc  + metcro2d_data_cmaq(:,:,14)
+
   if (RUN_CMAQ_DRIVER) then
      if ( .not. buf_write3 (fname, allvar3, jdate, jtime, metcro2d_data_cmaq ) ) then
        print *, ' Error: Could not write to file ', fname
@@ -1679,11 +1696,27 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   end if
   if (create_physical_file) then
      if (write_to_physical_file) then
-        if ( .not. write3 (pfname, allvar3, jdate, jtime, metcro2d_data_cmaq(tsc_c:tec_c, tsr_c:ter_c, :) ) ) then
-           print *, ' Error: Could not write to file ', pfname
-           stop
-        end if
+        do v = 1, n_metcro2d_var   
+           if (v == 13) then
+              if ( .not. write3 (pfname, metcro2d_vlist(v), jdate, jtime, temp_rainnc(tsc_c:tec_c, tsr_c:ter_c) ) ) then
+                 print *, ' Error: Could not write to file ', pfname
+                 stop
+              end if
+           else if (v == 14) then
+              if ( .not. write3 (pfname, metcro2d_vlist(v), jdate, jtime, temp_rainc(tsc_c:tec_c, tsr_c:ter_c) ) ) then
+                 print *, ' Error: Could not write to file ', pfname
+                 stop
+              end if
+           else
+              if ( .not. write3 (pfname, metcro2d_vlist(v), jdate, jtime, metcro2d_data_cmaq(tsc_c:tec_c, tsr_c:ter_c, :) ) ) then
+                 print *, ' Error: Could not write to file ', pfname
+                 stop
+              end if
+           end if
+        end do
         write_to_physical_file = .false.
+        temp_rainnc = 0.0
+        temp_rainc  = 0.0
      end if
   end if
 
