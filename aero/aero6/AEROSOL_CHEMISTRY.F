@@ -32,6 +32,7 @@
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
 !    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
+! 23 May 16 C. Nolte: Allow for writing APMDIAG even if PMDIAG file turned off.
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -460,7 +461,9 @@ C *** variables for getting aerosol diagnostic file flag
       INTEGER           :: STATUS                      ! ENV... status
       CHARACTER( 80 )   :: VARDESC                     ! environment variable description
       CHARACTER( 16 )   :: CTM_PMDIAG = 'CTM_PMDIAG'   ! environment variable for PMDIAG file
+      CHARACTER( 16 )   :: CTM_APMDIAG = 'CTM_APMDIAG' ! environment variable for APMDIAG file
       LOGICAL, SAVE     :: PMDIAG                      ! flag for PMDIAG file [F], default
+      LOGICAL, SAVE     :: APMDIAG                     ! flag for APMDIAG file [F], default
       
       CHARACTER( 132 )  :: XMSG
       
@@ -508,10 +511,27 @@ C *** compute only on first pass
 
         LOGDEV = INIT3()
          
-C *** Get aerosol diagnostic file flag.
+C *** Get PM diagnostic file flag.
         PMDIAG = .FALSE.         ! default
         VARDESC = 'Flag for writing the aerosol diagnostic file'
         PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
+!       STATUS = 0
+        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+        IF ( STATUS .EQ. 1 ) THEN
+           XMSG = 'Environment variable improperly formatted'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+        ELSE IF ( STATUS .EQ. -1 ) THEN
+           XMSG = 'Environment variable set, but empty ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
+        ELSE IF ( STATUS .EQ. -2 ) THEN
+           XMSG = 'Environment variable not set ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
+        END IF
+
+C *** Get flag for average PM diagnostic file.
+        APMDIAG = .FALSE.         ! default
+        VARDESC = 'Flag for writing the average aerosol diagnostic file'
+        APMDIAG = ENVYN( CTM_APMDIAG, VARDESC, APMDIAG, STATUS )
 !       STATUS = 0
         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
         IF ( STATUS .EQ. 1 ) THEN
@@ -555,7 +575,7 @@ C     end of the gas-phase chemical driver
 
        ALLOCATE( KHETERO( SELECTED_AERO_RATES, NCOLS,NROWS,NLAYS ) )
        
-       IF ( PMDIAG ) THEN
+       IF ( PMDIAG .OR. APMDIAG ) THEN
           ALLOCATE( GAMMA_N2O5IJ( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_N2O5K( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_IEPOX( NCOLS,NROWS,NLAYS ) )
