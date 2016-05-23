@@ -364,6 +364,10 @@ C                                     AERO_OPTICAL2, AERO_OPTICAL_CS
 C  REVISION HISTORY
 C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
 C                          from version 5.01
+C     05/23/16 D.Wong - replaced RRTMG_AERO_OPTICAL_UTIL_MODULE with
+C                       CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE to avoid
+C                       duplication of the same module name on WRF side
+C                       of the two-way model
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -388,7 +392,7 @@ C-----------------------------------------------------------------------
       USE CSQY_DATA,  ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
      &                       WAVELENGTH => EFFWL_REF
 
-      USE RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
+      USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
 
       IMPLICIT NONE
 
@@ -882,6 +886,10 @@ C                                     AERO_OPTICAL2, AERO_OPTICAL_CS
 C  REVISION HISTORY
 C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
 C                          from version 5.01
+C     05/23/16 D.Wong - replaced RRTMG_AERO_OPTICAL_UTIL_MODULE with
+C                       CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE to avoid
+C                       duplication of the same module name on WRF side
+C                       of the two-way model
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -906,7 +914,7 @@ C-----------------------------------------------------------------------
       USE CSQY_DATA, ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
      &                       WAVELENGTH => EFFWL_REF
 
-      USE RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
+      USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
 
       IMPLICIT NONE
 
