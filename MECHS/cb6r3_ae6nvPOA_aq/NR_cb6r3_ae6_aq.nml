@@ -1,5 +1,5 @@
 ! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/cb05tucl_ae6_aq/NR_cb05tucl_ae6_aq.nml,v 1.1 2011/04/06 16:57:21 sjr Exp $
+! $Header: /project/work/rep/arc/mechs/MECHS/src/cb05tucl_ae6_aq/NR_cb05tucl_ae6_aq.nml,v 1.1.1.1 2011/04/06 16:57:21 sjr Exp $
 
 &NR_nml
  
@@ -25,6 +25,5 @@ TYPE_MATRIX =
 'SV_TRP2:198.0:::VD_SVTRP2:1.0:::SVTRP2:1.0:SV_TRP2::Yes:Yes:Yes:Yes',
 'SV_ISO1:132.0:::VD_SVISO1:1.0:::SVISO1:1.0:SV_ISO1::Yes:Yes:Yes:Yes',
 'SV_ISO2:133.0:::VD_SVISO2:1.0:::SVISO2:1.0:SV_ISO2::Yes:Yes:Yes:Yes',
-'SV_SQT:273.0:::VD_SVSQT:1.0:::SVSQT:1.0:SV_SQT::Yes:Yes:Yes:Yes',
-'LV_PCSOG:170.0:::VD_ORA:1.0:::ADIPIC_ACID:1.0:LV_SMP::Yes:::Yes'
+'SV_SQT:273.0:::VD_SVSQT:1.0:::SVSQT:1.0:SV_SQT::Yes:Yes:Yes:Yes'
 /
