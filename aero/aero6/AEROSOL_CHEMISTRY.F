@@ -513,7 +513,7 @@ C *** compute only on first pass
         LOGDEV = INIT3()
          
 C *** Get PM diagnostic file flag.
-        PMDIAG = .FALSE.         ! default
+        PMDIAG = .TRUE.         ! default
         VARDESC = 'Flag for writing the aerosol diagnostic file'
         PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
 !       STATUS = 0

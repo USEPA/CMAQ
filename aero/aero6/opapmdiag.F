@@ -25,7 +25,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revision history
 C   09 May 16 D. Wong: Initial Implemnetation
-C   19 May 16 D. Wong: renamed ACONC_END_TIME to AVG_FILE_END_TIME
+C   19 May 16 D. Wong: renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 
         USE GRID_CONF           ! horizontal & vertical domain specifications
         USE UTILIO_DEFN
@@ -52,7 +52,7 @@ C...Local variables:
         CHARACTER( 32 ) :: APMDIAG_BLEV_ELEV = 'APMDIAG_BLEV_ELEV'
         CHARACTER( 16 ) :: V_LIST( 41 )
         CHARACTER( 80 ) :: VARDESC = ' '
-        CHARACTER( 16 ) :: AVG_FILE_END_TIME = 'AVG_FILE_END_TIME'
+        CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
         INTEGER :: BEG_LVL, END_LVL, N, V
         INTEGER :: MDATE, MTIME, LOGDEV, STATUS, LOC
         LOGICAL :: END_TIME = .FALSE.
@@ -129,11 +129,11 @@ C-----------------------------------------------------------------------
            NVARS3D = N 
         END IF
 
-! get end time information from environment variable AVG_FILE_END_TIME
+! get end time information from environment variable AVG_FILE_ENDTIME
         LOGDEV = INIT3 ()
 
         VARDESC = 'Flag to Override default beginning time timestamp for PMDIAG'
-        END_TIME = ENVYN( AVG_FILE_END_TIME, VARDESC, END_TIME, STATUS )
+        END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
         IF ( STATUS .EQ. 1 ) THEN
            XMSG = 'Environment variable improperly formatted'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

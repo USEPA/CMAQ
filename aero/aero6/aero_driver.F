@@ -113,7 +113,7 @@ C                        environment variable CTM_AVISDIAG
 C                      - renamed AERODIAM to PMDIAG and CTM_AERDIAG to CTM_PMDIAG
 C                      - added flexibility to handle AE6 and AE6i
 C                      - renamed DIAM to PMDIAG
-C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_END_TIME
+C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 C                      - updated the way to define NUM_PMDIAG_SPC
 C                      - set CTM_PMDIAG default value to .TRUE.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -276,7 +276,7 @@ C *** Coefficients for the equation, ESATL defining saturation vapor pressure
 
       INTEGER, SAVE :: O3
 
-      CHARACTER( 16 ) :: AVG_FILE_END_TIME = 'AVG_FILE_END_TIME'
+      CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
       LOGICAL, SAVE :: END_TIME = .FALSE.
 
       REAL, ALLOCATABLE, SAVE :: TEMP_DATA(:)
@@ -341,7 +341,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          AVIS_SPC = 0.0
          N_VIS_STEP = 0
 
-         END_TIME = ENVYN( AVG_FILE_END_TIME, ' ', END_TIME, STATUS )
+         END_TIME = ENVYN( AVG_FILE_ENDTIME, ' ', END_TIME, STATUS )
 
 #ifdef twoway
 ! -- this is for twoway

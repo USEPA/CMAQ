@@ -29,7 +29,7 @@
 
 ! Revision History:
 !   D. Wong - July 15: initial version
-!   D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_END_TIME
+!   D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 !-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -57,7 +57,7 @@
       INTEGER      MTIME        ! modified model time, coded HHMMSS
 
       CHARACTER( 16 ) :: PNAME = 'OPACONC'
-      CHARACTER( 16 ) :: AVG_FILE_END_FILE = 'AVG_FILE_END_FILE'
+      CHARACTER( 16 ) :: AVG_FILE_ENDTIME = 'AVG_FILE_ENDTIME'
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -87,7 +87,7 @@
 
 ! Override default beginning time timestamp for ACONC?
       VARDESC = 'Flag to Override default beginning time timestamp for ACONC'
-      END_TIME = ENVYN( AVG_FILE_END_FILE, VARDESC, END_TIME, STATUS )
+      END_TIME = ENVYN( AVG_FILE_ENDTIME, VARDESC, END_TIME, STATUS )
       IF ( STATUS .EQ. 1 ) THEN
          XMSG = 'Environment variable improperly formatted'
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
