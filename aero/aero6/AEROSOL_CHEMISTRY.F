@@ -33,6 +33,7 @@
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
 !    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
 ! 23 May 16 C. Nolte: Allow for writing APMDIAG even if PMDIAG file turned off.
+! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -683,7 +684,7 @@ C ***  Map to acids/nucleophiles for epoxide uptake
 
       KHETERO      = 0.0D0
       
-      IF ( PMDIAG ) THEN
+      IF ( PMDIAG .OR. APMDIAG ) THEN
          GAMMA_N2O5IJ = 0.0
          GAMMA_N2O5K  = 0.0
          YCLNO2IJ     = 0.0
@@ -790,10 +791,10 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
 
                   IF ( N .LE. 2 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
-                     IF ( PMDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE IF ( N .EQ. 3 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
-                     IF ( PMDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE
                      GAMMA = 0.0D0
                   END IF
@@ -897,9 +898,9 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                END IF
 
                ! Diagnostic information
-               IF( PMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
-               IF( PMDIAG ) GAMMA_IMAE(  C,R,L ) = REAL( GAMMAIMAE, 4 )
-               IF( PMDIAG ) KPARTIEPOX(  C,R,L ) = REAL( KPIEPOX,   4 )
+               IF( PMDIAG .OR. APMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
+               IF( PMDIAG .OR. APMDIAG ) GAMMA_IMAE(  C,R,L ) = REAL( GAMMAIMAE, 4 )
+               IF( PMDIAG .OR. APMDIAG ) KPARTIEPOX(  C,R,L ) = REAL( KPIEPOX,   4 )
 
 
                LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
@@ -924,18 +925,18 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                   CASE( IA_N2O5IJY )  
                  
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1                    
-                     IF ( PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_N2O5KY )  
                  
                      KHETERO( IRATE, C,R,L )  = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
-                     IF ( PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
 
                   CASE( IA_H2NO3PAIJ )  
                 
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                       *  MAX((1.0D0 - YIELDIJ), 0.0D0) 
-                     IF ( PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_H2NO3PBIJ )  
                  
@@ -956,7 +957,7 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                      IF ( YIELD_CLNO2( 1 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
-                        IF ( PMDIAG ) THEN
+                        IF ( PMDIAG .OR. APMDIAG ) THEN
                            FACTOR = CL_PPM( 1 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -975,7 +976,7 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                      IF (  YIELD_CLNO2( 2 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
-                        IF ( PMDIAG ) THEN
+                        IF ( PMDIAG .OR. APMDIAG ) THEN
                            FACTOR = CL_PPM( 2 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -1008,7 +1009,7 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                      IF ( YIELD_CLNO2( 3 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                        IF ( PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
+                        IF ( PMDIAG .OR. APMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF 
