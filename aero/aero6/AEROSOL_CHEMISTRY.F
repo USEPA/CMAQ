@@ -31,6 +31,9 @@
 ! 24 Mar 16 G. Sarwar: Added heterogeneous uptake of BRONO2 on aerosols
 ! 10 May 16 H. Pye: Merged with AEROSOL_CHEMISTRY.F from aero6i
 !                   Size of NAMES_AERO_RATES reduced to match RXN_DATA_MODULE
+!    May 16 H. Pye, B. Murphy: Updated treatment of aerosol moments
+! 23 May 16 C. Nolte: Allow for writing APMDIAG even if PMDIAG file turned off.
+! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -459,7 +462,9 @@ C *** variables for getting aerosol diagnostic file flag
       INTEGER           :: STATUS                      ! ENV... status
       CHARACTER( 80 )   :: VARDESC                     ! environment variable description
       CHARACTER( 16 )   :: CTM_PMDIAG = 'CTM_PMDIAG'   ! environment variable for PMDIAG file
+      CHARACTER( 16 )   :: CTM_APMDIAG = 'CTM_APMDIAG' ! environment variable for APMDIAG file
       LOGICAL, SAVE     :: PMDIAG                      ! flag for PMDIAG file [F], default
+      LOGICAL, SAVE     :: APMDIAG                     ! flag for APMDIAG file [F], default
       
       CHARACTER( 132 )  :: XMSG
       
@@ -507,10 +512,27 @@ C *** compute only on first pass
 
         LOGDEV = INIT3()
          
-C *** Get aerosol diagnostic file flag.
-        PMDIAG = .FALSE.         ! default
+C *** Get PM diagnostic file flag.
+        PMDIAG = .TRUE.         ! default
         VARDESC = 'Flag for writing the aerosol diagnostic file'
         PMDIAG = ENVYN( CTM_PMDIAG, VARDESC, PMDIAG, STATUS )
+!       STATUS = 0
+        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
+        IF ( STATUS .EQ. 1 ) THEN
+           XMSG = 'Environment variable improperly formatted'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
+        ELSE IF ( STATUS .EQ. -1 ) THEN
+           XMSG = 'Environment variable set, but empty ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
+        ELSE IF ( STATUS .EQ. -2 ) THEN
+           XMSG = 'Environment variable not set ... Using default:'
+           WRITE( LOGDEV, '(5X, A, I9)' ) XMSG
+        END IF
+
+C *** Get flag for average PM diagnostic file.
+        APMDIAG = .FALSE.         ! default
+        VARDESC = 'Flag for writing the average aerosol diagnostic file'
+        APMDIAG = ENVYN( CTM_APMDIAG, VARDESC, APMDIAG, STATUS )
 !       STATUS = 0
         IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
         IF ( STATUS .EQ. 1 ) THEN
@@ -554,7 +576,7 @@ C     end of the gas-phase chemical driver
 
        ALLOCATE( KHETERO( SELECTED_AERO_RATES, NCOLS,NROWS,NLAYS ) )
        
-       IF ( PMDIAG ) THEN
+       IF ( PMDIAG .OR. APMDIAG ) THEN
           ALLOCATE( GAMMA_N2O5IJ( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_N2O5K( NCOLS,NROWS,NLAYS ) )
           ALLOCATE(  GAMMA_IEPOX( NCOLS,NROWS,NLAYS ) )
@@ -596,13 +618,13 @@ C ***  Determine molecular weights
           INV_MWIETET = REAL( 1.0/ aerospc_mw( AIETET_IDX ), 8 )
        ELSE
           INV_MWIETET = 0.0
-       ENDIF
+       END IF
 
        IF( AIEOS_IDX .GT. 0 ) THEN
           INV_MWIEOS  = REAL( 1.0/ aerospc_mw( AIEOS_IDX  ), 8 )
        ELSE 
           INV_MWIEOS = 0.0
-       ENDIF
+       END IF
 
        NO3_IDX = INDEX1( 'NO3', NUMB_MECH_SPC, CHEMISTRY_SPC )
        IF( NO3_IDX .GT. 0 )THEN
@@ -662,7 +684,7 @@ C ***  Map to acids/nucleophiles for epoxide uptake
 
       KHETERO      = 0.0D0
       
-      IF ( PMDIAG ) THEN
+      IF ( PMDIAG .OR. APMDIAG ) THEN
          GAMMA_N2O5IJ = 0.0
          GAMMA_N2O5K  = 0.0
          YCLNO2IJ     = 0.0
@@ -738,13 +760,13 @@ C     affect the geometric standard deviation
 C *** The "wet" geometric mean (same as median) diameter was updated in
 C     getpar. It is stored in aeromode_diam
 C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
-                  DE_WET( N ) = REAL( aeromode_diam( N ) * EXP( 1.5 * aeromode_lnsg( N ) ** 2 ), 8)
+                  DE_WET( N ) = REAL( AEROMODE_DIAM( N ) * EXP( 1.5 * AEROMODE_LNSG( N ) ** 2 ), 8)
                END DO
 
 C *** Retrieve and Save the Dry 3rd and 2nd Moments
                CALL CALCMOMENTS( .False. )
-               CHEM_M2DRY_INIT( C,R,L,: ) = moment2_conc( : )
-               CHEM_M3DRY_INIT( C,R,L,: ) = moment3_conc( : )
+               CHEM_M2DRY_INIT( C,R,L,: ) = MOMENT2_CONC( : )
+               CHEM_M3DRY_INIT( C,R,L,: ) = MOMENT3_CONC( : )
 
 
 C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
@@ -769,10 +791,10 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
 
                   IF ( N .LE. 2 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 0 )
-                     IF ( PMDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) GAMMA_N2O5IJ( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE IF ( N .EQ. 3 ) THEN
                      GAMMA = N2O5_GAMMA( AIRTEMP, AIRRH, 5 )
-                     IF ( PMDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) GAMMA_N2O5K( C,R,L ) = REAL( GAMMA, 4 )
                   ELSE
                      GAMMA = 0.0D0
                   END IF
@@ -788,7 +810,7 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
      &                          * CBARNO3 * INV_DIFFUSIVITY ) * CBARNO3 * DPI
                   ELSE
                      KNO3( N ) = 0.0d0
-                  ENDIF
+                  END IF
 
                   IF( GAMMA_GLY .gt. 0.0d0) THEN
                      KGLY( N ) = GAMMA_GLY * WET_M2( N ) 
@@ -802,7 +824,7 @@ C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                   ELSE
                      KGLY( N ) = 0.0d0
                      KMGLY( N ) = 0.0d0
-                  ENDIF
+                  END IF
 
 
 c *** get fine aerosol H2O and chlorine concentrations in
@@ -866,19 +888,19 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                   KIEPOX = 0.0d0
                   Tetrol_PPM = 0.0
                   IEPOXOS_PPM = 0.0
-               ENDIF
+               END IF
 
                IF( GAMMAIMAE .gt. 0.0d0 ) THEN
                   KIMAE        = WET_M2( 2 ) * DPI
      &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIMAE * GAMMAIMAE) )
                ELSE
                   KIMAE = 0.0d0
-               ENDIF
+               END IF
 
                ! Diagnostic information
-               IF( PMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
-               IF( PMDIAG ) GAMMA_IMAE(  C,R,L ) = REAL( GAMMAIMAE, 4 )
-               IF( PMDIAG ) KPARTIEPOX(  C,R,L ) = REAL( KPIEPOX,   4 )
+               IF( PMDIAG .OR. APMDIAG ) GAMMA_IEPOX( C,R,L ) = REAL( GAMMAIEPOX,4 )
+               IF( PMDIAG .OR. APMDIAG ) GAMMA_IMAE(  C,R,L ) = REAL( GAMMAIMAE, 4 )
+               IF( PMDIAG .OR. APMDIAG ) KPARTIEPOX(  C,R,L ) = REAL( KPIEPOX,   4 )
 
 
                LOOP_RATES: DO IRATE = 1, SELECTED_AERO_RATES
@@ -903,18 +925,18 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                   CASE( IA_N2O5IJY )  
                  
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * YIELDIJ * ( KN2O5( 1 ) + KN2O5( 2 ) ) ! convert to min-1                    
-                     IF ( PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_N2O5KY )  
                  
                      KHETERO( IRATE, C,R,L )  = 60.0D0 * YIELD_CLNO2( 3 ) * KN2O5( 3 ) 
-                     IF ( PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 )
 
                   CASE( IA_H2NO3PAIJ )  
                 
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                       *  MAX((1.0D0 - YIELDIJ), 0.0D0) 
-                     IF ( PMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
+                     IF ( PMDIAG .OR. APMDIAG ) YCLNO2IJ( C,R,L ) = REAL( YIELDIJ, 4 )
                      
                   CASE( IA_H2NO3PBIJ )  
                  
@@ -935,7 +957,7 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                      IF ( YIELD_CLNO2( 1 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 1 ) / CL_PPM( 1 ) ! (min*ppm)-1
-                        IF ( PMDIAG ) THEN
+                        IF ( PMDIAG .OR. APMDIAG ) THEN
                            FACTOR = CL_PPM( 1 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 1 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -954,7 +976,7 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                      IF (  YIELD_CLNO2( 2 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 2 ) / CL_PPM( 2 ) ! (min*ppm)-1
-                        IF ( PMDIAG ) THEN
+                        IF ( PMDIAG .OR. APMDIAG ) THEN
                            FACTOR = CL_PPM( 2 ) / ( CL_PPM( 1 )+ CL_PPM( 2 ) )
                            YCLNO2IJ( C,R,L ) = REAL( FACTOR * YIELD_CLNO2( 2 ), 4 ) 
      &                                       + YCLNO2IJ( C,R,L )
@@ -987,7 +1009,7 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                      IF ( YIELD_CLNO2( 3 ) .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) =  60.0D0 * AQUEOUS_FREQUENCY
      &                                          *  YIELD_CLNO2( 3 ) / CL_PPM( 3 ) ! (min*ppm)-1
-                        IF ( PMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
+                        IF ( PMDIAG .OR. APMDIAG ) YCLNO2K( C,R,L ) = REAL( YIELD_CLNO2( 3 ), 4 ) 
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF 
@@ -1022,7 +1044,7 @@ C ***            Isoprene epoxide uptake
      &                                              * FDIM1(1) / TETROL_PPM !min*ppm-1  
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
-                     ENDIF
+                     END IF
 
                  CASE( IA_IEPOXOSDI )
 
@@ -1031,7 +1053,7 @@ C ***            Isoprene epoxide uptake
      &                                              * FDIM2(1) / IEPOXOS_PPM !min*ppm-1
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
-                     ENDIF
+                     END IF
 
                  CASE( IA_IMAE )
 
@@ -1060,7 +1082,7 @@ C ***            Isoprene epoxide uptake
                  CASE( IA_NTR2 )
 C *** calculate gas-particle partitioning of NTR2
                     CON_TOA = 0.0
-                    If ( INDEX( MECHNAME, 'AE6svPOA' ) .EQ. 0 ) Then
+                    If ( INDEX( MECHNAME, 'NVPOA' ) .NE. 0 ) Then
                       CON_TOA = aerospc_conc(   apoc_idx,1 ) + aerospc_conc(   apoc_idx,2 )
      &                      + aerospc_conc( apncom_idx,1 ) + aerospc_conc( apncom_idx,2 )
                     End If
@@ -1222,6 +1244,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 c  Calculates the change in aerosol surface area due to heterogeneous
 C  reactions and updates the CGRID array with this information.
 C  
+C  History
+C  May 2016: BM Created
 
 C  Key Subroutines Called: none
 C
@@ -1233,8 +1257,8 @@ C  Called by: Gas-Phase Chemistry Driver
       IMPLICIT NONE
       
       REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
-      REAL                :: M2DRY_FINAL( n_mode ) !Dry 2nd Aerosol Moment
-      REAL                :: M3DRY_FINAL( n_mode ) !Dry 3rd Aerosol Moment
+      REAL                :: M2DRY_FINAL( N_MODE ) !Dry 2nd Aerosol Moment
+      REAL                :: M3DRY_FINAL( N_MODE ) !Dry 3rd Aerosol Moment
       INTEGER L, R, C, m
 
       LOOP_LAY: DO L = 1, NLAYS
@@ -1249,8 +1273,8 @@ C  Called by: Gas-Phase Chemistry Driver
                !Recalculate Dry 3rd Moment After Chemistry Processes
                !2nd moment hasn't been update yet.
                CALL CALCMOMENTS( .False. )
-               M2DRY_FINAL( : ) = moment2_conc( : )
-               M3DRY_FINAL( : ) = moment3_conc( : )
+               M2DRY_FINAL( : ) = MOMENT2_CONC( : )
+               M3DRY_FINAL( : ) = MOMENT3_CONC( : )
 
                !Calculate new Second Moment Manually
                !Assume standard deviation is fixed.
@@ -1259,9 +1283,9 @@ C  Called by: Gas-Phase Chemistry Driver
 
                !Update the Aerosol Surface Area making sure to multiply
                !the 2nd moment by Pi to convert properly
-               Do m = 1, n_mode
-                 CGRID( C,R,L,aerosrf_map(m) ) = Real( pi, 4 ) * M2DRY_FINAL( m )
-               End Do
+               DO M = 1, N_MODE
+                 CGRID( C, R, L, AEROSRF_MAP(M) ) = Real( PI, 4 ) * M2DRY_FINAL( M )
+               END DO
 
             END DO LOOP_COL
          END DO LOOP_ROW
@@ -2189,15 +2213,15 @@ C        Update sum
 C        Store information with speciation for IEPOX
          if ( acid_nuc_pairs(i)%parent == 'IEPOX' ) then
             kparticle(1)  = kparticle(1) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then
+            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then !ae6i
               kchemos(1)  = kchemos(1)   + kchem
             elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then
+     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then !ae6i
               kchemdim1(1) = kchemdim1(1)  + kchem
             elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then
+     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then !ae6i
               kchemdim2(1) = kchemdim2(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then
+            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then !ae6i
               kchemtet(1) = kchemtet(1)  + kchem
             elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
               ! do nothing for aero6 since speciation isn't tracked

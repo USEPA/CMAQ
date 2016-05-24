@@ -94,7 +94,7 @@
 ! 08/27/15 B.Hutzell update coefficients for ozone loss based on a parameterization 
 ! of marine halogen chemistry. Their changes recommended by G. Sarwar on 06/25/15
 
-SAPRC07TC_AE6_AQ 
+SAPRC07TC_AE6NVPOA_AQ 
 
 ELIMINATE =
 XN;

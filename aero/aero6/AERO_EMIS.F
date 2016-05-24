@@ -436,36 +436,39 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
             END IF
          END DO
 
+
+         IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+           !Semivolatile POA  
 C *** Let the user set the pcVOC species (which makes pcSOA) emissions
 C *** scaling to 0.0
-         !Retrieve the Environment Variable allowing the User to Toggle
-         !the pcVOC emissions
-         ZERO_PCSOA = .FALSE.         ! default
-         VARDESC = 'Flag for Ignoring the pcSOA species'
-         ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
+           !Retrieve the Environment Variable allowing the User to Toggle
+           !the pcVOC emissions
+           ZERO_PCSOA = .FALSE.         ! default
+           VARDESC = 'Flag for Ignoring the pcSOA species'
+           ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
 
-         IF ( ZERO_PCSOA == .TRUE. ) THEN
-           !Find the index for the pcVOC species in the emissions
-           !scale-factor vector
-           V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
-           S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
-           GC_EMIS_FAC( S ) = 0.0
-         ENDIF
+           IF ( ZERO_PCSOA == .TRUE. ) THEN
+             !Find the index for the pcVOC species in the emissions
+             !scale-factor vector
+             V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
+             S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
+             GC_EMIS_FAC( S ) = 0.0
+           ENDIF
 
 C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
-         !Find the Index for Each Vapor and alter the emissions scaling
-         !to reflect the parameters in AERO_DATA. The GC_EMIS_FAC field
-         !from the GC namelist should account for the conversion from
-         !g/s (POC) to mol/s (Vapors). That factor is then modified
-         !by the volatility distribution itself.
-         DO IPOA = 1,N_VBS_BIN
-           VNAME = 'V' // POA_NAME( IPOA )
-           V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
-           S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
-           GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
-     &                        (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
-         ENDDO
-
+           !Find the Index for Each Vapor and alter the emissions scaling
+           !to reflect the parameters in AERO_DATA. The GC_EMIS_FAC field
+           !from the GC namelist should account for the conversion from
+           !g/s (POC) to mol/s (Vapors). That factor is then modified
+           !by the volatility distribution itself.
+           DO IPOA = 1,N_VBS_BIN
+             VNAME = 'V' // POA_NAME( IPOA )
+             V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
+             S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
+             GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
+     &                          (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
+           ENDDO
+         ENDIF
 
 C *** Map aerosol number emission species and set across-the-board adjustment factors
          NUM_MAP = 0   ! array assignment

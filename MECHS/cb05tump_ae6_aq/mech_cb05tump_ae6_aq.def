@@ -687,7 +687,7 @@ REACTIONS[CM] =
 <OLIG_ALK2>       AALK2J = 1.7143*AOLGAJ  # 9.48816E-6;
 
 ! Formation of Potential Combustion SOA (pcSOA)
-<SIMP>  PCVOC + OH       = OH  + PCSOARXN  # 2.094E-11;
+<PCSOA>  PCVOC + OH       = OH  + PCSOARXN  # 2.094E-11;
 
 ! Aging with Func. and Frag. (Donahue et al. 2012)
 <POA_AGE1> VLVPO1 + OH = OH 

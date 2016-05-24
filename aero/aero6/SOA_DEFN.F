@@ -59,6 +59,7 @@ C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
 C 24 Mar 16 G. Sarwar: updated for CB05EH51
+C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
 C
 C-----------------------------------------------------------------------
       Implicit None
@@ -965,9 +966,9 @@ C gas tracer species to the array that will be multiplied by alpha
 C to give newly formed semivolatile vapors.
       totrog( : ) = 0.0
       Do i = 1, n_vapor
-         if ( drog_map( i ) .gt. 0 ) then
+         If ( drog_map( i ) .gt. 0 ) then
            totrog( i ) = drog( drog_map( i ) )
-         endif
+         End If
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)

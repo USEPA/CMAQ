@@ -9,7 +9,7 @@
 ! updated <HAL_OZONE>
 ! changed <HET_NTR2> coefficient by taking F_NTR2_ON out of AEROSOL_CHEMISTRY.F
 !---------------------------------
-CB6R3_AE6_AQ
+CB6R3_AE6NVPOA_AQ
 
 REACTIONS[CM] =
 

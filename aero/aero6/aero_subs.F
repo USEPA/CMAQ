@@ -189,6 +189,7 @@ C GS/KF 09/23/14 Updated nucleation scheme with Vehkamaki et al. (2002)
 
 C HP/BM  4/16 Removed m3_wet_flag since wet/dry status is now
 C             tracked by AERO_DATA variable. Moments are always wet in AEROPROC
+C             Updated treatment of aerosol moments
 
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
@@ -319,8 +320,7 @@ C     and the SVOC mass concentrations by equilibrium absorptive
 C     partitioning between the particle and vapor phases.  Assume all
 C     SOA resides in the accumulation mode.
 C
-C     Ben and Havala will update the algorithm before this point to make
-C     sure that the aerosol is wet when it enters orgaer
+C     Aerosol is wet when it enters orgaer
       CALL ORGAER( DT, LAYER )
 
 C *** Secondary Inorganics
@@ -335,8 +335,7 @@ C *** Compute H2SO4 diffusivity, correct for temperature and pressure
 C *** Update size parameters (distribution is wet from ORGAER)
       CALL GETPAR( LIMIT_Sg )
 
-      CALL VOLINORG( DT, COL, ROW, LAYER,
-     &               DV_SO4, CGR )
+      CALL VOLINORG( DT, COL, ROW, LAYER, DV_SO4, CGR )
 
 C *** Coagulation
 C     Calculate coagulation coefficients using a method dictated by
@@ -671,8 +670,7 @@ C *** Set minimum value for all concentrations in the CBLK array
 
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE VOLINORG( DT, COL, ROW, LAYER,
-     &                     DV_SO4, CGR )
+      SUBROUTINE VOLINORG( DT, COL, ROW, LAYER, DV_SO4, CGR )
 
 C *** Calculates the partitioning of inorganic components (CL,NO3,NH4,SO4)
 C     between the aerosol and gas phase over the operator synchronization
@@ -862,7 +860,7 @@ C     mass partitioning between the modes
       INTEGER, SAVE :: LOGDEV 
       LOGICAL, PARAMETER :: LIMIT_Sg = .TRUE.   ! fix Sg at current value?
       LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
-      CHARACTER*50 :: XMSG
+      CHARACTER( 50 ) :: XMSG
 
 C *** Local Saved Variables 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -1475,7 +1473,7 @@ C *** Apply modal partitioning of equilibrium aerosol mass
                      CALL M3EXIT( 'VOLINORG', 0, 0, XMSG, XSTAT1 ) 
                   END IF
                 END IF
-              ENDIF
+              END IF
             END IF  ! IMODE = 1
          END DO ! ISP
 
@@ -1549,7 +1547,7 @@ C     net change in dry 2nd moment is production or loss
          END IF
          moment2_conc( IMODE ) = MAX( REAL( AEROMODE_MINM2( IMODE ), 8 ), Y )
 
-      ENDDO
+      END DO
 
 C *** Add water and SOA to 2nd moment while preserving standard deviation
       call calcmoments( .true. )
@@ -2966,7 +2964,12 @@ C     pp 995 - 999, 1977.
 Coding history:
 C    who           when     what
 C ------------------------------------------------------------------
-C   F.S. Binkowski 5/9/95
+C   Peng Liu       05/2016  to get EXT2 and DCV2, use IMPROVE
+C                           reconstructed method, by calling subroutine
+C                           get_extinc (defined in module AOD_DEFN) in order to be consistent with
+C                           the updated algorithm to estimate the
+C                           aerosol extinction efficiency
+C   F.S. Binkowski 5/9/95   
 C             coded this version to use the h&b approximation
 C             and alfa and c obtained from fits to adt results
 C             b was fit from comparisons to willeke & brockmann.
@@ -2989,6 +2992,7 @@ C ///////
       USE AERO_DATA
       USE SOA_DEFN
       USE AEROMET_DATA
+      USE AOD_DEFN
 
       IMPLICIT NONE
 
@@ -3014,8 +3018,6 @@ C *** Paramters
 
 C *** internal variables:
 
-      INTEGER IRH ! percent realtive humidity as an
-                  ! integer used for index
 
       REAL    WFRAC  ! water mass fraction
       REAL    NR, NI ! real and imaginary parts of the refractive index
@@ -3023,32 +3025,6 @@ C *** internal variables:
       REAL    BBEXT  ! dimensionless extinction coefficient
       REAL    BEXT( n_mode ) ! Modal extinction coefficients [ 1/km ]
 
-      REAL    FRH ! RH correction factor for sulfate and nitrate aerosols
-
-      REAL    humfac(99) ! humidity scaling factors at 1% RH values
-         DATA humfac/
-     &   1.0000E+00,  1.0000E+00,  1.0000E+00,  1.0000E+00,  1.0000E+00,
-     &   1.0000E+00,  1.0000E+00,  1.0000E+00,  1.0000E+00,  1.0000E+00,
-     &   1.0000E+00,  1.0000E+00,  1.0000E+00,  1.0001E+00,  1.0001E+00,
-     &   1.0004E+00,  1.0006E+00,  1.0024E+00,  1.0056E+00,  1.0089E+00,
-     &   1.0097E+00,  1.0105E+00,  1.0111E+00,  1.0115E+00,  1.0118E+00,
-     &   1.0122E+00,  1.0126E+00,  1.0130E+00,  1.0135E+00,  1.0139E+00,
-     &   1.0173E+00,  1.0206E+00,  1.0254E+00,  1.0315E+00,  1.0377E+00,
-     &   1.0486E+00,  1.0596E+00,  1.0751E+00,  1.0951E+00,  1.1151E+00,
-     &   1.1247E+00,  1.1343E+00,  1.1436E+00,  1.1525E+00,  1.1615E+00,
-     &   1.1724E+00,  1.1833E+00,  1.1955E+00,  1.2090E+00,  1.2224E+00,
-     &   1.2368E+00,  1.2512E+00,  1.2671E+00,  1.2844E+00,  1.3018E+00,
-     &   1.3234E+00,  1.3450E+00,  1.3695E+00,  1.3969E+00,  1.4246E+00,
-     &   1.4628E+00,  1.5014E+00,  1.5468E+00,  1.5992E+00,  1.6516E+00,
-     &   1.6991E+00,  1.7466E+00,  1.7985E+00,  1.8549E+00,  1.9113E+00,
-     &   1.9596E+00,  2.0080E+00,  2.0596E+00,  2.1146E+00,  2.1695E+00,
-     &   2.2630E+00,  2.3565E+00,  2.4692E+00,  2.6011E+00,  2.7330E+00,
-     &   2.8461E+00,  2.9592E+00,  3.0853E+00,  3.2245E+00,  3.3637E+00,
-     &   3.5743E+00,  3.7849E+00,  4.0466E+00,  4.3594E+00,  4.6721E+00,
-     &   5.3067E+00,  5.9412E+00,  6.9627E+00,  8.3710E+00,  9.7793E+00,
-     &   1.2429E+01,  1.5078E+01,  1.8059E+01,  2.1371E+01/
-
-         SAVE humfac
 
       INTEGER N       ! loop counter
 
@@ -3099,47 +3075,12 @@ C     thus, set a floor of 0.0 on DCV1.
 
 C *** begin  IMPROVE reconstructed method
 
-      IRH = INT( 100.0 * AIRRH  ) ! truncate relative humidity to
-                                  ! nearest integer
-      IRH = MIN( 99, IRH )        ! set maximum value on IRH
-      IRH = MAX( 1, IRH )         ! set minimum value on IRH
-
-
-      FRH = humfac( IRH )         ! set humidity correction
-
-C *** NOTE in the following the fine primary mass "other" is
-C     treated as though it were fine mass soil.
-
       EXT2 = 0.0
       
-      !  sum from aerospc species
-      DO N = 1, N_AEROSPC
-         IF(  AEROSPC( N )%tracer )CYCLE
-         IF ( N .EQ. ASO4_IDX .OR. N .EQ. ANO3_IDX .OR. N .EQ. ANH4_IDX ) THEN
-            IF ( .NOT. AERO_MISSING(N,1) ) THEN
-               EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
-            END IF
-            IF ( .NOT. AERO_MISSING(N,2) ) THEN
-               EXT2 = EXT2 + FRH * AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
-            END IF
-            CYCLE
-         END IF
-
-         IF ( .NOT. AERO_MISSING(N,1) ) THEN
-            EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,1 )
-         END IF
-         IF ( .NOT. AERO_MISSING(N,2) ) THEN
-            EXT2 = EXT2 + AEROSPC( N )%VISUAL_IDX * AEROSPC_CONC( N,2 )
-         END IF
-      END DO
-
-      !  sum from soa species
-      DO N = 1, N_VAPOR  
-         IF( SOA_AEROMAP( N ) .LT. 1 )CYCLE
-         EXT2 = EXT2 + 4.0 * AEROSPC_CONC( SOA_AEROMAP( N ),2 )
-      END DO
-
-      EXT2 = SCALE * EXT2 + RAY
+      CALL get_extinc( AIRRH, EXT2 )
+C EXT2 from get_extinc in [ 1/km ], no need to scale 
+C     EXT2 = SCALE * EXT2 + RAY
+      EXT2 = EXT2 + RAY
 
       DCV2  = 10.0 * LOG ( EXT2  * RAY1 )
 
