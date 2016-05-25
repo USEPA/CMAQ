@@ -468,6 +468,11 @@ C.. Get pressure in Pascals
 C.. Get photolysis rates in /min
 
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
+
+C.. Get Heterogeneous reaction rates using aerosol surface area. Also
+C   store the initial surface area so that it can be updated after the
+C   solver finds a solution.
+
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
       
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -860,6 +865,7 @@ C  Update CGRID based on the degradation routines
              IF ( LIRRBLK ) CALL PA_IRR_BLKENDC ( OFFSET, CCOL, CROW, CLEV,
      &                                            NORDCELL, NIRRCLS, IRRCELL )
          ENDIF
+
 500   CONTINUE
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -914,6 +920,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          GO TO 600
       ENDIF
        
+      !Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CONC )
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Output performance statistics if required and return
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

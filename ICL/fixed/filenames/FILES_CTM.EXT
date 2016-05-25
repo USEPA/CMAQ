@@ -28,7 +28,7 @@
 !   3  Nov 2015 G. Sarwar added CTM_MGEM_1 output files
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 70
+      INTEGER, PARAMETER :: N_FILES = 72
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -52,7 +52,9 @@
       CHARACTER( 16 ) :: CTM_MGEM_1
       CHARACTER( 16 ) :: CTM_DUST_EMIS_1
       CHARACTER( 16 ) :: CTM_VIS_1
-      CHARACTER( 16 ) :: CTM_DIAM_1
+      CHARACTER( 16 ) :: CTM_AVIS_1
+      CHARACTER( 16 ) :: CTM_PMDIAG_1
+      CHARACTER( 16 ) :: CTM_APMDIAG_1
       CHARACTER( 16 ) :: CTM_AOD_1
       CHARACTER( 16 ) :: CTM_IPR_1
       CHARACTER( 16 ) :: CTM_IPR_2
@@ -121,10 +123,12 @@
       DATA CTM_WET_DEP_1    / 'CTM_WET_DEP_1   ' /
       DATA CTM_WET_DEP_2    / 'CTM_WET_DEP_2   ' /
       DATA CTM_SSEMIS_1     / 'CTM_SSEMIS_1    ' /
-      DATA CTM_MGEM_1       / 'CTM_MGEM_1    ' /
+      DATA CTM_MGEM_1       / 'CTM_MGEM_1      ' /
       DATA CTM_DUST_EMIS_1  / 'CTM_DUST_EMIS_1 ' /
       DATA CTM_VIS_1        / 'CTM_VIS_1       ' /
-      DATA CTM_DIAM_1       / 'CTM_DIAM_1      ' /
+      DATA CTM_AVIS_1       / 'CTM_AVIS_1      ' /
+      DATA CTM_PMDIAG_1     / 'CTM_PMDIAG_1    ' /
+      DATA CTM_APMDIAG_1    / 'CTM_APMDIAG_1   ' /
       DATA CTM_AOD_1        / 'CTM_AOD_1       ' /
       DATA CTM_IPR_1        / 'CTM_IPR_1       ' /
       DATA CTM_IPR_2        / 'CTM_IPR_2       ' /
@@ -194,7 +198,7 @@
       DATA LGCL_NAME( 16 ), IN_MODE( 16 )    / 'CTM_SSEMIS_1    ', .FALSE. /
       DATA LGCL_NAME( 17 ), IN_MODE( 17 )    / 'CTM_DUST_EMIS_1 ', .FALSE. /
       DATA LGCL_NAME( 18 ), IN_MODE( 18 )    / 'CTM_VIS_1       ', .FALSE. /
-      DATA LGCL_NAME( 19 ), IN_MODE( 19 )    / 'CTM_DIAM_1      ', .FALSE. /
+      DATA LGCL_NAME( 19 ), IN_MODE( 19 )    / 'CTM_PMDIAG_1    ', .FALSE. /
       DATA LGCL_NAME( 20 ), IN_MODE( 20 )    / 'CTM_AOD_1       ', .FALSE. /
       DATA LGCL_NAME( 21 ), IN_MODE( 21 )    / 'CTM_IPR_1       ', .FALSE. /
       DATA LGCL_NAME( 22 ), IN_MODE( 22 )    / 'CTM_IPR_2       ', .FALSE. /
@@ -246,5 +250,7 @@
       DATA LGCL_NAME( 68 ), IN_MODE( 68 )    / 'BNDY_TRAC_S     ', .FALSE. /
       DATA LGCL_NAME( 69 ), IN_MODE( 69 )    / 'INIT_TRAC_S     ', .FALSE. /
       DATA LGCL_NAME( 70 ), IN_MODE( 70 )    / 'CTM_MGEM_1      ', .FALSE. /
+      DATA LGCL_NAME( 71 ), IN_MODE( 71 )    / 'CTM_APMDIAG_1   ', .FALSE. /
+      DATA LGCL_NAME( 72 ), IN_MODE( 72 )    / 'CTM_AVIS_1      ', .FALSE. /
 
 !................   end   FILES3_CTM.EXT   .............................

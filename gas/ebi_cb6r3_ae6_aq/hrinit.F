@@ -34,7 +34,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 30, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 12, 2016
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -145,7 +145,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 118
+      N_EBISP  = 119
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -249,27 +249,28 @@ c..Allocate and define ebi species
       EBISP(  95 ) = ACLJ
       EBISP(  96 ) = ACLK
       EBISP(  97 ) = AISO3J
-      EBISP(  98 ) = AXYL1J
-      EBISP(  99 ) = AOLGAJ
-      EBISP( 100 ) = AXYL2J
-      EBISP( 101 ) = ATOL1J
-      EBISP( 102 ) = ATOL2J
-      EBISP( 103 ) = ABNZ1J
-      EBISP( 104 ) = ABNZ2J
-      EBISP( 105 ) = ATRP1J
-      EBISP( 106 ) = AOLGBJ
-      EBISP( 107 ) = ATRP2J
-      EBISP( 108 ) = AISO1J
-      EBISP( 109 ) = AISO2J
-      EBISP( 110 ) = ASQTJ
-      EBISP( 111 ) = APAH1J
-      EBISP( 112 ) = APAH2J
-      EBISP( 113 ) = AALK1J
-      EBISP( 114 ) = AALK2J
-      EBISP( 115 ) = APOCI
-      EBISP( 116 ) = APNCOMI
-      EBISP( 117 ) = APOCJ
-      EBISP( 118 ) = APNCOMJ
+      EBISP(  98 ) = AGLYJ
+      EBISP(  99 ) = AXYL1J
+      EBISP( 100 ) = AOLGAJ
+      EBISP( 101 ) = AXYL2J
+      EBISP( 102 ) = ATOL1J
+      EBISP( 103 ) = ATOL2J
+      EBISP( 104 ) = ABNZ1J
+      EBISP( 105 ) = ABNZ2J
+      EBISP( 106 ) = ATRP1J
+      EBISP( 107 ) = AOLGBJ
+      EBISP( 108 ) = ATRP2J
+      EBISP( 109 ) = AISO1J
+      EBISP( 110 ) = AISO2J
+      EBISP( 111 ) = ASQTJ
+      EBISP( 112 ) = APAH1J
+      EBISP( 113 ) = APAH2J
+      EBISP( 114 ) = AALK1J
+      EBISP( 115 ) = AALK2J
+      EBISP( 116 ) = APOCI
+      EBISP( 117 ) = APNCOMI
+      EBISP( 118 ) = APOCJ
+      EBISP( 119 ) = APNCOMJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -385,6 +386,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ACLJ     ) = 1.0D-03
       RTOL( ACLK     ) = 1.0D-03
       RTOL( AISO3J   ) = 1.0D-03
+      RTOL( AGLYJ    ) = 1.0D-03
       RTOL( AXYL1J   ) = 1.0D-03
       RTOL( AOLGAJ   ) = 1.0D-03
       RTOL( AXYL2J   ) = 1.0D-03
