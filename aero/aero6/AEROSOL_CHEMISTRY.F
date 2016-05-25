@@ -50,18 +50,18 @@
 
        INTEGER, PARAMETER :: NUMB_AERO_RATES = 21
        
-       CHARACTER( 17 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
-     &                    (/ 'HETERO_N2O5IJ    ', 'HETERO_N2O5K     ', 
-     &                       'HETERO_N2O5IJY   ', 'HETERO_N2O5KY    ', 
-     &                       'HETERO_NO2       ', 'HETERO_H2NO3PAIJ ',
-     &                       'HETERO_H2NO3PBIJ ', 'HETERO_H2NO3PAK  ',
-     &                       'HETERO_H2NO3PBK  ', 'HETERO_H2NO3PAI  ',
-     &                       'HETERO_H2NO3PBI  ', 'HETERO_H2NO3PAJ  ',
-     &                       'HETERO_H2NO3PBJ  ', 'HETERO_N2O5I     ', 
-     &                       'HETERO_N2O5J     ', 'HETERO_PNCOMLI   ',
-     &                       'HETERO_PNCOMLJ   ', 'HETERO_IEPOX     ',
-     &                       'HETERO_NTR2      ', 'HETERO_BRONO2IJ  ',
-     &                       'HETERO_BRONO2K   '/)
+       CHARACTER( 16 ), PARAMETER :: NAMES_AERO_RATES( NUMB_AERO_RATES ) = 
+     &                    (/ 'HETERO_N2O5IJ   ', 'HETERO_N2O5K    ', 
+     &                       'HETERO_N2O5IJY  ', 'HETERO_N2O5KY   ', 
+     &                       'HETERO_NO2      ', 'HETERO_H2NO3PAIJ',
+     &                       'HETERO_H2NO3PBIJ', 'HETERO_H2NO3PAK ',
+     &                       'HETERO_H2NO3PBK ', 'HETERO_H2NO3PAI ',
+     &                       'HETERO_H2NO3PBI ', 'HETERO_H2NO3PAJ ',
+     &                       'HETERO_H2NO3PBJ ', 'HETERO_N2O5I    ', 
+     &                       'HETERO_N2O5J    ', 'HETERO_PNCOMLI  ',
+     &                       'HETERO_PNCOMLJ  ', 'HETERO_IEPOX    ',
+     &                       'HETERO_NTR2     ', 'HETERO_BRONO2IJ ',
+     &                       'HETERO_BRONO2K  '/)
 
        INTEGER, PARAMETER  :: IA_N2O5IJ         =   1
        INTEGER, PARAMETER  :: IA_N2O5K          =   2

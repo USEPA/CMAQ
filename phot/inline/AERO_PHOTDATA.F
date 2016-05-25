@@ -46,21 +46,21 @@
 
       PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
      &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
-      PRIVATE
+      
 
-      INTEGER :: LOGDEV                   ! unit number for the log file
-      INTEGER, ALLOCATABLE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
+      INTEGER, PRIVATE     :: LOGDEV                   ! unit number for the log file
+      INTEGER, ALLOCATABLE, PRIVATE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
 
-      REAL,    ALLOCATABLE :: VOL_MINS( : )          ! minmum volume permode
-      REAL,    ALLOCATABLE :: M3_FACTOR( : )         ! convert mass to portion of 3rd moment
-      LOGICAL, ALLOCATABLE :: IS_CORE_SPCS( :,: )    ! flag denoting species is in aerosol core
+      REAL,    ALLOCATABLE, PRIVATE :: VOL_MINS( : )          ! minmum volume permode
+      REAL,    ALLOCATABLE, PRIVATE :: M3_FACTOR( : )         ! convert mass to portion of 3rd moment
+      LOGICAL, ALLOCATABLE, PRIVATE :: IS_CORE_SPCS( :,: )    ! flag denoting species is in aerosol core
 
-      INTEGER, PARAMETER   :: NUMB_COR_SPCS = 3      ! number species in core
+      INTEGER, PARAMETER,   PRIVATE :: NUMB_COR_SPCS = 3      ! number species in core
 
 C *** Species in aerosol core
 
-      CHARACTER( 16 ), PARAMETER :: CORE_SPCS( NUMB_COR_SPCS ) =
-     &                              (/ 'AECI', 'AECJ', 'AECK' /)
+      CHARACTER( 16 ), PARAMETER, PRIVATE :: CORE_SPCS( NUMB_COR_SPCS ) =
+     &                                                       (/ 'AECI', 'AECJ', 'AECK' /)
       
       CONTAINS
 
