@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05E51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, April 7, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -87,6 +87,7 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
+      REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
 
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
@@ -238,26 +239,31 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  127
       INTEGER, PARAMETER :: AALK1J           =  128
       INTEGER, PARAMETER :: AALK2J           =  129
-      INTEGER, PARAMETER :: VOCSMP           =  130
-      INTEGER, PARAMETER :: SMPRXN           =  131
+      INTEGER, PARAMETER :: PCVOC            =  130
+      INTEGER, PARAMETER :: PCSOARXN         =  131
       INTEGER, PARAMETER :: VLVPO1           =  132
       INTEGER, PARAMETER :: VSVPO1           =  133
       INTEGER, PARAMETER :: VSVPO2           =  134
       INTEGER, PARAMETER :: VSVPO3           =  135
       INTEGER, PARAMETER :: VIVPO1           =  136
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  137
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  138
-      INTEGER, PARAMETER :: BUTADIENE13      =  139
-      INTEGER, PARAMETER :: ACROLEIN         =  140
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  141
-      INTEGER, PARAMETER :: TOLU             =  142
-      INTEGER, PARAMETER :: MXYL             =  143
-      INTEGER, PARAMETER :: OXYL             =  144
-      INTEGER, PARAMETER :: PXYL             =  145
-      INTEGER, PARAMETER :: APIN             =  146
-      INTEGER, PARAMETER :: BPIN             =  147
-      INTEGER, PARAMETER :: HG               =  148
-      INTEGER, PARAMETER :: HGIIAER          =  149
-      INTEGER, PARAMETER :: HGIIGAS          =  150
+      INTEGER, PARAMETER :: VLVOO1           =  137
+      INTEGER, PARAMETER :: VLVOO2           =  138
+      INTEGER, PARAMETER :: VSVOO2           =  139
+      INTEGER, PARAMETER :: VSVOO3           =  140
+      INTEGER, PARAMETER :: VSVOO1           =  141
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  142
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  143
+      INTEGER, PARAMETER :: BUTADIENE13      =  144
+      INTEGER, PARAMETER :: ACROLEIN         =  145
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  146
+      INTEGER, PARAMETER :: TOLU             =  147
+      INTEGER, PARAMETER :: MXYL             =  148
+      INTEGER, PARAMETER :: OXYL             =  149
+      INTEGER, PARAMETER :: PXYL             =  150
+      INTEGER, PARAMETER :: APIN             =  151
+      INTEGER, PARAMETER :: BPIN             =  152
+      INTEGER, PARAMETER :: HG               =  153
+      INTEGER, PARAMETER :: HGIIAER          =  154
+      INTEGER, PARAMETER :: HGIIGAS          =  155
 
       END MODULE HRDATA

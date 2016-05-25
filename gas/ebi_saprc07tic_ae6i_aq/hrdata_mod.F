@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb. 10, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -41,7 +41,7 @@ C*************************************************************************
 c..EBI solver fixed parameters
       INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
       INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
-      REAL( 8 ), PARAMETER  ::  DELTAT        = 1.25D+00  ! EBI time step
+      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -332,16 +332,21 @@ c..Species indices
       INTEGER, PARAMETER :: ASQTJ            =  221
       INTEGER, PARAMETER :: APAH1J           =  222
       INTEGER, PARAMETER :: APAH2J           =  223
-      INTEGER, PARAMETER :: VOCSMP           =  224
-      INTEGER, PARAMETER :: SMPRXN           =  225
+      INTEGER, PARAMETER :: PCVOC            =  224
+      INTEGER, PARAMETER :: PCSOARXN         =  225
       INTEGER, PARAMETER :: VLVPO1           =  226
       INTEGER, PARAMETER :: VSVPO1           =  227
       INTEGER, PARAMETER :: VSVPO2           =  228
       INTEGER, PARAMETER :: VSVPO3           =  229
       INTEGER, PARAMETER :: VIVPO1           =  230
-      INTEGER, PARAMETER :: AMTNO3J          =  231
-      INTEGER, PARAMETER :: AMTHYDJ          =  232
-      INTEGER, PARAMETER :: AISOPNNJ         =  233
-      INTEGER, PARAMETER :: AGLYJ            =  234
+      INTEGER, PARAMETER :: VLVOO1           =  231
+      INTEGER, PARAMETER :: VLVOO2           =  232
+      INTEGER, PARAMETER :: VSVOO2           =  233
+      INTEGER, PARAMETER :: VSVOO3           =  234
+      INTEGER, PARAMETER :: VSVOO1           =  235
+      INTEGER, PARAMETER :: AMTNO3J          =  236
+      INTEGER, PARAMETER :: AMTHYDJ          =  237
+      INTEGER, PARAMETER :: AISOPNNJ         =  238
+      INTEGER, PARAMETER :: AGLYJ            =  239
 
       END MODULE HRDATA

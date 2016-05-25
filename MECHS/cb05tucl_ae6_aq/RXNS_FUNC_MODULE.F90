@@ -798,14 +798,28 @@
              RKI( NCELL,  230) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ALK2       
              RKI( NCELL,  231) =   9.4882D-06 * SFACT 
-!  Reaction Label RPOAGEPI        
-             RKI( NCELL,  232) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELI        
-             RKI( NCELL,  233) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
-!  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  234) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELJ        
-             RKI( NCELL,  235) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+!  Reaction Label PCSOA           
+             RKI( NCELL,  232) =   2.0940D-11 * CFACT 
+!  Reaction Label POA_AGE1        
+             RKI( NCELL,  233) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE2        
+             RKI( NCELL,  234) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE3        
+             RKI( NCELL,  235) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE4        
+             RKI( NCELL,  236) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE5        
+             RKI( NCELL,  237) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE6        
+             RKI( NCELL,  238) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE7        
+             RKI( NCELL,  239) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE8        
+             RKI( NCELL,  240) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE9        
+             RKI( NCELL,  241) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE10       
+             RKI( NCELL,  242) =   4.0000D-11 * CFACT 
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

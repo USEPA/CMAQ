@@ -5,7 +5,7 @@
 
 
 
-! Name of Mechanism CB05E51_AE6_AQ
+! Name of Mechanism CB05E51_AE6NVPOA_AQ
 
        PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES
 

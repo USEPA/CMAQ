@@ -1828,16 +1828,30 @@
              RKI( NCELL,  735) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ALK2       
              RKI( NCELL,  736) =   9.4882D-06 * SFACT 
-!  Reaction Label RPOAGEPI        
-             RKI( NCELL,  737) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELI        
-             RKI( NCELL,  738) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
-!  Reaction Label RPOAGEPJ        
-             RKI( NCELL,  739) =   2.5000D-12 * CFACT 
-!  Reaction Label RPOAGELJ        
-             RKI( NCELL,  740) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
+!  Reaction Label PCSOA           
+             RKI( NCELL,  737) =   2.0940D-11 * CFACT 
+!  Reaction Label POA_AGE1        
+             RKI( NCELL,  738) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE2        
+             RKI( NCELL,  739) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE3        
+             RKI( NCELL,  740) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE4        
+             RKI( NCELL,  741) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE5        
+             RKI( NCELL,  742) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE6        
+             RKI( NCELL,  743) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE7        
+             RKI( NCELL,  744) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE8        
+             RKI( NCELL,  745) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE9        
+             RKI( NCELL,  746) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE10       
+             RKI( NCELL,  747) =   4.0000D-11 * CFACT 
 !  Reaction Label HET_IEPOX       
-             RKI( NCELL,  741) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
+             RKI( NCELL,  748) =  BLKHET(  NCELL, IK_HETERO_IEPOX )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]

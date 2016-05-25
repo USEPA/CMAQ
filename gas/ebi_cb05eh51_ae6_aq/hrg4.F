@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05EH51 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 11, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -81,10 +81,10 @@ c..Production of NO3 (except from N2O5 )
      &    +    4.0000D-01 * RXRAT(  94 )      ! PAN=0.4000D+00*NO3+0.6000D+...
      &    +    4.0000D-01 * RXRAT( 109 )      ! PANX=0.4000D+00*NO3+...
      &    +    4.0000D-01 * RXRAT( 227 )      ! MAPAN=0.4000D+00*NO3+...
-     &    +                 RXRAT( 362 )      ! I+IONO2=NO3+I2
-     &    +                 RXRAT( 393 )      ! IONO2=NO3+I
-     &    +                 RXRAT( 403 )      ! BR+BRONO2=NO3+BR2
-     &    +                 RXRAT( 429 )      ! BRONO2=NO3+BR
+     &    +                 RXRAT( 369 )      ! I+IONO2=NO3+I2
+     &    +                 RXRAT( 400 )      ! IONO2=NO3+I
+     &    +                 RXRAT( 410 )      ! BR+BRONO2=NO3+BR2
+     &    +                 RXRAT( 436 )      ! BRONO2=NO3+BR
 
 c..Loss frequency of NO3 ( except NO3 + NO3 if present )
       L15 =                 RKI(  14 )                        ! NO3=NO2+O
@@ -109,11 +109,11 @@ c..Loss frequency of NO3 ( except NO3 + NO3 if present )
      &    +                 RKI( 168 ) * YC( ISOP         )   ! NO3+ISOP=0.2000D+...
      &    +                 RKI( 171 ) * YC( ISPD         )   ! NO3+ISPD=0.3570D+...
      &    +                 RKI( 180 ) * YC( TERP         )   ! NO3+TERP=0.4700D+...
-     &    +                 RKI( 359 ) * YC( I2           )   ! NO3+I2=I+IONO2
-     &    +                 RKI( 360 ) * YC( I            )   ! NO3+I=IO+NO2
-     &    +                 RKI( 370 ) * YC( HI           )   ! NO3+HI=I+HNO3
-     &    +                 RKI( 378 ) * YC( IO           )   ! NO3+IO=OIO+NO2
-     &    +                 RKI( 406 ) * YC( BR           )   ! NO3+BR=BRO+NO2
+     &    +                 RKI( 366 ) * YC( I2           )   ! NO3+I2=I+IONO2
+     &    +                 RKI( 367 ) * YC( I            )   ! NO3+I=IO+NO2
+     &    +                 RKI( 377 ) * YC( HI           )   ! NO3+HI=I+HNO3
+     &    +                 RKI( 385 ) * YC( IO           )   ! NO3+IO=OIO+NO2
+     &    +                 RKI( 413 ) * YC( BR           )   ! NO3+BR=BRO+NO2
 
 c..Loss frequency of N2O5
       L16 =                 RKI(  19 )                        ! N2O5=0.2000D+01*HNO3

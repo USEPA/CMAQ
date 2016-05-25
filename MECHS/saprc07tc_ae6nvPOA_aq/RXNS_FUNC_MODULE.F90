@@ -5,7 +5,7 @@
 
 
 
-! Name of Mechanism SAPRC07TC_AE6_AQ
+! Name of Mechanism SAPRC07TC_AE6NVPOA_AQ
 
        PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES
 

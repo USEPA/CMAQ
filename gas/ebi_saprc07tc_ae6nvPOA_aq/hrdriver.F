@@ -29,11 +29,11 @@ C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the CB05E51 family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, May 17, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -139,7 +139,6 @@ C for INTERPX
 
       INTERFACE
          SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
-          IMPLICIT NONE
           INTEGER, INTENT( IN )  :: MDATE       !"centered" Julian date (YYYYDDD)
           INTEGER, INTENT( IN )  :: MTIME       !"centered" time (HHMMSS)
           INTEGER, INTENT( IN )  :: JDATE       ! Current date (YYYYDDD)
@@ -148,10 +147,6 @@ C for INTERPX
           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
-           USE UTILIO_DEFN
-           USE RXNS_DATA
-           USE HRDATA
-           IMPLICIT NONE
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
@@ -169,9 +164,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          LOGDEV = INIT3( )
 
-         IF( MECHNAME .NE. 'CB05E51_AE6svPOA_AQ' ) THEN
+         IF( MECHNAME .NE. 'SAPRC07TC_AE6NVPOA_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
-     &            // ' the CB05E51_AE6svPOA_AQ chemical mechanism'
+     &            // ' the SAPRC07TC_AE6NVPOA_AQ chemical mechanism'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
@@ -295,8 +290,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C.. Compute number of time step loops and step size for EBI solver
       DELT_SEC = INT( DELTAT * 60.0D0 + 0.1D0 )
       IF( DELT_SEC .GE. ITMSTEP ) THEN
-         N_EBI_STEPS = 1
-         EBI_TMSTEP  = CHEMSTEP
+         N_EBI_STEPS = 2
+         EBI_TMSTEP  = 0.5D0 * CHEMSTEP
       ELSE
          IF( MOD( ITMSTEP, DELT_SEC ) .EQ. 0 ) THEN
             N_EBI_STEPS = ITMSTEP / DELT_SEC
@@ -358,7 +353,8 @@ C.. Get pressure in Pascals
 
 C.. Get photolysis rates in /min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rats
+C.. Get Heteorogeneous rates and Update Aerosol Properties (Moments, D
+C   and sigma)
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -440,7 +436,8 @@ c..Update concentration array
          END DO
       END DO
 
-
+      !Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CGRID )
 
 
 #ifdef hrstats

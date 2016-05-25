@@ -5,7 +5,7 @@
 
 
 
-! Name of Mechanism CB6R3_AE6_AQ
+! Name of Mechanism CB6R3_AE6NVPOA_AQ
 
        PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES
 
@@ -1010,12 +1010,12 @@
             LOGICAL,         ALLOCATABLE     :: NML_CONVERT( : )
             REAL,            ALLOCATABLE     :: NML_MOLWT  ( : )
             REAL                             :: DELTA            ! fractional difference
-	
-	    LOGICAL, SAVE :: INITIALIZED = .FALSE.
 
-	    IF( INITIALIZED )RETURN
-	
-	    INITIALIZED = .TRUE.
+            LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+            IF( INITIALIZED )RETURN
+
+            INITIALIZED = .TRUE.
             LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
@@ -1030,7 +1030,7 @@
 
 
             J = 0
-	
+
 
             NML_INDEX     = -1
             TYPE_INDEX    = -1

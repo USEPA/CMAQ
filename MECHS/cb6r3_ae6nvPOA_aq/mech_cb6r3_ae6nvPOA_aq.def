@@ -451,57 +451,6 @@ REACTIONS[CM] =
 <RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
 <RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
 
-< T01>  FORM_PRIMARY + OH      = OH                   # 9.0E-12;
-< T02>  FORM_PRIMARY + NO3     = NO3                  # 5.8E-16;
-< T03>  FORM_PRIMARY + O       = O                    # 3.4E-11 @ 1600;
-< T04>  FORM_PRIMARY           =                      # 1.0/<FORM_R_IUPAC10>;
-< T05>  FORM_PRIMARY           =                      # 1.0/<FORM_M_IUPAC10>;
-<TCL1>  FORM_PRIMARY + CL      = CL                   # 8.2E-11 @ 34;
-< T06>  ALD2_PRIMARY + OH      = OH                   # 5.6E-12 @ -270;
-< T07>  ALD2_PRIMARY + NO3     = NO3                  # 1.4E-12 @ 1900;
-< T08>  ALD2_PRIMARY + O       = O                    # 1.8E-11 @ 1100;
-< T09>  ALD2_PRIMARY           =                      # 1.0/<ALD2_R_IUPAC10>;
-<TCL2>  ALD2_PRIMARY + CL      = CL                   # 7.9E-11;
-< T10>  BUTADIENE13 + OH       = OH  + 0.58*ACROLEIN  # 1.4E-11 @ -424.;
-< T11>  BUTADIENE13 + O3       = O3  + 0.52*ACROLEIN  # 8.2E-15 @ 2070.;
-< T12>  BUTADIENE13 + NO3      = NO3 + 0.045*ACROLEIN  # 1.79E-13;
-<TCL3>  BUTADIENE13 + CL       = CL  + 0.58*ACROLEIN  # 2.51E-10;
-< T14>  ACRO_PRIMARY + OH  = OH                   # 2.0E-11;
-< T15>  ACRO_PRIMARY + O3  = O3                   # 2.61E-19;
-< T16>  ACRO_PRIMARY + NO3 = NO3                  # 1.7E-11 @ 3131.;
-< T17>  ACRO_PRIMARY       =                      # 1.0/<ACRO_09>;
-<TCL4>  ACRO_PRIMARY + CL  = CL                   # 2.37E-10;
-< T18>  ACROLEIN + OH          = OH                   # 2.0E-11;
-< T19>  ACROLEIN + O3          = O3                   # 2.61E-19;
-< T20>  ACROLEIN + NO3         = NO3                  # 1.7E-11 @ 3131.;
-< T21>  ACROLEIN               =                      # 1.0/<ACRO_09>;
-<TCL5>  ACROLEIN + CL          = CL                   # 2.37E-10;
-< T22>  TOLU + OH              = OH                   # 1.8E-12 @ -355.;
-<TCL6>  TOLU + CL              = CL                   # 6.1E-11;
-< T23>  MXYL + OH              = OH                   # 1.7E-11 @ -116.;
-<TCL7>  MXYL + CL              = CL                   # 1.4E-10;
-< T24>  OXYL + OH              = OH                   # 1.22E-11;
-<TCL8>  OXYL + CL              = CL                   # 1.5E-10;
-< T25>  PXYL + OH              = OH                   # 1.3E-11;
-<TCL9>  PXYL + CL              = CL                   # 1.5E-10;
-< T26>  APIN + O               = O                    # 2.79E-11;
-< T27>  APIN + OH              = OH                   # 1.2E-11 @ -440.;
-< T28>  APIN + O3              = O3                   # 6.3E-16 @ 580.;
-< T29>  APIN + NO3             = NO3                  # 1.2E-12 @ -490.;
-<TCL10> APIN + CL              = CL                   # 4.7E-10;
-< T30>  BPIN + O               = O                    # 2.81E-11;
-< T31>  BPIN + OH              = OH                   # 7.51E-11;
-< T32>  BPIN + O3              = O3                   # 1.74E-15 @ 1260.;
-< T33>  BPIN + NO3             = NO3                  # 2.81E-11;
-<TCL11> BPIN + CL              = CL                   # 5.3E-10;
-
-<HG1> HG + O3   = 0.5*HGIIAER + 0.5*HGIIGAS + O3      # 2.11E-18 @ 1256.5;
-<HG2> HG + CL2  = HGIIGAS + CL2                       # 2.6E-18;
-<HG3> HG + H2O2 = HGIIGAS + H2O2                      # 8.5E-19;
-<HG4> HG + OH   = 0.5*HGIIAER + 0.5*HGIIGAS + OH      # 7.7E-14;
-<HG5> HG + CL  + M  = 0.5*HG + 0.5*HGIIGAS + M + CL   # 2.25E-33 @ 680.0;
-
-
 END MECH
 
 CONSTANTS

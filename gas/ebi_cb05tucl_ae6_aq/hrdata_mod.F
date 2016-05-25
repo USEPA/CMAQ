@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUCL family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan. 12, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -87,6 +87,7 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
+      REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
 
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
@@ -212,12 +213,17 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  101
       INTEGER, PARAMETER :: AALK1J           =  102
       INTEGER, PARAMETER :: AALK2J           =  103
-      INTEGER, PARAMETER :: VOCSMP           =  104
-      INTEGER, PARAMETER :: SMPRXN           =  105
+      INTEGER, PARAMETER :: PCVOC            =  104
+      INTEGER, PARAMETER :: PCSOARXN         =  105
       INTEGER, PARAMETER :: VLVPO1           =  106
       INTEGER, PARAMETER :: VSVPO1           =  107
       INTEGER, PARAMETER :: VSVPO2           =  108
       INTEGER, PARAMETER :: VSVPO3           =  109
       INTEGER, PARAMETER :: VIVPO1           =  110
+      INTEGER, PARAMETER :: VLVOO1           =  111
+      INTEGER, PARAMETER :: VLVOO2           =  112
+      INTEGER, PARAMETER :: VSVOO2           =  113
+      INTEGER, PARAMETER :: VSVOO3           =  114
+      INTEGER, PARAMETER :: VSVOO1           =  115
 
       END MODULE HRDATA

@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the SAPRC07TB family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Sep 22, 2015
+C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -147,6 +147,7 @@ C for INTERPX
           REAL,    INTENT( OUT ) :: RJ(:,:,:,:) ! gridded J-values  (1/min units)
         END SUBROUTINE PHOT
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
+           USE RXNS_FUNCTION, ONLY : SPECIAL_RATES
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
@@ -438,8 +439,6 @@ c..Update concentration array
 
       !Update Aerosol Surface Area
       CALL HETCHEM_UPDATE_AERO( CGRID )
-
-
 
 
 #ifdef hrstats
