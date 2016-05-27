@@ -316,7 +316,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
-         IF ( MECHNAME .EQ. 'SAPRC07TIC_AE6I_AQ' ) THEN
+         IF ( INDEX(MECHNAME, 'SAPRC07TIC_AE6I_AQ') .GT. 0 ) THEN
             NUM_PMDIAG_SPC = 41
          ELSE
             NUM_PMDIAG_SPC = 39

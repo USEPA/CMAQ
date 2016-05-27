@@ -955,7 +955,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                END IF
 
                !Read Non-Carbon Organic Matter Too if POC is Requested
-               IF ( (INDEX( MECHNAME, 'AE6svPOA' ) .GT. 0) 
+               IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0) 
      &               .AND. (VNAME .EQ. 'POC') ) THEN
 	              STKEMIS_TMP( N )%ARRY = 0.0
 	              IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,
@@ -984,7 +984,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
                      CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
                   END IF
                   !Read Non-Carbon Organic Matter Too if POC is Requested
-                  IF ( (INDEX( MECHNAME, 'AE6svPOA' ) .GT. 0)
+                  IF ( (INDEX( MECHNAME, 'NVPOA' ) .EQ. 0)
      &                  .AND. VNAME .EQ. 'POC' ) THEN
                      FIREVAR_TMP( N )%ARRY = 0.0
 	                 IF ( .NOT. INTERPX( STKENAME( N ), 'PNCOM', PNAME,

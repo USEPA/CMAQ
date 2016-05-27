@@ -797,6 +797,7 @@ C  Set the emissions units from the header of EMIS_1 file
 C  Verify that all the units on the file are consistent
 
       Use utilio_defn
+      Use rxns_data, only : mechname
 
       Implicit None
 
