@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/hutzellb/CCTM_git_repository/MECHS/cb05tucl_ae6_aq/mech.def
+! Source file: /home/hwo/CCTM_git_repository/MECHS/cb05tucl_ae6_aq/mech.def
 ! for Mechanism Name: CB05TUCL_AE6_AQ                 
 
 ! This file is used to create mechanism data and functions

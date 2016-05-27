@@ -27,6 +27,7 @@ C 08 Feb 13 J.Young: initial
 C 20 Jun 14 J.Young: restructure
 C 22 Oct 14 J.Bash:  replaced P0 with STDATMPA from CONST.EXT and shared 
 C                    variables in the asx_data_mod
+C May 2015 B. Murphy, H. Pye: Updated treatment of aerosol moments
 C-----------------------------------------------------------------------
 
       use grid_conf           ! horizontal & vertical domain specifications
@@ -34,7 +35,6 @@ C-----------------------------------------------------------------------
       use utilio_defn      
       use asx_data_mod, Only: Met_Data
       use aero_data           ! aero variable data
-      use soa_defn            ! gas soa data
       use aeromet_data        ! Includes CONST.EXT
 
       implicit none
@@ -185,61 +185,17 @@ C Set meteorological data for the grid cell.
 
 C extract grid cell concentrations of aero species from CGRID
 C into aerospc_conc in aero_data module
+C Also converts dry surface area to wet 2nd moment
          call extract_aero( cgrd( l,: ), .true. )  ! set minimum floor
-
-c extract soa concentrations from cgrid
-         call extract_soa( cgrd( l,: ) )
-
-C Calculate aerosol surface area to 2nd moment. 
-         do s = 2, n_mode
-            n = aerosrf_map( s )
-            moment2_conc( s ) = cgrd( l,n ) / pi
-         end do
-
-C Get the geometric mean diameters and standard deviations of the
-C "dry" size distribution (also returns MOMENT3_CONC)
-         call getpar( .false., .false. ) 
-C                       |        | do not fix stnd dev`s to existing value
-C                       | exclude H2O and SOA from 3rd moment
-
-C add contribution of water and SOA
-
-C accum mode.
-         m3_dry = moment3_conc( 2 )
-         m3subt = ( 1.0e-9 * f6pi / aerospc( ah2o_idx )%density )
-     &          * aerospc_conc( ah2o_idx,2 )
-         do spc = 1, n_vapor
-            m3subt = m3subt + ( 1.0e-9 * f6pi / aerospc( apoc_idx )%density )
-     &             * aerospc_conc( soa_aeromap( spc ),2 )
-         end do
-
-         m3_wet = m3_dry + m3subt
-         m2_dry = moment2_conc( 2 )
-         m2_wet = m2_dry * ( m3_wet / m3_dry ) ** two3
-
-         moment3_conc( 2 ) = max( conmin, m3_wet )
-         moment2_conc( 2 ) = max( conmin, m2_wet )
-
-C coarse mode
-         m3_dry = moment3_conc( 3 )
-         m3subt = ( 1.0e-9 * f6pi / aerospc( ah2o_idx )%density )
-     &          * aerospc_conc( ah2o_idx,3 )
-         m3_wet = m3_dry + m3subt
-         m2_dry = moment2_conc( 3 )
-         m2_wet = m2_dry * ( m3_wet / m3_dry ) ** two3
-
-         moment3_conc( 3 ) = max( conmin, m3_wet )
-         moment2_conc( 3 ) = max( conmin, m2_wet )
 
 C Get the geometric mean diameters and standard deviations of the
 C "wet" size distribution
-         call getpar( .true., .false. )     
-C                       |        | do not fix stnd dev`s to existing value
-C                       | include H2O and SOA in 3rd moment
+         call getpar( .false. )     
+C                        | do not fix stnd dev`s to existing value
 
 C Save getpar values to arrays
-         xxlsgac( l ) = aeromode_sdev( 2 )
-         xxlsgco( l ) = aeromode_sdev( 3 )
+         xxlsgac( l ) = aeromode_lnsg( 2 )
+         xxlsgco( l ) = aeromode_lnsg( 3 )
 
          dgacc( l )   = aeromode_diam( 2 )
          dgcor( l )   = aeromode_diam( 3 )

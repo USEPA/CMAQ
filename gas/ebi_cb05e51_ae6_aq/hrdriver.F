@@ -353,7 +353,8 @@ C.. Get pressure in Pascals
 
 C.. Get photolysis rates in /min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rats
+C.. Get Heteorogeneous rates and Update Aerosol Properties (Moments, D
+C   and sigma)
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -435,7 +436,8 @@ c..Update concentration array
          END DO
       END DO
 
-
+      !Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CGRID )
 
 
 #ifdef hrstats
