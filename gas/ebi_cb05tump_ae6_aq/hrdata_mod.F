@@ -33,7 +33,7 @@ C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 27, 2016
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -57,12 +57,16 @@ c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
 
+  ! SWITCH for calling DEGRADE routine
+      LOGICAL, SAVE :: CALL_DEG = .TRUE.
 
 c..Miscellaneous variables
       INTEGER   LOGDEV        ! Unit number of output log
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
+  
+      INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
       REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
@@ -85,6 +89,7 @@ c...Allocatable arrays
 
       REAL( 8 ), ALLOCATABLE ::  RXRAT( : )     ! Reaction rates
       REAL( 8 ), ALLOCATABLE ::  RTOL(  : )        ! Species tolerances
+      REAL( 8 ), ALLOCATABLE ::  YCCELL( : )       ! ALL Species in cgrid
       REAL( 8 ), ALLOCATABLE ::  PROD(  : )     ! Prod of species
       REAL( 8 ), ALLOCATABLE ::  LOSS(  : )     ! Loss of species
       REAL( 8 ), ALLOCATABLE ::  PNEG(  : )! Negative production rates
