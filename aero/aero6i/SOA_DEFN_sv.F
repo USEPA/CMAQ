@@ -56,17 +56,18 @@ C                   are with  IEPOX+MAE uptake and their oligomers.
 C                   Both pathways occur with sarpc07tic_ae6i. To turn AISO1+AISO2
 C                   oligomers off, set "Decay" in vaporspc to 0.0 for SV_ISO1/2.
 C 27 Sep 14 H. Pye: Added alkane and PAH SOA (Pye and Pouliot 2012 ES&T)
+C 21 Apr 15 H. Pye: Added explicit monoterpene (MTNO3) and isoprene
+C                   (ISOPNN) aerosol. Parameters (C*) determined from Fry et al. 2009 ACP
+C                   and Rollins et al. 2009 ACP
 C 15 Jul 15 G. Sarwar: updated SOA from alkane, PAH, and isoprene for RACM2
 C 03/03/16  D. Luecken: added capability for CB6
 C 24 Mar 16 G. Sarwar: updated for CB05EH51
-C    May 16 B. Murphy, H. Pye: updated treatment of aerosol moments
 C
 C-----------------------------------------------------------------------
       Implicit None
 
-      Integer, Parameter :: n_vapor_list = 28   ! # of potential partitioning SVOCs
-      Integer, Parameter :: n_orgprod    = 13   ! # of ROG rxn counter species
-      Integer, Save      :: n_vapor             ! # of actual simulated SOA vapors
+      Integer, Parameter :: n_vapor   = 23   ! # of partitioning SVOCs
+      Integer, Parameter :: n_orgprod = 13   ! # of ROG rxn counter species
 
       Type vapor_type
          Character( 16 ) :: name
@@ -79,73 +80,65 @@ C-----------------------------------------------------------------------
          Character( 16 ) :: drog_name   ! Precursor name
       End Type vapor_type
 
-      Type( vapor_type ), Allocatable, Save :: vaporspc( : )
-
-      Type( vapor_type ), Save :: vaporlist( n_vapor_list ) = (/
-C
+      Type( vapor_type ), Save :: vaporspc( n_vapor ) = (/
 C                   Name       Alpha    CStar     Enth     SOA           Decay  Drog
 C                                                          Name   Origin        Name
-C                  -------    -------  --------  -------  ------    --   ----   -------
-     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J ', 'A', 12.0, 'ALKRXN' ),
-     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J ', 'A', 12.0, 'ALKRXN' ),
-     & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J ', 'A',  8.0, 'XYLNRXN'),
-     & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J ', 'A',  8.0, 'XYLNRXN'),
-     & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J ', 'A',  7.0, 'TOLNRXN'),
-     & vapor_type('SV_TOL2',  0.1130,  21.2770,  18.0E3, 'ATOL2J ', 'A',  7.0, 'TOLNRXN'),
-     & vapor_type('SV_BNZ1',  0.0720,   0.3020,  18.0E3, 'ABNZ1J ', 'A',  6.0, 'BNZNRXN'),
-     & vapor_type('SV_BNZ2',  0.8880, 111.1100,  18.0E3, 'ABNZ2J ', 'A',  6.0, 'BNZNRXN'),
-     & vapor_type('SV_PAH1',  0.2100,   1.6598,  18.0E3, 'APAH1J ', 'A', 10.0, 'PAHNRXN'),
-     & vapor_type('SV_PAH2',  1.0700, 264.6675,  18.0E3, 'APAH2J ', 'A', 10.0, 'PAHNRXN'),
-     & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J ', 'B', 10.0, 'TRPRXN '),
-     & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J ', 'B', 10.0, 'TRPRXN '), 
-     & vapor_type('MTNO3'  ,     0.0,     12.0,  40.0E3, 'AMTNO3J', 'B', 10.0, ''       ),
-     & vapor_type('ISOPNN' ,     0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0,  ''       ),
-     & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J ', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J ', 'B',  5.0, 'ISOPRXN'),
-     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ  ', 'B', 15.0, 'SESQRXN'),
-     & vapor_type('LV_PCSOG', 1.0   ,   1.0e-5,  40.0E3, 'APCSOJ ', 'A', 10.0, 'PCSOARXN'),
-     & vapor_type('VLVPO1 ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J', 'A',  0.0, ''       ),
-     & vapor_type('VSVPO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J', 'A',  0.0, ''       ),
-     & vapor_type('VSVPO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J', 'A',  0.0, ''       ),
-     & vapor_type('VSVPO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J', 'A',  0.0, ''       ),
-     & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J', 'A',  0.0, ''       ),
-     & vapor_type('VLVOO1 ',  0.0000,    1.e-2, 107.0E3, 'ALVOO1J', 'A',  0.0, ''       ),
-     & vapor_type('VLVOO2 ',  0.0000,    1.e-1,  96.0E3, 'ALVOO2J', 'A',  0.0, ''       ),
-     & vapor_type('VSVOO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVOO1J', 'A',  0.0, ''       ),
-     & vapor_type('VSVOO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVOO2J', 'A',  0.0, ''       ),
-     & vapor_type('VSVOO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVOO3J', 'A',  0.0, ''       )/)
+C                  -------    -------  --------  -------  ------    --  ----   -------
+     & vapor_type('SV_ALK1',  0.0334,   0.1472,  53.0E3, 'AALK1J', 'A', 12.0, 'ALKRXN' ),
+     & vapor_type('SV_ALK2',  0.2164,  51.8775,  53.0E3, 'AALK2J', 'A', 12.0, 'ALKRXN' ),
+     & vapor_type('SV_XYL1',  0.0310,   1.3140,  32.0E3, 'AXYL1J', 'A',  6.0, 'XYLNRXN'),
+     & vapor_type('SV_XYL2',  0.0900,  34.4830,  32.0E3, 'AXYL2J', 'A',  8.0, 'XYLNRXN'),
+     & vapor_type('SV_TOL1',  0.0580,   2.3260,  18.0E3, 'ATOL1J', 'A',  6.0, 'TOLNRXN'),
+     & vapor_type('SV_TOL2',  0.1130,  21.2770,  18.0E3, 'ATOL2J', 'A',  8.0, 'TOLNRXN'),
+     & vapor_type('SV_BNZ1',  0.0720,   0.3020,  18.0E3, 'ABNZ1J', 'A',  5.0, 'BNZNRXN'),
+     & vapor_type('SV_BNZ2',  0.8880, 111.1100,  18.0E3, 'ABNZ2J', 'A',  5.0, 'BNZNRXN'),
+     & vapor_type('SV_PAH1',  0.2100,   1.6598,  18.0E3, 'APAH1J', 'A', 10.0, 'PAHNRXN'),
+     & vapor_type('SV_PAH2',  1.0700, 264.6675,  18.0E3, 'APAH2J', 'A', 10.0, 'PAHNRXN'),
+     & vapor_type('SV_TRP1',  0.1393,  14.7920,  40.0E3, 'ATRP1J', 'B',  8.0, 'TRPRXN '),
+     & vapor_type('SV_TRP2',  0.4542, 133.7297,  40.0E3, 'ATRP2J', 'B',  9.0, 'TRPRXN '),
+     & vapor_type('MTNO3',       0.0,     12.0,  40.0E3, 'AMTNO3J','B', 10.0, ' '      ),
+     & vapor_type('SV_ISO1',  0.2320, 116.0100,  40.0E3, 'AISO1J', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('SV_ISO2',  0.0288,   0.6170,  40.0E3, 'AISO2J', 'B',  5.0, 'ISOPRXN'),
+     & vapor_type('ISOPNN',      0.0,     8.9,   40.0E3, 'AISOPNNJ','B', 5.0, ' '      ),
+     & vapor_type('SV_SQT ',  1.5370,  24.9840,  40.0E3, 'ASQTJ ', 'B', 15.0, 'SESQRXN'),
+     & vapor_type('LV_SMP ',  1.0   ,   1.0e-5,  40.0E3, 'ASMPJ  ','A', 10.0, 'SMPRXN' ),
+     & vapor_type('VLVPO1 ',  0.0000,    1.e-1,  96.0E3, 'ALVPO1J','A',  0.0, ''       ),
+     & vapor_type('VSVPO1 ',  0.0000,    1.e+0,  85.0E3, 'ASVPO1J','A',  0.0, ''       ),
+     & vapor_type('VSVPO2 ',  0.0000,    1.e+1,  74.0E3, 'ASVPO2J','A',  0.0, ''       ),
+     & vapor_type('VSVPO3 ',  0.0000,    1.e+2,  63.0E3, 'ASVPO3J','A',  0.0, ''       ),
+     & vapor_type('VIVPO1 ',  0.0000,    1.e+3,  52.0E3, 'AIVPO1J','A',  0.0, ''       )/)
 
 C Required species
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SV_ISO1'
       Character( 16 ), Private, Parameter :: req_sviso2  = 'SV_ISO2'
-      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
-      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
       Character( 16 ), Private, Parameter :: req_aeolga  = 'AOLGA'
       Character( 16 ), Private, Parameter :: req_aeolgb  = 'AOLGB'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
-      Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
-      Character( 16 ), Private, Parameter :: req_aisopnn = 'AISOPNN'
+      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
+      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
+      Character( 16 ), Private, Parameter :: req_amtno3   = 'AMTNO3'
+      Character( 16 ), Private, Parameter :: req_aisopnn  = 'AISOPNN'
 
 C Indices of required species
       Integer :: iso1_idx
       Integer :: iso2_idx
-      Integer :: mtno3_idx
-      Integer :: isopnn_idx
-      Integer :: amtno3_idx
-      Integer :: aisopnn_idx
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
       Integer :: aolga_idx
       Integer :: aolgb_idx
       Integer :: aorgc_idx
+      Integer :: mtno3_idx
+      Integer :: isopnn_idx
+      Integer :: amtno3_idx
+      Integer :: aisopnn_idx
 
-      Real, Allocatable    :: vapor_mw  ( : )   ! Molecular weights
-      Real, Allocatable    :: vapor_conc( : )   ! vapor concentration
-      Integer, Allocatable :: drog_map  ( : )   ! drog mapping assignments
+      Real    :: vapor_mw  ( n_vapor )   ! Molecular weights
+      Real    :: vapor_conc( n_vapor )   ! vapor concentration
+      Integer :: drog_map  ( n_vapor )   ! drog mapping assignments
 
 C orgprod species
 
@@ -174,18 +167,17 @@ C                     -------    -------    ------   ------
      & orgprod_type( 'TRPRXN ', 'TRPRXN ', '      ', 0.000 ),
      & orgprod_type( 'ISOPRXN', 'ISOPRXN', '      ', 0.000 ),
      & orgprod_type( 'SESQRXN', 'SESQRXN', '      ', 0.000 ),
-     & orgprod_type( 'PCSOARXN','PCVOC  ', '      ', 0.000 ) /)
+     & orgprod_type( 'SMPRXN ', 'VOCSMP ', '      ', 0.000 ) /)
 
 
       Real    :: orgprod_mw     ( n_orgprod )  ! Mol weight of reactive organic gases
       Real    :: orgprod_conc   ( n_orgprod )  ! orgprod concentration
       Integer :: orgprod_aeroMap( n_orgprod )  ! orgprod pointers to aerospc
-      Integer, Allocatable :: soa_aeroMap    ( : )    ! soa pointers to aerospc
-
+      Integer :: soa_aeroMap    ( n_vapor )    ! soa pointers to aerospc
 
 C mapping variables used for loading and unloading to CGRID array
-      Integer, Allocatable :: vapor_map( : )     ! pointers of vapor species to CGRID
-      Integer              :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
+      Integer          :: vapor_map( n_vapor )     ! pointers of vapor species to CGRID
+      Integer          :: orgprod_map( n_orgprod ) ! pointers of orgprod species to CGRID
 
       Logical, Private, Save :: mapped              = .False.
       Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
@@ -233,73 +225,44 @@ C Local Variables:
       Real            :: vtmp
       Integer         :: n, g
       Integer         :: spc
-      Integer         :: vapor_to_vaporlist( n_vapor_list )
 
       Real, Save :: alk_factor = 1.00
 
       If ( .Not. mapped ) Then
 
-C Before Anything Else, the VaporSpc Array must be populated with
-C the species from VaporList that have been identified in the GC
-C namelist or in the NR namelist.
-          n_vapor = 0
-          Do spc = 1,n_vapor_list
-             n = 0
-             g = 0
-             n = index1( vaporlist( spc )%name, n_nr_n2ae, nr_n2ae )
-             g = index1( vaporlist( spc )%name, n_gc_g2ae, gc_g2ae )
-             If ( n .GT. 0 .OR. g .GT. 0 ) Then
-                 n_vapor = n_vapor + 1
-                 vapor_to_vaporlist( n_vapor ) = spc
-             End If
-          End Do
-
-          Allocate ( vaporspc  ( n_vapor ))
-          Allocate ( vapor_mw  ( n_vapor ))
-          Allocate ( vapor_conc( n_vapor ))
-          Allocate ( drog_map  ( n_vapor ))
-          Allocate ( SOA_AeroMap  ( n_vapor ))
-          Allocate ( vapor_map  ( n_vapor ))
-
-          Do spc = 1,n_vapor
-             vaporspc( spc ) = vaporlist( vapor_to_vaporlist( spc ) )
-          End Do
-
-C Build mapping to CGRID for each vapor species
-C Add option to have species in GC.nml (for real semivolatiles)
          vapor_mw = 0.0
          vapor_map = 0
+
+C Build mapping to CGRID for each vapor species. It was originally
+C assumed that all semivolatile vapors were in the nonreactive tracer
+C namelist. B. Murphy is relaxing this assumption and allowing them to
+C be in the reactive gas namelist as well. H. Pye added option to have
+C real gas species from GC namelist.
          Do spc = 1, n_vapor
-            If( vaporspc( spc )%alpha .gt. 0.0 ) Then
-               n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
-               If ( n .Ne. 0 ) Then
-                  vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
-                  vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
-               Else
-                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
-     &                 // ' in vapor name is not in non-reactives table'
-                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
-               End If
-            Else ! vaporspc is a real species in GC (alpha=0 )
-               n = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
-               If ( n .Ne. 0 ) Then
-                  vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( n )
-                  vapor_mw( spc ) = gc_molwt( gc_g2ae_map( n ) )
-               Else
-                  xmsg = 'Species ' // Trim( vaporspc( spc )%name )
-     &                 // ' in vapor name is not in gas spc table'
-     &                 // ' of '// TRIM ( MECHNAME )
-                  Call m3exit( pname, 0, 0, xmsg, xstat3 )
-               End If
+            n = index1( vaporspc( spc )%name, n_nr_n2ae, nr_n2ae )
+            g = index1( vaporspc( spc )%name, n_gc_g2ae, gc_g2ae )
+            If ( n .NE. 0 ) Then
+	       !The Semivolatile Vapor Corresponds to a NonReactive
+	       !Tracer in the Master Grid
+               vapor_map( spc ) = nr_strt - 1 + nr_n2ae_map( n )
+               vapor_mw( spc ) = nr_molwt( nr_n2ae_map( n ) )
+	    Else If ( g .NE. 0 ) Then  
+	       !The Semivolatile Vapor Corresponds to a Reactive Gas
+	       !Tracer in the Master Grid
+               vapor_map( spc ) = gc_strt - 1 + gc_g2ae_map( g )
+               vapor_mw( spc ) = gc_molwt( gc_g2ae_map( g ) )
+            Else
+               xmsg = 'Species ' // Trim( vaporspc( spc )%name )
+     &              // ' in vapor name is not in non-reactives table'
+     &              // ' or the reactive gases table.'
+               Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
          End Do
 
 #ifdef verbose_soa
-
          Do spc = 1, n_vapor
           print*, vaporspc( spc ), vapor_map, vapor_mw
          End Do
-
 #endif
 
 C define orgprod parent names based on mechanism dependence
@@ -354,13 +317,12 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
-!SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
-! This SOA_DEFN works for AE6 and AE6i versions of aero
-!            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
-!                  xmsg =  'Using AERO6 option and the Mechanism, '  
-!     &                // Trim( MECHNAME ) // ', is not based on AERO6 '
-!                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
-!            End If
+! This SOA_DEFN works AE6i versions of aero
+            If( INDEX( MECHNAME, '_AE6I' ) .EQ. 0 ) then
+                  xmsg =  'Using AERO6i option and the Mechanism, '  
+     &                // Trim( MECHNAME ) // ', is not based on AERO6i '
+                 Call m3exit( pname, 0, 0, xmsg, xstat3 )
+            End If
 
 
 C Build mapping to CGRID for each ORGPROD species and find MW of parent
@@ -391,19 +353,12 @@ C Find indices of required species
          aolga_idx  = findAero( req_aeolga, .True. )
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
+         mtno3_idx  = findVapor( req_mtno3  )
+         isopnn_idx = findVapor( req_isopnn )
+         amtno3_idx  = findAero( req_amtno3, .True. )
+         aisopnn_idx = findAero( req_aisopnn, .True. )
 
-         !Look for Additional Isoprene Product Species if AE6i is being
-         !used
-         If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .NE. 0 ) Then
-           mtno3_idx  = findVapor( req_mtno3  )
-           isopnn_idx = findVapor( req_isopnn )
-           amtno3_idx  = findAero( req_amtno3, .True. )
-           aisopnn_idx = findAero( req_aisopnn,.True. )
-         End If
-
-
-C Build mapping array of Semivolatile Vapors (vaporspc) to the Aerosol
-C Species they correspond to (aerospc is used inside findAero)
+C Build mapping array to aero species
          soa_aeroMap = 0
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%soa_name .Ne. ' ' ) Then
@@ -411,9 +366,6 @@ C Species they correspond to (aerospc is used inside findAero)
             End If
          End Do
 
-C Build Mapping array of Reactive variables that track production rates
-C of condensable gases (orgprod) to any nonvolatile species they yield
-C (aerospc is used inside findAero)
          orgprod_aeroMap = 0
          Do spc = 1, n_orgprod
             If ( orgprod( spc )%aerospc .Ne. ' ' ) Then
@@ -421,8 +373,7 @@ C (aerospc is used inside findAero)
             End If
          End Do
 
-C Build mapping array of sources of Semivolatile Vapors (vaporspc) to the 
-C Reactive variables that store their production rates (orgprod)
+C Build mapping array to orgprod species
          drog_map = 0
          Do spc = 1, n_vapor
             If ( vaporspc( spc )%drog_name .Ne. ' ' ) Then
@@ -895,7 +846,7 @@ C Local variables:
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
-      Real, Allocatable, Save ::  mw_vap_m1( : )     ! Inverse MW of SVOCs [ mol/g ]
+      Real, Save ::  mw_vap_m1( n_vapor )     ! Inverse MW of SVOCs [ mol/g ]
 
       Real, Save ::  drog_ppm2ug( n_orgprod ) ! [ ppm per ug/m3 ] for ORGPROD at
                                               ! reference temperature and pressure
@@ -961,7 +912,6 @@ C-----------------------------------------------------------------------
 
 C Set unit conversion and inverse mw constants
          drog_ppm2ug( : ) = orgprod_mw( : ) * convfac_298
-         Allocate( mw_vap_m1( n_vapor ) )
          mw_vap_m1( : ) = 1.0 / vapor_mw( : )
          mwpoa = aerospc_mw( apoc_idx )
 
@@ -986,9 +936,9 @@ C gas tracer species to the array that will be multiplied by alpha
 C to give newly formed semivolatile vapors.
       totrog( : ) = 0.0
       Do i = 1, n_vapor
-         If ( drog_map( i ) .gt. 0 ) then
+         if ( drog_map( i ) .gt. 0 ) then
            totrog( i ) = drog( drog_map( i ) )
-         End If
+         endif
       End Do
 
 C Transfer non-volatile products directly to aerospc_conc array (2nd mode)
@@ -1039,7 +989,7 @@ C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
       !totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
-      totorgsw = 0.0  !There is no Nonvolaitle POA
+      totorgsw = 0.0 !There is no Nonvolatile POA
       Do i = 1, n_aerospc
          If(  aerospc( i )%tracer )cycle
          If ( aerospc( i )%nonVol_soa ) Then
@@ -1292,9 +1242,9 @@ C  Arguments
 C  Following Numerical recipes
 
       Integer NN
-      REAL :: FVEC( N )               ! vector of functions to be zeroed
-      !COMMON /NEWTV/ FVEC(n_vapor), NN
-      !SAVE /NEWTV/
+      REAL FVEC               ! vector of functions to be zeroed
+      COMMON /NEWTV/ FVEC(n_vapor), NN
+      SAVE /NEWTV/
 
 C  Parameters
       INTEGER, PARAMETER :: MAXITS = 100  ! maximum number of iterations
@@ -1305,12 +1255,12 @@ C  Parameters
       REAL, PARAMETER :: STPMX = 100.0    ! scaled maximum step length allowed
 
 C  Local variables
-      REAL :: CT( N ), CS( N ), IMW( N ), M
-      !REAL CS
-      !REAL IMW
-      !REAL M
-      !COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
-      !SAVE /NEWTINP/
+      REAL CT
+      REAL CS
+      REAL IMW
+      REAL M
+      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
+      SAVE /NEWTINP/
 
       INTEGER I, ITS, J, INDX( N_VAPOR )
       REAL D, DEN, F, FOLD, STPMAX, SUM, TEMP, TEST
@@ -1329,7 +1279,7 @@ C-----------------------------------------------------------------------
       END DO
 
       NN = N
-      CALL FMINV( X,F,NN,FVEC,CT,CS,IMW,M )  ! The vector FVEC is also computed by this call
+      CALL FMINV( X,F )       ! The vector FVEC is also computed by this call
       TEST = 0.0              ! Test for initial guess being a root. Use more
                               ! stringent test than simply TOLF.
       DO I = 1, N
@@ -1343,7 +1293,7 @@ C-----------------------------------------------------------------------
       END DO
       STPMAX = STPMX * MAX( SQRT( SUM ), FLOAT( N ) )
       DO ITS = 1, MAXITS           ! start of iteration loop
-         CALL FDJAC( N, X, FJAC, CT, CS, IMW, M )  ! get Jacobian
+         CALL FDJAC( N, X, FJAC )  ! get Jacobian
          DO I = 1, N               ! compute Delta f for line search
             SUM = 0.0
             DO J = 1, N
@@ -1363,8 +1313,7 @@ C-----------------------------------------------------------------------
          CALL LNSRCH( CTOT,
      &                N, XOLD, FOLD, G,  ! LNSRCH returns new X and F. It also
      &                P, X, F, STPMAX,   ! calculates FVEC at the new X when it
-     &                TOLX, CHECK, FVEC,
-     &                CT, CS, IMW, M)      ! calls FMINV
+     &                TOLX, CHECK )      ! calls FMINV
          TEST = 0.0
          DO I = 1, N
             IF ( ABS( FVEC( I ) ) .GT. TEST ) TEST = ABS( FVEC( I ) )
@@ -1398,7 +1347,7 @@ C-----------------------------------------------------------------------
       END SUBROUTINE NEWT
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FDJAC( N, X, FJAC, CT, CS, IMW, M )
+      SUBROUTINE FDJAC( N, X, FJAC )
 
 C  Description:
 C    Get the Jacobian of the function
@@ -1429,10 +1378,11 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       INTEGER N                 ! dimension of problem
       REAL X( N )               ! initial guess of CAER
 
-      REAL CT( N )
-      REAL CS( N )
-      REAL IMW( N )
+      REAL CT
+      REAL CS
+      REAL IMW
       REAL M
+      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
 
       REAL FJAC( N,N )
 
@@ -1467,7 +1417,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       END SUBROUTINE FDJAC
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FMINV( X,F,N,FVEC, CT, CS, IMW, M )
+      SUBROUTINE FMINV( X,F )
 
 C Description:
 C    Returns f = 0.5 * F*F at X. SR FUNCV(N,X,F) is a fixed-name,
@@ -1489,11 +1439,14 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       INTEGER N
 
       REAL X( * ), F
-      REAL :: FVEC( N ), CT( N ), CS( N ), IMW( N ), M
+      REAL FVEC
+
+      COMMON /NEWTV/ FVEC( N_VAPOR ), N
+      SAVE /NEWTV/
 
       INTEGER I
       REAL SUM
-      CALL FUNCV( N, X, FVEC, CT, CS, IMW, M )
+      CALL FUNCV( N, X, FVEC )
       SUM = 0.0
       DO I = 1, N
          SUM = SUM + FVEC( I ) ** 2
@@ -1503,7 +1456,7 @@ C   SH  02/10/10 renamed NCVAP to n_vapor. Value is inherited from SOA_DEFN.
       END SUBROUTINE FMINV
 
 C-----------------------------------------------------------------------
-      SUBROUTINE FUNCV( N, X, FVEC, CT, CS, IMW, M )
+      SUBROUTINE FUNCV( N, X, FVEC )
 
 C Description:
 C   From Equation (8) of Schell et al., 2001:
@@ -1544,10 +1497,12 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
       REAL X( * )
       REAL FVEC( N )
 
-      REAL CT( N )
-      REAL CS( N )
-      REAL IMW( N )
+      REAL CT
+      REAL CS
+      REAL IMW
       REAL M
+      COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
+      SAVE /NEWTINP/
 
       INTEGER I, J
       REAL SUM_JNEI
@@ -1573,8 +1528,7 @@ C      Res., Vol 106, No D22, 28275-28293, 2001.
 C-----------------------------------------------------------------------
       SUBROUTINE LNSRCH( CTOT,
      &                   N, XOLD, FOLD, G, P,
-     &                   X, F, STPMAX, TOLX, CHECK, FVEC,
-     &                   CT, CS, IMW, M )
+     &                   X, F, STPMAX, TOLX, CHECK)
 
 C Description:
 C   Given an n-dimensional point XOLD(1:N), the value of the function
@@ -1609,7 +1563,6 @@ C       subroutine).
       REAL CTOT( N )
       REAL, PARAMETER :: ALF = 1.E-04
       REAL, PARAMETER :: CONMIN = 1.E-30
-      REAL :: FVEC( N ), CT( N ), CS( N ), IMW( N ), M
 
       INTEGER I
       REAL A, ALAM, ALAM2, ALAMIN, B, DISC
@@ -1648,7 +1601,7 @@ C  avoid negative concentrations and set upper limit given by CTOT.
          IF ( X( I ) .LE. 0.0 )       X( I ) = CONMIN
          IF ( X( I ) .GT. CTOT( I ) ) X( I ) = CTOT( I )
       END DO
-      CALL FMINV( X,F,N,FVEC,CT,CS,IMW,M )
+      CALL FMINV( X,F )
       IF ( ALAM .LT. ALAMIN ) THEN
          DO I = 1, N
             X( I ) = XOLD( I )
