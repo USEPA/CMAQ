@@ -32,8 +32,9 @@ C
 C  PRECONDITIONS: For the CB05TUMP family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, PHOT, HRCALCKS, HRSOLVER
+C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, May 25, 2016
+C  REVISION HISTORY: Created by EBI solver program, May 27, 2016
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -69,6 +70,7 @@ C**********************************************************************
       USE AEROSOL_CHEMISTRY
       USE RXNS_FUNCTION
       USE HRDATA
+      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
       IMPLICIT NONE
 
@@ -151,6 +153,24 @@ C for INTERPX
            INTEGER, INTENT( IN ) :: JTIME    ! Current time (HHMMSS)
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
+         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEGRADE )
+           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
+           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
+           INTEGER, INTENT( IN )  :: LOGDEV       ! unit number for the log file
+           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
+         END SUBROUTINE FIND_DEGRADED
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME, LOGDEV )
+           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
+           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
+           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
+           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
+           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
+           INTEGER,   INTENT( IN ) :: LOGDEV ! unit number for the log
+         END SUBROUTINE INIT_DEGRADE
+         SUBROUTINE FINAL_DEGRADE( CBLK )
+           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
+         END SUBROUTINE FINAL_DEGRADE
       END INTERFACE
 
 C**********************************************************************
@@ -193,6 +213,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
+         MODEL_SPECIES = NSPCSD    ! WTH: find number of model species
+
+! Determine whether DEGRADE rountines are needed.
+
+         CALL FIND_DEGRADED( JDATE, JTIME, LOGDEV, CALL_DEG )
+         IF( CALL_DEG )THEN
+            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES USED'
+            WRITE(LOGDEV,*)'Mechanism contains degraded species'
+#ifdef verbose_gas
+         ELSE
+            WRITE(LOGDEV,*)'TX DEGRADE ROUTINES OMITTED'
+            WRITE(LOGDEV,*)'MECHANISM does not include degraded species'
+#endif
+         END IF
 
          CALL HRINIT
 
@@ -353,8 +387,7 @@ C.. Get pressure in Pascals
 
 C.. Get photolysis rates in /min
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
-C.. Get Heteorogeneous rates and Update Aerosol Properties (Moments, D
-C   and sigma)
+C.. Get Heteorogeneous rats
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -385,6 +418,15 @@ c..Load ICs
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
+
+                  YCCELL = 0.0D0
+                  DO S = 1, MODEL_SPECIES
+                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
+                  END DO
+                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
+     &                              JDATE, JTIME, LOGDEV)
+               END IF
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
@@ -431,13 +473,23 @@ c..Update concentration array
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN  ! WTH: update based on degrade routines
+                  CALL FINAL_DEGRADE(YCCELL)
+                  UPDATE_DEGRADED: DO SPC = 1, N_REACT
+                     ISP = RXTANT_MAP( SPC )
+                     IF( ISP .LE. 0 )CYCLE UPDATE_DEGRADED
+                     DO S = 1, NUMB_MECH_SPC
+                        IF(  CGRID_INDEX( S ) .EQ. ISP )CYCLE UPDATE_DEGRADED
+                     END DO
+                     CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
+                  END DO UPDATE_DEGRADED
+               END IF
 
             END DO
          END DO
       END DO
 
-      !Update Aerosol Surface Area
-      CALL HETCHEM_UPDATE_AERO( CGRID )
+
 
 
 #ifdef hrstats
