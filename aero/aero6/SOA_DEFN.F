@@ -891,7 +891,7 @@ C Local variables:
       Logical, Save :: first_time = .True.
       Integer, Save :: logdev
       Character( 80 ) :: xmsg
-      Integer       :: i
+      Integer       :: i, imode, im
 
       Real, Save :: mwpoa                     ! Molecular weight of POA [ g/mol ]
 
@@ -911,6 +911,8 @@ C Parameters & variables for adjusting cstar to ambient conditions
       Real, Parameter :: threshmin = 1.0E-19     ! small positive number
       Real, Parameter :: ctolmin = 1.0E-06
       Real, Parameter :: convfac_298 = 101325.0 * rgas1 * trefm1  ! P/RT at 1 atm and 298 K [ mole/m**3 ]
+      Real, Parameter :: difforg = 9.36e-6  ! P/RT at 1 atm and 298 K [ mole/m**3 ]
+      Real, Parameter :: alphorg = 1.0      ! accomodation coefficient
 
       Real convfac
       Real tt1, tt2      ! temperature-related factors
@@ -931,11 +933,18 @@ C Variables used in acid-enhanced isoprene SOA calculations
 C Variables used in equilibrium partitioning calculations
       Real drog( n_orgprod ) ! change in precursor conc [ ug/m3 ]
       Real totrog( n_vapor ) ! drog conc mapped to each SVOC [ ug/m3 ]
+      Real GRtmp( n_mode )   ! Dummy variable for accurate treatment of growth to specific moment
+      Real GR3( n_vapor,n_mode ) ! 3rd Moment Growth for each mode and compound
+      Real GR3FRAC( n_vapor,n_mode ) ! Fraction of each mode growing/shrinking
       Real c0    ( n_vapor ) ! cstar at AIRTEMP [ ug/m3 ]
+      Real caer0 ( n_vapor ) ! SVOC conc before current time step [ ug/m3 ]
       Real ctoti ( n_vapor ) ! SVOC conc before current time step [ ug/m3 ]
       Real prod  ( n_vapor ) ! SVOC generated during current step [ ug/m3 ]
       Real ctotf ( n_vapor ) ! SVOC conc after current time step [ ug/m3 ]
       Real caer  ( n_vapor ) ! SVOC conc in aerosol phase [ ug/m3 ]
+      Real dcaer ( n_vapor ) ! Change in SVOC conc after partitioning happens[ ug/m3 ]
+      Real cbar_org(n_vapor) ! On-line molecular speed of each organic
+      Real dv_org            ! On-line gas-phase diffusivity of each organic
       Real totorgsw          ! POA + non-volatile SOA [ umole/m3 ]
       Real totorg            ! SOA + POA before time step [ umole/m3 ]
       Real threshold         ! criterion for establishing gas/part equil.
@@ -944,10 +953,12 @@ C Variables used in equilibrium partitioning calculations
                              ! converged to a spurious root
 
 C Variables for updating 2nd and 3rd moments
-      Real m3wet_init  ! initial 3rd moment, wet [ mom/m3 ]
-      Real m2wet_init  ! initial 2nd moment, wet [ mom/m3 ]
-      Real m3wet_final  ! final 3rd moment with updated SOA [ mom/m3 ]
-      Real m2wet_final  ! final 2nd moment with updated SOA [ mom/m3 ]
+      Real m0_init( 2 )  ! initial 0 moment, wet [ mom/m3 ]
+      Real m1wet_init( 2 )  ! initial 1st moment, wet [ mom/m3 ]
+      Real m3wet_init( 2 )  ! initial 3rd moment, wet [ mom/m3 ]
+      Real m2wet_init( 2 )  ! initial 2nd moment, wet [ mom/m3 ]
+      Real m3wet_final( 2 )  ! final 3rd moment with updated SOA [ mom/m3 ]
+      Real m2wet_final( 2 )  ! final 2nd moment with updated SOA [ mom/m3 ]
 
 C Added for new SOA bisection (hotp 7/6/11)
       Real               :: lowb, upb, orgmoles      ! lower bound, upper bound, total aerosol moles
@@ -972,11 +983,39 @@ C Set temperature factors
       tt2 = trefm1 - 1.0 / airtemp
       convfac = tt1 * airpres * prefm1
 
+C Set Mass Transfer Properties (although each condensing organic
+C will have its own diffusivity and molecular speed, just assume
+C as a first guess that they are all uniform and given by a rep-
+C resentative compound.
+      Dv_org = difforg * ( STDATMPA / AIRPRES ) * ( AIRTEMP / 273.16 ) ** 1.75
+      cbar_org( : ) = SQRT(8.0 * RGASUNIV * AIRTEMP / ( PI * vapor_mw(:) * 1.0E-3 ) )
+ 
 C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
-C Only the accumulation mode is modified
       Call calcmoments ( .true. )
-      m3wet_init = moment3_conc( 2 )
-      m2wet_init = moment2_conc( 2 )
+      m0_init( : )    = moment0_conc( 1:2 )
+      m3wet_init( : ) = moment3_conc( 1:2 )
+      m2wet_init( : ) = moment2_conc( 1:2 )
+        
+      GR3( :,: ) = 0.0
+      Do imode = 1,2
+        m1wet_init( imode ) = m0_init( imode ) * aeromode_diam( imode ) * 
+     &                         exp( 0.5 * aeromode_lnsg( imode ) ** 2 )
+
+        Do i = 1, n_vapor
+          If ( aero_missing( soa_aeroMap( i ),imode ) .EQ. .FALSE. ) Then
+            Call HCOND3( m0_init( imode ), m1wet_init( imode ),
+     &                   m2wet_init( imode ), Dv_org, alphorg, cbar_org, GRtmp )
+            GR3( i,imode ) = GRtmp( 2 )
+          End If
+        End Do
+      End Do
+      
+      !Calculate fraction of mass transfer to/from each mode
+      GR3FRAC( :,: ) = 0.0
+      Where ( GR3( :,1 ) .gt. 0. ) 
+     &    GR3FRAC( :,1 ) = GR3( :,1 ) / ( GR3(:,1) + GR3(:,2) ) !Aitken Growth
+      Where ( GR3( :,2 ) .gt. 0. )
+     &     GR3FRAC( :,2 ) = GR3( :,2 ) / ( GR3(:,1) + GR3(:,2) ) !Accumulation Growth
 
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
@@ -1039,7 +1078,9 @@ C SOA species should be inherited from the include files or namelists to avoid
 C hard-coded values.
 
       !totorgsw = ( aerospc_conc( apoc_idx,1 ) + aerospc_conc( apoc_idx,2 ) ) / mwpoa
-      totorgsw = 0.0  !There is no Nonvolaitle POA
+      totorgsw = 0.0  
+      !Sum Up Nonvolatile OA. This is just a couple of SOA products.
+      !They are in the orgprd table.
       Do i = 1, n_aerospc
          If(  aerospc( i )%tracer )cycle
          If ( aerospc( i )%nonVol_soa ) Then
@@ -1047,17 +1088,23 @@ C hard-coded values.
          End If
       End Do
 
+      !Sum Up all other OA species. This is most of them. They are in
+      !the vaporspc table.
       totorg = totorgsw
       Do i = 1, n_vapor
          If( soa_aeroMap( i ) .lt. 1 )Cycle
-         totorg = totorg + aerospc_conc( soa_aeroMap( i ),2 ) * mw_vap_m1( i )
+         totorg = totorg + ( aerospc_conc( soa_aeroMap( i ),2 ) + 
+     &              aerospc_conc( soa_aeroMap( i ),1 ) ) * mw_vap_m1( i )
       End Do
 
 C Initialize ctoti as sum of vapor-phase and particle-phase SVOCs
 C Note: all of these CBLK species are in [ug/m**3]
       Do i = 1, n_vapor
          If( soa_aeroMap( i ) .lt. 1 )Cycle
-         ctoti( i ) = vapor_conc( i ) + aerospc_conc( soa_aeroMap( i ),2 )
+         ctoti( i ) = vapor_conc( i ) + aerospc_conc( soa_aeroMap( i ),2 )  
+     &                + aerospc_conc( soa_aeroMap( i ),1 )
+         caer0( i ) = vapor_conc( i ) + aerospc_conc( soa_aeroMap( i ),2 )  
+     &                + aerospc_conc( soa_aeroMap( i ),1 )
       End Do
 
 C Equilibrium Partitioning Calculations
@@ -1164,10 +1211,16 @@ C Constrain caer to values between conmin and ctotf
       End If    ! check on equilibrium threshold
 
 C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
+      dcaer = caer - caer0   !Change in each species conc.
+      vapor_conc( : ) = ctotf( : ) - caer( : )
+
       Do i = 1, n_vapor
-         If( soa_aeroMap( i ) .lt. 1 )Cycle
-         aerospc_conc( soa_aeroMap( i ),2 ) = caer( i )
-         vapor_conc( i ) = ctotf( i ) - caer( i )
+        Do im = 1, n_mode
+          If ( soa_aeroMap( i ) .ge. 1 ) Then
+             aerospc_conc( soa_aeroMap( i ),im ) = 
+     &             aerospc_conc( soa_aeroMap( i ),im ) + dcaer( i ) * GR3FRAC( i,im )
+          End If
+        End Do
       End Do
 
 C Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
@@ -1221,9 +1274,10 @@ C condensation/evaporation does not affect the geometric standard deviation.
       ! directly from the calcmoments diagnostic. Instead, update it
       ! manually to account for condensation in ORGAER.
       Call calcmoments( .true. )
-      m3wet_final = moment3_conc( 2 )
-      m2wet_final = m2wet_init * ( m3wet_final / m3wet_init ) ** ( 2.0 / 3.0 )
-      moment2_conc( 2 )  = m2wet_final
+      m3wet_final( : ) = moment3_conc( 1:2 )
+      m2wet_final( 1 ) = m2wet_init( 1 ) * ( m3wet_final( 1 ) / m3wet_init( 1 ) ) ** ( 2.0 / 3.0 )
+      m2wet_final( 2 ) = m2wet_init( 2 ) * ( m3wet_final( 2 ) / m3wet_init( 2 ) ) ** ( 2.0 / 3.0 )
+      moment2_conc( 1:2 )  = m2wet_final( : )
 
       Return
       End Subroutine orgaer
