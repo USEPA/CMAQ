@@ -1390,8 +1390,7 @@ C *** Set flags to account for mass conservation violations in ISRP3F
      &               AERSLD, SCASI, OTHER )
 
 C *** Save H+ concentration information in microgram/m3 for consistency
-C     Assume J mode dominates I+J H+ concentration
-      EQLBHIJ = AERLIQ(1) * 1.0D6 * PRECURSOR_MW( ah3op_idx) 
+      EQLBHIJ = AERLIQ(1) * 1.0D6 * AEROSPC_MW( ah3op_idx)
 
 #else
       gas( 1 ) = real( precursor_conc( nh3_idx ),  8 ) * CFAC_GNH3

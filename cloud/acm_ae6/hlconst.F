@@ -30,6 +30,15 @@ C
 C  FUNCTION: return the Henry's law constant for the specified substance
 C            at the given temperature
 C
+C  References:
+C
+C  1. Nguyen, T. B., Coggon, M. M., Bates, K. H., Zhang, X., Schwantes,
+C     R. H., Schilling, K. A., Loza, C. L., Flagan, R. C., Wennberg, P. O.,
+C     and Seinfeld, J. H.: Organic aerosol formation from the reactive
+C     uptake of isoprene epoxydiols (IEPOX) onto non-acidified inorganic
+C     seeds, Atmos. Chem. Phys., 14, 3497-3510,
+C     doi:10.5194/acp-14-3497-2014, 2014.
+C 
 C  revision history:
 C    who        when           what
 C  ---------  --------  -------------------------------------
@@ -74,6 +83,8 @@ C  D.Luecken  07/11/14  added 141 through 144 for nitrates
 C  H.Pye      05/05/15  added monoterpene and isoprene nitrates
 C  H.Pye      01/26/2016 added SOA SVOCs
 C  G.Sarwar   03/24/15  added iodine and bromine species
+C  H.Pye      05/31/16  updated IEPOX H-law from 2.7e6 to 3.0e7 M/atm
+C                       to reflect Nguyen et al. 2014.
 C  
 C-----------------------------------------------------------------------
 
@@ -288,7 +299,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(130), A(130), E(130) / 'PYRUVIC_ACID    ', 3.00E+05, 5.20E+03 /  ! Staudinger and Roberts (1996) 
       DATA SUBNAME(131), A(131), E(131) / 'XYLENOL         ', 1.05E+03, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
       DATA SUBNAME(132), A(132), E(132) / 'CATECHOL        ', 3.16E+05, 0.00E+03 /  ! experimental value from EPA SUITE PROGRAM  (2008)
-      DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 2.7E+06,  0.00E+00 /  ! Pye et al. ES&T (2013)
+      DATA SUBNAME(133), A(133), E(133) / 'IEPOX           ', 3.0E+07,  0.00E+00 /  ! Nguyen et al. ACP (2014)
       DATA SUBNAME(134), A(134), E(134) / 'IMAE            ', 1.2E+05,  0.00E+00 /  ! Pye et al. ES&T (2013)
 
       DATA SUBNAME(135), A(135), E(135) / 'DIETHYLKETONE   ', 2.00E+01, 9.2E+03 /   ! ROLF SANDERS COMPILATION (1999)/JANINI AND QUADDORA (1986)
