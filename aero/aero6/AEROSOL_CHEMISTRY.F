@@ -2211,19 +2211,19 @@ C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al
          
 C        Update sum
 C        Store information with speciation for IEPOX
-         if ( acid_nuc_pairs(i)%parent == 'IEPOX' ) then
+         if ( acid_nuc_pairs(i)%parent .EQ. 'IEPOX' ) then
             kparticle(1)  = kparticle(1) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then !ae6i
+            if( acid_nuc_pairs(i)%prod .EQ. 'AIEOSJ' ) then !ae6i
               kchemos(1)  = kchemos(1)   + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then !ae6i
+            elseif( (acid_nuc_pairs(i)%prod .EQ. 'ADIMJ')
+     &             .and. (acid_nuc_pairs(i)%nuc .EQ. 'AIETETJ') ) then !ae6i
               kchemdim1(1) = kchemdim1(1)  + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then !ae6i
+            elseif( (acid_nuc_pairs(i)%prod .EQ. 'ADIMJ')
+     &             .and. (acid_nuc_pairs(i)%nuc .EQ. 'AIEOSJ') ) then !ae6i
               kchemdim2(1) = kchemdim2(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then !ae6i
+            elseif( acid_nuc_pairs(i)%prod .EQ. 'AIETETJ' ) then !ae6i
               kchemtet(1) = kchemtet(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
+            elseif( acid_nuc_pairs(i)%prod .EQ. 'AISO3J' ) then
               ! do nothing for aero6 since speciation isn't tracked
             else
                print*, 'Reaction not recognized'
@@ -2232,11 +2232,11 @@ C        Store information with speciation for IEPOX
          endif
 
 C        Store information with speciation for IMAE
-         if ( acid_nuc_pairs(i)%parent == 'IMAE' ) then
+         if ( acid_nuc_pairs(i)%parent .EQ. 'IMAE' ) then
             kparticle(2)  = kparticle(2) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIMOSJ' ) then
+            if( acid_nuc_pairs(i)%prod .EQ. 'AIMOSJ' ) then
               kchemos(2)  = kchemos(2)   + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIMGAJ' ) then
+            elseif( acid_nuc_pairs(i)%prod .EQ. 'AIMGAJ' ) then
               kchemtet(2) = kchemtet(2)  + kchem
             else
                print*, 'Reaction not recognized'

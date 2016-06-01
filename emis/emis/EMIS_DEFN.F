@@ -397,7 +397,7 @@ C                                       vvvvvvv - emis surrogate names
             END IF
 
             !READ Non-Carbon Organic Matter From Gas Emissions
-            IF ( GC_EMIS( S ) == 'POC' ) THEN
+            IF ( GC_EMIS( S ) .EQ. 'POC' ) THEN
 	          BUFF2 = 0.0
 	          IF ( .NOT. INTERPX( EMIS_1, 'PNCOM', PNAME,
      &                          STARTCOL,ENDCOL, STARTROW,ENDROW, 1,EMLYRS,

@@ -409,7 +409,7 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
                         !Parameters
                         IF ( AEROSPC( S )%EMIS .EQ. 'POC' ) THEN
                             DO IPOA = 1,N_VBS_BIN
-                               IF ( AEROSPC( S )%NAME( N )(2:6) == POA_NAME( IPOA ) ) THEN
+                               IF ( AEROSPC( S )%NAME( N )(2:6) .EQ. POA_NAME( IPOA ) ) THEN
                                   EM_FAC( S,N ) = EM_FAC( S,N ) * POA_OP_VF( IPOA ) * POA_AMF( IPOA )
                                ENDIF
                             ENDDO
@@ -447,7 +447,7 @@ C *** scaling to 0.0
            VARDESC = 'Flag for Ignoring the pcSOA species'
            ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
 
-           IF ( ZERO_PCSOA == .TRUE. ) THEN
+           IF ( ZERO_PCSOA .EQ. .TRUE. ) THEN
              !Find the index for the pcVOC species in the emissions
              !scale-factor vector
              V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
