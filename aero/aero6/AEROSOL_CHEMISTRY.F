@@ -617,13 +617,13 @@ C ***  Determine molecular weights
        IF( AIETET_IDX .GT. 0 ) THEN
           INV_MWIETET = REAL( 1.0/ aerospc_mw( AIETET_IDX ), 8 )
        ELSE
-          INV_MWIETET = 0.0
+          INV_MWIETET = 0.0D0
        END IF
 
        IF( AIEOS_IDX .GT. 0 ) THEN
           INV_MWIEOS  = REAL( 1.0/ aerospc_mw( AIEOS_IDX  ), 8 )
        ELSE 
-          INV_MWIEOS = 0.0
+          INV_MWIEOS = 0.0D0
        END IF
 
        NO3_IDX = INDEX1( 'NO3', NUMB_MECH_SPC, CHEMISTRY_SPC )
@@ -765,8 +765,8 @@ C *** calculate effective diameter (this is actually the mean) using Eq 3 of Ple
 
 C *** Retrieve and Save the Dry 3rd and 2nd Moments
                CALL CALCMOMENTS( .False. )
-               CHEM_M2DRY_INIT( C,R,L,: ) = MOMENT2_CONC( : )
-               CHEM_M3DRY_INIT( C,R,L,: ) = MOMENT3_CONC( : )
+               CHEM_M2DRY_INIT( C,R,L,: ) = REAL( MOMENT2_CONC( : ), 8 )
+               CHEM_M3DRY_INIT( C,R,L,: ) = REAL( MOMENT3_CONC( : ), 8 )
 
 
 C *** calculate molecular speeds (m/s) using Eq 4 of Pleim et al (1995)
@@ -787,6 +787,7 @@ C *** correct BRONO2 molecular diffusivity for ambient conditions - assumed simi
 C *** get KN2O5 rate constants YIELD_CLNO2 for each mode
                YIELD_CLNO2 = 0.0D0
                YIELDIJ     = 0.0D0
+
                DO N = 1, N_MODE          
 
                   IF ( N .LE. 2 ) THEN
@@ -848,7 +849,7 @@ c *** compute yield from lumped Aitken and Accumulations concentrations
                IF ( AH2O .GT. 5.0E-01 .AND. ACL .GT. 1.0E-04 ) THEN
                   IF ( MWH2OCL * ACL .GT. 1.0E-4 * AH2O ) THEN 
                      YIELDIJ = 1.0D0 / ( 1.0D0 + (1.0D0/483.0D0 )
-     &                       * REAL( (AH2O/ACL), 8 ) * MWCLH2O )
+     &                       * REAL( (AH2O/ACL) * MWCLH2O, 8 ) )
                   END IF
                END IF  
               
@@ -869,30 +870,30 @@ C *** Calculate IEPOX and MAE uptake information for accumulation mode
                CALL CALCISOPGAMMAS( RADIUS, AIRTEMP, GAMMAIEPOX,
      &             GAMMAIMAE, KPIEPOX, FH2O, FOS, FDIM1, FDIM2)
 
-               IF( GAMMAIEPOX .gt. 0.0d0 ) THEN
+               IF( GAMMAIEPOX .gt. 1.0D-72 ) THEN
                   KIEPOX       = WET_M2( 2 ) * DPI
      &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIEPOX * GAMMAIEPOX) )
                   If ( AIETET_IDX .gt. 0 ) Then
                      TETROL_PPM  = PPM_FACTOR
      &                       * REAL( aerospc_conc( AIETET_IDX, 2 ), 8 ) * INV_MWIETET
                   Else
-                     Tetrol_PPM = 0.0
+                     Tetrol_PPM = 0.0D0
                   End If 
                   If ( AIEOS_IDX .gt. 0 ) Then
                      IEPOXOS_PPM = PPM_FACTOR
      &                     * REAL( aerospc_conc( AIEOS_IDX,  2 ), 8 ) * INV_MWIEOS
                   Else
-                     IEPOXOS_PPM = 0.0
+                     IEPOXOS_PPM = 0.0D0
                   End If
                ELSE
                   KIEPOX = 0.0d0
-                  Tetrol_PPM = 0.0
-                  IEPOXOS_PPM = 0.0
+                  Tetrol_PPM = 0.0D0
+                  IEPOXOS_PPM = 0.0D0
                END IF
 
-               IF( GAMMAIMAE .gt. 0.0d0 ) THEN
+               IF( GAMMAIMAE .gt. 1.0D-72 ) THEN
                   KIMAE        = WET_M2( 2 ) * DPI
-     &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIMAE * GAMMAIMAE) )
+     &                        / ( RADIUS * INV_DIFFUSIVITY +  4.0D0 / ( CBARIMAE * GAMMAIMAE ) )
                ELSE
                   KIMAE = 0.0d0
                END IF
@@ -1275,8 +1276,8 @@ C  Called by: Gas-Phase Chemistry Driver
 
                !Calculate new Second Moment Manually
                !Assume standard deviation is fixed.
-               M2DRY_FINAL( : ) = CHEM_M2DRY_INIT( C,R,L,: ) * 
-     &                            ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
+               M2DRY_FINAL( : ) = REAL( CHEM_M2DRY_INIT( C,R,L,: ) ) 
+     &                          * ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
 
                !Update the Aerosol Surface Area making sure to multiply
                !the 2nd moment by Pi to convert properly
@@ -1798,7 +1799,6 @@ C     Davis et al. (2008) for a discussion of these options.
 
       END SELECT WHAT_OPTION
 
-!        print*,' N2O5_GAMMA = ',N2O5_GAMMA
 
       RETURN
 
@@ -2121,7 +2121,7 @@ C     Henry's law coeff for IEPOX (1) and IMAE (2) (HenryWin v 3.2)
       Real( 8 ) :: Heff(2)
 
 C     Diagnostic
-      Character (16 ), Parameter :: pname = 'AEROSOL_CHEMISTRY'
+      Character (16 ), Parameter :: pname = 'CALCISOPGAMMAS'
 
 C *** Local Variables
       Integer   :: i                   ! counter and temporary indices
@@ -2223,8 +2223,8 @@ C        Store information with speciation for IEPOX
             elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
               ! do nothing for aero6 since speciation isn't tracked
             else
-               print*, 'Reaction not recognized'
-               STOP
+               xmsg = 'For IEPOX parent, reaction product not recognized '
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
             endif
          endif
 
@@ -2236,8 +2236,8 @@ C        Store information with speciation for IMAE
             elseif( acid_nuc_pairs(i)%prod == 'AIMGAJ' ) then
               kchemtet(2) = kchemtet(2)  + kchem
             else
-               print*, 'Reaction not recognized'
-               STOP
+               xmsg = 'For IMAE parent, reaction product not recognized '
+               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
             endif
          endif
       End Do      
@@ -2299,7 +2299,7 @@ C     No/slow reaction
 
 C *** Calculate final values to return
       gammaiepox = gammaisop(1)
-      gammaimae  = gammaisop(2) 
+      gammaimae  = gammaisop(2)
       kpiepox    = kparticle(1)
 
       RETURN

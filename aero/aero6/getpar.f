@@ -94,40 +94,52 @@ C Local Variables:
       Real( 8 ) :: minl2sg( n_mode )   ! min value of ln(sg)**2 for each mode
       Real( 8 ) :: maxl2sg( n_mode )   ! max value of ln(sg)**2 for each mode
 
-      Real      :: factor
+      Real( 8 ) :: factor
+      Real( 8 ) :: species_mass
       Real( 8 ) :: sumM3
       Real( 8 ) :: sumMass
       Integer   :: n, spc   ! loop counters
 
+      Real( 8 ), Save      :: min_ln_sig_g_squ
+      Real( 8 ), Save      :: max_ln_sig_g_squ
+      Logical,   Save      :: Initial_Call = .True.
+
 C-----------------------------------------------------------------------
+
+      If( Initial_Call )Then
+          min_ln_sig_g_squ = Real( Log( min_sigma_g ) ** 2.0, 8 )
+          max_ln_sig_g_squ = Real( Log( max_sigma_g ) ** 2.0, 8 )
+          Initial_Call = .False.
+      End If
 
 C *** Set bounds for ln(Sg)**2
 
       If ( limit_sg ) Then
-         minl2sg = aeromode_lnsg ** 2
-         maxl2sg = aeromode_lnsg ** 2
+         minl2sg = Real( aeromode_lnsg ** 2.0, 8)
+         maxl2sg = minl2sg
       Else
-         minl2sg = Log( min_sigma_g ) ** 2
-         maxl2sg = Log( max_sigma_g ) ** 2
+         minl2sg = min_ln_sig_g_squ
+         maxl2sg = max_ln_sig_g_squ
       End If
 
 C *** Calculate aerosol 3rd moment concentrations [ m**3 / m**3 ]
 
       Do n = 1, n_mode
-         sumM3 = 0.0
-         sumMass = 0.0
+         sumM3   = 0.0d0
+         sumMass = 0.0d0
 
          Do spc = 1, n_aerospc
             If ( aerospc( spc )%tracer .Or. aero_missing(spc,n) .Or. 
      &         ( aerospc( spc )%no_M2Wet .AND. .Not. wet_moments_flag ) ) Cycle
 
-            factor = 1.0E-9 * f6pi / aerospc( spc )%density
-            sumM3  = sumM3 + factor * aerospc_conc( spc,n )
-            sumMass = sumMass + aerospc_conc( spc,n )
+            factor       = Real( 1.0E-9 * f6pi / aerospc( spc )%density, 8 )
+            species_mass = Real( aerospc_conc( spc,n ), 8 )
+            sumM3        = sumM3   + factor * species_mass
+            sumMass      = sumMass + species_mass
          End Do
 
-         moment3_conc( n )  = Max (sumM3, Real( aeromode( n )%min_m3conc, 8 ) )
-         aeromode_mass( n ) = sumMass
+         moment3_conc( n )  = Max ( Real( sumM3 ), aeromode( n )%min_m3conc )
+         aeromode_mass( n ) = Real( sumMass )
       End Do
 
 
@@ -152,9 +164,9 @@ c         below the minimum limit.
 C *** Aitken Mode:
 
       Do n = 1, n_mode
-         xxm0 = moment0_conc( n )
-         xxm2 = moment2_conc( n )
-         xxm3 = moment3_conc( n )
+         xxm0 = Real( moment0_conc( n ), 8 )
+         xxm2 = Real( moment2_conc( n ), 8 )
+         xxm3 = Real( moment3_conc( n ), 8 )
 
          xfsum = one3d * Log( xxm0 ) + two3d * Log( xxm3 )
 
@@ -165,12 +177,13 @@ C *** Aitken Mode:
          l2sg = Min( l2sg, maxl2sg( n ) )
 
          lxfm2 = xfsum - l2sg
-         moment2_conc( n )  = Exp ( lxfm2 )
-         aeromode_lnsg( n ) = Sqrt( l2sg )
+         moment2_conc( n )  = Real( Exp ( lxfm2 ) )
+         aeromode_lnsg( n ) = Real( Sqrt( l2sg ) )
 
-         ES36 = Exp( 4.5 * l2sg )
+         ES36 = Real( Exp( 4.5d0 * l2sg ) )
          aeromode_diam( n ) = Max( dgmin, ( moment3_conc( n )
      &                      / ( moment0_conc( n ) * es36 ) ) ** one3 )
+
 
       End Do
 

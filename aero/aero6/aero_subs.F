@@ -3254,7 +3254,8 @@ C     Dover,1981 page 179. Original edition was Wiley, 1957.
       real alfa     ! Mie parameter
       real nr, ni   ! real and imaginary parts of the index of refraction
       real QEXT     ! extinction efficiency for a sphere
-      real z, tanb, b, cos2b, v1, v2, x, expmx, expm2x, cs1, cs2
+      real z, tanb, b, cos2b, v1, v2, x, expmx, cs1, cs2
+!      real z, tanb, b, cos2b, v1, v2, x, expmx, expm2x, cs1, cs2
       real twob, cosb
       real nr1
 
@@ -3267,12 +3268,11 @@ C     Dover,1981 page 179. Original edition was Wiley, 1957.
       cos2b  = cos( twob )
       v1     = 5.0 * nr1
       v2     = 4.08 / ( 1.0 + 3.0 * tanb )
-      x      = z * tanb
+      x      = Min(z * tanb, 69.0)
       expmx  = exp( -x )
-      expm2x = exp( -2.0 * x )
+!      expm2x = exp( -2.0 * x )
       cs1    = cosb / z
       cs2    = cs1 * cs1
-
       QEXT   = 2.0 - 4.0 * cs1 * expmx * sin( z - b )
      &       + 4.0 * cs2 * ( cos2b - expmx * cos(z - twob ) )
       return
