@@ -153,8 +153,8 @@ CONTAINS
       REAL,      INTENT( IN )  :: WCAVG                   ! Liquid water content (kg/m3)
       REAL,      INTENT( IN )  :: WTAVG                   ! Total water content (kg/m3)
       LOGICAL,   INTENT( IN )  :: DARK                    ! DARK = TRUE is night,  DARK = FALSE is day     
-      REAL( 8 ), INTENT( IN )  :: GAS( NGAS )             ! Gas phase concentrations (mol/molV)
-      REAL( 8 ), INTENT( IN )  :: AEROSOL( NAER, NMODES ) ! Aerosol concentrations (mol/molV)
+      REAL( 8 ), INTENT( IN )  :: GAS( : )                ! Gas phase concentrations (mol/molV)
+      REAL( 8 ), INTENT( IN )  :: AEROSOL( :, : )         ! Aerosol concentrations (mol/molV)
       REAL( 8 ), INTENT( IN )  :: CTHK1
       REAL( 8 ), INTENT( IN )  :: SOIL_FE_FAC                        ! Fe molar fraction of ASOIL
       REAL( 8 ), INTENT( IN )  :: CORS_FE_FAC                        ! Fe molar fraction of ACORS
