@@ -137,6 +137,7 @@
 !                       be more consistent with standard AQCHEM [change in aqchem_Initialize];
 !                       updated IEPOX+SO4 rate coefficient to be consistent with aero6i 
 !                       updates [changes in aqchem_Rates].
+!  26 May 16 K.Fahey  : Added Hg/toxic tracers to be consistent with AQCHEM.F updates
 !
 !  References:
 !     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -208,10 +209,10 @@
       REAL,      INTENT( IN )  :: WCAVG                     ! liquid water content (kg/m3)
       REAL,      INTENT( IN )  :: WTAVG                     ! total water content (kg/m3)
       LOGICAL,   INTENT( IN )  :: DARK                      ! DARK = TRUE is night,  DARK = FALSE is day     
-      REAL( 8 ), INTENT( INOUT ) :: GAS    ( NGAS )         ! gas phase concentrations (mol/molV)
-      REAL( 8 ), INTENT( INOUT ) :: AEROSOL( NAER, NMODES ) ! aerosol concentrations (mol/molV)
-      REAL( 8 ), INTENT( INOUT ) :: GASWDEP( NGAS )         ! gas phase wet deposition array (mm mol/liter)
-      REAL( 8 ), INTENT( INOUT ) :: AERWDEP( NAER, NMODES ) ! aerosol wet deposition array (mm mol/liter)
+      REAL( 8 ), INTENT( INOUT ) :: GAS    ( : )            ! gas phase concentrations (mol/molV)
+      REAL( 8 ), INTENT( INOUT ) :: AEROSOL( :, : )         ! aerosol concentrations (mol/molV)
+      REAL( 8 ), INTENT( INOUT ) :: GASWDEP( : )            ! gas phase wet deposition array (mm mol/liter)
+      REAL( 8 ), INTENT( INOUT ) :: AERWDEP( :, : )         ! aerosol wet deposition array (mm mol/liter)
 
       REAL( 8 ), SAVE :: SOIL_FE_FAC                        ! Fe molar fraction of ASOIL
       REAL( 8 ), SAVE :: CORS_FE_FAC                        ! Fe molar fraction of ACORS
@@ -262,7 +263,7 @@
       REAL, EXTERNAL :: HLCONST
       
       INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
+      INTEGER, EXTERNAL :: SETUP_LOGDEV   
 
 !*********************************************************************
 
@@ -459,19 +460,40 @@ kron: DO WHILE (T < TEND)
       AEROSOL( LPRI, AKN ) = VAR( ind_A_PRIAKN ) * INVCFAC
       AEROSOL( LNUM, AKN ) = AEROSOL( LNUM, AKN ) * EXP(-ALFA0 * TAUCLD) 
       
+!...Simple treatment for Hg/toxic tracer species    
+
+      AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EXP(-ALFA3 * TAUCLD)  
+      AEROSOL( LPHG_AKN, AKN )    = AEROSOL( LPHG_AKN, AKN ) * EXP(-ALFA3 * TAUCLD)
+      
+      AEROSOL( LTRACER_ACC, ACC ) = AEROSOL( LTRACER_ACC, ACC ) + &
+                                    AEROSOL( LTRACER_AKN, AKN ) * (1.d0-EXP(-ALFA3 * TAUCLD))  
+      AEROSOL( LPHG_ACC, ACC )    = AEROSOL( LPHG_ACC, ACC ) + &
+                                    AEROSOL( LPHG_AKN, AKN ) * (1.d0-EXP(-ALFA3 * TAUCLD))
+    
+      AERWDEP( LTRACER_ACC, ACC ) = AEROSOL( LTRACER_ACC,ACC ) * ( 1.d0 - EXPWET ) * CFACTOR 
+      AERWDEP( LPHG_ACC, ACC )    = AEROSOL( LPHG_ACC,ACC ) * ( 1.d0 - EXPWET ) * CFACTOR  
+      AERWDEP( LTRACER_COR, COR ) = AEROSOL( LTRACER_COR,COR ) * ( 1.d0 - EXPWET ) * CFACTOR 
+      AERWDEP( LPHG_COR, COR )    = AEROSOL( LPHG_COR,COR ) * ( 1.d0 - EXPWET ) * CFACTOR  
+         
+      AEROSOL( LTRACER_ACC, ACC ) = AEROSOL( LTRACER_ACC, ACC ) * EXPWET
+      AEROSOL( LPHG_ACC, ACC )    = AEROSOL( LPHG_ACC, ACC ) * EXPWET
+      
+      AEROSOL( LTRACER_COR, COR ) = AEROSOL( LTRACER_COR, COR ) * EXPWET
+      AEROSOL( LPHG_COR, COR )    = AEROSOL( LPHG_COR, COR ) * EXPWET
+      
 ! As in standard "AQCHEM", the assumption is made here that final coarse mode
 ! concentrations are updated due to wet deposition alone (i.e., no mass
 ! change due to chemistry or phase transfer)           
      
 !...AERWDEP species, coarse mode
 
-      AERWDEP( LSOILC, COR ) = AEROSOL( LSOILC,COR ) * ( 1 - EXPWET ) * CFACTOR      
-      AERWDEP( LSEASC, COR ) = AEROSOL( LSEASC,COR ) * ( 1 - EXPWET ) * CFACTOR     
-      AERWDEP( LANTHC, COR ) = AEROSOL( LANTHC,COR ) * ( 1 - EXPWET ) * CFACTOR      
-      AERWDEP( LSO4, COR )   = AEROSOL( LSO4,COR ) * ( 1 - EXPWET ) * CFACTOR
-      AERWDEP( LNH4, COR )   = AEROSOL( LNH4,COR ) * ( 1 - EXPWET ) * CFACTOR
-      AERWDEP( LNO3, COR )   = AEROSOL( LNO3,COR ) * ( 1 - EXPWET ) * CFACTOR
-      AERWDEP( LCL, COR )    = AEROSOL( LCL,COR ) * ( 1 - EXPWET ) * CFACTOR
+      AERWDEP( LSOILC, COR ) = AEROSOL( LSOILC,COR ) * ( 1.d0 - EXPWET ) * CFACTOR      
+      AERWDEP( LSEASC, COR ) = AEROSOL( LSEASC,COR ) * ( 1.d0 - EXPWET ) * CFACTOR     
+      AERWDEP( LANTHC, COR ) = AEROSOL( LANTHC,COR ) * ( 1.d0 - EXPWET ) * CFACTOR      
+      AERWDEP( LSO4, COR )   = AEROSOL( LSO4,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
+      AERWDEP( LNH4, COR )   = AEROSOL( LNH4,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
+      AERWDEP( LNO3, COR )   = AEROSOL( LNO3,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
+      AERWDEP( LCL, COR )    = AEROSOL( LCL,COR ) * ( 1.d0 - EXPWET ) * CFACTOR
 
 !...AEROSOL species, coarse mode 
 
