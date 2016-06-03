@@ -1,7 +1,10 @@
 ! Revision History:
 !  2016/02/23 David Wong extracted the complex number module and put it in a file
+!  2016/05/23 David Wong - replaced rrtmg_aero_optical_util_module with
+!                          cmaq_rrtmg_aero_optical_util_module to avoid duplication 
+!                          of the same module name on WRF side of the two-way model
 
-MODULE rrtmg_aero_optical_util_module
+MODULE cmaq_rrtmg_aero_optical_util_module
 
 
      Integer      :: AERO_UTIL_LOG = 0 
@@ -2322,4 +2325,4 @@ contains
        END subroutine BHMIE_FLEXI
 
 
-END MODULE rrtmg_aero_optical_util_module
+END MODULE cmaq_rrtmg_aero_optical_util_module

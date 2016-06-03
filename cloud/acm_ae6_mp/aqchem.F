@@ -262,7 +262,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
       REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3
       REAL( 8 ) :: FRACLIQ         ! fraction of water in liquid form
-      REAL( 8 ) :: FOA1            ! First dissociation constant for FOA
+      REAL( 8 ) :: FOA1            ! First dissociation constant for FOA (Formic Acid)
       REAL( 8 ) :: FOAH            ! Henry's Law constant for FOA
       REAL( 8 ) :: FOA1H           ! FOAH*FOA1
       REAL( 8 ) :: FOAL            ! FOA conc in cloudwater (mol/liter)
@@ -413,8 +413,8 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: ANTHCOR         ! coarse mode CORS (AE6) SLN 16March2011
       REAL( 8 ) :: SEASCOR         ! coarse mode SEAS (AE6) SLN 16March2011
       REAL( 8 ) :: FEACC           ! accumulation mode Fe (AE6) SLN 22March2011
-      REAL( 8 ) :: MNACC           ! accumulation mode Fe (AE6) SLN 22March2011
-      REAL( 8 ) :: FECOR           ! coarse mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: MNACC           ! accumulation mode Mn (AE6) SLN 22March2011
+      REAL( 8 ) :: FECOR           ! coarse mode Fe (AE6) SLN 22March2011
       REAL( 8 ) :: MNCOR           ! coarse mode Mn (AE6) SLN 22March2011
       REAL( 8 ) :: FE_OX           ! Fe(III) available for sulfate oxidation
       REAL( 8 ) :: MN_OX           ! Mn(II) available for sulfate oxidation

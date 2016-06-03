@@ -1,1 +1,0 @@
-../aero6/isrpia.inc

@@ -495,6 +495,11 @@ C.. Get density in Kg/m^3
 C.. Get photolysis rates in /min
 
       CALL PHOT ( MIDDATE, MIDTIME, JDATE, JTIME, TSTEP, RJ )
+
+C.. Get Heterogeneous Rates using Aerosol Surface Area. Also Store
+C   a snapshot of the aerosol surface area so that it can be
+C   appropriately updated after the solver finds a solution.
+
       CALL HETCHEM_RATES( TA, PRES, QV, CONC, DENS )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -711,10 +716,7 @@ C  Update CGRID based on the degradation routines
 
          END IF
 
-
 500   CONTINUE
-
-
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  End of block loop; reorder cells if necessary and go back do the  
@@ -763,6 +765,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          GO TO 600
       END IF
        
+      !Update Aerosol Surface Area
+      CALL HETCHEM_UPDATE_AERO( CONC )
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Output performance statistics if required and return
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -798,7 +803,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          STAT_SUM = 0.0
 
       END IF
-
        
 #endif
 

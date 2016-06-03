@@ -46,21 +46,21 @@
 
       PUBLIC            :: AERO_ASYM_FAC, AERO_EXTI_COEF, AERO_SCAT_COEF,
      &                     INIT_AERO_DATA, GET_AERO_DATA, AERO_OPTICS_INTERNAL
-      PRIVATE
+      
 
-      INTEGER :: LOGDEV                   ! unit number for the log file
-      INTEGER, ALLOCATABLE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
+      INTEGER, PRIVATE     :: LOGDEV                   ! unit number for the log file
+      INTEGER, ALLOCATABLE, PRIVATE :: REFRACT_INDX_MAP( : )  ! map array for refactive index
 
-      REAL,    ALLOCATABLE :: VOL_MINS( : )          ! minmum volume permode
-      REAL,    ALLOCATABLE :: M3_FACTOR( : )         ! convert mass to portion of 3rd moment
-      LOGICAL, ALLOCATABLE :: IS_CORE_SPCS( :,: )    ! flag denoting species is in aerosol core
+      REAL,    ALLOCATABLE, PRIVATE :: VOL_MINS( : )          ! minmum volume permode
+      REAL,    ALLOCATABLE, PRIVATE :: M3_FACTOR( : )         ! convert mass to portion of 3rd moment
+      LOGICAL, ALLOCATABLE, PRIVATE :: IS_CORE_SPCS( :,: )    ! flag denoting species is in aerosol core
 
-      INTEGER, PARAMETER   :: NUMB_COR_SPCS = 3      ! number species in core
+      INTEGER, PARAMETER,   PRIVATE :: NUMB_COR_SPCS = 3      ! number species in core
 
 C *** Species in aerosol core
 
-      CHARACTER( 16 ), PARAMETER :: CORE_SPCS( NUMB_COR_SPCS ) =
-     &                              (/ 'AECI', 'AECJ', 'AECK' /)
+      CHARACTER( 16 ), PARAMETER, PRIVATE :: CORE_SPCS( NUMB_COR_SPCS ) =
+     &                                                       (/ 'AECI', 'AECJ', 'AECK' /)
       
       CONTAINS
 
@@ -354,9 +354,9 @@ C
 C     NOTE
 C       2nd moment concentrations (M2) are passed into GETPAR in the
 C       CBLK array.  The GETPAR calculations implicitly assume
-C       that the input value of M2 is consistent with the input value of
-C       M3_WET_FLAG.  If, for example, the input M2 value was calculated
-C       for a "dry" aerosol and the M3_WET_FLAG is .TRUE., GETPAR would
+C       that the input value of M2 is up to date
+C       If, for example, the input M2 value was calculated
+C       for a "dry" aerosol and the Wet_Moments_FLAG is .TRUE., GETPAR would
 C       incorrectly adjust the M2 concentrations!
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  EXTRACT_AERO, EXTRACT_SOA, GETPAR
@@ -364,6 +364,12 @@ C                                     AERO_OPTICAL2, AERO_OPTICAL_CS
 C  REVISION HISTORY
 C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
 C                          from version 5.01
+C     05/2016 H. Pye and B. Murphy - updated treatment of aerosol
+C                          moments
+C     05/23/16 D.Wong - replaced RRTMG_AERO_OPTICAL_UTIL_MODULE with
+C                       CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE to avoid
+C                       duplication of the same module name on WRF side
+C                       of the two-way model
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -388,7 +394,7 @@ C-----------------------------------------------------------------------
       USE CSQY_DATA,  ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
      &                       WAVELENGTH => EFFWL_REF
 
-      USE RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
+      USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
 
       IMPLICIT NONE
 
@@ -458,7 +464,6 @@ C***  variables for calculating modal averaged properties per layer and lambda
       INTEGER MODE                  ! aerosol mode loop counter
       LOGICAL SUCCESS
       LOGICAL TROUBLE
-      
  
 #ifdef verbose_phot
       character( 26 ), allocatable :: lambda_list( : )
@@ -486,25 +491,20 @@ C *** initialize internal and external dimensions of aerosols
 
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
 C *** in aero_data module
+C     Also converts dry surface area to wet second moment
          CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
 
-C ***    Calculate aerosol surface area to 2nd moment.
-         DO MODE = 1, N_MODE
-            N = AEROSRF_MAP( MODE )
-            MOMENT2_CONC( MODE ) = CGRID( COL,ROW,L,N ) * ONE_OVER_PI
-         END DO
-
-C *** Calculate geometric mean diameters and standard deviations of "dry" size distribution
-         CALL GETPAR ( .TRUE., .FALSE. )
+C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
+         CALL GETPAR ( .FALSE. )
 
 #ifdef verbose_phot
          if(col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 )then
             do m = 1, n_mode
                write(logdev, 4999)l, m, aeromode_diam( m ),pi6*moment3_conc( m ),
-     &         aeromode_sdev( m )
+     &         aeromode_lnsg( m )
 4999           format('lay = ',i3,' mode = ',i3,' diam = ',es12.4,' pi6*moment3 = ', 
      &         es12.4,' ae_lsg = ', es12.4)
            end do
@@ -546,7 +546,7 @@ C *** Calculate geometric mean diameters and standard deviations of "dry" size d
             FRACTION_CORE  = CORE_MOMENT3(  MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8)
             FRACTION_SHELL = SHELL_MOMENT3( MODE,L ) / REAL( MOMENT3_CONC( MODE ), 8)
 
-            BLK_AE_LSG  ( MODE,L ) = AEROMODE_SDEV( MODE )
+            BLK_AE_LSG  ( MODE,L ) = aeromode_lnsg( MODE )
             AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
 
             IF ( FRACTION_CORE .LT. NEGLECT_FRAC ) THEN
@@ -872,9 +872,9 @@ C
 C     NOTE
 C       2nd moment concentrations (M2) are passed into GETPAR in the
 C       CBLK array.  The GETPAR calculations implicitly assume
-C       that the input value of M2 is consistent with the input value of
-C       M3_WET_FLAG.  If, for example, the input M2 value was calculated
-C       for a "dry" aerosol and the M3_WET_FLAG is .TRUE., GETPAR would
+C       that the input value of M2 is up to date.  
+C       If, for example, the input M2 value was calculated
+C       for a "dry" aerosol and the Wet_Moments_FLAG is .TRUE., GETPAR would
 C       incorrectly adjust the M2 concentrations!
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  EXTRACT_AERO, EXTRACT_SOA, GETPAR
@@ -882,6 +882,12 @@ C                                     AERO_OPTICAL2, AERO_OPTICAL_CS
 C  REVISION HISTORY
 C     06/13/13 B.Hutzell - initial version created for aero_photdata.F 
 C                          from version 5.01
+C     05/2016 H. Pye and B. Murphy - updated treatment of aerosol
+C                          moments
+C     05/23/16 D.Wong - replaced RRTMG_AERO_OPTICAL_UTIL_MODULE with
+C                       CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE to avoid
+C                       duplication of the same module name on WRF side
+C                       of the two-way model
 C
 C  REFERENCES:
 C     Horvath, H., Size segrated light absorption coefficient for
@@ -906,7 +912,7 @@ C-----------------------------------------------------------------------
       USE CSQY_DATA, ONLY : NWL => NWL_REF, NUM_REFRACTIVE, REFRACTIVE_INDEX,
      &                       WAVELENGTH => EFFWL_REF
 
-      USE RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
+      USE CMAQ_RRTMG_AERO_OPTICAL_UTIL_MODULE, ONLY : AERO_OPTICAL2, AERO_OPTICAL_CS
 
       IMPLICIT NONE
 
@@ -995,25 +1001,20 @@ C *** initialize internal and external dimensions of aerosols
 
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
 C *** in aero_data module
+C     Also converts surface area to wet second moment
          CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
 
 C *** extract soa concentrations from CGRID
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
 
-C ***    Calculate aerosol surface area to 2nd moment.
-         DO MODE = 1, N_MODE
-            N = AEROSRF_MAP( MODE )
-            MOMENT2_CONC( MODE ) = CGRID( COL,ROW,L,N ) * ONE_OVER_PI
-         END DO
-
-C *** Calculate geometric mean diameters and standard deviations of "dry" size distribution
-         CALL GETPAR ( .TRUE., .FALSE. )
+C *** Calculate geometric mean diameters and standard deviations of "wet" size distribution
+         CALL GETPAR ( .FALSE. )
 
 #ifdef verbose_phot
          if ( col .eq. 1 .and. row .eq. 1 .and. l .eq. 1 ) then
             do m = 1, n_mode
                write(logdev, 4999)l, m, aeromode_diam( m ),pi6*moment3_conc( m ),
-     &         aeromode_sdev( m )
+     &         aeromode_lnsg( m )
 4999           format('lay = ',i3,' mode = ',i3,' diam = ',es12.4,' pi6*moment3 = ', 
      &         es12.4,' ae_lsg = ', es12.4)
             end do
@@ -1036,7 +1037,7 @@ C *** Calculate geometric mean diameters and standard deviations of "dry" size d
 #endif 
             END DO SPC_LOOP1
 
-            BLK_AE_LSG  ( MODE,L ) = AEROMODE_SDEV( MODE )
+            BLK_AE_LSG  ( MODE,L ) = aeromode_lnsg( MODE )
             AE_DGN_SHELL( MODE,L ) = AEROMODE_DIAM( MODE )
                    
             IF ( MOMENT3_CONC( MODE ) .GT. AEROMODE( MODE )%MIN_M3CONC ) THEN
