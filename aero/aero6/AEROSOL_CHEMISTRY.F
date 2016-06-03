@@ -2208,38 +2208,38 @@ C        Determine rate of particle phase rxn for a given pair (Eddingsaas et al
          
 C        Update sum
 C        Store information with speciation for IEPOX
-         if ( acid_nuc_pairs(i)%parent == 'IEPOX' ) then
+         if ( acid_nuc_pairs(i)%parent .eq. 'IEPOX' ) then
             kparticle(1)  = kparticle(1) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIEOSJ' ) then !ae6i
+            if( acid_nuc_pairs(i)%prod .eq. 'AIEOSJ' ) then !ae6i
               kchemos(1)  = kchemos(1)   + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIETETJ') ) then !ae6i
+            else if( (acid_nuc_pairs(i)%prod .eq. 'ADIMJ')
+     &             .and. (acid_nuc_pairs(i)%nuc .eq. 'AIETETJ') ) then !ae6i
               kchemdim1(1) = kchemdim1(1)  + kchem
-            elseif( (acid_nuc_pairs(i)%prod == 'ADIMJ')
-     &             .and. (acid_nuc_pairs(i)%nuc == 'AIEOSJ') ) then !ae6i
+            else if( (acid_nuc_pairs(i)%prod .eq. 'ADIMJ')
+     &             .and. (acid_nuc_pairs(i)%nuc .eq. 'AIEOSJ') ) then !ae6i
               kchemdim2(1) = kchemdim2(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIETETJ' ) then !ae6i
+            else if( acid_nuc_pairs(i)%prod .eq. 'AIETETJ' ) then !ae6i
               kchemtet(1) = kchemtet(1)  + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AISO3J' ) then
+            else if( acid_nuc_pairs(i)%prod .eq. 'AISO3J' ) then
               ! do nothing for aero6 since speciation isn't tracked
             else
                xmsg = 'For IEPOX parent, reaction product not recognized '
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
-            endif
-         endif
+            end if
+         end if
 
 C        Store information with speciation for IMAE
-         if ( acid_nuc_pairs(i)%parent == 'IMAE' ) then
+         if ( acid_nuc_pairs(i)%parent .eq. 'IMAE' ) then
             kparticle(2)  = kparticle(2) + kchem
-            if( acid_nuc_pairs(i)%prod == 'AIMOSJ' ) then
+            if( acid_nuc_pairs(i)%prod .eq. 'AIMOSJ' ) then
               kchemos(2)  = kchemos(2)   + kchem
-            elseif( acid_nuc_pairs(i)%prod == 'AIMGAJ' ) then
+            else if( acid_nuc_pairs(i)%prod .eq. 'AIMGAJ' ) then
               kchemtet(2) = kchemtet(2)  + kchem
             else
                xmsg = 'For IMAE parent, reaction product not recognized '
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
-            endif
-         endif
+            end if
+         end if
       End Do      
 
 C *** Calculate gamma following Pye et al. 2013 ES&T
@@ -2293,7 +2293,7 @@ C     No/slow reaction
          fdim1(i) = 0d0
          fdim2(i) = 0d0
 
-      endif
+      end if
 
       End Do
 
