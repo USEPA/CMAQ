@@ -1282,7 +1282,7 @@ C  Called by: Gas-Phase Chemistry Driver
                !Update the Aerosol Surface Area making sure to multiply
                !the 2nd moment by Pi to convert properly
                DO M = 1, N_MODE
-                 CGRID( C, R, L, AEROSRF_MAP(M) ) = Real( PI, 4 ) * M2DRY_FINAL( M )
+                 CGRID( C, R, L, AEROSRF_MAP(M) ) = PI * M2DRY_FINAL( M )
                END DO
 
             END DO LOOP_COL
