@@ -1006,11 +1006,11 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
      &                         exp( 0.5 * aeromode_lnsg( im ) ** 2 )
 
         Do i = 1, n_vapor
-          If ( aero_missing( soa_aeroMap( i ),im ) .EQ. .FALSE. ) Then
-            Call HCOND3( m0_init( im ), m1wet_init( im ),
-     &                   m2wet_initD( im ), Dv_org, alphorg, cbar_org(i), GRtmp )
-            GR3( i,im ) = GRtmp( 2 )
-          End If
+          If ( aero_missing( soa_aeroMap( i ),im ) ) Cycle
+          
+          Call HCOND3( m0_init( im ), m1wet_init( im ),
+     &                 m2wet_initD( im ), Dv_org, alphorg, cbar_org(i), GRtmp )
+          GR3( i,im ) = GRtmp( 2 )
         End Do
       End Do
       
@@ -1214,7 +1214,7 @@ C Constrain caer to values between conmin and ctotf
 
       Else   ! threshold not exceeded; no material transferred to aerosol phase
 
-         caer = conmin   ! array assignment
+         caer = 2. * conmin   ! array assignment
 
       End If    ! check on equilibrium threshold
 
@@ -1225,6 +1225,8 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
       Do i = 1, n_vapor
         If ( soa_aeroMap( i ) .ge. 1 ) Then
            indx = soa_aeroMap( i )
+
+           ! Transfer the semivolatile mass
            Do im = 1, n_mode
              aerospc_conc( indx,im ) = 
      &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
@@ -1233,16 +1235,16 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
            ! Check to make sure none of the modes went negative
            If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
               aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
-     &               + aerospc_conc( indx,1 )
-              aerospc_conc( indx,1 ) = 0.0
+     &               + aerospc_conc( indx,1 ) - conmin
+              aerospc_conc( indx,1 ) = conmin
            End If
            If ( aerospc_conc( indx,2 ) .lt. conmin ) Then
               aerospc_conc( indx,1 ) = aerospc_conc( indx,1 ) 
-     &               + aerospc_conc( indx,2 )
-              aerospc_conc( indx,2 ) = 0.0
-              If ( aerospc_conc( indx,1 ) .lt. 0.0 ) Then
-                If ( abs(aerospc_conc( indx,1 )) .lt. 1.0e-15 ) Then
-                  aerospc_conc( indx,1 ) = 0.0
+     &               + aerospc_conc( indx,2 ) - conmin
+              aerospc_conc( indx,2 ) = conmin
+              If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
+                If ( abs(aerospc_conc( indx,1 ) - conmin) .lt. 1.0e-15 ) Then
+                  aerospc_conc( indx,1 ) = conmin
                 Else
                   Write( xmsg,'( A56,/,A11,I2,A9,E12.5,A9,E12.5 )' ) 
      &                 ' *** Too Much Evaporation from Existing Organic Aerosol:',
