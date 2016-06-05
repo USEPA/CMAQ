@@ -1230,7 +1230,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
      &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
            End Do
         
-           !Check to make sure none of the modes went negative
+           ! Check to make sure none of the modes went negative
            If ( aerospc_conc( indx,1 ) .lt. conmin ) Then
               aerospc_conc( indx,2 ) = aerospc_conc( indx,2 ) 
      &               + aerospc_conc( indx,1 )
