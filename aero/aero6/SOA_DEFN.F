@@ -1019,7 +1019,7 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
       Where ( GR3( :,1 ) .gt. 0. ) 
      &    GR3FRAC( :,1 ) = GR3( :,1 ) / ( GR3(:,1) + GR3(:,2) ) !Aitken Growth
       Where ( GR3( :,2 ) .gt. 0. )
-     &     GR3FRAC( :,2 ) = GR3( :,2 ) / ( GR3(:,1) + GR3(:,2) ) !Accumulation Growth
+     &    GR3FRAC( :,2 ) = GR3( :,2 ) / ( GR3(:,1) + GR3(:,2) ) !Accumulation Growth
 
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
@@ -1227,7 +1227,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
            indx = soa_aeroMap( i )
 
            ! Transfer the semivolatile mass
-           Do im = 1, n_mode
+           Do im = ia_ait,ia_acc
              aerospc_conc( indx,im ) = 
      &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
            End Do

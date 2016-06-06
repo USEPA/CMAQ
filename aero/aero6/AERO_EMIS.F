@@ -782,7 +782,7 @@ C *** Loop over each grid cell in layer 1
 
 C *** Store aerosol emission rates for this grid cell in a 1D array
                DO S = 1, N_EMIS_PM
-		  PM_EM( S ) = EMBUFF( C,R,L,S )
+                 PM_EM( S ) = EMBUFF( C,R,L,S )
                END DO
 
 C *** Get grid cell values for sea salt emission rates

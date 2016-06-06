@@ -335,6 +335,7 @@ C                      Aitken    accum     coarse        Aitken  accum   coarse
      &   emis_table( (/'       ','AKJ    ','       '/), (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
      &   emis_table( (/'       ','APOCJ  ','       '/), (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
      &   emis_table( (/'       ','APNCOMJ','       '/), (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( (/'       ','ALVPO1J','       '/), (/ 0.0, 0.01505, 0.0    /) ),   ! Total Organic Matter
      &   emis_table( (/'       ','AECJ   ','       '/), (/ 0.0, 0.0,     0.0    /) ),   ! Elemental Carbon
      &   emis_table( (/'       ','AFEJ   ','       '/), (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
      &   emis_table( (/'       ','AALJ   ','       '/), (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
