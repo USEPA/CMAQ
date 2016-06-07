@@ -320,7 +320,7 @@ C profiles 3399, 3404, 3409, and 3414 for coarse PM. (G. Pouliot - private commu
 C See Ref. (4), above and https://cfpub.epa.gov/si/speciate/
 
 C number of chemical species in windblown dust aerosol
-      integer, parameter :: ndust_spc = 19
+      integer, parameter :: ndust_spc = 20
 
       Type( emis_table ), Parameter :: dust_spc( ndust_spc ) = (/
 C                        -------- name --------         -------- spcfac --------

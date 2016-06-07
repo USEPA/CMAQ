@@ -846,27 +846,29 @@ C     Binkowski & Roselle (2003).
                   DO N = 1, N_MODE - 1
                      EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
      &                        AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
+     &                            * EM_FAC( IDX,N )
                      IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
                         EMISM3( N ) = EMISM3( N ) + 
      &                        AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
-     &                              * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
+     &                          * EM_FAC( IDX,N ) * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
                      END IF
                   END DO
 
                   !Apply Emissions to Coarse Aerosol Mode
                   N = N_MODE
                   IF ( IDX .EQ. ASO4_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
+                     EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S ) * EM_FAC( IDX,N )
                   ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S )
+                     EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S ) * EM_FAC( IDX,N )
                   ELSE IF ( IDX .EQ. ACL_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ACL * EM_RATE( S )
+                     EM_PART( IDX,N ) = SPFC_ACL * EM_RATE( S ) * EM_FAC( IDX,N )
                   ELSE IF ( IDX .EQ. AH2O_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_AH2O * EM_RATE( S )
+                     EM_PART( IDX,N ) = SPFC_AH2O * EM_RATE( S ) * EM_FAC( IDX,N )
                   ELSE IF ( IDX .EQ. ACORS_IDX ) THEN
-                     EM_PART( IDX,N ) = SPFC_ACORS * EM_RATE( S )
+                     EM_PART( IDX,N ) = SPFC_ACORS * EM_RATE( S ) * EM_FAC( IDX,N )
                   ELSE
-                     EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
+                     EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N ) 
+     &                                    * EM_RATE( S ) * EM_FAC( IDX,N )
                   END IF
                   IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
                      EMISM3( N ) = EMISM3( N ) + EM_PART( IDX,N )
@@ -930,8 +932,8 @@ C     Save results in the VDEMIS_AE array.
                DO N = 1, N_MODE
                   DO S = 1, N_AEROSPC
                      IF ( EM_MAP( S,N ) .GT. 0 ) THEN
-                        VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N ) * EM_FAC( S,N )
-     &                                                   * ( CONVM / AEROSPC_MW( S ) )
+                        VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N )
+     &                                      * ( CONVM / AEROSPC_MW( S ) )
                      END IF
                   END DO
                   VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * NUM_FAC( N ) * CONVN
@@ -977,10 +979,10 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                      IDX = PMEM_MAP( S )
 		             DO N = 1, N_MODE - 1
                         EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
-     &                      AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
+     &                      AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
                         IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
                            EMISM3( N ) = EMISM3( N ) + 
-     &                     AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
+     &                     AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
      &                        * ( F6DPIM9 / AEROSPC( IDX )%DENSITY )
                         END IF
                      END DO
@@ -988,17 +990,17 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
 		             !Compute Coarse Mode Properties
 		             N = N_MODE
                      IF ( IDX .EQ. ASO4_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S )
+                        EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S ) * EM_FAC( IDX,N )
                      ELSE IF ( IDX .EQ. ANO3_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S )
+                        EM_PART( IDX,N ) = SPFC_ANO3 * EM_RATE( S ) * EM_FAC( IDX,N )
                      ELSE IF ( IDX .EQ. ACL_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ACL * EM_RATE( S )
+                        EM_PART( IDX,N ) = SPFC_ACL * EM_RATE( S ) * EM_FAC( IDX,N )
                      ELSE IF ( IDX .EQ. AH2O_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_AH2O * EM_RATE( S )
+                        EM_PART( IDX,N ) = SPFC_AH2O * EM_RATE( S ) * EM_FAC( IDX,N )
                      ELSE IF ( IDX .EQ. ACORS_IDX ) THEN
-                        EM_PART( IDX,N ) = SPFC_ACORS * EM_RATE( S )
+                        EM_PART( IDX,N ) = SPFC_ACORS * EM_RATE( S ) * EM_FAC( IDX,N )
                      ELSE
-                        EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S )
+                        EM_PART( IDX,N ) = AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
                      END IF
                      IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
                         EMISM3( N ) = EMISM3( N ) + EM_PART( IDX,N )
@@ -1026,8 +1028,8 @@ C     [m2/mol/s].  Save results in the VDEMIS_AE array.
                   DO N = 1, N_MODE
                      DO S = 1, N_AEROSPC
                         IF ( EM_MAP( S,N ) .GT. 0 ) THEN
-                           VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N ) * EM_FAC( S,N )
-     &                                                      * CONVM / AEROSPC_MW( S )
+                           VDEMIS_AE( EM_MAP( S,N ),L,C,R ) = EM_PART( S,N )
+     &                                             * CONVM / AEROSPC_MW( S )
                         END IF
                      END DO
                      VDEMIS_AE( NUM_MAP( N ),L,C,R ) = EM_NUM( N ) * NUM_FAC( N ) * CONVN

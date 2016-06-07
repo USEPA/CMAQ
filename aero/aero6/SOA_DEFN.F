@@ -1227,7 +1227,7 @@ C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
            indx = soa_aeroMap( i )
 
            ! Transfer the semivolatile mass
-           Do im = ia_ait,ia_acc
+           Do im = 1,2
              aerospc_conc( indx,im ) = 
      &             aerospc_conc( indx,im ) + dcaer( i ) * GR3FRAC( i,im )
            End Do
