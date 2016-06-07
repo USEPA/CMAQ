@@ -321,6 +321,13 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                orgprod( 8 )%parent     = 'NAPHTHAL'
                orgprod( 9 )%parent     = 'NAPHTHAL'
                IEPOX_SOA_mechanism = .True.
+            Else If ( INDEX( MECHNAME, 'CRIe' ) .GT. 0 ) then
+               orgprod( 2 )%parent     = 'MXYL'
+               orgprod( 3 )%parent     = 'MXYL'
+               orgprod( 4 )%parent     = 'TOLUENE'
+               orgprod( 5 )%parent     = 'TOLUENE'
+               orgprod( 8 )%parent     = 'NAPHTHAL'
+               orgprod( 9 )%parent     = 'NAPHTHAL'
             Else If ( INDEX( MECHNAME, 'SAPRC07TC' ) .GT. 0 ) then
                orgprod( 2 )%parent     = 'MXYL'
                orgprod( 3 )%parent     = 'MXYL'
@@ -1179,6 +1186,7 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
+         upb       = upb * 1.0000001 ! prevent numerical issues
          If ( abs( upb - lowb ) .lt. threshmin ) then
             ! no SOA to partition
             orgmoles = ( lowb + upb ) / 2.0D0
