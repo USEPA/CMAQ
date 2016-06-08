@@ -1124,7 +1124,7 @@
 !  Reaction Label OLIG_ALK2       
              RKI( NCELL,  396) =   9.4882D-06 * SFACT 
 !  Reaction Label PCSOA           
-             RKI( NCELL,  397) =   2.0940D-11 * CFACT 
+             RKI( NCELL,  397) =   1.2500D-11 * CFACT 
 !  Reaction Label POA_AGE1        
              RKI( NCELL,  398) =   4.0000D-11 * CFACT 
 !  Reaction Label POA_AGE2        
