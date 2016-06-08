@@ -67,7 +67,7 @@ C                1.4 g/cm3 used by default.
 C JY  02/17/16 Created named constants for speciation and other factors for AERO_EMIS,
 C              DUST_EMIS, aero_subs:VOLINORG, and aqchem
 C CGN 04/14/16 Changed AMGJ speciation factor from 0.0 to 0.019 following Upadhyay et al.
-C HOTP,BM  5/16 Updated to work with all ae6 mechs (6, 6i, 6mp)
+C HOTP,BM  5/20/16 Updated to work with all ae6 mechs (6, 6i, 6mp)
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -544,8 +544,8 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C HS  01/24/11 Renamed AORGPA as POC for AERO6
 C GS  03/02/11 Find new req`d species for AERO6 (Mg, K, Ca)
 C HS  03/10/11 Get index for new required species, PNCOM
-C HOTP 05/11/16 Add IEPOX derived species
 C JY  03/22/16 Get index for new required species: Fe, Mn (aqchem)
+C HOTP 05/11/16 Add IEPOX derived species
 C-----------------------------------------------------------------------
 
       Use rxns_data             ! chemical mechanism data
