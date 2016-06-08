@@ -337,8 +337,8 @@ C *** Allocate memory for PM_EM, EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
             XMSG = '*** EMBUFF memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-	 
-	 ALLOCATE ( EMTMP( NCOLS,NROWS,PM_EMLYRS,1 ),
+    
+         ALLOCATE ( EMTMP( NCOLS,NROWS,PM_EMLYRS,1 ),
      &              STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = '*** EMTMP memory allocation failed'
@@ -405,14 +405,14 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
                      L = INDEX1( AEROSPC( S )%NAME( N ), N_AE_EMIS, AE_EMIS )
                      IF ( L .GT. 0 ) THEN
                         EM_FAC( S,N ) = AE_EMIS_FAC( L )
-                        !Test for POA Species and Aggregate Volatility
-                        !Parameters
+                        ! Test for POA Species and Aggregate Volatility
+                        ! Parameters
                         IF ( AEROSPC( S )%EMIS .EQ. 'POC' ) THEN
                             DO IPOA = 1,N_VBS_BIN
                                IF ( AEROSPC( S )%NAME( N )(2:6) .EQ. POA_NAME( IPOA ) ) THEN
                                   EM_FAC( S,N ) = EM_FAC( S,N ) * POA_OP_VF( IPOA ) * POA_AMF( IPOA )
                                ENDIF
-                            ENDDO
+                            END DO
                         ENDIF
 
                         if ( em_fac( s,n ) .ne. 1.0 ) then
@@ -438,36 +438,36 @@ C     Strategy: first check Namelist Emis_Fac for antrhop. emis, then check for 
 
 
          IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-           !Semivolatile POA  
+           ! Semivolatile POA  
 C *** Let the user set the pcVOC species (which makes pcSOA) emissions
 C *** scaling to 0.0
-           !Retrieve the Environment Variable allowing the User to Toggle
-           !the pcVOC emissions
+           ! Retrieve the Environment Variable allowing the User to Toggle
+           ! the pcVOC emissions
            ZERO_PCSOA = .FALSE.         ! default
            VARDESC = 'Flag for Ignoring the pcSOA species'
            ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
 
            IF ( ZERO_PCSOA ) THEN
-             !Find the index for the pcVOC species in the emissions
-             !scale-factor vector
+             ! Find the index for the pcVOC species in the emissions
+             ! scale-factor vector
              V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
              S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
              GC_EMIS_FAC( S ) = 0.0
            ENDIF
 
 C *** Assign Volaitlity Distribution to Primary Orgnaic Vapor Species
-           !Find the Index for Each Vapor and alter the emissions scaling
-           !to reflect the parameters in AERO_DATA. The GC_EMIS_FAC field
-           !from the GC namelist should account for the conversion from
-           !g/s (POC) to mol/s (Vapors). That factor is then modified
-           !by the volatility distribution itself.
+           ! Find the Index for Each Vapor and alter the emissions scaling
+           ! to reflect the parameters in AERO_DATA. The GC_EMIS_FAC field
+           ! from the GC namelist should account for the conversion from
+           ! g/s (POC) to mol/s (Vapors). That factor is then modified
+           ! by the volatility distribution itself.
            DO IPOA = 1,N_VBS_BIN
              VNAME = 'V' // POA_NAME( IPOA )
              V = INDEX1( VNAME, N_GC_SPC, GC_SPC )
              S = FINDEX( V, N_GC_EMIS, GC_EMIS_MAP )
              GC_EMIS_FAC( S ) = GC_EMIS_FAC( S ) * POA_OP_VF( IPOA ) * 
      &                          (1.0 - POA_AMF( IPOA ) ) / GC_MOLWT( V )
-           ENDDO
+           END DO
          ENDIF
 
 C *** Map aerosol number emission species and set across-the-board adjustment factors
@@ -715,11 +715,11 @@ C     time.  Store result in EMBUFF array.
          IF ( PT3DEMIS ) THEN   ! in-line plume rise
 
             EMBUFF = 0.0   ! array assignment
-	    EMTMP  = 0.0
+            EMTMP  = 0.0
 
             DO S = 1, N_EMIS_PM   ! read 2d file
                IDX = PMEM_MAP( S )
-  	       IF ( .NOT. INTERPX( EMIS_1, PMEM_MAP_NAME( S ), PNAME,
+               IF ( .NOT. INTERPX( EMIS_1, PMEM_MAP_NAME( S ), PNAME,
      &                           STARTCOL,ENDCOL, STARTROW,ENDROW, 1,1,
      &                           JDATE, JTIME, EMBUFF( 1,1,1,S ) ) ) THEN
                   XMSG = 'Could not read '
@@ -977,7 +977,7 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                   EMISM3 = 0.0    ! array assignment
                   DO S = 1, N_EMIS_PM
                      IDX = PMEM_MAP( S )
-		             DO N = 1, N_MODE - 1
+                     DO N = 1, N_MODE - 1
                         EM_PART( IDX,N ) = EM_PART( IDX,N ) + 
      &                      AEROSPC( IDX )%EMIS_SPLIT( N ) * EM_RATE( S ) * EM_FAC( IDX,N )
                         IF ( .NOT. AEROSPC( IDX )%TRACER ) THEN
@@ -987,8 +987,8 @@ C     (excluding sea salt), as in Equation 7a of Binkowski & Roselle (2003).
                         END IF
                      END DO
 
-		             !Compute Coarse Mode Properties
-		             N = N_MODE
+                     !Compute Coarse Mode Properties
+                     N = N_MODE
                      IF ( IDX .EQ. ASO4_IDX ) THEN
                         EM_PART( IDX,N ) = SPFC_ASO4 * EM_RATE( S ) * EM_FAC( IDX,N )
                      ELSE IF ( IDX .EQ. ANO3_IDX ) THEN

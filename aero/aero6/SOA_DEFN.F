@@ -361,7 +361,7 @@ C determine if gas-phase IEPOX uptake occurs for the mechanism
                Call m3exit( pname, 0, 0, xmsg, xstat3 )
             End If
 
-!SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
+! SOA_DEFN NO LONGER HAS VERSION CONSTRAINTS ON SPECIES
 ! This SOA_DEFN works for AE6 and AE6i versions of aero
 !            If( INDEX( MECHNAME, '_AE6_' ) .EQ. 0 ) then
 !                  xmsg =  'Using AERO6 option and the Mechanism, '
@@ -399,8 +399,8 @@ C Find indices of required species
          aolgb_idx  = findAero( req_aeolgb, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
-         !Look for Additional Isoprene Product Species if AE6i is being
-         !used
+         ! Look for Additional Isoprene Product Species if AE6i is being
+         ! used
          If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .NE. 0 ) Then
            mtno3_idx  = findVapor( req_mtno3  )
            isopnn_idx = findVapor( req_isopnn )
@@ -1021,12 +1021,12 @@ C Compute 3rd moment, 2nd moment. moment_conc arrays are wet
         End Do
       End Do
       
-      !Calculate fraction of mass transfer to/from each mode
+      ! Calculate fraction of mass transfer to/from each mode
       GR3FRAC( :,: ) = 0.0
       Where ( GR3( :,1 ) .gt. 0. ) 
-     &    GR3FRAC( :,1 ) = GR3( :,1 ) / ( GR3(:,1) + GR3(:,2) ) !Aitken Growth
+     &    GR3FRAC( :,1 ) = GR3( :,1 ) / ( GR3(:,1) + GR3(:,2) ) ! Aitken Growth
       Where ( GR3( :,2 ) .gt. 0. )
-     &    GR3FRAC( :,2 ) = GR3( :,2 ) / ( GR3(:,1) + GR3(:,2) ) !Accumulation Growth
+     &    GR3FRAC( :,2 ) = GR3( :,2 ) / ( GR3(:,1) + GR3(:,2) ) ! Accumulation Growth
 
 C Initialize drog from ORGPROD and change units to [ ug / m**3 ]
       drog( : ) = orgprod_conc( : ) * drog_ppm2ug( : ) * convfac
@@ -1135,14 +1135,14 @@ C    caer = ctotf / ( 1 + c0/MW / totorg )
 
       threshold = 0.0  ! This threshold will be compared to the
                        ! saturation concentration to determine whether
-		               ! or not OA partitioning is even likely.
+                       ! or not OA partitioning is even likely.
       upb = 0.0  ! Upper bound for bisection method
 
       Do i = 1, n_vapor
          tempcorr   = tt1 * Exp( vaporspc( i )%enth * rgas1 * tt2 )
-         c0( i )    = vaporspc( i )%cstar * tempcorr        !Satn Conc.
-         prod( i )  = vaporspc( i )%alpha * totrog( i )     !Total Vapor Produced
-         ctotf( i ) = ctoti( i ) + prod( i )                !Vapor + Particle
+         c0( i )    = vaporspc( i )%cstar * tempcorr        ! Satn Conc.
+         prod( i )  = vaporspc( i )%alpha * totrog( i )     ! Total Vapor Produced
+         ctotf( i ) = ctoti( i ) + prod( i )                ! Vapor + Particle
          threshold  = threshold +  ctotf( i ) / c0( i )
          caer( i )  = ctotf( i ) * totorg                   ! initial
      &              / (totorg + c0( i ) * mw_vap_m1( i ) )  ! guess
@@ -1227,7 +1227,7 @@ C Constrain caer to values between conmin and ctotf
       End If    ! check on equilibrium threshold
 
 C Transfer particle-phase SOA and vapor-phase SVOCs back to CBLK
-      dcaer = caer - caer0   !Change in each species conc.
+      dcaer = caer - caer0   ! Change in each species conc.
       vapor_conc( : ) = ctotf( : ) - caer( : )
 
       Do i = 1, n_vapor
@@ -1390,8 +1390,8 @@ C  Following Numerical recipes
 
       Integer NN
       REAL :: FVEC( N )               ! vector of functions to be zeroed
-      !COMMON /NEWTV/ FVEC(n_vapor), NN
-      !SAVE /NEWTV/
+      ! COMMON /NEWTV/ FVEC(n_vapor), NN
+      ! SAVE /NEWTV/
 
 C  Parameters
       INTEGER, PARAMETER :: MAXITS = 100  ! maximum number of iterations
@@ -1403,11 +1403,11 @@ C  Parameters
 
 C  Local variables
       REAL :: CT( N ), CS( N ), IMW( N ), M
-      !REAL CS
-      !REAL IMW
-      !REAL M
-      !COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
-      !SAVE /NEWTINP/
+      ! REAL CS
+      ! REAL IMW
+      ! REAL M
+      ! COMMON /NEWTINP/ CT( N_VAPOR ), CS( N_VAPOR ), IMW( N_VAPOR ), M
+      ! SAVE /NEWTINP/
 
       INTEGER I, ITS, J, INDX( N_VAPOR )
       REAL D, DEN, F, FOLD, STPMAX, SUM, TEMP, TEST
@@ -1484,7 +1484,7 @@ C-----------------------------------------------------------------------
             END IF
             RETURN
          END IF
-         TEST = 0.0             !Test for convergence on delta_x
+         TEST = 0.0             ! Test for convergence on delta_x
          DO I = 1, N
             TEMP = ( ABS( X( I ) - XOLD( I ) ) ) / MAX( ABS( X( I ) ), 1.0 )
             IF ( TEMP .GT. TEST ) TEST = TEMP
@@ -2133,7 +2133,7 @@ C     Local variables
       Integer, Save    :: logdev
 
       Real             :: nguess              ! current guess for total moles organic aerosol
-      Real             :: oldn, lower, upper, flower, fnguess !intermediate values
+      Real             :: oldn, lower, upper, flower, fnguess ! intermediate values
       Real             :: fupper              ! function evaluated at upper bound
       Real             :: ea                  ! difference b/w old and new guesses (umol/m3)
       Real             :: test                ! to detect sign change

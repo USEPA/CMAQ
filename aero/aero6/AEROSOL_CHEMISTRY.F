@@ -1041,7 +1041,7 @@ C ***            Isoprene epoxide uptake
 
                      IF( TETROL_PPM .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                              * FDIM1(1) / TETROL_PPM !min*ppm-1  
+     &                                              * FDIM1(1) / TETROL_PPM ! min*ppm-1  
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF
@@ -1050,7 +1050,7 @@ C ***            Isoprene epoxide uptake
 
                      IF( IEPOXOS_PPM .GT. 0.0D0 ) THEN
                         KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY
-     &                                              * FDIM2(1) / IEPOXOS_PPM !min*ppm-1
+     &                                              * FDIM2(1) / IEPOXOS_PPM ! min*ppm-1
                      ELSE
                         KHETERO( IRATE, C,R,L ) = 0.0D0
                      END IF
@@ -1257,32 +1257,32 @@ C  Called by: Gas-Phase Chemistry Driver
       IMPLICIT NONE
       
       REAL, POINTER       :: CGRID ( :,:,:,: )  ! pointer of model concentrations
-      REAL                :: M2DRY_FINAL( N_MODE ) !Dry 2nd Aerosol Moment
-      REAL                :: M3DRY_FINAL( N_MODE ) !Dry 3rd Aerosol Moment
+      REAL                :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL                :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
       INTEGER L, R, C, m
 
       LOOP_LAY: DO L = 1, NLAYS
          LOOP_ROW: DO R = 1, MY_NROWS
             LOOP_COL: DO C = 1, MY_NCOLS
      
-               !Extract grid cell concentrations of aero species from CGRID
-               !into aerospc_conc in aero_data module
-               !also converts dry surface area to wet second moment
+               ! Extract grid cell concentrations of aero species from CGRID
+               ! into aerospc_conc in aero_data module
+               ! also converts dry surface area to wet second moment
                CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE. )
 
-               !Recalculate Dry 3rd Moment After Chemistry Processes
-               !2nd moment hasn't been update yet.
+               ! Recalculate Dry 3rd Moment After Chemistry Processes
+               ! 2nd moment hasn't been update yet.
                CALL CALCMOMENTS( .False. )
                M2DRY_FINAL( : ) = MOMENT2_CONC( : )
                M3DRY_FINAL( : ) = MOMENT3_CONC( : )
 
-               !Calculate new Second Moment Manually
-               !Assume standard deviation is fixed.
+               ! Calculate new Second Moment Manually
+               ! Assume standard deviation is fixed.
                M2DRY_FINAL( : ) = CHEM_M2DRY_INIT( C,R,L,: ) * 
      &                            ( M3DRY_FINAL( : )/CHEM_M3DRY_INIT( C,R,L,: ) ) ** (2.0/3.0)
 
-               !Update the Aerosol Surface Area making sure to multiply
-               !the 2nd moment by Pi to convert properly
+               ! Update the Aerosol Surface Area making sure to multiply
+               ! the 2nd moment by Pi to convert properly
                DO M = 1, N_MODE
                  CGRID( C, R, L, AEROSRF_MAP(M) ) = Real( PI, 4 ) * M2DRY_FINAL( M )
                END DO
@@ -2228,8 +2228,8 @@ C        Store information with speciation for IEPOX
             else
                print*, 'Reaction not recognized'
                STOP
-            endif
-         endif
+            end if
+         end if
 
 C        Store information with speciation for IMAE
          if ( acid_nuc_pairs(i)%parent .EQ. 'IMAE' ) then
@@ -2241,8 +2241,8 @@ C        Store information with speciation for IMAE
             else
                print*, 'Reaction not recognized'
                STOP
-            endif
-         endif
+            end if
+         end if
       End Do      
 
 C *** Calculate gamma following Pye et al. 2013 ES&T
@@ -2296,7 +2296,7 @@ C     No/slow reaction
          fdim1(i) = 0d0
          fdim2(i) = 0d0
 
-      endif
+      end if
 
       End Do
 

@@ -402,7 +402,7 @@
          FCLACC = AEROSOL( LCL, ACC ) / (AEROSOL( LCL, ACC ) + AEROSOL( LCL, COR ))  !just aerosol
       ELSE
          FCLACC = 1.d0
-      ENDIF
+      END IF
      
 !...Initialize dynamic species, rel/abs tolerances, and other specifications before calling integrator
 

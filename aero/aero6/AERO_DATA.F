@@ -288,16 +288,16 @@ C                  ---------   ---------   ---------    --------- ------- +  +  
 C Primary Organic Aerosol Volatility Distributions
        Integer, Parameter :: N_VBS_BIN = 5
        Character(10)   :: POA_NAME( N_VBS_BIN ) =   (/'LVPO1','SVPO1','SVPO2','SVPO3','IVPO1'/)
-       Real, Parameter :: POA_OP_VF( N_VBS_BIN )= (/0.09,  0.09,   0.14,   0.18,   0.5/)  !Aggregated
+       Real, Parameter :: POA_OP_VF( N_VBS_BIN )= (/0.09,  0.09,   0.14,   0.18,   0.5/)  ! Aggregated
 
        ! The Following Volatility Distributions are alternative options
        ! but at this point can only be implemented indivdually for the
        ! entire POA suite of compounds.
-       ! Real, Parameter :: POA_GV_VF(N_VBS_BIN) = (/0.27,  0.15,   0.26,   0.15,   0.17/) !Gasoline
-       ! Real, Parameter :: POA_DV_VF(N_VBS_BIN) = (/0.03,  0.25,   0.37,   0.24,   0.11/) !Diesel
-       ! Real, Parameter :: POA_BB_VF(N_VBS_BIN) = (/0.2,   0.1,    0.1,    0.2,    0.4/)  !Biomass Burning
-       ! Real, Parameter :: POA_NV_VF(N_VBS_BIN) = (/1.0,   0.0,    0.0,    0.0,    0.0/)  !Nonvolatile
-       ! Real, Parameter :: POA_MC_VF(N_VBS_BIN) = (/0.35,  0.35,   0.1,    0.1,    0.1/)  !Meat Cooking
+       ! Real, Parameter :: POA_GV_VF(N_VBS_BIN) = (/0.27,  0.15,   0.26,   0.15,   0.17/) ! Gasoline
+       ! Real, Parameter :: POA_DV_VF(N_VBS_BIN) = (/0.03,  0.25,   0.37,   0.24,   0.11/) ! Diesel
+       ! Real, Parameter :: POA_BB_VF(N_VBS_BIN) = (/0.2,   0.1,    0.1,    0.2,    0.4/)  ! Biomass Burning
+       ! Real, Parameter :: POA_NV_VF(N_VBS_BIN) = (/1.0,   0.0,    0.0,    0.0,    0.0/)  ! Nonvolatile
+       ! Real, Parameter :: POA_MC_VF(N_VBS_BIN) = (/0.35,  0.35,   0.1,    0.1,    0.1/)  ! Meat Cooking
 
        ! POA_AMF is the fraction of total emissions in the particle phase.
        ! This parameter is for distributing the total emissions between
@@ -573,33 +573,33 @@ C Local Variables:
 
       if ( mapped ) Return
 
-      n_aerospc      = 0.0 !Number of Used Aerosol Chemical Species
-      aerolist_map   = 0   !Pointer from aerolist to CGRID
-      aerospc_tolist = 0   !Pointer from aerospc to aerolist
+      n_aerospc      = 0.0 ! Number of Used Aerosol Chemical Species
+      aerolist_map   = 0   ! Pointer from aerolist to CGRID
+      aerospc_tolist = 0   ! Pointer from aerospc to aerolist
       error_flag = .false.
 
 C Build mapping to CGRID for each species in the master AeroList
       Do spc = 1, n_aerolist
-         Do m = 1, n_mode   !Loop through modes
+         Do m = 1, n_mode   ! Loop through modes
 
             If ( aerolist( spc )%name( m )(1:1) .Ne. ' ' ) Then
-               !This place on the AeroList has a potential species in
-               !it. Check to see if it is in the namelist
+               ! This place on the AeroList has a potential species in
+               ! it. Check to see if it is in the namelist
                n = index1( aerolist( spc )%name( m ), n_ae_spc, ae_spc )
 
                If ( n .NE. 0 ) Then
-                  !Species is in the Master List and on the NameList
+                  ! Species is in the Master List and on the NameList
                   If ( .NOT. (Any( aerolist_map( spc,: ) .NE. 0 ) ) ) Then
-                     !Add this species to the map if it does not exist already
+                     ! Add this species to the map if it does not exist already
                      n_aerospc = n_aerospc + 1
                      aerospc_tolist( n_aerospc ) = spc
-                     !Set the Molecular Weight
+                     ! Set the Molecular Weight
                      mole_weight( spc ) = ae_molwt( n )
                   Else If ( mole_weight( spc ) .Ne. ae_molwt( n ) ) Then
-                     !If the species already exists and the
-                     !molecular weight from this mode on the
-                     !namelist is not matching the standing
-                     !molecular weight, throw an error
+                     ! If the species already exists and the
+                     ! molecular weight from this mode on the
+                     ! namelist is not matching the standing
+                     ! molecular weight, throw an error
                      xmsg = 'molecular weight of ' // Trim( aerolist(spc )%name( m ) )
      &                      // ' is different from that of the same species'
      &                      // ' in the same or another mode.'
@@ -609,7 +609,7 @@ C Build mapping to CGRID for each species in the master AeroList
                      Call m3warn( pname, 0, 0, xmsg )
                      error_flag = .true.
                   End If
-                  !Add the map from CGRID to AeroList
+                  ! Add the map from CGRID to AeroList
                   aerolist_map( spc,m ) = ae_strt - 1 + n
 
                End If
@@ -617,9 +617,9 @@ C Build mapping to CGRID for each species in the master AeroList
          End Do
       End Do
 
-      !Migrate all of the user-requested aerosols from AeroList to
-      !AeroSpc. Begin by allocating all of the new arrays now that we
-      !know the value of n_aerospc
+      ! Migrate all of the user-requested aerosols from AeroList to
+      ! AeroSpc. Begin by allocating all of the new arrays now that we
+      ! know the value of n_aerospc
       Allocate( aerospc       ( n_aerospc ) )
       Allocate( aerospc_mw    ( n_aerospc ) )
       Allocate( aerospc_map   ( n_aerospc, n_mode ) )
@@ -631,17 +631,17 @@ C Build mapping to CGRID for each species in the master AeroList
 
       aerospc_ssf = 0.0
 
-      Do spc = 1, n_aerospc !Loop through user-requested chemical species
+      Do spc = 1, n_aerospc ! Loop through user-requested chemical species
          l = aerospc_tolist( spc )
-         aerospc( spc ) = aerolist( l )   !Map AeroList to AeroSpc
+         aerospc( spc ) = aerolist( l )   ! Map AeroList to AeroSpc
          aerospc_mw( spc ) = mole_weight( l )
 
          Write( xmsg2,* ) (' ', TRIM( aerolist( spc )%name( m ) ), ' ', m = 1, n_mode )
          Do n = 1,n_mode
-            !Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
+            ! Map the Modal-Dependent CGRID Pointers from AeroSpc to AeroList
             aerospc_map( spc, n ) = aerolist_map( l, n )
 
-            !Map The Sea-Salt Species to the aerospc_ssf Array
+            ! Map The Sea-Salt Species to the aerospc_ssf Array
             Do isea = 1,nsea_spc
                Do m = 1,n_mode
                   If ( sea_spc( isea )%name( m ) .EQ. aerospc( spc )%name( n ) ) Then
@@ -650,9 +650,9 @@ C Build mapping to CGRID for each species in the master AeroList
                End Do
             End Do
 
-            !If a user invokes a chemical species, they should have the
-            !same modes present as is indicated in the table above.
-            !Check that this is true.
+            ! If a user invokes a chemical species, they should have the
+            ! same modes present as is indicated in the table above.
+            ! Check that this is true.
             If ( aerospc( spc )%name( n )(1:) .NE. ' ' .AND.
      &           aerolist_map( aerospc_tolist( spc ),n ) .EQ. 0 ) Then
                error_flag = .true.
@@ -662,7 +662,7 @@ C Build mapping to CGRID for each species in the master AeroList
                call  m3warn( pname,0,0,xmsg  )
             End If
 
-            !Set the Aero_Missing Flag
+            ! Set the Aero_Missing Flag
             If ( aerospc( spc )%name( n ) .Ne. ' ' ) Then
                 aero_missing( spc,n ) = .False.
             Else
@@ -721,7 +721,7 @@ C Find indices of required species
       Else
          apoc_idx    = findAero( req_poc,    .True. )
          apncom_idx  = findAero( req_ncom,  .True. )
-      Endif
+      End If
 
       If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
          AE6ISOA = .True.
@@ -737,7 +737,7 @@ C Find indices of required species
 
 
 #ifdef verbose_aero
-      !Mandatory Species
+      ! Mandatory Species
       Write( logdev,'( /5x, a )' ) 'map_aero required species'
       Write( logdev,'( 5x, a, i4 )' ) 'aso4_idx:   ', aso4_idx
       Write( logdev,'( 5x, a, i4 )' ) 'ano3_idx:   ', ano3_idx
@@ -870,7 +870,7 @@ C are the same and set pmem_units
             pmem_map_name (n_emis_pm ) = aerospc( v )%emis
 
             ! Add Non-Carbon Primary Organic Emissions Surrogate and Map
-	        ! it to the Carbon Primary Organic Emissions Surrogate
+            ! it to the Carbon Primary Organic Emissions Surrogate
             If ( INDEX( MECHNAME,"NVPOA") .EQ. 0 .AND. aerospc( v )%emis .EQ. 'POC' ) Then
               indx = index1( 'PNCOM', nvars3d, vname3d )
               If ( indx .Le. 0 ) Then
@@ -974,7 +974,7 @@ C Copy grid cell concentrations of aero species to aerospc_conc
          End Do
       End If
 
-      !Calculate Dry Third Moment [ m3 / m3 ]
+      ! Calculate Dry Third Moment [ m3 / m3 ]
       Do m = 1, n_mode
          moment3_conc( m ) = sum( aerospc_conc(:,m) / aerospc(:)%density,
 !    &      MASK= (aerospc%no_M2wet==.false. .AND. aerospc%Tracer==.false.) )
