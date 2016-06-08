@@ -180,11 +180,11 @@ C-------------------------------------------------------------------------------
 
       ! Master List of Aerosol Species and Properties
       Type( spcs_type ), Parameter :: aerolist( n_aerolist ) = (/
-C                                                                  nonVolSOA         Visidx_Large
-C                                                                      |    Charge      |
-C                  -----------Name--------------               NoM2Wet |Tracer|         | OM            Emissions
-C                   Aitken    Accum     Coarse    Min_Concs Density |  |  |   | Visidx  |  |  OptSurr   Emis   Splits
-C                  --------- --------- ---------  --------- ------- +  +  +   + ------ --- +  -------- -------- ------
+C                                                                       nonVolSOA         Visidx_Large
+C                                                                            |    Charge      |
+C                  -------------Name--------------                   NoM2Wet |Tracer|         | OM            Emissions
+C                   Aitken      Accum       Coarse      Min_Concs Density |  |  |   | Visidx  |  |  OptSurr   Emis   Splits
+C                  ---------   ---------   ---------    --------- ------- +  +  +   + ------ --- +  -------- -------- ------
      & spcs_type((/'ASO4I    ','ASO4J    ','ASO4K    '/), cm_so4, 1800.0, F, F, F, -2,  2.2, 4.8,F, 'SOLUTE','PSO4  ',es_fin),
      & spcs_type((/'ANO3I    ','ANO3J    ','ANO3K    '/), cm_set, 1800.0, F, F, F, -1,  2.4, 5.1,F, 'SOLUTE','PNO3  ',es_fin),
      & spcs_type((/'ACLI     ','ACLJ     ','ACLK     '/), cm_set, 2200.0, F, F, F, -1,  1.7, 1.7,F, 'SOLUTE','PCL   ',es_fin),

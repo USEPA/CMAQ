@@ -447,7 +447,7 @@ C *** scaling to 0.0
            VARDESC = 'Flag for Ignoring the pcSOA species'
            ZERO_PCSOA = ENVYN( CTM_ZERO_PCSOA, VARDESC, ZERO_PCSOA, STATUS )
 
-           IF ( ZERO_PCSOA .EQ. .TRUE. ) THEN
+           IF ( ZERO_PCSOA ) THEN
              !Find the index for the pcVOC species in the emissions
              !scale-factor vector
              V = INDEX1( 'PCVOC', N_GC_SPC, GC_SPC )
